@@ -71,111 +71,80 @@ class vtkActor : public vtkObject
   virtual void Render(vtkRenderer *ren);
 
   // Description:
-  // Specify the property object to control rendering surface properties.
+  // Set/Get the property object that controls surface properties.
   void SetProperty(vtkProperty *lut);
   void SetProperty(vtkProperty& lut) {this->SetProperty(&lut);};
-  // Description:
-  // Get the property object that controls rendering surface properties.
   vtkProperty *GetProperty();
 
   // Description:
-  // Specify the Texture object to control rendering texture.
+  // Set/Get the Texture object to control rendering texture.
   vtkSetObjectMacro(Texture,vtkTexture);
-  // Description:
-  // Get the Texture object that controls rendering texture.
   vtkGetObjectMacro(Texture,vtkTexture);
 
   // Description:
   // This is the method that is used to connect an actor to the end of a
   // visualization pipeline, i.e. the Mapper.  
   vtkSetObjectMacro(Mapper,vtkMapper);
+
   // Description:
   // Returns the Mapper that this actor is getting it's data from.
   vtkGetObjectMacro(Mapper,vtkMapper);
 
   // Description:
-  // Set a user defined matrix to concatenate with.  
+  // Set/Get the user defined matrix to concatenate with.  
   vtkSetObjectMacro(UserMatrix,vtkMatrix4x4);
-  // Description:
-  // Returns the user defined transformation matrix.
   vtkGetObjectMacro(UserMatrix,vtkMatrix4x4);
 
   // Description:
-  // Get the position of the actor.
-  vtkGetVectorMacro(Position,float,3);
-  // Description:
-  // Sets the posiiton of the actor.
+  // Set/Get the position of the actor.
   vtkSetVector3Macro(Position,float);
+  vtkGetVectorMacro(Position,float,3);
+
+  // Description:
+  // Add to the current position of the actor.
   void AddPosition(float deltaPosition[3]);
   void AddPosition(float deltaX,float deltaY,float deltaZ);
 
   // Description:
-  // Get the origin of the actor. This is the point about which all 
-  // rotations take place.
-  vtkGetVectorMacro(Origin,float,3);
-  // Description:
-  // Set the origin of the actor. This is the point about which all 
+  // Set/Get the origin of the actor. This is the point about which all 
   // rotations take place.
   vtkSetVector3Macro(Origin,float);
+  vtkGetVectorMacro(Origin,float,3);
 
   // Description:
-  // Get the scale of the actor. Scaling in performed independently on the
-  // X,Y and Z axis.
-  vtkGetVectorMacro(Scale,float,3);
-  // Description:
-  // Set the scale of the actor. Scaling in performed independently on the
+  // Set/Get the scale of the actor. Scaling in performed independently on the
   // X,Y and Z axis.
   vtkSetVector3Macro(Scale,float);
+  vtkGetVectorMacro(Scale,float,3);
 
   // Description:
-  // Get the visibility of the actor. Visibility is like a light switch
-  // for actors. Use it to turn them on or off.
-  vtkGetMacro(Visibility,int);
-  // Description:
-  // Set the visibility of the actor. Visibility is like a light switch
+  // Set/Get the visibility of the actor. Visibility is like a light switch
   // for actors. Use it to turn them on or off.
   vtkSetMacro(Visibility,int);
-  // Description:
-  // Set the visibility of the actor. Visibility is like a light switch
-  // for actors. Use it to turn them on or off.
+  vtkGetMacro(Visibility,int);
   vtkBooleanMacro(Visibility,int);
 
   // Description:
-  // Get the pickable instance variable.  This determines if the actor can 
-  // be picked (typically using the mouse). Also see dragable.
-  vtkGetMacro(Pickable,int);
-  // Description:
-  // Set the pickable instance variable.  This determines if the actor can 
+  // Set/Get the pickable instance variable.  This determines if the actor can 
   // be picked (typically using the mouse). Also see dragable.
   vtkSetMacro(Pickable,int);
-  // Description:
-  // Set the pickable instance variable.  This determines if the actor can 
-  // be picked (typically using the mouse). Also see dragable.
+  vtkGetMacro(Pickable,int);
   vtkBooleanMacro(Pickable,int);
 
   // Description:
-  // Get the value of the dragable instance variable. This determines if 
-  // an actor once picked, can be dragged (translated) through space.
-  // This is typically done through an interactive mouse interface.
-  // This does not affect methods such as SetPosition.
-  vtkGetMacro(Dragable,int);
-  // Description:
-  // Set the value of the dragable instance variable. This determines if 
+  // Set/Get the value of the dragable instance variable. This determines if 
   // an actor once picked, can be dragged (translated) through space.
   // This is typically done through an interactive mouse interface.
   // This does not affect methods such as SetPosition.
   vtkSetMacro(Dragable,int);
-  // Description:
-  // Turn on/off the dragable instance variable. This determines if 
-  // an actor once picked, can be dragged (translated) through space.
-  // This is typically done through an interactive mouse interface.
-  // This does not affect methods such as SetPosition.
+  vtkGetMacro(Dragable,int);
   vtkBooleanMacro(Dragable,int);
 
   vtkMatrix4x4& GetMatrix();
   virtual void GetMatrix(vtkMatrix4x4& m);
 
   float *GetBounds();
+  float *GetCenter();
   float *GetXRange();
   float *GetYRange();
   float *GetZRange();
@@ -206,6 +175,7 @@ protected:
   vtkTransform Transform;
   float Bounds[6];
   int SelfCreatedProperty;
+  float Center[3];
 };
 
 #endif
