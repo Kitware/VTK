@@ -20,7 +20,7 @@
 #include "vtkXMLDataParser.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.1");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.2");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -31,6 +31,15 @@ vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
   this->PieceCellDimensions = 0;
   this->PieceCellIncrements = 0;
   this->WholeSlices = 1;
+
+  // Initialize these in case someone calls GetNumberOfPoints or
+  // GetNumberOfCells before UpdateInformation is called.
+  this->PointDimensions[0] = 0;
+  this->PointDimensions[1] = 0;
+  this->PointDimensions[2] = 0;
+  this->CellDimensions[0] = 0;
+  this->CellDimensions[1] = 0;
+  this->CellDimensions[2] = 0;
 }
 
 //----------------------------------------------------------------------------
