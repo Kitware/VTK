@@ -51,7 +51,7 @@ static void ExecuteConvolve ( float* kernel, int kernelSize, float* image, float
   
   int center = (int) ( (kernelSize - 1 ) / 2.0 );
 
-  int i, j, k, kStart, kEnd, iStart, iEnd, count;
+  int i, j, kStart, iStart, iEnd, count;
   for ( i = 0; i < imageSize; ++i )
     {
     iStart = i - center;
@@ -122,7 +122,7 @@ void vtkImageSeparableConvolution::ExecuteInformation(vtkImageData *input, vtkIm
 void vtkImageSeparableConvolution::ComputeInputUpdateExtent(int inExt[6],
                                                             int outExt[6])
 {
-  int *wholeExtent, *extent;
+  int *extent;
 
   if ( ! this->GetInput())
     {

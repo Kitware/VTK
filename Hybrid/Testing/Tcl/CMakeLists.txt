@@ -40,6 +40,7 @@ IF (VTK_USE_RENDERING)
       xyPlot
       xyPlot2
       xyPlot3
+      xyPlot4
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 

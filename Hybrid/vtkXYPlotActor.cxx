@@ -77,6 +77,8 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->Position2Coordinate->SetValue(0.5, 0.5);
 
   this->InputList = vtkDataSetCollection::New();
+  this->SelectedInputScalars = NULL;
+  this->SelectedInputScalarsComponent = vtkIntArray::New();
   this->DataObjectInputList = vtkDataObjectCollection::New();
 
   this->Title = NULL;
@@ -190,6 +192,22 @@ vtkXYPlotActor::vtkXYPlotActor()
 
 vtkXYPlotActor::~vtkXYPlotActor()
 {
+  // Get rid of the list of array names.
+  int num = this->InputList->GetNumberOfItems();
+  for (int i = 0; i < num; ++i)
+    {
+    if (this->SelectedInputScalars)
+      {
+      delete [] this->SelectedInputScalars;
+      this->SelectedInputScalars = NULL;
+      }
+    }
+  delete [] this->SelectedInputScalars;
+  this->SelectedInputScalars = NULL;  
+  this->SelectedInputScalarsComponent->Delete();
+  this->SelectedInputScalarsComponent = NULL;
+
+  //  Now we can get rid of the inputs. 
   this->InputList->Delete();
   this->InputList = NULL;
 
@@ -262,24 +280,139 @@ void vtkXYPlotActor::InitializeEntries()
     }//if entries have been defined
 }
   
-// Add a dataset to the list of data to plot.
-void vtkXYPlotActor::AddInput(vtkDataSet *ds)
+// Add a dataset and array to the list of data to plot.
+void vtkXYPlotActor::AddInput(vtkDataSet *ds, const char *arrayName, int component)
 {
-  if ( ! this->InputList->IsItemPresent(ds) )
-    {
-    this->Modified();
-    this->InputList->AddItem(ds);
+  int idx, num;
+  char** newNames;
+
+  // I cannot change the input list, because the user has direct 
+  // access to the collection.  I cannot store the index of the array, 
+  // because the index might change from render to render ...
+  // I have to store the list of string array names.
+
+  // I believe idx starts at 1 and goes to "NumberOfItems".
+  idx = this->InputList->IsItemPresent(ds);
+  if (idx > 0)
+    { // Return if arrays are the same.
+    if (arrayName == NULL && this->SelectedInputScalars[idx-1] == NULL &&
+        component == this->SelectedInputScalarsComponent->GetValue(idx-1))
+      {
+      return;
+      }
+    if (arrayName != NULL && this->SelectedInputScalars[idx-1] != NULL &&
+        strcmp(arrayName, this->SelectedInputScalars[idx-1]) == 0 &&
+        component == this->SelectedInputScalarsComponent->GetValue(idx-1))
+      {
+      return;
+      }
     }
+
+  // The input/array/component must be a unique combination.  Add it to our input list.
+
+  // Now reallocate the list of strings and add the new value.
+  num = this->InputList->GetNumberOfItems();
+  newNames = new char*[num+1];
+  for (idx = 0; idx < num; ++idx)
+    {
+    newNames[idx] = this->SelectedInputScalars[idx];
+    }
+  if (arrayName == NULL)
+    {
+    newNames[num] = NULL;
+    }
+  else
+    {
+    newNames[num] = new char[strlen(arrayName)+1];
+    strcpy(newNames[num],arrayName);
+    }
+  delete [] this->SelectedInputScalars;
+  this->SelectedInputScalars = newNames;
+
+  // Save the component it the int array.
+  this->SelectedInputScalarsComponent->InsertValue(num, component);
+
+  // Add the data set to the collection
+  this->InputList->AddItem(ds);
+
+  this->Modified();
 }
 
-// Remove a dataset from the list of data to plot.
-void vtkXYPlotActor::RemoveInput(vtkDataSet *ds)
+
+void vtkXYPlotActor::RemoveAllInputs()
 {
-  if ( this->InputList->IsItemPresent(ds) )
+  int idx, num;
+
+  num = this->InputList->GetNumberOfItems();
+  this->InputList->RemoveAllItems();
+
+  for (idx = 0; idx < num; ++idx)
     {
-    this->Modified();
-    this->InputList->RemoveItem(ds);
+    if (this->SelectedInputScalars[idx])
+      {
+      delete [] this->SelectedInputScalars[idx];
+      this->SelectedInputScalars[idx] = NULL;
+      }
     }
+  this->SelectedInputScalarsComponent->Reset();
+}
+
+
+// Remove a dataset from the list of data to plot.
+void vtkXYPlotActor::RemoveInput(vtkDataSet *ds, const char *arrayName, int component)
+{
+  int idx, num;
+  vtkDataSet *input;
+  int found = -1;
+
+  // This is my own find routine, because the array names have to match also.
+  num = this->InputList->GetNumberOfItems();
+  this->InputList->InitTraversal();
+  for (idx = 0; idx < num && found == -1; ++idx)
+    {
+    input = this->InputList->GetNextItem();
+    if (input == ds)
+      {
+      if (arrayName == NULL && this->SelectedInputScalars[idx] == NULL &&
+          component == this->SelectedInputScalarsComponent->GetValue(idx-1))
+        {
+        found = idx;
+        }
+      if (arrayName != NULL && this->SelectedInputScalars[idx] != NULL &&
+          strcmp(arrayName, this->SelectedInputScalars[idx]) == 0 &&
+          component == this->SelectedInputScalarsComponent->GetValue(idx-1))
+        {
+        found = idx;
+        }
+      }
+    }
+
+  if (found == -1)
+    {
+    return;
+    }
+  
+  this->Modified();
+  // Collections index their items starting at 1.
+  this->InputList->RemoveItem(found+1);
+
+  // Do not bother reallocating the SelectedInputScalars 
+  // string array to make it smaller.
+  if (this->SelectedInputScalars[found])
+    {
+    delete [] this->SelectedInputScalars[found];
+    this->SelectedInputScalars[found] = NULL;
+    }
+  for (idx = found+1; idx < num; ++idx)
+    {
+    this->SelectedInputScalars[idx-1] = this->SelectedInputScalars[idx];
+    this->SelectedInputScalarsComponent->SetValue(idx-1, 
+                          this->SelectedInputScalarsComponent->GetValue(idx));
+    }
+  // Reseting the last item is not really necessary, 
+  // but to be clean we do it anyway.
+  this->SelectedInputScalarsComponent->SetValue(num-1, -1); 
+  this->SelectedInputScalars[num-1] = NULL;
 }
 
 // Add a data object to the list of data to plot.
@@ -640,10 +773,31 @@ unsigned long vtkXYPlotActor::GetMTime()
 
 void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
 {
+  vtkIndent i2 = indent.GetNextIndent();
+  vtkDataSet *input;
+  char *array;
+  int component;
+  int idx, num;
+
   vtkActor2D::PrintSelf(os,indent);
 
-  os << indent << "Input DataSets:\n";
-  this->InputList->PrintSelf(os,indent.GetNextIndent());
+  this->InputList->InitTraversal();
+  num = this->InputList->GetNumberOfItems();
+  os << indent << "DataSetInputs: " << endl;
+  for (idx = 0; idx < num; ++idx)
+    {
+    input = this->InputList->GetNextItem();
+    array = this->SelectedInputScalars[idx];
+    component = this->SelectedInputScalarsComponent->GetValue((vtkIdType)idx);
+    if (array == NULL)
+      {
+      os << i2 << "(" << input << ") Default Scalars,  Component = " << component << endl;
+      }
+    else
+      {
+      os << i2 << "(" << input << ") " << array << ",  Component = " << component << endl;
+      }
+    }
 
   os << indent << "Input DataObjects:\n";
   this->DataObjectInputList->PrintSelf(os,indent.GetNextIndent());
@@ -839,20 +993,28 @@ void vtkXYPlotActor::ComputeYRange(float range[2])
   vtkDataSet *ds;
   vtkDataArray *scalars;
   float sRange[2];
+  int count;
+  int component;
 
   range[0]=VTK_LARGE_FLOAT, range[1]=(-VTK_LARGE_FLOAT);
 
-  for ( this->InputList->InitTraversal(); 
-        (ds = this->InputList->GetNextItem()); )
+  for ( this->InputList->InitTraversal(), count = 0; 
+        (ds = this->InputList->GetNextItem()); ++count)
     {
-    scalars = ds->GetPointData()->GetScalars();
+    scalars = ds->GetPointData()->GetScalars(this->SelectedInputScalars[count]);
+    component = this->SelectedInputScalarsComponent->GetValue(count);
     if ( !scalars)
       {
       vtkErrorMacro(<<"No scalar data to plot!");
       continue;
       }
+    if ( component < 0 || component >= scalars->GetNumberOfComponents())
+      {
+      vtkErrorMacro(<<"Bad component!");
+      continue;
+      }
     
-    scalars->GetRange(sRange,0);
+    scalars->GetRange(sRange, component);
     if ( sRange[0] < range[0] )
       {
       range[0] = sRange[0];
@@ -1019,6 +1181,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
   vtkIdType numPts, ptId, id;
   float length, x[3], xPrev[3];
   vtkDataArray *scalars;
+  int component;
   vtkDataSet *ds;
   vtkCellArray *lines;
   vtkPoints *pts;
@@ -1094,8 +1257,13 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
       {
       clippingRequired = 0;
       numPts = ds->GetNumberOfPoints();
-      scalars = ds->GetPointData()->GetScalars();
+      scalars = ds->GetPointData()->GetScalars(this->SelectedInputScalars[dsNum]);
       if ( !scalars)
+        {
+        continue;
+        }
+      component = this->SelectedInputScalarsComponent->GetValue(dsNum);
+      if ( component < 0 || component >= scalars->GetNumberOfComponents())
         {
         continue;
         }
@@ -1107,7 +1275,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
       ds->GetPoint(0, xPrev);
       for ( numLinePts=0, length=0.0, ptId=0; ptId < numPts; ptId++ )
         {
-        xyz[1] = scalars->GetComponent(ptId,0);
+        xyz[1] = scalars->GetComponent(ptId, component);
         ds->GetPoint(ptId, x);
         switch (this->XValues)
           {

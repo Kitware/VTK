@@ -134,12 +134,22 @@ public:
   // will be plotted (if defined).
   
   // Description:
-  // Add a dataset to the list of data to append.
-  void AddInput(vtkDataSet *in);
+  // Add a dataset to the list of data to append. The array name specifies
+  // which point array to plot.  If the array name is NULL, then the default
+  // scalars are used.  The array can have multiple components, but only the
+  // first component is ploted.
+  void AddInput(vtkDataSet *in, const char* arrayName, int component);
+  void AddInput(vtkDataSet *in) {this->AddInput(in, NULL, 0);}
 
   // Description:
   // Remove a dataset from the list of data to append.
-  void RemoveInput(vtkDataSet *in);
+  void RemoveInput(vtkDataSet *in, const char* arrayName, int component);
+  void RemoveInput(vtkDataSet *in) {this->RemoveInput(in, NULL, 0);}
+
+  // Description:
+  // This removes all of the data set inputs, 
+  // but does not change the data object inputs.
+  void RemoveAllInputs();
 
   // Description:
   // Return the list of inputs to this filter.
@@ -467,6 +477,8 @@ protected:
   ~vtkXYPlotActor();
 
   vtkDataSetCollection *InputList; //list of data sets to plot
+  char** SelectedInputScalars; // list of data set arrays to plot
+  vtkIntArray* SelectedInputScalarsComponent; // list of componenents
   vtkDataObjectCollection *DataObjectInputList; //list of data objects to plot
   char  *Title;
   char  *XTitle;
