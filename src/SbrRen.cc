@@ -53,11 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define MAX_LIGHTS 16
 
-/* stereo definitions : also in starbase_camera.cls */
-static char *lights[MAX_LIGHTS] =
-{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-
 vtkSbrRenderer::vtkSbrRenderer()
 {
 }
@@ -349,7 +344,7 @@ void vtkSbrRenderer::ViewToDisplay()
 	dy = (int)((this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
 		   (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
 		   sizey*this->Viewport[1]);
-	dy = dy/2.0;
+	dy = (int)(dy/2.0);
 	}
 	break;
       default:
