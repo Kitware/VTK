@@ -376,49 +376,9 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
   inPtr = tempData->GetScalarPointerForExtent(outExt);
   switch (tempData->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageSkeleton2DExecute(this, tempData, (double *)(inPtr), 
-				outData, outExt, (double *)(outPtr), id);
-      break;
-    case VTK_FLOAT:
-      vtkImageSkeleton2DExecute(this, tempData, (float *)(inPtr), 
-				outData, outExt, (float *)(outPtr), id);
-      break;
-    case VTK_LONG:
-      vtkImageSkeleton2DExecute(this, tempData, (long *)(inPtr), 
-				outData, outExt, (long *)(outPtr), id);
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageSkeleton2DExecute(this, tempData, (unsigned long *)(inPtr), 
-				outData, outExt, (unsigned long *)(outPtr),
-				id);
-      break;
-    case VTK_INT:
-      vtkImageSkeleton2DExecute(this, tempData, (int *)(inPtr), 
-				outData, outExt, (int *)(outPtr), id);
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageSkeleton2DExecute(this, tempData, (unsigned int *)(inPtr), 
-				outData, outExt, (unsigned int *)(outPtr),
-				id);
-      break;
-    case VTK_SHORT:
-      vtkImageSkeleton2DExecute(this, tempData, (short *)(inPtr), 
-				outData, outExt, (short *)(outPtr), id);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageSkeleton2DExecute(this, tempData, (unsigned short *)(inPtr), 
-				outData, outExt, (unsigned short *)(outPtr),
-				id);
-      break;
-    case VTK_CHAR:
-      vtkImageSkeleton2DExecute(this, tempData, (char *)(inPtr), 
-				outData, outExt, (char *)(outPtr), id);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageSkeleton2DExecute(this, tempData, (unsigned char *)(inPtr), 
-				outData, outExt, (unsigned char *)(outPtr), id);
-      break;
+    vtkTemplateMacro7(vtkImageSkeleton2DExecute, this, tempData,
+                      (VTK_TT *)(inPtr), outData, outExt, 
+                      (VTK_TT *)(outPtr), id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       tempData->Delete();

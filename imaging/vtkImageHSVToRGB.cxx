@@ -230,60 +230,8 @@ void vtkImageHSVToRGB::ThreadedExecute(vtkImageData *inData,
 
   switch (inData->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageHSVToRGBExecute(this, 
-			      inData, (double *)(inPtr), 
-			      outData, (double *)(outPtr), outExt, id);
-      break;
-    case VTK_FLOAT:
-      vtkImageHSVToRGBExecute(this, 
-			      inData, (float *)(inPtr), 
-			      outData, (float *)(outPtr), outExt, id);
-      break;
-    case VTK_LONG:
-      vtkImageHSVToRGBExecute(this, 
-			      inData, (long *)(inPtr), 
-			      outData, (long *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageHSVToRGBExecute(this, 
-			      inData, (unsigned long *)(inPtr), 
-			      outData, (unsigned long *)(outPtr), 
-			      outExt, id);
-      break;
-    case VTK_INT:
-      vtkImageHSVToRGBExecute(this, 
-			      inData, (int *)(inPtr), 
-			      outData, (int *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageHSVToRGBExecute(this, 
-			      inData, (unsigned int *)(inPtr), 
-			      outData, (unsigned int *)(outPtr), 
-			      outExt, id);
-      break;
-    case VTK_SHORT:
-      vtkImageHSVToRGBExecute(this, 
-			      inData, (short *)(inPtr), 
-			      outData, (short *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageHSVToRGBExecute(this, 
-			      inData, (unsigned short *)(inPtr), 
-			      outData, (unsigned short *)(outPtr), 
-			      outExt, id);
-      break;
-    case VTK_CHAR:
-      vtkImageHSVToRGBExecute(this, 
-			      inData, (char *)(inPtr), 
-			      outData, (char *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageHSVToRGBExecute(this, 
-			      inData, (unsigned char *)(inPtr), 
-			      outData, (unsigned char *)(outPtr), 
-			      outExt, id);
-      break;
+    vtkTemplateMacro7(vtkImageHSVToRGBExecute,this, inData, (VTK_TT *)(inPtr), 
+                      outData, (VTK_TT *)(outPtr), outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

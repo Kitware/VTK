@@ -446,34 +446,10 @@ void vtkColorQuantizeNode::ComputeStdDev()
   // Create histogram
   switch (this->ImageType)
     {
-    case VTK_DOUBLE:
-      vtkImageQuantizeRGBToIndexHistogram( (double *)this->Image, 
-					   this->ImageExtent, 
-					   this->ImageIncrement,
-					   this->ImageType,
-					   this->Bounds, this->Histogram );
-      break;
-    case VTK_FLOAT:
-      vtkImageQuantizeRGBToIndexHistogram( (float *)this->Image, 
-					   this->ImageExtent, 
-					   this->ImageIncrement,
-					   this->ImageType,
-					   this->Bounds, this->Histogram );
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageQuantizeRGBToIndexHistogram( (unsigned short *)this->Image, 
-					   this->ImageExtent, 
-					   this->ImageIncrement,
-					   this->ImageType,
-					   this->Bounds, this->Histogram );
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageQuantizeRGBToIndexHistogram( (unsigned char *)this->Image, 
-					   this->ImageExtent, 
-					   this->ImageIncrement,
-					   this->ImageType,
-					   this->Bounds, this->Histogram );
-      break;
+    vtkTemplateMacro6(vtkImageQuantizeRGBToIndexHistogram, 
+                      (VTK_TT *)this->Image, this->ImageExtent, 
+                      this->ImageIncrement, this->ImageType,
+                      this->Bounds, this->Histogram );
     }
 
 
@@ -639,26 +615,9 @@ void vtkImageQuantizeRGBToIndex::Execute(vtkImageData *inData,
 
   switch ( this->InputType )
     {
-    case VTK_DOUBLE:
-      vtkImageQuantizeRGBToIndexExecute(this, 
-			  inData, (double *)(inPtr), 
-			  outData, (unsigned short *)(outPtr));
-      break;
-    case VTK_FLOAT:
-      vtkImageQuantizeRGBToIndexExecute(this, 
-			  inData, (float *)(inPtr), 
-			  outData, (unsigned short *)(outPtr));
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageQuantizeRGBToIndexExecute(this, 
-			  inData, (unsigned short *)(inPtr), 
-			  outData, (unsigned short *)(outPtr));
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageQuantizeRGBToIndexExecute(this, 
-			  inData, (unsigned char *)(inPtr), 
-			  outData, (unsigned short *)(outPtr));
-      break;
+    vtkTemplateMacro5(vtkImageQuantizeRGBToIndexExecute, this, 
+                      inData, (VTK_TT *)(inPtr), 
+                      outData, (unsigned short *)(outPtr));
     default:
       vtkErrorMacro(<< "Execute: This ScalarType is not handled");
       return;

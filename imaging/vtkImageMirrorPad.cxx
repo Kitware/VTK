@@ -264,46 +264,8 @@ void vtkImageMirrorPad::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageMirrorPadExecute(this, inData, outData, 
-			       (double *)(outPtr), outExt, id);
-      break;
-    case VTK_FLOAT:
-      vtkImageMirrorPadExecute(this, inData, outData, 
-			       (float *)(outPtr), outExt, id);
-      break;
-    case VTK_LONG:
-      vtkImageMirrorPadExecute(this, inData, outData, 
-			       (long *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageMirrorPadExecute(this, inData, outData, 
-			       (unsigned long *)(outPtr), outExt, id);
-      break;
-    case VTK_INT:
-      vtkImageMirrorPadExecute(this, inData, outData, 
-			       (int *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageMirrorPadExecute(this, inData, outData, 
-			       (unsigned int *)(outPtr), outExt, id);
-      break;
-    case VTK_SHORT:
-      vtkImageMirrorPadExecute(this, inData, outData, 
-			       (short *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageMirrorPadExecute(this, inData, outData, 
-			       (unsigned short *)(outPtr), outExt, id);
-      break;
-    case VTK_CHAR:
-      vtkImageMirrorPadExecute(this, inData, outData, 
-			       (char *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageMirrorPadExecute(this, inData, outData, 
-			       (unsigned char *)(outPtr), outExt, id);
-      break;
+    vtkTemplateMacro6(vtkImageMirrorPadExecute, this, inData, outData, 
+                      (VTK_TT *)(outPtr), outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

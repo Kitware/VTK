@@ -575,56 +575,9 @@ void vtkImageShrink3D::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageShrink3DExecute(this, 
-			      inData, (double *)(inPtr), 
-			      outData, (double *)(outPtr), outExt, id);
-      break;
-    case VTK_FLOAT:
-      vtkImageShrink3DExecute(this, 
-			      inData, (float *)(inPtr), 
-			      outData, (float *)(outPtr), outExt, id);
-      break;
-    case VTK_LONG:
-      vtkImageShrink3DExecute(this, 
-			      inData, (long *)(inPtr), 
-			      outData, (long *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageShrink3DExecute(this, 
-			      inData, (unsigned long *)(inPtr), 
-			      outData, (unsigned long *)(outPtr), outExt, id);
-      break;
-    case VTK_INT:
-      vtkImageShrink3DExecute(this, 
-			      inData, (int *)(inPtr), 
-			      outData, (int *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageShrink3DExecute(this, 
-			      inData, (unsigned int *)(inPtr), 
-			      outData, (unsigned int *)(outPtr), outExt, id);
-      break;
-    case VTK_SHORT:
-      vtkImageShrink3DExecute(this, 
-			      inData, (short *)(inPtr), 
-			      outData, (short *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageShrink3DExecute(this, 
-			      inData, (unsigned short *)(inPtr), 
-			      outData, (unsigned short *)(outPtr), outExt, id);
-      break;
-    case VTK_CHAR:
-      vtkImageShrink3DExecute(this, 
-			      inData, (char *)(inPtr), 
-			      outData, (char *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageShrink3DExecute(this, 
-			      inData, (unsigned char *)(inPtr), 
-			      outData, (unsigned char *)(outPtr), outExt, id);
-      break;
+    vtkTemplateMacro7(vtkImageShrink3DExecute, this, inData, 
+                      (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr), 
+                      outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

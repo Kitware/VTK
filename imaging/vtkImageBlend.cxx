@@ -580,66 +580,9 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
 
       switch (inData[idx1]->GetScalarType())
 	{
-	case VTK_DOUBLE:
-	  vtkImageBlendExecute(this, id, inExt,
-			       inData[idx1], (double *)(inPtr),
-			       outExt, outData, (double *)(outPtr),
-			       opacity);
-	  break;
-	case VTK_FLOAT:
-	  vtkImageBlendExecute(this, id, inExt,
-			       inData[idx1], (float *)(inPtr),
-			       outExt, outData, (float *)(outPtr),
-			       opacity);
-	  break;
-	case VTK_UNSIGNED_LONG:
-	  vtkImageBlendExecute(this, id, inExt,
-			       inData[idx1], (unsigned long *)(inPtr),
-			       outExt,outData,(unsigned long *)(outPtr),
-			       opacity);
-	  break;
-	case VTK_LONG:
-	  vtkImageBlendExecute(this, id, inExt,
-			       inData[idx1], (long *)(inPtr),
-			       outExt, outData, (long *)(outPtr),
-			       opacity);
-	  break;
-	case VTK_UNSIGNED_INT:
-	  vtkImageBlendExecute(this, id, inExt,
-			       inData[idx1], (unsigned int *)(inPtr),
-			       outExt, outData, (unsigned int *)(outPtr),
-			       opacity);
-	  break;
-	case VTK_INT:
-	  vtkImageBlendExecute(this, id, inExt,
-			       inData[idx1], (int *)(inPtr),
-			       outExt, outData, (int *)(outPtr),
-			       opacity);
-	  break;
-	case VTK_SHORT:
-	  vtkImageBlendExecute(this, id, inExt,
-			       inData[idx1], (short *)(inPtr),
-			       outExt, outData, (short *)(outPtr),
-			       opacity);
-	  break;
-	case VTK_UNSIGNED_SHORT:
-	  vtkImageBlendExecute(this, id, inExt,
-			       inData[idx1], (unsigned short *)(inPtr),
-			       outExt,outData,(unsigned short *)(outPtr),
-			       opacity);
-	  break;	
-	case VTK_CHAR:
-	  vtkImageBlendExecute(this, id, inExt,
-			       inData[idx1], (char *)(inPtr),
-			       outExt,outData,(char *)(outPtr),
-			       opacity);
-	  break;	
-	case VTK_UNSIGNED_CHAR:
-	  vtkImageBlendExecuteChar(this, id, inExt,
-				   inData[idx1], (unsigned char *)(inPtr),
-				   outExt,outData,(unsigned char *)(outPtr),
-				   opacity);
-	  break;
+        vtkTemplateMacro9(vtkImageBlendExecute, this, id, inExt,
+                          inData[idx1], (VTK_TT *)(inPtr), outExt, 
+                          outData, (VTK_TT *)(outPtr), opacity);
 	default:
 	  vtkErrorMacro(<< "Execute: Unknown ScalarType");
 	  return;

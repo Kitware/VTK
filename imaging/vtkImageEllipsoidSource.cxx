@@ -293,36 +293,8 @@ void vtkImageEllipsoidSource::Execute(vtkImageData *data)
   
   switch (data->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageEllipsoidSourceExecute(this, data, extent, (double *)ptr);
-      break;
-    case VTK_FLOAT:
-      vtkImageEllipsoidSourceExecute(this, data, extent, (float *)ptr);
-      break;
-    case VTK_LONG:
-      vtkImageEllipsoidSourceExecute(this, data, extent, (long *)ptr);
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageEllipsoidSourceExecute(this, data, extent, (unsigned long *)ptr);
-      break;
-    case VTK_INT:
-      vtkImageEllipsoidSourceExecute(this, data, extent, (int *)ptr);
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageEllipsoidSourceExecute(this, data, extent, (unsigned int *)ptr);
-      break;
-    case VTK_SHORT:
-      vtkImageEllipsoidSourceExecute(this, data, extent, (short *)ptr);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageEllipsoidSourceExecute(this, data, extent, (unsigned short *)ptr);
-      break;
-    case VTK_CHAR:
-      vtkImageEllipsoidSourceExecute(this, data, extent, (char *)ptr);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageEllipsoidSourceExecute(this, data, extent, (unsigned char *)ptr);
-      break;
+    vtkTemplateMacro4(vtkImageEllipsoidSourceExecute, this, data, 
+                      extent, (VTK_TT *)ptr);
     default:
       vtkErrorMacro("Execute: Unknown output ScalarType");
     }

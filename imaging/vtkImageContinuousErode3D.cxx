@@ -335,49 +335,9 @@ void vtkImageContinuousErode3D::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageContinuousErode3DExecute(this, mask, inData, (double *)(inPtr), 
-				outData, outExt, (double *)(outPtr),id);
-      break;
-    case VTK_FLOAT:
-      vtkImageContinuousErode3DExecute(this, mask, inData, (float *)(inPtr), 
-				outData, outExt, (float *)(outPtr),id);
-      break;
-    case VTK_LONG:
-      vtkImageContinuousErode3DExecute(this, mask, inData, (long *)(inPtr), 
-				outData, outExt, (long *)(outPtr),id);
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageContinuousErode3DExecute(this, mask, inData, (unsigned long *)(inPtr), 
-				outData, outExt, (unsigned long *)(outPtr),id);
-      break;
-    case VTK_INT:
-      vtkImageContinuousErode3DExecute(this, mask, inData, (int *)(inPtr), 
-				outData, outExt, (int *)(outPtr),id);
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageContinuousErode3DExecute(this, mask, inData, (unsigned int *)(inPtr), 
-				outData, outExt, (unsigned int *)(outPtr),id);
-      break;
-    case VTK_SHORT:
-      vtkImageContinuousErode3DExecute(this, mask, inData, (short *)(inPtr), 
-				outData, outExt, (short *)(outPtr),id);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageContinuousErode3DExecute(this, mask, 
-			       inData, (unsigned short *)(inPtr), 
-			       outData, outExt, (unsigned short *)(outPtr),id);
-      break;
-    case VTK_CHAR:
-      vtkImageContinuousErode3DExecute(this, mask, 
-			       inData, (char *)(inPtr), 
-			       outData, outExt, (char *)(outPtr),id);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageContinuousErode3DExecute(this, mask, 
-			       inData, (unsigned char *)(inPtr), 
-			       outData, outExt, (unsigned char *)(outPtr),id);
-      break;
+    vtkTemplateMacro8(vtkImageContinuousErode3DExecute, this, mask, 
+                      inData, (VTK_TT *)(inPtr), outData, outExt, 
+                      (VTK_TT *)(outPtr),id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

@@ -311,46 +311,9 @@ void vtkImageLogic::ThreadedExecute(vtkImageData **inData,
     {
     switch (inData[0]->GetScalarType())
       {
-      case VTK_DOUBLE:
-	vtkImageLogicExecute1(this, inData[0], (double *)(in1Ptr), 
-			      outData, (double *)(outPtr), outExt, id);
-	break;
-      case VTK_FLOAT:
-	vtkImageLogicExecute1(this, inData[0], (float *)(in1Ptr), 
-			      outData, (float *)(outPtr), outExt, id);
-	break;
-      case VTK_LONG:
-	vtkImageLogicExecute1(this, inData[0], (long *)(in1Ptr), 
-			      outData, (long *)(outPtr), outExt, id);
-	break;
-      case VTK_UNSIGNED_LONG:
-	vtkImageLogicExecute1(this, inData[0], (unsigned long *)(in1Ptr), 
-			      outData, (unsigned long *)(outPtr), outExt, id);
-	break;
-      case VTK_INT:
-	vtkImageLogicExecute1(this, inData[0], (int *)(in1Ptr), 
-			      outData, (int *)(outPtr), outExt, id);
-	break;
-      case VTK_UNSIGNED_INT:
-	vtkImageLogicExecute1(this, inData[0], (unsigned int *)(in1Ptr), 
-			      outData, (unsigned int *)(outPtr), outExt, id);
-	break;
-      case VTK_SHORT:
-	vtkImageLogicExecute1(this, inData[0], (short *)(in1Ptr), 
-			      outData, (short *)(outPtr), outExt, id);
-	break;
-      case VTK_UNSIGNED_SHORT:
-	vtkImageLogicExecute1(this, inData[0], (unsigned short *)(in1Ptr), 
-			      outData, (unsigned short *)(outPtr), outExt, id);
-	break;
-      case VTK_CHAR:
-	vtkImageLogicExecute1(this, inData[0], (char *)(in1Ptr), 
-			      outData, (char *)(outPtr), outExt, id);
-	break;
-      case VTK_UNSIGNED_CHAR:
-	vtkImageLogicExecute1(this, inData[0], (unsigned char *)(in1Ptr), 
-			      outData, (unsigned char *)(outPtr), outExt, id);
-	break;
+      vtkTemplateMacro7(vtkImageLogicExecute1, this, inData[0], 
+                        (VTK_TT *)(in1Ptr), outData, (VTK_TT *)(outPtr), 
+                        outExt, id);
       default:
 	vtkErrorMacro(<< "Execute: Unknown ScalarType");
 	return;
@@ -380,56 +343,9 @@ void vtkImageLogic::ThreadedExecute(vtkImageData **inData,
 
     switch (inData[0]->GetScalarType())
       {
-      case VTK_DOUBLE:
-	vtkImageLogicExecute2(this, inData[0], (double *)(in1Ptr), 
-			      inData[1], (double *)(in2Ptr), 
-			      outData, (double *)(outPtr), outExt, id);
-	break;
-      case VTK_FLOAT:
-	vtkImageLogicExecute2(this, inData[0], (float *)(in1Ptr), 
-			      inData[1], (float *)(in2Ptr), 
-			      outData, (float *)(outPtr), outExt, id);
-	break;
-      case VTK_LONG:
-	vtkImageLogicExecute2(this, inData[0], (long *)(in1Ptr), 
-			      inData[1], (long *)(in2Ptr), 
-			      outData, (long *)(outPtr), outExt, id);
-	break;
-      case VTK_UNSIGNED_LONG:
-	vtkImageLogicExecute2(this, inData[0], (unsigned long *)(in1Ptr), 
-			      inData[1], (unsigned long *)(in2Ptr), 
-			      outData, (unsigned long *)(outPtr), outExt, id);
-	break;
-      case VTK_INT:
-	vtkImageLogicExecute2(this, inData[0], (int *)(in1Ptr), 
-			      inData[1], (int *)(in2Ptr), 
-			      outData, (int *)(outPtr), outExt, id);
-	break;
-      case VTK_UNSIGNED_INT:
-	vtkImageLogicExecute2(this, inData[0], (unsigned int *)(in1Ptr), 
-			      inData[1], (unsigned int *)(in2Ptr), 
-			      outData, (unsigned int *)(outPtr), outExt, id);
-	break;
-      case VTK_SHORT:
-	vtkImageLogicExecute2(this, inData[0], (short *)(in1Ptr), 
-			      inData[1], (short *)(in2Ptr), 
-			      outData, (short *)(outPtr), outExt, id);
-	break;
-      case VTK_UNSIGNED_SHORT:
-	vtkImageLogicExecute2(this, inData[0], (unsigned short *)(in1Ptr), 
-			      inData[1], (unsigned short *)(in2Ptr), 
-			      outData, (unsigned short *)(outPtr), outExt, id);
-	break;
-      case VTK_CHAR:
-	vtkImageLogicExecute2(this, inData[0], (char *)(in1Ptr), 
-			      inData[1], (char *)(in2Ptr), 
-			      outData, (char *)(outPtr), outExt, id);
-	break;
-      case VTK_UNSIGNED_CHAR:
-	vtkImageLogicExecute2(this, inData[0], (unsigned char *)(in1Ptr), 
-			      inData[1], (unsigned char *)(in2Ptr), 
-			      outData, (unsigned char *)(outPtr), outExt, id);
-	break;
+      vtkTemplateMacro9(vtkImageLogicExecute2, this, inData[0], 
+                        (VTK_TT *)(in1Ptr), inData[1], (VTK_TT *)(in2Ptr), 
+                        outData, (VTK_TT *)(outPtr), outExt, id);
       default:
 	vtkErrorMacro(<< "Execute: Unknown ScalarType");
 	return;

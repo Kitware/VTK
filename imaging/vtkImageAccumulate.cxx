@@ -238,56 +238,9 @@ void vtkImageAccumulate::Execute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageAccumulateExecute(this, 
-			  inData, (double *)(inPtr), 
-			  outData, (int *)(outPtr));
-      break;
-    case VTK_FLOAT:
-      vtkImageAccumulateExecute(this, 
-			  inData, (float *)(inPtr), 
-			  outData, (int *)(outPtr));
-      break;
-    case VTK_LONG:
-      vtkImageAccumulateExecute(this, 
-			  inData, (long *)(inPtr), 
-			  outData, (int *)(outPtr));
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageAccumulateExecute(this, 
-			  inData, (unsigned long *)(inPtr), 
-			  outData, (int *)(outPtr));
-      break;
-    case VTK_INT:
-      vtkImageAccumulateExecute(this, 
-			  inData, (int *)(inPtr), 
-			  outData, (int *)(outPtr));
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageAccumulateExecute(this, 
-			  inData, (unsigned int *)(inPtr), 
-			  outData, (int *)(outPtr));
-      break;
-    case VTK_SHORT:
-      vtkImageAccumulateExecute(this, 
-			  inData, (short *)(inPtr), 
-			  outData, (int *)(outPtr));
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageAccumulateExecute(this, 
-			  inData, (unsigned short *)(inPtr), 
-			  outData, (int *)(outPtr));
-      break;
-    case VTK_CHAR:
-      vtkImageAccumulateExecute(this, 
-			  inData, (char *)(inPtr), 
-			  outData, (int *)(outPtr));
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageAccumulateExecute(this, 
-			  inData, (unsigned char *)(inPtr), 
-			  outData, (int *)(outPtr));
-      break;
+    vtkTemplateMacro5(vtkImageAccumulateExecute, this, 
+                      inData, (VTK_TT *)(inPtr), 
+                      outData, (int *)(outPtr));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

@@ -825,38 +825,10 @@ static void vtkImageReaderUpdate1(vtkImageReader *self,
   outPtr = data->GetScalarPointer();
   switch (data->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageReaderUpdate2(self, data, inPtr, (double *)(outPtr));
-      break;
-    case VTK_FLOAT:
-      vtkImageReaderUpdate2(self, data, inPtr, (float *)(outPtr));
-      break;
-    case VTK_LONG:
-      vtkImageReaderUpdate2(self, data, inPtr, (long *)(outPtr));
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageReaderUpdate2(self, data, inPtr, (unsigned long *)(outPtr));
-      break;
-    case VTK_INT:
-      vtkImageReaderUpdate2(self, data, inPtr, (int *)(outPtr));
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageReaderUpdate2(self, data, inPtr, (unsigned int *)(outPtr));
-      break;
-    case VTK_SHORT:
-      vtkImageReaderUpdate2(self, data, inPtr, (short *)(outPtr));
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageReaderUpdate2(self, data, inPtr, (unsigned short *)(outPtr));
-      break;
-    case VTK_CHAR:
-      vtkImageReaderUpdate2(self, data, inPtr, (char *)(outPtr));
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageReaderUpdate2(self, data, inPtr, (unsigned char *)(outPtr));
-      break;
+    vtkTemplateMacro4(vtkImageReaderUpdate2, self, data, inPtr, 
+                      (VTK_TT *)(outPtr));
     default:
-      cerr << "Update1: Unknown data type\n";
+      vtkGenericWarningMacro("Update1: Unknown data type\n");
     }  
 }
 //----------------------------------------------------------------------------
@@ -883,36 +855,7 @@ void vtkImageReader::Execute(vtkImageData *data)
   // Call the correct templated function for the output
   switch (this->GetDataScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageReaderUpdate1(this, data, (double *)(ptr));
-      break;
-    case VTK_FLOAT:
-      vtkImageReaderUpdate1(this, data, (float *)(ptr));
-      break;
-    case VTK_LONG:
-      vtkImageReaderUpdate1(this, data, (long *)(ptr));
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageReaderUpdate1(this, data, (unsigned long *)(ptr));
-      break;
-    case VTK_INT:
-      vtkImageReaderUpdate1(this, data, (int *)(ptr));
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageReaderUpdate1(this, data, (unsigned int *)(ptr));
-      break;
-    case VTK_SHORT:
-      vtkImageReaderUpdate1(this, data, (short *)(ptr));
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageReaderUpdate1(this, data, (unsigned short *)(ptr));
-      break;
-    case VTK_CHAR:
-      vtkImageReaderUpdate1(this, data, (char *)(ptr));
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageReaderUpdate1(this, data, (unsigned char *)(ptr));
-      break;
+    vtkTemplateMacro3(vtkImageReaderUpdate1, this, data, (VTK_TT *)(ptr));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
     }   

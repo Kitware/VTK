@@ -748,83 +748,12 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
   //
   if (inScalars->GetNumberOfComponents() == 1 )
     {
+    void *scalars = inScalars->GetVoidPointer(0);
     switch (inScalars->GetDataType())
       {
-      case VTK_CHAR:
-	      {
-	      char *scalars = ((vtkCharArray *)inScalars->GetData())->GetPointer(0);
-	      ContourGrid(this, threadId, exExt, scalars, newPts, newScalars, newPolys, 
-		           newNormals, newGradients);
-	      }
-      break;
-      case VTK_UNSIGNED_CHAR:
-	      {
-	      unsigned char *scalars = 
-	        ((vtkUnsignedCharArray *)inScalars->GetData())->GetPointer(0);
-	      ContourGrid(this, threadId, exExt, scalars, newPts, newScalars, newPolys,
-		           newNormals, newGradients);
-	      }
-      break;
-      case VTK_SHORT:
-	      {
-	      short *scalars = 
-	        ((vtkShortArray *)inScalars->GetData())->GetPointer(0);
-	      ContourGrid(this, threadId, exExt, scalars, newPts, newScalars, newPolys,
-		           newNormals, newGradients);
-	      }
-      break;
-      case VTK_UNSIGNED_SHORT:
-	      {
-	      unsigned short *scalars = 
-	        ((vtkUnsignedShortArray *)inScalars->GetData())->GetPointer(0);
-	      ContourGrid(this, threadId, exExt, scalars, newPts, newScalars, newPolys,
-		           newNormals, newGradients);
-	      }
-      break;
-      case VTK_INT:
-	      {
-	      int *scalars = ((vtkIntArray *)inScalars->GetData())->GetPointer(0);
-	      ContourGrid(this, threadId, exExt, scalars, newPts, newScalars, newPolys,
-		           newNormals, newGradients);
-	      }
-      break;
-      case VTK_UNSIGNED_INT:
-	      {
-	      unsigned int *scalars = 
-	        ((vtkUnsignedIntArray *)inScalars->GetData())->GetPointer(0);
-	      ContourGrid(this, threadId, exExt, scalars, newPts, newScalars, newPolys,
-		           newNormals, newGradients);
-	      }
-      break;
-      case VTK_LONG:
-	      {
-	      long *scalars = ((vtkLongArray *)inScalars->GetData())->GetPointer(0);
-	      ContourGrid(this, threadId, exExt, scalars, newPts, newScalars, newPolys,
-		           newNormals, newGradients);
-	      }
-      break;
-      case VTK_UNSIGNED_LONG:
-	      {
-	      unsigned long *scalars = 
-	        ((vtkUnsignedLongArray *)inScalars->GetData())->GetPointer(0);
-	      ContourGrid(this, threadId, exExt, scalars, newPts, newScalars, newPolys,
-		           newNormals, newGradients);
-	      }
-      break;
-      case VTK_FLOAT:
-	      {
-	      float *scalars =((vtkFloatArray *)inScalars->GetData())->GetPointer(0);
-	      ContourGrid(this, threadId, exExt, scalars, newPts, newScalars, newPolys,
-		           newNormals, newGradients);
-	      }
-      break;
-      case VTK_DOUBLE:
-	      {
-	      double *scalars = 
-	        ((vtkDoubleArray *)inScalars->GetData())->GetPointer(0);
-	      ContourGrid(this, threadId, exExt, scalars, newPts, newScalars, newPolys,
-		           newNormals, newGradients);
-	      }
+      vtkTemplateMacro9(ContourGrid, this, threadId, exExt, (VTK_TT *)scalars, 
+                        newPts, newScalars, newPolys, newNormals, 
+                        newGradients);
       break;
       }//switch
     }

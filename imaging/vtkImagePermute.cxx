@@ -231,46 +231,8 @@ void vtkImagePermute::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImagePermuteExecute(this, inData, (double *)(inPtr), 
-			     outData, (double *)(outPtr),outExt, id);
-      break;
-    case VTK_FLOAT:
-      vtkImagePermuteExecute(this, inData, (float *)(inPtr), 
-			     outData, (float *)(outPtr),outExt, id);
-      break;
-    case VTK_LONG:
-      vtkImagePermuteExecute(this, inData, (long *)(inPtr), 
-			     outData, (long *)(outPtr),outExt, id);
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImagePermuteExecute(this, inData, (unsigned long *)(inPtr), 
-			     outData, (unsigned long *)(outPtr),outExt, id);
-      break;
-    case VTK_INT:
-      vtkImagePermuteExecute(this, inData, (int *)(inPtr), 
-			     outData, (int *)(outPtr),outExt, id);
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImagePermuteExecute(this, inData, (unsigned int *)(inPtr), 
-			     outData, (unsigned int *)(outPtr),outExt, id);
-      break;
-    case VTK_SHORT:
-      vtkImagePermuteExecute(this, inData, (short *)(inPtr), 
-			     outData, (short *)(outPtr),outExt, id);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImagePermuteExecute(this, inData, (unsigned short *)(inPtr), 
-			     outData, (unsigned short *)(outPtr),outExt, id);
-      break;
-    case VTK_CHAR:
-      vtkImagePermuteExecute(this, inData, (char *)(inPtr), 
-			     outData, (char *)(outPtr),outExt, id);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImagePermuteExecute(this, inData, (unsigned char *)(inPtr), 
-			     outData, (unsigned char *)(outPtr),outExt, id);
-      break;
+    vtkTemplateMacro7(vtkImagePermuteExecute, this, inData, (VTK_TT *)(inPtr), 
+                      outData, (VTK_TT *)(outPtr),outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;

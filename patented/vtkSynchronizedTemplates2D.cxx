@@ -369,91 +369,15 @@ void vtkSynchronizedTemplates2D::Execute()
   //
   if (inScalars->GetNumberOfComponents() == 1 )
     {
+    void *scalars = inScalars->GetVoidPointer(0);
+    newScalars = vtkScalars::SafeDownCast(inScalars->MakeObject());
+    newScalars->Allocate(5000,25000);
     switch (inScalars->GetDataType())
       {
-      case VTK_CHAR:
-	{
-	char *scalars = ((vtkCharArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_CHAR,1);
-	newScalars->Allocate(5000,25000);
-	ContourImage(this, scalars, newPts, newScalars, newLines);
-	}
-      break;
-      case VTK_UNSIGNED_CHAR:
-	{
-	unsigned char *scalars = ((vtkUnsignedCharArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_UNSIGNED_CHAR,1);
-	newScalars->Allocate(5000,25000);
-	ContourImage(this, scalars, newPts, newScalars, newLines);
-	}
-      break;
-      case VTK_SHORT:
-	{
-	short *scalars = ((vtkShortArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_SHORT,1);
-	newScalars->Allocate(5000,25000);
-	ContourImage(this, scalars, newPts, newScalars, newLines);
-	}
-      break;
-      case VTK_UNSIGNED_SHORT:
-	{
-	unsigned short *scalars = ((vtkUnsignedShortArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_UNSIGNED_SHORT,1);
-	newScalars->Allocate(5000,25000);
-	ContourImage(this, scalars, newPts, newScalars, newLines);
-	}
-      break;
-      case VTK_INT:
-	{
-	int *scalars = ((vtkIntArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_INT,1);
-	newScalars->Allocate(5000,25000);
-	ContourImage(this, scalars, newPts, newScalars, newLines);
-	}
-      break;
-      case VTK_UNSIGNED_INT:
-	{
-	unsigned int *scalars = ((vtkUnsignedIntArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_UNSIGNED_INT,1);
-	newScalars->Allocate(5000,25000);
-	ContourImage(this, scalars, newPts, newScalars, newLines);
-	}
-      break;
-      case VTK_LONG:
-	{
-	long *scalars = ((vtkLongArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_LONG,1);
-	newScalars->Allocate(5000,25000);
-	ContourImage(this, scalars, newPts, newScalars, newLines);
-	}
-      break;
-      case VTK_UNSIGNED_LONG:
-	{
-	unsigned long *scalars = ((vtkUnsignedLongArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_UNSIGNED_LONG,1);
-	newScalars->Allocate(5000,25000);
-	ContourImage(this, scalars, newPts, newScalars, newLines);
-	}
-      break;
-      case VTK_FLOAT:
-	{
-	float *scalars = ((vtkFloatArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_FLOAT,1);
-	newScalars->Allocate(5000,25000);
-	ContourImage(this, scalars, newPts, newScalars, newLines);
-	}
-      break;
-      case VTK_DOUBLE:
-	{
-	double *scalars = ((vtkDoubleArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_DOUBLE,1);
-	newScalars->Allocate(5000,25000);
-	ContourImage(this, scalars, newPts, newScalars, newLines);
-	}
-      break;
+      vtkTemplateMacro5(ContourImage,this,(VTK_TT *)scalars, newPts,
+                        newScalars, newLines);
       }//switch
     }
-
   else //multiple components - have to convert
     {
     vtkScalars *image = vtkScalars::New();

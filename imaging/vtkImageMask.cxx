@@ -265,66 +265,9 @@ inPtr1 = inData[0]->GetScalarPointerForExtent(outExt);
   
   switch (inData[0]->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageMaskExecute(this, outExt,
-			  inData[0], (double *)(inPtr1), 
-			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (double *)(outPtr),id);
-      break;
-    case VTK_FLOAT:
-      vtkImageMaskExecute(this, outExt,
-			  inData[0], (float *)(inPtr1), 
-			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (float *)(outPtr),id);
-      break;
-    case VTK_LONG:
-      vtkImageMaskExecute(this,  outExt,
-			  inData[0], (long *)(inPtr1), 
-			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (long *)(outPtr),id);
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageMaskExecute(this,  outExt,
-			  inData[0], (unsigned long *)(inPtr1), 
-			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (unsigned long *)(outPtr),id);
-      break;
-    case VTK_INT:
-      vtkImageMaskExecute(this,  outExt,
-			  inData[0], (int *)(inPtr1), 
-			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (int *)(outPtr),id);
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageMaskExecute(this,  outExt,
-			  inData[0], (unsigned int *)(inPtr1), 
-			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (unsigned int *)(outPtr),id);
-      break;
-    case VTK_SHORT:
-      vtkImageMaskExecute(this,  outExt,
-			  inData[0], (short *)(inPtr1), 
-			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (short *)(outPtr),id);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageMaskExecute(this,  outExt,
-			  inData[0], (unsigned short *)(inPtr1), 
-			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (unsigned short *)(outPtr),id);
-      break;
-    case VTK_CHAR:
-      vtkImageMaskExecute(this,  outExt,
-			  inData[0], (char *)(inPtr1), 
-			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (char *)(outPtr),id);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageMaskExecute(this,  outExt,
-			  inData[0], (unsigned char *)(inPtr1), 
-			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (unsigned char *)(outPtr),id);
-      break;
+    vtkTemplateMacro9(vtkImageMaskExecute, this, outExt, inData[0], 
+                      (VTK_TT *)(inPtr1), inData[1], (unsigned char *)(inPtr2),
+                      outData, (VTK_TT *)(outPtr),id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

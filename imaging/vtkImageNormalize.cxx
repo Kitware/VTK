@@ -175,59 +175,8 @@ void vtkImageNormalize::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageNormalizeExecute(this, 
-			       inData, (double *)(inPtr), 
-			       outData, (float *)(outPtr), outExt, id);
-      break;
-    case VTK_FLOAT:
-      vtkImageNormalizeExecute(this, 
-			       inData, (float *)(inPtr), 
-			       outData, (float *)(outPtr), outExt, id);
-      break;
-    case VTK_LONG:
-      vtkImageNormalizeExecute(this, 
-			       inData, (long *)(inPtr), 
-			       outData, (float *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageNormalizeExecute(this, 
-			       inData, (unsigned long *)(inPtr), 
-			       outData, (float *)(outPtr), 
-			       outExt, id);
-      break;
-    case VTK_INT:
-      vtkImageNormalizeExecute(this, 
-			       inData, (int *)(inPtr), 
-			       outData, (float *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageNormalizeExecute(this, 
-			       inData, (unsigned int *)(inPtr), 
-			       outData, (float *)(outPtr), 
-			       outExt, id);
-      break;
-    case VTK_SHORT:
-      vtkImageNormalizeExecute(this, 
-			       inData, (short *)(inPtr), 
-			       outData, (float *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageNormalizeExecute(this, 
-			       inData, (unsigned short *)(inPtr), 
-			       outData, (float *)(outPtr), 
-			       outExt, id);
-      break;
-    case VTK_CHAR:
-      vtkImageNormalizeExecute(this, 
-			       inData, (char *)(inPtr), 
-			       outData, (float *)(outPtr), outExt, id);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageNormalizeExecute(this, 
-			       inData, (unsigned char *)(inPtr), 
-			       outData, (float *)(outPtr), outExt, id);
-      break;
+    vtkTemplateMacro7(vtkImageNormalizeExecute, this, inData,(VTK_TT *)(inPtr),
+                     outData, (float *)(outPtr), outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
