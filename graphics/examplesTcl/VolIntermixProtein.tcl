@@ -29,7 +29,7 @@ vtkColorTransferFunction colorTransferFunction
 
 vtkVolumeProperty volumeProperty
     volumeProperty SetColor colorTransferFunction
-    volumeProperty SetOpacity opacityTransferFunction
+    volumeProperty SetScalarOpacity opacityTransferFunction
     volumeProperty SetInterpolationTypeToLinear
     volumeProperty ShadeOff
 

@@ -311,7 +311,7 @@ vtkColorTransferFunction ctfun
 
 vtkVolumeProperty comp_prop
         comp_prop SetColor ctfun
-        comp_prop SetOpacity tfun
+        comp_prop SetScalarOpacity tfun
 
 vtkVolumeRayCastCompositeFunction  comp_func
 

@@ -30,7 +30,7 @@ ren1 SetBackground .1 .2 .4
 
 vtkVolumeProperty vol_prop
 vol_prop SetColor white_tfun
-vol_prop SetOpacity tfun
+vol_prop SetScalarOpacity tfun
 vol_prop SetInterpolationTypeToLinear
 vol_prop ShadeOn
 

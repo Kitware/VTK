@@ -27,7 +27,7 @@ vtkColorTransferFunction colorTransferFunction
 # Create properties, mappers, volume actors, and ray cast function
 vtkVolumeProperty volumeProperty
     volumeProperty SetColor colorTransferFunction
-    volumeProperty SetOpacity opacityTransferFunction
+    volumeProperty SetScalarOpacity opacityTransferFunction
 
 vtkVolumeRayCastCompositeFunction  compositeFunction
 
