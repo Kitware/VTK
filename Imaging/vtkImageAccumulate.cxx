@@ -456,5 +456,11 @@ void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
      << this->ComponentExtent[0] << "," << this->ComponentExtent[1] << " "
      << this->ComponentExtent[2] << "," << this->ComponentExtent[3] << " "
      << this->ComponentExtent[4] << "," << this->ComponentExtent[5] << " }\n";
+
+  os << indent << "StencilFunction: " << this->StencilFunction << "\n";
+  os << indent << "ReverseStencil: " << (this->ReverseStencil ?
+		                         "On\n" : "Off\n");
+
+  os << indent << "ClippingExtents: " << this->ClippingExtents << "\n";
 }
 
