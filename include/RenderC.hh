@@ -37,7 +37,7 @@ class vlRendererCollection : public vlObject
 
  public:
   void Render();
-  virtual char *GetClassName() {return "vlRendererCollection";};
+  char *GetClassName() {return "vlRendererCollection";};
   vlRendererCollection();
   void AddMember(vlRenderer *);
   int  GetNumberOfMembers();

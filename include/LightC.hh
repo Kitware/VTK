@@ -37,7 +37,7 @@ class vlLightCollection : public vlObject
 
  public:
   vlLightCollection();
-  virtual char *GetClassName() {return "vlLightCollection";};
+  char *GetClassName() {return "vlLightCollection";};
   void AddMember(vlLight *);
   int  GetNumberOfMembers();
   vlLight *GetMember(int num);

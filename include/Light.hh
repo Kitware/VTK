@@ -32,7 +32,7 @@ protected:
 
 public:
   vlLight();
-  virtual char *GetClassName() {return "vlLight";};
+  char *GetClassName() {return "vlLight";};
   virtual void Render(vlRenderer *ren,int light_index) = 0;
 
   vlSetVector3Macro(Color,float);

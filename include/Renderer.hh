@@ -34,7 +34,7 @@ public:
 
 public:
   vlRenderer();
-  virtual char *GetClassName() {return "vlRenderer";};
+  char *GetClassName() {return "vlRenderer";};
   void AddLights(vlLight *);
   void AddActors(vlActor *);
   void SetActiveCamera(vlCamera *);

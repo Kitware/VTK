@@ -38,7 +38,7 @@ class vlActor : public vlObject
   void SetMapper(vlMapper *m);
   vlMapper *GetMapper();
   vlProperty *Property; 
-  virtual char *GetClassName() {return "vlActor";};
+  char *GetClassName() {return "vlActor";};
 
 protected:
   vlMapper *Mapper;
