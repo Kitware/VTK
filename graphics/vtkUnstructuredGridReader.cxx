@@ -45,6 +45,7 @@ vtkUnstructuredGridReader::vtkUnstructuredGridReader()
 {
   this->Reader = vtkDataReader::New();
   this->Reader->SetSource(this);
+  this->Recursing = 0;
 }
 
 vtkUnstructuredGridReader::~vtkUnstructuredGridReader()
@@ -160,7 +161,6 @@ void vtkUnstructuredGridReader::Execute()
   vtkCellArray *cells=NULL;
   int *types=NULL;
   vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
-  
 
   vtkDebugMacro(<<"Reading vtk unstructured grid...");
   if ( this->Debug )
@@ -176,9 +176,9 @@ void vtkUnstructuredGridReader::Execute()
     {
     return;
     }
-//
-// Read unstructured grid specific stuff
-//
+
+  // Read unstructured grid specific stuff
+  //
   if (!this->Reader->ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
@@ -188,9 +188,8 @@ void vtkUnstructuredGridReader::Execute()
 
   if ( !strncmp(this->Reader->LowerCase(line),"dataset",(unsigned long)7) )
     {
-//
-// Make sure we're reading right type of geometry
-//
+    // Make sure we're reading right type of geometry
+    //
     if (!this->Reader->ReadString(line))
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
@@ -204,9 +203,9 @@ void vtkUnstructuredGridReader::Execute()
       this->Reader->CloseVTKFile ();
       return;
       }
-//
-// Might find points, cells, and cell types
-//
+
+    // Might find points, cells, and cell types
+    //
     while (1)
       {
       if (!this->Reader->ReadString(line))
@@ -360,9 +359,9 @@ void vtkUnstructuredGridReader::Execute()
     {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
-//
-// Clean-up and get out
-//
+
+  // Clean-up and get out
+  //
   if (types)
     {
     delete [] types;
@@ -372,23 +371,23 @@ void vtkUnstructuredGridReader::Execute()
     cells->Delete();
     }
 
-  vtkDebugMacro(<<"Read " <<output->GetNumberOfPoints() <<" points," <<output->GetNumberOfCells() <<" cells.\n");
-  
+  vtkDebugMacro(<<"Read " <<output->GetNumberOfPoints() <<" points," 
+                <<output->GetNumberOfCells() <<" cells.\n");
 
   this->Reader->CloseVTKFile ();
   return;
 }
 
-static int recursing = 0;
 void vtkUnstructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  // the reader ivar's source will be this Reader-> we must do this to prevent infinite printing
-  if (!recursing)
+  // the reader ivar's source will be this Reader-> we must do this to prevent 
+  // infinite printing
+  if (!this->Recursing)
     { 
     vtkUnstructuredGridSource::PrintSelf(os,indent);
-    recursing = 1;
+    this->Recursing = 1;
     os << indent << "Reader:\n";
     this->Reader->PrintSelf(os,indent.GetNextIndent());
     }
-  recursing = 0;
+  this->Recursing = 0;
 }

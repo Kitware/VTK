@@ -136,6 +136,10 @@ public:
 protected:
   void Execute();
   vtkDataReader *Reader;
+
+private:
+  int Recursing;
+
 };
 
 #endif
