@@ -27,7 +27,7 @@
 //
 // For more information on the VolumePRO hardware, please see:
 //
-//   http://www.terarecon.com/3d_products.shtml
+//   http://www.terarecon.com/products/volumepro_prod.html
 //
 // If you encounter any problems with this class, please inform Kitware, Inc.
 // at kitware@kitware.com.
