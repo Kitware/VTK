@@ -1,6 +1,7 @@
 SOURCE_FILES ( Parallel_SRCS
 vtkBranchExtentTranslator 
 vtkCommunicator 
+vtkCompositeManager 
 vtkCutMaterial 
 vtkExtractPolyDataPiece 
 vtkExtractUnstructuredGridPiece 
@@ -18,12 +19,17 @@ vtkPSphereSource
 vtkRTAnalyticSource 
 vtkSharedMemoryCommunicator 
 vtkThreadedController 
+vtkTransmitPolyDataPiece
+vtkTransmitUnstructuredGridPiece
 vtkTreeComposite 
 vtkSocketCommunicator
 vtkSocketController 
 )
 
-ABSTRACT_FILES( vtkCommunicator )
+ABSTRACT_FILES( 
+vtkCommunicator 
+vtkCompositeManager 
+)
 
 IF (VTK_USE_MPI)
   INCLUDE (${CMAKE_ROOT}/Modules/FindMPI.cmake)

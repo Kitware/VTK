@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkArrowSource.h
+  Module:    vtkTransmitUnstructuredGridPiece.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,72 +39,55 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkArrowSource - Appends a cylinder to a cone to form an arrow.
-// .SECTION Description
-// vtkArrowSource was intended to be used as the source for a glyph.
-// The shaft base is always at (0,0,0). The arrow tip is always at (1,0,0).
-// The resolution of the cone and shaft can be set and default to 6.
-// The radius of the cone and shaft can be set and default to 0.03 and 0.1.
-// The length of the tip can also be set, and defaults to 0.35.
+// .NAME vtkTransmitUnstructuredGridPiece - Return specified piece, including specified
+// number of ghost levels.
+// .DESCRIPTION
+// This filter updates the appropriate piece by requesting the piece from 
+// process 0.  Process 0 always updates all of the data.  It is important that 
+// Execute get called on all processes, otherwise the filter will deadlock.
 
 
-#ifndef __vtkArrowSource_h
-#define __vtkArrowSource_h
+#ifndef __vtkTransmitUnstructuredGridPiece_h
+#define __vtkTransmitUnstructuredGridPiece_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkUnstructuredGridToUnstructuredGridFilter.h"
+#include "vtkMultiProcessController.h"
 
-class VTK_EXPORT vtkArrowSource : public vtkPolyDataSource
+
+class VTK_EXPORT vtkTransmitUnstructuredGridPiece : public vtkUnstructuredGridToUnstructuredGridFilter
 {
 public:
-  // Description
-  // Construct cone with angle of 45 degrees.
-  static vtkArrowSource *New();
-
-  vtkTypeMacro(vtkArrowSource,vtkPolyDataSource);
+  static vtkTransmitUnstructuredGridPiece *New();
+  vtkTypeMacro(vtkTransmitUnstructuredGridPiece, vtkUnstructuredGridToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
-    
-  // Description:
-  // Set the length, and radius of the tip.  They default to 0.35 and 0.1
-  vtkSetClampMacro(TipLength,float,0.0,1.0);
-  vtkGetMacro(TipLength,float);
-  vtkSetClampMacro(TipRadius,float,0.0,10.0);
-  vtkGetMacro(TipRadius,float);
   
   // Description:
-  // Set the resolution of the tip.  The tip behaves the same as a cone.
-  // Resoultion 1 gives a single triangle, 2 gives two crossed triangles.
-  vtkSetClampMacro(TipResolution,int,1,128);
-  vtkGetMacro(TipResolution,int);
+  // By defualt this filter uses the global controller,
+  // but this method can be used to set another instead.
+  vtkSetObjectMacro(Controller, vtkMultiProcessController);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
   // Description:
-  // Set the radius of the shaft.  Defaults to 0.03.
-  vtkSetClampMacro(ShaftRadius,float,0.0,5.0);
-  vtkGetMacro(ShaftRadius,float);
-
-  // Description:
-  // Set the resolution of the shaft.  2 gives a rectangle.
-  // I would like to extend the cone to produce a line,
-  // but this is not an option now.
-  vtkSetClampMacro(ShaftResolution,int,0,128);
-  vtkGetMacro(ShaftResolution,int);
-
+  // Turn on/off creating ghost cells (on by default).
+  vtkSetMacro(CreateGhostCells, int);
+  vtkGetMacro(CreateGhostCells, int);
+  vtkBooleanMacro(CreateGhostCells, int);
+  
 protected:
-  vtkArrowSource();
-  ~vtkArrowSource() {};
-  vtkArrowSource(const vtkArrowSource&) {};
-  void operator=(const vtkArrowSource&) {};
+  vtkTransmitUnstructuredGridPiece();
+  ~vtkTransmitUnstructuredGridPiece() {};
+  vtkTransmitUnstructuredGridPiece(const vtkTransmitUnstructuredGridPiece&);
+  void operator=(const vtkTransmitUnstructuredGridPiece&);
 
+  // Data generation method
   void Execute();
-
-  int TipResolution;
-  float TipLength;
-  float TipRadius;
-
-  int ShaftResolution;
-  float ShaftRadius;
-
+  void RootExecute();
+  void SatelliteExecute(int procId);
+  void ExecuteInformation();
+  void ComputeInputUpdateExtents(vtkDataObject *out);
+ 
+  int CreateGhostCells;
+  vtkMultiProcessController *Controller;
 };
 
 #endif
-
-
