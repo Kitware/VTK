@@ -93,6 +93,11 @@ public:
   // Description:
   // Apply the transformation.
   void TransformPoint(const float in[3], float out[3]);
+  void TransformPoint(const double in[3], double out[3])
+    {
+    vtkGeneralTransform::TransformPoint(in, out);  
+    }
+  ;
 
   // Description:
   // Apply the transform to a series of points.
