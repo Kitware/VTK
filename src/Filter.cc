@@ -94,7 +94,7 @@ void vlFilter::_PrintSelf(ostream& os, vlIndent indent)
 
   if ( this->StartMethod )
     {
-    os << indent << "Start Method: (" << this->StartMethod << ")\n";
+    os << indent << "Start Method: (" << (void *)this->StartMethod << ")\n";
     }
   else
     {
@@ -103,7 +103,7 @@ void vlFilter::_PrintSelf(ostream& os, vlIndent indent)
 
   if ( this->EndMethod )
     {
-    os << indent << "End Method: (" << this->EndMethod << ")\n";
+    os << indent << "End Method: (" << (void *)this->EndMethod << ")\n";
     }
   else
     {
@@ -114,7 +114,7 @@ void vlFilter::_PrintSelf(ostream& os, vlIndent indent)
 
   if ( this->Input )
     {
-    os << indent << "Input: (" << this->Input << ")\n";
+    os << indent << "Input: (" << (void *)this->Input << ")\n";
     }
   else
     {

@@ -127,11 +127,8 @@ void vlMaskPolyData::Execute()
 
 void vlMaskPolyData::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlMaskPolyData::GetClassName()))
-    {
-    vlPolyToPolyFilter::PrintSelf(os,indent);
+  vlPolyToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "On Ratio: " << this->OnRatio << "\n";
-    os << indent << "Offset: " << this->Offset << "\n";
-    }
+  os << indent << "On Ratio: " << this->OnRatio << "\n";
+  os << indent << "Offset: " << this->Offset << "\n";
 }

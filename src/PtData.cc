@@ -196,57 +196,54 @@ void vlPointData::CopyAllocate(vlPointData* pd, int sze, int ext)
 
 void vlPointData::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlPointData::GetClassName()))
+  vlObject::PrintSelf(os,indent);
+
+  if ( this->Scalars )
     {
-    vlObject::PrintSelf(os,indent);
-
-    if ( this->Scalars )
-      {
-      os << indent << "Scalars:\n";
-      this->Scalars->PrintSelf(os,indent.GetNextIndent());
-      }
-    else
-      {
-      os << indent << "Scalar: (none)\n";
-      }
-
-    if ( this->Vectors )
-      {
-      os << indent << "Vectors:\n";
-      this->Vectors->PrintSelf(os,indent.GetNextIndent());
-      }
-    else
-      {
-      os << indent << "Vectors: (none)\n";
-      }
-
-    if ( this->Normals )
-      {
-      os << indent << "Normals:\n";
-      this->Normals->PrintSelf(os,indent.GetNextIndent());
-      }
-    else
-      {
-      os << indent << "Normals: (none)\n";
-      }
-
-    if ( this->TCoords )
-      {
-      os << indent << "Texture Coordinates:\n";
-      this->TCoords->PrintSelf(os,indent.GetNextIndent());
-      }
-    else
-      {
-      os << indent << "Texture Coordinates: (none)\n";
-      }
-    os << indent << "Copy Scalars: " << (this->CopyScalars ? "On\n" : "Off\n");
-    os << indent << "Copy Vectors: " << (this->CopyVectors ? "On\n" : "Off\n");
-    os << indent << "Copy Normals: " << (this->CopyNormals ? "On\n" : "Off\n");
-    os << indent << "Copy Texture Coordinates: " << (this->CopyTCoords ? "On\n" : "Off\n");
-
-
+    os << indent << "Scalars:\n";
+    this->Scalars->PrintSelf(os,indent.GetNextIndent());
     }
+  else
+    {
+    os << indent << "Scalar: (none)\n";
+    }
+
+  if ( this->Vectors )
+    {
+    os << indent << "Vectors:\n";
+    this->Vectors->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Vectors: (none)\n";
+    }
+
+  if ( this->Normals )
+    {
+    os << indent << "Normals:\n";
+    this->Normals->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Normals: (none)\n";
+    }
+
+  if ( this->TCoords )
+    {
+    os << indent << "Texture Coordinates:\n";
+    this->TCoords->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Texture Coordinates: (none)\n";
+    }
+  os << indent << "Copy Scalars: " << (this->CopyScalars ? "On\n" : "Off\n");
+  os << indent << "Copy Vectors: " << (this->CopyVectors ? "On\n" : "Off\n");
+  os << indent << "Copy Normals: " << (this->CopyNormals ? "On\n" : "Off\n");
+  os << indent << "Copy Texture Coordinates: " << (this->CopyTCoords ? "On\n" : "Off\n");
+
 }
+
 static vlFloatScalars cellScalars(MAX_CELL_SIZE);
 static vlFloatVectors cellVectors(MAX_CELL_SIZE);
 static vlFloatNormals cellNormals(MAX_CELL_SIZE);

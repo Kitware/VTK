@@ -204,12 +204,9 @@ vlGeometryPrimitive *vlGlrRenderer::GetPrimitive(char *type)
 
 void vlGlrRenderer::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlGlrRenderer::GetClassName()))
-    {
-    this->vlRenderer::PrintSelf(os,indent);
+  this->vlRenderer::PrintSelf(os,indent);
 
-    os << indent << "Number Of Lights Bound: " << 
-      this->NumberOfLightsBound << "\n";
-    }
+  os << indent << "Number Of Lights Bound: " << 
+    this->NumberOfLightsBound << "\n";
 }
 

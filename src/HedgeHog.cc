@@ -78,10 +78,7 @@ void vlHedgeHog::Execute()
 
 void vlHedgeHog::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlHedgeHog::GetClassName()))
-    {
-    vlDataSetToPolyFilter::PrintSelf(os,indent);
+  vlDataSetToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
-    }
+  os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }

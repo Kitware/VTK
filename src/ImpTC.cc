@@ -110,16 +110,13 @@ void vlImplicitTextureCoords::CreateDefaultTransform()
 
 void vlImplicitTextureCoords::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlImplicitTextureCoords::GetClassName()))
-    {
-    vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vlDataSetToDataSetFilter::PrintSelf(os,indent);
 
-    os << indent << "Clamp: " << (this->Clamp ? "On\n" : "Off\n");
+  os << indent << "Clamp: " << (this->Clamp ? "On\n" : "Off\n");
 
-    os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
-    os << indent << "RRange: (" << this->RRange[0] << ", " << this->RRange[1] << ")\n";
-    os << indent << "SRange: (" << this->SRange[0] << ", " << this->SRange[1] << ")\n";
-    os << indent << "TRange: (" << this->TRange[0] << ", " << this->TRange[1] << ")\n";
+  os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
+  os << indent << "RRange: (" << this->RRange[0] << ", " << this->RRange[1] << ")\n";
+  os << indent << "SRange: (" << this->SRange[0] << ", " << this->SRange[1] << ")\n";
+  os << indent << "TRange: (" << this->TRange[0] << ", " << this->TRange[1] << ")\n";
 
-    }
 }

@@ -13,7 +13,7 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlRenderer - abstract specification  for renderers
+// .NAME vlRenderer - abstract specification for renderers
 // .SECTION Description
 // vlRenderer provides an abstract specification for renderers. A renderer
 // is an object that controls the rendering process for objects. Rendering

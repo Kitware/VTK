@@ -63,10 +63,7 @@ void vlWarpVector::Execute()
 
 void vlWarpVector::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlWarpVector::GetClassName()))
-    {
-    vlPointSetToPointSetFilter::PrintSelf(os,indent);
+  vlPointSetToPointSetFilter::PrintSelf(os,indent);
 
-    os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
-    }
+  os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }

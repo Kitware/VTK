@@ -49,10 +49,7 @@ void vlRefCount::UnRegister(vlObject* o)
 
 void vlRefCount::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlRefCount::GetClassName()))
-    {
-    vlObject::PrintSelf(os,indent);
+  vlObject::PrintSelf(os,indent);
 
-    os << indent << "Reference Count: " << this->RefCount << "\n";
-    }
+  os << indent << "Reference Count: " << this->RefCount << "\n";
 }

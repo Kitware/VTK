@@ -91,18 +91,15 @@ void vlTextureMapToBox::Execute()
 
 void vlTextureMapToBox::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlTextureMapToBox::GetClassName()))
-    {
-    vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vlDataSetToDataSetFilter::PrintSelf(os,indent);
 
-    os << indent << "R Range: (" << this->RRange[0] << ", "
-                                 << this->RRange[1] << ")\n";
-    os << indent << "S Range: (" << this->SRange[0] << ", "
-                                 << this->SRange[1] << ")\n";
-    os << indent << "T Range: (" << this->TRange[0] << ", "
-                                 << this->TRange[1] << ")\n";
-    os << indent << "Automatic Box Generation: " << 
-                    (this->AutomaticBoxGeneration ? "On\n" : "Off\n");
-    }
+  os << indent << "R Range: (" << this->RRange[0] << ", "
+                               << this->RRange[1] << ")\n";
+  os << indent << "S Range: (" << this->SRange[0] << ", "
+                               << this->SRange[1] << ")\n";
+  os << indent << "T Range: (" << this->TRange[0] << ", "
+                               << this->TRange[1] << ")\n";
+  os << indent << "Automatic Box Generation: " << 
+                  (this->AutomaticBoxGeneration ? "On\n" : "Off\n");
 }
 

@@ -162,15 +162,12 @@ void vlFeatureEdges::Execute()
 
 void vlFeatureEdges::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlFeatureEdges::GetClassName()))
-    {
-    vlPolyToPolyFilter::PrintSelf(os,indent);
+  vlPolyToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
-    os << indent << "BoundaryEdges: " << (this->BoundaryEdges ? "On\n" : "Off\n");
-    os << indent << "FeatureEdges: " << (this->FeatureEdges ? "On\n" : "Off\n"); 
-    os << indent << "Non-Manifold Edges: " << (this->NonManifoldEdges ? "On\n" : "Off\n");
-    os << indent << "Coloring: " << (this->Coloring ? "On\n" : "Off\n");
-   }
+  os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
+  os << indent << "BoundaryEdges: " << (this->BoundaryEdges ? "On\n" : "Off\n");
+  os << indent << "FeatureEdges: " << (this->FeatureEdges ? "On\n" : "Off\n"); 
+  os << indent << "Non-Manifold Edges: " << (this->NonManifoldEdges ? "On\n" : "Off\n");
+  os << indent << "Coloring: " << (this->Coloring ? "On\n" : "Off\n");
 }
 

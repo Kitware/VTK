@@ -134,12 +134,9 @@ void vlRibbonFilter::Execute()
 
 void vlRibbonFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlRibbonFilter::GetClassName()))
-    {
-    vlPolyToPolyFilter::PrintSelf(os,indent);
+  vlPolyToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "Radius: " << this->Radius << "\n";
-    os << indent << "Angle: " << this->Angle << "\n";
-    }
+  os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Angle: " << this->Angle << "\n";
 }
 

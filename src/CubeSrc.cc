@@ -114,13 +114,10 @@ void vlCubeSource::Execute()
 
 void vlCubeSource::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlCubeSource::GetClassName()))
-    {
-    vlPolySource::PrintSelf(os,indent);
+  vlPolySource::PrintSelf(os,indent);
 
-    os << indent << "X Length: " << this->XLength << "\n";
-    os << indent << "Y Length: " << this->YLength << "\n";
-    os << indent << "Z Length: " << this->ZLength << "\n";
-    }
+  os << indent << "X Length: " << this->XLength << "\n";
+  os << indent << "Y Length: " << this->YLength << "\n";
+  os << indent << "Z Length: " << this->ZLength << "\n";
 }
 

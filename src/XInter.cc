@@ -55,24 +55,24 @@ XrmOptionDescRec Desc[] =
 
 // Description:
 // Construct object so that light follows camera motion.
-vlXInteractiveRenderer::vlXInteractiveRenderer()
+vlXRenderWindowInteractor::vlXRenderWindowInteractor()
 {
   this->State = VLXI_START;
   this->App = 0;
 }
 
-vlXInteractiveRenderer::~vlXInteractiveRenderer()
+vlXRenderWindowInteractor::~vlXRenderWindowInteractor()
 {
 }
 
-void  vlXInteractiveRenderer::Start()
+void  vlXRenderWindowInteractor::Start()
 {
   XtAppMainLoop(this->App);
 }
 
 // Description:
 // Initializes the event handlers
-void vlXInteractiveRenderer::Initialize(XtAppContext app)
+void vlXRenderWindowInteractor::Initialize(XtAppContext app)
 {
   this->App = app;
 
@@ -81,7 +81,7 @@ void vlXInteractiveRenderer::Initialize(XtAppContext app)
 
 // Description:
 // Begin processing keyboard strokes.
-void vlXInteractiveRenderer::Initialize()
+void vlXRenderWindowInteractor::Initialize()
 {
   Display *display;
   static int any_initialized = 0;
@@ -101,7 +101,9 @@ void vlXInteractiveRenderer::Initialize()
     return;
     }
 
-  /* do initialization stuff if not initialized yet */
+  this->Initialized = 1;
+
+  // do initialization stuff if not initialized yet
   if (this->App)
     {
     any_initialized = 1;
@@ -126,7 +128,7 @@ void vlXInteractiveRenderer::Initialize()
   size    = ren->GetSize();
   position= ren->GetPosition();
 
-  this->top = XtVaAppCreateShell(this->RenderWindow->Name,"vl",
+  this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vl",
 				 applicationShellWidgetClass,
 				 display,
 				 XtNdepth, depth,
@@ -148,21 +150,18 @@ void vlXInteractiveRenderer::Initialize()
   XtAddEventHandler(this->top,
 		    KeyPressMask | ButtonPressMask | ExposureMask |
 		    StructureNotifyMask | ButtonReleaseMask,
-		    False,vlXInteractiveRendererCallback,(XtPointer)this);
+		    False,vlXRenderWindowInteractorCallback,(XtPointer)this);
   this->Size[0] = size[0];
   this->Size[1] = size[1];
 }
 
-void vlXInteractiveRenderer::PrintSelf(ostream& os, vlIndent indent)
+void vlXRenderWindowInteractor::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlXInteractiveRenderer::GetClassName()))
-    {
-    vlInteractiveRenderer::PrintSelf(os,indent);
-    }
+  vlRenderWindowInteractor::PrintSelf(os,indent);
 }
 
 
-void  vlXInteractiveRenderer::UpdateSize(int x,int y)
+void  vlXRenderWindowInteractor::UpdateSize(int x,int y)
 {
   // if the size changed send this on to the RenderWindow
   if ((x != this->Size[0])||(y != this->Size[1]))
@@ -174,31 +173,31 @@ void  vlXInteractiveRenderer::UpdateSize(int x,int y)
 
 }
  
-void  vlXInteractiveRenderer::StartRotate()
+void  vlXRenderWindowInteractor::StartRotate()
 {
   if (this->State != VLXI_START) return;
   this->State = VLXI_ROTATE;
-  XtAppAddTimeOut(this->App,10,vlXInteractiveRendererTimer,(XtPointer)this);
+  XtAppAddTimeOut(this->App,10,vlXRenderWindowInteractorTimer,(XtPointer)this);
 }
-void  vlXInteractiveRenderer::EndRotate()
+void  vlXRenderWindowInteractor::EndRotate()
 {
   if (this->State != VLXI_ROTATE) return;
   this->State = VLXI_START;
 }
 
-void  vlXInteractiveRenderer::StartZoom()
+void  vlXRenderWindowInteractor::StartZoom()
 {
   if (this->State != VLXI_START) return;
   this->State = VLXI_ZOOM;
-  XtAppAddTimeOut(this->App,10,vlXInteractiveRendererTimer,(XtPointer)this);
+  XtAppAddTimeOut(this->App,10,vlXRenderWindowInteractorTimer,(XtPointer)this);
 }
-void  vlXInteractiveRenderer::EndZoom()
+void  vlXRenderWindowInteractor::EndZoom()
 {
   if (this->State != VLXI_ZOOM) return;
   this->State = VLXI_START;
 }
 
-void  vlXInteractiveRenderer::StartPan()
+void  vlXRenderWindowInteractor::StartPan()
 {
   float *FocalPoint;
   float *Result;
@@ -216,20 +215,20 @@ void  vlXInteractiveRenderer::StartPan()
   Result = this->CurrentRenderer->GetDisplayPoint();
   this->FocalDepth = Result[2];
 
-  XtAppAddTimeOut(this->App,10,vlXInteractiveRendererTimer,(XtPointer)this);
+  XtAppAddTimeOut(this->App,10,vlXRenderWindowInteractorTimer,(XtPointer)this);
 }
-void  vlXInteractiveRenderer::EndPan()
+void  vlXRenderWindowInteractor::EndPan()
 {
   if (this->State != VLXI_PAN) return;
   this->State = VLXI_START;
 }
 
-void vlXInteractiveRendererCallback(Widget w,XtPointer client_data, 
+void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data, 
 				    XEvent *event, Boolean *ctd)
 {
-  vlXInteractiveRenderer *me;
+  vlXRenderWindowInteractor *me;
 
-  me = (vlXInteractiveRenderer *)client_data;
+  me = (vlXRenderWindowInteractor *)client_data;
 
   switch (event->type) 
     {
@@ -323,16 +322,16 @@ void vlXInteractiveRendererCallback(Widget w,XtPointer client_data,
     }
 }
 
-void vlXInteractiveRendererTimer(XtPointer client_data,XtIntervalId *id)
+void vlXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
 {
-  vlXInteractiveRenderer *me;
+  vlXRenderWindowInteractor *me;
   Window root,child;
   int root_x,root_y;
   int x,y;
   float xf,yf;
   unsigned int keys;
 
-  me = (vlXInteractiveRenderer *)client_data;
+  me = (vlXRenderWindowInteractor *)client_data;
 
   switch (me->State)
     {
@@ -351,7 +350,7 @@ void vlXInteractiveRendererTimer(XtPointer client_data,XtIntervalId *id)
 	me->CurrentLight->SetPosition(me->CurrentCamera->GetPosition());
 	}
       me->RenderWindow->Render();
-      XtAppAddTimeOut(me->App,10,vlXInteractiveRendererTimer,client_data);
+      XtAppAddTimeOut(me->App,10,vlXRenderWindowInteractorTimer,client_data);
       break;
     case VLXI_PAN :
       {
@@ -395,7 +394,7 @@ void vlXInteractiveRendererTimer(XtPointer client_data,XtIntervalId *id)
 	(FPoint[2]-RPoint[2])/10.0 + PPoint[2]);
       
       me->RenderWindow->Render();
-      XtAppAddTimeOut(me->App,10,vlXInteractiveRendererTimer,client_data);
+      XtAppAddTimeOut(me->App,10,vlXRenderWindowInteractorTimer,client_data);
       }
       break;
     case VLXI_ZOOM :
@@ -413,7 +412,7 @@ void vlXInteractiveRendererTimer(XtPointer client_data,XtIntervalId *id)
 					  clippingRange[1]/zoomFactor);
       me->CurrentCamera->Zoom(zoomFactor);
       me->RenderWindow->Render();
-      XtAppAddTimeOut(me->App,10,vlXInteractiveRendererTimer,client_data);
+      XtAppAddTimeOut(me->App,10,vlXRenderWindowInteractorTimer,client_data);
       }
       break;
     }

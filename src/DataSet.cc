@@ -128,23 +128,20 @@ unsigned long int vlDataSet::GetMTime()
 
 void vlDataSet::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlDataSet::GetClassName()))
-    {
-    float *bounds;
-    
-    vlObject::PrintSelf(os,indent);
-    
-    os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
-    os << indent << "Number Of Cells: " << this->GetNumberOfCells() << "\n";
-    os << indent << "Point Data:\n";
-    this->PointData.PrintSelf(os,indent.GetNextIndent());
-    bounds = this->GetBounds();
-    os << indent << "Bounds: \n";
-    os << indent << "  Xmin,Xmax: (" <<bounds[0] << ", " << bounds[1] << ")\n";
-    os << indent << "  Ymin,Ymax: (" <<bounds[2] << ", " << bounds[3] << ")\n";
-    os << indent << "  Zmin,Zmax: (" <<bounds[4] << ", " << bounds[5] << ")\n";
-    os << indent << "Compute Time: " <<this->ComputeTime.GetMTime() << "\n";
-    }
+  float *bounds;
+
+  vlObject::PrintSelf(os,indent);
+
+  os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
+  os << indent << "Number Of Cells: " << this->GetNumberOfCells() << "\n";
+  os << indent << "Point Data:\n";
+  this->PointData.PrintSelf(os,indent.GetNextIndent());
+  bounds = this->GetBounds();
+  os << indent << "Bounds: \n";
+  os << indent << "  Xmin,Xmax: (" <<bounds[0] << ", " << bounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" <<bounds[2] << ", " << bounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" <<bounds[4] << ", " << bounds[5] << ")\n";
+  os << indent << "Compute Time: " <<this->ComputeTime.GetMTime() << "\n";
 }
 
 void vlDataSet::GetCellNeighbors(int cellId, vlIdList &ptIds,

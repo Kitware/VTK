@@ -331,26 +331,23 @@ void vlConnectivityFilter::DeleteSpecifiedRegion(int id)
 
 void vlConnectivityFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlConnectivityFilter::GetClassName()))
-    {
-    vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
+  vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
-    os << indent << "Extraction Mode: ";
-    switch (this->ExtractionMode)
-      {
-      case EXTRACT_POINT_SEEDED_REGIONS:
-        os << "(Extract point seeded regions)\n";
-        break;
-      case EXTRACT_CELL_SEEDED_REGIONS:
-        os << "(Extract cell seeded regions)\n";
-        break;
-      case EXTRACT_SPECIFIED_REGIONS:
-        os << "(Extract specified regions)\n";
-        break;
-      case EXTRACT_LARGEST_REGIONS:
-        os << "(Extract " << this->NumberOfRegionsToExtract << " largest regions)\n";
-        break;
-      }
+  os << indent << "Extraction Mode: ";
+  switch (this->ExtractionMode)
+    {
+    case EXTRACT_POINT_SEEDED_REGIONS:
+      os << "(Extract point seeded regions)\n";
+      break;
+    case EXTRACT_CELL_SEEDED_REGIONS:
+      os << "(Extract cell seeded regions)\n";
+      break;
+    case EXTRACT_SPECIFIED_REGIONS:
+      os << "(Extract specified regions)\n";
+      break;
+    case EXTRACT_LARGEST_REGIONS:
+      os << "(Extract " << this->NumberOfRegionsToExtract << " largest regions)\n";
+      break;
 
     os << indent << "Color Regions: " << (this->ColorRegions ? "On\n" : "Off\n");
     os << indent << "Maximum Recursion Depth: " << this->MaxRecursionDepth << "\n";

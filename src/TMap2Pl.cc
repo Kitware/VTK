@@ -37,20 +37,17 @@ vlTextureMapToPlane::vlTextureMapToPlane()
 
 void vlTextureMapToPlane::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlTextureMapToPlane::GetClassName()))
-    {
-    vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vlDataSetToDataSetFilter::PrintSelf(os,indent);
 
-    os << indent << "S Range: (" << this->SRange[0] << ", "
-                                 << this->SRange[1] << ")\n";
-    os << indent << "T Range: (" << this->TRange[0] << ", "
-                                 << this->TRange[1] << ")\n";
-    os << indent << "Automatic Normal Generation: " << 
-                    (this->AutomaticPlaneGeneration ? "On\n" : "Off\n");
-    os << indent << "Normal: (" << this->Normal[0] << ", "
-                                  << this->Normal[1] << ", "
-                                  << this->Normal[2] << ")\n";
-    }
+  os << indent << "S Range: (" << this->SRange[0] << ", "
+                               << this->SRange[1] << ")\n";
+  os << indent << "T Range: (" << this->TRange[0] << ", "
+                               << this->TRange[1] << ")\n";
+  os << indent << "Automatic Normal Generation: " << 
+                  (this->AutomaticPlaneGeneration ? "On\n" : "Off\n");
+  os << indent << "Normal: (" << this->Normal[0] << ", "
+                                << this->Normal[1] << ", "
+                                << this->Normal[2] << ")\n";
 }
 
 void vlTextureMapToPlane::Execute()

@@ -99,10 +99,7 @@ unsigned long vlTransformFilter::GetMTime()
 
 void vlTransformFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlTransformFilter::GetClassName()))
-    {
-    vlPointSetToPointSetFilter::PrintSelf(os,indent);
+  vlPointSetToPointSetFilter::PrintSelf(os,indent);
 
-    os << indent << "Transform: " << this->Transform << "\n";
-    }
+  os << indent << "Transform: " << this->Transform << "\n";
 }

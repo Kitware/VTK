@@ -200,12 +200,9 @@ vlGeometryPrimitive *vlSbrRenderer::GetPrimitive(char *type)
 
 void vlSbrRenderer::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlSbrRenderer::GetClassName()))
-    {
-    this->vlRenderer::PrintSelf(os,indent);
+  this->vlRenderer::PrintSelf(os,indent);
 
-    os << indent << "Number Of Lights Bound: " << 
-      this->NumberOfLightsBound << "\n";
-    }
+  os << indent << "Number Of Lights Bound: " << 
+    this->NumberOfLightsBound << "\n";
 }
 

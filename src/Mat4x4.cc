@@ -251,16 +251,13 @@ void vlMatrix4x4::PrintSelf (ostream& os, vlIndent indent)
 {
   int i, j;
 
-  if (this->ShouldIPrint (vlMatrix4x4::GetClassName()))
-    {
-	  vlObject::PrintSelf(os, indent);
+        vlObject::PrintSelf(os, indent);
 
-	  os << indent << "Elements:\n";
-          for (i = 0; i < 4; i++) {
-	    cout << indent << indent;
-            for (j = 0; j < 4; j++) {
-              cout << this->Element[i][j] << " ";
-            }
+        os << indent << "Elements:\n";
+        for (i = 0; i < 4; i++) {
+          cout << indent << indent;
+          for (j = 0; j < 4; j++) {
+            cout << this->Element[i][j] << " ";
 	    cout << "\n";
           }
     }

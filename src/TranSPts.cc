@@ -39,22 +39,19 @@ vlTransformStructuredPoints::vlTransformStructuredPoints()
 
 void vlTransformStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlTransformStructuredPoints::GetClassName()))
-    {
-    vlStructuredPointsToStructuredPointsFilter::PrintSelf(os,indent);
+  vlStructuredPointsToStructuredPointsFilter::PrintSelf(os,indent);
 
-    os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
-                 << this->SampleDimensions[1] << ", "
-                 << this->SampleDimensions[2] << ")\n";
-    os << indent << "ModelBounds: \n";
-    os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
-    os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
-    os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
+  os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
+               << this->SampleDimensions[1] << ", "
+               << this->SampleDimensions[2] << ")\n";
+  os << indent << "ModelBounds: \n";
+  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
 
-    os << indent << "Fill Value:" << this->FillValue << "\n";
+  os << indent << "Fill Value:" << this->FillValue << "\n";
 
-    os << indent << "Transform:" << this->Transform << "\n";
-    }
+  os << indent << "Transform:" << this->Transform << "\n";
 }
 
 // Description:

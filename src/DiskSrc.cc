@@ -94,13 +94,10 @@ void vlDiskSource::Execute()
 
 void vlDiskSource::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlDiskSource::GetClassName()))
-    {
-    vlPolySource::PrintSelf(os,indent);
+  vlPolySource::PrintSelf(os,indent);
 
-    os << indent << "InnerRadius: " << this->InnerRadius << "\n";
-    os << indent << "OuterRadius: " << this->OuterRadius << "\n";
-    os << indent << "RadialResolution: " << this->RadialResolution << "\n";
-    os << indent << "CircumferentialResolution: " << this->CircumferentialResolution << "\n";
-    }
+  os << indent << "InnerRadius: " << this->InnerRadius << "\n";
+  os << indent << "OuterRadius: " << this->OuterRadius << "\n";
+  os << indent << "RadialResolution: " << this->RadialResolution << "\n";
+  os << indent << "CircumferentialResolution: " << this->CircumferentialResolution << "\n";
 }

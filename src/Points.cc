@@ -74,18 +74,15 @@ float *vlPoints::GetBounds()
 
 void vlPoints::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlPoints::GetClassName()))
-    {
-    float *bounds;
+  float *bounds;
 
-    vlRefCount::PrintSelf(os,indent);
+  vlRefCount::PrintSelf(os,indent);
 
-    os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
-    bounds = this->GetBounds();
-    os << indent << "Bounds: \n";
-    os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
-    os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";
-    os << indent << "  Zmin,Zmax: (" << bounds[4] << ", " << bounds[5] << ")\n";
-    }
+  os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
+  bounds = this->GetBounds();
+  os << indent << "Bounds: \n";
+  os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << bounds[4] << ", " << bounds[5] << ")\n";
 }
 

@@ -100,35 +100,32 @@ void vlDataSetMapper::Render(vlRenderer *ren)
 
 void vlDataSetMapper::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlDataSetMapper::GetClassName()))
+  vlMapper::PrintSelf(os,indent);
+
+  if ( this->Input )
     {
-    vlMapper::PrintSelf(os,indent);
+    os << indent << "Input: (" << this->Input << ")\n";
+    }
+  else
+    {
+    os << indent << "Input: (none)\n";
+    }
 
-    if ( this->Input )
-      {
-      os << indent << "Input: (" << this->Input << ")\n";
-      }
-    else
-      {
-      os << indent << "Input: (none)\n";
-      }
+  if ( this->PolyMapper )
+    {
+    os << indent << "Poly Mapper: (" << this->PolyMapper << ")\n";
+    }
+  else
+    {
+    os << indent << "Poly Mapper: (none)\n";
+    }
 
-    if ( this->PolyMapper )
-      {
-      os << indent << "Poly Mapper: (" << this->PolyMapper << ")\n";
-      }
-    else
-      {
-      os << indent << "Poly Mapper: (none)\n";
-      }
-
-    if ( this->GeometryExtractor )
-      {
-      os << indent << "Geometry Extractor: (" << this->GeometryExtractor << ")\n";
-      }
-    else
-      {
-      os << indent << "Geometry Extractor: (none)\n";
-      }
-   }
+  if ( this->GeometryExtractor )
+    {
+    os << indent << "Geometry Extractor: (" << this->GeometryExtractor << ")\n";
+    }
+  else
+    {
+    os << indent << "Geometry Extractor: (none)\n";
+    }
 }

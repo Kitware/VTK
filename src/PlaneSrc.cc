@@ -106,10 +106,7 @@ void vlPlaneSource::Execute()
 
 void vlPlaneSource::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlPlaneSource::GetClassName()))
-    {
-    vlPolySource::PrintSelf(os,indent);
+  vlPolySource::PrintSelf(os,indent);
 
-    os << indent << "Resolution: (" << this->XRes << " by " << this->YRes << ")\n";
-    }
+  os << indent << "Resolution: (" << this->XRes << " by " << this->YRes << ")\n";
 }

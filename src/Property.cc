@@ -123,31 +123,28 @@ void vlProperty::SetColor(float R,float G,float B)
  
 void vlProperty::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlProperty::GetClassName()))
+  vlObject::PrintSelf(os,indent);
+
+  os << indent << "Ambient: " << this->Ambient << "\n";
+  os << indent << "Ambient Color: (" << this->AmbientColor[0] << ", " 
+    << this->AmbientColor[1] << ", " << this->AmbientColor[2] << ")\n";
+  os << indent << "Backface: " << (this->Backface ? "On\n" : "Off\n");
+  os << indent << "Color: (" << this->Color[0] << ", " 
+    << this->Color[1] << ", " << this->Color[2] << ")\n";
+  os << indent << "Diffuse: " << this->Diffuse << "\n";
+  os << indent << "Diffuse Color: (" << this->DiffuseColor[0] << ", " 
+    << this->DiffuseColor[1] << ", " << this->DiffuseColor[2] << ")\n";
+  os << indent << "Edge Color: (" << this->EdgeColor[0] << ", " 
+    << this->EdgeColor[1] << ", " << this->EdgeColor[2] << ")\n";
+  os << indent << "Edge Visibility: " 
+    << (this->EdgeVisibility ? "On\n" : "Off\n");
+  os << indent << "Interpolation: ";
+  switch (this->Interpolation) 
     {
-    vlObject::PrintSelf(os,indent);
-    
-    os << indent << "Ambient: " << this->Ambient << "\n";
-    os << indent << "Ambient Color: (" << this->AmbientColor[0] << ", " 
-      << this->AmbientColor[1] << ", " << this->AmbientColor[2] << ")\n";
-    os << indent << "Backface: " << (this->Backface ? "On\n" : "Off\n");
-    os << indent << "Color: (" << this->Color[0] << ", " 
-      << this->Color[1] << ", " << this->Color[2] << ")\n";
-    os << indent << "Diffuse: " << this->Diffuse << "\n";
-    os << indent << "Diffuse Color: (" << this->DiffuseColor[0] << ", " 
-      << this->DiffuseColor[1] << ", " << this->DiffuseColor[2] << ")\n";
-    os << indent << "Edge Color: (" << this->EdgeColor[0] << ", " 
-      << this->EdgeColor[1] << ", " << this->EdgeColor[2] << ")\n";
-    os << indent << "Edge Visibility: " 
-      << (this->EdgeVisibility ? "On\n" : "Off\n");
-    os << indent << "Interpolation: ";
-    switch (this->Interpolation) 
-      {
-    case 0: os << "VL_FLAT\n"; break;
-    case 1: os << "VL_GOURAUD\n"; break;
-    case 2: os << "VL_PHONG\n"; break;
-    default: os << "unknown\n";
-      }
+  case 0: os << "VL_FLAT\n"; break;
+  case 1: os << "VL_GOURAUD\n"; break;
+  case 2: os << "VL_PHONG\n"; break;
+  default: os << "unknown\n";
     os << indent << "Representation: ";
     switch (this->Representation) 
       {

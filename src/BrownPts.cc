@@ -78,11 +78,8 @@ void vlBrownianPoints::Execute()
 
 void vlBrownianPoints::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlBrownianPoints::GetClassName()))
-    {
-    vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vlDataSetToDataSetFilter::PrintSelf(os,indent);
 
-    os << indent << "Minimum Speed: " << this->MinimumSpeed << "\n";
-    os << indent << "Maximum Speed: " << this->MaximumSpeed << "\n";
-    }
+  os << indent << "Minimum Speed: " << this->MinimumSpeed << "\n";
+  os << indent << "Maximum Speed: " << this->MaximumSpeed << "\n";
 }

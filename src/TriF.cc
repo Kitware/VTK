@@ -107,13 +107,10 @@ void vlTriangleFilter::Execute()
 
 void vlTriangleFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlTriangleFilter::GetClassName()))
-    {
-    vlPolyToPolyFilter::PrintSelf(os,indent);
+  vlPolyToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "Pass Verts: " << (this->PassVerts ? "On\n" : "Off\n");
-    os << indent << "Pass Lines: " << (this->PassLines ? "On\n" : "Off\n");
-    }
+  os << indent << "Pass Verts: " << (this->PassVerts ? "On\n" : "Off\n");
+  os << indent << "Pass Lines: " << (this->PassLines ? "On\n" : "Off\n");
 
 }
 

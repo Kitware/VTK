@@ -42,11 +42,8 @@ void vlTCoords::GetTCoords(vlIdList& ptId, vlFloatTCoords& ftc)
 
 void vlTCoords::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlTCoords::GetClassName()))
-    {
-    vlRefCount::PrintSelf(os,indent);
+  vlRefCount::PrintSelf(os,indent);
 
-    os << indent << "Number Of Texture Coordinates: " << this->GetNumberOfTCoords() << "\n";
-    os << indent << "Texture Dimension: " << this->Dimension << "\n";
-    }
+  os << indent << "Number Of Texture Coordinates: " << this->GetNumberOfTCoords() << "\n";
+  os << indent << "Texture Dimension: " << this->Dimension << "\n";
 }

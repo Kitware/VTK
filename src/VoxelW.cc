@@ -102,16 +102,10 @@ void vlVoxelWriter::Write()
 
 void vlVoxelWriter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlVoxelWriter::GetClassName()))
-    {
-    this->PrintWatchOn(); // watch for multiple inheritance
+  vlStructuredPointsFilter::_PrintSelf(os,indent);
+  vlWriter::PrintSelf(os,indent);
 
-    vlStructuredPointsFilter::_PrintSelf(os,indent);
-    vlWriter::PrintSelf(os,indent);
-
-    os << indent << "Filename: " << this->Filename << "\n";
-    this->PrintWatchOff(); // stop worrying about it now
-    }
+  os << indent << "Filename: " << this->Filename << "\n";
 }
 
 

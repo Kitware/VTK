@@ -93,12 +93,9 @@ int vlStack::GetNumberOfItems()
 
 void vlStack::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlStack::GetClassName()))
-    {
-    vlObject::PrintSelf(os,indent);
-    
-    os << indent << "Number Of Items: " << this->NumberOfItems << "\n";
-    }
+  vlObject::PrintSelf(os,indent);
+
+  os << indent << "Number Of Items: " << this->NumberOfItems << "\n";
 }
 
 

@@ -72,10 +72,7 @@ void vlVoxelReader::Execute()
 
 void vlVoxelReader::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlVoxelReader::GetClassName()))
-    {
-    vlStructuredPointsSource::PrintSelf(os,indent);
+  vlStructuredPointsSource::PrintSelf(os,indent);
 
-    os << indent << "Filename: " << this->Filename << "\n";
-    }
+  os << indent << "Filename: " << this->Filename << "\n";
 }

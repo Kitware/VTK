@@ -58,11 +58,8 @@ void vlMaskPoints::Execute()
 
 void vlMaskPoints::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlMaskPoints::GetClassName()))
-    {
-    vlDataSetToPolyFilter::PrintSelf(os,indent);
+  vlDataSetToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "On Ratio: " << this->OnRatio << "\n";
-    os << indent << "Offset: " << this->Offset << "\n";
-    }
+  os << indent << "On Ratio: " << this->OnRatio << "\n";
+  os << indent << "Offset: " << this->Offset << "\n";
 }

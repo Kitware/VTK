@@ -43,26 +43,23 @@ void vlWriter::SetEndWrite(void (*f)(void *), void *arg)
 
 void vlWriter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlWriter::GetClassName()))
+  vlObject::PrintSelf(os,indent);
+
+  if ( this->StartWrite )
     {
-    vlObject::PrintSelf(os,indent);
+    os << indent << "Start Write: (" << (void *)this->StartWrite << ")\n";
+    }
+  else
+    {
+    os << indent << "Start Write: (none)\n";
+    }
 
-    if ( this->StartWrite )
-      {
-      os << indent << "Start Write: (" << this->StartWrite << ")\n";
-      }
-    else
-      {
-      os << indent << "Start Write: (none)\n";
-      }
-
-    if ( this->EndWrite )
-      {
-      os << indent << "End Write: (" << this->EndWrite << ")\n";
-      }
-    else
-      {
-      os << indent << "End Write: (none)\n";
-      }
-   }
+  if ( this->EndWrite )
+    {
+    os << indent << "End Write: (" << (void *)this->EndWrite << ")\n";
+    }
+  else
+    {
+    os << indent << "End Write: (none)\n";
+    }
 }

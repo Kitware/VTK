@@ -80,10 +80,7 @@ void vlShrinkFilter::Execute()
 
 void vlShrinkFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlShrinkFilter::GetClassName()))
-    {
-    vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
+  vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
-    os << indent << "Shrink Factor: " << this->ShrinkFactor << "\n";
-    }
+  os << indent << "Shrink Factor: " << this->ShrinkFactor << "\n";
 }

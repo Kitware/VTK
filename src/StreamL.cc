@@ -56,12 +56,9 @@ void vlStreamLine::Execute()
 
 void vlStreamLine::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlStreamLine::GetClassName()))
-    {
-    vlDataSetToPolyFilter::PrintSelf(os,indent);
+  vlDataSetToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "";
-    }
+  os << indent << "";
 
 }
 

@@ -13,9 +13,9 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlInteractiveRenderer - provide event driven interface to renderer
+// .NAME vlRenderWindowInteractor - provide event driven interface to rendering window
 // .SECTION Description
-// vlInteractiveRenderer is a convenience object that provides event 
+// vlRenderWindowInteractor is a convenience object that provides event 
 // bindings to common graphics functions. For example, camera 
 // zoom-in/zoom-out, azimuth, and roll.
 
@@ -30,35 +30,38 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //    w - turn all actors wireframe
 //    s - turn all actors surface
 
-#ifndef __vlInteractiveRenderer_h
-#define __vlInteractiveRenderer_h
+#ifndef __vlRenderWindowInteractor_h
+#define __vlRenderWindowInteractor_h
 
 #include "RenderW.hh"
 #include "Camera.hh"
 #include "Light.hh"
 
-class vlInteractiveRenderer : public vlObject
+class vlRenderWindowInteractor : public vlObject
 {
 public:
-  vlInteractiveRenderer();
-  ~vlInteractiveRenderer();
-  char *GetClassName() {return "vlInteractiveRenderer";};
+  vlRenderWindowInteractor();
+  ~vlRenderWindowInteractor();
+  char *GetClassName() {return "vlRenderWindowInteractor";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   virtual void Initialize() = 0;
   virtual void Start() = 0;
 
   // Description:
-  // Set the rendering window being controlled by this object.
+  // Get the rendering window being controlled by this object.
   vlSetObjectMacro(RenderWindow,vlRenderWindow);
   vlGetObjectMacro(RenderWindow,vlRenderWindow);
-
 
   // Description:
   // Turn on/off the automatic repositioning of lights as the camera moves.
   vlSetMacro(LightFollowCamera,int);
   vlGetMacro(LightFollowCamera,int);
   vlBooleanMacro(LightFollowCamera,int);
+
+  // Description:
+  // See whether interactor has been initialized yet.
+  vlGetMacro(Initialized,int);
 
   void FindPokedCamera(int,int);
   void FindPokedRenderer(int,int);
@@ -75,6 +78,7 @@ protected:
   int Size[2];
   int   State;
   float FocalDepth;
+  int Initialized;
 };
 
 #endif

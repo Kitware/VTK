@@ -154,15 +154,9 @@ void vlSTLWriter::WriteBinarySTL(vlPoints *pts, vlCellArray *polys)
 
 void vlSTLWriter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlSTLWriter::GetClassName()))
-    {
-    this->PrintWatchOn(); // watch for multiple inheritance
+  vlPolyFilter::_PrintSelf(os,indent);
+  vlWriter::PrintSelf(os,indent);
 
-    vlPolyFilter::_PrintSelf(os,indent);
-    vlWriter::PrintSelf(os,indent);
-
-    os << indent << "Filename: " << this->Filename << "\n";
-    this->PrintWatchOff(); // stop worrying about it now
-    }
+  os << indent << "Filename: " << this->Filename << "\n";
 }
 

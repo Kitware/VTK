@@ -76,14 +76,11 @@ unsigned long int vlPointSet::GetMTime()
 
 void vlPointSet::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlPointSet::GetClassName()))
-    {
-    vlDataSet::PrintSelf(os,indent);
-    
-    os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
-    os << indent << "Point Data: " << this->Points;
-    os << indent << "Locator: " << this->Locator;
-    }
+  vlDataSet::PrintSelf(os,indent);
+
+  os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
+  os << indent << "Point Data: " << this->Points;
+  os << indent << "Locator: " << this->Locator;
 }
 
 int vlPointSet::FindCell(float x[3], vlCell *cell, float tol2, int& subId,

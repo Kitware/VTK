@@ -95,12 +95,9 @@ void vlExtractGeometry::Execute()
 
 void vlExtractGeometry::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlExtractGeometry::GetClassName()))
-    {
-    vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
+  vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
-    os << indent << "Radius: " << this->Radius << "\n";
-    os << indent << "Center: (" << this->Center[0] << ", "
-       << this->Center[1] << ", " << this->Center[2] << ")\n";
-    }
+  os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Center: (" << this->Center[0] << ", "
+     << this->Center[1] << ", " << this->Center[2] << ")\n";
 }

@@ -16,6 +16,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <stdlib.h>
 #include <string.h>
 #include "RenderW.hh"
+#include "Interact.hh"
 
 // Description:
 // Construct object with screen size 300x300, borders turned on, position
@@ -32,6 +33,7 @@ vlRenderWindow::vlRenderWindow()
   Mapped = 0;
   DoubleBuffer = 1;
   StereoRender = 0;
+  Interactor = NULL;
 
   strcpy(this->Name,"Visualization Library");
 }
@@ -41,6 +43,10 @@ vlRenderWindow::vlRenderWindow()
 void vlRenderWindow::Render()
 {
   vlDebugMacro(<< "Starting Render Method.\n");
+
+  if ( this->Interactor && ! this->Interactor->GetInitialized() )
+    this->Interactor->Initialize();
+
   this->Start();
   this->Renderers.Render();
   this->Frame();
@@ -72,24 +78,21 @@ void vlRenderWindow::SetSize(int a[2])
 
 void vlRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlRenderWindow::GetClassName()))
-    {
-    int *temp;
+  int *temp;
 
-    vlObject::PrintSelf(os,indent);
-    
-    os << indent << "Borders: " << (this->Borders ? "On\n":"Off\n");
-    os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n":"Off\n");
-    os << indent << "Full Screen: " << (this->FullScreen ? "On\n":"Off\n");
-    os << indent << "Name: " << this->Name << "\n";
-    temp = this->GetPosition();
-    os << indent << "Position: (" << temp[0] << ", " << temp[1] << ")\n";
-    temp = this->GetSize();
-    os << indent << "Renderers:\n";
-    this->Renderers.PrintSelf(os,indent.GetNextIndent());
-    os << indent << "Size: (" << temp[0] << ", " << temp[1] << ")\n";
-    os << indent << "Stereo Render: " 
-      << (this->StereoRender ? "On\n":"Off\n");
-    }
+  vlObject::PrintSelf(os,indent);
+
+  os << indent << "Borders: " << (this->Borders ? "On\n":"Off\n");
+  os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n":"Off\n");
+  os << indent << "Full Screen: " << (this->FullScreen ? "On\n":"Off\n");
+  os << indent << "Name: " << this->Name << "\n";
+  temp = this->GetPosition();
+  os << indent << "Position: (" << temp[0] << ", " << temp[1] << ")\n";
+  temp = this->GetSize();
+  os << indent << "Renderers:\n";
+  this->Renderers.PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Size: (" << temp[0] << ", " << temp[1] << ")\n";
+  os << indent << "Stereo Render: " 
+     << (this->StereoRender ? "On\n":"Off\n");
 }
 

@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Construct object so that light follows camera motion.
-vlInteractiveRenderer::vlInteractiveRenderer()
+vlRenderWindowInteractor::vlRenderWindowInteractor()
 {
   this->RenderWindow    = NULL;
   this->CurrentCamera   = NULL;
@@ -26,13 +26,14 @@ vlInteractiveRenderer::vlInteractiveRenderer()
   this->CurrentRenderer = NULL;
 
   this->LightFollowCamera = 1;
+  this->Initialized = 0;
 }
 
-vlInteractiveRenderer::~vlInteractiveRenderer()
+vlRenderWindowInteractor::~vlRenderWindowInteractor()
 {
 }
 
-void vlInteractiveRenderer::FindPokedRenderer(int x,int y)
+void vlRenderWindowInteractor::FindPokedRenderer(int x,int y)
 {
   vlRendererCollection *rc;
   vlRenderer *aren;
@@ -64,7 +65,7 @@ void vlInteractiveRenderer::FindPokedRenderer(int x,int y)
     }
 }
 
-void  vlInteractiveRenderer::FindPokedCamera(int x,int y)
+void  vlRenderWindowInteractor::FindPokedCamera(int x,int y)
 {
   float *vp;
   vlLightCollection *lc;
@@ -86,18 +87,15 @@ void  vlInteractiveRenderer::FindPokedCamera(int x,int y)
 }
 
 
-void vlInteractiveRenderer::PrintSelf(ostream& os, vlIndent indent)
+void vlRenderWindowInteractor::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlInteractiveRenderer::GetClassName()))
-    {
-    vlObject::PrintSelf(os,indent);
+  vlObject::PrintSelf(os,indent);
 
-    os << indent << "RenderWindow:    " << this->RenderWindow << "\n";
-    os << indent << "CurrentCamera:   " << this->CurrentCamera << "\n";
-    os << indent << "CurrentLight:    " << this->CurrentLight << "\n";
-    os << indent << "CurrentRenderer: " << this->CurrentRenderer << "\n";
-    os << indent << "LightFollowCamera: " << (this->LightFollowCamera ? "On\n" : "Off\n");
-    }
+  os << indent << "RenderWindow:    " << this->RenderWindow << "\n";
+  os << indent << "CurrentCamera:   " << this->CurrentCamera << "\n";
+  os << indent << "CurrentLight:    " << this->CurrentLight << "\n";
+  os << indent << "CurrentRenderer: " << this->CurrentRenderer << "\n";
+  os << indent << "LightFollowCamera: " << (this->LightFollowCamera ? "On\n" : "Off\n");
 }
 
  

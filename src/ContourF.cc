@@ -156,16 +156,13 @@ void vlContourFilter::PrintSelf(ostream& os, vlIndent indent)
 {
   int i;
 
-  if (this->ShouldIPrint(vlContourFilter::GetClassName()))
-    {
-    vlDataSetToPolyFilter::PrintSelf(os,indent);
+  vlDataSetToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "Number Of Contours : " << this->NumberOfContours << "\n";
-    os << indent << "Contour Values: \n";
-    for ( i=0; i<this->NumberOfContours; i++)
-      {
-      os << indent << "  Value " << i << ": " << this->Values[i] << "\n";
-      }
+  os << indent << "Number Of Contours : " << this->NumberOfContours << "\n";
+  os << indent << "Contour Values: \n";
+  for ( i=0; i<this->NumberOfContours; i++)
+    {
+    os << indent << "  Value " << i << ": " << this->Values[i] << "\n";
     }
 }
 

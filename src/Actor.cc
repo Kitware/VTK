@@ -318,45 +318,42 @@ float *vlActor::GetZRange()
 
 void vlActor::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlActor::GetClassName()))
-    {
-    vlObject::PrintSelf(os,indent);
+  vlObject::PrintSelf(os,indent);
 
-    // make sure our bounds are up to date
-    this->GetBounds();
-    os << indent << "Bounds: (" << this->Bounds[0] << ", " 
-       << this->Bounds[1] << ") (" << this->Bounds[2] << ") ("
-       << this->Bounds[3] << ") (" << this->Bounds[4] << ") ("
-       << this->Bounds[5] << ")\n";
-    os << indent << "Dragable: " << (this->Dragable ? "On\n" : "Off\n");
-    if ( this->Mapper )
-      {
-      os << indent << "Mapper:\n";
-      this->Mapper->PrintSelf(os,indent.GetNextIndent());
-      }
-    else
-      {
-      os << indent << "Mapper: (none)\n";
-      }
-    os << indent << "Orientation: (" << this->Orientation[0] << ", " 
-      << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
-    os << indent << "Origin: (" << this->Origin[0] << ", " 
-      << this->Origin[1] << ", " << this->Origin[2] << ")\n";
-    os << indent << "Pickable: " << (this->Pickable ? "On\n" : "Off\n");
-    os << indent << "Position: (" << this->Position[0] << ", " 
-      << this->Position[1] << ", " << this->Position[2] << ")\n";
-    if ( this->Property )
-      {
-      os << indent << "Property:\n";
-      this->Property->PrintSelf(os,indent.GetNextIndent());
-      }
-    else
-      {
-      os << indent << "Property: (none)\n";
-      }
-    os << indent << "Scale: (" << this->Scale[0] << ", " 
-      << this->Scale[1] << ", " << this->Scale[2] << ")\n";
-    os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
+  // make sure our bounds are up to date
+  this->GetBounds();
+  os << indent << "Bounds: (" << this->Bounds[0] << ", " 
+     << this->Bounds[1] << ") (" << this->Bounds[2] << ") ("
+     << this->Bounds[3] << ") (" << this->Bounds[4] << ") ("
+     << this->Bounds[5] << ")\n";
+  os << indent << "Dragable: " << (this->Dragable ? "On\n" : "Off\n");
+  if ( this->Mapper )
+    {
+    os << indent << "Mapper:\n";
+    this->Mapper->PrintSelf(os,indent.GetNextIndent());
     }
+  else
+    {
+    os << indent << "Mapper: (none)\n";
+    }
+  os << indent << "Orientation: (" << this->Orientation[0] << ", " 
+    << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
+  os << indent << "Origin: (" << this->Origin[0] << ", " 
+    << this->Origin[1] << ", " << this->Origin[2] << ")\n";
+  os << indent << "Pickable: " << (this->Pickable ? "On\n" : "Off\n");
+  os << indent << "Position: (" << this->Position[0] << ", " 
+    << this->Position[1] << ", " << this->Position[2] << ")\n";
+  if ( this->Property )
+    {
+    os << indent << "Property:\n";
+    this->Property->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Property: (none)\n";
+    }
+  os << indent << "Scale: (" << this->Scale[0] << ", " 
+    << this->Scale[1] << ", " << this->Scale[2] << ")\n";
+  os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
 }
 

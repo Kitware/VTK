@@ -138,6 +138,7 @@ vlRenderer *vlGlrRenderWindow::MakeRenderer()
   vlGlrRenderer *ren;
 
   ren = new vlGlrRenderer;
+  this->AddRenderers(ren);
 
   // by default we are its parent
   ren->SetRenderWindow((vlRenderWindow*)this);
@@ -610,14 +611,19 @@ Colormap vlGlrRenderWindow::GetDesiredColormap ()
   return this->ColorMap;  
 }
 
+// Description:
+// Create named interactor type
+vlRenderWindowInteractor *vlGlrRenderWindow::MakeRenderWindowInteractor()
+{
+  this->Interactor = (vlRenderWindowInteractor *)new vlXRenderWindowInteractor;
+  this->Interactor->SetRenderWindow((vlRenderWindow *)this);
+  return this->Interactor;
+}
 
 void vlGlrRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlGlrRenderWindow::GetClassName()))
-    {
-    this->vlXRenderWindow::PrintSelf(os,indent);
+  this->vlXRenderWindow::PrintSelf(os,indent);
 
-    os << indent << "Gid: " << this->Gid << "\n";
-    os << indent << "MultiSamples: " << this->MultiSamples << "\n";
-    }
+  os << indent << "Gid: " << this->Gid << "\n";
+  os << indent << "MultiSamples: " << this->MultiSamples << "\n";
 }

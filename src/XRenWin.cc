@@ -125,13 +125,10 @@ void vlXRenderWindow::SetDisplayId(Display  *arg)
 
 void vlXRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlXRenderWindow::GetClassName()))
-    {
-    this->vlRenderWindow::PrintSelf(os,indent);
+  this->vlRenderWindow::PrintSelf(os,indent);
 
-    os << indent << "Color Map: " << this->ColorMap << "\n";
-    os << indent << "Display Id: " << this->GetDisplayId() << "\n";
-    os << indent << "Next Window Id: " << this->NextWindowId << "\n";
-    os << indent << "Window Id: " << this->GetWindowId() << "\n";
-    }
+  os << indent << "Color Map: " << this->ColorMap << "\n";
+  os << indent << "Display Id: " << this->GetDisplayId() << "\n";
+  os << indent << "Next Window Id: " << this->NextWindowId << "\n";
+  os << indent << "Window Id: " << this->GetWindowId() << "\n";
 }

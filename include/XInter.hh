@@ -13,9 +13,9 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlXInteractiveRenderer - provide Xevent driven interface to renderer
+// .NAME vlXRenderWindowInteractor - provide Xevent driven interface to renderer
 // .SECTION Description
-// vlXInteractiveRenderer is a convenience object that provides event 
+// vlXRenderWindowInteractor is a convenience object that provides event 
 // bindings to common graphics functions. For example, camera 
 // zoom-in/zoom-out, azimuth, and roll.
 
@@ -31,8 +31,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //    s - turn all actors surface
 
 
-#ifndef __vlXInteractiveRenderer_h
-#define __vlXInteractiveRenderer_h
+#ifndef __vlXRenderWindowInteractor_h
+#define __vlXRenderWindowInteractor_h
 
 //===========================================================
 // now we define the C++ class
@@ -41,12 +41,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <X11/StringDefs.h>
 #include <X11/Intrinsic.h>
 
-class vlXInteractiveRenderer : public vlInteractiveRenderer
+class vlXRenderWindowInteractor : public vlRenderWindowInteractor
 {
 public:
-  vlXInteractiveRenderer();
-  ~vlXInteractiveRenderer();
-  char *GetClassName() {return "vlXInteractiveRenderer";};
+  vlXRenderWindowInteractor();
+  ~vlXRenderWindowInteractor();
+  char *GetClassName() {return "vlXRenderWindowInteractor";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   virtual void Initialize();
@@ -60,9 +60,9 @@ public:
   void StartPan();
   void EndPan();
   
-  friend void vlXInteractiveRendererCallback(Widget,XtPointer,
+  friend void vlXRenderWindowInteractorCallback(Widget,XtPointer,
 					     XEvent *,Boolean *);
-  friend void vlXInteractiveRendererTimer(XtPointer,XtIntervalId *);
+  friend void vlXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
 
 protected:
   Widget top;

@@ -88,14 +88,11 @@ void vlTubeFilter::Execute()
 
 void vlTubeFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlTubeFilter::GetClassName()))
-    {
-    vlPolyToPolyFilter::PrintSelf(os,indent);
+  vlPolyToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "Radius: " << this->Radius << "\n";
-    os << indent << "Vary Radius: " << (this->VaryRadius ? "On\n" : "Off\n");
-    os << indent << "Number Of Sides: " << this->NumberOfSides << "\n";
-    os << indent << "Rotation: " << this->Rotation << "\n";
-    }
+  os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Vary Radius: " << (this->VaryRadius ? "On\n" : "Off\n");
+  os << indent << "Number Of Sides: " << this->NumberOfSides << "\n";
+  os << indent << "Rotation: " << this->Rotation << "\n";
 }
 

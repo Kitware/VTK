@@ -57,14 +57,11 @@ vlPLOT3DReader::~vlPLOT3DReader()
 
 void vlPLOT3DReader::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlPLOT3DReader::GetClassName()))
-    {
-    vlStructuredGridSource::PrintSelf(os,indent);
+  vlStructuredGridSource::PrintSelf(os,indent);
 
-    os << indent << "XYZ Filename: " << this->XYZFilename << "\n";
-    os << indent << "Q Filename: " << this->QFilename << "\n";
-    os << indent << "Function Filename: " << this->FunctionFilename << "\n";
-    }
+  os << indent << "XYZ Filename: " << this->XYZFilename << "\n";
+  os << indent << "Q Filename: " << this->QFilename << "\n";
+  os << indent << "Function Filename: " << this->FunctionFilename << "\n";
 }
 
 void vlPLOT3DReader::Execute()

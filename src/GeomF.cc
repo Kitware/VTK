@@ -187,25 +187,22 @@ void vlGeometryFilter::Execute()
 
 void vlGeometryFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlGeometryFilter::GetClassName()))
-    {
-    vlDataSetToPolyFilter::PrintSelf(os,indent);
+  vlDataSetToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "Point Minimum : " << this->PointMinimum << "\n";
-    os << indent << "Point Maximum : " << this->PointMaximum << "\n";
+  os << indent << "Point Minimum : " << this->PointMinimum << "\n";
+  os << indent << "Point Maximum : " << this->PointMaximum << "\n";
 
-    os << indent << "Cell Minimum : " << this->CellMinimum << "\n";
-    os << indent << "Cell Maximum : " << this->CellMaximum << "\n";
+  os << indent << "Cell Minimum : " << this->CellMinimum << "\n";
+  os << indent << "Cell Maximum : " << this->CellMaximum << "\n";
 
-    os << indent << "Extent: (" 
-       << this->Extent[0] << ", " << this->Extent[1] << ")\n("
-       << this->Extent[2] << ", " << this->Extent[3] << ")\n(" 
-       << this->Extent[4] << ", " << this->Extent[5] << ")\n";
+  os << indent << "Extent: (" 
+     << this->Extent[0] << ", " << this->Extent[1] << ")\n("
+     << this->Extent[2] << ", " << this->Extent[3] << ")\n(" 
+     << this->Extent[4] << ", " << this->Extent[5] << ")\n";
 
-    os << indent << "PointClipping: " << (this->PointClipping ? "On\n" : "Off\n");
-    os << indent << "CellClipping: " << (this->CellClipping ? "On\n" : "Off\n");
-    os << indent << "ExtentClipping: " << (this->ExtentClipping ? "On\n" : "Off\n");
+  os << indent << "PointClipping: " << (this->PointClipping ? "On\n" : "Off\n");
+  os << indent << "CellClipping: " << (this->CellClipping ? "On\n" : "Off\n");
+  os << indent << "ExtentClipping: " << (this->ExtentClipping ? "On\n" : "Off\n");
 
-    }
 }
 

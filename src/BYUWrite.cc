@@ -216,22 +216,15 @@ void vlBYUWriter::WriteTextureFile(int numPts)
 
 void vlBYUWriter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlBYUWriter::GetClassName()))
-    {
-    this->PrintWatchOn(); // watch for multiple inheritance
+  vlPolyFilter::_PrintSelf(os,indent);
+  vlWriter::PrintSelf(os,indent);
 
-    vlPolyFilter::_PrintSelf(os,indent);
-    vlWriter::PrintSelf(os,indent);
-
-    os << indent << "Geometry Filename: " << this->GeometryFilename << "\n";
-    os << indent << "Write Displacement: " << (this->WriteDisplacement ? "On\n" : "Off\n");
-    os << indent << "Displacement Filename: " << this->DisplacementFilename << "\n";
-    os << indent << "Write Scalar: " << (this->WriteScalar ? "On\n" : "Off\n");
-    os << indent << "Scalar Filename: " << this->ScalarFilename << "\n";
-    os << indent << "Write Texture: " << (this->WriteTexture ? "On\n" : "Off\n");
-    os << indent << "Texture Filename: " << this->TextureFilename << "\n";
-
-    this->PrintWatchOff(); // stop worrying about it now
-    }
+  os << indent << "Geometry Filename: " << this->GeometryFilename << "\n";
+  os << indent << "Write Displacement: " << (this->WriteDisplacement ? "On\n" : "Off\n");
+  os << indent << "Displacement Filename: " << this->DisplacementFilename << "\n";
+  os << indent << "Write Scalar: " << (this->WriteScalar ? "On\n" : "Off\n");
+  os << indent << "Scalar Filename: " << this->ScalarFilename << "\n";
+  os << indent << "Write Texture: " << (this->WriteTexture ? "On\n" : "Off\n");
+  os << indent << "Texture Filename: " << this->TextureFilename << "\n";
 }
 

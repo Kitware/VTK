@@ -271,16 +271,13 @@ int vlStructuredPoints::GetCellType(int cellId)
 
 void vlStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlStructuredPoints::GetClassName()))
-    {
-    vlDataSet::PrintSelf(os,indent);
-    
-    os << indent << "Origin: (" << this->Origin[0] << ", "
-                                    << this->Origin[1] << ", "
-                                    << this->Origin[2] << ")\n";
-    os << indent << "AspectRatio: (" << this->AspectRatio[0] << ", "
-                                    << this->AspectRatio[1] << ", "
-                                    << this->AspectRatio[2] << ")\n";
-    }
+  vlDataSet::PrintSelf(os,indent);
+
+  os << indent << "Origin: (" << this->Origin[0] << ", "
+                                  << this->Origin[1] << ", "
+                                  << this->Origin[2] << ")\n";
+  os << indent << "AspectRatio: (" << this->AspectRatio[0] << ", "
+                                  << this->AspectRatio[1] << ", "
+                                  << this->AspectRatio[2] << ")\n";
 }
 

@@ -132,12 +132,9 @@ void vlSphereSource::Execute()
 
 void vlSphereSource::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlSphereSource::GetClassName()))
-    {
-    vlPolySource::PrintSelf(os,indent);
+  vlPolySource::PrintSelf(os,indent);
 
-    os << indent << "Theta Resolution: " << this->ThetaResolution << "\n";
-    os << indent << "Phi Resolution: " << this->PhiResolution << "\n";
-    os << indent << "Radius: " << this->Radius << "\n";
-    }
+  os << indent << "Theta Resolution: " << this->ThetaResolution << "\n";
+  os << indent << "Phi Resolution: " << this->PhiResolution << "\n";
+  os << indent << "Radius: " << this->Radius << "\n";
 }

@@ -65,6 +65,7 @@ vlRenderer *vlSbrRenderWindow::MakeRenderer()
   vlSbrRenderer *ren;
 
   ren = new vlSbrRenderer;
+  this->AddRenderers(ren);
 
   // by default we are its parent
   ren->SetRenderWindow((vlRenderWindow*)this);
@@ -912,12 +913,20 @@ void vlSbrRenderWindow::SetSize(int x,int y)
   XSync(this->DisplayId,False);
 }
 
+// Description:
+// Create named interactor type
+vlRenderWindowInteractor *vlSbrRenderWindow::MakeRenderWindowInteractor()
+{
+  this->Interactor = (vlRenderWindowInteractor *)new vlXRenderWindowInteractor;
+  this->Interactor->SetRenderWindow((vlRenderWindow *)this);
+  return this->Interactor;
+}
+
+
+
 void vlSbrRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlSbrRenderWindow::GetClassName()))
-    {
-    this->vlXRenderWindow::PrintSelf(os,indent);
+  this->vlXRenderWindow::PrintSelf(os,indent);
 
-    os << indent << "Fd: " << this->Fd << "\n";
-    }
+  os << indent << "Fd: " << this->Fd << "\n";
 }

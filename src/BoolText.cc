@@ -21,11 +21,8 @@ vlBooleanTexture::vlBooleanTexture()
 
 void vlBooleanTexture::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlBooleanTexture::GetClassName()))
-    {
-    vlObject::PrintSelf(os,indent);
+  vlObject::PrintSelf(os,indent);
 
-    os << indent << "Thickness: " << this->Thickness << "\n";
-    }
+  os << indent << "Thickness: " << this->Thickness << "\n";
 }
 

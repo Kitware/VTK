@@ -605,14 +605,11 @@ vlTransform::~vlTransform ()
 
 void vlTransform::PrintSelf (ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint (vlTransform::GetClassName()))
-    {
-	  vlObject::PrintSelf(os, indent);
+        vlObject::PrintSelf(os, indent);
 
-	  os << indent << "Current Transformation:" << "\n";
+        os << indent << "Current Transformation:" << "\n";
 
-	  (**this->Stack).PrintSelf (os, indent.GetNextIndent());
-    }
+        (**this->Stack).PrintSelf (os, indent.GetNextIndent());
 }
 
 // Description:

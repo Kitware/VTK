@@ -100,14 +100,11 @@ void vlAxes::Execute()
 
 void vlAxes::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlAxes::GetClassName()))
-    {
-    vlPolySource::PrintSelf(os,indent);
+  vlPolySource::PrintSelf(os,indent);
 
-    os << indent << "Origin: (" << this->Origin[0] << ", "
-                 << this->Origin[1] << ", "
-                 << this->Origin[2] << ")\n";
+  os << indent << "Origin: (" << this->Origin[0] << ", "
+               << this->Origin[1] << ", "
+               << this->Origin[2] << ")\n";
 
-    os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
-    }
+  os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }

@@ -193,20 +193,17 @@ float *vlLookupTable::GetTableValue (int indx)
 
 void vlLookupTable::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlLookupTable::GetClassName()))
-    {
-    vlObject::PrintSelf(os,indent);
+  vlObject::PrintSelf(os,indent);
 
-    os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
-    os << indent << "Hue Range: (" << this->HueRange[0] << ", "
-       << this->HueRange[1] << ")\n";
-    os << indent << "Insert Time: " <<this->InsertTime.GetMTime() << "\n";
-    os << indent << "Number Of Colors: " << this->GetNumberOfColors() << "\n";
-    os << indent << "Saturation Range: (" << this->SaturationRange[0] << ", "
-       << this->SaturationRange[1] << ")\n";
-    os << indent << "Table Range: (" << this->TableRange[0] << ", "
-       << this->TableRange[1] << ")\n";
-    os << indent << "Value Range: (" << this->ValueRange[0] << ", "
-       << this->ValueRange[1] << ")\n";
-   }
+  os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
+  os << indent << "Hue Range: (" << this->HueRange[0] << ", "
+     << this->HueRange[1] << ")\n";
+  os << indent << "Insert Time: " <<this->InsertTime.GetMTime() << "\n";
+  os << indent << "Number Of Colors: " << this->GetNumberOfColors() << "\n";
+  os << indent << "Saturation Range: (" << this->SaturationRange[0] << ", "
+     << this->SaturationRange[1] << ")\n";
+  os << indent << "Table Range: (" << this->TableRange[0] << ", "
+     << this->TableRange[1] << ")\n";
+  os << indent << "Value Range: (" << this->ValueRange[0] << ", "
+     << this->ValueRange[1] << ")\n";
 }

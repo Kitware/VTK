@@ -166,23 +166,20 @@ void vlPolyMapper::Render(vlRenderer *ren)
 
 void vlPolyMapper::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlPolyMapper::GetClassName()))
+  vlMapper::PrintSelf(os,indent);
+
+  if ( this->Input )
     {
-    vlMapper::PrintSelf(os,indent);
+    os << indent << "Input: (" << this->Input << ")\n";
+    }
+  else
+    {
+    os << indent << "Input: (none)\n";
+    }
 
-    if ( this->Input )
-      {
-      os << indent << "Input: (" << this->Input << ")\n";
-      }
-    else
-      {
-      os << indent << "Input: (none)\n";
-      }
+  os << indent << "Vertex Visibility: " << (this->VertsVisibility ? "On\n" : "Off\n");
+  os << indent << "Line Visibility: " << (this->LinesVisibility ? "On\n" : "Off\n");
+  os << indent << "Polygon Visibility: " << (this->PolysVisibility ? "On\n" : "Off\n");
+  os << indent << "Triangle Strip Visibility: " << (this->StripsVisibility ? "On\n" : "Off\n");
 
-    os << indent << "Vertex Visibility: " << (this->VertsVisibility ? "On\n" : "Off\n");
-    os << indent << "Line Visibility: " << (this->LinesVisibility ? "On\n" : "Off\n");
-    os << indent << "Polygon Visibility: " << (this->PolysVisibility ? "On\n" : "Off\n");
-    os << indent << "Triangle Strip Visibility: " << (this->StripsVisibility ? "On\n" : "Off\n");
-
-   }
 }

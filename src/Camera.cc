@@ -853,31 +853,28 @@ void vlCamera::SetViewPlaneNormal(float a[3])
 
 void vlCamera::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlCamera::GetClassName()))
-    {
-    vlObject::PrintSelf(os,indent);
-    
-    // update orientation
-    this->GetOrientation();
+  vlObject::PrintSelf(os,indent);
 
-    os << indent << "Clipping Range: (" << this->ClippingRange[0] << ", " 
-      << this->ClippingRange[2] << ")\n";
-    os << indent << "Distance: " << this->Distance << "\n";
-    os << indent << "Eye Angle: " << this->EyeAngle << "\n";
-    os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
-      << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
-    os << indent << "Left Eye: " << this->LeftEye << "\n";
-    os << indent << "Orientation: (" << this->Orientation[0] << ", " 
-      << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
-    os << indent << "Position: (" << this->Position[0] << ", " 
-      << this->Position[1] << ", " << this->Position[2] << ")\n";
-    os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
-    os << indent << "Thickness: " << this->Thickness << "\n";
-    os << indent << "Twist: " << this->GetTwist() << "\n";
-    os << indent << "View Angle: " << this->ViewAngle << "\n";
-    os << indent << "View Plane Normal: (" << this->ViewPlaneNormal[0] << ", " 
-      << this->ViewPlaneNormal[1] << ", " << this->ViewPlaneNormal[2] << ")\n";
-    os << indent << "View Up: (" << this->ViewUp[0] << ", " 
-      << this->ViewUp[1] << ", " << this->ViewUp[2] << ")\n";
-    }
+  // update orientation
+  this->GetOrientation();
+
+  os << indent << "Clipping Range: (" << this->ClippingRange[0] << ", " 
+    << this->ClippingRange[2] << ")\n";
+  os << indent << "Distance: " << this->Distance << "\n";
+  os << indent << "Eye Angle: " << this->EyeAngle << "\n";
+  os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
+    << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
+  os << indent << "Left Eye: " << this->LeftEye << "\n";
+  os << indent << "Orientation: (" << this->Orientation[0] << ", " 
+    << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
+  os << indent << "Position: (" << this->Position[0] << ", " 
+    << this->Position[1] << ", " << this->Position[2] << ")\n";
+  os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
+  os << indent << "Thickness: " << this->Thickness << "\n";
+  os << indent << "Twist: " << this->GetTwist() << "\n";
+  os << indent << "View Angle: " << this->ViewAngle << "\n";
+  os << indent << "View Plane Normal: (" << this->ViewPlaneNormal[0] << ", " 
+    << this->ViewPlaneNormal[1] << ", " << this->ViewPlaneNormal[2] << ")\n";
+  os << indent << "View Up: (" << this->ViewUp[0] << ", " 
+    << this->ViewUp[1] << ", " << this->ViewUp[2] << ")\n";
 }

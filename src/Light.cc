@@ -42,19 +42,16 @@ vlLight::vlLight()
 
 void vlLight::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlLight::GetClassName()))
-    {
-    vlObject::PrintSelf(os,indent);
+  vlObject::PrintSelf(os,indent);
 
-    os << indent << "Color: (" << this->Color[0] << ", " 
-      << this->Color[1] << ", " << this->Color[2] << ")\n";
-    os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
-      << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
-    os << indent << "Intensity: " << this->Intensity << "\n";
-    os << indent << "Position: (" << this->Position[0] << ", " 
-      << this->Position[1] << ", " << this->Position[2] << ")\n";
-    os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
-    }
+  os << indent << "Color: (" << this->Color[0] << ", " 
+    << this->Color[1] << ", " << this->Color[2] << ")\n";
+  os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
+    << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
+  os << indent << "Intensity: " << this->Intensity << "\n";
+  os << indent << "Position: (" << this->Position[0] << ", " 
+    << this->Position[1] << ", " << this->Position[2] << ")\n";
+  os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
 }
 
 

@@ -66,10 +66,7 @@ void vlWarpScalar::Execute()
 
 void vlWarpScalar::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlWarpScalar::GetClassName()))
-    {
-    vlPointSetToPointSetFilter::PrintSelf(os,indent);
+  vlPointSetToPointSetFilter::PrintSelf(os,indent);
 
-    os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
-    }
+  os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }

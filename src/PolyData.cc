@@ -627,14 +627,11 @@ void vlPolyData::GetCellEdgeNeighbors(int cellId, int p1, int p2,
 
 void vlPolyData::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlPolyData::GetClassName()))
-    {
-    vlPointSet::PrintSelf(os,indent);
-    
-    os << indent << "Number Of Vertices: " << this->GetNumberOfVerts() << "\n";
-    os << indent << "Number Of Lines: " << this->GetNumberOfLines() << "\n";
-    os << indent << "Number Of Polygons: " << this->GetNumberOfPolys() << "\n";
-    os << indent << "Number Of Triangle Strips: " << this->GetNumberOfStrips() << "\n";
-    }
+  vlPointSet::PrintSelf(os,indent);
+
+  os << indent << "Number Of Vertices: " << this->GetNumberOfVerts() << "\n";
+  os << indent << "Number Of Lines: " << this->GetNumberOfLines() << "\n";
+  os << indent << "Number Of Polygons: " << this->GetNumberOfPolys() << "\n";
+  os << indent << "Number Of Triangle Strips: " << this->GetNumberOfStrips() << "\n";
 }
 

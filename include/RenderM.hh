@@ -37,7 +37,6 @@ class vlRenderMaster : public vlObject
 
   vlRenderWindow *MakeRenderWindow(char *ren);
   vlRenderWindow *MakeRenderWindow(void);
-  vlInteractiveRenderer *MakeInteractiveRenderer(void);
 };
 
 #endif

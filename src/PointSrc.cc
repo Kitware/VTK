@@ -63,15 +63,12 @@ void vlPointSource::Execute()
 
 void vlPointSource::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlPointSource::GetClassName()))
-    {
-    vlPolySource::PrintSelf(os,indent);
+  vlPolySource::PrintSelf(os,indent);
 
-    os << indent << "Number Of Points: " << this->NumberOfPoints << "\n";
-    os << indent << "Radius: " << this->Radius << "\n";
-    os << indent << "Center: (" << this->Center[0] << ", "
-                                << this->Center[1] << ", "
-                                << this->Center[2] << ")\n";
+  os << indent << "Number Of Points: " << this->NumberOfPoints << "\n";
+  os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Center: (" << this->Center[0] << ", "
+                              << this->Center[1] << ", "
+                              << this->Center[2] << ")\n";
 
-    }
 }

@@ -174,10 +174,7 @@ vlCell *vlStructuredGrid::GetCell(int cellId)
 
 void vlStructuredGrid::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlStructuredGrid::GetClassName()))
-    {
-    vlPointSet::PrintSelf(os,indent);
+  vlPointSet::PrintSelf(os,indent);
 //    vlStructuredData::PrintSelf(os,indent);
-    }
 }
 

@@ -26,12 +26,9 @@ vlVectorNorm::vlVectorNorm()
 
 void vlVectorNorm::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlVectorNorm::GetClassName()))
-    {
-    vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vlDataSetToDataSetFilter::PrintSelf(os,indent);
 
-    os << indent << "Normalize: " << (this->Normalize ? "On\n" : "Off\n");
-    }
+  os << indent << "Normalize: " << (this->Normalize ? "On\n" : "Off\n");
 }
 
 void vlVectorNorm::Execute()

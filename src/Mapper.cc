@@ -124,42 +124,39 @@ float *vlMapper::GetCenter()
 
 void vlMapper::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlMapper::GetClassName()))
+  vlObject::PrintSelf(os,indent);
+
+  os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
+  if ( this->StartRender )
     {
-    vlObject::PrintSelf(os,indent);
+    os << indent << "Start Render method defined.\n";
+    }
+  else
+    {
+    os << indent << "No Start Render method.\n";
+    }
 
-    os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
-    if ( this->StartRender )
-      {
-      os << indent << "Start Render method defined.\n";
-      }
-    else
-      {
-      os << indent << "No Start Render method.\n";
-      }
+  if ( this->EndRender )
+    {
+    os << indent << "End Render method defined.\n";
+    }
+  else
+    {
+    os << indent << "No End Render method.\n";
+    }
 
-    if ( this->EndRender )
-      {
-      os << indent << "End Render method defined.\n";
-      }
-    else
-      {
-      os << indent << "No End Render method.\n";
-      }
+  if ( this->LookupTable )
+    {
+    os << indent << "Lookup Table:\n";
+    this->LookupTable->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Lookup Table: (none)\n";
+    }
+  os << indent << "Scalars Visible: " 
+    << (this->ScalarsVisible ? "On\n" : "Off\n");
 
-    if ( this->LookupTable )
-      {
-      os << indent << "Lookup Table:\n";
-      this->LookupTable->PrintSelf(os,indent.GetNextIndent());
-      }
-    else
-      {
-      os << indent << "Lookup Table: (none)\n";
-      }
-    os << indent << "Scalars Visible: " 
-      << (this->ScalarsVisible ? "On\n" : "Off\n");
-
-    float *range = this->GetScalarRange();
-    os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
-   }
+  float *range = this->GetScalarRange();
+  os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
 }

@@ -98,17 +98,14 @@ void vlElevationFilter::Execute()
 
 void vlElevationFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlElevationFilter::GetClassName()))
-    {
-    vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vlDataSetToDataSetFilter::PrintSelf(os,indent);
 
-    os << indent << "Low Point: (" << this->LowPoint[0] << ", "
-                                  << this->LowPoint[1] << ", "
-                                  << this->LowPoint[2] << ")\n";
-    os << indent << "High Point: (" << this->HighPoint[0] << ", "
-                                  << this->HighPoint[1] << ", "
-                                  << this->HighPoint[2] << ")\n";
-    os << indent << "Scalar Range: (" << this->ScalarRange[0] << ", "
-                                  << this->ScalarRange[1] << ")\n";
-    }
+  os << indent << "Low Point: (" << this->LowPoint[0] << ", "
+                                << this->LowPoint[1] << ", "
+                                << this->LowPoint[2] << ")\n";
+  os << indent << "High Point: (" << this->HighPoint[0] << ", "
+                                << this->HighPoint[1] << ", "
+                                << this->HighPoint[2] << ")\n";
+  os << indent << "Scalar Range: (" << this->ScalarRange[0] << ", "
+                                << this->ScalarRange[1] << ")\n";
 }

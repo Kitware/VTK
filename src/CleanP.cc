@@ -220,12 +220,9 @@ void vlCleanPolyData::CreateDefaultLocator()
 
 void vlCleanPolyData::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlCleanPolyData::GetClassName()))
-    {
-    vlPolyToPolyFilter::PrintSelf(os,indent);
+  vlPolyToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "Tolerance: " << this->Tolerance << "\n";
-    }
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
 
 }
 

@@ -187,10 +187,7 @@ int vlUnstructuredGrid::GetNumberOfCells()
 
 void vlUnstructuredGrid::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlUnstructuredGrid::GetClassName()))
-    {
-    vlDataSet::PrintSelf(os,indent);
-    }
+  vlDataSet::PrintSelf(os,indent);
 }
 
 // Description:

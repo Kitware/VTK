@@ -169,12 +169,9 @@ void vlStripper::Execute()
 
 void vlStripper::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlStripper::GetClassName()))
-    {
-    vlPolyToPolyFilter::PrintSelf(os,indent);
+  vlPolyToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "Maximum Strip Length: " << this->MaximumStripLength << "\n";
-    }
+  os << indent << "Maximum Strip Length: " << this->MaximumStripLength << "\n";
 
 }
 

@@ -162,13 +162,10 @@ void vlCylinderSource::Execute()
 
 void vlCylinderSource::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlCylinderSource::GetClassName()))
-    {
-    vlPolySource::PrintSelf(os,indent);
+  vlPolySource::PrintSelf(os,indent);
 
-    os << indent << "Resolution: " << this->Resolution << "\n";
-    os << indent << "Height: " << this->Height << "\n";
-    os << indent << "Radius: " << this->Radius << "\n";
-    os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
-    }
+  os << indent << "Resolution: " << this->Resolution << "\n";
+  os << indent << "Height: " << this->Height << "\n";
+  os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
 }

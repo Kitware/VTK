@@ -391,12 +391,9 @@ void vlCyberReader::Execute()
 
 void vlCyberReader::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlCyberReader::GetClassName()))
-    {
-    vlPolySource::PrintSelf(os,indent);
+  vlPolySource::PrintSelf(os,indent);
 
-    os << indent << "Filename: " << this->Filename << "\n";
-    }
+  os << indent << "Filename: " << this->Filename << "\n";
 }
 
 //---------------------- Cyberware code follows ---------------------------//

@@ -29,24 +29,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Object.hh"
 #include "RenderC.hh"
 
+class vlRenderWindowInteractor;
+
 // lets define the diferent types of stereo
 #define VL_STEREO_CRYSTAL_EYES 1
 
 class vlRenderWindow : public vlObject
 {
-public:
-  vlRendererCollection Renderers;
-  char Name[80];
-  int   Size[2];
-  int   Position[2];
-  int   Borders;
-  int   FullScreen;
-  int   OldScreen[5];
-  int   Mapped;
-  int   DoubleBuffer;
-  int   StereoRender;
-  int   StereoType;
-
 public:
   vlRenderWindow();
   char *GetClassName() {return "vlRenderWindow";};
@@ -87,6 +76,10 @@ public:
   virtual vlProperty    *MakeProperty() = 0;
 
   // Description:
+  // Create an interactor to control renderers in this window.
+  virtual vlRenderWindowInteractor *MakeRenderWindowInteractor() = 0;
+
+  // Description:
   // Get the position in screen coordinates of the rendering window.
   virtual int *GetPosition() = 0;
 
@@ -124,6 +117,25 @@ public:
   vlBooleanMacro(DoubleBuffer,int);
 
   vlGetMacro(StereoRender,int);
+
+  // Description:
+  // Get name of rendering window
+  vlGetStringMacro(Name);
+
+protected:
+  vlRendererCollection Renderers;
+  char Name[80];
+  int Size[2];
+  int Position[2];
+  int Borders;
+  int FullScreen;
+  int OldScreen[5];
+  int Mapped;
+  int DoubleBuffer;
+  int StereoRender;
+  int StereoType;
+  vlRenderWindowInteractor *Interactor;
+
 };
 
 #endif

@@ -44,18 +44,15 @@ vlSampleFunction::vlSampleFunction()
 
 void vlSampleFunction::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlSampleFunction::GetClassName()))
-    {
-    vlStructuredPointsSource::PrintSelf(os,indent);
+  vlStructuredPointsSource::PrintSelf(os,indent);
 
-    os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
-                 << this->SampleDimensions[1] << ", "
-                 << this->SampleDimensions[2] << ")\n";
-    os << indent << "ModelBounds: \n";
-    os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
-    os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
-    os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
-    }
+  os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
+               << this->SampleDimensions[1] << ", "
+               << this->SampleDimensions[2] << ")\n";
+  os << indent << "ModelBounds: \n";
+  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
 }
 
 // Description:

@@ -139,11 +139,8 @@ void vlThreshold::Execute()
 
 void vlThreshold::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlThreshold::GetClassName()))
-    {
-    vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
+  vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
-    os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";;
-    os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";;
-    }
+  os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";;
+  os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";;
 }

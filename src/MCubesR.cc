@@ -181,13 +181,10 @@ void vlMCubesReader::CreateDefaultLocator()
 
 void vlMCubesReader::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlMCubesReader::GetClassName()))
-    {
-    vlPolySource::PrintSelf(os,indent);
+  vlPolySource::PrintSelf(os,indent);
 
-    os << indent << "Filename: " << this->Filename << "\n";
-    os << indent << "Limits Filename: " << this->LimitsFilename << "\n";
-    os << indent << "Normals: " << (this->Normals ? "On\n" : "Off\n");
-    os << indent << "FlipNormals: " << (this->FlipNormals ? "On\n" : "Off\n");
-    }
+  os << indent << "Filename: " << this->Filename << "\n";
+  os << indent << "Limits Filename: " << this->LimitsFilename << "\n";
+  os << indent << "Normals: " << (this->Normals ? "On\n" : "Off\n");
+  os << indent << "FlipNormals: " << (this->FlipNormals ? "On\n" : "Off\n");
 }

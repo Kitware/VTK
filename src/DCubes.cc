@@ -23,13 +23,10 @@ vlDividingCubes::vlDividingCubes()
 
 void vlDividingCubes::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlDividingCubes::GetClassName()))
-    {
-    vlStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
+  vlStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 
-    os << indent << "Value: " << this->Value << "\n";
-    os << indent << "Distance: " << this->Distance << "\n";
-    }
+  os << indent << "Value: " << this->Value << "\n";
+  os << indent << "Distance: " << this->Distance << "\n";
 }
 
 

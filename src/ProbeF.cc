@@ -116,10 +116,7 @@ void vlProbeFilter::Update()
 
 void vlProbeFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlProbeFilter::GetClassName()))
-    {
-    vlDataSetToDataSetFilter::PrintSelf(os,indent);
+  vlDataSetToDataSetFilter::PrintSelf(os,indent);
 
-    os << indent << "Source: " << this->Source << "\n";
-    }
+  os << indent << "Source: " << this->Source << "\n";
 }

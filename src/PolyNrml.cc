@@ -400,15 +400,12 @@ void vlPolyNormals::MarkAndReplace (int cellId, int n, int replacementPoint)
 
 void vlPolyNormals::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlPolyNormals::GetClassName()))
-    {
-    vlPolyToPolyFilter::PrintSelf(os,indent);
+  vlPolyToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
-    os << indent << "Splitting: " << (this->Splitting ? "On\n" : "Off\n");
-    os << indent << "Consistency: " << (this->Consistency ? "On\n" : "Off\n"); 
-    os << indent << "Flip Normals: " << (this->FlipNormals ? "On\n" : "Off\n");
-    os << indent << "Maximum Recursion Depth: " << this->MaxRecursionDepth << "\n";
-   }
+  os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
+  os << indent << "Splitting: " << (this->Splitting ? "On\n" : "Off\n");
+  os << indent << "Consistency: " << (this->Consistency ? "On\n" : "Off\n"); 
+  os << indent << "Flip Normals: " << (this->FlipNormals ? "On\n" : "Off\n");
+  os << indent << "Maximum Recursion Depth: " << this->MaxRecursionDepth << "\n";
 }
 
