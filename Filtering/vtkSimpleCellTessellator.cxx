@@ -365,7 +365,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.17");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.18");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -540,8 +540,8 @@ public:
   // Description:
   // Find the parent (if any) of the edge defined by the local point ids i and
   // j. Return the local id of the parent edge, -1 otherwise.
-  char FindEdgeParent(int p1,
-                      int p2)
+  signed char FindEdgeParent(int p1,
+                             int p2)
     {
       assert("pre: primary point" && p1>=0 && p1<=2 && p2>=0 && p2<=2);
       int p;
@@ -559,7 +559,7 @@ public:
         q=p1;
         }
       int i=0;
-      char result=-1;
+      signed char result=-1;
       
       while(result==-1 && i<2)
         {
@@ -604,7 +604,7 @@ public:
   // Description:
   // Set the edge parent of mid as parentEdge.
   void SetEdgeParent(int mid,
-                     char parentEdge)
+                     signed char parentEdge)
     {
       assert("pre: mid-point" && mid>=3 && mid<=5);
       this->Edges[mid][0]=parentEdge;
@@ -623,7 +623,7 @@ private:
   // * the mid-points can be only on 1 edge
   // * -1 encodes no edge
   // * each array is an increasing list of ids terminated by -1 is no edge
-  char Edges[3+3][2];
+  signed char Edges[3+3][2];
 };
 //-----------------------------------------------------------------------------
 //
@@ -880,7 +880,7 @@ public:
   // j. Return the local id of the parent edge, -1 otherwise.
   int FindEdgeParent(int p1,
                      int p2,
-                     char &parentId)
+                     signed char &parentId)
     {
       assert("pre: primary point" && p1>=0 && p1<=3 && p2>=0 && p2<=3);
       
@@ -1001,7 +1001,7 @@ public:
   // Description:
   // Set the edge parent of mid as parentEdge.
   void SetParent(int mid,
-                 char parentId,
+                 signed char parentId,
                  int type)
     {
       assert("pre: mid-point" && mid>=4 && mid<=9);
@@ -1118,7 +1118,7 @@ private:
   // * the mid-points can be only on 1 edge
   // * -1 encodes no edge
   // * each array is an increasing list of ids terminated by -1 is no edge
-  char Edges[4+6][3];
+  signed char Edges[4+6][3];
   // local ids (-1 to 3) of the original faces on which the points are.
   // a point can be on almost 3 faces:
   // * only a vertex of the original tetrahedron is on 3 faces
@@ -1126,7 +1126,7 @@ private:
   // * a mid-point which is on two faces is also on one edge.
   // * -1 encodes no face
   // * each array is an increasing list of ids terminated by -1 is no face
-  char Faces[4+6][3];
+  signed char Faces[4+6][3];
   
   int *EdgeIds;
   int *FaceIds;
@@ -1600,9 +1600,6 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
 
     //Check first in the hash table
     vtkIdType ptId = -1;
-    int refCount = 1;
-
-    //vtkDebugMacro( << "InsertEdgesIntoEdgeTable:" << leftId << "," << rightId );
 
     // To calculate the edge ref count, we either:
     // - find it in the hash table
@@ -1616,7 +1613,8 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
       // The edge was not found in the hash table, that mean we have to 
       // determine it's reference counting from the higher order cell:
       
-      char parentEdge=tri.FindEdgeParent(l,r);
+      signed char parentEdge=tri.FindEdgeParent(l,r);
+      int refCount;
       if(parentEdge==-1)
         {
         // no parent
@@ -1793,7 +1791,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
       // determine it's reference counting from the higher order cell:
       
 
-      char parentId;
+      signed char parentId;
       int type=tetra.FindEdgeParent(l,r,parentId);
       if(type == 1)
         {
@@ -1900,7 +1898,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
 
         tetra.SetVertex(j+4, pcoords);
         
-        char parentId;
+        signed char parentId;
         int type=tetra.FindEdgeParent(l,r,parentId);
 
         tetra.SetParent(j+4,parentId,type); //tetra.SetParent(j+4,-1,3);
@@ -2569,7 +2567,8 @@ void vtkSimpleCellTessellator::TriangulateTriangle(vtkGenericAdaptorCell *cell,
   vtkTriangleTile root;
   double *point;
 
-  for(int i=0; i<3; i++)
+  int i;
+  for(i=0; i<3; i++)
     {
     point = this->GenericCell->GetParametricCoords() + 3*localIds[i];
     root.SetVertex(i, point);
@@ -2600,7 +2599,7 @@ void vtkSimpleCellTessellator::TriangulateTriangle(vtkGenericAdaptorCell *cell,
 
     int n = curr.Refine( this, piece );
 
-    for( int i = 0; i<n; i++) 
+    for(i = 0; i<n; i++) 
       {
       work.push( piece[i] );
       }
@@ -2609,7 +2608,7 @@ void vtkSimpleCellTessellator::TriangulateTriangle(vtkGenericAdaptorCell *cell,
     }
 
   // remove top level points
-  for(int i = 0; i<3; i++)
+  for(i = 0; i<3; i++)
     {
     this->EdgeTable->RemovePoint( root.GetPointId(i) );
     }
