@@ -37,7 +37,7 @@ class QVTKInteractor;
 #include <vtkConfigure.h>
 
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
-#if defined(QVTK_EXPORTS) || defined(QVTKWidgetPlugin_EXPORTS)
+#if defined(vtkGUISupport_EXPORTS) || defined(QVTKWidgetPlugin_EXPORTS)
 #define QVTK_EXPORT __declspec( dllexport )
 #else
 #define QVTK_EXPORT __declspec( dllimport ) 
