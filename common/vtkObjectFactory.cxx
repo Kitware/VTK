@@ -148,7 +148,7 @@ inline int vtkNameIsSharedLibrary(const char* name)
     }
   char* ret = strstr(copy, vtkDynamicLoader::LibExtension());
   delete [] copy;
-  return (int)ret;
+  return (ret != NULL);
 }
 
 void vtkObjectFactory::LoadLibrariesInPath(const char* path)
