@@ -26,7 +26,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkOBBTree, "1.60");
+vtkCxxRevisionMacro(vtkOBBTree, "1.61");
 vtkStandardNewMacro(vtkOBBTree);
 
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
@@ -77,6 +77,8 @@ vtkOBBTree::vtkOBBTree()
   this->Automatic = 1;
   this->Tolerance = 0.01;
   this->Tree = NULL;
+  this->PointsList = NULL;
+  this->InsertedPoints = NULL;
 }
 
 vtkOBBTree::~vtkOBBTree()
