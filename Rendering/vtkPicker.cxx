@@ -36,7 +36,7 @@
 #include "vtkBox.h"
 #include "vtkImageActor.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.87");
+vtkCxxRevisionMacro(vtkPicker, "1.88");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -423,7 +423,18 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
                                           hitPosition[2] <= bounds[5]+tol)))
             {
             picked = 1;
-            this->Prop3Ds->AddItem((vtkProp3D *)prop);
+
+            // the following code is handled in MarkPicked for other Prop3Ds
+            this->Mapper = mapper; // mapper is null
+            this->DataSet = imageActor->GetInput();
+            this->MapperPosition[0] = hitPosition[0];
+            this->MapperPosition[1] = hitPosition[1];
+            this->MapperPosition[2] = hitPosition[2];
+            this->Transform->TransformPoint(hitPosition,this->PickPosition);
+            imageActor->Pick();
+            this->InvokeEvent(vtkCommand::PickEvent,NULL);
+
+            this->Prop3Ds->AddItem(imageActor);
             this->PickedPositions->InsertNextPoint
               ((1.0 - t)*p1World[0] + t*p2World[0],
                (1.0 - t)*p1World[1] + t*p2World[1],
