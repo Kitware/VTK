@@ -37,7 +37,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.4");
+vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.5");
 vtkStandardNewMacro(vtkUnstructuredGridPreIntegration);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridPreIntegration, Integrator,
@@ -392,16 +392,19 @@ void vtkUnstructuredGridPreIntegration::Integrate(
                               component);
       // The blending I'm using is a combination of porter and duff xors
       // and ins.
-      newcolor[0] = newcolor[0]*(1-0.5f*c[3]) + c[0]*(1-0.5f*newcolor[3]);
-      newcolor[1] = newcolor[1]*(1-0.5f*c[3]) + c[1]*(1-0.5f*newcolor[3]);
-      newcolor[2] = newcolor[2]*(1-0.5f*c[3]) + c[2]*(1-0.5f*newcolor[3]);
-      newcolor[3] = newcolor[3]*(1-0.5f*c[3]) + c[3]*(1-0.5f*newcolor[3]);
+      float coef1=1-0.5f*c[3];
+      float coef2=1-0.5f*newcolor[3];
+      newcolor[0] = newcolor[0]*coef1 + c[0]*coef2;
+      newcolor[1] = newcolor[1]*coef1 + c[1]*coef2;
+      newcolor[2] = newcolor[2]*coef1 + c[2]*coef2;
+      newcolor[3] = newcolor[3]*coef1 + c[3]*coef2;
       }
 
-    color[0] += newcolor[0]*(1-color[3]);
-    color[1] += newcolor[1]*(1-color[3]);
-    color[2] += newcolor[2]*(1-color[3]);
-    color[3] += newcolor[3]*(1-color[3]);
+    float coef=1-color[3];
+    color[0] += newcolor[0]*coef;
+    color[1] += newcolor[1]*coef;
+    color[2] += newcolor[2]*coef;
+    color[3] += newcolor[3]*coef;
     }
 }
 
