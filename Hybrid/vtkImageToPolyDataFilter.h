@@ -59,7 +59,7 @@
 #ifndef __vtkImageToPolyDataFilter_h
 #define __vtkImageToPolyDataFilter_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkImageDataToPolyDataAlgorithm.h"
 
 #define VTK_STYLE_PIXELIZE 0
 #define VTK_STYLE_POLYGONALIZE 1
@@ -78,10 +78,10 @@ class vtkStructuredPoints;
 class vtkTimeStamp;
 class vtkUnsignedCharArray;
 
-class VTK_HYBRID_EXPORT vtkImageToPolyDataFilter : public vtkPolyDataAlgorithm
+class VTK_HYBRID_EXPORT vtkImageToPolyDataFilter : public vtkImageDataToPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkImageToPolyDataFilter,vtkPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkImageToPolyDataFilter,vtkImageDataToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -168,7 +168,6 @@ protected:
   ~vtkImageToPolyDataFilter();
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int, vtkInformation *);
 
   int OutputStyle;
   int ColorMode;

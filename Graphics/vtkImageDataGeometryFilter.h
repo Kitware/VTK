@@ -35,12 +35,12 @@
 #ifndef __vtkImageDataGeometryFilter_h
 #define __vtkImageDataGeometryFilter_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkImageDataToPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkImageDataGeometryFilter : public vtkPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkImageDataGeometryFilter : public vtkImageDataToPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkImageDataGeometryFilter,vtkPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkImageDataGeometryFilter,vtkImageDataToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -59,7 +59,6 @@ protected:
   ~vtkImageDataGeometryFilter() {};
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int, vtkInformation *);
 
   int Extent[6];
 private:

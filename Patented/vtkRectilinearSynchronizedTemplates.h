@@ -41,19 +41,19 @@
 #ifndef __vtkRectilinearSynchronizedTemplates_h
 #define __vtkRectilinearSynchronizedTemplates_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkRectilinearGridToPolyDataAlgorithm.h"
 #include "vtkContourValues.h" // Passes calls through
 
 class vtkRectilinearGrid;
 class vtkKitwareContourFilter;
 class vtkDataArray;
 
-class VTK_PATENTED_EXPORT vtkRectilinearSynchronizedTemplates : public vtkPolyDataAlgorithm
+class VTK_PATENTED_EXPORT vtkRectilinearSynchronizedTemplates : public vtkRectilinearGridToPolyDataAlgorithm
 {
 public:
   static vtkRectilinearSynchronizedTemplates *New();
 
-  vtkTypeRevisionMacro(vtkRectilinearSynchronizedTemplates,vtkPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkRectilinearSynchronizedTemplates,vtkRectilinearGridToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -175,7 +175,6 @@ protected:
   void* GetScalarsForExtent(vtkDataArray *array, int extent[6],
                             vtkRectilinearGrid *input);
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   //BTX
   friend class VTK_PATENTED_EXPORT vtkKitwareContourFilter;

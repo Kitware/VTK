@@ -27,7 +27,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.18");
+vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.19");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -1113,13 +1113,6 @@ int vtkGreedyTerrainDecimation::CharacterizeTriangle(int ij1[2], int ij2[2], int
     }
 
   return VTK_TWO_TRIANGLES;
-}
-
-int vtkGreedyTerrainDecimation::FillInputPortInformation(int,
-                                                         vtkInformation *info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
-  return 1;
 }
 
 void vtkGreedyTerrainDecimation::PrintSelf(ostream& os, vtkIndent indent)

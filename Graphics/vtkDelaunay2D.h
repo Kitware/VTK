@@ -120,7 +120,7 @@
 #ifndef __vtkDelaunay2D_h
 #define __vtkDelaunay2D_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkPointSetToPolyDataAlgorithm.h"
 
 class vtkAbstractTransform;
 class vtkCellArray;
@@ -131,10 +131,10 @@ class vtkPointSet;
 #define VTK_SET_TRANSFORM_PLANE 1
 #define VTK_BEST_FITTING_PLANE 2
 
-class VTK_GRAPHICS_EXPORT vtkDelaunay2D : public vtkPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkDelaunay2D : public vtkPointSetToPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkDelaunay2D,vtkPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkDelaunay2D,vtkPointSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

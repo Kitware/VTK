@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourGrid, "1.27");
+vtkCxxRevisionMacro(vtkContourGrid, "1.28");
 vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value
@@ -358,12 +358,6 @@ void vtkContourGrid::CreateDefaultLocator()
     this->Locator->Register(this);
     this->Locator->Delete();
     }
-}
-
-int vtkContourGrid::FillInputPortInformation(int, vtkInformation *info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
-  return 1;
 }
 
 void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)

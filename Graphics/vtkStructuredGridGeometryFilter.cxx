@@ -25,7 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridGeometryFilter, "1.61");
+vtkCxxRevisionMacro(vtkStructuredGridGeometryFilter, "1.62");
 vtkStandardNewMacro(vtkStructuredGridGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -517,13 +517,6 @@ int vtkStructuredGridGeometryFilter::RequestUpdateExtent(
   
   // Set the update extent of the input.
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
-  return 1;
-}
-
-int vtkStructuredGridGeometryFilter::FillInputPortInformation(
-  int, vtkInformation *info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;
 }
 

@@ -45,17 +45,17 @@
 #ifndef __vtkLinkEdgels_h
 #define __vtkLinkEdgels_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkImageDataToPolyDataAlgorithm.h"
 
 class vtkCellArray;
 class vtkDataArray;
 class vtkDoubleArray;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkLinkEdgels : public vtkPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkLinkEdgels : public vtkImageDataToPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkLinkEdgels,vtkPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkLinkEdgels,vtkImageDataToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -83,7 +83,6 @@ protected:
   ~vtkLinkEdgels() {};
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int, vtkInformation *);
   void LinkEdgels(int xdim, int ydim,double *image, vtkDataArray *inVectors,
                   vtkCellArray *newLines, vtkPoints *newPts,
                   vtkDoubleArray *outScalars, vtkDoubleArray *outVectors,

@@ -51,7 +51,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkMarchingCubes, "1.89");
+vtkCxxRevisionMacro(vtkMarchingCubes, "1.90");
 vtkStandardNewMacro(vtkMarchingCubes);
 
 // Description:
@@ -663,12 +663,6 @@ void vtkMarchingCubes::CreateDefaultLocator()
     {
     this->Locator = vtkMergePoints::New();
     }
-}
-
-int vtkMarchingCubes::FillInputPortInformation(int, vtkInformation *info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
-  return 1;
 }
 
 void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)

@@ -51,7 +51,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.19");
+vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.20");
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
 //----------------------------------------------------------------------------
@@ -818,18 +818,6 @@ void vtkRectilinearSynchronizedTemplates::ComputeSpacing(
     spacing[5] = zCoords->GetComponent(k-extent[4]+1, 0) -
       zCoords->GetComponent(k-extent[4], 0);
     }
-}
-
-//----------------------------------------------------------------------------
-int vtkRectilinearSynchronizedTemplates::FillInputPortInformation(int port,
-                                                                  vtkInformation* info)
-{
-  if(!this->Superclass::FillInputPortInformation(port, info))
-    {
-    return 0;
-    }
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
-  return 1;
 }
 
 //----------------------------------------------------------------------------

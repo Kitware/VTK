@@ -52,18 +52,18 @@
 #ifndef __vtkMarchingSquares_h
 #define __vtkMarchingSquares_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkImageDataToPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Passes calls to vtkContourValues
 
 class vtkImageData;
 class vtkPointLocator;
 
-class VTK_PATENTED_EXPORT vtkMarchingSquares : public vtkPolyDataAlgorithm
+class VTK_PATENTED_EXPORT vtkMarchingSquares : public vtkImageDataToPolyDataAlgorithm
 {
 public:
   static vtkMarchingSquares *New();
-  vtkTypeRevisionMacro(vtkMarchingSquares,vtkPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkMarchingSquares,vtkImageDataToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -109,7 +109,6 @@ protected:
   int ImageRange[6];
   vtkPointLocator *Locator;
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   vtkMarchingSquares(const vtkMarchingSquares&);  // Not implemented.
   void operator=(const vtkMarchingSquares&);  // Not implemented.

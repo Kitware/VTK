@@ -48,7 +48,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.40");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.41");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -67,18 +67,6 @@ vtkSynchronizedTemplates2D::~vtkSynchronizedTemplates2D()
 {
   this->ContourValues->Delete();
   this->SetInputScalarsSelection(NULL);
-}
-
-//----------------------------------------------------------------------------
-int vtkSynchronizedTemplates2D::FillInputPortInformation(int port,
-                                                         vtkInformation* info)
-{
-  if(!this->Superclass::FillInputPortInformation(port, info))
-    {
-    return 0;
-    }
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
-  return 1;
 }
 
 //----------------------------------------------------------------------------

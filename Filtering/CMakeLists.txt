@@ -86,6 +86,7 @@ vtkHierarchicalDataIterator.cxx
 vtkHierarchicalDataSet.cxx
 vtkImageAlgorithm.cxx
 vtkImageData.cxx
+vtkImageDataToPolyDataAlgorithm.cxx
 vtkImageInPlaceFilter.cxx
 vtkImageIterator.cxx
 vtkImageMultipleInputFilter.cxx
@@ -141,6 +142,7 @@ vtkPointData.cxx
 vtkPointLocator.cxx
 vtkPointSet.cxx
 vtkPointSetSource.cxx
+vtkPointSetToPolyDataAlgorithm.cxx
 vtkPointSetToPointSetFilter.cxx
 vtkPolyData.cxx
 vtkPolyDataAlgorithm.cxx
@@ -163,6 +165,7 @@ vtkQuadraticTriangle.cxx
 vtkQuadraticWedge.cxx
 vtkRectilinearGrid.cxx
 vtkRectilinearGridSource.cxx
+vtkRectilinearGridToPolyDataAlgorithm.cxx
 vtkRectilinearGridToPolyDataFilter.cxx
 vtkScalarTree.cxx
 vtkSimpleImageToImageFilter.cxx
@@ -173,6 +176,7 @@ vtkSpline.cxx
 vtkStreamingDemandDrivenPipeline.cxx
 vtkStructuredGrid.cxx
 vtkStructuredGridSource.cxx
+vtkStructuredGridToPolyDataAlgorithm.cxx
 vtkStructuredGridToPolyDataFilter.cxx
 vtkStructuredGridToStructuredGridFilter.cxx
 vtkStructuredPoints.cxx
@@ -190,6 +194,7 @@ vtkTrivialProducer.cxx
 vtkUniformGrid.cxx
 vtkUnstructuredGrid.cxx
 vtkUnstructuredGridSource.cxx
+vtkUnstructuredGridToPolyDataAlgorithm.cxx
 vtkUnstructuredGridToPolyDataFilter.cxx
 vtkUnstructuredGridToUnstructuredGridFilter.cxx
 vtkVertex.cxx

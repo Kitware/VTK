@@ -50,7 +50,7 @@
 #ifndef __vtkImageMarchingCubes_h
 #define __vtkImageMarchingCubes_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkImageDataToPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
@@ -59,11 +59,11 @@ class vtkFloatArray;
 class vtkImageData;
 class vtkPoints;
 
-class VTK_PATENTED_EXPORT vtkImageMarchingCubes : public vtkPolyDataAlgorithm
+class VTK_PATENTED_EXPORT vtkImageMarchingCubes : public vtkImageDataToPolyDataAlgorithm
 {
 public:
   static vtkImageMarchingCubes *New();
-  vtkTypeRevisionMacro(vtkImageMarchingCubes,vtkPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkImageMarchingCubes,vtkImageDataToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -151,7 +151,6 @@ protected:
   void DeleteLocator();
   int *GetLocatorPointer(int cellX, int cellY, int edge);
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   vtkImageMarchingCubes(const vtkImageMarchingCubes&);  // Not implemented.
   void operator=(const vtkImageMarchingCubes&);  // Not implemented.
