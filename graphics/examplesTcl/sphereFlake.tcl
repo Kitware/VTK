@@ -22,7 +22,8 @@ frame .top.f2
 pack .top.f1 .top.f2 -side left -expand 1 -fill both
 
 # Create the TkRenderWidget
-vtkTkRenderWidget .top.f1.rw -width 500 -height 500
+vtkRenderWindow renWin
+vtkTkRenderWidget .top.f1.rw -width 500 -height 500 -rw renWin
 BindTkRenderWidget .top.f1.rw
 pack .top.f1.rw -expand 1 -fill both
 
@@ -236,3 +237,6 @@ button .top.f2.f3.b1 -text "Quit" -command {exit} \
 	-activebackground #000000 -activeforeground #55ff55 -bd 3
 
 pack .top.f2.f3.b1  -expand 1 -fill both
+
+#renWin SetFileName sphereFlake.tcl.ppm
+#renWin SaveImageAsPPM
