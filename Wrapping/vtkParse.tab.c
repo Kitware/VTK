@@ -178,7 +178,7 @@ Modify vtkParse.tab.c:
 #define yyerror(a) fprintf(stderr,"%s\n",a)
 #define yywrap() 1
 
-static void vtkDebug(const char* s1, const char* s2);
+static void vtkParseDebug(const char* s1, const char* s2);
 
 /* MSVC Does not define __STDC__ properly. */
 #if defined(_MSC_VER) && _MSC_VER >= 1200 && !defined(__STDC__)
@@ -963,7 +963,7 @@ static const unsigned char yystos[] =
 
 #define YYACCEPT        goto yyacceptlab
 #define YYABORT         goto yyabortlab
-#define YYERROR         goto yyerrorlab
+/* #define YYERROR              goto yyerrorlab */
 
 
 /* Like YYERROR except do call yyerror.  This remains here temporarily
@@ -1670,7 +1670,7 @@ yyreduce:
 #line 284 "vtkParse.y"
     {
       currentFunction->IsOperator = 1;
-      vtkDebug("Converted operator", 0);
+      vtkParseDebug("Converted operator", 0);
     }
     break;
 
@@ -1689,7 +1689,7 @@ yyreduce:
     {
       openSig = 1;
       currentFunction->Name = yyvsp[-3].str; 
-      vtkDebug("Parsed func", yyvsp[-3].str);
+      vtkParseDebug("Parsed func", yyvsp[-3].str);
     }
     break;
 
@@ -1698,7 +1698,7 @@ yyreduce:
     { 
       postSig(") = 0;"); 
       currentFunction->Name = yyvsp[-2].str; 
-      vtkDebug("Parsed func", yyvsp[-2].str);
+      vtkParseDebug("Parsed func", yyvsp[-2].str);
       currentFunction->IsPureVirtual = 1; 
       data.IsAbstract = 1;
     }
@@ -2771,6 +2771,7 @@ yyerrlab:
   goto yyerrlab1;
 
 
+#if 0
 /*---------------------------------------------------.
 | yyerrorlab -- error raised explicitly by YYERROR.  |
 `---------------------------------------------------*/
@@ -2787,6 +2788,7 @@ yyerrorlab:
   yyssp -= yylen;
   yystate = *yyssp;
   goto yyerrlab1;
+#endif
 
 
 /*-------------------------------------------------------------.
@@ -2870,7 +2872,7 @@ yyreturn:
 #include <string.h>
 #include "lex.yy.c"
 
-void vtkDebug(const char* s1, const char* s2)
+static void vtkParseDebug(const char* s1, const char* s2)
 {
   if ( getenv("DEBUG") )
     {

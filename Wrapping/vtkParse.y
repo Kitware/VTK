@@ -24,6 +24,7 @@ Run yacc like this:
 
 Modify vtkParse.tab.c:
   - remove TABs
+  - comment out yyerrorlab stuff
 
 */
 
