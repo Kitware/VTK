@@ -27,8 +27,12 @@ void readInMakefile(char *fname,const char *libname)
   ifstream *IS;
   char line[256];
 
-  if (!(IS = new ifstream(fname)))
+  IS = new ifstream(fname);
+  if (IS->fail())
     {
+    MessageBox(NULL,"ERROR: failed to open Makefile.in for parsing.",
+	       "Error",MB_OK);
+    return;
     }
 
   // search for keywords
