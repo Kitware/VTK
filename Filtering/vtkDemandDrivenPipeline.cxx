@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.1");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -483,6 +483,7 @@ vtkDataObject* vtkDemandDrivenPipeline::GetOutputData(int port)
       // Try to create an instance of the correct type.
       data = this->NewDataObject(dt);
       this->SetOutputDataInternal(this->Algorithm, port, data);
+      data->SetProducerPort(this->Algorithm->GetOutputPort(port));
       if(data)
         {
         data->Delete();
