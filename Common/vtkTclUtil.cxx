@@ -80,6 +80,11 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
   // lookup the objects name
   sprintf(temps,"%p",as->Pointer);
   entry = Tcl_FindHashEntry(&is->PointerLookup,temps); 
+  if (!entry)
+    {
+    return;
+    }
+
   temp = (char *)(Tcl_GetHashValue(entry));
   args[0] = temp;
   
