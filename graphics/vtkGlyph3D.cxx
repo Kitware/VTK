@@ -76,6 +76,7 @@ void vtkGlyph3D::Execute()
   vtkScalars *inScalars;
   vtkVectors *inVectors;
   vtkNormals *inNormals, *sourceNormals;
+  vtkDataArray *newScalarsData, *inScalarsData;
   int numPts, numSourcePts, numSourceCells;
   int inPtId, i, index;
   vtkPoints *sourcePts;
@@ -171,7 +172,17 @@ void vtkGlyph3D::Execute()
 
   newPts = vtkPoints::New();
   newPts->Allocate(numPts*numSourcePts);
-  if ( inScalars || (this->ColorMode == VTK_COLOR_BY_VECTOR && haveVectors))
+  if ( this->ColorMode == VTK_COLOR_BY_SCALAR && inScalars )
+    {
+    newScalars = (vtkScalars *) inScalars->MakeObject ();
+    newScalars->Allocate(numPts*numSourcePts);
+    }
+  else if ( (this->ColorMode == VTK_COLOR_BY_SCALE) && inScalars)
+    {
+    newScalars = vtkScalars::New();
+    newScalars->Allocate(numPts*numSourcePts);
+    }
+  else if ( (this->ColorMode == VTK_COLOR_BY_VECTOR) && haveVectors)
     {
     newScalars = vtkScalars::New();
     newScalars->Allocate(numPts*numSourcePts);
@@ -301,9 +312,12 @@ void vtkGlyph3D::Execute()
 	}
       else if (this->ColorMode == VTK_COLOR_BY_SCALAR)
 	{
-	s = inScalars->GetScalar(inPtId);
-	for (i=0; i < numSourcePts; i++) 
-	  newScalars->InsertScalar(i+ptIncr, s);
+        newScalarsData = newScalars->GetData ();
+        inScalarsData = inScalars->GetData ();
+	for (i=0; i < numSourcePts; i++)
+	  {
+	  outputPD->CopyTuple(inScalarsData, newScalarsData, inPtId, ptIncr+i);
+	  }
 	}
       }
     if (haveVectors && this->ColorMode == VTK_COLOR_BY_VECTOR)
