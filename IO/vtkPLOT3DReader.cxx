@@ -27,7 +27,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.75");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.76");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -61,6 +61,9 @@ vtkPLOT3DReader::vtkPLOT3DReader()
   this->SetScalarFunctionNumber(100);
   this->VectorFunctionNumber = -1;
   this->SetVectorFunctionNumber(202);
+
+  this->PointCache = 0;
+  this->IBlankCache = 0;
 } 
 
 vtkPLOT3DReader::~vtkPLOT3DReader()
@@ -68,6 +71,28 @@ vtkPLOT3DReader::~vtkPLOT3DReader()
   delete [] this->XYZFileName;
   delete [] this->QFileName;
   this->FunctionList->Delete();
+  this->ClearGeometryCache();
+}
+
+void vtkPLOT3DReader::ClearGeometryCache()
+{
+  if ( this->PointCache )
+    {
+    for ( int g=0; this->PointCache[g]; ++g )
+      this->PointCache[g]->UnRegister( this );
+
+    delete [] this->PointCache;
+    this->PointCache = 0;
+    }
+
+  if ( this->IBlankCache )
+    {
+    for ( int i=0; this->IBlankCache[i]; ++i )
+      this->IBlankCache[i]->UnRegister( this );
+
+    delete [] this->IBlankCache;
+    this->IBlankCache = 0;
+    }
 }
 
 int vtkPLOT3DReader::CheckFile(FILE*& fp, const char* fname)
@@ -417,6 +442,17 @@ int vtkPLOT3DReader::ReadGeometryHeader(FILE* fp)
     this->GetOutput(i)->SetWholeExtent(0, ni-1, 0, nj-1, 0, nk-1);
     }
   this->SkipByteCount(fp);
+
+  if ( !this->PointCache )
+    {
+    this->PointCache = new vtkFloatArray*[ this->NumberOfOutputs + 1 ];
+    this->IBlankCache = new vtkUnsignedCharArray* [ this->NumberOfOutputs + 1 ];
+    for ( int g=0; g < this->NumberOfOutputs+1; ++g )
+      {
+      this->PointCache[g] = 0;
+      this->IBlankCache[g] = 0;
+      }
+    }
   return VTK_OK;
 }
 
@@ -451,6 +487,32 @@ int vtkPLOT3DReader::ReadQHeader(FILE* fp)
     }
   this->SkipByteCount(fp);
   return VTK_OK;
+}
+
+void vtkPLOT3DReader::SetXYZFileName( const char* name )
+{
+  if ( this->XYZFileName && ! strcmp( this->XYZFileName, name ) )
+    {
+    return;
+    }
+
+  if ( this->XYZFileName )
+    {
+    delete [] this->XYZFileName;
+    }
+
+  if ( name )
+    {
+    this->XYZFileName = new char [ strlen( name ) + 1 ];
+    strcpy( this->XYZFileName, name );
+    }
+  else
+    {
+    this->XYZFileName = 0;
+    }
+
+  this->ClearGeometryCache();
+  this->Modified();
 }
 
 void vtkPLOT3DReader::SetScalarFunctionNumber(int num)
@@ -535,125 +597,152 @@ void vtkPLOT3DReader::Execute()
   this->SetErrorCode(vtkErrorCode::NoError);
 
   int i;
-
-  FILE* xyzFp;
-  if ( this->CheckGeometryFile(xyzFp) != VTK_OK)
-    {
-    return;
-    }
-
-  if ( this->ReadGeometryHeader(xyzFp) != VTK_OK )
-    {
-    vtkErrorMacro("Error reading geometry file.");
-    fclose(xyzFp);
-    return;
-    }
-
   int ndim, nx, ny, nz;
+  int numberOfDims;
   vtkIdType index;
 
-  int numberOfDims;
-  if (!this->TwoDimensionalGeometry)
+  // Don't read the geometry if we already have it!
+  if ( (!this->PointCache) || (!this->PointCache[0]) )
     {
-    numberOfDims = 3;
-    }
-  else
-    {
-    numberOfDims = 2;
-    }
-  
-  for(i=0; i<this->NumberOfOutputs; i++)
-    {
-
-    // Read the geometry of this grid.
-    this->SkipByteCount(xyzFp);
-
-    vtkStructuredGrid* nthOutput = this->GetOutput(i);
-    int dims[6];
-    nthOutput->GetWholeExtent(dims);
-    nthOutput->SetExtent(dims);
-    nthOutput->GetDimensions(dims);
-    vtkFloatArray* parray = vtkFloatArray::New();
-    parray->SetNumberOfComponents(3);
-    parray->SetNumberOfTuples( dims[0]*dims[1]*dims[2] );
-
-    vtkPoints* points = vtkPoints::New();
-    points->SetData(parray);
-    nthOutput->SetPoints(points);
-    points->Delete();
-    parray->Delete();
-
-    float coord;
-    for(ndim=0; ndim < numberOfDims; ndim++)
+    FILE* xyzFp;
+    if ( this->CheckGeometryFile(xyzFp) != VTK_OK)
       {
-      for(nz=0; nz < dims[2]; nz++)
+      return;
+      }
+
+    if ( this->ReadGeometryHeader(xyzFp) != VTK_OK )
+      {
+      vtkErrorMacro("Error reading geometry file.");
+      fclose(xyzFp);
+      return;
+      }
+
+    if (!this->TwoDimensionalGeometry)
+      {
+      numberOfDims = 3;
+      }
+    else
+      {
+      numberOfDims = 2;
+      }
+  
+    for(i=0; i<this->NumberOfOutputs; i++)
+      {
+
+      // Read the geometry of this grid.
+      this->SkipByteCount(xyzFp);
+
+      vtkStructuredGrid* nthOutput = this->GetOutput(i);
+      int dims[6];
+      nthOutput->GetWholeExtent(dims);
+      nthOutput->SetExtent(dims);
+      nthOutput->GetDimensions(dims);
+      this->PointCache[i] = vtkFloatArray::New();
+      this->PointCache[i]->SetNumberOfComponents(3);
+      this->PointCache[i]->SetNumberOfTuples( dims[0]*dims[1]*dims[2] );
+
+      vtkPoints* points = vtkPoints::New();
+      points->SetData(this->PointCache[i]);
+      nthOutput->SetPoints(points);
+      points->Delete();
+      this->PointCache[i]->Register( this );
+      this->PointCache[i]->Delete();
+
+      float coord;
+      for(ndim=0; ndim < numberOfDims; ndim++)
         {
-        for(ny=0; ny < dims[1]; ny++)
+        for(nz=0; nz < dims[2]; nz++)
           {
-          for(nx=0; nx < dims[0]; nx++)
+          for(ny=0; ny < dims[1]; ny++)
             {
-            if ( this->ReadFloatBlock(xyzFp, 1, &coord) == 0 )
+            for(nx=0; nx < dims[0]; nx++)
               {
-              vtkErrorMacro("Encountered premature end-of-file while reading "
-                            "the geometry file (or the file is corrupt).");
-              this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
-              // We need to generate output (otherwise, this filter will
-              // keep executing). So we produce all 0's
-              float nullpt[3] = {0.0, 0.0, 0.0};
-              vtkIdType ipts, npts=parray->GetNumberOfTuples();
-              for(ipts=0; ipts < npts; ipts++)
+              if ( this->ReadFloatBlock(xyzFp, 1, &coord) == 0 )
                 {
-                parray->SetTuple(ipts, nullpt);
+                vtkErrorMacro("Encountered premature end-of-file while reading "
+                              "the geometry file (or the file is corrupt).");
+                this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
+                // We need to generate output (otherwise, this filter will
+                // keep executing). So we produce all 0's
+                float nullpt[3] = {0.0, 0.0, 0.0};
+                vtkIdType ipts, npts=this->PointCache[i]->GetNumberOfTuples();
+                for(ipts=0; ipts < npts; ipts++)
+                  {
+                  this->PointCache[i]->SetTuple(ipts, nullpt);
+                  }
+                fclose(xyzFp);
+                return;
                 }
-              fclose(xyzFp);
-              return;
+              index = nz*dims[0]*dims[1]+ny*dims[0]+nx;
+              this->PointCache[i]->SetComponent(index, ndim, coord);
               }
-            index = nz*dims[0]*dims[1]+ny*dims[0]+nx;
-            parray->SetComponent(index, ndim, coord);
             }
           }
         }
+
+      if (this->TwoDimensionalGeometry)
+        {
+        vtkIdType ipts, npts=this->PointCache[i]->GetNumberOfTuples();
+        for(ipts=0; ipts < npts; ipts++)
+          {
+          this->PointCache[i]->SetComponent(ipts, 2, 0);
+          }
+        }
+
+      if (this->IBlanking)
+        {
+        this->IBlankCache[i] = vtkUnsignedCharArray::New();
+        this->IBlankCache[i]->SetNumberOfComponents(1);
+        this->IBlankCache[i]->SetNumberOfTuples( dims[0]*dims[1]*dims[2] );
+        this->IBlankCache[i]->SetName("Visibility");
+        int* ib = new int[dims[0]*dims[1]*dims[2]];
+        if ( this->ReadIntBlock(xyzFp, dims[0]*dims[1]*dims[2], ib) == 0)
+          {
+          vtkErrorMacro("Encountered premature end-of-file while reading "
+                        "the q file (or the file is corrupt).");
+          this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
+          fclose(xyzFp);
+          return;
+          }
+        vtkIdType ipts, npts=this->IBlankCache[i]->GetNumberOfTuples();
+        unsigned char* ib2 = this->IBlankCache[i]->GetPointer(0);
+        for (ipts=0; ipts<npts; ipts++)
+          {
+          ib2[ipts] = ib[ipts];
+          }
+        delete[] ib;
+        nthOutput->SetPointVisibility(this->IBlankCache[i]);
+        this->IBlankCache[i]->Register( this );
+        this->IBlankCache[i]->Delete();
+        }
+
+      this->SkipByteCount(xyzFp);
       }
 
-    if (this->TwoDimensionalGeometry)
-      {
-      vtkIdType ipts, npts=parray->GetNumberOfTuples();
-      for(ipts=0; ipts < npts; ipts++)
-        {
-        parray->SetComponent(ipts, 2, 0);
-        }
-      }
-
-    if (this->IBlanking)
-      {
-      vtkUnsignedCharArray* iblank = vtkUnsignedCharArray::New();
-      iblank->SetNumberOfComponents(1);
-      iblank->SetNumberOfTuples( dims[0]*dims[1]*dims[2] );
-      iblank->SetName("Visibility");
-      int* ib = new int[dims[0]*dims[1]*dims[2]];
-      if ( this->ReadIntBlock(xyzFp, dims[0]*dims[1]*dims[2], ib) == 0)
-        {
-        vtkErrorMacro("Encountered premature end-of-file while reading "
-                      "the q file (or the file is corrupt).");
-        this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
-        fclose(xyzFp);
-        return;
-        }
-      vtkIdType ipts, npts=iblank->GetNumberOfTuples();
-      unsigned char* ib2 = iblank->GetPointer(0);
-      for (ipts=0; ipts<npts; ipts++)
-        {
-        ib2[ipts] = ib[ipts];
-        }
-      delete[] ib;
-      nthOutput->SetPointVisibility(iblank);
-      iblank->Delete();
-      }
-
-    this->SkipByteCount(xyzFp);
+    fclose(xyzFp);
     }
+  else
+    {
+    numberOfDims = this->TwoDimensionalGeometry ? 2 : 3;
 
-  fclose(xyzFp);
+    for(i=0; i<this->NumberOfOutputs; i++)
+      {
+      vtkStructuredGrid* nthOutput = this->GetOutput(i);
+      int dims[6];
+      nthOutput->GetWholeExtent(dims);
+      nthOutput->SetExtent(dims);
+
+      vtkPoints* points = vtkPoints::New();
+      points->SetData(this->PointCache[i]);
+      nthOutput->SetPoints(points);
+      points->Delete();
+
+      if (this->IBlanking)
+        {
+        nthOutput->SetPointVisibility(this->IBlankCache[i]);
+        }
+      }
+ }
 
   // Now read the solution.
   if (this->QFileName && this->QFileName[0] != '\0')

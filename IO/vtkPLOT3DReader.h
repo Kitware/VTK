@@ -77,7 +77,9 @@
 
 #include "vtkStructuredGridSource.h"
 
+class vtkUnsignedCharArray;
 class vtkIntArray;
+class vtkFloatArray;
 class vtkStructuredGrid;
 
 class VTK_IO_EXPORT vtkPLOT3DReader : public vtkStructuredGridSource 
@@ -91,7 +93,7 @@ public:
   // Set/Get the PLOT3D geometry filename.
   void SetFileName(const char* name) { this->SetXYZFileName(name); }
   const char* GetFileName() { return this->GetXYZFileName(); }
-  vtkSetStringMacro(XYZFileName);
+  virtual void SetXYZFileName( const char* );
   vtkGetStringMacro(XYZFileName);
 
   // Description:
@@ -278,6 +280,10 @@ protected:
   void ComputeVorticity(vtkStructuredGrid* output);
   void ComputePressureGradient(vtkStructuredGrid* output);
 
+  // Delete references to any existing vtkPoints and
+  // I-blank arrays. The next Update() will (re)read
+  // the XYZ file.
+  void ClearGeometryCache();
 
   //plot3d FileNames
   char *XYZFileName;
@@ -306,6 +312,10 @@ protected:
 
   int ScalarFunctionNumber;
   int VectorFunctionNumber;
+
+  // Cache of geometry
+  vtkFloatArray** PointCache;
+  vtkUnsignedCharArray** IBlankCache;
 
 private:
   vtkPLOT3DReader(const vtkPLOT3DReader&);  // Not implemented.
