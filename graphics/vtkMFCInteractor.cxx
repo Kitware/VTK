@@ -57,9 +57,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTKXI_PAN    3
 #define VTKXI_LOOP   4
 
-#define MAXWRITE 65536
+#define VTK_MAXWRITE 65536
 
-#define TIMEROFFSETT 0x100
+#define VTK_TIMEROFFSET 0x100
 static BOOL bAuto = FALSE;
 //static HANDLE Mutex = CreateMutex(NULL,FALSE,NULL);
 
@@ -502,7 +502,7 @@ void vtkMFCInteractor::OnTimer(CWnd *wnd,UINT nIDEvent)
 
   if ( bAuto)
     {
-    KillTimer(this->WindowId,this->TimerId+TIMEROFFSETT);
+    KillTimer(this->WindowId,this->TimerId+VTK_TIMEROFFSET);
     }
 
   WaitForSingleObject(this->Mutex , INFINITE);
@@ -601,7 +601,7 @@ void vtkMFCInteractor::OnTimer(CWnd *wnd,UINT nIDEvent)
     }	
   
 #ifdef TIMER
-  if(bAuto) SetTimer(WindowId,TimerId+TIMEROFFSETT,MiliSeconds,NULL);
+  if(bAuto) SetTimer(WindowId,TimerId+VTK_TIMEROFFSET,MiliSeconds,NULL);
 #endif
   VERIFY(wglMakeCurrent(this->WindowDC,NULL));
   ReleaseMutex(this->Mutex);
@@ -618,11 +618,11 @@ void vtkMFCInteractor::OnChar(CWnd *wnd,UINT nChar, UINT nRepCnt, UINT nFlags)
     case 'l': 
       if (bAuto)
 	{
-	KillTimer(this->WindowId,this->TimerId+TIMEROFFSETT);
+	KillTimer(this->WindowId,this->TimerId+VTK_TIMEROFFSET);
 	}
       else
 	{
-	SetTimer(this->WindowId,this->TimerId+TIMEROFFSETT,
+	SetTimer(this->WindowId,this->TimerId+VTK_TIMEROFFSET,
 		 this->MiliSeconds,NULL);
 	}
       bAuto= !bAuto;
@@ -928,7 +928,7 @@ BOOL vtkMFCInteractor::SaveBMP(LPCTSTR lpszPathName,int width,int height,int bit
 
   this->MakeIndirectRenderer(width,height,bitsperpixel,this->RenderWindow);
 	  
-  if(GetBitmap()!=NULL) 
+  if(this->GetBitmap()!=NULL) 
     {
     this->FindPokedRenderer(this->LastPosition.x,
 			    this->Size[1]-this->LastPosition.y);
@@ -1145,15 +1145,15 @@ void vtkMFCInteractor::CreateBMPFile(HWND hwnd, LPTSTR pszFile,
   
   dwTotal = cb = pbih->biSizeImage; 
   hp = lpBits; 
-  while (cb > MAXWRITE)  
+  while (cb > VTK_MAXWRITE)  
     {
-    if (!WriteFile(hf, (LPSTR) hp, (int) MAXWRITE, 
+    if (!WriteFile(hf, (LPSTR) hp, (int) VTK_MAXWRITE, 
 		   (LPDWORD) &dwTmp, (LPOVERLAPPED) NULL))
       {
       return;
       }
-    cb-= MAXWRITE; 
-    hp += MAXWRITE; 
+    cb-= VTK_MAXWRITE; 
+    hp += VTK_MAXWRITE; 
     } 
   
   WriteFile(hf, (LPSTR) hp, (int) cb, (LPDWORD) &dwTmp, (LPOVERLAPPED) NULL);
@@ -1168,7 +1168,7 @@ void vtkMFCInteractor::StartTiming(int count)
     {
     MiliSeconds=count;
     bAuto = TRUE;
-    SetTimer(this->WindowId,this->TimerId+TIMEROFFSETT,MiliSeconds,NULL);
+    SetTimer(this->WindowId,this->TimerId+VTK_TIMEROFFSET,MiliSeconds,NULL);
     }
 }
 
@@ -1177,7 +1177,7 @@ void vtkMFCInteractor::StopTiming()
   if(bAuto==TRUE) 
     {
     bAuto = FALSE;
-    KillTimer(WindowId,TimerId+TIMEROFFSETT);
+    KillTimer(WindowId,TimerId+VTK_TIMEROFFSET);
     }	
 }
 
