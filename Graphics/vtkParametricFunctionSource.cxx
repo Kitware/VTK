@@ -29,7 +29,7 @@
 #include <math.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.8");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.9");
 vtkStandardNewMacro(vtkParametricFunctionSource);
 
 
@@ -566,6 +566,20 @@ void vtkParametricFunctionSource::SetAllParametricTriangulatorParameters (
   this->Modified();
 }
 */
+
+unsigned long vtkParametricFunctionSource::GetMTime()
+{
+  unsigned long mTime=this->Superclass::GetMTime();
+  unsigned long funcMTime;
+
+  if ( this->ParametricFunction != NULL )
+    {
+    funcMTime = this->ParametricFunction->GetMTime();
+    mTime = ( funcMTime > mTime ? funcMTime : mTime );
+    }
+
+  return mTime;
+}
 
 void vtkParametricFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
 {

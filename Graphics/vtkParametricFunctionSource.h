@@ -145,6 +145,10 @@ public:
   void SetScalarModeToDistance( void ) {this->SetScalarMode(SCALAR_DISTANCE);}
   void SetScalarModeToFunctionDefined( void ) {this->SetScalarMode(SCALAR_FUNCTION_DEFINED);}
 
+  // Description:
+  // Return the MTime also considering the parametric function.
+  unsigned long GetMTime();
+
 protected:
   vtkParametricFunctionSource();
   virtual ~vtkParametricFunctionSource();
