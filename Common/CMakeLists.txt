@@ -3,6 +3,7 @@ vtkAbstractMapper.cxx
 vtkAbstractTransform.cxx
 vtkActor2D.cxx
 vtkActor2DCollection.cxx
+vtkAmoebaMinimizer.cxx
 vtkAssemblyNode.cxx
 vtkAssemblyPath.cxx
 vtkAssemblyPaths.cxx

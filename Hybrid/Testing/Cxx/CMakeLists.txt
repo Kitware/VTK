@@ -2,7 +2,6 @@ SET(KIT Hybrid)
 # add tests that do not require data
 SET(MyTests     
   BoxWidget.cxx
-  AmoebaMinimizer.cxx  
   TestImplicitPlaneWidget.cxx
   )
 IF (VTK_DATA_ROOT)

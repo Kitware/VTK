@@ -15,6 +15,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   otherCellTypes.cxx
   otherFieldData.cxx
   quadraticEvaluation.cxx
+  TestAmoebaMinimizer.cxx
   TestImageIterator.cxx
   TestContainers.cxx
   TestReferenceCountedList.cxx
