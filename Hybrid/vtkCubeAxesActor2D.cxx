@@ -66,6 +66,7 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
   this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
 
+  this->UseRanges = 0;
   this->Ranges[0] = 0; this->Ranges[1] = 0;
   this->Ranges[2] = 0; this->Ranges[3] = 0;
   this->Ranges[4] = 0; this->Ranges[5] = 0;
