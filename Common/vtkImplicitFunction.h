@@ -17,11 +17,14 @@
 =========================================================================*/
 // .NAME vtkImplicitFunction - abstract interface for implicit functions
 // .SECTION Description
-// vtkImplicitFunction specifies an abstract interface for implicit 
-// functions. Implicit functions are real valued functions defined in 3D 
-// space, w = F(x,y,z). Two primitive 
-// operations are required: the ability to evaluate the function, and the 
-// function gradient at a given point.
+// vtkImplicitFunction specifies an abstract interface for implicit
+// functions. Implicit functions are real valued functions defined in 3D
+// space, w = F(x,y,z). Two primitive operations are required: the ability to
+// evaluate the function, and the function gradient at a given point. The 
+// implicit function divides space into three regions: on the surface
+// (F(x,y,z)=w), outside of the surface (F(x,y,z)>c), and inside the
+// surface (F(x,y,z)<c). (When c is zero, positive values are outside,
+// negative values are inside, and zero is on the surface.)
 //
 // Implicit functions are very powerful. It is possible to represent almost
 // any type of geometry with the level sets w = const, especially if you use 
