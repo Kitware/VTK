@@ -18,35 +18,36 @@
 // .NAME vtkHeap - replacement for malloc/free and new/delete
 // .SECTION Description
 // This class is a replacement for malloc/free and new/delete for software
-// that has inherent memory leak problems. For example, external software
-// such as the PLY library (vtkPLY) and VRML importer (vtkVRMLImporter) are
-// often written with lots of malloc() calls but without the corresponding
-// free() invocations. This class allows the replacement of malloc() with
-// the method AllocateMemory(). Memory is then deleted with an invocation
-// of CleanUp().
+// that has inherent memory leak or performance problems. For example,
+// external software such as the PLY library (vtkPLY) and VRML importer
+// (vtkVRMLImporter) are often written with lots of malloc() calls but
+// without the corresponding free() invocations. The class
+// vtkOrderedTriangulator may create and delete millions of new/delete calls.
+// This class allows the overloading of the C++ new operator (or other memory
+// allocation requests) by using the method AllocateMemory(). Memory is
+// deleted with an invocation of CleanAll() (which deletes ALL memory; any
+// given memory allocation cannot be deleted). Note: a block size can be used
+// to control the size of each memory allocation. Requests for memory are
+// fulfilled from the block until the block runs out, then a new block is
+// created.
 //
 // .SECTION Caveats
-// Do not use this method as a replacement for system memory allocation.
-// This class should be used only as a last resort if memory leaks cannot
-// be tracked down and eliminated by conventional means.
+// Do not use this class as a general replacement for system memory
+// allocation.  This class should be used only as a last resort if memory
+// leaks cannot be tracked down and eliminated by conventional means. Also,
+// deleting memory from vtkHeap is not supported. Only the deletion of
+// the entire heap is. (A Reset() method allows you to reuse previously
+// allocated memory.)
 
 // .SECTION See Also
-// vtkVRMLImporter vtkPLY
+// vtkVRMLImporter vtkPLY vtkOrderedTriangulator
 
 #ifndef __vtkHeap_h
 #define __vtkHeap_h
 
 #include "vtkObject.h"
 
-//BTX
-class VTK_COMMON_EXPORT vtkHeapNode
-{
-public:
-  void* Ptr;
-  vtkHeapNode* Next;
-  vtkHeapNode():Ptr(0),Next(0) {};
-};
-//ETX
+class vtkHeapBlock; //forward declaration
 
 class VTK_COMMON_EXPORT vtkHeap : public vtkObject
 {
@@ -60,26 +61,48 @@ public:
   void* AllocateMemory(size_t n);
   
   // Description:
-  // Convenience method performs string duplication.
-  char* StringDup(const char* str);
+  // Set/Get the size at which blocks are allocated. If a memory
+  // request is bigger than the block size, then that size
+  // will be allocated.
+  vtkSetMacro(BlockSize,size_t);
+  vtkGetMacro(BlockSize,size_t);
 
   // Description:
   // Get the number of allocations thus far.
+  vtkGetMacro(NumberOfBlocks,int);
   vtkGetMacro(NumberOfAllocations,int);
+
+  // Description:
+  // This methods resets the current allocation location
+  // back to the beginning of the heap. This allows
+  // reuse of previously allocated memory which may be
+  // beneficial to performance in many cases.
+  void Reset();
+  
+  // Description:
+  // Convenience method performs string duplication.
+  char* StringDup(const char* str);
 
 protected:  
   vtkHeap();
   ~vtkHeap();
 
-  void Add(vtkHeapNode* node);
+  void Add(size_t blockSize);
   void CleanAll();
-  vtkHeapNode* DeleteAndNext();
+  vtkHeapBlock* DeleteAndNext();
 
-  vtkHeapNode* First;
-  vtkHeapNode* Last;
-  vtkHeapNode* Current;
+  size_t BlockSize;
+  int    NumberOfAllocations;
+  int    NumberOfBlocks;
 
-  int NumberOfAllocations;
+  // Manage the blocks
+  vtkHeapBlock* First;
+  vtkHeapBlock* Last;
+  vtkHeapBlock* Current;
+
+  // Manage the memory in the block
+  size_t Position; //the position in the Current block
+  
 private:
   vtkHeap(const vtkHeap&); // Not implemented.
   void operator=(const vtkHeap&);  // Not implemented.
