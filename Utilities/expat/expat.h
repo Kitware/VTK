@@ -8,7 +8,7 @@ See the file COPYING for copying permission.
 
 #include <stdlib.h>
 
-#if defined(WIN32) && !defined(VTK_EXPAT_STATIC)
+#if defined(_WIN32) && !defined(VTK_EXPAT_STATIC)
 #  if defined(vtkexpat_EXPORTS)
 #    define XMLPARSEAPI(type) __declspec( dllexport ) type __cdecl
 #  else
