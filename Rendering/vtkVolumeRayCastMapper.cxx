@@ -34,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.101");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.102");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -365,7 +365,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   int *renWinSize   =  ren->GetRenderWindow()->GetSize();
 
   // Save this so that we can restore it if the image is cancelled
-  float oldImageSampleDistance = this->ImageSampleDistance;
+  double oldImageSampleDistance = this->ImageSampleDistance;
   
   // If we are automatically adjusting the size to achieve a desired frame
   // rate, then do that adjustment here. Base the new image sample distance 
@@ -419,17 +419,17 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
       // turn this->ImageOrigin into (x1,y1) in window (not viewport!)
       // coordinates. 
       x1 = static_cast<int> (
-        viewport[0] * static_cast<float>(renWinSize[0]) +
-        static_cast<float>(this->ImageOrigin[0]) * this->ImageSampleDistance );
+        viewport[0] * static_cast<double>(renWinSize[0]) +
+        static_cast<double>(this->ImageOrigin[0]) * this->ImageSampleDistance );
       y1 = static_cast<int> (
-        viewport[1] * static_cast<float>(renWinSize[1]) +
-        static_cast<float>(this->ImageOrigin[1]) * this->ImageSampleDistance);
+        viewport[1] * static_cast<double>(renWinSize[1]) +
+        static_cast<double>(this->ImageOrigin[1]) * this->ImageSampleDistance);
       
       // compute z buffer size
       this->ZBufferSize[0] = static_cast<int>(
-        static_cast<float>(this->ImageInUseSize[0]) * this->ImageSampleDistance);
+        static_cast<double>(this->ImageInUseSize[0]) * this->ImageSampleDistance);
       this->ZBufferSize[1] = static_cast<int>(
-        static_cast<float>(this->ImageInUseSize[1]) * this->ImageSampleDistance);
+        static_cast<double>(this->ImageInUseSize[1]) * this->ImageSampleDistance);
       
       // Use the size to compute (x2,y2) in window coordinates
       x2 = x1 + this->ZBufferSize[0] - 1;
@@ -437,9 +437,9 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
       
       // This is the z buffer origin (in viewport coordinates)
       this->ZBufferOrigin[0] = static_cast<int>(
-        static_cast<float>(this->ImageOrigin[0]) * this->ImageSampleDistance);
+        static_cast<double>(this->ImageOrigin[0]) * this->ImageSampleDistance);
       this->ZBufferOrigin[1] = static_cast<int>(
-        static_cast<float>(this->ImageOrigin[1]) * this->ImageSampleDistance);
+        static_cast<double>(this->ImageOrigin[1]) * this->ImageSampleDistance);
       
       // Capture the z buffer
       this->ZBuffer = ren->GetRenderWindow()->GetZbufferData(x1,y1,x2,y2);

@@ -59,7 +59,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
   int              shade;
   float            tmpval;
   int              cropping, croppingFlags;
-  float            *croppingBounds;
+  double           *croppingBounds;
   int              flag[3], tmpFlag, index;
   int              clipLow = 0, clipHigh = 0;
   vtkRenderWindow  *renWin = me->GetRenderWindow();
@@ -466,7 +466,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.55");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.56");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

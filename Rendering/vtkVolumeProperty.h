@@ -80,8 +80,8 @@ public:
 
   // Description:
   // Set/Get the scalar component weights
-  virtual void SetComponentWeight(int index, float value);
-  virtual float GetComponentWeight(int index);
+  virtual void SetComponentWeight(int index, double value);
+  virtual double GetComponentWeight(int index);
 
   // Description:
   // Set the interpolation type for sampling a volume.
@@ -151,11 +151,11 @@ public:
   // is defined. By default this is 1.0, meaning that over a distance of
   // 1.0 units, a given opacity (from the transfer function) is accumulated.
   // This is adjusted for the actual sampling distance during rendering.
-  void SetScalarOpacityUnitDistance( int index, float distance );
-  void SetScalarOpacityUnitDistance( float distance )
+  void SetScalarOpacityUnitDistance( int index, double distance );
+  void SetScalarOpacityUnitDistance( double distance )
     {this->SetScalarOpacityUnitDistance( 0, distance );}
-  float GetScalarOpacityUnitDistance( int index );
-  float GetScalarOpacityUnitDistance()
+  double GetScalarOpacityUnitDistance( int index );
+  double GetScalarOpacityUnitDistance()
     {return this->GetScalarOpacityUnitDistance(0);}
   
   
@@ -222,31 +222,31 @@ public:
 
   // Description:
   // Set/Get the ambient lighting coefficient.
-  void SetAmbient( int index, float value );
-  void SetAmbient( float value ) {this->SetAmbient( 0, value );}
-  float GetAmbient( int index );
-  float GetAmbient() {return this->GetAmbient(0);}
+  void SetAmbient( int index, double value );
+  void SetAmbient( double value ) {this->SetAmbient( 0, value );}
+  double GetAmbient( int index );
+  double GetAmbient() {return this->GetAmbient(0);}
 
   // Description:
   // Set/Get the diffuse lighting coefficient.
-  void SetDiffuse( int index, float value );
-  void SetDiffuse( float value ) {this->SetDiffuse( 0, value );}
-  float GetDiffuse( int index );
-  float GetDiffuse() {return this->GetDiffuse(0);}
+  void SetDiffuse( int index, double value );
+  void SetDiffuse( double value ) {this->SetDiffuse( 0, value );}
+  double GetDiffuse( int index );
+  double GetDiffuse() {return this->GetDiffuse(0);}
 
   // Description:
   // Set/Get the specular lighting coefficient.
-  void SetSpecular( int index, float value );
-  void SetSpecular( float value ) {this->SetSpecular( 0, value );}
-  float GetSpecular( int index );
-  float GetSpecular() {return this->GetSpecular(0);}
+  void SetSpecular( int index, double value );
+  void SetSpecular( double value ) {this->SetSpecular( 0, value );}
+  double GetSpecular( int index );
+  double GetSpecular() {return this->GetSpecular(0);}
 
   // Description:
   // Set/Get the specular power.
-  void SetSpecularPower( int index, float value );
-  void SetSpecularPower( float value ) {this->SetSpecularPower( 0, value );}
-  float GetSpecularPower( int index );
-  float GetSpecularPower() {return this->GetSpecularPower(0);}
+  void SetSpecularPower( int index, double value );
+  void SetSpecularPower( double value ) {this->SetSpecularPower( 0, value );}
+  double GetSpecularPower( int index );
+  double GetSpecularPower() {return this->GetSpecularPower(0);}
 
   //BTX
   // Description:
@@ -291,7 +291,7 @@ protected:
   ~vtkVolumeProperty();
 
   int                           IndependentComponents;
-  float                         ComponentWeight[VTK_MAX_VRCOMP];
+  double                        ComponentWeight[VTK_MAX_VRCOMP];
 
   int                           InterpolationType;
 
@@ -305,7 +305,7 @@ protected:
 
   vtkPiecewiseFunction          *ScalarOpacity[VTK_MAX_VRCOMP];
   vtkTimeStamp                  ScalarOpacityMTime[VTK_MAX_VRCOMP];
-  float                         ScalarOpacityUnitDistance[VTK_MAX_VRCOMP];
+  double                        ScalarOpacityUnitDistance[VTK_MAX_VRCOMP];
   
   vtkPiecewiseFunction          *GradientOpacity[VTK_MAX_VRCOMP];
   vtkTimeStamp                  GradientOpacityMTime[VTK_MAX_VRCOMP];
@@ -313,10 +313,10 @@ protected:
   int                           DisableGradientOpacity[VTK_MAX_VRCOMP];
 
   int                           Shade[VTK_MAX_VRCOMP];
-  float                         Ambient[VTK_MAX_VRCOMP];
-  float                         Diffuse[VTK_MAX_VRCOMP];
-  float                         Specular[VTK_MAX_VRCOMP];
-  float                         SpecularPower[VTK_MAX_VRCOMP];
+  double                        Ambient[VTK_MAX_VRCOMP];
+  double                        Diffuse[VTK_MAX_VRCOMP];
+  double                        Specular[VTK_MAX_VRCOMP];
+  double                        SpecularPower[VTK_MAX_VRCOMP];
 
   virtual void                  CreateDefaultGradientOpacity(int index);
 

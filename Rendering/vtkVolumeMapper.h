@@ -63,13 +63,13 @@ public:
   // Set/Get the Cropping Region Planes ( xmin, xmax, ymin, ymax, zmin, zmax )
   // These planes are defined in volume coordinates - spacing and origin are
   // considered.
-  vtkSetVector6Macro( CroppingRegionPlanes, float );
-  vtkGetVectorMacro(  CroppingRegionPlanes, float, 6 );
+  vtkSetVector6Macro( CroppingRegionPlanes, double );
+  vtkGetVectorMacro(  CroppingRegionPlanes, double, 6 );
 
   // Description:
   // Get the cropping region planes in voxels. Only valid during the 
   // rendering process
-  vtkGetVectorMacro( VoxelCroppingRegionPlanes, float, 6 );
+  vtkGetVectorMacro( VoxelCroppingRegionPlanes, double, 6 );
   
   // Description:
   // Set the flags for the cropping regions. The clipping planes divide the
@@ -125,8 +125,8 @@ protected:
   // Cropping variables, and a method for converting the world
   // coordinate cropping region planes to voxel coordinates
   int                  Cropping;
-  float                CroppingRegionPlanes[6];
-  float                VoxelCroppingRegionPlanes[6];
+  double               CroppingRegionPlanes[6];
+  double               VoxelCroppingRegionPlanes[6];
   int                  CroppingRegionFlags;
   void ConvertCroppingRegionPlanesToVoxels();
   

@@ -18,7 +18,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
 
-vtkCxxRevisionMacro(vtkVolumeProperty, "1.39");
+vtkCxxRevisionMacro(vtkVolumeProperty, "1.40");
 vtkStandardNewMacro(vtkVolumeProperty);
 
 // Construct a new vtkVolumeProperty with default values
@@ -288,7 +288,7 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetScalarOpacity( int index )
   return this->ScalarOpacity[index];
 }
 
-void vtkVolumeProperty::SetScalarOpacityUnitDistance( int index, float distance )
+void vtkVolumeProperty::SetScalarOpacityUnitDistance( int index, double distance )
 {
   if ( index < 0 || index > 3 )
     {
@@ -303,7 +303,7 @@ void vtkVolumeProperty::SetScalarOpacityUnitDistance( int index, float distance 
     }
 }
 
-float vtkVolumeProperty::GetScalarOpacityUnitDistance( int index )
+double vtkVolumeProperty::GetScalarOpacityUnitDistance( int index )
 {
   if ( index < 0 || index > 3 )
     {
@@ -409,7 +409,7 @@ int vtkVolumeProperty::GetDisableGradientOpacity( int index )
   return this->DisableGradientOpacity[index];
 }
 
-void vtkVolumeProperty::SetComponentWeight(int index, float value)
+void vtkVolumeProperty::SetComponentWeight(int index, double value)
 {
   if (index < 0 || index >= VTK_MAX_VRCOMP)
     {
@@ -426,7 +426,7 @@ void vtkVolumeProperty::SetComponentWeight(int index, float value)
   this->Modified();
 }
 
-float vtkVolumeProperty::GetComponentWeight(int index)
+double vtkVolumeProperty::GetComponentWeight(int index)
 {
   if (index < 0 || index >= VTK_MAX_VRCOMP)
     {
@@ -469,7 +469,7 @@ int vtkVolumeProperty::GetShade( int index )
   return this->Shade[index];
 }
 
-void vtkVolumeProperty::SetAmbient( int index, float value )
+void vtkVolumeProperty::SetAmbient( int index, double value )
 {
   if ( this->Ambient[index] != value )
     {
@@ -478,12 +478,12 @@ void vtkVolumeProperty::SetAmbient( int index, float value )
     }
 }
 
-float vtkVolumeProperty::GetAmbient( int index )
+double vtkVolumeProperty::GetAmbient( int index )
 {
   return this->Ambient[index];
 }
 
-void vtkVolumeProperty::SetDiffuse( int index, float value )
+void vtkVolumeProperty::SetDiffuse( int index, double value )
 {
   if ( this->Diffuse[index] != value )
     {
@@ -492,12 +492,12 @@ void vtkVolumeProperty::SetDiffuse( int index, float value )
     }
 }
 
-float vtkVolumeProperty::GetDiffuse( int index )
+double vtkVolumeProperty::GetDiffuse( int index )
 {
   return this->Diffuse[index];
 }
 
-void vtkVolumeProperty::SetSpecular( int index, float value )
+void vtkVolumeProperty::SetSpecular( int index, double value )
 {
   if ( this->Specular[index] != value )
     {
@@ -506,12 +506,12 @@ void vtkVolumeProperty::SetSpecular( int index, float value )
     }
 }
 
-float vtkVolumeProperty::GetSpecular( int index )
+double vtkVolumeProperty::GetSpecular( int index )
 {
   return this->Specular[index];
 }
 
-void vtkVolumeProperty::SetSpecularPower( int index, float value )
+void vtkVolumeProperty::SetSpecularPower( int index, double value )
 {
   if ( this->SpecularPower[index] != value )
     {
@@ -520,7 +520,7 @@ void vtkVolumeProperty::SetSpecularPower( int index, float value )
     }
 }
 
-float vtkVolumeProperty::GetSpecularPower( int index )
+double vtkVolumeProperty::GetSpecularPower( int index )
 {
   return this->SpecularPower[index];
 }

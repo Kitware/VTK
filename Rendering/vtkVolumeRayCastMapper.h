@@ -92,8 +92,8 @@ public:
   // used for sampling ray casting methods.  Methods that compute
   // a ray value by stepping cell-by-cell are not affected by this
   // value. 
-  vtkSetMacro( SampleDistance, float );
-  vtkGetMacro( SampleDistance, float );
+  vtkSetMacro( SampleDistance, double );
+  vtkGetMacro( SampleDistance, double );
 
   // Description:
   // Get / Set the volume ray cast function. This is used to process
@@ -114,20 +114,20 @@ public:
   // Sampling distance in the XY image dimensions. Default value of 1 meaning
   // 1 ray cast per pixel. If set to 0.5, 4 rays will be cast per pixel. If
   // set to 2.0, 1 ray will be cast for every 4 (2 by 2) pixels.
-  vtkSetClampMacro( ImageSampleDistance, float, 0.1f, 100.0f );
-  vtkGetMacro( ImageSampleDistance, float );
+  vtkSetClampMacro( ImageSampleDistance, double, 0.1f, 100.0f );
+  vtkGetMacro( ImageSampleDistance, double );
 
   // Description:
   // This is the minimum image sample distance allow when the image
   // sample distance is being automatically adjusted
-  vtkSetClampMacro( MinimumImageSampleDistance, float, 0.1f, 100.0f );
-  vtkGetMacro( MinimumImageSampleDistance, float );
+  vtkSetClampMacro( MinimumImageSampleDistance, double, 0.1f, 100.0f );
+  vtkGetMacro( MinimumImageSampleDistance, double );
 
   // Description:
   // This is the maximum image sample distance allow when the image
   // sample distance is being automatically adjusted
-  vtkSetClampMacro( MaximumImageSampleDistance, float, 0.1f, 100.0f );
-  vtkGetMacro( MaximumImageSampleDistance, float );
+  vtkSetClampMacro( MaximumImageSampleDistance, double, 0.1f, 100.0f );
+  vtkGetMacro( MaximumImageSampleDistance, double );
 
   // Description:
   // If AutoAdjustSampleDistances is on, the the ImageSampleDistance
@@ -190,13 +190,13 @@ protected:
   vtkEncodedGradientShader     *GradientShader;
 
   // The distance between sample points along the ray
-  float                        SampleDistance;
-  float                        ImageSampleDistance;
-  float                        MinimumImageSampleDistance;
-  float                        MaximumImageSampleDistance;
+  double                       SampleDistance;
+  double                       ImageSampleDistance;
+  double                       MinimumImageSampleDistance;
+  double                       MaximumImageSampleDistance;
   int                          AutoAdjustSampleDistances;
   
-  float                        WorldSampleDistance;
+  double                       WorldSampleDistance;
   int                          ScalarDataType;
   void                         *ScalarDataPointer;
 
