@@ -5,20 +5,25 @@ AC_INIT(VisQuad.cxx)
 
 VTK_LIB_FILE="../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
 
+
 # if using patents we also need patents library
 AC_ARG_WITH(patented,
-   [  --with-patented           include the patented classes],
+         [  --with-patented           include the patented classes],
+	 if test "$withval" = yes; then
      VTK_LIB_FILE="../../patented/libVTKPatented\${VTK_LIB_EXT} ../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
-  ,)
+         fi,)
 
 AC_SUBST(VTK_LIB_FILE)
 
+
 # option for handling BSD style makefile includes
 #
-AC_ARG_WITH(mesa,
+AC_ARG_WITH(bsdmake,
          [  --with-bsdmake            uses bsd style makefile includes],
+	 if test "$withval" = yes; then
          MAKEINCLUDE=".include"
-         MAKEQUOTE='"',
+         MAKEQUOTE='"'
+         fi,
          MAKEINCLUDE="include"
          MAKEQUOTE='')
 AC_SUBST(MAKEINCLUDE)

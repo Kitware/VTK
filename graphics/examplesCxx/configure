@@ -525,24 +525,29 @@ fi
 
 VTK_LIB_FILE="../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
 
+
 # if using patents we also need patents library
 # Check whether --with-patented or --without-patented was given.
 if test "${with_patented+set}" = set; then
   withval="$with_patented"
-  VTK_LIB_FILE="../../patented/libVTKPatented\${VTK_LIB_EXT} ../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
-  
+  if test "$withval" = yes; then
+     VTK_LIB_FILE="../../patented/libVTKPatented\${VTK_LIB_EXT} ../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
+         fi
 fi
+
 
 
 
 
 # option for handling BSD style makefile includes
 #
-# Check whether --with-mesa or --without-mesa was given.
-if test "${with_mesa+set}" = set; then
-  withval="$with_mesa"
-  MAKEINCLUDE=".include"
+# Check whether --with-bsdmake or --without-bsdmake was given.
+if test "${with_bsdmake+set}" = set; then
+  withval="$with_bsdmake"
+  if test "$withval" = yes; then
+         MAKEINCLUDE=".include"
          MAKEQUOTE='"'
+         fi
 else
   MAKEINCLUDE="include"
          MAKEQUOTE=''
