@@ -415,35 +415,35 @@ void makeMakefile(CPcmakerDlg *vals)
   // add in the OpenGL stuff etc that we need
   if (vals->m_Graphics)
     {
-	  concrete[num_concrete] = strdup("vtkOglrRenderer");
+	  concrete[num_concrete] = strdup("vtkOpenGLRenderer");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
-    concrete[num_concrete] = strdup("vtkOglrTexture");
+    concrete[num_concrete] = strdup("vtkOpenGLTexture");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
-    concrete[num_concrete] = strdup("vtkOglrProperty");
+    concrete[num_concrete] = strdup("vtkOpenGLProperty");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
-    concrete[num_concrete] = strdup("vtkOglrActor");
+    concrete[num_concrete] = strdup("vtkOpenGLActor");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
-    concrete[num_concrete] = strdup("vtkOglrCamera");
+    concrete[num_concrete] = strdup("vtkOpenGLCamera");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
-    concrete[num_concrete] = strdup("vtkOglrPolyMapper");
+    concrete[num_concrete] = strdup("vtkOpenGLPolyMapper");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
 
     if (vals->m_GEMSVOLUME)
       {
-      concrete[num_concrete] = strdup("vtkOglrPolyDepthMapper");
+      concrete[num_concrete] = strdup("vtkOpenGLPolyDepthMapper");
       concrete_lib[num_concrete] = strdup("volume");
       num_concrete++;
       }
-    concrete[num_concrete] = strdup("vtkOglrLight");
+    concrete[num_concrete] = strdup("vtkOpenGLLight");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
-    concrete[num_concrete] = strdup("vtkWin32OglrRenderWindow");
+    concrete[num_concrete] = strdup("vtkWin32OpenGLRenderWindow");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
     concrete[num_concrete] = strdup("vtkWin32RenderWindowInteractor");
