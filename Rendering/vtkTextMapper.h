@@ -68,6 +68,11 @@ public:
   int GetHeight(vtkViewport*v);
   
   // Description:
+  // Return the font size required to make this mapper fit in a given 
+  // rectangle (in pixels).
+  virtual int GetConstrainedFontSize(vtkViewport*, int width, int height);
+  
+  // Description:
   // Set the input text string to the mapper.  The mapper recognizes "\n"
   // as a carriage return/linefeed (line separator).
   void SetInput(const char *inputString);

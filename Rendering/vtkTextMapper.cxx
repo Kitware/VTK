@@ -47,7 +47,7 @@ int vtkTextMapper::GetGlobalAntiAliasing()
   return vtkTextMapperGlobalAntiAliasing;
 }
 
-vtkCxxRevisionMacro(vtkTextMapper, "1.38");
+vtkCxxRevisionMacro(vtkTextMapper, "1.39");
 
 // Creates a new text mapper with Font size 12, bold off, italic off,
 // and Arial font
@@ -154,6 +154,43 @@ int vtkTextMapper::GetHeight(vtkViewport* viewport)
   int size[2];
   this->GetSize(viewport, size);
   return size[1];
+}
+
+int vtkTextMapper::GetConstrainedFontSize(vtkViewport* viewport,
+                                          int width,
+                                          int height)
+{
+  int font_size = this->GetFontSize();
+  int old_font_size = font_size;
+
+  // Use the last size as a first guess
+
+  int tempi[2];
+  this->GetSize(viewport, tempi);
+
+  // While the size is too small increase it
+
+  while (tempi[1] < height &&
+         tempi[0] < width && 
+         font_size < 100)
+    {
+    font_size++;
+    this->SetFontSize(font_size);
+    this->GetSize(viewport, tempi);
+    }
+
+  // While the size is too large decrease it
+
+  while ((tempi[1] > height || tempi[0] > width) 
+         && font_size > 0)
+    {
+    font_size--;
+    this->SetFontSize(font_size);
+    this->GetSize(viewport, tempi);
+    }
+
+  this->SetFontSize(old_font_size);
+  return font_size;
 }
 
 // Parse the input and create multiple text mappers if multiple lines
