@@ -59,7 +59,7 @@ void vtkImageFourierCenter::ComputeRequiredInputUpdateExtent(int inExt[6],
 							     int outExt[6])
 {
   int *extent;
-  
+
   // Assumes that the input update extent has been initialized to output ...
   extent = this->Input->GetWholeExtent();
   memcpy(inExt, outExt, 6 * sizeof(int));
@@ -85,16 +85,18 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
   int numberOfComponents;
   int inCoords[3];
   
-  // this filter expects that the output be floats.
-  if (outData->GetScalarType() != VTK_FLOAT)
-    {
-    vtkErrorMacro(<< "Execute: Output must be be type float.");
-    return;
-    }
+  threadId = threadId;
+  
   // this filter expects that the input be floats.
   if (inData->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: Input must be be type float.");
+    return;
+    }
+  // this filter expects that the output be floats.
+  if (outData->GetScalarType() != VTK_FLOAT)
+    {
+    vtkErrorMacro(<< "Execute: Output must be be type float.");
     return;
     }
   // this filter expects input to have 1 or two components
@@ -109,7 +111,7 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
   numberOfComponents = outData->GetNumberOfScalarComponents();
   outPtr0 = (float *)(outData->GetScalarPointerForExtent(outExt));
   wholeExtent = this->Output->GetWholeExtent();
-  // permute to make the filtered axis come first. (brute force)
+  // permute to make the filtered axis come first
   this->PermuteExtent(outExt, min0, max0, min1, max1, min2, max2);
   this->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
   this->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
@@ -120,10 +122,10 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
   mid0 = (wholeMin0 + wholeMax0) / 2;
 
   // initialize input coordinates
-  inCoords[0] = min0;
-  inCoords[1] = min1;
-  inCoords[2] = min2;  
-
+  inCoords[0] = outExt[0];
+  inCoords[1] = outExt[2];
+  inCoords[2] = outExt[4];
+  
   // loop over the filtered axis first
   for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0)
     {
@@ -135,7 +137,7 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
       }
     inCoords[this->Iteration] = inIdx0;
     inPtr0 = (float *)(inData->GetScalarPointer(inCoords));
-
+    
     // loop over other axes
     inPtr2 = inPtr0;
     outPtr2 = outPtr0;
