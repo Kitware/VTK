@@ -75,23 +75,21 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 
 // Special structures for building loops
-typedef struct vlLocalVertex    Vertex, *VertexPtr;
-struct vlLocalVertex 
+typedef struct _vlLocalVertex 
   {
   int     id;
   float   FAngle;
   int     deRefs; //monitor memory requirements; new only when necessary
   int     newRefs;
-  };
+  } vlLocalVertex, *vlLocalVertexPtr;
     
-typedef struct vlLocalTri    Tri, *TriPtr;
-struct vlLocalTri
+typedef struct _vlLocalTri
   {
   int     id;
   float   area;
   float   n[3];
   int     verts[3];
-  };
+  } vlLocalTri, *vlLocalTriPtr;
 
 //
 // Special classes for manipulating data
@@ -99,30 +97,30 @@ struct vlLocalTri
 class vlVertexArray { //;prevent man page generation
 public:
   vlVertexArray(const int sz) 
-    {this->MaxId = -1; this->Array = new struct vlLocalVertex[sz];};
+    {this->MaxId = -1; this->Array = new vlLocalVertex[sz];};
   ~vlVertexArray() {if (this->Array) delete [] this->Array;};
   int GetNumberOfVertices() {return this->MaxId + 1;};
-  void InsertNextVertex(vlVertex& v) 
+  void InsertNextVertex(vlLocalVertex& v) 
     {this->MaxId++; this->Array[this->MaxId] = v;};
-  struct vlLocalVertex& GetVertex(int i) {return this->Array[i];};
+  vlLocalVertex& GetVertex(int i) {return this->Array[i];};
   void Reset() {this->MaxId = -1;};
 
-  struct vlLocalVertex *Array;  // pointer to data
+  vlLocalVertex *Array;  // pointer to data
   int MaxId;             // maximum index inserted thus far
 };
 
 class vlTriArray { //;prevent man page generation
 public:
   vlTriArray(const int sz) 
-    {this->MaxId = -1; this->Array = new struct vlLocalTri[sz];};
+    {this->MaxId = -1; this->Array = new vlLocalTri[sz];};
   ~vlTriArray() {if (this->Array) delete [] this->Array;};
   int GetNumberOfTriangles() {return this->MaxId + 1;};
-  void InsertNextTriangle(vlTri& t) 
+  void InsertNextTriangle(vlLocalTri& t) 
     {this->MaxId++; this->Array[this->MaxId] = t;};
-  struct vlLocalTri& GetTriangle(int i) {return this->Array[i];};
+  vlLocalTri& GetTriangle(int i) {return this->Array[i];};
   void Reset() {this->MaxId = -1;};
 
-  struct vlLocalTri *Array;  // pointer to data
+  vlLocalTri *Array;  // pointer to data
   int MaxId;            // maximum index inserted thus far
 };
 
@@ -253,12 +251,15 @@ protected:
   void CreateOutput(int numPts, int numTris, int numEliminated, 
                     vlPointData *pd, vlPoints *inPts);
   int BuildLoop(int ptId, unsigned short int nTris, int* tris);
-  void EvaluateLoop(int ptId, int& vtype, int& numFEdges, VertexPtr fedges[]);
-  int CanSplitLoop(VertexPtr fedges[2], int numVerts, VertexPtr verts[],
-                  int& n1, VertexPtr l1[], int& n2, VertexPtr l2[], float& ar);
-  void SplitLoop(VertexPtr fedges[2], int numVerts, VertexPtr *verts,
-                   int& n1, VertexPtr *l1, int& n2, VertexPtr *l2);
-  void Triangulate(int numVerts, VertexPtr verts[]);
+  void EvaluateLoop(int ptId, int& vtype, int& numFEdges, 
+                    vlLocalVertexPtr fedges[]);
+  int CanSplitLoop(vlLocalVertexPtr fedges[2], int numVerts, 
+                   vlLocalVertexPtr verts[], int& n1, vlLocalVertexPtr l1[], 
+                   int& n2, vlLocalVertexPtr l2[], float& ar);
+  void SplitLoop(vlLocalVertexPtr fedges[2], int numVerts, 
+                 vlLocalVertexPtr *verts, int& n1, vlLocalVertexPtr *l1, 
+                 int& n2, vlLocalVertexPtr *l2);
+  void Triangulate(int numVerts, vlLocalVertexPtr verts[]);
 };
 
 #endif
