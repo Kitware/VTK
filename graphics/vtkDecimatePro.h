@@ -233,7 +233,7 @@ public:
   // process. This may limit the maximum reduction that may be achieved. The
   // maximum error is specified as a fraction of the maximum length of
   // the input data bounding box.
-  vtkSetClampMacro(MaximumError,float,0.0,10.0);
+  vtkSetClampMacro(MaximumError,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(MaximumError,float);
 
   // Description:
