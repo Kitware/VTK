@@ -15,6 +15,7 @@
 #include "vtkImageResample.h"
 #include "vtkJPEGWriter.h"
 #include "vtkImageShiftScale.h"
+#include "vtkWindow.h"
 
 class vtkRegressionTester
 {
