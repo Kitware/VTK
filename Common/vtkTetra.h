@@ -129,6 +129,12 @@ public:
                                double x3[3], double x4[3], double bcoords[4]);
   
   // Description:
+  // Compute the volume of a tetrahedron defined by the four points
+  // p1, p2, p3, and p4.
+  static double ComputeVolume(double  p1[3], double p2[3], double p3[3], 
+                              double p4[3]);
+
+  // Description:
   // Given parametric coordinates compute inverse Jacobian transformation
   // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
   // function derivatives. Returns 0 if no inverse exists.
