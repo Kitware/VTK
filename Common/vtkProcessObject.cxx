@@ -97,6 +97,8 @@ vtkProcessObject::~vtkProcessObject()
     delete [] this->SortedInputs2;
     this->SortedInputs2 = NULL;
     }
+  delete [] this->ProgressText;
+  this->ProgressText = NULL;
 }
 
 typedef vtkDataObject *vtkDataObjectPointer;
