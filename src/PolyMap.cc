@@ -81,7 +81,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
 //
 // make sure that we've been properly initialized
 //
-  if ( ! this->Input ) 
+  if ( this->Input != NULL ) 
     {
     vlErrorMacro(<< "No input!\n");
     return;
