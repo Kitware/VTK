@@ -37,29 +37,29 @@ public:
 };
 
 // Description:
-// Add an PolyData to the list.
-inline void vlPolyDataCollection::AddItem(vlPolyData *ds) 
+// Add a poly data to the list.
+inline void vlPolyDataCollection::AddItem(vlPolyData *pd) 
 {
-  this->vlCollection::AddItem((vlObject *)ds);
+  this->vlCollection::AddItem((vlObject *)pd);
 }
 
 // Description:
-// Remove an PolyData from the list.
-inline void vlPolyDataCollection::RemoveItem(vlPolyData *ds) 
+// Remove an poly data from the list.
+inline void vlPolyDataCollection::RemoveItem(vlPolyData *pd) 
 {
-  this->vlCollection::RemoveItem((vlObject *)ds);
+  this->vlCollection::RemoveItem((vlObject *)pd);
 }
 
 // Description:
-// Determine whether a particular PolyData is present. Returns its position
+// Determine whether a particular poly data is present. Returns its position
 // in the list.
-inline int vlPolyDataCollection::IsItemPresent(vlPolyData *ds) 
+inline int vlPolyDataCollection::IsItemPresent(vlPolyData *pd) 
 {
-  return this->vlCollection::IsItemPresent((vlObject *)ds);
+  return this->vlCollection::IsItemPresent((vlObject *)pd);
 }
 
 // Description:
-// Get the next PolyData in the list.
+// Get the next poly data in the list.
 inline vlPolyData *vlPolyDataCollection::GetNextItem() 
 { 
   return (vlPolyData *)(this->vlCollection::GetNextItem());
