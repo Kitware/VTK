@@ -34,7 +34,7 @@ static int ParseFile(FILE *file, const char *tag, float *data);
 
 int main( int argc, char *argv[] )
 {
-  float bounds[6];
+  double bounds[6];
   vtkDataSet *dataSet;
   
   // read data
