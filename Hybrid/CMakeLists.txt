@@ -8,17 +8,14 @@ vtkImageToPolyDataFilter
 vtkIterativeClosestPointTransform
 vtkLandmarkTransform 
 vtkLegendBoxActor 
-vtkLightKit 
 vtkRenderLargeImage 
 vtkRIBExporter 
 vtkRIBLight 
 vtkRIBProperty 
-vtkSuperquadric 
 vtkSuperquadricSource 
 vtkThinPlateSplineTransform 
 vtkTransformToGrid 
 vtkVideoSource 
-vtkVolumeProMapper 
 vtkVRMLImporter 
 vtkXYPlotActor 
 vtkWeightedTransformFilter 

@@ -42,6 +42,7 @@ vtkLODActor
 vtkLODProp3D
 vtkLight
 vtkLightCollection
+vtkLightKit 
 vtkMapper
 vtkMapperCollection
 vtkPicker
@@ -71,6 +72,7 @@ vtkViewRays
 vtkVolume
 vtkVolumeCollection
 vtkVolumeMapper
+vtkVolumeProMapper 
 vtkVolumeProperty
 vtkVolumeRayCastCompositeFunction
 vtkVolumeRayCastFunction
