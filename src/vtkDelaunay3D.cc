@@ -92,7 +92,7 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
   vtkIdList pts(4), facePts(3);
   static vtkMath math;
   vtkIdList neighbors(2);
-  float v12[3], vp[3], vx[3], v32[3], n[3], valx, valp;
+  float v12[3], vp[3], vx[3], v32[3], n[3], valx, valp, maxValx;
   
   // get local tetrahedron info
   Mesh->GetCellPoints(tetra,pts);
@@ -103,7 +103,7 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
     }
 
   // evaluate in/out of each face
-  for (inside=1, i=0; i<4; i++)
+  for (inside=1, maxValx=0.0, i=0; i<4; i++)
     {
     i2 = (i+1) % 4;
     i3 = (i+2) % 4;
@@ -133,22 +133,27 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
 
     if ( (valx < 0.0 && valp > 0.0) || (valx > 0.0 && valp < 0.0)  )
       {
-      inside = 0;
-      facePts.SetId(0,ptIds[i]);
-      facePts.SetId(1,ptIds[i2]);
-      facePts.SetId(2,ptIds[i3]);
-      Mesh->GetCellNeighbors(tetra, facePts, neighbors);
-      if ( neighbors.GetNumberOfIds() > 0 ) //not boundary
+      if ( fabs(valx) > maxValx )
         {
-        return FindTetra(x,ptIds,p,neighbors.GetId(0),Mesh,points,tol);
+        inside = 0;
+        maxValx = fabs(valx);
+        facePts.SetId(0,ptIds[i]);
+        facePts.SetId(1,ptIds[i2]);
+        facePts.SetId(2,ptIds[i3]);
         }
       }//outside this face
-
     }//for each face
 
   //must be in this tetra if all faces test inside
-  if ( !inside ) return -1;
-  else return tetra;
+  if ( !inside ) 
+    {
+    Mesh->GetCellNeighbors(tetra, facePts, neighbors);
+    return FindTetra(x,ptIds,p,neighbors.GetId(0),Mesh,points,tol);
+    }
+  else 
+    {
+    return tetra;
+    }
 }
 
 // Find all faces that enclose a point. (Enclosure means not satifying 

@@ -82,10 +82,10 @@ static int NumberOfDuplicatePoints;
 static int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh, 
                         vtkFloatPoints *points, float tol)
 {
-  int i, j, npts, *pts, inside, i2, i3;
+  int i, j, npts, *pts, inside, i2, i3, nei[2];
   static vtkMath math;
   vtkIdList neighbors(2);
-  float p[3][3], v12[3], vp[3], vx[3], v1[3], v2[3];
+  float p[3][3], v12[3], vp[3], vx[3], v1[3], v2[3], dp, minProj;
   
   // get local triangle info
   Mesh->GetCellPoints(tri,npts,pts);
@@ -96,7 +96,7 @@ static int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh,
     }
 
   // evaluate in/out of each edge
-  for (inside=1, i=0; i<3; i++)
+  for (inside=1, minProj=0.0, i=0; i<3; i++)
     {
     i2 = (i+1) % 3;
     i3 = (i+2) % 3;
@@ -115,24 +115,32 @@ static int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh,
       return -1;
       }
 
+    // create two vectors: normal to edge and vector to point
     math.Cross(vp,v12,v1); math.Normalize(v1);
     math.Cross(vx,v12,v2); math.Normalize(v2);
 
-    if ( math.Dot(v1,v2) < -1.0e-04 ) //point is opposite side of this edge
+    // see if point is on opposite side of edge
+    if ( (dp=math.Dot(v1,v2)) < -1.0e-04 )
       {
-      inside = 0;
-      Mesh->GetCellEdgeNeighbors(tri,ptIds[i],ptIds[i2],neighbors);
-      if ( neighbors.GetNumberOfIds() > 0 ) //not boundary
+      if ( dp < minProj ) //track edge most orthogonal to point direction
         {
-        return FindTriangle(x,ptIds,neighbors.GetId(0),Mesh,points,tol);
+        inside = 0;
+        nei[0] = ptIds[i];
+        nei[1] = ptIds[i2];
         }
       }//outside this edge
-
     }//for each edge
 
-  //must be in this triangle if all edges test inside
-  if ( !inside ) return -1;
-  else return tri;
+  //if not inside, walk towards point
+  if ( !inside )
+    {
+    Mesh->GetCellEdgeNeighbors(tri,nei[0],nei[1],neighbors);
+    return FindTriangle(x,ptIds,neighbors.GetId(0),Mesh,points,tol);
+    }
+  else //must be in this triangle if all edges test inside
+    {
+    return tri;
+    }
 }
 
 // Recursive method checks whether edge is Delaunay, and if not, swaps edge.
