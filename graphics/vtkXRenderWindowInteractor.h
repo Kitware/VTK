@@ -159,6 +159,10 @@ public:
   Widget GetTopLevelShell() {return this->TopLevelShell;};
   
   // Description:
+  // Re-defines virtual function to get mouse position by querying X-server.
+  virtual void GetMousePosition(int *x, int *y); 
+
+  // Description:
   // Functions that are used internally.
   friend void vtkXRenderWindowInteractorCallback(Widget,XtPointer,
                                                  XEvent *,Boolean *);
@@ -180,7 +184,6 @@ protected:
 
   XtIntervalId AddTimeOut(XtAppContext app_context, unsigned long interval,
 			  XtTimerCallbackProc proc, XtPointer client_data) ;
-  void GetMousePosition(int *x, int *y); 
   void Timer(XtPointer client_data, XtIntervalId *id); 
   void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd);
 };
