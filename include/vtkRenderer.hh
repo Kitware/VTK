@@ -62,6 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkRenderWindow;
 class vtkVolumeRenderer;
+class vtkNewVolumeRenderer;
 
 class vtkRenderer : public vtkObject
 {
@@ -81,6 +82,9 @@ public:
   vtkCamera *GetActiveCamera();
   void SetVolumeRenderer(vtkVolumeRenderer *);
   vtkVolumeRenderer *GetVolumeRenderer();
+
+  void SetNewVolumeRenderer(vtkNewVolumeRenderer *);
+  vtkNewVolumeRenderer *GetNewVolumeRenderer();
 
   // Description:
   // Set/Get the background color of the rendering screen using an rgb color
@@ -187,6 +191,7 @@ public:
 
 protected:
   vtkVolumeRenderer *VolumeRenderer;
+  vtkNewVolumeRenderer *NewVolumeRenderer;
   vtkCamera *ActiveCamera;
   vtkLight  *CreatedLight;
   vtkLightCollection Lights;
