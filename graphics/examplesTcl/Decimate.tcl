@@ -82,13 +82,13 @@ menu .mbar.edit.menu
 
 menu .mbar.view.menu
     .mbar.view.menu add checkbutton -label "Object Surface" -variable Surface\
-	    -command UpdateGUI
+	  -command {UpdateGUI; $RenWin Render}
     .mbar.view.menu add checkbutton -label "Feature Edges" -variable FEdges\
-	    -command UpdateGUI
+	  -command {UpdateGUI; $RenWin Render}
     .mbar.view.menu add checkbutton -label "Boundary Edges" -variable BEdges\
-	    -command UpdateGUI
+	  -command {UpdateGUI; $RenWin Render}
     .mbar.view.menu add checkbutton -label "Non-manifold Edges" -variable NMEdges\
-	    -command UpdateGUI
+	  -command {UpdateGUI; $RenWin Render}
     .mbar.view.menu add separator
     .mbar.view.menu add radiobutton -label Front -variable view -value Front\
             -command {UpdateView 1 0 0 0 1 0}
