@@ -148,7 +148,7 @@ void vtkDepthSortPolyData::Execute()
   vtkScalars *sortScalars = NULL;
   unsigned int *scalars = NULL;
   double x[3];
-  float p[3], *bounds, *w, xf[3];
+  float p[3], *bounds, *w = NULL, xf[3];
   double vector[3];
   double origin[3];
   int type, npts, *pts, newId, subId;

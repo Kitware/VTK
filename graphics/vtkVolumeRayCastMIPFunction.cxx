@@ -294,7 +294,7 @@ static void CastMaxOpacityRay( T *data_ptr,
   float     max;
   float     opacity;
   float     value;
-  int       max_value;
+  int       max_value = 0;
   int       loop;
   int       xinc, yinc, zinc;
   int       voxel[3];

@@ -384,7 +384,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
   // Go
   
   int cell_id,sub_id;
-  float dist2, totaldist2;
+  float dist2, totaldist2 = 0;
 
   vtkPoints *temp, *a = points1, *b = points2;
 
