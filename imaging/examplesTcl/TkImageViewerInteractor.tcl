@@ -15,13 +15,11 @@ proc BindTkImageViewer {widget} {
      $mapper SetFontSize 18
      $mapper BoldOn
      $mapper ShadowOn
-   set coordinate [NewWidgetObject $widget vtkCoordinate Coordinate1]
-     $coordinate SetCoordinateSystemToViewport
-     $coordinate SetValue 4 22
    set actor [NewWidgetObject $widget vtkActor2D Actor1]
      $actor SetMapper $mapper
      $actor SetLayerNumber 1
-     $actor SetPositionCoordinate $coordinate
+     [$actor GetPositionCoordinate] SetValue 4 22
+     [$actor GetProperty] SetColor 1 1 0.5
      $actor SetVisibility 0
    $imager AddActor2D $actor
    
@@ -32,13 +30,11 @@ proc BindTkImageViewer {widget} {
      $mapper SetFontSize 18
      $mapper BoldOn
      $mapper ShadowOn
-   set coordinate [NewWidgetObject $widget vtkCoordinate Coordinate2]
-     $coordinate SetCoordinateSystemToViewport
-     $coordinate SetValue 4 4
    set actor [NewWidgetObject $widget vtkActor2D Actor2]
      $actor SetMapper $mapper
      $actor SetLayerNumber 1
-     $actor SetPositionCoordinate $coordinate
+     [$actor GetPositionCoordinate] SetValue 4 4
+     [$actor GetProperty] SetColor 1 1 0.5
      $actor SetVisibility 0
    $imager AddActor2D $actor
    
