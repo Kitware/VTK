@@ -123,7 +123,7 @@ void vtkImageToImageFilter::ExecuteInformation()
   // Make sure the Input has been set.
   if ( input == NULL || output == NULL)
     {
-    vtkErrorMacro(<< "UpdateInformation: Input is not set.");
+    vtkErrorMacro(<< "ExecuteInformation: Input is not set.");
     return;
     }
 
