@@ -471,7 +471,6 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
 {
   Display *dpy;
   TkWindow *winPtr = (TkWindow *) self->TkWin;
-  TkWindow *winPtr2;
   Tcl_HashEntry *hPtr;
   int new_flag;
   vtkImageViewer *ImageViewer;

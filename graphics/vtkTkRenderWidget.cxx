@@ -490,7 +490,6 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 {
   Display *dpy;
   TkWindow *winPtr = (TkWindow *) self->TkWin;
-  TkWindow *winPtr2;
   Tcl_HashEntry *hPtr;
   int new_flag;
   vtkWin32OpenGLRenderWindow *renderWindow;

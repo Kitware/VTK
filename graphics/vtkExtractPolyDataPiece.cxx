@@ -139,8 +139,6 @@ void vtkExtractPolyDataPiece::Execute()
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   vtkIntArray *cellTags;
-  int tag;
-  int numCells;
   int ghostLevel, piece, numPieces;
   int cellId, newCellId;
   vtkIdList *cellPts, *pointMap;

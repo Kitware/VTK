@@ -423,7 +423,6 @@ static int vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget 
 {
   Display *dpy;
   TkWindow *winPtr = (TkWindow *) self->TkWin;
-  TkWindow *winPtr2;
   Tcl_HashEntry *hPtr;
   int new_flag;
   vtkImageWindow *ImageWindow;
