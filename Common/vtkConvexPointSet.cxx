@@ -28,7 +28,7 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.15");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.16");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.
@@ -170,7 +170,7 @@ void vtkConvexPointSet::Clip(float value,
   // For each tetra, contour it
   int i, j;
   vtkIdType ptId;
-  vtkDataArray *localScalars = inPD->GetScalars();
+  vtkDataArray *localScalars = inPD->GetArray("ClipDataSetScalars");
   int numTets = this->TetraIds->GetNumberOfIds() / 4;
   for (i=0; i<numTets; i++)
     {

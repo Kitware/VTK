@@ -33,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.25");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.26");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -229,11 +229,13 @@ void vtkClipDataSet::Execute()
     {
     vtkFloatArray *tmpScalars = vtkFloatArray::New();
     tmpScalars->SetNumberOfTuples(numPts);
+    tmpScalars->SetName("ClipDataSetScalars");
     inPD = vtkPointData::New();
     inPD->ShallowCopy(input->GetPointData());//copies original
+    inPD->AddArray(tmpScalars);
     if ( this->GenerateClipScalars )
       {
-      inPD->SetScalars(tmpScalars);
+      inPD->SetActiveScalars(tmpScalars->GetName());
       }
     for ( i=0; i < numPts; i++ )
       {
