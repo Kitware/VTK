@@ -16,7 +16,7 @@ int main( int argc, char *argv[] )
   int i;
   static float x[8][3]={{0,0,0}, {1,0,0}, {1,1,0}, {0,1,0},
                         {0,0,1}, {1,0,1}, {1,1,1}, {0,1,1}};
-  static int pts[6][4]={{0,1,2,3}, {4,5,6,7}, {0,1,5,4},
+  static vtkIdType pts[6][4]={{0,1,2,3}, {4,5,6,7}, {0,1,5,4},
                         {1,2,6,5}, {2,3,7,6}, {3,0,4,7}};
   
   vtkRenderer *renderer = vtkRenderer::New();
