@@ -3022,16 +3022,19 @@ void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"LINK32=link.exe\n");
   if (debugFlag)
     {
-    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtkpython.obj\" /debug /libpath:\"%s\\lib\"  \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows",
-	    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
+    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtkpython.obj\" /debug /libpath:\"%s\\lib\"  \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows %s",
+	    vals->m_WhereCompiler, vals->m_WhereCompiler, 
+            vals->m_WhereCompiler, vals->adlg.m_EXTRA_LINK_FLAGS);
     }
   else
     {
-    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtkpython.obj\" /libpath:\"%s\\lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows",
-	    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
+    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtkpython.obj\" /libpath:\"%s\\lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows %s",
+	    vals->m_WhereCompiler, vals->m_WhereCompiler, 
+            vals->m_WhereCompiler, vals->adlg.m_EXTRA_LINK_FLAGS);
     }
 
-  fprintf(fp," /libpath:\"%s\\PCbuild\" \n",vals->m_WherePy);
+  fprintf(fp," /libpath:\"%s\\PCbuild\" /libpath:\"%s\\libs\" \n",
+          vals->m_WherePy,vals->m_WherePy);
   fprintf(fp,"MORE_FLAGS1=/dll /incremental:yes /pdb:\"$(LIBDIR)/%s.pdb\" /machine:I386\\\n",targetName);
   fprintf(fp," /out:\"$(LIBDIR)/%s.dll\" /implib:\"$(LIBDIR)/%s.lib\" \n\n",targetName,targetName); 
   fprintf(fp,"MORE_FLAGS2=/dll /incremental:no /pdb:%s.pdb /machine:I386\\\n", targetName);

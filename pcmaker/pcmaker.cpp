@@ -286,7 +286,7 @@ BOOL CPcmakerApp::InitInstance()
     dlg.m_WherePy = "d:\\Python";
     dlg.adlg.m_WhereTcl = "";
     dlg.adlg.m_WhereTk  = "";
-    dlg.adlg.m_EXTRA_LINK_FLAGS = "-libpath:D:\\Python\\libs";
+    dlg.adlg.m_EXTRA_LINK_FLAGS = "";
     dlg.Create(IDD_PCMAKER_DIALOG,NULL);
     dlg.DoOKStuff();
     }
