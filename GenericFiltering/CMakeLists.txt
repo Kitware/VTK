@@ -1,13 +1,13 @@
 SET(KIT GenericFiltering)
 SET(UKIT GENERIC_FILTERING)
-SET(KIT_TCL_LIBS vtkFilteringTCL)
+SET(KIT_TCL_LIBS vtkFilteringTCL vtkGraphicsTCL)
 IF(APPLE)
-  SET(KIT_PYTHON_LIBS vtkFilteringPythonD)
+  SET(KIT_PYTHON_LIBS vtkFilteringPythonD vtkGraphicsPythonD)
 ELSE(APPLE)
-  SET(KIT_PYTHON_LIBS vtkFilteringPython)
+  SET(KIT_PYTHON_LIBS vtkFilteringPython vtkGraphicsPython)
 ENDIF(APPLE)
-SET(KIT_JAVA_LIBS vtkFilteringJava)
-SET(KIT_LIBS vtkFiltering)
+SET(KIT_JAVA_LIBS vtkFilteringJava vtkGraphicsJava)
+SET(KIT_LIBS vtkFiltering vtkGraphics)
 
 SET( Kit_SRCS
 vtkGenericContourFilter.cxx
