@@ -233,8 +233,8 @@ static void vtkImageWin32ViewerRenderGray(vtkImageWin32Viewer *self,
 	      *outPtr++ = 0;
 	      *outPtr++ = 0;
 	      *outPtr++ = 0;
+	      inPtr0 += inInc0;
 	    }
-	  inPtr0 += inInc0;
 	  // rows must be a multiple of four bytes
 	  // so pad it if neccessary
 	  outPtr += rowAdder;
@@ -253,8 +253,8 @@ static void vtkImageWin32ViewerRenderGray(vtkImageWin32Viewer *self,
 	      *outPtr++ = 255;
 	      *outPtr++ = 255;
 	      *outPtr++ = 255;
+	      inPtr0 += inInc0;
 	    }
-	  inPtr0 += inInc0;
 	  // rows must be a multiple of four bytes
 	  // so pad it if neccessary
 	  outPtr += rowAdder;
