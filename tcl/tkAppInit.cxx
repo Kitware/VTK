@@ -109,6 +109,10 @@ extern "C" int Vtkpatentedtcl_Init(Tcl_Interp *interp);
 extern "C" int Vtkcontribtcl_Init(Tcl_Interp *interp);
 #endif
 
+#ifdef VTK_USE_LOCAL
+extern "C" int Vtklocaltcl_Init(Tcl_Interp *interp);
+#endif
+
 int Tcl_AppInit(Tcl_Interp *interp)
 {
   Tk_Window main;
@@ -170,6 +174,13 @@ int Tcl_AppInit(Tcl_Interp *interp)
 
 #ifdef VTK_USE_CONTRIB
   if (Vtkcontribtcl_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+#endif
+
+#ifdef VTK_USE_LOCAL
+  if (Vtklocaltcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }

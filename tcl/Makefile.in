@@ -26,6 +26,7 @@ VPATH         = @srcdir@
 
 #------------------------------------------------------------------------------
 LDLIBS =  \
+	${USE_LOCAL_LIBS}	\
 	${USE_CONTRIB_LIBS}	\
 	${USE_PATENTED_LIBS}	\
 	${USE_IMAGING_LIBS}	\

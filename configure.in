@@ -49,32 +49,6 @@ else
     fi
 fi
 
-##########################
-##			##
-##	Starbase	##
-##			##
-##########################
-use_sbr=no
-AC_CHECK_HEADERS(starbase.c.h, [use_sbr=yes])
-
-GRAPHICS_API_LIBS=""
-GRAPHICS_API_FLAGS=""
-GRAPHICS_API_OBJ=""
-
-if test "$use_sbr" = "yes"; then
-  case $system in
-    HP-UX-*.10.*)
-	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -L/opt/graphics/OpenGL/lib -L/opt/graphics/common/lib -ldld -lXwindow -lhpgfx -lXhp11"
-	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${SBR_OBJ}"
-	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_SBR"
-	;;
-    HP-UX-*.08.*|HP-UX-*.09.*)
-	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -ldld -lXwindow -lsb -lXhp11"
-	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${SBR_OBJ}"
-	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_SBR"
-        ;;
-  esac
-fi
 
 ##########################
 ##			##
@@ -135,39 +109,6 @@ if test "$use_oglr" = "yes"; then
 	fi
 fi
 
-##########################
-##			##
-##	   XGL		##
-##			##
-##########################
-use_xglr=no
-if test "$use_mesa_oglr" = "no"; then
-# Check if the user set up XGL_HOME
-if test "X$XGL_HOME" = "X" ; then
-	XGL_HOME=/opt/SUNWits/Graphics-sw/xgl
-fi
-
-AC_CHECK_HEADERS(/usr/openwin/include/xgl/xgl.h, 
-  [use_xglr=yes]
-  XGLR_INCLUDE=/usr/openwin/include)
-AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, 
-  [use_xglr=yes]
-  XGLR_INCLUDE=$XGL_HOME/include)
-AC_ARG_WITH(xgl,
-	[  --without-xgl             force not to include XGL support],
-	if test "$withval" = no; then
-	use_xglr=no
-	fi)
-if test "$use_xglr" = "yes"; then
-        XGLR_LIBS="-R${XGL_HOME}/lib -L${XGL_HOME}/lib -lxgl"
-        if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
-          XGLR_LIBS="-Wl,-R${XGL_HOME}/lib -L${XGL_HOME}/lib -lxgl"
-        fi
-	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} ${XGLR_LIBS}"
-	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${XGLR_OBJ}"
-	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_XGLR -I${XGLR_INCLUDE}"
-fi
-fi
 
 AC_SUBST(GRAPHICS_API_OBJ)
 AC_SUBST(GRAPHICS_API_FLAGS)
@@ -300,6 +241,19 @@ AC_ARG_WITH(contrib,
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_contrib"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_contrib"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_contrib"
+         fi,)
+
+AC_ARG_WITH(local,
+         [  --with-local          include the local classes],
+	 if test "$withval" = yes; then
+         localdir=local
+         USE_LOCAL_LIBS="-L\${VTK_OBJ}/local -lVTKLocalTcl -lVTKLocal "
+         USE_LOCAL_JAVA="-L\${VTK_OBJ}/local -lVTKLocalJava -lVTKLocal "
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../local -DVTK_USE_LOCAL"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_local"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_local"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_local"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_local"
          fi,)
 
 AC_SUBST(BUILD_TOOLKITS)
@@ -578,6 +532,9 @@ else
     if test "X$contribdir" != "X"; then
        TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} \${VTK_OBJ}/contrib/libVTKContribTcl.a"
     fi
+    if test "X$localdir" != "X"; then
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} \${VTK_OBJ}/local/libVTKLocalTcl.a"
+    fi
 fi
 export VTK_LIB_EXT
 
@@ -587,11 +544,13 @@ AC_SUBST(USE_GRAPHICS_LIBS)
 AC_SUBST(USE_IMAGING_LIBS)
 AC_SUBST(USE_PATENTED_LIBS)
 AC_SUBST(USE_CONTRIB_LIBS)
+AC_SUBST(USE_LOCAL_LIBS)
 
 AC_SUBST(USE_GRAPHICS_JAVA)
 AC_SUBST(USE_IMAGING_JAVA)
 AC_SUBST(USE_PATENTED_JAVA)
 AC_SUBST(USE_CONTRIB_JAVA)
+AC_SUBST(USE_LOCAL_JAVA)
 
 AC_SUBST(TOOLKIT_DEPENDS)
 AC_SUBST(USE_TOOLKIT_FLAGS)
@@ -651,10 +610,6 @@ case $system in
 	THREAD_FLAGS="-DVTK_USE_PTHREADS -DVTK_HP_PTHREADS"
 	;;
     OSF1-V*)
-        THREAD_FLAGS=""
-        THREAD_LIBS=""
-        ;;
-    Linux*)
         THREAD_FLAGS=""
         THREAD_LIBS=""
         ;;
@@ -733,7 +688,7 @@ if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
   SHLIB_CFLAGS="-fPIC"
 fi
 
-AC_CONFIG_SUBDIRS(common wrap $javadir $tcldir $graphicsdir $imagingdir $patenteddir $contribdir)
+AC_CONFIG_SUBDIRS(common wrap $javadir $tcldir $graphicsdir $imagingdir $patenteddir $contribdir $localdir)
 
 AC_OUTPUT(Makefile system.make)
 

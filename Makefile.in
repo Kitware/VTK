@@ -55,6 +55,10 @@ build_contrib: targets build_wrap
 	cd contrib;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd contrib;     ${MAKE} -${MAKEFLAGS} all
 
+build_local: targets build_wrap
+	cd local;     ${MAKE} -${MAKEFLAGS} targets.make
+	cd local;     ${MAKE} -${MAKEFLAGS} all
+
 build_tcl: build_common ${BUILD_TOOLKITS} 
 	cd tcl;        ${MAKE} -${MAKEFLAGS} vtk
 
@@ -82,6 +86,9 @@ depend_patented:
 depend_contrib:
 	cd contrib; ${MAKE} -${MAKEFLAGS} depend
 
+depend_local:
+	cd local; ${MAKE} -${MAKEFLAGS} depend
+
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
 clean: ${CLEAN_TCL} ${CLEAN_JAVA} ${CLEAN_TOOLKITS}
@@ -107,6 +114,9 @@ clean_patented:
 clean_contrib:
 	cd contrib;   ${MAKE} -${MAKEFLAGS} clean
 
+clean_local:
+	cd local;   ${MAKE} -${MAKEFLAGS} clean
+
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
 install: install-dirs install-libs do_@INSTALL_TARGET@
@@ -125,6 +135,9 @@ install_patented:
 
 install_contrib:
 	cd contrib;     ${MAKE} -${MAKEFLAGS} @INSTALL_TARGET@
+
+install_local:
+	cd local;     ${MAKE} -${MAKEFLAGS} @INSTALL_TARGET@
 
 do_install_tcl_java: do_install_tcl
 
