@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.33");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.34");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -110,19 +110,19 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
                      T *scalars, vtkPoints *newPts,
                      vtkDataArray *newScalars, vtkCellArray *lines)
 {
-  float *values = self->GetValues();
+  double *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
   T *inPtr, *rowPtr;
-  float x[3];
-  float *origin = self->GetInput()->GetOrigin();
-  float *spacing = self->GetInput()->GetSpacing();
-  float y, t;
+  double x[3];
+  double *origin = self->GetInput()->GetOrigin();
+  double *spacing = self->GetInput()->GetSpacing();
+  double y, t;
   int *isect1Ptr, *isect2Ptr;
   vtkIdType ptIds[2];
   int *tablePtr;
   int v0, v1 = 0, v2;
   int idx, vidx;
-  float s0, s1, s2, value;
+  double s0, s1, s2, value;
   int i, j;
   int lineCases[64];
   

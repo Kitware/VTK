@@ -85,22 +85,22 @@ public:
   // Description:
   // Set a particular contour value at contour number i. The index i ranges 
   // between 0<=i<NumberOfContours.
-  void SetValue(int i, float value) {this->ContourValues->SetValue(i,value);}
+  void SetValue(int i, double value) {this->ContourValues->SetValue(i,value);}
 
   // Description:
   // Get the ith contour value.
-  float GetValue(int i) {return this->ContourValues->GetValue(i);}
+  double GetValue(int i) {return this->ContourValues->GetValue(i);}
 
   // Description:
   // Get a pointer to an array of contour values. There will be
   // GetNumberOfContours() values in the list.
-  float *GetValues() {return this->ContourValues->GetValues();}
+  double *GetValues() {return this->ContourValues->GetValues();}
 
   // Description:
   // Fill a supplied list with contour values. There will be
   // GetNumberOfContours() values in the list. Make sure you allocate
   // enough memory to hold the list.
-  void GetValues(float *contourValues) {
+  void GetValues(double *contourValues) {
     this->ContourValues->GetValues(contourValues);}
 
   // Description:
@@ -118,13 +118,13 @@ public:
   // Description:
   // Generate numContours equally spaced contour values between specified
   // range. Contour values will include min/max range values.
-  void GenerateValues(int numContours, float range[2]) {
+  void GenerateValues(int numContours, double range[2]) {
     this->ContourValues->GenerateValues(numContours, range);}
 
   // Description:
   // Generate numContours equally spaced contour values between specified
   // range. Contour values will include min/max range values.
-  void GenerateValues(int numContours, float rangeStart, float rangeEnd)
+  void GenerateValues(int numContours, double rangeStart, double rangeEnd)
     {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
   // Description:

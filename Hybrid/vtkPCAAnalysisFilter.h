@@ -117,7 +117,7 @@ class VTK_HYBRID_EXPORT vtkPCAAnalysisFilter : public vtkSource
   // Description:
   // Retrieve how many modes are necessary to model the given proportion of the variation.
   // proportion should be between 0 and 1
-  int GetModesRequiredFor(float proportion);
+  int GetModesRequiredFor(double proportion);
 
 protected:
   vtkPCAAnalysisFilter();

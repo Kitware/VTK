@@ -130,7 +130,7 @@ protected:
   
   //used to track the depth of the last pick; also interacts with handle sizing
   int   ValidPick;
-  float LastPickPosition[3];
+  double LastPickPosition[3];
 
 private:
   vtk3DWidget(const vtk3DWidget&);  // Not implemented.

@@ -43,7 +43,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.76");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.77");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1089,7 +1089,7 @@ int vtkImagePlaneWidget::GetCursorData(float xyzv[4])
   xyzv[0] = this->CurrentCursorPosition[0];
   xyzv[1] = this->CurrentCursorPosition[1];
   xyzv[2] = this->CurrentCursorPosition[2];
-  xyzv[3] = this->ImageData->GetScalarComponentAsFloat( \
+  xyzv[3] = this->ImageData->GetScalarComponentAsDouble( \
                    this->CurrentCursorPosition[0],
                    this->CurrentCursorPosition[1],
                    this->CurrentCursorPosition[2],0);
@@ -1116,7 +1116,7 @@ void vtkImagePlaneWidget::ManageTextDisplay()
       }
     else
       {
-      float val = this->ImageData->GetScalarComponentAsFloat( \
+      float val = this->ImageData->GetScalarComponentAsDouble( \
                    this->CurrentCursorPosition[0],
                    this->CurrentCursorPosition[1],
                    this->CurrentCursorPosition[2],0);
@@ -1242,9 +1242,9 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
   this->ImageData->UpdateInformation();
   int extent[6];
   this->ImageData->GetWholeExtent(extent);
-  float origin[3];
+  double origin[3];
   this->ImageData->GetOrigin(origin);
-  float spacing[3];
+  double spacing[3];
   this->ImageData->GetSpacing(spacing);
 
   // Prevent obscuring voxels by offsetting the plane geometry
@@ -1353,9 +1353,9 @@ void vtkImagePlaneWidget::UpdateOrigin()
       return;
       }
     this->ImageData->UpdateInformation();
-    float origin[3];
+    double origin[3];
     this->ImageData->GetOrigin(origin);
-    float spacing[3];
+    double spacing[3];
     this->ImageData->GetSpacing(spacing);
     int extent[6];
     this->ImageData->GetWholeExtent(extent);
@@ -1435,7 +1435,7 @@ void vtkImagePlaneWidget::UpdateOrigin()
 
   this->Reslice->SetResliceAxes(this->ResliceAxes);
 
-  float spacingXYZ[3];
+  double spacingXYZ[3];
   this->Reslice->GetOutputSpacing(spacingXYZ);
   this->Reslice->SetOutputOrigin(0.5*spacingXYZ[0] + originXYZW[0],
                                  0.5*spacingXYZ[1] + originXYZW[1],
@@ -1498,7 +1498,7 @@ void vtkImagePlaneWidget::UpdateNormal()
   // Calculate appropriate pixel spacing for the reslicing
   //
   this->ImageData->UpdateInformation();
-  float spacing[3];
+  double spacing[3];
   this->ImageData->GetSpacing(spacing);
 
   float spacingX = fabs(planeAxis1[0]*spacing[0])+\
@@ -1763,9 +1763,9 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
     return;
     } 
   this->ImageData->UpdateInformation();
-  float origin[3];
+  double origin[3];
   this->ImageData->GetOrigin(origin);
-  float spacing[3];
+  double spacing[3];
   this->ImageData->GetSpacing(spacing);
   float planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
@@ -1818,9 +1818,9 @@ int vtkImagePlaneWidget::GetSliceIndex()
     return 0;
     } 
   this->ImageData->UpdateInformation();
-  float origin[3];
+  double origin[3];
   this->ImageData->GetOrigin(origin);
-  float spacing[3];
+  double spacing[3];
   this->ImageData->GetSpacing(spacing);
   float planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
@@ -1933,7 +1933,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
     this->CursorActor->VisibilityOn();
     }
 
-  float q[3];
+  double q[3];
   this->PlanePicker->GetPickPosition(q);
 
   // vtkImageData will find the nearest implicit point to q
@@ -1946,12 +1946,12 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
     return;
     }
 
-  float closestPt[3];
+  double closestPt[3];
   this->ImageData->GetPoint(ptId,closestPt);
 
-  float origin[3];
+  double origin[3];
   this->ImageData->GetOrigin(origin);
-  float spacing[3];
+  double spacing[3];
   this->ImageData->GetSpacing(spacing);
   int extent[6];
   this->ImageData->GetExtent(extent);

@@ -102,17 +102,17 @@ public:
 
   // Description:
   // Get the origin of the plane.
-  void SetOrigin(float x, float y, float z);
-  void SetOrigin(float x[3]);
-  float* GetOrigin();
-  void GetOrigin(float xyz[3]);
+  void SetOrigin(double x, double y, double z);
+  void SetOrigin(double x[3]);
+  double* GetOrigin();
+  void GetOrigin(double xyz[3]);
 
   // Description:
   // Get the normal to the plane.
-  void SetNormal(float x, float y, float z);
-  void SetNormal(float x[3]);
-  float* GetNormal();
-  void GetNormal(float xyz[3]);
+  void SetNormal(double x, double y, double z);
+  void SetNormal(double x[3]);
+  double* GetNormal();
+  void GetNormal(double xyz[3]);
   
   // Description:
   // Force the plane widget to be aligned with one of the x-y-z axes.

@@ -34,7 +34,7 @@
 #include "vtkSpline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.19");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.20");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkCxxSetObjectMacro(vtkSplineWidget, HandleProperty, vtkProperty);
@@ -1435,9 +1435,9 @@ float vtkSplineWidget::GetSummedLength()
 
   if (npts < 2) { return 0.0f; }
 
-  float a[3];
-  float b[3];
-  float sum = 0.0f;
+  double a[3];
+  double b[3];
+  double sum = 0.0f;
   int i = 0;
   points->GetPoint(i,a);
   int imax = (npts%2 == 0)?npts-2:npts-1;

@@ -37,14 +37,14 @@
 #include "vtkTransformCollection.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkSweptSurface, "1.80");
+vtkCxxRevisionMacro(vtkSweptSurface, "1.81");
 vtkStandardNewMacro(vtkSweptSurface);
 
 vtkCxxSetObjectMacro(vtkSweptSurface,Transforms, vtkTransformCollection);
 
 // Description:
 // Construct object with SampleDimensions = (50,50,50), FillValue = 
-// VTK_LARGE_FLOAT, ModelBounds=(0,0,0,0,0,0) (i.e, bounds will be
+// VTK_DOUBLE_MAX, ModelBounds=(0,0,0,0,0,0) (i.e, bounds will be
 // computed automatically), and Capping turned on.
 vtkSweptSurface::vtkSweptSurface()
 {
@@ -61,7 +61,7 @@ vtkSweptSurface::vtkSweptSurface()
 
   this->NumberOfInterpolationSteps = 0;
   this->MaximumNumberOfInterpolationSteps = VTK_LARGE_INTEGER;
-  this->FillValue = VTK_LARGE_FLOAT;
+  this->FillValue = VTK_DOUBLE_MAX;
   this->Transforms = NULL;
   this->Capping = 1;
 
@@ -77,10 +77,10 @@ vtkSweptSurface::~vtkSweptSurface()
   this->SetTransforms(NULL);
 }
 
-void vtkSweptSurface::SetModelBounds(float xmin, float xmax, float ymin, 
-                                     float ymax, float zmin, float zmax)
+void vtkSweptSurface::SetModelBounds(double xmin, double xmax, double ymin, 
+                                     double ymax, double zmin, double zmax)
 {
-  float bounds[6];
+  double bounds[6];
 
   bounds[0] = xmin;
   bounds[1] = xmax;
@@ -144,17 +144,17 @@ void vtkSweptSurface::ExecuteData(vtkDataObject *)
   vtkIdType i, numOutPts;
   vtkPointData *pd;
   vtkDataArray *inScalars, *newScalars;
-  float inSpacing[3], inOrigin[3];
+  double inSpacing[3], inOrigin[3];
   int inDim[3];
   int numSteps, stepNum;
   int numTransforms, transNum;
   vtkTransform *actorTransform; //use an actor-like transform to do position/orientation stuff
   vtkTransform *transform1, *transform2, *t = vtkTransform::New();
-  float time;
+  double time;
   // position2 is [4] for GetPoint() call in GetRelativePosition
-  float position[3], position1[3], position2[4]; 
-  float orient1[3], orient2[3], orientation[3];
-  float origin[3], spacing[3], bbox[24];
+  double position[3], position1[3], position2[4]; 
+  double orient1[3], orient2[3], orientation[3];
+  double origin[3], spacing[3], bbox[24];
   vtkImageData *input = this->GetInput();
   vtkImageData *output = this->GetOutput();
   output->SetExtent(output->GetWholeExtent());
@@ -209,8 +209,8 @@ void vtkSweptSurface::ExecuteData(vtkDataObject *)
   // Get/Set the origin for the actor... for handling case when the input
   // is not centered at 0,0,0
   actorTransform = vtkTransform::New();
-  float *bounds = input->GetBounds();
-  float actorOrigin[3];
+  double *bounds = input->GetBounds();
+  double actorOrigin[3];
 
   actorOrigin[0] = (bounds[0]+bounds[1])/2.0;
   actorOrigin[1] = (bounds[2]+bounds[3])/2.0;
@@ -280,7 +280,7 @@ void vtkSweptSurface::ExecuteData(vtkDataObject *)
     for (stepNum=0; stepNum < numSteps; stepNum++)
       {
       // interpolate position and orientation
-      time = (float) stepNum / numSteps;
+      time = (double) stepNum / numSteps;
       this->InterpolateStates(position1, position2, orient1, orient2, time,
                                        position, orientation); 
       this->SampleInput(this->GetActorMatrixPointer(*actorTransform,
@@ -307,20 +307,20 @@ void vtkSweptSurface::ExecuteData(vtkDataObject *)
 }
 
 void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3], 
-                                  float inOrigin[3], float inSpacing[3], 
+                                  double inOrigin[3], double inSpacing[3], 
                                   vtkDataArray *inScalars, 
                                   vtkDataArray *outScalars)
 {
   int i, j, k;
   int inSliceSize=inDim[0]*inDim[1];
   int sliceSize=this->SampleDimensions[0]*this->SampleDimensions[1];
-  float x[4], loc[4], newScalar, scalar;
+  double x[4], loc[4], newScalar, scalar;
   vtkIdType kOffset, idx;
   int jOffset, ijk[3];
-  float weights[8];
-  float *origin, *spacing;
-  float locP1[4], locP2[4], t[3];
-  float dxdi, dydi, dzdi, dxdj, dydj, dzdj, dxdk, dydk, dzdk;
+  double weights[8];
+  double *origin, *spacing;
+  double locP1[4], locP2[4], t[3];
+  double dxdi, dydi, dzdi, dxdj, dydj, dzdj, dxdk, dydk, dzdk;
   vtkMatrix4x4 *matrix;
   int indices[6];
   // Compute the index bounds of the workspace volume that will cover the
@@ -440,13 +440,13 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
 }
 
 void vtkSweptSurface::ComputeFootprint (vtkMatrix4x4 *m, int inDim[3], 
-                                        float inOrigin[3], float inSpacing[3],
+                                        double inOrigin[3], double inSpacing[3],
                                         int indices[6])
 {
   int i, ii, n;
-  float bounds[6], bbox[24], *fptr, workBounds[6];
-  float x[4], xTrans[4];
-  float *origin, *spacing;
+  double bounds[6], bbox[24], *fptr, workBounds[6];
+  double x[4], xTrans[4];
+  double *origin, *spacing;
 
   this->T->SetMatrix(m);
   for (ii = 0 ; ii < 3; ii++)
@@ -479,8 +479,8 @@ void vtkSweptSurface::ComputeFootprint (vtkMatrix4x4 *m, int inDim[3],
     }
 
   // now calc the new bounds
-  workBounds[0] = workBounds[2] = workBounds[4] = VTK_LARGE_FLOAT;
-  workBounds[1] = workBounds[3] = workBounds[5] = -VTK_LARGE_FLOAT;
+  workBounds[0] = workBounds[2] = workBounds[4] = VTK_DOUBLE_MAX;
+  workBounds[1] = workBounds[3] = workBounds[5] = -VTK_DOUBLE_MAX;
   for (i = 0; i < 8; i++)
     {
     for (n = 0; n < 3; n++)
@@ -530,12 +530,12 @@ unsigned long int vtkSweptSurface::GetMTime()
 }
 
 // compute model bounds from geometry and path
-void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3],
-                                    float bbox[24])
+void vtkSweptSurface::ComputeBounds(double origin[3], double spacing[3],
+                                    double bbox[24])
 {
   int i, j, k, ii, idx, dim;
-  float *bounds;
-  float xmin[3], xmax[3], x[4], xTrans[4], h;
+  double *bounds;
+  double xmin[3], xmax[3], x[4], xTrans[4], h;
   vtkImageData *input = this->GetInput();
 
   // Compute eight points of bounding box (used later)
@@ -560,23 +560,23 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3],
   this->ModelBounds[4] >= this->ModelBounds[5])
     {
     int numTransforms, transNum;
-    float position[3], orientation[3], position1[3], orient1[3];
+    double position[3], orientation[3], position1[3], orient1[3];
     // position2 is [4] for GetPoint() call in GetRelativePosition
-    float position2[4], orient2[3];
+    double position2[4], orient2[3];
     vtkTransform *actorTransform = vtkTransform::New();
     vtkTransform *t, *t2, *transform2;
 
     t = vtkTransform::New();
     t2 = vtkTransform::New();
 
-    float actorOrigin[3];
+    double actorOrigin[3];
 
     actorOrigin[0] = (bounds[0]+bounds[1])/2.0;
     actorOrigin[1] = (bounds[2]+bounds[3])/2.0;
     actorOrigin[2] = (bounds[4]+bounds[5])/2.0;
 
-    xmin[0] = xmin[1] = xmin[2] = VTK_LARGE_FLOAT;
-    xmax[0] = xmax[1] = xmax[2] = -VTK_LARGE_FLOAT;
+    xmin[0] = xmin[1] = xmin[2] = VTK_DOUBLE_MAX;
+    xmax[0] = xmax[1] = xmax[2] = -VTK_DOUBLE_MAX;
         
     numTransforms = this->Transforms->GetNumberOfItems();
 
@@ -720,11 +720,11 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3],
 // based on both path and bounding box of input, compute the number of 
 // steps between the specified transforms
 int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2, 
-                                          float bbox[24])
+                                          double bbox[24])
 {
-  float x[4], xTrans1[4], xTrans2[4];
-  float dist2, maxDist2;
-  float h, *spacing;
+  double x[4], xTrans1[4], xTrans2[4];
+  double dist2, maxDist2;
+  double h, *spacing;
   int numSteps, i, j;
   
   // Compute maximum distance between points.
@@ -751,7 +751,7 @@ int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2,
         xTrans2[j] /= xTrans2[3];
         }
       }
-    dist2 = vtkMath::Distance2BetweenPoints((float *)xTrans1,(float *)xTrans2);
+    dist2 = vtkMath::Distance2BetweenPoints((double *)xTrans1,(double *)xTrans2);
     if ( dist2 > maxDist2 )
       {
       maxDist2 = dist2;
@@ -868,8 +868,8 @@ void vtkSweptSurface::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-void vtkSweptSurface::GetRelativePosition(vtkTransform &t,float *origin,
-                                          float *position)
+void vtkSweptSurface::GetRelativePosition(vtkTransform &t,double *origin,
+                                          double *position)
 {
   // get position relative to the origin (of the geometry)
   t.TransformPoint(origin,position);
@@ -878,9 +878,9 @@ void vtkSweptSurface::GetRelativePosition(vtkTransform &t,float *origin,
   position[2] -= origin[2];
 }
 
-void vtkSweptSurface::InterpolateStates(float *pos1, float *pos2, 
-                                        float *euler1, float *euler2, float t,
-                                        float *posOut, float *eulerOut)
+void vtkSweptSurface::InterpolateStates(double *pos1, double *pos2, 
+                                        double *euler1, double *euler2, double t,
+                                        double *posOut, double *eulerOut)
 {
   for (int i=0; i < 3; i++)
     {
@@ -891,9 +891,9 @@ void vtkSweptSurface::InterpolateStates(float *pos1, float *pos2,
 
 // Simulate an actor's transform without all of the baggage of an actor
 vtkMatrix4x4* vtkSweptSurface::GetActorMatrixPointer(vtkTransform &t,
-                                                     float origin[3],
-                                                     float position[3],
-                                                     float orientation[3])
+                                                     double origin[3],
+                                                     double position[3],
+                                                     double orientation[3])
 {
   t.Identity();  
   t.PostMultiply();  

@@ -48,7 +48,7 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkVolumeReader.h"
 
-vtkCxxRevisionMacro(vtkSliceCubes, "1.62");
+vtkCxxRevisionMacro(vtkSliceCubes, "1.63");
 vtkStandardNewMacro(vtkSliceCubes);
 
 vtkCxxSetObjectMacro(vtkSliceCubes,Reader,vtkVolumeReader);
@@ -88,9 +88,9 @@ void vtkSliceCubes::Update()
 // NOTE: We calculate the negative of the gradient for efficiency
 template <class T>
 void ComputePointGradient(int i, int j, int k, int dims[3], 
-                          float Spacing[3], float n[3], T *s0, T *s1, T *s2)
+                          double Spacing[3], double n[3], T *s0, T *s1, T *s2)
 {
-  float sp, sm;
+  double sp, sm;
 
   // x-direction
   if ( i == 0 )
@@ -157,24 +157,24 @@ void ComputePointGradient(int i, int j, int k, int dims[3],
 
 template <class T, class S>
 int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3], 
-                         float origin[3], float Spacing[3], float value, 
-                         float xmin[3], float xmax[3], FILE *outFP, 
+                         double origin[3], double Spacing[3], double value, 
+                         double xmin[3], double xmax[3], FILE *outFP, 
                          vtkVolumeReader *reader, unsigned char debug)
 {
   S *slice0scalars=NULL, *slice1scalars;
   S *slice2scalars, *slice3scalars;
   T *slice0, *slice1, *slice2, *slice3;
   vtkImageData *sp;
-  vtkFloatArray *floatScalars=NULL;
+  vtkDoubleArray *doubleScalars=NULL;
   int numTriangles=0, numComp = 0;
-  float s[8];
+  double s[8];
   int i, j, k, idx, jOffset, ii, index, *vert, jj, sliceSize=0;
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   vtkMarchingCubesTriangleCases *triCase, *triCases;
   EDGE_LIST  *edge;
-  float pts[8][3], grad[8][3];
-  float t, *x1, *x2, *n1, *n2;
-  float xp, yp, zp;
+  double pts[8][3], grad[8][3];
+  double t, *x1, *x2, *n1, *n2;
+  double xp, yp, zp;
   float point[6];
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
                               {4,5}, {5,6}, {7,6}, {4,7},
@@ -182,11 +182,11 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
 
   triCases =  vtkMarchingCubesTriangleCases::GetCases();
 
-  if ( slice == NULL ) //have to do conversion to float slice-by-slice
+  if ( slice == NULL ) //have to do conversion to double slice-by-slice
     {
     sliceSize = dims[0] * dims[1];
-    floatScalars = vtkFloatArray::New();
-    floatScalars->Allocate(sliceSize);
+    doubleScalars = vtkDoubleArray::New();
+    doubleScalars->Allocate(sliceSize);
     }
 
   slice1scalars = NULL;
@@ -204,10 +204,10 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
     slice1 = slice2 = slice2scalars->GetPointer(0);
     }
   else
-    {//get as float
+    {//get as double
     numComp = scalars->GetNumberOfComponents();
-    slice2scalars->GetData(0,sliceSize-1,0,numComp-1,floatScalars);
-    slice1 = slice2 = (T *) floatScalars->GetPointer(0);
+    slice2scalars->GetData(0,sliceSize-1,0,numComp-1,doubleScalars);
+    slice1 = slice2 = (T *) doubleScalars->GetPointer(0);
     }
     
   sp = reader->GetImage(imageRange[0]+1);
@@ -222,9 +222,9 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
     slice3 = slice3scalars->GetPointer(0);
     }
   else
-    {//get as float: cast is ok because this code is only executed for float type
-    slice3scalars->GetData(0,sliceSize-1,0,numComp-1,floatScalars);
-    slice3 = (T *) floatScalars->GetPointer(0);
+    {//get as double: cast is ok because this code is only executed for double type
+    slice3scalars->GetData(0,sliceSize-1,0,numComp-1,doubleScalars);
+    slice3 = (T *) doubleScalars->GetPointer(0);
     }
 
   if ( !slice2 || !slice3 )
@@ -265,9 +265,9 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
         slice3 = slice3scalars->GetPointer(0);
         }
       else
-        {//get as float
-        slice3scalars->GetData(0,sliceSize-1,0,numComp-1,floatScalars);
-        slice3 = (T *) floatScalars->GetPointer(0);
+        {//get as double
+        slice3scalars->GetData(0,sliceSize-1,0,numComp-1,doubleScalars);
+        slice3 = (T *) doubleScalars->GetPointer(0);
         }
       }
 
@@ -396,7 +396,7 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
   fclose(outFP);
   if ( slice == NULL )
     {
-    floatScalars->Delete();
+    doubleScalars->Delete();
     }
   if (slice0scalars && slice0scalars != slice1scalars)
     {
@@ -418,8 +418,8 @@ void vtkSliceCubes::Execute()
   vtkImageData *tempStructPts;
   vtkDataArray *inScalars;
   int dims[3], imageRange[2];
-  float xmin[3], xmax[3];
-  float origin[3], Spacing[3];
+  double xmin[3], xmax[3];
+  double origin[3], Spacing[3];
   int numTriangles = 0;
 
   // check input/initalize
@@ -457,8 +457,8 @@ void vtkSliceCubes::Execute()
     return;
     }
 
-  xmin[0]=xmin[1]=xmin[2] = VTK_LARGE_FLOAT;
-  xmax[0]=xmax[1]=xmax[2] = -VTK_LARGE_FLOAT;
+  xmin[0]=xmin[1]=xmin[2] = VTK_DOUBLE_MAX;
+  xmax[0]=xmax[1]=xmax[2] = -VTK_DOUBLE_MAX;
 
   inScalars = tempStructPts->GetPointData()->GetScalars();
   if ( inScalars == NULL )
@@ -569,8 +569,8 @@ void vtkSliceCubes::Execute()
 
   else //multiple components have to convert
     {
-    vtkFloatArray *scalars = (vtkFloatArray *)inScalars;
-    float *s = NULL; //clue to convert data to float
+    vtkDoubleArray *scalars = (vtkDoubleArray *)inScalars;
+    double *s = NULL; //clue to convert data to double
     numTriangles = vtkSliceCubesContour(s,scalars,imageRange,dims,origin,
                            Spacing,this->Value,
                            xmin,xmax,outFP,this->Reader,this->Debug);
@@ -591,17 +591,22 @@ void vtkSliceCubes::Execute()
       }
     else
       {
+      float forigin[3];
       for (i=0; i<3; i++)
         {
         t = origin[i] + (dims[i] - 1)*Spacing[i];
-        vtkByteSwap::SwapWrite4BERange(origin+i,1,outFP);
+        forigin[i] = (float)origin[i];
+        vtkByteSwap::SwapWrite4BERange(forigin+i,1,outFP);
         // swap if neccessary
         vtkByteSwap::SwapWrite4BERange(&t,1,outFP);
         }
+      float ftmp;
       for (i=0; i<3; i++)
         {
-        vtkByteSwap::SwapWrite4BERange(xmin+i,1,outFP);
-        vtkByteSwap::SwapWrite4BERange(xmax+i,1,outFP);
+        ftmp = (float)xmin[i];
+        vtkByteSwap::SwapWrite4BERange(&ftmp,1,outFP);
+        ftmp = (float)xmax[i];
+        vtkByteSwap::SwapWrite4BERange(&ftmp,1,outFP);
         }
       }
      fclose(outFP);

@@ -48,7 +48,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.7");
+vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.8");
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
 //----------------------------------------------------------------------------
@@ -159,9 +159,9 @@ void vtkRectilinearSynchronizedTemplatesInitializeOutput(
 template <class T>
 void vtkRSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt, 
                                int xInc, int yInc, int zInc,
-                               float *spacing, float n[3])
+                               double *spacing, double n[3])
 {
-  float sp, sm;
+  double sp, sm;
 
   // x-direction
   if ( i == wholeExt[0] )
@@ -268,14 +268,14 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
   int *inExt = self->GetInput()->GetExtent();
   int xdim = exExt[1] - exExt[0] + 1;
   int ydim = exExt[3] - exExt[2] + 1;
-  float *values = self->GetValues();
+  double *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
   T *inPtrX, *inPtrY, *inPtrZ;
   T *s0, *s1, *s2, *s3;
   int xMin, xMax, yMin, yMax, zMin, zMax;
   int xInc, yInc, zInc;
   int *isect1Ptr, *isect2Ptr;
-  float y, z, t;
+  double y, z, t;
   int i, j, k;
   int zstep, yisectstep;
   int offsets[12];
@@ -283,14 +283,14 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
   int ComputeGradients = self->GetComputeGradients();
   int ComputeScalars = self->GetComputeScalars();
   int NeedGradients = ComputeGradients || ComputeNormals;
-  float n[3], n0[3], n1[3];
+  double n[3], n0[3], n1[3];
   int jj, g0;
   int *tablePtr;
   int idx, vidx;
-  float x[3], xz[3];
+  double x[3], xz[3];
   int v0, v1, v2, v3;
   vtkIdType ptIds[3];
-  float value;
+  double value;
   // We need to know the edgePointId's for interpolating attributes.
   int edgePtId, inCellId, outCellId;
   vtkPointData *inPD = self->GetInput()->GetPointData();
@@ -307,8 +307,8 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
   vtkDataArray *xCoords = data->GetXCoordinates();
   vtkDataArray *yCoords = data->GetYCoordinates();
   vtkDataArray *zCoords = data->GetZCoordinates();
-  float x1, x2, y2, z2;
-  float spacing[6];
+  double x1, x2, y2, z2;
+  double spacing[6];
   
   if (ComputeScalars)
     {
@@ -384,7 +384,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
     //==================================================================
     for (k = zMin; k <= zMax; k++)
       {
-      self->UpdateProgress((float)vidx/numContours + 
+      self->UpdateProgress((double)vidx/numContours + 
                            (k-zMin)/((zMax - zMin+1.0)*numContours));
 
       z = zCoords->GetComponent(k-inExt[4], 0);
@@ -439,7 +439,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
             v1 = (*s1 < value ? 0 : 1);
             if (v0 ^ v1)
               {
-              t = (value - (float)(*s0)) / ((float)(*s1) - (float)(*s0));
+              t = (value - (double)(*s0)) / ((double)(*s1) - (double)(*s0));
               x1 = xCoords->GetComponent(i-inExt[0], 0);
               x2 = xCoords->GetComponent(i-inExt[0]+1, 0);
               x[0] = x1 + t*(x2-x1);
@@ -460,7 +460,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
             v2 = (*s2 < value ? 0 : 1);
             if (v0 ^ v2)
               {
-              t = (value - (float)(*s0)) / ((float)(*s2) - (float)(*s0));
+              t = (value - (double)(*s0)) / ((double)(*s2) - (double)(*s0));
               x[0] = xCoords->GetComponent(i-inExt[0], 0);
               
               y2 = yCoords->GetComponent(j-inExt[2]+1, 0);
@@ -481,7 +481,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
             v3 = (*s3 < value ? 0 : 1);
             if (v0 ^ v3)
               {
-              t = (value - (float)(*s0)) / ((float)(*s3) - (float)(*s0));
+              t = (value - (double)(*s0)) / ((double)(*s3) - (double)(*s0));
               xz[0] = xCoords->GetComponent(i-inExt[0], 0);
               
               z2 = zCoords->GetComponent(k-inExt[4]+1, 0);
@@ -782,7 +782,7 @@ void* vtkRectilinearSynchronizedTemplates::GetScalarsForExtent(
 //----------------------------------------------------------------------------
 void vtkRectilinearSynchronizedTemplates::ComputeSpacing(
   vtkRectilinearGrid *data, int i, int j, int k, int extent[6],
-  float spacing[6])
+  double spacing[6])
 {
   vtkDataArray *xCoords = data->GetXCoordinates();
   vtkDataArray *yCoords = data->GetYCoordinates();

@@ -4256,7 +4256,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.65");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.66");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
@@ -6032,7 +6032,6 @@ vtkVRMLImporter::enterField(const char *fieldName)
 void
 vtkVRMLImporter::exitField()
 {
-  float vals[3];
   VrmlNodeType::FieldRec *fr = VrmlNodeType::currentField->Top();
   assert(fr != NULL);
   // For the radius field
@@ -6066,13 +6065,18 @@ vtkVRMLImporter::exitField()
   // For diffuseColor field, only in material node
   else if (strcmp(fr->fieldName, "diffuseColor") == 0) 
     {
-    this->CurrentProperty->SetDiffuseColor(yylval.vec3f->GetPoint(0));
-    yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);yylval.vec3f = NULL;
+    this->CurrentProperty->SetDiffuseColor(
+      yylval.vec3f->GetPoint(0)[0],yylval.vec3f->GetPoint(0)[1],
+      yylval.vec3f->GetPoint(0)[2]);
+    yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
+    yylval.vec3f = NULL;
     }
   // For emissiveColor field, only in material node
   else if (strcmp(fr->fieldName, "emissiveColor") == 0) 
     {
-    this->CurrentProperty->SetAmbientColor(yylval.vec3f->GetPoint(0));
+    this->CurrentProperty->SetAmbientColor(
+      yylval.vec3f->GetPoint(0)[0],yylval.vec3f->GetPoint(0)[1],
+      yylval.vec3f->GetPoint(0)[2]);
     yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);yylval.vec3f = NULL;
     }
   // For shininess field, only in material node
@@ -6083,7 +6087,9 @@ vtkVRMLImporter::exitField()
   // For specularcolor field, only in material node
   else if (strcmp(fr->fieldName, "specularColor") == 0) 
     {
-    this->CurrentProperty->SetSpecularColor(yylval.vec3f->GetPoint(0));
+    this->CurrentProperty->SetSpecularColor(
+      yylval.vec3f->GetPoint(0)[0],yylval.vec3f->GetPoint(0)[1],
+      yylval.vec3f->GetPoint(0)[2]);
     yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);yylval.vec3f = NULL;
     }
   // For transparency field, only in material node
@@ -6097,9 +6103,10 @@ vtkVRMLImporter::exitField()
     // in the Transform node.
     if (strcmp(fr->nodeType->getName(), "Transform") == 0) 
       {
-      yylval.vec3f->GetPoint(0, vals);
-      this->CurrentTransform->Translate(vals[0],vals[1],vals[2]);
-      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f); yylval.vec3f = NULL;
+      double *dtmp = yylval.vec3f->GetPoint(0);
+      this->CurrentTransform->Translate(dtmp[0],dtmp[1],dtmp[2]);
+      yylval.vec3f->Reset();
+      this->DeleteObject(yylval.vec3f); yylval.vec3f = NULL;
       }
     }
   // For the scale field
@@ -6108,9 +6115,10 @@ vtkVRMLImporter::exitField()
     // In the transform node
     if (strcmp(fr->nodeType->getName(), "Transform") == 0) 
       {
-      yylval.vec3f->GetPoint(0, vals);
-      this->CurrentTransform->Scale(vals[0],vals[1],vals[2]);
-      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f); yylval.vec3f = NULL;
+      double *dtmp = yylval.vec3f->GetPoint(0);
+      this->CurrentTransform->Scale(dtmp[0],dtmp[1],dtmp[2]);
+      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f); 
+      yylval.vec3f = NULL;
       }
     }
   // For the size field
@@ -6119,11 +6127,12 @@ vtkVRMLImporter::exitField()
     // set the current source (has to be a CubeSource)
     if (strcmp(fr->nodeType->getName(), "Box") == 0) 
       {
-      yylval.vec3f->GetPoint(0, vals);
-      ((vtkCubeSource *)this->CurrentSource)->SetXLength(vals[0]);
-      ((vtkCubeSource *)this->CurrentSource)->SetYLength(vals[1]);
-      ((vtkCubeSource *)this->CurrentSource)->SetZLength(vals[2]);
-      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f); yylval.vec3f = NULL;
+      double *dtmp = yylval.vec3f->GetPoint(0);
+      ((vtkCubeSource *)this->CurrentSource)->SetXLength(dtmp[0]);
+      ((vtkCubeSource *)this->CurrentSource)->SetYLength(dtmp[1]);
+      ((vtkCubeSource *)this->CurrentSource)->SetZLength(dtmp[2]);
+      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f); 
+      yylval.vec3f = NULL;
       }
     }
   // For the height field
@@ -6264,8 +6273,11 @@ vtkVRMLImporter::exitField()
     // For the Light nodes
     if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0) 
       {
-      this->CurrentLight->SetColor(yylval.vec3f->GetPoint(0));
-      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);yylval.vec3f = NULL;
+      this->CurrentLight->SetColor(
+        yylval.vec3f->GetPoint(0)[0],yylval.vec3f->GetPoint(0)[1],
+        yylval.vec3f->GetPoint(0)[2]);
+      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
+      yylval.vec3f = NULL;
       }
     // For the Color node, Insert colors into lookup table
     // These are associated with the points in the coord field
@@ -6366,7 +6378,6 @@ vtkVRMLImporter::exitField()
   else if (strcmp(fr->fieldName, "vector") == 0) 
     {
     // For all floats in the vec3f, copy to the normal structure.
-    float vals3[3];
     if (this->CurrentNormals)
       {
       this->CurrentNormals->Delete();
@@ -6376,8 +6387,7 @@ vtkVRMLImporter::exitField()
     this->CurrentNormals->SetNumberOfTuples(yylval.vec3f->GetNumberOfPoints());
     for (int i=0;i < yylval.vec3f->GetNumberOfPoints();i++) 
       {
-      yylval.vec3f->GetPoint(i, vals3);
-      this->CurrentNormals->InsertTuple(i, vals3);
+      this->CurrentNormals->InsertTuple(i, yylval.vec3f->GetPoint(i));
       }
     yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
     }

@@ -39,7 +39,7 @@
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDecimate, "1.76");
+vtkCxxRevisionMacro(vtkDecimate, "1.77");
 vtkStandardNewMacro(vtkDecimate);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
@@ -77,17 +77,17 @@ extern "C"
 //  Static variables used by object
 //
 static vtkPolyData *Mesh; // operate on this data structure
-static float Pt[3], Normal[3]; // least squares plane point & normal
-static float Angle, Distance; // current feature angle and distance 
-static float CosAngle; // Cosine of dihedral angle
+static double Pt[3], Normal[3]; // least squares plane point & normal
+static double Angle, Distance; // current feature angle and distance 
+static double CosAngle; // Cosine of dihedral angle
 
-static float Tolerance; // Intersection tolerance
-static float AspectRatio2; // Allowable aspect ratio 
+static double Tolerance; // Intersection tolerance
+static double AspectRatio2; // Allowable aspect ratio 
 static int ContinueTriangulating; // Stops recursive tri. if necessary 
 static int Squawks; // Control output 
 
-static float X[3]; //coordinates of current point
-static float *VertexError, Error, MinEdgeError; //support error omputation
+static double X[3]; //coordinates of current point
+static double *VertexError, Error, MinEdgeError; //support error omputation
 
 
 // Description:
@@ -143,10 +143,10 @@ void vtkDecimate::Execute()
   vtkPoints *inPts;
   vtkCellArray *inPolys;
   vtkIdType numVerts = 0;
-  float *bounds, max;
+  double *bounds, max;
   vtkIdType i, ptId;
   vtkCellArray *newPolys;
-  float reduction=0.0;
+  double reduction=0.0;
   int iteration=0, sub;
   int trisEliminated;
   unsigned short int ncells;
@@ -157,7 +157,7 @@ void vtkDecimate::Execute()
   vtkDecimate::LocalVertexPtr verts[VTK_MAX_TRIS_PER_VERTEX];
   vtkDecimate::LocalVertexPtr l1[VTK_MAX_TRIS_PER_VERTEX], l2[VTK_MAX_TRIS_PER_VERTEX];
   vtkIdType n1, n2;
-  float ar, error;
+  double ar, error;
   vtkIdType totalEliminated=0;
   int size;
   int abortFlag = 0;
@@ -234,7 +234,7 @@ void vtkDecimate::Execute()
   //
   // Create array of vertex errors (initially zero)
   //
-  VertexError = new float[numPts];
+  VertexError = new double[numPts];
   for (i=0; i<numPts; i++)
     {
     VertexError[i] = 0.0;
@@ -280,7 +280,7 @@ void vtkDecimate::Execute()
         // compute allowable error for this vertex
         Mesh->GetPoint(ptId,X);
         Error = Distance - VertexError[ptId];
-        MinEdgeError = VTK_LARGE_FLOAT;
+        MinEdgeError = VTK_DOUBLE_MAX;
 
         Mesh->GetPointCells(ptId,ncells,cells);
         if ( ncells > 0 && 
@@ -397,7 +397,7 @@ void vtkDecimate::Execute()
         }
 
       totalEliminated += trisEliminated;
-      reduction = (float) totalEliminated / numTris;
+      reduction = (double) totalEliminated / numTris;
 
       vtkDebugMacro(<<"\n\tIteration = " << iteration+1 << "\n"
                    <<"\tSub-iteration = " << sub+1 << "\n"
@@ -788,8 +788,8 @@ void vtkDecimate::EvaluateLoop (int& vtype, vtkIdType& numFEdges,
 {
   vtkIdType i, numNormals;
   int j;
-  float *x1, *x2, *normal, loopArea;
-  float v1[3], v2[3], center[3];
+  double *x1, *x2, *normal, loopArea;
+  double v1[3], v2[3], center[3];
   //
   //  Traverse all polygons and generate normals and areas
   //
@@ -919,12 +919,12 @@ void vtkDecimate::EvaluateLoop (int& vtype, vtkIdType& numFEdges,
 int vtkDecimate::CanSplitLoop (vtkDecimate::LocalVertexPtr fedges[2], vtkIdType numVerts,
                                vtkDecimate::LocalVertexPtr verts[], vtkIdType& n1, 
                                vtkDecimate::LocalVertexPtr l1[], vtkIdType& n2, 
-                               vtkDecimate::LocalVertexPtr l2[], float& ar)
+                               vtkDecimate::LocalVertexPtr l2[], double& ar)
 {
   vtkIdType i;
   int sign;
-  float *x, val, absVal, sPt[3], v21[3], sN[3];
-  float dist=VTK_LARGE_FLOAT;
+  double *x, val, absVal, sPt[3], v21[3], sN[3];
+  double dist=VTK_DOUBLE_MAX;
   //
   //  See whether creating this edge would duplicate a new edge (this
   //  means collapsing a tunnel)
@@ -963,7 +963,7 @@ int vtkDecimate::CanSplitLoop (vtkDecimate::LocalVertexPtr fedges[2], vtkIdType 
       {
       x = l1[i]->x;
       val = vtkPlane::Evaluate(sN,sPt,x);
-      absVal = (float) fabs((double)val);
+      absVal = (double) fabs((double)val);
       dist = (absVal < dist ? absVal : dist);
       if ( !sign )
         {
@@ -983,7 +983,7 @@ int vtkDecimate::CanSplitLoop (vtkDecimate::LocalVertexPtr fedges[2], vtkIdType 
       {
       x = l2[i]->x;
       val = vtkPlane::Evaluate(sN,sPt,x);
-      absVal = (float) fabs((double)val);
+      absVal = (double) fabs((double)val);
       dist = (absVal < dist ? absVal : dist);
       if ( !sign )
         {
@@ -1048,7 +1048,7 @@ void vtkDecimate::Triangulate(vtkIdType numVerts, vtkDecimate::LocalVertexPtr ve
   vtkIdType n1, n2;
   vtkDecimate::LocalVertexPtr l1[VTK_MAX_TRIS_PER_VERTEX], l2[VTK_MAX_TRIS_PER_VERTEX];
   vtkDecimate::LocalVertexPtr fedges[2];
-  float max, ar;
+  double max, ar;
   vtkIdType maxI, maxJ;
 
   if ( !ContinueTriangulating )
@@ -1126,7 +1126,7 @@ void vtkDecimate::Triangulate(vtkIdType numVerts, vtkDecimate::LocalVertexPtr ve
 
       if ( maxI > -1 ) 
         {
-        float edgeError;
+        double edgeError;
 
         fedges[0] = verts[maxI];
         fedges[1] = verts[maxJ];
@@ -1157,13 +1157,13 @@ int vtkDecimate::CheckError ()
 {
   vtkIdType i;
   int j;
-  float error, planeError;
-  float normal[3], np[3], v21[3], v31[3], x1[3], x2[3], x3[3];
+  double error, planeError;
+  double normal[3], np[3], v21[3], v31[3], x1[3], x2[3], x3[3];
   //
   //  Loop through triangles computing distance to plane (looking for minimum
   //  perpendicular distance)
   //
-  for (planeError=VTK_LARGE_FLOAT, i=0; i < this->T->GetNumberOfTriangles();
+  for (planeError=VTK_DOUBLE_MAX, i=0; i < this->T->GetNumberOfTriangles();
        i++) 
     {
     if ( this->T->Array[i].verts[0] == -1 )

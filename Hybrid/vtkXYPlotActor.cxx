@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.49");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.50");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -555,8 +555,10 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       legPos[1] = (int)(p1[1] + this->LegendPosition[1]*(p2[1]-p1[1]));
       legPos2[1] = (int)(legPos[1] + this->LegendPosition2[1]*(p2[1]-p1[1]));
       
-      this->LegendActor->GetPositionCoordinate()->SetValue(legPos[0], legPos[1]);
-      this->LegendActor->GetPosition2Coordinate()->SetValue(legPos2[0], legPos2[1]);
+      this->LegendActor->GetPositionCoordinate()->SetValue(
+        (double)legPos[0], (double)legPos[1]);
+      this->LegendActor->GetPosition2Coordinate()->SetValue(
+        (double)legPos2[0], (double)legPos2[1]);
       this->LegendActor->SetNumberOfEntries(num);
       for (int i=0; i<num; i++)
         {
@@ -961,7 +963,7 @@ void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
 {
   int dsNum;
   vtkIdType numPts, ptId, maxNum;
-  float maxLength=0.0, xPrev[3], x[3];
+  double maxLength=0.0, xPrev[3], x[3];
   vtkDataSet *ds;
 
   range[0] = VTK_LARGE_FLOAT;
@@ -1256,7 +1258,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
   float xyz[3]; xyz[2] = 0.0;
   int i, numLinePts, dsNum, doNum, num;
   vtkIdType numPts, ptId, id;
-  float length, x[3], xPrev[3];
+  double length, x[3], xPrev[3];
   vtkDataArray *scalars;
   int component;
   vtkDataSet *ds;
@@ -1616,17 +1618,14 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
   labelFactorX = axisX->GetLabelFactor();
 
   // Create a dummy text mapper for getting font sizes
-
   vtkTextMapper *textMapper = vtkTextMapper::New();
   vtkTextProperty *tprop = textMapper->GetTextProperty();
 
   // Get the location of the corners of the box
-
   int *p1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
   int *p2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
 
   // Estimate the padding around the X and Y axes
-
   tprop->ShallowCopy(axisX->GetTitleTextProperty());
   textMapper->SetInput(axisX->GetTitle());
   vtkAxisActor2D::SetFontSize(
@@ -1640,7 +1639,6 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
   // At this point the thing to do would be to actually ask the Y axis
   // actor to return the largest label.
   // In the meantime, let's try with the min and max
-
   sprintf(str1, axisY->GetLabelFormat(), axisY->GetAdjustedRange()[0]);
   sprintf(str2, axisY->GetLabelFormat(), axisY->GetAdjustedRange()[1]);
   tprop->ShallowCopy(axisY->GetLabelTextProperty());
@@ -1650,7 +1648,6 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
 
   // We do only care of the height of the label in the X axis, so let's
   // use the min for example
-
   sprintf(str1, axisX->GetLabelFormat(), axisX->GetAdjustedRange()[0]);
   tprop->ShallowCopy(axisX->GetLabelTextProperty());
   textMapper->SetInput(str1);
@@ -1663,7 +1660,6 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
   tickLengthY = axisY->GetTickLength();
 
   // Okay, estimate the size
-
   pos[0] = (int)(p1[0] + titleSizeY[0] + 2.0 * tickOffsetY + tickLengthY + 
                  labelSizeY[0] + this->Border);
 
@@ -1675,11 +1671,14 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
   pos2[1] = (int)(p2[1] - labelSizeX[1] / 2 - tickOffsetX - this->Border);
 
   // Now specify the location of the axes
-
-  axisX->GetPositionCoordinate()->SetValue(pos[0], pos[1]);
-  axisX->GetPosition2Coordinate()->SetValue(pos2[0], pos[1]);
-  axisY->GetPositionCoordinate()->SetValue(pos[0], pos2[1]);
-  axisY->GetPosition2Coordinate()->SetValue(pos[0], pos[1]);
+  axisX->GetPositionCoordinate()->SetValue(
+    (double)pos[0], (double)pos[1]);
+  axisX->GetPosition2Coordinate()->SetValue(
+    (double)pos2[0], (double)pos[1]);
+  axisY->GetPositionCoordinate()->SetValue(
+    (double)pos[0], (double)pos2[1]);
+  axisY->GetPosition2Coordinate()->SetValue(
+    (double)pos[0], (double)pos[1]);
 
   textMapper->Delete();
 }
@@ -1897,8 +1896,8 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
   vtkIdType *pts=0;
   vtkIdType i, id;
   int j;
-  float x1[3], x2[3], px[3], n[3], xint[3], t;
-  float p1[2], p2[2];
+  double x1[3], x2[3], px[3], n[3], xint[3], t;
+  double p1[2], p2[2];
 
   p1[0] = (float)pos[0]; p1[1] = (float)pos[1];
   p2[0] = (float)pos2[0]; p2[1] = (float)pos2[1];

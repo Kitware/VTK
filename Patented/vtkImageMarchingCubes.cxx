@@ -41,7 +41,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.54");
+vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.55");
 vtkStandardNewMacro(vtkImageMarchingCubes);
 
 //----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ void vtkImageMarchingCubes::Execute()
   int temp, zMin, zMax, chunkMin, chunkMax;
   int minSlicesPerChunk, chunkOverlap;
   int numContours=this->ContourValues->GetNumberOfContours();
-  float *values=this->ContourValues->GetValues();
+  double *values=this->ContourValues->GetValues();
   
   vtkDebugMacro("Starting Execute Method");
   if ( ! inData)
@@ -130,11 +130,11 @@ void vtkImageMarchingCubes::Execute()
   // Each data type requires a different amount of memory.
   switch (inData->GetScalarType())
     {
-    case VTK_FLOAT:
-      temp = sizeof(float);
-      break;
     case VTK_DOUBLE:
       temp = sizeof(double);
+      break;
+    case VTK_FLOAT:
+      temp = sizeof(float);
       break;
     case VTK_INT:
       temp = sizeof(int);
@@ -305,47 +305,47 @@ void vtkImageMarchingCubes::Execute()
 // b0 = 0 => no boundary conditions
 // b0 = +1 => pixel is on x axis maximum of region.
 template <class T>
-void vtkImageMarchingCubesComputePointGradient(T *ptr, float *g,
+void vtkImageMarchingCubesComputePointGradient(T *ptr, double *g,
                                                int inc0, int inc1, int inc2,
                                                short b0, short b1, short b2)
 {
   if (b0 < 0)
     {
-    g[0] = (float)(ptr[inc0]) - (float)(*ptr);
+    g[0] = (double)(ptr[inc0]) - (double)(*ptr);
     }
   else if (b0 > 0)
     {
-    g[0] = (float)(*ptr) - (float)(ptr[-inc0]);
+    g[0] = (double)(*ptr) - (double)(ptr[-inc0]);
     }
   else
     {
-    g[0] = (float)(ptr[inc0]) - (float)(ptr[-inc0]);
+    g[0] = (double)(ptr[inc0]) - (double)(ptr[-inc0]);
     }
 
   if (b1 < 0)
     {
-    g[1] = (float)(ptr[inc1]) - (float)(*ptr);
+    g[1] = (double)(ptr[inc1]) - (double)(*ptr);
     }
   else if (b1 > 0)
     {
-    g[1] = (float)(*ptr) - (float)(ptr[-inc1]);
+    g[1] = (double)(*ptr) - (double)(ptr[-inc1]);
     }
   else
     {
-    g[1] = (float)(ptr[inc1]) - (float)(ptr[-inc1]);
+    g[1] = (double)(ptr[inc1]) - (double)(ptr[-inc1]);
     }
 
   if (b2 < 0)
     {
-    g[2] = (float)(ptr[inc2]) - (float)(*ptr);
+    g[2] = (double)(ptr[inc2]) - (double)(*ptr);
     }
   else if (b2 > 0)
     {
-    g[2] = (float)(*ptr) - (float)(ptr[-inc2]);
+    g[2] = (double)(*ptr) - (double)(ptr[-inc2]);
     }
   else
     {
-    g[2] = (float)(ptr[inc2]) - (float)(ptr[-inc2]);
+    g[2] = (double)(ptr[inc2]) - (double)(ptr[-inc2]);
     }
 }
 
@@ -358,12 +358,12 @@ int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
                                       int inc0, int inc1, int inc2,
                                       T *ptr, int edge, 
                                       int *imageExtent,
-                                      float *spacing, float *origin,
-                                      float value)
+                                      double *spacing, double *origin,
+                                      double value)
 {
   int edgeAxis = 0;
   T *ptrB = NULL;
-  float temp, pt[3];
+  double temp, pt[3];
 
   // decode the edge into starting point and axis direction
   switch (edge)
@@ -443,19 +443,19 @@ int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
   switch (edgeAxis)
     {
     case 0:
-      pt[0] = origin[0] + spacing[0] * ((float)idx0 + temp);
-      pt[1] = origin[1] + spacing[1] * ((float)idx1);
-      pt[2] = origin[2] + spacing[2] * ((float)idx2);
+      pt[0] = origin[0] + spacing[0] * ((double)idx0 + temp);
+      pt[1] = origin[1] + spacing[1] * ((double)idx1);
+      pt[2] = origin[2] + spacing[2] * ((double)idx2);
       break;
     case 1:
-      pt[0] = origin[0] + spacing[0] * ((float)idx0);
-      pt[1] = origin[1] + spacing[1] * ((float)idx1 + temp);
-      pt[2] = origin[2] + spacing[2] * ((float)idx2);
+      pt[0] = origin[0] + spacing[0] * ((double)idx0);
+      pt[1] = origin[1] + spacing[1] * ((double)idx1 + temp);
+      pt[2] = origin[2] + spacing[2] * ((double)idx2);
       break;
     case 2:
-      pt[0] = origin[0] + spacing[0] * ((float)idx0);
-      pt[1] = origin[1] + spacing[1] * ((float)idx1);
-      pt[2] = origin[2] + spacing[2] * ((float)idx2 + temp);
+      pt[0] = origin[0] + spacing[0] * ((double)idx0);
+      pt[1] = origin[1] + spacing[1] * ((double)idx1);
+      pt[2] = origin[2] + spacing[2] * ((double)idx2 + temp);
       break;
     }
   
@@ -469,7 +469,7 @@ int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
   if (self->NeedGradients)
     {
     short b0, b1, b2;
-    float g[3], gB[3];
+    double g[3], gB[3];
     // Find boundary conditions and compute gradient (first point)
     b0 = (idx0 == imageExtent[1]);
     if (idx0 == imageExtent[0])
@@ -533,11 +533,11 @@ template <class T>
 void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
                                      int cellX, int cellY, int cellZ,
                                      vtkImageData *inData,
-                                     T *ptr, int numContours, float *values)
+                                     T *ptr, int numContours, double *values)
 {
   int inc0, inc1, inc2;
   int valueIdx;
-  float value;
+  double value;
   int cubeIndex, ii;
   vtkIdType pointIds[3];
   vtkMarchingCubesTriangleCases *triCase, *triCases;
@@ -551,35 +551,35 @@ void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
     value = values[valueIdx];
     // compute the case index
     cubeIndex = 0;
-    if ((float)(ptr[0]) > value)
+    if ((double)(ptr[0]) > value)
       {
       cubeIndex += 1;
       }
-    if ((float)(ptr[inc0]) > value)
+    if ((double)(ptr[inc0]) > value)
       {
       cubeIndex += 2;
       }
-    if ((float)(ptr[inc0 + inc1]) > value)
+    if ((double)(ptr[inc0 + inc1]) > value)
       {
       cubeIndex += 4;
       }
-    if ((float)(ptr[inc1]) > value)
+    if ((double)(ptr[inc1]) > value)
       {
       cubeIndex += 8;
       }
-    if ((float)(ptr[inc2]) > value)
+    if ((double)(ptr[inc2]) > value)
       {
       cubeIndex += 16;
       }
-    if ((float)(ptr[inc0 + inc2]) > value)
+    if ((double)(ptr[inc0 + inc2]) > value)
       {
       cubeIndex += 32;
       }
-    if ((float)(ptr[inc0 + inc1 + inc2]) > value)
+    if ((double)(ptr[inc0 + inc1 + inc2]) > value)
       {
       cubeIndex += 64;
       }
-    if ((float)(ptr[inc1 + inc2]) > value)
+    if ((double)(ptr[inc1 + inc2]) > value)
       {
       cubeIndex += 128;
       }
@@ -599,8 +599,8 @@ void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
           // If the point has not been created yet
           if (pointIds[ii] == -1)
             {
-            float *spacing = inData->GetSpacing();
-            float *origin = inData->GetOrigin();
+            double *spacing = inData->GetSpacing();
+            double *origin = inData->GetOrigin();
             int *extent = self->GetInput()->GetWholeExtent();
             
             pointIds[ii] = vtkImageMarchingCubesMakeNewPoint(self,
@@ -622,7 +622,7 @@ template <class T>
 void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
                                 vtkImageData *inData, T *ptr,
                                 int chunkMin, int chunkMax,
-                                int numContours, float *values)
+                                int numContours, double *values)
 {
   int idx0, idx1, idx2;
   int min0, max0, min1, max1, min2, max2;
@@ -682,18 +682,18 @@ void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
 // This method calls the proper templade function.
 void vtkImageMarchingCubes::March(vtkImageData *inData, 
                                  int chunkMin, int chunkMax,
-                                 int numContours, float *values)
+                                 int numContours, double *values)
 {
   void *ptr = inData->GetScalarPointer();
   
   switch (inData->GetScalarType())
     {
-    case VTK_FLOAT:
-      vtkImageMarchingCubesMarch(this, inData, (float *)(ptr), 
-                                chunkMin, chunkMax, numContours, values);
-      break;
     case VTK_DOUBLE:
       vtkImageMarchingCubesMarch(this, inData, (double *)(ptr), 
+                                chunkMin, chunkMax, numContours, values);
+      break;
+    case VTK_FLOAT:
+      vtkImageMarchingCubesMarch(this, inData, (float *)(ptr), 
                                 chunkMin, chunkMax, numContours, values);
       break;
     case VTK_INT:

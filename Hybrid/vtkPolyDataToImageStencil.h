@@ -43,8 +43,8 @@ public:
 
   // Description:
   // Set the tolerance for doing spatial searches of the polydata.
-  vtkSetMacro(Tolerance, float);
-  vtkGetMacro(Tolerance, float);
+  vtkSetMacro(Tolerance, double);
+  vtkGetMacro(Tolerance, double);
 
 protected:
   vtkPolyDataToImageStencil();
@@ -54,7 +54,7 @@ protected:
   void ThreadedExecute(vtkImageStencilData *output,
                        int extent[6], int threadId);
 
-  float Tolerance;
+  double Tolerance;
   vtkOBBTree *OBBTree;
 private:
   vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&);  // Not implemented.

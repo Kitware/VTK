@@ -93,7 +93,7 @@ public:
   // Description:
   // Compute ModelBounds from input geometry. If input is not specified, the
   // input of the filter will be used.
-  float ComputeModelBounds(vtkDataSet *input = NULL);
+  double ComputeModelBounds(vtkDataSet *input = NULL);
 
   // Description:
   // Set/Get the i-j-k dimensions on which to sample distance function.
@@ -104,14 +104,14 @@ public:
   // Description:
   // Set / get the distance away from surface of input geometry to
   // sample. Smaller values make large increases in performance.
-  vtkSetClampMacro(MaximumDistance,float,0.0,1.0);
-  vtkGetMacro(MaximumDistance,float);
+  vtkSetClampMacro(MaximumDistance,double,0.0,1.0);
+  vtkGetMacro(MaximumDistance,double);
 
   // Description:
   // Set / get the region in space in which to perform the sampling. If
   // not specified, it will be computed automatically.
-  vtkSetVector6Macro(ModelBounds,float);
-  vtkGetVectorMacro(ModelBounds,float,6);
+  vtkSetVector6Macro(ModelBounds,double);
+  vtkGetVectorMacro(ModelBounds,double,6);
 
   // Description:
   // Control how the model bounds are computed. If the ivar AdjustBounds
@@ -126,8 +126,8 @@ public:
   // Specify the amount to grow the model bounds (if the ivar AdjustBounds
   // is set). The value is a fraction of the maximum length of the sides
   // of the box specified by the model bounds.
-  vtkSetClampMacro(AdjustDistance,float,-1.0,1.0);
-  vtkGetMacro(AdjustDistance,float);
+  vtkSetClampMacro(AdjustDistance,double,-1.0,1.0);
+  vtkGetMacro(AdjustDistance,double);
 
   // Description:
   // The outer boundary of the structured point set can be assigned a 
@@ -139,8 +139,8 @@ public:
   // Description:
   // Specify the capping value to use. The CapValue is also used as an
   // initial distance value at each point in the dataset.
-  vtkSetMacro(CapValue,float);
-  vtkGetMacro(CapValue,float);
+  vtkSetMacro(CapValue,double);
+  vtkGetMacro(CapValue,double);
 
   // Description:
   // Specify whether to visit each cell once per append or each voxel once
@@ -200,18 +200,18 @@ protected:
   int              NumberOfThreads;
 
   int SampleDimensions[3];
-  float MaximumDistance;
-  float ModelBounds[6];
+  double MaximumDistance;
+  double ModelBounds[6];
   int Capping;
-  float CapValue;
+  double CapValue;
   int DataAppended;
   int AdjustBounds;
-  float AdjustDistance;
+  double AdjustDistance;
   int ProcessMode;
   int LocatorMaxLevel;
 
   int BoundsComputed; // flag to limit to one ComputeModelBounds per StartAppend
-  float InternalMaxDistance; // the max distance computed during that one call
+  double InternalMaxDistance; // the max distance computed during that one call
 private:
   vtkImplicitModeller(const vtkImplicitModeller&);  // Not implemented.
   void operator=(const vtkImplicitModeller&);  // Not implemented.

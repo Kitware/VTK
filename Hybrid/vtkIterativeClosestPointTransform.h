@@ -99,12 +99,12 @@ public:
   // Description: 
   // Set/Get the maximum mean distance between two iteration. If the mean
   // distance is lower than this, the convergence stops.
-  vtkSetMacro(MaximumMeanDistance, float);
-  vtkGetMacro(MaximumMeanDistance, float);
+  vtkSetMacro(MaximumMeanDistance, double);
+  vtkGetMacro(MaximumMeanDistance, double);
   
   // Description: 
   // Get the mean distance between the last two iterations.
-  vtkGetMacro(MeanDistance, float);
+  vtkGetMacro(MeanDistance, double);
   
   // Description: 
   // Set/Get the maximum number of landmarks sampled in your dataset.
@@ -167,12 +167,12 @@ protected:
   int MaximumNumberOfIterations;
   int CheckMeanDistance;
   int MeanDistanceMode;
-  float MaximumMeanDistance;
+  double MaximumMeanDistance;
   int MaximumNumberOfLandmarks;
   int StartByMatchingCentroids;
 
   int NumberOfIterations;
-  float MeanDistance;
+  double MeanDistance;
   vtkLandmarkTransform *LandmarkTransform;
 private:
   vtkIterativeClosestPointTransform(const vtkIterativeClosestPointTransform&);  // Not implemented.

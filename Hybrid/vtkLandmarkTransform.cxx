@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkLandmarkTransform, "1.23");
+vtkCxxRevisionMacro(vtkLandmarkTransform, "1.24");
 vtkStandardNewMacro(vtkLandmarkTransform);
 
 //----------------------------------------------------------------------------
@@ -102,9 +102,9 @@ void vtkLandmarkTransform::InternalUpdate()
 
   // -- find the centroid of each set --
 
-  float source_centroid[3]={0,0,0};
-  float target_centroid[3]={0,0,0};
-  float p[3];
+  double source_centroid[3]={0,0,0};
+  double target_centroid[3]={0,0,0};
+  double p[3];
   for(i=0;i<N_PTS;i++)
     {
     this->SourceLandmarks->GetPoint(i, p);
@@ -136,8 +136,8 @@ void vtkLandmarkTransform::InternalUpdate()
 
   // -- build the 3x3 matrix M --
 
-  float M[3][3];
-  float AAT[3][3];
+  double M[3][3];
+  double AAT[3][3];
   for(i=0;i<3;i++) 
     {
     AAT[i][0] = M[i][0]=0.0F; // fill M with zeros
@@ -145,8 +145,8 @@ void vtkLandmarkTransform::InternalUpdate()
     AAT[i][2] = M[i][2]=0.0F; 
     }
   vtkIdType pt;
-  float a[3],b[3];
-  float sa=0.0F,sb=0.0F;
+  double a[3],b[3];
+  double sa=0.0F,sb=0.0F;
   for(pt=0;pt<N_PTS;pt++)
     {
     // get the origin-centred point (a) in the source set
@@ -200,12 +200,12 @@ void vtkLandmarkTransform::InternalUpdate()
   else
     {
     // compute required scaling factor (if desired)
-    float scale = (float)sqrt(sb/sa);
+    double scale = (double)sqrt(sb/sa);
     
     // -- build the 4x4 matrix N --
     
-    float Ndata[4][4];
-    float *N[4];
+    double Ndata[4][4];
+    double *N[4];
     for(i=0;i<4;i++)
       {
       N[i] = Ndata[i];
@@ -230,8 +230,8 @@ void vtkLandmarkTransform::InternalUpdate()
 
     // -- eigen-decompose N (is symmetric) --
 
-    float eigenvectorData[4][4];
-    float *eigenvectors[4],eigenvalues[4];
+    double eigenvectorData[4][4];
+    double *eigenvectors[4],eigenvalues[4];
 
     eigenvectors[0] = eigenvectorData[0];
     eigenvectors[1] = eigenvectorData[1];

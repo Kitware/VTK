@@ -40,11 +40,11 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.55");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.56");
 vtkStandardNewMacro(vtkRIBExporter);
 
-typedef float RtColor[3];
-typedef float RtPoint[3];
+typedef double RtColor[3];
+typedef double RtPoint[3];
 typedef char   *RtPointer;
 typedef float RtFloat;
 
@@ -231,11 +231,11 @@ void vtkRIBExporter::WriteHeader (vtkRenderer *aRen)
   fprintf (this->FilePtr, "Display \"%s\" \"file\" \"rgba\"\n", imageFileName);
   fprintf (this->FilePtr, "Declare \"bgcolor\" \"uniform color\"\n");
   if (this->Background)
-  {
+    {
     float *color = aRen->GetBackground ();
     fprintf (this->FilePtr, "Imager \"background\" \"bgcolor\" [%f %f %f]\n",
-        color[0], color[1], color[2]);
-  }
+             color[0], color[1], color[2]);
+    }
   fprintf (this->FilePtr, "PixelSamples %d %d\n",
                 this->PixelSamples[0],
                 this->PixelSamples[1]);
@@ -361,9 +361,10 @@ void vtkRIBExporter::WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture
 
 void vtkRIBExporter::WriteLight (vtkLight *aLight, int count)
 {
-  float color[4];
-  float *Color, *Position, *FocalPoint;
-  float Intensity;
+  double color[4];
+  float *Color;
+  float *Position, *FocalPoint;
+  double Intensity;
 
   // get required info from light
   Intensity = aLight->GetIntensity();
@@ -401,8 +402,8 @@ void vtkRIBExporter::WriteLight (vtkLight *aLight, int count)
     }
   else
     {
-    float coneAngle = aLight->GetConeAngle ();
-    float exponent = aLight->GetExponent ();
+    double coneAngle = aLight->GetConeAngle ();
+    double exponent = aLight->GetExponent ();
     fprintf (this->FilePtr, "LightSource \"spotlight\" %d ", count);
     fprintf (this->FilePtr, "\"intensity\" [%f] ", Intensity);
     fprintf (this->FilePtr, "\"lightcolor\" [%f %f %f] ",
@@ -431,7 +432,7 @@ void vtkRIBExporter::WriteAmbientLight (int count)
 
 void vtkRIBExporter::WriteViewport (vtkRenderer *ren, int size[2])
 {
-  float aspect[2];
+  double aspect[2];
   float *vport;
   int left,right,bottom,top;
   
@@ -450,20 +451,20 @@ void vtkRIBExporter::WriteViewport (vtkRenderer *ren, int size[2])
     fprintf (this->FilePtr, "CropWindow %f %f %f %f\n",
         vport[0], vport[2], vport[1], vport[3]);        
     
-    aspect[0] = (float)(right-left+1)/(float)(top-bottom+1);
+    aspect[0] = (double)(right-left+1)/(double)(top-bottom+1);
     aspect[1] = 1.0;
     fprintf (this->FilePtr, "ScreenWindow %f %f %f %f\n",
         -aspect[0], aspect[0], -1.0, 1.0);
     }
 }
 
-static void PlaceCamera (FILE *filePtr, RtPoint, RtPoint, float);
+static void PlaceCamera (FILE *filePtr, RtPoint, RtPoint, double);
 static void AimZ (FILE *filePtr, RtPoint);
 
 void vtkRIBExporter::WriteCamera (vtkCamera *aCamera)
 {
   RtPoint direction;
-  float position[3], focalPoint[3];
+  double position[3], focalPoint[3];
 
   aCamera->GetPosition (position);
   aCamera->GetFocalPoint (focalPoint);
@@ -488,14 +489,14 @@ void vtkRIBExporter::WriteCamera (vtkCamera *aCamera)
  *    roll: an optional rotation of the camera about its direction axis 
  */
 
-static float cameraMatrix[4][4] = {
+static double cameraMatrix[4][4] = {
   {-1, 0, 0, 0},
   { 0, 1, 0, 0},
   { 0, 0, 1, 0},
   { 0, 0, 0, 1}
 };
 
-void PlaceCamera(FILE *filePtr, RtPoint position, RtPoint direction, float roll)
+void PlaceCamera(FILE *filePtr, RtPoint position, RtPoint direction, double roll)
 {
   fprintf (filePtr, "Identity\n");    
   fprintf (filePtr, "Transform [%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ]\n",
@@ -629,7 +630,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
         vtkDataArray *array = pointData->GetArray(cc);
         char buffer[1024];
         this->ModifyArrayName(buffer, array->GetName());
-        fprintf(this->FilePtr, "Declare \"%s\" \"varying float\"\n",
+        fprintf(this->FilePtr, "Declare \"%s\" \"varying double\"\n",
                 buffer);
         }
       }
@@ -642,7 +643,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
         vtkDataArray *array = cellData->GetArray(cc);
         char buffer[1024];
         this->ModifyArrayName(buffer, array->GetName());
-        fprintf(this->FilePtr, "Declare \"%s\" \"varying float\"\n",
+        fprintf(this->FilePtr, "Declare \"%s\" \"varying double\"\n",
                 buffer);
         }
       }
@@ -655,7 +656,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
         vtkDataArray *array = fieldData->GetArray(cc);
         char buffer[1024];
         this->ModifyArrayName(buffer, array->GetName());
-        fprintf(this->FilePtr, "Declare \"%s\" \"varying float\"\n",
+        fprintf(this->FilePtr, "Declare \"%s\" \"varying double\"\n",
                 buffer);
         }
       }
@@ -684,14 +685,14 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
                                     vtkUnsignedCharArray *c, 
                                     vtkProperty *aProperty)
 {
-  float vertexColors[512][3];
-  RtFloat *TCoords;
-  RtFloat *normals;
-  RtFloat points[3];
+  double vertexColors[512][3];
+  double *TCoords;
+  double *normals;
+  double points[3];
   RtPoint vertexNormals[512];
   RtPoint vertexPoints[512];
-  float poly_norm[3];
-  float vertexTCoords[512][2];
+  double poly_norm[3];
+  double vertexTCoords[512][2];
   vtkIdType *pts = 0;
   vtkIdType npts = 0;
   int k, kk;
@@ -842,7 +843,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
           str_with_warning_C4701 << "\"" << buffer << "\" [";
           for (kk = 0; kk < npts; kk++)
             {
-            float tuple[3];
+            double tuple[3];
             array->GetTuple(pts[kk], tuple);
             for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
               {
@@ -868,7 +869,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
           str_with_warning_C4701 << "\"" << buffer << "\" [";
           for (kk = 0; kk < npts; kk++)
             {
-            float tuple[3];
+            double tuple[3];
             array->GetTuple(pts[kk], tuple);
             for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
               {
@@ -895,7 +896,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
           str_with_warning_C4701 << "\"" << buffer << "\" [";
           for (kk = 0; kk < npts; kk++)
             {
-            float tuple[3];
+            double tuple[3];
             array->GetTuple(pts[kk], tuple);
             for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
               {
@@ -919,14 +920,14 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
                                   vtkUnsignedCharArray *c, 
                                   vtkProperty *aProperty)
 {
-  float vertexColors[512][3];
-  RtFloat *TCoords;
-  RtFloat *normals;
-  RtFloat points[3];
+  double vertexColors[512][3];
+  double *TCoords;
+  double *normals;
+  double points[3];
   RtPoint vertexNormals[512];
   RtPoint vertexPoints[512];
-  float poly_norm[3];
-  float vertexTCoords[512][2];
+  double poly_norm[3];
+  double vertexTCoords[512][2];
   vtkIdType *pts = 0;
   vtkIdType npts = 0;
   int p1, p2, p3;
@@ -1098,7 +1099,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
             str_with_warning_C4701 << "\"" << buffer << "\" [";
             for (kk = 0; kk < npts; kk++)
               {
-              float tuple[3];
+              double tuple[3];
               array->GetTuple(pts[kk], tuple);
               for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
                 {
@@ -1124,7 +1125,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
             str_with_warning_C4701 << "\"" << buffer << "\" [";
             for (kk = 0; kk < npts; kk++)
               {
-              float tuple[3];
+              double tuple[3];
               array->GetTuple(pts[kk], tuple);
               for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
                 {
@@ -1150,7 +1151,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
             str_with_warning_C4701 << "\"" << buffer << "\" [";
             for (kk = 0; kk < npts; kk++)
               {
-              float tuple[3];
+              double tuple[3];
               array->GetTuple(pts[kk], tuple);
               for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
                 {

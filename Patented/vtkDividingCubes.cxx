@@ -31,7 +31,7 @@
 #include "vtkDividingCubes.h"
 
 #include "vtkCellArray.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -39,7 +39,7 @@
 #include "vtkPolyData.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkDividingCubes, "1.51");
+vtkCxxRevisionMacro(vtkDividingCubes, "1.52");
 vtkStandardNewMacro(vtkDividingCubes);
 
 // Description:
@@ -52,9 +52,9 @@ vtkDividingCubes::vtkDividingCubes()
   this->Count = 0;
   this->SubVoxelPts = vtkIdList::New(); this->SubVoxelPts->SetNumberOfIds(8);
   this->SubVoxel = vtkVoxel::New();
-  this->SubVoxelScalars = vtkFloatArray::New(); 
+  this->SubVoxelScalars = vtkDoubleArray::New(); 
   this->SubVoxelScalars->SetNumberOfTuples(8);
-  this->SubVoxelNormals = vtkFloatArray::New(); 
+  this->SubVoxelNormals = vtkDoubleArray::New(); 
   this->SubVoxelNormals->SetNumberOfComponents(3);
   this->SubVoxelNormals->SetNumberOfTuples(8);
 }
@@ -67,12 +67,12 @@ vtkDividingCubes::~vtkDividingCubes()
   this->SubVoxelNormals->Delete();
 }
 
-static float Normals[8][3]; //voxel normals
+static double Normals[8][3]; //voxel normals
 static vtkPoints *NewPts; //points being generated
-static vtkFloatArray *NewNormals; //points being generated
+static vtkDoubleArray *NewNormals; //points being generated
 static vtkCellArray *NewVerts; //verts being generated
-static vtkFloatArray *SubNormals; //sub-volume normals
-static vtkFloatArray *SubScalars; //sub-volume scalars
+static vtkDoubleArray *SubNormals; //sub-volume normals
+static vtkDoubleArray *SubScalars; //sub-volume scalars
 static int SubSliceSize;
 
 void vtkDividingCubes::Execute()
@@ -80,8 +80,8 @@ void vtkDividingCubes::Execute()
   int i, j, k, idx;
   vtkDataArray *inScalars;
   vtkIdList *voxelPts;
-  vtkFloatArray *voxelScalars;
-  float origin[3], x[3], ar[3], h[3];
+  vtkDoubleArray *voxelScalars;
+  double origin[3], x[3], ar[3], h[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum, n[3];
   vtkImageData *input = this->GetInput();
@@ -121,7 +121,7 @@ void vtkDividingCubes::Execute()
   // creating points
   NewPts = vtkPoints::New(); 
   NewPts->Allocate(500000,500000);
-  NewNormals = vtkFloatArray::New(); 
+  NewNormals = vtkDoubleArray::New(); 
   NewNormals->SetNumberOfComponents(3);
   NewNormals->Allocate(1500000,1500000);
   NewVerts = vtkCellArray::New(); 
@@ -135,18 +135,18 @@ void vtkDividingCubes::Execute()
   for (i=0; i<3; i++) //compute subvoxel widths and subvolume dimensions
     {
     n[i] = ((int) ceil((double)ar[i]/this->Distance)) + 1;
-    h[i] = (float)ar[i]/(n[i]-1);
+    h[i] = (double)ar[i]/(n[i]-1);
     }
 
   SubSliceSize = n[0] * n[1];
-  SubNormals = vtkFloatArray::New();
+  SubNormals = vtkDoubleArray::New();
   SubNormals->SetNumberOfComponents(3);
   SubNormals->SetNumberOfTuples(SubSliceSize*n[2]);
 
-  SubScalars = vtkFloatArray::New();
+  SubScalars = vtkDoubleArray::New();
   SubScalars->SetNumberOfTuples(SubSliceSize*n[2]);
   voxelPts = vtkIdList::New(); voxelPts->SetNumberOfIds(8);
-  voxelScalars = vtkFloatArray::New(); voxelScalars->SetNumberOfTuples(8);
+  voxelScalars = vtkDoubleArray::New(); voxelScalars->SetNumberOfTuples(8);
   
 
   for ( k=0; k < (dim[2]-1); k++)
@@ -231,13 +231,13 @@ void vtkDividingCubes::Execute()
 
 #define VTK_POINTS_PER_POLY_VERTEX 10000
 
-void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
-                                 float values[8])
+void vtkDividingCubes::SubDivide(double origin[3], int dim[3], double h[3],
+                                 double values[8])
 {
   int i, j, k, ii, vertNum, id;
-  float s;
+  double s;
   int kOffset, jOffset, idx, above, below;
-  float p[3], w[8], n[3], normal[3], offset[3];
+  double p[3], w[8], n[3], normal[3], offset[3];
 
   // Compute normals and scalars on subvoxel array
   for (k=0; k < dim[2]; k++)

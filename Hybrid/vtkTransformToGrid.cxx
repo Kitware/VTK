@@ -19,7 +19,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTransformToGrid, "1.12");
+vtkCxxRevisionMacro(vtkTransformToGrid, "1.13");
 vtkStandardNewMacro(vtkTransformToGrid);
 
 vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);
@@ -29,7 +29,7 @@ vtkTransformToGrid::vtkTransformToGrid()
 {
   this->Input = NULL;
   
-  this->GridScalarType = VTK_FLOAT;
+  this->GridScalarType = VTK_DOUBLE;
 
   for (int i = 0; i < 3; i++)
     {
@@ -111,7 +111,7 @@ void vtkTransformToGrid::ExecuteInformation()
 // the entire grid extent -- this is extremely robust and extremely
 // inefficient, it should be possible to do much better than this.
 void vtkTransformToGridMinMax(vtkTransformToGrid *self, int extent[6],
-                              float &minDisplacement, float &maxDisplacement)
+                              double &minDisplacement, double &maxDisplacement)
 {
   vtkAbstractTransform *transform = self->GetInput();
   transform->Update();
@@ -123,13 +123,13 @@ void vtkTransformToGridMinMax(vtkTransformToGrid *self, int extent[6],
     return;
     }
 
-  float *spacing = self->GetGridSpacing();
-  float *origin = self->GetGridOrigin();
+  double *spacing = self->GetGridSpacing();
+  double *origin = self->GetGridOrigin();
 
   maxDisplacement = -1e37;
   minDisplacement = +1e37;
 
-  float point[3],newPoint[3],displacement;
+  double point[3],newPoint[3],displacement;
 
   for (int k = extent[4]; k <= extent[5]; k++)
     {
@@ -167,8 +167,8 @@ void vtkTransformToGrid::UpdateShiftScale()
 {
   int gridType = this->GridScalarType;
 
-  // nothing to do for float or double
-  if (gridType == VTK_FLOAT || gridType == VTK_DOUBLE)
+  // nothing to do for double or double
+  if (gridType == VTK_DOUBLE || gridType == VTK_DOUBLE)
     {
     this->DisplacementShift = 0.0f;
     this->DisplacementScale = 1.0f;
@@ -185,7 +185,7 @@ void vtkTransformToGrid::UpdateShiftScale()
     }
 
   // get the maximum displacement
-  float minDisplacement, maxDisplacement;
+  double minDisplacement, maxDisplacement;
   vtkTransformToGridMinMax(this,this->GridExtent,
                            minDisplacement,
                            maxDisplacement);
@@ -193,7 +193,7 @@ void vtkTransformToGrid::UpdateShiftScale()
   vtkDebugMacro(<< "displacement (min, max) = (" << 
                 minDisplacement << ", " << maxDisplacement << ")");
 
-  float typeMin,typeMax;
+  double typeMin,typeMax;
 
   switch (gridType)
     {
@@ -238,36 +238,36 @@ void vtkTransformToGrid::UpdateShiftScale()
 //----------------------------------------------------------------------------
 // macros to ensure proper round-to-nearest behaviour
 
-inline void vtkGridRound(float val, unsigned char& rnd)
+inline void vtkGridRound(double val, unsigned char& rnd)
 {
   rnd = (unsigned char)(val+0.5f);
 }
 
-inline void vtkGridRound(float val, char& rnd)
+inline void vtkGridRound(double val, char& rnd)
 {
   rnd = (char)((val+128.5f)-128);
 }
 
-inline void vtkGridRound(float val, short& rnd)
+inline void vtkGridRound(double val, short& rnd)
 {
   rnd = (short)((int)(val+32768.5f)-32768);
 }
 
-inline void vtkGridRound(float val, unsigned short& rnd)
+inline void vtkGridRound(double val, unsigned short& rnd)
 {
   rnd = (unsigned short)(val+0.5f);
 }
 
-inline void vtkGridRound(float val, float& rnd)
+inline void vtkGridRound(double val, double& rnd)
 {
-  rnd = (float)(val);
+  rnd = (double)(val);
 }
 
 //----------------------------------------------------------------------------
 template<class T>
 void vtkTransformToGridExecute(vtkTransformToGrid *self,
                                vtkImageData *grid, T *gridPtr, int extent[6], 
-                               float shift, float scale, int id)
+                               double shift, double scale, int id)
 {
   vtkAbstractTransform *transform = self->GetInput();
   int isIdentity = 0;
@@ -277,14 +277,14 @@ void vtkTransformToGridExecute(vtkTransformToGrid *self,
     isIdentity = 1;
     }
 
-  float *spacing = grid->GetSpacing();
-  float *origin = grid->GetOrigin();
+  double *spacing = grid->GetSpacing();
+  double *origin = grid->GetOrigin();
   int *increments = grid->GetIncrements();
 
-  float invScale = 1.0f/scale;
+  double invScale = 1.0f/scale;
 
-  float point[3];
-  float newPoint[3];
+  double point[3];
+  double newPoint[3];
 
   T *gridPtr0 = gridPtr;
 
@@ -342,20 +342,20 @@ void vtkTransformToGrid::ExecuteData(vtkDataObject *output)
   vtkImageData *grid = this->AllocateOutputData(output);
   int *extent = grid->GetExtent();
 
-  float *gridPtr = (float *)grid->GetScalarPointerForExtent(extent);
+  double *gridPtr = (double *)grid->GetScalarPointerForExtent(extent);
   int gridType = grid->GetScalarType();
 
   this->UpdateShiftScale();
 
-  float scale = this->DisplacementScale;
-  float shift = this->DisplacementShift;
+  double scale = this->DisplacementScale;
+  double shift = this->DisplacementShift;
 
   int id = 0;
 
   switch (gridType)
     {
-    case VTK_FLOAT:
-      vtkTransformToGridExecute(this, grid, (float *)(gridPtr), extent,
+    case VTK_DOUBLE:
+      vtkTransformToGridExecute(this, grid, (double *)(gridPtr), extent,
                                 shift,scale,id);
       break;
     case VTK_SHORT:

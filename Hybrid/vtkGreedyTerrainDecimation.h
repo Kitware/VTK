@@ -118,23 +118,23 @@ public:
   // Specify the reduction of the mesh (represented as a fraction).  Note
   // that a value of 0.10 means a 10% reduction.  You need to set this value
   // only when the error measure is set to SpecifiedReduction.
-  vtkSetClampMacro(Reduction,float,0.0,1.0);
-  vtkGetMacro(Reduction,float);
+  vtkSetClampMacro(Reduction,double,0.0,1.0);
+  vtkGetMacro(Reduction,double);
 
   // Description:
   // Specify the absolute error of the mesh; that is, the error in height
   // between the decimated mesh and the original height field.  You need to
   // set this value only when the error measure is set to AbsoluteError.
-  vtkSetClampMacro(AbsoluteError,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(AbsoluteError,float);
+  vtkSetClampMacro(AbsoluteError,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(AbsoluteError,double);
 
   // Description:
   // Specify the relative error of the mesh; that is, the error in height
   // between the decimated mesh and the original height field normalized by
   // the diagonal of the image.  You need to set this value only when the
   // error measure is set to RelativeError.
-  vtkSetClampMacro(RelativeError,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(RelativeError,float);
+  vtkSetClampMacro(RelativeError,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(RelativeError,double);
 
   // Description:
   // Turn on/off the deletion of vertices on the boundary of a mesh. This
@@ -152,9 +152,9 @@ protected:
   //ivars that the API addresses
   int       ErrorMeasure;
   vtkIdType NumberOfTriangles;
-  float     Reduction;
-  float     AbsoluteError;
-  float     RelativeError;
+  double     Reduction;
+  double     AbsoluteError;
+  double     RelativeError;
   int       BoundaryVertexDeletion; //Can we delete boundary vertices?
 
   //Used for convenience
@@ -170,7 +170,7 @@ protected:
   double         Origin[3];
   double         Spacing[3];
   vtkIdType      MaximumNumberOfTriangles;
-  float          Length;
+  double          Length;
 
   //Bookeeping arrays
   vtkPriorityQueue                          *TerrainError; //errors for each pt in height field
@@ -203,12 +203,12 @@ protected:
 
   void UpdateTriangles(vtkIdType meshPtId); //update all points connected to this point
   void UpdateTriangle(vtkIdType triId, vtkIdType p1, vtkIdType p2, vtkIdType p3);
-  void UpdateTriangle(vtkIdType triId, int ij1[2], int ij2[2], int ij3[2], float h[4]);
+  void UpdateTriangle(vtkIdType triId, int ij1[2], int ij2[2], int ij3[2], double h[4]);
 
   int CharacterizeTriangle(int ij1[2], int ij2[2], int ij[3],
                            int* &min, int* &max, int* &midL, int* &midR,
-                           int* &mid, int mid2[2], float h[3], float &hMin, float &hMax, 
-                           float &hL, float &hR);
+                           int* &mid, int mid2[2], double h[3], double &hMin, double &hMax, 
+                           double &hL, double &hR);
 
 private:
   vtkGreedyTerrainDecimation(const vtkGreedyTerrainDecimation&);  // Not implemented.

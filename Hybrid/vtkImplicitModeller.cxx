@@ -34,14 +34,14 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.83");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.84");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
 {
   vtkImplicitModeller *Modeller;
   vtkDataSet          **Input;
-  float               MaximumDistance;
+  double               MaximumDistance;
   vtkMutexLock        *ProgressMutex;
 };
 
@@ -110,7 +110,7 @@ void vtkImplicitModeller::StartAppend()
 {
   vtkIdType numPts;
   vtkIdType i;
-  float maxDistance;
+  double maxDistance;
 
   // we must call execute information because we can't be sure that 
   // it has been called.
@@ -143,21 +143,21 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   int                      thread_id;
   vtkImplicitModellerAppendInfo *userData;
   vtkImageData *output;
-  float maxDistance;
+  double maxDistance;
   int i, j, k;
-  float *bounds, adjBounds[6];
-  float pcoords[3];
+  double *bounds, adjBounds[6];
+  double pcoords[3];
   vtkDataArray *newScalars;
   int idx, subId;
   vtkIdType cellId;
   int min[3], max[3];
-  float x[3], prevDistance2, distance2;
+  double x[3], prevDistance2, distance2;
   int jkFactor;
-  float closestPoint[3], mDist;
-  float *Spacing;
-  float *origin;
-  float *weights;
-  float maxDistance2;
+  double closestPoint[3], mDist;
+  double *Spacing;
+  double *origin;
+  double *weights;
+  double maxDistance2;
   int slabSize, slabMin, slabMax;
   vtkMutexLock *mutex;
 
@@ -215,9 +215,9 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   // compute dimensional bounds in data set
   for (i=0; i<3; i++)
     {
-    min[i] = (int) ((float)(adjBounds[2*i] - origin[i]) / 
+    min[i] = (int) ((double)(adjBounds[2*i] - origin[i]) / 
       Spacing[i]);
-    max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / 
+    max[i] = (int) ((double)(adjBounds[2*i+1] - origin[i]) / 
       Spacing[i]);
     if (min[i] < 0)
       {
@@ -247,7 +247,7 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
 
   
   // allocate weights for the EvaluatePosition
-  weights = new float[userData->Input[thread_id]->GetMaxCellSize()];
+  weights = new double[userData->Input[thread_id]->GetMaxCellSize()];
 
   //
   // Traverse each voxel; using CellLocator to find the closest point
@@ -269,8 +269,8 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   
   // for pregress update, compute portion of final output for each sub-plane 
   // completed
-  float progressUpdate = 
-    (float)(slabMax - slabMin + 1) / (float)sampleDimensions[2]  // if did whole slab
+  double progressUpdate = 
+    (double)(slabMax - slabMin + 1) / (double)sampleDimensions[2]  // if did whole slab
     / (max[2] - min[2] + 1); // divided by portion of slab we actually do
 
   jkFactor = sampleDimensions[0]*sampleDimensions[1];
@@ -355,7 +355,7 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
 // finished appending, use the EndAppend() method.
 void vtkImplicitModeller::Append(vtkDataSet *input)
 {
-  float *Spacing, *origin;
+  double *Spacing, *origin;
 
   vtkDebugMacro(<< "Appending data");
 
@@ -373,16 +373,16 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
     {
     int i, j, k, updateTime;
     vtkIdType cellNum;
-    float *bounds, adjBounds[6];
-    float pcoords[3];
+    double *bounds, adjBounds[6];
+    double pcoords[3];
     vtkDataArray *newScalars;
     int idx;
     int min[3], max[3];
-    float x[3], prevDistance2, distance2;
+    double x[3], prevDistance2, distance2;
     int jkFactor, subId;
-    float closestPoint[3];
-    float *weights=new float[input->GetMaxCellSize()];
-    float maxDistance2;
+    double closestPoint[3];
+    double *weights=new double[input->GetMaxCellSize()];
+    double maxDistance2;
     // Get the output scalars
     if (!(newScalars = output->GetPointData()->GetScalars()))
       {
@@ -414,9 +414,9 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
       // compute dimensional bounds in data set
       for (i=0; i<3; i++)
         {
-        min[i] = (int) ((float)(adjBounds[2*i] - origin[i]) / 
+        min[i] = (int) ((double)(adjBounds[2*i] - origin[i]) / 
           Spacing[i]);
-        max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / 
+        max[i] = (int) ((double)(adjBounds[2*i+1] - origin[i]) / 
           Spacing[i]);
         if (min[i] < 0)
           {
@@ -454,7 +454,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
       if (cellNum % updateTime == 0)
         {
-        this->UpdateProgress(float(cellNum + 1) / input->GetNumberOfCells());
+        this->UpdateProgress(double(cellNum + 1) / input->GetNumberOfCells());
         }
       }
     delete [] weights;
@@ -462,7 +462,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
   else
     {
     vtkImplicitModellerAppendInfo info;
-    float minZ, maxZ;
+    double minZ, maxZ;
     int slabMin, slabMax, slabSize, i;
     vtkClipPolyData **minClipper = NULL, **maxClipper = NULL; 
     vtkPlane ** minPlane = NULL, **maxPlane = NULL;
@@ -652,7 +652,7 @@ void vtkImplicitModeller::EndAppend()
 {
   vtkDataArray *newScalars;
   vtkIdType i, numPts;
-  float distance2;
+  double distance2;
 
   vtkDebugMacro(<< "End append");
   
@@ -687,7 +687,7 @@ void vtkImplicitModeller::EndAppend()
 void vtkImplicitModeller::ExecuteInformation()
 {
   int i;
-  float ar[3], origin[3];
+  double ar[3], origin[3];
   vtkImageData *output = this->GetOutput();
   
   output->SetScalarType(VTK_FLOAT);
@@ -733,12 +733,12 @@ void vtkImplicitModeller::ExecuteData(vtkDataObject *)
 }
 
 // Compute ModelBounds from input geometry.
-float vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
+double vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
 {
-  float *bounds, maxDist;
+  double *bounds, maxDist;
   int i;
   vtkImageData *output=this->GetOutput();
-  float tempf[3];
+  double tempf[3];
   
   // compute model bounds if not set previously
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
@@ -758,7 +758,7 @@ float vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
       else
         {
         vtkErrorMacro( << "An input must be specified to Compute the model bounds.");
-        return VTK_LARGE_FLOAT;
+        return VTK_FLOAT_MAX;
         }
       }
     }

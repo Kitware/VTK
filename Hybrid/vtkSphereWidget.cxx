@@ -31,7 +31,7 @@
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.29");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.30");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -343,7 +343,10 @@ void vtkSphereWidget::SelectRepresentation()
 void vtkSphereWidget::GetSphere(vtkSphere *sphere)
 {
   sphere->SetRadius(this->SphereSource->GetRadius());
-  sphere->SetCenter(this->SphereSource->GetCenter());
+  // TODO: cleanup when spheresource is converted to double
+  sphere->SetCenter(this->SphereSource->GetCenter()[0],
+                    this->SphereSource->GetCenter()[1],
+                    this->SphereSource->GetCenter()[2]);
 }
 
 void vtkSphereWidget::HighlightSphere(int highlight)

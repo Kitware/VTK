@@ -52,15 +52,15 @@ public:
   // Set scale factor to be applied to the displacements.
   // This is used primarily for grids which contain integer
   // data types.  Default: 1
-  vtkSetMacro(DisplacementScale,float);
-  vtkGetMacro(DisplacementScale,float);
+  vtkSetMacro(DisplacementScale,double);
+  vtkGetMacro(DisplacementScale,double);
 
   // Description:
   // Set a shift to be applied to the displacements.  The shift
   // is applied after the scale, i.e. x = scale*y + shift.
   // Default: 0
-  vtkSetMacro(DisplacementShift,float);
-  vtkGetMacro(DisplacementShift,float);
+  vtkSetMacro(DisplacementShift,double);
+  vtkGetMacro(DisplacementShift,double);
 
   // Description:
   // Set interpolation mode for sampling the grid.  Higher-order
@@ -115,20 +115,20 @@ protected:
                                   double derivative[3][3]);
 
 //BTX
-  void (*InterpolationFunction)(float point[3], float displacement[3],
-                                float derivatives[3][3],
+  void (*InterpolationFunction)(double point[3], double displacement[3],
+                                double derivatives[3][3],
                                 void *gridPtr, int gridType,
                                 int inExt[6], int inInc[3]);
 //ETX
   int InterpolationMode;
   vtkImageData *DisplacementGrid;
-  float DisplacementScale;
-  float DisplacementShift;
+  double DisplacementScale;
+  double DisplacementShift;
   
   void *GridPointer;
   int GridScalarType;
-  float GridSpacing[3];
-  float GridOrigin[3];
+  double GridSpacing[3];
+  double GridOrigin[3];
   int GridExtent[6];
   int GridIncrements[3];
 

@@ -158,14 +158,14 @@ public:
   // Description:
   // Set/Get the pixel spacing. 
   // Default: (1.0,1.0,1.0)
-  vtkSetVector3Macro(DataSpacing,float);
-  vtkGetVector3Macro(DataSpacing,float);
+  vtkSetVector3Macro(DataSpacing,double);
+  vtkGetVector3Macro(DataSpacing,double);
   
   // Description:
   // Set/Get the coordinates of the lower, left corner of the frame. 
   // Default: (0.0,0.0,0.0)
-  vtkSetVector3Macro(DataOrigin,float);
-  vtkGetVector3Macro(DataOrigin,float);
+  vtkSetVector3Macro(DataOrigin,double);
+  vtkGetVector3Macro(DataOrigin,double);
 
   // Description:
   // For RGBA output only (4 scalar components), set the opacity.  This
@@ -232,8 +232,8 @@ protected:
   int FrameSize[3];
   int ClipRegion[6];
   int OutputWholeExtent[6];
-  float DataSpacing[3];
-  float DataOrigin[3];
+  double DataSpacing[3];
+  double DataOrigin[3];
   int OutputFormat;
   // set according to the OutputFormat
   int NumberOfScalarComponents;

@@ -19,7 +19,7 @@
 #include "vtkProp3D.h"
 
 
-vtkCxxRevisionMacro(vtkPolyDataSourceWidget, "1.3");
+vtkCxxRevisionMacro(vtkPolyDataSourceWidget, "1.4");
 
 vtkPolyDataSourceWidget::vtkPolyDataSourceWidget() : vtk3DWidget()
 {
@@ -33,25 +33,32 @@ void vtkPolyDataSourceWidget::PlaceWidget()
 
   if ( this->Prop3D )
     {
-      this->Prop3D->GetBounds(bounds);
+    this->Prop3D->GetBounds(bounds);
     }
   else if ( this->Input )
     {
-      this->Input->Update();
-      this->Input->GetBounds(bounds);
+    this->Input->Update();
+    // TODO: cleanup
+    double *dbounds = this->Input->GetBounds();
+    bounds[0] = (float)dbounds[0];
+    bounds[1] = (float)dbounds[1];
+    bounds[2] = (float)dbounds[2];
+    bounds[3] = (float)dbounds[3];
+    bounds[4] = (float)dbounds[4];
+    bounds[5] = (float)dbounds[5];
     }
   else
     {
-      // if Prop3D and Input aren't set, we assume that we're going to
-      // look at what the user has already done with our polydata (and this
-      // should happen in the child PlaceWidget(bounds), but we have to setup
-      // some defaults for misbehaving child classes
-      bounds[0] = -1.0;
-      bounds[1] = 1.0;
-      bounds[2] = -1.0;
-      bounds[3] = 1.0;
-      bounds[4] = -1.0;
-      bounds[5] = 1.0;
+    // if Prop3D and Input aren't set, we assume that we're going to
+    // look at what the user has already done with our polydata (and this
+    // should happen in the child PlaceWidget(bounds), but we have to setup
+    // some defaults for misbehaving child classes
+    bounds[0] = -1.0;
+    bounds[1] = 1.0;
+    bounds[2] = -1.0;
+    bounds[3] = 1.0;
+    bounds[4] = -1.0;
+    bounds[5] = 1.0;
     }
     
   this->PlaceWidget(bounds);

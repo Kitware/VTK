@@ -32,7 +32,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.33");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.34");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -265,7 +265,7 @@ void vtkKitwareContourFilter::StructuredPointsContour(int dim)
   vtkPolyData *output;
   vtkPolyData *thisOutput = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
-  float *values=this->ContourValues->GetValues();
+  double *values=this->ContourValues->GetValues();
 
   if ( dim == 2 )
     {
@@ -334,7 +334,7 @@ void vtkKitwareContourFilter::StructuredGridContour(int dim)
   vtkPolyData *output = NULL;
   vtkPolyData *thisOutput = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
-  float *values=this->ContourValues->GetValues();
+  double *values=this->ContourValues->GetValues();
 
   if ( dim == 3 )
     {
@@ -377,7 +377,7 @@ void vtkKitwareContourFilter::RectilinearGridContour(int dim)
   vtkPolyData *output = NULL;
   vtkPolyData *thisOutput = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
-  float *values=this->ContourValues->GetValues();
+  double *values=this->ContourValues->GetValues();
 
   if ( dim == 3 )
     {
@@ -416,7 +416,7 @@ void vtkKitwareContourFilter::DataSetContour()
 {
   vtkPolyData *output = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
-  float *values=this->ContourValues->GetValues();
+  double *values=this->ContourValues->GetValues();
 
   vtkContourFilter *contour = vtkContourFilter::New();
   contour->SetInput((vtkImageData *)this->GetInput());

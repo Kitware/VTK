@@ -99,26 +99,26 @@ public:
   // Description:
   // Set the decimation error bounds. Expressed as a fraction of the longest
   // side of the input data's bounding box.
-  vtkSetClampMacro(InitialError,float,0.0,1.0);
-  vtkGetMacro(InitialError,float);
+  vtkSetClampMacro(InitialError,double,0.0,1.0);
+  vtkGetMacro(InitialError,double);
 
   // Description:
   // Set the value of the increment by which to increase the decimation
   // error after each iteration.
-  vtkSetClampMacro(ErrorIncrement,float,0.0,1.0);
-  vtkGetMacro(ErrorIncrement,float);
+  vtkSetClampMacro(ErrorIncrement,double,0.0,1.0);
+  vtkGetMacro(ErrorIncrement,double);
 
   // Description:
   // Set the largest decimation error that can be achieved 
   // by incrementing the error.
-  vtkSetClampMacro(MaximumError,float,0.0,1.0);
-  vtkGetMacro(MaximumError,float);
+  vtkSetClampMacro(MaximumError,double,0.0,1.0);
+  vtkGetMacro(MaximumError,double);
 
   // Description:
   // Specify the desired reduction in the total number of polygons. Because
   // of various constraints, this level of reduction may not be realizable.
-  vtkSetClampMacro(TargetReduction,float,0.0,1.0);
-  vtkGetMacro(TargetReduction,float);
+  vtkSetClampMacro(TargetReduction,double,0.0,1.0);
+  vtkGetMacro(TargetReduction,double);
 
   // Description:
   // Specify the maximum number of iterations to attempt. If decimation target
@@ -134,18 +134,18 @@ public:
   
   // Description:
   // Specify the mesh feature angles.
-  vtkSetClampMacro(InitialFeatureAngle,float,0.0,180.0);
-  vtkGetMacro(InitialFeatureAngle,float);
+  vtkSetClampMacro(InitialFeatureAngle,double,0.0,180.0);
+  vtkGetMacro(InitialFeatureAngle,double);
 
   // Description:
   // Set/Get the angle by which to increase feature angle over each iteration.
-  vtkSetClampMacro(FeatureAngleIncrement,float,0.0,180.0);
-  vtkGetMacro(FeatureAngleIncrement,float);
+  vtkSetClampMacro(FeatureAngleIncrement,double,0.0,180.0);
+  vtkGetMacro(FeatureAngleIncrement,double);
 
   // Description:
   // Set the largest permissible feature angle.
-  vtkSetClampMacro(MaximumFeatureAngle,float,0.0,180.0);
-  vtkGetMacro(MaximumFeatureAngle,float);
+  vtkSetClampMacro(MaximumFeatureAngle,double,0.0,180.0);
+  vtkGetMacro(MaximumFeatureAngle,double);
 
   // Description:
   // Turn on/off the generation of error scalars.
@@ -167,8 +167,8 @@ public:
 
   // Description:
   // Specify the maximum allowable aspect ratio during triangulation.
-  vtkSetClampMacro(AspectRatio,float,1.0,1000.0);
-  vtkGetMacro(AspectRatio,float);
+  vtkSetClampMacro(AspectRatio,double,1.0,1000.0);
+  vtkGetMacro(AspectRatio,double);
 
   // Decsription:
   // Turn on/off whether to preserve the topology of the original mesh. If
@@ -203,8 +203,8 @@ protected:
   {
   public:
     vtkIdType     id;
-    float   x[3];
-    float   FAngle;
+    double   x[3];
+    double   FAngle;
     int     deRefs; //monitor memory requirements; new only when necessary
     int     newRefs;
   };
@@ -214,8 +214,8 @@ protected:
   {
   public:
     vtkIdType     id;
-    float   area;
-    float   n[3];
+    double   area;
+    double   n[3];
     vtkIdType     verts[3];
   };
   typedef LocalTri *LocalTriPtr;
@@ -261,18 +261,18 @@ protected:
 
   void Execute();
 
-  float InitialFeatureAngle; // dihedral angle constraint
-  float FeatureAngleIncrement;
-  float MaximumFeatureAngle;
+  double InitialFeatureAngle; // dihedral angle constraint
+  double FeatureAngleIncrement;
+  double MaximumFeatureAngle;
   int PreserveEdges; // do/don't worry about feature edges
   int BoundaryVertexDeletion;  
-  float InitialError; // decimation error in fraction of bounding box
-  float ErrorIncrement; // each iteration will bump error this amount
-  float MaximumError; // maximum error
-  float TargetReduction; //target reduction of mesh (fraction)
+  double InitialError; // decimation error in fraction of bounding box
+  double ErrorIncrement; // each iteration will bump error this amount
+  double MaximumError; // maximum error
+  double TargetReduction; //target reduction of mesh (fraction)
   int MaximumIterations; // maximum number of passes over data
   int MaximumSubIterations; // maximum non-incrementing passes
-  float AspectRatio; // control triangle shape during triangulation
+  double AspectRatio; // control triangle shape during triangulation
   int Degree; // maximum number of triangles incident on vertex
   int Stats[VTK_NUMBER_STATISTICS]; // keep track of interesting statistics
   int GenerateErrorScalars; // turn on/off vertex error scalar generation
@@ -291,7 +291,7 @@ protected:
   int CanSplitLoop(LocalVertexPtr fedges[2], vtkIdType numVerts, 
                    LocalVertexPtr verts[], vtkIdType& n1,
                    LocalVertexPtr l1[], vtkIdType& n2,
-                   LocalVertexPtr l2[], float& ar);
+                   LocalVertexPtr l2[], double& ar);
   void SplitLoop(LocalVertexPtr fedges[2], vtkIdType numVerts, 
                  LocalVertexPtr *verts, vtkIdType& n1,
                  LocalVertexPtr *l1, vtkIdType& n2, LocalVertexPtr *l2);

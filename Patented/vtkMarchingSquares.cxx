@@ -50,7 +50,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingSquares, "1.56");
+vtkCxxRevisionMacro(vtkMarchingSquares, "1.57");
 vtkStandardNewMacro(vtkMarchingSquares);
 
 // Description:
@@ -135,20 +135,20 @@ unsigned long vtkMarchingSquares::GetMTime()
 //
 template <class T>
 void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3],
-                     int start[2], int end[2], int offset[3], float ar[3], 
-                     float origin[3], float *values, int numValues, 
+                     int start[2], int end[2], int offset[3], double ar[3], 
+                     double origin[3], double *values, int numValues, 
                      vtkPointLocator *p, vtkCellArray *lines)
 {
   int i, j;
   vtkIdType ptIds[2];
-  float t, *x1, *x2, x[3], xp, yp;
-  float pts[4][3], min, max;
+  double t, *x1, *x2, x[3], xp, yp;
+  double pts[4][3], min, max;
   int contNum, jOffset, idx, ii, jj, index, *vert;
   static int CASE_MASK[4] = {1,2,8,4};  
   vtkMarchingSquaresLineCases *lineCase, *lineCases;
   static int edges[4][2] = { {0,1}, {1,3}, {2,3}, {0,2} };
   EDGE_LIST  *edge;
-  float value, s[4];
+  double value, s[4];
 
   lineCases = vtkMarchingSquaresLineCases::GetCases();
 //
@@ -272,11 +272,11 @@ void vtkMarchingSquares::Execute()
   vtkDataArray *newScalars = NULL;
   int i, dims[3], roi[6], dataSize, dim, plane=0;
   int *ext;
-  float origin[3], ar[3];
+  double origin[3], ar[3];
   vtkPolyData *output = this->GetOutput();
   int start[2], end[2], offset[3], dir[3], estimatedSize;
   int numContours=this->ContourValues->GetNumberOfContours();
-  float *values=this->ContourValues->GetValues();
+  double *values=this->ContourValues->GetValues();
 
   vtkDebugMacro(<< "Executing marching squares");
 //
@@ -488,7 +488,8 @@ void vtkMarchingSquares::Execute()
       break;
       case VTK_FLOAT:
         {
-        float *scalars = static_cast<vtkFloatArray *>(inScalars)->GetPointer(0);
+        float *scalars = 
+          static_cast<vtkFloatArray *>(inScalars)->GetPointer(0);
         newScalars = vtkFloatArray::New();
         newScalars->Allocate(5000,25000);
         vtkContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
@@ -497,7 +498,8 @@ void vtkMarchingSquares::Execute()
       break;
       case VTK_DOUBLE:
         {
-        double *scalars = static_cast<vtkDoubleArray *>(inScalars)->GetPointer(0);
+        double *scalars = 
+          static_cast<vtkDoubleArray *>(inScalars)->GetPointer(0);
         newScalars = vtkDoubleArray::New();
         newScalars->Allocate(5000,25000);
         vtkContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
@@ -509,13 +511,13 @@ void vtkMarchingSquares::Execute()
 
   else //multiple components - have to convert
     {
-    vtkFloatArray *image = vtkFloatArray::New();
+    vtkDoubleArray *image = vtkDoubleArray::New();
     image->SetNumberOfComponents(inScalars->GetNumberOfComponents());
     image->SetNumberOfTuples(dataSize);
     inScalars->GetTuples(0,dataSize,image);
     newScalars = vtkFloatArray::New();
     newScalars->Allocate(5000,25000);
-    float *scalars = image->GetPointer(0);
+    double *scalars = image->GetPointer(0);
     vtkContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
                     values,numContours,this->Locator,newLines);
     image->Delete();

@@ -35,7 +35,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.45");
+vtkCxxRevisionMacro(vtkLineWidget, "1.46");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget
@@ -500,6 +500,7 @@ void vtkLineWidget::EnablePointWidget()
 {
   // Set up the point widgets
   float x[3];
+  double dx[3];
   if ( this->CurrentHandle ) //picking the handles
     {
     if ( this->CurrentHandle == this->Handle[0] )
@@ -515,11 +516,15 @@ void vtkLineWidget::EnablePointWidget()
     }
   else //picking the line
     {
+    // TODO: kill me now
     this->CurrentPointWidget = this->PointWidget;
-    this->LinePicker->GetPickPosition(x);
-    this->LastPosition[0] = x[0];
-    this->LastPosition[1] = x[1];
-    this->LastPosition[2] = x[2];
+    this->LinePicker->GetPickPosition(dx);
+    this->LastPosition[0] = dx[0];
+    this->LastPosition[1] = dx[1];
+    this->LastPosition[2] = dx[2];
+    x[0] = (float)dx[0];
+    x[1] = (float)dx[1];
+    x[2] = (float)dx[2];    
     }
   
   float bounds[6];

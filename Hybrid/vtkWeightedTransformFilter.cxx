@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.12");
+vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.13");
 vtkStandardNewMacro(vtkWeightedTransformFilter);
 
 // helper functions.  Can't easily get to these in Matrix4x4 as written.
@@ -218,8 +218,8 @@ void vtkWeightedTransformFilter::Execute()
   double inPt[3], xformPt[3], cumPt[3];
   double inVec[3], xformVec[3], cumVec[3];
   double derivMatrix[3][3];
-  float *weights = NULL;
-  float thisWeight;
+  double *weights = NULL;
+  double thisWeight;
   vtkDataArray *pdArray, *cdArray;
   vtkFieldData *fd;
   vtkPointSet *input = this->GetInput();
@@ -381,7 +381,7 @@ void vtkWeightedTransformFilter::Execute()
   // since we may be doing multiple transforms, we must duplicate
   // work done in vtkTransform
 
-  weights = new float[pdArray->GetNumberOfComponents()];
+  weights = new double[pdArray->GetNumberOfComponents()];
 
   // -------------------------- POINT DATA -------------------------------
   if(pdArray != NULL) 
@@ -548,7 +548,7 @@ void vtkWeightedTransformFilter::Execute()
       newCellNormals->Allocate(3*numCells);
       }
 
-    weights = new float[cdArray->GetNumberOfComponents()];
+    weights = new double[cdArray->GetNumberOfComponents()];
 
     for(p = 0; p < numCells; p++)
       {

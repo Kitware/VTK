@@ -29,7 +29,7 @@
 #include "vtkSynchronizedTemplates2D.h"
 #include "vtkSynchronizedTemplates3D.h"
 
-vtkCxxRevisionMacro(vtkKitwareCutter, "1.3");
+vtkCxxRevisionMacro(vtkKitwareCutter, "1.4");
 vtkStandardNewMacro(vtkKitwareCutter);
 
 vtkKitwareCutter::vtkKitwareCutter()
@@ -124,7 +124,7 @@ void vtkKitwareCutter::StructuredPointsCutter()
   
   
   int i;
-  float scalar;
+  double scalar;
   for (i = 0; i < numPts; i++)
     {
     scalar = this->CutFunction->FunctionValue(input->GetPoint(i));
@@ -184,7 +184,7 @@ void vtkKitwareCutter::StructuredGridCutter()
     }
   
   int i;
-  float scalar;
+  double scalar;
   for (i = 0; i < numPts; i++)
     {
     scalar = this->CutFunction->FunctionValue(input->GetPoint(i));
@@ -243,7 +243,7 @@ void vtkKitwareCutter::RectilinearGridCutter()
     }
   
   int i;
-  float scalar;
+  double scalar;
   for (i = 0; i < numPts; i++)
     {
     scalar = this->CutFunction->FunctionValue(input->GetPoint(i));

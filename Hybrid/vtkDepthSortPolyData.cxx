@@ -25,7 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
 
-vtkCxxRevisionMacro(vtkDepthSortPolyData, "1.28");
+vtkCxxRevisionMacro(vtkDepthSortPolyData, "1.29");
 vtkStandardNewMacro(vtkDepthSortPolyData);
 
 vtkCxxSetObjectMacro(vtkDepthSortPolyData,Camera,vtkCamera);
@@ -71,7 +71,7 @@ vtkProp3D *vtkDepthSortPolyData::GetProp3D()
 }
 
 typedef struct _vtkSortValues {
-  float z;
+  double z;
   vtkIdType cellId;
 } vtkSortValues;
 
@@ -126,7 +126,7 @@ void vtkDepthSortPolyData::Execute()
   vtkUnsignedIntArray *sortScalars = NULL;
   unsigned int *scalars = NULL;
   double x[3];
-  float p[3], *bounds, *w = NULL, xf[3];
+  double p[3], *bounds, *w = NULL, xf[3];
   double vector[3];
   double origin[3];
   int type, npts, subId;
@@ -160,7 +160,7 @@ void vtkDepthSortPolyData::Execute()
 
   if ( this->DepthSortMode == VTK_SORT_PARAMETRIC_CENTER )
     {
-    w = new float [input->GetMaxCellSize()];
+    w = new double [input->GetMaxCellSize()];
     }
 
   // Create temporary input
@@ -277,7 +277,7 @@ void vtkDepthSortPolyData::ComputeProjectionVector(double vector[3],
 
   else  //Otherwise, use Prop3D
     {
-    float focalPt[4], pos[4];
+    double focalPt[4], pos[4];
     int i;
 
     this->Transform->SetMatrix(this->Prop3D->GetMatrix());

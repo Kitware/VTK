@@ -87,8 +87,8 @@ public:
 
   // Description:
   // Set/get isosurface contour value.
-  vtkSetMacro(Value,float);
-  vtkGetMacro(Value,float);
+  vtkSetMacro(Value,double);
+  vtkGetMacro(Value,double);
 
   // Description:
   // Specify file name of marching cubes limits file. The limits file
@@ -104,7 +104,7 @@ protected:
 
   vtkVolumeReader *Reader;
   char *FileName;  
-  float Value;
+  double Value;
   char *LimitsFileName;
 
 private:

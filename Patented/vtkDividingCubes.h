@@ -46,7 +46,7 @@
 
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
-class vtkFloatArray;
+class vtkDoubleArray;
 class vtkIdList;
 class vtkVoxel;
 
@@ -59,13 +59,13 @@ public:
 
   // Description:
   // Set isosurface value.
-  vtkSetMacro(Value,float);
-  vtkGetMacro(Value,float);
+  vtkSetMacro(Value,double);
+  vtkGetMacro(Value,double);
 
   // Description:
   // Specify sub-voxel size at which to generate point.
-  vtkSetClampMacro(Distance,float,1.0e-06,VTK_LARGE_FLOAT);
-  vtkGetMacro(Distance,float);
+  vtkSetClampMacro(Distance,double,1.0e-06,VTK_DOUBLE_MAX);
+  vtkGetMacro(Distance,double);
 
   // Description:
   // Every "Increment" point is added to the list of points. This parameter, if
@@ -79,10 +79,10 @@ protected:
   ~vtkDividingCubes();
 
   void Execute();
-  void SubDivide(float origin[3], int dim[3], float h[3], float values[8]);
+  void SubDivide(double origin[3], int dim[3], double h[3], double values[8]);
 
-  float Value;
-  float Distance;
+  double Value;
+  double Distance;
   int Increment;
 
   // working variable
@@ -90,8 +90,8 @@ protected:
 
   vtkIdList *SubVoxelPts;
   vtkVoxel *SubVoxel;
-  vtkFloatArray *SubVoxelScalars;
-  vtkFloatArray *SubVoxelNormals;
+  vtkDoubleArray *SubVoxelScalars;
+  vtkDoubleArray *SubVoxelNormals;
 private:
   vtkDividingCubes(const vtkDividingCubes&);  // Not implemented.
   void operator=(const vtkDividingCubes&);  // Not implemented.

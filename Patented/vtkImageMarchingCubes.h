@@ -72,14 +72,14 @@ public:
   vtkImageData *GetInput();
   
   // Methods to set contour values
-  void SetValue(int i, float value);
-  float GetValue(int i);
-  float *GetValues();
-  void GetValues(float *contourValues);
+  void SetValue(int i, double value);
+  double GetValue(int i);
+  double *GetValues();
+  void GetValues(double *contourValues);
   void SetNumberOfContours(int number);
   int GetNumberOfContours();
-  void GenerateValues(int numContours, float range[2]);
-  void GenerateValues(int numContours, float rangeStart, float rangeEnd);
+  void GenerateValues(int numContours, double range[2]);
+  void GenerateValues(int numContours, double rangeStart, double rangeEnd);
 
   // Because we delegate to vtkContourValues & refer to vtkImplicitFunction
   unsigned long int GetMTime();
@@ -151,7 +151,7 @@ protected:
   void Execute();
 
   void March(vtkImageData *inData, int chunkMin, int chunkMax,
-             int numContours, float *values);
+             int numContours, double *values);
   void InitializeLocator(int min0, int max0, int min1, int max1);
   void DeleteLocator();
   int *GetLocatorPointer(int cellX, int cellY, int edge);
@@ -163,25 +163,25 @@ private:
 // Description:
 // Set a particular contour value at contour number i. The index i ranges 
 // between 0<=i<NumberOfContours.
-inline void vtkImageMarchingCubes::SetValue(int i, float value)
+inline void vtkImageMarchingCubes::SetValue(int i, double value)
 {this->ContourValues->SetValue(i,value);}
 
 // Description:
 // Get the ith contour value.
-inline float vtkImageMarchingCubes::GetValue(int i)
+inline double vtkImageMarchingCubes::GetValue(int i)
 {return this->ContourValues->GetValue(i);}
 
 // Description:
 // Get a pointer to an array of contour values. There will be
 // GetNumberOfContours() values in the list.
-inline float *vtkImageMarchingCubes::GetValues()
+inline double *vtkImageMarchingCubes::GetValues()
 {return this->ContourValues->GetValues();}
 
 // Description:
 // Fill a supplied list with contour values. There will be
 // GetNumberOfContours() values in the list. Make sure you allocate
 // enough memory to hold the list.
-inline void vtkImageMarchingCubes::GetValues(float *contourValues)
+inline void vtkImageMarchingCubes::GetValues(double *contourValues)
 {this->ContourValues->GetValues(contourValues);}
 
 // Description:
@@ -199,14 +199,14 @@ inline int vtkImageMarchingCubes::GetNumberOfContours()
 // Description:
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
-inline void vtkImageMarchingCubes::GenerateValues(int numContours, float range[2])
+inline void vtkImageMarchingCubes::GenerateValues(int numContours, double range[2])
 {this->ContourValues->GenerateValues(numContours, range);}
 
 // Description:
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
-inline void vtkImageMarchingCubes::GenerateValues(int numContours, float
-                                                 rangeStart, float rangeEnd)
+inline void vtkImageMarchingCubes::GenerateValues(int numContours, double
+                                                 rangeStart, double rangeEnd)
 {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
 #endif

@@ -28,7 +28,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkLegendBoxActor, "1.28");
+vtkCxxRevisionMacro(vtkLegendBoxActor, "1.29");
 vtkStandardNewMacro(vtkLegendBoxActor);
 
 vtkCxxSetObjectMacro(vtkLegendBoxActor,EntryTextProperty,vtkTextProperty);
@@ -308,13 +308,13 @@ void vtkLegendBoxActor::SetEntryColor(int i, float color[3])
 {
   if ( i >= 0 && i < this->NumberOfEntries )
     {
-    float oldColor[3];
+    double oldColor[3];
     this->Colors->GetTuple(i, oldColor);
     
     if ( oldColor[0] != color[0] || oldColor[1] != color[1] || 
          oldColor[2] != color[2] )
       {
-      this->Colors->SetTuple(i,color);
+      this->Colors->SetTuple3(i,color[0],color[1],color[2]);
       this->Modified(); 
       }
     }
@@ -363,7 +363,7 @@ float* vtkLegendBoxActor::GetEntryColor(int i)
     }
   else
     {
-    return this->Colors->GetTuple(i);
+    return vtkFloatArray::SafeDownCast(this->Colors)->GetPointer(i*3);
     }
 }
 
@@ -479,7 +479,8 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     int maxTextMapper = 0;
     char *str;
     int tempi[2], fontSize;
-    float sf, twr, swr, *bounds;
+    float sf, twr, swr;
+    double *bounds;
     for (swr=0.0, maxLength=i=0; i<this->NumberOfEntries; i++)
       {
       str = this->TextMapper[i]->GetInput();
@@ -563,7 +564,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       }
 
     //Place text strings
-    float color[3];
+    double color[3];
     float posY;
     float posX = p1[0] + this->Padding + 
                  symbolSize*(p2[0] - p1[0] - 2.0*this->Padding);
@@ -576,7 +577,9 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->Colors->GetTuple(i, color);
       if ( color[0] >= 0.0 && color[1] >= 0.0 && color[2] >= 0.0 )
         {
-        this->TextMapper[i]->GetTextProperty()->SetColor(color);
+        this->TextMapper[i]->GetTextProperty()->SetColor(color[0],
+                                                         color[1],
+                                                         color[2]);
         }
       }
     
@@ -624,7 +627,9 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
         this->Colors->GetTuple(i, color);
         if ( color[0] >= 0.0 && color[1] >= 0.0 && color[2] >= 0.0 )
           {
-          this->SymbolActor[i]->GetProperty()->SetColor(color);
+          this->SymbolActor[i]->GetProperty()->SetColor(color[0],
+                                                        color[1],
+                                                        color[2]);
           }
         }//if symbol defined
       }//for all entries

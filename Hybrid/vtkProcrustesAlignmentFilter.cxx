@@ -19,7 +19,7 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.14");
+vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.15");
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ vtkProcrustesAlignmentFilter::~vtkProcrustesAlignmentFilter()
 
 //----------------------------------------------------------------------------
 // Calculate the centroid of a point cloud
-static inline void Centroid(vtkPoints* pd, float *cp)
+static inline void Centroid(vtkPoints* pd, double *cp)
 {
   // Center point
   cp[0] = 0; cp[1] = 0; cp[2] = 0;
@@ -57,7 +57,7 @@ static inline void Centroid(vtkPoints* pd, float *cp)
   // Calculate center of shape
   for (int i = 0; i < np; i++)
     {
-    float p[3];
+    double p[3];
     pd->GetPoint(i, p);
     cp[0] += p[0]; cp[1] += p[1]; cp[2] += p[2];
     }
@@ -66,14 +66,14 @@ static inline void Centroid(vtkPoints* pd, float *cp)
 
 //----------------------------------------------------------------------------
 // Calculate the centroid size of a point cloud
-static inline double CentroidSize(vtkPoints* pd, float *cp)
+static inline double CentroidSize(vtkPoints* pd, double *cp)
 {
   Centroid(pd, cp);
   
   double S = 0;
   for (int i = 0; i < pd->GetNumberOfPoints(); i++)
     {
-    float p[3];
+    double p[3];
     pd->GetPoint(i, p);
     S += vtkMath::Distance2BetweenPoints(p,cp);
   }
@@ -83,11 +83,11 @@ static inline double CentroidSize(vtkPoints* pd, float *cp)
 
 //----------------------------------------------------------------------------
 // Translation of point cloud. Could be done using transformations
-static inline void TranslateShape(vtkPoints* pd, float *tp)
+static inline void TranslateShape(vtkPoints* pd, double *tp)
 {
   for (int i = 0; i < pd->GetNumberOfPoints(); i++)
     {
-    float p[3];
+    double p[3];
     pd->GetPoint(i, p);
     pd->SetPoint(i, p[0]+tp[0], p[1]+tp[1], p[2]+tp[2]);
     }
@@ -99,7 +99,7 @@ static inline void ScaleShape(vtkPoints* pd, double S)
 {
   for (int i = 0; i < pd->GetNumberOfPoints(); i++)
     {
-    float p[3];
+    double p[3];
     pd->GetPoint(i, p);
     pd->SetPoint(i, p[0]*S, p[1]*S, p[2]*S);
     }
@@ -109,12 +109,12 @@ static inline void ScaleShape(vtkPoints* pd, double S)
 // Normalise a point cloud to have centroid (0,0,0) and centroid size 1
 static inline int NormaliseShape(vtkPoints* pd)
 {
-  float cp[3];
+  double cp[3];
   double S = CentroidSize(pd, cp);
   if (S == 0)
     return 0;
   
-  float tp[3];
+  double tp[3];
   tp[0] = -cp[0]; tp[1] = -cp[1]; tp[2] = -cp[2]; 
   TranslateShape(pd, tp);
   ScaleShape(pd, 1/S);
@@ -199,9 +199,9 @@ void vtkProcrustesAlignmentFilter::Execute()
   int converged=0; // bool converged=false
   int iterations=0;
   const int MAX_ITERATIONS=5;
-  float difference; 
-  float point[3],p[3],p2[3];
-  float outPoint[3];
+  double difference; 
+  double point[3],p[3],p2[3];
+  double outPoint[3];
   do { // (while not converged)
 
     // align each pointset with the mean
@@ -231,9 +231,9 @@ void vtkProcrustesAlignmentFilter::Execute()
         point[1]+=p[1];
         point[2]+=p[2];
         }
-      p[0] = point[0]/(float)N_SETS;
-      p[1] = point[1]/(float)N_SETS;
-      p[2] = point[2]/(float)N_SETS;
+      p[0] = point[0]/(double)N_SETS;
+      p[1] = point[1]/(double)N_SETS;
+      p[2] = point[2]/(double)N_SETS;
       new_mean->SetPoint(v, p);
       }
 

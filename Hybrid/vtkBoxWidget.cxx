@@ -34,7 +34,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.41");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.42");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -445,14 +445,15 @@ void vtkBoxWidget::PositionHandles()
   VTK_AVERAGE(p0,p6,x);
   this->Points->SetPoint(14, x);
 
-  this->HandleGeometry[0]->SetCenter(this->Points->GetPoint(8));
-  this->HandleGeometry[1]->SetCenter(this->Points->GetPoint(9));
-  this->HandleGeometry[2]->SetCenter(this->Points->GetPoint(10));
-  this->HandleGeometry[3]->SetCenter(this->Points->GetPoint(11));
-  this->HandleGeometry[4]->SetCenter(this->Points->GetPoint(12));
-  this->HandleGeometry[5]->SetCenter(this->Points->GetPoint(13));
-  this->HandleGeometry[6]->SetCenter(this->Points->GetPoint(14));
- 
+  // TODO clean this up as double change progresses farther
+  int i;
+  for (i = 0; i < 7; ++i)
+    {
+    this->HandleGeometry[i]->SetCenter(this->Points->GetPoint(8+i)[0],
+                                       this->Points->GetPoint(8+i)[1],
+                                       this->Points->GetPoint(8+i)[2]);
+    }
+  
   this->HexFacePolyData->Modified();
   this->HexPolyData->Modified();
   this->GenerateOutline();

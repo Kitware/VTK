@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.18");
+vtkCxxRevisionMacro(vtkPointWidget, "1.19");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -266,7 +266,7 @@ int vtkPointWidget::DetermineConstraintAxis(int constraint, double *x)
   // outside the hot spot
   if ( ! this->WaitingForMotion )
     {
-    float p[3], d2, tol;
+    double p[3], d2, tol;
     this->CursorPicker->GetPickPosition(p);
     d2 = vtkMath::Distance2BetweenPoints(p,this->LastPickPosition);
     tol = this->HotSpotSize*this->InitialLength;

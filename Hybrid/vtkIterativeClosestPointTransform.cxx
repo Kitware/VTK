@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkIterativeClosestPointTransform, "1.13");
+vtkCxxRevisionMacro(vtkIterativeClosestPointTransform, "1.14");
 vtkStandardNewMacro(vtkIterativeClosestPointTransform);
 
 //----------------------------------------------------------------------------
@@ -320,11 +320,11 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
 
   vtkIdType i;
   int j;
-  float p1[3], p2[3];
+  double p1[3], p2[3];
 
   if (StartByMatchingCentroids)
     {
-    float source_centroid[3] = {0,0,0};
+    double source_centroid[3] = {0,0,0};
     for (i = 0; i < this->Source->GetNumberOfPoints(); i++)
       {
       this->Source->GetPoint(i, p1);
@@ -336,7 +336,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
     source_centroid[1] /= this->Source->GetNumberOfPoints();
     source_centroid[2] /= this->Source->GetNumberOfPoints();
 
-    float target_centroid[3] = {0,0,0};
+    double target_centroid[3] = {0,0,0};
     for (i = 0; i < this->Target->GetNumberOfPoints(); i++)
       {
       this->Target->GetPoint(i, p2);
@@ -355,7 +355,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
 
     for (i = 0, j = 0; i < nb_points; i++, j += step)
       {
-      float outPoint[3];
+      double outPoint[3];
       accumulate->InternalTransformPoint(this->Source->GetPoint(j),
                                          outPoint);
       points1->SetPoint(i, outPoint);
@@ -373,8 +373,8 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
   
   vtkIdType cell_id;
   int sub_id;
-  float dist2, totaldist = 0;
-  float outPoint[3];
+  double dist2, totaldist = 0;
+  double outPoint[3];
 
   vtkPoints *temp, *a = points1, *b = points2;
 
@@ -438,9 +438,9 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
       {
       if (this->MeanDistanceMode == VTK_ICP_MODE_RMS) 
         {
-        this->MeanDistance = sqrt(totaldist / (float)nb_points);
+        this->MeanDistance = sqrt(totaldist / (double)nb_points);
         } else {
-        this->MeanDistance = totaldist / (float)nb_points;
+        this->MeanDistance = totaldist / (double)nb_points;
         }
       vtkDebugMacro("Mean distance: " << this->MeanDistance);
       if (this->MeanDistance <= this->MaximumMeanDistance)

@@ -79,11 +79,11 @@ public:
   vtkGetObjectMacro(Transforms, vtkTransformCollection);
 
   // Description:
-  // Voxels are initialized to this value. By default a large floating point
+  // Voxels are initialized to this value. By default a large doubleing point
   // value is used, since the scalar values are assumed to be a distance 
   // function.
-  vtkSetMacro(FillValue,float);
-  vtkGetMacro(FillValue,float);
+  vtkSetMacro(FillValue,double);
+  vtkGetMacro(FillValue,double);
 
   // Description:
   // Value specifies/controls interpolation between the nodes (i.e., 
@@ -121,10 +121,10 @@ public:
   // motion of the geometry along the path. If the model bounds are set to
   // all zero values, the model bounds will be computed automatically from
   // the input geometry and path.
-  vtkSetVectorMacro(ModelBounds,float,6);
-  vtkGetVectorMacro(ModelBounds,float,6);
-  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, 
-                      float zmin, float zmax);
+  vtkSetVectorMacro(ModelBounds,double,6);
+  vtkGetVectorMacro(ModelBounds,double,6);
+  void SetModelBounds(double xmin, double xmax, double ymin, double ymax, 
+                      double zmin, double zmax);
 
   // Description:
   // Control how the model bounds are computed. If the ivar AdjustBounds
@@ -139,8 +139,8 @@ public:
   // Specify the amount to grow the model bounds (if the ivar AdjustBounds
   // is set). The value is a fraction of the maximum length of the sides
   // of the box specified by the model bounds.
-  vtkSetClampMacro(AdjustDistance,float,-1.0,1.0);
-  vtkGetMacro(AdjustDistance,float);
+  vtkSetClampMacro(AdjustDistance,double,-1.0,1.0);
+  vtkGetMacro(AdjustDistance,double);
 
   //overload to check transformation matrices
   unsigned long int GetMTime();
@@ -155,29 +155,29 @@ protected:
     this->vtkImageToImageFilter::ExecuteInformation();};
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
 
-  void ComputeBounds(float origin[3], float ar[3], float bbox[24]);
-  int ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2, float bbox[24]);
-  void SampleInput(vtkMatrix4x4 *m, int inDim[3], float inOrigin[3],
-                   float inAr[3], vtkDataArray *in, vtkDataArray *out);
-  void ComputeFootprint (vtkMatrix4x4 *m, int inDim[3], float inOrigin[3],
-                         float inSpacing[3], int Indicies[6]);
+  void ComputeBounds(double origin[3], double ar[3], double bbox[24]);
+  int ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2, double bbox[24]);
+  void SampleInput(vtkMatrix4x4 *m, int inDim[3], double inOrigin[3],
+                   double inAr[3], vtkDataArray *in, vtkDataArray *out);
+  void ComputeFootprint (vtkMatrix4x4 *m, int inDim[3], double inOrigin[3],
+                         double inSpacing[3], int Indicies[6]);
   void Cap(vtkDataArray *s);
-  void GetRelativePosition(vtkTransform &t, float *origin, float *position);
+  void GetRelativePosition(vtkTransform &t, double *origin, double *position);
   vtkMatrix4x4* GetActorMatrixPointer(vtkTransform &t,
-                                      float origin[3],
-                                     float position[3], float orientation[3]);
-  virtual void InterpolateStates(float *pos1, float *pos2, float *euler1, 
-                                 float *euler2, float t, float *posOut,
-                                 float *eulerOut);
+                                      double origin[3],
+                                     double position[3], double orientation[3]);
+  virtual void InterpolateStates(double *pos1, double *pos2, double *euler1, 
+                                 double *euler2, double t, double *posOut,
+                                 double *eulerOut);
 
   int SampleDimensions[3];
-  float FillValue;
-  float ModelBounds[6];
+  double FillValue;
+  double ModelBounds[6];
   int NumberOfInterpolationSteps;
   int MaximumNumberOfInterpolationSteps;
   int Capping;
   int AdjustBounds;
-  float AdjustDistance;
+  double AdjustDistance;
 
   vtkTransformCollection *Transforms;
 

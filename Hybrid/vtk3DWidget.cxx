@@ -22,7 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.16");
+vtkCxxRevisionMacro(vtk3DWidget, "1.17");
 
 vtkCxxSetObjectMacro(vtk3DWidget,Prop3D,vtkProp3D);
 vtkCxxSetObjectMacro(vtk3DWidget,Input,vtkDataSet);
@@ -64,7 +64,14 @@ void vtk3DWidget::PlaceWidget()
   else if ( this->Input )
     {
     this->Input->Update();
-    this->Input->GetBounds(bounds);
+    // TODO cleanup
+    double *dbounds = this->Input->GetBounds();
+    bounds[0] = static_cast<float>(dbounds[0]);
+    bounds[1] = static_cast<float>(dbounds[1]);
+    bounds[2] = static_cast<float>(dbounds[2]);
+    bounds[3] = static_cast<float>(dbounds[3]);
+    bounds[4] = static_cast<float>(dbounds[4]);
+    bounds[5] = static_cast<float>(dbounds[5]);
     }
   else
     {

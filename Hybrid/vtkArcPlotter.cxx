@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkArcPlotter, "1.22");
+vtkCxxRevisionMacro(vtkArcPlotter, "1.23");
 vtkStandardNewMacro(vtkArcPlotter);
 
 vtkCxxSetObjectMacro(vtkArcPlotter,Camera,vtkCamera);
@@ -72,11 +72,11 @@ void vtkArcPlotter::Execute()
   vtkCellArray *inLines;
   int j;
   vtkIdType numPts, i;
-  float x[3], normal[3], point[3], aveNormal[3];
+  double x[3], normal[3], point[3], aveNormal[3];
   int id;
   vtkIdType *pts = 0;
   vtkIdType npts = 0;
-  float x1[3], x2[3], x21[3], n[3];
+  double x1[3], x2[3], x21[3], n[3];
   vtkFloatArray *lineNormals;
   vtkPoints *newPts;
   vtkCellArray *newLines;
@@ -116,7 +116,7 @@ void vtkArcPlotter::Execute()
   // and defulat normal is not desired.
   if ( this->Camera && ! this->UseDefaultNormal )
     {
-    float xProj[3];
+    double xProj[3];
     projPts = vtkPoints::New();
     projPts->SetNumberOfPoints(numPts);
     this->Camera->GetViewPlaneNormal(normal);
@@ -322,7 +322,7 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
     }
   
   this->DataRange = new float [2*this->NumberOfComponents];
-  this->Tuple = new float [this->NumberOfComponents];
+  this->Tuple = new double [this->NumberOfComponents];
 
   for (i=this->StartComp; i <= this->EndComp; i++)
     {
@@ -353,11 +353,11 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
 }
 
 
-int  vtkArcPlotter::OffsetPoint(vtkIdType ptId, vtkPoints *inPts, float n[3], 
+int  vtkArcPlotter::OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3], 
                                 vtkPoints *newPts, float offset, float *range,
                                 float v)
 {
-  float x[3], xNew[3];
+  double x[3], xNew[3];
   int i;
   float median = (range[0] + range[1])/2.0;
   float denom = range[1] - range[0];

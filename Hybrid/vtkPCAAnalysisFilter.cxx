@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.8");
+vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.9");
 vtkStandardNewMacro(vtkPCAAnalysisFilter);
 
 //------------------------------------------------------------------------
@@ -232,7 +232,7 @@ void vtkPCAAnalysisFilter::Execute()
   
   for (i = 0; i < n; i++) {
     for (int j = 0; j < s; j++) {
-      float p[3];
+      double p[3];
       this->GetInput(j)->GetPoint(i, p);
       D[i*3  ][j] = p[0];
       D[i*3+1][j] = p[1];
@@ -343,7 +343,7 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray 
   
   // Copy shape and subtract mean shape
   for (i = 0; i < n; i++) {
-    float p[3];
+    double p[3];
     shape->GetPoint(i, p);
     shapevec[i*3  ] = p[0] - meanshape[i*3];
     shapevec[i*3+1] = p[1] - meanshape[i*3+1];
@@ -440,17 +440,17 @@ void vtkPCAAnalysisFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // public
-int vtkPCAAnalysisFilter::GetModesRequiredFor(float proportion)
+int vtkPCAAnalysisFilter::GetModesRequiredFor(double proportion)
 {
   int i;
 
-  float eigen_total = 0.0F;
+  double eigen_total = 0.0F;
   for(i=0;i<this->Evals->GetNumberOfTuples();i++)
     {
     eigen_total += this->Evals->GetValue(i);
     }
 
-  float running_total = 0.0F;
+  double running_total = 0.0F;
   for(i=0;i<this->Evals->GetNumberOfTuples();i++)
     {
     running_total += this->Evals->GetValue(i)/eigen_total;

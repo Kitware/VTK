@@ -144,8 +144,8 @@ public:
   // The error is an absolute number--the image spacing and
   // dimensions are used to create points so the error should be
   // consistent with the image size.
-  vtkSetClampMacro(DecimationError,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(DecimationError,float);
+  vtkSetClampMacro(DecimationError,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(DecimationError,double);
   
   // Description:
   // Specify the error value between two colors where the colors are 
@@ -174,19 +174,19 @@ protected:
   int Smoothing;
   int NumberOfSmoothingIterations;
   int Decimation;
-  float DecimationError;
+  double DecimationError;
   int Error;
   int SubImageSize;
   vtkScalarsToColors *LookupTable;
 
   virtual void PixelizeImage(vtkUnsignedCharArray *pixels, int dims[3], 
-                             float origin[3], float spacing[3], 
+                             double origin[3], double spacing[3], 
                              vtkPolyData *output);
   virtual void PolygonalizeImage(vtkUnsignedCharArray *pixels, int dims[3], 
-                                 float origin[3], float spacing[3], 
+                                 double origin[3], double spacing[3], 
                                  vtkPolyData *output);
   virtual void RunLengthImage(vtkUnsignedCharArray *pixels, int dims[3], 
-                              float origin[3], float spacing[3], 
+                              double origin[3], double spacing[3], 
                               vtkPolyData *output);
 private:
   vtkUnsignedCharArray *Table;      // color table used to quantize points
@@ -204,14 +204,14 @@ private:
   vtkUnsignedCharArray *QuantizeImage(vtkDataArray *inScalars, int numComp,
                                           int type, int dims[3], int ext[4]);
   int ProcessImage(vtkUnsignedCharArray *pixels, int dims[2]);
-  int BuildEdges(vtkUnsignedCharArray *pixels, int dims[3], float origin[3],
-                 float spacing[3], vtkUnsignedCharArray *pointDescr, 
+  int BuildEdges(vtkUnsignedCharArray *pixels, int dims[3], double origin[3],
+                 double spacing[3], vtkUnsignedCharArray *pointDescr, 
                  vtkPolyData *edges);
   void BuildPolygons(vtkUnsignedCharArray *pointDescr, vtkPolyData *edges,
                      int numPolys, vtkUnsignedCharArray *polyColors);
   void SmoothEdges(vtkUnsignedCharArray *pointDescr, vtkPolyData *edges);
   void DecimateEdges(vtkPolyData *edges, vtkUnsignedCharArray *pointDescr,
-                     float tol2);
+                     double tol2);
   void GeneratePolygons(vtkPolyData *edges, int numPolys, vtkPolyData *output,
                         vtkUnsignedCharArray *polyColors,
                         vtkUnsignedCharArray *pointDescr);

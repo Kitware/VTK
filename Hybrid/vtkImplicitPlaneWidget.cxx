@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.20");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.21");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -753,8 +753,8 @@ void vtkImplicitPlaneWidget::Rotate(int X, int Y, double *p1, double *p2, double
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
-  float *origin = this->Plane->GetOrigin();
-  float *normal = this->Plane->GetNormal();
+  double *origin = this->Plane->GetOrigin();
+  double *normal = this->Plane->GetNormal();
 
   // Create axis of rotation and angle of rotation
   vtkMath::Cross(vpn,v,axis);
@@ -773,7 +773,7 @@ void vtkImplicitPlaneWidget::Rotate(int X, int Y, double *p1, double *p2, double
   this->Transform->Translate(-origin[0],-origin[1],-origin[2]);
 
   //Set the new normal
-  float nNew[3];
+  double nNew[3];
   this->Transform->TransformNormal(normal,nNew);
   this->Plane->SetNormal(nNew);
   
@@ -790,8 +790,8 @@ void vtkImplicitPlaneWidget::TranslatePlane(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
   
   //Translate the plane
-  float oNew[3];
-  float *origin = this->Plane->GetOrigin();
+  double oNew[3];
+  double *origin = this->Plane->GetOrigin();
   oNew[0] = origin[0] + v[0];
   oNew[1] = origin[1] + v[1];
   oNew[2] = origin[2] + v[2];
@@ -810,8 +810,8 @@ void vtkImplicitPlaneWidget::TranslateOutline(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
   
   //Translate the bounding box
-  float *origin = this->Box->GetOrigin();
-  float oNew[3];
+  double *origin = this->Box->GetOrigin();
+  double oNew[3];
   oNew[0] = origin[0] + v[0];
   oNew[1] = origin[1] + v[1];
   oNew[2] = origin[2] + v[2];
@@ -837,16 +837,16 @@ void vtkImplicitPlaneWidget::TranslateOrigin(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
   
   //Add to the current point, project back down onto plane
-  float *o = this->Plane->GetOrigin();
-  float *n = this->Plane->GetNormal();
-  float newOrigin[3];
+  double *o = this->Plane->GetOrigin();
+  double *n = this->Plane->GetNormal();
+  double newOrigin[3];
 
   newOrigin[0] = o[0] + v[0];
   newOrigin[1] = o[1] + v[1];
   newOrigin[2] = o[2] + v[2];
   
   vtkPlane::ProjectPoint(newOrigin,o,n,newOrigin);
-  this->SetOrigin(newOrigin);
+  this->SetOrigin(newOrigin[0],newOrigin[1],newOrigin[2]);
   this->UpdateRepresentation();
 }
 
@@ -860,7 +860,7 @@ void vtkImplicitPlaneWidget::Scale(double *p1, double *p2,
   v[2] = p2[2] - p1[2];
 
   //int res = this->PlaneSource->GetXResolution();
-  float *o = this->Plane->GetOrigin();
+  double *o = this->Plane->GetOrigin();
 
   // Compute the scale factor
   float sf = vtkMath::Norm(v) / this->Outline->GetOutput()->GetLength();
@@ -878,9 +878,9 @@ void vtkImplicitPlaneWidget::Scale(double *p1, double *p2,
   this->Transform->Scale(sf,sf,sf);
   this->Transform->Translate(-o[0],-o[1],-o[2]);
 
-  float *origin = this->Box->GetOrigin();
-  float *spacing = this->Box->GetSpacing();
-  float oNew[3], p[3], pNew[3];
+  double *origin = this->Box->GetOrigin();
+  double *spacing = this->Box->GetSpacing();
+  double oNew[3], p[3], pNew[3];
   p[0] = origin[0] + spacing[0];
   p[1] = origin[1] + spacing[1];
   p[2] = origin[2] + spacing[2];
@@ -889,7 +889,9 @@ void vtkImplicitPlaneWidget::Scale(double *p1, double *p2,
   this->Transform->TransformPoint(p,pNew);
 
   this->Box->SetOrigin(oNew);
-  this->Box->SetSpacing( (pNew[0]-oNew[0]), (pNew[1]-oNew[1]), (pNew[2]-oNew[2]) );
+  this->Box->SetSpacing( (pNew[0]-oNew[0]), 
+                         (pNew[1]-oNew[1]), 
+                         (pNew[2]-oNew[2]) );
 
   this->UpdateRepresentation();
 }
@@ -897,13 +899,16 @@ void vtkImplicitPlaneWidget::Scale(double *p1, double *p2,
 void vtkImplicitPlaneWidget::Push(double *p1, double *p2)
 {
   //Get the motion vector
-  float v[3];
+  double v[3];
   v[0] = p2[0] - p1[0];
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
   
   this->Plane->Push( vtkMath::Dot(v,this->Plane->GetNormal()) );
-  this->SetOrigin(this->Plane->GetOrigin());
+  // TODO: cleanup
+  this->SetOrigin(this->Plane->GetOrigin()[0],
+                  this->Plane->GetOrigin()[1],
+                  this->Plane->GetOrigin()[2]);
   this->UpdateRepresentation();
 }
 
@@ -958,7 +963,10 @@ void vtkImplicitPlaneWidget::PlaceWidget(float bds[6])
 
   if (this->Input || this->Prop3D)
     {
-    this->LineSource->SetPoint1(this->Plane->GetOrigin());
+    // TODO cleanup
+    this->LineSource->SetPoint1(this->Plane->GetOrigin()[0],
+                                this->Plane->GetOrigin()[1],
+                                this->Plane->GetOrigin()[2]);
     if ( this->NormalToYAxis )
       {
       this->Plane->SetNormal(0,1,0);
@@ -990,9 +998,9 @@ void vtkImplicitPlaneWidget::PlaceWidget(float bds[6])
 
 // Description:
 // Set the origin of the plane.
-void vtkImplicitPlaneWidget::SetOrigin(float x, float y, float z) 
+void vtkImplicitPlaneWidget::SetOrigin(double x, double y, double z) 
 {
-  float origin[3];
+  double origin[3];
   origin[0] = x;
   origin[1] = y;
   origin[2] = z;
@@ -1001,9 +1009,9 @@ void vtkImplicitPlaneWidget::SetOrigin(float x, float y, float z)
 
 // Description:
 // Set the origin of the plane.
-void vtkImplicitPlaneWidget::SetOrigin(float x[3]) 
+void vtkImplicitPlaneWidget::SetOrigin(double x[3]) 
 {
-  float *bounds = this->Outline->GetOutput()->GetBounds();
+  double *bounds = this->Outline->GetOutput()->GetBounds();
   for (int i=0; i<3; i++)
     {
     if ( x[i] < bounds[2*i] )
@@ -1021,21 +1029,21 @@ void vtkImplicitPlaneWidget::SetOrigin(float x[3])
 
 // Description:
 // Get the origin of the plane.
-float* vtkImplicitPlaneWidget::GetOrigin() 
+double* vtkImplicitPlaneWidget::GetOrigin() 
 {
   return this->Plane->GetOrigin();
 }
 
-void vtkImplicitPlaneWidget::GetOrigin(float xyz[3]) 
+void vtkImplicitPlaneWidget::GetOrigin(double xyz[3]) 
 {
   this->Plane->GetOrigin(xyz);
 }
 
 // Description:
 // Set the normal to the plane.
-void vtkImplicitPlaneWidget::SetNormal(float x, float y, float z) 
+void vtkImplicitPlaneWidget::SetNormal(double x, double y, double z) 
 {
-  float n[3];
+  double n[3];
   n[0] = x;
   n[1] = y;
   n[2] = z;
@@ -1046,19 +1054,19 @@ void vtkImplicitPlaneWidget::SetNormal(float x, float y, float z)
 
 // Description:
 // Set the normal to the plane.
-void vtkImplicitPlaneWidget::SetNormal(float n[3]) 
+void vtkImplicitPlaneWidget::SetNormal(double n[3]) 
 {
   this->SetNormal(n[0], n[1], n[2]);
 }
 
 // Description:
 // Get the normal to the plane.
-float* vtkImplicitPlaneWidget::GetNormal() 
+double* vtkImplicitPlaneWidget::GetNormal() 
 {
   return this->Plane->GetNormal();
 }
 
-void vtkImplicitPlaneWidget::GetNormal(float xyz[3]) 
+void vtkImplicitPlaneWidget::GetNormal(double xyz[3]) 
 {
   this->Plane->GetNormal(xyz);
 }
@@ -1163,8 +1171,8 @@ void vtkImplicitPlaneWidget::UpdateRepresentation()
     return;
     }
 
-  float *origin = this->Plane->GetOrigin();
-  float *normal = this->Plane->GetNormal();
+  double *origin = this->Plane->GetOrigin();
+  double *normal = this->Plane->GetNormal();
   float p2[3];
 
   // Setup the plane normal
@@ -1174,22 +1182,23 @@ void vtkImplicitPlaneWidget::UpdateRepresentation()
   p2[1] = origin[1] + 0.30 * d * normal[1];
   p2[2] = origin[2] + 0.30 * d * normal[2];
 
-  this->LineSource->SetPoint1(origin);
+  // TODO cleanup
+  this->LineSource->SetPoint1(origin[0],origin[1],origin[2]);
   this->LineSource->SetPoint2(p2);
   this->ConeSource->SetCenter(p2);
-  this->ConeSource->SetDirection(normal);
+  this->ConeSource->SetDirection(normal[0],normal[1],normal[2]);
 
   p2[0] = origin[0] - 0.30 * d * normal[0];
   p2[1] = origin[1] - 0.30 * d * normal[1];
   p2[2] = origin[2] - 0.30 * d * normal[2];
 
-  this->LineSource2->SetPoint1(origin);
+  this->LineSource2->SetPoint1(origin[0],origin[1],origin[2]);
   this->LineSource2->SetPoint2(p2);
   this->ConeSource2->SetCenter(p2);
-  this->ConeSource2->SetDirection(normal);
+  this->ConeSource2->SetDirection(normal[0],normal[1],normal[2]);
 
   // Set up the position handle
-  this->Sphere->SetCenter(origin);
+  this->Sphere->SetCenter(origin[0],origin[1],origin[2]);
 
   // Control the look of the edges
   if ( this->Tubing )

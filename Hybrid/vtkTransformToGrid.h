@@ -47,20 +47,20 @@ public:
 
   // Description:
   // Get/Set the origin of the grid.
-  vtkSetVector3Macro(GridOrigin,float);
-  vtkGetVector3Macro(GridOrigin,float);
+  vtkSetVector3Macro(GridOrigin,double);
+  vtkGetVector3Macro(GridOrigin,double);
 
   // Description:
   // Get/Set the spacing between samples in the grid.
-  vtkSetVector3Macro(GridSpacing,float);
-  vtkGetVector3Macro(GridSpacing,float);
+  vtkSetVector3Macro(GridSpacing,double);
+  vtkGetVector3Macro(GridSpacing,double);
 
   // Description:
   // Get/Set the scalar type of the grid.  The default is
-  // float.
+  // double.
   vtkSetMacro(GridScalarType,int);
   vtkGetMacro(GridScalarType,int);
-  void SetGridScalarTypeToFloat(){this->SetGridScalarType(VTK_FLOAT);};
+  void SetGridScalarTypeToFloat(){this->SetGridScalarType(VTK_DOUBLE);};
   void SetGridScalarTypeToShort(){this->SetGridScalarType(VTK_SHORT);};
   void SetGridScalarTypeToUnsignedShort()
     {this->SetGridScalarType(VTK_UNSIGNED_SHORT);};
@@ -71,11 +71,11 @@ public:
 
   // Description:
   // Get the scale and shift to convert integer grid elements into
-  // real values:  dx = scale*di + shift.  If the grid is of float type,
+  // real values:  dx = scale*di + shift.  If the grid is of double type,
   // then scale = 1 and shift = 0.
-  float GetDisplacementScale() {
+  double GetDisplacementScale() {
     this->UpdateShiftScale(); return this->DisplacementScale; };
-  float GetDisplacementShift() {
+  double GetDisplacementShift() {
     this->UpdateShiftScale(); return this->DisplacementShift; };
 
 protected:
@@ -97,11 +97,11 @@ protected:
 
   int GridScalarType;
   int GridExtent[6];
-  float GridOrigin[3];
-  float GridSpacing[3];
+  double GridOrigin[3];
+  double GridSpacing[3];
 
-  float DisplacementScale;
-  float DisplacementShift;
+  double DisplacementScale;
+  double DisplacementShift;
   vtkTimeStamp ShiftScaleTime;
 private:
   vtkTransformToGrid(const vtkTransformToGrid&);  // Not implemented.

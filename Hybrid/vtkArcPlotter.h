@@ -136,7 +136,7 @@ protected:
   ~vtkArcPlotter();
 
   void Execute();
-  int  OffsetPoint(vtkIdType ptId, vtkPoints *inPts, float n[3],
+  int  OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3],
                    vtkPoints *newPts, float offset, float *range, float val);
   int  ProcessComponents(vtkIdType numPts, vtkPointData *pd);
 
@@ -153,7 +153,7 @@ protected:
 private:
   vtkDataArray *Data;
   float    *DataRange;
-  float    *Tuple;
+  double   *Tuple;
   int       NumberOfComponents;
   int       ActiveComponent;
   int       StartComp;

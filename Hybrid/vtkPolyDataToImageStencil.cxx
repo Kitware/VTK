@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.9");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.10");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 
 //----------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void vtkAddEntryToList(int *&clist, int &clistlen, int &clistmaxlen, int r)
 //----------------------------------------------------------------------------
 static
 void vtkTurnPointsIntoList(vtkPoints *points, int *&clist, int &clistlen,
-                           int extent[6], float origin[3], float spacing[3],
+                           int extent[6], double origin[3], double spacing[3],
                            int dim)
 {
   int clistmaxlen = 2;
@@ -123,7 +123,7 @@ void vtkTurnPointsIntoList(vtkPoints *points, int *&clist, int &clistlen,
   int npoints = points->GetNumberOfPoints();
   for (int idP = 0; idP < npoints; idP++)
     {
-    float point[3];
+    double point[3];
     points->GetPoint(idP, point);
     int r = (int)ceil((point[dim] - origin[dim])/spacing[dim]);
     if (r < extent[2*dim])
@@ -149,13 +149,13 @@ void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
     ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)/50.0);
   target++;
 
-  float *spacing = data->GetSpacing();
-  float *origin = data->GetOrigin();
+  double *spacing = data->GetSpacing();
+  double *origin = data->GetOrigin();
 
   vtkOBBTree *tree = this->OBBTree;
   vtkPoints *points = vtkPoints::New();
 
-  float p0[3],p1[3];
+  double p0[3],p1[3];
 
   p1[0] = p0[0] = extent[0]*spacing[0] + origin[0];
   p1[1] = p0[1] = extent[2]*spacing[1] + origin[1];

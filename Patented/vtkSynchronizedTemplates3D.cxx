@@ -48,7 +48,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.75");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.76");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -172,9 +172,9 @@ void vtkSynchronizedTemplates3DInitializeOutput(
 template <class T>
 void vtkSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt, 
                                int xInc, int yInc, int zInc,
-                               float *spacing, float n[3])
+                               double *spacing, double n[3])
 {
-  float sp, sm;
+  double sp, sm;
 
   // x-direction
   if ( i == wholeExt[0] )
@@ -279,16 +279,16 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   int *inExt = self->GetInput()->GetExtent();
   int xdim = exExt[1] - exExt[0] + 1;
   int ydim = exExt[3] - exExt[2] + 1;
-  float *values = self->GetValues();
+  double *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
   T *inPtrX, *inPtrY, *inPtrZ;
   T *s0, *s1, *s2, *s3;
   int xMin, xMax, yMin, yMax, zMin, zMax;
   int xInc, yInc, zInc;
-  float *origin = data->GetOrigin();
-  float *spacing = data->GetSpacing();
+  double *origin = data->GetOrigin();
+  double *spacing = data->GetSpacing();
   int *isect1Ptr, *isect2Ptr;
-  float y, z, t;
+  double y, z, t;
   int i, j, k;
   int zstep, yisectstep;
   int offsets[12];
@@ -296,14 +296,14 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   int ComputeGradients = self->GetComputeGradients();
   int ComputeScalars = self->GetComputeScalars();
   int NeedGradients = ComputeGradients || ComputeNormals;
-  float n[3], n0[3], n1[3];
+  double n[3], n0[3], n1[3];
   int jj, g0;
   int *tablePtr;
   int idx, vidx;
-  float x[3], xz[3];
+  double x[3], xz[3];
   int v0, v1, v2, v3;
   vtkIdType ptIds[3];
-  float value;
+  double value;
   int *wholeExt;
   // We need to know the edgePointId's for interpolating attributes.
   int edgePtId, inCellId, outCellId;
@@ -396,7 +396,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
       {
       if (!threadId)
         {
-        self->UpdateProgress((float)vidx/numContours + 
+        self->UpdateProgress((double)vidx/numContours + 
                              (k-zMin)/((zMax - zMin+1.0)*numContours));
         }
       z = origin[2] + spacing[2]*k;
@@ -450,7 +450,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
             v1 = (*s1 < value ? 0 : 1);
             if (v0 ^ v1)
               {
-              t = (value - (float)(*s0)) / ((float)(*s1) - (float)(*s0));
+              t = (value - (double)(*s0)) / ((double)(*s1) - (double)(*s0));
               x[0] = origin[0] + spacing[0]*(i+t);
               x[1] = y;
               *isect2Ptr = newPts->InsertNextPoint(x);
@@ -468,7 +468,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
             v2 = (*s2 < value ? 0 : 1);
             if (v0 ^ v2)
               {
-              t = (value - (float)(*s0)) / ((float)(*s2) - (float)(*s0));
+              t = (value - (double)(*s0)) / ((double)(*s2) - (double)(*s0));
               x[0] = origin[0] + spacing[0]*i;
               x[1] = y + spacing[1]*t;
               *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
@@ -486,7 +486,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
             v3 = (*s3 < value ? 0 : 1);
             if (v0 ^ v3)
               {
-              t = (value - (float)(*s0)) / ((float)(*s3) - (float)(*s0));
+              t = (value - (double)(*s0)) / ((double)(*s3) - (double)(*s0));
               xz[0] = origin[0] + spacing[0]*i;
               xz[2] = z + spacing[2]*t;
               *(isect2Ptr + 2) = newPts->InsertNextPoint(xz);
@@ -676,18 +676,18 @@ void vtkSynchronizedTemplates3D::ExecuteInformation()
   //  numTris = numPts * 2;
   //  // Determine the memory for each point and triangle.
   //  sizeTri = 4 * sizeof(int);
-  //  sizePt = 3 * sizeof(float);
+  //  sizePt = 3 * sizeof(double);
   //  if (this->ComputeNormals)
   //    {
-  //    sizePt += 3 * sizeof(float);
+  //    sizePt += 3 * sizeof(double);
   //    }
   //  if (this->ComputeGradients)
   //    {
-  //    sizePt += 3 * sizeof(float);
+  //    sizePt += 3 * sizeof(double);
   //    }
   //  if (this->ComputeScalars)
   //    {
-  //    sizePt += sizeof(float);
+  //    sizePt += sizeof(double);
   //    }
   //  // Set the whole output estimated memory size in kBytes.
   //  // be careful not to overflow.
