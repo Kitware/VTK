@@ -307,8 +307,8 @@ int vtkHexahedron::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
     return 1;
 }
 
-static int edges[12][2] = { {0,1}, {1,2}, {2,3}, {3,0},
-                            {4,5}, {5,6}, {6,7}, {7,4},
+static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
+                            {4,5}, {5,6}, {7,6}, {4,7},
                             {0,4}, {1,5}, {3,7}, {2,6}};
 static int faces[6][4] = { {0,4,7,3}, {1,2,6,5},
                            {0,1,5,4}, {3,7,6,2},

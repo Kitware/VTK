@@ -192,9 +192,9 @@ void vtkMarchingCubes::Execute()
   int contNum, jOffset, kOffset, idx, ii, jj, index, *vert;
   int ptIds[3];
   float t, *x1, *x2, x[3], *n1, *n2, n[3];
-  float pts[8][3], gradients[8][3];
-  static int edges[12][2] = { {0,1}, {1,2}, {2,3}, {3,0},
-                              {4,5}, {5,6}, {6,7}, {7,4},
+  float pts[8][3], gradients[8][3], xp, yp, zp;
+  static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
+                              {4,5}, {5,6}, {7,6}, {4,7},
                               {0,4}, {1,5}, {3,7}, {2,6}};
   vtkPolyData *output = this->GetOutput();
   
@@ -242,10 +242,12 @@ void vtkMarchingCubes::Execute()
       {
       kOffset = k*sliceSize;
       pts[0][2] = origin[2] + k*aspectRatio[2];
+      zp = origin[2] + (k+1)*aspectRatio[2];
       for ( j=0; j < (dims[1]-1); j++)
         {
         jOffset = j*dims[0];
         pts[0][1] = origin[1] + j*aspectRatio[1];
+        yp = origin[1] + (j+1)*aspectRatio[1];
         for ( i=0; i < (dims[0]-1); i++)
           {
           //get scalar values
@@ -268,34 +270,35 @@ void vtkMarchingCubes::Execute()
 
           //create voxel points
           pts[0][0] = origin[0] + i*aspectRatio[0];
+          xp = origin[0] + (i+1)*aspectRatio[0];
 
-          pts[1][0] = pts[0][0] + aspectRatio[0];  
+          pts[1][0] = xp;
           pts[1][1] = pts[0][1];
           pts[1][2] = pts[0][2];
 
-          pts[2][0] = pts[0][0] + aspectRatio[0];  
-          pts[2][1] = pts[0][1] + aspectRatio[1];
+          pts[2][0] = xp;
+          pts[2][1] = yp;
           pts[2][2] = pts[0][2];
 
           pts[3][0] = pts[0][0];
-          pts[3][1] = pts[0][1] + aspectRatio[1];
+          pts[3][1] = yp;
           pts[3][2] = pts[0][2];
 
           pts[4][0] = pts[0][0];
           pts[4][1] = pts[0][1];
-          pts[4][2] = pts[0][2] + aspectRatio[2];
+          pts[4][2] = zp;
 
-          pts[5][0] = pts[0][0] + aspectRatio[0];  
+          pts[5][0] = xp;
           pts[5][1] = pts[0][1];
-          pts[5][2] = pts[0][2] + aspectRatio[2];
+          pts[5][2] = zp;
 
-          pts[6][0] = pts[0][0] + aspectRatio[0];  
-          pts[6][1] = pts[0][1] + aspectRatio[1];
-          pts[6][2] = pts[0][2] + aspectRatio[2];
+          pts[6][0] = xp;
+          pts[6][1] = yp;
+          pts[6][2] = zp;
 
           pts[7][0] = pts[0][0];
-          pts[7][1] = pts[0][1] + aspectRatio[1];
-          pts[7][2] = pts[0][2] + aspectRatio[2];
+          pts[7][1] = yp;
+          pts[7][2] = zp;
 
           //create gradients
           ComputePointGradient(i,j,k, scalars, dims, sliceSize, aspectRatio, gradients[0]);
