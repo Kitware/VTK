@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.18");
+vtkCxxRevisionMacro(vtkDataObject, "1.19");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -808,8 +808,23 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
     // copy the pipeline info if it is available
     if(thisPInfo)
       {
-      thisPInfo->CopyEntry(thatPInfo, SDDP::WHOLE_EXTENT());
-      thisPInfo->CopyEntry(thatPInfo, SDDP::MAXIMUM_NUMBER_OF_PIECES());
+      // Do not override info if it exists. Normally WHOLE_EXTENT
+      // and MAXIMUM_NUMBER_OF_PIECES should not be copied here since
+      // they belong to the pipeline not the data object.
+      // However, removing the copy can break things in older filters
+      // that rely on ShallowCopy to set these (mostly, sources/filters
+      // that use another source/filter internally and shallow copy
+      // in RequestInformation). As a compromise, I changed the following
+      // code such that these entries are only copied if they do not
+      // exist in the output.
+      if (!thisPInfo->Has(SDDP::WHOLE_EXTENT()))
+        {
+        thisPInfo->CopyEntry(thatPInfo, SDDP::WHOLE_EXTENT());
+        }
+      if (!thisPInfo->Has(SDDP::MAXIMUM_NUMBER_OF_PIECES()))
+        {
+        thisPInfo->CopyEntry(thatPInfo, SDDP::MAXIMUM_NUMBER_OF_PIECES());
+        }
       thisPInfo->CopyEntry(thatPInfo, vtkDemandDrivenPipeline::RELEASE_DATA());
       }
     }
