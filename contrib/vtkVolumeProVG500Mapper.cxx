@@ -993,7 +993,9 @@ void vtkVolumeProVG500Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
 	vtkErrorMacro( << "Base plane could not be rendered - could not access volume!" );
 	break;
       default:
-	vtkErrorMacro( << "Base plane could not be rendered - unkown error!" );
+        // Don't report the error - this volume just won't render
+        // this error is occurring occasionally in vli 2.0 
+	//vtkErrorMacro( << "Base plane could not be rendered - unkown error!" );
 	break;	  
       }
     
