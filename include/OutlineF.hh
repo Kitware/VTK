@@ -26,7 +26,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlOutlineFilter : public vlDataSetToPolyFilter
 {
 public:
-  vlOutlineFilter();
+  vlOutlineFilter() {};
   ~vlOutlineFilter() {};
   char *GetClassName() {return "vlOutlineFilter";};
 
