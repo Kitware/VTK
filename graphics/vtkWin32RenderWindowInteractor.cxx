@@ -406,6 +406,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam,
     return 0; 
     }
   vtkHandleMessage2(hWnd,uMsg,wParam, lParam, me);
+  return 0;
 }
 
 LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam, 
