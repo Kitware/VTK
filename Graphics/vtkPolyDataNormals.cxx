@@ -24,7 +24,7 @@
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
 
-vtkCxxRevisionMacro(vtkPolyDataNormals, "1.54");
+vtkCxxRevisionMacro(vtkPolyDataNormals, "1.55");
 vtkStandardNewMacro(vtkPolyDataNormals);
 
 // Construct with feature angle=30, splitting and consistency turned on, 
@@ -72,9 +72,14 @@ void vtkPolyDataNormals::Execute()
 
   vtkDebugMacro(<<"Generating surface normals");
 
+  if ( input==NULL )
+    {
+    return;
+    }
+
   numPolys=input->GetNumberOfPolys();
   numStrips=input->GetNumberOfStrips();
-  if ( (numPts=input->GetNumberOfPoints()) < 1 || 
+  if ( (numPts=input->GetNumberOfPoints()) < 1 ||
        (numPolys < 1 && numStrips < 1) )
     {
     vtkErrorMacro(<<"No data to generate normals for!");
