@@ -275,14 +275,9 @@ public:
 
       tracerWidget->GetPath(PathPoly);
       vtkPoints* points = PathPoly->GetPoints();
-      if (!points){ return; }      
-      npts = points->GetNumberOfPoints();
-      if(closed){--npts;}  
-      SplineWidget->SetNumberOfHandles(npts);
-      for (int i = 0; i < npts; ++i)
-        {
-        SplineWidget->SetHandlePosition(i,points->GetPoint(i));
-        }
+      if (!points){ return; }
+
+      SplineWidget->InitializeHandles(points);
 
       if (closed)
         {

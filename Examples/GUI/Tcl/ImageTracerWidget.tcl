@@ -227,17 +227,8 @@ proc AdjustSpline { } {
 
   itw GetPath poly
   set pts [poly GetPoints]
-  set npts [$pts GetNumberOfPoints]
-  
-  if { $closed } { 
-    set npts [expr $npts - 1]
-  }
-  isw SetNumberOfHandles $npts 
-  
-  for {set i 0} {$i < $npts} {incr i} {
-    set pt [$pts GetPoint $i]
-    isw SetHandlePosition $i [lindex $pt 0] [lindex $pt 1] [lindex $pt 2]
-  }
+   
+  isw InitializeHandles $pts  
 
   if { $closed } {
     isw GetPolyData spoly
