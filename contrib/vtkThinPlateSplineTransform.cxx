@@ -290,6 +290,7 @@ void vtkThinPlateSplineTransform::TransformPoints(vtkPoints *in,
 // transform the normals using the derivative of the transformation
 
 static void LinearSolve3x3(float A[3][3], float x[3]);
+static void Multiply3x3(float A[3][3], float x[3]);
 static void Transpose3x3(float A[3][3]);
 
 void vtkThinPlateSplineTransform::TransformNormals(vtkPoints *inPts,
@@ -305,7 +306,6 @@ void vtkThinPlateSplineTransform::TransformNormals(vtkPoints *inPts,
   float matrix[3][3];
   float point[3];
   float normal[3];
-  float r;
 
   int i;
   int n = inNms->GetNumberOfNormals();
@@ -317,18 +317,26 @@ void vtkThinPlateSplineTransform::TransformNormals(vtkPoints *inPts,
 
     this->TransformDerivatives(point,point,matrix);
     Transpose3x3(matrix);
-    LinearSolve3x3(matrix,normal);
-    vtkMath::Normalize(normal);
 
+    if (this->InverseFlag)
+      {
+      Multiply3x3(matrix,normal);
+      }
+    else
+      {
+      LinearSolve3x3(matrix,normal);
+      }
+
+    vtkMath::Normalize(normal);
     outNms->InsertNextNormal(normal);
     }
 }
 
 //----------------------------------------------------------------------------
-// transform vectors by transforming the two end points
+// transform vectors using the derivative of the transformation
 
 void vtkThinPlateSplineTransform::TransformVectors(vtkPoints *inPts,
-						   vtkPoints *outPts,
+					     vtkPoints *vtkNotUsed(outPts),
 						   vtkVectors *inVrs, 
 						   vtkVectors *outVrs)
 {
@@ -337,24 +345,28 @@ void vtkThinPlateSplineTransform::TransformVectors(vtkPoints *inPts,
     this->Update();
     }
 
-  int i;
-  int n = inVrs->GetNumberOfVectors();
+  float matrix[3][3];
   float vect[3];
   float point[3];
+
+  int i;
+  int n = inVrs->GetNumberOfVectors();
 
   for (i = 0; i < n; i++)
     {
     inVrs->GetVector(i,vect);
     inPts->GetPoint(i,point);
-    point[0] += vect[0];
-    point[1] += vect[1];
-    point[2] += vect[2];
 
-    this->ForwardTransformPoint(point,vect);
-    outPts->GetPoint(i,point);
-    vect[0] -= point[0];
-    vect[1] -= point[1];
-    vect[2] -= point[2];
+    this->TransformDerivatives(point,point,matrix);
+
+    if (this->InverseFlag)
+      {
+      LinearSolve3x3(matrix,vect);
+      }
+    else
+      {
+      Multiply3x3(matrix,vect);
+      }
 
     outVrs->InsertNextVector(vect);
     }
@@ -637,7 +649,10 @@ static inline void SwapVectors(T v1[3], T v2[3])
 }
 
 //----------------------------------------------------------------------------
-// unrolled LU factorization of a 3x3 matrix with pivoting
+// Unrolled LU factorization of a 3x3 matrix with pivoting.
+// This decomposition is non-standard in that the diagonal
+// elements are inverted, to convert a division to a multiplication
+// in the backsubstitution.
 static void LUFactor3x3(float A[3][3], int index[3])
 {
   int i,maxI;
@@ -681,9 +696,9 @@ static void LUFactor3x3(float A[3][3], int index[3])
     }
   index[0] = maxI;
 
-  tmp = 1.0 / A[0][0];
-  A[1][0] *= tmp;
-  A[2][0] *= tmp;
+  A[0][0] = 1.0/A[0][0];
+  A[1][0] *= A[0][0];
+  A[2][0] *= A[0][0];
     
   // second column
   A[1][1] -= A[1][0]*A[0][1];
@@ -697,18 +712,20 @@ static void LUFactor3x3(float A[3][3], int index[3])
     scale[2] = scale[1];
     }
   index[1] = maxI;
-  tmp = 1.0 / A[1][1];
-  A[2][1] *= tmp;
+  A[1][1] = 1.0/A[1][1];
+  A[2][1] *= A[1][1];
 
   // third column
   A[1][2] -= A[1][0]*A[0][2];
   A[2][2] -= A[2][0]*A[0][2] + A[2][1]*A[1][2];
   largest = scale[2]*fabs(A[2][2]);
   index[2] = 2;
+  A[2][2] = 1.0/A[2][2];
 }
 
 //----------------------------------------------------------------------------
-// backsubsitution with an LU-decomposed matrix
+// Backsubsitution with an LU-decomposed matrix.  This is the standard
+// LU decomposition, except that the diagonals elements have been inverted.
 static void LUSolve3x3(float A[3][3], int index[3], float x[3])
 {
   float sum;
@@ -729,9 +746,9 @@ static void LUSolve3x3(float A[3][3], int index[3], float x[3])
 
   // back substitution
   
-  x[2] = x[2]/A[2][2];
-  x[1] = (x[1] - A[1][2]*x[2])/A[1][1];
-  x[0] = (x[0] - A[0][1]*x[1] - A[0][2]*x[2])/A[0][0];
+  x[2] = x[2]*A[2][2];
+  x[1] = (x[1] - A[1][2]*x[2])*A[1][1];
+  x[0] = (x[0] - A[0][1]*x[1] - A[0][2]*x[2])*A[0][0];
 }  
 
 //----------------------------------------------------------------------------
@@ -743,6 +760,17 @@ static void LinearSolve3x3(float A[3][3], float x[3])
 
   LUFactor3x3(A,index);
   LUSolve3x3(A,index,x);
+}
+
+//----------------------------------------------------------------------------
+static void Multiply3x3(float A[3][3], float v[3])
+{
+  float x,y,z;
+  x = v[0]; y = v[1]; z = v[2];
+
+  v[0] = A[0][0]*x + A[0][1]*y + A[0][2]*z;
+  v[1] = A[1][0]*x + A[1][1]*y + A[1][2]*z;
+  v[2] = A[2][0]*x + A[2][1]*y + A[2][2]*z;
 }
 
 //----------------------------------------------------------------------------
