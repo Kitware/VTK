@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkBase64Utility, "1.1.2.2");
+vtkCxxRevisionMacro(vtkBase64Utility, "1.1.2.3");
 vtkStandardNewMacro(vtkBase64Utility);
 
 //----------------------------------------------------------------------------
@@ -35,13 +35,13 @@ inline static unsigned char vtkBase64UtilityEncodeChar(unsigned char c)
 }
 
 //----------------------------------------------------------------------------
-inline void vtkBase64Utility::EncodeTriplet(unsigned char i0,
-                                            unsigned char i1,
-                                            unsigned char i2,
-                                            unsigned char *o0,
-                                            unsigned char *o1,
-                                            unsigned char *o2,
-                                            unsigned char *o3)
+void vtkBase64Utility::EncodeTriplet(unsigned char i0,
+                                     unsigned char i1,
+                                     unsigned char i2,
+                                     unsigned char *o0,
+                                     unsigned char *o1,
+                                     unsigned char *o2,
+                                     unsigned char *o3)
 {
   *o0 = vtkBase64UtilityEncodeChar((i0 >> 2) & 0x3F);
   *o1 = vtkBase64UtilityEncodeChar(((i0 << 4) & 0x30)|((i1 >> 4) & 0x0F));
@@ -50,12 +50,12 @@ inline void vtkBase64Utility::EncodeTriplet(unsigned char i0,
 }
 
 //----------------------------------------------------------------------------
-inline void vtkBase64Utility::EncodePair(unsigned char i0,
-                                         unsigned char i1,
-                                         unsigned char *o0,
-                                         unsigned char *o1,
-                                         unsigned char *o2,
-                                         unsigned char *o3)
+void vtkBase64Utility::EncodePair(unsigned char i0,
+                                  unsigned char i1,
+                                  unsigned char *o0,
+                                  unsigned char *o1,
+                                  unsigned char *o2,
+                                  unsigned char *o3)
 {
   *o0 = vtkBase64UtilityEncodeChar((i0 >> 2) & 0x3F);
   *o1 = vtkBase64UtilityEncodeChar(((i0 << 4) & 0x30)|((i1 >> 4) & 0x0F));
@@ -64,11 +64,11 @@ inline void vtkBase64Utility::EncodePair(unsigned char i0,
 }
 
 //----------------------------------------------------------------------------
-inline void vtkBase64Utility::EncodeSingle(unsigned char i0,
-                                           unsigned char *o0,
-                                           unsigned char *o1,
-                                           unsigned char *o2,
-                                           unsigned char *o3)
+void vtkBase64Utility::EncodeSingle(unsigned char i0,
+                                    unsigned char *o0,
+                                    unsigned char *o1,
+                                    unsigned char *o2,
+                                    unsigned char *o3)
 {
   *o0 = vtkBase64UtilityEncodeChar((i0 >> 2) & 0x3F);
   *o1 = vtkBase64UtilityEncodeChar(((i0 << 4) & 0x30));
@@ -171,13 +171,13 @@ inline static unsigned char vtkBase64UtilityDecodeChar(unsigned char c)
 }
 
 //----------------------------------------------------------------------------
-inline int vtkBase64Utility::DecodeTriplet(unsigned char i0,
-                                           unsigned char i1,
-                                           unsigned char i2,
-                                           unsigned char i3,
-                                           unsigned char *o0,
-                                           unsigned char *o1,
-                                           unsigned char *o2)
+int vtkBase64Utility::DecodeTriplet(unsigned char i0,
+                                    unsigned char i1,
+                                    unsigned char i2,
+                                    unsigned char i3,
+                                    unsigned char *o0,
+                                    unsigned char *o1,
+                                    unsigned char *o2)
 {
   unsigned char d0, d1, d2, d3;
 
