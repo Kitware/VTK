@@ -32,6 +32,7 @@ vtkDataSet.cxx
 vtkDataSetAttributes.cxx
 vtkDataSetCollection.cxx
 vtkDebugLeaks.cxx
+vtkDebugLeaksManager.cxx
 vtkDirectory.cxx
 vtkDoubleArray.cxx
 vtkDynamicLoader.cxx
@@ -195,6 +196,7 @@ WRAP_EXCLUDE_FILES(
   vtkCallbackCommand
   vtkCommand
   vtkContainer
+  vtkDebugLeaksManager
   vtkErrorCode
   vtkImageIterator
   vtkImageProgressIterator
