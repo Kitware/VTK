@@ -479,7 +479,8 @@ void vtkPolyData::GetCellPoints(int cellId, vtkIdList& ptIds)
   if ( this->Cells == NULL ) this->BuildCells();
 
   this->vtkPolyData::GetCellPoints(cellId, npts, pts);
-  for (i=0; i<npts; i++) ptIds.SetId(i,pts[i]);
+  ptIds.InsertId (npts-1,pts[npts-1]);
+  for (i=0; i<npts-1; i++) ptIds.SetId(i,pts[i]);
 }
 
 // Description:
