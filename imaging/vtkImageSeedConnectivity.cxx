@@ -51,6 +51,7 @@ vtkImageSeedConnectivity::vtkImageSeedConnectivity()
   this->OutputUnconnectedValue = 0;
   this->Seeds = NULL;
   this->Connector = vtkImageConnector::New();
+  this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
 
 //----------------------------------------------------------------------------
@@ -106,7 +107,6 @@ void vtkImageSeedConnectivity::AddSeed(int num, int *index)
   seed->Next = this->Seeds;
   this->Seeds = seed;
 }
-
 //----------------------------------------------------------------------------
 void vtkImageSeedConnectivity::AddSeed(int i0, int i1, int i2)
 {
@@ -116,6 +116,15 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1, int i2)
   index[1] = i1;
   index[2] = i2;
   this->AddSeed(3, index);
+}
+//----------------------------------------------------------------------------
+void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
+{
+  int index[2];
+
+  index[0] = i0;
+  index[1] = i1;
+  this->AddSeed(2, index);
 }
 
 

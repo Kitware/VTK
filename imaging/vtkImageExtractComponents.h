@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageSeedConnectivity.h
+  Module:    vtkImageExtractComponents.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,66 +38,50 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageSeedConnectivity - SeedConnectivity with user defined seeds.
+// .NAME vtkImageExtractComponents - Outputs a sinlge component
 // .SECTION Description
-// vtkImageSeedConnectivity marks pixels connected to user supplied seeds.  The input
-// must be unsigned char, and the output is also unsigned char.  If a seed supplied by
-// the user does not have pixel value "InputTrueValue", then the image is 
-// scaned +x, +y, +z until a pixel is encountered with value "InputTrueValue".
-// This new pixel is used as the seed .  Any pixel with out value "InputTrueValue" 
-// is consider off.  The output pixels values are 0 for any off pixel in input, 
-// "OutputTrueValue" for any pixels connected to seeds, and "OutputUnconnectedValue"
-// for any on pixels not connected to seeds.  The same seeds are used for all images in the
-// image set (images along unfiltered axes).  Index values for
-// unfiltered axes are ignored.
+// vtkImageExtractComponents takes an input with any number of components
+// and outputs some of them.  It does involve a copy of the data.
 
 
-#ifndef __vtkImageSeedConnectivity_h
-#define __vtkImageSeedConnectivity_h
+#ifndef __vtkImageExtractComponents_h
+#define __vtkImageExtractComponents_h
 
 
-#include "vtkImageConnector.h"
 #include "vtkImageFilter.h"
 
-class VTK_EXPORT vtkImageSeedConnectivity : public vtkImageFilter
+class VTK_EXPORT vtkImageExtractComponents : public vtkImageFilter
 {
 public:
-  vtkImageSeedConnectivity();
-  ~vtkImageSeedConnectivity();
-  static vtkImageSeedConnectivity *New() 
-    {return new vtkImageSeedConnectivity;};
-  const char *GetClassName() {return "vtkImageSeedConnectivity";};
-  
-  void RemoveAllSeeds();
-  void AddSeed(int num, int *index);
-  void AddSeed(int i0, int i1, int i2);
-  void AddSeed(int i0, int i1);
+  vtkImageExtractComponents();
+  static vtkImageExtractComponents *New()
+    {return new vtkImageExtractComponents;};
+  const char *GetClassName() {return "vtkImageExtractComponents";};
 
-  void SetFilteredAxes(int num, int *axes);
-  vtkImageSetMacro(FilteredAxes, int);
-
-  vtkSetMacro(InputConnectValue, int);
-  vtkGetMacro(InputConnectValue, int);
-  vtkSetMacro(OutputConnectedValue, int);
-  vtkGetMacro(OutputConnectedValue, int);
-  vtkSetMacro(OutputUnconnectedValue, int);
-  vtkGetMacro(OutputUnconnectedValue, int);
+  // Description:
+  // Set/Get the components to extract.
+  void SetComponents(int num, int *components);
+  vtkImageSetMacro(Components, int);
   
-  void InterceptCacheUpdate(vtkImageCache *out);
-
-private:
-  unsigned char InputConnectValue;
-  unsigned char OutputConnectedValue;
-  unsigned char OutputUnconnectedValue;
-  vtkImageConnectorSeed *Seeds;
-  vtkImageConnector *Connector;
+  // here for templated function
+  // limited to 4 for now.
+  int NumberOfComponents;
+  int Components[4];
   
+protected:
+  
+  void ExecuteImageInformation(vtkImageCache *in1, vtkImageCache *out);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
-
-
 
 #endif
 
 
-  
+
+
+
+
+
+
+
+

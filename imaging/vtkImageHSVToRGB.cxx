@@ -100,10 +100,10 @@ static void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
   g = (1.0 + S*(3.0*g - 1.0))/3.0;
   b = (1.0 + S*(3.0*b - 1.0))/3.0;
   
-  // Use value to get actual RGB
-  R = r * V * 3.0 * max;
-  G = g * V * 3.0 * max;
-  B = b * V * 3.0 * max;
+  // Use value to get actual RGB (max is already in value.
+  R = r * V * 3.0;
+  G = g * V * 3.0;
+  B = b * V * 3.0;
   
   // clip below 255
   if (R > 255.0) R = max;

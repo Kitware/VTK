@@ -48,6 +48,7 @@ vtkImageHybridMedian2D::vtkImageHybridMedian2D()
   this->KernelSize[0] = 5;
   this->KernelSize[1] = 5;
   this->SetNumberOfElements(9);
+  this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
 
 
