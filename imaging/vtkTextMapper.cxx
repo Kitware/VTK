@@ -71,6 +71,16 @@ vtkTextMapper *vtkTextMapper::New()
 }
 
 
+vtkTextMapper::~vtkTextMapper()
+{
+  if (this->Input)
+    {
+    delete [] this->Input;
+    this->Input = NULL;
+    }
+}
+
+
 
 //----------------------------------------------------------------------------
 void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
