@@ -77,9 +77,9 @@ vtkProjectedTexture::vtkProjectedTexture()
   this->Up[0] = 0.0;
   this->Up[1] = 1.0;
   this->Up[2] = 0.0;
-  this->AspectRatio[0] = 0.0;
+  this->AspectRatio[0] = 1.0;
   this->AspectRatio[1] = 1.0;
-  this->AspectRatio[2] = 0.0;
+  this->AspectRatio[2] = 1.0;
   this->SRange[0] = 0.0;
   this->SRange[1] = 1.0;
   this->TRange[0] = 0.0;
