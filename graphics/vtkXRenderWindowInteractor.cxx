@@ -637,7 +637,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
       XQueryPointer(me->DisplayId,me->WindowId,
 		    &root,&child,&root_x,&root_y,&x,&y,&keys);
       yf = ((me->Size[1] - y) - me->Center[1])/(float)me->Center[1];
-      zoomFactor = pow(1.1,yf);
+      zoomFactor = pow((float)1.1,yf);
       if (me->CurrentCamera->GetParallelProjection())
 	{
 	me->CurrentCamera->
