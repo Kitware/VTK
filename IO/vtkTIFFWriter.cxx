@@ -23,7 +23,7 @@
 #include "vtkErrorCode.h"
 #include <tiffio.h>
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.30");
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.31");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //----------------------------------------------------------------------------
@@ -122,10 +122,14 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
 
   TIFF* tif = TIFFClientOpen(this->GetFileName(), "w",
     (thandle_t) file,
-    vtkTIFFWriterIO::TIFFRead, vtkTIFFWriterIO::TIFFWrite,
-    vtkTIFFWriterIO::TIFFSeek,
-    vtkTIFFWriterIO::TIFFClose, vtkTIFFWriterIO::TIFFSize,
-    vtkTIFFWriterIO::TIFFMapFile, vtkTIFFWriterIO::TIFFUnmapFile);
+    reinterpret_cast<TIFFReadWriteProc>(vtkTIFFWriterIO::TIFFRead), 
+    reinterpret_cast<TIFFReadWriteProc>(vtkTIFFWriterIO::TIFFWrite),
+    reinterpret_cast<TIFFSeekProc>(vtkTIFFWriterIO::TIFFSeek),
+    reinterpret_cast<TIFFCloseProc>(vtkTIFFWriterIO::TIFFClose), 
+    reinterpret_cast<TIFFSizeProc>(vtkTIFFWriterIO::TIFFSize),
+    reinterpret_cast<TIFFMapFileProc>(vtkTIFFWriterIO::TIFFMapFile), 
+    reinterpret_cast<TIFFUnmapFileProc>(vtkTIFFWriterIO::TIFFUnmapFile)
+    );
   if ( !tif )
     {
     this->TIFFPtr = 0;
