@@ -22,7 +22,7 @@
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.3");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.4");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 // Construct the line with two points.
@@ -304,6 +304,14 @@ void vtkQuadraticEdge::Tesselate(vtkIdType cellId,
     outputLines->InsertCellPoint(p1);
     outCD->CopyData(inCD,cellId,newCellId);
     }
+}
+
+// The second Tesselate() method is empty (intended only for 3D cells).
+void vtkQuadraticEdge::Tesselate(vtkIdType vtkNotUsed(cellId),
+                                 vtkDataSet* vtkNotUsed(input),
+                                 vtkUnstructuredGrid* vtkNotUsed(output),
+                                 vtkPointLocator* vtkNotUsed(locator))
+{
 }
 
 void vtkQuadraticEdge::InternalTesselate()

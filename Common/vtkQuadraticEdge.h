@@ -86,7 +86,7 @@ public:
                          vtkPointLocator *locator=NULL);
   virtual void Tesselate(vtkIdType cellId, 
                          vtkDataSet *input, vtkUnstructuredGrid *output, 
-                         vtkPointLocator *locator=NULL) {}
+                         vtkPointLocator *locator=NULL);
   
   
   // Description:
