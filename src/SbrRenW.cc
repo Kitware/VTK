@@ -19,6 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "SbrRenW.hh"
 #include "SbrRen.hh"
 #include "SbrProp.hh"
+#include "SbrText.hh"
 #include "SbrCam.hh"
 #include "SbrLgt.hh"
 
@@ -92,6 +93,16 @@ vlProperty *vlSbrRenderWindow::MakeProperty()
 
   property = new vlSbrProperty;
   return (vlProperty *)property;
+}
+
+// Description:
+// Create a starbase specific texture.
+vlTexture *vlSbrRenderWindow::MakeTexture()
+{
+  vlSbrTexture *texture;
+
+  texture = new vlSbrTexture;
+  return (vlTexture *)texture;
 }
 
 // Description:
@@ -1315,63 +1326,22 @@ void vlSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 }
  
 
+
 // Description:
-// Handles work required between the left and right eye renders.
-void vlSbrRenderWindow::StereoRenderComplete(void)
+// Handles work required at end of render cycle
+void vlSbrRenderWindow::CopyResultFrame(void)
 {
-  switch (this->StereoType) 
+  if (this->ResultFrame)
     {
-    case VL_STEREO_RED_BLUE:
-      {
-      unsigned char *buff;
-      unsigned char *p1, *p2, *p3;
-      unsigned char* result;
-      int *size;
-      int x,y;
-      int res;
+    int *size;
 
-      // get the size
-      size = this->GetSize();
-      // get the data
-      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1);
-      p1 = this->temp_buffer;
-      p2 = buff;
+    // get the size
+    size = this->GetSize();
 
-      // allocate the result
-      result = new unsigned char [size[0]*size[1]*3];
-      if (!result)
-	{
-	vlErrorMacro(<<"Couldn't allocate memory for RED BLUE stereo.");
-	return;
-	}
-      p3 = result;
-
-      // now merge the two images 
-      for (x = 0; x < size[0]; x++)
-	{
-	for (y = 0; y < size[1]; y++)
-	  {
-	  res = p1[0] + p1[1] + p1[2];
-	  p3[0] = res/3;
-	  res = p2[0] + p2[1] + p2[2];
-	  p3[2] = res/3;
-	  p3[1] = 0;
-	  p1 += 3;
-	  p2 += 3;
-	  p3 += 3;
-	  }
-	}
-      this->SetPixelData(0,0,size[0]-1,size[1]-1,result);
-      delete result;
-      delete this->temp_buffer;
-      this->temp_buffer = NULL;
-      delete buff;
-      }
-      this->Frame();
-      break;
-    default:
-      this->Frame();
+    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame);
+    delete this->ResultFrame;
+    this->ResultFrame = NULL;
     }
+
+  this->Frame();
 }
- 
- 

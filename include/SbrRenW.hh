@@ -40,6 +40,7 @@ public:
   vlLight     *MakeLight();
   vlCamera    *MakeCamera();
   vlProperty  *MakeProperty();
+  vlTexture  *MakeTexture();
 
   void Start(void);
   void Frame(void);
@@ -54,7 +55,7 @@ public:
 
   // stereo rendering stuff
   virtual void StereoUpdate();
-  virtual void StereoRenderComplete();
+  virtual void CopyResultFrame();
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
