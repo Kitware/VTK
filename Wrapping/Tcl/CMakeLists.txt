@@ -73,6 +73,7 @@ IF (VTK_USE_RENDERING)
       vtkftgl
       vtkfreetype
     )
+  ENDIF (VTK_USE_FREETYPE)
 
   LINK_LIBRARIES(vtkRenderingTCL vtkRendering)
 ENDIF (VTK_USE_RENDERING)
