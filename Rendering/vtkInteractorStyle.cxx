@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.56");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.57");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -36,10 +36,8 @@ vtkInteractorStyle *vtkInteractorStyle::New()
 vtkInteractorStyle::vtkInteractorStyle() 
 {
   this->Interactor       = NULL;
-  this->EventCallbackCommand = vtkCallbackCommand::New();
-  this->EventCallbackCommand->SetClientData(this);
   this->EventCallbackCommand->SetCallback(vtkInteractorStyle::ProcessEvents);
-
+  this->KeyPressActivation = 0; //these widgets are not activated with a key
 
   this->CurrentCamera    = NULL;
   this->CurrentLight     = NULL;
@@ -78,7 +76,6 @@ vtkInteractorStyle::~vtkInteractorStyle()
 {
   // remove observers
   this->SetInteractor(0);
-  this->EventCallbackCommand->Delete();
   if ( this->OutlineActor ) 
     {
     // if we change style when an object is selected, we must remove the
@@ -106,8 +103,85 @@ vtkInteractorStyle::~vtkInteractorStyle()
     this->CurrentCamera->UnRegister(this);
     this->CurrentRenderer = NULL;
     }
-
 }
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyle::SetEnabled(int enabling)
+{
+  if ( ! this->Interactor )
+    {
+    vtkErrorMacro(<<"The interactor must be set prior to enabling/disabling widget");
+    return;
+    }
+
+  if ( enabling ) //----------------------------------------------------------
+    {
+    vtkDebugMacro(<<"Enabling widget");
+
+    if ( this->Enabled ) //already enabled, just return
+      {
+      return;
+      }
+    
+    this->Enabled = 1;
+    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    }
+
+  else //disabling-------------------------------------------------------------
+    {
+    vtkDebugMacro(<<"Disabling widget");
+
+    if ( ! this->Enabled ) //already disabled, just return
+      {
+      return;
+      }
+    
+    this->Enabled = 0;
+    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
+    }
+}
+
+// NOTE!!! This does not do any reference counting!!!
+// This is to avoid some ugly reference counting loops 
+// and the benefit of being able to hold only an entire
+// renderwindow from an interactor style doesn't seem worth the
+// mess.   Instead the vtkInteractorStyle sets up a DeleteEvent callback, so
+// that it can tell when the vtkRenderWindowInteractor is going away.
+void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
+{
+  if(i == this->Interactor)
+    {
+    return;
+    }
+
+  // if we already have an Interactor then stop observing it
+  if(this->Interactor)
+    {
+    this->Interactor->RemoveObserver(this->EventCallbackCommand);
+    }
+  this->Interactor = i;
+
+  // add observers for each of the events handled in ProcessEvents
+  if(i)
+    {
+    i->AddObserver(vtkCommand::EnterEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::LeaveEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::LeftButtonPressEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::MiddleButtonPressEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::RightButtonPressEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::ConfigureEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::TimerEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::KeyPressEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::KeyReleaseEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::CharEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::DeleteEvent, this->EventCallbackCommand);
+    }
+}
+
 
 // Set the left button pressed method. This method is invoked on a left mouse button press.
 void vtkInteractorStyle::SetLeftButtonPressMethod(void (*f)(void *), void *arg)
@@ -1007,108 +1081,6 @@ void vtkInteractorStyle::OnRightButtonUp(int vtkNotUsed(ctrl),
                                            int vtkNotUsed(Y))
 {
     this->EndZoom();
-}
-
-// NOTE!!! This does not do any reference counting!!!
-// This is to avoid some ugly reference counting loops 
-// and the benefit of being able to hold only an entire
-// renderwindow from an interactor style doesn't seem worth the
-// mess.   Instead the vtkInteractorStyle sets up a DeleteEvent callback, so
-// that it can tell when the vtkRenderWindowInteractor is going away.
-void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
-{
-  if(i == this->Interactor)
-    {
-    return;
-    }
-  // if we already have an Interactor then stop observing it
-  if(this->Interactor)
-    {
-    this->Interactor->RemoveObserver(this->EventCallbackCommand);
-    }
-  this->Interactor = i;
-  // add observers for each of the events handled in ProcessEvents
-  if(i)
-    {
-    i->AddObserver(vtkCommand::EnterEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::LeaveEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::LeftButtonPressEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::MiddleButtonPressEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::RightButtonPressEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::ConfigureEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::TimerEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::KeyPressEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::KeyReleaseEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::CharEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::DeleteEvent, this->EventCallbackCommand);
-    }
-}
-
-// Description:
-// transform from display to world coordinates.
-// WorldPt has to be allocated as 4 vector
-void vtkInteractorStyle::ComputeDisplayToWorld(double x, double y,
-                                               double z,
-                                               float *worldPt)
-{
-  this->CurrentRenderer->SetDisplayPoint(x, y, z);
-  this->CurrentRenderer->DisplayToWorld();
-  this->CurrentRenderer->GetWorldPoint(worldPt);
-  if (worldPt[3])
-    {
-    worldPt[0] /= worldPt[3];
-    worldPt[1] /= worldPt[3];
-    worldPt[2] /= worldPt[3];
-    worldPt[3] = 1.0;
-    }
-}
-
-// Description:
-// transform from display to world coordinates.
-// WorldPt has to be allocated as 4 vector
-void vtkInteractorStyle::ComputeDisplayToWorld(double x, double y,
-                                               double z,
-                                               double *worldPt)
-{
-  this->CurrentRenderer->SetDisplayPoint(x, y, z);
-  this->CurrentRenderer->DisplayToWorld();
-  this->CurrentRenderer->GetWorldPoint(worldPt);
-  if (worldPt[3])
-    {
-    worldPt[0] /= worldPt[3];
-    worldPt[1] /= worldPt[3];
-    worldPt[2] /= worldPt[3];
-    worldPt[3] = 1.0;
-    }
-}
-
-
-// Description:
-// transform from world to display coordinates.
-// displayPt has to be allocated as 3 vector
-void vtkInteractorStyle::ComputeWorldToDisplay(double x, double y,
-                                               double z,
-                                               double *displayPt)
-{
-  this->CurrentRenderer->SetWorldPoint(x, y, z, 1.0);
-  this->CurrentRenderer->WorldToDisplay();
-  this->CurrentRenderer->GetDisplayPoint(displayPt);
-}
-
-// Description:
-// transform from world to display coordinates.
-// displayPt has to be allocated as 3 vector
-void vtkInteractorStyle::ComputeWorldToDisplay(double x, double y,
-                                                      double z,
-                                                      float *displayPt)
-{
-  this->CurrentRenderer->SetWorldPoint(x, y, z, 1.0);
-  this->CurrentRenderer->WorldToDisplay();
-  this->CurrentRenderer->GetDisplayPoint(displayPt);
 }
 
 // Reset the camera clipping range only if AutoAdjustCameraClippingRange 

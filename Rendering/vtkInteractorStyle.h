@@ -82,7 +82,7 @@
 #ifndef __vtkInteractorStyle_h
 #define __vtkInteractorStyle_h
 
-#include "vtkRenderWindowInteractor.h"
+#include "vtkInteractorObserver.h"
 
 // motion flags
 #define VTKIS_START   0
@@ -101,7 +101,7 @@ class vtkOutlineSource;
 class vtkCallbackCommand;
 
 
-class VTK_RENDERING_EXPORT vtkInteractorStyle : public vtkObject 
+class VTK_RENDERING_EXPORT vtkInteractorStyle : public vtkInteractorObserver
 {
 public:
   // Description:
@@ -110,13 +110,21 @@ public:
   // programmers.
   static vtkInteractorStyle *New();
 
-  vtkTypeRevisionMacro(vtkInteractorStyle,vtkObject);
+  vtkTypeRevisionMacro(vtkInteractorStyle,vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the Interactor wrapper being controlled by this object.
+  // (Satisfy superclass API.)
   virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
-  vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
+
+  // Description:
+  // Turn on/off this interactor. Interactor styles operate a little
+  // bit differently than other types of interactor observers. When
+  // the SetInteractor() method is invoked, the automatically enable
+  // themselves. This is a legacy requirement, and convenient for the
+  // user.
+  virtual void SetEnabled(int);
 
   // Description:
   // If AutoAdjustCameraClippingRange is on, then before each render the
@@ -207,20 +215,11 @@ protected:
   vtkSetMacro(HandleObservers,int);
   vtkGetMacro(HandleObservers,int);
   vtkBooleanMacro(HandleObservers,int);
+
   // Will the clipping range be automatically adjust before each render?
   int AutoAdjustCameraClippingRange;
   void ResetCameraClippingRange();
   
-  // convenience methods for converting between coordinate systems
-  virtual void ComputeDisplayToWorld(double x, double y, double z,
-                                     double *worldPt);
-  virtual void ComputeWorldToDisplay(double x, double y, double z,
-                                     double *displayPt);
-  virtual void ComputeDisplayToWorld(double x, double y, double z,
-                                     float *worldPt);
-  virtual void ComputeWorldToDisplay(double x, double y, double z,
-                                     float *displayPt);
-
   virtual void UpdateInternalState(int ctrl, int shift, int X, int Y);
 
   // These methods for the different interactions in different modes
@@ -257,13 +256,9 @@ protected:
   static void ProcessEvents(vtkObject* object, unsigned long event,
                             void* clientdata, void* calldata);
   
-  // Data we need to maintain internally
-  vtkRenderWindowInteractor *Interactor;
-  //
-  vtkCamera          *CurrentCamera;
+  // Keep track of current state
   vtkLight           *CurrentLight;
-  vtkRenderer        *CurrentRenderer;
-  //
+
   float Center[2];
   float DeltaAzimuth;
   float DeltaElevation;
@@ -283,7 +278,6 @@ protected:
   int                PropPicked;          // boolean: prop picked?
   float              PickColor[3];        // support 2D picking
   vtkActor2D         *PickedActor2D;
-  vtkCallbackCommand* EventCallbackCommand;
   int                HandleObservers; // boolean: should observers be handled here
 
   unsigned long LeftButtonPressTag;
@@ -292,6 +286,7 @@ protected:
   unsigned long MiddleButtonReleaseTag;
   unsigned long RightButtonPressTag;
   unsigned long RightButtonReleaseTag;
+
 private:
   vtkInteractorStyle(const vtkInteractorStyle&);  // Not implemented.
   void operator=(const vtkInteractorStyle&);  // Not implemented.
