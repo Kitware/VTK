@@ -211,7 +211,7 @@ void vtkStructuredGridReader::Execute()
           return;
           }
 
-        this->Reader.ReadPoints(fp, (vtkPointSet *)this, npts);
+        this->Reader.ReadPoints(fp, output, npts);
         }
 
       else if ( ! strncmp(line, "point_data", 10) )
@@ -228,7 +228,7 @@ void vtkStructuredGridReader::Execute()
           return;
           }
 
-        this->Reader.ReadPointData(fp, (vtkDataSet *)this, npts);
+        this->Reader.ReadPointData(fp, output, npts);
         break; //out of this loop
         }
 
