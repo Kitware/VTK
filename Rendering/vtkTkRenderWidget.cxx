@@ -1008,7 +1008,6 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 {
   Display *dpy;
   TkWindow *winPtr = (TkWindow *)self->TkWin;
-  int new_flag;
   vtkCarbonRenderWindow *renderWindow;
   WindowPtr parentWin;
 
@@ -1046,6 +1045,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     else
       {
 #ifndef VTK_PYTHON_BUILD
+      int new_flag;
       renderWindow = (vtkCarbonRenderWindow *)
         vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
                                    new_flag);
