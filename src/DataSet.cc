@@ -99,17 +99,19 @@ unsigned long int vlDataSet::GetMtime()
 
 void vlDataSet::PrintSelf(ostream& os, vlIndent indent)
 {
-  float *bounds;
-
-  vlObject::PrintSelf(os,indent);
-
-  os << indent << "Point Data:\n";
-  this->PointData.PrintSelf(os,indent.GetNextIndent());
-  bounds = this->GetBounds();
-  os << indent << "Bounds: \n";
-  os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << bounds[4] << ", " << bounds[5] << ")\n";
-  os << indent << "Compute time: " << this->ComputeTime.GetMtime() << "\n";
-
+  if (this->ShouldIPrint(vlDataSet::GetClassName()))
+    {
+    float *bounds;
+    
+    vlObject::PrintSelf(os,indent);
+    
+    os << indent << "Point Data:\n";
+    this->PointData.PrintSelf(os,indent.GetNextIndent());
+    bounds = this->GetBounds();
+    os << indent << "Bounds: \n";
+    os << indent << "  Xmin,Xmax: (" <<bounds[0] << ", " << bounds[1] << ")\n";
+    os << indent << "  Ymin,Ymax: (" <<bounds[2] << ", " << bounds[3] << ")\n";
+    os << indent << "  Zmin,Zmax: (" <<bounds[4] << ", " << bounds[5] << ")\n";
+    os << indent << "Compute time: " <<this->ComputeTime.GetMtime() << "\n";
+    }
 }

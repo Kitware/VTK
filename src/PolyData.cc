@@ -235,11 +235,14 @@ void vlPolyData::ComputeBounds()
 }
 void vlPolyData::PrintSelf(ostream& os, vlIndent indent)
 {
-  vlDataSet::PrintSelf(os,indent);
-
-  os << indent << "Number Points: " << this->NumPoints() << "\n";
-  os << indent << "Number Verts: " << this->NumVerts() << "\n";
-  os << indent << "Number Lines: " << this->NumLines() << "\n";
-  os << indent << "Number Polygons: " << this->NumPolys() << "\n";
-  os << indent << "Number Triangle Strips: " << this->NumStrips() << "\n";
+  if (this->ShouldIPrint(vlPolyData::GetClassName()))
+    {
+    vlDataSet::PrintSelf(os,indent);
+    
+    os << indent << "Number Points: " << this->NumPoints() << "\n";
+    os << indent << "Number Verts: " << this->NumVerts() << "\n";
+    os << indent << "Number Lines: " << this->NumLines() << "\n";
+    os << indent << "Number Polygons: " << this->NumPolys() << "\n";
+    os << indent << "Number Triangle Strips: " << this->NumStrips() << "\n";
+    }
 }
