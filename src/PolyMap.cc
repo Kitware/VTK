@@ -117,8 +117,7 @@ void vtkPolyMapper::Render(vtkRenderer *ren)
           {
           int numColors=this->Colors->GetNumberOfColors();
           colors = this->Colors;
-          if ( numColors < numPts ) colors->Squeeze();
-          else if ( numColors > numPts ) colors->Allocate(numPts);
+          if ( numColors < numPts ) colors->Allocate(numPts);
           }
 
         this->LookupTable->SetTableRange(this->ScalarRange);
