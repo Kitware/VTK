@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPowerCrustSurfaceReconstruction, "1.1");
+vtkCxxRevisionMacro(vtkPowerCrustSurfaceReconstruction, "1.2");
 vtkStandardNewMacro(vtkPowerCrustSurfaceReconstruction);
 
 vtkPowerCrustSurfaceReconstruction::vtkPowerCrustSurfaceReconstruction()
@@ -86,7 +86,7 @@ vtkPolyData* vtk_medial_surface;
 
 // some hacks to enable us to have useful error reporting
 vtkPowerCrustSurfaceReconstruction *our_filter;
-void ASSERT(BOOL b,const char* message="") { 
+void ASSERT(int b,const char* message="") { 
     if(!b) 
         our_filter->Error(message); 
 }
@@ -94,6 +94,10 @@ void vtkPowerCrustSurfaceReconstruction::Error(const char *message)
 {
     vtkErrorMacro(<<"ASSERT:"<<message);
 }
+
+int pcFALSE = (1==0);
+int pcTRUE = (1==1);
+
 
 //========points.h=============================================================
 /*
@@ -1192,7 +1196,7 @@ site vtk_pole_read_next_site(long j)
                 // TJH: added this if statement
                 if(DFILE)
                     fprintf(DFILE, "bad input line: %s\n", buf);
-                ASSERT(FALSE);
+                ASSERT(pcFALSE);
             }
             // TJH: we multiply the coordinates by some large user-supplied value
             // to get everything into integer values (for speed later!)
@@ -1218,7 +1222,7 @@ site vtk_pole_read_next_site(long j)
         // make a debug call
         DEB(-10,inconsistent input);
         DEBTR(-10); 
-        ASSERT(FALSE,"inconsistent input");
+        ASSERT(pcFALSE,"inconsistent input");
     }  
 
     return p;
@@ -3707,7 +3711,7 @@ void get_normal_sede(simplex *s) {
             c[0] = -c[0]; c[1] = -c[1]; c[2] = -c[2];
             break;
         }
-        DEBS(-1) if (!check_perps(s)) /* TJH exit(1);*/ ASSERT(FALSE); EDEBS
+        DEBS(-1) if (!check_perps(s)) /* TJH exit(1);*/ ASSERT(pcFALSE); EDEBS
                                                    return;
     }   
         
@@ -3718,7 +3722,7 @@ void get_normal_sede(simplex *s) {
         if (s->normal->sqb != 0) break;
     }
 
-    DEBS(-1) if (!check_perps(s)) {DEBTR(-1) /* TJH exit(1);*/ ASSERT(FALSE);} EDEBS
+    DEBS(-1) if (!check_perps(s)) {DEBTR(-1) /* TJH exit(1);*/ ASSERT(pcFALSE);} EDEBS
 
                                                            }
 
@@ -3764,7 +3768,7 @@ int sees(site p, simplex *s) {
     DEBS(-7) if (i==3) {
         DEB(-6, looped too much in sees);
         DEBEXP(-6,dd) DEBEXP(-6,dds) DEBEXP(-6,site_num(p));
-        print_simplex_f(s, DFILE, &print_neighbor_full); /* TJH exit(1);*/ ASSERT(FALSE);}
+        print_simplex_f(s, DFILE, &print_neighbor_full); /* TJH exit(1);*/ ASSERT(pcFALSE);}
     EDEBS
         return 0;
 }
@@ -4099,9 +4103,9 @@ int loopStart = -1;
 int count = 0;
 int lastCount = 0; 
 
-// TJH: more name collision, these are already defined
-//int FALSE = (1==0);
-//int TRUE = (1==1);
+/* TJH: moved these up
+int pcFALSE = (1==0);
+int pcTRUE = (1==1);*/
 
 short is_bound(simplex *s) {
   
@@ -4381,7 +4385,7 @@ int cantLabelAnything(int pid) {
         loopStart = pid;
         count = 0;
         lastCount = 0;
-        return(FALSE);
+        return(pcFALSE);
     }
 
     if (pid == loopStart) {
@@ -4390,7 +4394,7 @@ int cantLabelAnything(int pid) {
             // TJH: added this if statement
             if(DFILE)
                 fprintf(DFILE,"Can't label any more! \n");
-            return(TRUE);
+            return(pcTRUE);
         } else {
             /* we labeled something last time through */
             lastCount = count;
@@ -4400,7 +4404,7 @@ int cantLabelAnything(int pid) {
         /* in the middle of the loop */
         count++;
     }
-    return(FALSE);
+    return(pcFALSE);
 }
 
 
@@ -5229,7 +5233,7 @@ void *visit_hull(simplex *root, visit_func *visit)
         if(DFILE)
             fprintf(DFILE,"---------------------\n"); 
         print_triang(a,DFILE, &print_neighbor_full);
-        ASSERT(FALSE); 
+        ASSERT(pcFALSE); 
         return 0; 
     }  
 }*/  
@@ -5251,7 +5255,7 @@ void *visit_hull(simplex *root, visit_func *visit)
         if(DFILE)
             fprintf(DFILE,"---------------------\n"); 
         print_triang(a,DFILE, &print_neighbor_full);
-        /* TJH exit(1);*/ /*ASSERT(FALSE,"adjacency failure!"); 
+        /* TJH exit(1);*/ /*ASSERT(pcFALSE,"adjacency failure!"); 
         return 0; 
     }  
 }*/   
@@ -5272,7 +5276,7 @@ void *visit_hull(simplex *root, visit_func *visit)
         if(DFILE)\
             fprintf(DFILE,"---------------------\n");       \
         print_triang(a,DFILE, &print_neighbor_full);        \
-        /* TJH exit(1);*/ ASSERT(FALSE,"adjacency failure!");                        \
+        /* TJH exit(1);*/ ASSERT(pcFALSE,"adjacency failure!");                        \
         return 0;                       \
     }                               \
 }                                   \
@@ -5513,7 +5517,7 @@ void panic(char *fmt, ...) {
     }
     va_end(args);
 
-    /* TJH exit(1);*/ ASSERT(FALSE,fmt);
+    /* TJH exit(1);*/ ASSERT(pcFALSE,fmt);
 }
 
 /*
@@ -5529,7 +5533,7 @@ FILE* efopen(char *file, char *mode) {
     // TJH: added this if statement
     if(DFILE)
         fprintf(DFILE, "couldn't open file %s mode %s\n",file,mode);
-    /* TJH exit(1);*/ ASSERT(FALSE);
+    /* TJH exit(1);*/ ASSERT(pcFALSE);
     return NULL;
 }
 
@@ -5542,7 +5546,7 @@ FILE* epopen(char *com, char *mode) {
     FILE* fp;
     if ((fp = popen(com, mode))!=NULL) return fp;
     fprintf(stderr, "couldn't open stream %s mode %s\n",com,mode);
-    /* TJH exit(1);*/ ASSERT(FALSE);
+    /* TJH exit(1);*/ ASSERT(pcFALSE);
     return 0;
 }
 
@@ -5689,7 +5693,7 @@ void *check_simplex(simplex *s, void *dum){
                 fprintf(DFILE, "huh?\n");
             print_simplex_f(s, DFILE, &print_neighbor_full);
             print_simplex_f(sns, DFILE, &print_neighbor_full);
-            /* TJH exit(1);*/ ASSERT(FALSE);
+            /* TJH exit(1);*/ ASSERT(pcFALSE);
         }
         for (j=-1,snn=sns->neigh-1; j<cdim && snn->simp!=s; j++,snn++);
         if (j==cdim) {
@@ -5699,7 +5703,7 @@ void *check_simplex(simplex *s, void *dum){
             DEBEXP(-1,site_num(p))
             print_simplex_f(sns, DFILE, &print_neighbor_full);
             print_simplex_f(s, DFILE, &print_neighbor_full);
-            /* TJH exit(1);*/ ASSERT(FALSE);
+            /* TJH exit(1);*/ ASSERT(pcFALSE);
         }
         for (k=-1,snn=sns->neigh-1; k<cdim; k++,snn++){
             vn = snn->vert;
@@ -5716,7 +5720,7 @@ void *check_simplex(simplex *s, void *dum){
                     }
                     print_simplex_f(sns, DFILE, &print_neighbor_full);
                     print_simplex_f(s, DFILE, &print_neighbor_full);
-                    /* TJH exit(1);*/ ASSERT(FALSE);
+                    /* TJH exit(1);*/ ASSERT(pcFALSE);
                 }   
             }
         }
@@ -5987,7 +5991,7 @@ void *afacets_print(simplex *s, void *p) {
                 print_simplex_f(s,DFILE,&print_neighbor_full);
             print_simplex_f(s->neigh[j].simp,DFILE,&print_neighbor_full);
             fflush(DFILE);
-            /* TJH exit(1);*/ ASSERT(FALSE);
+            /* TJH exit(1);*/ ASSERT(pcFALSE);
         }
     }
     for (j=0;j<cdim;j++) {
