@@ -116,14 +116,15 @@ void vtkPythonAddObjectToHash(PyObject *obj, vtkObject *ptr)
 #endif  
 
   ((PyVTKObject *)obj)->ptr = (vtkObject *)ptr;
-  PyObject *pyPtr = PyInt_FromLong((long)ptr);
-  PyDict_SetItem(vtkPythonHash->PointerDict,pyPtr,obj);
-  Py_DECREF(pyPtr);
+  PyObject *pyPtr1 = PyInt_FromLong((long)ptr);
+  PyObject *pyPtr2 = PyInt_FromLong((long)obj);
+  PyDict_SetItem(vtkPythonHash->PointerDict,pyPtr1,pyPtr2);
+  Py_DECREF(pyPtr1);
+  Py_DECREF(pyPtr2);
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Added object to hash obj= " << obj << " " 
 			 << ((PyVTKObject *)obj)->ptr);
-);
 #endif  
 }  
 
@@ -133,7 +134,6 @@ void vtkPythonDeleteObjectFromHash(PyObject *obj)
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Deleting an object from hash obj = " << obj << " "
 			 << ((PyVTKObject *)obj)->ptr);
-);
 #endif  
 
   void *ptr = (void *)((PyVTKObject *)obj)->ptr;
@@ -149,9 +149,15 @@ PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr)
   vtkGenericWarningMacro("Checking into pointer " << ptr);
 #endif
   
-  PyObject *pyPtr = PyInt_FromLong((long)ptr);
-  PyObject *obj = PyDict_GetItem(vtkPythonHash->PointerDict,pyPtr);
-  Py_DECREF(pyPtr);
+  PyObject *pyPtr1 = PyInt_FromLong((long)ptr);
+  PyObject *pyPtr2 = PyDict_GetItem(vtkPythonHash->PointerDict,pyPtr1);
+  Py_DECREF(pyPtr1);
+
+  PyObject *obj = 0;
+  if (pyPtr2)
+    {
+    obj = (PyObject *)PyInt_AsLong(pyPtr2);
+    }
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Checking into pointer " << ptr << " obj = " << obj);
