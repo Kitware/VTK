@@ -33,7 +33,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.33");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.34");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -828,6 +828,27 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
       this->InsertTriInHash(ids[0], ids[3], ids[2], cellId);
       this->InsertTriInHash(ids[1], ids[2], ids[3], cellId);
       }
+    else if (cellType == VTK_PENTAGONAL_PRISM)
+      {
+      // The quads :
+      this->InsertQuadInHash (ids[0], ids[1], ids[6], ids[5], cellId);
+      this->InsertQuadInHash (ids[1], ids[2], ids[7], ids[6], cellId);
+      this->InsertQuadInHash (ids[2], ids[3], ids[8], ids[7], cellId);
+      this->InsertQuadInHash (ids[3], ids[4], ids[9], ids[8], cellId);
+      this->InsertQuadInHash (ids[4], ids[0], ids[5], ids[9], cellId);
+      flag2D = 1;
+      }
+    else if (cellType == VTK_HEXAGONAL_PRISM)
+      {
+      // The quads :
+      this->InsertQuadInHash (ids[0], ids[1], ids[7], ids[6], cellId);
+      this->InsertQuadInHash (ids[1], ids[2], ids[8], ids[7], cellId);
+      this->InsertQuadInHash (ids[2], ids[3], ids[9], ids[8], cellId);
+      this->InsertQuadInHash (ids[3], ids[4], ids[10], ids[9], cellId);
+      this->InsertQuadInHash (ids[4], ids[5], ids[11], ids[10], cellId);
+      this->InsertQuadInHash (ids[5], ids[0], ids[6], ids[11], cellId);
+      flag2D = 1;
+      }
     else if (cellType == VTK_PIXEL || cellType == VTK_QUAD || 
              cellType == VTK_TRIANGLE || cellType == VTK_POLYGON || 
              cellType == VTK_TRIANGLE_STRIP)
@@ -998,6 +1019,27 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
           toggle = !toggle;
           }
         }
+      }
+    else if (cellType == VTK_PENTAGONAL_PRISM || cellType == VTK_HEXAGONAL_PRISM)
+      {
+      pts->Reset();
+      for ( i=0; i < numCellPts/2; i++)
+        {
+        inPtId = ids[i];
+        outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
+        pts->InsertId(i, outPtId);
+        }
+      newPolys->InsertNextCell(pts);
+      outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
+      pts->Reset();
+      for (i=numCellPts/2; i < numCellPts; i++)
+        {
+        inPtId = ids[i];
+        outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
+        pts->InsertId(i-numCellPts/2, outPtId);
+        }
+      newPolys->InsertNextCell(pts);
+      outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
       }
     } // for all cells.
 

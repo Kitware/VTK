@@ -23,6 +23,8 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPyramid.h"
+#include "vtkPentagonalPrism.h"
+#include "vtkHexagonalPrism.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTetra.h"
 #include "vtkUnsignedCharArray.h"
@@ -30,7 +32,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.97");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.98");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
@@ -847,6 +849,65 @@ void vtkGeometryFilter::UnstructuredGridExecute()
               {
               faceIds->InsertNextId(pts[faceVerts[3]]);
               numFacePts = 4;
+              }
+            input->GetCellNeighbors(cellId, faceIds, cellIds);
+            if ( cellIds->GetNumberOfIds() <= 0 || 
+                 (!allVisible && !cellVis[cellIds->GetId(0)]) )
+              {
+              newCellId = Polys->InsertNextCell(numFacePts);
+              for ( i=0; i < numFacePts; i++)
+                {
+                Polys->InsertCellPoint(pts[faceVerts[i]]);
+                }
+              outputCD->CopyData(cd,cellId,newCellId);
+              }
+            }
+          break;
+
+        case VTK_PENTAGONAL_PRISM:
+          for (faceId = 0; faceId < 7; faceId++)
+            {
+            faceIds->Reset();
+            faceVerts = vtkPentagonalPrism::GetFaceArray(faceId);
+            faceIds->InsertNextId(pts[faceVerts[0]]);
+            faceIds->InsertNextId(pts[faceVerts[1]]);
+            faceIds->InsertNextId(pts[faceVerts[2]]);
+            faceIds->InsertNextId(pts[faceVerts[3]]);
+            numFacePts = 4;
+            if (faceVerts[4] >= 0)
+              {
+              faceIds->InsertNextId(pts[faceVerts[4]]);
+              numFacePts = 5;
+              }
+            input->GetCellNeighbors(cellId, faceIds, cellIds);
+            if ( cellIds->GetNumberOfIds() <= 0 || 
+                 (!allVisible && !cellVis[cellIds->GetId(0)]) )
+              {
+              newCellId = Polys->InsertNextCell(numFacePts);
+              for ( i=0; i < numFacePts; i++)
+                {
+                Polys->InsertCellPoint(pts[faceVerts[i]]);
+                }
+              outputCD->CopyData(cd,cellId,newCellId);
+              }
+            }
+          break;
+
+        case VTK_HEXAGONAL_PRISM:
+          for (faceId = 0; faceId < 8; faceId++)
+            {
+            faceIds->Reset();
+            faceVerts = vtkHexagonalPrism::GetFaceArray(faceId);
+            faceIds->InsertNextId(pts[faceVerts[0]]);
+            faceIds->InsertNextId(pts[faceVerts[1]]);
+            faceIds->InsertNextId(pts[faceVerts[2]]);
+            faceIds->InsertNextId(pts[faceVerts[3]]);
+            numFacePts = 4;
+            if (faceVerts[4] >= 0)
+              {
+              faceIds->InsertNextId(pts[faceVerts[4]]);
+              faceIds->InsertNextId(pts[faceVerts[5]]);
+              numFacePts = 6;
               }
             input->GetCellNeighbors(cellId, faceIds, cellIds);
             if ( cellIds->GetNumberOfIds() <= 0 || 
