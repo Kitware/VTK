@@ -19,7 +19,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.30");
+vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.31");
 vtkStandardNewMacro(vtkImageMandelbrotSource);
 
 //----------------------------------------------------------------------------
@@ -37,7 +37,14 @@ vtkImageMandelbrotSource::vtkImageMandelbrotSource()
   this->SampleCX[1] = 0.01;
   this->SampleCX[2] = 0.01;
   this->SampleCX[3] = 0.01;
+
+  this->SizeCX[0] = 2.5; 
+  this->SizeCX[1] = 2.5; 
+  this->SizeCX[2] = 2.5; 
+  this->SizeCX[3] = 2.5; 
   
+  this->ConstantSize = 1;
+
   this->OriginCX[0] = -1.75;
   this->OriginCX[1] = -1.25;
   this->OriginCX[2] = 0.0;
@@ -68,6 +75,19 @@ void vtkImageMandelbrotSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SampleX: (" << this->SampleCX[2] << ", "
      << this->SampleCX[3] << ")\n";
 
+  double *size = this->GetSizeCX();
+  os << indent << "SizeC: (" << size[0] << ", " << size[1] << ")\n";
+  os << indent << "SizeX: (" << size[2] << ", " << size[3] << ")\n";
+
+  if (this->ConstantSize)
+    {
+    os << indent << "ConstantSize\n";
+    }
+  else
+    {
+    os << indent << "ConstantSpacing\n";
+    }
+
   os << indent << "WholeExtent: (" << this->WholeExtent[0] << ", "
      << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
      << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", " 
@@ -80,55 +100,30 @@ void vtkImageMandelbrotSource::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-/*
-void vtkImageMandelbrotSource::SetOriginCX(double cReal, double cImag, 
-                                           double xReal, double xImag)
-{
-  int modified = 0;
-
-  if (cReal != this->OriginCX[0])
-    {
-    this->OriginCX[0]  = cReal;
-    modified = 1;
-    }
-  if (cImag != this->OriginCX[1])
-    {
-    this->OriginCX[1]  = cImag;
-    modified = 1;
-    }
-  if (xReal != this->OriginCX[2])
-    {
-    this->OriginCX[2]  = xReal;
-    modified = 1;
-    }
-  if (xImag != this->OriginCX[3])
-    {
-    this->OriginCX[3]  = xImag;
-    modified = 1;
-    }
-
-  if (modified)
-    {
-    this->Modified();
-    }
-}
-*/
-//----------------------------------------------------------------------------
 void vtkImageMandelbrotSource::SetWholeExtent(int extent[6])
 {
   int idx, modified = 0;
-  
+  double saveSize[4];
+
+  this->GetSizeCX(saveSize);
+
+
   for (idx = 0; idx < 6; ++idx)
     {
     if (this->WholeExtent[idx] != extent[idx])
       {
       this->WholeExtent[idx] = extent[idx];
-      this->Modified();
+      modified = 1;
       }
     }
+
   if (modified)
     {
     this->Modified();
+    if (this->ConstantSize)
+      {
+      this->SetSizeCX(saveSize[0], saveSize[1], saveSize[2], saveSize[3]);
+      }
     }
 }
 
@@ -145,6 +140,70 @@ void vtkImageMandelbrotSource::SetWholeExtent(int minX, int maxX,
   this->SetWholeExtent(extent);
 }
 
+//----------------------------------------------------------------------------
+void vtkImageMandelbrotSource::SetSizeCX(double cReal, double cImag,
+                                         double xReal, double xImag)
+{
+  int axis;
+  int idx;
+  int d;
+
+  double *s = this->GetSizeCX();
+  if (s[0] == cReal && s[1] == cImag && s[2] == xReal && s[3] == xImag)
+    {
+    return;
+    }
+  this->Modified();
+
+  // Set this because information can be carried over for collapsed axes.
+  this->SizeCX[0] = cReal;
+  this->SizeCX[1] = cImag;
+  this->SizeCX[2] = xReal;
+  this->SizeCX[3] = xImag;
+
+  // Now compute the gold standard (for non collapsed axes.
+  for (idx = 0; idx < 3; ++idx)
+    {
+    d = this->WholeExtent[idx*2+1] - this->WholeExtent[idx*2];
+    if (d > 0)
+      {
+      axis = this->ProjectionAxes[idx];
+      this->SampleCX[axis] = this->SizeCX[axis] / ((double) d);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+double* vtkImageMandelbrotSource::GetSizeCX()
+{
+  int axis;
+  int idx;
+  int d;
+
+  // Recompute the size for the spacing (gold standard).
+  for (idx = 0; idx < 3; ++idx)
+    {
+    d = this->WholeExtent[idx*2+1] - this->WholeExtent[idx*2];
+    if (d > 0)
+      {
+      axis = this->ProjectionAxes[idx];
+      this->SizeCX[axis] = this->SampleCX[axis] * ((double) d);
+      }
+    }
+
+  return this->SizeCX;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageMandelbrotSource::GetSizeCX(double s[4])
+{
+  double *p = this->GetSizeCX();
+
+  s[0] = p[0];
+  s[1] = p[1];
+  s[2] = p[2];
+  s[3] = p[3];
+}
 
 //----------------------------------------------------------------------------
 void vtkImageMandelbrotSource::ExecuteInformation()
@@ -302,46 +361,6 @@ void vtkImageMandelbrotSource::ExecuteData(vtkDataObject *output)
   // Name the array appropriately.
   data->GetPointData()->GetScalars()->SetName("Iterations");
 }
-
-//----------------------------------------------------------------------------
-// This method selectively supersamples pixels closet to the mandelbrot set.
-/*
-void vtkImageMandelbrotSource::SuperSample(vtkImageData *data)
-{
-  int *ext;
-  float *ptr0, *ptr1, *ptr2;
-  int min0, max0;
-  int idx0, idx1, idx2;
-  int inc0, inc1, inc2;
-
-  // Get min and max of axis 0 because it is the innermost loop.
-  ext = data->GetUpdateExtent();
-  min0 = ext[0];
-  max0 = ext[1];
-  data->GetIncrements(inc0, inc1, inc2);
-
-  // loop through pixels ignoring the borders.
-  ptr2 = (float *)(data->GetScalarPointer(min0+1, ext[2]+1, ext[4]+1));
-
-  for (idx2 = ext[4]+1; idx2 < ext[5]; ++idx2)
-    {
-    ptr1 = ptr2;
-    for (idx1 = ext[2]+1; idx1 < ext[3]; ++idx1)
-      {
-      ptr0 = ptr1;
-      for (idx0 = min0+1; idx0 < max0; ++idx0)
-        {
-        *ptr0 = (float*)(this->EvaluateSet(p));
-
-        ++ptr0;
-        // inc0 is 1
-        }
-      ptr1 += inc1;
-      }
-    ptr2 += inc2;
-    }
-}
-*/
 
 
 //----------------------------------------------------------------------------
