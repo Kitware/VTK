@@ -20,7 +20,7 @@
 #include "vtkPointsProjectedHull.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointsProjectedHull, "1.5");
+vtkCxxRevisionMacro(vtkPointsProjectedHull, "1.6");
 vtkStandardNewMacro(vtkPointsProjectedHull);
 
 static const int xdim=0, ydim=1, zdim=2;
@@ -64,7 +64,7 @@ void vtkPointsProjectedHull::initFlags()
     {
     this->ccwHull[i] = NULL;
     this->hullSize[i]     = 0;
-    for (int j=0; j<3; j++)
+    for (int j=0; j<4; j++)
       {
       this->hullBBox[i][j] = 0.0;
       }

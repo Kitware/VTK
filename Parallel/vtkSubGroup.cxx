@@ -26,7 +26,7 @@
 #endif
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkSubGroup, "1.8");
+vtkCxxRevisionMacro(vtkSubGroup, "1.9");
 vtkStandardNewMacro(vtkSubGroup);
 
 vtkSubGroup::vtkSubGroup()
@@ -38,6 +38,7 @@ vtkSubGroup::vtkSubGroup()
   this->myLocalRank = -1;
   this->tag = 0;
   this->nFrom = this->nTo = this->fanInTo = 0;
+  this->nRecv = this->nSend = 0;
 }
 vtkSubGroup::vtkSubGroup(const vtkSubGroup &sg)
 {
@@ -684,7 +685,7 @@ void vtkSubGroup::PrintSelf(ostream &os, vtkIndent indent)
       os << indent << ", recvLength[" << i << "] = " << this->recvLength[i] << endl;
       }
     }
-  if (nSend > 0)
+  if (this->nSend > 0)
     {
     os << indent << "sendId = " << this->sendId;
     os << indent << ", sendOffset = " << this->sendOffset;
