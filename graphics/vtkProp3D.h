@@ -204,6 +204,7 @@ public:
   // same matrix is RotateZ, RotateX, and finally RotateY. See also 
   // SetOrientation.
   float *GetOrientation();
+  void GetOrientation(float o[3]);
 
   // Description:
   // Returns the WXYZ orientation of the Prop3D. 
