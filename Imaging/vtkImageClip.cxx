@@ -41,11 +41,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkImageClip.h"
+#include "vtkExtentTranslator.h"
 #include "vtkObjectFactory.h"
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkImageClip* vtkImageClip::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -232,47 +233,11 @@ void vtkImageClip::ExecuteData(vtkDataObject *)
 
 
 //----------------------------------------------------------------------------
-// An old method that is not used anymore
-void vtkImageClip::CopyData(vtkImageData *inData, vtkImageData *outData,
-                            int *ext)
-{
-  int idxY, idxZ, maxY, maxZ;
-  int inIncX, inIncY, inIncZ, rowLength;
-  unsigned char *inPtr, *inPtr1, *outPtr;
-  
-  
-  inPtr = (unsigned char *) inData->GetScalarPointerForExtent(ext);
-  outPtr = (unsigned char *) outData->GetScalarPointer();
-  
-  // Get increments to march through inData 
-  inData->GetIncrements(inIncX, inIncY, inIncZ);
-  
-  // find the region to loop over
-  rowLength = (ext[1] - ext[0]+1)*inIncX*inData->GetScalarSize();
-  maxY = ext[3] - ext[2]; 
-  maxZ = ext[5] - ext[4];
-  
-  inIncY *= inData->GetScalarSize(); 
-  inIncZ *= inData->GetScalarSize();
-  
-  // Loop through outData pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
-    {
-    inPtr1 = inPtr + idxZ*inIncZ;
-    for (idxY = 0; idxY <= maxY; idxY++)
-      {
-      memcpy(outPtr,inPtr1,rowLength);
-      inPtr1 += inIncY;
-      outPtr += rowLength;
-      }
-    }
-}
-
-
-//----------------------------------------------------------------------------
 void vtkImageClip::SetOutputWholeExtent(int piece, int numPieces)
 {
   vtkImageData *input = this->GetInput();
+  vtkImageData *output = this->GetOutput();
+  vtkExtentTranslator *translator;
   int ext[6];
 
   if (input == NULL)
@@ -280,90 +245,28 @@ void vtkImageClip::SetOutputWholeExtent(int piece, int numPieces)
     vtkErrorMacro("We must have an input to set the output extent by piece.");
     return;
     }
+  if (output == NULL)
+    {
+    vtkErrorMacro("We must have an output to set the output extent by piece.");
+    return;
+    }
+  translator = output->GetExtentTranslator();
+  if (translator == NULL)
+    {
+    vtkErrorMacro("Output does not have an extent translator.");
+    return;
+    }
 
   input->UpdateInformation();
   input->GetWholeExtent(ext);
-  this->SplitExtentTmp(piece, numPieces, ext);
-
+  translator->SetWholeExtent(ext);
+  translator->SetPiece(piece);
+  translator->SetNumberOfPieces(numPieces);
+  translator->SetGhostLevel(0);
+  translator->PieceToExtent();
+  translator->GetExtent(ext);
   this->SetOutputWholeExtent(ext);
 }
 
-//----------------------------------------------------------------------------
-// Assumes UpdateInformation was called first.
-int vtkImageClip::SplitExtentTmp(int piece, int numPieces, int *ext)
-{
-  int numPiecesInFirstHalf;
-  int size[3], mid, splitAxis;
-
-  // keep splitting until we have only one piece.
-  // piece and numPieces will always be relative to the current ext. 
-  while (numPieces > 1)
-    {
-    // Get the dimensions for each axis.
-    size[0] = ext[1]-ext[0];
-    size[1] = ext[3]-ext[2];
-    size[2] = ext[5]-ext[4];
-    // choose the biggest axis
-    if (size[2] >= size[1] && size[2] >= size[0] && 
-	size[2]/2 >= 2)
-      {
-      splitAxis = 2;
-      }
-    else if (size[1] >= size[0] && size[1]/2 >= 2)
-      {
-      splitAxis = 1;
-      }
-    else if (size[0]/2 >= 2)
-      {
-      splitAxis = 0;
-      }
-    else
-      {
-      // signal no more splits possible
-      splitAxis = -1;
-      }
-
-    if (splitAxis == -1)
-      {
-      // can not split any more.
-      if (piece == 0)
-        {
-        // just return the remaining piece
-        numPieces = 1;
-        }
-      else
-        {
-        // the rest must be empty
-        return 0;
-        }
-      }
-    else
-      {
-      // split the chosen axis into two pieces.
-      numPiecesInFirstHalf = (numPieces / 2);
-      mid = (size[splitAxis] * numPiecesInFirstHalf / numPieces) 
-	+ ext[splitAxis*2];
-      if (piece < numPiecesInFirstHalf)
-        {
-        // piece is in the first half
-        // set extent to the first half of the previous value.
-        ext[splitAxis*2+1] = mid;
-        // piece must adjust.
-        numPieces = numPiecesInFirstHalf;
-        }
-      else
-        {
-        // piece is in the second half.
-        // set the extent to be the second half. (two halves share points)
-        ext[splitAxis*2] = mid;
-        // piece must adjust
-        numPieces = numPieces - numPiecesInFirstHalf;
-        piece -= numPiecesInFirstHalf;
-        }
-      }
-    } // end of while
-
-  return 1;
-}
 
 
