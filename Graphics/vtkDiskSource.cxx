@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDiskSource, "1.29");
+vtkCxxRevisionMacro(vtkDiskSource, "1.30");
 vtkStandardNewMacro(vtkDiskSource);
 
 vtkDiskSource::vtkDiskSource()
@@ -42,10 +42,8 @@ void vtkDiskSource::Execute()
   vtkCellArray *newPolys;
   vtkPolyData *output = this->GetOutput();
   
-  //
   // Set things up; allocate memory
   //
-
   numPts = (this->RadialResolution + 1) * 
            (this->CircumferentialResolution + 1);
   numPolys = this->RadialResolution * this->CircumferentialResolution;
@@ -53,14 +51,14 @@ void vtkDiskSource::Execute()
   newPoints->Allocate(numPts);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
-//
-// Create disk
-//
+
+  // Create disk
+  //
   theta = 2.0 * vtkMath::Pi() / ((float)this->CircumferentialResolution);
   deltaRadius = (this->OuterRadius - this->InnerRadius) / 
                        ((float)this->RadialResolution);
 
-  for (i=0; i<=this->CircumferentialResolution; i++) 
+  for (i=0; i < this->CircumferentialResolution; i++) 
     {
     cosTheta = cos((double)i*theta);
     sinTheta = sin((double)i*theta);
@@ -72,23 +70,30 @@ void vtkDiskSource::Execute()
       newPoints->InsertNextPoint(x);
       }
     }
-//
-//  Create connectivity
-//
-    for (i=0; i < this->CircumferentialResolution; i++) 
+
+  //  Create connectivity
+  //
+  for (i=0; i < this->CircumferentialResolution; i++) 
+    {
+    for (j=0; j < this->RadialResolution; j++) 
       {
-      for (j=0; j < this->RadialResolution; j++) 
+      pts[0] = i*(this->RadialResolution+1) + j;
+      pts[1] = pts[0] + 1;
+      if ( i < (this->CircumferentialResolution-1) )
         {
-        pts[0] = i*(this->RadialResolution+1) + j;
-        pts[1] = pts[0] + 1;
         pts[2] = pts[1] + this->RadialResolution + 1;
-        pts[3] = pts[2] - 1;
-        newPolys->InsertNextCell(4,pts);
         }
+      else
+        {
+        pts[2] = j + 1;
+        }
+      pts[3] = pts[2] - 1;
+      newPolys->InsertNextCell(4,pts);
       }
-//
-// Update ourselves and release memory
-//
+    }
+
+  // Update ourselves and release memory
+  //
   output->SetPoints(newPoints);
   newPoints->Delete();
 
