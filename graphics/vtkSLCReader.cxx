@@ -66,6 +66,7 @@ vtkSLCReader* vtkSLCReader::New()
 vtkSLCReader::vtkSLCReader()
 {
   this->FileName = NULL;
+  this->Error = 0;
 }
 
 vtkSLCReader::~vtkSLCReader()
@@ -131,6 +132,7 @@ void vtkSLCReader::ExecuteInformation()
   int   size[3];
   int   magic_num;
 
+  this->Error = 1;
   vtkStructuredPoints *output = this->GetOutput();
 
   if (!this->FileName)
@@ -204,8 +206,9 @@ void vtkSLCReader::Execute()
   unsigned char *scan_ptr = NULL;
   unsigned char *sptr = NULL;
 
+  this->Error = 1;
   vtkStructuredPoints *output = this->GetOutput();
-
+  
   if (!this->FileName)
     {
     vtkErrorMacro(<<"A FileName must be specified.");
@@ -342,6 +345,7 @@ void vtkSLCReader::Execute()
     }
 
   fclose( fp );
+  this->Error = 0;
 }
 
 void vtkSLCReader::PrintSelf(ostream& os, vtkIndent indent)

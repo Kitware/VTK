@@ -64,6 +64,10 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
+  // Description:
+  // Was there an error on the last read performed?
+  vtkGetMacro(Error,int);
+  
 protected:
   vtkSLCReader();
   ~vtkSLCReader();
@@ -84,6 +88,7 @@ protected:
   
   // Decodes an array of eight bit run-length encoded data.
   unsigned char *Decode8BitData( unsigned char *in_ptr, int size );
+  int Error;
 };
 
 #endif
