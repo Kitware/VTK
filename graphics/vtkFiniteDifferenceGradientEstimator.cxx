@@ -184,51 +184,45 @@ static void ComputeGradients(
 	// we are on the edge
 
 	// Compute the X component
-	if ( x >= estimator->SampleSpacingInVoxels && 
-	     x < size[0] - 
-	         estimator->SampleSpacingInVoxels )
-	  {
-	  n[0] = (float)*(dptr-xstep) - (float)*(dptr+xstep); 
-	  }
-	else if ( x == 0 )
+	if ( x < estimator->SampleSpacingInVoxels ) 
 	  {
 	  n[0] = -((float)*(dptr+xstep));
 	  }
-	else
+	else if ( x >= size[0] - estimator->SampleSpacingInVoxels )
 	  {
 	  n[0] =  ((float)*(dptr-xstep));
 	  }
+	else
+	  {
+	  n[0] = (float)*(dptr-xstep) - (float)*(dptr+xstep); 
+	  }
 	
 	// Compute the Y component
-	if ( y >= estimator->SampleSpacingInVoxels && 
-	     y < size[1] - 
-	         estimator->SampleSpacingInVoxels )
-	  {
-	  n[1] = (float)*(dptr-ystep) - (float)*(dptr+ystep); 
-	  }
-	else if ( y == 0 )
+	if ( y < estimator->SampleSpacingInVoxels )
 	  {
 	  n[1] = -((float)*(dptr+ystep));
 	  }
-	else
+	else if ( y >= size[1] - estimator->SampleSpacingInVoxels )
 	  {
 	  n[1] =  ((float)*(dptr-ystep));
 	  }
+	else
+	  {
+	  n[1] = (float)*(dptr-ystep) - (float)*(dptr+ystep); 
+	  }
 	
 	// Compute the Z component
-	if ( z >= estimator->SampleSpacingInVoxels && 
-	     z < size[2] - 
-	         estimator->SampleSpacingInVoxels )
-	  {
-	  n[2] = (float)*(dptr-zstep) - (float)*(dptr+zstep); 
-	  }
-	else if ( z == 0 )
+	if ( z < estimator->SampleSpacingInVoxels )
 	  {
 	  n[2] = -((float)*(dptr+zstep));
 	  }
-	else
+	else if ( z >= size[2] - estimator->SampleSpacingInVoxels )
 	  {
 	  n[2] =  ((float)*(dptr-zstep));
+	  }
+	else
+	  {
+	  n[2] = (float)*(dptr-zstep) - (float)*(dptr+zstep); 
 	  }
 
 	// Take care of the aspect ratio of the data
