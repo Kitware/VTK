@@ -30,7 +30,6 @@ proc ExitMaster { code } {
         catch [ [ compManager GetController ] TriggerRMI $i 239954 ]
     }
     
-    catch [ [compManager GetController] Finalize ]
     vtkCommand DeleteAllObjects
     catch {destroy .top}
     catch {destroy .geo}
@@ -88,8 +87,6 @@ if { $myProcId != 0 } {
     compManager InitializeRMIs
     #puts "Process RMIs"
     [ compManager GetController ] ProcessRMIs
-
-    [compManager GetController] Finalize
 
     #puts "**********************************"
     #puts "Done on the slave node"
