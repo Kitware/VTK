@@ -25,7 +25,6 @@ IF (VTK_USE_RENDERING)
         TestAllFlips
         TestAllLogic
         TestAllMaskBits
-        TestAllMathematics
         TestAllShrinks
         TestButterworthLowPass
         TestButterworthHighPass
@@ -64,6 +63,7 @@ IF (VTK_USE_RENDERING)
         TestStencilWithImage
         TestVariance3D
         TestWrapPad
+	voxelModel
         )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
