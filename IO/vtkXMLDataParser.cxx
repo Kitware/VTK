@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.20");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.21");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -216,14 +216,14 @@ void vtkXMLDataParser::FindAppendedDataPosition()
 
   // Scan for the start of the actual appended data.
   char c=0;
-  unsigned long returnPosition = this->Stream->tellg();
-  this->Stream->seekg(this->GetXMLByteIndex());
+  long returnPosition = this->TellG();
+  this->SeekG(this->GetXMLByteIndex());
   while(this->Stream->get(c) && (c != '>'));
   while(this->Stream->get(c) && this->IsSpace(c));
 
   // Store the start of the appended data.  We skip the first
   // character because it is always a "_".
-  this->AppendedDataPosition = this->Stream->tellg();
+  this->AppendedDataPosition = this->TellG();
 
   // If first character was not an underscore, assume it is part of
   // the data.
@@ -235,7 +235,7 @@ void vtkXMLDataParser::FindAppendedDataPosition()
     }
 
   // Restore the stream position.
-  this->Stream->seekg(returnPosition);
+  this->SeekG(returnPosition);
 }
 
 //----------------------------------------------------------------------------
@@ -243,13 +243,13 @@ unsigned long vtkXMLDataParser::FindInlineDataPosition(unsigned long start)
 {
   // Scan for the start of the actual inline data.
   char c=0;
-  this->Stream->seekg(start);
+  this->SeekG(start);
   while(this->Stream->get(c) && (c != '>'));
   while(this->Stream->get(c) && this->IsSpace(c));
 
   // Make sure some data were found.
   if(c == '<') { return 0; }
-  unsigned long pos = this->Stream->tellg();
+  unsigned long pos = this->TellG();
   return (pos-1);
 }
 
@@ -812,7 +812,7 @@ unsigned long vtkXMLDataParser::ReadAppendedData(unsigned long offset,
                                                  int numWords, int wordType)
 {
   this->DataStream = this->AppendedDataStream;
-  this->Stream->seekg(this->AppendedDataPosition+offset);
+  this->SeekG(this->AppendedDataPosition+offset);
   return this->ReadBinaryData(buffer, startWord, numWords, wordType);
 }
 
@@ -920,13 +920,13 @@ int vtkXMLDataParser::ParseAsciiData(int wordType)
   istream& is = *(this->Stream);
 
   // Don't re-parse the same ascii data.
-  if(this->AsciiDataPosition == (unsigned long)(is.tellg()))
+  if(this->AsciiDataPosition == static_cast<unsigned long>(this->TellG()))
     {
     return (this->AsciiDataBuffer? 1:0);
     }
 
   // Prepare for new data.
-  this->AsciiDataPosition = is.tellg();
+  this->AsciiDataPosition = this->TellG();
   if(this->AsciiDataBuffer) { this->FreeAsciiBuffer(); }
 
   int length = 0;

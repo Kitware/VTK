@@ -46,6 +46,13 @@ public:
   // Get/Set the input stream.
   vtkSetMacro(Stream, istream*);
   vtkGetMacro(Stream, istream*);
+
+  // Description:
+  // Used by subclasses and their supporting classes.  These methods
+  // wrap around the tellg and seekg methods of the input stream to
+  // work-around stream bugs on various platforms.
+  long TellG();
+  void SeekG(long position);
   //ETX
 
   // Description:

@@ -19,7 +19,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.19");
+vtkCxxRevisionMacro(vtkXMLParser, "1.20");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -54,6 +54,60 @@ void vtkXMLParser::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "FileName: " << (this->FileName? this->FileName : "(none)")
      << "\n";
+}
+
+//----------------------------------------------------------------------------
+#if defined(VTK_USE_ANSI_STDLIB)
+# if defined(__sgi) && !defined(__GNUC__)
+#  define VTK_XML_NEED_TELLG_WORKAROUND
+# elif defined(__BORLANDC__) && (__BORLANDC__>=0x0560)
+#  define VTK_XML_NEED_TELLG_WORKAROUND
+# elif defined(__APPLE_CC__)
+#  define VTK_XML_NEED_TELLG_WORKAROUND
+# endif
+#endif
+
+//----------------------------------------------------------------------------
+long vtkXMLParser::TellG()
+{
+  // Standard tellg returns -1 if fail() is true.
+  if(!this->Stream || this->Stream->fail())
+    {
+    return -1;
+    }
+#if defined(VTK_XML_NEED_TELLG_WORKAROUND)
+  // This check is required for buggy streams libraries when VTK is
+  // built with VTK_USE_ANSI_STDLIB.  It seems that after a read that
+  // just reaches EOF, tellg reports a -1.
+  long pos = this->Stream->tellg();
+  if(pos == -1)
+    {
+    // Save the eof flag.
+    int eof = this->Stream->eof()?1:0;
+
+    // Clear the eof and seek to the end.  This works around the bug.
+    this->Stream->clear(this->Stream->rdstate() & ~ios::eofbit);
+    this->Stream->seekg(0, ios::end);
+
+    // Call tellg to get the position.
+    pos = this->Stream->tellg();
+
+    // Restore the eof flag.
+    if(eof)
+      {
+      this->Stream->clear(this->Stream->rdstate() | ios::eofbit);
+      }
+    }
+  return pos;
+#else
+  return this->Stream->tellg();
+#endif
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLParser::SeekG(long position)
+{
+  this->Stream->seekg(position);
 }
 
 //----------------------------------------------------------------------------
