@@ -42,21 +42,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 #include <jni.h>
 
-extern void vtkJavaAddObjectToHash(JNIEnv *env,jobject obj,void *anInstance,
+extern JNIEXPORT void vtkJavaAddObjectToHash(JNIEnv *env,jobject obj,void *anInstance,
 				   void *tcFunc, int);
-extern void *vtkJavaGetPointerFromObject(JNIEnv *env,jobject obj, 
+extern JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env,jobject obj, 
 					 char *result_type);
-extern void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id);
-extern jobject vtkJavaGetObjectFromPointer(void *ptr);
-extern int  vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj);
-extern char *vtkJavaUTFToChar(JNIEnv *env, jstring in);
-extern jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in);
+extern JNIEXPORT void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id);
+extern JNIEXPORT jobject vtkJavaGetObjectFromPointer(void *ptr);
+extern JNIEXPORT int  vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj);
+extern JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in);
+extern JNIEXPORT jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in);
 
-extern jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env,
+extern JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env,
 						 float *arr, int size);
-extern jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, 
+extern JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, 
 						  double *arr, int size);
-extern jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *arr, int size);
+extern JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *arr, int size);
 
 // this is the void pointer parm passed to the vtk callback routines on
 // behalf of the Java interface for callbacks.
@@ -67,5 +67,5 @@ struct vtkJavaVoidFuncArg
   jmethodID mid;
 } ;
 
-extern void vtkJavaVoidFunc(void *);
-extern void vtkJavaVoidFuncArgDelete(void *);
+extern JNIEXPORT void vtkJavaVoidFunc(void *);
+extern JNIEXPORT void vtkJavaVoidFuncArgDelete(void *);
