@@ -180,8 +180,8 @@ void vtkShepardMethod::Execute()
     
     for (i=0; i<3; i++) //compute dimensional bounds in data set
       {
-      min[i] = (int) ((float)((x[i] - maxDistance) - origin[i]) / ar[i]);
-      max[i] = (int) ((float)((x[i] + maxDistance) - origin[i]) / ar[i]);
+      min[i] = (int) ((float)((px[i] - maxDistance) - origin[i]) / ar[i]);
+      max[i] = (int) ((float)((px[i] + maxDistance) - origin[i]) / ar[i]);
       if (min[i] < 0) min[i] = 0;
       if (max[i] >= this->SampleDimensions[i]) 
 	max[i] = this->SampleDimensions[i] - 1;
@@ -209,7 +209,7 @@ void vtkShepardMethod::Execute()
           else
             {
             s = newScalars->GetScalar(idx);
-            sum[idx] = 1.0 / distance2;
+            sum[idx] += 1.0 / distance2;
             newScalars->SetScalar(idx,s+(inScalar/distance2));
             }
           }
