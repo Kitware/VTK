@@ -34,7 +34,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.7");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.8");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -742,9 +742,9 @@ void vtkUnstructuredGridBunykRayCastFunction::ComputePixelIntersections()
                     {
                     test = test->Next;
                     }
-                  Intersection *tmp = test->Next;
+                  Intersection *tmpNext = test->Next;
                   test->Next = intersect;
-                  intersect->Next = tmp;
+                  intersect->Next = tmpNext;
                   }
                 }
               }
