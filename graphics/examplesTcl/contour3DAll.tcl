@@ -33,10 +33,12 @@ foreach vtkType $types {
   vtkContourFilter iso$vtkType
     iso$vtkType SetInput [castTo$vtkType GetOutput]
     iso$vtkType GenerateValues 1 30 30
+    iso$vtkType ComputeScalarsOff
+    iso$vtkType ComputeGradientsOff
 
   vtkPolyDataMapper iso${vtkType}Mapper
     iso${vtkType}Mapper SetInput [iso$vtkType GetOutput]
-    iso${vtkType}Mapper ScalarVisibilityOff
+    iso${vtkType}Mapper ImmediateModeRenderingOn
 
   vtkActor iso${vtkType}Actor
     iso${vtkType}Actor SetMapper iso${vtkType}Mapper
