@@ -42,8 +42,10 @@ proc rtOtherTest { fileid } {
 # All tests should end with the following...
 
 if {![info exists rtOutId]} {
-    rtOtherTest stdout
-    exit
+   rtOtherTest stdout
+   vtkCommand DebugOff
+   vtkCommand DeleteAllObjects
+   exit
 }
 
 wm withdraw .
