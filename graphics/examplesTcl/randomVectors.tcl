@@ -1,4 +1,4 @@
-# This example demonstrates how to use a programmable filter and how to use
+# This example demonstrates how to use a programmable point data filter and how to use
 # the special vtkDataSetToDataSet::GetOutput() methods (i.e., see vtkWarpScalar)
 catch {load vtktcl}
 
@@ -17,49 +17,50 @@ vtkTransformPolyDataFilter transF
    transF SetInput [plane GetOutput]
    transF SetTransform transform
 
-# Compute Bessel function and derivatives. We'll use a programmable filter
-# for this. Note the unsual GetInput() & GetOutput() methods.
-vtkProgrammableFilter besselF
-   besselF SetInput [transF GetOutput]
-   besselF SetExecuteMethod bessel
+# Generate random vectors perpendicular to the plane. Also create random scalars.
+# Note the unsual GetInput() & GetOutput() methods.
+vtkProgrammablePointDataFilter randomF
+   randomF SetInput [transF GetOutput]
+   randomF SetExecuteMethod randomVectors
 
-proc bessel {} {
-   set input [besselF GetPolyDataInput]
+proc randomVectors {} {
+   puts "here"
+   set input [randomF GetInput]
    set numPts [$input GetNumberOfPoints]
+   vtkMath math
    vtkFloatPoints newPts
-   vtkFloatScalars derivs
+   vtkFloatScalars scalars
+   vtkFloatVectors vectors
 
-    for {set i 0} {$i < $numPts} {incr i} {
+   for {set i 0} {$i < $numPts} {incr i} {
 	set x [$input GetPoint $i]
 	set x0 [lindex $x 0]
 	set x1 [lindex $x 1]
 
-	set r [expr sqrt($x0*$x0 + $x1*$x1)]
-	set x2 [expr exp(-$r) * cos(10.0*$r)]
-	set deriv [expr -exp(-$r) * (cos(10.0*$r) + 10.0*sin(10.0*$r))]
+        set s [math Random 0 1]
 
-	newPts InsertPoint $i $x0 $x1 $x2
-	eval derivs InsertScalar $i $deriv
+	scalars InsertScalar $i $s
+	vectors InsertVector $i 0 0 $s
     }
 
-    [besselF GetPolyDataOutput] CopyStructure $input
-    [besselF GetPolyDataOutput] SetPoints newPts
-    [[besselF GetPolyDataOutput] GetPointData] SetScalars derivs
+    [[randomF GetOutput] GetPointData] SetScalars scalars
+    [[randomF GetOutput] GetPointData] SetVectors vectors
 
     newPts Delete; #reference counting - it's ok
-    derivs Delete
+    scalars Delete
+    vectors Delete
+    math Delete
 }
 
 # warp plane
-vtkWarpScalar warp
-    warp SetInput [besselF GetPolyDataOutput]
-    warp XYPlaneOn
+vtkWarpVector warp
+    warp SetInput [randomF GetPolyDataOutput]
     warp SetScaleFactor 0.5
 
 # mapper and actor
 vtkPolyDataMapper mapper
     mapper SetInput [warp GetPolyDataOutput]
-    eval mapper SetScalarRange [[besselF GetPolyDataOutput] GetScalarRange]
+    eval mapper SetScalarRange [[randomF GetPolyDataOutput] GetScalarRange]
 vtkActor carpet
     carpet SetMapper mapper
 
