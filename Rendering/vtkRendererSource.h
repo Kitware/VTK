@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Indicates what renderer to get the pixel data from.
-  virtual void SetInput(vtkRenderer*);
+  void SetInput(vtkRenderer*);
 
   // Description:
   // Returns which renderer is being used as the source for the pixel data.
@@ -84,13 +84,6 @@ public:
   vtkGetMacro(DepthValuesInScalars,int);
   vtkBooleanMacro(DepthValuesInScalars,int);
   
-  // Description
-  // Override superclass input methods
-  virtual void SetInput(vtkDataObject *) 
-    { vtkErrorMacro( "Bad input for RendererSource"); };
-  virtual void SetInput(int, vtkDataObject*)
-    { vtkErrorMacro( "Bad input for RendererSource"); };
-
 protected:
   vtkRendererSource();
   ~vtkRendererSource();

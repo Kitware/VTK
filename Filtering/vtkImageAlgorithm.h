@@ -49,9 +49,12 @@ public:
                              vtkInformationVector*);
 
   // Description:
-  // Set an input of this algorithm.
-  virtual void SetInput(vtkDataObject *);
-  virtual void SetInput(int, vtkDataObject*);
+  // Set/Get an input of this algorithm. You should not override these
+  // methods because they are not the only way to connect a pipeline
+  void SetInput(vtkDataObject *);
+  void SetInput(int, vtkDataObject*);
+  vtkDataObject *GetInput(int port);
+  vtkDataObject *GetInput() { return this->GetInput(0); };
 
   // Description:
   // Add an input of this algorithm.

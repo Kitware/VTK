@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.6");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.7");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -816,4 +816,28 @@ void vtkAlgorithm::ReleaseDataFlagOff()
       ddp->SetReleaseDataFlag(i, 0);
       }
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::SetReleaseDataFlag(int val)
+{
+  if(vtkDemandDrivenPipeline* ddp =
+     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+    {
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      ddp->SetReleaseDataFlag(i, val);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::GetReleaseDataFlag()
+{
+  if(vtkDemandDrivenPipeline* ddp =
+     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+    {
+    return ddp->GetReleaseDataFlag(0);
+    }
+  return 0;
 }

@@ -78,13 +78,6 @@ public:
   double GetDisplacementShift() {
     this->UpdateShiftScale(); return this->DisplacementShift; };
 
-  // Description
-  // Override superclass input methods
-  virtual void SetInput(vtkDataObject *) 
-    { vtkErrorMacro( "Bad input for TransformToGrid"); };
-  virtual void SetInput(int, vtkDataObject*)
-    { vtkErrorMacro( "Bad input for TransformToGrid"); };
-
 protected:
   vtkTransformToGrid();
   ~vtkTransformToGrid();

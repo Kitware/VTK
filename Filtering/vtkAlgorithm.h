@@ -213,6 +213,8 @@ public:
   
   // Description:
   // Turn release data flag on or off for all output ports.
+  virtual void SetReleaseDataFlag(int);
+  virtual int GetReleaseDataFlag();
   void ReleaseDataFlagOn();
   void ReleaseDataFlagOff();
 
