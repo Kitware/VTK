@@ -39,6 +39,9 @@ int vlPolyPoints::EvaluatePosition(float x[3], int& subId, float pcoords[3],
       }
     }
 
+  for (i=0; i<numPts; i++) weights[i] = 0.0;
+  weights[subId] = 1.0;
+
   if (minDist2 == 0.0)
     {
     return 1;
@@ -50,8 +53,6 @@ int vlPolyPoints::EvaluatePosition(float x[3], int& subId, float pcoords[3],
     pcoords[0] = -10.0;
     }
 
-  for (i=0; i<numPts; i++) weights[i] = 0.0;
-  weights[subId] = 1.0;
 }
 
 void vlPolyPoints::EvaluateLocation(int& subId, float pcoords[3], 
