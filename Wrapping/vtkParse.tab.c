@@ -1,7 +1,7 @@
-/* A Bison parser, made by GNU Bison 1.875a.  */
+/* A Bison parser, made by GNU Bison 1.875d.  */
 
 /* Skeleton parser for Yacc-like parsing with Bison,
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -178,6 +178,8 @@ Modify vtkParse.tab.c:
 #define yyerror(a) fprintf(stderr,"%s\n",a)
 #define yywrap() 1
 
+static void vtkDebug(const char* s1, const char* s2);
+
 /* MSVC Does not define __STDC__ properly. */
 #if defined(_MSC_VER) && _MSC_VER >= 1200 && !defined(__STDC__)
 # define __STDC__ 1
@@ -297,13 +299,13 @@ char *vtkstrdup(const char *in)
 #endif
 
 #if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
-#line 141 "vtkParse.y"
+#line 143 "vtkParse.y"
 typedef union YYSTYPE {
   char *str;
   int   integer;
   } YYSTYPE;
 /* Line 191 of yacc.c.  */
-#line 307 "vtkParse.tab.c"
+#line 309 "vtkParse.tab.c"
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
@@ -315,22 +317,29 @@ typedef union YYSTYPE {
 
 
 /* Line 214 of yacc.c.  */
-#line 319 "vtkParse.tab.c"
+#line 321 "vtkParse.tab.c"
 
 #if ! defined (yyoverflow) || YYERROR_VERBOSE
 
+# ifndef YYFREE
+#  define YYFREE free
+# endif
+# ifndef YYMALLOC
+#  define YYMALLOC malloc
+# endif
+
 /* The parser invokes alloca or malloc; define the necessary symbols.  */
 
-# if YYSTACK_USE_ALLOCA
-#  define YYSTACK_ALLOC alloca
+# ifdef YYSTACK_USE_ALLOCA
+#  if YYSTACK_USE_ALLOCA
+#   define YYSTACK_ALLOC alloca
+#  endif
 # else
-#  ifndef YYSTACK_USE_ALLOCA
-#   if defined (alloca) || defined (_ALLOCA_H)
-#    define YYSTACK_ALLOC alloca
-#   else
-#    ifdef __GNUC__
-#     define YYSTACK_ALLOC __builtin_alloca
-#    endif
+#  if defined (alloca) || defined (_ALLOCA_H)
+#   define YYSTACK_ALLOC alloca
+#  else
+#   ifdef __GNUC__
+#    define YYSTACK_ALLOC __builtin_alloca
 #   endif
 #  endif
 # endif
@@ -343,20 +352,20 @@ typedef union YYSTYPE {
 #   include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
 #   define YYSIZE_T size_t
 #  endif
-#  define YYSTACK_ALLOC malloc
-#  define YYSTACK_FREE free
+#  define YYSTACK_ALLOC YYMALLOC
+#  define YYSTACK_FREE YYFREE
 # endif
 #endif /* ! defined (yyoverflow) || YYERROR_VERBOSE */
 
 
 #if (! defined (yyoverflow) \
      && (! defined (__cplusplus) \
-         || (YYSTYPE_IS_TRIVIAL)))
+         || (defined (YYSTYPE_IS_TRIVIAL) && YYSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
-  short yyss;
+  short int yyss;
   YYSTYPE yyvs;
   };
 
@@ -366,13 +375,13 @@ union yyalloc
 /* The size of an array large to enough to hold all stacks, each with
    N elements.  */
 # define YYSTACK_BYTES(N) \
-     ((N) * (sizeof (short) + sizeof (YYSTYPE))                         \
+     ((N) * (sizeof (short int) + sizeof (YYSTYPE))                     \
       + YYSTACK_GAP_MAXIMUM)
 
 /* Copy COUNT objects from FROM to TO.  The source and destination do
    not overlap.  */
 # ifndef YYCOPY
-#  if 1 < __GNUC__
+#  if defined (__GNUC__) && 1 < __GNUC__
 #   define YYCOPY(To, From, Count) \
       __builtin_memcpy (To, From, (Count) * sizeof (*(From)))
 #  else
@@ -408,7 +417,7 @@ union yyalloc
 #if defined (__STDC__) || defined (__cplusplus)
    typedef signed char yysigned_char;
 #else
-   typedef short yysigned_char;
+   typedef short int yysigned_char;
 #endif
 
 /* YYFINAL -- State number of the termination state. */
@@ -471,7 +480,7 @@ static const unsigned char yytranslate[] =
 #if YYDEBUG
 /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
    YYRHS.  */
-static const unsigned short yyprhs[] =
+static const unsigned short int yyprhs[] =
 {
        0,     0,     3,     7,     8,    16,    18,    21,    24,    26,
       28,    31,    34,    38,    41,    44,    46,    51,    54,    58,
@@ -494,7 +503,7 @@ static const unsigned short yyprhs[] =
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS. */
-static const short yyrhs[] =
+static const short int yyrhs[] =
 {
       67,     0,    -1,   131,    68,   131,    -1,    -1,     3,    24,
       69,   102,    51,    70,    52,    -1,    71,    -1,    71,    70,
@@ -553,26 +562,26 @@ static const short yyrhs[] =
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const unsigned short yyrline[] =
+static const unsigned short int yyrline[] =
 {
-       0,   201,   201,   204,   203,   209,   209,   211,   211,   212,
-     213,   214,   215,   216,   217,   218,   220,   222,   223,   224,
-     225,   229,   233,   238,   243,   249,   253,   258,   263,   269,
-     275,   281,   287,   287,   287,   293,   302,   302,   304,   304,
-     306,   308,   310,   310,   312,   313,   314,   315,   317,   317,
-     319,   320,   320,   322,   328,   327,   334,   341,   341,   343,
-     343,   345,   353,   354,   354,   357,   360,   361,   362,   363,
-     365,   366,   376,   377,   378,   379,   381,   381,   383,   386,
-     387,   388,   389,   390,   391,   392,   393,   398,   416,   416,
-     418,   424,   423,   429,   430,   431,   433,   433,   435,   436,
-     436,   440,   439,   451,   451,   451,   460,   460,   471,   471,
-     481,   482,   480,   513,   512,   525,   524,   536,   537,   536,
-     546,   545,   563,   562,   593,   592,   610,   609,   642,   641,
-     659,   658,   693,   692,   710,   709,   748,   747,   765,   764,
-     783,   782,   799,   846,   895,   951,   951,   952,   952,   954,
-     954,   956,   956,   956,   956,   956,   956,   956,   956,   957,
-     957,   957,   957,   957,   957,   957,   958,   958,   958,   958,
-     958,   960,   961,   962
+       0,   203,   203,   206,   205,   211,   211,   213,   213,   214,
+     215,   216,   217,   218,   219,   220,   222,   224,   225,   226,
+     227,   231,   235,   240,   245,   251,   255,   260,   265,   271,
+     277,   283,   289,   289,   289,   295,   304,   304,   306,   306,
+     308,   310,   312,   312,   314,   315,   316,   317,   319,   319,
+     321,   322,   322,   324,   330,   329,   336,   343,   343,   345,
+     345,   347,   355,   356,   356,   359,   362,   363,   364,   365,
+     367,   368,   378,   379,   380,   381,   383,   383,   385,   388,
+     389,   390,   391,   392,   393,   394,   395,   400,   418,   418,
+     420,   426,   425,   431,   432,   433,   435,   435,   437,   438,
+     438,   442,   441,   453,   453,   453,   462,   462,   473,   473,
+     483,   484,   482,   515,   514,   527,   526,   538,   539,   538,
+     548,   547,   565,   564,   595,   594,   612,   611,   644,   643,
+     661,   660,   695,   694,   712,   711,   750,   749,   767,   766,
+     785,   784,   801,   848,   897,   953,   953,   954,   954,   956,
+     956,   958,   958,   958,   958,   958,   958,   958,   958,   959,
+     959,   959,   959,   959,   959,   959,   960,   960,   960,   960,
+     960,   962,   963,   964
 };
 #endif
 
@@ -581,37 +590,37 @@ static const unsigned short yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals. */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "CLASS", "PUBLIC", "PRIVATE", "PROTECTED", 
-  "VIRTUAL", "STRING", "NUM", "ID", "INT", "FLOAT", "SHORT", "LONG", 
-  "DOUBLE", "VOID", "CHAR", "CLASS_REF", "OTHER", "CONST", "OPERATOR", 
-  "UNSIGNED", "FRIEND", "VTK_ID", "STATIC", "VAR_FUNCTION", "ARRAY_NUM", 
-  "VTK_LEGACY", "SetMacro", "GetMacro", "SetStringMacro", 
-  "GetStringMacro", "SetClampMacro", "SetObjectMacro", 
-  "SetReferenceCountedObjectMacro", "GetObjectMacro", "BooleanMacro", 
-  "SetVector2Macro", "SetVector3Macro", "SetVector4Macro", 
-  "SetVector6Macro", "GetVector2Macro", "GetVector3Macro", 
-  "GetVector4Macro", "GetVector6Macro", "SetVectorMacro", 
-  "GetVectorMacro", "ViewportCoordinateMacro", "WorldCoordinateMacro", 
-  "TypeMacro", "'{'", "'}'", "':'", "';'", "'('", "')'", "'~'", "'='", 
-  "','", "'['", "']'", "'&'", "'*'", "'-'", "'.'", "$accept", "strt", 
-  "class_def", "@1", "class_def_body", "class_def_item", 
-  "legacy_function", "function", "operator", "operator_sig", "func", "@2", 
-  "@3", "maybe_const", "func_sig", "@4", "const_mod", "static_mod", 
-  "any_id", "func_body", "args_list", "more_args", "@5", "arg", "@6", 
-  "opt_var_assign", "var", "var_id", "var_array", "@7", "type", 
-  "type_red1", "type_indirection", "type_red2", "@8", "type_primitive", 
-  "optional_scope", "scope_list", "@9", "scope_type", "float_num", 
-  "float_prim", "macro", "@10", "@11", "@12", "@13", "@14", "@15", "@16", 
-  "@17", "@18", "@19", "@20", "@21", "@22", "@23", "@24", "@25", "@26", 
-  "@27", "@28", "@29", "@30", "@31", "maybe_other", "maybe_other_no_semi", 
-  "other_stuff", "other_stuff_no_semi", "braces", "parens", "brackets", 0
+  "$end", "error", "$undefined", "CLASS", "PUBLIC", "PRIVATE",
+  "PROTECTED", "VIRTUAL", "STRING", "NUM", "ID", "INT", "FLOAT", "SHORT",
+  "LONG", "DOUBLE", "VOID", "CHAR", "CLASS_REF", "OTHER", "CONST",
+  "OPERATOR", "UNSIGNED", "FRIEND", "VTK_ID", "STATIC", "VAR_FUNCTION",
+  "ARRAY_NUM", "VTK_LEGACY", "SetMacro", "GetMacro", "SetStringMacro",
+  "GetStringMacro", "SetClampMacro", "SetObjectMacro",
+  "SetReferenceCountedObjectMacro", "GetObjectMacro", "BooleanMacro",
+  "SetVector2Macro", "SetVector3Macro", "SetVector4Macro",
+  "SetVector6Macro", "GetVector2Macro", "GetVector3Macro",
+  "GetVector4Macro", "GetVector6Macro", "SetVectorMacro", "GetVectorMacro",
+  "ViewportCoordinateMacro", "WorldCoordinateMacro", "TypeMacro", "'{'",
+  "'}'", "':'", "';'", "'('", "')'", "'~'", "'='", "','", "'['", "']'",
+  "'&'", "'*'", "'-'", "'.'", "$accept", "strt", "class_def", "@1",
+  "class_def_body", "class_def_item", "legacy_function", "function",
+  "operator", "operator_sig", "func", "@2", "@3", "maybe_const",
+  "func_sig", "@4", "const_mod", "static_mod", "any_id", "func_body",
+  "args_list", "more_args", "@5", "arg", "@6", "opt_var_assign", "var",
+  "var_id", "var_array", "@7", "type", "type_red1", "type_indirection",
+  "type_red2", "@8", "type_primitive", "optional_scope", "scope_list",
+  "@9", "scope_type", "float_num", "float_prim", "macro", "@10", "@11",
+  "@12", "@13", "@14", "@15", "@16", "@17", "@18", "@19", "@20", "@21",
+  "@22", "@23", "@24", "@25", "@26", "@27", "@28", "@29", "@30", "@31",
+  "maybe_other", "maybe_other_no_semi", "other_stuff",
+  "other_stuff_no_semi", "braces", "parens", "brackets", 0
 };
 #endif
 
 # ifdef YYPRINT
 /* YYTOKNUM[YYLEX-NUM] -- Internal token number corresponding to
    token YYLEX-NUM.  */
-static const unsigned short yytoknum[] =
+static const unsigned short int yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
@@ -712,7 +721,7 @@ static const unsigned char yydefact[] =
 };
 
 /* YYDEFGOTO[NTERM-NUM]. */
-static const short yydefgoto[] =
+static const short int yydefgoto[] =
 {
       -1,    31,    46,    54,    96,    97,    98,    99,   100,   101,
      102,   158,   251,   210,   103,   212,   104,   105,   106,   155,
@@ -727,7 +736,7 @@ static const short yydefgoto[] =
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
 #define YYPACT_NINF -292
-static const short yypact[] =
+static const short int yypact[] =
 {
      255,  -292,  -292,  -292,  -292,  -292,  -292,  -292,  -292,  -292,
     -292,  -292,  -292,  -292,  -292,  -292,  -292,  -292,  -292,   255,
@@ -767,7 +776,7 @@ static const short yypact[] =
 };
 
 /* YYPGOTO[NTERM-NUM].  */
-static const short yypgoto[] =
+static const short int yypgoto[] =
 {
     -292,  -292,  -292,  -292,   277,  -292,  -292,   -64,   358,   -39,
      -41,  -292,  -292,  -292,  -292,  -292,   322,  -292,   -28,   -81,
@@ -784,7 +793,7 @@ static const short yypgoto[] =
    number is the opposite.  If zero, do what YYDEFACT says.
    If YYTABLE_NINF, syntax error.  */
 #define YYTABLE_NINF -92
-static const short yytable[] =
+static const short int yytable[] =
 {
      119,   110,   117,   110,   120,    41,   122,   110,    42,   215,
      159,   161,    43,   331,   147,   111,   215,   285,   156,   331,
@@ -837,7 +846,7 @@ static const short yytable[] =
      114
 };
 
-static const short yycheck[] =
+static const short int yycheck[] =
 {
       67,    62,    64,    64,    68,    19,    68,    68,    22,    27,
      104,   105,    26,     9,    10,    62,    27,   257,    99,     9,
@@ -954,7 +963,7 @@ static const unsigned char yystos[] =
 
 #define YYACCEPT        goto yyacceptlab
 #define YYABORT         goto yyabortlab
-#define YYERROR         goto yyerrlab1
+#define YYERROR         goto yyerrorlab
 
 
 /* Like YYERROR except do call yyerror.  This remains here temporarily
@@ -989,11 +998,11 @@ while (0)
    are run).  */
 
 #ifndef YYLLOC_DEFAULT
-# define YYLLOC_DEFAULT(Current, Rhs, N)         \
-  Current.first_line   = Rhs[1].first_line;      \
-  Current.first_column = Rhs[1].first_column;    \
-  Current.last_line    = Rhs[N].last_line;       \
-  Current.last_column  = Rhs[N].last_column;
+# define YYLLOC_DEFAULT(Current, Rhs, N)                \
+   ((Current).first_line   = (Rhs)[1].first_line,       \
+    (Current).first_column = (Rhs)[1].first_column,     \
+    (Current).last_line    = (Rhs)[N].last_line,        \
+    (Current).last_column  = (Rhs)[N].last_column)
 #endif
 
 /* YYLEX -- calling `yylex' with the right arguments.  */
@@ -1037,17 +1046,17 @@ do {                                                            \
 
 /*------------------------------------------------------------------.
 | yy_stack_print -- Print the state stack from its BOTTOM up to its |
-| TOP (cinluded).                                                   |
+| TOP (included).                                                   |
 `------------------------------------------------------------------*/
 
 #if defined (__STDC__) || defined (__cplusplus)
 static void
-yy_stack_print (short *bottom, short *top)
+yy_stack_print (short int *bottom, short int *top)
 #else
 static void
 yy_stack_print (bottom, top)
-    short *bottom;
-    short *top;
+    short int *bottom;
+    short int *top;
 #endif
 {
   YYFPRINTF (stderr, "Stack now");
@@ -1077,9 +1086,9 @@ yy_reduce_print (yyrule)
 #endif
 {
   int yyi;
-  unsigned int yylineno = yyrline[yyrule];
+  unsigned int yylno = yyrline[yyrule];
   YYFPRINTF (stderr, "Reducing stack by rule %d (line %u), ",
-             yyrule - 1, yylineno);
+             yyrule - 1, yylno);
   /* Print the symbols being reduced, and their result.  */
   for (yyi = yyprhs[yyrule]; 0 <= yyrhs[yyi]; yyi++)
     YYFPRINTF (stderr, "%s ", yytname [yyrhs[yyi]]);
@@ -1116,7 +1125,7 @@ int yydebug;
    SIZE_MAX < YYSTACK_BYTES (YYMAXDEPTH)
    evaluated with infinite-precision integer arithmetic.  */
 
-#if YYMAXDEPTH == 0
+#if defined (YYMAXDEPTH) && YYMAXDEPTH == 0
 # undef YYMAXDEPTH
 #endif
 
@@ -1314,9 +1323,9 @@ yyparse ()
      to reallocate them elsewhere.  */
 
   /* The state stack.  */
-  short yyssa[YYINITDEPTH];
-  short *yyss = yyssa;
-  register short *yyssp;
+  short int yyssa[YYINITDEPTH];
+  short int *yyss = yyssa;
+  register short int *yyssp;
 
   /* The semantic value stack.  */
   YYSTYPE yyvsa[YYINITDEPTH];
@@ -1353,6 +1362,7 @@ yyparse ()
   yyssp = yyss;
   yyvsp = yyvs;
 
+
   goto yysetstate;
 
 /*------------------------------------------------------------.
@@ -1378,7 +1388,7 @@ yyparse ()
            these so that the &'s don't force the real ones into
            memory.  */
         YYSTYPE *yyvs1 = yyvs;
-        short *yyss1 = yyss;
+        short int *yyss1 = yyss;
 
 
         /* Each stack pointer address is followed by the size of the
@@ -1406,7 +1416,7 @@ yyparse ()
         yystacksize = YYMAXDEPTH;
 
       {
-        short *yyss1 = yyss;
+        short int *yyss1 = yyss;
         union yyalloc *yyptr =
           (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
         if (! yyptr)
@@ -1539,53 +1549,53 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 204 "vtkParse.y"
+#line 206 "vtkParse.y"
     {
       data.ClassName = vtkstrdup(yyvsp[0].str);
       }
     break;
 
   case 11:
-#line 214 "vtkParse.y"
+#line 216 "vtkParse.y"
     { output_function(); }
     break;
 
   case 12:
-#line 215 "vtkParse.y"
+#line 217 "vtkParse.y"
     { output_function(); }
     break;
 
   case 13:
-#line 216 "vtkParse.y"
+#line 218 "vtkParse.y"
     { legacySig(); output_function(); }
     break;
 
   case 17:
-#line 222 "vtkParse.y"
+#line 224 "vtkParse.y"
     { preSig("~"); }
     break;
 
   case 18:
-#line 223 "vtkParse.y"
+#line 225 "vtkParse.y"
     { preSig("virtual ~"); }
     break;
 
   case 20:
-#line 226 "vtkParse.y"
+#line 228 "vtkParse.y"
     {
          currentFunction->ReturnType = yyvsp[-1].integer;
          }
     break;
 
   case 21:
-#line 230 "vtkParse.y"
+#line 232 "vtkParse.y"
     {
          currentFunction->ReturnType = yyvsp[-2].integer;
          }
     break;
 
   case 22:
-#line 234 "vtkParse.y"
+#line 236 "vtkParse.y"
     {
          preSig("virtual ");
          currentFunction->ReturnType = yyvsp[-2].integer;
@@ -1593,7 +1603,7 @@ yyreduce:
     break;
 
   case 23:
-#line 239 "vtkParse.y"
+#line 241 "vtkParse.y"
     {
          preSig("virtual ");
          currentFunction->ReturnType = yyvsp[-1].integer;
@@ -1601,21 +1611,21 @@ yyreduce:
     break;
 
   case 24:
-#line 244 "vtkParse.y"
+#line 246 "vtkParse.y"
     {
          preSig("virtual ");
          }
     break;
 
   case 25:
-#line 250 "vtkParse.y"
+#line 252 "vtkParse.y"
     {
          output_function();
          }
     break;
 
   case 26:
-#line 254 "vtkParse.y"
+#line 256 "vtkParse.y"
     {
          currentFunction->ReturnType = yyvsp[-1].integer;
          output_function();
@@ -1623,7 +1633,7 @@ yyreduce:
     break;
 
   case 27:
-#line 259 "vtkParse.y"
+#line 261 "vtkParse.y"
     {
          currentFunction->ReturnType = yyvsp[-2].integer;
          output_function();
@@ -1631,7 +1641,7 @@ yyreduce:
     break;
 
   case 28:
-#line 264 "vtkParse.y"
+#line 266 "vtkParse.y"
     {
          preSig("virtual ");
          currentFunction->ReturnType = yyvsp[-2].integer;
@@ -1640,7 +1650,7 @@ yyreduce:
     break;
 
   case 29:
-#line 270 "vtkParse.y"
+#line 272 "vtkParse.y"
     {
          preSig("virtual ");
          currentFunction->ReturnType = yyvsp[-1].integer;
@@ -1649,7 +1659,7 @@ yyreduce:
     break;
 
   case 30:
-#line 276 "vtkParse.y"
+#line 278 "vtkParse.y"
     {
          preSig("virtual ");
          output_function();
@@ -1657,85 +1667,85 @@ yyreduce:
     break;
 
   case 31:
-#line 282 "vtkParse.y"
+#line 284 "vtkParse.y"
     {
       currentFunction->IsOperator = 1;
-      fprintf(stderr,"   Converted operator\n");
+      vtkDebug("Converted operator", 0);
     }
     break;
 
   case 32:
-#line 287 "vtkParse.y"
+#line 289 "vtkParse.y"
     { postSig(")"); }
     break;
 
   case 33:
-#line 287 "vtkParse.y"
+#line 289 "vtkParse.y"
     { postSig(";"); openSig = 0; }
     break;
 
   case 34:
-#line 288 "vtkParse.y"
+#line 290 "vtkParse.y"
     {
       openSig = 1;
       currentFunction->Name = yyvsp[-3].str; 
-      fprintf(stderr,"   Parsed func %s\n",yyvsp[-3].str); 
+      vtkDebug("Parsed func", yyvsp[-3].str);
     }
     break;
 
   case 35:
-#line 294 "vtkParse.y"
+#line 296 "vtkParse.y"
     { 
       postSig(") = 0;"); 
       currentFunction->Name = yyvsp[-2].str; 
-      fprintf(stderr,"   Parsed func %s\n",yyvsp[-2].str); 
+      vtkDebug("Parsed func", yyvsp[-2].str);
       currentFunction->IsPureVirtual = 1; 
       data.IsAbstract = 1;
     }
     break;
 
   case 37:
-#line 302 "vtkParse.y"
+#line 304 "vtkParse.y"
     {postSig(" const");}
     break;
 
   case 38:
-#line 304 "vtkParse.y"
+#line 306 "vtkParse.y"
     {postSig(" ("); }
     break;
 
   case 40:
-#line 306 "vtkParse.y"
+#line 308 "vtkParse.y"
     {postSig("const ");}
     break;
 
   case 41:
-#line 308 "vtkParse.y"
+#line 310 "vtkParse.y"
     {postSig("static ");}
     break;
 
   case 42:
-#line 310 "vtkParse.y"
+#line 312 "vtkParse.y"
     {postSig(yyvsp[0].str);}
     break;
 
   case 43:
-#line 310 "vtkParse.y"
+#line 312 "vtkParse.y"
     {postSig(yyvsp[0].str);}
     break;
 
   case 50:
-#line 319 "vtkParse.y"
+#line 321 "vtkParse.y"
     { currentFunction->NumberOfArguments++;}
     break;
 
   case 51:
-#line 320 "vtkParse.y"
+#line 322 "vtkParse.y"
     { currentFunction->NumberOfArguments++; postSig(", ");}
     break;
 
   case 53:
-#line 323 "vtkParse.y"
+#line 325 "vtkParse.y"
     {
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
@@ -1743,7 +1753,7 @@ yyreduce:
     break;
 
   case 54:
-#line 328 "vtkParse.y"
+#line 330 "vtkParse.y"
     {
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 
         yyvsp[0].integer / 10000; 
@@ -1753,7 +1763,7 @@ yyreduce:
     break;
 
   case 56:
-#line 335 "vtkParse.y"
+#line 337 "vtkParse.y"
     { 
       postSig("void (*func)(void *) ");
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
@@ -1762,143 +1772,143 @@ yyreduce:
     break;
 
   case 59:
-#line 343 "vtkParse.y"
+#line 345 "vtkParse.y"
     {delSig();}
     break;
 
   case 60:
-#line 343 "vtkParse.y"
+#line 345 "vtkParse.y"
     {delSig();}
     break;
 
   case 61:
-#line 345 "vtkParse.y"
+#line 347 "vtkParse.y"
     { yyval.integer = yyvsp[0].integer; }
     break;
 
   case 62:
-#line 353 "vtkParse.y"
+#line 355 "vtkParse.y"
     { yyval.integer = 0; }
     break;
 
   case 63:
-#line 354 "vtkParse.y"
+#line 356 "vtkParse.y"
     { char temp[100]; sprintf(temp,"[%i]",yyvsp[0].integer); 
                    postSig(temp); }
     break;
 
   case 64:
-#line 356 "vtkParse.y"
+#line 358 "vtkParse.y"
     { yyval.integer = 300 + 10000 * yyvsp[-2].integer + yyvsp[0].integer % 1000; }
     break;
 
   case 65:
-#line 358 "vtkParse.y"
+#line 360 "vtkParse.y"
     { postSig("[]"); yyval.integer = 300 + yyvsp[0].integer % 1000; }
     break;
 
   case 66:
-#line 360 "vtkParse.y"
+#line 362 "vtkParse.y"
     {yyval.integer = 1000 + yyvsp[0].integer;}
     break;
 
   case 67:
-#line 361 "vtkParse.y"
+#line 363 "vtkParse.y"
     {yyval.integer = yyvsp[0].integer;}
     break;
 
   case 68:
-#line 362 "vtkParse.y"
+#line 364 "vtkParse.y"
     {yyval.integer = 2000 + yyvsp[0].integer;}
     break;
 
   case 69:
-#line 363 "vtkParse.y"
+#line 365 "vtkParse.y"
     {yyval.integer = 3000 + yyvsp[0].integer;}
     break;
 
   case 70:
-#line 365 "vtkParse.y"
+#line 367 "vtkParse.y"
     {yyval.integer = yyvsp[0].integer;}
     break;
 
   case 71:
-#line 367 "vtkParse.y"
+#line 369 "vtkParse.y"
     {yyval.integer = yyvsp[-1].integer + yyvsp[0].integer;}
     break;
 
   case 72:
-#line 376 "vtkParse.y"
+#line 378 "vtkParse.y"
     { postSig("&"); yyval.integer = 100;}
     break;
 
   case 73:
-#line 377 "vtkParse.y"
+#line 379 "vtkParse.y"
     { postSig("*"); yyval.integer = 300;}
     break;
 
   case 74:
-#line 378 "vtkParse.y"
+#line 380 "vtkParse.y"
     { yyval.integer = 100 + yyvsp[0].integer;}
     break;
 
   case 75:
-#line 379 "vtkParse.y"
+#line 381 "vtkParse.y"
     { yyval.integer = 400 + yyvsp[0].integer;}
     break;
 
   case 76:
-#line 381 "vtkParse.y"
+#line 383 "vtkParse.y"
     {postSig("unsigned ");}
     break;
 
   case 77:
-#line 382 "vtkParse.y"
+#line 384 "vtkParse.y"
     { yyval.integer = 10 + yyvsp[0].integer;}
     break;
 
   case 78:
-#line 383 "vtkParse.y"
+#line 385 "vtkParse.y"
     { yyval.integer = yyvsp[0].integer;}
     break;
 
   case 79:
-#line 386 "vtkParse.y"
+#line 388 "vtkParse.y"
     { postSig("float "); yyval.integer = 1;}
     break;
 
   case 80:
-#line 387 "vtkParse.y"
+#line 389 "vtkParse.y"
     { postSig("void "); yyval.integer = 2;}
     break;
 
   case 81:
-#line 388 "vtkParse.y"
+#line 390 "vtkParse.y"
     { postSig("char "); yyval.integer = 3;}
     break;
 
   case 82:
-#line 389 "vtkParse.y"
+#line 391 "vtkParse.y"
     { postSig("int "); yyval.integer = 4;}
     break;
 
   case 83:
-#line 390 "vtkParse.y"
+#line 392 "vtkParse.y"
     { postSig("short "); yyval.integer = 5;}
     break;
 
   case 84:
-#line 391 "vtkParse.y"
+#line 393 "vtkParse.y"
     { postSig("long "); yyval.integer = 6;}
     break;
 
   case 85:
-#line 392 "vtkParse.y"
+#line 394 "vtkParse.y"
     { postSig("double "); yyval.integer = 7;}
     break;
 
   case 86:
-#line 393 "vtkParse.y"
+#line 395 "vtkParse.y"
     {       
       char ctmpid[2048];
       sprintf(ctmpid,"%s ",yyvsp[0].str);
@@ -1907,7 +1917,7 @@ yyreduce:
     break;
 
   case 87:
-#line 399 "vtkParse.y"
+#line 401 "vtkParse.y"
     { 
       char ctmpid[2048];
       sprintf(ctmpid,"%s ",yyvsp[0].str);
@@ -1927,7 +1937,7 @@ yyreduce:
     break;
 
   case 90:
-#line 419 "vtkParse.y"
+#line 421 "vtkParse.y"
     { 
       data.SuperClasses[data.NumberOfSuperClasses] = vtkstrdup(yyvsp[0].str); 
       data.NumberOfSuperClasses++; 
@@ -1935,7 +1945,7 @@ yyreduce:
     break;
 
   case 91:
-#line 424 "vtkParse.y"
+#line 426 "vtkParse.y"
     { 
       data.SuperClasses[data.NumberOfSuperClasses] = vtkstrdup(yyvsp[0].str); 
       data.NumberOfSuperClasses++; 
@@ -1943,42 +1953,42 @@ yyreduce:
     break;
 
   case 93:
-#line 429 "vtkParse.y"
+#line 431 "vtkParse.y"
     {in_public = 1; in_protected = 0;}
     break;
 
   case 94:
-#line 430 "vtkParse.y"
+#line 432 "vtkParse.y"
     {in_public = 0; in_protected = 0;}
     break;
 
   case 95:
-#line 431 "vtkParse.y"
+#line 433 "vtkParse.y"
     {in_public = 0; in_protected = 1;}
     break;
 
   case 98:
-#line 435 "vtkParse.y"
+#line 437 "vtkParse.y"
     {yyval.integer = yyvsp[0].integer;}
     break;
 
   case 99:
-#line 436 "vtkParse.y"
+#line 438 "vtkParse.y"
     {yyval.integer = -1;}
     break;
 
   case 100:
-#line 436 "vtkParse.y"
+#line 438 "vtkParse.y"
     {yyval.integer = -1;}
     break;
 
   case 101:
-#line 440 "vtkParse.y"
+#line 442 "vtkParse.y"
     {preSig("void Set"); postSig(" ("); }
     break;
 
   case 102:
-#line 441 "vtkParse.y"
+#line 443 "vtkParse.y"
     {
    postSig(");");
    sprintf(temps,"Set%s",yyvsp[-4].str); 
@@ -1992,17 +2002,17 @@ yyreduce:
     break;
 
   case 103:
-#line 451 "vtkParse.y"
+#line 453 "vtkParse.y"
     {postSig("Get");}
     break;
 
   case 104:
-#line 451 "vtkParse.y"
+#line 453 "vtkParse.y"
     {postSig(" ();"); invertSig = 1;}
     break;
 
   case 105:
-#line 453 "vtkParse.y"
+#line 455 "vtkParse.y"
     { 
    sprintf(temps,"Get%s",yyvsp[-4].str); 
    currentFunction->Name = vtkstrdup(temps);
@@ -2013,12 +2023,12 @@ yyreduce:
     break;
 
   case 106:
-#line 460 "vtkParse.y"
+#line 462 "vtkParse.y"
     {preSig("void Set");}
     break;
 
   case 107:
-#line 461 "vtkParse.y"
+#line 463 "vtkParse.y"
     {
    postSig(" (char *);"); 
    sprintf(temps,"Set%s",yyvsp[-1].str); 
@@ -2032,12 +2042,12 @@ yyreduce:
     break;
 
   case 108:
-#line 471 "vtkParse.y"
+#line 473 "vtkParse.y"
     {preSig("char *Get");}
     break;
 
   case 109:
-#line 472 "vtkParse.y"
+#line 474 "vtkParse.y"
     { 
    postSig(" ();");
    sprintf(temps,"Get%s",yyvsp[-1].str); 
@@ -2049,17 +2059,17 @@ yyreduce:
     break;
 
   case 110:
-#line 481 "vtkParse.y"
+#line 483 "vtkParse.y"
     {preSig("void Set"); postSig(" ("); }
     break;
 
   case 111:
-#line 482 "vtkParse.y"
+#line 484 "vtkParse.y"
     {postSig(");"); openSig = 0;}
     break;
 
   case 112:
-#line 483 "vtkParse.y"
+#line 485 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
    sscanf (currentFunction->Signature, "%*s %*s (%s);", local);
@@ -2092,12 +2102,12 @@ yyreduce:
     break;
 
   case 113:
-#line 513 "vtkParse.y"
+#line 515 "vtkParse.y"
     {preSig("void Set"); postSig(" ("); }
     break;
 
   case 114:
-#line 514 "vtkParse.y"
+#line 516 "vtkParse.y"
     { 
    postSig("*);");
    sprintf(temps,"Set%s",yyvsp[-4].str); 
@@ -2111,12 +2121,12 @@ yyreduce:
     break;
 
   case 115:
-#line 525 "vtkParse.y"
+#line 527 "vtkParse.y"
     {preSig("void Set"); postSig(" ("); }
     break;
 
   case 116:
-#line 526 "vtkParse.y"
+#line 528 "vtkParse.y"
     { 
    postSig("*);");
    sprintf(temps,"Set%s",yyvsp[-4].str); 
@@ -2130,17 +2140,17 @@ yyreduce:
     break;
 
   case 117:
-#line 536 "vtkParse.y"
+#line 538 "vtkParse.y"
     {postSig("*Get");}
     break;
 
   case 118:
-#line 537 "vtkParse.y"
+#line 539 "vtkParse.y"
     {postSig(" ();"); invertSig = 1;}
     break;
 
   case 119:
-#line 538 "vtkParse.y"
+#line 540 "vtkParse.y"
     { 
    sprintf(temps,"Get%s",yyvsp[-4].str); 
    currentFunction->Name = vtkstrdup(temps);
@@ -2151,12 +2161,12 @@ yyreduce:
     break;
 
   case 120:
-#line 546 "vtkParse.y"
+#line 548 "vtkParse.y"
     {preSig("void "); postSig("On ();"); openSig = 0; }
     break;
 
   case 121:
-#line 548 "vtkParse.y"
+#line 550 "vtkParse.y"
     { 
    sprintf(temps,"%sOn",yyvsp[-4].str); 
    currentFunction->Name = vtkstrdup(temps);
@@ -2174,7 +2184,7 @@ yyreduce:
     break;
 
   case 122:
-#line 563 "vtkParse.y"
+#line 565 "vtkParse.y"
     {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
@@ -2182,7 +2192,7 @@ yyreduce:
     break;
 
   case 123:
-#line 568 "vtkParse.y"
+#line 570 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s, %s);",yyvsp[-4].str,
@@ -2210,7 +2220,7 @@ yyreduce:
     break;
 
   case 124:
-#line 593 "vtkParse.y"
+#line 595 "vtkParse.y"
     {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
@@ -2218,7 +2228,7 @@ yyreduce:
     break;
 
   case 125:
-#line 598 "vtkParse.y"
+#line 600 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-4].str);
@@ -2233,7 +2243,7 @@ yyreduce:
     break;
 
   case 126:
-#line 610 "vtkParse.y"
+#line 612 "vtkParse.y"
     {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
@@ -2241,7 +2251,7 @@ yyreduce:
     break;
 
   case 127:
-#line 615 "vtkParse.y"
+#line 617 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s);",
@@ -2271,7 +2281,7 @@ yyreduce:
     break;
 
   case 128:
-#line 642 "vtkParse.y"
+#line 644 "vtkParse.y"
     {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
@@ -2279,7 +2289,7 @@ yyreduce:
     break;
 
   case 129:
-#line 647 "vtkParse.y"
+#line 649 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-4].str);
@@ -2294,7 +2304,7 @@ yyreduce:
     break;
 
   case 130:
-#line 659 "vtkParse.y"
+#line 661 "vtkParse.y"
     {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
@@ -2302,7 +2312,7 @@ yyreduce:
     break;
 
   case 131:
-#line 664 "vtkParse.y"
+#line 666 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s, %s);",
@@ -2334,7 +2344,7 @@ yyreduce:
     break;
 
   case 132:
-#line 693 "vtkParse.y"
+#line 695 "vtkParse.y"
     {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
@@ -2342,7 +2352,7 @@ yyreduce:
     break;
 
   case 133:
-#line 698 "vtkParse.y"
+#line 700 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-4].str);
@@ -2357,7 +2367,7 @@ yyreduce:
     break;
 
   case 134:
-#line 710 "vtkParse.y"
+#line 712 "vtkParse.y"
     {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
@@ -2365,7 +2375,7 @@ yyreduce:
     break;
 
   case 135:
-#line 715 "vtkParse.y"
+#line 717 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s, %s, %s, %s);",
@@ -2401,7 +2411,7 @@ yyreduce:
     break;
 
   case 136:
-#line 748 "vtkParse.y"
+#line 750 "vtkParse.y"
     {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
@@ -2409,7 +2419,7 @@ yyreduce:
     break;
 
   case 137:
-#line 753 "vtkParse.y"
+#line 755 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-4].str);
@@ -2424,7 +2434,7 @@ yyreduce:
     break;
 
   case 138:
-#line 765 "vtkParse.y"
+#line 767 "vtkParse.y"
     {
       free (currentFunction->Signature);
       currentFunction->Signature = NULL;
@@ -2432,7 +2442,7 @@ yyreduce:
     break;
 
   case 139:
-#line 770 "vtkParse.y"
+#line 772 "vtkParse.y"
     {
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s [%i]);",yyvsp[-6].str,
@@ -2448,7 +2458,7 @@ yyreduce:
     break;
 
   case 140:
-#line 783 "vtkParse.y"
+#line 785 "vtkParse.y"
     {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
@@ -2456,7 +2466,7 @@ yyreduce:
     break;
 
   case 141:
-#line 788 "vtkParse.y"
+#line 790 "vtkParse.y"
     { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-6].str);
@@ -2471,7 +2481,7 @@ yyreduce:
     break;
 
   case 142:
-#line 800 "vtkParse.y"
+#line 802 "vtkParse.y"
     { 
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
        yyvsp[-1].str);
@@ -2521,7 +2531,7 @@ yyreduce:
     break;
 
   case 143:
-#line 847 "vtkParse.y"
+#line 849 "vtkParse.y"
     { 
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
        yyvsp[-1].str);
@@ -2573,7 +2583,7 @@ yyreduce:
     break;
 
   case 144:
-#line 896 "vtkParse.y"
+#line 898 "vtkParse.y"
     { 
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
@@ -2629,8 +2639,8 @@ yyreduce:
 
     }
 
-/* Line 999 of yacc.c.  */
-#line 2634 "vtkParse.tab.c"
+/* Line 1010 of yacc.c.  */
+#line 2644 "vtkParse.tab.c"
 
   yyvsp -= yylen;
   yyssp -= yylen;
@@ -2671,18 +2681,33 @@ yyerrlab:
         {
           YYSIZE_T yysize = 0;
           int yytype = YYTRANSLATE (yychar);
+          const char* yyprefix;
           char *yymsg;
-          int yyx, yycount;
+          int yyx;
 
-          yycount = 0;
           /* Start YYX at -YYN if negative to avoid negative indexes in
              YYCHECK.  */
-          for (yyx = yyn < 0 ? -yyn : 0;
-               yyx < (int) (sizeof (yytname) / sizeof (char *)); yyx++)
+          int yyxbegin = yyn < 0 ? -yyn : 0;
+
+          /* Stay within bounds of both yycheck and yytname.  */
+          int yychecklim = YYLAST - yyn;
+          int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
+          int yycount = 0;
+
+          yyprefix = ", expecting ";
+          for (yyx = yyxbegin; yyx < yyxend; ++yyx)
             if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
-              yysize += yystrlen (yytname[yyx]) + 15, yycount++;
-          yysize += yystrlen ("syntax error, unexpected ") + 1;
-          yysize += yystrlen (yytname[yytype]);
+              {
+                yysize += yystrlen (yyprefix) + yystrlen (yytname [yyx]);
+                yycount += 1;
+                if (yycount == 5)
+                  {
+                    yysize = 0;
+                    break;
+                  }
+              }
+          yysize += (sizeof ("syntax error, unexpected ")
+                     + yystrlen (yytname[yytype]));
           yymsg = (char *) YYSTACK_ALLOC (yysize);
           if (yymsg != 0)
             {
@@ -2691,16 +2716,13 @@ yyerrlab:
 
               if (yycount < 5)
                 {
-                  yycount = 0;
-                  for (yyx = yyn < 0 ? -yyn : 0;
-                       yyx < (int) (sizeof (yytname) / sizeof (char *));
-                       yyx++)
+                  yyprefix = ", expecting ";
+                  for (yyx = yyxbegin; yyx < yyxend; ++yyx)
                     if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
                       {
-                        const char *yyq = ! yycount ? ", expecting " : " or ";
-                        yyp = yystpcpy (yyp, yyq);
+                        yyp = yystpcpy (yyp, yyprefix);
                         yyp = yystpcpy (yyp, yytname[yyx]);
-                        yycount++;
+                        yyprefix = " or ";
                       }
                 }
               yyerror (yymsg);
@@ -2721,25 +2743,27 @@ yyerrlab:
       /* If just tried and failed to reuse lookahead token after an
          error, discard it.  */
 
-      /* Return failure if at end of input.  */
-      if (yychar == YYEOF)
+      if (yychar <= YYEOF)
         {
-          /* Pop the error token.  */
-          YYPOPSTACK;
-          /* Pop the rest of the stack.  */
-          while (yyss < yyssp)
-            {
-              YYDSYMPRINTF ("Error: popping", yystos[*yyssp], yyvsp, yylsp);
-              yydestruct (yystos[*yyssp], yyvsp);
-              YYPOPSTACK;
-            }
-          YYABORT;
+          /* If at end of input, pop the error token,
+             then the rest of the stack, then return failure.  */
+          if (yychar == YYEOF)
+             for (;;)
+               {
+                 YYPOPSTACK;
+                 if (yyssp == yyss)
+                   YYABORT;
+                 YYDSYMPRINTF ("Error: popping", yystos[*yyssp], yyvsp, yylsp);
+                 yydestruct (yystos[*yyssp], yyvsp);
+               }
         }
+      else
+        {
+          YYDSYMPRINTF ("Error: discarding", yytoken, &yylval, &yylloc);
+          yydestruct (yytoken, &yylval);
+          yychar = YYEMPTY;
 
-      YYDSYMPRINTF ("Error: discarding", yytoken, &yylval, &yylloc);
-      yydestruct (yytoken, &yylval);
-      yychar = YYEMPTY;
-
+        }
     }
 
   /* Else will try to reuse lookahead token after shifting the error
@@ -2747,9 +2771,27 @@ yyerrlab:
   goto yyerrlab1;
 
 
-/*----------------------------------------------------.
-| yyerrlab1 -- error raised explicitly by an action.  |
-`----------------------------------------------------*/
+/*---------------------------------------------------.
+| yyerrorlab -- error raised explicitly by YYERROR.  |
+`---------------------------------------------------*/
+yyerrorlab:
+
+#ifdef __GNUC__
+  /* Pacify GCC when the user code never invokes YYERROR and the label
+     yyerrorlab therefore never appears in user code.  */
+  if (0)
+     goto yyerrorlab;
+#endif
+
+  yyvsp -= yylen;
+  yyssp -= yylen;
+  yystate = *yyssp;
+  goto yyerrlab1;
+
+
+/*-------------------------------------------------------------.
+| yyerrlab1 -- common code for both syntax error and YYERROR.  |
+`-------------------------------------------------------------*/
 yyerrlab1:
   yyerrstatus = 3;      /* Each real token shifted decrements this.  */
 
@@ -2773,9 +2815,8 @@ yyerrlab1:
 
       YYDSYMPRINTF ("Error: popping", yystos[*yyssp], yyvsp, yylsp);
       yydestruct (yystos[yystate], yyvsp);
-      yyvsp--;
-      yystate = *--yyssp;
-
+      YYPOPSTACK;
+      yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
     }
 
@@ -2824,10 +2865,23 @@ yyreturn:
 }
 
 
-#line 964 "vtkParse.y"
+#line 966 "vtkParse.y"
 
 #include <string.h>
 #include "lex.yy.c"
+
+void vtkDebug(const char* s1, const char* s2)
+{
+  if ( getenv("DEBUG") )
+    {
+    fprintf(stderr, "   %s", s1);
+    if ( s2 )
+      {
+      fprintf(stderr, " %s", s2);
+      }
+    fprintf(stderr, "\n");
+    }
+}
 
 /* initialize the structure */
 void InitFunction(FunctionInfo *func)
@@ -3025,3 +3079,7 @@ int main(int argc,char *argv[])
 
   return 0;
 }
+
+
+
+

@@ -33,6 +33,8 @@ Modify vtkParse.tab.c:
 #define yyerror(a) fprintf(stderr,"%s\n",a)
 #define yywrap() 1
 
+static void vtkDebug(const char* s1, const char* s2);
+
 /* MSVC Does not define __STDC__ properly. */
 #if defined(_MSC_VER) && _MSC_VER >= 1200 && !defined(__STDC__)
 # define __STDC__ 1
@@ -281,20 +283,20 @@ operator:
 operator_sig: OPERATOR maybe_other_no_semi ';'
     {
       currentFunction->IsOperator = 1;
-      fprintf(stderr,"   Converted operator\n");
+      vtkDebug("Converted operator", 0);
     }
 
 func: func_sig { postSig(")"); } maybe_const { postSig(";"); openSig = 0; } 
     {
       openSig = 1;
       currentFunction->Name = $<str>1; 
-      fprintf(stderr,"   Parsed func %s\n",$<str>1); 
+      vtkDebug("Parsed func", $<str>1);
     }
   | func_sig '=' NUM
     { 
       postSig(") = 0;"); 
       currentFunction->Name = $<str>1; 
-      fprintf(stderr,"   Parsed func %s\n",$<str>1); 
+      vtkDebug("Parsed func", $<str>1);
       currentFunction->IsPureVirtual = 1; 
       data.IsAbstract = 1;
     };
@@ -964,6 +966,19 @@ brackets: '[' maybe_other ']';
 %%
 #include <string.h>
 #include "lex.yy.c"
+
+void vtkDebug(const char* s1, const char* s2)
+{
+  if ( getenv("DEBUG") )
+    {
+    fprintf(stderr, "   %s", s1);
+    if ( s2 )
+      {
+      fprintf(stderr, " %s", s2);
+      }
+    fprintf(stderr, "\n");
+    }
+}
 
 /* initialize the structure */
 void InitFunction(FunctionInfo *func)
