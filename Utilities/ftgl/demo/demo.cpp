@@ -150,7 +150,7 @@ GLUTCALLBACK my_reshape(int w, int h)
 }
 
 void
-GLUTCALLBACK my_handle_key(unsigned char key, int x, int y)
+GLUTCALLBACK my_handle_key(unsigned char key, int, int)
 {
    switch (key) {
 
