@@ -27,6 +27,8 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkCamera.h"
+#include "vtkActor.h"
+#include "vtkRenderer.h"
 
 int main( int argc, char *argv[] )
 {

@@ -25,6 +25,8 @@
 #include "vtkRenderWindow.h"
 #include "vtkCommand.h"
 #include "vtkCamera.h"
+#include "vtkActor.h"
+#include "vtkRenderer.h"
 
 class myCallback : public vtkCommand
 {
