@@ -42,6 +42,13 @@
 /* Whether we are building MPI support.  */
 #cmakedefine VTK_USE_MPI
 
+/* is VTK_DATA_ROOT defined? */
+#cmakedefine VTK_DATA_ROOT
+#ifdef VTK_DATA_ROOT
+#  undef VTK_DATA_ROOT
+#  define VTK_DATA_ROOT "@VTK_DATA_ROOT@"
+#endif
+
 /* Debug leaks support.  */
 #cmakedefine VTK_DEBUG_LEAKS
 
