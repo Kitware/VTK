@@ -272,12 +272,13 @@ void vtkImageToStructuredPoints::Execute()
       vtkVectors *fv = vtkVectors::New(vData->GetScalarType());
       output->GetPointData()->SetVectors(fv);
       fv->SetData(vData->GetPointData()->GetScalars()->GetData());
+      fv->Delete();
       }
     }
   else
     {
-    unsigned char *inPtr = (unsigned char *) data->GetScalarPointerForExtent(uExtent);
-    
+    unsigned char *inPtr = (unsigned char *)
+      data->GetScalarPointerForExtent(uExtent);
     unsigned char *outPtr = (unsigned char *) output->GetScalarPointer();
     
     int idxX, idxY, idxZ;
