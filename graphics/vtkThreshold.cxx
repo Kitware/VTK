@@ -118,6 +118,10 @@ void vtkThreshold::Execute()
   int i, ptId, newId, numPts, numCellPts;
   float *x;
   vtkDataSet *input = this->GetInput();
+  if (!input)
+    {
+    vtkErrorMacro(<<"No input, Can't Execute");
+    }
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
