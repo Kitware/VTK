@@ -117,6 +117,10 @@ public:
   // Initialize the internal hash table.
   void Initialize(vtkIdType numPts);
 
+  // Description:
+  // Return the internal edge table.
+  vtkGenericEdgeTable *GetEdgeTable();
+  
 protected:
   vtkGenericCellTessellator();
   ~vtkGenericCellTessellator();
@@ -170,7 +174,35 @@ protected:
 
   int GetNumberOfCellsUsingFace( int faceId );
   int GetNumberOfCellsUsingEdge( int edgeId );
-
+  
+  // Description:
+  // Is the edge defined by vertices (`p1',`p2') in parametric coordinates on
+  // some edge of the original tetrahedron? If yes return on which edge it is,
+  // else return -1.
+  // \pre p1!=p2
+  // \pre p1 and p2 are in bounding box (0,0,0) (1,1,1)
+  // \post valid_result: (result==-1) || ( result>=0 && result<=5 )
+  int IsEdgeOnFace(double p1[3], double p2[3]);
+  
+  // Description:
+  // Return 1 if the parent of edge defined by vertices (`p1',`p2') in
+  // parametric coordinates, is an edge; 3 if there is no parent (the edge is
+  // inside). If the parent is an edge, return its id in `localId'.
+  // \pre p1!=p2
+  // \pre p1 and p2 are in bounding box (0,0,0) (1,1,1)
+  // \post valid_result: (result==1)||(result==3)
+  int FindEdgeParent2D(double p1[3], double p2[3], int &localId);
+  
+  // Description:
+  // Return 1 if the parent of edge defined by vertices (`p1',`p2') in
+  // parametric coordinates, is an edge; 2 if the parent is a face, 3 if there
+  // is no parent (the edge is inside). If the parent is an edge or a face,
+  // return its id in `localId'.
+  // \pre p1!=p2
+  // \pre p1 and p2 are in bounding box (0,0,0) (1,1,1)
+  // \post valid_result: result>=1 && result<=3
+  int FindEdgeParent(double p1[3], double p2[3], int &localId);
+  
 private:
   vtkGenericCellTessellator(const vtkGenericCellTessellator&);  // Not implemented.
   void operator=(const vtkGenericCellTessellator&);  // Not implemented.
