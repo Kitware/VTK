@@ -14,3 +14,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "BoolText.hh"
+
+vlBooleanTexture::vlBooleanTexture()
+{
+}
+
+void vlBooleanTexture::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlBooleanTexture::GetClassName()))
+    {
+    vlObject::PrintSelf(os,indent);
+
+    os << indent << "Thickness: " << this->Thickness << "\n";
+    }
+}
+
