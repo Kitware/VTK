@@ -108,15 +108,21 @@ public:
 
   // Description:
   // Initialize the triangulation process. Provide a bounding box and
-  // the number of points to be inserted.
+  // the maximum number of points to be inserted.
   void InitTriangulation(float bounds[6], int numPts);
 
   // Description:
   // For each point to be inserted, provide an id, a position x, and
   // whether the point is inside (type=0), outside (type=1), or on the
   // boundary (type=2). You must call InitTriangulation() prior to 
-  // invoking this method.
-  void InsertPoint(unsigned long id, float x[3], int type);
+  // invoking this method. Make sure that the number of points inserted
+  // does not exceed the numPts specified in InitTriangulation(). Also
+  // note that the "id" can be any unsigned integer and can be greater
+  // than numPts. It is used to create tetras (in AddTetras() with the
+  // appropriate connectivity ids. The method returns an internal id that
+  // can be used prior to the Triangulate() method to update the type of
+  // the point with UpdatePointType().
+  int InsertPoint(unsigned long id, float x[3], int type);
 
   // Description:
   // Perform the triangulation. (Complete all calls to InsertPoint() prior
@@ -124,9 +130,18 @@ public:
   void Triangulate();
 
   // Description:
+  // Update the point type. This is useful when the merging of nearly 
+  // coincident points is performed. The id is the internal id returned
+  // from InsertPoint(). The method should be invoked prior to the
+  // Triangulate method. The type is specified as inside (type=0), 
+  // outside (type=1), or on the boundary (type=2). 
+  void UpdatePointType(int internalId, int type);
+
+  // Description:
   // Boolean indicates whether the points have been pre-sorted. If 
   // pre-sorted is enabled, the points are not sorted on point id.
-  // By default, presorted is off.
+  // By default, presorted is off. (The point id is defined in
+  // InsertPoint().)
   vtkSetMacro(PreSorted,int)
   vtkGetMacro(PreSorted,int)
   vtkBooleanMacro(PreSorted,int)
@@ -135,15 +150,32 @@ public:
   // Add the tetrahedra classified (0=inside,1=outside) to the connectivity
   // list provided. Inside tetrahedron are those whose points are all
   // classified "inside." Outside tetrahedron have at least one point
-  // classified "outside." 
-  void GetTetras(int classification, vtkCellArray *connectivity);
+  // classified "outside." The method returns the number of tetrahedron
+  // of the type requested.    
+  int GetTetras(int classification, vtkCellArray *connectivity);
   
   // Description:
-  // Create a vtkUnstructuredGrid with the tetrahedra classified as
+  // Initialize and add the tetras and points from the triangulation to the
+  // unstructured grid provided.  New points are created and the mesh is
+  // allocated. (This method differs from AddTetras() in that it inserts
+  // points and cells; AddTetras only adds the tetra cells.) The tetrahdera
+  // added are of the type specified (0=inside,1=outside,2=all). Inside
+  // tetrahedron are those whose points are classified "inside" or on the
+  // "boundary."  Outside tetrahedron have at least one point classified
+  // "outside."  The method returns the number of tetrahedrahedron of the
+  // type requested.
+  int GetTetras(int classification, vtkUnstructuredGrid *ugrid);
+  
+  // Description:
+  // Add the tetras to the unstructured grid provided. The unstructured
+  // grid is assumed to have been initialized (with Allocate()) and
+  // points set (with SetPoints()). The tetrahdera added are of the type
   // specified (0=inside,1=outside,2=all). Inside tetrahedron are 
   // those whose points are classified "inside" or on the "boundary." 
   // Outside tetrahedron have at least one point classified "outside." 
-  void GetTetras(int classification, vtkUnstructuredGrid *ugrid);
+  // The method returns the number of tetrahedrahedron of the type 
+  // requested.
+  int AddTetras(int classification, vtkUnstructuredGrid *ugrid);
   
 protected:
   vtkOrderedTriangulator();
@@ -153,7 +185,8 @@ protected:
 
 private:
   vtkOTMesh  *Mesh;
-  int NumberOfPoints;
+  int NumberOfPoints; //number of points inserted
+  int MaximumNumberOfPoints; //maximum possible number of points to be inserted
   int PreSorted;
   
 };
