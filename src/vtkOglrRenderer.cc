@@ -74,7 +74,8 @@ int vtkOglrRenderer::UpdateActors()
   glMatrixMode(GL_MODELVIEW);
 
   // loop through actors 
-  for ( this->Actors.InitTraversal(); anActor = this->Actors.GetNextItem(); )
+  for (this->Actors.InitTraversal(); 
+       (anActor = this->Actors.GetNextItem()); )
     {
     // if it's invisible, we can skip the rest 
     visibility = anActor->GetVisibility();
@@ -153,7 +154,8 @@ int vtkOglrRenderer::UpdateLights ()
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
-  for ( this->Lights.InitTraversal(); light = this->Lights.GetNextItem(); )
+  for(this->Lights.InitTraversal(); 
+      (light = this->Lights.GetNextItem()); )
     {
 
     status = light->GetSwitch();

@@ -67,7 +67,8 @@ int vtkXglrRenderer::UpdateActors()
   Xgl_trans model_trans;
 
   // loop through actors 
-  for ( this->Actors.InitTraversal(); anActor = this->Actors.GetNextItem(); )
+  for (this->Actors.InitTraversal(); 
+       (anActor = this->Actors.GetNextItem()); )
     {
     // if it's invisible, we can skip the rest 
     visibility = anActor->GetVisibility();
@@ -136,7 +137,8 @@ int vtkXglrRenderer::UpdateLights ()
   
   cur_light = 1;
 
-  for ( this->Lights.InitTraversal(); light = this->Lights.GetNextItem(); )
+  for (this->Lights.InitTraversal(); 
+       (light = this->Lights.GetNextItem()); )
     {
     status = light->GetSwitch();
 
