@@ -25,6 +25,8 @@
 
 #include "vtkfreetypeConfig.h"
 #include "vtkftglConfig.h"
+#include "FTLibrary.h"
+#include "NoSTL/FTCallbackVector.h"
 #include "FTGLPixmapFont.h" // Use pixmaps for antialiased fonts
 #include "FTGLBitmapFont.h" // Use bitmaps for normal (jaggy but faster) fonts
 
@@ -50,6 +52,10 @@
 
 #define VTK_FTTM_REORDER 1
 
+// Font cache capacity
+
+#define VTK_FTTM_CACHE_CAPACITY 150
+
 //----------------------------------------------------------------------------
 // The embedded fonts
 // Create a lookup table between the text mapper attributes 
@@ -71,7 +77,7 @@ static EmbeddedFontStruct EmbeddedFonts[3][2][2] =
     {
       { // VTK_ARIAL: Bold [ ] Italic [ ]
         
-face_arial_buffer_length, face_arial_buffer
+        face_arial_buffer_length, face_arial_buffer
       },
       { // VTK_ARIAL: Bold [ ] Italic [x]
         face_arial_italic_buffer_length, face_arial_italic_buffer
@@ -138,7 +144,16 @@ int IsAntiAliasingRequestedByThisProperty(vtkTextProperty *tprop)
 //----------------------------------------------------------------------------
 // A cache
 
-#define FONT_CACHE_CAPACITY 15
+// Singleton cleanup
+
+class vtkFontCacheCleanup
+{
+public:
+  vtkFontCacheCleanup();
+  ~vtkFontCacheCleanup();
+};
+
+// Singleton font cache
 
 class vtkFontCache
 {
@@ -165,12 +180,8 @@ public:
     char *FaceFileName;
   };
 
-  // Create and destroy cache
-
-  vtkFontCache();
-  ~vtkFontCache();
-
-  // Get font from cache given a text prop
+  static vtkFontCache* GetInstance();
+  static void SetInstance(vtkFontCache *instance);
 
   FTFont* GetFont(vtkTextProperty *tprop, 
                   int override_color = 0,
@@ -180,53 +191,93 @@ public:
 
 private:
 
-  void ReleaseEntry(int i);
-  void PrintEntry(int i, char *msg = 0);
+  vtkFontCache();
+  ~vtkFontCache();
 
-  Entry *Entries[FONT_CACHE_CAPACITY];
+  static vtkFontCacheCleanup Cleanup;
+  static vtkFontCache* Instance;
+
+  void PrintEntry(int i, char *msg = 0);
+  void ReleaseEntry(int i);
+
+  void InitializeCache();
+  void ReleaseCache();
+
+  Entry *Entries[VTK_FTTM_CACHE_CAPACITY];
   int NumberOfEntries;
 };
 
-// Create cache
+// This callback will be called by the FTGLibrary singleton cleanup destructor
+// if it happens to be destroyed before our singleton (this order is not 
+// deterministic). It will destroy our singleton, if needed.
 
-vtkFontCache::vtkFontCache() 
+void vtkFontCacheCleanupCallback ()
 {
-  this->NumberOfEntries = 0;
-
-  int i;
-  for (i = 0; i < FONT_CACHE_CAPACITY; i++)
-    {
-    this->Entries[i] = 0;
-    }
+  vtkFontCache::SetInstance(0);
 }
 
-// Release entry
+// The singleton, and the singleton cleanup
 
-void vtkFontCache::ReleaseEntry(int i) 
+vtkFontCache* vtkFontCache::Instance = 0;
+vtkFontCacheCleanup vtkFontCache::Cleanup;
+
+// Create the singleton cleanup
+// Register our singleton cleanup callback against the FTLibrary so that
+// it might be called before the FTLibrary singleton is destroyed.
+
+vtkFontCacheCleanup::vtkFontCacheCleanup()
 {
-  if (!this->Entries[i])
+  FTLibraryCleanup::AddDependency(&vtkFontCacheCleanupCallback);
+}
+
+// Delete the singleton cleanup 
+// The callback called here might have been called by the FTLibrary singleton
+// cleanup first (depending on the destruction order), but in case ours is
+// destroyed first, let's call it too.
+
+vtkFontCacheCleanup::~vtkFontCacheCleanup()
+{
+  vtkFontCacheCleanupCallback();
+}
+
+// (static) Return the single instance
+
+vtkFontCache* vtkFontCache::GetInstance()
+{
+  if(!vtkFontCache::Instance)
+    {
+    vtkFontCache::Instance = new vtkFontCache;
+    }
+  return vtkFontCache::Instance;
+}
+
+// (static) Set the singleton instance
+
+void vtkFontCache::SetInstance(vtkFontCache* instance)
+{
+  if (vtkFontCache::Instance == instance)
     {
     return;
     }
 
-#if VTK_FTTM_DEBUG
-  this->PrintEntry(this->NumberOfEntries, "Rl");
-#endif
-
-  if (this->Entries[i]->Font)
+  if (vtkFontCache::Instance)
     {
-    delete this->Entries[i]->Font;
-    this->Entries[i]->Font = 0;
-    }
-  
-  if (this->Entries[i]->FaceFileName)
-    {
-    delete [] this->Entries[i]->FaceFileName;
-    this->Entries[i]->FaceFileName = 0;
+    delete vtkFontCache::Instance;
     }
 
-  delete this->Entries[i];
-  this->Entries[i] = 0;
+  vtkFontCache::Instance = instance;
+}
+
+// Create/Delete cache
+
+vtkFontCache::vtkFontCache() 
+{
+  this->InitializeCache();
+}
+
+vtkFontCache::~vtkFontCache() 
+{
+  this->ReleaseCache();
 }
 
 // Print entry
@@ -274,12 +325,54 @@ void vtkFontCache::PrintEntry(int i, char *msg)
   fflush(stdout);
 }
 
-// Destroy cache
+// Release entry
 
-vtkFontCache::~vtkFontCache() 
+void vtkFontCache::ReleaseEntry(int i) 
+{
+  if (!this->Entries[i])
+    {
+    return;
+    }
+
+#if VTK_FTTM_DEBUG
+  this->PrintEntry(this->NumberOfEntries, "Rl");
+#endif
+
+  if (this->Entries[i]->Font)
+    {
+    delete this->Entries[i]->Font;
+    this->Entries[i]->Font = 0;
+    }
+  
+  if (this->Entries[i]->FaceFileName)
+    {
+    delete [] this->Entries[i]->FaceFileName;
+    this->Entries[i]->FaceFileName = 0;
+    }
+
+  delete this->Entries[i];
+  this->Entries[i] = 0;
+}
+
+// Initialize cache
+
+void vtkFontCache::InitializeCache() 
+{
+  this->ReleaseCache();
+
+  int i;
+  for (i = 0; i < VTK_FTTM_CACHE_CAPACITY; i++)
+    {
+    this->Entries[i] = 0;
+    }
+}
+
+// Release cache
+
+void vtkFontCache::ReleaseCache() 
 {
 #if VTK_FTTM_DEBUG
-  printf("vtkFontCache::~vtkFontCache()\n");
+  printf("vtkFontCache::ReleaseCache()\n");
 #endif  
 
   int i;
@@ -421,7 +514,7 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
   
   // We need to make room for a new font
 
-  if (this->NumberOfEntries == FONT_CACHE_CAPACITY)
+  if (this->NumberOfEntries == VTK_FTTM_CACHE_CAPACITY)
     {
 #if VTK_FTTM_DEBUG
     printf("Cache is full, deleting last!\n");
@@ -492,12 +585,8 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
   return tmp->Font;
 }
 
-// Now we need a cache singleton
-
-vtkFontCache FontCacheSingleton;
-
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.12");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.13");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
@@ -577,7 +666,7 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
   // Check for font and try to set the size
 
   FTFont *font;
-  font = FontCacheSingleton.GetFont(tprop);
+  font = vtkFontCache::GetInstance()->GetFont(tprop);
 
   if (!font) 
     {
@@ -682,7 +771,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   // (incoming ::GetSize() might not do it since it caches the result)
   
   FTFont *font;
-  font = FontCacheSingleton.GetFont(tprop, 1, red, green, blue);
+  font = vtkFontCache::GetInstance()->GetFont(tprop, 1, red, green, blue);
   if (!font) 
     {
     vtkErrorMacro(<< "Render - No font");
@@ -814,7 +903,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     int shadow_font_is_ok = 1;
     if (IsAntiAliasingRequestedByThisProperty(tprop))
       {
-      shadow_font = FontCacheSingleton.GetFont(
+      shadow_font = vtkFontCache::GetInstance()->GetFont(
         tprop, 1, shadow_red, shadow_green, shadow_blue);
 
       if (!shadow_font) 
@@ -857,7 +946,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     // cache by the shadow font
     if (IsAntiAliasingRequestedByThisProperty(tprop))
       {
-      font = FontCacheSingleton.GetFont(tprop, 1, red, green, blue);
+      font = vtkFontCache::GetInstance()->GetFont(tprop, 1, red, green, blue);
       if (!font) 
         {
         vtkErrorMacro(<< "Render - No font");
