@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPoints.h"
 #include "vtkMath.h"
 #include "vtkUnsignedCharScalars.h"
+#include "vtkUnsignedShortScalars.h"
 #include "vtkShortScalars.h"
 #include "vtkFloatScalars.h"
 #include "vtkIntScalars.h"
@@ -466,6 +467,22 @@ void vtkMarchingCubes::Execute()
                   newNormals,newPolys,this->Values,this->NumberOfContours);
     }
   
+  else if ( !strcmp(type,"unsigned short") )
+    {
+    unsigned short *scalars = ((vtkUnsignedShortScalars *)inScalars)->GetPtr(0);
+    if (this->ComputeScalars)
+      {
+      newScalars = new vtkUnsignedShortScalars(estimatedSize,estimatedSize/2);
+      }
+    else
+      {
+      newScalars = NULL;
+      }
+
+    ContourVolume(scalars,dims,origin,aspectRatio,this->Locator,newScalars,newGradients,
+                  newNormals,newPolys,this->Values,this->NumberOfContours);
+    }
+  
   else if ( !strcmp(type,"float") )
     {
     float *scalars = ((vtkFloatScalars *)inScalars)->GetPtr(0);
@@ -513,7 +530,7 @@ void vtkMarchingCubes::Execute()
     ContourVolume(scalars,dims,origin,aspectRatio,this->Locator,newScalars,newGradients,
                   newNormals,newPolys,this->Values,this->NumberOfContours);
 
-    delete image;
+    image->Delete();
     }
   
   vtkDebugMacro(<<"Created: " 
