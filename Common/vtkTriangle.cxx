@@ -29,7 +29,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.96");
+vtkCxxRevisionMacro(vtkTriangle, "1.97");
 vtkStandardNewMacro(vtkTriangle);
 
 // Construct the triangle with three points.
@@ -403,8 +403,8 @@ void vtkTriangle::Contour(float value, vtkDataArray *cellScalars,
         {
         if ( outPd ) 
           {
-          int p1 = this->PointIds->GetId(e1);
-          int p2 = this->PointIds->GetId(e2);
+          vtkIdType p1 = this->PointIds->GetId(e1);
+          vtkIdType p2 = this->PointIds->GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }

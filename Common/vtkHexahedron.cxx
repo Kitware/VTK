@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.87");
+vtkCxxRevisionMacro(vtkHexahedron, "1.88");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -419,8 +419,8 @@ void vtkHexahedron::Contour(float value, vtkDataArray *cellScalars,
         {
         if ( outPd ) 
           {
-          int p1 = this->PointIds->GetId(v1);
-          int p2 = this->PointIds->GetId(v2);
+          vtkIdType p1 = this->PointIds->GetId(v1);
+          vtkIdType p2 = this->PointIds->GetId(v2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }
