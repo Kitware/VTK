@@ -22,12 +22,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlDataSetReader::vlDataSetReader()
 {
-  this->Filename = NULL;
 }
 
 vlDataSetReader::~vlDataSetReader()
 {
-  if ( this->Filename ) delete [] this->Filename;
 }
 
 void vlDataSetReader::Execute()
@@ -40,11 +38,11 @@ void vlDataSetReader::Execute()
   vlDebugMacro(<<"Reading vl dataset...");
   this->Initialize();
 
-  if ( !(fp=this->Reader.OpenVLFile(this->Filename, this->Debug)) ||
+  if ( !(fp=this->Reader.OpenVLFile(this->Debug)) ||
   ! this->Reader.ReadHeader(fp,this->Debug) )
       return;
 //
-// Read polygonal data specific stuff
+// Determine dataset type
 //
   if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
     goto PREMATURE;
@@ -52,7 +50,7 @@ void vlDataSetReader::Execute()
   if ( !strncmp(this->Reader.LowerCase(line),"dataset",(unsigned long)7) )
     {
 //
-// Make sure we're reading right type of geometry
+// See if type is recognized.
 //
     if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
       goto PREMATURE;
@@ -61,7 +59,13 @@ void vlDataSetReader::Execute()
     if ( ! strncmp(this->Reader.LowerCase(line),"polydata",8) )
       {
       vlPolyReader *preader = new vlPolyReader;
-      preader->SetFilename(this->Filename);
+      preader->SetFilename(this->Reader.GetFilename());
+      preader->SetScalarsName(this->Reader.GetScalarsName());
+      preader->SetVectorsName(this->Reader.GetVectorsName());
+      preader->SetNormalsName(this->Reader.GetNormalsName());
+      preader->SetTensorsName(this->Reader.GetTensorsName());
+      preader->SetTCoordsName(this->Reader.GetTCoordsName());
+      preader->SetLookupTableName(this->Reader.GetLookupTableName());
       preader->Update();
       reader = (vlDataSet *)preader;
       }
@@ -69,7 +73,13 @@ void vlDataSetReader::Execute()
     else if ( ! strncmp(line,"structured_points",17) )
       {
       vlStructuredPointsReader *preader = new vlStructuredPointsReader;
-      preader->SetFilename(this->Filename);
+      preader->SetFilename(this->Reader.GetFilename());
+      preader->SetScalarsName(this->Reader.GetScalarsName());
+      preader->SetVectorsName(this->Reader.GetVectorsName());
+      preader->SetNormalsName(this->Reader.GetNormalsName());
+      preader->SetTensorsName(this->Reader.GetTensorsName());
+      preader->SetTCoordsName(this->Reader.GetTCoordsName());
+      preader->SetLookupTableName(this->Reader.GetLookupTableName());
       preader->Update();
       reader = (vlDataSet *)preader;
       }
@@ -77,7 +87,13 @@ void vlDataSetReader::Execute()
     else if ( ! strncmp(line,"structured_grid",15) )
       {
       vlStructuredGridReader *preader = new vlStructuredGridReader;
-      preader->SetFilename(this->Filename);
+      preader->SetFilename(this->Reader.GetFilename());
+      preader->SetScalarsName(this->Reader.GetScalarsName());
+      preader->SetVectorsName(this->Reader.GetVectorsName());
+      preader->SetNormalsName(this->Reader.GetNormalsName());
+      preader->SetTensorsName(this->Reader.GetTensorsName());
+      preader->SetTCoordsName(this->Reader.GetTCoordsName());
+      preader->SetLookupTableName(this->Reader.GetLookupTableName());
       preader->Update();
       reader = (vlDataSet *)preader;
       }
@@ -85,7 +101,13 @@ void vlDataSetReader::Execute()
     else if ( ! strncmp(line,"unstructured_grid",17) )
       {
       vlUnstructuredGridReader *preader = new vlUnstructuredGridReader;
-      preader->SetFilename(this->Filename);
+      preader->SetFilename(this->Reader.GetFilename());
+      preader->SetScalarsName(this->Reader.GetScalarsName());
+      preader->SetVectorsName(this->Reader.GetVectorsName());
+      preader->SetNormalsName(this->Reader.GetNormalsName());
+      preader->SetTensorsName(this->Reader.GetTensorsName());
+      preader->SetTCoordsName(this->Reader.GetTCoordsName());
+      preader->SetLookupTableName(this->Reader.GetLookupTableName());
       preader->Update();
       reader = (vlDataSet *)preader;
       }
@@ -111,5 +133,5 @@ void vlDataSetReader::Execute()
 void vlDataSetReader::PrintSelf(ostream& os, vlIndent indent)
 {
   vlDataSetSource::PrintSelf(os,indent);
-  os << indent << "Filename: " << this->Filename << "\n";
+  this->Reader.PrintSelf(os,indent);
 }

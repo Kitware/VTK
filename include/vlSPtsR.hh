@@ -37,14 +37,31 @@ public:
   // overload because of vlDataReader ivar
   unsigned long int GetMTime();
 
-  // Description:
-  // Specify file name of vl structured points data file to read.
-  vlSetStringMacro(Filename);
-  vlGetStringMacro(Filename);
+  void SetFilename(char *name);
+  char *GetFilename();
+
+  int GetFileType();
+
+  void SetScalarsName(char *name);
+  char *GetScalarsName();
+
+  void SetVectorsName(char *name);
+  char *GetVectorsName();
+
+  void SetTensorsName(char *name);
+  char *GetTensorsName();
+
+  void SetNormalsName(char *name);
+  char *GetNormalsName();
+
+  void SetTCoordsName(char *name);
+  char *GetTCoordsName();
+
+  void SetLookupTableName(char *name);
+  char *GetLookupTableName();
 
 protected:
   void Execute();
-  char *Filename;
   vlDataReader Reader;
 };
 

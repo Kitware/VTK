@@ -17,12 +17,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlUnstructuredGridReader::vlUnstructuredGridReader()
 {
-  this->Filename = NULL;
 }
 
 vlUnstructuredGridReader::~vlUnstructuredGridReader()
 {
-  if ( this->Filename ) delete [] this->Filename;
 }
 
 unsigned long int vlUnstructuredGridReader::GetMTime()
@@ -30,6 +28,96 @@ unsigned long int vlUnstructuredGridReader::GetMTime()
   unsigned long dtime = this->vlUnstructuredGridSource::GetMTime();
   unsigned long rtime = this->Reader.GetMTime();
   return (dtime > rtime ? dtime : rtime);
+}
+
+// Description:
+// Specify file name of vl polygonal data file to read.
+void vlUnstructuredGridReader::SetFilename(char *name) 
+{
+  this->Reader.SetFilename(name);
+}
+char *vlUnstructuredGridReader::GetFilename() 
+{
+  return this->Reader.GetFilename();
+}
+
+// Description:
+// Get the type of file (ASCII or BINARY)
+int vlUnstructuredGridReader::GetFileType() 
+{
+  return this->Reader.GetFileType();
+}
+
+// Description:
+// Set the name of the scalar data to extract. If not specified, first 
+// scalar data encountered is extracted.
+void vlUnstructuredGridReader::SetScalarsName(char *name) 
+{
+  this->Reader.SetScalarsName(name);
+}
+char *vlUnstructuredGridReader::GetScalarsName() 
+{
+  return this->Reader.GetScalarsName();
+}
+
+// Description:
+// Set the name of the vector data to extract. If not specified, first 
+// vector data encountered is extracted.
+void vlUnstructuredGridReader::SetVectorsName(char *name) 
+{
+  this->Reader.SetVectorsName(name);
+}
+char *vlUnstructuredGridReader::GetVectorsName() 
+{
+  return this->Reader.GetVectorsName();
+}
+
+// Description:
+// Set the name of the tensor data to extract. If not specified, first 
+// tensor data encountered is extracted.
+void vlUnstructuredGridReader::SetTensorsName(char *name) 
+{
+  this->Reader.SetTensorsName(name);
+}
+char *vlUnstructuredGridReader::GetTensorsName() 
+{
+  return this->Reader.GetTensorsName();
+}
+
+// Description:
+// Set the name of the normal data to extract. If not specified, first 
+// normal data encountered is extracted.
+void vlUnstructuredGridReader::SetNormalsName(char *name) 
+{
+  this->Reader.SetNormalsName(name);
+}
+char *vlUnstructuredGridReader::GetNormalsName() 
+{
+  return this->Reader.GetNormalsName();
+}
+
+// Description:
+// Set the name of the texture coordinate data to extract. If not specified,
+// first texture coordinate data encountered is extracted.
+void vlUnstructuredGridReader::SetTCoordsName(char *name) 
+{
+  this->Reader.SetTCoordsName(name);
+}
+char *vlUnstructuredGridReader::GetTCoordsName() 
+{
+  return this->Reader.GetTCoordsName();
+}
+
+// Description:
+// Set the name of the lookup table data to extract. If not specified, uses 
+// lookup table named by scalar. Otherwise, this specification supersedes.
+void vlUnstructuredGridReader::SetLookupTableName(char *name) 
+{
+  this->Reader.SetLookupTableName(name);
+}
+char *vlUnstructuredGridReader::GetLookupTableName() 
+{
+  return this->Reader.GetLookupTableName();
 }
 
 void vlUnstructuredGridReader::Execute()
@@ -45,7 +133,7 @@ void vlUnstructuredGridReader::Execute()
   vlDebugMacro(<<"Reading vl unsstructured grid...");
   this->Initialize();
 
-  if ( !(fp=this->Reader.OpenVLFile(this->Filename, this->Debug)) ||
+  if ( !(fp=this->Reader.OpenVLFile(this->Debug)) ||
   ! this->Reader.ReadHeader(fp,this->Debug) )
       return;
 //
@@ -167,7 +255,5 @@ void vlUnstructuredGridReader::Execute()
 void vlUnstructuredGridReader::PrintSelf(ostream& os, vlIndent indent)
 {
   vlUnstructuredGridSource::PrintSelf(os,indent);
-
-  os << indent << "Filename: " << this->Filename << "\n";
   this->Reader.PrintSelf(os,indent.GetNextIndent());
 }

@@ -38,6 +38,15 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   // Description:
+  // Specify file name of vl data file to read.
+  vlSetStringMacro(Filename);
+  vlGetStringMacro(Filename);
+
+  // Description:
+  // Get the type of file (ASCII or BINARY)
+  vlGetMacro(FileType,int);
+
+  // Description:
   // Set the name of the scalar data to extract. If not specified, first 
   // scalar data encountered is extracted.
   vlSetStringMacro(ScalarsName);
@@ -74,19 +83,17 @@ public:
   vlGetStringMacro(LookupTableName);
 
   // Special methods
-  // Description:
-  // Get the type of file (ASCII or BINARY)
-  vlSetMacro(FileType,int);
-  vlGetMacro(FileType,int);
-
   char *LowerCase(char *);
-  FILE *OpenVLFile(char *filename, int debug);
+  FILE *OpenVLFile(int debug);
   int ReadHeader(FILE *fp, int debug);
   int ReadPointData(FILE *fp, vlDataSet *ds, int numPts, int debug);
   int ReadPoints(FILE *fp, vlPointSet *ps, int numPts);
   int ReadCells(FILE *fp, int size, int *data);
 
 protected:
+  char *Filename;
+  int FileType;
+
   char *ScalarsName;
   char *VectorsName;
   char *TensorsName;
@@ -94,8 +101,6 @@ protected:
   char *NormalsName;
   char *LookupTableName;
   char *ScalarLut;
-
-  int FileType;
 
   vlSetStringMacro(ScalarLut);
   vlGetStringMacro(ScalarLut);

@@ -17,12 +17,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlStructuredGridReader::vlStructuredGridReader()
 {
-  this->Filename = NULL;
 }
 
 vlStructuredGridReader::~vlStructuredGridReader()
 {
-  if ( this->Filename ) delete [] this->Filename;
 }
 
 unsigned long int vlStructuredGridReader::GetMTime()
@@ -30,6 +28,96 @@ unsigned long int vlStructuredGridReader::GetMTime()
   unsigned long dtime = this->vlStructuredGridSource::GetMTime();
   unsigned long rtime = this->Reader.GetMTime();
   return (dtime > rtime ? dtime : rtime);
+}
+
+// Description:
+// Specify file name of vl polygonal data file to read.
+void vlStructuredGridReader::SetFilename(char *name) 
+{
+  this->Reader.SetFilename(name);
+}
+char *vlStructuredGridReader::GetFilename() 
+{
+  return this->Reader.GetFilename();
+}
+
+// Description:
+// Get the type of file (ASCII or BINARY)
+int vlStructuredGridReader::GetFileType() 
+{
+  return this->Reader.GetFileType();
+}
+
+// Description:
+// Set the name of the scalar data to extract. If not specified, first 
+// scalar data encountered is extracted.
+void vlStructuredGridReader::SetScalarsName(char *name) 
+{
+  this->Reader.SetScalarsName(name);
+}
+char *vlStructuredGridReader::GetScalarsName() 
+{
+  return this->Reader.GetScalarsName();
+}
+
+// Description:
+// Set the name of the vector data to extract. If not specified, first 
+// vector data encountered is extracted.
+void vlStructuredGridReader::SetVectorsName(char *name) 
+{
+  this->Reader.SetVectorsName(name);
+}
+char *vlStructuredGridReader::GetVectorsName() 
+{
+  return this->Reader.GetVectorsName();
+}
+
+// Description:
+// Set the name of the tensor data to extract. If not specified, first 
+// tensor data encountered is extracted.
+void vlStructuredGridReader::SetTensorsName(char *name) 
+{
+  this->Reader.SetTensorsName(name);
+}
+char *vlStructuredGridReader::GetTensorsName() 
+{
+  return this->Reader.GetTensorsName();
+}
+
+// Description:
+// Set the name of the normal data to extract. If not specified, first 
+// normal data encountered is extracted.
+void vlStructuredGridReader::SetNormalsName(char *name) 
+{
+  this->Reader.SetNormalsName(name);
+}
+char *vlStructuredGridReader::GetNormalsName() 
+{
+  return this->Reader.GetNormalsName();
+}
+
+// Description:
+// Set the name of the texture coordinate data to extract. If not specified,
+// first texture coordinate data encountered is extracted.
+void vlStructuredGridReader::SetTCoordsName(char *name) 
+{
+  this->Reader.SetTCoordsName(name);
+}
+char *vlStructuredGridReader::GetTCoordsName() 
+{
+  return this->Reader.GetTCoordsName();
+}
+
+// Description:
+// Set the name of the lookup table data to extract. If not specified, uses 
+// lookup table named by scalar. Otherwise, this specification supersedes.
+void vlStructuredGridReader::SetLookupTableName(char *name) 
+{
+  this->Reader.SetLookupTableName(name);
+}
+char *vlStructuredGridReader::GetLookupTableName() 
+{
+  return this->Reader.GetLookupTableName();
 }
 
 void vlStructuredGridReader::Execute()
@@ -42,11 +130,11 @@ void vlStructuredGridReader::Execute()
   vlDebugMacro(<<"Reading vl structured grid file...");
   this->Initialize();
 
-  if ( !(fp=this->Reader.OpenVLFile(this->Filename, this->Debug)) ||
+  if ( !(fp=this->Reader.OpenVLFile(this->Debug)) ||
   ! this->Reader.ReadHeader(fp,this->Debug) )
       return;
 //
-// Read structured points specific stuff
+// Read structured grid specific stuff
 //
   if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
     goto PREMATURE;
@@ -142,7 +230,5 @@ void vlStructuredGridReader::Execute()
 void vlStructuredGridReader::PrintSelf(ostream& os, vlIndent indent)
 {
   vlStructuredGridSource::PrintSelf(os,indent);
-
-  os << indent << "Filename: " << this->Filename << "\n";
-  this->Reader.PrintSelf(os,indent.GetNextIndent());
+  this->Reader.PrintSelf(os,indent);
 }

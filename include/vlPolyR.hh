@@ -34,17 +34,34 @@ public:
   char *GetClassName() {return "vlPolyReader";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  // Description:
-  // Specify file name of vl unstructured grid data file to read.
-  vlSetStringMacro(Filename);
-  vlGetStringMacro(Filename);
-
   // overload because of vlDataReader ivar
   unsigned long int GetMTime();
 
+  void SetFilename(char *name);
+  char *GetFilename();
+
+  int GetFileType();
+
+  void SetScalarsName(char *name);
+  char *GetScalarsName();
+
+  void SetVectorsName(char *name);
+  char *GetVectorsName();
+
+  void SetTensorsName(char *name);
+  char *GetTensorsName();
+
+  void SetNormalsName(char *name);
+  char *GetNormalsName();
+
+  void SetTCoordsName(char *name);
+  char *GetTCoordsName();
+
+  void SetLookupTableName(char *name);
+  char *GetLookupTableName();
+
 protected:
   void Execute();
-  char *Filename;
   vlDataReader Reader;
 };
 

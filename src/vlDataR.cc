@@ -36,6 +36,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Construct object.
 vlDataReader::vlDataReader()
 {
+  this->Filename = NULL;
   this->ScalarsName = NULL;
   this->VectorsName = NULL;
   this->TensorsName = NULL;
@@ -47,6 +48,7 @@ vlDataReader::vlDataReader()
 
 vlDataReader::~vlDataReader()
 {
+  if (this->Filename) delete [] this->Filename;
   if (this->ScalarsName) delete [] this->ScalarsName;
   if (this->VectorsName) delete [] this->VectorsName;
   if (this->TensorsName) delete [] this->TensorsName;
@@ -58,18 +60,25 @@ vlDataReader::~vlDataReader()
 
 // Description:
 // Open a vl data file. Returns NULL if error.
-FILE *vlDataReader::OpenVLFile(char *filename, int debug)
+FILE *vlDataReader::OpenVLFile(int debug)
 {
-  FILE *fptr=NULL;
+  FILE *fptr;
 
   if ( debug )
     {
     vlDebugMacro(<< "Opening vl file");
     }
 
-  if ( !filename || (fptr=fopen(filename, "rb")) == NULL )
+  if ( !this->Filename )
     {
-    vlErrorMacro(<< "Unable to open file: "<< filename);
+    vlErrorMacro(<< "No file specified!");
+    return fptr;
+    }
+
+  if ( (fptr=fopen(this->Filename, "rb")) == NULL )
+    {
+    vlErrorMacro(<< "Unable to open file: "<< this->Filename);
+    return NULL;
     }
 
   return fptr;
@@ -917,6 +926,11 @@ char *vlDataReader::LowerCase(char *str)
 void vlDataReader::PrintSelf(ostream& os, vlIndent indent)
 {
   vlObject::PrintSelf(os,indent);
+
+  if ( this->Filename )
+    os << indent << "Filename: " << this->Filename << "\n";
+  else
+    os << indent << "Filename: (None)\n";
 
   if ( this->FileType == BINARY )
     os << indent << "File Type: BINARY\n";
