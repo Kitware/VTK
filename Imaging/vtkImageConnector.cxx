@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageConnector.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageConnector, "1.17");
+vtkCxxRevisionMacro(vtkImageConnector, "1.18");
 vtkStandardNewMacro(vtkImageConnector);
 
 //----------------------------------------------------------------------------

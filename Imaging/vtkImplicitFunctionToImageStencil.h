@@ -28,7 +28,8 @@
 
 
 #include "vtkImageStencilSource.h"
-#include "vtkImplicitFunction.h"
+
+class vtkImplicitFunction;
 
 class VTK_IMAGING_EXPORT vtkImplicitFunctionToImageStencil : public vtkImageStencilSource
 {
@@ -39,7 +40,7 @@ public:
 
   // Description:
   // Specify the implicit function to convert into a stencil.
-  vtkSetObjectMacro(Input, vtkImplicitFunction);
+  virtual void SetInput(vtkImplicitFunction*);
   vtkGetObjectMacro(Input, vtkImplicitFunction);
 
   // Description:

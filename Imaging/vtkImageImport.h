@@ -32,7 +32,7 @@
 #define __vtkImageImport_h
 
 #include "vtkImageSource.h"
-#include "vtkTransform.h"
+//#include "vtkTransform.h"
 
 class VTK_IMAGING_EXPORT vtkImageImport : public vtkImageSource
 {

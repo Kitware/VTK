@@ -21,14 +21,18 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkTransform.h"
+#include "vtkImageStencilData.h"
 
 #include <limits.h>
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.31");
+vtkCxxRevisionMacro(vtkImageReslice, "1.32");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
+vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
+vtkCxxSetObjectMacro(vtkImageReslice,ResliceTransform,vtkAbstractTransform);
+
 
 //----------------------------------------------------------------------------
 vtkImageReslice::vtkImageReslice()

@@ -31,7 +31,8 @@
 
 
 #include "vtkImageDecomposeFilter.h"
-#include "vtkFloatArray.h"
+
+class vtkFloatArray;
 
 class VTK_IMAGING_EXPORT vtkImageSeparableConvolution : public vtkImageDecomposeFilter
 {
@@ -42,17 +43,17 @@ public:
 
   // Set the X convolution kernel, a null value indicates no convolution to be done.
   // The kernel must be of odd length
-  vtkSetObjectMacro ( XKernel, vtkFloatArray );
+  virtual void SetXKernel(vtkFloatArray*);
   vtkGetObjectMacro ( XKernel, vtkFloatArray );
 
   // Set the Y convolution kernel, a null value indicates no convolution to be done
   // The kernel must be of odd length
-  vtkSetObjectMacro ( YKernel, vtkFloatArray );
+  virtual void SetYKernel(vtkFloatArray*);
   vtkGetObjectMacro ( YKernel, vtkFloatArray );
 
   // Set the Z convolution kernel, a null value indicates no convolution to be done
   // The kernel must be of odd length
-  vtkSetObjectMacro ( ZKernel, vtkFloatArray );
+  virtual void SetZKernel(vtkFloatArray*);
   vtkGetObjectMacro ( ZKernel, vtkFloatArray );
 
   void PrintSelf(ostream& os, vtkIndent indent);

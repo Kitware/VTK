@@ -76,7 +76,8 @@
 
 
 #include "vtkImageMultipleInputFilter.h"
-#include "vtkImageStencilData.h"
+
+class vtkImageStencilData;
 
 #define VTK_IMAGE_BLEND_MODE_NORMAL    0
 #define VTK_IMAGE_BLEND_MODE_COMPOUND 1
@@ -96,7 +97,7 @@ public:
 
   // Description:
   // Set a stencil to apply when blending the data.
-  vtkSetObjectMacro(Stencil, vtkImageStencilData);
+  virtual void SetStencil(vtkImageStencilData*);
   vtkGetObjectMacro(Stencil, vtkImageStencilData);
 
   // Description:

@@ -55,9 +55,6 @@
 
 
 #include "vtkImageToImageFilter.h"
-#include "vtkAbstractTransform.h"
-#include "vtkMatrix4x4.h"
-#include "vtkImageStencilData.h"
 
 // interpolation mode constants
 #define VTK_RESLICE_NEAREST 0
@@ -65,6 +62,9 @@
 #define VTK_RESLICE_CUBIC 3
 
 class vtkImageData;
+class vtkAbstractTransform;
+class vtkMatrix4x4;
+class vtkImageStencilData;
 
 class VTK_IMAGING_EXPORT vtkImageReslice : public vtkImageToImageFilter
 {
@@ -88,7 +88,7 @@ public:
   // <p>An alternative to SetResliceAxes() is to use 
   // SetResliceAxesDirectionCosines() to set the directions of the
   // axes and SetResliceAxesOrigin() to set the origin of the axes.
-  vtkSetObjectMacro(ResliceAxes, vtkMatrix4x4);
+  virtual void SetResliceAxes(vtkMatrix4x4*);
   vtkGetObjectMacro(ResliceAxes, vtkMatrix4x4);
 
   // Description:
@@ -137,7 +137,7 @@ public:
   // equivalent to applying the inverse of that transform to
   // the input volume.  Nonlinear transforms such as vtkGridTransform
   // and vtkThinPlateSplineTransform can be used here.
-  vtkSetObjectMacro(ResliceTransform, vtkAbstractTransform);
+  virtual void SetResliceTransform(vtkAbstractTransform*);
   vtkGetObjectMacro(ResliceTransform, vtkAbstractTransform);
 
   // Description:

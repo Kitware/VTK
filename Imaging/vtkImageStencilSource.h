@@ -34,7 +34,8 @@
 
 
 #include "vtkSource.h"
-#include "vtkImageStencilData.h"
+
+class vtkImageStencilData;
 
 class VTK_IMAGING_EXPORT vtkImageStencilSource : public vtkSource
 {

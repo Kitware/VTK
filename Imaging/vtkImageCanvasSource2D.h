@@ -26,7 +26,6 @@
 #ifndef __vtkImageCanvasSource2D_h
 #define __vtkImageCanvasSource2D_h
 
-#include <math.h>
 #include "vtkStructuredPoints.h"
 
 //

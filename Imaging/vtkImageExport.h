@@ -33,7 +33,8 @@
 #define __vtkImageExport_h
 
 #include "vtkProcessObject.h"
-#include "vtkImageData.h"
+
+class vtkImageData;
 
 class VTK_IMAGING_EXPORT vtkImageExport : public vtkProcessObject
 {
@@ -58,51 +59,23 @@ public:
   // Get the number of scalar components of the data.  Please note that
   // when you index into a C array, the scalar component index comes
   // last, i.e. array[z][y][x][c].
-  int GetDataNumberOfScalarComponents() {
-    if (this->GetInput() == NULL) { return 1; }
-    this->GetInput()->UpdateInformation();
-    return this->GetInput()->GetNumberOfScalarComponents(); };
+  int GetDataNumberOfScalarComponents();
 
   // Description:
   // Get the scalar type of the data.  The scalar type of the C array
   // must match the scalar type of the data.
-  int GetDataScalarType() {
-    if (this->GetInput() == NULL) { return VTK_UNSIGNED_CHAR; }
-    this->GetInput()->UpdateInformation();
-    return this->GetInput()->GetScalarType(); };
+  int GetDataScalarType();
   const char *GetDataScalarTypeAsString() { 
     return vtkImageScalarTypeNameMacro(this->GetDataScalarType()); }
 
   // Description: 
   // Get miscellaneous additional information about the data.
-  int *GetDataExtent() {
-    static int defaultextent[6] = {0, 0, 0, 0, 0, 0};
-    if (this->GetInput() == NULL) { return defaultextent; }
-    this->GetInput()->UpdateInformation();
-    return this->GetInput()->GetWholeExtent(); };
-  void GetDataExtent(int *ptr) {   
-    if (this->GetInput() == NULL) { 
-      ptr[0] = ptr[1] = ptr[2] = ptr[3] = ptr[4] = ptr[5] = 0; return; }
-    this->GetInput()->UpdateInformation();
-    this->GetInput()->GetWholeExtent(ptr); };
-  float *GetDataSpacing() { 
-    static float defaultspacing[3] = {1, 1, 1}; 
-    if (this->GetInput() == NULL) { return defaultspacing; }
-    this->GetInput()->UpdateInformation();
-    return this->GetInput()->GetSpacing(); };
-  void GetDataSpacing(float *ptr) { 
-    if (this->GetInput() == NULL) { ptr[0] = ptr[1] = ptr[2] = 0.0; return; }
-    this->GetInput()->UpdateInformation();
-    this->GetInput()->GetSpacing(ptr); };
-  float *GetDataOrigin() { 
-    static float defaultorigin[3] = {0, 0, 0};
-    if (this->GetInput() == NULL) { return defaultorigin; }
-    this->GetInput()->UpdateInformation();
-    return this->GetInput()->GetOrigin(); };
-  void GetDataOrigin(float *ptr) { 
-    if (this->GetInput() == NULL) { ptr[0] = ptr[1] = ptr[2] = 0.0; return; }
-    this->GetInput()->UpdateInformation();
-    this->GetInput()->GetOrigin(ptr); };
+  int *GetDataExtent();
+  void GetDataExtent(int *ptr);
+  float *GetDataSpacing();
+  void GetDataSpacing(float *ptr);
+  float *GetDataOrigin();
+  void GetDataOrigin(float *ptr);
 
   // Description:
   // Set/Get the input object from the image pipeline.

@@ -36,7 +36,8 @@
 
 
 #include "vtkImageToImageFilter.h"
-#include "vtkImageDilateErode3D.h"
+
+class vtkImageDilateErode3D;
 
 class VTK_IMAGING_EXPORT vtkImageOpenClose3D : public vtkImageToImageFilter
 {

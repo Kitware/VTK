@@ -19,11 +19,13 @@
 
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
+#include "vtkImplicitFunction.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.60");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.61");
 vtkStandardNewMacro(vtkSampleFunction);
+vtkCxxSetObjectMacro(vtkSampleFunction,ImplicitFunction,vtkImplicitFunction);
 
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
 // Capping turned off, and normal generation on.
@@ -268,6 +270,13 @@ void vtkSampleFunction::Cap(vtkDataArray *s)
     }
 }
 
+void vtkSampleFunction::SetScalars(vtkDataArray *da)
+{
+  if (da)
+    {
+    this->SetOutputScalarType(da->GetDataType());
+    }
+}    
 
 void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -32,7 +32,8 @@
 #define __vtkImageQuantizeRGBToIndex_h
 
 #include "vtkImageToImageFilter.h"
-#include "vtkLookupTable.h"
+
+class vtkLookupTable;
 
 class VTK_IMAGING_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageToImageFilter
 {

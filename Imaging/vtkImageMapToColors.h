@@ -31,7 +31,8 @@
 
 
 #include "vtkImageToImageFilter.h"
-#include "vtkScalarsToColors.h"
+
+class vtkScalarsToColors;
 
 class VTK_IMAGING_EXPORT vtkImageMapToColors : public vtkImageToImageFilter
 {
@@ -42,7 +43,7 @@ public:
 
   // Description:
   // Set the lookup table.
-  vtkSetObjectMacro(LookupTable,vtkScalarsToColors);
+  virtual void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
 
   // Description:

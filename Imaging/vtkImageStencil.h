@@ -25,7 +25,8 @@
 #define __vtkImageStencil_h
 
 #include "vtkImageToImageFilter.h"
-#include "vtkImageStencilData.h"
+
+class vtkImageStencilData;
 
 class VTK_IMAGING_EXPORT vtkImageStencil : public vtkImageToImageFilter
 {

@@ -18,11 +18,12 @@
 #include "vtkImageStencil.h"
 
 #include "vtkImageData.h"
+#include "vtkImageStencilData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencil, "1.8");
+vtkCxxRevisionMacro(vtkImageStencil, "1.9");
 vtkStandardNewMacro(vtkImageStencil);
 
 //----------------------------------------------------------------------------

@@ -3,3 +3,19 @@ SUBDIRS(Cxx)
 IF (VTK_WRAP_TCL)
   SUBDIRS(Tcl)
 ENDIF (VTK_WRAP_TCL)
+
+IF(PYTHON_EXECUTABLE)
+  ADD_TEST(HeaderTesting-Rendering ${PYTHON_EXECUTABLE}
+           ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
+	   "${VTK_SOURCE_DIR}/Rendering"
+           vtkTkRenderWidget.h
+           vtkTkImageViewerWidget.h
+           vtkCocoaGLView.h
+           vtkCocoaWindow.h
+           vtkFreeTypeFontCache.h
+           vtkgluPickMatrix.h
+           vtkOpenGLStateCache.h
+           vtkVolumeRayCastStructures.h
+           vtkOpenGLProjectedPolyDataRayBounder.h
+           )
+ENDIF(PYTHON_EXECUTABLE)

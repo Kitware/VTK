@@ -25,7 +25,8 @@
 #define __vtkImageDataStreamer_h
 
 #include "vtkImageToImageFilter.h"
-#include "vtkExtentTranslator.h"
+
+class vtkExtentTranslator;
 
 class VTK_IMAGING_EXPORT vtkImageDataStreamer : public vtkImageToImageFilter
 {
@@ -47,8 +48,8 @@ public:
 
   // Description:
   // Get the extent translator that will be used to split the requests
+  virtual void SetExtentTranslator(vtkExtentTranslator*);
   vtkGetObjectMacro(ExtentTranslator,vtkExtentTranslator);
-  vtkSetObjectMacro(ExtentTranslator,vtkExtentTranslator);
   
 protected:
   vtkImageDataStreamer();

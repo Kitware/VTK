@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageExport.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkImageExport, "1.23");
+vtkCxxRevisionMacro(vtkImageExport, "1.24");
 vtkStandardNewMacro(vtkImageExport);
 
 //----------------------------------------------------------------------------
@@ -396,4 +398,70 @@ int* vtkImageExport::DataExtentCallback()
 void* vtkImageExport::BufferPointerCallback()
 {
   return this->GetInput()->GetScalarPointer();
+}
+
+int vtkImageExport::GetDataNumberOfScalarComponents() 
+{
+  if (this->GetInput() == NULL) 
+    { 
+    return 1; 
+    }
+  this->GetInput()->UpdateInformation();
+  return this->GetInput()->GetNumberOfScalarComponents(); 
+}
+
+int vtkImageExport::GetDataScalarType() 
+{
+  if (this->GetInput() == NULL) 
+    { 
+    return VTK_UNSIGNED_CHAR; 
+    }
+  this->GetInput()->UpdateInformation();
+  return this->GetInput()->GetScalarType(); 
+}
+
+int *vtkImageExport::GetDataExtent() 
+{
+  static int defaultextent[6] = {0, 0, 0, 0, 0, 0};
+  if (this->GetInput() == NULL) { return defaultextent; }
+  this->GetInput()->UpdateInformation();
+  return this->GetInput()->GetWholeExtent(); 
+}
+
+void vtkImageExport::GetDataExtent(int *ptr) 
+{
+  if (this->GetInput() == NULL) { 
+  ptr[0] = ptr[1] = ptr[2] = ptr[3] = ptr[4] = ptr[5] = 0; return; }
+  this->GetInput()->UpdateInformation();
+  this->GetInput()->GetWholeExtent(ptr); 
+}
+ 
+float *vtkImageExport::GetDataSpacing() 
+{ 
+  static float defaultspacing[3] = {1, 1, 1}; 
+  if (this->GetInput() == NULL) { return defaultspacing; }
+  this->GetInput()->UpdateInformation();
+  return this->GetInput()->GetSpacing(); 
+}
+
+void vtkImageExport::GetDataSpacing(float *ptr) 
+{ 
+  if (this->GetInput() == NULL) { ptr[0] = ptr[1] = ptr[2] = 0.0; return; }
+  this->GetInput()->UpdateInformation();
+  this->GetInput()->GetSpacing(ptr); 
+}
+
+float *vtkImageExport::GetDataOrigin() 
+{ 
+  static float defaultorigin[3] = {0, 0, 0};
+  if (this->GetInput() == NULL) { return defaultorigin; }
+  this->GetInput()->UpdateInformation();
+  return this->GetInput()->GetOrigin(); 
+}
+
+void vtkImageExport::GetDataOrigin(float *ptr) 
+{ 
+  if (this->GetInput() == NULL) { ptr[0] = ptr[1] = ptr[2] = 0.0; return; }
+  this->GetInput()->UpdateInformation();
+  this->GetInput()->GetOrigin(ptr); 
 }

@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkImageOpenClose3D.h"
-#include "vtkObjectFactory.h"
+
 #include "vtkImageData.h"
+#include "vtkImageDilateErode3D.h"
+#include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.21");
+vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.22");
 vtkStandardNewMacro(vtkImageOpenClose3D);
 
 //----------------------------------------------------------------------------

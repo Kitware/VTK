@@ -18,11 +18,12 @@
 #include "vtkImageAccumulate.h"
 
 #include "vtkImageData.h"
+#include "vtkImageStencilData.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.47");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.48");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------

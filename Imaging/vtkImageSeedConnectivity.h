@@ -31,9 +31,10 @@
 #ifndef __vtkImageSeedConnectivity_h
 #define __vtkImageSeedConnectivity_h
 
-
-#include "vtkImageConnector.h"
 #include "vtkImageToImageFilter.h"
+
+class vtkImageConnector;
+class vtkImageConnectorSeed;
 
 class VTK_IMAGING_EXPORT vtkImageSeedConnectivity : public vtkImageToImageFilter
 {

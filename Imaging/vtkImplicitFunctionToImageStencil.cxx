@@ -16,12 +16,16 @@
 
 =========================================================================*/
 #include "vtkImplicitFunctionToImageStencil.h"
+
+#include "vtkImageStencilData.h"
+#include "vtkImplicitFunction.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitFunctionToImageStencil, "1.5");
+vtkCxxRevisionMacro(vtkImplicitFunctionToImageStencil, "1.6");
 vtkStandardNewMacro(vtkImplicitFunctionToImageStencil);
+vtkCxxSetObjectMacro(vtkImplicitFunctionToImageStencil,Input, vtkImplicitFunction);
 
 //----------------------------------------------------------------------------
 vtkImplicitFunctionToImageStencil::vtkImplicitFunctionToImageStencil()

@@ -16,9 +16,12 @@
 
 =========================================================================*/
 #include "vtkImageSeedConnectivity.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageSeedConnectivity, "1.26");
+#include "vtkImageConnector.h"
+#include "vtkObjectFactory.h"
+#include "vtkImageData.h"
+
+vtkCxxRevisionMacro(vtkImageSeedConnectivity, "1.27");
 vtkStandardNewMacro(vtkImageSeedConnectivity);
 
 //----------------------------------------------------------------------------

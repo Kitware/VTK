@@ -36,7 +36,8 @@
 
 
 #include "vtkImageToImageFilter.h"
-#include "vtkImageStencilData.h"
+
+class vtkImageStencilData;
 
 class VTK_IMAGING_EXPORT vtkImageAccumulate : public vtkImageToImageFilter
 {

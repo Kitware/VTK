@@ -31,7 +31,8 @@
 #define __vtkImageConnector_h
 
 #include "vtkObject.h"
-#include "vtkImageData.h"
+
+class vtkImageData;
 
 //
 // Special classes for manipulating data
