@@ -1,9 +1,6 @@
 //
 //  Dynamic, self adjusting integer array
 //
-//  Assumptions:
-//    - no bounds/range checking -> user responsibility
-//    - the Register/Free methods called only by container class
 //
 #include "IntArray.hh"
 
@@ -33,15 +30,12 @@ vlIntArray::vlIntArray(const int sz, const int ext)
 
 vlIntArray::~vlIntArray()
 {
-  if ( this->Debug ) cerr << "Destructor\n";
-
   delete [] this->Array;
 }
 
 vlIntArray::vlIntArray(const vlIntArray& ia)
 {
   int i;
-  if ( this->Debug ) cerr << "Copy constructor\n";
 
   this->MaxId = ia.MaxId;
   this->Size = ia.Size;
@@ -56,8 +50,6 @@ vlIntArray::vlIntArray(const vlIntArray& ia)
 vlIntArray& vlIntArray::operator=(vlIntArray& ia)
 {
   int i;
-
-  if ( this->Debug ) cerr << "Assignment\n";
 
   if ( this != &ia )
     {
@@ -81,8 +73,6 @@ void vlIntArray::operator+=(vlIntArray& ia)
 {
   int i, sz;
 
-  if ( this->Debug ) cerr << "Add method\n";
-
   if ( this->Size <= (sz = this->MaxId + ia.MaxId + 2) ) this->Resize(sz);
 
   for (i=0; i<=ia.MaxId; i++)
@@ -101,8 +91,6 @@ int *vlIntArray::Resize(const int sz)
   int i;
   int *newArray;
   int newSize;
-
-  if ( this->Debug ) cerr << "Resize\n";
 
   if ( sz >= this->Size ) newSize = this->Size + 
     this->Extend*(((sz-this->Size)/this->Extend)+1);

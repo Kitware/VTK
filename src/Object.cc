@@ -8,7 +8,7 @@ vlObject::vlObject()
 
 vlObject::~vlObject() 
 {
-  if (RefCount > 0)
+  if (this->RefCount > 0)
     {
     cerr << "Trying to delete object with non-zero refCount\n";
     }
