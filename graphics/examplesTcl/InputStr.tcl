@@ -1,20 +1,21 @@
+catch {load vtktcl}
 # this is a tcl version of plate vibration
 # get the interactor ui
 source vtkInt.tcl
 # First create the render master
 #
-vtkRenderMaster rm;
+vtkRenderMaster rm
 
 # Now create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow];
-set ren1   [$renWin MakeRenderer];
-set iren [$renWin MakeRenderWindowInteractor];
+set renWin [rm MakeRenderWindow]
+set ren1   [$renWin MakeRenderer]
+set iren [$renWin MakeRenderWindowInteractor]
 
 # read a vtk file
 #
-vtkPolyReader plate;
-plate ReadFromInputStringOn;
+vtkPolyReader plate
+plate ReadFromInputStringOn
 plate SetInputString {# vtk DataFile Version 1.0
 Vibrational modes of plate
 ASCII
@@ -1295,50 +1296,50 @@ VECTORS mode8 float
  -1.994000e-01 5.927800e-01 -1.203200e-01 -2.585600e-01 7.563500e-01 -9.703000e-02
  -2.922700e-01 8.774600e-01 -8.742600e-02 -2.987700e-01 9.658700e-01 -8.830600e-02
 }
-plate SetVectorsName "mode8";
+plate SetVectorsName "mode8"
 
-vtkWarpVector warp;
-    warp SetInput [plate GetOutput];
-    warp SetScaleFactor 0.5;
-vtkGeometryFilter ds2poly;
-    ds2poly SetInput [warp GetOutput];
-vtkCleanPolyData clean;
-    clean SetInput [ds2poly GetOutput];
-vtkPolyNormals normals;
-    normals SetInput [clean GetOutput];
-vtkVectorDot color;
-    color SetInput [normals GetOutput];
-vtkLookupTable lut;
-    lut SetNumberOfColors 256;
-    lut Build;
+vtkWarpVector warp
+    warp SetInput [plate GetOutput]
+    warp SetScaleFactor 0.5
+vtkGeometryFilter ds2poly
+    ds2poly SetInput [warp GetOutput]
+vtkCleanPolyData clean
+    clean SetInput [ds2poly GetOutput]
+vtkPolyNormals normals
+    normals SetInput [clean GetOutput]
+vtkVectorDot color
+    color SetInput [normals GetOutput]
+vtkLookupTable lut
+    lut SetNumberOfColors 256
+    lut Build
     for {set i 0} {$i<128} {incr i 1} {
-        eval lut SetTableValue $i [expr (128.0-$i)/128.0] [expr (128.0-$i)/128.0] [expr (128.0-$i)/128.0] 1;
+        eval lut SetTableValue $i [expr (128.0-$i)/128.0] [expr (128.0-$i)/128.0] [expr (128.0-$i)/128.0] 1
     }
     for {set i 128} {$i<256} {incr i 1} {
-        eval lut SetTableValue $i [expr ($i-128.0)/128.0] [expr ($i-128.0)/128.0] [expr ($i-128.0)/128.0] 1;
+        eval lut SetTableValue $i [expr ($i-128.0)/128.0] [expr ($i-128.0)/128.0] [expr ($i-128.0)/128.0] 1
     }
 
-vtkDataSetMapper plateMapper;
-    plateMapper SetInput [color GetOutput];
-    plateMapper SetLookupTable lut;
-    plateMapper SetScalarRange -1 1;
-vtkActor plateActor;
-    plateActor SetMapper plateMapper;
+vtkDataSetMapper plateMapper
+    plateMapper SetInput [color GetOutput]
+    plateMapper SetLookupTable lut
+    plateMapper SetScalarRange -1 1
+vtkActor plateActor
+    plateActor SetMapper plateMapper
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors plateActor;
-$ren1 SetBackground 1 1 1;
-$renWin SetSize 500 500;
+$ren1 AddActors plateActor
+$ren1 SetBackground 1 1 1
+$renWin SetSize 500 500
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract};
-$iren Initialize;
-$renWin Render;
+$iren SetUserMethod {wm deiconify .vtkInteract}
+$iren Initialize
+$renWin Render
 
-#$renWin SetFileName InputStr.tcl.ppm;
-#$renWin SaveImageAsPPM;
+#$renWin SetFileName InputStr.tcl.ppm
+#$renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

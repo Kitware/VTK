@@ -1,3 +1,4 @@
+catch {load vtktcl}
 #
 # create a triangular texture and save it as a ppm
 #
@@ -6,13 +7,13 @@
 source vtkInt.tcl
 # First create the render master
 #
-vtkRenderMaster rm;
+vtkRenderMaster rm
 
 # Now create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow];
-set ren1   [$renWin MakeRenderer];
-set iren [$renWin MakeRenderWindowInteractor];
+set renWin [rm MakeRenderWindow]
+set ren1   [$renWin MakeRenderer]
+set iren [$renWin MakeRenderWindowInteractor]
 
 
 vtkTriangularTexture aTriangularTexture
@@ -42,9 +43,9 @@ vtkPointData pointData
 
 vtkCellArray triangles
     triangles InsertNextCell 3
-    triangles InsertCellPoint 0;
-    triangles InsertCellPoint 1;
-    triangles InsertCellPoint 2;
+    triangles InsertCellPoint 0
+    triangles InsertCellPoint 1
+    triangles InsertCellPoint 2
     triangles InsertNextCell 3
     triangles InsertCellPoint 3
     triangles InsertCellPoint 4
@@ -67,14 +68,14 @@ vtkActor triangleActor
 
 $ren1 SetBackground .3 .7 .2
 $ren1 AddActors triangleActor
-[$ren1 GetActiveCamera] Zoom 1.5;
+[$ren1 GetActiveCamera] Zoom 1.5
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract};
-$iren Initialize;
-$renWin SetFileName "triangularTexture.tcl.ppm";
-#$renWin SaveImageAsPPM;
+$iren SetUserMethod {wm deiconify .vtkInteract}
+$iren Initialize
+$renWin SetFileName "triangularTexture.tcl.ppm"
+#$renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

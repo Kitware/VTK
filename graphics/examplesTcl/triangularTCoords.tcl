@@ -1,3 +1,4 @@
+catch {load vtktcl}
 #
 # create a triangular texture on a sphere
 #
@@ -7,13 +8,13 @@ source vtkInt.tcl
 
 # First create the render master
 #
-vtkRenderMaster rm;
+vtkRenderMaster rm
 
 # Now create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow];
-set ren1   [$renWin MakeRenderer];
-set iren [$renWin MakeRenderWindowInteractor];
+set renWin [rm MakeRenderWindow]
+set ren1   [$renWin MakeRenderer]
+set iren [$renWin MakeRenderWindowInteractor]
 
 
 vtkTriangularTexture aTriangularTexture
@@ -61,14 +62,14 @@ set slate_grey "0.4392 0.5020 0.5647"
 eval $ren1 SetBackground $slate_grey
 $ren1 AddActors cubeActor
 $ren1 AddActors texturedActor
-[$ren1 GetActiveCamera] Zoom 1.5;
+[$ren1 GetActiveCamera] Zoom 1.5
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract};
-$iren Initialize;
-$renWin SetFileName "triangularTCoords.tcl.ppm";
-#$renWin SaveImageAsPPM;
+$iren SetUserMethod {wm deiconify .vtkInteract}
+$iren Initialize
+$renWin SetFileName "triangularTCoords.tcl.ppm"
+#$renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

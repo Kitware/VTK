@@ -1,15 +1,16 @@
+catch {load vtktcl}
 # a generic interactor for tcl and vtk
 #
 set vtkInteractBold "-background #43ce80 -relief raised -borderwidth 1"
 set vtkInteractNormal "-background #c0c0c0 -relief flat"
-set vtkInteractTagcount 1;
+set vtkInteractTagcount 1
 
 proc vtkInteract {} {
 
     proc dovtk {s w} {
-	global vtkInteractBold vtkInteractNormal vtkInteractTagcount;
-	set tag [append tagnum $vtkInteractTagcount];
-	incr vtkInteractTagcount 1;
+	global vtkInteractBold vtkInteractNormal vtkInteractTagcount
+	set tag [append tagnum $vtkInteractTagcount]
+	incr vtkInteractTagcount 1
 	.vtkInteract.text configure -state normal
 	.vtkInteract.text insert end $s $tag
 	eval .vtkInteract.text tag configure $tag $vtkInteractNormal
@@ -17,7 +18,7 @@ proc vtkInteract {} {
 	    ".vtkInteract.text tag configure $tag $vtkInteractBold"
 	.vtkInteract.text tag bind $tag <Any-Leave> \
 	    ".vtkInteract.text tag configure $tag $vtkInteractNormal"
-	.vtkInteract.text tag bind $tag <1> "dovtk [list $s] .vtkInteract";
+	.vtkInteract.text tag bind $tag <1> "dovtk [list $s] .vtkInteract"
 	.vtkInteract.text insert end \n; 
 	.vtkInteract.text insert end [uplevel 1 $s]; 
 	.vtkInteract.text insert end \n\n; 
@@ -55,7 +56,7 @@ proc vtkInteract {} {
     wm withdraw .vtkInteract
 }
 
-vtkInteract;
+vtkInteract
 
 
 

@@ -1,3 +1,4 @@
+catch {load vtktcl}
 set VTK_ASCII 1
 set VTK_BINARY 2
 set VTK_CELL_SIZE 512

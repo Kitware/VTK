@@ -1,3 +1,4 @@
+catch {load vtktcl}
 # create ice-cream cone
 # get the interactor ui
 source vtkInt.tcl

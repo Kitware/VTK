@@ -1,11 +1,12 @@
+catch {load vtktcl}
 #
 # This is a regression test script for VTK.
 #
 
-#vtkCommand DebugOn;
+#vtkCommand DebugOn
 
 # first find all the examples
-set files [lsort [glob {[A-z]*.tcl}]];
+set files [lsort [glob {[A-z]*.tcl}]]
 
 # remove support files that we know are not examples
 if {[set pos [lsearch $files "vtkInt.tcl"]] != -1} {
@@ -66,34 +67,34 @@ if {[set pos [lsearch $files "motor.tcl"]] != -1} {
 
 # now do the tests
 foreach afile $files {
-   source "$afile";
+   source "$afile"
 
-   vtkRendererSource renSrc;
-   renSrc WholeWindowOn;
-   renSrc SetInput $ren1;
-   vtkPNMReader pnm;
-   pnm SetFileName "valid/$afile.ppm";
+   vtkRendererSource renSrc
+   renSrc WholeWindowOn
+   renSrc SetInput $ren1
+   vtkPNMReader pnm
+   pnm SetFileName "valid/$afile.ppm"
    
-   vtkImageDifference imgDiff;
-   imgDiff SetInput [renSrc GetOutput];
-   imgDiff SetImage [pnm GetOutput];
-   imgDiff Update;
+   vtkImageDifference imgDiff
+   imgDiff SetInput [renSrc GetOutput]
+   imgDiff SetImage [pnm GetOutput]
+   imgDiff Update
 
 # a test has to be off by at least ten pixels for us to care   
    if {[imgDiff GetThresholdedError] < 10.0} {
        puts "Passed Test for $afile"
    } else {
        puts "Failed Test for $afile with an error of [imgDiff GetThresholdedError]"
-      #   vtkPNMWriter pnmw;
-      #   pnmw SetInput [imgDiff GetOutput];
-      #   pnmw SetFileName "$afile.error.ppm";
-      #   pnmw Write;
-      #   vtkPNMWriter pnmw2;
-      #   pnmw2 SetInput [renSrc GetOutput];
-      #   pnmw2 SetFileName "$afile.test.ppm";
-      #   pnmw2 Write;
+      #   vtkPNMWriter pnmw
+      #   pnmw SetInput [imgDiff GetOutput]
+      #   pnmw SetFileName "$afile.error.ppm"
+      #   pnmw Write
+      #   vtkPNMWriter pnmw2
+      #   pnmw2 SetInput [renSrc GetOutput]
+      #   pnmw2 SetFileName "$afile.test.ppm"
+      #   pnmw2 Write
    }
    
-   vtkCommand DeleteAllObjects;
+   vtkCommand DeleteAllObjects
 }
 
