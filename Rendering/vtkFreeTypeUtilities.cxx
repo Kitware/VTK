@@ -38,7 +38,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.2");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.3");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -1096,9 +1096,9 @@ int vtkFreeTypeUtilitiesRenderString(
             // L
 
             case 1:
-              *data_ptr = 
+              *data_ptr = (T)(
                 (data_min + data_range * tprop_l * t_alpha) + 
-                *data_ptr * t_1_m_alpha;
+                *data_ptr * t_1_m_alpha);
               glyph_ptr++;
               data_ptr++;
               break;
@@ -1108,12 +1108,12 @@ int vtkFreeTypeUtilitiesRenderString(
 
             case 2:
               data_alpha = (data_ptr[1] - data_min) / data_range;
-              *data_ptr = 
+              *data_ptr = (T)(
                 (data_min + data_range * tprop_l * t_alpha) + 
-                (*data_ptr * data_alpha) * t_1_m_alpha;
+                (*data_ptr * data_alpha) * t_1_m_alpha);
               data_ptr++;
-              *data_ptr = 
-                data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha);
+              *data_ptr = (T)(
+                data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
               data_ptr++;
               glyph_ptr++;
               break;
@@ -1121,17 +1121,17 @@ int vtkFreeTypeUtilitiesRenderString(
               // RGB
 
             case 3:
-              *data_ptr = 
+              *data_ptr = (T)(
                 (data_min + data_range * tprop_r * t_alpha) + 
-                *data_ptr * t_1_m_alpha;
+                *data_ptr * t_1_m_alpha);
               data_ptr++;
-              *data_ptr = 
+              *data_ptr = (T)(
                 (data_min + data_range * tprop_g * t_alpha) + 
-                *data_ptr * t_1_m_alpha;
+                *data_ptr * t_1_m_alpha);
               data_ptr++;
-              *data_ptr = 
+              *data_ptr = (T)(
                 (data_min + data_range * tprop_b * t_alpha) + 
-                *data_ptr * t_1_m_alpha;
+                *data_ptr * t_1_m_alpha);
               data_ptr++;
               glyph_ptr++;
               break;
@@ -1141,20 +1141,20 @@ int vtkFreeTypeUtilitiesRenderString(
 
             case 4:
               data_alpha = (data_ptr[1] - data_min) / data_range;
-              *data_ptr = 
+              *data_ptr = (T)(
                 (data_min + data_range * tprop_r * t_alpha) + 
-                (*data_ptr * data_alpha) * t_1_m_alpha;
+                (*data_ptr * data_alpha) * t_1_m_alpha);
               data_ptr++;
-              *data_ptr = 
+              *data_ptr = (T)(
                 (data_min + data_range * tprop_g * t_alpha) + 
-                (*data_ptr * data_alpha) * t_1_m_alpha;
+                (*data_ptr * data_alpha) * t_1_m_alpha);
               data_ptr++;
-              *data_ptr = 
+              *data_ptr = (T)(
                 (data_min + data_range * tprop_b * t_alpha) + 
-                (*data_ptr * data_alpha) * t_1_m_alpha;
+                (*data_ptr * data_alpha) * t_1_m_alpha);
               data_ptr++;
-              *data_ptr = 
-                data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha);
+              *data_ptr = (T)(
+                data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
               data_ptr++;
               glyph_ptr++;
               break;
