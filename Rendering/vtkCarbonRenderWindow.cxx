@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.22");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.23");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -795,11 +795,11 @@ void vtkCarbonRenderWindow::Finalize(void)
       //this->CleanUpOffScreenRendering()
     }
 
+  this->Clean();
+  //ReleaseDC in Win32
+  this->DeviceContext = NULL;
   if (this->WindowId && this->OwnWindow)
     {
-      this->Clean();
-      //ReleaseDC in Win32
-      this->DeviceContext = NULL;
       SetWRefCon(this->WindowId, (long)0);
       DisposeWindow(this->WindowId);
     }

@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.13");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.14");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -86,12 +86,11 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
   {
       this->ShowCursor();
   }
+  this->Clean();
+  // can't set WindowId=NULL, needed for DestroyWindow
+  this->DeviceContext = NULL;
   if (this->WindowId && this->OwnWindow)
-    {
-    this->Clean();
-    // can't set WindowId=NULL, needed for DestroyWindow
-    this->DeviceContext = NULL;
-    
+    {  
     [(vtkCocoaWindow *)this->WindowId close];
     }
 }
