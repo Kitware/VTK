@@ -257,7 +257,7 @@ void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
 	// if we were supposed to be drawing polygons but were really
 	// drawing triangles or quads, then we need to close down the
 	// triangles or quads and begin a polygon
-	if (previousGlFunction != GL_POLYGON)
+	if (previousGlFunction != 0xffff && previousGlFunction != GL_POLYGON)
 	  {
 	  glEnd();
 	  }
