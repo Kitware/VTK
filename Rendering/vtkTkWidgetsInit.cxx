@@ -44,12 +44,25 @@ extern "C" {VTK_TK_EXPORT int Vtkrenderingpythontkwidgets_Init(Tcl_Interp *inter
 extern "C" 
 {
   int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
-                            int argc, char **argv);
+                            int argc, 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+                            CONST84
+#endif
+                            char **argv);
+
   int vtkTkImageViewerWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
-                                 int argc, char **argv);
+                                 int argc, 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+                                 CONST84
+#endif
+                                 char **argv);
   int vtkImageDataToTkPhoto_Cmd (ClientData clientData,
                                          Tcl_Interp *interp, 
-                                         int argc, char **argv);
+                                         int argc, 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+                                 CONST84
+#endif
+                                 char **argv);
 }
 
 int Vtkrenderingpythontkwidgets_Init(Tcl_Interp *interp)
