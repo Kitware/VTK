@@ -24,7 +24,7 @@
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.43");
+vtkCxxRevisionMacro(vtkCell3D, "1.44");
 
 vtkCell3D::vtkCell3D()
 {
@@ -113,7 +113,7 @@ void vtkCell3D::Contour(double value, vtkDataArray *cellScalars,
         // tetra has been defined in terms of point ids that are defined in the
         // output (because of the templates).
         this->ClipTetra->Contour(value, this->ClipScalars, locator, 
-                                 verts, lines, polys, inPd, outPd, inCd, 
+                                 verts, lines, polys, outPd, outPd, inCd, 
                                  cellId, outCd);
         }
     return;
@@ -318,7 +318,7 @@ void vtkCell3D::Clip(double value, vtkDataArray *cellScalars,
         // VERY IMPORTANT: Notice that the outPD is used twice. This is because the
         // tetra has been defined in terms of point ids that are defined in the
         // output (because of the templates).
-        this->ClipTetra->Clip(value, this->ClipScalars, locator, tets, inPD,
+        this->ClipTetra->Clip(value, this->ClipScalars, locator, tets, outPD,
                               outPD, inCD, cellId, outCD, insideOut);
         }
       }//if boundary cell
