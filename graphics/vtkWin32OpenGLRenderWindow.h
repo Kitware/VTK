@@ -92,6 +92,7 @@ public:
   virtual void *GetGenericDisplayId() {return NULL;};
   virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
   virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
+  virtual void *GetGenericContext()   {return (void *)this->DeviceContext;};
   virtual void SetDisplayId(void *) {};
   
   HWND  GetWindowId();
