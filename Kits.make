@@ -68,7 +68,8 @@ libVTK$(ME)Tcl$(SHLIB_SUFFIX): tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
 	rm -f libVTK$(ME)Tcl$(SHLIB_SUFFIX)
 	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} -o \
 	libVTK$(ME)Tcl$(SHLIB_SUFFIX) \
-	tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
+	tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ} \
+	-L. -lVTK$(ME)
 
 #------------------------------------------------------------------------------
 # rules for the java library
