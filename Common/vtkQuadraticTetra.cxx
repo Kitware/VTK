@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.4");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.5");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 // Construct the line with two points.
@@ -353,11 +353,14 @@ int vtkQuadraticTetra::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   pts->Reset();
   ptIds->Reset();
 
-  ptIds->InsertId(0,this->PointIds->GetId(0));
-  pts->InsertPoint(0,this->Points->GetPoint(0));
-
-  ptIds->InsertId(1,this->PointIds->GetId(1));
-  pts->InsertPoint(1,this->Points->GetPoint(1));
+  for ( int i=0; i < 6; i++)
+    {
+    for ( int j=0; j < 4; j++)
+      {
+      ptIds->InsertId(4*i+j,this->PointIds->GetId(Tetras[i][j]));
+      pts->InsertPoint(4*i+j,this->Points->GetPoint(Tetras[i][j]));
+      }
+    }
 
   return 1;
 }
@@ -485,41 +488,45 @@ void vtkQuadraticTetra::InterpolationFunctions(float pcoords[3],
 // Derivatives in parametric space.
 void vtkQuadraticTetra::InterpolationDerivs(float pcoords[3], float derivs[30])
 {
+  float r = pcoords[0];
+  float s = pcoords[1];
+  float t = pcoords[2];
+
   // r-derivatives
-  derivs[0] = 0.0;
-  derivs[1] = 0.0;
+  derivs[0] = 4.0*r + 4.0*s + 4.0*t - 3.0;
+  derivs[1] = 4.0*r - 1.0;
   derivs[2] = 0.0;
   derivs[3] = 0.0;
-  derivs[4] = 0.0;
-  derivs[5] = 0.0;
-  derivs[6] = 0.0;
-  derivs[7] = 0.0;
+  derivs[4] = 4.0 - 8.0*r - 4.0*s - 4.0*t;
+  derivs[5] = 4.0*s;
+  derivs[6] = -4.0*s;
+  derivs[7] = -4.0*t;
   derivs[8] = 0.0;
-  derivs[9] = 0.0;
+  derivs[9] = 4.0*t;
 
   // s-derivatives
-  derivs[10] = 0.0;
+  derivs[10] = 4.0*r + 4.0*s + 4.0*t - 3.0;
   derivs[11] = 0.0;
-  derivs[12] = 0.0;
+  derivs[12] = 4.0*s - 1.0;
   derivs[13] = 0.0;
-  derivs[14] = 0.0;
-  derivs[15] = 0.0;
-  derivs[16] = 0.0;
-  derivs[17] = 0.0;
-  derivs[18] = 0.0;
+  derivs[14] = -4.0*r;
+  derivs[15] =  4.0*r;
+  derivs[16] = 4.0 - 4.0*r - 8.0*s - 4.0*t;
+  derivs[17] = -4.0*t;
+  derivs[18] =  4.0*t;
   derivs[19] = 0.0;
 
   // t-derivatives
-  derivs[20] = 0.0;
+  derivs[20] = 4.0*r + 4.0*s + 4.0*t - 3.0;
   derivs[21] = 0.0;
   derivs[22] = 0.0;
-  derivs[23] = 0.0;
-  derivs[24] = 0.0;
+  derivs[23] = 4.0*t - 1.0;
+  derivs[24] = -4.0*r;
   derivs[25] = 0.0;
-  derivs[26] = 0.0;
-  derivs[27] = 0.0;
-  derivs[28] = 0.0;
-  derivs[29] = 0.0;
+  derivs[26] = -4.0*t;
+  derivs[27] = 4.0 - 4.0*r - 8.0*s - 4.0*t;
+  derivs[28] = 4.0*s;
+  derivs[29] = 4.0*t;
   
 }
 
