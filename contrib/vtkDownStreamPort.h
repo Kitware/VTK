@@ -42,20 +42,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // 
 
 // .SECTION see also
-// vtkUpStreamPort vtkMPIController
+// vtkUpStreamPort vtkMultiProcessController
 
 #ifndef __vtkDownStreamPort_h
 #define __vtkDownStreamPort_h
 
 #include "vtkSource.h"
-#include "vtkMPIController.h"
+#include "vtkMultiProcessController.h"
 class vtkPolyData;
 
 // Arbitrary tags used by the ports for communication.
-#define VTK_PORT_DOWN_DATA_TIME_TAG  989877
-#define VTK_PORT_TRANSFER_NEEDED_TAG 564441
-#define VTK_PORT_DATA_TRANSFER_TAG   666665
-#define VTK_PORT_NEW_DATA_TIME_TAG   100110
+#define VTK_PORT_DOWN_DATA_TIME_TAG      989877
+#define VTK_PORT_UPDATE_EXTENT_TAG       389870
+#define VTK_PORT_TRANSFER_NEEDED_TAG     564441
+#define VTK_PORT_DATA_TRANSFER_TAG       666665
+#define VTK_PORT_NEW_DATA_TIME_TAG       100110
 
 
 class VTK_EXPORT vtkDownStreamPort : public vtkSource
@@ -88,13 +89,13 @@ public:
   
   // Description:
   // Access to the global controller.
-  vtkMPIController *GetController() {return this->Controller;}
+  vtkMultiProcessController *GetController() {return this->Controller;}
 
 protected:
   vtkDownStreamPort();
   ~vtkDownStreamPort();  
   
-  vtkMPIController *Controller;
+  vtkMultiProcessController *Controller;
   int UpStreamProcessId;
   int Tag;
 

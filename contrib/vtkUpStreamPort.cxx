@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkUpStreamPort.h"
 #include "vtkDownStreamPort.h"
-#include "vtkMPIController.h"
+#include "vtkMultiProcessController.h"
 #include "vtkPolyData.h"
 
 
@@ -49,14 +49,15 @@ vtkUpStreamPort::vtkUpStreamPort()
   this->Tag = -1;
   
   // Controller keeps a reference to this object as well.
-  this->Controller = vtkMPIController::RegisterAndGetGlobalController(this);
+  this->Controller = 
+    vtkMultiProcessController::RegisterAndGetGlobalController(this);
 }
 
 //----------------------------------------------------------------------------
 // We need to have a "GetNetReferenceCount" to avoid memory leaks.
 vtkUpStreamPort::~vtkUpStreamPort()
 {
-  vtkMPIController *tmp;
+  vtkMultiProcessController *tmp;
   
   // as a precaution set ivar to NULL before deleting.
   tmp = this->Controller;
@@ -92,7 +93,12 @@ void vtkUpStreamPort::Trigger(int remoteProcessId)
   unsigned long pmt, downDataTime;
   int transferNeeded;
   
-  // First, receive the "TransferTime" from the down stream port.
+  // First get the update extent requested.
+  this->Controller->Receive((vtkObject*)(input->GetGenericUpdateExtent()),
+			    remoteProcessId, 
+			    VTK_PORT_UPDATE_EXTENT_TAG);
+  
+  // Second, receive the previous "TransferTime" from the down stream port.
   this->Controller->Receive( &downDataTime, 1, remoteProcessId, 
 			     VTK_PORT_DOWN_DATA_TIME_TAG);
   
@@ -111,10 +117,16 @@ void vtkUpStreamPort::Trigger(int remoteProcessId)
   pmt = input->GetPipelineMTime();
     
   // See if the down stream port needs new data.
-  transferNeeded = (pmt > downDataTime);  
+  transferNeeded = (pmt > downDataTime);
+  
   // Send message back whether to expect data.
   this->Controller->Send( &transferNeeded, 1, remoteProcessId,
 			  VTK_PORT_TRANSFER_NEEDED_TAG);
+  
+  if ( ! transferNeeded)
+    {
+    return;
+    }
   
   // Now, it is a little unusual to have an update during an
   // UpdateInformation call.  However, it is the only way to

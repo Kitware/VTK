@@ -1,7 +1,7 @@
 /*=========================================================================
   
   Program:   Visualization Toolkit
-  Module:    vtkMPIController.h
+  Module:    vtkThreadController.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,36 +37,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkMPIController - Process communication using MPI
+// .NAME vtkThreadController - Allows communication between running threads.
 // .SECTION Description
-// vtkMPIController supplies a minimal set of communication methods as an
-// abstract interface through a variety of multi-processing communication
-// techniques.  It accepts Sends and Receives as well as implements
-// remove method invocations (RMI)
-// The "RegisterAndGetGlobalController" ensures that at most one 
-// controller exists per process.  In most cases, the controller will
-// be created automatically by a higher level object.
-// The intent is to generalize this class to have different multiprocessing
-// options: Threads, forking processes with shared memory or pipes.
-// The initialization is modeled after vtkMultiThreader, and may merge with
-// vtkMultiThreader in the future.
+// vtkThreadController just uses a vtkMultiThreader to spawn threads.
+// It the implements sends and receives using shared memory and reference 
+// counting.
 
 // .SECTION see also
 // vtkDownStreamPort vtkUpStreamPort vtkMultiThreader vtkMultiProcessController
 
-#ifndef __vtkMPIController_h
-#define __vtkMPIController_h
+#ifndef __vtkThreadController_h
+#define __vtkThreadController_h
 
 #include "vtkObject.h"
 #include "vtkMultiProcessController.h"
-#include "mpi.h"
+#include "vtkMultiThreader.h"
+
+class vtkThreadControllerProcessInfo;
 
 
-class VTK_EXPORT vtkMPIController : public vtkMultiProcessController
+class VTK_EXPORT vtkThreadController : public vtkMultiProcessController
 {
 public:
-  static vtkMPIController *New() {return new vtkMPIController;};
-  const char *GetClassName() {return "vtkMPIController";};
+  static vtkThreadController *New() {return new vtkThreadController;};
+  const char *GetClassName() {return "vtkThreadController";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -83,6 +77,13 @@ public:
   // for each of the required this->NumberOfProcesses methods) using
   // this->NumberOfProcesses processes.
   void MultipleMethodExecute();
+  
+  // Description:
+  // This method returns an integer from 0 to (NumberOfProcesses-1)
+  // indicating which process we are int.  It should not be called
+  // until ExecuteSingleMethod or ExecuteMultipleMethod has been
+  // called.
+  int GetLocalProcessId();
   
   //------------------ Communication --------------------
   
@@ -103,11 +104,35 @@ public:
   int Receive(char *data, int length, int remoteProcessId, int tag);
   int Receive(float *data, int length, int remoteProcessId, int tag);
   
+  // Description:
+  // First method called after threads are spawned.
+  // It is public because the function vtkThreadControllerStart
+  // is not a friend yet.  You should not call this method.
+  void Start(int threadIdx);
+
 protected:
+  
+  vtkMultiThreader *MultiThreader;
+  // Used internally to switch between mutliple and single method execution.
+  int MultipleMethodFlag;
+  
+#ifdef VTK_USE_PTHREADS
+  pthread_t ThreadIds[VTK_MP_CONTROLLER_MAX_PROCESSES];
+#endif
 
-  vtkMPIController();
-  ~vtkMPIController();
+  // Locks and pointers for communication.
+  vtkThreadControllerProcessInfo *Processes[VTK_MP_CONTROLLER_MAX_PROCESSES];
+  
+  
+  vtkThreadController();
+  ~vtkThreadController();
 
+  // Initialize and clean up in main thread.
+  void CreateThreadInfoObjects();
+  void DeleteThreadInfoObjects();
+  
+  int Send(void *data, int length, int remoteProcessId, int tag);
+  int Receive(void *data, int length, int remoteProcessId, int tag);
 };
 
 

@@ -26,14 +26,10 @@ void main( int argc, char *argv[] )
     
     a = 11;
     
-    cerr << "Process " << myid << " Sending int " << a << " to " << id0 << endl;
-
     MPI_Send(&a, 1, MPI_INT, id0, 99, MPI_COMM_WORLD );
-
-    cerr << "Process " << myid << " waiting for message from process " << id0 << endl;
     MPI_Recv(&b, 1, MPI_INT, id0, 99, MPI_COMM_WORLD, &status);
 
-    cerr << "Process " << myid << " Received int " << b << " from process " << id0 << endl;    
+    cerr << "Process " << myid << " Received int " << b << " should be 23\n";
     }
 
 
@@ -45,12 +41,8 @@ void main( int argc, char *argv[] )
     
     a = 23;
     
-    cerr << "Process " << myid << " waiting for message from process " << id1 << endl;
     MPI_Recv(&b, 1, MPI_INT, id1, 99, MPI_COMM_WORLD, &status);
-
-    cerr << "Process " << myid << " Received int " << b << " from process " << id1 << endl;    
-
-    cerr << "Process " << myid << " Sending int " << a << " to " << id1 << endl;
+    cerr << "Process " << myid << " Received int " << b << " should be 11\n";
 
     MPI_Send(&a, 1, MPI_INT, id1, 99, MPI_COMM_WORLD );
 

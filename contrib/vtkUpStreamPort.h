@@ -44,13 +44,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // specify which port they want.
 
 // .SECTION see also
-// vtkDownStreamPort vtkMPIController
+// vtkDownStreamPort vtkMultiProcessController
 
 #ifndef __vtkUpStreamPort_h
 #define __vtkUpStreamPort_h
 
 #include "vtkProcessObject.h"
-#include "vtkMPIController.h"
+#include "vtkMultiProcessController.h"
 class vtkPolyData;
 
 
@@ -82,7 +82,7 @@ public:
   
   // Description:
   // Access to the global controller.
-  vtkMPIController *GetController() {return this->Controller;}
+  vtkMultiProcessController *GetController() {return this->Controller;}
 
   // Description:
   // RMI function needs to call this.  Should make it a friend.
@@ -95,7 +95,7 @@ protected:
   
   int Tag;
   
-  vtkMPIController *Controller;
+  vtkMultiProcessController *Controller;
   vtkTimeStamp UpdateTime;
 
 };

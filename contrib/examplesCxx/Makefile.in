@@ -24,7 +24,7 @@ VTK_LIB_FILE  = @VTK_LIB_FILE@
 
 #-----------------------------------------------------------------------------
 
-EXAMPLES = TestMPI TestController TestPorts 
+EXAMPLES = TestMPI TestController TestPorts ParallelIso 
   
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${USE_TOOLKIT_FLAGS} ${GRAPHICS_API_FLAGS} \
@@ -53,6 +53,10 @@ TestController: TestController.o ${VTKLIB}
 
 TestPorts: TestPorts.o ${VTKLIB}
 	${CXX} -o TestPorts ${CXX_FLAGS} TestPorts.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+
+ParallelIso: ParallelIso.o ${VTKLIB}
+	${CXX} -o ParallelIso ${CXX_FLAGS} ParallelIso.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 #------------------------------------------------------------------------------

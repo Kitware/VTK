@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkDownStreamPort.h"
 #include "vtkUpStreamPort.h"
-#include "vtkMPIController.h"
+#include "vtkMultiProcessController.h"
 #include "vtkPolyData.h"
 
 
@@ -51,7 +51,8 @@ vtkDownStreamPort::vtkDownStreamPort()
   this->Tag = 0;
   
   // Controller keeps a reference to this object as well.
-  this->Controller = vtkMPIController::RegisterAndGetGlobalController(this);
+  this->Controller = 
+    vtkMultiProcessController::RegisterAndGetGlobalController(this);
 
   // State variables.
   this->TransferNeeded = 0;
@@ -62,7 +63,7 @@ vtkDownStreamPort::vtkDownStreamPort()
 // We need to have a "GetNetReferenceCount" to avoid memory leaks.
 vtkDownStreamPort::~vtkDownStreamPort()
 {
-  vtkMPIController *tmp;
+  vtkMultiProcessController *tmp;
   
   // as a precaution.
   tmp = this->Controller;
@@ -114,6 +115,8 @@ vtkPolyData *vtkDownStreamPort::GetPolyDataOutput()
 //----------------------------------------------------------------------------
 void vtkDownStreamPort::UpdateInformation()
 {
+  vtkDataObject *output;
+
   // This should be cleared by this point.
   if (this->TransferNeeded)
     {
@@ -127,6 +130,9 @@ void vtkDownStreamPort::UpdateInformation()
     vtkErrorMacro("No output.");
     return;
     }
+  output = this->Outputs[0];
+  
+  // This forces the upstream port to resend if our data is released.
   if (this->Outputs[0]->GetDataReleased())
     {
     this->DataTime = 0;
@@ -135,6 +141,10 @@ void vtkDownStreamPort::UpdateInformation()
   // Up-stream port should have the same tag.
   this->Controller->TriggerRMI(this->UpStreamProcessId, this->Tag);
 
+  // Send the UpdateExtent request.
+  this->Controller->Send((vtkObject*)(output->GetGenericUpdateExtent()),
+			 this->UpStreamProcessId, VTK_PORT_UPDATE_EXTENT_TAG);
+  
   // Send the DataTime for the up-stream port to evaluate.
   this->Controller->Send( &(this->DataTime), 1, this->UpStreamProcessId,
 			  VTK_PORT_DOWN_DATA_TIME_TAG);
@@ -152,6 +162,13 @@ void vtkDownStreamPort::UpdateInformation()
   
   // Now do the normal UpdateInformation dance.
   this->vtkSource::UpdateInformation();
+
+  // Now this is a hack until we can receive information from upstream.
+  if (this->TransferNeeded)
+    {
+    output->SetMaximumNumberOfPieces(256);
+    }
+  
 }
 
 
@@ -159,7 +176,7 @@ void vtkDownStreamPort::UpdateInformation()
 void vtkDownStreamPort::InternalUpdate(vtkDataObject *output)
 {
   // It is important to deal with UpdateExtent.  Ignore for now!
-  
+
   if ( ! this->TransferNeeded)
     {
     // If something unexpected happens, let me know.
