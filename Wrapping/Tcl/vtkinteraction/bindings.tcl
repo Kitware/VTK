@@ -4,7 +4,56 @@ namespace eval ::vtk {
 
     namespace export *
 
+    # -------------------------------------------------------------------
+    # Some functions that can be used to associate variables to
+    # widgets without polluting the global space
+
     variable gvars
+
+    # Generate a "unique" name for a widget variable
+
+    proc get_widget_variable {widget var_name} {
+        variable gvars
+        return "gvars($widget,vars,$var_name)"
+    }
+
+    # Set the value of a widget variable
+
+    proc set_widget_variable_value {widget var_name value} {
+        variable gvars
+        set var [get_widget_variable $widget $var_name]
+        set $var $value
+    }
+
+    proc unset_widget_variable {widget var_name} {
+        variable gvars
+        set var [get_widget_variable $widget $var_name]
+        if {[info exists $var]} {
+            unset $var
+        }
+    }
+
+    # Get the value of a widget variable ("" if undef)
+
+    proc get_widget_variable_value {widget var_name} {
+        variable gvars
+        set var [get_widget_variable $widget $var_name]
+        if {[info exists $var]} {
+            return [expr $$var]
+        } else {
+            return ""
+        }
+    }
+
+    # Return an object which will be associated with a widget
+
+    proc new_widget_object {widget type var_name} {
+        variable gvars
+        set var [get_widget_variable $widget "${var_name}_obj"]
+        $type $var
+        set_widget_variable_value $widget $var_name $var
+        return $var
+    }
 
     # -------------------------------------------------------------------
     # vtkTk(ImageViewer/Render)Widget callbacks.
@@ -155,8 +204,9 @@ namespace eval ::vtk {
         
         # Check for aborting rendering
 
-        $renwin AddObserver AbortCheckEvent \
-                [list ::vtk::cb_renwin_abort_check_event $renwin]
+        ::vtk::set_widget_variable_value $renwin AbortCheckEventTag \
+                [$renwin AddObserver AbortCheckEvent \
+                [list ::vtk::cb_renwin_abort_check_event $renwin]]
     }
 
     # -------------------------------------------------------------------
@@ -193,12 +243,12 @@ namespace eval ::vtk {
     # finaly render the window using a still update rate.
 
     proc cb_iren_configure_event {iren} {
-        variable gvars
         # Cancel the previous timer if any
-        if {[info exists gvars($iren,ConfigureEvent,timer)]} {
-            after cancel $gvars($iren,ConfigureEvent,timer)
+        set timer [::vtk::get_widget_variable_value $iren ConfigureEventTimer]
+        if {$timer != ""} {
+            after cancel $timer
         }
-        set gvars($iren,ConfigureEvent,timer) \
+        ::vtk::set_widget_variable_value $iren ConfigureEventTimer \
                 [after 300 [list ::vtk::cb_iren_expose_event $iren]]
     }
 
@@ -209,12 +259,12 @@ namespace eval ::vtk {
     # See above for explanations about the update rate tricks.
 
     proc cb_iren_expose_event {iren} {
-        variable gvars
         set renwin [$iren GetRenderWindow]
         # Check if a ConfigureEvent timer is pending
-        if {[info exists gvars($iren,ConfigureEvent,timer)]} {
-            if {[catch {after info $gvars($iren,ConfigureEvent,timer)}]} {
-                unset gvars($iren,ConfigureEvent,timer)
+        set timer [::vtk::get_widget_variable_value $iren ConfigureEventTimer]
+        if {$timer != ""} {
+            if {[catch {after info $timer}]} {
+                ::vtk::unset_widget_variable $iren ConfigureEventTimer
                 $renwin SetDesiredUpdateRate [$iren GetStillUpdateRate]
             } else {
                 $renwin SetDesiredUpdateRate [$iren GetDesiredUpdateRate]
@@ -243,29 +293,34 @@ namespace eval ::vtk {
 
         # Timer events
 
-        $iren AddObserver CreateTimerEvent \
-                [list ::vtk::cb_iren_create_timer_event $iren]
+        ::vtk::set_widget_variable_value $iren CreateTimerEventTag \
+                [$iren AddObserver CreateTimerEvent \
+                [list ::vtk::cb_iren_create_timer_event $iren]]
 
         # User Tk interactor
 
-        $iren AddObserver UserEvent \
-                [list ::vtk::cb_iren_user_event]
+        ::vtk::set_widget_variable_value $iren UserEventTag \
+                [$iren AddObserver UserEvent \
+                [list ::vtk::cb_iren_user_event]]
 
         # Expose and Configure
 
-        $iren AddObserver ConfigureEvent \
-                [list ::vtk::cb_iren_configure_event $iren]
+        ::vtk::set_widget_variable_value $iren ConfigureEventTag \
+                [$iren AddObserver ConfigureEvent \
+                [list ::vtk::cb_iren_configure_event $iren]]
 
-        $iren AddObserver ExposeEvent \
-                [list ::vtk::cb_iren_expose_event $iren]
+        ::vtk::set_widget_variable_value $iren ExposeEventTag \
+                [$iren AddObserver ExposeEvent \
+                [list ::vtk::cb_iren_expose_event $iren]]
 
         # Exit
         # Since the callback is likely to delete all VTK objects
         # using vtkCommand::DeleteAllObject, let's try not to call it from
         # the object itself. Use a timer.
 
-        $iren AddObserver ExitEvent \
-                "after 100 [list ::vtk::cb_iren_exit_event]"
+        ::vtk::set_widget_variable_value $iren ExitEventTag \
+                [$iren AddObserver ExitEvent \
+                "after 100 [list ::vtk::cb_iren_exit_event]"]
     }
 
     # -------------------------------------------------------------------
@@ -288,26 +343,23 @@ namespace eval ::vtk {
     # like window/level, pixel picking, etc
     
     proc cb_vtkiw_create_text1 {vtkiw} {
-        variable gvars
-        if {[info exists gvars($vtkiw,text1,mapper)] == 0} {
-            set viewer [$vtkiw GetImageViewer]
-            set gvars($vtkiw,text1,mapper) \
-                    [vtkTextMapper ${viewer}_text1_mapper]
-            set mapper $gvars($vtkiw,text1,mapper)
+        set mapper [::vtk::get_widget_variable_value $vtkiw text1_mapper]
+        if {$mapper == ""} {
+            set mapper \
+                  [::vtk::new_widget_object $vtkiw vtkTextMapper text1_mapper]
             $mapper SetInput "none"
             $mapper SetFontFamilyToArial
             $mapper SetFontSize 12
             $mapper BoldOn
             $mapper ShadowOn
         }
-        if {[info exists gvars($vtkiw,text1,actor)] == 0} {
-            set viewer [$vtkiw GetImageViewer]
-            set gvars($vtkiw,text1,actor) \
-                    [vtkActor2D ${viewer}_text1_actor]
-            set actor $gvars($vtkiw,text1,actor)
+        set actor [::vtk::get_widget_variable_value $vtkiw text1_actor]
+        if {$actor == ""} {
+            set actor \
+                    [::vtk::new_widget_object $vtkiw vtkActor2D text1_actor]
             $actor SetMapper $mapper
             $actor SetLayerNumber 1
-            [$actor GetPositionCoordinate] SetValue 4 4
+            [$actor GetPositionCoordinate] SetValue 5 4 0
             [$actor GetProperty] SetColor 1 1 0.5
             $actor SetVisibility 0
             [[$vtkiw GetImageViewer] GetRenderer] AddActor2D $actor
@@ -317,16 +369,19 @@ namespace eval ::vtk {
     # Show/Hide the 2d text actor
     
     proc cb_vtkiw_show_text1 {vtkiw} {
-        variable gvars
-        set actor $gvars($vtkiw,text1,actor)
+        set actor [::vtk::get_widget_variable_value $vtkiw text1_actor]
         if {![$actor GetVisibility]} {
+            set height [lindex [$vtkiw configure -height] 4]
+            set pos [$actor GetPositionCoordinate]
+            set value [$pos GetValue]
+            $pos SetValue \
+                    [lindex $value 0] [expr $height - 15] [lindex $value 2]
             $actor VisibilityOn
         }
     }
 
     proc cb_vtkiw_hide_text1 {vtkiw} {
-        variable gvars
-        set actor $gvars($vtkiw,text1,actor)
+        set actor [::vtk::get_widget_variable_value $vtkiw text1_actor]
         if {[$actor GetVisibility]} {
             $actor VisibilityOff
         }
@@ -357,8 +412,7 @@ namespace eval ::vtk {
     # Update the text actor with the current window/level values.
 
     proc cb_istyle_window_level_event {istyle vtkiw} {
-        variable gvars
-        set mapper $gvars($vtkiw,text1,mapper)
+        set mapper [::vtk::get_widget_variable_value $vtkiw text1_mapper]
         set viewer [$vtkiw GetImageViewer]
         $mapper SetInput [format "W/L: %.0f/%.0f" \
                 [$viewer GetColorWindow] [$viewer GetColorLevel]]
@@ -378,19 +432,27 @@ namespace eval ::vtk {
                 [$iren GetEventPosition]
     }
 
+    proc cb_istyle_right_button_release_event {istyle} {
+        set iren [$istyle GetInteractor]
+        eval $istyle OnRightButtonUp \
+                [$iren GetControlKey] \
+                [expr [$iren GetShiftKey] ? 0 : 1]  \
+                [$iren GetEventPosition]
+    }
+
     # StartPickEvent observer.
     # Create the text actor, show it
 
     proc cb_istyle_start_pick_event {istyle vtkiw} {
         ::vtk::cb_vtkiw_create_text1 $vtkiw
-        ::vtk::cb_vtkiw_show_text1  $vtkiw
+        ::vtk::cb_vtkiw_show_text1 $vtkiw
     }
 
     # EndPickEvent observer.
     # Hide the text actor.
 
     proc cb_istyle_end_pick_event {istyle vtkiw} {
-        ::vtk::cb_vtkiw_hide_text1  $vtkiw
+        ::vtk::cb_vtkiw_hide_text1 $vtkiw
         $vtkiw Render
     }
 
@@ -431,8 +493,7 @@ namespace eval ::vtk {
                     [$input GetScalarComponentAsFloat $x $y $z $idx]]
         }
 
-        variable gvars
-        set mapper $gvars($vtkiw,text1,mapper)
+        set mapper [::vtk::get_widget_variable_value $vtkiw text1_mapper]
         $mapper SetInput "$str"
         $vtkiw Render
     }
@@ -450,28 +511,35 @@ namespace eval ::vtk {
 
         # Window/Level observers
 
-        $istyle AddObserver StartWindowLevelEvent \
-                "::vtk::cb_istyle_start_window_level_event $istyle $vtkiw"
+        ::vtk::set_widget_variable_value $istyle StartWindowLevelEventTag \
+                [$istyle AddObserver StartWindowLevelEvent \
+                "::vtk::cb_istyle_start_window_level_event $istyle $vtkiw"]
 
-        $istyle AddObserver WindowLevelEvent \
-                "::vtk::cb_istyle_window_level_event $istyle $vtkiw"
+        ::vtk::set_widget_variable_value $istyle WindowLevelEventTag \
+                [$istyle AddObserver WindowLevelEvent \
+                "::vtk::cb_istyle_window_level_event $istyle $vtkiw"]
 
-        $istyle AddObserver EndWindowLevelEvent \
-                "::vtk::cb_istyle_end_window_level_event $istyle $vtkiw"
+        ::vtk::set_widget_variable_value $istyle EndWindowLevelEventTag \
+                [$istyle AddObserver EndWindowLevelEvent \
+                "::vtk::cb_istyle_end_window_level_event $istyle $vtkiw"]
 
         # Picking observers
 
-        $istyle AddObserver RightButtonPressEvent \
-                "::vtk::cb_istyle_right_button_press_event $istyle"
+        ::vtk::set_widget_variable_value $istyle RightButtonPressEventTag \
+                [$istyle AddObserver RightButtonPressEvent \
+                "::vtk::cb_istyle_right_button_press_event $istyle"]
 
-        $istyle AddObserver StartPickEvent \
-                "::vtk::cb_istyle_start_pick_event $istyle $vtkiw"
+        ::vtk::set_widget_variable_value $istyle StartPickEventTag \
+                [$istyle AddObserver StartPickEvent \
+                "::vtk::cb_istyle_start_pick_event $istyle $vtkiw"]
 
-        $istyle AddObserver EndPickEvent \
-                "::vtk::cb_istyle_end_pick_event $istyle $vtkiw"
+        ::vtk::set_widget_variable_value $istyle EndPickEventTag \
+                [$istyle AddObserver EndPickEvent \
+                "::vtk::cb_istyle_end_pick_event $istyle $vtkiw"]
         
-        $istyle AddObserver PickEvent \
-                "::vtk::cb_istyle_pick_event $istyle $vtkiw"
+        ::vtk::set_widget_variable_value $istyle PickEventTag \
+                [$istyle AddObserver PickEvent \
+                "::vtk::cb_istyle_pick_event $istyle $vtkiw"]
     }
 
 }
