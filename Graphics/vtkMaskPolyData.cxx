@@ -15,11 +15,13 @@
 #include "vtkMaskPolyData.h"
 
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMaskPolyData, "1.43");
+vtkCxxRevisionMacro(vtkMaskPolyData, "1.44");
 vtkStandardNewMacro(vtkMaskPolyData);
 
 vtkMaskPolyData::vtkMaskPolyData()
@@ -31,15 +33,26 @@ vtkMaskPolyData::vtkMaskPolyData()
 // Down sample polygonal data.  Don't down sample points (that is, use the
 // original points, since usually not worth it.
 //
-void vtkMaskPolyData::Execute()
+int vtkMaskPolyData::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType id;
   vtkPointData *pd;
   vtkIdType numCells;
   vtkIdType *pts = 0;
   vtkIdType npts = 0;
-  vtkPolyData *input= this->GetInput();
-  vtkPolyData *output = this->GetOutput();
   int abortExecute=0;
   
   // Check input / pass data through
@@ -49,7 +62,7 @@ void vtkMaskPolyData::Execute()
   if ( numCells < 1 )
     {
     vtkErrorMacro (<<"No PolyData to mask!");
-    return;
+    return 0;
     }
 
   output->Allocate(input,numCells);
@@ -76,6 +89,8 @@ void vtkMaskPolyData::Execute()
   output->GetPointData()->PassData(pd);
 
   output->Squeeze();
+
+  return 1;
 }
 
 void vtkMaskPolyData::PrintSelf(ostream& os, vtkIndent indent)
