@@ -80,7 +80,7 @@ vtkEnSightGoldBinaryReader::~vtkEnSightGoldBinaryReader()
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadGeometryFile()
+int vtkEnSightGoldBinaryReader::ReadGeometryFile(char* fileName, int timeStep)
 {
   char line[80], subLine[80];
   int partId;
@@ -222,7 +222,8 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile()
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile()
+int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(char* fileName,
+							 int timeStep)
 {
   char line[80], subLine[80];
   int i;
@@ -315,6 +316,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile()
 //----------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
                                                    char* description,
+						   int timeStep,
                                                    int measured,
                                                    int numberOfComponents,
                                                    int component)
@@ -391,7 +393,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
       }
     else
       {
-      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetPointData()->GetArray(description));
+      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetPointData()->
+				 GetArray(description));
       }
     
     scalarsRead = new float[numPts];
@@ -425,6 +428,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
 //----------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
                                                    char* description,
+						   int timeStep,
                                                    int measured)
 {
   char line[80]; 
@@ -533,7 +537,9 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName, char* description)
+int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName,
+						   char* description,
+						   int timeStep)
 {
   char line[80];
   int partId, numPts, i;
@@ -633,6 +639,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName, char* descrip
 //----------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
                                                       char* description,
+						      int timeStep,
                                                       int numberOfComponents,
                                                       int component)
 {
@@ -685,7 +692,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
       }
     else
       {
-      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetCellData()->GetArray(description));
+      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetCellData()->
+				 GetArray(description));
       }
     
     // need to find out from CellIds how many cells we have of this element
@@ -745,7 +753,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
-                                                      char* description)
+                                                      char* description,
+						      int timeStep)
 {
   char line[80];
   int partId, numCells, numCellsPerElement, i, idx;
@@ -860,7 +869,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
-                                                char* description)
+						      char* description,
+						      int timeStep)
 {
   char line[80];
   int partId, numCells, numCellsPerElement, i, idx;
