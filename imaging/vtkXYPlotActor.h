@@ -221,11 +221,35 @@ public:
   vtkGetMacro(Border, int);
 
   // Description:
+  // Set/Get whether the points are rendered.  The point size can be set in
+  // the property object.
+  vtkGetMacro(PlotPoints, int);
+  vtkSetMacro(PlotPoints, int);
+  vtkBooleanMacro(PlotPoints, int);
+
+  // Description:
+  // Set/Get whether the lines are rendered.  The line width can be set in
+  // the property object.
+  vtkGetMacro(PlotLines, int);
+  vtkSetMacro(PlotLines, int);
+  vtkBooleanMacro(PlotLines, int);
+  
+  // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
 
+  // Description:
+  // Given a position within the viewport used by the plot, return the
+  // the plot coordinates (XAxis value, YAxis value)
+  void ViewportToPlotCoordinate(vtkViewport *viewport, float &u, float &v);
+
+  // Description:
+  // Is the specified viewport position within the plot area (as opposed to the
+  // region used by the plot plus the labels)?
+  int IsInPlot(vtkViewport *viewport, float u, float v);
+  
 protected:
   vtkXYPlotActor();
   ~vtkXYPlotActor();
@@ -247,7 +271,11 @@ protected:
   char  *LabelFormat;
   float XRange[2];
   float YRange[2];
+  float XComputedRange[2];  // range actually used by plot
+  float YComputedRange[2];  // range actually used by plot
   int Border;
+  int PlotLines;
+  int PlotPoints;
   
   vtkTextMapper *TitleMapper;
   vtkActor2D    *TitleActor;

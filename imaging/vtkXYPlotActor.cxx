@@ -99,6 +99,8 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->YRange[1] = 0.0;
 
   this->Border = 5;
+  this->PlotLines = 1;
+  this->PlotPoints = 0;
 
   this->TitleMapper = vtkTextMapper::New();
   this->TitleActor = vtkActor2D::New();
@@ -305,6 +307,8 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     vtkAxisActor2D::ComputeRange(range, xRange, this->NumberOfXLabels,
                                  numTicks, interval);
+    this->XComputedRange[0] = xRange[0];
+    this->XComputedRange[1] = xRange[1];
     
     this->XAxis->SetRange(range);
     this->XAxis->SetTitle(this->XTitle);
@@ -329,7 +333,9 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     vtkAxisActor2D::ComputeRange(range, yRange, this->NumberOfXLabels,
                                  numTicks, interval);
-
+    this->YComputedRange[0] = yRange[0];
+    this->YComputedRange[1] = yRange[1];
+    
     this->YAxis->SetRange(range[1], range[0]); //get ticks on "correct" side
     this->YAxis->SetTitle(this->YTitle);
     this->YAxis->SetNumberOfLabels(this->NumberOfYLabels);
@@ -402,6 +408,8 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
      << (this->YTitle ? this->YTitle : "(none)") << "\n";
  
   os << indent << "X Values: " << this->GetXValuesAsString() << endl;
+  os << indent << "Plot points: " << (this->PlotPoints ? "On\n" : "Off\n");
+  os << indent << "Plot lines: " << (this->PlotLines ? "On\n" : "Off\n");
 
   os << indent << "Number Of X Labels: " << this->NumberOfXLabels << "\n";
   os << indent << "Number Of Y Labels: " << this->NumberOfYLabels << "\n";
@@ -464,7 +472,7 @@ void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
       for ( lengths[dsNum]=0.0, ptId=1; ptId < numPts; ptId++ )
         {
         ds->GetPoint(ptId, x);
-        lengths[dsNum] += vtkMath::Distance2BetweenPoints(x,xPrev);
+        lengths[dsNum] += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
         xPrev[0] = x[0]; xPrev[1] = x[1]; xPrev[2] = x[2];
         }
       if ( lengths[dsNum] > maxLength )
@@ -543,14 +551,31 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
 
   this->PlotActor->SetProperty(this->GetProperty());
   this->PlotData->Initialize();
+
+  if (!this->PlotPoints && !this->PlotLines)
+    {
+    return;
+    }
+
   vtkCellArray *lines=vtkCellArray::New();
   vtkPoints *pts=vtkPoints::New();
 
-  lines->Allocate(1000,1000);
-  pts->Allocate(1000,1000);
-  this->PlotData->SetLines(lines);
+  lines->Allocate(10,10);
+  pts->Allocate(10,10);
   this->PlotData->SetPoints(pts);
 
+  // Should the lines be rendered?
+  if (this->PlotLines)
+    {
+    this->PlotData->SetLines(lines);  
+    }
+
+  // Should the points be rendered?
+  if (this->PlotPoints)
+    {
+    this->PlotData->SetVerts(lines);   // use the lines as verts
+    }
+  
   for ( dsNum=0, this->InputList->InitTraversal(); 
        (ds = this->InputList->GetNextItem()); dsNum++ )
     {
@@ -570,7 +595,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
       ds->GetPoint(ptId, x);
       if ( this->XValues == VTK_XYPLOT_NORMALIZED_ARC_LENGTH )
         {
-        length += vtkMath::Distance2BetweenPoints(x,xPrev);
+        length += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
         xyz[0] = length / lengths[dsNum];
         xPrev[0] = x[0]; xPrev[1] = x[1]; xPrev[2] = x[2];
         }
@@ -582,10 +607,11 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
 
       else //if ( this->XValues == VTK_XYPLOT_ARC_LENGTH )
         {
-        length += vtkMath::Distance2BetweenPoints(x,xPrev);
+        length += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
         xyz[0] = length;
         xPrev[0] = x[0]; xPrev[1] = x[1]; xPrev[2] = x[2];
-        }
+	}
+
 
       // normalize and position
       if ( xyz[0] >= xRange[0] && xyz[0] <= xRange[1] &&
@@ -659,3 +685,36 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
   textMapper->Delete();
 }
 
+void vtkXYPlotActor::ViewportToPlotCoordinate(vtkViewport *viewport, float &u, float &v)
+{
+  int *p0, *p1, *p2;
+
+  // XAxis, YAxis are in viewport coordinates already
+  p0 = this->XAxis->GetPoint1Coordinate()->GetComputedViewportValue(viewport);
+  p1 = this->XAxis->GetPoint2Coordinate()->GetComputedViewportValue(viewport);
+  p2 = this->YAxis->GetPoint1Coordinate()->GetComputedViewportValue(viewport);
+
+  u = ((u - p0[0]) / (float)(p1[0] - p0[0]))
+    *(this->XComputedRange[1] - this->XComputedRange[0])
+    + this->XComputedRange[0];
+  v = ((v - p0[1]) / (float)(p2[1] - p0[1]))
+    *(this->YComputedRange[1] - this->YComputedRange[0])
+    + this->YComputedRange[0];
+}
+
+int vtkXYPlotActor::IsInPlot(vtkViewport *viewport, float u, float v)
+{
+  int *p0, *p1, *p2;
+
+  // Bounds of the plot are based on the axes...
+  p0 = this->XAxis->GetPoint1Coordinate()->GetComputedViewportValue(viewport);
+  p1 = this->XAxis->GetPoint2Coordinate()->GetComputedViewportValue(viewport);
+  p2 = this->YAxis->GetPoint1Coordinate()->GetComputedViewportValue(viewport);
+  
+  if (u >= p0[0] && u <= p1[0] && v >= p0[1] && v <= p2[1])
+    {
+    return 1;
+    }
+
+  return 0;
+}
