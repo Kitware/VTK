@@ -24,7 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.113");
+vtkCxxRevisionMacro(vtkSource, "1.114");
 
 #ifndef NULL
 #define NULL 0
@@ -1134,6 +1134,7 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
     this->ExecuteInformation();
 
     // Copy the resulting information back into the information objects.
+    outputVector->SetNumberOfInformationObjects(this->NumberOfOutputs);
     for(i=0; i < this->NumberOfOutputs; ++i)
       {
       if(this->Outputs[i])
