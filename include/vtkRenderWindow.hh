@@ -86,8 +86,8 @@ public:
   // Description:
   // Performed at the end of the rendering process to swap buffers
   // if neccessary etc.
-  virtual void Frame() = 0
-  
+  virtual void Frame() = 0;
+
   virtual void SetDisplayId(void *) = 0;
   virtual void SetWindowId(void *) = 0;
 
