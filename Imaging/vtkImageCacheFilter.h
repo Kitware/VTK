@@ -13,18 +13,19 @@
 
 =========================================================================*/
 // .NAME vtkImageCacheFilter - Caches multiple vtkImageData objects.
+
 // .SECTION Description
-// vtkImageCacheFilter keep a number of vtkImageDataObjects from previous updates
-// to satisfy future updates without needing to update the input.  
-// It does not change the data at all.
-// It just makes the pipeline more efficient at the expense of using extra memory.
-
-
+// vtkImageCacheFilter keep a number of vtkImageDataObjects from previous
+// updates to satisfy future updates without needing to update the input.  It
+// does not change the data at all.  It just makes the pipeline more
+// efficient at the expense of using extra memory.
 
 #ifndef __vtkImageCacheFilter_h
 #define __vtkImageCacheFilter_h
 
 #include "vtkImageToImageFilter.h"
+
+class vtkExecutive;
 
 class VTK_IMAGING_EXPORT vtkImageCacheFilter : public vtkImageToImageFilter
 {
@@ -39,15 +40,24 @@ public:
   void SetCacheSize(int size);
   vtkGetMacro(CacheSize, int);
   
+#ifndef VTK_USE_EXECUTIVES
   // Description:
   // This is an internal method that you should not call.
   void UpdateData(vtkDataObject *outData);
-
+#endif
+  
 protected:
   vtkImageCacheFilter();
   ~vtkImageCacheFilter();
 
   int CacheSize;
+
+  // Create a default executive.
+  virtual vtkExecutive* CreateDefaultExecutive();
+
+#ifdef VTK_USE_EXECUTIVES
+  virtual void ExecuteData(vtkDataObject *);
+#endif
   
   vtkImageData **Data;
   // I do not have write access to UpdateTime.

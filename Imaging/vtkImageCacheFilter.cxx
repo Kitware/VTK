@@ -17,8 +17,9 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkCachedStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCacheFilter, "1.21");
+vtkCxxRevisionMacro(vtkImageCacheFilter, "1.22");
 vtkStandardNewMacro(vtkImageCacheFilter);
 
 //----------------------------------------------------------------------------
@@ -29,6 +30,8 @@ vtkImageCacheFilter::vtkImageCacheFilter()
   this->Times = NULL;
   
   this->SetCacheSize(10);
+  this->SetExecutive(this->CreateDefaultExecutive());
+  this->vtkSource::SetNthOutput(0,vtkImageData::New());
 }
 
 //----------------------------------------------------------------------------
@@ -37,6 +40,11 @@ vtkImageCacheFilter::~vtkImageCacheFilter()
   this->SetCacheSize(0);
 }
 
+//----------------------------------------------------------------------------
+vtkExecutive* vtkImageCacheFilter::CreateDefaultExecutive()
+{
+  return vtkCachedStreamingDemandDrivenPipeline::New();
+}
 
 //----------------------------------------------------------------------------
 void vtkImageCacheFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -63,6 +71,14 @@ void vtkImageCacheFilter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkImageCacheFilter::SetCacheSize(int size)
 {
+#ifdef VTK_USE_EXECUTIVES
+  vtkCachedStreamingDemandDrivenPipeline *csddp = 
+    vtkCachedStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
+  if (csddp)
+    {
+    csddp->SetCacheSize(size);
+    }
+#else
   int idx;
   
   if (size == this->CacheSize)
@@ -106,8 +122,16 @@ void vtkImageCacheFilter::SetCacheSize(int size)
     this->Data[idx] = NULL;
     this->Times[idx] = 0;
     }
+#endif
 }
 
+#ifdef VTK_USE_EXECUTIVES
+//----------------------------------------------------------------------------
+// This method simply copies by reference the input data to the output.
+void vtkImageCacheFilter::ExecuteData(vtkDataObject *outObject)
+{
+}
+#else
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
 void vtkImageCacheFilter::UpdateData(vtkDataObject *outObject)
@@ -216,6 +240,4 @@ void vtkImageCacheFilter::UpdateData(vtkDataObject *outObject)
       }
     }
 }
-
-
-
+#endif
