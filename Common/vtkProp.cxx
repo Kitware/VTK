@@ -85,12 +85,19 @@ vtkProp::~vtkProp()
 // e.g., vtkActor) is picked by vtkPicker.
 void vtkProp::SetPickMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-  cbc->Callback = f;
-  cbc->ClientData = arg;
-  this->RemoveObserver(this->PickTag);
-  this->PickTag = this->AddObserver(vtkCommand::PickEvent,cbc);
-  cbc->Delete();
+  if ( this->PickTag )
+    {
+    this->RemoveObserver(this->PickTag);
+    }
+  
+  if ( f )
+    {
+    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
+    cbc->Callback = f;
+    cbc->ClientData = arg;
+    this->PickTag = this->AddObserver(vtkCommand::PickEvent,cbc);
+    cbc->Delete();
+    }
 }
 
 // Set a method to delete user arguments for PickMethod.

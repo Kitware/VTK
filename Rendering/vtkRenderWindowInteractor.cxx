@@ -182,25 +182,40 @@ void vtkRenderWindowInteractor::UpdateSize(int x,int y)
 }
 
 // Specify a method to be executed prior to the pick operation.
-void vtkRenderWindowInteractor::SetStartPickMethod(void (*f)(void *), void *arg)
+void vtkRenderWindowInteractor::SetStartPickMethod(void (*f)(void *), 
+                                                   void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-  cbc->Callback = f;
-  cbc->ClientData = arg;
-  this->RemoveObserver(this->StartPickTag);
-  this->StartPickTag = this->AddObserver(vtkCommand::StartPickEvent,cbc);
-  cbc->Delete();
+  if ( this->StartPickTag )
+    {
+    this->RemoveObserver(this->StartPickTag);
+    }
+  
+  if ( f )
+    {
+    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
+    cbc->Callback = f;
+    cbc->ClientData = arg;
+    this->StartPickTag = this->AddObserver(vtkCommand::StartPickEvent,cbc);
+    cbc->Delete();
+    }
 }
 
 // Specify a method to be executed after the pick operation.
 void vtkRenderWindowInteractor::SetEndPickMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-  cbc->Callback = f;
-  cbc->ClientData = arg;
-  this->RemoveObserver(this->EndPickTag);
-  this->EndPickTag = this->AddObserver(vtkCommand::EndPickEvent,cbc);
-  cbc->Delete();
+  if ( this->EndPickTag )
+    {
+    this->RemoveObserver(this->EndPickTag);
+    }
+  
+  if ( f )
+    {
+    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
+    cbc->Callback = f;
+    cbc->ClientData = arg;
+    this->EndPickTag = this->AddObserver(vtkCommand::EndPickEvent,cbc);
+    cbc->Delete();
+    }
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
@@ -233,12 +248,19 @@ vtkAbstractPropPicker *vtkRenderWindowInteractor::CreateDefaultPicker()
 // Set the user method. This method is invoked on a <u> keypress.
 void vtkRenderWindowInteractor::SetUserMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-  cbc->Callback = f;
-  cbc->ClientData = arg;
-  this->RemoveObserver(this->UserTag);
-  this->UserTag = this->AddObserver(vtkCommand::UserEvent,cbc);
-  cbc->Delete();
+  if ( this->UserTag )
+    {
+    this->RemoveObserver(this->UserTag);
+    }
+  
+  if ( f )
+    {
+    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
+    cbc->Callback = f;
+    cbc->ClientData = arg;
+    this->UserTag = this->AddObserver(vtkCommand::UserEvent,cbc);
+    cbc->Delete();
+    }
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
@@ -255,12 +277,19 @@ void vtkRenderWindowInteractor::SetUserMethodArgDelete(void (*f)(void *))
 // Set the exit method. This method is invoked on a <e> keypress.
 void vtkRenderWindowInteractor::SetExitMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-  cbc->Callback = f;
-  cbc->ClientData = arg;
-  this->RemoveObserver(this->ExitTag);
-  this->ExitTag = this->AddObserver(vtkCommand::ExitEvent,cbc);
-  cbc->Delete();
+  if ( this->ExitTag )
+    {
+    this->RemoveObserver(this->ExitTag);
+    }
+  
+  if ( f )
+    {
+    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
+    cbc->Callback = f;
+    cbc->ClientData = arg;
+    this->ExitTag = this->AddObserver(vtkCommand::ExitEvent,cbc);
+    cbc->Delete();
+    }
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.

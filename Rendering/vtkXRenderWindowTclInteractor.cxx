@@ -189,13 +189,17 @@ void  vtkXRenderWindowTclInteractor::Start()
     return;
     }
 
+  if ( this->ExitTag )
+    {
+    this->RemoveObserver(this->ExitTag);
+    }
+  
   vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = vtkBreakTclLoop;
   cbc->ClientData = this;
-  this->RemoveObserver(this->ExitTag);
-
   this->ExitTag = this->AddObserver(vtkCommand::ExitEvent,cbc);
   cbc->Delete();
+  
   this->BreakLoopFlag = 0;
   while(this->BreakLoopFlag == 0)
     {

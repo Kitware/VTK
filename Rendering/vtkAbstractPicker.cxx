@@ -86,35 +86,56 @@ void vtkAbstractPicker::Initialize()
 // Specify function to be called as picking operation begins.
 void vtkAbstractPicker::SetStartPickMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-  cbc->Callback = f;
-  cbc->ClientData = arg;
-  this->RemoveObserver(this->StartPickTag);
-  this->StartPickTag = this->AddObserver(vtkCommand::StartPickEvent,cbc);
-  cbc->Delete();
+  if ( this->StartPickTag )
+    {
+    this->RemoveObserver(this->StartPickTag);
+    }
+  
+  if ( f )
+    {
+    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
+    cbc->Callback = f;
+    cbc->ClientData = arg;
+    this->StartPickTag = this->AddObserver(vtkCommand::StartPickEvent,cbc);
+    cbc->Delete();
+    }
 }
 
 // Specify function to be called when something is picked.
 void vtkAbstractPicker::SetPickMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-  cbc->Callback = f;
-  cbc->ClientData = arg;
-  this->RemoveObserver(this->StartPickTag);
-  this->StartPickTag = this->AddObserver(vtkCommand::PickEvent,cbc);
-  cbc->Delete();
+  if ( this->StartPickTag )
+    {
+    this->RemoveObserver(this->StartPickTag);
+    }
+  
+  if ( f )
+    {
+    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
+    cbc->Callback = f;
+    cbc->ClientData = arg;
+    this->StartPickTag = this->AddObserver(vtkCommand::PickEvent,cbc);
+    cbc->Delete();
+    }
 }
 
 // Specify function to be called after all picking operations have been
 // performed.
 void vtkAbstractPicker::SetEndPickMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-  cbc->Callback = f;
-  cbc->ClientData = arg;
-  this->RemoveObserver(this->StartPickTag);
-  this->StartPickTag = this->AddObserver(vtkCommand::EndPickEvent,cbc);
-  cbc->Delete();
+  if ( this->StartPickTag )
+    {
+    this->RemoveObserver(this->StartPickTag);
+    }
+  
+  if ( f )
+    {
+    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
+    cbc->Callback = f;
+    cbc->ClientData = arg;
+    this->StartPickTag = this->AddObserver(vtkCommand::EndPickEvent,cbc);
+    cbc->Delete();
+    }
 }
 
 

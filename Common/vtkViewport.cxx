@@ -321,12 +321,19 @@ int vtkViewport::IsInViewport(int x,int y)
 // Function will be called with argument provided.
 void vtkViewport::SetStartRenderMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-  cbc->Callback = f;
-  cbc->ClientData = arg;
-  this->RemoveObserver(this->StartTag);
-  this->StartTag = this->AddObserver(vtkCommand::StartEvent,cbc);
-  cbc->Delete();
+  if ( this->StartTag )
+    {
+    this->RemoveObserver(this->StartTag);
+    }
+  
+  if ( f )
+    {
+    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
+    cbc->Callback = f;
+    cbc->ClientData = arg;
+    this->StartTag = this->AddObserver(vtkCommand::StartEvent,cbc);
+    cbc->Delete();
+    }
 }
 
 // Set the arg delete method. This is used to free user memory.
@@ -355,12 +362,19 @@ void vtkViewport::SetEndRenderMethodArgDelete(void (*f)(void *))
 // Function will be called with argument provided.
 void vtkViewport::SetEndRenderMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-  cbc->Callback = f;
-  cbc->ClientData = arg;
-  this->RemoveObserver(this->EndTag);
-  this->EndTag = this->AddObserver(vtkCommand::EndEvent,cbc);
-  cbc->Delete();
+  if ( this->EndTag )
+    {
+    this->RemoveObserver(this->EndTag);
+    }
+  
+  if ( f )
+    {
+    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
+    cbc->Callback = f;
+    cbc->ClientData = arg;
+    this->EndTag = this->AddObserver(vtkCommand::EndEvent,cbc);
+    cbc->Delete();
+    }
 }
 
 void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)

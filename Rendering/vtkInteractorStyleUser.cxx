@@ -101,15 +101,23 @@ void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Button: " << this->Button << "\n";
 }
 
-void vtkInteractorStyleUser::vtkSetOldCallback(unsigned long &tag, unsigned long event, 
+void vtkInteractorStyleUser::vtkSetOldCallback(unsigned long &tag, 
+                                               unsigned long event, 
                                                void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-  cbc->Callback = f;
-  cbc->ClientData = arg;
-  this->RemoveObserver(tag);
-  tag = this->AddObserver(event,cbc);
-  cbc->Delete();
+  if ( tag )
+    {
+    this->RemoveObserver(tag);
+    }
+  
+  if ( f )
+    {
+    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
+    cbc->Callback = f;
+    cbc->ClientData = arg;
+    tag = this->AddObserver(event,cbc);
+    cbc->Delete();
+    }
 }
 
 void vtkInteractorStyleUser::vtkSetOldDelete(unsigned long tag, void (*f)(void *))
