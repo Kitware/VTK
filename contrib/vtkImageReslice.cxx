@@ -85,6 +85,7 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
     this->OutputExtent[3] << " " << this->OutputExtent[4] << " " <<
     this->OutputExtent[5] << "\n";
   os << indent << "Interpolate: " << this->Interpolate << "\n";
+  os << indent << "Optimization: " << this->Optimization << "\n";
   os << indent << "BackgroundLevel: " << this->BackgroundLevel << "\n";
 }
 
