@@ -213,7 +213,14 @@ void vtkImageCache::SetUpdateExtent(int xMin, int xMax, int yMin, int yMax,
 //----------------------------------------------------------------------------
 void vtkImageCache::SetUpdateExtentToWholeExtent()
 {
-  this->UpdateImageInformation();
+  unsigned long pipelineMTime = this->GetPipelineMTime();
+  
+  // update if mtime indicates to do so
+  if (pipelineMTime > this->ExecuteTime)
+    {
+    // Make sure image information is upto date
+    this->UpdateImageInformation();
+    }
   this->SetUpdateExtent(this->WholeExtent);
 }
 
@@ -246,7 +253,10 @@ void vtkImageCache::GetUpdateExtent(int &xMin, int &xMax, int &yMin, int &yMax,
 // (see "vtkImageFilter").
 void vtkImageCache::UpdateImageInformation()
 {
-  if (this->Source)
+  unsigned long pipelineMTime = this->GetPipelineMTime();
+  
+  // update if mtime indicates to do so
+  if (this->Source && pipelineMTime > this->ExecuteTime)
     {
     this->Source->UpdateImageInformation();
     }

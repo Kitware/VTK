@@ -123,10 +123,15 @@ void vtkImageSimpleCache::Update()
   unsigned long pipelineMTime = this->GetPipelineMTime();
   int *cachedExtent;
   
-  // Make sure image information is upto date
-  this->UpdateImageInformation();
-  this->ClipUpdateExtentWithWholeExtent();
+  // update if mtime indicates to do so
+  if (pipelineMTime > this->ExecuteTime)
+    {
+    // Make sure image information is upto date
+    this->UpdateImageInformation();
+    }
   
+  this->ClipUpdateExtentWithWholeExtent();
+    
   // Let the cache modify the update extent, but save the old one.
   this->GetUpdateExtent(updateExtentSave);
   this->Source->InterceptCacheUpdate();
