@@ -404,17 +404,17 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
       }
     }
     
-    if (bestCellId >= 0)
-      {
-      this->DataSet->GetCell(bestCellId, cell);
-      cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId);
+  if (bestCellId >= 0)
+    {
+    this->DataSet->GetCell(bestCellId, cell);
+    cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId);
       
-      // store the best cell id in the return "parameter"
-      cellId = bestCellId;
-      return 1;
-      }
+    // store the best cell id in the return "parameter"
+    cellId = bestCellId;
+    return 1;
+    }
     
-    return 0;
+  return 0;
 }
 
 // Return closest point (if any) AND the cell on which this closest point lies
@@ -1181,15 +1181,16 @@ void vtkCellLocator::GetOverlappingBuckets(float x[3], int vtkNotUsed(ijk)[3],
 }
 
 // number of buckets available
-int vtkCellLocator::GetNumberOfBuckets(void) {
-    if (this->Tree)
+int vtkCellLocator::GetNumberOfBuckets(void) 
+{
+  if (this->Tree)
     {
-      return this->NumberOfOctants;
+    return this->NumberOfOctants;
     }
-    else
+  else
     {
-      vtkWarningMacro(<<"Attempting to access Tree before Locator has been built");
-      return 0;
+    vtkWarningMacro(<<"Attempting to access Tree before Locator has been built");
+    return 0;
     }
 }
 
@@ -1615,7 +1616,7 @@ float vtkCellLocator::Distance2ToBucket(float x[3], int nei[3])
 // Calculate the distance between the point x and the specified bounds
 //
 // WARNING!!!!! Be very careful altering this routine.  Simple changes to this
-// routine can make is 25% slower!!!!
+// routine can make it 25% slower!!!!
 float vtkCellLocator::Distance2ToBounds(float x[3], float bounds[6])
 {
   float distance;
