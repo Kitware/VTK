@@ -122,7 +122,6 @@ void vtkLinearTransformConcatenation::Concatenate(vtkLinearTransform *trans)
     return;
     }
 
-  int i;
   vtkLinearTransform **transList = this->TransformList;
   vtkLinearTransform **inverseList = this->InverseList;
   int n = this->NumberOfTransforms;
@@ -134,7 +133,7 @@ void vtkLinearTransformConcatenation::Concatenate(vtkLinearTransform *trans)
     int nMax = this->MaxNumberOfTransforms + 20;
     transList = new vtkLinearTransform *[nMax];
     inverseList = new vtkLinearTransform *[nMax];
-    for (i = 0; i < n; i++)
+    for (int i = 0; i < n; i++)
       {
       transList[i] = this->TransformList[i];
       inverseList[i] = this->InverseList[i];
@@ -156,7 +155,7 @@ void vtkLinearTransformConcatenation::Concatenate(vtkLinearTransform *trans)
   // according to flags
   if (this->PreMultiplyFlag ^ this->InverseFlag)
     {
-    for (i = n; i > 0; i--)
+    for (int i = n; i > 0; i--)
       {
       transList[i] = transList[i-1];
       inverseList[i] = inverseList[i-1];
@@ -166,12 +165,12 @@ void vtkLinearTransformConcatenation::Concatenate(vtkLinearTransform *trans)
 
   if (this->InverseFlag)
     {
-    trans = (vtkLinearTransform *)trans->GetInverse();
+    trans = trans->GetLinearInverse();
     }
 
   transList[n] = trans;
   transList[n]->Register(this);
-  inverseList[n] = (vtkLinearTransform *)trans->GetInverse();
+  inverseList[n] = trans->GetLinearInverse();
   inverseList[n]->Register(this);
   
   this->Modified();
@@ -187,11 +186,9 @@ void vtkLinearTransformConcatenation::Inverse()
 //----------------------------------------------------------------------------
 void vtkLinearTransformConcatenation::Identity()
 {
-  int i;
-
   if (this->NumberOfTransforms > 0)
     {
-    for (i = 0; i < this->NumberOfTransforms; i++)
+    for (int i = 0; i < this->NumberOfTransforms; i++)
       {
       this->TransformList[i]->Delete();
       this->InverseList[i]->Delete();
@@ -230,14 +227,12 @@ void vtkLinearTransformConcatenation::DeepCopy(vtkGeneralTransform *transform)
     return;
     }
 
-  int i;
-
   this->PreMultiplyFlag = t->PreMultiplyFlag;
   this->InverseFlag = t->InverseFlag;
 
   if (this->NumberOfTransforms > 0)
     {
-    for (i = 0; i < this->NumberOfTransforms; i++)
+    for (int i = 0; i < this->NumberOfTransforms; i++)
       {
       this->TransformList[i]->Delete();
       }
@@ -254,7 +249,7 @@ void vtkLinearTransformConcatenation::DeepCopy(vtkGeneralTransform *transform)
     new vtkLinearTransform *[this->MaxNumberOfTransforms];
 
   // copy the transforms by reference
-  for (i = 0; i < this->NumberOfTransforms; i++)
+  for (int i = 0; i < this->NumberOfTransforms; i++)
     {
     this->TransformList[i] = t->TransformList[i];
     this->TransformList[i]->Register(this);  
@@ -275,8 +270,8 @@ void vtkLinearTransformConcatenation::Update()
       this->Matrix->Identity();
       for (int i = this->NumberOfTransforms-1; i >= 0; i--)
 	{
-	vtkLinearTransform *transform = this->TransformList[i];
-	transform->Update();
+        vtkLinearTransform *transform = this->TransformList[i];
+        transform->Update();
 	vtkMatrix4x4::Multiply4x4(transform->GetMatrixPointer(),
 				  this->Matrix,this->Matrix);
 	}
@@ -293,7 +288,7 @@ void vtkLinearTransformConcatenation::Update()
 	}
       }
     }
-
+  
   this->UpdateMutex->Unlock();
 }
 
@@ -303,26 +298,12 @@ unsigned long vtkLinearTransformConcatenation::GetMTime()
   unsigned long result = this->vtkLinearTransform::GetMTime();
   unsigned long mtime;
 
-  if (this->InverseFlag)
+  for (int i = 0; i < this->NumberOfTransforms; i++)
     {
-    for (int i = 0; i < this->NumberOfTransforms; i++)
+    mtime = this->TransformList[i]->GetMTime();
+    if (mtime > result)
       {
-      mtime = this->TransformList[i]->GetMTime();
-      if (mtime > result)
-	{
-	result = mtime;
-	}
-      }
-    }
-  else
-    {
-    for (int i = 0; i < this->NumberOfTransforms; i++)
-      {
-      mtime = this->InverseList[i]->GetMTime();
-      if (mtime > result)
-	{
-	result = mtime;
-	}
+      result = mtime;
       }
     }
 
