@@ -59,6 +59,10 @@ if test "X$XGL_HOME" = "X" ; then
   XGL_HOME=/opt/SUNWits/Graphics-sw/xgl
 fi
 AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, xglr_obj=$srcdir/../Makefile.in.xglr)
+#
+# also try /usr/openwin/include/xgl
+#
+AC_CHECK_HEADERS(/usr/openwin/include/xgl/xgl.h, xglr_obj=$srcdir/../Makefile.in.xglr)
 AC_SUBST_FILE(xglr_obj)
 AC_SUBST(XGL_HOME)
 
