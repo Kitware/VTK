@@ -54,6 +54,7 @@ public:
     {this->SetElevationReference(REFERENCE_SEA_LEVEL);}
   void SetElevationReferenceToElevationBounds() 
     {this->SetElevationReference(REFERENCE_ELEVATION_BOUNDS);}
+  const char *GetElevationReferenceAsString(void);
 
   // Description:
   // An ASCII description of the map

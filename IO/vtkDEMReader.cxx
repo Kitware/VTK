@@ -20,7 +20,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkDEMReader, "1.39");
+vtkCxxRevisionMacro(vtkDEMReader, "1.40");
 vtkStandardNewMacro(vtkDEMReader);
 
 #define VTK_SW  0
@@ -496,6 +496,21 @@ void ConvertDNotationToENotation (char *line)
     }
 }    
 
+
+// Return the elevation reference.
+const char *vtkDEMReader::GetElevationReferenceAsString(void)
+{
+  if ( this->ElevationReference == REFERENCE_SEA_LEVEL ) 
+    {
+    return "Sea Level";
+    }
+  else // REFERENCE_ELEVATION_BOUNDS
+    {
+    return "Elevation Bounds";
+    }
+}
+
+
 void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -527,6 +542,7 @@ void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
       os << " (unknown)\n";
       }
     os << indent << "GroundZone: " << this->GroundZone << "\n";
+    os << indent << "ElevationRefernce: " << this->GetElevationReferenceAsString() << "\n";
     os << indent << "ProjectionParameters: all zero" << "\n"; // this->ProjectionParameters
     os << indent << "PlaneUnitOfMeasure: " << this->PlaneUnitOfMeasure;
     if (this->PlaneUnitOfMeasure == 0)
