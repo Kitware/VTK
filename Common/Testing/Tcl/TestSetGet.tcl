@@ -10,7 +10,6 @@ a GlobalWarningDisplayOff
 a Delete
 
 set exceptions {
-vtkAssembly-GetNextPath
 vtkImageExport-GetDataMemorySize
 vtkImageExport-GetDataDimensions
 vtkImageExport-GetDataNumberOfScalarComponents
@@ -20,13 +19,8 @@ vtkImageExport-GetDataOrigin
 vtkImageExport-GetDataScalarType
 vtkLODProp3D-GetPickLODID
 vtkObject-GetSuperClassName
-vtkPropAssembly-GetNextPath
 vtkPropAssembly-GetBounds
-vtkRayCaster-GetParallelStartPosition
-vtkRayCaster-GetParallelIncrements
 vtkRenderWindow-GetEventPending
-vtkSubPixelPositionEdgels-GetGradMaps
-vtkViewRays-GetParallelStartPosition
 vtkXOpenGLRenderWindow-GetEventPending
 vtkMPICommunicator-GetWorldCommunicator
 }
@@ -72,10 +66,12 @@ set classExceptions {
    vtkParallelFactory
    vtkPlanes
    vtkProjectedPolyDataRayBounder
+   vtkRayCaster
    vtkTimeStamp
    vtkTkImageViewerWidget
    vtkTkImageWindowWidget
    vtkTkRenderWidget
+   vtkViewRays
    vtkWin32OutputWindow
    vtkXMLFileOutputWindow
 }
