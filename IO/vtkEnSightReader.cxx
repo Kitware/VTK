@@ -25,7 +25,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.35");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.36");
 
 //----------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()
@@ -417,6 +417,7 @@ int vtkEnSightReader::ReadCaseFile()
     }
 
   this->NumberOfVariables = 0;
+  this->NumberOfComplexVariables = 0;
   
   this->ReadNextDataLine(line);
   
@@ -1542,67 +1543,67 @@ void vtkEnSightReader::AddVariableType()
 
 int vtkEnSightReader::GetElementType(char* line)
 {
-  if (strcmp(line, "point") == 0)
+  if (strncmp(line, "point", 5) == 0)
     {
     return VTK_ENSIGHT_POINT;
     }
-  else if (strcmp(line, "bar2") == 0)
+  else if (strncmp(line, "bar2", 4) == 0)
     {
     return VTK_ENSIGHT_BAR2;
     }
-  else if (strcmp(line, "bar3") == 0)
+  else if (strncmp(line, "bar3", 4) == 0)
     {
     return VTK_ENSIGHT_BAR3;
     }
-  else if (strcmp(line, "nsided") == 0)
+  else if (strncmp(line, "nsided", 6) == 0)
     {
     return VTK_ENSIGHT_NSIDED;
     }
-  else if (strcmp(line, "tria3") == 0)
+  else if (strncmp(line, "tria3", 5) == 0)
     {
     return VTK_ENSIGHT_TRIA3;
     }
-  else if (strcmp(line, "tria6") == 0)
+  else if (strncmp(line, "tria6", 5) == 0)
     {
     return VTK_ENSIGHT_TRIA6;
     }
-  else if (strcmp(line, "quad4") == 0)
+  else if (strncmp(line, "quad4", 5) == 0)
     {
     return VTK_ENSIGHT_QUAD4;
     }
-  else if (strcmp(line, "quad8") == 0)
+  else if (strncmp(line, "quad8", 5) == 0)
     {
     return VTK_ENSIGHT_QUAD8;
     }
-  else if (strcmp(line, "tetra4") == 0)
+  else if (strncmp(line, "tetra4", 6) == 0)
     {
     return VTK_ENSIGHT_TETRA4;
     }
-  else if (strcmp(line, "tetra10") == 0)
+  else if (strncmp(line, "tetra10", 7) == 0)
     {
     return VTK_ENSIGHT_TETRA10;
     }
-  else if (strcmp(line, "pyramid5") == 0)
+  else if (strncmp(line, "pyramid5", 8) == 0)
     {
     return VTK_ENSIGHT_PYRAMID5;
     }
-  else if (strcmp(line, "pyramid13") == 0)
+  else if (strncmp(line, "pyramid13", 9) == 0)
     {
     return VTK_ENSIGHT_PYRAMID13;
     }
-  else if (strcmp(line, "hexa8") == 0)
+  else if (strncmp(line, "hexa8", 5) == 0)
     {
     return VTK_ENSIGHT_HEXA8;
     }
-  else if (strcmp(line, "hexa20") == 0)
+  else if (strncmp(line, "hexa20", 6) == 0)
     {
     return VTK_ENSIGHT_HEXA20;
     }
-  else if (strcmp(line, "penta6") == 0)
+  else if (strncmp(line, "penta6", 6) == 0)
     {
     return VTK_ENSIGHT_PENTA6;
     }
-  else if (strcmp(line, "penta15") == 0)
+  else if (strncmp(line, "penta15", 7) == 0)
     {
     return VTK_ENSIGHT_PENTA15;
     }
