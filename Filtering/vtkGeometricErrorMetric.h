@@ -14,12 +14,13 @@
 =========================================================================*/
 // .NAME vtkGeometricErrorMetric - Objects that compute
 // geometry-based error during cell tessellation.
+//
 // .SECTION Description
 // It is a concrete error metric, based on a geometric criterium:
-// the variation of the edge from a straight line
+// the variation of the edge from a straight line.
 //
-// See Also
-// vtkGenericCellTessellator, vtkGenericSubdivisionErrorMetric
+// .SECTION See Also
+// vtkGenericCellTessellator vtkGenericSubdivisionErrorMetric
 
 #ifndef __vtkGeometricErrorMetric_h
 #define __vtkGeometricErrorMetric_h

@@ -14,12 +14,13 @@
 =========================================================================*/
 // .NAME vtkAttributesErrorMetric -  Objects that compute
 // attribute-based error during cell tessellation.
+//
 // .SECTION Description
 // It is a concrete error metric, based on an attribute criterium:
 // the variation of the active attribute/component value from a linear ramp
 //
-// See Also
-// vtkGenericCellTessellator, vtkGenericSubdivisionErrorMetric
+// .SECTION See Also
+// vtkGenericCellTessellator vtkGenericSubdivisionErrorMetric
 
 #ifndef __vtkAttributesErrorMetric_h
 #define __vtkAttributesErrorMetric_h
