@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
     {
     puck[i] = vtkActor::New();
     puck[i]->SetMapper(puckMapper);
-    puck[i]->GetProperty()->SetColor(math.Random(),math.Random(),math.Random());
+    puck[i]->GetProperty()->SetColor(math.Random(0, 1),math.Random(0, 1),math.Random(0, 1));
     puck[i]->AddPosition(0,i*L+L/2, 0);
     scale = rMax - i*(rMax-rMin) / (NumberOfPucks-1);
     puck[i]->SetScale(scale,1,scale);
