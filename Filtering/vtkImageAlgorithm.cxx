@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.19");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.20");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -192,7 +192,7 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
   output->GetExtent(outExt);
 
   // Do not copy the array we will be generating.
-  inArray = input->GetPointData()->GetScalars(this->InputScalarsSelection);
+  inArray = input->GetPointData()->GetScalars();
 
   // Conditionally copy point and cell data.  Only copy if corresponding
   // indexes refer to identical points.
@@ -205,15 +205,7 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
     {
     output->GetPointData()->CopyAllOn();
     output->GetCellData()->CopyAllOn();
-    // Scalar copy flag trumps the array copy flag.
-    if (inArray == input->GetPointData()->GetScalars())
-      {
-      output->GetPointData()->CopyScalarsOff();
-      }
-    else
-      {
-      output->GetPointData()->CopyFieldOff(this->InputScalarsSelection);
-      }
+    output->GetPointData()->CopyScalarsOff();
 
     // If the extents are the same, then pass the attribute data for
     // efficiency.
@@ -221,6 +213,12 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
         inExt[2] == outExt[2] && inExt[3] == outExt[3] &&
         inExt[4] == outExt[4] && inExt[5] == outExt[5])
       {// Pass
+      // set the name of the output to match the input name
+      outArray = output->GetPointData()->GetScalars();
+      if (inArray)
+        {
+        outArray->SetName(inArray->GetName());
+        }
       output->GetPointData()->PassData(input->GetPointData());
       output->GetCellData()->PassData(input->GetCellData());
       }
@@ -279,13 +277,12 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
           }
         }
       }
-    }
-
-  // set the name of the output to match the input name
-  outArray = output->GetPointData()->GetScalars();
-  if (inArray)
-    {
-    outArray->SetName(inArray->GetName());
+    // set the name of the output to match the input name
+    outArray = output->GetPointData()->GetScalars();
+    if (inArray)
+      {
+      outArray->SetName(inArray->GetName());
+      }
     }
 }
 
