@@ -30,7 +30,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.69");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.70");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -225,6 +225,7 @@ void vtkGenericEnSightReader::Execute()
         output = tmp->NewInstance();
         this->SetNthOutput(i, output); // law: this causes the extra partid bug
         output->ShallowCopy(tmp);
+        output->CopyInformation(tmp);
         output->Delete();
         // Used later.
         //output = NULL;

@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.8");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.9");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -376,6 +376,7 @@ int vtkCompositeDataPipeline::ExecuteInformationForBlock(vtkInformation* request
       if (dobj && dobjCopy)
         {
         dobjCopy->ShallowCopy(dobj);
+        dobjCopy->CopyInformation(dobj);
         }
       }
     }
