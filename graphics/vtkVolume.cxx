@@ -9,16 +9,19 @@
 // orientation=(0,0,0).
 vtkVolume::vtkVolume()
 {
+  this->Scale		= 1.0;
+  this->VolumeMapper	= NULL;
 
-  this->Scale = 1.0;
-  this->VolumeMapper = NULL;
+  this->VolumeProperty	= NULL;
+  this->SelfCreatedProperty = 0;
 }
 
 // Description:
 // Destruct a volume
 vtkVolume::~vtkVolume()
 {
-
+  if( this->SelfCreatedProperty && this->VolumeProperty )
+    this->VolumeProperty->Delete();
 }
 
 // Description:
@@ -32,6 +35,8 @@ vtkVolume& vtkVolume::operator=(const vtkVolume& volume)
 
   this->Scale = volume.Scale;
   
+  this->VolumeProperty = volume.VolumeProperty;
+
   return *this;
 }
 
@@ -189,6 +194,12 @@ void vtkVolume::Render( vtkRenderer *ren )
 {
   if ( !this->VolumeMapper ) return;
 
+  if( !this->VolumeProperty )
+    {
+    // Force the creation of a property
+    this->GetVolumeProperty();
+    }
+
   this->VolumeMapper->Render( ren, this );
 }
 
@@ -198,9 +209,56 @@ void vtkVolume::Update()
     this->VolumeMapper->Update();
 }
 
+void vtkVolume::SetVolumeProperty(vtkVolumeProperty *property)
+{
+  if( this->VolumeProperty != property )
+    {
+    if( this->SelfCreatedProperty )
+      this->VolumeProperty->Delete();
+
+    this->SelfCreatedProperty = 0;
+    this->VolumeProperty = property;
+    this->Modified();
+    }
+}
+
+vtkVolumeProperty *vtkVolume::GetVolumeProperty()
+{
+  if( this->VolumeProperty == NULL )
+    {
+    this->VolumeProperty = vtkVolumeProperty::New();
+    this->SelfCreatedProperty = 1;
+    }
+  return this->VolumeProperty;
+}
+
+unsigned long int vtkVolume::GetMTime()
+{
+  unsigned long mTime=this->vtkObject::GetMTime();
+  unsigned long time;
+
+  if ( this->VolumeProperty != NULL )
+    {
+    time = this->VolumeProperty->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  return mTime;
+}
+
 void vtkVolume::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProp::PrintSelf(os,indent);
+
+  if( this->VolumeProperty )
+    {
+    os << indent << "Volume Property:\n";
+    this->VolumeProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Volume Property: (not defined)\n";
+    }
 
   // make sure our bounds are up to date
   if ( this->VolumeMapper )

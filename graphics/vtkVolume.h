@@ -5,11 +5,12 @@
 // vtkVolume is used to represent a volumetric entity in a rendering scene.
 // It inherits functions related to the volume's position, orientation and
 // origin from vtkProp. The volume also maintains a reference to the
-// volumetric data (i.e., the volume mapper), which itself contains all
-// rendering parameters.
+// volumetric data (i.e., the volume mapper). The volume also contains a
+// reference to a volume property which contains all common volume rendering 
+// parameters.
 
 // .SECTION see also
-// vtkVolumeMapper vtkProp
+// vtkVolumeMapper vtkVolumeProperty vtkProp
 
 #ifndef __vtkVolume_h
 #define __vtkVolume_h
@@ -17,6 +18,7 @@
 #include "vtkProp.h"
 #include "vtkTransform.h"
 #include "vtkVolumeMapper.h"
+#include "vtkVolumeProperty.h"
 
 class vtkRenderer;
 class vtkVolumeMapper;
@@ -60,9 +62,18 @@ class VTK_EXPORT vtkVolume : public vtkProp
   float GetMinZBound();
   float GetMaxZBound();
 
-
+  // Description:
+  // Set/Get the volume mapper.
   vtkSetObjectMacro(VolumeMapper,vtkVolumeMapper);
   vtkGetObjectMacro(VolumeMapper,vtkVolumeMapper);
+
+  // Description:
+  // Set/Get the volume property.
+  void SetVolumeProperty(vtkVolumeProperty *property);
+  void SetVolumeProperty(vtkVolumeProperty& property) {this->SetVolumeProperty(&property);};
+  vtkVolumeProperty *GetVolumeProperty();
+
+   unsigned long int GetMTime();//overload superclasses' implementation
 
 protected:
 
@@ -71,6 +82,9 @@ protected:
   vtkTimeStamp      MatrixMTime;
 
   vtkVolumeMapper   *VolumeMapper;
+
+  vtkVolumeProperty *VolumeProperty;
+  int		    SelfCreatedProperty;
 };
 
 #endif
