@@ -37,6 +37,7 @@ IF (VTK_USE_RENDERING)
       createBFont
       cursor3D
       cutLoop
+      cylindrical
       cylMap
       dataSetSurfaceFilter
       deciFranFace
@@ -92,6 +93,7 @@ IF (VTK_USE_RENDERING)
       smoothMeshOnMesh
       socbal
       spatialRepAll
+      spherical
       splitVectors
       stereoDresdenMace
       StreamPolyData

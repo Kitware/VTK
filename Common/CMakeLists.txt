@@ -22,6 +22,7 @@ vtkContainer
 vtkContourValues 
 vtkCoordinate 
 vtkCriticalSection 
+vtkCylindricalTransform
 vtkDataArray 
 vtkDataObject 
 vtkDataObjectCollection 
@@ -115,6 +116,7 @@ vtkRungeKutta45
 vtkScalarsToColors 
 vtkShortArray 
 vtkSource 
+vtkSphericalTransform
 vtkStructuredData 
 vtkStructuredGrid 
 vtkStructuredPoints 
