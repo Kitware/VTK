@@ -31,7 +31,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.34");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.35");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -418,16 +418,6 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
 
     case KeyPress:
       {
-      int ctrl = 0;
-      if ((reinterpret_cast<XKeyEvent *>(event))->state & ControlMask)
-        {
-        ctrl = 1;
-        }
-      int shift = 0;
-      if ((reinterpret_cast<XKeyEvent *>(event))->state & ShiftMask)
-        {
-        shift = 1;
-        }
       KeySym ks;
       static char buffer[20];
       buffer[0] = '\0';
