@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 vlCellList::vlCellList(const int sz, const int ext)
 {
   this->Size = sz;
-  this->Array = new vlCell_s[sz];
+  this->Array = new _vlCell_s[sz];
   this->Extend = ext;
   this->MaxId = -1;
 }
@@ -32,7 +32,7 @@ vlCellList::~vlCellList()
 // Add a cell to structure
 void vlCellList::InsertCell(const int cellId, const unsigned char type, const int loc)
 {
-  vlCell_s *cell;
+  _vlCell_s *cell;
 
   if ( cellId >= this->Size ) this->Resize(cellId);
   if ( cellId > this->MaxId ) this->MaxId = cellId;
@@ -68,17 +68,17 @@ void vlCellList::Reset()
 //
 // Private function does "reallocate"
 //
-vlCell_s *vlCellList::Resize(const int sz)
+_vlCell_s *vlCellList::Resize(const int sz)
 {
   int i;
-  vlCell_s *newArray;
+  _vlCell_s *newArray;
   int newSize;
 
   if ( sz >= this->Size )  newSize = this->Size + 
     this->Extend*(((sz-this->Size)/this->Extend)+1);
   else newSize = sz;
 
-  newArray = new vlCell_s[newSize];
+  newArray = new _vlCell_s[newSize];
 
   for (i=0; i<sz && i<this->Size; i++)
       newArray[i] = this->Array[i];
