@@ -18,6 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "Renderer.hh"
 #include "RenderW.hh"
+#include "VolRen.hh"
 #include "vlMath.hh"
 
 // Description:
@@ -57,6 +58,7 @@ vlRenderer::vlRenderer()
   this->Erase = 1;
 
   this->Aspect[0] = this->Aspect[1] = 1.0;
+  this->VolumeRenderer = NULL;
 }
 
 // Description:
@@ -71,6 +73,20 @@ void vlRenderer::SetActiveCamera(vlCamera *cam)
 vlCamera *vlRenderer::GetActiveCamera()
 {
   return this->ActiveCamera;
+}
+
+// Description:
+// Specify a volume renderer to use.
+void vlRenderer::SetVolumeRenderer(vlVolumeRenderer *vol)
+{
+  this->VolumeRenderer = vol;
+}
+
+// Description:
+// Get the volume renderer.
+vlVolumeRenderer *vlRenderer::GetVolumeRenderer()
+{
+  return this->VolumeRenderer;
 }
 
 // Description:
@@ -152,6 +168,7 @@ void vlRenderer::DoActors()
 // camera position to focal point).
 void vlRenderer::ResetCamera()
 {
+  vlVolume *aVolume;
   vlActor *anActor;
   float *bounds;
   float allBounds[6];
@@ -175,6 +192,28 @@ void vlRenderer::ResetCamera()
       if (bounds[3] > allBounds[3]) allBounds[3] = bounds[3]; 
       if (bounds[4] < allBounds[4]) allBounds[4] = bounds[4]; 
       if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
+      }
+    }
+
+  // loop through volumes if any
+  if (this->VolumeRenderer)
+    {
+    for (this->VolumeRenderer->GetVolumes()->InitTraversal(); 
+	 aVolume = this->VolumeRenderer->GetVolumes()->GetNextItem(); )
+      {
+      // if it's invisible, we can skip the rest 
+      if ( aVolume->GetVisibility() )
+	{
+	nothingVisible = 0;
+	bounds = aVolume->GetBounds();
+	
+	if (bounds[0] < allBounds[0]) allBounds[0] = bounds[0]; 
+	if (bounds[1] > allBounds[1]) allBounds[1] = bounds[1]; 
+	if (bounds[2] < allBounds[2]) allBounds[2] = bounds[2]; 
+	if (bounds[3] > allBounds[3]) allBounds[3] = bounds[3]; 
+	if (bounds[4] < allBounds[4]) allBounds[4] = bounds[4]; 
+	if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
+	}
       }
     }
 

@@ -34,6 +34,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "GeomPrim.hh"
 
 class vlRenderWindow;
+class vlVolumeRenderer;
 
 class vlRenderer : public vlObject
 {
@@ -50,6 +51,8 @@ public:
   vlActorCollection *GetActors();
   void SetActiveCamera(vlCamera *);
   vlCamera *GetActiveCamera();
+  void SetVolumeRenderer(vlVolumeRenderer *);
+  vlVolumeRenderer *GetVolumeRenderer();
 
   // Description:
   // Set the background color of the rendering screen using an rgb color
@@ -144,6 +147,7 @@ public:
   void WorldToDisplay();
 
 protected:
+  vlVolumeRenderer *VolumeRenderer;
   vlCamera *ActiveCamera;
   vlLightCollection Lights;
   vlActorCollection Actors;
