@@ -31,12 +31,13 @@
 #endif
 
 #include <vector>
+#include <queue>
 
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.5");
+vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.6");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -53,8 +54,9 @@ class vtkTriangleInfo;
 class vtkTerrainInfo
 {
 public:
-  vtkTerrainInfo():TriangleId(VTK_VERTEX_NO_TRIANGLE) {}
+  vtkTerrainInfo():TriangleId(VTK_VERTEX_NO_TRIANGLE),Error(VTK_LARGE_FLOAT) {}
   vtkIdType TriangleId;
+  float     Error;
 };
 
 class vtkTriangleInfo
@@ -64,23 +66,46 @@ public:
   double    Constant;
 };
 
-//PIMPL STL encapsulation
+// PIMPL STL encapsulation----------------------------------------------------------------
 //
-//maps input point ids to owning mesh triangle
+// Maps input point ids to owning mesh triangle and its current error.
 class vtkGreedyTerrainDecimationTerrainInfoType : public vtkstd::vector<vtkTerrainInfo> 
 {
 public:
   typedef vtkstd::vector<vtkTerrainInfo> Superclass;
-  typedef Superclass::size_type size_type;
+  typedef Superclass::size_type size_type; //typedefs are not inherited on some systems
+  typedef Superclass::pointer pointer;
   vtkGreedyTerrainDecimationTerrainInfoType(size_type n, const vtkTerrainInfo& value):
     vtkstd::vector<vtkTerrainInfo>(n,value) {}
 };
-//maps mesh point id to input point id
+
+// Holds pointers to terrain info (e.g., error) and puts in priority queue. A comparison
+// function is also defined.
+struct CompareError
+{ 
+  bool operator()(const vtkGreedyTerrainDecimationTerrainInfoType::pointer p1,
+                  const vtkGreedyTerrainDecimationTerrainInfoType::pointer p2) const
+    {
+      return (p1->Error < p2->Error);
+    }
+};
+
+class vtkGreedyTerrainDecimationQueueType : 
+  public vtkstd::priority_queue<vtkGreedyTerrainDecimationTerrainInfoType::pointer> 
+{
+  typedef vtkstd::priority_queue<vtkGreedyTerrainDecimationTerrainInfoType> Superclass;
+  vtkGreedyTerrainDecimationQueueType(const CompareError& compare):
+    vtkstd::priority_queue<vtkGreedyTerrainDecimationTerrainInfoType::pointer>(compare) {}
+};
+
+// Maps inserted mesh point id to input point id.
 class vtkGreedyTerrainDecimationPointInfoType : public vtkstd::vector<vtkIdType> {};
-//holds extra information about mesh triangles
+
+// Holds extra information about mesh triangles.
 class vtkGreedyTerrainDecimationTriangleInfoType : public vtkstd::vector<vtkTriangleInfo> {};
 
-// Begin vtkGreedyTerrainDecimation class implementation
+
+// Begin vtkGreedyTerrainDecimation class implementation-----------------------------------
 //
 vtkGreedyTerrainDecimation::vtkGreedyTerrainDecimation()
 {
@@ -647,8 +672,9 @@ void vtkGreedyTerrainDecimation::Execute()
   this->Length = input->GetLength();
   this->MaximumNumberOfTriangles = 2 * (this->Dimensions[0]-1) * (this->Dimensions[1]-1);
 
-  this->TerrainError = vtkPriorityQueue::New();
-  this->TerrainError->Allocate(numInputPts, (vtkIdType)((float)0.25*numInputPts));
+  // Instantiate the priority queue of errors. The queue holds pointers to the terrain info
+  // which actually holds the error value (plus owning triangle).
+  this->TerrainError = new vtkGreedyTerrainDecimationQueueType(CompareError());
   
   // Create the initial Delaunay triangulation (two triangles 
   // connecting the four corners of the height image).
@@ -735,6 +761,7 @@ void vtkGreedyTerrainDecimation::Execute()
 
   // While error metric not satisfied, add point with greatest error
   //
+/*
   while ( (inputPtId = this->TerrainError->Pop(0, error)) >= 0 )
     {
     if ( this->SatisfiesErrorMeasure(error) )
@@ -746,10 +773,10 @@ void vtkGreedyTerrainDecimation::Execute()
       this->AddPointToTriangulation(inputPtId);
       }
     }
-
+*/
   // Create output poly data
   //
-  this->TerrainError->Delete();
+  delete this->TerrainError;
   delete this->TerrainInfo;
   delete this->PointInfo;
   delete this->TriangleInfo;
@@ -837,8 +864,8 @@ void vtkGreedyTerrainDecimation::UpdateTriangle(vtkIdType tri, int ij1[2], int i
               error = hL;
               }
             error = fabs( (float)this->Heights->GetTuple1(inputPtId) - error );
-            this->TerrainError->DeleteId(inputPtId);
-            this->TerrainError->Insert(error,inputPtId);
+//            this->TerrainError->DeleteId(inputPtId);
+//            this->TerrainError->Insert(error,inputPtId);
             }
           }
         }
@@ -873,8 +900,8 @@ void vtkGreedyTerrainDecimation::UpdateTriangle(vtkIdType tri, int ij1[2], int i
               error = hL;
               }
             error = fabs( (float)this->Heights->GetTuple1(inputPtId) - error );
-            this->TerrainError->DeleteId(inputPtId);
-            this->TerrainError->Insert(error,inputPtId);
+//            this->TerrainError->DeleteId(inputPtId);
+//            this->TerrainError->Insert(error,inputPtId);
             }
           }
         }
