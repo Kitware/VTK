@@ -107,50 +107,46 @@ void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
 int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
                            float& u, float& v)
 {
-  float a21[3], b21[3], b1a1[3];
-  float sys[2][2], c[2], det;
+  double a21[3], b21[3], b1a1[3];
+  double sys[2][2], c[2], det;
+  double *A[2], row1[2], row2[2];
   int i;
   
-//
-//  Initialize 
-//
+  //  Initialize 
   u = v = 0.0;
-//
-//   Determine line vectors.
-//
+
+  //   Determine line vectors.
   for (i=0; i<3; i++) 
     {
     a21[i] = a2[i] - a1[i];
     b21[i] = b2[i] - b1[i];
     b1a1[i] = b1[i] - a1[i];
     }
-//
-//   Compute the system (least squares) matrix.
-//
-  sys[0][0] = vtkMath::Dot ( a21, a21 );
-  sys[0][1] = -vtkMath::Dot ( a21, b21 );
-  sys[1][0] = sys[0][1];
-  sys[1][1] = vtkMath::Dot ( b21, b21 );
-//
-//   Compute the least squares system constant term.
-//
+
+  //   Compute the system (least squares) matrix.
+  A[0] = row1;
+  A[1] = row2;
+  row1[0] = vtkMath::Dot ( a21, a21 );
+  row1[1] = -vtkMath::Dot ( a21, b21 );
+  row2[0] = row1[1];
+  row2[1] = vtkMath::Dot ( b21, b21 );
+
+  //   Compute the least squares system constant term.
   c[0] = vtkMath::Dot ( a21, b1a1 );
   c[1] = -vtkMath::Dot ( b21, b1a1 );
-//
-//  Solve the system of equations
-//
-  if ( (det=vtkMath::Determinant2x2(sys[0],sys[1])) <= VTK_TOL )
+
+  //  Solve the system of equations
+  if ( vtkMath::SolveLinearSystem(A,c,2) == 0 )
     {
     return ON_LINE;
     }
   else 
     {
-    u = vtkMath::Determinant2x2(c,sys[1]) / det;
-    v = vtkMath::Determinant2x2(sys[0],c) / det;
+    u = c[0];
+    v = c[1];
     }
-//
-//  Check parametric coordinates for intersection.
-//
+
+  //  Check parametric coordinates for intersection.
   if ( (0.0 <= u) && (u <= 1.0) && (0.0 <= v) && (v <= 1.0) )
     {
     return INTERSECTION;
