@@ -19,6 +19,7 @@ vtkActor2DCollection::~vtkActor2DCollection()
   vtkCollectionElement* delElem;
   vtkActor2D* tempActor;
 
+#if 0
   delElem = this->Top;
 
   for (indexElem = this->Top->Next;
@@ -27,7 +28,8 @@ vtkActor2DCollection::~vtkActor2DCollection()
     {
      tempActor = (vtkActor2D*) delElem->Item;
      tempActor->UnRegister(this);
-     delete delElem;
+	 if (delElem) delete delElem;
+	 else vtkErrorMacro (<< "delElem is already NULL!");
      delElem = indexElem;	
     }  
 
@@ -35,7 +37,9 @@ vtkActor2DCollection::~vtkActor2DCollection()
   // so delete it here
   tempActor = (vtkActor2D*) delElem->Item;
   tempActor->UnRegister(this);
-  delete delElem;
+  if (delElem) delete delElem;
+  else vtkErrorMacro (<< "delElem is already NULL!");
+#endif
 
 }
 
