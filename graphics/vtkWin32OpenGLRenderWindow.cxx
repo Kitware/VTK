@@ -277,7 +277,7 @@ void vtkWin32OpenGLRenderWindow::Frame(void)
 {
   this->MakeCurrent();
   glFlush();
-  if (!this->AbortRender && this->DoubleBuffer)
+  if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
     {
     vtkWin32OpenGLSwapBuffers(this->DeviceContext);
     vtkDebugMacro(<< " SwapBuffers\n");
