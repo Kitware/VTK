@@ -135,6 +135,8 @@ protected:
 
   int ComputeScalars;
   int ArrayComponent;
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
   
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);

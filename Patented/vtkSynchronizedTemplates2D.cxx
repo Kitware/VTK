@@ -32,6 +32,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkObjectFactory.h"
@@ -45,7 +46,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.36");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.37");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -54,6 +55,8 @@ vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 // of 0.0. The ImageRange are set to extract the first k-plane.
 vtkSynchronizedTemplates2D::vtkSynchronizedTemplates2D()
 {
+  this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
   this->ContourValues = vtkContourValues::New();
   this->ComputeScalars = 1;
   this->InputScalarsSelection = NULL;
@@ -85,6 +88,18 @@ vtkImageData *vtkSynchronizedTemplates2D::GetInput()
     }
   
   return (vtkImageData *)(this->Inputs[0]);
+}
+
+//----------------------------------------------------------------------------
+int vtkSynchronizedTemplates2D::FillInputPortInformation(int port,
+                                                         vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 //----------------------------------------------------------------------------
