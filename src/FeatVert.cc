@@ -1,0 +1,173 @@
+/*=========================================================================
+
+  Program:   Visualization Library
+  Module:    FeatVert.cc
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+This file is part of the Visualization Library. No part of this file
+or its contents may be copied, reproduced or altered in any way
+without the express written consent of the authors.
+
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
+
+=========================================================================*/
+#include "FeatVert.hh"
+#include "vlMath.hh"
+
+// Description:
+// Construct object with feature angle = 30; all types of vertices extracted
+// and colored.
+vlFeatureVertices::vlFeatureVertices()
+{
+  this->FeatureAngle = 30.0;
+  this->BoundaryVertices = 1;
+  this->FeatureVertices = 1;
+  this->NonManifoldVertices = 1;
+  this->Coloring = 1;
+}
+
+// Generate feature vertices for mesh
+void vlFeatureVertices::Execute()
+{
+  vlPolyData *input=(vlPolyData *)this->Input;
+  vlPoints *inPts;
+  vlFloatPoints *newPts;
+  vlFloatScalars *newScalars;
+  vlCellArray *newVerts;
+  vlPolyData Mesh;
+  int i, j, numCells, cellId, numPts;
+  int numBVertices, numNonManifoldVertices, numFvertices;
+  float scalar, *x1, x[3], xPrev[3], xNext[3], cosAngle;
+  float vPrev[3], vNext[3];
+  vlMath math;
+  int vertId[1];
+  int npts, *pts;
+  vlCellArray *inLines;
+  vlIdList cells(MAX_CELL_SIZE);
+
+  vlDebugMacro(<<"Executing feature vertices");
+  this->Initialize();
+//
+//  Check input
+//
+  if ( (numPts=input->GetNumberOfPoints()) < 1 || 
+  (inPts=input->GetPoints()) == NULL || 
+  (inLines=input->GetPolys()) == NULL )
+    {
+    vlErrorMacro(<<"No input data!");
+    return;
+    }
+
+  if ( !this->BoundaryVertices && !this->NonManifoldVertices && !this->FeatureVertices) 
+    {
+    vlWarningMacro(<<"All vertex types turned off!");
+    return;
+    }
+
+  // build cell structure.  Only operate with polygons.
+  Mesh.SetPoints(inPts);
+  Mesh.SetLines(inLines);
+  Mesh.BuildLinks();
+//
+//  Allocate storage for lines/points
+//
+  newPts = new vlFloatPoints(numPts/10,numPts); // arbitrary allocations size 
+  newScalars = new vlFloatScalars(numPts/10,numPts);
+  newVerts = new vlCellArray(numPts/10);
+//
+//  Loop over all lines generating boundary, non-manifold, and feature vertices
+//
+  cosAngle = cos ((double) math.DegreesToRadians() * this->FeatureAngle);
+
+  numBVertices = numNonManifoldVertices = numFvertices = 0;
+  for (cellId=0, inLines->InitTraversal(); inLines->GetNextCell(npts,pts); 
+  cellId++)
+    {
+    for (i=0; i < npts; i++) 
+      {
+
+      Mesh.GetPointCells(pts[i],cells);
+      numCells = cells.GetNumberOfIds();
+
+      if ( this->NonManifoldVertices && numCells > 2 )
+        {
+        numNonManifoldVertices++;
+        scalar = 0.33333;
+        }
+
+      else if ( this->BoundaryVertices && numCells == 1 )
+        {
+        numBVertices++;
+        scalar = 0.0;
+        }
+
+      else if ( this->FeatureVertices && numCells == 2 )
+        {
+        if ( i == 0 && npts > 1 )
+          {
+          inPts->GetPoint(pts[i],x);
+          inPts->GetPoint(pts[i+1],xNext);
+          }
+        else if ( i > 0 && i < (npts-1) )
+          {
+          for (j=0; j<3; j++)
+            {
+            xPrev[j] = x[j];
+            x[j] = xNext[j];
+            }
+          inPts->GetPoint(pts[i+1],xNext);
+          for (j=0; j<3; j++)
+            {
+            vPrev[j] = vNext[j];
+            vNext[j] = xNext[j] - x[j];
+            }
+          if ( math.Normalize(vNext) == 0.0 || 
+          math.Dot(vPrev,vNext) <= cosAngle )
+            {
+            numFvertices++;
+            scalar = 0.66667;
+            }
+          }
+        }
+
+      else continue; // don't add point/vertex
+
+      // Add vertex to output
+      x1 = inPts->GetPoint(pts[i]);
+
+      vertId[0] = newPts->InsertNextPoint(x1);
+
+      newVerts->InsertNextCell(1,vertId);
+
+      newScalars->InsertScalar(vertId[0], scalar);
+      }
+    }
+
+  vlDebugMacro(<<"Created " << numBVertices << " boundary vertices, " <<
+               numNonManifoldVertices << " non-manifold vertices, " <<
+               numFvertices << " feature vertices");
+
+//
+//  Update ourselves.
+//
+  this->SetPoints(newPts);
+  this->SetVerts(newVerts);
+  if ( this->Coloring )
+    this->PointData.SetScalars(newScalars);
+  else
+    delete newScalars;
+}
+
+void vlFeatureVertices::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlPolyToPolyFilter::PrintSelf(os,indent);
+
+  os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
+  os << indent << "Boundary Vertices: " << (this->BoundaryVertices ? "On\n" : "Off\n");
+  os << indent << "Feature Vertices: " << (this->FeatureVertices ? "On\n" : "Off\n"); 
+  os << indent << "Non-Manifold Vertices: " << (this->NonManifoldVertices ? "On\n" : "Off\n");
+  os << indent << "Coloring: " << (this->Coloring ? "On\n" : "Off\n");
+}
+
