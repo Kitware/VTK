@@ -330,14 +330,7 @@ extern "C" {
         break;
       }
     Tk_PhotoSetSize ( photo, block.width, block.height );
-
-    // I don't know exactly what this means...
-#if (TK_MAJOR_VERSION == 8) && (TK_MINOR_VERSION >= 4)
-    Tk_PhotoPutBlock ( photo, &block, 0, 0, block.width, block.height, 
-                       TK_PHOTO_COMPOSITE_SET );
-#else
     Tk_PhotoPutBlock ( photo, &block, 0, 0, block.width, block.height );
-#endif
     delete[] photobuffer;
     return TCL_OK;
   }
