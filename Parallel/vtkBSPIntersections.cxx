@@ -30,7 +30,7 @@
 #endif
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkBSPIntersections, "1.1");
+vtkCxxRevisionMacro(vtkBSPIntersections, "1.2");
 
 vtkStandardNewMacro(vtkBSPIntersections);
 
@@ -206,11 +206,13 @@ void vtkBSPIntersections::SetIDRanges(vtkKdNode *kd, int &min, int &max)
   kd->SetMaxID(max);
 }
 //----------------------------------------------------------------------------
-void vtkBSPIntersections::GetBounds(double *bounds)
+int vtkBSPIntersections::GetBounds(double *bounds)
 {
-  REGIONCHECK();
+  REGIONCHECK(1);
 
   this->Cuts->GetKdNodeTree()->GetBounds(bounds);
+
+  return 0;
 }
 //----------------------------------------------------------------------------
 int vtkBSPIntersections::GetNumberOfRegions()
@@ -221,23 +223,27 @@ int vtkBSPIntersections::GetNumberOfRegions()
 }
 
 //----------------------------------------------------------------------------
-void vtkBSPIntersections::GetRegionBounds(int regionID, double bounds[6])
+int vtkBSPIntersections::GetRegionBounds(int regionID, double bounds[6])
 {
-  REGIONIDCHECK(regionID)
+  REGIONIDCHECK_RETURNERR(regionID, 1)
 
   vtkKdNode *node = this->RegionList[regionID];
 
   node->GetBounds(bounds);
+
+  return 0;
 }
 
 //----------------------------------------------------------------------------
-void vtkBSPIntersections::GetRegionDataBounds(int regionID, double bounds[6])
+int vtkBSPIntersections::GetRegionDataBounds(int regionID, double bounds[6])
 {
-  REGIONIDCHECK(regionID)
+  REGIONIDCHECK_RETURNERR(regionID, 1)
 
   vtkKdNode *node = this->RegionList[regionID];
 
   node->GetDataBounds(bounds);
+
+  return 0;
 }
 
 //----------------------------------------------------------------------------

@@ -53,10 +53,10 @@ public:
   vtkGetObjectMacro(Cuts, vtkBSPCuts);
 
   // Description:
-  //   Get the bounds of the whole space
-  //   (xmin, xmax, ymin, ymax, zmin, zmax)
+  //   Get the bounds of the whole space (xmin, xmax, ymin, ymax, zmin, zmax)
+  //   Return 0 if OK, 1 on error.
 
-  void GetBounds(double *bounds);
+  int GetBounds(double *bounds);
 
   // Description:
   //   The number of regions in the binary spatial partitioning
@@ -65,14 +65,16 @@ public:
 
   // Description:
   //   Get the spatial bounds of a particular region
+  //   Return 0 if OK, 1 on error.
 
-  void GetRegionBounds(int regionID, double bounds[6]);
+  int GetRegionBounds(int regionID, double bounds[6]);
 
   // Description:
   //    Get the bounds of the data within the k-d tree region, possibly
   //    smaller than the bounds of the region.
+  //   Return 0 if OK, 1 on error.
 
-  void GetRegionDataBounds(int regionID, double bounds[6]);
+  int GetRegionDataBounds(int regionID, double bounds[6]);
 
   // Description:
   //    Determine whether a region of the spatial decomposition 
