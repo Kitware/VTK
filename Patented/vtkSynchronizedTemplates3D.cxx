@@ -50,7 +50,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.72");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.73");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -105,11 +105,10 @@ unsigned long vtkSynchronizedTemplates3D::GetMTime()
 
 
 //----------------------------------------------------------------------------
-void vtkSynchronizedTemplates3DInitializeOutput(int *ext,vtkImageData *input,
-                                                vtkPolyData *o,
-                                                vtkFloatArray *scalars,
-                                                vtkFloatArray *normals,
-                                                vtkFloatArray *gradients)
+void vtkSynchronizedTemplates3DInitializeOutput(
+  vtkSynchronizedTemplates3D *self, int *ext,vtkImageData *input,
+  vtkPolyData *o, vtkFloatArray *scalars, vtkFloatArray *normals,
+  vtkFloatArray *gradients)
 {
   vtkPoints *newPts;
   vtkCellArray *newPolys;
@@ -129,7 +128,14 @@ void vtkSynchronizedTemplates3DInitializeOutput(int *ext,vtkImageData *input,
   o->GetPointData()->CopyAllOn();
   // It is more efficient to just create the scalar array 
   // rather than redundantly interpolate the scalars.
-  o->GetPointData()->CopyScalarsOff();
+  if (self->GetInputScalarsSelection())
+    {
+    o->GetPointData()->CopyFieldOff(self->GetInputScalarsSelection());
+    }
+  else
+    {
+    o->GetPointData()->CopyScalarsOff();
+    }
 
   if (normals)
     {
@@ -327,7 +333,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
     {
     newGradients = vtkFloatArray::New();
     }
-  vtkSynchronizedTemplates3DInitializeOutput(exExt, self->GetInput(), output, 
+  vtkSynchronizedTemplates3DInitializeOutput(self, exExt, self->GetInput(), output, 
                                          newScalars, newNormals, newGradients);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();

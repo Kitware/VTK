@@ -52,7 +52,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.65");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.66");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -117,7 +117,8 @@ unsigned long vtkGridSynchronizedTemplates3D::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkGridSynchronizedTemplates3DInitializeOutput(int *ext,
+void vtkGridSynchronizedTemplates3DInitializeOutput(
+  vtkGridSynchronizedTemplates3D *self, int *ext,
                                                 vtkStructuredGrid *input,
                                                 vtkPolyData *o,
                                                 vtkFloatArray *scalars,
@@ -145,8 +146,14 @@ void vtkGridSynchronizedTemplates3DInitializeOutput(int *ext,
   newPolys->Delete();
   
   o->GetPointData()->CopyAllOn();
-  o->GetPointData()->CopyScalarsOff();
-
+  if (self->GetInputScalarsSelection())
+    {
+    o->GetPointData()->CopyFieldOff(self->GetInputScalarsSelection());
+    }
+  else
+    {
+    o->GetPointData()->CopyScalarsOff();
+    }
 
   if (normals)
     {
@@ -409,7 +416,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self, int vtkNotUsed(threadId),
     {
     newGradients = vtkFloatArray::New();
     }
-  vtkGridSynchronizedTemplates3DInitializeOutput(exExt, self->GetInput(), output, 
+  vtkGridSynchronizedTemplates3DInitializeOutput(self, exExt, self->GetInput(), output, 
                                             newScalars, newNormals, newGradients);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
@@ -639,6 +646,11 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self, int vtkNotUsed(threadId),
 
   if (newScalars)
     {
+    vtkDataArray *inScalars = inPD->GetArray(self->GetInputScalarsSelection());
+    if (inScalars)
+      {
+      newScalars->SetName(inScalars->GetName());
+      }
     output->GetPointData()->SetScalars(newScalars);
     newScalars->Delete();
     newScalars = NULL;
