@@ -44,7 +44,7 @@ public class Regression
       {
       iren.Start();
       }
-    System.exit(retVal);
+    vtkTesting.Exit(retVal);
     }
 }
 

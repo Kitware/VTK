@@ -45,6 +45,17 @@ public class vtkTesting
       }
     }
 
+  public static void Exit(int retVal)
+    {
+    if ( retVal == vtkTesting.FAILED || retVal == vtkTesting.NOT_RUN )
+      {
+      System.out.println("Test failed or was not run");
+      System.exit(1);
+      }
+    System.out.println("Test passed");
+    System.exit(0);
+    }
+
   public static int RegressionTestImage( vtkRenderWindow renWin, String[] args,
     int threshold )
     {
