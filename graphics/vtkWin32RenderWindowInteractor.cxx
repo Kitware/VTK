@@ -270,8 +270,8 @@ void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND wnd,UINT nFlags,
                                                  int X, int Y) 
 {
   if (!this->Enabled) return;
-  this->InteractorStyle->OnMiddleButtonUp(nFlags & MK_CONTROL, n
-					  Flags & MK_SHIFT, 
+  this->InteractorStyle->OnMiddleButtonUp(nFlags & MK_CONTROL, 
+					  nFlags & MK_SHIFT, 
 					  X, this->Size[1] - Y - 1);
   ReleaseCapture( );
 }
