@@ -65,7 +65,11 @@ public:
 
   // stereo rendering stuff
   virtual void StereoUpdate();
-  virtual void StereoRenderComplete();
+
+  // Description:
+  // Set/Get the pixel data of an image, transmitted as RGBRGB... 
+  virtual unsigned char *GetPixelData(int x,int y,int x2,int y2);
+  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *);
 };
 
 #endif

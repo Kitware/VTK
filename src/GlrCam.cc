@@ -76,15 +76,23 @@ void vlGlrCamera::Render(vlGlrRenderer *ren)
   // if were on a stereo renderer draw to special parts of screen
   if (stereo)
     {
-    if (this->LeftEye) 
+    switch ((ren->GetRenderWindow())->GetStereoType())
       {
-      bottom = 532 + (1023-532)*vport[1];
-      top = 532 + (1023-532)*vport[3];
-      }
-    else
-      {
-      bottom = 491*vport[1];
-      top = 491*vport[3];
+      case VL_STEREO_CRYSTAL_EYES:
+	if (this->LeftEye) 
+	  {
+	  bottom = (int)(532 + (1023-532)*vport[1]);
+	  top = (int)(532 + (1023-532)*vport[3]);
+	  }
+	else
+	  {
+	  bottom = (int)(491*vport[1]);
+	  top = (int)(491*vport[3]);
+	  }
+	break;
+      default:
+	bottom = (int)(vport[1]*height);
+	top = (int)(vport[3]*height);
       }
     }
   else
@@ -98,8 +106,16 @@ void vlGlrCamera::Render(vlGlrRenderer *ren)
   /* for stereo we have to fiddle with aspect */
   if (stereo)
     {
-    aspect[0] = 1.0;
-    aspect[1] = 2.0*(float)(top-bottom+1)/(float)(right-left+1);
+    switch ((ren->GetRenderWindow())->GetStereoType())
+      {
+      case VL_STEREO_CRYSTAL_EYES:
+	aspect[0] = 1.0;
+	aspect[1] = 2.0*(float)(top-bottom+1)/(float)(right-left+1);
+	break;
+      default:
+	aspect[0] = 1.0;
+	aspect[1] = (float)(top-bottom+1)/(float)(right-left+1);
+      }
     }
   else
     {

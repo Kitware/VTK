@@ -211,6 +211,11 @@ void vlGlrRenderWindow::StereoUpdate(void)
         this->StereoStatus = 1;
 	this->FullScreenOn();
 	}
+	break;
+      case VL_STEREO_RED_BLUE:
+	{
+        this->StereoStatus = 1;
+	}
       }
     }
   else if ((!this->StereoRender) && this->StereoStatus)
@@ -227,15 +232,13 @@ void vlGlrRenderWindow::StereoUpdate(void)
         this->StereoStatus = 0;
 	this->FullScreenOff();
 	}
+	break;
+      case VL_STEREO_RED_BLUE:
+	{
+        this->StereoStatus = 0;
+	}
       }
     }
-}
-
-// Description:
-// Handles any post rendering stereo operations.
-void vlGlrRenderWindow::StereoRenderComplete(void)
-{
-  // Does nothing right now
 }
 
 // Description:
@@ -576,7 +579,7 @@ void vlGlrRenderWindow::WindowRemap()
   GLXunlink(this->DisplayId,this->WindowId);
   // set the default windowid 
   this->WindowId = this->NextWindowId;
-  this->NextWindowId = NULL;
+  this->NextWindowId = (Window)NULL;
 
   /* configure the window */
   this->WindowConfigure();
@@ -683,4 +686,130 @@ void vlGlrRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 
   os << indent << "Gid: " << this->Gid << "\n";
   os << indent << "MultiSamples: " << this->MultiSamples << "\n";
+}
+
+
+unsigned char *vlGlrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
+{
+  long     xloop,yloop;
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  unsigned long   *buffer;
+  unsigned char   *data = NULL;
+  unsigned char   *p_data = NULL;
+
+  /* set the current window */
+  GLXwinset(this->DisplayId,this->WindowId);
+
+  buffer = new unsigned long[abs(x2 - x1)+1];
+  data = new unsigned char[(abs(x2 - x1) + 1)*(abs(y2 - y1) + 1)*3];
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
+  /* now write the binary info one row at a time */
+  p_data = data;
+  for (yloop = y_low; yloop <= y_hi; yloop++)
+    {
+    // read in a row of pixels 
+    lrectread(x_low,yloop,x_hi,yloop,buffer);
+    for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
+      {
+      *p_data = buffer[xloop] & (0x000000ff); p_data++;
+      *p_data = (buffer[xloop] & (0x0000ff00)) >> 8; p_data++;
+      *p_data = (buffer[xloop] & (0x00ff0000)) >> 16; p_data++;
+      }
+    }
+  
+  delete buffer;
+
+  return data;
+}
+
+void vlGlrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+				     unsigned char *data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     xloop,yloop;
+  unsigned long   *buffer;
+  unsigned char   *p_data = NULL;
+
+  // set the current window 
+  GLXwinset(this->DisplayId,this->WindowId);
+
+  if (this->DoubleBuffer)
+    {
+    backbuffer(FALSE);
+    frontbuffer(TRUE);
+    }
+  dither(DT_OFF);
+
+  buffer = new unsigned long[4*(abs(x2 - x1)+1)];
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+  
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+  
+  viewport(x_low,x_hi,y_low,y_hi);
+
+  /* now write the binary info one row at a time */
+  p_data = data;
+  for (yloop = y_low; yloop <= y_hi; yloop++)
+    {
+    for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
+      {
+      buffer[xloop] = 0xff000000 + *p_data; p_data++; 
+      buffer[xloop] += (*p_data) << 8; p_data++;
+      buffer[xloop] += (*p_data) << 16; p_data++;
+      }
+    /* write out a row of pixels */
+    lrectwrite(x_low,yloop,x_hi,yloop,buffer);
+    }
+  
+  delete buffer;
+
+  if (this->DoubleBuffer)
+    {
+    backbuffer(TRUE);
+    frontbuffer(FALSE);
+    }
+  dither(DT_ON);
 }
