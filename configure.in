@@ -515,7 +515,7 @@ case $system in
 	VTK_SHLIB_LINK_FLAGS=""
 	;;
     SunOS-5*)
-	SHLIB_CFLAGS="-PIC"
+	SHLIB_CFLAGS="-KPIC"
 	SHLIB_LD_LIBS='${LIBS}'
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
