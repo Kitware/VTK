@@ -699,6 +699,11 @@ void look_for_hint()
   int  h_value;
 
   /* reset the position */
+  if (!fhint)
+    {
+    return;
+    }
+  
   rewind(fhint);
 
   /* first find a hint */
@@ -789,10 +794,12 @@ int main(int argc,char *argv[])
 {
   FILE *fin;
   int ret;
+  FILE *fout;
   
   if (argc < 4 || argc > 5)
     {
-    fprintf(stderr,"Usage: %s input_file hint_file is_concrete\n",argv[0]);
+    fprintf(stderr,
+            "Usage: %s input_file <hint_file> is_concrete output_file\n",argv[0]);
     exit(1);
     }
   
@@ -802,20 +809,28 @@ int main(int argc,char *argv[])
     exit(1);
     }
 
-  if (!(fhint = fopen(argv[2],"r")))
-    {
-    fprintf(stderr,"Error opening hint file %s\n",argv[2]);
-    exit(1);
-    }
-
+  fhint = 0;
   data.FileName = argv[1];
   data.NameComment = NULL;
   data.Description = NULL;
   data.Caveats = NULL;
   data.SeeAlso = NULL;
   CommentState = 0;
-  data.IsConcrete = atoi(argv[3]);
 
+  if (argc == 5)
+    {
+    if (!(fhint = fopen(argv[2],"r")))
+      {
+      fprintf(stderr,"Error opening hint file %s\n",argv[2]);
+      exit(1);
+      }
+    data.IsConcrete = atoi(argv[3]);
+    }
+  else
+    {
+    data.IsConcrete = atoi(argv[2]);
+    }
+  
   currentFunction = data.Functions;
   InitFunction(currentFunction);
   
@@ -832,19 +847,21 @@ int main(int argc,char *argv[])
 
   if (argc == 5)
     {
-      FILE *fout;
-      if (!(fout = fopen(argv[4],"w")))
-        {
-          fprintf(stderr,"Error opening output file %s\n",argv[4]);
-          exit(1);
-        }
-      vtkParseOutput(fout,&data);
-      fclose (fout);
+    fout = fopen(argv[4],"w");
     }
   else
     {
-      vtkParseOutput(stdout,&data);
+    fout = fopen(argv[3],"w");
     }
+  
+  if (!fout)
+    {
+    fprintf(stderr,"Error opening output file %s\n",argv[3]);
+    exit(1);
+    }
+  vtkParseOutput(fout,&data);
+  fclose (fout);
+
   return 0;
 }
  
