@@ -2,6 +2,7 @@ catch {load vtktcl}
 source ../../examplesTcl/vtkInt.tcl
 
 vtkRenderer ren1
+  ren1 BackingStoreOn
 
 vtkRenderWindow renWin
 renWin AddRenderer ren1
