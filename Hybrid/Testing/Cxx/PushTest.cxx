@@ -41,6 +41,7 @@ int PushTest( int argc, char *argv[] )
   
   vtkImageViewer2 *iv = vtkImageViewer2::New();
   iv->SetInput(ia->GetOutput());
+  ia->Delete();
   iv->SetColorWindow(2000);
   iv->SetColorLevel(1000);
   
