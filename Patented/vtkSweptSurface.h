@@ -55,7 +55,8 @@
 #define __vtkSweptSurface_h
 
 #include "vtkStructuredPointsToStructuredPointsFilter.h"
-#include "vtkTransformCollection.h"
+
+class vtkTransformCollection;
 
 class VTK_PATENTED_EXPORT vtkSweptSurface : public vtkStructuredPointsToStructuredPointsFilter
 {
@@ -73,7 +74,7 @@ public:
   // Description:
   // Specify a path (i.e., list of transforms) that the input moves along. At
   // least two transforms must be used to define a path.
-  vtkSetObjectMacro(Transforms, vtkTransformCollection);
+  virtual void SetTransforms(vtkTransformCollection*);
   vtkGetObjectMacro(Transforms, vtkTransformCollection);
 
   // Description:
