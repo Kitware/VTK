@@ -1,9 +1,14 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-07-29 11:09:58 barre>
+# Time-stamp: <2002-11-22 16:23:16 barre>
 #
 # Extract VTK version and add it to documentation
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.3 (barre) :
+#   - update to search for the version infos in a different file
+#     (i.e. top CMakeLists.txt file instead of vtkVersion.h)
+#   - --header becomes --revision_file and --version_file
 #
 # 0.25 (barre) :
 #   - update useful links for Dart
@@ -55,7 +60,7 @@ use File::Basename;
 use Getopt::Long;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.25, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.3, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -64,7 +69,8 @@ print "$PROGNAME $VERSION, by $AUTHOR\n";
 
 my %default = 
   (
-   header => "../../Common/vtkVersion.h",
+   version_file => "../../CMakeLists.txt",
+   revison_file => "../../Common/vtkVersion.h",
    store => "doc_VTK_version.dox",
    to => "../../../VTK-doxygen"
   );
@@ -74,14 +80,15 @@ my %default =
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "header=s", "logo=s", "store=s", "to=s");
+GetOptions (\%args, "help", "revision_file=s", "version_file=s", "logo=s", "store=s", "to=s");
 
 if (exists $args{"help"}) {
     print <<"EOT";
 by $AUTHOR
-Usage : $PROGNAME [--help] [--header file] [--store file] [--to path]
+Usage : $PROGNAME [--help] [--revision_file file] [--store file] [--to path]
   --help        : this message
-  --header file : use 'file' to find version (default: $default{header})
+  --revision_file file : use 'file' to find revision (default: $default{revision_file})
+  --version_file file : use 'file' to find version info (default: $default{version_file})
   --logo file   : use 'file' as logo (default: $default{logo})
   --store file  : use 'file' to store version (default: $default{store})
   --to path     : use 'path' as destination directory (default: $default{to})
@@ -92,7 +99,8 @@ EOT
     exit;
 }
 
-$args{"header"} = $default{"header"} if ! exists $args{"header"};
+$args{"revision_file"} = $default{"revision_file"} if ! exists $args{"revision_file"};
+$args{"version_file"} = $default{"version_file"} if ! exists $args{"version_file"};
 $args{"logo"} = $default{"logo"} if ! exists $args{"logo"};
 $args{"store"} = $default{"store"} if ! exists $args{"store"};
 $args{"to"} = $default{"to"} if ! exists $args{"to"};
@@ -101,31 +109,49 @@ $args{"to"} =~ s/[\\\/]*$// if exists $args{"to"};
 my $os_is_win = ($^O =~ m/(MSWin32|Cygwin)/i);
 my $open_file_as_text = $os_is_win ? O_TEXT : 0;
 my $start_time = time();
-    
+
 # -------------------------------------------------------------------------
-# Try to get VTK version from a header
+# Try to get VTK version and revision
 
-my ($version, $revision, $date) = (undef, undef, undef);
+my ($major_version, $minor_version, $build_version, $revision, $date) = (undef, undef, undef);
 
-sysopen(FILE, $args{"header"}, O_RDONLY|$open_file_as_text)
-  or croak "$PROGNAME: unable to open $args{header}\n";
+sysopen(FILE, $args{"version_file"}, O_RDONLY|$open_file_as_text)
+  or croak "$PROGNAME: unable to open $args{version_file}\n";
 
 while (<FILE>) {
-    if ($_ =~ /define\s+VTK_VERSION\s+\"(.*)\"/) {
-        $version = $1;
-        print " => $version\n";
-    } elsif ($_ =~ /define\s+VTK_SOURCE_VERSION.*(.Revision:.*.?\$).*(.Date:.*?\$).*\"/) {
+    if ($_ =~ /VTK_MAJOR_VERSION\s+(\d+)/) {
+        $major_version = $1;
+        print " major => $major_version\n";
+    } elsif ($_ =~ /VTK_MINOR_VERSION\s+(\d+)/) {
+        $minor_version = $1;
+        print " minor => $minor_version\n";
+    } elsif ($_ =~ /VTK_BUILD_VERSION\s+(\d+)/) {
+        $build_version = $1;
+        print " build => $build_version\n";
+    }
+}
+
+close(FILE);
+
+croak "$PROGNAME: unable to find version in " . $args{"version_file"} . "\n"
+  if (!defined $major_version || !defined $minor_version || !defined $build_version);
+
+sysopen(FILE, $args{"revision_file"}, O_RDONLY|$open_file_as_text)
+  or croak "$PROGNAME: unable to open $args{revision_file}\n";
+
+while (<FILE>) {
+    if ($_ =~ /define\s+VTK_SOURCE_VERSION.*(.Revision:.*.?\$).*(.Date:.*?\$).*\"/) {
         $revision = $1;
         $date = $2;
-        print " => $revision $date\n";
+        print " revision => $revision $date\n";
         last;
     }
 }
 
 close(FILE);
 
-croak "$PROGNAME: unable to find version/date in " . $args{"header"} . "\n"
-  if (!defined $version || !defined $revision || !defined $date);
+croak "$PROGNAME: unable to find revision/date in " . $args{"revision_file"} . "\n"
+  if (!defined $revision || !defined $date);
 
 # -------------------------------------------------------------------------
 # Build documentation
@@ -139,7 +165,7 @@ sysopen(DEST_FILE,
   or croak "$PROGNAME: unable to open destination file " . $destination_file . "\n";
 
 print DEST_FILE 
-  "/*! \@mainpage VTK $version Documentation\n\n";
+  "/*! \@mainpage VTK $major_version.$minor_version.$build_version Documentation\n\n";
 
 print DEST_FILE 
   "  \@image html " . basename($args{"logo"}) . "\n"
