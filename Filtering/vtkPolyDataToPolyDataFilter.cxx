@@ -19,12 +19,11 @@
 
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataToPolyDataFilter, "1.15");
+vtkCxxRevisionMacro(vtkPolyDataToPolyDataFilter, "1.16");
 
 //----------------------------------------------------------------------------
 vtkPolyDataToPolyDataFilter::vtkPolyDataToPolyDataFilter() 
 {
-  this->vtkProcessObject::SetNumberOfInputs(1);
   this->NumberOfRequiredInputs = 1;
 }
 //----------------------------------------------------------------------------
