@@ -197,6 +197,10 @@ public:
   vtkSetMacro(Wvinf,float);
   vtkGetMacro(Wvinf,float);
 
+  // Description:
+  // Get the number number of grids.
+  vtkGetMacro(NumGrids, int);
+
 protected:
   vtkPLOT3DReader();
   ~vtkPLOT3DReader();
