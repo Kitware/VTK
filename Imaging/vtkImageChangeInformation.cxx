@@ -21,7 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageChangeInformation, "1.17");
+vtkCxxRevisionMacro(vtkImageChangeInformation, "1.18");
 vtkStandardNewMacro(vtkImageChangeInformation);
 
 //----------------------------------------------------------------------------
@@ -213,14 +213,12 @@ void vtkImageChangeInformation::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // since inData can be larger than update extent.
-//  inInfo->Get(vtkDataObject::DATA_EXTENT(),extent);
   inData->GetExtent(extent);
   for (int i = 0; i < 3; ++i)
     {
     extent[i*2] += this->FinalExtentTranslation[i];
     extent[i*2+1] += this->FinalExtentTranslation[i];
     }
-//  outInfo->Set(vtkDataObject::DATA_EXTENT(),extent,6);
   outData->SetExtent(extent);
   outData->GetPointData()->PassData(inData->GetPointData());
 }
