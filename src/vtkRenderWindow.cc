@@ -581,7 +581,7 @@ void vtkRenderWindow::SaveImageAsPPM()
   //  open the ppm file and write header 
   if ( this->Filename != NULL && *this->Filename != '\0')
     {
-    fp = fopen(this->Filename,"w");
+    fp = fopen(this->Filename,"wb");
     if (!fp)
       {
       vtkErrorMacro(<< "RenderWindow unable to open image file for writing\n");
@@ -595,7 +595,7 @@ void vtkRenderWindow::SaveImageAsPPM()
     // now write the binary info 
     for (i = size[1]-1; i >= 0; i--)
       {
-      fwrite(buffer + i*size[0]*3,3,size[0],fp);
+      fwrite(buffer + i*size[0]*3,1,size[0]*3,fp);
       }
     fclose(fp);
     }
