@@ -78,6 +78,24 @@ vtkImageAccumulate::vtkImageAccumulate()
     this->ComponentExtent[idx*2+1] = 0;
     }
   this->ComponentExtent[1] = 255;
+  
+  this->StencilFunction = NULL;
+  this->ClippingExtents = NULL;
+ 
+  this->ReverseStencil = 0;
+
+  this->Min[0] = this->Min[1] = this->Min[2] = 0.0;
+  this->Max[0] = this->Max[1] = this->Max[2] = 0.0;
+  this->Mean[0] = this->Mean[1] = this->Mean[2] = 0.0;
+  this->PixelCount = 0;
+}
+
+
+//----------------------------------------------------------------------------
+vtkImageAccumulate::~vtkImageAccumulate()
+{
+  this->SetStencilFunction(NULL);
+  this->SetClippingExtents(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -130,20 +148,32 @@ void vtkImageAccumulate::GetComponentExtent(int extent[6])
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
-                               vtkImageData *inData, T *inPtr,
-                               vtkImageData *outData, int *outPtr)
+				      vtkImageData *inData, T *inPtr,
+				      vtkImageData *outData, int *outPtr,
+				      double Min[3],
+				      double Max[3],
+				      double Mean[3],
+				      long int *PixelCount)
 {
+  int idX, idY, idZ, idxC;
+  int r1, r2, cr1, cr2, iter, rval;
   int min0, max0, min1, max1, min2, max2;
-  int idx0, idx1, idx2, idxC;
   int inInc0, inInc1, inInc2;
-  T *inPtr0, *inPtr1, *inPtr2, *inPtrC;
+  T *tempPtr;
   int *outPtrC;
   int numC, outIdx, *outExtent, *outIncs;
   float *origin, *spacing;
   unsigned long count = 0;
   unsigned long target;
 
-  self = self;
+  // variables used to compute statistics (filter handles max 3 components)
+  double sum[3];
+  sum[0] = sum[1] = sum[2] = 0.0;
+  Min[0] = Min[1] = Min[2] = VTK_DOUBLE_MAX;
+  Max[0] = Max[1] = Max[2] = VTK_DOUBLE_MIN;
+  *PixelCount = 0;
+  
+  vtkImageClippingExtents *clippingExtents = self->GetClippingExtents();
 
   // Zero count in every bin
   outData->GetExtent(min0, max0, min1, max1, min2, max2);
@@ -159,53 +189,162 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
   origin = outData->GetOrigin();
   spacing = outData->GetSpacing();
 
-  vtkGenericWarningMacro(<<"Executing with: " << min0 << "," << max0 << " " 
-  << min1 << "," << max1 << " " << min2 << "," << max2);
-  
   target = (unsigned long)((max2 - min2 + 1)*(max1 - min1 +1)/50.0);
   target++;
 
-  inPtr2 = inPtr;
-  for (idx2 = min2; idx2 <= max2; ++idx2)
+
+  // Loop through input pixels
+  for (idZ = min2; idZ <= max2; idZ++)
     {
-    inPtr1 = inPtr2;
-    for (idx1 = min1; !self->AbortExecute && idx1 <= max1; ++idx1)
+    for (idY = min1; idY <= max1; idY++)
       {
-      if (!(count%target))
-        {
+      if (!(count%target)) 
+	{
         self->UpdateProgress(count/(50.0*target));
-        }
+	}
       count++;
-      inPtr0  = inPtr1;
-      for (idx0 = min0; idx0 <= max0; ++idx0)
+	
+
+      if (clippingExtents == NULL)
         {
-        inPtrC = inPtr0;
-        // find the bin for this pixel.
-        outPtrC = outPtr;
-        for (idxC = 0; idxC < numC; ++idxC)
+        tempPtr = inPtr + (inInc2*(idZ - min2) +
+                           inInc1*(idY - min1));
+        for (idX = min0; idX <= max0; idX++)
           {
-          // compute the index
-          outIdx = (int)(((float)*inPtrC - origin[idxC]) / spacing[idxC]);
-          if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
+	  // find the bin for this pixel.
+	  outPtrC = outPtr;
+	  for (idxC = 0; idxC < numC; ++idxC)
+	    {
+	    // Gather statistics
+	    sum[idxC]+= *tempPtr;
+	    if (*tempPtr > Max[idxC])
+	      Max[idxC] = *tempPtr;
+	    else if (*tempPtr < Min[idxC])
+	      Min[idxC] = *tempPtr;
+	    (*PixelCount)++;
+	    // compute the index
+	    outIdx = (int) floor((((double)*tempPtr++ - origin[idxC]) / spacing[idxC]));
+	    if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
+	      {
+	      // Out of bin range
+	      outPtrC = NULL;
+	      break;
+	      }
+	    outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
+	    }
+	  if (outPtrC)
+	    {
+	    ++(*outPtrC);
+	    }
+        
+          }          
+        }
+      else
+        {
+        iter = 0;
+        cr1 = min0;
+        for (;;)
+          {
+          rval = clippingExtents->GetNextExtent(r1, r2, min0, max0,
+                                                idY, idZ, iter);
+          cr2 = r1 - 1;
+          if (!self->GetReverseStencil())
             {
-            // Out of bin range
-            outPtrC = NULL;
+            tempPtr = inPtr + (inInc2*(idZ - min2) +
+                               inInc1*(idY - min1) +
+                               numC*(cr1 - min0));
+
+            for (idX = cr1; idX <= cr2; idX++)
+              {
+	      // find the bin for this pixel.
+	      outPtrC = outPtr;
+	      for (idxC = 0; idxC < numC; ++idxC)
+		{
+		// Gather statistics
+		sum[idxC]+= *tempPtr;
+		if (*tempPtr > Max[idxC])
+		  Max[idxC] = *tempPtr;
+		else if (*tempPtr < Min[idxC])
+		  Min[idxC] = *tempPtr;
+		(*PixelCount)++;
+		// compute the index
+		outIdx = (int) floor((((double)*tempPtr++ - origin[idxC]) / spacing[idxC]));
+		if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
+		  {
+		  // Out of bin range
+		  outPtrC = NULL;
+		  break;
+		  }
+		outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
+		}
+	      if (outPtrC)
+		{
+		++(*outPtrC);
+		}
+	      
+	      }
+            }
+          cr1 = r2 + 1;
+
+          // break if no foreground extents left
+          if (rval == 0)
+            {
             break;
             }
-          outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
-          ++inPtrC;
+
+          if (self->GetReverseStencil())
+            {
+            // do unchanged portion
+            tempPtr = inPtr + (inInc2*(idZ - min2) +
+                               inInc1*(idY - min1) +
+                               numC*(r1 - min0));
+
+            for (idX = r1; idX <= r2; idX++)
+              {
+	      // find the bin for this pixel.
+	      outPtrC = outPtr;
+	      for (idxC = 0; idxC < numC; ++idxC)
+		{
+		// Gather statistics
+		sum[idxC]+= *tempPtr;
+		if (*tempPtr > Max[idxC])
+		  Max[idxC] = *tempPtr;
+		else if (*tempPtr < Min[idxC])
+		  Min[idxC] = *tempPtr;
+		(*PixelCount)++;
+		// compute the index
+		outIdx = (int) floor((((double)*tempPtr++ - origin[idxC]) / spacing[idxC]));
+		if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
+		  {
+		  // Out of bin range
+		  outPtrC = NULL;
+		  break;
+		  }
+		outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
+		}
+	      if (outPtrC)
+		{
+		++(*outPtrC);
+		}
+	      
+              }
+            }
           }
-        if (outPtrC)
-          {
-          ++(*outPtrC);
-          }
-        
-        inPtr0 += inInc0;
         }
-      inPtr1 += inInc1;
       }
-    inPtr2 += inInc2;
     }
+  
+  if (*PixelCount) // avoid the div0
+    {
+    Mean[0] = sum[0] / (double)*PixelCount;    
+    Mean[1] = sum[1] / (double)*PixelCount;    
+    Mean[2] = sum[2] / (double)*PixelCount;    
+    }
+  else
+    {
+    Mean[0]=Mean[1]=Mean[2] = 0.0;
+    }
+  
 }
 
         
@@ -249,9 +388,11 @@ void vtkImageAccumulate::ExecuteData(vtkDataObject *vtkNotUsed(out))
   
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro5(vtkImageAccumulateExecute, this, 
+    vtkTemplateMacro9(vtkImageAccumulateExecute, this, 
                       inData, (VTK_TT *)(inPtr), 
-                      outData, (int *)(outPtr));
+                      outData, (int *)(outPtr),
+		      this->Min, this->Max,
+		      this->Mean, &this->PixelCount);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
@@ -260,7 +401,7 @@ void vtkImageAccumulate::ExecuteData(vtkDataObject *vtkNotUsed(out))
 
 
 //----------------------------------------------------------------------------
-void vtkImageAccumulate::ExecuteInformation(vtkImageData *vtkNotUsed(input), 
+void vtkImageAccumulate::ExecuteInformation(vtkImageData *input, 
                                             vtkImageData *output)
 {
   output->SetWholeExtent(this->ComponentExtent);
@@ -268,6 +409,20 @@ void vtkImageAccumulate::ExecuteInformation(vtkImageData *vtkNotUsed(input),
   output->SetSpacing(this->ComponentSpacing);
   output->SetNumberOfScalarComponents(1);
   output->SetScalarType(VTK_INT);
+
+  // See if we should be setting up some clipping extents
+  if (this->StencilFunction)
+    {
+    if (!this->ClippingExtents)
+      {
+      this->ClippingExtents = vtkImageClippingExtents::New();
+      }
+    this->ClippingExtents->SetClippingObject(this->StencilFunction);
+    }
+  if (this->ClippingExtents)
+    {
+    this->ClippingExtents->BuildExtents(input);
+    }
 }
 
 //----------------------------------------------------------------------------
