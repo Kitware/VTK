@@ -6,6 +6,8 @@ IF (VTK_USE_RENDERING)
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile 
       3DMorph
+      appendImplicitModel
+      appendImplicitModelNoBounds
       banana
       bore
       camera
