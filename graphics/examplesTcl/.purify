@@ -63,6 +63,12 @@ suppress umc __glkonle_Push
 suppress umc __glce_common_listable
 suppress umc __glMipsCopyDispatch
 suppress umc vtkOpenGLRenderWindow::GetPixelData(int,int,int,int,int)
+suppress umr vtkRenderWindow::Render
+suppress umc _malloc; operator new(unsigned int); operator new(unsigned int); vtkOpenGLRenderWindow::GetPixelData(int,int,int,int,int)
+suppress umr _malloc; operator new(unsigned int); operator new(unsigned int); vtkOpenGLRenderWindow::GetPixelData(int,int,int,int,int)
+suppress umr vtkRenderWindow::DoFDRender
+suppress umr vtkRenderWindow::DoAARender
+suppress umr RayCast_RenderImage
 suppress umr _bcmp; addTexTableUsage
 suppress umc memcpy; vtkRendererSource::Execute(void)
 
@@ -73,6 +79,8 @@ suppress mlk _malloc; _calloc; XOpenDisplay
 suppress mlk _malloc; _calloc; _XInternAtom
 suppress mlk _malloc; _calloc; XkbUseExtension
 suppress mlk _malloc; XOpenDisplay
+suppress mlk _malloc; _X11TransShmBufConnect
+suppress mlk _malloc; _X11TransShmBufOpenSocketConnection
 suppress mlk _malloc; _X11TransSocketINETGetAddr
 suppress mlk _malloc; _X11TransSocketINETGetPeerAddr
 suppress mlk _malloc; _XUpdateAtomCache
@@ -92,6 +100,7 @@ suppress mlk _malloc; __glXMalloc; checkTexImage
 suppress mlk _malloc; __glXMalloc; calcObjSize; checkTexImage
 suppress mlk _malloc; _calloc; calcObjSize; checkTexImage
 suppress mlk _malloc; operator new(unsigned int); __nw__FUi; filebuf::filebuf(int); Iostream_init::Iostream_init(void)
+suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); filebuf::filebuf(int); Iostream_init::Iostream_init(void)
 
 suppress umr __glSPDlalloc; __glsplc_Disable; __glce_common_listable
 suppress umr __glSPDlalloc; __glsplc_Enable; __glce_common_listable
