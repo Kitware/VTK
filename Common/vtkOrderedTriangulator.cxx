@@ -29,7 +29,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.68");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.68.4.1");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -1179,7 +1179,7 @@ void vtkOrderedTriangulator::Triangulate()
 void vtkOrderedTriangulator::TemplateTriangulate(int cellType, 
                                                  int numPts, int numEdges)
 {
-  (void)cellType;
+  this->CellType = cellType;
   if ( ! this->UseTemplates )
     {
     this->Triangulate();

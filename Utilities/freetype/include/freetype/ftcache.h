@@ -183,7 +183,11 @@ FT_BEGIN_HEADER
             (f1)->pix_width  == (f2)->pix_width  && \
             (f1)->pix_height == (f2)->pix_height )
 
-#define FTC_FACE_ID_HASH( i )  ((FT_UInt32)(FT_Pointer)( i ))
+#define FT_POINTER_TO_ULONG( p )  ((FT_ULong)(FT_Pointer)(p))
+
+#define FTC_FACE_ID_HASH( i )                              \
+          ((FT_UInt32)(( FT_POINTER_TO_ULONG( i ) >> 3 ) ^ \
+                       ( FT_POINTER_TO_ULONG( i ) << 7 ) ) )
 
 #define FTC_FONT_HASH( f )                              \
           (FT_UInt32)( FTC_FACE_ID_HASH((f)->face_id) ^ \

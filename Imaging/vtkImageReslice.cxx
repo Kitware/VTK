@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.40");
+vtkCxxRevisionMacro(vtkImageReslice, "1.40.4.1");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -1940,7 +1940,7 @@ int intersectionLow(F *point, F *axis, int *sign,
 
   for (;;)
     {
-    f = point[3]+(r-sign[3])*axis[3];
+    f = point[3]+(r-sign[ai])*axis[3];
     p = point[ai]+(r-sign[ai])*axis[ai];
     f = 1/f;
     p *= f;
@@ -1990,7 +1990,7 @@ int intersectionHigh(F *point, F *axis, int *sign,
 
   for (;;)
     {
-    f = point[3]+(r+sign[3])*axis[3];
+    f = point[3]+(r+sign[ai])*axis[3];
     p = point[ai]+(r+sign[ai])*axis[ai];
     f = 1/f;
     p *= f;
