@@ -58,7 +58,6 @@ CONCRETE_H = \
 vtkActorCollection \
 vtkAssemblyPaths \
 vtkDataSetCollection \
-vtkLightCollection \
 vtkPolyDataCollection \
 vtkRenderWindowCollection \
 vtkStructuredPointsCollection \
@@ -124,7 +123,6 @@ vtkDecimatePro \
 vtkDelaunay2D \
 vtkDelaunay3D \
 vtkDicer \
-vtkImageDifference \
 vtkDiskSource \
 vtkEdgePoints \
 vtkElevationFilter \
@@ -159,6 +157,7 @@ vtkIVExporter \
 vtkKochanekSpline \
 vtkLODActor \
 vtkLight \
+vtkLightCollection \
 vtkLineSource \
 vtkLinearExtrusionFilter \
 vtkLinkEdgels \

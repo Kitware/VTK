@@ -38,33 +38,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDifference - select piece (e.g., volume of interest) and/or subsample structured points dataset
-
+// .NAME vtkImageDifference - Compares images for regression tests.
 // .SECTION Description
-// vtkImageDifference is a filter that selects a portion of an input structured points 
-// dataset, or subsamples an input dataset. (The selected portion of interested is
-// referred toas the Volume Of Interest, or VOI.) The output of this filter is a 
-// structured points dataset. The filter treats input data of any topological
-// dimension (i.e., point, line, image, or volume) and can generate output data 
-// of any topological dimension.
-//
-// To use this filter set the VOI ivar which are i-j-k min/max indices that specify
-// a rectangular region in the data. (Note that these are 0-offset.) You can also
-// specify a sampling rate to subsample the data.
-//
-// Typical applications of this filter are to extract a slice from a volume for 
-// image processing, subsampling large volumes to reduce data size, or extracting
-// regions of a volume with interesting data.
-
-// .SECTION See Also
-// vtkGeometryFilter vtkExtractGeometry vtkExtractGrid
+// vtkImageDifference takes two rgb unsigned char images and compares them.
+// It allows the images to be slightly different.  If AllowShift is on,
+// then each pixel can be shifted by one pixel. Threshold is the allowable
+// error for each pixel.
 
 #ifndef __vtkImageDifference_h
 #define __vtkImageDifference_h
 
-#include "vtkStructuredPointsToStructuredPointsFilter.h"
+#include "vtkImageTwoInputFilter.h"
 
-class VTK_EXPORT vtkImageDifference : public vtkStructuredPointsToStructuredPointsFilter
+class VTK_EXPORT vtkImageDifference : public vtkImageTwoInputFilter
 {
 public:
   vtkImageDifference();
@@ -72,14 +58,17 @@ public:
   const char *GetClassName() {return "vtkImageDifference";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void Update();
-
   // Description:
   // Specify the Image to compare the input to.
-  vtkSetObjectMacro(Image,vtkStructuredPoints);
-  vtkGetObjectMacro(Image,vtkStructuredPoints);
-  void SetImage(vtkImageCache *cache)
-    {this->SetImage(cache->GetImageToStructuredPoints()->GetOutput());}
+  void SetImage(vtkImageCache *image) {this->SetInput2(image);}
+  void SetImage(vtkStructuredPoints *image) {this->SetInput2(image);}
+  vtkImageCache *GetImage() {return this->GetInput2();}
+
+  // Description:
+  // Specify the Input for comparison.
+  void SetInput(vtkImageCache *input) {this->SetInput1(input);}
+  void SetInput(vtkStructuredPoints *input) {this->SetInput1(input);}
+  vtkImageCache *GetInput() {return this->GetInput1();}
 
   // Description:
   // Return the error in comparing the two images.
@@ -105,14 +94,20 @@ public:
   vtkGetMacro(AllowShift,int);
   vtkBooleanMacro(AllowShift,int);
 
+  // Description:
+  // Computes WholeExtent and ScalarType of output.
+  void ExecuteImageInformation();
+  
   
 protected:
-  void Execute();
-  vtkStructuredPoints *Image;
   float Error;
   float ThresholdedError;
   int AllowShift;
   int Threshold;
+  
+  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
+		       int extent[6], int id);  
+  
 };
 
 #endif

@@ -81,5 +81,3 @@ BindTkImageViewer .top.f1.r2
 
 
 
-
-

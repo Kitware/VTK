@@ -48,6 +48,7 @@ vtkImageContinuousDilate3D \
 vtkImageContinuousErode3D \
 vtkImageCorrelation \
 vtkImageCursor3D \
+vtkImageDifference \
 vtkImageDilateErode3D \
 vtkImageDivergence \
 vtkImageDotProduct \
