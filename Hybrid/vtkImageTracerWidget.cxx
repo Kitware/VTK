@@ -37,7 +37,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageTracerWidget, "1.4");
+vtkCxxRevisionMacro(vtkImageTracerWidget, "1.5");
 vtkStandardNewMacro(vtkImageTracerWidget);
 
 vtkCxxSetObjectMacro(vtkImageTracerWidget, HandleProperty, vtkProperty);
@@ -998,6 +998,7 @@ void vtkImageTracerWidget::OnMouseMove()
 
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
+  double z;
 
   // Process the motion
   if (this->CurrentHandle)
