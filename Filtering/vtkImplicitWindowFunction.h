@@ -74,6 +74,11 @@ public:
   // Override modified time retrieval because of object dependencies.
   unsigned long GetMTime();
 
+  // Description:
+  // Participate in garbage collection.
+  virtual void Register(vtkObjectBase* o);
+  virtual void UnRegister(vtkObjectBase* o);
+
 protected:
   vtkImplicitWindowFunction();
   ~vtkImplicitWindowFunction();

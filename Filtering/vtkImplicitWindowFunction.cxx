@@ -17,7 +17,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImplicitWindowFunction, "1.20");
+vtkCxxRevisionMacro(vtkImplicitWindowFunction, "1.21");
 vtkStandardNewMacro(vtkImplicitWindowFunction);
 vtkCxxSetObjectMacro(vtkImplicitWindowFunction,ImplicitFunction,vtkImplicitFunction);
 
@@ -131,6 +131,18 @@ void vtkImplicitWindowFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Window Values: (" << this->WindowValues[0] 
      << ", " << this->WindowValues[1] << ")\n";
 
+}
+
+//----------------------------------------------------------------------------
+void vtkImplicitWindowFunction::Register(vtkObjectBase* o)
+{
+  this->RegisterInternal(o, 1);
+}
+
+//----------------------------------------------------------------------------
+void vtkImplicitWindowFunction::UnRegister(vtkObjectBase* o)
+{
+  this->UnRegisterInternal(o, 1);
 }
 
 //----------------------------------------------------------------------------
