@@ -52,11 +52,11 @@ protected:
   
   void SetupPieces(int numPieces);
   void DestroyPieces();
-  void SetupOutputInformation();
   void SetupOutputData();
   
   int ReadPiece(vtkXMLDataElement* ePiece);
   int ReadPieceData();
+  virtual int FillOutputPortInformation(int, vtkInformation*);
   
   // The elements representing the points for each piece.
   vtkXMLDataElement** PointElements;

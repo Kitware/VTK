@@ -18,19 +18,22 @@
 #include "vtkStructuredGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
+#include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.8");
+vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.9");
 vtkStandardNewMacro(vtkXMLStructuredGridReader);
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredGridReader::vtkXMLStructuredGridReader()
 {
   // Copied from vtkStructuredGridReader constructor:
-  this->SetOutput(vtkStructuredGrid::New());
+  vtkStructuredGrid *output = vtkStructuredGrid::New();
+  this->SetOutput(output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
-  this->Outputs[0]->ReleaseData();
-  this->Outputs[0]->Delete();
+  output->ReleaseData();
+  output->Delete();
   this->PointElements = 0;
 }
 
@@ -49,23 +52,19 @@ void vtkXMLStructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkXMLStructuredGridReader::SetOutput(vtkStructuredGrid *output)
 {
-  this->Superclass::SetNthOutput(0, output);
+  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
 vtkStructuredGrid* vtkXMLStructuredGridReader::GetOutput()
 {
-  if(this->NumberOfOutputs < 1)
-    {
-    return 0;
-    }
-  return static_cast<vtkStructuredGrid*>(this->Outputs[0]);
+  return this->GetOutput(0);
 }
 
 //----------------------------------------------------------------------------
 vtkStructuredGrid* vtkXMLStructuredGridReader::GetOutput(int idx)
 {
-  return static_cast<vtkStructuredGrid*>(this->Superclass::GetOutput(idx));
+  return vtkStructuredGrid::SafeDownCast( this->GetOutputDataObject(idx) );
 }
   
 
@@ -133,44 +132,36 @@ int vtkXMLStructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
   return 1;
 }
 
-//----------------------------------------------------------------------------
-void vtkXMLStructuredGridReader::SetupOutputInformation()
-{
-  this->Superclass::SetupOutputInformation();  
-  vtkStructuredGrid* output = this->GetOutput();
-  
-  // Create the points array.
-  vtkPoints* points = vtkPoints::New();
-  
-  // Use the configuration of the first piece since all are the same.
-  vtkXMLDataElement* ePoints = this->PointElements[0];
-  if(ePoints)
-    {
-    // Non-empty volume.
-    vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
-    if(a)
-      {
-      points->SetData(a);
-      a->Delete();
-      }
-    else
-      {
-      this->InformationError = 1;
-      }
-    }
-  
-  output->SetPoints(points);
-  points->Delete();
-}
 
 //----------------------------------------------------------------------------
 void vtkXMLStructuredGridReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
   
-  // Allocate the points array.
-  vtkStructuredGrid* output = this->GetOutput();
-  output->GetPoints()->GetData()->SetNumberOfTuples(this->GetNumberOfPoints());
+  // Create the points array.
+  vtkPoints* points = vtkPoints::New();
+  
+  // Use the configuration of the first piece since all are the same.
+  vtkXMLDataElement* ePoints = this->PointElements[0];
+  if (ePoints)
+    {
+    // Non-zero volume.
+    vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
+    if (a)
+      {
+      // Allocate the points array.
+      a->SetNumberOfTuples( this->GetNumberOfPoints() );
+      points->SetData(a);
+      a->Delete();
+      }
+    else
+      {
+      this->DataError = 1;
+      }
+    }
+  
+  this->GetOutput()->SetPoints(points);
+  points->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -225,3 +216,10 @@ int vtkXMLStructuredGridReader::ReadPieceData()
   return this->ReadArrayForPoints(ePoints->GetNestedElement(0),
                                   output->GetPoints()->GetData());
 }
+
+
+int vtkXMLStructuredGridReader::FillOutputPortInformation(int, vtkInformation *info)
+  {
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkStructuredGrid");
+  return 1;
+  }

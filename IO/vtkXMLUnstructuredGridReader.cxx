@@ -20,19 +20,22 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
+#include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.7");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.8");
 vtkStandardNewMacro(vtkXMLUnstructuredGridReader);
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredGridReader::vtkXMLUnstructuredGridReader()
 {
   // Copied from vtkUnstructuredGridReader constructor:
-  this->SetOutput(vtkUnstructuredGrid::New());
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::New();
+  this->SetOutput(output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
-  this->Outputs[0]->ReleaseData();
-  this->Outputs[0]->Delete();
+  output->ReleaseData();
+  output->Delete();
   
   this->CellElements = 0;
   this->TotalNumberOfCells = 0;
@@ -53,23 +56,19 @@ void vtkXMLUnstructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredGridReader::SetOutput(vtkUnstructuredGrid *output)
 {
-  this->Superclass::SetNthOutput(0, output);
+  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkXMLUnstructuredGridReader::GetOutput()
 {
-  if(this->NumberOfOutputs < 1)
-    {
-    return 0;
-    }
-  return static_cast<vtkUnstructuredGrid*>(this->Outputs[0]);
+  return this->GetOutput(0);
 }
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkXMLUnstructuredGridReader::GetOutput(int idx)
 {
-  return static_cast<vtkUnstructuredGrid*>(this->Superclass::GetOutput(idx));
+  return vtkUnstructuredGrid::SafeDownCast( this->GetOutputDataObject(idx) );
 }
 
 //----------------------------------------------------------------------------
@@ -330,3 +329,10 @@ int vtkXMLUnstructuredGridReader::ReadArrayForCells(vtkXMLDataElement* da,
   return this->ReadData(da, outArray->GetVoidPointer(startCell*components),
                         outArray->GetDataType(), 0, numCells*components);
 }
+
+
+int vtkXMLUnstructuredGridReader::FillOutputPortInformation(int, vtkInformation *info)
+  {
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
+  return 1;
+  }

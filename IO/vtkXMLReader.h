@@ -21,7 +21,7 @@
 #ifndef __vtkXMLReader_h
 #define __vtkXMLReader_h
 
-#include "vtkSource.h"
+#include "vtkAlgorithm.h"
 
 class vtkCallbackCommand;
 class vtkDataArray;
@@ -31,10 +31,10 @@ class vtkDataSetAttributes;
 class vtkXMLDataElement;
 class vtkXMLDataParser;
 
-class VTK_IO_EXPORT vtkXMLReader : public vtkSource
+class VTK_IO_EXPORT vtkXMLReader : public vtkAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLReader,vtkSource);
+  vtkTypeRevisionMacro(vtkXMLReader,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -80,15 +80,11 @@ public:
 protected:
   vtkXMLReader();
   ~vtkXMLReader();
-  
-  // Standard pipeline exectution methods.
-  void ExecuteInformation();
-  void ExecuteData(vtkDataObject* output);
-  
+   
   // Pipeline execution methods to be defined by subclass.  Called by
-  // corresponding Execute methods after appropriate setup has been
+  // corresponding RequestData methods after appropriate setup has been
   // done.
-  virtual void ReadXMLInformation();
+  virtual int ReadXMLInformation();
   virtual void ReadXMLData();
   
   // Get the name of the data set being read.
@@ -100,10 +96,10 @@ protected:
   // Setup the output with no data available.  Used in error cases.
   virtual void SetupEmptyOutput()=0;
   
-  // Setup the output's information and data without allocation.
-  virtual void SetupOutputInformation();
+  // Setup the output's information.
+  virtual void SetupOutputInformation(vtkInformation *outInfo);
   
-  // Setup the output's information and data with allocation.
+  // Setup the output's idata with allocation.
   virtual void SetupOutputData();
   
   // Read the primary element from the file.  This is the element
@@ -168,10 +164,10 @@ protected:
   // modified.
   vtkCallbackCommand* SelectionObserver;
   
-  // Whether there was an error reading the file in ExecuteInformation.
+  // Whether there was an error reading the file in RequestInformation.
   int InformationError;
   
-  // Whether there was an error reading the file in ExecuteData.
+  // Whether there was an error reading the file in RequestData.
   int DataError;
   
   // The index of the output on which ExecuteData is currently
@@ -185,6 +181,25 @@ protected:
   virtual void SetProgressRange(float* range, int curStep, float* fractions);
   virtual void UpdateProgressDiscrete(float progress);
   float ProgressRange[2];
+
+  virtual int ProcessRequest(vtkInformation *request,
+                             vtkInformationVector **inputVector,
+                             vtkInformationVector *outputVector);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector **inputVector,
+                          vtkInformationVector *outputVector);
+  virtual int RequestDataObject(vtkInformation *vtkNotUsed(request),
+                                vtkInformationVector **vtkNotUsed(inputVector),
+                                vtkInformationVector *vtkNotUsed(outputVector))
+    { return 1; }
+  virtual int RequestInformation(vtkInformation *request,
+                                 vtkInformationVector **inputVector,
+                                 vtkInformationVector *outputVector);
+
+  vtkTimeStamp ReadMTime;
+
+  // Whether there was an error reading the XML.
+  int ReadError;
 
 private:
   // The stream used to read the input if it is in a file.

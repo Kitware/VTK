@@ -72,6 +72,8 @@ protected:
   // UpdateInformation.
   virtual vtkIdType GetNumberOfCellsInPiece(int piece);
 
+  virtual int FillOutputPortInformation(int, vtkInformation*);
+
   // The size of the UpdatePiece.
   int TotalNumberOfVerts;
   int TotalNumberOfLines;

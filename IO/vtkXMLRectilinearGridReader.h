@@ -52,12 +52,12 @@ protected:
   
   void SetupPieces(int numPieces);
   void DestroyPieces();
-  void SetupOutputInformation();
   void SetupOutputData();
   int ReadPiece(vtkXMLDataElement* ePiece);
   int ReadPieceData();
   int ReadSubCoordinates(int* inBounds, int* outBounds, int* subBounds,
                          vtkXMLDataElement* da, vtkDataArray* array);
+  virtual int FillOutputPortInformation(int, vtkInformation*);
   
   // The elements representing the coordinate arrays for each piece.
   vtkXMLDataElement** CoordinateElements;

@@ -19,19 +19,22 @@
 #include "vtkIdTypeArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPolyDataReader, "1.5");
+vtkCxxRevisionMacro(vtkXMLPolyDataReader, "1.6");
 vtkStandardNewMacro(vtkXMLPolyDataReader);
 
 //----------------------------------------------------------------------------
 vtkXMLPolyDataReader::vtkXMLPolyDataReader()
 {
   // Copied from vtkPolyDataReader constructor:
-  this->SetOutput(vtkPolyData::New());
+  vtkPolyData *output = vtkPolyData::New();
+  this->SetOutput(output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
-  this->Outputs[0]->ReleaseData();
-  this->Outputs[0]->Delete();
+  output->ReleaseData();
+  output->Delete();
   
   this->VertElements = 0;
   this->LineElements = 0;
@@ -58,23 +61,19 @@ void vtkXMLPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkXMLPolyDataReader::SetOutput(vtkPolyData *output)
 {
-  this->Superclass::SetNthOutput(0, output);
+  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
 vtkPolyData* vtkXMLPolyDataReader::GetOutput()
 {
-  if(this->NumberOfOutputs < 1)
-    {
-    return 0;
-    }
-  return static_cast<vtkPolyData*>(this->Outputs[0]);
+  return this->GetOutput(0);
 }
 
 //----------------------------------------------------------------------------
 vtkPolyData* vtkXMLPolyDataReader::GetOutput(int idx)
 {
-  return static_cast<vtkPolyData*>(this->Superclass::GetOutput(idx));
+  return vtkPolyData::SafeDownCast( this->GetOutputDataObject(idx) );
 }
 
 //----------------------------------------------------------------------------
@@ -448,5 +447,14 @@ int vtkXMLPolyDataReader::ReadArrayForCells(vtkXMLDataElement* da,
                      outArray->GetDataType(), inStartCell*components,
                      numCells*components)) { return 0; }
   
+  return 1;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkXMLPolyDataReader::FillOutputPortInformation(int,
+                                                 vtkInformation* info)
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
   return 1;
 }

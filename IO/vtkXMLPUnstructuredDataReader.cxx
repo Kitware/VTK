@@ -17,8 +17,10 @@
 #include "vtkXMLUnstructuredDataReader.h"
 #include "vtkPointSet.h"
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.12");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.13");
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataReader::vtkXMLPUnstructuredDataReader()
@@ -41,11 +43,7 @@ void vtkXMLPUnstructuredDataReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkPointSet* vtkXMLPUnstructuredDataReader::GetOutputAsPointSet()
 {
-  if(this->NumberOfOutputs < 1)
-    {
-    return 0;
-    }
-  return static_cast<vtkPointSet*>(this->Outputs[0]);  
+  return vtkPointSet::SafeDownCast( this->GetOutputDataObject(0) );
 }
 
 //----------------------------------------------------------------------------
@@ -53,8 +51,8 @@ vtkPointSet* vtkXMLPUnstructuredDataReader::GetPieceInputAsPointSet(int piece)
 {
   vtkXMLDataReader* reader = this->PieceReaders[piece];
   if(!reader) { return 0; }
-  if(reader->GetNumberOfOutputs() < 1) { return 0; }
-  return static_cast<vtkPointSet*>(reader->GetOutputs()[0]);
+  if(reader->GetNumberOfOutputPorts() < 1) { return 0; }
+  return static_cast<vtkPointSet*>(reader->GetExecutive()->GetOutputData(0));
 }
 
 //----------------------------------------------------------------------------
@@ -127,44 +125,39 @@ void vtkXMLPUnstructuredDataReader::SetupEmptyOutput()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPUnstructuredDataReader::SetupOutputInformation()
+void vtkXMLPUnstructuredDataReader::SetupOutputInformation(vtkInformation *outInfo)
 {
-  this->Superclass::SetupOutputInformation();
-  
-  vtkPointSet* output = this->GetOutputAsPointSet();
+  this->Superclass::SetupOutputInformation(outInfo);
   
   // Set the maximum number of pieces that can be provided by this
   // reader.
-  output->SetMaximumNumberOfPieces(this->NumberOfPieces);
-  
-  // Create the points array.
-  vtkPoints* points = vtkPoints::New();
-  vtkXMLDataElement* ePoints = this->PPointsElement;
-  if(ePoints)
-    {
-    vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
-    if(a)
-      {
-      points->SetData(a);
-      a->Delete();
-      }
-    else
-      {
-      this->InformationError = 1;
-      }
-    }
-  output->SetPoints(points);
-  points->Delete();
+  outInfo->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), this->NumberOfPieces);
 }
+
 
 //----------------------------------------------------------------------------
 void vtkXMLPUnstructuredDataReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
   
-  // Allocate the points array.
-  vtkPointSet* output = this->GetOutputAsPointSet();
-  output->GetPoints()->GetData()->SetNumberOfTuples(this->GetNumberOfPoints());
+  // Create the points array.
+  vtkPoints* points = vtkPoints::New();
+  if(this->PPointsElement)
+    {
+    vtkDataArray* a = this->CreateDataArray(this->PPointsElement->GetNestedElement(0));
+    if(a)
+      {
+      a->SetNumberOfTuples(this->GetNumberOfPoints());
+      points->SetData(a);
+      a->Delete();
+      }
+    else
+      {
+      this->DataError = 1;
+      }
+    }
+  this->GetOutputAsPointSet()->SetPoints(points);
+  points->Delete();
 }
 
 //----------------------------------------------------------------------------

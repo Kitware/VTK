@@ -48,7 +48,6 @@ protected:
   virtual void CreateXMLParser();
   virtual void DestroyXMLParser();
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
-  void SetupOutputInformation();  
   void SetupOutputData();
   
   // Setup the reader for a given number of pieces.

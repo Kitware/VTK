@@ -53,7 +53,8 @@ protected:
   const char* GetDataSetName();
   void SetOutputExtent(int* extent);
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
-  void SetupOutputInformation();
+  void SetupOutputInformation(vtkInformation *outInfo);
+  virtual int FillOutputPortInformation(int, vtkInformation*);
   
 private:
   vtkXMLImageDataReader(const vtkXMLImageDataReader&);  // Not implemented.

@@ -19,19 +19,22 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
+#include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.9");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.10");
 vtkStandardNewMacro(vtkXMLRectilinearGridReader);
 
 //----------------------------------------------------------------------------
 vtkXMLRectilinearGridReader::vtkXMLRectilinearGridReader()
 {
   // Copied from vtkRectilinearGridReader constructor:
-  this->SetOutput(vtkRectilinearGrid::New());
+  vtkRectilinearGrid *output = vtkRectilinearGrid::New();
+  this->SetOutput(output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
-  this->Outputs[0]->ReleaseData();
-  this->Outputs[0]->Delete();
+  output->ReleaseData();
+  output->Delete();
   this->CoordinateElements = 0;
 }
 
@@ -50,23 +53,19 @@ void vtkXMLRectilinearGridReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkXMLRectilinearGridReader::SetOutput(vtkRectilinearGrid *output)
 {
-  this->Superclass::SetNthOutput(0, output);
+  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
 vtkRectilinearGrid* vtkXMLRectilinearGridReader::GetOutput()
 {
-  if(this->NumberOfOutputs < 1)
-    {
-    return 0;
-    }
-  return static_cast<vtkRectilinearGrid*>(this->Outputs[0]);
+  return this->GetOutput(0);
 }
 
 //----------------------------------------------------------------------------
 vtkRectilinearGrid* vtkXMLRectilinearGridReader::GetOutput(int idx)
 {
-  return static_cast<vtkRectilinearGrid*>(this->Superclass::GetOutput(idx));
+  return vtkRectilinearGrid::SafeDownCast( this->GetOutputDataObject(idx) );
 }
 
 //----------------------------------------------------------------------------
@@ -134,17 +133,19 @@ int vtkXMLRectilinearGridReader::ReadPiece(vtkXMLDataElement* ePiece)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLRectilinearGridReader::SetupOutputInformation()
+void vtkXMLRectilinearGridReader::SetupOutputData()
 {
-  this->Superclass::SetupOutputInformation();  
-  vtkRectilinearGrid* output = this->GetOutput();
-  
-  // Use the configuration of the first piece since all are the same.
-  if(!this->CoordinateElements[0])
+  this->Superclass::SetupOutputData();
+
+  if(!this->CoordinateElements)
     {
     // Empty volume.
     return;
     }
+
+  // Allocate the coordinate arrays.
+  vtkRectilinearGrid* output = this->GetOutput();  
+
   vtkXMLDataElement* xc = this->CoordinateElements[0]->GetNestedElement(0);
   vtkXMLDataElement* yc = this->CoordinateElements[0]->GetNestedElement(1);
   vtkXMLDataElement* zc = this->CoordinateElements[0]->GetNestedElement(2);
@@ -155,6 +156,9 @@ void vtkXMLRectilinearGridReader::SetupOutputInformation()
   vtkDataArray* z = this->CreateDataArray(zc);
   if(x && y && z)
     {
+    x->SetNumberOfTuples(this->PointDimensions[0]);
+    y->SetNumberOfTuples(this->PointDimensions[1]);
+    z->SetNumberOfTuples(this->PointDimensions[2]);
     output->SetXCoordinates(x);
     output->SetYCoordinates(y);
     output->SetZCoordinates(z);
@@ -164,23 +168,11 @@ void vtkXMLRectilinearGridReader::SetupOutputInformation()
     }
   else
     {
-    if(x) { x->Delete(); }
-    if(y) { y->Delete(); }
-    if(z) { z->Delete(); }
-    this->InformationError = 1;
+    if (x) { x->Delete(); }
+    if (y) { y->Delete(); }
+    if (z) { z->Delete(); }
+    this->DataError = 1;
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLRectilinearGridReader::SetupOutputData()
-{
-  this->Superclass::SetupOutputData();
-  
-  // Allocate the coordinate arrays.
-  vtkRectilinearGrid* output = this->GetOutput();  
-  output->GetXCoordinates()->SetNumberOfTuples(this->PointDimensions[0]);
-  output->GetYCoordinates()->SetNumberOfTuples(this->PointDimensions[1]);
-  output->GetZCoordinates()->SetNumberOfTuples(this->PointDimensions[2]);
 }
 
 //----------------------------------------------------------------------------
@@ -275,3 +267,11 @@ int vtkXMLRectilinearGridReader::ReadSubCoordinates(int* inBounds,
   return this->ReadData(da, array->GetVoidPointer(destStartIndex*components),
                         array->GetDataType(), sourceStartIndex, length);
 }
+
+
+int vtkXMLRectilinearGridReader::FillOutputPortInformation(int, vtkInformation *info)
+  {
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkRectilinearGrid");
+  return 1;
+  }
+

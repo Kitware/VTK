@@ -56,7 +56,7 @@ protected:
   void SetOutputExtent(int* extent);
   void GetPieceInputExtent(int index, int* extent);
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
-  void SetupOutputInformation();
+  void SetupOutputInformation(vtkInformation *outInfo);
   vtkXMLDataReader* CreatePieceReader();
   
 private:

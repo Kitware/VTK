@@ -48,7 +48,7 @@ protected:
   void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray);
   
   void SetupEmptyOutput();
-  void SetupOutputInformation();
+  void SetupOutputInformation(vtkInformation *outInfo);
   void SetupOutputData();
   virtual void GetOutputUpdateExtent(int& piece, int& numberOfPieces,
                                      int& ghostLevel)=0;

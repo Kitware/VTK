@@ -65,6 +65,8 @@ protected:
   // UpdateInformation.
   virtual vtkIdType GetNumberOfCellsInPiece(int piece);
 
+  virtual int FillOutputPortInformation(int, vtkInformation*);
+
   // The index of the cell in the output where the current piece
   // begins.
   vtkIdType StartCell;

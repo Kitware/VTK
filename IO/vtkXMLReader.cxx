@@ -26,10 +26,13 @@
 #include "vtkXMLDataParser.h"
 #include "vtkXMLFileReadTester.h"
 #include "vtkZLibDataCompressor.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.20");
+vtkCxxRevisionMacro(vtkXMLReader, "1.21");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -42,6 +45,7 @@ vtkXMLReader::vtkXMLReader()
   this->CellDataArraySelection = vtkDataArraySelection::New();
   this->InformationError = 0;
   this->DataError = 0;
+  this->ReadError = 0;
   this->CurrentOutput = -1;
   this->ProgressRange[0] = 0;
   this->ProgressRange[1] = 1;
@@ -54,7 +58,9 @@ vtkXMLReader::vtkXMLReader()
   this->PointDataArraySelection->AddObserver(vtkCommand::ModifiedEvent,
                                              this->SelectionObserver);
   this->CellDataArraySelection->AddObserver(vtkCommand::ModifiedEvent,
-                                            this->SelectionObserver);  
+                                            this->SelectionObserver); 
+  this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -101,8 +107,7 @@ vtkDataSet* vtkXMLReader::GetOutputAsDataSet()
 //----------------------------------------------------------------------------
 vtkDataSet* vtkXMLReader::GetOutputAsDataSet(int index)
 {
-  if(index < 0 || index >= this->NumberOfOutputs) { return 0; }
-  return static_cast<vtkDataSet*>(this->Outputs[index]);
+  return vtkDataSet::SafeDownCast( this->GetOutputDataObject(index) );
 }
 
 //----------------------------------------------------------------------------
@@ -234,67 +239,96 @@ void vtkXMLReader::SetupCompressor(const char* type)
   compressor->Delete();
 }
 
-//----------------------------------------------------------------------------
-void vtkXMLReader::ExecuteInformation()
+
+
+int vtkXMLReader::ReadXMLInformation()
 {
-  // Destroy any old information that was parsed.
-  if(this->XMLParser)
+  // only Parse if something has changed
+  if(this->GetMTime() > this->ReadMTime)
     {
-    this->DestroyXMLParser();
+    // Destroy any old information that was parsed.
+    if(this->XMLParser)
+      {
+      this->DestroyXMLParser();
+      }
+
+    // Open the input file.  If it fails, the error was already
+    // reported by OpenVTKFile.
+    if(!this->OpenVTKFile())
+      {
+      this->SetupEmptyOutput();
+      return 0;
+      }
+
+    // Create the vtkXMLParser instance used to parse the file.
+    this->CreateXMLParser();
+
+    // Configure the parser for this file.
+    this->XMLParser->SetStream(this->Stream);
+
+    // Parse the input file.
+    if(this->XMLParser->Parse())
+      {
+      // Let the subclasses read the information they want.
+      if(!this->ReadVTKFile(this->XMLParser->GetRootElement()))
+        {
+        // There was an error reading the file.
+        this->ReadError = 1;
+        }
+      else
+        {
+        this->ReadError = 0;
+        }
+      }
+    else
+      {
+      vtkErrorMacro("Error parsing input file.  ReadXMLInformation aborting.");
+      // The output should be empty to prevent the rest of the pipeline
+      // from executing.
+      this->ReadError = 1;
+      this->SetupEmptyOutput();
+      }
+
+    // Close the file to prevent resource leaks.
+    this->CloseVTKFile();
+
+    this->ReadMTime.Modified();
     }
-  
-  // Open the input file.  If it fails, the error was already
-  // reported by OpenVTKFile.
-  if(!this->OpenVTKFile())
-    {
-    this->SetupEmptyOutput();
-    return;
-    }
-  
-  // Create the vtkXMLParser instance used to parse the file.
-  this->CreateXMLParser();
-  
-  // Configure the parser for this file.
-  this->XMLParser->SetStream(this->Stream);
-  
-  // Parse the input file.
-  if(this->XMLParser->Parse())
-    {
-    // Let the subclasses read the information they want.
-    this->ReadXMLInformation();
-    }
-  else
-    {
-    vtkErrorMacro("Error parsing input file.  ExecuteInformation aborting.");
-    
-    // The output should be empty to prevent the rest of the pipeline
-    // from executing.
-    this->InformationError = 1;
-    this->SetupEmptyOutput();
-    }
-  
-  // Close the file to prevent resource leaks.
-  this->CloseVTKFile();
+  return !this->ReadError;
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLReader::ExecuteData(vtkDataObject* output)
+int vtkXMLReader::RequestInformation(vtkInformation *request,
+  vtkInformationVector **vtkNotUsed(inputVector), vtkInformationVector *outputVector)
+{
+  if (this->ReadXMLInformation())
+    {
+    this->InformationError = 0;
+    // Let the subclasses read the information they want.
+    int outputPort = request->Get( vtkDemandDrivenPipeline::FROM_OUTPUT_PORT() );
+    outputPort = outputPort >= 0 ? outputPort : 0;
+    this->SetupOutputInformation( outputVector->GetInformationObject(outputPort) );
+    }
+  else
+    {
+    this->InformationError = 1;
+    }
+  
+  return !this->InformationError;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLReader::RequestData(vtkInformation *request, 
+                               vtkInformationVector **vtkNotUsed(inputVector),
+                               vtkInformationVector *vtkNotUsed(outputVector))
 {
   // Set which output we are updating.  If the given object is not one
   // of our outputs, just initialize it to empty and return.
-  int i;
-  this->CurrentOutput = -1;
-  for(i=0; this->CurrentOutput < 0 && i < this->NumberOfOutputs; ++i)
-    {
-    if(output == this->Outputs[i])
-      {
-      this->CurrentOutput = i;
-      }
-    }
+  this->CurrentOutput = request->Get( vtkDemandDrivenPipeline::FROM_OUTPUT_PORT() );
   if(this->CurrentOutput < 0)
     {
-    output->Initialize();
-    return;
+    this->GetExecutive()->GetOutputData(0)->Initialize();
+    return 0;
     }
 
   // Re-open the input file.  If it fails, the error was already
@@ -302,7 +336,7 @@ void vtkXMLReader::ExecuteData(vtkDataObject* output)
   if(!this->OpenVTKFile())
     {
     this->SetupEmptyOutput();
-    return;
+    return 0;
     }
   if(!this->XMLParser)
     {
@@ -347,32 +381,9 @@ void vtkXMLReader::ExecuteData(vtkDataObject* output)
   
   // Close the file to prevent resource leaks.
   this->CloseVTKFile();
+  return 1;
 }
 
-//----------------------------------------------------------------------------
-void vtkXMLReader::ReadXMLInformation()
-{
-  // Read from the representation of the XML file.
-  if(this->ReadVTKFile(this->XMLParser->GetRootElement()))
-    {
-    // No error reading the file.
-    this->InformationError = 0;
-    
-    // Setup the reader's output with information from the file.
-    this->SetupOutputInformation();
-    }
-  else
-    {
-    int i;
-    
-    // There was an error reading the file.  Provide empty output.
-    this->InformationError = 1;
-    for(i=0; i < this->NumberOfOutputs; ++i)
-      {
-      this->Outputs[i]->Initialize();
-      }
-    }
-}
 
 //----------------------------------------------------------------------------
 void vtkXMLReader::ReadXMLData()
@@ -418,22 +429,21 @@ int vtkXMLReader::ReadPrimaryElement(vtkXMLDataElement*)
   return 1;
 }
 
-//----------------------------------------------------------------------------
-void vtkXMLReader::SetupOutputInformation()
+
+void vtkXMLReader::SetupOutputInformation(vtkInformation *vtkNotUsed(outInfo))
 {
-  // Initialize the output.
-  int i;
-  for(i=0; i < this->NumberOfOutputs; ++i)
-    {
-    this->Outputs[i]->Initialize();
-    }
 }
+
 
 //----------------------------------------------------------------------------
 void vtkXMLReader::SetupOutputData()
 {
-  // Setup information first.
-  this->SetupOutputInformation();
+  // Initialize the output.
+  int i;
+  for(i=0; i < this->GetNumberOfOutputPorts(); ++i)
+    {
+    this->GetExecutive()->GetOutputData(i)->Initialize();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -800,4 +810,30 @@ void vtkXMLReader::UpdateProgressDiscrete(float progress)
       this->UpdateProgress(rounded);
       }
     }
+}
+
+
+int vtkXMLReader::ProcessRequest(vtkInformation* request,
+                                  vtkInformationVector** inputVector,
+                                  vtkInformationVector* outputVector)
+{
+  // generate the data
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    return this->RequestData(request, inputVector, outputVector);
+    }
+
+  // create the output
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+    return this->RequestDataObject(request, inputVector, outputVector);
+    }
+
+  // execute information
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    return this->RequestInformation(request, inputVector, outputVector);
+    }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

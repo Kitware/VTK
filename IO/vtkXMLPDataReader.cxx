@@ -22,8 +22,9 @@
 #include "vtkPointData.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataReader.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataReader, "1.10");
+vtkCxxRevisionMacro(vtkXMLPDataReader, "1.11");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataReader::vtkXMLPDataReader()
@@ -65,23 +66,28 @@ vtkDataSet* vtkXMLPDataReader::GetPieceInputAsDataSet(int piece)
 {
   vtkXMLDataReader* reader = this->PieceReaders[piece];
   if(!reader) { return 0; }
-  if(reader->GetNumberOfOutputs() < 1) { return 0; }
-  return static_cast<vtkDataSet*>(reader->GetOutputs()[0]);
+  if(reader->GetNumberOfOutputPorts() < 1) { return 0; }
+  return static_cast<vtkDataSet*>(reader->GetExecutive()->GetOutputData(0));
 }
 
+
 //----------------------------------------------------------------------------
-void vtkXMLPDataReader::SetupOutputInformation()
+void vtkXMLPDataReader::SetupOutputData()
 {
-  this->Superclass::SetupOutputInformation();
-  int i;
-  
+  this->Superclass::SetupOutputData();
+
   // Setup the output arrays.
   vtkXMLDataElement* ePointData = this->PPointDataElement;
   vtkXMLDataElement* eCellData = this->PCellDataElement;
   vtkPointData* pointData = this->GetOutputAsDataSet(0)->GetPointData();
-  vtkCellData* cellData = this->GetOutputAsDataSet(0)->GetCellData();  
+  vtkCellData* cellData = this->GetOutputAsDataSet(0)->GetCellData();
   
-  // Setup the point and cell data arrays without allocation.
+  // Get the size of the output arrays.
+  unsigned long pointTuples = this->GetNumberOfPoints();
+  unsigned long cellTuples = this->GetNumberOfCells();  
+  
+  // Allocate data in the arrays.
+  int i;
   this->SetDataArraySelections(ePointData, this->PointDataArraySelection);
   if(ePointData)
     {
@@ -93,20 +99,22 @@ void vtkXMLPDataReader::SetupOutputInformation()
         vtkDataArray* array = this->CreateDataArray(eNested);
         if(array)
           {
+          array->SetNumberOfTuples(pointTuples);
           pointData->AddArray(array);
           array->Delete();
           }
         else
           {
-          this->InformationError = 1;
+          this->DataError = 1;
           }
         }
       }
     }
+
   this->SetDataArraySelections(eCellData, this->CellDataArraySelection);
   if(eCellData)
     {
-    for(i=0;i < eCellData->GetNumberOfNestedElements();++i)
+    for(i = 0; i < eCellData->GetNumberOfNestedElements(); i++)
       {
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
       if(this->CellDataArrayIsEnabled(eNested))
@@ -114,73 +122,32 @@ void vtkXMLPDataReader::SetupOutputInformation()
         vtkDataArray* array = this->CreateDataArray(eNested);
         if(array)
           {
+          array->SetNumberOfTuples(cellTuples);
           cellData->AddArray(array);
           array->Delete();
           }
         else
           {
-          this->InformationError = 1;
+          this->DataError = 1;
           }
         }
       }
     }
-  
+
   // Setup attribute indices for the point data and cell data.
   this->ReadAttributeIndices(ePointData, pointData);
   this->ReadAttributeIndices(eCellData, cellData);
+
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPDataReader::SetupOutputData()
-{
-  this->Superclass::SetupOutputData();
-  
-  vtkDataSet* output = this->GetOutputAsDataSet(0);
-  vtkXMLDataElement* ePointData = this->PPointDataElement;
-  vtkXMLDataElement* eCellData = this->PCellDataElement;
-  vtkPointData* pointData = output->GetPointData();
-  vtkCellData* cellData = output->GetCellData();
-  
-  // Get the size of the output arrays.
-  unsigned long pointTuples = this->GetNumberOfPoints();
-  unsigned long cellTuples = this->GetNumberOfCells();  
-  
-  // Allocate data in the arrays.
-  int i;
-  if(ePointData)
-    {
-    int a=0;
-    for(i=0;i < ePointData->GetNumberOfNestedElements();++i)
-      {
-      vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
-      if(this->PointDataArrayIsEnabled(eNested))
-        {
-        pointData->GetArray(a++)->SetNumberOfTuples(pointTuples);
-        }
-      }
-    }
-  if(eCellData)
-    {
-    int a=0;
-    for(i=0;i < eCellData->GetNumberOfNestedElements();++i)
-      {
-      vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
-      if(this->CellDataArrayIsEnabled(eNested))
-        {
-        cellData->GetArray(a++)->SetNumberOfTuples(cellTuples);
-        }
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLPDataReader::ReadXMLInformation()
+int vtkXMLPDataReader::ReadXMLInformation()
 {
   // First setup the filename components.
   this->SplitFileName();
   
   // Now proceed with reading the information.
-  this->Superclass::ReadXMLInformation();
+  return this->Superclass::ReadXMLInformation();
 }
 
 //----------------------------------------------------------------------------

@@ -45,11 +45,10 @@ protected:
   ~vtkXMLPDataReader();
   
   // Pipeline execute information driver.  Called by vtkXMLReader.
-  void ReadXMLInformation();
+  int ReadXMLInformation();
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   
   vtkDataSet* GetPieceInputAsDataSet(int piece);
-  void SetupOutputInformation();
   void SetupOutputData();
   
   virtual vtkXMLDataReader* CreatePieceReader()=0;

@@ -61,7 +61,8 @@ protected:
   void ReadXMLData();
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   
-  void SetupOutputInformation();
+  void SetupOutputData();
+
   void SetupEmptyOutput();
   void SetupPieces(int numPieces);
   void DestroyPieces();

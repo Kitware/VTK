@@ -19,19 +19,21 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkXMLDataElement.h"
+#include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.4");
+vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.5");
 vtkStandardNewMacro(vtkXMLImageDataReader);
 
 //----------------------------------------------------------------------------
 vtkXMLImageDataReader::vtkXMLImageDataReader()
 {
-  // Copied from vtkImageDataReader constructor:
-  this->SetOutput(vtkImageData::New());
+  vtkImageData *output = vtkImageData::New();
+  this->SetOutput(output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
-  this->Outputs[0]->ReleaseData();
-  this->Outputs[0]->Delete();
+  output->ReleaseData();
+  output->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -48,23 +50,19 @@ void vtkXMLImageDataReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkXMLImageDataReader::SetOutput(vtkImageData *output)
 {
-  this->Superclass::SetNthOutput(0, output);
+  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
 vtkImageData* vtkXMLImageDataReader::GetOutput()
 {
-  if(this->NumberOfOutputs < 1)
-    {
-    return 0;
-    }
-  return static_cast<vtkImageData*>(this->Outputs[0]);
+  return this->GetOutput(0);
 }
 
 //----------------------------------------------------------------------------
 vtkImageData* vtkXMLImageDataReader::GetOutput(int idx)
 {
-  return static_cast<vtkImageData*>(this->Superclass::GetOutput(idx));
+  return vtkImageData::SafeDownCast( this->GetOutputDataObject(idx) );
 }
 
 
@@ -105,20 +103,45 @@ int vtkXMLImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLImageDataReader::SetupOutputInformation()
+void vtkXMLImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
 {
-  this->Superclass::SetupOutputInformation();
-  
+  this->Superclass::SetupOutputInformation(outInfo);
+
+  outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
+  outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
+    
   // Backward-compatability support for scalar information in output.
-  vtkImageData* output = this->GetOutput();
-  
-  output->SetOrigin(this->Origin);
-  output->SetSpacing(this->Spacing);
-  
-  vtkDataArray* scalars = output->GetPointData()->GetScalars();
-  if(scalars)
+  if (this->PointDataElements[0])
     {
-    output->SetScalarType(scalars->GetDataType());
-    output->SetNumberOfScalarComponents(scalars->GetNumberOfComponents());
-    }  
+    int components, dataType, i;
+    for(i = 0; i < this->PointDataElements[0]->GetNumberOfNestedElements(); i++)
+      {
+      vtkXMLDataElement* eNested = this->PointDataElements[0]->GetNestedElement(i);
+      if ( eNested->GetAttribute( "Scalars" ) )
+        {
+        if(!eNested->GetWordTypeAttribute("type", dataType))
+          {
+          this->InformationError = 1;
+          return;
+          }
+        if(!eNested->GetScalarAttribute("NumberOfComponents", components))
+          {
+          this->InformationError = 1;
+          return;
+          }
+        outInfo->Set(vtkDataObject::SCALAR_TYPE(), dataType);
+        outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), components);
+        break;
+        }
+      }
+    }
 }
+
+
+//----------------------------------------------------------------------------
+int vtkXMLImageDataReader::FillOutputPortInformation(int, vtkInformation* info)
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
+  return 1;
+}
+

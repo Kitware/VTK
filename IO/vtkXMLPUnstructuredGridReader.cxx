@@ -21,19 +21,21 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLUnstructuredGridReader.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.6");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.7");
 vtkStandardNewMacro(vtkXMLPUnstructuredGridReader);
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredGridReader::vtkXMLPUnstructuredGridReader()
 {
   // Copied from vtkUnstructuredGridReader constructor:
-  this->SetOutput(vtkUnstructuredGrid::New());
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::New();
+  this->SetOutput(output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
-  this->Outputs[0]->ReleaseData();
-  this->Outputs[0]->Delete();  
+  output->ReleaseData();
+  output->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -50,23 +52,19 @@ void vtkXMLPUnstructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkXMLPUnstructuredGridReader::SetOutput(vtkUnstructuredGrid *output)
 {
-  this->Superclass::SetNthOutput(0, output);
+  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkXMLPUnstructuredGridReader::GetOutput()
 {
-  if(this->NumberOfOutputs < 1)
-    {
-    return 0;
-    }
-  return static_cast<vtkUnstructuredGrid*>(this->Outputs[0]);
+  return this->GetOutput(0);
 }
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkXMLPUnstructuredGridReader::GetOutput(int idx)
 {
-  return static_cast<vtkUnstructuredGrid*>(this->Superclass::GetOutput(idx));
+  return vtkUnstructuredGrid::SafeDownCast( this->GetOutputDataObject(idx) );
 }
 
 //----------------------------------------------------------------------------

@@ -72,7 +72,7 @@ protected:
   void SetupPieces(int numPieces);
   void DestroyPieces();
   
-  void SetupOutputInformation();
+  void SetupOutputInformation(vtkInformation *outInfo);
   void SetupOutputData();
   int ReadPiece(vtkXMLDataElement* ePiece);
   int ReadPieceData();

@@ -21,7 +21,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.16");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.17");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
@@ -180,15 +180,16 @@ vtkXMLPStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   return 1;
 }
 
-//----------------------------------------------------------------------------
-void vtkXMLPStructuredDataReader::SetupOutputInformation()
-{
-  this->Superclass::SetupOutputInformation();
-  
+
+void vtkXMLPStructuredDataReader::SetupOutputData()
+  {
+  this->Superclass::SetupOutputData();
+
   // Tell the output to use the table extent translator to provide the
   // correct piece breakdown for the file layout.
   this->GetOutputAsDataSet(0)->SetExtentTranslator(this->ExtentTranslator);
-}
+  }
+
 
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredDataReader::SetupEmptyOutput()

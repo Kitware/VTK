@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.10");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.11");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -140,80 +140,14 @@ void vtkXMLDataReader::DestroyPieces()
   this->NumberOfPieces = 0;
 }
 
-//----------------------------------------------------------------------------
-void vtkXMLDataReader::SetupOutputInformation()
-{
-  this->Superclass::SetupOutputInformation();
-  if(!this->NumberOfPieces) { return; }
-  
-  int i;
-  // Use the configuration of the first piece since all are the same.
-  vtkXMLDataElement* ePointData = this->PointDataElements[0];
-  vtkXMLDataElement* eCellData = this->CellDataElements[0];
-  vtkPointData* pointData = this->GetOutputAsDataSet(0)->GetPointData();
-  vtkCellData* cellData = this->GetOutputAsDataSet(0)->GetCellData();  
-  
-  // Setup the point and cell data arrays without allocation.
-  this->NumberOfPointArrays = 0;
-  this->SetDataArraySelections(ePointData, this->PointDataArraySelection);
-  if(ePointData)
-    {
-    for(i=0;i < ePointData->GetNumberOfNestedElements();++i)
-      {
-      vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
-      if(this->PointDataArrayIsEnabled(eNested))
-        {
-        ++this->NumberOfPointArrays;
-        vtkDataArray* array = this->CreateDataArray(eNested);
-        if(array)
-          {
-          pointData->AddArray(array);
-          array->Delete();
-          }
-        else
-          {
-          this->InformationError = 1;
-          }
-        }
-      }
-    }
-  this->NumberOfCellArrays = 0;
-  this->SetDataArraySelections(eCellData, this->CellDataArraySelection);
-  if(eCellData)
-    {
-    for(i=0;i < eCellData->GetNumberOfNestedElements();++i)
-      {
-      vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
-      if(this->CellDataArrayIsEnabled(eNested))
-        {
-        ++this->NumberOfCellArrays;
-        vtkDataArray* array = this->CreateDataArray(eNested);
-        if(array)
-          {
-          cellData->AddArray(array);
-          array->Delete();
-          }
-        else
-          {
-          this->InformationError = 1;
-          }
-        }
-      }
-    }
-  
-  // Setup attribute indices for the point data and cell data.
-  this->ReadAttributeIndices(ePointData, pointData);
-  this->ReadAttributeIndices(eCellData, cellData);
-}
 
 //----------------------------------------------------------------------------
 void vtkXMLDataReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
   
-  vtkDataSet* output = this->GetOutputAsDataSet(0);
-  vtkPointData* pointData = output->GetPointData();
-  vtkCellData* cellData = output->GetCellData();
+  vtkPointData* pointData = this->GetOutputAsDataSet(0)->GetPointData();
+  vtkCellData* cellData = this->GetOutputAsDataSet(0)->GetCellData();
   
   // Get the size of the output arrays.
   unsigned long pointTuples = this->GetNumberOfPoints();
@@ -224,30 +158,59 @@ void vtkXMLDataReader::SetupOutputData()
   vtkXMLDataElement* ePointData = this->PointDataElements[0];
   vtkXMLDataElement* eCellData = this->CellDataElements[0];
   int i;
-  if(ePointData)
+  this->NumberOfPointArrays = 0;
+  this->SetDataArraySelections(ePointData, this->PointDataArraySelection);
+  if (ePointData)
     {
-    int a=0;
-    for(i=0;i < ePointData->GetNumberOfNestedElements();++i)
+    for (i = 0; i < ePointData->GetNumberOfNestedElements(); i++)
       {
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
-      if(this->PointDataArrayIsEnabled(eNested))
+      if (this->PointDataArrayIsEnabled(eNested))
         {
-        pointData->GetArray(a++)->SetNumberOfTuples(pointTuples);
+        this->NumberOfPointArrays++;
+        vtkDataArray* array = this->CreateDataArray(eNested);
+        if (array)
+          {
+          array->SetNumberOfTuples(pointTuples);
+          pointData->AddArray(array);
+          array->Delete();
+          }
+        else
+          {
+          this->DataError = 1;
+          }
         }
       }
     }
-  if(eCellData)
+
+  this->NumberOfCellArrays = 0;
+  this->SetDataArraySelections(eCellData, this->CellDataArraySelection);
+  if (eCellData)
     {
-    int a=0;
-    for(i=0;i < eCellData->GetNumberOfNestedElements();++i)
+    for (i = 0; i < eCellData->GetNumberOfNestedElements(); i++)
       {
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
-      if(this->CellDataArrayIsEnabled(eNested))
+      if (this->CellDataArrayIsEnabled(eNested))
         {
-        cellData->GetArray(a++)->SetNumberOfTuples(cellTuples);
+        this->NumberOfCellArrays++;
+        vtkDataArray* array = this->CreateDataArray(eNested);
+        if (array)
+          {
+          array->SetNumberOfTuples(cellTuples);
+          cellData->AddArray(array);
+          array->Delete();
+          }
+        else
+          {
+          this->DataError = 1;
+          }
         }
       }
     }
+
+  // Setup attribute indices for the point data and cell data.
+  this->ReadAttributeIndices(ePointData, pointData);
+  this->ReadAttributeIndices(eCellData, cellData);
 }
 
 //----------------------------------------------------------------------------
