@@ -95,4 +95,11 @@ private:
   void operator=(const vtkInformationKey&);  // Not implemented.
 };
 
+// Macro to define an information key instance in a C++ source file.
+// The corresponding method declaration must appear in the class
+// definition in the header file.
+#define vtkInformationKeyMacro(CLASS, NAME, type)                      \
+  static vtkInformation##type##Key CLASS##_##NAME(#NAME, #CLASS);      \
+  vtkInformation##type##Key* CLASS::NAME() { return &CLASS##_##NAME; }
+
 #endif
