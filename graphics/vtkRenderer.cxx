@@ -327,15 +327,12 @@ void vtkRenderer::Render(void)
     t2 = vtkTimerLog::GetCurrentTime();
     this->LastRenderTimeInSeconds = (float) (t2 - t1);
 
-    if (this->LastRenderTimeInSeconds == 0)
+    if (this->LastRenderTimeInSeconds == 0.0)
       {
-      this->TimeFactor = VTK_LARGE_FLOAT;
+      this->LastRenderTimeInSeconds = 0.0001;
       }
-    else
-      {
-      this->TimeFactor = totalEstimate 
-                          / this->LastRenderTimeInSeconds;
-      }
+    this->TimeFactor = totalEstimate / this->LastRenderTimeInSeconds;
+    //this->TimeFactor = 1.0;
     }
 }
 
