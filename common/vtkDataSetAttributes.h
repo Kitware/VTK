@@ -277,6 +277,15 @@ public:
   // (see vtkDataSetAttributes::AttributeTypes).
   vtkDataArray* GetActiveAttribute(int attributeType);
 
+  // Description:
+  // Remove an array (with the given name) from the list of arrays.
+  virtual void RemoveArray(const char *name)
+    {
+      int i;
+      this->GetArray(name, i);
+      this->RemoveArray(i);
+    }
+
 //BTX
   // Always keep NUM_ATTRIBUTES as the last entry
   enum AttributeTypes {

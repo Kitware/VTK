@@ -116,7 +116,7 @@ public:
 
   // Description:
   // Remove an array (with the given name) from the list of arrays.
-  void RemoveArray(const char *name)
+  virtual void RemoveArray(const char *name)
     {
       int i;
       this->GetArray(name, i);
