@@ -48,7 +48,8 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 {
   int idx;
   
-  this->Input = NULL;
+  this->ScalarInput = NULL;
+  this->VectorInput = NULL;
   this->WholeImage = 1;
   this->InputMemoryLimit = 50000000;  // A very big image indeed.
   this->SetSplitOrder(VTK_IMAGE_TIME_AXIS, VTK_IMAGE_Z_AXIS,
@@ -74,7 +75,8 @@ void vtkImageToStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 
-  os << indent << "Input: (" << this->Input << ")\n";
+  os << indent << "ScalarInput: (" << this->ScalarInput << ")\n";
+  os << indent << "VectorInput: (" << this->VectorInput << ")\n";
   os << indent << "WholeImage: " << this->WholeImage << "\n";
   os << indent << "Coordinate3: " << this->Coordinate3 << "\n";
   os << indent << "Extent: (" << this->Extent[0] << ", " << this->Extent[1] 
@@ -209,25 +211,27 @@ void vtkImageToStructuredPoints::GetExtent(int num, int *extent)
 //----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::Update()
 {
-  int execute;
+  unsigned long inputMTime = 0;
+  unsigned temp;
   
-  // make sure input is available
-  if ( !this->Input )
+  if (this->ScalarInput)
     {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
+    inputMTime = this->ScalarInput->GetPipelineMTime();
+    }
+  if (this->VectorInput)
+    {
+    temp = this->VectorInput->GetPipelineMTime();
+    // max
+    inputMTime = (temp > inputMTime) ? temp : inputMTime;
     }
 
-  execute = this->Input->GetPipelineMTime() > this->ExecuteTime
-    || this->GetMTime() > this->ExecuteTime;
-  
-  if (execute)
+  if ((inputMTime > this->ExecuteTime) || this->GetMTime() > this->ExecuteTime)
     {
     vtkDebugMacro(<< "Update: Condition satisfied, executeTime = " 
-                  << this->ExecuteTime
-                  << ", modifiedTime = " << this->GetMTime() 
-                  << ", input MTime = " << this->Input->GetPipelineMTime()
-                  << ", released = " << this->Output->GetDataReleased());
+    << this->ExecuteTime
+    << ", modifiedTime = " << this->GetMTime() 
+    << ", input MTime = " << inputMTime
+    << ", released = " << this->Output->GetDataReleased());
     
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Output->Initialize(); //clear output
@@ -239,6 +243,7 @@ void vtkImageToStructuredPoints::Update()
 }
 
 
+//----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::Execute()
 {
   vtkImageRegion *region = new vtkImageRegion;
@@ -249,95 +254,91 @@ void vtkImageToStructuredPoints::Execute()
   float origin[3];
   vtkStructuredPoints *output = this->GetOutput();
   
-  // error checking
-  if ( this->Input == NULL )
-    {
-    vtkErrorMacro(<<"Execute:Please specify an input!");
-    return;
-    }
-
   // Set the coordinate system of the region
   region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
   
-  // Fill in image information.
-  this->Input->UpdateImageInformation(region);
-
-  // Determine the extent of the region we are converting
-  if (this->WholeImage)
+  // Fill in scalar information.
+  if (this->ScalarInput)
     {
-    region->GetImageExtent(4, regionExtent);
-    if (this->Coordinate3<regionExtent[6] || this->Coordinate3>regionExtent[7])
+    this->ScalarInput->UpdateImageInformation(region);
+    
+    // Determine the extent of the region we are converting
+    if (this->WholeImage)
       {
-      vtkWarningMacro(<< "Coordinate3 = " << this->Coordinate3 
-              << ", is not in extent [" << regionExtent[6] << ", "
-              << regionExtent[7] << "]. Using value "<< regionExtent[6]);
-      this->Coordinate3 = regionExtent[6];
+      region->GetImageExtent(4, regionExtent);
+      if (this->Coordinate3<regionExtent[6]||this->Coordinate3>regionExtent[7])
+	{
+	vtkWarningMacro(<< "Coordinate3 = " << this->Coordinate3 
+	<< ", is not in extent [" << regionExtent[6] << ", "
+	<< regionExtent[7] << "]. Using value "<< regionExtent[6]);
+	this->Coordinate3 = regionExtent[6];
+	}
+      regionExtent[6] = regionExtent[7] = this->Coordinate3;
+      region->SetExtent(4, regionExtent);    
       }
-    regionExtent[6] = regionExtent[7] = this->Coordinate3;
-    region->SetExtent(4, regionExtent);    
-    }
-  else
-    {
-    this->Extent[6] = this->Extent[7] = this->Coordinate3;
-    region->SetExtent(4, this->Extent);
-    region->GetExtent(4, regionExtent);
-    }
+    else
+      {
+      this->Extent[6] = this->Extent[7] = this->Coordinate3;
+      region->SetExtent(4, this->Extent);
+      region->GetExtent(4, regionExtent);
+      }
 
-  // Update the data for the region.
-  if ( region->GetMemorySize() < this->InputMemoryLimit)
-    {
-    this->Input->UpdateRegion(region);
-    }
-  if ( ! region->AreScalarsAllocated())
-    {
-    // We need to stream
-    region->SetScalarType(this->Input->GetScalarType());
-    region->AllocateScalars();
+    // Update the data for the region.
+    if ( region->GetMemorySize() < this->InputMemoryLimit)
+      {
+      this->ScalarInput->UpdateRegion(region);
+      }
     if ( ! region->AreScalarsAllocated())
       {
-      vtkErrorMacro(<< "Execute: Could not allocate region.");
-      return;
+      // We need to stream
+      region->SetScalarType(this->ScalarInput->GetScalarType());
+      region->AllocateScalars();
+      if ( ! region->AreScalarsAllocated())
+	{
+	vtkErrorMacro(<< "Execute: Could not allocate region.");
+	return;
+	}
+      if ( ! this->SplitExecute(region))
+	{
+	vtkErrorMacro(<< "Execute: Streaming Failed.");
+	return;
+	}
       }
-    if ( ! this->SplitExecute(region))
+    
+    // If data is not the same size as the region, we need to reformat.
+    // Assume that relativeCoordinates == absoluteCoordinates.
+    dataExtent = region->GetData()->GetExtent();
+    if (dataExtent[0] != regionExtent[0] || dataExtent[1] != regionExtent[1] ||
+	dataExtent[2] != regionExtent[2] || dataExtent[3] != regionExtent[3] ||
+	dataExtent[4] != regionExtent[4] || dataExtent[5] != regionExtent[5] ||
+	dataExtent[6] != regionExtent[6] || dataExtent[7] != regionExtent[7])
       {
-      vtkErrorMacro(<< "Execute: Streaming Failed.");
-      return;
+      vtkImageRegion *temp = region;
+      region = new vtkImageRegion;
+      region->SetExtent(4, regionExtent);
+      region->CopyRegionData(temp);
+      temp->Delete();
       }
+    
+    // setup the structured points with the scalars
+    extent = region->GetExtent();
+    region->GetAspectRatio(3, aspectRatio);
+    region->GetOrigin(3, origin);
+    origin[0] += (float)(extent[0]) * aspectRatio[0]; 
+    origin[1] += (float)(extent[2]) * aspectRatio[1]; 
+    origin[2] += (float)(extent[4]) * aspectRatio[2];
+    dim[0] = extent[1] - extent[0] + 1;
+    dim[1] = extent[3] - extent[2] + 1;
+    dim[2] = extent[5] - extent[4] + 1;
+    output->SetDimensions(dim);
+    output->SetAspectRatio(aspectRatio);
+    output->SetOrigin(origin);
+    output->GetPointData()->SetScalars(
+		       region->GetData()->GetPointData()->GetScalars());
+    
+    // delete the temporary structures
+    region->Delete();
     }
-
-  // If data is not the same size as the region, we need to reformat.
-  // Assume that relativeCoordinates == absoluteCoordinates.
-  dataExtent = region->GetData()->GetExtent();
-  if (dataExtent[0] != regionExtent[0] || dataExtent[1] != regionExtent[1] ||
-      dataExtent[2] != regionExtent[2] || dataExtent[3] != regionExtent[3] ||
-      dataExtent[4] != regionExtent[4] || dataExtent[5] != regionExtent[5] ||
-      dataExtent[6] != regionExtent[6] || dataExtent[7] != regionExtent[7])
-    {
-    vtkImageRegion *temp = region;
-    region = new vtkImageRegion;
-    region->SetExtent(4, regionExtent);
-    region->CopyRegionData(temp);
-    temp->Delete();
-    }
-  
-  // setup the structured points with the scalars
-  extent = region->GetExtent();
-  region->GetAspectRatio(3, aspectRatio);
-  region->GetOrigin(3, origin);
-  origin[0] += (float)(extent[0]) * aspectRatio[0]; 
-  origin[1] += (float)(extent[2]) * aspectRatio[1]; 
-  origin[2] += (float)(extent[4]) * aspectRatio[2];
-  dim[0] = extent[1] - extent[0] + 1;
-  dim[1] = extent[3] - extent[2] + 1;
-  dim[2] = extent[5] - extent[4] + 1;
-  output->SetDimensions(dim);
-  output->SetAspectRatio(aspectRatio);
-  output->SetOrigin(origin);
-  output->GetPointData()->SetScalars(
-     region->GetData()->GetPointData()->GetScalars());
-
-  // delete the temporary structures
-  region->Delete();
 }
 
 
@@ -398,7 +399,7 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
          splitExtent[3] << ", " <<
          splitExtent[4] << ", " <<
          splitExtent[5]);
-    this->Input->UpdateRegion(inRegion);
+    this->ScalarInput->UpdateRegion(inRegion);
     }
   if (inRegion->AreScalarsAllocated())
     {
@@ -430,7 +431,7 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
          splitExtent[3] << ", " <<
          splitExtent[4] << ", " <<
          splitExtent[5]);
-    this->Input->UpdateRegion(inRegion);
+    this->ScalarInput->UpdateRegion(inRegion);
     }
   if (inRegion->AreScalarsAllocated())
     {

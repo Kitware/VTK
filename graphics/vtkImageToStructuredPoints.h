@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageToStructuredPoints - Attaches image pipeline to VTK. 
 // .SECTION Description
 // vtkImageToStructuredPoints changes an image region format to
-// a structured points dataset.  It was modeled after vtkPNMReader.
+// a structured points dataset.
 
 
 #ifndef __vtkImageToStructuredPoints_h
@@ -63,9 +63,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Set/Get the input object from the image pipline.
-  vtkSetObjectMacro(Input,vtkImageSource);
-  vtkGetObjectMacro(Input,vtkImageSource);
+  // Set/Get the scalar input object from the image pipeline.
+  vtkSetObjectMacro(ScalarInput,vtkImageSource);
+  vtkGetObjectMacro(ScalarInput,vtkImageSource);
+  // Description:
+  // Set/Get the vector input object from the image pipeline.
+  vtkSetObjectMacro(VectorInput,vtkImageSource);
+  vtkGetObjectMacro(VectorInput,vtkImageSource);
   // Description:
   // Set/Get the flag that tells the object to convert the whole image or not.
   vtkSetMacro(WholeImage,int);
@@ -109,7 +113,8 @@ public:
   void Update();
   
 protected:
-  vtkImageSource *Input;
+  vtkImageSource *ScalarInput;
+  vtkImageSource *VectorInput;
   int WholeImage;
   int Coordinate3;
   int Extent[VTK_IMAGE_EXTENT_DIMENSIONS];
