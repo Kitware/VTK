@@ -39,7 +39,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.17");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.18");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
@@ -431,12 +431,12 @@ int vtkDemandDrivenPipeline::ExecuteInformation()
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ExecuteData(int outputPort)
 {
-  // prepare for executing the algorithm
+  // Tell observers the algorithm is about to execute.
   this->Algorithm->InvokeEvent(vtkCommand::StartEvent,NULL);
+
+  // The algorithm has not yet made any progress.
   this->Algorithm->SetAbortExecute(0);
-  // Directly setting Progress instead of using SetProgress() because
-  // modifying the algorithm causes multiple executions.
-  this->Algorithm->Progress = 0.0;
+  this->Algorithm->UpdateProgress(0.0);
 
   // Invoke the request on the algorithm.
   vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
@@ -444,11 +444,13 @@ int vtkDemandDrivenPipeline::ExecuteData(int outputPort)
   r->Set(FROM_OUTPUT_PORT(), outputPort);
   int result = this->CallAlgorithm(r, vtkExecutive::RequestDownstream);
 
-  // and handle post execution issues
+  // The algorithm has either finished or aborted.
   if(!this->Algorithm->GetAbortExecute())
     {
     this->Algorithm->UpdateProgress(1.0);
     }
+
+  // Tell observers the algorithm is done executing.
   this->Algorithm->InvokeEvent(vtkCommand::EndEvent,NULL);
 
   return result;
