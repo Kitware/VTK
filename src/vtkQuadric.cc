@@ -71,7 +71,7 @@ void vtkQuadric::SetCoefficients(float a[10])
   if ( i < 10 )
     {
     this->Modified();
-    for (int i=0; i < 10; i++ ) c[i] = a[i];
+    for (i=0; i < 10; i++ ) c[i] = a[i];
     }
 }
 
