@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.11");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.12");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -371,12 +371,15 @@ int vtkMetaImageReader::GetFileInformation(const char* fname, int populate)
       else if ( vtkMetaImageReaderInternal::StringEquals(key, 
           "BinaryDataByteOrderMSB", keylen) )
         {
-        if ( !vtkMetaImageReaderInternal::StringEquals(value, "True", valuelen) && 
+        if ( vtkMetaImageReaderInternal::StringEquals(value, "True", valuelen) ||
           vtkMetaImageReaderInternal::StringEquals(value, "true", valuelen) )
           {
           bigendian = 1;
           }
-        bigendian = 0;
+        else
+          {
+          bigendian = 0;
+          }
         vtkDebugMacro(<< "* This image has data which is " 
           << (bigendian?"big":"little") << " endian");
         }
