@@ -223,6 +223,13 @@ IF (BUILD_EXAMPLES)
   ENDIF (VTK_USE_PARALLEL)
 ENDIF (BUILD_EXAMPLES)
 
+# Add classes that are dependent on libraries and/or include files
+# Stanford PLY reader/writer
+FIND_LIBRARY(PLY_LIBRARY NAMES libPLY PLY
+             PATHS /usr /usr/local ${VTK_SOURCE_DIR}/../PLY/bin/)
+FIND_PATH(PLY_PATH ply.h /usr /usr/local ${VTK_SOURCE_DIR}/../PLY/)
+
+#
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
 
 INCLUDE (${VTK_BINARY_DIR}/LocalUserOptions.cmake OPTIONAL)
