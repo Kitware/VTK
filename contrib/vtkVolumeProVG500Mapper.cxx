@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRayCaster.h"
 #include "vtkObjectFactory.h"
 #include "vtkGraphicsFactory.h"
-
+#include "vtkToolkits.h"
 
 
 vtkVolumeProVG500Mapper::vtkVolumeProVG500Mapper()
