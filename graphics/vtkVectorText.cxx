@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPoints.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkPolyDataReader.h"
+#include <stdlib.h>
 
 char *VTK_VECTOR_TEXT_33 = "11 0.438482 "
 "0.28000 -0.07186 0.43164 -0.07143 0.27689 0.07714 0.43472 0.07714 0.32000 0.20134 "
@@ -1673,7 +1674,6 @@ void vtkVectorText::Execute()
   float ypos = 0;
   int ptCount, triCount;
   char *aLetter;
-  istream *IS;
   float width;
   float ftmp[3];
   
@@ -1702,28 +1702,29 @@ void vtkVectorText::Execute()
 	  {
 	  // add the result to our output
 	  aLetter = this->Letters[this->Text[pos]];
-	  IS = new istrstream(aLetter,strlen(aLetter));
-	  *IS >> ptCount;
-	  *IS >> width;
+	  ptCount = strtol(aLetter,&aLetter,10);
+	  width = strtod(aLetter,&aLetter);
 	  for (i = 0; i < ptCount; i++)
 	    {
-	    *IS >> ftmp[0];
-	    *IS >> ftmp[1];
+	    ftmp[0] = strtod(aLetter,&aLetter);
+	    ftmp[1] = strtod(aLetter,&aLetter);
 	    ftmp[0] += xpos;
 	    ftmp[1] += ypos;
 	    newPoints->InsertNextPoint(ftmp);
 	    }
-	  *IS >> triCount;
+	  triCount = strtol(aLetter,&aLetter,10);
 	  for (i = 0; i < triCount; i++)
 	    {
 	    newPolys->InsertNextCell(3);
-	    *IS >> aPoint; newPolys->InsertCellPoint(aPoint + ptOffset);
-	    *IS >> aPoint; newPolys->InsertCellPoint(aPoint + ptOffset);
-	    *IS >> aPoint; newPolys->InsertCellPoint(aPoint + ptOffset);
+	    aPoint = strtol(aLetter,&aLetter,10); 
+	    newPolys->InsertCellPoint(aPoint + ptOffset);
+	    aPoint = strtol(aLetter,&aLetter,10); 
+	    newPolys->InsertCellPoint(aPoint + ptOffset);
+	    aPoint = strtol(aLetter,&aLetter,10); 
+	    newPolys->InsertCellPoint(aPoint + ptOffset);
 	    }
 	  ptOffset += ptCount;
 	  xpos += width;
-	  delete IS;
 	  }
 	break;
       }
