@@ -12,6 +12,9 @@ AC_PROG_CC
 AC_ARG_WITH(mesa,
          [  --with-mesa             use the mesa opengl package])
 
+AC_ARG_WITH(gl,
+         [  --without-gl            do not use the gl graphics classes])
+
 AC_ARG_WITH(shared,
          [  --with-shared           create shared libraries for vtk])
 

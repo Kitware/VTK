@@ -45,6 +45,9 @@ AC_SUBST(SBR_FLAGS)
 ##########################
 use_glr=no
 AC_CHECK_HEADERS(gl/gl.h, [use_glr=yes])
+AC_ARG_WITH(gl,
+         [  --without-gl          do not use the gl graphics classes],
+         [use_glr=no])
 
 if test "$use_glr" = "yes"; then
 	GLR_OBJ="\${GLR_OBJ}"

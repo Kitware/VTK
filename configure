@@ -14,6 +14,8 @@ ac_default_prefix=/usr/local
 ac_help="$ac_help
   --with-mesa             use the mesa opengl package"
 ac_help="$ac_help
+  --without-gl            do not use the gl graphics classes"
+ac_help="$ac_help
   --with-shared           create shared libraries for vtk"
 ac_help="$ac_help
   --with-tcl              build vtk the tcl based interpreter"
@@ -628,7 +630,7 @@ else
   yes;
 #endif
 EOF
-if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:632: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:634: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
   ac_cv_prog_gcc=yes
 else
   ac_cv_prog_gcc=no
@@ -672,6 +674,13 @@ fi
 # Check whether --with-mesa or --without-mesa was given.
 if test "${with_mesa+set}" = set; then
   withval="$with_mesa"
+  :
+fi
+
+
+# Check whether --with-gl or --without-gl was given.
+if test "${with_gl+set}" = set; then
+  withval="$with_gl"
   :
 fi
 

@@ -44,6 +44,9 @@ AC_SUBST(SBR_FLAGS)
 ##########################
 use_glr=no
 AC_CHECK_HEADERS(gl/gl.h, [use_glr=yes])
+AC_ARG_WITH(gl,
+         [  --without-gl          do not use the gl graphics classes],
+         [use_glr=no])
 
 if test "$use_glr" = "yes"; then
 	GLR_LIBS="-lgl"
@@ -104,11 +107,15 @@ else
 	XGL_HOME=""
 fi
 
-AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, [use_xglr=yes])
-AC_CHECK_HEADERS(/usr/openwin/include/xgl/xgl.h, [use_xglr=yes])
+AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, 
+  [use_xglr=yes]
+  XGLR_INCLUDE=$XGL_HOME/include)
+AC_CHECK_HEADERS(/usr/openwin/include/xgl/xgl.h, 
+  [use_xglr=yes]
+  XGLR_INCLUDE=/usr/openwin/include)
 if test "$use_xglr" = "yes"; then
 	XGLR_LIBS="-lxgl"
-	XGLR_FLAGS="-DUSE_XGLR ${XGLR_INCLUDE}"
+	XGLR_FLAGS="-DUSE_XGLR -I${XGLR_INCLUDE}"
 else
 	XGLR_LIBS=""
 	XGLR_FLAGS=""
