@@ -91,11 +91,13 @@ vtkPolyData::vtkPolyData ()
   this->Links = NULL;
 
   this->Extent = vtkUnstructuredExtent::New();
-  this->UpdateExtent = vtkUnstructuredExtent::New();
 
   // delete the default information created by the superclass.
   this->Information->Delete();
   this->Information = vtkUnstructuredInformation::New();
+
+  this->UpdateExtent->Delete();
+  this->UpdateExtent = vtkUnstructuredExtent::New();
 }
 
 //----------------------------------------------------------------------------
@@ -166,8 +168,6 @@ vtkPolyData::~vtkPolyData()
   this->TriangleStrip->Delete();
   this->EmptyCell->Delete();
   
-  this->UpdateExtent->Delete();
-  this->UpdateExtent = NULL;
   this->Extent->Delete();
   this->Extent = NULL;
 }
@@ -1323,8 +1323,8 @@ void vtkPolyData::GetCellEdgeNeighbors(int cellId, int p1, int p2,
 int vtkPolyData::ClipUpdateExtentWithWholeExtent()
 {
   int valid = 1;
-  int piece = this->UpdateExtent->GetPiece();
-  int numPieces = this->UpdateExtent->GetNumberOfPieces();
+  int piece = this->GetUnstructuredUpdateExtent()->GetPiece();
+  int numPieces = this->GetUnstructuredUpdateExtent()->GetNumberOfPieces();
   int maxPieces;  
   
   // Check to see if upstream filters can break up the data into the
@@ -1342,7 +1342,7 @@ int vtkPolyData::ClipUpdateExtentWithWholeExtent()
     valid = 0;
     }
   
-  this->UpdateExtent->SetExtent(piece, numPieces);
+  this->GetUnstructuredUpdateExtent()->SetExtent(piece, numPieces);
   
   // This check has nothing to do with whole extent, 
   // but is here by convenience.  Release the data if the UpdateExtent
@@ -1364,26 +1364,26 @@ int vtkPolyData::ClipUpdateExtentWithWholeExtent()
 //----------------------------------------------------------------------------
 void vtkPolyData::SetUpdateExtent(int piece, int numPieces)
 {
-  this->UpdateExtent->SetExtent(piece, numPieces);
+  this->GetUnstructuredUpdateExtent()->SetExtent(piece, numPieces);
 }
 
 //----------------------------------------------------------------------------
 void vtkPolyData::GetUpdateExtent(int &piece, int &numPieces)
 {
-  piece = this->UpdateExtent->GetPiece();
-  numPieces = this->UpdateExtent->GetNumberOfPieces();
+  piece = this->GetUnstructuredUpdateExtent()->GetPiece();
+  numPieces = this->GetUnstructuredUpdateExtent()->GetNumberOfPieces();
 }
 
 //----------------------------------------------------------------------------
 int vtkPolyData::GetUpdatePiece()
 {
-  return this->UpdateExtent->GetPiece();
+  return this->GetUnstructuredUpdateExtent()->GetPiece();
 }
 
 //----------------------------------------------------------------------------
 int vtkPolyData::GetUpdateNumberOfPieces()
 {
-  return this->UpdateExtent->GetNumberOfPieces();
+  return this->GetUnstructuredUpdateExtent()->GetNumberOfPieces();
 }
 
 //----------------------------------------------------------------------------
@@ -1393,13 +1393,13 @@ unsigned long vtkPolyData::GetEstimatedUpdateMemorySize()
   
   size = this->Information->GetEstimatedWholeMemorySize();
 
-  if (this->UpdateExtent->GetNumberOfPieces() <= 0)
+  if (this->GetUnstructuredUpdateExtent()->GetNumberOfPieces() <= 0)
     {
     // should not happen (trying to make this robust)
     return size;
     }
   
-  size = size / this->UpdateExtent->GetNumberOfPieces();
+  size = size / this->GetUnstructuredUpdateExtent()->GetNumberOfPieces();
   
   if (size < 1)
     {
@@ -1407,6 +1407,7 @@ unsigned long vtkPolyData::GetEstimatedUpdateMemorySize()
     }
   return size;
 }
+
 
 //----------------------------------------------------------------------------
 unsigned long vtkPolyData::GetActualMemorySize()
@@ -1449,8 +1450,6 @@ void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Polygons: " << this->GetNumberOfPolys() << "\n";
   os << indent << "Number Of Triangle Strips: " << this->GetNumberOfStrips() << "\n";
   
-  os << indent << "UpdateExtent: \n";
-  this->UpdateExtent->PrintSelf(os, indent.GetNextIndent());
 }
 
 

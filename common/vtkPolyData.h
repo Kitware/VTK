@@ -75,7 +75,6 @@ class vtkQuad;
 class vtkPolygon;
 class vtkTriangleStrip;
 class vtkEmptyCell;
-class vtkExtent;
 class vtkUnstructuredExtent;
 class vtkUnstructuredInformation;
 
@@ -349,7 +348,8 @@ public:
 
   // Description:
   // We should changed this to be more like DataInformation.
-  vtkExtent *GetGenericUpdateExtent() {return (vtkExtent*)this->UpdateExtent;}
+  vtkUnstructuredExtent *GetUnstructuredUpdateExtent() 
+    {return (vtkUnstructuredExtent*)(this->UpdateExtent);}
   
   // Description:
   // Return the amount of memory for the update piece.
@@ -403,7 +403,6 @@ protected:
 
   // ----- streaming stuff -----------
   vtkUnstructuredExtent *Extent;
-  vtkUnstructuredExtent *UpdateExtent;
 
   // Returns 0 if upstream filter cannot generate the UpdateExtent.
   // This also releases the data if a different piece is requested.

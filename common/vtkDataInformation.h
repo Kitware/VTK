@@ -87,7 +87,7 @@ public:
   // of how long the processing should take to update our data.
   // It is used to sort Update requests in multiple input filters to
   // get the best possible parallel perfomance.
-  vtkSetMacro(Locality, float);
+  void SetLocality(float l) {this->Locality = l;};
   vtkGetMacro(Locality, float);
   
   // Description:

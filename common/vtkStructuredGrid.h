@@ -56,7 +56,6 @@ class vtkVertex;
 class vtkLine;
 class vtkQuad;
 class vtkHexahedron;
-class vtkExtent;
 class vtkStructuredExtent;
 class vtkStructuredInformation;
 
@@ -171,10 +170,7 @@ public:
   // Description:
   // Warning: This is still in develoment.  DataSetToDataSetFilters use
   // CopyUpdateExtent to pass the update extents up the pipeline.
-  // In order to pass a generic update extent through a port we are going 
-  // to need these methods (which should eventually replace the 
-  // CopyUpdateExtent method).
-  vtkExtent *GetGenericUpdateExtent() {return (vtkExtent*)this->UpdateExtent;}
+  vtkStructuredExtent *GetStructuredUpdateExtent() {return (vtkStructuredExtent*)this->UpdateExtent;}
   
   // Description:
   // Returns the structured grid specific information object.
@@ -217,9 +213,6 @@ protected:
 
   // The extent of what is currently in the structured grid.
   int Extent[6];
-  // What will be generated on the next call to Update.
-  vtkStructuredExtent *UpdateExtent;
-  
   
   // Called by superclass to limit UpdateExtent to be less than or equal
   // to the WholeExtent.  It assumes that UpdateInformation has been 

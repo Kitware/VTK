@@ -50,7 +50,7 @@ vtkStructuredPoints::vtkStructuredPoints()
 
 int vtkStructuredPoints::ClipUpdateExtentWithWholeExtent()
 {
-  this->UpdateExtent->SetExtent(this->GetWholeExtent());
+  this->GetStructuredUpdateExtent()->SetExtent(this->GetWholeExtent());
   return 1;
 }
 

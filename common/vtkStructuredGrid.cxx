@@ -66,14 +66,17 @@ vtkStructuredGrid::vtkStructuredGrid()
   this->Blanking = 0;
   this->PointVisibility = NULL;
 
-  this->UpdateExtent = vtkStructuredExtent::New();
 
   this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
   this->Extent[1] = this->Extent[3] = this->Extent[5] = 0;
   
+  // Delete the default object created by the superclass, and
+  // create data specific objects.
   this->Information->Delete();
   this->Information = vtkStructuredInformation::New();
 
+  this->UpdateExtent->Delete();
+  this->UpdateExtent = vtkStructuredExtent::New();
 }
 
 //----------------------------------------------------------------------------
@@ -113,8 +116,6 @@ vtkStructuredGrid::~vtkStructuredGrid()
   this->Line->Delete();
   this->Quad->Delete();
   this->Hexahedron->Delete();
-  this->UpdateExtent->Delete();
-  this->UpdateExtent = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -770,7 +771,7 @@ int *vtkStructuredGrid::GetExtent()
 //----------------------------------------------------------------------------
 void vtkStructuredGrid::SetUpdateExtent(int extent[6])
 {
-  this->UpdateExtent->SetExtent(extent);
+  this->GetStructuredUpdateExtent()->SetExtent(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -789,13 +790,13 @@ void vtkStructuredGrid::SetUpdateExtent(int xMin, int xMax, int yMin, int yMax,
 //----------------------------------------------------------------------------
 int *vtkStructuredGrid::GetUpdateExtent()
 {
-  return this->UpdateExtent->GetExtent();
+  return this->GetStructuredUpdateExtent()->GetExtent();
 }
 
 //----------------------------------------------------------------------------
 void vtkStructuredGrid::GetUpdateExtent(int ext[6])
 {
-  int *tmp = this->UpdateExtent->GetExtent();
+  int *tmp = this->GetStructuredUpdateExtent()->GetExtent();
   
   ext[0] = tmp[0];
   ext[1] = tmp[1];
@@ -823,7 +824,7 @@ int vtkStructuredGrid::ClipUpdateExtentWithWholeExtent()
   int idx, minIdx, maxIdx;
   int uExt[6];
   
-  this->UpdateExtent->GetExtent(uExt);
+  this->GetStructuredUpdateExtent()->GetExtent(uExt);
   
   for (idx = 0; idx < 3; ++idx)
     {
@@ -878,7 +879,7 @@ int vtkStructuredGrid::ClipUpdateExtentWithWholeExtent()
     this->ReleaseData();
     }
   
-  this->UpdateExtent->SetExtent(uExt);
+  this->GetStructuredUpdateExtent()->SetExtent(uExt);
   
   return valid;
 }
@@ -966,7 +967,7 @@ void vtkStructuredGrid::GetWholeExtent(int &xMin, int &xMax,
 unsigned long vtkStructuredGrid::GetEstimatedUpdateMemorySize()
 {
   int *wExt = this->GetStructuredInformation()->GetWholeExtent();
-  int idx, *uExt = this->UpdateExtent->GetExtent();
+  int idx, *uExt = this->GetStructuredUpdateExtent()->GetExtent();
   unsigned long wholeSize, updateSize;
   
   // Compute the sizes
@@ -1002,16 +1003,6 @@ void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
                                   << this->Dimensions[2] << ")\n";
 
   os << indent << "Blanking: " << (this->Blanking ? "On\n" : "Off\n");
-
-  if (this->UpdateExtent)
-    {
-    os << indent << "UpdateExtent: \n";
-    this->UpdateExtent->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "UpdateExtent: NULL\n";
-    }
 
   os << indent << "Extent: " << this->Extent[0] << ", "
      << this->Extent[1] << ", " << this->Extent[2] << ", "

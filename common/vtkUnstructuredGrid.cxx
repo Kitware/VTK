@@ -80,11 +80,13 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->Links = NULL;
 
   this->Extent = vtkUnstructuredExtent::New();
-  this->UpdateExtent = vtkUnstructuredExtent::New();
 
   // delete the default information created by the superclass.
   this->Information->Delete();
   this->Information = vtkUnstructuredInformation::New();
+
+  this->UpdateExtent->Delete();
+  this->UpdateExtent = vtkUnstructuredExtent::New();
 }
 
 // Allocate memory space for data insertion. Execute this method before
@@ -161,8 +163,6 @@ vtkUnstructuredGrid::~vtkUnstructuredGrid()
   this->Wedge->Delete();
   this->Pyramid->Delete();
 
-  this->UpdateExtent->Delete();
-  this->UpdateExtent = NULL;
   this->Extent->Delete();
   this->Extent = NULL;
 }
@@ -572,8 +572,8 @@ int vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts, int *pts)
 int vtkUnstructuredGrid::ClipUpdateExtentWithWholeExtent()
 {
   int valid = 1;
-  int piece = this->UpdateExtent->GetPiece();
-  int numPieces = this->UpdateExtent->GetNumberOfPieces();
+  int piece = this->GetUnstructuredUpdateExtent()->GetPiece();
+  int numPieces = this->GetUnstructuredUpdateExtent()->GetNumberOfPieces();
   int maxPieces;
   
   // Check to see if upstream filters can break up the data into the
@@ -591,7 +591,7 @@ int vtkUnstructuredGrid::ClipUpdateExtentWithWholeExtent()
     valid = 0;
     }
   
-  this->UpdateExtent->SetExtent(piece, numPieces);
+  this->GetUnstructuredUpdateExtent()->SetExtent(piece, numPieces);
   
   // This check has nothing to do with whole extent, 
   // but is here by convenience.  Release the data if the UpdateExtent
@@ -612,28 +612,28 @@ int vtkUnstructuredGrid::ClipUpdateExtentWithWholeExtent()
 //----------------------------------------------------------------------------
 int vtkUnstructuredGrid::GetUpdateNumberOfPieces()
 {
-  return this->UpdateExtent->GetNumberOfPieces();
+  return this->GetUnstructuredUpdateExtent()->GetNumberOfPieces();
 }
 
 
 //----------------------------------------------------------------------------
 int vtkUnstructuredGrid::GetUpdatePiece() 
 {
-  return this->UpdateExtent->GetPiece();
+  return this->GetUnstructuredUpdateExtent()->GetPiece();
 }
 
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::SetUpdateExtent(int piece, int numPieces)
 {
-  this->UpdateExtent->SetExtent(piece, numPieces);
+  this->GetUnstructuredUpdateExtent()->SetExtent(piece, numPieces);
 }
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetUpdateExtent(int &piece, int &numPieces)
 {
-  piece = this->UpdateExtent->GetPiece();
-  numPieces = this->UpdateExtent->GetNumberOfPieces();
+  piece = this->GetUnstructuredUpdateExtent()->GetPiece();
+  numPieces = this->GetUnstructuredUpdateExtent()->GetNumberOfPieces();
 }
 
 //----------------------------------------------------------------------------
@@ -643,13 +643,13 @@ unsigned long vtkUnstructuredGrid::GetEstimatedUpdateMemorySize()
   
   size = this->Information->GetEstimatedWholeMemorySize();
 
-  if (this->UpdateExtent->GetNumberOfPieces() <= 0)
+  if (this->GetUnstructuredUpdateExtent()->GetNumberOfPieces() <= 0)
     {
     // should not happen (trying to make this robust)
     return size;
     }
   
-  size = size / this->UpdateExtent->GetNumberOfPieces();
+  size = size / this->GetUnstructuredUpdateExtent()->GetNumberOfPieces();
   
   if (size < 1)
     {
@@ -685,9 +685,6 @@ void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSet::PrintSelf(os,indent);
 
-  os << indent << "UpdateExtent: \n";
-  this->UpdateExtent->PrintSelf(os, indent.GetNextIndent());
-  
   os << indent << "Extent: \n";
   this->Extent->PrintSelf(os, indent.GetNextIndent());
   

@@ -71,7 +71,6 @@ vtkRectilinearGrid::vtkRectilinearGrid()
   this->PointReturn[2] = 0.0;
 
   // -----------
-  this->UpdateExtent = vtkStructuredExtent::New();
 
   this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
   this->Extent[1] = this->Extent[3] = this->Extent[5] = 0;
@@ -79,6 +78,9 @@ vtkRectilinearGrid::vtkRectilinearGrid()
   // Delete the generic information object created by the superclass.
   this->Information->Delete();
   this->Information = vtkStructuredInformation::New();
+
+  this->UpdateExtent->Delete();
+  this->UpdateExtent = vtkStructuredExtent::New();
 }
 
 //----------------------------------------------------------------------------
@@ -90,7 +92,6 @@ vtkRectilinearGrid::~vtkRectilinearGrid()
   this->Pixel->Delete();
   this->Voxel->Delete();
 
-  this->UpdateExtent->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -846,7 +847,7 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(float x[3], int ijk[3],
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::SetUpdateExtent(int extent[6])
 {
-  this->UpdateExtent->SetExtent(extent);
+  this->GetStructuredUpdateExtent()->SetExtent(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -866,13 +867,13 @@ void vtkRectilinearGrid::SetUpdateExtent(int xMin, int xMax,
 //----------------------------------------------------------------------------
 int *vtkRectilinearGrid::GetUpdateExtent()
 {
-  return this->UpdateExtent->GetExtent();
+  return this->GetStructuredUpdateExtent()->GetExtent();
 }
 
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::GetUpdateExtent(int ext[6])
 {
-  int *tmp = this->UpdateExtent->GetExtent();
+  int *tmp = this->GetStructuredUpdateExtent()->GetExtent();
   
   ext[0] = tmp[0];
   ext[1] = tmp[1];
@@ -929,7 +930,7 @@ int vtkRectilinearGrid::ClipUpdateExtentWithWholeExtent()
   int *wExt = this->GetStructuredInformation()->GetWholeExtent();
   int uExt[6];
   
-  this->UpdateExtent->GetExtent(uExt);
+  this->GetStructuredUpdateExtent()->GetExtent(uExt);
   
   for (idx = 0; idx < 3; ++idx)
     {
@@ -982,7 +983,7 @@ int vtkRectilinearGrid::ClipUpdateExtentWithWholeExtent()
     this->ReleaseData();
     }
   
-  this->UpdateExtent->SetExtent(uExt);
+  this->GetStructuredUpdateExtent()->SetExtent(uExt);
   
   return valid;
 }
@@ -1040,7 +1041,7 @@ void vtkRectilinearGrid::GetWholeExtent(int &xMin, int &xMax,
 unsigned long vtkRectilinearGrid::GetEstimatedUpdateMemorySize()
 {
   int *wExt = this->GetStructuredInformation()->GetWholeExtent();
-  int idx, *uExt = this->UpdateExtent->GetExtent();
+  int idx, *uExt = this->GetStructuredUpdateExtent()->GetExtent();
   unsigned long wholeSize, updateSize;
   
   // Compute the sizes
@@ -1095,16 +1096,6 @@ void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "X Coordinates: " << this->XCoordinates << "\n";
   os << indent << "Y Coordinates: " << this->YCoordinates << "\n";
   os << indent << "Z Coordinates: " << this->ZCoordinates << "\n";
-
-  if (this->UpdateExtent)
-    {
-    os << indent << "UpdateExtent: \n";
-    this->UpdateExtent->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "UpdateExtent: NULL\n";
-    }
 
   os << indent << "Extent: " << this->Extent[0] << ", "
      << this->Extent[1] << ", " << this->Extent[2] << ", "

@@ -61,8 +61,6 @@ vtkImageData::vtkImageData()
   this->Dimensions[2] = 1;
   this->DataDescription = VTK_SINGLE_POINT;
   
-  this->UpdateExtent = vtkStructuredExtent::New();
-  
   for (idx = 0; idx < 3; ++idx)
     {
     this->Extent[idx*2] = 0;
@@ -76,6 +74,9 @@ vtkImageData::vtkImageData()
   // Delete the generic information object created by the superclass.
   this->Information->Delete();
   this->Information = vtkImageInformation::New();
+
+  this->UpdateExtent->Delete();
+  this->UpdateExtent = vtkStructuredExtent::New();  
 }
 
 //----------------------------------------------------------------------------
@@ -110,9 +111,6 @@ vtkImageData::~vtkImageData()
   this->Line->Delete();
   this->Pixel->Delete();
   this->Voxel->Delete();
-  
-  this->UpdateExtent->Delete();
-  this->UpdateExtent = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -241,7 +239,7 @@ int vtkImageData::ClipUpdateExtentWithWholeExtent()
   int uExt[6];
   int *wExt = this->GetImageInformation()->GetWholeExtent();
   
-  this->UpdateExtent->GetExtent(uExt);
+  this->GetStructuredUpdateExtent()->GetExtent(uExt);
   
   for (idx = 0; idx < 3; ++idx)
     {
@@ -294,7 +292,7 @@ int vtkImageData::ClipUpdateExtentWithWholeExtent()
     this->ReleaseData();
     }
   
-  this->UpdateExtent->SetExtent(uExt);
+  this->GetStructuredUpdateExtent()->SetExtent(uExt);
   
   return valid;
 }
@@ -954,15 +952,6 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << ")\n";
 
-  if (this->UpdateExtent)
-    {
-    os << indent << "UpdateExtent: \n";
-    this->UpdateExtent->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "UpdateExtent: NULL\n";
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -1053,7 +1042,7 @@ void vtkImageData::GetWholeExtent(int &xMin, int &xMax, int &yMin, int &yMax,
 //----------------------------------------------------------------------------
 void vtkImageData::SetUpdateExtent(int extent[6])
 {
-  this->UpdateExtent->SetExtent(extent);
+  this->GetStructuredUpdateExtent()->SetExtent(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -1106,13 +1095,13 @@ void vtkImageData::SetUpdateExtent(int piece, int numPieces)
 //----------------------------------------------------------------------------
 int *vtkImageData::GetUpdateExtent()
 {
-  return this->UpdateExtent->GetExtent();
+  return this->GetStructuredUpdateExtent()->GetExtent();
 }
 
 //----------------------------------------------------------------------------
 void vtkImageData::GetUpdateExtent(int ext[6])
 {
-  int *tmp = this->UpdateExtent->GetExtent();
+  int *tmp = this->GetStructuredUpdateExtent()->GetExtent();
   
   ext[0] = tmp[0];
   ext[1] = tmp[1];
@@ -1729,7 +1718,7 @@ void vtkImageData::SetAxisUpdateExtent(int idx, int min, int max)
   int modified = 0;
   int ext[6];
   
-  this->UpdateExtent->GetExtent(ext);
+  this->GetStructuredUpdateExtent()->GetExtent(ext);
   
   if (idx > 2)
     {
@@ -1753,13 +1742,13 @@ void vtkImageData::SetAxisUpdateExtent(int idx, int min, int max)
     this->Modified();
     }
   
-  this->UpdateExtent->SetExtent(ext);
+  this->GetStructuredUpdateExtent()->SetExtent(ext);
 }
 
 //----------------------------------------------------------------------------
 void vtkImageData::GetAxisUpdateExtent(int idx, int &min, int &max)
 {
-  int *ext = this->UpdateExtent->GetExtent();
+  int *ext = this->GetStructuredUpdateExtent()->GetExtent();
   
   if (idx > 2)
     {
@@ -1853,7 +1842,7 @@ void vtkImageData::ComputeEstimatedWholeMemorySize()
 //----------------------------------------------------------------------------
 unsigned long vtkImageData::GetEstimatedUpdateMemorySize()
 {
-  int idx, *uExt = this->UpdateExtent->GetExtent();
+  int idx, *uExt = this->GetStructuredUpdateExtent()->GetExtent();
   int *wExt = this->GetWholeExtent();
   unsigned long wholeSize, updateSize;
   

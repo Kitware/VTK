@@ -55,9 +55,11 @@ vtkDataObject::vtkDataObject()
   this->ReleaseDataFlag = 0;
   this->FieldData = vtkFieldData::New();
   // --- streaming stuff ---
+  this->WaitingForUpdate = 0;
   this->MemoryLimit = VTK_LARGE_INTEGER;
-  // subclasses will delete this and set a more specific information object.
+  // subclasses will delete these and set a more specific information object.
   this->Information = vtkDataInformation::New();
+  this->UpdateExtent = vtkExtent::New();
 }
 
 //----------------------------------------------------------------------------
@@ -66,6 +68,8 @@ vtkDataObject::~vtkDataObject()
   this->FieldData->Delete();
   this->Information->Delete();
   this->Information = NULL;
+  this->UpdateExtent->Delete();
+  this->UpdateExtent = NULL;
 }
 
 
@@ -155,11 +159,14 @@ void vtkDataObject::UpdateInformation()
 }
 
 //----------------------------------------------------------------------------
-// If there is no source, just assume user put data here.
-void vtkDataObject::InternalUpdate()
+void vtkDataObject::PreUpdate() 
 {
-  vtkDebugMacro("InternalUpdate: VT: " << this->UpdateTime << ", PMT: "  
-		<< this->Information->GetPipelineMTime());
+  // PreUpdate and Internal Update must occur in pairs, but PreUpdate can be called
+  // many times before InternalUpdate.
+  if (this->WaitingForUpdate)
+    {
+    return;
+    }
   
   // Clip has to be before the Update check because:  If the update extent
   // after clipping is larger than current extent, then data is released ...
@@ -169,10 +176,31 @@ void vtkDataObject::InternalUpdate()
     // invalid update piece
     return;
     }
-  
+
+  // Do we need to update
   if (this->UpdateTime >= this->Information->GetPipelineMTime() 
       && ! this->DataReleased)
     {
+    return;
+    }
+  
+  this->WaitingForUpdate = 1;
+  
+  if (this->Source)
+    {
+    this->Source->PreUpdate(this);
+    }
+}
+
+
+//----------------------------------------------------------------------------
+// If there is no source, just assume user put data here.
+void vtkDataObject::InternalUpdate()
+{
+  // PreUpdate did all the checks
+  if (this->WaitingForUpdate == 0)
+    {
+    // We must not need to update.
     return;
     }
   
@@ -182,6 +210,8 @@ void vtkDataObject::InternalUpdate()
     }
   this->DataReleased = 0;
   this->UpdateTime.Modified();
+  
+  this->WaitingForUpdate = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -220,6 +250,16 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
   os << indent << "Information:\n";
   this->Information->PrintSelf(os, indent.GetNextIndent());  
+  
+  if (this->UpdateExtent)
+    {
+    os << indent << "UpdateExtent: \n";
+    this->UpdateExtent->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "UpdateExtent: NULL\n";
+    }
   
   os << indent << "Field Data:\n";
   this->FieldData->PrintSelf(os,indent.GetNextIndent());
@@ -297,6 +337,7 @@ void vtkDataObject::PreUpdate()
 {
   // For now does nothing
 }
+
 
 //----------------------------------------------------------------------------
 unsigned long vtkDataObject::GetActualMemorySize()
