@@ -101,7 +101,7 @@ void vtkImageEuclideanDistance::ComputeInputUpdateExtent(int inExt[6],
 // is always floats.
 template <class TT>
 static void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance *self,
-                         vtkImageData *inData, int inExt[6], TT *inPtr,
+                         vtkImageData *inData, TT *inPtr,
                          vtkImageData *outData, int outExt[6], float *outPtr )
 {
   int inInc0, inInc1, inInc2;
@@ -149,7 +149,7 @@ static void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance *self,
 template <class T>
 static
 void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
-                         vtkImageData *inData, int inExt[6], T *inPtr,
+                         vtkImageData *inData, T *inPtr,
                          vtkImageData *outData, int outExt[6], float *outPtr )
 {
   int inInc0, inInc1, inInc2;
@@ -205,7 +205,7 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
     // No initialization required. We just copy inData to outData.
     {
     vtkImageEuclideanDistanceCopyData( self, 
-                                       inData, inExt, (T *)(inPtr), 
+                                       inData, (T *)(inPtr), 
                                        outData, outExt, (float *)(outPtr) );
     }
 }
@@ -609,9 +609,8 @@ void vtkImageEuclideanDistance::IterativeExecuteData(vtkImageData *inData,
 
   vtkDebugMacro(<<"Executing image euclidean distance");
   
-  int inExt[6], outExt[6];
+  int outExt[6];
   outData->GetWholeExtent( outExt );
-  inData->GetWholeExtent(  inExt );
   
   inPtr = inData->GetScalarPointerForExtent(inData->GetUpdateExtent());
   outPtr = outData->GetScalarPointer();
@@ -635,9 +634,9 @@ void vtkImageEuclideanDistance::IterativeExecuteData(vtkImageData *inData,
     {
     switch (inData->GetScalarType())
       {
-      vtkTemplateMacro7(vtkImageEuclideanDistanceInitialize,
+      vtkTemplateMacro6(vtkImageEuclideanDistanceInitialize,
                         this, 
-                        inData, inExt, (VTK_TT *)(inPtr), 
+                        inData, (VTK_TT *)(inPtr), 
                         outData, outExt, (float *)(outPtr) );
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
@@ -649,9 +648,9 @@ void vtkImageEuclideanDistance::IterativeExecuteData(vtkImageData *inData,
     if( inData != outData )
       switch (inData->GetScalarType())
         {    
-        vtkTemplateMacro7(vtkImageEuclideanDistanceCopyData,
+        vtkTemplateMacro6(vtkImageEuclideanDistanceCopyData,
                           this, 
-                          inData, inExt, (VTK_TT *)(inPtr), 
+                          inData, (VTK_TT *)(inPtr), 
                           outData, outExt, (float *)(outPtr) );
         }
     }
