@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.13");
+vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.14");
 vtkStandardNewMacro(vtkTransmitUnstructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitUnstructuredGridPiece,Controller,
@@ -88,6 +88,7 @@ void vtkTransmitUnstructuredGridPiece::ExecuteInformation()
     vtkErrorMacro("Missing output");
     return;
     }
+  this->GetOutput()->CopyInformation(this->GetInput());
   this->GetOutput()->SetMaximumNumberOfPieces(-1);
 }
   

@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.14");
+vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.15");
 vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitPolyDataPiece,Controller,
@@ -95,6 +95,7 @@ void vtkTransmitPolyDataPiece::ExecuteInformation()
     vtkErrorMacro("Missing output");
     return;
     }
+  this->GetOutput()->CopyInformation(this->GetInput());
   this->GetOutput()->SetMaximumNumberOfPieces(-1);
 }
   
