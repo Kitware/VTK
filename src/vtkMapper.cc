@@ -45,6 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkMapper::vtkMapper()
 {
   this->Input = NULL;
+  this->Colors = NULL;
 
   this->StartRender = NULL;
   this->StartRenderArgDelete = NULL;
@@ -65,6 +66,7 @@ vtkMapper::~vtkMapper()
 {
   if ( this->SelfCreatedLookupTable && this->LookupTable != NULL) 
     this->LookupTable->Delete();
+  if ( this->Colors != NULL ) this->Colors->Delete();
 }
 
 // Description:
@@ -93,6 +95,58 @@ void vtkMapper::operator=(const vtkMapper& m)
 
   this->SetStartRender(m.StartRender,m.StartRenderArg);
   this->SetEndRender(m.EndRender,m.EndRenderArg);
+}
+
+vtkColorScalars *vtkMapper::GetColors()
+{
+  vtkPointData *pd;
+  vtkScalars *scalars;
+  int i, numPts;
+  vtkColorScalars *colors;
+  
+  // make sure we have a lookup table
+  if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
+  this->LookupTable->Build();
+
+  //
+  // create colors
+  //
+  numPts = this->Input->GetNumberOfPoints();
+  if ( this->ScalarsVisible && (pd=this->Input->GetPointData()) && 
+       (scalars=pd->GetScalars()) )
+    {
+    if ( strcmp(scalars->GetScalarType(),"ColorScalar") )
+      {
+      if ( this->Colors == NULL ) 
+	{
+	this->Colors = new vtkAPixmap(numPts);
+	}
+      else
+	{
+	int numColors=this->Colors->GetNumberOfColors();
+	if ( numColors < numPts ) this->Colors->Allocate(numPts);
+	}
+      
+      this->LookupTable->SetTableRange(this->ScalarRange);
+      for (i=0; i < numPts; i++)
+	{
+	this->Colors->SetColor(i,this->LookupTable->
+			       MapValue(scalars->GetScalar(i)));
+	}
+      colors = this->Colors;
+      }
+    else //color scalar
+      {
+      colors = (vtkColorScalars *)scalars;
+      }
+    }
+  else
+    {
+    if ( this->Colors ) this->Colors->Delete();
+    this->Colors = colors = NULL;
+    }
+  
+  return colors;
 }
 
 // Description:

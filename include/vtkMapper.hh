@@ -116,8 +116,13 @@ public:
 
   virtual vtkDataSet *GetInput() {return this->Input;};
 
+  // Description:
+  // Calculate and return the point colors for the input.
+  vtkColorScalars *GetColors();
+  
 protected:
   vtkDataSet *Input;
+  vtkColorScalars *Colors;
 
   void (*StartRender)(void *);
   void (*StartRenderArgDelete)(void *);

@@ -59,7 +59,6 @@ public:
   vtkPolyMapper();
   ~vtkPolyMapper();
   char *GetClassName() {return "vtkPolyMapper";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   void Render(vtkRenderer *ren, vtkActor *a);
   float *GetBounds();
@@ -69,43 +68,8 @@ public:
   void SetInput(vtkPolyData *in);
   void SetInput(vtkPolyData& in) {this->SetInput(&in);};
 
-  // Description:
-  // Control the visibility of vertices.
-  vtkSetMacro(VertsVisibility,int);
-  vtkGetMacro(VertsVisibility,int);
-  vtkBooleanMacro(VertsVisibility,int);
-
-  // Description:
-  // Control the visibility of lines.
-  vtkSetMacro(LinesVisibility,int);
-  vtkGetMacro(LinesVisibility,int);
-  vtkBooleanMacro(LinesVisibility,int);
-
-  // Description:
-  // Control the visibility of polygons.
-  vtkSetMacro(PolysVisibility,int);
-  vtkGetMacro(PolysVisibility,int);
-  vtkBooleanMacro(PolysVisibility,int);
-
-  // Description:
-  // Control the visibility of triangle strips.
-  vtkSetMacro(StripsVisibility,int);
-  vtkGetMacro(StripsVisibility,int);
-  vtkBooleanMacro(StripsVisibility,int);
-
-  // Description:
-  // Calculate and return the point colors for the input.
-  vtkColorScalars *GetColors();
-  
 protected:
   vtkPolyMapperDevice  *Device;
-
-  vtkColorScalars *Colors;
-
-  int VertsVisibility;
-  int LinesVisibility;
-  int PolysVisibility;
-  int StripsVisibility;
 };
 
 #endif

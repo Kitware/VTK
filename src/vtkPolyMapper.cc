@@ -48,19 +48,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkPolyMapper::vtkPolyMapper()
 {
   this->Device = NULL;
-  this->Colors = NULL;
-
-  this->VertsVisibility = 1;
-  this->LinesVisibility = 1;
-  this->PolysVisibility = 1;
-  this->StripsVisibility = 1;
 }
 
 vtkPolyMapper::~vtkPolyMapper()
 {
   //delete internally created objects
   if ( this->Device != NULL ) this->Device->Delete();
-  if ( this->Colors != NULL ) this->Colors->Delete();
 }
 
 void vtkPolyMapper::SetInput(vtkPolyData *in)
@@ -135,66 +128,3 @@ void vtkPolyMapper::Render(vtkRenderer *ren, vtkActor *act)
   this->Device->Draw(ren,act);
 }
 
-vtkColorScalars *vtkPolyMapper::GetColors()
-{
-  vtkPointData *pd;
-  vtkScalars *scalars;
-  int i, numPts;
-  vtkColorScalars *colors;
-  vtkPolyData *input = (vtkPolyData *)this->Input;
-  
-  // make sure we have a lookup table
-  if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
-  this->LookupTable->Build();
-
-  //
-  // create colors
-  //
-  numPts = input->GetNumberOfPoints();
-  if ( this->ScalarsVisible && (pd=input->GetPointData()) && 
-       (scalars=pd->GetScalars()) )
-    {
-    if ( strcmp(scalars->GetScalarType(),"ColorScalar") )
-      {
-      if ( this->Colors == NULL ) 
-	{
-	this->Colors = new vtkAPixmap(numPts);
-	}
-      else
-	{
-	int numColors=this->Colors->GetNumberOfColors();
-	if ( numColors < numPts ) this->Colors->Allocate(numPts);
-	}
-      
-      this->LookupTable->SetTableRange(this->ScalarRange);
-      for (i=0; i < numPts; i++)
-	{
-	this->Colors->SetColor(i,this->LookupTable->
-			       MapValue(scalars->GetScalar(i)));
-	}
-      colors = this->Colors;
-      }
-    else //color scalar
-      {
-      colors = (vtkColorScalars *)scalars;
-      }
-    }
-  else
-    {
-    if ( this->Colors ) this->Colors->Delete();
-    this->Colors = colors = NULL;
-    }
-  
-  return colors;
-}
-
-void vtkPolyMapper::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkMapper::PrintSelf(os,indent);
-
-  os << indent << "Vertex Visibility: " << (this->VertsVisibility ? "On\n" : "Off\n");
-  os << indent << "Line Visibility: " << (this->LinesVisibility ? "On\n" : "Off\n");
-  os << indent << "Polygon Visibility: " << (this->PolysVisibility ? "On\n" : "Off\n");
-  os << indent << "Triangle Strip Visibility: " << (this->StripsVisibility ? "On\n" : "Off\n");
-
-}
