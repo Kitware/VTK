@@ -812,9 +812,6 @@ DEP_RSC_PCMAKER=\
 # Begin Source File
 
 SOURCE=.\getclasses.cxx
-
-!IF  "$(CFG)" == "pcmaker - Win32 Release"
-
 DEP_CPP_GETCL=\
 	".\advanced.h"\
 	".\pcmaker.h"\
@@ -826,22 +823,6 @@ DEP_CPP_GETCL=\
 
 "$(INTDIR)\getclasses.obj" : $(SOURCE) $(DEP_CPP_GETCL) "$(INTDIR)"
 
-
-!ELSEIF  "$(CFG)" == "pcmaker - Win32 Debug"
-
-DEP_CPP_GETCL=\
-	".\advanced.h"\
-	".\pcmaker.h"\
-	".\pcmakerDlg.h"\
-	".\StdAfx.h"\
-	{$(INCLUDE)}"\sys\Stat.h"\
-	{$(INCLUDE)}"\sys\Types.h"\
-	
-
-"$(INTDIR)\getclasses.obj" : $(SOURCE) $(DEP_CPP_GETCL) "$(INTDIR)"
-
-
-!ENDIF 
 
 # End Source File
 ################################################################################
@@ -901,37 +882,6 @@ DEP_CPP_GETCL=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\makedepend.cxx
-
-!IF  "$(CFG)" == "pcmaker - Win32 Release"
-
-DEP_CPP_MAKED=\
-	".\pcmaker.h"\
-	".\pcmakerDlg.h"\
-	".\StdAfx.h"\
-	
-
-"$(INTDIR)\makedepend.obj" : $(SOURCE) $(DEP_CPP_MAKED) "$(INTDIR)"
-
-
-!ELSEIF  "$(CFG)" == "pcmaker - Win32 Debug"
-
-DEP_CPP_MAKED=\
-	".\advanced.h"\
-	".\pcmaker.h"\
-	".\pcmakerDlg.h"\
-	".\StdAfx.h"\
-	
-
-"$(INTDIR)\makedepend.obj" : $(SOURCE) $(DEP_CPP_MAKED) "$(INTDIR)"
-
-
-!ENDIF 
-
-# End Source File
-################################################################################
-# Begin Source File
-
 SOURCE=.\help.cpp
 DEP_CPP_HELP_=\
 	".\help.h"\
@@ -954,6 +904,24 @@ DEP_CPP_ADVAN=\
 	
 
 "$(INTDIR)\advanced.obj" : $(SOURCE) $(DEP_CPP_ADVAN) "$(INTDIR)"
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=\vtk\makedepend.cxx
+DEP_CPP_MAKED=\
+	".\advanced.h"\
+	".\pcmaker.h"\
+	".\pcmakerDlg.h"\
+	".\StdAfx.h"\
+	{$(INCLUDE)}"\sys\Stat.h"\
+	{$(INCLUDE)}"\sys\Types.h"\
+	
+
+"$(INTDIR)\makedepend.obj" : $(SOURCE) $(DEP_CPP_MAKED) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
 # End Source File
