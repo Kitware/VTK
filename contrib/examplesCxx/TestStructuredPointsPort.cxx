@@ -3,6 +3,7 @@
 #include "mpi.h"
 #include "vtkImageGaussianSource.h"
 #include "vtkImageEllipsoidSource.h"
+#include "vtkImageToStructuredPoints.h"
 #include "vtkUpStreamPort.h"
 #include "vtkDownStreamPort.h"
 #include "vtkTexture.h"
@@ -32,8 +33,11 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
 
   ellipse->SetCenter(128.0, 128.0, 0.0);
   ellipse->SetRadius(50.0, 70.0, 1.0);
+  
+  vtkImageToStructuredPoints *sp = vtkImageToStructuredPoints::New();
+  sp->SetInput(source->GetOutput());
 
-  upStreamPort->SetInput(source->GetOutput());
+  upStreamPort->SetInput((vtkImageData*)(sp->GetOutput()));
   upStreamPort->SetTag(999);
   
   // wait for the call back to execute.
@@ -68,11 +72,9 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
   downStreamPort->SetUpStreamProcessId(otherid);
   downStreamPort->SetTag(999);
 
-  downStreamPort->GetPolyDataOutput()->SetUpdateExtent(0, 2);
-  downStreamPort->Update();
-  
   vtkTexture *atext = vtkTexture::New();
   atext->SetInput(downStreamPort->GetImageDataOutput());
+  //atext->SetInput(downStreamPort->GetStructuredPointsOutput());
   atext->InterpolateOn();
 
   vtkPlaneSource *plane = vtkPlaneSource::New();
