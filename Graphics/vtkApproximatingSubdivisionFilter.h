@@ -24,7 +24,7 @@
 #ifndef __vtkApproximatingSubdivisionFilter_h
 #define __vtkApproximatingSubdivisionFilter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
 class vtkCellData;
@@ -33,10 +33,10 @@ class vtkIntArray;
 class vtkPoints;
 class vtkPointData;
 
-class VTK_GRAPHICS_EXPORT vtkApproximatingSubdivisionFilter : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkApproximatingSubdivisionFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkApproximatingSubdivisionFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkApproximatingSubdivisionFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -48,7 +48,7 @@ protected:
   vtkApproximatingSubdivisionFilter();
   ~vtkApproximatingSubdivisionFilter() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual void GenerateSubdivisionPoints (vtkPolyData *inputDS,
                                           vtkIntArray *edgeData,
                                           vtkPoints *outputPts,
@@ -67,5 +67,3 @@ private:
 };
 
 #endif
-
-

@@ -62,7 +62,7 @@ protected:
   vtkLoopSubdivisionFilter () {};
   ~vtkLoopSubdivisionFilter () {};
 
-  virtual void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData,
                                   vtkPoints *outputPts,
@@ -72,12 +72,11 @@ protected:
   void GenerateOddStencil (vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
                            vtkIdList *stencilIds, double *weights);
 
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
 private:
   vtkLoopSubdivisionFilter(const vtkLoopSubdivisionFilter&);  // Not implemented.
   void operator=(const vtkLoopSubdivisionFilter&);  // Not implemented.
 };
 
 #endif
-
-

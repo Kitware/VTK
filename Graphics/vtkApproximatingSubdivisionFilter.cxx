@@ -19,11 +19,13 @@
 #include "vtkCellData.h"
 #include "vtkEdgeTable.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.28");
+vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.29");
 
 // Construct object with number of subdivisions set to 1.
 vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()
@@ -31,33 +33,38 @@ vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()
   this->NumberOfSubdivisions = 1;
 }
 
-void vtkApproximatingSubdivisionFilter::Execute()
+int vtkApproximatingSubdivisionFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numCells, numPts;
   int level;
   vtkPoints *outputPts;
 
   vtkCellArray *outputPolys;
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD;
   vtkCellData *outputCD;
   vtkIntArray *edgeData;
 
   vtkDebugMacro(<< "Generating subdivision surface using approximating scheme");
-  if (input == NULL)
-    {
-    vtkErrorMacro(<<"Input is NULL");
-    return;
-    }
-
   numPts=input->GetNumberOfPoints();
   numCells=input->GetNumberOfCells();
 
   if (numPts < 1 || numCells < 1)
     {
     vtkErrorMacro(<<"No data to approximate!");
-    return;
+    return 0;
     }
 
   //
@@ -142,8 +149,9 @@ void vtkApproximatingSubdivisionFilter::Execute()
     output->RemoveGhostCells(updateGhostLevel+1);
     }
 
-
   inputDS->Delete();
+
+  return 1;
 }
 
 int vtkApproximatingSubdivisionFilter::FindEdge (vtkPolyData *mesh,

@@ -18,11 +18,14 @@
 #include "vtkCellArray.h"
 #include "vtkEdgeTable.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.21");
+vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.22");
 vtkStandardNewMacro(vtkLoopSubdivisionFilter);
 
 static double LoopWeights[4] =
@@ -299,23 +302,44 @@ void vtkLoopSubdivisionFilter::GenerateOddStencil (vtkIdType p1, vtkIdType p2,
   cellIds->Delete();
 }
 
-void vtkLoopSubdivisionFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+int vtkLoopSubdivisionFilter::RequestUpdateExtent(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
   int numPieces, ghostLevel;
-  
-  this->vtkApproximatingSubdivisionFilter::ComputeInputUpdateExtents(output);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  numPieces = output->GetUpdateNumberOfPieces();
-  ghostLevel = output->GetUpdateGhostLevel();
+  if (!this->Superclass::RequestUpdateExtent(request, inputVector,
+                                             outputVector))
+    {
+    return 0;
+    }
+
+  numPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevel =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+
   if (numPieces > 1 && this->NumberOfSubdivisions > 0)
     {
-    this->GetInput()->SetUpdateGhostLevel(ghostLevel + 1);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                ghostLevel + 1);
     }
+
+  return 1;
 }
 
-void vtkLoopSubdivisionFilter::Execute()
+int vtkLoopSubdivisionFilter::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkCellArray *polys = input->GetPolys();
   int hasTris = 0;
   vtkIdType numPts = 0, *pts = 0;
@@ -338,8 +362,8 @@ void vtkLoopSubdivisionFilter::Execute()
   if (!hasTris)
     {
     vtkWarningMacro("vtkLoopSubdivisionFilter only operates on triangles, but this data set has no triangles to operate on.")
-    return;
+    return 0;
     }
   
-  this->Superclass::Execute();
+  return this->Superclass::RequestData(request, inputVector, outputVector);
 }
