@@ -66,7 +66,7 @@ void vtkTexturedSphereSource::Execute()
   vtkCellArray *newPolys;
   float x[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   int pts[3];
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *output = this->GetOutput();
   float tc[2];
   
   //

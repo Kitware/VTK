@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 void vtkTriangleFilter::Execute()
 {
-  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *input = this->GetInput();
   int numCells=input->GetNumberOfCells();
   int dim, i, j, pts[3], cellNum, numPts, numSimplices, newId, type;
   vtkIdList *ptIds=vtkIdList::New();

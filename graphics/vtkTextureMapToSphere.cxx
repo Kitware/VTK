@@ -54,8 +54,8 @@ vtkTextureMapToSphere::vtkTextureMapToSphere()
 void vtkTextureMapToSphere::Execute()
 {
   vtkTCoords *newTCoords;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkDataSet *output=(vtkDataSet *)this->Output;
+  vtkDataSet *input = this->GetInput();
+  vtkDataSet *output = this->GetOutput();
   int numPts=input->GetNumberOfPoints();
   int ptId;
   float *x, rho, r, tc[2], phi=0.0, thetaX, thetaY;

@@ -97,11 +97,11 @@ void vtkVoxelModeller::Execute()
   int min[3], max[3];
   float x[3], distance2;
   int jkFactor;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *input=this->GetInput();
   float *weights=new float[input->GetMaxCellSize()];
   float closestPoint[3];
   float voxelHalfWidth[3], origin[3], spacing[3];
-  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
+  vtkStructuredPoints *output=this->GetOutput();
 //
 // Initialize self; create output objects
 //
@@ -202,7 +202,7 @@ float vtkVoxelModeller::ComputeModelBounds(float origin[3], float spacing[3])
   this->ModelBounds[4] >= this->ModelBounds[5] )
     {
     adjustBounds = 1;
-    bounds = ((vtkDataSet *)this->Input)->GetBounds();
+    bounds = (this->GetInput())->GetBounds();
     }
   else
     {
@@ -296,7 +296,7 @@ void vtkVoxelModeller::Write(char *fname)
   int numPts, idx;
   int bitcount;
   unsigned char uc;
-  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
+  vtkStructuredPoints *output=this->GetOutput();
 
   vtkDebugMacro(<< "Writing Voxel model");
 

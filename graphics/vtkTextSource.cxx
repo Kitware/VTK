@@ -195,7 +195,7 @@ void vtkTextSource::Execute()
   int drawingBlack = 0;
   unsigned char white[4];
   unsigned char black[4];
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *output = this->GetOutput();
   vtkUnsignedCharArray *data;
   
   // convert colors to unsigned char

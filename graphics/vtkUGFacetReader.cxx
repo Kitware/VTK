@@ -99,7 +99,7 @@ void vtkUGFacetReader::Execute()
   vtkPoints *newPts, *mergedPts;
   vtkNormals *newNormals, *mergedNormals;
   vtkCellArray *newPolys, *mergedPolys;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *output = this->GetOutput();
   fpos_t pos;
   int triEstimate;
 

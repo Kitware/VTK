@@ -74,8 +74,8 @@ void vtkTransformTextureCoords::AddPosition(float deltaPosition[3])
 
 void vtkTransformTextureCoords::Execute()
 {
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkDataSet *output=(vtkDataSet *)this->Output;
+  vtkDataSet *input = this->GetInput();
+  vtkDataSet *output = this->GetOutput();
   vtkTCoords *inTCoords=input->GetPointData()->GetTCoords();
   vtkTCoords *newTCoords;
   int numPts=input->GetNumberOfPoints();

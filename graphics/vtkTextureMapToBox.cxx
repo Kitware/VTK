@@ -68,8 +68,8 @@ void vtkTextureMapToBox::Execute()
   int i, j;
   float *box, *p;
   float min[3], max[3];
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkDataSet *output=(vtkDataSet *)this->Output;
+  vtkDataSet *input = this->GetInput();
+  vtkDataSet *output = this->GetOutput();
 
   vtkDebugMacro(<<"Generating 3D texture coordinates!");
   //

@@ -145,7 +145,7 @@ void vtkVolume16Reader::Execute()
   float Spacing[3];
   float origin[3];
 
-  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
+  vtkStructuredPoints *output = this->GetOutput();
 
   // Validate instance variables
   if (this->FilePrefix == NULL) 

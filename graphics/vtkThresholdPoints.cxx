@@ -92,8 +92,8 @@ void vtkThresholdPoints::Execute()
   vtkCellArray *verts;
   int ptId, pts[1], numPts;
   float *x;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkDataSet *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
 
   vtkDebugMacro(<< "Executing threshold points filter");
 

@@ -57,8 +57,8 @@ void vtkTriangularTCoords::Execute()
   vtkCellArray *newPolys;
   float *p1, *p2, *p3;
   float tCoords[6];
-  vtkPolyData *input =(vtkPolyData *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
   vtkPointData *pointData = output->GetPointData(); 
 //
 // Initialize

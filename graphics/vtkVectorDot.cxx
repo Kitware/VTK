@@ -55,11 +55,11 @@ void vtkVectorDot::Execute()
 {
   int ptId, numPts;
   vtkScalars *newScalars;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *input = this->GetInput();
   vtkNormals *inNormals;
   vtkVectors *inVectors;
   float s, *n, *v, min, max, dR, dS;
-  vtkDataSet *output=(vtkDataSet *)this->Output;
+  vtkDataSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
 //
 // Initialize

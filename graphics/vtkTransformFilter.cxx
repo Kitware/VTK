@@ -62,8 +62,8 @@ void vtkTransformFilter::Execute()
   vtkNormals *inNormals, *inCellNormals;
   vtkNormals *newNormals=NULL, *newCellNormals=NULL;
   int numPts, numCells;
-  vtkPointSet *input=(vtkPointSet *)this->Input;
-  vtkPointSet *output= this->GetOutput();
+  vtkPointSet *input = this->GetInput();
+  vtkPointSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
 

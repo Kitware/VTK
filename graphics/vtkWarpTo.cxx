@@ -55,8 +55,8 @@ void vtkWarpTo::Execute()
   vtkPointData *pd;
   int i, ptId, numPts;
   float *x, newX[3];
-  vtkPointSet *input=(vtkPointSet *)this->Input;
-  vtkPointSet *output=(vtkPointSet *)this->Output;
+  vtkPointSet *input = this->GetInput();
+  vtkPointSet *output = this->GetOutput();
   float mag;
   float minMag = 0;
   

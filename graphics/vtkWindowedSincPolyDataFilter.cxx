@@ -95,8 +95,8 @@ void vtkWindowedSincPolyDataFilter::Execute()
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   vtkPoints *newPts[4];
   vtkMeshVertexPtr Verts;
-  vtkPolyData *input=(vtkPolyData *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
 
   // variables specific to windowed sinc interpolation
   float theta_pb, k_pb, sigma, *p_x0, *p_x1, *p_x3;

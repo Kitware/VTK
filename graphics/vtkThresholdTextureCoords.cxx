@@ -100,8 +100,8 @@ void vtkThresholdTextureCoords::Execute()
   vtkTCoords *newTCoords;
   int ptId;
   vtkScalars *inScalars;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkDataSet *output=(vtkDataSet *)this->Output;
+  vtkDataSet *input = this->GetInput();
+  vtkDataSet *output = this->GetOutput();
 
   vtkDebugMacro(<< "Executing texture threshold filter");
 

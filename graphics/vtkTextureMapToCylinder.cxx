@@ -63,8 +63,8 @@ vtkTextureMapToCylinder::vtkTextureMapToCylinder()
 void vtkTextureMapToCylinder::Execute()
 {
   vtkTCoords *newTCoords;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkDataSet *output=(vtkDataSet *)this->Output;
+  vtkDataSet *input= this->GetInput();
+  vtkDataSet *output= this->GetOutput();
   int numPts=input->GetNumberOfPoints();
   int ptId, i;
   float *x, tc[2], thetaX, thetaY, closest[3], v[3];

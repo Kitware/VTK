@@ -66,8 +66,8 @@ void vtkStructuredPointsGeometryFilter::Execute()
   float *x;
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
-  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkStructuredPoints *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
 
   vtkDebugMacro(<< "Extracting structured points geometry");
 

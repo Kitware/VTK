@@ -160,7 +160,7 @@ void vtkUnstructuredGridReader::Execute()
   int npts, size, ncells;
   vtkCellArray *cells=NULL;
   int *types=NULL;
-  vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
+  vtkUnstructuredGrid *output = this->GetOutput();
 
   vtkDebugMacro(<<"Reading vtk unstructured grid...");
   if ( this->Debug )

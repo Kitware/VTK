@@ -1663,7 +1663,7 @@ vtkVectorText::vtkVectorText()
 
 void vtkVectorText::Execute()
 {
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *output = this->GetOutput();
   vtkPoints *newPoints;
   vtkCellArray *newPolys;
   int ptOffset = 0;

@@ -80,8 +80,8 @@ void vtkTubeFilter::Execute()
   int deleteNormals=0, ptId;
   float sFactor=1.0, range[2];
   vtkPointData *pd, *outPD;
-  vtkPolyData *input=(vtkPolyData *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
   //
   // Initialize
   //
