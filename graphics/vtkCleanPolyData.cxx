@@ -98,16 +98,16 @@ void vtkCleanPolyData::OperateOnBounds(float in[6], float out[6])
 void vtkCleanPolyData::Execute()
 {
   vtkPolyData  *input = this->GetInput();
-  vtkPoints    *inPts = input->GetPoints();
-  int numPts = input->GetNumberOfPoints();
-  //
-  vtkDebugMacro(<<"Beginning PolyData clean");
-  if (input == NULL) 
+  if (input == NULL)
     {
     vtkErrorMacro(<<"Input is NULL");
     return;
     }
-  if ( (numPts<1) || (inPts == NULL ) ) 
+  vtkPoints    *inPts = input->GetPoints();
+  int numPts = input->GetNumberOfPoints();
+  //
+  vtkDebugMacro(<<"Beginning PolyData clean");
+  if ( (numPts<1) || (inPts == NULL ) )
     {
     vtkErrorMacro(<<"No data to Operate On!");
     return;
