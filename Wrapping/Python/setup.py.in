@@ -105,7 +105,7 @@ setup (name              = "VTK",
                             'vtk_python.vtk.gtk', 'vtk_python.vtk.qt',
                             'vtk_python.vtk.tk', 'vtk_python.vtk.util',
                             'vtk_python.vtk.wx'],
-       scripts           = [get_vtkpython()],
+#       scripts           = [get_vtkpython()],
        package_dir       = {'vtk_python': '.'},
        data_files        = [('vtk_python', get_libs()), ('', ['vtk.pth'])]
        )
