@@ -3,15 +3,13 @@ catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 
-# First create the render master
+# Create the RenderWindow, Renderer and both Actors
 #
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
-#
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # read cyberware file
 #
@@ -50,11 +48,11 @@ vtkActor cyberActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor cyberActor
-$ren1 AddActor splatActor
-$ren1 SetBackground 1 1 1
-$renWin SetSize 500 500
-$ren1 SetBackground 1 1 1
+ren1 AddActor cyberActor
+ren1 AddActor splatActor
+ren1 SetBackground 1 1 1
+renWin SetSize 500 500
+ren1 SetBackground 1 1 1
 vtkCamera camera
     camera SetClippingRange 0.0332682 1.66341
     camera SetFocalPoint 0.0511519 -0.127555 -0.0554379
@@ -62,14 +60,14 @@ vtkCamera camera
     camera ComputeViewPlaneNormal
     camera SetViewAngle 18.1279
     camera SetViewUp -0.013125 0.99985 -0.0112779
-$ren1 SetActiveCamera camera
+ren1 SetActiveCamera camera
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$renWin Render
-#$renWin SetFileName "splatFace.tcl.ppm"
-#$renWin SaveImageAsPPM
+iren SetUserMethod {wm deiconify .vtkInteract}
+renWin Render
+#renWin SetFileName "splatFace.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

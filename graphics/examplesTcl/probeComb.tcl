@@ -3,14 +3,13 @@ catch {load vtktcl}
 source vtkInt.tcl
 
 # create planes
-# First create the render master
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create pipeline
 #
@@ -95,28 +94,28 @@ vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     [outlineActor GetProperty] SetColor 0 0 0
 
-$ren1 AddActor outlineActor
-$ren1 AddActor planeActor
-$ren1 AddActor tpd1Actor
-$ren1 AddActor tpd2Actor
-$ren1 AddActor tpd3Actor
-$ren1 SetBackground 1 1 1
-$renWin SetSize 500 500
+ren1 AddActor outlineActor
+ren1 AddActor planeActor
+ren1 AddActor tpd1Actor
+ren1 AddActor tpd2Actor
+ren1 AddActor tpd3Actor
+ren1 SetBackground 1 1 1
+renWin SetSize 500 500
 
-set cam1 [$ren1 GetActiveCamera]
+set cam1 [ren1 GetActiveCamera]
 $cam1 SetClippingRange 3.95297 50
 $cam1 SetFocalPoint 8.88908 0.595038 29.3342
 $cam1 SetPosition -12.3332 31.7479 41.2387
 $cam1 ComputeViewPlaneNormal
 $cam1 SetViewUp 0.060772 -0.319905 0.945498
-$iren Initialize
+iren Initialize
 
-#$renWin SetFileName "probeComb.tcl.ppm"
-#$renWin SaveImageAsPPM
+#renWin SetFileName "probeComb.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetUserMethod {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -4,15 +4,13 @@ catch {load vtktcl}
 source vtkInt.tcl
 source colors.tcl
 
-# First create the render master
+# Create the RenderWindow, Renderer and both Actors
 #
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
-#
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create cutting planes
 vtkPlanes planes
@@ -119,13 +117,13 @@ vtkActor byuActor5
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor byuActor
-$ren1 AddActor byuActor2
-$ren1 AddActor byuActor3
-$ren1 AddActor byuActor4
-$ren1 AddActor byuActor5
-$ren1 SetBackground 1 1 1
-$renWin SetSize 500 500
+ren1 AddActor byuActor
+ren1 AddActor byuActor2
+ren1 AddActor byuActor3
+ren1 AddActor byuActor4
+ren1 AddActor byuActor5
+ren1 SetBackground 1 1 1
+renWin SetSize 500 500
 
 vtkCamera camera
     camera SetFocalPoint 0.0286334 0.0362996 0.0379685
@@ -134,13 +132,13 @@ vtkCamera camera
     camera SetViewAngle 17.673
     camera SetViewUp  -0.376306 -0.5085 -0.774482
 
-$ren1 SetActiveCamera camera
+ren1 SetActiveCamera camera
 
 # render the image
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$iren Initialize
-$renWin SetFileName "motor.tcl.ppm"
-#$renWin SaveImageAsPPM
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
+renWin SetFileName "motor.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

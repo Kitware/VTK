@@ -25,16 +25,17 @@ vtkActor planeActor
   planeActor SetTexture atext
 
 # Create graphics stuff
-vtkRenderMaster rm
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren   [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # Add the actors to the renderer, set the background and size
-$ren1 AddActor planeActor
-$ren1 SetBackground 0.1 0.2 0.4
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$renWin SetSize 512 32
+ren1 AddActor planeActor
+ren1 SetBackground 0.1 0.2 0.4
+iren SetUserMethod {wm deiconify .vtkInteract}
+renWin SetSize 512 32
 
 # Setup camera
 vtkCamera camera
@@ -44,24 +45,24 @@ vtkCamera camera
   camera SetViewAngle 30
   camera SetViewPlaneNormal 0 0 1
   camera SetViewUp 0 1 0
-$ren1 SetActiveCamera camera
-$renWin Render
+ren1 SetActiveCamera camera
+renWin Render
 
 for {set i 0} {$i < 112} {incr i} {
    eval trans AddPosition 0.01 0 0
-   $renWin Render
+   renWin Render
 }
 for {set i 0} {$i < 40} {incr i} {
    eval trans AddPosition 0 0.05 0
-   $renWin Render
+   renWin Render
 }
 for {set i 0} {$i < 112} {incr i} {
    eval trans AddPosition -0.01 0 0
-   $renWin Render
+   renWin Render
 }
 
-#$renWin SetFileName billBoard.tcl.ppm
-#$renWin SaveImageAsPPM
+#renWin SetFileName billBoard.tcl.ppm
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

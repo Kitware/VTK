@@ -3,14 +3,13 @@ catch {load vtktcl}
 source vtkInt.tcl
 source colors.tcl
 
-# Create the render master
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # read data
 #
@@ -72,12 +71,12 @@ vtkActor outlineActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor outlineActor
-$ren1 AddActor wallActor
-$ren1 AddActor finActor
-$ren1 AddActor plane1Actor
-$ren1 SetBackground 1 1 1
-$renWin SetSize 400 400
+ren1 AddActor outlineActor
+ren1 AddActor wallActor
+ren1 AddActor finActor
+ren1 AddActor plane1Actor
+ren1 SetBackground 1 1 1
+renWin SetSize 400 400
 
 vtkCamera cam1
   cam1 SetClippingRange 1.51176 75.5879
@@ -86,16 +85,16 @@ vtkCamera cam1
   cam1 SetViewAngle 30
   cam1 SetViewPlaneNormal 0.564986 0.152542 0.810877
   cam1 SetViewUp -0.0610856 0.987798 -0.143262
-$ren1 SetActiveCamera cam1
+ren1 SetActiveCamera cam1
 
-$iren Initialize
+iren Initialize
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetUserMethod {wm deiconify .vtkInteract}
 
-$renWin SetFileName "polyConn.tcl.ppm"
-#$renWin SaveImageAsPPM
+renWin SetFileName "polyConn.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

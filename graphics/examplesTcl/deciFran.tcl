@@ -2,15 +2,14 @@ catch {load vtktcl}
 # this is a tcl version to decimtae fran's face
 # get the interactor ui
 source vtkInt.tcl
-# First create the render master
-#
-vtkRenderMaster rm
 
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create a cyberware source
 #
@@ -36,13 +35,13 @@ vtkActor cyberActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor cyberActor
-$ren1 SetBackground 1 1 1
-$renWin SetSize 500 500
+ren1 AddActor cyberActor
+ren1 SetBackground 1 1 1
+renWin SetSize 500 500
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetUserMethod {wm deiconify .vtkInteract}
 
 vtkCamera cam1
     cam1 SetClippingRange 0.0475572 2.37786
@@ -50,11 +49,11 @@ vtkCamera cam1
     cam1 SetPosition 0.327637 -0.116299 -0.256418
     cam1 ComputeViewPlaneNormal
     cam1 SetViewUp -0.0225386 0.999137 0.034901
-$ren1 SetActiveCamera cam1
+ren1 SetActiveCamera cam1
 
-$iren Initialize
-#$renWin SetFileName "deciFran.tcl.ppm"
-#$renWin SaveImageAsPPM
+iren Initialize
+#renWin SetFileName "deciFran.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -3,12 +3,12 @@ catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 source "colors.tcl"
-# First create the render master
-vtkRenderMaster rm
 
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create implicit function primitives
 vtkCone cone
@@ -70,20 +70,20 @@ vtkActor creamActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor coneActor
-$ren1 AddActor creamActor
-$ren1 SetBackground 1 1 1
-$renWin SetSize 500 500
-[$ren1 GetActiveCamera] Roll 90
-$iren Initialize
+ren1 AddActor coneActor
+ren1 AddActor creamActor
+ren1 SetBackground 1 1 1
+renWin SetSize 500 500
+[ren1 GetActiveCamera] Roll 90
+iren Initialize
 
-#$renWin SetFileName "iceCream.tcl.ppm"
-#$renWin SaveImageAsPPM
+#renWin SetFileName "iceCream.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$renWin Render
+iren SetUserMethod {wm deiconify .vtkInteract}
+renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -2,14 +2,14 @@ catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 source "colors.tcl"
-# First create the render master
-vtkRenderMaster rm
 
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # construct simple pixmap with test scalars
 #
@@ -59,17 +59,17 @@ vtkActor planeActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor planeActor
-$ren1 SetBackground 0.5 0.5 0.5
-$renWin SetSize 450 450
+ren1 AddActor planeActor
+ren1 SetBackground 0.5 0.5 0.5
+renWin SetSize 450 450
 
-$iren Initialize
-#$renWin SetFileName "testTexThresh.tcl.ppm"
-#$renWin SaveImageAsPPM
+iren Initialize
+#renWin SetFileName "testTexThresh.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetUserMethod {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

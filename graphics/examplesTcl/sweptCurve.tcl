@@ -60,20 +60,20 @@ vtkActor seam
     [seam GetProperty] SetColor 1.0000 0.3882 0.2784
 
 # Create graphics stuff
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren   [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor sweep
-$ren1 AddActor seam
-$ren1 SetBackground 1 1 1
-$ren1 TwoSidedLightingOn
+ren1 AddActor sweep
+ren1 AddActor seam
+ren1 SetBackground 1 1 1
+ren1 TwoSidedLightingOn
 
 vtkCamera acam
     acam SetClippingRange 1.38669 69.3345
@@ -83,14 +83,14 @@ vtkCamera acam
     acam SetViewPlaneNormal 0.98735 0.13785 -0.0783399
     acam SetViewUp 0.157669 -0.801427 0.576936
 
-$ren1 SetActiveCamera acam
+ren1 SetActiveCamera acam
 
-$renWin SetSize 400 400
-$renWin Render
+renWin SetSize 400 400
+renWin Render
 
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$renWin SetFileName "sweptCurve.tcl.ppm"
-#$renWin SaveImageAsPPM
+iren SetUserMethod {wm deiconify .vtkInteract}
+renWin SetFileName "sweptCurve.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

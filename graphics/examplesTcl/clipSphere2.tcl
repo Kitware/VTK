@@ -37,23 +37,24 @@ vtkActor clipActor
 
 # Create graphics stuff
 #
-vtkRenderMaster rm
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor clipActor
-$ren1 SetBackground 1 1 1
-$renWin SetSize 400 400
-$iren Initialize
+ren1 AddActor clipActor
+ren1 SetBackground 1 1 1
+renWin SetSize 400 400
+iren Initialize
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$renWin SetFileName "clipSphere2.tcl.ppm"
-#$renWin SaveImageAsPPM
+iren SetUserMethod {wm deiconify .vtkInteract}
+renWin SetFileName "clipSphere2.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

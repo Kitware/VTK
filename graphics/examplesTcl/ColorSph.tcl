@@ -21,20 +21,21 @@ vtkPolyMapper mapper
 vtkActor actor
   actor SetMapper mapper
 
-vtkRenderMaster rm
-set renWin [rm MakeRenderWindow]
-set iren [$renWin MakeRenderWindowInteractor]
-set ren1 [$renWin MakeRenderer]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
-$ren1 AddActor actor
-$ren1 SetBackground 1 1 1
-$renWin SetSize 400 400
-[$ren1 GetActiveCamera] Zoom 1.4
+ren1 AddActor actor
+ren1 SetBackground 1 1 1
+renWin SetSize 400 400
+[ren1 GetActiveCamera] Zoom 1.4
 
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$iren Initialize
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
 
-#$renWin SetFileName ColorSph.tcl.ppm
-#$renWin SaveImageAsPPM
+#renWin SetFileName ColorSph.tcl.ppm
+#renWin SaveImageAsPPM
 
 wm withdraw .

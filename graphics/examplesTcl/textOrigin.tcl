@@ -20,21 +20,22 @@ vtkFollower textActor
     textActor AddPosition 0 -0.1 0
 
 # create graphics stuff
-vtkRenderMaster rm
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
-$ren1 AddActor axesActor
-$ren1 AddActor textActor
-[$ren1 GetActiveCamera] Zoom 1.6
-$renWin Render
-textActor SetCamera [$ren1 GetActiveCamera]
+ren1 AddActor axesActor
+ren1 AddActor textActor
+[ren1 GetActiveCamera] Zoom 1.6
+renWin Render
+textActor SetCamera [ren1 GetActiveCamera]
 
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$iren Initialize
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
 
-$renWin SetFileName "textOrigin.tcl.ppm"
-#$renWin SaveImageAsPPM
+renWin SetFileName "textOrigin.tcl.ppm"
+#renWin SaveImageAsPPM
 
 wm withdraw .

@@ -4,14 +4,13 @@ catch {load vtktcl}
 source vtkInt.tcl
 source colors.tcl
 
-# Create the render master
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # read data
 #
@@ -77,12 +76,12 @@ vtkActor outlineActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor outlineActor
-$ren1 AddActor streamersActor
-$ren1 AddActor wallActor
-$ren1 AddActor finActor
-$ren1 SetBackground 0 0 0
-$renWin SetSize 700 500
+ren1 AddActor outlineActor
+ren1 AddActor streamersActor
+ren1 AddActor wallActor
+ren1 AddActor finActor
+ren1 SetBackground 0 0 0
+renWin SetSize 700 500
 
 vtkCamera cam1
   cam1 SetFocalPoint 2.87956 4.24691 2.73135
@@ -90,19 +89,19 @@ vtkCamera cam1
   cam1 ComputeViewPlaneNormal
   cam1 SetViewAngle 30
   cam1 SetViewUp 0.127555 0.911749 -0.390441
-$ren1 SetActiveCamera cam1
+ren1 SetActiveCamera cam1
 
-$iren Initialize
-$renWin Render
+iren Initialize
+renWin Render
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetUserMethod {wm deiconify .vtkInteract}
 
-$renWin Render
+renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
-#$renWin SetFileName bluntStr.tcl.ppm
-#$renWin SaveImageAsPPM
+#renWin SetFileName bluntStr.tcl.ppm
+#renWin SaveImageAsPPM

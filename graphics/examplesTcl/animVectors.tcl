@@ -3,14 +3,13 @@ catch {load vtktcl}
 source vtkInt.tcl
 source "colors.tcl"
 
-# First create the render master
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # read data
 #
@@ -95,17 +94,17 @@ vectorActor SetTexture texture1
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor vectorActor
-$ren1 SetBackground 1 1 1
-$renWin SetSize 500 500
+ren1 AddActor vectorActor
+ren1 SetBackground 1 1 1
+renWin SetSize 500 500
 
-$iren Initialize
+iren Initialize
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-[$ren1 GetActiveCamera] Zoom 1.5
-$renWin Render
+iren SetUserMethod {wm deiconify .vtkInteract}
+[ren1 GetActiveCamera] Zoom 1.5
+renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
@@ -113,23 +112,23 @@ wm withdraw .
 # go into loop
 
 for {set i 0} {$i<5} {incr i} {
-    vectorActor SetTexture texture1; $renWin Render
-    vectorActor SetTexture texture2; $renWin Render
-    vectorActor SetTexture texture3; $renWin Render
-    vectorActor SetTexture texture4; $renWin Render
-    vectorActor SetTexture texture5; $renWin Render
-    vectorActor SetTexture texture6; $renWin Render
-    vectorActor SetTexture texture7; $renWin Render
-    vectorActor SetTexture texture8; $renWin Render
-    vectorActor SetTexture texture1; $renWin Render
-    vectorActor SetTexture texture2; $renWin Render
-    vectorActor SetTexture texture3; $renWin Render
-    vectorActor SetTexture texture4; $renWin Render
-    vectorActor SetTexture texture5; $renWin Render
-    vectorActor SetTexture texture6; $renWin Render
-    vectorActor SetTexture texture7; $renWin Render
-    vectorActor SetTexture texture8; $renWin Render
+    vectorActor SetTexture texture1; renWin Render
+    vectorActor SetTexture texture2; renWin Render
+    vectorActor SetTexture texture3; renWin Render
+    vectorActor SetTexture texture4; renWin Render
+    vectorActor SetTexture texture5; renWin Render
+    vectorActor SetTexture texture6; renWin Render
+    vectorActor SetTexture texture7; renWin Render
+    vectorActor SetTexture texture8; renWin Render
+    vectorActor SetTexture texture1; renWin Render
+    vectorActor SetTexture texture2; renWin Render
+    vectorActor SetTexture texture3; renWin Render
+    vectorActor SetTexture texture4; renWin Render
+    vectorActor SetTexture texture5; renWin Render
+    vectorActor SetTexture texture6; renWin Render
+    vectorActor SetTexture texture7; renWin Render
+    vectorActor SetTexture texture8; renWin Render
 } 
 
-#$renWin SetFileName animVectors.tcl.ppm
-#$renWin SaveImageAsPPM
+#renWin SetFileName animVectors.tcl.ppm
+#renWin SaveImageAsPPM

@@ -2,13 +2,14 @@ catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 source "colors.tcl"
-vtkRenderMaster rm
 
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create lines
 vtkPolyReader reader
@@ -38,10 +39,10 @@ vtkActor impActor;
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor lineActor
-$ren1 AddActor impActor
-$ren1 SetBackground 1 1 1
-$renWin SetSize 600 250
+ren1 AddActor lineActor
+ren1 AddActor impActor
+ren1 SetBackground 1 1 1
+renWin SetSize 600 250
 
 vtkCamera camera
   camera SetClippingRange 1.81325 90.6627
@@ -50,15 +51,15 @@ vtkCamera camera
   camera ComputeViewPlaneNormal
   camera SetViewUp  0  1  0
   camera Zoom 0.8
-$ren1 SetActiveCamera camera
+ren1 SetActiveCamera camera
 
-$iren Initialize
+iren Initialize
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-#$renWin SetFileName "hello.tcl.ppm"
-#$renWin SaveImageAsPPM
+iren SetUserMethod {wm deiconify .vtkInteract}
+#renWin SetFileName "hello.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

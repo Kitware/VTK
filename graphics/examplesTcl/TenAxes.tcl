@@ -3,13 +3,13 @@ catch {load vtktcl}
 source vtkInt.tcl
 
 # create tensor ellipsoids
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and interactive renderer
+# Create the RenderWindow, Renderer and interactive renderer
 #
-set renWin [rm MakeRenderWindow]
-set ren1 [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 #
 # Create tensor ellipsoids
@@ -84,19 +84,19 @@ vtkCamera camera
     camera SetViewAngle 24.4617
     camera SetViewUp 0.17138 0.331163 0.927879
 
-$ren1 AddActor ellipActor
-$ren1 AddActor outlineActor
-$ren1 AddActor coneActor
-$ren1 SetBackground 1.0 1.0 1.0
-$ren1 SetActiveCamera camera
+ren1 AddActor ellipActor
+ren1 AddActor outlineActor
+ren1 AddActor coneActor
+ren1 SetBackground 1.0 1.0 1.0
+ren1 SetActiveCamera camera
 
-$renWin SetSize 500 500
-$renWin Render
+renWin SetSize 500 500
+renWin Render
 
-#$renWin SetFileName TenAxes.tcl.ppm
-#$renWin SaveImageAsPPM
+#renWin SetFileName TenAxes.tcl.ppm
+#renWin SaveImageAsPPM
 
-$iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetUserMethod {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

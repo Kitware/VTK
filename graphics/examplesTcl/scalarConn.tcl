@@ -47,25 +47,25 @@ vtkActor outlineActor
   eval [outlineActor GetProperty] SetColor 0 0 0
 
 # Graphics
-vtkRenderMaster rm
-
 # create a window to render into
-set renWin [rm MakeRenderWindow]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
 
 # create a renderer
-set ren1 [$renWin MakeRenderer]
 
 # interactiver renderer catches mouse events (optional)
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
-$ren1 SetBackground 1 1 1
-$ren1 AddActor contActor
-$ren1 AddActor outlineActor
-[$ren1 GetActiveCamera] Zoom 1.4
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$iren Initialize
+ren1 SetBackground 1 1 1
+ren1 AddActor contActor
+ren1 AddActor outlineActor
+[ren1 GetActiveCamera] Zoom 1.4
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
 
-$renWin SetFileName scalarConn.tcl.ppm
-#$renWin SaveImageAsPPM
+renWin SetFileName scalarConn.tcl.ppm
+#renWin SaveImageAsPPM
 
 wm withdraw .

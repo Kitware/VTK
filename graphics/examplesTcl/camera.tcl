@@ -2,14 +2,13 @@ catch {load vtktcl}
 # create camera figure
 source vtkInt.tcl
 
-# create the render master
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create a camera model
 vtkConeSource camCS
@@ -221,30 +220,30 @@ a6Actor SetScale 1.5 1.5 1.5
 [a6Actor GetProperty] SetDiffuse 0.8
 
 # Add the actors to the renderer, set the background and size
-$ren1 AddActor camActor
-$ren1 AddActor a1Actor
-$ren1 AddActor a2Actor
-$ren1 AddActor a3Actor
-$ren1 AddActor a4Actor
-$ren1 AddActor a5Actor
-$ren1 AddActor a6Actor
-$ren1 AddActor fpActor
-$ren1 SetBackground 0.1 0.2 0.4
-$renWin SetSize 500 500
+ren1 AddActor camActor
+ren1 AddActor a1Actor
+ren1 AddActor a2Actor
+ren1 AddActor a3Actor
+ren1 AddActor a4Actor
+ren1 AddActor a5Actor
+ren1 AddActor a6Actor
+ren1 AddActor fpActor
+ren1 SetBackground 0.1 0.2 0.4
+renWin SetSize 500 500
 
 # render the image
-$iren SetUserMethod {wm deiconify .vtkInteract}
-set cam1 [$ren1 GetActiveCamera]
+iren SetUserMethod {wm deiconify .vtkInteract}
+set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.5
 $cam1 Azimuth 150
 $cam1 Elevation 30
 
-$iren Initialize
-#$renWin SetFileName camera.tcl.ppm
-#$renWin SaveImageAsPPM
+iren Initialize
+#renWin SetFileName camera.tcl.ppm
+#renWin SaveImageAsPPM
 
 #vtkVRMLExporter exp
-#exp SetInput $renWin
+#exp SetInput renWin
 #exp SetFileName camera.wrl
 #exp Write
 

@@ -1,15 +1,13 @@
 # Converts gradient vectors and magnitude into a structured points with
 # scalars and vectors.  It displays them with hedge hogs.
 
-
-# First create the render master
-vtkRenderMaster rm;
-
 # Now create the RenderWindow and Renderer.
 #
-set renWin [rm MakeRenderWindow];
-set ren1   [$renWin MakeRenderer];
-set iren [$renWin MakeRenderWindowInteractor];
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 ## Create an image pipeline
 vtkImageSeriesReader reader;
@@ -65,21 +63,21 @@ set outlineProp [outlineActor GetProperty];
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors outlineActor;
-$ren1 AddActors hhogActor;
-$ren1 SetBackground 1 1 1;
-$renWin SetSize 500 500;
-#$renWin SetSize 1000 1000;
-$ren1 SetBackground 0.1 0.2 0.4;
-$iren Initialize;
+ren1 AddActors outlineActor;
+ren1 AddActors hhogActor;
+ren1 SetBackground 1 1 1;
+renWin SetSize 500 500;
+#renWin SetSize 1000 1000;
+ren1 SetBackground 0.1 0.2 0.4;
+iren Initialize;
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract};
-[$ren1 GetActiveCamera] Zoom 1.5;
-$renWin Render;
-#$renWin SetFilename "complexV.tcl.ppm";
-#$renWin SaveImageAsPPM;
+iren SetUserMethod {wm deiconify .vtkInteract};
+[ren1 GetActiveCamera] Zoom 1.5;
+renWin Render;
+#renWin SetFilename "complexV.tcl.ppm";
+#renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

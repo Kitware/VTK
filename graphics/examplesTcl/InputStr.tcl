@@ -2,15 +2,14 @@ catch {load vtktcl}
 # this is a tcl version of plate vibration
 # get the interactor ui
 source vtkInt.tcl
-# First create the render master
-#
-vtkRenderMaster rm
 
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # read a vtk file
 #
@@ -1326,18 +1325,18 @@ vtkActor plateActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor plateActor
-$ren1 SetBackground 1 1 1
-$renWin SetSize 500 500
+ren1 AddActor plateActor
+ren1 SetBackground 1 1 1
+renWin SetSize 500 500
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$iren Initialize
-$renWin Render
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
+renWin Render
 
-#$renWin SetFileName InputStr.tcl.ppm
-#$renWin SaveImageAsPPM
+#renWin SetFileName InputStr.tcl.ppm
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

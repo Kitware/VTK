@@ -46,22 +46,23 @@ vtkActor glyphActor
 #
 # Create the rendering stuff
 #
-vtkRenderMaster rm
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
-$ren1 AddActor planeActor
-$ren1 AddActor glyphActor
-$ren1 SetBackground 0.1 0.2 0.4
-$renWin SetSize 450 450
+ren1 AddActor planeActor
+ren1 AddActor glyphActor
+ren1 SetBackground 0.1 0.2 0.4
+renWin SetSize 450 450
 
 # Get handles to some useful objects
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$renWin Render
-#$renWin SetFileName "plane.tcl.ppm"
-#$renWin SaveImageAsPPM
+iren SetUserMethod {wm deiconify .vtkInteract}
+renWin Render
+#renWin SetFileName "plane.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

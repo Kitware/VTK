@@ -3,15 +3,13 @@ catch {load vtktcl}
 # include get the vtk interactor ui
 source vtkInt.tcl
 
-# Create the render master
+# Create the RenderWindow, Renderer and both Actors
 #
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
-#
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 vtkSphereSource sphere
 vtkPolyMapper sphereMapper
@@ -99,19 +97,19 @@ vtkAssembly topLevel
 # Add the actors to the renderer, set the background and size
 #
 
-$ren1 AddActor threeGroups
-$ren1 AddActor threeGroups2
-$ren1 SetBackground 0.1 0.2 0.4
-$renWin SetSize 450 450
+ren1 AddActor threeGroups
+ren1 AddActor threeGroups2
+ren1 SetBackground 0.1 0.2 0.4
+renWin SetSize 450 450
 
 # Get handles to some useful objects
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$iren Initialize
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
-$renWin SetFileName assembly2.tcl.ppm
-$renWin SaveImageAsPPM
+renWin SetFileName assembly2.tcl.ppm
+renWin SaveImageAsPPM
 

@@ -3,7 +3,7 @@ catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
 vtkRenderer ren1
 vtkRenderWindow renWin

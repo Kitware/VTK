@@ -66,29 +66,29 @@ vtkActor ballActor
     [ballActor GetProperty] SetDiffuse 0.8
 
 # Create graphics objects
-vtkRenderMaster rm
-
-# Now create the rendering window, renderer, and interactive renderer
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren   [$renWin MakeRenderWindowInteractor]
+# Create the rendering window, renderer, and interactive renderer
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # Add the actors to the renderer, set the background and size
-$ren1 AddActor ballActor
-#$ren1 AddActor meshActor
-$ren1 AddActor edgeActor
-$ren1 SetBackground 1 1 1
-$renWin SetSize 150 150
-#$renWin SetSize 500 500
+ren1 AddActor ballActor
+#ren1 AddActor meshActor
+ren1 AddActor edgeActor
+ren1 SetBackground 1 1 1
+renWin SetSize 150 150
+#renWin SetSize 500 500
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-[$ren1 GetActiveCamera] Zoom 1.5
-$iren Initialize
+iren SetUserMethod {wm deiconify .vtkInteract}
+[ren1 GetActiveCamera] Zoom 1.5
+iren Initialize
 
-$renWin SetFileName "DelMesh.ppm"
-#$renWin SaveImageAsPPM
+renWin SetFileName "DelMesh.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

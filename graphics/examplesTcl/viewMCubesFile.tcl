@@ -5,14 +5,13 @@ catch {load vtktcl}
 source vtkInt.tcl
 source colors.tcl
 
-# Create the render master
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # prompt for input filename
 puts -nonewline "Input marching cubes filename>> "
@@ -35,16 +34,16 @@ vtkActor head
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor head
-$ren1 SetBackground 1 1 1
-$renWin SetSize 500 500
-eval $ren1 SetBackground $slate_grey
+ren1 AddActor head
+ren1 SetBackground 1 1 1
+renWin SetSize 500 500
+eval ren1 SetBackground $slate_grey
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetUserMethod {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Initialize
+iren Initialize
 

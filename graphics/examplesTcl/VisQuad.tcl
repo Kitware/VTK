@@ -1,16 +1,11 @@
 catch {load vtktcl}
 source vtkInt.tcl
 
-vtkRenderMaster rm
-
-# create a window to render into
-set renWin [rm MakeRenderWindow]
-
-# create a renderer
-set ren1 [$renWin MakeRenderer]
-
-# interactiver renderer catches mouse events (optional)
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # Quadric definition
   vtkQuadric quadric
@@ -45,14 +40,14 @@ set iren [$renWin MakeRenderWindowInteractor]
     outlineActor SetMapper outlineMapper
     eval [outlineActor GetProperty] SetColor 0 0 0
 
-  $ren1 SetBackground 1 1 1
-  $ren1 AddActor contActor
-  $ren1 AddActor outlineActor
+  ren1 SetBackground 1 1 1
+  ren1 AddActor contActor
+  ren1 AddActor outlineActor
 
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$iren Initialize
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
 
-#$renWin SetFileName VisQuad.tcl.ppm
-#$renWin SaveImageAsPPM
+#renWin SetFileName VisQuad.tcl.ppm
+#renWin SaveImageAsPPM
 
 wm withdraw .

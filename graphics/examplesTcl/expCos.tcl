@@ -59,22 +59,21 @@ vtkActor carpet
 # assign our actor to the renderer
 
 # Create graphics stuff
+# Create the RenderWindow, Renderer and both Actors
 #
-vtkRenderMaster rm
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
-# Now create the RenderWindow, Renderer and both Actors
-#
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
-
-$ren1 AddActor carpet
-$renWin SetSize 500 500
+ren1 AddActor carpet
+renWin SetSize 500 500
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$renWin Render
+iren SetUserMethod {wm deiconify .vtkInteract}
+renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

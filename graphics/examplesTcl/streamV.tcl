@@ -3,11 +3,11 @@ catch {load vtktcl}
 source colors.tcl
 source vtkInclude.tcl
 
-vtkRenderMaster rm
-
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create pipeline
 #
@@ -66,11 +66,11 @@ eval $outlineProp SetColor 0 0 0
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor outlineActor
-$ren1 AddActor streamerActor
-$ren1 AddActor isoActor
-$ren1 SetBackground 1 1 1
-$renWin SetSize 500 500
+ren1 AddActor outlineActor
+ren1 AddActor streamerActor
+ren1 AddActor isoActor
+ren1 SetBackground 1 1 1
+renWin SetSize 500 500
 
 vtkCamera cam1
   cam1 SetClippingRange 17.4043 870.216
@@ -79,18 +79,18 @@ vtkCamera cam1
   cam1 ComputeViewPlaneNormal
   cam1 SetViewUp -0.102647 -0.210897 0.972104
   cam1 Zoom 1.6
-$ren1 SetActiveCamera cam1
+ren1 SetActiveCamera cam1
 
-$iren Initialize
+iren Initialize
 
 # render the image
 #
-$iren SetUserMethod {
+iren SetUserMethod {
   commandloop "puts -nonewline vtki>"; puts cont}
 
-$renWin Render
-#$renWin SetFileName "streamV.tcl.ppm"
-#$renWin SaveImageAsPPM
+renWin Render
+#renWin SetFileName "streamV.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -3,14 +3,13 @@ catch {load vtktcl}
 source vtkInt.tcl
 source colors.tcl
 
-# First create the render master
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 vtkLight lgt
 
 # create pipeline
@@ -44,15 +43,15 @@ set outlineProp [outlineActor GetProperty]
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor outlineActor
-$ren1 AddActor isoActor
-$ren1 SetBackground 1 1 1
-$ren1 AddLight lgt
-$renWin SetSize 500 500
-$ren1 SetBackground 0.1 0.2 0.4
-$renWin DoubleBufferOff
+ren1 AddActor outlineActor
+ren1 AddActor isoActor
+ren1 SetBackground 1 1 1
+ren1 AddLight lgt
+renWin SetSize 500 500
+ren1 SetBackground 0.1 0.2 0.4
+renWin DoubleBufferOff
 
-set cam1 [$ren1 GetActiveCamera]
+set cam1 [ren1 GetActiveCamera]
 $cam1 Elevation 90
 $cam1 SetViewUp 0 0 -1
 $cam1 Zoom 1.3
@@ -62,11 +61,11 @@ eval lgt SetFocalPoint [$cam1 GetFocalPoint]
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetUserMethod {wm deiconify .vtkInteract}
 
-$renWin Render
-#$renWin SetFileName "headBone.tcl.ppm"
-#$renWin SaveImageAsPPM
+renWin Render
+#renWin SetFileName "headBone.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

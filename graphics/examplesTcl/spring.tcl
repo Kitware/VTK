@@ -2,14 +2,13 @@ catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 
-# First create the render master
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren   [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create spring profile (a circle)
 #
@@ -62,18 +61,18 @@ vtkActor spring
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor spring
-$ren1 SetBackground 1 1 1
-$renWin SetSize 500 500
+ren1 AddActor spring
+ren1 SetBackground 1 1 1
+renWin SetSize 500 500
 
-set cam1 [$ren1 GetActiveCamera]
+set cam1 [ren1 GetActiveCamera]
 $cam1 Azimuth 90
 
-$renWin Render
-#$renWin SetFileName "spring.tcl.ppm"
-#$renWin SaveImageAsPPM
+renWin Render
+#renWin SetFileName "spring.tcl.ppm"
+#renWin SaveImageAsPPM
 
-$iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetUserMethod {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

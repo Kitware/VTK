@@ -6,15 +6,13 @@ catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 
-# First create the render master
+# Create the RenderWindow, Renderer and both Actors
 #
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
-#
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 
 vtkTriangularTexture aTriangularTexture
@@ -59,17 +57,17 @@ vtkActor cubeActor
     eval [cubeActor GetProperty] SetDiffuseColor $tomato
 
 set slate_grey "0.4392 0.5020 0.5647"
-eval $ren1 SetBackground $slate_grey
-$ren1 AddActor cubeActor
-$ren1 AddActor texturedActor
-[$ren1 GetActiveCamera] Zoom 1.5
+eval ren1 SetBackground $slate_grey
+ren1 AddActor cubeActor
+ren1 AddActor texturedActor
+[ren1 GetActiveCamera] Zoom 1.5
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$iren Initialize
-$renWin SetFileName "triangularTCoords.tcl.ppm"
-#$renWin SaveImageAsPPM
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
+renWin SetFileName "triangularTCoords.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

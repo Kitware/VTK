@@ -3,14 +3,13 @@ catch {load vtktcl}
 source vtkInt.tcl
 source colors.tcl
 
-# Create the render master
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create pipeline
 #
@@ -39,11 +38,11 @@ vtkActor outlineActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor outlineActor
-$ren1 AddActor isoActor
-$ren1 SetBackground 1 1 1
-$renWin SetSize 500 500
-$ren1 SetBackground 0.1 0.2 0.4
+ren1 AddActor outlineActor
+ren1 AddActor isoActor
+ren1 SetBackground 1 1 1
+renWin SetSize 500 500
+ren1 SetBackground 0.1 0.2 0.4
 
 vtkCamera cam1
     cam1 SetClippingRange 19.1589 957.946
@@ -51,16 +50,16 @@ vtkCamera cam1
     cam1 SetPosition 150.841 89.374 -107.462
     cam1 ComputeViewPlaneNormal
     cam1 SetViewUp -0.190015 0.944614 0.267578
-$ren1 SetActiveCamera cam1
+ren1 SetActiveCamera cam1
 
-$iren Initialize
+iren Initialize
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetUserMethod {wm deiconify .vtkInteract}
 
-#$renWin SetFileName "dcubes.tcl.ppm"
-#$renWin SaveImageAsPPM
+#renWin SetFileName "dcubes.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

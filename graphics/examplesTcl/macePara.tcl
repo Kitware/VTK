@@ -2,15 +2,14 @@ catch {load vtktcl}
 # this is a tcl version of the Mace example
 # get the interactor ui
 source vtkInt.tcl
-# First create the render master
-#
-vtkRenderMaster rm
 
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create a sphere source and actor
 #
@@ -36,22 +35,22 @@ vtkLODActor spikeActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor sphereActor
-$ren1 AddActor spikeActor
-$ren1 SetBackground 0.1 0.2 0.4
-$renWin SetSize 500 500
+ren1 AddActor sphereActor
+ren1 AddActor spikeActor
+ren1 SetBackground 0.1 0.2 0.4
+renWin SetSize 500 500
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-set cam1 [$ren1 GetActiveCamera]
+iren SetUserMethod {wm deiconify .vtkInteract}
+set cam1 [ren1 GetActiveCamera]
 $cam1 ParallelProjectionOn
 $cam1 SetParallelScale 1
 $cam1 Zoom 1.4
-$iren Initialize
+iren Initialize
 
-#$renWin SetFileName "macePara.tcl.ppm"
-#$renWin SaveImageAsPPM
+#renWin SetFileName "macePara.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

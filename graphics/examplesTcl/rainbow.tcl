@@ -3,14 +3,14 @@ catch {load vtktcl}
 source vtkInt.tcl
 source "colors.tcl"
 # create planes
-# First create the render master
-vtkRenderMaster rm
 
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create pipeline
 #
@@ -82,15 +82,15 @@ set outlineProp [outlineActor GetProperty]
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor outlineActor
-$ren1 AddActor planeActor
-#$ren1 SetBackground 1 1 1
-$ren1 SetBackground 0.1 0.2 0.4
-$renWin SetSize 500 500
-$renWin DoubleBufferOff
-$iren Initialize
+ren1 AddActor outlineActor
+ren1 AddActor planeActor
+#ren1 SetBackground 1 1 1
+ren1 SetBackground 0.1 0.2 0.4
+renWin SetSize 500 500
+renWin DoubleBufferOff
+iren Initialize
 
-set cam1 [$ren1 GetActiveCamera]
+set cam1 [ren1 GetActiveCamera]
 $cam1 SetClippingRange 3.95297 50
 $cam1 SetFocalPoint 8.88908 0.595038 29.3342
 $cam1 SetPosition -12.3332 31.7479 41.2387
@@ -99,12 +99,12 @@ $cam1 SetViewUp 0.060772 -0.319905 0.945498
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetUserMethod {wm deiconify .vtkInteract}
 
-$renWin Render
+renWin Render
 
-#$renWin SetFileName "rainbow.tcl.ppm"
-#$renWin SaveImageAsPPM
+#renWin SetFileName "rainbow.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -3,10 +3,11 @@ catch {load vtktcl}
 source vtkInt.tcl
 
 # Create ren1dering stuff
-vtkRenderMaster rm
-set renWin [rm MakeRenderWindow]
-set ren1 [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # ingest data file
 vtkPolyReader reader
@@ -47,17 +48,17 @@ vtkActor sweptSurface
   sweptSurface SetMapper sweptSurfaceMapper
   [sweptSurface GetProperty] SetColor 0.2510 0.8784 0.8157
 
-$ren1 AddActor sweptSurface
-$ren1 SetBackground 1 1 1
+ren1 AddActor sweptSurface
+ren1 SetBackground 1 1 1
 
-$renWin SetSize 500 500
+renWin SetSize 500 500
 
-$iren SetUserMethod {wm deiconify .vtkInteract}
-[$ren1 GetActiveCamera] Zoom 1.5
-$iren Initialize
+iren SetUserMethod {wm deiconify .vtkInteract}
+[ren1 GetActiveCamera] Zoom 1.5
+iren Initialize
 
-#$renWin SetFileName "sweptVtk.tcl.ppm"
-#$renWin SaveImageAsPPM
+#renWin SetFileName "sweptVtk.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

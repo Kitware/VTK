@@ -33,32 +33,31 @@ vtkActor triangulation
     triangulation SetMapper map
     [triangulation GetProperty] SetColor 1 0 0
 
-# First create the render master
-vtkRenderMaster rm
-
 # Create graphics stuff
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren   [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor triangulation
-$ren1 SetBackground 1 1 1
-$renWin SetSize 500 500
-$renWin Render
+ren1 AddActor triangulation
+ren1 SetBackground 1 1 1
+renWin SetSize 500 500
+renWin Render
 
-set cam1 [$ren1 GetActiveCamera]
+set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.5
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetUserMethod {wm deiconify .vtkInteract}
 
-$renWin Render
-#$renWin SetFileName Delaunay3D.tcl.ppm
-#$renWin SaveImageAsPPM
+renWin Render
+#renWin SetFileName Delaunay3D.tcl.ppm
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

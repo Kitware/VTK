@@ -2,14 +2,13 @@ catch {load vtktcl}
 # get the interactor ui
 source vtkInt.tcl
 
-# First create the render master
-vtkRenderMaster rm
-
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren   [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create bottle profile
 #
@@ -63,13 +62,13 @@ vtkActor bottle
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor bottle
-$ren1 SetBackground 1 1 1
+ren1 AddActor bottle
+ren1 SetBackground 1 1 1
 
-$renWin SetSize 500 500
-$renWin Render
+renWin SetSize 500 500
+renWin Render
 
-set cam1 [$ren1 GetActiveCamera]
+set cam1 [ren1 GetActiveCamera]
 #$cam1 SetClippingRange 3.95297 50
 #$cam1 SetFocalPoint 9.71821 0.458166 29.3999
 #$cam1 SetPosition 2.7439 -37.3196 38.7167
@@ -78,13 +77,13 @@ set cam1 [$ren1 GetActiveCamera]
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$iren Initialize
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
-#$renWin SetFileName bottle.tcl.ppm
-#$renWin SaveImageAsPPM
+#renWin SetFileName bottle.tcl.ppm
+#renWin SaveImageAsPPM
 
 

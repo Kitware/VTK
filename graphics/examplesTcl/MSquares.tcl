@@ -39,25 +39,21 @@ vtkActor outlineActor
   eval [outlineActor GetProperty] SetColor 0 0 0
 
 # create graphics objects
-vtkRenderMaster rm
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
-# create a window to render into
-set renWin [rm MakeRenderWindow]
+ren1 SetBackground 1 1 1
+ren1 AddActor contActor
+ren1 AddActor outlineActor
 
-# create a renderer
-set ren1 [$renWin MakeRenderer]
+[ren1 GetActiveCamera] Zoom 1.5
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize;
 
-# interactiver renderer catches mouse events (optional)
-set iren [$renWin MakeRenderWindowInteractor]
-$ren1 SetBackground 1 1 1
-$ren1 AddActor contActor
-$ren1 AddActor outlineActor
-
-[$ren1 GetActiveCamera] Zoom 1.5
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$iren Initialize;
-
-#$renWin SetFileName MSquares.tcl.ppm
-#$renWin SaveImageAsPPM
+#renWin SetFileName MSquares.tcl.ppm
+#renWin SaveImageAsPPM
 
 wm withdraw .

@@ -7,15 +7,13 @@ wm geometry .top +50+50
  
 source vtkInt.tcl
  
-# First create the render master
+# Create the RenderWindow, Renderer and both Actors
 #
-vtkRenderMaster rm
- 
-# Now create the RenderWindow, Renderer and both Actors
-#
-set renWin1  [rm MakeRenderWindow]
-set ren1     [$renWin1 MakeRenderer]
-set iren1    [$renWin1 MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin1
+    renWin1 AddRenderer ren1
+vtkRenderWindowInteractor iren1
+    iren1 SetRenderWindow renWin1
  
 # create a sphere source and actor
 #
@@ -42,19 +40,19 @@ vtkLODActor spikeActor
  
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor sphereActor
-$ren1 AddActor spikeActor
-$ren1 SetBackground 0.1 0.2 0.4
+ren1 AddActor sphereActor
+ren1 AddActor spikeActor
+ren1 SetBackground 0.1 0.2 0.4
  
 # render the image
 #
-$iren1 SetUserMethod {wm deiconify .vtkInteract}
-set cam1 [$ren1 GetActiveCamera]
+iren1 SetUserMethod {wm deiconify .vtkInteract}
+set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
 
 label .top.label -relief ridge -borderwidth 6 -text "Both Tk and VTK"
 canvas .top.renwin -width 300 -height 300 -highlightthickness 0
 pack .top.label .top.renwin -expand 1 -fill both
 
-$renWin1 SetTkWindow .top.renwin
-$iren1 Initialize
+renWin1 SetTkWindow .top.renwin
+iren1 Initialize

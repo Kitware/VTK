@@ -4,10 +4,11 @@ source vtkInt.tcl
 source colors.tcl
 source vtkInclude.tcl
 
-vtkRenderMaster rm
-set renWin [rm MakeRenderWindow]
-set ren1 [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # read data
 #
@@ -240,30 +241,30 @@ vtkActor streamTubeActor
     streamTubeActor SetMapper mapStreamTube
     [streamTubeActor GetProperty] BackfaceCullingOn
 
-$ren1 AddActor table1Actor
-$ren1 AddActor table2Actor
-$ren1 AddActor FilingCabinet1Actor
-$ren1 AddActor FilingCabinet2Actor
-$ren1 AddActor bookshelf1TopActor
-$ren1 AddActor bookshelf1BottomActor
-$ren1 AddActor bookshelf1FrontActor
-$ren1 AddActor bookshelf1BackActor
-$ren1 AddActor bookshelf1LHSActor
-$ren1 AddActor bookshelf1RHSActor
-$ren1 AddActor bookshelf2TopActor
-$ren1 AddActor bookshelf2BottomActor
-$ren1 AddActor bookshelf2FrontActor
-$ren1 AddActor bookshelf2BackActor
-$ren1 AddActor bookshelf2LHSActor
-$ren1 AddActor bookshelf2RHSActor
-$ren1 AddActor windowActor
-$ren1 AddActor outletActor
-$ren1 AddActor inletActor
-$ren1 AddActor outlineActor
-$ren1 AddActor streamTubeActor
+ren1 AddActor table1Actor
+ren1 AddActor table2Actor
+ren1 AddActor FilingCabinet1Actor
+ren1 AddActor FilingCabinet2Actor
+ren1 AddActor bookshelf1TopActor
+ren1 AddActor bookshelf1BottomActor
+ren1 AddActor bookshelf1FrontActor
+ren1 AddActor bookshelf1BackActor
+ren1 AddActor bookshelf1LHSActor
+ren1 AddActor bookshelf1RHSActor
+ren1 AddActor bookshelf2TopActor
+ren1 AddActor bookshelf2BottomActor
+ren1 AddActor bookshelf2FrontActor
+ren1 AddActor bookshelf2BackActor
+ren1 AddActor bookshelf2LHSActor
+ren1 AddActor bookshelf2RHSActor
+ren1 AddActor windowActor
+ren1 AddActor outletActor
+ren1 AddActor inletActor
+ren1 AddActor outlineActor
+ren1 AddActor streamTubeActor
 
-eval $ren1 SetBackground $slate_grey
-$ren1 TwoSidedLightingOn
+eval ren1 SetBackground $slate_grey
+ren1 TwoSidedLightingOn
 
 vtkCamera aCamera
     aCamera SetClippingRange 0.726079 36.3039
@@ -274,13 +275,13 @@ vtkCamera aCamera
     aCamera SetViewAngle 18.604; 
     aCamera Zoom 1.2
 
-$ren1 SetActiveCamera aCamera
+ren1 SetActiveCamera aCamera
 
-$renWin SetSize 500 300
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$iren Initialize
-#$renWin SetFileName "officeTube.tcl.ppm"
-#$renWin SaveImageAsPPM
+renWin SetSize 500 300
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
+#renWin SetFileName "officeTube.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # interact with data
 wm withdraw .

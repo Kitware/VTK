@@ -26,20 +26,21 @@ vtkActor planeActor
   planeActor SetTexture atext
 
 # Create graphics stuff
-vtkRenderMaster rm
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren   [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # Add the actors to the renderer, set the background and size
-$ren1 AddActor planeActor
-$ren1 SetBackground 0.1 0.2 0.4
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$renWin SetSize 500 500
-$renWin Render
+ren1 AddActor planeActor
+ren1 SetBackground 0.1 0.2 0.4
+iren SetUserMethod {wm deiconify .vtkInteract}
+renWin SetSize 500 500
+renWin Render
 
-#$renWin SetFileName "texTrans.tcl.ppm"
-#$renWin SaveImageAsPPM
+#renWin SetFileName "texTrans.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -41,22 +41,23 @@ vtkActor triangulation
   triangulation SetTexture atext
 
 # Create rendering stuff
-vtkRenderMaster rm
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren   [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor triangulation
-$ren1 SetBackground 1 1 1
-$renWin SetSize 500 500
-$renWin Render
+ren1 AddActor triangulation
+ren1 SetBackground 1 1 1
+renWin SetSize 500 500
+renWin Render
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$renWin Render
+iren SetUserMethod {wm deiconify .vtkInteract}
+renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -2,15 +2,14 @@ catch {load vtktcl}
 # this is a tcl version of the Mace example
 # get the interactor ui
 source vtkInt.tcl
-# First create the render master
-#
-vtkRenderMaster rm
 
-# Now create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and both Actors
 #
-set renWin [rm MakeRenderWindow]
-set ren1   [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # create a sphere source and actor
 #
@@ -37,14 +36,14 @@ vtkActor spikeActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor spikeActor
-$ren1 SetBackground 0.1 0.2 0.4
-$renWin SetSize 500 300
-set cam1 [$ren1 GetActiveCamera]
+ren1 AddActor spikeActor
+ren1 SetBackground 0.1 0.2 0.4
+renWin SetSize 500 300
+set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 2.4
 
 for {} {$count < 27} {} {
-   $renWin Render
+   renWin Render
    set count [expr $count+1]
    shrink SetShrinkFactor [expr $count / 27.0]; 
 atext SetText "Welcome to VTK
@@ -56,11 +55,11 @@ over three years."
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-$iren Initialize
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
 
-#$renWin SetFileName "vectext.tcl.ppm"
-#$renWin SaveImageAsPPM
+#renWin SetFileName "vectext.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

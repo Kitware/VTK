@@ -41,27 +41,28 @@ vtkActor boxActor
   boxActor SetMapper boxMapper
   [boxActor GetProperty] SetRepresentationToWireframe
 
-vtkRenderMaster rm
-set renWin [rm MakeRenderWindow]
-set ren1 [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor model
-$ren1 AddActor boxActor
-$ren1 SetBackground 0.1 0.2 0.4
-$renWin SetSize 500 500
-$renWin Render
+ren1 AddActor model
+ren1 AddActor boxActor
+ren1 SetBackground 0.1 0.2 0.4
+renWin SetSize 500 500
+renWin Render
 
 # render the image
 #
-$iren SetUserMethod {wm deiconify .vtkInteract}
-[$ren1 GetActiveCamera] Zoom 1.4
-$iren Initialize
+iren SetUserMethod {wm deiconify .vtkInteract}
+[ren1 GetActiveCamera] Zoom 1.4
+iren Initialize
 
-#$renWin SetFileName SpatialRep.tcl.ppm
-#$renWin SaveImageAsPPM
+#renWin SetFileName SpatialRep.tcl.ppm
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
