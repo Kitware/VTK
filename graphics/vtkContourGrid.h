@@ -80,6 +80,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkContourValues.h"
 
 class vtkScalarTree;
+class vtkEdgeTable;
 
 class VTK_EXPORT vtkContourGrid : public vtkDataSetToPolyDataFilter
 {
