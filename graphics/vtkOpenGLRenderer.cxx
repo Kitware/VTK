@@ -470,6 +470,7 @@ void vtkOpenGLRenderer::DonePick()
     this->PickedZ = (this->PickedZ > 1.0) ? 1.0: this->PickedZ;
     }
   delete [] this->PickInfo->PickBuffer;
+  this->PickInfo->PickBuffer = 0;
 }
 
 
@@ -486,7 +487,11 @@ unsigned int vtkOpenGLRenderer::GetPickedID()
 
 vtkOpenGLRenderer::~vtkOpenGLRenderer()
 {
-  delete [] this->PickInfo->PickBuffer;
+  if (this->PickInfo->PickBuffer)
+    {
+    delete [] this->PickInfo->PickBuffer;
+    this->PickInfo->PickBuffer = 0;
+    }
   delete this->PickInfo;
 }
 
