@@ -139,7 +139,7 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
     }
 }
 
-int vtkCommand(ClientData vtkNotUsed(cd), Tcl_Interp *interp, int argc, char *argv[])
+int vtkCreateCommand(ClientData vtkNotUsed(cd), Tcl_Interp *interp, int argc, char *argv[])
 {
   Tcl_HashEntry *entry;
   Tcl_HashSearch search;
