@@ -94,7 +94,7 @@ void vtkGlrProperty::Render(vtkProperty *prop, vtkGlrRenderer *vtkNotUsed(ren))
 
   lmdef(DEFMATERIAL, 1, 0, mat);
   lmbind(MATERIAL, 1);
-  lmbind (BACKMATERIAL, 0);  
+  lmbind (BACKMATERIAL, 1);  
 
   // set interpolation 
   switch (prop->GetInterpolation()) 
