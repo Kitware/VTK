@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSphereSource, "1.68");
+vtkCxxRevisionMacro(vtkSphereSource, "1.69");
 vtkStandardNewMacro(vtkSphereSource);
 
 //----------------------------------------------------------------------------
@@ -312,9 +312,17 @@ int vtkSphereSource::RequestInformation(
 {
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
+  
   outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
                -1);
 
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
+               this->Center[0] - this->Radius, 
+               this->Center[0] + this->Radius,
+               this->Center[1] - this->Radius, 
+               this->Center[1] + this->Radius,
+               this->Center[2] - this->Radius, 
+               this->Center[2] + this->Radius);
+  
   return 1;
 }
