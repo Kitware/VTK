@@ -20,8 +20,11 @@ vtkDelaunay3D del
 vtkGeometryFilter toGeom
   toGeom SetInput [del GetOutput]
 
+vtkCleanPolyData clean
+  clean SetInput [toGeom GetOutput]
+
 vtkTextureMapToCylinder tmapper
-  tmapper SetInput [toGeom GetOutput]
+  tmapper SetInput [clean GetOutput]
   tmapper PreventSeamOn
 
 vtkCastToConcrete castToPoly
