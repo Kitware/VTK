@@ -107,7 +107,7 @@ class vtkTransform : public vtkObject
   void MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals);
   vtkSetVector4Macro(Point,float);
   float *GetPoint();
-  void GetPoint(float p[3]);
+  void GetPoint(float p[4]);
 
  private:
   int PreMultiplyFlag;
