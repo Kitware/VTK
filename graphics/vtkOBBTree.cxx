@@ -543,17 +543,18 @@ int vtkOBBTreeLineIntersectsTriangle(float p1[3], float p2[3],
     // sub-areas that must sum to less than the total area
     float alpha = (v2*u0 - u2*v0);
     float beta = (v0*u1 - u0*v1);
+    float gamma = area - alpha - beta;
 
     if (area < 0)
       {
       area = -area;
       alpha = -alpha;
       beta = -beta;
+      gamma = -gamma;
       }
 
     float mintol = area*1e-6; // minimum tolerance to apply for safety
-    if (beta < -mintol  ||  alpha < -mintol  ||
-	beta + alpha > area + mintol)
+    if (alpha < -mintol  ||  beta < -mintol  ||  gamma < -mintol)
       { // outside of polygon
       return 0;
       }
@@ -577,6 +578,7 @@ int vtkOBBTreeLineIntersectsTriangle(float p1[3], float p2[3],
     // partial projected areas for two of the three sub-triangles
     float alpha = vtkMath::Determinant3x3(v1, v0, v12);
     float beta = vtkMath::Determinant3x3(v0, v2, v12);
+    float gamma = area - alpha - beta;
 
     // make sure area is positive so that comparisons work out
     if (area < 0)
@@ -584,19 +586,24 @@ int vtkOBBTreeLineIntersectsTriangle(float p1[3], float p2[3],
       area = -area;
       alpha = -alpha;
       beta = -beta;
+      gamma = -gamma;
       }
 
     // tolerance for each edge, converted to area tolerance by multiplying
-    // by the distance tolerance by the length of the edge
+    // the distance tolerance (i.e. allowed distance from edge) by the
+    // length of the edge
     float alphatol = tolerance*sqrt(vtkMath::Dot(v1,v1));
     float betatol = tolerance*sqrt(vtkMath::Dot(v2,v2));
     float gammatol = tolerance*sqrt(vtkMath::Dot(v3,v3));
 
-    if (beta < -betatol  ||  alpha < -alphatol  ||  
-	beta + alpha > area + gammatol)
+    if (alpha < -alphatol  ||  beta < -betatol  ||  gamma < -gammatol)
       { // outside of polygon even considering tolerance
       return 0;
       }
+
+    // The alpha, beta, gamma can be divided by 'area' to get parametric
+    // coordinates (whether they would be the same parametric coordinates
+    // used by VTK, I don't know)
     }
 
   return 1;
