@@ -40,11 +40,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkClipPolyData - clip polygonal data with user-specified implicit function
 // .SECTION Description
-// vtkClipPolyData is a filter that clips polygonal data to by a any subclass of 
-// vtkImplicitFunction. Clipping means that it actually "cuts" through
-// the cells of the dataset, returning everthing inside of the
-// specified implicit function, including "pieces" of a cell. (Compare
-// this with vtkExtractGeometry, which pulls out entire, uncut cells.)
+// vtkClipPolyData is a filter that clips polygonal data to by a any subclass
+// of vtkImplicitFunction. Clipping means that it actually "cuts" through
+// the cells of the dataset, returning everthing inside of the specified 
+// implicit function, including "pieces" of a cell. (Compare this with 
+// vtkExtractGeometry, which pulls out entire, uncut cells.)
 //
 // To use this filter, at a minimum you need to specify an implicit
 // function. You can also specify a implicit function value, which is
@@ -54,15 +54,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // proceeds by computing an implicit function value for each point in
 // the dataset. This is compared to the implicit function value to
 // determine inside/outside.)
+//
+// This filter can be configured to compute a second output. The
+// second output is the polygonal data that is clipped away. Set the
+// GenerateClippedData boolean on if you wish to access this output data.
 
 // .SECTION Caveats
 // In order to cut all types of cells in polygonal data, vtkClipPolyData
-// triangulates each cell, and then cuts the resulting simplices
-// (i.e., points, lines, and triangles). As a result, the resulting output 
-// of this filter consists of various combinations of simplices.
+// triangulates some cells, and then cuts the resulting simplices
+// (i.e., points, lines, and triangles). This means that the resulting 
+// output may consist of different cell types than the input data.
 
 // .SECTION See Also
-// vtkImplicitFunction vtkCutter vtkClipper
+// vtkImplicitFunction vtkCutter
 
 #ifndef __vtkClipPolyData_h
 #define __vtkClipPolyData_h
@@ -100,14 +104,15 @@ public:
   vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
 
   // Description:
-  // If this flag is enabled, then the output scalar values will be interpolated
-  // from the implicit function values, and not the input scalar data.
+  // If this flag is enabled, then the output scalar values will be 
+  // interpolated from the implicit function values, and not the 
+  // input scalar data.
   vtkSetMacro(GenerateClipScalars,int);
   vtkGetMacro(GenerateClipScalars,int);
   vtkBooleanMacro(GenerateClipScalars,int);
 
   // Description:
-  // Control whether second output is generated. The second output
+  // Control whether a second output is generated. The second output
   // contains the polygonal data that's been clipped away.
   vtkSetMacro(GenerateClippedOutput,int);
   vtkGetMacro(GenerateClippedOutput,int);
@@ -120,8 +125,8 @@ public:
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
   // Description:
-  // Create default locator. Used to create one when none is specified. The locator
-  // is used to merge coincident points.
+  // Create default locator. Used to create one when none is specified. The 
+  // locator is used to merge coincident points.
   void CreateDefaultLocator();
 
   unsigned long int GetMTime();

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImplicitWindowFunction.h
+  Module:    vtkImplicitDataSet.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,64 +38,70 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImplicitWindowFunction - implicit function maps another
-implicit function to lie within a specified range
+// .NAME vtkImplicitDataSet - treat a dataset as if it were an implicit function
 // .SECTION Description
-// vtkImplicitWindowFunction is used to modify the output of another
-// implicit function to lie within a specified "window", or function
-// range. This can be used to add "thickness" to cutting or clipping
-// functions. 
+// vtkImplicitDataSet treats any type of dataset as if it were an
+// implicit function. This means it computes a function value and 
+// gradient. vtkImplicitDataSet is a concrete implementation of 
+// vtkImplicitFunction.
 //
-// This class works as follows. First, it evaluates the function value of the 
-// user-specified implicit function. Then, based on the window range specified,
-// it maps the function value into the window values specified. 
-//
+// vtkImplicitDataSet computes the function (at the point x) by performing 
+// cell interpolation. That is, it finds the cell containing x, and then
+// uses the cell's interpolation functions to compute an interpolated
+// scalar value at x. (A similar approach is used to find the
+// gradient, if requested.) Points outside of the dataset are assigned 
+// the value of the ivar OutValue, and the gradient value OutGradient.
+
+// .SECTION Caveats
+// Any type of dataset can be used as an implicit function as long as it
+// has scalar data associated with it.
 
 // .SECTION See Also
-// vtkImplictFunction
+// vtkImplicitFunction vtkImplicitVolume vtkClipper vtkCutter
+// vtkImplicitWindowFunction
 
-#ifndef __vtkImplicitWindowFunction_h
-#define __vtkImplicitWindowFunction_h
+#ifndef __vtkImplicitDataSet_h
+#define __vtkImplicitDataSet_h
 
-#include <math.h>
 #include "vtkImplicitFunction.h"
+#include "vtkDataSet.h"
 
-class vtkImplicitWindowFunction : public vtkImplicitFunction
+class vtkImplicitDataSet : public vtkImplicitFunction
 {
 public:
-  vtkImplicitWindowFunction();
-  ~vtkImplicitWindowFunction();
-  char *GetClassName() {return "vtkImplicitWindowFunction";};
+  vtkImplicitDataSet();
+  ~vtkImplicitDataSet();
+  char *GetClassName() {return "vtkImplicitDataSet";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // implicit function interface
+  unsigned long int GetMTime();
+
+  // ImplicitFunction interface
   float EvaluateFunction(float x[3]);
   void EvaluateGradient(float x[3], float n[3]);
 
   // Description:
-  // Specify an implicit function to operate on.
-  vtkSetObjectMacro(ImplicitFunction,vtkImplicitFunction);
-  vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
+  // Specify the dataset used for the implicit function evaluation.
+  vtkSetObjectMacro(DataSet,vtkDataSet);
+  vtkGetObjectMacro(DataSet,vtkDataSet);
 
   // Description:
-  // Specify the range of function values which are considered to lie within
-  // the window. WindowRange[0] is assumed to be less than WindowRange[1].
-  vtkSetVector2Macro(WindowRange,float);
-  vtkGetVectorMacro(WindowRange,float,2);
+  // Set the function value to use for points outside of the dataset.
+  vtkSetMacro(OutValue,float);
+  vtkGetMacro(OutValue,float);
 
   // Description:
-  // Specify the range of output values that the window range is mapped into. This
-  // is effectively a scaling and shifting of the original function values.
-  vtkSetVector2Macro(WindowValues,float);
-  vtkGetVectorMacro(WindowValues,float,2);
-
-  // Override modified time retrieval because of object dependencies.
-  unsigned long int GetMTime();
+  // Set the function gradient to use for points outside of the dataset.
+  vtkSetVector3Macro(OutGradient,float);
+  vtkGetVector3Macro(OutGradient,float);
 
 protected:
-  vtkImplicitFunction *ImplicitFunction;
-  float WindowRange[2];
-  float WindowValues[2];
+  vtkDataSet *DataSet;
+  float OutValue;
+  float OutGradient[3];
+
+  float *Weights; //used to compute interpolation weights
+  int Size; //keeps track of length of weights array
 
 };
 

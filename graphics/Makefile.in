@@ -80,6 +80,7 @@ vtkHyperStreamline.o \
 vtkImageDifference.o \
 vtkImageToStructuredPoints.o \
 vtkImplicitBoolean.o \
+vtkImplicitDataSet.o \
 vtkImplicitModeller.o \
 vtkImplicitTextureCoords.o \
 vtkImplicitVolume.o \
@@ -280,6 +281,7 @@ tcl/vtkHyperStreamlineTcl.o \
 tcl/vtkImageDifferenceTcl.o \
 tcl/vtkImageToStructuredPointsTcl.o \
 tcl/vtkImplicitBooleanTcl.o \
+tcl/vtkImplicitDataSetTcl.o \
 tcl/vtkImplicitModellerTcl.o \
 tcl/vtkImplicitTextureCoordsTcl.o \
 tcl/vtkImplicitVolumeTcl.o \
@@ -485,6 +487,7 @@ vtkHyperStreamline.h \
 vtkImageDifference.h \
 vtkImageToStructuredPoints.h \
 vtkImplicitBoolean.h \
+vtkImplicitDataSet.h \
 vtkImplicitModeller.h \
 vtkImplicitTextureCoords.h \
 vtkImplicitVolume.h \
@@ -923,6 +926,9 @@ tcl/vtkImageToStructuredPointsTcl.cxx: vtkImageToStructuredPoints.h ../tcl/cpp_p
 
 tcl/vtkImplicitBooleanTcl.cxx: vtkImplicitBoolean.h ../tcl/cpp_parse 
 	rm -f tcl/vtkImplicitBooleanTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitBoolean.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitBooleanTcl.cxx
+
+tcl/vtkImplicitDataSetTcl.cxx: vtkImplicitDataSet.h ../tcl/cpp_parse 
+	rm -f tcl/vtkImplicitDataSetTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitDataSet.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitDataSetTcl.cxx
 
 tcl/vtkImplicitModellerTcl.cxx: vtkImplicitModeller.h ../tcl/cpp_parse 
 	rm -f tcl/vtkImplicitModellerTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitModeller.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitModellerTcl.cxx

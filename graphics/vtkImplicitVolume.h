@@ -45,8 +45,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // value and gradient. vtkImplicitVolume is a concrete implementation of 
 // vtkImplicitFunction.
 //
+// vtkImplicitDataSet computes the function (at the point x) by performing 
+// cell interpolation. That is, it finds the cell containing x, and then
+// uses the cell's interpolation functions to compute an interpolated
+// scalar value at x. (A similar approach is used to find the
+// gradient, if requested.) Points outside of the dataset are assigned 
+// the value of the ivar OutValue, and the gradient value OutGradient.
+
+// .SECTION Caveats
+// Works for 3D structured points datasets, 0D-2D datasets won't work properly.
+
 // .SECTION See Also
-// vtkImplicitFunction vtkClipper vtkCutter
+// vtkImplicitFunction vtkImplicitDataSet vtkClipper vtkCutter
+// vtkImplicitWindowFunction
 
 #ifndef __vtkImplicitVolume_h
 #define __vtkImplicitVolume_h
@@ -72,8 +83,20 @@ public:
   vtkSetObjectMacro(Volume,vtkStructuredPoints);
   vtkGetObjectMacro(Volume,vtkStructuredPoints);
 
+  // Description:
+  // Set the function value to use for points outside of the dataset.
+  vtkSetMacro(OutValue,float);
+  vtkGetMacro(OutValue,float);
+
+  // Description:
+  // Set the function gradient to use for points outside of the dataset.
+  vtkSetVector3Macro(OutGradient,float);
+  vtkGetVector3Macro(OutGradient,float);
+
 protected:
   vtkStructuredPoints *Volume; // the structured points
+  float OutValue;
+  float OutGradient[3];
 
 };
 

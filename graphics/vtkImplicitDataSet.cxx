@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImplicitVolume.cxx
+  Module:    vtkImplicitDataSet.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,69 +38,84 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImplicitVolume.h"
-#include "vtkVoxel.h"
+#include "vtkImplicitDataSet.h"
 
 // Description
-// Construct an vtkImplicitVolume with no initial volume; the OutValue
+// Construct an vtkImplicitDataSet with no initial dataset; the OutValue
 // set to a large negative number; and the OutGradient set to (0,0,1).
-vtkImplicitVolume::vtkImplicitVolume()
+vtkImplicitDataSet::vtkImplicitDataSet()
 {
-  this->Volume = NULL;
+  this->DataSet = NULL;
+
   this->OutValue = -VTK_LARGE_FLOAT;
 
   this->OutGradient[0] = 0.0;
   this->OutGradient[1] = 0.0;
   this->OutGradient[2] = 1.0;
+
+  this->Weights = NULL;
+  this->Size = 0;
+}
+
+vtkImplicitDataSet::~vtkImplicitDataSet()
+{
+  if ( this->Weights ) delete [] this->Weights;
 }
 
 // Description
-// Evaluate the ImplicitVolume. This returns the interpolated scalar value
+// Evaluate the implicit function. This returns the interpolated scalar value
 // at x[3].
-float vtkImplicitVolume::EvaluateFunction(float x[3])
+float vtkImplicitDataSet::EvaluateFunction(float x[3])
 {
   vtkScalars *scalars;
-  int i, ijk[3];
-  float pcoords[3], weights[8], s;
-  static vtkIdList ptIds(8);
+  vtkCell *cell;
+  int subId, i, id, numPts;
+  float pcoords[3], s;
 
-  // See if a volume is defined
-  if ( !this->Volume ||
-  !(scalars = this->Volume->GetPointData()->GetScalars()) )
+  if ( this->DataSet->GetMaxCellSize() > this->Size )
     {
-    vtkErrorMacro(<<"Can't evaluate volume!");
+    if ( this->Weights ) delete [] this->Weights;
+    this->Weights = new float[this->DataSet->GetMaxCellSize()];
+    this->Size = this->DataSet->GetMaxCellSize();
+    }
+
+  // See if a dataset has been specified
+  if ( !this->DataSet || 
+  !(scalars = this->DataSet->GetPointData()->GetScalars()) )
+    {
+    vtkErrorMacro(<<"Can't evaluate dataset!");
     return this->OutValue;
     }
 
   // Find the cell that contains xyz and get it
-  if ( this->Volume->ComputeStructuredCoordinates(x,ijk,pcoords) )
-    {
-    vtkVoxel::InterpolationFunctions(pcoords,weights);
-    this->Volume->GetCellPoints(this->Volume->ComputeCellId(ijk),ptIds);
+  cell = this->DataSet->FindAndGetCell(x,NULL,0.0,subId,pcoords,this->Weights);
 
-    for (s=0.0, i=0; i < 8; i++)
+  if (cell)
+    { // Interpolate the point data
+    numPts = cell->GetNumberOfPoints();
+    for (s=0.0, i=0; i < numPts; i++)
       {
-      s += scalars->GetScalar(ptIds.GetId(i)) * weights[i];
+      id = cell->PointIds.GetId(i);
+      s += scalars->GetScalar(id) * this->Weights[i];
       }
     return s;
     }
-
   else
-    {
+    { // use outside value
     return this->OutValue;
     }
 }
 
-unsigned long vtkImplicitVolume::GetMTime()
+unsigned long vtkImplicitDataSet::GetMTime()
 {
   unsigned long mTime=this->vtkImplicitFunction::GetMTime();
-  unsigned long volumeMTime;
+  unsigned long DataSetMTime;
 
-  if ( this->Volume != NULL )
+  if ( this->DataSet != NULL )
     {
-    this->Volume->Update ();
-    volumeMTime = this->Volume->GetMTime();
-    mTime = ( volumeMTime > mTime ? volumeMTime : mTime );
+    this->DataSet->Update ();
+    DataSetMTime = this->DataSet->GetMTime();
+    mTime = ( DataSetMTime > mTime ? DataSetMTime : mTime );
     }
 
   return mTime;
@@ -108,36 +123,43 @@ unsigned long vtkImplicitVolume::GetMTime()
 
 
 // Description
-// Evaluate ImplicitVolume gradient.
-void vtkImplicitVolume::EvaluateGradient(float x[3], float n[3])
+// Evaluate implicit function gradient.
+void vtkImplicitDataSet::EvaluateGradient(float x[3], float n[3])
 {
   vtkScalars *scalars;
-  int i, ijk[3];
-  float pcoords[3], weights[8], *v;
-  static vtkFloatVectors gradient(8);
+  vtkCell *cell;
+  int subId, i, id, numPts;
+  float pcoords[3];
 
-  // See if a volume is defined
-  if ( !this->Volume ||
-  !(scalars = this->Volume->GetPointData()->GetScalars()) )
+  if ( this->DataSet->GetMaxCellSize() > this->Size )
     {
-    vtkErrorMacro(<<"Can't evaluate volume!");
+    if ( this->Weights ) delete [] this->Weights;
+    this->Weights = new float[this->DataSet->GetMaxCellSize()];
+    this->Size = this->DataSet->GetMaxCellSize();
+    }
+
+  // See if a dataset has been specified
+  if ( !this->DataSet || 
+  !(scalars = this->DataSet->GetPointData()->GetScalars()) )
+    {
+    vtkErrorMacro(<<"Can't evaluate gradient!");
+    for ( i=0; i < 3; i++ ) n[i] = this->OutGradient[i];
     return;
     }
 
   // Find the cell that contains xyz and get it
-  if ( this->Volume->ComputeStructuredCoordinates(x,ijk,pcoords) )
-    {
-    vtkVoxel::InterpolationFunctions(pcoords,weights);
-    this->Volume->GetVoxelGradient(ijk[0], ijk[1], ijk[2], scalars, gradient);
+  cell = this->DataSet->FindAndGetCell(x,NULL,0.0,subId,pcoords,this->Weights);
 
-    n[0] = n[1] = n[2] = 0.0;
-    for (i=0; i < 8; i++)
+  if (cell)
+    { // Interpolate the point data
+    numPts = cell->GetNumberOfPoints();
+
+    for ( i=0; i < numPts; i++ ) //Weights used to hold scalar values
       {
-      v = gradient.GetVector(i);
-      n[0] += v[0] * weights[i];
-      n[1] += v[1] * weights[i];
-      n[2] += v[2] * weights[i];
+      id = cell->PointIds.GetId(i);
+      this->Weights[i] = scalars->GetScalar(id);
       }
+    cell->Derivatives(subId, pcoords, this->Weights, 1, n);
     }
 
   else
@@ -146,7 +168,7 @@ void vtkImplicitVolume::EvaluateGradient(float x[3], float n[3])
     }
 }
 
-void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImplicitDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os,indent);
 
