@@ -36,9 +36,9 @@ ENDIF (VTK_WRAP_TCL)
 IF (VTK_WRAP_PYTHON)
   IF (APPLE)
     ADD_LIBRARY(vtkPatentedPython MODULE PatentedPython_SRCS)
-  ELSE
+  ELSE (APPLE)
     ADD_LIBRARY(vtkPatentedPython SHARED PatentedPython_SRCS)
-  ENDIF
+  ENDIF (APPLE)
   VTK_WRAP_PYTHON(vtkPatentedPython PatentedPython_SRCS Patented_SRCS)
   TARGET_LINK_LIBRARIES (vtkPatentedPython 
                          vtkGraphicsPython
