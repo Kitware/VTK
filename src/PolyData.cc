@@ -308,19 +308,8 @@ int vlPolyData::GetNumberOfStrips()
   return (this->Strips ? this->Strips->GetNumberOfCells() : 0);
 }
 
-void vlPolyData::PrintSelf(ostream& os, vlIndent indent)
-{
-  if (this->ShouldIPrint(vlPolyData::GetClassName()))
-    {
-    vlPointSet::PrintSelf(os,indent);
-    
-    os << indent << "Number Of Vertices: " << this->GetNumberOfVerts() << "\n";
-    os << indent << "Number Of Lines: " << this->GetNumberOfLines() << "\n";
-    os << indent << "Number Of Polygons: " << this->GetNumberOfPolys() << "\n";
-    os << indent << "Number Of Triangle Strips: " << this->GetNumberOfStrips() << "\n";
-    }
-}
-
+// Description:
+// Create data structure that allows random access of cells.
 void vlPolyData::BuildCells()
 {
   int numCells=0;
@@ -381,6 +370,9 @@ void vlPolyData::BuildCells()
     }
 }
 
+// Description:
+// Create upward links from points to cells that use each point. Enables
+// topologically complex queries.
 void vlPolyData::BuildLinks()
 {
   if ( this->Cells == NULL ) this->BuildCells();
@@ -390,13 +382,26 @@ void vlPolyData::BuildLinks()
   this->Links->BuildLinks(this);
 }
 
+// Description:
+// Copy a cells point ids into list provided. (Less efficient).
 void vlPolyData::GetCellPoints(int cellId, vlIdList& ptIds)
 {
-  int i, loc, numPts, *pts;
-  unsigned char type;
+  int i, npts, *pts;
 
   ptIds.Reset();
   if ( this->Cells == NULL ) this->BuildCells();
+
+  this->vlPolyData::GetCellPoints(cellId, npts, pts);
+  for (i=0; i<npts; i++) ptIds.SetId(i,pts[i]);
+}
+
+// Description:
+// Return a pointer to a list of point ids defining cell. (More efficient).
+// Assumes that cells have been built (with BuildCells()).
+void vlPolyData::GetCellPoints(int cellId, int& npts, int* &pts)
+{
+  int loc;
+  unsigned char type;
 
   type = this->Cells->GetCellType(cellId);
   loc = this->Cells->GetCellLocation(cellId);
@@ -404,22 +409,21 @@ void vlPolyData::GetCellPoints(int cellId, vlIdList& ptIds)
   switch (type)
     {
     case vlPOINT: case vlPOLY_POINTS:
-     this->Verts->GetCell(loc,numPts,pts);
+     this->Verts->GetCell(loc,npts,pts);
      break;
 
     case vlLINE: case vlPOLY_LINE:
-      this->Lines->GetCell(loc,numPts,pts);
+      this->Lines->GetCell(loc,npts,pts);
       break;
 
     case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
-      this->Polys->GetCell(loc,numPts,pts);
+      this->Polys->GetCell(loc,npts,pts);
       break;
 
     case vlTRIANGLE_STRIP:
-      this->Strips->GetCell(loc,numPts,pts);
+      this->Strips->GetCell(loc,npts,pts);
       break;
     }
-  for (i=0; i<numPts; i++) ptIds.SetId(i,pts[i]);
 }
 
 void vlPolyData::GetPointCells(int ptId, vlIdList& cellIds)
@@ -560,6 +564,47 @@ void vlPolyData::ReplaceCell(int cellId, vlIdList& ptIds)
     case vlTRIANGLE_STRIP:
       this->Strips->ReplaceCell(loc,ptIds);
       break;
+    }
+}
+
+// Description:
+// Get the neighbors at an edge. More efficient than the general 
+// GetCellNeighbors(). Assumes links have been built (with BuildLinks()), 
+// and looks specifically for edge neighbors.
+void vlPolyData::GetCellEdgeNeighbors(int cellId, int p1, int p2,
+                                      vlIdList& cellIds)
+{
+  int *cells;
+  int numCells;
+  int i,j;
+  int npts, *pts;
+
+  cellIds.Reset();
+
+  numCells = this->Links->GetNcells(p1);
+  cells = this->Links->GetCells(p1);
+
+  for (i=0; i < numCells; i++)
+    {
+    if ( cells[i] != cellId )
+      {
+      this->GetCellPoints(cells[i],npts,pts);
+      for (j=0; j < npts; j++) if ( pts[j] == p2 ) break;
+      if ( j < npts ) cellIds.InsertNextId(cells[i]);
+      }
+    }
+}
+
+void vlPolyData::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlPolyData::GetClassName()))
+    {
+    vlPointSet::PrintSelf(os,indent);
+    
+    os << indent << "Number Of Vertices: " << this->GetNumberOfVerts() << "\n";
+    os << indent << "Number Of Lines: " << this->GetNumberOfLines() << "\n";
+    os << indent << "Number Of Polygons: " << this->GetNumberOfPolys() << "\n";
+    os << indent << "Number Of Triangle Strips: " << this->GetNumberOfStrips() << "\n";
     }
 }
 
