@@ -403,5 +403,5 @@ void vtkLongArray::InsertComponent(const vtkIdType i, const int j,
                                    const float c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, 
-                    static_cast<const long>(c));
+                    static_cast<long>(c));
 }

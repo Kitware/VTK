@@ -419,7 +419,7 @@ void vtkBitArray::InsertComponent(const vtkIdType i, const int j,
                                   const float c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, 
-                    static_cast<const int>(c));
+                    static_cast<int>(c));
 }
 
 // Set the data component at the ith tuple and jth component location.

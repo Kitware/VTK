@@ -407,5 +407,5 @@ void vtkUnsignedIntArray::InsertComponent(const vtkIdType i, const int j,
                                           const float c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, 
-                    static_cast<const unsigned int>(c));
+                    static_cast<unsigned int>(c));
 }
