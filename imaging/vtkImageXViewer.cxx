@@ -50,7 +50,8 @@ vtkImageXViewer::vtkImageXViewer()
   this->Red = 0;
   this->Green = 0;
   this->Blue = 0;
-  
+
+  this->DisplayId = (Display *)NULL;
   this->WindowId = (Window)(NULL);
 }
 
