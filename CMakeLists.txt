@@ -685,7 +685,7 @@ ENDIF(VTK_USE_MPI AND BUILD_TESTING)
 #-----------------------------------------------------------------------------
 # Create STL header wrappers to block warnings in the STL headers.
 FOREACH(header algorithm deque iterator list map numeric queue set stack string
-               utility vector exception)
+               utility vector exception stdexcept)
   SET(VTK_STL_HEADER "${header}")
   CONFIGURE_FILE(${VTK_SOURCE_DIR}/Utilities/vtkstd.h.in
                  ${VTK_BINARY_DIR}/vtkstd/${header} @ONLY IMMEDIATE)
