@@ -100,15 +100,12 @@ void vtkImageMarchingCubes::Update()
   if ( this->GetMTime() > this->ExecuteTime ||
        this->Input->GetPipelineMTime() > this->ExecuteTime)
     {
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     if (this->Output) this->Output->Initialize(); //clear output
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
 }
 
@@ -251,7 +248,11 @@ void vtkImageMarchingCubes::Execute()
     this->Input->SetUpdateExtent(extent);
     inData = this->Input->UpdateAndReturnData();
     
+    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);    
     this->March(inData, chunkMin, chunkMax, numContours, values);
+    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+
     if (this->Input->ShouldIReleaseData())
       {
       this->Input->ReleaseData();
@@ -574,10 +575,6 @@ static void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
 }
 
 //----------------------------------------------------------------------------
-// This method selectively applies marching cubes (iso surface = 0.0)
-// to the derivative (second derivative because vector was first).
-// the cube is ignored if the magnitude values are below the 
-// MagnitudeThreshold.
 template <class T>
 static void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
 				      vtkImageData *inData, T *ptr,
@@ -588,7 +585,8 @@ static void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
   int min0, max0, min1, max1, min2, max2;
   int inc0, inc1, inc2;
   T *ptr0, *ptr1, *ptr2;
-
+  unsigned long target, count;
+  
   // avoid warnings
   ptr = ptr;
   
@@ -597,12 +595,21 @@ static void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
   ptr2 = (T *)(inData->GetScalarPointer(min0, min1, chunkMin));
   inData->GetIncrements(inc0, inc1, inc2);
 
+  // Setup the progress reporting
+  target = (unsigned long)((max0-min0+1) * (max1-min1+1) / 50.0);
+  ++target;
+  count = 0;
+  
   // Loop over all the cubes
   for (idx2 = chunkMin; idx2 < chunkMax; ++idx2)
     {
     ptr1 = ptr2;
     for (idx1 = min1; idx1 < max1; ++idx1)
       {
+      // update progress if necessary
+      if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+      count++;
+      // continue with last loop
       ptr0 = ptr1;
       for (idx0 = min0; idx0 < max0; ++idx0)
 	{
