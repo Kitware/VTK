@@ -657,8 +657,10 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "X Values: " << this->GetXValuesAsString() << endl;
   os << indent << "Log X Values: " << (this->Logx ? "On\n" : "Off\n");
 
-  os << indent << "Plot points: " << (this->PlotPoints ? "On\n" : "Off\n");
-  os << indent << "Plot lines: " << (this->PlotLines ? "On\n" : "Off\n");
+  os << indent << "Plot global-points: " << (this->PlotPoints ? "On\n" : "Off\n");
+  os << indent << "Plot global-lines: " << (this->PlotLines ? "On\n" : "Off\n");
+  os << indent << "Plot per-curve points: " << (this->PlotCurvePoints ? "On\n" : "Off\n");
+  os << indent << "Plot per-curve lines: " << (this->PlotCurveLines ? "On\n" : "Off\n");
   os << indent << "Exchange Axes: " << (this->ExchangeAxes ? "On\n" : "Off\n");
   os << indent << "Reverse X Axis: " << (this->ReverseXAxis ? "On\n" : "Off\n");
   os << indent << "Reverse Y Axis: " << (this->ReverseYAxis ? "On\n" : "Off\n");
