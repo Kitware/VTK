@@ -21,7 +21,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkGraphicsFactory.h"
 
-vtkCxxRevisionMacro(vtkLight, "1.48");
+vtkCxxRevisionMacro(vtkLight, "1.49");
 
 vtkCxxSetObjectMacro(vtkLight,TransformMatrix,vtkMatrix4x4);
 
@@ -90,21 +90,6 @@ vtkLight *vtkLight::New()
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkLight");
   return (vtkLight*)ret;
-}
-
-void vtkLight::SetLightTypeToHeadlight() 
-{
-  this->LightType = VTK_LIGHT_TYPE_HEADLIGHT;
-}
-
-void vtkLight::SetLightTypeToCameraLight() 
-{
-  this->LightType = VTK_LIGHT_TYPE_CAMERA_LIGHT;
-}
-
-void vtkLight::SetLightTypeToSceneLight() 
-{
-  this->LightType = VTK_LIGHT_TYPE_SCENE_LIGHT;
 }
 
 int vtkLight::LightTypeIsHeadlight()
