@@ -216,10 +216,10 @@ void vtkUnstructuredGridReader::Execute()
           }
 
         if (!this->Reader.ReadPoints(output, numPts))
-	  {
+          {
           this->Reader.CloseVTKFile ();
-	  return;
-	  }
+          return;
+          }
         }
 
       else if ( !strncmp(line,"cells",5))
@@ -233,14 +233,14 @@ void vtkUnstructuredGridReader::Execute()
 
         cells = vtkCellArray::New();
         if (!this->Reader.ReadCells(size, cells->WritePointer(ncells,size)) )
-	  {
+          {
           this->Reader.CloseVTKFile ();
-	  return;
-	  }
+          return;
+          }
         if (cells && types) output->SetCells(types, cells);
         }
 
-      else if (!strncmp(line,"cell_types",5))
+      else if (!strncmp(line,"cell_types",10))
         {
         if (!this->Reader.Read(&ncells))
           {
@@ -252,16 +252,16 @@ void vtkUnstructuredGridReader::Execute()
         types = new int[ncells];
         if (this->Reader.GetFileType() == VTK_BINARY)
           {
-	  // suck up newline
-	  this->Reader.GetIStream()->getline(line,256);
-	  this->Reader.GetIStream()->read((char *)types,sizeof(int)*ncells);
-	  if (this->Reader.GetIStream()->eof())
+          // suck up newline
+          this->Reader.GetIStream()->getline(line,256);
+          this->Reader.GetIStream()->read((char *)types,sizeof(int)*ncells);
+          if (this->Reader.GetIStream()->eof())
             {
             vtkErrorMacro(<<"Error reading binary cell types!");
             this->Reader.CloseVTKFile ();
             return;
             }
-	  vtkByteSwap::Swap4BERange(types,ncells);
+          vtkByteSwap::Swap4BERange(types,ncells);
           }
         else //ascii
           {
