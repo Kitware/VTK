@@ -15,7 +15,9 @@
 #include "vtkDelaunay3D.h"
 
 #include "vtkEdgeTable.h"
+#include "vtkExecutive.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -25,26 +27,20 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDelaunay3D, "1.71");
+vtkCxxRevisionMacro(vtkDelaunay3D, "1.72");
 vtkStandardNewMacro(vtkDelaunay3D);
 
 //----------------------------------------------------------------------------
-// Specify the input data or filter.
-void vtkDelaunay3D::SetInput(vtkPointSet *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
+// Get the input data
 vtkPointSet *vtkDelaunay3D::GetInput()
 {
-  if (this->NumberOfInputs < 1)
+  if (this->GetNumberOfInputConnections(0) < 1)
     {
     return NULL;
     }
   
-  return (vtkPointSet *)(this->Inputs[0]);
+  return vtkPointSet::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, 0));
 }
 
 // Structure used to represent sphere around tetrahedron
@@ -149,8 +145,6 @@ vtkDelaunayTetra *vtkTetraArray::Resize(vtkIdType sz)
 // BoundingTriangulation turned off.
 vtkDelaunay3D::vtkDelaunay3D()
 {
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
   this->Alpha = 0.0;
   this->Tolerance = 0.001;
   this->BoundingTriangulation = 0;
@@ -422,15 +416,26 @@ int vtkDelaunay3D::FindTetra(vtkUnstructuredGrid *Mesh, double x[3],
 //   5. Make sure that faces/point combination forms good tetrahedron
 //   6. Create tetrahedron from each point/face combination
 // 
-void vtkDelaunay3D::Execute()
+int vtkDelaunay3D::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPointSet *input = vtkPointSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPoints, numTetras, i;
   vtkIdType ptId;
   vtkPoints *inPoints;
   vtkPoints *points;
   vtkUnstructuredGrid *Mesh;
-  vtkPointSet *input=this->GetInput();
-  vtkUnstructuredGrid *output=this->GetOutput();
   double x[3];
   vtkIdType npts;
   vtkIdType *tetraPts, pts[4];
@@ -445,7 +450,7 @@ void vtkDelaunay3D::Execute()
   if ( (inPoints=input->GetPoints()) == NULL )
     {
     vtkErrorMacro("<<Cannot triangulate; no input points");
-    return;
+    return 1;
     }
 
   cells = vtkIdList::New();
@@ -708,6 +713,8 @@ void vtkDelaunay3D::Execute()
   Mesh->Delete();
 
   output->Squeeze();
+
+  return 1;
 }
 
 // This is a helper method used with InsertPoint() to create 
@@ -1005,7 +1012,7 @@ void vtkDelaunay3D::EndPointInsertion()
 
 unsigned long int vtkDelaunay3D::GetMTime()
 {
-  unsigned long mTime=this->vtkUnstructuredGridSource::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   if ( this->Locator != NULL )

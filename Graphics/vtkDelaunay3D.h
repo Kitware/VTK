@@ -83,7 +83,7 @@
 #ifndef __vtkDelaunay3D_h
 #define __vtkDelaunay3D_h
 
-#include "vtkUnstructuredGridSource.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkIdList;
 class vtkPointLocator;
@@ -91,10 +91,10 @@ class vtkPointSet;
 class vtkPoints;
 class vtkTetraArray;
 
-class VTK_GRAPHICS_EXPORT vtkDelaunay3D : public vtkUnstructuredGridSource
+class VTK_GRAPHICS_EXPORT vtkDelaunay3D : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkDelaunay3D,vtkUnstructuredGridSource);
+  vtkTypeRevisionMacro(vtkDelaunay3D,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -181,15 +181,14 @@ public:
   unsigned long GetMTime();
 
   // Description:
-  // Set / get the input data or filter.
-  virtual void SetInput(vtkPointSet *input);
+  // Get the input data or filter.
   vtkPointSet *GetInput();
 
 protected:
   vtkDelaunay3D();
   ~vtkDelaunay3D();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double Alpha;
   double Tolerance;
