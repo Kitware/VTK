@@ -101,8 +101,8 @@ renWin SetSize 600 300
 iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
 
-renWin SetFileName "valid/volMIPGrid.tcl.ppm"
-renWin SaveImageAsPPM
+#renWin SetFileName "valid/volMIPGrid.tcl.ppm"
+#renWin SaveImageAsPPM
 
 wm withdraw .
 
