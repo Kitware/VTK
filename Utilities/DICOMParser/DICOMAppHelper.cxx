@@ -86,6 +86,9 @@ DICOMAppHelper::DICOMAppHelper()
   this->PatientName = new dicom_stl::string();
   this->StudyUID = new dicom_stl::string();
   this->GantryAngle = 0.0;
+  this->Width = 0;
+  this->Height = 0;
+  this->PixelRepresentation = NULL;
 
   this->SeriesUIDCB = new DICOMMemberCallback<DICOMAppHelper>;
   this->SliceNumberCB = new DICOMMemberCallback<DICOMAppHelper>;
