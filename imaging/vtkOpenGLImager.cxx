@@ -114,12 +114,13 @@ void vtkOpenGLImager::Erase()
   glEnable( GL_SCISSOR_TEST );
   glScissor(lowerLeft[0],lowerLeft[1],usize,vsize);
 
+  glClearDepth( (GLclampd)(1.0));
   glClearColor( ((GLclampf)(this->Background[0])),
                 ((GLclampf)(this->Background[1])),
                 ((GLclampf)(this->Background[2])),
                 ((GLclampf)(1.0)) );
 
   vtkDebugMacro(<< "glClear\n");
-  glClear((GLbitfield)GL_COLOR_BUFFER_BIT);
+  glClear((GLbitfield)GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
