@@ -54,7 +54,7 @@ vtkImageDifference::vtkImageDifference()
 
 // simple macro for calculating error
 #define vtkImageDifferenceComputeError(c1,c2) \
-  r1 = abs(c1[0] - c2[0]); g1 = abs(c1[1] - c2[1]); b1 = abs(c1[2] - c2[2]); \
+  r1 = abs((int)(c1[0] - c2[0])); g1 = abs((int)(c1[1] - c2[1])); b1 = abs((int)(c1[2] - c2[2])); \
   if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; }
 
 void vtkImageDifference::Execute()
