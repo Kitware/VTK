@@ -68,7 +68,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify tolerance in terms of percentage of bounding box.
+  // Specify tolerance in terms of fraction of bounding box length.
   vtkSetClampMacro(Tolerance,float,0.0,1.0);
   vtkGetMacro(Tolerance,float);
 
