@@ -799,9 +799,10 @@ void vtkRenderWindow::StereoUpdate(void)
     switch (this->StereoType) 
       {
       case VTK_STEREO_RED_BLUE:
-	{
         this->StereoStatus = 1;
-	}
+	break;
+      case VTK_STEREO_INTERLACED:
+        this->StereoStatus = 1;
       }
     }
   else if ((!this->StereoRender) && this->StereoStatus)
@@ -809,9 +810,11 @@ void vtkRenderWindow::StereoUpdate(void)
     switch (this->StereoType) 
       {
       case VTK_STEREO_RED_BLUE:
-	{
         this->StereoStatus = 0;
-	}
+	break;
+      case VTK_STEREO_INTERLACED:
+        this->StereoStatus = 0;
+	break;
       }
     }
 }
@@ -821,16 +824,14 @@ void vtkRenderWindow::StereoUpdate(void)
 // of the left and right eye.
 void vtkRenderWindow::StereoMidpoint(void)
 {
-  switch (this->StereoType) 
+  if ((this->StereoType == VTK_STEREO_RED_BLUE) ||
+      (this->StereoType == VTK_STEREO_INTERLACED))
     {
-    case VTK_STEREO_RED_BLUE:
-      {
-      int *size;
-      // get the size
-      size = this->GetSize();
-      // get the data
-      this->StereoBuffer = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
-      }
+    int *size;
+    // get the size
+    size = this->GetSize();
+    // get the data
+    this->StereoBuffer = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
     }
 }
 
@@ -888,6 +889,66 @@ void vtkRenderWindow::StereoRenderComplete(void)
       delete [] buff;
       }
       break;
+    case VTK_STEREO_INTERLACED:
+      {
+      unsigned char *buff;
+      unsigned char *p1, *p2, *p3;
+      unsigned char* result;
+      int *size, line;
+      int x,y;
+
+      // get the size
+      size = this->GetSize();
+      // get the data
+      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
+      p1 = this->StereoBuffer;
+      p2 = buff;
+      line = size[0] * 3;
+
+      // allocate the result
+      result = new unsigned char [size[0]*size[1]*3];
+      if (!result)
+	{
+	vtkErrorMacro(<<"Couldn't allocate memory for interlaced stereo.");
+	return;
+	}
+
+      // now merge the two images 
+      p3 = result;
+      for (y = 0; y < size[1]; y += 2)
+	{
+	for (x = 0; x < size[0]; x++)
+	  {
+	  *p3++ = *p1++;
+	  *p3++ = *p1++;
+	  *p3++ = *p1++;
+	  }
+	// skip a line
+	p3 += line;
+	p1 += line;
+	}
+      // now the other eye
+      p3 = result + line;
+      p2 += line;
+      for (y = 1; y < size[1]; y += 2)
+	{
+	for (x = 0; x < size[0]; x++)
+	  {
+	  *p3++ = *p2++;
+	  *p3++ = *p2++;
+	  *p3++ = *p2++;
+	  }
+	// skip a line
+	p3 += line;
+	p2 += line;
+	}
+
+      this->ResultFrame = result;
+      delete [] this->StereoBuffer;
+      this->StereoBuffer = NULL;
+      delete [] buff;
+      }
+      break;
     }
 }
 
@@ -915,6 +976,7 @@ int vtkRenderWindow::GetRemapWindow(void)
   switch (this->StereoType) 
     {
     case VTK_STEREO_RED_BLUE: return 0;
+    case VTK_STEREO_INTERLACED: return 0;
     case VTK_STEREO_CRYSTAL_EYES: return 1;
     }
   return 0;
