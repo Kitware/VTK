@@ -459,7 +459,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	if (wrappedFunctions[occ]->Name && 
 	    !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
 	  {
-	  // memory leak here but ...
+	  /* memory leak here but ... */
 	  wrappedFunctions[occ]->Name = NULL;
 	  }
 	}
@@ -494,7 +494,8 @@ void outputFunction(FILE *fp, FileInfo *data)
   if (currentFunction->IsPureVirtual ||
       currentFunction->IsOperator || 
       currentFunction->ArrayFailure ||
-      !currentFunction->IsPublic) 
+      !currentFunction->IsPublic ||
+      !currentFunction->Name) 
     {
     return;
     }

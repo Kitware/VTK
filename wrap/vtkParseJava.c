@@ -102,6 +102,7 @@ void return_result(FILE *fp)
       fprintf(fp,"int "); 
       break;
     case 303: fprintf(fp,"String "); break;
+    case 109:  
     case 309:  
       fprintf(fp,"%s ",currentFunction->ReturnClass);
       break;
@@ -182,7 +183,8 @@ void outputFunction(FILE *fp, FileInfo *data)
   if (currentFunction->IsPureVirtual ||
       currentFunction->IsOperator || 
       currentFunction->ArrayFailure ||
-      !currentFunction->IsPublic) 
+      !currentFunction->IsPublic ||
+      !currentFunction->Name) 
     {
     return;
     }
@@ -348,10 +350,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       strcmp(data->ClassName,"vtkDataSetSource") 
       )
     {
-    if (!data->NumberOfSuperClasses)
-      {
-      fprintf(fp,"  public native void   VTKInit();\n");
-      }
+    fprintf(fp,"  public native void   VTKInit();\n");
     }
   fprintf(fp,"}\n");
 }

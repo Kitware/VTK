@@ -47,7 +47,7 @@ FunctionInfo *wrappedFunctions[1000];
 FunctionInfo *currentFunction;
 
 
-void output_temp(FILE *fp, int i, int aType, char *Id)
+void output_temp(FILE *fp, int i, int aType, char *Id, int count)
 {
   /* handle VAR FUNCTIONS */
   if (aType == 5000)
@@ -90,6 +90,13 @@ void output_temp(FILE *fp, int i, int aType, char *Id)
     case 8: return;
     }
 
+  /* handle array arguements */
+  if (count > 1)
+    {
+    fprintf(fp,"temp%i[%i];\n",i,count);
+    return;
+    }
+  
   switch ((aType%1000)/100)
     {
     case 1: fprintf(fp, " *"); break; /* act " &" */
@@ -220,6 +227,16 @@ void handle_return_prototype(FILE *fp)
 
 void get_args(FILE *fp, int i)
 {
+  int j;
+  int start_arg = 2;
+  
+  /* what arg do we start with */
+  for (j = 0; j < i; j++)
+    {
+    start_arg = start_arg + 
+      (currentFunction->ArgCounts[j] ? currentFunction->ArgCounts[j] : 1);
+    }
+  
   /* handle VAR FUNCTIONS */
   if (currentFunction->ArgTypes[i] == 5000)
     {
@@ -240,43 +257,84 @@ void get_args(FILE *fp, int i)
     case 1: case 7:  
       fprintf(fp,
 	      "    if (Tcl_GetDouble(interp,argv[%i],&tempd) != TCL_OK) error = 1;\n",
-	      i+2); 
+	      start_arg); 
       fprintf(fp,"    temp%i = tempd;\n",i);
       break;
     case 4: case 5: case 6: 
       fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
-	      i+2); 
+	      start_arg); 
       fprintf(fp,"    temp%i = tempi;\n",i);
       break;
     case 3:
-      fprintf(fp,"    temp%i = *(argv[%i]);\n",i,i+2);
+      fprintf(fp,"    temp%i = *(argv[%i]);\n",i,start_arg);
       break;
     case 13:
       fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
-	      i+2); 
+	      start_arg); 
       fprintf(fp,"    temp%i = (unsigned char)tempi;\n",i);
       break;
     case 14:
       fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
-	      i+2); 
+	      start_arg); 
       fprintf(fp,"    temp%i = (unsigned int)tempi;\n",i);
       break;
     case 15:
       fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
-	      i+2); 
+	      start_arg); 
       fprintf(fp,"    temp%i = (unsigned short)tempi;\n",i);
       break;
     case 303:
-      fprintf(fp,"    temp%i = argv[%i];\n",i,i+2);
+      fprintf(fp,"    temp%i = argv[%i];\n",i,start_arg);
       break;
     case 109:
     case 309:
-      fprintf(fp,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],\"%s\",interp,error));\n",i,currentFunction->ArgClasses[i],i+2,
+      fprintf(fp,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],\"%s\",interp,error));\n",i,currentFunction->ArgClasses[i],start_arg,
 	      currentFunction->ArgClasses[i]);
       break;
     case 2:    
     case 9:
       break;
+    default:
+      if (currentFunction->ArgCounts[i] > 1)
+	{
+	for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+	  {
+	  switch (currentFunction->ArgTypes[i]%100)
+	    {
+	    case 1: case 7:  
+	      fprintf(fp,
+		      "    if (Tcl_GetDouble(interp,argv[%i],&tempd) != TCL_OK) error = 1;\n",
+		      start_arg); 
+	      fprintf(fp,"    temp%i[%i] = tempd;\n",i,j);
+	      break;
+	    case 4: case 5: case 6: 
+	      fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
+		      start_arg); 
+	      fprintf(fp,"    temp%i[%i] = tempi;\n",i,j);
+	      break;
+	    case 3:
+	      fprintf(fp,"    temp%i[%i] = *(argv[%i]);\n",i,j,start_arg);
+	      break;
+	    case 13:
+	      fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
+		      start_arg); 
+	      fprintf(fp,"    temp%i[%i] = (unsigned char)tempi;\n",i,j);
+	      break;
+	    case 14:
+	      fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
+		      start_arg); 
+	      fprintf(fp,"    temp%i[%i] = (unsigned int)tempi;\n",i,j);
+	      break;
+	    case 15:
+	      fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
+		      start_arg); 
+	      fprintf(fp,"    temp%i[%i] = (unsigned short)tempi;\n",i,j);
+	      break;
+	    }
+	  start_arg++;
+	  }
+	}
+      
     }
 }
 
@@ -289,7 +347,8 @@ void outputFunction(FILE *fp, FileInfo *data)
   if (currentFunction->IsPureVirtual ||
       currentFunction->IsOperator || 
       currentFunction->ArrayFailure ||
-      !currentFunction->IsPublic) 
+      !currentFunction->IsPublic ||
+      !currentFunction->Name) 
     {
     return;
     }
@@ -298,10 +357,18 @@ void outputFunction(FILE *fp, FileInfo *data)
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
     if ((currentFunction->ArgTypes[i]%10) == 8) args_ok = 0;
+    /* if its a pointer arg make sure we have the ArgCount */
     if ((currentFunction->ArgTypes[i]%1000 >= 100) &&
 	(currentFunction->ArgTypes[i]%1000 != 303)&&
 	(currentFunction->ArgTypes[i]%1000 != 309)&&
-	(currentFunction->ArgTypes[i]%1000 != 109)) args_ok = 0;
+	(currentFunction->ArgTypes[i]%1000 != 109)) 
+      {
+      if (currentFunction->NumberOfArguments > 1 ||
+	  !currentFunction->ArgCounts[i])
+	{
+	args_ok = 0;
+	}
+      }
     if ((currentFunction->ArgTypes[i]%100 >= 10)&&
 	(currentFunction->ArgTypes[i] != 13)&&
 	(currentFunction->ArgTypes[i] != 14)&&
@@ -329,17 +396,27 @@ void outputFunction(FILE *fp, FileInfo *data)
       strcmp(data->ClassName,currentFunction->Name) &&
       strcmp(data->ClassName,currentFunction->Name + 1))
     {
+    int required_args = 0;
+    
+    /* calc the total required args */
+    for (i = 0; i < currentFunction->NumberOfArguments; i++)
+      {
+      required_args = required_args + 
+	(currentFunction->ArgCounts[i] ? currentFunction->ArgCounts[i] : 1);
+      }
+    
     fprintf(fp,"  if ((!strcmp(\"%s\",argv[1]))&&(argc == %i))\n    {\n",
-	    currentFunction->Name, currentFunction->NumberOfArguments + 2);
+	    currentFunction->Name, required_args + 2);
     
     /* process the args */
     for (i = 0; i < currentFunction->NumberOfArguments; i++)
       {
       output_temp(fp, i, currentFunction->ArgTypes[i],
-		  currentFunction->ArgClasses[i]);
+		  currentFunction->ArgClasses[i], 
+		  currentFunction->ArgCounts[i]);
       }
     output_temp(fp, MAX_ARGS,currentFunction->ReturnType,
-		currentFunction->ReturnClass);
+		currentFunction->ReturnClass, 0);
     handle_return_prototype(fp);
     fprintf(fp,"    error = 0;\n\n");
     
@@ -390,7 +467,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     return_result(fp);
     fprintf(fp,"      return TCL_OK;\n      }\n");
     fprintf(fp,"    }\n");
-
+    
     wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
     numberOfWrappedFunctions++;
     }
