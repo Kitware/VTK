@@ -64,6 +64,8 @@ vtkBranchExtentTranslator* vtkBranchExtentTranslator::New()
 vtkBranchExtentTranslator::vtkBranchExtentTranslator()
 {
   this->OriginalSource = NULL;
+  this->AssignedPiece = 0;
+  this->AssignedNumberOfPieces = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -168,6 +170,9 @@ void vtkBranchExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
   vtkObject::PrintSelf(os,indent);
 
   os << indent << "Original Source: (" << this->OriginalSource << ")\n";
+
+  os << indent << "AssignedPiece: " << this->AssignedPiece << endl;
+  os << indent << "AssignedNumberOfPiece: " << this->AssignedNumberOfPiece << endl;
 }
 
 

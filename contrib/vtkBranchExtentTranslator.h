@@ -83,7 +83,20 @@ public:
   vtkSetObjectMacro(OriginalSource,vtkImageData);
   vtkGetObjectMacro(OriginalSource,vtkImageData);
 
+  // Description:
+  // Generates the extent from the pieces.
   int PieceToExtent();
+
+  // Description:
+  // This unstructured extent/piece is store here for the users convenience.
+  // It is not used internally.  The intent was to let an "assignment" be made
+  // when the translator/first source is created.  The translator/assignment
+  // can be used for any new filter that uses the original source as output.
+  // Branches will then have the same assignment.
+  vtkSetMacro(AssignedPiece, int);
+  vtkGetMacro(AssignedPiece, int);
+  vtkSetMacro(AssignedNumberOfPieces, int);
+  vtkGetMacro(AssignedNumberOfPieces, int);
 
 protected:
   vtkBranchExtentTranslator();
@@ -92,6 +105,8 @@ protected:
   void operator=(const vtkBranchExtentTranslator&) {};
 
   vtkImageData *OriginalSource;
+  int AssignedPiece;
+  int AssignedNumberOfPieces;
 };
 
 #endif
