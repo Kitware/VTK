@@ -18,11 +18,13 @@
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkImplicitFunction.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.21");
+vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.22");
 vtkStandardNewMacro(vtkExtractPolyDataGeometry);
 vtkCxxSetObjectMacro(vtkExtractPolyDataGeometry,
                      ImplicitFunction,vtkImplicitFunction);
@@ -61,12 +63,23 @@ unsigned long vtkExtractPolyDataGeometry::GetMTime()
   return mTime;
 }
 
-void vtkExtractPolyDataGeometry::Execute()
+int vtkExtractPolyDataGeometry::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkPoints *inPts=input->GetPoints();
@@ -80,7 +93,7 @@ void vtkExtractPolyDataGeometry::Execute()
   if ( ! this->ImplicitFunction )
     {
     vtkErrorMacro(<<"No implicit function specified");
-    return;
+    return 0;
     }
 
   numPts = input->GetNumberOfPoints();
@@ -253,6 +266,8 @@ void vtkExtractPolyDataGeometry::Execute()
     output->SetStrips(newStrips);
     newStrips->Delete();
     }
+
+  return 1;
 }
 
 void vtkExtractPolyDataGeometry::PrintSelf(ostream& os, vtkIndent indent)

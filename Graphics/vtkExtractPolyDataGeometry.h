@@ -35,14 +35,14 @@
 #ifndef __vtkExtractPolyDataGeometry_h
 #define __vtkExtractPolyDataGeometry_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkImplicitFunction;
 
-class VTK_GRAPHICS_EXPORT vtkExtractPolyDataGeometry : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkExtractPolyDataGeometry : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractPolyDataGeometry,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkExtractPolyDataGeometry,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -78,7 +78,7 @@ protected:
   ~vtkExtractPolyDataGeometry();
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkImplicitFunction *ImplicitFunction;
   int ExtractInside;
@@ -89,5 +89,3 @@ private:
 };
 
 #endif
-
-
