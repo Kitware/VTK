@@ -337,7 +337,7 @@ void vtkStreamer::Integrate()
       sNext = this->Streamers[ptId].InsertNextStreamPoint();
 
       if ( cell->EvaluatePosition(xNext, closestPoint, sNext->subId, 
-      sNext->p, dist2, w) )
+      sNext->p, dist2, w) == 1)
         { //integration still in cell
         for (i=0; i<3; i++) sNext->x[i] = closestPoint[i];
         sNext->cellId = sPtr->cellId;
