@@ -78,6 +78,9 @@ vtkRenderer::vtkRenderer()
   this->Actors = vtkActorCollection::New();
   this->Volumes = vtkVolumeCollection::New();
 
+  this->NumberOfPropsToRayCast = 0;
+  this->NumberOfPropsToRenderIntoImage = 0;
+  
   this->Cullers = vtkCullerCollection::New();  
   vtkFrustumCoverageCuller *cull = vtkFrustumCoverageCuller::New();
   cull->SetSortingStyleToBackToFront();
