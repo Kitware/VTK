@@ -160,7 +160,8 @@ public:
 
   // Description:
   // Topological inquiry to get all cells using list of points exclusive of
-  // cell specified (e.g., cellId).
+  // cell specified (e.g., cellId). Note that the list consists of only
+  // cells that use ALL the points provided.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
   virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds, 

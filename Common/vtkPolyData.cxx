@@ -1553,10 +1553,8 @@ static int idsortcompare (const void *arg1, const void *arg2)
 void vtkPolyData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                    vtkIdList *cellIds)
 {
-  vtkIdType i, numPts, cellNum;
-  vtkIdType ptId, numPrime;
-  int listsize;
-  vtkIdType *primeCells;
+  vtkIdType i, j, numPts, cellNum;
+  int allFound, oneFound;
   
   if ( ! this->Links )
     {
@@ -1564,61 +1562,46 @@ void vtkPolyData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
     }  
   
   cellIds->Reset();
-
-  // Compute the id list size
-  numPts=ptIds->GetNumberOfIds();
-  listsize = 0;
-  for (i = 0; i < numPts; i++)
-    {
-      ptId       = ptIds->GetId(i);
-      numPrime   = this->Links->GetNcells(ptId);
-      listsize  += numPrime;
-    }
-
-  // Create an int array for storage and sorting
-  int *allCells, index;
-  allCells = new int [listsize];
   
-  // Load list with candidate cells, remove current cell
-  for (index = 0, i = 0; i < numPts; i++)
+  // load list with candidate cells, remove current cell
+  vtkIdType ptId = ptIds->GetId(0);
+  int numPrime = this->Links->GetNcells(ptId);
+  vtkIdType *primeCells = this->Links->GetCells(ptId);
+  numPts = ptIds->GetNumberOfIds();
+                        
+  // for each potential cell
+  for (cellNum = 0; cellNum < numPrime; cellNum++)
     {
-      ptId       = ptIds->GetId(i);
-      numPrime   = this->Links->GetNcells(ptId);
-      primeCells = this->Links->GetCells(ptId);
-
-      for (cellNum = 0; cellNum < numPrime; cellNum++)
-	{
-	  // ignore the original cell
-	  if (primeCells[cellNum] != cellId)
-	    {
-	      allCells[index++] = primeCells[cellNum];
-	    }
-	}
+    // ignore the original cell
+    if (primeCells[cellNum] != cellId)
+      {
+      // are all the remaining points in the cell ?
+      for (allFound=1, i=1; i < numPts && allFound; i++)
+        {
+        ptId = ptIds->GetId(i);
+        int numCurrent = this->Links->GetNcells(ptId);
+        vtkIdType *currentCells = this->Links->GetCells(ptId);
+        oneFound = 0;
+        for (j = 0; j < numCurrent; j++)
+          {
+          if (primeCells[cellNum] == currentCells[j])
+            {
+            oneFound = 1;
+            break;
+            }
+          }
+        if (!oneFound)
+          {
+          allFound = 0;
+          }
+        }
+      if (allFound)
+        {
+        cellIds->InsertNextId(primeCells[cellNum]);
+        }
+      }
     }
-
-  // Sort the list and remove duplications
-  qsort (allCells, index, sizeof(int), idsortcompare);
-
-  // Cull duplicates
-  if (index > 0)
-    {
-      int currid = allCells[0];
-      for (i = 1; i < index; i++)
-	{
-	  if (allCells[i] == currid)
-	    {
-	    continue;
-	    }
-	  cellIds->InsertNextId(currid);
-	  currid = allCells[i];
-	}
-      cellIds->InsertNextId(currid);
-    }
-
-  delete [] allCells;
-
 }
-
 
 //----------------------------------------------------------------------------
 
