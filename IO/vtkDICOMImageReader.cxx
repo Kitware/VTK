@@ -17,19 +17,19 @@
 
 =========================================================================*/
 
+#include "DICOMParser.h"
+#include "DICOMAppHelper.h"
+
 #include "vtkDICOMImageReader.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkDirectory.h"
 
-#include "DICOMParser.h"
-#include "DICOMAppHelper.h"
-
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.10");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.11");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
