@@ -37,8 +37,10 @@
 #define VTK_SIZEOF_LONG   @VTK_SIZEOF_LONG@
 #define VTK_SIZEOF_SHORT  @VTK_SIZEOF_SHORT@
 
-/* Define size of "long long" only if the type exists.  */
+/* Define size of long long and/or __int64 bit integer type only if the type
+   exists.  */
 #cmakedefine VTK_SIZEOF_LONG_LONG @VTK_SIZEOF_LONG_LONG@
+#cmakedefine VTK_SIZEOF___INT64   @VTK_SIZEOF___INT64@
 
 /* Whether type "char" is signed (it may be signed or unsigned).  */
 #define VTK_TYPE_CHAR_IS_SIGNED @VTK_TYPE_CHAR_IS_SIGNED@
