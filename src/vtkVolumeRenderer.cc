@@ -409,8 +409,8 @@ void vtkVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
 
   for (i=0; i<3; i++) 
     {
-    p1Mapper /= p1Mapper[3];
-    p2Mapper /= p2Mapper[3];
+    p1Mapper[i] /= p1Mapper[3];
+    p2Mapper[i] /= p2Mapper[3];
     ray[i] = p2Mapper[i] - p1Mapper[i];
     }
   

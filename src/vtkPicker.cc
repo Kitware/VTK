@@ -112,7 +112,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   vtkActor *actor;
   vtkCamera *camera;
   vtkMapper *mapper;
-  float p1World[4], p2World[4], p1Mapper[3], p2Mapper[3];
+  float p1World[4], p2World[4], p1Mapper[4], p2Mapper[4];
   static vtkVertex cell; // use to take advantage of Hitbbox() method
   int picked=0;
   int *winSize;
@@ -246,8 +246,13 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
       this->Transform.SetPoint(p2World);
       this->Transform.GetPoint(p2Mapper);
 
-      for (i=0; i<3; i++) ray[i] = p2Mapper[i] - p1Mapper[i];
-
+      for (i=0; i<3; i++) 
+	{
+	p1Mapper[i] /= p1Mapper[3];
+	p2Mapper[i] /= p2Mapper[3];
+	ray[i] = p2Mapper[i] - p1Mapper[i];
+	}
+      
       this->Transform.Pop();
 //
 //  Have the ray endpoints in mapper space, now need to compare this
@@ -261,10 +266,10 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 //  bounding box are picked correctly.
 //
         bounds = mapper->GetBounds();
-        if ( cell.HitBBox(bounds, p1Mapper, ray, hitPosition, t) )
+        if ( cell.HitBBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
           {
           picked = 1;
-          this->IntersectWithLine(p1Mapper,p2Mapper,tol,actor,mapper);
+          this->IntersectWithLine((float *)p1Mapper, (float *)p2Mapper,tol,actor,mapper);
           this->Actors.AddItem(actor);
           }
 	}
