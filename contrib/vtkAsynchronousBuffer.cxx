@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 //#include <unistd.h>
 #include "vtkAsynchronousBuffer.h"
+#include "vtkDataInformation.h"
 
 //----------------------------------------------------------------------------
 vtkAsynchronousBuffer::vtkAsynchronousBuffer()
@@ -154,7 +155,7 @@ void vtkAsynchronousBuffer::NonblockingUpdateInformation()
     }
   
   // Do the typical update information stuff (as if we were a simple source).
-  output->SetLocality(0);
+  output->GetDataInformation()->SetLocality(1.0);
   t1 = this->GetMTime();
   t2 = output->GetMTime();
   if (t2 > t1)
