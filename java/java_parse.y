@@ -80,7 +80,7 @@ int  numFuncs = 0;
 %token GetStringMacro
 %token SetClampMacro
 %token SetObjectMacro
-%token SetRefCountedObjectMacro
+%token SetReferenceCountedObjectMacro
 %token GetObjectMacro
 %token BooleanMacro
 %token SetVector2Macro
@@ -339,7 +339,7 @@ macro:
    arg_types[10] = 2;
    output_function();
    }
-| SetRefCountedObjectMacro '(' any_id ',' type_red2 ')'
+| SetReferenceCountedObjectMacro '(' any_id ',' type_red2 ')'
    { 
    is_virtual = 0;
    sprintf(temps,"Set%s",$<str>3); 

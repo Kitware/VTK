@@ -71,7 +71,7 @@
 "vtkGetStringMacro"    return(GetStringMacro);
 "vtkSetClampMacro"     return(SetClampMacro);
 "vtkSetObjectMacro"    return(SetObjectMacro);
-"vtkSetRefCountedObjectMacro" return(SetRefCountedObjectMacro);
+"vtkSetReferenceCountedObjectMacro" return(SetReferenceCountedObjectMacro);
 "vtkGetObjectMacro"    return(GetObjectMacro);
 "vtkBooleanMacro"      return(BooleanMacro);
 "vtkSetVector2Macro"   return(SetVector2Macro);

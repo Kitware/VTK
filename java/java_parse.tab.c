@@ -68,7 +68,7 @@ typedef union
 # define GetStringMacro 285
 # define SetClampMacro 286
 # define SetObjectMacro 287
-# define SetRefCountedObjectMacro 288
+# define SetReferenceCountedObjectMacro 288
 # define GetObjectMacro 289
 # define BooleanMacro 290
 # define SetVector2Macro 291
@@ -716,7 +716,7 @@ yytoktype yytoks[] =
 	"GetStringMacro",	285,
 	"SetClampMacro",	286,
 	"SetObjectMacro",	287,
-	"SetRefCountedObjectMacro",	288,
+	"SetReferenceCountedObjectMacro",	288,
 	"GetObjectMacro",	289,
 	"BooleanMacro",	290,
 	"SetVector2Macro",	291,
@@ -819,7 +819,7 @@ char * yyreds[] =
 	"macro : GetStringMacro '(' any_id ')'",
 	"macro : SetClampMacro '(' any_id ',' type_red2 ',' maybe_other_no_semi ')'",
 	"macro : SetObjectMacro '(' any_id ',' type_red2 ')'",
-	"macro : SetRefCountedObjectMacro '(' any_id ',' type_red2 ')'",
+	"macro : SetReferenceCountedObjectMacro '(' any_id ',' type_red2 ')'",
 	"macro : GetObjectMacro '(' any_id ',' type_red2 ')'",
 	"macro : BooleanMacro '(' any_id ',' type_red2 ')'",
 	"macro : SetVector2Macro '(' any_id ',' type_red2 ')'",
