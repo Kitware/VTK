@@ -6,6 +6,7 @@ AC_INIT()
 #
 AC_PROG_CC
 AC_PROG_CXX
+AC_PATH_XTRA
 
 # get byte swapping info
 AC_C_BIGENDIAN
