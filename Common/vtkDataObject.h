@@ -50,12 +50,6 @@ public:
   vtkTypeRevisionMacro(vtkDataObject,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility.  Do not use.
-  virtual vtkDataObject* MakeObject();
-#endif
-
   // Description:
   // Set/Get the source object creating this data object.
   vtkGetObjectMacro(Source,vtkSource);

@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.94");
+vtkCxxRevisionMacro(vtkDataObject, "1.95");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -787,12 +787,3 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ExtentTranslator: (" << this->ExtentTranslator << ")\n";
   os << indent << "MaximumNumberOfPieces: " << this->MaximumNumberOfPieces << endl;
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_REMOVE_LEGACY_CODE
-vtkDataObject* vtkDataObject::MakeObject()
-{
-  VTK_LEGACY_METHOD(MakeObject, "4.2");  
-  return this->NewInstance();
-}
-#endif
