@@ -20,6 +20,7 @@ vtkPImageWriter.cxx
 vtkPLinearExtrusionFilter.cxx
 vtkPOPReader.cxx
 vtkPPolyDataNormals.cxx
+vtkPProbeFilter.cxx
 vtkPSphereSource.cxx
 vtkPVGeometryFilter.cxx
 vtkParallelFactory.cxx
