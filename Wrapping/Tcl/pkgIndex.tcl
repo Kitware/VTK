@@ -111,7 +111,6 @@ package ifneeded vtktcl_interactor 1.0 {
 
 
 package ifneeded vtktcl_widgets 1.0 {
-
     package require vtktcl_interactor
 
     source [file join $::vtktcl::package_index_dir WidgetObject.tcl]
@@ -122,16 +121,16 @@ package ifneeded vtktcl_widgets 1.0 {
 
 
 package ifneeded vtktcl_colors 1.0 {
-    
     source [file join $::vtktcl::package_index_dir colors.tcl]
-
     package provide vtktcl_colors 1.0
 }
 
 package ifneeded vtktcl_mccases 1.0 {
- 
     source [file join $::vtktcl::package_index_dir mccases.tcl]
-
     package provide vtktcl_mccases 1.0
 }
 
+package ifneeded vtktcl_backdrop 1.0 {
+    source [file join $::vtktcl::package_index_dir backdrop.tcl]
+    package provide vtktcl_backdrop 1.0
+}
