@@ -356,15 +356,18 @@ void vtkTransform::Translate ( float x, float y, float z)
 // Obtain the transpose of the current transformation matrix.
 void vtkTransform::GetTranspose (vtkMatrix4x4 *transpose)
 {
+  vtkMatrix4x4 *temp = vtkMatrix4x4::New();
   int i, j;
 
   for (i = 0; i < 4; i++) 
     {
     for (j = 0; j < 4; j++) 
       {
-      transpose->Element[j][i] = (**this->Stack).Element[i][j];
+      temp->Element[j][i] = (**this->Stack).Element[i][j];
       }
     }    
+  transpose->DeepCopy (temp);
+  temp->Delete();
 }
 
 // Invert the current transformation matrix.
