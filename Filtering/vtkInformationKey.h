@@ -28,6 +28,7 @@
 
 #include "vtkObjectBase.h"
 #include "vtkObject.h" // Need vtkTypeRevisionMacro
+#include "vtkInformationKeyManager.h" // Needed for proper singleton initialization
 
 class vtkInformation;
 
@@ -90,6 +91,14 @@ protected:
   // Helper for debug leaks support.
   void ConstructClass(const char*);
 
+  // Static key instance management methods.
+  static void ClassInitialize();
+  static void ClassFinalize();
+
+  //BTX
+  friend class vtkInformationKeyManager;
+  //ETX
+
 private:
   vtkInformationKey(const vtkInformationKey&);  // Not implemented.
   void operator=(const vtkInformationKey&);  // Not implemented.
@@ -99,10 +108,12 @@ private:
 // The corresponding method declaration must appear in the class
 // definition in the header file.
 #define vtkInformationKeyMacro(CLASS, NAME, type)                      \
-  static vtkInformation##type##Key CLASS##_##NAME(#NAME, #CLASS);      \
-  vtkInformation##type##Key* CLASS::NAME() { return &CLASS##_##NAME; }
+  static vtkInformation##type##Key* CLASS##_##NAME =                   \
+         new vtkInformation##type##Key(#NAME, #CLASS);                 \
+  vtkInformation##type##Key* CLASS::NAME() { return CLASS##_##NAME; }
 #define vtkInformationKeyRestrictedMacro(CLASS, NAME, type, required)       \
-  static vtkInformation##type##Key CLASS##_##NAME(#NAME, #CLASS, required); \
-  vtkInformation##type##Key* CLASS::NAME() { return &CLASS##_##NAME; }
+  static vtkInformation##type##Key* CLASS##_##NAME =                        \
+         new vtkInformation##type##Key(#NAME, #CLASS, required);            \
+  vtkInformation##type##Key* CLASS::NAME() { return CLASS##_##NAME; }
 
 #endif
