@@ -117,6 +117,8 @@ vtkDataObject::vtkDataObject()
   this->ExtentTranslator->Register(this);
   this->ExtentTranslator->Delete();
 
+  this->LastUpdateExtentWasOutsideOfTheExtent = 0;
+
   this->NumberOfConsumers = 0;
   this->Consumers = 0;
 }
@@ -312,6 +314,8 @@ void vtkDataObject::UpdateInformation()
     {
     this->SetUpdateExtentToWholeExtent();
     }
+
+  this->LastUpdateExtentWasOutsideOfTheExtent = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -349,17 +353,27 @@ void vtkDataObject::TriggerAsynchronousUpdate()
     return;
     }
   
+  if (this->MaximumNumberOfPieces > 0 &&
+      this->UpdatePiece >= this->MaximumNumberOfPieces)
+    {
+    return;
+    }
+
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the trigger to the source
   // if there is one.
   if ( this->UpdateTime < this->PipelineMTime || this->DataReleased ||
-       this->UpdateExtentIsOutsideOfTheExtent())
+       this->UpdateExtentIsOutsideOfTheExtent() ||
+       this->LastUpdateExtentWasOutsideOfTheExtent)
     {
     if (this->Source)
       {
       this->Source->TriggerAsynchronousUpdate();
       }
     }
+
+  this->LastUpdateExtentWasOutsideOfTheExtent =        
+            this->UpdateExtentIsOutsideOfTheExtent();
 }
 
 //----------------------------------------------------------------------------
