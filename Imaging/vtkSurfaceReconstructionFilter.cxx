@@ -21,7 +21,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.23");
+vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.24");
 vtkStandardNewMacro(vtkSurfaceReconstructionFilter);
 
 vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
@@ -102,12 +102,23 @@ void vtkSRMultiply(float **m,float f,long nrl, long nrh, long ncl, long nch)
     }
 }
 
+void vtkSurfaceReconstructionFilter::ExecuteInformation()
+{
+  vtkImageData *output = this->GetOutput();
+  
+  output->SetScalarType(VTK_FLOAT);
+  output->SetNumberOfScalarComponents(1);
+
+  // would be nice to compute the whole extent but we need more info to
+  // compute it.
+  output->SetWholeExtent(0,0,0,0,0,0);
+}
+
 //-----------------------------------------------------------------------------
-void vtkSurfaceReconstructionFilter::Execute()
+void vtkSurfaceReconstructionFilter::ExecuteData(vtkDataObject *outp)
 {
   // Initialise the variables we need within this function
   vtkDataSet *input = this->GetInput();
-  vtkStructuredPoints *output = this->GetOutput();
 
   struct SurfacePoint 
   {
@@ -387,7 +398,11 @@ void vtkSurfaceReconstructionFilter::Execute()
                 << dim[0] << ", " << dim[1] << ", " << dim[2] << ")" );
 
   // initialise the output volume
-  output->SetDimensions(dim[0],dim[1],dim[2]);
+  this->GetOutput()->SetWholeExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
+  this->GetOutput()->SetUpdateExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
+  vtkImageData *output = this->AllocateOutputData(outp);
+  vtkFloatArray *newScalars = 
+    vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
   output->SetSpacing(this->SampleSpacing, this->SampleSpacing,
                      this->SampleSpacing);
   output->SetOrigin(topleft);
@@ -404,7 +419,6 @@ void vtkSurfaceReconstructionFilter::Execute()
     }
 
   // go through the array probing the values
-  vtkFloatArray *volScalars = vtkFloatArray::New();
   int x,y,z;
   int iClosestPoint;
   int zOffset,yOffset,offset;
@@ -432,17 +446,14 @@ void vtkSurfaceReconstructionFilter::Execute()
         vtkCopyBToA(temp,point);
         vtkSubtractBFromA(temp,surfacePoints[iClosestPoint].loc);
         probeValue = vtkMath::Dot(temp,surfacePoints[iClosestPoint].n);
-        volScalars->InsertValue(offset,probeValue);
+        newScalars->SetValue(offset,probeValue);
         }
       }
     }
   locator->Delete();
   newPts->Delete();
-  
-  output->GetPointData()->SetScalars(volScalars);
-  volScalars->Delete();
   }
-
+  
   //time(&t4);
   // Clear up everything
   delete [] surfacePoints;
