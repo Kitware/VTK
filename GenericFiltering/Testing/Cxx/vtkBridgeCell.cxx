@@ -66,12 +66,10 @@
 # include "vtkHexagonalPrism.h"
 # include "vtkQuadraticWedge.h"
 # include "vtkQuadraticPyramid.h"
-#else
-# include "vtkGenericCellType.h"
 #endif
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.5");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.6");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
