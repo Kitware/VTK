@@ -55,6 +55,21 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Create a socket on the given port, if port is 0, then
+  // create a random port.  If network is specified, then use
+  // the given network.  The socket number is returned.
+  virtual int OpenSocket(int port, const char* network = 0);
+  
+  // Description:
+  // Return the port used by an open socket.
+  virtual int GetPort(int sock);
+  
+  // Description:
+  // Wait for a connection on an already bound port created
+  // by a call to BindPort.
+  virtual int WaitForConnectionOnSocket(int socket);
+  
+  // Description:
   // Wait for connection on a given port.
   virtual int WaitForConnection(int port);
 

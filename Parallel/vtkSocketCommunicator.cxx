@@ -36,7 +36,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.46");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.47");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -270,9 +270,8 @@ int vtkSocketCommunicator::Receive(vtkIdType* data, int length,
 #endif
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::WaitForConnection(int port)
+int vtkSocketCommunicator::OpenSocket(int port, const char* )
 {
-
   if ( this->IsConnected )
     {
     vtkErrorMacro("Port " << 1 << " is occupied.");
@@ -305,6 +304,26 @@ int vtkSocketCommunicator::WaitForConnection(int port)
     vtkErrorMacro("Can not bind socket to port " << port);
     return 0;
     }
+  return sock;
+}
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::GetPort(int sock)
+{
+  struct sockaddr_in sockinfo;
+  memset(&sockinfo, 0, sizeof(sockinfo));
+  int sizebuf = sizeof(sockinfo);
+  if(getsockname(sock, (sockaddr*)&sockinfo, &sizebuf) != 0)
+    {
+    vtkErrorMacro("No port found for socket " << sock);
+    return 0;
+    }
+  return ntohs(sockinfo.sin_port);
+}
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::WaitForConnectionOnSocket(int sock)
+{
   listen(sock,1);
   this->Socket = accept(sock, 0, 0);
   if ( this->Socket == -1 )
@@ -314,9 +333,9 @@ int vtkSocketCommunicator::WaitForConnection(int port)
     }
   vtkCloseSocketMacro(sock);
   sock = -1;
-    
+  
   this->IsConnected = 1;
-
+  
   if ( this->PerformHandshake )
     {
     // Handshake to determine if the client machine has the same endianness
@@ -348,8 +367,19 @@ int vtkSocketCommunicator::WaitForConnection(int port)
       this->SwapBytesInReceivedData = 1;
       }
     }
-
+  
   return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::WaitForConnection(int port)
+{
+  int sock = this->OpenSocket(port);
+  if(sock == 0)
+    {
+    return 0;
+    }
+  return this->WaitForConnectionOnSocket(sock);
 }
 
 void vtkSocketCommunicator::CloseConnection()
