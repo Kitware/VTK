@@ -82,7 +82,7 @@ vtkWin32OpenGLRenderWindow* vtkWin32OpenGLRenderWindow::New()
 
 vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 {
-  this->ApplicationInstance = NULL;
+  this->ApplicationInstance =  NULL;
   this->Palette = NULL;
   this->ContextId = 0;
   this->MultiSamples = 8;
