@@ -26,14 +26,9 @@ ENDIF (VTK_USE_HYBRID)
 
 OPTION (VTK_USE_PATENTED "Build the patented directory classes, these classes are patented and may require a license to use")
 IF (VTK_USE_PATENTED)
-  # patented requires rendering
-  IF (VTK_USE_RENDERING)
-    SUBDIRS(Patented)
-    INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Patented)
-    LINK_DIRECTORIES(${VTK_BINARY_DIR}/Patented) 
-  ELSE (VTK_USE_RENDERING)
-  # error message should go here
-  ENDIF (VTK_USE_RENDERING)
+  SUBDIRS(Patented)
+  INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Patented)
+  LINK_DIRECTORIES(${VTK_BINARY_DIR}/Patented) 
 ENDIF (VTK_USE_PATENTED)
 
 OPTION (VTK_USE_PARALLEL "Build the parallel directory classes")
@@ -85,8 +80,8 @@ IF (VTK_WRAP_PYTHON)
   FIND_PATH(PY_INCLUDE_PATH Python.h)
   FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping )
   UTILITY_SOURCE(VTK_WRAP_PYTHON_EXE vtkWrapPython Wrapping vtkWrapPython.c)
-  LINK_LIBRARIES (debug python21_d optimized python21)
   INCLUDE_DIRECTORIES(${PY_INCLUDE_PATH})
+  LINK_DIRECTORIES( ${PY_LIB_PATH} ${PY_LIB_PATH2} )
 ENDIF (VTK_WRAP_PYTHON)
 
 INCLUDE_DIRECTORIES(
@@ -104,8 +99,6 @@ ${VTK_BINARY_DIR}/Filtering
 ${VTK_BINARY_DIR}/Imaging
 ${VTK_BINARY_DIR}/Graphics
 ${VTK_BINARY_DIR}/IO
-${PY_LIB_PATH}
-${PY_LIB_PATH2}
 )
 
 IF (UNIX)

@@ -110,13 +110,14 @@ IF (VTK_WRAP_TCL)
   TARGET_LINK_LIBRARIES (vtkImagingTCL vtkFilteringTCL vtkCommonTCL )
 ENDIF (VTK_WRAP_TCL)
 
-# if we are wrapping into Tcl then add the library and extra 
+# if we are wrapping into Python then add the library and extra 
 # source files
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkImagingPython ImagingPython_SRCS Imaging_SRCS)
   ADD_LIBRARY(vtkImagingPython ImagingPython_SRCS)
   TARGET_LINK_LIBRARIES (vtkImagingPython vtkFilteringPython vtkCommonPython )
+  TARGET_LINK_LIBRARIES (vtkImagingPython debug python21_d optimized python21)
 ENDIF (VTK_WRAP_PYTHON)
 
 LINK_LIBRARIES (

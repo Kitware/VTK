@@ -89,13 +89,15 @@ IF (VTK_WRAP_TCL)
   TARGET_LINK_LIBRARIES (vtkFilteringTCL vtkCommonTCL )
 ENDIF (VTK_WRAP_TCL)
 
-# if we are wrapping into Tcl then add the library and extra 
+# if we are wrapping into Python then add the library and extra 
 # source files
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkFilteringPython FilteringPython_SRCS Filtering_SRCS)
   ADD_LIBRARY(vtkFilteringPython FilteringPython_SRCS)
   TARGET_LINK_LIBRARIES (vtkFilteringPython vtkCommonPython )
+  TARGET_LINK_LIBRARIES (vtkFilteringPython 
+                         debug python21_d optimized python21)
 ENDIF (VTK_WRAP_PYTHON)
 
 LINK_LIBRARIES (

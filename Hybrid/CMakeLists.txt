@@ -51,6 +51,23 @@ IF (VTK_WRAP_TCL)
                          vtkImagingTCL vtkFilteringTCL vtkCommonTCL)
 ENDIF (VTK_WRAP_TCL)
 
+# if we are wrapping into Python then add the library and extra 
+# source files
+#
+IF (VTK_WRAP_PYTHON)
+  VTK_WRAP_PYTHON(vtkHybridPython HybridPython_SRCS Hybrid_SRCS)
+  ADD_LIBRARY(vtkHybridPython HybridPython_SRCS)
+  TARGET_LINK_LIBRARIES (vtkHybridPython 
+                         vtkRenderingPython
+                         vtkIOPython
+                         vtkGraphicsPython
+                         vtkImagingPython
+                         vtkFilteringPython
+                         vtkCommonPython)
+  TARGET_LINK_LIBRARIES (vtkHybridPython 
+                         debug python21_d optimized python21)
+ENDIF (VTK_WRAP_PYTHON)
+
 LINK_LIBRARIES (
 vtkCommon 
 vtkFiltering 

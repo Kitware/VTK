@@ -1,4 +1,4 @@
-SOURCE_FILES( LIBRARY_SRCS
+SOURCE_FILES( Common_SRCS
 vtkAbstractMapper 
 vtkAbstractTransform 
 vtkAttributeData 
@@ -166,7 +166,7 @@ vtkFunctionSet
 vtkInitialValueProblemSolver
 )
 
-ADD_LIBRARY(vtkCommon LIBRARY_SRCS)
+ADD_LIBRARY(vtkCommon Common_SRCS)
 
 IF (WIN32)
   SOURCE_FILES(LIBRARY_SRCS vtkWin32OutputWindow)
@@ -178,19 +178,18 @@ WRAP_EXCLUDE_FILES(vtkLargeInteger)
 #
 IF (VTK_WRAP_TCL)
   SOURCE_FILES (CommonTCL_SRCS vtkTclUtil)
-  WRAP_EXCLUDE_FILES(vtkTclUtil)
-  VTK_WRAP_TCL(vtkCommonTCL CommonTCL_SRCS LIBRARY_SRCS)
+  VTK_WRAP_TCL(vtkCommonTCL CommonTCL_SRCS Common_SRCS)
   ADD_LIBRARY(vtkCommonTCL CommonTCL_SRCS)
 ENDIF (VTK_WRAP_TCL)
 
-# if we are wrapping into Tcl then add the library and extra 
+# if we are wrapping into Python then add the library and extra 
 # source files
 #
 IF (VTK_WRAP_PYTHON)
   SOURCE_FILES (CommonPython_SRCS vtkPythonUtil)
-  WRAP_EXCLUDE_FILES(vtkPythonUtil)
-  VTK_WRAP_PYTHON(vtkCommonPython CommonPython_SRCS LIBRARY_SRCS)
+  VTK_WRAP_PYTHON(vtkCommonPython CommonPython_SRCS Common_SRCS)
   ADD_LIBRARY(vtkCommonPython CommonPython_SRCS)
+  TARGET_LINK_LIBRARIES (vtkCommonPython debug python21_d optimized python21)
 ENDIF (VTK_WRAP_PYTHON)
 
 LINK_LIBRARIES (vtkCommon )
