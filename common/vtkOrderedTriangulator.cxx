@@ -233,8 +233,8 @@ public:
   vtkOTPoint() : Id(0), InternalId(0), Type(Inside) 
     {this->X[0] = this->X[1] = this->X[2] = 0.0;}
   enum PointClassification {Inside=0,Outside=1,Boundary=2,Added=3};
-  unsigned long Id; //Id to data outside this class
-  unsigned long InternalId; //Id (order) of point insertion
+  int Id; //Id to data outside this class
+  int InternalId; //Id (order) of point insertion
   double X[3];
   PointClassification Type; //inside, outside
 };
@@ -267,7 +267,7 @@ struct vtkOTTetra
   vtkOTTetra *Neighbors[4]; //the four face neighbors
   vtkOTPoint *Points[4]; //the four points
   // These are used during point insertion
-  unsigned long CurrentPointId;
+  int CurrentPointId;
   enum TetraClassification 
     {Inside=0,Outside=1,All=2,InCavity=3,OutsideCavity=4};
   TetraClassification Type;
@@ -454,8 +454,7 @@ void vtkOrderedTriangulator::InitTriangulation(float bounds[6], int numPts)
 
 
 //------------------------------------------------------------------------
-int vtkOrderedTriangulator::InsertPoint(unsigned long id, float x[3], 
-                                         int type)
+int vtkOrderedTriangulator::InsertPoint(int id, float x[3], int type)
 {
   int idx = this->NumberOfPoints++;
   if ( idx > this->MaximumNumberOfPoints )
@@ -562,7 +561,7 @@ inline vtkOTTetra::TetraClassification vtkOTTetra::GetType()
     }
 }
 
-inline static int IsAPoint(vtkOTTetra *t, unsigned long id)
+inline static int IsAPoint(vtkOTTetra *t, int id)
 {
   if ( id == t->Points[0]->InternalId || id == t->Points[1]->InternalId ||
        id == t->Points[2]->InternalId || id == t->Points[3]->InternalId )
@@ -786,7 +785,7 @@ void vtkOrderedTriangulator::Triangulate()
     // up tetrahedron face neighbors, so we'll use an edge table
     // to keep track of the tetrahedron that generated the face as
     // a result of sweeping an edge.
-    unsigned long v1, v2;
+    int v1, v2;
     int tetraId, id;
 
     this->Mesh->EdgeTable->InitEdgeInsertion(this->MaximumNumberOfPoints+6,1);

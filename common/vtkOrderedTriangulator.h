@@ -117,12 +117,12 @@ public:
   // boundary (type=2). You must call InitTriangulation() prior to 
   // invoking this method. Make sure that the number of points inserted
   // does not exceed the numPts specified in InitTriangulation(). Also
-  // note that the "id" can be any unsigned integer and can be greater
-  // than numPts. It is used to create tetras (in AddTetras() with the
+  // note that the "id" can be any integer and can be greater than 
+  // numPts. It is used to create tetras (in AddTetras() with the
   // appropriate connectivity ids. The method returns an internal id that
   // can be used prior to the Triangulate() method to update the type of
   // the point with UpdatePointType().
-  int InsertPoint(unsigned long id, float x[3], int type);
+  int InsertPoint(int id, float x[3], int type);
 
   // Description:
   // Perform the triangulation. (Complete all calls to InsertPoint() prior
