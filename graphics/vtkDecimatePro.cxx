@@ -172,10 +172,11 @@ void vtkDecimatePro::Execute()
 
   // Check input
   this->NumberOfRemainingTris = numTris = input->GetNumberOfPolys();
-  if ( (numPts=input->GetNumberOfPoints()) < 1 || numTris < 1 )
+  if ( ((numPts=input->GetNumberOfPoints()) < 1 || numTris < 1) &&
+       (this->TargetReduction > 0.0) )
     {
-    vtkErrorMacro(<<"No data to decimate!");
-    return;
+      vtkErrorMacro(<<"No data to decimate!");
+      return;
     }
 
   // Initialize
@@ -233,6 +234,7 @@ void vtkDecimatePro::Execute()
     {
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
+    output->GetCellData()->PassData(input->GetCellData());
     //vtkWarningMacro(<<"Reduction == 0: passing data through unchanged");
     return;
     }
