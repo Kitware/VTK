@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRayCaster.h"
 
 #include "vtkVolumeProVG500Mapper.h"
+#include "vtkObjectFactory.h"
 
 // Create the mapper. No context has been created, no volume has
 // been created yet.

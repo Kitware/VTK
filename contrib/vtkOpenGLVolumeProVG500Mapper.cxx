@@ -44,6 +44,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.h"
 #include "vtkVolume.h"
 #include <GL/gl.h>
+#include "vtkObjectFactory.h"
+
+vtkOpenGLVolumeProVG500Mapper* vtkOpenGLVolumeProVG500Mapper::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLVolumeProVG500Mapper");
+  if(ret)
+    {
+    return (vtkOpenGLVolumeProVG500Mapper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkOpenGLVolumeProVG500Mapper;
+}
 
 void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
 						    vtkVolume    *vol,

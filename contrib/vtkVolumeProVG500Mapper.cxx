@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVolumeProVG500Mapper.h"
 #include "vtkOpenGLVolumeProVG500Mapper.h"
 #include "vtkRenderWindow.h"
+#include "vtkObjectFactory.h"
 
 vtkVolumeProVG500Mapper *vtkVolumeProVG500Mapper::New()
 {
