@@ -20,9 +20,10 @@
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImplicitVolume, "1.27");
+vtkCxxRevisionMacro(vtkImplicitVolume, "1.28");
 vtkStandardNewMacro(vtkImplicitVolume);
 vtkCxxSetObjectMacro(vtkImplicitVolume,Volume,vtkImageData);
 

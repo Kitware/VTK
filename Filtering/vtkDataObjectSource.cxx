@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkDataObjectSource.h"
+
+#include "vtkDataObject.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataObjectSource, "1.13");
+vtkCxxRevisionMacro(vtkDataObjectSource, "1.14");
 
 vtkDataObjectSource::vtkDataObjectSource()
 {

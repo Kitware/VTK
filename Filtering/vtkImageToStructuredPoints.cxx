@@ -16,12 +16,16 @@
 
 =========================================================================*/
 #include "vtkImageToStructuredPoints.h"
-#include "vtkStructuredPoints.h"
+
+#include "vtkCellData.h"
+#include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkStructuredPoints.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.51");
+vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.52");
 vtkStandardNewMacro(vtkImageToStructuredPoints);
 
 //----------------------------------------------------------------------------

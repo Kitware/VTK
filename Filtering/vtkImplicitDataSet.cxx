@@ -17,10 +17,12 @@
 =========================================================================*/
 #include "vtkImplicitDataSet.h"
 
+#include "vtkCell.h"
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImplicitDataSet, "1.20");
+vtkCxxRevisionMacro(vtkImplicitDataSet, "1.21");
 vtkStandardNewMacro(vtkImplicitDataSet);
 vtkCxxSetObjectMacro(vtkImplicitDataSet,DataSet,vtkDataSet);
 

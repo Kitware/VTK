@@ -16,14 +16,16 @@
 
 =========================================================================*/
 #include "vtkCellLocator.h"
-#include "vtkPolyData.h"
+
+#include "vtkCellArray.h"
+#include "vtkGenericCell.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
-#include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellLocator, "1.75");
+vtkCxxRevisionMacro(vtkCellLocator, "1.76");
 vtkStandardNewMacro(vtkCellLocator);
 
 #define VTK_CELL_OUTSIDE 0

@@ -17,10 +17,12 @@
 =========================================================================*/
 #include "vtkStructuredPointsSource.h"
 
+#include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsSource, "1.34");
+vtkCxxRevisionMacro(vtkStructuredPointsSource, "1.35");
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsSource::vtkStructuredPointsSource()

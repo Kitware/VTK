@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtkMergePoints.h"
-#include "vtkFloatArray.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMergePoints, "1.36");
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+
+vtkCxxRevisionMacro(vtkMergePoints, "1.37");
 vtkStandardNewMacro(vtkMergePoints);
 
 // Determine whether point given by x[3] has been inserted into points list.

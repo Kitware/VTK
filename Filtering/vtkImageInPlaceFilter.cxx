@@ -19,8 +19,9 @@
 
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.36");
+vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.37");
 
 //----------------------------------------------------------------------------
 

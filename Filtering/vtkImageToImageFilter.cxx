@@ -17,11 +17,14 @@
 =========================================================================*/
 #include "vtkImageToImageFilter.h"
 
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageToImageFilter, "1.52");
+vtkCxxRevisionMacro(vtkImageToImageFilter, "1.53");
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()
