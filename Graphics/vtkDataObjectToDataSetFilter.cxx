@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkDataObjectToDataSetFilter.h"
 
+#include "vtkFieldData.h"
 #include "vtkFieldDataToAttributeDataFilter.h"
 #include "vtkPolyData.h"
 #include "vtkStructuredPoints.h"
@@ -21,9 +22,12 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataObjectToDataSetFilter, "1.44");
+vtkCxxRevisionMacro(vtkDataObjectToDataSetFilter, "1.45");
 vtkStandardNewMacro(vtkDataObjectToDataSetFilter);
 
 //----------------------------------------------------------------------------
@@ -33,13 +37,13 @@ vtkDataObjectToDataSetFilter::vtkDataObjectToDataSetFilter()
   int i;
   this->Updating = 0;
 
-  this->NumberOfRequiredInputs = 1;
   this->DataSetType = VTK_POLY_DATA;
-  this->vtkSource::SetNthOutput(0,vtkPolyData::New());
+  vtkPolyData *output = vtkPolyData::New();
+  this->GetExecutive()->SetOutputData(0,output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
-  this->Outputs[0]->ReleaseData();
-  this->Outputs[0]->Delete();
+  output->ReleaseData();
+  output->Delete();
   
   for (i=0; i < 3; i++)
     {
@@ -150,27 +154,33 @@ void vtkDataObjectToDataSetFilter::SetDataSetType(int dt)
     return;
     }
   
+  vtkDataSet *output;
   switch (dt)
     {
     case VTK_POLY_DATA:
-      this->SetNthOutput(0,vtkPolyData::New());
-      this->Outputs[0]->Delete();
+      output = vtkPolyData::New();
+      this->GetExecutive()->SetOutputData(0,output);
+      output->Delete();
       break;
     case VTK_STRUCTURED_GRID:
-      this->SetNthOutput(0,vtkStructuredGrid::New());
-      this->Outputs[0]->Delete();
+      output = vtkStructuredGrid::New();
+      this->GetExecutive()->SetOutputData(0,output);
+      output->Delete();
       break;
     case VTK_STRUCTURED_POINTS:
-      this->SetNthOutput(0,vtkStructuredPoints::New());
-      this->Outputs[0]->Delete();
+      output = vtkStructuredPoints::New();
+      this->GetExecutive()->SetOutputData(0,output);
+      output->Delete();
       break;
     case VTK_UNSTRUCTURED_GRID:
-      this->SetNthOutput(0,vtkUnstructuredGrid::New());
-      this->Outputs[0]->Delete();
+      output = vtkUnstructuredGrid::New();
+      this->GetExecutive()->SetOutputData(0,output);
+      output->Delete();
       break;
     case VTK_RECTILINEAR_GRID:
-      this->SetNthOutput(0,vtkRectilinearGrid::New());
-      this->Outputs[0]->Delete();
+      output = vtkRectilinearGrid::New();
+      this->GetExecutive()->SetOutputData(0,output);
+      output->Delete();
       break;
     default:
       vtkWarningMacro("unknown type in SetDataSetType");
@@ -180,27 +190,27 @@ void vtkDataObjectToDataSetFilter::SetDataSetType(int dt)
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectToDataSetFilter::SetInput(vtkDataObject *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
 vtkDataObject *vtkDataObjectToDataSetFilter::GetInput()
 {
-  if (this->NumberOfInputs < 1)
+  if (this->GetNumberOfInputConnections(0) < 1)
     {
     return NULL;
     }
   
-  return (vtkDataObject *)(this->Inputs[0]);
+  return this->GetExecutive()->GetInputData(0, 0);
 }
 
-
 //----------------------------------------------------------------------------
-void vtkDataObjectToDataSetFilter::ExecuteInformation()
+int vtkDataObjectToDataSetFilter::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataObject *input = this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
   switch (this->DataSetType)
     {
@@ -210,33 +220,33 @@ void vtkDataObjectToDataSetFilter::ExecuteInformation()
     case VTK_STRUCTURED_POINTS:
       // We need the array to get the dimensions
       input->Update();
-      this->ConstructDimensions();
-      this->ConstructSpacing();
-      this->ConstructOrigin();
-      
-      this->GetStructuredPointsOutput()->SetWholeExtent(
-                  0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
-                  0, this->Dimensions[2]-1);
-      this->GetStructuredPointsOutput()->SetOrigin(this->Origin);
-      this->GetStructuredPointsOutput()->SetSpacing(this->Spacing);
+      this->ConstructDimensions(input);
+      this->ConstructSpacing(input);
+      this->ConstructOrigin(input);
+
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                   0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
+                   0, this->Dimensions[2]-1);
+      outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
+      outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
       break;
 
     case VTK_STRUCTURED_GRID:
       // We need the array to get the dimensions
       input->Update();
-      this->ConstructDimensions();
-      this->GetStructuredGridOutput()->SetWholeExtent(
-                  0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
-                  0, this->Dimensions[2]-1);
+      this->ConstructDimensions(input);
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                   0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
+                   0, this->Dimensions[2]-1);
       break;
 
     case VTK_RECTILINEAR_GRID:
       // We need the array to get the dimensions
       input->Update();
-      this->ConstructDimensions();
-      this->GetRectilinearGridOutput()->SetWholeExtent(
-                  0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
-                  0, this->Dimensions[2]-1);
+      this->ConstructDimensions(input);
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                   0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
+                   0, this->Dimensions[2]-1);
       break;
 
     case VTK_UNSTRUCTURED_GRID:
@@ -245,22 +255,36 @@ void vtkDataObjectToDataSetFilter::ExecuteInformation()
     default:
       vtkErrorMacro(<<"Unsupported dataset type!");
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectToDataSetFilter::Execute()
+int vtkDataObjectToDataSetFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType npts;
-  //vtkDataObject *input = this->GetInput();
 
   vtkDebugMacro(<<"Generating dataset from field data");
 
   switch (this->DataSetType)
     {
     case VTK_POLY_DATA:
-      if ( (npts=this->ConstructPoints(this->GetPolyDataOutput())) ) 
+      if ( (npts=this->ConstructPoints(input,
+                                       vtkPolyData::SafeDownCast(output))) ) 
         {
-        this->ConstructCells(this->GetPolyDataOutput());
+        this->ConstructCells(input, vtkPolyData::SafeDownCast(output));
         }
       else
         {
@@ -269,23 +293,27 @@ void vtkDataObjectToDataSetFilter::Execute()
       break;
 
     case VTK_STRUCTURED_POINTS:
-      this->ConstructDimensions();
-      this->ConstructSpacing();
-      this->ConstructOrigin();
-      
-      this->GetStructuredPointsOutput()->SetDimensions(this->Dimensions);
-      this->GetStructuredPointsOutput()->SetOrigin(this->Origin);
-      this->GetStructuredPointsOutput()->SetSpacing(this->Spacing);
+    {
+      this->ConstructDimensions(input);
+      this->ConstructSpacing(input);
+      this->ConstructOrigin(input);
+      vtkStructuredPoints *sp = vtkStructuredPoints::SafeDownCast(output);
+      sp->SetDimensions(this->Dimensions);
+      sp->SetOrigin(this->Origin);
+      sp->SetSpacing(this->Spacing);
       break;
+    }
 
     case VTK_STRUCTURED_GRID:
-      if ( (npts=this->ConstructPoints(this->GetStructuredGridOutput())) )
+      if ( (npts=this->ConstructPoints(input,
+                                       this->GetStructuredGridOutput())) )
         {
-        this->ConstructDimensions();
+        this->ConstructDimensions(input);
         if ( npts == (this->Dimensions[0] * this->Dimensions[1] * 
                       this->Dimensions[2]) )
           {
-          this->GetStructuredGridOutput()->SetDimensions(this->Dimensions);
+          vtkStructuredGrid *sg = vtkStructuredGrid::SafeDownCast(output);
+          sg->SetDimensions(this->Dimensions);
           }
         else
           {
@@ -295,13 +323,15 @@ void vtkDataObjectToDataSetFilter::Execute()
       break;
 
     case VTK_RECTILINEAR_GRID:
-      if ( (npts=this->ConstructPoints(this->GetRectilinearGridOutput())) )
+      if ( (npts=this->ConstructPoints(input,
+                                       this->GetRectilinearGridOutput())) )
         {
-        this->ConstructDimensions();
+        this->ConstructDimensions(input);
         if ( npts == (this->Dimensions[0] * this->Dimensions[1] * 
                       this->Dimensions[2]) )
           {
-          this->GetRectilinearGridOutput()->SetDimensions(this->Dimensions);
+          vtkRectilinearGrid *rg = vtkRectilinearGrid::SafeDownCast(output);
+          rg->SetDimensions(this->Dimensions);
           }
         else
           {
@@ -311,9 +341,10 @@ void vtkDataObjectToDataSetFilter::Execute()
       break;
 
     case VTK_UNSTRUCTURED_GRID:
-      if ( this->ConstructPoints(this->GetUnstructuredGridOutput()) ) 
+      if ( this->ConstructPoints(input,
+                                 vtkUnstructuredGrid::SafeDownCast(output)) ) 
         {
-        this->ConstructCells(this->GetUnstructuredGridOutput());
+        this->ConstructCells(input, vtkUnstructuredGrid::SafeDownCast(output));
         }
       else
         {
@@ -325,107 +356,71 @@ void vtkDataObjectToDataSetFilter::Execute()
       vtkErrorMacro(<<"Unsupported dataset type!");
     }
 
+  vtkFieldData *inFD = input->GetFieldData();
+  vtkFieldData *outFD = output->GetFieldData();
+  outFD->CopyAllOn();
+  outFD->PassData(inFD);
+
+  return 1;
 }
 
 // Get the output as vtkPolyData.
 vtkPolyData *vtkDataObjectToDataSetFilter::GetPolyDataOutput() 
 {
-  vtkDataSet *ds = this->GetOutput();
-  if (!ds) 
-    {
-    return NULL;
-    }
-  if (ds->GetDataObjectType() == VTK_POLY_DATA)
-    {
-    return (vtkPolyData *)ds;
-    }
-  return NULL;
+  return vtkPolyData::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------
 vtkDataSet *vtkDataObjectToDataSetFilter::GetOutput()
 {
-  if (this->NumberOfOutputs < 1)
+  if (this->GetNumberOfOutputPorts() < 1)
     {
     return NULL;
     }
   
-  return (vtkDataSet *)(this->Outputs[0]);
+  return vtkDataSet::SafeDownCast(
+    this->GetExecutive()->GetOutputData(0));
 }
 
 // Get the output as vtkStructuredPoints.
 vtkStructuredPoints *vtkDataObjectToDataSetFilter::GetStructuredPointsOutput() 
 {
-  vtkDataSet *ds = this->GetOutput();
-  if (!ds) 
-    {
-    return NULL;
-    }
-  if (ds->GetDataObjectType() == VTK_STRUCTURED_POINTS)
-    {
-    return (vtkStructuredPoints *)ds;
-    }
-  return NULL;
+  return vtkStructuredPoints::SafeDownCast(this->GetOutput());
 }
 
 // Get the output as vtkStructuredGrid.
 vtkStructuredGrid *vtkDataObjectToDataSetFilter::GetStructuredGridOutput()
 {
-  vtkDataSet *ds = this->GetOutput();
-  if (!ds) 
-    {
-    return NULL;
-    }
-  if (ds->GetDataObjectType() == VTK_STRUCTURED_GRID)
-    {
-    return (vtkStructuredGrid *)ds;
-    }
-  return NULL;
+  return vtkStructuredGrid::SafeDownCast(this->GetOutput());
 }
 
 // Get the output as vtkUnstructuredGrid.
 vtkUnstructuredGrid *vtkDataObjectToDataSetFilter::GetUnstructuredGridOutput()
 {
-  vtkDataSet *ds = this->GetOutput();
-  if (!ds) 
-    {
-    return NULL;
-    }
-  if (ds->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
-    {
-    return (vtkUnstructuredGrid *)ds;
-    }
-  return NULL;
+  return vtkUnstructuredGrid::SafeDownCast(this->GetOutput());
 }
 
 // Get the output as vtkRectilinearGrid. 
 vtkRectilinearGrid *vtkDataObjectToDataSetFilter::GetRectilinearGridOutput()
 {
-  vtkDataSet *ds = this->GetOutput();
-  if (!ds) 
-    {
-    return NULL;
-    }
-  if (ds->GetDataObjectType() == VTK_RECTILINEAR_GRID)
-    {
-    return (vtkRectilinearGrid *)ds;
-    }
-  return NULL;
+  return vtkRectilinearGrid::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectToDataSetFilter::ComputeInputUpdateExtents( 
-                                       vtkDataObject *vtkNotUsed(output))
+int vtkDataObjectToDataSetFilter::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
-  if (this->GetInput())
-    {
-    // what should we do here?
-    if (this->GetInput()->GetDataObjectType() != VTK_DATA_OBJECT)
-      {
-      this->GetInput()->SetUpdateExtent(0, 1, 0);
-      }
-    this->GetInput()->RequestExactExtentOn();
-    }
+  // get the info object
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+              0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -546,12 +541,13 @@ int vtkDataObjectToDataSetFilter::GetPointComponentNormailzeFlag(int comp)
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(vtkPointSet *ps)
+vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(vtkDataObject *input,
+                                                        vtkPointSet *ps)
 {
   int i, updated=0;
   vtkDataArray *fieldArray[3];
   vtkIdType npts;
-  vtkFieldData *fd=this->GetInput()->GetFieldData();
+  vtkFieldData *fd=input->GetFieldData();
 
   for ( i=0; i < 3; i++ )
     {
@@ -623,12 +619,13 @@ vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(vtkPointSet *ps)
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(vtkRectilinearGrid *rg)
+vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(vtkDataObject *input,
+                                                        vtkRectilinearGrid *rg)
 {
   int i, nXpts, nYpts, nZpts, updated=0;
   vtkIdType npts;
   vtkDataArray *fieldArray[3];
-  vtkFieldData *fd=this->GetInput()->GetFieldData();
+  vtkFieldData *fd=input->GetFieldData();
 
   for ( i=0; i < 3; i++ )
     {
@@ -1045,11 +1042,12 @@ int vtkDataObjectToDataSetFilter::GetCellConnectivityComponentMaxRange()
 }
 
 //----------------------------------------------------------------------------
-int vtkDataObjectToDataSetFilter::ConstructCells(vtkPolyData *pd)
+int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
+                                                 vtkPolyData *pd)
 {
   vtkIdType ncells=0;
   vtkDataArray *fieldArray[4];
-  vtkFieldData *fd=this->GetInput()->GetFieldData();
+  vtkFieldData *fd=input->GetFieldData();
 
   fieldArray[0] = vtkFieldDataToAttributeDataFilter::GetFieldArray(
     fd, this->VertsArray, this->VertsArrayComponent);
@@ -1149,12 +1147,13 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkPolyData *pd)
 }
 
 //----------------------------------------------------------------------------
-int vtkDataObjectToDataSetFilter::ConstructCells(vtkUnstructuredGrid *ug)
+int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
+                                                 vtkUnstructuredGrid *ug)
 {
   int i, *types, typesAllocated=0;
   vtkDataArray *fieldArray[2];
   int ncells;
-  vtkFieldData *fd=this->GetInput()->GetFieldData();
+  vtkFieldData *fd=input->GetFieldData();
 
   fieldArray[0] = vtkFieldDataToAttributeDataFilter::GetFieldArray(
     fd, this->CellTypeArray, 
@@ -1367,7 +1366,7 @@ void vtkDataObjectToDataSetFilter::SetOriginComponent(char *arrayName,
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectToDataSetFilter::ConstructDimensions()
+void vtkDataObjectToDataSetFilter::ConstructDimensions(vtkDataObject *input)
 {
   if ( this->DimensionsArray == NULL || this->DimensionsArrayComponent < 0 )
     {
@@ -1375,7 +1374,7 @@ void vtkDataObjectToDataSetFilter::ConstructDimensions()
     }
   else
     {
-    vtkFieldData *fd=this->GetInput()->GetFieldData();
+    vtkFieldData *fd=input->GetFieldData();
     vtkDataArray *fieldArray 
       = vtkFieldDataToAttributeDataFilter::GetFieldArray(
         fd, this->DimensionsArray, this->DimensionsArrayComponent);
@@ -1400,7 +1399,7 @@ void vtkDataObjectToDataSetFilter::ConstructDimensions()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectToDataSetFilter::ConstructSpacing()
+void vtkDataObjectToDataSetFilter::ConstructSpacing(vtkDataObject *input)
 {
   if ( this->SpacingArray == NULL || this->SpacingArrayComponent < 0 )
     {
@@ -1408,7 +1407,7 @@ void vtkDataObjectToDataSetFilter::ConstructSpacing()
     }
   else
     {
-    vtkFieldData *fd=this->GetInput()->GetFieldData();
+    vtkFieldData *fd=input->GetFieldData();
     vtkDataArray *fieldArray 
       = vtkFieldDataToAttributeDataFilter::GetFieldArray(
         fd, this->SpacingArray, this->SpacingArrayComponent);
@@ -1434,11 +1433,11 @@ void vtkDataObjectToDataSetFilter::ConstructSpacing()
 //----------------------------------------------------------------------------
 vtkDataSet *vtkDataObjectToDataSetFilter::GetOutput(int idx)
 {
-  return static_cast<vtkDataSet *>(this->vtkSource::GetOutput(idx)); 
+  return vtkDataSet::SafeDownCast(this->GetExecutive()->GetOutputData(idx));
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectToDataSetFilter::ConstructOrigin()
+void vtkDataObjectToDataSetFilter::ConstructOrigin(vtkDataObject *input)
 {
   if ( this->OriginArray == NULL || this->OriginArrayComponent < 0 )
     {
@@ -1446,7 +1445,7 @@ void vtkDataObjectToDataSetFilter::ConstructOrigin()
     }
   else
     {
-    vtkFieldData *fd=this->GetInput()->GetFieldData();
+    vtkFieldData *fd=input->GetFieldData();
     vtkDataArray *fieldArray 
       = vtkFieldDataToAttributeDataFilter::GetFieldArray(
         fd, this->OriginArray, this->OriginArrayComponent);
@@ -1469,4 +1468,54 @@ void vtkDataObjectToDataSetFilter::ConstructOrigin()
     }
 
   this->OriginComponentRange[0] = this->OriginComponentRange[1] = -1;
+}
+
+//----------------------------------------------------------------------------
+int vtkDataObjectToDataSetFilter::FillInputPortInformation(int,
+                                                           vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkDataObjectToDataSetFilter::RequestDataObject(
+  vtkInformation *,
+  vtkInformationVector **,
+  vtkInformationVector *outputVector)
+{
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!output || (output->GetDataObjectType() != this->DataSetType))
+    {
+    switch (this->DataSetType)
+      {
+      case VTK_POLY_DATA:
+        output = vtkPolyData::New();
+        break;
+      case VTK_STRUCTURED_GRID:
+        output = vtkStructuredGrid::New();
+        break;
+      case VTK_STRUCTURED_POINTS:
+        output = vtkStructuredPoints::New();
+        break;
+      case VTK_UNSTRUCTURED_GRID:
+        output = vtkUnstructuredGrid::New();
+        break;
+      case VTK_RECTILINEAR_GRID:
+        output = vtkRectilinearGrid::New();
+        break;
+      default:
+        vtkWarningMacro("unknown DataSetType");
+      }
+    if (output)
+      {
+      output->SetPipelineInformation(outInfo);
+      output->Delete();
+      this->GetOutputPortInformation(0)->Set(
+        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
+      }
+    }
+  return 1;
 }

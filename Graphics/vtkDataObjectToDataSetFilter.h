@@ -61,7 +61,7 @@
 #ifndef __vtkDataObjectToDataSetFilter_h
 #define __vtkDataObjectToDataSetFilter_h
 
-#include "vtkSource.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkCellArray;
 class vtkDataArray;
@@ -73,16 +73,15 @@ class vtkStructuredGrid;
 class vtkStructuredPoints;
 class vtkUnstructuredGrid;
 
-class VTK_GRAPHICS_EXPORT vtkDataObjectToDataSetFilter : public vtkSource
+class VTK_GRAPHICS_EXPORT vtkDataObjectToDataSetFilter : public vtkDataSetAlgorithm
 {
 public:
   static vtkDataObjectToDataSetFilter *New();
-  vtkTypeRevisionMacro(vtkDataObjectToDataSetFilter,vtkSource);
+  vtkTypeRevisionMacro(vtkDataObjectToDataSetFilter,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the input to the filter.
-  void SetInput(vtkDataObject *input);
+  // Get the input to the filter.
   vtkDataObject *GetInput();
 
   // Description:
@@ -242,9 +241,12 @@ protected:
   vtkDataObjectToDataSetFilter();
   ~vtkDataObjectToDataSetFilter();
 
-  void Execute(); //generate output data
-  void ExecuteInformation();
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *); //generate output data
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
+                                vtkInformationVector *);
 
   char Updating;
 
@@ -285,10 +287,10 @@ protected:
 
   // helper methods (and attributes) to construct datasets
   void SetArrayName(char* &name, char *newName);
-  vtkIdType ConstructPoints(vtkPointSet *ps);
-  vtkIdType ConstructPoints(vtkRectilinearGrid *rg);
-  int ConstructCells(vtkPolyData *pd);
-  int ConstructCells(vtkUnstructuredGrid *ug);
+  vtkIdType ConstructPoints(vtkDataObject *input, vtkPointSet *ps);
+  vtkIdType ConstructPoints(vtkDataObject *input, vtkRectilinearGrid *rg);
+  int ConstructCells(vtkDataObject *input, vtkPolyData *pd);
+  int ConstructCells(vtkDataObject *input, vtkUnstructuredGrid *ug);
   vtkCellArray *ConstructCellArray(vtkDataArray *da, int comp,
                                    vtkIdType compRange[2]);
 
@@ -312,9 +314,9 @@ protected:
   int SpacingArrayComponent; //the component of the array used for Spacings
   vtkIdType SpacingComponentRange[2]; //the ComponentRange of the array for the Spacings
   
-  void ConstructDimensions();
-  void ConstructSpacing();
-  void ConstructOrigin();
+  void ConstructDimensions(vtkDataObject *input);
+  void ConstructSpacing(vtkDataObject *input);
+  void ConstructOrigin(vtkDataObject *input);
   
 private:
   vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&);  // Not implemented.
