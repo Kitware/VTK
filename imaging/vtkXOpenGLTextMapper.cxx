@@ -42,10 +42,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include "vtkObjectFactory.h"
+#include "vtkgluPickMatrix.h"
 
 
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkXOpenGLTextMapper* vtkXOpenGLTextMapper::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +57,6 @@ vtkXOpenGLTextMapper* vtkXOpenGLTextMapper::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkXOpenGLTextMapper;
 }
-
-
-
 
 struct vtkFontStruct
 {
@@ -295,17 +292,43 @@ void vtkXOpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   glMatrixMode( GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
+  if(viewport->GetIsPicking())
+    {
+    vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
+		     1, 1, viewport->GetOrigin(), viewport->GetSize());
+    }
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
   glDisable( GL_LIGHTING);
 
-  glListBase(vtkXOpenGLTextMapper::GetListBaseForFont(this,viewport,
-						      this->CurrentFont));
-	      
   int front = 
     (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION);
 
+  // When picking draw the bounds of the text as a rectangle,
+  // as text only picks when the pick point is exactly on the
+  // origin of the text 
+  if(viewport->GetIsPicking())
+    {
+    float x1 = (2.0*(float)actorPos[0] / vsize[0] - 1);
+    float y1 = (2.0*((float)actorPos[1] - this->LineOffset) / vsize[1] - 1);
+    float width = 2.0*(float)size[0]/vsize[0];
+    float height = 2.0*(float)size[1]/vsize[1];
+    glRectf(x1, y1, x1+width, y1+height);
+
+    // Clean up and return after drawing the rectangle
+    glMatrixMode( GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode( GL_MODELVIEW);
+    glPopMatrix();
+    glEnable( GL_LIGHTING);
+    
+    return;
+    }
+  
+  glListBase(vtkXOpenGLTextMapper::GetListBaseForFont(this,viewport,
+						      this->CurrentFont));
+	      
   // Set the colors for the shadow
   if (this->Shadow)
     {
