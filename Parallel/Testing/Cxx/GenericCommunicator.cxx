@@ -169,8 +169,8 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
 
   int extent = 20;
   vtkRTAnalyticSource* id = vtkRTAnalyticSource::New();
-  id->SetWholeExtent (-extent, extent, -extent, extent, -extent, extent); 
-  id->SetCenter(0, 0, 0);
+  id->SetWholeExtent (0, 2*extent, 0, 2*extent, 0, 2*extent); 
+  id->SetCenter(extent, extent, extent);
   id->SetStandardDeviation( 0.5 );
   id->SetMaximum( 255.0 );
   id->SetXFreq( 60 );
@@ -307,6 +307,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
 
   vtkContourFilter* cf = vtkContourFilter::New();
   cf->SetInput(ip->GetImageDataOutput());
+  
   cf->SetNumberOfContours(1);
   cf->SetValue(0, 220);
 
