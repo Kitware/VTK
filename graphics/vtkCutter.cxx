@@ -212,10 +212,10 @@ void vtkCutter::Execute()
       //
       for (iter=0; iter < numContours; iter++)
         {
-	//
-	// Loop over all cells creating scalar function determined by evaluating cell
-	// points using cut function.
-	//
+        //
+        // Loop over all cells creating scalar function determined by evaluating cell
+        // points using cut function.
+        //
         for (cellId=0; cellId < numCells; cellId++)
           {
           cell = input->GetCell(cellId);
@@ -232,8 +232,8 @@ void vtkCutter::Execute()
 
           value = this->ContourValues->GetValue(iter);
           cell->Contour(value, cellScalars, this->Locator, 
-			newVerts, newLines, newPolys, inPD, outPD,
-			inCD, cellId, outCD);
+                        newVerts, newLines, newPolys, inPD, outPD,
+                        inCD, cellId, outCD);
 
           } // for all cells
         } // for all contour values
@@ -246,32 +246,32 @@ void vtkCutter::Execute()
       // points using cut function.
       //
       for (cellId=0; cellId < numCells; cellId++)
-	{
-	cell = input->GetCell(cellId);
-	cellPts = cell->GetPoints();
-	cellIds = cell->GetPointIds();
+        {
+        cell = input->GetCell(cellId);
+        cellPts = cell->GetPoints();
+        cellIds = cell->GetPointIds();
 
-	numCellPts = cellPts->GetNumberOfPoints();
-	cellScalars->SetNumberOfScalars(numCellPts);
-	for (i=0; i < numCellPts; i++)
-	  {
-	  s = cutScalars->GetScalar(cellIds->GetId(i));
-	  cellScalars->SetScalar(i,s);
-	  }
+        numCellPts = cellPts->GetNumberOfPoints();
+        cellScalars->SetNumberOfScalars(numCellPts);
+        for (i=0; i < numCellPts; i++)
+          {
+          s = cutScalars->GetScalar(cellIds->GetId(i));
+          cellScalars->SetScalar(i,s);
+          }
 
-	//
-	// Loop over all contour values.  Then for each contour value, 
-	// loop over all cells.
-	//
-	for (iter=0; iter < numContours; iter++)
-	  {
-	  value = this->ContourValues->GetValue(iter);
-	  cell->Contour(value, cellScalars, this->Locator, 
-			newVerts, newLines, newPolys, inPD, outPD,
-			inCD, cellId, outCD);
+        //
+        // Loop over all contour values.  Then for each contour value, 
+        // loop over all cells.
+        //
+        for (iter=0; iter < numContours; iter++)
+          {
+          value = this->ContourValues->GetValue(iter);
+          cell->Contour(value, cellScalars, this->Locator, 
+                        newVerts, newLines, newPolys, inPD, outPD,
+                        inCD, cellId, outCD);
 
-	  } // for all contour values
-	} // for all cells
+          } // for all contour values
+        } // for all cells
       } // sort by value
     } // end switch
   //
