@@ -1,6 +1,4 @@
 catch {load vtktcl}
-# user interface command widget
-source ../../examplesTcl/vtkInt.tcl
 
 # create a rendering window and renderer
 vtkRenderer ren1
@@ -13,6 +11,7 @@ vtkRenderWindowInteractor iren
 # create an actor and give it cone geometry
 vtkConeSource cone
   cone SetResolution 8
+
 vtkPolyDataMapper coneMapper
   coneMapper SetInput [cone GetOutput]
 vtkActor coneActor
@@ -22,8 +21,11 @@ vtkActor coneActor
 ren1 AddActor coneActor
 
 # enable user interface interactor
-iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
+
+update
+vtkCommand DeleteAllObjects
+exit
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

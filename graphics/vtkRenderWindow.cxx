@@ -723,6 +723,13 @@ void vtkRenderWindow::AddRenderer(vtkRenderer *ren)
   this->MakeCurrent();
   ren->SetRenderWindow(this);
   this->Renderers->AddItem(ren);
+  vtkRenderer *aren;
+  for (this->Renderers->InitTraversal(); 
+       (aren = this->Renderers->GetNextItem()); )
+    {
+    aren->SetAllocatedRenderTime
+      (1.0/(this->DesiredUpdateRate*this->Renderers->GetNumberOfItems()));
+    }
 }
 
 // Remove a renderer from the list of renderers.

@@ -38,115 +38,31 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkRenderWindowInteractor - provide event driven interface to rendering window
-
+// .NAME vtkRenderWindowInteractor - base class for platform dependent
+// implementations which handle routing of mouse/key/timer messages to
+// vtkInterActorStyle and subclasses which handle all motion control
+//
 // .SECTION Description
-// vtkRenderWindowInteractor is a convenience object that provides event
-// bindings to common graphics functions. For example, camera or actor
-// zoom-in/zoom-out, pan, rotate, spin, dolly, scale, resetting in either
-// trackball or joystick mode; picking of actors, points,
-// or cells; switching in/out of stereo mode; property changes such as
-// wireframe and surface; and a toggle to force the light to be placed at
-// camera viewpoint (pointing in view direction).
-//
-//<PRE>
-// Mouse bindings:
-//    camera: Button 1 - rotate
-//            Button 2 - pan
-//            Button 3 - zoom
-//            ctrl-Button 1 - spin
-//    actor:  Button 1 - rotate
-//            Button 2 - pan
-//            Button 3 - uniform scale
-//            ctrl-Button 1 - spin
-//            ctrl-Button 2 - dolly.
-//
-// Keyboard bindings (upper or lower case):
-//    j - joystick like mouse interactions
-//    t - trackball like mouse interactions
-//    o - object/ actor interaction
-//    c - camera interaction
-//    r - reset camera view
-//    w - turn all actors wireframe
-//    s - turn all actors surface
-//    u - execute user defined function
-//    p - pick actor under mouse pointer (if pickable)
-//    3 - toggle in/out of 3D mode (if supported by renderer)
-//    e - exit
-//    q - exit
-//</PRE>
-//
-// Camera mode and joystick mode are the default modes for compatibility.
-// 
-// When "j" is pressed, the interaction models after a joystick. The distance
-// from the center of the renderer viewport determines how quickly to rotate,
-// pan, zoom, spin, and dolly.  This is the default mode for compatiblity
-// reasons.  This is also known as position sensitive motion.
-//
-// When "t" is pressed, the interaction models after a trackball. Each mouse
-// movement is used to move the actor or camera. When the mouse stops, the
-// camera or actor motion is also stopped. This is also known as motion
-// sensitive motion.
-//
-// Rotate, pan, and zoom work the same way as before.  Spin has two different
-// interfaces depending on whether the interactor is in trackball or joystick
-// mode.  In trackball mode, by moving the mouse around the camera or actor
-// center in a circular motion, the camera or actor is spun.  In joystick mode
-// by moving the mouse in the y direction, the actor or camera is spun. Scale
-// dolly, and zoom all work in the same manner, that motion of mouse in y
-// direction generates the transformation.
-//
-// The event bindings for Camera mode and Actor mode are very similar, with
-// the exception of zoom (Camera only), and scale and dolly (Actor only). The
-// same user events elicit the same responses from the interactor.
-//
-// When the "p" key is pressed, an actor is selected using the user supplied
-// picker if one exist, or the default picker if one does not.  The picked
-// actor is NOT used for actor mode interactions.  To interact with an actor,
-// click on the actor with the pointer in Actor mode, and an internal picker
-// will select the appropriate actor.  Since the selections of the actors are
-// for different purposes, and handled by two different pickers, the
-// previously selected actor will be unselected when the interaction mode
-// has been switched between Actor mode and Camera mode.
-//
-// Interactors for a particular platform may have additional, specific event
-// bindings.  Please see the documentation for the subclasses.
-
-// .SECTION See Also
-// vtkXRenderWindowInteractor vtkWin32RenderWindowInteractor vtkPicker
+// vtkRenderWindowInteractor has changed from previous implementations and
+// now serves only as a shell to hold user preferences and route messages
+// to vtkInterActorStyle. Callbacks are available for many Events.
+// Platform specific subclasses should provide methods for
+// CreateTimer/DestroyTimer, TerminateApp, and an event loop if required
+// via Initialize/Start/Enable/Disable.
 
 #ifndef __vtkRenderWindowInteractor_h
 #define __vtkRenderWindowInteractor_h
 
 #include "vtkObject.h"
 #include "vtkRenderWindow.h"
-#include "vtkCamera.h"
-#include "vtkLight.h"
-//#include "vtkPicker.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkOutlineSource.h"
-#include "vtkMath.h"
 
-// for interaction picker
-#include "vtkCellPicker.h"
+// Timer flags for win32/X compatibility
+#define VTKI_TIMER_FIRST  0
+#define VTKI_TIMER_UPDATE 1
 
-// interaction modes
-#define VTKXI_JOY   0
-#define VTKXI_TRACK  1
-#define VTKXI_CAMERA 0
-#define VTKXI_ACTOR  1
-#define VTKXI_CONTROL_OFF 0
-#define VTKXI_CONTROL_ON 1
-
-// interactions
-#define VTKXI_START  0
-#define VTKXI_ROTATE 1
-#define VTKXI_ZOOM   2
-#define VTKXI_PAN    3
-#define VTKXI_SPIN   4
-#define VTKXI_DOLLY  5
-#define VTKXI_USCALE 6
-#define VTKXI_TIMER  7 
+class vtkInteractorStyle;
+class vtkPicker;
+class vtkCellPicker;
 
 class VTK_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
@@ -164,8 +80,13 @@ public:
                              this->RenderWindow->Render();}
 
   // Description:
+  // This Method detects loops of RenderWindow-Interactor,
+  // so objects are freed properly.
+  void UnRegister(vtkObject *o);
+
+  // Description:
   // Start the event loop. This is provided so that you do not have to
-  // implement your own event loop. You still can use your own 
+  // implement your own event loop. You still can use your own
   // event loop if you want. Initialize should be called before Start.
   virtual void Start() {};
 
@@ -180,11 +101,45 @@ public:
   virtual void Enable() { this->Enabled = 1; this->Modified();};
   virtual void Disable() { this->Enabled = 0; this->Modified();};
   vtkGetMacro(Enabled, int);
-  
+
   // Description:
   // Set/Get the rendering window being controlled by this object.
   void SetRenderWindow(vtkRenderWindow *aren);
   vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
+
+  // Description:
+  // Event loop notification member for Window size change
+  virtual void UpdateSize(int x,int y);
+
+  // Description:
+  // This methods sets the Size ivar of the interactor without
+  // actually changing the size of the window. Normally
+  // application programmers would use UpdateSize if anything.
+  // This is useful for letting someone else change the size of
+  // the rendering window and just letting the interactor
+  // know about the change.
+  vtkSetVector2Macro(Size,int);
+  vtkGetVector2Macro(Size,int);
+
+  // Description:
+  // Timer methods must be overridden by platform dependent subclasses.
+  // flag is passed to indicate if this is first timer set or an update
+  // as Win32 uses repeating timers, whereas X uses One shot more timer
+  // if flag==VTKXI_TIMER_FIRST Win32 and X should createtimer
+  // otherwise Win32 should exit and X should perform AddTimeOut()
+  virtual bool CreateTimer(int timerflag)  { return true; };
+  virtual bool DestroyTimer()              { return true; };
+
+  // Description:
+  // This function is called on 'q','e' keypress if exitmethod is not
+  // specified and should be overidden by platform dependent subclasses
+  // to provide a termination procedure if one is required.
+  virtual void TerminateApp(void) {};
+
+  // Description:
+  // External switching between joystick/trackball/new? modes.
+  virtual void SetInteractorStyle(vtkInteractorStyle *);
+  vtkGetObjectMacro(InteractorStyle,vtkInteractorStyle);
 
   // Description:
   // Turn on/off the automatic repositioning of lights as the camera moves.
@@ -193,16 +148,22 @@ public:
   vtkBooleanMacro(LightFollowCamera,int);
 
   // Description:
-  // Set/Get the desired update rate. This is used by vtkLODActor's to tell 
+  // This method can be used by user callbacks to get the
+  // x, y, coordinates of the current event.
+  vtkSetVector2Macro(EventPosition,int);
+  vtkGetVectorMacro(EventPosition,int,2);
+
+  // Description:
+  // Set/Get the desired update rate. This is used by vtkLODActor's to tell
   // them how quickly they need to render.  This update is in effect only
   // when the camera is being rotated, or zoomed.  When the interactor is
-  // still, the StillUpdateRate is used instead. 
+  // still, the StillUpdateRate is used instead.
   vtkSetClampMacro(DesiredUpdateRate,float,0.0001,VTK_LARGE_FLOAT);
   vtkGetMacro(DesiredUpdateRate,float);
 
   // Description:
   // Set/Get the desired update rate when movement has stopped.
-  // See the SetDesiredUpdateRate method. 
+  // See the SetDesiredUpdateRate method.
   vtkSetClampMacro(StillUpdateRate,float,0.0001,VTK_LARGE_FLOAT);
   vtkGetMacro(StillUpdateRate,float);
 
@@ -211,18 +172,17 @@ public:
   vtkGetMacro(Initialized,int);
 
   // Description:
-  // When an event occurs, we must determine which Renderer the event
-  // occurred within, since one RenderWindow may contain multiple 
-  // renderers. We also need to know what camera to operate on.
-  // This is just the ActiveCamera of the poked renderer. 
-  void FindPokedCamera(int,int);
-  void FindPokedRenderer(int,int);
+  // Set the object used to perform pick operations. You can use this to
+  // control what type of data is picked.
+  void SetPicker(vtkPicker *picker);
 
   // Description:
-  // When pick action successfully selects actor, this method highlights the 
-  // actor appropriately. Currently this is done by placing a bounding box
-  // around the actor.
-  virtual void HighlightActor(vtkActor *actor);
+  // Get the object used to perform pick operations.
+  vtkGetObjectMacro(Picker,vtkPicker);
+
+  // Description:
+  // Create default picker. Used to create one when none is specified.
+  virtual vtkPicker *CreateDefaultPicker();
 
   // Description:
   // Specify a method to be executed prior to the pick operation.
@@ -241,43 +201,9 @@ public:
   void SetEndPickMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // Specify a method to be executed prior to the pick operation.
-  void SetStartInteractionPickMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
-  void SetStartInteractionPickMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Specify a method to be executed after the pick operation.
-  void SetEndInteractionPickMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
-  void SetEndInteractionPickMethodArgDelete(void (*f)(void *));
-
-  
-  // Description:
-  // Set the object used to perform pick operations. You can use this to 
-  // control what type of data is picked.
-  void SetPicker(vtkPicker *picker);
-
-  // Description:
-  // Get the object used to perform pick operations.
-  vtkGetObjectMacro(Picker,vtkPicker);
-
-  //Description:
-  // Get the object used to perform mouse interaction pick operation
-  vtkGetObjectMacro(InteractionPicker, vtkCellPicker);
-
-  // Description:
-  // Create default picker. Used to create one when none is specified.
-  virtual vtkPicker *CreateDefaultPicker();
-
-  // Description:
   // Set the user method. This method is invoked on a "u" keypress.
   void SetUserMethod(void (*f)(void *), void *arg);
-  
+
   // Description:
   // Called when a void* argument is being discarded.  Lets the user free it.
   void SetUserMethodArgDelete(void (*f)(void *));
@@ -291,218 +217,34 @@ public:
   void SetExitMethodArgDelete(void (*f)(void *));
 
   // Description:
-  // Set the timer method. This method is invoked during rotate/zoom/pan
-  void SetTimerMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
-  void SetTimerMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set the mouse event method, invoked on left mouse button press.
-  void SetLeftButtonPressMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
-  void SetLeftButtonPressMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set the mouse event method, invoked on left mouse button release.
-  void SetLeftButtonReleaseMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
-  void SetLeftButtonReleaseMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set the mouse event method, invoked on middle mouse button press.
-  void SetMiddleButtonPressMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
-  void SetMiddleButtonPressMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set the mouse event method, invoked on middle mouse button release.
-  void SetMiddleButtonReleaseMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
-  void SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set the mouse event method, invoked on right mouse button press.
-  void SetRightButtonPressMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
-  void SetRightButtonPressMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set the mouse event method, invoked on right mouse button release.
-  void SetRightButtonReleaseMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
-  void SetRightButtonReleaseMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // This method is invoked on a "c" keypress
-  void SetCameraModeMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
-  void SetCameraModeMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // This method is invoked on a "a" keypress
-  void SetActorModeMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
-  void SetActorModeMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // This method is invoked on a "t" keypress
-  void SetTrackballModeMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
-  void SetTrackballModeMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // This method is invoked on a "j" keypress
-  void SetJoystickModeMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Called when a void* argument is being discarded.  Lets the user free it.
-  void SetJoystickModeMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // This method can be used by user callbacks to get the 
-  // x, y, coordinates of the current event.
-  vtkSetVector2Macro(EventPosition,int);
-  vtkGetVectorMacro(EventPosition,int,2);
-
-  // Description:
-  // Primarily internal methods used to start and stop interactions
-  // overridden in subclass to provide platform and hardware support
-  virtual void StartRotate() {};
-  virtual void EndRotate() {};
-  virtual void StartZoom() {};
-  virtual void EndZoom() {};
-  virtual void StartPan() {};
-  virtual void EndPan() {};
-  virtual void StartSpin() {};
-  virtual void EndSpin() {};
-  virtual void StartDolly() {};
-  virtual void EndDolly() {};
-  virtual void StartUniformScale() {};
-  virtual void EndUniformScale() {};
-  virtual void StartTimer() {};
-  virtual void EndTimer() {};
-
-  // Description:
-  // This Method detects loops of RenderWindow-Interactor,
-  // so objects are freed properly.
-  void UnRegister(vtkObject *o);
+  // These methods correspond to the the Exit, User and Pick
+  // callbacks. They allow for the Style to invoke them.
+  virtual void ExitCallback();
+  virtual void UserCallback();
+  virtual void StartPickCallback();
+  virtual void EndPickCallback();
   
   // Description:
-  // For legacy compatibiltiy. Do not use.
-  void SetPicker(vtkPicker& picker) {this->SetPicker(&picker);};
-
-  // Description:
-  // External switching between actor and camera mode.
-  virtual void SetActorModeToCamera();
-  virtual void SetActorModeToActor();
-  vtkGetMacro(ActorMode, int);
-  
-  // Description:
-  // External switching between joystick and trackball mode.
-  virtual void SetTrackballModeToTrackball();
-  virtual void SetTrackballModeToJoystick();
-  vtkGetMacro(TrackballMode, int);
-  
-  // Description:
-  // This methods sets the Size ivar of the interactor without
-  // actually changing the size of the window. Normally
-  // application programmers would use UpdateSize if anything.
-  // This is useful for letting someone else change the size of
-  // the rendering window and just letting the interactor
-  // know about the change.
-  vtkSetVector2Macro(Size,int);
-  vtkGetVector2Macro(Size,int);
-  
-  // Description:
-  // Return the CurrentRenderer. This is the renderer that was selected
-  // by the latest FindPokedRenderer call.
-  vtkGetObjectMacro(CurrentRenderer,vtkRenderer);
-  
+  // Render the scene. Just pass the render call on to the RenderWindow.
+  void Render();
   
 protected:
-  vtkRenderWindow *RenderWindow;
-  vtkCamera   *CurrentCamera;
-  vtkLight    *CurrentLight;
-  vtkRenderer *CurrentRenderer;
-  int   LightFollowCamera;
-  float Center[2];
-  float DeltaAzimuth;
-  float DeltaElevation;
-  int   Size[2];
-  int   State;
-  int   AnimationState;
-  float FocalDepth;
-  int   Initialized;
-  int   Enabled;
-  float DesiredUpdateRate;
-  float StillUpdateRate;
-  int   EventPosition[2];
-
-  // for picking actors
-  vtkPicker *Picker;
-  vtkOutlineSource *Outline;
-  vtkPolyDataMapper *OutlineMapper;
-  vtkActor *OutlineActor;
-  vtkRenderer *PickedRenderer;
-  vtkActor *CurrentActor;
-  
+  vtkRenderWindow    *RenderWindow;
+  vtkInteractorStyle *InteractorStyle;
   // used to track picked objects in actor mode
   // reason for existence: user may use any kind of picker.  Interactor
   //    need the high precision of cell picker at all time.
-  vtkCellPicker *InteractionPicker;
-  int ActorPicked;                      // boolean: actor picked?
-  vtkActor *InteractionActor;
-  
-  // new interactor modes
-  int ActorMode;
-  int TrackballMode;
-  int ControlMode;
+  vtkPicker          *Picker;
 
-  // some constants
-  int Preprocess;                       // boolean: was preprocessing done?
-  float RadianToDegree;                 // constant: for conv from deg to rad
-  float TrackballFactor;                // constant: for motion
-
-  // data arrays for motion
-  float NewPickPoint[4];
-  float OldPickPoint[4];
-  float MotionVector[3];                // vector used for interaction
-  float OldX;
-  float OldY;
-  
-  // this really belong in camera
-  double ViewLook[3];
-  double ViewPoint[3];
-  double ViewFocus[3];
-  double ViewUp[3];
-  double ViewRight[3];
-
-  // actor stuff
-  float Origin[3];
-  float Position[3];
-  float ObjCenter[3];                   // center of bounding box
-  float DispObjCenter[3];               // center of box in display coord
-  float Radius;                         // radius of virtual sphere
+  //
+  int   Initialized;
+  int   Enabled;
+  int   Style;
+  int   LightFollowCamera;
+  int   ActorMode;
+  float DesiredUpdateRate;
+  float StillUpdateRate;
+  int   EventPosition[2], Size[2];
   
   // user methods that can be used to override default behaviour
   void (*StartPickMethod)(void *);
@@ -511,101 +253,14 @@ protected:
   void (*EndPickMethod)(void *);
   void (*EndPickMethodArgDelete)(void *);
   void *EndPickMethodArg;
-  void (*StartInteractionPickMethod)(void *);
-  void (*StartInteractionPickMethodArgDelete)(void *);
-  void *StartInteractionPickMethodArg;
-  void (*EndInteractionPickMethod)(void *);
-  void (*EndInteractionPickMethodArgDelete)(void *);
-  void *EndInteractionPickMethodArg;
+
   void (*UserMethod)(void *);
   void (*UserMethodArgDelete)(void *);
   void *UserMethodArg;
+
   void (*ExitMethod)(void *);
   void (*ExitMethodArgDelete)(void *);
   void *ExitMethodArg;
-
-  void (*CameraModeMethod)(void *);
-  void (*CameraModeMethodArgDelete)(void *);
-  void *CameraModeMethodArg;
-  void (*ActorModeMethod)(void *);
-  void (*ActorModeMethodArgDelete)(void *);
-  void *ActorModeMethodArg;
-  void (*JoystickModeMethod)(void *);
-  void (*JoystickModeMethodArgDelete)(void *);
-  void *JoystickModeMethodArg;
-  void (*TrackballModeMethod)(void *);
-  void (*TrackballModeMethodArgDelete)(void *);
-  void *TrackballModeMethodArg;
-
-  void (*TimerMethod)(void *);
-  void (*TimerMethodArgDelete)(void *);
-  void *TimerMethodArg;
-
-  void (*LeftButtonPressMethod)(void *);
-  void (*LeftButtonPressMethodArgDelete)(void *);
-  void *LeftButtonPressMethodArg;
-  void (*LeftButtonReleaseMethod)(void *);
-  void (*LeftButtonReleaseMethodArgDelete)(void *);
-  void *LeftButtonReleaseMethodArg;
-
-  void (*MiddleButtonPressMethod)(void *);
-  void (*MiddleButtonPressMethodArgDelete)(void *);
-  void *MiddleButtonPressMethodArg;
-  void (*MiddleButtonReleaseMethod)(void *);
-  void (*MiddleButtonReleaseMethodArgDelete)(void *);
-  void *MiddleButtonReleaseMethodArg;
-
-  void (*RightButtonPressMethod)(void *);
-  void (*RightButtonPressMethodArgDelete)(void *);
-  void *RightButtonPressMethodArg;
-  void (*RightButtonReleaseMethod)(void *);
-  void (*RightButtonReleaseMethodArgDelete)(void *);
-  void *RightButtonReleaseMethodArg;
-
-  // convenience methods for converting between coordinate systems
-  virtual void ComputeDisplayToWorld(double x, double y, double z,
-                                     double *worldPt);
-  virtual void ComputeWorldToDisplay(double x, double y, double z,
-                                     double *displayPt);
-  virtual void ComputeDisplayToWorld(double x, double y, double z,
-                                     float *worldPt);
-  virtual void ComputeWorldToDisplay(double x, double y, double z,
-                                     float *displayPt);
-
-  // perform actor mode scale and rotate transformations
-  virtual void ActorTransform(vtkActor *actor,
-                              float *boxCenter,
-                              int NumRotation,
-                              double **rotate,
-                              double *scale);
-  virtual void ActorTransform(vtkActor *actor,
-                              double *boxCenter,
-                              int NumRotation,
-                              double **rotate,
-                              double *scale);
-  
-  // methods for the different interactions in different modes
-  virtual void JoystickRotateCamera(int x, int y);
-  virtual void JoystickSpinCamera(int x, int y);
-  virtual void JoystickPanCamera(int x, int y);
-  virtual void JoystickDollyCamera(int x, int y);
-  
-  virtual void TrackballRotateCamera(int x, int y);
-  virtual void TrackballSpinCamera(int x, int y);
-  virtual void TrackballPanCamera(int x, int y);
-  virtual void TrackballDollyCamera(int x, int y);
-  
-  virtual void JoystickRotateActor(int x, int y);
-  virtual void JoystickSpinActor(int x, int y);
-  virtual void JoystickPanActor(int x, int y);
-  virtual void JoystickDollyActor(int x, int y);
-  virtual void JoystickScaleActor(int x, int y);
-  
-  virtual void TrackballRotateActor(int x, int y);
-  virtual void TrackballSpinActor(int x, int y);
-  virtual void TrackballPanActor(int x, int y);
-  virtual void TrackballDollyActor(int x, int y);
-  virtual void TrackballScaleActor(int x, int y);
 };
 
 #endif

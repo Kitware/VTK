@@ -329,6 +329,8 @@ void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+<<<<<<< vtkXRenderWindowInteractor.cxx
+=======
 
 void vtkXRenderWindowInteractor::UpdateSize(int x,int y)
 {
@@ -505,496 +507,46 @@ void vtkXRenderWindowInteractor::EndTimer()
 }
 
   
+>>>>>>> 1.65
 void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
-					XtPointer client_data, 
-					XEvent *event, 
+					XtPointer client_data,
+					XEvent *event,
 					Boolean *vtkNotUsed(ctd))
 {
   vtkXRenderWindowInteractor *me;
 
   me = (vtkXRenderWindowInteractor *)client_data;
 
-  switch (event->type) 
-    {
-    case Expose:
-      {
-      XEvent result;
-      while (XCheckTypedWindowEvent(me->DisplayId, me->WindowId,
-				    Expose, &result))
-	{
-	// just getting the expose configure event
-	event = &result;
-	}
-      // only render if we are currently accepting events
-      if (me->GetEnabled())
-	{
-	me->GetRenderWindow()->Render();
-	}
-      }
-      break;
-      
-    case ConfigureNotify: 
-      {
-      XEvent result;
-      while (XCheckTypedWindowEvent(me->DisplayId, me->WindowId,
-				    ConfigureNotify, &result))
-	{
-	// just getting the last configure event
-	event = &result;
-	}
-      if ((((XConfigureEvent *)event)->width != me->Size[0]) ||
-	  (((XConfigureEvent *)event)->height != me->Size[1]))
-	{
-	me->UpdateSize(((XConfigureEvent *)event)->width,
-		       ((XConfigureEvent *)event)->height); 
+  // Huge piece of code deleted...
+  // call
+  //InteractionStyle->OnChar(...)
+  //InteractionStyle->OnLButtonDown(...)
+  //etc etc
+  //and get shift and ctrl state
 
-	// only render if we are currently accepting events
-	if (me->GetEnabled())
-	  {
-	  me->GetRenderWindow()->Render();
-	  }
-	}
-      }
-      break;
-
-    case ButtonPress: 
-      me->SetEventPosition(((XButtonEvent*)event)->x,
-			   me->Size[1] - ((XButtonEvent*)event)->y - 1);
-      
-      me->OldX = ((XButtonEvent*)event)->x;
-      me->OldY = ((XButtonEvent*)event)->y;
-
-      if (((XButtonEvent *)event)->state & ControlMask)
-        {
-	me->ControlMode = VTKXI_CONTROL_ON;
-        }
-      else
-        {
-	me->ControlMode = VTKXI_CONTROL_OFF;
-        };
- 
-      me->FindPokedCamera(((XButtonEvent*)event)->x,
-                          me->Size[1] - ((XButtonEvent*)event)->y - 1);
-
-      if (me->ActorMode)
-        {
-        // Execute start method, if any
-        if ( me->StartInteractionPickMethod ) 
-          (*me->StartInteractionPickMethod)(me->StartInteractionPickMethodArg);
-        
-        // if in actor mode, select the actor below the mouse pointer
-        me->InteractionPicker->Pick(((XButtonEvent*)event)->x,
-                                    me->Size[1] -
-                                    ((XButtonEvent*)event)->y - 1, 0.0,
-                                    me->CurrentRenderer);
-        
-        // now go through the actor collection and decide which is closest
-        vtkActor *closestActor = NULL, *actor;
-        vtkActorCollection *actors = me->InteractionPicker->GetActors();
-        vtkPoints *pickPositions = me->InteractionPicker->GetPickedPositions();
-        int i = 0;
-        float *pickPoint, d;
-        float distToCamera = VTK_LARGE_FLOAT;
-        if (actors && actors->GetNumberOfItems() > 0)
-          {
-          actors->InitTraversal();
-          me->CurrentCamera->GetPosition(me->ViewPoint);
-          while (i < pickPositions->GetNumberOfPoints())
-            {
-            actor = actors->GetNextActor();
-            if (actor != NULL)
-              {
-              pickPoint = pickPositions->GetPoint(i);
-	      double dtmp[3];
-	      dtmp[0] = pickPoint[0];
-	      dtmp[1] = pickPoint[1];
-	      dtmp[2] = pickPoint[2];
-              d = vtkMath::Distance2BetweenPoints(dtmp, me->ViewPoint);
-              if (distToCamera > d)
-                {
-                distToCamera = d;
-                closestActor = actor;
-                }
-              }
-            i++;
-            }
-          }
-
-        me->InteractionActor = closestActor;
-        // refine the answer to whether an actor was picked.  CellPicker()
-        // returns true from Pick() if the bounding box was picked,
-        // but we only want something to be picked if a cell was actually
-        // selected
-        me->ActorPicked = (me->InteractionActor != NULL);
-        // highlight actor at the end of interaction
-        
-        if ( me->EndInteractionPickMethod ) 
-          (*me->EndInteractionPickMethod)(me->EndInteractionPickMethodArg);
-        }
-
-      switch (((XButtonEvent *)event)->button)
-	{
-	case Button1: 
-	  if (me->LeftButtonPressMethod) 
-	    {
-	    (*me->LeftButtonPressMethod)(me->LeftButtonPressMethodArg);
-	    }
-	  else
-	    {
-	    if (me->ControlMode)
-              {
-              me->StartSpin();
-              }
-	    else
-              {
-              me->StartRotate();
-              }
-	    }
-	  break;
-          
-	case Button2: 
-	  if (me->MiddleButtonPressMethod) 
-	    {
-	    (*me->MiddleButtonPressMethod)(me->MiddleButtonPressMethodArg);
-	    }
-	  else
-	    {
-	    if (me->ControlMode)
-              {
-              me->StartDolly();
-              }
-	    else
-              {
-              me->StartPan();
-              }
-	    }
-	  break;
-          
-	case Button3: 
-	  if (me->RightButtonPressMethod) 
-	    {
-	    (*me->RightButtonPressMethod)(me->RightButtonPressMethodArg);
-	    }
-	  else
-	    {
-	    if (me->ActorMode)
-              {
-              me->StartUniformScale();
-              }
-	    else
-              {
-              me->StartZoom();
-              }
-	    }
-	  break;
-        }
-      break;
-
-    case ButtonRelease: 
-      me->SetEventPosition(((XButtonEvent*)event)->x,
-			   me->Size[1] - ((XButtonEvent*)event)->y - 1);
-
-      // don't change actor or trackball modes in the middle of motion
-      // don't change control mode in the middle of mouse movement
-
-      switch (((XButtonEvent *)event)->button)
-	{
-	case Button1:
-	  if (me->LeftButtonReleaseMethod) 
-	    {
-	    (*me->LeftButtonReleaseMethod)(me->LeftButtonReleaseMethodArg);
-	    }
-	  else
-            {
-            if (me->ControlMode)
-              {
-              me->EndSpin();
-              }
-            else
-              {
-              me->EndRotate();
-              }
-            }
-	  break;
-
-	case Button2:
-	  if (me->MiddleButtonReleaseMethod) 
-	    {
-	    (*me->MiddleButtonReleaseMethod)(me->MiddleButtonReleaseMethodArg);
-	    }
-	  else
-            {
-            if (me->ControlMode)
-              {
-              me->EndDolly();
-              }
-	    else
-              {
-              me->EndPan();
-              }
-            }
-	  break;
-          
-	case Button3: 
-	  if (me->RightButtonReleaseMethod) 
-	    {
-	    (*me->RightButtonReleaseMethod)(me->RightButtonReleaseMethodArg);
-	    }
-	  else
-            {
-	    if (me->ActorMode)
-              {
-              me->EndUniformScale();
-              }
-	    else
-              {
-              me->EndZoom();
-              }
-            }
-	  break; 
-	}
-      
-        me->OldX = 0.0;
-        me->OldY = 0.0;
-        if (me->ActorMode && me->ActorPicked)
-          {
-          me->HighlightActor(me->InteractionActor);
-          }
-        else if (me->ActorMode)
-          {
-          me->HighlightActor(NULL);
-          }
-      break;
-
-    case EnterNotify:
-      // Force the keyboard focus to be this render window
-      if (me->TopLevelShell != NULL)
-        {
-        XtSetKeyboardFocus(me->TopLevelShell, me->top);
-        }
-      break;
-      
-    case KeyPress:
-      KeySym ks;
-      static char buffer[20];
-
-      XLookupString((XKeyEvent *)event,buffer,20,&ks,NULL);
-      
-      switch (ks)
-	{
-	case XK_q:
-	case XK_Q:
-	case XK_e:
-	case XK_E:
-          if (me->ExitMethod)
-            {
-            (*me->ExitMethod)(me->ExitMethodArg);
-            }
-	  else
-            {
-            exit(1);
-            }
-          break;
-          
-	case XK_u:
-	case XK_U:
-          if (me->UserMethod)
-            {
-            (*me->UserMethod)(me->UserMethodArg);
-            }
-          break;
-          
-	case XK_r:
-	case XK_R: //reset
-          if (me->ActorMode)
-            {
-            //vtkDebugMacro(<<"Please switch to camera mode then reset");
-	    }
-          else
-            {
-            me->FindPokedRenderer(((XKeyEvent*)event)->x,
-                                  me->Size[1] - ((XKeyEvent*)event)->y - 1);
-            me->CurrentRenderer->ResetCamera();
-            me->RenderWindow->Render();
-            }
-	  break;
-
-	case XK_w:
-	case XK_W: //change all actors to wireframe
-	  {
-          vtkActorCollection *ac;
-	  vtkActor *anActor, *aPart;
-	  
-          me->FindPokedRenderer(((XKeyEvent*)event)->x,
-				me->Size[1] - ((XKeyEvent*)event)->y - 1);
-	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
-	    {
-            for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
-              {
-              aPart->GetProperty()->SetRepresentationToWireframe();
-              }
-	    }
-	  
-	  me->RenderWindow->Render();
-	  }
-          break;
-
-	case XK_s:
-	case XK_S: //change all actors to "surface" or solid
-	  {
-          vtkActorCollection *ac;
-	  vtkActor *anActor, *aPart;
-	  
-          me->FindPokedRenderer(((XKeyEvent*)event)->x,
-			        me->Size[1] - ((XKeyEvent*)event)->y - 1);
-	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
-	    {
-            for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
-              {
-              aPart->GetProperty()->SetRepresentationToSurface();
-              }
-	    }
-	  
-	  me->RenderWindow->Render();
-	  }
-          break;
-
-	case XK_3: //3d stereo
-	  // prepare the new window
-	  if (me->RenderWindow->GetStereoRender())
-	    {
-	    me->RenderWindow->StereoRenderOff();
-	    }
-	  else
-	    {
-	    memcpy(me->PositionBeforeStereo,me->RenderWindow->GetPosition(),
-		   sizeof(int)*2);
-	    me->RenderWindow->StereoRenderOn();
-	    }
-	  me->RenderWindow->Render();
-          break;
-
-	case XK_p:
-	case XK_P: //pick actors
-          if (me->State == VTKXI_START)
-            {
-            me->FindPokedRenderer(((XKeyEvent*)event)->x,
-                                  me->Size[1] - ((XKeyEvent*)event)->y - 1);
-            // Execute start method, if any
-
-            if ( me->StartPickMethod )
-              {            
-              (*me->StartPickMethod)(me->StartPickMethodArg);
-              }
-            me->Picker->Pick(((XButtonEvent*)event)->x,
-                             me->Size[1] - ((XButtonEvent*)event)->y - 1, 0.0,
-                             me->CurrentRenderer);
-            
-            // when user picks with their own picker, interaction actor is
-            // reset, the picked item is highlighted.
-            me->InteractionActor = NULL;
-            me->ActorPicked = 0;
-            me->HighlightActor(me->Picker->GetAssembly());
-            
-            if ( me->EndPickMethod )
-              {
-              (*me->EndPickMethod)(me->EndPickMethodArg);
-              }
-            }
-	  break;
-
-	case XK_j:
-	case XK_J: //joystick style interaction
-	  if (me->State == VTKXI_START) 
-	    {
-	    me->TrackballMode = VTKXI_JOY; 
-	    //vtkDebugMacro(<<"Swtich to Joystick style interaction.");
-	    if (me->JoystickModeMethod) 
-	      {
-	      (*me->JoystickModeMethod)(me->JoystickModeMethodArg);
-	      }
-            }
-	  break;
-
-	case XK_t:
-	case XK_T: //trackball style interaction
-	  if (me->State == VTKXI_START) 
-	    {
-	    me->TrackballMode = VTKXI_TRACK;
-	    //vtkDebugMacro(<<"Swtich to Trackball style interaction.");
-	    if (me->TrackballModeMethod) 
-	      {
-	      (*me->TrackballModeMethod)(me->TrackballModeMethodArg);
-	      }
-            }
-	  break;
-
-
-	case XK_o:
-	case XK_O: //actor interaction
-	  if (me->State == VTKXI_START) 
-	    {
-            if (me->ActorMode != VTKXI_ACTOR)
-              {
-              // reset the actor picking variables
-              me->InteractionActor = NULL;
-              me->ActorPicked = 0;
-              me->HighlightActor(NULL);
-
-              me->ActorMode = VTKXI_ACTOR;
-              
-              //vtkDebugMacro(<<"Swtich to Object/Actor interaction.");
-              if (me->ActorModeMethod) 
-                {
-                (*me->ActorModeMethod)(me->ActorModeMethodArg);
-                }
-              }
-            }
-	  break;
-
-	case XK_c:
-	case XK_C: //camera interaction
-	  if (me->State == VTKXI_START) 
-	    {
-            if (me->ActorMode != VTKXI_CAMERA)
-              {
-              // reset the actor picking variables
-              me->InteractionActor = NULL;
-              me->ActorPicked = 0;
-              me->HighlightActor(NULL);
-
-              me->ActorMode = VTKXI_CAMERA;
-              // vtkDebugMacro(<<"Swtich to Camera mode interaction.");
-              if (me->CameraModeMethod) 
-                {
-                (*me->CameraModeMethod)(me->CameraModeMethodArg);
-                }
-              }
-            }
-	  break;
-        }
-      break;
-    }
 }
 
 void vtkXRenderWindowInteractorTimer(XtPointer client_data,
 				     XtIntervalId *vtkNotUsed(id))
 {
   vtkXRenderWindowInteractor *me;
+  Window root,child;
+  int root_x,root_y;
   int x,y;
+  unsigned int keys;
 
   me = (vtkXRenderWindowInteractor *)client_data;
 
   // get the pointer position
   me->GetMousePosition(&x, &y);
 
-  if (me->TimerMethod) 
+  if (me->TimerMethod)
     {
     me->SetEventPosition(x,me->Size[1] - y - 1);
     (*me->TimerMethod)(me->TimerMethodArg);
     };
+<<<<<<< vtkXRenderWindowInteractor.cxx
+=======
   
   switch (me->State)
     {
@@ -1024,7 +576,15 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
           }
         me->ExtAddTimeOut(me->App,10,
                         vtkXRenderWindowInteractorTimer,client_data);
+>>>>>>> 1.65
 
+<<<<<<< vtkXRenderWindowInteractor.cxx
+    // just call
+    this->InteractorStyle->OnTimer();
+    // not sure you need the guff above but I'll leave it there.
+    // Mouse pos should be set by last mouse move or equiv message?
+}
+=======
         }
       break;
     
@@ -1141,7 +701,19 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
  
     }
 }  
+>>>>>>> 1.65
 
+<<<<<<< vtkXRenderWindowInteractor.cxx
+bool vtkXRenderWindowInteractor::CreateTimer(int timertype) {
+    // Fix this
+    this->AddTimeOut(this->App,10, vtkXRenderWindowInteractorTimer,client_data);
+    return true;
+}
+
+bool vtkXRenderWindowInteractor::DestroyTimer(void) {
+    return true;
+}
+=======
 // Finish setting up a new window after the WindowRemap.
 void vtkXRenderWindowInteractor::FinishSettingUpNewWindow()
 {
@@ -1160,31 +732,46 @@ void vtkXRenderWindowInteractor::FinishSettingUpNewWindow()
   this->Size[0] = size[0];
   this->Size[1] = size[1];
 }
+>>>>>>> 1.65
 
+<<<<<<< vtkXRenderWindowInteractor.cxx
+XtIntervalId vtkXRenderWindowInteractor::AddTimeOut(XtAppContext app_context,
+=======
 XtIntervalId vtkXRenderWindowInteractor::ExtAddTimeOut(XtAppContext app_context, 
+>>>>>>> 1.65
 			      unsigned long interval,
-			      XtTimerCallbackProc proc, 
-			      XtPointer client_data) 
+			      XtTimerCallbackProc proc,
+			      XtPointer client_data)
 {
   return XtAppAddTimeOut(app_context, interval, proc, client_data);
 }
 
-void vtkXRenderWindowInteractor::GetMousePosition(int *x, int *y) 
+void vtkXRenderWindowInteractor::GetMousePosition(int *x, int *y)
 {
   Window root,child;
   int root_x,root_y;
   unsigned int keys;
-  
+
   XQueryPointer(this->DisplayId,this->WindowId,
 		&root,&child,&root_x,&root_y,x,y,&keys);
 }
 
 void vtkXRenderWindowInteractor::Timer(XtPointer client_data,
-				   XtIntervalId *id) {
+                                       XtIntervalId *id) 
+{
   vtkXRenderWindowInteractorTimer(client_data, id);
 }
 
 void vtkXRenderWindowInteractor::Callback(Widget w,
+<<<<<<< vtkXRenderWindowInteractor.cxx
+				   XtPointer client_data,
+				   XEvent *event,
+				   Boolean *ctd) 
+{
+  vtkXRenderWindowInteractorCallback(w, client_data, event, ctd);
+}
+
+=======
 				   XtPointer client_data, 
 				   XEvent *event, 
 				   Boolean *ctd) {
@@ -1217,3 +804,4 @@ void vtkXRenderWindowInteractor::ExtXRenderWindowInteractorCallback(Widget w,
 
 
 
+>>>>>>> 1.65

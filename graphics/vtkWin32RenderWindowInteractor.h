@@ -37,37 +37,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkWin32RenderWindowInteractor - provide an event driven interface 
-// to the renderer
+// .NAME vtkWin32RenderWindowInteractor - implements Win32 specific functions
+// required by vtkRenderWindowInteractor.
+//
 // .SECTION Description
-// vtkWin32RenderWindowInteractor is a convenience object that provides event 
-// event bindings to common graphics functions. For example, camera and actor
-// functions such as zoom-in/zoom-out, azimuth, roll, and pan. It is one of
-// the window system specific subclasses of vtkRenderWindowInteractor. Please
-// see vtkRenderWindowInteractor documentation for event bindings.
+// By default the interactor installs a MessageProc callback which
+// intercepts windows' messages to the window and controls interactions by
+// routing them to the InteractoStyle classes.
+// MFC or BCB programs can prevent this and instead directly route any mouse/key
+// messages into the event bindings by setting InstallMessageProc to false.
+// This provides a minimal "Mapped" mode of interaction
 //
-// Win32RenderWindowInteractor has an additional "animate" mode, which
-// currently does not perform any animation, and has been left in the source
-// code for compatibility.  Here both lower case and upper case will work
-//
-//<PRE>
-// Additional keyboard bindings:
-//    a - animate
-//</PRE>
-//
-// .SECTION see also
-// vtkRenderWindowInteractor vtkWin32OpenGLRenderWindow
-
-
-
 #ifndef __vtkWin32RenderWindowInteractor_h
 #define __vtkWin32RenderWindowInteractor_h
 
 #include <stdlib.h>
 #include "vtkRenderWindowInteractor.h"
 
-class VTK_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor
-{
+class VTK_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor {
 public:
 
   // Description:
@@ -99,34 +86,43 @@ public:
   // call this method it will loop processing events until the
   // application is exited.
   virtual void Start();
-  void UpdateSize(int,int);
 
   // Description:
-  // Provide implementaitons of the methods defined in
-  // vtkRenderWindowInteractor. Generally the application developer should
-  // not invoke these methods directly.
-  virtual void StartRotate();
-  virtual void EndRotate();
-  virtual void StartZoom();
-  virtual void EndZoom();
-  virtual void StartPan();
-  virtual void EndPan();
-  virtual void StartSpin();
-  virtual void EndSpin();
-  virtual void StartDolly();
-  virtual void EndDolly();
-  virtual void StartUniformScale();
-  virtual void EndUniformScale();
-  virtual void StartTimer();
-  virtual void EndTimer();
+  // By default the interactor installs a MessageProc callback which
+  // intercepts windows messages to the window and controls interactions.
+  // MFC or BCB programs can prevent this and instead directly route any mouse/key
+  // messages into the event bindings by setting InstallMessgeProc to false.
+  vtkSetMacro(InstallMessageProc,int);
+  vtkGetMacro(InstallMessageProc,int);
+  vtkBooleanMacro(InstallMessageProc,int);
 
+  // Description:
+  // Win32 specific application terminate, calls ClassExitMethod then
+  // calls PostQuitMessage(0) to terminate app. An application can Specify
+  // ExitMethod for alternative behaviour (i.e. suppresion of keyboard exit)
+  void TerminateApp(void);
 
-  virtual void StartAnimation();
-  virtual void EndAnimation();
+  // Description:
+  // Win32 timer methods
+  bool CreateTimer(int timertype);
+  bool DestroyTimer(void);
 
   //BTX
-  friend VTK_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg,
-					   WPARAM w, LPARAM l);
+  friend VTK_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l);
+
+  // Description:
+  // Various methods that a Win32 window can redirect to this class to be 
+  // handled.
+  virtual void OnMouseMove  (HWND wnd, UINT nFlags, int X, int Y);
+  virtual void OnRButtonDown(HWND wnd, UINT nFlags, int X, int Y);
+  virtual void OnRButtonUp  (HWND wnd, UINT nFlags, int X, int Y);
+  virtual void OnMButtonDown(HWND wnd, UINT nFlags, int X, int Y);
+  virtual void OnMButtonUp  (HWND wnd, UINT nFlags, int X, int Y);
+  virtual void OnLButtonDown(HWND wnd, UINT nFlags, int X, int Y);
+  virtual void OnLButtonUp  (HWND wnd, UINT nFlags, int X, int Y);
+  virtual void OnSize       (HWND wnd, UINT nType,  int X, int Y);
+  virtual void OnTimer      (HWND wnd, UINT nIDEvent);
+  virtual void OnChar       (HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
   //ETX
 
   // Description:
@@ -136,13 +132,18 @@ public:
   // the various language bindings (tcl, Win32, etc.).
   static void SetClassExitMethod(void (*f)(void *), void *arg);
   static void SetClassExitMethodArgDelete(void (*f)(void *));
-  
+
+  // Description:
+  // These methods correspond to the the Exit, User and Pick
+  // callbacks. They allow for the Style to invoke them.
+  virtual void ExitCallback();
+
 protected:
-  HWND WindowId;
-  UINT TimerId;
+  HWND    WindowId;
+  UINT    TimerId;
   WNDPROC OldProc;
-  LPARAM LastPosition;
-  
+  int     InstallMessageProc;
+
   //BTX
   // Description:
   // Class variables so an exit method can be defined for this class

@@ -14,18 +14,23 @@ vtkRenderWindowInteractor iren
 # create pipeline
 #
 vtkVolume16Reader v16
-v16 SetDataDimensions 128 128
+v16 SetDataDimensions 256 256
 [v16 GetOutput] SetOrigin 0.0 0.0 0.0
 v16 SetDataByteOrderToLittleEndian
-v16 SetFilePrefix "../../../vtkdata/headsq/half"
+v16 SetFilePrefix "../../../vtkdata/fullhead/headsq"
 #v16 SetImageRange 19 24
 v16 SetImageRange 1 93
 v16 SetDataSpacing 1.6 1.6 1.5
 v16 Update
 
+vtkTimerLog t
 vtkContourFilter iso
 iso SetInput [v16 GetOutput]
 iso SetValue 0 1150
+t StartTimer
+iso Update
+t StopTimer
+set etime [t GetElapsedTime]
 
 vtkPolyDataMapper isoMapper
 isoMapper SetInput [iso GetOutput]
@@ -46,7 +51,7 @@ vtkActor outlineActor
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor outlineActor
-ren1 AddActor isoActor
+#ren1 AddActor isoActor
 ren1 SetBackground 0.2 0.3 0.4
 renWin SetSize 450 450
 [ren1 GetActiveCamera] Elevation 90

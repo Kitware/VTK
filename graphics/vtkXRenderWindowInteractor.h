@@ -49,6 +49,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkRenderWindowInteractor vtkXRenderWindow
 
+// I've been though this and deleted all I think should go, tried to create
+// the basic structure and if you're lucky it might even work!
+// but frankly I doubt it
 
 #ifndef __vtkXRenderWindowInteractor_h
 #define __vtkXRenderWindowInteractor_h
@@ -76,6 +79,15 @@ public:
   // want to have mouse interaction.
   virtual void Initialize();
 
+  // Description:
+  // Call exit on 'q','e' keypress. Want more ???
+  void TerminateApp(void) { exit(); }
+
+  // Description:
+  // X timer methods
+  bool CreateTimer(int timertype);
+  bool DestroyTimer(void);
+
   // Description: 
   // Initializes the event handlers using an XtAppContext that you have
   // provided.  This assumes that you want to own the event loop.
@@ -98,26 +110,6 @@ public:
   // call this method it will loop processing X events until the
   // application is exited.
   virtual void Start();
-  virtual void UpdateSize(int,int);
-
-  // Description:
-  // Provide implementaitons of the methods defined in
-  // vtkRenderWindowInteractor. Generally the application developer should
-  // not invoke these methods directly.
-  virtual void StartRotate();
-  virtual void EndRotate();
-  virtual void StartZoom();
-  virtual void EndZoom();
-  virtual void StartPan();
-  virtual void EndPan();
-  virtual void StartSpin();
-  virtual void EndSpin();
-  virtual void StartDolly();
-  virtual void EndDolly();
-  virtual void StartUniformScale();
-  virtual void EndUniformScale();
-  virtual void StartTimer();
-  virtual void EndTimer();
 
   // Description:
   // Specify the Xt widget to use for interaction. This method is

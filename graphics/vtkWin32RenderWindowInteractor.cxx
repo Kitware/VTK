@@ -40,46 +40,38 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vtkWin32OpenGLRenderWindow.h"
-#include "vtkWin32RenderWindowInteractor.h"
-#include "vtkActor.h"
 #include <math.h>
 
-//status
-#define VTKXI_ANIMATE 7
+#include "vtkWin32OpenGLRenderWindow.h"
+#include "vtkWin32RenderWindowInteractor.h"
+#include "vtkInteractorStyle.h"
+#include "vtkActor.h"
+#include <gl\gl.h>
 
-
-void (*vtkWin32RenderWindowInteractor::ClassExitMethod)(void *)
-                                                  = (void (*)(void *))NULL;
+void (*vtkWin32RenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
 void *vtkWin32RenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
-void (*vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)(void *)
-                                                  = (void (*)(void *))NULL;
-
+void (*vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))NULL;
 
 // Construct object so that light follows camera motion.
-vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
+vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor() 
 {
-  static timerId = 1;
-  
-  this->State = VTKXI_START;  
-  this->AnimationState = VTKXI_START;
-  this->WindowId = 0;
-  this->TimerId = timerId++;
+  static timerId           = 1;
+  this->WindowId           = 0;
+  this->TimerId            = timerId++;
+  this->InstallMessageProc = 1;
 }
 
-
-vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
+vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor() 
 {
   vtkWin32OpenGLRenderWindow *tmp;
-
   // we need to release any hold we have on a windows event loop
-  if (this->WindowId)
+  if (this->WindowId && this->Enabled && this->InstallMessageProc) 
     {
     vtkWin32OpenGLRenderWindow *ren;
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
     tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
     // watch for odd conditions
-    if ((tmp != ren) && (ren != NULL))
+    if ((tmp != ren) && (ren != NULL)) 
       {
       // OK someone else has a hold on our event handler
       // so lets have them handle this stuff
@@ -88,20 +80,23 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
       // call this event handler if required
       this->OldProc(this->WindowId,WM_USER+14,28,(LONG)this->OldProc);
       }
-    else
+    else 
       {
       SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)this->OldProc);
       }
-
     this->Enabled = 0;
     }
 }
 
-void  vtkWin32RenderWindowInteractor::Start()
+void  vtkWin32RenderWindowInteractor::Start() 
 {
+  // No need to do anything if this is a 'mapped' interactor
+  if (!this->Enabled || !this->InstallMessageProc) 
+    {
+    return;
+    }
   MSG msg;
-  
-  while (GetMessage(&msg, NULL, 0, 0))
+  while (GetMessage(&msg, NULL, 0, 0)) 
     {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
@@ -109,7 +104,7 @@ void  vtkWin32RenderWindowInteractor::Start()
 }
 
 // Begin processing keyboard strokes.
-void vtkWin32RenderWindowInteractor::Initialize()
+void vtkWin32RenderWindowInteractor::Initialize() 
 {
   static int any_initialized = 0;
   vtkWin32OpenGLRenderWindow *ren;
@@ -117,91 +112,83 @@ void vtkWin32RenderWindowInteractor::Initialize()
   int *size;
   int *position;
   int argc = 0;
-
   // make sure we have a RenderWindow and camera
-  if ( ! this->RenderWindow)
+  if ( ! this->RenderWindow) 
     {
     vtkErrorMacro(<<"No renderer defined!");
     return;
     }
-
-  if (this->Initialized)
+  if (this->Initialized) 
     {
     return;
     }
   this->Initialized = 1;
-
   // get the info we need from the RenderingWindow
   ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
   ren->Start();
   size    = ren->GetSize();
   position= ren->GetPosition();
   this->WindowId = ren->GetWindowId();
-
   this->Enable();
-
   this->Size[0] = size[0];
   this->Size[1] = size[1];
 }
 
-
-void vtkWin32RenderWindowInteractor::Enable()
+void vtkWin32RenderWindowInteractor::Enable() 
 {
   vtkWin32OpenGLRenderWindow *ren;
   vtkWin32OpenGLRenderWindow *tmp;
-
-  if (this->Enabled)
+  if (this->Enabled) 
     {
     return;
     }
-  
-  // add our callback
-  ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
-  this->OldProc = (WNDPROC)GetWindowLong(this->WindowId,GWL_WNDPROC);
-  tmp=(vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
-  // watch for odd conditions
-  if (tmp != ren)
+  if (this->InstallMessageProc) 
     {
-    // OK someone else has a hold on our event handler
-    // so lets have them handle this stuff
-    // well send a USER message to the other
-    // event handler so that it can properly
-    // call this event handler if required
-    this->OldProc(this->WindowId,WM_USER+12,24,(LONG)vtkHandleMessage);
+    // add our callback
+    ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
+    this->OldProc = (WNDPROC)GetWindowLong(this->WindowId,GWL_WNDPROC);
+    tmp=(vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
+    // watch for odd conditions
+    if (tmp != ren) 
+      {
+      // OK someone else has a hold on our event handler
+      // so lets have them handle this stuff
+      // well send a USER message to the other
+      // event handler so that it can properly
+      // call this event handler if required
+      this->OldProc(this->WindowId,WM_USER+12,24,(LONG)vtkHandleMessage);
+      }
+    else 
+      {
+      SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)vtkHandleMessage);
+      }
+    // in case the size of the window has changed while we were away
+    int *size;
+    size = ren->GetSize();
+    this->Size[0] = size[0];
+    this->Size[1] = size[1];
     }
-  else
-    {
-    SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)vtkHandleMessage);
-    }
-
-  // in case the size of the window has changed while we were away
-  int *size;
-  size = ren->GetSize();
-  this->Size[0] = size[0];
-  this->Size[1] = size[1];
-  
   this->Enabled = 1;
   this->Modified();
 }
 
 
-void vtkWin32RenderWindowInteractor::Disable()
+void vtkWin32RenderWindowInteractor::Disable() 
 {
   vtkWin32OpenGLRenderWindow *tmp;
-
-  if (!this->Enabled)
+  if (!this->Enabled) 
     {
     return;
     }
   
-  // we need to release any hold we have on a windows event loop
-  if (this->WindowId)
+  if (InstallMessageProc && this->Enabled && this->WindowId) 
     {
+    // we need to release any hold we have on a windows event loop
     vtkWin32OpenGLRenderWindow *ren;
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
     tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
     // watch for odd conditions
-    if ((tmp != ren) && (ren != NULL))
+    if ((tmp != ren) && (ren != NULL)) 
       {
       // OK someone else has a hold on our event handler
       // so lets have them handle this stuff
@@ -210,1152 +197,214 @@ void vtkWin32RenderWindowInteractor::Disable()
       // call this event handler if required
       this->OldProc(this->WindowId,WM_USER+14,28,(LONG)this->OldProc);
       }
-    else
+    else 
       {
       SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)this->OldProc);
       }
-
-    this->Enabled = 0;
-    this->Modified();
     }
+  this->Enabled = 0;
+  this->Modified();
 }
 
-
-void vtkWin32RenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
+void vtkWin32RenderWindowInteractor::TerminateApp(void) 
 {
-  vtkRenderWindowInteractor::PrintSelf(os,indent);
+  PostQuitMessage(0);
 }
 
-
-void  vtkWin32RenderWindowInteractor::UpdateSize(int x,int y)
+bool vtkWin32RenderWindowInteractor::CreateTimer(int timertype) 
 {
-  // if the size changed send this on to the RenderWindow
-  if ((x != this->Size[0])||(y != this->Size[1]))
+  if (timertype==VTKI_TIMER_FIRST) 
     {
-    this->Size[0] = x;
-    this->Size[1] = y;
-    this->RenderWindow->SetSize(x,y);
+    return SetTimer(this->WindowId,this->TimerId,10,NULL);
     }
+  return true;
 }
- 
-void  vtkWin32RenderWindowInteractor::StartRotate()
+
+bool vtkWin32RenderWindowInteractor::DestroyTimer(void) 
 {
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  this->State = VTKXI_ROTATE;
-  if (this->AnimationState != VTKXI_START)
-    {
-    return;
-    }
-  this->Preprocess = 1;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
-    {
-    vtkErrorMacro(<< "Not enough timers");
-    }
+  return KillTimer(this->WindowId,this->TimerId);
 }
 
-void  vtkWin32RenderWindowInteractor::EndRotate()
+//-------------------------------------------------------------
+// Event loop handlers
+//-------------------------------------------------------------
+void vtkWin32RenderWindowInteractor::OnMouseMove(HWND wnd, UINT nFlags, 
+                                                 int X, int Y) 
 {
-  if (this->State != VTKXI_ROTATE)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  if (this->AnimationState == VTKXI_START)
-    {
-    this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-    KillTimer(this->WindowId,this->TimerId);
-    }
-  this->RenderWindow->Render();
+  if (!this->Enabled) return;
+  InteractorStyle->OnMouseMove(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
+                               X, this->Size[1] - Y - 1);
 }
 
-void  vtkWin32RenderWindowInteractor::StartZoom()
+void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags, 
+                                                   int X, int Y) 
 {
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  this->State = VTKXI_ZOOM;
-  if (this->AnimationState != VTKXI_START)
-    {
-    return;
-    }
-  this->Preprocess = 1;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
-    {
-    vtkErrorMacro(<< "Not enough timers");
-    }
+  if (!this->Enabled) return;
+  SetCapture(wnd);
+  InteractorStyle->OnLeftButtonDown(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
+                                 X, this->Size[1] - Y - 1);
 }
 
-void  vtkWin32RenderWindowInteractor::EndZoom()
+void vtkWin32RenderWindowInteractor::OnLButtonUp(HWND wnd,UINT nFlags, 
+                                                 int X, int Y) 
 {
-  if (this->State != VTKXI_ZOOM)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  if (this->AnimationState == VTKXI_START)
-    {
-    this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-    KillTimer(this->WindowId,this->TimerId);
-    }
-  this->RenderWindow->Render();
+  if (!this->Enabled) return;
+  InteractorStyle->OnLeftButtonUp(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
+                               X, this->Size[1] - Y - 1);
+  ReleaseCapture( );
 }
 
-void  vtkWin32RenderWindowInteractor::StartPan()
+void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags, 
+                                                   int X, int Y) 
 {
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  this->State = VTKXI_PAN;
-  if (this->AnimationState != VTKXI_START)
-    {
-    return;
-    }
-  
-  // calculation of focal depth has been moved to panning function.
-       
-  this->Preprocess = 1;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
-    {
-    vtkErrorMacro(<< "Not enough timers");
-    }
+  if (!this->Enabled) return;
+  SetCapture(wnd);
+  InteractorStyle->OnMiddleButtonDown(nFlags & MK_CONTROL, 
+                                      nFlags & MK_SHIFT, 
+                                      X, this->Size[1] - Y - 1);
 }
 
-void  vtkWin32RenderWindowInteractor::EndPan()
+void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND wnd,UINT nFlags, 
+                                                 int X, int Y) 
 {
-  if (this->State != VTKXI_PAN)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  if (this->AnimationState == VTKXI_START)
-    {
-    this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-    KillTimer(this->WindowId,this->TimerId);
-    }
-  this->RenderWindow->Render();
+  if (!this->Enabled) return;
+  InteractorStyle->OnMiddleButtonUp(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
+                                    X, this->Size[1] - Y - 1);
+  ReleaseCapture( );
 }
 
-void  vtkWin32RenderWindowInteractor::StartAnimation()
+void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags, 
+                                                   int X, int Y) 
 {
-  if (this->AnimationState != VTKXI_START)
-    {
-    return;
-    }
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  this->AnimationState = VTKXI_ANIMATE;
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
-    {
-    vtkErrorMacro(<< "Not enough timers");
-    }
+  if (!this->Enabled) return;
+  SetCapture(wnd );
+  InteractorStyle->OnRightButtonDown(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
+                                     X, this->Size[1] - Y - 1);
 }
 
-void  vtkWin32RenderWindowInteractor::EndAnimation()
+void vtkWin32RenderWindowInteractor::OnRButtonUp(HWND wnd,UINT nFlags, 
+                                                 int X, int Y) 
 {
-  this->AnimationState = VTKXI_START;
-  if (this->State == VTKXI_START) 
-    {
-    this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-    KillTimer(this->WindowId,this->TimerId);
-    }
-  this->RenderWindow->Render();
+  if (!this->Enabled) return;
+  InteractorStyle->OnRightButtonUp(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
+                                   X, this->Size[1] - Y - 1);
+  ReleaseCapture( );
 }
 
-void  vtkWin32RenderWindowInteractor::StartSpin()
+void vtkWin32RenderWindowInteractor::OnSize(HWND wnd,UINT nType, int X, int Y) {
+  this->UpdateSize(X,Y);
+}
+
+void vtkWin32RenderWindowInteractor::OnTimer(HWND wnd,UINT nIDEvent) 
 {
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  this->State = VTKXI_SPIN;
-  if (this->AnimationState != VTKXI_START)
-    {
-    return;
-    }
-  this->Preprocess = 1;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
-    {
-    vtkErrorMacro(<< "Not enough timers");
-    }
+  if (!this->Enabled) return;
+  InteractorStyle->OnTimer();
 }
 
-void  vtkWin32RenderWindowInteractor::EndSpin()
+void vtkWin32RenderWindowInteractor::OnChar(HWND wnd,UINT nChar, 
+                                            UINT nRepCnt, UINT nFlags) 
 {
-  if (this->State != VTKXI_SPIN)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  if (this->AnimationState == VTKXI_START)
-    {
-    this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-    KillTimer(this->WindowId,this->TimerId);
-    }
-  this->RenderWindow->Render();
+  if (!this->Enabled) return;
+  bool ctrl  = GetKeyState(VK_CONTROL);
+  bool shift = GetKeyState(VK_SHIFT);
+  InteractorStyle->OnChar(ctrl, shift, (char)nChar, nRepCnt);
 }
 
-void  vtkWin32RenderWindowInteractor::StartDolly()
-{
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  this->State = VTKXI_DOLLY;
-  if (this->AnimationState != VTKXI_START)
-    {
-    return;
-    }
-  this->Preprocess = 1;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
-    {
-    vtkErrorMacro(<< "Not enough timers");
-    }
-}
-
-void  vtkWin32RenderWindowInteractor::EndDolly()
-{
-  if (this->State != VTKXI_DOLLY)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  if (this->AnimationState == VTKXI_START)
-    {
-    this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-    KillTimer(this->WindowId,this->TimerId);
-    }
-  this->RenderWindow->Render();
-}
-
-
-void  vtkWin32RenderWindowInteractor::StartUniformScale()
-{
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  this->State = VTKXI_USCALE;
-  if (this->AnimationState != VTKXI_START)
-    {
-    return;
-    }
-  this->Preprocess = 1;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
-    {
-    vtkErrorMacro(<< "Not enough timers");
-    }
-}
-
-void  vtkWin32RenderWindowInteractor::EndUniformScale()
-{
-  if (this->State != VTKXI_USCALE)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  if (this->AnimationState == VTKXI_START)
-    {
-    this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-    KillTimer(this->WindowId,this->TimerId);
-    }
-  this->RenderWindow->Render();
-}
-
-void  vtkWin32RenderWindowInteractor::StartTimer()
-{
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  this->State = VTKXI_TIMER;
-  if (this->AnimationState != VTKXI_START)
-    {
-    return;
-    }
-  this->Preprocess = 1;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
-    {
-    vtkErrorMacro(<< "Not enough timers");
-    }
-}
-
-void  vtkWin32RenderWindowInteractor::EndTimer()
-{
-  if (this->State != VTKXI_TIMER)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  if (this->AnimationState == VTKXI_START)
-    {
-    this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-    KillTimer(this->WindowId,this->TimerId);
-    }
-  this->RenderWindow->Render();
-}
-
-
-LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lParam)
+// This is only called when InstallMessageProc is true
+LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, 
+                                  LPARAM lParam) 
 {
   float xf,yf;
   vtkWin32OpenGLRenderWindow *ren;
   vtkWin32RenderWindowInteractor *me;
-
+  
   ren = (vtkWin32OpenGLRenderWindow *)GetWindowLong(hWnd,GWL_USERDATA);
   me = (vtkWin32RenderWindowInteractor *)ren->GetInteractor();
-
-  if (me == NULL)
-    {
-    return 0;
+  
+  if (me == NULL) 
+    { 
+    return 0; 
     }
   
-  if ((uMsg == WM_USER+13)&&(wParam == 26))
+  if ((uMsg == WM_USER+13)&&(wParam == 26)) 
     {
     // someone is telling us to set our OldProc
     me->OldProc = (WNDPROC)lParam;
     return 1;
     }
-
-  switch (uMsg)
+  
+  switch (uMsg) 
     {
-    case WM_PAINT: 
+    case WM_PAINT:
       me->GetRenderWindow()->Render();
       return me->OldProc(hWnd,uMsg,wParam,lParam);
-      //return DefWindowProc(hWnd,uMsg,wParam,lParam);
       break;
-	    
+      
     case WM_SIZE:
-      me->UpdateSize(LOWORD(lParam),HIWORD(lParam)); 
+      me->UpdateSize(LOWORD(lParam),HIWORD(lParam));
       return me->OldProc(hWnd,uMsg,wParam,lParam);
       break;
-	    
-    case WM_LBUTTONDOWN: 
-      me->SetEventPosition(LOWORD(lParam),
-                           me->Size[1] - HIWORD(lParam) - 1);
-
-      me->OldX = LOWORD(lParam);
-      me->OldY = HIWORD(lParam);
-
-      if (wParam & MK_CONTROL)
-        {
-	me->ControlMode = VTKXI_CONTROL_ON;
-        }
-      else
-        {
-	me->ControlMode = VTKXI_CONTROL_OFF;
-        }
-
-      me->FindPokedCamera(LOWORD(lParam),
-                          me->Size[1] - HIWORD(lParam) - 1);
       
-      if (me->ActorMode)
-        {
-        if (me->StartInteractionPickMethod)
-          {
-	  (*me->StartInteractionPickMethod)(me->StartInteractionPickMethodArg);
-          }        
-	me->InteractionPicker->Pick(LOWORD(lParam), 
-                                    me->Size[1]-HIWORD(lParam)-1,
-                                    0.0, me->CurrentRenderer);
-
-        // now go through the actor collection and decide which is closest
-        vtkActor *closestActor = NULL, *actor;
-        vtkActorCollection *actors = me->InteractionPicker->GetActors();
-        vtkPoints *pickPositions = me->InteractionPicker->GetPickedPositions();
-        int i = 0;
-        float *pickPoint, d;
-        float distToCamera = VTK_LARGE_FLOAT;
-        if (actors && actors->GetNumberOfItems() > 0)
-          {
-          actors->InitTraversal();
-          me->CurrentCamera->GetPosition(me->ViewPoint);
-          while (i < pickPositions->GetNumberOfPoints())
-            {
-            actor = actors->GetNextItem();
-            if (actor != NULL)
-              {
-              pickPoint = pickPositions->GetPoint(i);
-	      double dtmp[3];
-	      dtmp[0] = pickPoint[0];
-	      dtmp[1] = pickPoint[1];
-	      dtmp[2] = pickPoint[2];
-              d = vtkMath::Distance2BetweenPoints(dtmp, me->ViewPoint);
-              if (distToCamera > d)
-                {
-                distToCamera = d;
-                closestActor = actor;
-                }
-              }
-            i++;
-            }
-          }
-
-        me->InteractionActor = closestActor;
-        // refine the answer to whether an actor was picked.  CellPicker()
-        // returns true from Pick() if the bounding box was picked,
-        // but we only want something to be picked if a cell was actually
-        // selected
-        me->ActorPicked = (me->InteractionActor != NULL);
-        // highlight actor at the end of interaction
-
-	if (me->EndInteractionPickMethod)
-	  {
-	  (*me->EndInteractionPickMethod)(me->EndInteractionPickMethodArg);
-	  }
-
-        }
-
-      //      if ((wParam & MK_SHIFT) || (wParam & MK_RBUTTON))
-      if (wParam & MK_SHIFT)
-	{
-	if (me->MiddleButtonPressMethod) 
-	  {
-	  (*me->MiddleButtonPressMethod)(me->MiddleButtonPressMethodArg);
-	  }
-	else
-	  {
-          if (me->ControlMode)
-            {
-            me->StartDolly();
-            }
-          else
-            {me->StartPan();
-            }
-	  }
-	}
-      else
-	{
-	if (me->LeftButtonPressMethod) 
-	  {
-	  (*me->LeftButtonPressMethod)(me->LeftButtonPressMethodArg);
-	  }
-	else
-	  {
-          if (me->ControlMode)
-            {
-            me->StartSpin();
-            }
-          else
-            {
-            me->StartRotate();
-            }
-	  }
-	}
-      break;
-	    
-    case WM_LBUTTONUP: 
-      me->SetEventPosition(LOWORD(lParam),
-                           me->Size[1] - HIWORD(lParam) - 1);
-
-      // don't change actor or trackball modes in the middle of motion
-      // don't change control mode in the middle of mouse movement
-
-      //      if ((wParam & MK_SHIFT) || (wParam & MK_RBUTTON))
-      if (wParam & MK_SHIFT)
-	{
-	if (me->MiddleButtonReleaseMethod) 
-	  {
-	  (*me->MiddleButtonReleaseMethod)(me->MiddleButtonReleaseMethodArg);
-	  }
-	else
-	  {
-          if (me->ControlMode)
-            {
-            me->EndDolly();
-            }
-          else
-            {
-            me->EndPan();
-            }
-	  }
-	}
-      else
-	{
-	if (me->LeftButtonReleaseMethod) 
-	  {
-	  (*me->LeftButtonReleaseMethod)(me->LeftButtonReleaseMethodArg);
-	  }
-	else
-	  {
-          if (me->ControlMode)
-            {
-            me->EndSpin();
-            }
-          else
-            {
-            me->EndRotate();
-            }
-	  }
-	}
-      me->OldX = 0.0;
-      me->OldY = 0.0;
-      if (me->ActorMode && me->ActorPicked)
-        {
-        me->HighlightActor(me->InteractionActor);
-        }
-      else if (me->ActorMode)
-        {
-        me->HighlightActor(NULL);
-        }
-      break;
-	    
-    case WM_MBUTTONDOWN: 
-      me->SetEventPosition(LOWORD(lParam),
-                           me->Size[1] - HIWORD(lParam) - 1);
-
-      me->OldX = LOWORD(lParam);
-      me->OldY = HIWORD(lParam);
-            
-      if (wParam & MK_CONTROL)
-        {
-	me->ControlMode = VTKXI_CONTROL_ON;
-        }
-      else
-        {
-	me->ControlMode = VTKXI_CONTROL_OFF;
-        }
-
-      me->FindPokedCamera(LOWORD(lParam),
-                          me->Size[1] - HIWORD(lParam) - 1);
-
-      if (me->ActorMode)
-        {
-	if (me->StartInteractionPickMethod)
-	  {
-	  (*me->StartInteractionPickMethod)(me->StartInteractionPickMethodArg);
-	  }
-
-        (me->InteractionPicker)->Pick(LOWORD(lParam), 
-				      me->Size[1]-HIWORD(lParam)-1,
-				      0.0, me->CurrentRenderer);
-
-        // now go through the actor collection and decide which is closest
-        vtkActor *closestActor = NULL, *actor;
-        vtkActorCollection *actors = me->InteractionPicker->GetActors();
-        vtkPoints *pickPositions = me->InteractionPicker->GetPickedPositions();
-        int i = 0;
-        float *pickPoint, d;
-        float distToCamera = VTK_LARGE_FLOAT;
-        if (actors && actors->GetNumberOfItems() > 0)
-          {
-          actors->InitTraversal();
-          me->CurrentCamera->GetPosition(me->ViewPoint);
-          while (i < pickPositions->GetNumberOfPoints())
-            {
-            actor = actors->GetNextItem();
-            if (actor != NULL)
-              {
-              pickPoint = pickPositions->GetPoint(i);
-	      double dtmp[3];
-	      dtmp[0] = pickPoint[0];
-	      dtmp[1] = pickPoint[1];
-	      dtmp[2] = pickPoint[2];
-              d = vtkMath::Distance2BetweenPoints(dtmp, me->ViewPoint);
-              if (distToCamera > d)
-                {
-                distToCamera = d;
-                closestActor = actor;
-                }
-              }
-            i++;
-            }
-          }
-
-        me->InteractionActor = closestActor;
-        // refine the answer to whether an actor was picked.  CellPicker()
-        // returns true from Pick() if the bounding box was picked,
-        // but we only want something to be picked if a cell was actually
-        // selected
-        me->ActorPicked = (me->InteractionActor != NULL);
-        // highlight actor at the end of interaction
-
-	if (me->EndInteractionPickMethod)
-	  {
-	  (*me->EndInteractionPickMethod)(me->EndInteractionPickMethodArg);
-	  }
-        }
-
-      if (me->MiddleButtonPressMethod) 
-	{
-	(*me->MiddleButtonPressMethod)(me->MiddleButtonPressMethodArg);
-	}
-      else
-	{
-        if (me->ControlMode)
-          {
-          me->StartDolly();
-          }
-        else
-          {
-          me->StartPan();
-          }
-	}
+    case WM_LBUTTONDOWN:
+      me->OnLButtonDown(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       break;
       
-    case WM_MBUTTONUP: 
-      me->SetEventPosition(LOWORD(lParam),
-                           me->Size[1] - HIWORD(lParam) - 1);
-
-      // don't change actor or trackball mode in the middle of motion
-      // don't change control mode in the middle of mouse movement
-
-      if (me->MiddleButtonReleaseMethod) 
-	{
-	(*me->MiddleButtonReleaseMethod)(me->MiddleButtonReleaseMethodArg);
-	}
-      else
-	{
-        if (me->ControlMode)
-          {
-          me->EndDolly();
-          }
-        else
-          {
-          me->EndPan();
-          }
-	}
-      me->OldX = 0.0;
-      me->OldY = 0.0;
-      if (me->ActorMode && me->ActorPicked)
-        {
-        me->HighlightActor(me->InteractionActor);
-        }
-      else if (me->ActorMode)
-        {
-        me->HighlightActor(NULL);
-        }
+    case WM_LBUTTONUP:
+      me->OnLButtonUp(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       break;
       
-    case WM_RBUTTONDOWN: 
-      me->SetEventPosition(LOWORD(lParam),
-                           me->Size[1] - HIWORD(lParam) - 1);
-
-      me->OldX = LOWORD(lParam);
-      me->OldY = HIWORD(lParam);
-            
-      if (wParam & MK_CONTROL)
-        {
-	me->ControlMode = VTKXI_CONTROL_ON;
-        }
-      else
-        {
-	me->ControlMode = VTKXI_CONTROL_OFF;
-        }
-
-
-      me->FindPokedCamera(LOWORD(lParam),
-                          me->Size[1] - HIWORD(lParam) - 1);
+    case WM_MBUTTONDOWN:
+      me->OnMButtonDown(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
+      break;
       
-      if (me->ActorMode)
-        { 
-        if (me->StartInteractionPickMethod)
-	  {
-	  (*me->StartInteractionPickMethod)(me->StartInteractionPickMethodArg);
-	  }
-
-        (me->InteractionPicker)->Pick(LOWORD(lParam), 
-				      me->Size[1]-HIWORD(lParam)-1,
-				      0.0, me->CurrentRenderer);
-
-        // now go through the actor collection and decide which is closest
-        vtkActor *closestActor = NULL, *actor;
-        vtkActorCollection *actors = me->InteractionPicker->GetActors();
-        vtkPoints *pickPositions = me->InteractionPicker->GetPickedPositions();
-        int i = 0;
-        float *pickPoint, d;
-        float distToCamera = VTK_LARGE_FLOAT;
-        if (actors && actors->GetNumberOfItems() > 0)
-          {
-          actors->InitTraversal();
-          me->CurrentCamera->GetPosition(me->ViewPoint);
-          while (i < pickPositions->GetNumberOfPoints())
-            {
-            actor = actors->GetNextItem();
-            if (actor != NULL)
-              {
-              pickPoint = pickPositions->GetPoint(i);
-	      double dtmp[3];
-	      dtmp[0] = pickPoint[0];
-	      dtmp[1] = pickPoint[1];
-	      dtmp[2] = pickPoint[2];
-              d = vtkMath::Distance2BetweenPoints(dtmp, me->ViewPoint);
-              if (distToCamera > d)
-                {
-                distToCamera = d;
-                closestActor = actor;
-                }
-              }
-            i++;
-            }
-          }
-
-        me->InteractionActor = closestActor;
-        // refine the answer to whether an actor was picked.  CellPicker()
-        // returns true from Pick() if the bounding box was picked,
-        // but we only want something to be picked if a cell was actually
-        // selected
-        me->ActorPicked = (me->InteractionActor != NULL);
-        // highlight actor at the end of interaction
-
-	if (me->EndInteractionPickMethod)
-	  {
-	  (*me->EndInteractionPickMethod)(me->EndInteractionPickMethodArg);
-	  }
-        }
-
-      if (me->RightButtonPressMethod) 
-	{
-	(*me->RightButtonPressMethod)(me->RightButtonPressMethodArg);
-	}
-      else
-	{
-        if (me->ActorMode)
-          {
-          me->StartUniformScale();
-          }
-        else
-          {
-          me->StartZoom();
-          }
-	}
+    case WM_MBUTTONUP:
+      me->OnMButtonUp(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       break;
-	    
-    case WM_RBUTTONUP: 
-      me->SetEventPosition(LOWORD(lParam),
-                           me->Size[1] - HIWORD(lParam) - 1);
-
-      // don't change actor or trackball modes in the middle of motion
-      // don't change control mode in the middle of mouse movement
-
-      if (me->RightButtonReleaseMethod) 
-	{
-	(*me->RightButtonReleaseMethod)(me->RightButtonReleaseMethodArg);
-	}
-      else
-	{
-        if (me->ActorMode)
-          {
-          me->EndUniformScale();
-          }
-        else
-          {
-          me->EndZoom();
-          }
-	}
-      me->OldX = 0.0;
-      me->OldY = 0.0;
-      if (me->ActorMode && me->ActorPicked)
-        {
-        me->HighlightActor(me->InteractionActor);
-        }
-      else if (me->ActorMode)
-        {
-        me->HighlightActor(NULL);
-        }
+      
+    case WM_RBUTTONDOWN:
+      me->OnRButtonDown(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       break;
-	    
+      
+    case WM_RBUTTONUP:
+      me->OnRButtonUp(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
+      break;
+      
     case WM_MOUSEMOVE:
-      me->LastPosition = lParam;
+      me->OnMouseMove(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       break;
-
+      
     case WM_CLOSE:
-      if (me->ExitMethod)
-	{
+      // Don't know what to put here ! Why so many callbacks ?
+      if (me->ExitMethod) 
+        {
         (*me->ExitMethod)(me->ExitMethodArg);
         }
-      else if (me->ClassExitMethod)
-	{
+      else if (me->ClassExitMethod) 
+        {
         (*me->ClassExitMethod)(me->ClassExitMethodArg);
         }
-      else
+      else 
         {
-        PostQuitMessage(0);
+        me->TerminateApp();
         }
       break;
-	    
+      
     case WM_CHAR:
-      switch (wParam)
-	{
-	case 'a':
-	case 'A':
-	  if (me->AnimationState != VTKXI_ANIMATE) 
-            {
-            me->StartAnimation();
-            }
-	  else
-            {
-            me->EndAnimation();
-            }
-	  break;
-
-        case 'Q':
-        case 'q':
-	case 'e':
-	case 'E': 
-	  if (me->ExitMethod)
-	    {
-            (*me->ExitMethod)(me->ExitMethodArg);
-            }
-	  else if (me->ClassExitMethod)
-	    {
-            (*me->ClassExitMethod)(me->ClassExitMethodArg);
-            }
-	  else
-            {
-            PostQuitMessage(0);
-            }
-	  break;
-          
-	case 'u':
-	case 'U':
-	  if (me->UserMethod)
-            {
-            (*me->UserMethod)(me->UserMethodArg);
-            }
-	  break;
-          
-	case 'r':
-	case 'R':
-	  if (me->ActorMode)
-            {
-            //vtkDebugMacro(<<"Please switch to Camera mode when resetting");
-            }
-	  else
-            {
-            me->FindPokedRenderer(LOWORD(me->LastPosition),
-				  me->Size[1]-HIWORD(me->LastPosition)-1);
-	    me->CurrentRenderer->ResetCamera();
-	    me->RenderWindow->Render();
-            }
-	  break;
-          
-	case 'w':
-	case 'W':
-	  {
-          vtkActorCollection *ac;
-	  vtkActor *anActor, *aPart;
-	  
-	  me->FindPokedRenderer(LOWORD(me->LastPosition),
-                                me->Size[1]-HIWORD(me->LastPosition)-1);
-	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
-	    {
-	    for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
-	      {
-	      aPart->GetProperty()->SetRepresentationToWireframe();
-	      }
-	    }
-	  
-	  me->RenderWindow->Render();
-	  }
-          break;
-          
-	case 's':
-	case 'S':
-	  {
-          vtkActorCollection *ac;
-	  vtkActor *anActor, *aPart;
-	  
-	  me->FindPokedRenderer(LOWORD(me->LastPosition),
-                                me->Size[1]-HIWORD(me->LastPosition)-1);
-	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
-	    {
-	    for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
-	      {
-	      aPart->GetProperty()->SetRepresentationToSurface();
-	      }
-	    }
-	  
-	  me->RenderWindow->Render();
-	  }
-          break;
-          
-	case '3':
-	  if (me->RenderWindow->GetStereoRender())
-	    {
-	    me->RenderWindow->StereoRenderOff();
-	    }
-	  else
-	    {
-	    me->RenderWindow->StereoRenderOn();
-	    }
-	  me->RenderWindow->Render();
-	  break;
-          
-	case 'p':
-	case 'P':
-          if (me->State == VTKXI_START)
-            {
-            me->FindPokedRenderer(LOWORD(me->LastPosition),
-                                  me->Size[1]-HIWORD(me->LastPosition)-1);
-            if (me->StartPickMethod)
-              {
-              (*me->StartPickMethod)(me->StartPickMethodArg);
-              }
-            me->Picker->Pick(LOWORD(me->LastPosition), 
-                             me->Size[1]-HIWORD(me->LastPosition)-1,
-                             0.0, me->CurrentRenderer);
-            
-            me->InteractionActor = NULL;
-            me->ActorPicked = 0;
-            me->HighlightActor(me->Picker->GetAssembly());
-
-            if (me->EndPickMethod)
-              {
-              (*me->EndPickMethod)(me->EndPickMethodArg);
-              }
-            }
-          break;
-          
-	case 'j':
-	case 'J':
-	  if (me->State == VTKXI_START) 
-	    {
-            me->TrackballMode = VTKXI_JOY;
-	    //vtkDebugMacro(<<"Swtich to Joystick style interaction.");
-	    if (me->JoystickModeMethod) 
-	      {
-	      (*me->JoystickModeMethod)(me->JoystickModeMethodArg);
-	      }
-	    }
-	  break;
-          
-	case 't':
-	case 'T':
-	  if (me->State == VTKXI_START) 
-	    {
-            me->TrackballMode = VTKXI_TRACK;
-            //vtkDebugMacro(<<"Swtich to Trackball style interaction.");
-	    if (me->TrackballModeMethod) 
-	      {
-	      (*me->TrackballModeMethod)(me->TrackballModeMethodArg);
-	      }
-	    }
-	  break;
-          
-        case 'o':
-        case 'O':
-          if (me->State == VTKXI_START) 
-	    {
-            if (me->ActorMode != VTKXI_ACTOR)
-              {
-              // reset the actor picking variables
-              me->InteractionActor = NULL;
-              me->ActorPicked = 0;
-              me->HighlightActor(NULL);
-
-              me->ActorMode = VTKXI_ACTOR;
-              //vtkDebugMacro(<<"switch to Actor mode.");
-              if (me->ActorModeMethod) 
-                {
-                (*me->ActorModeMethod)(me->ActorModeMethodArg);
-                }
-              }
-            }
-          break;
-          
-        case 'c':
-        case 'C':
-          if (me->State == VTKXI_START) 
-	    {
-            if (me->ActorMode != VTKXI_CAMERA)
-              {
-              // reset the actor picking variables
-              me->InteractionActor = NULL;
-              me->ActorPicked = 0;
-              me->HighlightActor(NULL);
-
-              me->ActorMode = VTKXI_CAMERA;
-              //vtkDebugMacro(<<"switch to Camera mode.");
-              if (me->CameraModeMethod) 
-                {
-                (*me->CameraModeMethod)(me->CameraModeMethodArg);
-                }
-              }
-            }
-          break;
-          
-	}
+      me->OnChar(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       break;
       
     case WM_TIMER:
-      if (me->TimerMethod)
-        {
-	me->SetEventPosition(LOWORD(me->LastPosition),
-                             me->Size[1] - HIWORD(me->LastPosition)-1);
-	(*me->TimerMethod)(me->TimerMethodArg);
-        }
+      me->OnTimer(hWnd,wParam);
       
-      switch (me->State)
-        {
-        case VTKXI_START:
-          //?? me->RenderWindow->Render();
-          break;
-          
-        case VTKXI_ROTATE:  // rotate with respect to an axis perp to look
-          if (me->ActorMode && me->ActorPicked)
-            {
-            if (me->TrackballMode)
-              {
-              me->TrackballRotateActor(LOWORD(me->LastPosition),
-                                       HIWORD(me->LastPosition));
-              }
-  	    else
-              {
-              me->JoystickRotateActor(LOWORD(me->LastPosition),
-                                      HIWORD(me->LastPosition));
-              }
-            }
-          else if (!(me->ActorMode))
-            {
-            if (me->TrackballMode)
-              {
-              me->TrackballRotateCamera(LOWORD(me->LastPosition),
-                                        HIWORD(me->LastPosition));
-              }
-            else
-              {
-              me->JoystickRotateCamera(LOWORD(me->LastPosition),
-                                       HIWORD(me->LastPosition));
-              }
-            }
-          break;
-          
-        case VTKXI_PAN: // move perpendicular to camera's look vector
-          if (me->ActorMode && me->ActorPicked)
-            {
-            if (me->TrackballMode)
-              { 
-              me->TrackballPanActor(LOWORD(me->LastPosition),
-                                    HIWORD(me->LastPosition));
-              }
-            else
-              {
-              me->JoystickPanActor(LOWORD(me->LastPosition),
-                                   HIWORD(me->LastPosition));
-              }
-            }
-          else if (!(me->ActorMode))
-            {
-            if (me->TrackballMode)
-              {
-              me->TrackballPanCamera(LOWORD(me->LastPosition),
-                                     HIWORD(me->LastPosition));
-              }
-            else
-              {
-              me->JoystickPanCamera(LOWORD(me->LastPosition),
-                                    HIWORD(me->LastPosition));
-              }
-            }
-          break;
-          
-        case VTKXI_ZOOM:
-          if (!(me->ActorMode))
-            {
-            if (me->TrackballMode)
-              { 
-              me->TrackballDollyCamera(LOWORD(me->LastPosition),
-                                       HIWORD(me->LastPosition));
-              }
-            else
-              {
-              me->JoystickDollyCamera(LOWORD(me->LastPosition),
-                                      HIWORD(me->LastPosition));
-              }
-            }
-          break;
-          
-        case VTKXI_SPIN:
-          if (me->ActorMode && me->ActorPicked)
-            {
-            if (me->TrackballMode)
-              { 
-              me->TrackballSpinActor(LOWORD(me->LastPosition),
-                                     HIWORD(me->LastPosition));
-              }
-            else
-              {
-              me->JoystickSpinActor(LOWORD(me->LastPosition),
-                                    HIWORD(me->LastPosition));
-              }
-            }
-          else if (!(me->ActorMode))
-            {
-            if (me->TrackballMode)
-              {
-              me->TrackballSpinCamera(LOWORD(me->LastPosition),
-                                      HIWORD(me->LastPosition));
-              }
-            else
-              {
-              me->JoystickSpinCamera(LOWORD(me->LastPosition),
-                                     HIWORD(me->LastPosition));
-              }
-            }
-          break;
-          
-        case VTKXI_DOLLY:  // move along camera's view vector
-          if (me->ActorMode && me->ActorPicked)
-            {
-            if (me->TrackballMode)
-              { 
-              me->TrackballDollyActor(LOWORD(me->LastPosition),
-                                      HIWORD(me->LastPosition));
-              }
-            else
-              {
-              me->JoystickDollyActor(LOWORD(me->LastPosition),
-                                     HIWORD(me->LastPosition));
-              }
-            }
-          break;
-
-        case VTKXI_USCALE:
-          if (me->ActorMode && me->ActorPicked)
-            {
-            if (me->TrackballMode)
-              {
-              me->TrackballScaleActor(LOWORD(me->LastPosition),
-                                      HIWORD(me->LastPosition));
-              }
-            else
-              {
-              me->JoystickScaleActor(LOWORD(me->LastPosition),
-                                     HIWORD(me->LastPosition));
-              }
-            }
-          break;
-          
-        case VTKXI_TIMER:
-          break;
-        }
       break;
     default:
-      if (me)
-	{
-	return me->OldProc(hWnd,uMsg,wParam,lParam);
-	}
+      if (me) 
+        {
+        return me->OldProc(hWnd,uMsg,wParam,lParam);
+        }
     };
   return 0;
 }
-
 
 
 // Specify the default function to be called when an interactor needs to exit.
@@ -1393,3 +442,23 @@ vtkWin32RenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
     }
 }
 
+void vtkWin32RenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkRenderWindowInteractor::PrintSelf(os,indent);
+}
+
+void vtkWin32RenderWindowInteractor::ExitCallback()
+{
+  if (this->ExitMethod)
+    {
+    (*this->ExitMethod)(this->ExitMethodArg);
+    }
+  else if (this->ClassExitMethod)
+    {
+    (*this->ClassExitMethod)(this->ClassExitMethodArg);
+    }
+  else
+    {
+    this->TerminateApp();
+    }
+}

@@ -169,11 +169,11 @@ base SetPosition .5 -.09 .5
 
 
 ren1 AddActor base
-ren1 AddActor labelActor
+#ren1 AddActor labelActor
 ren1 AddActor CubeEdges
 ren1 AddActor CubeVertices
 ren1 AddActor Triangles
-eval ren1 SetBackground $slate_grey
+eval ren1 SetBackground 1 1 1
 iren SetUserMethod {wm deiconify .vtkInteract}
 case12 Scalars 0 1
 Grid Modified

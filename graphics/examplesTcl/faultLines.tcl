@@ -10,7 +10,8 @@ source ../../examplesTcl/colors.tcl
 # create some points
 #
 vtkPolyDataReader reader
-  reader SetFileName "../../../vtkdata/faults.vtk"
+#  reader SetFileName "../../../vtkdata/faults.vtk"
+  reader SetFileName "../../../ww"
 
 # triangulate them
 #

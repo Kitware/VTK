@@ -3,6 +3,9 @@ catch {load vtktcl}
 # this is a tcl version of the Mace example
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
+source tree.tcl
+source vtkShow.tcl
+source vtkPipeline.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -61,6 +64,6 @@ proc TkCheckAbort {} {
 renWin SetAbortCheckMethod {TkCheckAbort}
 
 # prevent the tk window from showing up then start the event loop
-wm withdraw .
+#wm withdraw .
 
-
+vtkPipeline renWin

@@ -4,7 +4,7 @@ source ../../examplesTcl/vtkInt.tcl
 
 # pipeline
 vtkAxes axes
-    axes SetOrigin 0 0 0
+    axes SetOrigin 5000 5000 5000
 vtkPolyDataMapper axesMapper
     axesMapper SetInput [axes GetOutput]
 vtkActor axesActor
@@ -16,8 +16,10 @@ vtkPolyDataMapper textMapper
     textMapper SetInput [atext GetOutput]
 vtkFollower textActor
     textActor SetMapper textMapper
-    textActor SetScale 0.2 0.2 0.2
-    textActor AddPosition 0 -0.1 0
+    textActor SetOrigin 3 0.5 0
+#    textActor SetScale 0.2 0.2 0.2
+    textActor SetPosition 5000 5000 5000
+    textActor AddPosition -3 -0.5 0
 
 # create graphics stuff
 vtkRenderer ren1
@@ -28,12 +30,13 @@ vtkRenderWindowInteractor iren
 
 ren1 AddActor axesActor
 ren1 AddActor textActor
-[ren1 GetActiveCamera] Zoom 1.6
+#[ren1 GetActiveCamera] Elevation 20
 renWin Render
 textActor SetCamera [ren1 GetActiveCamera]
 
 iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
+
 
 renWin SetFileName "textOrigin.tcl.ppm"
 #renWin SaveImageAsPPM

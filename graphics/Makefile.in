@@ -135,6 +135,8 @@ vtkImplicitSelectionLoop \
 vtkImplicitTextureCoords \
 vtkImplicitVolume \
 vtkImplicitWindowFunction \
+vtkInteractorStyle \
+vtkInteractorStyleTrackball \
 vtkInterpolateDataSetAttributes \
 vtkIVExporter \
 vtkKochanekSpline \
