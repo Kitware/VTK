@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // in the same way that any other vtkActor2D can be used.
 //
 // To use this class, you must define the position of the legend box by using
-// the superclasses' vtkActor2D::Position coordinate and this classes
+// the superclasses' vtkActor2D::Position coordinate and
 // Position2 coordinate. Then define the set of symbols and text strings that
 // make up the menu box (as well as properties such as font). The class will
 // scale the symbols and text to fit in the legend box defined by
@@ -82,33 +82,13 @@ public:
   // Instantiate object with a rectangle in normaled view coordinates
   // of (0.2,0.85, 0.8, 0.95).
   static vtkLegendBoxActor *New();
-  
-  // Description:
-  // Access the Position2 instance variable. This variable controls
-  // the upper right corner of the legend box. It is by default
-  // relative to Position and in normalized viewport coordinates.
-  // The legend box will be drawn into the rectangle defined by
-  // (Position,Position2) unless LockBorders is off. 
-  void SetPosition2(float,float);
-  void SetPosition2(float x[2]);
-  vtkCoordinate *GetPosition2Coordinate();
-  float *GetPosition2();
-  
-  // Description:
-  // Set/Get the height and width of the legend box. The value is expressed
-  // as a fraction of the viewport. This really is just another way of
-  // setting the Position2 instance variable.
-  void SetWidth(float w);
-  float GetWidth();
-  void SetHeight(float h);
-  float GetHeight();
-  
+
   // Description:
   // Specify the number of entries in the legend box.
   void SetNumberOfEntries(int num);
   int GetNumberOfEntries()
     {return this->NumberOfEntries;}
-  
+
   // Description:
   // Add an entry to the legend box. You must supply a vtkPolyData to be
   // used as a symbol (it can be NULL) and a text string (which also can
@@ -140,15 +120,15 @@ public:
   vtkBooleanMacro(Italic, int);
 
   // Description:
-  // Enable/Disable creating shadows on the legend entries. Shadows make 
+  // Enable/Disable creating shadows on the legend entries. Shadows make
   // the text easier to read.
   vtkSetMacro(Shadow, int);
   vtkGetMacro(Shadow, int);
   vtkBooleanMacro(Shadow, int);
 
   // Description:
-  // Set/Get the font family for the legend entries. Three font types 
-  // are available: Arial (VTK_ARIAL), Courier (VTK_COURIER), and 
+  // Set/Get the font family for the legend entries. Three font types
+  // are available: Arial (VTK_ARIAL), Courier (VTK_COURIER), and
   // Times (VTK_TIMES).
   vtkSetMacro(FontFamily, int);
   vtkGetMacro(FontFamily, int);
@@ -189,7 +169,7 @@ public:
   vtkBooleanMacro(ScalarVisibility,int);
 
   // Description:
-  // Shallow copy of this scaled text actor. Overloads the virtual 
+  // Shallow copy of this scaled text actor. Overloads the virtual
   // vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
@@ -219,7 +199,6 @@ protected:
 
   void InitializeEntries();
 
-  vtkCoordinate *Position2Coordinate;
   int   Bold;
   int   Italic;
   int   Shadow;
@@ -228,7 +207,7 @@ protected:
   int   Padding;
   int   LockBorder;
   int   ScalarVisibility;
-  
+
   // Internal actors, mappers, data to represent the legend
   int                        NumberOfEntries;
   int                        Size; //allocation size
@@ -243,7 +222,7 @@ protected:
   vtkPolyData                *BorderPolyData;
   vtkPolyDataMapper2D        *BorderMapper;
   vtkActor2D                 *BorderActor;
-  
+
   // Used to control whether the stuff is recomputed
   int           LegendEntriesVisible;
   int           CachedSize[2];

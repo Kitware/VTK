@@ -56,10 +56,7 @@ vtkScaledTextActor* vtkScaledTextActor::New()
 
 vtkScaledTextActor::vtkScaledTextActor()
 {
-  this->Position2Coordinate = vtkCoordinate::New();
-  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
   this->Position2Coordinate->SetValue(0.6, 0.1);
-  this->Position2Coordinate->SetReferenceCoordinate(this->PositionCoordinate);
   
   this->PositionCoordinate->SetCoordinateSystemToNormalizedViewport();
   this->PositionCoordinate->SetValue(0.2,0.85);
@@ -79,8 +76,6 @@ vtkScaledTextActor::vtkScaledTextActor()
 vtkScaledTextActor::~vtkScaledTextActor()
 {
   this->TextActor->Delete();
-  this->Position2Coordinate->Delete();
-  this->Position2Coordinate = NULL;
 }
 
 // Release any graphics resources that are being consumed by this actor.
@@ -90,33 +85,6 @@ void vtkScaledTextActor::ReleaseGraphicsResources(vtkWindow *win)
 {
   this->vtkActor2D::ReleaseGraphicsResources(win);
   this->TextActor->ReleaseGraphicsResources(win);
-}
-
-void vtkScaledTextActor::SetWidth(float w)
-{
-  float *pos;
-
-  pos = this->Position2Coordinate->GetValue();
-  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
-  this->Position2Coordinate->SetValue(w,pos[1]);
-}
-
-void vtkScaledTextActor::SetHeight(float w)
-{
-  float *pos;
-
-  pos = this->Position2Coordinate->GetValue();
-  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
-  this->Position2Coordinate->SetValue(pos[0],w);
-}
-    
-float vtkScaledTextActor::GetWidth()
-{
-  return this->Position2Coordinate->GetValue()[0];
-}
-float vtkScaledTextActor::GetHeight()
-{
-  return this->Position2Coordinate->GetValue()[1];
 }
 
 int vtkScaledTextActor::RenderOverlay(vtkViewport *viewport)
@@ -271,25 +239,6 @@ void vtkScaledTextActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MaximumLineHeight: " << this->MaximumLineHeight << endl;
   os << indent << "MinimumSize: " << this->MinimumSize[0] << " " << this->MinimumSize[1] << endl;
-}
-
-vtkCoordinate *vtkScaledTextActor::GetPosition2Coordinate() 
-{ 
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning Position2Coordinate address " << this->Position2Coordinate ); 
-  return this->Position2Coordinate; 
-} 
-void vtkScaledTextActor::SetPosition2(float x[2]) 
-{
-  this->SetPosition2(x[0],x[1]);
-} 
-void vtkScaledTextActor::SetPosition2(float x, float y) 
-{ 
-  this->Position2Coordinate->SetCoordinateSystem(VTK_VIEWPORT); 
-  this->Position2Coordinate->SetValue(x,y); 
-} 
-float *vtkScaledTextActor::GetPosition2() 
-{ 
-  return this->Position2Coordinate->GetValue(); 
 }
 
 void vtkScaledTextActor::SetMapper(vtkTextMapper *mapper)

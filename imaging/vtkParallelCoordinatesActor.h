@@ -88,13 +88,7 @@ public:
   // axes; a label format of "%-#6.3g"; and x coordinates computed from point
   // ids.
   static vtkParallelCoordinatesActor *New();
-  
-  // Description: Access the Position2 instance variable. This variable
-  // controls the upper right corner of the plot. It is by default
-  // relative to (the superclasses') Position and in normalized viewport
-  // coordinates.
-  vtkViewportCoordinateMacro(Position2);
-  
+
   // Description:
   // Specify whether to use the rows or columns as independent variables.
   // If columns, then each row represents a separate point. If rows, then 
@@ -179,7 +173,6 @@ protected:
   void operator=(const vtkParallelCoordinatesActor&) {};
 
 private:
-  vtkCoordinate *Position2Coordinate;
   vtkDataObject *Input; //list of data sets to plot
 
   int IndependentVariables; //use column or row

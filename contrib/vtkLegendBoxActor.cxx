@@ -378,33 +378,6 @@ void vtkLegendBoxActor::ReleaseGraphicsResources(vtkWindow *win)
     } 
 }
 
-void vtkLegendBoxActor::SetWidth(float w)
-{
-  float *pos;
-
-  pos = this->Position2Coordinate->GetValue();
-  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
-  this->Position2Coordinate->SetValue(w,pos[1]);
-}
-
-void vtkLegendBoxActor::SetHeight(float w)
-{
-  float *pos;
-
-  pos = this->Position2Coordinate->GetValue();
-  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
-  this->Position2Coordinate->SetValue(pos[0],w);
-}
-    
-float vtkLegendBoxActor::GetWidth()
-{
-  return this->Position2Coordinate->GetValue()[0];
-}
-float vtkLegendBoxActor::GetHeight()
-{
-  return this->Position2Coordinate->GetValue()[1];
-}
-
 int vtkLegendBoxActor::RenderOverlay(vtkViewport *viewport)
 {
   if ( this->NumberOfEntries <= 0 )
@@ -637,10 +610,6 @@ void vtkLegendBoxActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkActor2D::PrintSelf(os,indent);
 
-  os << indent << "Position2 Coordinate: " 
-     << this->Position2Coordinate << "\n";
-  this->Position2Coordinate->PrintSelf(os, indent.GetNextIndent());
-
   os << indent << "Number Of Entries: " << this->NumberOfEntries << "\n";
 
   os << indent << "Font Family: ";
@@ -665,27 +634,6 @@ void vtkLegendBoxActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Padding: " << this->Padding << "\n";
   os << indent << "Border: " << (this->Border ? "On\n" : "Off\n");
   os << indent << "LockBorder: " << (this->LockBorder ? "On\n" : "Off\n");
-}
-
-vtkCoordinate *vtkLegendBoxActor::GetPosition2Coordinate() 
-{ 
-  vtkDebugMacro(<< this->GetClassName() << " (" << this 
-                << "): returning Position2Coordinate address " 
-                << this->Position2Coordinate ); 
-  return this->Position2Coordinate; 
-} 
-void vtkLegendBoxActor::SetPosition2(float x[2]) 
-{
-  this->SetPosition2(x[0],x[1]);
-} 
-void vtkLegendBoxActor::SetPosition2(float x, float y) 
-{ 
-  this->Position2Coordinate->SetCoordinateSystem(VTK_VIEWPORT); 
-  this->Position2Coordinate->SetValue(x,y); 
-} 
-float *vtkLegendBoxActor::GetPosition2() 
-{ 
-  return this->Position2Coordinate->GetValue(); 
 }
 
 void vtkLegendBoxActor::ShallowCopy(vtkProp *prop)

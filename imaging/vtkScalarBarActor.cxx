@@ -66,10 +66,7 @@ vtkScalarBarActor* vtkScalarBarActor::New()
 vtkScalarBarActor::vtkScalarBarActor()
 {
   this->LookupTable = NULL;
-  this->Position2Coordinate = vtkCoordinate::New();
-  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
   this->Position2Coordinate->SetValue(0.17, 0.8);
-  this->Position2Coordinate->SetReferenceCoordinate(this->PositionCoordinate);
   
   this->PositionCoordinate->SetCoordinateSystemToNormalizedViewport();
   this->PositionCoordinate->SetValue(0.82,0.1);
@@ -129,9 +126,6 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow *win)
 
 vtkScalarBarActor::~vtkScalarBarActor()
 {
-  this->Position2Coordinate->Delete();
-  this->Position2Coordinate = NULL;
-  
   if (this->LabelFormat) 
     {
     delete [] this->LabelFormat;
@@ -163,33 +157,6 @@ vtkScalarBarActor::~vtkScalarBarActor()
     }
   
   this->SetLookupTable(NULL);
-}
-
-void vtkScalarBarActor::SetWidth(float w)
-{
-  float *pos;
-
-  pos = this->Position2Coordinate->GetValue();
-  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
-  this->Position2Coordinate->SetValue(w,pos[1]);
-}
-
-void vtkScalarBarActor::SetHeight(float w)
-{
-  float *pos;
-
-  pos = this->Position2Coordinate->GetValue();
-  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
-  this->Position2Coordinate->SetValue(pos[0],w);
-}
-    
-float vtkScalarBarActor::GetWidth()
-{
-  return this->Position2Coordinate->GetValue()[0];
-}
-float vtkScalarBarActor::GetHeight()
-{
-  return this->Position2Coordinate->GetValue()[1];
 }
 
 int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
@@ -585,25 +552,6 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
   os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
   os << indent << "Label Format: " << this->LabelFormat << "\n";
-}
-
-vtkCoordinate *vtkScalarBarActor::GetPosition2Coordinate() 
-{ 
-    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning Position2Coordinate address " << this->Position2Coordinate ); 
-    return this->Position2Coordinate; 
-} 
-void vtkScalarBarActor::SetPosition2(float x[2]) 
-{
-  this->SetPosition2(x[0],x[1]);
-} 
-void vtkScalarBarActor::SetPosition2(float x, float y) 
-{ 
-  this->Position2Coordinate->SetCoordinateSystem(VTK_VIEWPORT); 
-  this->Position2Coordinate->SetValue(x,y); 
-} 
-float *vtkScalarBarActor::GetPosition2() 
-{ 
-  return this->Position2Coordinate->GetValue(); 
 }
 
 void vtkScalarBarActor::ShallowCopy(vtkProp *prop)

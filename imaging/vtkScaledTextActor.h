@@ -69,24 +69,6 @@ public:
   void SetMapper(vtkTextMapper *mapper);
 
   // Description:
-  // Access the Position2 instance variable. This variable controls
-  // the upper right corner of the ScaledText. It is by default
-  // relative to Position and in normalized viewport coordinates.
-  void SetPosition2(float,float);
-  void SetPosition2(float x[2]);
-  vtkCoordinate *GetPosition2Coordinate();
-  float *GetPosition2();
-  
-  // Description:
-  // Set/Get the height and width of the scaled text. The value is expressed
-  // as a fraction of the viewport. This really is just another way of
-  // setting the Position2 instance variable.
-  void SetWidth(float w);
-  float GetWidth();
-  void SetHeight(float h);
-  float GetHeight();
-  
-  // Description:
   // Set/Get the minimum size in pixels for this actor.
   // Defaults to 10,10.
   vtkSetVector2Macro(MinimumSize,int);
@@ -130,9 +112,8 @@ protected:
 
   int MinimumSize[2];
   float MaximumLineHeight;
-  
+
   vtkActor2D *TextActor;
-  vtkCoordinate *Position2Coordinate;
   vtkTimeStamp  BuildTime;
   int LastSize[2];
   int LastOrigin[2];

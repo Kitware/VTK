@@ -59,7 +59,7 @@ vtkActor2D* vtkActor2D::New()
 }
 
 
-// Creates an actor2D with the following defaults: 
+// Creates an actor2D with the following defaults:
 // position -1, -1 (view coordinates)
 // orientation 0, scale (1,1), layer 0, visibility on
 vtkActor2D::vtkActor2D()
@@ -67,8 +67,14 @@ vtkActor2D::vtkActor2D()
   this->Mapper = (vtkMapper2D*) NULL;
   this->LayerNumber = 0;
   this->Property = (vtkProperty2D*) NULL;
+  //
   this->PositionCoordinate = vtkCoordinate::New();
   this->PositionCoordinate->SetCoordinateSystem(VTK_VIEWPORT);
+  //
+  this->Position2Coordinate = vtkCoordinate::New();
+  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
+  this->Position2Coordinate->SetValue(0.5, 0.5);
+  this->Position2Coordinate->SetReferenceCoordinate(this->PositionCoordinate);
 }
 
 // Destroy an actor2D.
@@ -80,6 +86,8 @@ vtkActor2D::~vtkActor2D()
     }
   this->PositionCoordinate->Delete();
   this->PositionCoordinate = NULL;
+  this->Position2Coordinate->Delete();
+  this->Position2Coordinate = NULL;
   if (this->Mapper != NULL)
     {
     this->Mapper->UnRegister(this);
@@ -193,10 +201,12 @@ unsigned long int vtkActor2D::GetMTime()
 {
   unsigned long mTime=this->vtkObject::GetMTime();
   unsigned long time;
-  
-  time = this->PositionCoordinate->GetMTime();
+
+  time  = this->PositionCoordinate->GetMTime();
   mTime = ( time > mTime ? time : mTime );
-  
+  time  = this->Position2Coordinate->GetMTime();
+  mTime = ( time > mTime ? time : mTime );
+
   if ( this->Property != NULL )
     {
     time = this->Property->GetMTime();
@@ -206,11 +216,39 @@ unsigned long int vtkActor2D::GetMTime()
   return mTime;
 }
 
-// Set the Prop2D's position in display coordinates.  
+// Set the Prop2D's position in display coordinates.
 void vtkActor2D::SetDisplayPosition(int XPos, int YPos)
 {
   this->PositionCoordinate->SetCoordinateSystem(VTK_DISPLAY);
   this->PositionCoordinate->SetValue((float)XPos,(float)YPos,0.0);
+}
+
+void vtkActor2D::SetWidth(float w)
+{
+  float *pos;
+
+  pos = this->Position2Coordinate->GetValue();
+  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
+  this->Position2Coordinate->SetValue(w,pos[1]);
+}
+
+void vtkActor2D::SetHeight(float w)
+{
+  float *pos;
+
+  pos = this->Position2Coordinate->GetValue();
+  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
+  this->Position2Coordinate->SetValue(pos[0],w);
+}
+    
+float vtkActor2D::GetWidth()
+{
+  return this->Position2Coordinate->GetValue()[0];
+}
+
+float vtkActor2D::GetHeight()
+{
+  return this->Position2Coordinate->GetValue()[1];
 }
 
 // Returns an Prop2D's property2D.  Creates a property if one
@@ -254,7 +292,10 @@ void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Layer Number: " << this->LayerNumber << "\n";
   os << indent << "PositionCoordinate: " << this->PositionCoordinate << "\n";
   this->PositionCoordinate->PrintSelf(os, indent.GetNextIndent());
-  
+
+  os << indent << "Position2 Coordinate: " << this->Position2Coordinate << "\n";
+  this->Position2Coordinate->PrintSelf(os, indent.GetNextIndent());
+
   os << indent << "Property: " << this->Property << "\n";
   if (this->Property)
     {

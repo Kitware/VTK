@@ -73,12 +73,8 @@ vtkXYPlotActor::vtkXYPlotActor()
 {
   this->PositionCoordinate->SetCoordinateSystemToNormalizedViewport();
   this->PositionCoordinate->SetValue(0.25,0.25);
-  
-  this->Position2Coordinate = vtkCoordinate::New();
-  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
   this->Position2Coordinate->SetValue(0.5, 0.5);
-  this->Position2Coordinate->SetReferenceCoordinate(this->PositionCoordinate);
-  
+
   this->InputList = vtkDataSetCollection::New();
   this->DataObjectInputList = vtkDataObjectCollection::New();
 
@@ -172,16 +168,13 @@ vtkXYPlotActor::vtkXYPlotActor()
   n->SetNumberOfNormals(4);
   this->ClipPlanes->SetNormals(n);
   n->Delete();
-  
+
   this->CachedSize[0] = 0;
   this->CachedSize[1] = 0;
 }
 
 vtkXYPlotActor::~vtkXYPlotActor()
 {
-  this->Position2Coordinate->Delete();
-  this->Position2Coordinate = NULL;
-  
   this->InputList->Delete();
   this->InputList = NULL;
 
@@ -289,33 +282,6 @@ void vtkXYPlotActor::RemoveDataObjectInput(vtkDataObject *in)
     this->Modified();
     this->DataObjectInputList->RemoveItem(in);
     }
-}
-
-void vtkXYPlotActor::SetWidth(float w)
-{
-  float *pos;
-
-  pos = this->Position2Coordinate->GetValue();
-  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
-  this->Position2Coordinate->SetValue(w,pos[1]);
-}
-
-void vtkXYPlotActor::SetHeight(float w)
-{
-  float *pos;
-
-  pos = this->Position2Coordinate->GetValue();
-  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
-  this->Position2Coordinate->SetValue(pos[0],w);
-}
-    
-float vtkXYPlotActor::GetWidth()
-{
-  return this->Position2Coordinate->GetValue()[0];
-}
-float vtkXYPlotActor::GetHeight()
-{
-  return this->Position2Coordinate->GetValue()[1];
 }
 
 // Plot scalar data for each input dataset.

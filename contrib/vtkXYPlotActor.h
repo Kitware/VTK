@@ -120,23 +120,7 @@ public:
   // axes; a label format of "%-#6.3g"; and x coordinates computed from point
   // ids.
   static vtkXYPlotActor *New();
-  
-  // Description: 
-  // Access the Position2 instance variable. This variable
-  // controls the upper right corner of the x-y plot. It is by default
-  // relative to (the superclasses') Position and in normalized viewport
-  // coordinates (which define the lower-left portion of the plot).
-  vtkViewportCoordinateMacro(Position2);
-  
-  // Description:
-  // Set/Get the height and width of the x-y plot. The value is expressed
-  // as a fraction of the viewport. This really is just another way of
-  // setting the Position2 instance variable.
-  void SetWidth(float w);
-  float GetWidth();
-  void SetHeight(float h);
-  float GetHeight();
-  
+
   //---Data Set Input----------------------------------------------------------
   // The following methods are used to plot input datasets. Datasets
   // will be plotted if set as input; otherwise the input data objects
@@ -303,7 +287,7 @@ public:
   // LegendPosition and LegendPosition2 define the lower-left and upper-right
   // position of the legend. The coordinates are expressed as normalized
   // values with respect to the rectangle defined by PositionCoordinate and
-  // Position2Coordinate. Note that LegendPosition2 is relative to 
+  // Position2Coordinate. Note that LegendPosition2 is relative to
   // LegendPosition.
   vtkSetVector2Macro(LegendPosition,float);
   vtkGetVector2Macro(LegendPosition,float);
@@ -431,7 +415,6 @@ protected:
   vtkXYPlotActor(const vtkXYPlotActor&) {};
   void operator=(const vtkXYPlotActor&) {};
 
-  vtkCoordinate *Position2Coordinate;
   vtkDataSetCollection *InputList; //list of data sets to plot
   vtkDataObjectCollection *DataObjectInputList; //list of data objects to plot
   char  *Title;
