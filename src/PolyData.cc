@@ -294,7 +294,7 @@ vlMapper *vlPolyData::MakeMapper()
 {
   vlPolyMapper *mapper;
 
-  if ( ! this->Mapper )
+  if ( this->Mapper == NULL  )
     {
     this->Mapper = mapper = new vlPolyMapper;
     this->Mapper->Register(this);

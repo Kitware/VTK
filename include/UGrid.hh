@@ -45,7 +45,7 @@ public:
 
   // dataset interface
   vlDataSet *MakeObject() {return new vlUnstructuredGrid(*this);};
-  vlMapper *MakeMapper() {return (vlMapper *)0;};
+  vlMapper *MakeMapper();
   void Initialize();
   int GetNumberOfCells();
   vlCell *GetCell(int cellId);
