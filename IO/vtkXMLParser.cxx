@@ -22,7 +22,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.12");
+vtkCxxRevisionMacro(vtkXMLParser, "1.13");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -139,6 +139,54 @@ int vtkXMLParser::Parse()
     this->Stream = 0;
     }
 
+  return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLParser::InitializeParser()
+{
+  // Create the expat XML parser.
+  this->Parser = XML_ParserCreate(0);
+  XML_SetElementHandler(this->Parser,
+                        &vtkXMLParserStartElement,
+                        &vtkXMLParserEndElement);
+  XML_SetCharacterDataHandler(this->Parser,
+                              &vtkXMLParserCharacterDataHandler);
+  XML_SetUserData(this->Parser, this);
+  this->ParseError = 0;
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLParser::ParseChunk(const char* inputString, unsigned int length)
+{
+  int res;
+  res = this->ParseBuffer(inputString, length);
+  if ( res == 0 )
+    {
+    this->ParseError = 1;
+    }
+  return res;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLParser::CleanupParser()
+{
+  int result = !this->ParseError;
+  if(result)
+    {
+    // Tell the expat XML parser about the end-of-input.
+    if(!XML_Parse(this->Parser, "", 0, 1))
+      {
+      this->ReportXmlParseError();
+      result = 0;
+      }
+    }
+  
+  // Clean up the parser.
+  XML_ParserFree(this->Parser);
+  this->Parser = 0;
+  
   return result;
 }
 
