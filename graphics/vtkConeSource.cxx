@@ -69,6 +69,13 @@ void vtkConeSource::Execute()
   vtkCellArray *newLines=0;
   vtkCellArray *newPolys=0;
   vtkPolyData *output = this->GetOutput();
+  // for streaming
+  int piece = output->GetUpdatePiece();
+  int numPieces = output->GetUpdateNumberOfPieces();
+  int maxPieces = output->GetMaximumNumberOfPieces();
+  int start = maxPieces * piece / numPieces;
+  int end = (maxPieces * (piece+1) / numPieces) - 1;
+  int createBottom = (this->Capping && (start == 0));
   
   vtkDebugMacro("ConeSource Executing");
   
@@ -97,8 +104,17 @@ void vtkConeSource::Execute()
     break;
 
   default:
-    numPts = this->Resolution + 1;
-    numPolys = this->Resolution + 1;
+    if (createBottom)
+      {
+      // piece 0 has cap.
+      numPts = this->Resolution + 1;
+      numPolys = end - start + 2;
+      }
+    else
+      {
+      numPts = end - start + 3;
+      numPolys = end - start + 2;
+      }
     newPolys = vtkCellArray::New();
     newPolys->Allocate(newPolys->EstimateSize(numPolys,this->Resolution));
     break;
@@ -153,26 +169,52 @@ void vtkConeSource::Execute()
 
   default: // General case: create Resolution triangles and single cap
 
-    for (i=0; i<this->Resolution; i++) 
+    // create the bottom.
+    if ( createBottom )
       {
-      x[0] = xbot;
-      x[1] = this->Radius * cos ((double)i*angle);
-      x[2] = this->Radius * sin ((double)i*angle);
-      pts[1] = newPoints->InsertNextPoint(x);
-      pts[2] = (pts[1] % this->Resolution) + 1;
-      newPolys->InsertNextCell(3,pts);
-      }
-    //
-    // If capping, create last polygon
-    //
-    if ( this->Capping )
-      {
-      for (i=0; i<this->Resolution; i++)
+      for (i=0; i < this->Resolution; i++) 
 	{
-	pts[this->Resolution - i - 1] = i+1;
+	x[0] = xbot;
+	x[1] = this->Radius * cos ((double)i*angle);
+	x[2] = this->Radius * sin ((double)i*angle);
+	// Reverse the order
+	pts[this->Resolution - i - 1] = newPoints->InsertNextPoint(x);
 	}
       newPolys->InsertNextCell(this->Resolution,pts);
       }
+    
+    pts[0] = 0;
+    if ( ! createBottom)
+      {
+      // we need to create the points also
+      x[0] = xbot;
+      x[1] = this->Radius * cos ((double)start*angle);
+      x[2] = this->Radius * sin ((double)start*angle);
+      pts[1] = newPoints->InsertNextPoint(x);
+      for (i = start; i <= end; ++i)
+	{
+	x[1] = this->Radius * cos ((double)(i+1)*angle);
+	x[2] = this->Radius * sin ((double)(i+1)*angle);
+	pts[2] = newPoints->InsertNextPoint(x);
+	newPolys->InsertNextCell(3,pts);
+	pts[1] = pts[2];
+	}
+      }
+    else
+      {
+      // bottom and points have already been created.
+      for (i=start; i <= end; i++) 
+	{
+	pts[1] = i+1;
+	pts[2] = i+2;
+	if (pts[2] > this->Resolution)
+	  {
+	  pts[2] = 1;
+	  }
+	newPolys->InsertNextCell(3,pts);
+	}
+      } // createBottom
+    
   } //switch
   //
   // Update ourselves
@@ -213,7 +255,16 @@ void vtkConeSource::ExecuteInformation()
   size = (size / 1000) + 1;
   
   this->GetOutput()->SetEstimatedWholeMemorySize(size);
+  if (this->Resolution < 3)
+    {
+    this->GetOutput()->SetMaximumNumberOfPieces(1);
+    }
+  else
+    {
+    this->GetOutput()->SetMaximumNumberOfPieces(this->Resolution);
+    }  
 }
+
 
 //----------------------------------------------------------------------------
 void vtkConeSource::SetAngle(float angle)
