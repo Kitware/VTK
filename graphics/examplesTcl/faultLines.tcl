@@ -71,7 +71,7 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 iren LightFollowCameraOff
 iren Initialize
 
-renWin SetFileName "faultLines.ppm"
+renWin SetFileName "faultLines.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
