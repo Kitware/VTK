@@ -83,6 +83,13 @@ if { [info command vtkIVWriter] != "" } {
 vtkTriangleFilter triangles
   triangles SetInput [smooth GetOutput]
 
+if { [info command vtkIVWriter] != "" } {
+  vtkIVWriter iv2
+    iv2 SetInput [triangles GetOutput]
+    iv2 SetFileName brain2.iv
+    iv2 Write
+}
+
 vtkBYUWriter byu
   byu SetGeometryFileName brain.g
   byu SetScalarFileName brain.s
