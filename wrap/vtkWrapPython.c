@@ -159,7 +159,7 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     }
 
   fprintf(fp,";\n");
-  if (aType%1000 == 302)
+  if (aType%1000 == 302 && i != MAX_ARGS)
     {
     fprintf(fp,"  int      size%d;\n",i);
     }
