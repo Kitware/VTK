@@ -34,6 +34,9 @@ vtkPointLoad::vtkPointLoad()
   this->SampleDimensions[0] = 50;
   this->SampleDimensions[1] = 50;
   this->SampleDimensions[2] = 50;
+
+  this->ComputeEffectiveStress = 1;
+  this->PoissonsRatio = 0.3;
 }
 
 // Description:
@@ -93,15 +96,20 @@ void vtkPointLoad::SetModelBounds(float *bounds)
   vtkPointLoad::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
+//
+// Generate tensors and scalars for point load on semi-infinite domain.
+//
 void vtkPointLoad::Execute()
 {
   int ptId, i, j, k;
   vtkFloatTensors *newTensors;
   vtkTensor tensor;
+  vtkFloatScalars *newScalars;
   int numPts;
   vtkMath math;
   float P, pi, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
-  float x, x2, y, y2, z, z2, z3, rhoPlusz2, zPlus2rho, txy, txz, tyz;
+  float x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
+  float sx, sy, sz, seff;
 
   vtkDebugMacro(<< "Computing point load stress tensors");
 //
@@ -112,6 +120,7 @@ void vtkPointLoad::Execute()
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
   newTensors = new vtkFloatTensors(numPts);
+  if ( this->ComputeEffectiveStress ) newScalars = new vtkFloatScalars(numPts);
 
   // Compute origin and aspect ratio
   this->SetDimensions(this->GetSampleDimensions());
@@ -157,6 +166,8 @@ void vtkPointLoad::Execute()
           tensor.SetComponent(2,0,0.0);
           tensor.SetComponent(2,1,0.0);
           newTensors->InsertNextTensor(tensor);
+          if ( this->ComputeEffectiveStress )
+            newScalars->InsertNextScalar(LARGE_FLOAT);
           continue;
           }
 
@@ -166,32 +177,40 @@ void vtkPointLoad::Execute()
         nu = (1.0 - 2.0*this->PoissonsRatio);
         x2 = x*x;
         y2 = y*y;
+        z2 = z*z;
         rhoPlusz2 = (rho + z) * (rho + z);
         zPlus2rho = (2.0*rho + z);
 
         // normal stresses
-        tensor.SetComponent(0,0, P/(twoPi*rho2) * (3.0*z*x2/rho3 -
-                     nu*(z/rho - rho/(rho+z) + x2*(zPlus2rho)/(rho*rhoPlusz2))));
-        tensor.SetComponent(1,1, P/(twoPi*rho2) * (3.0*z*y2/rho3 -
-                     nu*(z/rho - rho/(rho+z) + y2*(zPlus2rho)/(rho*rhoPlusz2))));
-        tensor.SetComponent(2,2, 3.0*P*z3/(twoPi*rho5));
+        sx = P/(twoPi*rho2) * (3.0*z*x2/rho3 - nu*(z/rho - rho/(rho+z) + 
+                               x2*(zPlus2rho)/(rho*rhoPlusz2)));
+        sy = P/(twoPi*rho2) * (3.0*z*y2/rho3 - nu*(z/rho - rho/(rho+z) + 
+                               y2*(zPlus2rho)/(rho*rhoPlusz2)));
+        sz = 3.0*P*z2*z/(twoPi*rho5);
         
         //shear stresses
         txy = P/(twoPi*rho2) * (3.0*x*y*z/rho3 - 
                                 nu*x*y*(zPlus2rho)/(rho*rhoPlusz2));
-
-        tensor.SetComponent(0,1,txy);
-        tensor.SetComponent(1,0,txy);
-
         txz = 3.0*P*x*z2/(twoPi*rho5);
-        tensor.SetComponent(0,2,txz);
-        tensor.SetComponent(2,0,txz);
-      
         tyz = 3.0*P*y*z2/(twoPi*rho5);
-        tensor.SetComponent(1,2,tyz);
-        tensor.SetComponent(2,1,tyz);
 
+        tensor.SetComponent(0,0, sx);
+        tensor.SetComponent(1,1, sy);
+        tensor.SetComponent(2,2, sz);
+        tensor.SetComponent(0,1, txy); // symmetric matrix
+        tensor.SetComponent(1,0, txy);
+        tensor.SetComponent(0,2, txz);
+        tensor.SetComponent(2,0, txz);
+        tensor.SetComponent(1,2, tyz);
+        tensor.SetComponent(2,1, tyz);
         newTensors->InsertNextTensor(tensor);
+
+        if ( this->ComputeEffectiveStress )
+          {
+          seff = 0.333333* sqrt ((sx-sy)*(sx-sy) + (sy-sz)*(sy-sz) +
+                 (sz-sx)*(sz-sx) + 6.0*txy*txy + 6.0*tyz*tyz + 6.0*txz*txz);
+          newScalars->InsertNextScalar(seff);
+          }
         }
       }
     }
@@ -199,6 +218,8 @@ void vtkPointLoad::Execute()
 // Update self
 //
   this->PointData.SetTensors(newTensors);
+  if ( this->ComputeEffectiveStress)
+    this->PointData.SetScalars(newScalars);
 }
 
 
@@ -215,6 +236,8 @@ void vtkPointLoad::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
   os << indent << "Poisson's Ratio: " << this->PoissonsRatio << "\n";
+  os << indent << "Compute Effective Stress: " << 
+        (this->ComputeEffectiveStress ? "On\n" : "Off\n");
   
 }
 
