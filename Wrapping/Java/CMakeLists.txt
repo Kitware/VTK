@@ -25,8 +25,8 @@ IF(JAVA_COMPILE)
                               ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
                          TARGET VTKJava
                          OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
-    ENDFOREACH(jfile
-  IF(JAVA_ARCHIVE)
+    ENDFOREACH(jfile)
+  ENDIF(JAVA_ARCHIVE)
 
   LINK_LIBRARIES (
     vtkImagingTCL
