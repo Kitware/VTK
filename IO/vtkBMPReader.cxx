@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.43");
+vtkCxxRevisionMacro(vtkBMPReader, "1.44");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read
@@ -99,7 +99,7 @@ void vtkBMPReader::ExecuteInformation()
     }
 
   this->ComputeInternalFileName(this->DataExtent[4]);
-  if (this->InternalFileName == NULL)
+  if (this->InternalFileName == NULL || this->InternalFileName[0] == '\0')
     {
     return;
     }

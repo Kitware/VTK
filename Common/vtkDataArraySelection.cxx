@@ -22,7 +22,7 @@
 #include <vtkstd/string>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.13");
+vtkCxxRevisionMacro(vtkDataArraySelection, "1.14");
 vtkStandardNewMacro(vtkDataArraySelection);
 
 class vtkDataArraySelectionArrayNamesType: public vtkstd::vector<vtkstd::string> {};
@@ -47,6 +47,14 @@ void vtkDataArraySelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Number of Arrays: " << this->GetNumberOfArrays() << "\n";
+  vtkIndent nindent = indent.GetNextIndent();
+  int cc;
+  for ( cc = 0; cc < this->GetNumberOfArrays(); cc ++ )
+    {
+    os << nindent << "Array: " << this->GetArrayName(cc) << " is: " 
+      << (this->GetArraySetting(cc)?"enabled":"disabled") 
+      << " (" << this->ArrayIsEnabled(this->GetArrayName(cc)) << ")" <<  endl;
+    }
 }
 
 //----------------------------------------------------------------------------

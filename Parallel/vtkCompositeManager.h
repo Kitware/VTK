@@ -90,9 +90,14 @@ public:
   // the render time.  The final image is pixel replicated to be the original 
   // size.  This option can be used by an interactor style to help get desired 
   // frame rates.  The factor only needs to be set on process 0.
-  // Call SetRenderWindow before calling SetReductionFactor.
-  void SetReductionFactor(int factor);
-  vtkGetMacro(ReductionFactor, int);
+  // Call SetRenderWindow before calling SetImageReductionFactor.
+  void SetImageReductionFactor(int factor);
+  vtkGetMacro(ImageReductionFactor, int);
+
+  // Description:
+  // Legacy methods.
+  void SetReductionFactor(int f) {this->SetImageReductionFactor(f);}
+  int GetReductionFactor() {return this->GetImageReductionFactor();}
 
   // Description:
   // This flag tells the compositer to use char values for pixel data rather than float.
@@ -191,7 +196,7 @@ public:
 
   // Description:
   // Determines whether the final image on node 0 is magnified
-  // to fit the window or not (only valid when ReductionFactor > 1)
+  // to fit the window or not (only valid when ImageReductionFactor > 1)
   vtkSetMacro(DoMagnifyBuffer, int);
   vtkGetMacro(DoMagnifyBuffer, int);
 
@@ -236,7 +241,7 @@ protected:
   int RendererSize[2];
 
   // Reduction factor (For fast interactive compositing).
-  int ReductionFactor;
+  int ImageReductionFactor;
 
   int DoMagnifyBuffer;
   

@@ -38,7 +38,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.41");
+vtkCxxRevisionMacro(vtkLineWidget, "1.42");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget
@@ -540,7 +540,10 @@ void vtkLineWidget::EnablePointWidget()
 // assumed current handle is set
 void vtkLineWidget::DisablePointWidget()
 {
-  this->CurrentPointWidget->Off();
+  if (this->CurrentPointWidget)
+    {
+    this->CurrentPointWidget->Off();
+    }
   this->CurrentPointWidget = NULL;
 }
 
