@@ -8,12 +8,13 @@ class vtkMyXML : public vtkXMLParser
 public:
   vtkTypeMacro(vtkMyXML, vtkXMLParser);
   static vtkMyXML* New();
-  
-private:
+
+protected:  
   vtkMyXML() {} 
   void StartElement(const char*, const char**) {}
   void EndElement(const char*) {}
 
+private:
   vtkMyXML(const vtkMyXML&); // Not implemented
   void operator=(const vtkMyXML&); // Not implemented    
 };
