@@ -36,6 +36,14 @@ IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
       ENDIF (COMPILE_OK)
    ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
    SET(VTK_USE_INSTANTIATOR_NEW "1")
+
+  # Install cmake extension directory so user projects can build the commands.
+  INSTALL_FILES(/lib/vtk/CMake FILES
+                ${VTK_SOURCE_DIR}/CMake/CMakeLists.txt
+                ${VTK_SOURCE_DIR}/CMake/cmVTKWrapTcl2Command.c
+                ${VTK_SOURCE_DIR}/CMake/cmVTKWrapPython2Command.c
+                ${VTK_SOURCE_DIR}/CMake/cmVTKWrapJava2Command.c
+                ${VTK_SOURCE_DIR}/CMake/cmVTKMakeInstantiator2Command.c)
 ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 
 OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)

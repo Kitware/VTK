@@ -148,6 +148,9 @@ ELSE(VTK_USE_PARALLEL)
   SET(VTK_PRT_IMAGE_TEST_TCL_CONFIG "")
 ENDIF(VTK_USE_PARALLEL)
 
+# CMake extension module directory.
+SET(VTK_CMAKE_EXTENSIONS_DIR_CONFIG ${VTK_SOURCE_DIR}/CMake)
+
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the build tree.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
@@ -207,6 +210,9 @@ IF(VTK_USE_PARALLEL)
 ELSE(VTK_USE_PARALLEL)
   SET(VTK_PRT_IMAGE_TEST_TCL_CONFIG "")
 ENDIF(VTK_USE_PARALLEL)
+
+# CMake extension module directory.
+SET(VTK_CMAKE_EXTENSIONS_DIR_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/CMake)
 
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the build tree.
