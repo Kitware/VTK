@@ -16,82 +16,22 @@
 # rl - right to left
 #
 vtkTransform si
-[si GetMatrixPointer] SetElement 0 0 1
-[si GetMatrixPointer] SetElement 0 1 0
-[si GetMatrixPointer] SetElement 0 2 0
-[si GetMatrixPointer] SetElement 0 3 0
-[si GetMatrixPointer] SetElement 1 0 0
-[si GetMatrixPointer] SetElement 1 1 0
-[si GetMatrixPointer] SetElement 1 2 1
-[si GetMatrixPointer] SetElement 1 3 0
-[si GetMatrixPointer] SetElement 2 0 0
-[si GetMatrixPointer] SetElement 2 1 -1
-[si GetMatrixPointer] SetElement 2 2 0
-[si GetMatrixPointer] SetElement 2 3 0
-[si GetMatrixPointer] SetElement 3 0 0
-[si GetMatrixPointer] SetElement 3 1 0
-[si GetMatrixPointer] SetElement 3 2 0
-[si GetMatrixPointer] SetElement 3 3 1
+  si SetMatrix 1 0 0 0  0 0 1 0  0 -1 0 0  0 0 0 1
 
 vtkTransform is
-[is GetMatrixPointer] SetElement 0 0 1
-[is GetMatrixPointer] SetElement 0 1 0
-[is GetMatrixPointer] SetElement 0 2 0
-[is GetMatrixPointer] SetElement 0 3 0
-[is GetMatrixPointer] SetElement 1 0 0
-[is GetMatrixPointer] SetElement 1 1 0
-[is GetMatrixPointer] SetElement 1 2 -1
-[is GetMatrixPointer] SetElement 1 3 0
-[is GetMatrixPointer] SetElement 2 0 0
-[is GetMatrixPointer] SetElement 2 1 -1
-[is GetMatrixPointer] SetElement 2 2 0
-[is GetMatrixPointer] SetElement 2 3 0
-[is GetMatrixPointer] SetElement 3 0 0
-[is GetMatrixPointer] SetElement 3 1 0
-[is GetMatrixPointer] SetElement 3 2 0
-[is GetMatrixPointer] SetElement 3 3 1
+  is SetMatrix 1 0 0 0  0 0 -1 0  0 -1 0 0  0 0 0 1
 
 vtkTransform ap
-	ap Scale 1 -1 1
+  ap Scale 1 -1 1
 
 vtkTransform pa
-	pa Scale 1 -1 -1
+  pa Scale 1 -1 -1
 
 vtkTransform lr
-[lr GetMatrixPointer] SetElement 0 0 0
-[lr GetMatrixPointer] SetElement 0 1 0
-[lr GetMatrixPointer] SetElement 0 2 -1
-[lr GetMatrixPointer] SetElement 0 3 0
-[lr GetMatrixPointer] SetElement 1 0 0
-[lr GetMatrixPointer] SetElement 1 1 -1
-[lr GetMatrixPointer] SetElement 1 2 0
-[lr GetMatrixPointer] SetElement 1 3 0
-[lr GetMatrixPointer] SetElement 2 0 1
-[lr GetMatrixPointer] SetElement 2 1 0
-[lr GetMatrixPointer] SetElement 2 2 0
-[lr GetMatrixPointer] SetElement 2 3 0
-[lr GetMatrixPointer] SetElement 3 0 0
-[lr GetMatrixPointer] SetElement 3 1 0
-[lr GetMatrixPointer] SetElement 3 2 0
-[lr GetMatrixPointer] SetElement 3 3 1
+  lr SetMatrix 0 0 -1 0  0 -1 0 0  1 0 0 0  0 0 0 1
 
 vtkTransform rl
-[rl GetMatrixPointer] SetElement 0 0 0
-[rl GetMatrixPointer] SetElement 0 1 0
-[rl GetMatrixPointer] SetElement 0 2 1
-[rl GetMatrixPointer] SetElement 0 3 0
-[rl GetMatrixPointer] SetElement 1 0 0
-[rl GetMatrixPointer] SetElement 1 1 -1
-[rl GetMatrixPointer] SetElement 1 2 0
-[rl GetMatrixPointer] SetElement 1 3 0
-[rl GetMatrixPointer] SetElement 2 0 1
-[rl GetMatrixPointer] SetElement 2 1 0
-[rl GetMatrixPointer] SetElement 2 2 0
-[rl GetMatrixPointer] SetElement 2 3 0
-[rl GetMatrixPointer] SetElement 3 0 0
-[rl GetMatrixPointer] SetElement 3 1 0
-[rl GetMatrixPointer] SetElement 3 2 0
-[rl GetMatrixPointer] SetElement 3 3 1
+  rl SetMatrix 0 0 1 0  0 -1 0 0  1 0 0 0  0 0 0 1
 
 #
 # the previous transforms assume radiological views of the slices (viewed from the feet). other
@@ -99,44 +39,29 @@ vtkTransform rl
 # with a 180 rotation about y
 #
 vtkTransform hf
-[hf GetMatrixPointer] SetElement 0 0 -1
-[hf GetMatrixPointer] SetElement 0 1 0
-[hf GetMatrixPointer] SetElement 0 2 0
-[hf GetMatrixPointer] SetElement 0 3 0
-[hf GetMatrixPointer] SetElement 1 0 0
-[hf GetMatrixPointer] SetElement 1 1 1
-[hf GetMatrixPointer] SetElement 1 2 0
-[hf GetMatrixPointer] SetElement 1 3 0
-[hf GetMatrixPointer] SetElement 2 0 0
-[hf GetMatrixPointer] SetElement 2 1 0
-[hf GetMatrixPointer] SetElement 2 2 -1
-[hf GetMatrixPointer] SetElement 2 3 0
-[hf GetMatrixPointer] SetElement 3 0 0
-[hf GetMatrixPointer] SetElement 3 1 0
-[hf GetMatrixPointer] SetElement 3 2 0
-[hf GetMatrixPointer] SetElement 3 3 1
+  hf SetMatrix -1 0 0 0  0 1 0 0  0 0 -1 0  0 0 0 1
 
 vtkTransform hfsi
-  hfsi Concatenate [hf GetMatrixPointer]
-  hfsi Concatenate [si GetMatrixPointer]
+  hfsi Concatenate [hf GetMatrix]
+  hfsi Concatenate [si GetMatrix]
 
 vtkTransform hfis
-  hfis Concatenate [hf GetMatrixPointer]
-  hfis Concatenate [is GetMatrixPointer]
+  hfis Concatenate [hf GetMatrix]
+  hfis Concatenate [is GetMatrix]
 
 vtkTransform hfap
-  hfap Concatenate [hf GetMatrixPointer]
-  hfap Concatenate [ap GetMatrixPointer]
+  hfap Concatenate [hf GetMatrix]
+  hfap Concatenate [ap GetMatrix]
 
 vtkTransform hfpa
-  hfpa Concatenate [hf GetMatrixPointer]
-  hfpa Concatenate [pa GetMatrixPointer]
+  hfpa Concatenate [hf GetMatrix]
+  hfpa Concatenate [pa GetMatrix]
 
 vtkTransform hflr
-  hflr Concatenate [hf GetMatrixPointer]
-  hflr Concatenate [lr GetMatrixPointer]
+  hflr Concatenate [hf GetMatrix]
+  hflr Concatenate [lr GetMatrix]
 
 vtkTransform hfrl
-  hfrl Concatenate [hf GetMatrixPointer]
-  hfrl Concatenate [rl GetMatrixPointer]
+  hfrl Concatenate [hf GetMatrix]
+  hfrl Concatenate [rl GetMatrix]
 
