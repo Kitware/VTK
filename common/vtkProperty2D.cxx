@@ -90,7 +90,19 @@ void vtkProperty2D::PrintSelf(ostream& os, vtkIndent indent)
      << this->Color[2] << ")\n";
   os << indent << "Point size: " << this->PointSize << "\n";
   os << indent << "Line width: " << this->LineWidth << "\n";
-  
+  switch ( this->DisplayLocation )
+    {
+    case VTK_FOREGROUND_LOCATION:
+      os << indent << "Display location: foreground\n";
+      break;
+    case VTK_BACKGROUND_LOCATION:
+      os << indent << "Display location: background\n";
+      break;
+    default:
+      os << indent << "Display location: invalid\n";
+      break;      
+    }
+    
 }
 
 
