@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.13");
+vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.14");
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
 //----------------------------------------------------------------------------
@@ -201,7 +201,7 @@ void vtkInteractorStyleImage::SpinXY(int x, int y, int oldX, int oldY)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::PickXY(int x, int y)
+void vtkInteractorStyleImage::PickXY(int vtkNotUsed(x), int vtkNotUsed(y))
 {
   if (this->HasObserver(vtkCommand::PickEvent)) 
     {
@@ -389,4 +389,6 @@ void vtkInteractorStyleImage::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Window Level Start Position: " <<
     this->WindowLevelStartPosition << endl;
+
+  os << indent << "State: " << this->GetStateAsString() << endl;
 }

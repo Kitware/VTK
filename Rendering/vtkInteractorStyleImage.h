@@ -80,9 +80,9 @@ public:
   
   // Description:
   // Some useful information for interaction
-  vtkSetClampMacro(State,int,VTK_INTERACTOR_STYLE_IMAGE_NONE,VTK_INTERACTOR_STYLE_IMAGE_PICK);
   vtkGetMacro(State,int);
-  
+  const char *GetStateAsString(void);
+
 protected:
   vtkInteractorStyleImage();
   ~vtkInteractorStyleImage();
@@ -102,5 +102,39 @@ private:
   vtkInteractorStyleImage(const vtkInteractorStyleImage&);  // Not implemented.
   void operator=(const vtkInteractorStyleImage&);  // Not implemented.
 };
+
+// Description:
+// Return the interpolation type as a descriptive character string.
+inline const char *vtkInteractorStyleImage::GetStateAsString(void)
+{
+  if (this->State == VTK_INTERACTOR_STYLE_IMAGE_NONE)
+    {
+    return "None";
+    }
+  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_WINDOW_LEVEL)
+    {
+    return "WindowLevel";
+    }
+  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_PAN)
+    {
+    return "Pan";
+    }
+  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_ZOOM)
+    {
+    return "Zoom";
+    }
+  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_SPIN)
+    {
+    return "Spin";
+    }
+  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_PICK)
+    {
+    return "Pick";
+    }
+  else
+    {
+    return "Unknown (error)";
+    }
+}
 
 #endif
