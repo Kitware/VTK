@@ -15,7 +15,7 @@ CXX_FLAGS = ${CPPFLAGS} ${VTK_SHLIB_CFLAGS} ${XCFLAGS} ${CXXFLAGS} \
 	 -I${srcdir}/../common -I${TK_INCLUDE} -I${TCL_INCLUDE} \
 	-D_HP_NO_FAST_MACROS ${HAVE_SETMON} ${WORDS_BIGENDIAN}
 
-all: depend.make ${VTK_LIB_FILE} ${BUILD_TCL}
+all: ${VTK_LIB_FILE} ${BUILD_TCL}
 
 .cxx.o:
 	${CXX} ${CXX_FLAGS} -c $< -o $@
