@@ -84,29 +84,29 @@ main(int argc, char **argv)
  *----------------------------------------------------------------------
  */
 
-extern "C" Vtkcommontcl_Init(Tcl_Interp *interp);
+extern "C" int Vtkcommontcl_Init(Tcl_Interp *interp);
 
 #ifdef VTK_USE_GRAPHICS
-extern "C" Vtkgraphicstcl_Init(Tcl_Interp *interp);
+extern "C" int Vtkgraphicstcl_Init(Tcl_Interp *interp);
 #ifdef VTK_USE_TKWIDGET
-extern "C" Vtktkrenderwidget_Init(Tcl_Interp *interp);
+extern "C" int Vtktkrenderwidget_Init(Tcl_Interp *interp);
 #endif
 #endif
 
 #ifdef VTK_USE_IMAGING
-extern "C" Vtkimagingtcl_Init(Tcl_Interp *interp);
+extern "C" int Vtkimagingtcl_Init(Tcl_Interp *interp);
 #ifdef VTK_USE_TKWIDGET
-extern "C" Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
-extern "C" Vtktkimagewindowwidget_Init(Tcl_Interp *interp);
+extern "C" int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
+extern "C" int Vtktkimagewindowwidget_Init(Tcl_Interp *interp);
 #endif
 #endif
 
 #ifdef VTK_USE_PATENTED
-extern "C" Vtkpatentedtcl_Init(Tcl_Interp *interp);
+extern "C" int Vtkpatentedtcl_Init(Tcl_Interp *interp);
 #endif
 
 #ifdef VTK_USE_CONTRIB
-extern "C" Vtkcontribtcl_Init(Tcl_Interp *interp);
+extern "C" int Vtkcontribtcl_Init(Tcl_Interp *interp);
 #endif
 
 int Tcl_AppInit(Tcl_Interp *interp)
