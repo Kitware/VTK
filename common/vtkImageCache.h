@@ -138,6 +138,7 @@ public:
   void GetBounds(float bounds[6]);
   void GetBounds(float &xMin, float &xMax, float &yMin, float &yMax,
 		 float &zMin, float &zMax);
+  float *GetBounds() {this->GetBounds (this->Bounds); return this->Bounds;}
   
   // Description:
   // Set/Get the source associated with this cache
@@ -199,6 +200,7 @@ protected:
   float Spacing[3];
   float Origin[3];
   int WholeExtent[6];
+  float Bounds[6];
 
   // This is for vtkStructuredPoints compatability.  
   // These variables are redundant.
