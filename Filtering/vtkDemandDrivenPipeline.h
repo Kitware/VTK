@@ -48,15 +48,6 @@ public:
   vtkGetMacro(PipelineMTime, unsigned long);
 
   // Description:
-  // Get/Set the data object storing the output for the given port.
-  virtual vtkDataObject* GetOutputData(int port);
-  virtual void SetOutputData(int port, vtkDataObject*);
-
-  // Description:
-  // Get the data object for an output port of the algorithm.
-  virtual vtkDataObject* GetInputData(int port, int connection);
-
-  // Description:
   // Set whether the given output port releases data when it is
   // consumed.  Returns 1 if the the value changes and 0 otherwise.
   virtual int SetReleaseDataFlag(int port, int n);

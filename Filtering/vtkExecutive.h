@@ -66,12 +66,12 @@ public:
 
   // Description:
   // Get/Set the data object for an output port of the algorithm.
-  virtual vtkDataObject* GetOutputData(int port)=0;
-  virtual void SetOutputData(int port, vtkDataObject*)=0;
+  virtual vtkDataObject* GetOutputData(int port);
+  virtual void SetOutputData(int port, vtkDataObject*);
 
   // Description:
   // Get the data object for an output port of the algorithm.
-  virtual vtkDataObject* GetInputData(int port, int connection)=0;
+  virtual vtkDataObject* GetInputData(int port, int connection);
 
   // Description:
   // Get the output port that produces the given data object.
@@ -106,6 +106,12 @@ protected:
 
   // Put default information in output information objects.
   virtual void FillDefaultOutputInformation(int port, vtkInformation*)=0;
+
+  // Reset the pipeline update values in the given output information object.
+  virtual void ResetPipelineInformation(int port, vtkInformation*)=0;
+
+  // Bring the existence of output data objects up to date.
+  virtual int UpdateDataObject()=0;
 
   // Bring the input information up to date with current connections.
   void UpdateInputInformationVector();
