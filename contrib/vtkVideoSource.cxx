@@ -552,6 +552,7 @@ void vtkVideoSource::InternalGrab()
 static inline void vtkSleep(double duration)
 {
   // sleep according to OS preference
+  duration = duration;
 #ifdef _WIN32
   Sleep((int)(1000*duration));
 #elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi)
@@ -706,7 +707,6 @@ void vtkVideoSource::Rewind()
 
   double *stamp = this->FrameBufferTimeStamps;
   double lowest = vtkTimerLog::GetCurrentTime();
-  int index = this->FrameBufferIndex;
   int i;
 
   for (i = 0; i < this->FrameBufferSize; i++)
@@ -714,7 +714,6 @@ void vtkVideoSource::Rewind()
     if (stamp[i] != 0.0 && stamp[i] < lowest)
       {
       lowest = stamp[i];
-      index = i;
       }
     }
   this->FrameBufferIndex = i-1;
@@ -735,7 +734,6 @@ void vtkVideoSource::FastForward()
 
   double *stamp = this->FrameBufferTimeStamps;
   double highest = 0.0;
-  int index = this->FrameBufferIndex;
   int i;
 
   for (i = 0; i < this->FrameBufferSize; i++)
@@ -743,7 +741,6 @@ void vtkVideoSource::FastForward()
     if (stamp[i] != 0.0 && stamp[i] > highest)
       {
       highest = stamp[i];
-      index = i;
       }
     }
   this->FrameBufferIndex = i;
