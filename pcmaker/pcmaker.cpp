@@ -127,7 +127,12 @@ int ReadRegistry(CPcmakerDlg &dlg)
     ReadAValue(hKey, &(dlg.adlg.m_EXTRA_LINK_FLAGS),"EXTRA_LINK_FLAGS","");
     ReadAValue(hKey, &(dlg.adlg.m_WhereTcl),"WhereTcl","");
     ReadAValue(hKey, &(dlg.adlg.m_WhereTk),"WhereTk","");
-    ReadAValue(hKey, &(dlg.adlg.m_LibPrefix),"LibPrefix","");
+    ReadAValue(hKey, &(dlg.adlg.m_LibPrefix),"LibPrefix","vtk");
+	// if the value is an empty string then set it to vtk
+	if (!dlg.adlg.m_LibPrefix || strlen(dlg.adlg.m_LibPrefix) < 1)
+		{
+		dlg.adlg.m_LibPrefix = _T("vtk");
+		}
 
     // save which compiler
     dwType = REG_DWORD;
