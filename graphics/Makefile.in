@@ -136,6 +136,7 @@ vtkDataReader \
 vtkDataSetMapper \
 vtkDataSetReader \
 vtkDataSetSource \
+vtkDataSetSurfaceFilter \
 vtkDataSetToDataObjectFilter \
 vtkDataSetTriangleFilter \
 vtkDataSetWriter \
