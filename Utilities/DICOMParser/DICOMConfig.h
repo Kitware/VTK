@@ -3,24 +3,40 @@
 #define __DICOM_CONFIG_H_
 
 //
-// Hack for now. Hook into CMake later.
+// CMake Hook
 //
-#define DICOM_HAS_ANSI_STREAMS
+#include "DICOMCMakeConfig.h"
 
-#ifdef DICOM_HAS_ANSI_STREAMS
-  #define dicomstd std
+//
+// BEGIN Toolkit (ITK,VTK, etc) specific
+// 
+#ifdef vtkDICOMParser_EXPORTS
+  #define DICOM_EXPORT_SYMBOLS
+#endif
+//
+// END toolkit (ITK, VTK, etc) specific
+//
+
+#ifdef DICOM_ANSI_STDLIB
+  #define dicom_stream std
+  #define dicom_stl std
 #else
-  #define dicomstd 
+  #define dicom_stream 
+  #define dicom_stl std
+  #include <fstream.h>
+  #include <string.h>
 #endif
 
-#ifdef DICOM_BUILDING_DLL
-  #ifdef DICOM_EXPORT
+#ifdef DICOM_DLL
+  #ifdef DICOM_EXPORT_SYMBOLS
     #define DICOM_EXPORT __declspec(dllexport)
+    #define DICOM_EXPIMP_TEMPLATE 
   #else
     #define DICOM_EXPORT __declspec(dllimport)
+    #define DICOM_EXPIMP_TEMPLATE extern
   #endif
 #else
   #define DICOM_EXPORT 
 #endif
 
-#endif
+#endif // __DICOM_CONFIG_H_
