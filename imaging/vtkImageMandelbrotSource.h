@@ -68,8 +68,7 @@ public:
   void SetWholeExtent(int extent[6]);
   void SetWholeExtent(int minX, int maxX, int minY, int maxY, 
 			    int minZ, int maxZ);
-  void GetWholeExtent(int extent[6]);
-  int *GetWholeExtent() {return this->WholeExtent;}
+  vtkGetVector6Macro(WholeExtent,int);
   
   // Description:
   // Set the projection from  the 4D space (4 parameters / 2 imaginary numbers)

@@ -186,18 +186,6 @@ void vtkImageMandelbrotSource::SetWholeExtent(int minX, int maxX,
 
 
 //----------------------------------------------------------------------------
-void vtkImageMandelbrotSource::GetWholeExtent(int extent[6])
-{
-  int idx;
-  
-  for (idx = 0; idx < 6; ++idx)
-    {
-    extent[idx] = this->WholeExtent[idx];
-    }
-}
-
-
-//----------------------------------------------------------------------------
 void vtkImageMandelbrotSource::ExecuteInformation()
 {
   int idx, axis;
