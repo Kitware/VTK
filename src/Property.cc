@@ -15,6 +15,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include <stdlib.h>
 #include "Property.hh"
+#include "Renderer.hh"
+#include "RenderW.hh"
+#include "PropDev.hh"
 
 // Description:
 // Construct object with object color, ambient color, diffuse color,
@@ -52,8 +55,17 @@ vlProperty::vlProperty()
   this->Representation = VL_SURFACE;
   this->EdgeVisibility = 0;
   this->Backface = 0;
+  this->Device = NULL;
 }
 
+void vlProperty::Render(vlRenderer *ren)
+{
+  if (!this->Device)
+    {
+    this->Device = ren->GetRenderWindow()->MakeProperty();
+    }
+  this->Device->Render(this,ren);
+}
 
 // Description:
 // Set shading method to flat.

@@ -47,10 +47,11 @@ class vlActor : public vlObject
 
   // Description:
   // Specify the property object to control rendering surface properties.
-  vlSetObjectMacro(Property,vlProperty);
+  void SetProperty(vlProperty *lut);
+  void SetProperty(vlProperty& lut) {this->SetProperty(&lut);};
   // Description:
   // Get the property object that controls rendering surface properties.
-  vlGetObjectMacro(Property,vlProperty);
+  vlProperty *GetProperty();
 
   // Description:
   // Specify the Texture object to control rendering texture.
@@ -171,6 +172,7 @@ protected:
   int   Dragable;
   vlTransform Transform;
   float Bounds[6];
+  int SelfCreatedProperty;
 };
 
 #endif

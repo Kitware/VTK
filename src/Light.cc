@@ -16,6 +16,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <stdlib.h>
 #include <iostream.h>
 #include "Light.hh"
+#include "Renderer.hh"
+#include "RenderW.hh"
+#include "LgtDev.hh"
 
 // Description:
 // Create a light with focal point at origin and position=(0,0,1).
@@ -43,8 +46,17 @@ vlLight::vlLight()
   this->AttenuationValues[1] = 0;
   this->AttenuationValues[2] = 0;
   this->Exponent = 1;
+  this->Device = NULL;
 }
 
+void vlLight::Render(vlRenderer *ren,int light_index)
+{
+  if (!this->Device)
+    {
+    this->Device = ren->GetRenderWindow()->MakeLight();
+    }
+  this->Device->Render(this,ren,light_index);
+}
 
 void vlLight::PrintSelf(ostream& os, vlIndent indent)
 {
@@ -55,6 +67,15 @@ void vlLight::PrintSelf(ostream& os, vlIndent indent)
   os << indent << "Color: (" << this->Color[0] << ", " 
     << this->Color[1] << ", " << this->Color[2] << ")\n";
   os << indent << "Cone Angle: " << this->ConeAngle << "\n";
+  if ( this->Device )
+    {
+    os << indent << "Device:\n";
+    this->Device->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Device: (none)\n";
+    }
   os << indent << "Exponent: " << this->Exponent << "\n";
   os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
     << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";

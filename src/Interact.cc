@@ -108,7 +108,7 @@ void vlRenderWindowInteractor::HighlightActor(vlActor *actor)
   if ( ! this->OutlineActor )
     {
     // have to defer creation to get right type
-    this->OutlineActor = this->RenderWindow->MakeActor();
+    this->OutlineActor = new vlActor;
     this->OutlineActor->PickableOff();
     this->OutlineActor->DragableOff();
     this->OutlineActor->SetMapper(this->OutlineMapper);

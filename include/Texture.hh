@@ -32,6 +32,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "StrPts.hh"
 
 class vlRenderer;
+class vlTextureDevice;
 
 class vlTexture : public vlObject
 {
@@ -49,7 +50,7 @@ public:
   // Abstract interface to renderer. Each concrete subclass of vlTexture
   // will load its data into graphics system in response to this method
   // invocation.
-  virtual void Load(vlRenderer *ren) = 0;
+  virtual void Load(vlRenderer *ren);
 
   // Description:
   // Turn on/off the repetition of the texture map when the texture
@@ -73,6 +74,7 @@ protected:
   int   Repeat;
   int   Interpolate;
   vlStructuredPoints *Input;
+  vlTextureDevice *Device;
 };
 
 #endif

@@ -133,7 +133,7 @@ void vlRenderer::DoLights()
   if (!this->UpdateLights())
     {
     vlWarningMacro(<<"No lights are on, creating one.");
-    light1 = this->RenderWindow->MakeLight();
+    light1 = new vlLight;
     this->AddLights(light1);
     light1->SetPosition(this->ActiveCamera->GetPosition());
     light1->SetFocalPoint(this->ActiveCamera->GetFocalPoint());
@@ -150,7 +150,7 @@ void vlRenderer::DoCameras()
   if (!this->UpdateCameras())
     {
     vlWarningMacro(<< "No cameras are on, creating one.");
-    cam1 = this->RenderWindow->MakeCamera();
+    cam1 = new vlCamera;
     this->SetActiveCamera(cam1);
     this->ResetCamera();
     this->UpdateCameras();

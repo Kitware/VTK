@@ -25,6 +25,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 /* need for virtual function */
 class vlRenderer;
+class vlLightDevice;
 
 class vlLight : public vlObject
 {
@@ -37,7 +38,7 @@ public:
   // Abstract interface to renderer. Each concrete subclass of vlLight
   // will load its data into graphics system in response to this method
   // invocation.
-  virtual void Render(vlRenderer *ren,int light_index) = 0;
+  virtual void Render(vlRenderer *ren,int light_index);
 
   // Description:
   // Set the color of the light.
@@ -96,6 +97,7 @@ protected:
   float Exponent;
   float ConeAngle;
   float AttenuationValues[3];
+  vlLightDevice *Device;
 };
 
 #endif

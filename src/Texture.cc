@@ -15,6 +15,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include <stdlib.h>
 #include "Texture.hh"
+#include "Renderer.hh"
+#include "RenderW.hh"
+#include "TextDev.hh"
 
 // Description:
 // Construct object and initialize.
@@ -24,6 +27,16 @@ vlTexture::vlTexture()
   this->Interpolate = 0;
 
   this->Input = NULL;
+  this->Device = NULL;
+}
+
+void vlTexture::Load(vlRenderer *ren)
+{
+  if (!this->Device)
+    {
+    this->Device = ren->GetRenderWindow()->MakeTexture();
+    }
+  this->Device->Load(this,ren);
 }
 
 void vlTexture::PrintSelf(ostream& os, vlIndent indent)

@@ -50,10 +50,14 @@ vlActor::vlActor()
   this->Visibility = 1;
   this->Pickable   = 1;
   this->Dragable   = 1;
+  
+  this->SelfCreatedProperty = 0;
 }
 
 vlActor::~vlActor()
 {
+  if ( this->SelfCreatedProperty && this->Property != NULL) 
+    delete this->Property;
 }
 
 // Description:
@@ -62,6 +66,11 @@ vlActor::~vlActor()
 void vlActor::Render(vlRenderer *ren)
 {
   /* render the property */
+  if (!this->Property)
+    {
+    // force creation of a property
+    this->GetProperty();
+    }
   this->Property->Render(ren);
 
   /* render the texture */
@@ -70,6 +79,27 @@ void vlActor::Render(vlRenderer *ren)
   /* send a render to the modeller */
   this->Mapper->Render(ren);
 
+}
+
+void vlActor::SetProperty(vlProperty *lut)
+{
+  if ( this->Property != lut ) 
+    {
+    if ( this->SelfCreatedProperty ) delete this->Property;
+    this->SelfCreatedProperty = 0;
+    this->Property = lut;
+    this->Modified();
+    }
+}
+
+vlProperty *vlActor::GetProperty()
+{
+  if ( this->Property == NULL )
+    {
+    this->Property = new vlProperty;
+    this->SelfCreatedProperty = 1;
+    }
+  return this->Property;
 }
 
 // Description:

@@ -32,6 +32,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "StrPts.hh"
 
 class vlRenderer;
+class vlPropertyDevice;
 
 class vlProperty : public vlObject
 {
@@ -44,7 +45,7 @@ public:
   // Abstract interface to renderer. Each concrete subclass of vlProperty
   // will load its data into graphics system in response to this method
   // invocation.
-  virtual void Render(vlRenderer *ren) = 0;
+  virtual void Render(vlRenderer *ren);
 
   void SetFlat (void);
   void SetGouraud (void);
@@ -133,6 +134,7 @@ protected:
   int   Representation;
   int   EdgeVisibility;
   int   Backface;
+  vlPropertyDevice *Device;
 };
 
 #endif
