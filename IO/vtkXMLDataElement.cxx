@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.7");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.8");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -142,6 +142,11 @@ void vtkXMLDataElement::SetAttribute(const char *name, const char *value)
 //----------------------------------------------------------------------------
 void vtkXMLDataElement::AddNestedElement(vtkXMLDataElement* element)
 {
+  if (!element)
+    {
+    return;
+    }
+  
   if(this->NumberOfNestedElements == this->NestedElementsSize)
     {
     int i;
@@ -165,6 +170,11 @@ void vtkXMLDataElement::AddNestedElement(vtkXMLDataElement* element)
 //----------------------------------------------------------------------------
 const char* vtkXMLDataElement::GetAttribute(const char* name)
 {
+  if (!name)
+    {
+    return 0;
+    }
+
   int i;
   for(i=0; i < this->NumberOfAttributes;++i)
     {
@@ -234,7 +244,7 @@ int vtkXMLDataElement::GetNumberOfNestedElements()
 //----------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::GetNestedElement(int index)
 {
-  if(index < this->NumberOfNestedElements)
+  if (index >=0 && index < this->NumberOfNestedElements)
     {
     return this->NestedElements[index];
     }
@@ -244,6 +254,11 @@ vtkXMLDataElement* vtkXMLDataElement::GetNestedElement(int index)
 //----------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithName(const char* name)
 {
+  if (!name)
+    {
+    return 0;
+    }
+
   int i;
   for(i=0;i < this->NumberOfNestedElements;++i)
     {
@@ -260,6 +275,11 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithName(const char* name
 vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithNameAndId(
   const char* name, const char* id)
 {
+  if (!name || !id)
+    {
+    return 0;
+    }
+
   int i;
   for(i=0;i < this->NumberOfNestedElements;++i)
     {
@@ -282,6 +302,11 @@ vtkXMLDataElement* vtkXMLDataElement::LookupElement(const char* id)
 //----------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::FindNestedElement(const char* id)
 {
+  if (!id)
+    {
+    return 0;
+    }
+
   int i;
   for(i=0;i < this->NumberOfNestedElements;++i)
     {
@@ -297,6 +322,11 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElement(const char* id)
 //----------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::LookupElementInScope(const char* id)
 {
+  if (!id)
+    {
+    return 0;
+    }
+
   // Pull off the first qualifier.
   const char* end = id;
   while(*end && (*end != '.')) ++end;
@@ -320,6 +350,11 @@ vtkXMLDataElement* vtkXMLDataElement::LookupElementInScope(const char* id)
 //----------------------------------------------------------------------------
 vtkXMLDataElement* vtkXMLDataElement::LookupElementUpScope(const char* id)
 {
+  if (!id)
+    {
+    return 0;
+    }
+
   // Pull off the first qualifier.
   const char* end = id;
   while(*end && (*end != '.')) ++end;
@@ -382,7 +417,7 @@ int vtkXMLDataElement::GetScalarAttribute(const char* name, vtkIdType& value)
 template <class T>
 int vtkXMLDataElementVectorAttributeParse(const char* str, int length, T* data)
 {
-  if(!str || !length) { return 0; }
+  if(!str || !length || !data) { return 0; }
   strstream vstr;
   vstr << str << ends;  
   int i;
@@ -628,7 +663,7 @@ void vtkXMLDataElement::SetScalarAttribute(const char* name, vtkIdType value)
 template <class T>
 void vtkXMLDataElementVectorAttributeSet(vtkXMLDataElement *elem, const char* name, int length, T* data)
 {
-  if (!name || !length) 
+  if (!elem || !name || !length) 
     { 
     return; 
     }
@@ -682,6 +717,11 @@ void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
 //----------------------------------------------------------------------------
 void vtkXMLDataElement::SeekInlineDataPosition(vtkXMLDataParser* parser)
 {
+  if (!parser)
+    {
+    return;
+    }
+
   istream* stream = parser->GetStream();
   if(!this->InlineDataPosition)
     {
