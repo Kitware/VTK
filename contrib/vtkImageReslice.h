@@ -95,7 +95,8 @@ public:
   vtkGetVectorMacro(OutputExtent, int, 6);
 
   void ComputeIndexMatrix(vtkMatrix4x4 *matrix);
-
+  int FindExtent(int& r1, int& r2, double *point, float *xAxis,
+		      int *inMin, int *inMax, int interpolate);
 protected:
   vtkTransform *ResliceTransform;
   int Interpolate;

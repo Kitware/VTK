@@ -384,7 +384,7 @@ static int isBounded(double *point, float *xAxis, int *inMin,
 
 // this huge mess finds out where the current output raster
 // line intersects the input volume 
-static int findExtent(int& r1, int& r2, double *point, float *xAxis, 
+int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis, 
 		      int *inMin, int *inMax, int interpolate)
 {
   int i, ix, iy, iz;
@@ -703,7 +703,7 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
 	}
       
       // find intersections of x raster line with the input extent
-      if (findExtent(r1,r2,inPoint1,xAxis,inMin,inMax,terpOffset) < 0)
+      if (self->FindExtent(r1,r2,inPoint1,xAxis,inMin,inMax,terpOffset) < 0)
 	{
 	i = r1;
 	r1 = r2;
