@@ -25,7 +25,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.26");
+vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.27");
 vtkStandardNewMacro(vtkInteractorStyleFlight);
 
 class CPIDControl
@@ -349,7 +349,7 @@ void vtkInteractorStyleFlight::OnKeyDown()
     case 'z':
     case 'Z'            : this->KeysDown |=32; break;
     }
-  if ((this->KeysDown & (32+16) == (32+16)))
+  if ((this->KeysDown & (32+16)) == (32+16))
     {
     if (this->State==VTKIS_FORWARDFLY)
       {
@@ -360,7 +360,7 @@ void vtkInteractorStyleFlight::OnKeyDown()
       this->EndReverseFly();
       }
     }
-  else if ((this->KeysDown & 32 == 32))
+  else if ((this->KeysDown & 32) == 32)
     {
     if (this->State==VTKIS_FORWARDFLY)
       {
@@ -368,7 +368,7 @@ void vtkInteractorStyleFlight::OnKeyDown()
       }
     this->StartReverseFly();
     }
-  else if ((this->KeysDown & 16 == 16))
+  else if ((this->KeysDown & 16) == 16)
     {
     if (this->State==VTKIS_REVERSEFLY)
       {
@@ -404,13 +404,13 @@ void vtkInteractorStyleFlight::OnKeyUp()
   switch (this->State)
     {
     case VTKIS_FORWARDFLY:
-      if (this->KeysDown & 16 == 0)
+      if ((this->KeysDown & 16) == 0)
         {
         this->EndForwardFly();
         }
       break;
     case VTKIS_REVERSEFLY:
-      if (this->KeysDown & 32 == 0)
+      if ((this->KeysDown & 32) == 0)
         {
         this->EndReverseFly();
         }
