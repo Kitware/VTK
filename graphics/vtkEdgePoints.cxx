@@ -58,8 +58,11 @@ void vtkEdgePoints::Execute()
   int cellId, above, below, ptId, i, numEdges, edgeId;
   vtkCell *cell, *edge;
   float range[2];
-  float s0, s1, x0[3], x1[3], x[3], r;
+  float s0, s1, x0[3], x1[3], x[3], t;
+  float e0Scalar, deltaScalar;
+  int e0, e1;
   int pts[1], p1, p2;
+  int estimatedSize;
   vtkDataSet *input = (vtkDataSet *)this->Input;
   vtkPolyData *output = this->GetOutput();
   vtkScalars cellScalars;
@@ -84,10 +87,14 @@ void vtkEdgePoints::Execute()
     return;
     }
 
+  estimatedSize = (int) (input->GetNumberOfCells () * .75);
+  estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
+  if (estimatedSize < 1024) estimatedSize = 1024;
+
   newPts = vtkPoints::New();
-  newPts->Allocate(5000,10000);
+  newPts->Allocate(estimatedSize, estimatedSize/2);
   newVerts = vtkCellArray::New();
-  newVerts->Allocate(5000,10000);
+  newVerts->Allocate(estimatedSize, estimatedSize/2);
 
   this->Locator.InitPointInsertion (newPts, input->GetBounds());
 
@@ -136,18 +143,33 @@ void vtkEdgePoints::Execute()
           if ( (s0 < this->Value && s1 >= this->Value) ||
           (s0 >= this->Value && s1 < this->Value) )
             {
-            edge->Points.GetPoint(0,x0);
-            edge->Points.GetPoint(1,x1);
-            r = (this->Value - s0) / (s1 - s0);
-            for (i=0; i<3; i++) x[i] = x0[i] + r * (x1[i] - x0[i]);
+	    deltaScalar = s1 - s0;
+	    if (deltaScalar > 0)
+	      {
+	      e0 = 0; e1 = 1;
+	      e0Scalar = s0;
+	      }
+	    else
+	      {
+	      e0 = 1; e1 = 0;
+	      e0Scalar = s1;
+	      deltaScalar = -deltaScalar;
+	      }
+
+	    t = (this->Value - e0Scalar) / deltaScalar;
+
+            edge->Points.GetPoint(e0,x0);
+            edge->Points.GetPoint(e1,x1);
+
+            for (i=0; i<3; i++) x[i] = x0[i] + t * (x1[i] - x0[i]);
             if ( (pts[0] = this->Locator.IsInsertedPoint(x)) < 0 )
               {
               pts[0] = this->Locator.InsertNextPoint(x);
               newVerts->InsertNextCell(1,pts);
 
-              p1 = edge->PointIds.GetId(0);
-              p2 = edge->PointIds.GetId(1);
-              outPd->InterpolateEdge(inPd,pts[0],p1,p2,r);
+              p1 = edge->PointIds.GetId(e0);
+              p2 = edge->PointIds.GetId(e1);
+              outPd->InterpolateEdge(inPd,pts[0],p1,p2,t);
               } //if point not created before
             } //if edge straddles contour value
           } //for each edge
