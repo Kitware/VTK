@@ -19,8 +19,15 @@
 #include "vtkPointData.h"
 #include "vtk_png.h"
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.22");
+vtkCxxRevisionMacro(vtkPNGReader, "1.23");
 vtkStandardNewMacro(vtkPNGReader);
+
+#ifdef _MSC_VER
+// Let us get rid of this funny warning on /W4:
+// warning C4611: interaction between '_setjmp' and C++ object 
+// destruction is non-portable
+#pragma warning( disable : 4611 )
+#endif 
 
 void vtkPNGReader::ExecuteInformation()
 {
@@ -369,6 +376,10 @@ int vtkPNGReader::CanReadFile(const char* fname)
   fclose(fp);
   return 3; 
 }
+#ifdef _MSC_VER
+// Put the warning back
+#pragma warning( default : 4611 )
+#endif 
 
 //----------------------------------------------------------------------------
 void vtkPNGReader::PrintSelf(ostream& os, vtkIndent indent)
