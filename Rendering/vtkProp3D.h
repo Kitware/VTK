@@ -74,7 +74,26 @@ public:
 
   // Description:
   // Set/Get/Add the position of the Prop3D in world coordinates.
-  vtkSetVector3Macro(Position,float);
+  virtual void SetPosition(float _arg1, float _arg2, float _arg3) 
+    { 
+      vtkDebugMacro(<< this->GetClassName() << " (" << this << 
+      "): setting Position to (" << _arg1 << "," << _arg2 << "," << 
+      _arg3 << ")"); 
+      if ((this->Position[0] != _arg1)||
+          (this->Position[1] != _arg2)||
+          (this->Position[2] != _arg3)) 
+        { 
+        this->Position[0] = _arg1; 
+        this->Position[1] = _arg2; 
+        this->Position[2] = _arg3; 
+        this->Modified(); 
+        this->IsIdentity = 0;
+        } 
+    }; 
+  virtual void SetPosition (float _arg[3]) 
+    { 
+      this->SetPosition (_arg[0], _arg[1], _arg[2]);
+    } 
   vtkGetVectorMacro(Position,float,3);
   void AddPosition(float deltaPosition[3]);
   void AddPosition(float deltaX,float deltaY,float deltaZ);
@@ -82,13 +101,51 @@ public:
   // Description:
   // Set/Get the origin of the Prop3D. This is the point about which all 
   // rotations take place.
-  vtkSetVector3Macro(Origin,float);
+  virtual void SetOrigin(float _arg1, float _arg2, float _arg3) 
+    { 
+      vtkDebugMacro(<< this->GetClassName() << " (" << this << 
+      "): setting Origin to (" << _arg1 << "," << _arg2 << "," << 
+      _arg3 << ")"); 
+      if ((this->Origin[0] != _arg1)||
+          (this->Origin[1] != _arg2)||
+          (this->Origin[2] != _arg3)) 
+        { 
+        this->Origin[0] = _arg1; 
+        this->Origin[1] = _arg2; 
+        this->Origin[2] = _arg3; 
+        this->Modified(); 
+        this->IsIdentity = 0;
+        } 
+    }; 
+  virtual void SetOrigin(float _arg[3]) 
+    { 
+      this->SetOrigin (_arg[0], _arg[1], _arg[2]);
+    } 
   vtkGetVectorMacro(Origin,float,3);
 
   // Description:
   // Set/Get the scale of the actor. Scaling in performed independently on the
   // X, Y and Z axis. A scale of zero is illegal and will be replaced with one.
-  vtkSetVector3Macro(Scale,float);
+  virtual void SetScale(float _arg1, float _arg2, float _arg3) 
+    { 
+      vtkDebugMacro(<< this->GetClassName() << " (" << this << 
+      "): setting Scale to (" << _arg1 << "," << _arg2 << "," << 
+      _arg3 << ")"); 
+      if ((this->Scale[0] != _arg1)||
+          (this->Scale[1] != _arg2)||
+          (this->Scale[2] != _arg3)) 
+        { 
+        this->Scale[0] = _arg1; 
+        this->Scale[1] = _arg2; 
+        this->Scale[2] = _arg3; 
+        this->Modified(); 
+        this->IsIdentity = 0;
+        } 
+    }; 
+  virtual void SetScale (float _arg[3]) 
+    { 
+      this->SetScale (_arg[0], _arg[1], _arg[2]);
+    } 
   vtkGetVectorMacro(Scale,float,3);
 
   // Description:
