@@ -29,8 +29,8 @@ vlRenderWindowInteractor::vlRenderWindowInteractor()
   this->LightFollowCamera = 1;
   this->Initialized = 0;
 
-  this->Picker = this->CreateDefaultPicker();
   this->SelfCreatedPicker = 0;
+  this->Picker = this->CreateDefaultPicker();
   this->OutlineActor = NULL;
   this->OutlineMapper.SetInput(this->Outline);
   this->PickedRenderer = NULL;
