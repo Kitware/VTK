@@ -340,9 +340,6 @@ OPTION(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids" OFF)
 OPTION(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
 MARK_AS_ADVANCED(VTK_DEBUG_LEAKS VTK_USE_64BIT_IDS)
 
-# Temporary line to get GL2PS tested on the Dashboards
-SET (VTK_USE_GL2PS ON CACHE BOOL "Build VTK with gl2ps support." FORCE)
-
 VTK_DEPENDENT_OPTION(VTK_USE_MANGLED_MESA "Use mangled Mesa with OpenGL." OFF
                      "VTK_USE_RENDERING" OFF)
 VTK_DEPENDENT_OPTION(VTK_OPENGL_HAS_OSMESA
