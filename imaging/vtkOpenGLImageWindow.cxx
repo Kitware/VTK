@@ -149,6 +149,10 @@ void vtkOpenGLImageWindow::Render()
     {
     this->MakeCurrent();
     }
+  if (this->DoubleBuffer)
+    {
+    glDrawBuffer(GL_BACK);
+    }
   this->vtkImageWindow::Render();
 }
 

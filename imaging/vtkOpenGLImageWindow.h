@@ -106,6 +106,10 @@ public:
   // Make this windows OpenGL context the current context.
   void MakeCurrent();
 
+  // Description:
+  // Erase the window contents 
+  virtual void EraseWindow() {this->vtkImageWindow::EraseWindow();};
+
   GLXContext ContextId;
 
 protected:
