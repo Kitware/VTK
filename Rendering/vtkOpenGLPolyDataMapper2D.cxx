@@ -29,7 +29,7 @@
 #include "vtkgluPickMatrix.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.34");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.35");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -160,7 +160,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   glColor4ubv(color);
 
   // push a 2D matrix on the stack
-  glMatrixMode( GL_PROJECTION);
+  glMatrixMode( GL_PROJECTION );
   glPushMatrix();
   glLoadIdentity();
   if(viewport->GetIsPicking())
@@ -173,8 +173,13 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   glPushMatrix();
   glLoadIdentity();
 
-  glDisable(GL_TEXTURE_2D);
-  glDisable( GL_LIGHTING);
+  glDisable( GL_TEXTURE_2D );
+  glDisable( GL_LIGHTING );
+  
+  // Assume we want to do Zbuffering for now.
+  // we may turn this off later
+  glDepthMask(GL_TRUE);
+
   int *winSize = viewport->GetVTKWindow()->GetSize();
   
   int xoff = static_cast<int>(actorPos[0] - (visVP[0] - vport[0])*
@@ -187,6 +192,18 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
     {
     glOrtho(-xoff,-xoff + size[0],
             -yoff, -yoff +size[1], 0, 1);
+    
+    // add this check here for GL_SELECT mode
+    // If we are not picking, then don't write to the zbuffer
+    // since we are writing an overlay. This will allow us to put 
+    // up translucent overlays and still have intermixed geometry
+    // work with volume rendering behind it. 
+    GLint param[1];
+    glGetIntegerv(GL_RENDER_MODE, param);
+    if(param[0] != GL_SELECT )
+      {
+      glDepthMask(GL_FALSE);
+      }
     }  
   else
     {
@@ -332,6 +349,9 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   glMatrixMode( GL_MODELVIEW);
   glPopMatrix();
   glEnable( GL_LIGHTING);
+  
+  // Turn it back on in case we've turned it off
+  glDepthMask( GL_TRUE );
 }
 
 
