@@ -161,44 +161,50 @@ vtkActor2DCollection *vtkViewport::GetActors2D()
 // Convert display coordinates to view coordinates.
 void vtkViewport::DisplayToView()
 {
-  float vx,vy,vz;
-  int sizex,sizey;
-  int *size;
-  
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
-  sizex = size[0];
-  sizey = size[1];
+  if ( this->VTKWindow )
+    {
+    float vx,vy,vz;
+    int sizex,sizey;
+    int *size;
 
-  vx = 2.0 * (this->DisplayPoint[0] - sizex*this->Viewport[0])/ 
-    (sizex*(this->Viewport[2]-this->Viewport[0])) - 1.0;
-  vy = 2.0 * (this->DisplayPoint[1] - sizey*this->Viewport[1])/ 
-    (sizey*(this->Viewport[3]-this->Viewport[1])) - 1.0;
-  vz = this->DisplayPoint[2];
+    /* get physical window dimensions */
+    size = this->VTKWindow->GetSize();
+    sizex = size[0];
+    sizey = size[1];
 
-  this->SetViewPoint(vx*this->Aspect[0],vy*this->Aspect[1],vz);
+    vx = 2.0 * (this->DisplayPoint[0] - sizex*this->Viewport[0])/ 
+      (sizex*(this->Viewport[2]-this->Viewport[0])) - 1.0;
+    vy = 2.0 * (this->DisplayPoint[1] - sizey*this->Viewport[1])/ 
+      (sizey*(this->Viewport[3]-this->Viewport[1])) - 1.0;
+    vz = this->DisplayPoint[2];
+
+    this->SetViewPoint(vx*this->Aspect[0],vy*this->Aspect[1],vz);
+    }
 }
 
 // Convert view coordinates to display coordinates.
 void vtkViewport::ViewToDisplay()
 {
-  float dx,dy;
-  int sizex,sizey;
-  int *size;
-  
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
-  sizex = size[0];
-  sizey = size[1];
+  if ( this->VTKWindow )
+    {
+    float dx,dy;
+    int sizex,sizey;
+    int *size;
 
-  dx = (this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
-    (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
-      sizex*this->Viewport[0];
-  dy = (this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
-    (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
-      sizey*this->Viewport[1];
+    /* get physical window dimensions */
+    size = this->VTKWindow->GetSize();
+    sizex = size[0];
+    sizey = size[1];
 
-  this->SetDisplayPoint(dx,dy,this->ViewPoint[2]);
+    dx = (this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
+      (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
+        sizex*this->Viewport[0];
+    dy = (this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
+      (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
+        sizey*this->Viewport[1];
+
+    this->SetDisplayPoint(dx,dy,this->ViewPoint[2]);
+    }
 }
 
 // Convert view point coordinates to world coordinates.
@@ -245,11 +251,18 @@ int *vtkViewport::GetSize()
 // Return the origin of the viewport in display coordinates.
 int *vtkViewport::GetOrigin()
 {
-  int* winSize = this->VTKWindow->GetSize();
+  if ( this->VTKWindow )
+    {
+    int* winSize = this->VTKWindow->GetSize();
 
-  // Round the origin up a pixel
-  this->Origin[0] = (int) (this->Viewport[0] * (float) winSize[0] + 0.5);
-  this->Origin[1] = (int) (this->Viewport[1] * (float) winSize[1] + 0.5);
+    // Round the origin up a pixel
+    this->Origin[0] = (int) (this->Viewport[0] * (float) winSize[0] + 0.5);
+    this->Origin[1] = (int) (this->Viewport[1] * (float) winSize[1] + 0.5);
+    }
+  else
+    {
+    this->Origin[0] = this->Origin[1] = 0;
+    }
 
   return this->Origin;
 }
@@ -258,15 +271,22 @@ int *vtkViewport::GetOrigin()
 // Return the center of this Viewport in display coordinates.
 float *vtkViewport::GetCenter()
 {
-  int *size;
+  if ( this->VTKWindow )
+    {
+    int *size;
   
-  // get physical window dimensions 
-  size = this->GetVTKWindow()->GetSize();
+    // get physical window dimensions 
+    size = this->GetVTKWindow()->GetSize();
 
-  this->Center[0] = ((this->Viewport[2]+this->Viewport[0])
-		     /2.0*(float)size[0]);
-  this->Center[1] = ((this->Viewport[3]+this->Viewport[1])
-		     /2.0*(float)size[1]);
+    this->Center[0] = ((this->Viewport[2]+this->Viewport[0])
+                       /2.0*(float)size[0]);
+    this->Center[1] = ((this->Viewport[3]+this->Viewport[1])
+                       /2.0*(float)size[1]);
+    }
+  else
+    {
+    this->Center[0] = this->Center[1] = 0;
+    }
 
   return this->Center;
 }
@@ -274,17 +294,20 @@ float *vtkViewport::GetCenter()
 // Is a given display point in this Viewport's viewport.
 int vtkViewport::IsInViewport(int x,int y)
 {
-  int *size;
-  
-  // get physical window dimensions 
-  size = this->GetVTKWindow()->GetSize();
-
-  if ((this->Viewport[0]*size[0] <= x)&&
-      (this->Viewport[2]*size[0] >= x)&&
-      (this->Viewport[1]*size[1] <= y)&&
-      (this->Viewport[3]*size[1] >= y))
+  if ( this->VTKWindow )
     {
-    return 1;
+    int *size;
+  
+    // get physical window dimensions 
+    size = this->GetVTKWindow()->GetSize();
+
+    if ((this->Viewport[0]*size[0] <= x)&&
+        (this->Viewport[2]*size[0] >= x)&&
+        (this->Viewport[1]*size[1] <= y)&&
+        (this->Viewport[3]*size[1] >= y))
+      {
+      return 1;
+      }
     }
 
   return 0;
@@ -394,84 +417,101 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkViewport::LocalDisplayToDisplay(float &vtkNotUsed(u), float &v)
 {
-  int *size;
+  if ( this->VTKWindow )
+    {
+    int *size;
   
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
-  
-  v = size[1] - v - 1;
+    /* get physical window dimensions */
+    size = this->VTKWindow->GetSize();
+    
+    v = size[1] - v - 1;
+    }
 }
 
 void vtkViewport::DisplayToLocalDisplay(float &vtkNotUsed(u), float &v)
 {
-  int *size;
+  if ( this->VTKWindow )
+    {
+    int *size;
   
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
+    /* get physical window dimensions */
+    size = this->VTKWindow->GetSize();
   
-  v = size[1] - v - 1;
+    v = size[1] - v - 1;
+    }
 }
 
 void vtkViewport::DisplayToNormalizedDisplay(float &u, float &v)
 {
-  int *size;
-  float lowerLeft[2], upperRight[2];
+  if ( this->VTKWindow )
+    {
+    int *size;
+    float lowerLeft[2], upperRight[2];
   
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
+    /* get physical window dimensions */
+    size = this->VTKWindow->GetSize();
 
-  // determine the inclusive bounds of the viewport
-  // then find the corresponding pixel 
-  lowerLeft[0] = this->Viewport[0]*size[0];
-  lowerLeft[1] = this->Viewport[1]*size[1];
-  upperRight[0] = this->Viewport[2]*size[0];
-  upperRight[1] = this->Viewport[3]*size[1];
+    // determine the inclusive bounds of the viewport
+    // then find the corresponding pixel 
+    lowerLeft[0] = this->Viewport[0]*size[0];
+    lowerLeft[1] = this->Viewport[1]*size[1];
+    upperRight[0] = this->Viewport[2]*size[0];
+    upperRight[1] = this->Viewport[3]*size[1];
   
-  u = (u - lowerLeft[0])*(this->Viewport[2] - this->Viewport[0])/
-    (upperRight[0] - lowerLeft[0]) + this->Viewport[0];
-  v = (v - lowerLeft[1])*(this->Viewport[3] - this->Viewport[1])/
-    (upperRight[1] - lowerLeft[1]) + this->Viewport[1];
+    u = (u - lowerLeft[0])*(this->Viewport[2] - this->Viewport[0])/
+      (upperRight[0] - lowerLeft[0]) + this->Viewport[0];
+    v = (v - lowerLeft[1])*(this->Viewport[3] - this->Viewport[1])/
+      (upperRight[1] - lowerLeft[1]) + this->Viewport[1];
+    }
 }
 
 void vtkViewport::NormalizedDisplayToViewport(float &u, float &v)
 {
-  int *size;
-  float lowerLeft[2], upperRight[2];
+  if ( this->VTKWindow )
+    {
+    int *size;
+    float lowerLeft[2], upperRight[2];
   
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
+    /* get physical window dimensions */
+    size = this->VTKWindow->GetSize();
 
-  // determine the inclusive bounds of the viewport
-  // then find the corresponding pixel 
-  lowerLeft[0] = this->Viewport[0]*size[0];
-  lowerLeft[1] = this->Viewport[1]*size[1];
-  upperRight[0] = this->Viewport[2]*size[0];
-  upperRight[1] = this->Viewport[3]*size[1];
+    // determine the inclusive bounds of the viewport
+    // then find the corresponding pixel 
+    lowerLeft[0] = this->Viewport[0]*size[0];
+    lowerLeft[1] = this->Viewport[1]*size[1];
+    upperRight[0] = this->Viewport[2]*size[0];
+    upperRight[1] = this->Viewport[3]*size[1];
   
-  u = u - this->Viewport[0];
-  v = v - this->Viewport[1];
+    u = u - this->Viewport[0];
+    v = v - this->Viewport[1];
 
-  u = u * (upperRight[0] - lowerLeft[0])/(this->Viewport[2] - this->Viewport[0]);
-  v = v * (upperRight[1] - lowerLeft[1])/(this->Viewport[3] - this->Viewport[1]);
+    u = u * (upperRight[0] - lowerLeft[0]) /
+      (this->Viewport[2] - this->Viewport[0]);
+    v = v * (upperRight[1] - lowerLeft[1]) /
+      (this->Viewport[3] - this->Viewport[1]);
+    }
 }
 
 void vtkViewport::ViewportToNormalizedViewport(float &u, float &v)
 {
-  int *size;
-  float lowerLeft[2], upperRight[2];
-  
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
+  if ( this->VTKWindow )
+    {
+    int *size;
+    float lowerLeft[2], upperRight[2];
 
-  // determine the inclusive bounds of the viewport
-  // then find the corresponding pixel 
-  lowerLeft[0] = this->Viewport[0]*size[0];
-  lowerLeft[1] = this->Viewport[1]*size[1];
-  upperRight[0] = this->Viewport[2]*size[0];
-  upperRight[1] = this->Viewport[3]*size[1];
-  
-  u = u /(upperRight[0] - lowerLeft[0]);
-  v = v/(upperRight[1] - lowerLeft[1]);
+    /* get physical window dimensions */
+    size = this->VTKWindow->GetSize();
+
+    // determine the inclusive bounds of the viewport
+    // then find the corresponding pixel 
+    lowerLeft[0] = this->Viewport[0]*size[0];
+    lowerLeft[1] = this->Viewport[1]*size[1];
+    upperRight[0] = this->Viewport[2]*size[0];
+    upperRight[1] = this->Viewport[3]*size[1];
+
+    u = u /(upperRight[0] - lowerLeft[0]);
+    v = v/(upperRight[1] - lowerLeft[1]);
+    }
 }
 
 void vtkViewport::NormalizedViewportToView(float &x, float &y, float &vtkNotUsed(z))
@@ -482,65 +522,76 @@ void vtkViewport::NormalizedViewportToView(float &x, float &y, float &vtkNotUsed
 
 void vtkViewport::NormalizedDisplayToDisplay(float &u, float &v)
 {
-  int *size;
-  float lowerLeft[2], upperRight[2];
-  
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
+  if ( this->VTKWindow )
+    {
+    int *size;
+    float lowerLeft[2], upperRight[2];
 
-  // determine the inclusive bounds of the viewport
-  // then find the corresponding pixel 
-  lowerLeft[0] = this->Viewport[0]*size[0];
-  lowerLeft[1] = this->Viewport[1]*size[1];
-  upperRight[0] = this->Viewport[2]*size[0];
-  upperRight[1] = this->Viewport[3]*size[1];
-  
-  u = (u - this->Viewport[0])*(upperRight[0] - lowerLeft[0])/
-    (this->Viewport[2] - this->Viewport[0]) + lowerLeft[0];
-  v = (v - this->Viewport[1])*(upperRight[1] - lowerLeft[1])/
-    (this->Viewport[3] - this->Viewport[1]) + lowerLeft[1];
+    /* get physical window dimensions */
+    size = this->VTKWindow->GetSize();
+
+    // determine the inclusive bounds of the viewport
+    // then find the corresponding pixel 
+    lowerLeft[0] = this->Viewport[0]*size[0];
+    lowerLeft[1] = this->Viewport[1]*size[1];
+    upperRight[0] = this->Viewport[2]*size[0];
+    upperRight[1] = this->Viewport[3]*size[1];
+
+    u = (u - this->Viewport[0])*(upperRight[0] - lowerLeft[0])/
+      (this->Viewport[2] - this->Viewport[0]) + lowerLeft[0];
+    v = (v - this->Viewport[1])*(upperRight[1] - lowerLeft[1])/
+      (this->Viewport[3] - this->Viewport[1]) + lowerLeft[1];
+    }
 }
 
   
 void vtkViewport::ViewportToNormalizedDisplay(float &u, float &v)
 {
-  int *size;
-  float lowerLeft[2], upperRight[2];
-  
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
+  if ( this->VTKWindow )
+    {
+    int *size;
+    float lowerLeft[2], upperRight[2];
 
-  // determine the inclusive bounds of the viewport
-  // then find the corresponding pixel 
-  lowerLeft[0] = this->Viewport[0]*size[0];
-  lowerLeft[1] = this->Viewport[1]*size[1];
-  upperRight[0] = this->Viewport[2]*size[0];
-  upperRight[1] = this->Viewport[3]*size[1];
+    /* get physical window dimensions */
+    size = this->VTKWindow->GetSize();
 
-  u = u*(this->Viewport[2] - this->Viewport[0])/(upperRight[0] - lowerLeft[0]);
-  v = v*(this->Viewport[3] - this->Viewport[1])/(upperRight[1] - lowerLeft[1]);
-  
-  u = u + this->Viewport[0];
-  v = v + this->Viewport[1];
+    // determine the inclusive bounds of the viewport
+    // then find the corresponding pixel 
+    lowerLeft[0] = this->Viewport[0]*size[0];
+    lowerLeft[1] = this->Viewport[1]*size[1];
+    upperRight[0] = this->Viewport[2]*size[0];
+    upperRight[1] = this->Viewport[3]*size[1];
+
+    u = u*(this->Viewport[2] - this->Viewport[0]) /
+      (upperRight[0] - lowerLeft[0]);
+    v = v*(this->Viewport[3] - this->Viewport[1]) /
+      (upperRight[1] - lowerLeft[1]);
+
+    u = u + this->Viewport[0];
+    v = v + this->Viewport[1];
+    }
 }
 
 void vtkViewport::NormalizedViewportToViewport(float &u, float &v)
 {
-  int *size;
-  float lowerLeft[2], upperRight[2];
-  
-  /* get physical window dimensions */
-  size = this->VTKWindow->GetSize();
+  if ( this->VTKWindow )
+    {
+    int *size;
+    float lowerLeft[2], upperRight[2];
 
-  // determine the inclusive bounds of the viewport
-  // then find the corresponding pixel 
-  lowerLeft[0] = this->Viewport[0]*size[0];
-  lowerLeft[1] = this->Viewport[1]*size[1];
-  upperRight[0] = this->Viewport[2]*size[0];
-  upperRight[1] = this->Viewport[3]*size[1];
-  
-  u = u*(upperRight[0] - lowerLeft[0]);
-  v = v*(upperRight[1] - lowerLeft[1]);
+    /* get physical window dimensions */
+    size = this->VTKWindow->GetSize();
+
+    // determine the inclusive bounds of the viewport
+    // then find the corresponding pixel 
+    lowerLeft[0] = this->Viewport[0]*size[0];
+    lowerLeft[1] = this->Viewport[1]*size[1];
+    upperRight[0] = this->Viewport[2]*size[0];
+    upperRight[1] = this->Viewport[3]*size[1];
+
+    u = u*(upperRight[0] - lowerLeft[0]);
+    v = v*(upperRight[1] - lowerLeft[1]);
+    }
 }
 
 void vtkViewport::ViewToNormalizedViewport(float &x, float &y, float &vtkNotUsed(z))
@@ -551,27 +602,30 @@ void vtkViewport::ViewToNormalizedViewport(float &x, float &y, float &vtkNotUsed
 
 void vtkViewport::ComputeAspect()
 {
-  float aspect[2];
-  float *vport;
-  int  *size, lowerLeft[2], upperRight[2];
-  
-  // get the bounds of the window 
-  size = this->VTKWindow->GetSize();
-  
-  vport = this->GetViewport();
+  if ( this->VTKWindow )
+    {
+    float aspect[2];
+    float *vport;
+    int  *size, lowerLeft[2], upperRight[2];
 
-  lowerLeft[0] = (int)(vport[0]*size[0] + 0.5);
-  lowerLeft[1] = (int)(vport[1]*size[1] + 0.5);
-  upperRight[0] = (int)(vport[2]*size[0] + 0.5);
-  upperRight[1] = (int)(vport[3]*size[1] + 0.5);
-  upperRight[0]--;
-  upperRight[1]--;
+    // get the bounds of the window 
+    size = this->VTKWindow->GetSize();
 
-  aspect[0] = (float)(upperRight[0]-lowerLeft[0]+1)/
-    (float)(upperRight[1]-lowerLeft[1]+1);
-  aspect[1] = 1.0;
-  
-  this->SetAspect(aspect);
+    vport = this->GetViewport();
+
+    lowerLeft[0] = (int)(vport[0]*size[0] + 0.5);
+    lowerLeft[1] = (int)(vport[1]*size[1] + 0.5);
+    upperRight[0] = (int)(vport[2]*size[0] + 0.5);
+    upperRight[1] = (int)(vport[3]*size[1] + 0.5);
+    upperRight[0]--;
+    upperRight[1]--;
+
+    aspect[0] = (float)(upperRight[0]-lowerLeft[0]+1)/
+      (float)(upperRight[1]-lowerLeft[1]+1);
+    aspect[1] = 1.0;
+
+    this->SetAspect(aspect);
+    }
 }
 
 
