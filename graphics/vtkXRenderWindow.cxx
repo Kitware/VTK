@@ -288,12 +288,14 @@ void vtkXRenderWindow::SetWindowName(char * name)
     {
     if( XStringListToTextProperty( &name, 1, &win_name_text_prop ) == 0 )
       {
+      XFree (win_name_text_prop.value);
       vtkWarningMacro(<< "Can't rename window"); 
       return;
       }
     
     XSetWMName( this->DisplayId, this->WindowId, &win_name_text_prop );
     XSetWMIconName( this->DisplayId, this->WindowId, &win_name_text_prop );
+    XFree (win_name_text_prop.value);
     }
 }
 
