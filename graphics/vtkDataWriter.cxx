@@ -237,7 +237,7 @@ int vtkDataWriter::WriteHeader(ostream *fp)
 {
   vtkDebugMacro(<<"Writing header...");
 
-  *fp << "# vtk DataFile Version 2.0\n"; 
+  *fp << "# vtk DataFile Version 3.0\n"; 
   *fp << this->Header << "\n";
 
   if ( this->FileType == VTK_ASCII )
@@ -667,7 +667,15 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkScalars *scalars, int num)
     {
     char format[1024];
     *fp << "SCALARS ";
-    sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n",this->ScalarsName, numComp, name);
+    if (numComp == 1) 
+      {
+      sprintf(format,"%s %%s\nLOOKUP_TABLE %s\n",this->ScalarsName, name);
+      } 
+    else 
+      {
+      sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n",
+              this->ScalarsName, numComp, name);
+      }
     if (this->WriteArray(fp, scalars->GetDataType(), scalars->GetData(), format, num, numComp) == 0)
       {
       return 0;
