@@ -809,7 +809,7 @@ gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 #define SKEW(r,g,b,skew)        { r += skew; g += skew; b += skew; }
 #define SKEW4(r,g,b,a,skew)     { r += skew; g += skew; b += skew; a+= skew; }
 
-#define A1 ((uint32)(0xffL<<24))
+#define A1 ((uint32)(0xff000000))
 #define PACK(r,g,b)     \
         ((uint32)(r)|(uint32)((g)<<8)|(uint32)((b)<<16)|A1)
 #define PACK4(r,g,b,a)  \
