@@ -115,9 +115,9 @@ void vtkStructuredGridWriter::WriteBlanking(ostream *fp, vtkStructuredGrid *grid
 {
   vtkUnsignedCharArray *blanking=grid->GetPointVisibility();
   
-  *fp << "BLANKING ";
   int numPts = grid->GetNumberOfPoints();
-  WriteArray(fp, VTK_UNSIGNED_CHAR, blanking, "%s\n", numPts, 1);
+  *fp << "BLANKING " << numPts;
+  WriteArray(fp, VTK_UNSIGNED_CHAR, blanking, " %s\n", numPts, 1);
 }
 
 
