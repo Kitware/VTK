@@ -28,6 +28,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkPolyData.h"
+#include "vtkActor.h"
+#include "vtkRenderer.h"
 
 int main( int argc, char *argv[] )
 {

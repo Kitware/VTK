@@ -27,6 +27,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 static HANDLE hinst; 
 long FAR PASCAL WndProc(HWND, UINT, UINT, LONG);
