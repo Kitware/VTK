@@ -41,7 +41,7 @@ class VTK_PARALLEL_EXPORT vtkSubGroup : public vtkObject
 public:
 
   vtkTypeRevisionMacro(vtkSubGroup, vtkSubGroup);
-
+  virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkSubGroup *New();
 
 //BTX
@@ -88,7 +88,6 @@ public:
   int tag;
 
 protected:
-
   vtkSubGroup();
   ~vtkSubGroup();
   
@@ -121,6 +120,10 @@ private:
   int myLocalRank;
   
   vtkCommunicator *comm;
+
+private:
+  vtkSubGroup(const vtkSubGroup&); // Not implemented
+  void operator=(const vtkSubGroup&); // Not implemented
 
 };
 #endif
