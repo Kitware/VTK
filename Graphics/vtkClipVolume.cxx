@@ -33,7 +33,7 @@
 #include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.59");
+vtkCxxRevisionMacro(vtkClipVolume, "1.60");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -285,6 +285,10 @@ void vtkClipVolume::Execute()
         cellId = i + j*numICells + k*sliceSize;
         
         input->GetCell(cellId,cell);
+        if ( cell->GetCellType() == VTK_EMPTY_CELL )
+          {
+          continue;
+          }
         cellPts = cell->GetPoints();
         cellIds = cell->GetPointIds();
 
