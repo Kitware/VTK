@@ -68,6 +68,7 @@ EXAMPLES = VisQuad \
 	probe \
 	quadricCut \
 	singleSplat \
+	spCellData \
 	stCone \
 	tcutSph \
 	vtkLogo \
