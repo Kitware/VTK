@@ -1,3 +1,4 @@
+#include "vtk_jpeg_mangle.h"
 /*
  * jinclude.h
  *

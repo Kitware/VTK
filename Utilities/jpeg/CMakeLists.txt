@@ -1,6 +1,6 @@
 PROJECT(VTKJPEG)
 
-INCLUDE_REGULAR_EXPRESSION("^(jchuff|jconfig|jdct|jdhuff|jerror|jinclude|jmemsys|jmorecfg|jpegint|jpeglib|jversion|jpeg).*$")
+INCLUDE_REGULAR_EXPRESSION("^(jchuff|jconfig|jdct|jdhuff|jerror|jinclude|jmemsys|jmorecfg|jpegint|jpeglib|jversion|jpeg|vtk).*$")
 
 INCLUDE_DIRECTORIES(${VTKJPEG_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${VTKJPEG_BINARY_DIR})
