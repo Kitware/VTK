@@ -58,8 +58,8 @@ PYTHON_LIBS = @USE_PATENTED_GRAPHICS_LIBS@ -L../common -lVTKCommonPython ${XLIBS
 @USE_PATENTED_GRAPHICS_PYTHON_TARGET@
 @USE_PATENTED_GRAPHICS_TCL_TARGET@
 
-../graphics/libVTKGraphics${VTK_LIB_EXT} :
-	cd ../graphics ; ${MAKE} libVTKGraphics${VTK_LIB_EXT}
+../graphics/libVTKGraphics${SHLIB_SUFFIX} :
+	cd ../graphics ; ${MAKE} libVTKGraphics${SHLIB_SUFFIX}
 
 #------------------------------------------------------------------------------
 # Include the generic stuff here
