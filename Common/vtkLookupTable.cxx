@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLookupTable, "1.89");
+vtkCxxRevisionMacro(vtkLookupTable, "1.90");
 vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -1000,8 +1000,8 @@ void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "TableRange: (" << this->TableRange[0] << ", "
      << this->TableRange[1] << ")\n";
-  os << indent << "Scale: " 
-     << (this->Scale == VTK_SCALE_LOG10 ? "Log10\n" : "Linear\n");    
+  os << indent << "Scale: "
+     << (this->Scale == VTK_SCALE_LOG10 ? "Log10\n" : "Linear\n");
   os << indent << "HueRange: (" << this->HueRange[0] << ", "
      << this->HueRange[1] << ")\n";
   os << indent << "SaturationRange: (" << this->SaturationRange[0] << ", "
@@ -1010,13 +1010,37 @@ void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
      << this->ValueRange[1] << ")\n";
   os << indent << "AlphaRange: (" << this->AlphaRange[0] << ", "
      << this->AlphaRange[1] << ")\n";
-  os << indent << "NumberOfTableValues: " 
+  os << indent << "NumberOfTableValues: "
      << this->GetNumberOfTableValues() << "\n";
   os << indent << "NumberOfColors: " << this->NumberOfColors << "\n";
   os << indent << "Ramp: "
-     << (this->Ramp == VTK_RAMP_SCURVE ? "SCurve\n" : "Linear\n");  
+     << (this->Ramp == VTK_RAMP_SCURVE ? "SCurve\n" : "Linear\n");
   os << indent << "InsertTime: " <<this->InsertTime.GetMTime() << "\n";
   os << indent << "BuildTime: " <<this->BuildTime.GetMTime() << "\n";
 }
 
+void vtkLookupTable::DeepCopy(vtkLookupTable *lut)
+{
+  if (!lut)
+    {
+    return;
+    }
+  this->Alpha               = lut->Alpha;
+  this->VectorMode          = lut->VectorMode;
+  this->VectorComponent     = lut->VectorMode;
+  this->Scale               = lut->Scale;
+  this->TableRange[0]       = lut->TableRange[0];
+  this->TableRange[1]       = lut->TableRange[1];
+  this->HueRange[0]         = lut->HueRange[0];
+  this->HueRange[1]         = lut->HueRange[1];
+  this->SaturationRange[0]  = lut->SaturationRange[0];
+  this->SaturationRange[1]  = lut->SaturationRange[1];
+  this->ValueRange[0]       = lut->ValueRange[0];
+  this->ValueRange[1]       = lut->ValueRange[1];
+  this->AlphaRange[0]       = lut->AlphaRange[0];
+  this->AlphaRange[1]       = lut->AlphaRange[1];
+  this->NumberOfColors      = lut->NumberOfColors;
+  this->Ramp                = lut->Ramp;
+  this->Table->DeepCopy(lut->Table);
+}
 

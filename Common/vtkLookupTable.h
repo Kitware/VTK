@@ -201,6 +201,10 @@ public:
                                int inputDataType, int numberOfValues,
                                int inputIncrement, int outputIncrement);
 
+  // Description:
+  // Copy the contents from another LookupTable
+  void DeepCopy(vtkLookupTable *lut);
+
 protected:
   vtkLookupTable(int sze=256, int ext=256);
   ~vtkLookupTable();
