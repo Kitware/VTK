@@ -102,7 +102,7 @@ vtkDataWriter::vtkDataWriter()
   this->TensorsName = new char[8];
   strcpy(this->TensorsName,"tensors");
 
-  this->GhostLevelsName = new char[11];
+  this->GhostLevelsName = new char[12];
   strcpy(this->GhostLevelsName, "ghostLevels");
   
   this->NormalsName = new char[8];
