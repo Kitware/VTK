@@ -85,6 +85,27 @@ public:
   vtkSetVector4Macro(Viewport,float);
   vtkGetVectorMacro(Viewport,float,4);
 
+  // Description:
+  // Set/get a point location in display (or screen) coordinates.
+  // The lower left corner of the window is the origin and y increases
+  // as you go up the screen.
+  vtkSetVector3Macro(DisplayPoint,float);
+  vtkGetVectorMacro(DisplayPoint,float,3);
+
+  // Description:
+  // Specify a point location in view coordinates. The origin is in the 
+  // middle of the viewport and it extends from -1 to 1 in all three
+  // dimensions.
+  vtkSetVector3Macro(ViewPoint,float);
+  vtkGetVectorMacro(ViewPoint,float,3);
+
+  // Description:
+  // Specify a point location in world coordinates. This method takes 
+  // homogeneous coordinates. 
+  vtkSetVector4Macro(WorldPoint,float);
+  vtkGetVectorMacro(WorldPoint,float,4);
+
+
   virtual float *GetCenter();
   virtual int    IsInViewport(int x,int y); 
 
@@ -94,6 +115,19 @@ public:
   void SetEndRenderMethod(void (*f)(void *), void *arg);
   void SetStartRenderMethodArgDelete(void (*f)(void *));
   void SetEndRenderMethodArgDelete(void (*f)(void *));
+
+  virtual void DisplayToView(); // these get modified in subclasses
+  virtual void ViewToDisplay(); // to handle stereo rendering
+  virtual void WorldToView();
+  virtual void ViewToWorld();
+  virtual void DisplayToWorld();
+  virtual void WorldToDisplay();
+
+
+  // Description:
+  // Get the size and origin of the viewport in display coordinates
+  int *GetSize();
+  int *GetOrigin();
 
 protected:
   vtkWindow *VTKWindow;
@@ -107,8 +141,23 @@ protected:
   void (*EndRenderMethod)(void *);
   void (*EndRenderMethodArgDelete)(void *);
   void *EndRenderMethodArg;
+
+  int Size[2];
+  int Origin[2];
+  float DisplayPoint[3];
+  float ViewPoint[3];
+  float WorldPoint[4];
+
 };
 
+
 // Description:
+// Convert display (or screen) coordinates to world coordinates.
+inline void vtkViewport::DisplayToWorld() {DisplayToView(); ViewToWorld();};
+
+// Description:
+// Convert world point coordinates to display (or screen) coordinates.
+inline void vtkViewport::WorldToDisplay() {WorldToView(); ViewToDisplay();};
+
 
 #endif

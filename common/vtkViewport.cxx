@@ -59,6 +59,20 @@ vtkViewport::vtkViewport()
   this->Viewport[2] = 1;
   this->Viewport[3] = 1;
 
+
+  this->WorldPoint[0] = 0;
+  this->WorldPoint[1] = 0;
+  this->WorldPoint[2] = 0;
+  this->WorldPoint[3] = 0;
+
+  this->DisplayPoint[0] = 0;
+  this->DisplayPoint[1] = 0;
+  this->DisplayPoint[2] = 0;
+
+  this->ViewPoint[0] = 0;
+  this->ViewPoint[1] = 0;
+  this->ViewPoint[2] = 0;
+
   this->Aspect[0] = this->Aspect[1] = 1.0;
 
   this->StartRenderMethod = NULL;
@@ -67,6 +81,108 @@ vtkViewport::vtkViewport()
   this->EndRenderMethod = NULL;
   this->EndRenderMethodArgDelete = NULL;
   this->EndRenderMethodArg = NULL;
+
+  this->Size[0] = 0;
+  this->Size[1] = 0;
+
+  this->Origin[0] = 0;
+  this->Origin[1] = 0;
+
+}
+
+// Description:
+// Convert display coordinates to view coordinates.
+void vtkViewport::DisplayToView()
+{
+  float vx,vy,vz;
+  int sizex,sizey;
+  int *size;
+  
+  /* get physical window dimensions */
+  size = this->VTKWindow->GetSize();
+  sizex = size[0];
+  sizey = size[1];
+
+  vx = 2.0 * (this->DisplayPoint[0] - sizex*this->Viewport[0])/ 
+    (sizex*(this->Viewport[2]-this->Viewport[0])) - 1.0;
+  vy = 2.0 * (this->DisplayPoint[1] - sizey*this->Viewport[1])/ 
+    (sizey*(this->Viewport[3]-this->Viewport[1])) - 1.0;
+  vz = this->DisplayPoint[2];
+
+  this->SetViewPoint(vx*this->Aspect[0],vy*this->Aspect[1],vz);
+}
+
+// Description:
+// Convert view coordinates to display coordinates.
+void vtkViewport::ViewToDisplay()
+{
+  float dx,dy;
+  int sizex,sizey;
+  int *size;
+  
+  /* get physical window dimensions */
+  size = this->VTKWindow->GetSize();
+  sizex = size[0];
+  sizey = size[1];
+
+  dx = (this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
+    (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
+      sizex*this->Viewport[0];
+  dy = (this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
+    (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
+      sizey*this->Viewport[1];
+
+  this->SetDisplayPoint(dx,dy,this->ViewPoint[2]);
+}
+
+// Description:
+// Convert view point coordinates to world coordinates.
+void vtkViewport::ViewToWorld()
+{   
+  this->SetWorldPoint(this->ViewPoint[0], this->ViewPoint[1],
+		      this->ViewPoint[2], 1);
+}
+
+// Description:
+// Convert world point coordinates to view coordinates.
+void vtkViewport::WorldToView()
+{
+
+  this->SetViewPoint(this->WorldPoint[0], this->WorldPoint[1],
+		     this->WorldPoint[2]);
+
+}
+
+
+// Description:
+// Return the size of the viewport in display coordinates.
+int *vtkViewport::GetSize()
+{  
+  // Get the window size
+  int* winSize = this->VTKWindow->GetSize();
+
+  // Calculate a width and height for the viewport 
+  float vptWidth = this->Viewport[2] - this->Viewport[0];
+  float vptHeight = this->Viewport[3] - this->Viewport[1];
+
+  // Round the size up
+  this->Size[0] = (int) (vptWidth * (float) winSize[0] + 0.5);
+  this->Size[1] = (int) (vptHeight * (float) winSize[1] + 0.5);
+
+  return this->Size;
+}
+
+// Description:
+// Return the origin of the viewport in display coordinates.
+int *vtkViewport::GetOrigin()
+{
+  int* winSize = this->VTKWindow->GetSize();
+
+  // Round the origin up a pixel
+  this->Origin[0] = (int) (this->Viewport[0] * (float) winSize[0] + 0.5);
+  this->Origin[1] = (int) (this->Viewport[1] * (float) winSize[1] + 0.5);
+
+  return this->Origin;
 }
 
   
