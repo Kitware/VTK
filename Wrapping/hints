@@ -133,6 +133,7 @@ vtkRayCaster            GetParallelIncrements   301 2
 vtkRayCaster            GetParallelStartPosition 301 3
 vtkRectilinearGrid      GetPoint                301 3
 vtkRecursiveSphereDirectionEncoder GetDecodedGradient 301 3
+vtkRenderer		ComputeVisiblePropBounds    301 6
 vtkScalars              GetRange                301 2
 vtkScalarsToColors      GetColor                301 3
 vtkStreamer             GetStartPosition        301 3
