@@ -36,8 +36,8 @@ vtkImageMapToRGBA map1
 
 vtkImageViewer viewer
   viewer SetInput [map1 GetOutput]
-  viewer SetColorWindow 100.0
-  viewer SetColorLevel 50.0
+  viewer SetColorWindow 255.0
+  viewer SetColorLevel 127.5.0
   [viewer GetActor2D] SetPosition $XRAD $YRAD
 
 
