@@ -16,12 +16,14 @@
 
 #include "vtkCellArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.22");
+vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.23");
 vtkStandardNewMacro(vtkRuledSurfaceFilter);
 
 vtkRuledSurfaceFilter::vtkRuledSurfaceFilter()
@@ -44,13 +46,24 @@ vtkRuledSurfaceFilter::~vtkRuledSurfaceFilter()
   this->Ids->Delete();
 }
 
-void vtkRuledSurfaceFilter::Execute()
+int vtkRuledSurfaceFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *inPts, *newPts = NULL;
   vtkIdType i, numPts, numLines;
   vtkCellArray *inLines, *newPolys, *newStrips;
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
   vtkIdType *pts = 0;
   vtkIdType *pts2 = 0;
   vtkIdType npts = 0;
@@ -65,13 +78,13 @@ void vtkRuledSurfaceFilter::Execute()
   inLines = input->GetLines();
   if ( !inPts || !inLines)
     {
-    return;
+    return 0;
     }
   numLines=inLines->GetNumberOfCells();
   numPts = inPts->GetNumberOfPoints();
   if (numPts < 1 || numLines < 2 )
     {
-    return;
+    return 0;
     }
   
   if ( this->PassLines )
@@ -132,7 +145,7 @@ void vtkRuledSurfaceFilter::Execute()
       switch (this->RuledMode)
         {
         case VTK_RULED_MODE_RESAMPLE:
-          this->Resample(output, inPts, newPts, npts, pts, npts2, pts2);
+          this->Resample(output, input, inPts, newPts, npts, pts, npts2, pts2);
           break;
         case VTK_RULED_MODE_POINT_WALK:
           this->PointWalk(output, inPts, npts, pts, npts2, pts2);
@@ -155,10 +168,12 @@ void vtkRuledSurfaceFilter::Execute()
         }
       }//add far boundary of surface
     }//for all selected line pairs
+
+  return 1;
 }
 
-void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts, 
-                                      vtkPoints *newPts, 
+void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPolyData *input,
+                                      vtkPoints *inPts, vtkPoints *newPts, 
                                       int npts, vtkIdType *pts, 
                                       int npts2, vtkIdType *pts2)
 {
@@ -166,7 +181,7 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
   int i, j;
   double length, length2;
   vtkCellArray *newStrips;
-  vtkPointData *inPD=this->GetInput()->GetPointData();
+  vtkPointData *inPD=input->GetPointData();
   vtkPointData *outPD=output->GetPointData();
   double v, uu, vv;
   double s, t;

@@ -51,7 +51,7 @@
 #ifndef __vtkRuledSurfaceFilter_h
 #define __vtkRuledSurfaceFilter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkIdList;
 class vtkPoints;
@@ -60,10 +60,10 @@ class vtkPolyData;
 #define VTK_RULED_MODE_RESAMPLE 0
 #define VTK_RULED_MODE_POINT_WALK 1
 
-class VTK_GRAPHICS_EXPORT vtkRuledSurfaceFilter : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkRuledSurfaceFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkRuledSurfaceFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkRuledSurfaceFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -136,7 +136,7 @@ protected:
   ~vtkRuledSurfaceFilter();
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double DistanceFactor;
   int   OnRatio;
@@ -150,7 +150,8 @@ private:
   vtkIdList *Ids;
   double     Weights[4];
 
-  void  Resample(vtkPolyData *output, vtkPoints *inPts, vtkPoints *newPts, 
+  void  Resample(vtkPolyData *output, vtkPolyData *input,
+                 vtkPoints *inPts, vtkPoints *newPts, 
                  int npts, vtkIdType *pts, int npts2, vtkIdType *pts2);
   void  PointWalk(vtkPolyData *output, vtkPoints *inPts, 
                   int npts, vtkIdType *pts, int npts2, vtkIdType *pts2);
@@ -161,5 +162,3 @@ private:
 };
 
 #endif
-
-
