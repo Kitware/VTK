@@ -274,7 +274,7 @@ void vtkWin32OpenGLSetupPixelFormat(HDC hDC,int debug)
 }
 
 vtkWin32OpenGLRenderWindow *vtkWin32OpenGLRenderWindowPtr = NULL;
-vtkWin32OpenGLSetupPalette(HDC hDC, vtkWin32OpenGLRenderWindow *me)
+void vtkWin32OpenGLSetupPalette(HDC hDC, vtkWin32OpenGLRenderWindow *me)
 {
     int pixelFormat = GetPixelFormat(hDC);
     PIXELFORMATDESCRIPTOR pfd;
