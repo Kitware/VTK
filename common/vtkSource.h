@@ -63,6 +63,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // possible to specify a function to delete the argument via 
 // StartMethodArgDelete and EndMethodArgDelete.
 //
+// Another method, ProgressMethod can be specified. Some filters invoke this method
+// periodically during their execution. The use is similar to that of the Start and End Methods.
+//
 // An important feature of subclasses of vtkSource is that it is possible 
 // to control the memory-management model (i.e., retain output versus delete
 // output data). If enabled the ReleaseDataFlag enables the deletion of the
@@ -94,9 +97,23 @@ public:
   virtual void Update();
 
   void SetStartMethod(void (*f)(void *), void *arg);
+  void SetProgressMethod(void (*f)(void *), void *arg);
   void SetEndMethod(void (*f)(void *), void *arg);
   void SetStartMethodArgDelete(void (*f)(void *));
+  void SetProgressMethodArgDelete(void (*f)(void *));
   void SetEndMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // Set/Get the AbortExecute flag for the filter. It's up to the filter writer
+  // to handle premature ending of a filter
+  vtkSetMacro(AbortExecute,int);
+  vtkGetMacro(AbortExecute,int);
+  vtkBooleanMacro(AbortExecute,int);
+
+  // Description:
+  // Specify progress of a filter.
+  vtkSetClampMacro(Progress,float,0.0,1.0);
+  vtkGetMacro(Progress,float);
 
   // Description:
   // Turn on/off flag to control whether this object's data is released
@@ -112,14 +129,24 @@ public:
   virtual int GetDataReleased();
   virtual void SetDataReleased(int flag);
 
+  // Description:
+  // Update the progress of a filter. If a ProgressMEthod, exists, executes it. Then sets
+  // the Progress ivar to amount.
+  void UpdateProgress(float amount);
+
 protected:
   virtual void Execute();
   void (*StartMethod)(void *);
   void (*StartMethodArgDelete)(void *);
   void *StartMethodArg;
+  void (*ProgressMethod)(void *);
+  void *ProgressMethodArg;
+  void (*ProgressMethodArgDelete)(void *);
   void (*EndMethod)(void *);
   void (*EndMethodArgDelete)(void *);
   void *EndMethodArg;
+  float Progress;
+  int AbortExecute;
   vtkTimeStamp ExecuteTime;
   vtkDataSet *Output;
 };

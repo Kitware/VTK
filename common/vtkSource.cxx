@@ -50,9 +50,14 @@ vtkSource::vtkSource()
   this->StartMethod = NULL;
   this->StartMethodArgDelete = NULL;
   this->StartMethodArg = NULL;
+  this->ProgressMethod = NULL;
+  this->ProgressMethodArgDelete = NULL;
+  this->ProgressMethodArg = NULL;
   this->EndMethod = NULL;
   this->EndMethodArgDelete = NULL;
   this->EndMethodArg = NULL;
+  this->AbortExecute = 0;
+  this->Progress = 0.0;
 }
 
 int vtkSource::GetDataReleased()
@@ -106,10 +111,22 @@ void vtkSource::Update()
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     if (this->Output) this->Output->Initialize(); //clear output
+    // reset AbortExecute flag and Progress
+    this->AbortExecute = 0;
+    this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    }
+}
+
+void vtkSource::UpdateProgress(float amount)
+{
+  this->Progress = amount;
+  if ( this->ProgressMethod )
+    {
+    (*this->ProgressMethod)(this->ProgressMethodArg);
     }
 }
 
@@ -126,6 +143,23 @@ void vtkSource::SetStartMethod(void (*f)(void *), void *arg)
       }
     this->StartMethod = f;
     this->StartMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Specify function to be called to show progress of filter
+void vtkSource::SetProgressMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->ProgressMethod || arg != this->ProgressMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->ProgressMethodArg)&&(this->ProgressMethodArgDelete))
+      {
+      (*this->ProgressMethodArgDelete)(this->ProgressMethodArg);
+      }
+    this->ProgressMethod = f;
+    this->ProgressMethodArg = arg;
     this->Modified();
     }
 }
@@ -161,6 +195,17 @@ void vtkSource::SetStartMethodArgDelete(void (*f)(void *))
 
 // Description:
 // Set the arg delete method. This is used to free user memory.
+void vtkSource::SetProgressMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->ProgressMethodArgDelete)
+    {
+    this->ProgressMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
 void vtkSource::SetEndMethodArgDelete(void (*f)(void *))
 {
   if ( f != this->EndMethodArgDelete)
@@ -189,5 +234,7 @@ void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "No output generated for this filter\n";
     }
+  os << indent << "AbortExecute: " << (this->AbortExecute ? "On\n" : "Off\n");
+  os << indent << "Progress: " << this->Progress << "\n";
 }
 
