@@ -60,7 +60,14 @@ public:
   // the underlying styles
   void SetAutoAdjustCameraClippingRange( int value );
   
+  // Description:
+  // Set/Get current style
   vtkGetObjectMacro(CurrentStyle, vtkInteractorStyle);
+  void SetCurrentStyleToJoystickActor();
+  void SetCurrentStyleToJoystickCamera();
+  void SetCurrentStyleToTrackballActor();
+  void SetCurrentStyleToTrackballCamera();
+
 protected:
   vtkInteractorStyleSwitch();
   ~vtkInteractorStyleSwitch();
