@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ctype.h>
 #include <string.h>
 #include "vtkPLYReader.h"
-#include "ply.h"
+#include "vtkPLY.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
@@ -78,12 +78,13 @@ vtkPLYReader::~vtkPLYReader()
 }
 
 typedef struct _plyVertex {
-  float x[3];             /* the usual 3-space position of a vertex */
+  float x[3];             // the usual 3-space position of a vertex
 } plyVertex;
 
 typedef struct _plyFace {
-  unsigned char nverts;    /* number of vertex indices in list */
-  int *verts;              /* vertex index list */
+  unsigned char intensity; /* this user attaches intensity to faces */
+  unsigned char nverts;   // number of vertex indices in list
+  int *verts;             // vertex index list
 } plyFace;
 
 void vtkPLYReader::Execute()
@@ -94,6 +95,7 @@ void vtkPLYReader::Execute()
     {"z", PLY_FLOAT, PLY_FLOAT, offsetof(plyVertex,x[2]), 0, 0, 0, 0},
   };
   PlyProperty faceProps[] = {
+    {"intensity", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,intensity), 0, 0, 0, 0},
     {"vertex_indices", PLY_INT, PLY_INT, offsetof(plyFace,verts),
      1, PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,nverts)},
   };
@@ -115,14 +117,14 @@ void vtkPLYReader::Execute()
   char **elist, *elemName;
   float version;
   
-  ply = ply_open_for_reading(this->FileName, &nelems, &elist, 
+  ply = vtkPLY::ply_open_for_reading(this->FileName, &nelems, &elist, 
                              &fileType, &version);
 
   for (i = 0; i < nelems; i++) 
     {
     //get the description of the first element */
     elemName = elist[i];
-    plist = ply_get_element_description (ply, elemName, &numElems, &nprops);
+    plist = vtkPLY::ply_get_element_description (ply, elemName, &numElems, &nprops);
 
     // if we're on vertex elements, read them in
     if ( elemName && !strcmp ("vertex", elemName) ) 
@@ -135,13 +137,13 @@ void vtkPLYReader::Execute()
       float *ptsPtr = ((vtkFloatArray *)pts->GetData())->GetPointer(0);
       
       // Setup to read the PLY elements
-      ply_get_property (ply, elemName, &vertProps[0]);
-      ply_get_property (ply, elemName, &vertProps[1]);
-      ply_get_property (ply, elemName, &vertProps[2]);
+      vtkPLY::ply_get_property (ply, elemName, &vertProps[0]);
+      vtkPLY::ply_get_property (ply, elemName, &vertProps[1]);
+      vtkPLY::ply_get_property (ply, elemName, &vertProps[2]);
 
       for (j=0; j < numPts; j++, ptsPtr+=3) 
         {
-        ply_get_element (ply, (void *) ptsPtr);
+        vtkPLY::ply_get_element (ply, (void *) ptsPtr);
         }
       output->SetPoints(pts);
       pts->Delete();
@@ -156,16 +158,17 @@ void vtkPLYReader::Execute()
       plyFace face;
       int verts[256];
       vtkIdType vtkVerts[256];
-      face.verts = verts;
 
       // Get the face properties
-      ply_get_property (ply, elemName, &faceProps[0]);
+      vtkPLY::ply_get_property (ply, elemName, &faceProps[0]);
+      vtkPLY::ply_get_property (ply, elemName, &faceProps[1]);
       
       // grab all the face elements
       for (j=0; j < numPolys; j++) 
         {
         //grab and element from the file
-        ply_get_element (ply, (void *) &face);
+        face.verts = verts;
+        vtkPLY::ply_get_element (ply, (void *) &face);
         for (k=0; k<face.nverts; k++)
           {
           vtkVerts[k] = face.verts[k];
@@ -182,7 +185,7 @@ void vtkPLYReader::Execute()
                  << numPolys << " polygons");
 
   // close the PLY file 
-  ply_close (ply);
+  vtkPLY::ply_close (ply);
 
 }
 
