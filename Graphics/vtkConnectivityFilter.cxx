@@ -19,6 +19,8 @@
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -27,7 +29,7 @@
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkConnectivityFilter, "1.71");
+vtkCxxRevisionMacro(vtkConnectivityFilter, "1.72");
 vtkStandardNewMacro(vtkConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -62,16 +64,26 @@ vtkConnectivityFilter::~vtkConnectivityFilter()
   this->SpecifiedRegionIds->Delete();
 }
 
-void vtkConnectivityFilter::Execute()
+int vtkConnectivityFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts, numCells, cellId, newCellId, i, j, pt;
   vtkPoints *newPts;
   int id;
   int maxCellsInRegion;
   int largestRegionId = 0;
-  vtkDataSet *input= this->GetInput();
-  if (input == NULL) {return;}
-  vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outputPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outputCD=output->GetCellData();
   
@@ -83,7 +95,7 @@ void vtkConnectivityFilter::Execute()
   if ( (numPts=input->GetNumberOfPoints()) < 1 || numCells < 1 )
     {
     vtkDebugMacro(<<"No data to connect!");
-    return;
+    return 1;
     }
   output->Allocate(numCells,numCells);
 
@@ -154,7 +166,7 @@ void vtkConnectivityFilter::Execute()
         {
         this->NumCellsInRegion = 0;
         this->Wave->InsertNextId(cellId);
-        this->TraverseAndMark ();
+        this->TraverseAndMark (input);
 
         if ( this->NumCellsInRegion > maxCellsInRegion )
           {
@@ -222,7 +234,7 @@ void vtkConnectivityFilter::Execute()
     this->UpdateProgress (0.5);
 
     //mark all seeded regions
-    this->TraverseAndMark ();
+    this->TraverseAndMark (input);
     this->RegionSizes->InsertValue(this->RegionNumber,this->NumCellsInRegion);
     this->UpdateProgress (0.9);
     }
@@ -351,18 +363,17 @@ void vtkConnectivityFilter::Execute()
   vtkDebugMacro (<< "Total # of cells accounted for: " << count);
   vtkDebugMacro (<< "Extracted " << output->GetNumberOfCells() << " cells");
 
-  return;
+  return 1;
 }
 
 
 // Mark current cell as visited and assign region number.  Note:
 // traversal occurs across shared vertices.
 //
-void vtkConnectivityFilter::TraverseAndMark ()
+void vtkConnectivityFilter::TraverseAndMark (vtkDataSet *input)
 {
   int i, j, k, cellId, numIds, ptId, numPts, numCells;
   vtkIdList *tmpWave;
-  vtkDataSet *input= this->GetInput();
 
   while ( (numIds=this->Wave->GetNumberOfIds()) > 0 )
     {
@@ -486,6 +497,12 @@ void vtkConnectivityFilter::DeleteSpecifiedRegion(int id)
 {
   this->Modified();
   this->SpecifiedRegionIds->DeleteId(id);
+}
+
+int vtkConnectivityFilter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)

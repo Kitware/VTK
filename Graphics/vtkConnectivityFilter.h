@@ -47,7 +47,7 @@
 #ifndef __vtkConnectivityFilter_h
 #define __vtkConnectivityFilter_h
 
-#include "vtkDataSetToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 #define VTK_EXTRACT_POINT_SEEDED_REGIONS 1
 #define VTK_EXTRACT_CELL_SEEDED_REGIONS 2
@@ -61,10 +61,10 @@ class vtkFloatArray;
 class vtkIdList;
 class vtkIntArray;
 
-class VTK_GRAPHICS_EXPORT vtkConnectivityFilter : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkConnectivityFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkConnectivityFilter,vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkConnectivityFilter,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -148,7 +148,8 @@ protected:
   ~vtkConnectivityFilter();
 
   // Usual data generation method
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   int ColorRegions; //boolean turns on/off scalar gen for separate regions
   int ExtractionMode; //how to extract regions
@@ -161,7 +162,7 @@ protected:
   int ScalarConnectivity;
   double ScalarRange[2];
 
-  void TraverseAndMark();
+  void TraverseAndMark(vtkDataSet *input);
 
 private:
   // used to support algorithm execution
