@@ -42,7 +42,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkImageImport - Import data from a C array.
 // .SECTION Description
 // vtkImageImport provides methods needed to import data from a C array.
-
+// Note that the VTK convention is for the image voxel index (0,0,0) to be
+// the lower-left corner of the image, while most 2D image formats use
+// the upper-left corner.  You can use vtkImageFlip to correct the 
+// orientation.
 // .SECTION See Also
 // vtkImageSource
 
@@ -60,27 +63,30 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
-  // Import data and make an internal copy of it. You should use 
-  // this OR SetImportVoidPointer. The last one called will
-  // control how the current memory is handled. The size is
-  // the size of the data in BYTES.
+  // Import data and make an internal copy of it.  If you do not want
+  // VTK to copy the data, then use SetImportVoidPointer instead (do
+  // not use both).  Give the size of the data array in bytes.
   void CopyImportVoidPointer(void *ptr, int size);
   
   // Description:
-  // Set the pointer from which the image data is imported.
+  // Set the pointer from which the image data is imported.  VTK will
+  // not make its own copy of the data, it will access the data directly
+  // from the supplied array.  VTK will not attempt to delete the data
+  // nor modify the data.
   void SetImportVoidPointer(void *ptr);
   void *GetImportVoidPointer() {return this->ImportVoidPointer;};
 
   // Description:
-  // Set the pointer from which the image data is imported.  Set save to 1 to
-  // keep the vtk from deleting the array when it cleans up or reallocates
-  // memory.  The class uses the actual array provided; it does not copy the
-  // data from the suppled array.
+  // Set the pointer from which the image data is imported.  Set save to 1 
+  // (the default) unless you want VTK to delete the array via C++ delete
+  // when the vtkImageImport object is deallocated.  VTK will not make its
+  // own copy of the data, it will access the data directly from the
+  // supplied array.
   void SetImportVoidPointer(void *ptr, int save);
   
   // Description:
-  // Set/Get the data type of pixels in the imported data.
-  // As a convenience, the OutputScalarType is set to the same value.
+  // Set/Get the data type of pixels in the imported data.  This is used
+  // as the scalar type of the Output.  Default: Short.
   vtkSetMacro(DataScalarType,int);
   void SetDataScalarTypeToDouble(){this->SetDataScalarType(VTK_DOUBLE);}
   void SetDataScalarTypeToFloat(){this->SetDataScalarType(VTK_FLOAT);}
@@ -95,22 +101,28 @@ public:
     return vtkImageScalarTypeNameMacro(this->DataScalarType); }
 
   // Description:
-  // Set/Get the number of scalar components
+  // Set/Get the number of scalar components, for RGB images this must be 3.
+  // Default: 1.
   vtkSetMacro(NumberOfScalarComponents,int);
   vtkGetMacro(NumberOfScalarComponents,int);
   
   // Description:
-  // Get/Set the extent of the data on disk.  
+  // Get/Set the extent of the data.  The dimensions of your data must
+  // be equal to (extent[1]-extent[0]+1) * (extent[3]-extent[2]+1) * 
+  // (extent[5]-DataExtent[4]+1).  For example, for a 2D image use
+  // (0,width-1, 0,height-1, 0,0).
   vtkSetVector6Macro(DataExtent,int);
   vtkGetVector6Macro(DataExtent,int);
   
   // Description:
-  // Set/Get the spacing of the data in the file.
+  // Set/Get the spacing (typically in mm) between image voxels.
+  // Default: (1.0, 1.0, 1.0).
   vtkSetVector3Macro(DataSpacing,float);
   vtkGetVector3Macro(DataSpacing,float);
   
   // Description:
-  // Set/Get the origin of the data (location of first pixel in the file).
+  // Set/Get the origin of the data, i.e. the coordinates (usually in mm)
+  // of voxel (0,0,0).  Default: (0.0, 0.0, 0.0). 
   vtkSetVector3Macro(DataOrigin,float);
   vtkGetVector3Macro(DataOrigin,float);
 
@@ -120,8 +132,6 @@ protected:
   vtkImageImport(const vtkImageImport&) {};
   void operator=(const vtkImageImport&) {};
 
-  // Description:
-  // This method returns the largest data that can be generated.
   virtual void ExecuteInformation();
   
   void *ImportVoidPointer;
