@@ -26,10 +26,11 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.15");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.16");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, EXACT_EXTENT, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_EXTENT, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, MAXIMUM_NUMBER_OF_PIECES, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT_INITIALIZED, Integer);
@@ -44,21 +45,23 @@ vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline,
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_BOUNDING_BOX, DoubleVector, 6);
 
 //----------------------------------------------------------------------------
-class vtkStreamingDemandDrivenPipelineInternals
+class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
 {
 public:
+  static void Crop(vtkDataObject* obj)
+    {
+    obj->Crop();
+    }
 };
 
 //----------------------------------------------------------------------------
 vtkStreamingDemandDrivenPipeline::vtkStreamingDemandDrivenPipeline()
 {
-  this->StreamingDemandDrivenInternal = new vtkStreamingDemandDrivenPipelineInternals;
 }
 
 //----------------------------------------------------------------------------
 vtkStreamingDemandDrivenPipeline::~vtkStreamingDemandDrivenPipeline()
 {
-  delete this->StreamingDemandDrivenInternal;
 }
 
 //----------------------------------------------------------------------------
@@ -168,6 +171,30 @@ int vtkStreamingDemandDrivenPipeline::ExecuteInformation()
         {
         // Request all data by default.
         this->SetUpdateExtentToWholeExtent(i);
+        }
+      }
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::ExecuteData(int outputPort)
+{
+  // Let the superclass make the request to the algorithm.
+  if(this->Superclass::ExecuteData(outputPort))
+    {
+    // Crop the output if the exact extent flag is set.
+    for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = this->GetOutputInformation(i);
+      vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT());
+      if(info->Has(EXACT_EXTENT()) && info->Get(EXACT_EXTENT()))
+        {
+        vtkStreamingDemandDrivenPipelineToDataObjectFriendship::Crop(data);
         }
       }
     return 1;
@@ -947,6 +974,37 @@ int vtkStreamingDemandDrivenPipeline::GetUpdateGhostLevel(int port)
     info->Set(UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
     }
   return info->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::SetRequestExactExtent(int port, int flag)
+{
+  if(!this->OutputPortIndexInRange(port, "set request exact extent flag on"))
+    {
+    return 0;
+    }
+  vtkInformation* info = this->GetOutputInformation(port);
+  if(this->GetRequestExactExtent(port) != flag)
+    {
+    info->Set(EXACT_EXTENT(), flag);
+    return 1;
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::GetRequestExactExtent(int port)
+{
+  if(!this->OutputPortIndexInRange(port, "get request exact extent flag from"))
+    {
+    return 0;
+    }
+  vtkInformation* info = this->GetOutputInformation(port);
+  if(!info->Has(EXACT_EXTENT()))
+    {
+    info->Set(EXACT_EXTENT(), 0);
+    }
+  return info->Get(EXACT_EXTENT());
 }
 
 //----------------------------------------------------------------------------
