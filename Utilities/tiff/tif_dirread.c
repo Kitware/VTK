@@ -745,10 +745,13 @@ TIFFFetchRational(TIFF* tif, TIFFDirEntry* dir)
 static float
 TIFFFetchFloat(TIFF* tif, TIFFDirEntry* dir)
 {
-        long l = TIFFExtractData(tif, dir->tdir_type, dir->tdir_offset);
-        float v = *(float*) &l;
-        TIFFCvtIEEEFloatToNative(tif, 1, &v);
-        return (v);
+        union {
+          long l;
+          float v;
+        } u;
+        u.l = TIFFExtractData(tif, dir->tdir_type, dir->tdir_offset);
+        TIFFCvtIEEEFloatToNative(tif, 1, &u.v);
+        return (u.v);
 }
 
 /*
