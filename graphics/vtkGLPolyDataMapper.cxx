@@ -206,7 +206,7 @@ void vtkGLPolyDataMapper::Draw(vtkRenderer *vtkNotUsed(aren), vtkActor *act)
   t = input->GetPointData()->GetTCoords();
   if ( t ) 
     {
-    tDim = t->GetGetNumberOfComponents();
+    tDim = t->GetNumberOfComponents();
     if (tDim != 2)
       {
       vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
