@@ -94,17 +94,15 @@ public:
   vtkGetMacro(AllowShift,int);
   vtkBooleanMacro(AllowShift,int);
 
-  // Description:
-  // Computes WholeExtent and ScalarType of output.
-  void ExecuteImageInformation();
-  
-  
 protected:
   float Error;
   float ThresholdedError;
   int AllowShift;
   int Threshold;
   
+  void ExecuteImageInformation(); 
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
+					int whichInput);
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);  
   

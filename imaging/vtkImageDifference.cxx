@@ -62,6 +62,38 @@ vtkImageDifference::vtkImageDifference()
 
 
 //----------------------------------------------------------------------------
+// Description:
+// This method computes the input extent necessary to generate the output.
+void vtkImageDifference::ComputeRequiredInputUpdateExtent(int inExt[6],
+							  int outExt[6],
+							  int whichInput)
+{
+  int *wholeExtent;
+  int idx;
+
+  wholeExtent = this->Inputs[whichInput]->GetWholeExtent();
+  
+  memcpy(inExt,outExt,6*sizeof(int));
+  
+  // grow input whole extent.
+  for (idx = 0; idx < 2; ++idx)
+    {
+    inExt[idx*2] -= 1;
+    inExt[idx*2+1] += 1;
+
+    // we must clip extent with whole extent is we hanlde boundaries.
+    if (inExt[idx*2] < wholeExtent[idx*2])
+      {
+	inExt[idx*2] = wholeExtent[idx*2];
+      }
+    if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
+      {
+	inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkImageDifference::ThreadedExecute(vtkImageData **inData, 
 					 vtkImageData *outData,
 					 int outExt[6], int id)
@@ -75,6 +107,8 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
   int in2Inc0, in2Inc1, in2Inc2;
   int outInc0, outInc1, outInc2;
   int tr, tg, tb, r1, g1, b1;
+  int inMinX, inMaxX, inMinY, inMaxY;
+  int *inExt;
 
   id = id;
   this->Error = 0;
@@ -121,6 +155,10 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
   min1 = outExt[2];  max1 = outExt[3];
   min2 = outExt[4];  max2 = outExt[5];
   
+  inExt = inData[0]->GetExtent();
+  inMinX = inExt[0]; inMaxX = inExt[1];
+  inMinY = inExt[2]; inMaxY = inExt[3];
+
   for (idx2 = min2; idx2 <= max2; ++idx2)
     {
     in1Ptr1 = in1Ptr2;
@@ -149,36 +187,36 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
 	if (this->AllowShift) 
 	  {
 	  /* lower row */
-	  if (idx1 > min1)
+	  if (idx1 > inMinY)
 	    {
 	    vtkImageDifferenceComputeError(in1Ptr0-in1Inc1,in2Ptr0);
-	    if (idx0 > min0)
+	    if (idx0 > inMinX)
 	      {
 	      vtkImageDifferenceComputeError(in1Ptr0-in1Inc0-in1Inc1,in2Ptr0);
 	      }
-	    if (idx0 < max0)
+	    if (idx0 < inMaxX)
 	      {
 	      vtkImageDifferenceComputeError(in1Ptr0+in1Inc0-in1Inc1,in2Ptr0);
 	      }
 	    }
 	  /* middle row (center already considered) */
-	  if (idx0 > min0)
+	  if (idx0 > inMinX)
 	    {
 	    vtkImageDifferenceComputeError(in1Ptr0-in1Inc0,in2Ptr0);
 	    }
-	  if (idx0 < max0)
+	  if (idx0 < inMaxX)
 	    {
 	    vtkImageDifferenceComputeError(in1Ptr0+in1Inc0,in2Ptr0);
 	    }
 	  /* upper row */
-	  if (idx1 < max1)
+	  if (idx1 < inMaxY)
 	    {
 	    vtkImageDifferenceComputeError(in1Ptr0+in1Inc1,in2Ptr0);
-	    if (idx0 > min0)
+	    if (idx0 > inMinX)
 	      {
 	      vtkImageDifferenceComputeError(in1Ptr0-in1Inc0+in1Inc1,in2Ptr0);
 	      }
-	    if (idx0 < max0)
+	    if (idx0 < inMaxX)
 	      {
 	      vtkImageDifferenceComputeError(in1Ptr0+in1Inc0+in1Inc1,in2Ptr0);
 	      }
@@ -211,7 +249,8 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
 }
 
 //----------------------------------------------------------------------------
-// Make sure both the inputs are the same size.
+// Make sure both the inputs are the same size. Doesn't really change 
+// the output. Just performs a sanity check
 void vtkImageDifference::ExecuteImageInformation()
 {
   int *in1Ext, *in2Ext;
@@ -238,8 +277,6 @@ void vtkImageDifference::ExecuteImageInformation()
     this->ThresholdedError = 1;
     return;
     }
-  
-  this->Output->SetWholeExtent(in1Ext);
 }
 
 
