@@ -78,14 +78,34 @@ typedef int vtkMutexType;
 class VTK_EXPORT vtkMutexLock : public vtkObject
 {
 public:
+
+// Description:
+// Construct a new vtkMutexLock 
   vtkMutexLock();
+
+
+// Description:
+// Destruct the vtkMutexVariable
   ~vtkMutexLock();
+
   static vtkMutexLock *New() {return new vtkMutexLock;};
   const char *GetClassName() {return "vtkMutexLock";};
+
+// Description:
+// Print method for vtkMutexLock
   void PrintSelf( ostream& os, vtkIndent index );
 
+
+
+// Description:
+// Lock the vtkMutexLock
   void Lock( void );
+
+
+// Description:
+// Unlock the vtkMutexLock
   void Unlock( void );
+
 
 protected:
   vtkMutexType   MutexLock;

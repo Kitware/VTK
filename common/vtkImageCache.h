@@ -63,7 +63,15 @@ class vtkImageToStructuredPoints;
 class VTK_EXPORT vtkImageCache : public vtkReferenceCount
 {
 public:
+
+// Description:
+// Constructor:  By default caches ReleaseDataFlags are turned off. However,
+// the vtkImageSource method CheckCache, which create a default cache, 
+// turns this flag on.  If a cache is created and set explicitely, by 
+// default it saves its data between generates.  But if the cache is created
+// automatically by the vtkImageSource, it does not.
   vtkImageCache();
+
   ~vtkImageCache();
   const char *GetClassName() {return "vtkImageCache";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -88,7 +96,11 @@ public:
   void GetUpdateExtent(int &xMin, int &xMax,
 		       int &yMin, int &yMax, int &zMin, int &zMax);
   void GetAxisUpdateExtent(int axis, int &min, int &max);
+
+// Description:
+// Clip updateExtent so it will nopt be larger than WHoleExtent
   void ClipUpdateExtentWithWholeExtent();
+
   
   virtual void Update() = 0;
   virtual vtkImageData *UpdateAndReturnData() = 0;
@@ -104,8 +116,20 @@ public:
   // by a filter.
   int ShouldIReleaseData();
 
+
+// Description:
+// This method updates the instance variables "WholeExtent", "Spacing", 
+// "Origin", "Bounds" etc.
+// It needs to be separate from "Update" because the image information
+// may be needed to compute the required UpdateExtent of the input
+// (see "vtkImageFilter").
   virtual void UpdateImageInformation();
+
+
+// Description:
+// Make this a separate method to avoid another GetPipelineMTime call.
   virtual unsigned long GetPipelineMTime();
+
   
   // Description:
   // These methods give access to the cached image information.
@@ -146,9 +170,20 @@ public:
   vtkSetObjectMacro(Source,vtkImageSource);
   vtkGetObjectMacro(Source,vtkImageSource);
 
+
+// Description:
+// This method returns the memory that would be required for scalars on update.
+// The returned value is in units KBytes.
+// This method is used for determining when to stream.
   long GetUpdateExtentMemorySize();
 
+
+
+// Description:  
+// This method is used translparently by the "SetInput(vtkImageCache *)"
+// method to connect the image pipeline to the visualization pipeline.
   vtkImageToStructuredPoints *GetImageToStructuredPoints();
+
   
   // Description:
   // Set the data scalar type of the regions created by this cache.

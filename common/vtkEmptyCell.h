@@ -52,7 +52,11 @@ class VTK_EXPORT vtkEmptyCell : public vtkCell
 {
 public:
   vtkEmptyCell() {};
+
+// Description:
+// Deep copy of cell.
   vtkEmptyCell(const vtkEmptyCell& p);
+
   static vtkEmptyCell *New() {return new vtkEmptyCell;};
   const char *GetClassName() {return "vtkEmptyCell";};
 

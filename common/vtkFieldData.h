@@ -71,48 +71,157 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFieldData : public vtkReferenceCount
 {
 public:
+
+// Description:
+// Construct object with no data initially.
   vtkFieldData();
+
   ~vtkFieldData();
   static vtkFieldData *New() {return new vtkFieldData;};
+
+// Description:
+// Release all data but do not delete object.
   void Initialize();
+
+
+// Description:
+// Allocate data for each array.
   int Allocate(const int sz, const int ext=1000);
+
   const char *GetClassName() {return "vtkFieldData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // satisfy vtkDataObject API
+
+// Description:
+// Virtual constructor creates a field with the same number of data arrays and
+// types of data arrays, but the arrays contain nothing.
   vtkFieldData *MakeObject();
 
+
   // managing data arrays into the field - most efficient way
+
+// Description:
+// Set the number of arrays used to define the field.
   void SetNumberOfArrays(int num);
+
+
+// Description:
+// Set an array to define the field.
   void SetArray(int i, vtkDataArray *);
+
+
+// Description:
+// 
   int GetNumberOfArrays();
+
+
+// Description:
+// Return the ith array in the field. A NULL is returned if the index i is out
+// if range.
   vtkDataArray *GetArray(int i);
+
   void SetArrayName(int i,char *name);
   char *GetArrayName(int i);
 
   // managing components/tuples in the field
+
+// Description:
+// Get the number of components in the field. This is determined by adding
+// up the components in each non-NULL array.
   int GetNumberOfComponents();
+
+
+// Description:
+// Get the number of tuples in the field.
   int GetNumberOfTuples();
+
+
+// Description:
+// Set the number of tuples for each data array in the field.
   void SetNumberOfTuples(const int number);
+
+
+// Description:
+// Return a tuple consisting of a concatentation of all data from all
+// the different arrays. Note that everything is converted to and from
+// float values.
   float *GetTuple(const int i);
+
+
+// Description:
+// Copy the ith tuple value into a user provided tuple array. Make
+// sure that you've allocated enough space for the copy.
   void GetTuple(const int i, float * tuple);
+
+
+// Description:
+// Set the tuple value at the ith location. Set operations
+// mean that no range chaecking is performed, so they're faster.
   void SetTuple(const int i, const float * tuple);
+
+
+// Description:
+// Insert the tuple value at the ith location. Range checking is
+// performed and memory allocates as necessary.
   void InsertTuple(const int i, const float * tuple);
+
+
+// Description:
+// Insert the tuple value at the end of the tuple matrix. Range
+// checking is performed and memory is allocated as necessary.
   int InsertNextTuple(const float * tuple);
+
+
+// Description:
+// Get the component value at the ith tuple (or row) and jth component (or column).
   float GetComponent(const int i, const int j);
+
+
+// Description:
+// Set the component value at the ith tuple (or row) and jth component (or column).
+// Range checking is not performed, so set the object up properly before invoking.
   void SetComponent(const int i, const int j, const float c);
+
+
+// Description:
+// Insert the component value at the ith tuple (or row) and jth component (or column).
+// Range checking is performed and memory allocated as necessary o hold data.
   void InsertComponent(const int i, const int j, const float c);
 
+
   // Copy a field in various ways
+
+// Description:
+// Copy a field by creating new data arrays (i.e., duplicate storage).
   void DeepCopy(vtkFieldData& da);
+
+
+// Description:
+// Copy a field by reference counting the data arrays.
   void ShallowCopy(vtkFieldData& da);
 
+
   // special operators
+
+// Description:
+// Squeezes each data array in the field (Squeeze() reclaims unused memory.)
   void Squeeze();
+
+
+// Description:
+// Resets each data array in the field (Reset() does not release memory but
+// it makes the arrays look like they are empty.)
   void Reset();
 
+
   // Get a field from a list of ids
+
+// Description:
+// Get a field from a list of ids. Supplied field f should have same types 
+// and number of data arrays as this one (i.e., like MakeObject() returns).
   void GetField(vtkIdList& ptId, vtkFieldData& f);
+
 
 protected:
   int NumberOfArrays;

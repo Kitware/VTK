@@ -74,7 +74,11 @@ public:
   int InsertNextNormal(float n[3]);
   int InsertNextNormal(float nx, float ny, float nz);
 
+
+// Description:
+// Given a list of pt ids, return an array of normals.
   void GetNormals(vtkIdList& ptId, vtkNormals& fn);
+
 };
 
 // Description:

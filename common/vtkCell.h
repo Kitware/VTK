@@ -76,7 +76,11 @@ class vtkCellData;
 class VTK_EXPORT vtkCell : public vtkObject
 {
 public:
+
+// Description:
+// Construct cell.
   vtkCell();
+
   void Initialize(int npts, int *pts, vtkPoints *p);
   const char *GetClassName() {return "vtkCell";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -240,14 +244,45 @@ public:
   virtual void Derivatives(int subId, float pcoords[3], float *values, 
                            int dim, float *derivs) = 0;
 
+
+// Description:
+// Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Copy result into
+// user provided array.
   void GetBounds(float bounds[6]);
+
+
+// Description:
+// Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
+// to array of six float values.
   float *GetBounds();
+
+
+// Description:
+// Compute Length squared of cell (i.e., bounding box diagonal squared).
   float GetLength2();
+
+
+// Description:
+// Return center of the cell in parametric coordinates.
+// Note that the parametric center is not always located 
+// at (0.5,0.5,0.5). The return value is the subId that
+// the center is in (if a composite cell). If you want the
+// center in x-y-z space, invoke the EvaluateLocation() method.
   virtual int GetParametricCenter(float pcoords[3]);
 
+
   // Quick intersection of cell bounding box.  Returns != 0 for hit.
+
+// Description:
+// Bounding box intersection modified from Graphics Gems Vol I.
+// Note: the intersection ray is assumed normalized, such that
+// valid intersections can only occur between [0,1]. Method returns non-zero
+// value if bounding box is hit. Origin[3] starts the ray, dir[3] is the 
+// components of the ray in the x-y-z directions, coord[3] is the location 
+// of hit, and t is the parametric coordinate along line.
   static char HitBBox(float bounds[6], float origin[3], float dir[3], 
                       float coord[3], float& t);
+
 
   // left public for quick computational access
   vtkPoints Points;

@@ -52,7 +52,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkQuad : public vtkCell
 {
 public:
+
+// Description:
+// Construct the quad with four points.
   vtkQuad();
+
   static vtkQuad *New() {return new vtkQuad;};
   const char *GetClassName() {return "vtkQuad";};
 
@@ -71,10 +75,15 @@ public:
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, int cellId, vtkCellData *outCd);
+
+// Description:
+// Clip this quad using scalar value provided. Like contouring, except
+// that it cuts the quad to produce other quads and/or triangles.
   void Clip(float value, vtkScalars *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
+
   int EvaluatePosition(float x[3], float closestPoint[3],
                        int& subId, float pcoords[3],
                        float& dist2, float *weights);

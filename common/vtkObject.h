@@ -60,8 +60,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkObject 
 {
 public:
+
+// Description:
+// Create an object with Debug turned off and modified time initialized 
+// to zero.
   vtkObject(); //create a vtk object
+
+
+// Description:
+// Delete a vtk object. This method should always be used to delete an object 
+// when the new operator was used to create it. Using the C++ delete method
+// will not work with reference counting.
   virtual void Delete(); //delete a vtk object.
+
   virtual ~vtkObject(); //use Delete() whenever possible
   static vtkObject *New() {return new vtkObject;};
   virtual const char *GetClassName() {return "vtkObject";};
@@ -74,22 +85,48 @@ public:
 #endif 
   
   // debugging
+
+// Description:
+// Turn debugging output on.
   virtual void DebugOn();
+
+
+// Description:
+// Turn debugging output off.
   virtual void DebugOff();
+
+
+// Description:
+// Get the value of the debug flag.
   unsigned char GetDebug();
+
+
+// Description:
+// Set the value of the debug flag. A non-zero value turns debugging on.
   void SetDebug(unsigned char debugFlag);
+
 
   // modified time
   virtual unsigned long GetMTime();
   virtual void Modified();
 
   // printing
+
+// Description:
+// Chaining method to print an object's instance variables, as well as
+// its superclasses.
   virtual void PrintSelf(ostream& os, vtkIndent indent);
+
   void Print(ostream& os);
   virtual void PrintHeader(ostream& os, vtkIndent indent);
   virtual void PrintTrailer(ostream& os, vtkIndent indent);
 
+
+// Description:
+// This method is called when vtkErrorMacro executes. It allows 
+// the debugger to break on error.
   static void BreakOnError();
+
 
   // Description:
   // This is a global flag that controls whether any debug, warning

@@ -67,14 +67,34 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMutexFunctionLock : public vtkObject 
 {
 public:
+
+// Description:
+// Construct a new vtkMutexFunctionLock
   vtkMutexFunctionLock();
+
+
+// Description:
+// Destruct the vtkMutexFunctionLock
   ~vtkMutexFunctionLock();
+
   static vtkMutexFunctionLock *New() {return new vtkMutexFunctionLock;};
   const char *GetClassName() {return "vtkMutexFunctionLock";};
+
+// Description:
+// Print method for vtkMutexFunctionLock
   void PrintSelf( ostream& os, vtkIndent index );
 
+
+
+// Description:
+// Lock method for vtkMutexFunctionLock
   void StartLock(void);
+
+
+// Description:
+// Unlock method for vtkMutexFunctionLock
   void EndLock(void);
+
 
 protected:
   vtkMutexLock *MutexVar;

@@ -53,7 +53,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkHexahedron : public vtkCell
 {
 public:
+
+// Description:
+// Construct the hexahedron with eight points.
   vtkHexahedron();
+
   static vtkHexahedron *New() {return new vtkHexahedron;};
   const char *GetClassName() {return "vtkHexahedron";};
 
@@ -90,7 +94,13 @@ public:
   // Hexahedron specific
   static void InterpolationFunctions(float pcoords[3], float weights[8]);
   static void InterpolationDerivs(float pcoords[3], float derivs[24]);
+
+// Description:
+// Given parametric coordinates compute inverse Jacobian transformation
+// matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
+// function derivatives.
   void JacobianInverse(float pcoords[3], double **inverse, float derivs[24]);
+
 
 protected:
   vtkLine Line;

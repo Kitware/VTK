@@ -72,11 +72,23 @@ public:
   vtkCellTypes(int sz, int ext);
   ~vtkCellTypes();
   static vtkCellTypes *New() {return new vtkCellTypes;};
+
+// Description:
+// Allocate memory for this array. Delete old storage only if necessary.
   int Allocate(int sz=512, int ext=1000);
+
   const char *GetClassName() {return "vtkCellTypes";};
 
+
+// Description:
+// Add a cell at specified id.
   void InsertCell(int id, unsigned char type, int loc);
+
+
+// Description:
+// Add a cell to the object in the next available slot.
   int InsertNextCell(unsigned char type, int loc);
+
   void DeleteCell(int cellId);
 
   //special operations to pass type information
@@ -89,8 +101,16 @@ public:
   int GetCellLocation(int id);
   _vtkCell_s &GetCell(int id);
 
+
+// Description:
+// Reclaim any extra memory.
   void Squeeze();
+
+
+// Description:
+// Initialize object without releasing memory.
   void Reset();
+
 
 private:
   _vtkCell_s *Array;   // pointer to data

@@ -59,7 +59,14 @@ public:
   static vtkPolyLine *New() {return new vtkPolyLine;};
   const char *GetClassName() {return "vtkPolyLine";};
 
+
+// Description:
+// Given points and lines, compute normals to lines. These are not true 
+// normals, they are "orientation" normals used by classes like vtkTubeFilter
+// that control the rotation around the line. The normals try to stay pointing
+// in the same direction as much as possible (i.e., minimal rotation).
   int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkNormals *);
+
 
   // cell methods
   vtkCell *MakeObject();
@@ -90,7 +97,11 @@ public:
   int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
+
+// Description:
+// Return the center of the point cloud in parametric coordinates.
   int GetParametricCenter(float pcoords[3]);
+
 
 protected:
   vtkLine Line;

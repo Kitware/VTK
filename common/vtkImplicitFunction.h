@@ -81,8 +81,18 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   unsigned long int GetMTime();
+
+// Description:
+// Evaluate function at position x-y-z and return value. Point x[3] is
+// transformed through transform (if provided).
   float FunctionValue(float x[3]);
+
+
+// Description:
+// Evaluate function gradient at position x-y-z and pass back vector. Point
+// x[3] is transformed through transform (if provided).
   void FunctionGradient(float x[3], float g[3]);
+
 
   // Description:
   // Evaluate function at position x-y-z and return value. Must be implemented

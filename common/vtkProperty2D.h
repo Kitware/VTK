@@ -67,7 +67,12 @@ class VTK_EXPORT vtkProperty2D : public vtkObject
 {
 public:
 
+
+// Description:
+// Creates a vtkProperty2D with the following default values:
+// Opacity 1, Color (1,0,0), CompositingOperator VTK_SRC
   vtkProperty2D();
+
   ~vtkProperty2D();
   static vtkProperty2D *New() {return new vtkProperty2D;};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -58,7 +58,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageData : public vtkStructuredPoints
 {
 public:
+
+// Description:
+// Construct an instance of vtkImageData with no data.
   vtkImageData();
+
   static vtkImageData *New() {return new vtkImageData;};
   const char *GetClassName() {return "vtkImageData";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -119,7 +123,14 @@ public:
   void SetNumberOfScalarComponents(int num);
   vtkGetMacro(NumberOfScalarComponents,int);
   
+
+// Description:
+// This method is passed a input and output region, and executes the filter
+// algorithm to fill the output from the input.
+// It just executes a switch statement to call the correct function for
+// the regions data types.
   void CopyAndCastFrom(vtkImageData *inData, int extent[6]);
+
   
 protected:
   int Extent[6];

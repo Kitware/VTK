@@ -63,7 +63,12 @@ class VTK_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 {
 public:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);
+
+// Description:
+// Generate lookup table from window and level.
+// Table is built as a linear ramp, centered at Level and of width Window.
   void Build();
+
   static vtkWindowLevelLookupTable *New() {return new vtkWindowLevelLookupTable;};
   const char *GetClassName() {return "vtkWindowLevelLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);

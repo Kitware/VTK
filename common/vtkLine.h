@@ -50,7 +50,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLine : public vtkCell
 {
 public:
+
+// Description:
+// Construct the line with two points.
   vtkLine();
+
   static vtkLine *New() {return new vtkLine;};
   const char *GetClassName() {return "vtkLine";};
 
@@ -69,29 +73,58 @@ public:
                vtkCellArray *lines, vtkCellArray *polys, 
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, int cellId, vtkCellData *outCd);
+
+// Description:
+// Clip this line using scalar value provided. Like contouring, except
+// that it cuts the line to produce other lines.
   void Clip(float value, vtkScalars *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *lines,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
+
   int EvaluatePosition(float x[3], float closestPoint[3],
                        int& subId, float pcoords[3], 
                        float& dist2, float *weights);
   void EvaluateLocation(int& subId, float pcoords[3], float x[3],
                         float *weights);
+
+// Description:
+// Line-line intersection. Intersection has to occur within [0,1] parametric
+// coordinates and with specified tolerance.
   int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                         float x[3], float pcoords[3], int& subId);
+
   int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
 
   // line specific methods
+
+// Description:
+// Performs intersection of two finite 3D lines. An intersection is found if
+// the projection of the two lines onto the plane perpendicular to the cross
+// product of the two lines intersect. The parameters (u,v) are the 
+// parametric coordinates of the lines at the position of closest approach.
   static int Intersection(float p1[3], float p2[3], float x1[3], float x2[3],
                           float& u, float& v);
 
+
+
+// Description:
+// Compute distance to finite line. Returns parametric coordinate t 
+// and point location on line.
   static float DistanceToLine(float x[3], float p1[3], float p2[3], 
                               float &t, float closestPoint[3]);
 
+
+
+// Description:
+// Determine the distance of the current vertex to the edge defined by
+// the vertices provided.  Returns distance squared. Note: line is assumed
+// infinite in extent.
+//
   static float DistanceToLine(float x[3], float p1[3], float p2[3]);
+
 
 };
 

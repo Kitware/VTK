@@ -70,7 +70,11 @@ class vtkFloatArray;
 class VTK_EXPORT vtkDataArray : public vtkReferenceCount 
 {
 public:
+
+// Description:
+// Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray(int numComp=1);
+
   virtual int Allocate(const int sz, const int ext=1000) = 0;
   virtual void Initialize() = 0;
   const char *GetClassName() {return "vtkDataArray";};

@@ -60,8 +60,18 @@ class vtkProperty2D;
 class VTK_EXPORT vtkProp2D : public vtkReferenceCount
 {
 public:
+
+// Description:
+// Creates an Prop2D with the following defaults: 
+// position -1, -1 (view coordinates), layer 0, and visibility on.
   vtkProp2D();
+
+
+// Description:
+// Destroy an Prop2D.  If the Prop2D created it's own
+// property, that property is deleted.
   ~vtkProp2D();
+
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkProp2D";};
 
@@ -80,7 +90,12 @@ public:
   vtkGetMacro(Visibility, int);
   vtkBooleanMacro(Visibility, int);
 
+
+// Description:
+// Returns an Prop2D's property2D.  Creates a property if one
+// doesn't already exist.
   vtkProperty2D* GetProperty();
+
   vtkSetObjectMacro(Property, vtkProperty2D);
 
   // Description:
@@ -88,7 +103,11 @@ public:
   // This is used for for complicated or relative positioning.
   vtkViewportCoordinateMacro(Position);
   
+
+// Description:
+// Set the Prop2D's position in display coordinates.  
   void SetDisplayPosition(int,int);
+
   
   unsigned long int GetMTime();//overload superclasses' implementation
 

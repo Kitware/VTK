@@ -102,7 +102,12 @@ public:
   void ReverseCell(int loc);
   void ReplaceCell(int loc, int npts, int *pts);
 
+
+// Description:
+// Returns the size of the largest cell. The size is the number of points
+// defining the cell.
   int GetMaxCellSize();
+
 
   // miscellaneous pointer type operations (for fast read/write operations)
   int *GetPointer();

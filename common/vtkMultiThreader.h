@@ -141,11 +141,25 @@ struct ThreadInfoStruct
 class VTK_EXPORT vtkMultiThreader : public vtkObject 
 {
 public:
+
+// Description:
+// Constructor. Default all the methods to NULL. Since the
+// ThreadInfoArray is static, the ThreadIDs can be initialized here
+// and will not change.
   vtkMultiThreader();
+
+
+// Description:
+// Destructor. Nothing allocated so nothing needs to be done here.
   ~vtkMultiThreader();
+
   static vtkMultiThreader *New() {return new vtkMultiThreader;};
   const char *GetClassName() {return "vtkMultiThreader";};
+
+// Description:
+// Print method for the multithreader
   void PrintSelf(ostream& os, vtkIndent indent);
+
 
 
   // Description:

@@ -54,7 +54,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPixel : public vtkCell
 {
 public:
+
+// Description:
+// Construct the pixel with four points.
   vtkPixel();
+
   static vtkPixel *New() {return new vtkPixel;};
   const char *GetClassName() {return "vtkPixel";};
 

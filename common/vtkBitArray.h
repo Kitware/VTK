@@ -53,10 +53,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBitArray : public vtkDataArray
 {
 public:
+
+// Description:
+// Instantiate object.
   vtkBitArray(int numComp=1);
+
   ~vtkBitArray();
+
+// Description:
+// Allocate memory for this array. Delete old storage only if necessary.
   int Allocate(const int sz, const int ext=1000);
+
+
+// Description:
+// Release storage and reset array to initial state.
   void Initialize();
+
   static vtkBitArray *New() {return new vtkBitArray;};
   virtual const char *GetClassName() {return "vtkBitArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -64,16 +76,46 @@ public:
   // satisfy vtkDataArray API
   vtkDataArray *MakeObject() {return new vtkBitArray(this->NumberOfComponents);};
   int GetDataType() {return VTK_BIT;};
+
+// Description:
+// Set the number of n-tuples in the array.
   void SetNumberOfTuples(const int number);
+
+
+// Description:
+// Get a pointer to a tuple at the ith location. This is a dangerous method
+// (it is not thread safe since a pointer is returned).
   float *GetTuple(const int i);
+
+
+// Description:
+// Copy the tuple value into a user-provided array.
   void GetTuple(const int i, float * tuple);
+
+
+// Description:
+// Set the tuple value at the ith location in the array.
   void SetTuple(const int i, const float * tuple);
+
+
+// Description:
+// Insert (memory allocation performed) the tuple into the ith location
+// in the array.
   void InsertTuple(const int i, const float * tuple);
+
+
+// Description:
+// Insert (memory allocation performed) the tuple onto the end of the array.
   int InsertNextTuple(const float * tuple);
+
   void Squeeze();
 
   // access/insertion methods
+
+// Description:
+// Get the data at a particular index.
   int GetValue(const int id);
+
   void SetNumberOfValues(const int number);
   void SetValue(const int id, const int value);
   void InsertValue(const int id, const int i);
@@ -81,9 +123,22 @@ public:
   unsigned char *GetPointer(const int id) {return this->Array + id/8;}
   unsigned char *WritePointer(const int id, const int number);
   void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
+
+// Description:
+// Deep copy of another bit array.
   void DeepCopy(vtkDataArray& da);
 
+
+
+// Description:
+// This method lets the user specify data to be held by the array.  The 
+// array argument is a pointer to the data.  size is the size of 
+// the array supplied by the user.  Set save to 1 to keep the class
+// from deleting the array when it cleans up or reallocates memory.
+// The class uses the actual array provided; it does not copy the data 
+// from the suppled array.
   void SetArray(unsigned char* array, int size, int save);
+
 private:
   unsigned char *Array;   // pointer to data
   unsigned char *Resize(const int sz);  // function to resize data

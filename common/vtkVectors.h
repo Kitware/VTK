@@ -74,10 +74,22 @@ public:
   int InsertNextVector(float vx, float vy, float vz);
 
   // Compute vector attributes
+
+// Description:
+// Compute the largest norm for these vectors.
   void ComputeMaxNorm();
+
+
+// Description:
+// Return the maximum norm for these vectors.
   float GetMaxNorm();
 
+
+
+// Description:
+// Given a list of pt ids, return an array of vectors.
   void GetVectors(vtkIdList& ptId, vtkVectors& fv);
+
 
 protected:
   float MaxNorm;

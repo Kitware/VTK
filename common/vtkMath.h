@@ -65,7 +65,11 @@ public:
   // some common methods
   static float Dot(float x[3], float y[3]);
   static double Dot(double x[3], double y[3]);
+
+// Description:
+// Cross product of two 3-vectors. Result vector in z[3].
   static void Cross(float x[3], float y[3], float z[3]);
+
   static float Norm(float x[3]);
   static float Normalize(float x[3]);
   static float Distance2BetweenPoints(float x[3], float y[3]);
@@ -83,32 +87,144 @@ public:
   static double Determinant3x3(double a1, double a2, double a3, 
 			       double b1, double b2, double b3, 
 			       double c1, double c2, double c3);
+
+// Description:
+// Solve linear equations Ax = b using Crout's method. Input is square matrix A
+// and load vector x. Solution x is written over load vector. The dimension of
+// the matrix is specified in size. If error is found, method returns a 0.
   static int SolveLinearSystem(double **A, double *x, int size);
+
+
+// Description:
+// Invert input square matrix A into matrix AI. Note that A is modified during
+// the inversion. The size variable is the dimension of the matrix. Returns 0
+// if inverse not computed.
   static int InvertMatrix(double **A, double **AI, int size);
+
+
+// Description:
+// Factor linear equations Ax = b using LU decompostion A = LU where L is
+// lower triangular matrix and U is upper triangular matrix. Input is 
+// square matrix A, integer array of pivot indices index[0->n-1], and size
+// of square matrix n. Output factorization LU is in matrix A. If error is 
+// found, method returns 0. 
   static int LUFactorLinearSystem(double **A, int *index, int size);
+
+
+// Description:
+// Solve linear equations Ax = b using LU decompostion A = LU where L is
+// lower triangular matrix and U is upper triangular matrix. Input is 
+// factored matrix A=LU, integer array of pivot indices index[0->n-1],
+// load vector x[0->n-1], and size of square matrix n. Note that A=LU and
+// index[] are generated from method LUFactorLinearSystem). Also, solution
+// vector is written directly over input load vector.
   static void LUSolveLinearSystem(double **A, int *index, double *x, int size);
+
+
+// Description:
+// Estimate the condition number of a LU factored matrix. Used to judge the
+// accuracy of the solution. The matrix A must have been previously factored
+// using the method LUFactorLinearSystem. The condition number is the ratio
+// of the infinity matrix norm (i.e., maximum value of matrix component)
+// divided by the minimum diagonal value. (This works for triangular matrices
+// only: see Conte and de Boor, Elementary Numerical Analysis.)
   static double EstimateMatrixCondition(double **A, int size);
 
+
   // Random number generation
+
+// Description:
+// Initialize seed value. NOTE: Random() has the bad property that 
+// the first random number returned after RandomSeed() is called 
+// is proportional to the seed value! To help solve this, call 
+// RandomSeed() a few times inside seed. This doesn't ruin the 
+// repeatability of Random().
+//
   static void RandomSeed(long s);  
+
+
+// Description:
+// Generate random numbers between 0.0 and 1.0.
+// This is used to provide portability across different systems.
   static float Random();  
+
   static float Random(float min, float max);
 
   // Eigenvalue/vector extraction for 3x3 matrices
+
+// Description:
+// Jacobi iteration for the solution of eigenvectors/eigenvalues of a 3x3
+// real symmetric matrix. Square 3x3 matrix a; output eigenvalues in w;
+// and output eigenvectors in v. Resulting eigenvalues/vectors are sorted
+// in decreasing order; eigenvectors are normalized.
   static int Jacobi(float **a, float *d, float **v);
+
 
   // Roots of polinomial equations
   // 
+
+// Description:
+// Solves a cubic equation c0*t^3  + c1*t^2  + c2*t + c3 = 0 when
+// c0, c1, c2, and c3 are REAL.
+// Solution is motivated by Numerical Recipes In C 2nd Ed.
+// Return array contains number of (real) roots (counting multiple roots as one)
+// followed by roots themselves. The value in roots[4] is a integer giving
+// further information about the roots (see return codes for int SolveCubic()).
   static double* SolveCubic( double c0, double c1, double c2, double c3 );
+
+
+// Description:
+// Solves a quadratic equation c1*t^2 + c2*t + c3 = 0 when c1, c2, and
+// c3 are REAL.  Solution is motivated by Numerical Recipes In C 2nd
+// Ed.  Return array contains number of (real) roots (counting
+// multiple roots as one) followed by roots themselves. Note that 
+// roots[3] contains a return code further describing solution - see
+// documentation for SolveCubic() for meaining of return codes.
   static double* SolveQuadratic( double c0, double c1, double c2 );
+
+
+// Description:
+// Solves a linear equation c2*t  + c3 = 0 when c2 and c3 are REAL.
+// Solution is motivated by Numerical Recipes In C 2nd Ed.
+// Return array contains number of roots followed by roots themselves.
   static double* SolveLinear( double c0, double c1 );
 
+
+
+// Description:
+// Solves a cubic equation when c0, c1, c2, And c3 Are REAL.  Solution
+// is motivated by Numerical Recipes In C 2nd Ed.  Roots and number of
+// real roots are stored in user provided variables r1, r2, r3, and
+// num_roots. Note that the function can return the following integer
+// values describing the roots: (0)-no solution; (-1)-infinite number
+// of solutions; (1)-one distinct real root of multiplicity 3 (stored
+// in r1); (2)-two distinct real roots, one of multiplicity 2 (stored
+// in r1 & r2); (3)-three distinct real roots; (-2)-quadratic equation
+// with complex conjugate solution (real part of root returned in r1,
+// imaginary in r2); (-3)-one real root and a complex conjugate pair
+// (real root in r1 and real part of pair in r2 and imaginary in r3).
   static int SolveCubic( double c0, double c1, double c2, double c3, 
 			  double *r1, double *r2, double *r3, int *num_roots );
+
+
+// Description:
+// Solves A Quadratic Equation c1*t^2  + c2*t  + c3 = 0 when 
+// c1, c2, and c3 are REAL.
+// Solution is motivated by Numerical Recipes In C 2nd Ed.
+// Roots and number of roots are stored in user provided variables
+// r1, r2, num_roots
   static int SolveQuadratic( double c0, double c1, double c2, 
 			      double *r1, double *r2, int *num_roots );
 
+
+
+// Description:
+// Solves a linear equation c2*t + c3 = 0 when c2 and c3 are REAL.
+// Solution is motivated by Numerical Recipes In C 2nd Ed.
+// Root and number of (real) roots are stored in user provided variables
+// r2 and num_roots.
   static int SolveLinear( double c0, double c1, double *r1, int *num_roots );
+
 
 protected:
   static long Seed;

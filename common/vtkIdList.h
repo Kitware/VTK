@@ -71,12 +71,29 @@ class VTK_EXPORT vtkIdList : public vtkObject
   int *WritePointer(const int id, const int number);
   void Reset() {this->Ia->Reset();};
   void Squeeze() {this->Ia->Squeeze();};
+
+// Description:
+// Copy an id list by reference counting internal array.
   void ShallowCopy(vtkIdList& ids);
+
+
+// Description:
+// Copy an id list by explicitly copying the internal array.
   void DeepCopy(vtkIdList& ids);
 
+
   // special set operations
+
+// Description:
+// Delete specified id from list. Will replace all occurences of id in list.
   void DeleteId(int Id);
+
+
+// Description:
+// Intersect this list with another vtkIdList. Updates current list according
+// to result of intersection operation.
   void IntersectWith(vtkIdList& otherIds);
+
   int IsId(int id);
 
 protected:

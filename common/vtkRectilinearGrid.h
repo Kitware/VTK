@@ -76,7 +76,12 @@ public:
 
   // dataset interface
   vtkDataObject *MakeObject() {return new vtkRectilinearGrid;};
+
+// Description:
+// Copy the geometric and topological structure of an input rectilinear grid
+// object.
   void CopyStructure(vtkDataSet *ds);
+
   void Initialize();
   int GetNumberOfCells();
   int GetNumberOfPoints();
@@ -95,14 +100,29 @@ public:
   int GetMaxCellSize() {return 8;}; //voxel is the largest
 
   // following methods are specific to structured data
+
+// Description:
+// Set dimensions of rectilinear grid dataset.
   void SetDimensions(int i, int j, int k);
+
+
+// Description:
+// Set dimensions of rectilinear grid dataset.
   void SetDimensions(int dim[3]);
+
 
   // Description:
   // Get dimensions of this rectilinear grid dataset.
   vtkGetVectorMacro(Dimensions,int,3);
 
+
+// Description:
+// Convenience function computes the structured coordinates for a point x[3].
+// The cell is specified by the array ijk[3], and the parametric coordinates
+// in the cell are specified with pcoords[3]. The function returns a 0 if the
+// point x is outside of the grid, and a 1 if inside the grid.
   int ComputeStructuredCoordinates(float x[3], int ijk[3], float pcoords[3]);
+
   int GetDataDimension();
   int ComputePointId(int ijk[3]);
   int ComputeCellId(int ijk[3]);

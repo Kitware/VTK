@@ -60,8 +60,17 @@ class VTK_EXPORT vtkCoordinate : public vtkReferenceCount
 {
 public:
 
+
+// Description:
+// Creates an Coordinate with the following defaults: 
+// value of  0, 0, 0 in world  coordinates
   vtkCoordinate();
+
+
+// Description:
+// Destroy a Coordinate.  
   ~vtkCoordinate();
+
   static vtkCoordinate* New() {return new vtkCoordinate;};
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkCoordinate";};

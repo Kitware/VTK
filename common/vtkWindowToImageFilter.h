@@ -69,7 +69,11 @@ public:
   // Returns which renderer is being used as the source for the pixel data.
   vtkGetObjectMacro(Input,vtkWindow);
 
+
+// Description:
+// This method returns the largest region that can be generated.
   void UpdateImageInformation();
+
   
 protected:
   vtkWindow *Input;

@@ -70,9 +70,18 @@ public:
 
   _vtkLink_s &GetLink(int ptId);
   unsigned short GetNcells(int ptId);
+
+// Description:
+// Build the link list array.
   void BuildLinks(vtkDataSet *data);
+
   int *GetCells(int ptId);
+
+// Description:
+// Insert a new point into the cell-links data structure. The size parameter
+// is the initial size of the list.
   int InsertNextPoint(int numLinks);
+
   void InsertNextCellReference(int ptId, int cellId);
 
   void DeletePoint(int ptId);
@@ -80,7 +89,11 @@ public:
   void AddCellReference(int cellId, int ptId);
   void ResizeCellList(int ptId, int size);
 
+
+// Description:
+// Reclaim any unused memory.
   void Squeeze();
+
   void Reset();
 
 private:

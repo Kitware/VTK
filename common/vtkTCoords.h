@@ -64,7 +64,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // overload vtkAttributeData API
+
+// Description:
+// Set the data for this object. The tuple dimension must be consistent with
+// the object.
   void SetData(vtkDataArray *);
+
   vtkAttributeData *MakeObject();
 
   // generic access to TCoord data

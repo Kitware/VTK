@@ -54,14 +54,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPlane : public vtkImplicitFunction
 {
 public:
+
+// Description
+// Construct plane passing through origin and normal to z-axis.
   vtkPlane();
+
   static vtkPlane *New() {return new vtkPlane;};
   const char *GetClassName() {return "vtkPlane";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface
+
+// Description
+// Evaluate plane equation for point x[3].
   float EvaluateFunction(float x[3]);
+
+
+// Description
+// Evaluate function gradient at point x[3].
   void EvaluateGradient(float x[3], float g[3]);
+
 
   // Description:
   // Set/get plane normal. Plane is defined by point and normal.
@@ -75,12 +87,26 @@ public:
   vtkGetVectorMacro(Origin,float,3);
 
   // plane specific stuff
+
+// Description
+// Project a point x onto plane defined by origin and normal. The 
+// projected point is returned in xproj. NOTE : normal assumed to
+// have magnitude 1.
   static void ProjectPoint(float x[3], float origin[3], float normal[3], 
                            float xproj[3]);
+
   static float Evaluate(float normal[3], float origin[3], float x[3]);
   static float DistanceToPlane(float x[3], float n[3], float p0[3]);
+
+// Description:
+// Given a line defined by the two points p1,p2; and a plane defined by the
+// normal n and point p0, compute an intersection. The parametric
+// coordinate along the line is returned in t, and the coordinates of 
+// intersection are returned in x. A zero is returned if the plane and line
+// are parallel.
   static int IntersectWithLine(float p1[3], float p2[3], float n[3], 
                                float p0[3], float& t, float x[3]);
+
 
 protected:
   float Normal[3];

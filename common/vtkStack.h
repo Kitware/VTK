@@ -62,16 +62,36 @@ class vtkStackElement //;prevents pick-up by man page generator
 class VTK_EXPORT vtkStack : public vtkObject
 {
 public:
+
+// Description:
+// Construct with empty stack.
   vtkStack();
+
   ~vtkStack();
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkStack *New() {return new vtkStack;};
   const char *GetClassName() {return "vtkStack";};
 
+
+// Description:
+// Add an object to the top of the stack. Does not prevent duplicate entries.
   void Push(vtkObject *);
+
+
+// Description:
+// Remove an object from the top of the list.
   vtkObject *Pop();
+
+
+// Description:
+// Return the number of objects in the stack.
   vtkObject *GetTop();
+
+
+// Description:
+// Return the number of objects in the stack.
   int  GetNumberOfItems();
+
 
 protected:
   int NumberOfItems;

@@ -55,7 +55,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolygon : public vtkCell
 {
 public:
+
+// Description:
+// Instantiate polygon.
   vtkPolygon();
+
   static vtkPolygon *New() {return new vtkPolygon;};
   const char *GetClassName() {return "vtkPolygon";};
 
@@ -92,9 +96,19 @@ public:
   // Polygon specific
   static void ComputeNormal(vtkPoints *p, int numPts, int *pts, float n[3]);
   static void ComputeNormal(vtkPoints *p, float n[3]);
+
+// Description:
+// Compute the polygon normal from an array of points. This version assumes that
+// the polygon is convex, and looks for the first valid normal.
   static void ComputeNormal(int numPts, float *pts, float n[3]);
 
+
+
+// Description:
+// Compute interpolation weights using 1/r**2 normalized sum.
+//
   void ComputeWeights(float x[3], float *weights);
+
 
   int ParameterizePolygon(float p0[3], float p10[3], float &l10, 
                           float p20[3], float &l20, float n[3]);
@@ -102,17 +116,51 @@ public:
   static int PointInPolygon(float x[3], int numPts, float *pts, float bounds[6],
                             float n[3]);  
 
+
+// Description:
+// Triangulate polygon. Tries to use the fast triangulation technique 
+// first, and if that doesn't work, uses more complex routine that is
+//  guaranteed to work.
   int Triangulate(vtkIdList &outTris);
+
+
+// Description: 
+// A fast triangulation method. Uses recursive divide and 
+// conquer based on plane splitting  to reduce loop into triangles.  
+// The cell (e.g., triangle) is presumed properly initialized (i.e., 
+// Points and PointIds).
   int RecursiveTriangulate(int numVerts, int *verts);
+
+
+// Description:
+// Determine whether the loop can be split. Determines this by first checking
+// to see whether points in each loop are on opposite sides of the split
+// plane. If so, then the loop can be split; otherwise see whether one of the
+// loops has all its points on one side of the split plane and the split line
+// is inside the polygon.
   int CanSplitLoop(int fedges[2], int numVerts, int *verts, int& n1, int *l1,
                    int& n2, int *l2);
+
+
+// Description:
+// Creates two loops from splitting plane provided
   void SplitLoop (int fedges[2], int numVerts, int *verts, int& n1, int *l1, 
                   int& n2, int* l2);
 
+
+
+// Description:
+// Method intersects two polygons. You must supply the number of points and
+// point coordinates (npts, *pts) and the bounding box (bounds) of the two
+// polygons. Also supply a tolerance squared for controlling
+// error. The method returns 1 if there is an intersection, and 0 if
+// not. A single point of intersection x[3] is also returned if there
+// is an intersection.
   static int IntersectPolygonWithPolygon(int npts, float *pts, float bounds[6],
                                          int npts2, float *pts2, 
                                          float bounds2[3], float tol,
                                          float x[3]);
+
 
 protected:
   // variables used by instances of this class

@@ -79,28 +79,80 @@ public:
 
   // dataset interface
   vtkDataObject *MakeObject() {return new vtkPolyData;};
+
+// Description:
+// Copy the geometric and topological structure of an input poly data object.
   void CopyStructure(vtkDataSet *ds);
+
   int GetNumberOfCells();
   vtkCell *GetCell(int cellId);
   int GetCellType(int cellId);
+
+// Description:
+// Copy a cells point ids into list provided. (Less efficient.)
   void GetCellPoints(int cellId, vtkIdList& ptIds);
+
   void GetPointCells(int ptId, vtkIdList& cellIds);
+
+// Description:
+// Recover extra allocated memory when creating data whose initial size
+// is unknown. Examples include using the InsertNextCell() method, or
+// when using the CellArray::EstimateSize() method to create vertices,
+// lines, polygons, or triangle strips.
   void Squeeze();
+
   int GetMaxCellSize();
 
   // Can't use macros to set/get following cell arrays.  This is due to tricks
   // required to support traversal methods.
+
+// Description:
+// Set the cell array defining vertices.
   void SetVerts (vtkCellArray* v);
+
+
+// Description:
+// Get the cell array defining vertices. If there are no vertices, an
+// empty array will be returned (convenience to simplify traversal).
   vtkCellArray *GetVerts();
 
+
+
+// Description:
+// Set the cell array defining lines.
   void SetLines (vtkCellArray* l);
+
+
+// Description:
+// Get the cell array defining lines. If there are no lines, an
+// empty array will be returned (convenience to simplify traversal).
   vtkCellArray *GetLines();
 
+
+
+// Description:
+// Set the cell array defining polygons.
   void SetPolys (vtkCellArray* p);
+
+
+// Description:
+// Get the cell array defining polygons. If there are no polygons, an
+// empty array will be returned (convenience to simplify traversal).
   vtkCellArray *GetPolys();
 
+
+
+// Description:
+// Set the cell array defining triangle strips.
   void SetStrips (vtkCellArray* s);
+
+
+// Description:
+// Get the cell array defining triangle strips. If there are no
+// triangle strips, an empty array will be returned (convenience to 
+// simplify traversal).
   vtkCellArray *GetStrips();
+
 
   int GetNumberOfVerts();
   int GetNumberOfLines();
@@ -108,42 +160,141 @@ public:
   int GetNumberOfStrips();
 
   // Allocate storage for cells when using the following InsertNextCell method
+
+// Description:
+// Method allocates initial storage for vertex, line, polygon, and 
+// triangle strip arrays. Use this method before the method 
+// PolyData::InsertNextCell(). (Or, provide vertex, line, polygon, and
+// triangle strip cell arrays.)
   void Allocate(int numCells=1000, int extSize=1000);
+
   // create verts, lines, polys, tmeshes from integer connectivity list
+
+// Description:
+// Insert a cell of type vtkVERTEX, vtkPOLY_VERTEX, vtkLINE, vtkPOLY_LINE,
+// vtkTRIANGLE, vtkQUAD, vtkPOLYGON, or vtkTRIANGLE_STRIP.  Make sure that
+// the PolyData::Allocate() function has been called first or that vertex,
+// line, polygon, and triangle strip arrays have been supplied.
+// Note: will also insert vtkPIXEL, but converts it to vtkQUAD.
   int InsertNextCell(int type, int npts, int *pts);
+
   // create verts, lines, polys, tmeshes from id connectivity list
+
+// Description:
+// Insert a cell of type VTK_VERTEX, VTK_POLY_VERTEX, VTK_LINE, VTK_POLY_LINE,
+// VTK_TRIANGLE, VTK_QUAD, VTK_POLYGON, or VTK_TRIANGLE_STRIP.  Make sure that
+// the PolyData::Allocate() function has been called first or that vertex,
+// line, polygon, and triangle strip arrays have been supplied.
+// Note: will also insert VTK_PIXEL, but converts it to VTK_QUAD.
   int InsertNextCell(int type, vtkIdList &pts);
+
   // Use this method to start inserting from the beginning
+
+// Description:
+// Begin inserting data all over again. Memory is not freed but otherwise
+// objects are returned to their initial state.
   void Reset();
 
+
   // construct adjacency structure
+
+// Description:
+// Create data structure that allows random access of cells.
   void BuildCells();
+
+
+// Description:
+// Create upward links from points to cells that use each point. Enables
+// topologically complex queries.
   void BuildLinks();
+
 
   // Special (efficient) operations on poly data. Use carefully.
   void GetPointCells(int ptId, unsigned short& ncells, int* &cells);
+
+// Description:
+// Get the neighbors at an edge. More efficient than the general 
+// GetCellNeighbors(). Assumes links have been built (with BuildLinks()), 
+// and looks specifically for edge neighbors.
   void GetCellEdgeNeighbors(int cellId, int p1, int p2, vtkIdList& cellIds);
+
+
+// Description:
+// Return a pointer to a list of point ids defining cell. (More efficient.)
+// Assumes that cells have been built (with BuildCells()).
   void GetCellPoints(int cellId, int& npts, int* &pts);
+
   int IsTriangle(int v1, int v2, int v3);
   int IsEdge(int v1, int v2);
   int IsPointUsedByCell(int ptId, int cellId);
+
+// Description:
+// Replace the points defining cell "cellId" with a new set of points. This
+// operator is (typically) used when links from points to cells have not been 
+// built (i.e., BuildLinks() has not been executed). Use the operator 
+// ReplaceLinkedCell() to replace a cell when cell structure has been built.
   void ReplaceCell(int cellId, int npts, int *pts);
+
   void ReplaceCellPoint(int cellId, int oldPtId, int newPtId);
+
+// Description:
+// Reverse the order of point ids defining the cell.
   void ReverseCell(int cellId);
+
   void DeletePoint(int ptId);
   void DeleteCell(int cellId);
+
+// Description:
+// Add a point to the cell data structure (after cell pointers have been
+// built). This method adds the point and then allocates memory for the
+// links to the cells.  (To use this method, make sure points are available
+// and BuildLinks() has been invoked.)
   int InsertNextLinkedPoint(float x[3], int numLinks); 
+
+
+// Description:
+// Add a new cell to the cell data structure (after cell pointers have been
+// built). This method adds the cell and then updates the links from the points
+// to the cells. (Memory is allocated as necessary.)
   int InsertNextLinkedCell(int type, int npts, int *pts); 
+
+
+// Description:
+// Replace one cell with another in cell structure. This operator updates the
+// connectivity list and the point's link list. It does not delete references
+// to the old cell in the point's link list. Use the operator 
+// RemoveCellReference() to delete all references from points to (old) cell.
+// You may also want to consider using the operator ResizeCellList() if the 
+// link list is changing size.
   void ReplaceLinkedCell(int cellId, int npts, int *pts);
+
   void RemoveCellReference(int cellId);
   void AddCellReference(int cellId);
+
+// Description:
+// Remove a reference to a cell in a particular point's link list. You may also
+// consider using RemoveCellReference() to remove the references from all the 
+// cell's points to the cell. This operator does not reallocate memory; use the
+// operator ResizeCellList() to do this if necessary.
   void RemoveReferenceToCell(int ptId, int cellId);
+
+
+// Description:
+// Add a reference to a cell in a particular point's link list. (You may also
+// consider using AddCellReference() to add the references from all the 
+// cell's points to the cell.) This operator does not realloc memory; use the
+// operator ResizeCellList() to do this if necessary.
   void AddReferenceToCell(int ptId, int cellId);
+
   void ResizeCellList(int ptId, int size);
 
   // Restore data object to initial state. Warning: releases memory; may
   // have to use Allocate() to reallocate memory.
+
+// Description:
+// Restore object to initial state. Release memory back to system.
   virtual void Initialize();
+
 
 protected:
   // points inherited

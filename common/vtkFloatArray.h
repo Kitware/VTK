@@ -52,10 +52,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatArray : public vtkDataArray
 {
 public:
+
+// Description:
+// Instantiate object with 1 components.
   vtkFloatArray(int numComp=1);
+
   ~vtkFloatArray();
+
+// Description:
+// Allocate memory for this array. Delete old storage only if necessary.
   int Allocate(const int sz, const int ext=1000);
+
+
+// Description:
+// Release storage and reset array to initial state.
   void Initialize();
+
   static vtkFloatArray *New() {return new vtkFloatArray;};
   const char *GetClassName() {return "vtkFloatArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -63,18 +75,60 @@ public:
   // satisfy vtkDataArray API
   vtkDataArray *MakeObject() {return new vtkFloatArray(this->NumberOfComponents);};
   int GetDataType() {return VTK_FLOAT;};
+
+// Description:
+// Set the number of n-tuples in the array.
   void SetNumberOfTuples(const int number);
+
+
+// Description:
+// Get a pointer to a tuple at the ith location.
   float *GetTuple(const int i);
+
+
+// Description:
+// Copy the tuple value into a user-provided array.
   void GetTuple(const int i, float * tuple);
+
+
+// Description:
+// Set the tuple value at the ith location in the array.
   void SetTuple(const int i, const float * tuple);
+
+
+// Description:
+// Insert (memory allocation performed) the tuple into the ith location
+// in the array.
   void InsertTuple(const int i, const float * tuple);
+
+
+// Description:
+// Insert (memory allocation performed) the tuple onto the end of the array.
   int InsertNextTuple(const float * tuple);
+
   void Squeeze();
 
   // overload vtkDataArray for efficiency
+
+// Description:
+// Return the data component at the ith tuple and jth component location.
+// Note that i<NumberOfTuples and j<NumberOfComponents.
   float GetComponent(const int i, const int j);
+
+
+// Description:
+// Set the data component at the ith tuple and jth component location.
+// Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
+// memory has been allocated (use SetNumberOfTuples() and 
+// SetNumberOfComponents()).
   void SetComponent(const int i, const int j, const float c);
+
+
+// Description:
+// Insert the data component at ith tuple and jth component location. 
+// Note that memory allocation is performed as necessary to hold the data.
   void InsertComponent(const int i, const int j, const float c);
+
 
   // native access/insertion methods
   float GetValue(const int id);
@@ -85,9 +139,22 @@ public:
   float *GetPointer(const int id) {return this->Array + id;}
   float *WritePointer(const int id, const int number);
   void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
+
+// Description:
+// Deep copy of another float array.
   void DeepCopy(vtkDataArray& fa);
 
+
+
+// Description:
+// This method lets the user specify data to be held by the array.  The 
+// array argument is a pointer to the data.  size is the size of 
+// the array supplied by the user.  Set save to 1 to keep the class
+// from deleting the array when it cleans up or reallocates memory.
+// The class uses the actual array provided; it does not copy the data 
+// from the suppled array.
   void SetArray(float* array, int size, int save);
+
 
 private:
   float *Array;  // pointer to data

@@ -61,13 +61,25 @@ public:
   const char *GetClassName() {return "vtkImageSimpleCache";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// This method updates the region specified by "UpdateExtent".  
   void Update();
+
   vtkImageData *UpdateAndReturnData();
+
+// Description:
+// This Method deletes any data in cache.
   void ReleaseData();
+
   void AllocateData();
 
   // Law: for vtkImageIterateFilter
+
+// Description:
+// return the un filled data of the UpdateExtent in this cache.
   vtkImageData *GetData(); 
+
 
   // Description:
   // Convenience method to get the range of the scalar data in the

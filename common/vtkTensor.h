@@ -56,7 +56,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTensor : public vtkObject
 {
 public:
+
+// Description:
+// Construct tensor initially pointing to internal storage.
   vtkTensor();
+
   static vtkTensor *New() {return new vtkTensor;};
   const char *GetClassName() {return "vtkTensor";};
 

@@ -57,10 +57,19 @@ class VTK_EXPORT vtkIndent
   void Delete() {delete this;};
   vtkIndent(int ind=0) {this->Indent=ind;};
   static vtkIndent *New() {return new vtkIndent;};
+
+// Description:
+// Determine the next indentation level. Keep indenting by two until the 
+// max of forty.
   vtkIndent GetNextIndent();
+
   
   //BTX
+
+// Description:
+// Print out the indentation. Basically output a bunch of spaces.
   friend VTK_EXPORT ostream& operator<<(ostream& os, vtkIndent& o); 
+
   //ETX
 
  protected:

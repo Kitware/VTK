@@ -75,18 +75,50 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProcessObject : public vtkObject
 {
 public:
+
+// Description:
+// Instantiate object with no start, end, or progress methods.
   vtkProcessObject();
+
+
+// Description:
+// Destructor for the vtkProcessObject class
   ~vtkProcessObject();
+
   static vtkProcessObject *New() {return new vtkProcessObject;};
   const char *GetClassName() {return "vtkProcessObject";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Specify function to be called before object executes.
   void SetStartMethod(void (*f)(void *), void *arg);
+
+
+// Description:
+// Specify function to be called to show progress of filter
   void SetProgressMethod(void (*f)(void *), void *arg);
+
+
+// Description:
+// Specify function to be called after object executes.
   void SetEndMethod(void (*f)(void *), void *arg);
+
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
   void SetStartMethodArgDelete(void (*f)(void *));
+
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
   void SetProgressMethodArgDelete(void (*f)(void *));
+
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
   void SetEndMethodArgDelete(void (*f)(void *));
+
 
   // Description:
   // Set/Get the AbortExecute flag for the process object. Process objects

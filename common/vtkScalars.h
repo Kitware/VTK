@@ -84,7 +84,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // overload vtkAttributeData API
+
+// Description:
+// Set the data for this object. The tuple dimension must be consistent with
+// the object.
   void SetData(vtkDataArray *);
+
   vtkAttributeData *MakeObject();
 
   // generic access to scalar data
@@ -108,9 +113,22 @@ public:
   vtkGetMacro(ActiveComponent,int);
 
   // Special computational methods.
+
+// Description:
+// Determine (rmin,rmax) range of scalar values.
   void ComputeRange();
+
+
+// Description:
+// Return the range of scalar values. Data returned as pointer to float array
+// of length 2.
   float *GetRange();
+
+
+// Description:
+// Return the range of scalar values. Range copied into array provided.
   void GetRange(float range[2]);
+
   void GetDataTypeRange(double range[2]);
   double GetDataTypeMin();
   double GetDataTypeMax();
@@ -124,7 +142,11 @@ public:
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
   // Get a list of scalars for ids listed.
+
+// Description:
+// Given a list of point ids, return an array of scalar values.
   void GetScalars(vtkIdList& ptIds, vtkScalars& fv);
+
 
   // Description:
   // Get the scalar values for the range of points ids specified 

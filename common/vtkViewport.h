@@ -63,7 +63,13 @@ class vtkWindow;
 class VTK_EXPORT vtkViewport : public vtkObject
 {
 public:
+
+// Description:
+// Create a vtkViewport with a black background, a white ambient light, 
+// two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
+// turned off.
   vtkViewport();
+
   ~vtkViewport();
   const char *GetClassName() {return "vtkViewport";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -109,19 +115,57 @@ public:
 
 
   virtual float *GetCenter();
+
+// Description:
+// Is a given display point in this Viewport's viewport.
   virtual int    IsInViewport(int x,int y); 
+
 
   virtual vtkWindow *GetVTKWindow() = 0;
   
+
+// Description:
+// Specify a function to be called before rendering process begins.
+// Function will be called with argument provided.
   void SetStartRenderMethod(void (*f)(void *), void *arg);
+
+
+// Description:
+// Specify a function to be called when rendering process completes.
+// Function will be called with argument provided.
   void SetEndRenderMethod(void (*f)(void *), void *arg);
+
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
   void SetStartRenderMethodArgDelete(void (*f)(void *));
+
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
   void SetEndRenderMethodArgDelete(void (*f)(void *));
 
+
+
+// Description:
+// Convert display coordinates to view coordinates.
   virtual void DisplayToView(); // these get modified in subclasses
+
+
+// Description:
+// Convert view coordinates to display coordinates.
   virtual void ViewToDisplay(); // to handle stereo rendering
+
+
+// Description:
+// Convert world point coordinates to view coordinates.
   virtual void WorldToView();
+
+
+// Description:
+// Convert view point coordinates to world coordinates.
   virtual void ViewToWorld();
+
   virtual void DisplayToWorld();
   virtual void WorldToDisplay();
 

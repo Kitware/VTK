@@ -65,9 +65,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLookupTable : public vtkReferenceCount
 {
 public:
+
+// Description:
+// Construct with range=(0,1); and hsv ranges set up for rainbow color table 
+// (from red to blue).
   vtkLookupTable(int sze=256, int ext=256);
+
+
+// Description:
+// Allocate a color table of specified size.
   int Allocate(int sz=256, int ext=256);
+
+
+// Description:
+// Generate lookup table from hue, saturation, value, alpha min/max values. 
+// Table is built from linear ramp of each value.
   virtual void Build();
+
   static vtkLookupTable *New() {return new vtkLookupTable;};
   const char *GetClassName() {return "vtkLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -79,8 +93,22 @@ public:
   vtkSetClampMacro(NumberOfColors,int,2, 65536);
   vtkGetMacro(NumberOfColors,int);
 
+
+// Description:
+// Set the minimum/maximum scalar values for scalar mapping. Scalar values
+// less than minimum range value are clamped to minimum range value.
+// Scalar values greater than maximum range value are clamped to maximum
+// range value.
   void SetTableRange(float r[2]); // can't use macro 'cause don't want modified
+
+
+// Description:
+// Set the minimum/maximum scalar values for scalar mapping. Scalar values
+// less than minimum range value are clamped to minimum range value.
+// Scalar values greater than maximum range value are clamped to maximum
+// range value.
   virtual void SetTableRange(float min, float max);
+
   vtkGetVectorMacro(TableRange,float,2);
 
   // Description:
@@ -109,12 +137,40 @@ public:
 
   virtual unsigned char *MapValue(float v);
 
+
+// Description:
+// Specify the number of values (i.e., colors) in the lookup
+// table. This method simply allocates memory and prepares the table
+// for use with SetTableValue(). It differs from Build() method in
+// that the allocated memory is not initialized according to HSVA ramps.
   void SetNumberOfTableValues(int number);
+
+
+// Description:
+// Directly load color into lookup table. Use [0,1] float values for color
+// component specification. Make sure that you've either used the
+// Build() method or used SetNumberOfTableValues() prior to using this method.
   void SetTableValue (int indx, float rgba[4]);
+
+
+// Description:
+// Directly load color into lookup table. Use [0,1] float values for color 
+// component specification.
   void SetTableValue (int indx, float r, float g, float b, float a=1.0);
 
+
+
+// Description:
+// Return a rgba color value for the given index into the lookup table. Color
+// components are expressed as [0,1] float values.
   float *GetTableValue (int id);
+
+
+// Description:
+// Return a rgba color value for the given index into the lookup table. Color
+// components are expressed as [0,1] float values.
   void GetTableValue (int id, float rgba[4]);
+
 
   unsigned char *GetPointer(const int id);
   unsigned char *WritePointer(const int id, const int number);

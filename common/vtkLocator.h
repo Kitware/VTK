@@ -82,7 +82,12 @@ class vtkPolyData;
 class VTK_EXPORT vtkLocator : public vtkReferenceCount
 {
 public:
+
+// Description:
+// Construct with automatic computation of divisions, averaging
+// 25 points per bucket.
   vtkLocator();
+
   ~vtkLocator();
   const char *GetClassName() {return "vtkLocator";};
   void PrintSelf(ostream& os, vtkIndent indent);

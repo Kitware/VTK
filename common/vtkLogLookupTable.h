@@ -64,8 +64,22 @@ public:
   const char *GetClassName() {return "vtkLogLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Set the minimum/maximum scalar values for scalar mapping. Scalar values
+// less than minimum range value are clamped to minimum range value.
+// Scalar values greater than maximum range value are clamped to maximum
+// range value. (The log base 10 of these values is taken and mapping is
+// performed in logarithmic space.)
   void SetTableRange(float min, float max);
+
+
+// Description:
+// Given a scalar value v, return an rgba color value from lookup table. 
+// Mapping performed log base 10 (negative ranges are converted into positive
+// values).
   unsigned char *MapValue(float v);
+
 
 protected:
   float LogMinRange;

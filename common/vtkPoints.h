@@ -73,12 +73,28 @@ public:
   int InsertNextPoint(float x[3]);
   int InsertNextPoint(float x, float y, float z);
 
+
+// Description:
+// Given a list of pt ids, return an array of points.
   void GetPoints(vtkIdList& ptId, vtkPoints& fp);
 
+
   // Compute point attributes
+
+// Description:
+// Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
   virtual void ComputeBounds();
+
+
+// Description:
+// Return the bounds of the points.
   float *GetBounds();
+
+
+// Description:
+// Return the bounds of the points.
   void GetBounds(float bounds[6]);
+
 
 protected:
   float Bounds[6];

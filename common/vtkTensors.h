@@ -78,7 +78,11 @@ public:
                        float t21, float t22, float t23, 
                        float t31, float t32, float t33);
 
+
+// Description:
+// Given a list of pt ids, return an array of tensors.
   void GetTensors(vtkIdList& ptId, vtkTensors& fv);
+
 
 protected:
   vtkTensor T;

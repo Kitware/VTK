@@ -90,10 +90,19 @@ public:
   int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts);
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs);
+
+// Description:
+// Return the center of the point cloud in parametric coordinates.
   int GetParametricCenter(float pcoords[3]);
 
+
   // triangle strip specific
+
+// Description:
+// Given a list of triangle strips, decompose into a list of (triangle) 
+// polygons. The polygons are appended to the end of the list of polygons.
   void DecomposeStrips(vtkCellArray *strips, vtkCellArray *tris);
+
   
 protected:
   vtkLine Line;

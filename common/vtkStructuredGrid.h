@@ -163,3 +163,5 @@ inline int vtkStructuredGrid::IsPointVisible(int ptId)
 
 
 
+
+

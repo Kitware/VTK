@@ -67,12 +67,32 @@ class VTK_EXPORT vtkStructuredData : public vtkObject
 public:
   static vtkStructuredData *New() {return new vtkStructuredData;};
   const char *GetClassName() {return "vtkStructuredData";};
+
+// Description:
+// Specify the dimensions of a regular, rectangular dataset. The input is
+// the new dimensions (inDim) and the current dimensions (dim). The function 
+// returns the dimension of the dataset (0-3D). If the dimensions are 
+// improperly specified a -1 is returned. If the dimensions are unchanged, a
+// value of 100 is returned.
   static int SetDimensions(int inDim[3], int dim[3]);
+
+
+// Description:
+// Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
   static int GetDataDimension(int dataDescription);
 
+
+
+// Description:
+// Get the points defining a cell. (See vtkDataSet for more info.)
   static void GetCellPoints(int cellId, vtkIdList& ptIds, 
                      int dataDescription, int dim[3]);
+
+
+// Description:
+// Get the cells using a point. (See vtkDataSet for more info.)
   static void GetPointCells(int ptId, vtkIdList& cellIds, int dim[3]);
+
 
   static int ComputePointId(int dim[3], int ijk[3]);
   static int ComputeCellId(int dim[3], int ijk[3]);
