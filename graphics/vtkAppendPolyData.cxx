@@ -43,8 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkAppendPolyData* vtkAppendPolyData::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +55,6 @@ vtkAppendPolyData* vtkAppendPolyData::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkAppendPolyData;
 }
-
-
-
 
 //----------------------------------------------------------------------------
 vtkAppendPolyData::vtkAppendPolyData()
@@ -387,6 +383,7 @@ void vtkAppendPolyData::Execute()
     //vtkErrorMacro(<<"No data to append!");
     return;
     }
+  this->UpdateProgress(0.10);
 
   // Now can allocate memory
 
@@ -492,6 +489,7 @@ void vtkAppendPolyData::Execute()
   cellOffset = 0;
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
+    this->UpdateProgress(0.2 + 0.8*idx/this->NumberOfInputs);
     ds = (vtkPolyData *)(this->Inputs[idx]);
     // this check is not necessary, but I'll put it in anyway
     if (ds != NULL)
