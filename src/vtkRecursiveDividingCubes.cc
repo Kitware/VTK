@@ -59,7 +59,7 @@ static vtkCellArray *NewVerts; //verts being generated
 
 void vtkRecursiveDividingCubes::Execute()
 {
-  int i, j, k, idx, ii;
+  int i, j, k, idx;
   vtkScalars *inScalars;
   vtkIdList voxelPts(8);
   float origin[3];

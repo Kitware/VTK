@@ -123,7 +123,7 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, float tol2, int& subId,
   int closestCell = -1;
   int ptId, cellId;
   float dist2, minDist2=VTK_LARGE_FLOAT;
-  int sId, npts;
+  int sId;
   float pc[3], closestPoint[3];
   static vtkIdList cellIds(VTK_CELL_SIZE);
   static float *w=new float[this->GetMaxCellSize()];
