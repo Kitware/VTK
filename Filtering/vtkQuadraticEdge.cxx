@@ -20,7 +20,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.1");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.2");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 //----------------------------------------------------------------------------
@@ -95,7 +95,16 @@ int vtkQuadraticEdge::EvaluatePosition(double* x, double* closestPoint,
       {
       pcoords[0] = 0.5 + pcoords[0]/2.0;
       }
-    this->EvaluateLocation(subId,pcoords,closestPoint,weights);
+    if(closestPoint!=0)
+      {
+      // Compute both closestPoint and weights
+      this->EvaluateLocation(subId,pcoords,closestPoint,weights);
+      }
+    else
+      {
+      // Compute weights only
+      this->InterpolationFunctions(pcoords,weights);
+      }
     }
 
   return returnStatus;

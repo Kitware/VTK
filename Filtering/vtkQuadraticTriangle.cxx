@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.1");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.2");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 //----------------------------------------------------------------------------
@@ -129,7 +129,16 @@ int vtkQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
       pcoords[1] = 0.5 - pcoords[1]/2.0;
       }
     pcoords[2] = 1.0 - pcoords[0] - pcoords[1];
-    this->EvaluateLocation(subId,pcoords,closestPoint,weights);
+    if(closestPoint!=0)
+      {
+      // Compute both closestPoint and weights
+      this->EvaluateLocation(subId,pcoords,closestPoint,weights);
+      }
+    else
+      {
+      // Compute weights only
+      this->InterpolationFunctions(pcoords,weights);
+      }
     }
 
   return returnStatus;

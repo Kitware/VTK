@@ -24,7 +24,7 @@
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.1");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.2");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 //----------------------------------------------------------------------------
@@ -171,7 +171,16 @@ int vtkQuadraticQuad::EvaluatePosition(double* x,
       pcoords[1] = 0.5 + (pcoords[1]/2.0);
       }
     pcoords[2] = 0.0;
-    this->EvaluateLocation(subId,pcoords,closestPoint,weights);
+    if(closestPoint!=0)
+      {
+      // Compute both closestPoint and weights
+      this->EvaluateLocation(subId,pcoords,closestPoint,weights);
+      }
+    else
+      {
+      // Compute weigths only
+      this->InterpolationFunctions(pcoords,weights);
+      }
     }
 
   return returnStatus;
