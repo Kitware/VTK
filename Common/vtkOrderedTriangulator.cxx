@@ -21,7 +21,7 @@
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.37");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.38");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -721,7 +721,7 @@ int vtkOTTetra::InCircumSphere(double x[3])
           (x[1] - this->Center[1]) * (x[1] - this->Center[1]) +
           (x[2] - this->Center[2]) * (x[2] - this->Center[2]);
 
-  return (dist2 < (0.999999999L * this->Radius2) ? 1 : 0);
+  return (dist2 < (0.9999999999L * this->Radius2) ? 1 : 0);
 }
 
 //------------------------------------------------------------------------
