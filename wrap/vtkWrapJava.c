@@ -444,7 +444,7 @@ void HandleDataReader(FILE *fp, FileInfo *data)
             data->ClassName, data->ClassName);
     fprintf(fp,"  jboolean isCopy;\n");
     fprintf(fp,"  jbyte *data = env->GetByteArrayElements(id0,&isCopy);\n");
-    fprintf(fp,"  op->SetBinaryInputString((unsigned char *)data,id1);\n");
+    fprintf(fp,"  op->SetBinaryInputString((const char *)data,id1);\n");
     fprintf(fp,"  env->ReleaseByteArrayElements(id0,data,JNI_ABORT);\n");
     fprintf(fp,"}\n");
 }
