@@ -99,6 +99,18 @@
 
 //----------------------------------------------------------------------------
 
+/* Test use of namespaces.  */
+namespace NamespaceTest {}
+namespace {}
+void NamespaceTestFunc() {}
+namespace NamespaceTest
+{
+  using ::NamespaceTestFunc;
+}
+using namespace NamespaceTest;
+
+//----------------------------------------------------------------------------
+
 /* Test inclusion of some stl headers.  */
 #ifdef _MSC_VER
 #pragma warning (push, 2)
