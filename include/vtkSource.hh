@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkSource is an abstract object that specifies behavior and interface
 // of source objects. Source objects are objects that begin visualization
 // pipeline. Sources include readers (read data from file or communications
-// port) and procedural sources (generate data programatically).
+// port) and procedural sources (generate data programmatically).
 
 #ifndef __vtkSource_h
 #define __vtkSource_h
@@ -78,7 +78,7 @@ public:
 
   // Description:
   // Set/Get flag indicating whether data has been released since last 
-  // execution. Used during update method to determin whether to execute 
+  // execution. Used during update method to determine whether to execute 
   // or not.
   virtual int GetDataReleased();
   virtual void SetDataReleased(int flag);

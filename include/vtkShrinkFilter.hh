@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkShrinkFilter shrinks cells composing an arbitrary data set 
 // towards their centroid. The centroid of a cell is computed as 
 // the average position of the cell points. Shrinking results in 
-// disconencting the cells from one another.
+// disconnecting the cells from one another.
 // .SECTION Caveats
 // It is possible to turn cells inside out or cause self intersection
 // in special cases.
