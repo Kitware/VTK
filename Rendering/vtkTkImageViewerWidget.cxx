@@ -424,15 +424,16 @@ extern "C"
 extern "C" {VTK_TK_EXPORT int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}
 int Vtktkimageviewerwidget_Init(Tcl_Interp *interp)
 {
-  if (Tcl_PkgProvide(interp, (char *) "Vtktkimageviewerwidget", (char *) "1.2") != TCL_OK) 
+  if(Tcl_PkgPresent(interp, "Tk", TK_VERSION, 0))
     {
-    return TCL_ERROR;
+    Tcl_CreateCommand(interp, (char *) "vtkTkImageViewerWidget", 
+                      vtkTkImageViewerWidget_Cmd, 
+                      Tk_MainWindow(interp), NULL);
+    if (Tcl_PkgProvide(interp, (char *) "Vtktkimageviewerwidget", (char *) "1.2") != TCL_OK) 
+      {
+      return TCL_ERROR;
+      }
     }
-  
-  Tcl_CreateCommand(interp, (char *) "vtkTkImageViewerWidget", 
-                    vtkTkImageViewerWidget_Cmd, 
-                    Tk_MainWindow(interp), NULL);
-  
   return TCL_OK;
 }
 

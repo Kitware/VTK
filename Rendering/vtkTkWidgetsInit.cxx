@@ -64,18 +64,20 @@ extern "C"
 
 int Vtkrenderingpythontkwidgets_Init(Tcl_Interp *interp)
 {
-  if (Tcl_PkgProvide(interp, (char *) "Vtkrenderingpythontkwidgets", (char *) "1.2") != TCL_OK) 
+  if(Tcl_PkgPresent(interp, "Tk", TK_VERSION, 0))
     {
-    return TCL_ERROR;
+    Tcl_CreateCommand(interp, (char *) "vtkTkRenderWidget", vtkTkRenderWidget_Cmd, 
+                      Tk_MainWindow(interp), NULL);
+    Tcl_CreateCommand(interp, (char *) "vtkTkImageViewerWidget", 
+                      vtkTkImageViewerWidget_Cmd, Tk_MainWindow(interp), NULL);
+    
+    Tcl_CreateCommand(interp, (char *) "vtkImageDataToTkPhoto", vtkImageDataToTkPhoto_Cmd, 
+                      NULL, NULL );
+    if (Tcl_PkgProvide(interp, (char *) "Vtkrenderingpythontkwidgets", (char *) "1.2") != TCL_OK) 
+      {
+      return TCL_ERROR;
+      }
     }
-  
-  Tcl_CreateCommand(interp, (char *) "vtkTkRenderWidget", vtkTkRenderWidget_Cmd, 
-                    Tk_MainWindow(interp), NULL);
-  Tcl_CreateCommand(interp, (char *) "vtkTkImageViewerWidget", 
-                    vtkTkImageViewerWidget_Cmd, Tk_MainWindow(interp), NULL);
-  
-  Tcl_CreateCommand(interp, (char *) "vtkImageDataToTkPhoto", vtkImageDataToTkPhoto_Cmd, 
-                    NULL, NULL );
   return TCL_OK;
 }
 
