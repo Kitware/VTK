@@ -83,11 +83,6 @@ FTBitmapGlyph::~FTBitmapGlyph()
 {
   if( data)
     delete [] data;
-
-  if (!this->glyphHasBeenConverted)
-    {
-    FT_Done_Glyph( this->glyph );
-    }
 }
 
 

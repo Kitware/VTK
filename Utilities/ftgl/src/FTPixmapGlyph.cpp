@@ -121,13 +121,6 @@ FTPixmapGlyph::~FTPixmapGlyph()
 {
   if( data)
     delete [] data;
-
-  // Release glyph (if it has been converted, then it has been released
-  // already)
-  if (!this->glyphHasBeenConverted)
-    {
-    FT_Done_Glyph( this->glyph );
-    }
 }
 
 
