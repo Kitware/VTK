@@ -395,21 +395,31 @@ vtkPolyData model
   [model GetCellData] SetScalars faceColors
   [model GetPointData] SetScalars vertexColors
 
+vtkTextureMapToSphere ballTC
+  ballTC SetInput model
+
 vtkLookupTable lut
   lut SetNumberOfColors 3
   lut Build
   lut SetTableValue 0 0 0 0 0
-  lut SetTableValue 1 .1 .1 .1 1
+  lut SetTableValue 1 1 .3 .3 1
   lut SetTableValue 2 .8 .8 .9 1
 
 vtkDataSetMapper mapper
-    mapper SetInput model
+    mapper SetInput [ballTC GetOutput]
     mapper SetScalarModeToUseCellData
     mapper SetLookupTable lut
     mapper SetScalarRange 0 2
 
+vtkPNMReader earth
+  earth SetFileName "../../../vtkdata/earth.ppm"
+
+vtkTexture texture
+texture SetInput [earth GetOutput]
+
 vtkActor soccerBall
     soccerBall SetMapper mapper
+  soccerBall SetTexture texture
 
 # Add the actors to the renderer, set the background and size
 #
