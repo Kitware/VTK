@@ -61,11 +61,11 @@ int TestMultiBlock(int argc, char* argv[])
 
   vtkShrinkPolyData* shrink = vtkShrinkPolyData::New();
   shrink->SetShrinkFactor(0.2);
-  shrink->SetInput(geom->GetOutput());
+  shrink->SetInputConnection(0, geom->GetOutputPort(0));
 
   // Rendering objects
   vtkPolyDataMapper* shMapper = vtkPolyDataMapper::New();
-  shMapper->SetInput(shrink->GetOutput());
+  shMapper->SetInputConnection(0, shrink->GetOutputPort(0));
   vtkActor* shActor = vtkActor::New();
   shActor->SetMapper(shMapper);
   shActor->GetProperty()->SetColor(0, 0, 1);
@@ -82,7 +82,7 @@ int TestMultiBlock(int argc, char* argv[])
 
   // Rendering objects
   vtkPolyDataMapper* ocMapper = vtkPolyDataMapper::New();
-  ocMapper->SetInput(geom2->GetOutput());
+  ocMapper->SetInputConnection(0, geom2->GetOutputPort(0));
   vtkActor* ocActor = vtkActor::New();
   ocActor->SetMapper(ocMapper);
   ocActor->GetProperty()->SetColor(1, 0, 0);
@@ -103,7 +103,7 @@ int TestMultiBlock(int argc, char* argv[])
 
   // Rendering objects
   vtkPolyDataMapper* contMapper = vtkPolyDataMapper::New();
-  contMapper->SetInput(geom3->GetOutput());
+  contMapper->SetInputConnection(0, geom3->GetOutputPort(0));
   vtkActor* contActor = vtkActor::New();
   contActor->SetMapper(contMapper);
   contActor->GetProperty()->SetColor(1, 0, 0);
