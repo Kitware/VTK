@@ -32,7 +32,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.73");
+vtkCxxRevisionMacro(vtkCutter, "1.74");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 
@@ -340,8 +340,6 @@ void vtkCutter::UnstructuredGridCutter()
   int abortExecute = 0;
 
   float range[2];
-
-  cellScalars=vtkFloatArray::New();
 
   // Create objects to hold output of contour operation
   //
