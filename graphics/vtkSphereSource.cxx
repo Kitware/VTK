@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNormals.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkGhostLevels.h"
+//#include "vtkGhostLevels.h"
 
 //------------------------------------------------------------------------------
 vtkSphereSource* vtkSphereSource::New()
@@ -87,7 +87,6 @@ void vtkSphereSource::Execute()
   int numPts, numPolys;
   vtkPoints *newPoints; 
   vtkNormals *newNormals;
-  vtkGhostLevels *newGhostPoints = NULL;
   vtkCellArray *newPolys;
   float x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   float startTheta, endTheta, startPhi, endPhi;
@@ -95,13 +94,6 @@ void vtkSphereSource::Execute()
   vtkPolyData *output = this->GetOutput();
   int piece = output->GetUpdatePiece();
   int numPieces = output->GetUpdateNumberOfPieces();
-  int ghostLevel = output->GetUpdateGhostLevel();
-  
-  if (ghostLevel > 0)
-    {
-    vtkWarningMacro("vtkSphereSource does not generate ghost cells.");
-    ghostLevel = 0;
-    }
 
   // I want to modify the ivars resoultion start theta and end theta, 
   // so I will make local copies of them.  THese might be able to be merged 
@@ -138,11 +130,6 @@ void vtkSphereSource::Execute()
   newPoints->Allocate(numPts);
   newNormals = vtkNormals::New();
   newNormals->Allocate(numPts);
-  if (numPieces > 1)
-    {
-    newGhostPoints = vtkGhostLevels::New();
-    newGhostPoints->Allocate(numPts);
-    }
   
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys, 3));
@@ -159,17 +146,6 @@ void vtkSphereSource::Execute()
 
     x[0] = x[1] = 0.0; x[2] = 1.0;
     newNormals->InsertNormal(numPoles,x);
-    if (newGhostPoints)
-      {
-      if (piece == 0)
-        {
-        newGhostPoints->InsertGhostLevel(numPoles, 0);
-        }
-      else
-        {
-        newGhostPoints->InsertGhostLevel(numPoles, 1);
-        }
-      }
     numPoles++;
     }
 
@@ -183,17 +159,6 @@ void vtkSphereSource::Execute()
 
     x[0] = x[1] = 0.0; x[2] = -1.0;
     newNormals->InsertNormal(numPoles,x);
-    if (newGhostPoints)
-      {
-      if (piece == 0)
-        {
-        newGhostPoints->InsertGhostLevel(numPoles, 0);
-        }
-      else
-        {
-        newGhostPoints->InsertGhostLevel(numPoles, 1);
-        }
-      }
     numPoles++;
     }
 
@@ -244,23 +209,6 @@ void vtkSphereSource::Execute()
         }
       n[0] /= norm; n[1] /= norm; n[2] /= norm; 
       newNormals->InsertNextNormal(n);
-
-      if (newGhostPoints)
-        {
-        if (i < ghostLevel + 1)
-          {
-          newGhostPoints->InsertNextGhostLevel(ghostLevel - i + 1);
-          }
-        else if (i >= localThetaResolution - ghostLevel)
-          {
-          newGhostPoints->InsertNextGhostLevel(i - localThetaResolution +
-					       ghostLevel + 1);
-          }
-        else
-          {
-          newGhostPoints->InsertNextGhostLevel(0);
-          }
-        }
       }
     }
 
@@ -322,12 +270,6 @@ void vtkSphereSource::Execute()
   output->GetPointData()->SetNormals(newNormals);
   newNormals->Delete();
 
-  if (newGhostPoints)
-    {
-    output->GetPointData()->SetGhostLevels(newGhostPoints);
-    newGhostPoints->Delete();
-    }
-  
   output->SetPolys(newPolys);
   newPolys->Delete();
 }
