@@ -222,7 +222,7 @@ protected:
   void Execute();
   void ExecuteInformation();
   
-  void Cap(vtkScalars *s);
+  void Cap(vtkDataArray *s);
 
   vtkMultiThreader *Threader;
   int              NumberOfThreads;
