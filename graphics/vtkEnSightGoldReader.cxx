@@ -160,6 +160,12 @@ int vtkEnSightGoldReader::ReadGeometryFile()
     else
       {
       lineRead = this->CreateUnstructuredGridOutput(partId, line);
+      if (lineRead < 0)
+        {
+        delete this->IS;
+        this->IS = NULL;
+        return 0;
+        }
       }
     }
   
@@ -170,8 +176,8 @@ int vtkEnSightGoldReader::ReadGeometryFile()
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
-					     int numberOfComponents = 1,
-					     int component = 0)
+					     int numberOfComponents,
+					     int component)
 {
   char line[256];
   int partId, numPts, i;
@@ -1262,6 +1268,11 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       
       delete [] nodeIds;
+      }
+    else
+      {
+      vtkErrorMacro("undefined geometry file line");
+      return -1;
       }
     }
   return lineRead;
