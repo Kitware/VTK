@@ -101,7 +101,6 @@ void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D,
   vtkVolumeMapper *volumeMapper;
 
   this->SetPath(path);
-  this->Mapper = mapper;
   this->GlobalTMin = tMin;
 
   for (i=0; i < 3; i++) 
@@ -113,11 +112,12 @@ void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D,
   if ( (mapper=vtkMapper::SafeDownCast(m)) != NULL )
     {
     this->DataSet = mapper->GetInput();
+    this->Mapper = mapper;
     }
   else if ( (volumeMapper=vtkVolumeMapper::SafeDownCast(m)) != NULL )
     {
     this->DataSet = volumeMapper->GetInput();
-    }
+    this->Mapper = volumeMapper;    }
   else
     {
     this->DataSet = NULL;
