@@ -14,6 +14,7 @@ vtkRenderWindowInteractor iren
 #
 vtkSTLReader stla
     stla SetFileName "../../../vtkdata/Viewpoint/cow.stl"
+    stla MergingOff
 vtkPolyDataMapper stlaMapper
     stlaMapper SetInput [stla GetOutput]
 vtkActor stlaActor
