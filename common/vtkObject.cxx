@@ -107,12 +107,6 @@ vtkObject::~vtkObject()
 {
   vtkDebugMacro(<< "Destructing!");
 
-  // invoke the delete method
-  if ( this->DeleteMethod )
-    {
-      (*this->DeleteMethod)(this);
-    }
-
   // warn user if reference counting is on and the object is being referenced
   // by another object
   if ( this->ReferenceCount > 0)
@@ -269,9 +263,15 @@ void vtkObject::UnRegister(vtkObject* o)
 
   if (--this->ReferenceCount <= 0)
     {
+      // invoke the delete method
+      if ( this->DeleteMethod )
+	{
+	  (*this->DeleteMethod)(this);
+	}
     delete this;
     }
 }
+
 
 
 
