@@ -250,9 +250,10 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
       break;
     }
 
-  // Extract point coordinates and point ids. NOTE: the ordering of the VlQuad
+  // Extract point coordinates and point ids. NOTE: the ordering of the vtkQuad
   // and vtkHexahedron cells are tricky.
-  for (i=0; i<cell->PointIds.GetNumberOfIds(); i++)
+  int NumberOfIds = cell->PointIds.GetNumberOfIds();
+  for (i=0; i<NumberOfIds; i++)
     {
     idx = cell->PointIds.GetId(i);
     cell->Points.InsertPoint(i,this->Points->GetPoint(idx));
