@@ -73,18 +73,7 @@ void vtkRemoveGhostCells::Execute()
 
   cellData = input->GetCellData();
 
-  vtkFieldData* fd = cellData->GetFieldData();
-  if (!fd)
-    {
-    vtkErrorMacro(<<"No field data found.");
-    output->SetPoints(input->GetPoints());
-    output->SetPolys(input->GetPolys());
-    output->GetPointData()->PassData(input->GetPointData());
-    output->GetCellData()->PassData(input->GetCellData());
-    return;
-    }
-
-  vtkDataArray* temp = fd->GetArray("vtkGhostLevels");
+  vtkDataArray* temp = cellData->GetArray("vtkGhostLevels");
   if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
     || (temp->GetNumberOfComponents() != 1))
     {
