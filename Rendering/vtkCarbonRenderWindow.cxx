@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.21");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.22");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -358,19 +358,7 @@ vtkCarbonRenderWindow::vtkCarbonRenderWindow()
 // --------------------------------------------------------------------------
 vtkCarbonRenderWindow::~vtkCarbonRenderWindow()
 {
-  if (this->CursorHidden)
-    {
-    this->ShowCursor();
-    }
-  if (this->WindowId)
-    {
-    this->Clean();
-    }
-  if (this->WindowId && this->OwnWindow)
-    {
-    // can't set WindowId=NULL, needed for DestroyWindow
-    DisposeWindow(this->WindowId);
-    }
+  this->Finalize();
 }
 
 //--------------------------------------------------------------------------
@@ -640,8 +628,9 @@ void vtkCarbonRenderWindow::CreateAWindow(int, int, int, int)
       }
     else
       {
-      if (noErr != CreateNewWindow (kDocumentWindowClass, windowAttrs,
-  &rectWin, &(this->WindowId)))
+      if (noErr != CreateNewWindow (kDocumentWindowClass,
+                                    windowAttrs,
+                                    &rectWin, &(this->WindowId)))
         {
         vtkErrorMacro("Could not create window, serious error!");
         return;
@@ -792,6 +781,28 @@ void vtkCarbonRenderWindow::Initialize (void)
     }
 
   this->WindowInitialize();
+}
+
+void vtkCarbonRenderWindow::Finalize(void)
+{
+  if (this->CursorHidden)
+    {
+      this->ShowCursor();
+    }
+
+  if (this->OffScreenRendering) // does not exist yet
+    {
+      //this->CleanUpOffScreenRendering()
+    }
+
+  if (this->WindowId && this->OwnWindow)
+    {
+      this->Clean();
+      //ReleaseDC in Win32
+      this->DeviceContext = NULL;
+      SetWRefCon(this->WindowId, (long)0);
+      DisposeWindow(this->WindowId);
+    }
 }
 
 //--------------------------------------------------------------------------

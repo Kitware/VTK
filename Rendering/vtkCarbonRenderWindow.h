@@ -53,12 +53,21 @@ public:
   virtual void WindowConfigure(void);
 
   // Description:
-  // Initialize the window for rendering.
+  // Create the window.
   virtual void WindowInitialize(void);
 
   // Description:
-  // Initialize the rendering window.
+  // Initialize the rendering window. This will setup all system-specific
+  // resources. This method and Finalize() must be symmetric and it
+  // should be possible to call them multiple times, even changing WindowId
+  // in-between. This is what WindowRemap does.
   virtual void Initialize(void);
+
+  // Description:
+  // Finalize the rendering window. This will shutdown all system-specifc
+  // resources. After having called this, it should be possible to destroy
+  // a window that was used for a SetWindowId() call without any ill effects.
+  virtual void Finalize(void);
 
   // Description:
   // Change the window to fill the entire screen.
