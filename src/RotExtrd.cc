@@ -189,8 +189,8 @@ void vlRotationalExtrusionFilter::Execute()
         edge = cell->GetEdge(i);
         for (j=0; j<(edge->GetNumberOfPoints()-1); j++)
           {
-          p1 = pts[j];
-          p2 = pts[(j+1)%npts];
+          p1 = edge->PointIds.GetId(j);
+          p2 = edge->PointIds.GetId(j+1);
           mesh.GetCellEdgeNeighbors(cellId, p1, p2, cellIds);
 
           if ( cellIds.GetNumberOfIds() < 1 ) //generate strip
@@ -211,7 +211,7 @@ void vlRotationalExtrusionFilter::Execute()
 //
   this->SetPoints(newPts);
   if ( newLines ) this->SetLines(newLines);
-  if ( newPolys ) this->SetPolys(newLines);
+  if ( newPolys ) this->SetPolys(newPolys);
   this->SetStrips(newStrips);
 
   this->Squeeze();
