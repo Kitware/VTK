@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.4");
+vtkCxxRevisionMacro(vtkPointWidget, "1.5");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -103,7 +103,7 @@ void vtkPointWidget::SetEnabled(int enabling)
     return;
     }
 
-  if ( enabling ) //------------------------------------------------------------
+  if ( enabling ) //-----------------------------------------------------------
     {
     vtkDebugMacro(<<"Enabling point widget");
 
@@ -142,6 +142,7 @@ void vtkPointWidget::SetEnabled(int enabling)
     // Add the line
     this->CurrentRenderer->AddActor(this->Actor);
     this->Actor->SetProperty(this->Property);
+    this->Cursor3D->Update();
 
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
@@ -232,6 +233,9 @@ void vtkPointWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "XShadows: " << (this->GetXShadows() ? "On\n" : "Off\n");
   os << indent << "YShadows: " << (this->GetYShadows() ? "On\n" : "Off\n");
   os << indent << "ZShadows: " << (this->GetZShadows() ? "On\n" : "Off\n");
+
+  os << indent << "Translation Mode: " 
+     << (this->Cursor3D->GetTranslationMode() ? "On\n" : "Off\n");
 }
 
 void vtkPointWidget::Highlight(int highlight)
@@ -475,7 +479,7 @@ void vtkPointWidget::MoveFocus(double *p1, double *p2)
   this->Cursor3D->SetFocalPoint(focus);
 }
 
-// Loop through all points and translate them
+// Translate everything
 void vtkPointWidget::Translate(double *p1, double *p2)
 {
   //Get the motion vector
@@ -509,7 +513,6 @@ void vtkPointWidget::Translate(double *p1, double *p2)
   
   this->Cursor3D->SetModelBounds(newBounds);
   this->Cursor3D->SetFocalPoint(newFocus);
-  this->Cursor3D->Update();
 }
 
 void vtkPointWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)

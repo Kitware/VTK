@@ -83,6 +83,7 @@ class vtkProperty;
 class vtkSphereSource;
 class vtkCellPicker;
 class vtkPointWidget;
+class vtkPWCallback;
 class vtkPW1Callback;
 class vtkPW2Callback;
 
@@ -115,8 +116,7 @@ public:
 
   // Description:
   // Set/Get the position of first end point.
-  void SetPoint1(float x, float y, float z) 
-    {this->LineSource->SetPoint1(x,y,z); this->PositionHandles();}
+  void SetPoint1(float x, float y, float z);
   void SetPoint1(float x[3]) 
     {this->SetPoint1(x[0], x[1], x[2]); }
   float* GetPoint1() 
@@ -126,8 +126,7 @@ public:
 
   // Description:
   // Set position of other end point.
-  void SetPoint2(float x, float y, float z) 
-    {this->LineSource->SetPoint2(x,y,z); this->PositionHandles();}
+  void SetPoint2(float x, float y, float z);
   void SetPoint2(float x[3]) 
     {this->SetPoint2(x[0], x[1], x[2]);}
   float* GetPoint2() 
@@ -235,15 +234,11 @@ protected:
   float LastPickPosition[3];
   
   // Methods to manipulate the hexahedron.
-  void MovePoint1(double *p1, double *p2);
-  void MovePoint2(double *p1, double *p2);
   void Scale(double *p1, double *p2, int X, int Y);
-  void Translate(double *p1, double *p2);
   
   // Initial bounds
   float InitialBounds[6];
   float InitialLength;
-  float LineBounds[6];
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
@@ -256,8 +251,10 @@ protected:
   void GenerateLine();
   
   // Methods for managing the point widgets used to control the endpoints
+  vtkPointWidget *PointWidget;
   vtkPointWidget *PointWidget1;
   vtkPointWidget *PointWidget2;
+  vtkPWCallback  *PWCallback;
   vtkPW1Callback *PW1Callback;
   vtkPW2Callback *PW2Callback;
   vtkPointWidget *CurrentPointWidget;

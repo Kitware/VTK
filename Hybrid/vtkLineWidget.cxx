@@ -35,11 +35,41 @@
 #include "vtkPointWidget.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.26");
+vtkCxxRevisionMacro(vtkLineWidget, "1.27");
 vtkStandardNewMacro(vtkLineWidget);
 
-// This class is used to coordinate the interaction between the point widget (point 1) and
-// the line widget.
+// This class is used to coordinate the interaction between the point widget
+// at the center of the line and the line widget. When the line is selected
+// (as compared to the handles), a point widget appears at the selection
+// point, which can be manipulated in the usual way.
+class vtkPWCallback : public vtkCommand
+{
+public:
+  static vtkPWCallback *New() 
+    { return new vtkPWCallback; }
+  virtual void Execute(vtkObject *caller, unsigned long, void*)
+    {
+      float x[3], p1[3], p2[3], v[3];
+      this->LineWidget->GetPoint1(p1);
+      this->LineWidget->GetPoint2(p2);
+      this->PointWidget->GetPosition(x);
+      v[0] = x[0] - this->LastPosition[0];
+      v[1] = x[1] - this->LastPosition[1];
+      v[2] = x[2] - this->LastPosition[2];
+      this->LineWidget->SetPoint1(p1[0]+v[0],p1[1]+v[1],p1[2]+v[2]);
+      this->LineWidget->SetPoint2(p2[0]+v[0],p2[1]+v[1],p2[2]+v[2]);
+      this->LastPosition[0] = x[0];
+      this->LastPosition[1] = x[1];
+      this->LastPosition[2] = x[2];
+    }
+  vtkPWCallback():LineWidget(0),PointWidget(0) {}
+  vtkLineWidget  *LineWidget;
+  vtkPointWidget *PointWidget;
+  float          LastPosition[3];
+};
+
+// This class is used to coordinate the interaction between the point widget
+// (point 1) and the line widget.
 class vtkPW1Callback : public vtkCommand
 {
 public:
@@ -54,8 +84,8 @@ public:
   vtkPointWidget *PointWidget;
 };
 
-// This class is used to coordinate the interaction between the point widget (point 2) and
-// the line widget.
+// This class is used to coordinate the interaction between the point widget
+// (point 2) and the line widget.
 class vtkPW2Callback : public vtkCommand
 {
 public:
@@ -139,17 +169,30 @@ vtkLineWidget::vtkLineWidget()
   this->SelectedLineProperty = NULL;
   this->CreateDefaultProperties();
   
-  // Create the point widget and associated callbacks
-  this->PointWidget1 = vtkPointWidget::New();
-  this->PointWidget2 = vtkPointWidget::New();
+  // Create the point widgets and associated callbacks
+  this->PointWidget  = vtkPointWidget::New();
+  this->PointWidget->AllOff();
 
+  this->PointWidget1 = vtkPointWidget::New();
+  this->PointWidget1->AllOff();
+
+  this->PointWidget2 = vtkPointWidget::New();
+  this->PointWidget2->AllOff();
+
+  this->PWCallback = vtkPWCallback::New();
+  this->PWCallback->LineWidget = this;
+  this->PWCallback->PointWidget = this->PointWidget;
   this->PW1Callback = vtkPW1Callback::New();
   this->PW1Callback->LineWidget = this;
   this->PW1Callback->PointWidget = this->PointWidget1;
   this->PW2Callback = vtkPW2Callback::New();
   this->PW2Callback->LineWidget = this;
-  this->PW2Callback->PointWidget = this->PointWidget2;
+  this->PW2Callback->PointWidget = this->PointWidget2;  
 
+  // Very tricky, the point widgets watch for their own
+  // interaction events.
+  this->PointWidget->AddObserver(vtkCommand::InteractionEvent,
+                                  this->PWCallback, 0.0);
   this->PointWidget1->AddObserver(vtkCommand::InteractionEvent,
                                   this->PW1Callback, 0.0);
   this->PointWidget2->AddObserver(vtkCommand::InteractionEvent,
@@ -193,10 +236,13 @@ vtkLineWidget::~vtkLineWidget()
     this->SelectedLineProperty->Delete();
     }
 
+  this->PointWidget->RemoveObserver(this->PWCallback);
   this->PointWidget1->RemoveObserver(this->PW1Callback);
   this->PointWidget2->RemoveObserver(this->PW2Callback);
+  this->PointWidget->Delete();
   this->PointWidget1->Delete();
   this->PointWidget2->Delete();
+  this->PWCallback->Delete();
   this->PW1Callback->Delete();
   this->PW2Callback->Delete();
 }
@@ -209,7 +255,7 @@ void vtkLineWidget::SetEnabled(int enabling)
     return;
     }
 
-  if ( enabling ) //------------------------------------------------------------
+  if ( enabling ) //-----------------------------------------------------------
     {
     vtkDebugMacro(<<"Enabling line widget");
 
@@ -437,35 +483,52 @@ void vtkLineWidget::ForwardEvent(unsigned long event)
 // assumed current handle is set
 void vtkLineWidget::EnablePointWidget()
 {
-  // Set up the PointWidgets
+  // Set up the point widgets
   float x[3];
-  if ( this->CurrentHandle == this->Handle[0] )
+  if ( this->CurrentHandle ) //picking the handles
     {
-    this->CurrentPointWidget = this->PointWidget1;
-    this->LineSource->GetPoint1(x);
+    if ( this->CurrentHandle == this->Handle[0] )
+      {
+      this->CurrentPointWidget = this->PointWidget1;
+      this->LineSource->GetPoint1(x);
+      }
+    else
+      {
+      this->CurrentPointWidget = this->PointWidget2;
+      this->LineSource->GetPoint2(x);
+      }
     }
-  else
+  else //picking the line
     {
-    this->CurrentPointWidget = this->PointWidget2;
-    this->LineSource->GetPoint2(x);
+    this->CurrentPointWidget = this->PointWidget;
+    this->LinePicker->GetPickPosition(x);
+    this->PWCallback->LastPosition[0] = x[0];
+    this->PWCallback->LastPosition[1] = x[1];
+    this->PWCallback->LastPosition[2] = x[2];
     }
   
+  float bounds[6];
+  bounds[0] = x[0] - 0.1*this->InitialLength;
+  bounds[1] = x[0] + 0.1*this->InitialLength;
+  bounds[2] = x[1] - 0.1*this->InitialLength;
+  bounds[3] = x[1] + 0.1*this->InitialLength;
+  bounds[4] = x[2] - 0.1*this->InitialLength;
+  bounds[5] = x[2] + 0.1*this->InitialLength;
+
+  // Note: translation mode is disabled and enabled to control
+  // the proper positioning of the bounding box.
   this->CurrentPointWidget->SetInteractor(this->Interactor);
+  this->CurrentPointWidget->TranslationModeOff();
   this->CurrentPointWidget->SetPlaceFactor(1.0);
-  this->CurrentPointWidget->PlaceWidget(this->LineBounds);
+  this->CurrentPointWidget->PlaceWidget(bounds);
+  this->CurrentPointWidget->TranslationModeOn();
   this->CurrentPointWidget->SetPosition(x);
-  this->CurrentPointWidget->AllOff();
   this->CurrentPointWidget->On();
 }
 
 // assumed current handle is set
 void vtkLineWidget::DisablePointWidget()
 {
-  if ( ! this->CurrentPointWidget )
-    {
-    return;
-    }
-
   this->CurrentPointWidget->Off();
   this->CurrentPointWidget = NULL;
 }
@@ -524,6 +587,8 @@ void vtkLineWidget::OnLeftButtonDown()
       {
       this->State = vtkLineWidget::MovingLine;
       this->HighlightLine(1);
+      this->EnablePointWidget();
+      this->ForwardEvent(vtkCommand::LeftButtonPressEvent);
       }
     else
       {
@@ -547,11 +612,8 @@ void vtkLineWidget::OnLeftButtonUp()
     return;
     }
 
-  if ( this->State == vtkLineWidget::MovingHandle )
-    {
-    this->ForwardEvent(vtkCommand::LeftButtonReleaseEvent);
-    this->DisablePointWidget();
-    }
+  this->ForwardEvent(vtkCommand::LeftButtonReleaseEvent);
+  this->DisablePointWidget();
   
   this->State = vtkLineWidget::Start;
   this->HighlightHandle(NULL);
@@ -722,7 +784,7 @@ void vtkLineWidget::OnMouseMove()
     }
   else if ( this->State == vtkLineWidget::MovingLine )
     {
-    this->Translate(prevPickPoint, pickPoint);
+    this->ForwardEvent(vtkCommand::MouseMoveEvent);
     }
   else if ( this->State == vtkLineWidget::Scaling )
     {
@@ -733,77 +795,6 @@ void vtkLineWidget::OnMouseMove()
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   this->Interactor->Render();
-}
-
-void vtkLineWidget::MovePoint1(double *p1, double *p2)
-{
-  //Get the motion vector
-  double v[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
-  
-  //int res = this->LineSource->GetResolution();
-  float *pt1 = this->LineSource->GetPoint1();
-
-  float point1[3];
-  point1[0] = pt1[0] + v[0];
-  point1[1] = pt1[1] + v[1];
-  point1[2] = pt1[2] + v[2];
-  
-  this->LineSource->SetPoint1(point1);
-  this->LineSource->Update();
-
-  this->PositionHandles();
-}
-
-void vtkLineWidget::MovePoint2(double *p1, double *p2)
-{
-  //Get the motion vector
-  double v[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
-  
-  //int res = this->LineSource->GetResolution();
-  float *pt2 = this->LineSource->GetPoint2();
-
-  float point2[3];
-  point2[0] = pt2[0] + v[0];
-  point2[1] = pt2[1] + v[1];
-  point2[2] = pt2[2] + v[2];
-  
-  this->LineSource->SetPoint2(point2);
-  this->LineSource->Update();
-
-  this->PositionHandles();
-}
-
-// Loop through all points and translate them
-void vtkLineWidget::Translate(double *p1, double *p2)
-{
-  //Get the motion vector
-  double v[3];
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
-  
-  //int res = this->LineSource->GetResolution();
-  float *pt1 = this->LineSource->GetPoint1();
-  float *pt2 = this->LineSource->GetPoint2();
-
-  float point1[3], point2[3];
-  for (int i=0; i<3; i++)
-    {
-    point1[i] = pt1[i] + v[i];
-    point2[i] = pt2[i] + v[i];
-    }
-  
-  this->LineSource->SetPoint1(point1);
-  this->LineSource->SetPoint2(point2);
-  this->LineSource->Update();
-
-  this->PositionHandles();
 }
 
 void vtkLineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
@@ -910,7 +901,6 @@ void vtkLineWidget::PlaceWidget(float bds[6])
   for (i=0; i<6; i++)
     {
     this->InitialBounds[i] = bounds[i];
-    this->LineBounds[i] = bds[i];
     }
   this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
@@ -919,5 +909,17 @@ void vtkLineWidget::PlaceWidget(float bds[6])
     {
     this->HandleGeometry[i]->SetRadius(0.025*this->InitialLength);
     }
+}
+
+void vtkLineWidget::SetPoint1(float x, float y, float z) 
+{
+  this->LineSource->SetPoint1(x,y,z); 
+  this->PositionHandles();
+}
+
+void vtkLineWidget::SetPoint2(float x, float y, float z) 
+{
+  this->LineSource->SetPoint2(x,y,z); 
+  this->PositionHandles();
 }
 
