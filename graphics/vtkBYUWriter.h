@@ -46,6 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // must be specified to the object, the appropriate boolean 
 // variables must be true, and data must be available from the input
 // for the files to be written.
+// WARNING: this writer does not currently write triangle strips. Use
+// vtkTriangleFilter to convert strips to triangles.
 
 #ifndef __vtkBYUWriter_h
 #define __vtkBYUWriter_h
