@@ -11,12 +11,17 @@ ABSTRACT_H =
 
 CONCRETE_H = 
 
-ABSTRACT =
+ABSTRACT = \
+vtkImporter \
+vtkSpline
 
 CONCRETE = \
 vtkImageToIsoSurface \
 vtkEarthSource \
-vtkIVWriter
+vtkIVWriter \
+vtkCardinalSpline \
+vtkKochanekSpline \
+vtk3DSImporter
 
 #------------------------------------------------------------------------------
 # Include the generated targets
