@@ -400,12 +400,30 @@ void vtkPolyData::GetCellBounds(int cellId, float bounds[6])
     {
     x = this->Points->GetPoint( pts[i] );
 
-    bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-    bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-    bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-    bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-    bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-    bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+    if (x[0] < bounds[0])
+      {
+      bounds[0] = x[0];
+      }
+    if (x[0] > bounds[1])
+      {
+      bounds[1] = x[0];
+      }
+    if (x[1] < bounds[2])
+      {
+      bounds[2] = x[1];
+      }
+    if (x[1] > bounds[3])
+      {
+      bounds[3] = x[1];
+      }
+    if (x[2] < bounds[4])
+      {
+      bounds[4] = x[2];
+      }
+    if (x[2] > bounds[5])
+      {
+      bounds[5] = x[2];
+      }
     }
 }
 
