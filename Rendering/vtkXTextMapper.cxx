@@ -21,11 +21,17 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
+#include        <X11/Xlib.h>
+#include        <X11/Xutil.h>
+#include        <X11/cursorfont.h>
+#include        <X11/X.h>
+#include        <X11/keysym.h>
+
 #ifndef VTK_REMOVE_LEGACY_CODE
 //mark this class for future legacy-related changes
 #endif
 
-vtkCxxRevisionMacro(vtkXTextMapper, "1.37");
+vtkCxxRevisionMacro(vtkXTextMapper, "1.38");
 
 //-------------------------------------------------------------------------
 vtkXTextMapper* vtkXTextMapper::New()
@@ -43,10 +49,22 @@ vtkXTextMapper* vtkXTextMapper::New()
   return new vtkXTextMapper;
 }
 
+class vtkXTextMapperInternal
+{
+public:
+  Font CurrentFont;
+};
+
 vtkXTextMapper::vtkXTextMapper()
 {
+  this->Internal = new vtkXTextMapperInternal;
   this->Size[0] = this->Size[1] = 0;
   this->ViewportSize[0] = this->ViewportSize[1] = 0;
+}
+
+vtkXTextMapper::~vtkXTextMapper()
+{
+  delete this->Internal;
 }
 
 int vtkXTextMapper::GetSystemFontSize(int size)
@@ -222,7 +240,7 @@ void vtkXTextMapper::DetermineSize(vtkViewport *viewport, int *size)
                     &direction, &ascent, &descent, &overall);
   size[1] = ascent + descent;
   size[0] = overall.width;
-  this->CurrentFont = fontStruct->fid;
+  this->Internal->CurrentFont = fontStruct->fid;
   XFreeFontInfo(NULL, fontStruct, 1);
 }
 
