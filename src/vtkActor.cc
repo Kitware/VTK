@@ -177,6 +177,8 @@ vtkProperty *vtkActor::GetProperty()
   return this->Property;
 }
 
+// Description:
+// Incrementally change the position of the actor.
 void vtkActor::AddPosition (float deltaX,float deltaY,float deltaZ)
 {
   float position[3];
