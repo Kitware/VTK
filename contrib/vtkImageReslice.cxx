@@ -1955,8 +1955,7 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
   int i, j, k, numscalars;
   int idX, idY, idZ;
   int outIncX, outIncY, outIncZ;
-  int inExt[6],inWholeExt[6];
-  int inMax[3], inMin[3], inDim[3];
+  int inExt[6];
   int inInc[3];
   int clipExt[6];
   unsigned long count = 0;
@@ -1965,16 +1964,8 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
   T *background;
 
   // find maximum input range
-  self->GetInput()->GetWholeExtent(inWholeExt);
   self->GetInput()->GetExtent(inExt);
 
-  for (i = 0; i < 3; i++)
-    {
-    inMin[i] = inWholeExt[2*i];
-    inMax[i] = inWholeExt[2*i+1];
-    inDim[i] = inMax[i]-inMin[i]+1;
-    }
-  
   target = (unsigned long)
     ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
   target++;
@@ -2180,6 +2171,7 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
   for (j = 0; j < 3; j++)
     {
     delete [] traversal[j];
+    delete [] constants[j];
     }
   delete [] background;
 }
@@ -2426,6 +2418,7 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
   for (j = 0; j < 3; j++)
     {
     delete [] traversal[j];
+    delete [] constants[j];
     }
   delete [] background;
 }
