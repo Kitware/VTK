@@ -32,7 +32,9 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(advanced)
-		// NOTE: the ClassWizard will add member functions here
+	afx_msg void OnWhereLibTCL();
+	afx_msg void OnWhereLibtk();
+	afx_msg BOOL Browse(CString& result, const char*);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

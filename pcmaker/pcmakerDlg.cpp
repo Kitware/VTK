@@ -5,6 +5,8 @@
 #include "pcmaker.h"
 #include "pcmakerDlg.h"
 #include "help.h"
+#include <afxinet.h>
+#include <shlobj.h> // for browseinfo 
 #include <direct.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -78,6 +80,11 @@ BEGIN_MESSAGE_MAP(CPcmakerDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_HELP1, OnHelp1)
 	ON_BN_CLICKED(IDC_ADVANCED, OnAdvanced)
+	ON_BN_CLICKED(IDC_VTK_INSTALL_BROWSE, OnVtkInstallBrowse)
+	ON_BN_CLICKED(IDC_VTK_LIB_BROWSE, OnVtkLibBrowse)
+	ON_BN_CLICKED(IDC_COMPILER_PATH_BROWSE, OnCompilerPathBrowse)
+	ON_BN_CLICKED(IDC_JDK_WHERE, OnJdkWhere)
+	ON_BN_CLICKED(IDC_PYTHON_WHERE, OnPythonWhere)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -373,4 +380,66 @@ void CPcmakerDlg::OnAdvanced()
 {
 	// TODO: Add your control notification handler code here
   this->adlg.DoModal();
+}
+
+BOOL CPcmakerDlg::Browse(CString& result, const char * title)
+{
+	// don't know what to do with initial right now...
+  char szPathName[4096];
+  BROWSEINFO bi;
+ 
+  bi.hwndOwner = m_hWnd;
+  bi.pidlRoot = NULL;
+  bi.pszDisplayName = (LPTSTR)szPathName;
+  bi.lpszTitle = title;
+  bi.ulFlags = BIF_BROWSEINCLUDEFILES  ;
+  bi.lpfn = NULL;
+
+  LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
+
+  BOOL bSuccess = SHGetPathFromIDList(pidl, szPathName);
+  if(bSuccess)
+    {
+    result = szPathName;
+    }
+  
+  return bSuccess;
+}
+
+void CPcmakerDlg::OnVtkInstallBrowse() 
+{
+	// TODO: Add your control notification handler code here
+  this->UpdateData();
+  Browse(m_WhereVTK, "Select VTK source installation");
+  this->UpdateData(FALSE);
+}
+
+void CPcmakerDlg::OnVtkLibBrowse() 
+{
+  this->UpdateData();
+  Browse(m_WhereBuild, "Select VTK build directory");
+  this->UpdateData(FALSE);
+}
+
+void CPcmakerDlg::OnCompilerPathBrowse() 
+{
+  this->UpdateData();
+  Browse(m_WhereCompiler, "Select path to compiler installation");
+  this->UpdateData(FALSE);
+}
+
+void CPcmakerDlg::OnJdkWhere() 
+{
+	// TODO: Add your control notification handler code here
+  this->UpdateData();
+  Browse(m_WhereJDK, "Select path to JDK");
+  this->UpdateData(FALSE);
+}
+
+void CPcmakerDlg::OnPythonWhere() 
+{
+	// TODO: Add your control notification handler code here
+  this->UpdateData();
+  Browse(m_WherePy, "Select path to Python");
+  this->UpdateData(FALSE);
 }

@@ -81,11 +81,11 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,52,199,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,113,199,50,14
     GROUPBOX        "What Compiler",IDC_COMPILER,7,95,161,25,WS_TABSTOP
-    EDITTEXT        IDC_WHEREVTK,7,16,144,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_WHEREVTK,7,16,117,14,ES_AUTOHSCROLL
     LTEXT           "Where is vtk installed",IDC_STATIC,7,7,65,8
     LTEXT           "Where do you want to build the vtk libraries",
                     IDC_STATIC,7,34,139,8
-    EDITTEXT        IDC_WHEREBUILD,7,45,144,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_WHEREBUILD,7,45,117,14,ES_AUTOHSCROLL
     CONTROL         "Microsoft",IDC_MSCOMP,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,16,106,43,10
     CONTROL         "Borland",IDC_BORLANDCOMP,"Button",BS_AUTOCHECKBOX | 
@@ -98,11 +98,11 @@ BEGIN
     CONTROL         "Contrib",IDC_Contrib,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,126,140,38,10
     LTEXT           "Where is your compiler",IDC_STATIC,7,64,148,10
-    EDITTEXT        IDC_WHERECOMPILER,7,75,144,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_WHERECOMPILER,7,75,117,14,ES_AUTOHSCROLL
     CONTROL         "Include Patented Algorithms",IDC_PATENTED,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,176,12,109,10
     LTEXT           "Where is your Java JDK",IDC_STATIC,184,54,141,9
-    EDITTEXT        IDC_WHEREJDK,184,65,144,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_WHEREJDK,184,65,108,15,ES_AUTOHSCROLL
     CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,
                     7,177,321,14
     LTEXT           "Progress",IDC_STATIC,7,164,77,10
@@ -118,9 +118,14 @@ BEGIN
                     WS_TABSTOP,176,83,133,15
     LTEXT           "Where is Python Installed (source)",IDC_STATIC,184,97,
                     141,9
-    EDITTEXT        IDC_WHEREPYTHON,184,108,144,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_WHEREPYTHON,184,108,110,15,ES_AUTOHSCROLL
     CONTROL         "Local",IDC_LOCAL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     169,138,42,14
+    PUSHBUTTON      "Browse...",IDC_VTK_INSTALL_BROWSE,130,17,31,12
+    PUSHBUTTON      "Browse...",IDC_VTK_LIB_BROWSE,130,46,31,12
+    PUSHBUTTON      "Browse...",IDC_COMPILER_PATH_BROWSE,131,75,31,12
+    PUSHBUTTON      "Browse...",IDC_JDK_WHERE,297,66,31,12
+    PUSHBUTTON      "Browse...",IDC_PYTHON_WHERE,297,110,31,12
 END
 
 IDD_HELPDIALOG DIALOG DISCARDABLE  0, 0, 263, 274
@@ -150,6 +155,8 @@ BEGIN
     LTEXT           "Where is libtcl (leave blank for default)",IDC_STATIC,9,
                     60,152,11
     EDITTEXT        IDC_WHERETCL,9,71,153,15,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse...",IDC_WhereLibTCL,166,72,31,12
+    PUSHBUTTON      "Browse...",IDC_WHERE_LIBTK,167,98,31,12
 END
 
 

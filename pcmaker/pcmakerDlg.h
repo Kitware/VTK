@@ -55,6 +55,12 @@ protected:
 	virtual void OnOK();
 	afx_msg void OnHelp1();
 	afx_msg void OnAdvanced();
+	afx_msg void OnVtkInstallBrowse();
+	afx_msg void OnVtkLibBrowse();
+	afx_msg void OnCompilerPathBrowse();
+	afx_msg BOOL Browse(CString&, const char*);
+	afx_msg void OnJdkWhere();
+	afx_msg void OnPythonWhere();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
