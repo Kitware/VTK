@@ -241,6 +241,7 @@ SET(Kit_PYTHON_EXTRA_SRCS vtkPythonUtil.cxx)
 SET(Kit_JAVA_EXTRA_SRCS vtkJavaUtil.cxx)
 
 # -----------------------------------------------------------------
+# Start of common section
 
 # Setup vtkInstantiator registration for this library's classes.
 VTK_MAKE_INSTANTIATOR2(vtk${KIT}Instantiator KitInstantiator_SRCS
@@ -306,6 +307,9 @@ TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS})
 
 INSTALL_TARGETS(/lib/vtk vtk${KIT})
 INSTALL_FILES(/include/vtk .h ${Kit_SRCS})
+
+# End of common section
+# -----------------------------------------------------------------
 
 INSTALL_FILES(/include/vtk .h
   vtkCellType
