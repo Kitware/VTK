@@ -24,14 +24,14 @@ vtkFiniteDifferenceGradientEstimator gradest
 vtkVolumeRayCastCompositeFunction  compositeFunction
 
 vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetScalarInput [reader GetOutput]
+    volumeMapper SetInput [reader GetOutput]
     volumeMapper SetVolumeRayCastFunction compositeFunction
     volumeMapper SetSampleDistance 0.5
     volumeMapper SetGradientEstimator gradest
 
 vtkVolume volume
-    volume SetVolumeMapper volumeMapper
-    volume SetVolumeProperty volumeProperty
+    volume SetMapper volumeMapper
+    volume SetProperty volumeProperty
 
 vtkRenderer ren1
 vtkRenderWindow renWin

@@ -74,10 +74,10 @@ MIPFunction2 SetMaximizeMethodToOpacity
 vtkVolumeRayCastMapper volumeMapper1
 vtkVolumeRayCastMapper volumeMapper2
 
-volumeMapper1 SetScalarInput [reader GetOutput]
+volumeMapper1 SetInput [reader GetOutput]
 volumeMapper1 SetVolumeRayCastFunction MIPFunction1
 
-volumeMapper2 SetScalarInput [reader GetOutput]
+volumeMapper2 SetInput [reader GetOutput]
 volumeMapper2 SetVolumeRayCastFunction MIPFunction2
 
 for { set i 1 } { $i <= 8 } { incr i } {
@@ -85,11 +85,11 @@ for { set i 1 } { $i <= 8 } { incr i } {
     set j [expr int( ($i - 1)/4 )]
     set yoff [expr 70 * $j]
     incr j
-    volume${i} SetVolumeMapper volumeMapper${j}
+    volume${i} SetMapper volumeMapper${j}
     set j [expr (( $i - 1 ) % 4)]
     set xoff [expr 70 * $j]
     incr j
-    volume${i} SetVolumeProperty volumeProperty${j}
+    volume${i} SetProperty volumeProperty${j}
     ren1 AddVolume volume${i}
     volume${i} AddPosition $xoff $yoff 0
 }

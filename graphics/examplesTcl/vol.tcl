@@ -638,12 +638,12 @@ vtkVolumeRayCastMIPFunction  mip_func
         mip_func SetMaximizeMethodToScalarValue
 
 vtkVolumeRayCastMapper mip_volmap
-        mip_volmap SetScalarInput [reader GetOutput]
+        mip_volmap SetInput [reader GetOutput]
         mip_volmap SetVolumeRayCastFunction mip_func
 
 vtkVolume mip_volume
-        mip_volume SetVolumeMapper mip_volmap
-        mip_volume SetVolumeProperty mip_prop
+        mip_volume SetMapper mip_volmap
+        mip_volume SetProperty mip_prop
 
 
 vtkVolumeProperty comp_prop
@@ -653,12 +653,12 @@ vtkVolumeProperty comp_prop
 vtkVolumeRayCastCompositeFunction  comp_func
 
 vtkVolumeRayCastMapper comp_volmap
-        comp_volmap SetScalarInput [reader GetOutput]
+        comp_volmap SetInput [reader GetOutput]
         comp_volmap SetVolumeRayCastFunction comp_func
 
 vtkVolume comp_volume
-        comp_volume SetVolumeMapper comp_volmap
-        comp_volume SetVolumeProperty comp_prop
+        comp_volume SetMapper comp_volmap
+        comp_volume SetProperty comp_prop
 
 
 vtkVolumeProperty iso_prop
@@ -671,12 +671,12 @@ vtkVolumeRayCastIsosurfaceFunction  iso_func
         iso_func SetIsoValue 128.0
 
 vtkVolumeRayCastMapper iso_volmap
-        iso_volmap SetScalarInput [reader GetOutput]
+        iso_volmap SetInput [reader GetOutput]
         iso_volmap SetVolumeRayCastFunction iso_func
 
 vtkVolume iso_volume
-        iso_volume SetVolumeMapper iso_volmap
-        iso_volume SetVolumeProperty iso_prop
+        iso_volume SetMapper iso_volmap
+        iso_volume SetProperty iso_prop
 
 
 vtkCubeSource outline

@@ -29,13 +29,13 @@ vtkVolumeRayCastIsosurfaceFunction  isoFunction
     isoFunction SetIsoValue 128.0
 
 vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetScalarInput [reader GetOutput]
+    volumeMapper SetInput [reader GetOutput]
     volumeMapper SetRGBTextureInput [rgbreader GetOutput]
     volumeMapper SetVolumeRayCastFunction isoFunction
 
 vtkVolume volume
-    volume SetVolumeMapper volumeMapper
-    volume SetVolumeProperty volumeProperty
+    volume SetMapper volumeMapper
+    volume SetProperty volumeProperty
 
 # Create outline
 vtkOutlineFilter outline

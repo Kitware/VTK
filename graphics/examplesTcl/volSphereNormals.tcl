@@ -188,13 +188,13 @@ vtkRecursiveSphereDirectionEncoder directionEncoder
 vtkVolumeRayCastCompositeFunction  compositeFunction
 
 vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetScalarInput [reader GetOutput]
+    volumeMapper SetInput [reader GetOutput]
     volumeMapper SetVolumeRayCastFunction compositeFunction
     [volumeMapper GetGradientEstimator] SetDirectionEncoder directionEncoder
 
 vtkVolume volume
-    volume SetVolumeMapper volumeMapper
-    volume SetVolumeProperty volumeProperty
+    volume SetMapper volumeMapper
+    volume SetProperty volumeProperty
 
 # Create outline
 vtkOutlineFilter outline

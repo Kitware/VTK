@@ -200,7 +200,7 @@ vtkProjectedPolyDataRayBounder raybounder
   raybounder SetPolyData [ lensSource GetOutput]
 
 vtkVolumeRayCastMapper volumeMapper
-  volumeMapper SetScalarInput [reader GetOutput]
+  volumeMapper SetInput [reader GetOutput]
   volumeMapper SetVolumeRayCastFunction compositeFunction
   volumeMapper SetRayBounder raybounder
 
@@ -211,8 +211,8 @@ vtkVolumeProperty volumeProperty
   volumeProperty ShadeOn
 
 vtkVolume newvol
-  newvol SetVolumeMapper volumeMapper
-  newvol SetVolumeProperty volumeProperty
+  newvol SetMapper volumeMapper
+  newvol SetProperty volumeProperty
 
 ren1 AddVolume newvol
 

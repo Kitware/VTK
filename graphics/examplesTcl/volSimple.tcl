@@ -12,19 +12,11 @@ vtkPiecewiseFunction opacityTransferFunction
     opacityTransferFunction AddPoint  255  0.2
 
 vtkColorTransferFunction colorTransferFunction
-    colorTransferFunction AddRedPoint      0.0 0.0
-    colorTransferFunction AddRedPoint     64.0 1.0
-    colorTransferFunction AddRedPoint    128.0 0.0
-    colorTransferFunction AddRedPoint    255.0 0.0
-    colorTransferFunction AddBluePoint    0.0 0.0
-    colorTransferFunction AddBluePoint   64.0 0.0
-    colorTransferFunction AddBluePoint  128.0 1.0
-    colorTransferFunction AddBluePoint  192.0 0.0
-    colorTransferFunction AddBluePoint  255.0 0.0
-    colorTransferFunction AddGreenPoint     0.0 0.0
-    colorTransferFunction AddGreenPoint   128.0 0.0
-    colorTransferFunction AddGreenPoint   192.0 1.0
-    colorTransferFunction AddGreenPoint   255.0 0.2
+    colorTransferFunction AddRGBPoint      0.0 0.0 0.0 0.0
+    colorTransferFunction AddRGBPoint     64.0 1.0 0.0 0.0
+    colorTransferFunction AddRGBPoint    128.0 0.0 0.0 1.0
+    colorTransferFunction AddRGBPoint    192.0 0.0 1.0 0.0
+    colorTransferFunction AddRGBPoint    255.0 0.0 0.2 0.0
 
 # Create properties, mappers, volume actors, and ray cast function
 vtkVolumeProperty volumeProperty
@@ -34,12 +26,12 @@ vtkVolumeProperty volumeProperty
 vtkVolumeRayCastCompositeFunction  compositeFunction
 
 vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetScalarInput [reader GetOutput]
+    volumeMapper SetInput [reader GetOutput]
     volumeMapper SetVolumeRayCastFunction compositeFunction
 
 vtkVolume volume
-    volume SetVolumeMapper volumeMapper
-    volume SetVolumeProperty volumeProperty
+    volume SetMapper volumeMapper
+    volume SetProperty volumeProperty
 
 # Create outline
 vtkOutlineFilter outline

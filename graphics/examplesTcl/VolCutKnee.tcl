@@ -39,12 +39,12 @@ vtkVolumeRayCastCompositeFunction comp_func
 
 vtkVolumeRayCastMapper  volmap
 volmap SetVolumeRayCastFunction comp_func
-volmap SetScalarInput [reader GetOutput]
+volmap SetInput [reader GetOutput]
 volmap SetSampleDistance 1.0
 
 vtkVolume vol
-vol SetVolumeProperty vol_prop
-vol SetVolumeMapper volmap
+vol SetProperty vol_prop
+vol SetMapper volmap
 
 ren1 AddVolume vol
 
