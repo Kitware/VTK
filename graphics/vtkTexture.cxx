@@ -171,7 +171,6 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
 {
   int numPts = scalars->GetNumberOfScalars ();
   vtkScalars *mappedScalars;
-  unsigned char *cptr;
 
   // if there is no lookup table, create one
   if (this->LookupTable == NULL)
@@ -197,19 +196,12 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
   
   // map the scalars to colors
   mappedScalars = this->MappedScalars;
-  
   mappedScalars->SetNumberOfScalars(numPts);
-  unsigned char *ptr=((vtkUnsignedCharArray *)mappedScalars->GetData())->GetPointer(0);
-  for (int i = 0; i < numPts; i++)
-    {
-    cptr = this->LookupTable->MapValue(scalars->GetScalar(i));
-    *ptr++ = *cptr++;
-    *ptr++ = *cptr++;
-    *ptr++ = *cptr++;
-    *ptr++ = *cptr;
-    }
+  unsigned char *cptr = (unsigned char *)mappedScalars->GetVoidPointer(0);
+
+  this->LookupTable->MapScalarsThroughTable(scalars,cptr);
   
-  return ((vtkUnsignedCharArray *)this->MappedScalars->GetData())->GetPointer(0);
+  return cptr;
 }
 
 void vtkTexture::Render(vtkRenderer *ren)
@@ -220,4 +212,10 @@ void vtkTexture::Render(vtkRenderer *ren)
     this->Load(ren);
     }
 }
+
+
+
+
+
+
 
