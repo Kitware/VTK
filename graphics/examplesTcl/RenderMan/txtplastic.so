@@ -67,10 +67,12 @@ label 0
 	popc	Oi
 label 1
 	pushf	roughness
+	pushif	1
+	divff
 	pushv	I
 	negv
 	pushv	Nf
-	specular
+	phong
 	pushf	Ks
 	pushc	specularcolor
 	mulcf
