@@ -788,6 +788,8 @@ ren1 AddActor back
 [back GetProperty] SetDiffuseColor .2 .2 .2
 
 [ren1 GetActiveCamera] Dolly 1.5
+ren1 ResetCameraClippingRange
+
 renWin Render
 
 # render the image

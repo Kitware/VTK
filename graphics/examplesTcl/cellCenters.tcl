@@ -476,6 +476,7 @@ eval  ${cell}CentersActor SetPosition [${cell}Actor GetPosition]
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 20
 [ren1 GetActiveCamera] Dolly 1.25
+ren1 ResetCameraClippingRange
 
 renWin Render
 

@@ -48,6 +48,7 @@ ren1 AddActor actor
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 60
 [ren1 GetActiveCamera] Dolly 1.2
+ren1 ResetCameraClippingRange
 
 wm withdraw .
 

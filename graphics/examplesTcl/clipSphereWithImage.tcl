@@ -67,6 +67,7 @@ ren1 AddActor sphereActor
 [ren1 GetActiveCamera] Azimuth -20
 [ren1 GetActiveCamera] Elevation 15
 [ren1 GetActiveCamera] Dolly 1.2
+ren1 ResetCameraClippingRange
 
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 320 320

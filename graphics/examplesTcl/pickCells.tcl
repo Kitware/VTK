@@ -425,6 +425,8 @@ ren1 AddActor aPolyVertexActor; [aPolyVertexActor GetProperty] SetDiffuseColor 1
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 20
 [ren1 GetActiveCamera] Dolly 1.25
+ren1 ResetCameraClippingRange
+
 renWin Render
 
 vtkCellPicker cellPicker

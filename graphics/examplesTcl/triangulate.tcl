@@ -111,6 +111,7 @@ vtkRenderWindowInteractor iren
 ren1 AddActor tri
 ren1 SetBackground 1 1 1
 [ren1 GetActiveCamera] Dolly 1.4
+ren1 ResetCameraClippingRange
 
 renWin SetSize 500 500
 iren Initialize

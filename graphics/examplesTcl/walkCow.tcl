@@ -42,6 +42,8 @@ ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 640 480
 [ren1 GetActiveCamera] Azimuth 0
 [ren1 GetActiveCamera] Dolly 1.4
+ren1 ResetCameraClippingRange
+
 iren Initialize
 cowAxes VisibilityOn
 renWin Render

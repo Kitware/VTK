@@ -233,6 +233,8 @@ renWin SetSize 320 240
 [ren1 GetActiveCamera] Azimuth 230
 [ren1 GetActiveCamera] Elevation 30
 [ren1 GetActiveCamera] Dolly 1.75
+ren1 ResetCameraClippingRange
+
 iren Initialize
 
 #

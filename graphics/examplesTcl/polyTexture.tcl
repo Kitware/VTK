@@ -78,6 +78,7 @@ ren1 SetBackground 1 1 1
 ren1 AddActor quadActor
 ren1 AddActor outlineActor
 [ren1 GetActiveCamera] Dolly 1.3
+ren1 ResetCameraClippingRange
 
 iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize

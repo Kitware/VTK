@@ -59,6 +59,8 @@ renWin SetSize 640 512;
 [ren1 GetActiveCamera] Azimuth 230
 [ren1 GetActiveCamera] Elevation 30
 [ren1 GetActiveCamera] Dolly 1.75
+ren1 ResetCameraClippingRange
+
 iren Initialize;
 
 # render the image

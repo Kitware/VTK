@@ -94,6 +94,7 @@ renWin SetSize 321 321
 [ren1 GetActiveCamera] SetViewAngle 30
 [ren1 GetActiveCamera] SetViewUp 0 0 1
 [ren1 GetActiveCamera] ComputeViewPlaneNormal
+ren1 ResetCameraClippingRange
 
 # render the image
 #

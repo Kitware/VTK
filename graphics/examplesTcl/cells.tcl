@@ -501,6 +501,7 @@ ren1 AddLight aLight
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 20
 [ren1 GetActiveCamera] Dolly 1.25
+ren1 ResetCameraClippingRange
 
 eval aLight SetFocalPoint [[ren1 GetActiveCamera] GetFocalPoint]
 eval aLight SetPosition [[ren1 GetActiveCamera] GetPosition]

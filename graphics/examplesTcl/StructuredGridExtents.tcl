@@ -101,7 +101,6 @@ renWin SetSize 300 300
 [ren1 GetActiveCamera] Elevation 40
 [ren1 GetActiveCamera] Dolly 1.25
 
-
 renWin Render  
 iren Initialize
 

@@ -47,6 +47,7 @@ ren1 AddActor cone8Actor
 ren1 SetBackground .5 .5 .5
 [ren1 GetActiveCamera] Elevation 30
 [ren1 GetActiveCamera] Dolly 1.3
+ren1 ResetCameraClippingRange
 
 renWin SetSize 301 91
 cone0Actor SetPosition -1.5 0 0

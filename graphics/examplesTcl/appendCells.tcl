@@ -471,11 +471,12 @@ renWin Render
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 20
 [ren1 GetActiveCamera] Dolly 2
+ren1 ResetCameraClippingRange
 
 [ren2 GetActiveCamera] Azimuth 30
 [ren2 GetActiveCamera] Elevation 20
 [ren2 GetActiveCamera] Dolly 2
-
+ren2 ResetCameraClippingRange
 
 # render the image
 #

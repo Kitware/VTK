@@ -52,6 +52,8 @@ ren1 AddActor carpetActor
 
 renWin SetSize 400 400
 [ren1 GetActiveCamera] Dolly 1.5
+ren1 ResetCameraClippingRange
+
 iren Initialize
 
 # render the image

@@ -78,6 +78,7 @@ ren1 AddActor clipActor
 ren1 AddActor clipInsideActor
 ren1 SetBackground 1 1 1
 [ren1 GetActiveCamera] Dolly 1.5
+ren1 ResetCameraClippingRange
 
 renWin SetSize 512 512
 iren Initialize

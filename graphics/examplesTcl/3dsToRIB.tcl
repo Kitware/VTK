@@ -32,6 +32,7 @@ vtk3DSImporter importer
 #
 ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 1.4
+ren1 ResetCameraClippingRange
 
 
 #

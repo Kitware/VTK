@@ -39,6 +39,7 @@ set ren [$renCollection GetNextItem]
 #
 $ren ResetCamera
 [$ren GetActiveCamera] Dolly 1.4
+ren1 ResetCameraClippingRange
 
 # render the image
 #

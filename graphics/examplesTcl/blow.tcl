@@ -67,6 +67,7 @@ ren1 AddActor contours
 [ren1 GetActiveCamera] Azimuth 60
 [ren1 GetActiveCamera] Roll -90
 [ren1 GetActiveCamera] Dolly 2
+ren1 ResetCameraClippingRange
 ren1 SetBackground 1 1 1
 renWin SetSize 750 400
 

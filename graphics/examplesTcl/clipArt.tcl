@@ -154,6 +154,7 @@ set camera [ren1 GetActiveCamera]
 $camera Azimuth 30
 $camera Elevation -30
 $camera Dolly 1.5
+ren1 ResetCameraClippingRange
 
 ren1 SetBackground 0.2 0.3 0.4
 renWin SetSize 320 256

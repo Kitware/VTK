@@ -438,6 +438,8 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 
 set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
+ren1 ResetCameraClippingRange
+
 iren Initialize
 #renWin SetFileName "socbal.tcl.ppm"
 #renWin SaveImageAsPPM

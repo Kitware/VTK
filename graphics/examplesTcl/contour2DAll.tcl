@@ -57,6 +57,7 @@ ren1 AddActor outlineActor
 [ren1 GetActiveCamera] SetViewUp 0 0 -1
 [ren1 GetActiveCamera] SetViewAngle 30
 [ren1 GetActiveCamera] ComputeViewPlaneNormal
+ren1 ResetCameraClippingRange
 
 ren1 SetBackground 0.9 .9 .9
 renWin SetSize 450 450

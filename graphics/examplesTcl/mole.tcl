@@ -130,6 +130,7 @@ ren1 AddActor atomactor
 
 [ren1 GetActiveCamera] Azimuth -60
 [ren1 GetActiveCamera] Dolly 1.5
+ren1 ResetCameraClippingRange
 
 ren1 SetBackground .8 .8 .8
 renWin SetSize 400 400

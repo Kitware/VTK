@@ -56,6 +56,7 @@ vtkActor actor
 ren1 AddActor actor
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Dolly 1.5
+ren1 ResetCameraClippingRange
 
 wm withdraw .
 
