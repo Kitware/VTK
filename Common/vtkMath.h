@@ -170,6 +170,7 @@ public:
   static double Determinant2x2(double a, double b, double c, double d) {
     return (a * d - b * c);};
 
+//BTX
   // Description:
   // LU Factorization of a 3x3 matrix.  The diagonal elements are the
   // multiplicative inverse of those in the standard LU factorization.
@@ -225,6 +226,7 @@ public:
   // Return the determinant of a 3x3 matrix.
   static double Determinant3x3(float A[3][3]);
   static double Determinant3x3(double A[3][3]);
+//ETX
 
   // Description:
   // Compute determinant of 3x3 matrix. Three columns of matrix are input.
@@ -241,6 +243,7 @@ public:
                                double b1, double b2, double b3, 
                                double c1, double c2, double c3);
 
+//BTX
   // Description:
   // Convert a quaternion to a 3x3 rotation matrix.  The quaternion
   // does not have to be normalized beforehand.
@@ -283,7 +286,8 @@ public:
   static void SingularValueDecomposition3x3(const double A[3][3],
                                             double U[3][3], double w[3],
                                             double VT[3][3]);
-  
+
+//ETX  
   // Description:
   // Solve linear equations Ax = b using Crout's method. Input is square
   // matrix A and load vector x. Solution x is written over load vector. The

@@ -90,6 +90,7 @@ public:
   // identity transformation.
   void Inverse() {};
 
+//BTX
   // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
@@ -116,7 +117,7 @@ public:
                                    float derivative[3][3]);
   void InternalTransformDerivative(const double in[3], double out[3],
                                    double derivative[3][3]);
-
+//ETX
   // Description:
   // Make a transform of the same type.  This will actually
   // return the same transform.

@@ -275,10 +275,6 @@ arg: type
 	$<integer>2 / 10000; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
 	$<integer>1 + $<integer>2 % 10000;
-      /* fail if array is not const */
-      if ((($<integer>2 % 10000)/100) % 10 != 0 
-	  && ($<integer>1 / 1000) != 1 ) {
-	currentFunction->ArrayFailure = 1;
       }
     } opt_var_assign
   | VAR_FUNCTION 

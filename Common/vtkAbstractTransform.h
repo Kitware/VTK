@@ -68,7 +68,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 
-class vtkSimpleMutexLock;
+class vtkSimpleCriticalSection;
 
 
 class VTK_COMMON_EXPORT vtkAbstractTransform : public vtkObject
@@ -230,6 +230,7 @@ public:
   // transform needs an update.
   void Update();
 
+//BTX
   // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
@@ -245,7 +246,7 @@ public:
                                            float derivative[3][3]) = 0;
   virtual void InternalTransformDerivative(const double in[3], double out[3],
                                            double derivative[3][3]) = 0;
-
+//ETX
   // Description:
   // Make another transform of the same type.
   virtual vtkAbstractTransform *MakeTransform() = 0;
@@ -300,8 +301,8 @@ private:
   // if necessary.
 //ETX
   vtkTimeStamp UpdateTime;
-  vtkSimpleMutexLock *UpdateMutex;
-  vtkSimpleMutexLock *InverseMutex;
+  vtkSimpleCriticalSection *UpdateMutex;
+  vtkSimpleCriticalSection *InverseMutex;
   int DependsOnInverse;
 
 //BTX

@@ -188,8 +188,10 @@ public:
   // quadric as a 4x4 matrix or a vtkQuadric.  (from Peter
   // Lindstrom's Siggraph 2000 paper, "Out-of-Core Simplification of
   // Large Polygonal Models")
+//BTX
   static void ComputeQuadric(float x1[3], float x2[3], float x3[3],
                              float quadric[4][4]);
+//ETX
   static void ComputeQuadric(float x1[3], float x2[3], float x3[3],
                              vtkQuadric *quadric);
   

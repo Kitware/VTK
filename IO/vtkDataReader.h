@@ -246,6 +246,7 @@ public:
   // Close the vtk file.
   void CloseVTKFile();
 
+//BTX
   // Description:
   // Internal function to read in a line up to 256 characters.
   // Returns zero if there was an error.
@@ -263,6 +264,7 @@ public:
   // Description:
   // Return the istream being used to read in the data.
   istream *GetIStream() {return this->IS;};
+//ETX
 
 protected:
   vtkDataReader();
