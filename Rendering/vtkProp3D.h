@@ -236,11 +236,16 @@ public:
   // the documentation for vtkProp.
   void InitPathTraversal();
 
+  
+  // Description:
+  // Generate the matrix based on ivars
+  virtual void ComputeMatrix();
+
   // Description:
   // Get a pointer to an internal vtkMatrix4x4. that represents
   vtkMatrix4x4 *GetMatrix() 
     { 
-      this->GetMatrix(this->Matrix);
+      this->ComputeMatrix();
       return this->Matrix; 
     }
 

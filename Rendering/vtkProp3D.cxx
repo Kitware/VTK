@@ -318,6 +318,12 @@ void vtkProp3D::GetMatrix(vtkMatrix4x4 *result)
 
 void vtkProp3D::GetMatrix(double result[16])
 {
+  this->ComputeMatrix();
+  vtkMatrix4x4::DeepCopy(result,this->Matrix);
+}
+
+void vtkProp3D::ComputeMatrix()
+{
   // check whether or not need to rebuild the matrix
   if ( this->GetMTime() > this->MatrixMTime )
     {
@@ -357,7 +363,6 @@ void vtkProp3D::GetMatrix(double result[16])
     this->MatrixMTime.Modified();
     this->Transform->Pop();  
     }
-  vtkMatrix4x4::DeepCopy(result,this->Matrix);
 } 
 
 
