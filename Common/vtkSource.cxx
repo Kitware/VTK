@@ -23,7 +23,7 @@
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.95");
+vtkCxxRevisionMacro(vtkSource, "1.96");
 
 #ifndef NULL
 #define NULL 0
@@ -718,11 +718,27 @@ void vtkSource::UnRegister(vtkObject *o)
 {
   int idx;
   int done = 0;
+  int actualnumberofoutputs = 0;
 
   // detect the circular loop source <-> data
   // If we have two references and one of them is my data
   // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == (this->NumberOfOutputs+1))
+
+  // The code here used to check
+  // if (this->ReferenceCount == (this->NumberOfOutputs+1))
+  // but this caused a problem if we were a vtkDataSetToDataSetFilter and
+  // the output hadn't been setup yet (which is not uncommon as the output
+  // changes depending on the input type. Instead we will count how many
+  // outputs are actually present, rather than how many we are supposed to have
+  for (idx = 0; idx < this->NumberOfOutputs; idx++)
+    {
+    if (this->Outputs[idx])
+      {
+      actualnumberofoutputs++;
+      }
+    }
+  //
+  if (this->ReferenceCount == (actualnumberofoutputs+1))
     {
     done = 1;
     for (idx = 0; idx < this->NumberOfOutputs; idx++)
@@ -741,7 +757,7 @@ void vtkSource::UnRegister(vtkObject *o)
       }
     }
   
-  if (this->ReferenceCount == this->NumberOfOutputs)
+  if (this->ReferenceCount == actualnumberofoutputs)
     {
     int match = 0;
     int total = 0;
