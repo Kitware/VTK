@@ -127,7 +127,7 @@ void vtkImageSpatialFilter::ComputeRequiredInputRegionBounds(
   outRegion->GetBounds4d(bounds);
   inRegion->GetImageBounds4d(imageBounds);
 
-  for (idx = 0; idx < 8; ++idx)
+  for (idx = 0; idx < 4; ++idx)
     {
     // Expand to get inRegion Bounds
     bounds[idx*2] -= this->KernelMiddle[idx];
