@@ -23,11 +23,19 @@ void vtkMapper2D::GetViewportClipSize(vtkViewport* viewport, int* clipWidth, int
 
 void vtkMapper2D::GetActorClipSize(vtkViewport* viewport, vtkActor2D* actor, int* clipWidth, int* clipHeight)
 {
+  float actorPos[2] = {0};
+
   // Get the clipping width and height of the viewport
   this->GetViewportClipSize(viewport, clipWidth, clipHeight);
 
   // Now get the actor position
-  float* actorPos = actor->GetViewPosition();
+  float* actorPos1 = actor->GetViewPosition();
+
+  // Change the view coordinates to normalized device coordinates
+  actorPos[0] = (actorPos1[0] + 1.0) / 2.0;
+  actorPos[1] = (actorPos1[1] + 1.0) / 2.0;
+
+  vtkDebugMacro(<<"NDC actorPos: " << actorPos[0] << "," << actorPos[1]);
 
   // Change the clipping size based on the width of the viewport
   // and the position of the actor (actorPos).  The region needed is 
