@@ -1267,6 +1267,47 @@ int vtkEnSightReader::GetElementType(char line[256])
     }
 }
 
+void vtkEnSightReader::SetCaseFileName(char* fileName)
+{
+  char *endingSlash = NULL;
+  char *path, *newFileName;
+  int position, numChars;
+  
+  if ( this->CaseFileName && fileName && (!strcmp(this->CaseFileName, fileName)))
+    {
+    return;
+    }
+  if (this->CaseFileName)
+    {
+    delete [] this->CaseFileName;
+    }
+  if (fileName)
+    {
+    this->CaseFileName = new char[strlen(fileName)+1];
+    strcpy(this->CaseFileName, fileName);
+    }
+   else
+    {
+    this->CaseFileName = NULL;
+    }
+  
+  // strip off the path and save it as FilePath if it was included in the filename
+  if (endingSlash = strrchr(this->CaseFileName, '/'))
+    {
+    position = endingSlash - this->CaseFileName + 1;
+    path = new char[position + 1];
+    numChars = strlen(this->CaseFileName);
+    newFileName = new char[numChars - position + 1];
+    strncpy(path, this->CaseFileName, position);
+    this->SetFilePath(path);
+    strncpy(newFileName, this->CaseFileName + position, numChars - position);
+    this->SetCaseFileName(newFileName);
+    delete [] path;
+    }
+      
+  this->Modified();
+}
+
 void vtkEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetSource::PrintSelf(os,indent);
