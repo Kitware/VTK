@@ -106,6 +106,19 @@ public:
   void SetPointArrayStatus(const char* name, int status);  
   void SetCellArrayStatus(const char* name, int status);
 
+  void DisableAllCellArrays();
+  void EnableAllCellArrays();
+  void DisableAllPointArrays();
+  void EnableAllPointArrays();
+
+  // get min and max value for the index-th value of a cell component
+  // index varies from 0 to (veclen - 1)
+  void GetCellDataRange(int cellComp, int index, float *min, float *max);
+
+  // get min and max value for the index-th value of a node component
+  // index varies from 0 to (veclen - 1)
+  void GetNodeDataRange(int nodeComp, int index, float *min, float *max);
+
 protected:
   vtkAVSucdReader();
   ~vtkAVSucdReader();
@@ -153,6 +166,8 @@ protected:
   struct DataInfo {
     long foffset; // offset in binary file
     int  veclen;   // number of components in the node or cell variable
+    float min;    // pre-calculated data min stored in UCD file
+    float max;    // pre-calculated data max stored in UCD file
   };
   //ETX
 

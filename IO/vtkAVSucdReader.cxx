@@ -34,7 +34,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.21");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.22");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 //----------------------------------------------------------------------------
@@ -304,9 +304,25 @@ void vtkAVSucdReader::ExecuteInformation()
       ncomp_list = new int[this->NumberOfNodeFields];
       this->ReadIntBlock(this->NumberOfNodeFields, ncomp_list);
 
+      this->NodeDataInfo = new DataInfo[this->NumberOfNodeFields];
+
+      float *mx = new float[this->NumberOfNodeFields];
+      // read now the minimums for node_data
+      this->ReadFloatBlock(this->NumberOfNodeFields, mx);
+      for(i=0; i < this->NumberOfNodeFields; i++)
+        {
+        this->NodeDataInfo[i].min = mx[i];
+        }
+      // read now the maximums for node_data
+      this->ReadFloatBlock(this->NumberOfNodeFields, mx);
+      for(i=0; i < this->NumberOfNodeFields; i++)
+        {
+        this->NodeDataInfo[i].max = mx[i];
+        }
+      delete [] mx;
+
       offset +=  1024 + 1024 + 4 + 3 * 4 * this->NumberOfNodeFields;
   
-      this->NodeDataInfo = new DataInfo[this->NumberOfNodeFields];
       k = 0;
       for(i=0; i < this->NumberOfNodeComponents; i++)
         {
@@ -334,9 +350,25 @@ void vtkAVSucdReader::ExecuteInformation()
       ncomp_list = new int[this->NumberOfCellFields];
       this->ReadIntBlock(this->NumberOfCellFields, ncomp_list);
 
+      this->CellDataInfo = new DataInfo[this->NumberOfCellFields];
+
+      float *mx = new float[this->NumberOfCellFields];
+      // read now the minimums for cell_data
+      this->ReadFloatBlock(this->NumberOfCellFields, mx);
+      for(i=0; i < this->NumberOfCellFields; i++)
+        {
+        this->NodeDataInfo[i].min = mx[i];
+        }
+      // read now the maximums for cell_data
+      this->ReadFloatBlock(this->NumberOfCellFields, mx);
+      for(i=0; i < this->NumberOfCellFields; i++)
+        {
+        this->NodeDataInfo[i].max = mx[i];
+        }
+      delete [] mx;
+
       offset += 1024 + 1024 + 4 + 3 * 4 * this->NumberOfCellFields;
   
-      this->CellDataInfo = new DataInfo[this->NumberOfCellFields];
       k = 0;
       for(i=0; i < this->NumberOfCellComponents; i++)
         {
@@ -387,6 +419,28 @@ void vtkAVSucdReader::ExecuteInformation()
     }
 
   vtkDebugMacro( << "end of ExecuteInformation\n");
+}
+
+//----------------------------------------------------------------------------
+void vtkAVSucdReader::GetCellDataRange(int cellComp, int index, float *min, float *max)
+{
+  if (index >= this->CellDataInfo[cellComp].veclen || index < 0)
+    {
+    index = 0;  // if wrong index, set it to zero
+    }
+  *min = this->CellDataInfo[index].min;
+  *max = this->CellDataInfo[index].max;
+}
+
+//----------------------------------------------------------------------------
+void vtkAVSucdReader::GetNodeDataRange(int nodeComp, int index, float *min, float *max)
+{
+  if (index >= this->NodeDataInfo[nodeComp].veclen || index < 0)
+    {
+    index = 0;  // if wrong index, set it to zero
+    }
+  *min = this->NodeDataInfo[index].min;
+  *max = this->NodeDataInfo[index].max;
 }
 
 //----------------------------------------------------------------------------
@@ -983,6 +1037,30 @@ int vtkAVSucdReader::GetNumberOfCellArrays()
 int vtkAVSucdReader::GetNumberOfPointArrays()
 {
   return this->PointDataArraySelection->GetNumberOfArrays();
+}
+
+//----------------------------------------------------------------------------
+void vtkAVSucdReader::EnableAllPointArrays()
+{
+    this->PointDataArraySelection->EnableAllArrays();
+}
+
+//----------------------------------------------------------------------------
+void vtkAVSucdReader::DisableAllPointArrays()
+{
+    this->PointDataArraySelection->DisableAllArrays();
+}
+
+//----------------------------------------------------------------------------
+void vtkAVSucdReader::EnableAllCellArrays()
+{
+    this->CellDataArraySelection->EnableAllArrays();
+}
+
+//----------------------------------------------------------------------------
+void vtkAVSucdReader::DisableAllCellArrays()
+{
+    this->CellDataArraySelection->DisableAllArrays();
 }
 
 //----------------------------------------------------------------------------
