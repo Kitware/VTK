@@ -179,8 +179,15 @@ void vtkSource::Execute()
 void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
-  os << indent << "Execute Time: " << this->ExecuteTime.GetMTime() << "\n";
-  os << indent << "Output:\n";
-  this->Output->PrintSelf(os,indent.GetNextIndent());
+
+  if ( this->Output )
+    {
+    os << indent << "Output:\n";
+    this->Output->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "No output generated for this filter\n";
+    }
 }
 
