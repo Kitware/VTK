@@ -85,6 +85,11 @@ protected:
   // Read a data array whose tuples coorrespond to points.
   int ReadArrayForPoints(vtkXMLDataElement* da, vtkDataArray* outArray);
   
+  // Get the number of points/cells in the given piece.  Valid after
+  // UpdateInformation.
+  virtual vtkIdType GetNumberOfPointsInPiece(int piece);
+  virtual vtkIdType GetNumberOfCellsInPiece(int piece)=0;
+  
   // The update request.
   int UpdatePiece;
   int UpdateNumberOfPieces;

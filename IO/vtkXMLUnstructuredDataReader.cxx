@@ -24,7 +24,7 @@
 #include "vtkCellArray.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.6");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.7");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -242,10 +242,35 @@ void vtkXMLUnstructuredDataReader::ReadXMLData()
   // Let superclasses read data.  This also allocates output data.
   this->Superclass::ReadXMLData();  
   
-  // Read the data needed from each piece.
+  // Split current progress range based on fraction contributed by
+  // each piece.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  
+  // Calculate the cumulative fraction of data contributed by each
+  // piece (for progress).
+  float* fractions = new float[this->EndPiece-this->StartPiece+1];
   int i;
+  fractions[0] = 0;
   for(i=this->StartPiece; i < this->EndPiece; ++i)
     {
+    int index = i-this->StartPiece;
+    fractions[index+1] = (fractions[index] +
+                          this->GetNumberOfPointsInPiece(i) + 
+                          this->GetNumberOfCellsInPiece(i));
+    }
+  for(i=this->StartPiece; i < this->EndPiece; ++i)
+    {
+    int index = i-this->StartPiece;
+    fractions[index+1] = fractions[index+1] / fractions[this->EndPiece-this->StartPiece];
+    }
+  
+  // Read the data needed from each piece.
+  for(i=this->StartPiece; i < this->EndPiece; ++i)
+    {
+    // Set the range of progress for this piece.
+    this->SetProgressRange(progressRange, i-this->StartPiece, fractions);
+    
     if(!this->Superclass::ReadPieceData(i))
       {
       // An error occurred while reading the piece.
@@ -253,6 +278,8 @@ void vtkXMLUnstructuredDataReader::ReadXMLData()
       }
     this->SetupNextPiece();
     }
+  
+  delete [] fractions;
 }
 
 //----------------------------------------------------------------------------
@@ -289,6 +316,12 @@ vtkIdType vtkXMLUnstructuredDataReader::GetNumberOfPoints()
 vtkIdType vtkXMLUnstructuredDataReader::GetNumberOfCells()
 {
   return this->TotalNumberOfCells;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkXMLUnstructuredDataReader::GetNumberOfPointsInPiece(int piece)
+{
+  return this->NumberOfPoints[piece];
 }
 
 //----------------------------------------------------------------------------
@@ -378,9 +411,42 @@ int vtkXMLUnstructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
 //----------------------------------------------------------------------------
 int vtkXMLUnstructuredDataReader::ReadPieceData()
 {
+  // The amount of data read by the superclass's ReadPieceData comes
+  // from point/cell data (we read point specifications here).
+  vtkIdType superclassPieceSize =
+    (this->NumberOfPointArrays*this->GetNumberOfPointsInPiece(this->Piece)+
+     this->NumberOfCellArrays*this->GetNumberOfCellsInPiece(this->Piece));
+  
+  // Total amount of data in this piece comes from point/cell data
+  // arrays and the point specifications themselves.
+  vtkIdType totalPieceSize =
+    superclassPieceSize + 1*this->GetNumberOfPointsInPiece(this->Piece);
+  if(totalPieceSize == 0)
+    {
+    totalPieceSize = 1;
+    }
+  
+  // Split the progress range based on the approximate fraction of
+  // data that will be read by each step in this method.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  float fractions[3] =
+    {
+      0,
+      float(superclassPieceSize)/totalPieceSize,
+      1
+    };
+  
+  // Set the range of progress for the superclass.
+  this->SetProgressRange(progressRange, 0, fractions);
+  
+  // Let the superclass read its data.
   if(!this->Superclass::ReadPieceData()) { return 0; }
   
   vtkPointSet* output = this->GetOutputAsPointSet();
+  
+  // Set the range of progress for the Points.
+  this->SetProgressRange(progressRange, 1, fractions);
   
   // Read the points array.
   vtkXMLDataElement* ePoints = this->PointElements[this->Piece];
@@ -413,6 +479,17 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
       return 0;
       }
     }
+  
+  // Split progress range into 1/5 for offsets array and 4/5 for
+  // connectivity array.  This assumes an average of 4 points per
+  // cell.  Unfortunately, we cannot know the length of the
+  // connectivity array ahead of time to calculate the real fraction.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  float fractions[3] = {0, 0.2, 1};
+  
+  // Set range of progress for offsets array.
+  this->SetProgressRange(progressRange, 0, fractions);
   
   // Read the cell offsets.
   vtkXMLDataElement* eOffsets = this->FindDataArrayWithName(eCells, "offsets");
@@ -451,7 +528,10 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     return 0;
     }
   
-  // Read the cell points.
+  // Set range of progress for connectivity array.
+  this->SetProgressRange(progressRange, 1, fractions);
+  
+  // Read the cell point connectivity array.
   vtkIdType cpLength = cellOffsets->GetValue(numberOfCells-1);
   vtkXMLDataElement* eConn = this->FindDataArrayWithName(eCells, "connectivity");
   if(!eConn)
@@ -459,6 +539,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
                   << " in piece " << this->Piece
                   << " because the \"connectivity\" array could not be found.");
+    cellOffsets->Delete();
     return 0;
     }
   vtkDataArray* c0 = this->CreateDataArray(eConn);
@@ -468,6 +549,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
                   << " in piece " << this->Piece
                   << " because the \"connectivity\" array could not be created"
                   << " with one component.");
+    cellOffsets->Delete();
     return 0;
     }
   c0->SetNumberOfTuples(cpLength);
@@ -477,6 +559,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
                   << " in piece " << this->Piece
                   << " because the \"connectivity\" array is not long enough.");
+    cellOffsets->Delete();
     return 0;
     }
   vtkIdTypeArray* cellPoints = this->ConvertToIdTypeArray(c0);
@@ -486,6 +569,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
                   << " in piece " << this->Piece
                   << " because the \"connectivity\" array could not be"
                   << " converted to a vtkIdTypeArray.");
+    cellOffsets->Delete();
     return 0;
     }
   

@@ -32,7 +32,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.9");
+vtkCxxRevisionMacro(vtkXMLReader, "1.10");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -717,11 +717,12 @@ void vtkXMLReader::SetProgressRange(float* range, int curStep, int numSteps)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLReader::SetProgressRange(float* range, float* fractions, int step)
+void vtkXMLReader::SetProgressRange(float* range, int curStep,
+                                    float* fractions)
 {
   float width = range[1] - range[0];
-  this->ProgressRange[0] = range[0] + fractions[step]*width;
-  this->ProgressRange[1] = range[0] + fractions[step+1]*width;
+  this->ProgressRange[0] = range[0] + fractions[curStep]*width;
+  this->ProgressRange[1] = range[0] + fractions[curStep+1]*width;
   this->UpdateProgressDiscrete(this->ProgressRange[0]);
 }
 

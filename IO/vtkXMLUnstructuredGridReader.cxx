@@ -24,7 +24,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.4");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.5");
 vtkStandardNewMacro(vtkXMLUnstructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -127,6 +127,12 @@ void vtkXMLUnstructuredGridReader::DestroyPieces()
 }
 
 //----------------------------------------------------------------------------
+vtkIdType vtkXMLUnstructuredGridReader::GetNumberOfCellsInPiece(int piece)
+{
+  return this->NumberOfCells[piece];
+}
+
+//----------------------------------------------------------------------------
 void vtkXMLUnstructuredGridReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
@@ -194,6 +200,42 @@ void vtkXMLUnstructuredGridReader::SetupNextPiece()
 //----------------------------------------------------------------------------
 int vtkXMLUnstructuredGridReader::ReadPieceData()
 {
+  // The amount of data read by the superclass's ReadPieceData comes
+  // from point/cell data and point specifications (we read cell
+  // specifications here).
+  vtkIdType superclassPieceSize =
+    ((this->NumberOfPointArrays+1)*this->GetNumberOfPointsInPiece(this->Piece)+
+     this->NumberOfCellArrays*this->GetNumberOfCellsInPiece(this->Piece));
+  
+  // Total amount of data in this piece comes from point/cell data
+  // arrays and the point/cell specifications themselves (cell
+  // specifications for vtkUnstructuredGrid take three data arrays).
+  vtkIdType totalPieceSize =
+    superclassPieceSize + 3*this->GetNumberOfCellsInPiece(this->Piece);
+  if(totalPieceSize == 0)
+    {
+    totalPieceSize = 1;
+    }
+
+  // Split the progress range based on the approximate fraction of
+  // data that will be read by each step in this method.  The cell
+  // specification reads two arrays, and then the cell types array is
+  // one more.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  float fractions[4] =
+    {
+      0,
+      float(superclassPieceSize) / totalPieceSize,
+      ((float(superclassPieceSize) +
+        2*this->GetNumberOfCellsInPiece(this->Piece)) / totalPieceSize),
+      1
+    };
+  
+  // Set the range of progress for the superclass.
+  this->SetProgressRange(progressRange, 0, fractions);
+  
+  // Let the superclass read its data.
   if(!this->Superclass::ReadPieceData()) { return 0; }
   
   vtkUnstructuredGrid* output = this->GetOutput();
@@ -205,6 +247,9 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
     {
     startLoc = output->GetCells()->GetData()->GetNumberOfTuples();
     }
+  
+  // Set the range of progress for the cell specifications.
+  this->SetProgressRange(progressRange, 1, fractions);
   
   // Read the Cells.
   if(!this->ReadCellArray(this->NumberOfCells[this->Piece],
@@ -226,6 +271,9 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
     locs[i] = startLoc + cur - begin;
     cur += *cur + 1;
     }
+  
+  // Set the range of progress for the cell types.
+  this->SetProgressRange(progressRange, 2, fractions);
   
   // Read the cooresponding cell types.
   vtkIdType numberOfCells = this->NumberOfCells[this->Piece];

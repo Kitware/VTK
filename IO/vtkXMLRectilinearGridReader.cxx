@@ -23,7 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.7");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.8");
 vtkStandardNewMacro(vtkXMLRectilinearGridReader);
 
 //----------------------------------------------------------------------------
@@ -189,23 +189,77 @@ void vtkXMLRectilinearGridReader::SetupOutputData()
 //----------------------------------------------------------------------------
 int vtkXMLRectilinearGridReader::ReadPieceData()
 {
+  // The amount of data read by the superclass's ReadPieceData comes
+  // from point/cell data (we read point specifications here).
+  int dims[3] = {0,0,0};
+  this->ComputeDimensions(this->SubExtent, dims, 1);  
+  vtkIdType superclassPieceSize =
+    (this->NumberOfPointArrays*dims[0]*dims[1]*dims[2]+
+     this->NumberOfCellArrays*(dims[0]-1)*(dims[1]-1)*(dims[2]-1));
+  
+  // Total amount of data in this piece comes from point/cell data
+  // arrays and the point specifications themselves.
+  vtkIdType totalPieceSize =
+    superclassPieceSize + dims[0] + dims[1] + dims[2];
+  if(totalPieceSize == 0)
+    {
+    totalPieceSize = 1;
+    }
+  
+  // Split the progress range based on the approximate fraction of
+  // data that will be read by each step in this method.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  float fractions[5] =
+    {
+      0,
+      float(superclassPieceSize) / totalPieceSize,
+      (float(superclassPieceSize)+dims[0]) / totalPieceSize,
+      (float(superclassPieceSize)+dims[1]+dims[2]) / totalPieceSize,
+      1
+    };
+  
+  // Set the range of progress for the superclass.
+  this->SetProgressRange(progressRange, 0, fractions);
+  
+  // Let the superclass read its data.
   if(!this->Superclass::ReadPieceData()) { return 0; }
+  
   int index=this->Piece;
   vtkXMLDataElement* xc = this->CoordinateElements[index]->GetNestedElement(0);
   vtkXMLDataElement* yc = this->CoordinateElements[index]->GetNestedElement(1);
   vtkXMLDataElement* zc = this->CoordinateElements[index]->GetNestedElement(2);
   int* pieceExtent = this->PieceExtents + index*6;
   vtkRectilinearGrid* output = this->GetOutput();
-  return
+  int result = 1;
+  
+  // Set the range of progress for the X coordinates array.
+  this->SetProgressRange(progressRange, 1, fractions);
+  if(result)
+    {
     this->ReadSubCoordinates(pieceExtent, this->UpdateExtent,
                              this->SubExtent, xc,
-                             output->GetXCoordinates()) &&
+                             output->GetXCoordinates());
+    }
+  
+  // Set the range of progress for the Y coordinates array.
+  this->SetProgressRange(progressRange, 2, fractions);
+  if(result)
+    {
     this->ReadSubCoordinates(pieceExtent+2, this->UpdateExtent+2,
                              this->SubExtent+2, yc,
-                             output->GetYCoordinates()) &&
+                             output->GetYCoordinates());
+    }
+  
+  // Set the range of progress for the Z coordinates array.
+  this->SetProgressRange(progressRange, 3, fractions);
+  if(result)
+    {
     this->ReadSubCoordinates(pieceExtent+4, this->UpdateExtent+4,
                              this->SubExtent+4, zc,
                              output->GetZCoordinates());
+    }
+  return result;
 }
 
 //----------------------------------------------------------------------------

@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.6");
+vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.7");
 vtkStandardNewMacro(vtkXMLStructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -179,6 +179,38 @@ void vtkXMLStructuredGridReader::SetupOutputData()
 //----------------------------------------------------------------------------
 int vtkXMLStructuredGridReader::ReadPieceData()
 {
+  // The amount of data read by the superclass's ReadPieceData comes
+  // from point/cell data (we read point specifications here).
+  int dims[3] = {0,0,0};
+  this->ComputeDimensions(this->SubExtent, dims, 1);  
+  vtkIdType superclassPieceSize =
+    (this->NumberOfPointArrays*dims[0]*dims[1]*dims[2]+
+     this->NumberOfCellArrays*(dims[0]-1)*(dims[1]-1)*(dims[2]-1));
+  
+  // Total amount of data in this piece comes from point/cell data
+  // arrays and the point specifications themselves.
+  vtkIdType totalPieceSize =
+    superclassPieceSize + dims[0]*dims[1]*dims[2];
+  if(totalPieceSize == 0)
+    {
+    totalPieceSize = 1;
+    }
+  
+  // Split the progress range based on the approximate fraction of
+  // data that will be read by each step in this method.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  float fractions[3] =
+    {
+      0,
+      float(superclassPieceSize) / totalPieceSize,
+      1
+    };
+  
+  // Set the range of progress for the superclass.
+  this->SetProgressRange(progressRange, 0, fractions);
+  
+  // Let the superclass read its data.
   if(!this->Superclass::ReadPieceData()) { return 0; }
   
   if(!this->PointElements[this->Piece])
@@ -186,6 +218,9 @@ int vtkXMLStructuredGridReader::ReadPieceData()
     // Empty volume.
     return 1;
     }
+  
+  // Set the range of progress for the points array.
+  this->SetProgressRange(progressRange, 1, fractions);
   
   // Read the points array.
   vtkStructuredGrid* output = this->GetOutput();

@@ -188,7 +188,7 @@ protected:
   // incrementally fine-tuned progress updates.
   virtual void GetProgressRange(float* range);
   virtual void SetProgressRange(float* range, int curStep, int numSteps);
-  virtual void SetProgressRange(float* range, float* fractions, int step);
+  virtual void SetProgressRange(float* range, int curStep, float* fractions);
   virtual void UpdateProgressDiscrete(float progress);
   float ProgressRange[2];
   

@@ -71,6 +71,10 @@ protected:
   // Read a data array whose tuples coorrespond to cells.
   int ReadArrayForCells(vtkXMLDataElement* da, vtkDataArray* outArray);
   
+  // Get the number of cells in the given piece.  Valid after
+  // UpdateInformation.
+  virtual vtkIdType GetNumberOfCellsInPiece(int piece);
+
   // The size of the UpdatePiece.
   int TotalNumberOfVerts;
   int TotalNumberOfLines;

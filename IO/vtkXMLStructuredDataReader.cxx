@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.6");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.7");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -213,6 +213,10 @@ void vtkXMLStructuredDataReader::ReadXMLData()
       fractions[i+1] = fractions[i] + pieceDims[0]*pieceDims[1]*pieceDims[2];
       }
     }
+  if(fractions[this->NumberOfPieces] == 0)
+    {
+    fractions[this->NumberOfPieces] = 1;
+    }
   for(i=1;i <= this->NumberOfPieces;++i)
     {
     fractions[i] = fractions[i] / fractions[this->NumberOfPieces];
@@ -222,7 +226,7 @@ void vtkXMLStructuredDataReader::ReadXMLData()
   for(i=0;i < this->NumberOfPieces;++i)
     {
     // Set the range of progress for this piece.
-    this->SetProgressRange(progressRange, fractions, i);
+    this->SetProgressRange(progressRange, i, fractions);
     
     // Intersect the extents to get the part we need to read.
     int* pieceExtent = this->PieceExtents + i*6;
