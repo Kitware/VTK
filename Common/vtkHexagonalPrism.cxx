@@ -35,7 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.10");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.11");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -303,10 +303,6 @@ void vtkHexagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[36]
   derivs[34] = -8.*(r - 0.0)*(r - 1.0)*(s - 0.0)*(s - 0.5);
   derivs[35] = -8.*(r - 1.0)*(r - 0.5)*(s - 0.0)*(s - 1.0);
 }
-
-static int InternalWedges[3][8] = {{0,1,2,12,6,7,8,13},
-                                   {2,3,4,12,8,9,10,13},
-                                   {4,5,0,12,10,11,6,13}};
 
 //----------------------------------------------------------------------------
 void vtkHexagonalPrism::EvaluateLocation(int& vtkNotUsed(subId), 
