@@ -53,6 +53,11 @@ vtkVolumeReader::vtkVolumeReader()
   this->DataSpacing[0] = this->DataSpacing[1] = this->DataSpacing[2] = 1.0;
 }
 
+vtkVolumeReader::~vtkVolumeReader ()
+{
+  delete this->FilePattern;
+}
+
 void vtkVolumeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
