@@ -59,7 +59,7 @@ vtkFloatPoints fp2;
 fp2 InsertNextPoint 0 1 0;
 fp2 InsertNextPoint 8 1 0;
 fp2 InsertNextPoint 8 2 0;
-fp2 InsertNextPoint 10 0 0;
+fp2 InsertNextPoint 10 0.01 0;#prevents degenerate triangles
 ca2 InsertNextCell 4;
 ca2 InsertCellPoint 0;
 ca2 InsertCellPoint 1;
