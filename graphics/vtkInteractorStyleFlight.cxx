@@ -181,12 +181,6 @@ void vtkInteractorStyleFlight::OnKeyDown(int ctrl, int shift,
 {
   this->CtrlKey  = ctrl;
   this->ShiftKey = shift;
-  // the following if statement is a dummy one to prevent keycode not used
-  // warnings under unix, (until the correct keycodes are supplied)
-  if (keycode==0xFF)
-    {
-    vtkWarningMacro(<<"Dummy test to prevent compiler warning");
-    }
   // New Flight mode behaviour
   // Note that we'll need #defines for ARROW key defs under non win32 OS
 #ifdef _WIN32
@@ -203,6 +197,13 @@ void vtkInteractorStyleFlight::OnKeyDown(int ctrl, int shift,
     }
   // it may already be started but it doesn't matter
 	if (KeysDown) this->DoTimerStart();
+#else
+  // the following if statement is a dummy one to prevent keycode not used
+  // warnings under unix, (until the correct keycodes are supplied)
+  if (keycode==0x7F)
+    {
+    vtkWarningMacro(<<"Dummy test to prevent compiler warning");
+    }
 #endif
 }
 
@@ -212,14 +213,8 @@ void vtkInteractorStyleFlight::OnKeyUp(int ctrl, int shift,
 {
   this->CtrlKey  = ctrl;
   this->ShiftKey = shift;
-  // the following if statement is a dummy one to prevent keycode not used
-  // warnings under unix, (until the correct keycodes are supplied)
-  if (keycode==0xFF)
-    {
-    vtkWarningMacro(<<"Dummy test to prevent compiler warning");
-    }
 #ifdef _WIN32
-  switch (keycode) 
+  switch (keycode)
     {
     case VK_LEFT  	: this->KeysDown &= ~1;  break;
     case VK_RIGHT 	: this->KeysDown &= ~2;  break;
@@ -229,6 +224,13 @@ void vtkInteractorStyleFlight::OnKeyUp(int ctrl, int shift,
     case 'A'	: this->KeysDown &= ~16; break;
     case 'z':
     case 'Z' 	: this->KeysDown &= ~32; break;
+    }
+#else
+  // the following if statement is a dummy one to prevent keycode not used
+  // warnings under unix, (until the correct keycodes are supplied)
+  if (keycode==0x7F)
+    {
+    vtkWarningMacro(<<"Dummy test to prevent compiler warning");
     }
 #endif
 }
