@@ -355,7 +355,7 @@ invertible");
 
 //----------------------------------------------------------------------------
 // first: a round-to-nearest function 
-#ifdef __unix__
+#if defined __unix__ || defined unix
 //  
 static inline double vtkResliceRound(double val)
 {
@@ -390,7 +390,7 @@ double vtkResliceRound(double val)
     {
     return trunc+1;
     }
-  else if (trunc % 2)
+  else if (trunc != 0 && fmod(trunc,2.0) != 0)
     {
     return trunc+1;
     }
@@ -872,7 +872,7 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
   else 
     {// do tricubic interpolation
     float fX[4],fY[4],fZ[4];
-    double vX,vY,vZ,val;
+    double vY,vZ,val;
     T *inPtr1, *inPtr2;
     int j,k,l,jl,jm,kl,km,ll,lm;
     
@@ -969,7 +969,7 @@ static int vtkTricubicInterpolationWrap(float *point, T *inPtr, T *outPtr,
   int inExtZ = inExt[5]-inExt[4]+1;
 
   float fX[4],fY[4],fZ[4];
-  double vX,vY,vZ,val;
+  double vY,vZ,val;
   T *inPtr1, *inPtr2;
   int j,k,l;
 
@@ -1027,7 +1027,6 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   int i, numscalars;
   int idX, idY, idZ;
   int outIncX, outIncY, outIncZ;
-  int inIdX, inIdY, inIdZ;
   int inExt[6], inInc[3];
   unsigned long count = 0;
   unsigned long target;
