@@ -277,6 +277,8 @@ protected:
   void WritePPoints(vtkPoints* points, vtkIndent indent);
   void WritePDataArray(vtkDataArray* a, vtkIndent indent,
                        const char* alternateName=0);
+  void WritePCoordinates(vtkDataArray* xc, vtkDataArray* yc,
+                         vtkDataArray* zc, vtkIndent indent);
   
   // Internal utility methods.
   int WriteBinaryDataInternal(void* data, unsigned long size);

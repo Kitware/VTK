@@ -20,7 +20,7 @@
 #include "vtkXMLRectilinearGridWriter.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLPRectilinearGridWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLPRectilinearGridWriter, "1.2");
 vtkStandardNewMacro(vtkXMLPRectilinearGridWriter);
 
 //----------------------------------------------------------------------------
@@ -76,4 +76,13 @@ vtkXMLPRectilinearGridWriter::CreateStructuredPieceWriter()
   vtkXMLRectilinearGridWriter* pWriter = vtkXMLRectilinearGridWriter::New();
   pWriter->SetInput(this->GetInput());
   return pWriter;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPRectilinearGridWriter::WritePData(vtkIndent indent)
+{
+  this->Superclass::WritePData(indent);
+  vtkRectilinearGrid* input = this->GetInput();
+  this->WritePCoordinates(input->GetXCoordinates(), input->GetYCoordinates(),
+                          input->GetZCoordinates(), indent);
 }

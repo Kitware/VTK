@@ -56,6 +56,7 @@ protected:
   
   const char* GetDataSetName();
   vtkXMLStructuredDataWriter* CreateStructuredPieceWriter(); 
+  void WritePData(vtkIndent indent);
   
 private:
   vtkXMLPRectilinearGridWriter(const vtkXMLPRectilinearGridWriter&);  // Not implemented.

@@ -54,13 +54,17 @@ protected:
   const char* GetDataSetName();
   void SetOutputExtent(int* extent);
   void GetPieceInputExtent(int index, int* extent);
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   void SetupOutputInformation();
   void SetupOutputData();
   int ReadPieceData();
   vtkXMLDataReader* CreatePieceReader();
   void CopySubCoordinates(int* inBounds, int* outBounds, int* subBounds,
                           vtkDataArray* inArray, vtkDataArray* outArray);
-  
+
+  // The PCoordinates element with coordinate information.
+  vtkXMLDataElement* PCoordinatesElement;
+
 private:
   vtkXMLPRectilinearGridReader(const vtkXMLPRectilinearGridReader&);  // Not implemented.
   void operator=(const vtkXMLPRectilinearGridReader&);  // Not implemented.

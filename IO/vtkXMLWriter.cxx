@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.4");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.5");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -1345,6 +1345,20 @@ void vtkXMLWriter::WritePDataArray(vtkDataArray* a, vtkIndent indent,
                                a->GetNumberOfComponents());
     }
   os << "/>\n";
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::WritePCoordinates(vtkDataArray* xc, vtkDataArray* yc,
+                                     vtkDataArray* zc, vtkIndent indent)
+{
+  ostream& os = *(this->Stream);
+  os << indent << "<PCoordinates>\n";
+  
+  this->WritePDataArray(xc, indent.GetNextIndent());
+  this->WritePDataArray(yc, indent.GetNextIndent());
+  this->WritePDataArray(zc, indent.GetNextIndent());
+  
+  os << indent << "</PCoordinates>\n";
 }
 
 //----------------------------------------------------------------------------
