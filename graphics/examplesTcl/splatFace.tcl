@@ -17,6 +17,7 @@ vtkPolyDataReader cyber
     cyber SetFileName "../../../vtkdata/fran_cut.vtk"
 vtkPolyDataNormals normals
     normals SetInput [cyber GetOutput]
+    normals SetMaximumRecursionDepth 1000
 vtkMaskPoints mask
     mask SetInput [normals GetOutput]
     mask SetOnRatio 50

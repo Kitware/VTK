@@ -16,6 +16,7 @@ vtkCleanPolyData cpd
   cpd SetInput [reader GetOutput]
 
 vtkPolyDataNormals normals
+  normals SetMaximumRecursionDepth 1000
   normals SetFeatureAngle 30
   normals SetInput [cpd GetOutput]
 
@@ -26,7 +27,7 @@ vtkPolyDataConnectivityFilter conn
   conn SetExtractionModeToAllRegions
   conn Update
 
-vtkPolyDataMapper mapper
+vtkDataSetMapper mapper
   mapper SetInput [conn GetOutput]
   eval mapper SetScalarRange [[conn GetOutput] GetScalarRange]
 
