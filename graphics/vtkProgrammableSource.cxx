@@ -73,11 +73,11 @@ vtkProgrammableSource::vtkProgrammableSource()
 
 vtkProgrammableSource::~vtkProgrammableSource()
 {
-  this->PolyData->Delete();
   this->StructuredPoints->Delete();
   this->StructuredGrid->Delete();
   this->UnstructuredGrid->Delete();
   this->RectilinearGrid->Delete();
+  this->PolyData->Delete();
 }
 
 // Description:
