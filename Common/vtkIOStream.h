@@ -27,6 +27,10 @@
 
 #ifdef VTK_USE_ANSI_STDLIB
 
+#ifdef _MSC_VER
+#pragma warning (push, 3)
+#endif
+
 # include <iostream>  // Include real ansi istream and ostream.
 # include <strstream> // Include real ansi strstreams.
 # include <fstream>   // Include real ansi ifstream and ofstream.
@@ -37,6 +41,8 @@
 using std::dec;
 using std::hex;
 using std::setw;
+using std::setfill;
+using std::setprecision;
 using std::cerr;
 using std::cout;
 using std::cin;
@@ -51,6 +57,10 @@ using std::strstream;
 using std::ofstream;
 using std::ifstream;
 using std::fstream;
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #else
 
