@@ -99,6 +99,7 @@ public:
   // is not the same as deleting an id; id is mapped to location.)
 //BTX
   vtkIdType Pop(float &priority, vtkIdType location=0);
+//ETX    
 
   // Description:
   // Same as above but simplified for easier wrapping into interpreted
@@ -108,13 +109,15 @@ public:
   // Description:
   // Peek into the queue without actually removing anything. Returns the
   // id and the priority.
+//BTX
   vtkIdType Peek(float &priority, vtkIdType location=0);
+//ETX    
   
   // Description:
   // Peek into the queue without actually removing anything. Returns the
   // id.
   vtkIdType Peek(vtkIdType location=0);
-//ETX    
+
   // Description:
   // Delete entry in queue with specified id. Returns priority value
   // associated with that id; or VTK_LARGE_FLOAT if not in queue.
