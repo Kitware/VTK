@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include "vtkExporter.h"
 
-class vtkIVExporter : public vtkExporter
+class VTK_EXPORT vtkIVExporter : public vtkExporter
 {
 public:
   vtkIVExporter();
