@@ -120,6 +120,8 @@ public:
   virtual void OnLButtonUp  (HWND wnd, UINT nFlags, int X, int Y);
   virtual void OnSize       (HWND wnd, UINT nType,  int X, int Y);
   virtual void OnTimer      (HWND wnd, UINT nIDEvent);
+  virtual void OnKeyDown    (HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
+  virtual void OnKeyUp      (HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
   virtual void OnChar       (HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
   //ETX
 

@@ -352,15 +352,38 @@ void vtkWin32RenderWindowInteractor::OnTimer(HWND wnd,UINT nIDEvent)
   this->InteractorStyle->OnTimer();
 }
 
-void vtkWin32RenderWindowInteractor::OnChar(HWND wnd,UINT nChar, 
-                                            UINT nRepCnt, UINT nFlags) 
+void vtkWin32RenderWindowInteractor::OnKeyDown(HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }
-  bool ctrl  = GetKeyState(VK_CONTROL);
-  bool shift = GetKeyState(VK_SHIFT);
+  int ctrl  = GetKeyState(VK_CONTROL) & (~1);
+  int shift = GetKeyState(VK_SHIFT) & (~1);
+  this->InteractorStyle->OnKeyDown(ctrl, shift, (char)nChar, nRepCnt);
+}
+
+void vtkWin32RenderWindowInteractor::OnKeyUp(HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  int ctrl  = GetKeyState(VK_CONTROL) & (~1);
+  int shift = GetKeyState(VK_SHIFT) & (~1);
+  this->InteractorStyle->OnKeyUp(ctrl, shift, (char)nChar, nRepCnt);
+}
+
+
+void vtkWin32RenderWindowInteractor::OnChar(HWND wnd,UINT nChar,
+                                            UINT nRepCnt, UINT nFlags)
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  int ctrl  = GetKeyState(VK_CONTROL) & (~1);
+  int shift = GetKeyState(VK_SHIFT) & (~1);
   this->InteractorStyle->OnChar(ctrl, shift, (char)nChar, nRepCnt);
 }
 
@@ -447,6 +470,14 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam,
       me->OnChar(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       break;
       
+    case WM_KEYDOWN:
+      me->OnKeyDown(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
+      break;
+
+    case WM_KEYUP:
+      me->OnKeyUp(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
+      break;
+
     case WM_TIMER:
       me->OnTimer(hWnd,wParam);
       
