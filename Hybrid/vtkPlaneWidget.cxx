@@ -16,22 +16,26 @@
 
 =========================================================================*/
 #include "vtkPlaneWidget.h"
+
+#include "vtkAssemblyNode.h"
+#include "vtkCallbackCommand.h"
+#include "vtkCellPicker.h"
+#include "vtkConeSource.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkLineSource.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlaneSource.h"
+#include "vtkPlanes.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkLineSource.h"
-#include "vtkConeSource.h"
 #include "vtkSphereSource.h"
-#include "vtkFloatArray.h"
-#include "vtkCellPicker.h"
-#include "vtkAssemblyNode.h"
-#include "vtkDoubleArray.h"
-#include "vtkPlanes.h"
-#include "vtkCallbackCommand.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.9");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.10");
 vtkStandardNewMacro(vtkPlaneWidget);
+
+vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
 
 vtkPlaneWidget::vtkPlaneWidget()
 {
@@ -1179,4 +1183,112 @@ void vtkPlaneWidget::SelectRepresentation()
     this->PlaneMapper->SetInput( this->PlaneSource->GetOutput() );
     this->PlaneActor->GetProperty()->SetRepresentationToWireframe();
     }
+}
+
+// Description:
+// Set/Get the resolution (number of subdivisions) of the plane.
+void vtkPlaneWidget::SetResolution(int r)
+{
+  this->PlaneSource->SetXResolution(r); 
+  this->PlaneSource->SetYResolution(r); 
+}
+
+int vtkPlaneWidget::GetResolution()
+{ 
+  return this->PlaneSource->GetXResolution(); 
+}
+
+// Description:
+// Set/Get the origin of the plane.
+void vtkPlaneWidget::SetOrigin(float x, float y, float z) 
+{
+  this->PlaneSource->SetOrigin(x,y,z);
+}
+
+void vtkPlaneWidget::SetOrigin(float x[3]) 
+{
+  this->PlaneSource->SetOrigin(x);
+}
+
+float* vtkPlaneWidget::GetOrigin() 
+{
+  return this->PlaneSource->GetOrigin();
+}
+
+void vtkPlaneWidget::GetOrigin(float xyz[3]) 
+{
+  this->PlaneSource->GetOrigin(xyz);
+}
+
+// Description:
+// Set/Get the position of the point defining the first axis of the plane.
+void vtkPlaneWidget::SetPoint1(float x, float y, float z) 
+{
+  this->PlaneSource->SetPoint1(x,y,z);
+}
+
+void vtkPlaneWidget::SetPoint1(float x[3]) 
+{
+  this->PlaneSource->SetPoint1(x);
+}
+
+float* vtkPlaneWidget::GetPoint1() 
+{
+  return this->PlaneSource->GetPoint1();
+}
+
+void vtkPlaneWidget::GetPoint1(float xyz[3]) 
+{
+  this->PlaneSource->GetPoint1(xyz);
+}
+
+// Description:
+// Set/Get the position of the point defining the second axis of the plane.
+void vtkPlaneWidget::SetPoint2(float x, float y, float z) 
+{
+  this->PlaneSource->SetPoint2(x,y,z);
+}
+
+void vtkPlaneWidget::SetPoint2(float x[3]) 
+{
+  this->PlaneSource->SetPoint2(x);
+}
+
+float* vtkPlaneWidget::GetPoint2() 
+{
+  return this->PlaneSource->GetPoint2();
+}
+
+void vtkPlaneWidget::GetPoint2(float xyz[3]) 
+{
+  this->PlaneSource->GetPoint2(xyz);
+}
+
+// Description:
+// Get the center of the plane.
+float* vtkPlaneWidget::GetCenter() 
+{
+  return this->PlaneSource->GetCenter();
+}
+
+void vtkPlaneWidget::GetCenter(float xyz[3]) 
+{
+  this->PlaneSource->GetCenter(xyz);
+}
+
+// Description:
+// Get the normal to the plane.
+float* vtkPlaneWidget::GetNormal() 
+{
+  return this->PlaneSource->GetNormal();
+}
+
+void vtkPlaneWidget::GetNormal(float xyz[3]) 
+{
+  this->PlaneSource->GetNormal(xyz);
+}
+
+void vtkPlaneWidget::GetPolyData(vtkPolyData *pd)
+{ 
+  pd->ShallowCopy(this->PlaneSource->GetOutput()); 
 }
