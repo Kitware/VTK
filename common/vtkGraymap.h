@@ -70,6 +70,7 @@ public:
   void operator+=(const vtkGraymap& fs) {this->S += fs.S;};
   void Reset() {this->S.Reset();};
   unsigned char *GetPtr(const int id);
+  void *GetVoidPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
   void WrotePtr();
 
@@ -95,6 +96,14 @@ protected:
 inline unsigned char *vtkGraymap::GetPtr(const int id)
 {
   return this->S.GetPtr(id);
+}
+
+// Description:
+// Get pointer to array of data starting at data position "id" and return as
+// a void pointer.
+inline void *vtkGraymap::GetVoidPtr(const int id)
+{
+  return (void *)(this->S.GetPtr(id));
 }
 
 // Description:
