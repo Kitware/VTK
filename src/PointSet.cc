@@ -118,7 +118,7 @@ int vlPointSet::FindCell(float x[3], vlCell *cell, float tol2, int& subId,
 
   if ( (ptId = this->Locator->FindClosestPoint(x)) >= 0 )
     {
-    this->GetPointCells(ptId, &cellIds);
+    this->GetPointCells(ptId, cellIds);
     for (i=0; i<cellIds.GetNumberOfIds(); i++)
       {
       cellId = cellIds.GetId(i);

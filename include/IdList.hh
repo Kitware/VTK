@@ -27,7 +27,7 @@ public:
 
   // special set operations
   void DeleteId(int Id);
-  void IntersectWith(vlIdList *otherIds);
+  void IntersectWith(vlIdList& otherIds);
   int IsId(int id)
     {for(int i=0; i<this->GetNumberOfIds(); i++) if(id == this->GetId(i)) return 1;
      return 0;}

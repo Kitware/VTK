@@ -101,7 +101,7 @@ void vlStripper::Execute()
           edge.SetId(0,pts[1]);
           edge.SetId(1,pts[2]);
 
-          Mesh.GetCellNeighbors(cellId, &edge, &cellIds);
+          Mesh.GetCellNeighbors(cellId, edge, cellIds);
           if ( cellIds.GetNumberOfIds() > 0 && 
           !visited[neighbor=cellIds.GetId(0)] &&
           Mesh.GetCellType(neighbor) == vlTRIANGLE )
@@ -138,7 +138,7 @@ void vlStripper::Execute()
             edge.SetId(1,pts[numPts-1]);
             if ( ++numPts > longest ) longest = numPts;
 
-            Mesh.GetCellNeighbors(neighbor, &edge, &cellIds);
+            Mesh.GetCellNeighbors(neighbor, edge, cellIds);
             // note: if updates value of neighbor
             if ( cellIds.GetNumberOfIds() <= 0 || 
             visited[neighbor=cellIds.GetId(0)] ||

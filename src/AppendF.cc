@@ -155,7 +155,7 @@ void vlAppendFilter::Execute()
     // copy cells
     for (cellId=0; cellId < numCells; cellId++)
       {
-      ds->GetCellPoints(cellId,&ptIds);
+      ds->GetCellPoints(cellId,ptIds);
       for (j=0; j < ptIds.GetNumberOfIds(); j++)
         newPtIds.SetId(j,ptIds.GetId(i)+ptOffset);
       this->InsertNextCell(ds->GetCellType(cellId),newPtIds);

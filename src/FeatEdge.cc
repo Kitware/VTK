@@ -98,7 +98,7 @@ void vlFeatureEdges::Execute()
         {
         edge.SetId(0,pts[i]);
         edge.SetId(1,pts[(i+1)%npts]);
-        Mesh.GetCellNeighbors(cellId,&edge,&neighbors);
+        Mesh.GetCellNeighbors(cellId,edge,neighbors);
 
         if ( (numNei=neighbors.GetNumberOfIds()) < 1 && this->BoundaryEdges )
           {

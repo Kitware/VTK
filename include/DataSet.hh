@@ -54,10 +54,10 @@ public:
   virtual int GetCellType(int cellId) = 0;
 
   // topological inquiries to get neighbors and cells that use a point
-  virtual void GetCellPoints(int cellId, vlIdList *ptIds) = 0;
-  virtual void GetPointCells(int ptId, vlIdList *cellIds) = 0;
-  virtual void GetCellNeighbors(int cellId, vlIdList *ptIds, 
-                                vlIdList *cellIds);
+  virtual void GetCellPoints(int cellId, vlIdList& ptIds) = 0;
+  virtual void GetPointCells(int ptId, vlIdList& cellIds) = 0;
+  virtual void GetCellNeighbors(int cellId, vlIdList& ptIds, 
+                                vlIdList& cellIds);
 
   // Locate cell based on global coordinate x and tolerance squared.  If cell 
   // is non-Null, then search starts from this cell and looks at 

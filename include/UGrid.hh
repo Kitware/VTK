@@ -49,8 +49,8 @@ public:
   void Initialize();
   int GetNumberOfCells();
   vlCell *GetCell(int cellId);
-  void GetCellPoints(int cellId, vlIdList *ptIds);
-  void GetPointCells(int ptId, vlIdList *cellIds);
+  void GetCellPoints(int cellId, vlIdList& ptIds);
+  void GetPointCells(int ptId, vlIdList& cellIds);
   int GetCellType(int cellId);
 
 protected:

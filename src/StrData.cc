@@ -176,13 +176,13 @@ void vlStructuredDataSet::Initialize()
     }
 }
 
-void vlStructuredDataSet::GetCellPoints(int cellId, vlIdList *ptIds)
+void vlStructuredDataSet::GetCellPoints(int cellId, vlIdList& ptIds)
 {
   int i, j, k, idx, loc[3], npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
  
-  ptIds->Reset();
+  ptIds.Reset();
 
   switch (this->DataDescription)
     {
@@ -250,13 +250,13 @@ void vlStructuredDataSet::GetCellPoints(int cellId, vlIdList *ptIds)
       for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
         {
         idx = loc[0] + loc[1]*this->Dimensions[0] + loc[2]*d01;
-        ptIds->InsertId(npts++,idx);
+        ptIds.InsertId(npts++,idx);
         }
       }
     }
 }
 
-void vlStructuredDataSet::GetPointCells(int ptId, vlIdList *cellIds)
+void vlStructuredDataSet::GetPointCells(int ptId, vlIdList& cellIds)
 {
   int ptDim[3], cellDim[3];
   int ptLoc[3], cellLoc[3];
@@ -279,7 +279,7 @@ void vlStructuredDataSet::GetPointCells(int ptId, vlIdList *cellIds)
 //  From the point lcoation, compute the cell locations.  There are at
 //  most eight possible.
 //
-  cellIds->Reset();
+  cellIds.Reset();
 
   for (j=0; j<8; j++) 
     {
@@ -296,7 +296,7 @@ void vlStructuredDataSet::GetPointCells(int ptId, vlIdList *cellIds)
       {
       cellId = cellLoc[0] + cellLoc[1]*cellDim[0] + 
                             cellLoc[2]*cellDim[0]*cellDim[1];
-      cellIds->InsertNextId(cellId);
+      cellIds.InsertNextId(cellId);
       }
     }
 

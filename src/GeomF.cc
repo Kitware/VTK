@@ -152,8 +152,8 @@ void vlGeometryFilter::Execute()
           for (j=0; j < cell->GetNumberOfFaces(); j++)
             {
             face = cell->GetFace(j);
-            this->Input->GetCellNeighbors(cellId, &(face->PointIds),
-                                          &cellIds);
+            this->Input->GetCellNeighbors(cellId, face->PointIds,
+                                          cellIds);
             if ( cellIds.GetNumberOfIds() > 0 && cellVis[cellIds.GetId(0)] )
               {
               numPts = face->GetNumberOfPoints();

@@ -49,7 +49,7 @@ void vlShrinkFilter::Execute()
 //
   for (cellId=0; cellId < numCells; i++)
     {
-    this->Input->GetCellPoints(cellId,&ptIds);
+    this->Input->GetCellPoints(cellId,ptIds);
 
     // get the center of the cell
     center[0] = center[1] = center[2] = 0.0;

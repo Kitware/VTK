@@ -45,8 +45,8 @@ public:
   int GetNumberOfCells();
   int GetNumberOfPoints(); 
   void Initialize();
-  void GetCellPoints(int cellId, vlIdList *ptIds);
-  void GetPointCells(int ptId, vlIdList *cellIds);
+  void GetCellPoints(int cellId, vlIdList& ptIds);
+  void GetPointCells(int ptId, vlIdList& cellIds);
 
   void SetDimensions(int i, int j, int k);
   void SetDimensions(int dim[3]);

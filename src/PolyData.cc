@@ -426,11 +426,12 @@ void vlPolyData::BuildLinks()
   this->Links->BuildLinks(this);
 }
 
-void vlPolyData::GetCellPoints(int cellId, vlIdList *ptIds)
+void vlPolyData::GetCellPoints(int cellId, vlIdList& ptIds)
 {
   int i, loc, numPts, *pts;
   unsigned char type;
 
+  ptIds.Reset();
   if ( this->Cells == NULL ) this->BuildCells();
 
   type = this->Cells->GetCellType(cellId);
@@ -454,24 +455,24 @@ void vlPolyData::GetCellPoints(int cellId, vlIdList *ptIds)
       this->Strips->GetCell(loc,numPts,pts);
       break;
     }
-  for (i=0; i<numPts; i++) ptIds->SetId(i,pts[i]);
+  for (i=0; i<numPts; i++) ptIds.SetId(i,pts[i]);
 }
 
-void vlPolyData::GetPointCells(int ptId, vlIdList *cellIds)
+void vlPolyData::GetPointCells(int ptId, vlIdList& cellIds)
 {
   int *cells;
   int numCells;
   int i;
 
   if ( ! this->Links ) this->BuildLinks();
-  cellIds->Reset();
+  cellIds.Reset();
 
   numCells = this->Links->GetNcells(ptId);
   cells = this->Links->GetCells(ptId);
 
   for (i=0; i < numCells; i++)
     {
-    cellIds->InsertId(i,cells[i]);
+    cellIds.InsertId(i,cells[i]);
     }
 }
 

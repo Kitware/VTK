@@ -116,23 +116,23 @@ void vlDataSet::PrintSelf(ostream& os, vlIndent indent)
     }
 }
 
-void vlDataSet::GetCellNeighbors(int cellId, vlIdList *ptIds,
-                                 vlIdList *cellIds)
+void vlDataSet::GetCellNeighbors(int cellId, vlIdList &ptIds,
+                                 vlIdList &cellIds)
 {
   int i;
   vlIdList otherCells(MAX_CELL_SIZE);
 
   // load list with candidate cells, remove current cell
-  this->GetPointCells(ptIds->GetId(0),cellIds);
-  cellIds->DeleteId(cellId);
+  this->GetPointCells(ptIds.GetId(0),cellIds);
+  cellIds.DeleteId(cellId);
 
   // now perform multiple intersections on list
-  if ( cellIds->GetNumberOfIds() > 0 )
+  if ( cellIds.GetNumberOfIds() > 0 )
     {
-    for ( i=1; i < ptIds->GetNumberOfIds(); i++)
+    for ( i=1; i < ptIds.GetNumberOfIds(); i++)
       {
-      this->GetPointCells(ptIds->GetId(i), &otherCells);
-      cellIds->IntersectWith(&otherCells);
+      this->GetPointCells(ptIds.GetId(i), otherCells);
+      cellIds.IntersectWith(otherCells);
       }
     }
 }
