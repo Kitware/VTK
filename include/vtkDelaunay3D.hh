@@ -120,7 +120,7 @@ public:
   // Description:
   // Specify a multiplier to control the size of the initial, bounding
   // Delaunay triangulation.
-  vtkSetClampMacro(Offset,float,0.75,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(Offset,float,2.5,VTK_LARGE_FLOAT);
   vtkGetMacro(Offset,float);
 
   // Description:
