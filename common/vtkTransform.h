@@ -212,6 +212,51 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   void SetMatrix(double Elements[16]);
 
   // Description:
+  // Create a pipelined concatenation of two transforms.  
+  static vtkLinearTransform *Concatenate(vtkLinearTransform *t1,
+					 vtkLinearTransform *t2) {
+    return vtkLinearTransform::Concatenate(t1,t2,0,0); };
+  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
+					      vtkPerspectiveTransform *t2) {
+    return vtkPerspectiveTransform::Concatenate(t1,t2,0,0); };
+  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
+					  vtkGeneralTransform *t2) {
+    return vtkGeneralTransform::Concatenate(t1,t2,0,0); };
+
+  // Description:
+  // Create a pipelined concatenation of three transforms.  
+  static vtkLinearTransform *Concatenate(vtkLinearTransform *t1,
+					 vtkLinearTransform *t2,
+					 vtkLinearTransform *t3) {
+    return vtkLinearTransform::Concatenate(t1,t2,t3,0); };
+  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
+					      vtkPerspectiveTransform *t2,
+					      vtkPerspectiveTransform *t3) {
+    return vtkPerspectiveTransform::Concatenate(t1,t2,t3,0); };
+  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
+					  vtkGeneralTransform *t2,
+					  vtkGeneralTransform *t3) {
+    return vtkGeneralTransform::Concatenate(t1,t2,t3,0); };
+
+  // Description:
+  // Create a pipelined concatenation of four transforms.  
+  static vtkLinearTransform *Concatenate(vtkLinearTransform *t1,
+					 vtkLinearTransform *t2,
+					 vtkLinearTransform *t3,
+					 vtkLinearTransform *t4) {
+    return vtkLinearTransform::Concatenate(t1,t2,t3,t4); };
+  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
+					      vtkPerspectiveTransform *t2,
+					      vtkPerspectiveTransform *t3,
+					      vtkPerspectiveTransform *t4) {
+    return vtkPerspectiveTransform::Concatenate(t1,t2,t3,t4); };
+  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
+					  vtkGeneralTransform *t2,
+					  vtkGeneralTransform *t3,
+					  vtkGeneralTransform *t4) {
+    return vtkGeneralTransform::Concatenate(t1,t2,t3,t4); };
+
+  // Description:
   // Concatenates the input matrix with the current transformation matrix.
   // The resulting matrix becomes the new current transformation matrix.
   // The setting of the PreMultiply flag determines whether the matrix
@@ -263,23 +308,23 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
 
   // Description:
   // Returns the current transformation matrix.
-  vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());};
   void GetMatrix(vtkMatrix4x4 *m);
 
   // Description:
   // For legacy compatibility. Do not use.
-  void GetMatrix(vtkMatrix4x4 &m){this->GetMatrix(&m);};
   void Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, vtkMatrix4x4 *c) {
     vtkMatrix4x4::Multiply4x4(a,b,c); }; 
   void Multiply4x4(double a[16], double b[16], double c[16]) {
     vtkMatrix4x4::Multiply4x4(a,b,c); }; 
   void Multiply4x4(vtkMatrix4x4 &a, vtkMatrix4x4 &b, vtkMatrix4x4 &c) {
     vtkMatrix4x4::Multiply4x4(&a,&b,&c); }; 
+  vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());};
   void Concatenate(vtkMatrix4x4 &matrix){this->Concatenate(&matrix);};
+  void GetMatrix(vtkMatrix4x4 &m){this->GetMatrix(&m);};
   void SetMatrix(vtkMatrix4x4 &m){this->SetMatrix(&m);};
   void GetTranspose (vtkMatrix4x4 &transpose){this->GetTranspose(&transpose);};
   void GetInverse(vtkMatrix4x4& inverse){this->GetInverse(&inverse);};
-  
+
 protected:
   vtkTransform ();
   ~vtkTransform ();

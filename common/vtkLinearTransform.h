@@ -157,6 +157,12 @@ public:
   static vtkLinearTransform *Concatenate(vtkLinearTransform *t1,
 					 vtkLinearTransform *t2) {
     return vtkLinearTransform::Concatenate(t1,t2,0,0); };
+  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
+					      vtkPerspectiveTransform *t2) {
+    return vtkPerspectiveTransform::Concatenate(t1,t2,0,0); };
+  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
+					  vtkGeneralTransform *t2) {
+    return vtkGeneralTransform::Concatenate(t1,t2,0,0); };
 
   // Description:
   // Create a pipelined concatenation of three transforms.  
@@ -164,6 +170,14 @@ public:
 					 vtkLinearTransform *t2,
 					 vtkLinearTransform *t3) {
     return vtkLinearTransform::Concatenate(t1,t2,t3,0); };
+  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
+					      vtkPerspectiveTransform *t2,
+					      vtkPerspectiveTransform *t3) {
+    return vtkPerspectiveTransform::Concatenate(t1,t2,t3,0); };
+  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
+					  vtkGeneralTransform *t2,
+					  vtkGeneralTransform *t3) {
+    return vtkGeneralTransform::Concatenate(t1,t2,t3,0); };
 
   // Description:
   // Create a pipelined concatenation of four transforms.  
@@ -171,6 +185,16 @@ public:
 					 vtkLinearTransform *t2,
 					 vtkLinearTransform *t3,
 					 vtkLinearTransform *t4);
+  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
+					      vtkPerspectiveTransform *t2,
+					      vtkPerspectiveTransform *t3,
+					      vtkPerspectiveTransform *t4) {
+    return vtkPerspectiveTransform::Concatenate(t1,t2,t3,t4); };
+  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
+					  vtkGeneralTransform *t2,
+					  vtkGeneralTransform *t3,
+					  vtkGeneralTransform *t4) {
+    return vtkGeneralTransform::Concatenate(t1,t2,t3,t4); };
 
   // Description:
   // This will calculate the transformation without calling Update.

@@ -93,6 +93,39 @@ class VTK_EXPORT vtkProjectionTransform : public vtkPerspectiveTransform
   void SetMatrix(double Elements[16]);
 
   // Description:
+  // Create a pipelined concatenation of two transforms.  
+  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
+					      vtkPerspectiveTransform *t2) {
+    return vtkPerspectiveTransform::Concatenate(t1,t2,0,0); };
+  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
+					  vtkGeneralTransform *t2) {
+    return vtkGeneralTransform::Concatenate(t1,t2,0,0); };
+
+  // Description:
+  // Create a pipelined concatenation of three transforms.  
+  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
+					      vtkPerspectiveTransform *t2,
+					      vtkPerspectiveTransform *t3) {
+    return vtkPerspectiveTransform::Concatenate(t1,t2,t3,0); };
+  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
+					  vtkGeneralTransform *t2,
+					  vtkGeneralTransform *t3) {
+    return vtkGeneralTransform::Concatenate(t1,t2,t3,0); };
+
+  // Description:
+  // Create a pipelined concatenation of four transforms.  
+  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
+					      vtkPerspectiveTransform *t2,
+					      vtkPerspectiveTransform *t3,
+					      vtkPerspectiveTransform *t4) {
+    return vtkPerspectiveTransform::Concatenate(t1,t2,t3,t4); };
+  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
+					  vtkGeneralTransform *t2,
+					  vtkGeneralTransform *t3,
+					  vtkGeneralTransform *t4) {
+    return vtkGeneralTransform::Concatenate(t1,t2,t3,t4); };
+
+  // Description:
   // Concatenates the input matrix with the current transformation matrix.
   // The resulting matrix becomes the new current transformation matrix.
   // The setting of the PreMultiply flag determines whether the matrix
