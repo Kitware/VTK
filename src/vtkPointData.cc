@@ -316,7 +316,19 @@ void vtkPointData::InterpolateAllocate(vtkPointData* pd, int sze, int ext)
   static vtkFloatTensors cellTensors_s(MAX_CELL_SIZE,3);
   static vtkUserDefined cellUserDefined_s(MAX_CELL_SIZE);
   static vtkAPixmap cellColors_s(MAX_CELL_SIZE);
-
+  static int initialized = 0;
+  
+  if (!initialized)
+    {
+    cellScalars_s.ReferenceCountingOff();
+    cellVectors_s.ReferenceCountingOff();
+    cellNormals_s.ReferenceCountingOff();
+    cellTCoords_s.ReferenceCountingOff();
+    cellTensors_s.ReferenceCountingOff();
+    cellUserDefined_s.ReferenceCountingOff();
+    cellColors_s.ReferenceCountingOff();
+    }
+  
   cellScalars = &cellScalars_s;
   cellVectors = &cellVectors_s;
   cellNormals = &cellNormals_s;
