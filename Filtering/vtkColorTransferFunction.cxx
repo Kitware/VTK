@@ -18,7 +18,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.40");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.41");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 // Construct a new vtkColorTransferFunction with default values
@@ -37,7 +37,7 @@ vtkColorTransferFunction::vtkColorTransferFunction()
   this->Range[0] = 0;
   this->Range[1] = 0;
 
-  this->Clamping = 0;
+  this->Clamping = 1;
   this->ColorSpace = VTK_CTF_RGB;
   
   this->Function = NULL;
