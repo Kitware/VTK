@@ -193,6 +193,9 @@ void help() {
 
 int Tcl_AppInit(Tcl_Interp *interp)
 {
+#ifdef __CYGWIN__
+  Tcl_SetVar(interp, "tclDefaultLibrary", "/usr/share/tcl" TCL_VERSION, TCL_GLOBAL_ONLY);
+#endif
   if (Tcl_Init(interp) == TCL_ERROR) {
   return TCL_ERROR;
   }
