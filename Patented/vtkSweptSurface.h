@@ -57,6 +57,8 @@
 #include "vtkStructuredPointsToStructuredPointsFilter.h"
 
 class vtkTransformCollection;
+class vtkTransform;
+class vtkMatrix4x4;
 
 class VTK_PATENTED_EXPORT vtkSweptSurface : public vtkStructuredPointsToStructuredPointsFilter
 {
