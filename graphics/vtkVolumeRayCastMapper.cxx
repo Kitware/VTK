@@ -63,9 +63,12 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
   this->RGBAImage               = NULL;
   this->ZImage                  = NULL;
   this->SampleDistance          = 1.0;
-  this->InterpolationType       = 0;
   this->ThreadCount             = this->Threader.GetThreadCount();
   this->RayBounder              = NULL;
+  this->VolumeRayCastFunction   = NULL;
+  this->OpacityTFArray          = NULL;
+  this->RGBTFArray              = NULL;
+  this->GrayTFArray             = NULL;
 }
 
 // Description:
@@ -82,7 +85,7 @@ vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
 struct vtkVolumeRayCastMapperInfo
 {
   vtkVolumeRayCastMapper *Caster;
-  vtkRenderWindow    *RenderWindow;
+  vtkRenderWindow        *RenderWindow;
 };
 
 

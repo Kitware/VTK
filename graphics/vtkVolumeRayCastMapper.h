@@ -179,9 +179,6 @@ protected:
 
   vtkVolumeRayCastFunction   *VolumeRayCastFunction;
 
-  // The interpolation type (nearest neighbor = 0 or trilinear = 1)
-  int                        InterpolationType;
-
   // The normal encoder for creating/storing gradients and 
   // gradient magnitudes
   vtkNormalEncoder            NormalEncoder;
