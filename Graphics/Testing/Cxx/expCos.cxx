@@ -17,7 +17,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   int i, numPts;
   float x[3];
