@@ -63,7 +63,6 @@ VTK_MAKE_INSTANTIATOR(vtkHybridInstantiator HybridInstantiator_SRCS
                       EXPORT_MACRO VTK_HYBRID_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ADD_LIBRARY(vtkHybrid ${Hybrid_SRCS} ${HybridInstantiator_SRCS})
-INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkHybridInstantiator)
 
 # Allow the user to customize their build with some local options
 #

@@ -54,7 +54,6 @@ VTK_MAKE_INSTANTIATOR(vtkParallelInstantiator ParallelInstantiator_SRCS
                       EXPORT_MACRO VTK_PARALLEL_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ADD_LIBRARY(vtkParallel ${Parallel_SRCS} ${ParallelInstantiator_SRCS})
-INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkParallelInstantiator)
 
 IF (VTK_USE_MPI)
   IF (MPI_LIBRARY)

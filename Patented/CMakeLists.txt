@@ -23,7 +23,6 @@ VTK_MAKE_INSTANTIATOR(vtkPatentedInstantiator PatentedInstantiator_SRCS
                       EXPORT_MACRO VTK_PATENTED_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ADD_LIBRARY(vtkPatented ${Patented_SRCS} ${PatentedInstantiator_SRCS})
-INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkPatentedInstantiator)
 
 # Allow the user to customize their build with some local options
 #

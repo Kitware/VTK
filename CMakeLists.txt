@@ -9,6 +9,8 @@ OPTION(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids" OFF)
 MARK_AS_ADVANCED(VTK_USE_64BIT_IDS)
 
 SUBDIRS(Wrapping Utilities Common Filtering Imaging Graphics IO)
+INSTALL_FILES(/include/vtk .h vtkCommonInstantiator vtkFilteringInstantiator 
+  vtkIOInstantiator vtkImagingInstantiator vtkGraphicsInstantiator)
 
 SET (LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all libraries.")
 SET (EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all executables.")
@@ -249,6 +251,7 @@ IF (VTK_USE_RENDERING)
   ENDIF (VTK_OPENGL_HAS_OSMESA OR VTK_MANGLE_MESA)
 
   SUBDIRS(Rendering)
+  INSTALL_FILES(/include/vtk .h vtkRenderingInstantiator)
 ENDIF (VTK_USE_RENDERING)
 
 IF (VTK_USE_HYBRID)
@@ -267,14 +270,17 @@ IF (VTK_USE_HYBRID)
   ENDIF (WIN32)
 
   SUBDIRS(Hybrid)
+  INSTALL_FILES(/include/vtk .h vtkHybridInstantiator)
 ENDIF (VTK_USE_HYBRID)
 
 IF (VTK_USE_PATENTED)
   SUBDIRS(Patented)
+  INSTALL_FILES(/include/vtk .h vtkPatentedInstantiator)
 ENDIF (VTK_USE_PATENTED)
 
 IF (VTK_USE_PARALLEL)
   SUBDIRS(Parallel)
+  INSTALL_FILES(/include/vtk .h vtkParallelInstantiator)
 ENDIF (VTK_USE_PARALLEL)
 
 IF (VTK_WRAP_TCL)

@@ -219,7 +219,6 @@ VTK_MAKE_INSTANTIATOR(vtkCommonInstantiator CommonInstantiator_SRCS
                       EXPORT_MACRO VTK_COMMON_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ADD_LIBRARY(vtkCommon ${Common_SRCS} ${CommonInstantiator_SRCS})
-INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkCommonInstantiator)
 
 # Allow the user to customize their build with some local options
 #

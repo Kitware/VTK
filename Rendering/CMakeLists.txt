@@ -289,7 +289,6 @@ ELSE(HAVE_OPENGL_SRCS)
                         HEADER_LOCATION ${VTK_BINARY_DIR})
   ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${RenderingInstantiator_SRCS})
 ENDIF(HAVE_OPENGL_SRCS)
-INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkRenderingInstantiator)
 
 TARGET_LINK_LIBRARIES(vtkRendering ${Rendering_LIBS})
 
