@@ -4,6 +4,19 @@ ELSE (EXECUTABLE_OUTPUT_PATH)
   SET (PARALLEL_EXEC_PATH ${VTK_BINARY_DIR}/Parallel/Testing/Cxx/${CMAKE_CFG_INTDIR})
 ENDIF (EXECUTABLE_OUTPUT_PATH)
 
+IF (VTK_DATA_ROOT)
+  ADD_TEST(PolyDataPieces-image ${VTK_EXECUTABLE}
+           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPolyDataPieces.tcl
+           -D ${VTK_DATA_ROOT}
+           -V Baseline/Parallel/PolyDataPieces.png
+           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+ELSE (VTK_DATA_ROOT)
+  ADD_TEST(PolyDataPieces-image ${VTK_EXECUTABLE}
+           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPolyDataPieces.tcl
+           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+ENDIF (VTK_DATA_ROOT)
 
 #IF (VTK_DATA_ROOT)
 #  ADD_TEST(Sockets-image ${TCLSHCOMMAND}
