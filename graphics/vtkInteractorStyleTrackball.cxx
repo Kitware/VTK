@@ -245,10 +245,8 @@ void vtkInteractorStyleTrackball::TrackballDollyCamera(int x, int y)
       }
     else
       {
-      double *clippingRange = this->CurrentCamera->GetClippingRange();
-      this->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
-                                            clippingRange[1]/zoomFactor);
       this->CurrentCamera->Dolly(zoomFactor);
+      this->CurrentRenderer->ResetCameraClippingRange();
       }
     
     vtkRenderWindowInteractor *rwi = this->Interactor;

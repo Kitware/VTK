@@ -976,12 +976,8 @@ void vtkInteractorStyle::DollyCamera(int x, int y)
     }
   else
     {
-    double *clippingRange = this->CurrentCamera->GetClippingRange();
-    double dist = clippingRange[1] - clippingRange[0];
-    this->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
-                                          clippingRange[0]/zoomFactor +
-                                          dist);
     this->CurrentCamera->Dolly(zoomFactor);
+    this->CurrentRenderer->ResetCameraClippingRange();
     }
 
   if (rwi->GetLightFollowCamera())
