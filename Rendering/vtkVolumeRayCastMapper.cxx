@@ -555,6 +555,9 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
   
   VTKVRCDynamicInfo *dynamicInfo = new VTKVRCDynamicInfo;
 
+  // Initialize this to avoid purify problems
+  dynamicInfo->ScalarValue = 0;
+  
   float *rayStart     = dynamicInfo->TransformedStart;
   float *rayEnd       = dynamicInfo->TransformedEnd;
   float *rayDirection = dynamicInfo->TransformedDirection;
