@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGeometry, "1.54");
+vtkCxxRevisionMacro(vtkExtractGeometry, "1.55");
 vtkStandardNewMacro(vtkExtractGeometry);
 vtkCxxSetObjectMacro(vtkExtractGeometry,ImplicitFunction,vtkImplicitFunction);
 
@@ -188,19 +188,19 @@ void vtkExtractGeometry::Execute()
           npts++;
           }
         }
-      bool extraction_condition = false;
+      int extraction_condition = 0;
       if ( this->ExtractOnlyBoundaryCells )
         {
         if ( ( npts > 0 ) && ( npts != numCellPts ) )
           {
-          extraction_condition = true;
+          extraction_condition = 1;
           }
         }
       else
         {
         if ( npts > 0 )
           {
-          extraction_condition = true;
+          extraction_condition = 1;
           }
         }
       if ( extraction_condition ) 
@@ -220,19 +220,19 @@ void vtkExtractGeometry::Execute()
         }//a boundary or interior cell
       }//if mapping boundary cells
       
-    bool extraction_condition = false;
+    int extraction_condition = 0;
     if ( this->ExtractOnlyBoundaryCells )
       {
       if ( npts != numCellPts && (this->ExtractBoundaryCells && npts > 0) )
         {
-        extraction_condition = true;
+        extraction_condition = 1;
         }
       }
     else
       {
       if ( npts >= numCellPts || (this->ExtractBoundaryCells && npts > 0) )
         {
-        extraction_condition = true;
+        extraction_condition = 1;
         }
       }
     if ( extraction_condition )
