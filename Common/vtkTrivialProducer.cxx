@@ -24,7 +24,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.2");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.3");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -33,7 +33,6 @@ vtkTrivialProducer::vtkTrivialProducer()
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->Output = 0;
-  this->DebugOn();
 }
 
 //----------------------------------------------------------------------------
