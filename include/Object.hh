@@ -35,8 +35,8 @@ public:
   virtual char *GetClassName() {return "vlObject";};
 
 protected:
-  vlTimeStamp Mtime; // Keep track of modification time
   int Debug;       // Enable debug messages
+  vlTimeStamp Mtime; // Keep track of modification time
 
 private:
   int RefCount;    // Number of uses of this object by other objects

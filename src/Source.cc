@@ -8,7 +8,7 @@ void vlSource::Execute()
 void vlSource::Update()
 {
   // Make sure virtual getMtime method is called since subclasses will overload
-  if ( Mtime > this->ExecuteTime )
+  if ( this->GetMtime() > this->ExecuteTime )
     {
     if ( this->StartMethod ) (*this->StartMethod)();
     this->Execute();

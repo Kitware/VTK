@@ -56,8 +56,8 @@ void vlPolyMapper::Render(vlRenderer *ren)
   else
     this->Input->Update();
 
-  if ( ! this->Lut ) this->Lut = new vlLookupTable;
-  this->Lut->Build();
+  if ( ! this->LookupTable ) this->LookupTable = new vlLookupTable;
+  this->LookupTable->Build();
 
   if ( ! this->Polys )
     {
@@ -71,7 +71,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
 // Now send data down to primitives and draw it
 //
   if ( forceBuild || this->Input->GetMtime() > this->BuildTime || 
-  this->Lut->GetMtime() > this->BuildTime )
+  this->LookupTable->GetMtime() > this->BuildTime )
     {
 //
 // create colors
@@ -82,10 +82,10 @@ void vlPolyMapper::Render(vlRenderer *ren)
       colors = new vlRGBArray;
       colors->Initialize (this->Input->NumPoints());
 
-      this->Lut->SetTableRange(this->ScalarRange);
+      this->LookupTable->SetTableRange(this->ScalarRange);
       for (i=0; i<this->Input->NumPoints(); i++)
         {
-        colors->SetColor(i,this->Lut->MapValue(scalars->GetScalar(i)));
+        colors->SetColor(i,this->LookupTable->MapValue(scalars->GetScalar(i)));
         }
       }
     else

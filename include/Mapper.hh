@@ -15,12 +15,13 @@ class vlMapper : public vlObject
 public:
   vlMapper();
   ~vlMapper();
+  void operator=(const vlMapper& m);
   virtual void Render(vlRenderer *) = 0;
   void SetStartRender(void (*f)());
   void SetEndRender(void (*f)());
 
-  vlSetObjectMacro(Lut,vlLookupTable);
-  vlGetObjectMacro(Lut,vlLookupTable);
+  vlSetObjectMacro(LookupTable,vlLookupTable);
+  vlGetObjectMacro(LookupTable,vlLookupTable);
 
   vlSetMacro(ScalarsVisible,int);
   vlGetMacro(ScalarsVisible,int);
@@ -32,7 +33,7 @@ public:
 protected:
   void (*StartRender)();
   void (*EndRender)();
-  vlLookupTable *Lut;
+  vlLookupTable *LookupTable;
   int ScalarsVisible;
   vlTimeStamp BuildTime;
   float ScalarRange[2];

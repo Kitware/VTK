@@ -22,7 +22,7 @@ vlLookupTable::vlLookupTable(int sze, int ext)
   this->ValueRange[1] = 1.0;
 };
 
-int vlLookupTable::Initialize(const int sz, const int ext) 
+int vlLookupTable::Initialize(int sz, int ext) 
 {
   this->Modified();
   this->NumColors = sz;
@@ -47,7 +47,7 @@ void vlLookupTable::Build()
   float rgb[3];
 
   if ( this->Table.NumColors() < 1 ||
-  (this->Mtime > this->BuildTime && this->InsertTime < this->BuildTime) )
+  (this->GetMtime() > this->BuildTime && this->InsertTime < this->BuildTime) )
     {
     hinc = (this->HueRange[1] - this->HueRange[0])/(this->NumColors-1);
     sinc = (this->SaturationRange[1] - this->SaturationRange[0])/(this->NumColors-1);

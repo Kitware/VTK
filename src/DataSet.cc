@@ -27,7 +27,7 @@ void vlDataSet::ComputeBounds()
   int i, j;
   float *x;
 
-  if ( this->Mtime > this->ComputeTime )
+  if ( this->GetMtime() > this->ComputeTime )
     {
     this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  LARGE_FLOAT;
     this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -LARGE_FLOAT;

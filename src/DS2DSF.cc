@@ -15,9 +15,12 @@ vlDataSetToDataSetFilter::~vlDataSetToDataSetFilter()
 
 void vlDataSetToDataSetFilter::Update()
 {
+  vlPointData *pd;
+
   vlDataSetFilter::Update();
-  // Following moves data from filter to internal dataset
-  this->DataSet->PointData = this->PointData;
+  // Following copies data from this filter to internal dataset
+  pd = this->DataSet->GetPointData();
+  *pd = this->PointData;
 }
 
 void vlDataSetToDataSetFilter::Initialize()
@@ -25,7 +28,8 @@ void vlDataSetToDataSetFilter::Initialize()
   if ( this->Input )
     {
     this->DataSet->UnRegister((void *)this);
-    this->DataSet = this->Input->MakeObject();
+    // copies input geometry to internal data set
+    this->DataSet = this->Input->MakeObject(); 
     this->DataSet->Register((void *)this);
     }
   else
@@ -44,6 +48,7 @@ vlMapper *vlDataSetToDataSetFilter::MakeMapper()
 //
   vlMapper *mapper;
 
+  vlDataSetToDataSetFilter::Update(); // compiler bug, had to hard code call
   mapper = this->DataSet->MakeMapper();
   if ( !this->Mapper || mapper != this->Mapper )
     {

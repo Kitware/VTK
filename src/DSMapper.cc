@@ -50,10 +50,6 @@ void vlDataSetMapper::Render(vlRenderer *ren)
     cerr << this->GetClassName() << ": No input!\n";
     return;
     }
-  else
-    {
-    this->Input->Update();
-    }
 //
 // Now can create appropriate mapper
 //
@@ -65,6 +61,7 @@ void vlDataSetMapper::Render(vlRenderer *ren)
     }
   if ( mapper != this->Mapper ) 
     {
+    *mapper = *this; // Update lookup table, etc.
     if (this->Mapper) this->Mapper->UnRegister((void *)this);
     this->Mapper = mapper;
     this->Mapper->Register((void *)this);
