@@ -21,6 +21,8 @@
 //              not allow interaction and exit
 // -D <path> => path to the data; the data should be in <path>/Data/
 
+//#define WRITE_GENERIC_RESULT
+
 #include "vtkActor.h"
 #include "vtkDebugLeaks.h"
 #include "vtkPointData.h"
@@ -39,6 +41,18 @@
 #include "vtkLookupTable.h"
 #include "vtkDataSetMapper.h"
 
+#ifdef WRITE_GENERIC_RESULT
+# include "vtkXMLUnstructuredGridWriter.h"
+#endif // #ifdef WRITE_GENERIC_RESULT
+
+// Remark about the lookup tables that seem different between the
+// GenericGeometryFilter and GenericDataSetTessellator:
+// the lookup table is set for the whole unstructured grid, the tetra plus
+// the triangle. The lookup table changed because of the tetra: the
+// GenericDataSetTessellator need to create inside sub-tetra that have
+// minimal attributes, the GenericGeometryFilter just need to tessellate the
+// face of the tetra, for which the values at points are not minimal.
+
 int TestGenericDataSetTessellator(int argc, char* argv[])
 {
   // Disable for testing
@@ -54,6 +68,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
+  
   reader->SetFileName( cfname );
   delete[] cfname;
   
@@ -103,6 +118,16 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
   renderer->AddActor(actor);
+  
+#ifdef WRITE_GENERIC_RESULT
+  // Save the result of the filter in a file
+  vtkXMLUnstructuredGridWriter *writer=vtkXMLUnstructuredGridWriter::New();
+  writer->SetInput(tessellator->GetOutput());
+  writer->SetFileName("tessellated.vtu");
+  writer->SetDataModeToAscii();
+  writer->Write();
+  writer->Delete();
+#endif // #ifdef WRITE_GENERIC_RESULT
   
   // Standard testing code.
   renderer->SetBackground(0.5,0.5,0.5);
