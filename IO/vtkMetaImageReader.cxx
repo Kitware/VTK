@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.8");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.9");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -132,7 +132,8 @@ void vtkMetaImageReaderInternal::ConvertToUnixSlashes(vtkstd::string& path)
     {
     if (getenv("HOME"))
       {
-      path = vtkstd::string(getenv("HOME")) + path.substr(1);
+      path = getenv("HOME");
+      path += path.substr(1);
       }
     }
 
