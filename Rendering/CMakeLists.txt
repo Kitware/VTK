@@ -23,6 +23,7 @@ vtkImageActor
 vtkImageMapper
 vtkImager
 vtkImagerCollection
+vtkImageViewer
 vtkImageWindow
 vtkImagingFactory
 vtkImporter
@@ -125,8 +126,6 @@ IF (WIN32)
   SOURCE_FILES(Rendering_SRCS 
      vtkWin32OpenGLRenderWindow 
      vtkWin32RenderWindowInteractor
-     vtkWin32ImageMapper
-     vtkWin32ImageWindow
      vtkWin32OpenGLImageWindow
      vtkWin32OpenGLTextMapper
      vtkWin32TextMapper)
@@ -137,8 +136,28 @@ ADD_LIBRARY(vtkRendering Rendering_SRCS)
 #WRAP_EXCLUDE_FILES(vtkImagingFactory)
 
 IF (VTK_WRAP_TCL)
-#  SOURCE_FILES(RenderingTCL_SRCS 
-#    vtkTkImageViewerWidget vtkTkImageWindowWidget)
+  SOURCE_FILES(RenderingTCL_SRCS 
+    vtkTkRenderWidget vtkTkImageViewerWidget vtkTkImageWindowWidget)
+
+  # add in the Tk values if found
+  IF (TK_INCLUDE_PATH)
+    INCLUDE_DIRECTORIES(${TK_INCLUDE_PATH})
+  ENDIF (TK_INCLUDE_PATH)
+  IF (TK_LIB_PATH)
+    LINK_DIRECTORIES (${TK_LIB_PATH})
+  ENDIF (TK_LIB_PATH)
+  IF (TK_LIBRARY)
+    LINK_LIBRARIES (${TK_LIBRARY})
+  ENDIF (TK_LIBRARY)
+
+  # find the tk internals for win32
+  IF (WIN32)
+    FIND_PATH(TK_INTERNAL_PATH tkWinInt.h 
+      ${VTK_SOURCE_DIR}/Rendering/tkInternals)
+    IF (TK_INTERNAL_PATH)
+      INCLUDE_DIRECTORIES(${TK_INTERNAL_PATH})
+    ENDIF (TK_INTERNAL_PATH)  
+  ENDIF (WIN32)  
   VTK_WRAP_TCL(vtkRenderingTCL RenderingTCL_SRCS Rendering_SRCS)
   ADD_LIBRARY(vtkRenderingTCL RenderingTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkRenderingTCL vtkIOTCL vtkGraphicsTCL 
