@@ -1,3 +1,8 @@
+proc UpdateProgress {} {
+    set foo [renWin GetEventPending]
+    if {$foo != 0} {streamers SetAbortExecute 1}
+}
+
 catch {load vtktcl}
 if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
 if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
@@ -231,7 +236,9 @@ vtkStreamLine streamers
     streamers SetInput [reader GetStructuredGridOutput]
     streamers SetSource [seeds GetOutput]
     streamers SetMaximumPropagationTime 500
+    streamers SetIntegrationStepLength 0.01
     streamers SetStepLength 0.1
+    streamers SetProgressMethod {UpdateProgress}
 
 vtkPolyDataMapper mapStreamers
     mapStreamers SetInput [streamers GetOutput]
