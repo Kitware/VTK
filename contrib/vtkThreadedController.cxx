@@ -146,6 +146,7 @@ void vtkThreadedController::CreateProcessControllers()
     {
     this->Controllers[i] = vtkThreadedController::New();
     this->Controllers[i]->LocalProcessId = i;
+    this->Controllers[i]->NumberOfProcesses = this->NumberOfProcesses;
     }
 
   // Copy the array of controllers into each controller.
