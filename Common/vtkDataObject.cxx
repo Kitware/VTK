@@ -304,6 +304,9 @@ void vtkDataObject::UpdateInformation()
   else
     {
     memcpy( this->WholeExtent, this->Extent, 6*sizeof(int) );
+
+    // We also need to set the PipeineMTime to our MTime.
+    this->PipelineMTime = this->GetMTime();
     }
   
   
