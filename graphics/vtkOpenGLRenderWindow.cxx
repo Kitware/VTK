@@ -613,7 +613,6 @@ void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, int x2, int y2, 
 						 int front)
 {
-  long     xloop,yloop;
   int     y_low, y_hi;
   int     x_low, x_hi;
   unsigned char   *data = NULL;
@@ -668,7 +667,6 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
-  int     xloop,yloop;
 
   // set the current window 
   glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
@@ -871,8 +869,8 @@ float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
     x_hi  = x1;
     }
 
-  width =  abs(x2 - x1)+1;
-  height = abs(y2 - y1)+1;
+  width =  x_hi - x_low + 1; 
+  height = y_hi - y_low + 1;
 
   z_data = new float[width*height];
 
@@ -916,8 +914,8 @@ void vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
     x_hi  = x1;
     }
 
-  width =  abs(x2 - x1)+1;
-  height = abs(y2 - y1)+1;
+  width =  x_hi - x_low + 1; 
+  height = y_hi - y_low + 1;
 
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
