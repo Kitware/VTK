@@ -40,7 +40,6 @@ pack .top.f1.rw -expand 1 -fill both
 vtkRenderer ren1
     renWin AddRenderer ren1
 
-
 scale .top.f2.s1 -label " Number Of Pieces: " -orient horizontal \
 	-length 200 -from 1 -to 52 -variable NumberOfPieces 
 scale .top.f2.s2 -label " Piece: " -orient horizontal \
@@ -100,28 +99,11 @@ vtkSphereSource sphere
 vtkExtractPolyDataPiece pieceFilter
     pieceFilter SetInput [sphere GetOutput]
 
-# Move ghost levels to scalars.
-# First move all attributes to field data.
-vtkAttributeDataToFieldDataFilter cd2fd
-    cd2fd SetInput [pieceFilter GetOutput]
-# Move ghost cell field to cell scalars 
-vtkFieldDataToAttributeDataFilter fd2cd
-    fd2cd SetInput [cd2fd GetOutput]
-    fd2cd SetInputFieldToCellDataField
-    fd2cd SetOutputAttributeDataToCellData
-    fd2cd SetScalarComponent 0 CellGhostLevels 0 
-# Move all attributes to field data again because we lost the field data.
-vtkFieldDataToAttributeDataFilter fd2pd
-    fd2pd SetInput [fd2cd GetOutput]
-    fd2pd SetInputFieldToPointDataField
-    fd2pd SetOutputAttributeDataToPointData
-    fd2pd SetScalarComponent 0 PointGhostLevels 0 
-
-
-
+vtkGhostLevelToScalarFilter g2s
+   g2s SetInput [pieceFilter GetOutput]
 
 vtkPolyDataMapper mapper
-  mapper SetInput [fd2pd GetOutput]
+  mapper SetInput [g2s GetOutput]
   mapper SetPiece $Piece
   mapper SetNumberOfPieces $NumberOfPieces
   mapper SetGhostLevel $GhostLevels
@@ -155,7 +137,7 @@ vtkSphereSource glyphSource
     glyphSource SetPhiResolution 5
 vtkGlyph3D glyph
     #glyph SetInput pdCopy
-    glyph SetInput [fd2pd GetOutput]
+    glyph SetInput [g2s GetOutput]
     glyph SetSource [glyphSource GetOutput]
     glyph SetScaleModeToDataScalingOff
     glyph SetScaleFactor 0.03
