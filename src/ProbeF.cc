@@ -83,15 +83,9 @@ void vlProbeFilter::Initialize()
 void vlProbeFilter::Update()
 {
   // make sure input is available
-  if ( this->Input == NULL )
+  if ( this->Input == NULL || this->Source == NULL )
     {
     vlErrorMacro(<< "No input!");
-    return;
-    }
-
-  if ( this->Source == NULL )
-    {
-    vlErrorMacro(<< "No source data!");
     return;
     }
 
@@ -105,13 +99,17 @@ void vlProbeFilter::Update()
 
   if (this->Input->GetMTime() > this->GetMTime() || 
   this->Source->GetMTime() > this->GetMTime() || 
-  this->GetMTime() > this->ExecuteTime )
+  this->GetMTime() > this->ExecuteTime || this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();
     this->ExecuteTime.Modified();
+    this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
+
+  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  if ( this->Source->ShouldIReleaseData() ) this->Source->ReleaseData();
 }
 
 void vlProbeFilter::PrintSelf(ostream& os, vlIndent indent)

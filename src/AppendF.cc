@@ -48,7 +48,7 @@ void vlAppendFilter::RemoveInput(vlDataSet *ds)
 
 void vlAppendFilter::Update()
 {
-  unsigned long int mtime, ds_mtime;
+  unsigned long int mtime, dsMtime;
   vlDataSet *ds;
 
   // make sure input is available
@@ -65,18 +65,23 @@ void vlAppendFilter::Update()
   for (mtime=0, this->InputList.InitTraversal(); ds = this->InputList.GetNextItem(); )
     {
     ds->Update();
-    ds_mtime = ds->GetMTime();
-    if ( ds_mtime > mtime ) mtime = ds_mtime;
+    dsMtime = ds->GetMTime();
+    if ( dsMtime > mtime ) mtime = dsMtime;
     }
   this->Updating = 0;
 
-  if (mtime > this->GetMTime() || this->GetMTime() > this->ExecuteTime )
+  if (mtime > this->GetMTime() || this->GetMTime() > this->ExecuteTime ||
+  this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();
     this->ExecuteTime.Modified();
+    this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
+
+  for (this->InputList.InitTraversal(); ds = this->InputList.GetNextItem(); )
+    if ( ds->ShouldIReleaseData() ) ds->ReleaseData();
 }
 
 // Append data sets into single unstructured grid

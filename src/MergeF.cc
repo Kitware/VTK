@@ -35,13 +35,80 @@ vlMergeFilter::~vlMergeFilter()
 
 void vlMergeFilter::Update()
 {
+  unsigned long int mtime, dsMtime;
+
+  // prevent chasing our tail
+  if (this->Updating) return;
+
+  this->Updating = 1;
   this->Geometry->Update();
-  if ( this->Scalars ) this->Scalars->Update();
-  if ( this->Vectors ) this->Vectors->Update();
-  if ( this->Normals ) this->Normals->Update();
-  if ( this->TCoords ) this->TCoords->Update();
-  if ( this->Tensors ) this->Tensors->Update();
-  if ( this->UserDefined ) this->UserDefined->Update();
+  if ( this->Scalars ) 
+    {
+    this->Scalars->Update();
+    dsMtime = this->Scalars->GetMTime();
+    if ( dsMtime > mtime ) mtime = dsMtime;
+    }
+  if ( this->Vectors )
+    {
+    this->Vectors->Update();
+    dsMtime = this->Vectors->GetMTime();
+    if ( dsMtime > mtime ) mtime = dsMtime;
+    }
+  if ( this->Normals )
+    {
+    this->Normals->Update();
+    dsMtime = this->Normals->GetMTime();
+    if ( dsMtime > mtime ) mtime = dsMtime;
+    }
+  if ( this->TCoords )
+    {
+    this->TCoords->Update();
+    dsMtime = this->TCoords->GetMTime();
+    if ( dsMtime > mtime ) mtime = dsMtime;
+    }
+  if ( this->Tensors )
+    {
+    this->Tensors->Update();
+    dsMtime = this->Tensors->GetMTime();
+    if ( dsMtime > mtime ) mtime = dsMtime;
+    }
+  if ( this->UserDefined )
+    {
+    this->UserDefined->Update();
+    dsMtime = this->UserDefined->GetMTime();
+    if ( dsMtime > mtime ) mtime = dsMtime;
+    }
+  this->Updating = 0;
+
+  if (mtime > this->GetMTime() || this->GetMTime() > this->ExecuteTime ||
+  this->GetDataReleased() )
+    {
+    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    this->Execute();
+    this->ExecuteTime.Modified();
+    this->SetDataReleased(0);
+    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    }
+  
+  if ( this->Geometry->ShouldIReleaseData() ) this->Geometry->ReleaseData();
+
+  if ( this->Scalars && this->Scalars->ShouldIReleaseData() ) 
+    this->Scalars->ReleaseData();
+
+  if ( this->Vectors && this->Vectors->ShouldIReleaseData() ) 
+    this->Vectors->ReleaseData();
+
+  if ( this->Normals && this->Normals->ShouldIReleaseData() ) 
+    this->Normals->ReleaseData();
+
+  if ( this->TCoords && this->TCoords->ShouldIReleaseData() ) 
+    this->TCoords->ReleaseData();
+
+  if ( this->Tensors && this->Tensors->ShouldIReleaseData() ) 
+    this->Tensors->ReleaseData();
+
+  if ( this->UserDefined && this->UserDefined->ShouldIReleaseData() ) 
+    this->UserDefined->ReleaseData();
 }
 
 void vlMergeFilter::Initialize()

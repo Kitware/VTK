@@ -47,13 +47,13 @@ void vlAppendPolyData::RemoveInput(vlPolyData *ds)
 
 void vlAppendPolyData::Update()
 {
-  unsigned long int mtime, pd_mtime;
+  unsigned long int mtime, pdMtime;
   vlPolyData *pd;
 
   // make sure input is available
   if ( this->InputList.GetNumberOfItems() < 1 )
     {
-    vlErrorMacro(<< "No input!\n");
+    vlErrorMacro(<< "No input!");
     return;
     }
 
@@ -64,18 +64,23 @@ void vlAppendPolyData::Update()
   for (mtime=0, this->InputList.InitTraversal(); pd = this->InputList.GetNextItem(); )
     {
     pd->Update();
-    pd_mtime = pd->GetMTime();
-    if ( pd_mtime > mtime ) mtime = pd_mtime;
+    pdMtime = pd->GetMTime();
+    if ( pdMtime > mtime ) mtime = pdMtime;
     }
   this->Updating = 0;
 
-  if (mtime > this->GetMTime() || this->GetMTime() > this->ExecuteTime )
+  if (mtime > this->GetMTime() || this->GetMTime() > this->ExecuteTime ||
+  this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();
     this->ExecuteTime.Modified();
+    this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
+
+  for (this->InputList.InitTraversal(); pd = this->InputList.GetNextItem(); )
+    if ( pd->ShouldIReleaseData() ) pd->ReleaseData();
 }
 
 // Append data sets into single unstructured grid
