@@ -254,6 +254,7 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   target++;
   
   // loop through pixel of output
+  inPtr = (T *)inData->GetScalarPointer(hoodMin0,hoodMin1,hoodMin2);
   inPtr2 = inPtr;
   for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
     {
