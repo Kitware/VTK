@@ -300,6 +300,9 @@ protected:
   int ScalingEnabled;
   int RotationEnabled;
   
+  // Keep track of last pick position
+  float LastPickPosition[3];
+
 private:
   vtkBoxWidget(const vtkBoxWidget&);  //Not implemented
   void operator=(const vtkBoxWidget&);  //Not implemented

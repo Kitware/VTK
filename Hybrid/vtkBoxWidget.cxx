@@ -32,7 +32,7 @@
 #include "vtkSphereSource.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.17");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.18");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -542,8 +542,6 @@ void vtkBoxWidget::HighlightOutline(int highlight)
 
 void vtkBoxWidget::OnLeftButtonDown()
 {
-  this->State = vtkBoxWidget::Moving;
-
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -555,8 +553,10 @@ void vtkBoxWidget::OnLeftButtonDown()
   path = this->HandlePicker->GetPath();
   if ( path != NULL )
     {
+    this->State = vtkBoxWidget::Moving;
     this->HighlightFace(
       this->HighlightHandle(path->GetFirstNode()->GetProp()));
+    this->HandlePicker->GetPickPosition(this->LastPickPosition);
     }
   else
     {
@@ -564,6 +564,8 @@ void vtkBoxWidget::OnLeftButtonDown()
     path = this->HexPicker->GetPath();
     if ( path != NULL )
       {
+      this->State = vtkBoxWidget::Moving;
+      this->HexPicker->GetPickPosition(this->LastPickPosition);
       if ( !this->Interactor->GetShiftKey() )
         {
         this->HighlightHandle(NULL);
@@ -591,7 +593,8 @@ void vtkBoxWidget::OnLeftButtonDown()
 
 void vtkBoxWidget::OnLeftButtonUp()
 {
-  if ( this->State == vtkBoxWidget::Outside )
+  if ( this->State == vtkBoxWidget::Outside ||
+       this->State == vtkBoxWidget::Start )
     {
     return;
     }
@@ -608,8 +611,6 @@ void vtkBoxWidget::OnLeftButtonUp()
 
 void vtkBoxWidget::OnMiddleButtonDown()
 {
-  this->State = vtkBoxWidget::Moving;
-
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -621,8 +622,10 @@ void vtkBoxWidget::OnMiddleButtonDown()
   path = this->HandlePicker->GetPath();
   if ( path != NULL )
     {
+    this->State = vtkBoxWidget::Moving;
     this->CurrentHandle = this->Handle[6];
     this->HighlightOutline(1);
+    this->HandlePicker->GetPickPosition(this->LastPickPosition);
     }
   else
     {
@@ -630,8 +633,10 @@ void vtkBoxWidget::OnMiddleButtonDown()
     path = this->HexPicker->GetPath();
     if ( path != NULL )
       {
+      this->State = vtkBoxWidget::Moving;
       this->CurrentHandle = this->Handle[6];
       this->HighlightOutline(1);
+      this->HexPicker->GetPickPosition(this->LastPickPosition);
       }
     else
       {
@@ -649,7 +654,8 @@ void vtkBoxWidget::OnMiddleButtonDown()
 
 void vtkBoxWidget::OnMiddleButtonUp()
 {
-  if ( this->State == vtkBoxWidget::Outside )
+  if ( this->State == vtkBoxWidget::Outside ||
+       this->State == vtkBoxWidget::Start )
     {
     return;
     }
@@ -666,8 +672,6 @@ void vtkBoxWidget::OnMiddleButtonUp()
 
 void vtkBoxWidget::OnRightButtonDown()
 {
-  this->State = vtkBoxWidget::Scaling;
-
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -677,19 +681,26 @@ void vtkBoxWidget::OnRightButtonDown()
   this->Interactor->FindPokedRenderer(X,Y);
   this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->HandlePicker->GetPath();
-  if ( path == NULL )
+  if ( path != NULL )
+    {
+    this->State = vtkBoxWidget::Scaling;
+    this->HighlightOutline(1);
+    this->HandlePicker->GetPickPosition(this->LastPickPosition);
+    }
+  else
     {
     this->HexPicker->Pick(X,Y,0.0,this->CurrentRenderer);
     path = this->HexPicker->GetPath();
-    if ( path == NULL )
+    if ( path != NULL )
       {
-      this->State = vtkBoxWidget::Outside;
-      this->HighlightOutline(0);
-      return;
+      this->State = vtkBoxWidget::Scaling;
+      this->HighlightOutline(1);
+      this->HexPicker->GetPickPosition(this->LastPickPosition);
       }
     else
       {
-      this->HighlightOutline(1);
+      this->State = vtkBoxWidget::Outside;
+      return;
       }
     }
   
@@ -718,7 +729,8 @@ void vtkBoxWidget::OnRightButtonUp()
 void vtkBoxWidget::OnMouseMove()
 {
   // See whether we're active
-  if ( this->State == vtkBoxWidget::Outside || this->State == vtkBoxWidget::Start )
+  if ( this->State == vtkBoxWidget::Outside || 
+       this->State == vtkBoxWidget::Start )
     {
     return;
     }
@@ -739,14 +751,12 @@ void vtkBoxWidget::OnMouseMove()
     }
 
   // Compute the two points defining the motion vector
-  camera->GetFocalPoint(focalPoint);
-  this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
-                              focalPoint[2], focalPoint);
+  this->ComputeWorldToDisplay(this->LastPickPosition[0], this->LastPickPosition[1],
+                              this->LastPickPosition[2], focalPoint);
   z = focalPoint[2];
   this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),
                               double(this->Interactor->GetLastEventPosition()[1]),
-                              z, 
-                              prevPickPoint);
+                              z, prevPickPoint);
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
   // Process the motion
