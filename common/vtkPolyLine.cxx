@@ -463,7 +463,7 @@ void vtkPolyLine::Contour(float value, vtkFloatScalars *cellScalars,
                          vtkFloatScalars *scalars)
 {
   int i;
-  vtkFloatScalars lineScalars(2);
+  vtkFloatScalars lineScalars(2); lineScalars.ReferenceCountingOff();
   static vtkLine line;
 
   for ( i=0; i<this->Points.GetNumberOfPoints()-1; i++)

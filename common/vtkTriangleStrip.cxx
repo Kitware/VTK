@@ -164,7 +164,7 @@ void vtkTriangleStrip::Contour(float value, vtkFloatScalars *cellScalars,
                               vtkFloatScalars *scalars)
 {
   int i;
-  vtkFloatScalars triScalars(3);
+  vtkFloatScalars triScalars(3); triScalars.ReferenceCountingOff();
   static vtkTriangle tri;
 
   for ( i=0; i<this->Points.GetNumberOfPoints()-2; i++)
