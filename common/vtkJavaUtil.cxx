@@ -39,6 +39,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
+// include stdmutex for borland
+#ifdef __BORLANDC__
+#include <stdmutex.h>
+#endif
+
 #include <iostream.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -50,11 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifdef _WIN32
 #include "vtkSetGet.h"
 #include "vtkWin32Header.h"
-
-// include stdmutex for borland
-#ifndef _MSC_VER
-#include <stdmutex.h>
-#endif
 
 #include "vtkObject.h"
 HANDLE vtkGlobalMutex = NULL;
@@ -481,3 +481,27 @@ jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in)
   
   return result;
 }
+
+//**jcp this is the callback inteface stub for Java. no user parms are passed
+//since the callback must be a method of a class. We make the rash assumption
+//that the <this> pointer will anchor any required other elements for the
+//called functions.
+// 
+void vtkJavaVoidFunc(void* f) 
+{  
+  vtkJavaVoidFuncArg *iprm = (vtkJavaVoidFuncArg *)f;
+  iprm->uenv->CallVoidMethod(iprm->uobj,iprm->mid); 
+}
+
+void vtkJavaVoidFuncArgDelete(void* arg) 
+{
+  vtkJavaVoidFuncArg *arg2;
+  
+  arg2 = (vtkJavaVoidFuncArg *)arg;
+  
+  // free the structure
+  arg2->uenv->DeleteGlobalRef(arg2->uobj);
+  
+  delete arg2;
+}
+

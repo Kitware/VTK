@@ -58,4 +58,14 @@ extern jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env,
 						  double *arr, int size);
 extern jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *arr, int size);
 
+// this is the void pointer parm passed to the vtk callback routines on
+// behalf of the Java interface for callbacks.
+struct vtkJavaVoidFuncArg 
+{
+  JNIEnv * uenv;
+  jobject  uobj;
+  jmethodID mid;
+} ;
 
+extern void vtkJavaVoidFunc(void *);
+extern void vtkJavaVoidFuncArgDelete(void *);
