@@ -144,7 +144,7 @@ vtkCubeAxesActor2D::~vtkCubeAxesActor2D()
 
   if ( this->Camera )
     {
-    this->Camera->Delete();
+    this->Camera->UnRegister(this);
     }
 
   this->XAxis->Delete();
