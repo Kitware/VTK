@@ -55,7 +55,7 @@ vtkImageMapper::vtkImageMapper()
 {
   vtkDebugMacro(<< "vtkImageMapper::vtkImageMapper" );
 
-  this->Input = NULL;
+  this->NumberOfRequiredInputs = 1;
 
   this->ColorWindow = 2000;
   this->ColorLevel  = 1000;
@@ -74,11 +74,23 @@ vtkImageMapper::vtkImageMapper()
 
 vtkImageMapper::~vtkImageMapper()
 {
-  if (this->Input)
+}
+
+//----------------------------------------------------------------------------
+void vtkImageMapper::SetInput(vtkImageData *input)
+{
+  this->vtkProcessObject::SetNthInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageMapper::GetInput()
+{
+  if (this->NumberOfInputs < 1)
     {
-    this->GetInput()->UnRegister(this);
-    this->Input = NULL;
+    return NULL;
     }
+  
+  return (vtkImageData *)(this->Inputs[0]);
 }
 
 unsigned long int vtkImageMapper::GetMTime()
@@ -91,7 +103,6 @@ void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkMapper2D::PrintSelf(os, indent);
 
-  os << indent << "Input: " << this->Input << "\n";
   os << indent << "Color Window: " << this->ColorWindow << "\n";
   os << indent << "Color Level: " << this->ColorLevel << "\n";
   os << indent << "ZSlice: " << this->ZSlice << "\n";
@@ -141,7 +152,7 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     }
 
 
-  if (!this->Input)
+  if (this->NumberOfInputs < 1)
     {
     vtkDebugMacro(<< "vtkImageMapper::Render - Please Set the input.");
     return;
@@ -248,7 +259,7 @@ int vtkImageMapper::GetWholeZMin()
 {
   int *extent;
   
-  if ( ! this->Input)
+  if ( ! this->GetInput())
     {
     return 0;
     }
@@ -262,7 +273,7 @@ int vtkImageMapper::GetWholeZMax()
 {
   int *extent;
   
-  if ( ! this->Input)
+  if ( ! this->GetInput())
     {
     return 0;
     }

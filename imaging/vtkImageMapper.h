@@ -80,11 +80,6 @@ public:
   vtkGetMacro(ColorLevel, float);
 
   // Description:
-  // Set/Get the input for the image mapper.  
-  vtkSetObjectMacro(Input, vtkImageData);
-  vtkGetObjectMacro(Input, vtkImageData);
-
-  // Description:
   // Set/Get the current slice number. The axis Z in ZSlice does not
   // necessarily have any relation to the z axis of the data on disk.
   // It is simply the axis orthogonal to the x,y, display plane.
@@ -112,6 +107,11 @@ public:
 
   // Public for templated functions. * *  Should remove this * *
   int DisplayExtent[6];
+
+  // Description:
+  // Set the Input of a filter. 
+  virtual void SetInput(vtkImageData *input);
+  vtkImageData *GetInput();
 
   // Description:
   // If RenderToRectangle is set (by default not), then the imagemapper
@@ -144,7 +144,6 @@ protected:
   vtkImageMapper(const vtkImageMapper&) {};
   void operator=(const vtkImageMapper&) {};
 
-  vtkImageData* Input;
   float ColorWindow;
   float ColorLevel;
 
