@@ -121,7 +121,7 @@ static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self,
 				       vtkImageData *data, 
 				       T *dataPtr,
 				       float shift, float scale,
-				       int *actorPos, int *vsize)
+				       int *actorPos, int front, int *vsize)
 {
   int* tempExt = self->GetInput()->GetUpdateExtent();
   int inMin0 = tempExt[0];
@@ -140,8 +140,9 @@ static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self,
   data->GetPointData()->GetScalars()->GetDataTypeRange( range );
 
   glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
-		(2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), -1);
-  
+                (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), 
+                (front)?(-1):(1));
+
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
   // reformat data into unsigned char
@@ -232,7 +233,8 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
 					    vtkImageData *data, 
 					    T *dataPtr,
 					    float shift, float scale,
-					    int *actorPos, int *vsize)
+					    int *actorPos, int front, 
+                                            int *vsize)
 {
   int* tempExt = self->GetInput()->GetUpdateExtent();
   int inMin0 = tempExt[0];
@@ -250,9 +252,10 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
 
   double range[2];
   data->GetPointData()->GetScalars()->GetDataTypeRange( range );
-
+  
   glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
-		(2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), -1);
+                (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), 
+                (front)?(-1):(1));
 
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
@@ -356,7 +359,8 @@ template <class T>
 static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, 
 					   vtkImageData *data, 
 					   T *dataPtr,
-					   int *actorPos, int *vsize)
+					   int *actorPos, int front,
+                                           int *vsize)
 {
   int* tempExt = self->GetInput()->GetUpdateExtent();
   int inMin0 = tempExt[0];
@@ -376,8 +380,10 @@ static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self,
   data->GetPointData()->GetScalars()->GetDataTypeRange( range );
 
   glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
-		(2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), -1);
+                (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), 
+                (front)?(-1):(1));
 
+    
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
   if (bpp == 3)
@@ -553,49 +559,52 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
     return;
     }
   
+  int front = 
+    (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION);
+
   switch (data->GetScalarType())
     {
     case VTK_DOUBLE:  
       vtkOpenGLImageMapperRender(this, data,
 				 (double *)(ptr0), 
-				 shift, scale, actorPos, vsize);
+				 shift, scale, actorPos, front, vsize);
       break;
     case VTK_FLOAT:  
       vtkOpenGLImageMapperRender(this, data,
 				 (float *)(ptr0), 
-				 shift, scale, actorPos, vsize);
+				 shift, scale, actorPos, front, vsize);
       break;
     case VTK_LONG:    
       vtkOpenGLImageMapperRender(this, data,
 				 (long *)(ptr0),
-				 shift, scale, actorPos, vsize);
+				 shift, scale, actorPos, front, vsize);
       break;
     case VTK_UNSIGNED_LONG:    
       vtkOpenGLImageMapperRender(this, data,
 				 (unsigned long *)(ptr0),
-				 shift, scale, actorPos, vsize);
+				 shift, scale, actorPos, front, vsize);
       break;
     case VTK_INT:    
       vtkOpenGLImageMapperRender(this, data,
 				 (int *)(ptr0),
-				 shift, scale, actorPos, vsize);
+				 shift, scale, actorPos, front, vsize);
       break;
     case VTK_UNSIGNED_INT: 
       vtkOpenGLImageMapperRender(this, data,
                                  (unsigned int *)(ptr0),  
-                                 shift, scale, actorPos, vsize);
+                                 shift, scale, actorPos, front, vsize);
     
       break; 
     case VTK_SHORT:  
       vtkOpenGLImageMapperRenderShort(this, data,
 				      (short *)(ptr0),
-				      shift, scale, actorPos, vsize);
+				      shift, scale, actorPos, front, vsize);
       
       break; 
     case VTK_UNSIGNED_SHORT: 
       vtkOpenGLImageMapperRenderShort(this, data,
 				      (unsigned short *)(ptr0),  
-				      shift, scale, actorPos, vsize);
+				      shift, scale, actorPos, front, vsize);
     
       break; 
     case VTK_UNSIGNED_CHAR:  
@@ -603,14 +612,14 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
 	{
 	vtkOpenGLImageMapperRenderChar(this, data,
 				       (unsigned char *)(ptr0),  
-				       actorPos, vsize);
+				       actorPos, front, vsize);
 	}
       else
 	{
 	// RenderShort is Templated, so we can pass unsigned char
 	vtkOpenGLImageMapperRenderShort(this, data,
 				   (unsigned char *)(ptr0),  
-				   shift, scale, actorPos, vsize);
+				   shift, scale, actorPos, front, vsize);
 	}
       break;
     case VTK_CHAR: 
@@ -618,14 +627,14 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
 	{
 	vtkOpenGLImageMapperRenderChar(this, data,
 				       (char *)(ptr0),  
-				       actorPos, vsize);
+				       actorPos, front, vsize);
 	}
       else
 	{
 	// RenderShort is Templated, so we can pass unsigned char
 	vtkOpenGLImageMapperRenderShort(this, data,
 				   (char *)(ptr0),  
-				   shift, scale, actorPos, vsize);
+				   shift, scale, actorPos, front, vsize);
 	}
       break;
     default:

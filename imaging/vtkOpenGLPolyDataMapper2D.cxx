@@ -66,18 +66,18 @@ vtkOpenGLPolyDataMapper2D* vtkOpenGLPolyDataMapper2D::New()
 void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
 						     vtkActor2D* actor)
 {
-  int numPts;
-  vtkPolyData *input= (vtkPolyData *)this->Input;
-  int npts, j;
-  vtkPoints *p, *displayPts;
-  vtkCellArray *aPrim;
-  vtkScalars *c=NULL;
-  unsigned char *rgba;
-	unsigned char color[4];
-  int *pts;
-  int cellScalars = 0;
-  int cellNum = 0;
-
+  int            numPts;
+  vtkPolyData    *input= (vtkPolyData *)this->Input;
+  int            npts, j;
+  vtkPoints      *p, *displayPts;
+  vtkCellArray   *aPrim;
+  vtkScalars     *c=NULL;
+  unsigned char  *rgba;
+  unsigned char  color[4];
+  int            *pts;
+  int            cellScalars = 0;
+  int            cellNum = 0;
+  
   vtkDebugMacro (<< "vtkOpenGLPolyDataMapper2D::Render");
 
   if ( input == NULL ) 
@@ -178,9 +178,18 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   glPushMatrix();
   glLoadIdentity();
   glDisable( GL_LIGHTING);
-  glOrtho(-actorPos[0],-actorPos[0] + size[0] - 1,
-	  -actorPos[1], -actorPos[1] +size[1] -1, 0, 1);
-  
+  if ( actor->GetProperty()->GetDisplayLocation() == 
+       VTK_FOREGROUND_LOCATION )
+    {
+    glOrtho(-actorPos[0],-actorPos[0] + size[0] - 1,
+            -actorPos[1], -actorPos[1] +size[1] -1, 0, 1);
+    }  
+  else
+    {
+    glOrtho(-actorPos[0],-actorPos[0] + size[0] - 1,
+            -actorPos[1], -actorPos[1] +size[1] -1, -1, 0);
+    }
+    
   aPrim = input->GetPolys();
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
     { 

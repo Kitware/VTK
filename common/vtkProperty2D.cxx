@@ -71,6 +71,7 @@ vtkProperty2D::vtkProperty2D()
   this->Color[0] = 1.0;
   this->Color[1] = 1.0;
   this->Color[2] = 1.0;  
+  this->DisplayLocation = VTK_FOREGROUND_LOCATION;
 }
 
 vtkProperty2D::~vtkProperty2D()
