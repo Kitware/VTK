@@ -475,15 +475,8 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
   int i, success;
   float *bounds, d;
   int numVerts=this->PointIds.GetNumberOfIds();
-  static int maxNumVerts=VTK_CELL_SIZE;
-  static int *verts=new int[maxNumVerts];
+  int *verts = new int[numVerts];
   static vtkIdList Tris((VTK_CELL_SIZE-2)*3);
-  if ( numVerts > maxNumVerts )
-    {
-    delete [] verts;
-    maxNumVerts = numVerts;
-    verts = new int[maxNumVerts];
-    }
 
   bounds = this->GetBounds();
   
@@ -511,6 +504,9 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
       outTris.InsertId(i,this->PointIds.GetId(Tris.GetId(i)));
       }
     }
+
+  delete [] verts;
+  
   return 1;
 }
 
@@ -525,46 +521,40 @@ int vtkPolygon::FastTriangulate (int numVerts, int *verts, vtkIdList& Tris)
   int fedges[2];
   float max, ar;
   int maxI, maxJ;
-  static int maxNumVerts=VTK_CELL_SIZE;
-  static int *l1=new int[maxNumVerts], *l2=new int[maxNumVerts];
-  if ( numVerts > maxNumVerts )
-    {
-    delete [] l1; delete [] l2;
-    maxNumVerts = numVerts;
-    l1 = new int[maxNumVerts]; l2 = new int[maxNumVerts];
-    }
 
   if ( !SuccessfulTriangulation )
     return 0;
 
   switch (numVerts) 
     {
-//
-//  In loops of less than 3 vertices no elements are created
-//
+    //
+    //  In loops of less than 3 vertices no elements are created
+    //
     case 0: case 1: case 2:
       return 1;
-//
-//  A loop of three vertices makes one triangle!  Replace an old
-//  polygon with a newly created one.  
-//
+      //
+      //  A loop of three vertices makes one triangle!  Replace an old
+      //  polygon with a newly created one.  
+      //
     case 3:
-//
-//  Create a triangle
-//
+      //
+      //  Create a triangle
+      //
       Tris.InsertNextId(verts[0]);
       Tris.InsertNextId(verts[1]);
       Tris.InsertNextId(verts[2]);
-
       return 1;
-//
-//  Loops greater than three vertices must be subdivided.  This is
-//  done by finding the best splitting plane and creating two loop and 
-//  recursively triangulating.  To find the best splitting plane, try
-//  all possible combinations, keeping track of the one that gives the
-//  largest dihedral angle combination.
-//
+      //
+      //  Loops greater than three vertices must be subdivided.  This is
+      //  done by finding the best splitting plane and creating two loop and 
+      //  recursively triangulating.  To find the best splitting plane, try
+      //  all possible combinations, keeping track of the one that gives the
+      //  largest dihedral angle combination.
+      //
     default:
+      {
+      int *l1 = new int[numVerts], *l2 = new int[numVerts];
+
       max = 0.0;
       maxI = maxJ = -1;
       for (i=0; i<(numVerts-2); i++) 
@@ -603,7 +593,10 @@ int vtkPolygon::FastTriangulate (int numVerts, int *verts, vtkIdList& Tris)
   
       SuccessfulTriangulation = 0;
 
+      delete [] l1;
+      delete [] l2;
       return 0;
+      }
     }
 }
 
@@ -719,14 +712,7 @@ void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars,
   static vtkTriangle tri;
   static vtkIdList Tris((VTK_CELL_SIZE-2)*3);
   static vtkFloatScalars triScalars(3);
-  static int maxNumVerts=VTK_CELL_SIZE;
-  static int *polyVerts=new int[maxNumVerts];
-  if ( numVerts > maxNumVerts )
-    {
-    delete [] polyVerts;
-    maxNumVerts = numVerts;
-    polyVerts = new int[maxNumVerts];
-    }
+  int *polyVerts = new int[numVerts];
 
   bounds = this->GetBounds();
   
@@ -744,7 +730,6 @@ void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars,
 
   if ( !success ) // Just skip for now.
     {
-    ;
     }
   else // Contour triangle
     {
@@ -762,6 +747,7 @@ void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars,
                    lines, polys, scalars);
       }
     }
+  delete [] polyVerts;
 }
 
 vtkCell *vtkPolygon::GetEdge(int edgeId)
@@ -820,14 +806,8 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
   float tol2 = tol*tol;
   float closestPoint[3];
   float dist2;
-  static int npts=VTK_CELL_SIZE;
-  static float *weights=new float[npts];
-  if ( this->GetNumberOfPoints() > npts )
-    {
-    npts = this->GetNumberOfPoints();
-    delete [] weights;
-    weights = new float[npts];
-    }
+  int npts = this->GetNumberOfPoints();
+  float *weights = new float[npts];
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -858,15 +838,8 @@ int vtkPolygon::Triangulate(int index, vtkFloatPoints &pts)
   int i, success;
   float *bounds, d;
   int numVerts=this->PointIds.GetNumberOfIds();
-  static int maxNumVerts=VTK_CELL_SIZE;
-  static int *verts=new int[maxNumVerts];
+  int *verts = new int[numVerts];
   static vtkIdList Tris((VTK_CELL_SIZE-2)*3);
-  if ( numVerts > maxNumVerts )
-    {
-    delete [] verts;
-    maxNumVerts = numVerts;
-    verts = new int[maxNumVerts];
-    }
 
   pts.Reset();
 
@@ -894,6 +867,8 @@ int vtkPolygon::Triangulate(int index, vtkFloatPoints &pts)
       pts.InsertPoint(i,this->Points.GetPoint(Tris.GetId(i)));
       }
     }
+
+  delete [] verts;
   return success;
 }
 
