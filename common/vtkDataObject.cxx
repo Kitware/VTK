@@ -478,11 +478,9 @@ int vtkDataObject::VerifyUpdateExtent()
     case VTK_PIECES_EXTENT:
       if ( this->UpdateNumberOfPieces > this->MaximumNumberOfPieces )
 	{
-	vtkErrorMacro( << "Cannot break object into " <<
-	               this->UpdateNumberOfPieces << ". The limit is " <<
-	               this->MaximumNumberOfPieces );
-	cerr << "(" << this << "), piece " << this->UpdatePiece
-	     << ", Max " << this->MaximumNumberOfPieces << endl;
+	//vtkErrorMacro( << "Cannot break object into " <<
+	//               this->UpdateNumberOfPieces << ". The limit is " <<
+	//               this->MaximumNumberOfPieces );
 	retval = 0;
 	}
 
