@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.76");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.77");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -713,7 +713,7 @@ void vtkImplicitModeller::ExecuteInformation()
 
 
 //----------------------------------------------------------------------------
-void vtkImplicitModeller::ExecuteData(vtkDataObject *outp)
+void vtkImplicitModeller::ExecuteData(vtkDataObject *)
 {
   vtkDebugMacro(<< "Executing implicit model");
 
