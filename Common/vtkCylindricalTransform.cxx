@@ -21,7 +21,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkCylindricalTransform, "1.1");
+vtkCxxRevisionMacro(vtkCylindricalTransform, "1.2");
 vtkStandardNewMacro(vtkCylindricalTransform);
 
 //----------------------------------------------------------------------------
@@ -105,7 +105,8 @@ static void vtkRectangularToCylindrical(const T inPoint[3], T outPoint[3])
     }
   else
     {
-    outPoint[1] = atan2(y, x);
+    // Change range to [0, 2*Pi], otherwise the same as atan2(y, x)
+    outPoint[1] = vtkMath::Pi() + atan2(-y, -x);
     }
   outPoint[2] = z;
 }

@@ -21,7 +21,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkSphericalTransform, "1.1");
+vtkCxxRevisionMacro(vtkSphericalTransform, "1.2");
 vtkStandardNewMacro(vtkSphericalTransform);
 
 //----------------------------------------------------------------------------
@@ -115,7 +115,8 @@ static void vtkRectangularToSpherical(const T inPoint[3], T outPoint[3])
     }
   else
     {
-    outPoint[2] = atan2(y, x);
+    // Change range to [0, 2*Pi], otherwise the same as atan2(y, x)
+    outPoint[2] = vtkMath::Pi() + atan2(-y, -x);
     }
 }
 
