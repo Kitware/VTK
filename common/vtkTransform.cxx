@@ -879,7 +879,7 @@ void vtkTransform::Concatenate(double Elements[16])
 void vtkTransform::Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, 
 			       vtkMatrix4x4 *c)
 {
-  int i, j, k;
+  int i, k;
   double Accum[4][4];
 
   for (i = 0; i < 4; i++) 
