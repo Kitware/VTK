@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTriangleStrip.h"
 #include "vtkQuad.h"
 #include "vtkPolygon.h"
+#include "vtkNULLCell.h"
 
 // Initialize static member.  This member is used to simplify traversal
 // of verts, lines, polygons, and triangle strips lists.  It basically 
@@ -136,6 +137,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
   static vtkTriangleStrip strip;
   static vtkPolygon poly;
   static vtkQuad quad;
+  static vtkNULLCell NULLCell;
   int i, loc, numPts, *pts;
   vtkCell *cell = NULL;
   unsigned char type;
@@ -190,6 +192,9 @@ vtkCell *vtkPolyData::GetCell(int cellId)
       cell = &strip;
       this->Strips->GetCell(loc,numPts,pts);
       break;
+
+    default:
+      return &NULLCell;
     }
 
   int last = numPts - 1;
@@ -725,6 +730,9 @@ void vtkPolyData::ReverseCell(int cellId)
     case VTK_TRIANGLE_STRIP:
       this->Strips->ReverseCell(loc);
       break;
+
+    default:
+      break;
     }
 }
 
@@ -808,6 +816,9 @@ void vtkPolyData::ReplaceCell(int cellId, int npts, int *pts)
     case VTK_TRIANGLE_STRIP:
       this->Strips->ReplaceCell(loc,npts,pts);
       break;
+
+    default:
+      break;
     }
 }
 
@@ -840,6 +851,9 @@ void vtkPolyData::ReplaceLinkedCell(int cellId, int npts, int *pts)
     case VTK_TRIANGLE_STRIP:
       this->Strips->ReplaceCell(loc,npts,pts);
       break;
+
+    default:
+      npts = 0;
     }
 
   for (int i=0; i < npts; i++)
