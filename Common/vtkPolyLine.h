@@ -47,6 +47,8 @@ public:
   // that control the rotation around the line. The normals try to stay pointing
   // in the same direction as much as possible (i.e., minimal rotation).
   int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *);
+  int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *, 
+                             float* firstNormal);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

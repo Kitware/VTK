@@ -24,7 +24,7 @@
 #include "vtkLine.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPolyLine, "1.74");
+vtkCxxRevisionMacro(vtkPolyLine, "1.75");
 vtkStandardNewMacro(vtkPolyLine);
 
 vtkPolyLine::vtkPolyLine()
@@ -37,12 +37,19 @@ vtkPolyLine::~vtkPolyLine()
   this->Line->Delete();
 }
 
+int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
+                                        vtkDataArray *normals)
+{
+  return this->GenerateSlidingNormals(pts, lines, normals, 0);
+}
+
 // Given points and lines, compute normals to lines. These are not true 
 // normals, they are "orientation" normals used by classes like vtkTubeFilter
 // that control the rotation around the line. The normals try to stay pointing
 // in the same direction as much as possible (i.e., minimal rotation).
 int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
-                                        vtkDataArray *normals)
+                                        vtkDataArray *normals, 
+                                        float* firstNormal)
 {
   vtkIdType npts=0;
   vtkIdType *linePts=0;
@@ -95,61 +102,68 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
             return 0;
             }
 
-          // the following logic will produce a normal orthogonal
-          // to the first line segment. If we have three points
-          // we use special logic to select a normal orthogonal
-          // to the first two line segments
-          int foundNormal=0;
-          if (npts > 2)
+          if (!firstNormal)
             {
-            int ipt;
-
-            // Look at the line segments (0,1), (ipt-1, ipt)
-            // until a pair which meets the following criteria
-            // is found: ||(0,1)x(ipt-1,ipt)|| > 1.0E-3.
-            // This is used to eliminate nearly parallel cases.
-            for(ipt=2; ipt < npts; ipt++)
+            // the following logic will produce a normal orthogonal
+            // to the first line segment. If we have three points
+            // we use special logic to select a normal orthogonal
+            // to the first two line segments
+            int foundNormal=0;
+            if (npts > 2)
               {
-              float ftmp[3], ftmp2[3];
-            
-              pts->GetPoint(linePts[ipt-1],ftmp);
-              pts->GetPoint(linePts[ipt]  ,ftmp2);
+              int ipt;
 
+              // Look at the line segments (0,1), (ipt-1, ipt)
+              // until a pair which meets the following criteria
+              // is found: ||(0,1)x(ipt-1,ipt)|| > 1.0E-3.
+              // This is used to eliminate nearly parallel cases.
+              for(ipt=2; ipt < npts; ipt++)
+                {
+                float ftmp[3], ftmp2[3];
+            
+                pts->GetPoint(linePts[ipt-1],ftmp);
+                pts->GetPoint(linePts[ipt]  ,ftmp2);
+
+                for (i=0; i<3; i++) 
+                  {
+                  ftmp[i] = ftmp2[i] - ftmp[i];
+                  }
+
+                if ( vtkMath::Normalize(ftmp) == 0.0 )
+                  {
+                  continue;
+                  }
+
+                // now the starting normal should simply be the cross product
+                // in the following if statement we check for the case where
+                // the two segments are parallel 
+                vtkMath::Cross(sNext,ftmp,normal);
+                if ( vtkMath::Norm(normal) > 1.0E-3 )
+                  {
+                  foundNormal = 1;
+                  break;
+                  }
+                }
+              }
+
+            if ((npts <= 2)|| !foundNormal) 
+              {
               for (i=0; i<3; i++) 
                 {
-                ftmp[i] = ftmp2[i] - ftmp[i];
-                }
-
-              if ( vtkMath::Normalize(ftmp) == 0.0 )
-                {
-                continue;
-                }
-
-              // now the starting normal should simply be the cross product
-              // in the following if statement we check for the case where
-              // the two segments are parallel 
-              vtkMath::Cross(sNext,ftmp,normal);
-              if ( vtkMath::Norm(normal) > 1.0E-3 )
-                {
-                foundNormal = 1;
-                break;
+                // a little trick to find othogonal normal
+                if ( sNext[i] != 0.0 ) 
+                  {
+                  normal[(i+2)%3] = 0.0;
+                  normal[(i+1)%3] = 1.0;
+                  normal[i] = -sNext[(i+1)%3]/sNext[i];
+                  break;
+                  }
                 }
               }
             }
-
-          if ((npts <= 2)|| !foundNormal) 
+          else
             {
-            for (i=0; i<3; i++) 
-              {
-              // a little trick to find othogonal normal
-              if ( sNext[i] != 0.0 ) 
-                {
-                normal[(i+2)%3] = 0.0;
-                normal[(i+1)%3] = 1.0;
-                normal[i] = -sNext[(i+1)%3]/sNext[i];
-                break;
-                }
-              }
+            memcpy(normal, firstNormal, 3*sizeof(float));
             }
           vtkMath::Normalize(normal);
           normals->InsertTuple(linePts[0],normal);
