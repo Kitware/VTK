@@ -423,8 +423,6 @@ void vtkTetra::TetraCenter(float p1[3], float p2[3], float p3[3],
   center[2] = (p1[2]+p2[2]+p3[2]+p4[2]) / 4.0;
 }
 
-#define VTK_DOT(x,y) x[0]*y[0] + x[1]*y[1] + x[2]*y[2]
-
 // Description:
 // Compute the circumcenter (center[3]) and radius (method return value) of
 // a tetrahedron defined by the four points x1, x2, x3, and x4.
@@ -456,9 +454,9 @@ float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3],
   A[1] = n13;
   A[2] = n14;
 
-  rhs[0] = VTK_DOT(n12,x12); 
-  rhs[1] = VTK_DOT(n13,x13);
-  rhs[2] = VTK_DOT(n14,x14);
+  rhs[0] = vtkMath::Dot(n12,x12); 
+  rhs[1] = vtkMath::Dot(n13,x13);
+  rhs[2] = vtkMath::Dot(n14,x14);
 //
 // Solve system of equations
 //
@@ -488,7 +486,6 @@ float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3],
   if ( (sum /= 4.0) > VTK_LARGE_FLOAT ) return VTK_LARGE_FLOAT;
   else return sum;
 }
-#undef VTK_DOT
 
 // Description:
 // Given a 3D point x[3], determine the barycentric coordinates of the point.
