@@ -81,7 +81,8 @@ static int FindSplit(int type, int fedges[2], int& pt1, int& pt2,
                      vtkIdList& CollapseTris);
 static int IsValidSplit(int index);
 static void SplitLoop(int fedges[2], int& n1, int *l1, int& n2, int *l2);
-static void SplitVertex(int ptId,int type, unsigned short int numTris, int *tris);
+static void SplitVertex(int ptId,int type, unsigned short int numTris, int *tris,
+                        int insert);
 static int CollapseEdge(int type, int ptId, int collapseId, int pt1, int pt2,
                         vtkIdList& CollapseTris);
 
@@ -215,7 +216,7 @@ void vtkVertexQueue::Insert(int ptId, float error)
       //  of splitting a vertex is that it inserts it and any new vertices into queue.
       else if ( Split && !DeferSplit ) //not a simple type and splitting on
         {
-        SplitVertex(ptId, type, ncells, cells);
+        SplitVertex(ptId, type, ncells, cells, 1);
         } //not a simple type
 
       } //if cells attached to vertex
@@ -248,12 +249,13 @@ static vtkVertexQueue *VertexQueue; // sorts verts according to error
 vtkDecimatePro::vtkDecimatePro()
 {
   this->Reduction = 0.90;
-  this->FeatureAngle = 30.0;
+  this->FeatureAngle = 15.0;
+  this->SplitAngle = 75.0;
   this->Splitting = 1;
   this->DeferSplitting = 1;
   this->NumberOfOperations = 0;
 
-  this->InflectionPointRatio = 2.0;
+  this->InflectionPointRatio = 10.0;
 }
 
 //
@@ -326,12 +328,36 @@ void vtkDecimatePro::Execute()
   // vertex splits.
   VertexQueue = new vtkVertexQueue(this,numPts);
 
+  // If not deferring splitting and splitting on, we'll start off by splitting the mesh
+  NumSplits = 0;
+  if ( Split && !DeferSplit )
+    {
+    float oldFeatureAngle = CosAngle;
+    vtkDebugMacro(<<"Pre-splitting mesh");
+
+    CosAngle = cos ((double) vtkMath::DegreesToRadians() * this->SplitAngle);
+    for ( ptId=0; ptId < numPts; ptId++ )
+      {
+      Mesh->GetPoint(ptId,X);
+      Mesh->GetPointCells(ptId,ncells,cells);
+
+      if ( ncells > 0 && 
+      ((type = EvaluateVertex(ptId, ncells, cells, fedges)) == VTK_CORNER_VERTEX ||
+      type == VTK_INTERIOR_EDGE_VERTEX || type == VTK_NON_MANIFOLD_VERTEX) )
+        {
+        SplitVertex(ptId, type, ncells, cells, 0);
+        }
+      }
+    numPts = Mesh->GetNumberOfPoints();
+    CosAngle = oldFeatureAngle;
+    }
+
   // Start by traversing all vertices. For each vertex, evaluate the
   // local topology/geometry. (Some vertex splitting may be
   // necessary to resolve non-manifold geometry or to split edges.) 
   // Then evaluate the local error for the vertex. The vertex is then
   // inserted into the priority queue.
-  for ( NumSplits=0, ptId=0; ptId < numPts; ptId++ )
+  for ( ptId=0; ptId < numPts; ptId++ )
     {
     if ( ! (ptId % 10000) ) vtkDebugMacro(<<"Inserting vertex #" << ptId);
     VertexQueue->Insert(ptId);
@@ -364,7 +390,7 @@ void vtkDecimatePro::Execute()
           }
         else if ( Split ) //okay to break it up - already processed deferred splits
           {
-          SplitVertex(ptId, type, ncells, cells);
+          SplitVertex(ptId, type, ncells, cells, 1);
           continue;
           }
         else //this is as much as we can do without splitting
@@ -403,7 +429,7 @@ void vtkDecimatePro::Execute()
       }//if cells attached
     }//while queue not empty and reduction not satisfied
 
-  vtkDebugMacro(<<"\n\tReduction " << reduction << " (" << numTris << " vs. " 
+  vtkDebugMacro(<<"\n\tReduction " << reduction << " (" << numTris << " to " 
                 << numTris - totalEliminated << " triangles)"
                 <<"\n\tPerformed " << numPops << " vertex pops"
                 <<"\n\tFound " << this->GetNumberOfInflectionPoints() 
@@ -797,9 +823,11 @@ static int EvaluateVertex(int ptId, unsigned short int numTris, int *tris,
 //
 // Split the vertex by modifying topological connections.
 //
-static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tris)
+static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tris,
+                        int insert)
+
 {
-  int i, j, id, numFEdges, fedge1, fedge2;
+  int i, j, id, fedge1, fedge2;
   int nverts, *verts, tri, numSplitTris, veryFirst;
   float error;
   int startTri, p[2], maxGroupSize;
@@ -812,7 +840,7 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
     {
     // Half of loop is left connected to current vertex. Second half is
     // split away.
-    for ( i=numFEdges=0; numFEdges < 1; i++ ) // find first feature edge
+    for ( i=0; i < numTris; i++ ) // find first feature edge
       if ( V->Array[i].FAngle <= CosAngle ) break;
 
     fedge1 = i;
@@ -832,8 +860,11 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
 
     // Compute error and insert the two vertices (old + split)
     error = ComputeEdgeError(X, V->Array[fedge1].x, V->Array[fedge2].x);
-    VertexQueue->Insert(ptId,error);
-    VertexQueue->Insert(id,error);    
+    if ( insert )
+      {
+      VertexQueue->Insert(ptId,error);
+      VertexQueue->Insert(id,error);
+      }
     }
 
   //
@@ -843,7 +874,7 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
     {
     // The first piece is left connected to vertex. Just find first 
     // feature/boundary edge. If on boundary, skip boundary piece.
-    for ( i=numFEdges=0; numFEdges < 1; i++ ) // find first feature edge
+    for ( i=0; i <= V->MaxId; i++ ) // find first feature edge
       if ( V->Array[i].FAngle <= CosAngle && V->Array[i].FAngle != -1.0 ) 
         break;
 
@@ -866,7 +897,7 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
 
       // Compute error for the vertex and insert
       error = ComputeEdgeError(X, V->Array[fedge1].x, V->Array[fedge2].x);
-      VertexQueue->Insert(id,error);    
+      if ( insert )VertexQueue->Insert(id,error);    
       }
 
     // don't forget to compute error for old vertex, and insert into queue
@@ -874,7 +905,7 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
       error = ComputeEdgeError(X, V->Array[0].x, V->Array[veryFirst].x);
     else
       error = ComputeEdgeError(X, V->Array[veryFirst].x, V->Array[fedge1].x);
-    VertexQueue->Insert(ptId,error);    
+    if ( insert ) VertexQueue->Insert(ptId,error);    
     }
 
   // Default case just splits off triangle(s) that form manifold groups. Note: this
@@ -886,12 +917,15 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
     vtkIdList group(VTK_MAX_TRIS_PER_VERTEX);
 
      //changes in group size control how to split loop
-    if ( type == VTK_RECYCLE ) //split loop in half
-       maxGroupSize = (numTris/2) + 1;
+    if ( type == VTK_HIGH_DEGREE_VERTEX ) 
+      maxGroupSize = VTK_MAX_TRIS_PER_VERTEX - 1;
     else
-       maxGroupSize = VTK_MAX_TRIS_PER_VERTEX - 1;
+      {
+      if ( numTris <= 1 ) return;
+      maxGroupSize = (numTris/2) + 1; //prevents infinite recursion
+      }
 
-    for ( triangles.Reset(), i=0; i < numTris; i++ ) triangles.SetId(i,tris[i]);
+    for ( i=0; i < numTris; i++ ) triangles.SetId(i,tris[i]);
 
     // now group into manifold pieces
     for ( i=0, id=ptId; triangles.GetNumberOfIds() > 0; i++ )
@@ -934,9 +968,11 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
           Mesh->RemoveReferenceToCell(ptId, tri);
           Mesh->ReplaceCellPoint(tri, ptId, id);
           }
-        VertexQueue->Insert(id);
+        if ( insert ) VertexQueue->Insert(id);
         }//if not first group
       }//for all groups
+    //Don't forget to reinsert original vertex
+    if ( insert) VertexQueue->Insert(ptId);
     }
 
   return;
@@ -1251,10 +1287,11 @@ void vtkDecimatePro::ProcessDeferredSplits(int numPts, int numPops)
   vtkDebugMacro(<< "Mesh splitting beginning at operation: " << numPops);
 
   DeferSplit = 0;
+  CosAngle = cos ((double) vtkMath::DegreesToRadians() * this->SplitAngle);
 
   // Flush queues and reinsert all points still left
   VertexQueue->Reset();
-  for ( int ptId=0; ptId < numPts; ptId++ )
+  for ( int ptId=0; ptId < Mesh->GetNumberOfPoints(); ptId++ )
     {
     VertexQueue->Insert(ptId);
     }

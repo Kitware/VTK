@@ -50,11 +50,35 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // with three major differences. First, this algorithm does not
 // necessarily preserve the topology of the mesh. Second, it is
 // guaranteed to give the a mesh reduction factor specified by the
-// user. Third, it is set up generate progressive meshes, that is a
-// stream of operations that can be easily transmitted and
+// user (if Splitting is on). Third, it is set up generate progressive
+// meshes, that is a stream of operations that can be easily transmitted and
 // incrementally updated (see Hugues Hoppe's Siggraph '96 paper on
 // progressive meshes).
 // 
+// The algorithm proceeds as follows. Each vertex in the mesh is classified and
+// inserted into a priority queue. The priority is based on the error to
+// delete the vertex and retriangulate the hole. Vertices that cannot be
+// deleted or triangulated at this point are skipped. Then, each vertex in
+// the priority queue is processed (i.e., deleted followed by hole
+// triangulation). This continues until the priority queue is empty. Next,
+// all vertices are processed, and the mesh is split into separate
+// pieces. The vertices are then again reinserted into the priority queue,
+// but this time as they are processed, vertices that cannot be triangulated
+// are split (possibly recursively). This continues until the requested
+// reduction level is achieved.
+// 
+// To use this object, at a minimum you need to specify the ivar Reduction. The
+// algorithm is guaranteed to generate a reduced mesh at this level, unless
+// the ivar Splitting is turned off. (Splitting prevents the separation of the mesh
+// into separate pieces, so topological contraints may prevent the algorithm
+// from realizing the requested reduction.) You may also wish to adjust the
+// FeatureAngle and SplitAngle ivars, since these can impact the quality of
+// the final mesh.
+
+// .SECTION Caveats
+// Do not use this class if you need to preserve the topology of the
+// mesh. Even with splitting turned off, holes may be closed or non-manifold
+// attachments may be formed. Use vtkDecimate instead.
 
 // .SECTION See Also
 // vtkDecimate vtkProgressiveMeshReader
@@ -73,8 +97,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the desired reduction in the total number of polygons. The
-  // algorithm is guaranteed to give this reduction factor (or greater).
+  // Specify the desired reduction as a fraction of the original number of triangles.
+  // The algorithm is guaranteed to give this reduction factor (or greater)
+  // if the Splitting ivar is turned on.
   vtkSetClampMacro(Reduction,float,0.0,1.0);
   vtkGetMacro(Reduction,float);
 
@@ -88,11 +113,18 @@ public:
   // Description:
   // Turn on/off the splitting of the mesh at corners, along edges, at
   // non-manifold points, or anywhere else a split is required. Turning 
-  // splitting off will preserve the original topology of the mesh, but you
-  // may not obtain the request reduction.
+  // splitting off will better preserve the original topology of the
+  // mesh, but you may not obtain the requested reduction.
   vtkSetMacro(Splitting,int);
   vtkGetMacro(Splitting,int);
   vtkBooleanMacro(Splitting,int);
+
+  // Description:
+  // Specify the mesh split angle. This angle is used to control the splitting
+  // of the mesh. A split line exists when the surface normals between
+  // two edge connected triangles are >= SplitAngle.
+  vtkSetClampMacro(SplitAngle,float,0.0,180.0);
+  vtkGetMacro(SplitAngle,float);
 
   // Description:
   // Force the algorithm to defer splitting the mesh as long as possible.
@@ -105,7 +137,6 @@ public:
   // requested reduction value. An operation is something like an edge
   // collapse or vertex split that modifies the mesh. The number of
   // operations is valid only after the filter has executed.
-  // after the filter has executed.
   vtkGetMacro(NumberOfOperations,int);
 
   // Description:
@@ -135,6 +166,7 @@ protected:
 
   float Reduction; 
   float FeatureAngle;
+  float SplitAngle;
   int Splitting;
   int DeferSplitting;
   int NumberOfOperations;
