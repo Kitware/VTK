@@ -215,6 +215,12 @@ public:
   vtkSetStringMacro( ZAxisLabelText );
   vtkGetStringMacro( ZAxisLabelText );
 
+  // Description:
+  // Enable/disable drawing the axis labels.
+  vtkSetMacro(AxisLabels, int);
+  vtkGetMacro(AxisLabels, int);
+  vtkBooleanMacro(AxisLabels, int);
+
 //BTX
   enum
   {
@@ -268,6 +274,8 @@ protected:
   vtkCaptionActor2D *XAxisLabel;
   vtkCaptionActor2D *YAxisLabel;
   vtkCaptionActor2D *ZAxisLabel;
+
+  int                AxisLabels;
 
 
   int                ConeResolution;

@@ -31,7 +31,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkAxesActor, "1.1");
+vtkCxxRevisionMacro(vtkAxesActor, "1.2");
 vtkStandardNewMacro(vtkAxesActor);
 
 vtkCxxSetObjectMacro( vtkAxesActor, UserDefinedTip, vtkPolyData );
@@ -39,6 +39,8 @@ vtkCxxSetObjectMacro( vtkAxesActor, UserDefinedShaft, vtkPolyData );
 
 vtkAxesActor::vtkAxesActor()
 {
+  this->AxisLabels = 1;
+
   this->XAxisLabelText = NULL;
   this->YAxisLabelText = NULL;
   this->ZAxisLabelText = NULL;
@@ -83,7 +85,7 @@ vtkAxesActor::vtkAxesActor()
   shaftMapper->Delete();
 
   vtkPolyDataMapper *tipMapper = vtkPolyDataMapper::New();
-  
+
   this->XAxisTip->SetMapper( tipMapper );
   this->YAxisTip->SetMapper( tipMapper );
   this->ZAxisTip->SetMapper( tipMapper );
@@ -225,9 +227,12 @@ int vtkAxesActor::RenderOpaqueGeometry(vtkViewport *vp)
   renderedSomething += this->YAxisTip->RenderOpaqueGeometry( vp );
   renderedSomething += this->ZAxisTip->RenderOpaqueGeometry( vp );
 
-  renderedSomething += this->XAxisLabel->RenderOpaqueGeometry( vp );
-  renderedSomething += this->YAxisLabel->RenderOpaqueGeometry( vp );
-  renderedSomething += this->ZAxisLabel->RenderOpaqueGeometry( vp );
+  if ( this->AxisLabels )
+    {
+    renderedSomething += this->XAxisLabel->RenderOpaqueGeometry( vp );
+    renderedSomething += this->YAxisLabel->RenderOpaqueGeometry( vp );
+    renderedSomething += this->ZAxisLabel->RenderOpaqueGeometry( vp );
+    }
 
   renderedSomething = (renderedSomething > 0)?(1):(0);
   return renderedSomething;
@@ -247,9 +252,12 @@ int vtkAxesActor::RenderTranslucentGeometry(vtkViewport *vp)
   renderedSomething += this->YAxisTip->RenderTranslucentGeometry( vp );
   renderedSomething += this->ZAxisTip->RenderTranslucentGeometry( vp );
 
-  renderedSomething += this->XAxisLabel->RenderTranslucentGeometry( vp );
-  renderedSomething += this->YAxisLabel->RenderTranslucentGeometry( vp );
-  renderedSomething += this->ZAxisLabel->RenderTranslucentGeometry( vp );
+  if ( this->AxisLabels )
+    {
+    renderedSomething += this->XAxisLabel->RenderTranslucentGeometry( vp );
+    renderedSomething += this->YAxisLabel->RenderTranslucentGeometry( vp );
+    renderedSomething += this->ZAxisLabel->RenderTranslucentGeometry( vp );
+    }
 
   renderedSomething = (renderedSomething > 0)?(1):(0);
   return renderedSomething;
@@ -258,6 +266,11 @@ int vtkAxesActor::RenderTranslucentGeometry(vtkViewport *vp)
 int vtkAxesActor::RenderOverlay(vtkViewport *vp)
 {
   int renderedSomething = 0;
+
+  if ( !this->AxisLabels )
+    {
+    return renderedSomething;
+    }
 
   this->UpdateProps();
 
@@ -772,6 +785,8 @@ void vtkAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ZAxisLabelText: " << (this->ZAxisLabelText ?
                                          this->ZAxisLabelText : "(none)")
      << endl;
+
+  os << indent << "AxisLabels: " << (this->AxisLabels ? "On\n" : "Off\n");
 
   os << indent << "ShaftType: " << this->ShaftType << endl;
   os << indent << "TipType: " << this->TipType << endl;
