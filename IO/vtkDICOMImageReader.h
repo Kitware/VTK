@@ -49,6 +49,10 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   // the reader will only read a single file.
   void SetFileName(const char* fn)
   {
+    if (this->DirectoryName)
+      {
+      delete [] this->DirectoryName;
+      }
     this->DirectoryName = NULL;
     this->vtkImageReader2::SetFileName(fn);
   }

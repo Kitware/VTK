@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.8");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.9");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -189,7 +189,15 @@ void vtkDICOMImageReader::ExecuteInformation()
       }
     
     vtkstd::vector<vtkstd::pair<int, vtkstd::string> > sortedFiles;
-    this->AppHelper->GetSliceNumberFilenamePairs(sortedFiles);
+    
+    this->AppHelper->SortFilenamesBySlice();
+    unsigned int num_files = this->AppHelper->GetNumberOfSortedFilenames();
+    for (unsigned int k = 0; k < num_files; k++)
+      {
+      sortedFiles.push_back(std::pair<int,std::string>(k, this->AppHelper->GetFilenameForSlice(k)));
+      }
+
+    //this->AppHelper->GetSliceNumberFilenamePairs(sortedFiles);
 
     this->SetupOutputInformation(static_cast<int>(sortedFiles.size()));
 
