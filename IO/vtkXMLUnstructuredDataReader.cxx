@@ -21,7 +21,7 @@
 #include "vtkCellArray.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.13");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.14");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -536,7 +536,8 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   // Check the contents of the cell offsets array.
   vtkIdType* coffset = cellOffsets->GetPointer(0);
   vtkIdType lastOffset = 0;
-  for(vtkIdType i=0; i < numberOfCells; ++i)
+  vtkIdType i;
+  for(i=0; i < numberOfCells; ++i)
     {
     if(coffset[i] <= lastOffset)
       {
@@ -607,7 +608,6 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   cptr += curSize;
   
   // Copy the connectivity data.
-  vtkIdType i;
   vtkIdType previousOffset = 0;
   for(i=0; i < numberOfCells; ++i)
     {
