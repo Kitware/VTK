@@ -33,6 +33,9 @@ vlImplicitModeller::vlImplicitModeller()
   this->SampleDimensions[0] = 50;
   this->SampleDimensions[1] = 50;
   this->SampleDimensions[2] = 50;
+
+  this->Capping = 1;
+  this->CapValue = LARGE_FLOAT;
 }
 
 void vlImplicitModeller::PrintSelf(ostream& os, vlIndent indent)
@@ -158,6 +161,14 @@ void vlImplicitModeller::Execute()
     newScalars->SetScalar(i,sqrt(distance2));
     }
 //
+// If capping is turned on, set the distances of the outside of the volume
+// to the CapValue.
+//
+  if ( this->Capping )
+    {
+    this->Cap(newScalars);
+    }
+//
 // Update self
 //
   this->PointData.SetScalars(newScalars);
@@ -246,3 +257,48 @@ void vlImplicitModeller::SetSampleDimensions(int dim[3])
     this->Modified();
     }
 }
+
+void vlImplicitModeller::Cap(vlFloatScalars *s)
+{
+  int i,j,k;
+  int idx;
+  int d01=this->SampleDimensions[0]*this->SampleDimensions[1];
+
+// i-j planes
+  k = 0;
+  for (j=0; j<this->SampleDimensions[1]; j++)
+    for (i=0; i<this->SampleDimensions[0]; i++)
+      s->SetScalar(i+j*this->SampleDimensions[1], this->CapValue);
+
+  k = this->SampleDimensions[2] - 1;
+  idx = k*d01;
+  for (j=0; j<this->SampleDimensions[1]; j++)
+    for (i=0; i<this->SampleDimensions[0]; i++)
+      s->SetScalar(idx+i+j*this->SampleDimensions[1], this->CapValue);
+
+// j-k planes
+  i = 0;
+  for (k=0; k<this->SampleDimensions[2]; k++)
+    for (j=0; j<this->SampleDimensions[1]; j++)
+      s->SetScalar(j*this->SampleDimensions[0]+k*d01, this->CapValue);
+
+  i = this->SampleDimensions[0] - 1;
+  for (k=0; k<this->SampleDimensions[2]; k++)
+    for (j=0; j<this->SampleDimensions[1]; j++)
+      s->SetScalar(i+j*this->SampleDimensions[0]+k*d01, this->CapValue);
+
+// i-k planes
+  j = 0;
+  for (k=0; k<this->SampleDimensions[2]; k++)
+    for (i=0; i<this->SampleDimensions[0]; i++)
+      s->SetScalar(i+k*d01, this->CapValue);
+
+  j = this->SampleDimensions[1] - 1;
+  idx = j*this->SampleDimensions[0];
+  for (k=0; k<this->SampleDimensions[2]; k++)
+    for (i=0; i<this->SampleDimensions[0]; i++)
+      s->SetScalar(idx+i+k*d01, this->CapValue);
+
+}
+
+
