@@ -70,7 +70,8 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
   GLenum format = GL_LUMINANCE;
 
   // need to reload the texture
-  if (txt->GetInput()->GetMTime() > this->LoadTime.GetMTime() ||
+  if (txt->GetMTime() > this->LoadTime.GetMTime() ||
+      txt->GetInput()->GetMTime() > this->LoadTime.GetMTime() ||
       (txt->GetLookupTable () && txt->GetLookupTable()->GetMTime () >  this->LoadTime.GetMTime()))
     {
     int bytesPerPixel;

@@ -85,11 +85,12 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
 {
   
   // need to reload the texture
-  if (txt->GetInput()->GetMTime() > this->LoadTime.GetMTime() ||
+  if (txt->GetMTime() > this->LoadTime.GetMTime() ||
+      txt->GetInput()->GetMTime() > this->LoadTime.GetMTime() ||
       (txt->GetLookupTable () && txt->GetLookupTable()->GetMTime () >  this->LoadTime.GetMTime()))
     {
     int bytesPerPixel;
-    int *size;
+    int size[3];
     vtkScalars *scalars;
     unsigned char *dataPtr;
     Xgl_usgn32 xsize, ysize;
@@ -100,7 +101,7 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
     unsigned int yloop, xloop;
     
     // get some info
-    size = txt->GetInput()->GetDimensions();
+    txt->GetInput()->GetDimensions(size);
     scalars = (txt->GetInput()->GetPointData())->GetScalars();
 
     // make sure scalars are non null
@@ -209,7 +210,7 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
       }
 
     xgl_mipmap_texture_build(this->MipMap, setRas, uBound, vBound);
-    xgl_object_destroy(setRas);
+//    xgl_object_destroy(setRas);
     
     if (this->TMap)
       {
