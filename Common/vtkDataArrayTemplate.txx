@@ -206,9 +206,9 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
     }
 
   newArray = new T[newSize];
-  if(!newSize)
+  if(!newArray)
     {
-    vtkErrorMacro(<< "Cannot allocate memory\n");
+    vtkErrorMacro("Cannot allocate memory\n");
     return 0;
     }
 
