@@ -14,7 +14,7 @@ vtkPLOT3DReader pl3d
 
 # create three line probes
 vtkLineSource line
-    line SetResolution 50
+    line SetResolution 30
 
 vtkTransform transL1
     transL1 Translate 3.7 0.0 28.37
@@ -76,6 +76,7 @@ vtkXYPlotActor xyplot
     xyplot SetXRange .1 .35
     xyplot SetYRange .2 .4
     [xyplot GetProperty] SetColor 0 0 0
+    [xyplot GetProperty] SetLineWidth 2
 
 vtkXYPlotActor xyplot2
     xyplot2 AddInput [probe GetOutput]
@@ -88,7 +89,10 @@ vtkXYPlotActor xyplot2
     xyplot2 SetTitle "Pressure vs. Normalized Arc Length"
     xyplot2 SetXTitle ""
     xyplot2 SetYTitle "P"
+    xyplot2 PlotPointsOn
+    xyplot2 PlotLinesOff
     [xyplot2 GetProperty] SetColor 1 0 0
+    [xyplot2 GetProperty] SetPointSize 2
 
 vtkXYPlotActor xyplot3
     xyplot3 AddInput [probe GetOutput]
@@ -101,7 +105,9 @@ vtkXYPlotActor xyplot3
     xyplot3 SetTitle "Pressure vs. Point Id"
     xyplot3 SetXTitle "Probe Length"
     xyplot3 SetYTitle "P"
+    xyplot3 PlotPointsOn
     [xyplot3 GetProperty] SetColor 0 0 1
+    [xyplot3 GetProperty] SetPointSize 3
 
 # draw an outline
 vtkStructuredGridOutlineFilter outline
