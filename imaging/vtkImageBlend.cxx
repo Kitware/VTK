@@ -5,7 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to David G. Gobbi who developed this class.
+  Thanks:    Thanks to David G. Gobbi and Sebastien Barre who developed this class.
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
