@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.6");
+vtkCxxRevisionMacro(vtkPKdTree, "1.7");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -1490,8 +1490,8 @@ void vtkPKdTree::GetLocalMinMax(int L, int R, int me,
 
     for (d=0; d<3; d++)
       {
-      min[d] = (float)regionMin[d];
-      max[d] = (float)regionMax[d];
+      min[d] = (float)regionMax[d];
+      max[d] = (float)regionMin[d];
       }
     }
 }
