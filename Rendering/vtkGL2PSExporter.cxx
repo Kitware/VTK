@@ -21,15 +21,15 @@
 #include "vtkRenderWindow.h"
 #include "gl2ps.h"
 
-vtkCxxRevisionMacro(vtkGL2PSExporter, "1.3");
+vtkCxxRevisionMacro(vtkGL2PSExporter, "1.4");
 vtkStandardNewMacro(vtkGL2PSExporter);
 
 vtkGL2PSExporter::vtkGL2PSExporter()
 {
   this->FilePrefix = NULL;
-  this->FileFormat = PS_FILE;
+  this->FileFormat = EPS_FILE;
   this->Sort = SIMPLE_SORT;
-  this->DrawBackground = 0;
+  this->DrawBackground = 1;
   this->SimpleLineOffset = 1;
   this->Silent = 0;
   this->BestRoot = 1;
@@ -85,6 +85,13 @@ void vtkGL2PSExporter::WriteData()
     {
     sort = GL2PS_BSP_SORT;
     }  
+
+  // gl2ps segfaults if sorting is performed when TeX output is
+  // chosen.  Sorting is irrelevant for Tex Output anyway.
+  if (this->FileFormat == TEX_FILE)
+    {
+    sort = GL2PS_NO_SORT;
+    }
 
   if (this->DrawBackground == 1)
     {
@@ -159,6 +166,13 @@ void vtkGL2PSExporter::WriteData()
     state = gl2psEndPage();
     }
   fclose(fpObj);
+
+  // GL2PS versions upto 0.9.0 do not reset the render mode.
+  if (this->FileFormat == TEX_FILE)
+    {
+    glRenderMode(GL_RENDER);
+    }
+
   delete[] fName;
 
   vtkDebugMacro(<<"Finished writing file using GL2PS");
