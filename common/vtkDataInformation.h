@@ -68,7 +68,7 @@ public:
   // it is just convenient to compute this value in the UpdateInformation 
   // calls.  This value represents the mamimum MTimes of all upstream
   // pipeline objects (not including this data object itself).
-  vtkSetMacro(PipelineMTime, unsigned long);
+  void SetPipelineMTime(unsigned long time) {this->PipelineMTime = time; }
   vtkGetMacro(PipelineMTime, unsigned long);
 
   // Description:
