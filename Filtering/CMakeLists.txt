@@ -118,6 +118,7 @@ vtkMapper2D.cxx
 vtkMergePoints.cxx
 vtkNonLinearCell.cxx
 vtkOrderedTriangulator.cxx
+vtkParametricFigure8Klein.cxx
 vtkParametricKlein.cxx
 vtkParametricMobius.cxx
 vtkParametricSpline.cxx
