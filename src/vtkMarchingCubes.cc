@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of 0.0.
 vtkMarchingCubes::vtkMarchingCubes()
 {
-  for (int i=0; i<MAX_CONTOURS; i++) this->Values[i] = 0.0;
+  for (int i=0; i<VTK_MAX_CONTOURS; i++) this->Values[i] = 0.0;
   this->NumberOfContours = 1;
   this->Range[0] = 0.0;
   this->Range[1] = 1.0;
@@ -60,7 +60,7 @@ vtkMarchingCubes::vtkMarchingCubes()
 // Set a particular contour value at contour number i.
 void vtkMarchingCubes::SetValue(int i, float value)
 {
-  i = (i >= MAX_CONTOURS ? MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
+  i = (i >= VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
   if ( this->Values[i] != value )
     {
     this->Modified();
@@ -79,7 +79,7 @@ void vtkMarchingCubes::GenerateValues(int numContours, float range[2])
   float val, incr;
   int i;
 
-  numContours = (numContours > MAX_CONTOURS ? MAX_CONTOURS : 
+  numContours = (numContours > VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS : 
                  (numContours > 1 ? numContours : 2) );
 
   incr = (range[1] - range[0]) / (numContours-1);
