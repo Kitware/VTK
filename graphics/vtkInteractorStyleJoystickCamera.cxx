@@ -159,8 +159,10 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonDown(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnLeftButtonUp(int ctrl, int shift, 
-					      int x, int y) 
+void vtkInteractorStyleJoystickCamera::OnLeftButtonUp(int vtkNotUsed(ctrl),
+						      int vtkNotUsed(shift),
+						      int vtkNotUsed(x),
+						      int vtkNotUsed(y))
 {
   if (this->State == VTK_INTERACTOR_STYLE_CAMERA_ROTATE)
     {
@@ -175,8 +177,9 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonUp(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnMiddleButtonDown(int ctrl, int shift, 
-						 int x, int y) 
+void vtkInteractorStyleJoystickCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
+							  int vtkNotUsed(shift), 
+							  int x, int y)
 {
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
@@ -188,16 +191,19 @@ void vtkInteractorStyleJoystickCamera::OnMiddleButtonDown(int ctrl, int shift,
   this->State = VTK_INTERACTOR_STYLE_CAMERA_PAN;
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp(int ctrl, int shift, 
-					       int x, int y) 
+void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp(int vtkNotUsed(ctrl),
+							int vtkNotUsed(shift), 
+							int vtkNotUsed(x),
+							int vtkNotUsed(y)) 
 {
   this->EndPan();
   this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnRightButtonDown(int ctrl, int shift, 
-						int x, int y) 
+void vtkInteractorStyleJoystickCamera::OnRightButtonDown(int vtkNotUsed(ctrl),
+							 int vtkNotUsed(shift), 
+							 int x, int y)
 {
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
@@ -210,8 +216,10 @@ void vtkInteractorStyleJoystickCamera::OnRightButtonDown(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnRightButtonUp(int ctrl, int shift, 
-					      int x, int y) 
+void vtkInteractorStyleJoystickCamera::OnRightButtonUp(int vtkNotUsed(ctrl),
+						       int vtkNotUsed(shift), 
+						       int vtkNotUsed(x),
+						       int vtkNotUsed(y))
 {
   this->EndZoom();
   this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;

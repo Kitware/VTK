@@ -286,7 +286,7 @@ void vtkInteractorStyleJoystickActor::PanXY(int x, int y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::DollyXY(int x, int y)
+void vtkInteractorStyleJoystickActor::DollyXY(int vtkNotUsed(x), int y)
 {
   vtkCamera *cam;
   
@@ -345,7 +345,7 @@ void vtkInteractorStyleJoystickActor::DollyXY(int x, int y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::SpinXY(int x, int y)
+void vtkInteractorStyleJoystickActor::SpinXY(int vtkNotUsed(x), int y)
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *cam;
@@ -417,7 +417,7 @@ void vtkInteractorStyleJoystickActor::SpinXY(int x, int y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::ScaleXY(int x, int y)
+void vtkInteractorStyleJoystickActor::ScaleXY(int vtkNotUsed(x), int y)
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -482,8 +482,10 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonDown(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnLeftButtonUp(int ctrl, int shift, 
-						     int x, int y) 
+void vtkInteractorStyleJoystickActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
+						     int vtkNotUsed(shift), 
+						     int vtkNotUsed(x), 
+						     int vtkNotUsed(y)) 
 {
   if (this->State == VTK_INTERACTOR_STYLE_ACTOR_SPIN)
     {
@@ -522,8 +524,10 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonDown(int ctrl, int shift,
     }
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnMiddleButtonUp(int ctrl, int shift, 
-						       int x, int y) 
+void vtkInteractorStyleJoystickActor::OnMiddleButtonUp(int vtkNotUsed(ctrl),
+						       int vtkNotUsed(shift), 
+						       int vtkNotUsed(x),
+						       int vtkNotUsed(y)) 
 {
   if (this->State == VTK_INTERACTOR_STYLE_ACTOR_ZOOM)
     {
@@ -537,7 +541,8 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonUp(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnRightButtonDown(int ctrl, int shift, 
+void vtkInteractorStyleJoystickActor::OnRightButtonDown(int vtkNotUsed(ctrl),
+							int vtkNotUsed(shift), 
 							int x, int y) 
 {
   this->FindPokedRenderer(x, y);
@@ -553,8 +558,10 @@ void vtkInteractorStyleJoystickActor::OnRightButtonDown(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnRightButtonUp(int ctrl, int shift, 
-						      int x, int y) 
+void vtkInteractorStyleJoystickActor::OnRightButtonUp(int vtkNotUsed(ctrl),
+						      int vtkNotUsed(shift), 
+						      int vtkNotUsed(x),
+						      int vtkNotUsed(y)) 
 {
   this->EndZoom();
   this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;

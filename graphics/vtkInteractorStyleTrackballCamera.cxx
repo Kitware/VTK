@@ -188,7 +188,7 @@ void vtkInteractorStyleTrackballCamera::PanXY(int x, int y, int oldX, int oldY)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::DollyXY(int dx, int dy)
+void vtkInteractorStyleTrackballCamera::DollyXY(int vtkNotUsed(dx), int dy)
 {
   vtkCamera *cam;
   double dyf = this->MotionFactor * (double)(dy) / (double)(this->Center[1]);
@@ -269,14 +269,17 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnLeftButtonUp(int ctrl, int shift, 
-						       int x, int y) 
+void vtkInteractorStyleTrackballCamera::OnLeftButtonUp(int vtkNotUsed(ctrl),
+						       int vtkNotUsed(shift), 
+						       int vtkNotUsed(x),
+						       int vtkNotUsed(y))
 {
   this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown(int ctrl, int shift, 
+void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
+							   int vtkNotUsed(shift), 
 							   int x, int y) 
 {
   this->FindPokedRenderer(x, y);
@@ -288,14 +291,17 @@ void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown(int ctrl, int shift,
   this->State = VTK_INTERACTOR_STYLE_CAMERA_PAN;
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnMiddleButtonUp(int ctrl, int shift, 
-					       int x, int y) 
+void vtkInteractorStyleTrackballCamera::OnMiddleButtonUp(int vtkNotUsed(ctrl),
+							 int vtkNotUsed(shift), 
+							 int vtkNotUsed(x),
+							 int vtkNotUsed(y))
 {
   this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnRightButtonDown(int ctrl, int shift, 
+void vtkInteractorStyleTrackballCamera::OnRightButtonDown(int vtkNotUsed(ctrl),
+							  int vtkNotUsed(shift), 
 							  int x, int y) 
 {
   this->FindPokedRenderer(x, y);
@@ -308,8 +314,10 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonDown(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnRightButtonUp(int ctrl, int shift, 
-							int x, int y) 
+void vtkInteractorStyleTrackballCamera::OnRightButtonUp(int vtkNotUsed(ctrl),
+							int vtkNotUsed(shift), 
+							int vtkNotUsed(x),
+							int vtkNotUsed(y))
 {
   this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
 }
