@@ -64,7 +64,6 @@ void vlBooleanStructuredPoints::RemoveInput(vlStructuredPoints *sp)
 void vlBooleanStructuredPoints::Update()
 {
   unsigned long int mtime, ds_mtime;
-  int i;
   vlDataSet *ds;
 
   // make sure input is available
@@ -74,12 +73,11 @@ void vlBooleanStructuredPoints::Update()
   if (this->Updating) return;
 
   this->Updating = 1;
-  for (mtime=0, i=0; i < this->Input.GetNumberOfItems(); i++)
+  for (mtime=0, this->Input.InitTraversal(); ds = this->Input.GetNextItem(); )
     {
-    ds = this->Input.GetItem(i+1);
+    ds->Update();
     ds_mtime = ds->GetMTime();
     if ( ds_mtime > mtime ) mtime = ds_mtime;
-    ds->Update();
     }
   this->Updating = 0;
 
@@ -115,9 +113,8 @@ void vlBooleanStructuredPoints::InitializeBoolean()
       {
        this->ModelBounds[0] = this->ModelBounds[2] = this->ModelBounds[4] = LARGE_FLOAT;
        this->ModelBounds[1] = this->ModelBounds[3] = this->ModelBounds[5] = -LARGE_FLOAT;
-      for ( i=1; i <= this->Input.GetNumberOfItems(); i++ )
+      for ( this->Input.InitTraversal(); sp = this->Input.GetNextItem(); )
         {
-        sp = this->Input.GetItem(i);
         bounds = sp->GetBounds();
         for (j=0; j < 3; j++)
           {
@@ -147,7 +144,7 @@ void vlBooleanStructuredPoints::InitializeBoolean()
   // Create output scalar (same type as input)
   if ( this->Input.GetNumberOfItems() > 0 )
     {
-    sp = this->Input.GetItem(1);
+    this->Input.InitTraversal(); sp = this->Input.GetNextItem();
     inScalars = sp->GetPointData()->GetScalars();
     }
 
@@ -167,17 +164,12 @@ void vlBooleanStructuredPoints::InitializeBoolean()
 void vlBooleanStructuredPoints::Execute()
 {
   vlStructuredPoints *sp;
-  int i;
 
   this->InitializeBoolean();
 
-  if ( this->Input.GetNumberOfItems() > 0 )
+  for ( this->Input.InitTraversal(); sp = this->Input.GetNextItem(); )
     {
-    for ( i=1; i <= this->Input.GetNumberOfItems(); i++ )
-      {
-      sp = this->Input.GetItem(i);
-      this->Append(sp);
-      }
+    this->Append(sp);
     }
 }
 

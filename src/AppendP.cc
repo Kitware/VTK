@@ -48,9 +48,8 @@ void vlAppendPolyData::RemoveInput(vlPolyData *ds)
 
 void vlAppendPolyData::Update()
 {
-  unsigned long int mtime, ds_mtime;
-  int i;
-  vlPolyData *ds;
+  unsigned long int mtime, pd_mtime;
+  vlPolyData *pd;
 
   // make sure input is available
   if ( this->Input.GetNumberOfItems() < 1 )
@@ -63,12 +62,11 @@ void vlAppendPolyData::Update()
   if (this->Updating) return;
 
   this->Updating = 1;
-  for (mtime=0, i=0; i < this->Input.GetNumberOfItems(); i++)
+  for (mtime=0, this->Input.InitTraversal(); pd = this->Input.GetNextItem(); )
     {
-    ds = this->Input.GetItem(i+1);
-    ds_mtime = ds->GetMTime();
-    if ( ds_mtime > mtime ) mtime = ds_mtime;
-    ds->Update();
+    pd->Update();
+    pd_mtime = pd->GetMTime();
+    if ( pd_mtime > mtime ) mtime = pd_mtime;
     }
   this->Updating = 0;
 
@@ -92,7 +90,7 @@ void vlAppendPolyData::Execute()
   vlCellArray *inLines, *newLines;
   vlCellArray *inPolys, *newPolys;
   vlCellArray *inStrips, *newStrips;
-  int i, j, ptId, ptOffset;
+  int i, ptId, ptOffset;
   int numPts, numCells;
   vlPointData *pd;
   int npts, *pts, newPtIds[MAX_CELL_SIZE];
@@ -108,9 +106,8 @@ void vlAppendPolyData::Execute()
   normalsPresent = 1;
   tcoordsPresent = 1;
 
-  for ( i=0; i < this->Input.GetNumberOfItems(); i++)
+  for ( this->Input.InitTraversal(); ds = this->Input.GetNextItem(); )
     {
-    ds = this->Input.GetItem(i+1);
     numPts += ds->GetNumberOfPoints();
     numCells += ds->GetNumberOfCells();
     pd = ds->GetPointData();
@@ -148,9 +145,8 @@ void vlAppendPolyData::Execute()
   newStrips->Allocate(numCells*4);
 
   // loop over all input sets
-  for ( ptOffset=0, i=0; i < this->Input.GetNumberOfItems(); i++, ptOffset+=numPts)
+  for ( ptOffset=0, this->Input.InitTraversal(); ds = this->Input.GetNextItem(); ptOffset+=numPts)
     {
-    ds = this->Input.GetItem(i+1);
     pd = ds->GetPointData();
 
     numPts = ds->GetNumberOfPoints();
@@ -169,25 +165,25 @@ void vlAppendPolyData::Execute()
 
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
       {
-      for (j=0; j < npts; j++)  newPtIds[j] = pts[j] + ptOffset;
+      for (i=0; i < npts; i++)  newPtIds[i] = pts[i] + ptOffset;
       newVerts->InsertNextCell(npts,newPtIds);
       }
   
     for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
       {
-      for (j=0; j < npts; j++)  newPtIds[j] = pts[j] + ptOffset;
+      for (i=0; i < npts; i++)  newPtIds[i] = pts[i] + ptOffset;
       newLines->InsertNextCell(npts,newPtIds);
       }
   
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
       {
-      for (j=0; j < npts; j++)  newPtIds[j] = pts[j] + ptOffset;
+      for (i=0; i < npts; i++)  newPtIds[i] = pts[i] + ptOffset;
       newPolys->InsertNextCell(npts,newPtIds);
       }
   
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
       {
-      for (j=0; j < npts; j++)  newPtIds[j] = pts[j] + ptOffset;
+      for (i=0; i < npts; i++)  newPtIds[i] = pts[i] + ptOffset;
       newStrips->InsertNextCell(npts,newPtIds);
       }
     }
