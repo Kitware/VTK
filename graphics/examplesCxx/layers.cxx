@@ -28,20 +28,11 @@ int main(int argc, char *argv[])
   imageActor->SetInput(image->GetOutput());
 
   vtkRenderWindow *renWin= vtkRenderWindow::New();
-
-  // Set the render window's layers, partitioning the z-buffer.
-  // It is already known that layer 0 starts at 0. and layer 2 ends at 1.,
-  // so we just need to send in where layer 0 stops/layer 1 begins and
-  // where layer 1 stops/layer 2 begins.  Layer 2 is very thin since 
-  // it is just used for 2D actors.  You can have the render window partition
-  // the z-buffer for you by calling the same function with only the number
-  // of layers.
-  int numLayers = 3;
-  float layers[2] = { 0.5, 0.99 };
-  renWin->SetLayers(numLayers, layers);
+  renWin->SetNumLayers(3);
 
   // Create the background.
   vtkRenderer *background = vtkRenderer::New();
+  renWin->AddRenderer(background);
   background->SetInteractive(0);
   background->SetLayer(2);
   background->SetBackground(0., 1., 1.);
@@ -54,7 +45,6 @@ int main(int argc, char *argv[])
   ren->SetLayer(1);
   ren->SetInteractive(1);
   
-  renWin->AddRenderer(background);
   // Create a checkerboard of foreground renderers.
   int i, j;
   int numSteps = 4;
