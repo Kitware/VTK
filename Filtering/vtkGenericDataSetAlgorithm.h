@@ -43,7 +43,6 @@ class vtkGenericDataSet;
 class VTK_FILTERING_EXPORT vtkGenericDataSetAlgorithm : public vtkAlgorithm
 {
 public:
-  static vtkGenericDataSetAlgorithm *New();
   vtkTypeRevisionMacro(vtkGenericDataSetAlgorithm,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -91,7 +90,15 @@ protected:
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
-
+  
+  // Description:
+  // This is called by the superclass.
+  // This is the method you should override.
+  // See ProcessRequest for details about arguments and return value.
+  virtual int RequestDataObject(vtkInformation* request,
+                                vtkInformationVector** inputVector,
+                                vtkInformationVector* outputVector)=0;
+  
   // Description:
   // This is called by the superclass.
   // This is the method you should override.

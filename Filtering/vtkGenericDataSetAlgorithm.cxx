@@ -22,8 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetAlgorithm, "1.1");
-vtkStandardNewMacro(vtkGenericDataSetAlgorithm);
+vtkCxxRevisionMacro(vtkGenericDataSetAlgorithm, "1.2");
 
 //----------------------------------------------------------------------------
 vtkGenericDataSetAlgorithm::vtkGenericDataSetAlgorithm()
@@ -90,6 +89,12 @@ int vtkGenericDataSetAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {
+  // generate the data
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+    return this->RequestDataObject(request, inputVector, outputVector);
+    }
+  
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
