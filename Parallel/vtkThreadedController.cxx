@@ -70,9 +70,9 @@ private:
   void operator=(const vtkThreadedControllerOutputWindow&);
 };
 
-vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.17");
+vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.18");
 
-vtkCxxRevisionMacro(vtkThreadedController, "1.17");
+vtkCxxRevisionMacro(vtkThreadedController, "1.18");
 vtkStandardNewMacro(vtkThreadedController);
 
 void vtkThreadedController::CreateOutputWindow()
@@ -286,7 +286,7 @@ void vtkThreadedController::Barrier()
 VTK_THREAD_RETURN_TYPE vtkThreadedController::vtkThreadedControllerStart( 
   void *arg )
 {
-  vtkMultiThreader::ThreadInfoStruct* info = (vtkMultiThreader::ThreadInfoStruct*)(arg);
+  vtkMultiThreader::ThreadInfo* info = (vtkMultiThreader::ThreadInfo*)(arg);
   int threadId = info->ThreadID;
   vtkThreadedController *controller0 =(vtkThreadedController*)(info->UserData);
 

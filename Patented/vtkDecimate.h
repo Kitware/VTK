@@ -212,22 +212,26 @@ protected:
 
   //BTX - begin tcl exclude
   // Special structures for building loops
-  typedef struct LocalVertexStruct
+  class LocalVertex
   {
+  public:
     vtkIdType     id;
     float   x[3];
     float   FAngle;
     int     deRefs; //monitor memory requirements; new only when necessary
     int     newRefs;
-  } LocalVertex, *LocalVertexPtr;
+  };
+  typedef LocalVertex *LocalVertexPtr;
     
-  typedef struct LocalTriStruct
+  class LocalTri
   {
+  public:
     vtkIdType     id;
     float   area;
     float   n[3];
     vtkIdType     verts[3];
-  } LocalTri, *LocalTriPtr;
+  };
+  typedef LocalTri *LocalTriPtr;
 
   //
   // Special classes for manipulating data

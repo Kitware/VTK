@@ -45,11 +45,12 @@ class VTK_COMMON_EXPORT vtkPriorityQueue : public vtkObject
 {
 public:
   //BTX
-  typedef struct ItemStruct
+  class Item
   {
+  public:
     float priority;
     vtkIdType id;
-  } Item;
+  };
   //ETX
 
   // Description:

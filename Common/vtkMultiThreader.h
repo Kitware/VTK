@@ -102,8 +102,9 @@ public:
   // SetMultipleMethod, or SpawnThread method.
 
   //BTX
-  struct ThreadInfoStruct
+  class ThreadInfo
   {
+  public:
     int                 ThreadID;
     int                 NumberOfThreads;
     int                 *ActiveFlag;
@@ -151,7 +152,7 @@ public:
   
   // Description:
   // Set the SingleMethod to f() and the UserData field of the
-  // ThreadInfoStruct that is passed to it will be data.
+  // ThreadInfo that is passed to it will be data.
   // This method (and all the methods passed to SetMultipleMethod)
   // must be of type vtkThreadFunctionType and must take a single argument of
   // type void *.
@@ -159,7 +160,7 @@ public:
  
   // Description:
   // Set the MultipleMethod at the given index to f() and the UserData 
-  // field of the ThreadInfoStruct that is passed to it will be data.
+  // field of the ThreadInfo that is passed to it will be data.
   void SetMultipleMethod( int index, vtkThreadFunctionType, void *data ); 
 
   // Description:
@@ -183,7 +184,7 @@ protected:
   // An array of thread info containing a thread id
   // (0, 1, 2, .. VTK_MAX_THREADS-1), the thread count, and a pointer
   // to void so that user data can be passed to each thread
-  ThreadInfoStruct           ThreadInfoArray[VTK_MAX_THREADS];
+  ThreadInfo                 ThreadInfoArray[VTK_MAX_THREADS];
 
   // The methods
   vtkThreadFunctionType      SingleMethod;
@@ -194,7 +195,7 @@ protected:
   int                        SpawnedThreadActiveFlag[VTK_MAX_THREADS];
   vtkMutexLock               *SpawnedThreadActiveFlagLock[VTK_MAX_THREADS];
   vtkThreadProcessIDType     SpawnedThreadProcessID[VTK_MAX_THREADS];
-  ThreadInfoStruct           SpawnedThreadInfoArray[VTK_MAX_THREADS];
+  ThreadInfo                 SpawnedThreadInfoArray[VTK_MAX_THREADS];
 
 //ETX
 

@@ -263,16 +263,18 @@ protected:
   float ZBinSize;
 
   //BTX
-  typedef struct {
+  class PointQuadric 
+  {
+  public:
     vtkIdType VertexId;
     // Dimension is supposed to be a flag representing the dimension of the cells
     // contributing to the quadric. 
     // Lines: 1, Triangles: 2 (and points 0 in the future?)
     unsigned char Dimension;
     float Quadric[9];
-  } PointQuadricStruct;
+  };
   //ETX
-  PointQuadricStruct* QuadricArray;
+  PointQuadric* QuadricArray;
 
   vtkIdType NumberOfBinsUsed;
 

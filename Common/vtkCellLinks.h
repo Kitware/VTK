@@ -37,7 +37,8 @@ class VTK_COMMON_EXPORT vtkCellLinks : public vtkObject
 public:
 
   //BTX
-  struct LinkStruct {
+  class Link {
+  public:
     unsigned short ncells;
     vtkIdType *cells;
   };
@@ -53,7 +54,7 @@ public:
 
   // Description:
   // Get a link structure given a point id.
-  LinkStruct &GetLink(vtkIdType ptId) {return this->Array[ptId];};
+  Link &GetLink(vtkIdType ptId) {return this->Array[ptId];};
 
   // Description:
   // Get the number of cells using the point specified by ptId.
@@ -140,11 +141,11 @@ protected:
   void InsertCellReference(vtkIdType ptId, unsigned short pos,
                            vtkIdType cellId);
 
-  LinkStruct *Array;   // pointer to data
+  Link *Array;   // pointer to data
   vtkIdType Size;       // allocated size of data
   vtkIdType MaxId;     // maximum index inserted thus far
   vtkIdType Extend;     // grow array by this point
-  LinkStruct *Resize(vtkIdType sz);  // function to resize data
+  Link *Resize(vtkIdType sz);  // function to resize data
 private:
   vtkCellLinks(const vtkCellLinks&);  // Not implemented.
   void operator=(const vtkCellLinks&);  // Not implemented.

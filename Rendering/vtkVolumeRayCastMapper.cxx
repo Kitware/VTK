@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.94");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.95");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -554,10 +554,10 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
 {
   // Get the info out of the input structure
-  int threadID    = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->ThreadID;
-  int threadCount = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->NumberOfThreads;
+  int threadID    = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
+  int threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
   vtkVolumeRayCastStaticInfo *staticInfo  = 
-    (vtkVolumeRayCastStaticInfo *)((vtkMultiThreader::ThreadInfoStruct *)arg)->UserData;
+    (vtkVolumeRayCastStaticInfo *)((vtkMultiThreader::ThreadInfo *)arg)->UserData;
   
   int i, j, k;
   unsigned char *ucptr;

@@ -104,11 +104,13 @@ protected:
   vtkPriorityQueue *EdgeCosts;
 
   //BTX
-  typedef struct {
+  class ErrorQuadric
+  {
+  public:
     float *Quadric;
-  } ErrorQuadricStruct;
+  };
   //ETX
-  ErrorQuadricStruct *ErrorQuadrics;
+  ErrorQuadric *ErrorQuadrics;
 
   int AttributeComponents[6];
   int NumberOfComponents;

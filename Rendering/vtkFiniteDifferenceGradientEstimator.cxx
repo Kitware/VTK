@@ -34,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFiniteDifferenceGradientEstimator, "1.34");
+vtkCxxRevisionMacro(vtkFiniteDifferenceGradientEstimator, "1.35");
 vtkStandardNewMacro(vtkFiniteDifferenceGradientEstimator);
 
 // This is the templated function that actually computes the EncodedNormal
@@ -328,10 +328,10 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
   int                                    thread_id;
   vtkDataArray                           *scalars;
 
-  thread_id = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->ThreadID;
-  thread_count = ((vtkMultiThreader::ThreadInfoStruct *)(arg))->NumberOfThreads;
+  thread_id = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
+  thread_count = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
   estimator = (vtkFiniteDifferenceGradientEstimator *)
-    (((vtkMultiThreader::ThreadInfoStruct *)(arg))->UserData);
+    (((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
   scalars = estimator->Input->GetPointData()->GetScalars();
 
   if (scalars == NULL)

@@ -21,19 +21,19 @@
 #include "vtkPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCellLinks, "1.25");
+vtkCxxRevisionMacro(vtkCellLinks, "1.26");
 vtkStandardNewMacro(vtkCellLinks);
 
 void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
 {
-  static vtkCellLinks::LinkStruct linkInit = {0,NULL};
+  static vtkCellLinks::Link linkInit = {0,NULL};
 
   this->Size = sz;
   if ( this->Array != NULL )
     {
     delete [] this->Array;
     }
-  this->Array = new vtkCellLinks::LinkStruct[sz];
+  this->Array = new vtkCellLinks::Link[sz];
   this->Extend = ext;
   this->MaxId = -1;
 
@@ -84,12 +84,12 @@ void vtkCellLinks::Reset()
 //
 // Private function does "reallocate"
 //
-vtkCellLinks::LinkStruct *vtkCellLinks::Resize(vtkIdType sz)
+vtkCellLinks::Link *vtkCellLinks::Resize(vtkIdType sz)
 {
   vtkIdType i;
-  vtkCellLinks::LinkStruct *newArray;
+  vtkCellLinks::Link *newArray;
   vtkIdType newSize;
-  vtkCellLinks::LinkStruct linkInit = {0,NULL};
+  vtkCellLinks::Link linkInit = {0,NULL};
 
   if ( sz >= this->Size )
     {
@@ -100,7 +100,7 @@ vtkCellLinks::LinkStruct *vtkCellLinks::Resize(vtkIdType sz)
     newSize = sz;
     }
 
-  newArray = new vtkCellLinks::LinkStruct[newSize];
+  newArray = new vtkCellLinks::Link[newSize];
 
   for (i=0; i<sz && i<this->Size; i++)
     {
@@ -262,7 +262,7 @@ unsigned long vtkCellLinks::GetActualMemorySize()
     }
 
   size *= sizeof(int *); //references to cells
-  size += (this->MaxId+1) * sizeof(vtkCellLinks::LinkStruct); //list of cell lists
+  size += (this->MaxId+1) * sizeof(vtkCellLinks::Link); //list of cell lists
 
   return (unsigned long) ceil((float)size/1000.0); //kilobytes
 }
@@ -270,7 +270,7 @@ unsigned long vtkCellLinks::GetActualMemorySize()
 void vtkCellLinks::DeepCopy(vtkCellLinks *src)
 {
   this->Allocate(src->Size, src->Extend);
-  memcpy(this->Array, src->Array, this->Size * sizeof(vtkCellLinks::LinkStruct));
+  memcpy(this->Array, src->Array, this->Size * sizeof(vtkCellLinks::Link));
   this->MaxId = src->MaxId;
 }
 
