@@ -33,7 +33,7 @@ ADD_LIBRARY (vtkmyUnsorted Unsorted_SRCS)
 
 IF (VTKMY_WRAP_TCL)
   VTK_WRAP_TCL (vtkmyUnsortedTCL UnsortedTCL_SRCS Unsorted_SRCS)
-  ADD_LIBRARY (vtkmyUnsortedTCL SHARED UnsortedTCL_SRCS)
+  ADD_LIBRARY (vtkmyUnsortedTCL UnsortedTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL 
                          vtkIOTCL 
                          vtkGraphicsTCL 

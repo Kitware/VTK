@@ -32,7 +32,7 @@ ADD_LIBRARY (vtkmyImaging Imaging_SRCS)
 
 IF (VTKMY_WRAP_TCL)
   VTK_WRAP_TCL (vtkmyImagingTCL ImagingTCL_SRCS Imaging_SRCS)
-  ADD_LIBRARY (vtkmyImagingTCL SHARED ImagingTCL_SRCS)
+  ADD_LIBRARY (vtkmyImagingTCL ImagingTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkmyImagingTCL 
                          vtkImagingTCL 
                          vtkFilteringTCL 
