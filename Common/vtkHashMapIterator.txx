@@ -41,7 +41,10 @@ void vtkHashMapIterator<KeyType,DataType>::InitTraversal()
 {
   vtkHashMap<KeyType,DataType>* hmap 
     = static_cast<vtkHashMap<KeyType,DataType>*>(this->Container);
-  this->Iterator = hmap->Buckets[0]->NewIterator();
+  if(!this->Iterator)
+    {
+    this->Iterator = hmap->Buckets[0]->NewIterator();
+    }
   this->GoToFirstItem();
 }
 
