@@ -753,3 +753,9 @@ void vtkOglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   
   delete [] buffer;
 }
+
+void vtkOglrRenderWindow::MakeCurrent()
+{
+  // set the current window 
+  glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
+}
