@@ -35,7 +35,7 @@
 #include "vtkSpline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.11");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.12");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkSplineWidget::vtkSplineWidget()
@@ -48,6 +48,8 @@ vtkSplineWidget::vtkSplineWidget()
   this->PlaneSource = NULL;
   this->HandlePositions = NULL;
   this->SplinePositions = NULL;
+  this->Closed = 0;
+  this->Offset = 0.0;
 
   // Build the representation of the widget
 
@@ -64,7 +66,6 @@ vtkSplineWidget::vtkSplineWidget()
   this->XSpline->ClosedOff();
   this->YSpline->ClosedOff();
   this->ZSpline->ClosedOff();
-
 
   // Default bounds to get started
   float bounds[6];
@@ -101,14 +102,14 @@ vtkSplineWidget::vtkSplineWidget()
     this->HandleMapper[i]->SetInput(this->HandleGeometry[i]->GetOutput());
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(this->HandleMapper[i]);
-    position = static_cast<float>(i) / (this->NumberOfHandles - 1.0) ;
-    this->HandlePositions[i] = position;
+    position = i / (this->NumberOfHandles - 1.0);
+    this->HandlePositions[i] = static_cast<float>(i);
     x = (1.0-position)*x0 + position*x1;
     y = (1.0-position)*y0 + position*y1;
     z = (1.0-position)*z0 + position*z1;
-    this->XSpline->AddPoint(position,x);
-    this->YSpline->AddPoint(position,y);
-    this->ZSpline->AddPoint(position,z);
+    this->XSpline->AddPoint(i, x);
+    this->YSpline->AddPoint(i, y);
+    this->ZSpline->AddPoint(i, z);
     this->HandleGeometry[i]->SetCenter(x,y,z);
     }
 
@@ -126,9 +127,11 @@ vtkSplineWidget::vtkSplineWidget()
 
   // Interpolate x, y and z by using the three spline filters and
   // create new points
+  float factor = (this->NumberOfHandles + this->Offset - 1.0)/
+                 (this->NumberOfSplinePoints - 1.0);
   for (i=0; i<this->NumberOfSplinePoints; i++)
     {
-    position = static_cast<float>(i)*(this->NumberOfHandles - 1.0)/(this->NumberOfSplinePoints - 1.0);
+    position = i * factor;
     this->SplinePositions[i] = position;
     points->InsertPoint(i, XSpline->Evaluate(position),
                            YSpline->Evaluate(position),
@@ -141,7 +144,7 @@ vtkSplineWidget::vtkSplineWidget()
   lines->Allocate(lines->EstimateSize(this->Resolution,2));
   lines->InsertNextCell(this->NumberOfSplinePoints);
 
-  for (i=0 ; i<this->NumberOfSplinePoints; i ++)
+  for (i=0 ; i<this->NumberOfSplinePoints; i++)
     {
     lines->InsertCellPoint(i);
     }
@@ -244,6 +247,29 @@ vtkSplineWidget::~vtkSplineWidget()
     }
 
   this->Transform->Delete();
+}
+
+void vtkSplineWidget::SetClosed(int closed)
+{
+  if (this->Closed == closed)
+    {
+    return;
+    }
+  this->Closed = closed;
+  this->XSpline->SetClosed(this->Closed);
+  this->YSpline->SetClosed(this->Closed);
+  this->ZSpline->SetClosed(this->Closed);
+
+  this->Offset  = (this->Closed)? 1.0 : 0.0;
+
+  float factor = (this->NumberOfHandles + this->Offset - 1.0)/
+                 (this->NumberOfSplinePoints - 1.0);
+  for (int i=0; i<this->NumberOfSplinePoints; i++)
+    {
+    this->SplinePositions[i] = i * factor;
+    }
+
+  this->BuildRepresentation();
 }
 
 // Creates an instance of a vtkCardinalSpline by default
@@ -543,6 +569,8 @@ void vtkSplineWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Projection Position: " << this->ProjectionPosition << "\n";
   os << indent << "Resolution: " << this->Resolution << "\n";
   os << indent << "Number Of Handles: " << this->NumberOfHandles << "\n";
+  os << indent << "Closed: "
+     << (this->Closed ? "On" : "Off") << "\n";
 }
 
 void vtkSplineWidget::ProjectPointsToPlane()
@@ -1198,7 +1226,7 @@ void vtkSplineWidget::PlaceWidget(float bds[6])
     float position;
     for (i=0; i<this->NumberOfHandles; i++)
       {
-      position = this->HandlePositions[i];
+      position = i / (this->NumberOfHandles - 1.0);
       x = (1.0-position)*x0 + position*x1;
       y = (1.0-position)*y0 + position*y1;
       z = (1.0-position)*z0 + position*z1;
@@ -1260,9 +1288,10 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
       }
     }
 
-  float radius = this->HandleGeometry[0]->GetRadius();
-
+  float radius = this->HandleGeometry[0]->GetRadius();  
+  float factor = static_cast<float>(this->NumberOfHandles)/static_cast<float>(npts);
   this->Initialize();
+
   this->NumberOfHandles = npts;
 
   // Create the handles
@@ -1282,13 +1311,21 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(this->HandleMapper[i]);
     this->Handle[i]->SetProperty(this->HandleProperty);
-    this->HandlePositions[i] = static_cast<float>(i) / ( this->NumberOfHandles - 1.0 ) ;
-    x = XSpline->Evaluate(this->HandlePositions[i]);
-    y = YSpline->Evaluate(this->HandlePositions[i]);
-    z = ZSpline->Evaluate(this->HandlePositions[i]);
+    this->HandlePositions[i] = static_cast<float>(i);
+    x = XSpline->Evaluate(i * factor);
+    y = YSpline->Evaluate(i * factor);
+    z = ZSpline->Evaluate(i * factor);
     this->HandleGeometry[i]->SetCenter(x,y,z);
     this->HandleGeometry[i]->SetRadius(radius);
     this->HandlePicker->AddPickList(this->Handle[i]);
+    }
+
+  factor = (this->NumberOfHandles + this->Offset - 1.0)/
+           (this->NumberOfSplinePoints - 1.0);
+
+  for (i=0; i<this->NumberOfSplinePoints; i++)
+    {
+    this->SplinePositions[i] = i * factor;
     }
 
   this->BuildRepresentation();
@@ -1341,7 +1378,7 @@ void vtkSplineWidget::Initialize(void)
 
 void vtkSplineWidget::SetResolution(int resolution)
 {
-  if (this->Resolution == resolution || resolution < 1)
+  if (this->Resolution == resolution || resolution < (this->NumberOfHandles-1))
     {
     return;
     }
@@ -1365,11 +1402,13 @@ void vtkSplineWidget::SetResolution(int resolution)
   vtkCellArray *newLines  = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(this->Resolution,2));
 
+  float factor = (this->NumberOfHandles + this->Offset - 1.0)/
+                 (this->NumberOfSplinePoints - 1.0);
   float position;
   int i;
   for (i=0; i<this->NumberOfSplinePoints; i++)
     {
-    position = static_cast<float>(i)*(this->NumberOfHandles - 1.0)/(this->NumberOfSplinePoints - 1.0);
+    position = i * factor;
     this->SplinePositions[i] = position;
     newPoints->InsertPoint(i, XSpline->Evaluate(position),
                            YSpline->Evaluate(position),

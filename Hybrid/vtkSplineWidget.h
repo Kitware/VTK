@@ -201,6 +201,17 @@ public:
   void GetHandlePosition(int handle, float xyz[3]);
   float* GetHandlePosition(int handle);
 
+  // Description:
+  // Control whether the spline is open or closed. A closed spline forms
+  // a continuous loop: the first and last points are the same, and
+  // derivatives are continuous.  This method enforces consistency with
+  // user supplied subclasses of vtkSpline.
+  void SetClosed(int closed);
+  vtkGetMacro(Closed,int);
+  void ClosedOn()
+    { this->SetClosed(1); }
+  void ClosedOff()
+    { this->SetClosed(0); }
 
 protected:
   vtkSplineWidget();
@@ -251,8 +262,10 @@ protected:
   int NumberOfHandles;
   float* HandlePositions;
   vtkSpline* CreateDefaultSpline();// default is vtkCardinalSpline
+  int Closed;
+  float Offset;
 
-  // The line
+  // The line segments
   vtkActor          *LineActor;
   vtkPolyDataMapper *LineMapper;
   vtkPolyData       *LineData;
