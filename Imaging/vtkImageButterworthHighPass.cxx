@@ -19,13 +19,13 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageButterworthHighPass, "1.22");
+vtkCxxRevisionMacro(vtkImageButterworthHighPass, "1.23");
 vtkStandardNewMacro(vtkImageButterworthHighPass);
 
 //----------------------------------------------------------------------------
 vtkImageButterworthHighPass::vtkImageButterworthHighPass()
 {
-  this->CutOff[0] = this->CutOff[1] = this->CutOff[2] = VTK_DOUBLE_MAX;
+  this->CutOff[0] = this->CutOff[1] = this->CutOff[2] = VTK_FLOAT_MAX;
   this->Order = 1;
 }
 
@@ -111,7 +111,7 @@ void vtkImageButterworthHighPass::ThreadedExecute(vtkImageData *inData,
   mid2 = (double)(wholeExtent[4] + wholeExtent[5] + 1) / 2.0;
   if ( this->CutOff[0] == 0.0)
     {
-    norm0 = VTK_DOUBLE_MAX;
+    norm0 = VTK_FLOAT_MAX;
     }
   else
     {
@@ -119,7 +119,7 @@ void vtkImageButterworthHighPass::ThreadedExecute(vtkImageData *inData,
     }
   if ( this->CutOff[1] == 0.0)
     {
-    norm1 = VTK_DOUBLE_MAX;
+    norm1 = VTK_FLOAT_MAX;
     }
   else
     {
@@ -127,7 +127,7 @@ void vtkImageButterworthHighPass::ThreadedExecute(vtkImageData *inData,
     }
   if ( this->CutOff[2] == 0.0)
     {
-    norm2 = VTK_DOUBLE_MAX;
+    norm2 = VTK_FLOAT_MAX;
     }
   else
     {
@@ -187,7 +187,7 @@ void vtkImageButterworthHighPass::ThreadedExecute(vtkImageData *inData,
         // compute Butterworth1D function from sum = d^2
         if (sum0 == 0.0)
           {
-          sum0 = VTK_DOUBLE_MAX;
+          sum0 = VTK_FLOAT_MAX;
           }
         else
           {
