@@ -10,7 +10,6 @@ MACRO(VTK_COMPILE_CMAKE_EXTENSIONS source_dir build_dir result_var)
     TRY_COMPILE("${result_var}" "${build_dir}" "${source_dir}"
                 VTK_LOADED_COMMANDS
                 OUTPUT_VARIABLE VTK_COMPILE_CMAKE_EXTENSIONS_OUTPUT)
-    SET(${result_var} 0)
     IF("${result_var}")
       MESSAGE(STATUS "Compiling VTK CMake commands - done")
     ELSE("${result_var}")
