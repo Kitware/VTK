@@ -19,9 +19,11 @@ from Tkinter import *
 import math, os
 
 try: 
+    from vtkpython import *
+except ImportError:
+    print "Can't load vtkpython, trying libVTKCommonPython"
     # try importing the old-style python-vtk interface
     from libVTKCommonPython import *
-    print "VTK Version", vtkVersion().GetVTKVersion()
     from libVTKGraphicsPython import *
     from libVTKImagingPython import *
     try: # try to import patented classes
@@ -32,9 +34,12 @@ try:
         from libVTKContribPython import *
     except ImportError:
         pass
-except ImportError: 
-    from vtkpython import *
-    print "VTK Version", vtkVersion().GetVTKVersion()
+    try: # try to import local classes
+        from libVTKLocalPython import *
+    except ImportError:
+        pass
+
+print "VTK Version", vtkVersion().GetVTKVersion()
 
         
 class vtkTkRenderWidget(Tkinter.Widget):
@@ -48,9 +53,13 @@ class vtkTkRenderWidget(Tkinter.Widget):
         try: # check for TKWIDGET_PATH environment variable
 	    tkWidgetPath = os.environ['VTK_TK_WIDGET_PATH']
         except KeyError:
-            tkWidgetPath = ""
+            tkWidgetPath = "."
 
-        master.tk.call('load',os.path.join(tkWidgetPath,'vtkTkRenderWidget'))
+        try: # try specified path or current directory
+            master.tk.call('load',os.path.join(tkWidgetPath, \
+                                               'vtkTkRenderWidget'))
+        except: # try tcl/tk load path
+            master.tk.call('load','vtkTkRenderWidget')
 
         self.__RenderWindow = vtkRenderWindow()
 
