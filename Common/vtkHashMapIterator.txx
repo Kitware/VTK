@@ -53,7 +53,7 @@ template<class KeyType,class DataType>
 int vtkHashMapIterator<KeyType,DataType>::GetKey(KeyType& key)
 {
   if(this->IsDoneWithTraversal()) { return VTK_ERROR; }
-  ItemType item;
+  ItemType item = { KeyType(), DataType() };
   if(this->Iterator->GetData(item) == VTK_OK)
     {
     key = item.Key;
@@ -67,7 +67,7 @@ template<class KeyType,class DataType>
 int vtkHashMapIterator<KeyType,DataType>::GetData(DataType& data)
 {
   if(this->IsDoneWithTraversal()) { return VTK_ERROR; }
-  ItemType item;
+  ItemType item = { KeyType(), DataType() };
   if(this->Iterator->GetData(item) == VTK_OK)
     {
     data = item.Data;
