@@ -44,11 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageIterateFilter::vtkImageIterateFilter()
 {
-  this->Input = NULL;
-  this->Bypass = 0;
-  this->Updating = 0;
-  this->Threader = vtkMultiThreader::New();
-  this->NumberOfThreads = this->Threader->GetNumberOfThreads();
   // for filters that execute multiple times
   this->Iteration = 0;
   this->NumberOfIterations = 0;
@@ -59,124 +54,16 @@ vtkImageIterateFilter::vtkImageIterateFilter()
 //----------------------------------------------------------------------------
 vtkImageIterateFilter::~vtkImageIterateFilter()
 {
-  this->Threader->Delete();
   this->SetNumberOfIterations(0);
 }
 
 //----------------------------------------------------------------------------
 void vtkImageIterateFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "Bypass: " << this->Bypass << "\n";
-  os << indent << "Input: (" << this->Input << ").\n";
-  os << indent << "NumberOfThreads: " << this->NumberOfThreads << "\n";
+  os << indent << "NumberOfIterations: " << this->NumberOfIterations << "\n";
 
-  vtkImageSource::PrintSelf(os,indent);
+  vtkImageFilter::PrintSelf(os,indent);
 }
-
-//----------------------------------------------------------------------------
-// Description:
-// This Method returns the MTime of the pipeline upto and including this filter
-// Note: current implementation may create a cascade of GetPipelineMTime calls.
-// Each GetPipelineMTime call propagates the call all the way to the original
-// source.  
-unsigned long int vtkImageIterateFilter::GetPipelineMTime()
-{
-  unsigned long int time1, time2;
-
-  // This objects MTime
-  // (Super class considers cache in case cache did not originate message)
-  time1 = this->vtkImageSource::GetPipelineMTime();
-  if ( ! this->Input)
-    {
-    vtkWarningMacro(<< "GetPipelineMTime: Input not set.");
-    return time1;
-    }
-  
-  // Pipeline mtime 
-  time2 = this->Input->GetPipelineMTime();
-  
-  // Return the larger of the two 
-  if (time2 > time1)
-    time1 = time2;
-
-  return time1;
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Set the Input of a filter. 
-void vtkImageIterateFilter::SetInput(vtkImageCache *input)
-{
-  vtkDebugMacro(<< "SetInput: input = " << input->GetClassName()
-		<< " (" << input << ")");
-
-  // does this change anything?
-  if (input == this->Input)
-    {
-    return;
-    }
-  
-  this->Input = input;
-  this->Modified();
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method is called by the cache.  It eventually calls the
-// Execute(vtkImageData *, vtkImageData *) method.
-// ImageInformation has already been updated by this point, 
-// and outRegion is in local coordinates.
-// This method will stream to get the input, and loops over extra axes.
-// Only the UpdateExtent from output will get updated.
-void vtkImageIterateFilter::InternalUpdate(vtkImageData *outData)
-{
-  // Make sure the Input has been set.
-  if ( ! this->Input)
-    {
-    vtkErrorMacro(<< "Input is not set.");
-    return;
-    }
-
-  // prevent infinite update loops.
-  if (this->Updating)
-    {
-    return;
-    }
-  this->Updating = 1;
-  
-  // Handle bypass condition.
-  if (this->Bypass)
-    {
-    vtkImageData *inData;
-
-    this->Input->SetUpdateExtent(this->Output->GetUpdateExtent());
-    inData = this->Input->UpdateAndReturnData();
-    if (!inData)
-      {
-      vtkWarningMacro("No input data provided!");
-      }
-    else
-      {
-      outData->GetPointData()->PassData(inData->GetPointData());
-      }
-
-    // release input data
-    if (this->Input->ShouldIReleaseData())
-      {
-      this->Input->ReleaseData();
-      }
-    this->Updating = 0;
-    return;
-    }
-  
-  this->RecursiveStreamUpdate(outData);
-
-  this->Updating = 0;
-}
-
-
 
   
 //----------------------------------------------------------------------------
@@ -235,77 +122,6 @@ void vtkImageIterateFilter::RecursiveStreamUpdate(vtkImageData *outData)
 }
 
 
-//----------------------------------------------------------------------------
-// Description:
-// For streaming and threads.  Splits output update extent into num pieces.
-// This method needs to be called num times.  Results must not overlap for
-// consistent starting extent.  Subclass can override this method.
-// This method returns the number of peices resulting from a successful split.
-// This can be from 1 to "total".  
-// If 1 is returned, the extent cannot be split.
-int vtkImageIterateFilter::SplitExtent(int splitExt[6], int startExt[6], 
-				       int num, int total)
-{
-  int splitAxis;
-  int min, max;
-
-  vtkDebugMacro("SplitExtent: ( " << startExt[0] << ", " << startExt[1] << ", "
-		<< startExt[2] << ", " << startExt[3] << ", "
-		<< startExt[4] << ", " << startExt[5] << "), " 
-		<< num << " of " << total);
-
-  // start with same extent
-  memcpy(splitExt, startExt, 6 * sizeof(int));
-
-  splitAxis = 2;
-  min = startExt[4];
-  max = startExt[5];
-  while (min == max)
-    {
-    splitAxis--;
-    if (splitAxis < 0)
-      { // cannot split
-      vtkDebugMacro("  Cannot Split");
-      return 1;
-      }
-    min = startExt[splitAxis*2];
-    max = startExt[splitAxis*2+1];
-    }
-
-  // determine the actual number of pieces that will be generated
-  if ((max - min + 1) < total)
-    {
-    total = max - min + 1;
-    }
-  
-  if (num >= total)
-    {
-    vtkDebugMacro("  SplitRequest (" << num 
-		  << ") larger than total: " << total);
-    return total;
-    }
-  
-  // determine the extent of the piece
-  splitExt[splitAxis*2] = min + (max - min + 1)*num/total;
-  if (num == total - 1)
-    {
-    splitExt[splitAxis*2+1] = max;
-    }
-  else
-    {
-    splitExt[splitAxis*2+1] = (min-1) + (max - min + 1)*(num+1)/total;
-    }
-  
-  vtkDebugMacro("  Split Piece: ( " <<splitExt[0]<< ", " <<splitExt[1]<< ", "
-		<< splitExt[2] << ", " << splitExt[3] << ", "
-		<< splitExt[4] << ", " << splitExt[5] << ")");
-  fflush(stderr);
-
-  return total;  
-}
-
-  
-  
 //----------------------------------------------------------------------------
 // Description:
 // Some filters (decomposes, anisotropic difusion ...) have execute 
@@ -399,15 +215,6 @@ void vtkImageIterateFilter::UpdateImageInformation()
 
 //----------------------------------------------------------------------------
 // Description:
-// This method can be overriden in a subclass to compute the output
-// ImageInformation: WholeExtent, Spacing and Origin.
-void vtkImageIterateFilter::ExecuteImageInformation()
-{
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
 // This method can be overriden in a subclass to compute the input
 // UpdateExtent needed to generate the output UpdateExtent.
 // By default the input is set to the same as the output before this
@@ -431,94 +238,6 @@ void vtkImageIterateFilter::IterateRequiredInputUpdateExtent()
   this->Input = this->IterationCaches[0];
   this->Output = this->IterationCaches[this->NumberOfIterations];
 }
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method can be overriden in a subclass to compute the input
-// UpdateExtent needed to generate the output UpdateExtent.
-// By default the input is set to the same as the output before this
-// method is called.
-void vtkImageIterateFilter::ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6])
-{
-  memcpy(inExt,outExt,sizeof(int)*6);
-}
-
-struct vtkImageThreadStruct
-{
-  vtkImageIterateFilter *Filter;
-  vtkImageData   *Input;
-  vtkImageData   *Output;
-};
-
-
-
-// this mess is really a simple function. All it does is call
-// the ThreadedExecute method after setting the correct
-// extent for this thread. Its just a pain to calculate
-// the correct extent.
-VTK_THREAD_RETURN_TYPE vtkImageIterateThreadedExecute( void *arg )
-{
-  vtkImageThreadStruct *str;
-  int ext[6], splitExt[6], total;
-  int threadId, threadCount;
-  
-  threadId = ((ThreadInfoStruct *)(arg))->ThreadID;
-  threadCount = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
-
-  str = (vtkImageThreadStruct *)(((ThreadInfoStruct *)(arg))->UserData);
-  
-  memcpy(ext,str->Filter->GetOutput()->GetUpdateExtent(),
-	 sizeof(int)*6);
-
-  // execute the actual method with appropriate extent
-  // first find out how many pieces extent can be split into.
-  total = str->Filter->SplitExtent(splitExt, ext, threadId, threadCount);
-    
-  if (threadId < total)
-    {
-    str->Filter->ThreadedExecute(str->Input, str->Output, splitExt, threadId);
-    }
-  else
-    {
-    // otherwise don't use this thread. Sometimes the threads dont
-    // break up very well and it is just as efficient to leave a 
-    // few threads idle.
-    }
-  
-  return VTK_THREAD_RETURN_VALUE;
-}
-
-void vtkImageIterateFilter::Execute(vtkImageData *inData, 
-			     vtkImageData *outData)
-{
-  vtkImageThreadStruct str;
-  
-  str.Filter = this;
-  str.Input = inData;
-  str.Output = outData;
-  
-  this->Threader->SetNumberOfThreads(this->NumberOfThreads);
-  
-  // setup threading and the invoke threadedExecute
-  this->Threader->SetSingleMethod(vtkImageIterateThreadedExecute, &str);
-  this->Threader->SingleMethodExecute();
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// The execute method created by the subclass.
-void vtkImageIterateFilter::ThreadedExecute(vtkImageData *vtkNotUsed(inData), 
-				     vtkImageData *vtkNotUsed(outData),
-				     int extent[6], int threadId)
-{
-  extent = extent;
-  threadId = threadId;
-  
-  vtkErrorMacro("subclase should override this method!!!");
-}
-
 
 
 //----------------------------------------------------------------------------

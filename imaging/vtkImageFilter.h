@@ -77,7 +77,7 @@ public:
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
   virtual void InternalUpdate(vtkImageData *outData);
-  void UpdateImageInformation();
+  virtual void UpdateImageInformation();
   unsigned long int GetPipelineMTime();
   
   // Description:
@@ -98,10 +98,17 @@ public:
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
   vtkGetMacro( NumberOfThreads, int );
 
+  // Description:
   // subclasses should define this function
   virtual void ThreadedExecute(vtkImageData *inData, 
 			       vtkImageData *outData,
 			       int extent[6], int threadId);
+
+  // Description:
+  // subclass can over ride this method to do custom streaming and
+  // splitting for multiprocessing.
+  virtual int SplitExtent(int splitExt[6], int startExt[6], 
+			  int num, int total);
   
 protected:
   vtkImageCache *Input;     
@@ -113,7 +120,7 @@ protected:
   virtual void ExecuteImageInformation();
   virtual void ComputeRequiredInputUpdateExtent(int inExt[6],int outExt[6]);
 
-  virtual void RecursiveStreamUpdate(vtkImageData *outData, int axis);
+  virtual void RecursiveStreamUpdate(vtkImageData *outData);
   virtual void Execute(vtkImageData *inData, vtkImageData *outData);
 };
 

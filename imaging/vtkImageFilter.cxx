@@ -171,7 +171,7 @@ void vtkImageFilter::InternalUpdate(vtkImageData *outData)
     return;
     }
   
-  this->RecursiveStreamUpdate(outData,2);
+  this->RecursiveStreamUpdate(outData);
 
   this->Updating = 0;
 }
@@ -183,12 +183,12 @@ void vtkImageFilter::InternalUpdate(vtkImageData *outData)
 // Description:
 // This method can be called recursively for streaming.
 // The extent of the outRegion changes, dim remains the same.
-void vtkImageFilter::RecursiveStreamUpdate(vtkImageData *outData,
-					   int splitAxis)
+void vtkImageFilter::RecursiveStreamUpdate(vtkImageData *outData)
 {
   int memory;
   vtkImageData *inData;
-  
+  int outExt[6], splitExt[6];
+    
   // Compute the required input region extent.
   // Copy to fill in extent of extra dimensions.
   this->ComputeRequiredInputUpdateExtent(this->Input->GetUpdateExtent(),
@@ -200,38 +200,29 @@ void vtkImageFilter::RecursiveStreamUpdate(vtkImageData *outData,
   // Split the inRegion if we are streaming.
   if ((memory > this->Input->GetMemoryLimit()))
     {
-    int min, max, mid;
-    this->Output->GetAxisUpdateExtent(splitAxis,min,max);
-    while ( (min == max) && splitAxis > 0)
-      {
-      splitAxis--;
-      this->Output->GetAxisUpdateExtent(splitAxis,min,max);
-      }
-    // Make sure we can actually split the axis
-    if (min < max)
-      {
-      // Set the first half to update
-      mid = (min + max) / 2;
+    this->Output->GetUpdateExtent(outExt);
+    if (this->SplitExtent(splitExt, outExt, 0, 2) > 1)
+      { // yes we can split
       vtkDebugMacro(<< "RecursiveStreamUpdate: Splitting " 
-      << splitAxis << " : memory = " << memory <<
-      ", extent = " << min << "->" << mid << " | " << mid+1 << "->" << max);
-      this->Output->SetAxisUpdateExtent(splitAxis, min, mid);
-      this->RecursiveStreamUpdate(outData, splitAxis);
+                    << " : memory = " << memory);
+      this->Output->SetUpdateExtent(splitExt);
+      this->RecursiveStreamUpdate(outData);
       // Set the second half to update
-      this->Output->SetAxisUpdateExtent(splitAxis, mid+1, max);
-      this->RecursiveStreamUpdate(outData, splitAxis);
+      this->SplitExtent(splitExt, outExt, 1, 2);
+      this->Output->SetUpdateExtent(splitExt);
+      this->RecursiveStreamUpdate(outData);
       // Restore the original extent
-      this->Output->SetAxisUpdateExtent(splitAxis, min, max);
+      this->Output->SetUpdateExtent(outExt);
       return;
       }
     else
       {
       // Cannot split any more.  Ignore memory limit and continue.
       vtkWarningMacro(<< "RecursiveStreamUpdate: Cannot split. memory = "
-        << memory << ", " << splitAxis << " : " << min << "->" << max);
+                      << memory);
       }
     }
-
+  
   // No Streaming required.
   // Get the input region (Update extent was set at start of this method).
   inData = this->Input->UpdateAndReturnData();
@@ -249,6 +240,74 @@ void vtkImageFilter::RecursiveStreamUpdate(vtkImageData *outData,
     }
 }
 
+//----------------------------------------------------------------------------
+// Description:
+// For streaming and threads.  Splits output update extent into num pieces.
+// This method needs to be called num times.  Results must not overlap for
+// consistent starting extent.  Subclass can override this method.
+// This method returns the number of peices resulting from a successful split.
+// This can be from 1 to "total".  
+// If 1 is returned, the extent cannot be split.
+int vtkImageFilter::SplitExtent(int splitExt[6], int startExt[6], 
+				int num, int total)
+{
+  int splitAxis;
+  int min, max;
+
+  vtkDebugMacro("SplitExtent: ( " << startExt[0] << ", " << startExt[1] << ", "
+		<< startExt[2] << ", " << startExt[3] << ", "
+		<< startExt[4] << ", " << startExt[5] << "), " 
+		<< num << " of " << total);
+
+  // start with same extent
+  memcpy(splitExt, startExt, 6 * sizeof(int));
+
+  splitAxis = 2;
+  min = startExt[4];
+  max = startExt[5];
+  while (min == max)
+    {
+    splitAxis--;
+    if (splitAxis < 0)
+      { // cannot split
+      vtkDebugMacro("  Cannot Split");
+      return 1;
+      }
+    min = startExt[splitAxis*2];
+    max = startExt[splitAxis*2+1];
+    }
+
+  // determine the actual number of pieces that will be generated
+  if ((max - min + 1) < total)
+    {
+    total = max - min + 1;
+    }
+  
+  if (num >= total)
+    {
+    vtkDebugMacro("  SplitRequest (" << num 
+		  << ") larger than total: " << total);
+    return total;
+    }
+  
+  // determine the extent of the piece
+  splitExt[splitAxis*2] = min + (max - min + 1)*num/total;
+  if (num == total - 1)
+    {
+    splitExt[splitAxis*2+1] = max;
+    }
+  else
+    {
+    splitExt[splitAxis*2+1] = (min-1) + (max - min + 1)*(num+1)/total;
+    }
+  
+  vtkDebugMacro("  Split Piece: ( " <<splitExt[0]<< ", " <<splitExt[1]<< ", "
+		<< splitExt[2] << ", " << splitExt[3] << ", "
+		<< splitExt[4] << ", " << splitExt[5] << ")");
+  fflush(stderr);
+
+  return total;  
+}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -318,9 +377,8 @@ struct vtkImageThreadStruct
 VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
 {
   vtkImageThreadStruct *str;
-  int ext[6];
+  int ext[6], splitExt[6], total;
   int threadId, threadCount;
-  int axis;
   
   threadId = ((ThreadInfoStruct *)(arg))->ThreadID;
   threadCount = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
@@ -331,34 +389,15 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
 	 sizeof(int)*6);
 
   // execute the actual method with appropriate extent
-  // first find a non degenerate axis
-  axis = 2;
-  while ((axis > 0) && 
-	 ((ext[axis*2+1] - ext[axis*2]) == 0)) axis--;
-  
-  // is there is no division then only execute for thread zero
-  if (axis == 0)
+  // first find out how many pieces extent can be split into.
+  total = str->Filter->SplitExtent(splitExt, ext, threadId, threadCount);
+    
+  if (threadId < total)
     {
-    if (threadId == 0)
-      str->Filter->ThreadedExecute(str->Input, str->Output, ext, threadId);
+    str->Filter->ThreadedExecute(str->Input, str->Output, splitExt, threadId);
     }
   else
     {
-    // find correct extent
-    int range = ext[axis*2+1] - ext[axis*2] + 1;
-    int valuesPerThread = (int)ceil(range/(double)threadCount);
-    int maxThreadIdUsed = (int)ceil(range/(double)valuesPerThread) - 1;
-    if (threadId < maxThreadIdUsed)
-      {
-      ext[axis*2] = ext[axis*2] + threadId*valuesPerThread;
-      ext[axis*2+1] = ext[axis*2] + valuesPerThread - 1;
-      str->Filter->ThreadedExecute(str->Input, str->Output, ext, threadId);
-      }
-    if (threadId == maxThreadIdUsed)
-      {
-      ext[axis*2] = ext[axis*2] + threadId*valuesPerThread;
-      str->Filter->ThreadedExecute(str->Input, str->Output, ext, threadId);
-      }
     // otherwise don't use this thread. Sometimes the threads dont
     // break up very well and it is just as efficient to leave a 
     // few threads idle.
