@@ -91,15 +91,13 @@ void vtkPolyDataMapper::SetInput(vtkPolyData *in)
 //
 float *vtkPolyDataMapper::GetBounds()
 {
-  static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-
-  if ( ! this->Input ) 
-    return bounds;
-  else
+  if ( this->Input ) 
     {
     this->Input->Update();
-    return this->Input->GetBounds();
+    this->Input->GetBounds(this->Bounds);
     }
+
+  return this->Bounds;
 }
 
 

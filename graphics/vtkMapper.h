@@ -176,10 +176,13 @@ public:
   vtkGetVectorMacro(ScalarRange,float,2);
 
   // Description:
-  // Return bounding box of data in terms of (xmin,xmax, ymin,ymax, zmin,zmax).
-  // Used in the rendering process to automatically create a camera in the 
-  // proper initial configuration.
+  // Return bounding box (array of six floats) of data expressed as
+  // (xmin,xmax, ymin,ymax, zmin,zmax).
   virtual float *GetBounds() = 0;
+
+  // Description:
+  // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  void GetBounds(float bounds[6]);
 
   float *GetCenter();
   float GetLength();
@@ -222,7 +225,6 @@ public:
   void SetRenderTime(float time) {this->RenderTime = time;}
   vtkGetMacro(RenderTime, float);
   
-
 protected:
   vtkDataSet *Input;
   vtkScalars *Colors;
@@ -234,6 +236,8 @@ protected:
   int ImmediateModeRendering;
   int ColorMode;
   int ScalarMode;
+  float Bounds[6];
+  float Center[3];
 
   float RenderTime;
 };

@@ -59,6 +59,10 @@ vtkMapper::vtkMapper()
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
   
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
+  this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
+
   this->RenderTime = 0.0;
 }
 
@@ -200,26 +204,32 @@ void vtkMapper::CreateDefaultLookupTable()
   this->LookupTable = vtkLookupTable::New();
 }
 
+// Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+void vtkMapper::GetBounds(float bounds[6])
+{
+  this->GetBounds();
+  for (int i=0; i<6; i++) bounds[i] = this->Bounds[i];
+}
+
 float *vtkMapper::GetCenter()
 {
-  static float center[3];
-  float *bounds;
-
-  bounds = this->GetBounds();
-  for (int i=0; i<3; i++) center[i] = (bounds[2*i+1] + bounds[2*i]) / 2.0;
-  return center;
+  this->GetBounds();
+  for (int i=0; i<3; i++) 
+    {
+    this->Center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) / 2.0;
+    }
+  return this->Center;
 }
 
 float vtkMapper::GetLength()
 {
   double diff, l=0.0;
   int i;
-  float *bounds;
 
-  bounds = this->GetBounds();
+  this->GetBounds();
   for (i=0; i<3; i++)
     {
-    diff = bounds[2*i+1] - bounds[2*i];
+    diff = this->Bounds[2*i+1] - this->Bounds[2*i];
     l += diff * diff;
     }
  
