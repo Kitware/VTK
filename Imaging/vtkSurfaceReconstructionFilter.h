@@ -29,12 +29,12 @@
 #ifndef __vtkSurfaceReconstructionFilter_h
 #define __vtkSurfaceReconstructionFilter_h
 
-#include "vtkDataSetToImageFilter.h"
+#include "vtkDataSetToStructuredPointsFilter.h"
 
-class VTK_IMAGING_EXPORT vtkSurfaceReconstructionFilter : public vtkDataSetToImageFilter
+class VTK_IMAGING_EXPORT vtkSurfaceReconstructionFilter : public vtkDataSetToStructuredPointsFilter
 {
 public:
-  vtkTypeRevisionMacro(vtkSurfaceReconstructionFilter,vtkDataSetToImageFilter);
+  vtkTypeRevisionMacro(vtkSurfaceReconstructionFilter,vtkDataSetToStructuredPointsFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -61,8 +61,7 @@ protected:
   vtkSurfaceReconstructionFilter();
   ~vtkSurfaceReconstructionFilter() {};
 
-  virtual ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *);
+  void Execute();
 
   int NeighborhoodSize;
   float SampleSpacing;
