@@ -630,6 +630,17 @@ int vtkFieldData::AddArray(vtkDataArray *array, char *name)
   return n;
 }
 
+int vtkFieldData::AddNoReplaceArray(vtkDataArray *array, char *name)
+{
+  // check an array with this name isn't already present
+  if (this->GetArray(name))
+    {
+    vtkDebugMacro(<<"Array named " << name << " already exists, AddArray aborted");
+    return -1;
+    }
+  return this->AddArray(array,name);
+}
+
 unsigned long vtkFieldData::GetActualMemorySize()
 {
   unsigned long size=0;

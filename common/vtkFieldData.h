@@ -117,6 +117,12 @@ public:
   int AddArray(vtkDataArray *array, char *name);
 
   // Description:
+  // Add an array to the end of the array list, and set the name
+  // return the new array index. returns -1 if array with given name
+  // already exists and does not overwrite it
+  int AddNoReplaceArray(vtkDataArray *array, char *name);
+
+  // Description:
   // Return the array containing the ith component of the field. The
   // return value is an integer number n 0<=n<this->NumberOfArrays. Also,
   // an integer value is returned indicating the component in the array
