@@ -49,7 +49,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.81");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.82");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -78,7 +78,7 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
     {
     vtkWin32OpenGLRenderWindow *ren;
     ren = static_cast<vtkWin32OpenGLRenderWindow *>(this->RenderWindow);
-    tmp = (vtkWin32OpenGLRenderWindow *)(GetWindowLongPtr(this->WindowId,4));
+    tmp = (vtkWin32OpenGLRenderWindow *)(vtkGetWindowLong(this->WindowId,4));
     // watch for odd conditions
     if ((tmp != ren) && (ren != NULL)) 
       {
