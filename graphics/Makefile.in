@@ -264,7 +264,16 @@ OGLR_INCLUDE       = @OGLR_INCLUDE@
 
 # add in any extra libraies here
 KIT_LIBS = 
-JAVA_O := ${JAVA_O} vtkJavaPanel.o
+JAVA_O := ${JAVA_O} vtkJavaPanel.o 
+JAVA_CODE := ${JAVA_CODE} ../java/vtk/vtkPanel.class
+
+java/vtk_vtkPanel.h: ../java/vtk/vtkPanel.java
+	rm -f java/vtk_vtkPanel.h; ${JAVAH} -d java vtk.vtkPanel
+
+java/vtk_vtkPanel.c: ../java/vtk/vtkPanel.java
+	rm -f java/vtk_vtkPanel.c; ${JAVAH} -stubs -d java vtk.vtkPanel
+
+vtkJavaPanel.o: java/vtk_vtkPanel.h java/vtk_vtkPanel.c
 
 # standard stuff here
 KIT_OBJ = vtkXRenderWindowInteractor.o ${SRC_OBJ} \

@@ -26,8 +26,8 @@ Copyright (c) Ken Martin 1995
 // include the header file as a C code fragment 
 // include the JAVA C stubs file as a C code fragment 
 extern "C" {
-#include "VTKPanel.h"
-#include "VTKPanel.c"
+#include "java/vtk_vtkPanel.h"
+#include "java/vtk_vtkPanel.c"
 
 typedef struct Classsun_awt_motif_MCanvasPeer {
     struct Hjava_awt_Component *target;
@@ -52,8 +52,8 @@ struct CanvasData {
 
 #include "vtkRenderWindow.h"
 
-void VTKPanel_setWindow(struct HVTKPanel *me,
-			struct HVTK_vtkRenderWindow *id0)
+void vtk_vtkPanel_setWindow(struct Hvtk_vtkPanel *me,
+			    struct Hvtk_vtkRenderWindow *id0)
 {
   void *temp;
   vtkRenderWindow *op;
@@ -70,3 +70,4 @@ void VTKPanel_setWindow(struct HVTKPanel *me,
   op->SetDisplayId((void *)XtDisplay(wig));
   op->SetWindowId((void *)XtWindowOfObject(wig));
 }
+

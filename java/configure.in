@@ -43,6 +43,45 @@ AC_STRUCT_TM
 # Find the X include directories and libraries
 AC_PATH_XTRA
 
+
+#
+# figure out what graphics we should compile in based on header files
+#
+AC_CHECK_HEADERS(starbase.c.h, sbr_obj=$srcdir/../Makefile.in.sbr)
+AC_SUBST_FILE(sbr_obj)
+
+AC_CHECK_HEADERS(gl/gl.h, glr_obj=$srcdir/../Makefile.in.glr)
+AC_SUBST_FILE(glr_obj)
+
+#
+# should we use mesa
+#
+AC_ARG_WITH(mesa,
+         [  --with-mesa               use the mesa opengl package],
+    oglr_obj=$srcdir/../Makefile.in.Mesaoglr)
+
+OGLR_INCLUDE=""
+AC_CHECK_HEADERS(GL/gl.h, oglr_obj=$srcdir/../Makefile.in.oglr)
+AC_CHECK_HEADERS(/usr/openwin/share/include/GL/gl.h, 
+		oglr_obj=$srcdir/../Makefile.in.oglr
+		OGLR_INCLUDE="-I/usr/openwin/share/include/")
+AC_SUBST_FILE(oglr_obj)
+AC_SUBST(OGLR_INCLUDE)
+
+#
+# has the user set up XGL_HOME
+#
+if test "X$XGL_HOME" = "X" ; then
+  XGL_HOME=/opt/SUNWits/Graphics-sw/xgl
+fi
+AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, xglr_obj=$srcdir/../Makefile.in.xglr)
+#
+# also try /usr/openwin/include/xgl
+#
+AC_CHECK_HEADERS(/usr/openwin/include/xgl/xgl.h, xglr_obj=$srcdir/../Makefile.in.xglr)
+AC_SUBST_FILE(xglr_obj)
+AC_SUBST(XGL_HOME)
+
 #------------------------------------------------------------------------------
 #       Some make programs require includes to be 
 #         .include "file"
@@ -353,7 +392,7 @@ case $system in
 	;;
     SunOS-5*)
 	SHLIB_CFLAGS="-K PIC"
-	SHLIB_LD="/usr/ccs/bin/ld -G -z text"
+	SHLIB_LD="/usr/ccs/bin/ld -G "
 	SHLIB_LD_LIBS='${LIBS}'
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
@@ -396,6 +435,111 @@ fi
 AC_ARG_WITH(shared,
          [  --with-shared               create shared libraries],
     [vtk_shared_ok=yes], [vtk_shared_ok=no])
+
+# what toolkits should we use
+AC_ARG_WITH(graphics,
+         [  --without-graphics      do not include the graphics classes],
+         [vtk_use_graphics=no], 
+         [vtk_use_graphics=yes] 
+         USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsJava"
+         USE_GRAPHICS_FLAG="-I$(srcdir)/../graphics -DUSE_GRAPHICS")
+
+AC_ARG_WITH(imaging,
+         [  --without-imaging       do not include the imaging classes],
+         [vtk_use_imaging=no], 
+         [vtk_use_imaging=yes] 
+         USE_IMAGING_LIBS="-L../imaging -lVTKImagingJava"
+         USE_IMAGING_FLAG="-I$(srcdir)/../imaging -DUSE_IMAGING")
+
+AC_ARG_WITH(volume,
+         [  --without-volume       do not include the volume classes],
+         [vtk_use_volume=no], 
+         [vtk_use_volume=yes] 
+         USE_VOLUME_LIBS="-L../volume -lVTKVolumeJava"
+         USE_VOLUME_FLAG="-I$(srcdir)/../volume -DUSE_VOLUME")
+
+AC_ARG_WITH(borescope,
+         [  --with-borescope        include the borescope classes],
+         [vtk_use_borescope=yes] 
+         USE_BORESCOPE_LIBS="-L../borescope -lVTKBorescopeJava"
+         USE_BORESCOPE_FLAG="-I$(srcdir)/../borescope -DUSE_BORESCOPE",
+         [vtk_use_borescope=no]) 
+
+AC_ARG_WITH(contrib,
+         [  --with-contrib        include the contrib classes],
+         [vtk_use_contrib=yes] 
+         USE_CONTRIB_LIBS="-L../contrib -lVTKContribJava"
+         USE_CONTRIB_FLAG="-I$(srcdir)/../contrib -DUSE_CONTRIB",
+         [vtk_use_contrib=no]) 
+
+AC_ARG_WITH(geae,
+         [  --with-geae        include the geae classes],
+         [vtk_use_geae=yes] 
+         USE_GEAE_LIBS="-L../geae -lVTKGeaeJava"
+         USE_GEAE_FLAG="-I$(srcdir)/../geae -DUSE_GEAE",
+         [vtk_use_geae=no]) 
+
+AC_ARG_WITH(gemsip,
+         [  --with-gemsip        include the gemsip classes],
+         [vtk_use_gemsip=yes] 
+         USE_GEMSIP_LIBS="-L../gemsip -lVTKGemsipJava"
+         USE_GEMSIP_FLAG="-I$(srcdir)/../gemsip -DUSE_GEMSIP",
+         [vtk_use_gemsip=no]) 
+
+AC_ARG_WITH(gemsio,
+         [  --with-gemsio        include the gemsio classes],
+         [vtk_use_gemsio=yes] 
+         USE_GEMSIO_LIBS="-L../gemsio -lVTKGemsioJava"
+         USE_GEMSIO_FLAG="-I$(srcdir)/../gemsio -DUSE_GEMSIO",
+         [vtk_use_gemsio=no]) 
+
+AC_ARG_WITH(gemsvolume,
+         [  --with-gemsvolume    include the gemsvolume classes],
+         [vtk_use_gemsvolume=yes] 
+         USE_GEMSVOLUME_LIBS="-L../gemsvolume -lVTKGemsvolumeJava"
+         USE_GEMSVOLUME_FLAG="-I$(srcdir)/../gemsvolume -DUSE_GEMSVOLUME",
+         [vtk_use_gemsvolume=no]) 
+
+
+if test "$vtk_shared_ok" = "yes"; then
+    VTK_SHLIB_CFLAGS="${SHLIB_CFLAGS}"
+    VTK_LD_SEARCH_FLAGS="${LD_SEARCH_FLAGS}"
+    RANLIB=":"
+fi
+
+AC_SUBST(USE_GRAPHICS_FLAG)
+AC_SUBST(USE_GRAPHICS_LIBS)
+
+AC_SUBST(USE_IMAGING_FLAG)
+AC_SUBST(USE_IMAGING_LIBS)
+
+AC_SUBST(USE_VOLUME_FLAG)
+AC_SUBST(USE_VOLUME_LIBS)
+
+AC_SUBST(USE_BORESCOPE_FLAG)
+AC_SUBST(USE_BORESCOPE_LIBS)
+
+AC_SUBST(USE_CONTRIB_FLAG)
+AC_SUBST(USE_CONTRIB_LIBS)
+
+AC_SUBST(USE_GEAE_FLAG)
+AC_SUBST(USE_GEAE_LIBS)
+
+AC_SUBST(USE_GEMSIP_FLAG)
+AC_SUBST(USE_GEMSIP_LIBS)
+
+AC_SUBST(USE_GEMSIO_FLAG)
+AC_SUBST(USE_GEMSIO_LIBS)
+
+AC_SUBST(USE_GEMSVOLUME_FLAG)
+AC_SUBST(USE_GEMSVOLUME_LIBS)
+
+AC_SUBST(VTK_SHLIB_CFLAGS)
+AC_SUBST(SHLIB_LD)
+AC_SUBST(DL_LIBS)
+AC_SUBST(SHLIB_LD_LIBS)
+AC_SUBST(SHLIB_SUFFIX)
+AC_SUBST(SHLIB_VERSION)
 
 dnl Checks for library functions.
 AC_OUTPUT(Makefile)

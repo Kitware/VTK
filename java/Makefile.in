@@ -9,7 +9,7 @@
 #
 
 SHELL = /bin/sh
-.SUFFIXES: .cxx
+.SUFFIXES: .cxx .java
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in Config.mk
@@ -29,15 +29,68 @@ WORDS_BIGENDIAN   = @BIGENDIAN@
 LEX 	      = @LEX@
 LEXLIB        = @LEXLIB@
 YACC          = @YACC@
+SHLIB_LD      = @SHLIB_LD@
+SHLIB_LD_LIBS = @SHLIB_LD_LIBS@
+SHLIB_SUFFIX  = @SHLIB_SUFFIX@
+SHLIB_VERSION = @SHLIB_VERSION@
+VTK_INLINE_FLAGS  = @VTK_INLINE_FLAGS@
+USE_GRAPHICS_FLAG = @USE_GRAPHICS_FLAG@
+USE_GRAPHICS_LIBS = @USE_GRAPHICS_LIBS@
+USE_IMAGING_FLAG = @USE_IMAGING_FLAG@
+USE_IMAGING_LIBS = @USE_IMAGING_LIBS@
+USE_VOLUME_FLAG = @USE_VOLUME_FLAG@
+USE_VOLUME_LIBS = @USE_VOLUME_LIBS@
+USE_BORESCOPE_FLAG  = @USE_BORESCOPE_FLAG@
+USE_BORESCOPE_LIBS  = @USE_BORESCOPE_LIBS@
+USE_CONTRIB_FLAG  = @USE_CONTRIB_FLAG@
+USE_CONTRIB_LIBS  = @USE_CONTRIB_LIBS@
+USE_GEAE_FLAG  = @USE_GEAE_FLAG@
+USE_GEAE_LIBS  = @USE_GEAE_LIBS@
+USE_GEMSIP_FLAG  = @USE_GEMSIP_FLAG@
+USE_GEMSIP_LIBS  = @USE_GEMSIP_LIBS@
+USE_GEMSIO_FLAG  = @USE_GEMSIO_FLAG@
+USE_GEMSIO_LIBS  = @USE_GEMSIO_LIBS@
+USE_GEMSVOLUME_FLAG  = @USE_GEMSVOLUME_FLAG@
+USE_GEMSVOLUME_LIBS  = @USE_GEMSVOLUME_LIBS@
 
 #------------------------------------------------------------------------------
 # Include user-editable defines.
 
 @MAKEINCLUDE@ @MAKEQUOTE@../Config.mk@MAKEQUOTE@
 
+#-----------------------------------------------------------------------------
+# include objects for the supported rendering libraries on this system
+  
+@sbr_obj@
+
+@glr_obj@
+
+@oglr_obj@
+
+@xglr_obj@
+
+#------------------------------------------------------------------------------
+LDLIBS = -L../common \
+        ${USE_BORESCOPE_LIBS}	\
+        ${USE_CONTRIB_LIBS}	\
+        ${USE_GEAE_LIBS}	\
+        ${USE_GEMSIO_LIBS}	\
+        ${USE_GEMSVOLUME_LIBS}	\
+        ${USE_GEMSIP_LIBS}	\
+        ${USE_VOLUME_LIBS}		\
+	${USE_IMAGING_LIBS}	\
+	${USE_GRAPHICS_LIBS}	\
+        -lVTKCommonJava \
+        ${XLIBS} ${OGLR_LIBS} ${GLR_LIBS} \
+        ${SBR_LIBS} ${XGLR_LIBS} ${DL_LIBS}
+
 C_FLAGS = ${CPPFLAGS} ${XCFLAGS} ${CFLAGS} -I${srcdir} 
 
-all:  java_parse java_wrap
+all:  java_parse java_wrap vtk/vtkPanel.class
+
+vtk/vtkPanel.class: vtk/vtkPanel.java
+	${JAVAC} -d ${JAVA_CLASS_HOME} ${srcdir}/vtk/vtkPanel.java
+
 
 java_parse: $(srcdir)/java_parse.y $(srcdir)/concrete.l
 	$(LEX) $(srcdir)/concrete.l
@@ -49,6 +102,15 @@ java_wrap: $(srcdir)/java_wrap.y $(srcdir)/concrete.l
 	$(YACC) -b java_wrap $(srcdir)/java_wrap.y 
 	$(CC) $(C_FLAGS) -I. -o java_wrap java_wrap.tab.c -lm
 
+#------------------------------------------------------------------------------
+# build the vtk java library
+#
+vtk: libvtkJava$(SHLIB_SUFFIX)$(SHLIB_VERSION)
+
+libvtkJava$(SHLIB_SUFFIX)$(SHLIB_VERSION): 
+	$(SHLIB_LD) -o libvtkJava$(SHLIB_SUFFIX)$(SHLIB_VERSION) -L. \
+	${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} ${JAVA_CXX_LIB}
 
 #------------------------------------------------------------------------------
 clean: 

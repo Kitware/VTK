@@ -14,9 +14,29 @@ ac_default_prefix=/usr/local
 ac_help="$ac_help
   --with-x                use the X Window System"
 ac_help="$ac_help
+  --with-mesa               use the mesa opengl package"
+ac_help="$ac_help
   --disable-load          disallow dynamic loading and "load" command"
 ac_help="$ac_help
   --with-shared               create shared libraries"
+ac_help="$ac_help
+  --without-graphics      do not include the graphics classes"
+ac_help="$ac_help
+  --without-imaging       do not include the imaging classes"
+ac_help="$ac_help
+  --without-volume       do not include the volume classes"
+ac_help="$ac_help
+  --with-borescope        include the borescope classes"
+ac_help="$ac_help
+  --with-contrib        include the contrib classes"
+ac_help="$ac_help
+  --with-geae        include the geae classes"
+ac_help="$ac_help
+  --with-gemsip        include the gemsip classes"
+ac_help="$ac_help
+  --with-gemsio        include the gemsio classes"
+ac_help="$ac_help
+  --with-gemsvolume    include the gemsvolume classes"
 
 # Initialize some variables set by options.
 # The variables have the same names as the options, with
@@ -608,7 +628,7 @@ else
   yes;
 #endif
 EOF
-if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:612: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:632: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
   ac_cv_prog_gcc=yes
 else
   ac_cv_prog_gcc=no
@@ -688,7 +708,7 @@ else
   yes;
 #endif
 EOF
-if { ac_try='${CXX-g++} -E conftest.C'; { (eval echo configure:692: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+if { ac_try='${CXX-g++} -E conftest.C'; { (eval echo configure:712: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
   ac_cv_prog_gxx=yes
 else
   ac_cv_prog_gxx=no
@@ -835,7 +855,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-l$ac_lib  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 839 "configure"
+#line 859 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char yywrap();
@@ -845,7 +865,7 @@ int t() {
 yywrap()
 ; return 0; }
 EOF
-if { (eval echo configure:849: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:869: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -939,13 +959,13 @@ else
   # On the NeXT, cc -E runs the code through the compiler's parser,
   # not just through cpp.
   cat > conftest.$ac_ext <<EOF
-#line 943 "configure"
+#line 963 "configure"
 #include "confdefs.h"
 #include <assert.h>
 Syntax Error
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:949: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:969: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   :
@@ -954,13 +974,13 @@ else
   rm -rf conftest*
   CPP="${CC-cc} -E -traditional-cpp"
   cat > conftest.$ac_ext <<EOF
-#line 958 "configure"
+#line 978 "configure"
 #include "confdefs.h"
 #include <assert.h>
 Syntax Error
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:964: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:984: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   :
@@ -989,11 +1009,11 @@ else
   ac_cv_c_cross=yes
 else
 cat > conftest.$ac_ext <<EOF
-#line 993 "configure"
+#line 1013 "configure"
 #include "confdefs.h"
 main(){return(0);}
 EOF
-{ (eval echo configure:997: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
+{ (eval echo configure:1017: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
 if test -s conftest && (./conftest; exit) 2>/dev/null; then
   ac_cv_c_cross=no
 else
@@ -1011,7 +1031,7 @@ if eval "test \"`echo '$''{'ac_cv_header_stdc'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1015 "configure"
+#line 1035 "configure"
 #include "confdefs.h"
 #include <stdlib.h>
 #include <stdarg.h>
@@ -1019,7 +1039,7 @@ else
 #include <float.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1023: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1043: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1034,7 +1054,7 @@ rm -f conftest*
 if test $ac_cv_header_stdc = yes; then
   # SunOS 4.x string.h does not declare mem*, contrary to ANSI.
 cat > conftest.$ac_ext <<EOF
-#line 1038 "configure"
+#line 1058 "configure"
 #include "confdefs.h"
 #include <string.h>
 EOF
@@ -1052,7 +1072,7 @@ fi
 if test $ac_cv_header_stdc = yes; then
   # ISC 2.0.2 stdlib.h does not declare free, contrary to ANSI.
 cat > conftest.$ac_ext <<EOF
-#line 1056 "configure"
+#line 1076 "configure"
 #include "confdefs.h"
 #include <stdlib.h>
 EOF
@@ -1073,7 +1093,7 @@ if test "$cross_compiling" = yes; then
   :
 else
 cat > conftest.$ac_ext <<EOF
-#line 1077 "configure"
+#line 1097 "configure"
 #include "confdefs.h"
 #include <ctype.h>
 #define ISLOWER(c) ('a' <= (c) && (c) <= 'z')
@@ -1084,7 +1104,7 @@ if (XOR (islower (i), ISLOWER (i)) || toupper (i) != TOUPPER (i)) exit(2);
 exit (0); }
 
 EOF
-{ (eval echo configure:1088: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
+{ (eval echo configure:1108: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
 if test -s conftest && (./conftest; exit) 2>/dev/null; then
   :
 else
@@ -1110,7 +1130,7 @@ if eval "test \"`echo '$''{'ac_cv_c_const'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1114 "configure"
+#line 1134 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -1160,7 +1180,7 @@ ccp = (char const *const *) p;
 
 ; return 0; }
 EOF
-if { (eval echo configure:1164: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:1184: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   ac_cv_c_const=yes
 else
@@ -1184,7 +1204,7 @@ if eval "test \"`echo '$''{'ac_cv_struct_tm'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1188 "configure"
+#line 1208 "configure"
 #include "confdefs.h"
 #include <sys/types.h>
 #include <time.h>
@@ -1193,7 +1213,7 @@ int t() {
 struct tm *tp; tp->tm_sec;
 ; return 0; }
 EOF
-if { (eval echo configure:1197: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:1217: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   ac_cv_struct_tm=time.h
 else
@@ -1278,12 +1298,12 @@ if test "$ac_x_includes" = NO; then
 
   # First, try using that file with no special directory specified.
 cat > conftest.$ac_ext <<EOF
-#line 1282 "configure"
+#line 1302 "configure"
 #include "confdefs.h"
 #include <$x_direct_test_include>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1287: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1307: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1350,7 +1370,7 @@ if test "$ac_x_libraries" = NO; then
   ac_save_LIBS="$LIBS"
   LIBS="-l$x_direct_test_library $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1354 "configure"
+#line 1374 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -1358,7 +1378,7 @@ int t() {
 ${x_direct_test_function}()
 ; return 0; }
 EOF
-if { (eval echo configure:1362: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1382: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   LIBS="$ac_save_LIBS"
 # We can link X programs with no special library path.
@@ -1479,7 +1499,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lICE  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1483 "configure"
+#line 1503 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char IceConnectionNumber();
@@ -1489,7 +1509,7 @@ int t() {
 IceConnectionNumber()
 ; return 0; }
 EOF
-if { (eval echo configure:1493: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1513: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1525,7 +1545,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldnet  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1529 "configure"
+#line 1549 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dnet_ntoa();
@@ -1535,7 +1555,7 @@ int t() {
 dnet_ntoa()
 ; return 0; }
 EOF
-if { (eval echo configure:1539: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1559: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1562,7 +1582,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldnet_stub  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1566 "configure"
+#line 1586 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dnet_ntoa();
@@ -1572,7 +1592,7 @@ int t() {
 dnet_ntoa()
 ; return 0; }
 EOF
-if { (eval echo configure:1576: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1596: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1604,7 +1624,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lnsl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1608 "configure"
+#line 1628 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char t_accept();
@@ -1614,7 +1634,7 @@ int t() {
 t_accept()
 ; return 0; }
 EOF
-if { (eval echo configure:1618: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1638: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1645,7 +1665,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lsocket  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1649 "configure"
+#line 1669 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char socket();
@@ -1655,7 +1675,7 @@ int t() {
 socket()
 ; return 0; }
 EOF
-if { (eval echo configure:1659: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1679: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1686,7 +1706,7 @@ else
   ac_cv_c_bigendian=unknown
 # See if sys/param.h defines the BYTE_ORDER macro.
 cat > conftest.$ac_ext <<EOF
-#line 1690 "configure"
+#line 1710 "configure"
 #include "confdefs.h"
 #include <sys/types.h>
 #include <sys/param.h>
@@ -1698,11 +1718,11 @@ int t() {
 #endif
 ; return 0; }
 EOF
-if { (eval echo configure:1702: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:1722: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   # It does; now see whether it defined to BIG_ENDIAN or not.
 cat > conftest.$ac_ext <<EOF
-#line 1706 "configure"
+#line 1726 "configure"
 #include "confdefs.h"
 #include <sys/types.h>
 #include <sys/param.h>
@@ -1714,7 +1734,7 @@ int t() {
 #endif
 ; return 0; }
 EOF
-if { (eval echo configure:1718: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:1738: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   ac_cv_c_bigendian=yes
 else
@@ -1731,7 +1751,7 @@ if test "$cross_compiling" = yes; then
     { echo "configure: error: can not run test program while cross compiling" 1>&2; exit 1; }
 else
 cat > conftest.$ac_ext <<EOF
-#line 1735 "configure"
+#line 1755 "configure"
 #include "confdefs.h"
 main () {
   /* Are we little or big endian?  From Harbison&Steele.  */
@@ -1744,7 +1764,7 @@ main () {
   exit (u.c[sizeof (long) - 1] == 1);
 }
 EOF
-{ (eval echo configure:1748: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
+{ (eval echo configure:1768: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
 if test -s conftest && (./conftest; exit) 2>/dev/null; then
   ac_cv_c_bigendian=no
 else
@@ -1775,7 +1795,7 @@ if eval "test \"`echo '$''{'ac_cv_c_const'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1779 "configure"
+#line 1799 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -1825,7 +1845,7 @@ ccp = (char const *const *) p;
 
 ; return 0; }
 EOF
-if { (eval echo configure:1829: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:1849: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   ac_cv_c_const=yes
 else
@@ -1849,7 +1869,7 @@ if eval "test \"`echo '$''{'ac_cv_struct_tm'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1853 "configure"
+#line 1873 "configure"
 #include "confdefs.h"
 #include <sys/types.h>
 #include <time.h>
@@ -1858,7 +1878,7 @@ int t() {
 struct tm *tp; tp->tm_sec;
 ; return 0; }
 EOF
-if { (eval echo configure:1862: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:1882: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   ac_cv_struct_tm=time.h
 else
@@ -1916,7 +1936,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lICE  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1920 "configure"
+#line 1940 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char IceConnectionNumber();
@@ -1926,7 +1946,7 @@ int t() {
 IceConnectionNumber()
 ; return 0; }
 EOF
-if { (eval echo configure:1930: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1950: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1962,7 +1982,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldnet  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1966 "configure"
+#line 1986 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dnet_ntoa();
@@ -1972,7 +1992,7 @@ int t() {
 dnet_ntoa()
 ; return 0; }
 EOF
-if { (eval echo configure:1976: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1996: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1999,7 +2019,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldnet_stub  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2003 "configure"
+#line 2023 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dnet_ntoa();
@@ -2009,7 +2029,7 @@ int t() {
 dnet_ntoa()
 ; return 0; }
 EOF
-if { (eval echo configure:2013: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2033: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2041,7 +2061,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lnsl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2045 "configure"
+#line 2065 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char t_accept();
@@ -2051,7 +2071,7 @@ int t() {
 t_accept()
 ; return 0; }
 EOF
-if { (eval echo configure:2055: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2075: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2082,7 +2102,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lsocket  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2086 "configure"
+#line 2106 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char socket();
@@ -2092,7 +2112,7 @@ int t() {
 socket()
 ; return 0; }
 EOF
-if { (eval echo configure:2096: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2116: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2113,6 +2133,263 @@ fi
     fi
   fi
 fi
+
+
+
+#
+# figure out what graphics we should compile in based on header files
+#
+for ac_hdr in starbase.c.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 2151 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:2156: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ sbr_obj=$srcdir/../Makefile.in.sbr
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+
+
+for ac_hdr in gl/gl.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 2190 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:2195: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ glr_obj=$srcdir/../Makefile.in.glr
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+
+
+#
+# should we use mesa
+#
+# Check whether --with-mesa or --without-mesa was given.
+if test "${with_mesa+set}" = set; then
+  withval="$with_mesa"
+  oglr_obj=$srcdir/../Makefile.in.Mesaoglr
+fi
+
+
+OGLR_INCLUDE=""
+for ac_hdr in GL/gl.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 2240 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:2245: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ oglr_obj=$srcdir/../Makefile.in.oglr
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+for ac_hdr in /usr/openwin/share/include/GL/gl.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 2277 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:2282: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ oglr_obj=$srcdir/../Makefile.in.oglr
+		OGLR_INCLUDE="-I/usr/openwin/share/include/"
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+
+
+
+#
+# has the user set up XGL_HOME
+#
+if test "X$XGL_HOME" = "X" ; then
+  XGL_HOME=/opt/SUNWits/Graphics-sw/xgl
+fi
+for ac_hdr in $XGL_HOME/include/xgl/xgl.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 2324 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:2329: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ xglr_obj=$srcdir/../Makefile.in.xglr
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+#
+# also try /usr/openwin/include/xgl
+#
+for ac_hdr in /usr/openwin/include/xgl/xgl.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 2364 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:2369: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ xglr_obj=$srcdir/../Makefile.in.xglr
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+
 
 
 #------------------------------------------------------------------------------
@@ -2216,7 +2493,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2220 "configure"
+#line 2497 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dlopen();
@@ -2226,7 +2503,7 @@ int t() {
 dlopen()
 ; return 0; }
 EOF
-if { (eval echo configure:2230: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:2507: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2335,12 +2612,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2339 "configure"
+#line 2616 "configure"
 #include "confdefs.h"
 #include <dld.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2344: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2621: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2496,7 +2773,7 @@ fi
 	;;
     SunOS-5*)
 	SHLIB_CFLAGS="-K PIC"
-	SHLIB_LD="/usr/ccs/bin/ld -G -z text"
+	SHLIB_LD="/usr/ccs/bin/ld -G "
 	SHLIB_LD_LIBS='${LIBS}'
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
@@ -2543,6 +2820,147 @@ if test "${with_shared+set}" = set; then
 else
   vtk_shared_ok=no
 fi
+
+
+# what toolkits should we use
+# Check whether --with-graphics or --without-graphics was given.
+if test "${with_graphics+set}" = set; then
+  withval="$with_graphics"
+  vtk_use_graphics=no
+else
+  vtk_use_graphics=yes 
+         USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsJava"
+         USE_GRAPHICS_FLAG="-I$(srcdir)/../graphics -DUSE_GRAPHICS"
+fi
+
+
+# Check whether --with-imaging or --without-imaging was given.
+if test "${with_imaging+set}" = set; then
+  withval="$with_imaging"
+  vtk_use_imaging=no
+else
+  vtk_use_imaging=yes 
+         USE_IMAGING_LIBS="-L../imaging -lVTKImagingJava"
+         USE_IMAGING_FLAG="-I$(srcdir)/../imaging -DUSE_IMAGING"
+fi
+
+
+# Check whether --with-volume or --without-volume was given.
+if test "${with_volume+set}" = set; then
+  withval="$with_volume"
+  vtk_use_volume=no
+else
+  vtk_use_volume=yes 
+         USE_VOLUME_LIBS="-L../volume -lVTKVolumeJava"
+         USE_VOLUME_FLAG="-I$(srcdir)/../volume -DUSE_VOLUME"
+fi
+
+
+# Check whether --with-borescope or --without-borescope was given.
+if test "${with_borescope+set}" = set; then
+  withval="$with_borescope"
+  vtk_use_borescope=yes 
+         USE_BORESCOPE_LIBS="-L../borescope -lVTKBorescopeJava"
+         USE_BORESCOPE_FLAG="-I$(srcdir)/../borescope -DUSE_BORESCOPE"
+else
+  vtk_use_borescope=no
+fi
+ 
+
+# Check whether --with-contrib or --without-contrib was given.
+if test "${with_contrib+set}" = set; then
+  withval="$with_contrib"
+  vtk_use_contrib=yes 
+         USE_CONTRIB_LIBS="-L../contrib -lVTKContribJava"
+         USE_CONTRIB_FLAG="-I$(srcdir)/../contrib -DUSE_CONTRIB"
+else
+  vtk_use_contrib=no
+fi
+ 
+
+# Check whether --with-geae or --without-geae was given.
+if test "${with_geae+set}" = set; then
+  withval="$with_geae"
+  vtk_use_geae=yes 
+         USE_GEAE_LIBS="-L../geae -lVTKGeaeJava"
+         USE_GEAE_FLAG="-I$(srcdir)/../geae -DUSE_GEAE"
+else
+  vtk_use_geae=no
+fi
+ 
+
+# Check whether --with-gemsip or --without-gemsip was given.
+if test "${with_gemsip+set}" = set; then
+  withval="$with_gemsip"
+  vtk_use_gemsip=yes 
+         USE_GEMSIP_LIBS="-L../gemsip -lVTKGemsipJava"
+         USE_GEMSIP_FLAG="-I$(srcdir)/../gemsip -DUSE_GEMSIP"
+else
+  vtk_use_gemsip=no
+fi
+ 
+
+# Check whether --with-gemsio or --without-gemsio was given.
+if test "${with_gemsio+set}" = set; then
+  withval="$with_gemsio"
+  vtk_use_gemsio=yes 
+         USE_GEMSIO_LIBS="-L../gemsio -lVTKGemsioJava"
+         USE_GEMSIO_FLAG="-I$(srcdir)/../gemsio -DUSE_GEMSIO"
+else
+  vtk_use_gemsio=no
+fi
+ 
+
+# Check whether --with-gemsvolume or --without-gemsvolume was given.
+if test "${with_gemsvolume+set}" = set; then
+  withval="$with_gemsvolume"
+  vtk_use_gemsvolume=yes 
+         USE_GEMSVOLUME_LIBS="-L../gemsvolume -lVTKGemsvolumeJava"
+         USE_GEMSVOLUME_FLAG="-I$(srcdir)/../gemsvolume -DUSE_GEMSVOLUME"
+else
+  vtk_use_gemsvolume=no
+fi
+ 
+
+
+if test "$vtk_shared_ok" = "yes"; then
+    VTK_SHLIB_CFLAGS="${SHLIB_CFLAGS}"
+    VTK_LD_SEARCH_FLAGS="${LD_SEARCH_FLAGS}"
+    RANLIB=":"
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 trap '' 1 2 15
@@ -2687,8 +3105,42 @@ s%@X_PRE_LIBS@%$X_PRE_LIBS%g
 s%@X_LIBS@%$X_LIBS%g
 s%@X_EXTRA_LIBS@%$X_EXTRA_LIBS%g
 s%@BIGENDIAN@%$BIGENDIAN%g
+/@sbr_obj@/r $sbr_obj
+s%@sbr_obj@%%g
+/@glr_obj@/r $glr_obj
+s%@glr_obj@%%g
+/@oglr_obj@/r $oglr_obj
+s%@oglr_obj@%%g
+s%@OGLR_INCLUDE@%$OGLR_INCLUDE%g
+/@xglr_obj@/r $xglr_obj
+s%@xglr_obj@%%g
+s%@XGL_HOME@%$XGL_HOME%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g
+s%@USE_GRAPHICS_FLAG@%$USE_GRAPHICS_FLAG%g
+s%@USE_GRAPHICS_LIBS@%$USE_GRAPHICS_LIBS%g
+s%@USE_IMAGING_FLAG@%$USE_IMAGING_FLAG%g
+s%@USE_IMAGING_LIBS@%$USE_IMAGING_LIBS%g
+s%@USE_VOLUME_FLAG@%$USE_VOLUME_FLAG%g
+s%@USE_VOLUME_LIBS@%$USE_VOLUME_LIBS%g
+s%@USE_BORESCOPE_FLAG@%$USE_BORESCOPE_FLAG%g
+s%@USE_BORESCOPE_LIBS@%$USE_BORESCOPE_LIBS%g
+s%@USE_CONTRIB_FLAG@%$USE_CONTRIB_FLAG%g
+s%@USE_CONTRIB_LIBS@%$USE_CONTRIB_LIBS%g
+s%@USE_GEAE_FLAG@%$USE_GEAE_FLAG%g
+s%@USE_GEAE_LIBS@%$USE_GEAE_LIBS%g
+s%@USE_GEMSIP_FLAG@%$USE_GEMSIP_FLAG%g
+s%@USE_GEMSIP_LIBS@%$USE_GEMSIP_LIBS%g
+s%@USE_GEMSIO_FLAG@%$USE_GEMSIO_FLAG%g
+s%@USE_GEMSIO_LIBS@%$USE_GEMSIO_LIBS%g
+s%@USE_GEMSVOLUME_FLAG@%$USE_GEMSVOLUME_FLAG%g
+s%@USE_GEMSVOLUME_LIBS@%$USE_GEMSVOLUME_LIBS%g
+s%@VTK_SHLIB_CFLAGS@%$VTK_SHLIB_CFLAGS%g
+s%@SHLIB_LD@%$SHLIB_LD%g
+s%@DL_LIBS@%$DL_LIBS%g
+s%@SHLIB_LD_LIBS@%$SHLIB_LD_LIBS%g
+s%@SHLIB_SUFFIX@%$SHLIB_SUFFIX%g
+s%@SHLIB_VERSION@%$SHLIB_VERSION%g
 
 CEOF
 EOF
