@@ -136,7 +136,7 @@ public:
 
   // Description:
   // Tells you which process [0, NumProcess) you are in.
-  virtual int GetLocalProcessId() { return this->LocalProcessId; }
+  vtkGetMacro(LocalProcessId, int);
 
   // Description:
   // This convenience method returns the controller associated with the 
@@ -220,12 +220,12 @@ public:
 //BTX
 
   enum Consts {
-    MAX_PROCESSES=8192,
-    ANY_SOURCE=-1,
-    INVALID_SOURCE=-2,
-    RMI_TAG=315167,
-    RMI_ARG_TAG=315168,
-    BREAK_RMI_TAG=239954
+    MAX_PROCESSES  = 8192,
+    ANY_SOURCE     = -1,
+    INVALID_SOURCE = -2,
+    RMI_TAG        = 315167,
+    RMI_ARG_TAG    = 315168,
+    BREAK_RMI_TAG  = 239954
   };
 
 //ETX

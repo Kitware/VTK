@@ -23,7 +23,7 @@
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.34");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.35");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -223,8 +223,8 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
     {
     vtkMPICommunicator* comm = vtkMPICommunicator::New();
     vtkMPIGroup* group = vtkMPIGroup::New();
-    comm->Comm->Handle = new MPI_Comm;
-    *(comm->Comm->Handle) = MPI_COMM_WORLD;
+    comm->MPIComm->Handle = new MPI_Comm;
+    *(comm->MPIComm->Handle) = MPI_COMM_WORLD;
     comm->SetGroup(group);
     group->Delete();
     group = NULL;
@@ -233,8 +233,8 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
       char *msg = vtkMPIController::ErrorString(err);
       vtkGenericWarningMacro("MPI error occured: " << msg);
       delete[] msg;
-      delete comm->Comm->Handle;
-      comm->Comm = 0;
+      delete comm->MPIComm->Handle;
+      comm->MPIComm = 0;
       comm->Delete();
       return 0;
       }
@@ -262,23 +262,19 @@ void vtkMPICommunicator::PrintSelf(ostream& os, vtkIndent indent)
     }
   else
     {
-    os << "(nil)";
-    os << endl;
+    os << "(none)\n";
     }
   os << indent << "MPI Communicator handler: " ;
-  if (this->Comm->Handle)
+  if (this->MPIComm->Handle)
     {
-    os << this->Comm->Handle;
+    os << this->MPIComm->Handle << endl;
     }
   else
     {
-    os << "(nil)";
+    os << "(none)\n";
     }
-  os << endl;
-  os << indent << "Initialized: " << (this->Initialized ? "(yes)" : "(no)")
-     << endl;
-  os << indent << "Keep handle: " << (this->KeepHandle ? "(yes)" : "(no)")
-     << endl;
+  os << indent << "Initialized: " << (this->Initialized ? "On\n" : "Off\n");
+  os << indent << "Keep handle: " << (this->KeepHandle ? "On\n" : "Off\n");
   if ( this != vtkMPICommunicator::WorldCommunicator )
     {
     os << indent << "World communicator: ";
@@ -289,7 +285,7 @@ void vtkMPICommunicator::PrintSelf(ostream& os, vtkIndent indent)
       }
     else
       {
-      os << "(nil)";
+      os << "(none)";
       }
     os << endl;
     }
@@ -299,7 +295,7 @@ void vtkMPICommunicator::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkMPICommunicator::vtkMPICommunicator()
 {
-  this->Comm = new vtkMPICommunicatorOpaqueComm;
+  this->MPIComm = new vtkMPICommunicatorOpaqueComm;
   this->Group = 0;
   this->Initialized = 0;
   this->KeepHandle = 0;
@@ -309,17 +305,17 @@ vtkMPICommunicator::vtkMPICommunicator()
 vtkMPICommunicator::~vtkMPICommunicator()
 {
   // Free the handle if required and asked for.
-  if (this->Comm)
+  if (this->MPIComm)
     {
-    if (this->Comm->Handle && !this->KeepHandle )
+    if (this->MPIComm->Handle && !this->KeepHandle )
       {
-      if (*(this->Comm->Handle) != MPI_COMM_NULL)
+      if (*(this->MPIComm->Handle) != MPI_COMM_NULL)
         {
-        MPI_Comm_free(this->Comm->Handle);
+        MPI_Comm_free(this->MPIComm->Handle);
         }
       }
-    delete this->Comm->Handle;
-    delete this->Comm;
+    delete this->MPIComm->Handle;
+    delete this->MPIComm;
     }
   this->SetGroup(0);
 }
@@ -368,7 +364,7 @@ int vtkMPICommunicator::Initialize(vtkMPICommunicator* mpiComm,
 
   // Get the group from the argument
   int err;
-  if ( (err = MPI_Comm_group(*(mpiComm->Comm->Handle), &superGroup))
+  if ( (err = MPI_Comm_group(*(mpiComm->MPIComm->Handle), &superGroup))
        != MPI_SUCCESS )
     {
     delete[] ranks;
@@ -399,15 +395,15 @@ int vtkMPICommunicator::Initialize(vtkMPICommunicator* mpiComm,
   delete[] ranks;
   MPI_Group_free(&superGroup);
 
-  this->Comm->Handle = new MPI_Comm;
+  this->MPIComm->Handle = new MPI_Comm;
   // Create the communicator from the group
-  if ( (err  = MPI_Comm_create(*(mpiComm->Comm->Handle), subGroup, 
-                               this->Comm->Handle) )
+  if ( (err  = MPI_Comm_create(*(mpiComm->MPIComm->Handle), subGroup, 
+                               this->MPIComm->Handle) )
        != MPI_SUCCESS )
     {
     MPI_Group_free(&subGroup);
-    delete this->Comm->Handle;
-    this->Comm->Handle = 0;
+    delete this->MPIComm->Handle;
+    this->MPIComm->Handle = 0;
 
     char *msg = vtkMPIController::ErrorString(err);
     vtkErrorMacro("MPI error occured: " << msg);
@@ -446,12 +442,12 @@ void vtkMPICommunicator::InitializeCopy(vtkMPICommunicator* source)
   group = 0;
   this->Group->CopyFrom(source->Group);
 
-  if (this->Comm->Handle && !this->KeepHandle)
+  if (this->MPIComm->Handle && !this->KeepHandle)
     {
-      MPI_Comm_free(this->Comm->Handle);
+    MPI_Comm_free(this->MPIComm->Handle);
     }
-  delete this->Comm->Handle;
-  this->Comm->Handle = 0;
+  delete this->MPIComm->Handle;
+  this->MPIComm->Handle = 0;
 
   this->Initialized = source->Initialized;
   this->Modified();
@@ -463,11 +459,11 @@ void vtkMPICommunicator::CopyFrom(vtkMPICommunicator* source)
 {
   this->InitializeCopy(source);
 
-  if (source->Comm->Handle)
+  if (source->MPIComm->Handle)
     {
     this->KeepHandleOn();
-    this->Comm->Handle = new MPI_Comm;
-    *(this->Comm->Handle) = *(source->Comm->Handle);
+    this->MPIComm->Handle = new MPI_Comm;
+    *(this->MPIComm->Handle) = *(source->MPIComm->Handle);
     }
 }
 
@@ -479,11 +475,11 @@ void vtkMPICommunicator::Duplicate(vtkMPICommunicator* source)
 
   this->KeepHandleOff();
 
-  if (source->Comm->Handle)
+  if (source->MPIComm->Handle)
     {
-    this->Comm->Handle = new MPI_Comm;
+    this->MPIComm->Handle = new MPI_Comm;
     int err;
-    if ( (err = MPI_Comm_dup(*(source->Comm->Handle), this->Comm->Handle))
+    if ( (err = MPI_Comm_dup(*(source->MPIComm->Handle), this->MPIComm->Handle))
           != MPI_SUCCESS ) 
       {
       char *msg = vtkMPIController::ErrorString(err);
@@ -541,7 +537,7 @@ int vtkMPICommunicator::Send(int* data, int length, int remoteProcessId,
   return CheckForMPIError(
      vtkMPICommunicatorSendData(data, length, 
                                 sizeof(int), remoteProcessId, tag, 
-                                MPI_INT, this->Comm->Handle, 
+                                MPI_INT, this->MPIComm->Handle, 
                                 vtkCommunicator::UseCopy));
 }
 //----------------------------------------------------------------------------
@@ -552,7 +548,7 @@ int vtkMPICommunicator::Send(unsigned long* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorSendData(data, length, 
                               sizeof(unsigned long), remoteProcessId, tag, 
-                              MPI_UNSIGNED_LONG, this->Comm->Handle,
+                              MPI_UNSIGNED_LONG, this->MPIComm->Handle,
                               vtkCommunicator::UseCopy));
 }
 //----------------------------------------------------------------------------
@@ -563,7 +559,7 @@ int vtkMPICommunicator::Send(char* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorSendData(data, length, 
                                sizeof(char), remoteProcessId, tag, 
-                               MPI_CHAR, this->Comm->Handle, 
+                               MPI_CHAR, this->MPIComm->Handle, 
                                vtkCommunicator::UseCopy));
 }
 //----------------------------------------------------------------------------
@@ -574,7 +570,7 @@ int vtkMPICommunicator::Send(unsigned char* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorSendData(data, length, 
                                sizeof(unsigned char), remoteProcessId, tag, 
-                               MPI_UNSIGNED_CHAR, this->Comm->Handle,
+                               MPI_UNSIGNED_CHAR, this->MPIComm->Handle,
                                vtkCommunicator::UseCopy));
 }
 //----------------------------------------------------------------------------
@@ -585,7 +581,7 @@ int vtkMPICommunicator::Send(float* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorSendData(data, length, 
                                sizeof(float), remoteProcessId, tag, 
-                               MPI_FLOAT, this->Comm->Handle, 
+                               MPI_FLOAT, this->MPIComm->Handle, 
                                vtkCommunicator::UseCopy));
 }
 
@@ -597,7 +593,7 @@ int vtkMPICommunicator::Send(double* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorSendData(data, length, 
                                sizeof(double), remoteProcessId, tag, 
-                               MPI_DOUBLE, this->Comm->Handle, 
+                               MPI_DOUBLE, this->MPIComm->Handle, 
                                vtkCommunicator::UseCopy));
 }
 
@@ -611,7 +607,7 @@ int vtkMPICommunicator::Send(vtkIdType* data, int length,
     vtkMPICommunicatorSendData(data, length, 
                                sizeof(vtkIdType), remoteProcessId, tag, 
                                vtkMPICommunicatorGetMPIType(), 
-                               this->Comm->Handle, vtkCommunicator::UseCopy));
+                               this->MPIComm->Handle, vtkCommunicator::UseCopy));
 }
 #endif
 
@@ -624,7 +620,7 @@ int vtkMPICommunicator::NoBlockSend(int* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorNoBlockSendData(data, 
                                       length, remoteProcessId, 
-                                      tag, MPI_INT, req, this->Comm->Handle));
+                                      tag, MPI_INT, req, this->MPIComm->Handle));
   
 }
 //----------------------------------------------------------------------------
@@ -637,7 +633,7 @@ int vtkMPICommunicator::NoBlockSend(unsigned long* data, int length,
     vtkMPICommunicatorNoBlockSendData(data, 
                                       length, remoteProcessId, 
                                       tag, MPI_UNSIGNED_LONG, req, 
-                                      this->Comm->Handle));
+                                      this->MPIComm->Handle));
 
 
 }
@@ -649,7 +645,7 @@ int vtkMPICommunicator::NoBlockSend(char* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorNoBlockSendData(data, 
                                       length,  remoteProcessId,
-                                      tag, MPI_CHAR, req, this->Comm->Handle));
+                                      tag, MPI_CHAR, req, this->MPIComm->Handle));
 
 }
 //----------------------------------------------------------------------------
@@ -661,7 +657,7 @@ int vtkMPICommunicator::NoBlockSend(float* data, int length,
     vtkMPICommunicatorNoBlockSendData(data, 
                                       length, remoteProcessId, 
                                       tag, MPI_FLOAT, req, 
-                                      this->Comm->Handle));
+                                      this->MPIComm->Handle));
 }
 
 //----------------------------------------------------------------------------
@@ -672,7 +668,7 @@ int vtkMPICommunicator::Receive(int* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorReceiveData(data, length, 
                                   sizeof(int), remoteProcessId, tag, 
-                                  MPI_INT, this->Comm->Handle, 
+                                  MPI_INT, this->MPIComm->Handle, 
                                   vtkCommunicator::UseCopy));
 
 }
@@ -685,7 +681,7 @@ int vtkMPICommunicator::Receive(unsigned long* data, int length,
     vtkMPICommunicatorReceiveData(data, length,
                                   sizeof(unsigned long),
                                   remoteProcessId, tag, 
-                                  MPI_UNSIGNED_LONG, this->Comm->Handle,
+                                  MPI_UNSIGNED_LONG, this->MPIComm->Handle,
                                   vtkCommunicator::UseCopy));
 
 }
@@ -697,7 +693,7 @@ int vtkMPICommunicator::Receive(char* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorReceiveData(data, length, 
                                   sizeof(char), remoteProcessId, tag, 
-                                  MPI_CHAR, this->Comm->Handle, 
+                                  MPI_CHAR, this->MPIComm->Handle, 
                                   vtkCommunicator::UseCopy));
 
 }
@@ -709,7 +705,7 @@ int vtkMPICommunicator::Receive(unsigned char* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorReceiveData(data, length,
                                   sizeof(unsigned char), remoteProcessId, 
-                                  tag, MPI_UNSIGNED_CHAR, this->Comm->Handle,
+                                  tag, MPI_UNSIGNED_CHAR, this->MPIComm->Handle,
                                   vtkCommunicator::UseCopy));
 
 }
@@ -721,7 +717,7 @@ int vtkMPICommunicator::Receive(float* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorReceiveData(data, length, 
                                   sizeof(float), remoteProcessId, tag, 
-                                  MPI_FLOAT, this->Comm->Handle, 
+                                  MPI_FLOAT, this->MPIComm->Handle, 
                                   vtkCommunicator::UseCopy));
 
 }
@@ -734,7 +730,7 @@ int vtkMPICommunicator::Receive(double* data, int length,
   return CheckForMPIError(
     vtkMPICommunicatorReceiveData(data, length,
                                   sizeof(double), remoteProcessId, tag, 
-                                  MPI_DOUBLE, this->Comm->Handle, 
+                                  MPI_DOUBLE, this->MPIComm->Handle, 
                                   vtkCommunicator::UseCopy));
 
 }
@@ -749,7 +745,7 @@ int vtkMPICommunicator::Receive(vtkIdType* data, int length,
     vtkMPICommunicatorReceiveData(data, length, 
                                   sizeof(vtkIdType), remoteProcessId, tag, 
                                   vtkMPICommunicatorGetMPIType(), 
-                                  this->Comm->Handle, vtkCommunicator::UseCopy));
+                                  this->MPIComm->Handle, vtkCommunicator::UseCopy));
 }
 #endif
 
@@ -763,7 +759,7 @@ int vtkMPICommunicator::NoBlockReceive(int* data, int length,
     vtkMPICommunicatorNoBlockReceiveData(data, 
                                          length, remoteProcessId, 
                                          tag, MPI_INT, req, 
-                                         this->Comm->Handle));
+                                         this->MPIComm->Handle));
   
 }
 //----------------------------------------------------------------------------
@@ -776,7 +772,7 @@ int vtkMPICommunicator::NoBlockReceive(unsigned long* data, int length,
     vtkMPICommunicatorNoBlockReceiveData(data, 
                                          length, remoteProcessId, 
                                          tag, MPI_UNSIGNED_LONG, req, 
-                                         this->Comm->Handle));
+                                         this->MPIComm->Handle));
 
 }
 //----------------------------------------------------------------------------
@@ -789,7 +785,7 @@ int vtkMPICommunicator::NoBlockReceive(char* data, int length,
     vtkMPICommunicatorNoBlockReceiveData(data, 
                                          length, remoteProcessId, 
                                          tag, MPI_CHAR, req, 
-                                         this->Comm->Handle));
+                                         this->MPIComm->Handle));
 
 }
 //----------------------------------------------------------------------------
@@ -802,7 +798,7 @@ int vtkMPICommunicator::NoBlockReceive(float* data, int length,
     vtkMPICommunicatorNoBlockReceiveData(data, 
                                          length, remoteProcessId, 
                                          tag, MPI_FLOAT, req, 
-                                         this->Comm->Handle));
+                                         this->MPIComm->Handle));
 
 }
 
@@ -882,7 +878,7 @@ int vtkMPICommunicator::Broadcast(int* data, int length, int root)
 
   return CheckForMPIError(
     vtkMPICommunicatorBroadcastData(data, length, root, MPI_INT, 
-                                    this->Comm->Handle));
+                                    this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Broadcast(unsigned long* data, int length, int root)
@@ -890,7 +886,7 @@ int vtkMPICommunicator::Broadcast(unsigned long* data, int length, int root)
 
   return CheckForMPIError(
     vtkMPICommunicatorBroadcastData(data, length, root, MPI_UNSIGNED_LONG, 
-                                    this->Comm->Handle));
+                                    this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Broadcast(char* data, int length, int root)
@@ -898,7 +894,7 @@ int vtkMPICommunicator::Broadcast(char* data, int length, int root)
 
   return CheckForMPIError(
     vtkMPICommunicatorBroadcastData(data, length, root, MPI_CHAR, 
-                                    this->Comm->Handle));
+                                    this->MPIComm->Handle));
   
 }
 //----------------------------------------------------------------------------
@@ -907,7 +903,7 @@ int vtkMPICommunicator::Broadcast(float* data, int length, int root)
 
   return CheckForMPIError(
     vtkMPICommunicatorBroadcastData(data, length, root, MPI_FLOAT, 
-                                    this->Comm->Handle));
+                                    this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Broadcast(double* data, int length, int root)
@@ -915,7 +911,7 @@ int vtkMPICommunicator::Broadcast(double* data, int length, int root)
 
   return CheckForMPIError(
     vtkMPICommunicatorBroadcastData(data, length, root, MPI_DOUBLE, 
-                                    this->Comm->Handle));
+                                    this->MPIComm->Handle));
 }
 
 //----------------------------------------------------------------------------
@@ -924,7 +920,7 @@ int vtkMPICommunicator::Gather(int* data, int* to, int length, int root)
 
   return CheckForMPIError(
     vtkMPICommunicatorGatherData(data, to, length, root, MPI_INT, 
-                                 this->Comm->Handle));
+                                 this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Gather(unsigned long* data, unsigned long* to, 
@@ -933,7 +929,7 @@ int vtkMPICommunicator::Gather(unsigned long* data, unsigned long* to,
 
   return CheckForMPIError(
     vtkMPICommunicatorGatherData(data, to, length, root, MPI_UNSIGNED_LONG, 
-                                 this->Comm->Handle));
+                                 this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Gather(char* data, char* to, int length, int root)
@@ -941,7 +937,7 @@ int vtkMPICommunicator::Gather(char* data, char* to, int length, int root)
 
   return CheckForMPIError(
     vtkMPICommunicatorGatherData(data, to, length, root, MPI_CHAR, 
-                                 this->Comm->Handle));
+                                 this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Gather(float* data, float* to, int length, int root)
@@ -949,7 +945,7 @@ int vtkMPICommunicator::Gather(float* data, float* to, int length, int root)
 
   return CheckForMPIError(
     vtkMPICommunicatorGatherData(data, to, length, root, MPI_FLOAT, 
-                                 this->Comm->Handle));
+                                 this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Gather(double* data, double* to, int length, int root)
@@ -957,7 +953,7 @@ int vtkMPICommunicator::Gather(double* data, double* to, int length, int root)
 
   return CheckForMPIError(
     vtkMPICommunicatorGatherData(data, to, length, root, MPI_DOUBLE, 
-                                 this->Comm->Handle));
+                                 this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::GatherV(int* data, int* to, 
@@ -968,7 +964,7 @@ int vtkMPICommunicator::GatherV(int* data, int* to,
   return CheckForMPIError(
     vtkMPICommunicatorGatherVData(data, to, 
                                   sendlength, recvlengths, offsets,
-                                  root, MPI_INT, this->Comm->Handle));
+                                  root, MPI_INT, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::GatherV(unsigned long* data, unsigned long* to, 
@@ -980,7 +976,7 @@ int vtkMPICommunicator::GatherV(unsigned long* data, unsigned long* to,
     vtkMPICommunicatorGatherVData(data, to, 
                                   sendlength, recvlengths, offsets,
                                   root, MPI_UNSIGNED_LONG, 
-                                  this->Comm->Handle));
+                                  this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::GatherV(char* data, char* to,
@@ -992,7 +988,7 @@ int vtkMPICommunicator::GatherV(char* data, char* to,
     vtkMPICommunicatorGatherVData(data, to, 
                                   sendlength, recvlengths, offsets,
                                   root, MPI_CHAR, 
-                                  this->Comm->Handle));
+                                  this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::GatherV(float* data, float* to, 
@@ -1004,7 +1000,7 @@ int vtkMPICommunicator::GatherV(float* data, float* to,
     vtkMPICommunicatorGatherVData(data, to, 
                                   sendlength, recvlengths, offsets,
                                   root, MPI_FLOAT, 
-                                  this->Comm->Handle));
+                                  this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::GatherV(double* data, double* to,
@@ -1016,7 +1012,7 @@ int vtkMPICommunicator::GatherV(double* data, double* to,
     vtkMPICommunicatorGatherVData(data, to, 
                                   sendlength, recvlengths, offsets,
                                   root, MPI_DOUBLE, 
-                                  this->Comm->Handle));
+                                  this->MPIComm->Handle));
 }
 
 //----------------------------------------------------------------------------
@@ -1025,7 +1021,7 @@ int vtkMPICommunicator::AllGather(int* data, int* to, int length)
 
   return CheckForMPIError(
     vtkMPICommunicatorAllGatherData(data, to, length, MPI_INT, 
-                                 this->Comm->Handle));
+                                 this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::AllGather(unsigned long* data, unsigned long* to, 
@@ -1034,7 +1030,7 @@ int vtkMPICommunicator::AllGather(unsigned long* data, unsigned long* to,
 
   return CheckForMPIError(
     vtkMPICommunicatorAllGatherData(data, to, length, MPI_UNSIGNED_LONG, 
-                                 this->Comm->Handle));
+                                 this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::AllGather(char* data, char* to, int length)
@@ -1042,7 +1038,7 @@ int vtkMPICommunicator::AllGather(char* data, char* to, int length)
 
   return CheckForMPIError(
     vtkMPICommunicatorAllGatherData(data, to, length, MPI_CHAR, 
-                                 this->Comm->Handle));
+                                 this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::AllGather(float* data, float* to, int length)
@@ -1050,7 +1046,7 @@ int vtkMPICommunicator::AllGather(float* data, float* to, int length)
 
   return CheckForMPIError(
     vtkMPICommunicatorAllGatherData(data, to, length, MPI_FLOAT, 
-                                 this->Comm->Handle));
+                                 this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::AllGather(double* data, double* to, int length)
@@ -1058,7 +1054,7 @@ int vtkMPICommunicator::AllGather(double* data, double* to, int length)
 
   return CheckForMPIError(
     vtkMPICommunicatorAllGatherData(data, to, length, MPI_DOUBLE, 
-                                 this->Comm->Handle));
+                                 this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::AllGatherV(int* data, int* to, 
@@ -1069,7 +1065,7 @@ int vtkMPICommunicator::AllGatherV(int* data, int* to,
   return CheckForMPIError(
     vtkMPICommunicatorAllGatherVData(data, to, 
                                   sendlength, recvlengths, offsets,
-                                  MPI_INT, this->Comm->Handle));
+                                  MPI_INT, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::AllGatherV(unsigned long* data, unsigned long* to, 
@@ -1081,7 +1077,7 @@ int vtkMPICommunicator::AllGatherV(unsigned long* data, unsigned long* to,
     vtkMPICommunicatorAllGatherVData(data, to, 
                                   sendlength, recvlengths, offsets,
                                   MPI_UNSIGNED_LONG, 
-                                  this->Comm->Handle));
+                                  this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::AllGatherV(char* data, char* to,
@@ -1093,7 +1089,7 @@ int vtkMPICommunicator::AllGatherV(char* data, char* to,
     vtkMPICommunicatorAllGatherVData(data, to, 
                                   sendlength, recvlengths, offsets,
                                   MPI_CHAR, 
-                                  this->Comm->Handle));
+                                  this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::AllGatherV(float* data, float* to, 
@@ -1105,7 +1101,7 @@ int vtkMPICommunicator::AllGatherV(float* data, float* to,
     vtkMPICommunicatorAllGatherVData(data, to, 
                                   sendlength, recvlengths, offsets,
                                   MPI_FLOAT, 
-                                  this->Comm->Handle));
+                                  this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::AllGatherV(double* data, double* to,
@@ -1117,7 +1113,7 @@ int vtkMPICommunicator::AllGatherV(double* data, double* to,
     vtkMPICommunicatorAllGatherVData(data, to, 
                                   sendlength, recvlengths, offsets,
                                   MPI_DOUBLE, 
-                                     this->Comm->Handle));
+                                  this->MPIComm->Handle));
 }
 
 
@@ -1129,16 +1125,16 @@ int vtkMPICommunicator::ReduceMax(int* data, int* to,
   return CheckForMPIError(
     vtkMPICommunicatorReduceData(data, to, 
                                  root, sendlength, MPI_INT, 
-                                 MPI_MAX, this->Comm->Handle));
+                                 MPI_MAX, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
-int vtkMPICommunicator::ReduceMax(long* data, long* to,
+int vtkMPICommunicator::ReduceMax(unsigned long* data, unsigned long* to,
                                   int sendlength, int root)
 {
   return CheckForMPIError(
     vtkMPICommunicatorReduceData(data, to, 
                                  root, sendlength, MPI_LONG, 
-                                 MPI_MAX, this->Comm->Handle));
+                                 MPI_MAX, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::ReduceMax(float* data, float* to,
@@ -1147,7 +1143,7 @@ int vtkMPICommunicator::ReduceMax(float* data, float* to,
   return CheckForMPIError(
     vtkMPICommunicatorReduceData(data, to,
                                  root, sendlength, MPI_FLOAT, 
-                                 MPI_MAX, this->Comm->Handle));
+                                 MPI_MAX, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::ReduceMax(double* data, double* to,
@@ -1156,7 +1152,7 @@ int vtkMPICommunicator::ReduceMax(double* data, double* to,
   return CheckForMPIError(
     vtkMPICommunicatorReduceData(data, to,
                                  root, sendlength, MPI_DOUBLE, 
-                                 MPI_MAX, this->Comm->Handle));
+                                 MPI_MAX, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::ReduceMin(int* data, int* to,
@@ -1165,16 +1161,16 @@ int vtkMPICommunicator::ReduceMin(int* data, int* to,
   return CheckForMPIError(
     vtkMPICommunicatorReduceData(data, to,
                                  root, sendlength, MPI_INT, 
-                                 MPI_MIN, this->Comm->Handle));
+                                 MPI_MIN, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
-int vtkMPICommunicator::ReduceMin(long* data, long* to,
+int vtkMPICommunicator::ReduceMin(unsigned long* data, unsigned long* to,
                                   int sendlength, int root)
 {
   return CheckForMPIError(
     vtkMPICommunicatorReduceData(data, to, 
                                  root, sendlength, MPI_LONG, 
-                                 MPI_MIN, this->Comm->Handle));
+                                 MPI_MIN, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::ReduceMin(float* data, float* to,
@@ -1183,7 +1179,7 @@ int vtkMPICommunicator::ReduceMin(float* data, float* to,
   return CheckForMPIError(
     vtkMPICommunicatorReduceData(data, to,
                                  root, sendlength, MPI_FLOAT, 
-                                 MPI_MIN, this->Comm->Handle));
+                                 MPI_MIN, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::ReduceMin(double* data, double* to,
@@ -1192,7 +1188,7 @@ int vtkMPICommunicator::ReduceMin(double* data, double* to,
   return CheckForMPIError(
     vtkMPICommunicatorReduceData(data, to,
                                  root, sendlength, MPI_DOUBLE, 
-                                 MPI_MIN, this->Comm->Handle));
+                                 MPI_MIN, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::ReduceSum(int* data, int* to,
@@ -1201,16 +1197,16 @@ int vtkMPICommunicator::ReduceSum(int* data, int* to,
   return CheckForMPIError(
     vtkMPICommunicatorReduceData(data, to,
                                  root, sendlength, MPI_INT, 
-                                 MPI_SUM, this->Comm->Handle));
+                                 MPI_SUM, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
-int vtkMPICommunicator::ReduceSum(long* data, long* to,
+int vtkMPICommunicator::ReduceSum(unsigned long* data, unsigned long* to,
                                   int sendlength, int root)
 {
   return CheckForMPIError(
     vtkMPICommunicatorReduceData(data, to, 
                                  root, sendlength, MPI_LONG, 
-                                 MPI_SUM, this->Comm->Handle));
+                                 MPI_SUM, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::ReduceSum(float* data, float* to,
@@ -1219,7 +1215,7 @@ int vtkMPICommunicator::ReduceSum(float* data, float* to,
   return CheckForMPIError(
     vtkMPICommunicatorReduceData(data, to,
                                  root, sendlength, MPI_FLOAT, 
-                                 MPI_SUM, this->Comm->Handle));
+                                 MPI_SUM, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::ReduceSum(double* data, double* to,
@@ -1228,7 +1224,7 @@ int vtkMPICommunicator::ReduceSum(double* data, double* to,
   return CheckForMPIError(
     vtkMPICommunicatorReduceData(data, to,
                                  root, sendlength, MPI_DOUBLE, 
-                                 MPI_SUM, this->Comm->Handle));
+                                 MPI_SUM, this->MPIComm->Handle));
 }
 //----------------------------------------------------------------------------
 // There is no MPI data type bool in the C binding of MPI 
@@ -1252,7 +1248,7 @@ int vtkMPICommunicator::ReduceAnd(bool* data, bool* to,
   int err = CheckForMPIError(
     vtkMPICommunicatorReduceData(intsbuffer, intrbuffer,
                                  root, size, MPI_INT, 
-                                 MPI_LAND, this->Comm->Handle));
+                                 MPI_LAND, this->MPIComm->Handle));
 
   for (i = 0; i < size; ++i)
     {
@@ -1283,7 +1279,7 @@ int vtkMPICommunicator::ReduceOr(bool* data, bool* to,
   int err = CheckForMPIError(
     vtkMPICommunicatorReduceData(intsbuffer, intrbuffer,
                                  root, size, MPI_INT, 
-                                 MPI_LOR, this->Comm->Handle));
+                                 MPI_LOR, this->MPIComm->Handle));
 
   for (i = 0; i < size; ++i)
     {

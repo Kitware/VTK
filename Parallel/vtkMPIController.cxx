@@ -65,9 +65,9 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.19");
+vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.20");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.19");
+vtkCxxRevisionMacro(vtkMPIController, "1.20");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------
@@ -113,7 +113,7 @@ int vtkMPIController::InitializeNumberOfProcesses()
   this->Modified();
 
   vtkMPICommunicator* comm = (vtkMPICommunicator*)this->Communicator;
-  if ( (err = MPI_Comm_size(*(comm->Comm->Handle), 
+  if ( (err = MPI_Comm_size(*(comm->MPIComm->Handle), 
                             &(this->MaximumNumberOfProcesses))) 
        != MPI_SUCCESS  )
     {
@@ -131,7 +131,7 @@ int vtkMPIController::InitializeNumberOfProcesses()
   
   this->NumberOfProcesses = this->MaximumNumberOfProcesses;
   
-  if ( (err = MPI_Comm_rank(*(comm->Comm->Handle),&(this->LocalProcessId))) 
+  if ( (err = MPI_Comm_rank(*(comm->MPIComm->Handle),&(this->LocalProcessId))) 
        != MPI_SUCCESS)
     {
     char *msg = vtkMPIController::ErrorString(err);
@@ -228,7 +228,7 @@ void vtkMPIController::InitializeCommunicator(vtkMPICommunicator* comm)
       this->Communicator->Register(this); 
       } 
 
-    if (comm && comm->Comm->Handle)
+    if (comm && comm->MPIComm->Handle)
       {
       this->InitializeNumberOfProcesses();
       }
@@ -265,7 +265,7 @@ void vtkMPIController::Barrier()
 {
   vtkMPICommunicator* comm = (vtkMPICommunicator*)this->Communicator;
   int err;
-  if ( (err = MPI_Barrier(*(comm->Comm->Handle)) ) 
+  if ( (err = MPI_Barrier(*(comm->MPIComm->Handle)) ) 
        != MPI_SUCCESS ) 
     {
     char *msg = vtkMPIController::ErrorString(err);

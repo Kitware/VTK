@@ -51,10 +51,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.18");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.19");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.18");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.19");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -180,7 +180,7 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
     }
   else
     {
-    os << "(nil)" << endl;
+    os << "(none)" << endl;
     }
   os << indent << "Communicator: ";
   if (this->Communicator)
@@ -190,7 +190,7 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
     }
   else
     {
-    os << "(nil)" << endl;
+    os << "(none)" << endl;
     }
   os << indent << "RMI communicator: ";
   if (this->RMICommunicator)
@@ -200,7 +200,7 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
     }
   else
     {
-    os << "(nil)" << endl;
+    os << "(none)" << endl;
     }
   os << indent << "RMIs: \n";
   

@@ -224,17 +224,17 @@ public:
 // Description:
   // Reduce an array to the given root process.  
   int ReduceMax(int* data, int* to, int size, int root);
-  int ReduceMax(long* data, long* to, int size, int root);
+  int ReduceMax(unsigned long* data, unsigned long* to, int size, int root);
   int ReduceMax(float* data, float* to, int size, int root);
   int ReduceMax(double* data, double* to, int size, int root);
 
   int ReduceMin(int* data, int* to, int size, int root);
-  int ReduceMin(long* data, long* to, int size, int root);
+  int ReduceMin(unsigned long* data, unsigned long* to, int size, int root);
   int ReduceMin(float* data, float* to, int size, int root);
   int ReduceMin(double* data, double* to, int size, int root);
 
   int ReduceSum(int* data, int* to, int size, int root);
-  int ReduceSum(long* data, long* to, int size, int root);
+  int ReduceSum(unsigned long* data, unsigned long* to, int size, int root);
   int ReduceSum(float* data, float* to, int size, int root);
   int ReduceSum(double* data, double* to, int size, int root);
 
@@ -246,11 +246,7 @@ public:
 
   friend class vtkMPIController;
 
-  vtkMPICommunicatorOpaqueComm* GetMPIComm()
-    {
-      return this->Comm;
-    }
-
+  vtkGetObjectMacro(MPIComm,vtkMPICommunicatorOpaqueComm);
 //ETX
 
   static char* Allocate(size_t size);
@@ -298,7 +294,7 @@ protected:
   // if the tags are the same.
   void Duplicate(vtkMPICommunicator* source);
 
-  vtkMPICommunicatorOpaqueComm* Comm;
+  vtkMPICommunicatorOpaqueComm* MPIComm;
   vtkMPIGroup* Group;
 
   int Initialized;
@@ -311,9 +307,4 @@ private:
   void operator=(const vtkMPICommunicator&);  // Not implemented.
 };
 
-
-#endif //  __vtkMPICommunicator_h
-
-
-
-
+#endif
