@@ -140,15 +140,35 @@ void vtkImageDotProduct::ThreadedExecute(vtkImageData **inData,
 		<< ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inData[0]->GetScalarType() != outData->GetScalarType() ||
-      inData[1]->GetScalarType() != outData->GetScalarType())
+  if (inData[0]->GetScalarType() != outData->GetScalarType())
     {
-      vtkErrorMacro(<< "Execute: input ScalarType, " << 
-      inData[0]->GetScalarType()
-      << ", must match out ScalarType " << outData->GetScalarType());
-      return;
+    vtkErrorMacro(<< "Execute: input1 ScalarType, "
+                  <<  inData[0]->GetScalarType()
+                  << ", must match output ScalarType "
+                  << outData->GetScalarType());
+    return;
     }
   
+  if (inData[1]->GetScalarType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input2 ScalarType, "
+                  << inData[1]->GetScalarType()
+                  << ", must match output ScalarType "
+                  << outData->GetScalarType());
+    return;
+    }
+  
+  // this filter expects that inputs that have the same number of components
+  if (inData[0]->GetNumberOfScalarComponents() != 
+      inData[1]->GetNumberOfScalarComponents())
+    {
+    vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
+                  << inData[0]->GetNumberOfScalarComponents()
+                  << ", must match out input2 NumberOfScalarComponents "
+                  << inData[1]->GetNumberOfScalarComponents());
+    return;
+    }
+
   switch (inData[0]->GetScalarType())
     {
     case VTK_FLOAT:
