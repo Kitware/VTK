@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.30");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.31");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -45,6 +45,9 @@ vtkFunctionParser::vtkFunctionParser()
   this->VariableMTime.Modified();
   this->ParseMTime.Modified();
   this->FunctionMTime.Modified();
+
+  this->ReplaceInvalidValues = 0;
+  this->ReplacementValue = 0.0;
 }
 
 vtkFunctionParser::~vtkFunctionParser() 
@@ -495,11 +498,22 @@ void vtkFunctionParser::Evaluate()
       case VTK_PARSER_DIVIDE:
         if (this->Stack[stackPosition]==0)
           {
-          vtkErrorMacro("Trying to divide by zero");
-          return;
+          if (this->ReplaceInvalidValues)
+            {
+            this->Stack[stackPosition-1] = this->ReplacementValue;
+            stackPosition--;
+            }
+          else
+            {
+            vtkErrorMacro("Trying to divide by zero");
+            return;
+            }
           }
-        this->Stack[stackPosition-1] /= this->Stack[stackPosition];
-        stackPosition--;
+        else
+          {
+          this->Stack[stackPosition-1] /= this->Stack[stackPosition];
+          stackPosition--;
+          }
         break;
       case VTK_PARSER_POWER:
         this->Stack[stackPosition-1] = pow(this->Stack[stackPosition-1],
@@ -521,35 +535,75 @@ void vtkFunctionParser::Evaluate()
       case VTK_PARSER_LOGARITHM:
         if (this->Stack[stackPosition]<=0)
           {
-          vtkErrorMacro("Trying to take a logarithm of a negative value");
-          return;
+          if (this->ReplaceInvalidValues)
+            {
+            this->Stack[stackPosition] = this->ReplacementValue;
+            }
+          else
+            {
+            vtkErrorMacro("Trying to take a logarithm of a negative value");
+            return;
+            }
           }
-        this->Stack[stackPosition] = log(this->Stack[stackPosition]);
+        else
+          {
+          this->Stack[stackPosition] = log(this->Stack[stackPosition]);
+          }
         break;
       case VTK_PARSER_LOGARITHME:
         if (this->Stack[stackPosition]<=0)
           {
-          vtkErrorMacro("Trying to take a logarithm of a negative value");
-          return;
+          if (this->ReplaceInvalidValues)
+            {
+            this->Stack[stackPosition] = this->ReplacementValue;
+            }
+          else
+            {
+            vtkErrorMacro("Trying to take a logarithm of a negative value");
+            return;
+            }
           }
-        this->Stack[stackPosition] = log(this->Stack[stackPosition]);
+        else
+          {
+          this->Stack[stackPosition] = log(this->Stack[stackPosition]);
+          }
         break;
       case VTK_PARSER_LOGARITHM10:
         if (this->Stack[stackPosition]<=0)
           {
-          vtkErrorMacro("Trying to take a logarithm of a negative value");
-          return;
+          if (this->ReplaceInvalidValues)
+            {
+            this->Stack[stackPosition] = this->ReplacementValue;
+            }
+          else
+            {
+            vtkErrorMacro("Trying to take a logarithm of a negative value");
+            return;
+            }
           }
-        this->Stack[stackPosition] = 
-          log(this->Stack[stackPosition])/log((double)10);
+        else
+          {
+          this->Stack[stackPosition] = 
+            log(this->Stack[stackPosition])/log((double)10);
+          }
         break;
       case VTK_PARSER_SQUARE_ROOT:
         if (this->Stack[stackPosition] < 0)
           {
-          vtkErrorMacro("Trying to take a square root of a negative value");
-          return;
+          if (this->ReplaceInvalidValues)
+            {
+            this->Stack[stackPosition] = this->ReplacementValue;
+            }
+          else
+            {
+            vtkErrorMacro("Trying to take a square root of a negative value");
+            return;
+            }
           }
-        this->Stack[stackPosition] = sqrt(this->Stack[stackPosition]);
+        else
+          {
+          this->Stack[stackPosition] = sqrt(this->Stack[stackPosition]);
+          }
         break;
       case VTK_PARSER_SINE:
         this->Stack[stackPosition] = sin(this->Stack[stackPosition]);
@@ -563,18 +617,38 @@ void vtkFunctionParser::Evaluate()
       case VTK_PARSER_ARCSINE:
         if (this->Stack[stackPosition] < -1 || this->Stack[stackPosition] > 1)
           {
-          vtkErrorMacro("Trying to take asin of a value < -1 or > 1");
-          return;
+          if (this->ReplaceInvalidValues)
+            {
+            this->Stack[stackPosition] = this->ReplacementValue;
+            }
+          else
+            {
+            vtkErrorMacro("Trying to take asin of a value < -1 or > 1");
+            return;
+            }
           }
-        this->Stack[stackPosition] = asin(this->Stack[stackPosition]);
+        else
+          {
+          this->Stack[stackPosition] = asin(this->Stack[stackPosition]);
+          }
         break;
       case VTK_PARSER_ARCCOSINE:
         if(this->Stack[stackPosition]<-1 || this->Stack[stackPosition]>1)
           {
-          vtkErrorMacro("Trying to take acos of a value < -1 or > 1");
-          return;
+          if (this->ReplaceInvalidValues)
+            {
+            this->Stack[stackPosition] = this->ReplacementValue;
+            }
+          else
+            {
+            vtkErrorMacro("Trying to take acos of a value < -1 or > 1");
+            return;
+            }
           }
-        this->Stack[stackPosition] = acos(this->Stack[stackPosition]);
+        else
+          {
+          this->Stack[stackPosition] = acos(this->Stack[stackPosition]);
+          }
         break;
       case VTK_PARSER_ARCTANGENT:
         this->Stack[stackPosition] = atan(this->Stack[stackPosition]);

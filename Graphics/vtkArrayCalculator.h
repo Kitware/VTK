@@ -141,6 +141,17 @@ public:
   vtkGetMacro(NumberOfScalarArrays, int);
   vtkGetMacro(NumberOfVectorArrays, int);
   
+  // Description:
+  // When ReplaceInvalidValues is on, all invalid values (such as
+  // sqrt(-2), note that function parser does not handle complex
+  // numbers) will be replaced by ReplacementValue. Otherwise an
+  // error will be reported
+  vtkSetMacro(ReplaceInvalidValues,int);
+  vtkGetMacro(ReplaceInvalidValues,int);
+  vtkBooleanMacro(ReplaceInvalidValues,int);
+  vtkSetMacro(ReplacementValue,double);
+  vtkGetMacro(ReplacementValue,double);
+
 protected:
   vtkArrayCalculator();
   ~vtkArrayCalculator();
@@ -159,6 +170,10 @@ protected:
   int* SelectedScalarComponents;
   int** SelectedVectorComponents;
   vtkFunctionParser* FunctionParser;
+
+  int ReplaceInvalidValues;
+  double ReplacementValue;
+
 private:
   vtkArrayCalculator(const vtkArrayCalculator&);  // Not implemented.
   void operator=(const vtkArrayCalculator&);  // Not implemented.

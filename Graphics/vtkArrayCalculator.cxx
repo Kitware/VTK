@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.29");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.30");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -43,6 +43,9 @@ vtkArrayCalculator::vtkArrayCalculator()
   this->AttributeMode = VTK_ATTRIBUTE_MODE_DEFAULT;
   this->SelectedScalarComponents = NULL;
   this->SelectedVectorComponents = NULL;
+
+  this->ReplaceInvalidValues = 0;
+  this->ReplacementValue = 0.0;
 }
 
 vtkArrayCalculator::~vtkArrayCalculator()
@@ -174,7 +177,10 @@ int vtkArrayCalculator::RequestData(
   vtkDoubleArray* resultArray;
   vtkIdType numTuples;
   double scalarResult[1];
-  
+
+  this->FunctionParser->SetReplaceInvalidValues(this->ReplaceInvalidValues);
+  this->FunctionParser->SetReplacementValue(this->ReplacementValue);
+
   if (this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT)
     {
     inFD = inPD;

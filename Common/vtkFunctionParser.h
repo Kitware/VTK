@@ -168,6 +168,17 @@ public:
   // Description:
   // Remove all the current variables.
   void RemoveAllVariables();
+
+  // Description:
+  // When ReplaceInvalidValues is on, all invalid values (such as
+  // sqrt(-2), note that function parser does not handle complex
+  // numbers) will be replaced by ReplacementValue. Otherwise an
+  // error will be reported
+  vtkSetMacro(ReplaceInvalidValues,int);
+  vtkGetMacro(ReplaceInvalidValues,int);
+  vtkBooleanMacro(ReplaceInvalidValues,int);
+  vtkSetMacro(ReplacementValue,double);
+  vtkGetMacro(ReplacementValue,double);
   
 protected:
   vtkFunctionParser();
@@ -222,6 +233,10 @@ protected:
   vtkTimeStamp ParseMTime;
   vtkTimeStamp VariableMTime;
   vtkTimeStamp EvaluateMTime;
+
+  int ReplaceInvalidValues;
+  double ReplacementValue;
+
 private:
   vtkFunctionParser(const vtkFunctionParser&);  // Not implemented.
   void operator=(const vtkFunctionParser&);  // Not implemented.
