@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.26");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.27");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -65,6 +65,7 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->OutlineActor = vtkActor::New();
   this->OutlineActor->SetMapper(this->OutlineMapper);
   this->OutlineTranslation = 1;
+  this->ScaleEnabled = 1;
   
   this->Cutter = vtkCutter::New();
   this->Cutter->SetInput(this->Box);
@@ -432,6 +433,8 @@ void vtkImplicitPlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tubing: " << (this->Tubing ? "On" : "Off") << "\n";
   os << indent << "Outline Translation: " 
      << (this->OutlineTranslation ? "On" : "Off") << "\n";
+  os << indent << "Scale Enabled: " 
+     << (this->ScaleEnabled ? "On" : "Off") << "\n";
   os << indent << "Draw Plane: " << (this->DrawPlane ? "On" : "Off") << "\n";
 }
 
@@ -621,40 +624,43 @@ void vtkImplicitPlaneWidget::OnMiddleButtonUp()
 
 void vtkImplicitPlaneWidget::OnRightButtonDown()
 {
-  this->State = vtkImplicitPlaneWidget::Scaling;
-
-  int X = this->Interactor->GetEventPosition()[0];
-  int Y = this->Interactor->GetEventPosition()[1];
-
-  // Okay, we can process this. See if we've picked anything.
-  // Make sure it's in the activated renderer
-  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
+  if ( this->ScaleEnabled )
     {
-    this->State = vtkImplicitPlaneWidget::Outside;
-    return;
-    }
-  
-  // Okay, we can process this. Try to pick handles first;
-  // if no handles picked, then pick the bounding box.
-  vtkAssemblyPath *path;
-  this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->Picker->GetPath();
-  if ( path == NULL ) //nothing picked
-    {
-    this->State = vtkImplicitPlaneWidget::Outside;
-    return;
-    }
+    this->State = vtkImplicitPlaneWidget::Scaling;
 
-  this->ValidPick = 1;
-  this->Picker->GetPickPosition(this->LastPickPosition);
-  this->HighlightPlane(1);
-  this->HighlightOutline(1);
-  this->HighlightNormal(1);
+    int X = this->Interactor->GetEventPosition()[0];
+    int Y = this->Interactor->GetEventPosition()[1];
 
-  this->EventCallbackCommand->SetAbortFlag(1);
-  this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-  this->Interactor->Render();
+    // Okay, we can process this. See if we've picked anything.
+    // Make sure it's in the activated renderer
+    if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
+      {
+      this->State = vtkImplicitPlaneWidget::Outside;
+      return;
+      }
+    
+    // Okay, we can process this. Try to pick handles first;
+    // if no handles picked, then pick the bounding box.
+    vtkAssemblyPath *path;
+    this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
+    path = this->Picker->GetPath();
+    if ( path == NULL ) //nothing picked
+      {
+      this->State = vtkImplicitPlaneWidget::Outside;
+      return;
+      }
+
+    this->ValidPick = 1;
+    this->Picker->GetPickPosition(this->LastPickPosition);
+    this->HighlightPlane(1);
+    this->HighlightOutline(1);
+    this->HighlightNormal(1);
+
+    this->EventCallbackCommand->SetAbortFlag(1);
+    this->StartInteraction();
+    this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    this->Interactor->Render();
+  }
 }
 
 void vtkImplicitPlaneWidget::OnRightButtonUp()

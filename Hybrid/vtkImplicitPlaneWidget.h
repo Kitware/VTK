@@ -155,6 +155,11 @@ public:
   vtkSetMacro(OutlineTranslation,int);
   vtkGetMacro(OutlineTranslation,int);
   vtkBooleanMacro(OutlineTranslation,int);
+  // Description:
+  // Turn on/off the ability to scale with the mouse 
+  vtkSetMacro(ScaleEnabled,int);
+  vtkGetMacro(ScaleEnabled,int);
+  vtkBooleanMacro(ScaleEnabled,int);
 
   // Description:
   // Grab the polydata that defines the plane. The polydata contains a single
@@ -177,6 +182,10 @@ public:
   // Satisfies the superclass API.  This will change the state of the widget
   // to match changes that have been made to the underlying PolyDataSource
   void UpdatePlacement(void);
+
+  // Description:
+  // Control widget appearance
+  virtual void SizeHandles();
 
   // Description:
   // Get the properties on the normal (line and cone).
@@ -247,6 +256,7 @@ protected:
   vtkActor          *OutlineActor;
   void HighlightOutline(int highlight);
   int OutlineTranslation; //whether the outline can be moved
+  int ScaleEnabled; //whether the widget can be scaled 
   
   // The cut plane is produced with a vtkCutter
   vtkCutter         *Cutter;
@@ -315,7 +325,6 @@ protected:
   void CreateDefaultProperties();
   
   void GeneratePlane();
-  virtual void SizeHandles();
   
 private:
   vtkImplicitPlaneWidget(const vtkImplicitPlaneWidget&);  //Not implemented
