@@ -7,24 +7,6 @@ CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h.in
                ${VTK_BINARY_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h)
 ADD_EXECUTABLE(vtkpython vtkPythonAppInit.cxx)
 
-# Choose a python library to link.
-IF (APPLE)
-  OPTION(VTK_HAVE_FRAMEWORK_PYTHON "The system has Python installed by default (Mac OSX 10.2)" OFF)
-  IF (VTK_HAVE_FRAMEWORK_PYTHON)
-    TARGET_LINK_LIBRARIES (vtkpython "-framework Python")
-  ELSE (VTK_HAVE_FRAMEWORK_PYTHON)
-    TARGET_LINK_LIBRARIES (vtkpython ${PYTHON_LIBRARY})
-  ENDIF (VTK_HAVE_FRAMEWORK_PYTHON)
-ELSE (APPLE)
-  IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtkpython
-                           debug ${PYTHON_DEBUG_LIBRARY}
-                           optimized ${PYTHON_LIBRARY})
-  ELSE(WIN32)
-    TARGET_LINK_LIBRARIES (vtkpython ${PYTHON_LIBRARY})
-  ENDIF(WIN32)
-ENDIF (APPLE)
-
 # Link against all the kit wrappers.
 TARGET_LINK_LIBRARIES (vtkpython
   vtkCommonPython
