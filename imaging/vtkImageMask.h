@@ -102,6 +102,9 @@ protected:
   int MaskedOutputValueLength;
   int NotMask;
   
+  void ExecuteInformation(vtkImageData **inDatas, 
+			  vtkImageData *outData);
+  
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
 };

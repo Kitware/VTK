@@ -311,6 +311,32 @@ void vtkImageMask::ThreadedExecute(vtkImageData **inData,
     }
 }
 
+//----------------------------------------------------------------------------
+// The output extent is the intersection.
+void vtkImageMask::ExecuteInformation(vtkImageData **inDatas, 
+				      vtkImageData *outData)
+{
+  int ext[6], *ext2, idx;
+
+  inDatas[0]->GetWholeExtent(ext);
+  ext2 = this->GetInput(1)->GetWholeExtent();
+  for (idx = 0; idx < 3; ++idx)
+    {
+    if (ext2[idx*2] > ext[idx*2])
+      {
+      ext[idx*2] = ext2[idx*2];
+      }
+    if (ext2[idx*2+1] < ext[idx*2+1])
+      {
+      ext[idx*2+1] = ext2[idx*2+1];
+      }
+    }
+  
+  outData->SetWholeExtent(ext);
+}
+
+
+
 
 void vtkImageMask::PrintSelf(ostream& os, vtkIndent indent)
 {
