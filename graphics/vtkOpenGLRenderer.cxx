@@ -420,7 +420,7 @@ void vtkOpenGLRenderer::DonePick()
   glFlush();
   GLuint hits = glRenderMode(GL_RENDER); 
   unsigned int depth = (unsigned int)-1;
-  unsigned int* ptr = this->PickInfo->PickBuffer;
+  GLuint* ptr = this->PickInfo->PickBuffer;
   this->PickInfo->PickedID = 0;
   for(unsigned int k =0; k < hits; k++)
     {
