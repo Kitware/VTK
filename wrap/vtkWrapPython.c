@@ -204,13 +204,6 @@ void do_return(FILE *fp)
       fprintf(fp,"        return Py_None;\n        }\n");
       fprintf(fp,"      tempH = vtkPythonGetObjectFromPointer((void *)temp%i);\n",
 	      MAX_ARGS);
-      fprintf(fp,"      if (!tempH)\n        {\n");
-      fprintf(fp,"        if ((tempH = PyObject_NEW(PyObject, &Py%sType)) == NULL)\n",
-	      currentFunction->ReturnClass);
-      fprintf(fp,"            return NULL;\n");
-      fprintf(fp,"        vtkPythonAddObjectToHash(tempH,(void *)temp%i,(void *)%s_Typecast);\n",
-	      MAX_ARGS, currentFunction->ReturnClass);
-      fprintf(fp,"        ((vtkObject *)((void *)temp%i))->Register(NULL);\n        }\n",MAX_ARGS);
       fprintf(fp,"      Py_INCREF(tempH);\n");
       fprintf(fp,"      return tempH;\n");
       break;
@@ -247,15 +240,6 @@ void do_return(FILE *fp)
 		      MAX_ARGS); break;
     }
 }
-
-void handle_vtkobj_return(FILE *fp)
-{
-  fprintf(fp,"extern void *%s_Typecast(void *,char *);\n",
-	  currentFunction->ReturnClass);
-  fprintf(fp,"extern PyTypeObject Py%sType;\n",
-	  currentFunction->ReturnClass);
-}
-
 
 char *get_format_string()
 {
@@ -352,12 +336,6 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	  first = 0;
 	  break;
 	  }
-	}
-      /* this is the first time this type has been returned */
-      if (first)
-	{
-	fprintf(fp,"\n");
-	handle_vtkobj_return(fp);
 	}
       }
     }
@@ -658,32 +636,6 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 	    data->SuperClasses[i]);
     }
   
-  fprintf(fp,"extern PyTypeObject Py%sType;\n\n",data->ClassName);
-  
-  
-  for (i = 0; i < data->NumberOfSuperClasses; i++)
-    {
-    fprintf(fp,"extern void *%s_Typecast(void *op,char *dType);\n",
-	    data->SuperClasses[i]);
-    }
-  
-  fprintf(fp,"\nvoid *%s_Typecast(void *me,char *dType)\n",data->ClassName);
-  fprintf(fp,"{\n");
-  fprintf(fp,"  if (!strcmp(\"%s\",dType))\n    {\n", data->ClassName);
-  fprintf(fp,"    return me;\n    }\n  else\n    {\n");
-  
-  /* check our superclasses */
-  for (i = 0; i < data->NumberOfSuperClasses; i++)
-    {
-    fprintf(fp,"    if (%s_Typecast(((void *)((%s *)me)),dType) != NULL)\n",
-	    data->SuperClasses[i],data->SuperClasses[i]);
-    fprintf(fp,"      {\n");
-    fprintf(fp,"      return %s_Typecast(((void *)((%s *)me)),dType);\n      }\n",
-	    data->SuperClasses[i], data->SuperClasses[i]);
-    
-    }
-  fprintf(fp,"    }\n  return NULL;\n}\n\n");
-
   if (!strcmp("vtkObject",data->ClassName))
     {
     /* while we are at it spit out the GetStringFromObject method */
@@ -779,13 +731,21 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
           data->ClassName);
   fprintf(fp,"  {\n");
   fprintf(fp,"  PyObject *obj;\n\n");
-  fprintf(fp,"  if ((obj = PyObject_NEW(PyObject, &Py%sType)) == NULL)\n",
-          data->ClassName);
-  fprintf(fp,"    return NULL;\n\n");
-  fprintf(fp,"  vtkPythonAddObjectToHash(obj,(void *)(%s::New()),(void *)%s_Typecast);\n",
-          data->ClassName, data->ClassName);
-  fprintf(fp,"  return obj;\n}\n\n");
-	  
+  if (data->NumberOfSuperClasses == 0 &&
+      strcmp(data->ClassName,"vtkObject") != 0) 
+    {
+    fprintf(fp,"  PyErr_SetString(PyExc_RuntimeError,\"The %s is not derived from vtkObject and is therefore not available through Python\");\n  obj = 0;\n\n",data->ClassName);
+    }
+  else
+    {
+    fprintf(fp,"  if ((obj = PyObject_NEW(PyObject, &Py%sType)) == NULL)\n",
+	    data->ClassName);
+    fprintf(fp,"    return NULL;\n\n");
+    fprintf(fp,"  vtkPythonAddObjectToHash(obj,(void *)(%s::New()));\n",
+	    data->ClassName);
+    }
+  fprintf(fp,"  return obj;\n}\n\n");	
+  
   fprintf(fp,"static PyMethodDef Py%s_ClassMethods[] = {\n",data->ClassName);
   fprintf(fp,"  {\"New\", (PyCFunction)Py%s_PyNew},\n",data->ClassName);
   fprintf(fp,"  {NULL, NULL}\n};\n\n");
@@ -793,7 +753,9 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   /* output the class initilization function */
   fprintf(fp,"extern \"C\" { void init%s();}\n",data->ClassName);
   fprintf(fp,"void init%s()\n{\n",data->ClassName);
-  fprintf(fp,"  Py_InitModule(\"%s\", Py%s_ClassMethods);\n}\n\n",
+  fprintf(fp,"  Py_InitModule(\"%s\", Py%s_ClassMethods);\n",
+	  data->ClassName, data->ClassName);
+  fprintf(fp,"  vtkPythonAddTypeToHash(&Py%sType,\"%s\");\n}\n\n",
 	  data->ClassName, data->ClassName);
 }
 

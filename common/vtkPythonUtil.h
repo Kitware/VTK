@@ -40,16 +40,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkObject.h"
+#include "vtkTimeStamp.h"
 #include "Python.h"
 
-extern char *vtkPythonManglePointer(void *ptr, const char *type);
-extern void *vtkPythonUnmanglePointer(char *ptrText, int *len, const char *type);
-extern void *vtkPythonGetPointerFromObject(PyObject *obj,char *result_type);
+extern void vtkPythonAddTypeToHash(PyTypeObject *typeObject, char *type); 
+extern void *vtkPythonGetPointerFromObject(PyObject *obj, char *type);
 extern PyObject *vtkPythonGetObjectFromPointer(void *ptr);
-extern void vtkPythonAddObjectToHash(PyObject *obj, void *anInstance,
-				   void *tcFunc);
+extern void vtkPythonAddObjectToHash(PyObject *obj, void *anInstance);
 extern void vtkPythonDeleteObjectFromHash(PyObject *obj);
+
+extern char *vtkPythonManglePointer(void *ptr, const char *type);
+extern void *vtkPythonUnmanglePointer(char *ptrText, int *len,
+				      const char *type);
 
 extern void vtkPythonVoidFunc(void *);
 extern void vtkPythonVoidFuncArgDelete(void *);
+
 

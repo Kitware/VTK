@@ -45,123 +45,198 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //#define VTKPYTHONDEBUG
 
-class vtkHashNode 
+//--------------------------------------------------------------------
+class vtkPythonUtil
 {
 public:
-  vtkHashNode *next;
-  void *key;
-  void *value;
+  vtkPythonUtil();
+  ~vtkPythonUtil();
+
+  PyObject *InstanceDict;
+  PyObject *PointerDict;
+  PyObject *TypeDict;
 };
 
+//--------------------------------------------------------------------
+vtkPythonUtil *vtkPythonHash = NULL;
 
-class vtkHashTable
+//--------------------------------------------------------------------
+vtkPythonUtil::vtkPythonUtil()
 {
-public:
-  vtkHashTable();
-  vtkHashNode *(nodes[64]);
-  void AddHashEntry(void *key,void *value);
-  void *GetHashTableValue(void *key);
-  void DeleteHashEntry(void *key);
-};
-
-vtkHashTable::vtkHashTable()
-{
-  int i;
-  for (i = 0; i < 64; i++)
-    {
-    this->nodes[i] = NULL;
-    }
+  this->InstanceDict = PyDict_New();
+  this->PointerDict = PyDict_New();
+  this->TypeDict = PyDict_New();
 }
 
-vtkHashTable *vtkInstanceLookup = NULL;
-vtkHashTable *vtkPointerLookup = NULL;
-vtkHashTable *vtkTypecastLookup = NULL;
-
-void vtkHashTable::AddHashEntry(void *key,void *value)
+//--------------------------------------------------------------------
+vtkPythonUtil::~vtkPythonUtil()
 {
-  vtkHashNode *pos;
-  vtkHashNode *newpos;
-  int loc;
-  
-  newpos = new vtkHashNode;
-  newpos->key = key;
-  newpos->value = value;
-  newpos->next = NULL;
-  
-  loc = (((unsigned long)key) & 0x03f0) / 16;
-  
-  pos = this->nodes[loc];
-  if (!pos)
+  Py_DECREF(this->InstanceDict);
+  Py_DECREF(this->PointerDict);
+  Py_DECREF(this->TypeDict);
+}
+
+//--------------------------------------------------------------------
+void vtkPythonAddTypeToHash(PyTypeObject *typeObject, char *type)
+{
+  if (vtkPythonHash == NULL)
     {
-    this->nodes[loc] = newpos;
+    vtkPythonHash = new vtkPythonUtil();
+    }
+
+#ifdef VTKPYTHONDEBUG
+  vtkGenericWarningMacro("Adding an type " << type << " to hash ptr");
+#endif  
+
+  // lets make sure it isn't already there
+  if (PyDict_GetItemString(vtkPythonHash->TypeDict,type))
+    {
+#ifdef VTKPYTHONDEBUG
+    vtkGenericWarningMacro("Attempt to add type to the hash when already there!!!");
+#endif
     return;
     }
-  while (pos->next)
+
+  PyObject *pyType = PyInt_FromLong((long)typeObject);
+  PyDict_SetItemString(vtkPythonHash->TypeDict,type,pyType);
+  Py_DECREF(pyType);
+
+#ifdef VTKPYTHONDEBUG
+  vtkGenericWarningMacro("Added type to hash type = " << typeObject);
+#endif  
+}  
+
+//--------------------------------------------------------------------
+void vtkPythonAddObjectToHash(PyObject *obj, void *ptr)
+{
+  if (vtkPythonHash == NULL)
     {
-    pos = pos->next;
+    vtkPythonHash = new vtkPythonUtil();
     }
-  pos->next = newpos;
+
+#ifdef VTKPYTHONDEBUG
+  vtkGenericWarningMacro("Adding an object to hash ptr = " << ptr);
+#endif  
+
+  // lets make sure it isn't already there
+  if (PyDict_GetItem(vtkPythonHash->InstanceDict,obj))
+    {
+#ifdef VTKPYTHONDEBUG
+    vtkGenericWarningMacro("Attempt to add an object to the hash when one already exists!!!");
+#endif
+    return;
+    }
+
+  PyObject *pyPtr = PyInt_FromLong((long)ptr);
+
+  PyDict_SetItem(vtkPythonHash->InstanceDict,obj,pyPtr);
+  PyDict_SetItem(vtkPythonHash->PointerDict,pyPtr,obj);
+
+  Py_DECREF(pyPtr);
+
+#ifdef VTKPYTHONDEBUG
+  vtkGenericWarningMacro("Added object to hash obj= " << obj << " " << ptr);
+#endif  
+}  
+
+//--------------------------------------------------------------------
+void vtkPythonDeleteObjectFromHash(PyObject *obj)
+{
+  PyObject *pyPtr = PyDict_GetItem(vtkPythonHash->InstanceDict,obj);
+
+  if (pyPtr == NULL)
+    {
+    PyErr_Clear();
+#ifdef VTKPYTHONDEBUG
+    vtkGenericWarningMacro("Attempt to delete an object that doesnt exist!!!");
+#endif  
+    return;
+    }
+
+  PyDict_DelItem(vtkPythonHash->InstanceDict,obj);
+  PyDict_DelItem(vtkPythonHash->PointerDict,pyPtr);
 }
 
-void *vtkHashTable::GetHashTableValue(void *key)
+//--------------------------------------------------------------------
+PyObject *vtkPythonGetObjectFromPointer(void *ptr)
 {
-  vtkHashNode *pos;
-  int loc = (((unsigned long)key) & 0x03f0) / 16;
+#ifdef VTKPYTHONDEBUG
+  vtkGenericWarningMacro("Checking into pointer " << ptr);
+#endif
   
-  pos = this->nodes[loc];
+  PyObject *pyPtr = PyInt_FromLong((long)ptr);
+  PyObject *obj = PyDict_GetItem(vtkPythonHash->PointerDict,pyPtr);
+  Py_DECREF(pyPtr);
 
-  if (!pos)
+#ifdef VTKPYTHONDEBUG
+  vtkGenericWarningMacro("Checking into pointer " << ptr << " obj = " << obj);
+#endif
+
+  if (obj == 0)
     {
+    PyObject *pyType = PyDict_GetItemString(vtkPythonHash->TypeDict,
+			     (char *)((vtkObject *)ptr)->GetClassName());
+    PyTypeObject *typeObject = (PyTypeObject *)PyInt_AsLong(pyType);
+    obj = PyObject_NEW(PyObject, typeObject);
+    if (obj == NULL)
+      {
+      return NULL;
+      }
+    vtkPythonAddObjectToHash(obj,ptr);
+    ((vtkObject *)ptr)->Register(NULL);
+    }
+
+  return obj;
+}
+
+//--------------------------------------------------------------------
+void *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
+{  
+  PyObject *pyPtr = PyDict_GetItem(vtkPythonHash->InstanceDict,obj);
+
+  if (!pyPtr)
+    {
+    PyErr_Clear();
     return NULL;
     }
-  while ((pos)&&(pos->key != key))
-    {
-    pos = pos->next;
-    }
-  if (pos)
-    {
-    return pos->value;
-    }
-  return NULL;
-}
-
-void vtkHashTable::DeleteHashEntry(void *key)
-{
-  vtkHashNode *pos;
-  vtkHashNode *prev = NULL;
-  int loc = (((unsigned long)key) & 0x03f0) / 16;
   
-  pos = this->nodes[loc];
+  void *ptr = (void *)PyInt_AsLong(pyPtr);
 
-  while ((pos)&&(pos->key != key))
+#ifdef VTKPYTHONDEBUG
+  vtkGenericWarningMacro("Checking into obj " << obj << " ptr = " << ptr);
+#endif  
+
+  if (((vtkObject *)ptr)->IsA(result_type))
     {
-    prev = pos;
-    pos = pos->next;
+#ifdef VTKPYTHONDEBUG
+    vtkGenericWarningMacro("Got obj= " << obj << " ptr= " << ptr << " " << result_type);
+#endif  
+    return ptr;
     }
-  if (pos)
+  else
     {
-    // we found this object
-    if (prev)
-      {
-      prev->next = pos->next;
-      }
-    else
-      {
-      this->nodes[loc] = pos->next;
-      }
-    delete pos;
+    char error_string[256];
+#ifdef VTKPYTHONDEBUG
+    vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
+#endif
+    sprintf(error_string,"method requires a %s object, a %s object was provided.",
+	    result_type,((vtkObject *)ptr)->GetClassName());
+    PyErr_SetString(PyExc_ValueError,error_string);
+    return NULL;
     }
 }
 
+//--------------------------------------------------------------------
 // mangle a void pointer into a SWIG-style string
 char *vtkPythonManglePointer(void *ptr, const char *type)
 {
   static char ptrText[128];
   sprintf(ptrText,"_%*.*lx_%s",(int)sizeof(void *),(int)sizeof(void *),
-	  ptr,type);
+	  (long)ptr,type);
   return ptrText;
 }
 
+//--------------------------------------------------------------------
 // unmangle a void pointer from a SWIG-style string
 void *vtkPythonUnmanglePointer(char *ptrText, int *len, const char *type)
 {
@@ -170,7 +245,7 @@ void *vtkPythonUnmanglePointer(char *ptrText, int *len, const char *type)
   char typeCheck[128];
   if (*len < 128)
     {
-    i = sscanf(ptrText,"_%lx_%s",&ptr,typeCheck);
+    i = sscanf(ptrText,"_%lx_%s",(long *)&ptr,typeCheck);
     if (strcmp(type,typeCheck) == 0)
       { // sucessfully unmangle
       *len = 0;
@@ -187,112 +262,7 @@ void *vtkPythonUnmanglePointer(char *ptrText, int *len, const char *type)
   return (void *)ptrText;
 }
 
-// add an object to the hash table
-void vtkPythonAddObjectToHash(PyObject *obj, void *ptr, void *tcFunc)
-{ 
-  if (!vtkInstanceLookup)
-    {
-    vtkInstanceLookup = new vtkHashTable;
-    vtkTypecastLookup = new vtkHashTable;
-    vtkPointerLookup = new vtkHashTable;
-    }
-
-#ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Adding an object to hash ptr = " << ptr);
-#endif  
-  // lets make sure it isn't already there
-  if (vtkInstanceLookup->GetHashTableValue((void *)obj))
-    {
-#ifdef VTKPYTHONDEBUG
-    vtkGenericWarningMacro("Attempt to add an object to the hash when one already exists!!!");
-#endif
-    return;
-    }
-
-  vtkInstanceLookup->AddHashEntry((void *)obj,ptr);
-  vtkTypecastLookup->AddHashEntry((void *)obj,tcFunc);
-  vtkPointerLookup->AddHashEntry(ptr,(void *)obj);
-
-#ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Added object to hash obj= " << obj << " " << ptr);
-#endif  
-}
-
-
-// delete an object from the hash
-// doesn't need a mutex because it is only called from within
-// the above func which does have a mutex
-void vtkPythonDeleteObjectFromHash(PyObject *obj)
-{
-  void *ptr;
-  
-  ptr = vtkInstanceLookup->GetHashTableValue((void *)obj);
-  if (!ptr) 
-    {
-#ifdef VTKPYTHONDEBUG
-    vtkGenericWarningMacro("Attempt to delete an object that doesnt exist!!!");
-#endif  
-    return;
-    }
-  vtkInstanceLookup->DeleteHashEntry((void *)obj);
-  vtkTypecastLookup->DeleteHashEntry((void *)obj);
-  vtkPointerLookup->DeleteHashEntry(ptr);
-}
-
-PyObject *vtkPythonGetObjectFromPointer(void *ptr)
-{
-  PyObject *obj;
-
-#ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Checking into pointer " << ptr);
-#endif  
-  obj = (PyObject *)vtkPointerLookup->GetHashTableValue((void *)ptr);
-#ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Checking into pointer " << ptr << " obj = " << obj);
-#endif  
-  return obj;
-}
-
-void *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
-{
-  void *ptr;
-  void *result;
-  void *(*command)(void *,char *);
-  
-  ptr = vtkInstanceLookup->GetHashTableValue((void *)obj);
-  command = 
-    (void *(*)(void *,char *))vtkTypecastLookup->GetHashTableValue((void *)obj);
-  
-#ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Checking into obj " << obj << " ptr = " << ptr);
-#endif  
-
-  if (!ptr)
-    {
-    return NULL;
-    }
-  
-  result = command(ptr,result_type);
-  if (result)
-    {
-#ifdef VTKPYTHONDEBUG
-    vtkGenericWarningMacro("Got obj= " << obj << " ptr= " << ptr << " " << result_type);
-#endif  
-    return result;
-    }
-  else
-    {
-    char error_string[256];
-#ifdef VTKPYTHONDEBUG
-    vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
-#endif
-    sprintf(error_string,"method requires a %s object, a %s object was provided.",
-	    result_type,((vtkObject *)ptr)->GetClassName());
-    PyErr_SetString(PyExc_ValueError,error_string);
-    return NULL;
-    }
-}
-
+//--------------------------------------------------------------------
 void vtkPythonVoidFunc(void *arg)
 {
   PyObject *arglist, *result;
@@ -313,6 +283,7 @@ void vtkPythonVoidFunc(void *arg)
     }
 }
 
+//--------------------------------------------------------------------
 void vtkPythonVoidFuncArgDelete(void *arg)
 {
   PyObject *func = (PyObject *)arg;
@@ -321,3 +292,4 @@ void vtkPythonVoidFuncArgDelete(void *arg)
     Py_DECREF(func);
     }
 }
+  
