@@ -327,8 +327,8 @@ protected:
 
   vtkDataObject();
   ~vtkDataObject();
-  vtkDataObject(const vtkDataObject&) {};
-  void operator=(const vtkDataObject&) {};
+  vtkDataObject(const vtkDataObject&);
+  void operator=(const vtkDataObject&);
 
   // General field data associated with data object      
   vtkFieldData  *FieldData;  

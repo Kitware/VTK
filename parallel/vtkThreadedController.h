@@ -106,8 +106,8 @@ protected:
 
   vtkThreadedController();
   ~vtkThreadedController();
-  vtkThreadedController(const vtkThreadedController&) {};
-  void operator=(const vtkThreadedController&) {};
+  vtkThreadedController(const vtkThreadedController&);
+  void operator=(const vtkThreadedController&);
   
   void CreateProcessControllers();
   

@@ -114,8 +114,8 @@ public:
 protected:
   vtkProgrammableSource();
   ~vtkProgrammableSource();
-  vtkProgrammableSource(const vtkProgrammableSource&) {};
-  void operator=(const vtkProgrammableSource&) {};
+  vtkProgrammableSource(const vtkProgrammableSource&);
+  void operator=(const vtkProgrammableSource&);
 
   void Execute();
 

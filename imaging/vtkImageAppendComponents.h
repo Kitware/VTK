@@ -73,8 +73,8 @@ public:
 protected:
   vtkImageAppendComponents() {};
   ~vtkImageAppendComponents() {};
-  vtkImageAppendComponents(const vtkImageAppendComponents&) {};
-  void operator=(const vtkImageAppendComponents&) {};
+  vtkImageAppendComponents(const vtkImageAppendComponents&);
+  void operator=(const vtkImageAppendComponents&);
   
   void ExecuteInformation(vtkImageData **inputs, vtkImageData *output);
   void ExecuteInformation(){this->vtkImageMultipleInputFilter::ExecuteInformation();};

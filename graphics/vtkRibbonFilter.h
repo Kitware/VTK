@@ -109,8 +109,8 @@ public:
 protected:
   vtkRibbonFilter();
   ~vtkRibbonFilter() {};
-  vtkRibbonFilter(const vtkRibbonFilter&) {};
-  void operator=(const vtkRibbonFilter&) {};
+  vtkRibbonFilter(const vtkRibbonFilter&);
+  void operator=(const vtkRibbonFilter&);
 
   void Execute();
   float Width;

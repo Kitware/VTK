@@ -165,8 +165,8 @@ public:
 protected:
   vtkPolyDataConnectivityFilter();
   ~vtkPolyDataConnectivityFilter();
-  vtkPolyDataConnectivityFilter(const vtkPolyDataConnectivityFilter&) {};
-  void operator=(const vtkPolyDataConnectivityFilter&) {};
+  vtkPolyDataConnectivityFilter(const vtkPolyDataConnectivityFilter&);
+  void operator=(const vtkPolyDataConnectivityFilter&);
 
   // Usual data generation method
   void Execute();

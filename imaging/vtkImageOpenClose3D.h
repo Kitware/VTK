@@ -127,8 +127,8 @@ public:
 protected:
   vtkImageOpenClose3D();
   ~vtkImageOpenClose3D();
-  vtkImageOpenClose3D(const vtkImageOpenClose3D&) {};
-  void operator=(const vtkImageOpenClose3D&) {};
+  vtkImageOpenClose3D(const vtkImageOpenClose3D&);
+  void operator=(const vtkImageOpenClose3D&);
   
   vtkImageDilateErode3D *Filter0;
   vtkImageDilateErode3D *Filter1;

@@ -204,8 +204,8 @@ public:
 protected:
   vtkHyperStreamline();
   ~vtkHyperStreamline();
-  vtkHyperStreamline(const vtkHyperStreamline&) {};
-  void operator=(const vtkHyperStreamline&) {};
+  vtkHyperStreamline(const vtkHyperStreamline&);
+  void operator=(const vtkHyperStreamline&);
 
   // Integrate data
   void Execute();

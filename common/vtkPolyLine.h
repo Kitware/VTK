@@ -128,8 +128,8 @@ public:
 protected:
   vtkPolyLine();
   ~vtkPolyLine();
-  vtkPolyLine(const vtkPolyLine&) {};
-  void operator=(const vtkPolyLine&) {};
+  vtkPolyLine(const vtkPolyLine&);
+  void operator=(const vtkPolyLine&);
 
   vtkLine *Line;
 

@@ -59,8 +59,8 @@ public:
 protected:
   vtkImageMagnitude() {};
   ~vtkImageMagnitude() {};
-  vtkImageMagnitude(const vtkImageMagnitude&) {};
-  void operator=(const vtkImageMagnitude&) {};
+  vtkImageMagnitude(const vtkImageMagnitude&);
+  void operator=(const vtkImageMagnitude&);
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};

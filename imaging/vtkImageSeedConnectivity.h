@@ -100,8 +100,8 @@ public:
 protected:
   vtkImageSeedConnectivity();
   ~vtkImageSeedConnectivity();
-  vtkImageSeedConnectivity(const vtkImageSeedConnectivity&) {};
-  void operator=(const vtkImageSeedConnectivity&) {};
+  vtkImageSeedConnectivity(const vtkImageSeedConnectivity&);
+  void operator=(const vtkImageSeedConnectivity&);
 
   unsigned char InputConnectValue;
   unsigned char OutputConnectedValue;

@@ -69,8 +69,8 @@ public:
 protected:
   vtkPlaneCollection() {};
   ~vtkPlaneCollection() {};
-  vtkPlaneCollection(const vtkPlaneCollection&) {};
-  void operator=(const vtkPlaneCollection&) {};
+  vtkPlaneCollection(const vtkPlaneCollection&);
+  void operator=(const vtkPlaneCollection&);
   
 
 private:

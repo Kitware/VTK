@@ -156,8 +156,8 @@ public:
 protected:
   vtkRuledSurfaceFilter();
   ~vtkRuledSurfaceFilter();
-  vtkRuledSurfaceFilter(const vtkRuledSurfaceFilter&) {};
-  void operator=(const vtkRuledSurfaceFilter&) {};
+  vtkRuledSurfaceFilter(const vtkRuledSurfaceFilter&);
+  void operator=(const vtkRuledSurfaceFilter&);
 
   // Usual data generation method
   void Execute();

@@ -106,8 +106,8 @@ public:
 protected:
   vtkProjectedTexture();
   ~vtkProjectedTexture() {};
-  vtkProjectedTexture(const vtkProjectedTexture&) {};
-  void operator=(const vtkProjectedTexture&) {};
+  vtkProjectedTexture(const vtkProjectedTexture&);
+  void operator=(const vtkProjectedTexture&);
 
   void Execute();
   void ComputeNormal();

@@ -112,8 +112,8 @@ public:
 protected:
   vtkImplicitTextureCoords();
   ~vtkImplicitTextureCoords();
-  vtkImplicitTextureCoords(const vtkImplicitTextureCoords&) {};
-  void operator=(const vtkImplicitTextureCoords&) {};
+  vtkImplicitTextureCoords(const vtkImplicitTextureCoords&);
+  void operator=(const vtkImplicitTextureCoords&);
 
   void Execute();
 

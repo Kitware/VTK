@@ -76,8 +76,8 @@ public:
 protected:
   vtkExtractEdges();
   ~vtkExtractEdges();
-  vtkExtractEdges(const vtkExtractEdges&) {};
-  void operator=(const vtkExtractEdges&) {};
+  vtkExtractEdges(const vtkExtractEdges&);
+  void operator=(const vtkExtractEdges&);
 
   // Usual data generation method
   void Execute();

@@ -202,8 +202,8 @@ public:
 protected:
   vtkCellLocator();
   ~vtkCellLocator();
-  vtkCellLocator(const vtkCellLocator&) {};
-  void operator=(const vtkCellLocator&) {};
+  vtkCellLocator(const vtkCellLocator&);
+  void operator=(const vtkCellLocator&);
 
   void GetBucketNeighbors(int ijk[3], int ndivs, int level);
   void GetOverlappingBuckets(float x[3], int ijk[3], float dist, 

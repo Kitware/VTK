@@ -136,8 +136,8 @@ public:
 protected:
   vtkDicer();
   ~vtkDicer() {};
-  vtkDicer(const vtkDicer&) {};
-  void operator=(const vtkDicer&) {};
+  vtkDicer(const vtkDicer&);
+  void operator=(const vtkDicer&);
 
   virtual void UpdatePieceMeasures();
 

@@ -60,8 +60,8 @@ public:
 protected:
   vtkOutlineFilter();
   ~vtkOutlineFilter();
-  vtkOutlineFilter(const vtkOutlineFilter&) {};
-  void operator=(const vtkOutlineFilter&) {};
+  vtkOutlineFilter(const vtkOutlineFilter&);
+  void operator=(const vtkOutlineFilter&);
 
   vtkOutlineSource *OutlineSource;
   void Execute();

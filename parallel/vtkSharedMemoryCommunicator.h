@@ -146,8 +146,8 @@ protected:
 
   vtkSharedMemoryCommunicator();
   ~vtkSharedMemoryCommunicator();
-  vtkSharedMemoryCommunicator(const vtkSharedMemoryCommunicator&) {};
-  void operator=(const vtkSharedMemoryCommunicator&) {};
+  vtkSharedMemoryCommunicator(const vtkSharedMemoryCommunicator&);
+  void operator=(const vtkSharedMemoryCommunicator&);
 
   // The generic send and receive methods.
   int Send(vtkDataObject* object, void *data, int dataLength, 

@@ -136,8 +136,8 @@ protected:
 
   vtkMPIGroup();
   ~vtkMPIGroup();
-  vtkMPIGroup(const vtkMPIGroup&) {};
-  void operator=(const vtkMPIGroup&) {};
+  vtkMPIGroup(const vtkMPIGroup&);
+  void operator=(const vtkMPIGroup&);
 
 };
 

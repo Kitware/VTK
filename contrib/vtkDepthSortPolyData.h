@@ -152,8 +152,8 @@ public:
 protected:
   vtkDepthSortPolyData();
   ~vtkDepthSortPolyData();
-  vtkDepthSortPolyData(const vtkDepthSortPolyData&) {};
-  void operator=(const vtkDepthSortPolyData&) {};
+  vtkDepthSortPolyData(const vtkDepthSortPolyData&);
+  void operator=(const vtkDepthSortPolyData&);
 
   void Execute();
   void ComputeProjectionVector(double vector[3], double origin[3]);

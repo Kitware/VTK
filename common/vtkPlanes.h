@@ -123,8 +123,8 @@ public:
 protected:
   vtkPlanes();
   ~vtkPlanes();
-  vtkPlanes(const vtkPlanes&) {};
-  void operator=(const vtkPlanes&) {};
+  vtkPlanes(const vtkPlanes&);
+  void operator=(const vtkPlanes&);
 
   vtkPoints *Points;
   vtkDataArray *Normals;

@@ -155,8 +155,8 @@ public:
 protected:
   vtkSource();
   ~vtkSource();
-  vtkSource(const vtkSource&) {};
-  void operator=(const vtkSource&) {};
+  vtkSource(const vtkSource&);
+  void operator=(const vtkSource&);
 
   // Description:
   // This method is the one that should be used by subclasses, right now the 

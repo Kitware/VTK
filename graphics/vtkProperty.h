@@ -224,8 +224,8 @@ public:
 protected:
   vtkProperty();
   ~vtkProperty() {};
-  vtkProperty(const vtkProperty&) {};
-  void operator=(const vtkProperty&) {};
+  vtkProperty(const vtkProperty&);
+  void operator=(const vtkProperty&);
 
   float Color[3];
   float AmbientColor[3];

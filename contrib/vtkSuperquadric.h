@@ -129,8 +129,8 @@ public:
 protected:
   vtkSuperquadric();
   ~vtkSuperquadric() {};
-  vtkSuperquadric(const vtkSuperquadric&) {};
-  void operator=(const vtkSuperquadric&) {};
+  vtkSuperquadric(const vtkSuperquadric&);
+  void operator=(const vtkSuperquadric&);
 
   int Toroidal;
   float Thickness;

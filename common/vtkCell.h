@@ -316,8 +316,8 @@ public:
 protected:
   vtkCell();
   ~vtkCell();
-  vtkCell(const vtkCell&) {};
-  void operator=(const vtkCell&) {};
+  vtkCell(const vtkCell&);
+  void operator=(const vtkCell&);
 
   float Bounds[6];
 };

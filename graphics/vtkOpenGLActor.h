@@ -66,8 +66,8 @@ public:
 protected:
   vtkOpenGLActor() {};
   ~vtkOpenGLActor() {};
-  vtkOpenGLActor(const vtkOpenGLActor&) {};
-  void operator=(const vtkOpenGLActor&) {};
+  vtkOpenGLActor(const vtkOpenGLActor&);
+  void operator=(const vtkOpenGLActor&);
 
 };
 

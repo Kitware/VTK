@@ -107,8 +107,8 @@ public:
 protected:
   vtkBYUReader();
   ~vtkBYUReader();
-  vtkBYUReader(const vtkBYUReader&) {};
-  void operator=(const vtkBYUReader&) {};
+  vtkBYUReader(const vtkBYUReader&);
+  void operator=(const vtkBYUReader&);
 
   void Execute();
   // This source does not know how to generate pieces yet.

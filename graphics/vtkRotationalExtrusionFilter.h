@@ -125,8 +125,8 @@ public:
 protected:
   vtkRotationalExtrusionFilter();
   ~vtkRotationalExtrusionFilter() {};
-  vtkRotationalExtrusionFilter(const vtkRotationalExtrusionFilter&) {};
-  void operator=(const vtkRotationalExtrusionFilter&) {};
+  vtkRotationalExtrusionFilter(const vtkRotationalExtrusionFilter&);
+  void operator=(const vtkRotationalExtrusionFilter&);
 
   void Execute();
   int Resolution;

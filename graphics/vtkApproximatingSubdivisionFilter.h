@@ -68,8 +68,8 @@ public:
 protected:
   vtkApproximatingSubdivisionFilter();
   ~vtkApproximatingSubdivisionFilter() {};
-  vtkApproximatingSubdivisionFilter(const vtkApproximatingSubdivisionFilter&) {};
-  void operator=(const vtkApproximatingSubdivisionFilter&) {};
+  vtkApproximatingSubdivisionFilter(const vtkApproximatingSubdivisionFilter&);
+  void operator=(const vtkApproximatingSubdivisionFilter&);
 
   void Execute();
   virtual void GenerateSubdivisionPoints (vtkPolyData *inputDS,

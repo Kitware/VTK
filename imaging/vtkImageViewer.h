@@ -135,8 +135,8 @@ public:
 protected:
   vtkImageViewer();
   ~vtkImageViewer();
-  vtkImageViewer(const vtkImageViewer&) {};
-  void operator=(const vtkImageViewer&) {};
+  vtkImageViewer(const vtkImageViewer&);
+  void operator=(const vtkImageViewer&);
 
   vtkImageMapper *ImageMapper;
   vtkImageWindow *ImageWindow;

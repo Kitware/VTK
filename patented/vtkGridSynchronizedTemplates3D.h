@@ -171,8 +171,8 @@ public:
 protected:
   vtkGridSynchronizedTemplates3D();
   ~vtkGridSynchronizedTemplates3D();
-  vtkGridSynchronizedTemplates3D(const vtkGridSynchronizedTemplates3D&) {};
-  void operator=(const vtkGridSynchronizedTemplates3D&) {};
+  vtkGridSynchronizedTemplates3D(const vtkGridSynchronizedTemplates3D&);
+  void operator=(const vtkGridSynchronizedTemplates3D&);
 
   int ComputeNormals;
   int ComputeGradients;

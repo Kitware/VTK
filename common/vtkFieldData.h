@@ -321,8 +321,8 @@ protected:
 
   vtkFieldData();
   ~vtkFieldData();
-  vtkFieldData(const vtkFieldData&) {};
-  void operator=(const vtkFieldData&) {};
+  vtkFieldData(const vtkFieldData&);
+  void operator=(const vtkFieldData&);
 
   int NumberOfArrays;
   int NumberOfActiveArrays;

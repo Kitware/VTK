@@ -187,8 +187,8 @@ public:
 protected:
   vtkImageToPolyDataFilter();
   ~vtkImageToPolyDataFilter();
-  vtkImageToPolyDataFilter(const vtkImageToPolyDataFilter&) {};
-  void operator=(const vtkImageToPolyDataFilter&) {};
+  vtkImageToPolyDataFilter(const vtkImageToPolyDataFilter&);
+  void operator=(const vtkImageToPolyDataFilter&);
 
   void Execute();
 

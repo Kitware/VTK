@@ -206,8 +206,8 @@ protected:
   int ScreenMapped;
   vtkMesaRenderWindow();
   ~vtkMesaRenderWindow();
-  vtkMesaRenderWindow(const vtkMesaRenderWindow&) {};
-  void operator=(const vtkMesaRenderWindow&) {};
+  vtkMesaRenderWindow(const vtkMesaRenderWindow&);
+  void operator=(const vtkMesaRenderWindow&);
 
   vtkIdList *TextureResourceIds;
 };

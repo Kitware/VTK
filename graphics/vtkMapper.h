@@ -324,8 +324,8 @@ public:
 protected:
   vtkMapper();
   ~vtkMapper();
-  vtkMapper(const vtkMapper&) {};
-  void operator=(const vtkMapper&) {};
+  vtkMapper(const vtkMapper&);
+  void operator=(const vtkMapper&);
 
   vtkScalars *Colors;
 

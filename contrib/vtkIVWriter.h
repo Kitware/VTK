@@ -62,8 +62,8 @@ public:
 protected:
   vtkIVWriter() {};
   ~vtkIVWriter() {};
-  vtkIVWriter(const vtkIVWriter&) {};
-  void operator=(const vtkIVWriter&) {};
+  vtkIVWriter(const vtkIVWriter&);
+  void operator=(const vtkIVWriter&);
 
   void WriteData();
   void WritePolyData(vtkPolyData *polyData, FILE *fp);

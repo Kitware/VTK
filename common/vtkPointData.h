@@ -63,8 +63,8 @@ public:
 protected:
   vtkPointData() {};
   ~vtkPointData() {};
-  vtkPointData(const vtkPointData&) {};
-  void operator=(const vtkPointData&) {};
+  vtkPointData(const vtkPointData&);
+  void operator=(const vtkPointData&);
   
 };
 

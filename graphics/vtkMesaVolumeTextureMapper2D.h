@@ -77,8 +77,8 @@ public:
 protected:
   vtkMesaVolumeTextureMapper2D();
   ~vtkMesaVolumeTextureMapper2D();
-  vtkMesaVolumeTextureMapper2D(const vtkMesaVolumeTextureMapper2D&) {};
-  void operator=(const vtkMesaVolumeTextureMapper2D&) {};
+  vtkMesaVolumeTextureMapper2D(const vtkMesaVolumeTextureMapper2D&);
+  void operator=(const vtkMesaVolumeTextureMapper2D&);
 
 };
 

@@ -172,8 +172,8 @@ public:
 protected:
   vtkVolumeMapper();
   ~vtkVolumeMapper();
-  vtkVolumeMapper(const vtkVolumeMapper&) {};
-  void operator=(const vtkVolumeMapper&) {};
+  vtkVolumeMapper(const vtkVolumeMapper&);
+  void operator=(const vtkVolumeMapper&);
 
   int                  Cropping;
   float                CroppingRegionPlanes[6];

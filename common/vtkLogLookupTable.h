@@ -63,8 +63,8 @@ public:
 protected:
   vtkLogLookupTable(int sze=256, int ext=256);
   ~vtkLogLookupTable() {};
-  vtkLogLookupTable(const vtkLogLookupTable&) {};
-  void operator=(const vtkLogLookupTable&) {};
+  vtkLogLookupTable(const vtkLogLookupTable&);
+  void operator=(const vtkLogLookupTable&);
 };
 
 #endif

@@ -87,8 +87,8 @@ public:
 protected:
   vtkImageSinusoidSource();
   ~vtkImageSinusoidSource() {};
-  vtkImageSinusoidSource(const vtkImageSinusoidSource&) {};
-  void operator=(const vtkImageSinusoidSource&) {};
+  vtkImageSinusoidSource(const vtkImageSinusoidSource&);
+  void operator=(const vtkImageSinusoidSource&);
 
   int WholeExtent[6];
   float Direction[3];

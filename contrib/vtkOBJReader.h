@@ -67,8 +67,8 @@ public:
 protected:
   vtkOBJReader();
   ~vtkOBJReader();
-  vtkOBJReader(const vtkOBJReader&) {};
-  void operator=(const vtkOBJReader&) {};
+  vtkOBJReader(const vtkOBJReader&);
+  void operator=(const vtkOBJReader&);
   
   void Execute();
 

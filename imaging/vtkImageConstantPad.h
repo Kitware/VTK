@@ -71,8 +71,8 @@ public:
 protected:
   vtkImageConstantPad();
   ~vtkImageConstantPad() {};
-  vtkImageConstantPad(const vtkImageConstantPad&) {};
-  void operator=(const vtkImageConstantPad&) {};
+  vtkImageConstantPad(const vtkImageConstantPad&);
+  void operator=(const vtkImageConstantPad&);
 
   float Constant;
   

@@ -66,8 +66,8 @@ public:
 protected:
   vtkMesaActor() {};
   ~vtkMesaActor() {};
-  vtkMesaActor(const vtkMesaActor&) {};
-  void operator=(const vtkMesaActor&) {};
+  vtkMesaActor(const vtkMesaActor&);
+  void operator=(const vtkMesaActor&);
 
 };
 

@@ -97,8 +97,8 @@ public:
 protected:
   vtkVectorNorm();
   ~vtkVectorNorm() {};
-  vtkVectorNorm(const vtkVectorNorm&) {};
-  void operator=(const vtkVectorNorm&) {};
+  vtkVectorNorm(const vtkVectorNorm&);
+  void operator=(const vtkVectorNorm&);
 
   void Execute();
 

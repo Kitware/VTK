@@ -136,8 +136,8 @@ public:
 protected:
   vtkCGMWriter();
   ~vtkCGMWriter();
-  vtkCGMWriter(const vtkCGMWriter&) {};
-  void operator=(const vtkCGMWriter&) {};
+  vtkCGMWriter(const vtkCGMWriter&);
+  void operator=(const vtkCGMWriter&);
   void WriteData();
 
   vtkViewport *Viewport;

@@ -171,8 +171,8 @@ public:
 protected:
   vtkImageWindow();
   ~vtkImageWindow();
-  vtkImageWindow(const vtkImageWindow&) {};
-  void operator=(const vtkImageWindow&) {};
+  vtkImageWindow(const vtkImageWindow&);
+  void operator=(const vtkImageWindow&);
 
   vtkImagerCollection *Imagers;
   int WindowCreated;

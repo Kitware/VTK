@@ -73,8 +73,8 @@ public:
 protected:
   vtkStructuredPoints();
   ~vtkStructuredPoints() {};
-  vtkStructuredPoints(const vtkStructuredPoints&) {};
-  void operator=(const vtkStructuredPoints&) {};
+  vtkStructuredPoints(const vtkStructuredPoints&);
+  void operator=(const vtkStructuredPoints&);
 };
 
 #endif

@@ -305,8 +305,8 @@ public:
 protected:
   vtkImageReslice();
   ~vtkImageReslice();
-  vtkImageReslice(const vtkImageReslice&) {};
-  void operator=(const vtkImageReslice&) {};
+  vtkImageReslice(const vtkImageReslice&);
+  void operator=(const vtkImageReslice&);
 
   vtkMatrix4x4 *ResliceAxes;
   double ResliceAxesDirectionCosines[9];

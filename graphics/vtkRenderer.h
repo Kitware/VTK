@@ -337,8 +337,8 @@ public:
 protected:
   vtkRenderer();
   ~vtkRenderer();
-  vtkRenderer(const vtkRenderer&) {};
-  void operator=(const vtkRenderer&) {};
+  vtkRenderer(const vtkRenderer&);
+  void operator=(const vtkRenderer&);
 
   // internal method for doing a render for picking purposes
   virtual void PickRender(vtkPropCollection *props);

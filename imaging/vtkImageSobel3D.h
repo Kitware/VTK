@@ -65,8 +65,8 @@ public:
 protected:
   vtkImageSobel3D();
   ~vtkImageSobel3D() {};
-  vtkImageSobel3D(const vtkImageSobel3D&) {};
-  void operator=(const vtkImageSobel3D&) {};
+  vtkImageSobel3D(const vtkImageSobel3D&);
+  void operator=(const vtkImageSobel3D&);
 
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int outExt[6], int id);

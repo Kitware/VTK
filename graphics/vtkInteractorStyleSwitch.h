@@ -94,8 +94,8 @@ public:
 protected:
   vtkInteractorStyleSwitch();
   ~vtkInteractorStyleSwitch();
-  vtkInteractorStyleSwitch(const vtkInteractorStyleSwitch&) {};
-  void operator=(const vtkInteractorStyleSwitch&) {};
+  vtkInteractorStyleSwitch(const vtkInteractorStyleSwitch&);
+  void operator=(const vtkInteractorStyleSwitch&);
   
   vtkInteractorStyleJoystickActor *JoystickActor;
   vtkInteractorStyleJoystickCamera *JoystickCamera;

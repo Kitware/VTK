@@ -64,8 +64,8 @@ public:
 protected:
   vtkProcessStatistics();
   ~vtkProcessStatistics() {};
-  vtkProcessStatistics(const vtkProcessStatistics&) {};
-  void operator=(const vtkProcessStatistics&) {};
+  vtkProcessStatistics(const vtkProcessStatistics&);
+  void operator=(const vtkProcessStatistics&);
 
   
 };

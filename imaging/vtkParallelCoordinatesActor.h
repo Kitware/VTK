@@ -169,8 +169,8 @@ public:
 protected:
   vtkParallelCoordinatesActor();
   ~vtkParallelCoordinatesActor();
-  vtkParallelCoordinatesActor(const vtkParallelCoordinatesActor&) {};
-  void operator=(const vtkParallelCoordinatesActor&) {};
+  vtkParallelCoordinatesActor(const vtkParallelCoordinatesActor&);
+  void operator=(const vtkParallelCoordinatesActor&);
 
 private:
   vtkDataObject *Input; //list of data sets to plot

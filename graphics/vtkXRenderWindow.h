@@ -154,8 +154,8 @@ public:
 protected:
   vtkXRenderWindow();
   ~vtkXRenderWindow();
-  vtkXRenderWindow(const vtkXRenderWindow&) {};
-  void operator=(const vtkXRenderWindow&) {};
+  vtkXRenderWindow(const vtkXRenderWindow&);
+  void operator=(const vtkXRenderWindow&);
 
   Window   ParentId;
   Window   WindowId;

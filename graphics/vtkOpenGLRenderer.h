@@ -78,8 +78,8 @@ public:
 protected:
   vtkOpenGLRenderer();
   ~vtkOpenGLRenderer();
-  vtkOpenGLRenderer(const vtkOpenGLRenderer&) {};
-  void operator=(const vtkOpenGLRenderer&) {};
+  vtkOpenGLRenderer(const vtkOpenGLRenderer&);
+  void operator=(const vtkOpenGLRenderer&);
 
   //BTX
   // Picking functions to be implemented by sub-classes

@@ -254,8 +254,8 @@ protected:
   void InitializeWarmthFunctions();
   float WarmthToIntensity(float w);
 
-  vtkLightKit(const vtkLightKit&) {};
-  void operator=(const vtkLightKit&) {};
+  vtkLightKit(const vtkLightKit&);
+  void operator=(const vtkLightKit&);
 
   float KeyLightIntensity;
   float KeyToFillRatio;

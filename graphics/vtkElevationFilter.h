@@ -81,8 +81,8 @@ public:
 protected:
   vtkElevationFilter();
   ~vtkElevationFilter() {};
-  vtkElevationFilter(const vtkElevationFilter&) {};
-  void operator=(const vtkElevationFilter&) {};
+  vtkElevationFilter(const vtkElevationFilter&);
+  void operator=(const vtkElevationFilter&);
 
   void Execute();
   float LowPoint[3];

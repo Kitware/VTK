@@ -88,8 +88,8 @@ public:
 protected:
   vtkImageClip();
   ~vtkImageClip() {};
-  vtkImageClip(const vtkImageClip&) {};
-  void operator=(const vtkImageClip&) {};
+  vtkImageClip(const vtkImageClip&);
+  void operator=(const vtkImageClip&);
 
   // Time when OutputImageExtent was computed.
   vtkTimeStamp CTime;

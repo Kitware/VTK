@@ -143,8 +143,8 @@ public:
 protected:
   vtkWin32RenderWindowInteractor();
   ~vtkWin32RenderWindowInteractor();
-  vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&) {};
-  void operator=(const vtkWin32RenderWindowInteractor&) {};
+  vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&);
+  void operator=(const vtkWin32RenderWindowInteractor&);
 
   HWND    WindowId;
   UINT    TimerId;

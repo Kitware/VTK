@@ -129,8 +129,8 @@ public:
 protected:
   vtkLinearExtrusionFilter();
   ~vtkLinearExtrusionFilter() {};
-  vtkLinearExtrusionFilter(const vtkLinearExtrusionFilter&) {};
-  void operator=(const vtkLinearExtrusionFilter&) {};
+  vtkLinearExtrusionFilter(const vtkLinearExtrusionFilter&);
+  void operator=(const vtkLinearExtrusionFilter&);
 
   void Execute();
   int ExtrusionType;

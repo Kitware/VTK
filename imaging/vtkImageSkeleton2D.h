@@ -81,8 +81,8 @@ public:
 protected:
   vtkImageSkeleton2D();
   ~vtkImageSkeleton2D() {};
-  vtkImageSkeleton2D(const vtkImageSkeleton2D&) {};
-  void operator=(const vtkImageSkeleton2D&) {};
+  vtkImageSkeleton2D(const vtkImageSkeleton2D&);
+  void operator=(const vtkImageSkeleton2D&);
 
   int Prune;
 

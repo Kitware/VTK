@@ -241,8 +241,8 @@ public:
 protected:
   vtkGeneralTransform();
   ~vtkGeneralTransform();
-  vtkGeneralTransform(const vtkGeneralTransform&) {};
-  void operator=(const vtkGeneralTransform&) {};
+  vtkGeneralTransform(const vtkGeneralTransform&);
+  void operator=(const vtkGeneralTransform&);
 
   void InternalDeepCopy(vtkAbstractTransform *t);
   void InternalUpdate();

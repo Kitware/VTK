@@ -88,8 +88,8 @@ public:
 protected:
   vtkRungeKutta2();
   ~vtkRungeKutta2();
-  vtkRungeKutta2(const vtkRungeKutta2&) {};
-  void operator=(const vtkRungeKutta2&) {};
+  vtkRungeKutta2(const vtkRungeKutta2&);
+  void operator=(const vtkRungeKutta2&);
 };
 
 #endif

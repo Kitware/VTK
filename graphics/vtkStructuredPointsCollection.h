@@ -71,8 +71,8 @@ public:
 protected:
   vtkStructuredPointsCollection() {};
   ~vtkStructuredPointsCollection() {};
-  vtkStructuredPointsCollection(const vtkStructuredPointsCollection&) {};
-  void operator=(const vtkStructuredPointsCollection&) {};
+  vtkStructuredPointsCollection(const vtkStructuredPointsCollection&);
+  void operator=(const vtkStructuredPointsCollection&);
   
   
 

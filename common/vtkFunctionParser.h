@@ -181,8 +181,8 @@ public:
 protected:
   vtkFunctionParser();
   ~vtkFunctionParser();
-  vtkFunctionParser(const vtkFunctionParser&) {};
-  void operator=(const vtkFunctionParser&) {};
+  vtkFunctionParser(const vtkFunctionParser&);
+  void operator=(const vtkFunctionParser&);
   
   int Parse();
   void Evaluate();

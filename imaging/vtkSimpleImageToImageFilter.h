@@ -81,8 +81,8 @@ public:
 protected:
   vtkSimpleImageToImageFilter();
   ~vtkSimpleImageToImageFilter();
-  vtkSimpleImageToImageFilter(const vtkSimpleImageToImageFilter&) {};
-  void operator=(const vtkSimpleImageToImageFilter&) {};
+  vtkSimpleImageToImageFilter(const vtkSimpleImageToImageFilter&);
+  void operator=(const vtkSimpleImageToImageFilter&);
 
   // These are called by the superclass.
   // You might have to override ExecuteInformation

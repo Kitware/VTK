@@ -92,8 +92,8 @@ public:
 protected:
   vtkInteractorStyleJoystickActor();
   ~vtkInteractorStyleJoystickActor();
-  vtkInteractorStyleJoystickActor(const vtkInteractorStyleJoystickActor&) {};
-  void operator=(const vtkInteractorStyleJoystickActor&) {};
+  vtkInteractorStyleJoystickActor(const vtkInteractorStyleJoystickActor&);
+  void operator=(const vtkInteractorStyleJoystickActor&);
 
   void RotateXY(int x, int y);
   void PanXY(int x, int y);

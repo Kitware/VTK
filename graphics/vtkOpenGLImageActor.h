@@ -73,8 +73,8 @@ public:
 protected:
   vtkOpenGLImageActor();
   ~vtkOpenGLImageActor();
-  vtkOpenGLImageActor(const vtkOpenGLImageActor&) {};
-  void operator=(const vtkOpenGLImageActor&) {};
+  vtkOpenGLImageActor(const vtkOpenGLImageActor&);
+  void operator=(const vtkOpenGLImageActor&);
 
   unsigned char *MakeDataSuitable(int &xsize, int &ysize, int &release);
 

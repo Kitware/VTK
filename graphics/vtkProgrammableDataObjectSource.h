@@ -87,8 +87,8 @@ public:
 protected:
   vtkProgrammableDataObjectSource();
   ~vtkProgrammableDataObjectSource();
-  vtkProgrammableDataObjectSource(const vtkProgrammableDataObjectSource&) {};
-  void operator=(const vtkProgrammableDataObjectSource&) {};
+  vtkProgrammableDataObjectSource(const vtkProgrammableDataObjectSource&);
+  void operator=(const vtkProgrammableDataObjectSource&);
 
   void Execute();
 

@@ -66,8 +66,8 @@ public:
 protected:
   vtkDataSetToStructuredPointsFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkDataSetToStructuredPointsFilter() {};
-  vtkDataSetToStructuredPointsFilter(const vtkDataSetToStructuredPointsFilter&) {};
-  void operator=(const vtkDataSetToStructuredPointsFilter&) {};
+  vtkDataSetToStructuredPointsFilter(const vtkDataSetToStructuredPointsFilter&);
+  void operator=(const vtkDataSetToStructuredPointsFilter&);
 
   // All the DataSetToStructuredPointsFilters require all their input.
   void ComputeInputUpdateExtents(vtkDataObject *output);

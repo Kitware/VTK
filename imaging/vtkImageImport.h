@@ -129,8 +129,8 @@ public:
 protected:
   vtkImageImport();
   ~vtkImageImport();
-  vtkImageImport(const vtkImageImport&) {};
-  void operator=(const vtkImageImport&) {};
+  vtkImageImport(const vtkImageImport&);
+  void operator=(const vtkImageImport&);
 
   virtual void ExecuteInformation();
   

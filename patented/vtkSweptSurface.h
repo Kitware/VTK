@@ -169,8 +169,8 @@ public:
 protected:
   vtkSweptSurface();
   ~vtkSweptSurface();
-  vtkSweptSurface(const vtkSweptSurface&) {};
-  void operator=(const vtkSweptSurface&) {};
+  vtkSweptSurface(const vtkSweptSurface&);
+  void operator=(const vtkSweptSurface&);
 
   void Execute();
   void ExecuteInformation();

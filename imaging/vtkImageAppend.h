@@ -83,8 +83,8 @@ public:
 protected:
   vtkImageAppend();
   ~vtkImageAppend();
-  vtkImageAppend(const vtkImageAppend&) {};
-  void operator=(const vtkImageAppend&) {};
+  vtkImageAppend(const vtkImageAppend&);
+  void operator=(const vtkImageAppend&);
 
   int PreserveExtents;
   int AppendAxis;

@@ -72,8 +72,8 @@ public:
 protected:
   vtkImageVariance3D();
   ~vtkImageVariance3D();
-  vtkImageVariance3D(const vtkImageVariance3D&) {};
-  void operator=(const vtkImageVariance3D&) {};
+  vtkImageVariance3D(const vtkImageVariance3D&);
+  void operator=(const vtkImageVariance3D&);
 
   vtkImageEllipsoidSource *Ellipse;
     

@@ -71,8 +71,8 @@ public:
 protected:
   vtkSimpleElevationFilter();
   ~vtkSimpleElevationFilter() {};
-  vtkSimpleElevationFilter(const vtkSimpleElevationFilter&) {};
-  void operator=(const vtkSimpleElevationFilter&) {};
+  vtkSimpleElevationFilter(const vtkSimpleElevationFilter&);
+  void operator=(const vtkSimpleElevationFilter&);
 
   void Execute();
   float Vector[3];

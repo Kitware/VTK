@@ -85,8 +85,8 @@ public:
 protected:
   vtkCone();
   ~vtkCone() {};
-  vtkCone(const vtkCone&) {};
-  void operator=(const vtkCone&) {};
+  vtkCone(const vtkCone&);
+  void operator=(const vtkCone&);
 
   float Angle;
 

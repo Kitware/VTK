@@ -127,8 +127,8 @@ public:
 protected:
   vtkVectors();
   ~vtkVectors() {};
-  vtkVectors(const vtkVectors&) {};
-  void operator=(const vtkVectors&) {};
+  vtkVectors(const vtkVectors&);
+  void operator=(const vtkVectors&);
 
   double MaxNorm;
   vtkTimeStamp ComputeTime; // Time at which MaxNorm computed

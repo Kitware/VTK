@@ -42,8 +42,8 @@ public:
 protected:
   vtkParallelFactory();
   ~vtkParallelFactory() { }
-  vtkParallelFactory(const vtkParallelFactory&) {};
-  void operator=(const vtkParallelFactory&) {};
+  vtkParallelFactory(const vtkParallelFactory&);
+  void operator=(const vtkParallelFactory&);
 };
 
 extern "C" VTK_EXPORT vtkObjectFactory* vtkLoad();

@@ -98,8 +98,8 @@ public:
 protected:
   vtkDividingCubes();
   ~vtkDividingCubes();
-  vtkDividingCubes(const vtkDividingCubes&) {};
-  void operator=(const vtkDividingCubes&) {};
+  vtkDividingCubes(const vtkDividingCubes&);
+  void operator=(const vtkDividingCubes&);
 
   void Execute();
   void SubDivide(float origin[3], int dim[3], float h[3], float values[8]);

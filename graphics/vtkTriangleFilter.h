@@ -72,8 +72,8 @@ public:
 protected:
   vtkTriangleFilter() : PassVerts(1), PassLines(1) {};
   ~vtkTriangleFilter() {};
-  vtkTriangleFilter(const vtkTriangleFilter&) {};
-  void operator=(const vtkTriangleFilter&) {};
+  vtkTriangleFilter(const vtkTriangleFilter&);
+  void operator=(const vtkTriangleFilter&);
 
   // Usual data generation method
   void Execute();

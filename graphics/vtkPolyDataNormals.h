@@ -140,8 +140,8 @@ public:
 protected:
   vtkPolyDataNormals();
   ~vtkPolyDataNormals() {};
-  vtkPolyDataNormals(const vtkPolyDataNormals&) {};
-  void operator=(const vtkPolyDataNormals&) {};
+  vtkPolyDataNormals(const vtkPolyDataNormals&);
+  void operator=(const vtkPolyDataNormals&);
 
   // Usual data generation method
   void Execute();

@@ -73,8 +73,8 @@ public:
 protected:
   vtkImageSpatialFilter();
   ~vtkImageSpatialFilter() {};
-  vtkImageSpatialFilter(const vtkImageSpatialFilter&) {};
-  void operator=(const vtkImageSpatialFilter&) {};
+  vtkImageSpatialFilter(const vtkImageSpatialFilter&);
+  void operator=(const vtkImageSpatialFilter&);
 
   int   KernelSize[3];
   int   KernelMiddle[3];      // Index of kernel origin

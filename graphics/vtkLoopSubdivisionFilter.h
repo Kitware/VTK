@@ -83,8 +83,8 @@ public:
 protected:
   vtkLoopSubdivisionFilter () {};
   ~vtkLoopSubdivisionFilter () {};
-  vtkLoopSubdivisionFilter(const vtkLoopSubdivisionFilter&) {};
-  void operator=(const vtkLoopSubdivisionFilter&) {};
+  vtkLoopSubdivisionFilter(const vtkLoopSubdivisionFilter&);
+  void operator=(const vtkLoopSubdivisionFilter&);
 
   void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData,
                                   vtkPoints *outputPts,

@@ -136,8 +136,8 @@ public:
 protected:
   vtkPriorityQueue();
   ~vtkPriorityQueue();
-  vtkPriorityQueue(const vtkPriorityQueue&) {};
-  void operator=(const vtkPriorityQueue&) {};
+  vtkPriorityQueue(const vtkPriorityQueue&);
+  void operator=(const vtkPriorityQueue&);
   
   vtkPriorityItem *Resize(const vtkIdType sz);
 

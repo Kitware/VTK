@@ -66,8 +66,8 @@ public:
 protected:
   vtkImageCacheFilter();
   ~vtkImageCacheFilter();
-  vtkImageCacheFilter(const vtkImageCacheFilter&) {};
-  void operator=(const vtkImageCacheFilter&) {};
+  vtkImageCacheFilter(const vtkImageCacheFilter&);
+  void operator=(const vtkImageCacheFilter&);
 
   int CacheSize;
   

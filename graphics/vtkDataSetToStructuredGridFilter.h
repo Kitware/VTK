@@ -63,8 +63,8 @@ public:
 protected:
   vtkDataSetToStructuredGridFilter() {};
   ~vtkDataSetToStructuredGridFilter() {};
-  vtkDataSetToStructuredGridFilter(const vtkDataSetToStructuredGridFilter&) {};
-  void operator=(const vtkDataSetToStructuredGridFilter&) {};
+  vtkDataSetToStructuredGridFilter(const vtkDataSetToStructuredGridFilter&);
+  void operator=(const vtkDataSetToStructuredGridFilter&);
   
 };
 

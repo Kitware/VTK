@@ -131,8 +131,8 @@ public:
 protected:
   vtkScalarTree();
   ~vtkScalarTree();
-  vtkScalarTree(const vtkScalarTree&) {};
-  void operator=(const vtkScalarTree&) {};
+  vtkScalarTree(const vtkScalarTree&);
+  void operator=(const vtkScalarTree&);
 
   vtkDataSet *DataSet;
   vtkDataArray *Scalars;

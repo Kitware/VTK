@@ -119,8 +119,8 @@ public:
 protected:
   vtkOpenGLImageWindow();
   ~vtkOpenGLImageWindow();
-  vtkOpenGLImageWindow(const vtkOpenGLImageWindow&) {};
-  void operator=(const vtkOpenGLImageWindow&) {};
+  vtkOpenGLImageWindow(const vtkOpenGLImageWindow&);
+  void operator=(const vtkOpenGLImageWindow&);
 };
 
 

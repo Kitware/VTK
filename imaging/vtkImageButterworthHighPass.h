@@ -84,8 +84,8 @@ public:
 protected:
   vtkImageButterworthHighPass();
   ~vtkImageButterworthHighPass() {};
-  vtkImageButterworthHighPass(const vtkImageButterworthHighPass&) {};
-  void operator=(const vtkImageButterworthHighPass&) {};
+  vtkImageButterworthHighPass(const vtkImageButterworthHighPass&);
+  void operator=(const vtkImageButterworthHighPass&);
 
   int Order;
   float CutOff[3];

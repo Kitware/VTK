@@ -63,8 +63,8 @@ public:
 protected:
   vtkExtractPolyDataPiece();
   ~vtkExtractPolyDataPiece() {};
-  vtkExtractPolyDataPiece(const vtkExtractPolyDataPiece&) {};
-  void operator=(const vtkExtractPolyDataPiece&) {};
+  vtkExtractPolyDataPiece(const vtkExtractPolyDataPiece&);
+  void operator=(const vtkExtractPolyDataPiece&);
 
   // Usual data generation method
   void Execute();

@@ -87,8 +87,8 @@ public:
 protected:
   vtkImageBlockWriter();
   ~vtkImageBlockWriter();
-  vtkImageBlockWriter(const vtkImageBlockWriter&) {};
-  void operator=(const vtkImageBlockWriter&) {};
+  vtkImageBlockWriter(const vtkImageBlockWriter&);
+  void operator=(const vtkImageBlockWriter&);
   
   char *FilePattern;
 

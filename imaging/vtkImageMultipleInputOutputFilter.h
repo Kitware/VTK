@@ -80,8 +80,8 @@ public:
 protected:
   vtkImageMultipleInputOutputFilter();
   ~vtkImageMultipleInputOutputFilter();
-  vtkImageMultipleInputOutputFilter(const vtkImageMultipleInputOutputFilter&) {};
-  void operator=(const vtkImageMultipleInputOutputFilter&) {};
+  vtkImageMultipleInputOutputFilter(const vtkImageMultipleInputOutputFilter&);
+  void operator=(const vtkImageMultipleInputOutputFilter&);
 
   void ComputeInputUpdateExtents( vtkDataObject *output );
   

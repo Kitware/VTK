@@ -164,8 +164,8 @@ protected:
 
   vtkIterativeClosestPointTransform();
   ~vtkIterativeClosestPointTransform();
-  vtkIterativeClosestPointTransform(const vtkIterativeClosestPointTransform&) {};
-  void operator=(const vtkIterativeClosestPointTransform&) {};
+  vtkIterativeClosestPointTransform(const vtkIterativeClosestPointTransform&);
+  void operator=(const vtkIterativeClosestPointTransform&);
 
   void InternalUpdate();
 

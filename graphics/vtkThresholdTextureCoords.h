@@ -107,8 +107,8 @@ public:
 protected:
   vtkThresholdTextureCoords();
   ~vtkThresholdTextureCoords() {};
-  vtkThresholdTextureCoords(const vtkThresholdTextureCoords&) {};
-  void operator=(const vtkThresholdTextureCoords&) {};
+  vtkThresholdTextureCoords(const vtkThresholdTextureCoords&);
+  void operator=(const vtkThresholdTextureCoords&);
 
   // Usual data generation method
   void Execute();

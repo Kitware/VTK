@@ -111,8 +111,8 @@ public:
 protected:
   vtkImageMultipleInputFilter();
   ~vtkImageMultipleInputFilter();
-  vtkImageMultipleInputFilter(const vtkImageMultipleInputFilter&) {};
-  void operator=(const vtkImageMultipleInputFilter&) {};
+  vtkImageMultipleInputFilter(const vtkImageMultipleInputFilter&);
+  void operator=(const vtkImageMultipleInputFilter&);
 
   vtkMultiThreader *Threader;
   int Bypass;

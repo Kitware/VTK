@@ -68,8 +68,8 @@ public:
 protected:
   vtkImageLogarithmicScale();
   ~vtkImageLogarithmicScale() {};
-  vtkImageLogarithmicScale(const vtkImageLogarithmicScale&) {};
-  void operator=(const vtkImageLogarithmicScale&) {};
+  vtkImageLogarithmicScale(const vtkImageLogarithmicScale&);
+  void operator=(const vtkImageLogarithmicScale&);
 
   float Constant;
   

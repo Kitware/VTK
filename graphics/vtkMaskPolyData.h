@@ -69,8 +69,8 @@ public:
 protected:
   vtkMaskPolyData();
   ~vtkMaskPolyData() {};
-  vtkMaskPolyData(const vtkMaskPolyData&) {};
-  void operator=(const vtkMaskPolyData&) {};
+  vtkMaskPolyData(const vtkMaskPolyData&);
+  void operator=(const vtkMaskPolyData&);
 
   void Execute();
   int OnRatio; // every OnRatio entity is on; all others are off.

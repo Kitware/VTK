@@ -62,8 +62,8 @@ public:
 protected:
   vtkImageDivergence() {};
   ~vtkImageDivergence() {};
-  vtkImageDivergence(const vtkImageDivergence&) {};
-  void operator=(const vtkImageDivergence&) {};
+  vtkImageDivergence(const vtkImageDivergence&);
+  void operator=(const vtkImageDivergence&);
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);

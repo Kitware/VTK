@@ -123,8 +123,8 @@ public:
 protected:
   vtkDataSetToDataObjectFilter();
   ~vtkDataSetToDataObjectFilter();
-  vtkDataSetToDataObjectFilter(const vtkDataSetToDataObjectFilter&) {};
-  void operator=(const vtkDataSetToDataObjectFilter&) {};
+  vtkDataSetToDataObjectFilter(const vtkDataSetToDataObjectFilter&);
+  void operator=(const vtkDataSetToDataObjectFilter&);
 
   void Execute(); //generate output data
   void ComputeInputUpdateExtents(vtkDataObject *output);

@@ -78,8 +78,8 @@ public:
 protected:
   vtkImageRFFT() {};
   ~vtkImageRFFT() {};
-  vtkImageRFFT(const vtkImageRFFT&) {};
-  void operator=(const vtkImageRFFT&) {};
+  vtkImageRFFT(const vtkImageRFFT&);
+  void operator=(const vtkImageRFFT&);
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);

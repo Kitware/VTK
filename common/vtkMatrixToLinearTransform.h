@@ -91,8 +91,8 @@ class VTK_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
 protected:
   vtkMatrixToLinearTransform();
   ~vtkMatrixToLinearTransform();
-  vtkMatrixToLinearTransform(const vtkMatrixToLinearTransform&) {};
-  void operator=(const vtkMatrixToLinearTransform&) {};
+  vtkMatrixToLinearTransform(const vtkMatrixToLinearTransform&);
+  void operator=(const vtkMatrixToLinearTransform&);
 
   void InternalUpdate();
   void InternalDeepCopy(vtkAbstractTransform *transform);

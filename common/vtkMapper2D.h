@@ -71,8 +71,8 @@ public:
 protected:
   vtkMapper2D() {};
   ~vtkMapper2D() {};
-  vtkMapper2D(const vtkMapper2D&) {};
-  void operator=(const vtkMapper2D&) {};
+  vtkMapper2D(const vtkMapper2D&);
+  void operator=(const vtkMapper2D&);
 
 };
 

@@ -143,8 +143,8 @@ protected:
 
   vtkSocketController();
   ~vtkSocketController();
-  vtkSocketController(const vtkSocketController&) {};
-  void operator=(const vtkSocketController&) {};
+  vtkSocketController(const vtkSocketController&);
+  void operator=(const vtkSocketController&);
 
   // Initialize only once, finialize on destruction.
   static int Initialized;

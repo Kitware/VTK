@@ -73,8 +73,8 @@ public:
 protected:
   vtkEnSight6Reader();
   ~vtkEnSight6Reader();
-  vtkEnSight6Reader(const vtkEnSight6Reader&) {};
-  void operator=(const vtkEnSight6Reader&) {};
+  vtkEnSight6Reader(const vtkEnSight6Reader&);
+  void operator=(const vtkEnSight6Reader&);
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.

@@ -74,8 +74,8 @@ public:
 protected:
   vtkDataObjectCollection() {};
   ~vtkDataObjectCollection() {};
-  vtkDataObjectCollection(const vtkDataObjectCollection&) {};
-  void operator=(const vtkDataObjectCollection&) {};
+  vtkDataObjectCollection(const vtkDataObjectCollection&);
+  void operator=(const vtkDataObjectCollection&);
 
 
 private:

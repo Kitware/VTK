@@ -165,8 +165,8 @@ public:
 protected:
   vtkHull();
   ~vtkHull();
-  vtkHull(const vtkHull&) {};
-  void operator=(const vtkHull&) {};
+  vtkHull(const vtkHull&);
+  void operator=(const vtkHull&);
 
   // The planes - 4 doubles per plane for A, B, C, D
   double     *Planes;

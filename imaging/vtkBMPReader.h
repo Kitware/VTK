@@ -87,8 +87,8 @@ public:
 protected:
   vtkBMPReader();
   ~vtkBMPReader();
-  vtkBMPReader(const vtkBMPReader&) {};
-  void operator=(const vtkBMPReader&) {};
+  vtkBMPReader(const vtkBMPReader&);
+  void operator=(const vtkBMPReader&);
 
   unsigned char *Colors;
   short Depth;

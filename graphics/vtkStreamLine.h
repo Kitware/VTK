@@ -93,8 +93,8 @@ public:
 protected:
   vtkStreamLine();
   ~vtkStreamLine() {};
-  vtkStreamLine(const vtkStreamLine&) {};
-  void operator=(const vtkStreamLine&) {};
+  vtkStreamLine(const vtkStreamLine&);
+  void operator=(const vtkStreamLine&);
 
   // Convert streamer array into vtkPolyData
   void Execute();

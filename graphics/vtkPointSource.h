@@ -91,8 +91,8 @@ public:
 protected:
   vtkPointSource(vtkIdType numPts=10);
   ~vtkPointSource() {};
-  vtkPointSource(const vtkPointSource&) {};
-  void operator=(const vtkPointSource&) {};
+  vtkPointSource(const vtkPointSource&);
+  void operator=(const vtkPointSource&);
 
   void Execute();
   void ExecuteInformation();

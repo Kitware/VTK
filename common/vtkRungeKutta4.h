@@ -90,8 +90,8 @@ public:
 protected:
   vtkRungeKutta4();
   ~vtkRungeKutta4();
-  vtkRungeKutta4(const vtkRungeKutta4&) {};
-  void operator=(const vtkRungeKutta4&) {};
+  vtkRungeKutta4(const vtkRungeKutta4&);
+  void operator=(const vtkRungeKutta4&);
 
   virtual void Initialize();
 

@@ -252,8 +252,8 @@ public:
 protected:
   vtkVolume();
   ~vtkVolume();
-  vtkVolume(const vtkVolume&) {};
-  void operator=(const vtkVolume&) {};
+  vtkVolume(const vtkVolume&);
+  void operator=(const vtkVolume&);
 
   vtkVolumeMapper              *Mapper;
   vtkVolumeProperty            *Property;

@@ -111,8 +111,8 @@ public:
 protected:
   vtkExtentTranslator();
   ~vtkExtentTranslator();
-  vtkExtentTranslator(const vtkExtentTranslator&) {};
-  void operator=(const vtkExtentTranslator&) {};
+  vtkExtentTranslator(const vtkExtentTranslator&);
+  void operator=(const vtkExtentTranslator&);
 
   // Description:
   // Returns 0 if no data exist for a piece.

@@ -79,8 +79,8 @@ public:
 protected:
   vtkCellPicker();
   ~vtkCellPicker();
-  vtkCellPicker(const vtkCellPicker&) {};
-  void operator=(const vtkCellPicker&) {};
+  vtkCellPicker(const vtkCellPicker&);
+  void operator=(const vtkCellPicker&);
 
   vtkIdType CellId; // picked cell
   int SubId; // picked cell subId

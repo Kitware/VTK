@@ -91,7 +91,7 @@ public:
 protected:
   vtkPropPicker();
   ~vtkPropPicker();
-  vtkPropPicker(const vtkPropPicker&) {};
+  vtkPropPicker(const vtkPropPicker&);
   void operator=(vtkPropPicker&) {};
 
   void Initialize();

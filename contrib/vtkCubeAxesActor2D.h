@@ -237,8 +237,8 @@ public:
 protected:
   vtkCubeAxesActor2D();
   ~vtkCubeAxesActor2D();
-  vtkCubeAxesActor2D(const vtkCubeAxesActor2D&) {};
-  void operator=(const vtkCubeAxesActor2D&) {};
+  vtkCubeAxesActor2D(const vtkCubeAxesActor2D&);
+  void operator=(const vtkCubeAxesActor2D&);
 
   vtkDataSet *Input;    //Define bounds from input data, or
   vtkProp    *Prop;     //Define bounds from actor/assembly, or

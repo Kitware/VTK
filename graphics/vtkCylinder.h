@@ -89,8 +89,8 @@ public:
 protected:
   vtkCylinder();
   ~vtkCylinder() {};
-  vtkCylinder(const vtkCylinder&) {};
-  void operator=(const vtkCylinder&) {};
+  vtkCylinder(const vtkCylinder&);
+  void operator=(const vtkCylinder&);
 
   float Radius;
   float Center[3];

@@ -73,8 +73,8 @@ public:
 protected:
   vtkEnSightGoldReader() {};
   ~vtkEnSightGoldReader() {};
-  vtkEnSightGoldReader(const vtkEnSightGoldReader&) {};
-  void operator=(const vtkEnSightGoldReader&) {};
+  vtkEnSightGoldReader(const vtkEnSightGoldReader&);
+  void operator=(const vtkEnSightGoldReader&);
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.

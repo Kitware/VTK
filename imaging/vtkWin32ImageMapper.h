@@ -116,8 +116,8 @@ protected:
 
   vtkWin32ImageMapper();
   ~vtkWin32ImageMapper();
-  vtkWin32ImageMapper(const vtkWin32ImageMapper&) {};
-  void operator=(const vtkWin32ImageMapper&) {};
+  vtkWin32ImageMapper(const vtkWin32ImageMapper&);
+  void operator=(const vtkWin32ImageMapper&);
 
 };
 #endif

@@ -153,8 +153,8 @@ public:
 protected:
   vtkGeometryFilter();
   ~vtkGeometryFilter();
-  vtkGeometryFilter(const vtkGeometryFilter&) {};
-  void operator=(const vtkGeometryFilter&) {};
+  vtkGeometryFilter(const vtkGeometryFilter&);
+  void operator=(const vtkGeometryFilter&);
 
   void Execute();
   void PolyDataExecute(); //special cases for performance

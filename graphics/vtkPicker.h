@@ -138,8 +138,8 @@ public:
 protected:
   vtkPicker();
   ~vtkPicker();
-  vtkPicker(const vtkPicker&) {};
-  void operator=(const vtkPicker&) {};
+  vtkPicker(const vtkPicker&);
+  void operator=(const vtkPicker&);
 
   void MarkPicked(vtkAssemblyPath *path, vtkProp3D *p, vtkAbstractMapper3D *m, 
                   float tMin, float mapperPos[3]);

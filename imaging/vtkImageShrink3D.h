@@ -97,8 +97,8 @@ public:
 protected:
   vtkImageShrink3D();
   ~vtkImageShrink3D() {};
-  vtkImageShrink3D(const vtkImageShrink3D&) {};
-  void operator=(const vtkImageShrink3D&) {};
+  vtkImageShrink3D(const vtkImageShrink3D&);
+  void operator=(const vtkImageShrink3D&);
 
   int ShrinkFactors[3];
   int Shift[3];

@@ -78,8 +78,8 @@ public:
 protected:
   vtkImageNoiseSource();
   ~vtkImageNoiseSource() {};
-  vtkImageNoiseSource(const vtkImageNoiseSource&) {};
-  void operator=(const vtkImageNoiseSource&) {};
+  vtkImageNoiseSource(const vtkImageNoiseSource&);
+  void operator=(const vtkImageNoiseSource&);
 
   float Minimum;
   float Maximum;

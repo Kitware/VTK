@@ -82,8 +82,8 @@ public:
 protected:
   vtkImageMapToWindowLevelColors();
   ~vtkImageMapToWindowLevelColors();
-  vtkImageMapToWindowLevelColors(const vtkImageMapToWindowLevelColors&) {};
-  void operator=(const vtkImageMapToWindowLevelColors&) {};
+  vtkImageMapToWindowLevelColors(const vtkImageMapToWindowLevelColors&);
+  void operator=(const vtkImageMapToWindowLevelColors&);
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageMapToColors::ExecuteInformation();};

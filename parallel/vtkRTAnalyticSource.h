@@ -96,8 +96,8 @@ public:
 protected:
   vtkRTAnalyticSource();
   ~vtkRTAnalyticSource() {};
-  vtkRTAnalyticSource(const vtkRTAnalyticSource&) {};
-  void operator=(const vtkRTAnalyticSource&) {};
+  vtkRTAnalyticSource(const vtkRTAnalyticSource&);
+  void operator=(const vtkRTAnalyticSource&);
 
   float XFreq;
   float YFreq;

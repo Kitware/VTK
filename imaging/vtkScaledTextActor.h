@@ -107,8 +107,8 @@ public:
 protected:
   vtkScaledTextActor();
   ~vtkScaledTextActor();
-  vtkScaledTextActor(const vtkScaledTextActor&) {};
-  void operator=(const vtkScaledTextActor&) {};
+  vtkScaledTextActor(const vtkScaledTextActor&);
+  void operator=(const vtkScaledTextActor&);
 
   int MinimumSize[2];
   float MaximumLineHeight;

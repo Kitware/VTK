@@ -67,8 +67,8 @@ public:
 protected:
   vtkPolyDataWriter() {};
   ~vtkPolyDataWriter() {};
-  vtkPolyDataWriter(const vtkPolyDataWriter&) {};
-  void operator=(const vtkPolyDataWriter&) {};
+  vtkPolyDataWriter(const vtkPolyDataWriter&);
+  void operator=(const vtkPolyDataWriter&);
 
   void WriteData();
 

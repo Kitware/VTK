@@ -130,8 +130,8 @@ public:
 protected:
   vtkSelectVisiblePoints();
   ~vtkSelectVisiblePoints();
-  vtkSelectVisiblePoints(const vtkSelectVisiblePoints&) {};
-  void operator=(const vtkSelectVisiblePoints&) {};
+  vtkSelectVisiblePoints(const vtkSelectVisiblePoints&);
+  void operator=(const vtkSelectVisiblePoints&);
 
   void Execute();
 

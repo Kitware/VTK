@@ -69,8 +69,8 @@ public:
 protected:
   vtkInterpolatingSubdivisionFilter();
   ~vtkInterpolatingSubdivisionFilter() {};
-  vtkInterpolatingSubdivisionFilter(const vtkInterpolatingSubdivisionFilter&) {};
-  void operator=(const vtkInterpolatingSubdivisionFilter&) {};
+  vtkInterpolatingSubdivisionFilter(const vtkInterpolatingSubdivisionFilter&);
+  void operator=(const vtkInterpolatingSubdivisionFilter&);
 
   void Execute();
   virtual void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD) = 0;

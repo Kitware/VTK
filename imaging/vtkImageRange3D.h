@@ -69,8 +69,8 @@ public:
 protected:
   vtkImageRange3D();
   ~vtkImageRange3D();
-  vtkImageRange3D(const vtkImageRange3D&) {};
-  void operator=(const vtkImageRange3D&) {};
+  vtkImageRange3D(const vtkImageRange3D&);
+  void operator=(const vtkImageRange3D&);
 
   vtkImageEllipsoidSource *Ellipse;
     

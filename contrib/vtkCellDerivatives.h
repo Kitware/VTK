@@ -123,8 +123,8 @@ public:
 protected:
   vtkCellDerivatives();
   ~vtkCellDerivatives() {};
-  vtkCellDerivatives(const vtkCellDerivatives&) {};
-  void operator=(const vtkCellDerivatives&) {};
+  vtkCellDerivatives(const vtkCellDerivatives&);
+  void operator=(const vtkCellDerivatives&);
   void Execute();
 
   int VectorMode;

@@ -131,8 +131,8 @@ public:
 protected:
   vtkPoints(int dataType=VTK_FLOAT);
   ~vtkPoints() {};
-  vtkPoints(const vtkPoints&) {};
-  void operator=(const vtkPoints&) {};
+  vtkPoints(const vtkPoints&);
+  void operator=(const vtkPoints&);
 
   float Bounds[6];
   vtkTimeStamp ComputeTime; // Time at which bounds computed

@@ -91,8 +91,8 @@ class VTK_EXPORT vtkMatrixToHomogeneousTransform :
 protected:
   vtkMatrixToHomogeneousTransform();
   ~vtkMatrixToHomogeneousTransform();
-  vtkMatrixToHomogeneousTransform(const vtkMatrixToHomogeneousTransform&) {};
-  void operator=(const vtkMatrixToHomogeneousTransform&) {};
+  vtkMatrixToHomogeneousTransform(const vtkMatrixToHomogeneousTransform&);
+  void operator=(const vtkMatrixToHomogeneousTransform&);
 
   void InternalUpdate();
   void InternalDeepCopy(vtkAbstractTransform *transform);

@@ -79,8 +79,8 @@ class VTK_EXPORT vtkRendererCollection : public vtkCollection
 protected:  
   vtkRendererCollection() {};
   ~vtkRendererCollection() {};
-  vtkRendererCollection(const vtkRendererCollection&) {};
-  void operator=(const vtkRendererCollection&) {};
+  vtkRendererCollection(const vtkRendererCollection&);
+  void operator=(const vtkRendererCollection&);
 
 private:
   // hide the standard AddItem from the user and the compiler.

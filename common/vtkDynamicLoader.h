@@ -105,8 +105,8 @@ public:
 protected:
   vtkDynamicLoader() {};
   ~vtkDynamicLoader() {};
-  vtkDynamicLoader(const vtkDynamicLoader&) {};
-  void operator=(const vtkDynamicLoader&) {};
+  vtkDynamicLoader(const vtkDynamicLoader&);
+  void operator=(const vtkDynamicLoader&);
 
   
 };

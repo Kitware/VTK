@@ -77,8 +77,8 @@ public:
 protected:
   vtkImageGradient();
   ~vtkImageGradient() {};
-  vtkImageGradient(const vtkImageGradient&) {};
-  void operator=(const vtkImageGradient&) {};
+  vtkImageGradient(const vtkImageGradient&);
+  void operator=(const vtkImageGradient&);
 
   int HandleBoundaries;
   int Dimensionality;

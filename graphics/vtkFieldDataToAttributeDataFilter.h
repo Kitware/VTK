@@ -242,8 +242,8 @@ public:
 protected:
   vtkFieldDataToAttributeDataFilter();
   ~vtkFieldDataToAttributeDataFilter();
-  vtkFieldDataToAttributeDataFilter(const vtkFieldDataToAttributeDataFilter&) {};
-  void operator=(const vtkFieldDataToAttributeDataFilter&) {};
+  vtkFieldDataToAttributeDataFilter(const vtkFieldDataToAttributeDataFilter&);
+  void operator=(const vtkFieldDataToAttributeDataFilter&);
 
   void Execute(); //generate output data
 

@@ -137,8 +137,8 @@ public:
 protected:
   vtkTensorGlyph();
   ~vtkTensorGlyph();
-  vtkTensorGlyph(const vtkTensorGlyph&) {};
-  void operator=(const vtkTensorGlyph&) {};
+  vtkTensorGlyph(const vtkTensorGlyph&);
+  void operator=(const vtkTensorGlyph&);
 
   void Execute();
 

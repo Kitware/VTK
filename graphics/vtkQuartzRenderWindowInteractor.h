@@ -158,8 +158,8 @@ public:
 protected:
   vtkQuartzRenderWindowInteractor();
   ~vtkQuartzRenderWindowInteractor();
-  vtkQuartzRenderWindowInteractor(const vtkQuartzRenderWindowInteractor&) {};
-  void operator=(const vtkQuartzRenderWindowInteractor&) {};
+  vtkQuartzRenderWindowInteractor(const vtkQuartzRenderWindowInteractor&);
+  void operator=(const vtkQuartzRenderWindowInteractor&);
 
   void   *WindowId;
   void	 *ApplicationId;

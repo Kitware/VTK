@@ -93,8 +93,8 @@ public:
 protected:
   vtkTexturedSphereSource(int res=8);
   ~vtkTexturedSphereSource() {};
-  vtkTexturedSphereSource(const vtkTexturedSphereSource&) {};
-  void operator=(const vtkTexturedSphereSource&) {};
+  vtkTexturedSphereSource(const vtkTexturedSphereSource&);
+  void operator=(const vtkTexturedSphereSource&);
 
   void Execute();
   float Radius;

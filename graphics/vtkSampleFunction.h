@@ -119,8 +119,8 @@ public:
 protected:
   vtkSampleFunction();
   ~vtkSampleFunction();
-  vtkSampleFunction(const vtkSampleFunction&) {};
-  void operator=(const vtkSampleFunction&) {};
+  vtkSampleFunction(const vtkSampleFunction&);
+  void operator=(const vtkSampleFunction&);
 
   void Execute();
   void ExecuteInformation();

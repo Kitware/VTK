@@ -326,7 +326,7 @@ protected:
   vtkPerspectiveTransform();
   ~vtkPerspectiveTransform();
   vtkPerspectiveTransform(const vtkPerspectiveTransform& t);
-  void operator=(const vtkPerspectiveTransform&) {};
+  void operator=(const vtkPerspectiveTransform&);
 
   void InternalDeepCopy(vtkAbstractTransform *t);
   void InternalUpdate();

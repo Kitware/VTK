@@ -78,8 +78,8 @@ public:
 protected:
   vtkDashedStreamLine();
   ~vtkDashedStreamLine() {};
-  vtkDashedStreamLine(const vtkDashedStreamLine&) {};
-  void operator=(const vtkDashedStreamLine&) {};
+  vtkDashedStreamLine(const vtkDashedStreamLine&);
+  void operator=(const vtkDashedStreamLine&);
 
   // Convert streamer array into vtkPolyData
   void Execute();

@@ -99,8 +99,8 @@ public:
 protected:
   vtkDataObjectSource();
   ~vtkDataObjectSource() {};
-  vtkDataObjectSource(const vtkDataObjectSource&) {};
-  void operator=(const vtkDataObjectSource&) {};
+  vtkDataObjectSource(const vtkDataObjectSource&);
+  void operator=(const vtkDataObjectSource&);
 
 };
 

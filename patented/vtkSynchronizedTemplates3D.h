@@ -181,8 +181,8 @@ public:
 protected:
   vtkSynchronizedTemplates3D();
   ~vtkSynchronizedTemplates3D();
-  vtkSynchronizedTemplates3D(const vtkSynchronizedTemplates3D&) {};
-  void operator=(const vtkSynchronizedTemplates3D&) {};
+  vtkSynchronizedTemplates3D(const vtkSynchronizedTemplates3D&);
+  void operator=(const vtkSynchronizedTemplates3D&);
 
   int ComputeNormals;
   int ComputeGradients;

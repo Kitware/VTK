@@ -187,8 +187,8 @@ public:
 protected:
   vtkUnsignedCharArray(vtkIdType numComp=1);
   ~vtkUnsignedCharArray();
-  vtkUnsignedCharArray(const vtkUnsignedCharArray&) {};
-  void operator=(const vtkUnsignedCharArray&) {};
+  vtkUnsignedCharArray(const vtkUnsignedCharArray&);
+  void operator=(const vtkUnsignedCharArray&);
 
   unsigned char *Array;   // pointer to data
   unsigned char *ResizeAndExtend(const vtkIdType sz);

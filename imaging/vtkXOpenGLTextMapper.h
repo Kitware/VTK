@@ -79,8 +79,8 @@ public:
 protected:
   vtkXOpenGLTextMapper();
   ~vtkXOpenGLTextMapper();
-  vtkXOpenGLTextMapper(const vtkXOpenGLTextMapper&) {};
-  void operator=(const vtkXOpenGLTextMapper&) {};
+  vtkXOpenGLTextMapper(const vtkXOpenGLTextMapper&);
+  void operator=(const vtkXOpenGLTextMapper&);
 };
 
 

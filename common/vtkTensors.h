@@ -113,8 +113,8 @@ public:
 protected:
   vtkTensors();
   ~vtkTensors();
-  vtkTensors(const vtkTensors&) {};
-  void operator=(const vtkTensors&) {};
+  vtkTensors(const vtkTensors&);
+  void operator=(const vtkTensors&);
 
   vtkTensor *T;
 

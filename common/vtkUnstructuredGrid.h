@@ -184,8 +184,8 @@ public:
 protected:
   vtkUnstructuredGrid();
   ~vtkUnstructuredGrid();
-  vtkUnstructuredGrid(const vtkUnstructuredGrid&) {};
-  void operator=(const vtkUnstructuredGrid&) {};
+  vtkUnstructuredGrid(const vtkUnstructuredGrid&);
+  void operator=(const vtkUnstructuredGrid&);
 
   // used by GetCell method
   vtkVertex *Vertex;

@@ -118,8 +118,8 @@ public:
 protected:
   vtkTextureMapToPlane();
   ~vtkTextureMapToPlane() {};
-  vtkTextureMapToPlane(const vtkTextureMapToPlane&) {};
-  void operator=(const vtkTextureMapToPlane&) {};
+  vtkTextureMapToPlane(const vtkTextureMapToPlane&);
+  void operator=(const vtkTextureMapToPlane&);
 
   void Execute();
   void ComputeNormal();

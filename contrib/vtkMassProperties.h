@@ -109,8 +109,8 @@ public:
 protected:
   vtkMassProperties();
   ~vtkMassProperties();
-  vtkMassProperties(const vtkMassProperties&) {};
-  void operator=(const vtkMassProperties&) {};
+  vtkMassProperties(const vtkMassProperties&);
+  void operator=(const vtkMassProperties&);
 
   void Execute();
 

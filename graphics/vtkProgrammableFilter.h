@@ -107,8 +107,8 @@ public:
 protected:
   vtkProgrammableFilter();
   ~vtkProgrammableFilter();
-  vtkProgrammableFilter(const vtkProgrammableFilter&) {};
-  void operator=(const vtkProgrammableFilter&) {};
+  vtkProgrammableFilter(const vtkProgrammableFilter&);
+  void operator=(const vtkProgrammableFilter&);
 
   void Execute();
 

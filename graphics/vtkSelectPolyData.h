@@ -187,8 +187,8 @@ public:
 protected:
   vtkSelectPolyData();
   ~vtkSelectPolyData();
-  vtkSelectPolyData(const vtkSelectPolyData&) {};
-  void operator=(const vtkSelectPolyData&) {};
+  vtkSelectPolyData(const vtkSelectPolyData&);
+  void operator=(const vtkSelectPolyData&);
 
   void Execute();
 

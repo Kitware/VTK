@@ -202,8 +202,8 @@ public:
 protected:
   vtkQuadricClustering();
   ~vtkQuadricClustering();
-  vtkQuadricClustering(const vtkQuadricClustering&) {};
-  void operator=(const vtkQuadricClustering&) {};
+  vtkQuadricClustering(const vtkQuadricClustering&);
+  void operator=(const vtkQuadricClustering&);
 
   void Execute();
     

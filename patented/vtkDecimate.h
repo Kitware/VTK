@@ -275,8 +275,8 @@ public:
 protected:
   vtkDecimate();
   ~vtkDecimate();
-  vtkDecimate(const vtkDecimate&) {};
-  void operator=(const vtkDecimate&) {};
+  vtkDecimate(const vtkDecimate&);
+  void operator=(const vtkDecimate&);
 
   void Execute();
 

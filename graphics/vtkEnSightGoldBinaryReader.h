@@ -73,8 +73,8 @@ public:
 protected:
   vtkEnSightGoldBinaryReader();
   ~vtkEnSightGoldBinaryReader();
-  vtkEnSightGoldBinaryReader(const vtkEnSightGoldBinaryReader&) {};
-  void operator=(const vtkEnSightGoldBinaryReader&) {};
+  vtkEnSightGoldBinaryReader(const vtkEnSightGoldBinaryReader&);
+  void operator=(const vtkEnSightGoldBinaryReader&);
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.

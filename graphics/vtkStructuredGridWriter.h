@@ -68,8 +68,8 @@ public:
 protected:
   vtkStructuredGridWriter() {};
   ~vtkStructuredGridWriter() {};
-  vtkStructuredGridWriter(const vtkStructuredGridWriter&) {};
-  void operator=(const vtkStructuredGridWriter&) {};
+  vtkStructuredGridWriter(const vtkStructuredGridWriter&);
+  void operator=(const vtkStructuredGridWriter&);
 
   void WriteData();
   void WriteBlanking(ostream *fp, vtkStructuredGrid *ds);

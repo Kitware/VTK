@@ -91,8 +91,8 @@ public:
 protected:
   vtkImageComposite();
   ~vtkImageComposite();
-  vtkImageComposite(const vtkImageComposite&) {};
-  void operator=(const vtkImageComposite&) {};
+  vtkImageComposite(const vtkImageComposite&);
+  void operator=(const vtkImageComposite&);
 
   // Usual data generation method
   void Execute();

@@ -73,8 +73,8 @@ public:
 protected:
   vtkMesaImageActor();
   ~vtkMesaImageActor();
-  vtkMesaImageActor(const vtkMesaImageActor&) {};
-  void operator=(const vtkMesaImageActor&) {};
+  vtkMesaImageActor(const vtkMesaImageActor&);
+  void operator=(const vtkMesaImageActor&);
 
   unsigned char *MakeDataSuitable(int &xsize, int &ysize, int &release);
 

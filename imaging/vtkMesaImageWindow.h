@@ -130,8 +130,8 @@ public:
 protected:
   vtkMesaImageWindow();
   ~vtkMesaImageWindow();
-  vtkMesaImageWindow(const vtkMesaImageWindow&) {};
-  void operator=(const vtkMesaImageWindow&) {};
+  vtkMesaImageWindow(const vtkMesaImageWindow&);
+  void operator=(const vtkMesaImageWindow&);
 
   GLXContext ContextId;
   OSMesaContext OffScreenContextId;

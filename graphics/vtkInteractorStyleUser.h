@@ -198,8 +198,8 @@ public:
 protected:
   vtkInteractorStyleUser();
   ~vtkInteractorStyleUser();
-  vtkInteractorStyleUser(const vtkInteractorStyleUser&) {};
-  void operator=(const vtkInteractorStyleUser&) {};
+  vtkInteractorStyleUser(const vtkInteractorStyleUser&);
+  void operator=(const vtkInteractorStyleUser&);
 
   void OnChar(int ctrl, int shift, char keycode, int repeatcount);
   void OnKeyPress(int ctrl, int shift, char keycode, char *keysym,

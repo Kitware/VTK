@@ -375,8 +375,8 @@ class VTK_EXPORT vtkCamera : public vtkObject
 protected:
   vtkCamera();
   ~vtkCamera();
-  vtkCamera(const vtkCamera&) {};
-  void operator=(const vtkCamera&) {};
+  vtkCamera(const vtkCamera&);
+  void operator=(const vtkCamera&);
 
   // Description:
   // These methods should only be used within vtkCamera.cxx.

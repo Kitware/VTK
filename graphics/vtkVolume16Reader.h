@@ -145,8 +145,8 @@ public:
 protected:
   vtkVolume16Reader();
   ~vtkVolume16Reader();
-  vtkVolume16Reader(const vtkVolume16Reader&) {};
-  void operator=(const vtkVolume16Reader&) {};
+  vtkVolume16Reader(const vtkVolume16Reader&);
+  void operator=(const vtkVolume16Reader&);
 
   void Execute();
   void ExecuteInformation();

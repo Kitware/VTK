@@ -98,8 +98,8 @@ public:
 protected:
   vtkImageGaussianSmooth();
   ~vtkImageGaussianSmooth();
-  vtkImageGaussianSmooth(const vtkImageGaussianSmooth&) {};
-  void operator=(const vtkImageGaussianSmooth&) {};
+  vtkImageGaussianSmooth(const vtkImageGaussianSmooth&);
+  void operator=(const vtkImageGaussianSmooth&);
 
   int Dimensionality;
   float StandardDeviations[3];

@@ -193,8 +193,8 @@ public:
 protected:
   vtkUnsignedShortArray(vtkIdType numComp=1);
   ~vtkUnsignedShortArray();
-  vtkUnsignedShortArray(const vtkUnsignedShortArray&) {};
-  void operator=(const vtkUnsignedShortArray&) {};
+  vtkUnsignedShortArray(const vtkUnsignedShortArray&);
+  void operator=(const vtkUnsignedShortArray&);
 
   unsigned short *Array;   // pointer to data
   unsigned short *ResizeAndExtend(const vtkIdType sz);

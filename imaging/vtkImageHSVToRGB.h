@@ -73,8 +73,8 @@ public:
 protected:
   vtkImageHSVToRGB();
   ~vtkImageHSVToRGB() {};
-  vtkImageHSVToRGB(const vtkImageHSVToRGB&) {};
-  void operator=(const vtkImageHSVToRGB&) {};
+  vtkImageHSVToRGB(const vtkImageHSVToRGB&);
+  void operator=(const vtkImageHSVToRGB&);
 
   float Maximum;
   

@@ -95,8 +95,8 @@ public:
 protected:
   vtkRIBProperty();
   ~vtkRIBProperty();
-  vtkRIBProperty(const vtkRIBProperty&) {};
-  void operator=(const vtkRIBProperty&) {};
+  vtkRIBProperty(const vtkRIBProperty&);
+  void operator=(const vtkRIBProperty&);
 
   void Render(vtkActor *a, vtkRenderer *ren);
   vtkProperty *Property;

@@ -132,8 +132,8 @@ public:
 protected:
   vtkProperty2D();
   ~vtkProperty2D();
-  vtkProperty2D(const vtkProperty2D&) {};
-  void operator=(const vtkProperty2D&) {};
+  vtkProperty2D(const vtkProperty2D&);
+  void operator=(const vtkProperty2D&);
 
   float Color[3];
   float Opacity;

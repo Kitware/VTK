@@ -85,8 +85,8 @@ public:
 protected:
   vtkImageDecomposeFilter();
   ~vtkImageDecomposeFilter() {};
-  vtkImageDecomposeFilter(const vtkImageDecomposeFilter&) {};
-  void operator=(const vtkImageDecomposeFilter&) {};
+  vtkImageDecomposeFilter(const vtkImageDecomposeFilter&);
+  void operator=(const vtkImageDecomposeFilter&);
 
   int Dimensionality;
 

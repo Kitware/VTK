@@ -86,8 +86,8 @@ public:
 protected:
   vtkSurfaceReconstructionFilter();
   ~vtkSurfaceReconstructionFilter() {};
-  vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&) {};
-  void operator=(const vtkSurfaceReconstructionFilter&) {};
+  vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&);
+  void operator=(const vtkSurfaceReconstructionFilter&);
 
   void Execute();
 

@@ -169,8 +169,8 @@ public:
 protected:
   vtkMarchingContourFilter();
   ~vtkMarchingContourFilter();
-  vtkMarchingContourFilter(const vtkMarchingContourFilter&) {};
-  void operator=(const vtkMarchingContourFilter&) {};
+  vtkMarchingContourFilter(const vtkMarchingContourFilter&);
+  void operator=(const vtkMarchingContourFilter&);
 
   void Execute();
 

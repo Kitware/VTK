@@ -209,8 +209,8 @@ public:
 protected:
   vtkLinearTransform() {};
   ~vtkLinearTransform() {};
-  vtkLinearTransform(const vtkLinearTransform&) {};
-  void operator=(const vtkLinearTransform&) {};
+  vtkLinearTransform(const vtkLinearTransform&);
+  void operator=(const vtkLinearTransform&);
 };
 
 #endif

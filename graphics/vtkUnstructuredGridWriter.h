@@ -67,8 +67,8 @@ public:
 protected:
   vtkUnstructuredGridWriter() {};
   ~vtkUnstructuredGridWriter() {};
-  vtkUnstructuredGridWriter(const vtkUnstructuredGridWriter&) {};
-  void operator=(const vtkUnstructuredGridWriter&) {};
+  vtkUnstructuredGridWriter(const vtkUnstructuredGridWriter&);
+  void operator=(const vtkUnstructuredGridWriter&);
 
   void WriteData();
 

@@ -105,8 +105,8 @@ public:
 protected:
   vtkTextureMapToSphere();
   ~vtkTextureMapToSphere() {};
-  vtkTextureMapToSphere(const vtkTextureMapToSphere&) {};
-  void operator=(const vtkTextureMapToSphere&) {};
+  vtkTextureMapToSphere(const vtkTextureMapToSphere&);
+  void operator=(const vtkTextureMapToSphere&);
 
   void Execute();
 

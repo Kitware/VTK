@@ -89,8 +89,8 @@ public:
 protected:
   vtkDirectory();
   ~vtkDirectory() ;
-  vtkDirectory(const vtkDirectory&) {};
-  void operator=(const vtkDirectory&) {};
+  vtkDirectory(const vtkDirectory&);
+  void operator=(const vtkDirectory&);
 private:
   char* Path;		// Path to Open'ed directory
   char** Files;			// Array of Files

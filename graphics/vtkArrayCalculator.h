@@ -141,8 +141,8 @@ public:
 protected:
   vtkArrayCalculator();
   ~vtkArrayCalculator();
-  vtkArrayCalculator(const vtkArrayCalculator&) {};
-  void operator=(const vtkArrayCalculator&) {};
+  vtkArrayCalculator(const vtkArrayCalculator&);
+  void operator=(const vtkArrayCalculator&);
 
   void Execute();
   

@@ -72,8 +72,8 @@ class VTK_EXPORT vtkLightCollection : public vtkCollection
 protected:
   vtkLightCollection() {};
   ~vtkLightCollection() {};
-  vtkLightCollection(const vtkLightCollection&) {};
-  void operator=(const vtkLightCollection&) {};
+  vtkLightCollection(const vtkLightCollection&);
+  void operator=(const vtkLightCollection&);
 
 
 private:

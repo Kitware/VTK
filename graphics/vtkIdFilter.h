@@ -90,8 +90,8 @@ public:
 protected:
   vtkIdFilter();
   ~vtkIdFilter() {};
-  vtkIdFilter(const vtkIdFilter&) {};
-  void operator=(const vtkIdFilter&) {};
+  vtkIdFilter(const vtkIdFilter&);
+  void operator=(const vtkIdFilter&);
 
   void Execute();
 

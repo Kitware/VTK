@@ -155,8 +155,8 @@ public:
 protected:
   vtkGlyphSource2D();
   ~vtkGlyphSource2D() {};
-  vtkGlyphSource2D(const vtkGlyphSource2D&) {};
-  void operator=(const vtkGlyphSource2D&) {};
+  vtkGlyphSource2D(const vtkGlyphSource2D&);
+  void operator=(const vtkGlyphSource2D&);
 
   void Execute();
 

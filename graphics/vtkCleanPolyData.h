@@ -152,8 +152,8 @@ public:
 protected:
   vtkCleanPolyData();
  ~vtkCleanPolyData();
-  vtkCleanPolyData(const vtkCleanPolyData&) {};
-  void operator=(const vtkCleanPolyData&) {};
+  vtkCleanPolyData(const vtkCleanPolyData&);
+  void operator=(const vtkCleanPolyData&);
 
   // Usual data generation method
   void Execute();

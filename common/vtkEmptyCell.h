@@ -111,8 +111,8 @@ public:
 protected:
   vtkEmptyCell() {};
   ~vtkEmptyCell() {};
-  vtkEmptyCell(const vtkEmptyCell&) {};
-  void operator=(const vtkEmptyCell&) {};
+  vtkEmptyCell(const vtkEmptyCell&);
+  void operator=(const vtkEmptyCell&);
 
 
 };

@@ -121,8 +121,8 @@ public:
 protected:
   vtkInterpolatedVelocityField();
   ~vtkInterpolatedVelocityField();
-  vtkInterpolatedVelocityField(const vtkInterpolatedVelocityField&) {};
-  void operator=(const vtkInterpolatedVelocityField&) {};
+  vtkInterpolatedVelocityField(const vtkInterpolatedVelocityField&);
+  void operator=(const vtkInterpolatedVelocityField&);
 
   vtkDataSet* DataSet;
   vtkGenericCell* GenCell; // last cell

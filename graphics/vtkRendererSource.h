@@ -104,8 +104,8 @@ public:
 protected:
   vtkRendererSource();
   ~vtkRendererSource();
-  vtkRendererSource(const vtkRendererSource&) {};
-  void operator=(const vtkRendererSource&) {};
+  vtkRendererSource(const vtkRendererSource&);
+  void operator=(const vtkRendererSource&);
 
   void Execute();
   

@@ -66,8 +66,8 @@ public:
 protected:
   vtkWin32PolyDataMapper2D() {};
   ~vtkWin32PolyDataMapper2D() {};
-  vtkWin32PolyDataMapper2D(const vtkWin32PolyDataMapper2D&) {};
-  void operator=(const vtkWin32PolyDataMapper2D&) {};
+  vtkWin32PolyDataMapper2D(const vtkWin32PolyDataMapper2D&);
+  void operator=(const vtkWin32PolyDataMapper2D&);
   
 };
 #endif
