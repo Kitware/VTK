@@ -1,6 +1,6 @@
 #####################################
 # doxyfile for vtk (w) by jan stifter
-# modified by S. Barre (Time-stamp: <2001-06-28 03:07:10 barre>
+# modified by S. Barre (Time-stamp: <2001-06-30 02:23:16 barre>
 #####################################
 
 # things you should change:
@@ -187,11 +187,10 @@ TAB_SIZE             = 3
 # with spaces.
 
 INPUT             = ../vtk-doxygen/common ../vtk-doxygen/contrib ../vtk-doxygen/graphics \
-                    ../vtk-doxygen/imaging ../vtk-doxygen/patented \
+                    ../vtk-doxygen/imaging ../vtk-doxygen/parallel ../vtk-doxygen/patented \
                     ../vtk-doxygen/doc_version.dox ../vtk-doxygen/doc_class2example.dox ../vtk-doxygen/doc_index.dox
 
-# INPUT             = ../vtk-doxygen/common \
-#                    ../vtk-doxygen/doc_version.dox ../vtk-doxygen/doc_class2example.dox ../vtk-doxygen/doc_index.dox
+# INPUT             = ../vtk-doxygen/doc_version.dox ../vtk-doxygen/doc_class2example.dox
  
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp
