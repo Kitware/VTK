@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.12");
+vtkCxxRevisionMacro(vtkDataObject, "1.13");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -54,7 +54,7 @@ vtkInformationKeyRestrictedMacro(vtkDataObject, DATA_EXTENT, IntegerVector, 6);
 vtkInformationKeyRestrictedMacro(vtkDataObject, ORIGIN, DoubleVector, 3);
 vtkInformationKeyRestrictedMacro(vtkDataObject, SPACING, DoubleVector, 3);
 
-class vtkSourceToDataObjectFriendship
+class vtkDataObjectToSourceFriendship
 {
 public:
   static void SetOutput(vtkSource* source, int i, vtkDataObject* newData)
@@ -252,7 +252,7 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
         vtkSource* newSource = vtkSource::SafeDownCast(newExec->GetAlgorithm());
         if(newSource)
           {
-          vtkSourceToDataObjectFriendship::SetOutput(newSource, newPort, this);
+          vtkDataObjectToSourceFriendship::SetOutput(newSource, newPort, this);
           this->Source = newSource;
           }
         }
@@ -272,7 +272,7 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
         vtkSource* oldSource = vtkSource::SafeDownCast(oldExec->GetAlgorithm());
         if(oldSource)
           {
-          vtkSourceToDataObjectFriendship::SetOutput(oldSource, oldPort, 0);
+          vtkDataObjectToSourceFriendship::SetOutput(oldSource, oldPort, 0);
           }
         }
 
