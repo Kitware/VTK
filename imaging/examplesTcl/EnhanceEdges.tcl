@@ -56,9 +56,9 @@ toplevel .top
 
 frame .top.f1 
 
-vtkTkImageViewerWidget .top.f1.r1 -width 256 -height 256 -iv viewer1
-vtkTkImageViewerWidget .top.f1.r2 -width 256 -height 256 -iv viewer2
-vtkTkImageViewerWidget .top.f1.r3 -width 256 -height 256 -iv viewer
+vtkTkImageViewerWidget .top.f1.r1 -width 250 -height 256 -iv viewer1
+vtkTkImageViewerWidget .top.f1.r2 -width 250 -height 256 -iv viewer2
+vtkTkImageViewerWidget .top.f1.r3 -width 250 -height 256 -iv viewer
 
 button .top.btn  -text Quit -command exit
 
