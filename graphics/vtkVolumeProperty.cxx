@@ -74,9 +74,12 @@ void vtkVolumeProperty::SetColor( vtkPiecewiseFunction *function )
   if( this->GrayTransferFunction != function )
     {
     this->GrayTransferFunction	= function;
-    this->ColorChannels		= 1;
-
     this->GrayTransferFunctionMTime.Modified();
+    this->Modified();
+    }
+  if ( this->ColorChannels != 1 )
+    {
+    this->ColorChannels		= 1;
     this->Modified();
     }
 }
@@ -88,9 +91,12 @@ void vtkVolumeProperty::SetColor( vtkColorTransferFunction *function )
   if( this->RGBTransferFunction != function )
     {
     this->RGBTransferFunction	= function;
-    this->ColorChannels		= 3;
-
     this->RGBTransferFunctionMTime.Modified();
+    this->Modified();
+    }
+  if ( this->ColorChannels != 3 )
+    {
+    this->ColorChannels		= 3;
     this->Modified();
     }
 }
