@@ -69,6 +69,9 @@ vtkDataSet::vtkDataSet (const vtkDataSet& ds) :
 PointData(ds.PointData)
 {
   for (int i=0; i < 6; i++) this->Bounds[i] = ds.Bounds[i];
+  this->DataReleased = 1;
+  this->ReleaseDataFlag = ds.ReleaseDataFlag;
+  this->Source = NULL;
 }
 
 void vtkDataSet::Initialize()
