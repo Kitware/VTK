@@ -24,12 +24,13 @@
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkScalarTree.h"
+#include "vtkStructuredGrid.h"
 #include "vtkSynchronizedTemplates2D.h"
 #include "vtkSynchronizedTemplates3D.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.26");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.27");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value

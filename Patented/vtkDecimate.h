@@ -100,7 +100,11 @@
 
 #include "vtkPolyDataToPolyDataFilter.h"
 
+#include "vtkCell.h" // Needed for VTK_CELL_SIZE
+
 #define VTK_NUMBER_STATISTICS 12
+
+class vtkIdList;
 
 //BTX - begin tcl exclude
 // Special structures for building loops

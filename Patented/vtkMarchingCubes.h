@@ -52,6 +52,8 @@
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
+class vtkPointLocator;
+
 class VTK_PATENTED_EXPORT vtkMarchingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:

@@ -16,18 +16,20 @@
 
 =========================================================================*/
 #include "vtkVolumeRayCastIsosurfaceFunction.h"
-#include "vtkVolumeRayCastMapper.h"
+
 #include "vtkCamera.h"
-#include "vtkRenderWindow.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkMath.h"
-#include "vtkVolumeProperty.h"
-#include "vtkVolume.h"
 #include "vtkObjectFactory.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkRenderWindow.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
+#include "vtkVolumeRayCastMapper.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastIsosurfaceFunction, "1.23");
+vtkCxxRevisionMacro(vtkVolumeRayCastIsosurfaceFunction, "1.24");
 vtkStandardNewMacro(vtkVolumeRayCastIsosurfaceFunction);
 
 /*    Is x between y and z?                                     */

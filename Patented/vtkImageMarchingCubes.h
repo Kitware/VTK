@@ -56,8 +56,10 @@
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
+class vtkCellArray;
 class vtkFloatArray;
 class vtkImageData;
+class vtkPoints;
 
 class VTK_PATENTED_EXPORT vtkImageMarchingCubes : public vtkPolyDataSource
 {

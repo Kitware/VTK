@@ -48,6 +48,10 @@
 
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
+class vtkFloatArray;
+class vtkIdList;
+class vtkVoxel;
+
 class VTK_PATENTED_EXPORT vtkDividingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:

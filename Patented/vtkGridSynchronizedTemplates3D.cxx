@@ -26,25 +26,29 @@
      for more information.
 
 =========================================================================*/
-#include <math.h>
-#include "vtkStructuredPoints.h"
+#include "vtkSynchronizedTemplates3D.h"
+
 #include "vtkCharArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkIntArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkUnsignedLongArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
 #include "vtkGridSynchronizedTemplates3D.h"
-#include "vtkSynchronizedTemplates3D.h"
-#include "vtkExtentTranslator.h"
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkShortArray.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredPoints.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.61");
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.62");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------

@@ -55,9 +55,11 @@
 #define __vtkMarchingSquares_h
 
 #include "vtkPolyDataSource.h"
+
 #include "vtkContourValues.h" // Passes calls to vtkContourValues
 
 class vtkImageData;
+class vtkPointLocator;
 
 class VTK_PATENTED_EXPORT vtkMarchingSquares : public vtkPolyDataSource
 {

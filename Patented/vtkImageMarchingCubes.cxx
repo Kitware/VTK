@@ -37,10 +37,11 @@
 #include "vtkImageData.h"
 #include "vtkMarchingCubesCases.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.49");
+vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.50");
 vtkStandardNewMacro(vtkImageMarchingCubes);
 
 //----------------------------------------------------------------------------
