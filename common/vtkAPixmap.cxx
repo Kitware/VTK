@@ -51,7 +51,7 @@ vtkAPixmap::vtkAPixmap(const vtkAPixmap& fs)
   *(this->S) = *(fs.S);
 }
 
-vtkAPixmap::vtkAPixmap(const int sz, const int ext=1000)
+vtkAPixmap::vtkAPixmap(const int sz, const int ext)
 {
   this->S = new vtkUnsignedCharArray(4*sz,4*ext);
 }

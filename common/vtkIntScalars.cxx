@@ -51,7 +51,7 @@ vtkIntScalars::vtkIntScalars(const vtkIntScalars& ss)
   *(this->S) = *(ss.S);
 }
 
-vtkIntScalars::vtkIntScalars(const int sz, const int ext=1000)
+vtkIntScalars::vtkIntScalars(const int sz, const int ext)
 {
   this->S = new vtkIntArray(sz,ext);
 }

@@ -52,7 +52,7 @@ vtkUnsignedShortScalars::vtkUnsignedShortScalars(const vtkUnsignedShortScalars& 
 }
 
 vtkUnsignedShortScalars::vtkUnsignedShortScalars(const int sz, 
-						 const int ext=1000)
+						 const int ext)
 {
   this->S = new vtkUnsignedShortArray(sz, ext);
 }

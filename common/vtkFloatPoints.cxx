@@ -52,7 +52,7 @@ vtkFloatPoints::vtkFloatPoints(const vtkFloatPoints& fp)
   *(this->P) = *(fp.P);
 }
 
-vtkFloatPoints::vtkFloatPoints(const int sz, const int ext=1000)
+vtkFloatPoints::vtkFloatPoints(const int sz, const int ext)
 {
   this->P = new vtkFloatArray(3*sz,3*ext);
 }

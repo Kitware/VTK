@@ -52,7 +52,7 @@ vtkFloatVectors::vtkFloatVectors(const vtkFloatVectors& fv)
   *(this->V) = *(fv.V);
 }
 
-vtkFloatVectors::vtkFloatVectors(const int sz, const int ext=1000)
+vtkFloatVectors::vtkFloatVectors(const int sz, const int ext)
 {
   this->V = new vtkFloatArray(sz, ext);
 }

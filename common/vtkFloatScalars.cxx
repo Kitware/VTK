@@ -51,7 +51,7 @@ vtkFloatScalars::vtkFloatScalars(const vtkFloatScalars& fs)
   *(this->S) = *(fs.S);
 }
 
-vtkFloatScalars::vtkFloatScalars(const int sz, const int ext=1000)
+vtkFloatScalars::vtkFloatScalars(const int sz, const int ext)
 {
   this->S = new vtkFloatArray(sz, ext);
 }

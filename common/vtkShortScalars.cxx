@@ -51,7 +51,7 @@ vtkShortScalars::vtkShortScalars(const vtkShortScalars& ss)
   *(this->S) = *(ss.S);
 }
 
-vtkShortScalars::vtkShortScalars(const int sz, const int ext=1000)
+vtkShortScalars::vtkShortScalars(const int sz, const int ext)
 {
   this->S = new vtkShortArray(sz,ext);
 }

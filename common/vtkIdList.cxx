@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCell.h"
 
 
-vtkIdList::vtkIdList(const int sz=512, const int ext=1000)
+vtkIdList::vtkIdList(const int sz, const int ext)
 {
   this->Ia = new vtkIntArray(sz,ext);
 }

@@ -51,7 +51,7 @@ vtkFloatNormals::vtkFloatNormals(const vtkFloatNormals& fn)
   *(this->N) = *(fn.N);
 }
 
-vtkFloatNormals::vtkFloatNormals(const int sz, const int ext=1000)
+vtkFloatNormals::vtkFloatNormals(const int sz, const int ext)
 {
   this->N = new vtkFloatArray(3*sz,3*ext);
 }

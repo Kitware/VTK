@@ -47,7 +47,7 @@ vtkCellArray::vtkCellArray()
   this->Location = 0;
 }
 
-vtkCellArray::vtkCellArray(const int sz, const int ext=1000)
+vtkCellArray::vtkCellArray(const int sz, const int ext)
 {
   this->Ia = new vtkIntArray(sz,ext);
   this->NumberOfCells = 0;

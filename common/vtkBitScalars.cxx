@@ -51,7 +51,7 @@ vtkBitScalars::vtkBitScalars(const vtkBitScalars& cs)
   *(this->S) = *(cs.S);
 }
 
-vtkBitScalars::vtkBitScalars(const int sz, const int ext=1000)
+vtkBitScalars::vtkBitScalars(const int sz, const int ext)
 {
   this->S = new vtkBitArray(sz,ext);
 }

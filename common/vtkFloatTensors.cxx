@@ -52,7 +52,7 @@ vtkFloatTensors::vtkFloatTensors(const vtkFloatTensors& ft)
   this->Dimension = ft.Dimension;
 }
 
-vtkFloatTensors::vtkFloatTensors(int sz, int d=3, int ext=1000)
+vtkFloatTensors::vtkFloatTensors(int sz, int d, int ext)
 {
   this->T = new vtkFloatArray(d*d*sz,d*d*ext);
   this->Dimension = d;

@@ -52,7 +52,7 @@ vtkGraymap::vtkGraymap(const vtkGraymap& fs)
   *(this->S) = *(fs.S);
 }
 
-vtkGraymap::vtkGraymap(const int sz, const int ext=1000)
+vtkGraymap::vtkGraymap(const int sz, const int ext)
 {
   this->S = new vtkUnsignedCharArray(sz, ext);
 }

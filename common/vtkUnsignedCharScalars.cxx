@@ -51,7 +51,7 @@ vtkUnsignedCharScalars::vtkUnsignedCharScalars(const vtkUnsignedCharScalars& cs)
   *(this->S) = *(cs.S);
   }
 
-vtkUnsignedCharScalars::vtkUnsignedCharScalars(const int sz, const int ext=1000)
+vtkUnsignedCharScalars::vtkUnsignedCharScalars(const int sz, const int ext)
 {
   this->S = new vtkUnsignedCharArray(sz, ext);
 }

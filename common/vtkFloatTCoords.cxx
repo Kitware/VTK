@@ -52,7 +52,7 @@ vtkFloatTCoords::vtkFloatTCoords(const vtkFloatTCoords& ftc)
   this->Dimension = ftc.Dimension;
 }
 
-vtkFloatTCoords::vtkFloatTCoords(int sz, int d=2, int ext=1000)
+vtkFloatTCoords::vtkFloatTCoords(int sz, int d, int ext)
 {
   this->TC = new vtkFloatArray(d*sz,d*ext);
   this->Dimension = d;

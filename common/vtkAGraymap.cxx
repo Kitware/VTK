@@ -53,7 +53,7 @@ vtkAGraymap::vtkAGraymap(const vtkAGraymap& fs)
 }
 
 
-vtkAGraymap::vtkAGraymap(const int sz, const int ext=1000)
+vtkAGraymap::vtkAGraymap(const int sz, const int ext)
 {
   this->S = new vtkUnsignedCharArray(2*sz,2*ext);
 }
