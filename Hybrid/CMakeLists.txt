@@ -104,6 +104,7 @@ ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
 
 # Allow the user to customize their build with some local options
 #
+SET(LOCALUSERMACRODEFINED 0)
 INCLUDE (${VTK_BINARY_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 
@@ -154,6 +155,15 @@ TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS})
 
 INSTALL_TARGETS(/lib/vtk vtk${KIT})
 INSTALL_FILES(/include/vtk .h ${Kit_SRCS})
+
+# If the user defined a custom macro, execute it now and pass in all the srcs
+#
+IF(LOCALUSERMACRODEFINED)
+  LocalUserOptionsMacro( "${Kit_SRCS}"       "${Kit_EXTRA_SRCS}"
+                         "${KitTCL_SRCS}"    "${Kit_TCL_EXTRA_SRCS}"
+                         "${KitJava_SRCS}"   "${Kit_JAVA_EXTRA_SRCS}"
+                         "${KitPython_SRCS}" "${Kit_PYTHON_EXTRA_SRCS}")
+ENDIF(LOCALUSERMACRODEFINED)
 
 # End of common section
 # -----------------------------------------------------------------
