@@ -18,7 +18,7 @@ IF("VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T" MATCHES "^VTK_HAVE_GETSOCKNAME_WITH_SOC
   MESSAGE(STATUS "Checking for getsockname with socklen_t")
   TRY_COMPILE(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T
     ${VTK_BINARY_DIR}/CMakeTmp/SocklenT
-    ${VTK_SOURCE_DIR}/CMake/vtkTestSocklenT.c
+    ${VTK_SOURCE_DIR}/CMake/vtkTestSocklenT.cxx
     OUTPUT_VARIABLE OUTPUT)
   IF(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T)
     MESSAGE(STATUS "Checking for getsockname with socklen_t -- yes")
