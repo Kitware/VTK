@@ -185,6 +185,7 @@ vtkTriangleStrip.cxx
 vtkTrivialProducer.cxx
 vtkUniformGrid.cxx
 vtkUnstructuredGrid.cxx
+vtkUnstructuredGridAlgorithm.cxx
 vtkUnstructuredGridSource.cxx
 vtkUnstructuredGridToPolyDataAlgorithm.cxx
 vtkUnstructuredGridToPolyDataFilter.cxx
