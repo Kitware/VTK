@@ -86,7 +86,7 @@ vtkImageData::vtkImageData()
   
   for (idx = 0; idx < 3; ++idx)
     {
-    this->Dimensions[0] = 0;
+    this->Dimensions[idx] = 0;
     this->Extent[idx*2] = 0;
     this->Extent[idx*2+1] = -1;    
     this->Increments[idx] = 0;
