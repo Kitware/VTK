@@ -9,25 +9,30 @@ source ../../examplesTcl/vtkInt.tcl
 vtkPNMReader reader
   reader SetFileName ../../../vtkdata/masonry.ppm
 
-vtkImageGaussianSmooth smooth
-  smooth SetInput [reader GetOutput]
-  smooth SetStandardDeviation 5 5
+vtkImageLuminance luminance
+  luminance SetInput [reader GetOutput]
 
 vtkStructuredPointsGeometryFilter geometry
-  geometry SetInput [reader GetOutput]
+  geometry SetInput [luminance GetOutput]
 
 vtkWarpScalar warp
   warp SetInput [geometry GetOutput]
   warp SetScaleFactor -0.1
 
+#
+# use merge to put back scalars from image file
+#
+vtkMergeFilter merge
+  merge SetGeometry [warp GetOutput]
+  merge SetScalars  [reader GetOutput]
+
 vtkDataSetMapper mapper
-  mapper SetInput [warp GetOutput]
+  mapper SetInput [merge GetOutput]
   mapper SetScalarRange 0 255
   mapper ImmediateModeRenderingOff
 
 vtkActor actor
   actor SetMapper mapper
-  [actor GetProperty] SetOpacity 0.5
 
 # Create renderer stuff
 #
