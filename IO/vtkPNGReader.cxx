@@ -19,7 +19,7 @@
 #include "vtkPointData.h"
 #include "vtk_png.h"
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.21");
+vtkCxxRevisionMacro(vtkPNGReader, "1.22");
 vtkStandardNewMacro(vtkPNGReader);
 
 void vtkPNGReader::ExecuteInformation()
@@ -51,8 +51,7 @@ void vtkPNGReader::ExecuteInformation()
      NULL, NULL);
   if (!png_ptr)
     {
-    vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName 
-                  <<" is not a PNG!");
+    vtkErrorMacro(<< "Out of memory." );
     fclose(fp);
     return;
     }
@@ -62,8 +61,7 @@ void vtkPNGReader::ExecuteInformation()
     {
     png_destroy_read_struct(&png_ptr,
                             (png_infopp)NULL, (png_infopp)NULL);
-    vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName 
-                  <<" is not a PNG!");
+    vtkErrorMacro(<< "Out of memory.");
     fclose(fp);
     return;
     }
@@ -77,7 +75,14 @@ void vtkPNGReader::ExecuteInformation()
     fclose(fp);
     return;
     }
-  
+
+  // Set error handling
+  if (setjmp (png_jmpbuf(png_ptr)))
+  {
+    png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
+    return;
+  }
+ 
   png_init_io(png_ptr, fp);
   png_set_sig_bytes(png_ptr, 8);
 
@@ -86,11 +91,13 @@ void vtkPNGReader::ExecuteInformation()
   png_uint_32 width, height;
   int bit_depth, color_type, interlace_type;
   int compression_type, filter_method;
+  // get size and bit-depth of the PNG-image
   png_get_IHDR(png_ptr, info_ptr, 
                &width, &height,
                &bit_depth, &color_type, &interlace_type,
                &compression_type, &filter_method);
 
+  // set-up the transformations
   // convert palettes to RGB
   if (color_type == PNG_COLOR_TYPE_PALETTE)
     {
@@ -178,6 +185,13 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
     return;
     }
   
+  // Set error handling
+  if (setjmp (png_jmpbuf(png_ptr)))
+  {
+    png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
+    return;
+  }
+
   png_init_io(png_ptr, fp);
   png_set_sig_bytes(png_ptr, 8);
   png_read_info(png_ptr, info_ptr);
@@ -185,11 +199,13 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
   png_uint_32 width, height;
   int bit_depth, color_type, interlace_type;
   int compression_type, filter_method;
+  // get size and bit-depth of the PNG-image
   png_get_IHDR(png_ptr, info_ptr, 
                &width, &height,
                &bit_depth, &color_type, &interlace_type,
                &compression_type, &filter_method);
 
+  // set-up the transformations
   // convert palettes to RGB
   if (color_type == PNG_COLOR_TYPE_PALETTE)
     {
