@@ -316,7 +316,20 @@ static void WriteDataArray(FILE *fp, T *data, int fileType, char *format, int nu
     }
   else
     {
-    fwrite (data, sizeof(T), num*numComp, fp);
+    // need to byteswap ??
+    switch (sizeof(T))
+      {
+      case 2:
+	// typecast doesn't have to be valid here
+	vtkByteSwap::SwapWrite2BERange((short *)data,num*numComp, fp);
+	break;
+      case 4:
+	// typecast doesn't have to be valid here
+	vtkByteSwap::SwapWrite4BERange((float *)data,num*numComp, fp);
+	break;
+      default:
+	fwrite (data, sizeof(T), num*numComp, fp);
+      }
     }
   fprintf (fp,"\n");
 }
