@@ -566,7 +566,7 @@ void vtkXglrRenderWindow::WindowInitialize (void)
 		      XGL_CTX_NEW_FRAME_ACTION, 
 		      XGL_CTX_NEW_FRAME_HLHSR_ACTION | XGL_CTX_NEW_FRAME_CLEAR,
 		      XGL_3D_CTX_HLHSR_MODE, XGL_HLHSR_Z_BUFFER,
-		      XGL_CTX_VDC_MAP, XGL_VDC_MAP_ALL, 
+		      XGL_CTX_VDC_MAP, XGL_VDC_MAP_OFF, 
 		      XGL_CTX_VDC_WINDOW, &xglr_vdc_window,
 		      XGL_CTX_VIEW_CLIP_BOUNDS, &xglr_vdc_window,
 		      XGL_CTX_CLIP_PLANES,
@@ -775,14 +775,39 @@ unsigned char *vtkXglrRenderWindow::GetPixelData(int x1, int y1,
 						 int x2, int y2,
 						 int front)
 {
-  long     xloop,yloop;
+  int     current;
+  long    xloop,yloop;
   int     y_low, y_hi;
   int     x_low, x_hi;
-  Xgl_color col;
-  Xgl_pt_i2d pos;
   unsigned char   *data = NULL;
   unsigned char   *p_data = NULL;
+  static  Xgl_ras *getRas = NULL;
+  static  Xgl_3d_ctx getContext;
+  Xgl_usgn32 *input;
 
+  if (!getRas)
+    {
+    getRas = (Xgl_ras *)xgl_object_create (xglr_sys_state, 
+					   XGL_MEM_RAS, 0,
+					   XGL_DEV_COLOR_TYPE, 
+					   XGL_COLOR_RGB, 
+					   XGL_RAS_WIDTH, abs(x2 - x1)+1,
+					   XGL_RAS_HEIGHT, abs(y2 - y1)+1,
+					   XGL_RAS_DEPTH, 32,
+					   0);
+    getContext = xgl_object_create (xglr_sys_state, 
+				    XGL_3D_CTX, NULL,
+				    XGL_CTX_DEVICE, getRas,
+				    0);
+    }
+  else
+    {
+    xgl_object_set (getRas, 
+		    XGL_RAS_WIDTH, abs(x2 - x1) + 1,
+		    XGL_RAS_HEIGHT, abs(y2 - y1) + 1,
+		    0);
+    }
+  
   data = new unsigned char[(abs(x2 - x1) + 1)*(abs(y2 - y1) + 1)*3];
 
   if (y1 < y2)
@@ -807,31 +832,35 @@ unsigned char *vtkXglrRenderWindow::GetPixelData(int x1, int y1,
     x_hi  = x1;
     }
 
+  // Get the memory rasters pixel data 
+  xgl_object_get (getRas, XGL_MEM_RAS_IMAGE_BUFFER_ADDR, &input);
   
-  if (this->DoubleBuffer)
+  xgl_object_get (this->WindowRaster, XGL_WIN_RAS_BUF_DRAW, &current);
+
+  // If we have double buffering, we need to get the prevoius draw buffer 
+  if (this->DoubleBuffer && front) 
     {
-    if (front)
-      {
-      xgl_object_set(this->WindowRaster, XGL_RAS_SOURCE_BUFFER, 0, 0); 
-      }
-    else
-      {
-      xgl_object_set(this->WindowRaster, XGL_RAS_SOURCE_BUFFER, 1, 0); 
-      }
+    xgl_object_set (this->WindowRaster,
+		    XGL_WIN_RAS_BUF_DRAW, !current,
+		    0);
     }
+
+  /* Now copy the draw buffer to our memory raster */
+  xgl_context_copy_buffer (getContext, NULL, NULL, this->WindowRaster);
+
+  /* For double buffered systems, reset the draw buffer */
+  xgl_object_set (this->WindowRaster, XGL_WIN_RAS_BUF_DRAW, current, 0);
 
   /* now write the binary info one row at a time */
   p_data = data;
   for (yloop = y_low; yloop <= y_hi; yloop++)
     {
-    pos.y = yloop;
     for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
       {
-      pos.x = xloop;
-      xgl_context_get_pixel(this->Context,&pos,&col);
-      *p_data = (unsigned char)(col.rgb.r*255.0); p_data++;
-      *p_data = (unsigned char)(col.rgb.g*255.0); p_data++;
-      *p_data = (unsigned char)(col.rgb.b*255.0); p_data++;
+      *p_data = *input & 0x000000ff; p_data++;
+      *p_data = (*input & 0x0000ff00) >> 8; p_data++;
+      *p_data = (*input & 0x00ff0000) >> 16; p_data++;
+      input++;
       }
     }
   
@@ -919,8 +948,6 @@ void vtkXglrRenderWindow::CopyResultFrame(void)
     size = this->GetSize();
 
     this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,0);
-    delete this->ResultFrame;
-    this->ResultFrame = NULL;
     }
 
   this->Frame();
