@@ -66,7 +66,7 @@ public:
   vtkOStreamWrapper& operator << (unsigned long);
   vtkOStreamWrapper& operator << (float);
   vtkOStreamWrapper& operator << (double);
-#if defined(VTK_SIZEOF_LONG_LONG) && !defined(__HP_aCC)
+#if defined(VTK_SIZEOF_LONG_LONG)
   vtkOStreamWrapper& operator << (long long);
   vtkOStreamWrapper& operator << (unsigned long long);
 #endif
