@@ -8,6 +8,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+// Switch to turn on and off widget building in the working directory
+#define BUILD_WORKING_TK_WIDGET 0
+
 // where to split the graphics library: A-O and P-Z
 #define LIB_SPLIT_STRING "vtkp" 
 
@@ -157,6 +160,8 @@ void removeUNIXOnlyFiles(CPcmakerDlg *vals)
     if (!(strcmp(concrete[i],"vtkXRenderWindow") &&
           strcmp(concrete[i],"vtkXRenderWindowInteractor") &&
           strcmp(concrete[i],"vtkImageXViewer") &&
+		  strcmp(concrete[i], "vtkXImageMapper") &&
+		  strcmp(concrete[i], "vtkXImageWindow") &&
           strncmp(concrete[i],"vtkDFA",6) && 
           strncmp(concrete[i],"vtkTcl",6) && 
           strncmp(concrete[i],"vtkTk",5) ))
@@ -191,6 +196,8 @@ void removeUNIXOnlyFiles(CPcmakerDlg *vals)
     if (!(strcmp(abstract[i],"vtkXRenderWindow") &&
           strcmp(abstract[i],"vtkXRenderWindowInteractor") &&
           strcmp(abstract[i],"vtkImageXViewer") &&
+		  strcmp(concrete[i], "vtkXImageMapper") &&
+		  strcmp(concrete[i], "vtkXImageWindow") &&
           strncmp(abstract[i],"vtkDFA",6) && 
           strncmp(abstract[i],"vtkTcl",6) && 
           strncmp(abstract[i],"vtkTk",5) ))
@@ -349,6 +356,7 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
   if (vals->m_Imaging) fprintf(fp,"extern \"C\" {int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}\n\n");
   if (vals->m_Working) fprintf(fp,"extern \"C\" {int Vtktkimagewindowwidget_Init(Tcl_Interp *interp);}\n\n");
 
+
   fprintf(fp,"\n\nint %s_Init(Tcl_Interp *interp)\n{\n",kitName);
   if (!strcmp(kitName,"Vtktcl"))
     {
@@ -367,7 +375,9 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
     /* initialize the tkRenderWidget */
     if (vals->m_Graphics) fprintf(fp,"  Vtktkrenderwidget_Init(interp);\n");
     if (vals->m_Imaging) fprintf(fp,"  Vtktkimageviewerwidget_Init(interp);\n");
+
 	if (vals->m_Working) fprintf(fp,"  Vtktkimagewindowwidget_Init(interp);\n");
+
   }
   
   for (i = 0; i < anindex; i++)
@@ -600,6 +610,12 @@ int ReadMakefiles(CPcmakerDlg *vals)
     UpdateStart(LT_WORKING);
     sprintf(fname,"%s\\working\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("working"));
+	  concrete[num_concrete] = strdup("vtkWin32ImageMapper");
+    concrete_lib[num_concrete] = strdup("working");
+    num_concrete++;
+	  concrete[num_concrete] = strdup("vtkWin32ImageWindow");
+    concrete_lib[num_concrete] = strdup("working");
+    num_concrete++;
     UpdateEnd(LT_WORKING);
     }
   if (vals->m_GEMSIP)
@@ -1633,7 +1649,9 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
   fprintf(fp,"    \"$(OUTDIR)\\vtkTclUtil.obj\" \\\n");
   if (vals->m_Graphics) fprintf(fp,"    \"$(OUTDIR)\\vtkTkRenderWidget.obj\" \\\n");
   if (vals->m_Imaging)  fprintf(fp,"    \"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" \\\n");
+
   if (vals->m_Working)  fprintf(fp,"    \"$(OUTDIR)\\vtkTkImageWindowWidget.obj\" \\\n");
+
   for (i = 0; i < num_abstractTcl; i++)
   {
     fprintf(fp,"    \"$(OUTDIR)\\%s.obj\" \\\n",abstractTcl[i]);
@@ -1725,6 +1743,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 	    vals->m_WhereVTK);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\imaging\\vtkTkImageViewerWidget.cxx\"\n\n",vals->m_WhereVTK);
     }
+
 
   if (vals->m_Working)
     {
@@ -2614,12 +2633,14 @@ void SetupDepends(CPcmakerDlg *vals, int debugFlag)
     AddToDepends(file);
     }
 
+
   if (vals->m_Working)
     {
     sprintf(file,"%s\\working\\vtkTkImageWindowWidget.cxx",vals->m_WhereVTK);
     AddToDepends(file);
     }
-  
+
+
   // now get split information for the graphics library(ies)
   if (vals->m_Graphics)
     SetupSplitGraphicsDepends(vals);
