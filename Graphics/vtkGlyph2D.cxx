@@ -26,7 +26,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph2D, "1.18");
+vtkCxxRevisionMacro(vtkGlyph2D, "1.19");
 vtkStandardNewMacro(vtkGlyph2D);
 
 void vtkGlyph2D::Execute()
@@ -43,7 +43,7 @@ void vtkGlyph2D::Execute()
   vtkDataArray *newScalars=NULL;
   vtkDataArray *newVectors=NULL;
   vtkDataArray *newNormals=NULL;
-  float *x, *v = NULL, s = 0.0, vMag = 0.0, value, theta;
+  float x[3], v[3], s = 0.0, vMag = 0.0, value, theta;
   vtkTransform *trans = vtkTransform::New();
   vtkCell *cell;
   vtkIdList *cellPts;
@@ -249,11 +249,11 @@ void vtkGlyph2D::Execute()
       {
       if ( this->VectorMode == VTK_USE_NORMAL )
         {
-        v = inNormals->GetTuple(inPtId);
+        inNormals->GetTuple(inPtId, v);
         }
       else
         {
-        v = inVectors->GetTuple(inPtId);
+        inVectors->GetTuple(inPtId, v);
         }
       vMag = vtkMath::Norm(v);
       if ( this->ScaleMode == VTK_SCALE_BY_VECTORCOMPONENTS )
@@ -336,7 +336,7 @@ void vtkGlyph2D::Execute()
       }
     
     // translate Source to Input point
-    x = input->GetPoint(inPtId);
+    input->GetPoint(inPtId, x);
     trans->Translate(x[0], x[1], 0.0);
     
     if ( haveVectors )

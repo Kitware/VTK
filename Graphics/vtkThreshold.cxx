@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkThreshold, "1.61");
+vtkCxxRevisionMacro(vtkThreshold, "1.62");
 vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -91,7 +91,7 @@ void vtkThreshold::Execute()
   vtkPoints *newPoints;
   int i, ptId, newId, numPts;
   int numCellPts;
-  float *x;
+  float x[3];
   vtkDataSet *input = this->GetInput();
   
   if (!input)
@@ -218,7 +218,7 @@ void vtkThreshold::Execute()
         ptId = cellPts->GetId(i);
         if ( (newId = pointMap->GetId(ptId)) < 0 )
           {
-          x = input->GetPoint(ptId);
+          input->GetPoint(ptId, x);
           newId = newPoints->InsertNextPoint(x);
           pointMap->SetId(ptId,newId);
           outPD->CopyData(pd,ptId,newId);

@@ -52,7 +52,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.66");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.67");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -185,9 +185,10 @@ void vtkGridSynchronizedTemplates3DInitializeOutput(
 // Close to central differences for a grid as I could get.
 // Given a linear gradient assumption find gradient that minimizes
 // error squared for + and - (*3) neighbors).
-template <class T>
+template <class T, class PointsType>
 void ComputeGridPointGradient(int i, int j, int k, int inExt[6], 
-                              int incY, int incZ, T *sc, float *pt, float g[3])
+                              int incY, int incZ, T *sc, PointsType* pt,
+                              float g[3])
 {
   float N[6][3];
   double NtN[3][3], NtNi[3][3];
@@ -197,7 +198,7 @@ void ComputeGridPointGradient(int i, int j, int k, int inExt[6],
   float s[6], Nts[3], sum;
   int count = 0;
   T *s2;
-  float *p2;
+  PointsType *p2;
 
   if (i == 2 && k == 2)
     {
@@ -354,9 +355,9 @@ if (ComputeScalars) \
 
 //----------------------------------------------------------------------------
 // Contouring filter specialized for images
-template <class T>
+template <class T, class PointsType>
 void ContourGrid(vtkGridSynchronizedTemplates3D *self, int vtkNotUsed(threadId),
-                 int *exExt, T *scalars, vtkPolyData *output)
+                 int *exExt, T *scalars, vtkPolyData *output, PointsType*)
 {
   vtkStructuredGrid *input = (vtkStructuredGrid *)self->GetInput();
   int *inExt = input->GetExtent();
@@ -365,13 +366,14 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self, int vtkNotUsed(threadId),
   float n0[3], n1[3];  // used in gradient macro
   float *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
-  float *inPtPtrX, *inPtPtrY, *inPtPtrZ;
-  float *p0, *p1, *p2, *p3;
+  PointsType *inPtPtrX, *inPtPtrY, *inPtPtrZ;
+  PointsType *p0, *p1, *p2, *p3;
   T *inPtrX, *inPtrY, *inPtrZ;
   T *s0, *s1, *s2, *s3;
   int XMin, XMax, YMin, YMax, ZMin, ZMax;
   int incY, incZ;
-  vtkPoints *inPts = input->GetPoints();
+  PointsType* points =
+    static_cast<PointsType*>(input->GetPoints()->GetData()->GetVoidPointer(0));
   float t;
   int *isect1Ptr, *isect2Ptr;
   vtkIdType ptIds[3];
@@ -473,9 +475,9 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self, int vtkNotUsed(threadId),
     {
     value = values[vidx];
     //  skip any slices which are overlap for computing gradients.
-    inPtPtrZ = inPts->GetPoint((ZMin - inExt[4]) * incZ +
-                               (YMin - inExt[2]) * incY +
-                               (XMin - inExt[0]));
+    inPtPtrZ = points + 3*((ZMin - inExt[4]) * incZ +
+                           (YMin - inExt[2]) * incY +
+                           (XMin - inExt[0]));
     inPtrZ = scalars + ((ZMin - inExt[4]) * incZ +
                         (YMin - inExt[2]) * incY +
                         (XMin - inExt[0]));
@@ -669,6 +671,17 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self, int vtkNotUsed(threadId),
     }
 
   delete [] isect1;
+}
+
+template <class T>
+void ContourGrid(vtkGridSynchronizedTemplates3D *self, int threadId,
+                 int *exExt, T *scalars, vtkPolyData *output)
+{
+  switch(self->GetInput()->GetPoints()->GetData()->GetDataType())
+    {
+    vtkTemplateMacro6(ContourGrid, self, threadId, exExt, scalars, output,
+                      (VTK_TT*)0);
+    }
 }
 
 //----------------------------------------------------------------------------

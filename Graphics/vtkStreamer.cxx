@@ -28,7 +28,7 @@
 #include "vtkPointData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.83");
+vtkCxxRevisionMacro(vtkStreamer, "1.84");
 vtkCxxSetObjectMacro(vtkStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
@@ -456,7 +456,7 @@ void vtkStreamer::Integrate()
   vtkIdType ptId, i;
   int j, offset;
   vtkCell *cell;
-  float *v, *cellVel, derivs[9], xNext[3], vort[3];
+  float v[3], *cellVel, derivs[9], xNext[3], vort[3];
   float tol2;
   float *w=new float[input->GetMaxCellSize()];
   vtkFloatArray *cellVectors;
@@ -565,7 +565,7 @@ void vtkStreamer::Integrate()
       sPtr->v[0]  = sPtr->v[1] = sPtr->v[2] = 0.0;
       for (i=0; i < cell->GetNumberOfPoints(); i++)
         {
-        v =  cellVectors->GetTuple(i);
+        cellVectors->GetTuple(i, v);
         for (j=0; j<3; j++)
           {
           sPtr->v[j] += v[j] * w[i];

@@ -27,7 +27,7 @@
 #include "vtkIdList.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.5");
+vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.6");
 vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 
 // ways to convert to a voxel to tetrahedra.
@@ -332,8 +332,9 @@ inline void vtkRectilinearGridToTetrahedra::TetrahedralizeAddCenterPoint(
                                                     vtkPoints *NodeList)
 {
   // Need to add a center point
-  float *c2 = NodeList->GetPoint(VoxelCorners->GetId(0));
-  float *c1 = NodeList->GetPoint(VoxelCorners->GetId(7));
+  float c1[3], c2[3];
+  NodeList->GetPoint(VoxelCorners->GetId(0), c2);
+  NodeList->GetPoint(VoxelCorners->GetId(7), c1);
   float center[3];
   center[0] = (c1[0] + c2[0])/2.0;
   center[1] = (c1[1] + c2[1])/2.0;

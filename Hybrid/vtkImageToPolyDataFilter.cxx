@@ -29,7 +29,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.23");
+vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.24");
 vtkStandardNewMacro(vtkImageToPolyDataFilter);
 
 vtkCxxSetObjectMacro(vtkImageToPolyDataFilter,LookupTable,vtkScalarsToColors);
@@ -1256,7 +1256,7 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
   vtkIdType numPts=points->GetNumberOfPoints(), ptId;
   int i, iterNum;
   int connId;
-  float x[3], *xconn, xave[3], factor;
+  float x[3], xconn[3], xave[3], factor;
   unsigned short int ncells;
   vtkIdType *cells, *pts, npts;
 
@@ -1285,7 +1285,7 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
           {
           edges->GetCellPoints(cells[i], npts, pts);
           connId = (pts[0] != ptId ? pts[0] : pts[1]);
-          xconn = points->GetPoint(connId);
+          points->GetPoint(connId, xconn);
           xave[0] += xconn[0]; xave[1] += xconn[1]; xave[2] += xconn[2];
           }
         if ( ncells > 0 )
@@ -1312,7 +1312,7 @@ void vtkImageToPolyDataFilter::DecimateEdges(vtkPolyData *edges,
   vtkPoints *points=edges->GetPoints();
   vtkIdType numPts=points->GetNumberOfPoints(), ptId, prevId, nextId;
   vtkIdType npts;
-  float *x, *xPrev, *xNext;
+  float x[3], xPrev[3], xNext[3];
   unsigned short int ncells;
   vtkIdType *cells, *pts;
 
@@ -1323,17 +1323,17 @@ void vtkImageToPolyDataFilter::DecimateEdges(vtkPolyData *edges,
     {
     if ( pointDescr->GetValue(ptId) == 0 )
       {
-      x = points->GetPoint(ptId);
+      points->GetPoint(ptId, x);
       edges->GetPointCells(ptId, ncells, cells);
       if ( ncells == 2 )
         {
         edges->GetCellPoints(cells[0], npts, pts);
         prevId = (pts[0] != ptId ? pts[0] : pts[1]);
-        xPrev = points->GetPoint(prevId);
+        points->GetPoint(prevId, xPrev);
 
         edges->GetCellPoints(cells[1], npts, pts);
         nextId = (pts[0] != ptId ? pts[0] : pts[1]);
-        xNext = points->GetPoint(nextId);
+        points->GetPoint(nextId, xNext);
 
         if ( vtkLine::DistanceToLine(x, xPrev, xNext) <= tol2 )
           {

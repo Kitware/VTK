@@ -41,7 +41,7 @@
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDecimate, "1.73");
+vtkCxxRevisionMacro(vtkDecimate, "1.74");
 vtkStandardNewMacro(vtkDecimate);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
@@ -1160,7 +1160,7 @@ int vtkDecimate::CheckError ()
   vtkIdType i;
   int j;
   float error, planeError;
-  float normal[3], np[3], v21[3], v31[3], *x1, *x2, *x3;
+  float normal[3], np[3], v21[3], v31[3], x1[3], x2[3], x3[3];
   //
   //  Loop through triangles computing distance to plane (looking for minimum
   //  perpendicular distance)
@@ -1172,9 +1172,9 @@ int vtkDecimate::CheckError ()
       {
       break;
       }
-    x1 = Mesh->GetPoint(this->T->Array[i].verts[0]);
-    x2 = Mesh->GetPoint(this->T->Array[i].verts[1]);
-    x3 = Mesh->GetPoint(this->T->Array[i].verts[2]);
+    Mesh->GetPoint(this->T->Array[i].verts[0], x1);
+    Mesh->GetPoint(this->T->Array[i].verts[1], x2);
+    Mesh->GetPoint(this->T->Array[i].verts[2], x3);
 
     for (j=0; j<3; j++) 
       {

@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.11");
+vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.12");
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //----------------------------------------------------------------------------
@@ -59,10 +59,11 @@ static inline void Centroid(vtkPoints* pd, float *cp)
   
   // Calculate center of shape
   for (int i = 0; i < np; i++)
-  {
-    float *p = pd->GetPoint(i);
+    {
+    float p[3];
+    pd->GetPoint(i, p);
     cp[0] += p[0]; cp[1] += p[1]; cp[2] += p[2];
-  }
+    }
   cp[0] /= np; cp[1] /= np; cp[2] /= np;
 }
 
@@ -74,9 +75,9 @@ static inline double CentroidSize(vtkPoints* pd, float *cp)
   
   double S = 0;
   for (int i = 0; i < pd->GetNumberOfPoints(); i++)
-  {
-    float *p = pd->GetPoint(i);
-    
+    {
+    float p[3];
+    pd->GetPoint(i, p);
     S += vtkMath::Distance2BetweenPoints(p,cp);
   }
   
@@ -88,11 +89,11 @@ static inline double CentroidSize(vtkPoints* pd, float *cp)
 static inline void TranslateShape(vtkPoints* pd, float *tp)
 {
   for (int i = 0; i < pd->GetNumberOfPoints(); i++)
-  {
-    float *p = pd->GetPoint(i);
-    
+    {
+    float p[3];
+    pd->GetPoint(i, p);
     pd->SetPoint(i, p[0]+tp[0], p[1]+tp[1], p[2]+tp[2]);
-  }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -100,11 +101,11 @@ static inline void TranslateShape(vtkPoints* pd, float *tp)
 static inline void ScaleShape(vtkPoints* pd, double S)
 {
   for (int i = 0; i < pd->GetNumberOfPoints(); i++)
-  {
-    float *p = pd->GetPoint(i);
-    
+    {
+    float p[3];
+    pd->GetPoint(i, p);
     pd->SetPoint(i, p[0]*S, p[1]*S, p[2]*S);
-  }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -202,7 +203,7 @@ void vtkProcrustesAlignmentFilter::Execute()
   int iterations=0;
   const int MAX_ITERATIONS=5;
   float difference; 
-  float point[3],*p,*p2;
+  float point[3],p[3],p2[3];
   do { // (while not converged)
 
     // align each pointset with the mean
@@ -225,12 +226,12 @@ void vtkProcrustesAlignmentFilter::Execute()
       point[2]=0.0F;
       for(i=0;i<N_SETS;i++)
         {
-        p = this->GetOutput(i)->GetPoint(v);
+         this->GetOutput(i)->GetPoint(v, p);
         point[0]+=p[0];
         point[1]+=p[1];
         point[2]+=p[2];
         }
-      p = new_mean->GetPoint(v);
+      new_mean->GetPoint(v, p);
       p[0] = point[0]/(float)N_SETS;
       p[1] = point[1]/(float)N_SETS;
       p[2] = point[2]/(float)N_SETS;
@@ -264,8 +265,8 @@ void vtkProcrustesAlignmentFilter::Execute()
     difference = 0.0F;
     for(v=0;v<N_POINTS;v++)
       {
-        p = new_mean->GetPoint(v);
-        p2 = MeanPoints->GetPoint(v);
+        new_mean->GetPoint(v, p);
+        MeanPoints->GetPoint(v, p2);
         difference += vtkMath::Distance2BetweenPoints(p,p2);
         p2[0] = p[0];
         p2[1] = p[1];

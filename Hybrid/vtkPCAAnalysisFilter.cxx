@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.6");
+vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.7");
 vtkStandardNewMacro(vtkPCAAnalysisFilter);
 
 //------------------------------------------------------------------------
@@ -235,7 +235,8 @@ void vtkPCAAnalysisFilter::Execute()
   
   for (i = 0; i < n; i++) {
     for (int j = 0; j < s; j++) {
-      float *p = this->GetInput(j)->GetPoint(i);
+      float p[3];
+      this->GetInput(j)->GetPoint(i, p);
       D[i*3  ][j] = p[0];
       D[i*3+1][j] = p[1];
       D[i*3+2][j] = p[2];
@@ -345,7 +346,8 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray 
   
   // Copy shape and subtract mean shape
   for (i = 0; i < n; i++) {
-    float *p = shape->GetPoint(i);
+    float p[3];
+    shape->GetPoint(i, p);
     shapevec[i*3  ] = p[0] - meanshape[i*3];
     shapevec[i*3+1] = p[1] - meanshape[i*3+1];
     shapevec[i*3+2] = p[2] - meanshape[i*3+2];

@@ -33,7 +33,7 @@
 #include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.60");
+vtkCxxRevisionMacro(vtkClipVolume, "1.61");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -131,7 +131,7 @@ void vtkClipVolume::Execute()
   vtkFloatArray *cellScalars; 
   vtkPoints *newPoints;
   vtkIdList *cellIds;
-  float value, s, *x, origin[3], spacing[3];
+  float value, s, x[3], origin[3], spacing[3];
   vtkIdType estimatedSize, numCells=input->GetNumberOfCells();
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkPointData *inPD=input->GetPointData(), *outPD=output->GetPointData();
@@ -344,7 +344,7 @@ void vtkClipVolume::Execute()
             id = ii*4;
             for (jj=0; jj<4; jj++)
               {
-              x = tetraPts->GetPoint(id+jj);
+              tetraPts->GetPoint(id+jj, x);
               if ( this->Locator->InsertUniquePoint(x, pts[jj]) )
                 {
                 outPD->CopyData(inPD,tetraIds->GetId(id+jj),pts[jj]);
@@ -544,12 +544,12 @@ void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars,
       type = (this->GenerateClippedOutput ? 1 : 4); 
       }
 
-    xPtr = cellPts->GetPoint(ptId);
-    if ( this->Locator->InsertUniquePoint(xPtr, id) )
+    cellPts->GetPoint(ptId, x);
+    if ( this->Locator->InsertUniquePoint(x, id) )
       {
       outPD->CopyData(inPD, cellIds->GetId(ptId), id);
       }
-    internalId[ptId] = this->Triangulator->InsertPoint(id, xPtr, xPtr, type);
+    internalId[ptId] = this->Triangulator->InsertPoint(id, x, x, type);
     }//for eight voxel corner points
   
   // For each edge intersection point, insert into triangulation. Edge

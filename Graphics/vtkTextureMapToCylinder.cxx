@@ -27,7 +27,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkTextureMapToCylinder, "1.28");
+vtkCxxRevisionMacro(vtkTextureMapToCylinder, "1.29");
 vtkStandardNewMacro(vtkTextureMapToCylinder);
 
 // Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 
@@ -55,7 +55,7 @@ void vtkTextureMapToCylinder::Execute()
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkIdType ptId;
   int i;
-  float *x, tc[2], thetaX, thetaY, closest[3], v[3];
+  float x[3], tc[2], thetaX, thetaY, closest[3], v[3];
   float axis[3], vP[3], vec[3];
 
   vtkDebugMacro(<<"Generating Cylindrical Texture Coordinates");
@@ -77,7 +77,7 @@ void vtkTextureMapToCylinder::Execute()
 
     for ( ptId=0; ptId < numPts; ptId++ )
       {
-      x = input->GetPoint(ptId);
+      input->GetPoint(ptId, x);
       pts->SetPoint(ptId,x);
       }
 
@@ -130,7 +130,7 @@ void vtkTextureMapToCylinder::Execute()
   //loop over all points computing spherical coordinates
   for ( ptId=0; ptId < numPts; ptId++ )
     {
-    x = input->GetPoint(ptId);
+    input->GetPoint(ptId, x);
     vtkLine::DistanceToLine(x,this->Point1,this->Point2,tc[1],closest);
 
     for (i=0; i < 3; i++)

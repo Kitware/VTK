@@ -27,7 +27,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.56");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.57");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -330,24 +330,26 @@ void vtkQuadricClustering::AddStrips(vtkCellArray *strips, vtkPoints *points,
   int j;
   vtkIdType *ptIds = 0;
   vtkIdType numPts = 0;
-  float *pts[3];
+  float pts[3][3];
   vtkIdType binIds[3];
   int odd;  // Used to flip order of every other triangle in a strip.
 
   for ( strips->InitTraversal(); strips->GetNextCell(numPts, ptIds); )
     {
-    pts[0] = points->GetPoint(ptIds[0]);
+    points->GetPoint(ptIds[0], pts[0]);
     binIds[0] = this->HashPoint(pts[0]);
-    pts[1] = points->GetPoint(ptIds[1]);
+    points->GetPoint(ptIds[1], pts[1]);
     binIds[1] = this->HashPoint(pts[1]);
     // This internal loop handles triangle strips.
     odd = 0;
     for (j = 2; j < numPts; ++j)
       {
-      pts[2] = points->GetPoint(ptIds[j]);
+      points->GetPoint(ptIds[j], pts[2]);
       binIds[2] = this->HashPoint(pts[2]);
       this->AddTriangle(binIds, pts[0], pts[1], pts[2], geometryFlag);
-      pts[odd] = pts[2];
+      pts[odd][0] = pts[2][0];
+      pts[odd][1] = pts[2][1];
+      pts[odd][2] = pts[2][2];
       binIds[odd] = binIds[2];
       // Toggle odd.
       odd = odd ? 0 : 1;
@@ -458,7 +460,7 @@ void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
   vtkIdType numCells, i;
   vtkIdType *ptIds = 0;
   vtkIdType numPts = 0;
-  float *pt0, *pt1;
+  float pt0[3], pt1[3];
   vtkIdType binIds[2];
 
   // Add the edges to the error fuction.
@@ -467,15 +469,17 @@ void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
   for (i = 0; i < numCells; ++i)
     {
     edges->GetNextCell(numPts, ptIds);
-    pt0 = points->GetPoint(ptIds[0]);
+    points->GetPoint(ptIds[0], pt0);
     binIds[0] = this->HashPoint(pt0);
     // This internal loop handles line strips.
     for (j = 1; j < numPts; ++j)
       {
-      pt1 = points->GetPoint(ptIds[j]);
+      points->GetPoint(ptIds[j], pt1);
       binIds[1] = this->HashPoint(pt1);
       this->AddEdge(binIds, pt0, pt1, geometryFlag);
-      pt0 = pt1;
+      pt0[0] = pt1[0];
+      pt0[1] = pt1[1];
+      pt0[2] = pt1[2];
       binIds[0] = binIds[1];
       }
     ++this->InCellCount;
@@ -598,7 +602,7 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
   vtkIdType numCells, i;
   vtkIdType *ptIds = 0;
   vtkIdType numPts = 0;
-  float *pt;
+  float pt[3];
   vtkIdType binId;
 
   numCells = verts->GetNumberOfCells();
@@ -609,7 +613,7 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
     // Can there be poly vertices?
     for (j = 0; j < numPts; ++j)
       {
-      pt = points->GetPoint(ptIds[j]);
+      points->GetPoint(ptIds[j], pt);
       binId = this->HashPoint(pt);
       this->AddVertex(binId, pt, geometryFlag);
       }
@@ -1163,7 +1167,7 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input)
   vtkIdType *tmp = NULL;
   int        tmpLength = 0;
   int        tmpIdx;
-  float *pt;
+  float pt[3];
   int j;
   vtkIdType *ptIds = 0;
   vtkIdType numPts = 0;
@@ -1188,7 +1192,7 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input)
     tmpIdx = 0;
     for (j = 0; j < numPts; ++j)
       {
-      pt = input->GetPoint(ptIds[j]);
+      input->GetPoint(ptIds[j], pt);
       binId = this->HashPoint(pt);
       outPtId = this->QuadricArray[binId].VertexId;
       if (outPtId >= 0)
@@ -1233,7 +1237,7 @@ void vtkQuadricClustering::AppendFeatureQuadrics(vtkPolyData *pd)
   vtkCellArray *edges;
   vtkIdType i;
   vtkIdType binId;
-  float *featurePt;
+  float featurePt[3];
 
   // Find the boundary edges.
   input->ShallowCopy(pd);
@@ -1250,7 +1254,7 @@ void vtkQuadricClustering::AppendFeatureQuadrics(vtkPolyData *pd)
       this->FindFeaturePoints(edges, edgePts, this->FeaturePointsAngle);
       for (i = 0; i < this->FeaturePoints->GetNumberOfPoints(); i++)
         {
-        featurePt = this->FeaturePoints->GetPoint(i);
+        this->FeaturePoints->GetPoint(i, featurePt);
         binId = this->HashPoint(featurePt);
         this->AddVertex(binId, featurePt, 0);
         }

@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkInterpolatingSubdivisionFilter, "1.20");
+vtkCxxRevisionMacro(vtkInterpolatingSubdivisionFilter, "1.21");
 
 // Construct object with number of subdivisions set to 1.
 vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter()
@@ -163,7 +163,7 @@ vtkIdType vtkInterpolatingSubdivisionFilter::InterpolatePosition (
         vtkPoints *inputPts, vtkPoints *outputPts,
         vtkIdList *stencil, float *weights)
 {
-  float *xx, x[3];
+  float xx[3], x[3];
   int i, j;
 
   for (j = 0; j < 3; j++)
@@ -173,7 +173,7 @@ vtkIdType vtkInterpolatingSubdivisionFilter::InterpolatePosition (
 
   for (i = 0; i < stencil->GetNumberOfIds(); i++)
     {
-    xx = inputPts->GetPoint(stencil->GetId(i));
+    inputPts->GetPoint(stencil->GetId(i), xx);
     for (j = 0; j < 3; j++)
       {
       x[j] += xx[j] * weights[i];

@@ -42,7 +42,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.53");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.54");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef float RtColor[3];
@@ -689,7 +689,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
   float vertexColors[512][3];
   RtFloat *TCoords;
   RtFloat *normals;
-  RtFloat *points;
+  RtFloat points[3];
   RtPoint vertexNormals[512];
   RtPoint vertexPoints[512];
   float poly_norm[3];
@@ -786,7 +786,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
         vertexNormals[k][2] = poly_norm[2];
         }
       
-      points = p->GetPoint(pts[k]);
+      p->GetPoint(pts[k], points);
       vertexPoints[k][0] = points[0];
       vertexPoints[k][1] = points[1]; 
       vertexPoints[k][2] = points[2];
@@ -844,7 +844,8 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
           str_with_warning_C4701 << "\"" << buffer << "\" [";
           for (kk = 0; kk < npts; kk++)
             {
-            float* tuple = array->GetTuple(pts[kk]);
+            float tuple[3];
+            array->GetTuple(pts[kk], tuple);
             for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
               {
               str_with_warning_C4701 << ((!kk &&!aa) ? "" : " ") << tuple[aa];
@@ -869,7 +870,8 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
           str_with_warning_C4701 << "\"" << buffer << "\" [";
           for (kk = 0; kk < npts; kk++)
             {
-            float* tuple = array->GetTuple(pts[kk]);
+            float tuple[3];
+            array->GetTuple(pts[kk], tuple);
             for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
               {
               str_with_warning_C4701 << ((!kk &&!aa) ? "" : " ") << tuple[aa];
@@ -895,7 +897,8 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
           str_with_warning_C4701 << "\"" << buffer << "\" [";
           for (kk = 0; kk < npts; kk++)
             {
-            float* tuple = array->GetTuple(pts[kk]);
+            float tuple[3];
+            array->GetTuple(pts[kk], tuple);
             for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
               {
               str_with_warning_C4701 << ((!kk &&!aa) ? "" : " ") << tuple[aa];
@@ -921,7 +924,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
   float vertexColors[512][3];
   RtFloat *TCoords;
   RtFloat *normals;
-  RtFloat *points;
+  RtFloat points[3];
   RtPoint vertexNormals[512];
   RtPoint vertexPoints[512];
   float poly_norm[3];
@@ -1040,7 +1043,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
           vertexNormals[k][1] = poly_norm[1];
           vertexNormals[k][2] = poly_norm[2];
           }
-        points = p->GetPoint(idx[k]);
+        p->GetPoint(idx[k], points);
         vertexPoints[k][0] = points[0];
         vertexPoints[k][1] = points[1]; 
         vertexPoints[k][2] = points[2];
@@ -1097,7 +1100,8 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
             str_with_warning_C4701 << "\"" << buffer << "\" [";
             for (kk = 0; kk < npts; kk++)
               {
-              float* tuple = array->GetTuple(pts[kk]);
+              float tuple[3];
+              array->GetTuple(pts[kk], tuple);
               for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
                 {
                 str_with_warning_C4701 << ((!kk &&!aa) ? "" : " ") << tuple[aa];
@@ -1122,7 +1126,8 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
             str_with_warning_C4701 << "\"" << buffer << "\" [";
             for (kk = 0; kk < npts; kk++)
               {
-              float* tuple = array->GetTuple(pts[kk]);
+              float tuple[3];
+              array->GetTuple(pts[kk], tuple);
               for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
                 {
                 str_with_warning_C4701 << ((!kk &&!aa) ? "" : " ") << tuple[aa];
@@ -1147,7 +1152,8 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
             str_with_warning_C4701 << "\"" << buffer << "\" [";
             for (kk = 0; kk < npts; kk++)
               {
-              float* tuple = array->GetTuple(pts[kk]);
+              float tuple[3];
+              array->GetTuple(pts[kk], tuple);
               for ( aa = 0; aa < array->GetNumberOfComponents(); aa++ )
                 {
                 str_with_warning_C4701 << ((!kk &&!aa) ? "" : " ") << tuple[aa];

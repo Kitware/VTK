@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkButtonSource, "1.7");
+vtkCxxRevisionMacro(vtkButtonSource, "1.8");
 vtkStandardNewMacro(vtkButtonSource);
 
 // Construct 
@@ -100,7 +100,7 @@ void vtkButtonSource::Execute()
   this->C = this->Depth;
   this->C2 = this->C*this->C;
   
-  float *xP, dX, dY;
+  float xP[3], dX, dY;
   if ( this->TextureStyle == VTK_TEXTURE_STYLE_FIT_IMAGE )
     {
     dX = (float)this->TextureDimensions[0];
@@ -244,7 +244,7 @@ void vtkButtonSource::Execute()
   for ( i=0; i < this->CircumferentialResolution; i++)
     {
     //compute the angle
-    xP = newPts->GetPoint(offset+i);
+    newPts->GetPoint(offset+i, xP);
     dX = xP[0] - this->Origin[0];
     dY = xP[1] - this->Origin[1];
 
@@ -321,16 +321,16 @@ void vtkButtonSource::InterpolateCurve(int inTextureRegion,
                                        int startPt, int incr)
 {
   int i, j, idx;
-  float *x0, *x1, *tc0, *tc1, t, x[3], tc[2], n[3];
+  float x0[3], x1[3], tc0[3], tc1[3], t, x[3], tc[2], n[3];
 
   //walk around the curves interpolating new points between them
   for ( i=0; i < numPts; 
         i++, c1StartPt+=c1Incr, c2StartPt+=c2Incr, startPt+=incr)
     {
-    x0 = newPts->GetPoint(c1StartPt);
-    x1 = newPts->GetPoint(c2StartPt);
-    tc0 = tcoords->GetTuple(c1StartPt);
-    tc1 = tcoords->GetTuple(c2StartPt);
+    newPts->GetPoint(c1StartPt, x0);
+    newPts->GetPoint(c2StartPt, x1);
+    tcoords->GetTuple(c1StartPt, tc0);
+    tcoords->GetTuple(c2StartPt, tc1);
 
     //do the interpolations along this radius
     for ( j=1; j < res; j++ )

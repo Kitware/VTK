@@ -23,7 +23,7 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpLens, "1.25");
+vtkCxxRevisionMacro(vtkWarpLens, "1.26");
 vtkStandardNewMacro(vtkWarpLens);
 
 //
@@ -73,7 +73,7 @@ void vtkWarpLens::Execute()
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkIdType ptId, numPts;
-  float *pixel, newPixel[3];
+  float pixel[3], newPixel[3];
   vtkPointSet *input = this->GetInput();
   vtkPointSet *output = this->GetOutput();
   float x;
@@ -103,7 +103,7 @@ void vtkWarpLens::Execute()
   //
   for (ptId=0; ptId < numPts; ptId++)
     {
-    pixel = inPts->GetPoint(ptId);
+    inPts->GetPoint(ptId, pixel);
 
     //
     // Convert to working in mm from pixels and make the Principal Point (0,0)

@@ -28,7 +28,7 @@
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.31");
+vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.32");
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 // Construct object with number of iterations 20; passband .1;
@@ -70,7 +70,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
   vtkIdType p1, p2;
-  float *x, *y, deltaX[3], xNew[3];
+  float x[3], y[3], deltaX[3], xNew[3];
   float x1[3], x2[3], x3[3], l1[3], l2[3];
   float CosFeatureAngle; //Cosine of angle between adjacent polys
   float CosEdgeAngle; // Cosine of angle between adjacent edges
@@ -86,7 +86,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
   vtkPolyData *output = this->GetOutput();
 
   // variables specific to windowed sinc interpolation
-  float theta_pb, k_pb, sigma, *p_x0, *p_x1, *p_x3;
+  float theta_pb, k_pb, sigma, p_x0[3], p_x1[3], p_x3[3];
   float *w, *c, *cprime;
   int zero, one, two, three;
   
@@ -554,13 +554,13 @@ void vtkWindowedSincPolyDataFilter::Execute()
          (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
       {
       // point is allowed to move
-      x = newPts[zero]->GetPoint(i); //use current points
+      newPts[zero]->GetPoint(i, x); //use current points
       deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
       
       // calculate the negative of the laplacian
       for (j=0; j<npts; j++) //for all connected points
         {
-        y = newPts[zero]->GetPoint(Verts[i].edges->GetId(j));
+        newPts[zero]->GetPoint(Verts[i].edges->GetId(j), y);
         for (k=0; k<3; k++)
           {
           deltaX[k] += (x[k] - y[k]) / npts;
@@ -617,15 +617,15 @@ void vtkWindowedSincPolyDataFilter::Execute()
            (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
         {
         // point is allowed to move
-        p_x0 = newPts[zero]->GetPoint(i); //use current points
-        p_x1 = newPts[one]->GetPoint(i);
+        newPts[zero]->GetPoint(i, p_x0); //use current points
+        newPts[one]->GetPoint(i, p_x1);
         
         deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
         
         // calculate the negative laplacian of x1
         for (j=0; j<npts; j++)
           {
-          y = newPts[one]->GetPoint(Verts[i].edges->GetId(j));
+          newPts[one]->GetPoint(Verts[i].edges->GetId(j), y);
           for (k=0; k<3; k++)
             {
             deltaX[k] += (p_x1[k] - y[k]) / npts;
@@ -640,7 +640,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
         newPts[two]->SetPoint(i, deltaX);
 
         // smooth the vertex (x3 = x3 + cj x2)
-        p_x3 = newPts[three]->GetPoint(i);
+        newPts[three]->GetPoint(i, p_x3);
         for (k=0;k<3;k++) 
           {
           xNew[k] = p_x3[k] + c[iterationNumber] * deltaX[k];

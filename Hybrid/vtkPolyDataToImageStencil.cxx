@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.7");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.8");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 
 //----------------------------------------------------------------------------
@@ -126,7 +126,8 @@ void vtkTurnPointsIntoList(vtkPoints *points, int *&clist, int &clistlen,
   int npoints = points->GetNumberOfPoints();
   for (int idP = 0; idP < npoints; idP++)
     {
-    float *point = points->GetPoint(idP);
+    float point[3];
+    points->GetPoint(idP, point);
     int r = (int)ceil((point[dim] - origin[dim])/spacing[dim]);
     if (r < extent[2*dim])
       {

@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkVectorDot, "1.34");
+vtkCxxRevisionMacro(vtkVectorDot, "1.35");
 vtkStandardNewMacro(vtkVectorDot);
 
 // Construct object with scalar range is (-1,1).
@@ -43,7 +43,7 @@ void vtkVectorDot::Execute()
   vtkDataSet *input = this->GetInput();
   vtkDataArray *inNormals;
   vtkDataArray *inVectors;
-  float s, *n, *v, min, max, dR, dS;
+  float s, n[3], v[3], min, max, dR, dS;
   vtkDataSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
 
@@ -87,8 +87,8 @@ void vtkVectorDot::Execute()
       this->UpdateProgress ((float)ptId/numPts);
       abort = this->GetAbortExecute();
       }
-    n = inNormals->GetTuple(ptId);
-    v = inVectors->GetTuple(ptId);
+    inNormals->GetTuple(ptId, n);
+    inVectors->GetTuple(ptId, v);
     s = vtkMath::Dot(n,v);
     if ( s < min )
       {

@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDelaunay3D, "1.66");
+vtkCxxRevisionMacro(vtkDelaunay3D, "1.67");
 vtkStandardNewMacro(vtkDelaunay3D);
 
 //----------------------------------------------------------------------------
@@ -962,15 +962,14 @@ int vtkDelaunay3D::InSphere(double x[3], vtkIdType tetraId)
 void vtkDelaunay3D::InsertTetra(vtkUnstructuredGrid *Mesh, vtkPoints *points,
                                 vtkIdType tetraId)
 {
-  float *x1, *x2, *x3, *x4;
   double dx1[3], dx2[3], dx3[3], dx4[3], radius2, center[3];
   vtkIdType *pts, npts;
   
   Mesh->GetCellPoints(tetraId, npts, pts);
-  x1 = points->GetPoint(pts[0]); dx1[0]=x1[0]; dx1[1]=x1[1]; dx1[2]=x1[2];
-  x2 = points->GetPoint(pts[1]); dx2[0]=x2[0]; dx2[1]=x2[1]; dx2[2]=x2[2];
-  x3 = points->GetPoint(pts[2]); dx3[0]=x3[0]; dx3[1]=x3[1]; dx3[2]=x3[2];
-  x4 = points->GetPoint(pts[3]); dx4[0]=x4[0]; dx4[1]=x4[1]; dx4[2]=x4[2];
+  points->GetPoint(pts[0], dx1);
+  points->GetPoint(pts[1], dx2);
+  points->GetPoint(pts[2], dx3);
+  points->GetPoint(pts[3], dx4);
 
   radius2 = vtkTetra::Circumsphere(dx1,dx2,dx3,dx4,center);
   this->TetraArray->InsertTetra(tetraId, radius2, center);

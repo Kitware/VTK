@@ -29,7 +29,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.107");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.108");
 vtkStandardNewMacro(vtkGlyph3D);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -83,7 +83,7 @@ void vtkGlyph3D::Execute()
   vtkDataArray *newScalars=NULL;
   vtkDataArray *newVectors=NULL;
   vtkDataArray *newNormals=NULL;
-  float *x, *v = NULL, vNew[3], s = 0.0, vMag = 0.0, value;
+  float x[3], v[3], vNew[3], s = 0.0, vMag = 0.0, value;
   vtkTransform *trans = vtkTransform::New();
   vtkCell *cell;
   vtkIdList *cellPts;
@@ -332,11 +332,11 @@ void vtkGlyph3D::Execute()
       {
       if ( this->VectorMode == VTK_USE_NORMAL )
         {
-        v = inNormals->GetTuple(inPtId);
+        inNormals->GetTuple(inPtId, v);
         }
       else
         {
-        v = inVectors->GetTuple(inPtId);
+        inVectors->GetTuple(inPtId, v);
         }
       vMag = vtkMath::Norm(v);
       if ( this->ScaleMode == VTK_SCALE_BY_VECTORCOMPONENTS )
@@ -430,7 +430,7 @@ void vtkGlyph3D::Execute()
       }
     
     // translate Source to Input point
-    x = input->GetPoint(inPtId);
+    input->GetPoint(inPtId, x);
     trans->Translate(x[0], x[1], x[2]);
     
     if ( haveVectors )

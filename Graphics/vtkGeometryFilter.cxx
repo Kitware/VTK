@@ -33,7 +33,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.92");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.93");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
@@ -117,7 +117,7 @@ void vtkGeometryFilter::Execute()
   char *cellVis;
   vtkGenericCell *cell;
   vtkCell *face;
-  float *x;
+  float x[3];
   vtkIdList *ptIds;
   vtkIdList *cellIds;
   vtkIdList *pts;
@@ -205,7 +205,7 @@ void vtkGeometryFilter::Execute()
         for (i=0; i < ptIds->GetNumberOfIds(); i++) 
           {
           ptId = ptIds->GetId(i);
-          x = input->GetPoint(ptId);
+          input->GetPoint(ptId, x);
 
           if ( (this->PointClipping && (ptId < this->PointMinimum ||
           ptId > this->PointMaximum) ) ||
@@ -276,7 +276,7 @@ void vtkGeometryFilter::Execute()
           for ( i=0; i < npts; i++)
             {
             ptId = cell->GetPointId(i);
-            x = input->GetPoint(ptId);
+            input->GetPoint(ptId, x);
 
             if ( this->Merging && this->Locator->InsertUniquePoint(x, pt) )
               {
@@ -307,7 +307,7 @@ void vtkGeometryFilter::Execute()
               for ( i=0; i < npts; i++)
                 {
                 ptId = face->GetPointId(i);
-                x = input->GetPoint(ptId);
+                input->GetPoint(ptId, x);
                 if (this->Merging && this->Locator->InsertUniquePoint(x, pt) )
                   {
                   outputPD->CopyData(pd,ptId,pt);
@@ -443,7 +443,7 @@ void vtkGeometryFilter::PolyDataExecute()
   vtkCellData *outputCD = output->GetCellData();
   vtkIdType newCellId, ptId;
   int visible, type;
-  float *x;
+  float x[3];
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
   unsigned char  *cellGhostLevels = 0;
@@ -523,7 +523,7 @@ void vtkGeometryFilter::PolyDataExecute()
         for (i=0; i < npts; i++) 
           {
           ptId = pts[i];
-          x = input->GetPoint(ptId);
+          input->GetPoint(ptId, x);
 
           if ( (this->PointClipping && (ptId < this->PointMinimum ||
                                         ptId > this->PointMaximum) ) ||
@@ -578,7 +578,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   char *cellVis;
   vtkIdType newCellId;
   int faceId, *faceVerts, numFacePts;
-  float *x;
+  float x[3];
   int PixelConvert[4];
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
@@ -660,7 +660,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
         {
         for (i=0; i < npts; i++) 
           {
-          x = p->GetPoint(pts[i]);
+          p->GetPoint(pts[i], x);
           if ( (this->PointClipping && (pts[i] < this->PointMinimum ||
                                         pts[i] > this->PointMaximum) ) ||
                (this->ExtentClipping && 
@@ -966,7 +966,7 @@ void vtkGeometryFilter::StructuredGridExecute()
   vtkIdType numCells=input->GetNumberOfCells();
   char *cellVis;
   vtkGenericCell *cell;
-  float *x;
+  float x[3];
   vtkIdList *ptIds;
   vtkIdList *cellIds;
   vtkIdList *pts;
@@ -1037,7 +1037,7 @@ void vtkGeometryFilter::StructuredGridExecute()
         for (i=0; i < ptIds->GetNumberOfIds(); i++) 
           {
           ptId = ptIds->GetId(i);
-          x = input->GetPoint(ptId);
+          input->GetPoint(ptId, x);
 
           if ( (this->PointClipping && (ptId < this->PointMinimum ||
           ptId > this->PointMaximum) ) ||

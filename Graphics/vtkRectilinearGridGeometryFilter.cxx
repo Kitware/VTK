@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridGeometryFilter, "1.25");
+vtkCxxRevisionMacro(vtkRectilinearGridGeometryFilter, "1.26");
 vtkStandardNewMacro(vtkRectilinearGridGeometryFilter);
 
 // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).
@@ -52,7 +52,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
   vtkCellArray *newPolys=0;
   vtkIdType totPoints, pos;
   int offset[3], numPolys;
-  float *x;
+  float x[3];
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
   vtkRectilinearGrid *input = this->GetInput();
@@ -175,7 +175,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
       for (i=0; i<totPoints; i++) 
         {
         idx = startIdx + i*offset[0];
-        x = input->GetPoint(idx);
+        input->GetPoint(idx, x);
         ptIds[0] = newPts->InsertNextPoint(x);
         outPD->CopyData(pd,idx,ptIds[0]);
         }
@@ -254,7 +254,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
         for (i=0; i < (diff[dir[0]]+1); i++) 
           {
           idx = pos + i*offset[0];
-          x = input->GetPoint(idx);
+          input->GetPoint(idx, x);
           ptIds[0] = newPts->InsertNextPoint(x);
           outPD->CopyData(pd,idx,ptIds[0]);
           }
@@ -326,7 +326,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
           pos = startIdx + j*offset[0] + k*offset[1];
           for (i=0; i < (diff[0]+1); i++) 
             {
-            x = input->GetPoint(pos+i);
+            input->GetPoint(pos+i, x);
             ptIds[0] = newPts->InsertNextPoint(x);
             outPD->CopyData(pd,pos+i,ptIds[0]);
             cellId = newVerts->InsertNextCell(1,ptIds);

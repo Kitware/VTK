@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.76");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.77");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ vtkDataSet *vtkProbeFilter::GetSource()
 void vtkProbeFilter::Execute()
 {
   vtkIdType ptId, numPts;
-  float *x, tol2;
+  float x[3], tol2;
   vtkCell *cell;
   vtkPointData *pd, *outPD;
   int subId;
@@ -124,7 +124,7 @@ void vtkProbeFilter::Execute()
       }
 
     // Get the xyz coordinate of the point in the input dataset
-    x = input->GetPoint(ptId);
+    input->GetPoint(ptId, x);
 
     // Find the cell that contains xyz and get it
     cell = source->FindAndGetCell(x,NULL,-1,tol2,subId,pcoords,weights);

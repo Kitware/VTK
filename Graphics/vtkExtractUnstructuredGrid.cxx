@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.31");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.32");
 vtkStandardNewMacro(vtkExtractUnstructuredGrid);
 
 // Construct with all types of clipping turned off.
@@ -102,7 +102,7 @@ void vtkExtractUnstructuredGrid::Execute()
   vtkPoints *inPts=input->GetPoints(), *newPts;
   char *cellVis;
   vtkCell *cell;
-  float *x;
+  float x[3];
   vtkIdList *ptIds;
   vtkIdList *cellIds;
   vtkIdType ptId;
@@ -153,7 +153,7 @@ void vtkExtractUnstructuredGrid::Execute()
         for (i=0; i < numIds; i++) 
           {
           ptId = ptIds->GetId(i);
-          x = input->GetPoint(ptId);
+          input->GetPoint(ptId, x);
 
           if ( (this->PointClipping && (ptId < this->PointMinimum ||
           ptId > this->PointMaximum) ) ||
@@ -211,7 +211,7 @@ void vtkExtractUnstructuredGrid::Execute()
         for (i=0; i < numIds; i++)
           {
           ptId = cell->PointIds->GetId(i);
-          x = input->GetPoint(ptId);
+          input->GetPoint(ptId, x);
           if ( this->Locator->InsertUniquePoint(x, newPtId) )
             {
             outputPD->CopyData(pd,ptId,newPtId);

@@ -23,7 +23,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHedgeHog, "1.39");
+vtkCxxRevisionMacro(vtkHedgeHog, "1.40");
 vtkStandardNewMacro(vtkHedgeHog);
 
 vtkHedgeHog::vtkHedgeHog()
@@ -44,7 +44,7 @@ void vtkHedgeHog::Execute()
   int i;
   vtkIdType pts[2];
   vtkCellArray *newLines;
-  float *x, *v;
+  float x[3], v[3];
   float newX[3];
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
@@ -90,14 +90,14 @@ void vtkHedgeHog::Execute()
         }
       }
     
-    x = input->GetPoint(ptId);
+    input->GetPoint(ptId, x);
     if (this->VectorMode == VTK_USE_VECTOR)
       {
-      v = inVectors->GetTuple(ptId);
+      inVectors->GetTuple(ptId, v);
       }
     else
       {
-      v = inNormals->GetTuple(ptId);
+      inNormals->GetTuple(ptId, v);
       }
     for (i=0; i<3; i++)
       {

@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkTriangularTCoords, "1.25");
+vtkCxxRevisionMacro(vtkTriangularTCoords, "1.26");
 vtkStandardNewMacro(vtkTriangularTCoords);
 
 void vtkTriangularTCoords::Execute()
@@ -44,7 +44,7 @@ void vtkTriangularTCoords::Execute()
   int errorLogging = 1;
   vtkPoints *newPoints;
   vtkCellArray *newPolys;
-  float *p1, *p2, *p3;
+  float p1[3], p2[3], p3[3];
   float tCoords[6];
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
@@ -128,7 +128,7 @@ void vtkTriangularTCoords::Execute()
     newPolys->InsertNextCell(npts);
     for (j=0; j<npts; j++)
       {
-      p1 = inPts->GetPoint(pts[j]);
+      inPts->GetPoint(pts[j], p1);
       newId = newPoints->InsertNextPoint(p1);
       newPolys->InsertCellPoint(newId);
       pointData->CopyData(pd,pts[j],newId);
@@ -149,9 +149,9 @@ void vtkTriangularTCoords::Execute()
 
     for (j=0; j<(npts-2); j++)
       {
-      p1 = inPts->GetPoint(pts[j]);
-      p2 = inPts->GetPoint(pts[j+1]);
-      p3 = inPts->GetPoint(pts[j+2]);
+      inPts->GetPoint(pts[j], p1);
+      inPts->GetPoint(pts[j+1], p2);
+      inPts->GetPoint(pts[j+2], p3);
 
       newIds[0] = newPoints->InsertNextPoint(p1);
       pointData->CopyData(pd,pts[j],newIds[0]);

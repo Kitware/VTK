@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMaskPoints, "1.42");
+vtkCxxRevisionMacro(vtkMaskPoints, "1.43");
 vtkStandardNewMacro(vtkMaskPoints);
 
 //----------------------------------------------------------------------------
@@ -44,7 +44,7 @@ void vtkMaskPoints::Execute()
   vtkPoints *newPts;
   vtkPointData *pd;
   vtkIdType numNewPts;
-  float *x;
+  float x[3];
   vtkIdType ptId, id;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
@@ -95,7 +95,7 @@ void vtkMaskPoints::Execute()
     (ptId < numPts) && (id < this->MaximumNumberOfPoints) && !abort;  
     ptId += (1 + (int)((float)vtkMath::Random()*cap)) )
       {
-      x =  input->GetPoint(ptId);
+      input->GetPoint(ptId, x);
       id = newPts->InsertNextPoint(x);
       outputPD->CopyData(pd,ptId,id);
       if ( ! (id % progressInterval) ) //abort/progress
@@ -111,7 +111,7 @@ void vtkMaskPoints::Execute()
     (ptId < numPts) && (id < (this->MaximumNumberOfPoints-1)) && !abort;
     ptId += this->OnRatio )
       {
-      x =  input->GetPoint(ptId);
+      input->GetPoint(ptId, x);
       id = newPts->InsertNextPoint(x);
       outputPD->CopyData(pd,ptId,id);
       if ( ! (id % progressInterval) ) //abort/progress

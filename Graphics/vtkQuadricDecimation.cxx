@@ -56,7 +56,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.28");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.29");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 
@@ -401,7 +401,7 @@ void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
   int i, j;
   vtkCellArray *polys=NULL;
   vtkIdType npts, *pts=NULL;
-  const float *point0, *point1, *point2;
+  float point0[3], point1[3], point2[3];
   float n[3];
   float tempP1[3], tempP2[3],  d, triArea2;
   double data[16];
@@ -430,9 +430,9 @@ void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
   // compute the QEM for each face
   for (polys->InitTraversal(); polys->GetNextCell(npts, pts); ) 
     {
-    point0 = input->GetPoint(pts[0]);
-    point1 = input->GetPoint(pts[1]);
-    point2 = input->GetPoint(pts[2]);
+    input->GetPoint(pts[0], point0);
+    input->GetPoint(pts[1], point1);
+    input->GetPoint(pts[2], point2);
     for (i = 0; i < 3; i++)
       {
       tempP1[i] = point1[i] - point0[i];
@@ -560,7 +560,7 @@ void vtkQuadricDecimation::AddBoundaryConstraints(void)
   vtkIdType  cellId;
   int i, j;
   vtkIdType npts, *pts;
-  const float *t0, *t1, *t2;
+  float t0[3], t1[3], t2[3];
   float e0[3], e1[3], n[3], c, d, w;
   vtkIdList *cellIds = vtkIdList::New();
   
@@ -577,9 +577,9 @@ void vtkQuadricDecimation::AddBoundaryConstraints(void)
       if (cellIds->GetNumberOfIds() == 0) 
         {
         // this is a boundary
-        t0 = input->GetPoint(pts[(i+2)%3]);
-        t1 = input->GetPoint(pts[i]);
-        t2 = input->GetPoint(pts[(i+1)%3]);
+        input->GetPoint(pts[(i+2)%3], t0);
+        input->GetPoint(pts[i], t1);
+        input->GetPoint(pts[(i+1)%3], t2);
         
         // computing a plane which is orthogonal to line t1, t2 and incident
         // with it

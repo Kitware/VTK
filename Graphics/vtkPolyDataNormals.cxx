@@ -28,7 +28,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkPriorityQueue.h"
 
-vtkCxxRevisionMacro(vtkPolyDataNormals, "1.60");
+vtkCxxRevisionMacro(vtkPolyDataNormals, "1.61");
 vtkStandardNewMacro(vtkPolyDataNormals);
 
 // Construct with feature angle=30, splitting and consistency turned on, 
@@ -58,7 +58,7 @@ void vtkPolyDataNormals::Execute()
   vtkIdType i;
   vtkIdType *pts = 0;
   vtkIdType numNewPts;
-  float *polyNormal, *vertNormal, length;
+  float polyNormal[3], vertNormal[3], length;
   float flipDirection=1.0;
   vtkIdType numPolys, numStrips;
   vtkIdType cellId;
@@ -407,11 +407,11 @@ void vtkPolyDataNormals::Execute()
     for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
           cellId++ )
       {
-      polyNormal = this->PolyNormals->GetTuple(cellId);
+      this->PolyNormals->GetTuple(cellId, polyNormal);
 
       for (i=0; i < npts; i++) 
         {
-        vertNormal = newNormals->GetTuple(pts[i]);
+        newNormals->GetTuple(pts[i], vertNormal);
         for (j=0; j < 3; j++)
           {
           n[j] = vertNormal[j] + polyNormal[j];
@@ -422,7 +422,7 @@ void vtkPolyDataNormals::Execute()
 
     for (i=0; i < numNewPts; i++) 
       {
-      vertNormal = newNormals->GetTuple(i);
+      newNormals->GetTuple(i, vertNormal);
       length = vtkMath::Norm(vertNormal);
       if (length != 0.0) 
         {
@@ -582,7 +582,7 @@ void vtkPolyDataNormals::MarkAndSplit (vtkIdType ptId)
   vtkIdType *pts;
   int numRegions = 0;
   vtkIdType spot, neiPt[2], nei, cellId, neiCellId;
-  float *thisNormal, *neiNormal;
+  float thisNormal[3], neiNormal[3];
   for (j=0; j<ncells; j++) //for all cells connected to point
     {
     if ( this->Visited[cells[j]] < 0 ) //for all unvisited cells
@@ -626,8 +626,8 @@ void vtkPolyDataNormals::MarkAndSplit (vtkIdType ptId)
           if ( this->CellIds->GetNumberOfIds() == 1 && 
                this->Visited[(neiCellId=this->CellIds->GetId(0))] < 0 )
             {
-            thisNormal = this->PolyNormals->GetTuple(cellId);
-            neiNormal =  this->PolyNormals->GetTuple(neiCellId);
+            this->PolyNormals->GetTuple(cellId, thisNormal);
+            this->PolyNormals->GetTuple(neiCellId, neiNormal);
 
             if ( vtkMath::Dot(thisNormal,neiNormal) > CosAngle )
               {

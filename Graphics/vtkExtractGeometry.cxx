@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGeometry, "1.49");
+vtkCxxRevisionMacro(vtkExtractGeometry, "1.50");
 vtkStandardNewMacro(vtkExtractGeometry);
 vtkCxxSetObjectMacro(vtkExtractGeometry,ImplicitFunction,vtkImplicitFunction);
 
@@ -70,7 +70,7 @@ void vtkExtractGeometry::Execute()
   vtkIdList *cellPts;
   vtkCell *cell;
   int numCellPts;
-  float *x;
+  float x[3];
   float multiplier;
   vtkPoints *newPts;
   vtkIdList *newCellPts;
@@ -125,7 +125,7 @@ void vtkExtractGeometry::Execute()
     {
     for ( ptId=0; ptId < numPts; ptId++ )
       {
-      x = input->GetPoint(ptId);
+      input->GetPoint(ptId, x);
       if ( (this->ImplicitFunction->FunctionValue(x)*multiplier) < 0.0 )
         {
         newId = newPts->InsertNextPoint(x);
@@ -145,7 +145,7 @@ void vtkExtractGeometry::Execute()
 
       for (ptId=0; ptId < numPts; ptId++ )
         {
-        x = input->GetPoint(ptId);
+        input->GetPoint(ptId, x);
         val = this->ImplicitFunction->FunctionValue(x) * multiplier;
         newScalars->SetValue(ptId, val);
         if ( val < 0.0 )
@@ -201,7 +201,7 @@ void vtkExtractGeometry::Execute()
           ptId = cellPts->GetId(i);
           if ( pointMap[ptId] < 0 )
             {
-            x = input->GetPoint(ptId);
+            input->GetPoint(ptId, x);
             newId = newPts->InsertNextPoint(x);
             pointMap[ptId] = newId;
             outputPD->CopyData(pd,ptId,newId);

@@ -28,7 +28,7 @@
 #include "vtkPolygon.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.36");
+vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.37");
 vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing
@@ -164,7 +164,7 @@ void vtkSmoothPolyDataFilter::Execute()
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
   vtkIdType p1, p2;
-  float *x, *y, deltaX[3], xNew[3], conv, maxDist, dist, factor;
+  float x[3], y[3], deltaX[3], xNew[3], conv, maxDist, dist, factor;
   float x1[3], x2[3], x3[3], l1[3], l2[3];
   float CosFeatureAngle; //Cosine of angle between adjacent polys
   float CosEdgeAngle; // Cosine of angle between adjacent edges
@@ -550,11 +550,11 @@ void vtkSmoothPolyDataFilter::Execute()
       if ( Verts[i].type != VTK_FIXED_VERTEX && Verts[i].edges != NULL &&
       (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
         {
-        x = newPts->GetPoint(i); //use current points
+        newPts->GetPoint(i, x); //use current points
         deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
         for (j=0; j<npts; j++)
           {
-          y = newPts->GetPoint(Verts[i].edges->GetId(j));
+          newPts->GetPoint(Verts[i].edges->GetId(j), y);
           for (k=0; k<3; k++)
             {
             deltaX[k] += (y[k] - x[k]) / npts;

@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.24");
+vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.25");
 
 // Construct object with number of subdivisions set to 1.
 vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()
@@ -193,7 +193,7 @@ vtkIdType vtkApproximatingSubdivisionFilter::InterpolatePosition (
         vtkPoints *inputPts, vtkPoints *outputPts,
         vtkIdList *stencil, float *weights)
 {
-  float *xx, x[3];
+  float xx[3], x[3];
   vtkIdType i;
   int j;
 
@@ -204,7 +204,7 @@ vtkIdType vtkApproximatingSubdivisionFilter::InterpolatePosition (
 
   for (i = 0; i < stencil->GetNumberOfIds(); i++)
     {
-    xx = inputPts->GetPoint(stencil->GetId(i));
+    inputPts->GetPoint(stencil->GetId(i), xx);
     for (j = 0; j < 3; j++)
       {
       x[j] += xx[j] * weights[i];

@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkIterativeClosestPointTransform, "1.10");
+vtkCxxRevisionMacro(vtkIterativeClosestPointTransform, "1.11");
 vtkStandardNewMacro(vtkIterativeClosestPointTransform);
 
 //----------------------------------------------------------------------------
@@ -323,14 +323,14 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
 
   vtkIdType i;
   int j;
-  float *p1, *p2;
+  float p1[3], p2[3];
 
   if (StartByMatchingCentroids)
     {
     float source_centroid[3] = {0,0,0};
     for (i = 0; i < this->Source->GetNumberOfPoints(); i++)
       {
-      p1 = this->Source->GetPoint(i);
+      this->Source->GetPoint(i, p1);
       source_centroid[0] += p1[0];
       source_centroid[1] += p1[1];
       source_centroid[2] += p1[2];
@@ -342,7 +342,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
     float target_centroid[3] = {0,0,0};
     for (i = 0; i < this->Target->GetNumberOfPoints(); i++)
       {
-      p2 = this->Target->GetPoint(i);
+      this->Target->GetPoint(i, p2);
       target_centroid[0] += p2[0];
       target_centroid[1] += p2[1];
       target_centroid[2] += p2[2];
@@ -419,9 +419,9 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
 
     for(i = 0; i < nb_points; i++)
       {
-      p1 = a->GetPoint(i);
-      p2 = b->GetPoint(i);
+      a->GetPoint(i, p1);
       this->LandmarkTransform->InternalTransformPoint(p1, p2);
+      b->SetPoint(i, p2);
       if (this->CheckMeanDistance)
         {
         if (this->MeanDistanceMode == VTK_ICP_MODE_RMS) 

@@ -42,7 +42,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.45");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.46");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -964,7 +964,7 @@ void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
 {
   int dsNum;
   vtkIdType numPts, ptId, maxNum;
-  float maxLength=0.0, xPrev[3], *x;
+  float maxLength=0.0, xPrev[3], x[3];
   vtkDataSet *ds;
 
   range[0] = VTK_LARGE_FLOAT;
@@ -979,7 +979,7 @@ void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
       ds->GetPoint(0, xPrev);
       for ( lengths[dsNum]=0.0, ptId=0; ptId < numPts; ptId++ )
         {
-        x = ds->GetPoint(ptId);
+        ds->GetPoint(ptId, x);
         switch (this->XValues)
           {
           case VTK_XYPLOT_VALUE:
@@ -1900,7 +1900,7 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
   vtkIdType *pts=0;
   vtkIdType i, id;
   int j;
-  float *x1, *x2, *px, *n, xint[3], t;
+  float x1[3], x2[3], px[3], n[3], xint[3], t;
   float p1[2], p2[2];
 
   p1[0] = (float)pos[0]; p1[1] = (float)pos[1];
@@ -1924,7 +1924,7 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
     //loop over verts keeping only those that are not clipped
     for (i=0; i<npts; i++)
       {
-      x1 = points->GetPoint(pts[i]);
+      points->GetPoint(pts[i], x1);
 
       if (x1[0] >= p1[0] && x1[0] <= p2[0] && x1[1] >= p1[1] && x1[1] <= p2[1] )
         {
@@ -1942,8 +1942,8 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
     //loop over line segment making up the polyline
     for (i=0; i<(npts-1); i++)
       {
-      x1 = points->GetPoint(pts[i]);
-      x2 = points->GetPoint(pts[i+1]);
+      points->GetPoint(pts[i], x1);
+      points->GetPoint(pts[i+1], x2);
 
       //intersect each segment with the four planes
       if ( (x1[0] < p1[0] && x2[0] < p1[0]) || (x1[0] > p2[0] && x2[0] > p2[0]) ||
@@ -1970,8 +1970,8 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
           }
         for (j=0; j<4; j++)
           {
-          px = this->ClipPlanes->GetPoints()->GetPoint(j);
-          n = this->ClipPlanes->GetNormals()->GetTuple(j);
+          this->ClipPlanes->GetPoints()->GetPoint(j, px);
+          this->ClipPlanes->GetNormals()->GetTuple(j, n);
           if ( vtkPlane::IntersectWithLine(x1,x2,n,px,t,xint) && t >= 0 && t <= 1.0 )
             {
             newPts[1] = newPoints->InsertNextPoint(xint);

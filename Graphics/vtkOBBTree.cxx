@@ -28,7 +28,7 @@
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkOBBTree, "1.52");
+vtkCxxRevisionMacro(vtkOBBTree, "1.53");
 vtkStandardNewMacro(vtkOBBTree);
 
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
@@ -115,7 +115,7 @@ void vtkOBBTree::ComputeOBB(vtkPoints *pts, float corner[3], float max[3],
 {
   int i;
   vtkIdType numPts, pointId;
-  float *x, mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
+  float x[3], mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
   float *a[3], a0[3], a1[3], a2[3];
   float tMin[3], tMax[3], closest[3], t;
 
@@ -126,7 +126,7 @@ void vtkOBBTree::ComputeOBB(vtkPoints *pts, float corner[3], float max[3],
   mean[0] = mean[1] = mean[2] = 0.0;
   for (pointId=0; pointId < numPts; pointId++ )
     {
-    x = pts->GetPoint(pointId);
+    pts->GetPoint(pointId, x);
     for (i=0; i < 3; i++)
       {
       mean[i] += x[i];
@@ -148,7 +148,7 @@ void vtkOBBTree::ComputeOBB(vtkPoints *pts, float corner[3], float max[3],
 
   for (pointId=0; pointId < numPts; pointId++ )
     {
-    x = pts->GetPoint(pointId);
+    pts->GetPoint(pointId, x);
     xp[0] = x[0] - mean[0]; xp[1] = x[1] - mean[1]; xp[2] = x[2] - mean[2];
     for (i=0; i < 3; i++)
       {
@@ -189,7 +189,7 @@ void vtkOBBTree::ComputeOBB(vtkPoints *pts, float corner[3], float max[3],
 
   for (pointId=0; pointId < numPts; pointId++ )
     {
-    x = pts->GetPoint(pointId);
+    pts->GetPoint(pointId, x);
     for (i=0; i < 3; i++)
       {
       vtkLine::DistanceToLine(x, mean, a[i], t, closest);
@@ -272,7 +272,7 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
   vtkIdType numCells, i, j, cellId, ptId, pId, qId, rId;
   int k, type;
   vtkIdType *ptIds, numPts;
-  float *p, *q, *r, mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
+  float p[3], q[3], r[3], mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
   float *a[3], a0[3], a1[3], a2[3];
   float tMin[3], tMax[3], closest[3], t;
   float dp0[3], dp1[3], tri_mass, tot_mass, c[3];
@@ -304,9 +304,9 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
         {
         continue;
         }
-      p = this->DataSet->GetPoint( pId );
-      q = this->DataSet->GetPoint( qId );
-      r = this->DataSet->GetPoint( rId );
+      this->DataSet->GetPoint(pId, p);
+      this->DataSet->GetPoint(qId, q);
+      this->DataSet->GetPoint(rId, r);
       // p, q, and r are the oriented triangle points.
       // Compute the components of the moment of inertia tensor.
       for ( k=0; k<3; k++ )
@@ -395,7 +395,7 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
     numPts = this->PointsList->GetNumberOfPoints();
     for (ptId=0; ptId < numPts; ptId++ )
       {
-      p = this->PointsList->GetPoint(ptId);
+      this->PointsList->GetPoint(ptId, p);
       for (i=0; i < 3; i++)
         {
         vtkLine::DistanceToLine(p, mean, a[i], t, closest);
@@ -602,9 +602,10 @@ int vtkOBBTree::InsideOrOutside(const float point[3])
         continue;
         }
       // create a point that is guaranteed to be inside the cell
-      float *pt1 = this->DataSet->GetPoint(pt1Id);
-      float *pt2 = this->DataSet->GetPoint(pt2Id);
-      float *pt3 = this->DataSet->GetPoint(pt3Id);
+      float pt1[3], pt2[3], pt3[3];
+      this->DataSet->GetPoint(pt1Id, pt1);
+      this->DataSet->GetPoint(pt2Id, pt2);
+      this->DataSet->GetPoint(pt3Id, pt3);
 
       float x[3];
       x[0] = (pt1[0] + pt2[0] + pt3[0])/3;
@@ -726,9 +727,10 @@ int vtkOBBTree::IntersectWithLine(const float p1[3], const float p2[3],
               }
 
             // get the points for this triangle
-            float *pt1 = this->DataSet->GetPoint(pt1Id);
-            float *pt2 = this->DataSet->GetPoint(pt2Id);
-            float *pt3 = this->DataSet->GetPoint(pt3Id);
+            float pt1[3], pt2[3], pt3[3];
+            this->DataSet->GetPoint(pt1Id, pt1);
+            this->DataSet->GetPoint(pt2Id, pt2);
+            this->DataSet->GetPoint(pt3Id, pt3);
 
             if (vtkOBBTreeLineIntersectsTriangle((float *)p1, (float *)p2,
                                                  pt1, pt2, pt3,
@@ -1150,7 +1152,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
     LHlist->Allocate(cells->GetNumberOfIds()/2);
     vtkIdList *RHlist = vtkIdList::New();
     RHlist->Allocate(cells->GetNumberOfIds()/2);
-    float n[3], p[3], c[3], *x, val, ratio, bestRatio;
+    float n[3], p[3], c[3], x[3], val, ratio, bestRatio;
     int negative, positive, splitAcceptable, splitPlane;
     int foundBestSplit, bestPlane=0, numPts;
     int numInLHnode, numInRHnode;
@@ -1183,7 +1185,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
         for ( negative=positive=j=0; j < numPts; j++ )
           {
           ptId = cellPts->GetId(j);
-          x = this->DataSet->GetPoint(ptId);
+          this->DataSet->GetPoint(ptId, x);
           val = n[0]*(x[0]-p[0]) + n[1]*(x[1]-p[1]) + n[2]*(x[2]-p[2]);
           c[0] += x[0];
           c[1] += x[1];

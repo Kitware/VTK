@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.8");
+vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.9");
 vtkStandardNewMacro(vtkImageDataGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -50,7 +50,7 @@ void vtkImageDataGeometryFilter::Execute()
   vtkCellArray *newPolys=0;
   vtkIdType totPoints, pos;
   int offset[3], numPolys;
-  float *x;
+  float x[3];
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
   vtkImageData *input = this->GetInput();
@@ -181,7 +181,7 @@ void vtkImageDataGeometryFilter::Execute()
       for (i=0; i<totPoints; i++) 
         {
         idx = startIdx + i*offset[0];
-        x = input->GetPoint(idx);
+        input->GetPoint(idx, x);
         ptIds[0] = newPts->InsertNextPoint(x);
         outPD->CopyData(pd,idx,ptIds[0]);
         }
@@ -258,7 +258,7 @@ void vtkImageDataGeometryFilter::Execute()
         for (i=0; i < (diff[dir[0]]+1); i++) 
           {
           idx = pos + i*offset[0];
-          x = input->GetPoint(idx);
+          input->GetPoint(idx, x);
           ptIds[0] = newPts->InsertNextPoint(x);
           outPD->CopyData(pd,idx,ptIds[0]);
           }
@@ -330,7 +330,7 @@ void vtkImageDataGeometryFilter::Execute()
           pos = startIdx + j*offset[0] + k*offset[1];
           for (i=0; i < (diff[0]+1); i++) 
             {
-            x = input->GetPoint(pos+i);
+            input->GetPoint(pos+i, x);
             ptIds[0] = newPts->InsertNextPoint(x);
             outPD->CopyData(pd,pos+i,ptIds[0]);
             cellId = newVerts->InsertNextCell(1,ptIds);

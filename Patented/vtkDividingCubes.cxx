@@ -41,7 +41,7 @@
 #include "vtkPolyData.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkDividingCubes, "1.48");
+vtkCxxRevisionMacro(vtkDividingCubes, "1.49");
 vtkStandardNewMacro(vtkDividingCubes);
 
 // Description:
@@ -239,7 +239,7 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
   int i, j, k, ii, vertNum, id;
   float s;
   int kOffset, jOffset, idx, above, below;
-  float p[3], w[8], n[3], *normal, offset[3];
+  float p[3], w[8], n[3], normal[3], offset[3];
 
   // Compute normals and scalars on subvoxel array
   for (k=0; k < dim[2]; k++)
@@ -320,7 +320,7 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
           SubNormals->GetTuples(this->SubVoxelPts,this->SubVoxelNormals);
           for (n[0]=n[1]=n[2]=0.0, vertNum=0; vertNum < 8; vertNum++)
             {
-            normal = this->SubVoxelNormals->GetTuple(vertNum);
+            this->SubVoxelNormals->GetTuple(vertNum, normal);
             n[0] += normal[0];
             n[1] += normal[1];
             n[2] += normal[2];

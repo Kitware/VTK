@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkShrinkFilter, "1.59");
+vtkCxxRevisionMacro(vtkShrinkFilter, "1.60");
 vtkStandardNewMacro(vtkShrinkFilter);
 
 vtkShrinkFilter::vtkShrinkFilter(float sf)
@@ -39,7 +39,7 @@ void vtkShrinkFilter::Execute()
   int i, j, numIds, abort=0;
   vtkIdType cellId, numCells, numPts;
   vtkIdType oldId, newId;
-  float center[3], *p, pt[3];
+  float center[3], p[3], pt[3];
   vtkPointData *pd, *outPD;;
   vtkIdList *ptIds, *newPtIds;
   vtkDataSet *input= this->GetInput();
@@ -92,7 +92,7 @@ void vtkShrinkFilter::Execute()
     center[0] = center[1] = center[2] = 0.0;
     for (i=0; i < numIds; i++)
       {
-      p = input->GetPoint(ptIds->GetId(i));
+      input->GetPoint(ptIds->GetId(i), p);
       for (j=0; j < 3; j++)
         {
         center[j] += p[j];
@@ -107,7 +107,7 @@ void vtkShrinkFilter::Execute()
     newPtIds->Reset();
     for (i=0; i < numIds; i++)
       {
-      p = input->GetPoint(ptIds->GetId(i));
+      input->GetPoint(ptIds->GetId(i), p);
       for (j=0; j < 3; j++)
         {
         pt[j] = center[j] + this->ShrinkFactor*(p[j] - center[j]);
