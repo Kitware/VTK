@@ -135,10 +135,10 @@ void vtkGESignaReader::ExecuteInformation()
   fclose(fp);
 }
 
-namespace {
-void copygenesisimage(FILE *infp, int width, int height, int compress,
-		      short *map_left, short *map_wide,
-		      unsigned short *output)
+static void vtkcopygenesisimage(FILE *infp, int width, int height, 
+                                int compress,
+                                short *map_left, short *map_wide,
+                                unsigned short *output)
 {
   unsigned short row;
   unsigned short last_pixel=0;
@@ -241,7 +241,6 @@ void copygenesisimage(FILE *infp, int width, int height, int compress,
 	}
     }
 }
-} // end anonymous namespace
 
 
 static void vtkGESignaReaderUpdate2(vtkGESignaReader *self, 
@@ -315,8 +314,8 @@ static void vtkGESignaReaderUpdate2(vtkGESignaReader *self,
   // read in the pixels
   unsigned short *tmp = new unsigned short [width*height];
   int *dext = self->GetDataExtent();
-  copygenesisimage(fp, dext[1] + 1, dext[3] + 1, 
-		   compression, leftMap, widthMap, tmp);
+  vtkcopygenesisimage(fp, dext[1] + 1, dext[3] + 1, 
+                      compression, leftMap, widthMap, tmp);
 
   // now copy into desired extent
   int yp;
