@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageReader2Collection.h"
 #include "vtkObjectFactoryCollection.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Factory, "1.4");
+vtkCxxRevisionMacro(vtkImageReader2Factory, "1.5");
 vtkStandardNewMacro(vtkImageReader2Factory);
 
 class vtkCleanUpImageReader2Factory
@@ -106,26 +106,27 @@ void vtkImageReader2Factory::RegisterReader(vtkImageReader2* r)
 vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
 { 
   vtkImageReader2Factory::InitializeReaders();
-  vtkObjectFactoryCollection* collection
-    = vtkObjectFactory::GetRegisteredFactories();
   vtkImageReader2* ret;
-  vtkObjectFactory* f;
+  vtkCollection* collection = vtkCollection::New();
+  vtkObjectFactory::CreateAllInstance("vtkImageReaderObject",
+                                      collection);
+  vtkObject* o;
   // first try the current registered object factories to see
   // if one of them can 
-  for(collection->InitTraversal(); (f = collection->GetNextItem()); )
+  for(collection->InitTraversal(); (o = collection->GetNextItemAsObject()); )
     {
-    vtkObject* o = f->CreateInstance("vtkImageReaderObject");
     if(o)
       {
       ret = vtkImageReader2::SafeDownCast(o);
       if(ret && ret->CanReadFile(path))
         {
+        ret->Register(0);
         return ret;
         }
-      o->Delete();
       }
     }
-
+  // get rid of the collection
+  collection->Delete();
   for(vtkImageReader2Factory::AvailiableReaders->InitTraversal();
       (ret = vtkImageReader2Factory::AvailiableReaders->GetNextItem());)
     {
