@@ -494,7 +494,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     /* Add the PrintRevisions method to vtkObject. */
     fprintf(fp,"  public native String PrintRevisions();\n");
     /* Add the default toString from java object */
-    fprintf(fp,"  public String toString() { return Print(); }n");
+    fprintf(fp,"  public String toString() { return Print(); }\n");
     }
 
   if (!strcmp("vtkObject",data->ClassName))
