@@ -125,3 +125,47 @@ void vtkByteSwap::Swap4LERange(char *mem_ptr1,int num)
   
 #endif
 }
+
+// Description:
+// Swap bunch of bytes. Num is the number of two byte words to swap.
+void vtkByteSwap::Swap2BERange(char *mem_ptr1,int num)
+{
+#ifndef WORDS_BIGENDIAN
+  char one_byte;
+  char *pos;
+  int i;
+  
+  pos = mem_ptr1;
+  
+  for (i = 0; i < num; i++)
+    {
+    one_byte = pos[0];
+    pos[0] = pos[1];
+    pos[1] = one_byte;
+    pos = pos + 2;
+    }
+  
+#endif
+}
+
+// Description:
+// Swap bunch of bytes. Num is the number of two byte words to swap.
+void vtkByteSwap::Swap2LERange(char *mem_ptr1,int num)
+{
+#ifdef WORDS_BIGENDIAN
+  char one_byte;
+  char *pos;
+  int i;
+  
+  pos = mem_ptr1;
+  
+  for (i = 0; i < num; i++)
+    {
+    one_byte = pos[0];
+    pos[0] = pos[1];
+    pos[1] = one_byte;
+    pos = pos + 2;
+    }
+  
+#endif
+}

@@ -530,7 +530,6 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary char scalars!");
         return 0;
         }
-      swap.Swap4BERange(ptr,numPts);
       scalars->WrotePtr();
       }
     else // ascii
@@ -564,7 +563,7 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary short scalars!");
         return 0;
         }
-      swap.Swap4BERange(ptr,numPts);
+      swap.Swap2BERange(ptr,numPts);
       scalars->WrotePtr();
       }
     else // ascii
