@@ -83,8 +83,10 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkRenderer *ren)
 // Actual Texture load method.
 void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
 {
+  
   // need to reload the texture
-  if (txt->GetInput()->GetMTime() > this->LoadTime.GetMTime())
+  if (txt->GetInput()->GetMTime() > this->LoadTime.GetMTime() ||
+      (txt->GetLookupTable () && txt->GetLookupTable()->GetMTime () >  this->LoadTime.GetMTime()))
     {
     int bytesPerPixel;
     int *size;
@@ -111,14 +113,16 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
     bytesPerPixel = scalars->GetNumberOfValuesPerScalar();
 
     // make sure using unsigned char data of color scalars type
-    if ( strcmp(scalars->GetDataType(),"unsigned char") ||
-    strcmp(scalars->GetScalarType(),"ColorScalar") )
+    if (strcmp(scalars->GetDataType(),"unsigned char") ||
+	strcmp(scalars->GetScalarType(),"ColorScalar") )
       {
-      vtkErrorMacro(<< "Cannot do quick coversion to unsigned char.\n");
-      return;
+	dataPtr = txt->MapScalarsToColors (scalars);
+	bytesPerPixel = 4;
       }
-
-    dataPtr = ((vtkColorScalars *)scalars)->GetPtr(0);    
+    else
+      {
+	dataPtr = ((vtkColorScalars *)scalars)->GetPtr(0);    
+      }
 
     // we only support 2d texture maps right now
     // so one of the three sizes must be 1, but it 
@@ -251,8 +255,8 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
       {
       this->TDesc.comp_info.color_info.num_render_comp_desc = 1;
       this->TDesc.comp_info.color_info.num_channels[0] = 3;
-      rDesc->texture_op = XGL_TEXTURE_OP_REPLACE;
-      //      rDesc->texture_op = XGL_TEXTURE_OP_MODULATE;
+      // rDesc->texture_op = XGL_TEXTURE_OP_REPLACE;
+      rDesc->texture_op = XGL_TEXTURE_OP_MODULATE;
       }
     else
       {
@@ -265,6 +269,7 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
       //      rDesc->texture_op = XGL_TEXTURE_OP_DECAL_INTRINSIC;
       rDesc = &(this->TDesc.comp_info.color_info.render_component_desc[1]);
       rDesc->texture_op = XGL_TEXTURE_OP_MODULATE;
+      rDesc->texture_op = XGL_TEXTURE_OP_BLEND;
       rDesc->texture_op = XGL_TEXTURE_OP_REPLACE;
       }
     
