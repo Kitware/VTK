@@ -17,6 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkToolkits.h" // for VTK_USE_SYSTEM_PNG
 
 #ifdef VTK_USE_SYSTEM_PNG
 # include <png.h>
@@ -24,7 +25,7 @@
 # include "vtk_png.h"
 #endif
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.19");
+vtkCxxRevisionMacro(vtkPNGReader, "1.20");
 vtkStandardNewMacro(vtkPNGReader);
 
 void vtkPNGReader::ExecuteInformation()

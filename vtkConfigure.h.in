@@ -70,13 +70,6 @@
 #cmakedefine VTK_USE_CARBON
 #cmakedefine VTK_USE_COCOA
 
-/* Whether VTK is using its own utility libraries.  */
-#cmakedefine VTK_USE_SYSTEM_PNG
-#cmakedefine VTK_USE_SYSTEM_ZLIB
-#cmakedefine VTK_USE_SYSTEM_JPEG
-#cmakedefine VTK_USE_SYSTEM_TIFF
-#cmakedefine VTK_USE_SYSTEM_EXPAT
-
 /*--------------------------------------------------------------------------*/
 /* VTK Versioning                                                           */
 

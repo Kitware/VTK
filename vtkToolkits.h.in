@@ -54,6 +54,13 @@
 /* Debug leaks support.  */
 #cmakedefine VTK_DEBUG_LEAKS
 
+/* Whether VTK is using its own utility libraries.  */
+#cmakedefine VTK_USE_SYSTEM_PNG
+#cmakedefine VTK_USE_SYSTEM_ZLIB
+#cmakedefine VTK_USE_SYSTEM_JPEG
+#cmakedefine VTK_USE_SYSTEM_TIFF
+#cmakedefine VTK_USE_SYSTEM_EXPAT
+
 /*--------------------------------------------------------------------------*/
 /* Setup VTK based on platform features and configuration.                  */
 
