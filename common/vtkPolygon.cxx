@@ -543,8 +543,6 @@ int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
   int i,j;
   int n1, n2;
   int fedges[2];
-  float min, dist;
-  int minI, minJ;
 
   if ( ! this->SuccessfulTriangulation )
     return 0;

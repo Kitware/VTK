@@ -142,7 +142,7 @@ float vtkSuperquadric::EvaluateFunction(float xyz[3])
 
 // Description
 // Evaluate Superquadric function gradient.
-void vtkSuperquadric::EvaluateGradient(float xyz[3], float g[3])
+void vtkSuperquadric::EvaluateGradient(float vtkNotUsed(xyz)[3], float g[3])
 {
   // bogus! lazy!
   // if someone wants to figure these out, they are each the
