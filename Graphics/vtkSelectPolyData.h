@@ -74,7 +74,7 @@
 #ifndef __vtkSelectPolyData_h
 #define __vtkSelectPolyData_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_INSIDE_SMALLEST_REGION 0
 #define VTK_INSIDE_LARGEST_REGION 1
@@ -84,7 +84,7 @@ class vtkCharArray;
 class vtkPoints;
 class vtkIdList;
 
-class VTK_GRAPHICS_EXPORT vtkSelectPolyData : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkSelectPolyData : public vtkPolyDataAlgorithm
 {
 public:
   // Description:
@@ -93,7 +93,7 @@ public:
   // is not generated, and the inside mode is the smallest region.
   static vtkSelectPolyData *New();
 
-  vtkTypeRevisionMacro(vtkSelectPolyData,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkSelectPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -155,7 +155,7 @@ protected:
   vtkSelectPolyData();
   ~vtkSelectPolyData();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int GenerateSelectionScalars;
   int InsideOut;

@@ -17,8 +17,11 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
+#include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -29,7 +32,7 @@
 #include "vtkTriangleFilter.h"
 #include "vtkTriangleStrip.h"
 
-vtkCxxRevisionMacro(vtkSelectPolyData, "1.32");
+vtkCxxRevisionMacro(vtkSelectPolyData, "1.33");
 vtkStandardNewMacro(vtkSelectPolyData);
 
 vtkCxxSetObjectMacro(vtkSelectPolyData,Loop,vtkPoints);
@@ -45,11 +48,15 @@ vtkSelectPolyData::vtkSelectPolyData()
   this->ClosestPoint[0] = this->ClosestPoint[1] = this->ClosestPoint[2] = 0.0;
   this->GenerateUnselectedOutput = 0;
 
-  this->vtkSource::SetNthOutput(1,vtkPolyData::New());
-  this->Outputs[1]->Delete();
+  this->SetNumberOfOutputPorts(3);
 
-  this->vtkSource::SetNthOutput(2,vtkPolyData::New());
-  this->Outputs[2]->Delete();
+  vtkPolyData *output2 = vtkPolyData::New();
+  this->GetExecutive()->SetOutputData(1, output2);
+  output2->Delete();
+
+  vtkPolyData *output3 = vtkPolyData::New();
+  this->GetExecutive()->SetOutputData(2, output3);
+  output3->Delete();
 }
 
 vtkSelectPolyData::~vtkSelectPolyData()
@@ -62,29 +69,42 @@ vtkSelectPolyData::~vtkSelectPolyData()
 
 vtkPolyData *vtkSelectPolyData::GetUnselectedOutput()
 {
-  if (this->NumberOfOutputs < 2)
+  if (this->GetNumberOfOutputPorts() < 2)
     {
     return NULL;
     }
   
-  return (vtkPolyData *)(this->Outputs[1]);
+  return vtkPolyData::SafeDownCast(
+    this->GetExecutive()->GetOutputData(1));
 }
 
 vtkPolyData *vtkSelectPolyData::GetSelectionEdges()
 {
-  if (this->NumberOfOutputs < 3)
+  if (this->GetNumberOfOutputPorts() < 3)
     {
     return NULL;
     }
   
-  return (vtkPolyData *)(this->Outputs[2]);
+  return vtkPolyData::SafeDownCast(
+    this->GetExecutive()->GetOutputData(2));
 }
 
-void vtkSelectPolyData::Execute()
+int vtkSelectPolyData::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts, numLoopPts;
-  vtkPolyData *input=this->GetInput();
-  vtkPolyData *output=this->GetOutput();
   vtkPolyData *triMesh;
   vtkPointData *inPD, *outPD=output->GetPointData();
   vtkCellData *inCD, *outCD=output->GetCellData();
@@ -110,14 +130,14 @@ void vtkSelectPolyData::Execute()
   if ( (numPts = input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro("Input contains no points");
-    return;
+    return 0;
     }
 
   if ( this->Loop == NULL || 
   (numLoopPts=this->Loop->GetNumberOfPoints()) < 3 )
     {
     vtkErrorMacro("Please define a loop with at least three points");
-    return;
+    return 0;
     }
 
   // Okay, now we build unstructured representation. Make sure we're
@@ -141,7 +161,7 @@ void vtkSelectPolyData::Execute()
     {
     vtkErrorMacro("This filter operates on surface primitives");
     tf->Delete();
-    return;
+    return 0;
     }
 
   this->Mesh = vtkPolyData::New();
@@ -229,7 +249,7 @@ void vtkSelectPolyData::Execute()
       if ( closest < 0 )
         {
         vtkErrorMacro(<<"Can't follow edge");
-        return;
+        return 0;
         }
       else
         {
@@ -550,6 +570,8 @@ void vtkSelectPolyData::Execute()
   pointMarks->Delete();
   currentFront->Delete();
   nextFront->Delete();
+
+  return 1;
 }
 
 void vtkSelectPolyData::GetPointNeighbors (vtkIdType ptId, vtkIdList *nei)
@@ -575,7 +597,7 @@ void vtkSelectPolyData::GetPointNeighbors (vtkIdType ptId, vtkIdList *nei)
 
 unsigned long int vtkSelectPolyData::GetMTime()
 {
-  unsigned long mTime=this->vtkPolyDataToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   if ( this->Loop != NULL )
