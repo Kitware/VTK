@@ -1,6 +1,6 @@
 
 
-wm withdraw .
+# wm withdraw .
 
 #
 # Verbose Levels:
