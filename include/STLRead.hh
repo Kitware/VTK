@@ -3,8 +3,8 @@
   Program:   Visualization Library
   Module:    STLRead.hh
   Language:  C++
-  Date:      7/20/94
-  Version:   1.9
+  Date:      $Date$
+  Version:   $Revision$
 
 This file is part of the Visualization Library. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .SECTION Description
 // vlSTLReader is a source object that reads ASCII or binary stereo 
 // lithography files (.stl files). The filename must be specified to
-// vlSTLReader. The object automatically senses whether the file is
+// vlSTLReader. The object automatically detects whether the file is
 // ASCII or binary.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
@@ -39,6 +39,8 @@ public:
   char *GetClassName() {return "vlSTLReader";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Specify file name of stereo lithography file.
   vlSetStringMacro(Filename);
   vlGetStringMacro(Filename);
 

@@ -13,14 +13,13 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Methods for plane generator
-//
 #include "PlaneSrc.hh"
 #include "FPoints.hh"
 #include "FNormals.hh"
 #include "FTCoords.hh"
 
+// Description:
+// Set the number of x-y subdivisions in the plane.
 void vlPlaneSource::SetResolution(const int xR, const int yR)
 {
   if ( xR != this->XRes || yR != this->YRes )

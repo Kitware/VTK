@@ -3,11 +3,9 @@
   Program:   Visualization Library
   Module:    Axes.hh
   Language:  C++
-  Date:      7/20/94
-  Version:   1.2
+  Date:      $Date$
+  Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -35,9 +33,13 @@ public:
   char *GetClassName() {return "vlAxes";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Set the origin of the axes.
   vlSetVector3Macro(Origin,float);
   vlGetVectorMacro(Origin,float);
 
+  // Description:
+  // Set the scale factor of the axes. Used to control size.
   vlSetMacro(ScaleFactor,float);
   vlGetMacro(ScaleFactor,float);
 

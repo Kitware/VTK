@@ -3,11 +3,9 @@
   Program:   Visualization Library
   Module:    SampleF.hh
   Language:  C++
-  Date:      7/15/94
-  Version:   1.2
+  Date:      $Date$
+  Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -38,6 +36,8 @@ public:
   char *GetClassName() {return "vlSampleFunction";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Specify the implicit function to use to generate data.
   vlSetObjectMacro(ImplicitFunction,vlImplicitFunction);
   vlGetObjectMacro(ImplicitFunction,vlImplicitFunction);
 
@@ -49,13 +49,21 @@ public:
   void SetModelBounds(float *bounds);
   vlGetVectorMacro(ModelBounds,float);
 
+  // Description:
+  // Turn on/off capping. If capping is on, then the outer boundaries of the
+  // structured point set are set to cap value. This can be used to insure
+  // surfaces are closed.
   vlSetMacro(Capping,int);
   vlGetMacro(Capping,int);
   vlBooleanMacro(Capping,int);
   
+  // Description:
+  // Set the cap value.
   vlSetMacro(CapValue,float);
   vlGetMacro(CapValue,float);
 
+  // Description:
+  // Turn on/off the computation of normals.
   vlSetMacro(ComputeNormals,int);
   vlGetMacro(ComputeNormals,int);
   vlBooleanMacro(ComputeNormals,int);

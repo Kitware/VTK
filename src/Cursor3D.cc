@@ -3,11 +3,9 @@
   Program:   Visualization Library
   Module:    Cursor3D.cc
   Language:  C++
-  Date:      5/16/94
-  Version:   1.1
+  Date:      $Date$
+  Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -16,9 +14,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include <math.h>
-
 #include "Cursor3D.hh"
 
+// Description:
+// Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
+// all parts of cursor visible, and wrapping off.
 vlCursor3D::vlCursor3D()
 {
   this->ModelBounds[0] = -1.0;
@@ -49,6 +49,7 @@ void vlCursor3D::Execute()
   float x[3];
   int ptIds[2];
 
+  vlDebugMacro(<<"Generating cursor");
   this->Initialize();
 //
 // Check bounding box and origin
