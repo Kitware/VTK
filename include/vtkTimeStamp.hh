@@ -42,7 +42,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkTimeStamp records a unique time when the method Modified() is 
 // executed. This time is guaranteed to be montonically increasing.
-// Subclasses use this object to record modified and/or execution time.
+// Classes use this object to record modified and/or execution time.
+// There is built in support for the binary < and > comparison
+// operators between two vtkTimeStamps.
 
 #ifndef __vtkTimeStamp_h
 #define __vtkTimeStamp_h
@@ -51,7 +53,20 @@ class vtkTimeStamp
 {
 public:
   vtkTimeStamp() : ModifiedTime(0) {};
+
+  // Description:
+  // Set this objects time to the current time. The current time is
+  // just a monotonically increasing unsigned long integer. It is
+  // possible for this number to wrap around back to zero.
+  // This should only happen for processes that have been running
+  // for a very long time while constantly changing objects
+  // within the program. When this does occure, the typical consequence
+  // should be that some filters will update themselves when really
+  // they don't need to.
   void Modified() {this->ModifiedTime = ++vtkTime;};
+
+  // Description:
+  // Return this objects Modified time.
   unsigned long int GetMTime() {return ModifiedTime;};
 
   int operator>(vtkTimeStamp& ts) {return (this->ModifiedTime > ts.ModifiedTime);};
