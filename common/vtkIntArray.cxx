@@ -50,9 +50,10 @@ int vtkIntArray::Allocate(const int sz, const int ext)
 
     this->Size = ( sz > 0 ? sz : 1);
     if ( (this->Array = new int[this->Size]) == NULL ) return 0;
-    this->Extend = ( ext > 0 ? ext : 1);
-    this->MaxId = -1;
     }
+
+  this->Extend = ( ext > 0 ? ext : 1);
+  this->MaxId = -1;
 
   return 1;
 }
