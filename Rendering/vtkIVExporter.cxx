@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkIVExporter, "1.41");
+vtkCxxRevisionMacro(vtkIVExporter, "1.42");
 vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()
@@ -642,7 +642,9 @@ void vtkIVExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
         VTK_INDENT_LESS;
         fprintf(fp,"%s}\n",indent);
         fprintf(fp,"%sTextureCoordinate2 {\n", indent);
+    VTK_INDENT_MORE;
     fprintf(fp,"%spoint [\n", indent);
+    VTK_INDENT_MORE;
     for (i = 0; i < tcoords->GetNumberOfTuples(); i++)
       {
       p = tcoords->GetTuple(i);
