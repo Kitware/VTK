@@ -484,7 +484,7 @@ void vtkDataArray::InsertNextTuple2(float val0, float val1)
                   << numComp << " != 2");
     }
   tuple[0] = val0;
-  tuple[1] = val0;
+  tuple[1] = val1;
   this->InsertNextTuple(tuple);
 }
 void vtkDataArray::InsertNextTuple3(float val0, float val1, 
