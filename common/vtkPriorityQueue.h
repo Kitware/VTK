@@ -89,7 +89,8 @@ public:
 
   // Description:
   // Removes item at specified location from tree; then reorders and
-  // balances tree. The location == 0 is the root of the tree.
+  // balances tree. The location == 0 is the root of the tree. If queue
+  // is exhausted, then a value < 0 is returned.
   int Pop(float &priority, int location=0);
   
   // Description:
