@@ -103,7 +103,7 @@ void vtkIdFilter::Execute()
 
   // Loop over cells (if requested) and generate ids
   //
-  if ( this->PointIds && numCells > 0 )
+  if ( this->CellIds && numCells > 0 )
     {
     cellIds = vtkIntArray::New();
     cellIds->SetNumberOfValues(numCells);
