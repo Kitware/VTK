@@ -27,9 +27,9 @@ vtkCursor3D cursor
   eval cursor SetModelBounds [[reader GetOutput] GetBounds]
   cursor AxesOn
   cursor OutlineOff
-  cursor XShadowsOff
-  cursor YShadowsOff
-  cursor ZShadowsOff
+  cursor XShadowsOn
+  cursor YShadowsOn
+  cursor ZShadowsOn
 vtkPolyDataMapper cursorMapper
   cursorMapper SetInput [cursor GetOutput]
 vtkActor cursorActor
