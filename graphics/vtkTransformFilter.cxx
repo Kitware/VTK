@@ -40,13 +40,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkTransformFilter.h"
-#include "vtkNormals.h"
-#include "vtkVectors.h"
+#include "vtkLinearTransform.h"
 #include "vtkObjectFactory.h"
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkTransformFilter* vtkTransformFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -127,46 +126,47 @@ void vtkTransformFilter::Execute()
     newNormals = vtkNormals::New();
     newNormals->Allocate(numPts);
     }
-  if ( inCellVectors ) 
-    {
-    newCellVectors = vtkVectors::New();
-    newCellVectors->Allocate(numCells);
-    }
-  if ( inCellNormals ) 
-    {
-    newCellNormals = vtkNormals::New();
-    newCellNormals->Allocate(numCells);
-    }
 
+  this->UpdateProgress (.2);
   // Loop over all points, updating position
   //
-  this->Transform->MultiplyPoints(inPts,newPts);
-  this->UpdateProgress (.25);
 
-  // Ditto for vectors and normals
-  //
-  if ( inVectors )
+  if ( inVectors || inNormals )
     {
-    this->Transform->MultiplyVectors(inVectors,newVectors);
+    this->Transform->TransformPointsNormalsVectors(inPts,newPts,
+						   inNormals,newNormals,
+						   inVectors,newVectors);
     }
-  if ( inCellVectors )
+  else
     {
-    this->Transform->MultiplyVectors(inCellVectors,newCellVectors);
+    this->Transform->TransformPoints(inPts,newPts);
+    }  
+
+  this->UpdateProgress (.6);
+
+  // Can only transform cell normals/vectors if the transform
+  // is linear.
+  if (this->Transform->IsA("vtkLinearTransform"))
+    {
+    if ( inCellVectors ) 
+      {
+      newCellVectors = vtkVectors::New();
+      newCellVectors->Allocate(numCells);
+      ((vtkLinearTransform *)this->Transform)->
+	TransformVectors(inCellVectors,newCellVectors);
+      }
+    if ( inCellNormals ) 
+      {
+      newCellNormals = vtkNormals::New();
+      newCellNormals->Allocate(numCells);
+      ((vtkLinearTransform *)this->Transform)->
+       TransformNormals(inCellNormals,newCellNormals);
+      }
     }
 
-  this->UpdateProgress (.5);
+  this->UpdateProgress (.8);
 
-  if ( inNormals )
-    {
-    this->Transform->MultiplyNormals(inNormals,newNormals);
-    }
-  if ( inCellNormals )
-    {
-    this->Transform->MultiplyNormals(inCellNormals,newCellNormals);
-    }
-  this->UpdateProgress (.75);
-
-  // Update ourselves
+  // Update ourselves and release memory
   //
   output->SetPoints(newPts);
   newPts->Delete();

@@ -54,13 +54,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // (e.g., vtkProbeFilter) that require point coordinates as input.
 
 // .SECTION See Also
-// vtkTransform vtkTransformPolyDataFilter vtkActor
+// vtkGeneralTransform vtkTransformPolyDataFilter vtkActor
 
 #ifndef __vtkTransformFilter_h
 #define __vtkTransformFilter_h
 
 #include "vtkPointSetToPointSetFilter.h"
-#include "vtkTransform.h"
+#include "vtkGeneralTransform.h"
 
 class VTK_EXPORT vtkTransformFilter : public vtkPointSetToPointSetFilter
 {
@@ -75,8 +75,8 @@ public:
 
   // Description:
   // Specify the transform object used to transform points.
-  vtkSetObjectMacro(Transform,vtkTransform);
-  vtkGetObjectMacro(Transform,vtkTransform);
+  vtkSetObjectMacro(Transform,vtkGeneralTransform);
+  vtkGetObjectMacro(Transform,vtkGeneralTransform);
 
 protected:
   vtkTransformFilter();
@@ -85,7 +85,7 @@ protected:
   void operator=(const vtkTransformFilter&) {};
 
   void Execute();
-  vtkTransform *Transform;
+  vtkGeneralTransform *Transform;
 };
 
 #endif
