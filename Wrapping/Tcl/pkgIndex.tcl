@@ -81,6 +81,23 @@ package ifneeded vtktcl 3.3 {
        if {$vtkDataFound == 0} {set VTK_DATA_ROOT "../../../../VTKData" }
     }
 
+    set widgetObjectFound 0
+    foreach dir $auto_path {
+	set fname $dir/WidgetObject.tcl
+	if {[file exists $fname]} {
+	    set widgetObjectFound 1
+	    source $fname
+	}
+    }
+
+    if {$widgetObjectFound} {
+	foreach dir $auto_path {
+	    set fname $dir/TkInteractor.tcl
+	    if {[file exists $fname]} {
+		source $fname
+	    }
+	}
+    }
 
     # a generic interactor for tcl and vtk
     #
@@ -183,5 +200,46 @@ package ifneeded vtktcl 3.3 {
        
     if {$ok} {
         package provide vtktcl 3.3
+    }
+}
+
+package ifneeded vtkpython 3.3 {
+
+    proc __ptemp_try_to_load_vtk_lib {name} {
+        global tcl_platform
+        # First dir is empty, to let Tcl try a relative name
+        set dirs {""}
+        set ext [info sharedlibextension]
+        if {$tcl_platform(platform) == "unix"} {
+            set prefix "lib"
+            global auto_path
+            # Help Unix a bit by browsing into $auto_path and /usr/lib...
+            set dirs [concat $dirs /usr/local/lib $auto_path]
+        } else {
+            set prefix ""
+        }
+        foreach dir $dirs {
+            set libname [file join $dir ${prefix}${name}${ext}]
+            if {![catch {load $libname} errormsg]} {
+                return ""
+            }
+            # If not loaded but file was found, return immediately
+            if {[file exists $libname]} {
+                return $errormsg
+            }
+        }
+        return "$name could not be found!"
+    }
+
+    set ok 1
+
+    set errormsg [__ptemp_try_to_load_vtk_lib vtkPythonTkWidgets]
+    if {$errormsg != ""} {
+	puts $errormsg
+	set ok 0
+    }
+
+    if {$ok} {
+	package provide vtkpython 3.3
     }
 }
