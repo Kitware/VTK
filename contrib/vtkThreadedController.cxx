@@ -43,6 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSet.h"
 class vtkImageData;
 
+#ifdef VTK_USE_SPROC
+#include <sys/prctl.h>
+#endif
 
 
 //----------------------------------------------------------------------------
@@ -204,6 +207,8 @@ VTK_THREAD_RETURN_TYPE vtkThreadedControllerStart( void *arg )
   int threadIdx = info->ThreadID;
   vtkThreadedController *self = (vtkThreadedController*)(info->UserData);
 
+  cerr << "Start: " << threadIdx << endl;
+
   self->Start(threadIdx);
   return VTK_THREAD_RETURN_VALUE;
 }
@@ -215,8 +220,11 @@ void vtkThreadedController::Start(int threadIdx)
   this->ThreadIds[threadIdx] = pthread_self();
 #endif
 #ifdef VTK_USE_SPROC
-  this->ThreadIds[threadIdx] = PRDA.sys_prda.prda_sys.t_pid;
+  this->ThreadIds[threadIdx] = PRDA->sys_prda.prda_sys.t_pid;
 #endif
+
+  cerr << threadIdx << " -> " << this->ThreadIds[threadIdx] << endl;
+
   if (this->MultipleMethodFlag)
     {
     if (this->MultipleMethod[threadIdx])
@@ -251,6 +259,11 @@ void vtkThreadedController::SingleMethodExecute()
   this->MultiThreader->SetSingleMethod(vtkThreadedControllerStart, 
 				       (void*)this);
   this->MultiThreader->SetNumberOfThreads(this->NumberOfProcesses);
+
+  cerr << "Single: " << this->MultiThreader->GetNumberOfThreads()
+       << ", max = " << vtkMultiThreader::GetGlobalMaximumNumberOfThreads()
+       << endl;
+
   this->MultiThreader->SingleMethodExecute();
   this->DeleteThreadInfoObjects();
 }
@@ -260,9 +273,15 @@ void vtkThreadedController::MultipleMethodExecute()
 {
   this->CreateThreadInfoObjects();
   this->MultipleMethodFlag = 1;
+
   this->MultiThreader->SetSingleMethod(vtkThreadedControllerStart, 
 				       (void*)this);
   this->MultiThreader->SetNumberOfThreads(this->NumberOfProcesses);
+
+  cerr << "Multiple: " << this->MultiThreader->GetNumberOfThreads()
+       << ", max = " << vtkMultiThreader::GetGlobalMaximumNumberOfThreads()
+       << endl;
+
   this->MultiThreader->SingleMethodExecute();
   this->DeleteThreadInfoObjects();
 }
@@ -289,10 +308,10 @@ int vtkThreadedController::GetLocalProcessId()
   return -1;
 #endif
 #ifdef VTK_USE_SPROC
-  pid_t pid = PRDA.sys_prda.prda_sys.t_pid;
+  pid_t pid = PRDA->sys_prda.prda_sys.t_pid;
   for (idx = 0; idx < this->NumberOfProcesses; ++idx)
     {
-    if (pid == this->ThreadIds[idx]))
+    if (pid == this->ThreadIds[idx])
       {
       return idx;
       }
