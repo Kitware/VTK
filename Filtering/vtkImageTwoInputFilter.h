@@ -46,8 +46,8 @@ public:
   
   // Description:
   // Get the inputs to this filter.
-  vtkImageData *GetInput1() {return (vtkImageData *)this->Inputs[0];}
-  vtkImageData *GetInput2() {return (vtkImageData *)this->Inputs[1];}
+  vtkImageData *GetInput1();
+  vtkImageData *GetInput2();
   
 protected:
   vtkImageTwoInputFilter();

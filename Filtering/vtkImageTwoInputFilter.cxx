@@ -20,15 +20,12 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageTwoInputFilter, "1.24");
+vtkCxxRevisionMacro(vtkImageTwoInputFilter, "1.25");
 
 //----------------------------------------------------------------------------
 vtkImageTwoInputFilter::vtkImageTwoInputFilter()
 {
   this->NumberOfRequiredInputs = 2;
-  this->SetNumberOfInputs(2);
-  this->Inputs[0] = NULL;
-  this->Inputs[1] = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -39,14 +36,32 @@ void vtkImageTwoInputFilter::SetInput1(vtkImageData *input)
   this->vtkImageMultipleInputFilter::SetNthInput(0,input);
 }
 
-
-
 //----------------------------------------------------------------------------
 // Set the Input2 of this filter. If a ScalarType has not been set,
 // then the ScalarType of the input is used.
 void vtkImageTwoInputFilter::SetInput2(vtkImageData *input)
 {
   this->vtkImageMultipleInputFilter::SetNthInput(1,input);
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageTwoInputFilter::GetInput1()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  return (vtkImageData *)this->Inputs[0];
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageTwoInputFilter::GetInput2()
+{
+  if (this->NumberOfInputs < 2)
+    {
+    return NULL;
+    }
+  return (vtkImageData *)this->Inputs[1];
 }
 
 //----------------------------------------------------------------------------
