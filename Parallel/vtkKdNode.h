@@ -85,11 +85,33 @@ public:
   double *GetMaxBounds() {return this->Max;}
 
   // Description:
+  //   Set the xmin, ymin and zmin value of the bounds of this region
+
+  void SetMinBounds(double *mb);
+
+  // Description:
+  //   Set the xmax, ymax and zmax value of the bounds of this region
+
+  void SetMaxBounds(double *mb);
+
+  // Description:
   //   Get a pointer to the 3 data bound minima (xmin, ymin and zmin) or the
   //   3 data bound maxima (xmax, ymax, zmax).  Don't free this pointer.
 
   double *GetMinDataBounds() {return this->MinVal;}
   double *GetMaxDataBounds() {return this->MaxVal;}
+
+  // Description:
+  //   Set the xmin, ymin and zmin value of the bounds of this 
+  //   data within this region
+
+  void SetMinDataBounds(double *mb);
+
+  // Description:
+  //   Set the xmax, ymax and zmax value of the bounds of this 
+  //   data within this region
+
+  void SetMaxDataBounds(double *mb);
 
   // Description:
   //   Set/Get the ID associated with the region described by this node.  If

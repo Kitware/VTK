@@ -26,7 +26,7 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkKdNode, "1.4");
+vtkCxxRevisionMacro(vtkKdNode, "1.5");
 vtkStandardNewMacro(vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Left, vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Right, vtkKdNode);
@@ -78,6 +78,38 @@ void vtkKdNode::SetBounds(double x1,double x2,double y1,double y2,double z1,doub
    this->Min[1] = y1; this->Max[1] = y2;
    this->Min[2] = z1; this->Max[2] = z2;
 }
+//----------------------------------------------------------------------------
+void vtkKdNode::SetMinBounds(double *b)
+{
+  this->Min[0] = b[0];
+  this->Min[1] = b[1];
+  this->Min[2] = b[2];
+}
+
+//----------------------------------------------------------------------------
+void vtkKdNode::SetMaxBounds(double *b)
+{
+  this->Max[0] = b[0];
+  this->Max[1] = b[1];
+  this->Max[2] = b[2];
+}
+
+//----------------------------------------------------------------------------
+void vtkKdNode::SetMinDataBounds(double *b)
+{
+  this->MinVal[0] = b[0];
+  this->MinVal[1] = b[1];
+  this->MinVal[2] = b[2];
+}
+
+//----------------------------------------------------------------------------
+void vtkKdNode::SetMaxDataBounds(double *b)
+{
+  this->MaxVal[0] = b[0];
+  this->MaxVal[1] = b[1];
+  this->MaxVal[2] = b[2];
+}
+
 
 //----------------------------------------------------------------------------
 void vtkKdNode::GetBounds(double *b) const
