@@ -617,7 +617,7 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
 	r += tmp;
 	}
       s /= r;
-      d /= r;
+      d /= r*sqrt(r);
       e /= r;
       }
     else
