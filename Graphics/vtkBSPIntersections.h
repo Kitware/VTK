@@ -38,7 +38,7 @@ class vtkCell;
 class vtkKdNode;
 class vtkBSPCuts;
 
-class VTK_PARALLEL_EXPORT vtkBSPIntersections : public vtkObject
+class VTK_GRAPHICS_EXPORT vtkBSPIntersections : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkBSPIntersections, vtkObject);

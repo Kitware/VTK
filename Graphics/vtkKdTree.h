@@ -67,7 +67,7 @@ class vtkKdNode;
 class vtkBSPCuts;
 class vtkBSPIntersections;
 
-class VTK_PARALLEL_EXPORT vtkKdTree : public vtkLocator
+class VTK_GRAPHICS_EXPORT vtkKdTree : public vtkLocator
 {
 public:
   vtkTypeRevisionMacro(vtkKdTree, vtkLocator);

@@ -51,7 +51,7 @@ class vtkPointData;
 class vtkCellData;
 class vtkMergeCellsSTLCloak;
 
-class VTK_PARALLEL_EXPORT vtkMergeCells : public vtkObject
+class VTK_GRAPHICS_EXPORT vtkMergeCells : public vtkObject
 { 
 public:
   vtkTypeRevisionMacro(vtkMergeCells, vtkObject);

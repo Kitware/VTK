@@ -34,7 +34,7 @@ class vtkIdList;
 class vtkExtractCellsSTLCloak;
 class vtkModelMetadata;
 
-class VTK_PARALLEL_EXPORT vtkExtractCells : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkExtractCells : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkTypeRevisionMacro(vtkExtractCells, vtkDataSetToUnstructuredGridFilter);
