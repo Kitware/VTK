@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.57");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.58");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -37,6 +37,7 @@ vtkTubeFilter::vtkTubeFilter()
   this->DefaultNormal[2] = 1.0;
   
   this->UseDefaultNormal = 0;
+  this->SidesShareVertices = 1;
   this->Capping = 0;
   this->OnRatio = 1;
   this->Offset = 0;
@@ -150,7 +151,7 @@ void vtkTubeFilter::Execute()
   lineNormalGenerator = vtkPolyLine::New();
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
-    // if necessary calculate normals, each polyline calculates it's
+    // if necessary calculate normals, each polyline calculates its
     // normals independently, avoiding conflicts at shared vertices
     vtkCellArray *singlePolyline = vtkCellArray::New();
     if (generate_normals) 
@@ -316,42 +317,99 @@ void vtkTubeFilter::Execute()
         }
 
       //create points around line
-      for (k=0; k < this->NumberOfSides; k++)
+      if (this->SidesShareVertices)
         {
-        for (i=0; i<3; i++) 
+        for (k=0; k < this->NumberOfSides; k++)
           {
-          normal[i] = w[i]*cos((double)k*theta) + nP[i]*sin((double)k*theta);
-          s[i] = p[i] + this->Radius * sFactor * normal[i];
+          for (i=0; i<3; i++) 
+            {
+            normal[i] = w[i]*cos((double)k*theta) + nP[i]*sin((double)k*theta);
+            s[i] = p[i] + this->Radius * sFactor * normal[i];
+            }
+          if (this->Capping && capPointFlag)
+            {
+            vtkMath::Normalize(capNorm);
+            capPoints->InsertNextPoint(s);
+            capNormals->InsertNextTuple(capNorm);
+            }
+          ptId = newPts->InsertNextPoint(s);
+          newNormals->InsertTuple(ptId,normal);
+          outPD->CopyData(pd,pts[j],ptId);
           }
-        if (this->Capping && capPointFlag)
+        } 
+      else
+        {
+        float n_left[3], n_right[3];
+        for (k=0; k < this->NumberOfSides; k++)
           {
-          vtkMath::Normalize(capNorm);
-          capPoints->InsertNextPoint(s);
-          capNormals->InsertNextTuple(capNorm);
+          for (i=0; i<3; i++)
+            {
+            // Create duplicate vertices at each point
+            // and adjust the associated normals so that they are
+            // oriented with the facets. This preserves the tube's
+            // polygonal appearance, as if by flat-shading around the tube,
+            // while still allowing smooth (gouraud) shading along the
+            // tube as it bends.
+            normal[i]  = w[i]*cos((double)(k+0.0)*theta) + nP[i]*sin((double)(k+0.0)*theta);
+            n_right[i] = w[i]*cos((double)(k-0.5)*theta) + nP[i]*sin((double)(k-0.5)*theta);
+            n_left[i]  = w[i]*cos((double)(k+0.5)*theta) + nP[i]*sin((double)(k+0.5)*theta);
+            s[i] = p[i] + this->Radius * sFactor * normal[i];
+            }
+          if (this->Capping && capPointFlag)
+            {
+            vtkMath::Normalize(capNorm);
+            capPoints->InsertNextPoint(s);
+            capNormals->InsertNextTuple(capNorm);
+            }
+          ptId = newPts->InsertNextPoint(s);
+          newNormals->InsertTuple(ptId,n_right);
+          outPD->CopyData(pd,pts[j],ptId);
+          ptId = newPts->InsertNextPoint(s);
+          newNormals->InsertTuple(ptId,n_left);
+          outPD->CopyData(pd,pts[j],ptId);
           }
-        ptId = newPts->InsertNextPoint(s);
-        newNormals->InsertTuple(ptId,normal);
-        outPD->CopyData(pd,pts[j],ptId);
         }
       }//for all points in polyline
 
     // Generate the strips
     //
-    for (k=this->Offset; k<(this->NumberOfSides+this->Offset); k+=this->OnRatio)
+    if (this->SidesShareVertices)
       {
-      i1 = (k+1) % this->NumberOfSides;
-      newStrips->InsertNextCell(npts*2);
-      for (i=0; i < npts; i++) 
+      for (k=this->Offset; k<(this->NumberOfSides+this->Offset); k+=this->OnRatio)
         {
-        i2 = i*this->NumberOfSides;
-        newStrips->InsertCellPoint(ptOffset+i2+i1);
-        newStrips->InsertCellPoint(ptOffset+i2+k);
-        }
-      } //for each side of the tube
+        i1 = (k+1) % this->NumberOfSides;
+        newStrips->InsertNextCell(npts*2);
+        for (i=0; i < npts; i++) 
+          {
+          i2 = i*this->NumberOfSides;
+          newStrips->InsertCellPoint(ptOffset+i2+i1);
+          newStrips->InsertCellPoint(ptOffset+i2+k);
+          }
+        } //for each side of the tube
+      
+      ptOffset += this->NumberOfSides*npts;
+      singlePolyline->Delete();
+      }
+    else
+      {
+      for (k=this->Offset; k<(this->NumberOfSides+this->Offset); k+=this->OnRatio)
+        {
+        i1 = (k+1) % this->NumberOfSides;
+        newStrips->InsertNextCell(npts*2);
+        for (i=0; i < npts; i++) 
+          {
+          i2 = 2*i*this->NumberOfSides;
+          newStrips->InsertCellPoint(ptOffset+i2+i1*2);
+          newStrips->InsertCellPoint(ptOffset+i2+k*2+1);
+          }
+        } //for each side of the tube
+      
+      ptOffset += 2*this->NumberOfSides*npts;
+      singlePolyline->Delete();
+      }
 
-    ptOffset += this->NumberOfSides*npts;
-    singlePolyline->Delete();
     }//for each polyline
+
 
   // Take care of capping
   if (this->Capping)
