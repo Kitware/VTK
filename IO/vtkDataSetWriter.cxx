@@ -12,17 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkDataSet.h"
 #include "vtkDataSetWriter.h"
+
+#include "vtkDataSet.h"
 #include "vtkErrorCode.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataWriter.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridWriter.h"
+#include "vtkStructuredGrid.h"
 #include "vtkStructuredGridWriter.h"
 #include "vtkStructuredPointsWriter.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkDataSetWriter, "1.37");
+vtkCxxRevisionMacro(vtkDataSetWriter, "1.38");
 vtkStandardNewMacro(vtkDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -40,8 +46,7 @@ vtkDataSet *vtkDataSetWriter::GetInput()
     {
     return NULL;
     }
-  
-  return (vtkDataSet *)(this->Inputs[0]);
+  return static_cast<vtkDataSet*>(this->Inputs[0]);
 }
 
 void vtkDataSetWriter::WriteData()
@@ -56,36 +61,36 @@ void vtkDataSetWriter::WriteData()
   if ( type == VTK_POLY_DATA )
     {
     vtkPolyDataWriter *pwriter = vtkPolyDataWriter::New();
-    pwriter->SetInput((vtkPolyData *)input);
-    writer = (vtkDataWriter *)pwriter;
+    pwriter->SetInput(static_cast<vtkPolyData*>(input));
+    writer = pwriter;
     }
 
   else if ( type == VTK_STRUCTURED_POINTS || type == VTK_IMAGE_DATA)
     {
     vtkStructuredPointsWriter *spwriter = vtkStructuredPointsWriter::New();
-    spwriter->SetInput((vtkImageData *)input);
-    writer = (vtkDataWriter *)spwriter;
+    spwriter->SetInput(static_cast<vtkImageData*>(input));
+    writer = spwriter;
     }
 
   else if ( type == VTK_STRUCTURED_GRID )
     {
     vtkStructuredGridWriter *sgwriter = vtkStructuredGridWriter::New();
-    sgwriter->SetInput((vtkStructuredGrid *)input);
-    writer = (vtkDataWriter *)sgwriter;
+    sgwriter->SetInput(static_cast<vtkStructuredGrid*>(input));
+    writer = sgwriter;
     }
 
   else if ( type == VTK_UNSTRUCTURED_GRID )
     {
     vtkUnstructuredGridWriter *ugwriter = vtkUnstructuredGridWriter::New();
-    ugwriter->SetInput((vtkUnstructuredGrid *)input);
-    writer = (vtkDataWriter *)ugwriter;
+    ugwriter->SetInput(static_cast<vtkUnstructuredGrid*>(input));
+    writer = ugwriter;
     }
 
   else if ( type == VTK_RECTILINEAR_GRID )
     {
     vtkRectilinearGridWriter *rgwriter = vtkRectilinearGridWriter::New();
-    rgwriter->SetInput((vtkRectilinearGrid *)input);
-    writer = (vtkDataWriter *)rgwriter;
+    rgwriter->SetInput(static_cast<vtkRectilinearGrid*>(input));
+    writer = rgwriter;
     }
 
   else
