@@ -16,7 +16,6 @@ void main( int argc, char *argv[] )
   int i, j, k, kOffset, jOffset, offset;
   float x[3], v[3], rMin=0.5, rMax=1.0, deltaRad, deltaZ;
   float radius, theta;
-  vtkMath math;
   static int dims[3]={13,11,11};
   
   vtkRenderer *renderer = vtkRenderer::New();
@@ -47,7 +46,7 @@ void main( int argc, char *argv[] )
       jOffset = j * dims[0];
       for (i=0; i<dims[0]; i++) 
         {
-        theta = i * 15.0 * math.DegreesToRadians();
+        theta = i * 15.0 * vtkMath::DegreesToRadians();
         x[0] = radius * cos(theta);
         x[1] = radius * sin(theta);
         v[0] = -x[1];
@@ -91,8 +90,6 @@ void main( int argc, char *argv[] )
   renWin->Delete();
   iren->Delete();
   sgrid->Delete();
-  vectors->Delete();
-  points->Delete();
   hedgehog->Delete();
   sgridMapper->Delete();
   sgridActor->Delete();

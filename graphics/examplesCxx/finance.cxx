@@ -146,7 +146,7 @@ static vtkDataSet *ReadFinancialData(char *x, char *y, char *z, char *s)
     delete [] yV;
     delete [] zV;
     delete [] sV;
-    delete dataSet;
+    dataSet->Delete();
     return NULL;
     }
 
