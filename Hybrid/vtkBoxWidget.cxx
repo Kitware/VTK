@@ -37,7 +37,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.26");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.27");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -1172,7 +1172,8 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
   double *p3 = pts + 3*3;
   double *p4 = pts + 3*4;
   double *p14 = pts + 3*14;
-  double center[3], scale[3], scaleVec[3][3];
+  double center[3], translate[3], scale[3], scaleVec[3][3];
+  float  position[3];
   int i;
 
   // The transformation is relative to the initial bounds.
@@ -1185,7 +1186,14 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
     center[i] = p14[i] - 
       (this->InitialBounds[2*i+1]+this->InitialBounds[2*i]) / 2.0;
     }
-  t->Translate(center[0], center[1], center[2]);
+  if ( this->Prop3D ) //add in 
+    {
+    this->Prop3D->GetPosition(position);
+    translate[0] = center[0] + position[0];
+    translate[1] = center[1] + position[1];
+    translate[2] = center[2] + position[2];
+    }
+  t->Translate(translate[0], translate[1], translate[2]);
   
   // Orientation
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
@@ -1216,6 +1224,11 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
     (this->InitialBounds[5]-this->InitialBounds[4]);
   t->Scale(scale[0],scale[1],scale[2]);
   
+  if ( this->Prop3D ) //add in 
+    {
+    t->Translate(-position[0], -position[1], -position[2]);
+    }
+
 }
 
 void vtkBoxWidget::GetPolyData(vtkPolyData *pd)
