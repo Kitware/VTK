@@ -311,7 +311,7 @@ void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
   vtkInstanceLookup->DeleteHashEntry((void *)id);
   vtkTypecastLookup->DeleteHashEntry((void *)id);
   vptr = vtkPointerLookup->GetHashTableValue(ptr);
-  env->DeleteGlobalRef((jobject)&vptr);
+  env->DeleteGlobalRef((jobject)vptr);
   vtkPointerLookup->DeleteHashEntry(ptr);
   vtkDeleteLookup->DeleteHashEntry((void *)id);
 }
