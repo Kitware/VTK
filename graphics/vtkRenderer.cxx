@@ -527,7 +527,7 @@ vtkActorCollection *vtkRenderer::GetActors()
   return this->Actors;
 }
 
-// look through the props and get all the actors
+// look through the props and get all the volumes
 vtkVolumeCollection *vtkRenderer::GetVolumes()
 {
   vtkProp *aProp;
