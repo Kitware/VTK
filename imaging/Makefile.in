@@ -17,6 +17,13 @@ vtkOpenGLImageWindow \
 vtkXOpenGLTextMapper \
 vtkOpenGLPolyDataMapper2D 
 
+MESA_OBJ = \
+vtkMesaImager \
+vtkMesaImageMapper \
+vtkMesaImageWindow \
+vtkXMesaTextMapper \
+vtkMesaPolyDataMapper2D 
+
 ABSTRACT_H = 
 
 
@@ -32,7 +39,8 @@ vtkImagePadFilter \
 vtkImageSpatialFilter \
 vtkImageToImageFilter \
 vtkImageTwoInputFilter \
-vtkImageFourierFilter 
+vtkImageFourierFilter \
+vtkImagingFactory
 
 CONCRETE = \
 vtkAxisActor2D \
