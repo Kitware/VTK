@@ -333,6 +333,20 @@ void vtkColorTransferFunction::GetTable( float x1, float x2,
     }
 }
 
+void vtkColorTransferFunction::BuildFunctionFromTable( float x1, float x2,
+						       int size, float *table)
+{
+  this->Red->BuildFunctionFromTable(x1, x2, size, &(table[0]), 3);
+  this->Green->BuildFunctionFromTable(x1, x2, size, &(table[1]), 3);
+  this->Blue->BuildFunctionFromTable(x1, x2, size, &(table[2]), 3);
+
+  this->Range[0] = x1;
+  this->Range[1] = x2;
+
+  this->Modified();
+}
+
+
 // Print method for vtkColorTransferFunction
 void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -683,6 +683,46 @@ void vtkPiecewiseFunction::GetTable( float x1, float x2, int size,
     }
 }
 
+
+void vtkPiecewiseFunction::BuildFunctionFromTable( float x1, float x2,
+						   int size,
+						   float* table, int stride )
+{
+  int i;
+  float inc;
+  float *tptr = table;
+
+  if (size > this->ArraySize)
+    {
+    delete [] this->Function;
+    this->ArraySize = size;
+    this->FunctionSize = size;
+    this->Function = new float[this->ArraySize*2];
+    }
+  else
+    {
+    // no need to reallocate memory, just adjust the function size
+    this->FunctionSize = size;
+    }
+
+  this->FunctionRange[0] = x1;
+  this->FunctionRange[1] = x2;
+  
+  if( size > 1 )
+    {
+    inc = (x2-x1)/(float)(size-1);
+    }
+
+  for (i=0; i < size; i++)
+    {
+    this->Function[2*i] = x1 + inc*i;
+    this->Function[2*i+1] = *tptr;
+    tptr += stride;
+    }
+
+  this->Modified();
+}
+
 // Increase the size of the array used to store the function
 void vtkPiecewiseFunction::IncreaseArraySize()
 {

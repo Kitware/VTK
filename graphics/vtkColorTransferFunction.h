@@ -134,6 +134,13 @@ public:
   void GetTable( float x1, float x2, int n, float* table );
 
   // Description:
+  // Construct a color transfer function from a table. Function range is
+  // is set to [x1, x2], each function size is set to size, and function points
+  // are regularly spaced between x1 and x2. Parameter "table" is assumed
+  // to be a block of memory of size [3*size]
+  void BuildFunctionFromTable( float x1, float x2, int size, float *table);
+
+  // Description:
   // Sets and gets the clamping value for this transfer function.
   void SetClamping(int val);
   int  GetClamping();
