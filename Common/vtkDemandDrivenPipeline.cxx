@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.2");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.3");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -283,7 +283,6 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
     {
     vtkErrorMacro("UpdateData invoked during a downstream request.  "
                   "Returning failure from the method.");
-    abort();
     return 0;
     }
 
