@@ -413,8 +413,8 @@ void vtkHull::Execute()
 
   // Create a new set of points and polygons into which the results will
   // be stored
-  out_points = new vtkPoints();
-  out_polys  = new vtkCellArray();
+  out_points = vtkPoints::New();
+  out_polys  = vtkCellArray::New();
 
   // Compute the D value for each plane according to the vertices in the
   // geometry
