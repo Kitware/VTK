@@ -171,6 +171,7 @@ int vtkActor::GetIsOpaque()
       {
       if (this->Texture && this->Texture->GetInput()) 
 	{
+	this->Texture->GetInput()->Update();
 	if (this->Texture->GetInput()->GetPointData()->GetScalars()->GetNumberOfComponents()%2)
 	  {
 	  return 1;
