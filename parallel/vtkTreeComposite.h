@@ -128,6 +128,14 @@ public:
   // method to initialize the RMIs.
   void InitializeRMIs();
   
+  // Description:
+  // The reduction facor makes the transfered images smaller to decrease 
+  // the render time.  The final image is pixel replicated to be the original 
+  // size.  This option can be used by an interactor style to help get desired 
+  // frame rates.  The factor only needs to be set on process 0.
+  vtkSetMacro(ReductionFactor, int);
+  vtkGetMacro(ReductionFactor, int);
+
 //BTX
 
   enum Tags {
@@ -158,6 +166,8 @@ protected:
   unsigned long ResetCameraClippingRangeTag;
   
   void Composite(int flag);
+  void ReduceBuffer(float *localZdata, float *localPdata, 
+                    int windowSize[2], int flag);
 
   // Convenience method used internally. It set up the start observer
   // and allows the render window's interactor to be set before or after
@@ -170,6 +180,9 @@ protected:
   float *PData;
   float *ZData;
   int WindowSize[2];
+
+  // Reduction factor (For fast interactive compositing).
+  int ReductionFactor;
   
   // This flag stops nested RMIs from occuring.  Some rmis send and receive information.
   // Nesting them can lock up the processes.

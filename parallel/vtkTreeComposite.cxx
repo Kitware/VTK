@@ -122,6 +122,8 @@ vtkTreeComposite::vtkTreeComposite()
   this->PData = this->ZData = NULL;
   
   this->Lock = 0;
+
+  this->ReductionFactor = 1;
 }
 
   
@@ -519,8 +521,9 @@ void vtkTreeComposite::StartRender()
   rens = this->RenderWindow->GetRenderers();
   numProcs = controller->GetNumberOfProcesses();
   size = this->RenderWindow->GetSize();
-  winInfo.Size[0] = size[0];
-  winInfo.Size[1] = size[1];
+  // It would probably be better to reduce the viewport not the size.
+  winInfo.Size[0] = size[0] / this->ReductionFactor;
+  winInfo.Size[1] = size[1] / this->ReductionFactor;
   winInfo.NumberOfRenderers = rens->GetNumberOfItems();
   for (id = 1; id < numProcs; ++id)
     {
@@ -780,9 +783,66 @@ void vtkTreeComposite::SetWindowSize(int x, int y)
   this->WindowSize[1] = y;
 }
 
+
+void vtkTreeComposite::ReduceBuffer(float *localZdata, float *localPdata, 
+                                    int windowSize[2], int flag)
+{
+  float *pz1;
+  float *pz2;
+  float *pp1;
+  float *pp2;
+  int   x, y;
+  int   xDim, yDim;
+  // Continous increments.
+  int   pIncY, zIncY, pIncX; 
+
+  pz1 = pz2 = localZdata;
+  pp1 = pp2 = localPdata;
+  xDim = windowSize[0] / this->ReductionFactor;
+  yDim = windowSize[1] / this->ReductionFactor;
+  zIncY = pIncY = windowSize[0] - (xDim * this->ReductionFactor);
+
+  if (flag)
+    {
+    pIncY = pIncY * 4;
+    pIncX = 4 * (this->ReductionFactor - 1);
+    for (y = 0; y < yDim; y++)
+      {
+      for (x = 0; x < xDim; x++)
+        {
+        *pp1++ = *pp2++;
+        *pp1++ = *pp2++;
+        *pp1++ = *pp2++;
+        *pp1++ = *pp2++;
+        pp2 += pIncX;
+        *pz1++ = *pz2;
+        pz2 += this->ReductionFactor;
+        }
+      pz2 += zIncY;
+      pp2 += pIncY;
+      }
+    }
+  else
+    {
+    for (y = 0; y < yDim; y++)
+      {
+      for (x = 0; x < xDim; x++)
+        {
+        *pz1++ = *pz2;
+        *pp1++ = *pp2;
+        pz2 += this->ReductionFactor;
+        pp2 += this->ReductionFactor;
+        }
+      pz2 += zIncY;
+      pp2 += pIncY;
+      }
+    }
+
+  windowSize[0] = xDim;
+  windowSize[1] = yDim;
+}
   
-  
-      
+     
 
 //-------------------------------------------------------------------------
 // Jim's composite stuff
@@ -839,7 +899,8 @@ void vtkTreeComposite::Composite(int flag)
 {
   float *localZdata = NULL;
   float *localPdata = NULL;
-  int *windowSize;
+  int windowSize[2];
+  int *size;
   int total_pixels;
   int pdata_size, zdata_size;
   int myId, numProcs;
@@ -849,7 +910,9 @@ void vtkTreeComposite::Composite(int flag)
   myId = this->Controller->GetLocalProcessId();
   numProcs = this->Controller->GetNumberOfProcesses();
 
-  windowSize = this->RenderWindow->GetSize();
+  size = this->RenderWindow->GetSize();
+  windowSize[0] = size[0];
+  windowSize[1] = size[1];
   total_pixels = windowSize[0] * windowSize[1];
 
   // Get the z buffer.
@@ -865,10 +928,23 @@ void vtkTreeComposite::Composite(int flag)
     } 
   else 
     {
-    // Condition is here until we fix the resize bug in vtkMesarenderWindow.
+    // Condition is here until we fix the resize bug in vtkMesaRenderWindow.
     localPdata = (float*)this->RenderWindow->GetRGBACharPixelData(0,0,windowSize[0]-1,
 								  windowSize[1]-1,0);    
     pdata_size = total_pixels;
+    }
+
+  // Handle reduction factor for process 0 here.
+  if (this->ReductionFactor > 1)
+    {
+    // localZdata, localPdata and window size get modified.
+    this->ReduceBuffer(localZdata, localPdata, windowSize, flag);
+    // Recompute array sizes.
+    pdata_size = total_pixels = windowSize[0] * windowSize[1];
+    if (flag)
+      {
+      pdata_size *= 4;
+      }
     }
   
   double doubleLogProcs = log((double)numProcs)/log((double)2);
@@ -943,6 +1019,8 @@ void vtkTreeComposite::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os, indent);
   
+  os << indent << "ReductionFactor: " << this->ReductionFactor << endl;
+
   if ( this->RenderWindow )
     {
     os << indent << "RenderWindow: " << this->RenderWindow << "\n";
