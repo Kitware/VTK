@@ -306,7 +306,7 @@ extern "C" {
                           block.pixelSize,
                           components );
       }
-    block.pitch = block.width;
+    block.pitch = block.width * components;
     block.pixelSize = components;
     block.pixelPtr = photobuffer;
   
