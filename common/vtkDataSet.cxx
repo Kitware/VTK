@@ -207,26 +207,20 @@ float vtkDataSet::GetLength()
 
 unsigned long int vtkDataSet::GetMTime()
 {
-  unsigned long result, pointDataMTime, cellDataMTime;
+  unsigned long mtime, result;
   
+  result = vtkDataObject::GetMTime();
   if (this->Source)
     {
-    result = this->Source->GetMTime();
-    if (result <  this->MTime)
-      {
-      result = this->MTime;
-      }
-    }
-  else
-    {
-    result = this->MTime;
+    mtime = this->Source->GetMTime();
+    result = ( mtime > result ? mtime : result );
     }
   
-  pointDataMTime = this->PointData->GetMTime();
-  result = ( pointDataMTime > result ? pointDataMTime : result );
+  mtime = this->PointData->GetMTime();
+  result = ( mtime > result ? mtime : result );
 
-  cellDataMTime = this->CellData->GetMTime();
-  return ( cellDataMTime > result ? cellDataMTime : result );
+  mtime = this->CellData->GetMTime();
+  return ( mtime > result ? mtime : result );
 }
 
 vtkCell *vtkDataSet::FindAndGetCell (float x[3], vtkCell *cell, int cellId, 
