@@ -44,9 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkExtractEdges* vtkExtractEdges::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +56,6 @@ vtkExtractEdges* vtkExtractEdges::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkExtractEdges;
 }
-
-
-
 
 // Construct object.
 vtkExtractEdges::vtkExtractEdges()
@@ -171,7 +166,6 @@ void vtkExtractEdges::Execute()
 
   vtkDebugMacro(<<"Created " << newLines->GetNumberOfCells() << " edges");
 
-  //
   //  Update ourselves.
   //
   edgeTable->Delete();
