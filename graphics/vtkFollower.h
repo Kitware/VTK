@@ -82,9 +82,6 @@ class VTK_EXPORT vtkFollower : public vtkActor
   virtual void GetMatrix(vtkMatrix4x4 *m);
   virtual void GetMatrix(double m[16])
     {this->GetMatrix(this->Matrix); vtkMatrix4x4::DeepCopy(m,this->Matrix);};
-//BTX
-  virtual vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());}
-//ETX
 
   // Description:
   // Set/Get the camera to follow. If this is not set, then the follower
@@ -101,6 +98,12 @@ class VTK_EXPORT vtkFollower : public vtkActor
   // For legacy compatibility. Do not use.
   void GetMatrix(vtkMatrix4x4 &m) 
     {VTK_LEGACY_METHOD(GetMatrix,"3.2"); this->GetMatrix(&m);}
+
+//BTX
+  virtual vtkMatrix4x4& GetMatrix() 
+    {VTK_LEGACY_METHOD(GetMatrix,"3.2"); return *(this->GetMatrixPointer());}
+//ETX
+
 #endif
   
 protected:
