@@ -52,11 +52,6 @@ vtkActor planeActor
     planeActor SetMapper planeMap
     planeActor SetTexture texture
 
-# we set the opacity to 0.999 to indicate that we are doing stuff with
-# alpha. Ideally we shouldn't have to do this, but leaving the alpha
-# funcs on all the time in OpenGL kills performance on some systems.
-[planeActor GetProperty] SetOpacity 0.999
-
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor planeActor
