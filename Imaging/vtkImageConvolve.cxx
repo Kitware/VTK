@@ -15,9 +15,12 @@
 #include "vtkImageConvolve.h"
 #include "vtkImageData.h"
 #include "vtkImageEllipsoidSource.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageConvolve, "1.14");
+vtkCxxRevisionMacro(vtkImageConvolve, "1.15");
 vtkStandardNewMacro(vtkImageConvolve);
 
 //----------------------------------------------------------------------------
@@ -41,13 +44,11 @@ vtkImageConvolve::vtkImageConvolve()
   this->SetKernel3x3(kernel);
 }
 
-
 //----------------------------------------------------------------------------
 // Destructor
 vtkImageConvolve::~vtkImageConvolve()
 {
 }
-
 
 //----------------------------------------------------------------------------
 void vtkImageConvolve::PrintSelf(ostream& os, vtkIndent indent)
@@ -84,7 +85,6 @@ void vtkImageConvolve::PrintSelf(ostream& os, vtkIndent indent)
   os << ")\n";        
 }
 
-
 //----------------------------------------------------------------------------
 // Set a 3x3 kernel 
 void vtkImageConvolve::SetKernel3x3(const double kernel[9])
@@ -92,7 +92,6 @@ void vtkImageConvolve::SetKernel3x3(const double kernel[9])
   // Fill the kernel
   this->SetKernel(kernel, 3, 3, 1);
 }
-
 
 //----------------------------------------------------------------------------
 // Set a 5x5 kernel 
@@ -299,17 +298,16 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
   double sum;
 
   // The extent of the whole input image
-  int inImageMin0, inImageMin1, inImageMin2;
-  int inImageMax0, inImageMax1, inImageMax2;
+  int inImageExt[6];
 
   // to compute the range
   unsigned long count = 0;
   unsigned long target;
 
   // Get information to march through data
-  inData->GetIncrements(inInc0, inInc1, inInc2); 
-  self->GetInput()->GetWholeExtent(inImageMin0, inImageMax0, inImageMin1,
-                                   inImageMax1, inImageMin2, inImageMax2);
+  inData->GetIncrements(inInc0, inInc1, inInc2);
+  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inImageExt);
   outData->GetIncrements(outInc0, outInc1, outInc2); 
   outMin0 = outExt[0];   outMax0 = outExt[1];
   outMin1 = outExt[2];   outMax1 = outExt[3];
@@ -398,12 +396,12 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
                 {
                 // A quick but rather expensive way to handle boundaries
                 // This assumes the boundary values are zero
-                if (outIdx0 + hoodIdx0 >= inImageMin0 &&
-                    outIdx0 + hoodIdx0 <= inImageMax0 &&
-                    outIdx1 + hoodIdx1 >= inImageMin1 &&
-                    outIdx1 + hoodIdx1 <= inImageMax1 &&
-                    outIdx2 + hoodIdx2 >= inImageMin2 &&
-                    outIdx2 + hoodIdx2 <= inImageMax2)
+                if (outIdx0 + hoodIdx0 >= inImageExt[0] &&
+                    outIdx0 + hoodIdx0 <= inImageExt[1] &&
+                    outIdx1 + hoodIdx1 >= inImageExt[2] &&
+                    outIdx1 + hoodIdx1 <= inImageExt[3] &&
+                    outIdx2 + hoodIdx2 >= inImageExt[4] &&
+                    outIdx2 + hoodIdx2 <= inImageExt[5])
                   {
                   sum += *hoodPtr0 * kernel[kernelIdx];
 
@@ -440,35 +438,34 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
     }
 }
 
-
-    
-
 //----------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It hanldes image boundaries, so the image does not shrink.
-void vtkImageConvolve::ThreadedExecute(vtkImageData *inData, 
-                                       vtkImageData *outData, 
-                                       int outExt[6], int id)
+void vtkImageConvolve::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkImageData ***inData,
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
-  int inExt[6];
-  this->ComputeInputUpdateExtent(inExt,outExt);
-  void *inPtr = inData->GetScalarPointerForExtent(inExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void *inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
   // this filter expects the output type to be same as input
-  if (outData->GetScalarType() != inData->GetScalarType())
+  if (outData[0]->GetScalarType() != inData[0][0]->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: output ScalarType, "
-      << vtkImageScalarTypeNameMacro(outData->GetScalarType())
+      << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
       << " must match input scalar type");
     return;
     }
   
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageConvolveExecute, this, inData, 
-                      (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr),
+    vtkTemplateMacro7(vtkImageConvolveExecute, this, inData[0][0],
+                      (VTK_TT *)(inPtr), outData[0], (VTK_TT *)(outPtr),
                       outExt, id);
 
     default:
@@ -476,6 +473,3 @@ void vtkImageConvolve::ThreadedExecute(vtkImageData *inData,
       return;
     }
 }
-
-
-
