@@ -44,7 +44,8 @@ vtkRIBProperty::vtkRIBProperty ()
 {
   this->Declarations = NULL;
   this->Parameters = NULL;
-  this->SurfaceShader = NULL;
+  this->SurfaceShader = new char[strlen("plastic") + 1];
+  strcpy (this->SurfaceShader, "plastic");
   this->DisplacementShader = NULL;
 }
 
