@@ -21,7 +21,7 @@
 //              not allow interaction and exit
 // -D <path> => path to the data; the data should be in <path>/Data/
 
-//#define WRITE_GENERIC_RESULT
+#define WRITE_GENERIC_RESULT
 
 #include "vtkActor.h"
 #include "vtkDebugLeaks.h"
@@ -45,6 +45,7 @@
 #include "vtkCommand.h"
 #include "vtkGeometricErrorMetric.h"
 #include "vtkAttributesErrorMetric.h"
+#include "vtkSimpleCellTessellator.h"
 
 #ifdef WRITE_GENERIC_RESULT
 # include "vtkXMLUnstructuredGridWriter.h"
@@ -106,7 +107,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkXMLUnstructuredGridReader *reader = vtkXMLUnstructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
-  //char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadTet2.vtu");
+//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Test2_Volume.vtu");
   reader->SetFileName( cfname );
   delete[] cfname;
   
@@ -128,12 +129,15 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   
   // 2. for the attribute error metric
   vtkAttributesErrorMetric *attributesError=vtkAttributesErrorMetric::New();
-  attributesError->SetAttributeTolerance(0.01);
+  attributesError->SetAttributeTolerance(0.01); // 0.11
   
   ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   attributesError->Delete();
   cout<<"input unstructured grid: "<<ds<<endl;
 
+  
+  static_cast<vtkSimpleCellTessellator *>(ds->GetTessellator())->SetMaxSubdivisionLevel(10);
+    
   vtkIndent indent;
   ds->PrintSelf(cout,indent);
   

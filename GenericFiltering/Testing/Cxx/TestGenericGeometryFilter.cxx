@@ -43,6 +43,7 @@
 #include "vtkPolyData.h"
 #include "vtkGeometricErrorMetric.h"
 #include "vtkAttributesErrorMetric.h"
+#include "vtkSimpleCellTessellator.h"
 
 #ifdef WRITE_GENERIC_RESULT
 # include "vtkXMLPolyDataWriter.h"
@@ -100,7 +101,9 @@ int TestGenericGeometryFilter(int argc, char* argv[])
   attributesError->Delete();
   
   cout<<"input unstructured grid: "<<ds<<endl;
-
+  
+  static_cast<vtkSimpleCellTessellator *>(ds->GetTessellator())->SetMaxSubdivisionLevel(10);
+ 
   vtkIndent indent;
   ds->PrintSelf(cout,indent);
   

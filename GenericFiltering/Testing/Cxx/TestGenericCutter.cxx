@@ -42,6 +42,7 @@
 #include "vtkPlane.h"
 #include "vtkGeometricErrorMetric.h"
 #include "vtkAttributesErrorMetric.h"
+#include "vtkSimpleCellTessellator.h"
 
 int TestGenericCutter(int argc, char* argv[])
 {
@@ -84,7 +85,9 @@ int TestGenericCutter(int argc, char* argv[])
   ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   attributesError->Delete();
   cout<<"input unstructured grid: "<<ds<<endl;
-
+  
+  static_cast<vtkSimpleCellTessellator *>(ds->GetTessellator())->SetMaxSubdivisionLevel(10);
+ 
   vtkIndent indent;
   ds->PrintSelf(cout,indent);
   
