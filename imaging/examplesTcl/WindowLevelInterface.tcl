@@ -86,3 +86,4 @@ proc SetInverseVideo {} {
 InitializeWindowLevelInterface
 
 }
+viewer Render
