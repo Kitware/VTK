@@ -21,7 +21,7 @@
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGWriter, "1.22");
+vtkCxxRevisionMacro(vtkPNGWriter, "1.23");
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkCxxSetObjectMacro(vtkPNGWriter,Result,vtkUnsignedCharArray);
@@ -32,6 +32,7 @@ vtkPNGWriter::vtkPNGWriter()
   this->FileDimensionality = 2;
   this->WriteToMemory = 0;
   this->Result = 0;
+  this->TempFP = 0;
 }
 
 vtkPNGWriter::~vtkPNGWriter()
@@ -195,7 +196,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
     }
 
   
-  FILE *fp = 0;
+  this->TempFP = 0;
   if (this->WriteToMemory)
     {
     vtkUnsignedCharArray *uc = this->GetResult();
@@ -212,19 +213,19 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
     }
   else
     {
-      fp = fopen(this->InternalFileName, "wb");
-      if (!fp)
+      this->TempFP = fopen(this->InternalFileName, "wb");
+      if (!this->TempFP)
         {
         vtkErrorMacro("Unable to open file " << this->InternalFileName);
         this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
         return;
         }
-      png_init_io(png_ptr, fp);
+      png_init_io(png_ptr, this->TempFP);
       png_set_error_fn(png_ptr, png_ptr,
                        vtkPNGWriteErrorFunction, vtkPNGWriteWarningFunction);
       if (setjmp(png_ptr->jmpbuf))
         {
-        fclose(fp);
+        fclose(this->TempFP);
         this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
         return;
         }
@@ -284,18 +285,18 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
   delete [] row_pointers;
   png_destroy_write_struct(&png_ptr, &info_ptr);
 
-  if (fp)
+  if (this->TempFP)
     {
-    fflush(fp);
-    if (ferror(fp))
+    fflush(this->TempFP);
+    if (ferror(this->TempFP))
       {
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       }
     }
   
-  if (fp)
+  if (this->TempFP)
     {
-    fclose(fp);
+    fclose(this->TempFP);
     }
 }
 
