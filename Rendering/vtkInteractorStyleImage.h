@@ -43,13 +43,10 @@
 
 #include "vtkInteractorStyle.h"
 
+// Motion flags
 
-#define VTK_INTERACTOR_STYLE_IMAGE_NONE    0
-#define VTK_INTERACTOR_STYLE_IMAGE_WINDOW_LEVEL  1
-#define VTK_INTERACTOR_STYLE_IMAGE_PAN     2
-#define VTK_INTERACTOR_STYLE_IMAGE_ZOOM    3
-#define VTK_INTERACTOR_STYLE_IMAGE_SPIN    4
-#define VTK_INTERACTOR_STYLE_IMAGE_PICK    5
+#define VTKIS_WINDOW_LEVEL 1024
+#define VTKIS_PICK         1025
 
 class VTK_RENDERING_EXPORT vtkInteractorStyleImage : public vtkInteractorStyle
 {
@@ -61,29 +58,31 @@ public:
   // Description:
   // Event bindings controlling the effects of pressing mouse buttons
   // or moving the mouse.
-  void OnMouseMove  (int ctrl, int shift, int x, int y);
-  void OnLeftButtonDown(int ctrl, int shift, int x, int y);
-  void OnLeftButtonUp  (int ctrl, int shift, int x, int y);
-  void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
-  void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
-  void OnRightButtonDown(int ctrl, int shift, int x, int y);
-  void OnRightButtonUp  (int ctrl, int shift, int x, int y);
+  virtual void OnMouseMove       (int ctrl, int shift, int x, int y);
+  virtual void OnLeftButtonDown  (int ctrl, int shift, int x, int y);
+  virtual void OnLeftButtonUp    (int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
+  virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
+  virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
 
   // Description:
   // Override the "fly-to" (f keypress) for images.
-  void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
+  virtual void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
 
   // Description:
   // Some useful information for handling window level
   vtkGetVector2Macro(WindowLevelStartPosition,int);
   vtkGetVector2Macro(WindowLevelCurrentPosition,int);
   
-  // Description:
-  // Some useful information for interaction
-  vtkGetMacro(State,int);
-  const char *GetStateAsString(void);
-
 protected:
+
+  // Interaction mode entry points used internally.  
+  virtual void StartWindowLevel();
+  virtual void EndWindowLevel();
+  virtual void StartPick();
+  virtual void EndPick();
+
   vtkInteractorStyleImage();
   ~vtkInteractorStyleImage();
 
@@ -95,46 +94,12 @@ protected:
   
   int WindowLevelStartPosition[2];
   int WindowLevelCurrentPosition[2];
-  int State;
+ 
   float MotionFactor;
   float RadianToDegree; // constant: for conv from deg to rad
 private:
   vtkInteractorStyleImage(const vtkInteractorStyleImage&);  // Not implemented.
   void operator=(const vtkInteractorStyleImage&);  // Not implemented.
 };
-
-// Description:
-// Return the interpolation type as a descriptive character string.
-inline const char *vtkInteractorStyleImage::GetStateAsString(void)
-{
-  if (this->State == VTK_INTERACTOR_STYLE_IMAGE_NONE)
-    {
-    return "None";
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_WINDOW_LEVEL)
-    {
-    return "WindowLevel";
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_PAN)
-    {
-    return "Pan";
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_ZOOM)
-    {
-    return "Zoom";
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_SPIN)
-    {
-    return "Spin";
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_PICK)
-    {
-    return "Pick";
-    }
-  else
-    {
-    return "Unknown (error)";
-    }
-}
 
 #endif
