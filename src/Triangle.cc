@@ -100,6 +100,12 @@ int vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3],
       if (pcoords[i] < 0.0) pcoords[i] = 0.0;
       if (pcoords[i] > 1.0) pcoords[i] = 1.0;
       }
+    if ( (1.0 - pcoords[0] - pcoords[1]) < 0.0 )
+      {
+      float ratio = pcoords[0]/pcoords[1];
+      pcoords[1] = 1.0 / (1.0 + ratio);
+      pcoords[0] = ratio * pcoords[1];
+      }
     this->EvaluateLocation(subId, pcoords, closestPoint, weights);
     dist2 = math.Distance2BetweenPoints(closestPoint,x);
     return 0;
