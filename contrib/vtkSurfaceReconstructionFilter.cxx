@@ -307,7 +307,7 @@ void vtkSurfaceReconstructionFilter::Execute()
           iNeighbor = surfacePoints[iNearby].neighbors->GetId(j);
           if(surfacePoints[iNeighbor].isVisited)
             {
-            cost = surfacePoints[iNeighbor].costs[j];
+            cost = surfacePoints[iNearby].costs[j];
             // pick lowest cost for this nearby point
             if(cost<lowestCost) 
               {
