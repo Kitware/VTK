@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageFilter.h"
 
 
-
+//BTX
 /*******************************************************************
 			COMPLEX number stuff
 *******************************************************************/
@@ -107,7 +107,7 @@ static vtkImageComplex _vtkImageComplexMultiplyTemp = {0.0, 0.0};
 }
 
 /******************* End of COMPLEX number stuff ********************/
-
+//ETX
 
 class VTK_EXPORT vtkImageFourierFilter : public vtkImageFilter
 {
