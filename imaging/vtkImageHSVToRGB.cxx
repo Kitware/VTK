@@ -77,8 +77,8 @@ static void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
 				    vtkImageData *outData, T *outPtr,
 				    int outExt[6], int id)
 {
-  int idxX, idxY, idxZ;
-  int maxX, maxY, maxZ;
+  int idxC, idxX, idxY, idxZ;
+  int maxC, maxX, maxY, maxZ;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
   unsigned long count = 0;
@@ -86,9 +86,10 @@ static void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
   float R, G, B, H, S, V;
   float max = self->GetMaximum();
   float temp;
-  float third = max / 3.0;;
+  float third = max / 3.0;
   
   // find the region to loop over
+  maxC = inData->GetNumberOfScalarComponents()-1;
   maxX = outExt[1] - outExt[0]; 
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
@@ -181,6 +182,11 @@ static void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
 	*outPtr = (T)(R); outPtr++;
 	*outPtr = (T)(G); outPtr++;
 	*outPtr = (T)(B); outPtr++;
+
+	for (idxC = 3; idxC <= maxC; idxC++)
+	  {
+	  *outPtr++ = *inPtr++;
+	  }
 	}
       outPtr += outIncY;
       inPtr += inIncY;
@@ -210,12 +216,12 @@ void vtkImageHSVToRGB::ThreadedExecute(vtkImageData *inData,
     }
   
   // need three components for input and output
-  if (inData->GetNumberOfScalarComponents() != 3)
+  if (inData->GetNumberOfScalarComponents() < 3)
     {
     vtkErrorMacro("Input has too few components");
     return;
     }
-  if (outData->GetNumberOfScalarComponents() != 3)
+  if (outData->GetNumberOfScalarComponents() < 3)
     {
     vtkErrorMacro("Output has too few components");
     return;
