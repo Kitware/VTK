@@ -2,7 +2,7 @@
 
 vlPolyFilter::~vlPolyFilter()
 {
-  if ( this->Input != 0 )
+  if ( this->Input != NULL )
     {
     this->Input->UnRegister(this);
     }

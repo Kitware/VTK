@@ -24,7 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlFilter : virtual public vlObject 
 {
 public:
-  vlFilter() : StartMethod(0), EndMethod(0), Updating(0) {};
+  vlFilter() : StartMethod(NULL), EndMethod(NULL), Updating(0) {};
   ~vlFilter() {};
   char *GetClassName() {return "vlFilter";};
   void PrintSelf(ostream& os, vlIndent indent);

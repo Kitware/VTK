@@ -23,12 +23,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define INTERSECTION 2
 #define ON_LINE 6
 
-int vlLine::EvaluatePosition(float x[3], int& subId, float pcoords[3],
+int vlLine::EvaluatePosition(float x[3], float closestPoint[3], 
+                             int& subId, float pcoords[3],
                              float& dist2, float weights[MAX_CELL_SIZE])
 {
-  float *a1, *a2, a21[3], denom, num, *closestPoint;
+  float *a1, *a2, a21[3], denom, num;
   int i, numPts, return_status;
   vlMath math;
+  float *closest;
 
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
@@ -59,22 +61,23 @@ int vlLine::EvaluatePosition(float x[3], int& subId, float pcoords[3],
 //
   if ( pcoords[0] < 0.0 )
     {
-    closestPoint = a1;
+    closest = a1;
     return_status = 0;
     }
   else if ( pcoords[0] > 1.0 )
     {
-    closestPoint = a2;
+    closest = a2;
     return_status = 0;
     }
   else
     {
-    closestPoint = a21;
+    closest = a21;
     for (i=0; i<3; i++) a21[i] = a1[i] + pcoords[0]*a21[i];
     return_status = 1;
     }
 
   dist2 = math.Distance2BetweenPoints(closestPoint,x);
+  closestPoint[0] = closest[0]; closestPoint[1] = closest[1]; closestPoint[2] = closest[2]; 
   weights[0] = pcoords[0];
   weights[1] = 1.0 - pcoords[0];
 

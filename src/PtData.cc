@@ -122,34 +122,34 @@ void vlPointData::Initialize()
   if ( this->Scalars )
     {
     this->Scalars->UnRegister(this);
-    this->Scalars = 0;
+    this->Scalars = NULL;
     }
 
   if ( this->Vectors )
     {
     this->Vectors->UnRegister(this);
-    this->Vectors = 0;
+    this->Vectors = NULL;
     }
 
   if ( this->Normals )
     {
     this->Normals->UnRegister(this);
-    this->Normals = 0;
+    this->Normals = NULL;
     }
 
   if ( this->TCoords )
     {
     this->TCoords->UnRegister(this);
-    this->TCoords = 0;
+    this->TCoords = NULL;
     }
 };
 
 //
-// Initializes point data for point-by-point copy operation.  If sze=0, then use 
-// the input PointData to create (i.e., find initial size of) new objects; otherwise
-// use the sze variable.
+// Allocates point data for point-by-point copy operation.  If sze=0, then use 
+// the input PointData to create (i.e., find initial size of) new objects; 
+// otherwise use the sze variable.
 //
-void vlPointData::CopyInitialize(vlPointData* pd, int sze, int ext, int sFlg, int vFlg, int nFlg, int tFlg)
+void vlPointData::CopyAllocate(vlPointData* pd, int sze, int ext, int sFlg, int vFlg, int nFlg, int tFlg)
 {
   vlScalars *s, *newScalars;
   vlVectors *v, *newVectors;
@@ -252,9 +252,9 @@ static vlFloatVectors cellVectors(MAX_CELL_SIZE);
 static vlFloatNormals cellNormals(MAX_CELL_SIZE);
 static vlFloatTCoords cellTCoords(MAX_CELL_SIZE,3);
 
-void vlPointData::InterpolateInitialize(vlPointData* pd, int sze, int ext, int sFlg, int vFlg, int nFlg, int tFlg)
+void vlPointData::InterpolateAllocate(vlPointData* pd, int sze, int ext, int sFlg, int vFlg, int nFlg, int tFlg)
 {
-  this->CopyInitialize(pd, sze, ext, sFlg, vFlg, nFlg, tFlg);
+  this->CopyAllocate(pd, sze, ext, sFlg, vFlg, nFlg, tFlg);
 
   if ( pd->TCoords )
     {

@@ -17,8 +17,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlPointSet::vlPointSet ()
 {
-  this->Points = 0;
-  this->Locator = 0;
+  this->Points = NULL;
+  this->Locator = NULL;
 }
 
 vlPointSet::vlPointSet(const vlPointSet& ps)
@@ -37,13 +37,13 @@ void vlPointSet::Initialize()
   if ( this->Points ) 
   {
     this->Points->UnRegister(this);
-    this->Points = 0;
+    this->Points = NULL;
   }
 
   if ( this->Locator ) 
   {
     this->Locator->UnRegister(this);
-    this->Locator = 0;
+    this->Locator = NULL;
   }
 }
 void vlPointSet::ComputeBounds()
@@ -87,7 +87,7 @@ void vlPointSet::PrintSelf(ostream& os, vlIndent indent)
     }
 }
 
-int vlPointSet::FindCell(float x[3], float tol2)
+int vlPointSet::FindCell(float x[3], vlCell *cell, float tol2)
 {
   int i;
   int closestCell = -1;
@@ -97,6 +97,7 @@ int vlPointSet::FindCell(float x[3], float tol2)
   static vlIdList cellIds(MAX_CELL_SIZE);
   int subId;
   float pcoords[3], weights[MAX_CELL_SIZE];
+  float closestPoint[3];
 
   if ( !this->Points ) return -1;
 
@@ -121,13 +122,8 @@ int vlPointSet::FindCell(float x[3], float tol2)
       {
       cellId = cellIds.GetId(i);
       cell = this->GetCell(cellId);
-      cell->EvaluatePosition(x,subId,pcoords,dist2,weights);
-      if ( dist2 == 0.0 ) return cellId;
- 
-      if ( dist2 < tol2 )
-        {
-        closestCell = cellId;
-        }
+      cell->EvaluatePosition(x,closestPoint,subId,pcoords,dist2,weights);
+      if ( dist2 <= tol2 ) closestCell = cellId;
       }
     }
   return closestCell;

@@ -29,14 +29,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // "marks" empty lists so that the traveral method "GetNextCell" 
 // works properly.
 //
-vlCellArray *vlPolyData::Dummy = 0;
+vlCellArray *vlPolyData::Dummy = NULL;
 
 vlPolyData::vlPolyData ()
 {
-  this->Verts = 0;
-  this->Lines = 0;
-  this->Polys = 0;
-  this->Strips = 0;
+  this->Verts = NULL;
+  this->Lines = NULL;
+  this->Polys = NULL;
+  this->Strips = NULL;
 
   // static variable, initialized only once.
   if (!this->Dummy) this->Dummy = new vlCellArray;
@@ -49,8 +49,8 @@ vlPolyData::vlPolyData ()
   this->TriangleMesh = 0;
   this->Writable = 0;
 
-  this->Cells = 0;
-  this->Links = 0;
+  this->Cells = NULL;
+  this->Links = NULL;
 }
 
 vlPolyData::vlPolyData(const vlPolyData& pd)
@@ -229,37 +229,37 @@ void vlPolyData::Initialize()
   if ( this->Verts ) 
   {
     this->Verts->UnRegister(this);
-    this->Verts = 0;
+    this->Verts = NULL;
   }
 
   if ( this->Lines ) 
   {
     this->Lines->UnRegister(this);
-    this->Lines = 0;
+    this->Lines = NULL;
   }
 
   if ( this->Polys ) 
   {
     this->Polys->UnRegister(this);
-    this->Polys = 0;
+    this->Polys = NULL;
   }
 
   if ( this->Strips ) 
   {
     this->Strips->UnRegister(this);
-    this->Strips = 0;
+    this->Strips = NULL;
   }
 
   if ( this->Cells )
   {
     this->Cells->UnRegister(this);
-    this->Cells = 0;
+    this->Cells = NULL;
   }
 
   if ( this->Links )
   {
     this->Links->UnRegister(this);
-    this->Links = 0;
+    this->Links = NULL;
   }
 
 };
@@ -329,10 +329,10 @@ void vlPolyData::BuildCells()
   vlCellArray *inLines=this->GetLines();
   vlCellArray *inPolys=this->GetPolys();
   vlCellArray *inStrips=this->GetStrips();
-  vlCellArray *verts=0;
-  vlCellArray *lines=0;
-  vlCellArray *polys=0;
-  vlCellArray *strips=0;
+  vlCellArray *verts=NULL;
+  vlCellArray *lines=NULL;
+  vlCellArray *polys=NULL;
+  vlCellArray *strips=NULL;
   int i, j;
   int npts, *pts;
   int p1, p2, p3;
@@ -390,7 +390,7 @@ void vlPolyData::BuildCells()
   else
     {
     polys = new vlCellArray();
-    polys->Initialize(polys->EstimateSize(numCells,3),3*numCells);
+    polys->Allocate(polys->EstimateSize(numCells,3),3*numCells);
     }
 //
 // Update ourselves

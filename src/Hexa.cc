@@ -37,7 +37,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define MAX_ITERATION 10
 #define CONVERGED 1.e-03
 
-int vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
+                                   int& subId, float pcoords[3], 
                                    float& dist2, float weights[MAX_CELL_SIZE])
 {
   int iteration, converged;
@@ -45,7 +46,6 @@ int vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3],
   float  fcol[3], rcol[3], scol[3], tcol[3];
   int i,j,numPts,idx;
   float  d, *pt;
-  float closestPoint[3];
   vlMath math;
   float derivs[24];
 //
@@ -132,6 +132,7 @@ int vlHexahedron::EvaluatePosition(float x[3], int& subId, float pcoords[3],
     pcoords[2] >= -1.0 && pcoords[2] <= 1.0 )
       {
       for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
+      closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
       dist2 = 0.0; // inside hexahedron
       return 1;
       }

@@ -80,12 +80,12 @@ void vlShrinkPolyData::Execute()
   newVerts = new vlCellArray(this->Input->GetNumberOfVerts());
 
   newLines = new vlCellArray;
-  newLines->Initialize(numNewLines*3);
+  newLines->Allocate(numNewLines*3);
  
   newPolys = new vlCellArray;
-  newPolys->Initialize(poly_alloc_size);
+  newPolys->Allocate(poly_alloc_size);
 
-  this->PointData.CopyInitialize(pd);
+  this->PointData.CopyAllocate(pd);
 //
 // Copy vertices (no shrinking necessary)
 //

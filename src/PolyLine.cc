@@ -91,9 +91,11 @@ int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormal
 //
 static vlLine line;
 
-int vlPolyLine::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+int vlPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
+                                 int& subId, float pcoords[3], 
                                  float& minDist2, float weights[MAX_CELL_SIZE])
 {
+  float closest[3];
   float pc[3], dist2;
   int ignoreId, i, return_status, status;
   float lineWeights[2];
@@ -106,10 +108,11 @@ int vlPolyLine::EvaluatePosition(float x[3], int& subId, float pcoords[3],
     {
     line.Points.SetPoint(0,this->Points.GetPoint(i));
     line.Points.SetPoint(1,this->Points.GetPoint(i+1));
-    status = line.EvaluatePosition(x, ignoreId, pc, dist2, lineWeights);
+    status = line.EvaluatePosition(x,closest,ignoreId,pc,dist2,lineWeights);
     if ( dist2 < minDist2 )
       {
       return_status = status;
+      closestPoint[0] = closest[0]; closestPoint[1] = closest[1]; closestPoint[2] = closest[2]; 
       subId = i;
       pcoords[0] = pc[0];
       minDist2 = dist2;

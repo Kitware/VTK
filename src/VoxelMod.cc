@@ -40,7 +40,10 @@ void vlVoxelModeller::PrintSelf(ostream& os, vlIndent indent)
     vlDataSetToStructuredPointsFilter::PrintSelf(os,indent);
 
     os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
-    os << indent << "ModelBounds: \n";
+    os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
+                 << this->SampleDimensions[1] << ", "
+                 << this->SampleDimensions[2] << ")\n";
+    os << indent << "Model Bounds: \n";
     os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
     os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
     os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
@@ -92,6 +95,8 @@ void vlVoxelModeller::Execute()
   float x[3], prevDistance2, distance2;
   int jkFactor;
   float weights[MAX_CELL_SIZE];
+  float closestPoint[3];
+  float voxelHalfWidth[3];
 
   vlDebugMacro(<< "Executing Voxel model");
 //
@@ -105,6 +110,10 @@ void vlVoxelModeller::Execute()
 
   this->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds();
+//
+// Voxel widths are 1/2 the height, width, length of a voxel
+//
+  for (i=0; i < 3; i++) voxelHalfWidth[i] = this->AspectRatio[i] / 2.0;
 //
 // Traverse all cells; computing distance function on volume points.
 //
@@ -140,8 +149,11 @@ void vlVoxelModeller::Execute()
 	  if (!(newScalars->GetScalar(idx)))
 	    {
 	    x[0] = this->AspectRatio[0] * i + this->Origin[0];
-	    cell->EvaluatePosition(x, subId, pcoords, distance2, weights);
-	    if (distance2 <= 0.5)
+	    cell->EvaluatePosition(x, closestPoint, subId, pcoords, 
+                                   distance2, weights);
+	    if ( closestPoint[0] <= voxelHalfWidth[0] ||
+            closestPoint[1] <= voxelHalfWidth[1] ||
+            closestPoint[2] <= voxelHalfWidth[2] )
 	      newScalars->SetScalar(idx,1);
 	    }
 	  }

@@ -21,13 +21,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Triangle.hh"
 #include "CellArr.hh"
 
-int vlTetra::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+int vlTetra::EvaluatePosition(float x[3], float closestPoint[3],
+                              int& subId, float pcoords[3], 
                               float& dist2, float weights[MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3, *pt4;
   int i;
   float rhs[3], c1[3], c2[3], c3[3];
-  float closestPoint[3], det;
+  float det;
   vlMath math;
 
   subId = 0;
@@ -60,6 +61,7 @@ int vlTetra::EvaluatePosition(float x[3], int& subId, float pcoords[3],
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
+    closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
     dist2 = 0.0;
     weights[0] = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
     weights[1] = pcoords[0];

@@ -15,7 +15,7 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "SPoints.hh"
+#include "StrPts.hh"
 #include "Point.hh"
 #include "Line.hh"
 #include "Rect.hh"
@@ -226,7 +226,7 @@ void vlStructuredPoints::Initialize()
   this->SetOrigin(0,0,0);
 }
 
-int vlStructuredPoints::FindCell(float x[3], float tol2)
+int vlStructuredPoints::FindCell(float x[3], vlCell *cell, float tol2)
 {
   int i, loc[3];
   float d;

@@ -36,7 +36,7 @@ void vlOutlineFilter::Execute()
 //
   newPts = new vlFloatPoints(8);
   newLines = new vlCellArray;
-  newLines->Initialize(newLines->EstimateSize(12,2));
+  newLines->Allocate(newLines->EstimateSize(12,2));
 
   x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[4];
   newPts->InsertPoint(0,x);

@@ -32,14 +32,16 @@ public:
   vlUnstructuredGrid();
   vlUnstructuredGrid(const vlUnstructuredGrid& up);
   ~vlUnstructuredGrid();
+  void Allocate(int numCells=1000, int extSize=1000);
   char *GetClassName() {return "vlUnstructuredGrid";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   // cell creation methods
-  void InsertNextCell(vlCell *cell);
-  void InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE]);
+  int InsertNextCell(int type, vlIdList& ptIds);
+  int InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE]);
   void InsertCells(int numCells, int width, int* data);
   void InsertCells(int numCells, int* data);
+  void Squeeze();
 
   // dataset interface
   vlDataSet *MakeObject() {return new vlUnstructuredGrid(*this);};

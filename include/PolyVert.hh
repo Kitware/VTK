@@ -39,7 +39,8 @@ public:
   void Contour(float value, vlFloatScalars *cellScalars, 
                vlFloatPoints *points, vlCellArray *verts, 
                vlCellArray *lines, vlCellArray *polys, vlFloatScalars *s);
-  int EvaluatePosition(float x[3], int& subId, float pcoords[3],
+  int EvaluatePosition(float x[3], float closestPoint[3], 
+                       int& subId, float pcoords[3],
                        float& dist2, float weights[MAX_CELL_SIZE]);
   void EvaluateLocation(int& subId, float pcoords[3], float x[3],
                         float weights[MAX_CELL_SIZE]);

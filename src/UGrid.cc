@@ -31,9 +31,24 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlUnstructuredGrid::vlUnstructuredGrid ()
 {
-  this->Connectivity = 0;
-  this->Cells = 0;
-  this->Links = 0;
+  this->Connectivity = NULL;
+  this->Cells = NULL;
+  this->Links = NULL;
+}
+
+void vlUnstructuredGrid::Allocate (int numCells=1000, int extSize=1000)
+{
+  if ( numCells < 1 ) numCells = 1000;
+  if ( extSize < 1 ) extSize = 1000;
+
+  this->Connectivity = new vlCellArray(numCells,4*extSize);
+  this->Connectivity->Register(this);
+
+  this->Cells = new vlCellList(numCells,extSize);
+  this->Cells->Register(this);
+  
+  this->Links = new vlLinkList(numCells,extSize);
+  this->Links->Register(this);
 }
 
 vlUnstructuredGrid::vlUnstructuredGrid(const vlUnstructuredGrid& pd)
@@ -60,19 +75,19 @@ void vlUnstructuredGrid::Initialize()
   if ( this->Connectivity )
   {
     this->Connectivity->UnRegister(this);
-    this->Connectivity = 0;
+    this->Connectivity = NULL;
   }
 
   if ( this->Cells )
   {
     this->Cells->UnRegister(this);
-    this->Cells = 0;
+    this->Cells = NULL;
   }
 
   if ( this->Links )
   {
     this->Links->UnRegister(this);
-    this->Links = 0;
+    this->Links = NULL;
   }
 };
 
@@ -169,12 +184,20 @@ void vlUnstructuredGrid::PrintSelf(ostream& os, vlIndent indent)
     }
 }
 
-void vlUnstructuredGrid::InsertNextCell(vlCell *cell)
+int vlUnstructuredGrid::InsertNextCell(int type, vlIdList& ptIds)
 {
+  int i;
+  int npts=ptIds.GetNumberOfIds();
 
+  // insert connectivity
+  this->Connectivity->InsertNextCell(npts);
+  for (i=0; i < npts; i++) this->Connectivity->InsertCellPoint(ptIds.GetId(i));
+
+  // insert type and storage information   
+  this->Cells->InsertNextCell(type,this->Connectivity->GetLocation(npts));
 }
 
-void vlUnstructuredGrid::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
+int vlUnstructuredGrid::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
 {
   this->Connectivity->InsertNextCell(npts,pts);
   this->Cells->InsertNextCell(type,this->Connectivity->GetLocation(npts));
@@ -214,5 +237,10 @@ void vlUnstructuredGrid::GetPointCells(int ptId, vlIdList *cellIds)
     }
 }
 
-
+void vlUnstructuredGrid::Squeeze()
+{
+  if ( this->Connectivity ) this->Connectivity->Squeeze();
+  if ( this->Cells ) this->Cells->Squeeze();
+  if ( this->Links ) this->Links->Squeeze();
+}
 

@@ -24,7 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlSource : virtual public vlObject 
 {
 public:
-  vlSource() : StartMethod(0), EndMethod(0) {};
+  vlSource() : StartMethod(NULL), EndMethod(NULL) {};
   ~vlSource() {};
   char *GetClassName() {return "vlSource";};
   void PrintSelf(ostream& os, vlIndent indent);

@@ -27,14 +27,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Note: the ordering of the Points and PointIds is important.  See text.
 //
 
-int vlRectangle::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+int vlRectangle::EvaluatePosition(float x[3], float closestPoint[3],
+                                  int& subId, float pcoords[3], 
                                   float& dist2, float weights[MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3;
   static vlPolygon poly;
   static vlPlane plane;
   int i;
-  float xProj[3], closestPoint[3], p[3], p21[3], p31[3];
+  float p[3], p21[3], p31[3];
   float l21, l31, n[3];
   vlMath math;
   float tempPc[2];
@@ -52,7 +53,7 @@ int vlRectangle::EvaluatePosition(float x[3], int& subId, float pcoords[3],
 //
 // Project point to plane
 //
-  plane.ProjectPoint(x,pt1,n,xProj);
+  plane.ProjectPoint(x,pt1,n,closestPoint);
 
   for (i=0; i<3; i++)
     {
@@ -70,7 +71,7 @@ int vlRectangle::EvaluatePosition(float x[3], int& subId, float pcoords[3],
   if ( pcoords[0] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
     {
-    dist2 = math.Distance2BetweenPoints(xProj,x); //projection distance
+    dist2 = math.Distance2BetweenPoints(closestPoint,x); //projection distance
     this->ShapeFunctions(pcoords, weights);
     return 1;
     }

@@ -19,12 +19,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlGlyph3D::vlGlyph3D()
 {
-  this->Source = 0;
+  this->Source = NULL;
   this->Scaling = 1;
   this->ScaleMode = SCALE_BY_SCALAR;
   this->ScaleFactor = 1.0;
   this->Range[0] = 0.0;
-  this->Range[0] = 1.0;
+  this->Range[1] = 1.0;
+  this->Orient = 1;
+  this->OrientMode = ORIENT_BY_VECTOR;
 }
 
 vlGlyph3D::~vlGlyph3D()
@@ -37,7 +39,21 @@ vlGlyph3D::~vlGlyph3D()
 
 void vlGlyph3D::PrintSelf(ostream& os, vlIndent indent)
 {
+  if (this->ShouldIPrint(vlGlyph3D::GetClassName()))
+    {
+    vlDataSetToPolyFilter::PrintSelf(os,indent);
 
+    os << indent << "Source: " << this->Source << "\n";
+    os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");
+    os << indent << "Scale Mode: " << (this->ScaleMode == SCALE_BY_SCALAR ? "Scale by scalar\n" : "Scale by vector\n");
+    os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
+    os << indent << "Range: (" << this->Range[0] << ", " << this->Range[1] << ")\n";
+    os << indent << "Orient: " << (this->Orient ? "On\n" : "Off\n");
+
+
+
+    os << indent << "Orient Mode: " << (this->OrientMode == ORIENT_BY_VECTOR ? "Orient by vector\n" : "Orient by normal\n");
+    }
 }
 
 void vlGlyph3D::Execute()
@@ -117,3 +133,32 @@ void vlGlyph3D::Execute()
   
 }
 
+//
+// Override update method because execution can branch two ways (Input 
+// and Source)
+//
+void vlGlyph3D::Update()
+{
+  // make sure input is available
+  if ( !this->Input )
+    {
+    vlErrorMacro(<< "No input!\n");
+    return;
+    }
+
+  // prevent chasing our tail
+  if (this->Updating) return;
+
+  this->Updating = 1;
+  this->Input->Update();
+  this->Source->Update();
+  this->Updating = 0;
+
+  if (this->Input->GetMTime() > this->GetMTime() || this->GetMTime() > this->ExecuteTime )
+    {
+    if ( this->StartMethod ) (*this->StartMethod)();
+    this->Execute();
+    this->ExecuteTime.Modified();
+    if ( this->EndMethod ) (*this->EndMethod)();
+    }
+}

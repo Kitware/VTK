@@ -53,7 +53,7 @@ void vlSphereSource::Execute()
   newPoints = new vlFloatPoints(numPts);
   newNormals = new vlFloatNormals(numPts);
   newPolys = new vlCellArray;
-  newPolys->Initialize(newPolys->EstimateSize(numPolys,3));
+  newPolys->Allocate(newPolys->EstimateSize(numPolys,3));
 //
 // Create sphere
 //

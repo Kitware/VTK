@@ -29,8 +29,9 @@ class vlFloatTCoords : public vlTCoords
 public:
   vlFloatTCoords() {};
   vlTCoords *MakeObject(int sze, int d=2, int ext=1000);
-  int Initialize(const int sz, const int dim=2, const int ext=1000) 
-    {return this->TC.Initialize(dim*sz,dim*ext);};
+  int Allocate(const int sz, const int dim=2, const int ext=1000) 
+    {return this->TC.Allocate(dim*sz,dim*ext);};
+  void Initialize() {return this->TC.Initialize();};
   vlFloatTCoords(const vlFloatTCoords& ftc) 
     {this->TC = ftc.TC;this->Dimension = ftc.Dimension;};
   vlFloatTCoords(int sz, int d=2, int ext=1000):TC(d*sz,d*ext) 

@@ -78,8 +78,8 @@ void vlStructuredGeometry::Execute()
         {
         newPts = new vlFloatPoints(1);
         newVerts = new vlCellArray;
-        newVerts->Initialize(newVerts->EstimateSize(1,1));
-        this->PointData.CopyInitialize(pd,1);
+        newVerts->Allocate(newVerts->EstimateSize(1,1));
+        this->PointData.CopyAllocate(pd,1);
 
         ptIds[0] = newPts->InsertNextPoint(this->Input->GetPoint(startIdx));
         this->PointData.CopyData(pd,startIdx,ptIds[0]);
@@ -100,8 +100,8 @@ void vlStructuredGeometry::Execute()
         }
       newPts = new vlFloatPoints(totPoints);
       newLines = new vlCellArray;
-      newLines->Initialize(newLines->EstimateSize(totPoints-1,2));
-      this->PointData.CopyInitialize(pd,totPoints);
+      newLines->Allocate(newLines->EstimateSize(totPoints-1,2));
+      this->PointData.CopyAllocate(pd,totPoints);
 //
 //  Load data
 //
@@ -148,8 +148,8 @@ void vlStructuredGeometry::Execute()
 
       newPts = new vlFloatPoints(totPoints);
       newPolys = new vlCellArray;
-      newPolys->Initialize(newLines->EstimateSize(numPolys,4));
-      this->PointData.CopyInitialize(pd,totPoints);
+      newPolys->Allocate(newLines->EstimateSize(numPolys,4));
+      this->PointData.CopyAllocate(pd,totPoints);
 //
 //  Create polygons
 //
@@ -210,8 +210,8 @@ void vlStructuredGeometry::Execute()
 
       newPts = new vlFloatPoints(totPoints);
       newVerts = new vlCellArray;
-      newVerts->Initialize(newVerts->EstimateSize(totPoints,1));
-      this->PointData.CopyInitialize(pd,totPoints);
+      newVerts->Allocate(newVerts->EstimateSize(totPoints,1));
+      this->PointData.CopyAllocate(pd,totPoints);
 //
 // Create vertices
 //

@@ -29,8 +29,9 @@ class vlFloatVectors : public vlVectors
 public:
   vlFloatVectors() {};
   vlVectors *MakeObject(int sze, int ext=1000);
-  int Initialize(const int sz, const int ext=1000) 
-    {return this->V.Initialize(3*sz,3*ext);};
+  int Allocate(const int sz, const int ext=1000) 
+    {return this->V.Allocate(3*sz,3*ext);};
+  void Initialize() {return this->V.Initialize();};
   vlFloatVectors(const vlFloatVectors& fv) {this->V = fv.V;};
   vlFloatVectors(const int sz, const int ext=1000):V(3*sz,3*ext){};
   ~vlFloatVectors() {};

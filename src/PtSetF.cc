@@ -22,12 +22,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlPointSetFilter::vlPointSetFilter()
 {
-  this->Input = 0;
+  this->Input = NULL;
 }
 
 vlPointSetFilter::~vlPointSetFilter()
 {
-  if ( this->Input != 0 )
+  if ( this->Input != NULL )
     {
     this->Input->UnRegister(this);
     }

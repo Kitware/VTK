@@ -45,6 +45,9 @@ void vlImplicitModeller::PrintSelf(ostream& os, vlIndent indent)
     vlDataSetToStructuredPointsFilter::PrintSelf(os,indent);
 
     os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
+    os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
+                 << this->SampleDimensions[1] << ", "
+                 << this->SampleDimensions[2] << ")\n";
     os << indent << "ModelBounds: \n";
     os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
     os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
@@ -97,6 +100,7 @@ void vlImplicitModeller::Execute()
   float x[3], prevDistance2, distance2;
   int jkFactor;
   float weights[MAX_CELL_SIZE];
+  float closestPoint[3];
 
   vlDebugMacro(<< "Executing implicit model");
 //
@@ -145,7 +149,8 @@ void vlImplicitModeller::Execute()
           x[0] = this->AspectRatio[0] * i + this->Origin[0];
           idx = jkFactor*k + this->SampleDimensions[0]*j + i;
           prevDistance2 = newScalars->GetScalar(idx);
-          cell->EvaluatePosition(x, subId, pcoords, distance2, weights);
+          cell->EvaluatePosition(x, closestPoint, subId, pcoords, 
+                                 distance2, weights);
           if (distance2 < prevDistance2)
             newScalars->SetScalar(idx,distance2);
           }

@@ -29,13 +29,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 static vlTriangle tri;
 
-int vlTriangleStrip::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+int vlTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
+                                      int& subId, float pcoords[3], 
                                       float& minDist2, float weights[MAX_CELL_SIZE])
 {
   vlFloatPoints pts(3);
   float pc[3], dist2;
   int ignoreId, i, return_status, status;
   float tempWeights[3], activeWeights[3];
+  float closest[3];
 
   pcoords[2] = 0.0;
 
@@ -46,10 +48,11 @@ int vlTriangleStrip::EvaluatePosition(float x[3], int& subId, float pcoords[3],
     tri.Points.SetPoint(0,this->Points.GetPoint(i));
     tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
     tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
-    status = tri.EvaluatePosition(x, ignoreId, pc, dist2, tempWeights);
+    status = tri.EvaluatePosition(x,closest,ignoreId,pc,dist2,tempWeights);
     if ( dist2 < minDist2 )
       {
       return_status = status;
+      closestPoint[0] = closest[0]; closestPoint[1] = closest[1]; closestPoint[2] = closest[2];
       subId = i;
       pcoords[0] = pc[0];
       pcoords[1] = pc[1];

@@ -41,7 +41,7 @@ void vlPointSource::Execute()
 
   newPoints = new vlFloatPoints(this->NumberOfPoints);
   newVerts = new vlCellArray;
-  newVerts->Initialize(newVerts->EstimateSize(1,this->NumberOfPoints));
+  newVerts->Allocate(newVerts->EstimateSize(1,this->NumberOfPoints));
 
   newVerts->InsertNextCell(this->NumberOfPoints);
   for (i=0; i<this->NumberOfPoints; i++)

@@ -52,7 +52,7 @@ void vlRibbonFilter::Execute()
   inPts = this->Input->GetPoints();
   pd = this->Input->GetPointData();
   // copy scalars, vectors, tcoords.  Normals are computed here.
-  this->PointData.CopyInitialize(pd,1,1,0,1);
+  this->PointData.CopyAllocate(pd,1,1,0,1);
 
   if ( !(inLines = this->Input->GetLines()) || 
   inLines->GetNumberOfCells() < 1 )
@@ -78,7 +78,7 @@ void vlRibbonFilter::Execute()
   newPts = new vlFloatPoints(numNewPts);
   newNormals = new vlFloatNormals(numNewPts);
   newStrips = new vlCellArray;
-  newStrips->Initialize(newStrips->EstimateSize(1,numNewPts));
+  newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
 //
 //  Create pairs of points along the line that are later connected into a 
 //  triangle strip.

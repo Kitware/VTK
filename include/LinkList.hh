@@ -29,7 +29,7 @@ struct vlLink {
 
 class vlLinkList : public vlObject {
 public:
-  vlLinkList():Array(0),Size(0),MaxId(-1),Extend(1000) {};
+  vlLinkList():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
   vlLinkList(int sz, int ext=1000);
   ~vlLinkList();
   char *GetClassName() {return "vlLinkList";};

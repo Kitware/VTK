@@ -24,7 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 class vlPolyFilter : public vlFilter {
 public:
-  vlPolyFilter() : Input(0) {};
+  vlPolyFilter() : Input(NULL) {};
   ~vlPolyFilter();
   char *GetClassName() {return "vlPolyFilter";};
   void PrintSelf(ostream& os, vlIndent indent);

@@ -139,28 +139,29 @@ void vlPolygon::ComputeNormal(vlFloatPoints *p, float *n)
     }
 }
 
-int vlPolygon::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+int vlPolygon::EvaluatePosition(float x[3], float closestPoint[3],
+                                int& subId, float pcoords[3], 
                                 float& minDist2, float weights[MAX_CELL_SIZE])
 {
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
-  float xproj[3], ray[3];
+  float ray[3];
   vlPlane plane;
   vlMath math;
 
   this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
   this->ComputeWeights(x,weights);
-  plane.ProjectPoint(x,p0,n,xproj);
+  plane.ProjectPoint(x,p0,n,closestPoint);
 
-  for (i=0; i<3; i++) ray[i] = xproj[i] - p0[i];
+  for (i=0; i<3; i++) ray[i] = closestPoint[i] - p0[i];
   pcoords[0] = math.Dot(ray,p10) / (l10*l10);
   pcoords[1] = math.Dot(ray,p20) / (l20*l20);
 
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
-  this->PointInPolygon(this->GetBounds(),xproj,n) == INSIDE )
+  this->PointInPolygon(this->GetBounds(),closestPoint,n) == INSIDE )
     {
-    minDist2 = math.Distance2BetweenPoints(x,xproj);
+    minDist2 = math.Distance2BetweenPoints(x,closestPoint);
     return 1;
     }
 //
@@ -170,6 +171,7 @@ int vlPolygon::EvaluatePosition(float x[3], int& subId, float pcoords[3],
   float pc[3], dist2;
   int ignoreId, numPts;
   vlFloatPoints pts(2);
+  float closest[3];
   float dummyWeights[MAX_CELL_SIZE];
 
   numPts = this->Points.GetNumberOfPoints();
@@ -177,9 +179,10 @@ int vlPolygon::EvaluatePosition(float x[3], int& subId, float pcoords[3],
     {
     line.Points.SetPoint(0,this->Points.GetPoint(i));
     line.Points.SetPoint(1,this->Points.GetPoint(i+1));
-    line.EvaluatePosition(x, ignoreId, pc, dist2, dummyWeights);
+    line.EvaluatePosition(x, closest, ignoreId, pc, dist2, dummyWeights);
     if ( dist2 < minDist2 )
       {
+      closestPoint[0] = closest[0]; closestPoint[1] = closest[1]; closestPoint[2] = closest[2];
       minDist2 = dist2;
       }
     }

@@ -20,11 +20,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlPolyMapper::vlPolyMapper()
 {
-  this->Input = 0;
-  this->Verts = 0;
-  this->Lines = 0;
-  this->Polys = 0;
-  this->Strips = 0;
+  this->Input = NULL;
+  this->Verts = NULL;
+  this->Lines = NULL;
+  this->Polys = NULL;
+  this->Strips = NULL;
   this->VertsVisibility = 1;
   this->LinesVisibility = 1;
   this->PolysVisibility = 1;
@@ -33,7 +33,7 @@ vlPolyMapper::vlPolyMapper()
 
 vlPolyMapper::~vlPolyMapper()
 {
-  if ( this->Input != 0 )
+  if ( this->Input != NULL )
     {
     this->Input->UnRegister(this);
     }
@@ -105,7 +105,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
     (scalars=pd->GetScalars()) )
       {
       colors = new vlRGBArray;
-      colors->Initialize (this->Input->GetNumberOfPoints());
+      colors->Allocate (this->Input->GetNumberOfPoints());
 
       this->LookupTable->SetTableRange(this->ScalarRange);
       for (i=0; i<this->Input->GetNumberOfPoints(); i++)
@@ -115,7 +115,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
       }
     else
       {
-      colors = 0;
+      colors = NULL;
       }
 
     if (this->VertsVisibility && this->Input->GetNumberOfVerts())

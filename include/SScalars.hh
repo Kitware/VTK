@@ -31,8 +31,9 @@ class vlShortScalars : public vlScalars
 public:
   vlShortScalars() {};
   vlScalars *MakeObject(int sze, int ext=1000);
-  int Initialize(const int sz, const int ext=1000) 
-    {return S.Initialize(sz,ext);};
+  int Allocate(const int sz, const int ext=1000) 
+    {return this->S.Allocate(sz,ext);};
+  void Initialize() {return this->S.Initialize();};
   vlShortScalars(const vlShortScalars& ss) {this->S = ss.S;};
   vlShortScalars(const int sz, const int ext=1000):S(sz,ext){};
   ~vlShortScalars() {};

@@ -66,11 +66,7 @@ vlLink *vlLinkList::Resize(int sz)
     this->Extend*(((sz-this->Size)/this->Extend)+1);
   else newSize = sz;
 
-  if ( (newArray = new vlLink[newSize]) == 0 )
-    {
-    vlErrorMacro("Cannot allocate memory\n");
-    return 0;
-    }
+  newArray = new vlLink[newSize];
 
   for (i=0; i<sz && i<this->Size; i++)
     newArray[i] = this->Array[i];

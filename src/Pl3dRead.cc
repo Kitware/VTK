@@ -32,13 +32,13 @@ vlPLOT3DReader::vlPLOT3DReader()
   this->Vvinf = 0.0;
   this->Wvinf = 0.0;
 
-  this->Density = 0;
-  this->Momentum = 0;
-  this->Energy = 0;
+  this->Density = NULL;
+  this->Momentum = NULL;
+  this->Energy = NULL;
 
-  this->XYZFilename = 0;
-  this->QFilename = 0;
-  this->FunctionFilename = 0;
+  this->XYZFilename = NULL;
+  this->QFilename = NULL;
+  this->FunctionFilename = NULL;
 
   this->FileFormat = WHOLE_SINGLE_GRID_NO_IBLANKING;
   this->FileType = BINARY;
@@ -113,19 +113,19 @@ void vlPLOT3DReader::ReleaseSupportingData()
   if ( this->Density )
     {
     this->Density->UnRegister(this);
-    this->Density = 0;
+    this->Density = NULL;
     }
 
   if ( this->Momentum )
     {
     this->Momentum->UnRegister(this);
-    this->Momentum = 0;
+    this->Momentum = NULL;
     }
 
   if ( this->Energy )
     {
     this->Energy->UnRegister(this);
-    this->Energy = 0;
+    this->Energy = NULL;
     }
 }
 

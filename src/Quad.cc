@@ -31,13 +31,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define MAX_ITERATION 10
 #define CONVERGED 1.e-03
 
-int vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
+                             int& subId, float pcoords[3], 
                              float& dist2, float weights[MAX_CELL_SIZE])
 {
   int i, j;
   vlPolygon poly;
-  float *pt1, *pt2, *pt3, *pt, n[3], xProj[3];
-  float closestPoint[3], det;
+  float *pt1, *pt2, *pt3, *pt, n[3];
+  float det;
   vlPlane plane;
   vlMath math;
   float maxComponent;
@@ -60,7 +61,7 @@ int vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3],
 //
 // Project point to plane
 //
-  plane.ProjectPoint(x,pt1,n,xProj);
+  plane.ProjectPoint(x,pt1,n,closestPoint);
 //
 // Construct matrices.  Since we have over determined system, need to find
 // which 2 out of 3 equations to use to develop equations. (Any 2 should 
@@ -151,7 +152,7 @@ int vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3],
     pcoords[1] >= -1.0 && pcoords[1] <= 1.0 )
       {
       for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
-      dist2 = math.Distance2BetweenPoints(xProj,x); //projection distance
+      dist2 = math.Distance2BetweenPoints(closestPoint,x); //projection distance
       return 1;
       }
     else

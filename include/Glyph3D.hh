@@ -25,6 +25,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #define SCALE_BY_SCALAR 0
 #define SCALE_BY_VECTOR 1
+#define ORIENT_BY_VECTOR 0
+#define ORIENT_BY_NORMAL 1
 
 class vlGlyph3D : public vlDataSetToPolyFilter
 {
@@ -33,6 +35,8 @@ public:
   ~vlGlyph3D();
   char *GetClassName() {return "vlGlyph3D";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  void Update();
 
   vlSetObjectMacro(Source,vlPolyData);
   vlGetObjectMacro(Source,vlPolyData);
@@ -52,13 +56,32 @@ public:
   vlSetVector2Macro(Range,float);
   vlGetVectorMacro(Range,float);
 
+  vlBooleanMacro(Orient,int);
+  vlSetMacro(Orient,int);
+  vlGetMacro(Orient,int);
+
+  vlSetMacro(OrientMode,int);
+  vlGetMacro(OrientMode,int);
+  void OrientByVector() {this->SetScaleMode(ORIENT_BY_VECTOR);};
+  void OrientByNormal() {this->SetScaleMode(ORIENT_BY_NORMAL);};
+
 protected:
+  // Usual data generation method
   void Execute();
+  // Geometry to copy to each point
   vlPolyData *Source;
+  // Determine whether scaling of geometry is performed
   int Scaling;
+  // Scale by scalar value or vector magnitude
   int ScaleMode;
+  // Scale factor to use to scale geometry
   float ScaleFactor;
+  // Range to use to perform scalar scaling
   float Range[2];
+  // boolean controls whether to "orient" data
+  int Orient;
+  // Orient via normal or via vector data
+  int OrientMode;
 };
 
 #endif

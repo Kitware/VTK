@@ -22,7 +22,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "CellArr.hh"
 #include "Line.hh"
 
-int vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+int vlTriangle::EvaluatePosition(float x[3], float closestPoint[3],
+                                 int& subId, float pcoords[3], 
                                  float& dist2, float weights[MAX_CELL_SIZE])
 {
   int i, j;

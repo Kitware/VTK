@@ -59,7 +59,7 @@ void vlPlaneSource::Execute()
   newTCoords = new vlFloatTCoords(numPts,2);
 
   newPolys = new vlCellArray;
-  newPolys->Initialize(newPolys->EstimateSize(numPolys,4));
+  newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
 //
 // Generate points and point data
 //

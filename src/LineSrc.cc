@@ -53,7 +53,7 @@ void vlLineSource::Execute()
   newTCoords = new vlFloatTCoords(numPts,2);
 
   newLines = new vlCellArray;
-  newLines->Initialize(newLines->EstimateSize(numLines,2));
+  newLines->Allocate(newLines->EstimateSize(numLines,2));
 //
 // Generate points and texture coordinates
 //

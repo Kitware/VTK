@@ -28,7 +28,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlPointData : public vlObject 
 {
 public:
-  vlPointData() : Scalars(0), Vectors(0), Normals(0), TCoords(0) {};
+  vlPointData() : Scalars(NULL), Vectors(NULL), Normals(NULL), TCoords(NULL) {};
   void Initialize();
   ~vlPointData();
   char *GetClassName() {return "vlPointData";};
@@ -38,11 +38,11 @@ public:
   virtual void Update() {};
 
   // use to copy data
-  void CopyInitialize(vlPointData* pd, int sze=0, int ext=1000, int sFlg=1, int vFlg=1, int nFlg=1, int tFlg=1);
+  void CopyAllocate(vlPointData* pd, int sze=0, int ext=1000, int sFlg=1, int vFlg=1, int nFlg=1, int tFlg=1);
   void CopyData(vlPointData *fromPd, int fromId, int toId);
 
   // use to interpolate data
-  void InterpolateInitialize(vlPointData* pd, int sze=0, int ext=1000, int sFlg=1, int vFlg=1, int nFlg=1, int tFlg=1);
+  void InterpolateAllocate(vlPointData* pd, int sze=0, int ext=1000, int sFlg=1, int vFlg=1, int nFlg=1, int tFlg=1);
   void InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptIds, float *weights);
 
   // Set point data to null values

@@ -30,8 +30,9 @@ class vlIntPoints : public vlPoints
 public:
   vlIntPoints() {};
   vlPoints *MakeObject(int sze, int ext=1000);
-  int Initialize(const int sz, const int ext=1000) 
-    {return this->P.Initialize(3*sz,3*ext);};
+  int Allocate(const int sz, const int ext=1000) 
+    {return this->P.Allocate(3*sz,3*ext);};
+  void Initialize() {return this->P.Initialize();};
   vlIntPoints(const vlIntPoints& fp) {this->P = fp.P;};
   vlIntPoints(const int sz, const int ext=1000):P(3*sz,3*ext){};
   ~vlIntPoints() {};

@@ -27,7 +27,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlTransformFilter : public vlPointSetToPointSetFilter
 {
 public:
-  vlTransformFilter() : Transform(0) {};
+  vlTransformFilter() : Transform(NULL) {};
   ~vlTransformFilter() {};
   char *GetClassName() {return "vlTransformFilter";};
   void PrintSelf(ostream& os, vlIndent indent);

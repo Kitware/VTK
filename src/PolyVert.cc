@@ -19,7 +19,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlMath.hh"
 #include "CellArr.hh"
 
-int vlPolyPoints::EvaluatePosition(float x[3], int& subId, float pcoords[3], 
+int vlPolyPoints::EvaluatePosition(float x[3], float closestPoint[3],
+                                   int& subId, float pcoords[3], 
                                    float& minDist2, float weights[MAX_CELL_SIZE])
 {
   int numPts=this->Points.GetNumberOfPoints();
@@ -34,6 +35,7 @@ int vlPolyPoints::EvaluatePosition(float x[3], int& subId, float pcoords[3],
     dist2 = math.Distance2BetweenPoints(X,x);
     if (dist2 < minDist2)
       {
+      closestPoint[0] = X[0]; closestPoint[1] = X[1]; closestPoint[2] = X[2];
       minDist2 = dist2;
       subId = i;
       }

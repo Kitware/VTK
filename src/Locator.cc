@@ -45,12 +45,12 @@ static vlNeighborPoints Cells(26,50);
 
 vlLocator::vlLocator()
 {
-  this->Points = 0;
+  this->Points = NULL;
   this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 10;
   this->Automatic = 1;
   this->NumberOfPointsInCell = 40;
   this->Tolerance = 0.01;
-  this->HashTable = 0;
+  this->HashTable = NULL;
   this->NumberOfCells = 0;
   this->H[0] = this->H[1] = this->H[2] = 0.0;
 }
@@ -63,7 +63,7 @@ vlLocator::~vlLocator()
 void vlLocator::Initialize()
 {
   if (this->Points) this->Points->UnRegister(this);
-  this->Points = 0;
+  this->Points = NULL;
 
   // free up hash table
   this->FreeHashTable();
@@ -80,7 +80,7 @@ void vlLocator::FreeHashTable()
       {
       if ( (ptIds = this->HashTable[i]) ) delete ptIds;
       }
-    this->HashTable = 0;
+    this->HashTable = NULL;
     }
 }
 

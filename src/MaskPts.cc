@@ -42,7 +42,7 @@ void vlMaskPoints::Execute()
 //
   numNewPts = numPts / this->OnRatio;
   newPts = new vlFloatPoints(numNewPts);
-  this->PointData.CopyInitialize(pd);
+  this->PointData.CopyAllocate(pd);
 //
 // Traverse points and copy
 //
