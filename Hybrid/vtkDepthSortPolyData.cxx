@@ -243,7 +243,7 @@ void vtkDepthSortPolyData::Execute()
     scalars = sortScalars->GetPointer(0);
     }
   outCD->CopyAllocate(inCD);
-  output->Allocate(numCells);
+  output->Allocate(input,numCells);
   for ( cellId=0; cellId < numCells; cellId++ )
     {
     id = depth[cellId].cellId;
