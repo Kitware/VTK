@@ -2263,7 +2263,7 @@ case $system in
 	LD_FLAGS=""
 	LD_SEARCH_FLAGS=""
 	;;
-    IRIX-64-6*)
+    IRIX64-6* | IRIX-64-6*)
 	SHLIB_CFLAGS=""
 	SHLIB_LD="ld -shared -rdata_shared"
 	SHLIB_LD_LIBS=""
