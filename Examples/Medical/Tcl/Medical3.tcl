@@ -108,18 +108,16 @@ vtkLookupTable satLut
   satLut SetSaturationRange  0 1
   satLut SetValueRange  1 1
 
-# Create the first of the three planes. We want to avoid duplicating 
-# data, so we clip the extent of the data to the plane that we want.
-# Then just this plane is mapped through a lookup table. The
-# vtkImageActor is a type of vtkProp that conveniently displays an image
+# Create the first of the three planes. The filter vtkImageMapToColors
+# maps the data through the corresponding lookup table created above.
+# The vtkImageActor is a type of vtkProp and conveniently displays an image
 # on a single quadrilateral plane. It does this using texture mapping and
 # as a result is quite fast. (Note: the input image has to be unsigned
-# char values, which the vtkImageMapToColors produces.)
-vtkImageClip saggitalSection
-  saggitalSection SetInput  [v16 GetOutput]
-  saggitalSection SetOutputWholeExtent 32 32  0 63  0 92
+# char values, which the vtkImageMapToColors produces.) Note also that
+# by specifying the DisplayExtent, the pipeline requests data of this
+# extent and the vtkImageMapToColors only processes a slice of data.
 vtkImageMapToColors saggitalColors
-  saggitalColors SetInput [saggitalSection GetOutput]
+  saggitalColors SetInput [v16 GetOutput]
   saggitalColors SetLookupTable bwLut
 vtkImageActor saggital
   saggital SetInput [saggitalColors GetOutput]
@@ -127,11 +125,8 @@ vtkImageActor saggital
 
 # Create the second (axial) plane of the three planes. We use the same 
 # approach as before except that the extent differs.
-vtkImageClip axialSection
-  axialSection SetInput  [v16 GetOutput]
-  axialSection SetOutputWholeExtent 0 63 0 63 46 46
 vtkImageMapToColors axialColors
-  axialColors SetInput [axialSection GetOutput]
+  axialColors SetInput [v16 GetOutput]
   axialColors SetLookupTable hueLut
 vtkImageActor axial
   axial SetInput [axialColors GetOutput]
@@ -139,11 +134,8 @@ vtkImageActor axial
 
 # Create the third (coronal) plane of the three planes. We use the same 
 # approach as before except that the extent differs.
-vtkImageClip coronalSection
-  coronalSection SetInput  [v16 GetOutput]
-  coronalSection SetOutputWholeExtent 0 63  32 32  0 92
 vtkImageMapToColors coronalColors
-  coronalColors SetInput [coronalSection GetOutput]
+  coronalColors SetInput [v16 GetOutput]
   coronalColors SetLookupTable satLut
 vtkImageActor coronal
   coronal SetInput [coronalColors GetOutput]
