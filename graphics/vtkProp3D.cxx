@@ -401,21 +401,21 @@ void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UserTransform: ";
   if (this->UserTransform)
     {
-    os << this->UserTransform; 
+    os << this->UserTransform << "\n"; 
     }
   else
     {
-    os << "(none)";
+    os << "(none)\n";
     }
 
   os << indent << "UserMatrix: ";
   if (this->UserMatrix)
     {
-    os << this->UserMatrix; 
+    os << this->UserMatrix << "\n"; 
     }
   else
     {
-    os << "(none)";
+    os << "(none)\n";
     }
 }
 
