@@ -158,7 +158,7 @@ void vtkProperty::SetPhong (void)
 
 void vtkProperty::SetPoints (void)
 {
-  this->Interpolation = VTK_POINTS;
+  this->Representation = VTK_POINTS;
 }
 
 void vtkProperty::SetWireframe (void)
