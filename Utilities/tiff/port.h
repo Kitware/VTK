@@ -13,7 +13,11 @@ extern "C" {
 #endif
 #include <sys/types.h>
 #define HOST_FILLORDER FILLORDER_MSB2LSB
-#define HOST_BIGENDIAN  VTK_WORDS_BIGENDIAN
+#ifdef VTK_WORDS_BIGENDIAN
+#define HOST_BIGENDIAN 1
+#else
+#define HOST_BIGENDIAN 0
+#endif
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
