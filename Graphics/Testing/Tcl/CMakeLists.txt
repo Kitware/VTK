@@ -54,6 +54,7 @@ IF (VTK_USE_RENDERING)
       EnSightGoldElements
       extractPolyData
       extractUGrid
+      extractRectGrid
       ExtractTensors
       extractVectors
       fieldToPolyData

@@ -45,6 +45,7 @@ vtkExtractEdges
 vtkExtractGeometry
 vtkExtractGrid
 vtkExtractPolyDataGeometry
+vtkExtractRectilinearGrid
 vtkExtractTensorComponents
 vtkExtractUnstructuredGrid
 vtkExtractVectorComponents
