@@ -77,8 +77,7 @@ protected:
   // vtkWindow is not a vtkDataObject, so we need our own ivar.
   vtkWindow *Input;
   void ExecuteInformation();
-  void Execute(vtkImageData *data);
-  void Execute() { this->vtkImageSource::Execute(); };
+  void ExecuteData(vtkDataObject *data);
 };
 
 #endif
