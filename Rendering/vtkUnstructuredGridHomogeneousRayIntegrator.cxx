@@ -37,7 +37,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridHomogeneousRayIntegrator, "1.2");
+vtkCxxRevisionMacro(vtkUnstructuredGridHomogeneousRayIntegrator, "1.3");
 vtkStandardNewMacro(vtkUnstructuredGridHomogeneousRayIntegrator);
 
 //-----------------------------------------------------------------------------
@@ -92,14 +92,14 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::GetTransferFunctionTables(vtkD
   delete[] this->TableShift;
   delete[] this->TableScale;
 
-  int numComponents = scalars->GetNumberOfComponents();
+  this->NumComponents = scalars->GetNumberOfComponents();
 
-  this->ColorTable = new float*[numComponents];
-  this->AttenuationTable = new float*[numComponents];
-  this->TableShift = new double[numComponents];
-  this->TableScale = new double[numComponents];
+  this->ColorTable = new float*[this->NumComponents];
+  this->AttenuationTable = new float*[this->NumComponents];
+  this->TableShift = new double[this->NumComponents];
+  this->TableScale = new double[this->NumComponents];
 
-  for (int c = 0; c < numComponents; c++)
+  for (int c = 0; c < this->NumComponents; c++)
     {
     double *range = scalars->GetRange(c);
     this->TableShift[c] = (range[1]-range[0])*this->TransferFunctionTableSize;
@@ -189,6 +189,14 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::Integrate(
         int table_index
           = (int)(  this->TableShift[0]*nearIntersections->GetComponent(i, 0)
                   + this->TableScale[0] );
+        if (table_index < 0)
+          {
+          table_index = 0;
+          }
+        if (table_index >= this->TransferFunctionTableSize)
+          {
+          table_index = this->TransferFunctionTableSize-1;
+          }
         float *c = this->ColorTable[0] + 3*table_index;
         float tau = this->AttenuationTable[0][table_index];
         float alpha = 1-(float)exp(-intersectionLengths->GetComponent(i,0)*tau);
@@ -207,6 +215,14 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::Integrate(
         int table_index
           = (int)(  this->TableShift[0]*nearIntersections->GetComponent(i, 0)
                   + this->TableScale[0] );
+        if (table_index < 0)
+          {
+          table_index = 0;
+          }
+        if (table_index >= this->TransferFunctionTableSize)
+          {
+          table_index = this->TransferFunctionTableSize-1;
+          }
         float *c = this->ColorTable[0] + 3*table_index;
         float tau = this->AttenuationTable[0][table_index];
         newcolor[0] = c[0];  newcolor[1] = c[1];
