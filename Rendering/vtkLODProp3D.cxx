@@ -24,10 +24,11 @@
 #include "vtkPropCollection.h"
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
+#include "vtkLinearTransform.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.35");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.36");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1
@@ -958,6 +959,28 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t, vtkViewport *vp )
     }
 
 }
+
+
+unsigned long int vtkLODProp3D::GetMTime()
+{
+  unsigned long mTime=this->vtkObject::GetMTime();
+  unsigned long time;
+
+  if ( this->UserMatrix != NULL )
+    {
+    time = this->UserMatrix->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  if ( this->UserTransform != NULL )
+    {
+    time = this->UserTransform->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  return mTime;
+  }
+
 
 void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
 {
