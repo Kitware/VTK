@@ -40,7 +40,7 @@ class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
 
-class VTK_GRAPHICS_EXPORT vtkDataSetAlgorithm : public vtkAlgorithm
+class VTK_FILTERING_EXPORT vtkDataSetAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkDataSetAlgorithm *New();
