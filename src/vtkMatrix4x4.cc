@@ -90,6 +90,29 @@ void vtkMatrix4x4::operator= (float element)
 }
 
 // Description:
+// Multiply this matrix by a point (in homogeneous coordinates). 
+// and return the result in result. The in[4] and result[4] 
+// arrays must both be allocated but they can be the same array.
+void vtkMatrix4x4::MultiplyPoint(float in[4],float result[4])
+{
+  int i;
+  float v1 = in[0];
+  float v2 = in[1];
+  float v3 = in[2];
+  float v4 = in[3];
+  
+  for (i = 0; i < 4; i++)
+    {
+    result[i] = 
+      v1 * this->Element[i][0] +
+      v2 * this->Element[i][1] +
+      v3 * this->Element[i][2] +
+      v4 * this->Element[i][3];
+    }
+  
+}
+
+// Description:
 // Multiply a point (in homogeneous coordinates) by this matrix. 
 // and return the result in result. The in[4] and result[4] 
 // arrays must both be allocated but they can be the same array.
@@ -278,15 +301,17 @@ void vtkMatrix4x4::PrintSelf (ostream& os, vtkIndent indent)
 {
   int i, j;
 
-        vtkObject::PrintSelf(os, indent);
+  vtkObject::PrintSelf(os, indent);
 
-        os << indent << "Elements:\n";
-        for (i = 0; i < 4; i++) {
-          cout << indent << indent;
-          for (j = 0; j < 4; j++) {
-            cout << this->Element[i][j] << " ";
-	    cout << "\n";
-          }
+  os << indent << "Elements:\n";
+  for (i = 0; i < 4; i++) 
+    {
+    os << indent << indent;
+    for (j = 0; j < 4; j++) 
+      {
+      os << this->Element[i][j] << " ";
+      }
+    os << "\n";
     }
 }
 
