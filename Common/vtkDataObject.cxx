@@ -740,6 +740,7 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
     }
   this->Piece = src->Piece;
   this->NumberOfPieces = src->NumberOfPieces;
+  this->MaximumNumberOfPieces = src->MaximumNumberOfPieces;
   this->UpdateNumberOfPieces = src->UpdateNumberOfPieces;
   this->UpdatePiece = src->UpdatePiece;
   this->UpdateGhostLevel = src->UpdateGhostLevel;

@@ -669,7 +669,10 @@ void vtkSource::ExecuteInformation()
         // Since most unstructured filters in VTK generate all their data once,
         // make it the default.
         // protected: if ( output->GetExtentType() == VTK_PIECES_EXTENT )
-        output->SetMaximumNumberOfPieces(1);
+        if (output->IsA("vtkPolyData") || output->IsA("vtkUnstructuredGrid"))
+          {
+          output->SetMaximumNumberOfPieces(1);
+          }
         }
       }
     }
