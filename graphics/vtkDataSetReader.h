@@ -156,6 +156,10 @@ public:
   vtkRectilinearGrid *GetRectilinearGridOutput() {
     return (vtkRectilinearGrid *)this->GetOutput();};
 
+  // Description:
+  // If there is no output, execute anyway.  Execute creates an output.
+  void Update();
+  
 protected:
   void Execute();
   vtkDataReader *Reader;

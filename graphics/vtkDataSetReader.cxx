@@ -374,6 +374,20 @@ void vtkDataSetReader::Execute()
   return;
 }
 
+//----------------------------------------------------------------------------
+void vtkDataSetReader::Update()
+{
+  if (this->GetOutput())
+    {
+    this->GetOutput()->Update();
+    }
+  else
+    {
+    // execute creates an output
+    this->InternalUpdate(NULL);
+    }
+}
+
 static int recursing = 0;
 void vtkDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
