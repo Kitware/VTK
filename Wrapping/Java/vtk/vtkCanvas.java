@@ -11,8 +11,6 @@ public class vtkCanvas extends vtkPanel implements MouseListener, MouseMotionLis
   protected int shiftPressed = 0;
   protected vtkPlaneWidget pw = new vtkPlaneWidget();
   protected vtkBoxWidget bw = new vtkBoxWidget();
-
-  public vtkGenericRenderWindowInteractor GetRenderWindowInteractor () { return iren; }
   
   static { 
     // load up hybrid for 3d widgets
@@ -22,8 +20,6 @@ public class vtkCanvas extends vtkPanel implements MouseListener, MouseMotionLis
   public vtkCanvas()
   {
     super();
-//     super.setSize(500,500);
-//     rw.SetSize(500,500);
     iren.SetRenderWindow(rw);
     iren.AddObserver("CreateTimerEvent", this, "StartTimer");
     iren.AddObserver("DestroyTimerEvent", this, "DestroyTimer");
