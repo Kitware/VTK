@@ -120,29 +120,6 @@ IF (VTK_WRAP_TCL)
 
   TARGET_LINK_LIBRARIES (vtkParallelTCL vtkParallel vtkIOTCL vtkRenderingTCL)
   INSTALL_TARGETS(/lib/vtk vtkParallelTCL)
-
-  IF (VTK_USE_MPI)
-
-    # create the vtk executable
-    CONFIGURE_FILE(
-      ${VTK_SOURCE_DIR}/Wrapping/Tcl/tkAppInit.cxx.in 
-      ${VTK_BINARY_DIR}/Parallel/paraTkAppInit.cxx IMMEDIATE)
-
-    SET_SOURCE_FILES_PROPERTIES(${VTK_BINARY_DIR}/Parallel/paraTkAppInit.cxx 
-                                COMPILE_FLAGS "-DVTK_COMPILED_USING_MPI")
-    ADD_EXECUTABLE(pvtk ${VTK_BINARY_DIR}/Parallel/paraTkAppInit.cxx)
-
-    TARGET_LINK_LIBRARIES (pvtk vtkParallelTCL vtkParallel)
-
-    IF (VTK_USE_PATENTED)
-      TARGET_LINK_LIBRARIES(pvtk vtkPatentedTCL vtkPatented)
-    ENDIF (VTK_USE_PATENTED)
-    IF (VTK_USE_HYBRID)
-      TARGET_LINK_LIBRARIES(pvtk vtkHybridTCL vtkHybrid)
-    ENDIF (VTK_USE_HYBRID)
-
-    INSTALL_TARGETS(/bin pvtk)
-  ENDIF (VTK_USE_MPI)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra

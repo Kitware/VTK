@@ -1,50 +1,50 @@
-# create the vtk executable
 CONFIGURE_FILE(
-  ${VTK_SOURCE_DIR}/Wrapping/Tcl/tkAppInit.cxx.in 
-  ${VTK_BINARY_DIR}/Wrapping/Tcl/tkAppInit.cxx)
-
-SET(LIBS
-  vtkImagingTCL
-  vtkGraphicsTCL
-  vtkIOTCL
-  vtkIO
-  vtkGraphics
-  vtkImaging
+  ${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h.in
+  ${VTK_BINARY_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h
+  @ONLY IMMEDIATE
 )
 
-IF (TCL_LIBRARY)
-  SET(LIBS ${LIBS} ${TCL_LIBRARY})
-ELSE (TCL_LIBRARY)
+IF (NOT TCL_LIBRARY)
   MESSAGE("VTK_WRAP_TCL is ON, but the Tcl library was not found.  Please set TCL_LIBRARY." "Error")
-ENDIF (TCL_LIBRARY)
+ENDIF (NOT TCL_LIBRARY)
+
+# Create the vtk Tcl wrapper executable.
+ADD_EXECUTABLE(vtk vtkTkAppInit.cxx)
+TARGET_LINK_LIBRARIES (vtk vtkGraphicsTCL vtkImagingTCL vtkIOTCL)
 
 IF (VTK_USE_RENDERING)
-  SET(LIBS ${LIBS} vtkRenderingTCL vtkRendering)
+  TARGET_LINK_LIBRARIES(vtk vtkRenderingTCL)
 ENDIF (VTK_USE_RENDERING)
-
 IF (VTK_USE_PATENTED)
-  SET(LIBS ${LIBS} vtkPatentedTCL vtkPatented)
+  TARGET_LINK_LIBRARIES(vtk vtkPatentedTCL)
 ENDIF (VTK_USE_PATENTED)
-
 IF (VTK_USE_HYBRID)
-  SET(LIBS ${LIBS} vtkHybridTCL vtkHybrid)
+  TARGET_LINK_LIBRARIES(vtk vtkHybridTCL)
 ENDIF (VTK_USE_HYBRID)
-
 IF (VTK_USE_PARALLEL)
-  SET(LIBS ${LIBS} vtkParallelTCL vtkParallel)
+  TARGET_LINK_LIBRARIES(vtk vtkParallelTCL)
 ENDIF (VTK_USE_PARALLEL)
-
-#
-# link in the PNG library if it was found
-#
-ADD_EXECUTABLE(vtk ${VTK_BINARY_DIR}/Wrapping/Tcl/tkAppInit.cxx)
-
-TARGET_LINK_LIBRARIES (vtk ${LIBS})
 
 INSTALL_TARGETS(/bin vtk)
 
-# Process all packages
+# Create the pvtk Tcl wrapper executable with MPI support.
+IF (VTK_USE_PARALLEL)
+  IF (VTK_USE_MPI)
+    ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx)
+    TARGET_LINK_LIBRARIES (pvtk vtkParallelTCL)
 
+    IF (VTK_USE_PATENTED)
+      TARGET_LINK_LIBRARIES(pvtk vtkPatentedTCL)
+    ENDIF (VTK_USE_PATENTED)
+    IF (VTK_USE_HYBRID)
+      TARGET_LINK_LIBRARIES(pvtk vtkHybridTCL)
+    ENDIF (VTK_USE_HYBRID)
+
+    INSTALL_TARGETS(/bin pvtk)
+  ENDIF (VTK_USE_MPI)
+ENDIF (VTK_USE_PARALLEL)
+
+# Process all packages
 SUBDIRS(vtk vtkbase vtkcommon vtkfiltering vtkgraphics vtkimaging vtkinteraction vtkio vtktesting)
 
 INSTALL_FILES(/lib/vtk/tcl "" README)
