@@ -451,7 +451,7 @@ void get_python_signature()
   
   if (currentFunction->Signature)
     {
-    add_to_sig(result,"\\n ",&currPos);
+    add_to_sig(result,"\\nC++: ",&currPos);
     add_to_sig(result,currentFunction->Signature,&currPos);
     }
 
