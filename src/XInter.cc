@@ -348,6 +348,7 @@ void vlXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
 	{
 	/* get the first light */
 	me->CurrentLight->SetPosition(me->CurrentCamera->GetPosition());
+	me->CurrentLight->SetFocalPoint(me->CurrentCamera->GetFocalPoint());
 	}
       me->RenderWindow->Render();
       XtAppAddTimeOut(me->App,10,vlXRenderWindowInteractorTimer,client_data);
