@@ -687,7 +687,6 @@ static void vtkImageBlendCompoundExecute(vtkImageBlend *self,
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
-                                                   int id,
                                                    int outExt[6], 
                                                    vtkImageData *outData, 
                                                    T *outPtr,
@@ -953,9 +952,8 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
       outPtr = outData->GetScalarPointerForExtent(outExt);
       switch (outData->GetScalarType())
         {
-        vtkTemplateMacro6(vtkImageBlendCompoundTransferExecute, 
+        vtkTemplateMacro5(vtkImageBlendCompoundTransferExecute, 
                           this, 
-                          id, 
                           outExt,
                           outData, 
                           (VTK_TT *)(outPtr), 
