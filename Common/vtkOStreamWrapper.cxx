@@ -78,6 +78,20 @@ VTKOSTREAM_OPERATOR_FUNC(const char* (*a)(void*));
 VTKOSTREAM_OPERATOR_FUNC(void (*a)(void*, int*));
 
 //----------------------------------------------------------------------------
+#if defined(__IBMCPP__)
+vtkOStreamWrapper& vtkOStreamWrapper::WriteInternal(const char* a)
+{
+  this->ostr << a;
+  return *this;
+}
+vtkOStreamWrapper& vtkOStreamWrapper::WriteInternal(void* a)
+{
+  this->ostr << a;
+  return *this;
+}
+#endif
+
+//----------------------------------------------------------------------------
 vtkOStreamWrapper& vtkOStreamWrapper::write(const char* str,
                                             unsigned long size)
 {

@@ -76,10 +76,12 @@ public:
   
   // Work-around for IBM Visual Age bug in overload resolution.
 #if defined(__IBMCPP__)
+  vtkOStreamWrapper& WriteInternal(const char*);
+  vtkOStreamWrapper& WriteInternal(void*);
   template <typename T>
   vtkOStreamWrapper& operator << (T* p)
     {
-    return this->operator << (p);
+    return this->WriteInternal(p);
     }
 #endif
 
