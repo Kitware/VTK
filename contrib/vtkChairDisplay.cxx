@@ -389,7 +389,7 @@ void vtkChairDisplay::Execute(int recomputeTexture)
   if (recomputeTexture && this->Scalars)
     {
     this->Scalars->Delete();
-    this->Scalars == NULL;
+    this->Scalars = NULL;
     }
   if (!this->Scalars || recomputeTexture)
     {
