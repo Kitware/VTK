@@ -60,6 +60,7 @@ set noTest {
     ShotNoiseInclude.tcl 
     TkImageViewerInteractor.tcl TkViewer.tcl TkViewer2.tcl
     Timing.tcl WindowLevelInterface.tcl
+    stCone.tcl
     vtkHistogramWidget.tcl
     vtkImageInclude.tcl rtProcessCPUTimes.tcl CPUTimeTable.tcl}
 

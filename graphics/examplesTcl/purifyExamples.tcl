@@ -21,6 +21,7 @@ set noTest {
    volTkInteractor.tcl spikeColor.tcl tkwin.tcl 
    purifyExamples.tcl 
    combColorIso.tcl
+   stCone.tcl
    genPineRoot.tcl pineRoot.tcl hawaii.tcl
    mcubes.tcl LOx.tcl VolCutKnee.tcl recursiveDC.tcl
 
