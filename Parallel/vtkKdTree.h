@@ -691,7 +691,7 @@ private:
                         vtkPlanesIntersection *pi);
 
   int _IntersectsCell(vtkKdNode *node, int *ids, int len,
-                      vtkCell *cell, int cellRegion=-1, double *bounds=NULL);
+                      vtkCell *cell, int cellRegion=-1);
 //ETX
 
   void _printTree(int verbose);
