@@ -43,9 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkMergeFilter::vtkMergeFilter()
 {
-  // prevents dangling reference to DataSet
-  this->Geometry = new vtkPolyData;
-
   this->Scalars = NULL;
   this->Vectors = NULL;
   this->Normals = NULL;
