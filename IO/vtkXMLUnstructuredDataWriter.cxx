@@ -26,7 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.2");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -289,8 +289,9 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPieceData(int index)
   
   unsigned long returnPosition = os.tellp();
   os.seekp(this->NumberOfPointsPositions[index]);
+  vtkPoints* points = input->GetPoints();
   this->WriteScalarAttribute("NumberOfPoints",
-                             input->GetPoints()->GetNumberOfPoints());
+                             (points?points->GetNumberOfPoints():0));
   os.seekp(returnPosition);
   
   this->WritePointDataAppendedData(input->GetPointData(),
