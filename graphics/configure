@@ -822,7 +822,7 @@ ac_config_guess=$ac_aux_dir/config.guess
 ac_config_sub=$ac_aux_dir/config.sub
 ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
 
-subdirs="tcl java"
+subdirs="tcl java examplesCxx"
 
 
 #
@@ -2558,9 +2558,6 @@ then
     cp $srcdir/targets.make targets.make || exit 1
 fi
 
-subdirs="examplesCxx"
-
-
 # should use someday
 #AC_SUBST(VTK_LD_SEARCH_FLAGS)
 
@@ -2818,7 +2815,7 @@ if test "$no_recursion" != yes; then
     esac
   done
 
-  for ac_config_dir in examplesCxx; do
+  for ac_config_dir in tcl java examplesCxx; do
 
     # Do not complain, so a configure script can configure whichever
     # parts of a large source tree are present.

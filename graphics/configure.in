@@ -13,7 +13,7 @@ AC_PROG_LN_S
 
 AC_ISC_POSIX
 
-AC_CONFIG_SUBDIRS(tcl java)
+AC_CONFIG_SUBDIRS(tcl java examplesCxx)
 
 #
 # Checks for header files.
@@ -592,8 +592,6 @@ then
     echo "Copying $srcdir/targets.make to build directory"
     cp $srcdir/targets.make targets.make || exit 1
 fi
-
-AC_CONFIG_SUBDIRS(examplesCxx)
 
 # should use someday
 #AC_SUBST(VTK_LD_SEARCH_FLAGS)
