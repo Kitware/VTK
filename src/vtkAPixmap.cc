@@ -72,7 +72,7 @@ void vtkAPixmap::GetColor(int id, unsigned char rgba[4])
 void vtkAPixmap::SetColor(int id, unsigned char rgba[4])
 {
   id *= 4;
-  for(int j=0; j<4; j++) this->S[id+j] = rgba[j];
+  memcpy (&(this->S[id]), rgba, 4);
 }
 
 // Description:
