@@ -283,20 +283,70 @@ void vtkXImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 void vtkXImageWindow::SetBackgroundColor(float r, float g, float b)
 {
   unsigned long background = 0;
-
+  unsigned long rmask = 0;
+  unsigned long gmask = 0;
+  unsigned long bmask = 0;
+  Window windowID;
+  Display* displayID;
+  XWindowAttributes winAttribs;
+  XVisualInfo temp1;
+  int nvisuals = 0;
+  XVisualInfo* visuals;
+  int rshift = 0;
+  int gshift = 0;
+  int bshift = 0;
   // I think these need to be unsigned char
+  unsigned short test = 1;
   unsigned short red = 0;
   unsigned short green = 0;
   unsigned short blue = 0;
 
+  // Get color masks from visual
+  windowID = (Window) this->GetGenericWindowId();
+  displayID = (Display*) this->GetGenericDisplayId();
+  XGetWindowAttributes(displayID, windowID, &winAttribs);
+  temp1.visualid = winAttribs.visual->visualid;
+  visuals = XGetVisualInfo(displayID, VisualIDMask, &temp1, &nvisuals);   
+  if (nvisuals == 0)  
+    {
+    vtkErrorMacro(<<"Could not get color masks");
+    }
+
+  rmask = visuals->red_mask;
+  gmask = visuals->green_mask;
+  bmask = visuals->blue_mask;
+
+  XFree(visuals);
+
+  // Compute the shifts needed to align the color masks with the 
+  // pixels
+  
+  while ( ((rmask & test) == 0) && (rshift < 32))
+    {
+    rmask = rmask >> 1;
+    rshift++;
+    }
+
+  while ( ((gmask & test) == 0) && (gshift < 32))
+    {
+    gmask = gmask >> 1;
+    gshift++;
+    }
+
+  while ( ((bmask & test) == 0) && (bshift < 32))
+    {
+    bmask = bmask >> 1;
+    bshift++;
+    }
+  
   // Check if colors are > 1 ???
   red = (unsigned short) (r * 255.0);
   green = (unsigned short) (g * 255.0);
   blue = (unsigned short)  (b * 255.0);
 
-  background = background | (blue << 16);
-  background = background | (green << 8);
-  background = background | red;
+  background = background | (blue << bshift);
+  background = background | (green << gshift);
+  background = background | (red << rshift);
 
   vtkDebugMacro(<<"vtkXImageWindow::SetBackgroundColor - value: " << background);
 
