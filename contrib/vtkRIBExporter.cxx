@@ -722,6 +722,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtk
   float poly_norm[3];
   float vertexTCoords[100][2];
   int *pts;
+  int p1, p2, p3;
   int k;
   int npts, rep, j, interpolation;
   int tDim;
@@ -771,23 +772,24 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtk
   for (strips->InitTraversal(); strips->GetNextCell(npts,pts); )
     { 
     // each triangle strip is converted into a bunch of triangles
-    for (j = 0; j < npts; j++) 
+    p1 = pts[0];
+    p2 = pts[1];
+    p3 = pts[2];
+    for (j = 0; j < (npts-2); j++) 
       {
-	if (j > 2)
-	  {
-	    if (j % 2)
-	      {
-		idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1];
-	      }
-	    else
-	      {
-		idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
-	      }
-	  }
-	else if ( j == 0 )
-	      {
-		idx[0] = pts[0]; idx[1] = pts[1]; idx[2] = pts[2];
-	      }
+        if (j%2)
+          {
+          idx[0] = p2;
+          idx[1] = p1;
+          idx[2] = p3;
+          }
+        else
+          {
+          idx[0] = p1;
+          idx[1] = p2;
+          idx[2] = p3;
+          }
+
 	if (!n)
 	  polygon.ComputeNormal (p, 3, idx, poly_norm);
     
@@ -813,6 +815,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtk
 		normals = n->GetNormal (idx[k]);
 		vertexNormals[k][0] = normals[0];
 		vertexNormals[k][1] = normals[1];
+
 		vertexNormals[k][2] = normals[2];
 	      }
 	    else 
@@ -826,7 +829,6 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtk
 	    vertexPoints[k][1] = points[1]; 
 	    vertexPoints[k][2] = points[2];
 	  }
-//	RiPolygon (3, RI_P, (RtPointer) vertexPoints, RI_N, (RtPointer) vertexNormals, Has[0], HasPtr[0], Has[1], HasPtr[1]);
       fprintf (this->FilePtr, "Polygon ");
       fprintf (this->FilePtr, "\"P\" [");
       for (int kk = 0; kk < 3; kk++)
@@ -865,6 +867,10 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtk
         fprintf (this->FilePtr, "] ");
         }
       fprintf (this->FilePtr, "\n");
+      // Get ready for next triangle
+      p1 = p2;
+      p2 = p3;
+      p3 = pts[3+j];
       }
   }
 }
