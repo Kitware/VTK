@@ -73,6 +73,7 @@ IF (VTK_USE_RENDERING)
       EnSightMandelbrot
       EnSightSelectArrays
       EnSightCompound
+      ExtractEdgesQuadraticCells
       extractPolyData
       extractUGrid
       extractRectGrid
