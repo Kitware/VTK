@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.66");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.67");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -757,7 +757,7 @@ void vtkInteractorStyle::ResetCameraClippingRange()
 // By overriding the Rotate, Rotate members we can
 // use this timer routine for Joystick or Trackball - quite tidy
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnTimer(void) 
+void vtkInteractorStyle::OnTimer() 
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -840,14 +840,11 @@ void vtkInteractorStyle::OnTimer(void)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl), 
-                                int vtkNotUsed(shift), 
-                                char keycode, 
-                                int vtkNotUsed(repeatcount)) 
+void vtkInteractorStyle::OnChar() 
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  switch (keycode) 
+  switch (rwi->GetKeyCode()) 
     {
     case 'm' :
     case 'M' :
@@ -873,10 +870,10 @@ void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl),
       {
       this->AnimState = VTKIS_ANIM_ON;
       vtkAssemblyPath *path=NULL;
-      this->FindPokedRenderer(rwi->GetLastEventPosition()[0],
-                              rwi->GetLastEventPosition()[1]);
-      rwi->GetPicker()->Pick(rwi->GetLastEventPosition()[0],
-                             rwi->GetLastEventPosition()[1], 0.0, 
+      this->FindPokedRenderer(rwi->GetEventPosition()[0],
+                              rwi->GetEventPosition()[1]);
+      rwi->GetPicker()->Pick(rwi->GetEventPosition()[0],
+                             rwi->GetEventPosition()[1], 0.0, 
                              this->CurrentRenderer);
       vtkAbstractPropPicker *picker;
       if ( (picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())) )
@@ -898,8 +895,8 @@ void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl),
 
     case 'r' :
     case 'R' :
-      this->FindPokedRenderer(rwi->GetLastEventPosition()[0], 
-                              rwi->GetLastEventPosition()[1]);
+      this->FindPokedRenderer(rwi->GetEventPosition()[0], 
+                              rwi->GetEventPosition()[1]);
       this->CurrentRenderer->ResetCamera();
       rwi->Render();
       break;
@@ -910,8 +907,8 @@ void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl),
       vtkActorCollection *ac;
       vtkActor *anActor, *aPart;
       vtkAssemblyPath *path;
-      this->FindPokedRenderer(rwi->GetLastEventPosition()[0],
-                              rwi->GetLastEventPosition()[1]);
+      this->FindPokedRenderer(rwi->GetEventPosition()[0],
+                              rwi->GetEventPosition()[1]);
       ac = this->CurrentRenderer->GetActors();
       for (ac->InitTraversal(); (anActor = ac->GetNextItem()); ) 
         {
@@ -931,8 +928,8 @@ void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl),
       vtkActorCollection *ac;
       vtkActor *anActor, *aPart;
       vtkAssemblyPath *path;
-      this->FindPokedRenderer(rwi->GetLastEventPosition()[0],
-                              rwi->GetLastEventPosition()[1]);
+      this->FindPokedRenderer(rwi->GetEventPosition()[0],
+                              rwi->GetEventPosition()[1]);
       ac = this->CurrentRenderer->GetActors();
       for (ac->InitTraversal(); (anActor = ac->GetNextItem()); ) 
         {
@@ -963,11 +960,12 @@ void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl),
       if (this->State == VTKIS_NONE) 
         {
         vtkAssemblyPath *path=NULL;
-        this->FindPokedRenderer(rwi->GetLastEventPosition()[0],
-                                rwi->GetLastEventPosition()[1]);
+        this->FindPokedRenderer(rwi->GetEventPosition()[0],
+                                rwi->GetEventPosition()[1]);
         rwi->StartPickCallback();
-        rwi->GetPicker()->Pick(rwi->GetLastEventPosition()[0],
-                               rwi->GetLastEventPosition()[1], 0.0, 
+        rwi->GetPicker()->Pick(rwi->GetEventPosition()[0],
+                               rwi->GetEventPosition()[1], 
+                               0.0, 
                                this->CurrentRenderer);
         vtkAbstractPropPicker *picker;
         if ( (picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())) )
@@ -1068,8 +1066,6 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
   vtkRenderWindowInteractor* rwi 
     = static_cast<vtkRenderWindowInteractor *>( object );
 
-  int* XY = rwi->GetEventPosition();
-
   switch(event)
     {
     case vtkCommand::ExposeEvent:
@@ -1080,8 +1076,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else 
         {
-        int* event_size = rwi->GetEventSize();
-        self->OnExpose(XY[0], XY[1], event_size[0], event_size[1]);
+        self->OnExpose();
         }
       break;
 
@@ -1093,8 +1088,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else 
         {
-        int* size = rwi->GetSize();
-        self->OnConfigure(size[0], size[1]);
+        self->OnConfigure();
         }
       break;
 
@@ -1106,7 +1100,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else
         {
-        self->OnEnter(XY[0], XY[1]);
+        self->OnEnter();
         }
       break;
 
@@ -1118,7 +1112,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else
         {
-        self->OnLeave(XY[0], XY[1]);
+        self->OnLeave();
         }
       break;
 
@@ -1142,8 +1136,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else
         {
-        self->OnMouseMove(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                          XY[0], XY[1]);
+        self->OnMouseMove();
         }
       break;
 
@@ -1155,8 +1148,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else
         {
-        self->OnLeftButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                               XY[0], XY[1]);
+        self->OnLeftButtonDown();
         }
       break;
 
@@ -1168,8 +1160,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else 
         {
-        self->OnLeftButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                             XY[0], XY[1]);
+        self->OnLeftButtonUp();
         }
       break;
 
@@ -1181,8 +1172,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else 
         {
-        self->OnMiddleButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                                 XY[0], XY[1]);
+        self->OnMiddleButtonDown();
         }
       break;
 
@@ -1194,8 +1184,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else 
         {
-        self->OnMiddleButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                               XY[0], XY[1]);
+        self->OnMiddleButtonUp();
         }
       break;
 
@@ -1207,8 +1196,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else 
         {
-        self->OnRightButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                                XY[0], XY[1]);
+        self->OnRightButtonDown();
         }
       break;
 
@@ -1220,8 +1208,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else 
         {
-        self->OnRightButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                              XY[0], XY[1]);
+        self->OnRightButtonUp();
         }
       break;
 
@@ -1233,13 +1220,8 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else 
         {
-        self->OnKeyDown(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                        rwi->GetKeyCode(), 
-                        rwi->GetRepeatCount());
-        self->OnKeyPress(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                         rwi->GetKeyCode(), 
-                         const_cast<char*>(rwi->GetKeySym()), 
-                         rwi->GetRepeatCount());
+        self->OnKeyDown();
+        self->OnKeyPress();
         }
       break;
 
@@ -1251,13 +1233,8 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else 
         {
-        self->OnKeyUp(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                      rwi->GetKeyCode(), 
-                      rwi->GetRepeatCount());
-        self->OnKeyRelease(rwi->GetControlKey(), rwi->GetShiftKey(), 
-                           rwi->GetKeyCode(), 
-                           const_cast<char*>(rwi->GetKeySym()), 
-                           rwi->GetRepeatCount()); 
+        self->OnKeyUp();
+        self->OnKeyRelease(); 
         }
       break;
 
@@ -1269,9 +1246,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
         }
       else 
         {
-        self->OnChar(rwi->GetControlKey(), rwi->GetShiftKey(),
-                     rwi->GetKeyCode(), 
-                     rwi->GetRepeatCount());
+        self->OnChar();
         }
       break;
 

@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.27");
+vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.28");
 vtkStandardNewMacro(vtkInteractorStyleUser);
 
 //----------------------------------------------------------------------------
@@ -297,7 +297,7 @@ void  vtkInteractorStyleUser::EndUserInteraction()
 
 //----------------------------------------------------------------------------
 // checks for USERINTERACTION state, then defers to the superclass modes
-void vtkInteractorStyleUser::OnTimer(void) 
+void vtkInteractorStyleUser::OnTimer() 
 {
   if (this->HasObserver(vtkCommand::TimerEvent)) 
     {
@@ -335,100 +335,91 @@ void vtkInteractorStyleUser::OnTimer(void)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnKeyPress(int ctrl, int shift, 
-                                        char keycode, char *keysym, 
-                                        int vtkNotUsed(repeatcount))
+void vtkInteractorStyleUser::OnKeyPress()
 {
   if (this->HasObserver(vtkCommand::KeyPressEvent)) 
     {
-    this->ShiftKey = shift;
-    this->CtrlKey = ctrl;
-    this->KeySym = keysym;
-    this->Char = keycode;  
+    this->ShiftKey = this->Interactor->GetShiftKey();
+    this->CtrlKey = this->Interactor->GetControlKey();
+    this->KeySym = this->Interactor->GetKeySym();
+    this->Char = this->Interactor->GetKeyCode();  
     this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnKeyRelease(int ctrl, int shift, 
-                                          char keycode, char *keysym, 
-                                          int vtkNotUsed(repeatcount))
+void vtkInteractorStyleUser::OnKeyRelease()
 {
   if (this->HasObserver(vtkCommand::KeyReleaseEvent)) 
     {
-    this->ShiftKey = shift;
-    this->CtrlKey = ctrl;
-    this->KeySym = keysym;
-    this->Char = keycode;  
+    this->ShiftKey = this->Interactor->GetShiftKey();
+    this->CtrlKey = this->Interactor->GetControlKey();
+    this->KeySym = this->Interactor->GetKeySym();
+    this->Char = this->Interactor->GetKeyCode();  
 
     this->InvokeEvent(vtkCommand::KeyReleaseEvent,NULL);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnChar(int ctrl, int shift, char keycode,
-                                    int repeatcount) 
+void vtkInteractorStyleUser::OnChar() 
 {
   // do nothing if a KeyPressMethod has been set,
   // otherwise pass the OnChar to the vtkInteractorStyle.
   if (this->HasObserver(vtkCommand::CharEvent)) 
     {
-    this->ShiftKey = shift;
-    this->CtrlKey = ctrl;
-    this->Char = keycode;  
+    this->ShiftKey = this->Interactor->GetShiftKey();
+    this->CtrlKey = this->Interactor->GetControlKey();
+    this->Char = this->Interactor->GetKeyCode();  
     
     this->InvokeEvent(vtkCommand::CharEvent,NULL);
     }
   else
     {
-    this->vtkInteractorStyle::OnChar(ctrl,shift,keycode,repeatcount);
+    this->vtkInteractorStyle::OnChar();
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnRightButtonDown(int ctrl, int shift, int x, int y) 
+void vtkInteractorStyleUser::OnRightButtonDown() 
 {
   this->Button = 3;
 
   if (this->HasObserver(vtkCommand::RightButtonPressEvent)) 
     {
-    this->CtrlKey  = ctrl;
-    this->ShiftKey = shift;
+    int x = this->Interactor->GetEventPosition()[0];
+    int y = this->Interactor->GetEventPosition()[1];
+    this->CtrlKey  = this->Interactor->GetControlKey();
+    this->ShiftKey = this->Interactor->GetShiftKey();
     this->LastPos[0] = x;
     this->LastPos[1] = y;
-    // this last one is for backwards compatibility
-    this->Interactor->SetEventPosition(x, y);
-
     this->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
-
     this->OldPos[0] = x;
     this->OldPos[1] = y;
     }
   else 
     {
-    this->vtkInteractorStyle::OnRightButtonDown(ctrl, shift, x, y);
+    this->vtkInteractorStyle::OnRightButtonDown();
     }
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnRightButtonUp(int ctrl, int shift, int x, int y) 
+void vtkInteractorStyleUser::OnRightButtonUp() 
 {
   if (this->HasObserver(vtkCommand::RightButtonReleaseEvent)) 
     {
-    this->CtrlKey  = ctrl;
-    this->ShiftKey = shift;
+    int x = this->Interactor->GetEventPosition()[0];
+    int y = this->Interactor->GetEventPosition()[1];
+    this->CtrlKey  = this->Interactor->GetControlKey();
+    this->ShiftKey = this->Interactor->GetShiftKey();
     this->LastPos[0] = x;
     this->LastPos[1] = y;
-    // this last one is for backwards compatibility
-    this->Interactor->SetEventPosition(x, y);
-
     this->InvokeEvent(vtkCommand::RightButtonReleaseEvent,NULL);
-
     this->OldPos[0] = x;
     this->OldPos[1] = y;
     }
   else 
     {
-    this->vtkInteractorStyle::OnRightButtonUp(ctrl, shift, x, y);
+    this->vtkInteractorStyle::OnRightButtonUp();
     }
 
   if (this->Button == 3)
@@ -438,49 +429,45 @@ void vtkInteractorStyleUser::OnRightButtonUp(int ctrl, int shift, int x, int y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnMiddleButtonDown(int ctrl,int shift,int x,int y) 
+void vtkInteractorStyleUser::OnMiddleButtonDown() 
 {
   this->Button = 2;
 
   if (this->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
     {
-    this->CtrlKey  = ctrl;
-    this->ShiftKey = shift;
+    int x = this->Interactor->GetEventPosition()[0];
+    int y = this->Interactor->GetEventPosition()[1];
+    this->CtrlKey  = this->Interactor->GetControlKey();
+    this->ShiftKey = this->Interactor->GetShiftKey();
     this->LastPos[0] = x;
     this->LastPos[1] = y;
-    // this last one is for backwards compatibility
-    this->Interactor->SetEventPosition(x, y);
-
     this->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
-
     this->OldPos[0] = x;
     this->OldPos[1] = y;
     }
   else 
     {
-    this->vtkInteractorStyle::OnMiddleButtonDown(ctrl, shift, x, y);
+    this->vtkInteractorStyle::OnMiddleButtonDown();
     }
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnMiddleButtonUp(int ctrl,int shift,int x,int y) 
+void vtkInteractorStyleUser::OnMiddleButtonUp() 
 {
   if (this->HasObserver(vtkCommand::MiddleButtonReleaseEvent)) 
     {
-    this->CtrlKey  = ctrl;
-    this->ShiftKey = shift;
+    int x = this->Interactor->GetEventPosition()[0];
+    int y = this->Interactor->GetEventPosition()[1];
+    this->CtrlKey  = this->Interactor->GetControlKey();
+    this->ShiftKey = this->Interactor->GetShiftKey();
     this->LastPos[0] = x;
     this->LastPos[1] = y;
-    // this last one is for backwards compatibility
-    this->Interactor->SetEventPosition(x, y);
-
     this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,NULL);
-
     this->OldPos[0] = x;
     this->OldPos[1] = y;
     }
   else 
     {
-    this->vtkInteractorStyle::OnMiddleButtonUp(ctrl, shift, x, y);
+    this->vtkInteractorStyle::OnMiddleButtonUp();
     }
 
   if (this->Button == 2)
@@ -490,49 +477,45 @@ void vtkInteractorStyleUser::OnMiddleButtonUp(int ctrl,int shift,int x,int y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnLeftButtonDown(int ctrl,int shift,int x,int y) 
+void vtkInteractorStyleUser::OnLeftButtonDown() 
 {
   this->Button = 1;
 
   if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
     {
-    this->CtrlKey  = ctrl;
-    this->ShiftKey = shift;
+    int x = this->Interactor->GetEventPosition()[0];
+    int y = this->Interactor->GetEventPosition()[1];
+    this->CtrlKey  = this->Interactor->GetControlKey();
+    this->ShiftKey = this->Interactor->GetShiftKey();
     this->LastPos[0] = x;
     this->LastPos[1] = y;
-    // this last one is for backwards compatibility
-    this->Interactor->SetEventPosition(x, y);
-
     this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
-
     this->OldPos[0] = x;
     this->OldPos[1] = y;
     }
   else 
     {
-    this->vtkInteractorStyle::OnLeftButtonDown(ctrl, shift, x, y);
+    this->vtkInteractorStyle::OnLeftButtonDown();
     }
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnLeftButtonUp(int ctrl, int shift, int x, int y) 
+void vtkInteractorStyleUser::OnLeftButtonUp() 
 {
   if (this->HasObserver(vtkCommand::LeftButtonReleaseEvent)) 
     {
-    this->CtrlKey  = ctrl;
-    this->ShiftKey = shift;
+    int x = this->Interactor->GetEventPosition()[0];
+    int y = this->Interactor->GetEventPosition()[1];
+    this->CtrlKey  = this->Interactor->GetControlKey();
+    this->ShiftKey = this->Interactor->GetShiftKey();
     this->LastPos[0] = x;
     this->LastPos[1] = y;
-    // this last one is for backwards compatibility
-    this->Interactor->SetEventPosition(x, y);
-
     this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
-
     this->OldPos[0] = x;
     this->OldPos[1] = y;
     }
   else 
     {
-    this->vtkInteractorStyle::OnLeftButtonUp(ctrl, shift, x, y);
+    this->vtkInteractorStyle::OnLeftButtonUp();
     }
 
   if (this->Button == 1)
@@ -542,30 +525,27 @@ void vtkInteractorStyleUser::OnLeftButtonUp(int ctrl, int shift, int x, int y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnMouseMove(int ctrl, int shift, int x, int y) 
+void vtkInteractorStyleUser::OnMouseMove() 
 {
-  this->vtkInteractorStyle::OnMouseMove(ctrl,shift,x,y);
+  this->vtkInteractorStyle::OnMouseMove();
 
-  
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
   this->LastPos[0] = x;
   this->LastPos[1] = y;
-  this->ShiftKey = shift;
-  this->CtrlKey = ctrl;
+  this->ShiftKey = this->Interactor->GetShiftKey();
+  this->CtrlKey = this->Interactor->GetControlKey();
 
   if (this->HasObserver(vtkCommand::MouseMoveEvent)) 
     {
     this->InvokeEvent(vtkCommand::MouseMoveEvent,NULL);
-
     this->OldPos[0] = x;
     this->OldPos[1] = y;
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnExpose(int vtkNotUsed(x), 
-                                      int vtkNotUsed(y),
-                                      int vtkNotUsed(width), 
-                                      int vtkNotUsed(height))
+void vtkInteractorStyleUser::OnExpose()
 {
   if (this->HasObserver(vtkCommand::ExposeEvent)) 
     {
@@ -574,8 +554,7 @@ void vtkInteractorStyleUser::OnExpose(int vtkNotUsed(x),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnConfigure(int vtkNotUsed(width), 
-                                         int vtkNotUsed(height)) 
+void vtkInteractorStyleUser::OnConfigure() 
 {
   if (this->HasObserver(vtkCommand::ConfigureEvent)) 
     {
@@ -584,27 +563,23 @@ void vtkInteractorStyleUser::OnConfigure(int vtkNotUsed(width),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnEnter(int x, 
-                                     int y)
+void vtkInteractorStyleUser::OnEnter()
 {
   if (this->HasObserver(vtkCommand::EnterEvent)) 
     {
-    this->LastPos[0] = x;
-    this->LastPos[1] = y;
-
+    this->LastPos[0] = this->Interactor->GetEventPosition()[0];
+    this->LastPos[1] = this->Interactor->GetEventPosition()[1];
     this->InvokeEvent(vtkCommand::EnterEvent,NULL);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::OnLeave(int x, 
-                                     int y)
+void vtkInteractorStyleUser::OnLeave()
 {
   if (this->HasObserver(vtkCommand::LeaveEvent)) 
     {
-    this->LastPos[0] = x;
-    this->LastPos[1] = y;
-
+    this->LastPos[0] = this->Interactor->GetEventPosition()[0];
+    this->LastPos[1] = this->Interactor->GetEventPosition()[1];
     this->InvokeEvent(vtkCommand::LeaveEvent,NULL);
     }
 }

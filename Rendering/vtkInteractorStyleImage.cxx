@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.19");
+vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.20");
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
 //----------------------------------------------------------------------------
@@ -79,11 +79,11 @@ void vtkInteractorStyleImage::EndPick()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnMouseMove(int ctrl, 
-                                          int shift,
-                                          int x, 
-                                          int y) 
+void vtkInteractorStyleImage::OnMouseMove() 
 {
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+
   switch (this->State) 
     {
     case VTKIS_WINDOW_LEVEL:
@@ -99,15 +99,15 @@ void vtkInteractorStyleImage::OnMouseMove(int ctrl,
 
   // Call parent to handle all other states and perform additional work
 
-  this->Superclass::OnMouseMove(ctrl, shift, x, y);
+  this->Superclass::OnMouseMove();
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnLeftButtonDown(int ctrl, 
-                                               int shift, 
-                                               int x, 
-                                               int y) 
+void vtkInteractorStyleImage::OnLeftButtonDown() 
 {
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
     {
@@ -116,7 +116,7 @@ void vtkInteractorStyleImage::OnLeftButtonDown(int ctrl,
   
   // Redefine this button to handle window/level
 
-  if (!shift && !ctrl) 
+  if (!this->Interactor->GetShiftKey() && !this->Interactor->GetControlKey()) 
     {
     this->StartWindowLevel();
     this->WindowLevelStartPosition[0] = x;
@@ -131,15 +131,12 @@ void vtkInteractorStyleImage::OnLeftButtonDown(int ctrl,
 
   else
     {
-    this->Superclass::OnLeftButtonDown(ctrl, shift, x, y);
+    this->Superclass::OnLeftButtonDown();
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnLeftButtonUp(int ctrl, 
-                                             int shift, 
-                                             int x, 
-                                             int y)
+void vtkInteractorStyleImage::OnLeftButtonUp()
 {
   switch (this->State) 
     {
@@ -154,15 +151,15 @@ void vtkInteractorStyleImage::OnLeftButtonUp(int ctrl,
   
   // Call parent to handle all other states and perform additional work
 
-  this->Superclass::OnLeftButtonUp(ctrl, shift, x, y);
+  this->Superclass::OnLeftButtonUp();
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnRightButtonDown(int ctrl, 
-                                                int shift, 
-                                                int x, 
-                                                int y) 
+void vtkInteractorStyleImage::OnRightButtonDown() 
 {
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
     {
@@ -171,7 +168,7 @@ void vtkInteractorStyleImage::OnRightButtonDown(int ctrl,
 
   // Redefine this button + shift to handle pick
 
-  if (shift)
+  if (this->Interactor->GetShiftKey())
     {
     this->StartPick();
     if (this->HasObserver(vtkCommand::StartPickEvent)) 
@@ -184,15 +181,12 @@ void vtkInteractorStyleImage::OnRightButtonDown(int ctrl,
 
   else
     {
-    this->Superclass::OnRightButtonDown(ctrl, shift, x, y);
+    this->Superclass::OnRightButtonDown();
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnRightButtonUp(int ctrl, 
-                                              int shift, 
-                                              int x, 
-                                              int y) 
+void vtkInteractorStyleImage::OnRightButtonUp() 
 {
   switch (this->State) 
     {
@@ -207,28 +201,25 @@ void vtkInteractorStyleImage::OnRightButtonUp(int ctrl,
 
   // Call parent to handle all other states and perform additional work
 
-  this->Superclass::OnRightButtonUp(ctrl, shift, x, y);
+  this->Superclass::OnRightButtonUp();
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnChar(int ctrl, 
-                                     int shift, 
-                                     char keycode, 
-                                     int repeatcount) 
+void vtkInteractorStyleImage::OnChar() 
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  switch (keycode) 
+  switch (rwi->GetKeyCode()) 
     {
     case 'f' :      
     case 'F' :
       {
       this->AnimState = VTKIS_ANIM_ON;
       vtkAssemblyPath *path=NULL;
-      this->FindPokedRenderer(rwi->GetLastEventPosition()[0],
-                              rwi->GetLastEventPosition()[1]);
-      rwi->GetPicker()->Pick(rwi->GetLastEventPosition()[0],
-                             rwi->GetLastEventPosition()[1], 0.0, 
+      this->FindPokedRenderer(rwi->GetEventPosition()[0],
+                              rwi->GetEventPosition()[1]);
+      rwi->GetPicker()->Pick(rwi->GetEventPosition()[0],
+                             rwi->GetEventPosition()[1], 0.0, 
                              this->CurrentRenderer);
       vtkAbstractPropPicker *picker;
       if ( (picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())) )
@@ -247,9 +238,9 @@ void vtkInteractorStyleImage::OnChar(int ctrl,
     case 'R' :
       // Allow either shift/ctrl to trigger the usual 'r' binding
       // otherwise trigger reset window level event
-      if (shift || ctrl)
+      if (rwi->GetShiftKey() || rwi->GetControlKey())
         {
-        this->Superclass::OnChar(ctrl, shift, keycode, repeatcount);
+        this->Superclass::OnChar();
         }
       else
         {
@@ -261,7 +252,7 @@ void vtkInteractorStyleImage::OnChar(int ctrl,
       break;
 
     default:
-      this->Superclass::OnChar(ctrl, shift, keycode, repeatcount);
+      this->Superclass::OnChar();
       break;
     }
 }

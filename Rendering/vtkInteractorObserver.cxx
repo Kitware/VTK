@@ -19,7 +19,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.11");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.12");
 
 vtkInteractorObserver::vtkInteractorObserver()
 {
@@ -92,8 +92,7 @@ void vtkInteractorObserver::ProcessEvents(vtkObject* object,
   switch(event)
     {
     case vtkCommand::CharEvent:
-      self->OnChar(rwi->GetControlKey(), rwi->GetShiftKey(),
-                   rwi->GetKeyCode(), rwi->GetRepeatCount());
+      self->OnChar();
       break;
     case vtkCommand::DeleteEvent:
       self->Interactor = NULL; //its going bye bye
@@ -185,13 +184,12 @@ void vtkInteractorObserver::ComputeWorldToDisplay(double x,
   this->CurrentRenderer->GetDisplayPoint(displayPt);
 }
 
-void vtkInteractorObserver::OnChar(int vtkNotUsed(ctrl), int vtkNotUsed(shift),
-                                   char keycode, int vtkNotUsed(repeatcount))
+void vtkInteractorObserver::OnChar()
 {
   // catch additional keycodes otherwise
   if ( this->KeyPressActivation )
     {
-    if (keycode == this->KeyPressActivationValue )
+    if (this->Interactor->GetKeyCode() == this->KeyPressActivationValue )
       {
       if ( !this->Enabled )
         {

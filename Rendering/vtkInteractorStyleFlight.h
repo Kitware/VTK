@@ -97,29 +97,30 @@ public:
   vtkGetVectorMacro(FixedUpVector,double,3);
   vtkSetVectorMacro(FixedUpVector,double,3);
 
-protected:
-  vtkInteractorStyleFlight();
-  ~vtkInteractorStyleFlight();
-
   // Description:
   // Concrete implementation of Mouse event bindings for flight
-  virtual void OnMouseMove       (int ctrl, int shift, int x, int y);
-  virtual void OnLeftButtonDown  (int ctrl, int shift, int x, int y);
-  virtual void OnLeftButtonUp    (int ctrl, int shift, int x, int y);
-  virtual void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
-  virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
-  virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
-  virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
+  virtual void OnMouseMove();
+  virtual void OnLeftButtonDown();
+  virtual void OnLeftButtonUp();
+  virtual void OnMiddleButtonDown();
+  virtual void OnMiddleButtonUp();
+  virtual void OnRightButtonDown();
+  virtual void OnRightButtonUp();
 
   // Description:
   // Concrete implementation of Keyboard event bindings for flight
-  virtual void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
-  virtual void OnKeyDown(int ctrl, int shift, char keycode, int repeatcount);
-  virtual void OnKeyUp  (int ctrl, int shift, char keycode, int repeatcount);
+  virtual void OnChar();
+  virtual void OnKeyDown();
+  virtual void OnKeyUp();
 
   // Description:
-  // Mouse and key events set correct motion states, OnTimer performs the motion
-  virtual void OnTimer(void);
+  // Mouse and key events set correct motion states, OnTimer performs 
+  // the motion
+  virtual void OnTimer();
+
+protected:
+  vtkInteractorStyleFlight();
+  ~vtkInteractorStyleFlight();
 
   // Description:
   // Routines used internally for computing motion and steering

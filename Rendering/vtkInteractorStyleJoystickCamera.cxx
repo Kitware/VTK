@@ -20,7 +20,7 @@
 #include "vtkCommand.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.21");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.22");
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
@@ -36,11 +36,11 @@ vtkInteractorStyleJoystickCamera::~vtkInteractorStyleJoystickCamera()
 //----------------------------------------------------------------------------
 // Mouse events
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnMouseMove(int vtkNotUsed(ctrl), 
-                                                   int vtkNotUsed(shift),
-                                                   int x, 
-                                                   int y) 
+void vtkInteractorStyleJoystickCamera::OnMouseMove() 
 { 
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+
   switch (this->State) 
     {
     case VTKIS_ROTATE:
@@ -62,20 +62,18 @@ void vtkInteractorStyleJoystickCamera::OnMouseMove(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnLeftButtonDown(int ctrl, 
-                                                        int shift, 
-                                                        int x, 
-                                                        int y) 
+void vtkInteractorStyleJoystickCamera::OnLeftButtonDown() 
 {
-  this->FindPokedRenderer(x, y);
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+                          this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
     {
     return;
     }
 
-  if (shift) 
+  if (this->Interactor->GetShiftKey()) 
     {
-    if (ctrl) 
+    if (this->Interactor->GetControlKey()) 
       {
       this->StartDolly();
       }
@@ -86,7 +84,7 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonDown(int ctrl,
     } 
   else 
     {
-    if (ctrl) 
+    if (this->Interactor->GetControlKey()) 
       {
       this->StartSpin();
       }
@@ -98,10 +96,7 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonDown(int ctrl,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnLeftButtonUp(int vtkNotUsed(ctrl), 
-                                                      int vtkNotUsed(shift), 
-                                                      int vtkNotUsed(x), 
-                                                      int vtkNotUsed(y))
+void vtkInteractorStyleJoystickCamera::OnLeftButtonUp()
 {
   switch (this->State) 
     {
@@ -124,12 +119,10 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonUp(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
-                                                          int vtkNotUsed(shift), 
-                                                          int x, 
-                                                          int y)
+void vtkInteractorStyleJoystickCamera::OnMiddleButtonDown()
 {
-  this->FindPokedRenderer(x, y);
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+                          this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
     {
     return;
@@ -139,10 +132,7 @@ void vtkInteractorStyleJoystickCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp(int vtkNotUsed(ctrl),
-                                                        int vtkNotUsed(shift), 
-                                                        int vtkNotUsed(x),
-                                                        int vtkNotUsed(y)) 
+void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp() 
 {
   switch (this->State) 
     {
@@ -153,12 +143,10 @@ void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnRightButtonDown(int vtkNotUsed(ctrl),
-                                                         int vtkNotUsed(shift), 
-                                                         int x, 
-                                                         int y)
+void vtkInteractorStyleJoystickCamera::OnRightButtonDown()
 {
-  this->FindPokedRenderer(x, y);
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+                          this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
     {
     return;
@@ -168,10 +156,7 @@ void vtkInteractorStyleJoystickCamera::OnRightButtonDown(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnRightButtonUp(int vtkNotUsed(ctrl), 
-                                                       int vtkNotUsed(shift), 
-                                                       int vtkNotUsed(x), 
-                                                       int vtkNotUsed(y))
+void vtkInteractorStyleJoystickCamera::OnRightButtonUp()
 {
   switch (this->State) 
     {

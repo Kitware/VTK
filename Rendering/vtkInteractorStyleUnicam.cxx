@@ -32,7 +32,7 @@
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.22");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.23");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 vtkInteractorStyleUnicam::vtkInteractorStyleUnicam()
@@ -82,7 +82,7 @@ void vtkInteractorStyleUnicam::PrintSelf(ostream& os, vtkIndent indent)
 //   os << indent << "WorldUpVector: " << this->WorldUpVector;
 }
 
-void vtkInteractorStyleUnicam::OnTimer(void) 
+void vtkInteractorStyleUnicam::OnTimer() 
 {
   if (this->ButtonDown != VTK_UNICAM_NONE) 
     {
@@ -102,10 +102,11 @@ void vtkInteractorStyleUnicam::SetWorldUpVector(float x, float y, float z)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::OnLeftButtonDown(int vtkNotUsed(ctrl),
-                                                int vtkNotUsed(shift), 
-                                                int X, int Y) 
+void vtkInteractorStyleUnicam::OnLeftButtonDown() 
 {
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+
   this->ButtonDown = VTK_UNICAM_BUTTON_LEFT;
     if (this->UseTimers) 
       {
@@ -117,12 +118,12 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown(int vtkNotUsed(ctrl),
 
   // cam manip init
   float curpt[2];
-  this->NormalizeMouseXY(X, Y, &curpt[0], &curpt[1]);
+  this->NormalizeMouseXY(x, y, &curpt[0], &curpt[1]);
   this->LastPos[0] = curpt[0];
   this->LastPos[1] = curpt[1];
 
-  this->StartPix[0] = this->LastPix[0] = X;
-  this->StartPix[1] = this->LastPix[1] = Y;
+  this->StartPix[0] = this->LastPix[0] = x;
+  this->StartPix[1] = this->LastPix[1] = y;
 
   // Find 'this->DownPt'  (point in world space under the cursor tip)
   // 
@@ -131,8 +132,8 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown(int vtkNotUsed(ctrl),
   // to the distance from the camera's position to the focal point.
   // This seems like an arbitrary, but perhaps reasonable, default value.
   // 
-  this->FindPokedRenderer(X, Y);
-  this->InteractionPicker->Pick(X, Y, 0.0, this->CurrentRenderer);
+  this->FindPokedRenderer(x, y);
+  this->InteractionPicker->Pick(x, y, 0.0, this->CurrentRenderer);
   this->InteractionPicker->GetPickPosition(this->DownPt);
 
   // if someone has already clicked to make a dot and they're not clicking 
@@ -173,12 +174,15 @@ void vtkInteractorStyleUnicam::NormalizeMouseXY(int X, int Y,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::OnMouseMove(int ctrl, int shift, int X, int Y)
+void vtkInteractorStyleUnicam::OnMouseMove()
 {
-  // filter out any repeated events
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+
+ // filter out any repeated events
   static int last_X = 0;
   static int last_Y = 0;
-  if (X == last_X && Y == last_Y)
+  if (x == last_X && y == last_Y)
     {
     return;
     }
@@ -187,27 +191,22 @@ void vtkInteractorStyleUnicam::OnMouseMove(int ctrl, int shift, int X, int Y)
   switch (this->ButtonDown) 
     {
     case VTK_UNICAM_BUTTON_LEFT:
-      OnLeftButtonMove  (ctrl, shift, X, Y);
-      break;
-    case VTK_UNICAM_BUTTON_MIDDLE:
-      OnMiddleButtonMove(ctrl, shift, X, Y);
-      break;
-    case VTK_UNICAM_BUTTON_RIGHT:
-      OnRightButtonMove (ctrl, shift, X, Y);
+      OnLeftButtonMove();
       break;
     }
 
-  last_X = X;
-  last_Y = Y;
+  last_X = x;
+  last_Y = y;
 
   this->Interactor->Render();  // re-draw scene.. it should have changed
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::OnLeftButtonUp(int vtkNotUsed(ctrl),
-                                              int vtkNotUsed(shift), 
-                                              int X, int Y) 
+void vtkInteractorStyleUnicam::OnLeftButtonUp() 
 {
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+
   this->ButtonDown = VTK_UNICAM_NONE;
 
   if (state == VTK_UNICAM_CAM_INT_ROT && this->IsDot ) 
@@ -227,7 +226,7 @@ void vtkInteractorStyleUnicam::OnLeftButtonUp(int vtkNotUsed(ctrl),
       this->FocusSphere->SetPosition(this->DownPt);
 
       float from[3];
-      this->FindPokedRenderer(X, Y);
+      this->FindPokedRenderer(x, y);
       vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
       camera->GetPosition(from);
 
@@ -245,7 +244,7 @@ void vtkInteractorStyleUnicam::OnLeftButtonUp(int vtkNotUsed(ctrl),
 
       this->FocusSphere->SetScale   (s, s, s);
 
-      this->FindPokedRenderer(X, Y);
+      this->FindPokedRenderer(x, y);
       this->FocusSphereRenderer = this->CurrentRenderer;
       this->FocusSphereRenderer->AddActor(this->FocusSphere);
 
@@ -264,16 +263,17 @@ void vtkInteractorStyleUnicam::OnLeftButtonUp(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::OnLeftButtonMove(int vtkNotUsed(ctrl),
-                                                int vtkNotUsed(shift),
-                                                int X, int Y)
+void vtkInteractorStyleUnicam::OnLeftButtonMove()
 {
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+
   switch (state) 
     {
-    case VTK_UNICAM_CAM_INT_CHOOSE:   this->ChooseXY(X, Y); break;
-    case VTK_UNICAM_CAM_INT_ROT:      this->RotateXY(X, Y); break;
-    case VTK_UNICAM_CAM_INT_PAN:      this->PanXY(X, Y); break;
-    case VTK_UNICAM_CAM_INT_DOLLY:    this->DollyXY(X, Y); break;
+    case VTK_UNICAM_CAM_INT_CHOOSE:   this->ChooseXY(x, y); break;
+    case VTK_UNICAM_CAM_INT_ROT:      this->RotateXY(x, y); break;
+    case VTK_UNICAM_CAM_INT_PAN:      this->PanXY(x, y); break;
+    case VTK_UNICAM_CAM_INT_DOLLY:    this->DollyXY(x, y); break;
     }
 }
 

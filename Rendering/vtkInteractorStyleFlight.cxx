@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.21");
+vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.22");
 vtkStandardNewMacro(vtkInteractorStyleFlight);
 
 //---------------------------------------------------------------------------
@@ -80,7 +80,7 @@ void vtkInteractorStyleFlight::DoTimerStop(void)
 //---------------------------------------------------------------------------
 // All actual motion is performed in the timer
 //---------------------------------------------------------------------------
-void vtkInteractorStyleFlight::OnTimer(void) 
+void vtkInteractorStyleFlight::OnTimer() 
 {
   // if we get a timer message we weren't expecting, just shut it down
   if (!this->Flying && 
@@ -150,10 +150,7 @@ void vtkInteractorStyleFlight::OnTimer(void)
 //---------------------------------------------------------------------------
 // Mouse event handlers
 //---------------------------------------------------------------------------
-void vtkInteractorStyleFlight::OnMouseMove(int vtkNotUsed(ctrl), 
-                                           int vtkNotUsed(shift),
-                                           int x, 
-                                           int y) 
+void vtkInteractorStyleFlight::OnMouseMove() 
 {
   if (this->AzimuthScanning) 
     {
@@ -162,15 +159,13 @@ void vtkInteractorStyleFlight::OnMouseMove(int vtkNotUsed(ctrl),
 
   if (this->Flying || this->Reversing) 
     {
-    this->UpdateMouseSteering(x, y);
+    this->UpdateMouseSteering(this->Interactor->GetEventPosition()[0], 
+                              this->Interactor->GetEventPosition()[1]);
     }
 }
 
 //---------------------------------------------------------------------------
-void vtkInteractorStyleFlight::OnLeftButtonDown(int vtkNotUsed(ctrl), 
-                                                int vtkNotUsed(shift), 
-                                                int x, 
-                                                int y)
+void vtkInteractorStyleFlight::OnLeftButtonDown()
 {
   if (this->AzimuthScanning) 
     {
@@ -178,29 +173,23 @@ void vtkInteractorStyleFlight::OnLeftButtonDown(int vtkNotUsed(ctrl),
     }
   if (!this->Reversing) 
     {
-    this->LastPos[0]        = this->X2 = x;
-    this->LastPos[1]        = this->Y2 = y;
-    this->YawAngle   = 0;
+    this->LastPos[0] = this->X2 = this->Interactor->GetEventPosition()[0];
+    this->LastPos[1] = this->Y2 = this->Interactor->GetEventPosition()[1];
+    this->YawAngle = 0;
     this->PitchAngle = 0;
     this->DoTimerStart();
     }
-  this->Flying       = 1;
+  this->Flying = 1;
 }
 
 //---------------------------------------------------------------------------
-void vtkInteractorStyleFlight::OnLeftButtonUp(int vtkNotUsed(ctrl), 
-                                              int vtkNotUsed(shift), 
-                                              int vtkNotUsed(x), 
-                                              int vtkNotUsed(y))
+void vtkInteractorStyleFlight::OnLeftButtonUp()
 {
-  this->Flying       =  0;
+  this->Flying =  0;
 }
 
 //---------------------------------------------------------------------------
-void vtkInteractorStyleFlight::OnMiddleButtonDown(int vtkNotUsed(ctrl), 
-                                                  int vtkNotUsed(shift), 
-                                                  int vtkNotUsed(x), 
-                                                  int vtkNotUsed(y))
+void vtkInteractorStyleFlight::OnMiddleButtonDown()
 {
   if (this->AzimuthScanning) 
     {
@@ -211,18 +200,12 @@ void vtkInteractorStyleFlight::OnMiddleButtonDown(int vtkNotUsed(ctrl),
 }
 
 //---------------------------------------------------------------------------
-void vtkInteractorStyleFlight::OnMiddleButtonUp(int vtkNotUsed(ctrl), 
-                                                int vtkNotUsed(shift), 
-                                                int vtkNotUsed(x), 
-                                                int vtkNotUsed(y))
+void vtkInteractorStyleFlight::OnMiddleButtonUp()
 {
 }
 
 //---------------------------------------------------------------------------
-void vtkInteractorStyleFlight::OnRightButtonDown(int vtkNotUsed(ctrl), 
-                                                 int vtkNotUsed(shift), 
-                                                 int x, 
-                                                 int y)
+void vtkInteractorStyleFlight::OnRightButtonDown()
 {
   if (this->AzimuthScanning)
     {
@@ -230,8 +213,8 @@ void vtkInteractorStyleFlight::OnRightButtonDown(int vtkNotUsed(ctrl),
     }
   if (!this->Flying) 
     {
-    this->LastPos[0]        = this->X2 = x;
-    this->LastPos[1]        = this->Y2 = y;
+    this->LastPos[0] = this->X2 = this->Interactor->GetEventPosition()[0];
+    this->LastPos[1] = this->Y2 = this->Interactor->GetEventPosition()[1];
     this->YawAngle   = 0;
     this->PitchAngle = 0;
     this->DoTimerStart();
@@ -240,12 +223,9 @@ void vtkInteractorStyleFlight::OnRightButtonDown(int vtkNotUsed(ctrl),
 }
 
 //---------------------------------------------------------------------------
-void vtkInteractorStyleFlight::OnRightButtonUp(int vtkNotUsed(ctrl), 
-                                               int vtkNotUsed(shift), 
-                                               int vtkNotUsed(x), 
-                                               int vtkNotUsed(y))
+void vtkInteractorStyleFlight::OnRightButtonUp()
 {
-  this->Reversing    =  0;
+  this->Reversing =  0;
 }
 
 //---------------------------------------------------------------------------
@@ -253,10 +233,7 @@ void vtkInteractorStyleFlight::OnRightButtonUp(int vtkNotUsed(ctrl),
 // Note, OnChar is a key press down and then up event
 // Note, OnKeyDown/OnKeyUp are more sensitive for controlling motion
 //---------------------------------------------------------------------------
-void vtkInteractorStyleFlight::OnKeyDown(int vtkNotUsed(ctrl), 
-                                         int vtkNotUsed(shift), 
-                                         char keycode, 
-                                         int vtkNotUsed(repeatcount))
+void vtkInteractorStyleFlight::OnKeyDown()
 {
   if (this->AzimuthScanning) 
     {
@@ -265,7 +242,7 @@ void vtkInteractorStyleFlight::OnKeyDown(int vtkNotUsed(ctrl),
   // New Flight mode behaviour
   // Note that we'll need #defines for ARROW key defs under non win32 OS
 #ifdef _WIN32
-  switch (keycode)
+  switch (this->Interactor->GetKeyCode())
     {
     case VK_LEFT        : this->KeysDown |=1;  break;
     case VK_RIGHT       : this->KeysDown |=2;  break;
@@ -284,7 +261,7 @@ void vtkInteractorStyleFlight::OnKeyDown(int vtkNotUsed(ctrl),
 #else
   // the following if statement is a dummy one to prevent keycode not used
   // warnings under unix, (until the correct keycodes are supplied)
-  if (keycode==0x7F)
+  if (this->Interactor->GetKeyCode() == 0x7F)
     {
     vtkWarningMacro(<<"Dummy test to prevent compiler warning");
     }
@@ -292,13 +269,10 @@ void vtkInteractorStyleFlight::OnKeyDown(int vtkNotUsed(ctrl),
 }
 
 //---------------------------------------------------------------------------
-void vtkInteractorStyleFlight::OnKeyUp(int vtkNotUsed(ctrl), 
-                                       int vtkNotUsed(shift), 
-                                       char keycode, 
-                                       int vtkNotUsed(repeatcount))
+void vtkInteractorStyleFlight::OnKeyUp()
 {
 #ifdef _WIN32
-  switch (keycode)
+  switch (this->Interactor->GetKeyCode())
     {
     case VK_LEFT        : this->KeysDown &= ~1;  break;
     case VK_RIGHT       : this->KeysDown &= ~2;  break;
@@ -312,7 +286,7 @@ void vtkInteractorStyleFlight::OnKeyUp(int vtkNotUsed(ctrl),
 #else
   // the following if statement is a dummy one to prevent keycode not used
   // warnings under unix, (until the correct keycodes are supplied)
-  if (keycode==0x7F)
+  if (this->Interactor->GetKeyCode() == 0x7F)
     {
     vtkWarningMacro(<<"Dummy test to prevent compiler warning");
     }
@@ -320,12 +294,9 @@ void vtkInteractorStyleFlight::OnKeyUp(int vtkNotUsed(ctrl),
 }
 
 //---------------------------------------------------------------------------
-void vtkInteractorStyleFlight::OnChar(int ctrl, 
-                                      int shift, 
-                                      char keycode, 
-                                      int repeatcount)
+void vtkInteractorStyleFlight::OnChar()
 {
-  switch (keycode)
+  switch (this->Interactor->GetKeyCode())
     {
     case '+' :
       this->MotionUserScale *= 2.0;
@@ -338,7 +309,7 @@ void vtkInteractorStyleFlight::OnChar(int ctrl,
       this->PerformAzimuthalScan(360);
       break;
     default:
-      this->Superclass::OnChar(ctrl, shift, keycode, repeatcount);
+      this->Superclass::OnChar();
       break;
     }
 }

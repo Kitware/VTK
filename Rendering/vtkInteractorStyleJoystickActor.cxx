@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.21");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.22");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -38,11 +38,11 @@ vtkInteractorStyleJoystickActor::~vtkInteractorStyleJoystickActor()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnMouseMove(int vtkNotUsed(ctrl), 
-                                                  int vtkNotUsed(shift),
-                                                  int x, 
-                                                  int y) 
+void vtkInteractorStyleJoystickActor::OnMouseMove() 
 {
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+
   switch (this->State) 
     {
     case VTKIS_ROTATE:
@@ -68,11 +68,11 @@ void vtkInteractorStyleJoystickActor::OnMouseMove(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnLeftButtonDown(int ctrl, 
-                                                       int shift, 
-                                                       int x, 
-                                                       int y) 
+void vtkInteractorStyleJoystickActor::OnLeftButtonDown() 
 {
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
@@ -80,11 +80,11 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonDown(int ctrl,
     return;
     }
 
-  if (shift)
+  if (this->Interactor->GetShiftKey())
     {
     this->StartPan();
     }
-  else if (ctrl)
+  else if (this->Interactor->GetControlKey())
     {
     this->StartSpin();
     }
@@ -95,10 +95,7 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonDown(int ctrl,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
-                                                     int vtkNotUsed(shift), 
-                                                     int vtkNotUsed(x), 
-                                                     int vtkNotUsed(y)) 
+void vtkInteractorStyleJoystickActor::OnLeftButtonUp() 
 {
   switch (this->State) 
     {
@@ -117,11 +114,11 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnMiddleButtonDown(int ctrl, 
-                                                         int vtkNotUsed(shift), 
-                                                         int x, 
-                                                         int y) 
+void vtkInteractorStyleJoystickActor::OnMiddleButtonDown() 
 {
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
@@ -129,7 +126,7 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonDown(int ctrl,
     return;
     }
 
-  if (ctrl)
+  if (this->Interactor->GetControlKey())
     {
     this->StartDolly();
     }
@@ -140,10 +137,7 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonDown(int ctrl,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnMiddleButtonUp(int vtkNotUsed(ctrl),
-                                                       int vtkNotUsed(shift), 
-                                                       int vtkNotUsed(x),
-                                                       int vtkNotUsed(y)) 
+void vtkInteractorStyleJoystickActor::OnMiddleButtonUp() 
 {
   switch (this->State) 
     {
@@ -158,11 +152,11 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonUp(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnRightButtonDown(int vtkNotUsed(ctrl),
-                                                        int vtkNotUsed(shift), 
-                                                        int x, 
-                                                        int y) 
+void vtkInteractorStyleJoystickActor::OnRightButtonDown() 
 {
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
@@ -174,10 +168,7 @@ void vtkInteractorStyleJoystickActor::OnRightButtonDown(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::OnRightButtonUp(int vtkNotUsed(ctrl),
-                                                      int vtkNotUsed(shift), 
-                                                      int vtkNotUsed(x),
-                                                      int vtkNotUsed(y)) 
+void vtkInteractorStyleJoystickActor::OnRightButtonUp() 
 {
   switch (this->State) 
     {

@@ -165,77 +165,36 @@ public:
   vtkBooleanMacro(HandleObservers,int);
 
   // Description:
-  // Callbacks so that the application can override the default behaviour.
-  void SetLeftButtonPressMethod(void (*f)(void *), void *arg);
-  void SetLeftButtonPressMethodArgDelete(void (*f)(void *));
-  void SetLeftButtonReleaseMethod(void (*f)(void *), void *arg);
-  void SetLeftButtonReleaseMethodArgDelete(void (*f)(void *));
-  void SetMiddleButtonPressMethod(void (*f)(void *), void *arg);
-  void SetMiddleButtonPressMethodArgDelete(void (*f)(void *));
-  void SetMiddleButtonReleaseMethod(void (*f)(void *), void *arg);
-  void SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *));
-  void SetRightButtonPressMethod(void (*f)(void *), void *arg);
-  void SetRightButtonPressMethodArgDelete(void (*f)(void *));
-  void SetRightButtonReleaseMethod(void (*f)(void *), void *arg);
-  void SetRightButtonReleaseMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // When picking successfully selects an actor, this method highlights the
-  // picked prop appropriately. Currently this is done by placing a bounding 
-  // box around a picked vtkProp3D, and using the PickColor to highlight a
-  // vtkProp2D. 
-  virtual void HighlightProp(vtkProp *prop);
-  virtual void HighlightActor2D(vtkActor2D *actor2D);
-  virtual void HighlightProp3D(vtkProp3D *prop3D);
-
-  // Description:
-  // Set/Get the pick color (used by default to color vtkActor2D's).
-  // The color is expressed as red/green/blue values between (0.0,1.0).
-  vtkSetVector3Macro(PickColor,float);
-  vtkGetVectorMacro(PickColor, float, 3);
-
-protected:
-  vtkInteractorStyle();
-  ~vtkInteractorStyle();
-
-  // Description:
   // Generic event bindings must be overridden in subclasses
-  virtual void OnMouseMove       (int ctrl, int shift, int x, int y) {};
-  virtual void OnLeftButtonDown  (int ctrl, int shift, int x, int y) {};
-  virtual void OnLeftButtonUp    (int ctrl, int shift, int x, int y) {};
-  virtual void OnMiddleButtonDown(int ctrl, int shift, int x, int y) {};
-  virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int y) {};
-  virtual void OnRightButtonDown (int ctrl, int shift, int x, int y) {};
-  virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y) {};
+  virtual void OnMouseMove() {};
+  virtual void OnLeftButtonDown() {};
+  virtual void OnLeftButtonUp() {};
+  virtual void OnMiddleButtonDown() {};
+  virtual void OnMiddleButtonUp() {};
+  virtual void OnRightButtonDown() {};
+  virtual void OnRightButtonUp() {};
 
   // Description:
   // OnChar implements keyboard functions, but subclasses can override this 
   // behavior
-  virtual void OnChar (int ctrl, int shift, char keycode, int repeatcount);
-  virtual void OnKeyDown (int ctrl, int shift, char keycode, int repeatcount) {};
-  virtual void OnKeyUp (int ctrl, int shift, char keycode, int repeatcount) {};
-
-  virtual void OnKeyPress(int ctrl, int shift, char keycode, char *keysym, 
-                          int repeatcount) {};
-  virtual void OnKeyRelease(int ctrl, int shift, char keycode, char *keysym,
-                            int repeatcount) {};
+  virtual void OnChar();
+  virtual void OnKeyDown() {};
+  virtual void OnKeyUp() {};
+  virtual void OnKeyPress() {};
+  virtual void OnKeyRelease() {};
 
   // Description:
   // These are more esoteric events, but are useful in some cases.
-  virtual void OnExpose   (int x, int y, int width, int height) {};
-  virtual void OnConfigure(int width, int height) {};
-  virtual void OnEnter    (int x, int y) {};
-  virtual void OnLeave    (int x, int y) {};
+  virtual void OnExpose() {};
+  virtual void OnConfigure() {};
+  virtual void OnEnter() {};
+  virtual void OnLeave() {};
 
   // Description:
   // OnTimer calls Rotate, Rotate etc which should be overridden by
   // style subclasses.
   virtual void OnTimer();
 
-  // Description:
-  // Will the clipping range be automatically adjust before each render?
-  void ResetCameraClippingRange();
-  
   // Description:
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
@@ -272,6 +231,44 @@ protected:
   virtual void StartTimer();
   virtual void EndTimer();
 
+  // Description:
+  // Callbacks so that the application can override the default behaviour.
+  void SetLeftButtonPressMethod(void (*f)(void *), void *arg);
+  void SetLeftButtonPressMethodArgDelete(void (*f)(void *));
+  void SetLeftButtonReleaseMethod(void (*f)(void *), void *arg);
+  void SetLeftButtonReleaseMethodArgDelete(void (*f)(void *));
+  void SetMiddleButtonPressMethod(void (*f)(void *), void *arg);
+  void SetMiddleButtonPressMethodArgDelete(void (*f)(void *));
+  void SetMiddleButtonReleaseMethod(void (*f)(void *), void *arg);
+  void SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *));
+  void SetRightButtonPressMethod(void (*f)(void *), void *arg);
+  void SetRightButtonPressMethodArgDelete(void (*f)(void *));
+  void SetRightButtonReleaseMethod(void (*f)(void *), void *arg);
+  void SetRightButtonReleaseMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // When picking successfully selects an actor, this method highlights the
+  // picked prop appropriately. Currently this is done by placing a bounding 
+  // box around a picked vtkProp3D, and using the PickColor to highlight a
+  // vtkProp2D. 
+  virtual void HighlightProp(vtkProp *prop);
+  virtual void HighlightActor2D(vtkActor2D *actor2D);
+  virtual void HighlightProp3D(vtkProp3D *prop3D);
+
+  // Description:
+  // Set/Get the pick color (used by default to color vtkActor2D's).
+  // The color is expressed as red/green/blue values between (0.0,1.0).
+  vtkSetVector3Macro(PickColor,float);
+  vtkGetVectorMacro(PickColor, float, 3);
+
+protected:
+  vtkInteractorStyle();
+  ~vtkInteractorStyle();
+
+  // Description:
+  // Will the clipping range be automatically adjust before each render?
+  void ResetCameraClippingRange();
+  
   // Description:
   // Main process event method
   static void ProcessEvents(vtkObject* object, 

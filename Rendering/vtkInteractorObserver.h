@@ -108,6 +108,9 @@ public:
   vtkSetMacro(KeyPressActivationValue,char);
   vtkGetMacro(KeyPressActivationValue,char);
 
+  // Sets up the keypress-i event. 
+  virtual void OnChar();
+  
 protected:
   vtkInteractorObserver();
   ~vtkInteractorObserver();
@@ -118,9 +121,6 @@ protected:
                             void* clientdata, 
                             void* calldata);
 
-  // Sets up the keypress-i event. 
-  void OnChar(int ctrl, int shift, char keycode, int repeatcount);
-  
   // helper method for subclasses
   void ComputeDisplayToWorld(double x, double y, double z, 
                              double worldPt[4]);

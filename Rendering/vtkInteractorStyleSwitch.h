@@ -66,14 +66,14 @@ public:
   void SetCurrentStyleToTrackballActor();
   void SetCurrentStyleToTrackballCamera();
 
-protected:
-  vtkInteractorStyleSwitch();
-  ~vtkInteractorStyleSwitch();
-  
   // Description:
   // Only care about the char event, which is used to switch between
   // different styles.
-  virtual void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
+  virtual void OnChar();
+  
+protected:
+  vtkInteractorStyleSwitch();
+  ~vtkInteractorStyleSwitch();
   
   void SetCurrentStyle();
   

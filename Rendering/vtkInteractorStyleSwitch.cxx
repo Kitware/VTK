@@ -24,7 +24,7 @@
 #include "vtkInteractorStyleTrackballActor.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.16");
+vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.17");
 vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
 //----------------------------------------------------------------------------
@@ -112,12 +112,9 @@ void vtkInteractorStyleSwitch::SetCurrentStyleToTrackballCamera()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleSwitch::OnChar(int vtkNotUsed(ctrl), 
-                                      int vtkNotUsed(shift), 
-                                      char keycode,
-                                      int vtkNotUsed(repeatcount)) 
+void vtkInteractorStyleSwitch::OnChar() 
 {
-  switch (keycode)
+  switch (this->Interactor->GetKeyCode())
     {
     case 'j':
     case 'J':

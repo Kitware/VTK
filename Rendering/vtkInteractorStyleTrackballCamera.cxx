@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.23");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.24");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
@@ -40,11 +40,11 @@ vtkInteractorStyleTrackballCamera::~vtkInteractorStyleTrackballCamera()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnMouseMove(int vtkNotUsed(ctrl), 
-                                                    int vtkNotUsed(shift),
-                                                    int x, 
-                                                    int y) 
+void vtkInteractorStyleTrackballCamera::OnMouseMove() 
 { 
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+
   switch (this->State) 
     {
     case VTKIS_ROTATE:
@@ -70,20 +70,18 @@ void vtkInteractorStyleTrackballCamera::OnMouseMove(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl, 
-                                                         int shift, 
-                                                         int x, 
-                                                         int y) 
+void vtkInteractorStyleTrackballCamera::OnLeftButtonDown() 
 { 
-  this->FindPokedRenderer(x, y);
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+                          this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
     {
     return;
     }
   
-  if (shift) 
+  if (this->Interactor->GetShiftKey()) 
     {
-    if (ctrl) 
+    if (this->Interactor->GetControlKey()) 
       {
       this->StartDolly();
       }
@@ -94,7 +92,7 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl,
     } 
   else 
     {
-    if (ctrl) 
+    if (this->Interactor->GetControlKey()) 
       {
       this->StartSpin();
       }
@@ -106,10 +104,7 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnLeftButtonUp(int vtkNotUsed(ctrl),
-                                                       int vtkNotUsed(shift), 
-                                                       int vtkNotUsed(x),
-                                                       int vtkNotUsed(y))
+void vtkInteractorStyleTrackballCamera::OnLeftButtonUp()
 {
   switch (this->State) 
     {
@@ -132,12 +127,10 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonUp(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
-                                                           int vtkNotUsed(shift), 
-                                                           int x, 
-                                                           int y) 
+void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown() 
 {
-  this->FindPokedRenderer(x, y);
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+                          this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
     {
     return;
@@ -147,10 +140,7 @@ void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnMiddleButtonUp(int vtkNotUsed(ctrl),
-                                                         int vtkNotUsed(shift), 
-                                                         int vtkNotUsed(x),
-                                                         int vtkNotUsed(y))
+void vtkInteractorStyleTrackballCamera::OnMiddleButtonUp()
 {
   switch (this->State) 
     {
@@ -161,12 +151,10 @@ void vtkInteractorStyleTrackballCamera::OnMiddleButtonUp(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnRightButtonDown(int vtkNotUsed(ctrl),
-                                                          int vtkNotUsed(shift), 
-                                                          int x, 
-                                                          int y) 
+void vtkInteractorStyleTrackballCamera::OnRightButtonDown() 
 {
-  this->FindPokedRenderer(x, y);
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+                          this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
     {
     return;
@@ -176,10 +164,7 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonDown(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::OnRightButtonUp(int vtkNotUsed(ctrl),
-                                                        int vtkNotUsed(shift), 
-                                                        int vtkNotUsed(x),
-                                                        int vtkNotUsed(y))
+void vtkInteractorStyleTrackballCamera::OnRightButtonUp()
 {
   switch (this->State) 
     {
