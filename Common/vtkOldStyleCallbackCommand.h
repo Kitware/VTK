@@ -15,7 +15,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOldStyleCallbackCommand - old syntax for callbacks
+// .NAME vtkOldStyleCallbackCommand - supports old-style function callbacks for VTK
+// .SECTION Description
+// vtkOldStyleCallbackCommand is a callback that supports the legacy callbcak
+// methods found in VTK. For example, the legacy method
+// vtkProcessObject::SetStartMethod() is actually invoked using the
+// command/observer design pattern of VTK, and the vtkOldStyleCallbackCommand
+// is used to provide the legacy functionality. The function should have the
+// format void func(vtkObject *,void *clientdata, void *calldata).
+
+// .SECTION See Also
+// vtkCommand vtkCallCommand
 
 #ifndef __vtkOldStyleCallbackCommand_h
 #define __vtkOldStyleCallbackCommand_h
@@ -29,6 +39,12 @@ public:
   static vtkOldStyleCallbackCommand *New() 
     {return new vtkOldStyleCallbackCommand;};
 
+  // Description:
+  // Satisfy the superclass API for callbacks.
+  void Execute(vtkObject *,unsigned long, void *);
+
+  // Description:
+  // Methods to set and get client and callback information.
   void SetClientData(void *cd) 
     {this->ClientData = cd;};
   void SetCallback(void (*f)(void *)) 
@@ -36,11 +52,10 @@ public:
   void SetClientDataDeleteCallback(void (*f)(void *))
     {this->ClientDataDeleteCallback = f;};
   
-  void Execute(vtkObject *,unsigned long, void *);
-
   void *ClientData;
   void (*Callback)(void *);
   void (*ClientDataDeleteCallback)(void *);
+
 protected:
   vtkOldStyleCallbackCommand();
   ~vtkOldStyleCallbackCommand();
