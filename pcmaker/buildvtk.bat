@@ -49,12 +49,12 @@ goto build
 rem  Generate Makefiles
 rem  usage:  pcmaker vtkHome BuildLocation MSVCLoc JDKLoc useMS useBorland
 rem          doDebug doPatented useNullDebugMacro doGraphics doImagig doContrib
-rem          doGEMSIO doGEMSIP doGEMSVOLUME
+rem          doWorking doGEMSIO/IP doGEMSVOLUME
 :do_config
 
 echo beginning pcmaker config at >> %vtk_build_log%
 time /t >> %vtk_build_log%
-%vtk_source_tree%\pcmaker\Debug\pcmaker.exe %vtk_source_tree% %vtk_build_tree% c:\msdev 0 1 0 0 1 1 1 0 0 1 0 1 >> %vtk_build_log%
+%vtk_source_tree%\pcmaker\Debug\pcmaker.exe %vtk_source_tree% %vtk_build_tree% c:\msdev 0 1 0 0 1 1 1 0 0 0 1 1 >> %vtk_build_log%
 
 
 :build
@@ -93,12 +93,12 @@ goto builddbg
 rem  Generate debug version of Makefiles
 rem  usage:  pcmaker vtkHome BuildLocation MSVCLoc JDKLoc useMS useBorland
 rem          doDebug doPatented useNullDebugMacro doGraphics doImagig doContrib
-rem          doGEMSIO doGEMSIP doGEMSVOLUME
+rem          doWorking doGEMSIO/IP doGEMSVOLUME
 :do_configdbg
 
 echo beginning pcmaker config for debug version at >> %vtk_build_log%
 time /t >> %vtk_build_log%
-%vtk_source_tree%\pcmaker\Debug\pcmaker.exe %vtk_source_tree% %vtk_builddbg_tree% c:\msdev 0 1 0 1 1 0 1 0 0 1 0 1 >> %vtk_build_log%
+%vtk_source_tree%\pcmaker\Debug\pcmaker.exe %vtk_source_tree% %vtk_builddbg_tree% c:\msdev 0 1 0 1 1 0 1 0 0 0 1 1 >> %vtk_build_log%
 
 
 :builddbg
