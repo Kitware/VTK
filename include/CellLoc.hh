@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .SECTION Description
 // vlCellLocator is a spatial search object to quickly locate cells in 3-D.
 // vlCellLocator uses a uniform-level octree subdivision, where each octant
-// carries an indication of whether it is empty or not, and a list of the
+// carries an indication of whether it is empty or not, a list of the
 // cells inside of it. (An octant is not empty if it has one or more cells
 // inside of it). Typical operation are intersection with a line to return
 // candidate cells, or intersection with another vlCellLocator to return 
@@ -95,8 +95,14 @@ protected:
   int NumberOfCellsInOctant; // Used with previous boolean to control subdivide
   float Tolerance; // for performing intersection
   float Bounds[6]; // bounding box root octant
+  int NumberOfParents; // number of parent octants
+  float H[3]; // width of root octant in x-y-z directions
+  int NumberOfDivisions; // number of "leaf" octant sub-divisions
   vlIdList **Tree; // octree
   vlTimeStamp SubDivideTime;  
+
+  void MarkParents(void*, int i, int j, int k);
+  void GetChildren(int idx, int level, int children[8]);
 };
 
 #endif

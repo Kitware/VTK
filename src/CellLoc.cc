@@ -36,6 +36,8 @@ vlCellLocator::vlCellLocator()
   this->NumberOfCellsInOctant = 25;
   this->Tolerance = 0.01;
   this->Tree = NULL;
+  this->H[0] = this->H[1] = this->H[2] = 1.0;
+  this->NumberOfDivisions = 1;
 }
 
 vlCellLocator::~vlCellLocator()
@@ -111,12 +113,13 @@ void vlCellLocator::SubDivide()
   float *bounds, *cellBounds;
   int numCells;
   float level;
-  int ndivs[3], product;
+  int ndivs, product;
   int i, j, k, cellId, ijkMin[3], ijkMax[3];
-  int idx;
+  int idx, parentOffset;
   vlIdList *octant;
   int numCellsInOctant = this->NumberOfCellsInOctant;
   typedef vlIdList *vlIdListPtr;
+  int prod, numOctants;
 
   if ( this->Tree != NULL && this->SubDivideTime > this->MTime ) return;
 
@@ -140,33 +143,33 @@ void vlCellLocator::SubDivide()
 
   if ( this->Automatic ) 
     {
-    level = (float) numCells / numCellsInOctant;
-    level = ceil( pow((double)level,(double)0.33333333) );
-    for (i=0; i<3; i++) ndivs[i] = (int) level;
+    this->Level = (int) (ceil(log((double)numCells/numCellsInOctant) / 
+                              (log((double) 8.0))));
+    this->Level =(this->Level > this->MaxLevel ? this->MaxLevel : this->Level);
     } 
-  else 
-    {
-//    this->Divisions[i] = ndivs[i]; 
-    }
 
-  for (i=0; i<3; i++) 
+  // compute number of octants and number of divisions
+  for (ndivs=1,prod=1,numOctants=1,i=0; i<this->Level; i++) 
     {
-    ndivs[i] = (ndivs[i] > 0 ? ndivs[i] : 1);
-//    this->Divisions[i] = ndivs[i];
+    ndivs *= 2;
+    prod *= 8;
+    numOctants += prod;
     }
+  this->NumberOfDivisions = ndivs;
+  this->NumberOfOctants = numOctants;
 
-//  this->NumberOfCells = numCells = ndivs[0]*ndivs[1]*ndivs[2];
-  this->Tree = new vlIdListPtr[numCells];
-//  memset (this->HashTable, (int)NULL, numCells*sizeof(vlIdListPtr));
+  this->Tree = new vlIdListPtr[numOctants];
+  memset (this->Tree, (int)NULL, numOctants*sizeof(vlIdListPtr));
 //
-//  Compute width of octant in three directions
+//  Compute width of leaf octant in three directions
 //
-//  for (i=0; i<3; i++) this->H[i] = (bounds[2*i+1] - bounds[2*i]) / ndivs[i] ;
+  for (i=0; i<3; i++) this->H[i] = (bounds[2*i+1] - bounds[2*i]) / ndivs;
 //
 //  Insert each cell into the appropriate octant.  Make sure cell
 //  falls within octant.
 //
-  product = ndivs[0]*ndivs[1];
+  parentOffset = numOctants - (ndivs * ndivs * ndivs);
+  product = ndivs * ndivs;
   for (cellId=0; cellId<numCells; cellId++) 
     {
     cell = this->DataSet->GetCell(cellId);
@@ -176,9 +179,9 @@ void vlCellLocator::SubDivide()
     for (i=0; i<3; i++)
       {
       ijkMin[i] = (int) ((float) ((cellBounds[2*i] - bounds[2*i])*0.999 / 
-                         (bounds[2*i+1] - bounds[2*i])) * ndivs[i]);
+                         (bounds[2*i+1] - bounds[2*i])) * ndivs);
       ijkMax[i] = (int) ((float) ((cellBounds[2*i+1] - bounds[2*i])*0.999 / 
-                         (bounds[2*i+1] - bounds[2*i])) * ndivs[i]);
+                         (bounds[2*i+1] - bounds[2*i])) * ndivs);
       }
     
     // each octant inbetween min/max point may have cell in it
@@ -188,11 +191,12 @@ void vlCellLocator::SubDivide()
         {
         for ( i = ijkMin[0]; i <= ijkMin[0]; i++ )
           {
-          idx = i + j*ndivs[0] + k*product;
+          this->MarkParents((void*)INSIDE,i,j,k);
+          idx = parentOffset + i + j*ndivs + k*product;
           octant = this->Tree[idx];
           if ( ! octant )
             {
-            octant = new vlIdList(numCellsInOctant/2);
+            octant = new vlIdList(numCellsInOctant);
             this->Tree[idx] = octant;
             }
           octant->InsertNextId(cellId);
