@@ -39,7 +39,7 @@ public:
   // ImplicitFunction interface
   float Evaluate(float x, float y, float z);
   float Evaluate(float normal[3], float origin[3], float x[3]);
-  void EvaluateNormal(float x, float y, float z, float n[3]);
+  void EvaluateGradient(float x, float y, float z, float g[3]);
 
   vlSetVector3Macro(Normal,float);
   vlGetVectorMacro(Normal,float,3);

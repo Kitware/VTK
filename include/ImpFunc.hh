@@ -33,8 +33,8 @@ public:
   virtual float Evaluate(float x, float y, float z) = 0;
 
   // Description:
-  // Evaluate function normal at position x-y-z and pass back vector.
-  virtual void EvaluateNormal(float x, float y, float z, float n[3]) = 0;
+  // Evaluate function gradient at position x-y-z and pass back vector.
+  virtual void EvaluateGradient(float x, float y, float z, float g[3]) = 0;
 
 };
 

@@ -15,7 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 // .NAME vlSphere - implicit function for a sphere
 // .SECTION Description
-// vlSphere computes the implicit function and surface normal for a sphere.
+// vlSphere computes the implicit function and/or gradient for a sphere.
 // vlSphere is a concrete implementation of vlImplicitFunction.
 
 #ifndef __vlSphere_h
@@ -32,7 +32,7 @@ public:
 
   // ImplicitFunction interface
   float Evaluate(float x, float y, float z);
-  void EvaluateNormal(float x, float y, float z, float n[3]);
+  void EvaluateGradient(float x, float y, float z, float n[3]);
 
   vlSetMacro(Radius,float);
   vlGetMacro(Radius,float);

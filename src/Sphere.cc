@@ -37,8 +37,8 @@ float vlSphere::Evaluate(float x, float y, float z)
 }
 
 // Description
-// Evaluate sphere normal.
-void vlSphere::EvaluateNormal(float x, float y, float z, float n[3])
+// Evaluate sphere gradient.
+void vlSphere::EvaluateGradient(float x, float y, float z, float n[3])
 {
   n[0] = 2.0 * (x - this->Center[0]);
   n[1] = 2.0 * (y - this->Center[1]);

@@ -55,8 +55,8 @@ float vlPlane::Evaluate(float x, float y, float z)
 }
 
 // Description
-// Evaluate plane normal at point (x,y,z).
-void vlPlane::EvaluateNormal(float x, float y, float z, float n[3])
+// Evaluate function gradient at point (x,y,z).
+void vlPlane::EvaluateGradient(float x, float y, float z, float n[3])
 {
   for (int i=0; i<3; i++) n[i] = this->Normal[i];
 }

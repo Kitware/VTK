@@ -47,7 +47,7 @@ public:
 
   // ImplicitFunction interface
   float Evaluate(float x, float y, float z);
-  void EvaluateNormal(float x, float y, float z, float n[3]);
+  void EvaluateGradient(float x, float y, float z, float g[3]);
 
   // Override modified time retrieval because of object dependencies.
   unsigned long int GetMTime();
