@@ -39,7 +39,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkOverrideInformationCollection - maintain a list of planes
+// .NAME vtkOverrideInformationCollection - maintain a list of override information objects
 // .SECTION Description
 // vtkOverrideInformationCollection is an object that creates and manipulates
 // lists of objects of type vtkOverrideInformation. 
