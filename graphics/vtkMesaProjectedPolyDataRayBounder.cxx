@@ -69,3 +69,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkOpenGLProjectedPolyDataRayBounder vtkMesaProjectedPolyDataRayBounder
 #include "vtkOpenGLProjectedPolyDataRayBounder.cxx"
 #undef vtkOpenGLProjectedPolyDataRayBounder
+
+//-----------------------------------------------------------------------------
+vtkMesaProjectedPolyDataRayBounder* vtkMesaProjectedPolyDataRayBounder::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaProjectedPolyDataRayBounder");
+  if(ret)
+    {
+    return (vtkMesaProjectedPolyDataRayBounder*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMesaProjectedPolyDataRayBounder;
+}

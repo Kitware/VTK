@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
+#ifndef VTK_IMPLEMENT_MESA_CXX
 //------------------------------------------------------------------------------
 vtkOpenGLProjectedPolyDataRayBounder* vtkOpenGLProjectedPolyDataRayBounder::New()
 {
@@ -58,6 +58,7 @@ vtkOpenGLProjectedPolyDataRayBounder* vtkOpenGLProjectedPolyDataRayBounder::New(
   // If the factory was unable to create the object, then create it here.
   return new vtkOpenGLProjectedPolyDataRayBounder;
 }
+#endif
 
 
 

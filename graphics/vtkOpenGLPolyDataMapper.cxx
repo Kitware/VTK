@@ -60,6 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
+#ifndef VTK_IMPLEMENT_MESA_CXX
 //--------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper* vtkOpenGLPolyDataMapper::New()
 {
@@ -72,6 +73,7 @@ vtkOpenGLPolyDataMapper* vtkOpenGLPolyDataMapper::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkOpenGLPolyDataMapper;
 }
+#endif
 
 // Construct empty object.
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
