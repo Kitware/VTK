@@ -280,7 +280,7 @@ FT_BEGIN_HEADER
   /*   limit      :: This field is set and used internally by FreeType     */
   /*                 when parsing frames.                                  */
   /*                                                                       */
-  struct  FT_StreamRec_
+  typedef struct  FT_StreamRec_
   {
     unsigned char*       base;
     unsigned long        size;
@@ -294,7 +294,8 @@ FT_BEGIN_HEADER
     FT_Memory            memory;
     unsigned char*       cursor;
     unsigned char*       limit;
-  };
+
+  } FT_StreamRec;
 
 
   /* */

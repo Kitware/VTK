@@ -2,7 +2,7 @@
 
   FreeType font driver for pcf fonts
 
-  Copyright (C) 2000-2001 by
+  Copyright (C) 2000, 2001, 2002 by
   Francesco Zappa Nardelli
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -38,10 +38,12 @@ FT_BEGIN_HEADER
 
   typedef struct  PCF_Public_FaceRec_
   {
-    FT_FaceRec  root;
+    FT_FaceRec    root;
+    FT_StreamRec  gzip_stream;
+    FT_Stream     gzip_source;
 
-    char*       charset_encoding;
-    char*       charset_registry;
+    char*         charset_encoding;
+    char*         charset_registry;
 
   } PCF_Public_FaceRec, *PCF_Public_Face;
 

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType font driver interface (specification).                      */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002 by                                           */
+/*  Copyright 1996-2001, 2002, 2003 by                                     */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -68,7 +68,7 @@ FT_BEGIN_HEADER
   (*FT_Slot_LoadFunc)( FT_GlyphSlot  slot,
                        FT_Size       size,
                        FT_UInt       glyph_index,
-                       FT_Int        load_flags );
+                       FT_Int32      load_flags );
 
 
   typedef FT_UInt
@@ -155,11 +155,15 @@ FT_BEGIN_HEADER
   /*                        add data from AFM or PFM files on a Type 1     */
   /*                        face, or a CIDMap on a CID-keyed face.         */
   /*                                                                       */
-  /*    get_advances     :: A function handle used to return the advances  */
-  /*                        of 'count' glyphs, starting at `index'.  the   */
-  /*                        `vertical' flags must be set when vertical     */
-  /*                        advances are queried.  The advances buffer is  */
-  /*                        caller-allocated.                              */
+  /*    get_advances     :: A function handle used to return advance       */
+  /*                        widths of 'count' glyphs (in font units),      */
+  /*                        starting at `first'.  The `vertical' flag must */
+  /*                        be set to get vertical advance heights.  The   */
+  /*                        `advances' buffer is caller-allocated.         */
+  /*                        Currently not implemented.  The idea of this   */
+  /*                        function is to be able to perform              */
+  /*                        device-independent text layout without loading */
+  /*                        a single glyph image.                          */
   /*                                                                       */
   /* <Note>                                                                */
   /*    Most function pointers, with the exception of `load_glyph' and     */
@@ -169,9 +173,9 @@ FT_BEGIN_HEADER
   {
     FT_Module_Class           root;
 
-    FT_Int                    face_object_size;
-    FT_Int                    size_object_size;
-    FT_Int                    slot_object_size;
+    FT_Long                   face_object_size;
+    FT_Long                   size_object_size;
+    FT_Long                   slot_object_size;
 
     FT_Face_InitFunc          init_face;
     FT_Face_DoneFunc          done_face;
@@ -186,12 +190,10 @@ FT_BEGIN_HEADER
     FT_Size_ResetPixelsFunc   set_pixel_sizes;
 
     FT_Slot_LoadFunc          load_glyph;
-    FT_CharMap_CharIndexFunc  get_char_index;
 
     FT_Face_GetKerningFunc    get_kerning;
     FT_Face_AttachFunc        attach_file;
     FT_Face_GetAdvancesFunc   get_advances;
-    FT_CharMap_CharNextFunc   get_next_char;
 
   } FT_Driver_ClassRec, *FT_Driver_Class;
 

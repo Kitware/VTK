@@ -1,10 +1,10 @@
 /***************************************************************************/
 /*                                                                         */
-/*  ftmodule.h                                                             */
+/*  ftmodapi.h                                                             */
 /*                                                                         */
 /*    FreeType modules public interface (specification).                   */
 /*                                                                         */
-/*  Copyright 1996-2001 by                                                 */
+/*  Copyright 1996-2001, 2002, 2003 by                                     */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -16,12 +16,18 @@
 /***************************************************************************/
 
 
-#ifndef __FTMODULE_H__
-#define __FTMODULE_H__
+#ifndef __FTMODAPI_H__
+#define __FTMODAPI_H__
 
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+
+#ifdef FREETYPE_H
+#error "freetype.h of FreeType 1 has been loaded!"
+#error "Please fix the directory search order for header files"
+#error "so that freetype.h of FreeType 2 is found first."
+#endif
 
 
 FT_BEGIN_HEADER
@@ -46,25 +52,31 @@ FT_BEGIN_HEADER
 
 
   /* module bit flags */
-  typedef enum  FT_Module_Flags_
-  {
-    ft_module_font_driver         = 1,     /* this module is a font driver  */
-    ft_module_renderer            = 2,     /* this module is a renderer     */
-    ft_module_hinter              = 4,     /* this module is a glyph hinter */
-    ft_module_styler              = 8,     /* this module is a styler       */
+#define FT_MODULE_FONT_DRIVER         1  /* this module is a font driver  */
+#define FT_MODULE_RENDERER            2  /* this module is a renderer     */
+#define FT_MODULE_HINTER              4  /* this module is a glyph hinter */
+#define FT_MODULE_STYLER              8  /* this module is a styler       */
 
-    ft_module_driver_scalable     = 0x100, /* the driver supports scalable  */
-                                           /* fonts                         */
-    ft_module_driver_no_outlines  = 0x200, /* the driver does not support   */
-                                           /* vector outlines               */
-    ft_module_driver_has_hinter   = 0x400  /* the driver provides its own   */
-                                           /* hinter                        */
-
-  } FT_Module_Flags;
+#define FT_MODULE_DRIVER_SCALABLE     0x100   /* the driver supports      */
+                                              /* scalable fonts           */
+#define FT_MODULE_DRIVER_NO_OUTLINES  0x200   /* the driver does not      */
+                                              /* support vector outlines  */
+#define FT_MODULE_DRIVER_HAS_HINTER   0x400   /* the driver provides its  */
+                                              /* own hinter               */
 
 
-  typedef void
-  (*FT_Module_Interface)( void );
+  /* deprecated values */
+#define ft_module_font_driver         FT_MODULE_FONT_DRIVER
+#define ft_module_renderer            FT_MODULE_RENDERER
+#define ft_module_hinter              FT_MODULE_HINTER
+#define ft_module_styler              FT_MODULE_STYLER
+
+#define ft_module_driver_scalable     FT_MODULE_DRIVER_SCALABLE
+#define ft_module_driver_no_outlines  FT_MODULE_DRIVER_NO_OUTLINES
+#define ft_module_driver_has_hinter   FT_MODULE_DRIVER_HAS_HINTER
+
+
+  typedef FT_Pointer  FT_Module_Interface;
 
   typedef FT_Error
   (*FT_Module_Constructor)( FT_Module  module );
@@ -72,7 +84,7 @@ FT_BEGIN_HEADER
   typedef void
   (*FT_Module_Destructor)( FT_Module  module );
 
-  typedef FT_Module_Interface
+  typedef FT_Module_Interface 
   (*FT_Module_Requester)( FT_Module    module,
                           const char*  name );
 
@@ -111,7 +123,7 @@ FT_BEGIN_HEADER
   typedef struct  FT_Module_Class_
   {
     FT_ULong               module_flags;
-    FT_Int                 module_size;
+    FT_Long                module_size;
     const FT_String*       module_name;
     FT_Fixed               module_version;
     FT_Fixed               module_requires;
@@ -301,7 +313,7 @@ FT_BEGIN_HEADER
 
 FT_END_HEADER
 
-#endif /* __FTMODULE_H__ */
+#endif /* __FTMODAPI_H__ */
 
 
 /* END */

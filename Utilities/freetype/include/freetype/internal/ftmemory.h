@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    The FreeType memory management macros (specification).               */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002 by                                           */
+/*  Copyright 1996-2001, 2002, 2004 by                                     */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg                       */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -65,12 +65,27 @@ FT_BEGIN_HEADER
                   FT_Long      line_no );
 
   FT_BASE( FT_Error )
+  FT_QAlloc_Debug( FT_Memory    memory,
+                   FT_Long      size,
+                   void*       *P,
+                   const char*  file_name,
+                   FT_Long      line_no );
+
+  FT_BASE( FT_Error )
   FT_Realloc_Debug( FT_Memory    memory,
                     FT_Long      current,
                     FT_Long      size,
                     void*       *P,
                     const char*  file_name,
                     FT_Long      line_no );
+
+  FT_BASE( FT_Error )
+  FT_QRealloc_Debug( FT_Memory    memory,
+                     FT_Long      current,
+                     FT_Long      size,
+                     void*       *P,
+                     const char*  file_name,
+                     FT_Long      line_no );
 
   FT_BASE( void )
   FT_Free_Debug( FT_Memory    memory,
@@ -109,6 +124,12 @@ FT_BEGIN_HEADER
             void*     *P );
 
 
+  FT_BASE( FT_Error )
+  FT_QAlloc( FT_Memory  memory,
+             FT_Long    size,
+             void*     *p );
+
+
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
@@ -141,7 +162,14 @@ FT_BEGIN_HEADER
   FT_Realloc( FT_Memory  memory,
               FT_Long    current,
               FT_Long    size,
-              void**     P );
+              void*     *P );
+
+
+  FT_BASE( FT_Error )
+  FT_QRealloc( FT_Memory  memory,
+               FT_Long    current,
+               FT_Long    size,
+               void*     *p );
 
 
   /*************************************************************************/
@@ -159,17 +187,14 @@ FT_BEGIN_HEADER
   /*    P      :: This is the _address_ of a _pointer_ which points to the */
   /*              allocated block.  It is always set to NULL on exit.      */
   /*                                                                       */
-  /* <Return>                                                              */
-  /*    FreeType error code.  0 means success.                             */
-  /*                                                                       */
   /* <Note>                                                                */
-  /*    If P or *P are NULL, this function should return successfully.     */
+  /*    If P or *P is NULL, this function should return successfully.      */
   /*    This is a strong convention within all of FreeType and its         */
   /*    drivers.                                                           */
   /*                                                                       */
   FT_BASE( void )
   FT_Free( FT_Memory  memory,
-           void**     P );
+           void*     *P );
 
 
 #define FT_MEM_SET( dest, byte, count )     ft_memset( dest, byte, count )
@@ -182,6 +207,12 @@ FT_BEGIN_HEADER
 #define FT_MEM_ZERO( dest, count )  FT_MEM_SET( dest, 0, count )
 
 #define FT_ZERO( p )                FT_MEM_ZERO( p, sizeof ( *(p) ) )
+
+#define FT_ARRAY_COPY( dest, source, count )                       \
+          FT_MEM_COPY( dest, source, (count) * sizeof( *(dest) ) )
+
+#define FT_ARRAY_MOVE( dest, source, count )                       \
+          FT_MEM_MOVE( dest, source, (count) * sizeof( *(dest) ) )
 
 
   /*************************************************************************/
@@ -201,21 +232,35 @@ FT_BEGIN_HEADER
           FT_Realloc_Debug( memory, _current_, _size_,                 \
                             (void**)&(_pointer_), __FILE__, __LINE__ )
 
+#define FT_MEM_QALLOC( _pointer_, _size_ )                            \
+          FT_QAlloc_Debug( memory, _size_,                            \
+                           (void**)&(_pointer_), __FILE__, __LINE__ )
+
+#define FT_MEM_QREALLOC( _pointer_, _current_, _size_ )                 \
+          FT_QRealloc_Debug( memory, _current_, _size_,                 \
+                             (void**)&(_pointer_), __FILE__, __LINE__ )
+
 #define FT_MEM_FREE( _pointer_ )                                            \
           FT_Free_Debug( memory, (void**)&(_pointer_), __FILE__, __LINE__ )
+
 
 #else  /* !FT_DEBUG_MEMORY */
 
 
 #define FT_MEM_ALLOC( _pointer_, _size_ )                  \
-          FT_Alloc( memory, _size_, (void**)(void*)&(_pointer_) )
+          FT_Alloc( memory, _size_, (void**)&(_pointer_) )
 
 #define FT_MEM_FREE( _pointer_ )                  \
-          FT_Free( memory, (void**)(void*)&(_pointer_) )
+          FT_Free( memory, (void**)&(_pointer_) )
 
 #define FT_MEM_REALLOC( _pointer_, _current_, _size_ )                  \
-          FT_Realloc( memory, _current_, _size_, (void**)(void*)&(_pointer_) )
+          FT_Realloc( memory, _current_, _size_, (void**)&(_pointer_) )
 
+#define FT_MEM_QALLOC( _pointer_, _size_ )                  \
+          FT_QAlloc( memory, _size_, (void**)&(_pointer_) )
+
+#define FT_MEM_QREALLOC( _pointer_, _current_, _size_ )                  \
+          FT_QRealloc( memory, _current_, _size_, (void**)&(_pointer_) )
 
 #endif /* !FT_DEBUG_MEMORY */
 
@@ -235,6 +280,16 @@ FT_BEGIN_HEADER
 #define FT_MEM_RENEW_ARRAY( _pointer_, _old_, _new_ )                    \
           FT_MEM_REALLOC( _pointer_, (_old_) * sizeof ( *(_pointer_) ),  \
                                      (_new_) * sizeof ( *(_pointer_) ) )
+
+#define FT_MEM_QNEW( _pointer_ )                               \
+          FT_MEM_QALLOC( _pointer_, sizeof ( *(_pointer_) ) )
+
+#define FT_MEM_QNEW_ARRAY( _pointer_, _count_ )                           \
+          FT_MEM_QALLOC( _pointer_, (_count_) * sizeof ( *(_pointer_) ) )
+
+#define FT_MEM_QRENEW_ARRAY( _pointer_, _old_, _new_ )                    \
+          FT_MEM_QREALLOC( _pointer_, (_old_) * sizeof ( *(_pointer_) ),  \
+                                      (_new_) * sizeof ( *(_pointer_) ) )
 
 
   /*************************************************************************/
@@ -266,6 +321,13 @@ FT_BEGIN_HEADER
 #define FT_FREE( _pointer_ )       \
           FT_MEM_FREE( _pointer_ )
 
+#define FT_QALLOC( _pointer_, _size_ )                       \
+          FT_SET_ERROR( FT_MEM_QALLOC( _pointer_, _size_ ) )
+
+#define FT_QREALLOC( _pointer_, _current_, _size_ )                       \
+          FT_SET_ERROR( FT_MEM_QREALLOC( _pointer_, _current_, _size_ ) )
+
+
 #define FT_NEW( _pointer_ )  \
           FT_SET_ERROR( FT_MEM_NEW( _pointer_ ) )
 
@@ -274,6 +336,16 @@ FT_BEGIN_HEADER
 
 #define FT_RENEW_ARRAY( _pointer_, _old_, _new_ )   \
           FT_SET_ERROR( FT_MEM_RENEW_ARRAY( _pointer_, _old_, _new_ ) )
+
+#define FT_QNEW( _pointer_ )  \
+          FT_SET_ERROR( FT_MEM_QNEW( _pointer_ ) )
+
+#define FT_QNEW_ARRAY( _pointer_, _count_ )  \
+          FT_SET_ERROR( FT_MEM_QNEW_ARRAY( _pointer_, _count_ ) )
+
+#define FT_QRENEW_ARRAY( _pointer_, _old_, _new_ )   \
+          FT_SET_ERROR( FT_MEM_QRENEW_ARRAY( _pointer_, _old_, _new_ ) )
+
 
 #define FT_ALLOC_ARRAY( _pointer_, _count_, _type_ )                    \
           FT_SET_ERROR( FT_MEM_ALLOC( _pointer_,                        \

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType high-level API and common types (specification only).       */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002 by                                           */
+/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -14,6 +14,15 @@
 /*  understand and accept it fully.                                        */
 /*                                                                         */
 /***************************************************************************/
+
+
+#ifndef FT_FREETYPE_H
+#error "`ft2build.h' hasn't been included yet!"
+#error "Please always use macros to include FreeType header files."
+#error "Example:"
+#error "  #include <ft2build.h>"
+#error "  #include FT_FREETYPE_H"
+#endif
 
 
 #ifndef __FREETYPE_H__
@@ -35,7 +44,7 @@
   /*                                                                       */
 #define FREETYPE_MAJOR 2
 #define FREETYPE_MINOR 1
-#define FREETYPE_PATCH 0
+#define FREETYPE_PATCH 9
 
 
 #include <ft2build.h>
@@ -113,7 +122,6 @@ FT_BEGIN_HEADER
   /*    FT_New_Memory_Face                                                 */
   /*    FT_Open_Face                                                       */
   /*    FT_Open_Args                                                       */
-  /*    FT_Open_Flags                                                      */
   /*    FT_Parameter                                                       */
   /*    FT_Attach_File                                                     */
   /*    FT_Attach_Stream                                                   */
@@ -125,6 +133,12 @@ FT_BEGIN_HEADER
   /*    FT_Get_Char_Index                                                  */
   /*    FT_Get_Name_Index                                                  */
   /*    FT_Load_Char                                                       */
+  /*                                                                       */
+  /*    FT_OPEN_MEMORY                                                     */
+  /*    FT_OPEN_STREAM                                                     */
+  /*    FT_OPEN_PATHNAME                                                   */
+  /*    FT_OPEN_DRIVER                                                     */
+  /*    FT_OPEN_PARAMS                                                     */
   /*                                                                       */
   /*    FT_LOAD_DEFAULT                                                    */
   /*    FT_LOAD_RENDER                                                     */
@@ -142,6 +156,12 @@ FT_BEGIN_HEADER
   /*    FT_LOAD_NO_RECURSE                                                 */
   /*    FT_LOAD_PEDANTIC                                                   */
   /*                                                                       */
+  /*    FT_LOAD_TARGET_NORMAL                                              */
+  /*    FT_LOAD_TARGET_LIGHT                                               */
+  /*    FT_LOAD_TARGET_MONO                                                */
+  /*    FT_LOAD_TARGET_LCD                                                 */
+  /*    FT_LOAD_TARGET_LCD_V                                               */
+  /*                                                                       */
   /*    FT_Render_Glyph                                                    */
   /*    FT_Render_Mode                                                     */
   /*    FT_Get_Kerning                                                     */
@@ -152,6 +172,7 @@ FT_BEGIN_HEADER
   /*    FT_CharMapRec                                                      */
   /*    FT_Select_Charmap                                                  */
   /*    FT_Set_Charmap                                                     */
+  /*    FT_Get_Charmap_Index                                               */
   /*                                                                       */
   /*************************************************************************/
 
@@ -162,39 +183,48 @@ FT_BEGIN_HEADER
   /*    FT_Glyph_Metrics                                                   */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    A structure used to model the metrics of a single glyph.  Note     */
-  /*    that values are expressed in 26.6 fractional pixel format or in    */
-  /*    font units, depending on context.                                  */
+  /*    A structure used to model the metrics of a single glyph.  The      */
+  /*    values are expressed in 26.6 fractional pixel format; if the flag  */
+  /*    FT_LOAD_NO_SCALE is used, values are returned in font units        */
+  /*    instead.                                                           */
   /*                                                                       */
   /* <Fields>                                                              */
-  /*    width        :: The glyph's width.                                 */
+  /*    width ::                                                           */
+  /*      The glyph's width.                                               */
   /*                                                                       */
-  /*    height       :: The glyph's height.                                */
+  /*    height ::                                                          */
+  /*      The glyph's height.                                              */
   /*                                                                       */
-  /*    horiBearingX :: Horizontal left side bearing.                      */
+  /*    horiBearingX ::                                                    */
+  /*      Left side bearing for horizontal layout.                         */
   /*                                                                       */
-  /*    horiBearingY :: Horizontal top side bearing.                       */
+  /*    horiBearingY ::                                                    */
+  /*      Top side bearing for horizontal layout.                          */
   /*                                                                       */
-  /*    horiAdvance  :: Horizontal advance width.                          */
+  /*    horiAdvance ::                                                     */
+  /*      Advance width for horizontal layout.                             */
   /*                                                                       */
-  /*    vertBearingX :: Vertical left side bearing.                        */
+  /*    vertBearingX ::                                                    */
+  /*      Left side bearing for vertical layout.                           */
   /*                                                                       */
-  /*    vertBearingY :: Vertical top side bearing.                         */
+  /*    vertBearingY ::                                                    */
+  /*      Top side bearing for vertical layout.                            */
   /*                                                                       */
-  /*    vertAdvance  :: Vertical advance height.                           */
+  /*    vertAdvance ::                                                     */
+  /*      Advance height for vertical layout.                              */
   /*                                                                       */
   typedef struct  FT_Glyph_Metrics_
   {
-    FT_Pos  width;         /* glyph width  */
-    FT_Pos  height;        /* glyph height */
+    FT_Pos  width;
+    FT_Pos  height;
 
-    FT_Pos  horiBearingX;  /* left side bearing in horizontal layouts */
-    FT_Pos  horiBearingY;  /* top side bearing in horizontal layouts  */
-    FT_Pos  horiAdvance;   /* advance width for horizontal layout     */
+    FT_Pos  horiBearingX;
+    FT_Pos  horiBearingY;
+    FT_Pos  horiAdvance;
 
-    FT_Pos  vertBearingX;  /* left side bearing in vertical layouts */
-    FT_Pos  vertBearingY;  /* top side bearing in vertical layouts  */
-    FT_Pos  vertAdvance;   /* advance height for vertical layout    */
+    FT_Pos  vertBearingX;
+    FT_Pos  vertBearingY;
+    FT_Pos  vertAdvance;
 
   } FT_Glyph_Metrics;
 
@@ -205,20 +235,62 @@ FT_BEGIN_HEADER
   /*    FT_Bitmap_Size                                                     */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    An extremely simple structure used to model the size of a bitmap   */
-  /*    strike (i.e., a bitmap instance of the font for a given            */
-  /*    resolution) in a fixed-size font face.  This is used for the       */
-  /*    `available_sizes' field of the FT_Face_Properties structure.       */
+  /*    This structure models the size of a bitmap strike (i.e., a bitmap  */
+  /*    instance of the font for a given resolution) in a fixed-size font  */
+  /*    face.  It is used for the `available_sizes' field of the           */
+  /*    @FT_FaceRec structure.                                             */
   /*                                                                       */
   /* <Fields>                                                              */
-  /*    height :: The character height in pixels.                          */
+  /*    height :: The (vertical) baseline-to-baseline distance in pixels.  */
+  /*              It makes most sense to define the height of a bitmap     */
+  /*              font in this way.                                        */
   /*                                                                       */
-  /*    width  :: The character width in pixels.                           */
+  /*    width  :: The average width of the font (in pixels).  Since the    */
+  /*              algorithms to compute this value are different for the   */
+  /*              various bitmap formats, it can only give an additional   */
+  /*              hint if the `height' value isn't sufficient to select    */
+  /*              the proper font.  For monospaced fonts the average width */
+  /*              is the same as the maximum width.                        */
+  /*                                                                       */
+  /*    size   :: The point size in 26.6 fractional format this font shall */
+  /*              represent (for a given vertical resolution).             */
+  /*                                                                       */
+  /*    x_ppem :: The horizontal ppem value (in 26.6 fractional format).   */
+  /*                                                                       */
+  /*    y_ppem :: The vertical ppem value (in 26.6 fractional format).     */
+  /*              Usually, this is the `nominal' pixel height of the font. */
+  /*                                                                       */
+  /* <Note>                                                                */
+  /*    The values in this structure are taken from the bitmap font.  If   */
+  /*    the font doesn't provide a parameter it is set to zero to indicate */
+  /*    that the information is not available.                             */
+  /*                                                                       */
+  /*    The following formula converts from dpi to ppem:                   */
+  /*                                                                       */
+  /*      ppem = size * dpi / 72                                           */
+  /*                                                                       */
+  /*    where `size' is in points.                                         */
+  /*                                                                       */
+  /*    Windows FNT:                                                       */
+  /*      The `size' parameter is not reliable: There exist fonts (e.g.,   */
+  /*      app850.fon) which have a wrong size for some subfonts; x_ppem    */
+  /*      and y_ppem are thus set equal to pixel width and height given in */
+  /*      in the Windows FNT header.                                       */
+  /*                                                                       */
+  /*    TrueType embedded bitmaps:                                         */
+  /*      `size', `width', and `height' values are not contained in the    */
+  /*      bitmap strike itself.  They are computed from the global font    */
+  /*      parameters.                                                      */
   /*                                                                       */
   typedef struct  FT_Bitmap_Size_
   {
     FT_Short  height;
     FT_Short  width;
+
+    FT_Pos    size;
+
+    FT_Pos    x_ppem;
+    FT_Pos    y_ppem;
 
   } FT_Bitmap_Size;
 
@@ -246,7 +318,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Note>                                                                */
   /*    Library objects are normally created by @FT_Init_FreeType, and     */
-  /*    destroyed with @FT_Done_FreeType                                   */
+  /*    destroyed with @FT_Done_FreeType.                                  */
   /*                                                                       */
   typedef struct FT_LibraryRec_  *FT_Library;
 
@@ -303,13 +375,13 @@ FT_BEGIN_HEADER
   /*    Each face object also owns a single @FT_GlyphSlot object, as well  */
   /*    as one or more @FT_Size objects.                                   */
   /*                                                                       */
-  /*    use @FT_New_Face or @FT_Open_Face to create a new face object from */
+  /*    Use @FT_New_Face or @FT_Open_Face to create a new face object from */
   /*    a given filepathname or a custom input stream.                     */
   /*                                                                       */
-  /*    use @FT_Done_Face to destroy it (along with its slot and sizes)    */
+  /*    Use @FT_Done_Face to destroy it (along with its slot and sizes).   */
   /*                                                                       */
   /* <Also>                                                                */
-  /*    the @FT_FaceRec details the publicly accessible fields of a given  */
+  /*    The @FT_FaceRec details the publicly accessible fields of a given  */
   /*    face object.                                                       */
   /*                                                                       */
   typedef struct FT_FaceRec_*  FT_Face;
@@ -321,21 +393,21 @@ FT_BEGIN_HEADER
   /*    FT_Size                                                            */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    A handle to a given size object. Such an object models the         */
-  /*    data that depends on the current _resolution_ and _character_      */
-  /*    _size_ in a given @FT_Face.                                        */
+  /*    A handle to a given size object.  Such an object models the data   */
+  /*    that depends on the current _resolution_ and _character size_ in a */
+  /*    given @FT_Face.                                                    */
   /*                                                                       */
   /* <Note>                                                                */
-  /*    Each face object owns one or more sizes. There is however a        */
-  /*    single _active_ size for the face at any time that will be         */
-  /*    used by functions like @FT_Load_Glyph, @FT_Get_Kerning, etc...     */
+  /*    Each face object owns one or more sizes.  There is however a       */
+  /*    single _active_ size for the face at any time that will be used by */
+  /*    functions like @FT_Load_Glyph, @FT_Get_Kerning, etc.               */
   /*                                                                       */
-  /*    you can use the @FT_Activate_Size API to change the current        */
-  /*    active size of any given face                                      */
+  /*    You can use the @FT_Activate_Size API to change the current        */
+  /*    active size of any given face.                                     */
   /*                                                                       */
   /* <Also>                                                                */
-  /*   the @FT_SizeRec structure details the publicly accessible fields    */
-  /*   of a given face object.                                             */
+  /*    The @FT_SizeRec structure details the publicly accessible fields   */
+  /*    of a given face object.                                            */
   /*                                                                       */
   typedef struct FT_SizeRec_*  FT_Size;
 
@@ -353,10 +425,10 @@ FT_BEGIN_HEADER
   /*    In other words, each time you call @FT_Load_Glyph or               */
   /*    @FT_Load_Char, the slot's content is erased by the new glyph data, */
   /*    i.e. the glyph's metrics, its image (bitmap or outline), and       */
-  /*    other control information                                          */
+  /*    other control information.                                         */
   /*                                                                       */
   /* <Also>                                                                */
-  /*    @FT_GlyphSlotRec details the publicly accessible glyph fields      */
+  /*    @FT_GlyphSlotRec details the publicly accessible glyph fields.     */
   /*                                                                       */
   typedef struct FT_GlyphSlotRec_*  FT_GlyphSlot;
 
@@ -372,20 +444,23 @@ FT_BEGIN_HEADER
   /*    parent's face.  Some font formats may provide several charmaps per */
   /*    font.                                                              */
   /*                                                                       */
-  /*    Each face object owns zero or more charmaps, but only one of       */
-  /*    them can be "active" and used by @FT_Get_Char_Index or             */
-  /*    @FT_Load_Char                                                      */
+  /*    Each face object owns zero or more charmaps, but only one of them  */
+  /*    can be "active" and used by @FT_Get_Char_Index or @FT_Load_Char.   */
   /*                                                                       */
   /*    The list of available charmaps in a face is available through the  */
-  /*    "face->num_charmaps" and "face->charmaps" fields of @FT_FaceRec    */
+  /*    "face->num_charmaps" and "face->charmaps" fields of @FT_FaceRec.   */
   /*                                                                       */
-  /*    the currently active charmap is available as "face->charmap".      */
-  /*    You should call @FT_Set_Charmap to change it                       */
+  /*    The currently active charmap is available as "face->charmap".      */
+  /*    You should call @FT_Set_Charmap to change it.                      */
   /*                                                                       */
   /* <Note>                                                                */
-  /*    when a new face is created (either through @FT_New_Face or         */
+  /*    When a new face is created (either through @FT_New_Face or         */
   /*    @FT_Open_Face), the library looks for a Unicode charmap within     */
-  /*    the list and automatically activates it                            */
+  /*    the list and automatically activates it.                           */
+  /*                                                                       */
+  /* <Also>                                                                */
+  /*    The @FT_CharMapRec details the publicly accessible fields of a     */
+  /*    given character map.                                               */
   /*                                                                       */
   typedef struct FT_CharMapRec_*  FT_CharMap;
 
@@ -396,16 +471,26 @@ FT_BEGIN_HEADER
   /*    FT_ENC_TAG                                                         */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    This macro converts four letter tags into an unsigned long.        */
-  /*     It is used to define "encoding" identifiers (see @FT_Encoding)    */
+  /*    This macro converts four letter tags into an unsigned long.  It is */
+  /*    used to define "encoding" identifiers (see @FT_Encoding).          */
   /*                                                                       */
+  /* <Note>                                                                */
+  /*    Since many 16bit compilers don't like 32bit enumerations, you      */
+  /*    should redefine this macro in case of problems to something like   */
+  /*    this:                                                              */
   /*                                                                       */
+  /*      #define FT_ENC_TAG( value, a, b, c, d )  value                   */
+  /*                                                                       */
+  /*    to get a simple enumeration without assigning special numbers.     */
+  /*                                                                       */
+
 #ifndef FT_ENC_TAG
-#define FT_ENC_TAG( value, _x1, _x2, _x3, _x4 ) \
-        value = ( ( (unsigned long)_x1 << 24 ) | \
-                  ( (unsigned long)_x2 << 16 ) | \
-                  ( (unsigned long)_x3 << 8  ) | \
-                    (unsigned long)_x4         )
+#define FT_ENC_TAG( value, a, b, c, d )         \
+          value = ( ( (FT_UInt32)(a) << 24 ) |  \
+                    ( (FT_UInt32)(b) << 16 ) |  \
+                    ( (FT_UInt32)(c) <<  8 ) |  \
+                      (FT_UInt32)(d)         )
+
 #endif /* FT_ENC_TAG */
 
 
@@ -416,35 +501,210 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Description>                                                         */
   /*    An enumeration used to specify encodings supported by charmaps.    */
-  /*    Used in the FT_Select_Charmap() API function.                      */
+  /*    Used in the @FT_Select_Charmap API function.                       */
   /*                                                                       */
   /* <Note>                                                                */
   /*    Because of 32-bit charcodes defined in Unicode (i.e., surrogates), */
   /*    all character codes must be expressed as FT_Longs.                 */
   /*                                                                       */
+  /*    The values of this type correspond to specific character           */
+  /*    repertories (i.e. charsets), and not to text encoding methods      */
+  /*    (like UTF-8, UTF-16, GB2312_EUC, etc.).                            */
+  /*                                                                       */
   /*    Other encodings might be defined in the future.                    */
+  /*                                                                       */
+  /* <Values>                                                              */
+  /*   FT_ENCODING_NONE ::                                                 */
+  /*     The encoding value 0 is reserved.                                 */
+  /*                                                                       */
+  /*   FT_ENCODING_UNICODE ::                                              */
+  /*     Corresponds to the Unicode character set.  This value covers      */
+  /*     all versions of the Unicode repertoire, including ASCII and       */
+  /*     Latin-1.  Most fonts include a Unicode charmap, but not all       */
+  /*     of them.                                                          */
+  /*                                                                       */
+  /*   FT_ENCODING_MS_SYMBOL ::                                            */
+  /*     Corresponds to the Microsoft Symbol encoding, used to encode      */
+  /*     mathematical symbols in the 32..255 character code range.  For    */
+  /*     more information, see `http://www.ceviz.net/symbol.htm'.          */
+  /*                                                                       */
+  /*   FT_ENCODING_SJIS ::                                                 */
+  /*     Corresponds to Japanese SJIS encoding.  More info at              */
+  /*     at `http://langsupport.japanreference.com/encoding.shtml'.        */
+  /*     See note on multi-byte encodings below.                           */
+  /*                                                                       */
+  /*   FT_ENCODING_GB2312 ::                                               */
+  /*     Corresponds to an encoding system for Simplified Chinese as used  */
+  /*     used in mainland China.                                           */
+  /*                                                                       */
+  /*   FT_ENCODING_BIG5 ::                                                 */
+  /*     Corresponds to an encoding system for Traditional Chinese as used */
+  /*     in Taiwan and Hong Kong.                                          */
+  /*                                                                       */
+  /*   FT_ENCODING_WANSUNG ::                                              */
+  /*     Corresponds to the Korean encoding system known as Wansung.       */
+  /*     For more information see                                          */
+  /*     `http://www.microsoft.com/typography/unicode/949.txt'.            */
+  /*                                                                       */
+  /*   FT_ENCODING_JOHAB ::                                                */
+  /*     The Korean standard character set (KS C-5601-1992), which         */
+  /*     corresponds to MS Windows code page 1361.  This character set     */
+  /*     includes all possible Hangeul character combinations.             */
+  /*                                                                       */
+  /*   FT_ENCODING_ADOBE_LATIN_1 ::                                        */
+  /*     Corresponds to a Latin-1 encoding as defined in a Type 1          */
+  /*     Postscript font.  It is limited to 256 character codes.           */
+  /*                                                                       */
+  /*   FT_ENCODING_ADOBE_STANDARD ::                                       */
+  /*     Corresponds to the Adobe Standard encoding, as found in Type 1,   */
+  /*     CFF, and OpenType/CFF fonts.  It is limited to 256 character      */
+  /*     codes.                                                            */
+  /*                                                                       */
+  /*   FT_ENCODING_ADOBE_EXPERT ::                                         */
+  /*     Corresponds to the Adobe Expert encoding, as found in Type 1,     */
+  /*     CFF, and OpenType/CFF fonts.  It is limited to 256 character      */
+  /*     codes.                                                            */
+  /*                                                                       */
+  /*   FT_ENCODING_ADOBE_CUSTOM ::                                         */
+  /*     Corresponds to a custom encoding, as found in Type 1, CFF, and    */
+  /*     OpenType/CFF fonts.  It is limited to 256 character codes.        */
+  /*                                                                       */
+  /*   FT_ENCODING_APPLE_ROMAN ::                                          */
+  /*     Corresponds to the 8-bit Apple roman encoding.  Many TrueType and */
+  /*     OpenType fonts contain a charmap for this encoding, since older   */
+  /*     versions of Mac OS are able to use it.                            */
+  /*                                                                       */
+  /*   FT_ENCODING_OLD_LATIN_2 ::                                          */
+  /*     This value is deprecated and was never used nor reported by       */
+  /*     FreeType.  Don't use or test for it.                              */
+  /*                                                                       */
+  /*   FT_ENCODING_MS_SJIS ::                                              */
+  /*     Same as FT_ENCODING_SJIS.  Deprecated.                            */
+  /*                                                                       */
+  /*   FT_ENCODING_MS_GB2312 ::                                            */
+  /*     Same as FT_ENCODING_GB2312.  Deprecated.                          */
+  /*                                                                       */
+  /*   FT_ENCODING_MS_BIG5 ::                                              */
+  /*     Same as FT_ENCODING_BIG5.  Deprecated.                            */
+  /*                                                                       */
+  /*   FT_ENCODING_MS_WANSUNG ::                                           */
+  /*     Same as FT_ENCODING_WANSUNG.  Deprecated.                         */
+  /*                                                                       */
+  /*   FT_ENCODING_MS_JOHAB ::                                             */
+  /*     Same as FT_ENCODING_JOHAB.  Deprecated.                           */
+  /*                                                                       */
+  /* <Note>                                                                */
+  /*   By default, FreeType automatically synthetizes a Unicode charmap    */
+  /*   for Postscript fonts, using their glyph names dictionaries.         */
+  /*   However, it will also report the encodings defined explicitly in    */
+  /*   the font file, for the cases when they are needed, with the Adobe   */
+  /*   values as well.                                                     */
+  /*                                                                       */
+  /*   FT_ENCODING_NONE is set by the BDF and PCF drivers if the charmap   */
+  /*   is neither Unicode nor ISO-8859-1 (otherwise it is set to           */
+  /*   FT_ENCODING_UNICODE).  Use `FT_Get_BDF_Charset_ID' to find out      */
+  /*   which encoding is really present.  If, for example, the             */
+  /*   `cs_registry' field is `KOI8' and the `cs_encoding' field is `R',   */
+  /*   the font is encoded in KOI8-R.                                      */
+  /*                                                                       */
+  /*   FT_ENCODING_NONE is always set (with a single exception) by the     */
+  /*   winfonts driver.  Use `FT_Get_WinFNT_Header' and examine the        */
+  /*   `charset' field of the `FT_WinFNT_HeaderRec' structure to find out  */
+  /*   which encoding is really present.  For example, FT_WinFNT_ID_CP1251 */
+  /*   (204) means Windows code page 1251 (for Russian).                   */
+  /*                                                                       */
+  /*   FT_ENCODING_NONE is set if `platform_id' is `TT_PLATFORM_MACINTOSH' */
+  /*   and `encoding_id' is not `TT_MAC_ID_ROMAN' (otherwise it is set to  */
+  /*   FT_ENCODING_APPLE_ROMAN).                                           */
+  /*                                                                       */
+  /*   If `platform_id' is `TT_PLATFORM_MACINTOSH', use the function       */
+  /*   `FT_Get_CMap_Language_ID' to query the Mac language ID which may be */
+  /*   needed to be able to distinguish Apple encoding variants.  See      */
+  /*                                                                       */
+  /*     http://www.unicode.org/Public/MAPPINGS/VENDORS/APPLE/README.TXT   */
+  /*                                                                       */
+  /*   to get an idea how to do that.  Basically, if the language ID is 0, */
+  /*   dont use it, otherwise subtract 1 from the language ID.  Then       */
+  /*   examine `encoding_id'.  If, for example, `encoding_id' is           */
+  /*   `TT_MAC_ID_ROMAN' and the language ID (minus 1) is                  */
+  /*   `TT_MAC_LANGID_GREEK', it is the Greek encoding, not Roman.         */
+  /*   `TT_MAC_ID_ARABIC' with `TT_MAC_LANGID_FARSI' means the Farsi       */
+  /*   variant the Arabic encoding.                                        */
   /*                                                                       */
   typedef enum  FT_Encoding_
   {
-    FT_ENC_TAG( ft_encoding_none, 0, 0, 0, 0 ),
+    FT_ENC_TAG( FT_ENCODING_NONE, 0, 0, 0, 0 ),
 
-    FT_ENC_TAG( ft_encoding_symbol,  's', 'y', 'm', 'b' ),
-    FT_ENC_TAG( ft_encoding_unicode, 'u', 'n', 'i', 'c' ),
-    FT_ENC_TAG( ft_encoding_latin_1, 'l', 'a', 't', '1' ),
-    FT_ENC_TAG( ft_encoding_latin_2, 'l', 'a', 't', '2' ),
-    FT_ENC_TAG( ft_encoding_sjis,    's', 'j', 'i', 's' ),
-    FT_ENC_TAG( ft_encoding_gb2312,  'g', 'b', ' ', ' ' ),
-    FT_ENC_TAG( ft_encoding_big5,    'b', 'i', 'g', '5' ),
-    FT_ENC_TAG( ft_encoding_wansung, 'w', 'a', 'n', 's' ),
-    FT_ENC_TAG( ft_encoding_johab,   'j', 'o', 'h', 'a' ),
+    FT_ENC_TAG( FT_ENCODING_MS_SYMBOL,  's', 'y', 'm', 'b' ),
+    FT_ENC_TAG( FT_ENCODING_UNICODE,    'u', 'n', 'i', 'c' ),
 
-    FT_ENC_TAG( ft_encoding_adobe_standard, 'A', 'D', 'O', 'B' ),
-    FT_ENC_TAG( ft_encoding_adobe_expert,   'A', 'D', 'B', 'E' ),
-    FT_ENC_TAG( ft_encoding_adobe_custom,   'A', 'D', 'B', 'C' ),
+    FT_ENC_TAG( FT_ENCODING_SJIS,    's', 'j', 'i', 's' ),
+    FT_ENC_TAG( FT_ENCODING_GB2312,  'g', 'b', ' ', ' ' ),
+    FT_ENC_TAG( FT_ENCODING_BIG5,    'b', 'i', 'g', '5' ),
+    FT_ENC_TAG( FT_ENCODING_WANSUNG, 'w', 'a', 'n', 's' ),
+    FT_ENC_TAG( FT_ENCODING_JOHAB,   'j', 'o', 'h', 'a' ),
 
-    FT_ENC_TAG( ft_encoding_apple_roman, 'a', 'r', 'm', 'n' )
+    /* for backwards compatibility */
+    FT_ENCODING_MS_SJIS    = FT_ENCODING_SJIS,
+    FT_ENCODING_MS_GB2312  = FT_ENCODING_GB2312,
+    FT_ENCODING_MS_BIG5    = FT_ENCODING_BIG5,
+    FT_ENCODING_MS_WANSUNG = FT_ENCODING_WANSUNG,
+    FT_ENCODING_MS_JOHAB   = FT_ENCODING_JOHAB,
+
+    FT_ENC_TAG( FT_ENCODING_ADOBE_STANDARD, 'A', 'D', 'O', 'B' ),
+    FT_ENC_TAG( FT_ENCODING_ADOBE_EXPERT,   'A', 'D', 'B', 'E' ),
+    FT_ENC_TAG( FT_ENCODING_ADOBE_CUSTOM,   'A', 'D', 'B', 'C' ),
+    FT_ENC_TAG( FT_ENCODING_ADOBE_LATIN_1,  'l', 'a', 't', '1' ),
+
+    FT_ENC_TAG( FT_ENCODING_OLD_LATIN_2, 'l', 'a', 't', '2' ),
+
+    FT_ENC_TAG( FT_ENCODING_APPLE_ROMAN, 'a', 'r', 'm', 'n' )
 
   } FT_Encoding;
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* <Enum>                                                                */
+  /*    ft_encoding_xxx                                                    */
+  /*                                                                       */
+  /* <Description>                                                         */
+  /*    These constants are deprecated; use the corresponding @FT_Encoding */
+  /*    values instead.                                                    */
+  /*                                                                       */
+  /* <Values>                                                              */
+  /*   ft_encoding_none    :: see @FT_ENCODING_NONE                        */
+  /*   ft_encoding_unicode :: see @FT_ENCODING_UNICODE                     */
+  /*   ft_encoding_latin_2 :: see @FT_ENCODING_OLD_LATIN_2                 */
+  /*   ft_encoding_symbol  :: see @FT_ENCODING_MS_SYMBOL                   */
+  /*   ft_encoding_sjis    :: see @FT_ENCODING_SJIS                        */
+  /*   ft_encoding_gb2312  :: see @FT_ENCODING_GB2312                      */
+  /*   ft_encoding_big5    :: see @FT_ENCODING_BIG5                        */
+  /*   ft_encoding_wansung :: see @FT_ENCODING_WANSUNG                     */
+  /*   ft_encoding_johab   :: see @FT_ENCODING_JOHAB                       */
+  /*                                                                       */
+  /*   ft_encoding_adobe_standard :: see @FT_ENCODING_ADOBE_STANDARD       */
+  /*   ft_encoding_adobe_expert   :: see @FT_ENCODING_ADOBE_EXPERT         */
+  /*   ft_encoding_adobe_custom   :: see @FT_ENCODING_ADOBE_CUSTOM         */
+  /*   ft_encoding_latin_1        :: see @FT_ENCODING_ADOBE_LATIN_1        */
+  /*                                                                       */
+  /*   ft_encoding_apple_roman    :: see @FT_ENCODING_APPLE_ROMAN          */
+  /*                                                                       */
+#define ft_encoding_none            FT_ENCODING_NONE
+#define ft_encoding_unicode         FT_ENCODING_UNICODE
+#define ft_encoding_symbol          FT_ENCODING_MS_SYMBOL
+#define ft_encoding_latin_1         FT_ENCODING_ADOBE_LATIN_1
+#define ft_encoding_latin_2         FT_ENCODING_OLD_LATIN_2
+#define ft_encoding_sjis            FT_ENCODING_SJIS
+#define ft_encoding_gb2312          FT_ENCODING_GB2312
+#define ft_encoding_big5            FT_ENCODING_BIG5
+#define ft_encoding_wansung         FT_ENCODING_WANSUNG
+#define ft_encoding_johab           FT_ENCODING_JOHAB
+
+#define ft_encoding_adobe_standard  FT_ENCODING_ADOBE_STANDARD
+#define ft_encoding_adobe_expert    FT_ENCODING_ADOBE_EXPERT
+#define ft_encoding_adobe_custom    FT_ENCODING_ADOBE_CUSTOM
+#define ft_encoding_apple_roman     FT_ENCODING_APPLE_ROMAN
 
 
   /*************************************************************************/
@@ -458,8 +718,8 @@ FT_BEGIN_HEADER
   /* <Fields>                                                              */
   /*    face        :: A handle to the parent face object.                 */
   /*                                                                       */
-  /*    encoding    :: A @FT_Encoding tag identifying the charmap.  Use    */
-  /*                   this with @FT_Select_Charmap().                     */
+  /*    encoding    :: An @FT_Encoding tag identifying the charmap.  Use   */
+  /*                   this with @FT_Select_Charmap.                       */
   /*                                                                       */
   /*    platform_id :: An ID number describing the platform for the        */
   /*                   following encoding ID.  This comes directly from    */
@@ -498,15 +758,13 @@ FT_BEGIN_HEADER
   /*    An opaque handle to an FT_Face_InternalRec structure, used to      */
   /*    model private data of a given @FT_Face object.                     */
   /*                                                                       */
-  /*    This structure might change between releases of FreeType 2 and are */
+  /*    This structure might change between releases of FreeType 2 and is  */
   /*    not generally available to client applications.                    */
   /*                                                                       */
   typedef struct FT_Face_InternalRec_*  FT_Face_Internal;
 
 
   /*************************************************************************/
-  /*                                                                       */
-  /*                       FreeType base face object                       */
   /*                                                                       */
   /* <Struct>                                                              */
   /*    FT_FaceRec                                                         */
@@ -517,23 +775,26 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Fields>                                                              */
   /*    num_faces           :: In the case where the face is located in a  */
-  /*                           collection (i.e., a file which embed        */
+  /*                           collection (i.e., a file which embeds       */
   /*                           several faces), this is the total number of */
   /*                           faces found in the resource.  1 by default. */
+  /*                           Accessing non-existent face indices causes  */
+  /*                           an error.                                   */
   /*                                                                       */
   /*    face_index          :: The index of the face in its font file.     */
   /*                           Usually, this is 0 for all normal font      */
-  /*                           formats.  It can be more in the case of     */
+  /*                           formats.  It can be > 0 in the case of      */
   /*                           collections (which embed several fonts in a */
   /*                           single resource/file).                      */
   /*                                                                       */
   /*    face_flags          :: A set of bit flags that give important      */
   /*                           information about the face; see the         */
-  /*                           FT_FACE_FLAG_XXX constants for details.     */
+  /*                           @FT_FACE_FLAG_XXX constants for details.    */
   /*                                                                       */
   /*    style_flags         :: A set of bit flags indicating the style of  */
   /*                           the face (i.e., italic, bold, underline,    */
-  /*                           etc).                                       */
+  /*                           etc).  See the @FT_STYLE_FLAG_XXX           */
+  /*                           constants.                                  */
   /*                                                                       */
   /*    num_glyphs          :: The total number of glyphs in the face.     */
   /*                                                                       */
@@ -560,13 +821,13 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    num_fixed_sizes     :: The number of fixed sizes available in this */
   /*                           face.  This should be set to 0 for scalable */
-  /*                           fonts, unless its face includes a complete  */
-  /*                           set of glyphs (called a `strike') for the   */
+  /*                           fonts, unless its face includes a set of    */
+  /*                           glyphs (called a `strike') for the          */
   /*                           specified sizes.                            */
   /*                                                                       */
   /*    available_sizes     :: An array of sizes specifying the available  */
   /*                           bitmap/graymap sizes that are contained in  */
-  /*                           in the font face. Should be set to NULL if  */
+  /*                           in the font face.  Should be set to NULL if */
   /*                           the field `num_fixed_sizes' is set to 0.    */
   /*                                                                       */
   /*    num_charmaps        :: The total number of character maps in the   */
@@ -576,7 +837,7 @@ FT_BEGIN_HEADER
   /*                           Used to scan the list of available charmaps */
   /*                           -- this table might change after a call to  */
   /*                           @FT_Attach_File or @FT_Attach_Stream (e.g.  */
-  /*                           when used to hook an additional encoding or */
+  /*                           if used to hook an additional encoding or   */
   /*                           CMap to the face object).                   */
   /*                                                                       */
   /*    generic             :: A field reserved for client uses.  See the  */
@@ -611,10 +872,11 @@ FT_BEGIN_HEADER
   /*    descender           :: The face's descender is the vertical        */
   /*                           distance from the baseline to the           */
   /*                           bottommost point of any glyph in the face.  */
-  /*                           This field's value is positive, expressed   */
-  /*                           in font units.  Some font designs use a     */
-  /*                           value different from `-bbox.yMin'.  Only    */
-  /*                           relevant for scalable formats.              */
+  /*                           This field's value is *negative* for values */
+  /*                           below the baseline.  It is expressed in     */
+  /*                           font units.  Some font designs use a value  */
+  /*                           different from `bbox.yMin'.  Only relevant  */
+  /*                           for scalable formats.                       */
   /*                                                                       */
   /*    height              :: The face's height is the vertical distance  */
   /*                           from one baseline to the next when writing  */
@@ -655,9 +917,9 @@ FT_BEGIN_HEADER
   /*                           can need more than one slot to ease their   */
   /*                           task.                                       */
   /*                                                                       */
-  /*    size                :: the current active size for this face       */
+  /*    size                :: The current active size for this face.      */
   /*                                                                       */
-  /*    charmap             :: the current active charmap for this face    */
+  /*    charmap             :: The current active charmap for this face.   */
   /*                                                                       */
   typedef struct  FT_FaceRec_
   {
@@ -718,170 +980,92 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_FACE_FLAG_SCALABLE                                              */
+  /* <Enum>                                                                */
+  /*    FT_FACE_FLAG_XXX                                                   */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    A bit-field constant, used to indicate that a given face provides  */
-  /*    vectorial outlines (i.e., TrueType or Type1).  This doesn't        */
-  /*    prevent embedding of bitmap strikes though, i.e., a given face can */
-  /*    have both this bit set, and a `num_fixed_sizes' property > 0.      */
+  /*    A list of bit flags used in the `face_flags' field of the          */
+  /*    @FT_FaceRec structure.  They inform client applications of         */
+  /*    properties of the corresponding face.                              */
   /*                                                                       */
-#define FT_FACE_FLAG_SCALABLE  1
-
-
-  /*************************************************************************/
+  /* <Values>                                                              */
+  /*    FT_FACE_FLAG_SCALABLE ::                                           */
+  /*      Indicates that the face provides vectorial outlines.  This       */
+  /*      doesn't prevent embedded bitmaps, i.e., a face can have both     */
+  /*      this bit and @FT_FACE_FLAG_FIXED_SIZES set.                      */
   /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_FACE_FLAG_FIXED_SIZES                                           */
+  /*    FT_FACE_FLAG_FIXED_SIZES ::                                        */
+  /*      Indicates that the face contains `fixed sizes', i.e., bitmap     */
+  /*      strikes for some given pixel sizes.  See the `num_fixed_sizes'   */
+  /*      and `available_sizes' fields of @FT_FaceRec.                     */
   /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used to indicate that a given face contains  */
-  /*    `fixed sizes', i.e., bitmap strikes for some given pixel sizes.    */
-  /*    See the `num_fixed_sizes' and `available_sizes' face properties    */
-  /*    for more information.                                              */
+  /*    FT_FACE_FLAG_FIXED_WIDTH ::                                        */
+  /*      Indicates that the face contains fixed-width characters (like    */
+  /*      Courier, Lucido, MonoType, etc.).                                */
   /*                                                                       */
-#define FT_FACE_FLAG_FIXED_SIZES  2
-
-
-  /*************************************************************************/
+  /*    FT_FACE_FLAG_SFNT ::                                               */
+  /*      Indicates that the face uses the `sfnt' storage scheme.  For     */
+  /*      now, this means TrueType and OpenType.                           */
   /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_FACE_FLAG_FIXED_WIDTH                                           */
+  /*    FT_FACE_FLAG_HORIZONTAL ::                                         */
+  /*      Indicates that the face contains horizontal glyph metrics.  This */
+  /*      should be set for all common formats.                            */
   /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used to indicate that a given face contains  */
-  /*    fixed-width characters (like Courier, Lucida, MonoType, etc.).     */
+  /*    FT_FACE_FLAG_VERTICAL ::                                           */
+  /*      Indicates that the face contains vertical glyph metrics.  This   */
+  /*      is only available in some formats, not all of them.              */
   /*                                                                       */
-#define FT_FACE_FLAG_FIXED_WIDTH  4
-
-
-  /*************************************************************************/
+  /*    FT_FACE_FLAG_KERNING ::                                            */
+  /*      Indicates that the face contains kerning information.  If set,   */
+  /*      the kerning distance can be retrieved through the function       */
+  /*      @FT_Get_Kerning.  Note that if unset, this function will always  */
+  /*      return the vector (0,0).                                         */
   /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_FACE_FLAG_SFNT                                                  */
+  /*    FT_FACE_FLAG_FAST_GLYPHS ::                                        */
+  /*      THIS FLAG IS DEPRECATED.  DO NOT USE OR TEST IT.                 */
   /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used to indicate that a given face uses the  */
-  /*    `sfnt' storage fomat.  For now, this means TrueType or OpenType.   */
+  /*    FT_FACE_FLAG_MULTIPLE_MASTERS ::                                   */
+  /*      Indicates that the font contains multiple masters and is capable */
+  /*      of interpolating between them.  See the multiple-masters         */
+  /*      specific API for details.                                        */
   /*                                                                       */
-#define FT_FACE_FLAG_SFNT  8
-
-
-  /*************************************************************************/
+  /*    FT_FACE_FLAG_GLYPH_NAMES ::                                        */
+  /*      Indicates that the font contains glyph names that can be         */
+  /*      retrieved through @FT_Get_Glyph_Name.  Note that some TrueType   */
+  /*      fonts contain broken glyph name tables.  Use the function        */
+  /*      @FT_Has_PS_Glyph_Names when needed.                              */
   /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_FACE_FLAG_HORIZONTAL                                            */
+  /*    FT_FACE_FLAG_EXTERNAL_STREAM ::                                    */
+  /*      Used internally by FreeType to indicate that a face's stream was */
+  /*      provided by the client application and should not be destroyed   */
+  /*      when @FT_Done_Face is called.  Don't read or test this flag.     */
   /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used to indicate that a given face contains  */
-  /*    horizontal glyph metrics.  This should be set for all common       */
-  /*    formats, but who knows.                                            */
-  /*                                                                       */
-#define FT_FACE_FLAG_HORIZONTAL  0x10
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_FACE_FLAG_VERTICAL                                              */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used to indicate that a given face contains  */
-  /*    vertical glyph metrics.  If not set, the glyph loader will         */
-  /*    synthetize vertical metrics itself to help display vertical text   */
-  /*    correctly.                                                         */
-  /*                                                                       */
-#define FT_FACE_FLAG_VERTICAL  0x20
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_FACE_FLAG_KERNING                                               */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used to indicate that a given face contains  */
-  /*    kerning information.  When set, this information can be retrieved  */
-  /*    through the function @FT_Get_Kerning().  Note that when unset,     */
-  /*    this function will always return the kerning vector (0,0).         */
-  /*                                                                       */
-#define FT_FACE_FLAG_KERNING  0x40
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_FACE_FLAG_FAST_GLYPHS                                           */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used to indicate that the glyphs in a given  */
-  /*    font can be retrieved very quickly, and that a glyph cache is thus */
-  /*    not necessary for any of its child size objects.                   */
-  /*                                                                       */
-  /*    This flag should really be set for fixed-size formats like FNT,    */
-  /*    where each glyph bitmap is available directly in binary form       */
-  /*    without any kind of compression.                                   */
-  /*                                                                       */
-  /* <Note>                                                                */
-  /*    This bit flag is deprecated, because even if the bitmaps are       */
-  /*    available directly in the font file, the glyph sub-system is       */
-  /*    very likely to be faster anyway...                                 */
-  /*                                                                       */
-#define FT_FACE_FLAG_FAST_GLYPHS  0x80
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_FACE_FLAG_MULTIPLE_MASTERS                                      */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used to indicate that the font contains      */
-  /*    multiple masters and is capable of interpolating between them.     */
-  /*    See the multiple-masters specific API for more details             */
-  /*                                                                       */
-#define FT_FACE_FLAG_MULTIPLE_MASTERS  0x100
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_FACE_FLAG_GLYPH_NAMES                                           */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used to indicate that the font contains      */
-  /*    glyph names that can be retrieved through @FT_Get_Glyph_Name().    */
-  /*                                                                       */
-#define FT_FACE_FLAG_GLYPH_NAMES  0x200
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_FACE_FLAG_EXTERNAL_STREAM                                       */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    This bit field is used internally by FreeType to indicate that     */
-  /*    a face's stream was provided by the client application and should  */
-  /*    not be destroyed by @FT_Done_Face().                               */
-  /*                                                                       */
-#define FT_FACE_FLAG_EXTERNAL_STREAM  0x4000
-
+#define FT_FACE_FLAG_SCALABLE          ( 1L <<  0 )
+#define FT_FACE_FLAG_FIXED_SIZES       ( 1L <<  1 )
+#define FT_FACE_FLAG_FIXED_WIDTH       ( 1L <<  2 )
+#define FT_FACE_FLAG_SFNT              ( 1L <<  3 )
+#define FT_FACE_FLAG_HORIZONTAL        ( 1L <<  4 )
+#define FT_FACE_FLAG_VERTICAL          ( 1L <<  5 )
+#define FT_FACE_FLAG_KERNING           ( 1L <<  6 )
+#define FT_FACE_FLAG_FAST_GLYPHS       ( 1L <<  7 )
+#define FT_FACE_FLAG_MULTIPLE_MASTERS  ( 1L <<  8 )
+#define FT_FACE_FLAG_GLYPH_NAMES       ( 1L <<  9 )
+#define FT_FACE_FLAG_EXTERNAL_STREAM   ( 1L << 10 )
 
   /* */
 
 
   /*************************************************************************/
   /*                                                                       */
-  /* @macro: FT_HAS_HORIZONTAL (face)                                      */
+  /* @macro:                                                               */
+  /*    FT_HAS_HORIZONTAL( face )                                          */
   /*                                                                       */
   /* @description:                                                         */
-  /*   A macro that returns true whenever a face object contains           */
-  /*   horizontal metrics (this is true for all font formats though).      */
+  /*    A macro that returns true whenever a face object contains          */
+  /*    horizontal metrics (this is true for all font formats though).     */
   /*                                                                       */
   /* @also:                                                                */
-  /*   @FT_HAS_VERTICAL can be used to check for vertical metrics.         */
+  /*    @FT_HAS_VERTICAL can be used to check for vertical metrics.        */
   /*                                                                       */
 #define FT_HAS_HORIZONTAL( face ) \
           ( face->face_flags & FT_FACE_FLAG_HORIZONTAL )
@@ -889,11 +1073,12 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
-  /* @macro: FT_HAS_VERTICAL (face)                                        */
+  /* @macro:                                                               */
+  /*    FT_HAS_VERTICAL( face )                                            */
   /*                                                                       */
   /* @description:                                                         */
-  /*   A macro that returns true whenever a face object contains vertical  */
-  /*   metrics.                                                            */
+  /*    A macro that returns true whenever a face object contains vertical */
+  /*    metrics.                                                           */
   /*                                                                       */
 #define FT_HAS_VERTICAL( face ) \
           ( face->face_flags & FT_FACE_FLAG_VERTICAL )
@@ -901,11 +1086,12 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
-  /* @macro: FT_HAS_KERNING (face)                                         */
+  /* @macro:                                                               */
+  /*    FT_HAS_KERNING( face )                                             */
   /*                                                                       */
   /* @description:                                                         */
-  /*   A macro that returns true whenever a face object contains kerning   */
-  /*   data that can be accessed with @FT_Get_Kerning.                     */
+  /*    A macro that returns true whenever a face object contains kerning  */
+  /*    data that can be accessed with @FT_Get_Kerning.                    */
   /*                                                                       */
 #define FT_HAS_KERNING( face ) \
           ( face->face_flags & FT_FACE_FLAG_KERNING )
@@ -913,12 +1099,13 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
-  /* @macro: FT_IS_SCALABLE (face)                                         */
+  /* @macro:                                                               */
+  /*    FT_IS_SCALABLE( face )                                             */
   /*                                                                       */
   /* @description:                                                         */
-  /*   A macro that returns true whenever a face object contains a         */
-  /*   scalable font face (true for TrueType, Type 1, CID, and             */
-  /*   OpenType/CFF font formats.                                          */
+  /*    A macro that returns true whenever a face object contains a        */
+  /*    scalable font face (true for TrueType, Type 1, CID, and            */
+  /*    OpenType/CFF font formats.                                         */
   /*                                                                       */
 #define FT_IS_SCALABLE( face ) \
           ( face->face_flags & FT_FACE_FLAG_SCALABLE )
@@ -926,16 +1113,17 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
-  /* @macro: FT_IS_SFNT (face)                                             */
+  /* @macro:                                                               */
+  /*    FT_IS_SFNT( face )                                                 */
   /*                                                                       */
   /* @description:                                                         */
-  /*   A macro that returns true whenever a face object contains a font    */
-  /*   whose format is based on the SFNT storage scheme.  This usually     */
-  /*   means: TrueType fonts, OpenType fonts, as well as SFNT-based        */
-  /*   embedded bitmap fonts.                                              */
+  /*    A macro that returns true whenever a face object contains a font   */
+  /*    whose format is based on the SFNT storage scheme.  This usually    */
+  /*    means: TrueType fonts, OpenType fonts, as well as SFNT-based       */
+  /*    embedded bitmap fonts.                                             */
   /*                                                                       */
-  /*   If this macro is true, all functions defined in @FT_SFNT_NAMES_H    */
-  /*   and @FT_TRUETYPE_TABLES_H are available.                            */
+  /*    If this macro is true, all functions defined in @FT_SFNT_NAMES_H   */
+  /*    and @FT_TRUETYPE_TABLES_H are available.                           */
   /*                                                                       */
 #define FT_IS_SFNT( face ) \
           ( face->face_flags & FT_FACE_FLAG_SFNT )
@@ -943,12 +1131,13 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
-  /* @macro: FT_IS_FIXED_WIDTH (face)                                      */
+  /* @macro:                                                               */
+  /*    FT_IS_FIXED_WIDTH( face )                                          */
   /*                                                                       */
   /* @description:                                                         */
-  /*   A macro that returns true whenever a face object contains a font    */
-  /*   face that contains fixed-width (or "monospace", "fixed-pitch",      */
-  /*   etc.) glyphs.                                                       */
+  /*    A macro that returns true whenever a face object contains a font   */
+  /*    face that contains fixed-width (or "monospace", "fixed-pitch",     */
+  /*    etc.) glyphs.                                                      */
   /*                                                                       */
 #define FT_IS_FIXED_WIDTH( face ) \
           ( face->face_flags & FT_FACE_FLAG_FIXED_WIDTH )
@@ -956,12 +1145,13 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
-  /* @macro: FT_IS_FIXED_SIZES (face)                                      */
+  /* @macro:                                                               */
+  /*    FT_HAS_FIXED_SIZES( face )                                         */
   /*                                                                       */
   /* @description:                                                         */
-  /*   A macro that returns true whenever a face object contains some      */
-  /*   embedded bitmaps.  See the `fixed_sizes' field of the @FT_FaceRec   */
-  /*   structure.                                                          */
+  /*    A macro that returns true whenever a face object contains some     */
+  /*    embedded bitmaps.  See the `available_sizes' field of the          */
+  /*    @FT_FaceRec structure.                                             */
   /*                                                                       */
 #define FT_HAS_FIXED_SIZES( face ) \
           ( face->face_flags & FT_FACE_FLAG_FIXED_SIZES )
@@ -972,11 +1162,12 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
-  /* @macro: FT_HAS_FAST_GLYPHS (face)                                     */
+  /* @macro:                                                               */
+  /*    FT_HAS_FAST_GLYPHS( face )                                         */
   /*                                                                       */
   /* @description:                                                         */
-  /*   Deprecated, indicates that the face contains so-called "fast"       */
-  /*   glyph bitmaps.                                                      */
+  /*    Deprecated; indicates that the face contains so-called "fast"      */
+  /*    glyph bitmaps.                                                     */
   /*                                                                       */
 #define FT_HAS_FAST_GLYPHS( face ) \
           ( face->face_flags & FT_FACE_FLAG_FAST_GLYPHS )
@@ -984,11 +1175,12 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
-  /* @macro: FT_HAS_GLYPH_NAMES (face)                                     */
+  /* @macro:                                                               */
+  /*    FT_HAS_GLYPH_NAMES( face )                                         */
   /*                                                                       */
   /* @description:                                                         */
-  /*   A macro that returns true whenever a face object contains some      */
-  /*   glyph names that can be accessed through @FT_Get_Glyph_Names.       */
+  /*    A macro that returns true whenever a face object contains some     */
+  /*    glyph names that can be accessed through @FT_Get_Glyph_Name.       */
   /*                                                                       */
 #define FT_HAS_GLYPH_NAMES( face ) \
           ( face->face_flags & FT_FACE_FLAG_GLYPH_NAMES )
@@ -996,13 +1188,14 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
-  /* @macro: FT_HAS_MULTIPLE_MASTERS (face)                                */
+  /* @macro:                                                               */
+  /*    FT_HAS_MULTIPLE_MASTERS( face )                                    */
   /*                                                                       */
   /* @description:                                                         */
-  /*   A macro that returns true whenever a face object contains some      */
-  /*   multiple masters.  The functions provided by                        */
-  /*   @FT_MULTIPLE_MASTERS_H are then available to choose the exact       */
-  /*   design you want.                                                    */
+  /*    A macro that returns true whenever a face object contains some     */
+  /*    multiple masters.  The functions provided by                       */
+  /*    @FT_MULTIPLE_MASTERS_H are then available to choose the exact      */
+  /*    design you want.                                                   */
   /*                                                                       */
 #define FT_HAS_MULTIPLE_MASTERS( face ) \
           ( face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS )
@@ -1011,25 +1204,21 @@ FT_BEGIN_HEADER
   /*************************************************************************/
   /*                                                                       */
   /* <Constant>                                                            */
-  /*    FT_STYLE_FLAG_ITALIC                                               */
+  /*    FT_STYLE_FLAG_XXX                                                  */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    A bit-field constant, used to indicate that a given face is        */
-  /*    italicized.                                                        */
+  /*    A list of bit-flags used to indicate the style of a given face.    */
+  /*    These are used in the `style_flags' field of @FT_FaceRec.          */
   /*                                                                       */
-#define FT_STYLE_FLAG_ITALIC  1
-
-
-  /*************************************************************************/
+  /* <Values>                                                              */
+  /*    FT_STYLE_FLAG_ITALIC ::                                            */
+  /*      Indicates that a given face is italicized.                       */
   /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_STYLE_FLAG_BOLD                                                 */
+  /*    FT_STYLE_FLAG_BOLD ::                                              */
+  /*      Indicates that a given face is bold.                             */
   /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used to indicate that a given face is        */
-  /*    emboldened.                                                        */
-  /*                                                                       */
-#define FT_STYLE_FLAG_BOLD  2
+#define FT_STYLE_FLAG_ITALIC  ( 1 << 0 )
+#define FT_STYLE_FLAG_BOLD    ( 1 << 1 )
 
 
   /*************************************************************************/
@@ -1045,8 +1234,6 @@ FT_BEGIN_HEADER
 
 
   /*************************************************************************/
-  /*                                                                       */
-  /*                    FreeType base size metrics                         */
   /*                                                                       */
   /* <Struct>                                                              */
   /*    FT_Size_Metrics                                                    */
@@ -1073,10 +1260,12 @@ FT_BEGIN_HEADER
   /*                    units to fractional (26.6) pixel coordinates.      */
   /*                                                                       */
   /*    ascender     :: The ascender, expressed in 26.6 fixed point        */
-  /*                    pixels.  Always positive.                          */
+  /*                    pixels.  Positive for ascenders above the          */
+  /*                    baseline.                                          */
   /*                                                                       */
   /*    descender    :: The descender, expressed in 26.6 fixed point       */
-  /*                    pixels.  Always positive.                          */
+  /*                    pixels.  Negative for descenders below the         */
+  /*                    baseline.                                          */
   /*                                                                       */
   /*    height       :: The text height, expressed in 26.6 fixed point     */
   /*                    pixels.  Always positive.                          */
@@ -1085,12 +1274,12 @@ FT_BEGIN_HEADER
   /*                    fixed point pixels.  Always positive.              */
   /*                                                                       */
   /* <Note>                                                                */
-  /*    The values of `ascender', `descender', and `height' are only the   */
-  /*    scaled versions of `face->ascender', `face->descender', and        */
-  /*    `face->height'.                                                    */
+  /*    For scalable fonts, the values of `ascender', `descender', and     */
+  /*    `height' are scaled versions of `face->ascender',                  */
+  /*    `face->descender', and `face->height', respectively.               */
   /*                                                                       */
   /*    Unfortunately, due to glyph hinting, these values might not be     */
-  /*    exact for certain fonts, they thus must be treated as unreliable   */
+  /*    exact for certain fonts.  They thus must be treated as unreliable  */
   /*    with an error margin of at least one pixel!                        */
   /*                                                                       */
   /*    Indeed, the only way to get the exact pixel ascender and descender */
@@ -1104,7 +1293,7 @@ FT_BEGIN_HEADER
     FT_UShort  y_ppem;      /* vertical pixels per EM                 */
 
     FT_Fixed   x_scale;     /* two scales used to convert font units  */
-    FT_Fixed   y_scale;     /* to 26.6 frac. pixel coordinates..      */
+    FT_Fixed   y_scale;     /* to 26.6 frac. pixel coordinates        */
 
     FT_Pos     ascender;    /* ascender in 26.6 frac. pixels          */
     FT_Pos     descender;   /* descender in 26.6 frac. pixels         */
@@ -1115,8 +1304,6 @@ FT_BEGIN_HEADER
 
 
   /*************************************************************************/
-  /*                                                                       */
-  /*                       FreeType base size class                        */
   /*                                                                       */
   /* <Struct>                                                              */
   /*    FT_SizeRec                                                         */
@@ -1175,8 +1362,6 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
-  /*                  FreeType Glyph Slot base class                       */
-  /*                                                                       */
   /* <Struct>                                                              */
   /*    FT_GlyphSlotRec                                                    */
   /*                                                                       */
@@ -1204,7 +1389,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    metrics           :: The metrics of the last loaded glyph in the   */
   /*                         slot.  The returned values depend on the last */
-  /*                         load flags (see the FT_Load_Glyph() API       */
+  /*                         load flags (see the @FT_Load_Glyph API        */
   /*                         function) and can be expressed either in 26.6 */
   /*                         fractional pixels or font units.              */
   /*                                                                       */
@@ -1233,22 +1418,22 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    format            :: This field indicates the format of the image  */
   /*                         contained in the glyph slot.  Typically       */
-  /*                         ft_glyph_format_bitmap,                       */
-  /*                         ft_glyph_format_outline, and                  */
-  /*                         ft_glyph_format_composite, but others are     */
+  /*                         FT_GLYPH_FORMAT_BITMAP,                       */
+  /*                         FT_GLYPH_FORMAT_OUTLINE, and                  */
+  /*                         FT_GLYPH_FORMAT_COMPOSITE, but others are     */
   /*                         possible.                                     */
   /*                                                                       */
   /*    bitmap            :: This field is used as a bitmap descriptor     */
   /*                         when the slot format is                       */
-  /*                         ft_glyph_format_bitmap.  Note that the        */
+  /*                         FT_GLYPH_FORMAT_BITMAP.  Note that the        */
   /*                         address and content of the bitmap buffer can  */
-  /*                         change between calls of @FT_Load_Glyph() and  */
-  /*                         a few other functions.                        */
+  /*                         change between calls of @FT_Load_Glyph and a  */
+  /*                         few other functions.                          */
   /*                                                                       */
   /*    bitmap_left       :: This is the bitmap's left bearing expressed   */
   /*                         in integer pixels.  Of course, this is only   */
   /*                         valid if the format is                        */
-  /*                         ft_glyph_format_bitmap.                       */
+  /*                         FT_GLYPH_FORMAT_BITMAP.                       */
   /*                                                                       */
   /*    bitmap_top        :: This is the bitmap's top bearing expressed in */
   /*                         integer pixels.  Remember that this is the    */
@@ -1258,16 +1443,18 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    outline           :: The outline descriptor for the current glyph  */
   /*                         image if its format is                        */
-  /*                         ft_glyph_bitmap_outline.                      */
+  /*                         FT_GLYPH_FORMAT_OUTLINE.                      */
   /*                                                                       */
   /*    num_subglyphs     :: The number of subglyphs in a composite glyph. */
-  /*                         This format is only valid for the composite   */
-  /*                         glyph format, that should normally only be    */
-  /*                         loaded with the FT_LOAD_NO_RECURSE flag.      */
+  /*                         This field is only valid for the composite    */
+  /*                         glyph format that should normally only be     */
+  /*                         loaded with the @FT_LOAD_NO_RECURSE flag.     */
+  /*                         For now this is internal to FreeType.         */
   /*                                                                       */
   /*    subglyphs         :: An array of subglyph descriptors for          */
   /*                         composite glyphs.  There are `num_subglyphs'  */
-  /*                         elements in there.                            */
+  /*                         elements in there.  Currently internal to     */
+  /*                         FreeType.                                     */
   /*                                                                       */
   /*    control_data      :: Certain font drivers can also return the      */
   /*                         control data for a given glyph image (e.g.    */
@@ -1282,14 +1469,22 @@ FT_BEGIN_HEADER
   /*                         Note that the app will need to know about the */
   /*                         image format.                                 */
   /*                                                                       */
+  /*    lsb_delta         :: The difference between hinted and unhinted    */
+  /*                         left side bearing while autohinting is        */
+  /*                         active.  Zero otherwise.                      */
+  /*                                                                       */
+  /*    rsb_delta         :: The difference between hinted and unhinted    */
+  /*                         right side bearing while autohinting is       */
+  /*                         active.  Zero otherwise.                      */
+  /*                                                                       */
   /* <Note>                                                                */
-  /*    If @FT_Load_Glyph() is called with default flags (see              */
-  /*    @FT_LOAD_DEFAULT ) the glyph image is loaded in the glyph slot in  */
+  /*    If @FT_Load_Glyph is called with default flags (see                */
+  /*    @FT_LOAD_DEFAULT) the glyph image is loaded in the glyph slot in   */
   /*    its native format (e.g. a vectorial outline for TrueType and       */
   /*    Type 1 formats).                                                   */
   /*                                                                       */
   /*    This image can later be converted into a bitmap by calling         */
-  /*    FT_Render_Glyph().  This function finds the current renderer for   */
+  /*    @FT_Render_Glyph.  This function finds the current renderer for    */
   /*    the native image's format then invokes it.                         */
   /*                                                                       */
   /*    The renderer is in charge of transforming the native image through */
@@ -1299,14 +1494,42 @@ FT_BEGIN_HEADER
   /*    Note that `slot->bitmap_left' and `slot->bitmap_top' are also used */
   /*    to specify the position of the bitmap relative to the current pen  */
   /*    position (e.g. coordinates [0,0] on the baseline).  Of course,     */
-  /*    `slot->format' is also changed to `ft_glyph_format_bitmap' .       */
+  /*    `slot->format' is also changed to `FT_GLYPH_FORMAT_BITMAP' .       */
+  /*                                                                       */
+  /* <Note>                                                                */
+  /*    Here a small pseudo code fragment which shows how to use           */
+  /*    `lsb_delta' and `rsb_delta':                                       */
+  /*                                                                       */
+  /*    {                                                                  */
+  /*      FT_Pos  origin_x       = 0;                                      */
+  /*      FT_Pos  prev_rsb_delta = 0;                                      */
+  /*                                                                       */
+  /*                                                                       */
+  /*      for all glyphs do                                                */
+  /*        <compute kern between current and previous glyph and add it to */
+  /*         `origin_x'>                                                   */
+  /*                                                                       */
+  /*        <load glyph with `FT_Load_Glyph'>                              */
+  /*                                                                       */
+  /*        if ( prev_rsb_delta - face->glyph->lsb_delta >= 32 )           */
+  /*          origin_x -= 64;                                              */
+  /*        else if ( prev_rsb_delta - face->glyph->lsb_delta < -32 )      */
+  /*          origin_x += 64;                                              */
+  /*                                                                       */
+  /*        prev_rsb_delta = face->glyph->rsb_delta;                       */
+  /*                                                                       */
+  /*        <save glyph image, or render glyph, or ...>                    */
+  /*                                                                       */
+  /*        origin_x += face->glyph->advance.x;                            */
+  /*      endfor                                                           */
+  /*    }                                                                  */
   /*                                                                       */
   typedef struct  FT_GlyphSlotRec_
   {
     FT_Library        library;
     FT_Face           face;
     FT_GlyphSlot      next;
-    FT_UInt           flags;
+    FT_UInt           reserved;       /* retained for binary compatibility */
     FT_Generic        generic;
 
     FT_Glyph_Metrics  metrics;
@@ -1327,6 +1550,9 @@ FT_BEGIN_HEADER
 
     void*             control_data;
     long              control_len;
+
+    FT_Pos            lsb_delta;
+    FT_Pos            rsb_delta;
 
     void*             other;
 
@@ -1421,36 +1647,49 @@ FT_BEGIN_HEADER
   /*************************************************************************/
   /*                                                                       */
   /* <Enum>                                                                */
-  /*    FT_Open_Flags                                                      */
+  /*    FT_OPEN_XXX                                                        */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    An enumeration used to list the bit flags used within the          */
-  /*    `flags' field of the @FT_Open_Args structure.                      */
+  /*    A list of bit-field constants used within the `flags' field of the */
+  /*    @FT_Open_Args structure.                                           */
   /*                                                                       */
-  /* <Fields>                                                              */
-  /*    ft_open_memory   :: This is a memory-based stream.                 */
+  /* <Values>                                                              */
+  /*    FT_OPEN_MEMORY      :: This is a memory-based stream.              */
   /*                                                                       */
-  /*    ft_open_stream   :: Copy the stream from the `stream' field.       */
+  /*    FT_OPEN_STREAM      :: Copy the stream from the `stream' field.    */
   /*                                                                       */
-  /*    ft_open_pathname :: Create a new input stream from a C pathname.   */
+  /*    FT_OPEN_PATHNAME    :: Create a new input stream from a C          */
+  /*                           path name.                                  */
   /*                                                                       */
-  /*    ft_open_driver   :: Use the `driver' field.                        */
+  /*    FT_OPEN_DRIVER      :: Use the `driver' field.                     */
   /*                                                                       */
-  /*    ft_open_params   :: Use the `num_params' & `params' field.         */
+  /*    FT_OPEN_PARAMS      :: Use the `num_params' & `params' field.      */
+  /*                                                                       */
+  /*    ft_open_memory      :: Deprecated; use @FT_OPEN_MEMORY instead.    */
+  /*                                                                       */
+  /*    ft_open_stream      :: Deprecated; use @FT_OPEN_STREAM instead.    */
+  /*                                                                       */
+  /*    ft_open_pathname    :: Deprecated; use @FT_OPEN_PATHNAME instead.  */
+  /*                                                                       */
+  /*    ft_open_driver      :: Deprecated; use @FT_OPEN_DRIVER instead.    */
+  /*                                                                       */
+  /*    ft_open_params      :: Deprecated; use @FT_OPEN_PARAMS instead.    */
   /*                                                                       */
   /* <Note>                                                                */
-  /*    The `ft_open_memory', `ft_open_stream', and `ft_open_pathname'     */
+  /*    The `FT_OPEN_MEMORY', `FT_OPEN_STREAM', and `FT_OPEN_PATHNAME'     */
   /*    flags are mutually exclusive.                                      */
   /*                                                                       */
-  typedef enum
-  {
-    ft_open_memory   = 1,
-    ft_open_stream   = 2,
-    ft_open_pathname = 4,
-    ft_open_driver   = 8,
-    ft_open_params   = 16
+#define FT_OPEN_MEMORY    0x1
+#define FT_OPEN_STREAM    0x2
+#define FT_OPEN_PATHNAME  0x4
+#define FT_OPEN_DRIVER    0x8
+#define FT_OPEN_PARAMS    0x10
 
-  } FT_Open_Flags;
+#define ft_open_memory    FT_OPEN_MEMORY     /* deprecated */
+#define ft_open_stream    FT_OPEN_STREAM     /* deprecated */
+#define ft_open_pathname  FT_OPEN_PATHNAME   /* deprecated */
+#define ft_open_driver    FT_OPEN_DRIVER     /* deprecated */
+#define ft_open_params    FT_OPEN_PARAMS     /* deprecated */
 
 
   /*************************************************************************/
@@ -1460,7 +1699,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Description>                                                         */
   /*    A simple structure used to pass more or less generic parameters    */
-  /*    to FT_Open_Face().                                                 */
+  /*    to @FT_Open_Face.                                                  */
   /*                                                                       */
   /* <Fields>                                                              */
   /*    tag  :: A 4-byte identification tag.                               */
@@ -1486,7 +1725,7 @@ FT_BEGIN_HEADER
   /* <Description>                                                         */
   /*    A structure used to indicate how to open a new font file/stream.   */
   /*    A pointer to such a structure can be used as a parameter for the   */
-  /*    functions @FT_Open_Face() & @FT_Attach_Stream().                   */
+  /*    functions @FT_Open_Face and @FT_Attach_Stream.                     */
   /*                                                                       */
   /* <Fields>                                                              */
   /*    flags       :: A set of bit flags indicating how to use the        */
@@ -1500,7 +1739,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    stream      :: A handle to a source stream object.                 */
   /*                                                                       */
-  /*    driver      :: This field is exclusively used by FT_Open_Face();   */
+  /*    driver      :: This field is exclusively used by @FT_Open_Face;    */
   /*                   it simply specifies the font driver to use to open  */
   /*                   the face.  If set to 0, FreeType will try to load   */
   /*                   the face with each one of the drivers in its list.  */
@@ -1514,25 +1753,25 @@ FT_BEGIN_HEADER
   /*    The stream type is determined by the contents of `flags' which     */
   /*    are tested in the following order by @FT_Open_Face:                */
   /*                                                                       */
-  /*    If the `ft_open_memory' bit is set, assume that this is a          */
+  /*    If the `FT_OPEN_MEMORY' bit is set, assume that this is a          */
   /*    memory file of `memory_size' bytes,located at `memory_address'.    */
   /*                                                                       */
-  /*    Otherwise, if the `ft_open_stream' bit is set, assume that a       */
+  /*    Otherwise, if the `FT_OPEN_STREAM' bit is set, assume that a       */
   /*    custom input stream `stream' is used.                              */
   /*                                                                       */
-  /*    Otherwise, if the `ft_open_pathname' bit is set, assume that this  */
+  /*    Otherwise, if the `FT_OPEN_PATHNAME' bit is set, assume that this  */
   /*    is a normal file and use `pathname' to open it.                    */
   /*                                                                       */
-  /*    If the `ft_open_driver' bit is set, @FT_Open_Face() will only      */
-  /*    try to open the file with the driver whose handler is in `driver'. */
+  /*    If the `FT_OPEN_DRIVER' bit is set, @FT_Open_Face will only try to */
+  /*    open the file with the driver whose handler is in `driver'.        */
   /*                                                                       */
-  /*    If the `ft_open_params' bit is set, the parameters given by        */
+  /*    If the `FT_OPEN_PARAMS' bit is set, the parameters given by        */
   /*    `num_params' and `params' will be used.  They are ignored          */
   /*    otherwise.                                                         */
   /*                                                                       */
   typedef struct  FT_Open_Args_
   {
-    FT_Open_Flags   flags;
+    FT_UInt         flags;
     const FT_Byte*  memory_base;
     FT_Long         memory_size;
     FT_String*      pathname;
@@ -1561,6 +1800,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    face_index :: The index of the face within the resource.  The      */
   /*                  first face has index 0.                              */
+  /*                                                                       */
   /* <Output>                                                              */
   /*    aface      :: A handle to a new face object.                       */
   /*                                                                       */
@@ -1572,14 +1812,14 @@ FT_BEGIN_HEADER
   /*    slot for the face object which can be accessed directly through    */
   /*    `face->glyph'.                                                     */
   /*                                                                       */
-  /*    FT_New_Face() can be used to determine and/or check the font       */
-  /*    format of a given font resource.  If the `face_index' field is     */
-  /*    negative, the function will _not_ return any face handle in        */
-  /*    `aface'.  Its return value should be 0 if the font format is       */
-  /*    recognized, or non-zero otherwise.                                 */
+  /*    @FT_New_Face can be used to determine and/or check the font format */
+  /*    of a given font resource.  If the `face_index' field is negative,  */
+  /*    the function will _not_ return any face handle in `aface';  the    */
+  /*    return value is 0 if the font format is recognized, or non-zero    */
+  /*    otherwise.                                                         */
   /*                                                                       */
   /*    Each new face object created with this function also owns a        */
-  /*    default @FT_Size object, accessible as `face->size'                */
+  /*    default @FT_Size object, accessible as `face->size'.               */
   /*                                                                       */
   FT_EXPORT( FT_Error )
   FT_New_Face( FT_Library   library,
@@ -1607,6 +1847,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    face_index :: The index of the face within the resource.  The      */
   /*                  first face has index 0.                              */
+  /*                                                                       */
   /* <Output>                                                              */
   /*    aface      :: A handle to a new face object.                       */
   /*                                                                       */
@@ -1623,11 +1864,11 @@ FT_BEGIN_HEADER
   /*    slot for the face object which can be accessed directly through    */
   /*    `face->glyph'.                                                     */
   /*                                                                       */
-  /*    FT_New_Memory_Face() can be used to determine and/or check the     */
-  /*    font format of a given font resource.  If the `face_index' field   */
-  /*    is negative, the function will _not_ return any face handle in     */
-  /*    `aface'.  Its return value should be 0 if the font format is       */
-  /*    recognized, or non-zero otherwise.                                 */
+  /*    @FT_New_Memory_Face can be used to determine and/or check the font */
+  /*    format of a given font resource.  If the `face_index' field is     */
+  /*    negative, the function will _not_ return any face handle in        */
+  /*    `aface'; the return value is 0 if the font format is recognized,   */
+  /*    or non-zero otherwise.                                             */
   /*                                                                       */
   FT_EXPORT( FT_Error )
   FT_New_Memory_Face( FT_Library      library,
@@ -1656,6 +1897,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    face_index :: The index of the face within the resource.  The      */
   /*                  first face has index 0.                              */
+  /*                                                                       */
   /* <Output>                                                              */
   /*    aface      :: A handle to a new face object.                       */
   /*                                                                       */
@@ -1667,17 +1909,17 @@ FT_BEGIN_HEADER
   /*    slot for the face object which can be accessed directly through    */
   /*    `face->glyph'.                                                     */
   /*                                                                       */
-  /*    FT_Open_Face() can be used to determine and/or check the font      */
+  /*    @FT_Open_Face can be used to determine and/or check the font       */
   /*    format of a given font resource.  If the `face_index' field is     */
   /*    negative, the function will _not_ return any face handle in        */
-  /*    `*face'.  Its return value should be 0 if the font format is       */
-  /*    recognized, or non-zero otherwise.                                 */
+  /*    `*face'; the return value is 0 if the font format is recognized,   */
+  /*    or non-zero otherwise.                                             */
   /*                                                                       */
   FT_EXPORT( FT_Error )
-  FT_Open_Face( FT_Library     library,
-                FT_Open_Args*  args,
-                FT_Long        face_index,
-                FT_Face       *aface );
+  FT_Open_Face( FT_Library           library,
+                const FT_Open_Args*  args,
+                FT_Long              face_index,
+                FT_Face             *aface );
 
 
   /*************************************************************************/
@@ -1702,7 +1944,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Note>                                                                */
   /*    If your font file is in memory, or if you want to provide your     */
-  /*    own input stream object, use FT_Attach_Stream().                   */
+  /*    own input stream object, use @FT_Attach_Stream.                    */
   /*                                                                       */
   /*    The meaning of the `attach' action (i.e., what really happens when */
   /*    the new file is read) is not fixed by FreeType itself.  It really  */
@@ -1723,7 +1965,7 @@ FT_BEGIN_HEADER
   /*    FT_Attach_Stream                                                   */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    This function is similar to FT_Attach_File() with the exception    */
+  /*    This function is similar to @FT_Attach_File with the exception     */
   /*    that it reads the attachment from an arbitrary stream.             */
   /*                                                                       */
   /* <InOut>                                                               */
@@ -1783,7 +2025,7 @@ FT_BEGIN_HEADER
   /*    character dimensions is zero, its value is set equal to the other. */
   /*                                                                       */
   /* <InOut>                                                               */
-  /*    size            :: A handle to a target size object.               */
+  /*    face            :: A handle to a target face object.               */
   /*                                                                       */
   /* <Input>                                                               */
   /*    char_width      :: The character width, in 26.6 fractional points. */
@@ -1800,7 +2042,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Note>                                                                */
   /*    When dealing with fixed-size faces (i.e., non-scalable formats),   */
-  /*    use the function FT_Set_Pixel_Sizes().                             */
+  /*    @FT_Set_Pixel_Sizes provides a more convenient interface.          */
   /*                                                                       */
   FT_EXPORT( FT_Error )
   FT_Set_Char_Size( FT_Face     face,
@@ -1833,7 +2075,6 @@ FT_BEGIN_HEADER
   /* <Return>                                                              */
   /*    FreeType error code.  0 means success.                             */
   /*                                                                       */
-  /*                                                                       */
   /* <Note>                                                                */
   /*    The values of `pixel_width' and `pixel_height' correspond to the   */
   /*    pixel values of the _typographic_ character size, which are NOT    */
@@ -1848,6 +2089,11 @@ FT_BEGIN_HEADER
   /*    This means that setting the pixel size to, say, 8x8 doesn't        */
   /*    guarantee in any way that you will get glyph bitmaps that all fit  */
   /*    within an 8x8 cell (sometimes even far from it).                   */
+  /*                                                                       */
+  /*    For bitmap fonts, `pixel_height' usually is a reliable value for   */
+  /*    the height of the bitmap cell.  Drivers for bitmap font formats    */
+  /*    which contain a single bitmap strike only (BDF, PCF, FNT) ignore   */
+  /*    `pixel_width'.                                                     */
   /*                                                                       */
   FT_EXPORT( FT_Error )
   FT_Set_Pixel_Sizes( FT_Face  face,
@@ -1869,10 +2115,12 @@ FT_BEGIN_HEADER
   /*                   will be loaded.                                     */
   /*                                                                       */
   /* <Input>                                                               */
-  /*    glyph_index :: The index of the glyph in the font file.            */
+  /*    glyph_index :: The index of the glyph in the font file.  For       */
+  /*                   CID-keyed fonts (either in PS or in CFF format)     */
+  /*                   this argument specifies the CID value.              */
   /*                                                                       */
   /*    load_flags  :: A flag indicating what to load for this glyph.  The */
-  /*                   FT_LOAD_XXX constants can be used to control the    */
+  /*                   @FT_LOAD_XXX constants can be used to control the   */
   /*                   glyph loading process (e.g., whether the outline    */
   /*                   should be scaled, whether to load bitmaps or not,   */
   /*                   whether to hint the outline, etc).                  */
@@ -1884,15 +2132,15 @@ FT_BEGIN_HEADER
   /*    If the glyph image is not a bitmap, and if the bit flag            */
   /*    FT_LOAD_IGNORE_TRANSFORM is unset, the glyph image will be         */
   /*    transformed with the information passed to a previous call to      */
-  /*    FT_Set_Transform().                                                */
+  /*    @FT_Set_Transform.                                                 */
   /*                                                                       */
   /*    Note that this also transforms the `face.glyph.advance' field, but */
   /*    *not* the values in `face.glyph.metrics'.                          */
   /*                                                                       */
   FT_EXPORT( FT_Error )
-  FT_Load_Glyph( FT_Face  face,
-                 FT_UInt  glyph_index,
-                 FT_Int   load_flags );
+  FT_Load_Glyph( FT_Face   face,
+                 FT_UInt   glyph_index,
+                 FT_Int32  load_flags );
 
 
   /*************************************************************************/
@@ -1913,7 +2161,7 @@ FT_BEGIN_HEADER
   /*                   current charmap used in the face.                   */
   /*                                                                       */
   /*    load_flags  :: A flag indicating what to load for this glyph.  The */
-  /*                   FT_LOAD_XXX constants can be used to control the    */
+  /*                   @FT_LOAD_XXX constants can be used to control the   */
   /*                   glyph loading process (e.g., whether the outline    */
   /*                   should be scaled, whether to load bitmaps or not,   */
   /*                   whether to hint the outline, etc).                  */
@@ -1929,7 +2177,7 @@ FT_BEGIN_HEADER
   /*    If the glyph image is not a bitmap, and if the bit flag            */
   /*    FT_LOAD_IGNORE_TRANSFORM is unset, the glyph image will be         */
   /*    transformed with the information passed to a previous call to      */
-  /*    FT_Set_Transform().                                                */
+  /*    @FT_Set_Transform.                                                 */
   /*                                                                       */
   /*    Note that this also transforms the `face.glyph.advance' field, but */
   /*    *not* the values in `face.glyph.metrics'.                          */
@@ -1937,218 +2185,176 @@ FT_BEGIN_HEADER
   FT_EXPORT( FT_Error )
   FT_Load_Char( FT_Face   face,
                 FT_ULong  char_code,
-                FT_Int    load_flags );
+                FT_Int32  load_flags );
 
 
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_NO_SCALE                                                   */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit field constant, used with FT_Load_Glyph() to indicate that   */
-  /*    the vector outline being loaded should not be scaled to 26.6       */
-  /*    fractional pixels, but kept in notional units.                     */
-  /*                                                                       */
-#define FT_LOAD_NO_SCALE  1
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_NO_HINTING                                                 */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used with FT_Load_Glyph() to indicate that   */
-  /*    the vector outline being loaded should not be fitted to the pixel  */
-  /*    grid but simply scaled to 26.6 fractional pixels.                  */
-  /*                                                                       */
-  /*    This flag is ignored if FT_LOAD_NO_SCALE is set.                   */
-  /*                                                                       */
-#define FT_LOAD_NO_HINTING  2
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_RENDER                                                     */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used with FT_Load_Glyph() to indicate that   */
-  /*    the function should load the glyph and immediately convert it into */
-  /*    a bitmap, if necessary, by calling FT_Render_Glyph().              */
-  /*                                                                       */
-  /*    Note that by default, FT_Load_Glyph() loads the glyph image in its */
-  /*    native format.                                                     */
-  /*                                                                       */
-#define FT_LOAD_RENDER  4
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_NO_BITMAP                                                  */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used with FT_Load_Glyph() to indicate that   */
-  /*    the function should not load the bitmap or pixmap of a given       */
-  /*    glyph.  This is useful when you do not want to load the embedded   */
-  /*    bitmaps of scalable formats, as the native glyph image will be     */
-  /*    loaded, and can then be rendered through FT_Render_Glyph().        */
-  /*                                                                       */
-#define FT_LOAD_NO_BITMAP  8
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_VERTICAL_LAYOUT                                            */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used with FT_Load_Glyph() to indicate that   */
-  /*    the glyph image should be prepared for vertical layout.  This      */
-  /*    basically means that `face.glyph.advance' will correspond to the   */
-  /*    vertical advance height (instead of the default horizontal         */
-  /*    advance width), and that the glyph image will translated to match  */
-  /*    the vertical bearings positions.                                   */
-  /*                                                                       */
-#define FT_LOAD_VERTICAL_LAYOUT  16
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_FORCE_AUTOHINT                                             */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used with FT_Load_Glyph() to indicate that   */
-  /*    the function should try to auto-hint the glyphs, even if a driver  */
-  /*    specific hinter is available.                                      */
-  /*                                                                       */
-#define FT_LOAD_FORCE_AUTOHINT  32
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_CROP_BITMAP                                                */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used with FT_Load_Glyph() to indicate that   */
-  /*    the font driver should try to crop the bitmap (i.e. remove all     */
-  /*    space around its black bits) when loading it.  For now, this       */
-  /*    really only works with embedded bitmaps in TrueType fonts.         */
-  /*                                                                       */
-#define FT_LOAD_CROP_BITMAP  64
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_PEDANTIC                                                   */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used with FT_Load_Glyph() to indicate that   */
-  /*    the glyph loader should perform a pedantic bytecode                */
-  /*    interpretation.  Many popular fonts come with broken glyph         */
-  /*    programs.  When this flag is set, loading them will return an      */
-  /*    error.  Otherwise, errors are ignored by the loader, sometimes     */
-  /*    resulting in ugly glyphs.                                          */
-  /*                                                                       */
-#define FT_LOAD_PEDANTIC  128
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH                                */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used with FT_Load_Glyph() to indicate that   */
-  /*    the glyph loader should ignore the global advance width defined    */
-  /*    in the font.  As far as we know, this is only used by the          */
-  /*    X-TrueType font server, in order to deal correctly with the        */
-  /*    incorrect metrics contained in DynaLab's TrueType CJK fonts.       */
-  /*                                                                       */
-#define FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH  512
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_NO_RECURSE                                                 */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used with FT_Load_Glyph() to indicate that   */
-  /*    the glyph loader should not load composite glyph recursively.      */
-  /*    Rather, when a composite glyph is encountered, it should set       */
-  /*    the values of `num_subglyphs' and `subglyphs', as well as set      */
-  /*    `face->glyph.format' to ft_glyph_format_composite.                 */
-  /*                                                                       */
-  /*    This is for use by the auto-hinter and possibly other tools.       */
-  /*    For nearly all applications, this flags should be left unset       */
-  /*    when invoking FT_Load_Glyph().                                     */
-  /*                                                                       */
-  /*    Note that the flag forces the load of unscaled glyphs.             */
-  /*                                                                       */
-#define FT_LOAD_NO_RECURSE  1024
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_IGNORE_TRANSFORM                                           */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used with FT_Load_Glyph() to indicate that   */
-  /*    the glyph loader should not try to transform the loaded glyph      */
-  /*    image.                                                             */
-  /*                                                                       */
-#define FT_LOAD_IGNORE_TRANSFORM  2048
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_MONOCHROME                                                 */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    Only used with FT_LOAD_RENDER set, it indicates that the returned  */
-  /*    glyph image should be 1-bit monochrome.  This really tells the     */
-  /*    glyph loader to use `ft_render_mode_mono' when calling             */
-  /*    FT_Render_Glyph().                                                 */
-  /*                                                                       */
-#define FT_LOAD_MONOCHROME  4096
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_LINEAR_DESIGN                                              */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used with FT_Load_Glyph() to indicate that   */
-  /*    the function should return the linearly scaled metrics expressed   */
-  /*    in original font units, instead of the default 16.16 pixel values. */
-  /*                                                                       */
-#define FT_LOAD_LINEAR_DESIGN  8192
+ /***************************************************************************
+  *
+  * @enum:
+  *   FT_LOAD_XXX
+  *
+  * @description:
+  *   A list of bit-field constants, used with @FT_Load_Glyph to indicate
+  *   what kind of operations to perform during glyph loading.
+  *
+  * @values:
+  *   FT_LOAD_DEFAULT ::
+  *     Corresponding to 0, this value is used a default glyph load.  In this
+  *     case, the following will happen:
+  *
+  *     1. FreeType looks for a bitmap for the glyph corresponding to the
+  *        face's current size.  If one is found, the function returns.  The
+  *        bitmap data can be accessed from the glyph slot (see note below).
+  *
+  *     2. If no embedded bitmap is searched or found, FreeType looks for a
+  *        scalable outline.  If one is found, it is loaded from the font
+  *        file, scaled to device pixels, then "hinted" to the pixel grid in
+  *        order to optimize it.  The outline data can be accessed from the
+  *        glyph slot (see note below).
+  *
+  *     Note that by default, the glyph loader doesn't render outlines into
+  *     bitmaps.  The following flags are used to modify this default
+  *     behaviour to more specific and useful cases.
+  *
+  *   FT_LOAD_NO_SCALE ::
+  *     Don't scale the vector outline being loaded to 26.6 fractional
+  *     pixels, but kept in font units.  Note that this also disables
+  *     hinting and the loading of embedded bitmaps.  You should only use it
+  *     when you want to retrieve the original glyph outlines in font units.
+  *
+  *   FT_LOAD_NO_HINTING ::
+  *     Don't hint glyph outlines after their scaling to device pixels.
+  *     This generally generates "blurrier" glyphs in anti-aliased modes.
+  *
+  *     This flag is ignored if @FT_LOAD_NO_SCALE is set.
+  *
+  *   FT_LOAD_RENDER ::
+  *     Render the glyph outline immediately into a bitmap before the glyph
+  *     loader returns.  By default, the glyph is rendered for the
+  *     @FT_RENDER_MODE_NORMAL mode, which corresponds to 8-bit anti-aliased
+  *     bitmaps using 256 opacity levels.  You can use either
+  *     @FT_LOAD_TARGET_MONO or @FT_LOAD_MONOCHROME to render 1-bit
+  *     monochrome bitmaps.
+  *
+  *     This flag is ignored if @FT_LOAD_NO_SCALE is set.
+  *
+  *   FT_LOAD_NO_BITMAP ::
+  *     Don't look for bitmaps when loading the glyph.  Only scalable
+  *     outlines will be loaded when available, and scaled, hinted, or
+  *     rendered depending on other bit flags.
+  *
+  *     This does not prevent you from rendering outlines to bitmaps
+  *     with @FT_LOAD_RENDER, however.
+  *
+  *   FT_LOAD_VERTICAL_LAYOUT ::
+  *     Prepare the glyph image for vertical text layout.  This basically
+  *     means that `face.glyph.advance' will correspond to the vertical
+  *     advance height (instead of the default horizontal advance width),
+  *     and that the glyph image will be translated to match the vertical
+  *     bearings positions.
+  *
+  *   FT_LOAD_FORCE_AUTOHINT ::
+  *     Force the use of the FreeType auto-hinter when a glyph outline is
+  *     loaded.  You shouldn't need this in a typical application, since it
+  *     is mostly used to experiment with its algorithm.
+  *
+  *   FT_LOAD_CROP_BITMAP ::
+  *     Indicates that the glyph loader should try to crop the bitmap (i.e.,
+  *     remove all space around its black bits) when loading it.  This is
+  *     only useful when loading embedded bitmaps in certain fonts, since
+  *     bitmaps rendered with @FT_LOAD_RENDER are always cropped by default.
+  *
+  *   FT_LOAD_PEDANTIC ::
+  *     Indicates that the glyph loader should perform pedantic
+  *     verifications during glyph loading, rejecting invalid fonts.  This
+  *     is mostly used to detect broken glyphs in fonts.  By default,
+  *     FreeType tries to handle broken fonts also.
+  *
+  *   FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH ::
+  *     Indicates that the glyph loader should ignore the global advance
+  *     width defined in the font.  As far as we know, this is only used by
+  *     the X-TrueType font server, in order to deal correctly with the
+  *     incorrect metrics contained in DynaLab's TrueType CJK fonts.
+  *
+  *   FT_LOAD_NO_RECURSE ::
+  *     This flag is only used internally.  It merely indicates that the
+  *     glyph loader should not load composite glyphs recursively.  Instead,
+  *     it should set the `num_subglyph' and `subglyphs' values of the glyph
+  *     slot accordingly, and set "glyph->format" to
+  *     @FT_GLYPH_FORMAT_COMPOSITE.
+  *
+  *     The description of sub-glyphs is not available to client
+  *     applications for now.
+  *
+  *   FT_LOAD_IGNORE_TRANSFORM ::
+  *     Indicates that the glyph loader should not try to transform the
+  *     loaded glyph image.  This doesn't prevent scaling, hinting, or
+  *     rendering.
+  *
+  *   FT_LOAD_MONOCHROME ::
+  *     This flag is used with @FT_LOAD_RENDER to indicate that you want
+  *     to render a 1-bit monochrome glyph bitmap from a vectorial outline.
+  *
+  *     Note that this has no effect on the hinting algorithm used by the
+  *     glyph loader.  You should better use @FT_LOAD_TARGET_MONO if you
+  *     want to render monochrome-optimized glyph images instead.
+  *
+  *   FT_LOAD_LINEAR_DESIGN ::
+  *     Return the linearly scaled metrics expressed in original font units
+  *     instead of the default 16.16 pixel values.
+  *
+  *   FT_LOAD_NO_AUTOHINT ::
+  *     Indicates that the auto-hinter should never be used to hint glyph
+  *     outlines.  This doesn't prevent native format-specific hinters from
+  *     being used.  This can be important for certain fonts where unhinted
+  *     output is better than auto-hinted one.
+  *
+  *   FT_LOAD_TARGET_NORMAL ::
+  *     Use hinting for @FT_RENDER_MODE_NORMAL.
+  *
+  *   FT_LOAD_TARGET_LIGHT ::
+  *     Use hinting for @FT_RENDER_MODE_LIGHT.
+  *
+  *   FT_LOAD_TARGET_MONO ::
+  *     Use hinting for @FT_RENDER_MODE_MONO.
+  *
+  *   FT_LOAD_TARGET_LCD ::
+  *     Use hinting for @FT_RENDER_MODE_LCD.
+  *
+  *   FT_LOAD_TARGET_LCD_V ::
+  *     Use hinting for @FT_RENDER_MODE_LCD_V.
+  */
+#define FT_LOAD_DEFAULT                      0x0
+#define FT_LOAD_NO_SCALE                     0x1
+#define FT_LOAD_NO_HINTING                   0x2
+#define FT_LOAD_RENDER                       0x4
+#define FT_LOAD_NO_BITMAP                    0x8
+#define FT_LOAD_VERTICAL_LAYOUT              0x10
+#define FT_LOAD_FORCE_AUTOHINT               0x20
+#define FT_LOAD_CROP_BITMAP                  0x40
+#define FT_LOAD_PEDANTIC                     0x80
+#define FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH  0x200
+#define FT_LOAD_NO_RECURSE                   0x400
+#define FT_LOAD_IGNORE_TRANSFORM             0x800
+#define FT_LOAD_MONOCHROME                   0x1000
+#define FT_LOAD_LINEAR_DESIGN                0x2000
 
   /* temporary hack! */
-#define FT_LOAD_SBITS_ONLY  16384
+#define FT_LOAD_SBITS_ONLY                   0x4000
+#define FT_LOAD_NO_AUTOHINT                  0x8000U
 
+  /* */
 
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Constant>                                                            */
-  /*    FT_LOAD_DEFAULT                                                    */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A bit-field constant, used with FT_Load_Glyph() to indicate that   */
-  /*    the function should try to load the glyph normally, i.e.,          */
-  /*    embedded bitmaps are favored over outlines, vectors are always     */
-  /*    scaled and grid-fitted.                                            */
-  /*                                                                       */
-#define FT_LOAD_DEFAULT  0
+#define FT_LOAD_TARGET_( x )      ( (FT_Int32)( (x) & 15 ) << 16 )
+#define FT_LOAD_TARGET_MODE( x )  ( (FT_Render_Mode)( ( (x) >> 16 ) & 15 ) )
+
+#define FT_LOAD_TARGET_NORMAL     FT_LOAD_TARGET_( FT_RENDER_MODE_NORMAL )
+#define FT_LOAD_TARGET_LIGHT      FT_LOAD_TARGET_( FT_RENDER_MODE_LIGHT  )
+#define FT_LOAD_TARGET_MONO       FT_LOAD_TARGET_( FT_RENDER_MODE_MONO   )
+#define FT_LOAD_TARGET_LCD        FT_LOAD_TARGET_( FT_RENDER_MODE_LCD    )
+#define FT_LOAD_TARGET_LCD_V      FT_LOAD_TARGET_( FT_RENDER_MODE_LCD_V  )
+
+  /* */
 
 
   /*************************************************************************/
@@ -2159,7 +2365,7 @@ FT_BEGIN_HEADER
   /* <Description>                                                         */
   /*    A function used to set the transformation that is applied to glyph */
   /*    images just before they are converted to bitmaps in a glyph slot   */
-  /*    when FT_Render_Glyph() is called.                                  */
+  /*    when @FT_Render_Glyph is called.                                   */
   /*                                                                       */
   /* <InOut>                                                               */
   /*    face   :: A handle to the source face object.                      */
@@ -2174,7 +2380,7 @@ FT_BEGIN_HEADER
   /*    The transformation is only applied to scalable image formats after */
   /*    the glyph has been loaded.  It means that hinting is unaltered by  */
   /*    the transformation and is performed on the character size given in */
-  /*    the last call to FT_Set_Char_Sizes() or FT_Set_Pixel_Sizes().      */
+  /*    the last call to @FT_Set_Char_Size or @FT_Set_Pixel_Sizes.         */
   /*                                                                       */
   FT_EXPORT( void )
   FT_Set_Transform( FT_Face     face,
@@ -2188,33 +2394,78 @@ FT_BEGIN_HEADER
   /*    FT_Render_Mode                                                     */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    An enumeration type that lists the render modes supported by the   */
-  /*    FreeType 2 renderer(s).  A renderer is in charge of converting a   */
-  /*    glyph image into a bitmap.                                         */
+  /*    An enumeration type that lists the render modes supported by       */
+  /*    FreeType 2.  Each mode corresponds to a specific type of scanline  */
+  /*    conversion performed on the outline, as well as specific           */
+  /*    hinting optimizations.                                             */
   /*                                                                       */
-  /* <Fields>                                                              */
-  /*    ft_render_mode_normal :: This is the default render mode; it       */
-  /*                             corresponds to 8-bit anti-aliased         */
-  /*                             bitmaps, using 256 levels of gray.        */
+  /*    For bitmap fonts the `bitmap->pixel_mode' field in the             */
+  /*    @FT_GlyphSlotRec structure gives the format of the returned        */
+  /*    bitmap.                                                            */
   /*                                                                       */
-  /*    ft_render_mode_mono   :: This render mode is used to produce 1-bit */
-  /*                             monochrome bitmaps.                       */
+  /* <Values>                                                              */
+  /*    FT_RENDER_MODE_NORMAL ::                                           */
+  /*      This is the default render mode; it corresponds to 8-bit         */
+  /*      anti-aliased bitmaps, using 256 levels of opacity.               */
+  /*                                                                       */
+  /*    FT_RENDER_MODE_LIGHT ::                                            */
+  /*      This is similar to @FT_RENDER_MODE_NORMAL -- you have to use     */
+  /*      @FT_LOAD_TARGET_LIGHT in calls to @FT_Load_Glyph to get any      */
+  /*      effect since the rendering process no longer influences the      */
+  /*      positioning of glyph outlines.                                   */
+  /*                                                                       */
+  /*      The resulting glyph shapes are more similar to the original,     */
+  /*      while being a bit more fuzzy (`better shapes' instead of `better */
+  /*      contrast', so to say.                                            */
+  /*                                                                       */
+  /*    FT_RENDER_MODE_MONO ::                                             */
+  /*      This mode corresponds to 1-bit bitmaps.                          */
+  /*                                                                       */
+  /*    FT_RENDER_MODE_LCD ::                                              */
+  /*      This mode corresponds to horizontal RGB/BGR sub-pixel displays,  */
+  /*      like LCD-screens.  It produces 8-bit bitmaps that are 3 times    */
+  /*      the width of the original glyph outline in pixels, and which use */
+  /*      the @FT_PIXEL_MODE_LCD mode.                                     */
+  /*                                                                       */
+  /*    FT_RENDER_MODE_LCD_V ::                                            */
+  /*      This mode corresponds to vertical RGB/BGR sub-pixel displays     */
+  /*      (like PDA screens, rotated LCD displays, etc.).  It produces     */
+  /*      8-bit bitmaps that are 3 times the height of the original        */
+  /*      glyph outline in pixels and use the @FT_PIXEL_MODE_LCD_V mode.   */
   /*                                                                       */
   /* <Note>                                                                */
-  /*    There is no render mode to produce 8-bit `monochrome' bitmaps --   */
-  /*    you have to make the conversion yourself if you need such things   */
-  /*    (besides, FreeType is not a graphics library).                     */
-  /*                                                                       */
-  /*    More modes might appear later for specific display modes (e.g. TV, */
-  /*    LCDs, etc.).  They will be supported through the simple addition   */
-  /*    of a renderer module, with no changes to the rest of the engine.   */
+  /*   The LCD-optimized glyph bitmaps produced by FT_Render_Glyph are     */
+  /*   _not filtered_ to reduce color-fringes.  It is up to the caller to  */
+  /*   perform this pass.                                                  */
   /*                                                                       */
   typedef enum  FT_Render_Mode_
   {
-    ft_render_mode_normal = 0,
-    ft_render_mode_mono   = 1
+    FT_RENDER_MODE_NORMAL = 0,
+    FT_RENDER_MODE_LIGHT,
+    FT_RENDER_MODE_MONO,
+    FT_RENDER_MODE_LCD,
+    FT_RENDER_MODE_LCD_V,
+
+    FT_RENDER_MODE_MAX
 
   } FT_Render_Mode;
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* <Enum>                                                                */
+  /*    ft_render_mode_xxx                                                 */
+  /*                                                                       */
+  /* <Description>                                                         */
+  /*    These constats are deprecated.  Use the corresponding              */
+  /*    @FT_Render_Mode values instead.                                    */
+  /*                                                                       */
+  /* <Values>                                                              */
+  /*   ft_render_mode_normal :: see @FT_RENDER_MODE_NORMAL                 */
+  /*   ft_render_mode_mono   :: see @FT_RENDER_MODE_MONO                   */
+  /*                                                                       */
+#define ft_render_mode_normal  FT_RENDER_MODE_NORMAL
+#define ft_render_mode_mono    FT_RENDER_MODE_MONO
 
 
   /*************************************************************************/
@@ -2240,8 +2491,8 @@ FT_BEGIN_HEADER
   /*    FreeType error code.  0 means success.                             */
   /*                                                                       */
   FT_EXPORT( FT_Error )
-  FT_Render_Glyph( FT_GlyphSlot  slot,
-                   FT_UInt       render_mode );
+  FT_Render_Glyph( FT_GlyphSlot    slot,
+                   FT_Render_Mode  render_mode );
 
 
   /*************************************************************************/
@@ -2251,25 +2502,61 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Description>                                                         */
   /*    An enumeration used to specify which kerning values to return in   */
-  /*    FT_Get_Kerning().                                                  */
+  /*    @FT_Get_Kerning.                                                   */
   /*                                                                       */
-  /* <Fields>                                                              */
-  /*    ft_kerning_default  :: Return scaled and grid-fitted kerning       */
+  /* <Values>                                                              */
+  /*    FT_KERNING_DEFAULT  :: Return scaled and grid-fitted kerning       */
   /*                           distances (value is 0).                     */
   /*                                                                       */
-  /*    ft_kerning_unfitted :: Return scaled but un-grid-fitted kerning    */
+  /*    FT_KERNING_UNFITTED :: Return scaled but un-grid-fitted kerning    */
   /*                           distances.                                  */
   /*                                                                       */
-  /*    ft_kerning_unscaled :: Return the kerning vector in original font  */
+  /*    FT_KERNING_UNSCALED :: Return the kerning vector in original font  */
   /*                           units.                                      */
   /*                                                                       */
   typedef enum  FT_Kerning_Mode_
   {
-    ft_kerning_default  = 0,
-    ft_kerning_unfitted,
-    ft_kerning_unscaled
+    FT_KERNING_DEFAULT  = 0,
+    FT_KERNING_UNFITTED,
+    FT_KERNING_UNSCALED
 
   } FT_Kerning_Mode;
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* <Const>                                                               */
+  /*    ft_kerning_default                                                 */
+  /*                                                                       */
+  /* <Description>                                                         */
+  /*    This constant is deprecated.  Please use @FT_KERNING_DEFAULT       */
+  /*    instead.                                                           */
+  /*                                                                       */
+#define ft_kerning_default   FT_KERNING_DEFAULT
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* <Const>                                                               */
+  /*    ft_kerning_unfitted                                                */
+  /*                                                                       */
+  /* <Description>                                                         */
+  /*    This constant is deprecated.  Please use @FT_KERNING_UNFITTED      */
+  /*    instead.                                                           */
+  /*                                                                       */
+#define ft_kerning_unfitted  FT_KERNING_UNFITTED
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* <Const>                                                               */
+  /*    ft_kerning_unscaled                                                */
+  /*                                                                       */
+  /* <Description>                                                         */
+  /*    This constant is deprecated.  Please use @FT_KERNING_UNSCALED      */
+  /*    instead.                                                           */
+  /*                                                                       */
+#define ft_kerning_unscaled  FT_KERNING_UNSCALED
 
 
   /*************************************************************************/
@@ -2287,7 +2574,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    right_glyph :: The index of the right glyph in the kern pair.      */
   /*                                                                       */
-  /*    kern_mode   :: See FT_Kerning_Mode() for more information.         */
+  /*    kern_mode   :: See @FT_Kerning_Mode for more information.          */
   /*                   Determines the scale/dimension of the returned      */
   /*                   kerning vector.                                     */
   /*                                                                       */
@@ -2432,6 +2719,25 @@ FT_BEGIN_HEADER
   FT_EXPORT( FT_Error )
   FT_Set_Charmap( FT_Face     face,
                   FT_CharMap  charmap );
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* @function:                                                            */
+  /*    FT_Get_Charmap_Index                                               */
+  /*                                                                       */
+  /* @description:                                                         */
+  /*    Retrieve index of a given charmap.                                 */
+  /*                                                                       */
+  /* @input:                                                               */
+  /*    charmap :: A handle to a charmap.                                  */
+  /*                                                                       */
+  /* @return:                                                              */
+  /*    The index into the array of character maps within the face to      */
+  /*    which `charmap' belongs.                                           */
+  /*                                                                       */
+  FT_EXPORT( FT_Int )
+  FT_Get_Charmap_Index( FT_CharMap  charmap );
 
 
   /*************************************************************************/
@@ -2681,7 +2987,7 @@ FT_BEGIN_HEADER
   /* <Note>                                                                */
   /*    The optimization for FT_DivFix() is simple: If (a << 16) fits in   */
   /*    32 bits, then the division is computed directly.  Otherwise, we    */
-  /*    use a specialized version of the old FT_MulDiv64().                */
+  /*    use a specialized version of @FT_MulDiv.                           */
   /*                                                                       */
   FT_EXPORT( FT_Long )
   FT_DivFix( FT_Long  a,
@@ -2767,6 +3073,7 @@ FT_BEGIN_HEADER
 
 
   /* */
+
 
 FT_END_HEADER
 

@@ -5,7 +5,7 @@
 /*    Basic SFNT/TrueType tables definitions and interface                 */
 /*    (specification only).                                                */
 /*                                                                         */
-/*  Copyright 1996-2001 by                                                 */
+/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -23,6 +23,12 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+
+#ifdef FREETYPE_H
+#error "freetype.h of FreeType 1 has been loaded!"
+#error "Please fix the directory search order for header files"
+#error "so that freetype.h of FreeType 2 is found first."
+#endif
 
 
 FT_BEGIN_HEADER
@@ -510,12 +516,11 @@ FT_BEGIN_HEADER
   /*    maxSizeOfInstructions :: The maximum number of TrueType opcodes    */
   /*                             used for glyph hinting.                   */
   /*                                                                       */
-  /*    maxComponentElements  :: An obscure value related to composite     */
-  /*                             glyphs definitions.                       */
+  /*    maxComponentElements  :: The maximum number of simple (i.e., non-  */
+  /*                             composite) glyphs in a composite glyph.   */
   /*                                                                       */
-  /*    maxComponentDepth     :: An obscure value related to composite     */
-  /*                             glyphs definitions.  Probably the maximum */
-  /*                             number of simple glyphs in a composite.   */
+  /*    maxComponentDepth     :: The maximum nesting depth of composite    */
+  /*                             glyphs.                                   */
   /*                                                                       */
   /* <Note>                                                                */
   /*    This structure is only used during font loading.                   */
@@ -541,8 +546,15 @@ FT_BEGIN_HEADER
   } TT_MaxProfile;
 
 
-  /* */
-
+  /*************************************************************************/
+  /*                                                                       */
+  /* <Enum>                                                                */
+  /*    FT_Sfnt_Tag                                                        */
+  /*                                                                       */
+  /* <Description>                                                         */
+  /*    An enumeration used to specify the index of an SFNT table.         */
+  /*    Used in the @FT_Get_Sfnt_Table API function.                       */
+  /*                                                                       */
   typedef enum
   {
     ft_sfnt_head = 0,
@@ -553,15 +565,11 @@ FT_BEGIN_HEADER
     ft_sfnt_post = 5,
     ft_sfnt_pclt = 6,
 
-    sfnt_max   /* don't remove */
+    sfnt_max   /* internal end mark */
 
   } FT_Sfnt_Tag;
 
-
-  /* internal use only */
-  typedef void*
-  (*FT_Get_Sfnt_Table_Func)( FT_Face      face,
-                             FT_Sfnt_Tag  tag );
+  /* */
 
 
   /*************************************************************************/
@@ -586,13 +594,94 @@ FT_BEGIN_HEADER
   /*    The table is owned by the face object and disappears with it.      */
   /*                                                                       */
   /*    This function is only useful to access SFNT tables that are loaded */
-  /*    by the sfnt/truetype/opentype drivers.  See FT_Sfnt_Tag for a      */
+  /*    by the sfnt/truetype/opentype drivers.  See @FT_Sfnt_Tag for a     */
   /*    list.                                                              */
   /*                                                                       */
   FT_EXPORT( void* )
   FT_Get_Sfnt_Table( FT_Face      face,
                      FT_Sfnt_Tag  tag );
 
+
+ /**************************************************************************
+  *
+  * <Function>
+  *    FT_Load_Sfnt_Table
+  *
+  * <Description>
+  *   Loads any font table into client memory.
+  *
+  * <Input>
+  *   face   :: A handle to the source face.
+  *
+  *   tag    :: The 4-byte tag of the table to load.  Use the value 0 if
+  *             you want to access the whole font file.  Otherwise, you can
+  *             use one of the definitions found in the @FT_TRUETYPE_TAGS_H
+  *             file, or forge a new one with @FT_MAKE_TAG.
+  *              
+  *   offset :: The starting offset in the table (or file if tag == 0).
+  *
+  * <Output>
+  *   buffer :: The target buffer address.  The client must ensure that
+  *             the memory array is big enough to hold the data.
+  *
+  * <InOut>
+  *   length :: If the `length' parameter is NULL, then try to load the whole
+  *             table.  Return an error code if it fails.
+  *
+  *             Else, if `*length' is 0, exit immediately while returning
+  *             the table's (or file) full size in it.
+  *
+  *             Else the number of bytes to read from the table or file,
+  *             from the starting offset.
+  *
+  * <Return>
+  *   FreeType error code.  0 means success.
+  *
+  * <Note>
+  *   If you need to determine the table's length you should first call this
+  *   function with `*length' set to 0, as in the following example:
+  *
+  *   {
+  *     FT_ULong  length = 0;
+  *
+  *
+  *     error = FT_Load_Sfnt_Table( face, tag, 0, NULL, &length );
+  *     if ( error ) { ... table does not exist ... }
+  *
+  *     buffer = malloc( length );
+  *     if ( buffer == NULL ) { ... not enough memory ... }
+  *
+  *     error = FT_Load_Sfnt_Table( face,tag, 0, buffer, &length );
+  *     if ( error ) { ... could not load table ... }
+  *   }
+  */
+  FT_EXPORT( FT_Error )
+  FT_Load_Sfnt_Table( FT_Face    face,
+                      FT_ULong   tag,
+                      FT_Long    offset,
+                      FT_Byte*   buffer,
+                      FT_ULong*  length );
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* <Function>                                                            */
+  /*    FT_Get_CMap_Language_ID                                            */
+  /*                                                                       */
+  /* <Description>                                                         */
+  /*    Return TrueType/sfnt specific cmap language ID.  Definitions of    */
+  /*    language ID values are in freetype/ttnameid.h.                     */
+  /*                                                                       */
+  /* <Input>                                                               */
+  /*    charmap ::                                                         */
+  /*      The target charmap.                                              */
+  /*                                                                       */
+  /* <Return>                                                              */
+  /*    The language ID of `charmap'.  If `charmap' doesn't belong to a    */
+  /*    TrueType/sfnt face, just return 0 as the default value.            */
+  /*                                                                       */
+  FT_EXPORT( FT_ULong )
+  FT_Get_CMap_Language_ID( FT_CharMap  charmap );
 
   /* */
 

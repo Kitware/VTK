@@ -5,7 +5,7 @@
 /*    Auxiliary functions and data structures related to PostScript fonts  */
 /*    (specification).                                                     */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002 by                                           */
+/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -24,6 +24,7 @@
 #include <ft2build.h>
 #include FT_INTERNAL_OBJECTS_H
 #include FT_INTERNAL_TYPE1_TYPES_H
+#include FT_SERVICE_POSTSCRIPT_CMAPS_H
 
 
 FT_BEGIN_HEADER
@@ -70,10 +71,10 @@ FT_BEGIN_HEADER
     (*done)( PS_Table  table );
 
     FT_Error
-    (*add)( PS_Table   table,
-            FT_Int     index,
-            void*      object,
-            FT_Int     length );
+    (*add)( PS_Table    table,
+            FT_Int      idx,
+            void*       object,
+            FT_PtrDist  length );
 
     void
     (*release)( PS_Table  table );
@@ -123,7 +124,7 @@ FT_BEGIN_HEADER
     FT_Int             max_elems;
     FT_Int             num_elems;
     FT_Byte**          elements;       /* addresses of table elements */
-    FT_Int*            lengths;        /* lengths of table elements   */
+    FT_PtrDist*        lengths;        /* lengths of table elements   */
 
     FT_Memory          memory;
     PS_Table_FuncsRec  funcs;
@@ -142,10 +143,10 @@ FT_BEGIN_HEADER
   typedef struct PS_ParserRec_*  PS_Parser;
 
   typedef struct T1_TokenRec_*   T1_Token;
-  
+
   typedef struct T1_FieldRec_*   T1_Field;
 
-  
+
   /* simple enumeration type used to identify token types */
   typedef enum  T1_TokenType_
   {
@@ -177,7 +178,10 @@ FT_BEGIN_HEADER
     T1_FIELD_TYPE_BOOL,
     T1_FIELD_TYPE_INTEGER,
     T1_FIELD_TYPE_FIXED,
+    T1_FIELD_TYPE_FIXED_1000,
     T1_FIELD_TYPE_STRING,
+    T1_FIELD_TYPE_KEY,
+    T1_FIELD_TYPE_BBOX,
     T1_FIELD_TYPE_INTEGER_ARRAY,
     T1_FIELD_TYPE_FIXED_ARRAY,
     T1_FIELD_TYPE_CALLBACK,
@@ -194,6 +198,7 @@ FT_BEGIN_HEADER
     T1_FIELD_LOCATION_FONT_DICT,
     T1_FIELD_LOCATION_FONT_INFO,
     T1_FIELD_LOCATION_PRIVATE,
+    T1_FIELD_LOCATION_BBOX,
 
     /* do not remove */
     T1_FIELD_LOCATION_MAX
@@ -259,7 +264,7 @@ FT_BEGIN_HEADER
           },
 
 
-#define T1_FIELD_TYPE_BOOL( _ident, _fname )                        \
+#define T1_FIELD_BOOL( _ident, _fname )                             \
           T1_NEW_SIMPLE_FIELD( _ident, T1_FIELD_TYPE_BOOL, _fname )
 
 #define T1_FIELD_NUM( _ident, _fname )                                 \
@@ -268,8 +273,18 @@ FT_BEGIN_HEADER
 #define T1_FIELD_FIXED( _ident, _fname )                             \
           T1_NEW_SIMPLE_FIELD( _ident, T1_FIELD_TYPE_FIXED, _fname )
 
+#define T1_FIELD_FIXED_1000( _ident, _fname )                             \
+          T1_NEW_SIMPLE_FIELD( _ident, T1_FIELD_TYPE_FIXED_1000, _fname )
+
 #define T1_FIELD_STRING( _ident, _fname )                             \
           T1_NEW_SIMPLE_FIELD( _ident, T1_FIELD_TYPE_STRING, _fname )
+
+#define T1_FIELD_KEY( _ident, _fname )                             \
+          T1_NEW_SIMPLE_FIELD( _ident, T1_FIELD_TYPE_KEY, _fname )
+
+#define T1_FIELD_BBOX( _ident, _fname )                             \
+          T1_NEW_SIMPLE_FIELD( _ident, T1_FIELD_TYPE_BBOX, _fname )
+
 
 #define T1_FIELD_NUM_TABLE( _ident, _fname, _fmax )                \
           T1_NEW_TABLE_FIELD( _ident, T1_FIELD_TYPE_INTEGER_ARRAY, \
@@ -315,13 +330,21 @@ FT_BEGIN_HEADER
     void
     (*skip_spaces)( PS_Parser  parser );
     void
-    (*skip_alpha)( PS_Parser  parser );
+    (*skip_PS_token)( PS_Parser  parser );
 
     FT_Long
     (*to_int)( PS_Parser  parser );
     FT_Fixed
     (*to_fixed)( PS_Parser  parser,
                  FT_Int     power_ten );
+
+    FT_Error
+    (*to_bytes)( PS_Parser  parser,
+                 FT_Byte*   bytes,
+                 FT_Long    max_bytes,
+                 FT_Long*   pnum_bytes,
+                 FT_Bool    delimiters );
+
     FT_Int
     (*to_coord_array)( PS_Parser  parser,
                        FT_Int     max_coords,
@@ -388,7 +411,7 @@ FT_BEGIN_HEADER
     FT_Memory  memory;
 
     PS_Parser_FuncsRec  funcs;
-    
+
   } PS_ParserRec;
 
 
@@ -455,6 +478,17 @@ FT_BEGIN_HEADER
   } T1_Builder_FuncsRec;
 
 
+  /* an enumeration type to handle charstring parsing states */
+  typedef enum  T1_ParseState_
+  {
+    T1_Parse_Start,
+    T1_Parse_Have_Width,
+    T1_Parse_Have_Moveto,
+    T1_Parse_Have_Path
+
+  } T1_ParseState;
+
+
   /*************************************************************************/
   /*                                                                       */
   /* <Structure>                                                           */
@@ -496,14 +530,12 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    bbox         :: Unused.                                            */
   /*                                                                       */
-  /*    path_begun   :: A flag which indicates that a new path has begun.  */
+  /*    parse_state  :: An enumeration which controls the charstring       */
+  /*                    parsing state.                                     */
   /*                                                                       */
   /*    load_points  :: If this flag is not set, no points are loaded.     */
   /*                                                                       */
   /*    no_recurse   :: Set but not used.                                  */
-  /*                                                                       */
-  /*    error        :: An error code that is only used to report memory   */
-  /*                    allocation problems.                               */
   /*                                                                       */
   /*    metrics_only :: A boolean indicating that we only want to compute  */
   /*                    the metrics of a given glyph, not load all of its  */
@@ -532,19 +564,18 @@ FT_BEGIN_HEADER
     FT_Vector       advance;
 
     FT_BBox         bbox;          /* bounding box */
-    FT_Bool         path_begun;
+    T1_ParseState   parse_state;
     FT_Bool         load_points;
     FT_Bool         no_recurse;
     FT_Bool         shift;
 
-    FT_Error        error;         /* only used for memory errors */
     FT_Bool         metrics_only;
 
     void*           hints_funcs;    /* hinter-specific */
     void*           hints_globals;  /* hinter-specific */
 
     T1_Builder_FuncsRec  funcs;
-    
+
   } T1_BuilderRec;
 
 
@@ -604,6 +635,7 @@ FT_BEGIN_HEADER
              FT_Byte**            glyph_names,
              PS_Blend             blend,
              FT_Bool              hinting,
+             FT_Render_Mode       hint_mode,
              T1_Decoder_Callback  callback );
 
     void
@@ -613,7 +645,7 @@ FT_BEGIN_HEADER
     (*parse_charstrings)( T1_Decoder  decoder,
                           FT_Byte*    base,
                           FT_UInt     len );
-                          
+
   } T1_Decoder_FuncsRec;
 
 
@@ -627,14 +659,14 @@ FT_BEGIN_HEADER
     T1_Decoder_ZoneRec   zones[T1_MAX_SUBRS_CALLS + 1];
     T1_Decoder_Zone      zone;
 
-    PSNames_Service      psnames;      /* for seac */
+    FT_Service_PsCMaps   psnames;      /* for seac */
     FT_UInt              num_glyphs;
     FT_Byte**            glyph_names;
 
     FT_Int               lenIV;        /* internal for sub routine calls */
     FT_UInt              num_subrs;
     FT_Byte**            subrs;
-    FT_Int*              subrs_len;    /* array of subrs length (optional) */
+    FT_PtrDist*          subrs_len;    /* array of subrs length (optional) */
 
     FT_Matrix            font_matrix;
     FT_Vector            font_offset;
@@ -645,9 +677,11 @@ FT_BEGIN_HEADER
 
     PS_Blend             blend;       /* for multiple master support */
 
+    FT_Render_Mode       hint_mode;
+
     T1_Decoder_Callback  parse_callback;
     T1_Decoder_FuncsRec  funcs;
-    
+
   } T1_DecoderRec;
 
 
@@ -667,9 +701,9 @@ FT_BEGIN_HEADER
     FT_CMap_Class  expert;
     FT_CMap_Class  custom;
     FT_CMap_Class  unicode;
-  
+
   } T1_CMap_ClassesRec;
-  
+
 
   /*************************************************************************/
   /*************************************************************************/

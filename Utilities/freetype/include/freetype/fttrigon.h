@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType trigonometric functions (specification).                    */
 /*                                                                         */
-/*  Copyright 2001 by                                                      */
+/*  Copyright 2001, 2003 by                                                */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -20,6 +20,12 @@
 #define __FTTRIGON_H__
 
 #include FT_FREETYPE_H
+
+#ifdef FREETYPE_H
+#error "freetype.h of FreeType 1 has been loaded!"
+#error "Please fix the directory search order for header files"
+#error "so that freetype.h of FreeType 2 is found first."
+#endif
 
 
 FT_BEGIN_HEADER
@@ -176,6 +182,28 @@ FT_BEGIN_HEADER
   /*************************************************************************/
   /*                                                                       */
   /* @function:                                                            */
+  /*    FT_Angle_Diff                                                      */
+  /*                                                                       */
+  /* @description:                                                         */
+  /*    Return the difference between two angles.  The result is always    */
+  /*    constrained to the ]-PI..PI] interval.                             */
+  /*                                                                       */
+  /* @input:                                                               */
+  /*    angle1 :: First angle.                                             */
+  /*                                                                       */
+  /*    angle2 :: Second angle.                                            */
+  /*                                                                       */
+  /* @return:                                                              */
+  /*    Contrainted value of `value2-value1'.                              */
+  /*                                                                       */
+  FT_EXPORT( FT_Angle )
+  FT_Angle_Diff( FT_Angle  angle1,
+                 FT_Angle  angle2 );
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* @function:                                                            */
   /*    FT_Vector_Unit                                                     */
   /*                                                                       */
   /* @description:                                                         */
@@ -238,22 +266,6 @@ FT_BEGIN_HEADER
   /*************************************************************************/
   /*                                                                       */
   /* @function:                                                            */
-  /*    FT_Vector_Normalize                                                */
-  /*                                                                       */
-  /* @description:                                                         */
-  /*    Normalize a given vector (i.e. compute the equivalent unit         */
-  /*    vector).                                                           */
-  /*                                                                       */
-  /* @inout:                                                               */
-  /*    vec :: The address of target vector.                               */
-  /*                                                                       */
-  FT_EXPORT( void )
-  FT_Vector_Normalize( FT_Vector*  vec );
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* @function:                                                            */
   /*    FT_Vector_Polarize                                                 */
   /*                                                                       */
   /* @description:                                                         */
@@ -270,6 +282,28 @@ FT_BEGIN_HEADER
   FT_Vector_Polarize( FT_Vector*  vec,
                       FT_Fixed   *length,
                       FT_Angle   *angle );
+
+
+  /*************************************************************************/
+  /*                                                                       */
+  /* @function:                                                            */
+  /*    FT_Vector_From_Polar                                               */
+  /*                                                                       */
+  /* @description:                                                         */
+  /*    Compute vector coordinates from a length and angle.                */
+  /*                                                                       */
+  /* @output:                                                              */
+  /*    vec    :: The address of source vector.                            */
+  /*                                                                       */
+  /* @input:                                                               */
+  /*    length :: The vector length.                                       */
+  /*    angle  :: The vector angle.                                        */
+  /*                                                                       */
+  FT_EXPORT( void )
+  FT_Vector_From_Polar( FT_Vector*  vec,
+                        FT_Fixed    length,
+                        FT_Angle    angle );
+
   /* */
 
 

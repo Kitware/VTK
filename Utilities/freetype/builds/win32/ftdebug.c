@@ -107,9 +107,9 @@
   /*                                                                       */
   /* Initialize the tracing sub-system.  This is done by retrieving the    */
   /* value of the "FT2_DEBUG" environment variable.  It must be a list of  */
-  /* toggles, separated by spaces, `;' or `:'.  Example:                   */
+  /* toggles, separated by spaces, `;' or `,'.  Example:                   */
   /*                                                                       */
-  /*    "any=3 memory=6 stream=5"                                          */
+  /*    "any:3 memory:6 stream:5"                                          */
   /*                                                                       */
   /* This will request that all levels be set to 3, except the trace level */
   /* for the memory and stream components which are set to 6 and 5,        */
@@ -136,15 +136,15 @@
       for ( ; *p; p++ )
       {
         /* skip leading whitespace and separators */
-        if ( *p == ' ' || *p == '\t' || *p == ':' || *p == ';' || *p == '=' )
+        if ( *p == ' ' || *p == '\t' || *p == ',' || *p == ';' || *p == '=' )
           continue;
 
-        /* read toggle name, followed by '=' */
+        /* read toggle name, followed by ':' */
         q = p;
-        while ( *p && *p != '=' )
+        while ( *p && *p != ':' )
           p++;
 
-        if ( *p == '=' && p > q )
+        if ( *p == ':' && p > q )
         {
           int  n, i, len = p - q;
           int  level = -1, found = -1;

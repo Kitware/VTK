@@ -21,6 +21,7 @@
 
 
 #include <ft2build.h>
+#include FT_CONFIG_CONFIG_H
 #include FT_SYSTEM_H
 #include FT_IMAGE_H
 
@@ -43,7 +44,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Description>                                                         */
   /*    This section contains the basic data types defined by FreeType 2,  */
-  /*    ranging from simple scalar types to bitmap descriptors. More       */
+  /*    ranging from simple scalar types to bitmap descriptors.  More      */
   /*    font-specific structures are defined in a different section.       */
   /*                                                                       */
   /* <Order>                                                               */
@@ -358,6 +359,27 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
+  /* <Struct>                                                              */
+  /*     FT_Data                                                           */
+  /*                                                                       */
+  /* <Description>                                                         */
+  /*    Read-only binary data represented as a pointer and a length.       */
+  /*                                                                       */
+  /* <Fields>                                                              */
+  /*    pointer :: The data.                                               */
+  /*                                                                       */
+  /*    length  :: The length of the data in bytes.                        */
+  /*                                                                       */
+  typedef struct  FT_Data_
+  {
+    const FT_Byte*  pointer;
+    FT_Int          length;
+
+  } FT_Data;
+
+
+  /*************************************************************************/
+  /*                                                                       */
   /* <FuncType>                                                            */
   /*    FT_Generic_Finalizer                                               */
   /*                                                                       */
@@ -417,6 +439,10 @@ FT_BEGIN_HEADER
   /* <Description>                                                         */
   /*    This macro converts four letter tags which are used to label       */
   /*    TrueType tables into an unsigned long to be used within FreeType.  */
+  /*                                                                       */
+  /* <Note>                                                                */
+  /*    The produced values *must* be 32bit integers.  Don't redefine this */
+  /*    macro.                                                             */
   /*                                                                       */
 #define FT_MAKE_TAG( _x1, _x2, _x3, _x4 ) \
           ( ( (FT_ULong)_x1 << 24 ) |     \

@@ -176,7 +176,7 @@ FT_BEGIN_HEADER
                                   FT_GlyphSlot   slot,
                                   FT_Size        size,
                                   FT_UInt        glyph_index,
-                                  FT_ULong       load_flags );
+                                  FT_Int32       load_flags );
 
 
   /*************************************************************************/
