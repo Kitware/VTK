@@ -165,16 +165,16 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
         fprintf(fp,"%s",rtype);
         }
       fprintf(fp,")</a></li>\n");
-      // if we have a comment
-      if (data->Functions[i].Comments)
+      /* if we have a comment */
+      if (data->Functions[i].Comment)
 	{
-	// and this is the last method
+	/* and this is the last method */
 	if (i == (data->NumberOfFunctions - 1) ||
-	    // or it isn't the last
+	    /* or it isn't the last */
 	    (i < (data->NumberOfFunctions - 1) &&
-	     // and the next comment either doesn't exist
+	     /* and the next comment either doesn't exist */
 	     (!data->Functions[i+1].Comment ||
-	      // or it does exist but is different
+	      /* or it does exist but is different */
 	      (data->Functions[i+1].Comment &&
 	       strcmp(data->Functions[i].Comment,
 		      data->Functions[i+1].Comment)))))
