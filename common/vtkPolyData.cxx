@@ -324,6 +324,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
         this->EmptyCell = vtkEmptyCell::New();
         }
       cell = this->EmptyCell;
+      numPts = 0;
       return cell;
     }
 
@@ -403,6 +404,7 @@ void vtkPolyData::GetCell(int cellId, vtkGenericCell *cell)
 
     default:
       cell->SetCellTypeToEmptyCell();
+      numPts = 0;
     }
 
   for (i=0; i < numPts; i++)
