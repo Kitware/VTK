@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageXViewer.h"
+#include "vtkImageViewer.h"
 #include "vtkImage2DRobotSpace.h"
 #include "vtkImageDistance.h"
 
@@ -550,14 +550,15 @@ void vtkImage2DRobotSpace::AnimatePath(vtkClaw *planner)
   int idx;
   int numberOfStates;
   float state[3];
-  vtkImageXViewer *viewer;
+  vtkImageViewer *viewer;
   
   if ( !planner || !this->Canvas)
     {
     return;
     }
 
-  viewer = new vtkImageXViewer;  
+  // Try the class object factory
+  viewer = vtkImageViewer::New();  
   viewer->SetInput(this->Canvas->GetOutput());
   
   numberOfStates = planner->GetPathLength();
