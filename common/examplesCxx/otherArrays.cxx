@@ -283,7 +283,7 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, int size)
   strm << "\tvtkDataArray::GetData...";
   vtkFloatArray *farray = vtkFloatArray::New();
   farray->SetNumberOfComponents(1);
-  ptr->vtkDataArray::GetData (0, 59, 1, 1, *farray);
+  ptr->vtkDataArray::GetData (0, 59, 1, 1,  farray);
   passed = 1;
   for (i = 0; i < 10; i++)
     {
