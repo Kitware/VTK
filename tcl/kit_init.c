@@ -19,6 +19,8 @@ void stuffit()
   if (!strcmp(kitName,"Vtkcommontcl"))
     {
     fprintf(stdout,"int vtkCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[]);\n");
+    // claw: I am adding this so c++ can evaluate strings.
+    fprintf(stdout,"\nTcl_Interp *vtkGlobalTclInterp;\n");
     fprintf(stdout,"\nTcl_HashTable vtkInstanceLookup;\n");
     fprintf(stdout,"Tcl_HashTable vtkPointerLookup;\n");
     fprintf(stdout,"Tcl_HashTable vtkCommandLookup;\n");
@@ -76,6 +78,9 @@ void stuffit()
   fprintf(stdout,"\n\nint %s_Init(Tcl_Interp *interp)\n{\n",kitName);
   if (!strcmp(kitName,"Vtkcommontcl"))
     {
+    // claw: I am adding this to allow c++ to evaluate tcl commands.
+    fprintf(stdout,
+	    "  vtkGlobalTclInterp = interp;\n");
     fprintf(stdout,
 	    "  Tcl_InitHashTable(&vtkInstanceLookup, TCL_STRING_KEYS);\n");
     fprintf(stdout,

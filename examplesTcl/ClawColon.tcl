@@ -51,12 +51,78 @@ claw SetGoalState 107 216 176;
 claw GeneratePath;
 
 puts "Exploring ------------------------------------------------";
+claw ClearSearchStrategies;
+claw AddSearchStrategy $VTK_CLAW_NEAREST_NETWORK;
+claw SetChildFraction 0.7
+claw SetNeighborFraction 0.8
+puts 1
+claw ExplorePath 1;
+
+puts 2
+claw SetChildFraction 0.6;
+claw SetNeighborFraction 0.7;
+claw ExplorePath 4;
+
+puts 3
+claw SetChildFraction 0.55;
+claw SetNeighborFraction 0.65;
+claw ExplorePath 1;
+
+puts 4
 claw SetChildFraction 0.5;
+claw SetNeighborFraction 0.65;
+claw ExplorePath 1;
+
+puts 5
+claw SetChildFraction 0.45;
+claw SetNeighborFraction 0.65;
+claw ExplorePath 1;
+
+puts 6
+claw SetChildFraction 0.4;
 claw SetNeighborFraction 0.6;
-claw ExplorePath 5;
+claw ExplorePath 1;
+
+puts 7
+claw SetChildFraction 0.35;
+claw SetNeighborFraction 0.55;
+claw ExplorePath 1;
+
+puts 8
+claw SetChildFraction 0.3;
+claw SetNeighborFraction 0.53;
+claw ExplorePath 1;
+
+puts 9
+claw SetChildFraction 0.5;
+claw SetNeighborFraction 0.52;
+claw ExplorePath 1;
+
+puts 10
+claw SetChildFraction 0.6;
+claw SetNeighborFraction 0.52;
+claw ExplorePath 1;
+
+puts 11
+claw SetChildFraction 0.75;
+claw SetNeighborFraction 0.52;
+claw ExplorePath 1;
+
+puts 12
+claw SetChildFraction 0.9;
+claw SetNeighborFraction 0.52;
+claw ExplorePath 1;
+
+puts 13
+claw SetChildFraction 0.95;
+claw SetNeighborFraction 0.52;
+claw ExplorePath 3;
+
+
+
 
 puts "Smoothing ------------------------------------------------";
-claw SmoothPath 6;
+claw SmoothPath 5;
 
 puts "Finished  ------------------------------------------------";
 

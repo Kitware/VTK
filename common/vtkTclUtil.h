@@ -18,6 +18,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <tk.h>
 #include <string.h>
 
+extern int vtkTclEval(char *str);
+extern char *vtkTclGetResult();
 extern int vtkTclDeleteObjectFromHash(ClientData cd);
 extern void vtkTclGenericDeleteObject(ClientData cd);
 extern void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
@@ -34,3 +36,6 @@ typedef  struct _vtkTclVoidFuncArg
   Tcl_Interp *interp;
   char *command;
 } vtkTclVoidFuncArg;
+
+
+

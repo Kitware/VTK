@@ -18,6 +18,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <stdlib.h>
 #include "vtkTclUtil.h"
 
+extern Tcl_Interp *vtkGlobalTclInterp;
+int vtkTclEval(char *str)
+{
+  return Tcl_GlobalEval(vtkGlobalTclInterp, str);
+}
+
+// The string result returned is volatile so you should copy it.
+char *vtkTclGetResult()
+{
+  return vtkGlobalTclInterp->result;
+}
+
+
 int vtkRendererCommand(ClientData cd, Tcl_Interp *interp,
 		       int argc, char *argv[]);
 int vtkRenderWindowCommand(ClientData cd, Tcl_Interp *interp,

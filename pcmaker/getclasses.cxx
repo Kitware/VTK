@@ -132,6 +132,8 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
   if (!strcmp(kitName,"Vtktcl"))
     {
     fprintf(fp,"int vtkCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[]);\n");
+    // claw: I am adding this so c++ can evaluate strings.
+    fprintf(fp,"\nTcl_Interp *vtkGlobalTclInterp;\n");
     fprintf(fp,"\nTcl_HashTable vtkInstanceLookup;\n");
     fprintf(fp,"Tcl_HashTable vtkPointerLookup;\n");
     fprintf(fp,"Tcl_HashTable vtkCommandLookup;\n");
@@ -244,6 +246,9 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
   fprintf(fp,"\n\nint %s_Init(Tcl_Interp *interp)\n{\n",kitName);
   if (!strcmp(kitName,"Vtktcl"))
     {
+    // claw: I am adding this to allow c++ to evaluate tcl commands.
+    fprintf(fp,
+	    "  vtkGlobalTclInterp = interp;\n");
     fprintf(fp,
 	    "  Tcl_InitHashTable(&vtkInstanceLookup, TCL_STRING_KEYS);\n");
     fprintf(fp,
