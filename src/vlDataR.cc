@@ -701,7 +701,8 @@ int vlDataReader::ReadLutData(FILE *fp, vlDataSet *ds, int numPts)
     for (i=0; i<size; i++)
       {
       if ((retStat=fscanf(fp,"%c %c %d %c",rgba,rgba+1,rgba+2,rgba+3)) == EOF || retStat < 4) goto PREMATURE;
-      lut->SetTableValue(i,rgba);
+      lut->SetTableValue(i,rgba[0]/255.0,rgba[1]/255.0,
+			 rgba[2]/255.0,rgba[3]/255.0);
       }
     }
   this->Lut == lut;
