@@ -95,6 +95,7 @@ public:
   virtual void GetCellBounds(int cellId, float bounds[6]);
   virtual void GetCellPoints(int cellId, vtkIdList *ptIds);
   void GetPointCells(int ptId, vtkIdList *cellIds);
+  virtual void GetCellTypes(vtkCellTypes *types);
 
   int GetCellType(int cellId);
   void Squeeze();
