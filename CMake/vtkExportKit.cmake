@@ -25,7 +25,9 @@ MACRO(VTK_EXPORT_KIT kit ukit sources)
   CONFIGURE_FILE(${VTK_SOURCE_DIR}/CMake/vtkKit.cmake.in
                  ${VTK_BINARY_DIR}/Utilities/vtk${kit}Kit.cmake
                  @ONLY IMMEDIATE)
-  INSTALL_FILES(${VTK_INSTALL_LIB_DIR} FILES
-    ${VTK_BINARY_DIR}/Utilities/InstallOnly/vtk${kit}Kit.cmake
-    )
+  IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+    INSTALL_FILES(${VTK_INSTALL_LIB_DIR} FILES
+      ${VTK_BINARY_DIR}/Utilities/InstallOnly/vtk${kit}Kit.cmake
+      )
+  ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 ENDMACRO(VTK_EXPORT_KIT)

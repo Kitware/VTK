@@ -47,6 +47,10 @@ CONFIGURE_FILE(${VTKJPEG_SOURCE_DIR}/jpegDllConfig.h.in
 
 ADD_LIBRARY(vtkjpeg ${systemdependent_SRCS} ${common_SRCS} ${compression_SRCS} ${decompression_SRCS})
 
-INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtkjpeg)
-INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/vtkjpeg .h
-  jpegDllConfig jpeglib vtk_jpeg_mangle jconfig jmorecfg jerror)
+IF(NOT VTK_INSTALL_NO_LIBRARIES)
+  INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtkjpeg)
+ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/vtkjpeg .h
+                jpegDllConfig jpeglib vtk_jpeg_mangle jconfig jmorecfg jerror)
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
