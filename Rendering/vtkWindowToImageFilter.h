@@ -80,6 +80,12 @@ public:
   vtkSetMacro(ShouldRerender, int);
   vtkGetMacro(ShouldRerender, int);
   
+  //Description:
+  //Set/get the extents to be used to generate the image. (This option
+  //does not work if Magnification > 1.)
+  vtkSetVector4Macro(Viewport,double);
+  vtkGetVectorMacro(Viewport,double,4);
+
 protected:
   vtkWindowToImageFilter();
   ~vtkWindowToImageFilter();
@@ -89,6 +95,7 @@ protected:
   int Magnification;
   int ReadFrontBuffer;
   int ShouldRerender;
+  double Viewport[4];
   void ExecuteInformation();
   void ExecuteData(vtkDataObject *data);
 private:
