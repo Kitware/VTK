@@ -14,14 +14,16 @@
 =========================================================================*/
 #include "vtkCompositeDataSet.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationDataObjectKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataSet, "1.6");
+vtkCxxRevisionMacro(vtkCompositeDataSet, "1.7");
 
 vtkInformationKeyMacro(vtkCompositeDataSet,INDEX,Integer);
 vtkInformationKeyMacro(vtkCompositeDataSet,COMPOSITE_DATA_SET,DataObject);
@@ -78,6 +80,28 @@ void vtkCompositeDataSet::SetPipelineInformation(vtkInformation* newInfo)
       oldInfo->UnRegister(this);
       }
     }
+}
+
+//----------------------------------------------------------------------------
+vtkAlgorithmOutput* vtkCompositeDataSet::GetProducerPort()
+{  
+  // Make sure there is an executive.
+  if(!this->GetExecutive())
+    {
+    vtkTrivialProducer* tp = vtkTrivialProducer::New();
+    vtkCompositeDataPipeline* exec = vtkCompositeDataPipeline::New();
+    tp->SetExecutive(exec);
+    vtkInformation* portInfo = 
+      tp->GetOutputPortInformation(0);
+    portInfo->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_TYPE_NAME(), 
+                  this->GetClassName());
+    exec->Delete();
+    tp->SetOutput(this);
+    tp->Delete();
+    }
+
+  // Get the port from the executive.
+  return this->GetExecutive()->GetProducerPort(this);
 }
 
 //----------------------------------------------------------------------------

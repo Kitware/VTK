@@ -67,6 +67,10 @@ public:
   // object.
   virtual void SetPipelineInformation(vtkInformation*);
 
+  // Description:
+  // Get the port currently producing this object.
+  virtual vtkAlgorithmOutput* GetProducerPort();
+
   static vtkInformationIntegerKey* INDEX();
   static vtkInformationDataObjectKey* COMPOSITE_DATA_SET();
 

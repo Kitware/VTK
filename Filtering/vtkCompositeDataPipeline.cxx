@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.10");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.11");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -87,6 +87,8 @@ int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request)
 
     // Invoke the request on the algorithm.
     int retVal = this->CallAlgorithm(request, vtkExecutive::RequestDownstream);
+
+    this->CheckUpdateBlocks();
 
     if (retVal)
       {
@@ -389,24 +391,13 @@ int vtkCompositeDataPipeline::ExecuteInformationForBlock(vtkInformation* request
 // Handle REQUEST_DATA
 int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
 {
+  int outputInitialized = 0;
+
   int result = 1;
 
   int outputPort = request->Get(FROM_OUTPUT_PORT());
 
   int i, j;
-
-  // Prepare outputs that will be generated to receive new data.
-  vtkInformationVector* outputs = this->GetOutputInformation();
-  for(i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
-    {
-    vtkInformation* outInfo = outputs->GetInformationObject(i);
-    vtkDataObject* data = 
-      outInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
-    if(data)
-      {
-      data->PrepareForNewData();
-      }
-    }
 
   // Loop over all input ports.
   for(i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
@@ -818,6 +809,11 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
               r->Remove(REQUEST_DATA());
               if (output && outInfo)
                 {
+                if (!outputInitialized)
+                  {
+                  output->PrepareForNewData();
+                  outputInitialized = 1;
+                  }
                 vtkDataObject* tmpOutput = 
                   outInfo->Get(vtkDataObject::DATA_OBJECT());
                 vtkDataObject* outputCopy = tmpOutput->NewInstance();
@@ -993,6 +989,59 @@ void vtkCompositeDataPipeline::PopInformation(vtkInformation* inInfo)
 }
 
 //----------------------------------------------------------------------------
+int vtkCompositeDataPipeline::CheckDataObject(int port)
+{
+  // Check that the given output port has a valid data object.
+  vtkInformation* outInfo =
+    this->GetOutputInformation()->GetInformationObject(port);
+  vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkInformation* portInfo = this->Algorithm->GetOutputPortInformation(port);
+  if(const char* dt = portInfo->Get(vtkDataObject::DATA_TYPE_NAME()))
+    {
+    // The output port specifies a data type.  Make sure the data
+    // object exists and is of the right type.
+    if(!data || !data->IsA(dt))
+      {
+      // Try to create an instance of the correct type.
+      data = this->NewDataObject(dt);
+      this->SetOutputData(port, data);
+      if(data)
+        {
+        data->Delete();
+        }
+      }
+    if(!data)
+      {
+      // The algorithm has a bug and did not create the data object.
+      vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "("
+                    << this->Algorithm
+                    << ") did not create output for port " << port
+                    << " when asked by REQUEST_DATA_OBJECT and does not"
+                    << " specify a concrete DATA_TYPE_NAME.");
+      return 0;
+      }
+    return 1;
+    }
+  else if(data || outInfo->Has(vtkCompositeDataSet::COMPOSITE_DATA_SET()))
+    {
+    // The algorithm did not specify its output data type.  Just assume
+    // the data object is of the correct type.
+    return 1;
+    }
+  else
+    {
+    // The algorithm did not specify its output data type and no
+    // object exists.
+    vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "("
+                  << this->Algorithm
+                  << ") did not create output for port " << port
+                  << " when asked by REQUEST_DATA_OBJECT and does not"
+                  << " specify any DATA_TYPE_NAME.");
+    return 0;
+    }
+}
+
+//----------------------------------------------------------------------------
 int vtkCompositeDataPipeline::CheckCompositeData(int port)
 {
   // Check that the given output port has a valid data object.
@@ -1018,6 +1067,40 @@ int vtkCompositeDataPipeline::CheckCompositeData(int port)
   return 1;
 }
 
+//----------------------------------------------------------------------------
+void vtkCompositeDataPipeline::CheckUpdateBlocks()
+{
+  for(int j=0; j < this->Algorithm->GetNumberOfOutputPorts(); ++j)
+    {
+    vtkInformation* info = this->GetOutputInformation(j);
+    if (info->Has(vtkCompositeDataSet::COMPOSITE_DATA_SET()) &&
+        !info->Has(vtkCompositeDataPipeline::UPDATE_BLOCKS()))
+      {
+      vtkHierarchicalDataSet* hds = vtkHierarchicalDataSet::SafeDownCast(
+        info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+      if (!hds)
+        {
+        return;
+        }
+      vtkHierarchicalDataInformation* updateInfo = 
+        vtkHierarchicalDataInformation::New();
+      unsigned int numLevels = hds->GetNumberOfLevels();
+      updateInfo->SetNumberOfLevels(numLevels);
+      for (unsigned int i=0; i<numLevels; i++)
+        {
+        unsigned int numDataSets = hds->GetNumberOfDataSets(i);
+        updateInfo->SetNumberOfDataSets(i, numDataSets);
+        for (unsigned int j=0; j<numDataSets; j++)
+          {
+          vtkInformation* blockInf = updateInfo->GetInformation(i, j);
+          blockInf->Set(MARKED_FOR_UPDATE(), 1);
+          }
+        }
+      info->Set(UPDATE_BLOCKS(), updateInfo);
+      updateInfo->Delete();
+      }
+    }
+}
 
 //----------------------------------------------------------------------------
 vtkDataObject* vtkCompositeDataPipeline::GetCompositeOutputData(int port)

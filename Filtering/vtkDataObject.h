@@ -80,7 +80,7 @@ public:
 
   // Description:
   // Get the port currently producing this object.
-  vtkAlgorithmOutput* GetProducerPort();
+  virtual vtkAlgorithmOutput* GetProducerPort();
 
   // Description:
   // Data objects are composite objects and need to check each part for MTime.
