@@ -56,7 +56,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.30");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.31");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 
@@ -86,6 +86,8 @@ vtkQuadricDecimation::vtkQuadricDecimation()
   this->NormalsWeight = 0.1f;
   this->TCoordsWeight = 0.1f;
   this->TensorsWeight = 0.1f;
+
+  this->ActualReduction = 0.00f;
 }
 
 //----------------------------------------------------------------------------
