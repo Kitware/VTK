@@ -279,6 +279,7 @@ public:
   };
 
   virtual void CheckForAbortRender() {}
+  virtual int CheckForAbortComposite() {return 0;}  
 //ETX
 
 protected:

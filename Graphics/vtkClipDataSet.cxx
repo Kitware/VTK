@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.32");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.32.4.1");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -140,7 +140,7 @@ void vtkClipDataSet::Execute()
   int j;
   vtkIdType estimatedSize;
   vtkUnsignedCharArray *types[2];
-  vtkIntArray *locs[2];
+  vtkIdTypeArray *locs[2];
   int numOutputs = 1;
   
   vtkDebugMacro(<< "Clipping dataset");
@@ -196,7 +196,7 @@ void vtkClipDataSet::Execute()
   conn[0]->InitTraversal();
   types[0] = vtkUnsignedCharArray::New();
   types[0]->Allocate(estimatedSize,estimatedSize/2);
-  locs[0] = vtkIntArray::New();
+  locs[0] = vtkIdTypeArray::New();
   locs[0]->Allocate(estimatedSize,estimatedSize/2);
   if ( this->GenerateClippedOutput )
     {
@@ -206,7 +206,7 @@ void vtkClipDataSet::Execute()
     conn[1]->InitTraversal();
     types[1] = vtkUnsignedCharArray::New();
     types[1]->Allocate(estimatedSize,estimatedSize/2);
-    locs[1] = vtkIntArray::New();
+    locs[1] = vtkIdTypeArray::New();
     locs[1]->Allocate(estimatedSize,estimatedSize/2);
     }
   newPoints = vtkPoints::New();

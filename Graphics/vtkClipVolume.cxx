@@ -27,10 +27,10 @@
 #include "vtkGenericCell.h"
 #include "vtkTetra.h"
 #include "vtkCellArray.h"
-#include "vtkIntArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.64");
+vtkCxxRevisionMacro(vtkClipVolume, "1.64.4.1");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -119,7 +119,7 @@ void vtkClipVolume::Execute()
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
   vtkCellArray *outputConn;
-  vtkIntArray *outputLoc;
+  vtkIdTypeArray *outputLoc;
   vtkUnsignedCharArray *outputTypes;
   vtkIdType cellId, newCellId, i;
   int j, k, flip;
@@ -183,7 +183,7 @@ void vtkClipVolume::Execute()
   this->NumberOfCells = 0;
   this->Connectivity = vtkCellArray::New();
   this->Connectivity->Allocate(estimatedSize*2); //allocate storage for cells
-  this->Locations = vtkIntArray::New();
+  this->Locations = vtkIdTypeArray::New();
   this->Locations->Allocate(estimatedSize);
   this->Types = vtkUnsignedCharArray::New();
   this->Types->Allocate(estimatedSize);
@@ -242,7 +242,7 @@ void vtkClipVolume::Execute()
     this->NumberOfClippedCells = 0;
     this->ClippedConnectivity = vtkCellArray::New();
     this->ClippedConnectivity->Allocate(estimatedSize); //storage for cells
-    this->ClippedLocations = vtkIntArray::New();
+    this->ClippedLocations = vtkIdTypeArray::New();
     this->ClippedLocations->Allocate(estimatedSize);
     this->ClippedTypes = vtkUnsignedCharArray::New();
     this->ClippedTypes->Allocate(estimatedSize);

@@ -24,7 +24,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.64");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.64.2.1");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -706,9 +706,14 @@ void vtkQuadricClustering::AddQuadric(vtkIdType binId, double quadric[9])
 vtkIdType vtkQuadricClustering::HashPoint(double point[3])
 {
   vtkIdType binId;
-  int xBinCoord, yBinCoord, zBinCoord;
+  int xBinCoord = 0;
+  int yBinCoord = 0;
+  int zBinCoord = 0;
   
-  xBinCoord = static_cast<int>((point[0] - this->Bounds[0]) / this->XBinSize);
+  if (this->XBinSize > 0.0)
+    {
+    xBinCoord = 
+      static_cast<int>((point[0] - this->Bounds[0]) / this->XBinSize);
   if (xBinCoord < 0)
     {
     xBinCoord = 0;
@@ -717,8 +722,12 @@ vtkIdType vtkQuadricClustering::HashPoint(double point[3])
     {
     xBinCoord = this->NumberOfDivisions[0] - 1;
     }
+    }
 
-  yBinCoord = static_cast<int>((point[1] - this->Bounds[2]) / this->YBinSize);
+  if (this->YBinSize > 0.0)
+    {
+    yBinCoord = 
+      static_cast<int>((point[1] - this->Bounds[2]) / this->YBinSize);
   if (yBinCoord < 0)
     {
     yBinCoord = 0;
@@ -727,8 +736,12 @@ vtkIdType vtkQuadricClustering::HashPoint(double point[3])
     {
     yBinCoord = this->NumberOfDivisions[1] - 1;
     }
+    }
 
-  zBinCoord = static_cast<int>((point[2] - this->Bounds[4]) / this->ZBinSize);
+  if (this->ZBinSize > 0.0)
+    {
+    zBinCoord = 
+      static_cast<int>((point[2] - this->Bounds[4]) / this->ZBinSize);
   if (zBinCoord < 0)
     {
     zBinCoord = 0;
@@ -736,6 +749,7 @@ vtkIdType vtkQuadricClustering::HashPoint(double point[3])
   else if (zBinCoord >= this->NumberOfDivisions[2])
     {
     zBinCoord = this->NumberOfDivisions[2] - 1;
+    }
     }
 
   // vary x fastest, then y, then z
@@ -918,35 +932,6 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
   point[0] = cellCenter[0] + tempVector[0];
   point[1] = cellCenter[1] + tempVector[1];
   point[2] = cellCenter[2] + tempVector[2];
-
-  if (0)
-    {
-  if ( point[0] < (cellCenter[0] - this->XBinSize) )
-    {
-    point[0] = cellCenter[0];
-    }
-  else if ( point[0] > (cellCenter[0] + this->XBinSize) )
-    {
-    point[0] = cellCenter[0];
-    }
-  if ( point[1] < (cellCenter[1] - this->YBinSize) )
-    {
-    point[1] = cellCenter[1];
-    }
-  else if ( point[1] > (cellCenter[1] + this->YBinSize) )
-    {
-    point[1] = cellCenter[1];
-    }
-  if ( point[2] < (cellCenter[2] - this->ZBinSize) )
-    {
-    point[2] = cellCenter[2];
-    }
-  else if ( point[2] > (cellCenter[2] + this->ZBinSize) )
-    {
-    point[2] = cellCenter[2];
-    }
-    }
-  
 }
 
 //----------------------------------------------------------------------------

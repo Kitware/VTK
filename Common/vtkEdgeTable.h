@@ -128,7 +128,7 @@ public:
 
   // Description:
   // Traverse list of edges in table. Return the edge as (p1,p2), where p1
-  // and p2 are point id's. Method return value is zero if list is exhausted;
+  // and p2 are point id's. Method return value is <0 if list is exhausted;
   // non-zero otherwise. The value of p1 is guaranteed to be <= p2.
   vtkIdType GetNextEdge(vtkIdType &p1, vtkIdType &p2);
 

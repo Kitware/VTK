@@ -30,7 +30,7 @@ class vtkConvexPointSet;
 class vtkEmptyCell;
 class vtkHexahedron;
 class vtkIdList;
-class vtkIntArray;
+class vtkIdTypeArray;
 class vtkLine;
 class vtkPixel;
 class vtkPolyLine;
@@ -80,7 +80,7 @@ public:
 
   int GetCellType(vtkIdType cellId);
   vtkUnsignedCharArray* GetCellTypesArray() { return this->Types; }
-  vtkIntArray* GetCellLocationsArray() { return this->Locations; }
+  vtkIdTypeArray* GetCellLocationsArray() { return this->Locations; }
   void Squeeze();
   void Initialize();
   int GetMaxCellSize();
@@ -94,7 +94,7 @@ public:
   // composing the dataset.
   void SetCells(int type, vtkCellArray *cells);
   void SetCells(int *types, vtkCellArray *cells);
-  void SetCells(vtkUnsignedCharArray *cellTypes, vtkIntArray *cellLocations, 
+  void SetCells(vtkUnsignedCharArray *cellTypes, vtkIdTypeArray *cellLocations, 
                 vtkCellArray *cells);
   vtkCellArray *GetCells() {return this->Connectivity;};
   void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts);
@@ -158,10 +158,10 @@ public:
   virtual void DeepCopy(vtkDataObject *src);
 
   // Description:
-  // Fill vtkIntArray container with list of cell Ids.  This
+  // Fill vtkIdTypeArray container with list of cell Ids.  This
   // method traverses all cells and, for a particular cell type,
   // inserts the cell Id into the container.
-  void GetIdsOfCellsOfType(int type, vtkIntArray *array);
+  void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array);
 
   // Description:
   // Traverse cells and determine if cells are all of the same type.
@@ -206,7 +206,7 @@ protected:
   vtkCellArray *Connectivity;
   vtkCellLinks *Links;
   vtkUnsignedCharArray *Types;
-  vtkIntArray *Locations;
+  vtkIdTypeArray *Locations;
 
  private:
   // Hide these from the user and the compiler.
