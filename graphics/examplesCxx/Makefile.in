@@ -62,7 +62,6 @@ EXAMPLES = VisQuad \
 	medical1 \
 	medical2 \
 	medical3 \
-	motor \
 	pickCells \
 	pickCells \
 	probe \
@@ -201,9 +200,6 @@ medical2: medical2.o ${VTKLIB}
 medical3: medical3.o ${VTKLIB}
 	${CXX} -o medical3 ${CXX_FLAGS} medical3.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
-motor: motor.o ${VTKLIB}
-	${CXX} -o motor ${CXX_FLAGS} motor.o ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 pickCells: pickCells.o ${VTKLIB}
 	${CXX} -o pickCells ${CXX_FLAGS} pickCells.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
@@ -227,6 +223,9 @@ vtkLogo: vtkLogo.o ${VTKLIB}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 vol: vol.o ${VTKLIB}
 	${CXX} -o vol ${CXX_FLAGS} vol.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+volProt: volProt.o ${VTKLIB}
+	${CXX} -o volProt ${CXX_FLAGS} volProt.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 #------------------------------------------------------------------------------
