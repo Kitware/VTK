@@ -247,4 +247,11 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number Of Threads: " 
      << this->NumberOfThreads << endl;
+
+  os << indent << "Last Update Time In Seconds: " 
+     << this->LastUpdateTimeInSeconds;
+
+  os << indent << "Last Update Time In CPU Seconds: " 
+     << this->LastUpdateTimeInCPUSeconds;
+
 }
