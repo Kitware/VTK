@@ -16,12 +16,14 @@
 
 #include "vtkCellType.h"
 #include "vtkGenericCell.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkSubdivideTetra, "1.27");
+vtkCxxRevisionMacro(vtkSubdivideTetra, "1.28");
 vtkStandardNewMacro(vtkSubdivideTetra);
 
 //----------------------------------------------------------------------------
@@ -32,9 +34,21 @@ vtkSubdivideTetra::vtkSubdivideTetra()
 }
 
 //----------------------------------------------------------------------------
-void vtkSubdivideTetra::Execute()
+int vtkSubdivideTetra::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkUnstructuredGrid *input = this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
   vtkPoints *inPts = input->GetPoints();
@@ -42,7 +56,6 @@ void vtkSubdivideTetra::Execute()
   vtkIdType pts[4];
   vtkGenericCell *cell;
   vtkPointData *pd = input->GetPointData();
-  vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkPoints *newPts;
   vtkIdType ptId;
@@ -58,7 +71,7 @@ void vtkSubdivideTetra::Execute()
       input->GetCellType(0) != VTK_TETRA)
     {
     vtkErrorMacro(<<"all cells must be tetrahedra.");
-    return;
+    return 1;
     }
 
   // Copy original points and point data
@@ -224,6 +237,8 @@ void vtkSubdivideTetra::Execute()
   locator->Delete();
   newPts->Delete();
   output->Squeeze();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

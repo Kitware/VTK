@@ -20,13 +20,13 @@
 #ifndef __vtkSubdivideTetra_h
 #define __vtkSubdivideTetra_h
 
-#include "vtkUnstructuredGridToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkSubdivideTetra : public vtkUnstructuredGridToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkSubdivideTetra : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkSubdivideTetra *New();
-  vtkTypeRevisionMacro(vtkSubdivideTetra,vtkUnstructuredGridToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkSubdivideTetra,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 
@@ -34,7 +34,7 @@ protected:
   vtkSubdivideTetra();
   ~vtkSubdivideTetra() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
   vtkSubdivideTetra(const vtkSubdivideTetra&);  // Not implemented.
