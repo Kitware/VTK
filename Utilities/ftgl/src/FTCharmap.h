@@ -9,8 +9,9 @@
 
 #include "FTGL.h"
 
+#ifdef USE_STD_NAMESPACE
 using namespace std;
-
+#endif
 
 /**
  * FTCharmap takes care of specifying the encoding for a font and mapping

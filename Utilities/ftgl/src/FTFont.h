@@ -12,8 +12,9 @@
 class FTGlyphContainer;
 class FTGlyph;
 
+#ifdef USE_STD_NAMESPACE
 using namespace std;
-
+#endif
 
 /**
  * FTFont is the public interface for the FTGL library.

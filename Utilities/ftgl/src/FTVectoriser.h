@@ -10,7 +10,9 @@
 #include "FTGL.h"
 #include "FTGlyph.h"
 
+#ifdef USE_STD_NAMESPACE
 using namespace std;
+#endif
 
 #ifndef CALLBACK
 #define CALLBACK

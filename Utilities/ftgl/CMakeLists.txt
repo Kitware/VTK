@@ -39,6 +39,12 @@ IF (WIN32)
   ENDIF (BUILD_SHARED_LIBS)
 ENDIF (WIN32)
 
+IF (UNIX)
+  # IF(CMAKE_SYSTEM MATCHES "HP-UX.*")
+    ADD_DEFINITIONS(-D_HPUX_SOURCE)
+  # ENDIF(CMAKE_SYSTEM MATCHES "HP-UX.*")
+ENDIF (UNIX)
+
 INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 IF (OPENGL_INCLUDE_PATH)
   INCLUDE_DIRECTORIES (${OPENGL_INCLUDE_PATH})
@@ -79,9 +85,11 @@ IF (BUILD_EXAMPLES)
         /opt/graphics/OpenGL/lib 
         /usr/openwin/lib 
         /usr/X11R6/lib
+        /usr/contrib/X11R6/lib
       )
+      MARK_AS_ADVANCED (XMU_LIBRARY)
       IF (XMU_LIBRARY)
-        LINK_LIBRARIES (-lXmu)
+        LINK_LIBRARIES (${XMU_LIBRARY})
       ENDIF (XMU_LIBRARY)
       LINK_LIBRARIES(${CMAKE_X_LIBS})
     ENDIF (VTK_USE_X)
