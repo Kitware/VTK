@@ -67,8 +67,13 @@ public:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
   int GetDataObjectType() {return VTK_UNSTRUCTURED_GRID;};
   virtual void Allocate(vtkIdType numCells=1000, int extSize=1000);
+  
+  // Description:
+  // Insert/create cell in object by type and list of point ids defining
+  // cell topology.
   vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *pts);
   vtkIdType InsertNextCell(int type, vtkIdList *ptIds);
+  
   void Reset();
   virtual void CopyStructure(vtkDataSet *ds);
   vtkIdType GetNumberOfCells();
