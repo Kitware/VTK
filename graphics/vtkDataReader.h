@@ -76,6 +76,21 @@ public:
   vtkGetStringMacro(FileName);
 
   // Description:
+  // Is the file a valid vtk file of the passed dataset type ?
+  // The dataset type is passed as a lower case string.
+  int IsFileValid(const char *dstype);
+  int IsFileStructuredPoints() {
+    return this->IsFileValid("structured_points");};  
+  int IsFilePolyData() {
+    return this->IsFileValid("polydata");};  
+  int IsFileStructuredGrid() {
+    return this->IsFileValid("structured_grid");};  
+  int IsFileUnstructuredGrid() {
+    return this->IsFileValid("unstructured_grid");};  
+  int IsFileRectilinearGrid() {
+    return this->IsFileValid("rectilinear_grid");};
+  
+  // Description:
   // Specify the InputString for use when reading from a character array.
   // Optionally include the length for binary strings.
   vtkSetStringMacro(InputString);

@@ -444,6 +444,46 @@ int vtkDataReader::ReadHeader()
   return 1;
 }
 
+int vtkDataReader::IsFileValid(const char *dstype)
+{
+  char line[1024];
+  
+  if (!dstype)
+    {
+    return 0;
+    }
+  
+  if (!this->OpenVTKFile() || !this->ReadHeader())
+      return 0;
+
+  if (!this->ReadString(line))
+    {
+    vtkErrorMacro(<<"Data file ends prematurely!");
+    this->CloseVTKFile ();
+    return 0;
+    }
+
+  if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
+    {
+    if (!this->ReadString(line))
+      {
+      vtkErrorMacro(<<"Data file ends prematurely!");
+      this->CloseVTKFile ();
+      return 0;
+      } 
+    if (strncmp(this->LowerCase(line),dstype,strlen(dstype)))
+      {
+      this->CloseVTKFile ();
+      return 0;
+      }
+    // everything looks good
+    this->CloseVTKFile();
+    return 1;
+    }
+  
+  return 0;
+}
+
 // Read the cell data of a vtk data file. The number of cells (from the 
 // dataset) must match the number of cells defined in cell attributes (unless
 // no geometry was defined).

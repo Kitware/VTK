@@ -194,7 +194,7 @@ void vtkRectilinearGridReader::Execute()
       return;
       } 
 
-    if ( strncmp(this->Reader->LowerCase(line),"rectilinear_grid",17) )
+    if ( strncmp(this->Reader->LowerCase(line),"rectilinear_grid",16) )
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
       this->Reader->CloseVTKFile ();

@@ -194,7 +194,7 @@ void vtkStructuredGridReader::Execute()
       return;
       } 
 
-    if ( strncmp(this->Reader->LowerCase(line),"structured_grid",17) )
+    if ( strncmp(this->Reader->LowerCase(line),"structured_grid",15) )
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
       this->Reader->CloseVTKFile ();
