@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.38");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.39");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
                 }
               else
                 {
-                *outPtr = 1e5;
+                *outPtr = (T)outData->GetScalarTypeMax();
                 }
               }
             break;
