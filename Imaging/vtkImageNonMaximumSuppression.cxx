@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.50");
+vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.51");
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ void vtkImageNonMaximumSuppression::RequestUpdateExtent (
 
   // get the whole image for input 2
   int inExt[6];
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt);
   wholeExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   inInfo2->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
   
