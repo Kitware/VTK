@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.10");
+vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.11");
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //----------------------------------------------------------------------------
@@ -77,10 +77,10 @@ static inline double CentroidSize(vtkPoints* pd, float *cp)
   {
     float *p = pd->GetPoint(i);
     
-    S += sqrt(vtkMath::Distance2BetweenPoints(p,cp));
+    S += vtkMath::Distance2BetweenPoints(p,cp);
   }
   
-  return S;
+  return sqrt(S);
 }
 
 //----------------------------------------------------------------------------
