@@ -138,6 +138,7 @@ protected:
   
   // This parser does not support parsing from a string.
   virtual int Parse(const char*);
+  virtual int Parse(const char*, unsigned int);
   
   // Implement parsing methods.
   void StartElement(const char* name, const char** atts);

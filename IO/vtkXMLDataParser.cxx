@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkBase64InputStream.h"
 #include "vtkDataCompressor.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.3");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.4");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -145,6 +145,13 @@ int vtkXMLDataParser::Parse()
 
 //----------------------------------------------------------------------------
 int vtkXMLDataParser::Parse(const char*)
+{
+  vtkErrorMacro("Parsing from a string is not supported.");
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLDataParser::Parse(const char*, unsigned int)
 {
   vtkErrorMacro("Parsing from a string is not supported.");
   return 0;
