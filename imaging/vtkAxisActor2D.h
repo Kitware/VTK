@@ -161,14 +161,14 @@ public:
   // Description:
   // Set/Get the length of the tick marks (expressed in pixels or display
   // coordinates). 
-  vtkSetClampMacro(TickLength, float, 0, 100);
+  vtkSetClampMacro(TickLength, int, 0, 100);
   vtkGetMacro(TickLength, int);
   
   // Description:
   // Set/Get the offset of the labels (expressed in pixels or display
   // coordinates). The offset is the distance of labels from tick marks
   // or other objects.
-  vtkSetClampMacro(TickOffset, float, 0, 100);
+  vtkSetClampMacro(TickOffset, int, 0, 100);
   vtkGetMacro(TickOffset, int);
   
   // Description:
