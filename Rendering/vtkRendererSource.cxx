@@ -27,7 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkRendererSource, "1.55");
+vtkCxxRevisionMacro(vtkRendererSource, "1.55.2.1");
 vtkStandardNewMacro(vtkRendererSource);
 
 vtkCxxSetObjectMacro(vtkRendererSource,Input,vtkRenderer);
@@ -41,7 +41,6 @@ vtkRendererSource::vtkRendererSource()
   this->DepthValuesInScalars = 0;
 
   this->SetNumberOfInputPorts(0);
-  this->SetNumberOfOutputPorts(1);
 }
 
 
@@ -54,30 +53,21 @@ vtkRendererSource::~vtkRendererSource()
     }
 }
 
-#ifdef VTK_USE_EXECUTIVES
-void vtkRendererSource::AlgorithmExecute(vtkInformation *, 
-                                         vtkInformationVector *, 
-                                         vtkInformationVector *outputVector)
-#else
-void vtkRendererSource::ExecuteData(vtkDataObject *outp)
-#endif  
+void vtkRendererSource::ExecuteData(vtkInformation *, 
+                                    vtkInformationVector *, 
+                                    vtkInformationVector *outputVector)
 {
   int numOutPts;
   float x1,y1,x2,y2;
   unsigned char *pixels, *ptr;
   int dims[3];
   
-#ifdef VTK_USE_EXECUTIVES
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkImageData *output = 
     vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
   int uExtent[6];
   info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExtent);
   output->SetExtent(uExtent);  
-#else
-  vtkImageData *output = vtkImageData::SafeDownCast(outp);
-  output->SetExtent(output->GetUpdateExtent());
-#endif  
 
   output->AllocateScalars();
   vtkUnsignedCharArray *outScalars = 
@@ -288,21 +278,20 @@ unsigned long vtkRendererSource::GetMTime()
 
 
 //----------------------------------------------------------------------------
-// Consider renderer for PiplineMTime
-#ifndef VTK_USE_EXECUTIVES
-void vtkRendererSource::UpdateInformation()
+void vtkRendererSource::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector * vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  unsigned long t1;
-  vtkImageData *output = this->GetOutput();
   vtkRenderer *ren = this->GetInput();
-  float x1,y1,x2,y2;
-  
-  if (output == NULL || ren == NULL || ren->GetRenderWindow() == NULL)
+  if (ren == NULL || ren->GetRenderWindow() == NULL)
     {
+    vtkErrorMacro("The input renderer has not been set yet!!!");
     return;
     }
   
   // calc the pixel range for the renderer
+  float x1,y1,x2,y2;
   x1 = ren->GetViewport()[0] * ((ren->GetRenderWindow())->GetSize()[0] - 1);
   y1 = ren->GetViewport()[1] * ((ren->GetRenderWindow())->GetSize()[1] - 1);
   x2 = ren->GetViewport()[2] * ((ren->GetRenderWindow())->GetSize()[0] - 1);
@@ -314,147 +303,17 @@ void vtkRendererSource::UpdateInformation()
     x2 = (this->Input->GetRenderWindow())->GetSize()[0] - 1;
     y2 = (this->Input->GetRenderWindow())->GetSize()[1] - 1;
     }    
-  output->SetWholeExtent(0, static_cast<int>(x2-x1), 
-                         0, static_cast<int>(y2-y1), 0, 0);
-  output->SetScalarType(VTK_UNSIGNED_CHAR);
-  output->SetNumberOfScalarComponents(3 + (this->DepthValuesInScalars ? 1:0));
+  int extent[6] = {0, static_cast<int>(x2-x1), 
+                   0, static_cast<int>(y2-y1), 
+                   0, 0};
   
-  // Update information on the input and
-  // compute information that is general to vtkDataObject.
-  t1 = this->GetMTime();
-  output->SetPipelineMTime(t1);
-  this->InformationTime.Modified();
-}
-#endif
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-int vtkRendererSource::ProcessUpstreamRequest(
-  vtkInformation *request, 
-  vtkInformationVector *, 
-  vtkInformationVector *)
-{
-#ifdef VTK_USE_EXECUTIVES
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
-    // we have no inputs so there is nothing to do
-    return 1;
-    }
-#else
-  (void)request;
-#endif
-  return 0;
-}
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
 
-int vtkRendererSource::ProcessDownstreamRequest(
-  vtkInformation *request, 
-  vtkInformationVector *inputVector, 
-  vtkInformationVector *outputVector)
-{
-#ifdef VTK_USE_EXECUTIVES
-
-  // this is basically execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
-    vtkDebugMacro("ProcessDownstreamRequest(REQUEST_INFORMATION) "
-                  "calling ExecuteInformation.");
-
-    // Ask the subclass to fill in the information for the outputs.
-    this->InvokeEvent(vtkCommand::ExecuteInformationEvent, NULL);
-
-    // the executive has already passed all passable values to the output
-    // information, we just need to change any that should be different from
-    // the input
-    vtkInformation* info = outputVector->GetInformationObject(0);
-
-    vtkRenderer *ren = this->GetInput();
-    if (ren == NULL || ren->GetRenderWindow() == NULL)
-      {
-      vtkErrorMacro("The input renderer has not been set yet!!!");
-      return 0;
-      }
-
-    // calc the pixel range for the renderer
-    float x1,y1,x2,y2;
-    x1 = ren->GetViewport()[0] * ((ren->GetRenderWindow())->GetSize()[0] - 1);
-    y1 = ren->GetViewport()[1] * ((ren->GetRenderWindow())->GetSize()[1] - 1);
-    x2 = ren->GetViewport()[2] * ((ren->GetRenderWindow())->GetSize()[0] - 1);
-    y2 = ren->GetViewport()[3] *((ren->GetRenderWindow())->GetSize()[1] - 1);
-    if (this->WholeWindow)
-      {
-      x1 = 0;
-      y1 = 0;
-      x2 = (this->Input->GetRenderWindow())->GetSize()[0] - 1;
-      y2 = (this->Input->GetRenderWindow())->GetSize()[1] - 1;
-      }    
-    int extent[6] = {0, static_cast<int>(x2-x1), 
-                     0, static_cast<int>(y2-y1), 
-                     0, 0};
-
-    info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
-    info->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_CHAR);
-    info->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-              3 + (this->DepthValuesInScalars ? 1:0));
-    
-    // make sure the output is there
-    vtkImageData *output = 
-      vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-    
-    if (!output)
-      {
-      output = vtkImageData::New();
-      info->Set(vtkDataObject::DATA_OBJECT(), output);
-      output->Delete();
-      }
-    output->SetScalarType(VTK_UNSIGNED_CHAR);
-    output->SetNumberOfScalarComponents(
-      3 + (this->DepthValuesInScalars ? 1:0));
-    return 1;
-    }
-
-  
-  // generate the data
-  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
-    // get the output data object
-    vtkInformation* info = outputVector->GetInformationObject(0);
-    vtkImageData *output = 
-      vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-    
-    output->PrepareForNewData();
-    
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-
-    this->AlgorithmExecute(request, inputVector, outputVector);
-
-    if(!this->AbortExecute)
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->InvokeEvent(vtkCommand::EndEvent,NULL);
-
-    // Mark the data as up-to-date.
-    output->DataHasBeenGenerated();
-    return 1;
-    }
-  return 0;
-#else
-  return this->Superclass::ProcessDownstreamRequest(request, inputVector,
-                                                    outputVector);
-#endif
-}
-
-  
-int vtkRendererSource::FillOutputPortInformation(
-  int port, vtkInformation* info)
-{
-  // invoke super first
-  int retVal = this->Superclass::FillOutputPortInformation(port, info);
-  
-  // now add our info
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
-  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
-  
-  return retVal;
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_CHAR);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
+               3 + (this->DepthValuesInScalars ? 1:0));
 }
 

@@ -42,16 +42,16 @@
 #ifndef __vtkWindowToImageFilter_h
 #define __vtkWindowToImageFilter_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkWindow;
 
-class VTK_RENDERING_EXPORT vtkWindowToImageFilter : public vtkImageSource
+class VTK_RENDERING_EXPORT vtkWindowToImageFilter : public vtkImageAlgorithm
 {
 public:
   static vtkWindowToImageFilter *New();
 
-  vtkTypeRevisionMacro(vtkWindowToImageFilter,vtkImageSource);
+  vtkTypeRevisionMacro(vtkWindowToImageFilter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
@@ -66,6 +66,7 @@ public:
   // The magnification of the current render window
   vtkSetClampMacro(Magnification,int,1,2048);
   vtkGetMacro(Magnification,int);
+
   // Description:
   // Set/Get the flag that determines which buffer to read from.
   // The default is to read from the front buffer.   
@@ -96,8 +97,13 @@ protected:
   int ReadFrontBuffer;
   int ShouldRerender;
   double Viewport[4];
-  void ExecuteInformation();
+
+  virtual void ExecuteInformation(vtkInformation *, 
+                                  vtkInformationVector *, 
+                                  vtkInformationVector *);
+
   void ExecuteData(vtkDataObject *data);
+
 private:
   vtkWindowToImageFilter(const vtkWindowToImageFilter&);  // Not implemented.
   void operator=(const vtkWindowToImageFilter&);  // Not implemented.

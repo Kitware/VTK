@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.80");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.80.10.1");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -50,7 +50,7 @@ vtkTubeFilter::vtkTubeFilter()
 
 void vtkTubeFilter::Execute()
 {
-  vtkPolyData *input = this->GetInput();
+  vtkPolyData *input = this->GetPolyDataInput(0);
   vtkPolyData *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData();
   vtkPointData *outPD=output->GetPointData();
