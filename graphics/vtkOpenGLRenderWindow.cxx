@@ -562,15 +562,16 @@ void vtkOpenGLRenderWindow::SetPosition(int x,int y)
 // Specify the size of the rendering window.
 void vtkOpenGLRenderWindow::SetSize(int x,int y)
 {
+  if ((this->Size[0] != x)||(this->Size[1] != y))
+    {
+    this->Modified();
+    this->Size[0] = x;
+    this->Size[1] = y;
+    }
+  
   // if we arent mappen then just set the ivars 
   if (!this->Mapped)
     {
-    if ((this->Size[0] != x)||(this->Size[1] != y))
-      {
-      this->Modified();
-      }
-    this->Size[0] = x;
-    this->Size[1] = y;
     return;
     }
 
