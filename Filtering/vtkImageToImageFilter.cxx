@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageToImageFilter, "1.53");
+vtkCxxRevisionMacro(vtkImageToImageFilter, "1.54");
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()
@@ -317,40 +317,60 @@ vtkImageData *vtkImageToImageFilter::AllocateOutputData(vtkDataObject *out)
       }
     else
       {// Copy
-      // Copy the point data.
-      output->GetPointData()->CopyAllocate(input->GetPointData(), 
-                                           output->GetNumberOfPoints());
-      // Now Copy The cell data, but only if output is a subextent of the input.  
-      if (outExt[0] >= inExt[0] && outExt[1] <= inExt[1] &&
-          outExt[2] >= inExt[2] && outExt[3] <= inExt[3] &&
-          outExt[4] >= inExt[4] && outExt[5] <= inExt[5])
+       // Since this can be expensive to copy all of these values,
+       // lets make sure there are arrays to copy (other than the scalars)
+      if (input->GetPointData()->GetNumberOfArrays() > 1)
         {
-        output->GetPointData()->CopyStructuredData(input->GetPointData(),
-                                                   inExt, outExt);
+        // Copy the point data.
+        // CopyAllocate frees all arrays.
+        // Keep the old scalar array (not being copied).
+        // This is a hack, but avoids reallocation ...
+        vtkDataArray *tmp = NULL;
+        if ( ! output->GetPointData()->GetCopyScalars() )
+          {
+          tmp = output->GetPointData()->GetScalars();
+          }
+        output->GetPointData()->CopyAllocate(input->GetPointData(), 
+                                             output->GetNumberOfPoints());
+        if (tmp)
+          { // Restore the array.
+          output->GetPointData()->SetScalars(tmp);
+          }
+        // Now Copy The point data, but only if output is a subextent of the input.  
+        if (outExt[0] >= inExt[0] && outExt[1] <= inExt[1] &&
+            outExt[2] >= inExt[2] && outExt[3] <= inExt[3] &&
+            outExt[4] >= inExt[4] && outExt[5] <= inExt[5])
+          {
+          output->GetPointData()->CopyStructuredData(input->GetPointData(),
+                                                     inExt, outExt);
+          }
         }
 
-      output->GetCellData()->CopyAllocate(input->GetCellData(), 
-                                          output->GetNumberOfCells());  
-      // Cell extent is one less than point extent.
-      // Conditional to handle a colapsed axis (lower dimensional cells).
-      if (inExt[0] < inExt[1]) {--inExt[1];}
-      if (inExt[2] < inExt[3]) {--inExt[3];}
-      if (inExt[4] < inExt[5]) {--inExt[5];}
-      // Cell extent is one less than point extent.
-      if (outExt[0] < outExt[1]) {--outExt[1];}
-      if (outExt[2] < outExt[3]) {--outExt[3];}
-      if (outExt[4] < outExt[5]) {--outExt[5];}
-      // Now Copy The cell data, but only if output is a subextent of the input.  
-      if (outExt[0] >= inExt[0] && outExt[1] <= inExt[1] &&
-          outExt[2] >= inExt[2] && outExt[3] <= inExt[3] &&
-          outExt[4] >= inExt[4] && outExt[5] <= inExt[5])
+      if (input->GetCellData()->GetNumberOfArrays() > 0)
         {
-        output->GetCellData()->CopyStructuredData(input->GetCellData(),
+        output->GetCellData()->CopyAllocate(input->GetCellData(), 
+                                            output->GetNumberOfCells());  
+        // Cell extent is one less than point extent.
+        // Conditional to handle a colapsed axis (lower dimensional cells).
+        if (inExt[0] < inExt[1]) {--inExt[1];}
+        if (inExt[2] < inExt[3]) {--inExt[3];}
+        if (inExt[4] < inExt[5]) {--inExt[5];}
+        // Cell extent is one less than point extent.
+        if (outExt[0] < outExt[1]) {--outExt[1];}
+        if (outExt[2] < outExt[3]) {--outExt[3];}
+        if (outExt[4] < outExt[5]) {--outExt[5];}
+        // Now Copy The cell data, but only if output is a subextent of the input.  
+        if (outExt[0] >= inExt[0] && outExt[1] <= inExt[1] &&
+            outExt[2] >= inExt[2] && outExt[3] <= inExt[3] &&
+            outExt[4] >= inExt[4] && outExt[5] <= inExt[5])
+          {
+          output->GetCellData()->CopyStructuredData(input->GetCellData(),
                                                     inExt, outExt);
+          }
         }
       }
     }
-
+  
   // Now create the scalars array that will hold the output data.
   this->ExecuteInformation();
   output->AllocateScalars();
