@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.91");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.92");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -114,6 +114,10 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
   this->RenderTableEntries     = 0;
 
   this->ZBuffer                = NULL;
+  this->ZBufferSize[0]         = 0;
+  this->ZBufferSize[1]         = 0;
+  this->ZBufferOrigin[0]       = 0;
+  this->ZBufferOrigin[1]       = 0;
   
   this->IntermixIntersectingGeometry = 1;
   
