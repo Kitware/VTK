@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkProjectedPolyDataRayBounder.h"
 #include "vtkRenderWindow.h"
 
-#ifdef USE_OGLR
+#ifdef VTK_USE_OGLR
 #include "vtkOpenGLProjectedPolyDataRayBounder.h"
 #endif
 
@@ -66,8 +66,8 @@ vtkProjectedPolyDataRayBounder *vtkProjectedPolyDataRayBounder::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef USE_OGLR
-  if (!strncmp("oglr",temp,4)) 
+#ifdef VTK_USE_OGLR
+  if (!strcmp("OpenGL",temp)) 
     return vtkOpenGLProjectedPolyDataRayBounder::New();
 #endif
 
