@@ -180,6 +180,13 @@ public:
   static void ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, 
                                       int numComp, vtkIdType size);
 
+  // Description:
+  // This is here as a temporary hack until 
+  // I can get sub-worlds (communicators) working.
+  // It restricts compositing to occur on the first N processes.
+  void SetNumberOfProcesses(int numProcs);
+  vtkGetMacro(NumberOfProcesses, int);
+
 protected:
   vtkCompositeManager();
   ~vtkCompositeManager();
@@ -213,6 +220,7 @@ protected:
 
   // This object does the parallel communication for compositing.
   vtkCompositer *Compositer;
+  int NumberOfProcesses;
 
   // Arrays for compositing.
   vtkDataArray *PData;

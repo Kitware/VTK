@@ -49,7 +49,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkMultiProcessController.h"
 
-vtkCxxRevisionMacro(vtkTreeCompositer, "1.2");
+vtkCxxRevisionMacro(vtkTreeCompositer, "1.3");
 vtkStandardNewMacro(vtkTreeCompositer);
 
 #ifdef VTK_USE_MPI
@@ -179,7 +179,7 @@ void vtkTreeCompositer::CompositeBuffer(vtkDataArray *pBuf,
                                                                vtkFloatArray *zTmp)
 {
   int myId = this->Controller->GetLocalProcessId();
-  int numProcs = this->Controller->GetNumberOfProcesses();
+  int numProcs = this->NumberOfProcesses;
   int totalPixels;
   int pSize, zSize;
   int i, id;

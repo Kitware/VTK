@@ -51,6 +51,11 @@ public:
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller,vtkMultiProcessController);
 
+  // Description:
+  // A hack to get a sub world until I can get communicators working.
+  vtkSetMacro(NumberOfProcesses, int);
+  vtkGetMacro(NumberOfProcesses, int);
+
 protected:
   vtkCompositer();
   ~vtkCompositer();
@@ -58,6 +63,7 @@ protected:
   void operator=(const vtkCompositer&);
   
   vtkMultiProcessController *Controller;
+  int NumberOfProcesses;
 
 };
 

@@ -56,7 +56,7 @@
 
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkCompressCompositer, "1.6");
+vtkCxxRevisionMacro(vtkCompressCompositer, "1.7");
 vtkStandardNewMacro(vtkCompressCompositer);
 
 
@@ -526,7 +526,7 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
                                             vtkFloatArray *zTmp)
 {
   int myId = this->Controller->GetLocalProcessId();
-  int numProcs = this->Controller->GetNumberOfProcesses();
+  int numProcs = this->NumberOfProcesses;
   int i, id;
   int exactLog;
   int logProcs = vtkTCLog2(numProcs,exactLog);

@@ -44,10 +44,9 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.35");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.36");
 vtkStandardNewMacro(vtkCompositeManager);
 
-vtkCxxSetObjectMacro(vtkCompositeManager,Compositer, vtkCompositer);
 
 // Structures to communicate render info.
 struct vtkCompositeRenderWindowInfo 
@@ -100,6 +99,7 @@ vtkCompositeManager::vtkCompositeManager()
     {
     this->Controller->Register(this);
     }
+  this->NumberOfProcesses = this->Controller->GetNumberOfProcesses();
 
   this->RendererSize[0] = this->RendererSize[1] = 0;
 
@@ -405,6 +405,7 @@ void vtkCompositeManager::SetController(vtkMultiProcessController *mpc)
   if (mpc)
     {
     mpc->Register(this);
+    this->NumberOfProcesses = mpc->GetNumberOfProcesses();
     }
   if (this->Controller)
     {
@@ -417,6 +418,50 @@ void vtkCompositeManager::SetController(vtkMultiProcessController *mpc)
     this->Compositer->SetController(mpc);
     }
 }
+//-------------------------------------------------------------------------
+void vtkCompositeManager::SetNumberOfProcesses(int numProcs)
+{
+  if (this->Controller)
+    {
+    if (numProcs > this->Controller->GetNumberOfProcesses() )
+      {
+      numProcs = this->Controller->GetNumberOfProcesses();
+      }
+    }
+  if (this->NumberOfProcesses == numProcs)
+    {
+    return;
+    }
+
+  this->Modified();
+  this->NumberOfProcesses = numProcs;
+  if (this->Compositer)
+    {
+    this->Compositer->SetNumberOfProcesses(numProcs);
+    }
+}
+//-------------------------------------------------------------------------
+void vtkCompositeManager::SetCompositer(vtkCompositer *c)
+{
+  if (c == this->Compositer)
+    {
+    return;
+    }
+  if (c)
+    {
+    c->Register(this);
+    c->SetController(this->Controller);
+    c->SetNumberOfProcesses(this->NumberOfProcesses);
+    }
+  if (this->Compositer)
+    {
+    this->Compositer->Delete();
+    this->Compositer = NULL;
+    }
+  this->Compositer = c;
+}
+
+
 
 //-------------------------------------------------------------------------
 // Only satelite processes process interactor loops specially.
@@ -653,7 +698,7 @@ void vtkCompositeManager::StartRender()
   
   // Trigger the satelite processes to start their render routine.
   rens = this->RenderWindow->GetRenderers();
-  numProcs = controller->GetNumberOfProcesses();
+  numProcs = this->NumberOfProcesses;
   size = this->RenderWindow->GetSize();
   if (this->ReductionFactor > 0)
     {
@@ -767,7 +812,7 @@ void vtkCompositeManager::EndRender()
     return;
     }  
 
-  numProcs = controller->GetNumberOfProcesses();
+  numProcs = this->NumberOfProcesses;
   if (numProcs > 1)
     {
     this->Composite();
@@ -843,7 +888,7 @@ void vtkCompositeManager::ComputeVisiblePropBounds(vtkRenderer *ren,
   float tmp[6];
   int id, num;
   
-  num = this->Controller->GetNumberOfProcesses();  
+  num = this->NumberOfProcesses;  
   for (id = 1; id < num; ++id)
     {
     this->Controller->TriggerRMI(id,COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);
@@ -1184,7 +1229,7 @@ float vtkCompositeManager::GetZ(int x, int y)
 {
   int idx;
   
-  if (this->Controller == NULL || this->Controller->GetNumberOfProcesses() == 1)
+  if (this->Controller == NULL || this->NumberOfProcesses == 1)
     {
     int *size = this->RenderWindow->GetSize();
     
@@ -1581,6 +1626,7 @@ void vtkCompositeManager::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Compositer: NULL\n";
     }
+  os << indent << "NumberOfProcesses: " << this->NumberOfProcesses << endl;
 }
 
 
