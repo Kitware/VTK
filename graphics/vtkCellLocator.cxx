@@ -404,7 +404,7 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
 				      int &subId, float& dist2)
 {
   int i, j;
-  int *nei, cno;
+  int *nei;
   int inside=0;
   int closestCell = -1;
   int closestSubCell = -1;
@@ -465,11 +465,11 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
     for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
       {
       nei = this->Buckets->GetPoint(i);
-      cno = leafStart + nei[0] + nei[1]*this->NumberOfDivisions + 
-        nei[2]*this->NumberOfDivisions*this->NumberOfDivisions;
       
       // if a neighboring bucket has cells, 
-      if ( (cellIds = this->Tree[cno]) != NULL )
+      if ( (cellIds = 
+        this->Tree[leafStart + nei[0] + nei[1]*this->NumberOfDivisions + 
+          nei[2]*this->NumberOfDivisions*this->NumberOfDivisions]) != NULL )
         {
         // do we still need to test this bucket?
         distance2ToBucket = this->Distance2ToBucket(x, nei);
@@ -570,10 +570,10 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
     for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
       {
       nei = this->Buckets->GetPoint(i);
-      cno = leafStart + nei[0] + nei[1]*this->NumberOfDivisions + 
-        nei[2]*this->NumberOfDivisions*this->NumberOfDivisions;
       
-      if ( (cellIds = this->Tree[cno]) != NULL )
+      if ( (cellIds = 
+          this->Tree[leafStart + nei[0] + nei[1]*this->NumberOfDivisions + 
+            nei[2]*this->NumberOfDivisions*this->NumberOfDivisions]) != NULL )
         {
         // do we still need to test this bucket?
         distance2ToBucket = this->Distance2ToBucket(x, nei);
@@ -679,7 +679,7 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
                                              int &subId, float& dist2)
   {
   int i, j;
-  int *nei, cno;
+  int *nei;
   int inside=0;
   int closestCell = -1;
   int closestSubCell = -1;
@@ -740,14 +740,9 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
   //
   // Start by searching the bucket that the point is in.
   //
-  this->GetBucketNeighbors(ijk, this->NumberOfDivisions, 0);
-  nei = this->Buckets->GetPoint(0);
-  cno = leafStart + nei[0] + nei[1]*this->NumberOfDivisions + 
-    nei[2]*this->NumberOfDivisions*this->NumberOfDivisions;
-  
-  // if a neighboring bucket has cells, 
-  if ( (this->Buckets->GetNumberOfNeighbors() != 0)
-    && ((cellIds = this->Tree[cno]) != NULL) )
+  if ((cellIds = 
+      this->Tree[leafStart + ijk[0] + ijk[1]*this->NumberOfDivisions + 
+      ijk[2]*this->NumberOfDivisions*this->NumberOfDivisions]) != NULL )
     {
     // query each cell
     for (j=0; j < cellIds->GetNumberOfIds(); j++) 
@@ -872,10 +867,10 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
     for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
       {
       nei = this->Buckets->GetPoint(i);
-      cno = leafStart + nei[0] + nei[1]*this->NumberOfDivisions + 
-        nei[2]*numberOfBucketsPerPlane;
       
-      if ( (cellIds = this->Tree[cno]) != NULL )
+      if ( (cellIds = 
+        this->Tree[leafStart + nei[0] + nei[1]*this->NumberOfDivisions + 
+          nei[2]*numberOfBucketsPerPlane]) != NULL )
         {
         // do we still need to test this bucket?
         distance2ToBucket = this->Distance2ToBucket(x, nei);
@@ -1018,8 +1013,8 @@ void vtkCellLocator::GetBucketNeighbors(int ijk[3], int ndivs, int level)
       + ijk[2]*numberOfBucketsPerPlane])
       {
       this->Buckets->InsertNextPoint(ijk);
-      return;
       }
+    return;
     }
   //
   //  Create permutations of the ijk indices that are at the level
