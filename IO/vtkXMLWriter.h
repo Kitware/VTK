@@ -95,9 +95,10 @@ public:
   // Description:
   // Get/Set the block size used in compression.  When reading, this
   // controls the granularity of how much extra information must be
-  // read when only part of the data are requested.
-  vtkSetMacro(BlockSize, unsigned int);  
-  vtkGetMacro(BlockSize, unsigned int);  
+  // read when only part of the data are requested.  The value should
+  // be a multiple of the largest scalar data type.
+  virtual void SetBlockSize(unsigned int blockSize);
+  vtkGetMacro(BlockSize, unsigned int);
   
   // Description:
   // Get/Set the data mode used for the file's data.  The options are
@@ -167,6 +168,27 @@ protected:
 # error "No native data type can represent an unsigned 32-bit integer."
 #endif
   //ETX
+
+  //BTX
+  // We need a 32 bit signed integer type to which vtkIdType will be
+  // converted if Int32 is specified for the IdType parameter to this
+  // writer.
+# if VTK_SIZEOF_SHORT == 4
+  typedef short Int32IdType;
+# elif VTK_SIZEOF_INT == 4
+  typedef int Int32IdType;
+# elif VTK_SIZEOF_LONG == 4
+  typedef long Int32IdType;
+# else
+#  error "No native data type can represent a signed 32-bit integer."
+# endif  
+  //ETX
+  
+  // Buffer for vtkIdType conversion.
+  Int32IdType* Int32IdTypeBuffer;
+  
+  // The byte swapping buffer.
+  unsigned char* ByteSwapBuffer;
   
   // Compression information.
   vtkDataCompressor* Compressor;
@@ -296,13 +318,15 @@ protected:
                          vtkDataArray* zc, vtkIndent indent);
   
   // Internal utility methods.
-  int WriteBinaryDataInternal(void* data, unsigned long size);
+  int WriteBinaryDataInternal(void* data, int numWords, int wordType);
+  int WriteBinaryDataBlock(unsigned char* in_data, int numWords, int wordType);
   void PerformByteSwap(void* data, int numWords, int wordSize);
   int CreateCompressionHeader(unsigned long size);
   int WriteCompressionBlock(unsigned char* data, unsigned long size);
   int WriteCompressionHeader();
   unsigned long GetWordTypeSize(int dataType);
   const char* GetWordTypeName(int dataType);
+  unsigned long GetOutputWordTypeSize(int dataType);
   
   char** CreateStringArray(int numStrings);
   void DestroyStringArray(int numStrings, char** strings);
