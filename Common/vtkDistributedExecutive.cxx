@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkDistributedExecutive.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkAlgorithm.h"
 #include "vtkGarbageCollector.h"
+#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDistributedExecutive, "1.5");
+vtkCxxRevisionMacro(vtkDistributedExecutive, "1.6");
 vtkStandardNewMacro(vtkDistributedExecutive);
 vtkCxxSetObjectMacro(vtkDistributedExecutive, Algorithm, vtkAlgorithm);
 
@@ -106,6 +106,27 @@ int vtkDistributedExecutive::Update(vtkAlgorithm* algorithm)
     return 0;
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkInformation* vtkDistributedExecutive::GetOutputInformation(int)
+{
+  vtkErrorMacro("GetOutputInformation(int) must be implemented for this executive.");
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkInformation*
+vtkDistributedExecutive::GetOutputInformation(vtkAlgorithm* algorithm,
+                                              int port)
+{
+  if(algorithm != this->GetAlgorithm())
+    {
+    vtkErrorMacro("Request for output information from an algorithm not managed "
+                  "by this executive: " << algorithm);
+    return 0;
+    }
+  return this->GetOutputInformation(port);
 }
 
 //----------------------------------------------------------------------------

@@ -45,6 +45,12 @@ public:
   virtual int Update(vtkAlgorithm* algorithm);
 
   // Description:
+  // Get the information object for an output port of an algorithm.
+  virtual vtkInformation* GetOutputInformation(int port);
+  virtual vtkInformation* GetOutputInformation(vtkAlgorithm* algorithm,
+                                               int port);
+
+  // Description:
   // Get the data object for an output port of an algorithm.
   virtual vtkDataObject* GetOutputData(int port);
   virtual vtkDataObject* GetOutputData(vtkAlgorithm* algorithm, int port);

@@ -29,6 +29,7 @@
 class vtkAlgorithm;
 class vtkAlgorithmToExecutiveFriendship;
 class vtkDataObject;
+class vtkInformation;
 
 class VTK_COMMON_EXPORT vtkExecutive : public vtkObject
 {
@@ -41,6 +42,11 @@ public:
   // must already be managed by this executive.  Returns 1 for success
   // and 0 for failure.
   virtual int Update(vtkAlgorithm* algorithm)=0;
+
+  // Description:
+  // Get the information object for an output port of an algorithm.
+  virtual vtkInformation* GetOutputInformation(vtkAlgorithm* algorithm,
+                                               int port)=0;
 
   // Description:
   // Get the data object for an output port of an algorithm.
@@ -65,6 +71,12 @@ protected:
   // Garbage collection support.
   virtual void GarbageCollectionStarting();
   int GarbageCollecting;
+
+  // Get/Set the output data for an output port on an algorithm.
+  virtual void SetOutputDataInternal(vtkAlgorithm* algorithm, int port,
+                                     vtkDataObject* output);
+  virtual vtkDataObject* GetOutputDataInternal(vtkAlgorithm* algorithm,
+                                               int port);
 
   //BTX
   friend class vtkAlgorithmToExecutiveFriendship;

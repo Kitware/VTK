@@ -15,8 +15,9 @@
 #include "vtkExecutive.h"
 
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkExecutive, "1.1");
+vtkCxxRevisionMacro(vtkExecutive, "1.2");
 
 //----------------------------------------------------------------------------
 vtkExecutive::vtkExecutive()
@@ -51,4 +52,25 @@ void vtkExecutive::GarbageCollectionStarting()
 {
   this->GarbageCollecting = 1;
   this->Superclass::GarbageCollectionStarting();
+}
+
+//----------------------------------------------------------------------------
+void vtkExecutive::SetOutputDataInternal(vtkAlgorithm* algorithm, int port,
+                                         vtkDataObject* output)
+{
+  if(vtkInformation* info = this->GetOutputInformation(algorithm, port))
+    {
+    info->Set(vtkInformation::DATA_OBJECT(), output);
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkExecutive::GetOutputDataInternal(vtkAlgorithm* algorithm,
+                                                   int port)
+{
+  if(vtkInformation* info = this->GetOutputInformation(algorithm, port))
+    {
+    return info->Get(vtkInformation::DATA_OBJECT());
+    }
+  return 0;
 }
