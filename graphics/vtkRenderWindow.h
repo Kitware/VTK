@@ -182,12 +182,6 @@ public:
   virtual void StereoRenderComplete();
 
   // Description:
-  // This method indicates if a StereoOn/Off will require the window to 
-  // be remapped. Some types of stereo rendering require a new window
-  // to be created.
-  virtual int  GetRemapWindow();
-
-  // Description:
   // Remap the rendering window. This probably only works on UNIX right now.
   // It is useful for changing properties that can't normally be changed
   // once the window is up.

@@ -114,9 +114,8 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
     }
 
   // try every possibility stoping when we find one that works
-#ifdef sparc
   for (stereo = 1; !v && stereo >= 0; stereo--)
-#endif
+    {
     for (multi = this->MultiSamples; !v && multi >= 0; multi--)
       {
       if (v) 
@@ -127,9 +126,9 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
 					    this->DoubleBuffer, 
 					    stereo, multi);
       }
-#ifdef sparc
+    }
   for (stereo = 1; !v && stereo >= 0; stereo--)
-#endif
+    {
     for (multi = this->MultiSamples; !v && multi >= 0; multi--)
       {
       if (v) 
@@ -141,7 +140,7 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
 					    stereo, multi);
       if (v) this->DoubleBuffer = !this->DoubleBuffer;
       }
-
+    }
   if (!v) 
     {
     vtkErrorMacro(<< "Could not find a decent visual\n");
@@ -237,14 +236,6 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
       {
       case VTK_STEREO_CRYSTAL_EYES:
 	{
-#ifdef HAVE_SETMON
-	glFlush();
-	system("/usr/gfx/setmon -n STR_RECT");
-	glFlush();
-	// make sure we are in full screen
-	this->FullScreenOn();
-        this->StereoStatus = 1;
-#endif
 	}
 	break;
       case VTK_STEREO_RED_BLUE:
@@ -259,14 +250,6 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
       {
       case VTK_STEREO_CRYSTAL_EYES:
 	{
-#ifdef HAVE_SETMON
-	// restore the monitor 
-	glFlush();
-	system("/usr/gfx/setmon -n 72HZ");
-	glFlush();
-	// make sure we are out of full screen
-	this->FullScreenOff();
-#endif
         this->StereoStatus = 0;
 	}
 	break;

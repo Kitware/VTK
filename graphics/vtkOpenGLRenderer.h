@@ -75,22 +75,6 @@ public:
   // Ask lights to load themselves into graphics pipeline.
   int UpdateLights(void);
 
-  // Description:
-  // Return the center of the renderer. Supports stereo modes as well.
-  virtual float *GetCenter();
-
-  // Description:
-  // Convert display coordinates to view coordinates.
-  virtual void DisplayToView(); 
-
-  // Description:
-  // Convert view coordinates to display coordinates.
-  virtual void ViewToDisplay(); 
-
-  // Description:
-  // Is a given display point in this renderer's viewport.
-  virtual int  IsInViewport(int x,int y); 
-
 };
 
 #endif

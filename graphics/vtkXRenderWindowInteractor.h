@@ -136,15 +136,10 @@ public:
   Widget GetWidget() {return this->top;};
   
   // Description:
-  // Finish setting up a new window after the WindowRemap.
-  virtual void FinishSettingUpNewWindow();
-
-  // Description:
   // Functions that are used internally.
   friend void vtkXRenderWindowInteractorCallback(Widget,XtPointer,
                                                  XEvent *,Boolean *);
   friend void vtkXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
-  virtual void SetupNewWindow(int Stereo = 0);
 
 protected:
   Display *DisplayId;

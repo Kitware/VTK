@@ -738,27 +738,15 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	  // prepare the new window
 	  if (me->RenderWindow->GetStereoRender())
 	    {
-	    if (me->RenderWindow->GetRemapWindow())
-	      {
-	      me->SetupNewWindow(1);
-	      }
 	    me->RenderWindow->StereoRenderOff();
 	    }
 	  else
 	    {
 	    memcpy(me->PositionBeforeStereo,me->RenderWindow->GetPosition(),
 		   sizeof(int)*2);
-	    if (me->RenderWindow->GetRemapWindow())
-	      {
-	      me->SetupNewWindow(1);
-	      }
 	    me->RenderWindow->StereoRenderOn();
 	    }
 	  me->RenderWindow->Render();
-	  if (me->RenderWindow->GetRemapWindow())
-	    {
-	    me->FinishSettingUpNewWindow();
-	    }
           break;
 
 	case XK_p:
@@ -1019,58 +1007,4 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
 }  
 
 
-// Setup a new window before a WindowRemap
-void vtkXRenderWindowInteractor::SetupNewWindow(int Stereo)
-{
-  vtkXRenderWindow *ren;
-  int depth;
-  Colormap cmap;
-  Visual  *vis;
-  int *size;
-  int *position;
-  int zero_pos[2];
-  
-  // get the info we need from the RenderingWindow
-  ren = (vtkXRenderWindow *)(this->RenderWindow);
-  this->DisplayId = ren->GetDisplayId();
-  depth   = ren->GetDesiredDepth();
-  cmap    = ren->GetDesiredColormap();
-  vis     = ren->GetDesiredVisual();
-  size    = ren->GetSize();
-  position= ren->GetPosition();
-
-  if (Stereo)
-    {
-    if (this->RenderWindow->GetStereoRender())
-      {
-      position = this->PositionBeforeStereo;
-      }
-    else
-      {
-      zero_pos[0] = 0;
-      zero_pos[1] = 0;
-      position = zero_pos;
-      }
-    }
-}
-
-// Finish setting up a new window after the WindowRemap.
-void vtkXRenderWindowInteractor::FinishSettingUpNewWindow()
-{
-  int *size;
-
-  // free the previous widget
-  XSync(this->DisplayId,False);
-  this->WindowId = ((vtkXRenderWindow *)(this->RenderWindow))->GetWindowId();
-  XSync(this->DisplayId,False);
-
-  this->Enable();
-  //  XSelectInput(this->DisplayId,this->WindowId,
-  //		    KeyPressMask | ButtonPressMask | ExposureMask |
-  //		    StructureNotifyMask | ButtonReleaseMask);
-
-  size = this->RenderWindow->GetSize();
-  this->Size[0] = size[0];
-  this->Size[1] = size[1];
-}
 

@@ -1005,20 +1005,6 @@ void vtkRenderWindow::CopyResultFrame(void)
   this->Frame();
 }
 
-// This method indicates if a StereoOn/Off will require the window to 
-// be remapped. Some types of stereo rendering require a new window
-// to be created.
-int vtkRenderWindow::GetRemapWindow(void)
-{
-  switch (this->StereoType) 
-    {
-    case VTK_STEREO_RED_BLUE: return 0;
-    case VTK_STEREO_INTERLACED: return 0;
-    case VTK_STEREO_CRYSTAL_EYES: return 1;
-    }
-  return 0;
-}
-
 
 // treat renderWindow and interactor as one object.
 // it might be easier if the GetReference count method were redefined.
