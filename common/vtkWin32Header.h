@@ -47,6 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkWIN32Header_h
 #define __vtkWIN32Header_h
 
+#include "vtkConfigure.h"
+
 //
 // Windows specific stuff------------------------------------------
 #if defined(_WIN32) || defined(WIN32)
