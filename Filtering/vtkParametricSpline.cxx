@@ -18,7 +18,7 @@
 #include "vtkPoints.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkParametricSpline, "1.3");
+vtkCxxRevisionMacro(vtkParametricSpline, "1.4");
 vtkStandardNewMacro(vtkParametricSpline);
 
 vtkParametricSpline::vtkParametricSpline()
@@ -38,6 +38,7 @@ vtkParametricSpline::vtkParametricSpline()
   this->LeftValue = 0.0;
   this->RightConstraint = 1;
   this->RightValue = 0.0;
+  this->ParameterizeByLength = 1;
   
   this->InitializeTime = 0;
 }
@@ -45,7 +46,7 @@ vtkParametricSpline::vtkParametricSpline()
 vtkParametricSpline::~vtkParametricSpline()
 {
   if (this->Points)
-            {
+    {
     this->Points->Delete();
     }
   if (this->XSpline)
@@ -134,7 +135,7 @@ void vtkParametricSpline::SetZSpline(vtkSpline *s)
 void vtkParametricSpline::Evaluate(double U[3], double Pt[3], double*)
 {
   // make sure everything has been set up
-  if (this->InitializeTime < this->GetMTime ())
+  if ( this->InitializeTime < this->GetMTime () )
     {
     if ( ! this->Initialize() )
       {
@@ -161,7 +162,7 @@ void vtkParametricSpline::Evaluate(double U[3], double Pt[3], double*)
 double vtkParametricSpline::EvaluateScalar(double u[3], double*, double *)
 {
   // make sure everything has been set up
-  if (this->InitializeTime < this->GetMTime ())
+  if ( this->InitializeTime < this->GetMTime () )
     {
     if ( ! this->Initialize() )
       {
@@ -186,7 +187,7 @@ int vtkParametricSpline::Initialize()
     vtkErrorMacro("Please specify points");
     return 0;
     }
-  
+
   // Make sure that the splines are consistent with this instance
   this->XSpline->SetClosed(this->GetClosed());
   this->XSpline->SetLeftConstraint(this->GetLeftConstraint());
@@ -205,53 +206,85 @@ int vtkParametricSpline::Initialize()
   this->ZSpline->SetRightConstraint(this->GetRightConstraint());
   this->ZSpline->SetLeftValue(this->GetLeftValue());
   this->ZSpline->SetRightValue(this->GetRightValue());
-  
 
   // Construct the splines, parameterized by length
   vtkIdType i;
   double xPrev[3], x[3], len;
-  this->Points->GetPoint(0,xPrev);
   vtkIdType npts = this->Points->GetNumberOfPoints();
-  
-  this->Length = 0.0;
-  for (i=1; i < npts; i++)
+  if ( npts < 2 )
     {
-    this->Points->GetPoint(i,x);
-    len = sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
-    if ( len <= 0.0 )
+    vtkErrorMacro("Please specify at least two points");
+    return 0;
+    }
+
+  if ( this->ParameterizeByLength )
+    {
+    this->Points->GetPoint(0,xPrev);
+    this->Length = 0.0;
+    for ( i = 1; i < npts; ++i )
       {
-      vtkErrorMacro("Spline must have non-coincident points");
+      this->Points->GetPoint(i,x);
+      len = sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
+      if ( len <= 0.0 )
+        {
+        vtkErrorMacro("Spline must have non-coincident points");
+        return 0; //failure
+        }
+      this->Length += len;
+      xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
+      }
+    if ( this->Length <= 0.0 )
+      {
+      vtkErrorMacro("Spline must have non-zero length");
       return 0; //failure
       }
-    this->Length += len;
-    xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
+    if ( this->Closed )
+      {
+      this->Points->GetPoint(0,x);
+      this->ClosedLength = this->Length +
+        sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
+      }
     }
-  if ( this->Length <= 0.0 )
+  else
     {
-    vtkErrorMacro("Spline must have non-zero length");
-    return 0; //failure
+    this->Length = npts - 1;
+    if ( this->Closed )
+      {
+      this->ClosedLength = npts;
+      }
     }
-  if ( this->Closed )
-    {
-    this->Points->GetPoint(0,x);
-    this->ClosedLength = this->Length + 
-      sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
-    }
+
+  this->XSpline->RemoveAllPoints();
+  this->YSpline->RemoveAllPoints();
+  this->ZSpline->RemoveAllPoints();
 
   // Now we insert points into the splines with the parametric coordinate
   // based on (polyline) length. We keep track of the parametric coordinates
   // of the points for later point interpolation.
-  this->Points->GetPoint(0,xPrev);
-  for (len=0,i=0; i < npts; i++)
+  if ( this->ParameterizeByLength )
     {
-    this->Points->GetPoint(i,x);
-    len += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
+    this->Points->GetPoint(0,xPrev);
+    for ( len = 0.0, i = 0; i < npts; ++i )
+      {
+      this->Points->GetPoint(i,x);
+      len += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
 
-    this->XSpline->AddPoint(len,x[0]);
-    this->YSpline->AddPoint(len,x[1]);
-    this->ZSpline->AddPoint(len,x[2]);
-    
-    xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
+      this->XSpline->AddPoint(len,x[0]);
+      this->YSpline->AddPoint(len,x[1]);
+      this->ZSpline->AddPoint(len,x[2]);
+
+      xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
+      }
+    }
+  else
+    {
+    for ( i = 0; i < npts; ++i )
+      {
+      this->Points->GetPoint(i,x);
+      this->XSpline->AddPoint(i,x[0]);
+      this->YSpline->AddPoint(i,x[1]);
+      this->ZSpline->AddPoint(i,x[2]);
+      }
     }
 
   this->InitializeTime = this->GetMTime();
@@ -306,4 +339,6 @@ void vtkParametricSpline::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Right Constraint: " << this->RightConstraint << "\n";
   os << indent << "Left Value: " << this->LeftValue << "\n";
   os << indent << "Right Value: " << this->RightValue << "\n";
+  os << indent << "Parameterize by length: "
+     << (this->ParameterizeByLength ? "On\n" : "Off\n");
 }
