@@ -228,7 +228,7 @@ void vtkXOpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
     }
 
   // Check for input
-  if (this->Input == NULL) 
+  if (this->Input == NULL || this->Input[0] == '\0') 
     {
     vtkDebugMacro (<<"Render - No input");
     return;
