@@ -81,14 +81,18 @@ using std::ifstream;
 
 // otherwise, non-ANSI -----------------------------------------------------
 #else
-#include <iostream.h>
-#if defined(_MSC_VER)
-#include <strstrea.h>
+#ifdef _WIN32_WCE
+  #include "vtkWinCE.h"
 #else
-#include <strstream.h>
-#endif
-#include <fstream.h>
-#endif
+  #include <iostream.h>
+  #if defined(_MSC_VER)
+    #include <strstrea.h>
+  #else
+    #include <strstream.h>
+  #endif
+  #include <fstream.h>
+#endif // Win CE
+#endif 
 
 #define VTK_HAS_ID_TYPE
 #ifdef VTK_USE_64BIT_IDS
