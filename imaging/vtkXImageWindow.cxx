@@ -41,20 +41,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXImageWindow.h"
 
 
-void vtkXImageWindow::GetShiftsAndMasks(int &rshift, int &gshift, 
-					int &bshift,
-					unsigned long &rmask,
-					unsigned long &gmask,
-					unsigned long &bmask)
+void vtkXImageWindow::GetShiftsScalesAndMasks(int &rshift, int &gshift, 
+					      int &bshift,
+					      int &rscale, int &gscale, 
+					      int &bscale, 
+					      unsigned long &rmask,
+					      unsigned long &gmask,
+					      unsigned long &bmask)
 {
   XWindowAttributes winAttribs;
   XVisualInfo temp1;
 
   XGetWindowAttributes(this->DisplayId, this->WindowId, &winAttribs);
   temp1.visualid = winAttribs.visual->visualid;
+  temp1.screen = DefaultScreen(this->DisplayId);
   int nvisuals = 0;
   XVisualInfo* visuals = 
-    XGetVisualInfo(this->DisplayId, VisualIDMask, &temp1, &nvisuals);   
+    XGetVisualInfo(this->DisplayId, VisualIDMask | VisualScreenMask, &temp1, 
+		   &nvisuals);   
   if (nvisuals == 0)  vtkErrorMacro(<<"Could not get color masks");
   
   rmask = visuals->red_mask;
@@ -76,21 +80,88 @@ void vtkXImageWindow::GetShiftsAndMasks(int &rshift, int &gshift,
     tmp = tmp >> 1;
     rshift++;
     }
-  rshift -= 8;
   tmp = gmask;
   while (tmp != 0)
     {
     tmp = tmp >> 1;
     gshift++;
     }
-  gshift -= 8;
   tmp = bmask;
   while (tmp != 0)
     {
     tmp = tmp >> 1;
     bshift++;
     }
-  bshift -= 8;
+
+  // determine the "cumulative" shifts and relative scales
+  int t_rshift, t_gshift, t_bshift;
+  t_rshift = 0;
+  t_gshift = 0;
+  t_bshift = 0;
+  rscale = 8;
+  gscale = 8;
+  bscale = 8;
+  if (rshift > gshift)
+    {
+    // r > g
+    if (gshift > bshift)
+      {
+      // r > g > b
+      t_rshift = gshift;
+      t_gshift = bshift;
+      rscale = rshift - gshift;
+      gscale = gshift - bshift;
+      bscale = bshift;
+      }
+    else
+      {
+      // r > b > g
+      t_rshift = bshift;
+      t_bshift = gshift;
+      rscale = rshift - gshift;
+      bscale = bshift - gshift;
+      gscale = gshift;
+      }
+    }
+  else
+    {
+    // g > r
+    if (gshift > bshift)
+      {
+      // g > r,  g > b
+      if (bshift > rshift)
+	{
+	// g > b > r
+	t_gshift = bshift;
+	t_bshift = rshift;
+	gscale = gshift - bshift;
+	bscale = bshift - rshift;
+	rscale = rshift;
+	}
+      else
+	{
+	// g > r > b
+	t_gshift = rshift;
+	t_rshift = bshift;
+	gscale = gshift - rshift;
+	rscale = rshift - bshift;
+	bscale = bshift;
+	}
+      }
+    else
+      {
+      // b > g > r
+      t_bshift = gshift;
+      t_gshift = rshift;
+      bscale = bshift - gshift;
+      gscale = gshift - rshift;
+      rscale = rshift;
+      }
+    }
+
+  rshift = t_rshift;
+  gshift = t_gshift;
+  bshift = t_bshift;
 }
 
 
@@ -102,9 +173,11 @@ unsigned char *vtkXImageWindow::GetPixelData(int x1, int y1,
   int width  = (abs(x2 - x1)+1);
   int height = (abs(y2 - y1)+1);
   int rshift, gshift, bshift;
+  int rscale, gscale, bscale;
   unsigned long rmask, gmask, bmask;
 
-  this->GetShiftsAndMasks(rshift,gshift,bshift,rmask,gmask,bmask);
+  this->GetShiftsScalesAndMasks(rshift,gshift,bshift,rscale,gscale,bscale,
+				rmask,gmask,bmask);
 
   // Get the XImage
   XImage* image = XGetImage(this->DisplayId, this->WindowId, x1, y1,
@@ -157,9 +230,9 @@ unsigned char *vtkXImageWindow::GetPixelData(int x1, int y1,
     for (xloop = x_low; xloop <= x_hi ; xloop++)
       {
       pixel = XGetPixel(image, xloop, yloop);
-      *p_data = (pixel & rmask) >> rshift; p_data++;
-      *p_data = (pixel & gmask) >> gshift; p_data++;
-      *p_data = (pixel & bmask) >> bshift; p_data++;
+      *p_data = ((pixel & rmask) >> rshift) << (8-rscale); p_data++;
+      *p_data = ((pixel & gmask) >> gshift) << (8-gscale); p_data++;
+      *p_data = ((pixel & bmask) >> bshift) << (8-bscale); p_data++;
       }
     }
  
