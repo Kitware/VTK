@@ -25,7 +25,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.11");
+vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.12");
 vtkStandardNewMacro(vtkGaussianCubeReader);
 
 // Construct object with merging set to true.
@@ -173,7 +173,7 @@ void vtkGaussianCubeReader::PrintSelf(ostream& os, vtkIndent indent)
   if( this->Transform )
     {
     os << endl;
-    os << indent << this->Transform->PrintSelf(os, indent.GetNextIndent());
+    this->Transform->PrintSelf(os, indent.GetNextIndent());
     }
   else
     {
