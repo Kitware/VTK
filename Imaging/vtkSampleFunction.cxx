@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.63");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.64");
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction,ImplicitFunction,vtkImplicitFunction);
 
@@ -146,7 +146,6 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
   //
   int extent[6];
   output->GetUpdateExtent(extent);
-  int sliceSize = this->SampleDimensions[0] * this->SampleDimensions[1];
   float spacing[3];
   output->GetSpacing(spacing);
 
