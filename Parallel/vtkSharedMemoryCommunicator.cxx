@@ -33,7 +33,7 @@ public:
   vtkSharedMemoryCommunicatorMessage* Previous;
 };
 
-vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.12");
+vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.13");
 vtkStandardNewMacro(vtkSharedMemoryCommunicator);
 
 void vtkSharedMemoryCommunicator::PrintSelf(ostream& os, vtkIndent indent)
@@ -260,7 +260,7 @@ int vtkSharedMemoryCommunicator::Receive(vtkDataObject* object,
 }
 
 int vtkSharedMemoryCommunicator::Receive(vtkDataArray* object, 
-                                         int dataLength,
+                                         int vtkNotUsed(dataLength),
                                          int remoteThreadId, int tag)
 {
   vtkSharedMemoryCommunicatorMessage* message;

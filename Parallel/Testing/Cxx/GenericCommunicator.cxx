@@ -57,7 +57,7 @@ static void DeleteAnArg(void*)
   return;
 }
 
-void Process1(vtkMultiProcessController *contr, void *arg)
+void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
 {
   vtkCommunicator* comm = contr->GetCommunicator();
 

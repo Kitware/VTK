@@ -44,7 +44,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.60");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.61");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -558,7 +558,8 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
 
 
 //----------------------------------------------------------------------------
-void vtkSynchronizedTemplates3D::SetInputMemoryLimit(unsigned long limit)
+void vtkSynchronizedTemplates3D::SetInputMemoryLimit(
+  unsigned long vtkNotUsed(limit) )
 {
   vtkErrorMacro( << "This filter no longer supports a memory limit." );
   vtkErrorMacro( << "This filter no longer initiates streaming." );

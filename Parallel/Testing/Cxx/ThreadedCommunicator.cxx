@@ -45,12 +45,12 @@ struct GenericCommunicatorArgs_tmp
   char** argv;
 };
 
-void TestBarrier(vtkMultiProcessController *contr, void *arg)
+void TestBarrier(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
 {
   contr->Barrier();
 }
 
-void Process1(vtkMultiProcessController *contr, void *arg)
+void Process1(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
 {
   int i;
 

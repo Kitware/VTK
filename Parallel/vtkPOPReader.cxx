@@ -25,7 +25,7 @@
 #include "vtkImageWrapPad.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPOPReader, "1.9");
+vtkCxxRevisionMacro(vtkPOPReader, "1.10");
 vtkStandardNewMacro(vtkPOPReader);
 
 //----------------------------------------------------------------------------
@@ -396,7 +396,7 @@ vtkPoints *vtkPOPReader::ReadPoints(vtkImageData *image)
 void vtkPOPReader::ReadInformationFile()
 {
   ifstream *file;
-  int i, num;
+  int i=0, num;
   float tempf;
   char str[256];
 

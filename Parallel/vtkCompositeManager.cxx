@@ -27,7 +27,7 @@
 #include "vtkMesaRenderWindow.h"
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.15");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.16");
 
 // Structures to communicate render info.
 struct vtkCompositeRenderWindowInfo 
@@ -201,7 +201,7 @@ void vtkCompositeManager::SetReductionFactor(int factor)
 void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
 {
   vtkRendererCollection *rens;
-  vtkRenderer *ren;
+  vtkRenderer *ren = 0;
 
   if (this->RenderWindow == renWin)
     {
@@ -286,7 +286,8 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
         }
       else
         {
-        ren = ren;
+        // This is here for some reason?
+        // ren = ren; 
 #ifdef _WIN32
         // I had a problem with some graphics cards getting front and back buffers
         // mixed up, so I made the remote render windows single buffered. One nice
@@ -358,7 +359,7 @@ void vtkCompositeManager::RenderRMI()
   vtkCompositeRendererInfo renInfo;
   vtkRendererCollection *rens;
   vtkRenderer* ren;
-  vtkCamera *cam;
+  vtkCamera *cam = 0;
   vtkLightCollection *lc;
   vtkLight *light;
   vtkRenderWindow* renWin = this->RenderWindow;
@@ -673,7 +674,7 @@ void vtkCompositeManager::ResetCameraClippingRange(vtkRenderer *ren)
 
 //----------------------------------------------------------------------------
 void vtkCompositeManager::ComputeVisiblePropBounds(vtkRenderer *ren, 
-						   float bounds[6])
+                                                   float bounds[6])
 {
   float tmp[6];
   int id, num;

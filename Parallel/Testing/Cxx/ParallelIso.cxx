@@ -61,8 +61,8 @@ struct ParallelIsoArgs_tmp
 };
 
 // call back to set the iso surface value.
-void SetIsoValueRMI(void *localArg, void *remoteArg, 
-                  int remoteArgLen, int id)
+void SetIsoValueRMI(void *localArg, void* vtkNotUsed(remoteArg), 
+                    int vtkNotUsed(remoteArgLen), int vtkNotUsed(id))
 { 
   float val;
 

@@ -44,7 +44,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.55");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.56");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -87,7 +87,8 @@ vtkGridSynchronizedTemplates3D::~vtkGridSynchronizedTemplates3D()
 }
 
 //----------------------------------------------------------------------------
-void vtkGridSynchronizedTemplates3D::SetInputMemoryLimit(long limit)
+void vtkGridSynchronizedTemplates3D::SetInputMemoryLimit(
+  long vtkNotUsed(limit))
 {
   vtkErrorMacro( << "This filter no longer supports a memory limit." );
   vtkErrorMacro( << "This filter no longer initiates streaming." );
