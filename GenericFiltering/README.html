@@ -17,7 +17,62 @@ The VTK Adaptor Framework and Generic Filtering
     </UL>
 <HR>
 <h1><A NAME="Overview">Overview</h1>
-This is the overview
+The classes in this directory are part of a body of work that support the
+interface of VTK to external simulation packages. These external packages may
+be finite element programs, CFD systems, or other simulation systems that are
+based on discretizing a domain into elements, where the element (or in VTK
+terminology, cell) basis functions are of arbitrary complexity. The point of
+this work is to avoid duplicating data in order to visualize it with VTK, and
+to take advantage of basis function formulations that are already implemented
+in existing simulation packages. 
+<p>
+In the past, systems that interface with VTK typically require writing output
+data in VTK format, or require writing a special VTK reader. Further, cells
+of higher-order basis (e.g., cubic, quadric, or even mixed-order
+formulations) had no counterpart in VTK, so the user was responsible for
+tessellating the cells into linear forms, often at the cost of excessive
+memory consumption or inaccuracy.
+<p>
+We refer to this work as the "adaptor framework". That is, it adapts VTK to a
+particular simulation system. It does this by generalizing the VTK dataset,
+cell, and attribute classes, and providing special filters that operate on
+these new general classes. Further, because we assume that the cells may be
+of arbitrary complexity in terms of their basis functions, tessellation
+functions (with associated error metric) are used to automatically subdivide
+complex cells into linear primitives. This allows the use of standard linear
+visualization algorithms: algorithms that have been proven to be robust,
+fast, and dependable.
+<p>
+The adaptor framework consists of a few basic components: new implementations
+of data objects (vtkGenericDataSet and vtkGenericAdaptorCell), classes to
+support the tessellation of cells (vtkGenericCellTessellator and
+vtkGenericSubdivisionErrorMetric), and classes that filter the new data
+objects (e.g., vtkGenericContourFilter).
+<p>
+Note that we choose to implement a select number of filters. One filter
+simply performs tessellation on a vtkGenericDataSet to produce a linearized
+vtkUnstructuredGrid (vtkGenericDataSetTessellator). The others are common
+filters used in a wide variety of visualization applications:
+<ul>
+  <li> vtkGenericDataSetTessellator </li>
+  <li> vtkGenericContourFilter </li>
+  <li> vtkGenericCutter </li>
+  <li> vtkGenericClip </li>
+  <li> vtkGenericProbeFilter </li>
+  <li> vtkGenericGlyph3DFilter </li>
+  <li> vtkGenericStreamTracer </li>
+  <li> vtkGenericGeometryFilter </li>
+</ul>
+
+At the same time that we were designing the adaptor framework, we also found
+it necessary to rework the vtkDataSet/vtkCell/vtkDataArray API. We found that
+the assumptions of contiguous data (manifested in the form of monotonically
+increasing, contiguous, integral ids) to be overly limiting. Thus we moved
+to an iterator-based framework.
+
+It is possible that in time the vtkGenericDataSet may replace the current
+vtkDataSet, and that the existing filters that input vtkDataSet may be
+rewritten. However, this is a future undertaking.
 
 <HR>
 <h1><A NAME="Commercial">Commercial Expression</h1>
