@@ -149,6 +149,7 @@ public:
     ExecuteInformationEvent,
     RenderWindowMessageEvent,
     WrongTagEvent,
+    ProgramExitEvent,
     UserEvent = 1000
   };
 //ETX

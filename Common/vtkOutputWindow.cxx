@@ -19,17 +19,25 @@
 #endif
 #include "vtkObjectFactory.h"
 #include "vtkDebugLeaks.h"
+#include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkOutputWindow, "1.33");
+vtkCxxRevisionMacro(vtkOutputWindow, "1.34");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkOutputWindow);
 
+//-----------------------------------------------------------------------------
+// Used to cleanup the output window in use on exit.
+static void CleanupOutputWindow(vtkObject *, unsigned long, void *, void *)
+{
+  vtkOutputWindow::SetInstance(NULL);
+}
+
 //----------------------------------------------------------------------------
 
 vtkOutputWindow* vtkOutputWindow::Instance = 0;
-vtkOutputWindowCleanup vtkOutputWindow::Cleanup;
+int vtkOutputWindow::CleanupCommandRegistered = 0;
 
 void vtkOutputWindowDisplayText(const char* message)
 {
@@ -54,16 +62,6 @@ void vtkOutputWindowDisplayGenericWarningText(const char* message)
 void vtkOutputWindowDisplayDebugText(const char* message)
 {
   vtkOutputWindow::GetInstance()->DisplayDebugText(message);
-}
-
-vtkOutputWindowCleanup::vtkOutputWindowCleanup()
-{
-}
-
-vtkOutputWindowCleanup::~vtkOutputWindowCleanup()
-{
-  // Destroy any remaining output window.
-  vtkOutputWindow::SetInstance(0);
 }
 
 vtkOutputWindow::vtkOutputWindow()
@@ -141,6 +139,15 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
 {
   if(!vtkOutputWindow::Instance)
     {
+    if (!vtkOutputWindow::CleanupCommandRegistered)
+      {
+      vtkCallbackCommand *cbc = vtkCallbackCommand::New();
+      cbc->SetCallback(CleanupOutputWindow);
+      vtkDebugLeaks::AddCleanupCommand(cbc);
+      cbc->Delete();
+      vtkOutputWindow::CleanupCommandRegistered = 1;
+      }
+
     // Try the factory first
     vtkOutputWindow::Instance = (vtkOutputWindow*)
       vtkObjectFactory::CreateInstance("vtkOutputWindow");
@@ -166,6 +173,15 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
 
 void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
 {
+  if (!vtkOutputWindow::CleanupCommandRegistered)
+    {
+    vtkCallbackCommand *cbc = vtkCallbackCommand::New();
+    cbc->SetCallback(CleanupOutputWindow);
+    vtkDebugLeaks::AddCleanupCommand(cbc);
+    cbc->Delete();
+    vtkOutputWindow::CleanupCommandRegistered = 1;
+    }
+
   if (vtkOutputWindow::Instance==instance)
     {
     return;

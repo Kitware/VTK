@@ -24,18 +24,6 @@
 
 #include "vtkObject.h"
 
-//BTX
-
-class VTK_COMMON_EXPORT vtkOutputWindow;
-
-class VTK_COMMON_EXPORT vtkOutputWindowCleanup
-{
-public:
-  vtkOutputWindowCleanup();
-  ~vtkOutputWindowCleanup();
-};
-//ETX
-
 class VTK_COMMON_EXPORT vtkOutputWindow : public vtkObject
 {
 public:
@@ -75,12 +63,6 @@ public:
   // messages.
   vtkBooleanMacro(PromptUser,int);
   vtkSetMacro(PromptUser, int);
-//BTX
-  // use this as a way of memory management when the
-  // program exits the SmartPointer will be deleted which
-  // will delete the Instance singleton
-  static vtkOutputWindowCleanup Cleanup;
-//ETX
 protected:
   vtkOutputWindow();
   virtual ~vtkOutputWindow();
@@ -88,6 +70,7 @@ protected:
 private:
   static vtkOutputWindow* Instance;
 private:
+  static int CleanupCommandRegistered;
   vtkOutputWindow(const vtkOutputWindow&);  // Not implemented.
   void operator=(const vtkOutputWindow&);  // Not implemented.
 };

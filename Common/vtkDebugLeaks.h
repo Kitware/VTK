@@ -33,6 +33,7 @@
 
 class vtkDebugLeaksHashTable;
 class vtkSimpleCriticalSection;
+class vtkCommand;
 
 class VTK_COMMON_EXPORT vtkDebugLeaks : public vtkObject
 {
@@ -52,6 +53,14 @@ public:
   // Print all the values in the table.  Returns non-zero if there
   // were leaks.
   static int PrintCurrentLeaks();
+
+  // Description:
+  // Sometimes a VTK object will be held in a global or static variable.
+  // This means it may still be around at program exit even though it is
+  // not really a leak.  To prevent debug leaks from reporting it,
+  // add a vtkCommand that will destroy the particular static variable.
+  // The command will be called with a vtkCommand::ProgramExitEvent.
+  static void AddCleanupCommand(vtkCommand *command);
 
   // Description:
   // Turn prompt at exit on/off (this setting is deprecated and will
@@ -75,6 +84,11 @@ protected:
 private:
   static vtkDebugLeaksHashTable* MemoryTable;
   static vtkSimpleCriticalSection* CriticalSection;
+
+//BTX
+  class CleanupCommandList;
+//ETX
+  static CleanupCommandList *CleanupCommands;
 
   vtkDebugLeaks(const vtkDebugLeaks&);  // Not implemented.
   void operator=(const vtkDebugLeaks&);  // Not implemented.

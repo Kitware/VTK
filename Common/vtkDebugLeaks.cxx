@@ -15,10 +15,22 @@
 #include "vtkDebugLeaks.h"
 #include "vtkObjectFactory.h"
 #include "vtkCriticalSection.h"
+#include "vtkCommand.h"
 #include <vtkstd/string>
 
 static const char *vtkDebugLeaksIgnoreClasses[] = {
   0
+};
+
+
+//-----------------------------------------------------------------------------
+class vtkDebugLeaks::CleanupCommandList
+{
+public:
+  CleanupCommandList(vtkCommand *c, CleanupCommandList *n)
+    : Command(c), Next(n) {}
+  vtkCommand *Command;
+  vtkDebugLeaks::CleanupCommandList *Next;
 };
 
 //----------------------------------------------------------------------------
@@ -37,7 +49,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.31");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.32");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 //----------------------------------------------------------------------------
@@ -387,6 +399,16 @@ int vtkDebugLeaks::DisplayMessageBox(const char*)
 }
 #endif
 
+//-----------------------------------------------------------------------------
+void vtkDebugLeaks::AddCleanupCommand(vtkCommand *command)
+{
+  if (!command) return;
+  vtkDebugLeaks::CleanupCommands
+    = new vtkDebugLeaks::CleanupCommandList(command,
+                                            vtkDebugLeaks::CleanupCommands);
+  vtkDebugLeaks::CleanupCommands->Command->Register(NULL);
+}
+
 //----------------------------------------------------------------------------
 void vtkDebugLeaks::ClassInitialize()
 {
@@ -400,11 +422,22 @@ void vtkDebugLeaks::ClassInitialize()
   vtkDebugLeaks::MemoryTable = 0;
   vtkDebugLeaks::CriticalSection = 0;
 #endif
+
+  vtkDebugLeaks::CleanupCommands = NULL;
 }
 
 //----------------------------------------------------------------------------
 void vtkDebugLeaks::ClassFinalize()
 {
+  while (vtkDebugLeaks::CleanupCommands)
+    {
+    vtkDebugLeaks::CleanupCommandList *l = vtkDebugLeaks::CleanupCommands;
+    vtkDebugLeaks::CleanupCommands = l->Next;
+    l->Command->Execute(NULL, vtkCommand::ProgramExitEvent, NULL);
+    l->Command->Delete();
+    delete l;
+    }
+
 #ifdef VTK_DEBUG_LEAKS
   if(vtkDebugLeaks::PrintCurrentLeaks() && getenv("VTK_DEBUG_LEAKS_ABORT"))
     {
@@ -429,3 +462,6 @@ vtkDebugLeaksHashTable* vtkDebugLeaks::MemoryTable;
 
 // Purposely not initialized.  ClassInitialize will handle it.
 vtkSimpleCriticalSection* vtkDebugLeaks::CriticalSection;
+
+// Purposely not initialized.  ClassInitialize will handle it.
+vtkDebugLeaks::CleanupCommandList* vtkDebugLeaks::CleanupCommands;
