@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRGBToHSI, "1.3.10.2");
+vtkCxxRevisionMacro(vtkImageRGBToHSI, "1.3.10.3");
 vtkStandardNewMacro(vtkImageRGBToHSI);
 
 //----------------------------------------------------------------------------
@@ -114,37 +114,37 @@ void vtkImageRGBToHSIExecute(vtkImageRGBToHSI *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageRGBToHSI::ThreadedExecute(vtkImageData *inData, 
-                                         vtkImageData *outData,
+void vtkImageRGBToHSI::ThreadedExecute (vtkImageData ***inData, 
+                                         vtkImageData **outData,
                                          int outExt[6], int id)
 {
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData[0][0]->GetScalarType()
+    << ", must match out ScalarType " << outData[0]->GetScalarType());
     return;
     }
   
   // need three components for input and output
-  if (inData->GetNumberOfScalarComponents() < 3)
+  if (inData[0][0]->GetNumberOfScalarComponents() < 3)
     {
     vtkErrorMacro("Input has too few components");
     return;
     }
-  if (outData->GetNumberOfScalarComponents() < 3)
+  if (outData[0]->GetNumberOfScalarComponents() < 3)
     {
     vtkErrorMacro("Output has too few components");
     return;
     }
 
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageRGBToHSIExecute, this, inData, 
-                      outData, outExt, id, static_cast<VTK_TT *>(0));
+    vtkTemplateMacro6(vtkImageRGBToHSIExecute, this, inData[0][0], 
+                      outData[0], outExt, id, static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
