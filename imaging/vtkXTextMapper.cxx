@@ -132,7 +132,7 @@ void vtkXTextMapper::GetSize(vtkViewport* viewport, int *s)
     {
     this->ViewportSize[0] = vSize[0];
     this->ViewportSize[1] = vSize[1];    
-    DetermineSize(viewport, s);
+    this->DetermineSize(viewport, s);
     this->SizeMTime.Modified();
     this->Size[0] = s[0];
     this->Size[1] = s[1];
@@ -152,7 +152,7 @@ void vtkXTextMapper::DetermineSize(vtkViewport *viewport, int *size)
     return;
     }
 
-  if (this->Input == NULL)
+  if (this->Input == NULL || this->Input[0] == '\0')
     {
     size[0] = 0;
     size[1] = 0;

@@ -72,8 +72,13 @@ struct vtkFontStruct
   GLXContext ContextId;
 };
   
-static vtkFontStruct *cache[10] = {NULL,NULL,NULL,NULL,NULL,
-				   NULL,NULL,NULL,NULL,NULL};
+static vtkFontStruct *cache[30] = {
+  NULL,NULL,NULL,NULL,NULL,
+  NULL,NULL,NULL,NULL,NULL,
+  NULL,NULL,NULL,NULL,NULL,
+  NULL,NULL,NULL,NULL,NULL,
+  NULL,NULL,NULL,NULL,NULL,
+  NULL,NULL,NULL,NULL,NULL};
 static int numCached = 0;
 
 int vtkXOpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm, 
@@ -111,15 +116,15 @@ int vtkXOpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm,
   
   // OK the font is not cached
   // so we need to make room for a new font
-  if (numCached == 10)
+  if (numCached == 30)
     {
-    glXMakeCurrent((Display *)cache[9]->Window->GetGenericDisplayId(),
-		   (Window)cache[9]->Window->GetGenericWindowId(),
-		   cache[9]->ContextId);
-    glDeleteLists(cache[9]->ListBase,255);
+    glXMakeCurrent((Display *)cache[29]->Window->GetGenericDisplayId(),
+		   (Window)cache[29]->Window->GetGenericWindowId(),
+		   cache[29]->ContextId);
+    glDeleteLists(cache[29]->ListBase,255);
     glXMakeCurrent((Display *)win->GetGenericDisplayId(),
 		   (Window)win->GetGenericWindowId(), ctx);
-    numCached = 9;
+    numCached = 29;
     }
 
   // add the new font
