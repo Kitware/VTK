@@ -16,7 +16,10 @@
 
 =========================================================================*/
 #include "TaskParallelismWithPorts.h"
+
+#include "vtkImageData.h"
 #include "vtkOutputPort.h"
+#include "vtkPolyData.h"
 
 // Task 4 for TaskParallelism.
 // See TaskParallelismWithPorts.cxx for more information.

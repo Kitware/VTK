@@ -16,6 +16,8 @@
 
 =========================================================================*/
 #include "TaskParallelism.h"
+
+#include "vtkImageData.h"
 #include "vtkPolyDataMapper.h"
 
 // Task 2 for TaskParallelism.

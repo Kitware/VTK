@@ -19,6 +19,7 @@
 #include "vtkContourFilter.h"
 #include "vtkImageData.h"
 #include "vtkInputPort.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"

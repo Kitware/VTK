@@ -16,11 +16,14 @@
 
 =========================================================================*/
 #include "TaskParallelismWithPorts.h"
+
 #include "vtkAppendPolyData.h"
+#include "vtkImageData.h"
 #include "vtkInputPort.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkPolyDataMapper.h"
 
 // Task 3 for TaskParallelismWithPorts.
 // See TaskParallelismWithPorts.cxx for more information.

@@ -15,8 +15,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkImageData.h"
 #include "vtkOutputPort.h"
 #include "vtkRTAnalyticSource.h"
+
 #include "PipelineParallelism.h"
 
 static float XFreq = 60;
