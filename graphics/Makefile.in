@@ -116,13 +116,11 @@ vtkDataSetToStructuredGridFilter \
 vtkDataSetToStructuredPointsFilter \
 vtkDataSetToUnstructuredGridFilter \
 vtkDataSetWriter \
-vtkDecimate \
 vtkDecimatePro \
 vtkDelaunay2D \
 vtkDelaunay3D \
 vtkDicer \
 vtkDiskSource \
-vtkDividingCubes \
 vtkEarthSource \
 vtkEdgePoints \
 vtkElevationFilter \
@@ -207,8 +205,6 @@ vtkSampleFunction \
 vtkShepardMethod \
 vtkShrinkFilter \
 vtkShrinkPolyData \
-vtkSliceCubes \
-vtkSmoothPolyFilter \
 vtkSpatialRepFilter \
 vtkSphere \
 vtkSphereSource \
@@ -216,7 +212,6 @@ vtkSphereTree \
 vtkStreamLine \
 vtkStreamPoints \
 vtkStreamer \
-vtkStripper \
 vtkStructuredGridFilter \
 vtkStructuredGridGeometryFilter \
 vtkStructuredGridOutlineFilter \
@@ -254,7 +249,6 @@ vtkTransformTextureCoords \
 vtkTriangleFilter \
 vtkTriangularTexture \
 vtkTriangularTCoords \
-vtkTubeFilter \
 vtkUGFacetReader \
 vtkUnstructuredGridFilter \
 vtkUnstructuredGridReader \
