@@ -21,7 +21,7 @@
 
 #include "vtkSDIDoc.h"
 #include "vtkSDIView.h"
-
+#include "vtkPolyData.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE

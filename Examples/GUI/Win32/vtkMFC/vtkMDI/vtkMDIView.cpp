@@ -21,7 +21,7 @@
 
 #include "vtkMDIDoc.h"
 #include "vtkMDIView.h"
-
+#include "vtkTextProperty.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -308,7 +308,7 @@ void CVtkMDIView::Pipeline()
     this->Actor->SetMapper(this->Mapper);
 
     this->txtMapper->SetInput(this->GetDocument()->Reader->GetFileName());
-    this->txtMapper->SetFontSize(12);
+    this->txtMapper->GetTextProperty()->SetFontSize(12);
     this->txtActor->SetMapper(this->txtMapper);
 
     this->ren->SetBackground(0.2,0.5,0.3);
@@ -318,7 +318,7 @@ void CVtkMDIView::Pipeline()
   else
   {
     this->txtMapper->SetInput("Hello World");
-    this->txtMapper->SetFontSize(24);
+    this->txtMapper->GetTextProperty()->SetFontSize(24);
     this->txtActor->SetMapper(this->txtMapper);
 
     this->ren->SetBackground(0.2,0.5,0.3);

@@ -14,7 +14,7 @@ LINK_LIBRARIES(
   vtkCommon
 )
 
-SOURCE_FILES(SRCS 
+SET(SRCS 
 ChildFrm.cpp
 MainFrm.cpp
 Sample.cpp
@@ -34,4 +34,4 @@ res/SampleDoc.ico
 ADD_DEFINITIONS(-D_AFXDLL)
 SET(CMAKE_MFC_FLAG 6)
 
-ADD_EXECUTABLE(Win32SampleMFC WIN32 SRCS)
+ADD_EXECUTABLE(Win32SampleMFC WIN32 ${SRCS})

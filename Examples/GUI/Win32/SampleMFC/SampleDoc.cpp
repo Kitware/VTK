@@ -13,7 +13,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 #include "vtkTextMapper.h"
 #include "vtkActor2D.h"
-
+#include "vtkTextProperty.h"
 /////////////////////////////////////////////////////////////////////////////
 // CSampleDoc
 
@@ -43,7 +43,7 @@ CSampleDoc::CSampleDoc()
   vtkTextMapper *txt = vtkTextMapper::New();
   act->SetMapper(txt);
   txt->SetInput("Hello World");
-  txt->SetFontSize(24);
+  txt->GetTextProperty()->SetFontSize(24);
   this->Props->AddItem(act);
   txt->Delete();
   act->Delete();
