@@ -62,7 +62,8 @@ void vtkCell3D::Clip(float value, vtkScalars *cellScalars,
   int numPts=this->GetNumberOfPoints();
   int numEdges=this->GetNumberOfEdges();
   int *edges;
-
+  int i;
+  
   // Create one if necessary
   if ( ! this->Triangulator )
     {
@@ -79,7 +80,7 @@ void vtkCell3D::Clip(float value, vtkScalars *cellScalars,
   int type, ptId, id;
   int internalId[VTK_CELL_SIZE];
   float s1, s2, *xPtr, t, p1[3], p2[3], x[3];
-  for (int i=0; i<numPts; i++)
+  for (i=0; i<numPts; i++)
     {
     ptId = this->PointIds->GetId(i);
       
