@@ -133,7 +133,10 @@ class FTGL_EXPORT FTGlyph
      * Current error code. Zero means no error.
      */
     FT_Error err;
-    
+
+  int glyphHasBeenConverted;
+  FT_Glyph glyph;
+
   private:
 
 };

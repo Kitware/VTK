@@ -27,23 +27,68 @@ FTPixmapGlyph::FTPixmapGlyph( FT_Glyph glyph)
   int srcWidth = source->width;
   int srcHeight = source->rows;
   int srcPitch = source->pitch;
+  
+  // FIXME What about dest alignment?
+  destWidth = srcWidth;
+  destHeight = srcHeight;
     
-   // FIXME What about dest alignment?
-    destWidth = srcWidth;
-    destHeight = srcHeight;
-    
-    if( destWidth && destHeight)
+  if( destWidth && destHeight)
     {
-      data = new unsigned char[destWidth * destHeight * 4];
+    data = new unsigned char[destWidth * destHeight * 4];
+    
+    // Get the current glColor.
+    float ftglColour[4];
+    glGetFloatv( GL_CURRENT_COLOR, ftglColour);
       
-      // Get the current glColor.
-      float ftglColour[4];
-      glGetFloatv( GL_CURRENT_COLOR, ftglColour);
-      
-      for(int y = 0; y < srcHeight; ++y)
+#if 1
+    unsigned char red = static_cast<unsigned char>(ftglColour[0]*255.0f);
+    unsigned char green = static_cast<unsigned char>(ftglColour[1]*255.0f);
+    unsigned char blue = static_cast<unsigned char>(ftglColour[2]*255.0f);
+
+    unsigned char *src = source->buffer;
+    unsigned char *src_row;
+
+    unsigned char *dest = data + ((destHeight - 1) * destWidth) * 4;
+    size_t dest_step = destWidth * 4 * 2;
+
+    if (ftglColour[3] == 1.0f)
       {
-        --destHeight;
+      for(int y = 0; y < srcHeight; ++y)
+        {
+        src_row = src;
         for(int x = 0; x < srcWidth; ++x)
+          {
+          *dest++ = red;
+          *dest++ = green;
+          *dest++ = blue;
+          *dest++ = *src_row++;
+          }
+        src += srcPitch;
+        dest -= dest_step;
+        }
+      }
+    else
+      {
+      for(int y = 0; y < srcHeight; ++y)
+        {
+        src_row = src;
+        for(int x = 0; x < srcWidth; ++x)
+          {
+          *dest++ = red;
+          *dest++ = green;
+          *dest++ = blue;
+          *dest++ = static_cast<unsigned char>(ftglColour[3] * *src_row++);
+          }
+        src += srcPitch;
+        dest -= dest_step;
+        }
+      }
+#else
+      
+    for(int y = 0; y < srcHeight; ++y)
+      {
+      --destHeight;
+      for(int x = 0; x < srcWidth; ++x)
         {
         *( data + ( destHeight * destWidth  + x) * 4 + 0) = static_cast<unsigned char>( ftglColour[0] * 255.0f);
         *( data + ( destHeight * destWidth  + x) * 4 + 1) = static_cast<unsigned char>( ftglColour[1] * 255.0f);
@@ -52,8 +97,10 @@ FTPixmapGlyph::FTPixmapGlyph( FT_Glyph glyph)
         }      
       }
 
-      destHeight = srcHeight;
-  }
+#endif  
+
+    destHeight = srcHeight;
+    }
   
   bBox = FTBBox( glyph);
   numGreys = source->num_grays;

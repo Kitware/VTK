@@ -10,6 +10,8 @@ FTGlyph::FTGlyph()
 {
   pos.x = 0;
   pos.y = 0;
+  this->glyphHasBeenConverted = 0;
+  this->glyph = 0;
 }
 
 
