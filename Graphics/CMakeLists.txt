@@ -13,6 +13,7 @@ vtkBlankStructuredGrid
 vtkBlankStructuredGridWithImage
 vtkBrownianPoints
 vtkButterflySubdivisionFilter
+vtkButtonSource
 vtkCellCenters
 vtkCellDataToPointData
 vtkCellDerivatives 
