@@ -218,8 +218,11 @@ public:
   
   // Description:
   // Here for Bypass functionality
+  // !!! DATA SHOULD NOT BE SET EXPLICITELY !!! USE CacheScalarData
   vtkSetReferenceCountedObjectMacro(ScalarData, vtkImageData);
   vtkGetObjectMacro(ScalarData, vtkImageData);
+
+  void CacheScalarData(vtkImageData *data);
 
   vtkImageToStructuredPoints *GetImageToStructuredPoints();
   
