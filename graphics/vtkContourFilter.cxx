@@ -120,18 +120,18 @@ void vtkContourFilter::Execute()
     }
 
   // If structured points, use more efficient algorithms
+#ifdef VTK_USE_PATENTED
   if ( this->Input->GetDataSetType() == VTK_STRUCTURED_POINTS )
     {
     int dim = this->Input->GetCell(0)->GetCellDimension();
 
-#ifdef VTK_USE_PATENTED
     if ( this->Input->GetCell(0)->GetCellDimension() >= 2 ) 
       {
       this->StructuredPointsContour(dim);
       return;
       }
-#endif
     }
+#endif
 
   inScalars->GetRange(range);
 //
