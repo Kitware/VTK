@@ -441,7 +441,11 @@ void vtkInteractorStyleTrackballActor::OnLeftButtonDown(int ctrl, int shift,
     }
 
   this->UpdateInternalState(ctrl, shift, x, y);
-  if (this->CtrlKey)
+  if (shift)
+    {
+    this->State = VTK_INTERACTOR_STYLE_ACTOR_PAN;
+    }
+  else if (this->CtrlKey)
     {
     this->State = VTK_INTERACTOR_STYLE_ACTOR_SPIN;
     }

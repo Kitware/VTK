@@ -258,7 +258,12 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl, int shift,
     }
 
   this->UpdateInternalState(ctrl, shift, x, y);
-  if (this->CtrlKey)
+
+  if (shift)
+    {
+    this->State = VTK_INTERACTOR_STYLE_CAMERA_PAN;
+    }
+  else if (this->CtrlKey)
     {
     this->State = VTK_INTERACTOR_STYLE_CAMERA_SPIN;
     }

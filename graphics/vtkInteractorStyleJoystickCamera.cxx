@@ -146,7 +146,12 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonDown(int ctrl, int shift,
 
   this->UpdateInternalState(ctrl, shift, x, y);
   
-  if (this->CtrlKey)
+  if (shift)
+    {
+    this->StartPan();
+    this->State = VTK_INTERACTOR_STYLE_CAMERA_PAN;
+    }
+  else if (this->CtrlKey)
     {
     this->StartSpin();
     this->State = VTK_INTERACTOR_STYLE_CAMERA_SPIN;
