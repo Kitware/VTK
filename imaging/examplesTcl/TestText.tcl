@@ -19,10 +19,10 @@ vtkTextMapper textMapper
     textMapper BoldOn
     textMapper ItalicOn
     textMapper ShadowOn
-vtkActor2D text
-    text SetMapper textMapper    
-    text SetPosition 90 50
-    [text GetProperty] SetColor 0 0 1
+vtkActor2D textActor
+    textActor SetMapper textMapper    
+    textActor SetPosition 90 50
+    [textActor GetProperty] SetColor 0 0 1
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -34,7 +34,7 @@ vtkRenderWindowInteractor iren
 
 # Add the actors to the renderer, set the background and size
 #
-ren1 AddActor2D text
+ren1 AddActor2D textActor
 ren1 AddActor sphereActor
 
 ren1 SetBackground 1 1 1
