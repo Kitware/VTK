@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.19");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.20");
 vtkStandardNewMacro(vtkClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -40,6 +40,8 @@ vtkClipDataSet::vtkClipDataSet(vtkImplicitFunction *cf)
   this->GenerateClipScalars = 0;
 
   this->GenerateClippedOutput = 0;
+  this->MergeTolerance = 0.01;
+
   this->vtkSource::SetNthOutput(1,vtkUnstructuredGrid::New());
   this->Outputs[1]->Delete();
   this->InputScalarsSelection = NULL;
@@ -380,10 +382,12 @@ void vtkClipDataSet::ClipVolume()
 {
   vtkClipVolume *clipVolume = vtkClipVolume::New();
   clipVolume->SetInput((vtkImageData *)this->GetInput());
-  clipVolume->SetGenerateClipScalars(this->GenerateClipScalars);
-  clipVolume->SetGenerateClippedOutput(this->GenerateClippedOutput);
+  clipVolume->SetValue(this->Value);
   clipVolume->SetInsideOut(this->InsideOut);
   clipVolume->SetClipFunction(this->ClipFunction);
+  clipVolume->SetGenerateClipScalars(this->GenerateClipScalars);
+  clipVolume->SetGenerateClippedOutput(this->GenerateClippedOutput);
+  clipVolume->SetMergeTolerance(this->MergeTolerance);
   clipVolume->SetDebug(this->Debug);
   clipVolume->Update();
   vtkUnstructuredGrid *clipOutput = clipVolume->GetOutput();
@@ -401,6 +405,7 @@ void vtkClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "Merge Tolerance: " << this->MergeTolerance << "\n";
   if ( this->ClipFunction )
     {
     os << indent << "Clip Function: " << this->ClipFunction << "\n";

@@ -118,6 +118,14 @@ public:
   vtkBooleanMacro(GenerateClippedOutput,int);
 
   // Description:
+  // Set the tolerance for merging clip intersection points that are near
+  // the vertices of cells. This tolerance is used to prevent the generation
+  // of degenerate primitives. Note that only 3D cells actually use this
+  // instance variable.
+  vtkSetClampMacro(MergeTolerance,float,0.0001,0.25);
+  vtkGetMacro(MergeTolerance,float);
+  
+  // Description:
   // Return the Clipped output.
   vtkUnstructuredGrid *GetClippedOutput();
 
@@ -156,6 +164,7 @@ protected:
   int GenerateClipScalars;
 
   int GenerateClippedOutput;
+  float MergeTolerance;
 
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
