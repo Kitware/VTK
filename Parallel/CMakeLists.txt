@@ -55,9 +55,18 @@ VTK_MAKE_INSTANTIATOR(vtkParallelInstantiator ParallelInstantiator_SRCS
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ADD_LIBRARY(vtkParallel ${Parallel_SRCS} ${ParallelInstantiator_SRCS})
 
-IF (VTK_USE_MPI)
-  TARGET_LINK_LIBRARIES (vtkParallel ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARY})
-  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
+IF (VTK_USE_MPI) 
+  IF (MPI_LIBRARY) 
+    TARGET_LINK_LIBRARIES (vtkParallel ${MPI_LIBRARY})   
+  ELSE (MPI_LIBRARY)   
+    MESSAGE("Could not find the required MPI libraries")
+  ENDIF (MPI_LIBRARY)   
+  IF (MPI_EXTRA_LIBRARY)   
+    TARGET_LINK_LIBRARIES (vtkParallel ${MPI_EXTRA_LIBRARY})   
+  ENDIF (MPI_EXTRA_LIBRARY) 
+  IF (MPI_INCLUDE_PATH)   
+    INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
+  ENDIF (MPI_INCLUDE_PATH)   
 ENDIF (VTK_USE_MPI)
 
 # Allow the user to customize their build with some local options
