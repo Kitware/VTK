@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.80");
+vtkCxxRevisionMacro(vtkTetra, "1.81");
 vtkStandardNewMacro(vtkTetra);
 
 // Construct the tetra with four points.
@@ -764,7 +764,7 @@ void vtkTetra::GetFacePoints(int faceId, int* &pts)
 
 // The clip table produces either a single tetrahedron or a single wedge as output.
 // The format of the case table is #pts, ptids. Points >= 100 are existing vertices;
-// otherwise the number is an edge number and an intersection is produced.
+// otherwise the number is an edge number requiring that an intersection is produced.
 
 // support tetra clipping
 typedef int TETRA_EDGE_LIST;
@@ -792,7 +792,12 @@ static TETRA_CASES tetraCases[] = {
 };
 
 // Clip this tetra using scalar value provided. Like contouring, except
-// that it cuts the tetra to produce other 3D cells.
+// that it cuts the tetra to produce other 3D cells. Note that this method
+// will produce a single tetrahedra or a single wedge. The table has been
+// carefully designed to insure that face neighbors--after clipping--are compatible
+// with face neighbor tetrahedra. (This method requires that on any given face the 
+// neighbor is a tetrahedron. If not a tetrahedron, then the ordered triangulator
+// should be used to tessellate the neighbor into tetrahedra in the first place.)
 void vtkTetra::Clip(float value, vtkDataArray *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *tets,
                     vtkPointData *inPD, vtkPointData *outPD,
@@ -803,7 +808,7 @@ void vtkTetra::Clip(float value, vtkDataArray *cellScalars,
   TETRA_CASES *tetraCase;
   TETRA_EDGE_LIST  *edge;
   int i, j, index, *vert, newCellId;
-  int pts[6];
+  vtkIdType pts[6];
   int vertexId;
   float t, *x1, *x2, x[3];
 
