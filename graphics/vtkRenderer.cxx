@@ -119,12 +119,6 @@ vtkRenderer::~vtkRenderer()
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLRenderer.h"
 #endif
-#ifdef VTK_USE_SBR
-#include "vtkStarbaseRenderer.h"
-#endif
-#ifdef VTK_USE_XGLR
-#include "vtkXGLRenderer.h"
-#endif
 #ifdef _WIN32
 #include "vtkOpenGLRenderer.h"
 #endif
@@ -133,12 +127,6 @@ vtkRenderer *vtkRenderer::New()
 {
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
-#ifdef VTK_USE_SBR
-  if (!strcmp("Starbase",temp))
-    {
-    return vtkStarbaseRenderer::New();
-    }
-#endif
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp))
     {
@@ -149,12 +137,6 @@ vtkRenderer *vtkRenderer::New()
   if (!strcmp("Win32OpenGL",temp))
     {
     return vtkOpenGLRenderer::New();
-    }
-#endif
-#ifdef VTK_USE_XGLR
-  if (!strcmp("XGL",temp))
-    {
-    return vtkXGLRenderer::New();
     }
 #endif
   
