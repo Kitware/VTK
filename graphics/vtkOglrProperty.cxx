@@ -140,3 +140,4 @@ void vtkOglrProperty::Render(vtkProperty *prop, vtkActor *vtkNotUsed(anActor),
   glShadeModel(method);
 }
 
+
