@@ -108,7 +108,7 @@ void vtkIntArray::SetArray(int* array, int size, int save)
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkIntArray::Allocate(const int sz, const int ext)
+int vtkIntArray::Allocate(const int sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size )
     {

@@ -107,7 +107,7 @@ void vtkFloatArray::SetArray(float* array, int size, int save)
 
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkFloatArray::Allocate(const int sz, const int ext)
+int vtkFloatArray::Allocate(const int sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size)
     {

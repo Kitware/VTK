@@ -121,7 +121,7 @@ int vtkBitArray::GetValue(const int id)
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkBitArray::Allocate(const int sz, const int ext)
+int vtkBitArray::Allocate(const int sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size )
     {

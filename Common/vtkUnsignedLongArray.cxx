@@ -111,7 +111,7 @@ void vtkUnsignedLongArray::SetArray(unsigned long* array, int size, int save)
 
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkUnsignedLongArray::Allocate(const int sz, const int ext)
+int vtkUnsignedLongArray::Allocate(const int sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size )
     {

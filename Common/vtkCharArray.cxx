@@ -112,7 +112,7 @@ void vtkCharArray::SetArray(char* array, int size, int save)
 
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkCharArray::Allocate(const int sz, const int ext)
+int vtkCharArray::Allocate(const int sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size )
     {

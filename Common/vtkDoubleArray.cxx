@@ -112,7 +112,7 @@ void vtkDoubleArray::SetArray(double* array, int size, int save)
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkDoubleArray::Allocate(const int sz, const int ext)
+int vtkDoubleArray::Allocate(const int sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size)
     {

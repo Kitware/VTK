@@ -110,7 +110,7 @@ void vtkLongArray::SetArray(long* array, int size, int save)
 
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkLongArray::Allocate(const int sz, const int ext)
+int vtkLongArray::Allocate(const int sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size || this->Array == NULL )
     {
