@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.1.2.3");
+vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.1.2.4");
 
 //----------------------------------------------------------------------------
 vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
@@ -39,6 +39,7 @@ vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
 vtkThreadedImageAlgorithm::~vtkThreadedImageAlgorithm()
 {
   this->SetInputScalarsSelection(NULL);
+  this->Threader->Delete();
 }
 
 //----------------------------------------------------------------------------
