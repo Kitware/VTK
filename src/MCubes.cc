@@ -66,6 +66,18 @@ void vlMarchingCubes::GenerateValues(int numContours, float range[2])
     }
 }
 
+// Description:
+// Generate numContours equally spaced contour values between specified
+// range.
+void vlMarchingCubes::GenerateValues(int numContours, float r1, float r2)
+{
+  float rng[2];
+
+  rng[0] = r1;
+  rng[1] = r2;
+  this->GenerateValues(numContours,rng);
+}
+
 //
 // Contouring filter specialized for volumes and "short int" data values.  
 //
