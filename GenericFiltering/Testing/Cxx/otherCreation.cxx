@@ -612,7 +612,9 @@ int TestWithPointsAndCells(ostream &strm)
     vtkGenericCellIterator *it=ds->NewCellIterator(itNum);
     ost=new vtkOStrStreamWrapper;
     (*ost)<<"empty cell iterator "<<itNum<<" exists";
-    MacroTest(strm,indent,ost->str(),it!=0);
+    char *cstring=ost->str();
+    MacroTest(strm,indent,cstring,it!=0);
+    delete[] cstring;
     delete ost;
     it->Begin();
     i=0;
@@ -621,7 +623,9 @@ int TestWithPointsAndCells(ostream &strm)
       {
       ost=new vtkOStrStreamWrapper;
       (*ost)<<"not finished cell iterator "<<itNum;
-      MacroTest(strm,indent,ost->str(),!it->IsAtEnd());
+      cstring=ost->str();
+      MacroTest(strm,indent,cstring,!it->IsAtEnd());
+      delete[] cstring;
       delete ost;
       ++i;
       cab=it->GetCell();
@@ -630,8 +634,9 @@ int TestWithPointsAndCells(ostream &strm)
       }
     ost=new vtkOStrStreamWrapper;
     (*ost)<<"Finished cell iterator "<<itNum;
-    
-    MacroTest(strm,indent,ost->str(),it->IsAtEnd());
+    cstring=ost->str();
+    MacroTest(strm,indent,cstring,it->IsAtEnd());
+    delete[] cstring;
     delete ost;
     it->Delete();
     ++itNum;
@@ -1133,7 +1138,9 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
     vtkGenericCellIterator *it=ds->NewCellIterator(itNum);
     ost=new vtkOStrStreamWrapper;
     (*ost)<<"empty cell iterator "<<itNum<<" exists";
-    MacroTest(strm,indent,ost->str(),it!=0);
+    char *cstring=ost->str();
+    MacroTest(strm,indent,cstring,it!=0);
+    delete[] cstring;
     delete ost;
     it->Begin();
     i=0;
@@ -1142,7 +1149,9 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
       {
       ost=new vtkOStrStreamWrapper;
       (*ost)<<"not finished cell iterator "<<itNum;
-      MacroTest(strm,indent,ost->str(),!it->IsAtEnd());
+      cstring=ost->str();
+      MacroTest(strm,indent,cstring,!it->IsAtEnd());
+      delete[] cstring;
       delete ost;
       ++i;
       cab=it->GetCell();
@@ -1151,8 +1160,9 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
       }
     ost=new vtkOStrStreamWrapper;
     (*ost)<<"Finished cell iterator "<<itNum;
-    
-    MacroTest(strm,indent,ost->str(),it->IsAtEnd());
+    cstring=ost->str();
+    MacroTest(strm,indent,cstring,it->IsAtEnd());
+    delete[] cstring;
     delete ost;
     it->Delete();
     ++itNum;
