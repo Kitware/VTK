@@ -297,7 +297,23 @@ void vtkImageXViewer::Render(void)
   
   if ( ! this->Input)
     {
-    vtkErrorMacro(<< "Render: Please Set the input.");
+    // open the window anyhow if not yet open
+    // use default size if not specified
+    if (!this->WindowId)
+      {
+      if (this->Size[0] == 0 )
+	{
+	this->Size[0] = width;
+	this->Size[1] = height;
+	}
+      if (this->Size[0] == 0 )
+	{
+	this->Size[0] = 256;
+	this->Size[1] = 256;
+	}
+      this->SetWindow(this->MakeDefaultWindow(this->Size[0],this->Size[1]));
+      }
+    vtkDebugMacro(<< "Render: Please Set the input.");
     return;
     }
 
@@ -372,8 +388,13 @@ void vtkImageXViewer::Render(void)
   // In case a window has not been set.
   if ( ! this->WindowId)
     {
-    this->SetWindow(this->MakeDefaultWindow(width + this->XOffset,
-					    height + this->YOffset));
+    // use default size if not specified
+    if (this->Size[0] == 0 )
+      {
+      this->Size[0] = width;
+      this->Size[1] = height;
+      }
+    this->SetWindow(this->MakeDefaultWindow(this->Size[0],this->Size[1]));
     }
   
   // Allocate output data
