@@ -89,7 +89,6 @@ void vtkPolyDataNormals::Execute()
   int cellId, numPts;
   vtkPoints *inPts;
   vtkCellArray *inPolys, *inStrips, *polys;
-  vtkPolygon *poly;
   vtkPoints *newPts = NULL;
   vtkNormals *newNormals;
   vtkPointData *pd, *outPD;
@@ -130,7 +129,6 @@ void vtkPolyDataNormals::Execute()
   inPts = input->GetPoints();
   inPolys = input->GetPolys();
   inStrips = input->GetStrips();
-  poly = vtkPolygon::New();
   
   this->OldMesh = vtkPolyData::New();
   this->OldMesh->SetPoints(inPts);
@@ -245,7 +243,7 @@ void vtkPolyDataNormals::Execute()
         break; 
         }
       }
-    poly->ComputeNormal(inPts, npts, pts, n);
+    vtkPolygon::ComputeNormal(inPts, npts, pts, n);
     this->PolyNormals->SetNormal(cellId,n);
     }
 
@@ -389,7 +387,6 @@ void vtkPolyDataNormals::Execute()
 
   this->OldMesh->Delete();
   this->NewMesh->Delete();
-  poly->Delete();
 }
 
 //  Propagate wave of consistently ordered polygons.
