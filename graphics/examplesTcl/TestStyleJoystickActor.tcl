@@ -63,6 +63,12 @@ renWin Render
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
+vtkMath math
+proc randint {min max} {
+    set f [math Random $min $max]
+    return [expr int($f)]
+}
+
 vtkInteractorStyleSwitch inStyle
 iren SetInteractorStyle inStyle
 iren SetDesiredUpdateRate .00001
@@ -76,10 +82,12 @@ set shifts "0 1"
 foreach action $actions {
   foreach ctrl $ctrls {
       foreach shift $shifts {
-	  inStyle $action $ctrl $shift 120 120
+	  inStyle $action $ctrl $shift [randint 125 175] [randint 125 175]
+	  inStyle OnTimer
+	  inStyle OnMouseMove $ctrl $shift [randint 125 175] [randint 125 175]
 	  inStyle OnTimer
       }
   }
 }
-ren1 ResetCamera
+
 renWin Render
