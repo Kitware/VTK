@@ -46,7 +46,7 @@ typedef vtkEdgeList::iterator EdgeListIterator;
 
 // Begin vtkProjectedTerrainPath class implementation--------------------------
 //
-vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.5");
+vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.6");
 vtkStandardNewMacro(vtkProjectedTerrainPath);
 
 //-----------------------------------------------------------------------------
@@ -419,13 +419,19 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
         error = x[2] - zMap;
         if ( error >= 0.0 )
           {
-          posError = (error > posError ? error : posError);
-          e.tPos = (flip ? (1-t) : t);
+          if (error > posError)
+            {
+            posError = error;
+            e.tPos = (flip ? (1-t) : t);
+            }
           }
         else
           {
-          negError = (error < negError ? error : negError);
-          e.tNeg = (flip ? (1-t) : t);
+          if (error < negError)
+            {
+            negError = error;
+            e.tNeg = (flip ? (1-t) : t);
+            }
           }
         } //if lying on image
       } //for all x-intersection points
