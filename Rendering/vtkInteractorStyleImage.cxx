@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.8");
+vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.9");
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
 //----------------------------------------------------------------------------
@@ -41,10 +41,10 @@ vtkInteractorStyleImage::~vtkInteractorStyleImage()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnMouseMove(int vtkNotUsed(ctrl), 
-                                           int vtkNotUsed(shift),
-                                           int x, int y) 
+void vtkInteractorStyleImage::OnMouseMove(int ctrl, int shift, int x, int y) 
 {
+  this->UpdateInternalState(ctrl, shift, x, y);
+
   if (this->State == VTK_INTERACTOR_STYLE_IMAGE_WINDOW_LEVEL)
     {
     this->FindPokedCamera(x, y);
@@ -65,7 +65,11 @@ void vtkInteractorStyleImage::OnMouseMove(int vtkNotUsed(ctrl),
     this->FindPokedCamera(x, y);
     this->SpinXY(x, y, this->LastPos[0], this->LastPos[1]);
     }
-  
+  else if (this->HasObserver(vtkCommand::MouseMoveEvent)) 
+    {
+    this->InvokeEvent(vtkCommand::MouseMoveEvent,NULL);
+    }
+
   this->LastPos[0] = x;
   this->LastPos[1] = y;
 }
@@ -198,8 +202,10 @@ void vtkInteractorStyleImage::SpinXY(int x, int y, int oldX, int oldY)
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnLeftButtonDown(int ctrl, int shift, 
-                                                         int x, int y) 
+                                               int x, int y) 
 {
+  this->UpdateInternalState(ctrl, shift, x, y);
+
   if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
     {
     this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
@@ -210,8 +216,6 @@ void vtkInteractorStyleImage::OnLeftButtonDown(int ctrl, int shift,
     {
     return;
     }
-
-  this->UpdateInternalState(ctrl, shift, x, y);
 
   if (shift)
     {
@@ -244,19 +248,23 @@ void vtkInteractorStyleImage::OnLeftButtonDown(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnLeftButtonUp(int vtkNotUsed(ctrl),
-                                                       int vtkNotUsed(shift), 
-                                                       int vtkNotUsed(x),
-                                                       int vtkNotUsed(y))
+void vtkInteractorStyleImage::OnLeftButtonUp(int ctrl, int shift, 
+                                             int x, int y)
 {
+  this->UpdateInternalState(ctrl, shift, x, y);
+  if (this->HasObserver(vtkCommand::LeftButtonReleaseEvent)) 
+    {
+    this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+    return;
+    }
   this->State = VTK_INTERACTOR_STYLE_IMAGE_NONE;
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnMiddleButtonDown(int vtkNotUsed(ctrl),
-                                                           int vtkNotUsed(shift), 
-                                                           int x, int y) 
+void vtkInteractorStyleImage::OnMiddleButtonDown(int ctrl, int shift, 
+                                                 int x, int y) 
 {
+  this->UpdateInternalState(ctrl, shift, x, y);
   if (this->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
     {
     this->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
@@ -271,19 +279,23 @@ void vtkInteractorStyleImage::OnMiddleButtonDown(int vtkNotUsed(ctrl),
   this->State = VTK_INTERACTOR_STYLE_IMAGE_PAN;
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnMiddleButtonUp(int vtkNotUsed(ctrl),
-                                                         int vtkNotUsed(shift), 
-                                                         int vtkNotUsed(x),
-                                                         int vtkNotUsed(y))
+void vtkInteractorStyleImage::OnMiddleButtonUp(int ctrl, int shift, 
+                                               int x, int y)
 {
+  this->UpdateInternalState(ctrl, shift, x, y);
+  if (this->HasObserver(vtkCommand::MiddleButtonReleaseEvent)) 
+    {
+    this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,NULL);
+    return;
+    }
   this->State = VTK_INTERACTOR_STYLE_IMAGE_NONE;
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnRightButtonDown(int vtkNotUsed(ctrl),
-                                                int vtkNotUsed(shift), 
+void vtkInteractorStyleImage::OnRightButtonDown(int ctrl, int shift, 
                                                 int x, int y) 
 {
+  this->UpdateInternalState(ctrl, shift, x, y);
   if (this->HasObserver(vtkCommand::RightButtonPressEvent)) 
     {
     this->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
@@ -299,11 +311,15 @@ void vtkInteractorStyleImage::OnRightButtonDown(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnRightButtonUp(int vtkNotUsed(ctrl),
-                                                        int vtkNotUsed(shift), 
-                                                        int vtkNotUsed(x),
-                                                        int vtkNotUsed(y))
+void vtkInteractorStyleImage::OnRightButtonUp(int ctrl, int shift, 
+                                              int x, int y)
 {
+  this->UpdateInternalState(ctrl, shift, x, y);
+  if (this->HasObserver(vtkCommand::RightButtonReleaseEvent)) 
+    {
+    this->InvokeEvent(vtkCommand::RightButtonReleaseEvent,NULL);
+    return;
+    }
   this->State = VTK_INTERACTOR_STYLE_IMAGE_NONE;
 }
 
