@@ -13,15 +13,10 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-//  Dynamic, self adjusting floating point array
-//
-//  Assumptions:
-//    - no bounds/range checking -> user responsibility
-//    - the Register/unRegister methods called only by container class
-//
 #include "FArray.hh"
 
+// Description:
+// Allocate memory for this array. Delete old storage if present.
 int vlFloatArray::Allocate(const int sz, const int ext)
 {
   if ( this->Array ) delete [] this->Array;
@@ -34,6 +29,8 @@ int vlFloatArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
+// Description:
+// Release storage and reset array to initial state.
 void vlFloatArray::Initialize()
 {
   if ( this->Array != NULL )
@@ -45,6 +42,8 @@ void vlFloatArray::Initialize()
   this->MaxId = -1;
 }
 
+// Description:
+// 
 vlFloatArray::vlFloatArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
@@ -58,6 +57,8 @@ vlFloatArray::~vlFloatArray()
   delete [] this->Array;
 }
 
+// Description:
+// Construct array from another array. Copy each element of other array.
 vlFloatArray::vlFloatArray(const vlFloatArray& fa)
 {
   int i;
@@ -72,6 +73,8 @@ vlFloatArray::vlFloatArray(const vlFloatArray& fa)
 
 }
 
+// Description:
+// Deep copy of another array.
 vlFloatArray& vlFloatArray::operator=(const vlFloatArray& fa)
 {
   int i;
@@ -91,9 +94,8 @@ vlFloatArray& vlFloatArray::operator=(const vlFloatArray& fa)
   return *this;
 }
 
-//
-// Copy on write if used by more than one object
-//
+// Description:
+// Append one array onto the end of this array.
 vlFloatArray& vlFloatArray::operator+=(const vlFloatArray& fa)
 {
   int i, sz;
@@ -122,8 +124,7 @@ void vlFloatArray::PrintSelf(ostream& os, vlIndent indent)
   }
 }
 
-//
-// Private function does "reallocate"
+// Protected function does "reallocate"
 //
 float *vlFloatArray::Resize(const int sz)
 {
