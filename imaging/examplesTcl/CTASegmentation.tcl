@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Developed By Majeid Alyassin
 
 set slicenumber       0

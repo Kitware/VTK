@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Halves the size of the image in the x, Y and Z dimensions.
 
 
@@ -25,7 +26,7 @@ vtkImageSeriesReader reader
 #reader DebugOn
 reader SwapBytesOn
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
 
 vtkImageShrink3D shrink

@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Developed By Majeid Alyassin
 set slicenumber 0
 set numslices  10
@@ -8,7 +9,7 @@ set ydim 256
 #set prefix "/home/alyassin2/database/gems/CTangio/CW1/LR_Data/max/i7903CTGE_sub"
 #set prefix "/home/alyassin2/database/gems/CTangio/CW1/HR_Data/i7903CTGE_flat"
 #set prefix "/home/alyassin2/database/gems/CTangio/CW1/processed/PM1_MaxT1390"
-set prefix "../../data/fullHead/headsq"
+set prefix "../../../data/fullHead/headsq"
 
 set numberofbins $xdim
 set offsetlevel 5

@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Diffuses to 26 neighbors if difference is below threshold.
 
 
@@ -24,7 +25,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 vtkImageSeriesReader reader
 reader SwapBytesOn
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
 reader SetOutputScalarType $VTK_FLOAT
 reader SetDataAspectRatio 1 1 2 0

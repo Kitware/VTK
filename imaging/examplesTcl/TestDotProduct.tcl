@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # This script shows the magnitude of an image in frequency domain.
 
 
@@ -23,7 +24,7 @@ vtkImageSeriesReader reader
 [reader GetCache] ReleaseDataFlagOff
 reader SwapBytesOn
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
 reader SetOutputScalarType $VTK_FLOAT
 #reader DebugOn

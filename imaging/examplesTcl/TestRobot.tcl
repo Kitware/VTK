@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Test the robot classes which draw 2d robots.
 
 

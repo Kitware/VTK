@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # A script to test the Arithmetic filter.
 # An image is smoothed then sbutracted from the original image.
 # The result is a high-pass filter.
@@ -27,7 +28,7 @@ vtkImageSeriesReader reader
 [reader GetCache] ReleaseDataFlagOff
 reader SwapBytesOn
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
 reader SetOutputScalarType $VTK_SHORT
 

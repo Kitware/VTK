@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Compute the second derivative the long way
 
 
@@ -25,7 +26,7 @@ vtkImageSeriesReader reader
 reader ReleaseDataFlagOff
 reader SwapBytesOn
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
 #reader DebugOn
 

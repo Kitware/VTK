@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Shift and scale an image (in that order)
 # This filter is usefull for converting to a lower precision data type.
 
@@ -25,7 +26,7 @@ vtkImageSeriesReader reader
 [reader GetCache] ReleaseDataFlagOff
 reader SwapBytesOn
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
 
 vtkImageShiftScale shiftScale

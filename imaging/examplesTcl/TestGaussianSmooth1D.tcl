@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # This script is for testing the 1d Gaussian Smooth filter.
 
 
@@ -26,7 +27,7 @@ vtkImageSeriesReader reader
 #reader DebugOn
 reader SwapBytesOn
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
 
 vtkImageGaussianSmooth smooth

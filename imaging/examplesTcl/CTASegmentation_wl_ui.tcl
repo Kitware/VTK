@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 wm withdraw .
 toplevel .wl  
 wm title .wl {Window & Level}

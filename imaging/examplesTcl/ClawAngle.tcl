@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Simple viewer for images.
 
 

@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # This scripts the reverse FFT. Pipeline is Reader->FFT->RFFT->Viewer.
 # Output should be the same as Reader.
 
@@ -23,7 +24,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 vtkImageSeriesReader reader
 reader SwapBytesOn
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
 #reader DebugOn
 

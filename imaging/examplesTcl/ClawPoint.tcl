@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # This script test the Claw planner by moving a point through an image.
 
 

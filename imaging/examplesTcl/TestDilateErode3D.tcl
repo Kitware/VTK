@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # A script to test DilationErode filter
 # First the image is thresholded.
 # It is the dilated with a spher of radius 5.
@@ -25,7 +26,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 vtkImageSeriesReader reader
 reader SwapBytesOn
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
 reader SetOutputScalarType $VTK_SHORT
 #reader DebugOn

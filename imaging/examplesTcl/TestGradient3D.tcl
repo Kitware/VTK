@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # This script is for testing the 2d Gradient filter.
 # It only displays the first component (0) which contains
 # the magnitude of the gradient.
@@ -27,7 +28,7 @@ vtkImageSeriesReader reader
 #reader DebugOn
 reader SwapBytesOn
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
 
 vtkImageGradient gradient

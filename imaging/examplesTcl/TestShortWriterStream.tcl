@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # Threshold a volume and write it to disk.
 # It then reads the new data set from disk and displays it.
 # The data set is updated and written in pieces.
@@ -29,7 +30,7 @@ vtkImageSeriesReader reader
 #reader DebugOn
 reader SwapBytesOn
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
 
 vtkImageThreshold thresh

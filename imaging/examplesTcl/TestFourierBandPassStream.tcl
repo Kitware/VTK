@@ -1,4 +1,5 @@
 catch {load vtktcl}
+catch {load vtktcl}
 # This scripts performs bandpass in frequency domain.
 # It demostrates the ability to stream even FFT filters.
 
@@ -23,7 +24,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 vtkImageSeriesReader reader
 reader SwapBytesOn
 reader SetDataDimensions 256 256 93
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
 reader SetOutputScalarType $VTK_SHORT
 reader DebugOn
