@@ -139,19 +139,8 @@ public:
   // Description:
   // Update the transform to account for any changes which
   // have been made.  This is called automatically when
-  // TransformPoint etc. is called unless the AutoUpdate
-  // flag is off.
+  // TransformPoint etc. is called.
   virtual void Update();
-
-  // Description:
-  // Automatically update the transform any time that
-  // TransformPoint, TransformPoints, etc. are called.
-  // This is on by default, you can turn it off before
-  // transforming a bunch of points to improve efficiency.
-  // But make sure that you turn it back on again later!
-  vtkSetMacro(AutoUpdate,int);
-  vtkBooleanMacro(AutoUpdate,int);
-  vtkGetMacro(AutoUpdate,int);
 
   // Description:
   // Needs a special UnRegister() implementation to avoid
@@ -165,6 +154,12 @@ protected:
   ~vtkGeneralTransform() {};
   vtkGeneralTransform(const vtkGeneralTransform&) {};
   void operator=(const vtkGeneralTransform&) {};
+
+//BTX
+  vtkSetMacro(AutoUpdate,int);
+  vtkBooleanMacro(AutoUpdate,int);
+  vtkGetMacro(AutoUpdate,int);
+//ETX
 
   int TransformType;
   int AutoUpdate;

@@ -112,7 +112,6 @@ void vtkGeneralTransformInverse::SetOriginalTransform(vtkGeneralTransform
   this->OriginalTransform = trans;
   trans->Register(this);
   this->InverseTransform = trans->MakeTransform();
-  this->InverseTransform->AutoUpdateOff();
   this->UpdateRequired = 1;
   this->Modified();
 }
