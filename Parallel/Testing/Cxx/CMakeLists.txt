@@ -44,19 +44,22 @@ IF (VTK_DATA_ROOT)
     IF (VTK_USE_MPI)
      IF (UNIX)
       IF (VTK_MPIRUN_EXE)
-        ADD_TEST(ParallelIsoMPI-image ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS}
+        ADD_TEST(ParallelIsoMPI-image 
+          ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
                  ${CXX_TEST_PATH}/ParallelIsoTest
                  -D ${VTK_DATA_ROOT}
                  -T ${VTK_BINARY_DIR}/Testing/Temporary
                  -V Baseline/Parallel/ParallelIso.cxx.png
                  ${VTK_MPI_POSTFLAGS})
-        ADD_TEST(TestCommunicatorMPI-image ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS}
+        ADD_TEST(TestCommunicatorMPI-image 
+          ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
                  ${CXX_TEST_PATH}/GenericCommunicator
                  -D ${VTK_DATA_ROOT}
                  -T ${VTK_BINARY_DIR}/Testing/Temporary
                  -V Baseline/Parallel/GenericCommunicator.cxx.png
                  ${VTK_MPI_POSTFLAGS})
-        ADD_TEST(TestPStreamMPI-image ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS}
+        ADD_TEST(TestPStreamMPI-image 
+          ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
                  ${CXX_TEST_PATH}/TestPStream
                  -D ${VTK_DATA_ROOT}
                  -T ${VTK_BINARY_DIR}/Testing/Temporary
@@ -64,7 +67,8 @@ IF (VTK_DATA_ROOT)
                  ${VTK_MPI_POSTFLAGS})
         IF (VTK_MPI_MAX_NUMPROCS)
           IF (VTK_MPI_MAX_NUMPROCS MATCHES "[1-9]*(0|[4-9])$")
-           ADD_TEST(MPIGroups-image ${VTK_MPIRUN_EXE} -np ${VTK_MPI_MAX_NUMPROCS}
+           ADD_TEST(MPIGroups-image 
+          ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} ${VTK_MPI_PREFLAGS} 
                    ${CXX_TEST_PATH}/MPIGroups
                    -D ${VTK_DATA_ROOT}
                    -T ${VTK_BINARY_DIR}/Testing/Temporary
@@ -98,8 +102,9 @@ ELSE (VTK_DATA_ROOT)
     IF (VTK_USE_MPI)
      IF(UNIX)
       IF (VTK_MPIRUN_EXE AND VTK_USE_DISPLAY)
-        ADD_TEST(TestCommunicatorMPI ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS}
-                 ${CXX_TEST_PATH}/GenericCommunicator ${VTK_MPI_POSTFLAGS})
+        ADD_TEST(TestCommunicatorMPI 
+      ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
+      ${CXX_TEST_PATH}/GenericCommunicator ${VTK_MPI_POSTFLAGS})
       ENDIF(VTK_MPIRUN_EXE AND VTK_USE_DISPLAY)
      ENDIF(UNIX)
     ELSE (VTK_USE_MPI)
