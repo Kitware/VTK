@@ -37,7 +37,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.27");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.28");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -1193,6 +1193,13 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
     translate[1] = center[1] + position[1];
     translate[2] = center[2] + position[2];
     }
+  else
+    {
+      translate[0] = center[0];
+      translate[1] = center[1];
+      translate[2] = center[2];
+    }
+
   t->Translate(translate[0], translate[1], translate[2]);
   
   // Orientation
