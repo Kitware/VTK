@@ -468,6 +468,28 @@ public:
   static void HSVToRGB(double h, double s, double v, 
                        double *r, double *g, double *b);
 
+  // Description:
+  // Set the bounds to an uninitialized state
+  static void UninitializeBounds(double bounds[6]){
+    bounds[0] = 1.0;
+    bounds[1] = -1.0;
+    bounds[2] = 1.0;
+    bounds[3] = -1.0;
+    bounds[4] = 1.0;
+    bounds[5] = -1.0;
+  }
+  
+  // Description:
+  // Are the bounds initialized?
+  static int AreBoundsInitialized(double bounds[6]){
+    if (bounds[1]-bounds[0]<0.0)
+      {
+      return 0;
+      }
+    return 1;
+  }
+
+
 protected:
   vtkMath() {};
   ~vtkMath() {};

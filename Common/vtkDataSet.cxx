@@ -19,23 +19,19 @@
 #include "vtkCellTypes.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
+#include "vtkMath.h"
 #include "vtkPointData.h"
 #include "vtkSource.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.93");
+vtkCxxRevisionMacro(vtkDataSet, "1.94");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
 vtkDataSet::vtkDataSet ()
 {
-  this->Bounds[0] = VTK_DOUBLE_MAX;
-  this->Bounds[1] = -VTK_DOUBLE_MAX;
-  this->Bounds[2] = VTK_DOUBLE_MAX;
-  this->Bounds[3] = -VTK_DOUBLE_MAX;
-  this->Bounds[4] = VTK_DOUBLE_MAX;
-  this->Bounds[5] = -VTK_DOUBLE_MAX;
+  vtkMath::UninitializeBounds(this->Bounds);
 
   this->PointData = vtkPointData::New();
   this->CellData = vtkCellData::New();
@@ -71,24 +67,35 @@ void vtkDataSet::ComputeBounds()
 
   if ( this->GetMTime() > this->ComputeTime )
     {
-    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_DOUBLE_MAX;
-    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
-    for (i=0; i<this->GetNumberOfPoints(); i++)
+    if (this->GetNumberOfPoints())
       {
-      x = this->GetPoint(i);
-      for (j=0; j<3; j++)
+      x = this->GetPoint(0);
+      this->Bounds[0] = x[0];
+      this->Bounds[2] = x[1];
+      this->Bounds[4] = x[2];
+      this->Bounds[1] = x[0];
+      this->Bounds[3] = x[1];
+      this->Bounds[5] = x[2];
+      for (i=1; i<this->GetNumberOfPoints(); i++)
         {
-        if ( x[j] < this->Bounds[2*j] )
+        x = this->GetPoint(i);
+        for (j=0; j<3; j++)
           {
-          this->Bounds[2*j] = x[j];
-          }
-        if ( x[j] > this->Bounds[2*j+1] )
-          {
-          this->Bounds[2*j+1] = x[j];
+          if ( x[j] < this->Bounds[2*j] )
+            {
+            this->Bounds[2*j] = x[j];
+            }
+          if ( x[j] > this->Bounds[2*j+1] )
+            {
+            this->Bounds[2*j+1] = x[j];
+            }
           }
         }
       }
-
+    else
+      {
+      vtkMath::UninitializeBounds(this->Bounds);
+      }
     this->ComputeTime.Modified();
     }
 }
@@ -186,11 +193,7 @@ double vtkDataSet::GetLength()
     l += diff * diff;
     }
   diff = sqrt(l);
-  if(diff > VTK_DOUBLE_MAX)
-    {
-    return VTK_DOUBLE_MAX;
-    }
-  return static_cast<double>(diff);
+  return diff;
 }
 
 //----------------------------------------------------------------------------
@@ -275,16 +278,7 @@ void vtkDataSet::GetCellBounds(vtkIdType cellId, double bounds[6])
   vtkGenericCell *cell = vtkGenericCell::New();
 
   this->GetCell(cellId, cell);
-  // TODO: clean double
-  double dbounds[6];
-  cell->GetBounds(dbounds);
-  bounds[0] = (double)dbounds[0];
-  bounds[1] = (double)dbounds[1];
-  bounds[2] = (double)dbounds[2];
-  bounds[3] = (double)dbounds[3];
-  bounds[4] = (double)dbounds[4];
-  bounds[5] = (double)dbounds[5];
-  
+  cell->GetBounds(bounds);
   cell->Delete();
 }
 
