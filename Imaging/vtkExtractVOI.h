@@ -71,7 +71,8 @@ protected:
   ~vtkExtractVOI() {};
 
   virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  virtual void ExecuteInformation();
+  void ExecuteInformation(vtkImageData *input, vtkImageData *output);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   virtual void ExecuteData(vtkDataObject *);
 
   int VOI[6];
