@@ -21,8 +21,7 @@ public class vtkPanel extends Canvas {
 	static { System.loadLibrary("vtkJava"); }
         public vtkPanel()
       	  {
-	  ren.SetRenderWindow(rw);
-          rw.DebugOn();
+	  rw.AddRenderer(ren);
 	  }
 
         public int getWindowID() 
@@ -30,9 +29,9 @@ public class vtkPanel extends Canvas {
           DrawingSurfaceInfo surfaceInfo =
             ((DrawingSurface)this.getPeer()).getDrawingSurfaceInfo();
           surfaceInfo.lock();
-          Win32DrawingSurface wds =
-            (Win32DrawingSurface)surfaceInfo.getSurface();
-          int hWnd = wds.getHWnd();
+          X11DrawingSurface wds =
+            (X11DrawingSurface)surfaceInfo.getSurface();
+          int hWnd = wds.getDrawable();
           surfaceInfo.unlock();
           return hWnd;
           }
@@ -44,9 +43,9 @@ public class vtkPanel extends Canvas {
           return result; 
           }
 
-	public void resize(int x, int y)
+	public void setSize(int x, int y)
 	  {
-	  super.resize(x,y);
+	  super.setSize(x,y);
           rw.SetSize(x,y);
 	  }
 
