@@ -11,16 +11,15 @@ Classes to assist in moving data between python and VTK.
 """
 
 from vtkpython import *
-
-print "VTK Version", vtkVersion().GetVTKVersion()
-
 from vtkConstants import *
-
 from vtkRenderWidget import vtkRenderWidget,vtkTkRenderWidget
-
 #from vtkImageWindowWidget import vtkImageWindowWidget,vtkTkImageWindowWidget
 #from vtkImageViewerWidget import vtkImageViewerWidget,vtkTkImageViewerWidget
 
-from vtkImageImportFromArray import *
-from vtkImageExportToArray import *
-
+# try to load the python import/export classes if Numeric is available
+try:
+    from Numeric import *
+    from vtkImageImportFromArray import *
+    from vtkImageExportToArray import *
+except ImportError:
+    pass
