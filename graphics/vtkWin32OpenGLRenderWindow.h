@@ -64,6 +64,11 @@ public:
   int       OwnWindow;
   int       ScreenSize[2];
   int       MultiSamples;
+  // Pen for 2D graphics line drawing
+  HPEN Pen;
+
+  // Pen color for the graphics;
+  COLORREF PenColor;
 public:
   vtkWin32OpenGLRenderWindow();
   ~vtkWin32OpenGLRenderWindow();
@@ -121,6 +126,7 @@ public:
   // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
   virtual float *GetRGBAPixelData(int x,int y,int x2,int y2,int front);
   virtual void SetRGBAPixelData(int x,int y,int x2,int y2,float *,int front);
+  virtual void ReleaseRGBAPixelData(float *data);
 
   // Description:
   // Set/Get the zbuffer data from an image
@@ -129,6 +135,9 @@ public:
 
   void MakeCurrent();
   virtual  int GetEventPending();
+  void PenLineTo(int x,int y);
+  void PenMoveTo(int x,int y);
+  void SetPenColor(float r,float g,float b);
 
 };
 
