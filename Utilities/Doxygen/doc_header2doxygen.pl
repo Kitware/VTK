@@ -1,10 +1,14 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-09-26 13:15:45 barre>
+# Time-stamp: <2001-10-17 09:50:47 barre>
 #
 # Convert VTK headers to doxygen format
 #
 # roeim : Vetle Roeim <vetler@ifi.uio.no>
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.81 (barre) :
+#   - fix pb if both --to and path to the file to document were absolute
+#   - remove warning when date or revision not found
 #
 # 0.8 (barre) :
 #   - update to match the new VTK 4.0 tree
@@ -86,7 +90,7 @@ use File::Path;
 use Text::Wrap;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.8, $0, "Sebastien Barre et al.");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.81, $0, "Sebastien Barre et al.");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -172,11 +176,35 @@ foreach my $source (@files) {
     
     next if $source !~ /vtk[^\\\/]*\.h\Z/;
 
+    # Figure out destination file now
+
+    my $dest;
+    if (! exists $args{"to"}) {
+        $dest = $args{"temp"};
+    } else {
+        # if source has absolute path, just use the basename
+        if ($source =~ m/^(\/|[a-zA-W]\:[\/\\])/) {
+            $dest = $args{"to"} . '/' . basename($source);
+        } else {
+            my $source2 = $source;
+            # let's remove the ../ component before the source filename, so 
+            # that it might be appended to the "to" directory
+            $source2 =~ s/^(\.\.[\/\\])*//;
+            $dest = $args{"to"} . '/' . $source2;
+        }
+        # Ensure both source and target are different
+        if (!$os_is_win) {
+            my ($i_dev, $i_ino) = stat $source;
+            my ($o_dev, $o_ino) = stat $dest;
+            croak "$PROGNAME: sorry, $source and $dest are the same file\n"
+              if ($i_dev == $o_dev && $i_ino == $o_ino);
+        }
+    }
+
     # Update mode : skip the file if it is not newer than the 
     # previously converted target
     
     if (exists $args{"update"} && ! exists $args{"force"}) {
-        my $dest = $args{"to"} . '/' . $source;
         next if -e $dest && (stat $source)[9] < (stat $dest)[9];
     }
     
@@ -256,8 +284,6 @@ foreach my $source (@files) {
 
         if ($date) {
             push @converted, "\n    $date\n";
-        } else {
-            carp "$PROGNAME: could not parse 'Date:' in $source\n";
         }
 
         # WARNING : need a blank line between RCS tags and previous dox tag
@@ -265,8 +291,6 @@ foreach my $source (@files) {
         if ($revision) {
             push @converted, "\n" if (!$date);
             push @converted, "    $revision\n";
-        } else {
-            carp "$PROGNAME: could not parse 'Version:' in $source\n";
         }
 
         push @converted, "    \@par     Thanks:\n", @thanks if @thanks;
@@ -467,31 +491,13 @@ foreach my $source (@files) {
     }
     
     # Write the converted header to its destination
-
-    my $dest;
-    if (! exists $args{"to"}) {
-        $dest = $args{"temp"};
-    } else {
-        my $source2 = $source;
-        # let's remove the ../ component before the source filename, so that
-        # it might be appended to the "to" directory
-        $source2 =~ s/^(\.\.[\/\\])*//;
-        $dest = $args{"to"} . '/' . $source2;
-        # Ensure both source and target are different
-        if (!$os_is_win) {
-            my ($i_dev, $i_ino) = stat $source;
-            my ($o_dev, $o_ino) = stat $dest;
-            croak "$PROGNAME: sorry, $source and $dest are the same file\n"
-              if ($i_dev == $o_dev && $i_ino == $o_ino);
-        }
-    }
-
     # Open the target and create the missing directory if any
 
     if (!sysopen(DEST_FILE, 
                  $dest, 
                  O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)) {
         my $dir = dirname($dest);
+        print $dest, " : ", $dir, "\n";
         mkpath($dir);
         sysopen(DEST_FILE, 
                 $dest, 
@@ -501,7 +507,7 @@ foreach my $source (@files) {
     print DEST_FILE @converted;
     close(DEST_FILE);
 
-    # If in-plqce conversion was requested, remove source and rename target
+    # If in-place conversion was requested, remove source and rename target
     # (or temp file) to source
 
     if (! exists $args{"to"}) {

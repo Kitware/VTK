@@ -1,9 +1,12 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-09-27 09:53:44 barre>
+# Time-stamp: <2001-10-17 10:20:57 barre>
 #
 # Build cross-references between classes and examples
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.71 (barre) :
+#   - add .cpp extension to the C++ parser regexp
 #
 # 0.7 (barre) :
 #   - update to match the new VTK 4.0 tree
@@ -68,7 +71,7 @@ use File::Basename;
 use File::Find;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.7, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.71, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -107,7 +110,7 @@ my $eliminate_matcher = '^vtkCommand$';
 
 my %parsers = (
                "Tcl" => ['\.tcl$', \&parse],
-               "C++" => ['\.cxx$', \&parse],
+               "C++" => ['\.c(xx|pp)$', \&parse],
                "Java" => ['\.java$', \&parse],
                "Python" => ['\.py$', \&parse]
               );
