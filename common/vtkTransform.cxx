@@ -818,7 +818,6 @@ void vtkTransform::MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors
                 aMatrix.Element[i][2] * v[2];
       }
 
-    vtkMath::Normalize(newV);
     outVectors->InsertNextVector(newV);
     }
 }
