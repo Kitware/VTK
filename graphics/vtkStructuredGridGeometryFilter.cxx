@@ -45,11 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkStructuredGridGeometryFilter::vtkStructuredGridGeometryFilter()
 {
   this->Extent[0] = 0;
-  this->Extent[1] = 100;
+  this->Extent[1] = VTK_LARGE_INTEGER;
   this->Extent[2] = 0;
-  this->Extent[3] = 100;
+  this->Extent[3] = VTK_LARGE_INTEGER;
   this->Extent[4] = 0;
-  this->Extent[5] = 0;
+  this->Extent[5] = VTK_LARGE_INTEGER;
 }
 
 void vtkStructuredGridGeometryFilter::Execute()
