@@ -38,60 +38,55 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkImagePermute.h"
 
 //----------------------------------------------------------------------------
-// Description:
-// Constructor sets default values
-vtkImagePermute::vtkImagePermute()
-{
-  this->SetExecutionAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
-			 VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImagePermute::SetFilteredAxes(int num, int *axes)
-{
-  this->vtkImageFilter::SetFilteredAxes(num, axes);
-  this->NumberOfExecutionAxes = 4;
-}
-
-//----------------------------------------------------------------------------
 void vtkImagePermute::ExecuteImageInformation() 
 {
-  int min, max;
-  float spacing;
-  float origin;
   int idx, axis;
+  int ext[6];
+  float spacing[3];
+  float origin[3];
+  float *inOrigin;
+  float *inSpacing;
+  int *inExt;
   
-  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+  inExt = this->Input->GetWholeExtent();
+  inSpacing = this->Input->GetSpacing();
+  inOrigin = this->Input->GetOrigin();
+  
+  for (idx = 0; idx < 3; ++idx)
     {
     axis = this->FilteredAxes[idx];
-    this->Input->GetAxisWholeExtent(axis, min, max);
-    this->Output->SetAxisWholeExtent(idx, min, max);
-    this->Input->GetAxisSpacing(axis, spacing);
-    this->Output->SetAxisSpacing(idx, spacing);
-    this->Input->GetAxisOrigin(axis, origin);
-    this->Output->SetAxisOrigin(idx, origin);
+    origin[axis] = inOrigin[idx];
+    spacing[axis] = inSpacing[idx];
+    ext[axis*2] = inExt[idx*2];
+    ext[axis*2+1] = inExt[idx*2+1];
     }
+  
+  this->Output->SetWholeExtent(ext);
+  this->Output->SetSpacing(spacing);
+  this->Output->SetOrigin(origin);
 }
 
 
 //----------------------------------------------------------------------------
 void vtkImagePermute::ComputeRequiredInputUpdateExtent()
 {
-  int min, max;
   int idx, axis;
+  int *outExt;
+  int inExt[6];
   
-  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+  outExt = this->Output->GetUpdateExtent();
+
+  for (idx = 0; idx < 3; ++idx)
     {
     axis = this->FilteredAxes[idx];
-    this->Output->GetAxisUpdateExtent(idx, min, max);
-    this->Input->SetAxisUpdateExtent(axis, min, max);
+    inExt[idx*2] = outExt[axis*2];
+    inExt[idx*2+1] = outExt[axis*2+1];
     }
+  this->Input->SetUpdateExtent(inExt);
 }
 
 
@@ -100,57 +95,60 @@ void vtkImagePermute::ComputeRequiredInputUpdateExtent()
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImagePermuteExecute(vtkImagePermute *self,
-				   vtkImageRegion *inRegion, T *inPtr,
-				   vtkImageRegion *outRegion, T *outPtr)
+				   vtkImageData *inData, T *inPtr,
+				   vtkImageData *outData, T *outPtr,
+				   int outExt[6])
 {
-  int min0, max0, min1, max1, min2, max2, min3, max3;
-  int idx0, idx1, idx2, idx3;
-  int inInc0, inInc1, inInc2, inInc3;
-  int outInc0, outInc1, outInc2, outInc3;
-  T  *inPtr0, *inPtr1, *inPtr2, *inPtr3;
-  T  *outPtr0, *outPtr1, *outPtr2, *outPtr3;
-
-  self = self;
-  outRegion->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS,
-		     VTK_IMAGE_TIME_AXIS);
+  int idxX, idxY, idxZ;
+  int maxX, maxY, maxZ;
+  int inInc[3];
+  int inInc0, inInc1, inInc2;
+  int outIncX, outIncY, outIncZ;
+  T *inPtr0, *inPtr1, *inPtr2;
+  int scalarSize;
+  
+  // find the region to loop over
+  maxX = outExt[1] - outExt[0]; 
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  
+  // Get increments to march through data 
+  inData->GetIncrements(inInc0, inInc1, inInc2);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  outIncX = inData->GetNumberOfScalarComponents();
+  scalarSize = sizeof(T)*outIncX;
+  
+  // adjust the increments for the permute
+  int *fe = self->GetFilteredAxes();
+  inInc[fe[0]] = inInc0;
+  inInc[fe[1]] = inInc1;
+  inInc[fe[2]] = inInc2;
+  inInc0 = inInc[0];
+  inInc1 = inInc[1];
+  inInc2 = inInc[2];
     
-  // Get information to march through data 
-  inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3);
-  outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3);
-  outRegion->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3);
-
   // Loop through ouput pixels
-  inPtr3 = inPtr;
-  outPtr3 = outPtr;
-  for (idx3 = min3; idx3 <= max3; ++idx3)
+  inPtr2 = inPtr;
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    outPtr2 = outPtr3;
-    inPtr2 = inPtr3;
-    for (idx2 = min2; idx2 <= max2; ++idx2)
+    inPtr1 = inPtr2;
+    for (idxY = 0; idxY <= maxY; idxY++)
       {
-      inPtr1 = inPtr2;
-      outPtr1 = outPtr2;
-      for (idx1 = min1; idx1 <= max1; ++idx1)
+      inPtr0 = inPtr1;
+      for (idxX = 0; idxX <= maxX; idxX++)
 	{
-	outPtr0 = outPtr1;
-	inPtr0 = inPtr1;
-	for (idx0 = min0; idx0 <= max0; ++idx0)
-	  {
-	  *outPtr0 = *inPtr0;
-	  outPtr0 += outInc0;
-	  inPtr0  += inInc0;
-	  }
-	outPtr1 += outInc1;
-	inPtr1 += inInc1;
+	// Pixel operation
+	memcpy((void *)outPtr,(void *)inPtr0,scalarSize);
+	outPtr += outIncX;
+	inPtr0 += inInc0;
 	}
-      outPtr2 += outInc2;
-      inPtr2  += inInc2;
+      outPtr += outIncY;
+      inPtr1 += inInc1;
       }
-    outPtr3 += outInc3;
-    inPtr3 += inInc3;
+    outPtr += outIncZ;
+    inPtr2 += inInc2;
     }
 }
-
 
 
 //----------------------------------------------------------------------------
@@ -159,50 +157,61 @@ static void vtkImagePermuteExecute(vtkImagePermute *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImagePermute::Execute(vtkImageRegion *inRegion, 
-			      vtkImageRegion *outRegion)
+void vtkImagePermute::ThreadedExecute(vtkImageData *inData, 
+				      vtkImageData *outData,
+				      int outExt[6])
 {
-  void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  int idx, axis;
+  int inExt[6];
   
-  if (inRegion->GetScalarType() != inRegion->GetScalarType())
+  for (idx = 0; idx < 3; ++idx)
     {
-    vtkErrorMacro("Input (" 
-	  << vtkImageScalarTypeNameMacro(inRegion->GetScalarType()) 
-	  << ") has to be the same data type as output"
-	  << vtkImageScalarTypeNameMacro(outRegion->GetScalarType()) << ")");
+    axis = this->FilteredAxes[idx];
+    inExt[idx*2] = outExt[axis*2];
+    inExt[idx*2+1] = outExt[axis*2+1];
+    }
+  
+  void *inPtr = inData->GetScalarPointerForExtent(inExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+  << ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData->GetScalarType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetScalarType())
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImagePermuteExecute(this, inRegion, (float *)(inPtr), 
-			  outRegion, (float *)(outPtr));
+      vtkImagePermuteExecute(this, inData, (float *)(inPtr), 
+			     outData, (float *)(outPtr),outExt);
       break;
     case VTK_INT:
-      vtkImagePermuteExecute(this, inRegion, (int *)(inPtr), 
-			     outRegion, (int *)(outPtr));
+      vtkImagePermuteExecute(this, inData, (int *)(inPtr), 
+			     outData, (int *)(outPtr),outExt);
       break;
     case VTK_SHORT:
-      vtkImagePermuteExecute(this, inRegion, (short *)(inPtr), 
-			  outRegion, (short *)(outPtr));
+      vtkImagePermuteExecute(this, inData, (short *)(inPtr), 
+			     outData, (short *)(outPtr),outExt);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImagePermuteExecute(this, inRegion, (unsigned short *)(inPtr), 
-			  outRegion, (unsigned short *)(outPtr));
+      vtkImagePermuteExecute(this, inData, (unsigned short *)(inPtr), 
+			     outData, (unsigned short *)(outPtr),outExt);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImagePermuteExecute(this, inRegion, (unsigned char *)(inPtr), 
-			  outRegion, (unsigned char *)(outPtr));
+      vtkImagePermuteExecute(this, inData, (unsigned char *)(inPtr), 
+			     outData, (unsigned char *)(outPtr),outExt);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
     }
 }
-
-
 
 
 

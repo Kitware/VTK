@@ -41,11 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImagePermute -  Permutes axes of input.
 // .SECTION Description
 // vtkImagePermute reorders the axes of the input. Filtered axes specify
-// the input axes which become X, Y, Z and Time.  The input has to have the
+// the input axes which become X, Y, Z.  The input has to have the
 // same scalar type of the output. The filter does copy the 
-// data when it executes. (If flexible memory order were allowed, this
-// would not be necessary.)
-
+// data when it executes. 
 
 #ifndef __vtkImagePermute_h
 #define __vtkImagePermute_h
@@ -56,19 +54,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImagePermute : public vtkImageFilter
 {
 public:
-  vtkImagePermute();
   static vtkImagePermute *New() {return new vtkImagePermute;};
   const char *GetClassName() {return "vtkImagePermute";};
 
   // Description:
-  // The filtered axes are the input axes that get relabeled to X,Y,Z,Time.
-  void SetFilteredAxes(int num, int *axes);
-  vtkImageSetMacro(FilteredAxes, int);
+  // The filtered axes are the input axes that get relabeled to X,Y,Z.
+  vtkSetVector3Macro(FilteredAxes, int);
+  vtkGetVector3Macro(FilteredAxes, int);
   
 protected:
+  int  FilteredAxes[3];
   void ExecuteImageInformation();
   void ComputeRequiredInputUpdateExtent();
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, int ext[6]);
 };
 
 #endif
