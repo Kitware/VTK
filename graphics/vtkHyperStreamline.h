@@ -96,17 +96,18 @@ public:
   // Description:
   // Specify the start of the hyperstreamline in the cell coordinate system. 
   // That is, cellId and subId (if composite cell), and parametric coordinates.
-  void SetStartLocation(int cellId, int subId, float pcoords[3]);
+  void SetStartLocation(vtkIdType cellId, int subId, float pcoords[3]);
 
   // Description:
   // Specify the start of the hyperstreamline in the cell coordinate system. 
   // That is, cellId and subId (if composite cell), and parametric coordinates.
-  void SetStartLocation(int cellId, int subId, float r, float s, float t);
+  void SetStartLocation(vtkIdType cellId, int subId, float r, float s,
+                        float t);
 
   // Description:
   // Get the starting location of the hyperstreamline in the cell coordinate
   // system. Returns the cell that the starting point is in.
-  int GetStartLocation(int& subId, float pcoords[3]);
+  vtkIdType GetStartLocation(int& subId, float pcoords[3]);
 
   // Description:
   // Specify the start of the hyperstreamline in the global coordinate system. 
@@ -214,7 +215,7 @@ protected:
   int StartFrom;
 
   // Starting from cell location
-  int StartCell;
+  vtkIdType StartCell;
   int StartSubId;
   float StartPCoords[3];
 

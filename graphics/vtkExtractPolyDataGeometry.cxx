@@ -101,9 +101,9 @@ void vtkExtractPolyDataGeometry::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  int ptId, numPts, numCells, i, cellId;
+  vtkIdType ptId, numPts, numCells, i, cellId, *pointMap, newId;
   int npts, allInside;
-  int newId, *pointMap, updateInterval;
+  vtkIdType updateInterval;
   float multiplier, x[3];
   vtkPoints *newPts;
 
@@ -129,7 +129,7 @@ void vtkExtractPolyDataGeometry::Execute()
   //
   numPts = input->GetNumberOfPoints();
   numCells = input->GetNumberOfCells();
-  pointMap = new int[numPts]; // maps old point ids into new
+  pointMap = new vtkIdType[numPts]; // maps old point ids into new
   for (i=0; i < numPts; i++)
     {
     pointMap[i] = -1;

@@ -64,12 +64,13 @@ vtkHedgeHog::vtkHedgeHog()
 void vtkHedgeHog::Execute()
 {
   vtkDataSet *input= this->GetInput();
-  int numPts;
+  vtkIdType numPts;
   vtkPoints *newPts;
   vtkPointData *pd;
   vtkDataArray *inVectors;
   vtkDataArray *inNormals;
-  int i, ptId;
+  vtkIdType ptId;
+  int i;
   vtkIdType pts[2];
   vtkCellArray *newLines;
   float *x, *v;

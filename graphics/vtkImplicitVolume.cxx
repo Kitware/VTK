@@ -91,8 +91,8 @@ vtkImplicitVolume::~vtkImplicitVolume()
 float vtkImplicitVolume::EvaluateFunction(float x[3])
 {
   vtkScalars *scalars;
-  int i, ijk[3];
-  int numPts;
+  int ijk[3];
+  vtkIdType numPts, i;
   float pcoords[3], weights[8], s;
 
   // See if a volume is defined
@@ -204,5 +204,3 @@ void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Volume: (none)\n";
     }
 }
-
-

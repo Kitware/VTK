@@ -90,8 +90,8 @@ void vtkGlyph3D::Execute()
   int requestedGhostLevel;
   unsigned char* inGhostLevels=0;
   vtkDataArray *inNormals, *sourceNormals = NULL;
-  int numPts, numSourcePts, numSourceCells;
-  int inPtId, i, index;
+  vtkIdType numPts, numSourcePts, numSourceCells, inPtId, i;
+  int index;
   vtkPoints *sourcePts = NULL;
   vtkPoints *newPts;
   vtkDataArray *newScalars=NULL;
@@ -103,7 +103,8 @@ void vtkGlyph3D::Execute()
   vtkIdList *cellPts;
   int npts;
   vtkIdList *pts;
-  int haveVectors, haveNormals, ptIncr, cellId;
+  vtkIdType ptIncr, cellId;
+  int haveVectors, haveNormals;
   float scalex,scaley,scalez, den;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
@@ -296,7 +297,7 @@ void vtkGlyph3D::Execute()
       this->UpdateProgress ((float)inPtId/numPts);
       if (this->GetAbortExecute())
         {
-              break;
+        break;
         }
       }
 
@@ -305,7 +306,7 @@ void vtkGlyph3D::Execute()
       {
       s = inScalars->GetComponent(inPtId, 0);
       if ( this->ScaleMode == VTK_SCALE_BY_SCALAR ||
-                this->ScaleMode == VTK_DATA_SCALING_OFF )
+           this->ScaleMode == VTK_DATA_SCALING_OFF )
         {
         scalex = scaley = scalez = s;
         }
@@ -456,7 +457,7 @@ void vtkGlyph3D::Execute()
         }
       else if (this->ColorMode == VTK_COLOR_BY_SCALAR)
         {
-              for (i=0; i < numSourcePts; i++)
+        for (i=0; i < numSourcePts; i++)
           {
           outputPD->CopyTuple(inScalars, newScalars, inPtId, ptIncr+i);
           }

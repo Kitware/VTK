@@ -72,10 +72,10 @@ vtkGeometryFilter* vtkGeometryFilter::New()
 vtkGeometryFilter::vtkGeometryFilter()
 {
   this->PointMinimum = 0;
-  this->PointMaximum = VTK_LARGE_INTEGER;
+  this->PointMaximum = VTK_LARGE_ID;
 
   this->CellMinimum = 0;
-  this->CellMaximum = VTK_LARGE_INTEGER;
+  this->CellMaximum = VTK_LARGE_ID;
 
   this->Extent[0] = -VTK_LARGE_FLOAT;
   this->Extent[1] = VTK_LARGE_FLOAT;
@@ -141,10 +141,11 @@ void vtkGeometryFilter::SetExtent(float extent[6])
 
 void vtkGeometryFilter::Execute()
 {
-  int cellId, i, j, newCellId;
+  vtkIdType cellId, newCellId;
+  int i, j;
   vtkDataSet *input= this->GetInput();
-  int numPts=input->GetNumberOfPoints();
-  int numCells=input->GetNumberOfCells();
+  vtkIdType numPts=input->GetNumberOfPoints();
+  vtkIdType numCells=input->GetNumberOfCells();
   char *cellVis;
   vtkGenericCell *cell;
   vtkCell *face;
@@ -153,7 +154,7 @@ void vtkGeometryFilter::Execute()
   vtkIdList *cellIds;
   vtkIdList *pts;
   vtkPoints *newPts;
-  int ptId;
+  vtkIdType ptId;
   int npts;
   vtkIdType pt;
   vtkPointData *pd = input->GetPointData();
@@ -277,7 +278,7 @@ void vtkGeometryFilter::Execute()
   // Traverse cells to extract geometry
   //
   int abort=0;
-  int progressInterval = numCells/20 + 1;
+  vtkIdType progressInterval = numCells/20 + 1;
   for(cellId=0; cellId < numCells && !abort; cellId++)
     {
     //Progress and abort method support
@@ -459,18 +460,20 @@ unsigned long int vtkGeometryFilter::GetMTime()
 void vtkGeometryFilter::PolyDataExecute()
 {
   vtkPolyData *input= (vtkPolyData *)this->GetInput();
-  int i, cellId;
+  vtkIdType cellId;
+  int i;
   int allVisible;
   vtkIdType npts;
   vtkIdType *pts;
   vtkPoints *p = input->GetPoints();
-  int numCells=input->GetNumberOfCells();
+  vtkIdType numCells=input->GetNumberOfCells();
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  int newCellId, visible, type, ptId;
+  vtkIdType newCellId, ptId;
+  int visible, type;
   float *x;
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
@@ -521,7 +524,7 @@ void vtkGeometryFilter::PolyDataExecute()
   outputCD->CopyAllocate(cd,numCells,numCells/2);
   input->BuildCells(); //needed for GetCellPoints()
   
-  int progressInterval = numCells/20 + 1;
+  vtkIdType progressInterval = numCells/20 + 1;
   for(cellId=0; cellId < numCells; cellId++)
     {
     //Progress and abort method support
@@ -550,7 +553,7 @@ void vtkGeometryFilter::PolyDataExecute()
         {
         for (i=0; i < npts; i++) 
           {
-		  ptId = pts[i];
+          ptId = pts[i];
           x = input->GetPoint(ptId);
 
           if ( (this->PointClipping && (ptId < this->PointMinimum ||
@@ -589,12 +592,13 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   vtkUnstructuredGrid *input= (vtkUnstructuredGrid *)this->GetInput();
   vtkCellArray *Connectivity = input->GetCells();
   if (Connectivity == NULL) {return;}
-  int i, cellId;
+  vtkIdType cellId;
+  int i;
   int allVisible;
   vtkIdType npts;
   vtkIdType *pts;
   vtkPoints *p = input->GetPoints();
-  int numCells=input->GetNumberOfCells();
+  vtkIdType numCells=input->GetNumberOfCells();
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
   vtkPolyData *output = this->GetOutput();
@@ -603,7 +607,8 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   vtkCellArray *Verts, *Lines, *Polys, *Strips;
   vtkIdList *cellIds, *faceIds;
   char *cellVis;
-  int newCellId, faceId, *faceVerts, numFacePts;
+  vtkIdType newCellId;
+  int faceId, *faceVerts, numFacePts;
   float *x;
   int PixelConvert[4];
   // ghost cell stuff
@@ -915,16 +920,18 @@ void vtkGeometryFilter::UnstructuredGridExecute()
 
 void vtkGeometryFilter::StructuredGridExecute()
 {
-  int cellId, i, newCellId;
+  vtkIdType cellId, newCellId;
+  int i;
   vtkStructuredGrid *input=(vtkStructuredGrid *)this->GetInput();
-  int numCells=input->GetNumberOfCells();
+  vtkIdType numCells=input->GetNumberOfCells();
   char *cellVis;
   vtkGenericCell *cell;
   float *x;
   vtkIdList *ptIds;
   vtkIdList *cellIds;
   vtkIdList *pts;
-  int ptId, *faceVerts, faceId, numFacePts;
+  vtkIdType ptId;
+  int *faceVerts, faceId, numFacePts;
   vtkIdType *facePts;
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
@@ -1018,7 +1025,7 @@ void vtkGeometryFilter::StructuredGridExecute()
   
   // Traverse cells to extract geometry
   //
-  int progressInterval = numCells/20 + 1;
+  vtkIdType progressInterval = numCells/20 + 1;
   for(cellId=0; cellId < numCells; cellId++)
     {
     //Progress and abort method support
@@ -1134,4 +1141,3 @@ void vtkGeometryFilter::ExecuteInformation()
     return;
     }
 }
-

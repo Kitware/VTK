@@ -259,7 +259,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   
   // Determine the shape of the field
   int numColumns = field->GetNumberOfComponents(); //number of "columns"
-  int numRows = VTK_LARGE_INTEGER; //figure out number of rows
+  int numRows = VTK_LARGE_ID; //figure out number of rows
   int numTuples;
   vtkDataArray *array;
   for (i=0; i<field->GetNumberOfArrays(); i++)
@@ -282,7 +282,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
     this->N = numRows;
     }
 
-  if ( this->N <= 0 || this->N >= VTK_LARGE_INTEGER )
+  if ( this->N <= 0 || this->N >= VTK_LARGE_ID )
     {
     this->N = 0;
     vtkErrorMacro(<<"No field data to plot");

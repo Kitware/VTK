@@ -59,9 +59,9 @@ vtkLinearSubdivisionFilter* vtkLinearSubdivisionFilter::New()
 void vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
 {
   vtkIdType *pts;
-  int cellId, edgeId, newId;
-  vtkIdType npts;
-  int p1, p2;
+  int edgeId;
+  vtkIdType npts, cellId, newId;
+  vtkIdType p1, p2;
   vtkCellArray *inputPolys=inputDS->GetPolys();
   vtkEdgeTable *edgeTable;
   vtkIdList *cellIds = vtkIdList::New();

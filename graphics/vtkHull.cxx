@@ -511,7 +511,7 @@ void vtkHull::Execute()
 {
   vtkPolyData    *input       = this->GetInput();
   vtkPolyData    *output      = this->GetOutput();
-  int            numPoints;
+  vtkIdType      numPoints;
   vtkPoints      *outPoints;
   vtkCellArray   *outPolys;
   float          *bounds      = input->GetBounds();
@@ -566,7 +566,8 @@ void vtkHull::Execute()
 void vtkHull::ComputePlaneDistances()
 {
   vtkPolyData    *input       = this->GetInput();
-  int            i, j;
+  vtkIdType      i;
+  int            j;
   float          coord[3];
   double         v;
 

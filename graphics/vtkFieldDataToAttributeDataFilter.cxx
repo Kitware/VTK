@@ -157,8 +157,7 @@ vtkFieldDataToAttributeDataFilter::~vtkFieldDataToAttributeDataFilter()
 //
 void vtkFieldDataToAttributeDataFilter::Execute()
 {
-
-  int num;
+  vtkIdType num;
   vtkDataSetAttributes *attr;
   vtkFieldData *fd;
   vtkDataSet *input = this->GetInput();
@@ -210,24 +209,19 @@ void vtkFieldDataToAttributeDataFilter::Execute()
     }
 
   this->ConstructScalars(num, fd, attr, this->ScalarComponentRange,
-                         this->ScalarArrays, 
-                         this->ScalarArrayComponents, 
-                         this->ScalarNormalize, this->NumberOfScalarComponents);
+                         this->ScalarArrays, this->ScalarArrayComponents, 
+                         this->ScalarNormalize,this->NumberOfScalarComponents);
   this->ConstructVectors(num, fd, attr, this->VectorComponentRange,
-                         this->VectorArrays, 
-                         this->VectorArrayComponents, 
+                         this->VectorArrays, this->VectorArrayComponents, 
                          this->VectorNormalize);
   this->ConstructTensors(num, fd, attr, this->TensorComponentRange,
-                         this->TensorArrays, 
-                         this->TensorArrayComponents, 
+                         this->TensorArrays, this->TensorArrayComponents,
                          this->TensorNormalize);
   this->ConstructTCoords(num, fd, attr, this->TCoordComponentRange,
-                         this->TCoordArrays, 
-                         this->TCoordArrayComponents, 
-                         this->TCoordNormalize, this->NumberOfTCoordComponents);
+                         this->TCoordArrays, this->TCoordArrayComponents,
+                         this->TCoordNormalize,this->NumberOfTCoordComponents);
   this->ConstructNormals(num, fd, attr, this->NormalComponentRange,
-                         this->NormalArrays, 
-                         this->NormalArrayComponents, 
+                         this->NormalArrays, this->NormalArrayComponents, 
                          this->NormalNormalize);
   this->ConstructFieldData(num, attr);
   
@@ -1013,11 +1007,15 @@ vtkFieldDataToAttributeDataFilter::ConstructFieldData(int vtkNotUsed(num),
 
 // Stuff related to helper methods ---------------------------------------
 //
-int vtkFieldDataToAttributeDataFilter::ConstructArray(vtkDataArray *da, int comp, 
-                                          vtkDataArray *fieldArray, int fieldComp,
-                                          int min, int max, int normalize)
+int vtkFieldDataToAttributeDataFilter::ConstructArray(vtkDataArray *da,
+                                                      int comp,
+                                                      vtkDataArray *fieldArray,
+                                                      int fieldComp,
+                                                      vtkIdType min,
+                                                      vtkIdType max,
+                                                      int normalize)
 {
-  int i, n=max-min+1;
+  vtkIdType i, n=max-min+1;
   float minValue=VTK_LARGE_FLOAT;
   float maxValue= -VTK_LARGE_FLOAT;
   float compRange, compValue;
@@ -1172,4 +1170,3 @@ int vtkFieldDataToAttributeDataFilter::UpdateComponentRange(vtkDataArray *da,
     return 0;
     }
 }
-

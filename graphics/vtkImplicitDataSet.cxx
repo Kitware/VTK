@@ -91,7 +91,8 @@ float vtkImplicitDataSet::EvaluateFunction(float x[3])
 {
   vtkScalars *scalars;
   vtkCell *cell;
-  int subId, i, id, numPts;
+  vtkIdType id;
+  int subId, i, numPts;
   float pcoords[3], s;
 
   if ( this->DataSet->GetMaxCellSize() > this->Size )
@@ -152,7 +153,8 @@ void vtkImplicitDataSet::EvaluateGradient(float x[3], float n[3])
 {
   vtkScalars *scalars;
   vtkCell *cell;
-  int subId, i, id, numPts;
+  vtkIdType id;
+  int subId, i, numPts;
   float pcoords[3];
 
   if ( this->DataSet->GetMaxCellSize() > this->Size )

@@ -91,8 +91,8 @@ vtkGaussianSplatter::vtkGaussianSplatter()
 
 void vtkGaussianSplatter::Execute()
 {
-  int numPts, numNewPts;
-  int ptId, i, j, k, idx;
+  vtkIdType numPts, numNewPts, ptId, idx, i;
+  int j, k;
   int min[3], max[3];
   vtkPointData *pd;
   vtkNormals *inNormals=NULL;
@@ -163,7 +163,7 @@ void vtkGaussianSplatter::Execute()
   // the subvolume that the splat is contained in, and process that.
   //
   int abortExecute=0;
-  int progressInterval = numPts/20 + 1;
+  vtkIdType progressInterval = numPts/20 + 1;
   for (ptId=0; ptId < numPts && !abortExecute; ptId++)
     {
     if ( ! (ptId % progressInterval) )
@@ -363,7 +363,7 @@ void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
 void vtkGaussianSplatter::Cap(vtkFloatArray *s)
 {
   int i,j,k;
-  int idx;
+  vtkIdType idx;
   int d01=this->SampleDimensions[0]*this->SampleDimensions[1];
 
   // i-j planes

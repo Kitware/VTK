@@ -57,6 +57,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Some constants used throughout the code
 #define VTK_LARGE_FLOAT 1.0e+38F
+#ifdef VTK_USE_64BIT_IDS
+#define VTK_LARGE_ID 18446744073709551615 // 2^64 - 1
+#else
+#define VTK_LARGE_ID 2147483647 // 2^31 - 1
+#endif
+
 #define VTK_LARGE_INTEGER 2147483647 // 2^31 - 1
 
 // These types are returned by GetDataType to indicate pixel type.

@@ -62,8 +62,8 @@ public:
   
   // Description:
   // Set the number of points to generate.
-  vtkSetClampMacro(NumberOfPoints,int,1,VTK_LARGE_INTEGER);
-  vtkGetMacro(NumberOfPoints,int);
+  vtkSetClampMacro(NumberOfPoints,vtkIdType,1,VTK_LARGE_ID);
+  vtkGetMacro(NumberOfPoints,vtkIdType);
 
   // Description:
   // Set the center of the point cloud.
@@ -97,12 +97,10 @@ protected:
   void Execute();
   void ExecuteInformation();
 
-  int NumberOfPoints;
+  vtkIdType NumberOfPoints;
   float Center[3];
   float Radius;
   int Distribution;
 };
 
 #endif
-
-

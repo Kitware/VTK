@@ -81,7 +81,8 @@ vtkImplicitTextureCoords::~vtkImplicitTextureCoords()
 
 void vtkImplicitTextureCoords::Execute()
 {
-  int ptId, numPts, tcoordDim;
+  vtkIdType ptId, numPts;
+  int tcoordDim;
   vtkFloatArray *newTCoords;
   float min[3], max[3], scale[3];
   float tCoord[3], *tc, *x;
