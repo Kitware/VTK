@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 static vtkMath math;
 
 // Description:
-// Create an instance of a VolumeRenderer
+// Create an instance of a VolumeRenderer with its step size to one.
 vtkVolumeRenderer::vtkVolumeRenderer()
 {
   this->StepSize = 1.0;
@@ -320,7 +320,7 @@ void vtkVolumeRenderer::CalcRayValues(vtkRenderer *ren, float Vecs[6][3],
 }
 
 // Description:
-// Composite the rays into resulting pixel.
+// Composite the traced rays into a resulting pixel color.
 void vtkVolumeRenderer::Composite(float *rays,int steps, int numRays,
 				 unsigned char *resultColor)
 {

@@ -45,7 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // rendering cycle, after the Renderer has rendered its surfaces, but
 // before any doublebuffer switching is done. Many of the attributes this
 // object requires for rendering are obtained from the Renderer which
-// invokes its Render method.
+// invokes its Render method. This object must be associated with a Renderer
+// in order to work.
+
+// .SECTION see also
+// vtkRenderer vtkVolume
 
 #ifndef __vtkVolumeRenderer_hh
 #define __vtkVolumeRenderer_hh
@@ -65,14 +69,16 @@ public:
   vtkVolumeCollection *GetVolumes();
 
   // Description:
-  // Create an image.
+  // Render its volumes to create a coposite image.
   virtual void Render(vtkRenderer *);
 
   // Description:
-  // Get the ray step size in world coordinates.
+  // Set/Get the ray step size in world coordinates. The step size you
+  // select will make a big difference in the required rendering time
+  // and possibly the results as well. A larger step size will render 
+  // more quickly. Too large of a step size will result in under sampling
+  // your volumes yielding less accurate results.
   vtkGetMacro(StepSize,float);
-  // Description:
-  // Set the ray step size in world coordinates.
   vtkSetMacro(StepSize,float);
 
 protected:
