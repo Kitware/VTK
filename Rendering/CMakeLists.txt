@@ -1,9 +1,6 @@
 SET(KIT Rendering)
 SET(UKIT RENDERING)
-SET(KIT_TCL_LIBS vtkGraphicsTCL vtkImagingTCL ${TCL_LIBRARY})
-IF (TK_LIBRARY)
-  SET(KIT_TCL_LIBS ${KIT_TCL_LIBS} ${TK_LIBRARY})
-ENDIF (TK_LIBRARY)
+SET(KIT_TCL_LIBS vtkGraphicsTCL vtkImagingTCL ${VTK_TK_LIBRARIES})
 IF(APPLE)
   SET(KIT_PYTHON_LIBS vtkGraphicsPythonD vtkImagingPythonD)
 ELSE(APPLE)
@@ -453,8 +450,7 @@ IF (VTK_WRAP_PYTHON)
                      ${RenderingPythonTkWidgets_SRCS})
        TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
                               vtk${KIT}
-                              ${TCL_LIBRARY}
-                              ${TK_LIBRARY})
+                              ${VTK_TK_LIBRARIES})
        INSTALL_TARGETS(/lib/vtk vtkRenderingPythonTkWidgets)
      ENDIF(NOT VTK_USE_COCOA)
   ENDIF (TK_LIBRARY)
