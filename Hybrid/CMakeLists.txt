@@ -32,6 +32,7 @@ vtkRIBProperty.cxx
 vtkRenderLargeImage.cxx
 vtkScalarBarWidget.cxx
 vtkSphereWidget.cxx
+vtkSplineWidget.cxx
 vtkThinPlateSplineTransform.cxx
 vtkTransformToGrid.cxx
 vtkVRMLImporter.cxx
