@@ -51,6 +51,7 @@ public:
   virtual void Render(vlRenderer *) = 0;
 
   void SetLookupTable(vlLookupTable *lut);
+  void SetLookupTable(vlLookupTable& lut) {this->SetLookupTable(&lut);};
   vlGetObjectMacro(LookupTable,vlLookupTable);
 
   // Description:
