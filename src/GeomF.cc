@@ -76,6 +76,7 @@ void vlGeometryFilter::SetExtent(float *extent)
 void vlGeometryFilter::Execute()
 {
   int cellId, i, j;
+  int numPts=this->Input->GetNumberOfPoints();
   int numCells=this->Input->GetNumberOfCells();
   char *cellVis;
   vlCell *cell, *face;
@@ -84,55 +85,71 @@ void vlGeometryFilter::Execute()
   static vlIdList cellIds(MAX_CELL_SIZE);
   vlFloatPoints *newPts;
   int ptId;
-  int numPts, pts[MAX_CELL_SIZE];
+  int npts, pts[MAX_CELL_SIZE];
   vlPointData *pd = this->Input->GetPointData();
+  int allVisible;
 
-  cellVis = new char[numCells];
+  this->Initialize();
+
+  if ( (!this->CellClipping) && (!this->PointClipping) && 
+  (!this->ExtentClipping) )
+    {
+    allVisible = 1;
+    cellVis = NULL;
+    }
+  else
+    {
+    allVisible = 0;
+    cellVis = new char[numCells];
+    }
 //
 // Mark cells as being visible or not
 //
-  for(cellId=0; cellId < numCells; cellId++)
+  if ( ! allVisible )
     {
-    if ( this->CellClipping && cellId < this->CellMinimum ||
-    cellId > this->CellMaximum )
+    for(cellId=0; cellId < numCells; cellId++)
       {
-      cellVis[cellId] = 0;
-      }
-    else
-      {
-      cell = this->Input->GetCell(cellId);
-      ptIds = cell->GetPointIds();
-      for (i=0; i < ptIds->GetNumberOfIds(); i++) 
+      if ( this->CellClipping && cellId < this->CellMinimum ||
+      cellId > this->CellMaximum )
         {
-        ptId = ptIds->GetId(i);
-        x = this->Input->GetPoint(ptId);
-
-        if ( (this->PointClipping && (ptId < this->PointMinimum ||
-        ptId > this->PointMaximum) ) &&
-        (this->ExtentClipping && 
-        (x[0] < this->Extent[0] || x[0] > this->Extent[1] ||
-        x[1] < this->Extent[2] || x[1] > this->Extent[3] ||
-        x[2] < this->Extent[4] || x[2] > this->Extent[5] )) )
-          {
-          cellVis[cellId] = 0;
-          break;
-          }
+        cellVis[cellId] = 0;
         }
-      if ( i >= ptIds->GetNumberOfIds() ) cellVis[cellId] = 1;
+      else
+        {
+        cell = this->Input->GetCell(cellId);
+        ptIds = cell->GetPointIds();
+        for (i=0; i < ptIds->GetNumberOfIds(); i++) 
+          {
+          ptId = ptIds->GetId(i);
+          x = this->Input->GetPoint(ptId);
+
+          if ( (this->PointClipping && (ptId < this->PointMinimum ||
+          ptId > this->PointMaximum) ) &&
+          (this->ExtentClipping && 
+          (x[0] < this->Extent[0] || x[0] > this->Extent[1] ||
+          x[1] < this->Extent[2] || x[1] > this->Extent[3] ||
+          x[2] < this->Extent[4] || x[2] > this->Extent[5] )) )
+            {
+            cellVis[cellId] = 0;
+            break;
+            }
+          }
+        if ( i >= ptIds->GetNumberOfIds() ) cellVis[cellId] = 1;
+        }
       }
     }
 //
 // Allocate
 //
-  newPts = new vlFloatPoints(1000,10000);
-  this->Allocate(1000,10000);
-  this->PointData.CopyAllocate(pd,1000,10000);
+  newPts = new vlFloatPoints(numPts,numPts/2);
+  this->Allocate(4*numCells,numCells/2);
+  this->PointData.CopyAllocate(pd,numPts,numPts/2);
 //
 // Traverse cells to extract geometry
 //
   for(cellId=0; cellId < numCells; cellId++)
     {
-    if ( cellVis[cellId] )
+    if ( allVisible || cellVis[cellId] )
       {
       cell = this->Input->GetCell(cellId);
       switch (cell->GetCellDimension())
@@ -140,34 +157,34 @@ void vlGeometryFilter::Execute()
         // create new points and then cell
         case 0: case 1: case 2:
           
-          numPts = cell->GetNumberOfPoints();
-          for ( i=0; i < numPts; i++)
+          npts = cell->GetNumberOfPoints();
+          for ( i=0; i < npts; i++)
             {
             ptId = cell->GetPointId(i);
             x = this->Input->GetPoint(ptId);
             pts[i] = newPts->InsertNextPoint(x);
             this->PointData.CopyData(pd,ptId,pts[i]);
             }
-          this->InsertNextCell(cell->GetCellType(), numPts, pts);
+          this->InsertNextCell(cell->GetCellType(), npts, pts);
           break;
 
         case 3:
           for (j=0; j < cell->GetNumberOfFaces(); j++)
             {
             face = cell->GetFace(j);
-            this->Input->GetCellNeighbors(cellId, face->PointIds,
-                                          cellIds);
-            if ( cellIds.GetNumberOfIds() > 0 && cellVis[cellIds.GetId(0)] )
+            this->Input->GetCellNeighbors(cellId, face->PointIds, cellIds);
+            if ( cellIds.GetNumberOfIds() <= 0 || 
+            (!allVisible && !cellVis[cellIds.GetId(0)]) )
               {
-              numPts = face->GetNumberOfPoints();
-              for ( i=0; i < numPts; i++)
+              npts = face->GetNumberOfPoints();
+              for ( i=0; i < npts; i++)
                 {
                 ptId = cell->GetPointId(i);
                 x = this->GetPoint(ptId);
                 pts[i] = newPts->InsertNextPoint(x);
                 this->PointData.CopyData(pd,ptId,pts[i]);
                 }
-              this->InsertNextCell(face->GetCellType(), numPts, pts);
+              this->InsertNextCell(face->GetCellType(), npts, pts);
               }
             }
           break;
@@ -181,7 +198,7 @@ void vlGeometryFilter::Execute()
   this->SetPoints(newPts);
   this->Squeeze();
 
-  delete [] cellVis;
+  if ( cellVis ) delete [] cellVis;
 
 }
 
