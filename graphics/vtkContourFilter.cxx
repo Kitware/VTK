@@ -143,12 +143,17 @@ void vtkContourFilter::Execute()
 
 	if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
 		{
+		vtkDebugMacro(<< "executing contour grid filter");
 		vtkContourGrid *cgrid;
 
 		cgrid = vtkContourGrid::New();
 		cgrid->SetInput(input);
+		for (i = 0; i < numContours; i++)
+			{
+			cgrid->SetValue(i, values[i]);
+			}
 		cgrid->Update();
-		output = cgrid->GetOutput();
+		output->ShallowCopy(cgrid->GetOutput());
 		} //if type VTK_UNSTRUCTURED_GRID
 	else
 		{
