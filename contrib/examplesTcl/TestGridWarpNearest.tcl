@@ -77,7 +77,7 @@ vtkGridTransform transform
   transform SetDisplacementGrid [transformToGrid GetOutput]
   transform SetInterpolationModeToNearestNeighbor
   # must lower the tolerance or it won't invert
-  transform SetInverseTolerance 1.0
+  transform SetInverseTolerance 2.0
 # you must invert the transform before passing it to vtkImageReslice
   transform Inverse
 
@@ -123,10 +123,10 @@ SetAngle -90
 vtkWindowToImageFilter windowToimage
   windowToimage SetInput [viewer GetImageWindow]
 
-vtkPNMWriter pnmWriter
-  pnmWriter SetInput [windowToimage GetOutput]
-  pnmWriter SetFileName "TestGridWarpNearest.tcl.ppm"
-#  pnmWriter Write
+vtkTIFFWriter tifWriter
+  tifWriter SetInput [windowToimage GetOutput]
+  tifWriter SetFileName "TestGridWarpNearest.tcl.tif"
+#  tifWriter Write
 
 source ../../imaging/examplesTcl/WindowLevelInterface.tcl
 
