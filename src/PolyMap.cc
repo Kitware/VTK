@@ -1,7 +1,7 @@
 //
 // Methods for polygon mapper
 //
-#include "PolyMap.h"
+#include "PolyMap.hh"
 
 vlPolyMapper::vlPolyMapper()
 {

@@ -4,8 +4,8 @@
 #ifndef __vlPolySource_h
 #define __vlPolySource_h
 
-#include "Source.h"
-#include "PolyData.h"
+#include "Source.hh"
+#include "PolyData.hh"
 
 class vlPolySource : public vlSource, public vlPolyData 
 {

@@ -1,7 +1,7 @@
 //
 // PointData methods
 //
-#include "PtData.h"
+#include "PtData.hh"
 
 vlPointData::vlPointData (const vlPointData& pd)
 {

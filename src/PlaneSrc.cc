@@ -1,7 +1,7 @@
 //
 // Methods for plane generator
 //
-#include "PlaneSrc.h"
+#include "PlaneSrc.hh"
 
 void vlPlaneSource::SetResolution(const int xR, const int yR)
 {

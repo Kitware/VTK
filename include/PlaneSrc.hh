@@ -4,7 +4,7 @@
 #ifndef __vlPlaneSource_h
 #define __vlPlaneSource_h
 
-#include "PolySrc.h"
+#include "PolySrc.hh"
 
 class vlPlaneSource : public vlPolySource 
 {

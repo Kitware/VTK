@@ -4,9 +4,9 @@
 #ifndef __vlPolyMapper_h
 #define __vlPolyMapper_h
 
-#include "Mapper.h"
-#include "PolyData.h"
-#include "Renderer.h"
+#include "Mapper.hh"
+#include "PolyData.hh"
+#include "Renderer.hh"
 
 class vlPolyMapper : public vlMapper 
 {

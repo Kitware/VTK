@@ -4,7 +4,7 @@
 #ifndef __vlShrinkPolyData_h
 #define __vlShrinkPolyData_h
 
-#include "P2PF.h"
+#include "P2PF.hh"
 
 class vlShrinkPolyData : public vlPolyToPolyFilter 
 {

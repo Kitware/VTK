@@ -4,7 +4,7 @@
 #ifndef __vlSource_h
 #define __vlSource_h
 
-#include "Object.h"
+#include "Object.hh"
 
 class vlSource : virtual public vlObject 
 {

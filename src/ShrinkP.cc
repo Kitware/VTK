@@ -1,7 +1,7 @@
 //
 // Methods for shrink filter
 //
-#include "ShrinkP.h"
+#include "ShrinkP.hh"
 
 void vlShrinkPolyData::SetShrinkFactor(float sf)
 {

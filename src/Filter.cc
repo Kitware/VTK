@@ -1,7 +1,7 @@
 //
 //
 //
-#include "Filter.h"
+#include "Filter.hh"
 
 void vlFilter::SetStartMethod(void (*f)())
 {

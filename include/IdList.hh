@@ -4,7 +4,7 @@
 #ifndef vlIdList_h
 #define vlIdList_h
 
-#include "IntArray.h"
+#include "IntArray.hh"
 
 class vlIdList {
 public:

@@ -1,7 +1,7 @@
 //
 // Methods for shrink filter
 //
-#include "ShrinkF.h"
+#include "ShrinkF.hh"
 
 //
 // Shrink cells towards their centroid

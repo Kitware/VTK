@@ -4,11 +4,11 @@
 #ifndef __vlPointData_h
 #define __vlPointData_h
 
-#include "Object.h"
-#include "FScalars.h"
-#include "FVectors.h"
-#include "FNormals.h"
-#include "FTCoords.h"
+#include "Object.hh"
+#include "FScalars.hh"
+#include "FVectors.hh"
+#include "FNormals.hh"
+#include "FTCoords.hh"
 
 class vlPointData : public vlObject 
 {

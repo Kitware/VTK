@@ -1,4 +1,4 @@
-#include "PolySrc.h"
+#include "PolySrc.hh"
 
 void vlPolySource::Update()
 {

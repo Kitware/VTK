@@ -1,4 +1,4 @@
-#include "PolyF.h"
+#include "PolyF.hh"
 
 void vlPolyFilter::SetInput(vlPolyData *in)
 {

@@ -6,10 +6,10 @@
 #ifndef __vlFloatTCoords_h
 #define __vlFloatTCoords_h
 
-#include "Object.h"
-#include "FArray.h"
-#include "FTriple.h"
-#include "IdList.h"
+#include "Object.hh"
+#include "FArray.hh"
+#include "FTriple.hh"
+#include "IdList.hh"
 
 class vlFloatTCoords : public vlObject 
 {

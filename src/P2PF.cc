@@ -1,4 +1,4 @@
-#include "P2PF.h"
+#include "P2PF.hh"
 
 void vlPolyToPolyFilter::Update()
 {

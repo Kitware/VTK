@@ -4,8 +4,8 @@
 #ifndef __vlShrinkFilter_h
 #define __vlShrinkFilter_h
 
-#include "DataSetF.h"
-#include "PolyData.h"
+#include "DataSetF.hh"
+#include "PolyData.hh"
 
 class vlShrinkFilter : public vlDataSetFilter, public vlPolyData 
 {

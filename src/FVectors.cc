@@ -4,7 +4,7 @@
 //  Assumptions:
 //
 //
-#include "FVectors.h"
+#include "FVectors.hh"
 
 vlFloatVectors::vlFloatVectors ()
 {

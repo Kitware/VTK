@@ -4,8 +4,8 @@
 #ifndef __vlPolyToPolyFilter_h
 #define __vlPolyToPolyFilter_h
 
-#include "PolyF.h"
-#include "PolyData.h"
+#include "PolyF.hh"
+#include "PolyData.hh"
 
 class vlPolyToPolyFilter : public vlPolyFilter, public vlPolyData 
 {

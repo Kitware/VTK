@@ -4,8 +4,8 @@
 #ifndef __vlFilter_h
 #define __vlFilter_h
 
-#include "Object.h"
-#include "DataSet.h"
+#include "Object.hh"
+#include "DataSet.hh"
 
 class vlFilter : virtual public vlObject 
 {

@@ -1,5 +1,5 @@
 #include <iostream.h>
-#include "LinkList.h"
+#include "LinkList.hh"
 
 vlLinkList::vlLinkList(const int sz, const int ext)
 {

@@ -5,11 +5,11 @@
 #ifndef __vlPolyData_h
 #define __vlPolyData_h
 
-#include "DataSet.h"
-#include "FPoints.h"
-#include "CellArr.h"
-#include "CellList.h"
-#include "LinkList.h"
+#include "DataSet.hh"
+#include "FPoints.hh"
+#include "CellArr.hh"
+#include "CellList.hh"
+#include "LinkList.hh"
 
 #define MAX_VERTS MAX_CELL_SIZE
 

@@ -1,7 +1,7 @@
 //
 // DataSet methods
 //
-#include "PolyData.h"
+#include "PolyData.hh"
 
 // Initialize static member
 vlCellArray vlPolyData::Dummy;
