@@ -286,18 +286,54 @@ void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-// This causes the actor to be rendered. It, in turn, will render the actor's
-// property and then mapper.  
-void vtkFollower::Render(vtkRenderer *ren)
+void vtkFollower::RenderOpaqueGeometry(vtkViewport *vp)
 {
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  
-  /* render the property */
+  if ( ! this->Mapper )
+    {
+    return;
+    }
+
   if (!this->Property)
     {
     // force creation of a property
     this->GetProperty();
     }
+
+  if (this->GetIsOpaque())
+    {
+    vtkRenderer *ren = (vtkRenderer *)vp;
+    this->Render(ren);
+    }
+}
+
+void vtkFollower::RenderTranslucentGeometry(vtkViewport *vp)
+{
+  if ( ! this->Mapper )
+    {
+    return;
+    }
+
+  if (!this->Property)
+    {
+    // force creation of a property
+    this->GetProperty();
+    }
+
+  if (!this->GetIsOpaque())
+    {
+    vtkRenderer *ren = (vtkRenderer *)vp;
+    this->Render(ren);
+    }
+}
+
+// This causes the actor to be rendered. It, in turn, will render the actor's
+// property and then mapper.  
+void vtkFollower::Render(vtkRenderer *ren)
+{
+  this->Property->Render(this, ren);
+  
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  
   this->Device->SetProperty (this->Property);
   this->Property->Render(this, ren);
   if (this->BackfaceProperty)
@@ -320,3 +356,6 @@ void vtkFollower::Render(vtkRenderer *ren)
 
   matrix->Delete();
 }
+
+
+

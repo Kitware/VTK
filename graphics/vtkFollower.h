@@ -71,10 +71,13 @@ class VTK_EXPORT vtkFollower : public vtkActor
   static vtkFollower *New() {return new vtkFollower;};
 
   // Description:
-  // This causes the actor to be rendered. It, in turn, will render the actor's
-  // property and then mapper.  
+  // This causes the actor to be rendered. It in turn will render the actor's
+  // property, texture map and then mapper. If a property hasn't been
+  // assigned, then the actor will create one automatically. 
+  virtual void RenderOpaqueGeometry(vtkViewport *viewport);
+  virtual void RenderTranslucentGeometry(vtkViewport *viewport);
   virtual void Render(vtkRenderer *ren);
-
+  
   // Description:
   // Copy the follower's composite 4x4 matrix into the matrix provided.
   virtual void GetMatrix(vtkMatrix4x4 *m);
