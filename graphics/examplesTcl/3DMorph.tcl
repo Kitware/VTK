@@ -41,15 +41,15 @@ vtkImplicitModeller blobbyK
   blobbyK SetModelBounds -0.5 1.5 -0.5 1.5 -0.5 0.5
 
 # Interpolate the data
-vtkInterpolateDataSetAttributes interp
-  interp AddInput [blobbyV GetOutput]
-  interp AddInput [blobbyT GetOutput]
-  interp AddInput [blobbyK GetOutput]
-  interp SetT 0.0
+vtkInterpolateDataSetAttributes interpolate
+  interpolate AddInput [blobbyV GetOutput]
+  interpolate AddInput [blobbyT GetOutput]
+  interpolate AddInput [blobbyK GetOutput]
+  interpolate SetT 0.0
 
 # extract an iso surface
 vtkContourFilter blobbyIso
-  blobbyIso SetInput [interp GetOutput]
+  blobbyIso SetInput [interpolate GetOutput]
   blobbyIso SetValue 0 0.1
 
 # map to rendering primitives
@@ -89,7 +89,7 @@ set subIters 20.0
 for {set i 0} {$i < 2} {incr i} {
    for {set j 1} {$j <= $subIters} {incr j} {
       set t [expr $i + $j/$subIters]
-      interp SetT $t
+      interpolate SetT $t
       renWin Render
    }
 }
