@@ -114,7 +114,7 @@ install: all vtkpython.pth
 	${INSTALL} -m 755 vtkTkImageWindowWidget                $(LIB_INSTALL_DIR)/
 	${INSTALL} -m 755 vtkTkRenderWidget                     $(LIB_INSTALL_DIR)/
 	ln $(LIB_INSTALL_DIR)/vtkTkImageViewerWidget $(LIB_INSTALL_DIR)/vtk/python/vtkTkImageViewerWidget
-	ln $(LIB_INSTALL_DIR)/vtkTkImageWindowWidget $(LIB_INSTALL_DIR)/vtk/python/vtkTkImageWindowWidgit
+	ln $(LIB_INSTALL_DIR)/vtkTkImageWindowWidget $(LIB_INSTALL_DIR)/vtk/python/vtkTkImageWindowWidget
 	ln $(LIB_INSTALL_DIR)/vtkTkRenderWidget $(LIB_INSTALL_DIR)/vtk/python/vtkTkRenderWidget
 #------------------------------------------------------------------------------
 clean: 
