@@ -46,7 +46,7 @@ vtkImageXViewer::vtkImageXViewer()
 {
   this->DisplayId = (Display *)NULL;
   this->WindowId = (Window)(NULL);
-  this->NumberOfColors = 200;
+  this->NumberOfColors = 150;
 }
 
 
@@ -195,7 +195,6 @@ static void vtkImageXViewerRenderColor(vtkImageXViewer *self, vtkImageRegion *re
     bluePtr1 += inInc1;
     }
 }
-
 
 //----------------------------------------------------------------------------
 // Maybe we should cache the dataOut! (MTime)
@@ -681,11 +680,14 @@ void vtkImageXViewer::SetDisplayId(void *arg)
 {
   this->SetDisplayId((Display *)arg);
 }
-
-
-
-
-
+Display *vtkImageXViewer::GetDisplayId()
+{
+  return(this->DisplayId);
+}
+GC vtkImageXViewer::GetGC()
+{
+  return(this->Gc);
+}
 //----------------------------------------------------------------------------
 Colormap vtkImageXViewer::MakeColorMap(Visual *visual) 
 {

@@ -63,7 +63,10 @@ public:
   ~vtkImageXViewer();
   char *GetClassName() {return "vtkImageXViewer";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
+  // output to the viewer.
+  vtkImageXViewer *GetOutput(){return this;};
+
   XColor *GetColors();
   void Render(void);
   
@@ -93,7 +96,9 @@ public:
   void SetDisplayId(void *);
   void SetWindowId(Window);
   void SetWindowId(void *);
-  
+  Display *GetDisplayId();
+  GC  GetGC();
+
 protected:
   // X stuff
   Window	       WindowId;
@@ -115,7 +120,7 @@ protected:
   void GetDefaultVisualInfo(XVisualInfo *info);
   Colormap MakeColorMap(Visual *visual);
   void AllocateDirectColorMap();
-  Display *GetDisplayId();
+  // Display *GetDisplayId();
   Visual *GetVisualId();
 };
 
