@@ -28,13 +28,15 @@
 # define VTK_STDCALL
 #endif //_WIN32
 
-vtkCxxRevisionMacro(vtkGLUTesselatorTriangleFilter, "1.6");
+vtkCxxRevisionMacro(vtkGLUTesselatorTriangleFilter, "1.7");
 vtkStandardNewMacro(vtkGLUTesselatorTriangleFilter);
 
 // GLU support methods
 static void VTK_STDCALL GluError(GLenum err) 
 {
+  // what the heck is this ?????
   const GLubyte* pByte = gluErrorString(err);
+  (void)pByte;
 }
 static void VTK_STDCALL GlBegin(GLenum mode, void * polygon_data);
 static void VTK_STDCALL GlEnd(void * polygon_data);
@@ -73,7 +75,9 @@ void vtkGLUTesselatorTriangleFilter::Execute()
 {
   vtkPolyData *input = this->GetInput();
   vtkIdType numCells=input->GetNumberOfCells(), cellNum, newId;
-  int dim, i, j, pts[3], numPts, numSimplices, type;
+  int dim, i, j;
+  vtkIdType pts[3];
+  int numPts, numSimplices, type;
   vtkIdList *ptIds=vtkIdList::New();
   vtkPoints *spts=vtkPoints::New();
   vtkPolyData *output=this->GetOutput();
@@ -268,6 +272,8 @@ void VTK_STDCALL GlVertex3dv(void * vertex_data , void * polygon_data)
 // Combine verticies
 static void VTK_STDCALL GLCombineData(GLdouble coords[3], void *vertex_data[4], GLfloat weight[4], void **outData, void * polygon_data)
 {
+  (void)weight;
+  (void)vertex_data;
   vtkGLUTesselatorTriangleFilter *pThis = 
     (vtkGLUTesselatorTriangleFilter*)polygon_data;
   *outData = (void*)pThis->GetOutput()->GetPoints()->InsertNextPoint(coords);
