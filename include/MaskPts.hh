@@ -28,28 +28,34 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlMaskPoints : public vlDataSetToPolyFilter
 {
 public:
-  vlMaskPoints():OnRatio(2),Offset(0) {};
+  vlMaskPoints():OnRatio(2),Offset(0),RandomMode(0) {};
   ~vlMaskPoints() {};
   char *GetClassName() {return "vlMaskPoints";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   // Description:
-  // Turn on every nth point
+  // Turn on every nth point.
   vlSetClampMacro(OnRatio,int,1,LARGE_INTEGER);
   vlGetMacro(OnRatio,int);
 
   // Description:
-  // Start with this point
+  // Start with this point.
   vlSetClampMacro(Offset,int,0,LARGE_INTEGER);
   vlGetMacro(Offset,int);
+
+  // Description:
+  // Special flag causes randomization of point selection. If this mode is on,
+  // statitically every nth point (i.e., OnRatio) will be displayed.
+  vlSetMacro(RandomMode,int);
+  vlGetMacro(RandomMode,int);
+  vlBooleanMacro(RandomMode,int);
 
 protected:
   void Execute();
 
-  // every OnRatio point is on; all others are off.
-  int OnRatio;
-  // offset (or starting point id)
-  int Offset;
+  int OnRatio;     // every OnRatio point is on; all others are off.
+  int Offset;      // offset (or starting point id)
+  int RandomMode;  // turn on/off randomization
 };
 
 #endif
