@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtkWarpTo.h"
+
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpTo, "1.36");
+vtkCxxRevisionMacro(vtkWarpTo, "1.37");
 vtkStandardNewMacro(vtkWarpTo);
 
 vtkWarpTo::vtkWarpTo() 

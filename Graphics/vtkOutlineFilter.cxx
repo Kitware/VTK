@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtkOutlineFilter.h"
-#include "vtkOutlineSource.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOutlineFilter, "1.29");
+#include "vtkDataSet.h"
+#include "vtkObjectFactory.h"
+#include "vtkOutlineSource.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkOutlineFilter, "1.30");
 vtkStandardNewMacro(vtkOutlineFilter);
 
 vtkOutlineFilter::vtkOutlineFilter ()

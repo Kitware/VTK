@@ -49,6 +49,8 @@
 
 #include "vtkDataSetToPolyDataFilter.h"
 
+class vtkPointLocator;
+
 class VTK_GRAPHICS_EXPORT vtkGeometryFilter : public vtkDataSetToPolyDataFilter
 {
 public:

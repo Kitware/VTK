@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkThresholdTextureCoords.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkThresholdTextureCoords, "1.34");
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkThresholdTextureCoords, "1.35");
 vtkStandardNewMacro(vtkThresholdTextureCoords);
 
 // Construct with lower threshold=0, upper threshold=1, threshold 

@@ -15,12 +15,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkVectorNorm.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkVectorNorm, "1.38");
+#include "vtkCellData.h"
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkVectorNorm, "1.39");
 vtkStandardNewMacro(vtkVectorNorm);
 
 // Construct with normalize flag off.

@@ -16,10 +16,15 @@
 
 =========================================================================*/
 #include "vtkIdFilter.h"
+
+#include "vtkCellData.h"
+#include "vtkDataSet.h"
+#include "vtkDataSet.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkIdFilter, "1.17");
+vtkCxxRevisionMacro(vtkIdFilter, "1.18");
 vtkStandardNewMacro(vtkIdFilter);
 
 // Construct object with PointIds and CellIds on; and ids being generated

@@ -16,12 +16,15 @@
 
 =========================================================================*/
 #include "vtkVoxelContoursToSurfaceFilter.h"
-#include "vtkStructuredPoints.h"
-#include "vtkContourFilter.h"
-#include "vtkAppendPolyData.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVoxelContoursToSurfaceFilter, "1.19");
+#include "vtkAppendPolyData.h"
+#include "vtkCellArray.h"
+#include "vtkContourFilter.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkStructuredPoints.h"
+
+vtkCxxRevisionMacro(vtkVoxelContoursToSurfaceFilter, "1.20");
 vtkStandardNewMacro(vtkVoxelContoursToSurfaceFilter);
 
 vtkVoxelContoursToSurfaceFilter::vtkVoxelContoursToSurfaceFilter()

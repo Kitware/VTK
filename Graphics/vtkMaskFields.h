@@ -32,6 +32,8 @@
 
 #include "vtkDataSetToDataSetFilter.h"
 
+#include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
+
 class vtkDataSet;
 
 class VTK_GRAPHICS_EXPORT vtkMaskFields : public vtkDataSetToDataSetFilter

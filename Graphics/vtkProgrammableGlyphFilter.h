@@ -65,6 +65,8 @@
 
 #include "vtkDataSetToPolyDataFilter.h"
 
+class vtkPointData;
+
 class VTK_GRAPHICS_EXPORT vtkProgrammableGlyphFilter : public vtkDataSetToPolyDataFilter
 {
 public:

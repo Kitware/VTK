@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtkEdgePoints.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkEdgePoints, "1.46");
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkEdgePoints, "1.47");
 vtkStandardNewMacro(vtkEdgePoints);
 
 // Construct object with contour value of 0.0.

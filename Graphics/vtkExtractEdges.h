@@ -28,6 +28,8 @@
 
 #include "vtkDataSetToPolyDataFilter.h"
 
+class vtkPointLocator;
+
 class VTK_GRAPHICS_EXPORT vtkExtractEdges : public vtkDataSetToPolyDataFilter
 {
 public:

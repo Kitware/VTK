@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtkWarpLens.h"
+
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpLens, "1.23");
+vtkCxxRevisionMacro(vtkWarpLens, "1.24");
 vtkStandardNewMacro(vtkWarpLens);
 
 //

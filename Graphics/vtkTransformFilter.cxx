@@ -16,11 +16,15 @@
 
 =========================================================================*/
 #include "vtkTransformFilter.h"
+
+#include "vtkCellData.h"
+#include "vtkFloatArray.h"
 #include "vtkLinearTransform.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkTransformFilter, "1.39");
+vtkCxxRevisionMacro(vtkTransformFilter, "1.40");
 vtkStandardNewMacro(vtkTransformFilter);
 
 vtkTransformFilter::vtkTransformFilter()

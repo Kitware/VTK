@@ -16,9 +16,12 @@
 
 =========================================================================*/
 #include "vtkFieldDataToAttributeDataFilter.h"
+
+#include "vtkDataArray.h"
+#include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkFieldDataToAttributeDataFilter, "1.34");
+vtkCxxRevisionMacro(vtkFieldDataToAttributeDataFilter, "1.35");
 vtkStandardNewMacro(vtkFieldDataToAttributeDataFilter);
 
 // Instantiate object with no input and no defined output.

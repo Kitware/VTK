@@ -69,8 +69,11 @@
 #include "vtkDataSetToPolyDataFilter.h"
 #include "vtkInitialValueProblemSolver.h"
 
-class vtkInterpolatedVelocityField;
+class vtkDataArray;
+class vtkFloatArray;
+class vtkGenericCell;
 class vtkIdList;
+class vtkInterpolatedVelocityField;
 
 class VTK_GRAPHICS_EXPORT vtkStreamTracer : public vtkDataSetToPolyDataFilter
 {

@@ -16,13 +16,16 @@
 
 =========================================================================*/
 #include "vtkGlyph3D.h"
-#include "vtkTransform.h"
+
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.103");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.104");
 vtkStandardNewMacro(vtkGlyph3D);
 
 // Construct object with scaling on, scaling mode is by scalar value,

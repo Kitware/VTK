@@ -16,11 +16,14 @@
 
 =========================================================================*/
 #include "vtkVectorDot.h"
+
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkVectorDot, "1.33");
+vtkCxxRevisionMacro(vtkVectorDot, "1.34");
 vtkStandardNewMacro(vtkVectorDot);
 
 // Construct object with scalar range is (-1,1).

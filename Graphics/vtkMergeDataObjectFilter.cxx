@@ -16,9 +16,12 @@
 
 =========================================================================*/
 #include "vtkMergeDataObjectFilter.h"
+
+#include "vtkDataSet.h"
+#include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMergeDataObjectFilter, "1.16");
+vtkCxxRevisionMacro(vtkMergeDataObjectFilter, "1.17");
 vtkStandardNewMacro(vtkMergeDataObjectFilter);
 
 //----------------------------------------------------------------------------

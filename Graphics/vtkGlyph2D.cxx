@@ -16,13 +16,17 @@
 
 =========================================================================*/
 #include "vtkGlyph2D.h"
-#include "vtkTransform.h"
+
+#include "vtkCell.h"
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph2D, "1.15");
+vtkCxxRevisionMacro(vtkGlyph2D, "1.16");
 vtkStandardNewMacro(vtkGlyph2D);
 
 void vtkGlyph2D::Execute()

@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkMergeFields.h"
-#include "vtkObjectFactory.h"
+
+#include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMergeFields, "1.12");
+vtkCxxRevisionMacro(vtkMergeFields, "1.13");
 vtkStandardNewMacro(vtkMergeFields);
 
 char vtkMergeFields::FieldLocationNames[3][12] 

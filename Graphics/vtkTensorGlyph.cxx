@@ -16,12 +16,18 @@
 
 =========================================================================*/
 #include "vtkTensorGlyph.h"
-#include "vtkTransform.h"
+
+#include "vtkCell.h"
+#include "vtkCellArray.h"
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTensorGlyph, "1.48");
+vtkCxxRevisionMacro(vtkTensorGlyph, "1.49");
 vtkStandardNewMacro(vtkTensorGlyph);
 
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 

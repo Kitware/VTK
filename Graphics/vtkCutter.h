@@ -47,6 +47,8 @@
 #define VTK_SORT_BY_VALUE 0
 #define VTK_SORT_BY_CELL 1
 
+class vtkPointLocator;
+
 class VTK_GRAPHICS_EXPORT vtkCutter : public vtkDataSetToPolyDataFilter
 {
 public:

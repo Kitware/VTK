@@ -56,6 +56,8 @@
 #include "vtkContourValues.h"
 #include "vtkScalarTree.h"
 
+class vtkPointLocator;
+
 class VTK_GRAPHICS_EXPORT vtkContourFilter : public vtkDataSetToPolyDataFilter
 {
 public:

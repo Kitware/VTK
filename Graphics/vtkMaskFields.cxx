@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkMaskFields.h"
-#include "vtkObjectFactory.h"
-#include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkMaskFields, "1.3");
+#include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkMaskFields, "1.4");
 vtkStandardNewMacro(vtkMaskFields);
 
 char vtkMaskFields::FieldLocationNames[3][12] 

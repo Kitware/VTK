@@ -16,16 +16,19 @@
 
 =========================================================================*/
 #include "vtkStreamTracer.h"
+
+#include "vtkFloatArray.h"
 #include "vtkInterpolatedVelocityField.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointSet.h"
+#include "vtkPolyData.h"
+#include "vtkPolyLine.h"
 #include "vtkRungeKutta2.h"
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
-#include "vtkMath.h"
-#include "vtkFloatArray.h"
-#include "vtkObjectFactory.h"
-#include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.9");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.10");
 vtkStandardNewMacro(vtkStreamTracer);
 
 const float vtkStreamTracer::EPSILON = 1.0E-12;

@@ -47,6 +47,7 @@
 
 #include "vtkDataSetToDataSetFilter.h"
 
+class vtkDataArray;
 class vtkFieldData;
 
 class VTK_GRAPHICS_EXPORT vtkMergeFields : public vtkDataSetToDataSetFilter

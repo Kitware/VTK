@@ -16,9 +16,14 @@
 
 =========================================================================*/
 #include "vtkWarpScalar.h"
+
+#include "vtkDataArray.h"
+#include "vtkPoints.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWarpScalar, "1.41");
+vtkCxxRevisionMacro(vtkWarpScalar, "1.42");
 vtkStandardNewMacro(vtkWarpScalar);
 
 vtkWarpScalar::vtkWarpScalar()

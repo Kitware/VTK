@@ -41,6 +41,8 @@
 
 #include "vtkPointSetToPointSetFilter.h"
 
+class vtkDataArray;
+
 class VTK_GRAPHICS_EXPORT vtkWarpScalar : public vtkPointSetToPointSetFilter
 {
 public:

@@ -56,6 +56,8 @@
 
 #include "vtkDataSetToDataSetFilter.h"
 
+#include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
+
 class vtkFieldData;
 
 class VTK_GRAPHICS_EXPORT vtkSplitField : public vtkDataSetToDataSetFilter

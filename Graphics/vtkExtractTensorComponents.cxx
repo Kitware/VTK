@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkExtractTensorComponents.h"
+
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkExtractTensorComponents, "1.22");
+vtkCxxRevisionMacro(vtkExtractTensorComponents, "1.23");
 vtkStandardNewMacro(vtkExtractTensorComponents);
 
 // Construct object to extract nothing and to not pass tensor data

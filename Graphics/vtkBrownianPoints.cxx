@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkBrownianPoints.h"
+
+#include "vtkDataSet.h"
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBrownianPoints, "1.34");
+vtkCxxRevisionMacro(vtkBrownianPoints, "1.35");
 vtkStandardNewMacro(vtkBrownianPoints);
 
 vtkBrownianPoints::vtkBrownianPoints()

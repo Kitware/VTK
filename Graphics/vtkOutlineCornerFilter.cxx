@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtkOutlineCornerFilter.h"
-#include "vtkOutlineCornerSource.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOutlineCornerFilter, "1.6");
+#include "vtkDataSet.h"
+#include "vtkObjectFactory.h"
+#include "vtkOutlineCornerSource.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkOutlineCornerFilter, "1.7");
 vtkStandardNewMacro(vtkOutlineCornerFilter);
 
 vtkOutlineCornerFilter::vtkOutlineCornerFilter ()

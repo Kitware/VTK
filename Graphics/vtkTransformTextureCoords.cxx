@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkTransformTextureCoords.h"
-#include "vtkTransform.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkTransformTextureCoords, "1.29");
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkTransform.h"
+
+vtkCxxRevisionMacro(vtkTransformTextureCoords, "1.30");
 vtkStandardNewMacro(vtkTransformTextureCoords);
 
 // Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale

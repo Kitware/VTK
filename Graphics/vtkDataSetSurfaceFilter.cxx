@@ -16,21 +16,23 @@
 
 =========================================================================*/
 #include "vtkDataSetSurfaceFilter.h"
+
+#include "vtkHexahedron.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkStructuredGrid.h"
-#include "vtkStructuredPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPyramid.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredGridGeometryFilter.h"
+#include "vtkStructuredPoints.h"
 #include "vtkTetra.h"
-#include "vtkHexahedron.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
-#include "vtkPyramid.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkStructuredGridGeometryFilter.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.21");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.22");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------

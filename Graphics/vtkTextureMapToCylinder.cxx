@@ -16,13 +16,15 @@
 
 =========================================================================*/
 #include "vtkTextureMapToCylinder.h"
-#include "vtkMath.h"
+
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
 #include "vtkLine.h"
+#include "vtkMath.h"
 #include "vtkOBBTree.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkTextureMapToCylinder, "1.26");
+vtkCxxRevisionMacro(vtkTextureMapToCylinder, "1.27");
 vtkStandardNewMacro(vtkTextureMapToCylinder);
 
 // Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 

@@ -64,6 +64,10 @@
 #define VTK_CELL_DATA 0
 #define VTK_POINT_DATA 1
 
+class vtkDataArray;
+class vtkDataSetAttributes;
+class vtkFieldData;
+
 class VTK_GRAPHICS_EXPORT vtkFieldDataToAttributeDataFilter : public vtkDataSetToDataSetFilter
 {
 public:

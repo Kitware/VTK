@@ -16,18 +16,20 @@
 
 =========================================================================*/
 #include "vtkGeometryFilter.h"
+
+#include "vtkHexahedron.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
-#include "vtkUnstructuredGrid.h"
+#include "vtkPolyData.h"
+#include "vtkPyramid.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTetra.h"
-#include "vtkHexahedron.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
-#include "vtkPyramid.h"
-#include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.89");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.90");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.

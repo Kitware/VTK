@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkAssignAttribute.h"
-#include "vtkObjectFactory.h"
-#include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkAssignAttribute, "1.6");
+#include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkAssignAttribute, "1.7");
 vtkStandardNewMacro(vtkAssignAttribute);
 
 char vtkAssignAttribute::AttributeLocationNames[2][12] 

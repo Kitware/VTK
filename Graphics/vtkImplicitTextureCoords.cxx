@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkImplicitTextureCoords.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkImplicitTextureCoords, "1.40");
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkImplicitTextureCoords, "1.41");
 vtkStandardNewMacro(vtkImplicitTextureCoords);
 
 // Create object with texture dimension=2 and no r-s-t implicit functions

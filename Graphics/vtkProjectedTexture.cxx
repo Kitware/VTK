@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkProjectedTexture.h"
-#include "vtkMath.h"
+
+#include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkProjectedTexture, "1.22");
+vtkCxxRevisionMacro(vtkProjectedTexture, "1.23");
 vtkStandardNewMacro(vtkProjectedTexture);
 
 // Description:

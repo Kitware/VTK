@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkCellDataToPointData.h"
+
+#include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCellDataToPointData, "1.22");
+vtkCxxRevisionMacro(vtkCellDataToPointData, "1.23");
 vtkStandardNewMacro(vtkCellDataToPointData);
 
 // Instantiate object so that cell data is not passed to output.

@@ -16,15 +16,19 @@
 
 =========================================================================*/
 #include "vtkCutter.h"
-#include "vtkMergePoints.h"
-#include "vtkImplicitFunction.h"
+
 #include "vtkContourValues.h"
-#include "vtkObjectFactory.h"
+#include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkGenericCell.h"
+#include "vtkImplicitFunction.h"
+#include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.66");
+vtkCxxRevisionMacro(vtkCutter, "1.67");
 vtkStandardNewMacro(vtkCutter);
 
 // Construct with user-specified implicit function; initial value of 0.0; and
