@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.7");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.8");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -438,7 +438,8 @@ void vtkMetaImageReader::ExecuteInformation()
         {
         if ( value[0] == '/' || 
           ( value[1] == ':' && ( value[2] == '/' || value[2] == '\\' ) ) ||
-          ( value[0] == '\\' && value[1] == '\\' ) )
+          ( value[0] == '\\' && value[1] == '\\' ) ||
+          path.size() == 0)
           {
           datafile = "";
           datafile.append(value, valuelen);
