@@ -42,7 +42,8 @@ public:
   // Description:
   // This method is for initialiazing sockets.
   // One of these is REQUIRED for Windows.
-  virtual void Initialize(int* argc, char*** argv, int intitalizedExternally)
+  virtual void Initialize(int* argc, char*** argv, 
+                          int /*intitalizedExternally*/)
     { this->Initialize(argc,argv); }
   virtual void Initialize(int* argc, char*** argv); 
   virtual void Initialize()
