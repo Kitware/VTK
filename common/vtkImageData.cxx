@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include <limits.h>
 #include "vtkImageData.h"
 #include "vtkScalars.h"
 
@@ -564,11 +563,11 @@ double vtkImageData::GetScalarTypeMin()
   switch (this->GetScalarType())
     {
     case VTK_FLOAT:
-      return (double)(FLT_MIN);
+      return (double)(VTK_FLOAT_MIN);
     case VTK_INT:
-      return (double)(INT_MIN);
+      return (double)(VTK_INT_MIN);
     case VTK_SHORT:
-      return (double)(SHRT_MIN);
+      return (double)(VTK_SHORT_MIN);
     case VTK_UNSIGNED_SHORT:
       return (double)(0.0);
     case VTK_UNSIGNED_CHAR:
@@ -586,15 +585,15 @@ double vtkImageData::GetScalarTypeMax()
   switch (this->GetScalarType())
     {
     case VTK_FLOAT:
-      return (double)(FLT_MAX);
+      return (double)(VTK_FLOAT_MAX);
     case VTK_INT:
-      return (double)(INT_MAX);
+      return (double)(VTK_INT_MAX);
     case VTK_SHORT:
-      return (double)(SHRT_MAX);
+      return (double)(VTK_SHORT_MAX);
     case VTK_UNSIGNED_SHORT:
-      return (double)(USHRT_MAX);
+      return (double)(VTK_UNSIGNED_SHORT_MAX);
     case VTK_UNSIGNED_CHAR:
-      return (double)(UCHAR_MAX);
+      return (double)(VTK_UNSIGNED_CHAR_MAX);
     default:
       vtkErrorMacro("Cannot handle scalar type " << this->ScalarType);
       return 0.0;
