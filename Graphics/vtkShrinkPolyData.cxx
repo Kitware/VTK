@@ -16,11 +16,13 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkShrinkPolyData, "1.66");
+vtkCxxRevisionMacro(vtkShrinkPolyData, "1.67");
 vtkStandardNewMacro(vtkShrinkPolyData);
 
 vtkShrinkPolyData::vtkShrinkPolyData(double sf)
@@ -29,9 +31,10 @@ vtkShrinkPolyData::vtkShrinkPolyData(double sf)
   this->ShrinkFactor = sf;
 }
 
-
 template <class T>
-void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts, double shrinkFactor)
+void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts,
+                              double shrinkFactor,
+                              vtkInformation *inInfo, vtkInformation *outInfo)
 {
   int j, k;
   T center[3];
@@ -45,8 +48,10 @@ void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts, double shrinkFa
   vtkIdType newIds[3];
   vtkPoints *newPoints;
   T *p1, *p2, *p3;
-  vtkPolyData *input = self->GetInput();
-  vtkPolyData *output= self->GetOutput();
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output= vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointData *pointData = output->GetPointData(); 
 
   pd = input->GetPointData();
@@ -266,28 +271,41 @@ void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts, double shrinkFa
   output->GetCellData()->PassData(input->GetCellData());
 }
 
-void vtkShrinkPolyData::Execute()
+int vtkShrinkPolyData::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   // Initialize
   vtkDebugMacro(<<"Shrinking polygonal data");
 
-  if (this->GetInput() == NULL || this->GetInput()->GetPoints() == NULL)
+  if (input == NULL || input->GetPoints() == NULL)
     {
-    return;
+    return 0;
     }
   
   // get the input pointer for templating
-  void *inPtr = this->GetInput()->GetPoints()->GetVoidPointer(0);
+  void *inPtr = input->GetPoints()->GetVoidPointer(0);
 
   // call templated function
-  switch (this->GetInput()->GetPoints()->GetDataType())
+  switch (input->GetPoints()->GetDataType())
     {
-    vtkTemplateMacro3(vtkShrinkPolyDataExecute, this, 
-                      (VTK_TT *)(inPtr), this->ShrinkFactor);
+    vtkTemplateMacro5(vtkShrinkPolyDataExecute, this, 
+                      (VTK_TT *)(inPtr), this->ShrinkFactor,
+                      inInfo, outInfo);
     default:
       break;
     }
 
+  return 1;
 }
 
 void vtkShrinkPolyData::PrintSelf(ostream& os, vtkIndent indent)

@@ -36,13 +36,13 @@
 #ifndef __vtkShrinkPolyData_h
 #define __vtkShrinkPolyData_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkShrinkPolyData : public vtkPolyDataToPolyDataFilter 
+class VTK_GRAPHICS_EXPORT vtkShrinkPolyData : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkShrinkPolyData *New();
-  vtkTypeRevisionMacro(vtkShrinkPolyData,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkShrinkPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -57,7 +57,7 @@ protected:
   vtkShrinkPolyData(double sf=0.5);
   ~vtkShrinkPolyData() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double ShrinkFactor;
 private:
   vtkShrinkPolyData(const vtkShrinkPolyData&);  // Not implemented.
