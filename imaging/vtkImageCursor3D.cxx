@@ -149,10 +149,14 @@ static void vtkImageCursor3DExecute(vtkImageCursor3D *self,
 
 //----------------------------------------------------------------------------
 // Split up into finished and border datas.  Fill the border datas.
-void vtkImageCursor3D::Execute(vtkImageData *vtkNotUsed(inData), 
-			       vtkImageData *outData)
+void vtkImageCursor3D::ExecuteData(vtkDataObject *out)
 {
   void *ptr = NULL;
+  
+  // let superclass allocate data
+  this->vtkImageInPlaceFilter::ExecuteData(out);
+
+  vtkImageData *outData = this->GetOutput();
   
   switch (outData->GetScalarType())
     {

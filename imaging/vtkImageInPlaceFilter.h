@@ -69,14 +69,9 @@ protected:
   vtkImageInPlaceFilter(const vtkImageInPlaceFilter&) {};
   void operator=(const vtkImageInPlaceFilter&) {};
 
-  void Execute();
-  void Execute(vtkImageData *outData) 
-    { this->vtkImageToImageFilter::Execute(outData); };
-  virtual void Execute(vtkImageData *inData, vtkImageData *outData)
-    { this->vtkImageToImageFilter::Execute(inData, outData); };
-
+  virtual void ExecuteData(vtkDataObject *out);
   void CopyData(vtkImageData *in, vtkImageData *out);
-
+  
 };
 
 #endif

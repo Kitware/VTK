@@ -62,14 +62,11 @@ vtkImageInPlaceFilter* vtkImageInPlaceFilter::New()
 
 //----------------------------------------------------------------------------
 
-void vtkImageInPlaceFilter::Execute()
+void vtkImageInPlaceFilter::ExecuteData(vtkDataObject *out)
 {
   vtkImageData *output = this->GetOutput();
   int *inExt, *outExt;
-
-  output->SetExtent(output->GetUpdateExtent());
-  output->AllocateScalars();
-
+  
   inExt = this->GetInput()->GetUpdateExtent();
   outExt = this->GetOutput()->GetUpdateExtent();
 
@@ -83,13 +80,14 @@ void vtkImageInPlaceFilter::Execute()
     {
     // pass the data
     output->GetPointData()->PassData(input->GetPointData());
+    output->SetExtent(this->GetInput()->GetExtent());
     }
   else
     {
+    output->SetExtent(output->GetUpdateExtent());
+    output->AllocateScalars();
     this->CopyData(input,output);
     }
-    
-  this->Execute(input, output);
 }
   
   

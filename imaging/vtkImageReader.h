@@ -246,8 +246,7 @@ protected:
   int DataVOI[6];
   
   void ExecuteInformation();
-  void Execute() { this->vtkImageSource::Execute(); };
-  void Execute(vtkImageData *data);
+  void ExecuteData(vtkDataObject *data);
   virtual void ComputeDataIncrements();
 };
 

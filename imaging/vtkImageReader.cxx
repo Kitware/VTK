@@ -828,8 +828,10 @@ static void vtkImageReaderUpdate1(vtkImageReader *self,
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkImageReader::Execute(vtkImageData *data)
+void vtkImageReader::ExecuteData(vtkDataObject *output)
 {
+  vtkImageData *data = this->AllocateOutputData(output);
+  
   void *ptr = NULL;
   int *ext;
   
