@@ -33,9 +33,8 @@ transforms AddItem t2
 vtkSweptSurface sweptSurfaceFilter
   sweptSurfaceFilter SetInput [imp GetOutput]
   sweptSurfaceFilter SetTransforms transforms
-  sweptSurfaceFilter SetSampleDimensions 50 50 40
-  sweptSurfaceFilter SetModelBounds -4.0  6.0  -1.0  6.0  -1.0  3.5
-  sweptSurfaceFilter SetMaximumNumberOfInterpolationSteps 20
+  sweptSurfaceFilter SetSampleDimensions 100 70 40
+  sweptSurfaceFilter SetNumberOfInterpolationSteps 20
 
 vtkContourFilter iso
   iso SetInput [sweptSurfaceFilter GetOutput]
