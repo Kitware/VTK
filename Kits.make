@@ -79,7 +79,8 @@ build_java: ${JAVA_CLASSES} ${JAVA_CODE} ${JAVA_CODE_ADD} ${JAVA_O_ADD} ${JAVA_W
 .java.class:
 	${JAVAC} -d ${JAVA_CLASS_HOME} $< 
 
-libVTK$(ME)Java$(SHLIB_SUFFIX): ${JAVA_O_ADD} ${JAVA_WRAP}
+libVTK$(ME)Java$(SHLIB_SUFFIX): ${JAVA_O_ADD} ${JAVA_WRAP} \
+	libVTK$(ME)$(SHLIB_SUFFIX)
 	rm -f libVTK$(ME)Java$(SHLIB_SUFFIX)
 	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} \
 	-o libVTK$(ME)Java$(SHLIB_SUFFIX) \
