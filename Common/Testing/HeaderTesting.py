@@ -37,6 +37,11 @@ import os
 import stat
 import string
 
+## If tested from dart, make sure to fix all the output strings
+test_from_dart = 0
+if os.environ.has_key("DART_TEST_FROM_DART"):
+    test_from_dart = 1
+
 ## For backward compatibility
 def StringEndsWith(str1, str2):
     l1 = len(str1)
@@ -69,6 +74,9 @@ class TestVTKFiles:
         pass
     def Print(self, text=""):
         rtext = text
+        if test_from_dart:
+            rtext = string.replace(rtext, "<", "&lt;")
+            rtext = string.replace(rtext, ">", "&gt;")
         print rtext
     def Error(self, error):
         self.ErrorValue = 1
@@ -141,7 +149,7 @@ class TestVTKFiles:
             self.Print( "File: %s has non-portable include(s): " % self.FileName )
             for a in nplines:
                 self.Print( a )
-            self.Error("Non-portabile includes")
+            self.Error("Non-portable includes")
         if len(unlines) > 0:
             self.Print( )
             self.Print( "File: %s has unnecessary include(s): " % self.FileName )
