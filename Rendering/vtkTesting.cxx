@@ -27,116 +27,12 @@
 #include "vtkTimerLog.h"
 #include "vtkSmartPointer.h"
 #include "vtkImageClip.h"
-
+#include "vtkTestUtilities.h"
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.20");
+vtkCxxRevisionMacro(vtkTesting, "1.21");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
-
-// Function returning either a command line argument, an environment variable
-// or a default value.  The returned string has to be deleted (with delete[])
-// by the user.
-char* vtkTestUtilitiesGetArgOrEnvOrDefault(const char* arg, 
-                                           int argc, char* argv[], 
-                                           const char* env, 
-                                           const char *def)
-{
-  int index = -1;
-
-  for (int i = 0; i < argc; i++)
-    {
-    if (strcmp(arg, argv[i]) == 0 && i < argc - 1)
-      {
-      index = i + 1;
-      }
-    }
-
-  char* value;
-
-  if (index != -1) 
-    {
-    value = new char[strlen(argv[index]) + 1];
-    strcpy(value, argv[index]);
-    }
-  else 
-    {
-    char *foundenv = getenv(env);
-    if (foundenv)
-      {
-      value = new char[strlen(foundenv) + 1];
-      strcpy(value, foundenv);
-      }
-    else
-      {
-      value = new char[strlen(def) + 1];
-      strcpy(value, def);
-      }
-    }
-  
-  return value;
-} 
-
-// Given a file name, this function returns a new string which is (in theory)
-// the full path. This path is constructed by prepending the file name with a
-// command line argument, an environment variable or a default value.  If
-// slash is true, appends a slash to the resulting string.  The returned
-// string has to be deleted (with delete[]) by the user.
-char* vtkTestUtilitiesExpandFileNameWithArgOrEnvOrDefault(const char* arg, 
-                                                          int argc, 
-                                                          char* argv[], 
-                                                          const char* env, 
-                                                          const char *def, 
-                                                          const char* fname,
-                                                          int slash)
-{
-  char* fullName;
-
-  char* value = vtkTestUtilitiesGetArgOrEnvOrDefault(arg, argc, argv, 
-                                                     env, def);
-  if (value)
-    {
-    fullName = new char[strlen(value) + strlen(fname) + 2 + (slash ? 1 : 0)];
-    fullName[0] = 0;
-    strcat(fullName, value);
-    int len = static_cast<int>(strlen(fullName));
-    fullName[len] = '/';
-    fullName[len+1] = 0;
-    strcat(fullName, fname);
-    }
-  else
-    {
-    fullName = new char[strlen(fname) + 1 + (slash ? 1 : 0)];
-    strcpy(fullName, fname);
-    }
-
-  if (slash)
-    {
-    strcat(fullName, "/");
-    }
-
-  delete[] value;
-
-  return fullName;
-}
-
-// Given a file name, this function returns a new string which is (in theory)
-// the full path. This path is constructed by prepending the file name with a
-// command line argument (-D path) or VTK_DATA_ROOT env. variable.  If slash
-// is true, appends a slash to the resulting string.  The returned string has
-// to be deleted (with delete[]) by the user.
-char* vtkTestUtilities::ExpandDataFileName(int argc, char* argv[], 
-                                           const char* fname,
-                                           int slash)
-{
-  return vtkTestUtilitiesExpandFileNameWithArgOrEnvOrDefault(
-    "-D", argc, argv, 
-    "VTK_DATA_ROOT", 
-    "../../../../VTKData",
-    fname,
-    slash);
-}
-
 
 vtkTesting::vtkTesting()
 {
@@ -184,7 +80,7 @@ const char *vtkTesting::GetDataRoot()
       }
     }
 
-  char *dr = vtkTestUtilitiesGetArgOrEnvOrDefault(
+  char *dr = vtkTestUtilities::GetArgOrEnvOrDefault(
     "-D", this->Args.size(), argv, "VTK_DATA_ROOT", 
     "../../../../VTKData");
   this->SetDataRoot(dr);
@@ -213,7 +109,7 @@ const char *vtkTesting::GetTempDirectory()
       argv[i] = strdup(this->Args[i].c_str());
       }
     }
-  char *td = vtkTestUtilitiesGetArgOrEnvOrDefault(
+  char *td = vtkTestUtilities::GetArgOrEnvOrDefault(
       "-T", this->Args.size(), argv, "VTK_TEMP_DIR", 
       "../../../Testing/Temporary");
   this->SetTempDirectory(td);
@@ -249,7 +145,7 @@ const char *vtkTesting::GetValidImageFileName()
       }
     }
   
-  char * baseline = vtkTestUtilitiesGetArgOrEnvOrDefault(
+  char * baseline = vtkTestUtilities::GetArgOrEnvOrDefault(
     "-B", this->Args.size(), argv, 
     "VTK_BASELINE_ROOT", this->GetDataRoot());
   vtkstd::string viname = baseline;

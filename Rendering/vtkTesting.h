@@ -66,22 +66,6 @@
 class vtkRenderWindow;
 class vtkImageData;
 
-//BTX
-struct VTK_RENDERING_EXPORT vtkTestUtilities
-{
-  // Description:
-  // Given a file name, this function returns a new string which
-  // is (in theory) the full path. This path is constructed by
-  // prepending the file name with a command line argument 
-  // (-D path) or VTK_DATA_ROOT env. variable.
-  // If slash is true, appends a slash to the resulting string.
-  // The returned string has to be deleted (with delete[]) by the user.
-  static char* ExpandDataFileName(int argc, char* argv[], 
-                                  const char* fname,
-                                  int slash = 0);
-};
-//ETX
-
 class VTK_RENDERING_EXPORT vtkTesting : public vtkObject
 {
 public:
