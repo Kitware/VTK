@@ -25,7 +25,7 @@
 //mark this class for future legacy-related changes
 #endif
 
-vtkCxxRevisionMacro(vtkXTextMapper, "1.33");
+vtkCxxRevisionMacro(vtkXTextMapper, "1.34");
 
 //-------------------------------------------------------------------------
 vtkXTextMapper* vtkXTextMapper::New()
@@ -49,10 +49,9 @@ vtkXTextMapper::vtkXTextMapper()
   this->ViewportSize[0] = this->ViewportSize[1] = 0;
 }
 
-int vtkXTextMapper::GetMatchingFontSize()
+int vtkXTextMapper::GetSystemFontSize(int size)
 {
   int newSize;
-  int size = this->TextProperty->GetSize();
 
   // Make sure that the font size matches an available X font size.
   // This routine assumes that some standard X fonts are installed.
@@ -189,7 +188,7 @@ void vtkXTextMapper::DetermineSize(vtkViewport *viewport, int *size)
   char tempString[100];
  
   // Set width, pixels, point size
-  sprintf(tempString, "*-%d-*", 10 * this->GetMatchingFontSize());
+  sprintf(tempString, "*-%d-*", 10 * this->GetSystemFontSize(this->TextProperty->GetFontSize()));
 
   strcat(fontname, tempString);
 

@@ -47,13 +47,13 @@ public:
   // mapper ?
   void GetSize(vtkViewport* viewport, int size[2]);
 
+  // Description:
+  // Get the available system font size matching a font size.
+  virtual int GetSystemFontSize(int size);
+
 protected:
   vtkXTextMapper();
   ~vtkXTextMapper() {};
-
-  // Description:
-  // Get the font size that matches an available X font size.
-  int GetMatchingFontSize();
 
   // Description:
   // Actually get the size of the rectangle.

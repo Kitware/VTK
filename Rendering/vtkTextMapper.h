@@ -172,6 +172,11 @@ public:
                                             int nbOfMappers, 
                                             int* maxResultingSize);
 
+  // Description:
+  // Get the available system font size matching a font size.
+  virtual int GetSystemFontSize(int size) 
+    { return size; };
+
 protected:
   vtkTextMapper();
   ~vtkTextMapper();
