@@ -34,7 +34,7 @@
 #include "vtkCell.h"
 #include "vtkCellTypes.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.17");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.18");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -667,7 +667,6 @@ double vtkMeshQuality::QuadAspectRatio( vtkCell* cell )
   double a[3],b[3],c[3],d[3],ab[3],cd[3];
   double a1,b1,c1,d1;
   double ma,mb,hm;
-  static double normal_coeff=.5;
   
   p = cell->GetPoints();
   p->GetPoint(0, p0);
@@ -703,7 +702,7 @@ double vtkMeshQuality::QuadAspectRatio( vtkCell* cell )
   vtkMath::Cross(a,b,ab);
   vtkMath::Cross(c,d,cd);
 
-  return normal_coeff * hm * (a1 + b1 + c1 + d1) / (vtkMath::Norm(ab) + vtkMath::Norm(cd));
+  return .5 * hm * (a1 + b1 + c1 + d1) / (vtkMath::Norm(ab) + vtkMath::Norm(cd));
 }
 
 double vtkMeshQuality::QuadFrobeniusNorm( vtkCell* vtkNotUsed(cell) )
@@ -871,8 +870,8 @@ double vtkMeshQuality::TetFrobeniusNorm( vtkCell* cell )
   vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
   double u[3],v[3],w[3];
-  double den;
-  static double normal_coeff=sqrt(2.);
+  double numerator,radicand;
+  static double normal_exp=1./3.;
   
   p = cell->GetPoints();
   p->GetPoint(0, p0);
@@ -892,15 +891,19 @@ double vtkMeshQuality::TetFrobeniusNorm( vtkCell* cell )
   w[1] = p3[1]-p0[1];
   w[2] = p3[2]-p0[2];
 
-  den  = u[0] * u[0] + u[1] * u[1] + u[2] * u[2];
-  den += v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
-  den += w[0] * w[0] + w[1] * w[1] + w[2] * w[2];
-  den *= 1.5;
-  den -= v[0] * u[0] + v[1] * u[1] + v[2] * u[2];
-  den -= w[0] * u[0] + w[1] * u[1] + w[2] * u[2];
-  den -= w[0] * v[0] + w[1] * v[1] + w[2] * v[2];
+  numerator  = u[0] * u[0] + u[1] * u[1] + u[2] * u[2];
+  numerator += v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+  numerator += w[0] * w[0] + w[1] * w[1] + w[2] * w[2];
+  numerator *= 1.5;
+  numerator -= v[0] * u[0] + v[1] * u[1] + v[2] * u[2];
+  numerator -= w[0] * u[0] + w[1] * u[1] + w[2] * u[2];
+  numerator -= w[0] * v[0] + w[1] * v[1] + w[2] * v[2];
 
-  return den / (3. * pow(normal_coeff * vtkMath::Determinant3x3(u,v,w),2./3.));
+  radicand = vtkMath::Determinant3x3(u,v,w);
+  radicand *= radicand;
+  radicand *= 2.;
+
+  return numerator / (3. * pow(radicand,normal_exp));
 }
 
 double vtkMeshQuality::TetEdgeRatio( vtkCell* cell )
