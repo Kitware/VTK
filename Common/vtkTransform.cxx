@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkTransform, "1.102");
+vtkCxxRevisionMacro(vtkTransform, "1.103");
 vtkStandardNewMacro(vtkTransform);
 
 //----------------------------------------------------------------------------
@@ -98,7 +98,6 @@ void vtkTransform::Identity()
   // support for the legacy hack in InternalUpdate
   if (this->Matrix->GetMTime() > this->MatrixUpdateMTime)
     {
-    vtkWarningMacro(<<"Identity: Legacy Hack deprecated in VTK 4.2.  May be removed in a future version.");
     this->Matrix->Identity();
     }
 }
@@ -112,7 +111,6 @@ void vtkTransform::Inverse()
   // for the legacy hack in InternalUpdate
   if (this->Matrix->GetMTime() > this->MatrixUpdateMTime)
     {
-    vtkWarningMacro(<<"Inverse: Legacy Hack deprecated in VTK 4.2.  May be removed in a future version.");
     this->Matrix->Invert();
     }
 }
