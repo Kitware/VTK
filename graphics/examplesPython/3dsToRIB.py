@@ -36,6 +36,7 @@ ren.GetActiveCamera().SetViewUp(0,0,1)
 #
 ren.ResetCamera()
 ren.GetActiveCamera().Dolly(1.4)
+ren.ResetCameraClippingRange()
 
 #
 # export to rib format

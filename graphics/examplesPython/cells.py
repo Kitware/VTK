@@ -380,6 +380,7 @@ aPolyVertexActor.GetProperty().SetDiffuseColor(1,1,1)
 ren.GetActiveCamera().Azimuth(30)
 ren.GetActiveCamera().Elevation(20)
 ren.GetActiveCamera().Dolly(1.25)
+ren.ResetCameraClippingRange()
 renWin.Render()
 
 vrml = vtkVRMLExporter()

@@ -83,6 +83,7 @@ ren.AddActor(clipActor)
 ren.AddActor(clipInsideActor)
 ren.SetBackground(1,1,1)
 ren.GetActiveCamera().Dolly(1.5)
+ren.ResetCameraClippingRange()
 
 renWin.SetSize(512,512)
 iren.Initialize()

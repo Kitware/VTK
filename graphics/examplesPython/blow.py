@@ -71,6 +71,7 @@ ren.AddActor(contours)
 ren.GetActiveCamera().Azimuth(60)
 ren.GetActiveCamera().Roll(-90)
 ren.GetActiveCamera().Dolly(2)
+ren.ResetCameraClippingRange()
 ren.SetBackground(1,1,1)
 renWin.SetSize(750,400)
 

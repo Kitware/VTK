@@ -94,6 +94,7 @@ cam1.SetPosition(2.7439,-37.3196,38.7167)
 cam1.ComputeViewPlaneNormal()
 cam1.SetViewUp(-0.16123,0.264271,0.950876)
 cam1.Dolly(1.2)
+ren.ResetCameraClippingRange()
 
 # render the image
 #

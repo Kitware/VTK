@@ -55,6 +55,7 @@ letter.GetProperty().SetRepresentationToWireframe()
 
 ren.SetBackground(1,1,1)
 ren.GetActiveCamera().Dolly(1.2)
+ren.ResetCameraClippingRange()
 renWin.SetSize(320,320)
 iren.Initialize()
 

@@ -43,6 +43,7 @@ ren.AddActor(actor)
 ren.GetActiveCamera().Azimuth(30)
 ren.GetActiveCamera().Elevation(60)
 ren.GetActiveCamera().Dolly(1.2)
+ren.ResetCameraClippingRange()
 
 #wm withdraw .
 

@@ -49,6 +49,7 @@ ren.SetBackground(1,1,1)
 ren.GetActiveCamera().Azimuth(30)
 ren.GetActiveCamera().Elevation(30)
 ren.GetActiveCamera().Dolly(1.2)
+ren.ResetCameraClippingRange()
 
 renWin.SetSize(400,400)
 iren.Initialize()

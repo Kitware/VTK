@@ -84,6 +84,7 @@ ren.SetBackground(1,1,1)
 ren.AddActor(quadActor)
 ren.AddActor(outlineActor)
 ren.GetActiveCamera().Dolly(1.3)
+ren.ResetCameraClippingRange()
 
 iren.Initialize()
 

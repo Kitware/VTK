@@ -118,6 +118,7 @@ profile.GetProperty().SetSpecularPower(30)
 
 ren.AddActor(profile)
 ren.GetActiveCamera().Dolly(1.5)
+ren.ResetCameraClippingRange()
 renWin.SetSize(500,500)
 
 # render the image

@@ -99,6 +99,7 @@ prop.SetSpecularPower(30)
 ren1.AddActor(profile)
 
 ren1.GetActiveCamera().Dolly(1.5)
+ren1.ResetCameraClippingRange()
 renWin.SetSize(500,500)
 
 # render the image
