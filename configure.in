@@ -96,6 +96,18 @@ if test "$use_oglr" = "yes"; then
 	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} ${OGLR_INCLUDE}"
 fi
 
+##########################
+##			##
+##	sproc		##
+##			##
+##########################
+# check for sproc
+force_sproc=no
+AC_ARG_WITH(sproc,
+         [  --with-sproc           use sproc instead of pthreads if possible],
+	 if test "$withval" = yes; then
+	 force_sproc=yes
+	 fi,)
 
 ##########################
 ##			##
@@ -140,6 +152,7 @@ fi
 AC_SUBST(GRAPHICS_API_OBJ)
 AC_SUBST(GRAPHICS_API_FLAGS)
 AC_SUBST(GRAPHICS_API_LIBS)
+
 
 
 ##########################
@@ -692,7 +705,11 @@ AC_CHECK_HEADERS(sys/prctl.h, [use_sproc=yes])
 if test "$use_sproc" = "yes"; then
 case $system in
     Linux* | IRIX64-6.5 | IRIX-6.5)
-	use_sproc=no
+        if test "$force_sproc" = "yes"; then
+           VTK_USE_SPROC=1
+        else
+	   use_sproc=no
+        fi
 	;;
     IRIX*)
 	VTK_USE_SPROC=1
