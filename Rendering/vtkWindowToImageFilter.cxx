@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.7");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.8");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -197,6 +197,8 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
         visVP[1] = (vp[1] >= tvp[1]) ? vp[1] : tvp[1];
         visVP[2] = (vp[2] <= tvp[2]) ? vp[2] : tvp[2];
         visVP[3] = (vp[3] <= tvp[3]) ? vp[3] : tvp[3];
+        // compute magnification
+        float mag = (visVP[3] - visVP[1])/(vp[3] - vp[1]);
         // compute the delta
         float deltax = (visVP[2] + visVP[0])/2.0 - (vp[2] + vp[0])/2.0;
         float deltay = (visVP[3] + visVP[1])/2.0 - (vp[3] + vp[1])/2.0;
@@ -210,6 +212,9 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
           deltay = 2.0*deltay/(visVP[3] - visVP[1]);
           }
         cam->SetWindowCenter(deltax,deltay);        
+        cam->SetViewAngle(asin(sin(viewAngles[i]*3.1415926/360.0)*mag) 
+                          * 360.0 / 3.1415926);
+        cam->SetParallelScale(parallelScale[i]*mag);
         }
       
       // now render the tile and get the data
@@ -247,7 +252,7 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
     cam = aren->GetActiveCamera();
     cam->SetWindowCenter(windowCenters[i*2],windowCenters[i*2+1]);
     cam->SetViewAngle(viewAngles[i]);
-    cam->SetParallelScale(parallelScale[i]*this->Magnification);
+    cam->SetParallelScale(parallelScale[i]);
     }
   delete [] viewAngles;
   delete [] windowCenters;
