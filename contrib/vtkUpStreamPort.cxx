@@ -73,6 +73,8 @@ void vtkUpStreamPort::PrintSelf(ostream& os, vtkIndent indent)
   vtkProcessObject::PrintSelf(os,indent);
   os << indent << "Tag: " << this->Tag << endl;
   os << indent << "Controller: (" << this->Controller << ")\n";
+  os << indent << "Pipeline Flag: " 
+     << (this->PipelineFlag ? "On\n" : "Off\n");
 }
 
 
