@@ -581,11 +581,7 @@ void vtkRenderWindow::DoFDRender()
 	vpn = acam->GetViewPlaneNormal();
 	aTrans->Identity();
 	aTrans->Scale(focalDisk,focalDisk,focalDisk);
-	aTrans->RotateWXYZ(offsets[1],vpn[0],vpn[1],vpn[2]);
-	// Use Transpose() and TransformVector() instead of
-	// Inverse() and TransformNormal() -- it is mathematically
-	// equivalent and but is more efficient
-	aTrans->Transpose();
+	aTrans->RotateWXYZ(-offsets[1],vpn[0],vpn[1],vpn[2]);
 	aTrans->TransformVector(acam->GetViewUp(),vec);
 
 	dpoint = acam->GetPosition();
