@@ -588,7 +588,9 @@ void vtkDataArrayTemplate<T>::ComputeVectorRange()
       {
       range[0] = s;
       }
-    else if(s > range[1])
+    // this cannot be an elseif because there may be only one vector in which
+    // case the range[1] would be left at a bad value
+    if(s > range[1])
       {
       range[1] = s;
       }
