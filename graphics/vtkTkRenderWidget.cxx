@@ -238,7 +238,6 @@ static int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp,
   self->Height = 0;
   self->RenderWindow = NULL;
   self->RW = NULL;
-  self->SelfCreatedRenderWindow = 0;
   
   // ...
   // Create command event handler
@@ -306,9 +305,9 @@ static void vtkTkRenderWidget_Destroy(char *memPtr)
 {
   struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)memPtr;
 
-  if (self->SelfCreatedRenderWindow && self->RenderWindow)
+  if (self->RenderWindow)
     {
-    self->RenderWindow->Delete();
+    self->RenderWindow->UnRegister(NULL);
     self->RenderWindow = NULL;
     }
   ckfree((char *) memPtr);
@@ -512,7 +511,8 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     {
     // Make the Render window.
     self->RenderWindow = vtkRenderWindow::New();
-    self->SelfCreatedRenderWindow = 1;
+    self->RenderWindow->Register(this);
+    self->RenderWindow->Delete();
     renderWindow = (vtkWin32OpenGLRenderWindow *)(self->RenderWindow);
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
 			       vtkRenderWindowCommand);
@@ -521,10 +521,15 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     }
   else
     {
-    self->RenderWindow = (vtkRenderWindow *)vtkTclGetPointerFromObject(
-				  self->RW, "vtkRenderWindow", self->Interp,
-				  new_flag);
-    renderWindow = (vtkWin32OpenGLRenderWindow *)(self->RenderWindow);
+    renderWindow = (vtkWin32OpenGLRenderWindow *)
+      vtkTclGetPointerFromObject(self->RW, "vtkRenderWindow", self->Interp,
+				 new_flag);
+    if (renderWindow != self->RenderWindow)
+      {
+      if (self->RenderWindow != NULL) {self->RenderWindow->UnRegister(this);}
+      self->RenderWindow = (vtkRenderWindow *)(renderWindow);
+      if (self->RenderWindow != NULL) {self->RenderWindow->Register(this);}
+      }
     }
   
   // Set the size
@@ -664,7 +669,8 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     {
     // Make the Render window.
     self->RenderWindow = vtkRenderWindow::New();
-    self->SelfCreatedRenderWindow = 1;
+    self->RenderWindow->Register(NULL);
+    self->RenderWindow->Delete();
     renderWindow = (vtkXRenderWindow *)(self->RenderWindow);
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
 			       vtkRenderWindowCommand);
@@ -674,8 +680,14 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   else
     {
     renderWindow = (vtkXRenderWindow *)
-      vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, new_flag);
-    self->RenderWindow = (vtkRenderWindow *)(renderWindow);
+      vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
+				 new_flag);
+    if (renderWindow != self->RenderWindow)
+      {
+      if (self->RenderWindow != NULL) {self->RenderWindow->UnRegister(NULL);}
+      self->RenderWindow = (vtkRenderWindow *)(renderWindow);
+      if (self->RenderWindow != NULL) {self->RenderWindow->Register(NULL);}
+      }
     }
   
   // Set the size

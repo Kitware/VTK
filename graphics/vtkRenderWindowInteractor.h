@@ -270,7 +270,6 @@ protected:
 
   // for picking actors
   vtkPicker *Picker;
-  int SelfCreatedPicker;
   vtkOutlineSource *Outline;
   vtkPolyDataMapper *OutlineMapper;
   vtkActor *OutlineActor;

@@ -53,11 +53,6 @@ vtkVolumeProperty::vtkVolumeProperty()
   this->ScalarOpacity			= NULL;
   this->GradientOpacity			= NULL;
 
-  this->SelfCreatedGTFun		= 0;
-  this->SelfCreatedRGBTFun		= 0;
-  this->SelfCreatedSOTFun		= 0;
-  this->SelfCreatedGOTFun		= 0;
-
   this->Shade				= 0;  // False
   this->Ambient				= 0.1;
   this->Diffuse				= 0.7;
@@ -71,17 +66,25 @@ vtkVolumeProperty::vtkVolumeProperty()
 // Destruct a vtkVolumeProperty
 vtkVolumeProperty::~vtkVolumeProperty()
 {
-  if( this->SelfCreatedGTFun && this->GrayTransferFunction )
-    this->GrayTransferFunction->Delete();
+  if (this->GrayTransferFunction != NULL)
+    {
+    this->GrayTransferFunction->UnRegister(this);
+    }
 
-  if( this->SelfCreatedRGBTFun && this->RGBTransferFunction )
-    this->RGBTransferFunction->Delete();
+  if (this->RGBTransferFunction != NULL)
+    {
+    this->RGBTransferFunction->UnRegister(this);
+    }
 
-  if( this->SelfCreatedSOTFun && this->ScalarOpacity )
-    this->ScalarOpacity->Delete();
+  if (this->ScalarOpacity != NULL)
+    {
+    this->ScalarOpacity->UnRegister(this);
+    }
 
-  if( this->SelfCreatedGOTFun && this->GradientOpacity )
-    this->GradientOpacity->Delete();
+  if (this->GradientOpacity != NULL)
+    {
+    this->GradientOpacity->UnRegister(this);
+    }
 }
 
 
@@ -149,18 +152,23 @@ unsigned long int vtkVolumeProperty::GetMTime()
 // Set the color of a volume to a gray transfer function
 void vtkVolumeProperty::SetColor( vtkPiecewiseFunction *function )
 {
-  if( this->GrayTransferFunction != function )
+  if (this->GrayTransferFunction != function )
     {
-    if( this->SelfCreatedGTFun )
-      this->GrayTransferFunction->Delete();
-
-    this->SelfCreatedGTFun      = 0;
+    if (this->GrayTransferFunction != NULL) 
+      {
+      this->GrayTransferFunction->UnRegister(this);
+      }
     this->GrayTransferFunction	= function;
+    if (this->GrayTransferFunction != NULL) 
+      {
+      this->GrayTransferFunction->Register(this);
+      }
+
     this->GrayTransferFunctionMTime.Modified();
     this->Modified();
     }
 
-  if ( this->ColorChannels != 1 )
+  if (this->ColorChannels != 1 )
     {
     this->ColorChannels		= 1;
     this->Modified();
@@ -170,12 +178,13 @@ void vtkVolumeProperty::SetColor( vtkPiecewiseFunction *function )
 // Get the currently set gray transfer function. Create one if none set.
 vtkPiecewiseFunction *vtkVolumeProperty::GetGrayTransferFunction()
 {
-  if( this->GrayTransferFunction == NULL )
+  if (this->GrayTransferFunction == NULL )
     {
     this->GrayTransferFunction = vtkPiecewiseFunction::New();
+    this->GrayTransferFunction->Register(this);
+    this->GrayTransferFunction->Delete();
     this->GrayTransferFunction->AddPoint(    0, 0.0 );
     this->GrayTransferFunction->AddPoint( 1024, 1.0 );
-    this->SelfCreatedGTFun = 1;
     }
 
   return this->GrayTransferFunction;
@@ -184,18 +193,22 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetGrayTransferFunction()
 // Set the color of a volume to an RGB transfer function
 void vtkVolumeProperty::SetColor( vtkColorTransferFunction *function )
 {
-  if( this->RGBTransferFunction != function )
+  if (this->RGBTransferFunction != function )
     {
-    if( this->SelfCreatedRGBTFun )
-      this->RGBTransferFunction->Delete();
-
-    this->SelfCreatedRGBTFun    = 0;
+    if (this->RGBTransferFunction != NULL) 
+      {
+      this->RGBTransferFunction->UnRegister(this);
+      }
     this->RGBTransferFunction	= function;
+    if (this->RGBTransferFunction != NULL) 
+      {
+      this->RGBTransferFunction->Register(this);
+      }
     this->RGBTransferFunctionMTime.Modified();
     this->Modified();
     }
 
-  if ( this->ColorChannels != 3 )
+  if (this->ColorChannels != 3 )
     {
     this->ColorChannels		= 3;
     this->Modified();
@@ -205,16 +218,17 @@ void vtkVolumeProperty::SetColor( vtkColorTransferFunction *function )
 // Get the currently set RGB transfer function. Create one if none set.
 vtkColorTransferFunction *vtkVolumeProperty::GetRGBTransferFunction()
 {
-  if( this->RGBTransferFunction == NULL )
+  if (this->RGBTransferFunction == NULL )
     {
     this->RGBTransferFunction = vtkColorTransferFunction::New();
+    this->RGBTransferFunction->Register(this);
+    this->RGBTransferFunction->Delete();
     this->RGBTransferFunction->AddRedPoint(      0, 0.0 );
     this->RGBTransferFunction->AddRedPoint(   1024, 1.0 );
     this->RGBTransferFunction->AddGreenPoint(    0, 0.0 );
     this->RGBTransferFunction->AddGreenPoint( 1024, 1.0 );
     this->RGBTransferFunction->AddBluePoint(     0, 0.0 );
     this->RGBTransferFunction->AddBluePoint(  1024, 1.0 );
-    this->SelfCreatedRGBTFun = 1;
     }
 
   return this->RGBTransferFunction;
@@ -223,13 +237,17 @@ vtkColorTransferFunction *vtkVolumeProperty::GetRGBTransferFunction()
 // Set the scalar opacity of a volume to a transfer function
 void vtkVolumeProperty::SetScalarOpacity( vtkPiecewiseFunction *function )
 {
-  if( this->ScalarOpacity != function )
+  if ( this->ScalarOpacity != function )
     {
-    if( this->SelfCreatedSOTFun )
-      this->ScalarOpacity->Delete();
-
-    this->SelfCreatedSOTFun	= 0;
-    this->ScalarOpacity		= function;
+    if (this->ScalarOpacity != NULL) 
+      {
+      this->ScalarOpacity->UnRegister(this);
+      }
+    this->ScalarOpacity	= function;
+    if (this->ScalarOpacity != NULL) 
+      {
+      this->ScalarOpacity->Register(this);
+      }
 
     this->ScalarOpacityMTime.Modified();
     this->Modified();
@@ -242,9 +260,10 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetScalarOpacity()
   if( this->ScalarOpacity == NULL )
     {
     this->ScalarOpacity = vtkPiecewiseFunction::New();
+    this->ScalarOpacity->Register(this);
+    this->ScalarOpacity->Delete();
     this->ScalarOpacity->AddPoint(    0, 1.0 );
     this->ScalarOpacity->AddPoint( 1024, 1.0 );
-    this->SelfCreatedSOTFun = 1;
     }
 
   return this->ScalarOpacity;
@@ -253,14 +272,18 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetScalarOpacity()
 // Set the gradient opacity transfer function 
 void vtkVolumeProperty::SetGradientOpacity( vtkPiecewiseFunction *function )
 {
-  if( this->GradientOpacity != function )
+  if ( this->GradientOpacity != function )
     {
-    if( this->SelfCreatedGOTFun )
-      this->GradientOpacity->Delete();
-
-    this->SelfCreatedGOTFun	= 0;
+    if (this->GradientOpacity != NULL) 
+      {
+      this->GradientOpacity->UnRegister(this);
+      }
     this->GradientOpacity	= function;
-
+    if (this->GradientOpacity != NULL) 
+      {
+      this->GradientOpacity->Register(this);
+      }
+    
     this->GradientOpacityMTime.Modified();
     this->Modified();
     }
@@ -269,12 +292,13 @@ void vtkVolumeProperty::SetGradientOpacity( vtkPiecewiseFunction *function )
 // Get the gradient opacity transfer function. Create one if none set.
 vtkPiecewiseFunction *vtkVolumeProperty::GetGradientOpacity()
 {
-  if( this->GradientOpacity == NULL )
+  if ( this->GradientOpacity == NULL )
     {
     this->GradientOpacity = vtkPiecewiseFunction::New();
+    this->GradientOpacity->Register(this);
+    this->GradientOpacity->Delete();
     this->GradientOpacity->AddPoint(   0, 1.0 );
     this->GradientOpacity->AddPoint( 255, 1.0 );
-    this->SelfCreatedGOTFun = 1;
     }
 
   return this->GradientOpacity;

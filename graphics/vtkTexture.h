@@ -142,11 +142,13 @@ public:
 protected:
   int   Repeat;
   int   Interpolate;
-  int   SelfCreatedLookupTable;
   int   MapColorScalarsThroughLookupTable;
   vtkStructuredPoints *Input;
   vtkLookupTable *LookupTable;
   vtkScalars *MappedScalars;
+  
+  // this is to duplicated the previous behavior of SelfCreatedLookUpTable
+  int SelfAdjustingTableRange;
 };
 
 #endif

@@ -55,20 +55,21 @@ vtkLODActor::vtkLODActor()
   m->Delete();
   
   this->LODMappers = vtkMapperCollection::New();
-  this->SelfCreatedLODs = 0;
   // stuff for creating own LODs
   this->PointSource = NULL;
-  this->MaskPoints = NULL;
   this->Glyph3D = NULL;
+  this->MaskPoints = NULL;
   this->OutlineFilter = NULL;
   this->NumberOfCloudPoints = 150;
+  this->LowMapper = NULL;
+  this->MediumMapper = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkLODActor::~vtkLODActor()
 {
   this->Device->Delete();
-  this->DeleteSelfCreatedLODs();
+  this->DeleteOwnLODs();
   this->LODMappers->Delete();
 }
 
@@ -94,21 +95,27 @@ void vtkLODActor::Render(vtkRenderer *ren)
   vtkMatrix4x4 *matrix;
   vtkMapper *mapper, *bestMapper;
   
+  if (this->Mapper == NULL)
+    {
+    vtkErrorMacro("No mapper for actor.");
+    return;
+    }
+  
   // first time through create lods if non have been added
   if (this->LODMappers->GetNumberOfItems() == 0)
     {
-    this->CreateLODs();
+    this->CreateOwnLODs();
     }
   
   
   // If the actor has changed or the primary mapper has changed ...
   // Is this the correct test?
-  if (this->SelfCreatedLODs)
+  if (this->MediumMapper)
     {
     if (this->GetMTime() > this->BuildTime || 
 	this->Mapper->GetMTime() > this->BuildTime)
       {
-      this->CreateLODs();
+      this->UpdateOwnLODs();
       }
     }
   
@@ -135,7 +142,8 @@ void vtkLODActor::Render(vtkRenderer *ren)
   if (bestTime > myTime)
     {
     this->LODMappers->InitTraversal();
-    while ((mapper = this->LODMappers->GetNextItem()) != NULL && bestTime != 0.0)
+    while ((mapper = this->LODMappers->GetNextItem()) != NULL && 
+	   bestTime != 0.0)
       {
       tempTime = mapper->GetRenderTime();
       
@@ -216,9 +224,9 @@ void vtkLODActor::Render(vtkRenderer *ren)
 // does not matter if mapper is in mapper collection.
 void vtkLODActor::AddLODMapper(vtkMapper *mapper)
 {
-  if (this->SelfCreatedLODs)
+  if (this->MediumMapper)
     {
-    this->DeleteSelfCreatedLODs();
+    this->DeleteOwnLODs();
     }
   
   if (this->Mapper == NULL)
@@ -233,11 +241,11 @@ void vtkLODActor::AddLODMapper(vtkMapper *mapper)
 //----------------------------------------------------------------------------
 // Can only be used if no LOD mappers have been added.
 // Maybe we should remove this exculsive feature.
-void vtkLODActor::CreateLODs()
+void vtkLODActor::CreateOwnLODs()
 {
   int num;
 
-  if (this->SelfCreatedLODs)
+  if (this->MediumMapper)
     {
     return;
     }
@@ -270,16 +278,15 @@ void vtkLODActor::CreateLODs()
   this->Glyph3D->SetSource(this->PointSource->GetOutput());
   this->MediumMapper->SetInput(this->Glyph3D->GetOutput());
   this->LowMapper->SetInput(this->OutlineFilter->GetOutput());
-  this->AddLODMapper(this->MediumMapper);
-  this->AddLODMapper(this->LowMapper);
+  this->LODMappers->AddItem(this->MediumMapper);
+  this->LODMappers->AddItem(this->LowMapper);
   
-  this->SelfCreatedLODs = 1;
-  this->UpdateSelfCreatedLODs();
+  this->UpdateOwnLODs();
 }
 
 
 //----------------------------------------------------------------------------
-void vtkLODActor::UpdateSelfCreatedLODs()
+void vtkLODActor::UpdateOwnLODs()
 {
   if ( this->Mapper == NULL)
     {
@@ -287,10 +294,10 @@ void vtkLODActor::UpdateSelfCreatedLODs()
     return;
     }
 
-  if ( ! this->SelfCreatedLODs)
+  if (this->MediumMapper == NULL)
     {
-    this->CreateLODs();
-    if ( ! this->SelfCreatedLODs)
+    this->CreateOwnLODs();
+    if (this->MediumMapper == NULL)
       { // could not create the LODs
       return;
       }
@@ -313,9 +320,9 @@ void vtkLODActor::UpdateSelfCreatedLODs()
 //----------------------------------------------------------------------------
 // Deletes Mappers and filters created by this object.
 // (number two and three)
-void vtkLODActor::DeleteSelfCreatedLODs()
+void vtkLODActor::DeleteOwnLODs()
 {
-  if ( ! this->SelfCreatedLODs)
+  if (this->MediumMapper == NULL)
     {
     return;
     }
@@ -338,7 +345,5 @@ void vtkLODActor::DeleteSelfCreatedLODs()
   this->LowMapper = NULL;
   this->MediumMapper->Delete();
   this->MediumMapper = NULL;
-  
-  this->SelfCreatedLODs = 0;
 }
 

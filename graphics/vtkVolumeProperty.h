@@ -202,19 +202,15 @@ protected:
 
   vtkPiecewiseFunction		*GrayTransferFunction;
   vtkTimeStamp			GrayTransferFunctionMTime;
-  int				SelfCreatedGTFun;
 
   vtkColorTransferFunction	*RGBTransferFunction;
   vtkTimeStamp			RGBTransferFunctionMTime;
-  int				SelfCreatedRGBTFun;
 
   vtkPiecewiseFunction		*ScalarOpacity;
   vtkTimeStamp			ScalarOpacityMTime;
-  int				SelfCreatedSOTFun;
 
   vtkPiecewiseFunction		*GradientOpacity;
   vtkTimeStamp			GradientOpacityMTime;
-  int				SelfCreatedGOTFun;
 
   int				Shade;
   float				Ambient;

@@ -61,8 +61,10 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   // default limit is 3 hours per frame
   this->StillUpdateRate = 0.0001;
   
-  this->SelfCreatedPicker = 0;
   this->Picker = this->CreateDefaultPicker();
+  this->Picker->Register(this);
+  this->Picker->Delete();
+  
   this->OutlineActor = NULL;
   this->OutlineMapper = vtkPolyDataMapper::New();  
   this->OutlineMapper->SetInput(this->Outline->GetOutput());
@@ -113,9 +115,10 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 
 vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
 {
-  if ( this->OutlineActor ) this->OutlineActor->Delete();
-  if ( this->OutlineMapper ) this->OutlineMapper->Delete();
-  if ( this->SelfCreatedPicker && this->Picker) this->Picker->Delete();
+  if ( this->OutlineActor ) {this->OutlineActor->Delete();}
+  if ( this->OutlineMapper ) {this->OutlineMapper->Delete();}
+  if ( this->Picker) {this->Picker->UnRegister(this);}
+
   this->Outline->Delete();
   this->Outline = NULL;
   
@@ -311,17 +314,15 @@ void vtkRenderWindowInteractor::SetPicker(vtkPicker *picker)
 {
   if ( this->Picker != picker ) 
     {
-    if ( this->SelfCreatedPicker ) this->Picker->Delete();
-    this->SelfCreatedPicker = 0;
+    if ( this->Picker != NULL ) {this->Picker->UnRegister(this);}
     this->Picker = picker;
+    if ( this->Picker != NULL ) {this->Picker->Register(this);}
     this->Modified();
     }
 }
 
 vtkPicker *vtkRenderWindowInteractor::CreateDefaultPicker()
 {
-  if ( this->SelfCreatedPicker ) this->Picker->Delete();
-  this->SelfCreatedPicker = 1;
   return vtkCellPicker::New();
 }
 

@@ -67,7 +67,6 @@ struct vtkTkRenderWidget
   int Height;
   vtkRenderWindow *RenderWindow;
   char *RW;
-  int SelfCreatedRenderWindow;  
 #ifdef _WIN32
   WNDPROC OldProc;
 #endif

@@ -55,8 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 #include "vtkCoordinate.h"
-
-class vtkProperty2D;
+#include "vtkProperty2D.h"
 
 class VTK_EXPORT vtkProp2D : public vtkObject
 {
@@ -96,7 +95,7 @@ public:
 
   // Description:
   // Set this vtkProp's vtkProperty2D.
-  vtkSetObjectMacro(Property, vtkProperty2D);
+  vtkSetReferenceCountedObjectMacro(Property, vtkProperty2D);
 
   // Description:
   // Get the PositionCoordinate instance of vtkCoordinate.
@@ -114,7 +113,6 @@ public:
 protected:
   int LayerNumber;
   int Visibility;
-  int SelfCreatedProperty;
 
   vtkProperty2D *Property;
   vtkCoordinate *PositionCoordinate;

@@ -136,7 +136,6 @@ protected:
   vtkVolumeMapper   *VolumeMapper;
 
   vtkVolumeProperty *VolumeProperty;
-  int		    SelfCreatedProperty;
 };
 
 #endif

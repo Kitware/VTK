@@ -108,7 +108,6 @@ protected:
   vtkMapperCollection *LODMappers;
 
   // stuff for creating our own LOD mappers
-  int                 SelfCreatedLODs;
   vtkPointSource      *PointSource;
   vtkGlyph3D          *Glyph3D;
   vtkMaskPoints       *MaskPoints;
@@ -118,9 +117,9 @@ protected:
   vtkPolyDataMapper   *LowMapper;
   vtkPolyDataMapper   *MediumMapper;
 
-  void CreateLODs();
-  void UpdateSelfCreatedLODs();
-  void DeleteSelfCreatedLODs();
+  void CreateOwnLODs();
+  void UpdateOwnLODs();
+  void DeleteOwnLODs();
 };
 
 #endif

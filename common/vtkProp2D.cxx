@@ -47,7 +47,6 @@ vtkProp2D::vtkProp2D()
 {
   this->LayerNumber = 0;
   this->Visibility = 1;  // ON
-  this->SelfCreatedProperty = 0;
   this->Property = (vtkProperty2D*) NULL;
   this->PositionCoordinate = vtkCoordinate::New();
   this->PositionCoordinate->SetCoordinateSystem(VTK_VIEWPORT);
@@ -57,9 +56,9 @@ vtkProp2D::vtkProp2D()
 // property, that property is deleted.
 vtkProp2D::~vtkProp2D()
 {
-  if (this->SelfCreatedProperty)
+  if (this->Property)
     {
-    this->Property->Delete();
+    this->Property->UnRegister(this);
     }
   this->PositionCoordinate->Delete();
   this->PositionCoordinate = NULL;
@@ -79,7 +78,8 @@ vtkProperty2D *vtkProp2D::GetProperty()
   if (this->Property == NULL)
     {
     this->Property = vtkProperty2D::New();
-    this->SelfCreatedProperty = 1;
+    this->Property->Register(this);
+    this->Property->Delete();
     this->Modified();
     }
   return this->Property;

@@ -53,7 +53,8 @@ vtkTexture::vtkTexture()
   this->LookupTable = NULL;
   this->MappedScalars = NULL;
   this->MapColorScalarsThroughLookupTable = 0;
-  this->SelfCreatedLookupTable = 0;
+
+  this->SelfAdjustingTableRange = 0;
 }
 
 vtkTexture::~vtkTexture()
@@ -63,9 +64,9 @@ vtkTexture::~vtkTexture()
     this->MappedScalars->Delete();
     }
 
-  if ( this->SelfCreatedLookupTable && this->LookupTable != NULL) 
+  if (this->LookupTable != NULL) 
     {
-    this->LookupTable->Delete();
+    this->LookupTable->UnRegister(this);
     }
   if (this->Input) 
     {
@@ -111,9 +112,9 @@ void vtkTexture::SetLookupTable(vtkLookupTable *lut)
 {
   if ( this->LookupTable != lut ) 
     {
-    if ( this->SelfCreatedLookupTable ) this->LookupTable->Delete();
-    this->SelfCreatedLookupTable = 0;
+    if ( this->LookupTable != NULL ) {this->LookupTable->UnRegister(this);}
     this->LookupTable = lut;
+    if ( this->LookupTable != NULL ) {this->LookupTable->Register(this);}
     this->Modified();
     }
 }
@@ -124,7 +125,6 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
   os << indent << "Repeat:      " << (this->Repeat ? "On\n" : "Off\n");
-  os << indent << "SelfCreatedLookupTable:      " << (this->SelfCreatedLookupTable ? "On\n" : "Off\n");
   os << indent << "MapColorScalarsThroughLookupTable: " << (this->MapColorScalarsThroughLookupTable  ? "On\n" : "Off\n");
 
   if ( this->Input )
@@ -165,8 +165,10 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
   if (this->LookupTable == NULL)
     {
     this->LookupTable = vtkLookupTable::New();
+    this->LookupTable->Register(this);
+    this->LookupTable->Delete();
     this->LookupTable->Build ();
-    this->SelfCreatedLookupTable = 1;
+    this->SelfAdjustingTableRange = 1;
     }
   // if there is no pixmap, create one
   if (!this->MappedScalars)
@@ -176,7 +178,7 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
   
   // if the texture created its own lookup table, set the Table Range
   // to the range of the scalar data.
-  if (this->SelfCreatedLookupTable) 
+  if (this->SelfAdjustingTableRange) 
     {
     this->LookupTable->SetTableRange (scalars->GetRange());
     }
