@@ -252,6 +252,23 @@ void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
       }
     origin[idx] = outBounds[2*idx];
     }
+
+  // If the data type is not set, default to same as input.
+  if (this->GetDataType() == VTK_IMAGE_VOID)
+    {
+    this->SetDataType(region->GetDataType());
+    }
+  
+  // Make sure the region is allocated
+  if ( ! this->IsAllocated())
+    {
+    this->Allocate();
+    }
+  if ( ! this->IsAllocated())
+    {
+    vtkErrorMacro(<< "Could not allocate region.");
+    return;
+    }
   
   inPtr = region->GetVoidPointer(origin);
   

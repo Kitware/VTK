@@ -58,6 +58,7 @@ public:
   vtkImageCachedSource();
   ~vtkImageCachedSource();
   char *GetClassName() {return "vtkImageCachedSource";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void InterceptCacheUpdate(vtkImageRegion *region);
   virtual void UpdateRegion(vtkImageRegion *region); 

@@ -48,6 +48,11 @@ vtkImageFilter::vtkImageFilter()
   this->UseExecuteMethodOn();
 }
 
+//----------------------------------------------------------------------------
+void vtkImageFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageCachedSource::PrintSelf(os,indent);
+}
 
 //----------------------------------------------------------------------------
 // Description:

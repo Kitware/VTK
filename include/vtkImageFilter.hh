@@ -74,6 +74,7 @@ class vtkImageFilter : public vtkImageCachedSource
 public:
   vtkImageFilter();
   char *GetClassName() {return "vtkImageFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void SetInput(vtkImageSource *input);
   void UpdateRegion(vtkImageRegion *outRegion);

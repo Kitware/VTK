@@ -65,6 +65,13 @@ vtkImageCachedSource::~vtkImageCachedSource()
 }
 
 
+//----------------------------------------------------------------------------
+void vtkImageCachedSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkObject::PrintSelf(os,indent);
+}
+  
+
 
 //----------------------------------------------------------------------------
 // Description:

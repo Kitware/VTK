@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageSource.cc
+  Module:    vtkImage1dDistanceFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,58 +37,34 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageSource.hh"
+// .NAME vtkImage1dDistanceFilter - One step of creating a distance map.
+// .SECTION Description
+// vtkImage1dDistanceFilter is one step of creating a manhatten distance
+// map.  This filter only operates on unsigned chars.
 
 
-//----------------------------------------------------------------------------
-vtkImageSource::vtkImageSource()
+#ifndef __vtkImage1dDistanceFilter_h
+#define __vtkImage1dDistanceFilter_h
+
+
+#include "vtkImage1dSpatialFilter.hh"
+
+class vtkImage1dDistanceFilter : public vtkImageFilter
 {
-  this->SplitFactor = 2;
-}
-
-
-
-
-
-//----------------------------------------------------------------------------
-void vtkImageSource::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkObject::PrintSelf(os,indent);
-  os << indent << "SplitFactor: " << this->SplitFactor << "\n";
-}
+public:
+  vtkImage1dDistanceFilter();
+  char *GetClassName() {return "vtkImage1dDistanceFilter";};
   
-
-//----------------------------------------------------------------------------
-// Description:
-// This method returns an object which will generate regions.
-// For non cached sources, it returns the source itself.
-// The convention for connection elements in an image pipeline is
-// "consumer->SetInput(source->GetOutput)".  It is primarily
-// designed to allows sources with multple outputs.
-vtkImageSource *vtkImageSource::GetOutput()
-{
-  return this;
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method returns the maximum MTime of this source and all the objects
-// that come before this source (that can change this sources output).
-// Elegagent MTime propagation is very difficult, and is still unresolved.
-// The current impelentation works, but other mechanisms are being considered.
-// See the vtkImageFilter class for more information.
-unsigned long vtkImageSource::GetPipelineMTime()
-{
-  return this->GetMTime();
-}
-
-
+  void InterceptCacheUpdate(vtkImageRegion *region);
   
+protected:
+  
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
+					vtkImageRegion *inRegion);
+  void Execute1d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+};
 
-
-
-
+#endif
 
 
 
