@@ -141,7 +141,7 @@
   FT_LOCAL_DEF( FT_Error )
   T1_Load_Glyph( T1_GlyphSlot  glyph,
                  T1_Size       size,
-                 FT_Int        glyph_index,
+                 FT_UInt       glyph_index,
                  FT_Int        load_flags )
   {
     FT_Error                error;

@@ -26,8 +26,8 @@
 #ifndef __FTOBJS_H__
 #define __FTOBJS_H__
 
-#include <setjmp.h>
 #include <ft2build.h>
+#include FT_CONFIG_STANDARD_LIBRARY_H   /* for ft_setjmp and ft_longjmp */
 #include FT_RENDER_H
 #include FT_SIZES_H
 #include FT_INTERNAL_MEMORY_H

@@ -455,7 +455,7 @@
 
   static FT_Module_Interface
   tt_get_interface( TT_Driver    driver,
-                    const char*  interface )
+                    const char*  tt_interface )
   {
     FT_Module     sfntd = FT_Get_Module( driver->root.root.library,
                                          "sfnt" );
@@ -467,7 +467,7 @@
     {
       sfnt = (SFNT_Service)( sfntd->clazz->module_interface );
       if ( sfnt )
-        return sfnt->get_interface( FT_MODULE( driver ), interface );
+        return sfnt->get_interface( FT_MODULE( driver ), tt_interface );
     }
 
     return 0;
@@ -524,38 +524,6 @@
     
     (FT_CharMap_CharNextFunc) Get_Next_Char
   };
-
-
-#ifdef FT_CONFIG_OPTION_DYNAMIC_DRIVERS
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Function>                                                            */
-  /*    getDriverClass                                                     */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    This function is used when compiling the TrueType driver as a      */
-  /*    shared library (`.DLL' or `.so').  It will be used by the          */
-  /*    high-level library of FreeType to retrieve the address of the      */
-  /*    driver's generic interface.                                        */
-  /*                                                                       */
-  /*    It shouldn't be implemented in a static build, as each driver must */
-  /*    have the same function as an exported entry point.                 */
-  /*                                                                       */
-  /* <Return>                                                              */
-  /*    The address of the TrueType's driver generic interface.  The       */
-  /*    format-specific interface can then be retrieved through the method */
-  /*    interface->get_format_interface.                                   */
-  /*                                                                       */
-  FT_EXPORT_DEF( const FT_Driver_Class )
-  getDriverClass( void )
-  {
-    return &tt_driver_class;
-  }
-
-
-#endif /* CONFIG_OPTION_DYNAMIC_DRIVERS */
 
 
 /* END */

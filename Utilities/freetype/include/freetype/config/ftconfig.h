@@ -103,6 +103,18 @@ FT_BEGIN_HEADER
 
   /*************************************************************************/
   /*                                                                       */
+  /* Mac support                                                           */
+  /*                                                                       */
+  /*   This is the only necessary change, so it is defined here instead    */
+  /*   providing a new configuration file.                                 */
+  /*                                                                       */
+#if defined( __APPLE__ ) || ( defined( __MWERKS__ ) && defined( macintosh ) )
+#define FT_MACINTOSH 1
+#endif
+
+
+  /*************************************************************************/
+  /*                                                                       */
   /* IntN types                                                            */
   /*                                                                       */
   /*   Used to guarantee the size of some specific integers.               */

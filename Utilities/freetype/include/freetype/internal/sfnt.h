@@ -127,7 +127,7 @@ FT_BEGIN_HEADER
 
   typedef FT_Module_Interface
   (*SFNT_Get_Interface_Func)( FT_Module    module,
-                              const char*  interface );
+                              const char*  func_interface );
 
 
   /*************************************************************************/

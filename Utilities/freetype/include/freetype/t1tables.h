@@ -186,7 +186,7 @@ FT_BEGIN_HEADER
   } T1_Blend_Flags;
 
 
-  /* backwards compatible definitions */
+  /*# backwards compatible definitions */
 #define t1_blend_underline_position   T1_BLEND_UNDERLINE_POSITION
 #define t1_blend_underline_thickness  T1_BLEND_UNDERLINE_THICKNESS
 #define t1_blend_italic_angle         T1_BLEND_ITALIC_ANGLE
@@ -317,8 +317,68 @@ FT_BEGIN_HEADER
   /*   FreeType.                                                           */
   /*                                                                       */
   typedef CID_FaceInfoRec  CID_Info;
-  
+
   /* */
+
+
+ /************************************************************************
+  *
+  * @function:
+  *    FT_Has_PS_Glyph_Names
+  *
+  * @description:
+  *    Return true if a given face provides reliable Postscript glyph
+  *    names.  This is similar to using the @FT_HAS_GLYPH_NAMES macro,
+  *    except that certain fonts (mostly TrueType) contain incorrect
+  *    glyph name tables.
+  *
+  *    When this function returns true, the caller is sure that the glyph
+  *    names returned by @FT_Get_Glyph_Name are reliable.
+  *
+  * @input:
+  *    face ::
+  *       face handle
+  *
+  * @return:
+  *    Boolean.  True if glyph names are reliable.
+  */
+  FT_EXPORT( FT_Int )
+  FT_Has_PS_Glyph_Names( FT_Face  face );
+
+
+ /************************************************************************
+  *
+  * @function:
+  *    FT_Get_PS_Font_Info
+  *
+  * @description:
+  *    Retrieve the @PS_FontInfoRec structure corresponding to a given
+  *    Postscript font.
+  *
+  * @input:
+  *    face ::
+  *       Postscript face handle.
+  *
+  * @output:
+  *    afont_info ::
+  *       Output font info structure pointer.
+  *
+  * @return:
+  *    FreeType error code.  0 means success.
+  *
+  * @note:
+  *    The string pointers within the font info structure are owned by
+  *    the face and don't need to be freed by the caller.
+  *
+  *    If the font's format is not Postscript-based, this function will
+  *    return the @FT_Err_Invalid_Argument error code.
+  */
+  FT_EXPORT( FT_Error )
+  FT_Get_PS_Font_Info( FT_Face          face,
+                       PS_FontInfoRec  *afont_info );
+
+ /* */
+
 
 
 FT_END_HEADER

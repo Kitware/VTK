@@ -48,7 +48,7 @@ THE SOFTWARE.
     FT_CMapRec    cmap;
     FT_UInt       num_encodings;
     PCF_Encoding  encodings;
-  
+
   } PCF_CMapRec, *PCF_CMap;
 
 
@@ -56,22 +56,22 @@ THE SOFTWARE.
   pcf_cmap_init( PCF_CMap  cmap )
   {
     PCF_Face  face = (PCF_Face)FT_CMAP_FACE( cmap );
-    
+
 
     cmap->num_encodings = (FT_UInt)face->nencodings;
     cmap->encodings     = face->encodings;
-    
+
     return FT_Err_Ok;
   }
 
-  
+
   FT_CALLBACK_DEF( void )
   pcf_cmap_done( PCF_CMap  cmap )
   {
-    cmap->encodings     = NULL;    
+    cmap->encodings     = NULL;
     cmap->num_encodings = 0;
   }
-                 
+
 
   FT_CALLBACK_DEF( FT_UInt )
   pcf_cmap_char_index( PCF_CMap   cmap,
@@ -80,33 +80,33 @@ THE SOFTWARE.
     PCF_Encoding  encodings = cmap->encodings;
     FT_UInt       min, max, mid;
     FT_UInt       result = 0;
-    
+
 
     min = 0;
     max = cmap->num_encodings;
-    
+
     while ( min < max )
     {
       FT_UInt32  code;
-      
+
 
       mid  = ( min + max ) >> 1;
       code = encodings[mid].enc;
-      
+
       if ( charcode == code )
       {
         result = encodings[mid].glyph;
         break;
       }
-      
+
       if ( charcode < code )
         max = mid;
       else
         min = mid + 1;
     }
-    
+
     return result;
-  }                       
+  }
 
 
   FT_CALLBACK_DEF( FT_UInt )
@@ -117,42 +117,42 @@ THE SOFTWARE.
     FT_UInt       min, max, mid;
     FT_UInt32     charcode = *acharcode + 1;
     FT_UInt       result   = 0;
-    
+
 
     min = 0;
     max = cmap->num_encodings;
-    
+
     while ( min < max )
     {
       FT_UInt32  code;
-      
+
 
       mid  = ( min + max ) >> 1;
       code = encodings[mid].enc;
-      
+
       if ( charcode == code )
       {
         result = encodings[mid].glyph;
         goto Exit;
       }
-      
+
       if ( charcode < code )
         max = mid;
       else
         min = mid + 1;
     }
-    
+
     charcode = 0;
-    if ( ++min < cmap->num_encodings )
+    if ( min < cmap->num_encodings )
     {
       charcode = encodings[min].enc;
       result   = encodings[min].glyph;
     }
-    
+
   Exit:
     *acharcode = charcode;
     return result;
-  }                      
+  }
 
 
   FT_CALLBACK_TABLE_DEF const FT_CMap_ClassRec  pcf_cmap_class =
@@ -204,7 +204,7 @@ THE SOFTWARE.
 
 
     FT_TRACE4(( "get_next_char %ld\n", char_code ));
-    
+
     char_code++;
     low  = 0;
     high = face->nencodings - 1;
@@ -222,7 +222,7 @@ THE SOFTWARE.
 
     if ( high < 0 )
       high = 0;
-    
+
     while ( high < face->nencodings )
     {
       if ( en_table[high].enc >= char_code )
@@ -259,20 +259,20 @@ THE SOFTWARE.
     {
       PCF_Property  prop = face->properties;
       FT_Int        i;
-      
+
 
       for ( i = 0; i < face->nprops; i++ )
       {
         prop = &face->properties[i];
-        
+
         FT_FREE( prop->name );
         if ( prop->isString )
           FT_FREE( prop->value );
       }
-      
+
       FT_FREE( face->properties );
     }
-    
+
     FT_FREE( face->toc.tables );
     FT_FREE( face->root.family_name );
     FT_FREE( face->root.available_sizes );
@@ -325,28 +325,28 @@ THE SOFTWARE.
 
       {
         FT_CharMapRec  charmap;
-        
+
 
         charmap.face        = FT_FACE( face );
         charmap.encoding    = ft_encoding_none;
         charmap.platform_id = 0;
         charmap.encoding_id = 0;
-        
+
         if ( unicode_charmap )
         {
           charmap.encoding    = ft_encoding_unicode;
           charmap.platform_id = 3;
           charmap.encoding_id = 1;
         }
-        
+
         error = FT_CMap_New( &pcf_cmap_class, NULL, &charmap, NULL );
       }
 
 #else  /* !FT_CONFIG_OPTION_USE_CMAPS */
 
       /* XXX: charmaps.  For now, report unicode for Unicode and Latin 1 */
-      root->charmaps     = &face->charmap_handle;
-      root->num_charmaps = 1;
+      face->root.charmaps     = &face->charmap_handle;
+      face->root.num_charmaps = 1;
 
       face->charmap.encoding    = ft_encoding_none;
       face->charmap.platform_id = 0;
@@ -358,15 +358,15 @@ THE SOFTWARE.
         face->charmap.platform_id = 3;
         face->charmap.encoding_id = 1;
       }
-      
-      face->charmap.face   = root;
-      face->charmap_handle = &face->charmap;
-      root->charmap        = face->charmap_handle;
 
-#endif /* !FT_CONFIG_OPTION_USE_CMAPS */        
-        
+      face->charmap.face   = &face->root;
+      face->charmap_handle = &face->charmap;
+      face->root.charmap   = face->charmap_handle;
+
+#endif /* !FT_CONFIG_OPTION_USE_CMAPS */
+
     }
-      
+
   Exit:
     return error;
 
@@ -552,7 +552,7 @@ THE SOFTWARE.
 
     (FT_Slot_LoadFunc)        PCF_Glyph_Load,
 
-#ifndef FT_CONFIG_OPTION_USE_CMAPS    
+#ifndef FT_CONFIG_OPTION_USE_CMAPS
     (FT_CharMap_CharIndexFunc)PCF_Char_Get_Index,
 #else
     (FT_CharMap_CharIndexFunc)0,
@@ -566,39 +566,8 @@ THE SOFTWARE.
     (FT_CharMap_CharNextFunc) PCF_Char_Get_Next,
 #else
     (FT_CharMap_CharNextFunc) 0
-#endif    
+#endif
   };
-
-
-#ifdef FT_CONFIG_OPTION_DYNAMIC_DRIVERS
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Function>                                                            */
-  /*    getDriverClass                                                     */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    This function is used when compiling the TrueType driver as a      */
-  /*    shared library (`.DLL' or `.so').  It will be used by the          */
-  /*    high-level library of FreeType to retrieve the address of the      */
-  /*    driver's generic interface.                                        */
-  /*                                                                       */
-  /*    It shouldn't be implemented in a static build, as each driver must */
-  /*    have the same function as an exported entry point.                 */
-  /*                                                                       */
-  /* <Return>                                                              */
-  /*    The address of the TrueType's driver generic interface.  The       */
-  /*    format-specific interface can then be retrieved through the method */
-  /*    interface->get_format_interface.                                   */
-  /*                                                                       */
-  FT_EXPORT_DEF( const FT_Driver_Class )
-  getDriverClass( void )
-  {
-    return &pcf_driver_class;
-  }
-
-
-#endif /* FT_CONFIG_OPTION_DYNAMIC_DRIVERS */
 
 
 /* END */

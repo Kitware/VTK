@@ -46,7 +46,7 @@
 
   FT_EXPORT_DEF( FT_Error )
   FT_Outline_Decompose( FT_Outline*              outline,
-                        const FT_Outline_Funcs*  interface,
+                        const FT_Outline_Funcs*  func_interface,
                         void*                    user )
   {
 #undef SCALED
@@ -70,11 +70,11 @@
     FT_Pos   delta;
 
 
-    if ( !outline || !interface )
+    if ( !outline || !func_interface )
       return FT_Err_Invalid_Argument;
 
-    shift = interface->shift;
-    delta = interface->delta;
+    shift = func_interface->shift;
+    delta = func_interface->delta;
     first = 0;
 
     for ( n = 0; n < outline->n_contours; n++ )
@@ -125,7 +125,7 @@
         tags--;
       }
 
-      error = interface->move_to( &v_start, user );
+      error = func_interface->move_to( &v_start, user );
       if ( error )
         goto Exit;
 
@@ -145,7 +145,7 @@
             vec.x = SCALED( point->x );
             vec.y = SCALED( point->y );
 
-            error = interface->line_to( &vec, user );
+            error = func_interface->line_to( &vec, user );
             if ( error )
               goto Exit;
             continue;
@@ -171,7 +171,7 @@
 
             if ( tag == FT_Curve_Tag_On )
             {
-              error = interface->conic_to( &v_control, &vec, user );
+              error = func_interface->conic_to( &v_control, &vec, user );
               if ( error )
                 goto Exit;
               continue;
@@ -183,7 +183,7 @@
             v_middle.x = ( v_control.x + vec.x ) / 2;
             v_middle.y = ( v_control.y + vec.y ) / 2;
 
-            error = interface->conic_to( &v_control, &v_middle, user );
+            error = func_interface->conic_to( &v_control, &v_middle, user );
             if ( error )
               goto Exit;
 
@@ -191,7 +191,7 @@
             goto Do_Conic;
           }
 
-          error = interface->conic_to( &v_control, &v_start, user );
+          error = func_interface->conic_to( &v_control, &v_start, user );
           goto Close;
 
         default:  /* FT_Curve_Tag_Cubic */
@@ -217,20 +217,20 @@
               vec.x = SCALED( point->x );
               vec.y = SCALED( point->y );
 
-              error = interface->cubic_to( &vec1, &vec2, &vec, user );
+              error = func_interface->cubic_to( &vec1, &vec2, &vec, user );
               if ( error )
                 goto Exit;
               continue;
             }
 
-            error = interface->cubic_to( &vec1, &vec2, &v_start, user );
+            error = func_interface->cubic_to( &vec1, &vec2, &v_start, user );
             goto Close;
           }
         }
       }
 
       /* close the contour with a line segment */
-      error = interface->line_to( &v_start, user );
+      error = func_interface->line_to( &v_start, user );
 
     Close:
       if ( error )

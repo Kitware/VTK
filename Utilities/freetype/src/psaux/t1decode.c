@@ -432,6 +432,10 @@
         op = op_endchar;
         break;
 
+      case 15:          /* undocumented, obsolete operator */
+        op = op_none;
+        break;
+
       case 21:
         op = op_rmoveto;
         break;

@@ -5,7 +5,7 @@
 /*    Support for the FT_Outline type used to store glyph shapes of        */
 /*    most scalable font formats (specification).                          */
 /*                                                                         */
-/*  Copyright 1996-2001 by                                                 */
+/*  Copyright 1996-2001, 2002 by                                           */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -83,22 +83,24 @@ FT_BEGIN_HEADER
   /*    of new contours in the outline.                                    */
   /*                                                                       */
   /* <Input>                                                               */
-  /*    outline   :: A pointer to the source target.                       */
+  /*    outline        :: A pointer to the source target.                  */
   /*                                                                       */
-  /*    interface :: A table of `emitters', i.e,. function pointers called */
-  /*                 during decomposition to indicate path operations.     */
+  /*    func_interface :: A table of `emitters', i.e,. function pointers   */
+  /*                      called during decomposition to indicate path     */
+  /*                      operations.                                      */
   /*                                                                       */
   /* <InOut>                                                               */
-  /*    user      :: A typeless pointer which is passed to each emitter    */
-  /*                 during the decomposition.  It can be used to store    */
-  /*                 the state during the decomposition.                   */
+  /*    user           :: A typeless pointer which is passed to each       */
+  /*                      emitter during the decomposition.  It can be     */
+  /*                      used to store the state during the               */
+  /*                      decomposition.                                   */
   /*                                                                       */
   /* <Return>                                                              */
   /*    FreeType error code.  0 means sucess.                              */
   /*                                                                       */
   FT_EXPORT( FT_Error )
   FT_Outline_Decompose( FT_Outline*              outline,
-                        const FT_Outline_Funcs*  interface,
+                        const FT_Outline_Funcs*  func_interface,
                         void*                    user );
 
 

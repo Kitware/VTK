@@ -57,27 +57,29 @@ FT_BEGIN_HEADER
   /*    A very compact structure used to describe a small glyph bitmap.    */
   /*                                                                       */
   /* <Fields>                                                              */
-  /*    width    :: The bitmap width in pixels.                            */
+  /*    width     :: The bitmap width in pixels.                           */
   /*                                                                       */
-  /*    height   :: The bitmap height in pixels.                           */
+  /*    height    :: The bitmap height in pixels.                          */
   /*                                                                       */
-  /*    left     :: The horizontal distance from the pen position to the   */
-  /*                left bitmap border (a.k.a. `left side bearing', or     */
-  /*                `lsb').                                                */
+  /*    left      :: The horizontal distance from the pen position to the  */
+  /*                 left bitmap border (a.k.a. `left side bearing', or    */
+  /*                 `lsb').                                               */
   /*                                                                       */
-  /*    top      :: The vertical distance from the pen position (on the    */
-  /*                baseline) to the upper bitmap border (a.k.a. `top side */
-  /*                bearing').  The distance is positive for upwards       */
-  /*                Y coordinates.                                         */
+  /*    top       :: The vertical distance from the pen position (on the   */
+  /*                 baseline) to the upper bitmap border (a.k.a. `top     */
+  /*                 side bearing').  The distance is positive for upwards */
+  /*                 Y coordinates.                                        */
   /*                                                                       */
-  /*    format   :: The format of the glyph bitmap (monochrome or gray).   */
+  /*    format    :: The format of the glyph bitmap (monochrome or gray).  */
   /*                                                                       */
-  /*    pitch    :: The number of bytes per bitmap line.  May be positive  */
-  /*                or negative.                                           */
+  /*    num_grays :: The number of gray levels.                            */
   /*                                                                       */
-  /*    xadvance :: The horizontal advance width in pixels.                */
+  /*    pitch     :: The number of bytes per bitmap line.  May be positive */
+  /*                 or negative.                                          */
   /*                                                                       */
-  /*    yadvance :: The vertical advance height in pixels.                 */
+  /*    xadvance  :: The horizontal advance width in pixels.               */
+  /*                                                                       */
+  /*    yadvance  :: The vertical advance height in pixels.                */
   /*                                                                       */
   /*    buffer   :: A pointer to the bitmap pixels.                        */
   /*                                                                       */
@@ -89,6 +91,7 @@ FT_BEGIN_HEADER
     FT_Char   top;
 
     FT_Byte   format;
+    FT_Short  num_grays;    /* XXX: Should be FT_Byte.  See ftcsbits.c */
     FT_Char   pitch;
     FT_Char   xadvance;
     FT_Char   yadvance;

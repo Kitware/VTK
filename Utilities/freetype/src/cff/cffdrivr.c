@@ -437,17 +437,17 @@
 
   static FT_Module_Interface
   cff_get_interface( CFF_Driver   driver,
-                     const char*  interface )
+                     const char*  module_interface )
   {
     FT_Module  sfnt;
 
 
 #ifndef FT_CONFIG_OPTION_NO_GLYPH_NAMES
 
-    if ( ft_strcmp( (const char*)interface, "glyph_name" ) == 0 )
+    if ( ft_strcmp( (const char*)module_interface, "glyph_name" ) == 0 )
       return (FT_Module_Interface)cff_get_glyph_name;
 
-    if ( ft_strcmp( (const char*)interface, "name_index" ) == 0 )
+    if ( ft_strcmp( (const char*)module_interface, "name_index" ) == 0 )
       return (FT_Module_Interface)cff_get_name_index;
 
 #endif
@@ -455,7 +455,7 @@
     /* we simply pass our request to the `sfnt' module */
     sfnt = FT_Get_Module( driver->root.root.library, "sfnt" );
 
-    return sfnt ? sfnt->clazz->get_interface( sfnt, interface ) : 0;
+    return sfnt ? sfnt->clazz->get_interface( sfnt, module_interface ) : 0;
   }
 
 
@@ -506,38 +506,6 @@
     
     (FT_CharMap_CharNextFunc) cff_get_next_char
   };
-
-
-#ifdef FT_CONFIG_OPTION_DYNAMIC_DRIVERS
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Function>                                                            */
-  /*    getDriverClass                                                     */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    This function is used when compiling the TrueType driver as a      */
-  /*    shared library (`.DLL' or `.so').  It will be used by the          */
-  /*    high-level library of FreeType to retrieve the address of the      */
-  /*    driver's generic interface.                                        */
-  /*                                                                       */
-  /*    It shouldn't be implemented in a static build, as each driver must */
-  /*    have the same function as an exported entry point.                 */
-  /*                                                                       */
-  /* <Return>                                                              */
-  /*    The address of the TrueType's driver generic interface.  The       */
-  /*    format-specific interface can then be retrieved through the method */
-  /*    interface->get_format_interface.                                   */
-  /*                                                                       */
-  FT_EXPORT_DEF( const FT_Driver_Class )
-  getDriverClass( void )
-  {
-    return &cff_driver_class;
-  }
-
-
-#endif /* CONFIG_OPTION_DYNAMIC_DRIVERS */
 
 
 /* END */

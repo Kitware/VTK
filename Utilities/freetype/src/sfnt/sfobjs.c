@@ -129,6 +129,10 @@
   }
 
 
+  typedef FT_String*  (*TT_NameEntry_ConvertFunc)( TT_NameEntry  entry,
+                                                   FT_Memory     memory );
+
+
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
@@ -157,9 +161,11 @@
     FT_Int            found_win     = -1;
     FT_Int            found_unicode = -1;
 
+    TT_NameEntry_ConvertFunc  convert;
+
 
     rec = face->name_table.names;
-    for ( n = 0; n < face->name_table.numNameRecords; n++, rec++ )
+    for ( n = 0; n < face->num_names; n++, rec++ )
     {
       /* According to the OpenType 1.3 specification, only Microsoft or  */
       /* Apple platform IDs might be used in the `name' table.  The      */
@@ -170,7 +176,7 @@
       /* thing and goes to suggest that all Unicode `name' table entries */
       /* should be coded in UTF-16 (in big-endian format I suppose).     */
       /*                                                                 */
-      if ( rec->nameID == nameid && rec->string )
+      if ( rec->nameID == nameid && rec->stringLength > 0 )
       {
         switch ( rec->platformID )
         {
@@ -218,6 +224,7 @@
     /* some fonts contain invalid Unicode or Macintosh formatted entries; */
     /* we will thus favor names encoded in Windows formats if available   */
     /*                                                                    */
+    convert = NULL;
     if ( found_win >= 0 )
     {
       rec = face->name_table.names + found_win;
@@ -225,11 +232,11 @@
       {
       case TT_MS_ID_UNICODE_CS:
       case TT_MS_ID_SYMBOL_CS:
-        result = tt_name_entry_ascii_from_utf16( rec, memory );
+        convert = tt_name_entry_ascii_from_utf16;
         break;
 
       case TT_MS_ID_UCS_4:
-        result = tt_name_entry_ascii_from_ucs4( rec, memory );
+        convert = tt_name_entry_ascii_from_ucs4;
         break;
 
       default:
@@ -238,15 +245,38 @@
     }
     else if ( found_apple >= 0 )
     {
-      rec    = face->name_table.names + found_apple;
-      result = tt_name_entry_ascii_from_other( rec, memory );
+      rec     = face->name_table.names + found_apple;
+      convert = tt_name_entry_ascii_from_other;
     }
     else if ( found_unicode >= 0 )
     {
-      rec    = face->name_table.names + found_unicode;
-      result = tt_name_entry_ascii_from_utf16( rec, memory );
+      rec     = face->name_table.names + found_unicode;
+      convert = tt_name_entry_ascii_from_utf16;
     }
 
+    if ( rec && convert )
+    {
+      if ( rec->string == NULL )
+      {
+        FT_Error   error;
+        FT_Stream  stream = face->name_table.stream;
+
+
+        if ( FT_NEW_ARRAY  ( rec->string, rec->stringLength ) ||
+             FT_STREAM_SEEK( rec->stringOffset )              ||
+             FT_STREAM_READ( rec->string, rec->stringLength ) )
+        {
+          FT_FREE( rec->string );
+          rec->stringLength = 0;
+          result            = NULL;
+          goto Exit;
+        }
+      }
+
+      result = convert( rec, memory );
+    }
+
+  Exit:
     return result;
   }
 

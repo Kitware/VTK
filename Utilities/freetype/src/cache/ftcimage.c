@@ -324,11 +324,9 @@
     FT_Error           error;
 
 
-    /* some argument checks are delayed to ftc_glyph_cache_lookup */
-    if ( aglyph )
-      *aglyph = NULL;
-
-    *aglyph = NULL;
+    /* some argument checks are delayed to ftc_cache_lookup */
+    if ( !aglyph )
+      return FTC_Err_Invalid_Argument;
 
     if ( anode )
       *anode  = NULL;
@@ -374,7 +372,7 @@
 
 
     if ( !desc )
-      return FT_Err_Invalid_Argument;
+      return FTC_Err_Invalid_Argument;
 
     desc0.font = desc->font;
     desc0.type = (FT_UInt32)desc->image_type;

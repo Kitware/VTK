@@ -1543,9 +1543,6 @@
     /* clear all outline flags, except the `owner' one */
     glyph->outline.flags = 0;
 
-    if ( size && size->root.metrics.y_ppem < 24 )
-      glyph->outline.flags |= ft_outline_high_precision;
-
     /* let's initialize the rest of our loader now */
 
     loader.load_flags    = load_flags;
@@ -1580,6 +1577,13 @@
       TT_Done_Context( loader.exec );
 
 #endif /* TT_CONFIG_OPTION_BYTECODE_INTERPRETER */
+
+    /* Set the `high precision' bit flag.                           */
+    /* This is _critical_ to get correct output for monochrome      */
+    /* TrueType glyphs at all sizes using the bytecode interpreter. */
+    /*                                                              */
+    if ( size && size->root.metrics.y_ppem < 24 )
+      glyph->outline.flags |= ft_outline_high_precision;
 
   Exit:
     return error;

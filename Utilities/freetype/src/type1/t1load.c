@@ -378,8 +378,8 @@
 
 
   static void
-  parse_blend_axis_types( T1_Face     face,
-                          T1_Loader*  loader )
+  parse_blend_axis_types( T1_Face    face,
+                          T1_Loader  loader )
   {
     T1_TokenRec  axis_tokens[ T1_MAX_MM_AXIS ];
     FT_Int       n, num_axis;
@@ -440,8 +440,8 @@
 
 
   static void
-  parse_blend_design_positions( T1_Face     face,
-                                T1_Loader*  loader )
+  parse_blend_design_positions( T1_Face    face,
+                                T1_Loader  loader )
   {
     T1_TokenRec  design_tokens[ T1_MAX_MM_DESIGNS ];
     FT_Int       num_designs;
@@ -522,8 +522,8 @@
 
 
   static void
-  parse_blend_design_map( T1_Face     face,
-                          T1_Loader*  loader )
+  parse_blend_design_map( T1_Face    face,
+                          T1_Loader  loader )
   {
     FT_Error     error  = 0;
     T1_Parser    parser = &loader->parser;
@@ -603,8 +603,8 @@
 
 
   static void
-  parse_weight_vector( T1_Face     face,
-                       T1_Loader*  loader )
+  parse_weight_vector( T1_Face    face,
+                       T1_Loader  loader )
   {
     FT_Error     error  = 0;
     T1_Parser    parser = &loader->parser;
@@ -655,8 +655,8 @@
   /* of spec!); we detect it and terminate the parsing                 */
   /*                                                                   */
   static void
-  parse_shared_dict( T1_Face     face,
-                     T1_Loader*  loader )
+  parse_shared_dict( T1_Face    face,
+                     T1_Loader  loader )
   {
     T1_Parser  parser = &loader->parser;
 
@@ -688,15 +688,15 @@
 
 
   static FT_Error
-  t1_load_keyword( T1_Face     face,
-                   T1_Loader*  loader,
-                   T1_Field    field )
+  t1_load_keyword( T1_Face    face,
+                   T1_Loader  loader,
+                   T1_Field   field )
   {
-    FT_Error   error;
-    void*      dummy_object;
-    void**     objects;
-    FT_UInt    max_objects;
-    PS_Blend   blend = face->blend;
+    FT_Error  error;
+    void*     dummy_object;
+    void**    objects;
+    FT_UInt   max_objects;
+    PS_Blend  blend = face->blend;
 
 
     /* if the keyword has a dedicated callback, call it */
@@ -767,7 +767,11 @@
     /* Note: we must accept "+" as a valid character, as it is used in */
     /*       embedded type1 fonts in PDF documents.                    */
     /*                                                                 */
-    return ( ft_isalnum( c ) || c == '.' || c == '_' || c == '-' || c == '+' );
+    return ( ft_isalnum( c ) ||
+             c == '.'        ||
+             c == '_'        ||
+             c == '-'        ||
+             c == '+'        );
   }
 
 
@@ -814,8 +818,8 @@
   /* dictionaries                                   */
 
   static void
-  parse_font_name( T1_Face     face,
-                   T1_Loader*  loader )
+  parse_font_name( T1_Face    face,
+                   T1_Loader  loader )
   {
     T1_Parser  parser = &loader->parser;
     FT_Error   error;
@@ -860,8 +864,8 @@
 
 
   static void
-  parse_font_bbox( T1_Face     face,
-                   T1_Loader*  loader )
+  parse_font_bbox( T1_Face    face,
+                   T1_Loader  loader )
   {
     T1_Parser  parser = &loader->parser;
     FT_Fixed   temp[4];
@@ -877,8 +881,8 @@
 
 
   static void
-  parse_font_matrix( T1_Face     face,
-                     T1_Loader*  loader )
+  parse_font_matrix( T1_Face    face,
+                     T1_Loader  loader )
   {
     T1_Parser   parser = &loader->parser;
     FT_Matrix*  matrix = &face->type1.font_matrix;
@@ -889,7 +893,7 @@
 
 
     if ( matrix->xx || matrix->yx )
-      /*  with synthetic fonts, it's possible we get here twice  */
+      /* with synthetic fonts, it's possible we get here twice  */
       return;
 
     (void)T1_ToFixedArray( parser, 6, temp, 3 );
@@ -926,8 +930,8 @@
 
 
   static void
-  parse_encoding( T1_Face     face,
-                  T1_Loader*  loader )
+  parse_encoding( T1_Face    face,
+                  T1_Loader  loader )
   {
     T1_Parser      parser = &loader->parser;
     FT_Byte*       cur    = parser->root.cursor;
@@ -973,13 +977,13 @@
       if ( FT_NEW_ARRAY( encode->char_index, count ) ||
            FT_NEW_ARRAY( encode->char_name,  count ) ||
            FT_SET_ERROR( psaux->ps_table_funcs->init(
-                       char_table, count, memory ) ) )
+                           char_table, count, memory ) ) )
       {
         parser->root.error = error;
         return;
       }
 
-      /* We need to `zero' out encoding_table.elements          */
+      /* We need to `zero' out encoding_table.elements */
       for ( n = 0; n < count; n++ )
       {
         char*  notdef = (char *)".notdef";
@@ -1015,10 +1019,10 @@
         /* we stop when we encounter a `def' */
         if ( c == 'd' && cur + 3 < limit )
         {
-          if ( cur[1] == 'e' &&
-               cur[2] == 'f' &&
-               is_space(cur[-1]) &&
-               is_space(cur[3]) )
+          if ( cur[1] == 'e'       &&
+               cur[2] == 'f'       &&
+               is_space( cur[-1] ) &&
+               is_space( cur[3] )  )
           {
             FT_TRACE6(( "encoding end\n" ));
             break;
@@ -1033,7 +1037,7 @@
 
           parser->root.cursor = cur;
           charcode = T1_ToInt( parser );
-          cur = parser->root.cursor;
+          cur      = parser->root.cursor;
 
           /* skip whitespace */
           while ( cur < limit && is_space( *cur ) )
@@ -1068,19 +1072,19 @@
       face->type1.encoding_type = T1_ENCODING_TYPE_ARRAY;
       parser->root.cursor       = cur;
     }
-    /* Otherwise, we should have either `StandardEncoding' or */
-    /* `ExpertEncoding'                                       */
+    /* Otherwise, we should have either `StandardEncoding', */
+    /* `ExpertEncoding', or `ISOLatin1Encoding'             */
     else
     {
-      if ( cur + 17 < limit &&
+      if ( cur + 17 < limit                                            &&
            ft_strncmp( (const char*)cur, "StandardEncoding", 16 ) == 0 )
         face->type1.encoding_type = T1_ENCODING_TYPE_STANDARD;
 
-      else if ( cur + 15 < limit &&
+      else if ( cur + 15 < limit                                          &&
                 ft_strncmp( (const char*)cur, "ExpertEncoding", 14 ) == 0 )
-        face->type1.encoding_type = T1_ENCODING_TYPE_EXPORT;
+        face->type1.encoding_type = T1_ENCODING_TYPE_EXPERT;
 
-      else if ( cur + 18 < limit &&
+      else if ( cur + 18 < limit                                             &&
                 ft_strncmp( (const char*)cur, "ISOLatin1Encoding", 17 ) == 0 )
         face->type1.encoding_type = T1_ENCODING_TYPE_ISOLATIN1;
 
@@ -1094,8 +1098,8 @@
 
 
   static void
-  parse_subrs( T1_Face     face,
-               T1_Loader*  loader )
+  parse_subrs( T1_Face    face,
+               T1_Loader  loader )
   {
     T1_Parser      parser = &loader->parser;
     PS_Table       table  = &loader->subrs;
@@ -1191,8 +1195,8 @@
 
 
   static void
-  parse_charstrings( T1_Face     face,
-                     T1_Loader*  loader )
+  parse_charstrings( T1_Face    face,
+                     T1_Loader  loader )
   {
     T1_Parser      parser       = &loader->parser;
     PS_Table       code_table   = &loader->charstrings;
@@ -1241,8 +1245,8 @@
     if ( error )
       goto Fail;
 
-
     n = 0;
+
     for (;;)
     {
       FT_Int    size;
@@ -1479,10 +1483,10 @@
 
 
   static FT_Error
-  parse_dict( T1_Face     face,
-              T1_Loader*  loader,
-              FT_Byte*    base,
-              FT_Long     size )
+  parse_dict( T1_Face    face,
+              T1_Loader  loader,
+              FT_Byte*   base,
+              FT_Long    size )
   {
     T1_Parser  parser = &loader->parser;
 
@@ -1499,7 +1503,7 @@
       for ( ; cur < limit; cur++ )
       {
         /* look for `FontDirectory', which causes problems on some fonts */
-        if ( *cur == 'F' && cur + 25 < limit                 &&
+        if ( *cur == 'F' && cur + 25 < limit                    &&
              ft_strncmp( (char*)cur, "FontDirectory", 13 ) == 0 )
         {
           FT_Byte*  cur2;
@@ -1596,8 +1600,8 @@
 
 
   static void
-  t1_init_loader( T1_Loader*  loader,
-                  T1_Face     face )
+  t1_init_loader( T1_Loader  loader,
+                  T1_Face    face )
   {
     FT_UNUSED( face );
 
@@ -1616,7 +1620,7 @@
 
 
   static void
-  t1_done_loader( T1_Loader*  loader )
+  t1_done_loader( T1_Loader  loader )
   {
     T1_Parser  parser = &loader->parser;
 
@@ -1636,7 +1640,7 @@
   FT_LOCAL_DEF( FT_Error )
   T1_Open_Face( T1_Face  face )
   {
-    T1_Loader      loader;
+    T1_LoaderRec   loader;
     T1_Parser      parser;
     T1_Font        type1 = &face->type1;
     FT_Error       error;
@@ -1701,8 +1705,7 @@
     loader.glyph_names.block    = 0;
     loader.glyph_names.elements = 0;
 
-    /* we must now build type1.encoding when we have a custom */
-    /* array..                                                */
+    /* we must now build type1.encoding when we have a custom array */
     if ( type1->encoding_type == T1_ENCODING_TYPE_ARRAY )
     {
       FT_Int    charcode, idx, min_char, max_char;
@@ -1740,8 +1743,8 @@
               if ( ft_strcmp( (const char*)".notdef",
                               (const char*)glyph_name ) != 0 )
               {
-                if (charcode < min_char) min_char = charcode;
-                if (charcode > max_char) max_char = charcode;
+                if ( charcode < min_char ) min_char = charcode;
+                if ( charcode > max_char ) max_char = charcode;
               }
               break;
             }

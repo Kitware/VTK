@@ -106,6 +106,11 @@
 #include <limits.h>
 #define FT_UINT_MAX  UINT_MAX
 
+#define  ft_setjmp   setjmp
+#define  ft_longjmp  longjmp
+#define  ft_jmp_buf  jmp_buf
+
+
 #define ErrRaster_Invalid_Mode     -2
 #define ErrRaster_Invalid_Outline  -1
 
@@ -217,8 +222,8 @@
   /* need to define them to "float" or "double" when experimenting with   */
   /* new algorithms                                                       */
 
-  typedef int   TScan;   /* integer scanline/pixel coordinate */
-  typedef long  TPos;    /* sub-pixel coordinate              */
+  typedef int   TCoord;   /* integer scanline/pixel coordinate */
+  typedef long  TPos;     /* sub-pixel coordinate              */
 
   /* determine the type used to store cell areas.  This normally takes at */
   /* least PIXEL_BYTES*2 + 1.  On 16-bit systems, we need to use `long'   */
@@ -259,10 +264,10 @@
 
   typedef struct  TCell_
   {
-    TScan  x;
-    TScan  y;
-    int    cover;
-    TArea  area;
+    TCoord  x;
+    TCoord  y;
+    int     cover;
+    TArea   area;
 
   } TCell, *PCell;
 
@@ -271,22 +276,22 @@
 
   typedef struct  TRaster_
   {
-    PCell  cells;
-    int    max_cells;
-    int    num_cells;
+    PCell   cells;
+    int     max_cells;
+    int     num_cells;
 
-    TScan  min_ex, max_ex;
-    TScan  min_ey, max_ey;
+    TCoord  min_ex, max_ex;
+    TCoord  min_ey, max_ey;
 
-    TArea  area;
-    int    cover;
-    int    invalid;
+    TArea   area;
+    int     cover;
+    int     invalid;
 
-    TScan  ex, ey;
-    TScan  cx, cy;
-    TPos   x,  y;
+    TCoord  ex, ey;
+    TCoord  cx, cy;
+    TPos    x,  y;
 
-    TScan  last_ey;
+    TCoord  last_ey;
 
     FT_Vector   bez_stack[32 * 3 + 1];
     int         lev_stack[32];
@@ -391,7 +396,7 @@
     if ( !ras.invalid && ( ras.area | ras.cover ) )
     {
       if ( ras.num_cells >= ras.max_cells )
-        longjmp( ras.jump_buffer, 1 );
+        ft_longjmp( ras.jump_buffer, 1 );
 
       cell        = ras.cells + ras.num_cells++;
       cell->x     = ras.ex - ras.min_ex;
@@ -407,8 +412,8 @@
   /* Set the current cell to a new position.                               */
   /*                                                                       */
   static void
-  gray_set_cell( RAS_ARG_ TScan  ex,
-                          TScan  ey )
+  gray_set_cell( RAS_ARG_ TCoord  ex,
+                          TCoord  ey )
   {
     int  invalid, record, clean;
 
@@ -464,8 +469,8 @@
   /* Start a new contour at a given cell.                                  */
   /*                                                                       */
   static void
-  gray_start_cell( RAS_ARG_  TScan  ex,
-                             TScan  ey )
+  gray_start_cell( RAS_ARG_  TCoord  ex,
+                             TCoord  ey )
   {
     if ( ex < ras.min_ex )
       ex = ras.min_ex - 1;
@@ -486,15 +491,15 @@
   /* Render a scanline as one or more cells.                               */
   /*                                                                       */
   static void
-  gray_render_scanline( RAS_ARG_  TScan  ey,
-                                  TPos   x1,
-                                  TScan  y1,
-                                  TPos   x2,
-                                  TScan  y2 )
+  gray_render_scanline( RAS_ARG_  TCoord  ey,
+                                  TPos    x1,
+                                  TCoord  y1,
+                                  TPos    x2,
+                                  TCoord  y2 )
   {
-    TScan  ex1, ex2, fx1, fx2, delta;
-    long   p, first, dx;
-    int    incr, lift, mod, rem;
+    TCoord  ex1, ex2, fx1, fx2, delta;
+    long    p, first, dx;
+    int     incr, lift, mod, rem;
 
 
     dx = x2 - x1;
@@ -596,9 +601,9 @@
   gray_render_line( RAS_ARG_ TPos  to_x,
                              TPos  to_y )
   {
-    TScan  ey1, ey2, fy1, fy2;
-    TPos   dx, dy, x, x2;
-    int    p, rem, mod, lift, delta, first, incr;
+    TCoord  ey1, ey2, fy1, fy2;
+    TPos    dx, dy, x, x2;
+    int     p, rem, mod, lift, delta, first, incr;
 
 
     ey1 = TRUNC( ras.last_ey );
@@ -614,7 +619,7 @@
 
     /* perform vertical clipping */
     {
-      TScan  min, max;
+      TCoord  min, max;
 
 
       min = ey1;
@@ -640,9 +645,9 @@
 
     if ( dx == 0 )
     {
-      TScan  ex     = TRUNC( ras.x );
-      TScan  two_fx = ( ras.x - SUBPIXELS( ex ) ) << 1;
-      TPos   area;
+      TCoord  ex     = TRUNC( ras.x );
+      TCoord  two_fx = ( ras.x - SUBPIXELS( ex ) ) << 1;
+      TPos    area;
 
 
       first = ONE_PIXEL;
@@ -1332,10 +1337,10 @@
 
 
   static void
-  gray_hline( RAS_ARG_ TScan  x,
-                       TScan  y,
-                       TPos   area,
-                       int    acount )
+  gray_hline( RAS_ARG_ TCoord  x,
+                       TCoord  y,
+                       TPos    area,
+                       int     acount )
   {
     FT_Span*   span;
     int        count;
@@ -1355,7 +1360,7 @@
     if ( ras.outline.flags & ft_outline_even_odd_fill )
     {
       coverage &= 511;
-      
+
       if ( coverage > 256 )
         coverage = 512 - coverage;
       else if ( coverage == 256 )
@@ -1431,11 +1436,12 @@
   static void
   gray_sweep( RAS_ARG_ FT_Bitmap*  target )
   {
-    TScan  x, y, cover;
-    TArea  area;
-    PCell  start, cur, limit;
+    TCoord  x, y, cover;
+    TArea   area;
+    PCell   start, cur, limit;
 
     FT_UNUSED( target );
+
 
     if ( ras.num_cells == 0 )
       return;
@@ -1544,21 +1550,23 @@
   /*    of new contours in the outline.                                    */
   /*                                                                       */
   /* <Input>                                                               */
-  /*    outline   :: A pointer to the source target.                       */
+  /*    outline        :: A pointer to the source target.                  */
   /*                                                                       */
-  /*    interface :: A table of `emitters', i.e,. function pointers called */
-  /*                 during decomposition to indicate path operations.     */
+  /*    func_interface :: A table of `emitters', i.e,. function pointers   */
+  /*                      called during decomposition to indicate path     */
+  /*                      operations.                                      */
   /*                                                                       */
-  /*    user      :: A typeless pointer which is passed to each emitter    */
-  /*                 during the decomposition.  It can be used to store    */
-  /*                 the state during the decomposition.                   */
+  /*    user           :: A typeless pointer which is passed to each       */
+  /*                      emitter during the decomposition.  It can be     */
+  /*                      used to store the state during the               */
+  /*                      decomposition.                                   */
   /*                                                                       */
   /* <Return>                                                              */
   /*    Error code.  0 means sucess.                                       */
   /*                                                                       */
   static
   int  FT_Outline_Decompose( FT_Outline*              outline,
-                             const FT_Outline_Funcs*  interface,
+                             const FT_Outline_Funcs*  func_interface,
                              void*                    user )
   {
 #undef SCALED
@@ -1582,8 +1590,8 @@
     char    tag;       /* current point's state           */
 
 #if 0
-    int     shift = interface->shift;
-    FT_Pos  delta = interface->delta;
+    int     shift = func_interface->shift;
+    FT_Pos  delta = func_interface->delta;
 #endif
 
 
@@ -1637,7 +1645,7 @@
         tags--;
       }
 
-      error = interface->move_to( &v_start, user );
+      error = func_interface->move_to( &v_start, user );
       if ( error )
         goto Exit;
 
@@ -1657,7 +1665,7 @@
             vec.x = SCALED( point->x );
             vec.y = SCALED( point->y );
 
-            error = interface->line_to( &vec, user );
+            error = func_interface->line_to( &vec, user );
             if ( error )
               goto Exit;
             continue;
@@ -1684,7 +1692,7 @@
 
               if ( tag == FT_Curve_Tag_On )
               {
-                error = interface->conic_to( &v_control, &vec, user );
+                error = func_interface->conic_to( &v_control, &vec, user );
                 if ( error )
                   goto Exit;
                 continue;
@@ -1696,7 +1704,7 @@
               v_middle.x = ( v_control.x + vec.x ) / 2;
               v_middle.y = ( v_control.y + vec.y ) / 2;
 
-              error = interface->conic_to( &v_control, &v_middle, user );
+              error = func_interface->conic_to( &v_control, &v_middle, user );
               if ( error )
                 goto Exit;
 
@@ -1704,7 +1712,7 @@
               goto Do_Conic;
             }
 
-            error = interface->conic_to( &v_control, &v_start, user );
+            error = func_interface->conic_to( &v_control, &v_start, user );
             goto Close;
           }
 
@@ -1731,20 +1739,20 @@
               vec.x = SCALED( point->x );
               vec.y = SCALED( point->y );
 
-              error = interface->cubic_to( &vec1, &vec2, &vec, user );
+              error = func_interface->cubic_to( &vec1, &vec2, &vec, user );
               if ( error )
                 goto Exit;
               continue;
             }
 
-            error = interface->cubic_to( &vec1, &vec2, &v_start, user );
+            error = func_interface->cubic_to( &vec1, &vec2, &v_start, user );
             goto Close;
           }
         }
       }
 
       /* close the contour with a line segment */
-      error = interface->line_to( &v_start, user );
+      error = func_interface->line_to( &v_start, user );
 
    Close:
       if ( error )
@@ -1776,7 +1784,7 @@
   gray_convert_glyph_inner( RAS_ARG )
   {
     static
-    const FT_Outline_Funcs  interface =
+    const FT_Outline_Funcs  func_interface =
     {
       (FT_Outline_MoveTo_Func) gray_move_to,
       (FT_Outline_LineTo_Func) gray_line_to,
@@ -1788,9 +1796,9 @@
 
     volatile int  error = 0;
 
-    if ( setjmp( ras.jump_buffer ) == 0 )
+    if ( ft_setjmp( ras.jump_buffer ) == 0 )
     {
-      error = FT_Outline_Decompose( &ras.outline, &interface, &ras );
+      error = FT_Outline_Decompose( &ras.outline, &func_interface, &ras );
       gray_record_cell( RAS_VAR );
     }
     else
@@ -1881,7 +1889,7 @@
 #if 1
         error = gray_convert_glyph_inner( RAS_VAR );
 #else
-        error = FT_Outline_Decompose( outline, &interface, &ras ) ||
+        error = FT_Outline_Decompose( outline, &func_interface, &ras ) ||
                 gray_record_cell( RAS_VAR );
 #endif
 

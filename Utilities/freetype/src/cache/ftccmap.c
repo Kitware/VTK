@@ -32,7 +32,7 @@
   /* codes to equivalent glyph indices.                                    */
   /*                                                                       */
   /* For now, the implementation is very basic: Each node maps a range of  */
-  /* 128 consecutive character codes to their correspondingglyph indices.  */
+  /* 128 consecutive character codes to their corresponding glyph indices. */
   /*                                                                       */
   /* We could do more complex things, but I don't think it is really very  */
   /* useful.                                                               */
@@ -228,7 +228,7 @@
 
   Bad_Descriptor:
     FT_ERROR(( "ftp_cmap_family_init: invalid charmap descriptor\n" ));
-    return FT_Err_Invalid_Argument;
+    return FTC_Err_Invalid_Argument;
   }
 
 
@@ -318,6 +318,25 @@
   }
 
 
+#ifdef FTC_CACHE_USE_INLINE
+
+#define GEN_CACHE_FAMILY_COMPARE( f, q, c ) \
+          ftc_cmap_family_compare( (FTC_CMapFamily)(f), (FTC_CMapQuery)(q) )
+
+#define GEN_CACHE_NODE_COMPARE( n, q, c ) \
+          ftc_cmap_node_compare( (FTC_CMapNode)(n), (FTC_CMapQuery)(q) )
+
+#define GEN_CACHE_LOOKUP  ftc_cmap_cache_lookup
+
+#include "ftccache.i"
+
+#else  /* !FTC_CACHE_USE_INLINE */
+
+#define ftc_cmap_cache_lookup  ftc_cache_lookup
+
+#endif /* !FTC_CACHE_USE_INLINE */
+
+
   /* documentation is in ftccmap.h */
 
   FT_EXPORT_DEF( FT_UInt )
@@ -340,13 +359,15 @@
     cquery.desc      = desc;
     cquery.char_code = char_code;
 
-    error = ftc_cache_lookup( FTC_CACHE( cache ),
-                              FTC_QUERY( &cquery ),
-                              (FTC_Node*)&node );
+    error = ftc_cmap_cache_lookup( FTC_CACHE( cache ),
+                                   FTC_QUERY( &cquery ),
+                                   (FTC_Node*)&node );
     if ( !error )
     {
       FT_UInt  offset = (FT_UInt)( char_code - node->first );
 
+
+      FT_ASSERT( offset < FTC_CMAP_INDICES_MAX );
 
       gindex = node->indices[offset];
       if ( gindex == FTC_CMAP_UNKNOWN )

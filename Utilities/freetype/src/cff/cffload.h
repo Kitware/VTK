@@ -38,7 +38,7 @@ FT_BEGIN_HEADER
   FT_LOCAL( FT_String* )
   CFF_Get_String( CFF_Index        idx,
                   FT_UInt          sid,
-                  PSNames_Service  interface );
+                  PSNames_Service  psnames_interface );
 
 
   FT_LOCAL( FT_Error )

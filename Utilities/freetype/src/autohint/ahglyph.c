@@ -26,10 +26,10 @@
 #include "ahglobal.h"
 #include "aherrors.h"
 
-#include <stdio.h>
-
 
 #ifdef AH_DEBUG
+
+#include <stdio.h>
 
   void
   ah_dump_edges( AH_Outline*  outline )

@@ -1313,7 +1313,7 @@
   FT_LOCAL_DEF( FT_String* )
   CFF_Get_String( CFF_Index        idx,
                   FT_UInt          sid,
-                  PSNames_Service  interface )
+                  PSNames_Service  psnames_interface )
   {
     /* if it is not a standard string, return it */
     if ( sid > 390 )
@@ -1322,7 +1322,7 @@
     /* that's a standard string, fetch a copy from the PSName module */
     {
       FT_String*   name       = 0;
-      const char*  adobe_name = interface->adobe_std_strings( sid );
+      const char*  adobe_name = psnames_interface->adobe_std_strings( sid );
       FT_UInt      len;
 
 

@@ -63,8 +63,8 @@
     FTC_ImageDesc       desc;
 
   } FTC_SBitFamilyRec;
- 
-  
+
+
 #define FTC_SBIT_FAMILY( x )         ( (FTC_SBitFamily)( x ) )
 #define FTC_SBIT_FAMILY_MEMORY( x )  FTC_GLYPH_FAMILY_MEMORY( &( x )->cset )
 
@@ -213,16 +213,23 @@
              CHECK_CHAR( xadvance )          &&
              CHECK_CHAR( yadvance )          )
         {
-          sbit->width    = (FT_Byte)bitmap->width;
-          sbit->height   = (FT_Byte)bitmap->rows;
-          sbit->pitch    = (FT_Char)bitmap->pitch;
-          sbit->left     = (FT_Char)slot->bitmap_left;
-          sbit->top      = (FT_Char)slot->bitmap_top;
-          sbit->xadvance = (FT_Char)xadvance;
-          sbit->yadvance = (FT_Char)yadvance;
-          sbit->format   = (FT_Byte)bitmap->pixel_mode;
+          sbit->width     = (FT_Byte)bitmap->width;
+          sbit->height    = (FT_Byte)bitmap->rows;
+          sbit->pitch     = (FT_Char)bitmap->pitch;
+          sbit->left      = (FT_Char)slot->bitmap_left;
+          sbit->top       = (FT_Char)slot->bitmap_top;
+          sbit->xadvance  = (FT_Char)xadvance;
+          sbit->yadvance  = (FT_Char)yadvance;
+          sbit->format    = (FT_Byte)bitmap->pixel_mode;
+          /* XXX: Fixme: We don't handle the number of gray levels      */
+          /*             consistently -- we say num_grays == 1 for      */
+          /*             monochrome but num_grays == 256 for gray.  It  */
+          /*             would be better to make this variable hold the */
+          /*             highest possible value so that it fits into    */
+          /*             a single byte.                                 */
+          sbit->num_grays = bitmap->num_grays;
 
-          /* grab the bitmap when possible - this is a hack !! */
+          /* grab the bitmap when possible - this is a hack! */
           if ( slot->flags & FT_GLYPH_OWN_BITMAP )
           {
             slot->flags &= ~FT_GLYPH_OWN_BITMAP;
@@ -455,6 +462,23 @@
 
   /* documentation is in ftcsbits.h */
 
+#ifdef FTC_CACHE_USE_INLINE
+
+#define GEN_CACHE_FAMILY_COMPARE( f, q, c ) \
+          ftc_sbit_family_compare( (FTC_SBitFamily)(f), (FTC_SBitQuery)(q) )
+
+#define GEN_CACHE_NODE_COMPARE( n, q, c ) \
+          ftc_sbit_node_compare( (FTC_SBitNode)(n), (FTC_SBitQuery)(q), c )
+
+#define GEN_CACHE_LOOKUP  ftc_sbit_cache_lookup
+#include "ftccache.i"
+
+#else  /* !FTC_CACHE_USE_INLINE */
+
+#define ftc_sbit_cache_lookup  ftc_cache_lookup
+
+#endif /* !FTC_CACHE_USE_INLINE */
+
   FT_EXPORT_DEF( FT_Error )
   FTC_SBitCache_Lookup( FTC_SBitCache   cache,
                         FTC_ImageDesc*  desc,
@@ -479,9 +503,9 @@
     squery.gquery.gindex = gindex;
     squery.desc          = *desc;
 
-    error = ftc_cache_lookup( FTC_CACHE( cache ),
-                              FTC_QUERY( &squery ),
-                              (FTC_Node*)&node );
+    error = ftc_sbit_cache_lookup( FTC_CACHE( cache ),
+                                   FTC_QUERY( &squery ),
+                                   (FTC_Node*)&node );
     if ( !error )
     {
       *ansbit = node->sbits + ( gindex - FTC_GLYPH_NODE( node )->item_start );
@@ -513,11 +537,11 @@
                          FTC_SBit        *ansbit )
   {
     FTC_ImageDesc  desc0;
-    
+
 
     if ( !desc )
-      return FT_Err_Invalid_Argument;
-      
+      return FTC_Err_Invalid_Argument;
+
     desc0.font = desc->font;
     desc0.type = (FT_UInt32)desc->image_type;
 

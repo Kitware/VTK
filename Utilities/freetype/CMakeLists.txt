@@ -26,6 +26,9 @@ SOURCE_FILES (FREETYPE_SRCS
   src/smooth/smooth.c
   src/pcf/pcf.c
   src/pshinter/pshinter.c
+  src/bdf/bdf.c
+  src/pfr/pfr.c
+  src/type42/type42.c
 )
 
 IF (BUILD_SHARED_LIBS)
@@ -60,6 +63,7 @@ ELSE (UNIX)
 ENDIF (UNIX)
 
 IF (APPLE)
+  ADD_DEFINITIONS(-DTARGET_API_MAC_CARBON)
   SOURCE_FILES (FREETYPE_SRCS src/base/ftmac.c)
 ENDIF (APPLE)
 

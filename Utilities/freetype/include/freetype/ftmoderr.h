@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType module error offsets (specification).                       */
 /*                                                                         */
-/*  Copyright 2001 by                                                      */
+/*  Copyright 2001, 2002 by                                                */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -116,6 +116,7 @@
   FT_MODERRDEF( TrueType, 0xB00, "TrueType module" )
   FT_MODERRDEF( Type1,    0xC00, "Type 1 module" )
   FT_MODERRDEF( Winfonts, 0xD00, "Windows FON/FNT module" )
+  FT_MODERRDEF( PFR,      0xE00, "PFR module" )
 
 
 #ifdef FT_MODERR_END_LIST

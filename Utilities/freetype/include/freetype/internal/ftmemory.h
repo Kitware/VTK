@@ -179,6 +179,11 @@ FT_BEGIN_HEADER
 #define FT_MEM_MOVE( dest, source, count )  ft_memmove( dest, source, count )
 
 
+#define FT_MEM_ZERO( dest, count )  FT_MEM_SET( dest, 0, count )
+
+#define FT_ZERO( p )                FT_MEM_ZERO( p, sizeof ( *(p) ) )
+
+
   /*************************************************************************/
   /*                                                                       */
   /* We first define FT_MEM_ALLOC, FT_MEM_REALLOC, and FT_MEM_FREE.  All   */

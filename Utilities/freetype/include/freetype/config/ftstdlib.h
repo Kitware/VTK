@@ -59,6 +59,7 @@
 
 
 #include <limits.h>
+
 #define FT_UINT_MAX   UINT_MAX
 #define FT_ULONG_MAX  ULONG_MAX
 
@@ -71,12 +72,15 @@
 
 
 #include <ctype.h>
+
 #define ft_isalnum  isalnum
 #define ft_isupper  isupper
 #define ft_islower  islower
+#define ft_xdigit   isxdigit
 
 
 #include <string.h>
+
 #define ft_strlen   strlen
 #define ft_strcmp   strcmp
 #define ft_strncmp  strncmp
@@ -85,6 +89,11 @@
 #define ft_strncpy  strncpy
 #define ft_memset   memset
 #define ft_memmove  memmove
+#define ft_memcmp   memcmp
+
+#include <stdio.h>
+
+#define ft_sprintf  sprintf
 
 
   /**********************************************************************/
@@ -95,7 +104,11 @@
 
 
 #include <stdlib.h>
+
 #define ft_qsort  qsort
+#define ft_exit   exit    /* only used to exit from unhandled exceptions */
+
+#define ft_atoi   atoi
 
 
   /**********************************************************************/
@@ -103,6 +116,7 @@
   /*                         execution control                          */
   /*                                                                    */
   /**********************************************************************/
+
 
 #include <setjmp.h>
 

@@ -400,7 +400,7 @@
     else
     {
       FT_ERROR(( "ftc_family_table_alloc: internal bug!" ));
-      return FT_Err_Invalid_Argument;
+      return FTC_Err_Invalid_Argument;
     }
 
     entry->link = FTC_FAMILY_ENTRY_NONE;

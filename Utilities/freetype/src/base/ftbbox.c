@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType bbox computation (body).                                    */
 /*                                                                         */
-/*  Copyright 1996-2001 by                                                 */
+/*  Copyright 1996-2001, 2002 by                                           */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used        */
@@ -622,7 +622,7 @@
       /* the two boxes are different, now walk over the outline to */
       /* get the Bezier arc extrema.                               */
 
-      static const FT_Outline_Funcs  interface =
+      static const FT_Outline_Funcs  bbox_interface =
       {
         (FT_Outline_MoveTo_Func) BBox_Move_To,
         (FT_Outline_LineTo_Func) BBox_Move_To,
@@ -637,7 +637,7 @@
 
       user.bbox = bbox;
 
-      error = FT_Outline_Decompose( outline, &interface, &user );
+      error = FT_Outline_Decompose( outline, &bbox_interface, &user );
       if ( error )
         return error;
 

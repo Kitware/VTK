@@ -327,10 +327,9 @@
 
       root->num_glyphs = face->type1.num_glyphs;
       root->face_index = face_index;
+
       root->face_flags = FT_FACE_FLAG_SCALABLE;
-
       root->face_flags |= FT_FACE_FLAG_HORIZONTAL;
-
       root->face_flags |= FT_FACE_FLAG_GLYPH_NAMES;
 
       if ( face->type1.font_info.is_fixed_pitch )
@@ -432,28 +431,28 @@
 
     {
       FT_Face  root = &face->root;
-      
+
 
       if ( psnames && psaux )
       {
         FT_CharMapRec    charmap;
         T1_CMap_Classes  cmap_classes = psaux->t1_cmap_classes;
         FT_CMap_Class    clazz;
-        
+
 
         charmap.face = root;
-        
+
         /* first of all, try to synthetize a Unicode charmap */
         charmap.platform_id = 3;
         charmap.encoding_id = 1;
         charmap.encoding    = ft_encoding_unicode;
-        
+
         FT_CMap_New( cmap_classes->unicode, NULL, &charmap, NULL );
-        
+
         /* now, generate an Adobe Standard encoding when appropriate */
         charmap.platform_id = 7;
         clazz               = NULL;
-        
+
         switch ( face->type1.encoding_type )
         {
         case T1_ENCODING_TYPE_STANDARD:
@@ -461,29 +460,29 @@
           charmap.encoding_id = 0;
           clazz               = cmap_classes->standard;
           break;
-          
-        case T1_ENCODING_TYPE_EXPORT:
+
+        case T1_ENCODING_TYPE_EXPERT:
           charmap.encoding    = ft_encoding_adobe_expert;
           charmap.encoding_id = 1;
           clazz               = cmap_classes->expert;
           break;
-            
+
         case T1_ENCODING_TYPE_ARRAY:
           charmap.encoding    = ft_encoding_adobe_custom;
           charmap.encoding_id = 2;
           clazz               = cmap_classes->custom;
           break;
-            
+
         case T1_ENCODING_TYPE_ISOLATIN1:
           charmap.encoding    = ft_encoding_latin_1;
           charmap.encoding_id = 3;
           clazz               = cmap_classes->unicode;
           break;
-            
+
         default:
           ;
         }
-        
+
         if ( clazz )
           FT_CMap_New( clazz, NULL, &charmap, NULL );
       }
@@ -535,7 +534,7 @@
         charmap->encoding_id = 0;
         break;
 
-      case T1_ENCODING_TYPE_EXPORT:
+      case T1_ENCODING_TYPE_EXPERT:
         charmap->encoding    = ft_encoding_adobe_expert;
         charmap->encoding_id = 1;
         break;

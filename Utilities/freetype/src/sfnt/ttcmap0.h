@@ -62,8 +62,12 @@ FT_BEGIN_HEADER
 #define TT_VALID_GLYPH_COUNT( x )  TT_VALIDATOR( x )->num_glyphs
 
 
+#ifdef FT_CONFIG_OPTION_USE_CMAPS
+
   FT_LOCAL( FT_Error )
   TT_Build_CMaps( TT_Face  face );
+
+#endif
 
 
 FT_END_HEADER

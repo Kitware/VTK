@@ -120,6 +120,8 @@ FT_BEGIN_HEADER
 #define FT_FRAME_ULONG( f )      FT_FRAME_FIELD( ft_frame_ulong_be, f )
 #define FT_FRAME_SHORT( f )      FT_FRAME_FIELD( ft_frame_short_be, f )
 #define FT_FRAME_USHORT( f )     FT_FRAME_FIELD( ft_frame_ushort_be, f )
+#define FT_FRAME_OFF3( f )       FT_FRAME_FIELD( ft_frame_off3_be, f )
+#define FT_FRAME_UOFF3( f )      FT_FRAME_FIELD( ft_frame_uoff3_be, f )
 #define FT_FRAME_BYTE( f )       FT_FRAME_FIELD( ft_frame_byte, f )
 #define FT_FRAME_CHAR( f )       FT_FRAME_FIELD( ft_frame_schar, f )
 
@@ -127,6 +129,8 @@ FT_BEGIN_HEADER
 #define FT_FRAME_ULONG_LE( f )   FT_FRAME_FIELD( ft_frame_ulong_le, f )
 #define FT_FRAME_SHORT_LE( f )   FT_FRAME_FIELD( ft_frame_short_le, f )
 #define FT_FRAME_USHORT_LE( f )  FT_FRAME_FIELD( ft_frame_ushort_le, f )
+#define FT_FRAME_OFF3_LE( f )    FT_FRAME_FIELD( ft_frame_off3_le, f )
+#define FT_FRAME_UOFF3_LE( f )   FT_FRAME_FIELD( ft_frame_uoff3_le, f )
 
 #define FT_FRAME_SKIP_LONG       { ft_frame_long_be, 0, 0 }
 #define FT_FRAME_SKIP_SHORT      { ft_frame_short_be, 0, 0 }

@@ -128,11 +128,11 @@
   /*     PostScript name of a given glyph index).                          */
   /*                                                                       */
   /* <InOut>                                                               */
-  /*    driver    :: A handle to a driver object.                          */
+  /*    driver       :: A handle to a driver object.                       */
   /*                                                                       */
   /* <Input>                                                               */
-  /*    interface :: A string designing the interface.  Examples are       */
-  /*                 `sfnt', `post_names', `charmaps', etc.                */
+  /*    t1_interface :: A string designing the interface.  Examples are    */
+  /*                    `sfnt', `post_names', `charmaps', etc.             */
   /*                                                                       */
   /* <Return>                                                              */
   /*    A typeless pointer to the extension's interface (normally a table  */
@@ -142,28 +142,28 @@
   /*                                                                       */
   static FT_Module_Interface
   Get_Interface( FT_Driver         driver,
-                 const FT_String*  interface )
+                 const FT_String*  t1_interface )
   {
     FT_UNUSED( driver );
-    FT_UNUSED( interface );
+    FT_UNUSED( t1_interface );
 
-    if ( ft_strcmp( (const char*)interface, "glyph_name" ) == 0 )
+    if ( ft_strcmp( (const char*)t1_interface, "glyph_name" ) == 0 )
       return (FT_Module_Interface)t1_get_glyph_name;
 
-    if ( ft_strcmp( (const char*)interface, "name_index" ) == 0 )
+    if ( ft_strcmp( (const char*)t1_interface, "name_index" ) == 0 )
       return (FT_Module_Interface)t1_get_name_index;
 
-    if ( ft_strcmp( (const char*)interface, "postscript_name" ) == 0 )
+    if ( ft_strcmp( (const char*)t1_interface, "postscript_name" ) == 0 )
       return (FT_Module_Interface)t1_get_ps_name;
 
 #ifndef T1_CONFIG_OPTION_NO_MM_SUPPORT
-    if ( ft_strcmp( (const char*)interface, "get_mm" ) == 0 )
+    if ( ft_strcmp( (const char*)t1_interface, "get_mm" ) == 0 )
       return (FT_Module_Interface)T1_Get_Multi_Master;
 
-    if ( ft_strcmp( (const char*)interface, "set_mm_design") == 0 )
+    if ( ft_strcmp( (const char*)t1_interface, "set_mm_design") == 0 )
       return (FT_Module_Interface)T1_Set_MM_Design;
 
-    if ( ft_strcmp( (const char*)interface, "set_mm_blend") == 0 )
+    if ( ft_strcmp( (const char*)t1_interface, "set_mm_blend") == 0 )
       return (FT_Module_Interface)T1_Set_MM_Blend;
 #endif
     return 0;
@@ -445,8 +445,8 @@
             const char*  gname = face->type1.glyph_names[n];
 
 
-            if ( gname && gname[0] == glyph_name[0] &&
-                 ft_strcmp( gname, glyph_name ) == 0   )
+            if ( gname && gname[0] == glyph_name[0]  &&
+                 ft_strcmp( gname, glyph_name ) == 0 )
               return charcode;
           }
         }
@@ -504,38 +504,6 @@
 
     (FT_CharMap_CharNextFunc) Get_Next_Char
   };
-
-
-#ifdef FT_CONFIG_OPTION_DYNAMIC_DRIVERS
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Function>                                                            */
-  /*    getDriverClass                                                     */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    This function is used when compiling the TrueType driver as a      */
-  /*    shared library (`.DLL' or `.so').  It will be used by the          */
-  /*    high-level library of FreeType to retrieve the address of the      */
-  /*    driver's generic interface.                                        */
-  /*                                                                       */
-  /*    It shouldn't be implemented in a static build, as each driver must */
-  /*    have the same function as an exported entry point.                 */
-  /*                                                                       */
-  /* <Return>                                                              */
-  /*    The address of the TrueType's driver generic interface.  The       */
-  /*    format-specific interface can then be retrieved through the method */
-  /*    interface->get_format_interface.                                   */
-  /*                                                                       */
-  FT_EXPORT_DEF( const FT_Driver_Class )
-  getDriverClass( void )
-  {
-    return &t1_driver_class;
-  }
-
-
-#endif /* FT_CONFIG_OPTION_DYNAMIC_DRIVERS */
 
 
 /* END */

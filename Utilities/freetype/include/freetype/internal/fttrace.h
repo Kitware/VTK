@@ -77,6 +77,9 @@ FT_TRACE_DEF( cffload )
 FT_TRACE_DEF( cffobjs )
 FT_TRACE_DEF( cffparse )
 
+/* Type 42 driver component */
+FT_TRACE_DEF( t42 )
+
 /* CID driver components */
 FT_TRACE_DEF( cidafm )
 FT_TRACE_DEF( ciddriver )
@@ -88,9 +91,16 @@ FT_TRACE_DEF( cidparse )
 /* Windows fonts component */
 FT_TRACE_DEF( winfnt )
 
-/* PCF fonts component */
+/* PCF fonts components */
 FT_TRACE_DEF( pcfdriver )
 FT_TRACE_DEF( pcfread )
+
+/* BDF fonts component */
+FT_TRACE_DEF( bdfdriver )
+FT_TRACE_DEF( bdflib )
+
+/* PFR fonts component */
+FT_TRACE_DEF( pfr )
 
 
 /* END */

@@ -48,7 +48,7 @@ FT_BEGIN_HEADER
     PS_TableRec   subrs;
     FT_Bool       fontdata;
 
-  } T1_Loader;
+  } T1_LoaderRec, *T1_Loader;
 
 
   FT_LOCAL( FT_Error )

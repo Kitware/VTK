@@ -435,12 +435,49 @@
 
 
   static FT_Long
+  T1Radix( FT_Long    radixBase,
+           FT_Byte**  cur,
+           FT_Byte*   limit )
+  {
+    FT_Long  result = 0;
+    FT_Byte  radixEndChar0 =
+               (FT_Byte)( radixBase > 10 ? '9' + 1 : '0' + radixBase );
+    FT_Byte  radixEndChar1 =
+               (FT_Byte)( 'A' + radixBase - 10 );
+    FT_Byte  radixEndChar2 =
+               (FT_Byte)( 'a' + radixBase - 10 );
+
+
+    while( *cur < limit )
+    {
+      if ( (*cur)[0] >= '0' && (*cur)[0] < radixEndChar0 )
+        result = result * radixBase + (*cur)[0] - '0';
+
+      else if ( radixBase > 10 &&
+                (*cur)[0] >= 'A' && (*cur)[0] < radixEndChar1 )
+        result = result * radixBase + ( (*cur)[0] - 'A' + 10 );
+
+      else if ( radixBase > 10 &&
+                (*cur)[0] >= 'a' && (*cur)[0] < radixEndChar2 )
+        result = result * radixBase + ( (*cur)[0] - 'a' + 10 );
+
+      else
+        return result;
+
+      (*cur)++;
+    }
+
+    return result;
+  }
+
+
+  static FT_Long
   t1_toint( FT_Byte**  cursor,
             FT_Byte*   limit )
   {
     FT_Long   result = 0;
     FT_Byte*  cur    = *cursor;
-    FT_Byte   c = '\0', d;
+    FT_Byte   c      = '\0', d;
 
 
     for ( ; cur < limit; cur++ )
@@ -463,7 +500,14 @@
       {
         d = (FT_Byte)( cur[0] - '0' );
         if ( d >= 10 )
+        {
+          if ( cur[0] == '#' )
+          {
+            cur++;
+            result = T1Radix( result, &cur, limit );
+          }
           break;
+        }
 
         result = result * 10 + d;
         cur++;

@@ -37,15 +37,15 @@
     valid->level = level;
     valid->error = 0;
   }
-                       
+
 
   FT_BASE_DEF( FT_Int )
   ft_validator_run( FT_Validator  valid )
   {
     int  result;
-    
 
-    result = setjmp( valid->jump_buffer );
+
+    result = ft_setjmp( valid->jump_buffer );
     return result;
   }
 
@@ -55,8 +55,8 @@
                       FT_Error      error )
   {
     valid->error = error;
-    longjmp( valid->jump_buffer, 1 );
-  }                      
+    ft_longjmp( valid->jump_buffer, 1 );
+  }
 
 
   /*************************************************************************/
@@ -619,18 +619,18 @@
     /* discard charmaps */
     {
       FT_Int  n;
-      
+
 
       for ( n = 0; n < face->num_charmaps; n++ )
       {
         FT_CMap  cmap = FT_CMAP( face->charmaps[n] );
-        
+
 
         FT_CMap_Done( cmap );
-        
+
         face->charmaps[n] = NULL;
       }
-      
+
       FT_FREE( face->charmaps );
       face->num_charmaps = 0;
     }
@@ -736,9 +736,9 @@
 
 
   /* there's a Mac-specific extended implementation of FT_New_Face() */
-  /* in src/mac/ftmac.c                                              */
+  /* in src/base/ftmac.c                                             */
 
-#ifndef macintosh
+#ifndef FT_MACINTOSH
 
   /* documentation is in freetype.h */
 
@@ -761,7 +761,7 @@
     return FT_Open_Face( library, &args, face_index, aface );
   }
 
-#endif  /* !macintosh */
+#endif  /* !FT_MACINTOSH */
 
 
   /* documentation is in freetype.h */
@@ -1515,7 +1515,7 @@
     if ( face && face->charmap )
     {
       FT_CMap  cmap = FT_CMAP( face->charmap );
-      
+
 
       result = cmap->clazz->char_index( cmap, charcode );
     }
@@ -1998,7 +1998,7 @@
   }
 
 
-  FT_EXPORT_DEF( FT_Error )
+  FT_BASE_DEF( FT_Error )
   FT_Render_Glyph_Internal( FT_Library    library,
                             FT_GlyphSlot  slot,
                             FT_UInt       render_mode )
@@ -2375,8 +2375,10 @@
     if ( !memory )
       return FT_Err_Invalid_Argument;
 
+#ifdef FT_DEBUG_LEVEL_ERROR
     /* init debugging support */
     ft_debug_init();
+#endif
 
     /* first of all, allocate the library object */
     if ( FT_NEW( library ) )
@@ -2401,7 +2403,7 @@
 
 
   /* documentation is in freetype.h */
-  
+
   FT_EXPORT_DEF( void )
   FT_Library_Version( FT_Library   library,
                       FT_Int      *amajor,
@@ -2412,23 +2414,23 @@
     FT_Int  minor = 0;
     FT_Int  patch = 0;
 
-    
+
     if ( library )
     {
       major = library->version_major;
       minor = library->version_minor;
       patch = library->version_patch;
     }
-    
+
     if ( *amajor )
       *amajor = major;
-      
+
     if ( *aminor )
       *aminor = minor;
-      
+
     if ( *apatch )
       *apatch = patch;
-  }                      
+  }
 
 
   /* documentation is in ftmodule.h */

@@ -73,7 +73,9 @@
 
     for ( ; entry < limit; entry++ )
     {
-      if ( entry->Tag == tag )
+      /* For compatibility with Windows, we consider 0-length */
+      /* tables the same as missing tables.                   */
+      if ( entry->Tag == tag && entry->Length != 0 )
       {
         FT_TRACE3(( "found table.\n" ));
         return entry;
@@ -932,14 +934,12 @@
   {
     FT_Error      error;
     FT_Memory     memory = stream->memory;
-
     FT_ULong      table_pos, table_len;
-    FT_ULong      storageOffset, storageSize;
-    FT_Byte*      storage;
+    FT_ULong      storage_start, storage_limit;
+    FT_UInt       count;
+    TT_NameTable  table;
 
-    TT_NameTable  names;
-
-    const FT_Frame_Field  name_table_fields[] =
+    static const FT_Frame_Field  name_table_fields[] =
     {
 #undef  FT_STRUCTURE
 #define FT_STRUCTURE  TT_NameTableRec
@@ -951,7 +951,7 @@
       FT_FRAME_END
     };
 
-    const FT_Frame_Field  name_record_fields[] =
+    static const FT_Frame_Field  name_record_fields[] =
     {
 #undef  FT_STRUCTURE
 #define FT_STRUCTURE  TT_NameEntryRec
@@ -967,6 +967,9 @@
     };
 
 
+    table         = &face->name_table;
+    table->stream = stream;
+
     FT_TRACE2(( "Names " ));
 
     error = face->goto_table( face, TTAG_name, stream, &table_len );
@@ -980,109 +983,73 @@
 
     table_pos = FT_STREAM_POS();
 
-    names = &face->name_table;
 
-    if ( FT_STREAM_READ_FIELDS( name_table_fields, names ) )
+    if ( FT_STREAM_READ_FIELDS( name_table_fields, table ) )
       goto Exit;
 
-    /* check the 'storageOffset' field */
-    storageOffset = names->storageOffset;
-    if ( storageOffset <  (FT_ULong)( 6 + 12 * names->numNameRecords ) ||
-         table_len     <= storageOffset                                )
+    /* Some popular asian fonts have an invalid `storageOffset' value   */
+    /* (it should be at least "6 + 12*num_names").  However, the string */
+    /* offsets, computed as "storageOffset + entry->stringOffset", are  */
+    /* valid pointers within the name table...                          */
+    /*                                                                  */
+    /* We thus can't check `storageOffset' right now.                   */
+    /*                                                                  */
+    storage_start = table_pos + 6 + 12*table->numNameRecords;
+    storage_limit = table_pos + table_len;
+
+    if ( storage_start > storage_limit )
     {
       FT_ERROR(( "TT_Load_Names: invalid `name' table\n" ));
       error = SFNT_Err_Name_Table_Missing;
       goto Exit;
     }
 
-    storageSize = (FT_ULong)(table_len - storageOffset);
-
     /* Allocate the array of name records. */
-    if ( FT_ALLOC( names->names,
-                   names->numNameRecords * sizeof ( TT_NameEntryRec ) +
-                     storageSize )                                      ||
-         FT_FRAME_ENTER( names->numNameRecords * 12L )                  )
-      goto Exit;
+    count                 = table->numNameRecords;
+    table->numNameRecords = 0;
 
-    storage = (FT_Byte*)( names->names + names->numNameRecords );
+    if ( FT_NEW_ARRAY( table->names, count ) ||
+         FT_FRAME_ENTER( count * 12 )        )
+      goto Exit;
 
     /* Load the name records and determine how much storage is needed */
     /* to hold the strings themselves.                                */
     {
-      TT_NameEntryRec*  cur   = names->names;
-      TT_NameEntryRec*  limit = cur + names->numNameRecords;
+      TT_NameEntryRec*  entry = table->names;
 
 
-      for ( ; cur < limit; cur ++ )
+      for ( ; count > 0; count-- )
       {
-        if ( FT_STREAM_READ_FIELDS( name_record_fields, cur ) )
-          break;
+        if ( FT_STREAM_READ_FIELDS( name_record_fields, entry ) )
+          continue;
 
-        /* invalid name entries will have "cur->string" set to NULL! */
-        if ( (FT_ULong)( cur->stringOffset + cur->stringLength ) < storageSize )
-          cur->string = storage + cur->stringOffset;
-        else
+        /* check that the name is not empty */
+        if ( entry->stringLength == 0 )
+          continue;
+
+        /* check that the name string is within the table */
+        entry->stringOffset += table_pos + table->storageOffset;
+        if ( entry->stringOffset                       < storage_start ||
+             entry->stringOffset + entry->stringLength > storage_limit )
         {
-          /* that's an invalid entry */
-          cur->stringOffset = 0;
-          cur->string       = NULL;
+          /* invalid entry - ignore it */
+          entry->stringOffset = 0;
+          entry->stringLength = 0;
+          continue;
         }
+
+        entry++;
       }
+
+      table->numNameRecords = entry - table->names;
     }
 
     FT_FRAME_EXIT();
 
-    if ( error )
-      goto Exit;
-
-    storageOffset -= 6 + 12 * names->numNameRecords;
-    if ( FT_STREAM_SKIP( storageOffset )        ||
-         FT_STREAM_READ( storage, storageSize ) )
-      goto Exit;
-
-#ifdef FT_DEBUG_LEVEL_TRACE
-
-      /* print Name Record Table in case of debugging */
-      {
-        TT_NameEntryRec*  cur   = names->names;
-        TT_NameEntryRec*  limit = cur + names->numNameRecords;
-
-
-        for ( ; cur < limit; cur++ )
-        {
-          FT_UInt  j;
-
-
-          FT_TRACE3(( "(%2d %2d %4x %2d)  ",
-                      cur->platformID,
-                      cur->encodingID,
-                      cur->languageID,
-                      cur->nameID ));
-
-          /* I know that M$ encoded strings are Unicode,            */
-          /* but this works reasonable well for debugging purposes. */
-          if ( cur->string )
-            for ( j = 0; j < (FT_UInt)cur->stringLength; j++ )
-            {
-              FT_Byte  c = *(FT_Byte*)( cur->string + j );
-
-
-              if ( c >= 32 && c < 128 )
-                FT_TRACE3(( "%c", c ));
-            }
-          else
-            FT_TRACE3(( "Invalid entry!\n" ));
-
-          FT_TRACE3(( "\n" ));
-        }
-      }
-
-#endif /* FT_DEBUG_LEVEL_TRACE */
-
     FT_TRACE2(( "loaded\n" ));
 
     /* everything went well, update face->num_names */
-    face->num_names = names->numNameRecords;
+    face->num_names = (FT_UShort) table->numNameRecords;
 
   Exit:
     return error;
@@ -1104,18 +1071,23 @@
   TT_Free_Names( TT_Face  face )
   {
     FT_Memory     memory = face->root.driver->root.memory;
-    TT_NameTable  names  = &face->name_table;
+    TT_NameTable  table  = &face->name_table;
+    TT_NameEntry  entry  = table->names;
+    FT_UInt       count  = table->numNameRecords;
 
+
+    for ( ; count > 0; count--, entry++ )
+    {
+      FT_FREE( entry->string );
+      entry->stringLength = 0;
+    }
 
     /* free strings table */
-    FT_FREE( names->names );
+    FT_FREE( table->names );
 
-    /* free strings storage */
-    FT_FREE( names->storage );
-
-    names->numNameRecords = 0;
-    names->format         = 0;
-    names->storageOffset  = 0;
+    table->numNameRecords = 0;
+    table->format         = 0;
+    table->storageOffset  = 0;
   }
 
 
@@ -1153,7 +1125,7 @@
       error = SFNT_Err_CMap_Table_Missing;
       goto Exit;
     }
-    
+
     if ( !FT_FRAME_EXTRACT( face->cmap_size, face->cmap_table ) )
       FT_TRACE2(( "`cmap' table loaded\n" ));
     else
@@ -1161,13 +1133,13 @@
       FT_ERROR(( "`cmap' table is too short!\n" ));
       face->cmap_size = 0;
     }
-    
+
   Exit:
     return error;
   }
 
 #else /* !FT_CONFIG_OPTION_USE_CMAPS */
-  
+
   FT_LOCAL_DEF( FT_Error )
   TT_Load_CMap( TT_Face    face,
                 FT_Stream  stream )

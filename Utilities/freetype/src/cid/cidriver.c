@@ -51,12 +51,12 @@
 
   static FT_Module_Interface
   CID_Get_Interface( FT_Driver         driver,
-                     const FT_String*  interface )
+                     const FT_String*  cid_interface )
   {
     FT_UNUSED( driver );
-    FT_UNUSED( interface );
+    FT_UNUSED( cid_interface );
 
-    if ( ft_strcmp( (const char*)interface, "postscript_name" ) == 0 )
+    if ( ft_strcmp( (const char*)cid_interface, "postscript_name" ) == 0 )
       return (FT_Module_Interface)cid_get_postscript_name;
 
     return 0;
@@ -332,38 +332,6 @@
     
     (FT_CharMap_CharNextFunc) CID_Get_Next_Char
   };
-
-
-#ifdef FT_CONFIG_OPTION_DYNAMIC_DRIVERS
-
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Function>                                                            */
-  /*    getDriverClass                                                     */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    This function is used when compiling the TrueType driver as a      */
-  /*    shared library (`.DLL' or `.so').  It will be used by the          */
-  /*    high-level library of FreeType to retrieve the address of the      */
-  /*    driver's generic interface.                                        */
-  /*                                                                       */
-  /*    It shouldn't be implemented in a static build, as each driver must */
-  /*    have the same function as an exported entry point.                 */
-  /*                                                                       */
-  /* <Return>                                                              */
-  /*    The address of the TrueType's driver generic interface.  The       */
-  /*    format-specific interface can then be retrieved through the method */
-  /*    interface->get_format_interface.                                   */
-  /*                                                                       */
-  FT_EXPORT_DEF( const FT_Driver_Class )
-  getDriverClass( void )
-  {
-    return &t1cid_driver_class;
-  }
-
-
-#endif /* CONFIG_OPTION_DYNAMIC_DRIVERS */
 
 
 /* END */

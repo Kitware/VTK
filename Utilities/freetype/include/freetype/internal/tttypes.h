@@ -289,7 +289,7 @@ FT_BEGIN_HEADER
     FT_UShort  languageID;
     FT_UShort  nameID;
     FT_UShort  stringLength;
-    FT_UShort  stringOffset;
+    FT_ULong   stringOffset;
 
     /* this last field is not defined in the spec */
     /* but used by the FreeType engine            */
@@ -317,15 +317,15 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    names          :: An array of name records.                        */
   /*                                                                       */
-  /*    storage        :: The names storage area.                          */
+  /*    stream         :: the file's input stream.                         */
   /*                                                                       */
   typedef struct  TT_NameTableRec_
   {
     FT_UShort         format;
-    FT_UShort         numNameRecords;
-    FT_UShort         storageOffset;
+    FT_UInt           numNameRecords;
+    FT_UInt           storageOffset;
     TT_NameEntryRec*  names;
-    FT_Byte*          storage;
+    FT_Stream         stream;
 
   } TT_NameTableRec, *TT_NameTable;
 
@@ -1076,7 +1076,7 @@ FT_BEGIN_HEADER
 
     TT_CharMap_Func   get_index;
     TT_CharNext_Func  get_next_char;
-    
+
   } TT_CMapTableRec;
 
 
@@ -1664,7 +1664,7 @@ FT_BEGIN_HEADER
 
     /* for possible extensibility in other formats */
     void*            other;
-    
+
   } TT_LoaderRec;
 
 
