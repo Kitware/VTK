@@ -43,12 +43,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkPointSource is a source object that creates a user-specified number 
 // of points within a specified radius about a specified center point. 
-// The location of the points is random within the sphere.
+// By default location of the points is random within the sphere. 
 
 #ifndef __vtkPointSource_h
 #define __vtkPointSource_h
 
 #include "vtkPolyDataSource.h"
+
+#define VTK_POINT_UNIFORM   1
+#define VTK_POINT_SHELL     0
 
 class VTK_EXPORT vtkPointSource : public vtkPolyDataSource 
 {
@@ -68,9 +71,22 @@ public:
   vtkGetVectorMacro(Center,float,3);
 
   // Description:
-  // Set the radius of the point cloud.
+  // Set the radius of the point cloud.  If you are
+  // generating a Gaussian distribution, then this is
+  // the standard deviation for each of x, y, and z.
   vtkSetClampMacro(Radius,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(Radius,float);
+
+  // Description:
+  // Specify the distribution to use.  The default is a
+  // uniform distribution.  The Shell distribution produces
+  // and empty sphere.
+  vtkSetMacro(Distribution,int);
+  void SetDistributionToUniform() {
+    this->SetDistribution(VTK_POINT_UNIFORM);};
+  void SetDistributionToShell() {
+    this->SetDistribution(VTK_POINT_SHELL);};
+  vtkGetMacro(Distribution,int);
 
 protected:
   vtkPointSource(int numPts=10);
@@ -84,6 +100,7 @@ protected:
   int NumberOfPoints;
   float Center[3];
   float Radius;
+  int Distribution;
 };
 
 #endif
