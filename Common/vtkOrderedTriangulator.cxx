@@ -53,6 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream.h>
 #endif
 
+
 // TO DO:
 // + In place new to avoid new/delete
 // + Delete tetra's directly rather than traversing the entire list
@@ -116,19 +117,6 @@ vtkMemoryPool::~vtkMemoryPool()
     }
 }
 
-inline void* vtkMemoryPool::GetNextPointer()
-{
-  if (this->Position == this->CurrentBlock->End)
-    {
-    this->CreateNextBlock();
-    }
-
-  void* retVal = static_cast<void *>(this->Position);
-  this->Position += this->CellSize;
-
-  return retVal;
-}
-
 inline void* vtkMemoryPool::CreateNextBlock()
 {
   if (this->CurrentBlock->Next)
@@ -148,6 +136,19 @@ inline void* vtkMemoryPool::CreateNextBlock()
 
   this->Position = this->CurrentBlock->Data;
   return static_cast<void *>(this->Position);
+}
+
+inline void* vtkMemoryPool::GetNextPointer()
+{
+  if (this->Position == this->CurrentBlock->End)
+    {
+    this->CreateNextBlock();
+    }
+
+  void* retVal = static_cast<void *>(this->Position);
+  this->Position += this->CellSize;
+
+  return retVal;
 }
 
 // A vector of type T to support operations.
