@@ -707,7 +707,7 @@ void vtkGenericEnSightReader::AddVariableType(int variableType)
 void vtkGenericEnSightReader::AddComplexVariableType(int variableType)
 {
   int i;
-  int* types;
+  int* types = NULL;
   int size = this->NumberOfComplexVariables;
   
   if (size > 0)

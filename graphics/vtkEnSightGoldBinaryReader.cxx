@@ -229,7 +229,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
   char line[80];
   int partId, numPts, i;
   vtkFloatArray *scalars;
-  float* scalarsRead;
+  float* scalarsRead = NULL;
   
   // Initialize
   //
@@ -298,7 +298,10 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
   
   fclose(this->IFile);
   this->IFile = NULL;
-  delete [] scalarsRead;
+  if (scalarsRead)
+    {
+    delete [] scalarsRead;
+    }
   return 1;
 }
 
@@ -308,7 +311,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName, char* descrip
   char line[80]; 
   int partId, numPts, i;
   vtkFloatArray *vectors;
-  float *xComp, *yComp, *zComp;
+  float *xComp = NULL, *yComp = NULL, *zComp = NULL;
   float tuple[3];
   
   // Initialize
@@ -366,9 +369,19 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName, char* descrip
 
   fclose(this->IFile);
   this->IFile = NULL;
-  delete [] xComp;
-  delete [] yComp;
-  delete [] zComp;
+
+  if (xComp)
+    {
+    delete [] xComp;
+    }
+  if (yComp)
+    {
+    delete [] yComp;
+    }
+  if (zComp)
+    {
+    delete [] zComp;
+    }
   return 1;
 }
 
@@ -378,7 +391,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName, char* descrip
   char line[80];
   int partId, numPts, i;
   vtkFloatArray *tensors;
-  float *comp1, *comp2, *comp3, *comp4, *comp5, *comp6;
+  float *comp1 = NULL, *comp2 = NULL, *comp3 = NULL,
+    *comp4 = NULL, *comp5 = NULL, *comp6 = NULL;
   float tuple[6];
   
   // Initialize
@@ -442,12 +456,30 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName, char* descrip
 
   fclose(this->IFile);
   this->IFile = NULL;
-  delete [] comp1;
-  delete [] comp2;
-  delete [] comp3;
-  delete [] comp4;
-  delete [] comp5;
-  delete [] comp6;
+  if (comp1)
+    {
+    delete [] comp1;
+    }
+  if (comp2)
+    {
+    delete [] comp2;
+    }
+  if (comp3)
+    {
+    delete [] comp3;
+    }
+  if (comp4)
+    {
+    delete [] comp4;
+    }
+  if (comp5)
+    {
+    delete [] comp5;
+    }
+  if (comp6)
+    {
+    delete [] comp6;
+    }
   return 1;
 }
 

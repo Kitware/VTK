@@ -1078,7 +1078,7 @@ int vtkFieldDataToAttributeDataFilter::GetComponentsType(int numComp, vtkDataArr
 vtkDataArray *vtkFieldDataToAttributeDataFilter::GetFieldArray(vtkFieldData *fd, 
                                                                char *name, int comp)
 {
-  vtkDataArray *da;
+  vtkDataArray *da = NULL;
   int numComp;
   int found=0;
 

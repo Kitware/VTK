@@ -138,7 +138,7 @@ void vtkClipDataSet::Execute()
   vtkIdList *cellIds;
   float s;
   int npts, *pts;
-  int cellType;
+  int cellType = 0;
   int i, j;
   int estimatedSize;
   vtkUnsignedCharArray *types[2];
