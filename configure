@@ -1131,7 +1131,7 @@ if test "$use_oglr" = "yes"; then
 	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${OGLR_OBJ}"
 
 	if test "$use_mesa_oglr" = "yes"; then
-	        GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} \${MESA_INCLUDE}"
+	        GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} \${MESA_LIB}"
 	        GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} \${MESA_INCLUDE} -DVTK_USE_OGLR"
 	else
 	        GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -lGL"
