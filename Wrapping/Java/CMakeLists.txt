@@ -10,7 +10,7 @@ IF(JAVA_COMPILE)
 	  	       COMMAND ${CMAKE_COMMAND}
                        ARGS -E chdir 
                             ${VTK_BINARY_DIR}/java ${JAVA_ARCHIVE}
-                            -cvf ${LIBRARY_OUTPUT_PATH}/vtk.jar
+                            -cvf "\"${LIBRARY_OUTPUT_PATH}/vtk.jar\""
                             vtk
 		       TARGET VTKJava
                        DEPENDS ${VTK_JAVA_HOME}/vtkObject.class
