@@ -22,21 +22,21 @@
 #ifndef __vtkMergeFilter_h
 #define __vtkMergeFilter_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkFieldList;
 
-class VTK_GRAPHICS_EXPORT vtkMergeFilter : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkMergeFilter : public vtkDataSetAlgorithm
 {
 public:
   static vtkMergeFilter *New();
-  vtkTypeRevisionMacro(vtkMergeFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkMergeFilter,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify object from which to extract geometry information.
   void SetGeometry(vtkDataSet *input) {this->SetInput(input);};
-  vtkDataSet *GetGeometry() {return this->GetInput();};
+  vtkDataSet *GetGeometry();
 
   // Description:
   // Specify object from which to extract scalar information.
@@ -74,8 +74,9 @@ protected:
   ~vtkMergeFilter();
 
   // Usual data generation method
-  void Execute();
-  void ComputeInputUpdateExtents(vtkDataObject *data);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int port, vtkInformation *info);
 
   vtkFieldList* FieldList;
 private:
