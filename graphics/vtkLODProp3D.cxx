@@ -163,6 +163,7 @@ int vtkLODProp3D::GetNextEntryIndex()
       newLODs[i].Prop3DType    = this->LODs[i].Prop3DType;
       newLODs[i].ID            = this->LODs[i].ID;
       newLODs[i].EstimatedTime = this->LODs[i].EstimatedTime;
+      newLODs[i].Level         = this->LODs[i].Level;
       newLODs[i].State         = this->LODs[i].State;
       }
 
@@ -290,18 +291,13 @@ float vtkLODProp3D::GetLODEstimatedRenderTime( int id )
 
 float vtkLODProp3D::GetLODIndexEstimatedRenderTime( int index )
 {
-  float  estimatedTime;
-
-  // For stability, blend in the new time - 75% old + 25% new
-  estimatedTime = this->LODs[index].Prop3D->GetEstimatedRenderTime();
-  if ( this->LODs[index].EstimatedTime != 0.0 )
+  if ( this->SelectedLODIndex < 0 ||
+       this->SelectedLODIndex >= this->NumberOfEntries )
     {
-    estimatedTime = 
-      0.75 * this->LODs[index].EstimatedTime +
-      0.25 * estimatedTime;
-    }
+    return 0;
+    }  
 
-  return estimatedTime;
+  return this->LODs[index].EstimatedTime;
 }
 
 // Convenience method to set an actor LOD without a texture.
@@ -355,6 +351,7 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
   this->LODs[index].Prop3DType    = VTK_LOD_ACTOR_TYPE;
   this->LODs[index].ID            = this->CurrentIndex++;
   this->LODs[index].EstimatedTime = time;
+  this->LODs[index].Level         = 0.0;
   this->LODs[index].State         = 1;
   this->NumberOfLODs++;
 
@@ -393,6 +390,7 @@ int vtkLODProp3D::AddLOD( vtkVolumeMapper *m, vtkVolumeProperty *p,
   this->LODs[index].Prop3DType    = VTK_LOD_VOLUME_TYPE;
   this->LODs[index].ID            = this->CurrentIndex++;
   this->LODs[index].EstimatedTime = time;
+  this->LODs[index].Level         = 0.0;
   this->LODs[index].State         = 1;
   this->NumberOfLODs++;
 
@@ -613,6 +611,41 @@ void vtkLODProp3D::DisableLOD( int id )
   this->LODs[index].State = 0;
 }
 
+void vtkLODProp3D::SetLODLevel( int id, float level )
+{
+  int index = this->ConvertIDToIndex( id );
+
+  if ( index == VTK_INVALID_LOD_INDEX || index == VTK_INDEX_NOT_IN_USE )
+    {
+    return;
+    }
+  
+  this->LODs[index].Level = level;
+}
+
+float vtkLODProp3D::GetLODLevel( int id )
+{
+  int index = this->ConvertIDToIndex( id );
+
+  if ( index == VTK_INVALID_LOD_INDEX || index == VTK_INDEX_NOT_IN_USE )
+    {
+    return -1;
+    }
+  
+  return this->LODs[index].Level;
+}
+
+float vtkLODProp3D::GetLODIndexLevel( int index )
+{
+
+  if ( index == VTK_INVALID_LOD_INDEX || index == VTK_INDEX_NOT_IN_USE )
+    {
+    return -1;
+    }
+  
+  return this->LODs[index].Level;
+}
+
 // Release any graphics resources that any of the LODs might be using
 // for a particular window (such as display lists). 
 void vtkLODProp3D::ReleaseGraphicsResources(vtkWindow *w)
@@ -808,8 +841,21 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t )
   int    i;
   int    index = -1;
   float  bestTime;
+  float  bestLevel;
   float  targetTime;
   float  estimatedTime;
+
+  // update the EstimatedTime of the last LOD to be rendered
+  if ( this->SelectedLODIndex >= 0 &&
+       this->SelectedLODIndex < this->NumberOfEntries )
+    {
+    // For stability, blend in the new time - 75% old + 25% new
+    estimatedTime = 
+      this->LODs[this->SelectedLODIndex].Prop3D->GetEstimatedRenderTime();
+    this->LODs[this->SelectedLODIndex].EstimatedTime = 
+	0.75 * this->LODs[this->SelectedLODIndex].EstimatedTime +
+	0.25 * estimatedTime;
+    }
 
   if ( this->AutomaticLODSelection )
     {
@@ -831,6 +877,7 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t )
 	  {
 	  index = i;
 	  bestTime = 0.0;
+	  bestLevel = this->GetLODIndexLevel(i);
 	  break;
 	  }
 	
@@ -854,6 +901,34 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t )
 	  {
 	  index = i;
 	  bestTime = estimatedTime;
+	  bestLevel = this->GetLODIndexLevel(i);
+	  }
+	}
+      }
+
+    // If we aren't trying some level for the first time with 0.0 bestTime,
+    // make sure there isn't a LOD that can be rendered faster and has a 
+    // higher level 
+    float level;
+    if ( bestTime != 0.0 )
+      {
+      for ( i = 0; i < this->NumberOfEntries; i++ )
+	{
+	if ( this->LODs[i].ID != VTK_INDEX_NOT_IN_USE &&
+	     this->LODs[i].State == 1 )
+	  {
+	  // Gather some information
+	  estimatedTime = this->GetLODIndexEstimatedRenderTime(i);
+	  level = this->GetLODIndexLevel(i);
+
+	  // Update the index and the level, but not the time. This is
+	  // so that we find the best level that can be rendered
+	  // faster than the LOD selected above.
+	  if ( estimatedTime <= bestTime && level < bestLevel )
+	    {
+	    index = i;
+	    bestLevel = level;
+	    }
 	  }
 	}
       }

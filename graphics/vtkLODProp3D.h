@@ -71,6 +71,7 @@ typedef struct
   int         ID;
   float       EstimatedTime;
   int         State;
+  float       Level;
 } vtkLODProp3DEntry;
 
 class VTK_EXPORT vtkLODProp3D : public vtkProp3D
@@ -148,7 +149,18 @@ public:
   // LOD if automatic LOD selection is off.
   void EnableLOD( int id );
   void DisableLOD( int id );
-  
+
+  // Description:
+  // Set the level of a particular LOD. When a LOD is selected for
+  // rendering because it has the largest render time that fits within
+  // the allocated time, all LOD are then checked to see if any one can
+  // render faster but has a lower (more resolution/better) level.
+  // This quantity is a float to ensure that a level can be inserted 
+  // between 2 and 3.
+  void SetLODLevel( int id, float level );
+  float GetLODLevel( int id );
+  float GetLODIndexLevel( int index );
+
   // Description:
   // Access method that can be used to find out the estimated render time
   // (the thing used to select an LOD) for a given LOD ID or index. 
