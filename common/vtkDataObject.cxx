@@ -314,7 +314,7 @@ void vtkDataObject::ComputeEstimatedPipelineMemorySize(unsigned long sizes[3])
     } 
   else
     {
-    int size = this->GetActualMemorySize();
+    unsigned long size = this->GetActualMemorySize();
     sizes[0] = size;
     sizes[1] = size;
     sizes[2] = size;
