@@ -24,7 +24,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.39");
+vtkCxxRevisionMacro(vtkImageImport, "1.39.2.1");
 vtkStandardNewMacro(vtkImageImport);
 
 //----------------------------------------------------------------------------
@@ -201,7 +201,10 @@ void vtkImageImport::ExecuteData(vtkDataObject *output)
   // If set, use the callbacks to prepare our input data.
   this->InvokeExecuteDataCallbacks();
   
-  vtkImageData *data = this->AllocateOutputData(output);
+  vtkImageData *data = vtkImageData::SafeDownCast(output);
+  data->UpdateInformation();
+  data->SetExtent(0,0,0,0,0,0);
+  data->AllocateScalars();
   void *ptr = this->GetImportVoidPointer();
   int size = 
     (this->DataExtent[1] - this->DataExtent[0]+1) *
