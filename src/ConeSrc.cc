@@ -6,6 +6,7 @@
 
 vlConeSource::vlConeSource(int res)
 {
+  res = (res < 0 ? 0 : res);
   this->Resolution = res;
   this->Height = 1.0;
   this->Radius = 0.5;
@@ -49,8 +50,7 @@ void vlConeSource::Execute()
     newPolys->Initialize(newPolys->EstimateSize(numPolys,this->Resolution));
     break;
   }
-  newPoints = new vlFloatPoints;
-  newPoints->Initialize(numPts);
+  newPoints = new vlFloatPoints(numPts);
 //
 // Create cone
 //
