@@ -724,19 +724,29 @@ int vtkFunctionParser::IsElementaryOperator(int op)
 void vtkFunctionParser::SetScalarVariableValue(const char* variableName,
                                                double value)
 {
-  int i;
+  int i, variableIndex = -1;
   double *tempValues;
   char** tempNames;
   
   for (i = 0; i < this->NumberOfScalarVariables; i++)
     {
-    if (strcmp(variableName, this->ScalarVariableNames[i]) == 0)
+    if (strncmp(variableName, this->ScalarVariableNames[i], strlen(variableName)) == 0)
       {
-      this->ScalarVariableValues[i] = value;
-      this->VariableMTime.Modified();
-      this->Modified();
-      return;
+      if (variableIndex == -1 ||
+          (strlen(this->ScalarVariableNames[i]) >
+           strlen(this->ScalarVariableNames[variableIndex])))
+        {
+        variableIndex = i;
+        }
       }
+    }
+  
+  if (variableIndex >= 0)
+    {
+    this->ScalarVariableValues[i] = value;
+    this->VariableMTime.Modified();
+    this->Modified();
+    return;
     }
   
   tempValues = new double [this->NumberOfScalarVariables];
@@ -744,7 +754,7 @@ void vtkFunctionParser::SetScalarVariableValue(const char* variableName,
   for (i = 0; i < this->NumberOfScalarVariables; i++)
     {
     tempValues[i] = this->ScalarVariableValues[i];
-    tempNames[i] = new char [strlen(this->ScalarVariableNames[i])];
+    tempNames[i] = new char [strlen(this->ScalarVariableNames[i]) + 1];
     strcpy(tempNames[i], this->ScalarVariableNames[i]);
     delete [] this->ScalarVariableNames[i];
     this->ScalarVariableNames[i] = NULL;
@@ -766,7 +776,7 @@ void vtkFunctionParser::SetScalarVariableValue(const char* variableName,
   for (i = 0; i < this->NumberOfScalarVariables; i++)
     {
     this->ScalarVariableValues[i] = tempValues[i];
-    this->ScalarVariableNames[i] = new char [strlen(tempNames[i])];
+    this->ScalarVariableNames[i] = new char [strlen(tempNames[i]) + 1];
     strcpy(this->ScalarVariableNames[i], tempNames[i]);
     delete [] tempNames[i];
     tempNames[i] = NULL;
@@ -777,7 +787,7 @@ void vtkFunctionParser::SetScalarVariableValue(const char* variableName,
   tempNames = NULL;
   
   this->ScalarVariableValues[i] = value;
-  this->ScalarVariableNames[i] = new char [strlen(variableName)];
+  this->ScalarVariableNames[i] = new char [strlen(variableName) + 1];
   strcpy(this->ScalarVariableNames[i], variableName);
   this->NumberOfScalarVariables++;
 
@@ -854,7 +864,7 @@ void vtkFunctionParser::SetVectorVariableValue(const char* variableName,
     tempValues[i][0] = this->VectorVariableValues[i][0];
     tempValues[i][1] = this->VectorVariableValues[i][1];
     tempValues[i][2] = this->VectorVariableValues[i][2];
-    tempNames[i] = new char [strlen(this->VectorVariableNames[i])];
+    tempNames[i] = new char [strlen(this->VectorVariableNames[i]) + 1];
     strcpy(tempNames[i], this->VectorVariableNames[i]);
     delete [] this->VectorVariableNames[i];
     this->VectorVariableNames[i] = NULL;
@@ -881,7 +891,7 @@ void vtkFunctionParser::SetVectorVariableValue(const char* variableName,
     this->VectorVariableValues[i][0] = tempValues[i][0];
     this->VectorVariableValues[i][1] = tempValues[i][1];
     this->VectorVariableValues[i][2] = tempValues[i][2];
-    this->VectorVariableNames[i] = new char [strlen(tempNames[i])];
+    this->VectorVariableNames[i] = new char [strlen(tempNames[i]) + 1];
     strcpy(this->VectorVariableNames[i], tempNames[i]);
     delete [] tempNames[i];
     tempNames[i] = NULL;
@@ -897,7 +907,7 @@ void vtkFunctionParser::SetVectorVariableValue(const char* variableName,
   this->VectorVariableValues[i][0] = xValue;
   this->VectorVariableValues[i][1] = yValue;
   this->VectorVariableValues[i][2] = zValue;
-  this->VectorVariableNames[i] = new char [strlen(variableName)];
+  this->VectorVariableNames[i] = new char [strlen(variableName) + 1];
   strcpy(this->VectorVariableNames[i], variableName);
   this->NumberOfVectorVariables++;
 
@@ -965,7 +975,7 @@ void vtkFunctionParser::RemoveSpaces()
     }
   
   delete [] this->Function;
-  this->Function = new char[this->FunctionLength];
+  this->Function = new char[this->FunctionLength+1];
   strncpy(this->Function, tempString, this->FunctionLength);
   this->Function[this->FunctionLength] = '\0';
   delete [] tempString;
@@ -1182,7 +1192,10 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
           !(this->Function[i] == '-' &&
             (this->IsElementaryOperator(i-1) || this->Function[i-1] == '(' ||
              (this->Function[i-1] == 'e' && i > 1 &&
-              isdigit(this->Function[i-2])))))
+              isdigit(this->Function[i-2])))) &&
+          !(this->Function[i] == '.' &&
+            (i+1 < this->FunctionLength) &&
+             (isdigit(this->Function[i+1]))))
         {
         this->BuildInternalSubstringStructure(beginIndex, i-1);
         this->BuildInternalSubstringStructure(i+1, endIndex);
@@ -1300,14 +1313,26 @@ int vtkFunctionParser::GetMathFunctionNumber(int currentIndex)
     }
   if (strncmp(&this->Function[currentIndex], "sin", 3) == 0)
     {
+    if (strncmp(&this->Function[currentIndex], "sinh", 4) == 0)
+      {
+      return VTK_PARSER_HYPERBOLIC_SINE;
+      }
     return VTK_PARSER_SINE;
     }
   if (strncmp(&this->Function[currentIndex], "cos", 3) == 0)
     {
+    if (strncmp(&this->Function[currentIndex], "cosh", 4) == 0)
+      {
+      return VTK_PARSER_HYPERBOLIC_COSINE;
+      }
     return VTK_PARSER_COSINE;
     }
   if (strncmp(&this->Function[currentIndex], "tan", 3) == 0)
     {
+    if (strncmp(&this->Function[currentIndex], "tanh", 4) == 0)
+      {
+      return VTK_PARSER_HYPERBOLIC_TANGENT;
+      }
     return VTK_PARSER_TANGENT;
     }
   if (strncmp(&this->Function[currentIndex], "asin", 4) == 0)
@@ -1321,18 +1346,6 @@ int vtkFunctionParser::GetMathFunctionNumber(int currentIndex)
   if (strncmp(&this->Function[currentIndex], "atan", 4) == 0)
     {
     return VTK_PARSER_ARCTANGENT;
-    }
-  if (strncmp(&this->Function[currentIndex], "sinh", 4) == 0)
-    {
-    return VTK_PARSER_HYPERBOLIC_SINE;
-    }
-  if (strncmp(&this->Function[currentIndex], "cosh", 4) == 0)
-    {
-    return VTK_PARSER_HYPERBOLIC_COSINE;
-    }
-  if (strncmp(&this->Function[currentIndex], "tanh", 4) == 0)
-    {
-    return VTK_PARSER_HYPERBOLIC_TANGENT;
     }
   if (strncmp(&this->Function[currentIndex], "mag", 3) == 0)
     {
@@ -1428,7 +1441,7 @@ int vtkFunctionParser::GetElementaryOperatorNumber(char op)
 
 int vtkFunctionParser::GetOperandNumber(int currentIndex)
 {
-  int i;
+  int i, variableIndex = -1;
 
   if (isdigit(this->Function[currentIndex]) ||
      this->Function[currentIndex] == '.') // Number
@@ -1464,16 +1477,35 @@ int vtkFunctionParser::GetOperandNumber(int currentIndex)
     if (strncmp(&this->Function[currentIndex], this->ScalarVariableNames[i],
                 strlen(this->ScalarVariableNames[i])) == 0)
       {
-      return VTK_PARSER_BEGIN_VARIABLES + i;
+      if (variableIndex == -1 ||
+          (strlen(this->ScalarVariableNames[i]) >
+           strlen(this->ScalarVariableNames[variableIndex])))
+        {
+        variableIndex = i;
+        }
       }
     }
+  if (variableIndex >= 0)
+    {
+    return VTK_PARSER_BEGIN_VARIABLES + variableIndex;
+    }
+
   for (i = 0; i < this->NumberOfVectorVariables; i++)
     { // Variable
     if (strncmp(&this->Function[currentIndex], this->VectorVariableNames[i],
                 strlen(this->VectorVariableNames[i])) == 0)
       {
-      return VTK_PARSER_BEGIN_VARIABLES + i + this->NumberOfScalarVariables;
+      if (variableIndex == -1 ||
+          (strlen(this->VectorVariableNames[i]) >
+           strlen(this->VectorVariableNames[variableIndex])))
+        {
+        variableIndex = i;
+        }
       }
+    }
+  if (variableIndex >= 0)
+    {
+    return VTK_PARSER_BEGIN_VARIABLES + variableIndex + this->NumberOfScalarVariables;
     }
   
   return 0;
