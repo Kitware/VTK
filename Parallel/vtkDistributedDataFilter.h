@@ -55,7 +55,7 @@ class vtkFloatArray;
 class vtkIdList;
 class vtkUnstructuredGrid;
 class vtkModelMetadata;
-#include <vtkstd/map> // used for declaration
+class vtkDistributedDataFilterSTLCloak;
 
 class VTK_PARALLEL_EXPORT vtkDistributedDataFilter: public vtkDataSetToUnstructuredGridFilter
 {
@@ -359,22 +359,21 @@ private:
 
   vtkIntArray **GetGhostPointIds(int ghostLevel, vtkUnstructuredGrid *grid,
                                  int AddCellsIAlreadyHave);
-//BTX
   vtkIntArray **MakeProcessLists(vtkIntArray **pointIds,
-                                 vtkstd::multimap<int,int> *procs);
+                                 vtkDistributedDataFilterSTLCloak *procs);
   vtkUnstructuredGrid *AddGhostCellsUniqueCellAssignment(
-                                     vtkUnstructuredGrid *myGrid,
-                                     vtkstd::map<int, int> *globalToLocalMap);
+                           vtkUnstructuredGrid *myGrid,
+                           vtkDistributedDataFilterSTLCloak *globalToLocalMap);
   vtkUnstructuredGrid *AddGhostCellsDuplicateCellAssignment(
-                                     vtkUnstructuredGrid *myGrid,
-                                     vtkstd::map<int, int> *globalToLocalMap);
+                           vtkUnstructuredGrid *myGrid,
+                           vtkDistributedDataFilterSTLCloak *globalToLocalMap);
   vtkIdList **BuildRequestedGrids( vtkIntArray **globalPtIds,
                         vtkUnstructuredGrid *grid,
-                        vtkstd::map<int, int> *ptIdMap);
+                        vtkDistributedDataFilterSTLCloak *ptIdMap);
   vtkUnstructuredGrid *SetMergeGhostGrid(
-                            vtkUnstructuredGrid *ghostCellGrid,
-                            vtkUnstructuredGrid *incomingGhostCells,
-                            int ghostLevel, vtkstd::map<int, int> *idMap);
+                       vtkUnstructuredGrid *ghostCellGrid,
+                       vtkUnstructuredGrid *incomingGhostCells,
+                       int ghostLevel, vtkDistributedDataFilterSTLCloak *idMap);
 
   vtkUnstructuredGrid *ExtractCells(vtkIdList *list, 
                   int deleteCellLists, vtkDataSet *in, vtkModelMetadata *mmd);
@@ -384,8 +383,7 @@ private:
   void AddMetadata(vtkUnstructuredGrid *grid, vtkModelMetadata *mmd);
 
   static int GlobalPointIdIsUsed(vtkUnstructuredGrid *grid,
-               int ptId, vtkstd::map<int, int> *globalToLocal);
-//ETX
+               int ptId, vtkDistributedDataFilterSTLCloak *globalToLocal);
 
   static int LocalPointIdIsUsed(vtkUnstructuredGrid *grid, int ptId);
   static int FindId(vtkIntArray *ids, int gid, int startLoc);

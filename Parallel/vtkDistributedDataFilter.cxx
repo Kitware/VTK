@@ -54,20 +54,28 @@
 #include "vtkPointLocator.h"
 #include "vtkTimerLog.h"
 #include "vtkPlane.h"
-#include <vtkstd/set>
-#include <vtkstd/map>
 
 #ifdef VTK_USE_MPI
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.10")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.11")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
 #define TEMP_ELEMENT_ID_NAME      "___D3___GlobalCellIds"
 #define TEMP_INSIDE_BOX_FLAG      "___D3___WHERE"
 #define TEMP_NODE_ID_NAME         "___D3___GlobalNodeIds"
+
+#include <vtkstd/set>
+#include <vtkstd/map>
+
+class vtkDistributedDataFilterSTLCloak
+{
+public:
+  vtkstd::map<int, int> IntMap;
+  vtkstd::multimap<int, int> IntMultiMap;
+};
 
 vtkDistributedDataFilter::vtkDistributedDataFilter()
 {
@@ -700,13 +708,14 @@ vtkUnstructuredGrid *
     return grid;
     }
 
-  vtkstd::map<int, int> globalToLocalMap;
+  vtkDistributedDataFilterSTLCloak *globalToLocalMap 
+    = new vtkDistributedDataFilterSTLCloak;
   vtkIdType numPoints = grid->GetNumberOfPoints();
 
   for (int localPtId = 0; localPtId < numPoints; localPtId++)
     {
     const int id = gnids[localPtId];
-    globalToLocalMap.insert(vtkstd::pair<const int, int>(id, localPtId));
+    globalToLocalMap->IntMap.insert(vtkstd::pair<const int, int>(id, localPtId));
     }
 
   vtkUnstructuredGrid *expandedGrid= NULL;
@@ -714,12 +723,12 @@ vtkUnstructuredGrid *
   if (this->IncludeAllIntersectingCells)
     {
     expandedGrid =
-      this->AddGhostCellsDuplicateCellAssignment(grid, &globalToLocalMap);
+      this->AddGhostCellsDuplicateCellAssignment(grid, globalToLocalMap);
     }
   else
     {
     expandedGrid =
-      this->AddGhostCellsUniqueCellAssignment(grid, &globalToLocalMap);
+      this->AddGhostCellsUniqueCellAssignment(grid, globalToLocalMap);
     }
 
   return expandedGrid;
@@ -3166,7 +3175,7 @@ int vtkDistributedDataFilter::StrictlyInsideMyBounds(double x, double y, double 
 
 vtkIntArray **vtkDistributedDataFilter::MakeProcessLists(
                                     vtkIntArray **pointIds,
-                                    vtkstd::multimap<int,int> *procs)
+                                    vtkDistributedDataFilterSTLCloak *procs)
 {
   // Build a list of pointId/processId pairs for each process that
   // sent me point IDs.  The process Ids are all those processes
@@ -3195,9 +3204,9 @@ vtkIntArray **vtkDistributedDataFilter::MakeProcessLists(
         int gid = pointIds[i]->GetValue(j);
         int ncells = pointIds[i]->GetValue(j+1);
 
-        mapIt = procs->find(gid);
+        mapIt = procs->IntMultiMap.find(gid);
 
-        if (mapIt != procs->end())
+        if (mapIt != procs->IntMultiMap.end())
           {
           while (mapIt->first == gid)
             {
@@ -3359,15 +3368,15 @@ int vtkDistributedDataFilter::LocalPointIdIsUsed(
   return used;
 }
 int vtkDistributedDataFilter::GlobalPointIdIsUsed(vtkUnstructuredGrid *grid, 
-                              int ptId, vtkstd::map<int, int> *globalToLocal)
+                    int ptId, vtkDistributedDataFilterSTLCloak *globalToLocal)
 {
   int used = 1;
 
   vtkstd::map<int, int>::iterator mapIt;
 
-  mapIt = globalToLocal->find(ptId);
+  mapIt = globalToLocal->IntMap.find(ptId);
 
-  if (mapIt == globalToLocal->end())
+  if (mapIt == globalToLocal->IntMap.end())
     {
     used = 0;
     }
@@ -3410,8 +3419,8 @@ int vtkDistributedDataFilter::FindId(vtkIntArray *ids, int gid, int startLoc)
 
 vtkUnstructuredGrid *
 vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
-                                     vtkUnstructuredGrid *myGrid,
-                                     vtkstd::map<int, int> *globalToLocalMap)
+                               vtkUnstructuredGrid *myGrid,
+                               vtkDistributedDataFilterSTLCloak *globalToLocalMap)
 {
   int i,j,k;
   int ncells=0;
@@ -3429,7 +3438,8 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
   vtkUnstructuredGrid *newGhostCellGrid = NULL;
   vtkIntArray **ghostPointIds = NULL;
   
-  vtkstd::multimap<int, int> insidePointMap;
+  vtkDistributedDataFilterSTLCloak *insidePointMap = 
+    new vtkDistributedDataFilterSTLCloak;
   vtkstd::multimap<int, int>::iterator mapIt;
 
   while (gl <= this->GhostLevel)
@@ -3479,7 +3489,7 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
             {
             // map global point id to process ids
             const int id = insideIds[i]->GetValue(j);
-            insidePointMap.insert(vtkstd::pair<const int, int>(id, i));
+            insidePointMap->IntMultiMap.insert(vtkstd::pair<const int, int>(id, i));
             }
           }
         }
@@ -3491,7 +3501,8 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
     // and P) that has cells in it's ghost level 0 grid which use
     // this point. 
 
-    vtkIntArray **processListSent = MakeProcessLists(insideIds, &insidePointMap);
+    vtkIntArray **processListSent 
+      = this->MakeProcessLists(insideIds, insidePointMap);
 
     // Exchange these new lists.
 
@@ -3589,9 +3600,9 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
           gid = ghostPointIds[me]->GetValue(i);
           ncells = ghostPointIds[me]->GetValue(i+1);
 
-          mapIt = insidePointMap.find(gid);
+          mapIt = insidePointMap->IntMultiMap.find(gid);
 
-          if (mapIt != insidePointMap.end())
+          if (mapIt != insidePointMap->IntMultiMap.end())
             {
             while (mapIt->first == gid)
               { 
@@ -3646,7 +3657,7 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
     gl++;
   }
 
-  insidePointMap.erase(insidePointMap.begin(),insidePointMap.end());
+  delete insidePointMap;
 
   vtkUnstructuredGrid *newGrid = NULL;
 
@@ -3681,8 +3692,8 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
 
 vtkUnstructuredGrid *
 vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
-                                     vtkUnstructuredGrid *myGrid,
-                                     vtkstd::map<int, int> *globalToLocalMap)
+                             vtkUnstructuredGrid *myGrid,
+                             vtkDistributedDataFilterSTLCloak *globalToLocalMap)
 {
   int i,j;
 
@@ -3756,9 +3767,9 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
           {
           int gid = insideIds[i]->GetValue(j);
   
-          mapIt = globalToLocalMap->find(gid);
+          mapIt = globalToLocalMap->IntMap.find(gid);
   
-          if (mapIt == globalToLocalMap->end())
+          if (mapIt == globalToLocalMap->IntMap.end())
             {
             // error
             cout << " error 2 " << endl;
@@ -3860,7 +3871,7 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
 vtkIdList **vtkDistributedDataFilter::BuildRequestedGrids(
                         vtkIntArray **globalPtIds, 
                         vtkUnstructuredGrid *grid, 
-                        vtkstd::map<int, int> *ptIdMap)
+                        vtkDistributedDataFilterSTLCloak *ptIdMap)
 {
   int id, proc;
   int nprocs = this->NumProcesses;
@@ -3906,9 +3917,9 @@ vtkIdList **vtkDistributedDataFilter::BuildRequestedGrids(
       int ptId = ptarray[id];
       nYourCells = ptarray[id+1];
 
-      imap = ptIdMap->find(ptId);
+      imap = ptIdMap->IntMap.find(ptId);
 
-      if (imap == ptIdMap->end())
+      if (imap == ptIdMap->IntMap.end())
         {
         continue; // I don't have this point
         }
@@ -4015,7 +4026,7 @@ void vtkDistributedDataFilter::RemoveRemoteCellsFromList(
 vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
                             vtkUnstructuredGrid *ghostCellGrid,
                             vtkUnstructuredGrid *incomingGhostCells,
-                            int ghostLevel, vtkstd::map<int, int> *idMap)
+                            int ghostLevel, vtkDistributedDataFilterSTLCloak *idMap)
 
 {
   int i;
@@ -4086,9 +4097,9 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
 
     for (i=0; i < npoints; i++)
       {
-      imap = idMap->find(gidPoints[i]);
+      imap = idMap->IntMap.find(gidPoints[i]);
 
-      if (imap != idMap->end())
+      if (imap != idMap->IntMap.end())
         {
         ptGL->SetValue(i,0);   // found among my ghost level 0 cells
         }
