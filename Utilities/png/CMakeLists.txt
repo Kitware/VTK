@@ -6,6 +6,10 @@ pngerror.c  pngpread.c  pngrutil.c  pngvcrd.c   pngwutil.c
 pnggccrd.c  pngread.c   pngset.c   pngwio.c
 )
 
+CONFIGURE_FILE(
+${VTK_SOURCE_DIR}/Utilities/png/.NoDartCoverage 
+${VTK_BINARY_DIR}/Utilities/png/.NoDartCoverage)
+
 IF(WIN32)
   IF(BUILD_SHARED_LIBS)
     ADD_DEFINITIONS(-DPNG_BUILD_DLL -DZLIB_DLL -DPNG_NO_MODULEDEF)

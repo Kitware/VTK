@@ -7,6 +7,10 @@ deflate.c   inffast.c
 inflate.c   trees.c 
 )
 
+CONFIGURE_FILE(
+${VTK_SOURCE_DIR}/Utilities/zlib/.NoDartCoverage 
+${VTK_BINARY_DIR}/Utilities/zlib/.NoDartCoverage)
+
 # for windows add the .def and .rc files to the source list
 IF(WIN32)
   IF(BUILD_SHARED_LIBS)
