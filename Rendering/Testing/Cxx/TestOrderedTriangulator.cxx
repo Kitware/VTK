@@ -219,10 +219,15 @@ int TestOrderedTriangulator(int, char *[])
   renWin->SetSize( 300, 300 ); 
 
   iren->SetRenderWindow( renWin );
-  iren->Initialize();
-  iren->Start();
+  renWin->Render();
 
-  //thanks
+  int retVal = vtkRegressionTestImage( renWin );
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
+
+  // Clean up
   Points->Delete();
   triangulator1->Delete();
   aTetraGrid1->Delete();
