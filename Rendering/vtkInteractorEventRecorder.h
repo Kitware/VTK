@@ -65,7 +65,6 @@ public:
 
   // Description:
   // Invoke this method to stop recording/playing events.
-  // played back from the filename indicated.
   void Stop();
 
   // Description:
