@@ -81,6 +81,10 @@ public:
   int GetDataObjectType() {return VTK_IMAGE_DATA;};
 
   // Description:
+  // This update method will supply the ghost level arrays if they are requested.
+  void UpdateData();
+  
+  // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
   int GetNumberOfCells();
   int GetNumberOfPoints();
