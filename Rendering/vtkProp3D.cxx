@@ -26,7 +26,7 @@
 
 typedef double (*SqMatPtr)[4];
 
-vtkCxxRevisionMacro(vtkProp3D, "1.31");
+vtkCxxRevisionMacro(vtkProp3D, "1.32");
 
 // Construct with the following defaults: origin(0,0,0) 
 // position=(0,0,0) and orientation=(0,0,0). No user defined 
@@ -544,6 +544,7 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
       {
       this->SetUserMatrix(this->CachedProp3D->UserMatrix);
       }
+    this->CachedProp3D->SetUserTransform(NULL);
     this->Transform->SetMatrix(this->CachedProp3D->GetMatrix());
     this->Modified();
     }
