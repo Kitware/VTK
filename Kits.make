@@ -92,7 +92,9 @@ libVTK$(ME)Python$(SHLIB_SUFFIX): python/${ME}Init.o ${KIT_OBJ} \
 	-o libVTK$(ME)Python$(SHLIB_SUFFIX) python/${ME}Init.o \
 	  ${KIT_OBJ} ${PYTHON_O_ADD} ${PYTHON_WRAP} \
 	-L. ${XLDFLAGS} ${PYTHON_LIBS} \
-	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} 
+	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} ${DL_LIBS} \
+	${THREAD_LIBS}
+
 
 #------------------------------------------------------------------------------
 clean: ${CLEAN_TCL} $(CLEAN_JAVA)
