@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointSource.h"
 #include "vtkMath.h"
 #include <float.h>
+#include <math.h>
 #include "vtkObjectFactory.h"
 
 
@@ -76,8 +77,8 @@ vtkPointSource::vtkPointSource(int numPts)
 void vtkPointSource::Execute()
 {
   int i;
-  double theta, rho, cosphi, sinphi, radius;
-  double x[3], lambda;
+  float theta, rho, cosphi, sinphi, radius;
+  float x[3], lambda;
   vtkPoints *newPoints;
   vtkCellArray *newVerts;
   vtkPolyData *output = this->GetOutput();
@@ -90,24 +91,35 @@ void vtkPointSource::Execute()
   newVerts->Allocate(newVerts->EstimateSize(1,this->NumberOfPoints));
 
   newVerts->InsertNextCell(this->NumberOfPoints);
-  for (i=0; i<this->NumberOfPoints; i++)
-    {
-    cosphi = 1 - 2*vtkMath::Random();
-    sinphi = sqrt(1 - cosphi*cosphi);
-    if (this->Distribution == VTK_POINT_SHELL)
+
+  if (this->Distribution == VTK_POINT_SHELL)
+    {  // only produce points on the surface of the sphere
+    for (i=0; i<this->NumberOfPoints; i++)
       {
-      rho = this->Radius;
+      cosphi = 1 - 2*vtkMath::Random();
+      sinphi = sqrt(1 - cosphi*cosphi);
+      radius = this->Radius * sinphi;
+      theta = 6.2831853f * vtkMath::Random();
+      x[0] = this->Center[0] + radius*cos(theta);
+      x[1] = this->Center[1] + radius*sin(theta);
+      x[2] = this->Center[2] + this->Radius*cosphi;
+      newVerts->InsertCellPoint(newPoints->InsertNextPoint(x));
       }
-    else // VTK_POINT_UNIFORM
+    }
+  else
+    { // uniform distribution throughout the sphere volume
+    for (i=0; i<this->NumberOfPoints; i++)
       {
-      rho = this->Radius*pow((double)vtkMath::Random(),0.3333333333333);
+      cosphi = 1 - 2*vtkMath::Random();
+      sinphi = sqrt(1 - cosphi*cosphi);
+      rho = this->Radius*pow(vtkMath::Random(),0.33333333f);
+      radius = rho * sinphi;
+      theta = 6.2831853f * vtkMath::Random();
+      x[0] = this->Center[0] + radius*cos(theta);
+      x[1] = this->Center[1] + radius*sin(theta);
+      x[2] = this->Center[2] + rho*cosphi;
+      newVerts->InsertCellPoint(newPoints->InsertNextPoint(x));
       }
-    radius = rho * sinphi;
-    theta = 6.28318530718 * vtkMath::Random();
-    x[0] = this->Center[0] + radius*cos(theta);
-    x[1] = this->Center[1] + radius*sin(theta);
-    x[2] = this->Center[2] + rho*cosphi;
-    newVerts->InsertCellPoint(newPoints->InsertNextPoint(x));
     }
    //
    // Update ourselves and release memory
