@@ -55,7 +55,8 @@ vtkSmartPointerBase::~vtkSmartPointerBase()
   // so use a local variable to save the pointer.  This is because the
   // garbage collection reference graph traversal may make it back to
   // this smart pointer, and we do not want to include this reference.
-  if(vtkObjectBase* object = this->Object)
+  vtkObjectBase* object = this->Object;
+  if(object)
     {
     this->Object = 0;
     object->UnRegister(0);
