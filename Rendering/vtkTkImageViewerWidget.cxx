@@ -472,7 +472,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   TkWindow *winPtr = (TkWindow *) self->TkWin;
   Tcl_HashEntry *hPtr;
   int new_flag;
-  vtkImageViewer *ImageViewer;
+  vtkImageViewer *ImageViewer = NULL;
   TkWinDrawable *twdPtr;
   HWND parentWin;
   vtkImageWindow *ImageWindow;
