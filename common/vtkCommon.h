@@ -63,7 +63,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkIdList.h"
 #include "vtkImageCache.h"
 #include "vtkImageData.h"
-#include "vtkImageRegion.h"
 #include "vtkImplicitFunction.h"
 #include "vtkIndent.h"
 #include "vtkIntArray.h"
