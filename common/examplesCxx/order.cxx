@@ -29,17 +29,18 @@ int main( int argc, char *argv[] )
   pts->SetPoint(6,0.0,1.0,0.0);
   pts->SetPoint(7,1.0,1.0,1.0);
 
-  // triangulate the points    
+  // Triangulate the points. They are ordered to create a tessellation
+  // of a cube with alternating diagonals across faces.
   vtkOrderedTriangulator *o = vtkOrderedTriangulator::New();
-  o->InitTriangulation(pts->GetBounds(),5);
+  o->InitTriangulation(pts->GetBounds(),8);
   o->InsertPoint(0,pts->GetPoint(0),0);
   o->InsertPoint(1,pts->GetPoint(1),0);
   o->InsertPoint(2,pts->GetPoint(2),0);
   o->InsertPoint(3,pts->GetPoint(3),0);
   o->InsertPoint(4,pts->GetPoint(4),0);
-//  o->InsertPoint(5,pts->GetPoint(5),0);
-//  o->InsertPoint(6,pts->GetPoint(6),0);
-//  o->InsertPoint(7,pts->GetPoint(7),0);
+  o->InsertPoint(5,pts->GetPoint(5),0);
+  o->InsertPoint(6,pts->GetPoint(6),0);
+  o->InsertPoint(7,pts->GetPoint(7),0);
   o->Triangulate();
 
   vtkUnstructuredGrid *ugrid = vtkUnstructuredGrid::New();
@@ -58,6 +59,12 @@ int main( int argc, char *argv[] )
   renderer->AddActor(actor);
   renderer->SetBackground(1,1,1);
   renWin->SetSize(300,300);
+
+  vtkCamera *camera = vtkCamera::New();
+  camera->ParallelProjectionOn();
+  camera->SetPosition(10,10,-10);
+  renderer->SetActiveCamera(camera);
+  renderer->ResetCamera();
 
   // interact with data
   renWin->Render();
