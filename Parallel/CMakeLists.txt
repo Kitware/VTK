@@ -13,6 +13,7 @@ vtkInputPort.cxx
 vtkMemoryLimitImageDataStreamer.cxx
 vtkMultiProcessController.cxx
 vtkOutputPort.cxx
+vtkPassThroughFilter.cxx
 vtkPCellDataToPointData.cxx
 vtkPDataSetReader.cxx
 vtkPDataSetWriter.cxx
