@@ -45,7 +45,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.95");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.96");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -798,7 +798,14 @@ void vtkOpenGLPolyDataMapper::DrawLines(int idx,
           }
         if (t)
           {
-          glTexCoord2dv(t->GetTuple(pts[j]));
+          if (idx & VTK_PDM_TCOORD_1D)
+            {
+            glTexCoord1dv(t->GetTuple(pts[j]));
+            }
+          else
+            {
+            glTexCoord2dv(t->GetTuple(pts[j]));
+            }
           }
         if (n)
           {
