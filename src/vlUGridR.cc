@@ -215,7 +215,7 @@ void vlUnstructuredGridReader::Execute()
           {
           for (int i=0; i<size; i++)
             {
-            if ((retStat=fscanf(fp,"%d",types[i])) == EOF || retStat < 1) 
+            if ((retStat=fscanf(fp,"%d",types+i)) == EOF || retStat < 1) 
               {
               vlErrorMacro(<<"Error reading cell types!");
               return;
