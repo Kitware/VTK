@@ -355,8 +355,6 @@ void vtkSource::UpdateData(vtkDataObject *vtkNotUsed(output))
       {
       if (this->SortedInputs[idx] != NULL)
 	{
-        vtkErrorMacro("input " << idx << " : " << this->SortedInputs[idx]
-                      << " has locality " << this->SortedInputs[idx]->GetLocality()); 
 	this->SortedInputs[idx]->PropagateUpdateExtent();
 	this->SortedInputs[idx]->UpdateData();
 	}
