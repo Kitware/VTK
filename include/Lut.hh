@@ -32,6 +32,7 @@ public:
 
   float *MapValue(float v);
   void SetTableValue (int indx, float rgb[3]);
+  void SetTableValue (int indx, float r, float g, float b);
   float *GetTableValue (int);
 
 protected:

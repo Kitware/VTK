@@ -111,10 +111,10 @@ void vlLookupTable::Build()
       rgb[1] = (1.0+(float)cos((1.0-(double)rgb[1])*3.141593))/2.0;
       rgb[2] = (1.0+(float)cos((1.0-(double)rgb[2])*3.141593))/2.0;
 
-      this->Table.SetColor(i,rgb);
+      this->Table.InsertColor(i,rgb);
     }
-  this->BuildTime.Modified();
   }
+  this->BuildTime.Modified();
 }
 
 float *vlLookupTable::MapValue(float v)
@@ -133,6 +133,13 @@ void vlLookupTable::SetTableValue (int indx, float rgb[3])
   this->Table.SetColor(indx,rgb);
   this->InsertTime.Modified();
   this->Modified();
+}
+
+void vlLookupTable::SetTableValue (int indx, float r, float g, float b)
+{
+  float rgb[3];
+  rgb[0] = r; rgb[1] = g; rgb[2] = b;
+  vlLookupTable::SetTableValue(indx,rgb);
 }
 
 float *vlLookupTable::GetTableValue (int indx)
