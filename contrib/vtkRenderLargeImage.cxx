@@ -174,6 +174,7 @@ void vtkRenderLargeImage::Execute(vtkImageData *data)
   viewAngle = cam->GetViewAngle();
   cam->SetViewAngle(asin(sin(viewAngle*3.1415926/360.0)/this->Magnification) 
 		    * 360.0 / 3.1415926);
+  cam->SetParallelScale(cam->GetParallelScale()/this->Magnification);
   
   // render each of the tiles required to fill this request
   for (y = inWindowExtent[2]; y <= inWindowExtent[3]; y++)
