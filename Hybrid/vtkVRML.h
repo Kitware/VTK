@@ -91,7 +91,7 @@ struct vtkVRMLAllocator
 };
 
 template <class T> 
-class VTK_EXPORT VectorType
+class VTK_HYBRID_EXPORT VectorType
 {
 protected:
   T *Data;

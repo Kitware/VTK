@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageSource.h"
 #include "vtkRenderer.h"
 
-class VTK_EXPORT vtkRenderLargeImage : public vtkImageSource
+class VTK_HYBRID_EXPORT vtkRenderLargeImage : public vtkImageSource
 {
 public:
   static vtkRenderLargeImage *New();

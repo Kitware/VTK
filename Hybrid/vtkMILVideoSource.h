@@ -78,7 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_MIL_SECAM         4
 #define VTK_MIL_NONSTANDARD   5       
 
-class VTK_EXPORT vtkMILVideoSource : public vtkVideoSource
+class VTK_HYBRID_EXPORT vtkMILVideoSource : public vtkVideoSource
 {
 public:
   static vtkMILVideoSource *New();

@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkRIBRenderer;
 
-class VTK_EXPORT vtkRIBProperty : public vtkProperty
+class VTK_HYBRID_EXPORT vtkRIBProperty : public vtkProperty
 {
 public:
   static vtkRIBProperty *New();

@@ -75,7 +75,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_PLOT_TENSORS    5
 #define VTK_PLOT_FIELD_DATA 6
 
-class VTK_EXPORT vtkArcPlotter : public vtkPolyDataToPolyDataFilter 
+class VTK_HYBRID_EXPORT vtkArcPlotter : public vtkPolyDataToPolyDataFilter 
 {
 public:
   // Description:

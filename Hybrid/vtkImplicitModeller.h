@@ -104,7 +104,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkMultiThreader;
 class vtkExtractGeometry;
 
-class VTK_EXPORT vtkImplicitModeller : public vtkDataSetToStructuredPointsFilter 
+class VTK_HYBRID_EXPORT vtkImplicitModeller : public vtkDataSetToStructuredPointsFilter 
 {
 public:
   vtkTypeMacro(vtkImplicitModeller,vtkDataSetToStructuredPointsFilter);

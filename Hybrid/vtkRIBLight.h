@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkRIBRenderer;
 
-class VTK_EXPORT vtkRIBLight : public vtkLight
+class VTK_HYBRID_EXPORT vtkRIBLight : public vtkLight
 {
 public:
   static vtkRIBLight *New();

@@ -98,7 +98,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointSetToPointSetFilter.h"
 #include "vtkAbstractTransform.h"
 
-class VTK_EXPORT vtkWeightedTransformFilter : public vtkPointSetToPointSetFilter
+class VTK_HYBRID_EXPORT vtkWeightedTransformFilter : public vtkPointSetToPointSetFilter
 {
 public:
   static vtkWeightedTransformFilter *New();

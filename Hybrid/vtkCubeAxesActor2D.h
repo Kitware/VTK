@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_FLY_OUTER_EDGES 0
 #define VTK_FLY_CLOSEST_TRIAD 1
 
-class VTK_EXPORT vtkCubeAxesActor2D : public vtkActor2D
+class VTK_HYBRID_EXPORT vtkCubeAxesActor2D : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkCubeAxesActor2D,vtkActor2D);

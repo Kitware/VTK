@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkEarthSource : public vtkPolyDataSource 
+class VTK_HYBRID_EXPORT vtkEarthSource : public vtkPolyDataSource 
 {
 public:
   static vtkEarthSource *New();

@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_SORT_BOUNDS_CENTER 1
 #define VTK_SORT_PARAMETRIC_CENTER 2
 
-class VTK_EXPORT vtkDepthSortPolyData : public vtkPolyDataToPolyDataFilter 
+class VTK_HYBRID_EXPORT vtkDepthSortPolyData : public vtkPolyDataToPolyDataFilter 
 {
 public:
   // Description:

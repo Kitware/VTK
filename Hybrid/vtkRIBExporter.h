@@ -80,7 +80,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTexture.h"
 #include "vtkPolyData.h"
 
-class VTK_EXPORT vtkRIBExporter : public vtkExporter
+class VTK_HYBRID_EXPORT vtkRIBExporter : public vtkExporter
 {
 public:
   static vtkRIBExporter *New();

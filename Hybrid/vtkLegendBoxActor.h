@@ -72,7 +72,7 @@ class vtkPolyDataMapper2D;
 class vtkTransformPolyDataFilter;
 class vtkTransform;
 
-class VTK_EXPORT vtkLegendBoxActor : public vtkActor2D
+class VTK_HYBRID_EXPORT vtkLegendBoxActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkLegendBoxActor,vtkActor2D);

@@ -68,7 +68,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_RBF_R      1
 #define VTK_RBF_R2LOGR 2
 
-class VTK_EXPORT vtkThinPlateSplineTransform : public vtkWarpTransform
+class VTK_HYBRID_EXPORT vtkThinPlateSplineTransform : public vtkWarpTransform
 {
 public:
   vtkTypeMacro(vtkThinPlateSplineTransform,vtkWarpTransform);

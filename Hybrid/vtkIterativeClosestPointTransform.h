@@ -71,7 +71,7 @@ class vtkCellLocator;
 class vtkLandmarkTransform;
 class vtkDataSet;
 
-class VTK_EXPORT vtkIterativeClosestPointTransform : public vtkLinearTransform
+class VTK_HYBRID_EXPORT vtkIterativeClosestPointTransform : public vtkLinearTransform
 {
 public:
   static vtkIterativeClosestPointTransform *New();

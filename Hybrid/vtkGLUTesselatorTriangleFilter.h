@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataToPolyDataFilter.h"
 #include <GL/GLU.h>
 
-class VTK_EXPORT vtkGLUTesselatorTriangleFilter : public vtkPolyDataToPolyDataFilter
+class VTK_HYBRID_EXPORT vtkGLUTesselatorTriangleFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkGLUTesselatorTriangleFilter *New();

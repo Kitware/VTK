@@ -100,7 +100,7 @@ class vtkStructuredPoints;
 class vtkEdgeTable;
 class vtkAppendPolyData;
 
-class VTK_EXPORT vtkImageToPolyDataFilter : public vtkStructuredPointsToPolyDataFilter
+class VTK_HYBRID_EXPORT vtkImageToPolyDataFilter : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkImageToPolyDataFilter,vtkStructuredPointsToPolyDataFilter);

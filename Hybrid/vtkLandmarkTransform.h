@@ -63,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_LANDMARK_SIMILARITY 7
 #define VTK_LANDMARK_AFFINE 12
 
-class VTK_EXPORT vtkLandmarkTransform : public vtkLinearTransform
+class VTK_HYBRID_EXPORT vtkLandmarkTransform : public vtkLinearTransform
 {
 public:
   static vtkLandmarkTransform *New();

@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtk3DS.h"
 #include "vtkPolyData.h"
 
-class VTK_EXPORT vtk3DSImporter : public vtkImporter
+class VTK_HYBRID_EXPORT vtk3DSImporter : public vtkImporter
 {
 public:
   static vtk3DSImporter *New();

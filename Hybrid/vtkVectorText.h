@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkVectorText : public vtkPolyDataSource 
+class VTK_HYBRID_EXPORT vtkVectorText : public vtkPolyDataSource 
 {
 public:
   static vtkVectorText *New();

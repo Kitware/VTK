@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_GRID_LINEAR 1
 #define VTK_GRID_CUBIC 3
 
-class VTK_EXPORT vtkGridTransform : public vtkWarpTransform
+class VTK_HYBRID_EXPORT vtkGridTransform : public vtkWarpTransform
 {
 public:
   static vtkGridTransform *New();

@@ -90,7 +90,7 @@ class vtkGlyph3D;
 class vtkAppendPolyData;
 class vtkActor;
 
-class VTK_EXPORT vtkCaptionActor2D : public vtkActor2D
+class VTK_HYBRID_EXPORT vtkCaptionActor2D : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkCaptionActor2D,vtkActor2D);

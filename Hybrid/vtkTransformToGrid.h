@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageSource.h"
 #include "vtkAbstractTransform.h"
 
-class VTK_EXPORT vtkTransformToGrid : public vtkImageSource
+class VTK_HYBRID_EXPORT vtkTransformToGrid : public vtkImageSource
 {
 public:
   static vtkTransformToGrid *New();

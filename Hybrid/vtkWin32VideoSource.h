@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <winuser.h>
 #include <vfw.h>
 
-class VTK_EXPORT vtkWin32VideoSource : public vtkVideoSource
+class VTK_HYBRID_EXPORT vtkWin32VideoSource : public vtkVideoSource
 {
 public:
   static vtkWin32VideoSource *New();

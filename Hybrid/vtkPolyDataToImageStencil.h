@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyData.h"
 #include "vtkOBBTree.h"
 
-class VTK_EXPORT vtkPolyDataToImageStencil : public vtkImageStencilSource
+class VTK_HYBRID_EXPORT vtkPolyDataToImageStencil : public vtkImageStencilSource
 {
 public:
   static vtkPolyDataToImageStencil *New();

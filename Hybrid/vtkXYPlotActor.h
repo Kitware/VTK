@@ -115,7 +115,7 @@ class vtkAppendPolyData;
 class vtkPlanes;
 class vtkIntArray;
 
-class VTK_EXPORT vtkXYPlotActor : public vtkActor2D
+class VTK_HYBRID_EXPORT vtkXYPlotActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkXYPlotActor,vtkActor2D);

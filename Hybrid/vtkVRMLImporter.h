@@ -105,7 +105,7 @@ class  vtkFloatArray;
 class  vtkPolyDataMapper;
 class vtkPoints;
 
-class VTK_EXPORT vtkVRMLImporter : public vtkImporter
+class VTK_HYBRID_EXPORT vtkVRMLImporter : public vtkImporter
 {
 public:
   static vtkVRMLImporter *New();

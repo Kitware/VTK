@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageSource.h"
 #include "vtkScalarsToColors.h"
 
-class VTK_EXPORT vtkVideoSource : public vtkImageSource
+class VTK_HYBRID_EXPORT vtkVideoSource : public vtkImageSource
 {
 public:
   static vtkVideoSource *New();
