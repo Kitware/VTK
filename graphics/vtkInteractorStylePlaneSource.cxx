@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkInteractorStylePlane.cxx
+  Module:    vtkInteractorStylePlaneSource.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -72,10 +72,16 @@ vtkInteractorStylePlane::vtkInteractorStylePlane()
   this->SphereActor->SetMapper(this->SphereMapper);
   this->SphereActor->GetProperty()->SetColor(1.0, 0.7, 0.7);
 
-  this->Plane          = vtkPlane::New();
+  this->PlaneSource    = vtkPlaneSource::New();
+  this->PlaneMapper    = vtkPolyDataMapper::New();
+  this->PlaneMapper->SetInput(this->PlaneSource->GetOutput());
+  this->PlaneActor     = vtkActor::New();
+  this->PlaneActor->SetMapper(this->PlaneMapper);
 
   this->Button = -1;
   this->State = VTK_INTERACTOR_STYLE_PLANE_NONE;
+  this->ActiveCornerId = -1;
+  this->ActiveCorner[0] = this->ActiveCorner[1] = this->ActiveCorner[2] = 0.0;
   this->CallbackMethod = vtkInteractorStylePlaneCallback;
   this->CallbackMethodArg = (void *)this;
   this->CallbackMethodArgDelete = NULL;
@@ -101,8 +107,12 @@ vtkInteractorStylePlane::~vtkInteractorStylePlane()
   this->SphereActor->Delete();
   this->SphereActor = NULL;
 
-  this->Plane->Delete();
-  this->Plane       = NULL;
+  this->PlaneSource->Delete();
+  this->PlaneSource = NULL;
+  this->PlaneMapper->Delete();
+  this->PlaneMapper = NULL;
+  this->PlaneActor->Delete();
+  this->PlaneActor = NULL;
 
   if ((this->CallbackMethodArg)&&(this->CallbackMethodArgDelete))
     {
@@ -174,10 +184,231 @@ void vtkInteractorStylePlane::OnMouseMove(int vtkNotUsed(ctrl),
     this->CurrentRenderer->GetRenderWindow()->Render();
     }
 
+  if (this->Button == 0 && this->State == VTK_INTERACTOR_STYLE_PLANE_CORNER)
+    {
+    this->ResizeCorner(x - this->LastPos[0], y - this->LastPos[1]);
+    this->CurrentRenderer->ResetCameraClippingRange();
+    this->CurrentRenderer->GetRenderWindow()->Render();
+    }
+  if (this->Button == 1 && this->State == VTK_INTERACTOR_STYLE_PLANE_CORNER)
+    {
+    this->DiamondCorner(x - this->LastPos[0], y - this->LastPos[1]);
+    this->CurrentRenderer->ResetCameraClippingRange();
+    this->CurrentRenderer->GetRenderWindow()->Render();
+    }
+
+
   this->LastPos[0] = x;
   this->LastPos[1] = y;
 }
 
+//----------------------------------------------------------------------------
+void vtkInteractorStylePlane::ResizeCorner(int dx, int dy)
+{
+  float target[4], display[3];
+  float point0[3], point1[3], point2[3], point3[3];
+
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+  this->CurrentRenderer->SetWorldPoint(this->ActiveCorner[0],
+				       this->ActiveCorner[1],
+				       this->ActiveCorner[2], 1.0);
+  this->CurrentRenderer->WorldToDisplay();
+  this->CurrentRenderer->GetDisplayPoint(display);
+
+  display[0] += dx;
+  display[1] += dy;
+
+  this->CurrentRenderer->SetDisplayPoint(display);
+  this->CurrentRenderer->DisplayToWorld();
+  this->CurrentRenderer->GetWorldPoint(target);
+  target[0] /= target[3];
+  target[1] /= target[3];
+  target[2] /= target[3];
+
+  // We have the new corner point, now what do we do with it?
+  this->PlaneSource->GetOrigin(point0);
+  this->PlaneSource->GetPoint1(point1);
+  this->PlaneSource->GetPoint2(point2);
+  point3[0] = point1[0] + point2[0] - point0[0];
+  point3[1] = point1[1] + point2[1] - point0[1];
+  point3[2] = point1[2] + point2[2] - point0[2];
+
+  if (this->ActiveCornerId == 3)
+    {
+    this->ComputeParameters(point0, point1, point2, point3, target);
+    this->SetActiveCorner(point3);
+    this->PlaneSource->SetPoint1(point1);
+    this->PlaneSource->SetPoint2(point2);
+    }
+  if (this->ActiveCornerId == 0)
+    {
+    this->ComputeParameters(point3, point1, point2, point0, target);
+    this->SetActiveCorner(point0);
+    this->PlaneSource->SetOrigin(point0);
+    this->PlaneSource->SetPoint1(point1);
+    this->PlaneSource->SetPoint2(point2);
+    }
+  if (this->ActiveCornerId == 1)
+    {
+    this->ComputeParameters(point2, point0, point3, point1, target);
+    this->SetActiveCorner(point1);
+    this->PlaneSource->SetOrigin(point0);
+    this->PlaneSource->SetPoint1(point1);
+    this->PlaneSource->SetPoint2(point2);
+    }
+  if (this->ActiveCornerId == 2)
+    {
+    this->ComputeParameters(point1, point0, point3, point2, target);
+    this->SetActiveCorner(point2);
+    this->PlaneSource->SetOrigin(point0);
+    this->PlaneSource->SetPoint1(point1);
+    this->PlaneSource->SetPoint2(point2);
+    }
+
+  this->SphereActor->SetPosition(this->ActiveCorner);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkInteractorStylePlane::ComputeParameters(float *p0, float *p1, 
+						float *p2, float *p3,
+						float *target3)
+{
+  double k1, k2;
+  double v1[3], v2[3], vt[3];
+  double m0[2], m1[2];
+  double mi0[2], mi1[2];
+  double *M[2], *MI[2];
+  double c[2];
+  int i;
+
+  for (i = 0; i < 3; ++i)
+    {
+    v1[i] = p1[i] - p0[i];
+    v2[i] = p2[i] - p0[i];
+    vt[i] = target3[i] - p0[i];
+    }
+  M[0] = m0;
+  M[1] = m1;
+  MI[0] = mi0;
+  MI[1] = mi1;
+
+  m0[0] =         vtkMath::Dot(v1,v1);
+  m0[1] = m1[0] = vtkMath::Dot(v1,v2);
+  m1[1] =         vtkMath::Dot(v2,v2);
+  c[0] =          vtkMath::Dot(vt, v1);
+  c[1] =          vtkMath::Dot(vt, v2);
+
+  //vtkErrorMacro("v1: " << v1[0] << ", " << v1[1] << ", " << v1[2]);
+  //vtkErrorMacro("v2: " << v2[0] << ", " << v2[1] << ", " << v2[2]);
+  //vtkErrorMacro("vt: " << vt[0] << ", " << vt[1] << ", " << vt[2]);
+
+  vtkMath::InvertMatrix(M, MI, 2);
+
+  k1 = c[0] * mi0[0] + c[1] * mi1[0];
+  k2 = c[0] * mi0[1] + c[1] * mi1[1];
+  for (i = 0; i < 3; ++i)
+    {
+    p3[i] = p0[i] + k1 * v1[i] + k2 * v2[i];
+    p1[i] = p0[i] + k1 * v1[i];
+    p2[i] = p0[i] + k2 * v2[i];
+    }
+}
+
+
+//----------------------------------------------------------------------------
+void vtkInteractorStylePlane::DiamondCorner(int dx, int dy)
+{
+  float newPoint[4], display[3];
+  float origin[3], point1[3], point2[3];
+
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+  this->CurrentRenderer->SetWorldPoint(this->ActiveCorner[0],
+				       this->ActiveCorner[1],
+				       this->ActiveCorner[2], 1.0);
+  this->CurrentRenderer->WorldToDisplay();
+  this->CurrentRenderer->GetDisplayPoint(display);
+  //vtkErrorMacro("d1 : " << display[0] << ", " << display[1] << "," << display[2]);
+  display[0] += dx;
+  display[1] += dy;
+  //vtkErrorMacro("d2 : " << display[0] << ", " << display[1] << "," << display[2]);
+  this->CurrentRenderer->SetDisplayPoint(display);
+  this->CurrentRenderer->DisplayToWorld();
+  this->CurrentRenderer->GetWorldPoint(newPoint);
+  newPoint[0] /= newPoint[3];
+  newPoint[1] /= newPoint[3];
+  newPoint[2] /= newPoint[3];
+
+  this->SphereActor->SetPosition(newPoint);
+
+  //vtkErrorMacro("Point: " << this->ActiveCorner[0] 
+  //		<< ", " << this->ActiveCorner[1] 
+  //		<< ", " << this->ActiveCorner[2] << ", to new: "
+  //		<< newPoint[0] << ", " << newPoint[1] << ", " 
+  //		<< newPoint[2]); 
+
+  // We have the new corner point, now what do we do with it?
+  this->PlaneSource->GetOrigin(origin);
+  this->PlaneSource->GetPoint1(point1);
+  this->PlaneSource->GetPoint2(point2);
+
+  if (this->ActiveCornerId == 0)
+    {
+    origin[0] = newPoint[0];
+    origin[1] = newPoint[1];
+    origin[2] = newPoint[2];
+    }
+
+  if (this->ActiveCornerId == 3)
+    {
+    origin[0] += this->ActiveCorner[0] - newPoint[0];
+    origin[1] += this->ActiveCorner[1] - newPoint[1];
+    origin[2] += this->ActiveCorner[2] - newPoint[2];
+    }
+
+  if (this->ActiveCornerId == 1)
+    {
+    point2[0] += this->ActiveCorner[0] - newPoint[0];
+    point2[1] += this->ActiveCorner[1] - newPoint[1];
+    point2[2] += this->ActiveCorner[2] - newPoint[2];
+    point1[0] = newPoint[0];
+    point1[1] = newPoint[1];
+    point1[2] = newPoint[2];
+    }
+
+  if (this->ActiveCornerId == 2)
+    {
+    point1[0] += this->ActiveCorner[0] - newPoint[0];
+    point1[1] += this->ActiveCorner[1] - newPoint[1];
+    point1[2] += this->ActiveCorner[2] - newPoint[2];
+    point2[0] = newPoint[0];
+    point2[1] = newPoint[1];
+    point2[2] = newPoint[2];
+    }
+
+  //vtkErrorMacro("Active CornerID: " << this->ActiveCornerId);
+  //vtkErrorMacro("origin: " << origin[0] << ", " << origin[1] << ", " 
+  //		<< origin[2]);
+  //vtkErrorMacro("pt1: " << point1[0] << ", " << point1[1] << ", " 
+  //		<< point1[2]);
+  //vtkErrorMacro("pt2: " << point2[0] << ", " << point2[1] << ", " 
+  //		<< point2[2]);
+
+  this->PlaneSource->SetOrigin(origin);
+  this->PlaneSource->SetPoint1(point1);
+  this->PlaneSource->SetPoint2(point2);
+
+  this->ActiveCorner[0] = newPoint[0];
+  this->ActiveCorner[1] = newPoint[1];
+  this->ActiveCorner[2] = newPoint[2];
+
+}
 
 //----------------------------------------------------------------------------
 void vtkInteractorStylePlane::RotateXY(int dx, int dy)
@@ -204,13 +435,13 @@ void vtkInteractorStylePlane::RotateXY(int dx, int dy)
   vu = cam->GetViewUp();	
   this->Transform->RotateWXYZ(360.0 * dx / size[0], vu[0], vu[1], vu[2]);
   // Elevation
-  vtkMath::Cross(cam->GetViewPlaneNormal(), cam->GetViewUp(), v2);
-  this->Transform->RotateWXYZ(360.0 * dy / size[1], v2[0], v2[1], v2[2]);
+  vtkMath::Cross(cam->GetDirectionOfProjection(), cam->GetViewUp(), v2);
+  this->Transform->RotateWXYZ(-360.0 * dy / size[1], v2[0], v2[1], v2[2]);
     
-  this->Plane->GetNormal(n1);
+  this->PlaneSource->GetNormal(n1);
   n1[3] = 1.0;
   this->Transform->MultiplyPoint(n1, n2);
-  this->Plane->SetNormal(n2);
+  this->PlaneSource->SetNormal(n2);
 }
 
 
@@ -224,7 +455,7 @@ void vtkInteractorStylePlane::TranslateXY(int dx, int dy)
     return;
     }
 
-  this->Plane->GetOrigin(world);
+  this->PlaneSource->GetCenter(world);
 
   world[3] = 1.0;
   this->CurrentRenderer->SetWorldPoint(world);
@@ -238,7 +469,7 @@ void vtkInteractorStylePlane::TranslateXY(int dx, int dy)
   world[0] /= world[3];
   world[1] /= world[3];
   world[2] /= world[3];
-  this->Plane->SetOrigin(world[0], world[1], world[2]);
+  this->PlaneSource->SetCenter(world[0], world[1], world[2]);
   this->SphereActor->SetPosition(world[0], world[1], world[2]);
 
   if ( this->CallbackMethod )
@@ -266,7 +497,7 @@ void vtkInteractorStylePlane::TranslateZ(int vtkNotUsed(dx), int dy)
   cam = this->CurrentRenderer->GetActiveCamera();
   cam->GetViewPlaneNormal(v1);
   cam->GetPosition(d);
-  center = this->Plane->GetOrigin();
+  center = this->PlaneSource->GetCenter();
   d[0] = d[0] - center[0];
   d[1] = d[1] - center[1];
   d[2] = d[2] - center[2];
@@ -278,8 +509,8 @@ void vtkInteractorStylePlane::TranslateZ(int vtkNotUsed(dx), int dy)
   v1[1] = v1[1] * dist / (float)(size[1]);
   v1[2] = v1[2] * dist / (float)(size[1]);
 
-  this->Plane->SetOrigin(center[0]+dy*v1[0], center[1]+dy*v1[1], center[2]+dy*v1[2]);
-  this->SphereActor->SetPosition(this->Plane->GetOrigin());
+  this->PlaneSource->SetCenter(center[0]+dy*v1[0], center[1]+dy*v1[1], center[2]+dy*v1[2]);
+  this->SphereActor->SetPosition(this->PlaneSource->GetCenter());
     
   if ( this->CallbackMethod )
     {
@@ -294,9 +525,8 @@ void vtkInteractorStylePlane::TranslateZ(int vtkNotUsed(dx), int dy)
 // highlight an object to indicate that it can be manipulated with the mouse.
 void vtkInteractorStylePlane::HandleIndicator(int x, int y) 
 {
-  int *size;
   float display[3], point[4], corner[4], *origin;
-  float sphereCx, sphereCy, sphereCz;
+  float sphereCx, sphereCy, sphereCz, sphereRad;
   float temp, centerDistDisplay, centerDistWorld, rad;
   int renderFlag = 0;
   float dist;
@@ -311,7 +541,7 @@ void vtkInteractorStylePlane::HandleIndicator(int x, int y)
     }
 
   // Are we over the center.
-  this->Plane->GetOrigin(point);
+  this->PlaneSource->GetCenter(point);
   sphereCx = point[0];
   sphereCy = point[1];
   sphereCz = point[2];
@@ -326,24 +556,94 @@ void vtkInteractorStylePlane::HandleIndicator(int x, int y)
   centerDistDisplay = sqrt(centerDistDisplay);
 
   // Compute the size of the sphere 
-  // as a fraction of the renderers size.
-  // (Display is set to the origin in display coordinates.)
-  size = this->CurrentRenderer->GetSize();
-  display[0] += (float)(size[0] + size[1]) / 50.0;
-  this->CurrentRenderer->SetDisplayPoint(display);
-  this->CurrentRenderer->DisplayToWorld();
-  this->CurrentRenderer->GetWorldPoint(point);
-  temp = sphereCx - point[0];
+  // as a fraction of the plane radius.
+  origin = this->PlaneSource->GetOrigin();
+  temp = origin[0] - point[0];
   rad = temp * temp;
-  temp = sphereCy - point[1];
+  temp = origin[1] - point[1];
   rad += temp * temp;
-  temp = sphereCz - point[2];
+  temp = origin[2] - point[2];
   rad += temp * temp;
   rad = sqrt(rad);
-  this->SphereActor->SetScale(rad);
+  this->SphereActor->SetScale(rad * 0.1);
+
+  // Find the closest corner and its distance.
+  corner[3] = 1.0;
+  this->PlaneSource->GetOrigin(corner);
+  this->CurrentRenderer->SetWorldPoint(corner);
+  this->CurrentRenderer->WorldToDisplay();
+  this->CurrentRenderer->GetDisplayPoint(display);
+  temp = (float)x - display[0];
+  dist = temp * temp;
+  temp = (float)y - display[1];
+  dist += temp * temp;
+  dist = sqrt(dist);
+  closestCornerId = 0;
+  closestCorner[0] = corner[0];
+  closestCorner[1] = corner[1];
+  closestCorner[2] = corner[2];
+  closestCornerDist = dist;
+
+  this->PlaneSource->GetPoint1(corner);
+  this->CurrentRenderer->SetWorldPoint(corner);
+  this->CurrentRenderer->WorldToDisplay();
+  this->CurrentRenderer->GetDisplayPoint(display);
+  temp = (float)x - display[0];
+  dist = temp * temp;
+  temp = (float)y - display[1];
+  dist += temp * temp;
+  dist = sqrt(dist);
+  if (dist < closestCornerDist)
+    {
+    closestCornerId = 1;
+    closestCorner[0] = corner[0];
+    closestCorner[1] = corner[1];
+    closestCorner[2] = corner[2];
+    closestCornerDist = dist;
+    }
+
+  this->PlaneSource->GetPoint2(corner);
+  this->CurrentRenderer->SetWorldPoint(corner);
+  this->CurrentRenderer->WorldToDisplay();
+  this->CurrentRenderer->GetDisplayPoint(display);
+  temp = (float)x - display[0];
+  dist = temp * temp;
+  temp = (float)y - display[1];
+  dist += temp * temp;
+  dist = sqrt(dist);
+  if (dist < closestCornerDist)
+    {
+    closestCornerId = 2;
+    closestCorner[0] = corner[0];
+    closestCorner[1] = corner[1];
+    closestCorner[2] = corner[2];
+    closestCornerDist = dist;
+    }
+
+  // The forth point we have to compute.
+  this->PlaneSource->GetPoint1(point);
+  corner[0] = corner[0] + point[0] - origin[0];
+  corner[1] = corner[1] + point[1] - origin[1];
+  corner[2] = corner[2] + point[2] - origin[2];
+  this->CurrentRenderer->SetWorldPoint(corner);
+  this->CurrentRenderer->WorldToDisplay();
+  this->CurrentRenderer->GetDisplayPoint(display);
+  temp = (float)x - display[0];
+  dist = temp * temp;
+  temp = (float)y - display[1];
+  dist += temp * temp;
+  dist = sqrt(dist);
+  if (dist < closestCornerDist)
+    {
+    closestCornerId = 3;
+    closestCorner[0] = corner[0];
+    closestCorner[1] = corner[1];
+    closestCorner[2] = corner[2];
+    closestCornerDist = dist;
+    }
 
   // If we are within a couple pixles of the center, turn it on.
-  if (centerDistDisplay < 16.0)
+  if (centerDistDisplay < 16.0 && centerDistDisplay < closestCornerDist)
     { // The center should become active.
     if (this->State == VTK_INTERACTOR_STYLE_PLANE_NONE)
       { // Center was previously off. Turn it on.
@@ -351,11 +651,32 @@ void vtkInteractorStylePlane::HandleIndicator(int x, int y)
       }
     if (this->State != VTK_INTERACTOR_STYLE_PLANE_CENTER)
       {
-      this->SphereActor->SetPosition(sphereCx, sphereCy, sphereCz);
+      this->SphereActor->SetPosition(this->PlaneActor->GetCenter());
       this->CurrentRenderer->ResetCameraClippingRange();
       this->CurrentRenderer->GetRenderWindow()->Render();
       }
     this->State = VTK_INTERACTOR_STYLE_PLANE_CENTER;
+    this->ActiveCornerId = -1;
+    return;
+    }
+
+  if (closestCornerDist < 16.0)
+    { // The closest corner should become active.
+    if (this->State == VTK_INTERACTOR_STYLE_PLANE_NONE)
+      { // Center was previously off. Turn it on.
+      this->CurrentRenderer->AddActor(this->SphereActor);
+      }
+    if (this->ActiveCornerId != closestCornerId)
+      {
+      this->SphereActor->SetPosition(closestCorner);
+      this->CurrentRenderer->ResetCameraClippingRange();
+      this->CurrentRenderer->GetRenderWindow()->Render();
+      }
+    this->State = VTK_INTERACTOR_STYLE_PLANE_CORNER;
+    this->ActiveCornerId = closestCornerId;
+    this->ActiveCorner[0] = closestCorner[0];
+    this->ActiveCorner[1] = closestCorner[1];
+    this->ActiveCorner[2] = closestCorner[2];
     return;
     }
 
@@ -365,6 +686,7 @@ void vtkInteractorStylePlane::HandleIndicator(int x, int y)
     this->CurrentRenderer->RemoveActor(this->SphereActor);
     this->CurrentRenderer->GetRenderWindow()->Render();
     this->State = VTK_INTERACTOR_STYLE_PLANE_NONE;
+    this->ActiveCornerId = -1;
     }
 
   return;
@@ -463,7 +785,8 @@ void vtkInteractorStylePlane::PrintSelf(ostream& os, vtkIndent indent)
   vtkInteractorStyle::PrintSelf(os,indent);
 
   os << indent << "CallbackType: " << this->CallbackType << endl;
-  os << indent << "Plane: (" << this->Plane << ")\n";
+  os << indent << "PlaneSource: (" << this->PlaneSource << ")\n";
+  os << indent << "PlaneActor: (" << this->PlaneActor << ")\n";
 
   if ( this->CallbackMethod )
     {

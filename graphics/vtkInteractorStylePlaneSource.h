@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkInteractorStylePlane.h
+  Module:    vtkInteractorStylePlaneSource.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -40,21 +40,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-// .NAME vtkInteractorStylePlane - Manipulation of an implicit plane.
+// .NAME vtkInteractorStylePlane - Manipulation of plane source.
 
 // .SECTION Description
 // vtkInteractorStylePlane Allows interactive definition of a plane
-// by manipulating a vtkPlane's parameters.  
-// The center of the plane is hot.  The center provides
+// by manipulating a vtkPlaneSources parameters.  
+// The center of the plane and its corners are hot.  The center provides
 // rotation (left mouse button), XY translation relative to camera (middle),
 // and translation along camera's view-plane normal (right).
+// The corners provid varius methods for resizing the plane.
 
 
 #ifndef __vtkInteractorStylePlane_h
 #define __vtkInteractorStylePlane_h
 
 #include "vtkInteractorStyle.h"
-#include "vtkPlane.h"
+#include "vtkPlaneSource.h"
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkTransform.h"
@@ -62,6 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define VTK_INTERACTOR_STYLE_PLANE_NONE    0
 #define VTK_INTERACTOR_STYLE_PLANE_CENTER  1
+#define VTK_INTERACTOR_STYLE_PLANE_CORNER  2
 
 
 
@@ -79,7 +81,8 @@ public:
 
   // Description:
   // Parameters are accessed through the plane source.
-  vtkGetObjectMacro(Plane, vtkPlane);
+  vtkGetObjectMacro(PlaneSource, vtkPlaneSource);
+  vtkGetObjectMacro(PlaneActor, vtkActor);
 
   // Generic event bindings must be overridden in subclasses
   void OnMouseMove  (int ctrl, int shift, int x, int y);
@@ -89,6 +92,13 @@ public:
   void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
   void OnRightButtonDown(int ctrl, int shift, int x, int y);
   void OnRightButtonUp  (int ctrl, int shift, int x, int y);
+
+  // Description:
+  // OnChar implements keybaord functions, but subclasses can override this 
+  // behaviour
+  //void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
+  //void OnKeyDown(int ctrl, int shift, char keycode, int repeatcount);
+  //void OnKeyUp  (int ctrl, int shift, char keycode, int repeatcount);
 
   // Description:
   // Specify function to be called when a significant event occurs.
@@ -115,12 +125,18 @@ protected:
   vtkPolyDataMapper  *SphereMapper;
   vtkActor           *SphereActor;
 
-  vtkPlane           *Plane;
+  vtkPlaneSource     *PlaneSource;
+  vtkPolyDataMapper  *PlaneMapper;
+  vtkActor           *PlaneActor;
 
   // State of the button -1 => none pressed
   int Button;
-  // Indicates which type of hot spot is active.
+  // Indicates which type of hot spot is active (corner or center).
   int State;
+  // Indicates which corner is active.
+  int ActiveCornerId;
+  // The poisiton of the active corner
+  float ActiveCorner[3];
 
   vtkTransform *Transform;
 
@@ -137,6 +153,13 @@ protected:
   void TranslateXY(int dx, int dy);
   void TranslateZ(int dx, int dy);
   void RotateXY(int dx, int dy);
+
+  vtkSetVector3Macro(ActiveCorner, float);
+  void ResizeCorner(int dx, int dy);
+  void ComputeParameters(float *p0, float *p1, float *p2, float *p3, 
+			 float *target3); 
+
+  void  DiamondCorner(int dx, int dy);
 
   void HandleIndicator(int x, int y);
 
