@@ -14,12 +14,13 @@ Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
     Within The Interior Region of a Solid body".
     Application of this software for commercial purposes requires 
     a license grant from GE. Contact:
-        Mike Silver
-        GE Medical Systems
-        16705 West Lincoln Ave., 
-        NB 900
-        New Berlin, WI, 53151
-        Phone:1-414-827-3400 
+        Jerald Roehling
+        GE Licensing
+        One Independence Way
+        PO Box 2023
+        Princeton, N.J. 08540
+        phone 609-734-9823
+        e-mail:Roehlinj@gerlmo.ge.com
     for more information.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
