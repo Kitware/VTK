@@ -74,7 +74,11 @@ public:
   int PrependItem(DType a);
   
   // Description:
-  // Insert an Item to the specific location in the vector.
+  // Insert an Item to the specific location in the vector.  
+  // Any items in the vector at a location greater than loc will be
+  // shifted by one position to make room for the inserted item.
+  // NOTE: this can not be used with SetSize because there will
+  // be no room for the additional item.
   int InsertItem(vtkIdType loc, DType a);
   
   // Description:
