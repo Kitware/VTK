@@ -24,7 +24,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.2");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.3");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 // Construct the line with two points.
@@ -88,7 +88,7 @@ vtkCell *vtkQuadraticQuad::GetEdge(int edgeId)
 static int linearQuads[4][4] = { {0,4,8,7}, {8,4,1,5}, 
                                  {8,5,2,6}, {7,8,6,3} };
 
-void vtkQuadraticQuad::ComputeMidQuadNode(float *weights)
+void vtkQuadraticQuad::Subdivide(float *weights)
 {
   int i, j;
   float pc[3], x[3];
@@ -121,7 +121,7 @@ int vtkQuadraticQuad::EvaluatePosition(float* x,
   float closest[3];
 
   // compute the midquad node
-  this->ComputeMidQuadNode(weights);
+  this->Subdivide(weights);
 
   //four linear quads are used
   for (minDist2=VTK_LARGE_FLOAT, i=0; i < 4; i++)
@@ -237,7 +237,7 @@ void vtkQuadraticQuad::Contour(float value,
   float weights[8];
 
   //first define the midquad point
-  this->ComputeMidQuadNode(weights);
+  this->Subdivide(weights);
   
   //interpolate point and cell data
   this->InterpolateAttributes(inPd,inCd,cellId,weights);
@@ -271,7 +271,7 @@ int vtkQuadraticQuad::IntersectWithLine(float* p1,
   float weights[8];
 
   //first define the midquad point
-  this->ComputeMidQuadNode(weights);
+  this->Subdivide(weights);
   
   //intersect the four linear quads
   for (i=0; i < 4; i++)
@@ -424,7 +424,7 @@ void vtkQuadraticQuad::Clip(float value,
   float weights[8];
 
   //first define the midquad point
-  this->ComputeMidQuadNode(weights);
+  this->Subdivide(weights);
   
   //interpolate point and cell data
   this->InterpolateAttributes(inPd,inCd,cellId,weights);

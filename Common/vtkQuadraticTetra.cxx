@@ -24,7 +24,7 @@
 #include "vtkTetra.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.2");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.3");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 // Construct the line with two points.
@@ -63,7 +63,7 @@ vtkCell *vtkQuadraticTetra::MakeObject()
 }
 
 static int TetraEdge[6][3] = { {0,1,4}, {1,2,5}, {2,0,6}, 
-                                {0,3,7}, {1,3,8}, {2,3,9} };
+                               {0,3,7}, {1,3,8}, {2,3,9} };
 
 vtkCell *vtkQuadraticTetra::GetEdge(int edgeId)
 {
@@ -82,8 +82,8 @@ vtkCell *vtkQuadraticTetra::GetEdge(int edgeId)
   return this->Edge;
 }
 
-static int TetraFace[4][6] = { {0,1,2,4,5,6}, {0,1,3,4,8,7}, 
-                                {1,2,3,5,9,8}, {2,0,3,6,7,9} };
+static int TetraFace[4][6] = { {0,1,3,4,8,7}, {1,2,3,5,9,8}, 
+                               {2,0,3,6,7,9}, {0,2,1,6,5,4} };
 
 vtkCell *vtkQuadraticTetra::GetFace(int faceId)
 {
@@ -101,95 +101,228 @@ vtkCell *vtkQuadraticTetra::GetFace(int faceId)
   return this->Face;
 }
 
-int vtkQuadraticTetra::EvaluatePosition(float* x, 
-                                       float* closestPoint, 
-                                       int& subId, float pcoords[3],
-                                       float& vtkNotUsed(dist2), 
-                                       float *weights)
-{
-  subId = 0;
-  pcoords[1] = pcoords[2] = 0.0;
+static const float VTK_DIVERGED = 1.e6;
+static const int VTK_TETRA_MAX_ITERATION=10;
+static const float VTK_TETRA_CONVERGED=1.e-03;
 
-  return 0;
+int vtkQuadraticTetra::EvaluatePosition(float* x, 
+                                        float* closestPoint, 
+                                        int& subId, float pcoords[3],
+                                        float& dist2, float *weights)
+{
+  int iteration, converged;
+  float  params[3];
+  float  fcol[3], rcol[3], scol[3], tcol[3];
+  int i, j;
+  float  d, *pt;
+  float derivs[30];
+
+  //  set initial position for Newton's method
+  subId = 0;
+  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2]=0.5;
+
+  //  enter iteration loop
+  for (iteration=converged=0;
+       !converged && (iteration < VTK_TETRA_MAX_ITERATION);  iteration++) 
+    {
+    //  calculate element interpolation functions and derivatives
+    this->InterpolationFunctions(pcoords, weights);
+    this->InterpolationDerivs(pcoords, derivs);
+
+    //  calculate newton functions
+    for (i=0; i<3; i++) 
+      {
+      fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
+      }
+    for (i=0; i<10; i++)
+      {
+      pt = this->Points->GetPoint(i);
+      for (j=0; j<3; j++)
+        {
+        fcol[j] += pt[j] * weights[i];
+        rcol[j] += pt[j] * derivs[i];
+        scol[j] += pt[j] * derivs[i+10];
+        tcol[j] += pt[j] * derivs[i+20];
+        }
+      }
+
+    for (i=0; i<3; i++)
+      {
+      fcol[i] -= x[i];
+      }
+
+    //  compute determinants and generate improvements
+    d=vtkMath::Determinant3x3(rcol,scol,tcol);
+    if ( fabs(d) < 1.e-20) 
+      {
+      return -1;
+      }
+
+    pcoords[0] = params[0] - vtkMath::Determinant3x3 (fcol,scol,tcol) / d;
+    pcoords[1] = params[1] - vtkMath::Determinant3x3 (rcol,fcol,tcol) / d;
+    pcoords[2] = params[2] - vtkMath::Determinant3x3 (rcol,scol,fcol) / d;
+
+    //  check for convergence
+    if ( ((fabs(pcoords[0]-params[0])) < VTK_TETRA_CONVERGED) &&
+         ((fabs(pcoords[1]-params[1])) < VTK_TETRA_CONVERGED) &&
+         ((fabs(pcoords[2]-params[2])) < VTK_TETRA_CONVERGED) )
+      {
+      converged = 1;
+      }
+
+    // Test for bad divergence (S.Hirschberg 11.12.2001)
+    else if ((fabs(pcoords[0]) > VTK_DIVERGED) || 
+             (fabs(pcoords[1]) > VTK_DIVERGED) || 
+             (fabs(pcoords[2]) > VTK_DIVERGED))
+      {
+      return -1;
+      }
+
+    //  if not converged, repeat
+    else 
+      {
+      params[0] = pcoords[0];
+      params[1] = pcoords[1];
+      params[2] = pcoords[2];
+      }
+    }
+
+  //  if not converged, set the parametric coordinates to arbitrary values
+  //  outside of element
+  if ( !converged )
+    {
+    return -1;
+    }
+
+  this->InterpolationFunctions(pcoords, weights);
+
+  if ( pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
+  pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
+  pcoords[2] >= -0.001 && pcoords[2] <= 1.001 )
+    {
+    if (closestPoint)
+      {
+      closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
+      dist2 = 0.0; //inside hexahedron
+      }
+    return 1;
+    }
+  else
+    {
+    float pc[3], w[10];
+    if (closestPoint)
+      {
+      for (i=0; i<3; i++) //only approximate, not really true for warped hexa
+        {
+        if (pcoords[i] < 0.0)
+          {
+          pc[i] = 0.0;
+          }
+        else if (pcoords[i] > 1.0)
+          {
+          pc[i] = 1.0;
+          }
+        else
+          {
+          pc[i] = pcoords[i];
+          }
+        }
+      this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
+      dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
+      }
+    return 0;
+    }
 }
 
 void vtkQuadraticTetra::EvaluateLocation(int& vtkNotUsed(subId), 
                                         float pcoords[3], 
                                         float x[3], float *weights)
 {
-  int i;
-  float *a0 = this->Points->GetPoint(0);
-  float *a1 = this->Points->GetPoint(1);
-  float *a2 = this->Points->GetPoint(2); //midside node
+  int i, j;
+  float *pt;
 
-  this->InterpolationFunctions(pcoords,weights);
-  
-  for (i=0; i<3; i++) 
+  this->InterpolationFunctions(pcoords, weights);
+
+  x[0] = x[1] = x[2] = 0.0;
+  for (i=0; i<10; i++)
     {
-    x[i] = a0[i]*weights[0] + a1[i]*weights[1] + a2[i]*weights[2];
+    pt = this->Points->GetPoint(i);
+    for (j=0; j<3; j++)
+      {
+      x[j] += pt[j] * weights[i];
+      }
     }
 }
 
-int vtkQuadraticTetra::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
-                                   vtkIdList *pts)
+int vtkQuadraticTetra::CellBoundary(int subId, float pcoords[3], 
+                                    vtkIdList *pts)
 {
-  pts->SetNumberOfIds(1);
-
-  if ( pcoords[0] >= 0.5 )
-    {
-    pts->SetId(0,this->PointIds->GetId(1));
-    if ( pcoords[0] > 1.0 )
-      {
-      return 0;
-      }
-    else
-      {
-      return 1;
-      }
-    }
-  else
-    {
-    pts->SetId(0,this->PointIds->GetId(0));
-    if ( pcoords[0] < 0.0 )
-      {
-      return 0;
-      }
-    else
-      {
-      return 1;
-      }
-    }
+  return this->Region->CellBoundary(subId, pcoords, pts);
 }
 
 void vtkQuadraticTetra::Contour(float vtkNotUsed(value), 
-                               vtkDataArray* vtkNotUsed(cellScalars), 
-                               vtkPointLocator* vtkNotUsed(locator), 
-                               vtkCellArray *vtkNotUsed(verts), 
-                               vtkCellArray* vtkNotUsed(lines), 
-                               vtkCellArray* vtkNotUsed(polys), 
-                               vtkPointData* vtkNotUsed(inPd), 
-                               vtkPointData* vtkNotUsed(outPd),
-                               vtkCellData* vtkNotUsed(inCd), 
-                               vtkIdType vtkNotUsed(cellId), 
-                               vtkCellData* vtkNotUsed(outCd))
+                                vtkDataArray* vtkNotUsed(cellScalars), 
+                                vtkPointLocator* vtkNotUsed(locator), 
+                                vtkCellArray *vtkNotUsed(verts), 
+                                vtkCellArray* vtkNotUsed(lines), 
+                                vtkCellArray* vtkNotUsed(polys), 
+                                vtkPointData* vtkNotUsed(inPd), 
+                                vtkPointData* vtkNotUsed(outPd),
+                                vtkCellData* vtkNotUsed(inCd), 
+                                vtkIdType vtkNotUsed(cellId), 
+                                vtkCellData* vtkNotUsed(outCd))
 {
 }
 
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-
-// The following arguments were modified to avoid warnings:
-// float p1[3], float p2[3], float x[3], float pcoords[3], 
-
-int vtkQuadraticTetra::IntersectWithLine(float* vtkNotUsed(p1), 
-                                        float* vtkNotUsed(p2), 
-                                        float vtkNotUsed(tol), 
-                                        float& vtkNotUsed(t),
-                                        float* vtkNotUsed(x), 
-                                        float* vtkNotUsed(pcoords), 
-                                        int& vtkNotUsed(subId))
+int vtkQuadraticTetra::IntersectWithLine(float* p1, float* p2, 
+                                         float tol, float& t,
+                                         float* x, float* pcoords, int& subId)
 {
-  return 0;
+  int intersection=0;
+  float tTemp;
+  float pc[3], xTemp[3];
+  int faceNum;
+
+  t = VTK_LARGE_FLOAT;
+  for (faceNum=0; faceNum<4; faceNum++)
+    {
+    for (int i=0; i<6; i++)
+      {
+      this->Face->Points->SetPoint(i,this->Points->GetPoint(TetraFace[faceNum][i]));
+      }
+
+    if ( this->Face->IntersectWithLine(p1, p2, tol, tTemp, 
+                                       xTemp, pc, subId) )
+      {
+      intersection = 1;
+      if ( tTemp < t )
+        {
+        t = tTemp;
+        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+        switch (faceNum)
+          {
+          case 0:
+            pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = 0.0;
+            break;
+
+          case 1:
+            pcoords[0] = 0.0; pcoords[1] = pc[1]; pcoords[2] = 0.0;
+            break;
+
+          case 2:
+            pcoords[0] = pc[0]; pcoords[1] = 0.0; pcoords[2] = 0.0;
+            break;
+
+          case 3:
+            pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = pc[2];
+            break;
+          }
+        }
+      }
+    }
+  return intersection;
 }
 
 int vtkQuadraticTetra::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
@@ -208,8 +341,8 @@ int vtkQuadraticTetra::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 }
 
 void vtkQuadraticTetra::Derivatives(int vtkNotUsed(subId), 
-                                   float pcoords[3], float *values, 
-                                   int dim, float *derivs)
+                                    float pcoords[3], float *values, 
+                                    int dim, float *derivs)
 {
   float *x0, *x1, *x2, deltaX[3], weights[3];
   int i, j;
@@ -291,40 +424,40 @@ void vtkQuadraticTetra::InterpolationFunctions(float pcoords[3],
 void vtkQuadraticTetra::InterpolationDerivs(float pcoords[3], float derivs[30])
 {
   // r-derivatives
-  derivs[0] = ;
-  derivs[1] = ;
-  derivs[2] = ;
-  derivs[3] = ;
-  derivs[4] = ;
-  derivs[5] = ;
-  derivs[6] = ;
-  derivs[7] = ;
-  derivs[8] = ;
-  derivs[9] = ;
+  derivs[0] = 0.0;
+  derivs[1] = 0.0;
+  derivs[2] = 0.0;
+  derivs[3] = 0.0;
+  derivs[4] = 0.0;
+  derivs[5] = 0.0;
+  derivs[6] = 0.0;
+  derivs[7] = 0.0;
+  derivs[8] = 0.0;
+  derivs[9] = 0.0;
 
   // s-derivatives
-  derivs[10] = ;
-  derivs[11] = ;
-  derivs[12] = ;
-  derivs[13] = ;
-  derivs[14] = ;
-  derivs[15] = ;
-  derivs[16] = ;
-  derivs[17] = ;
-  derivs[18] = ;
-  derivs[19] = ;
+  derivs[10] = 0.0;
+  derivs[11] = 0.0;
+  derivs[12] = 0.0;
+  derivs[13] = 0.0;
+  derivs[14] = 0.0;
+  derivs[15] = 0.0;
+  derivs[16] = 0.0;
+  derivs[17] = 0.0;
+  derivs[18] = 0.0;
+  derivs[19] = 0.0;
 
   // t-derivatives
-  derivs[20] = ;
-  derivs[21] = ;
-  derivs[22] = ;
-  derivs[23] = ;
-  derivs[24] = ;
-  derivs[25] = ;
-  derivs[26] = ;
-  derivs[27] = ;
-  derivs[28] = ;
-  derivs[29] = ;
+  derivs[20] = 0.0;
+  derivs[21] = 0.0;
+  derivs[22] = 0.0;
+  derivs[23] = 0.0;
+  derivs[24] = 0.0;
+  derivs[25] = 0.0;
+  derivs[26] = 0.0;
+  derivs[27] = 0.0;
+  derivs[28] = 0.0;
+  derivs[29] = 0.0;
   
 }
 
