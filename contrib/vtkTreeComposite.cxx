@@ -353,7 +353,7 @@ vtkTreeComposite::SetRenderWindowInteractor(vtkRenderWindowInteractor *iren)
 //----------------------------------------------------------------------------
 void vtkTreeComposite::RenderRMI()
 {
-  int myId, numProcs, i;
+  int i;
   vtkCompositeRenderWindowInfo winInfo;
   vtkCompositeRendererInfo renInfo;
   vtkRendererCollection *rens;
@@ -364,9 +364,6 @@ void vtkTreeComposite::RenderRMI()
   vtkRenderWindow* renWin = this->RenderWindow;
   vtkMultiProcessController *controller = this->Controller;
   
-  myId = controller->GetLocalProcessId();
-  numProcs = controller->GetNumberOfProcesses();
-
   // Receive the window size.
   controller->Receive((char*)(&winInfo), 
                       sizeof(struct vtkCompositeRenderWindowInfo), 0, 
