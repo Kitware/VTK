@@ -99,6 +99,10 @@ public:
   void InsertAGrayValue(int id, unsigned char ga[2]);
   int InsertNextAGrayValue(unsigned char ga[2]);
 
+  // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
+  vtkSetRefCountedObjectMacro(S, vtkUnsignedCharArray);
+  vtkGetObjectMacro(S, vtkUnsignedCharArray);
+
 protected:
   vtkUnsignedCharArray *S;
 };

@@ -87,6 +87,12 @@ public:
   void InsertColor(int id, unsigned char rgba[4]);
   int InsertNextColor(unsigned char rgba[4]);
 
+  // Bit array will not be converted to image yet.
+  void SetS(vtkUnsignedCharArray *s)
+  {s=s; vtkDebugMacro("SetS not implemented yet");}
+  vtkUnsignedCharArray *GetS()
+  {vtkDebugMacro("GetS not implemented yet"); return NULL;}
+
 protected:
   vtkBitArray *S;
 };

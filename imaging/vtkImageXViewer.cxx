@@ -68,8 +68,9 @@ void vtkImageXViewer::PrintSelf(ostream& os, vtkIndent indent)
 // Description:
 // A templated function that handles gray scale images.
 template <class T>
-static void vtkImageXViewerRenderGrey(vtkImageXViewer *self, vtkImageRegion *region,
-			       T *inPtr, unsigned char *outPtr)
+static void vtkImageXViewerRenderGrey(vtkImageXViewer *self, 
+				      vtkImageRegion *region,
+				      T *inPtr, unsigned char *outPtr)
 {
   int colorIdx;
   T *inPtr0, *inPtr1;

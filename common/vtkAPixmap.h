@@ -87,6 +87,10 @@ public:
   void InsertColor(int id, unsigned char rgba[4]);
   int InsertNextColor(unsigned char rgba[4]);
 
+  // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
+  vtkSetRefCountedObjectMacro(S, vtkUnsignedCharArray);
+  vtkGetObjectMacro(S, vtkUnsignedCharArray);
+
 protected:
   vtkUnsignedCharArray *S;
 };

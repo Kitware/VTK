@@ -4,8 +4,8 @@ catch {load vtktcl}
 source vtkInt.tcl
 
 vtkPNMReader pnmReader
-  pnmReader SetFileName "../../../data/masonry.ppm"
-  #pnmReader SetFileName "../../../data/billBoard.pgm"
+  pnmReader SetFileName "../../data/masonry.ppm"
+  #pnmReader SetFileName "../../data/billBoard.pgm"
 
 vtkImageXViewer viewer
   viewer SetAxes 0 1 4

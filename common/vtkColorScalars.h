@@ -63,6 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkScalars.h"
 
 class vtkAPixmap;
+class vtkUnsignedCharArray;
 
 class VTK_EXPORT vtkColorScalars : public vtkScalars 
 {
@@ -131,6 +132,10 @@ public:
 
   void GetComponentRange(unsigned char range[8]);
   unsigned char *GetComponentRange();
+  
+  // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
+  virtual void SetS(vtkUnsignedCharArray *array) = 0;
+  virtual vtkUnsignedCharArray *GetS() = 0;
 };
 
 // These include files are placed here so that if CoScalar.h is included 

@@ -18,6 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <tk.h>
 #include <string.h>
 
+extern Tcl_Interp *vtkGlobalTclInterp;
 extern int vtkTclEval(char *str);
 extern char *vtkTclGetResult();
 extern int vtkTclDeleteObjectFromHash(ClientData cd);

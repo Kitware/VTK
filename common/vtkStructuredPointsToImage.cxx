@@ -49,9 +49,19 @@ vtkStructuredPointsToImage::vtkStructuredPointsToImage()
 }
 
 //----------------------------------------------------------------------------
+vtkStructuredPointsToImage::~vtkStructuredPointsToImage()
+{
+  //if (this->Input)
+  //  {
+  //  this->Input->UnRegister(this);
+  //  }
+}
+
+//----------------------------------------------------------------------------
 void vtkStructuredPointsToImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);
+  os << indent << "Input: (" << this->Input << ")\n";
 }
 
 
@@ -141,9 +151,6 @@ int vtkStructuredPointsToImage::GetScalarType()
     return VTK_VOID;
     }
 
-  // We have to get the scalars.
-  this->UpdateInput();
-
   type = this->ComputeDataType();
   
   // Release the inputs data, if that is what it wants.
@@ -162,13 +169,6 @@ int vtkStructuredPointsToImage::ComputeDataType()
   
   scalars = (this->Input->GetPointData())->GetScalars();
   
-  type = scalars->GetScalarType();
-  if (strcmp(type, "ColorScalar") == 0 &&
-      scalars->GetNumberOfValuesPerScalar () != 1)
-    {
-    return VTK_FLOAT;
-    }
-
   type = scalars->GetDataType();
   if (strcmp(type, "float") == 0)
     {
@@ -198,67 +198,88 @@ int vtkStructuredPointsToImage::ComputeDataType()
 //----------------------------------------------------------------------------
 void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
 {
-  vtkFloatScalars *newScalars = NULL;
   vtkStructuredPoints *input;
-  vtkPointData *pointData;
-  vtkScalars *scalars;
   char *type;
-  int size[3];
+  int *size;
+  int dataExtent[8];
   vtkImageData *data;
-
-  // Check to see if requested data is contained in the structured points.
-  input = this->Input;
-  input->GetDimensions(size);
-
-  // Get scalars as float
+  int dataAxes[5] = {VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS,
+		     VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS, VTK_IMAGE_TIME_AXIS};
+  vtkScalars *scalars;
+  
+  
   scalars = input->GetPointData()->GetScalars();
-  type = scalars->GetDataType();
-  if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0 &&
-      scalars->GetNumberOfValuesPerScalar () != 1)
+  // We do not handle bit arrays (yet?)
+  if (strcmp(scalars->GetClassName(), "vtkBitScalars") == 0)
     {
-    int bpp;
-    unsigned char *buffer;
-    int axes[5];
-    
-    // Convert to a float scalar
-    newScalars = new vtkFloatScalars;
-    int num, idx;
-    num = scalars->GetNumberOfScalars();
-    bpp = ((vtkColorScalars *)scalars)->GetNumberOfValuesPerScalar();
-    num = num*bpp;
-    buffer = ((vtkColorScalars *)scalars)->GetPtr(0);
-    for (idx = 0; idx < num; ++idx)
-      {
-      newScalars->InsertNextScalar(buffer[idx]);
-      }
-    // Create a new data object for the scalars
-    data = new vtkImageData;
-    // Setting data Axes has not "matured yet" lets see if it works first.
-    axes[0] = 4; axes[1] = 0; axes[2] = 1; axes[3] = 2; axes[4] = 3;
-    data->SetAxes(axes);
-    data->SetExtent(0, bpp-1, 0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
-    pointData = data->GetPointData();
-    pointData->SetScalars(newScalars);
-    newScalars->Delete();  // registered by point data.
+    vtkErrorMacro("This class does not handle bit scalars.");
+    return;
     }
-  else if ((strcmp(type,"float") == 0) || (strcmp(type,"short") == 0) || 
-	   (strcmp(type,"int") == 0) || (strcmp(type,"unsigned short") == 0) ||
-	   (strcmp(type, "unsigned char") == 0))
+  
+  // Determine the extent of the data
+  size = input->GetDimensions();
+  dataExtent[0] = dataExtent[2] = dataExtent[4] = dataExtent[6] = 0;
+  dataExtent[3] = size[0] - 1;
+  dataExtent[5] = size[1] - 1;
+  dataExtent[7] = size[2] - 1;
+  if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0)
     {
-    // Create a new data object for the scalars
-    data = new vtkImageData;
-    data->SetExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1, 0, 0, 0, 0);
-    pointData = data->GetPointData();
-    pointData->SetScalars(scalars);
+    dataExtent[1]=((vtkColorScalars *)scalars)->GetNumberOfValuesPerScalar()-1;
     }
   else
     {
-    vtkErrorMacro(<< "Execute: Can not handle data type " << type);
-    return;
+    dataExtent[1] = 0;
     }
 
+  // Convert the scalars array into vtkImageData
+  data = vtkImageData::New();
+  data->SetAxes(dataAxes);
+  data->SetExtent(4, dataExtent);
+  type = scalars->GetDataType();
+  if (strcmp(type, "unsigned char") == 0)
+    {
+    vtkUnsignedCharScalars *dataScalars = vtkUnsignedCharScalars::New();
+    if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0)
+      {
+      dataScalars->SetS(((vtkColorScalars *)scalars)->GetS());
+      }
+    else
+      {
+      dataScalars->SetS(((vtkUnsignedCharScalars *)scalars)->GetS());
+      }
+    data->SetScalarType(VTK_UNSIGNED_CHAR);
+    data->SetScalars(dataScalars);
+    // data has registered scalars, so get rid of our ref count.
+    dataScalars->Delete();
+    }
+  else if (strcmp(type, "unsigned short") == 0)
+    {
+    // Since we know the scalars are not color scalars, just copy scalars.
+    data->SetScalarType(VTK_UNSIGNED_SHORT);
+    data->SetScalars(scalars);
+    }
+  else if (strcmp(type, "short") == 0)
+    {
+    // Since we know the scalars are not color scalars, just copy scalars.
+    data->SetScalarType(VTK_SHORT);
+    data->SetScalars(scalars);
+    }
+  else if (strcmp(type, "float") == 0)
+    {
+    // Since we know the scalars are not color scalars, just copy scalars.
+    data->SetScalarType(VTK_FLOAT);
+    data->SetScalars(scalars);
+    }
+  else if (strcmp(type, "int") == 0)
+    {
+    // Since we know the scalars are not color scalars, just copy scalars.
+    data->SetScalarType(VTK_INT);
+    data->SetScalars(scalars);
+    }
+  
   region->SetData(data);
-  data->UnRegister(this);
+  // Get rid of our ref count.
+  data->Delete();
 }
 
 
