@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.18");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.18.2.1");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -359,6 +359,8 @@ void vtkDICOMImageReader::SetupOutputInformation(int num_slices)
       }
     }
   this->SetNumberOfScalarComponents(num_comp);
+
+  this->GetPixelSpacing();  
 
   this->vtkImageReader2::ExecuteInformation();
 }
