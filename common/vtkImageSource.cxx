@@ -145,6 +145,7 @@ void vtkImageSource::UpdateWholeExtent()
 {
   this->UpdateInformation();
   this->GetOutput()->SetUpdateExtent(this->GetOutput()->GetWholeExtent());
+  this->GetOutput()->PreUpdate();
   this->GetOutput()->InternalUpdate();
 }
 
