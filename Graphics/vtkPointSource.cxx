@@ -60,7 +60,7 @@ vtkPointSource* vtkPointSource::New()
 }
 
 //----------------------------------------------------------------------------
-vtkPointSource::vtkPointSource(int numPts)
+vtkPointSource::vtkPointSource(vtkIdType numPts)
 {
   this->NumberOfPoints = (numPts > 0 ? numPts : 10);
 
@@ -76,7 +76,7 @@ vtkPointSource::vtkPointSource(int numPts)
 //----------------------------------------------------------------------------
 void vtkPointSource::Execute()
 {
-  int i;
+  vtkIdType i;
   float theta, rho, cosphi, sinphi, radius;
   float x[3];
   vtkPoints *newPoints;

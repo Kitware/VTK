@@ -46,9 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkProgrammableGlyphFilter* vtkProgrammableGlyphFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -60,9 +58,6 @@ vtkProgrammableGlyphFilter* vtkProgrammableGlyphFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkProgrammableGlyphFilter;
 }
-
-
-
 
 // Construct object with scaling on, scaling mode is by scalar value, 
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and
@@ -108,7 +103,6 @@ vtkPolyData *vtkProgrammableGlyphFilter::GetSource()
     }
 }
 
-
 void vtkProgrammableGlyphFilter::Execute()
 {
   vtkDataSet *input = this->GetInput();
@@ -120,11 +114,11 @@ void vtkProgrammableGlyphFilter::Execute()
   vtkPoints *newPts, *sourcePts;
   vtkScalars *ptScalars=NULL, *cellScalars=NULL;
   vtkScalars *inPtScalars = NULL, *inCellScalars = NULL;
-  int numPts = input->GetNumberOfPoints();
+  vtkIdType numPts = input->GetNumberOfPoints();
   vtkPointData *sourcePD;
   vtkCellData *sourceCD;
-  int numSourcePts, numSourceCells, ptOffset=0;
-  int cellId, ptId, id, i, idx, npts;
+  vtkIdType numSourcePts, numSourceCells, ptOffset=0, cellId, ptId, id, idx;
+  int i, npts;
   vtkIdList *pts=vtkIdList::New();
   vtkIdList *cellPts;
   pts->Allocate(VTK_CELL_SIZE);

@@ -123,7 +123,7 @@ void vtkPointLoad::Execute()
   vtkFloatArray *newTensors;
   float tensor[9];
   vtkFloatArray *newScalars = NULL;
-  int numPts;
+  vtkIdType numPts;
   float P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
   float x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
   float sx, sy, sz, seff, spacing[3], origin[3];

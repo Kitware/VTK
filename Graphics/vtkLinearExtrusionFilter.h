@@ -140,11 +140,11 @@ protected:
   float ExtrusionPoint[3];
 
   //BTX
-  float *(vtkLinearExtrusionFilter::*ExtrudePoint)(float x[3], int id, 
+  float *(vtkLinearExtrusionFilter::*ExtrudePoint)(float x[3], vtkIdType id, 
 						   vtkDataArray *normals);
-  float *ViaNormal(float x[3], int id, vtkDataArray *normals);
-  float *ViaVector(float x[3], int id, vtkDataArray *normals=0);
-  float *ViaPoint(float x[3], int id, vtkDataArray *normals=0);
+  float *ViaNormal(float x[3], vtkIdType id, vtkDataArray *normals);
+  float *ViaVector(float x[3], vtkIdType id, vtkDataArray *normals=0);
+  float *ViaPoint(float x[3], vtkIdType id, vtkDataArray *normals=0);
   //ETX
  
 };

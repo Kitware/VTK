@@ -59,14 +59,14 @@ vtkLoopSubdivisionFilter* vtkLoopSubdivisionFilter::New()
   return new vtkLoopSubdivisionFilter;
 }
 
-void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
+void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
 {
   float *weights;
   vtkIdType *pts;
-  int numPts;
-  int cellId, edgeId, newId;
+  vtkIdType numPts, cellId, newId;
+  int edgeId;
   vtkIdType npts;
-  int p1, p2;
+  vtkIdType p1, p2;
   vtkCellArray *inputPolys=inputDS->GetPolys();
   vtkEdgeTable *edgeTable;
   vtkIdList *cellIds = vtkIdList::New();
@@ -82,7 +82,7 @@ void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, 
 
   // Generate even points. these are derived from the old points
   numPts = inputDS->GetNumberOfPoints();
-  for (int ptId=0; ptId < numPts; ptId++)
+  for (vtkIdType ptId=0; ptId < numPts; ptId++)
     {
     this->GenerateEvenStencil (ptId, inputDS, stencil, weights);
     this->InterpolatePosition (inputPts, outputPts, stencil, weights);
@@ -146,7 +146,10 @@ void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, 
   cellIds->Delete();
 }
 
-void vtkLoopSubdivisionFilter::GenerateEvenStencil (int p1, vtkPolyData *polys, vtkIdList *stencilIds, float *weights)
+void vtkLoopSubdivisionFilter::GenerateEvenStencil (vtkIdType p1,
+                                                    vtkPolyData *polys,
+                                                    vtkIdList *stencilIds,
+                                                    float *weights)
 {
   vtkIdList *cellIds = vtkIdList::New();
   vtkIdList *ptIds = vtkIdList::New();
@@ -155,8 +158,8 @@ void vtkLoopSubdivisionFilter::GenerateEvenStencil (int p1, vtkPolyData *polys, 
   int i, j;
   int numCellsInLoop;
   int startCell, nextCell;
-  int p, p2;
-  int bp1, bp2;
+  vtkIdType p, p2;
+  vtkIdType bp1, bp2;
   int K;
   float beta, cosSQ;
 
@@ -280,13 +283,16 @@ void vtkLoopSubdivisionFilter::GenerateEvenStencil (int p1, vtkPolyData *polys, 
   ptIds->Delete();
 }
 
-void vtkLoopSubdivisionFilter::GenerateOddStencil (int p1, int p2, vtkPolyData *polys, vtkIdList *stencilIds, float *weights)
+void vtkLoopSubdivisionFilter::GenerateOddStencil (vtkIdType p1, vtkIdType p2,
+                                                   vtkPolyData *polys,
+                                                   vtkIdList *stencilIds,
+                                                   float *weights)
 {
   vtkIdList *cellIds = vtkIdList::New();
   vtkCell *cell;
   int i;
-  int cell0, cell1;
-  int p3, p4;
+  vtkIdType cell0, cell1;
+  vtkIdType p3, p4;
 
   polys->GetCellEdgeNeighbors (-1, p1, p2, cellIds);
   cell0 = cellIds->GetId(0);

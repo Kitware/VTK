@@ -54,6 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnsignedLongArray.h"
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
 //--------------------------------------------------------------------------
@@ -746,6 +747,17 @@ void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData,
       {
       double *to=((vtkDoubleArray *)toData)->WritePointer(toId*numComp,numComp);
       double *from=((vtkDoubleArray *)fromData)->GetPointer(fromId*numComp);
+      for (i=0; i<numComp; i++)
+        {
+        *to++ = *from++;
+        }
+      }
+      break;
+
+    case VTK_ID_TYPE:
+      {
+      vtkIdType *to=((vtkIdTypeArray *)toData)->WritePointer(toId*numComp,numComp);
+      vtkIdType *from=((vtkIdTypeArray *)fromData)->GetPointer(fromId*numComp);
       for (i=0; i<numComp; i++)
         {
         *to++ = *from++;

@@ -118,7 +118,7 @@ public:
   // Description:
   // Get the current point id during processing. Value only valid during the
   // Execute() method of this filter. (Meant to be called by the GlyphMethod().)
-  vtkGetMacro(PointId,int);
+  vtkGetMacro(PointId, vtkIdType);
 
   // Description:
   // Get the current point coordinates during processing. Value only valid during the
@@ -150,7 +150,7 @@ protected:
   void Execute();
 
   float Point[3]; // Coordinates of point
-  int PointId; // Current point id during processing
+  vtkIdType PointId; // Current point id during processing
   vtkPointData *PointData;
   int ColorMode;
   

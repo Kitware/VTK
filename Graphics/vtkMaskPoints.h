@@ -73,8 +73,8 @@ public:
 
   // Description:
   // Start with this point.
-  vtkSetClampMacro(Offset,int,0,VTK_LARGE_INTEGER);
-  vtkGetMacro(Offset,int);
+  vtkSetClampMacro(Offset,vtkIdType,0,VTK_LARGE_ID);
+  vtkGetMacro(Offset,vtkIdType);
 
   // Description:
   // Special flag causes randomization of point selection. If this mode is on,
@@ -100,7 +100,7 @@ protected:
   void Execute();
 
   int OnRatio;     // every OnRatio point is on; all others are off.
-  int Offset;      // offset (or starting point id)
+  vtkIdType Offset;      // offset (or starting point id)
   int RandomMode;  // turn on/off randomization
   int MaximumNumberOfPoints;
   int GenerateVertices; //generate polydata verts

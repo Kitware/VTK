@@ -89,11 +89,11 @@ vtkDataSet *vtkProbeFilter::GetSource()
 //----------------------------------------------------------------------------
 void vtkProbeFilter::Execute()
 {
-  int ptId;
+  vtkIdType ptId, numPts;
   float *x, tol2;
   vtkCell *cell;
   vtkPointData *pd, *outPD;
-  int numPts, subId;
+  int subId;
   vtkDataSet *source = this->GetSource();
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output= this->GetOutput();
@@ -144,7 +144,7 @@ void vtkProbeFilter::Execute()
   // Loop over all input points, interpolating source data
   //
   int abort=0;
-  int progressInterval=numPts/20 + 1;
+  vtkIdType progressInterval=numPts/20 + 1;
   for (ptId=0; ptId < numPts && !abort; ptId++)
     {
     if ( !(ptId % progressInterval) )

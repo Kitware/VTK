@@ -148,7 +148,8 @@ void vtkOBBTree::DeleteTree(vtkOBBNode *OBBptr)
 void vtkOBBTree::ComputeOBB(vtkPoints *pts, float corner[3], float max[3],
                             float mid[3], float min[3], float size[3])
 {
-  int numPts, i, pointId;
+  int i;
+  vtkIdType numPts, pointId;
   float *x, mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
   float *a[3], a0[3], a1[3], a2[3];
   float tMin[3], tMax[3], closest[3], t;
@@ -253,7 +254,7 @@ void vtkOBBTree::ComputeOBB(vtkPoints *pts, float corner[3], float max[3],
 void vtkOBBTree::ComputeOBB(vtkDataSet *input, float corner[3], float max[3],
                             float mid[3], float min[3], float size[3])
 {
-  int numPts, numCells, i;
+  vtkIdType numPts, numCells, i;
   vtkIdList *cellList;
   vtkDataSet *origDataSet;
 
@@ -303,8 +304,9 @@ void vtkOBBTree::ComputeOBB(vtkDataSet *input, float corner[3], float max[3],
 // a sorted list of relative "sizes" of axes for comparison purposes.
 void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
                             float mid[3], float min[3], float size[3])
-  {
-  int numCells, i, j, k, cellId, type, ptId, pId, qId, rId;
+{
+  vtkIdType numCells, i, j, cellId, ptId, pId, qId, rId;
+  int k, type;
   vtkIdType *ptIds, numPts;
   float *p, *q, *r, mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
   float *a[3], a0[3], a1[3], a2[3];
@@ -499,8 +501,9 @@ int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
   vtkIdList *cells;
   int depth, ii, foundIntersection = 0, bestIntersection = 0;
   float tBest = VTK_LARGE_FLOAT, xBest[3], pcoordsBest[3];
-  int subIdBest = -1, thisId, cellIdBest = -1;
-
+  int subIdBest = -1;
+  vtkIdType thisId, cellIdBest = -1;
+  
   OBBstack = new vtkOBBNode *[this->GetLevel()+1];
   OBBstack[0] = this->Tree;
   depth = 1;
@@ -567,7 +570,8 @@ void vtkOBBNode::DebugPrintTree( int level, double *leaf_vol,
                                  int *minCells, int *maxCells )
   {
   float xp[3], volume, c[3];
-  int nCells, i;
+  int i;
+  vtkIdType nCells;
 
   if ( this->Cells != NULL )
     {
@@ -629,7 +633,7 @@ void vtkOBBNode::DebugPrintTree( int level, double *leaf_vol,
 //
 void vtkOBBTree::BuildLocator()
 {
-  int numPts, numCells, i;
+  vtkIdType numPts, numCells, i;
   vtkIdList *cellList;
 
   vtkDebugMacro(<<"Building OBB tree");
@@ -697,8 +701,9 @@ void vtkOBBTree::BuildLocator()
 // frees its first argument
 void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
 {
-  int i, j, numCells=cells->GetNumberOfIds();
-  int cellId, ptId;
+  vtkIdType i, j, numCells=cells->GetNumberOfIds();
+  vtkIdType cellId;
+  int ptId;
   vtkIdList *cellPts = vtkIdList::New();
   float size[3];
 
@@ -898,7 +903,7 @@ void vtkOBBTree::GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel,
   if ( level == repLevel || (repLevel < 0 && OBBptr->Kids == NULL) )
     {
     float x[3];
-    int cubeIds[8];
+    vtkIdType cubeIds[8];
     vtkIdType ptIds[4];
     
     x[0] = OBBptr->Corner[0];
@@ -1425,8 +1430,7 @@ int vtkOBBTree::IntersectWithOBBTree( vtkOBBTree *OBBTreeB,
                                                       void *arg ),
                                       void *data_arg )
   {
-  int maxdepth, mindepth, depth, returnValue = 0, count = 0,
-      maxStackDepth;
+  int maxdepth, mindepth, depth, returnValue = 0, count = 0, maxStackDepth;
   vtkOBBNode **OBBstackA, **OBBstackB, *nodeA, *nodeB;
 
   // Intersect OBBs and process intersecting leaf nodes.

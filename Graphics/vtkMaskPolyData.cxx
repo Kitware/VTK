@@ -66,14 +66,14 @@ vtkMaskPolyData::vtkMaskPolyData()
 //
 void vtkMaskPolyData::Execute()
 {
-  int numVerts, numLines, numPolys, numStrips;
+  vtkIdType numVerts, numLines, numPolys, numStrips;
   vtkCellArray *inVerts,*inLines,*inPolys,*inStrips;
-  int numNewVerts, numNewLines, numNewPolys, numNewStrips;
+  vtkIdType numNewVerts, numNewLines, numNewPolys, numNewStrips;
   vtkCellArray *newVerts=NULL, *newLines=NULL;
   vtkCellArray *newPolys=NULL, *newStrips=NULL;
-  int id, interval;
+  vtkIdType id, interval;
   vtkPointData *pd;
-  int numCells;
+  vtkIdType numCells;
   vtkIdType *pts, npts;
   vtkPolyData *input= this->GetInput();
   vtkPolyData *output = this->GetOutput();
@@ -171,7 +171,8 @@ void vtkMaskPolyData::Execute()
 
   if ( newStrips )
     {
-    for (id=0, inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); id++)
+    for (id=0, inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts);
+         id++)
       {
       if ( ! (id % interval) )
         {

@@ -86,9 +86,13 @@ protected:
   vtkLoopSubdivisionFilter(const vtkLoopSubdivisionFilter&) {};
   void operator=(const vtkLoopSubdivisionFilter&) {};
 
-  void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD);
-  void GenerateEvenStencil (int p1, vtkPolyData *polys, vtkIdList *stencilIds, float *weights);
-  void GenerateOddStencil (int p1, int p2, vtkPolyData *polys, vtkIdList *stencilIds, float *weights);
+  void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData,
+                                  vtkPoints *outputPts,
+                                  vtkPointData *outputPD);
+  void GenerateEvenStencil (vtkIdType p1, vtkPolyData *polys,
+                            vtkIdList *stencilIds, float *weights);
+  void GenerateOddStencil (vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
+                           vtkIdList *stencilIds, float *weights);
 
   void ComputeInputUpdateExtents(vtkDataObject *output);
 };

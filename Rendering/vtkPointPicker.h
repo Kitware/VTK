@@ -63,7 +63,7 @@ public:
 
   // Description:
   // Get the id of the picked point. If PointId = -1, nothing was picked.
-  vtkGetMacro(PointId,int);
+  vtkGetMacro(PointId, vtkIdType);
 
 protected:
   vtkPointPicker();
@@ -71,7 +71,7 @@ protected:
   vtkPointPicker(const vtkPointPicker&) {};
   void operator=(const vtkPointPicker&) {};
 
-  int PointId; //picked point
+  vtkIdType PointId; //picked point
 
   float IntersectWithLine(float p1[3], float p2[3], float tol, 
                           vtkAssemblyPath *path, vtkProp3D *p, 
