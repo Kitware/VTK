@@ -81,7 +81,7 @@ void vtkImageMedianFilter::SetNumberOfElements(int num)
   // allocate new sort memory
   if (this->NumNeighborhood > 0)
     {
-    this->Sort = new double[(this->NumNeighborhood + 2)];
+    this->Sort = new double[(this->NumNeighborhood + 8)];
     }
 }
 
@@ -109,7 +109,7 @@ double vtkImageMedianFilter::GetMedian()
 void vtkImageMedianFilter::ClearMedian()
 {
   this->DownNum = this->UpNum = 0;
-  this->Median = this->Sort + (this->NumNeighborhood / 2);
+  this->Median = this->Sort + (this->NumNeighborhood / 2) + 4;
 }
 
 
