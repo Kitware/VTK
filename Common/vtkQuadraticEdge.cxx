@@ -22,7 +22,7 @@
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.6");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.7");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 // Construct the line with two points.
@@ -63,29 +63,86 @@ vtkCell *vtkQuadraticEdge::MakeObject()
   return (vtkCell *)cell;
 }
 
-int vtkQuadraticEdge::EvaluatePosition(float* vtkNotUsed(x), // this was x[3]
+static const int VTK_QUADRATIC_EDGE_MAX_ITERATION=10;
+int vtkQuadraticEdge::EvaluatePosition(float* x, 
                                        float* closestPoint, 
                                        int& subId, float pcoords[3],
                                        float& vtkNotUsed(dist2), 
                                        float *weights)
 {
-  float *a1, *a2;
-
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
 
-  a1 = this->Points->GetPoint(0);
-  a2 = this->Points->GetPoint(1);
+  //Bisection method to determine closest point
+  float tl[3], tm[3], tr[3];
+  float xl[3], wl[3], xm[3], wm[3], xr[3], wr[3], dl2, dm2, dr2;
+  int iterNum, converged;
 
-  if (closestPoint)
+  //Note: the initial left and right parametric values tl,tr are set past
+  //the valid parametric range (0,1). This is to allow the convergence of
+  //the bisection method to end up outside the cell.
+  tl[0] = -0.1;
+  vtkQuadraticEdge::EvaluateLocation(subId,tl,xl,wl);
+  dl2 = vtkMath::Distance2BetweenPoints(x,xl);
+  
+  tm[0] = 0.5;
+  vtkQuadraticEdge::EvaluateLocation(subId,tm,xm,wm);
+  dm2 = vtkMath::Distance2BetweenPoints(x,xm);
+  
+  tr[0] = 1.1;
+  vtkQuadraticEdge::EvaluateLocation(subId,tr,xr,wr);
+  dr2 = vtkMath::Distance2BetweenPoints(x,xr);
+  
+  for ( iterNum=0, converged=0; 
+        !converged && iterNum<VTK_QUADRATIC_EDGE_MAX_ITERATION; iterNum++ )
     {
-    // DistanceToLine sets pcoords[0] to a value t, 0 <= t <= 1
-//    dist2 = this->DistanceToLine(x,a1,a2,pcoords[0],closestPoint);
-    }
+    if ( dl2 == dm2 && dm2 == dr2 ) //special case, at center of circle
+      {
+      break;
+      }
+    else
+      {
+      if ( dl2 < dr2 ) //move to the left
+        {
+        tr[0] = tm[0];
+        tm[0] = (tl[0] + tm[0]) / 2.0;
+        dr2 = dm2;
+        xr[0] = xm[0];
+        xr[1] = xm[1];
+        xr[2] = xm[2];
+        wr[0] = wm[0];
+        wr[1] = wm[1];
+        wr[2] = wm[2];
+        }
+      else //move to the right
+        {
+        tl[0] = tm[0];
+        tm[0] = (tr[0] + tm[0]) / 2.0;
+        dl2 = dm2;
+        xl[0] = xm[0];
+        xl[1] = xm[1];
+        xl[2] = xm[2];
+        wl[0] = wm[0];
+        wl[1] = wm[1];
+        wl[2] = wm[2];
+        }
+        
+      vtkQuadraticEdge::EvaluateLocation(subId,tm,xm,wm);
+      dm2 = vtkMath::Distance2BetweenPoints(x,xm);
+      }
 
-  // pcoords[0] == t, need weights to be 1-t and t
-  weights[0] = 1.0 - pcoords[0];
-  weights[1] = pcoords[0];
+    //check convergence in parametric space
+    if ( (tr[0]-tl[0]) < 0.01 ) converged = 1;
+    }
+  
+  //outta here
+  pcoords[0] = tm[0];
+  weights[0] = wm[0];
+  weights[1] = wm[1];
+  weights[2] = wm[2];
+  closestPoint[0] = xm[0];
+  closestPoint[1] = xm[1];
+  closestPoint[2] = xm[2];
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 )
     {
@@ -106,9 +163,7 @@ void vtkQuadraticEdge::EvaluateLocation(int& vtkNotUsed(subId),
   float *a1 = this->Points->GetPoint(1);
   float *a2 = this->Points->GetPoint(2); //midside node
 
-  weights[0] = 2.0*(pcoords[0]-0.5)*(pcoords[0]-1.0);
-  weights[1] = 2.0*pcoords[0]*(pcoords[0]-0.5);
-  weights[2] = 4.0*pcoords[0]*(1.0 - pcoords[0]);
+  this->InterpolationFunctions(pcoords,weights);
   
   for (i=0; i<3; i++) 
     {
@@ -209,7 +264,7 @@ void vtkQuadraticEdge::Derivatives(int vtkNotUsed(subId),
   
   for (i=0; i<3; i++)
     {
-    deltaX[i] = x1[i] - x0[i];
+    deltaX[i] = x1[i] - x0[i]              - x2[i];
     }
   for (i=0; i<dim; i++) 
     {
