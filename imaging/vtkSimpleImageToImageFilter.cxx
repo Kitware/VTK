@@ -103,7 +103,7 @@ void vtkSimpleImageToImageFilter::ComputeInputUpdateExtent( int inExt[6],
   memcpy(inExt,wholeExtent,sizeof(int)*6);
 }
 
-void vtkSimpleImageToImageFilter::ExecuteData(vtkDataObject *out)
+void vtkSimpleImageToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(out))
 {
 
   vtkDebugMacro("Executing.");
