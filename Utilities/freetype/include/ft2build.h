@@ -34,7 +34,10 @@
 #include <freetype/config/ftheader.h>
 
 #if defined(VTKFREETYPE)
-#include "vtkfreetypeConfig.h"
+# include "vtkfreetypeConfig.h"
+# if defined(__BORLANDC__)
+#  pragma warn -8004 // Disable "foo is assigned a value that is never used."
+# endif
 #endif
 
 #endif /* __FT2_BUILD_GENERIC_H__ */
