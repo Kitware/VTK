@@ -104,13 +104,21 @@ int vtkStructuredPointsToStructuredPointsFilter::ComputeInputUpdateExtents(
                                                          vtkDataObject *data)
 {
   vtkStructuredPoints *output = (vtkStructuredPoints*)data;
+  vtkStructuredPoints *input = this->GetInput();
+  
   if (this->NumberOfInputs > 1)
     {
     vtkErrorMacro("Subclass did not implement ComputeInputUpdateExtent");
     return 0;
     }
   
-  this->GetInput()->CopyUpdateExtent(output);
+  if (input == NULL)
+    {
+    vtkErrorMacro(<<"Input is NULL");
+    return;
+    }
+
+  input->CopyUpdateExtent(output);
   return 1;
 }
 
