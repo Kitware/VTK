@@ -976,7 +976,7 @@ static void create_class_doc(FILE *fp, FileInfo *data)
         fprintf(fp,"  \"%s\",\n",quote_string(temp,500));
         }
       else
-        { // just for the last time
+        { /* just for the last time */
         fprintf(fp,"  \"%s\\n\",\n",quote_string(temp,500));
         }
       }
