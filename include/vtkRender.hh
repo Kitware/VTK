@@ -51,8 +51,5 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_WIREFRAME 1
 #define VTK_SURFACE   2
 
-// some general macros
-#define RANGE_CLIP(a,x,b) ((x)<(a)?(a):((x)>(b)?(b):(x)))
-
 #endif
 

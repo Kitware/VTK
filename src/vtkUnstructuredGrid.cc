@@ -160,51 +160,51 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
 
   switch (this->Cells->GetCellType(cellId))
     {
-    case vtkVERTEX:
+    case VTK_VERTEX:
      cell = &vertex;
      break;
 
-    case vtkPOLY_VERTEX:
+    case VTK_POLY_VERTEX:
      cell = &pvertex;
      break;
 
-    case vtkLINE: 
+    case VTK_LINE: 
       cell = &line;
       break;
 
-    case vtkPOLY_LINE:
+    case VTK_POLY_LINE:
       cell = &pline;
       break;
 
-    case vtkTRIANGLE:
+    case VTK_TRIANGLE:
       cell = &triangle;
       break;
 
-    case vtkTRIANGLE_STRIP:
+    case VTK_TRIANGLE_STRIP:
       cell = &strip;
       break;
 
-    case vtkPIXEL:
+    case VTK_PIXEL:
       cell = &pixel;
       break;
 
-    case vtkQUAD:
+    case VTK_QUAD:
       cell = &quad;
       break;
 
-    case vtkPOLYGON:
+    case VTK_POLYGON:
       cell = &poly;
       break;
 
-    case vtkTETRA:
+    case VTK_TETRA:
       cell = &tetra;
       break;
 
-    case vtkVOXEL:
+    case VTK_VOXEL:
       cell = &voxel;
       break;
 
-    case vtkHEXAHEDRON:
+    case VTK_HEXAHEDRON:
       cell = &hexa;
       break;
     }

@@ -58,7 +58,7 @@ public:
 
   // cell methods
   vtkCell *MakeObject() {return new vtkPixel(*this);};
-  int GetCellType() {return vtkPIXEL;};
+  int GetCellType() {return VTK_PIXEL;};
   int GetCellDimension() {return 2;};
   int GetNumberOfEdges() {return 4;};
   int GetNumberOfFaces() {return 0;};

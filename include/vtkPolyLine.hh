@@ -63,7 +63,7 @@ public:
 
   // cell methods
   vtkCell *MakeObject() {return new vtkPolyLine(*this);};
-  int GetCellType() {return vtkPOLY_LINE;};
+  int GetCellType() {return VTK_POLY_LINE;};
   int GetCellDimension() {return 1;};
   int GetNumberOfEdges() {return 0;};
   int GetNumberOfFaces() {return 0;};

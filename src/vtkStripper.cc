@@ -103,7 +103,7 @@ void vtkStripper::Execute()
     if ( ! visited[cellId] )
       {
       visited[cellId] = 1;
-      if ( Mesh.GetCellType(cellId) == vtkTRIANGLE )
+      if ( Mesh.GetCellType(cellId) == VTK_TRIANGLE )
         {
 //
 //  Got a starting point for the strip.  Initialize.  Find a neighbor
@@ -122,7 +122,7 @@ void vtkStripper::Execute()
           Mesh.GetCellEdgeNeighbors(cellId, pts[1], pts[2], cellIds);
           if ( cellIds.GetNumberOfIds() > 0 && 
           !visited[neighbor=cellIds.GetId(0)] &&
-          Mesh.GetCellType(neighbor) == vtkTRIANGLE )
+          Mesh.GetCellType(neighbor) == VTK_TRIANGLE )
             {
             pts[0] = triPts[(i+2)%3];
             break;
@@ -160,7 +160,7 @@ void vtkStripper::Execute()
             // note: if updates value of neighbor
             if ( cellIds.GetNumberOfIds() <= 0 || 
             visited[neighbor=cellIds.GetId(0)] ||
-            Mesh.GetCellType(neighbor) != vtkTRIANGLE ||
+            Mesh.GetCellType(neighbor) != VTK_TRIANGLE ||
             numPts >= (this->MaximumStripLength+2) )
               {
               newStrips->InsertNextCell(numPts,pts);

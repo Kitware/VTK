@@ -63,7 +63,7 @@ public:
 
   // Cell interface
   vtkCell *MakeObject() {return new vtkPolygon(*this);};
-  int GetCellType() {return vtkPOLYGON;};
+  int GetCellType() {return VTK_POLYGON;};
   int GetCellDimension() {return 2;};
   int GetNumberOfEdges() {return this->GetNumberOfPoints();};
   int GetNumberOfFaces() {return 0;};

@@ -58,7 +58,7 @@ public:
 
   // cell methods
   vtkCell *MakeObject() {return new vtkTriangle(*this);};
-  int GetCellType() {return vtkTRIANGLE;};
+  int GetCellType() {return VTK_TRIANGLE;};
   int GetCellDimension() {return 2;};
   int GetNumberOfEdges() {return 3;};
   int GetNumberOfFaces() {return 0;};

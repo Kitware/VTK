@@ -55,7 +55,7 @@ public:
   char *GetClassName() {return "vtkVertex";};
 
   vtkCell *MakeObject() {return new vtkVertex(*this);};
-  int GetCellType() {return vtkVERTEX;};
+  int GetCellType() {return VTK_VERTEX;};
   int GetCellDimension() {return 0;};
   int GetNumberOfEdges() {return 0;};
   int GetNumberOfFaces() {return 0;};

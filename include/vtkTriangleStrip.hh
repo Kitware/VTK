@@ -61,7 +61,7 @@ public:
 
   // cell methods
   vtkCell *MakeObject() {return new vtkTriangleStrip(*this);};
-  int GetCellType() {return vtkTRIANGLE_STRIP;};
+  int GetCellType() {return VTK_TRIANGLE_STRIP;};
   int GetCellDimension() {return 2;};
   int GetNumberOfEdges() {return this->GetNumberOfPoints();};
   int GetNumberOfFaces() {return 0;};

@@ -296,20 +296,20 @@ int vtkStructuredPoints::GetCellType(int cellId)
   switch (this->DataDescription)
     {
     case VTK_SINGLE_POINT: 
-      return vtkVERTEX;
+      return VTK_VERTEX;
 
     case VTK_X_LINE: case VTK_Y_LINE: case VTK_Z_LINE:
-      return vtkLINE;
+      return VTK_LINE;
 
     case VTK_XY_PLANE: case VTK_YZ_PLANE: case VTK_XZ_PLANE:
-      return vtkPIXEL;
+      return VTK_PIXEL;
 
     case VTK_XYZ_GRID:
-      return vtkVOXEL;
+      return VTK_VOXEL;
 
     default:
       vtkErrorMacro(<<"Bad data description!");
-      return vtkNULL_ELEMENT;
+      return VTK_NULL_ELEMENT;
     }
 }
 

@@ -39,6 +39,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDecimate.hh"
+
+#define VTK_TOLERANCE 1.0e-05
+
+#define VTK_MAX_TRIS_PER_VERTEX VTK_MAX_CELL_SIZE
+#define VTK_MAX_SQUAWKS 10
+
+#define VTK_COMPLEX_VERTEX 0
+#define VTK_SIMPLE_VERTEX 1
+#define VTK_BOUNDARY_VERTEX 2
+#define VTK_INTERIOR_EDGE_VERTEX 3
+#define VTK_CORNER_VERTEX 4
+
+#define VTK_ELIMINATED_DISTANCE_TO_PLANE 5
+#define VTK_ELIMINATED_DISTANCE_TO_EDGE 6
+#define VTK_FAILED_DEGREE_TEST 7
+#define VTK_FAILED_NON_MANIFOLD 8
+#define VTK_FAILED_ZERO_AREA_TEST 9
+#define VTK_FAILED_ZERO_NORMAL_TEST 10
+#define VTK_FAILED_TO_TRIANGULATE 11
+
 //
 //  Static variables used by object
 //
@@ -393,7 +413,7 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
 
   for (cellId=0; cellId < numTris; cellId++)
     {
-    if ( Mesh->GetCellType(cellId) == vtkTRIANGLE ) // non-null element
+    if ( Mesh->GetCellType(cellId) == VTK_TRIANGLE ) // non-null element
       {
       Mesh->GetCellPoints(cellId, npts, pts);
       for (i=0; i<npts; i++) newCellPts[i] = map[pts[i]];

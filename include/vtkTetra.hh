@@ -57,7 +57,7 @@ public:
 
   // cell methods
   vtkCell *MakeObject() {return new vtkTetra(*this);};
-  int GetCellType() {return vtkTETRA;};
+  int GetCellType() {return VTK_TETRA;};
   int GetCellDimension() {return 3;};
   int GetNumberOfEdges() {return 6;};
   int GetNumberOfFaces() {return 4;};

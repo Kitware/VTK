@@ -57,7 +57,7 @@ public:
 
   // cell methods
   vtkCell *MakeObject() {return new vtkPolyVertex(*this);};
-  int GetCellType() {return vtkPOLY_VERTEX;};
+  int GetCellType() {return VTK_POLY_VERTEX;};
   int GetCellDimension() {return 0;};
   int GetNumberOfEdges() {return 0;};
   int GetNumberOfFaces() {return 0;};

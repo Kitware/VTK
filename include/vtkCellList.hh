@@ -108,7 +108,7 @@ inline int vtkCellList::GetCellLocation(const int cellId)
 // Delete cell by setting to NULL cell type.
 inline void vtkCellList::DeleteCell(int cellId)
 {
-  this->Array[cellId].type = vtkNULL_ELEMENT;
+  this->Array[cellId].type = VTK_NULL_ELEMENT;
 }
 
 #endif

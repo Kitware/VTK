@@ -49,19 +49,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCellTypes_h
 #define __vtkCellTypes_h
 
-#define vtkNULL_ELEMENT 0
-#define vtkVERTEX 1
-#define vtkPOLY_VERTEX 2
-#define vtkLINE 3
-#define vtkPOLY_LINE 4
-#define vtkTRIANGLE 5
-#define vtkTRIANGLE_STRIP 6
-#define vtkPOLYGON 7
-#define vtkPIXEL 8
-#define vtkQUAD 9
-#define vtkTETRA 10
-#define vtkVOXEL 11
-#define vtkHEXAHEDRON 12
+#define VTK_NULL_ELEMENT 0
+#define VTK_VERTEX 1
+#define VTK_POLY_VERTEX 2
+#define VTK_LINE 3
+#define VTK_POLY_LINE 4
+#define VTK_TRIANGLE 5
+#define VTK_TRIANGLE_STRIP 6
+#define VTK_POLYGON 7
+#define VTK_PIXEL 8
+#define VTK_QUAD 9
+#define VTK_TETRA 10
+#define VTK_VOXEL 11
+#define VTK_HEXAHEDRON 12
 
 #endif
 

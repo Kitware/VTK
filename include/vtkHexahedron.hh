@@ -57,7 +57,7 @@ public:
 
   // cell methods
   vtkCell *MakeObject() {return new vtkHexahedron(*this);};
-  int GetCellType() {return vtkHEXAHEDRON;};
+  int GetCellType() {return VTK_HEXAHEDRON;};
   int GetCellDimension() {return 3;};
   int GetNumberOfEdges() {return 12;};
   int GetNumberOfFaces() {return 6;};

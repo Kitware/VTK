@@ -249,6 +249,8 @@ void vtkShepardMethod::SetSampleDimensions(int i, int j, int k)
 
 void vtkShepardMethod::SetSampleDimensions(int dim[3])
 {
+  int dataDim, i;
+
   vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
   if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
@@ -260,7 +262,7 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
       return;
       }
 
-    for (int dataDim=0, i=0; i<3 ; i++) if (dim[i] > 1) dataDim++;
+    for (dataDim=0, i=0; i<3 ; i++) if (dim[i] > 1) dataDim++;
 
     if ( dataDim  < 3 )
       {

@@ -53,12 +53,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <xgl/xgl.h>
 #include "vtkXglrRenderWindow.hh"
 
-#define MAX_LIGHTS 12
+#define VTK_MAX_LIGHTS 12
 
 class vtkXglrRenderer : public vtkRenderer
 {
 protected:
-  Xgl_light XglrLights[MAX_LIGHTS];
+  Xgl_light XglrLights[VTK_MAX_LIGHTS];
   int NumberOfLightsBound;
   Xgl_3d_ctx Context;
 

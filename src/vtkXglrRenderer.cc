@@ -111,7 +111,7 @@ int vtkXglrRenderer::UpdateLights ()
   short cur_light, idx;
   float status;
   int count = 0;
-  Xgl_boolean xglr_switches[MAX_LIGHTS];
+  Xgl_boolean xglr_switches[VTK_MAX_LIGHTS];
   Xgl_color   light_color;
 
   // first get the lights and switched from the context 
@@ -129,7 +129,7 @@ int vtkXglrRenderer::UpdateLights ()
   
   // set all lights off except the ambient light 
   xglr_switches[0] = TRUE;
-  for (idx = 1; idx < MAX_LIGHTS; idx++)
+  for (idx = 1; idx < VTK_MAX_LIGHTS; idx++)
     {
     xglr_switches[idx] = FALSE;
     }
@@ -142,7 +142,7 @@ int vtkXglrRenderer::UpdateLights ()
 
     // if the light is on then define it and bind it. 
     // also make sure we still have room.             
-    if ((status > 0.0)&& (cur_light < MAX_LIGHTS))
+    if ((status > 0.0)&& (cur_light < VTK_MAX_LIGHTS))
       {
       light->Render((vtkRenderer *)this,cur_light);
       xglr_switches[cur_light] = TRUE;
@@ -152,7 +152,7 @@ int vtkXglrRenderer::UpdateLights ()
       // and do the same for the mirror source if backlit is on
       // and we aren't out of lights
       if ((this->BackLight > 0.0) && 
-	  (cur_light < MAX_LIGHTS))
+	  (cur_light < VTK_MAX_LIGHTS))
 	{
 	xglr_switches[cur_light] = TRUE;
 	// if backlighting is on then increment the current light again 
