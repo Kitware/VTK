@@ -84,14 +84,14 @@ void vtkCubeSource::Execute()
 //
   numPts = 0;
 
-  for (x[0]=Center[0]-this->XLength/2.0, n[0]=(-1.0), n[1]=n[2]=0.0, i=0; 
+  for (x[0]=this->Center[0]-this->XLength/2.0, n[0]=(-1.0), n[1]=n[2]=0.0, i=0; 
   i<2; i++, x[0]+=this->XLength, n[0]+=2.0)
     {
-    for (x[1]=Center[1]-this->YLength/2.0, j=0; j<2; 
+    for (x[1]=this->Center[1]-this->YLength/2.0, j=0; j<2; 
     j++, x[1]+=this->YLength)
       {
       tc[1] =  x[1] + 0.5;
-      for (x[2]=Center[2]-this->ZLength/2.0, k=0; k<2; 
+      for (x[2]=this->Center[2]-this->ZLength/2.0, k=0; k<2; 
       k++, x[2]+=this->ZLength)
         {
 	tc[0] = (x[2] + 0.5) * ( 1 - 2*i );
@@ -106,14 +106,14 @@ void vtkCubeSource::Execute()
   pts[0] = 4; pts[1] = 6; pts[2] = 7; pts[3] = 5; 
   newPolys->InsertNextCell(4,pts);
 
-  for (x[1]=Center[1]-this->YLength/2.0, n[1]=(-1.0), n[0]=n[2]=0.0, i=0; 
+  for (x[1]=this->Center[1]-this->YLength/2.0, n[1]=(-1.0), n[0]=n[2]=0.0, i=0; 
   i<2; i++, x[1]+=this->YLength, n[1]+=2.0)
     {
-    for (x[0]=Center[0]-this->XLength/2.0, j=0; j<2; 
+    for (x[0]=this->Center[0]-this->XLength/2.0, j=0; j<2; 
     j++, x[0]+=this->XLength)
       {
       tc[0] = ( x[0] + 0.5 ) * ( 2*i - 1 );
-      for (x[2]=Center[2]-this->ZLength/2.0, k=0; k<2; 
+      for (x[2]=this->Center[2]-this->ZLength/2.0, k=0; k<2; 
       k++, x[2]+=this->ZLength)
         {
 	tc[1] = ( x[2] + 0.5 ) * -1;
@@ -128,14 +128,14 @@ void vtkCubeSource::Execute()
   pts[0] = 12; pts[1] = 13; pts[2] = 15; pts[3] = 14; 
   newPolys->InsertNextCell(4,pts);
 
-  for (x[2]=Center[2]-this->ZLength/2.0, n[2]=(-1.0), n[0]=n[1]=0.0, i=0; 
+  for (x[2]=this->Center[2]-this->ZLength/2.0, n[2]=(-1.0), n[0]=n[1]=0.0, i=0; 
   i<2; i++, x[2]+=this->ZLength, n[2]+=2.0)
     {
-    for (x[1]=Center[1]-this->YLength/2.0, j=0; j<2; 
+    for (x[1]=this->Center[1]-this->YLength/2.0, j=0; j<2; 
     j++, x[1]+=this->YLength)
       {
       tc[1] = x[1] + 0.5;
-      for (x[0]=Center[0]-this->XLength/2.0, k=0; k<2; 
+      for (x[0]=this->Center[0]-this->XLength/2.0, k=0; k<2; 
       k++, x[0]+=this->XLength)
         {
 	tc[0] = ( x[0] + 0.5 ) * ( 2*i - 1 );
@@ -168,6 +168,20 @@ void vtkCubeSource::Execute()
 
 // Description:
 // Convenience method allows creation of cube by specifying bounding box.
+void vtkCubeSource::SetBounds(float xMin, float xMax,
+	                      float yMin, float yMax,
+		              float zMin, float zMax)
+{
+  float bounds[6];
+  bounds[0] = xMin;
+  bounds[1] = xMax;
+  bounds[2] = yMin;
+  bounds[3] = yMax;
+  bounds[4] = zMin;
+  bounds[5] = zMax;
+  this->SetBounds (bounds);
+}
+
 void vtkCubeSource::SetBounds(float bounds[6])
 {
   this->SetXLength(bounds[1]-bounds[0]);

@@ -77,6 +77,9 @@ public:
   vtkSetVector3Macro(Center,float);
   vtkGetVectorMacro(Center,float,3);
 
+  void SetBounds(float xMin, float xMax,
+	         float yMin, float yMax,
+		 float zMin, float zMax);
   void SetBounds(float bounds[6]);
 
 protected:
