@@ -136,7 +136,7 @@ public:
   class ListContainer //the container for the data
   {
   public:
-    ListContainer(T* x):Next(0),Previous(0),Data(x) {}
+    ListContainer(T* x):Data(x),Next(0),Previous(0) {}
     T* Data;
     ListContainer* Next;
     ListContainer* Previous;
