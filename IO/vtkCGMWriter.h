@@ -21,7 +21,7 @@
 // RGBA color specification), 2) from a specified color; or 3) randomly 
 // assigned colors.
 //
-// Note: During output of the polygonal data, stringle strips are converted
+// Note: During output of the polygonal data, triangle strips are converted
 // to triangles, and polylines to lines. Also, due to limitations in the CGM 
 // color model, only 256 colors are available to the color palette.
 
