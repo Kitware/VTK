@@ -27,7 +27,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.3");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.4");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 // Construct the wedge with 13 points + 1 extra point for internal
@@ -461,6 +461,7 @@ int vtkQuadraticPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                                       vtkPoints *pts)
 {
   int i;
+  int ii;
   pts->Reset();
   ptIds->Reset();
 
@@ -473,7 +474,7 @@ int vtkQuadraticPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
       }
     }
 
-  for (int ii=0, i=6 ; i < 10; i++, ii++)
+  for (ii=0, i=6 ; i < 10; i++, ii++)
     {
     for ( int j=0; j < 4; j++)
       {
