@@ -30,6 +30,7 @@ vtkImageDilateErode3D
 vtkImageDivergence
 vtkImageDotProduct
 vtkImageEllipsoidSource
+vtkImageEuclideanDistance
 vtkImageEuclideanToPolar
 vtkImageExport
 vtkImageExtractComponents
