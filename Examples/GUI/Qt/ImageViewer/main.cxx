@@ -33,6 +33,7 @@
 
 #include "QVTKWidget.h"
 
+#include "vtkstd/string"
 
 int main(int argc, char** argv)
 {
@@ -45,15 +46,19 @@ int main(int argc, char** argv)
 
   vtkPNGReader* reader = vtkPNGReader::New();
   const char* data_root = getenv("VTK_DATA_ROOT");
-  vtkstd::string data_file = data_root;
-  data_file += "/Data/vtk.png";
-  reader->SetFileName(data_file.c_str());
+  if(data_root)
+  {
+    vtkstd::string data_file = data_root + vtkstd::string("/Data/vtk.png");
+    reader->SetFileName(data_file.c_str());
+  }
 
   vtkImageViewer* image_view = vtkImageViewer::New();
   image_view->SetInput(reader->GetOutput());
 
   widget.SetRenderWindow(image_view->GetRenderWindow());
   image_view->SetupInteractor(widget.GetRenderWindow()->GetInteractor());
+
+  widget.show();
 
   app.exec();
 
