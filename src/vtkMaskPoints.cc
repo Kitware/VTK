@@ -41,6 +41,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMaskPoints.hh"
 #include "vtkMath.hh"
 
+vtkMaskPoints::vtkMaskPoints()
+{
+  this->OnRatio = 2;
+  this->Offset = 0;
+  this->RandomMode = 0;
+  this->MaximumNumberOfPoints = LARGE_INTEGER;
+}
+
 void vtkMaskPoints::Execute()
 {
   vtkFloatPoints *newPts;
@@ -49,9 +57,9 @@ void vtkMaskPoints::Execute()
   int numNewPts;
   float *x;
   int ptId, id;
-//
-// Check input
-//
+  //
+  // Check input
+  //
   vtkDebugMacro(<<"Masking points");
   this->Initialize();
 
@@ -62,32 +70,49 @@ void vtkMaskPoints::Execute()
     }
 
   pd = this->Input->GetPointData();
-//
-// Allocate space
-//
+  id = 0;
+  
+  //
+  // Allocate space
+  //
   numNewPts = numPts / this->OnRatio;
+  if (numNewPts > this->MaximumNumberOfPoints)
+    {
+    numNewPts = this->MaximumNumberOfPoints;
+    }
   newPts = new vtkFloatPoints(numNewPts);
   this->PointData.CopyAllocate(pd);
-//
-// Traverse points and copy
-//
+  //
+  // Traverse points and copy
+  //
   if ( this->RandomMode ) // retro mode
     {
     vtkMath math;
-    float cap = 1.0 / this->OnRatio;
-    for ( ptId = this->Offset; ptId < numPts;  ptId++)
+    float cap;
+    
+    if (((float)numPts/this->OnRatio) > this->MaximumNumberOfPoints)
       {
-      if (math.Random() <= cap )
-        {
-        x =  this->Input->GetPoint(ptId);
-        id = newPts->InsertNextPoint(x);
-        this->PointData.CopyData(pd,ptId,id);
-        }
+      cap = 2.0*numPts/this->MaximumNumberOfPoints - 1;
+      }
+    else 
+      {
+      cap = 2.0*this->OnRatio - 1;
+      }
+
+    for (ptId = this->Offset; 
+	 (ptId < numPts)&&(id < this->MaximumNumberOfPoints);  
+	 ptId += (1 + math.Random()*cap))
+      {
+      x =  this->Input->GetPoint(ptId);
+      id = newPts->InsertNextPoint(x);
+      this->PointData.CopyData(pd,ptId,id);
       }
     }
   else // a.r. mode
     {
-    for ( ptId = this->Offset; ptId < numPts;  ptId += this->OnRatio )
+    for ( ptId = this->Offset; 
+	  (ptId < numPts)&&(id < this->MaximumNumberOfPoints);  
+	  ptId += this->OnRatio )
       {
       x =  this->Input->GetPoint(ptId);
       id = newPts->InsertNextPoint(x);
@@ -107,6 +132,8 @@ void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyFilter::PrintSelf(os,indent);
 
+  os << indent << "MaximumNumberOfPoints: " << 
+    this->MaximumNumberOfPoints << "\n";
   os << indent << "On Ratio: " << this->OnRatio << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
   os << indent << "Random Mode: " << (this->RandomMode ? "On\n" : "Off\n");
