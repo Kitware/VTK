@@ -39,14 +39,28 @@ vtkRenderWindow::vtkRenderWindow()
   this->Interactor = NULL;
   strcpy(this->Name,"Visualization Toolkit");
   this->AAFrames = 0;
-  this->AABuffer = NULL;
   this->FDFrames = 0;
-  this->FDBuffer = NULL;
   this->SubFrames = 0;
-  this->SubBuffer = NULL;
+  this->AccumulationBuffer = NULL;
   this->CurrentSubFrame = 0;
   this->ResultFrame = NULL;
   this->Filename = NULL;
+}
+
+// Description:
+// free the memory used by this object
+vtkRenderWindow::~vtkRenderWindow()
+{
+  if (this->AccumulationBuffer) 
+    {
+    delete [] this->AccumulationBuffer;
+    this->AccumulationBuffer = NULL;
+    }
+  if (this->ResultFrame) 
+    {
+    delete [] this->ResultFrame;
+    this->ResultFrame = NULL;
+    }
 }
 
 // Description:
@@ -54,88 +68,134 @@ vtkRenderWindow::vtkRenderWindow()
 void vtkRenderWindow::Render()
 {
   int i;
-
+  int *size;
+  int x,y;
+  float *p1;
+  
   vtkDebugMacro(<< "Starting Render Method.\n");
-
+  
   if ( this->Interactor && ! this->Interactor->GetInitialized() )
     this->Interactor->Initialize();
 
-  // handle any sub frames
-  if (this->SubFrames)
+  if ((!this->AccumulationBuffer)&&
+      (this->SubFrames || this->AAFrames || this->FDFrames))
     {
-    int *size;
-    int x,y;
-    int r,g,b;
-    unsigned char *p1;
-
     // get the size
     size = this->GetSize();
 
-    // free old and get new memory on first sub frame
-    if (!this->CurrentSubFrame)
-      {
-      if (this->SubBuffer) delete [] SubBuffer;
-      this->SubBuffer = new unsigned char *[this->SubFrames];
-      }
+    this->AccumulationBuffer = new float [3*size[0]*size[1]];
+    memset(this->AccumulationBuffer,0,3*size[0]*size[1]*sizeof(float));
+    }
+  
+  // handle any sub frames
+  if (this->SubFrames)
+    {
+    // get the size
+    size = this->GetSize();
 
     // draw the images
     this->DoAARender();
 
-    // get the pixels for accumulation
-    if (this->ResultFrame)
+    // now accumulate the images 
+    if ((!this->AAFrames) && (!this->FDFrames))
       {
-      this->SubBuffer[this->CurrentSubFrame] = this->ResultFrame;
-      this->ResultFrame = NULL;
-      }
-    else
-      {
-      this->SubBuffer[this->CurrentSubFrame] 
-	= this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
-      }
-
-    // if this is the last sub frame then merge the images
-    this->CurrentSubFrame++;
-    if (this->CurrentSubFrame == this->SubFrames)
-      {
-      this->CurrentSubFrame = 0;
-      this->ResultFrame = this->SubBuffer[0];
-      
-      // now accumulate the images 
-      p1 = this->ResultFrame;
+      p1 = this->AccumulationBuffer;
+      unsigned char *p2;
+      if (this->ResultFrame)
+	{
+	p2 = this->ResultFrame;
+	}
+      else
+	{
+	p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
+	}
       for (y = 0; y < size[1]; y++)
 	{
 	for (x = 0; x < size[0]; x++)
 	  {
-	  r = *p1; 
-	  g = *(p1 + 1);  
-	  b = *(p1 + 2);  
-	  for (i = 1; i < this->SubFrames; i++)
-	    {
-	    r += this->SubBuffer[i][(y*size[0] + x)*3];
-	    g += this->SubBuffer[i][(y*size[0] + x)*3 + 1];
-	    b += this->SubBuffer[i][(y*size[0] + x)*3 + 2];
-	    }
-	  r /= this->SubFrames;
-	  g /= this->SubFrames;
-	  b /= this->SubFrames;
-	  *p1 = r; p1++;
-	  *p1 = g; p1++;
-	  *p1 = b; p1++;
+	  *p1 += *p2; p1++; p2++;
+	  *p1 += *p2; p1++; p2++;
+	  *p1 += *p2; p1++; p2++;
 	  }
 	}
-      for (i = 1; i < this->SubFrames; i++)
+      delete [] p2;
+      }
+    
+    // if this is the last sub frame then convert back into unsigned char
+    this->CurrentSubFrame++;
+    if (this->CurrentSubFrame == this->SubFrames)
+      {
+      float num;
+      unsigned char *p2 = new unsigned char [3*size[0]*size[1]];
+      
+      num = this->SubFrames;
+      if (this->AAFrames) num *= this->AAFrames;
+      if (this->FDFrames) num *= this->FDFrames;
+
+      this->ResultFrame = p2;
+      p1 = this->AccumulationBuffer;
+      for (y = 0; y < size[1]; y++)
 	{
-	delete this->SubBuffer[i];
+	for (x = 0; x < size[0]; x++)
+	  {
+	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
+	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
+	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
+	  }
 	}
-      delete [] this->SubBuffer;
-      this->SubBuffer = NULL;
+      
+      this->CurrentSubFrame = 0;
       this->CopyResultFrame();
+
+      // free any memory
+      delete [] this->AccumulationBuffer;
+      this->AccumulationBuffer = NULL;
       }
     }
   else
     {
+    // get the size
+    size = this->GetSize();
+
     this->DoAARender();
+    if (this->AccumulationBuffer)
+      {
+      float num;
+      unsigned char *p2 = new unsigned char [3*size[0]*size[1]];
+
+      if (this->AAFrames) 
+	{
+	num = this->AAFrames;
+	}
+      else
+	{
+	num = 1;
+	}
+      if (this->FDFrames) num *= this->FDFrames;
+
+      this->ResultFrame = p2;
+      p1 = this->AccumulationBuffer;
+      for (y = 0; y < size[1]; y++)
+	{
+	for (x = 0; x < size[0]; x++)
+	  {
+	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
+	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
+	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
+	  }
+	}
+      
+      delete [] this->AccumulationBuffer;
+      this->AccumulationBuffer = NULL;
+      }
+    
     this->CopyResultFrame();
+    }
+  
+  if (this->ResultFrame) 
+    {
+    delete [] this->ResultFrame;
+    this->ResultFrame = NULL;
     }
 }
 
@@ -150,8 +210,7 @@ void vtkRenderWindow::DoAARender()
     {
     int *size;
     int x,y;
-    int r,g,b;
-    unsigned char *p1;
+    float *p1;
     vtkRenderer *aren;
     vtkCamera *acam;
     float *dpoint;
@@ -162,9 +221,6 @@ void vtkRenderWindow::DoAARender()
     // get the size
     size = this->GetSize();
 
-    // free old and get new memory
-    if (this->AABuffer) delete [] AABuffer;
-    this->AABuffer = new unsigned char *[this->AAFrames];
     origfocus[3] = 1.0;
 
     for (i = 0; i < AAFrames; i++)
@@ -237,49 +293,32 @@ void vtkRenderWindow::DoAARender()
 			  dpoint[2]+worldOffset[2]);
 	}
 
-      // get the pixels for accumulation
-      if (this->ResultFrame)
+
+      // now accumulate the images 
+      p1 = this->AccumulationBuffer;
+      if (!this->FDFrames)
 	{
-	this->AABuffer[i] = this->ResultFrame;
-	this->ResultFrame = NULL;
-	}
-      else
-	{
-	this->AABuffer[i] = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
-	}
-      }
-    
-    this->ResultFrame = this->AABuffer[0];
-    
-    // now accumulate the images 
-    p1 = this->ResultFrame;
-    for (y = 0; y < size[1]; y++)
-      {
-      for (x = 0; x < size[0]; x++)
-	{
-	r = *p1; 
-	g = *(p1 + 1);  
-	b = *(p1 + 2);  
-	for (i = 1; i < this->AAFrames; i++)
+	unsigned char *p2;
+	if (this->ResultFrame)
 	  {
-	  r += this->AABuffer[i][(y*size[0] + x)*3];
-	  g += this->AABuffer[i][(y*size[0] + x)*3 + 1];
-	  b += this->AABuffer[i][(y*size[0] + x)*3 + 2];
+	  p2 = this->ResultFrame;
 	  }
-	r /= this->AAFrames;
-	g /= this->AAFrames;
-	b /= this->AAFrames;
-	*p1 = r; p1++;
-	*p1 = g; p1++;
-	*p1 = b; p1++;
+	else
+	  {
+	  p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
+	  }
+	for (y = 0; y < size[1]; y++)
+	  {
+	  for (x = 0; x < size[0]; x++)
+	    {
+	    *p1 += (float)*p2; p1++; p2++;
+	    *p1 += (float)*p2; p1++; p2++;
+	    *p1 += (float)*p2; p1++; p2++;
+	    }
+	  }
+	delete [] p2;
 	}
       }
-    for (i = 1; i < this->AAFrames; i++)
-      {
-      delete this->AABuffer[i];
-      }
-    delete [] this->AABuffer;
-    this->AABuffer = NULL;
     }
   else
     {
@@ -299,8 +338,8 @@ void vtkRenderWindow::DoFDRender()
     {
     int *size;
     int x,y;
-    int r,g,b;
-    unsigned char *p1;
+    unsigned char *p2;
+    float *p1;
     vtkRenderer *aren;
     vtkCamera *acam;
     float focalDisk;
@@ -314,9 +353,6 @@ void vtkRenderWindow::DoFDRender()
     // get the size
     size = this->GetSize();
 
-    // free old and get new memory
-    if (this->FDBuffer) delete [] FDBuffer;
-    this->FDBuffer = new unsigned char *[this->FDFrames];
     viewUp[3] = 1.0;
 
     orig = new float [3*this->Renderers.GetNumberOfItems()];
@@ -367,51 +403,30 @@ void vtkRenderWindow::DoFDRender()
 	}
 
       // get the pixels for accumulation
+      // now accumulate the images 
+      p1 = this->AccumulationBuffer;
       if (this->ResultFrame)
 	{
-	this->FDBuffer[i] = this->ResultFrame;
-	this->ResultFrame = NULL;
+	p2 = this->ResultFrame;
 	}
       else
 	{
-	this->FDBuffer[i] = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
+	p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
 	}
+      for (y = 0; y < size[1]; y++)
+	{
+	for (x = 0; x < size[0]; x++)
+	  {
+	  *p1 += (float)*p2; p1++; p2++;
+	  *p1 += (float)*p2; p1++; p2++;
+	  *p1 += (float)*p2; p1++; p2++;
+	  }
+	}
+      delete [] p2;;
       }
-    
+  
     // free memory
     delete [] orig;
-    
-    this->ResultFrame = this->FDBuffer[0];
-    
-    // now accumulate the images 
-    p1 = this->ResultFrame;
-    for (y = 0; y < size[1]; y++)
-      {
-      for (x = 0; x < size[0]; x++)
-	{
-	r = *p1; 
-	g = *(p1 + 1);  
-	b = *(p1 + 2);  
-	for (i = 1; i < this->FDFrames; i++)
-	  {
-	  r += this->FDBuffer[i][(y*size[0] + x)*3];
-	  g += this->FDBuffer[i][(y*size[0] + x)*3 + 1];
-	  b += this->FDBuffer[i][(y*size[0] + x)*3 + 2];
-	  }
-	r /= this->FDFrames;
-	g /= this->FDFrames;
-	b /= this->FDFrames;
-	*p1 = r; p1++;
-	*p1 = g; p1++;
-	*p1 = b; p1++;
-	}
-      }
-    for (i = 1; i < this->FDFrames; i++)
-      {
-      delete this->FDBuffer[i];
-      }
-    delete [] this->FDBuffer;
-    this->FDBuffer = NULL;
     }
   else
     {
@@ -580,7 +595,7 @@ void vtkRenderWindow::StereoMidpoint(void)
       // get the size
       size = this->GetSize();
       // get the data
-      this->temp_buffer = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
+      this->StereoBuffer = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
       }
     }
 }
@@ -604,7 +619,7 @@ void vtkRenderWindow::StereoRenderComplete(void)
       size = this->GetSize();
       // get the data
       buff = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
-      p1 = this->temp_buffer;
+      p1 = this->StereoBuffer;
       p2 = buff;
 
       // allocate the result
@@ -632,8 +647,8 @@ void vtkRenderWindow::StereoRenderComplete(void)
 	  }
 	}
       this->ResultFrame = result;
-      delete [] this->temp_buffer;
-      this->temp_buffer = NULL;
+      delete [] this->StereoBuffer;
+      this->StereoBuffer = NULL;
       delete [] buff;
       }
       break;
@@ -651,10 +666,7 @@ void vtkRenderWindow::CopyResultFrame(void)
 
     // get the size
     size = this->GetSize();
-
     this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,1);
-    delete [] this->ResultFrame;
-    this->ResultFrame = NULL;
     }
   else
     {
