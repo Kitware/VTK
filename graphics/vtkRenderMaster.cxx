@@ -53,10 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOglrRenderWindow.h"
 #endif
 
-#ifdef USE_PRMAN
-#include "vtkPrmanRenderWindow.h"
-#endif
-
 #ifdef USE_XGLR
 #include "vtkXglrRenderWindow.h"
 #endif
@@ -139,14 +135,6 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
     }
 #endif
 
-#ifdef USE_PRMAN
-  if (!strncmp("prman",type,5))
-    {
-    vtkPrmanRenderWindow *ren;
-    ren = new vtkPrmanRenderWindow;
-    return (vtkRenderWindow *)ren;
-    }
-#endif
   vtkErrorMacro(<<"RenderMaster Error: unable to return render window.\n");
   return (vtkRenderWindow *)NULL;
 }
@@ -176,9 +164,6 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(void)
 #endif
 #ifdef _WIN32
     temp = "woglr";
-#endif
-#ifdef USE_PRMAN
-    temp = "prman";
 #endif
     if (!temp)
       {
