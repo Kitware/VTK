@@ -1,7 +1,7 @@
 #
 # Build the documentation
 #
-INCLUDE (${CMAKE_ROOT}/Modules/DocumentationVTK.cmake)
+INCLUDE (${CMAKE_ROOT}/Modules/DocumentationVTK.cmake OPTIONAL)
 
 IF (BUILD_DOCUMENTATION)
 
