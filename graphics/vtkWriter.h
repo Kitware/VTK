@@ -82,8 +82,9 @@ public:
   // Convenient alias for Write() method.
   void Update();
   
+//BTX
   vtkDataObject *GetInput();
-
+//ETX
 protected:
   virtual void WriteData() = 0; //internal method subclasses must respond to
 };

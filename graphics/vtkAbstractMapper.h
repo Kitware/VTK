@@ -107,8 +107,9 @@ public:
   void SetInput(vtkImageData *cache)
     {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
     this->SetInput(tmp->GetOutput()); tmp->Delete();}  
+//BTX
   vtkDataSet *GetInput();
-
+//ETX
   // Description:
   // Get the time required to draw the geometry last time it was rendered
   vtkGetMacro( TimeToDraw, float );
