@@ -42,6 +42,7 @@ IF (VTK_USE_RENDERING)
         TestDivergence
         TestDotProduct
         TestEuclideanDistance
+        TestEuclideanDistanceCached
         TestEuclideanToPolar
         TestGradient
         TestGradientMagnitude
