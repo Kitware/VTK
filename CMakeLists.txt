@@ -582,10 +582,10 @@ ENDIF(VTK_USE_PARALLEL)
 
 #-----------------------------------------------------------------------------
 # Configure Tcl wrapping support.
-IF(VTK_WRAP_TCL)
+
+MACRO (VTK_INCLUDE_TCL_TK_MODULES)
   INCLUDE(${CMAKE_ROOT}/Modules/FindTCL.cmake)
   INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake)
-
   # Hide useless settings provided by FindTCL.
   FOREACH(entry 
           TCL_LIBRARY_DEBUG
@@ -597,6 +597,11 @@ IF(VTK_WRAP_TCL)
           TK_WISH)
     SET(${entry} "${${entry}}" CACHE INTERNAL "This value is not used by VTK.")
   ENDFOREACH(entry)
+ENDMACRO (VTK_INCLUDE_TCL_TK_MODULES)
+
+IF(VTK_WRAP_TCL)
+
+  VTK_INCLUDE_TCL_TK_MODULES()
 
   # Wrapping executables.
   UTILITY_SOURCE(VTK_WRAP_TCL_EXE vtkWrapTcl Wrapping vtkWrapTcl.c)
@@ -697,13 +702,14 @@ ENDIF(VTK_USE_RENDERING)
 IF(VTK_INCLUDE_NEED_TK)
   # Need Tk sources on windows
   IF(WIN32)
-    FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INCLUDE_PATH}
+    FIND_PATH(TK_XLIB_PATH 
+              X11/Xlib.h ${TK_INCLUDE_PATH}
               ${TK_INCLUDE_PATH}/../xlib)
     MARK_AS_ADVANCED(TK_XLIB_PATH)
   ENDIF(WIN32)
   # Need Tk headers and libraries for python TK widgets
   IF(NOT VTK_WRAP_TCL)
-    INCLUDE(${CMAKE_ROOT}/Modules/FindTCL.cmake)
+    VTK_INCLUDE_TCL_TK_MODULES()
   ENDIF(NOT VTK_WRAP_TCL)
 ENDIF(VTK_INCLUDE_NEED_TK)
 
