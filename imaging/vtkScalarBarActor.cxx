@@ -202,6 +202,12 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
     renderedSomething += this->TitleActor->RenderOverlay(viewport);
     }
   this->ScalarBarActor->RenderOverlay(viewport);
+  if( this->TextActors == NULL)
+    {
+     vtkWarningMacro(<<"Need a mapper to render a scalar bar");
+     return renderedSomething;
+    }
+  
   for (i=0; i<this->NumberOfLabels; i++)
     {
     renderedSomething += this->TextActors[i]->RenderOverlay(viewport);

@@ -203,6 +203,7 @@ vtkProgrammableGlyphFilter \
 vtkProgrammableSource \
 vtkProjectedPolyDataRayBounder \
 vtkProperty \
+vtkPropPicker \
 vtkQuadric \
 vtkRayCaster \
 vtkRectilinearGridGeometryFilter \

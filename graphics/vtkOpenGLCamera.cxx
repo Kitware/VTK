@@ -45,8 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLCamera.h"
 #include <GL/gl.h>
 #include "vtkObjectFactory.h"
-
-
+#include "vtkOutputWindow.h"
+#include "vtkgluPickMatrix.h"
 
 //------------------------------------------------------------------------------
 vtkOpenGLCamera* vtkOpenGLCamera::New()
@@ -60,8 +60,6 @@ vtkOpenGLCamera* vtkOpenGLCamera::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkOpenGLCamera;
 }
-
-
 
 
 
@@ -137,8 +135,20 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   matrix->DeepCopy(this->GetPerspectiveTransformMatrix(aspect[0]/aspect[1],
 						       -1,1));
   matrix->Transpose();
-  // insert camera view transformation 
-  glLoadMatrixd(matrix->Element[0]);
+  if(ren->GetIsPicking())
+    {
+    GLint viewport[4];
+    glGetIntegerv( GL_VIEWPORT, viewport);
+    glLoadIdentity();
+    vtkgluPickMatrix(ren->GetPickX(), ren->GetPickY(), 1, 1, viewport);
+    glMultMatrixd(matrix->Element[0]);
+    }
+  else
+    {
+    // insert camera view transformation 
+    glLoadMatrixd(matrix->Element[0]);
+    }
+  
 
   // since lookat modifies the model view matrix do a push 
   // first and set the mmode.  This will be undone in the  

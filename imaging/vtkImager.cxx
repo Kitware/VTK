@@ -176,3 +176,36 @@ void vtkImager::SetVTKWindow(vtkWindow* win)
     this->Modified();
     }
 }
+vtkProp* vtkImager::PickProp(float selectionX, float selectionY)
+{
+  return NULL;
+}
+
+float vtkImager::GetPickedZ()
+{
+  return 0;
+}
+
+void vtkImager::DevicePickRender()
+{
+}
+
+void vtkImager::StartPick(unsigned int pickFromSize)
+{
+}
+
+void vtkImager::SetPickId(unsigned int pickID)
+{
+}
+
+void vtkImager::DonePick()
+{
+}
+
+unsigned int vtkImager::GetPickedID()
+{
+  return 0;
+}
+
+
+

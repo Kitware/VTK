@@ -150,7 +150,8 @@ public:
 
   // Description:
   // Create an image. Subclasses of vtkRenderer must implement this method.
-  virtual void DeviceRender() {};
+  virtual void DeviceRender() =0;
+  
 
   // Description:
   // Clear the image to the background color.
@@ -280,12 +281,23 @@ public:
   // This is used to know if something is in the frame buffer.
   vtkGetMacro( NumberOfPropsRenderedAsGeometry, int );
 
+  // Description:
+  // Return the Prop that has the highest z value at the given x, y position in
+  // the viewport.  Basically, the top most prop that renders the pixel
+  // at selectionX, selectionY will be returned.   If no Props are there
+  // NULL is returned.  This method selects from the renderers Prop list.
+  vtkProp* PickProp(float selectionX, float selectionY);
+
 protected:
   vtkRenderer();
   ~vtkRenderer();
   vtkRenderer(const vtkRenderer&) {};
   void operator=(const vtkRenderer&) {};
 
+  // internal method for doing a render for picking purposes
+  virtual void PickRender();
+  virtual void PickGeometry();
+  
   vtkRayCaster *RayCaster;
 
   vtkCamera *ActiveCamera;

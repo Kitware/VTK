@@ -214,6 +214,26 @@ public:
   virtual void ViewToNormalizedViewport(float &x, float &y, float &z);
   virtual void WorldToView(float &, float &, float &) {};
 
+  // These methods describe the public pick interface for picking Props in 
+  // a viewport
+
+  // Description:
+  //  Return the Prop that has the highest z value at the given x, y position in
+  // the viewport.  Basically, the top most prop that renders the pixel
+  // at selectionX, selectionY will be returned.   If no Props are there
+  // NULL is returned.  This method selects from the Viewports Prop list.
+  virtual vtkProp* PickProp(float selectionX, float selectionY) = 0;
+  // Description:
+  // Same as PickProp with two arguments, but selects from the given
+  // collection of Props instead of the Renderers props.  Make sure
+  // the Props in the collection are in this renderer.
+  vtkProp* PickProp(float selectionX, float selectionY, vtkPropCollection*);
+  vtkGetMacro(PickX, float);
+  vtkGetMacro(PickY, float);
+  vtkGetMacro(IsPicking, int);
+  // Description: Return the Z value for the last picked Prop
+  virtual float GetPickedZ() = 0;
+  
   // Description:
   // Get the size and origin of the viewport in display coordinates
   int *GetSize();
@@ -228,7 +248,30 @@ protected:
   vtkViewport(const vtkViewport&) {};
   void operator=(const vtkViewport&) {};
 
-
+  //BTX
+  // Picking functions to be implemented by sub-classes
+  // Perform the main picking loop
+  virtual void DevicePickRender() = 0;
+  // Enter a pick mode
+  virtual void StartPick(unsigned int pickFromSize) = 0;
+  // Set the pick id before drawing an object
+  virtual void SetPickId(unsigned int pickID) = 0;
+  // Exit Pick mode
+  virtual void DonePick() = 0; 
+  // Return the id of the picked object, only valid after a call to DonePick
+  virtual unsigned int GetPickedID() = 0;
+  //ETX
+   // Ivars for picking
+  // Store a picked Prop
+  vtkProp* PickedProp;
+  vtkPropCollection* PickFromProps;
+  // Boolean flag to determine if picking is enabled for this render
+  int IsPicking;
+  unsigned int CurrentPickID;
+  float PickX;
+  float PickY;
+  // End Ivars for picking
+  
   vtkPropCollection *Props;
   vtkActor2DCollection *Actors2D;
   vtkWindow *VTKWindow;

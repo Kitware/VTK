@@ -89,12 +89,19 @@ public:
   // Erase the contents of the imager in the window.
   virtual void Erase(){vtkErrorMacro(<<"vtkImager::Erase - Not implemented!");};
 
+  virtual vtkProp* PickProp(float selectionX, float selectionY);
+  virtual float GetPickedZ();
 protected:
   vtkImager();
   ~vtkImager() {};
   vtkImager(const vtkImager&) {};
   void operator=(const vtkImager&) {};
 
+  virtual void StartPick(unsigned int pickFromSize);
+  virtual void SetPickId(unsigned int pickID);
+  virtual void DonePick(); 
+  virtual unsigned int GetPickedID();
+  virtual void DevicePickRender();
 };
 
 

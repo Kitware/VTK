@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLRenderer.h
+  Module:    vtkPropPicker.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,61 +38,55 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOpenGLRenderer - OpenGL renderer
+// .NAME vtkPropPicker - pick an actor/prop using graphics hardware
 // .SECTION Description
-// vtkOpenGLRenderer is a concrete implementation of the abstract class
-// vtkRenderer. vtkOpenGLRenderer interfaces to the OpenGL graphics library.
+// vtkPropPicker is used to pick an actor/prop given a selection
+// point (in display coordinates) and a renderer. This class uses
+// graphics hardware/rendering system to pick rapidly (as compared
+// to using ray casting as does vtkCellPicker and vtkPointPicker).
+// This class determines the actor/prop and pick position in world
+// coordinates; point and cell ids are not determined.
 
-#ifndef __vtkOpenGLRenderer_h
-#define __vtkOpenGLRenderer_h
+// .SECTION See Also 
+// vtkPicker vtkWorldPointPicker vtkCellPicker vtkPointPicker 
 
-#include <stdlib.h>
-#include "vtkRenderer.h"
+#ifndef __vtkPropPicker_h
+#define __vtkPropPicker_h
 
-class VTK_EXPORT vtkOpenGLRenderer : public vtkRenderer
+#include "vtkWorldPointPicker.h"
+class vtkProp;
+
+class VTK_EXPORT vtkPropPicker : public vtkWorldPointPicker
 {
-protected:
-  int NumberOfLightsBound;
-
 public:
-  static vtkOpenGLRenderer *New();
-  const char *GetClassName() {return "vtkOpenGLRenderer";};
+  static vtkPropPicker *New();
+
+  const char *GetClassName() {return "vtkPropPicker";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Concrete open gl render method.
-  void DeviceRender(void); 
-
+  // Perform the pick and set the PickedProp ivar.   If something is
+  // picked, a 1 is returned, otherwise 0 is returned.  Use the GetPickedProp
+  // method to get the prop picked.  Props are picked from the renerers list
+  // of pickable Props.
+  int Pick(float selectionX, float selectionY, float selectionZ, vtkRenderer *renderer);
+  int Pick(float selectionX, float selectionY, vtkRenderer *renderer);  
   // Description:
-  // Internal method temporarily removes lights before reloading them
-  // into graphics pipeline.
-  void ClearLights(void);
-
-  void Clear(void);
-
-  // Description:
-  // Ask lights to load themselves into graphics pipeline.
-  int UpdateLights(void);
-  
+  // Perform a pick from the collection contents and not the cotents of the renderer
+  int Pick(float selectionX, float selectionY, vtkRenderer *renderer, vtkPropCollection* pickfrom);  
+  vtkGetObjectMacro(PickedProp, vtkProp);
 protected:
-  vtkOpenGLRenderer();
-  ~vtkOpenGLRenderer();
-  vtkOpenGLRenderer(const vtkOpenGLRenderer&) {};
-  void operator=(const vtkOpenGLRenderer&) {};
+  vtkPropPicker();
+  ~vtkPropPicker() {};
+  vtkPropPicker(const vtkPropPicker&) {};
+  void operator=(vtkPropPicker&) {};
 
-  //BTX
-  // Picking functions to be implemented by sub-classes
-  virtual void DevicePickRender();
-  virtual void StartPick(unsigned int pickFromSize);
-  virtual void SetPickId(unsigned int pickID);
-  virtual void DonePick();
-  virtual unsigned int GetPickedID();
-  virtual float GetPickedZ();
-  //ETX
-  // Ivars used in picking
-  unsigned int* PickBuffer;
-  unsigned int PickedID;
-  float PickedZ;
+  void Initialize();
+  
+  vtkProp* PickedProp;
+  vtkPropCollection* PickFromProps;
 };
 
 #endif
+
+

@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLPolyDataMapper2D.h"
 #include <GL/gl.h>
 #include "vtkObjectFactory.h"
-
+#include "vtkgluPickMatrix.h"
 
 
 //------------------------------------------------------------------------------
@@ -165,6 +165,14 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   glMatrixMode( GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
+  if(viewport->GetIsPicking())
+    {
+    GLint glviewport[4];
+    glGetIntegerv( GL_VIEWPORT, glviewport);
+    vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
+		     1, 1, glviewport);
+    }
+  
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();

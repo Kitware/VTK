@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <GL/gl.h>
 #include <limits.h>
 #include "vtkObjectFactory.h"
-
+#include "vtkgluPickMatrix.h"
 
 
 //------------------------------------------------------------------------------
@@ -501,10 +501,22 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   glMatrixMode( GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
+  if(viewport->GetIsPicking())
+    {
+    GLint glviewport[4];
+    glGetIntegerv( GL_VIEWPORT, glviewport);
+    vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
+		     1, 1, glviewport);
+    }
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
-
+  // If picking then set up a model view matrix
+  if(viewport->GetIsPicking())
+    {
+    glOrtho(0,vsize[0] -1, 0, vsize[1] -1, 0, 1); 
+    }
+  
   glDisable( GL_LIGHTING);
 
   // Get the position of the text actor
@@ -513,7 +525,29 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   // negative positions will already be clipped to viewport
   actorPos[0] += this->PositionAdjustment[0]; 
   actorPos[1] += this->PositionAdjustment[1];
-
+  // if picking then only draw a polygon, since an image can not be picked
+  if(viewport->GetIsPicking())
+    { 
+    int* tempExt = this->GetInput()->GetUpdateExtent();
+    int inMin0 = tempExt[0];
+    int inMax0 = tempExt[1];
+    int inMin1 = tempExt[2];
+    int inMax1 = tempExt[3];
+    
+    float width = inMax0 - inMin0 + 1;
+    float height = inMax1 - inMin1 + 1;
+    float x1 = (2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1);
+    float y1 = (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1);
+    glRectf(x1, y1, x1+width, y1+height);
+    // clean up and return 
+    glMatrixMode( GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode( GL_MODELVIEW);
+    glPopMatrix();
+    glEnable( GL_LIGHTING);
+    return;
+    }
+  
   switch (data->GetScalarType())
     {
     case VTK_DOUBLE:  
