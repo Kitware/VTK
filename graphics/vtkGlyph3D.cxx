@@ -176,6 +176,8 @@ void vtkGlyph3D::Execute()
     {
     newScalars = (vtkScalars *) inScalars->MakeObject ();
     newScalars->Allocate(numPts*numSourcePts);
+    newScalarsData = newScalars->GetData ();
+    inScalarsData = inScalars->GetData ();
     }
   else if ( (this->ColorMode == VTK_COLOR_BY_SCALE) && inScalars)
     {
@@ -312,8 +314,6 @@ void vtkGlyph3D::Execute()
 	}
       else if (this->ColorMode == VTK_COLOR_BY_SCALAR)
 	{
-        newScalarsData = newScalars->GetData ();
-        inScalarsData = inScalars->GetData ();
 	for (i=0; i < numSourcePts; i++)
 	  {
 	  outputPD->CopyTuple(inScalarsData, newScalarsData, inPtId, ptIncr+i);
