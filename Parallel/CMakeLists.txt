@@ -14,25 +14,29 @@ IF (WIN32)
   ENDIF (NOT BORLAND)
 ENDIF (WIN32)
 
-IF("VTK_HAVE_SOCKLEN_T" MATCHES "^VTK_HAVE_SOCKLEN_T$")
-  MESSAGE(STATUS "Checking support for socklen_t type")
-  TRY_COMPILE(VTK_HAVE_SOCKLEN_T
+IF("VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T" MATCHES "^VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T$")
+  MESSAGE(STATUS "Checking for getsockname with socklen_t")
+  TRY_COMPILE(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T
     ${VTK_BINARY_DIR}/CMakeTmp/SocklenT
     ${VTK_SOURCE_DIR}/CMake/vtkTestSocklenT.c
     OUTPUT_VARIABLE OUTPUT)
-  IF(VTK_HAVE_SOCKLEN_T)
-    MESSAGE(STATUS "Checking support for socklen_t type -- yes")
-    SET(VTK_HAVE_SOCKLEN_T 1 CACHE INTERNAL "Support for socklen_t type")
-  ELSE(VTK_HAVE_SOCKLEN_T)
-    MESSAGE(STATUS "Checking support for socklen_t type -- no")
-    SET(VTK_HAVE_SOCKLEN_T 0 CACHE INTERNAL "Support for socklen_t type")
+  IF(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T)
+    MESSAGE(STATUS "Checking for getsockname with socklen_t -- yes")
+    SET(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T 1 CACHE INTERNAL "Support for getsockname with socklen_t")
+    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+      "Determining if getsockname accepts socklen_t type  "
+      "passed with the following output:\n"
+      "${OUTPUT}\n" APPEND)
+  ELSE(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T)
+    MESSAGE(STATUS "Checking for getsockname with socklen_t -- no")
+    SET(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T 0 CACHE INTERNAL "Support for getsockname with socklen_t")
     WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
-      "Determining if the compiler supports socklen_t type  "
+      "Determining if getsockname accepts socklen_t type  "
       "failed with the following output:\n"
       "${OUTPUT}\n" APPEND)
-  ENDIF(VTK_HAVE_SOCKLEN_T)
-ENDIF("VTK_HAVE_SOCKLEN_T" MATCHES "^VTK_HAVE_SOCKLEN_T$")
-  
+  ENDIF(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T)
+ENDIF("VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T" MATCHES "^VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T$")
+
 SET ( Kit_SRCS
 vtkDuplicatePolyData.cxx
 vtkBoxClipDataSet.cxx

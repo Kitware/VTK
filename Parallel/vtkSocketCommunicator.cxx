@@ -36,7 +36,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.51");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.52");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -287,7 +287,7 @@ int vtkSocketCommunicator::GetPort(int sock)
 {
   struct sockaddr_in sockinfo;
   memset(&sockinfo, 0, sizeof(sockinfo));
-#if defined(VTK_HAVE_SOCKLEN_T) 
+#if defined(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T)
   socklen_t sizebuf = sizeof(sockinfo);
 #else
   int sizebuf = sizeof(sockinfo);
