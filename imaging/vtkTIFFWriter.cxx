@@ -43,6 +43,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
+#if (_MIPS_SZLONG == 64)
+typedef int vtkTiffLong;
+typedef unsigned int vtkTiffUnsignedLong;
+#else
+typedef long vtkTiffLong;
+typedef unsigned long vtkTiffUnsignedLong;
+#endif
 
 //------------------------------------------------------------------------------
 vtkTIFFWriter* vtkTIFFWriter::New()
@@ -52,6 +59,11 @@ vtkTIFFWriter* vtkTIFFWriter::New()
   if(ret)
     {
     return (vtkTIFFWriter*)ret;
+    }
+  if (sizeof(vtkTiffLong) != 4)
+    {
+    vtkGenericWarningMacro ("vtkTIFFWriter expects sizeof(vtkTiffLong) to be 4,"
+		     << " but sizeof (vtkTiffLong) is " << sizeof(vtkTiffLong));
     }
   // If the factory was unable to create the object, then create it here.
   return new vtkTIFFWriter;
@@ -87,7 +99,7 @@ vtkTIFFWriter* vtkTIFFWriter::New()
 typedef	struct {
 	unsigned short tiff_magic;	/* magic number (defines byte order) */
 	unsigned short tiff_version;	/* TIFF version number */
-	unsigned long  tiff_diroff;	/* byte offset to first directory */
+	vtkTiffUnsignedLong  tiff_diroff;	/* byte offset to first directory */
 } TIFFHeader;
 
 /*
@@ -106,8 +118,8 @@ typedef	struct {
 typedef	struct {
 	unsigned short tdir_tag;	/* see below */
 	unsigned short tdir_type;	/* data type; see below */
-	unsigned long  tdir_count;	/* number of items; length in spec */
-	unsigned long  tdir_offset;	/* byte offset to field data */
+	vtkTiffUnsignedLong  tdir_count;	/* number of items; length in spec */
+	vtkTiffUnsignedLong  tdir_offset;	/* byte offset to field data */
 } TIFFDirEntry;
 
 typedef	enum {
@@ -277,9 +289,9 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
   TIFFDirEntry myDir;
   int longShift;
   int width, height;
-  long nextIFDOffset;
+  vtkTiffLong nextIFDOffset;
   short numDirEntries;
-  int offset;
+  vtkTiffUnsignedLong offset;
   
   // Find the length of the rows to write.
   cache->GetWholeExtent(min0, max0, min1, max1, min2, max2);
@@ -311,10 +323,11 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
     }
   
   file->write((char *)&numDirEntries, sizeof (numDirEntries));
-  offset = sizeof(myHeader) + sizeof(numDirEntries) + 
-    numDirEntries*sizeof(myDir) + sizeof(nextIFDOffset);
+  offset = (vtkTiffUnsignedLong)
+    (sizeof(myHeader) + sizeof(numDirEntries) + 
+     numDirEntries*sizeof(myDir) + sizeof(nextIFDOffset));
 
-  long newSubfileType = 0;
+  vtkTiffLong newSubfileType = 0;
   myDir.tdir_tag = TIFFTAG_SUBFILETYPE;
   myDir.tdir_type = TIFF_LONG;
   myDir.tdir_count = 1;
@@ -341,11 +354,11 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
     if (bpp == 1)
       {
       short depth = 8;
-      myDir.tdir_offset = (long) depth << longShift;
+      myDir.tdir_offset = (vtkTiffLong) depth << longShift;
       }
     else
       {
-      long depth = 8 + (8 << 16);
+      vtkTiffUnsignedLong depth = 8 + (8 << 16);
       myDir.tdir_offset = depth;
       }
     file->write((char *)&myDir, sizeof (myDir));
@@ -363,7 +376,7 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
   myDir.tdir_tag = TIFFTAG_COMPRESSION;
   myDir.tdir_type = TIFF_SHORT;
   myDir.tdir_count = 1;
-  myDir.tdir_offset = (long) compression << longShift;
+  myDir.tdir_offset = (vtkTiffLong) compression << longShift;
   file->write((char *)&myDir, sizeof (myDir));
   
   short photometricInterpretation = PHOTOMETRIC_RGB;
@@ -374,37 +387,37 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
   myDir.tdir_tag = TIFFTAG_PHOTOMETRIC;
   myDir.tdir_type = TIFF_SHORT;
   myDir.tdir_count = 1;
-  myDir.tdir_offset = (long) photometricInterpretation << longShift;
+  myDir.tdir_offset = (vtkTiffLong) photometricInterpretation << longShift;
   file->write((char *)&myDir, sizeof (myDir));
   
   myDir.tdir_tag = TIFFTAG_STRIPOFFSETS;
   myDir.tdir_type = TIFF_LONG;
   myDir.tdir_count = 1;
-  myDir.tdir_offset = offset + bpp*sizeof(short) + 4*4; // TIFF_LONG is 4 bytes
+  myDir.tdir_offset = (vtkTiffUnsignedLong) (offset + bpp*sizeof(short) + 4*4); // TIFF_LONG is 4 bytes
   file->write((char *)&myDir, sizeof (myDir));
   
-  long orientation = 1;
+  vtkTiffLong orientation = 1;
   myDir.tdir_tag = TIFFTAG_ORIENTATION;
   myDir.tdir_type = TIFF_SHORT;
   myDir.tdir_count = 1;
-  myDir.tdir_offset = (long) orientation << longShift;
+  myDir.tdir_offset = (vtkTiffLong) orientation << longShift;
   file->write((char *)&myDir, sizeof (myDir));
   
   short samplesPerPixel = bpp;
   myDir.tdir_tag = TIFFTAG_SAMPLESPERPIXEL;
   myDir.tdir_type = TIFF_SHORT;
   myDir.tdir_count = 1;
-  myDir.tdir_offset = (long) samplesPerPixel << longShift;
+  myDir.tdir_offset = (vtkTiffLong) samplesPerPixel << longShift;
   file->write((char *)&myDir, sizeof (myDir));
 
-  long rowsPerStrip = height;
+  vtkTiffLong rowsPerStrip = height;
   myDir.tdir_tag = TIFFTAG_ROWSPERSTRIP;
   myDir.tdir_type = TIFF_LONG;
   myDir.tdir_count = 1;
   myDir.tdir_offset = rowsPerStrip;
   file->write((char *)&myDir, sizeof (myDir));
   
-  long stripByteCounts = width*height*bpp;
+  vtkTiffLong stripByteCounts = width*height*bpp;
   myDir.tdir_tag = TIFFTAG_STRIPBYTECOUNTS;
   myDir.tdir_type = TIFF_LONG;
   myDir.tdir_count = 1;
@@ -414,27 +427,27 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
   myDir.tdir_tag = TIFFTAG_XRESOLUTION;
   myDir.tdir_type = TIFF_RATIONAL;
   myDir.tdir_count = 1;
-  myDir.tdir_offset = offset + bpp*sizeof(short);
+  myDir.tdir_offset = (vtkTiffUnsignedLong) (offset + bpp*sizeof(short));
   file->write((char *)&myDir, sizeof (myDir));
   
   myDir.tdir_tag = TIFFTAG_YRESOLUTION;
   myDir.tdir_type = TIFF_RATIONAL;
   myDir.tdir_count = 1;
-  myDir.tdir_offset = offset + bpp*sizeof(short) + 2*4; // 32bits 
+  myDir.tdir_offset = (vtkTiffUnsignedLong) (offset + bpp*sizeof(short) + 2*4); // 32bits 
   file->write((char *)&myDir, sizeof (myDir));
   
   short planarConfiguration = PLANARCONFIG_CONTIG;
   myDir.tdir_tag = TIFFTAG_PLANARCONFIG;
   myDir.tdir_type = TIFF_SHORT;
   myDir.tdir_count = 1;
-  myDir.tdir_offset = (long) planarConfiguration << longShift;
+  myDir.tdir_offset = (vtkTiffLong) planarConfiguration << longShift;
   file->write((char *)&myDir, sizeof (myDir));
   
   short resolutionUnit = RESUNIT_NONE;
   myDir.tdir_tag = TIFFTAG_RESOLUTIONUNIT;
   myDir.tdir_type = TIFF_SHORT;
   myDir.tdir_count = 1;
-  myDir.tdir_offset = (long) resolutionUnit << longShift;
+  myDir.tdir_offset = (vtkTiffLong) resolutionUnit << longShift;
   file->write((char *)&myDir, sizeof (myDir));
   
   if (bpp == 2 || bpp == 4)
@@ -443,7 +456,7 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
     myDir.tdir_tag = TIFFTAG_EXTRASAMPLES;
     myDir.tdir_type = TIFF_SHORT;
     myDir.tdir_count = 1;
-    myDir.tdir_offset = (long) extraSamples << longShift;
+    myDir.tdir_offset = (vtkTiffLong) extraSamples << longShift;
     file->write((char *)&myDir, sizeof (myDir));
     }
   
@@ -458,10 +471,10 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
     file->write((char *)&depth, sizeof (depth));
     }
   
-  long xResolution[2] = {1, 1};
+  vtkTiffLong xResolution[2] = {1, 1};
   file->write((char *)&xResolution, sizeof (xResolution));
   
-  long yResolution[2] = {1, 1};
+  vtkTiffLong yResolution[2] = {1, 1};
   file->write((char *)&yResolution, sizeof (yResolution));
 }
 
