@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkReflectionFilter, "1.10");
+vtkCxxRevisionMacro(vtkReflectionFilter, "1.11");
 vtkStandardNewMacro(vtkReflectionFilter);
 
 //---------------------------------------------------------------------------
@@ -236,4 +236,5 @@ void vtkReflectionFilter::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Plane: " << this->Plane << endl;
+  os << indent << "Center: " << this->Center << endl;
 }
