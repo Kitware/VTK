@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.106");
+vtkCxxRevisionMacro(vtkImageReader, "1.107");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -286,8 +286,13 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 
       // read the row.
       self->GetFile()->read((char *)buf, streamRead);
+#ifdef __APPLE_CC__
+      if (static_cast<unsigned long>(self->GetFile()->gcount()) != streamRead)
+      // Apple's gcc3 returns fail when reading _to_ eof
+#else
       if ( static_cast<unsigned long>(self->GetFile()->gcount()) != 
            streamRead || self->GetFile()->fail())
+#endif
         {
         vtkGenericWarningMacro("File operation failed. row = " << idx1
                                << ", Tried to Read = " << streamRead
@@ -343,11 +348,12 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
         }
 */
 #if defined(VTK_USE_ANSI_STDLIB ) && ((defined(__sgi) && !defined(__GNUC__)) \
-    || (__BORLANDC__>=0x0560))
+    || (__BORLANDC__>=0x0560) || defined (__APPLE_CC__))
       // this check is required for SGI's when vtk is build with VTK_USE_ANSI_STDLIB
       // seems that after a read that just reaches EOF, tellg reports a -1.
       // clear() does not work, so we have to reopen the file.
       // NB: Also Borland CBuilder 6 suffers from same trouble
+      // As does Apple's gcc3
       if (filePos == -1)
         {
         self->OpenFile();
