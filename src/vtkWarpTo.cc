@@ -51,7 +51,7 @@ void vtkWarpTo::Execute()
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkPointSet *output=(vtkPointSet *)this->Output;
   static vtkMath math;
-  float mag;
+  float mag, minMag;
   
   vtkDebugMacro(<<"Warping data to a point");
 
@@ -65,6 +65,18 @@ void vtkWarpTo::Execute()
     }
 
   newPts = new vtkFloatPoints(inPts->GetNumberOfPoints());
+
+  if (this->Absolute)
+    {
+    minMag = 1.0e10;
+    for (ptId=0; ptId < inPts->GetNumberOfPoints(); ptId++)
+      {
+      x = inPts->GetPoint(ptId);
+      mag = sqrt(math.Distance2BetweenPoints(this->Position,x));
+      if (mag < minMag) minMag = mag;
+      }
+    }
+  
   //
   // Loop over all points, adjusting locations
   //
@@ -77,7 +89,7 @@ void vtkWarpTo::Execute()
       for (i=0; i<3; i++)
 	{
 	newX[i] = this->ScaleFactor*
-	  (this->Position[i] + (x[i] - this->Position[i])/mag) + 
+	  (this->Position[i] + minMag*(x[i] - this->Position[i])/mag) + 
 	  (1.0 - this->ScaleFactor)*x[i];
 	}
       }

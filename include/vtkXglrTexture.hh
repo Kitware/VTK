@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkXglrTexture_hh
 #define __vtkXglrTexture_hh
 
+#include <xgl/xgl.h>
 #include "vtkTextureDevice.hh"
 
 class vtkXglrRenderer;
@@ -63,6 +64,11 @@ protected:
   vtkTimeStamp   LoadTime;
   long          Index;
   static   long GlobalIndex;
+  Xgl_object TMap;
+  Xgl_object MipMap;
+  Xgl_texture_general_desc TDesc;
+  Xgl_boolean Switch;
+  
 };
 
 #endif

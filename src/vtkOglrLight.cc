@@ -92,19 +92,12 @@ void vtkOglrLight::Render(vtkLight *lgt, vtkOglrRenderer *ren,int light_index)
     }
   else
     {
+    // specify position and attenuation
     Info[0]  = Position[0];
     Info[1]  = Position[1];
     Info[2]  = Position[2];
     Info[3]  = 1.0;
     glLightfv((GLenum)light_index, GL_POSITION, Info );
-
-    Info[0] = dx;
-    Info[1] = dy;
-    Info[2] = dz;
-    glLightfv((GLenum)light_index, GL_SPOT_DIRECTION, Info );
-
-    glLightf((GLenum)light_index, GL_SPOT_EXPONENT, lgt->GetExponent());
-    glLightf((GLenum)light_index, GL_SPOT_CUTOFF, lgt->GetConeAngle());
 
     float *AttenuationValues = lgt->GetAttenuationValues();
     glLightf((GLenum)light_index, 
@@ -113,6 +106,21 @@ void vtkOglrLight::Render(vtkLight *lgt, vtkOglrRenderer *ren,int light_index)
 	     GL_LINEAR_ATTENUATION, AttenuationValues[1]);
     glLightf((GLenum)light_index, 
 	     GL_QUADRATIC_ATTENUATION, AttenuationValues[2]);
+
+    // set up spot parameters if neccesary
+    if (lgt->GetConeAngle() < 180.0)
+      {
+      Info[0] = dx;
+      Info[1] = dy;
+      Info[2] = dz;
+      glLightfv((GLenum)light_index, GL_SPOT_DIRECTION, Info );
+      glLightf((GLenum)light_index, GL_SPOT_EXPONENT, lgt->GetExponent());
+      glLightf((GLenum)light_index, GL_SPOT_CUTOFF, lgt->GetConeAngle());
+      }
+    else
+      {
+      glLighti((GLenum)light_index, GL_SPOT_CUTOFF, 180);
+      }
     }
 
 }

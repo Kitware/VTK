@@ -57,6 +57,7 @@ void vtkXglrLight::Render(vtkLight *lgt, vtkXglrRenderer *ren,int light_index)
   Xgl_light *lights;
   Xgl_color light_color;
   Xgl_pt_f3d direction;
+  Xgl_pt_d3d position;
   float *Color, *Position, *FocalPoint;
   float Intensity;
 
@@ -72,15 +73,54 @@ void vtkXglrLight::Render(vtkLight *lgt, vtkXglrRenderer *ren,int light_index)
   direction.x = FocalPoint[0] - Position[0];
   direction.y = FocalPoint[1] - Position[1];
   direction.z = FocalPoint[2] - Position[2];
+  position.x = Position[0];
+  position.y = Position[1];
+  position.z = Position[2];
 
   lights = ren->GetLightArray();
-  
-  // define the light source
-  xgl_object_set(lights[light_index],
-		 XGL_LIGHT_TYPE, XGL_LIGHT_DIRECTIONAL,
-		 XGL_LIGHT_COLOR, &light_color,
-		 XGL_LIGHT_DIRECTION, &direction,
-		 NULL);
+
+  if (lgt->GetPositional())
+    {
+    // XGL doesnt support second order attenuation so warn if non zero
+    if (lgt->GetAttenuationValues()[2] > 0.0)
+      {
+      vtkWarningMacro(<< "XGL doesn't support second order light attenuation!!!");
+      }
+    if (lgt->GetConeAngle() >= 180.0)
+      {
+      xgl_object_set(lights[light_index],
+		     XGL_LIGHT_TYPE, XGL_LIGHT_POSITIONAL,
+		     XGL_LIGHT_COLOR, &light_color,
+		     XGL_LIGHT_POSITION, &position,
+		     XGL_LIGHT_ATTENUATION_1, lgt->GetAttenuationValues()[0],
+		     XGL_LIGHT_ATTENUATION_2, lgt->GetAttenuationValues()[1],
+		     NULL);
+      }
+    else
+      {
+      // XGL spot angle is double what our convention is
+      xgl_object_set(lights[light_index],
+		     XGL_LIGHT_TYPE, XGL_LIGHT_SPOT,
+		     XGL_LIGHT_COLOR, &light_color,
+		     XGL_LIGHT_DIRECTION, &direction,
+		     XGL_LIGHT_POSITION, &position,
+		     XGL_LIGHT_SPOT_ANGLE, 
+		     (lgt->GetConeAngle()*3.1415926/360.0),
+		     XGL_LIGHT_SPOT_EXPONENT, lgt->GetExponent(),
+		     XGL_LIGHT_ATTENUATION_1, lgt->GetAttenuationValues()[0],
+		     XGL_LIGHT_ATTENUATION_2, lgt->GetAttenuationValues()[1],
+		     NULL);
+      }
+    }
+  else
+    {
+    // define the light source
+    xgl_object_set(lights[light_index],
+		   XGL_LIGHT_TYPE, XGL_LIGHT_DIRECTIONAL,
+		   XGL_LIGHT_COLOR, &light_color,
+		   XGL_LIGHT_DIRECTION, &direction,
+		   NULL);
+    }
   
   vtkDebugMacro(<< "Defining light\n");
 }

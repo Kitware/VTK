@@ -113,6 +113,8 @@ public:
 
   // Description:
   // Set/Get the lighting cone angle of a positional light in degrees.
+  // A value of 180 indicates that you want no spot lighting effects
+  // just a positional light.
   vtkSetMacro(ConeAngle,float);
   vtkGetMacro(ConeAngle,float);
 

@@ -87,13 +87,15 @@ void vtkSbrLight::Render(vtkLight *lgt, vtkSbrRenderer *ren,int light_index)
   else
     {
     float *AttenuationValues = lgt->GetAttenuationValues();
-
     light_source(fd, light_index, POSITIONAL,
 		 color[0], color[1], color[2],
 		 Position[0], Position[1], Position[2]);
-    light_model(fd, light_index, ATTEN_LIGHT | SPOT_LIGHT | CONE_LIGHT,
-		(int)lgt->GetExponent(), 1.0, lgt->GetConeAngle(),
-		dx, dy, dz);
+    if (lgt->GetConeAngle() < 180.0)
+      {
+      light_model(fd, light_index, SPOT_LIGHT | CONE_LIGHT,
+		  (int)lgt->GetExponent(), 1.0, lgt->GetConeAngle(),
+		  dx, dy, dz);
+      }
     light_attenuation(fd, light_index, 1, 
 		      AttenuationValues[0],
 		      AttenuationValues[1],
