@@ -88,7 +88,9 @@ public:
   vtkBooleanMacro(Consistency,int);
 
   // Description:
-  // Turn on/off the global flipping of normal orientation.
+  // Turn on/off the global flipping of normal orientation. Flipping reverves the
+  // meaning of front and back for Frontface and Backface culling in vtkProperty.
+  // Flipping modifies both the normal direction and the order of a cell's points.
   vtkSetMacro(FlipNormals,int);
   vtkGetMacro(FlipNormals,int);
   vtkBooleanMacro(FlipNormals,int);
