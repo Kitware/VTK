@@ -27,21 +27,29 @@ vtkPolyData TempPolyData
 vtkCellTypes CellTypes
 
 vtkDecimatePro deci
+    deci SetStartMethod StartProgress
     deci SetProgressMethod ShowProgress
+    deci SetEndMethod EndProgress
 vtkSmoothPolyDataFilter smooth
     smooth SetStartMethod StartProgress
     smooth SetProgressMethod ShowProgress
     smooth SetEndMethod EndProgress
 vtkCleanPolyData cleaner
+    cleaner SetStartMethod StartProgress
     cleaner SetProgressMethod ShowProgress
+    cleaner SetEndMethod EndProgress
 vtkPolyDataConnectivityFilter connect
+    connect SetStartMethod StartProgress
     connect SetProgressMethod ShowProgress
+    connect SetEndMethod EndProgress
 vtkTriangleFilter tri
     tri SetStartMethod StartProgress
     tri SetProgressMethod ShowProgress
     tri SetEndMethod EndProgress
 vtkPolyDataNormals normals
+    normals SetStartMethod StartProgress
     normals SetProgressMethod ShowProgress
+    normals SetEndMethod EndProgress
 
 ######################################## Create top-level GUI
 #

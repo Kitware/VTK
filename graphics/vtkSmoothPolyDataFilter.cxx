@@ -87,7 +87,7 @@ void vtkSmoothPolyDataFilter::Execute()
   float x1[3], x2[3], x3[3], l1[3], l2[3], lenl1, lenl2;
   float CosFeatureAngle; //Cosine of angle between adjacent polys
   float CosEdgeAngle; // Cosine of angle between adjacent edges
-  int iterationNumber;
+  int iterationNumber, abort;
   int numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;
   vtkPoints *inPts;
@@ -158,6 +158,7 @@ void vtkSmoothPolyDataFilter::Execute()
       Verts[pts[j]].type = VTK_FIXED_VERTEX;
       }
     }
+  this->UpdateProgress(0.10);
 
   // now check lines. Only manifold lines can be smoothed------------
   for (inLines=input->GetLines(), inLines->InitTraversal(); 
@@ -180,8 +181,6 @@ void vtkSmoothPolyDataFilter::Execute()
         else //is edge vertex (unless already edge vertex!)
           {
           Verts[pts[j]].type = VTK_FEATURE_EDGE_VERTEX;
-//          Verts[pts[j]].edges = vtkIdList::New();
-//          Verts[pts[j]].edges->SetNumberOfIds(2);
           Verts[pts[j]].edges = new vtkIdList(2,2);
           Verts[pts[j]].edges->SetId(0,pts[j-1]);
           Verts[pts[j]].edges->SetId(1,pts[j+1]);
@@ -196,7 +195,7 @@ void vtkSmoothPolyDataFilter::Execute()
 
       } //for all points in this line
     } //for all lines
-
+  this->UpdateProgress(0.25);
 
   // now polygons and triangle strips-------------------------------
   inPolys=input->GetPolys();
@@ -228,6 +227,7 @@ void vtkSmoothPolyDataFilter::Execute()
 
     Mesh->BuildLinks(); //to do neighborhood searching
     polys = Mesh->GetPolys();
+    this->UpdateProgress(0.375);
 
     for (cellId=0, polys->InitTraversal(); polys->GetNextCell(npts,pts); 
     cellId++)
@@ -239,14 +239,10 @@ void vtkSmoothPolyDataFilter::Execute()
 
         if ( Verts[p1].edges == NULL )
           {
-//          Verts[p1].edges = vtkIdList::New();
-//          Verts[p1].edges->Allocate(6,6);
           Verts[p1].edges = new vtkIdList(6,6);
           }
         if ( Verts[p2].edges == NULL )
           {
-//          Verts[p2].edges = vtkIdList::New();
-//          Verts[p2].edges->Allocate(6,6);
           Verts[p2].edges = new vtkIdList(6,6);
           }
 
@@ -324,6 +320,7 @@ void vtkSmoothPolyDataFilter::Execute()
     if (toTris) delete toTris;
 
     }//if strips or polys
+  this->UpdateProgress(0.50);
 
   //post-process edge vertices to make sure we can smooth them
   for (i=0; i<numPts; i++)
@@ -399,10 +396,20 @@ void vtkSmoothPolyDataFilter::Execute()
     }
 
   factor = this->RelaxationFactor;
-  for ( maxDist=VTK_LARGE_FLOAT, iterationNumber=0; 
-  maxDist > conv && iterationNumber < this->NumberOfIterations;
+  for ( maxDist=VTK_LARGE_FLOAT, iterationNumber=0, abort=0; 
+  maxDist > conv && iterationNumber < this->NumberOfIterations && !abort;
   iterationNumber++ )
     {
+
+    if ( iterationNumber && !(iterationNumber % 5) )
+      {
+      this->UpdateProgress (0.5 + 0.5*iterationNumber/this->NumberOfIterations);
+      if (this->GetAbortExecute())
+	{
+	abort = 1;
+	break;
+	}
+      }
 
     maxDist=0.0;
     for (i=0; i<numPts; i++) 

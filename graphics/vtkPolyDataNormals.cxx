@@ -130,6 +130,7 @@ void vtkPolyDataNormals::Execute()
     polys = inPolys;
     }
   OldMesh->BuildLinks();
+  this->UpdateProgress(0.10);
   
   pd = input->GetPointData();
   outPD = output->GetPointData();
@@ -192,6 +193,7 @@ void vtkPolyDataNormals::Execute()
 
     Seeds->Delete();
     }
+  this->UpdateProgress(0.333);
 //
 //  Compute polygon normals
 //
@@ -259,6 +261,8 @@ void vtkPolyDataNormals::Execute()
     outPD->CopyNormalsOff();
     outPD->PassData(pd);
     }
+  this->UpdateProgress(0.66);
+
   //
   //  Finally, traverse all elements, computing polygon normals and
   //  accumalating them at the vertices.

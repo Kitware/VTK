@@ -124,6 +124,7 @@ void vtkPolyDataConnectivityFilter::Execute()
   Mesh = vtkPolyData::New();
   Mesh->CopyStructure(input);
   Mesh->BuildLinks();
+  this->UpdateProgress(0.10);
 
   //
   // Initialize.  Keep track of points and cells visited.
@@ -156,6 +157,12 @@ void vtkPolyDataConnectivityFilter::Execute()
     { //visit all cells marking with region number
     for (cellId=0; cellId < numCells; cellId++)
       {
+
+      if ( cellId && !(cellId % 5000) )
+	{
+	this->UpdateProgress (0.1 + 0.8*cellId/numCells);
+	}
+
       if ( Visited[cellId] < 0 ) 
         {
         NumCellsInRegion = 0;
@@ -204,6 +211,7 @@ void vtkPolyDataConnectivityFilter::Execute()
         if ( cellId >= 0 ) RecursionSeeds->InsertNextId(cellId);
         }
       }
+    this->UpdateProgress (0.5);
 
     //mark all seeded regions
     for (i=0; i < RecursionSeeds->GetNumberOfIds(); i++) 
@@ -212,6 +220,8 @@ void vtkPolyDataConnectivityFilter::Execute()
       this->TraverseAndMark (RecursionSeeds->GetId(i));
       }
     this->RegionSizes->InsertValue(RegionNumber,NumCellsInRegion);
+    this->UpdateProgress (0.9);
+
     }//else extracted seeded cells
 
   vtkDebugMacro (<<"Extracted " << RegionNumber << " region(s)");

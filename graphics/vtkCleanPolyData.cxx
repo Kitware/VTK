@@ -118,6 +118,7 @@ void vtkCleanPolyData::Execute()
       }
     newVerts->Squeeze();
     }
+  this->UpdateProgress(0.25);
 
   // lines reduced to one point are eliminated
   if ( inLines->GetNumberOfCells() > 0 )
@@ -149,6 +150,7 @@ void vtkCleanPolyData::Execute()
     vtkDebugMacro(<<"Removed " << inLines->GetNumberOfCells() -
                  newLines->GetNumberOfCells() << " lines");
     }
+  this->UpdateProgress(0.50);
 
   // polygons reduced to two points or less are eliminated
   if ( inPolys->GetNumberOfCells() > 0 )
@@ -182,6 +184,7 @@ void vtkCleanPolyData::Execute()
     vtkDebugMacro(<<"Removed " << inPolys->GetNumberOfCells() -
                  newPolys->GetNumberOfCells() << " polys");
     }
+  this->UpdateProgress(0.75);
 
   // triangle strips reduced to two points or less are eliminated
   if ( inStrips->GetNumberOfCells() > 0 ) 
