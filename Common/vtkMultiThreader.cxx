@@ -17,7 +17,7 @@
 #include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiThreader, "1.44");
+vtkCxxRevisionMacro(vtkMultiThreader, "1.45");
 vtkStandardNewMacro(vtkMultiThreader);
 
 // These are the includes necessary for multithreaded rendering on an SGI
@@ -161,6 +161,18 @@ vtkMultiThreader::vtkMultiThreader()
 // Destructor. Nothing allocated so nothing needs to be done here.
 vtkMultiThreader::~vtkMultiThreader()
 {
+}
+
+//----------------------------------------------------------------------------
+int vtkMultiThreader::GetNumberOfThreads()
+{
+  int num = this->NumberOfThreads;
+  if(vtkMultiThreaderGlobalMaximumNumberOfThreads > 0 &&
+     num > vtkMultiThreaderGlobalMaximumNumberOfThreads)
+    {
+    num = vtkMultiThreaderGlobalMaximumNumberOfThreads;
+    }
+  return num;
 }
 
 // Set the user defined method that will be run on NumberOfThreads threads

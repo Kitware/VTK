@@ -118,7 +118,7 @@ public:
   // 1 - VTK_MAX_THREADS, so the caller of this method should check that the
   // requested number of threads was accepted.
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
-  vtkGetMacro( NumberOfThreads, int );
+  virtual int GetNumberOfThreads();
 
   // Description:
   // Set/Get the maximum number of threads to use when multithreading.
