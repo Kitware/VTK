@@ -9,11 +9,13 @@ source ../../examplesTcl/vtkInclude.tcl
 
 # create pipeline
 #
-vtkRectilinearGridReader reader
+vtkDataSetReader reader
     reader SetFileName "../../../vtkdata/RectGrid.vtk"
     reader Update
+vtkCastToConcrete toRectilinearGrid
+    toRectilinearGrid SetInput [reader GetOutput] 
 vtkRectilinearGridGeometryFilter plane
-    plane SetInput [reader GetOutput]
+    plane SetInput [toRectilinearGrid GetRectilinearGridOutput]
     plane SetExtent 0 100 0 100 15 15 
 vtkWarpVector warper
     warper SetInput [plane GetOutput]
@@ -28,7 +30,7 @@ vtkPlane cutPlane
     eval cutPlane SetOrigin [[reader GetOutput] GetCenter]
     cutPlane SetNormal 1 0 0
 vtkCutter planeCut
-    planeCut SetInput [reader GetOutput]
+    planeCut SetInput [toRectilinearGrid GetRectilinearGridOutput]
     planeCut SetCutFunction cutPlane
 vtkDataSetMapper cutMapper
     cutMapper SetInput [planeCut GetOutput]
@@ -38,7 +40,7 @@ vtkActor cutActor
     cutActor SetMapper cutMapper
 
 vtkContourFilter iso
-    iso SetInput [reader GetOutput]
+    iso SetInput [toRectilinearGrid GetRectilinearGridOutput]
     iso SetValue 0 0.7
 vtkPolyDataNormals normals
     normals SetInput [iso GetOutput]
@@ -73,7 +75,7 @@ vtkActor streamTubeActor
     [streamTubeActor GetProperty] BackfaceCullingOn
 
 vtkOutlineFilter outline
-    outline SetInput [reader GetOutput]
+    outline SetInput [toRectilinearGrid GetRectilinearGridOutput]
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
