@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+#include "vtkCallbackCommand.h"
 #include "vtkImageData.h"
 #include "vtkOutputPort.h"
 #include "vtkRTAnalyticSource.h"
@@ -21,12 +23,15 @@
 static float XFreq = 60;
 
 // Increments XFreq of the synthetic source
-void IncrementXFreq(void* sr)
+static void IncrementXFreq(vtkObject *vtkNotUsed( caller ),
+                           unsigned long vtkNotUsed(eventId), 
+                           void *sr, void *)
 {
   vtkRTAnalyticSource* source1 = reinterpret_cast<vtkRTAnalyticSource*>(sr);
   XFreq = XFreq + 10;
   source1->SetXFreq(XFreq);
 }
+
 
 // Pipe 1 for PipelineParallelism.
 // See PipelineParallelism.cxx for more information.
@@ -55,10 +60,14 @@ void pipe1(vtkMultiProcessController* vtkNotUsed(controller),
   vtkOutputPort* op = vtkOutputPort::New();
   op->SetInput(source1->GetOutput());
   op->SetTag(11);
-  // Turn this on for pipeline parallelism.
-  op->PipelineFlagOn();
+
   // Called every time data is requested from the output port
-  op->SetParameterMethod(IncrementXFreq, source1);
+  vtkCallbackCommand *cbc = vtkCallbackCommand::New();
+  cbc->SetCallback(IncrementXFreq);
+  cbc->SetClientData((void *)source1);
+  op->AddObserver(vtkCommand::EndEvent,cbc);
+  cbc->Delete();
+  
   // Process requests
   op->WaitForUpdate();
   
