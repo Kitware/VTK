@@ -1,6 +1,11 @@
 
 #include "vlMath.hh"
 
+vlMath::vlMath()
+{
+  this->Seed = 1177; // One authors home address
+}
+
 //
 // Generate random numbers between 0.0 and 1.0
 // This is used to provide portability across different systems.
