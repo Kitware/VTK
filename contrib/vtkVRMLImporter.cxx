@@ -82,7 +82,6 @@ vtkVRMLImporter *curImporter;
 
 // Used during the parsing
 static int creatingDEF = 0;
-static int createdMF = 0;
 static char *curDEFName;
 
 // Used by the lex input to get characters. Needed to read in memory structure
@@ -274,79 +273,79 @@ VrmlNodeType::find(const char *_name)
 }
 
 void
-VrmlNodeType::addEventIn(const char *name, int type)
+VrmlNodeType::addEventIn(const char *nodeName, int type)
 {
-  add(eventIns, name, type);
+  add(eventIns, nodeName, type);
 };
 void
-VrmlNodeType::addEventOut(const char *name, int type)
+VrmlNodeType::addEventOut(const char *nodeName, int type)
 {
-  add(eventOuts, name, type);
+  add(eventOuts, nodeName, type);
 };
 void
-VrmlNodeType::addField(const char *name, int type)
+VrmlNodeType::addField(const char *nodeName, int type)
 {
-  add(fields, name, type);
+  add(fields, nodeName, type);
 };
 void
-VrmlNodeType::addExposedField(const char *name, int type)
+VrmlNodeType::addExposedField(const char *nodeName, int type)
 {
   char tmp[1000];
-  add(fields, name, type);
-  sprintf(tmp, "set_%s", name);
+  add(fields, nodeName, type);
+  sprintf(tmp, "set_%s", nodeName);
   add(eventIns, tmp, type);
-  sprintf(tmp, "%s_changed", name);
+  sprintf(tmp, "%s_changed", nodeName);
   add(eventOuts, tmp, type);
 };
 
 void
-VrmlNodeType::add(VectorType<NameTypeRec*> &recs, const char *name, int type)
+VrmlNodeType::add(VectorType<NameTypeRec*> &recs, const char *nodeName, int type)
 {
   NameTypeRec *r = new NameTypeRec;
-  r->name = strdup(name);
+  r->name = strdup(nodeName);
   r->type = type;
   recs += r;
 }
 
 int
-VrmlNodeType::hasEventIn(const char *name) const
+VrmlNodeType::hasEventIn(const char *nodeName) const
 {
-  return has(eventIns, name);
+  return has(eventIns, nodeName);
 }
 int
-VrmlNodeType::hasEventOut(const char *name) const
+VrmlNodeType::hasEventOut(const char *nodeName) const
 {
-  return has(eventOuts, name);
+  return has(eventOuts, nodeName);
 }
 int
-VrmlNodeType::hasField(const char *name) const
+VrmlNodeType::hasField(const char *nodeName) const
 {
-  return has(fields, name);
+  return has(fields, nodeName);
 }
 int
-VrmlNodeType::hasExposedField(const char *name) const
+VrmlNodeType::hasExposedField(const char *nodeName) const
 {
   // Must have field "name", eventIn "set_name", and eventOut
   // "name_changed", all with same type:
   char tmp[1000];
   int type;
-  if ( (type = has(fields, name)) == 0) return 0;
+  if ( (type = has(fields, nodeName)) == 0) return 0;
 
-  sprintf(tmp, "set_%s\n", name);
-  if (type != has(eventIns, name)) return 0;
+  sprintf(tmp, "set_%s\n", nodeName);
+  if (type != has(eventIns, nodeName)) return 0;
 
-  sprintf(tmp, "%s_changed", name);
-  if (type != has(eventOuts, name)) return 0;
+  sprintf(tmp, "%s_changed", nodeName);
+  if (type != has(eventOuts, nodeName)) return 0;
 
   return type;
 }
 int
-VrmlNodeType::has(const VectorType<NameTypeRec*> &recs, const char *name) const
+VrmlNodeType::has(const VectorType<NameTypeRec*> &recs, const char *nodeName) const
 {
   for (int i = 0;i < recs.Count(); i++) 
     {
     NameTypeRec *n = recs.Get(i);
-    if (strcmp(n->name, name) == 0)
+    if (strcmp(n->name, nodeName) == 0)
       return n->type;
     }
   return 0;
@@ -1314,17 +1313,14 @@ case 49:
 {;
     break;}
 case 50:
-{ createdMF = 0; ;
-    break;}
+{     break;}
 case 55:
-{ createdMF = 0; ;
-    break;}
+{     break;}
 case 63:
 { ;
     break;}
 case 64:
-{ createdMF = 0; ;
-    break;}
+{     break;}
 case 68:
 { free(yyvsp[0].string); ;
     break;}
@@ -1789,8 +1785,6 @@ extern "C" {
                 } \
         while ( 0 )
 
-#define unput(c) yyunput( c, yytext_ptr )
-
 
 struct yy_buffer_state
         {
@@ -1864,7 +1858,6 @@ static int yy_start = 0;        /* start state number */
  */
 static int yy_did_buffer_switch_on_eof;
 
-static void yyunput YY_PROTO(( int c, char *buf_ptr ));
 void yyrestart YY_PROTO(( FILE *input_file ));
 void yy_switch_to_buffer YY_PROTO(( YY_BUFFER_STATE new_buffer ));
 void yy_load_buffer_state YY_PROTO(( void ));
@@ -1875,9 +1868,6 @@ void yy_init_buffer YY_PROTO(( YY_BUFFER_STATE b, FILE *file ));
 static int yy_start_stack_ptr = 0;
 static int yy_start_stack_depth = 0;
 static int *yy_start_stack = 0;
-static void yy_push_state YY_PROTO(( int new_state ));
-static void yy_pop_state YY_PROTO(( void ));
-static int yy_top_state YY_PROTO(( void ));
 
 static void *yy_flex_alloc YY_PROTO(( unsigned int ));
 static void *yy_flex_realloc YY_PROTO(( void *, unsigned int ));
@@ -4360,57 +4350,44 @@ YY_USER_ACTION
 case 2:
 YY_USER_ACTION
 { return PROTO; }
-        YY_BREAK
 case 3:
 YY_USER_ACTION
 { return EXTERNPROTO; }
-        YY_BREAK
 case 4:
 YY_USER_ACTION
 { return DEF; }
-        YY_BREAK
 case 5:
 YY_USER_ACTION
 { return USE; }
-        YY_BREAK
 case 6:
 YY_USER_ACTION
 { return TO; }
-        YY_BREAK
 case 7:
 YY_USER_ACTION
 { return IS; }
-        YY_BREAK
 case 8:
 YY_USER_ACTION
 { return ROUTE; }
-        YY_BREAK
 case 9:
 YY_USER_ACTION
 { return SFN_NULL; }
-        YY_BREAK
 case 10:
 YY_USER_ACTION
 { return EVENTIN; }
-        YY_BREAK
 case 11:
 YY_USER_ACTION
 { return EVENTOUT; }
-        YY_BREAK
 case 12:
 YY_USER_ACTION
 { return FIELD; }
-        YY_BREAK
 case 13:
 YY_USER_ACTION
 { return EXPOSEDFIELD; }
-        YY_BREAK
         /* Legal identifiers: */
 case 14:
 YY_USER_ACTION
 { yylval.string = strdup(yytext); 
                                                                           return IDENTIFIER; }
-        YY_BREAK
         /* All fields may have an IS declaration: */
 case 15:
 YY_USER_ACTION
@@ -4452,28 +4429,24 @@ YY_USER_ACTION
 case 20:
 YY_USER_ACTION
 { if (!parsing_mf) yyerror("Unmatched ]");
-                                                                          int fieldType = expectToken;
+                                  int fieldType = expectToken;
                                                                           BEGIN NODE;
                                       parsing_mf = 0;
                                       expectToken = 0;
                                       return fieldType;
                                     }
-        YY_BREAK
 case 21:
 YY_USER_ACTION
 { BEGIN NODE; expectToken = 0; yylval.sfint = 1; return SFBOOL; }
-        YY_BREAK
 case 22:
 YY_USER_ACTION
 { BEGIN NODE; expectToken = 0; yylval.sfint = 0; return SFBOOL; }
-        YY_BREAK
 case 23:
 YY_USER_ACTION
 { BEGIN NODE; expectToken = 0;
                                         yylval.sfint = atoi(yytext);
                                         return SFINT32; 
                                 }
-        YY_BREAK
 case 24:
 YY_USER_ACTION
 { if (parsing_mf) {
@@ -4493,7 +4466,6 @@ YY_USER_ACTION
                                                                   sscanf(yytext, "%f", &num);
                                                                   yylval.sffloat = num;
                                                                   return SFFLOAT; }
-        YY_BREAK
 case 26:
 YY_USER_ACTION
 { if (parsing_mf) ; /* Add to array... */
@@ -4506,7 +4478,6 @@ YY_USER_ACTION
 case 27:
 YY_USER_ACTION
 { BEGIN NODE; expectToken = 0; return SFVEC2F; }
-        YY_BREAK
 case 28:
 YY_USER_ACTION
 { if (parsing_mf) ; /* .. add to array... */
@@ -4526,7 +4497,6 @@ YY_USER_ACTION
                                                                         //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
                                                                         yylval.vec3f->InsertPoint(0, num);
                                                                         return SFVEC3F; }
-        YY_BREAK
 case 30:
 YY_USER_ACTION
 { if (parsing_mf) { /*  .. add to array... */
@@ -4547,7 +4517,6 @@ YY_USER_ACTION
 case 31:
 YY_USER_ACTION
 { BEGIN NODE; expectToken = 0; return SFROTATION; }
-        YY_BREAK
 case 32:
 YY_USER_ACTION
 { if (parsing_mf) ; /* .. add to array... */
@@ -4567,7 +4536,6 @@ YY_USER_ACTION
                                                                   //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
                                                                   yylval.vec3f->InsertPoint(0, num);
                                                                   return SFCOLOR; }
-        YY_BREAK
 case 34:
 YY_USER_ACTION
 { if (parsing_mf) { /*  .. add to array... */
@@ -4585,7 +4553,6 @@ YY_USER_ACTION
 case 35:
 YY_USER_ACTION
 { BEGIN NODE; expectToken = 0; return SFTIME; }
-        YY_BREAK
     /* SFString/MFString */
 case 36:
 YY_USER_ACTION
@@ -4601,14 +4568,12 @@ YY_USER_ACTION
 { yyerror("String missing open-quote");
                                                   BEGIN NODE; expectToken = 0; return SFSTRING;
                         }
-        YY_BREAK
     /* Expect open-quote, open-bracket, or whitespace: */
 case 39:
 YY_USER_ACTION
 { yyerror("String missing open-quote");
                                                           BEGIN NODE; expectToken = 0; return MFSTRING;
                             }
-        YY_BREAK
     /* Backslashed-quotes are OK: */
 case 40:
 YY_USER_ACTION
@@ -4626,7 +4591,6 @@ YY_USER_ACTION
 case 42:
 YY_USER_ACTION
 { BEGIN NODE; expectToken = 0; return SFSTRING; }
-        YY_BREAK
 case 43:
 YY_USER_ACTION
 { if (parsing_mf) BEGIN MFS; /* ... add to array ... */
@@ -4669,7 +4633,6 @@ YY_USER_ACTION
 case 48:
 YY_USER_ACTION
 { return yytext[0]; }
-        YY_BREAK
 case 49:
 YY_USER_ACTION
 YY_FATAL_ERROR( "flex scanner jammed" );
@@ -5020,51 +4983,6 @@ yy_state_type yy_current_state;
         }
 
 
-#ifdef YY_USE_PROTOS
-static void yyunput( int c, register char *yy_bp )
-#else
-static void yyunput( c, yy_bp )
-int c;
-register char *yy_bp;
-#endif
-        {
-        register char *yy_cp = yy_c_buf_p;
-
-        /* undo effects of setting up yytext */
-        *yy_cp = yy_hold_char;
-
-        if ( yy_cp < yy_current_buffer->yy_ch_buf + 2 )
-                { /* need to shift things up to make room */
-                /* +2 for EOB chars. */
-                register int number_to_move = yy_n_chars + 2;
-                register char *dest = &yy_current_buffer->yy_ch_buf[
-                                        yy_current_buffer->yy_buf_size + 2];
-                register char *source =
-                                &yy_current_buffer->yy_ch_buf[number_to_move];
-
-                while ( source > yy_current_buffer->yy_ch_buf )
-                        *--dest = *--source;
-
-                yy_cp += dest - source;
-                yy_bp += dest - source;
-                yy_n_chars = yy_current_buffer->yy_buf_size;
-
-                if ( yy_cp < yy_current_buffer->yy_ch_buf + 2 )
-                        YY_FATAL_ERROR( "flex scanner push-back overflow" );
-                }
-
-        if ( yy_cp > yy_bp && yy_cp[-1] == '\n' )
-                yy_cp[-2] = '\n';
-
-        *--yy_cp = (char) c;
-
-
-        /* Note: the formal parameter *must* be called "yy_bp" for this
-         * macro to now work correctly.
-         */
-        YY_DO_BEFORE_ACTION; /* set up yytext again */
-        }
-
 
 #ifdef __cplusplus
 static int yyinput()
@@ -5269,53 +5187,6 @@ FILE *file;
         b->yy_fill_buffer = 1;
 
         b->yy_buffer_status = YY_BUFFER_NEW;
-        }
-
-
-#ifdef YY_USE_PROTOS
-static void yy_push_state( int new_state )
-#else
-static void yy_push_state( new_state )
-int new_state;
-#endif
-        {
-        if ( yy_start_stack_ptr >= yy_start_stack_depth )
-                {
-                int new_size;
-
-                yy_start_stack_depth += YY_START_STACK_INCR;
-                new_size = yy_start_stack_depth * sizeof( int );
-
-                if ( ! yy_start_stack )
-                        yy_start_stack = (int *) yy_flex_alloc( new_size );
-
-                else
-                        yy_start_stack = (int *) yy_flex_realloc(
-                                        (void *) yy_start_stack, new_size );
-
-                if ( ! yy_start_stack )
-                        YY_FATAL_ERROR(
-                        "out of memory expanding start-condition stack" );
-                }
-
-        yy_start_stack[yy_start_stack_ptr++] = YY_START;
-
-        BEGIN(new_state);
-        }
-
-
-static void yy_pop_state()
-        {
-        if ( --yy_start_stack_ptr < 0 )
-                YY_FATAL_ERROR( "start-condition stack underflow" );
-
-        BEGIN(yy_start_stack[yy_start_stack_ptr]);
-        }
-
-
-static int yy_top_state()
-        {
-        return yy_start_stack[yy_start_stack_ptr - 1];
         }
 
 
@@ -5714,7 +5585,7 @@ vtkVRMLImporter::exitField()
   float vals[3];
   FieldRec *fr = currentField.Top();
   assert(fr != NULL);
-  // For the radiu s field
+  // For the radius field
   if (strcmp(fr->fieldName, "radius") == 0) 
     {
     // Set the Sphere radius
@@ -5914,15 +5785,15 @@ vtkVRMLImporter::exitField()
     // and also in the colorIndex field
     if (strcmp(fr->nodeType->getName(), "Color") == 0) 
       {
-      float vals[4]; 
-      vals[3] = 1.0;
+      float vals4[4]; 
+      vals4[3] = 1.0;
       vtkLookupTable *lut = vtkLookupTable::New();
       lut->SetNumberOfColors(yylval.vec3f->GetNumberOfPoints());
       lut->Build();
       for (int i=0;i < yylval.vec3f->GetNumberOfPoints();i++) 
         {
-        yylval.vec3f->GetPoint(i, vals);
-        lut->SetTableValue(i, vals);
+        yylval.vec3f->GetPoint(i, vals4);
+        lut->SetTableValue(i, vals4);
         }
       this->CurrentLut = lut;
       if (creatingDEF) 
@@ -6002,13 +5873,13 @@ vtkVRMLImporter::exitField()
   else if (strcmp(fr->fieldName, "vector") == 0) 
     {
     // For all floats in the vec3f, copy to the normal structure.
-    float vals[3];
+    float vals3[3];
     this->CurrentNormals = vtkFloatNormals::New();
     this->CurrentNormals->SetNumberOfNormals(yylval.vec3f->GetNumberOfPoints());
     for (int i=0;i < yylval.vec3f->GetNumberOfPoints();i++) 
       {
-      yylval.vec3f->GetPoint(i, vals);
-      this->CurrentNormals->InsertNormal(i, vals);
+      yylval.vec3f->GetPoint(i, vals3);
+      this->CurrentNormals->InsertNormal(i, vals3);
       }
     yylval.vec3f->Reset();yylval.vec3f->Delete();
     }
