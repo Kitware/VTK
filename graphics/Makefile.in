@@ -33,6 +33,7 @@ vtkOpenGLActor \
 vtkOpenGLCamera \
 vtkOpenGLLight \
 vtkOpenGLPolyDataMapper \
+vtkOpenGLProjectedPolyDataRayBounder \
 vtkOpenGLProperty \
 vtkOpenGLRenderWindow \
 vtkOpenGLRenderer \
@@ -178,6 +179,7 @@ vtkPolyDataSource \
 vtkPolyDataToPolyDataFilter \
 vtkPolyDataWriter \
 vtkProbeFilter \
+vtkProjectedPolyDataRayBounder \
 vtkProperty \
 vtkQuadric \
 vtkRectilinearGridFilter \
