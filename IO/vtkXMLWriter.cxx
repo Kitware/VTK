@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.15");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.15.2.1");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -57,6 +57,8 @@ vtkXMLWriter::vtkXMLWriter()
   this->BlockSize = 32768;
   this->Compressor = vtkZLibDataCompressor::New();
   this->CompressionHeader = 0;
+  this->Int32IdTypeBuffer = 0;
+  this->ByteSwapBuffer = 0;
   
   this->EncodeAppendedData = 1;
   this->AppendedDataPosition = 0;
@@ -176,6 +178,38 @@ void vtkXMLWriter::SetDataModeToBinary()
 void vtkXMLWriter::SetDataModeToAppended()
 {
   this->SetDataMode(vtkXMLWriter::Appended);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetBlockSize(unsigned int blockSize)
+{
+  // Enforce constraints on block size.
+  unsigned int nbs = blockSize;
+#if VTK_SIZEOF_DOUBLE > VTK_SIZEOF_ID_TYPE
+  typedef double LargestScalarType;
+#else
+  typedef vtkIdType LargestScalarType;
+#endif
+  unsigned int remainder = nbs % sizeof(LargestScalarType);
+  if(remainder)
+    {
+    nbs -= remainder;
+    if(nbs < sizeof(LargestScalarType))
+      {
+      nbs = sizeof(LargestScalarType);
+      }
+    vtkWarningMacro("BlockSize must be a multiple of "
+                    << int(sizeof(LargestScalarType))
+                    << ".  Using " << nbs << " instead of " << blockSize
+                    << ".");
+    }
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting BlockSize to " << nbs);
+  if(this->BlockSize != nbs)
+    {
+    this->BlockSize = nbs;
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -372,75 +406,226 @@ unsigned long vtkXMLWriter::WriteAppendedDataOffset(unsigned long streamPos,
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriter::WriteBinaryData(void* in_data, int numWords, int wordType)
+int vtkXMLWriter::WriteBinaryData(void* data, int numWords, int wordType)
 {
-  // Find the total size of the data.
-  unsigned long wordSize = this->GetWordTypeSize(wordType);
-  int result;
-  void* data = in_data;
+  unsigned long outWordSize = this->GetOutputWordTypeSize(wordType);
+  if(this->Compressor)
+    {    
+    // Need to compress the data.  Create compression header.  This
+    // reserves enough space in the output.
+    if(!this->CreateCompressionHeader(numWords*outWordSize))
+      {
+      return 0;
+      }
+    
+    // Start writing the data.
+    int result = this->DataStream->StartWriting();
+    
+    // Process the actual data.
+    if(result && !this->WriteBinaryDataInternal(data, numWords, wordType))
+      {
+      result = 0;
+      }
+    
+    // Finish writing the data.
+    if(result && !this->DataStream->EndWriting())
+      {
+      result = 0;
+      }
+    
+    // Go back and write the real compression header in its proper place.
+    if(result && !this->WriteCompressionHeader())
+      {
+      result = 0;
+      }
+    
+    // Destroy the compression header if it was used.
+    if(this->CompressionHeader)
+      {
+      delete [] this->CompressionHeader;
+      this->CompressionHeader = 0;
+      }
+    
+    return result;
+    }
+  else
+    {
+    // No data compression.  The header is just the length of the data.
+    HeaderType length = numWords*outWordSize;
+    unsigned char* p = reinterpret_cast<unsigned char*>(&length);
+    this->PerformByteSwap(p, 1, sizeof(HeaderType));
+    
+    // Start writing the data.
+    if(!this->DataStream->StartWriting())
+      {
+      return 0;
+      }
+    
+    // Write the header consisting only of the data length.
+    if(!this->DataStream->Write(p, sizeof(HeaderType)))
+      {
+      return 0;
+      }
+    
+    // Process the actual data.
+    if(!this->WriteBinaryDataInternal(data, numWords, wordType))
+      {
+      return 0;
+      }
+    
+    // Finish writing the data.
+    if(!this->DataStream->EndWriting())
+      {
+      return 0;
+      }    
+    }
+  
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLWriter::WriteBinaryDataInternal(void* data, int numWords,
+                                          int wordType)
+{
+  // Break into blocks and handle each one separately.  This allows
+  // for better random access when reading compressed data and saves
+  // memory during writing.
+  
+  // The size of the blocks written (before compression) is
+  // this->BlockSize.  We need to support the possibility that the
+  // size of data in memory and the size on disk are different.  This
+  // is necessary to allow vtkIdType to be converted to UInt32 for
+  // writing.
+  unsigned long memWordSize = this->GetWordTypeSize(wordType);
+  unsigned long outWordSize = this->GetOutputWordTypeSize(wordType);
+  unsigned long blockWords = this->BlockSize/outWordSize;
+  unsigned long memBlockSize = blockWords*memWordSize;
   
 #ifdef VTK_USE_64BIT_IDS
   // If the type is vtkIdType, it may need to be converted to the type
   // requested for output.
-# if VTK_SIZEOF_SHORT == 4
-  typedef short vtkXMLWriterInt32IdType;
-# elif VTK_SIZEOF_INT == 4
-  typedef int vtkXMLWriterInt32IdType;
-# elif VTK_SIZEOF_LONG == 4
-  typedef long vtkXMLWriterInt32IdType;
-# else
-#  error "No native data type can represent a signed 32-bit integer."
-# endif
-  vtkXMLWriterInt32IdType* tmpBuffer = 0;
   if((wordType == VTK_ID_TYPE) && (this->IdType == vtkXMLWriter::Int32))
     {
-    vtkIdType* idBuffer = static_cast<vtkIdType*>(in_data);
-    tmpBuffer = new vtkXMLWriterInt32IdType[numWords];
-    
-    int i;
-    for(i=0;i < numWords; ++i)
-      {
-      tmpBuffer[i] = static_cast<vtkXMLWriterInt32IdType>(idBuffer[i]);
-      }
-    
-    wordSize = 4;
-    data = tmpBuffer;
+    this->Int32IdTypeBuffer = new Int32IdType[blockWords];
     }
 #endif
   
-  if(wordSize > 1)
+  // Decide if we need to byte swap.
+#ifdef VTK_WORDS_BIGENDIAN
+  if(outWordSize > 1 && this->ByteOrder != vtkXMLWriter::BigEndian)
+#else
+  if(outWordSize > 1 && this->ByteOrder != vtkXMLWriter::LittleEndian)
+#endif
     {
-    // Byte swap first.
-    unsigned long binaryDataSize = wordSize*numWords;
-    char* byteSwapBuffer = new char[binaryDataSize];
-    memcpy(byteSwapBuffer, static_cast<char*>(data), binaryDataSize);
-    this->PerformByteSwap(byteSwapBuffer, numWords, wordSize);
-    
-    // Now write the data.
-    result = this->WriteBinaryDataInternal(byteSwapBuffer, binaryDataSize);
-    delete [] byteSwapBuffer;
-    }
-  else
-    {
-    // Don't need to byte swap.  Just write the data.
-    result = this->WriteBinaryDataInternal(data, numWords);
+    // We need to byte swap.  Prepare a buffer large enough for one
+    // block.
+    if(this->Int32IdTypeBuffer)
+      {
+      // Just swap in-place in the converted id-type buffer.
+      this->ByteSwapBuffer =
+        reinterpret_cast<unsigned char*>(this->Int32IdTypeBuffer);
+      }
+    else
+      {
+      this->ByteSwapBuffer = new unsigned char[blockWords*outWordSize];
+      }
     }
   
-  // Destroy the compression header if it was used.
-  if(this->CompressionHeader)
+  // Prepare a pointer and counter to move through the data.
+  unsigned char* ptr = reinterpret_cast<unsigned char*>(data);
+  unsigned long wordsLeft = numWords;
+  
+  // Do the complete blocks.
+  int result = 1;
+  while(result && (wordsLeft >= blockWords))
     {
-    delete [] this->CompressionHeader;
-    this->CompressionHeader = 0;
+    // 
+    if(!this->WriteBinaryDataBlock(ptr, blockWords, wordType))
+      {
+      result = 0;
+      }
+    ptr += memBlockSize;
+    wordsLeft -= blockWords;
+    }
+  
+  // Do the last partial block if any.
+  if(result && (wordsLeft > 0))
+    {
+    if(!this->WriteBinaryDataBlock(ptr, wordsLeft, wordType))
+      {
+      result = 0;
+      }
+    }
+  
+  // Free the byte swap buffer if it was allocated.
+  if(this->ByteSwapBuffer && !this->Int32IdTypeBuffer)
+    {
+    delete [] this->ByteSwapBuffer;
+    this->ByteSwapBuffer = 0;
     }
   
 #ifdef VTK_USE_64BIT_IDS
-  if(tmpBuffer)
+  // Free the id-type conversion buffer if it was allocated.
+  if(this->Int32IdTypeBuffer)
     {
-    delete [] tmpBuffer;
+    delete [] this->Int32IdTypeBuffer;
+    this->Int32IdTypeBuffer = 0;
     }
 #endif
   
   return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLWriter::WriteBinaryDataBlock(unsigned char* in_data, int numWords,
+                                       int wordType)
+{
+  unsigned char* data = in_data;
+#ifdef VTK_USE_64BIT_IDS
+  // If the type is vtkIdType, it may need to be converted to the type
+  // requested for output.
+  if((wordType == VTK_ID_TYPE) && (this->IdType == vtkXMLWriter::Int32))
+    {
+    vtkIdType* idBuffer = reinterpret_cast<vtkIdType*>(in_data);
+    
+    int i;
+    for(i=0;i < numWords; ++i)
+      {
+      this->Int32IdTypeBuffer[i] = static_cast<Int32IdType>(idBuffer[i]);
+      }
+    
+    data = reinterpret_cast<unsigned char*>(this->Int32IdTypeBuffer);
+    }
+#endif
+  
+  // Get the word size of the data buffer.  This is now the size that
+  // will be written.
+  unsigned long wordSize = this->GetOutputWordTypeSize(wordType);
+  
+  // If we need to byte swap, do it now.
+  if(this->ByteSwapBuffer)
+    {
+    // If we are converting vtkIdType to 32-bit integer data, the data
+    // are already in the byte swap buffer because we share the
+    // conversion buffer.  Otherwise, we need to copy the data before
+    // byte swapping.
+    if(data != this->ByteSwapBuffer)
+      {
+      memcpy(this->ByteSwapBuffer, data, numWords*wordSize);
+      this->PerformByteSwap(this->ByteSwapBuffer, numWords, wordSize);
+      data = this->ByteSwapBuffer;
+      }
+    }
+  
+  // Now pass the data to the next write phase.
+  if(this->Compressor)
+    {
+    return this->WriteCompressionBlock(data, numWords*wordSize);
+    }
+  else
+    {
+    return this->DataStream->Write(data, numWords*wordSize);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -492,67 +677,15 @@ void vtkXMLWriter::SetDataStream(vtkOutputStream* arg)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriter::WriteBinaryDataInternal(void* data, unsigned long size)
-{
-  unsigned char* dataBuffer = static_cast<unsigned char*>(data);
-  if(this->Compressor)
-    {
-    // Need to compress the data.
-    // Create compression header.  This saves enough space in the output.
-    if(!this->CreateCompressionHeader(size)) { return 0; }
-    
-    // Start writing the data.
-    if(!this->DataStream->StartWriting()) { return 0; }
-    
-    // Break into blocks and compress each one separately.
-    // This allows for better random access when reading.
-    unsigned char* ptr = dataBuffer;
-    unsigned long dataLeft = size;
-    
-    // Do the complete blocks.
-    while(dataLeft >= this->BlockSize)
-      {
-      if(!this->WriteCompressionBlock(ptr, this->BlockSize)) { return 0; }
-      ptr += this->BlockSize;
-      dataLeft -= this->BlockSize;
-      }
-    
-    // Do the last partial block if any.
-    if(dataLeft > 0)
-      {
-      if(!this->WriteCompressionBlock(ptr, dataLeft)) { return 0; }      
-      }
-    
-    // Finish writing the data.
-    if(!this->DataStream->EndWriting()) { return 0; }
-    
-    // Go back and write the real compression header in its proper place.
-    if(!this->WriteCompressionHeader()) { return 0; }
-    return 1;
-    }
-  else
-    {
-    // No data compression.  Just write it.  Store the length first.
-    unsigned int length = size;
-    unsigned char* p = reinterpret_cast<unsigned char*>(&length);
-    this->PerformByteSwap(p, 1, sizeof(unsigned int));
-    if(!this->DataStream->StartWriting()) { return 0; }
-    if(!this->DataStream->Write(p, sizeof(unsigned int))) { return 0; }
-    return (this->DataStream->Write(dataBuffer, size) &&
-            this->DataStream->EndWriting());
-    }
-}
-
-//----------------------------------------------------------------------------
 int vtkXMLWriter::CreateCompressionHeader(unsigned long size)
 {
   // Allocate and initialize the compression header.
   // The format is this:
   //  struct header {
-  //    unsigned int number_of_blocks;
-  //    unsigned int uncompressed_block_size;
-  //    unsigned int uncompressed_last_block_size;
-  //    unsigned int compressed_block_sizes[number_of_blocks]; 
+  //    HeaderType number_of_blocks;
+  //    HeaderType uncompressed_block_size;
+  //    HeaderType uncompressed_last_block_size;
+  //    HeaderType compressed_block_sizes[number_of_blocks]; 
   //  }
  
   // Find the size and number of blocks.
@@ -563,7 +696,7 @@ int vtkXMLWriter::CreateCompressionHeader(unsigned long size)
   unsigned int headerLength = numBlocks+3;
   this->CompressionHeaderLength = headerLength;
   
-  this->CompressionHeader = new unsigned int[headerLength];
+  this->CompressionHeader = new HeaderType[headerLength];
   
   // Write out dummy header data.
   unsigned int i;
@@ -572,7 +705,7 @@ int vtkXMLWriter::CreateCompressionHeader(unsigned long size)
   this->CompressionHeaderPosition = this->Stream->tellp();
   unsigned char* ch =
     reinterpret_cast<unsigned char*>(this->CompressionHeader);
-  unsigned int chSize = this->CompressionHeaderLength*sizeof(unsigned int);
+  unsigned int chSize = (this->CompressionHeaderLength*sizeof(HeaderType));
   
   int result = (this->DataStream->StartWriting() &&
                 this->DataStream->Write(ch, chSize) &&
@@ -596,7 +729,8 @@ int vtkXMLWriter::WriteCompressionBlock(unsigned char* data,
   // Compress the data.
   vtkUnsignedCharArray* outputArray = this->Compressor->Compress(data, size);
   
-  unsigned long outputSize = outputArray->GetNumberOfTuples();
+  // Find the compressed size.
+  HeaderType outputSize = outputArray->GetNumberOfTuples();
   unsigned char* outputPointer = outputArray->GetPointer(0);
   
   // Write the compressed data.
@@ -618,17 +752,31 @@ int vtkXMLWriter::WriteCompressionHeader()
   
   // Need to byte-swap header.
   this->PerformByteSwap(this->CompressionHeader, this->CompressionHeaderLength,
-                        sizeof(unsigned int));
+                        sizeof(HeaderType));
   
   if(!this->Stream->seekp(this->CompressionHeaderPosition)) { return 0; }
   unsigned char* ch =
     reinterpret_cast<unsigned char*>(this->CompressionHeader);
-  unsigned int chSize = this->CompressionHeaderLength*sizeof(unsigned int);
+  unsigned int chSize = (this->CompressionHeaderLength*sizeof(HeaderType));
   int result = (this->DataStream->StartWriting() &&
                 this->DataStream->Write(ch, chSize) &&
                 this->DataStream->EndWriting());
   if(!this->Stream->seekp(returnPosition)) { return 0; }
   return result;
+}
+
+//----------------------------------------------------------------------------
+unsigned long vtkXMLWriter::GetOutputWordTypeSize(int dataType)
+{
+#ifdef VTK_USE_64BIT_IDS
+  // If the type is vtkIdType, it may need to be converted to the type
+  // requested for output.
+  if((dataType == VTK_ID_TYPE) && (this->IdType == vtkXMLWriter::Int32))
+    {
+    return 4;
+    }
+#endif
+  return this->GetWordTypeSize(dataType);
 }
 
 //----------------------------------------------------------------------------
