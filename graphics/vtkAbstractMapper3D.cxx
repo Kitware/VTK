@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkAbstractMapper3D.h"
 #include "vtkDataSet.h"
-#include "vtkPlanes.h"
 
 // Construct with initial range (0,1).
 vtkAbstractMapper3D::vtkAbstractMapper3D()
@@ -49,44 +48,6 @@ vtkAbstractMapper3D::vtkAbstractMapper3D()
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
-  this->ClippingPlanes = NULL;
-}
-
-vtkAbstractMapper3D::~vtkAbstractMapper3D()
-{
-  if (this->ClippingPlanes)
-    {
-    this->ClippingPlanes->UnRegister(this);
-    }
-}
-
-void vtkAbstractMapper3D::AddClippingPlane(vtkPlane *plane)
-{
-  if (this->ClippingPlanes == NULL)
-    {
-    this->ClippingPlanes = vtkPlaneCollection::New();
-    this->ClippingPlanes->Register(this);
-    this->ClippingPlanes->Delete();
-    }
-
-  this->ClippingPlanes->AddItem(plane);
-}
-
-void vtkAbstractMapper3D::RemoveClippingPlane(vtkPlane *plane)
-{
-  if (this->ClippingPlanes == NULL)
-    {
-    vtkErrorMacro(<< "Cannot remove clipping plane: mapper has none");
-    }
-  this->ClippingPlanes->RemoveItem(plane);
-}
-
-void vtkAbstractMapper3D::RemoveAllClippingPlanes()
-{
-  if ( this->ClippingPlanes )
-    {
-    this->ClippingPlanes->RemoveAllItems();
-    }
 }
 
 // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
@@ -124,30 +85,7 @@ float vtkAbstractMapper3D::GetLength()
   return (float)sqrt(l);
 }
 
-void vtkAbstractMapper3D::SetClippingPlanes(vtkPlanes *planes)
-{
-  vtkPlane *plane;
-  int numPlanes = planes->GetNumberOfPlanes();
-
-  this->RemoveAllClippingPlanes();
-  for (int i=0; i<numPlanes && i<6; i++)
-    {
-    plane = planes->GetPlane(i);
-    this->AddClippingPlane(plane);
-    }
-}
-
 void vtkAbstractMapper3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkAbstractMapper::PrintSelf(os,indent);
-
-  if ( this->ClippingPlanes )
-    {
-    os << indent << "ClippingPlanes:\n";
-    this->ClippingPlanes->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "ClippingPlanes: (none)\n";
-    } 
 }
