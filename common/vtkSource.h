@@ -164,7 +164,7 @@ public:
   // Release/disconnect all outputs of this source. This is intended to be
   // called prior to Delete() if the user is concerned about outputs holding
   // on to the filter/source.
-  void UnregisterAllOutputs(void);
+  void UnRegisterAllOutputs(void);
 
 protected:
   vtkSource();

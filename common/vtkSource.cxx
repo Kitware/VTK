@@ -78,15 +78,7 @@ vtkSource::~vtkSource()
 {
   int idx;
 
-  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
-    {
-    if (this->Outputs[idx])
-      {
-      this->Outputs[idx]->SetSource(NULL);
-      this->Outputs[idx]->UnRegister(this);
-      this->Outputs[idx] = NULL;
-      }
-    }
+  UnRegisterAllOutputs();
   if (this->Outputs)
     {
     delete [] this->Outputs;
@@ -107,7 +99,7 @@ vtkDataObject *vtkSource::GetOutput(int i)
 }
 
 //----------------------------------------------------------------------------
-void vtkSource::UnregisterAllOutputs(void)
+void vtkSource::UnRegisterAllOutputs(void)
 {
   int idx;
 
