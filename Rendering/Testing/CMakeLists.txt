@@ -22,5 +22,6 @@ IF(PYTHON_EXECUTABLE)
            vtkOpenGLStateCache.h
            vtkVolumeRayCastStructures.h
            vtkOpenGLProjectedPolyDataRayBounder.h
+           vtkVolumeShearWarpDataStructure.h
            )
 ENDIF(PYTHON_EXECUTABLE)
