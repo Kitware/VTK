@@ -18,7 +18,7 @@
 #include "vtkTextActor.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.2");
+vtkCxxRevisionMacro(vtkTextActor, "1.3");
 vtkStandardNewMacro(vtkTextActor);
 // ----------------------------------------------------------------------------
 vtkTextActor::vtkTextActor()
@@ -101,7 +101,7 @@ int vtkTextActor::RenderOverlay(vtkViewport *viewport)
 int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   int size[2];
-  int fontSize, oldfontsize;
+  int fontSize=0, oldfontsize=0;
 
   vtkTextMapper *mapper = (vtkTextMapper *)this->GetMapper();
   if (!mapper)
