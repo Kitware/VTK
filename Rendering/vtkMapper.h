@@ -119,7 +119,7 @@ public:
   // ColorModeToMapScalars means that all scalar data will be mapped through
   // the lookup table.  (Note that for multi-component scalars, the
   // particular component to use for mapping can be specified using the
-  // ColorByArrayComponent() method.)
+  // SelectColorArray() method.)
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
   void SetColorModeToDefault() 
@@ -183,7 +183,7 @@ public:
   // You can also choose to get the scalars from an array in point field
   // data (ScalarModeToUsePointFieldData) or cell field data
   // (ScalarModeToUseCellFieldData).  If scalars are coming from a field
-  // data array, you must call ColorByArrayComponent before you call
+  // data array, you must call SelectColorArray before you call
   // GetColors.
   vtkSetMacro(ScalarMode,int);
   vtkGetMacro(ScalarMode,int);
@@ -199,7 +199,16 @@ public:
     this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);};
   
   // Description:
-  // Choose which component of which field data array to color by.
+  // When ScalarMode is set to UsePointFileData or UseCellFieldData,
+  // you can specify which array to use for coloring using these methods.
+  // The lookup table will decide how to convert vectors to colors.
+  void SelectColorArray(int arrayNum); 
+  void SelectColorArray(const char* arrayName); 
+
+  // Description:
+  // Legacy:
+  // These methods used to be used to specify the array component.
+  // It is better to do this in the lookup table.
   void ColorByArrayComponent(int arrayNum, int component);
   void ColorByArrayComponent(const char* arrayName, int component);
   

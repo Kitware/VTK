@@ -20,7 +20,7 @@
 #include "vtkLookupTable.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.99");
+vtkCxxRevisionMacro(vtkMapper, "1.100");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -256,6 +256,19 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(float alpha)
 
   return this->Colors;
 }
+
+
+void vtkMapper::SelectColorArray(int arrayNum)
+{
+  this->ColorByArrayComponent(arrayNum, -1);
+}
+ 
+
+void vtkMapper::SelectColorArray(const char* arrayName)
+{
+  this->ColorByArrayComponent(arrayName, -1);
+}
+
 
 void vtkMapper::ColorByArrayComponent(int arrayNum, int component)
 {
