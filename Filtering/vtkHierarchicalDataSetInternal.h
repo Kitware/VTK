@@ -12,6 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// .NAME vtkHierarchicalDataSetInternal - internal structure for vtkHierarchicalDataSet
+// .SECTION Description
+// vtkHierarchicalDataSetInternal is
 
 #ifndef __vtkHierarchicalDataSetInternal_h
 #define __vtkHierarchicalDataSetInternal_h

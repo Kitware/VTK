@@ -36,6 +36,7 @@ my %default =
             "../../Filtering", 
             "../../GenericFiltering", 
             "../../Graphics", 
+            "../../GUISupport", 
             "../../Hybrid", 
             "../../Imaging", 
             "../../IO", 

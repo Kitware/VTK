@@ -43,6 +43,7 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Filtering" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GenericFiltering" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Graphics" \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GUISupport" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Hybrid" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Imaging" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO" \
@@ -60,15 +61,29 @@ INPUT                = \
 EXCLUDE_PATTERNS     =
 EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkSetGet.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkMarchingSquaresCases.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkMarchingCubesCases.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Filtering/vtkMarchingSquaresCases.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Filtering/vtkMarchingCubesCases.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkWindows.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkWinCE.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTcl.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTk.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTclUtil.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPython.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPythonUtil.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkJavaAwt.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkJavaUtil.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPythonUtil.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTclUtil.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Parallel/vtkMPI.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Hybrid/vtk3DS.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Hybrid/vtkVRML.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/vtkPLY.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/vtkFreeTypeFontCache.h"
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/vtkOpenGL.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/vtkFreeTypeFontCache.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/fonts/vtkEmbeddedFonts.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/Testing/vtkRegressionTestImage.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Testing/vtkSuppressCrtDbgWarning.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Testing/vtkTestingColors.h"
 
 # TAGFILES           = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk4-nightly.tag"=http://www.vtk.org/doc/nightly/html
 
