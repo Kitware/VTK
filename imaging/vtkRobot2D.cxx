@@ -52,7 +52,7 @@ vtkRobot2D::~vtkRobot2D()
 }
 
 //----------------------------------------------------------------------------
-void vtkRobot2D::Draw(vtkImageDraw *canvas)
+void vtkRobot2D::Draw(vtkImagePaint *canvas)
 {
   this->TransformDraw(0.0, 0.0, 0.0, 1.0, canvas);
 }

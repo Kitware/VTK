@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include "vtkStateSpace.h"
 #include "vtkImageRegion.h"
-#include "vtkImageDraw.h"
+#include "vtkImagePaint.h"
 #include "vtkClaw.h"
 
 
@@ -98,7 +98,7 @@ public:
   vtkGetObjectMacro(DistanceMap,vtkImageRegion);
   // Description:
   // Get the canvas image for displaying the robot state.
-  vtkGetObjectMacro(Canvas,vtkImageDraw);
+  vtkGetObjectMacro(Canvas,vtkImagePaint);
   
   // Description:
   // Set/Get the threhold which defines collision space.
@@ -122,7 +122,7 @@ public:
   void DrawRobot(float *state);
   // Description:
   // The robot is drawn with this value.
-  void SetDrawValue(float val){if(Canvas)Canvas->SetDrawValue(val);};
+  void SetDrawValue(float val){if(Canvas)Canvas->SetDrawColor(val);};
 
   // For testing the object from tcl
   void DrawRobot(float x, float y, float theta)
@@ -143,7 +143,7 @@ public:
 protected:
   vtkImageRegion *WorkSpace;
   vtkImageRegion *DistanceMap;
-  vtkImageDraw *Canvas;
+  vtkImagePaint *Canvas;
   float Threshold;
 
   int NumberOfSegments;

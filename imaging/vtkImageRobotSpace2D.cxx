@@ -260,11 +260,11 @@ void vtkImageRobotSpace2D::SetWorkSpace(vtkImageRegion *region)
     {
     this->Canvas->Delete();
     }
-  this->Canvas = new vtkImageDraw;
+  this->Canvas = new vtkImagePaint;
   this->Canvas->SetExtent(VTK_IMAGE_DIMENSIONS, this->WorkSpace->GetExtent());
   this->Canvas->SetScalarType(this->WorkSpace->GetScalarType());
   this->ClearCanvas();
-  this->Canvas->SetDrawValue(0.0);
+  this->Canvas->SetDrawColor(0.0);
 }
 
   

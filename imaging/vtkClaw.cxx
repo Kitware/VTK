@@ -1249,29 +1249,6 @@ void vtkClaw::CheckForMergedNetworks(Sphere *s)
 //----------------------------------------------------------------------------
 void vtkClaw::SpherePrint(Sphere *b)
 {
-  int idx;
-
-  if(!b){
-    printf("NULL\n");
-    return;
-  }
-
-  printf("space DrawRobot %.4f", b->Center[0]);
-  for (idx = 1; idx < this->StateDimensionality; ++idx)
-    printf(" %.4f", b->Center[idx]);
-  printf("; # r: %.3f, sort: %.6f, net %d, num %.1f,%d, dist %.1f, near %.3f,%.3f",
-	 b->Radius, this->SphereSort(b), b->Visited, 
-	 this->SphereSurfaceArea(b), this->SphereNumNeighbors(b),
-	 this->StateSpace->BoundsTest(b->Center), this->SphereNearestVal(b), 
-	 b->NearestVal);
-
-  b = this->SphereNearest(b);
-  if (b)
-    printf(", %.3f\n", this->SphereNearestVal(b));
-  else
-    printf("\n");
-
-  fflush(stdout);
 }
 
       
@@ -1419,15 +1396,6 @@ float vtkClaw::SphereSurfaceArea(Sphere *b)
 //----------------------------------------------------------------------------
 void vtkClaw::SpheresPrint(SphereList *spheres)
 {
-  SphereList *list;
-
-  printf("Sphere list:\n");
-  list = spheres;
-  while (list){
-    this->SpherePrint(list->Item);
-    list = list->Next;
-  }
-  printf("\n");
 }
 
 
@@ -1576,14 +1544,26 @@ void vtkClaw::SphereCandidateChoose(Sphere *b, float *proposed)
 float vtkClaw::SphereNearestNetworkMoveEvaluate(Sphere *b, float *proposed)
 {
   Sphere *nearest;
+  float val;
   
   nearest = this->SphereNearest(b);
 
   if ( ! nearest)
     return 0.1;
 
-  return this->StateSpace->Distance(b->Center, nearest->Center) + b->Radius
+  val = this->StateSpace->Distance(b->Center, nearest->Center) + b->Radius
     - this->StateSpace->Distance(proposed, nearest->Center);
+
+  if (val < 0.0)
+    {
+    // Print out debugging info
+    vtkErrorMacro(<< "nearest = " 
+    << this->StateSpace->Distance(b->Center, nearest->Center) 
+    << ", Radius = " << b->Radius << "proposed distance = " 
+    << this->StateSpace->Distance(proposed, nearest->Center));
+    }
+  
+  return val;  
 }
   
 
@@ -2235,7 +2215,7 @@ void vtkClaw::ExplorePath(int number)
     {
     if ( ! this->ExplorePath())
       {
-      printf("Path explored !!!!!!!!!!!!!!!!!!!!!!!!\n");
+      vtkDebugMacro(<< "Path explored !!!!!!!!!!!!!!!!!!!!!!!!");
       return;
       }
     // Report to the state space, we have finished a sample period.
@@ -2310,7 +2290,7 @@ int vtkClaw::ExploreSphere(Sphere *s)
   
   if (this->Debug)
     {
-    printf("Smoothing sphere:\n    ");
+    vtkDebugMacro("Smoothing sphere:\n    ");
     SpherePrint(s);
     }
 
@@ -2384,7 +2364,7 @@ void vtkClaw::SmoothPath(int number)
     {
     if ( ! this->SmoothPath())
       {
-      printf("No more smoothing possible !!!!!!!!!!!!!!!!!!!!!!!!\n");
+      vtkDebugMacro(<< "No more smoothing possible !!!!!!!!!!!!!!!!!!!!!!!!");
       return;
       }
     // Report to the state space, we have finished a sample period.

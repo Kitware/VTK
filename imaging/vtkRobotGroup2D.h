@@ -63,7 +63,7 @@ public:
   // Get the number of robots in the group.
   vtkGetMacro(NumberOfRobots, int);
   
-  void TransformDraw(float x, float y, float s, float c, vtkImageDraw *canvas);
+  void TransformDraw(float x, float y, float s, float c,vtkImagePaint *canvas);
   void GetBounds(float bounds[4]);
   int TransformCollide(vtkImageRegion *distanceMap, 
 		       float x, float y, float s, float c);

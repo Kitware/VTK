@@ -87,7 +87,7 @@ void vtkRobotJoint2D::PrintSelf(ostream& os, vtkIndent indent)
 // Description:
 // Translate the robot (X, Y, sin(Theta), cos(Theta)), and then draw it.
 void vtkRobotJoint2D::TransformDraw(float x, float y, float s, float c,
-				    vtkImageDraw *canvas)
+				    vtkImagePaint *canvas)
 {
   float st, ct;
   float sn, cn;

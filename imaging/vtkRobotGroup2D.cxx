@@ -124,7 +124,7 @@ void vtkRobotGroup2D::AddRobot(vtkRobot2D *robot)
 // Description:
 // Translate the robot (X, Y, sin(Theta), cos(Theta)), and then draw it.
 void vtkRobotGroup2D::TransformDraw(float x, float y, float s, float c,
-				    vtkImageDraw *canvas)
+				    vtkImagePaint *canvas)
 {
   int idx;
 

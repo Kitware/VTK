@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStateSpace.h"
 #include "vtkRobotTransform2D.h"
 #include "vtkRobotJoint2D.h"
-#include "vtkImageDraw.h"
+#include "vtkImagePaint.h"
 #include "vtkClaw.h"
 
 
@@ -105,7 +105,7 @@ public:
   vtkGetObjectMacro(DistanceMap,vtkImageRegion);
   // Description:
   // Get the canvas image for displaying the robot state.
-  vtkGetObjectMacro(Canvas,vtkImageDraw);
+  vtkGetObjectMacro(Canvas,vtkImagePaint);
   
   // Description:
   // Set/Get the threhold which defines collision space.
@@ -125,7 +125,7 @@ public:
   void DrawRobot(float *state);
   // Description:
   // The robot is drawn with this value.
-  void SetDrawValue(float val){if(Canvas)Canvas->SetDrawValue(val);};
+  void SetDrawValue(float val){if(Canvas)Canvas->SetDrawColor(val);};
 
   void AnimatePath(vtkClaw *planner);
   
@@ -158,7 +158,7 @@ protected:
   vtkRobotTransform2D *Robot;
   vtkImageRegion *WorkSpace;
   vtkImageRegion *DistanceMap;
-  vtkImageDraw *Canvas;
+  vtkImagePaint *Canvas;
   float Threshold;
   float RotationFactor;
 

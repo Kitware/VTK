@@ -1,10 +1,11 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkRobotJoint2D.h
+  Module:    vtkImageAnnotate.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -37,79 +38,79 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkRobotJoint2D - Join two robots with a flexible rotation joint.
+// .NAME vtkImageAnnotate - Test For SIN# placement
 // .SECTION Description
-// vtkRobotJoint2D will connect two robots with a flexible rotational joint.
-// This adds an extra degree of freedom.  The Joint angle is specified
-// by Theta (units radians).  This adds an extra degree of 
-// freedom to the robot.  There is no limitation on rotation of the joint yet.
-// RobotA is stationary, and RobotB is rotated around the PivotPoint.
+// vtkImageAnnotate computes where SIN# should be placed.
 
 
-#ifndef __vtkRobotJoint2D_h
-#define __vtkRobotJoint2D_h
+#ifndef __vtkImageAnnotate_h
+#define __vtkImageAnnotate_h
 
-#include "vtkRobot2D.h"
+#include <math.h>
+#include "vtkImagePaint.h"
 
-class vtkRobotJoint2D : public vtkRobot2D
+
+class vtkImageAnnotate : public vtkImagePaint
 {
 public:
-  vtkRobotJoint2D();
-  ~vtkRobotJoint2D();
-  char *GetClassName() {return "vtkRobotJoint2D";};
-  void PrintSelf(ostream& os, vtkIndent indent);
+   vtkImageAnnotate();
+  ~vtkImageAnnotate();
+  char *GetClassName() {return "vtkImageAnnotate";};
+  void PrintSelf(ostream& os, vtkIndent indent); 
 
   // Description:
-  // Set/Get the two robots to join
-  vtkSetObjectMacro(RobotA, vtkRobot2D);
-  vtkGetObjectMacro(RobotA, vtkRobot2D);
-  vtkSetObjectMacro(RobotB, vtkRobot2D);
-  vtkGetObjectMacro(RobotB, vtkRobot2D);
+  // Draw the bounds of the drawing.
+  void ComputeBounds();
   
   // Description:
-  // Set/Get the rotation Theta in radians.
-  vtkSetMacro(Theta, float);
-  vtkGetMacro(Theta, float);
-  
-  // Description:
-  // Set/Get the Pivot point of the rotation.
-  vtkSetVector2Macro(Pivot, float);
-  vtkGetVector2Macro(Pivot, float);
+  // Test the automatic placement of annotations.
+  // Draw Bounds must be called first.
+  void Annotate(int idx);
 
-  void TransformDraw(float x, float y, float s, float c,vtkImagePaint *canvas);
-  void GetBounds(float bounds[4]);
-  int TransformCollide(vtkImageRegion *distanceMap, 
-		       float x, float y, float s, float c);
+  vtkSetMacro(Min0, int);
+  vtkGetMacro(Min0, int);
+  vtkSetMacro(Max0, int);
+  vtkGetMacro(Max0, int);
+
+  vtkSetMacro(Min1, int);
+  vtkGetMacro(Min1, int);
+  vtkSetMacro(Max1, int);
+  vtkGetMacro(Max1, int);
   
-  // Description::
-  // Set/Get the factor to scale Theta to have same "units" as translation.
-  // Externally computed for now.
-  vtkSetMacro(Factor,float);
-  vtkGetMacro(Factor,float);
+  vtkSetMacro(Min01, int);
+  vtkGetMacro(Min01, int);
+  vtkSetMacro(Max01, int);
+  vtkGetMacro(Max01, int);
+  
+  vtkSetMacro(Min10, int);
+  vtkGetMacro(Min10, int);
+  vtkSetMacro(Max10, int);
+  vtkGetMacro(Max10, int);
+  
+  
+  vtkSetMacro(Center0, int);
+  vtkGetMacro(Center0, int);
+  vtkSetMacro(Center1, int);
+  vtkGetMacro(Center1, int);
   
   
 protected:
-  vtkRobot2D *RobotA;
-  vtkRobot2D *RobotB;  
-  float Pivot[2];
-  float Theta;
-  // Factor to scale theta to same "units" as translation.
-  float Factor;
+
+  int Min0;
+  int Max0;
+  int Min1;
+  int Max1;
+  int Min01;
+  int Max01;
+  int Min10;
+  int Max10;
+  
+  int Center0;
+  int Center1;
 };
 
+
+
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

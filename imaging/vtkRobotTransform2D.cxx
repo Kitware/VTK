@@ -76,7 +76,7 @@ void vtkRobotTransform2D::PrintSelf(ostream& os, vtkIndent indent)
 // Description:
 // Translate the robot (X, Y, sin(Theta), cos(Theta)), and then draw it.
 void vtkRobotTransform2D::TransformDraw(float x, float y, float s, float c,
-					vtkImageDraw *canvas)
+					vtkImagePaint *canvas)
 {
   float st, ct;
   float xn, yn;

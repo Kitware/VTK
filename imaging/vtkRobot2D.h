@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <math.h>
 #include "vtkObject.h"
-#include "vtkImageDraw.h"
+#include "vtkImagePaint.h"
 
 class vtkRobot2D : public vtkObject
 {
@@ -56,9 +56,9 @@ public:
   ~vtkRobot2D();
   char *GetClassName() {return "vtkRobot2D";};
 
-  void Draw(vtkImageDraw *canvas);
+  void Draw(vtkImagePaint *canvas);
   virtual void TransformDraw(float x, float y, float s, float c,
-			     vtkImageDraw *canvas) = 0;
+			     vtkImagePaint *canvas) = 0;
   virtual void GetBounds(float bounds[4]) = 0;
   int Collide(vtkImageRegion *distanceMap)
   {return this->TransformCollide(distanceMap, 0, 0, 0, 1);};

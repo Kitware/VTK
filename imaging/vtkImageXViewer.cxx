@@ -202,6 +202,7 @@ void vtkImageXViewerRenderColor(vtkImageXViewer *self, vtkImageRegion *region,
 void vtkImageXViewer::Render(void)
 {
   int extent[8];
+  int *imageExtent;
   int width, height;
   int size;
   unsigned char *dataOut;
@@ -214,10 +215,12 @@ void vtkImageXViewer::Render(void)
     return;
     }
 
-  // determine the Extent of the input region needed
+  this->Input->UpdateImageInformation(&(this->Region));
+  imageExtent = this->Region.GetImageExtent();
+  
+  // determine the Extent of the 2D input region needed
   if (this->WholeImage)
     {
-    this->Input->UpdateImageInformation(&(this->Region));
     this->Region.GetImageExtent(2, extent);
     }
   else
@@ -235,10 +238,35 @@ void vtkImageXViewer::Render(void)
     }
   else
     {
-    extent[4] = extent[5] = this->Coordinate2;
+    // Make sure the requested  image is in the range.
+    if (this->Coordinate2 < imageExtent[4])
+      {
+      extent[4] = extent[5] = imageExtent[4];
+      }
+    else if (this->Coordinate2 > imageExtent[5])
+      {
+      extent[4] = extent[5] = imageExtent[5];
+      }
+    else
+      {
+      extent[4] = extent[5] = this->Coordinate2;
+      }
     }
-  extent[6] = extent[7] = this->Coordinate3;
 
+  // Make sure the requested  image is in the range.
+  if (this->Coordinate3 < imageExtent[6])
+    {
+    extent[6] = extent[6] = imageExtent[6];
+    }
+  else if (this->Coordinate3 > imageExtent[7])
+    {
+    extent[6] = extent[7] = imageExtent[7];
+    }
+  else
+    {
+    extent[6] = extent[7] = this->Coordinate3;
+    }
+  
   // Get the region form the input
   region = new vtkImageRegion;
   region->SetAxes(this->Region.GetAxes());

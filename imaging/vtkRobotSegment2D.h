@@ -62,7 +62,7 @@ public:
   vtkSetVector2Macro(PointB, float);
   vtkGetVector2Macro(PointB, float);
 
-  void TransformDraw(float x, float y, float s, float c, vtkImageDraw *canvas);
+  void TransformDraw(float x, float y, float s, float c,vtkImagePaint *canvas);
   void GetBounds(float bounds[4]);
   int TransformCollide(vtkImageRegion *distanceMap, 
 		       float x, float y, float s, float c);

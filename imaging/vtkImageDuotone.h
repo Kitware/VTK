@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDraw.h
+  Module:    vtkImageDuotone.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,47 +38,71 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDraw - A region that can be drawn into.
+// .NAME vtkImageDuotone - For printing Duotone color images.
 // .SECTION Description
-// vtkImageDraw is a region object with methods to draw boxs, lines ...
-// over the data.  
+// Given two ink colors in RGB (cyan =(0,1,1), Yellow = (1,1,0), ...),
+// this filter computes two black and white images to overlay to get 
+// a resonable approximation to the input color image.  In the outputs,
+// high values (OutputMax) imply no ink, where 
+// 0 implies alot of ink. Combination of colors
+// from the two images is assumed to be subtractive.
+// The filter uses a simple minded approach.  It minimizes the squared
+// error (input - result) for each pixel.  The resulting images are
+// clamped to remove negative values).
+// The filter has two outputs:  Output0 for ink0, and output1 for ink1.
+// InputMaximum refers to input and inks. (max, max, max) => white.
 
 
-#ifndef __vtkImageDraw_h
-#define __vtkImageDraw_h
 
-#include <math.h>
-#include "vtkImageRegion.h"
+#ifndef __vtkImageDuotone_h
+#define __vtkImageDuotone_h
 
 
-class vtkImageDraw : public vtkImageRegion
+#include "vtkImageTwoOutputFilter.h"
+
+class vtkImageDuotone : public vtkImageTwoOutputFilter
 {
 public:
-  vtkImageDraw();
-  ~vtkImageDraw();
-  char *GetClassName() {return "vtkImageDraw";};
+  vtkImageDuotone();
+  char *GetClassName() {return "vtkImageDuotone";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Set/Get DrawValue.  This is the value that is used when filling regions
-  // or drawing lines.
-  vtkSetMacro(DrawValue,float);
-  vtkGetMacro(DrawValue,float);
-  
-  void FillBox(int min0, int max0, int min1, int max1);
-  void FillTube(int x0, int y0, int x1, int y1, float radius);
-  void FillTriangle(int x0, int y0, int x1, int y1, int x2, int y2);
-  void DrawSegment(int x0, int y0, int x1, int y1);
-  void DrawSegment3D(float *p0, float *p1);
+  // Set/Get the color of ink #1;
+  vtkSetVector3Macro(Ink0,float);
+  vtkGetVector3Macro(Ink0,float);
 
-protected:
-  float DrawValue;
+  // Description:
+  // Set/Get the color of ink #2;
+  vtkSetVector3Macro(Ink1,float);
+  vtkGetVector3Macro(Ink1,float);
+
+  // Description:
+  // Set/Get the maximum of the output.  The maximum amount of ink.
+  vtkSetMacro(OutputMaximum,float);
+  vtkGetMacro(OutputMaximum,float);
+
+  // Description:
+  // Set/Get the maximum of the input.  (max, max, max) is white.
+  vtkSetMacro(InputMaximum,float);
+  vtkGetMacro(InputMaximum,float);
+
   
-  int ClipSegment(int &a0, int &a1, int &b0, int &b1);
+protected:
+  float Ink0[3];
+  float Ink1[3];
+  float OutputMaximum;
+  float InputMaximum;
+  
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
+					vtkImageRegion *inRegion);
+  void Execute(vtkImageRegion *inRegion, 
+	       vtkImageRegion *outRegion0, vtkImageRegion *outRegion1);
 };
 
-
-
 #endif
+
 
 
