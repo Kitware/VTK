@@ -73,14 +73,19 @@ public:
   // calling NeedEdgeSubdivision().
   // Their format is global coordinates, parametric coordinates and
   // point centered attributes: xyx rst abc de...
+  // `alpha' is the normalized abscissa of the midpoint along the edge.
+  // (close to 0 means close to the left point, close to 1 means close to the
+  // right point)
   // \pre leftPoint_exists: leftPoint!=0
   // \pre midPoint_exists: midPoint!=0
   // \pre rightPoint_exists: rightPoint!=0
+  // \pre clamped_alpha: alpha>0 && alpha<1
   // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
   //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
   int NeedEdgeSubdivision(double *leftPoint,
                           double *midPoint,
-                          double *rightPoint);
+                          double *rightPoint,
+                          double alpha);
 
 protected:
   vtkGeometricErrorMetric();

@@ -21,7 +21,7 @@
 #include "vtkGenericDataSet.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkAttributesErrorMetric,"1.1");
+vtkCxxRevisionMacro(vtkAttributesErrorMetric,"1.2");
 vtkStandardNewMacro(vtkAttributesErrorMetric);
 
 //-----------------------------------------------------------------------------
@@ -50,11 +50,13 @@ void vtkAttributesErrorMetric::SetAttributeTolerance(double value)
 //-----------------------------------------------------------------------------
 int vtkAttributesErrorMetric::NeedEdgeSubdivision(double *leftPoint,
                                                   double *midPoint,
-                                                  double *rightPoint)
+                                                  double *rightPoint,
+                                                  double alpha)
 {
   assert("pre: leftPoint_exists" && leftPoint!=0);
   assert("pre: midPoint_exists" && midPoint!=0);
   assert("pre: rightPoint_exists" && rightPoint!=0);
+  assert("pre: clamped_alpha" && alpha>0 && alpha<1);
   
   int result;
   double ae;
@@ -75,7 +77,7 @@ int vtkAttributesErrorMetric::NeedEdgeSubdivision(double *leftPoint,
   else
     {
     int i=ac->GetAttributeIndex(ac->GetActiveAttribute())+ac->GetActiveComponent()+ATTRIBUTE_OFFSET;
-    double tmp=(leftPoint[i]+rightPoint[i])*0.5-midPoint[i];
+    double tmp=leftPoint[i]+alpha*(rightPoint[i]-leftPoint[i])-midPoint[i];
     ae=tmp*tmp;
     }
   
