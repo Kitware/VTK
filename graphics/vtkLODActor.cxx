@@ -71,8 +71,6 @@ vtkLODActor::vtkLODActor()
   
   this->LODMappers = vtkMapperCollection::New();
   // stuff for creating own LODs
-  this->PointSource = NULL;
-  this->Glyph3D = NULL;
   this->MaskPoints = NULL;
   this->OutlineFilter = NULL;
   this->NumberOfCloudPoints = 150;
@@ -264,23 +262,21 @@ void vtkLODActor::CreateOwnLODs()
   num = this->LODMappers->GetNumberOfItems();
   if (num > 0)
     {
-    vtkErrorMacro(
+    vtkErrorMacro(<<
 	  "Cannot generate LOD mappers when some have been added already");
     return;
     }
   
   // create filters and mappers
-  this->PointSource = vtkPointSource::New();
-  this->Glyph3D = vtkGlyph3D::New();
   this->MaskPoints = vtkMaskPoints::New();
+  this->MaskPoints->RandomModeOn();
+  this->MaskPoints->GenerateVerticesOn();
   this->OutlineFilter = vtkOutlineFilter::New();
   this->LowMapper = vtkPolyDataMapper::New();
   this->MediumMapper = vtkPolyDataMapper::New();
   
   // connect the filters
-  this->Glyph3D->SetInput(this->MaskPoints->GetOutput());
-  this->Glyph3D->SetSource(this->PointSource->GetOutput());
-  this->MediumMapper->SetInput(this->Glyph3D->GetOutput());
+  this->MediumMapper->SetInput(this->MaskPoints->GetOutput());
   this->LowMapper->SetInput(this->OutlineFilter->GetOutput());
   this->LODMappers->AddItem(this->MediumMapper);
   this->LODMappers->AddItem(this->LowMapper);
@@ -308,11 +304,8 @@ void vtkLODActor::UpdateOwnLODs()
     }
   
   // connect the filters to the mapper, and set parameters
-  this->PointSource->SetRadius(0);
-  this->PointSource->SetNumberOfPoints(1);
   this->MaskPoints->SetInput(this->Mapper->GetInput());
   this->MaskPoints->SetMaximumNumberOfPoints(this->NumberOfCloudPoints);
-  this->MaskPoints->SetRandomMode(1);
   this->OutlineFilter->SetInput(this->Mapper->GetInput());
   this->MediumMapper->SetScalarRange(this->Mapper->GetScalarRange());
   this->MediumMapper->SetScalarVisibility(this->Mapper->GetScalarVisibility());
@@ -337,10 +330,6 @@ void vtkLODActor::DeleteOwnLODs()
   
   // delete the filters used to create the LODs ...
   // The NULL check should not be necessary, but for sanity ...
-  this->PointSource->Delete();
-  this->PointSource = NULL;
-  this->Glyph3D->Delete();
-  this->Glyph3D = NULL;
   this->MaskPoints->Delete();
   this->MaskPoints = NULL;
   this->OutlineFilter->Delete();

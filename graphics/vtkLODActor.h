@@ -40,23 +40,31 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkLODActor - an actor that supports multiple levels of detail
 // .SECTION Description
-// vtkLODActor is an actor that stores multiple Levels of Detail and can
-// automatically switch between them. It selects which level of detail
-// to use based on how much time it has been allocated to render. 
-// Currently a very simple method of TotalTime/NumberOfActors is used.
-// In the future this should be modified to dynamically allocate the
-// rendering time between different actors based on their needs.
-// There are three levels of detail by default. The top level is just
-// the normal data.  The lowest level of detail is a simple bounding
-// box outline of the actor. The middle level of detail is a point
-// cloud of a fixed number of points that have been randomly sampled
-// from the Mappers input data.  Point attributes are copied over to
-// the point cloud.  These two lower levels of detail are accomplished by
-// creating instances of a vtkOutlineFilter, vtkGlyph3D, and vtkPointSource.
-// Additional levels of detail can be add using the AddLODMapper method.
+// vtkLODActor is an actor that stores multiple levels of detail (LOD) and
+// can automatically switch between them. It selects which level of detail to
+// use based on how much time it has been allocated to render.  Currently a
+// very simple method of TotalTime/NumberOfActors is used.  (In the future
+// this should be modified to dynamically allocate the rendering time between
+// different actors based on their needs.)
+//
+// There are three levels of detail by default. The top level is just the
+// normal data.  The lowest level of detail is a simple bounding box outline
+// of the actor. The middle level of detail is a point cloud of a fixed
+// number of points that have been randomly sampled from the mapper's input
+// data.  Point attributes are copied over to the point cloud.  These two
+// lower levels of detail are accomplished by creating instances of a
+// vtkOutlineFilter (low-res) and vtkMaskPoints (medium-res). Additional
+// levels of detail can be add using the AddLODMapper() method.
+//
+// To control the frame rate, you typically set the vtkRenderWindowInteractor
+// DesiredUpdateRate and StillUpdateRate. This then will cause vtkLODActor
+// to adjust its LOD to fulfill the requested update rate.
+//
+// For greater control on levels of detail, see also vtkLODProp3D. That
+// class allows arbitrary definition of each LOD.
 
 // .SECTION see also
-// vtkActor vtkRenderer
+// vtkActor vtkRenderer vtkLODProp3D
 
 #ifndef __vtkLODActor_h
 #define __vtkLODActor_h
@@ -65,8 +73,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMaskPoints.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkGlyph3D.h"
-#include "vtkPointSource.h"
 #include "vtkMapperCollection.h"
 
 class VTK_EXPORT vtkLODActor : public vtkActor
@@ -125,8 +131,6 @@ protected:
   vtkMapperCollection *LODMappers;
 
   // stuff for creating our own LOD mappers
-  vtkPointSource      *PointSource;
-  vtkGlyph3D          *Glyph3D;
   vtkMaskPoints       *MaskPoints;
   vtkOutlineFilter    *OutlineFilter;
   vtkTimeStamp        BuildTime;
