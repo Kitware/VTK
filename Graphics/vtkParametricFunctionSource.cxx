@@ -29,7 +29,7 @@
 #include <math.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.12");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.13");
 vtkStandardNewMacro(vtkParametricFunctionSource);
 
 
@@ -417,8 +417,15 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
           case SCALAR_PHASE:
             rel_u = uv[0] - u_mp;
             rel_v = uv[1] - v_mp;
+            if ( rel_v == 0 && rel_u == 0 )
+            {
+            scalar = 0;
+            }
+            else
+            {
             scalar = vtkMath::RadiansToDegrees() * atan2(rel_v,rel_u);
             if ( scalar < 0 ) scalar += 360;
+            }
             break;
           case SCALAR_QUADRANT:
             if ( uv[0] >= u0 && uv[1] >= v0 )
