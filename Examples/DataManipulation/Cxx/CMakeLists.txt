@@ -16,3 +16,4 @@ LINK_LIBRARIES(
 ADD_EXECUTABLE(Arrays Arrays.cxx)
 ADD_EXECUTABLE(Cube Cube.cxx)
 ADD_EXECUTABLE(SGrid SGrid.cxx)
+ADD_EXECUTABLE(RGrid RGrid.cxx)
