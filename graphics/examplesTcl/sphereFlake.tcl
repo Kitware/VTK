@@ -236,11 +236,5 @@ button .top.f2.f3.b1 -text "Quit" -command {exit} \
 
 pack .top.f2.f3.b1  -expand 1 -fill both
 
-proc TkCheckAbort {} {
-  set foo [renWin GetEventPending]
-  if {$foo != 0} {renWin SetAbortRender 1}
-}
-renWin SetAbortCheckMethod {TkCheckAbort}
-
 #renWin SetFileName sphereFlake.tcl.ppm
 #renWin SaveImageAsPPM

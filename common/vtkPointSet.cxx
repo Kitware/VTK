@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPointSet.h"
-#include "vtkSource.h"
 
 vtkPointSet::vtkPointSet ()
 {
@@ -268,14 +267,6 @@ void vtkPointSet::Squeeze()
 
 void vtkPointSet::UnRegister(vtkObject *o)
 {
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 2 && this->Source != NULL &&
-      o != this->Source && this->Source->InRegisterLoop(this))
-    {
-    this->SetSource(NULL);
-    }
   // detect the circular loop PointSet <-> Locator
   // If we have two references and one of them is my locator
   // and I am not being unregistered by my locator, break the loop.
@@ -285,32 +276,9 @@ void vtkPointSet::UnRegister(vtkObject *o)
     {
     this->Locator->SetDataSet(NULL);
     }
-  // catch the case when both of the above are true
-  if (this->ReferenceCount == 3 && this->Source != NULL &&
-      o != this->Source && this->Source->InRegisterLoop(this) &&
-      this->Locator &&
-      this->Locator->GetDataSet() == this && 
-      this->Locator != o)
-    {
-    this->SetSource(NULL);
-    if (this->Locator)
-      {
-      this->Locator->SetDataSet(NULL);
-      }
-    }  
-  
   this->vtkObject::UnRegister(o);
 }
 
-
-int vtkPointSet::GetNetReferenceCount()
-{
-  if (this->Locator && this->Locator->GetDataSet() == this)
-    {    
-    return this->ReferenceCount - 1;
-    }
-  return this->ReferenceCount;
-}
 
 
 void vtkPointSet::PrintSelf(ostream& os, vtkIndent indent)

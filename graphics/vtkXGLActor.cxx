@@ -55,8 +55,7 @@ void vtkXGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
   // insert model transformation 
   xgl_object_get(*(((vtkXGLRenderer *)ren)->GetContext()),
                  XGL_CTX_GLOBAL_MODEL_TRANS, &model_trans);
-  xgl_object_set(model_trans,  XGL_TRANS_DATA_TYPE, XGL_DATA_DBL, 0);
-  xgl_transform_write(model_trans,(double (*)[4])(matrix->Element[0]));
+  xgl_transform_write(model_trans,(float (*)[4])(matrix->Element[0]));
 
   // send a render to the mapper; update pipeline
   mapper->Render(ren,this);

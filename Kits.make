@@ -119,7 +119,7 @@ install_tcl_java: install_tcl
 	@${srcdir}/../${INSTALL} libVTK${ME}Java${SHLIB_SUFFIX} $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}
 	@chmod 555 $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}
 
-install_java: install build_java
+install_java: install
 	@echo "Installing libVTK${ME}Java${SHLIB_SUFFIX}"
 	@${srcdir}/../${INSTALL} libVTK${ME}Java${SHLIB_SUFFIX} $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}
 	@chmod 555 $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}

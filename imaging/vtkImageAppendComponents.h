@@ -64,12 +64,10 @@ public:
   // two input filter.
   virtual void SetInput1(vtkImageCache *input){this->SetInput(0, input);}
   void SetInput1(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput1(tmp->GetOutput()); tmp->Delete();}
+    {this->SetInput1(spts->GetStructuredPointsToImage()->GetOutput());}
   virtual void SetInput2(vtkImageCache *input){this->SetInput(1, input);}
   void SetInput2(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput2(tmp->GetOutput()); tmp->Delete();}
+    {this->SetInput2(spts->GetStructuredPointsToImage()->GetOutput());}
 
 protected:
   

@@ -61,7 +61,7 @@ for { set i 1 } { $i < 5 } { incr i } {
 vtkVolumeRayCastCompositeFunction  compositeFunction
 
 vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetInput [reader GetOutput]
+    volumeMapper SetScalarInput [reader GetOutput]
     volumeMapper SetSampleDistance 0.25
     volumeMapper SetVolumeRayCastFunction compositeFunction
 
@@ -78,8 +78,8 @@ set scale 1
 for { set i 1 } { $i < 5 } { incr i } {
     for { set j 1 } { $j < 7 } { incr j } {
 	vtkVolume volume${i}${j}
-	volume${i}${j} SetMapper volumeMapper
-	volume${i}${j} SetProperty volumeProperty${i}${j}
+	volume${i}${j} SetVolumeMapper volumeMapper
+	volume${i}${j} SetVolumeProperty volumeProperty${i}${j}
 	volume${i}${j} SetOrigin 23.5 0 23.5
 	volume${i}${j} RotateX $rot
 	volume${i}${j} AddPosition $tran 0 0

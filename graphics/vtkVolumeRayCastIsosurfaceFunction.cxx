@@ -285,8 +285,8 @@ void trilin_line_intersection( float start[3], float vec[3],
 template <class T>
 static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function, 
 			 T *data_ptr,
-			 VTKRayCastRayInfo *rayInfo,
-			 VTKRayCastVolumeInfo *volumeInfo )
+			 struct VolumeRayCastRayInfoStruct *rayInfo,
+			 struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {
 
   unsigned short  *encoded_normals;
@@ -315,15 +315,15 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   float     texcoord[3];
 
 
-  num_steps = rayInfo->NumberOfStepsToTake;
-  ray_start = rayInfo->TransformedStart;
-  ray_increment = rayInfo->TransformedIncrement;
+  num_steps = rayInfo->VolumeRayNumberOfSamples;
+  ray_start = rayInfo->VolumeRayStart;
+  ray_increment = rayInfo->VolumeRayIncrement;
 
-  rayInfo->Color[0] = 0.0;
-  rayInfo->Color[1] = 0.0;
-  rayInfo->Color[2] = 0.0;
-  rayInfo->Color[3] = 0.0;
-  rayInfo->NumberOfStepsTaken = 0;
+  rayInfo->RayColor[0] = 0.0;
+  rayInfo->RayColor[1] = 0.0;
+  rayInfo->RayColor[2] = 0.0;
+  rayInfo->RayColor[3] = 0.0;
+  rayInfo->VolumeRayStepsTaken = 0;
 
   // Move the increments into local variables
   xinc = volumeInfo->DataIncrement[0];
@@ -503,18 +503,18 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	      b = blue_d_shade[*(encoded_normals + offset)] 
 		* volumeBlue + blue_s_shade[*(encoded_normals + offset)];
 
-	      rayInfo->Color[0] = ( r > 1.0 ) ? 1.0 : r;
-	      rayInfo->Color[1] = ( g > 1.0 ) ? 1.0 : g;
-	      rayInfo->Color[2] = ( b > 1.0 ) ? 1.0 : b;
-	      rayInfo->Color[3] = 1.0;
+	      rayInfo->RayColor[0] = ( r > 1.0 ) ? 1.0 : r;
+	      rayInfo->RayColor[1] = ( g > 1.0 ) ? 1.0 : g;
+	      rayInfo->RayColor[2] = ( b > 1.0 ) ? 1.0 : b;
+	      rayInfo->RayColor[3] = 1.0;
 	    }
 	  else 
 	    {
 	      // No shading
-	      rayInfo->Color[0] = volumeRed;
-	      rayInfo->Color[1] = volumeGreen;
-	      rayInfo->Color[2] = volumeBlue;
-	      rayInfo->Color[3] = 1.0;
+	      rayInfo->RayColor[0] = volumeRed;
+	      rayInfo->RayColor[1] = volumeGreen;
+	      rayInfo->RayColor[2] = volumeBlue;
+	      rayInfo->RayColor[3] = 1.0;
 	    }
 	}
       
@@ -593,7 +593,7 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	}
     }
 
-  rayInfo->NumberOfStepsTaken = steps_this_ray;
+  rayInfo->VolumeRayStepsTaken = steps_this_ray;
 
 }
 // This is the templated function that actually casts a ray and computes
@@ -602,8 +602,8 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 template <class T>
 static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function, 
 			     T *data_ptr, 
-			     VTKRayCastRayInfo *rayInfo,
-			     VTKRayCastVolumeInfo *volumeInfo )
+			     struct VolumeRayCastRayInfoStruct *rayInfo,
+			     struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {
   LineIntersectInfo  line_info;
   unsigned short  *encoded_normals, *nptr;
@@ -639,15 +639,15 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   int       rgbBinc, rgbCinc, rgbDinc, rgbEinc, rgbFinc, rgbGinc, rgbHinc;
   unsigned char *rgbptr;
 
-  num_steps = rayInfo->NumberOfStepsToTake;
-  ray_start = rayInfo->TransformedStart;
-  ray_increment = rayInfo->TransformedIncrement;
+  num_steps = rayInfo->VolumeRayNumberOfSamples;
+  ray_start = rayInfo->VolumeRayStart;
+  ray_increment = rayInfo->VolumeRayIncrement;
 
-  rayInfo->Color[0] = 0.0;
-  rayInfo->Color[1] = 0.0;
-  rayInfo->Color[2] = 0.0;
-  rayInfo->Color[3] = 0.0;
-  rayInfo->NumberOfStepsTaken = 0;
+  rayInfo->RayColor[0] = 0.0;
+  rayInfo->RayColor[1] = 0.0;
+  rayInfo->RayColor[2] = 0.0;
+  rayInfo->RayColor[3] = 0.0;
+  rayInfo->VolumeRayStepsTaken = 0;
 
   // Move the increments into local variables
   xinc = volumeInfo->DataIncrement[0];
@@ -1026,21 +1026,21 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	      tH * ( blue_d_shade[ *(nptr + Hinc) ] * volumeBlue 
 		     + blue_s_shade[ *(nptr + Hinc) ] );
 	    
-	    rayInfo->Color[0] = 
+	    rayInfo->RayColor[0] = 
 	      ( red_shaded_value > 1.0 ) ? 1.0 : red_shaded_value;
-	    rayInfo->Color[1] = 
+	    rayInfo->RayColor[1] = 
 	      ( green_shaded_value > 1.0 ) ? 1.0 : green_shaded_value;
-	    rayInfo->Color[2] = 
+	    rayInfo->RayColor[2] = 
 	      ( blue_shaded_value > 1.0 ) ? 1.0 : blue_shaded_value;
-	    rayInfo->Color[3] = 1.0;
+	    rayInfo->RayColor[3] = 1.0;
 	    }
 	  else
 	    {
 	      // No shading
-	      rayInfo->Color[0] = volumeRed;
-	      rayInfo->Color[1] = volumeGreen;
-	      rayInfo->Color[2] = volumeBlue;
-	      rayInfo->Color[3] = 1.0;
+	      rayInfo->RayColor[0] = volumeRed;
+	      rayInfo->RayColor[1] = volumeGreen;
+	      rayInfo->RayColor[2] = volumeBlue;
+	      rayInfo->RayColor[3] = 1.0;
 	    }
 	  }
 	}
@@ -1204,7 +1204,7 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
       }
     }
 
-  rayInfo->NumberOfStepsTaken = steps_this_ray;
+  rayInfo->VolumeRayStepsTaken = steps_this_ray;
 }
 
 // Construct a new vtkVolumeRayCastIsosurfaceFunction with a default ramp.
@@ -1226,8 +1226,8 @@ vtkVolumeRayCastIsosurfaceFunction::~vtkVolumeRayCastIsosurfaceFunction()
 // It uses the integer data type flag that is passed in to
 // determine what type of ray needs to be cast (which is handled
 // by a templated function. 
-void vtkVolumeRayCastIsosurfaceFunction::CastRay( VTKRayCastRayInfo *rayInfo,
-						  VTKRayCastVolumeInfo *volumeInfo )
+void vtkVolumeRayCastIsosurfaceFunction::CastRay( struct VolumeRayCastRayInfoStruct *rayInfo,
+						  struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {
   void *data_ptr;
 
@@ -1274,12 +1274,12 @@ float vtkVolumeRayCastIsosurfaceFunction::GetZeroOpacityThreshold(vtkVolume *)
 void vtkVolumeRayCastIsosurfaceFunction::SpecificFunctionInitialize( 
 				  vtkRenderer *vtkNotUsed(ren), 
 				  vtkVolume *vol,
-				  VTKRayCastVolumeInfo *volumeInfo,
+				  struct VolumeRayCastVolumeInfoStruct *volumeInfo,
 				  vtkVolumeRayCastMapper *vtkNotUsed(mapper) )
 {
   vtkVolumeProperty  *volume_property;
 
-  volume_property = vol->GetProperty();
+  volume_property = vol->GetVolumeProperty();
 
   if ( volume_property->GetColorChannels() == 1 )
     {

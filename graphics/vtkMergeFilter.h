@@ -95,8 +95,7 @@ public:
   vtkGetObjectMacro(Scalars,vtkDataSet);
   
   void SetScalars(vtkImageCache *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetScalars(tmp->GetOutput()); tmp->Delete();}
+    {this->SetScalars(cache->GetImageToStructuredPoints()->GetOutput());}
 
   // Description:
   // Set / get the object from which to extract vector information.
@@ -127,14 +126,6 @@ public:
   // Description:
   // For legacy compatibility. Do not use.
   void SetGeometry(vtkDataSet &input) {this->SetGeometry(&input);}
-
-  // Description:
-  // Handle the source/data loop.
-  void UnRegister(vtkObject *o);
-
-  // Description:
-  // Test to see if this object is in a reference counting loop.
-  virtual int InRegisterLoop(vtkObject *);
 
 protected:
   // Usual data generation method

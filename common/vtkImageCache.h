@@ -169,7 +169,7 @@ public:
   // Description:  
   // This method is used translparently by the "SetInput(vtkImageCache *)"
   // method to connect the image pipeline to the visualization pipeline.
-  vtkImageToStructuredPoints *MakeImageToStructuredPoints();
+  vtkImageToStructuredPoints *GetImageToStructuredPoints();
   
   // Description:
   // Set the data scalar type of the regions created by this cache.

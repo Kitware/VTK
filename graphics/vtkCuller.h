@@ -38,12 +38,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkCuller - a superclass for prop cullers
+// .NAME vtkCuller - a superclass for actor cullers
 // .SECTION Description
-// A culler has a cull method called by the vtkRenderer. The cull 
-// method is called before any rendering is performed,
-// and it allows the culler to do some processing on the props and 
-// to modify their AllocatedRenderTime and re-order them in the prop list. 
+// A culler has two methods called by the vtkRenderer - OuterCullMethod
+// and InnerCullMethod. The outer method is called before the actor
+// render loop in UpdateActors, and it allows the culler to do some
+// processing on the actors and to modify their AllocatedRenderTime and
+// re-order them in the actor list. The inner method is called right 
+// before the actor is rendered and give the culler one last chance to
+// set the actor's allocated render time to 0.0 (meaning that it shouldn't
+// be rendered). A view frustum culler would have an outer method, and no
+// inner method. A visibility culler would have an inner method, and no
+// outer method.
 
 // .SECTION see also
 // vtkFrustumCoverageCuller
@@ -62,9 +68,13 @@ public:
   const char *GetClassName() {return "vtkCuller";};
 
   // Description:
-  // This is called outside the render loop by vtkRenderer
-  virtual float Cull( vtkRenderer *ren, vtkProp **propList,
-		      int& listLength, int& initialized )=0;
+  // This is called outside the render loop
+  virtual float OuterCullMethod( vtkRenderer *ren, vtkProp **actorList,
+				 int& listLength, int& initialized )=0;
+
+  // Description:
+  // This is called inside the render loop
+  virtual int   InnerCullMethod( vtkRenderer *ren, vtkProp *act )=0;
 
 protected:
 };

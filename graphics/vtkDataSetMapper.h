@@ -66,13 +66,13 @@ public:
   const char *GetClassName() {return "vtkDataSetMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
   void Render(vtkRenderer *ren, vtkActor *act);
+  float *GetBounds();
 
   // Description:
   // Specify the input data to map.
   void SetInput(vtkDataSet *in);
   void SetInput(vtkImageCache *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput(tmp->GetOutput()); tmp->Delete();}
+    {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
   
   // Description:
   // Get the internal poly data mapper used to map data set to graphics system.

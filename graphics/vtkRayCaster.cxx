@@ -630,6 +630,9 @@ void vtkRayCaster::InitializeRenderBuffers(vtkRenderer *ren)
   float                *viewport;
   int                  *renWinSize;
   int                  something_in_framebuffer = 0;
+  vtkActor             *anActor;
+  vtkVolume            *aVolume;
+  vtkVolumeCollection  *volumes;
   int                  lowerLeftCorner[2];
 
   // How big is this image?
@@ -649,6 +652,23 @@ void vtkRayCaster::InitializeRenderBuffers(vtkRenderer *ren)
   if ( ren->GetNumberOfPropsRenderedAsGeometry() > 0 )
     {
     something_in_framebuffer = 1;
+    }
+
+  // If we haven't found any actors in the frame buffer, check for
+  // volumes that might be there
+  if ( !something_in_framebuffer )
+    {
+    volumes = ren->GetVolumes();
+    for (volumes->InitTraversal(); (aVolume = volumes->GetNextVolume()); )
+      {
+      if (aVolume->GetVisibility() && 
+	  aVolume->GetVolumeMapper()->GetMapperType() == 
+	  VTK_FRAMEBUFFER_VOLUME_MAPPER )
+	{
+	something_in_framebuffer = 1;
+	break;
+	}
+      }
     }
 
   // If we have something in the frame buffer, capture the color and z values
@@ -685,7 +705,8 @@ void vtkRayCaster::InitializeRenderBuffers(vtkRenderer *ren)
     }
 }
 
-void vtkRayCaster::ComputeRowBounds( vtkRenderer *ren, vtkProp *prop, int index )
+void vtkRayCaster::ComputeRowBounds( vtkRenderer *ren,
+				     struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {
   float     *bounds;
   int       i, j, k, indx, low, high;
@@ -697,7 +718,7 @@ void vtkRayCaster::ComputeRowBounds( vtkRenderer *ren, vtkProp *prop, int index 
   float     *viewport;
   int       *renWinSize;
 
-  bounds          = prop->GetBounds();
+  bounds          = volumeInfo->Volume->GetBounds();
   renWinSize      = ren->GetRenderWindow()->GetSize();
   viewport        = ren->GetViewport();
 
@@ -726,20 +747,20 @@ void vtkRayCaster::ComputeRowBounds( vtkRenderer *ren, vtkProp *prop, int index 
       }
     }
 
-  if ( this->RowBoundsSize[index] != this->ImageSize[1] )
+  if ( volumeInfo->RowBoundsSize != this->ImageSize[1] )
     {
-    if ( this->RowBounds[index] )
+    if ( volumeInfo->RowBounds )
       {
-      delete [] this->RowBounds[index];
+      delete [] volumeInfo->RowBounds;
       }
-    this->RowBounds[index] = new int [this->ImageSize[1]*2];
-    this->RowBoundsSize[index] = this->ImageSize[1];
+    volumeInfo->RowBounds = new int [this->ImageSize[1]*2];
+    volumeInfo->RowBoundsSize = this->ImageSize[1];
     }
 
   for ( i = 0; i < this->ImageSize[1]; i++ )
     {
-    this->RowBounds[index][i*2+0] = this->ImageSize[0] + 1;
-    this->RowBounds[index][i*2+1]  = -1;
+    volumeInfo->RowBounds[i*2+0] = this->ImageSize[0] + 1;
+    volumeInfo->RowBounds[i*2+1] = -1;
     }
 
   for ( i = 0; i < 12; i++ )
@@ -780,13 +801,13 @@ void vtkRayCaster::ComputeRowBounds( vtkRenderer *ren, vtkProp *prop, int index 
 	for ( j = low; j <= high; j++ )
 	  {
 	  x = x1 - (y1-j)/slope;
-	  if ( ((int)x - 1) < this->RowBounds[index][2*j+0] )
+	  if ( ((int)x - 1) < volumeInfo->RowBounds[2*j+0] )
 	    {
-	    this->RowBounds[index][2*j+0] = (int)x - 1;
+	    volumeInfo->RowBounds[2*j+0] = (int)x - 1;
 	    }
-	  if ( ((int)x + 1) > this->RowBounds[index][2*j+1] )
+	  if ( ((int)x + 1) > volumeInfo->RowBounds[2*j+1] )
 	    {
-	    this->RowBounds[index][2*j+1] = (int)x + 1;
+	    volumeInfo->RowBounds[2*j+1] = (int)x + 1;
 	    }
 	  }
 	}
@@ -794,13 +815,13 @@ void vtkRayCaster::ComputeRowBounds( vtkRenderer *ren, vtkProp *prop, int index 
 	{
 	for ( j = low; j <= high; j++ )
 	  {
-	  if ( ((int)x1 - 1) < this->RowBounds[index][2*j+0] )
+	  if ( ((int)x1 - 1) < volumeInfo->RowBounds[2*j+0] )
 	    {
-	    this->RowBounds[index][2*j+0] = (int)x1 - 1;
+	    volumeInfo->RowBounds[2*j+0] = (int)x1 - 1;
 	    }
-	  if ( ((int)x1 + 1) > this->RowBounds[index][2*j+1] )
+	  if ( ((int)x1 + 1) > volumeInfo->RowBounds[2*j+1] )
 	    {
-	    this->RowBounds[index][2*j+1] = (int)x1 + 1;
+	    volumeInfo->RowBounds[2*j+1] = (int)x1 + 1;
 	    }
 	  }
 	}
@@ -815,23 +836,59 @@ void vtkRayCaster::ComputeRowBounds( vtkRenderer *ren, vtkProp *prop, int index 
 // necessary for storing information and quick access.
 void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
 {
+  vtkVolumeCollection   *volumes;
+  vtkVolume             *aVolume;
   int                   i, j;
   vtkTransform          *transform;
   vtkMatrix4x4          *matrix;
   float                 aspect;
   float                 ren_aspect[2];
-  vtkProp               *aProp;
+  float                 cameraPosition[3], *volumePosition;
+ 
+  // Get the position of the camera for use in determining the
+  // distance to the center of each volume
+  ren->GetActiveCamera()->GetPosition( cameraPosition );
 
-  this->RowBounds     = new int *[this->RayCastPropCount];
-  this->RowBoundsSize = new int  [this->RayCastPropCount];
+  // Create a pointer to each volume for speedy access
+  this->RayCastVolumes = new vtkVolume *[this->RayCastVolumeCount];
 
-  for ( i = 0; i < this->RayCastPropCount; i++ )
+  // Create the volume info structure for each volume which stores
+  // ray casting information that is independent of pixel but dependent on
+  // the volume such as the world to volume coordinate conversion matrix.
+  this->VolumeInfo = 
+    new struct VolumeRayCastVolumeInfoStruct [this->RayCastVolumeCount];
+
+  // Get the pointer to each of the ray cast volume, and initialize the
+  // mapper, passing in the info structure so that information can be
+  // stored there
+  i = 0;
+  volumes = ren->GetVolumes();
+  for ( volumes->InitTraversal(); (aVolume = volumes->GetNextVolume()); )
     {
-    aProp = this->RayCastProps[i];
-    aProp->InitializeRayCasting( ren );
-    this->RowBounds[i] = NULL;
-    this->RowBoundsSize[i] = 0;
-    this->ComputeRowBounds( ren, aProp, i );
+    // Check visibility of volume 
+    if( aVolume->GetVisibility() &&
+	aVolume->GetVolumeMapper()->GetMapperType() == 
+	VTK_RAYCAST_VOLUME_MAPPER )
+	{
+	this->RayCastVolumes[i] = aVolume;
+	this->VolumeInfo[i].Volume = aVolume;
+        volumePosition = aVolume->GetCenter();
+	this->VolumeInfo[i].CenterDistance = sqrt( (double) 
+	       ( ( cameraPosition[0] - volumePosition[0] ) *   
+		 ( cameraPosition[0] - volumePosition[0] ) +
+		 ( cameraPosition[1] - volumePosition[1] ) *
+		 ( cameraPosition[1] - volumePosition[1] ) +
+		 ( cameraPosition[2] - volumePosition[2] ) *
+		 ( cameraPosition[2] - volumePosition[2] ) ) );
+	((vtkVolumeRayCastMapper *)
+	 (aVolume->GetVolumeMapper()))->InitializeRender(ren, aVolume,
+							 &this->VolumeInfo[i]);
+	this->VolumeInfo[i].RowBounds = NULL;
+	this->VolumeInfo[i].RowBoundsSize = 0;
+	this->ComputeRowBounds( ren, &(this->VolumeInfo[i]) );
+
+	i++;
+	}
     }
 
   // Store the view to world transformation matrix for later use. This is the
@@ -944,12 +1001,13 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
   int                          noAbort = 1;
   vtkRenderWindow              *renWin;
   vtkRayCaster                 *raycaster;
+  vtkVolumeRayCastMapper       **mapper;
   float                        zm22, zm23, zm32, zm33;
   float                        *red, *green, *blue, *alpha, *depth;
   float                        tmp;
   float                        r, g, b, a, remaining_a;
   int                          icount;
-  VTKRayCastRayInfo            rayInfo;
+  struct VolumeRayCastRayInfoStruct  rayInfo;
   int                          numSamples = 0;
 
   // Get the info out of the input structure
@@ -975,31 +1033,38 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
   // We need an rgba and z value for each possible volume intersection
   // along the ray, plus one for the information that is (possibly) already
   // store in the rgba and z buffers (from hardware rendering)
-  red   = new float [raycaster->RayCastPropCount+1];
-  green = new float [raycaster->RayCastPropCount+1];
-  blue  = new float [raycaster->RayCastPropCount+1];
-  alpha = new float [raycaster->RayCastPropCount+1];
-  depth = new float [raycaster->RayCastPropCount+1];
+  red   = new float [raycaster->RayCastVolumeCount+1];
+  green = new float [raycaster->RayCastVolumeCount+1];
+  blue  = new float [raycaster->RayCastVolumeCount+1];
+  alpha = new float [raycaster->RayCastVolumeCount+1];
+  depth = new float [raycaster->RayCastVolumeCount+1];
 
   // In an orthographic projection, the direction is constant
   if ( raycaster->ParallelProjection )
     {
-    rayInfo.Direction[0] =  0.0;
-    rayInfo.Direction[1] =  0.0;
-    rayInfo.Direction[2] = -1.0;
+    rayInfo.RayDirection[0] =  0.0;
+    rayInfo.RayDirection[1] =  0.0;
+    rayInfo.RayDirection[2] = -1.0;
     }
   // In a perspective projection, the origin in constant
   else
     {
-    rayInfo.Origin[0] = 0.0;
-    rayInfo.Origin[1] = 0.0;
-    rayInfo.Origin[2] = 0.0;
+    rayInfo.RayOrigin[0] = 0.0;
+    rayInfo.RayOrigin[1] = 0.0;
+    rayInfo.RayOrigin[2] = 0.0;
     }
   
   // We need to know the width of the image down in the mapper to 
   // decode z values from the ray bounder
-  rayInfo.ImageSize[0] = raycaster->ImageSize[0];
-  rayInfo.ImageSize[1] = raycaster->ImageSize[1];
+  rayInfo.ImageWidth = raycaster->ImageSize[0];
+
+  // Keep a pointer to each mapper for faster access
+  mapper = new vtkVolumeRayCastMapper *[raycaster->RayCastVolumeCount];
+  for ( k = 0; k < raycaster->RayCastVolumeCount; k++ )
+    {
+    mapper[k] = (vtkVolumeRayCastMapper *)
+      raycaster->RayCastVolumes[k]->GetVolumeMapper();
+    }
 
   // Loop through all rows of the image
   for ( j = 0; j < raycaster->ImageSize[1]; j++ )
@@ -1059,37 +1124,37 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 	// If we have an orthographic projection, the origin must be computed.
 	if ( raycaster->ParallelProjection )
 	  {
-	  rayInfo.Origin[0] = raycaster->ParallelStartPosition[0] + 
+	  rayInfo.RayOrigin[0] = raycaster->ParallelStartPosition[0] + 
 	    i * raycaster->ParallelIncrements[0];
-	  rayInfo.Origin[1] = raycaster->ParallelStartPosition[1] + 
+	  rayInfo.RayOrigin[1] = raycaster->ParallelStartPosition[1] + 
 	    j * raycaster->ParallelIncrements[1];
-	  rayInfo.Origin[2] = 0.0;
+	  rayInfo.RayOrigin[2] = 0.0;
 	  }
 	// If we have a perspective projection, then copy the ray direction of
 	// of the view rays
 	else
 	  {
-	  memcpy( rayInfo.Direction, ray_ptr, 3*sizeof(float) );	
+	  memcpy( rayInfo.RayDirection, ray_ptr, 3*sizeof(float) );	
 	  }
 
 	// We need to tell the mapper which pixel this is in case there is
 	// some ray bounding going on in the mapper
-	rayInfo.Pixel[1] = j;
-	rayInfo.Pixel[0] = i;
+	rayInfo.RayPixel[1] = j;
+	rayInfo.RayPixel[0] = i;
 
 	icount = 1;
 
 	// For each volume we need to cast this ray
-	for ( k = 0; k < raycaster->RayCastPropCount; k++ )
+	for ( k = 0; k < raycaster->RayCastVolumeCount; k++ )
 	  {
-	  if ( i >= raycaster->RowBounds[k][2*j+0] &&
-	       i <= raycaster->RowBounds[k][2*j+1] )
+	  if ( i >= raycaster->VolumeInfo[k].RowBounds[2*j+0] &&
+	       i <= raycaster->VolumeInfo[k].RowBounds[2*j+1] )
 	    {
 	    // In an orthographic projection, near and far remain unchanged
 	    if ( raycaster->ParallelProjection )
 	      {
-	      rayInfo.NearClip = nearclip;
-	      rayInfo.FarClip  = farplane;
+	      rayInfo.RayNearClip = nearclip;
+	      rayInfo.RayFarClip  = farplane;
 	      }
 	    // In a perspective projection we must divide near and far by the
 	    // z component of the view ray to account for the fact that this
@@ -1097,25 +1162,25 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 	    // the view origin
 	    else
 	      {
-	      rayInfo.NearClip = nearclip / -ray_ptr[2];
-	      rayInfo.FarClip  = farplane / -ray_ptr[2];
+	      rayInfo.RayNearClip = nearclip / -ray_ptr[2];
+	      rayInfo.RayFarClip  = farplane / -ray_ptr[2];
 	      }
 
 	    // Cast the ray and gather the resulting values.
-	    raycaster->RayCastProps[k]->CastViewRay( &rayInfo );
-	    red[icount]   = rayInfo.Color[0];
-	    green[icount] = rayInfo.Color[1];
-	    blue[icount]  = rayInfo.Color[2];
-	    alpha[icount] = rayInfo.Color[3];
-	    numSamples += rayInfo.NumberOfStepsTaken;
+	    mapper[k]->CastViewRay( &rayInfo, &raycaster->VolumeInfo[k] );
+	    red[icount]   = rayInfo.RayColor[0];
+	    green[icount] = rayInfo.RayColor[1];
+	    blue[icount]  = rayInfo.RayColor[2];
+	    alpha[icount] = rayInfo.RayColor[3];
+	    numSamples += rayInfo.VolumeRayStepsTaken;
 
 	    if ( raycaster->ParallelProjection )
 	      {
-	      depth[icount] = rayInfo.Depth + nearclip;
+	      depth[icount] = rayInfo.RayDepth + nearclip;
 	      }
 	    else
 	      {
-	      depth[icount] = rayInfo.Depth + nearclip / -ray_ptr[2];
+	      depth[icount] = rayInfo.RayDepth + nearclip / -ray_ptr[2];
 	      }
 	  
 	    // Bubble it down - we want to have the samples ordered from
@@ -1188,6 +1253,7 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
     } // End of for each row loop
 
   // Delete the temporary stuff we created
+  delete [] mapper;
   delete [] red;
   delete [] green;
   delete [] blue;
@@ -1203,19 +1269,16 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 
 // Render any ray cast or software buffer volumes and put the resulting
 // image in the frame buffer
-void vtkRayCaster::Render( vtkRenderer *ren, 
-			   int raycastCount, 
-			   vtkProp **raycastProps,
-			   int softwareCount,
-			   vtkProp **softwareProps )
+void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount, 
+			  int softwareCount )
 {
   int                  deleteDisabled = 0;
-  vtkProp              *aProp;
+  vtkVolume            *aVolume;
+  vtkVolumeCollection  *volumes;
   vtkTimerLog          *timer;
   float                *nextImage, *ptr1, *ptr2;
   float                alpha;
-  int                  i, j, k;
-  float                renderTime;
+  int                  i, j;
 
   // We need a timer to know how long the ray casting and software
   // buffer rendering takes. This will be used to determine what
@@ -1226,15 +1289,12 @@ void vtkRayCaster::Render( vtkRenderer *ren,
 
   // Grab the counts that were passed in - these were computed up
   // in vtkRenderer::UpdateVolumes()
-  this->RayCastPropCount = raycastCount;
-  this->SoftwareBufferPropCount = softwareCount;
-  this->RayCastProps = raycastProps;
-  this->SoftwareProps = softwareProps;
+  this->RayCastVolumeCount = raycastCount;
+  this->SoftwareBufferVolumeCount = softwareCount;
 
   // Create the RGBA and Z buffers necessary to store the
   // render image data.
   this->InitializeRenderBuffers( ren );
-
  
   // If we don't have any geometry then we won't capture the color buffer
   // after geometry rendering, and therefore we will not correctly account 
@@ -1254,19 +1314,16 @@ void vtkRayCaster::Render( vtkRenderer *ren,
 
   // If we have some volumes with ray cast volume mappers, then
   // render them
-  if ( this->RayCastPropCount )
+  if ( this->RayCastVolumeCount )
     {
-
     // Do any necessary initialization
     this->InitializeRayCasting( ren );
-
 
     // Set the number of threads to use for ray casting,
     // then set the execution method and do it.
     this->Threader->SetNumberOfThreads( this->NumberOfThreads );
     this->Threader->SetSingleMethod( RayCast_RenderImage, 
 				     (void *)this);
-
     this->Threader->SingleMethodExecute();
 
     // Once we've ray casted we now have something in the image
@@ -1276,24 +1333,24 @@ void vtkRayCaster::Render( vtkRenderer *ren,
 
     // Delete the structures that we created during
     // ray casting.
-    for ( i = 0; i < this->RayCastPropCount; i++ )
+    for ( i = 0; i < this->RayCastVolumeCount; i++ )
       {
-      if ( this->RowBounds[i] )
+      if ( this->VolumeInfo[i].RowBounds )
 	{
-	delete [] this->RowBounds[i];
+	delete [] this->VolumeInfo[i].RowBounds;
 	}
       }
 
-    delete [] this->RowBounds;
-    delete [] this->RowBoundsSize;
+    delete [] this->RayCastVolumes;
+    delete [] this->VolumeInfo;
     }
 
   // If we have any volumes with software buffer mappers, render them
-  if ( this->SoftwareBufferPropCount )
+  if ( this->SoftwareBufferVolumeCount )
     {
     // For speed - treat the cast where we have no geometry, no ray cast
     // volumes, and only one software buffer volume as a special cast
-    if ( this->SoftwareBufferPropCount == 1 && this->FirstBlend )
+    if ( this->SoftwareBufferVolumeCount == 1 && this->FirstBlend )
       {
       // We will use the image returned by the mapper, so we don't need
       // the ones we created, and we don't want to delete this other one
@@ -1302,57 +1359,76 @@ void vtkRayCaster::Render( vtkRenderer *ren,
       delete [] this->RGBAImage;
       delete [] this->ZImage;
 
+      // Find that first software buffer volume
+      volumes = ren->GetVolumes();
+      for ( volumes->InitTraversal(); (aVolume = volumes->GetNextVolume()); )
+	{
+	if( aVolume->GetVisibility() &&
+	    aVolume->GetVolumeMapper()->GetMapperType() == 
+	    VTK_SOFTWAREBUFFER_VOLUME_MAPPER )
+	  {
+	  break;
+	  }
+	}
+      
       // Render it and get the resulting image
-      this->SoftwareProps[0]->RenderIntoImage( (vtkViewport *)ren );
+      aVolume->Render( ren );
+      aVolume->GetVolumeMapper()->Render( ren, aVolume );
       this->RGBAImage = 
-          this->SoftwareProps[0]->GetRGBAImage();
+          aVolume->GetVolumeMapper()->GetRGBAPixelData();
       }
     // Otherwise we have geometry, ray cast volumes, or more than one software
     // buffer volumes
     else
       {     
       // Render each volume of the right type
-      for ( k = 0; k < this->SoftwareBufferPropCount; k++ )
+      volumes = ren->GetVolumes();
+      for ( volumes->InitTraversal(); (aVolume = volumes->GetNextVolume()); )
 	{
-	aProp = this->SoftwareProps[k];
-
-	// Render the volume and get the resulting image
-	aProp->RenderIntoImage( ren );
-	nextImage = aProp->GetRGBAImage();
-
-	// Blend this image with what we have already
-	ptr1 = this->RGBAImage;
-	ptr2 = nextImage;
-	for ( j = 0; j < this->ImageSize[1]; j++ )
+	if( aVolume->GetVisibility() &&
+	    aVolume->GetVolumeMapper()->GetMapperType() == 
+	    VTK_SOFTWAREBUFFER_VOLUME_MAPPER )
 	  {
-	  for ( i = 0; i < this->ImageSize[0]; i++ )
+	  // Render the volume and get the resulting image
+	  aVolume->Render( ren );
+	  aVolume->GetVolumeMapper()->Render( ren, aVolume );
+	  nextImage = 
+	    aVolume->GetVolumeMapper()->GetRGBAPixelData();
+
+	  // Blend this image with what we have already
+	  ptr1 = this->RGBAImage;
+	  ptr2 = nextImage;
+	  for ( j = 0; j < this->ImageSize[1]; j++ )
 	    {
-	    if ( this->FirstBlend )
+	    for ( i = 0; i < this->ImageSize[0]; i++ )
 	      {
-	      *(ptr1++) = *(ptr2++);
-	      *(ptr1++) = *(ptr2++);
-	      *(ptr1++) = *(ptr2++);
-	      ptr1++;
-	      ptr2++;
-	      }
-	    else
-	      {
-	      alpha = *(ptr2+3);
-	      *ptr1 = *ptr2 + *ptr1 * alpha;
-	      ptr1++;
-	      ptr2++;
-	      *ptr1 = *ptr2 + *ptr1 * alpha;
-	      ptr1++;
-	      ptr2++;
-	      *ptr1 = *ptr2 + *ptr1 * alpha;
-	      ptr1+=2;
-	      ptr2+=2;
+	      if ( this->FirstBlend )
+		{
+		*(ptr1++) = *(ptr2++);
+		*(ptr1++) = *(ptr2++);
+		*(ptr1++) = *(ptr2++);
+		ptr1++;
+		ptr2++;
+		}
+	      else
+		{
+		alpha = *(ptr2+3);
+		*ptr1 = *ptr2 + *ptr1 * alpha;
+		ptr1++;
+		ptr2++;
+		*ptr1 = *ptr2 + *ptr1 * alpha;
+		ptr1++;
+		ptr2++;
+		*ptr1 = *ptr2 + *ptr1 * alpha;
+		ptr1+=2;
+		ptr2+=2;
+		}
 	      }
 	    }
 	  }
 	}
+      
       }
-    
     }
 
   // If we still haven't blended the background color into the
@@ -1421,19 +1497,6 @@ void vtkRayCaster::Render( vtkRenderer *ren,
       this->ImageRenderTime[1] = this->TotalRenderTime;
       }
     }
-
-  // Fudge for now - divide the time among all the volumes rendered
-  // so that they can return an estimated render time.
-  renderTime = this->TotalRenderTime / ( softwareCount + raycastCount );
-  for ( i = 0; i < this->SoftwareBufferPropCount; i++ )
-    {
-    this->SoftwareProps[i]->SetEstimatedRenderTime( renderTime );
-    }  
-  for ( i = 0; i < this->RayCastPropCount; i++ )
-    {
-    this->RayCastProps[i]->SetEstimatedRenderTime( renderTime );
-    }  
-
   timer->Delete();
 
 }

@@ -88,17 +88,9 @@ public:
   static void ProjectPoint(float x[3], float origin[3], float normal[3], 
                            float xproj[3]);
 
-  // Description
-  // Project a point x onto plane defined by origin and normal. The 
-  // projected point is returned in xproj. NOTE : normal does NOT have to 
-  // have magnitude 1.
-  static void GeneralizedProjectPoint(float x[3], float origin[3],
-				      float normal[3], float xproj[3]);
-  
   // Description:
   // Quick evaluation of plane equation n(x-origin)=0.
   static float Evaluate(float normal[3], float origin[3], float x[3]);
-  static float Evaluate(double normal[3], double origin[3], double x[3]);
 
   // Description:
   // Return the distance of a point x to a plane defined by n(x-p0) = 0. The
@@ -122,11 +114,6 @@ protected:
 };
 
 inline float vtkPlane::Evaluate(float normal[3], float origin[3], float x[3])
-{
-  return normal[0]*(x[0]-origin[0]) + normal[1]*(x[1]-origin[1]) + 
-         normal[2]*(x[2]-origin[2]);
-}
-inline float vtkPlane::Evaluate(double normal[3], double origin[3],double x[3])
 {
   return normal[0]*(x[0]-origin[0]) + normal[1]*(x[1]-origin[1]) + 
          normal[2]*(x[2]-origin[2]);

@@ -474,7 +474,7 @@ void vtkRenderWindow::DoAARender()
 	acam = aren->GetActiveCamera();
 
 	// calculate the amount to jitter
-	acam->GetFocalPoint(origfocus);
+	memcpy(origfocus,acam->GetFocalPoint(),12);
 	aren->SetWorldPoint(origfocus);
 	aren->WorldToDisplay();
 	dpoint = aren->GetDisplayPoint();
@@ -492,7 +492,7 @@ void vtkRenderWindow::DoAARender()
 	worldOffset[1] = dpoint[1] - origfocus[1];
 	worldOffset[2] = dpoint[2] - origfocus[2];
 
-	acam->GetPosition(dpoint);
+	dpoint = acam->GetPosition();
 	acam->SetPosition(dpoint[0]+worldOffset[0],
 			  dpoint[1]+worldOffset[1],
 			  dpoint[2]+worldOffset[2]);
@@ -508,7 +508,7 @@ void vtkRenderWindow::DoAARender()
 	acam = aren->GetActiveCamera();
 
 	// calculate the amount to jitter
-	acam->GetFocalPoint(origfocus);
+	memcpy(origfocus,acam->GetFocalPoint(),12);
 	aren->SetWorldPoint(origfocus);
 	aren->WorldToDisplay();
 	dpoint = aren->GetDisplayPoint();
@@ -526,7 +526,7 @@ void vtkRenderWindow::DoAARender()
 	worldOffset[1] = dpoint[1] - origfocus[1];
 	worldOffset[2] = dpoint[2] - origfocus[2];
 
-	acam->GetPosition(dpoint);
+	dpoint = acam->GetPosition();
 	acam->SetPosition(dpoint[0]+worldOffset[0],
 			  dpoint[1]+worldOffset[1],
 			  dpoint[2]+worldOffset[2]);
@@ -584,19 +584,19 @@ void vtkRenderWindow::DoFDRender()
     vtkRenderer *aren;
     vtkCamera *acam;
     float focalDisk;
-    double viewUp[4];
-    double *vpn;
-    double *dpoint;
+    float viewUp[4];
+    float *vpn;
+    float *dpoint;
     vtkTransform *aTrans = vtkTransform::New();
-    double offsets[2];
-    double *orig;
+    float offsets[2];
+    float *orig;
 
     // get the size
     size = this->GetSize();
 
     viewUp[3] = 1.0;
 
-    orig = new double [3*this->Renderers->GetNumberOfItems()];
+    orig = new float [3*this->Renderers->GetNumberOfItems()];
 
     for (i = 0; i < this->FDFrames; i++)
       {
@@ -612,17 +612,17 @@ void vtkRenderWindow::DoFDRender()
 	acam = aren->GetActiveCamera();
 	focalDisk = acam->GetFocalDisk()*offsets[0];
 
-	acam->GetViewUp(viewUp);
+	memcpy(viewUp,acam->GetViewUp(),12);
 	vpn = acam->GetViewPlaneNormal();
 	aTrans->Identity();
 	aTrans->Scale(focalDisk,focalDisk,focalDisk);
 	aTrans->RotateWXYZ(offsets[1],vpn[0],vpn[1],vpn[2]);
-	aTrans->SetDoublePoint(viewUp);
-	vpn = aTrans->GetDoublePoint();
+	aTrans->SetPoint(viewUp);
+	vpn = aTrans->GetPoint();
 	dpoint = acam->GetPosition();
 
 	// store the position for later
-	memcpy(orig + j*3,dpoint,3 * sizeof (double));
+	memcpy(orig + j*3,dpoint,12);
 	j++;
 
 	acam->SetPosition(dpoint[0]+vpn[0],

@@ -1,6 +1,4 @@
 catch {load vtktcl}
-
-
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
 source ../../examplesTcl/colors.tcl
@@ -22,8 +20,7 @@ vtkVolume16Reader v16
     v16 SetFilePrefix "../../../vtkdata/headsq/half"
     v16 SetImageRange 45 45
     v16 SetDataSpacing 1.6 1.6 1.5
-#vtkSynchronizedTemplates2D iso
-vtkKitwareContourFilter iso
+vtkSynchronizedTemplates2D iso
     iso SetInput [v16 GetOutput]
     iso GenerateValues 12 500 1150
 vtkPolyDataMapper isoMapper

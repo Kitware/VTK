@@ -121,13 +121,6 @@ public:
   // as you go up the screen.
   vtkSetVector3Macro(DisplayPoint,float);
   vtkGetVectorMacro(DisplayPoint,float,3);
-  void GetDisplayPoint(double *a) 
-    {
-      a[0] = this->DisplayPoint[0];
-      a[1] = this->DisplayPoint[1];
-      a[2] = this->DisplayPoint[2];
-      a[3] = 1.0;
-    };
 
   // Description:
   // Specify a point location in view coordinates. The origin is in the 
@@ -141,15 +134,7 @@ public:
   // homogeneous coordinates. 
   vtkSetVector4Macro(WorldPoint,float);
   vtkGetVectorMacro(WorldPoint,float,4);
-  void GetWorldPoint(double *a) 
-    {
-      a[0] = this->WorldPoint[0];
-      a[1] = this->WorldPoint[1];
-      a[2] = this->WorldPoint[2];
-      a[3] = this->WorldPoint[3];
-    };
-  
-  
+
   // Description:
   // Return the center of this viewport in display coordinates.
   virtual float *GetCenter();

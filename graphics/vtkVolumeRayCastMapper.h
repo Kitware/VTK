@@ -91,10 +91,6 @@ public:
   int GetMapperType() { return VTK_RAYCAST_VOLUME_MAPPER; };
 
   // Description:
-  // This is a ray cast mapper.
-  virtual int IsARayCastMapper() {return 1;};
-
-  // Description:
   // Set/Get the distance between samples.  This variable is only
   // used for sampling ray casting methods.  Methods that compute
   // a ray value by stepping cell-by-cell are not affected by this
@@ -121,7 +117,7 @@ public:
   void Render( vtkRenderer *ren, vtkVolume *vol ) {};
 //BTX
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol,
-			 VTKRayCastVolumeInfo *volumeInfo );
+			 struct VolumeRayCastVolumeInfoStruct *volumeInfo );
 //ETX
 
   // Description:
@@ -146,8 +142,8 @@ public:
 
 
 //BTX
-  void CastViewRay( VTKRayCastRayInfo *rayInfo,
-		    VTKRayCastVolumeInfo *volumeInfo );
+  void CastViewRay( struct VolumeRayCastRayInfoStruct *rayInfo,
+		    struct VolumeRayCastVolumeInfoStruct *volumeInfo );
 //ETX
 
 protected:
@@ -167,7 +163,7 @@ protected:
   float                        *DepthRangeBufferPointer;
 
 //BTX
-  int                          ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo );
+  int                          ClipRayAgainstVolume( struct VolumeRayCastRayInfoStruct *rayInfo );
 //ETX
   void                         GeneralImageInitialization( vtkRenderer *ren, 
 							   vtkVolume *vol );

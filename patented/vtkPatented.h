@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -41,12 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDecimate.h"
 #include "vtkDividingCubes.h"
-#include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkImageMarchingCubes.h"
-#include "vtkKitwareContourFilter.h"
 #include "vtkMarchingCubes.h"
 #include "vtkMarchingSquares.h"
 #include "vtkSliceCubes.h"
 #include "vtkSweptSurface.h"
-#include "vtkSynchronizedTemplates2D.h"
-#include "vtkSynchronizedTemplates3D.h"

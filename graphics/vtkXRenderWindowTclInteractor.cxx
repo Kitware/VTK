@@ -486,11 +486,7 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
             if (actor != NULL)
               {
               pickPoint = pickPositions->GetPoint(i);
-	      double dtmp[3];
-	      dtmp[0] = pickPoint[0];
-	      dtmp[1] = pickPoint[1];
-	      dtmp[2] = pickPoint[2];
-              d = vtkMath::Distance2BetweenPoints(dtmp, me->ViewPoint);
+              d = vtkMath::Distance2BetweenPoints(pickPoint, me->ViewPoint);
               if (distToCamera > d)
                 {
                 distToCamera = d;

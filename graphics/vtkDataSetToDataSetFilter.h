@@ -88,8 +88,7 @@ public:
   // Specify the input data or filter.
   void SetInput(vtkDataSet *input);
   void SetInput(vtkImageCache *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput(tmp->GetOutput()); tmp->Delete();}
+    {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
 
   // Description:
   // Update input to this filter and the filter itself. Note that we are 
@@ -122,14 +121,6 @@ public:
   // Get the output as vtkRectilinearGrid. 
   vtkRectilinearGrid *GetRectilinearGridOutput();
   
-  // Description:
-  // Handle the source/data loop.
-  void UnRegister(vtkObject *o);
-
-  // Description:
-  // Test to see if this object is in a reference counting loop.
-  virtual int InRegisterLoop(vtkObject *);
-
 protected:
   // objects used to support the retrieval of output
   vtkPolyData *PolyData;

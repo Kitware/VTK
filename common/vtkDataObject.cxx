@@ -57,6 +57,16 @@ vtkDataObject::~vtkDataObject()
   this->FieldData->Delete();
 }
 
+// Used only by the source.  No reference counting.
+void vtkDataObject::SetSource(vtkSource *source)
+{
+  if (this->Source != source)
+    {
+    this->Source = source;
+    this->Modified();
+    }
+}
+
 // Determine the modified time of this object
 unsigned long int vtkDataObject::GetMTime()
 {
@@ -151,31 +161,3 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   this->FieldData->PrintSelf(os,indent.GetNextIndent());
 }
 
-void vtkDataObject::SetSource(vtkSource *_arg)
-{
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Source to " << _arg ); 
-  if (this->Source != _arg) 
-    { 
-		vtkSource *tmp = this->Source;
-    this->Source = _arg; 
-    if (tmp != NULL) { tmp->UnRegister(this); }
-    if (this->Source != NULL) { this->Source->Register(this); } 
-    this->Modified(); 
-    } 
-}
-
-
-//----------------------------------------------------------------------------
-void vtkDataObject::UnRegister(vtkObject *o)
-{
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 2 && this->Source != NULL &&
-      o != this->Source && this->Source->InRegisterLoop(this))
-    {
-    this->SetSource(NULL);
-    }
-  
-  this->vtkObject::UnRegister(o);
-}

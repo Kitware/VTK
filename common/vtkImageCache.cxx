@@ -83,6 +83,10 @@ vtkImageCache::vtkImageCache()
 //----------------------------------------------------------------------------
 vtkImageCache::~vtkImageCache()
 {
+  if (this->ImageToStructuredPoints)
+    {
+    this->ImageToStructuredPoints->Delete();
+    }
   this->ReleaseData();
   // get rid of reference count.
   this->SetSource(NULL);
@@ -541,35 +545,35 @@ long vtkImageCache::GetUpdateExtentMemorySize()
 //----------------------------------------------------------------------------
 // This method is used translparently by the "SetInput(vtkImageCache *)"
 // method to connect the image pipeline to the visualization pipeline.
-vtkImageToStructuredPoints *vtkImageCache::MakeImageToStructuredPoints()
+vtkImageToStructuredPoints *vtkImageCache::GetImageToStructuredPoints()
 {
   if ( ! this->ImageToStructuredPoints)
     {
     this->ImageToStructuredPoints = vtkImageToStructuredPoints::New();
     this->ImageToStructuredPoints->SetInput(this);
     }
-  else
-    {
-    // we must up the ref count because this is a Make method
-    // it will be matched by a Delete
-    this->ImageToStructuredPoints->Register(this);
-    }
+  
   return this->ImageToStructuredPoints;
 }
 
 //----------------------------------------------------------------------------
+// Check to see if we own an ImageToStructuredPoints which has registered
+// this cache.
 void vtkImageCache::UnRegister(vtkObject* o)
 {
-  // detect the circular loop source <-> cache
-  // If we have two references and one of them is my cache
-  // and I am not being unregistered by my cache, break the loop.
-  if (this->ReferenceCount == 2 && this->Source != NULL &&
-      this->Source->GetOutput() == this && o != this->Source &&
-      this->Source->GetReferenceCount() == 1)
+  // detect the circular loop cache <-> ImageToStructuredPoints
+  // If we have two references and one of them is my itosp
+  // and I am not being unregistered by my itosp, break the loop.
+  if (this->GetReferenceCount() == 2 && 
+      this->ImageToStructuredPoints != NULL &&
+      this->ImageToStructuredPoints->GetInput() == this &&
+      this->ImageToStructuredPoints != o)
     {
-    this->SetSource(NULL);
+    vtkImageToStructuredPoints *temp = this->ImageToStructuredPoints;
+    this->ImageToStructuredPoints = NULL;    
+    temp->Delete();
     }
-  
+
   this->vtkObject::UnRegister(o);  
 }
 

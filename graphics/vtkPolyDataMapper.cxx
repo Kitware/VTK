@@ -98,5 +98,18 @@ void vtkPolyDataMapper::SetInput(vtkPolyData *in)
     }
 }
 
+//
+// Return bounding box of data
+//
+float *vtkPolyDataMapper::GetBounds()
+{
+  if ( this->Input ) 
+    {
+    this->Input->Update();
+    this->Input->GetBounds(this->Bounds);
+    }
+
+  return this->Bounds;
+}
 
 

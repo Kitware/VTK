@@ -195,7 +195,7 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
   // Put the volume's matrix on the stack
   position_matrix->Transpose();
   glPushMatrix();
-  glMultMatrixd( &(position_matrix->Element[0][0]) );
+  glMultMatrixf( &(position_matrix->Element[0][0]) );
 
   // Do the far buffer 
   glDepthFunc( GL_GREATER );

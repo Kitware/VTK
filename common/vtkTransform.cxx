@@ -318,58 +318,6 @@ void vtkTransform::RotateWXYZ ( float angle, float x, float y, float z)
   ctm->Delete();
 }
 
-void vtkTransform::RotateWXYZ ( double angle, double x, double y, double z)
-{
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
-  double   radians;
-  double   w;
-  double   quat[4];
-  double   sinAngle;
-  double   cosAngle;
-
-  // build a rotation matrix and concatenate it
-  quat[0] = angle;
-  quat[1] = x;
-  quat[2] = y;
-  quat[3] = z;
-
-  // convert degrees to radians
-  radians = quat[0] * vtkMath::DegreesToRadians() / 2;
-
-  cosAngle = cos (radians);
-  sinAngle = sin (radians);
-
-  // normalize x, y, z
-  if ( vtkMath::Normalize(quat+1) == 0.0 )
-    {
-    vtkErrorMacro(<<"Trying to rotate around zero-length axis");
-    return;
-    }
-
-  w = cosAngle;
-  x = quat[1] * sinAngle;
-  y = quat[2] * sinAngle;
-  z = quat[3] * sinAngle;
-
-  // matrix calculation is taken from Ken Shoemake's
-  // "Animation Rotation with Quaternion Curves",
-  // Comput. Graphics, vol. 19, No. 3 , p. 253
-
-  ctm->Element[0][0] = 1 - 2 * y * y - 2 * z * z;
-  ctm->Element[1][1] = 1 - 2 * x * x - 2 * z * z;
-  ctm->Element[2][2] = 1 - 2 * x * x - 2 * y * y;
-  ctm->Element[1][0] =  2 * x * y + 2 * w * z;
-  ctm->Element[2][0] =  2 * x * z - 2 * w * y;
-  ctm->Element[0][1] =  2 * x * y - 2 * w * z;
-  ctm->Element[2][1] =  2 * y * z + 2 * w * x;
-  ctm->Element[0][2] =  2 * x * z + 2 * w * y;
-  ctm->Element[1][2] =  2 * y * z - 2 * w * x;
-
-  // concatenate with current transformation matrix
-  this->Concatenate (ctm);
-  ctm->Delete();
-}
-
 // Scales the current transformation matrix in the x, y and z directions.
 // A scale factor of zero will automatically be replaced with one.
 void vtkTransform::Scale ( float x, float y, float z)
@@ -388,43 +336,8 @@ void vtkTransform::Scale ( float x, float y, float z)
   ctm->Delete();
 }
 
-// Scales the current transformation matrix in the x, y and z directions.
-// A scale factor of zero will automatically be replaced with one.
-void vtkTransform::Scale ( double x, double y, double z)
-{
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New(); //constructed as identity
-
-  if (x != 1.0 || y != 1.0 || z != 1.0) 
-    {
-    ctm->Element[0][0] = x;
-    ctm->Element[1][1] = y;
-    ctm->Element[2][2] = z;
-
-    // concatenate with current transformation matrix
-    this->Concatenate (ctm);
-    }
-  ctm->Delete();
-}
-
 // Translate the current transformation matrix by the vector {x, y, z}.
 void vtkTransform::Translate ( float x, float y, float z)
-{
-  vtkMatrix4x4 *ctm = vtkMatrix4x4::New(); //constructed as identity matrix
-
-  if (x != 0.0 || y != 0.0 || z != 0.0) 
-    {
-    ctm->Element[0][3] = x;
-    ctm->Element[1][3] = y;
-    ctm->Element[2][3] = z;
-
-    // concatenate with current transformation matrix
-    this->Concatenate (ctm);
-    }
-  ctm->Delete();
-}
-
-// Translate the current transformation matrix by the vector {x, y, z}.
-void vtkTransform::Translate ( double x, double y, double z)
 {
   vtkMatrix4x4 *ctm = vtkMatrix4x4::New(); //constructed as identity matrix
 
@@ -830,10 +743,6 @@ void vtkTransform::PrintSelf (ostream& os, vtkIndent indent)
 
   os << indent << (this->PreMultiplyFlag ? "PreMultiply\n" : "PostMultiply\n");
 
-  os << indent << "DoublePoint: " << "( " << 
-     this->DoublePoint[0] << ", " << this->DoublePoint[1] << ", " <<
-     this->DoublePoint[2] << ", " << this->DoublePoint[3] << "\n";
-
   os << indent << "Point: " << "( " << 
      this->Point[0] << ", " << this->Point[1] << ", " <<
      this->Point[2] << ", " << this->Point[3] << "\n";
@@ -858,19 +767,6 @@ float *vtkTransform::GetPoint()
     this->Stack[0]->MultiplyPoint(this->Point,this->Point);
     }
   return this->Point;
-}
-
-double *vtkTransform::GetDoublePoint()
-{
-  if (this->PreMultiplyFlag)
-    {
-    this->Stack[0]->PointMultiply(this->DoublePoint,this->DoublePoint);
-    }
-  else
-    {
-    this->Stack[0]->MultiplyPoint(this->DoublePoint,this->DoublePoint);
-    }
-  return this->DoublePoint;
 }
 
 void vtkTransform::GetPoint(float p[4])

@@ -104,21 +104,21 @@ CompositeFunction2 SetCompositeMethodToClassifyFirst
 vtkFiniteDifferenceGradientEstimator GradientEstimator
 
 vtkVolumeRayCastMapper volumeMapper1
-volumeMapper1 SetInput [reader GetOutput]
+volumeMapper1 SetScalarInput [reader GetOutput]
 volumeMapper1 SetVolumeRayCastFunction CompositeFunction1
 volumeMapper1 SetGradientEstimator GradientEstimator
 volumeMapper1 SetSampleDistance 0.3
 
 vtkVolumeRayCastMapper volumeMapper2
-volumeMapper2 SetInput [reader GetOutput]
+volumeMapper2 SetScalarInput [reader GetOutput]
 volumeMapper2 SetVolumeRayCastFunction CompositeFunction2
 volumeMapper2 SetGradientEstimator GradientEstimator
 
 for { set j 1 } { $j <= 2 } { incr j } {
     for { set i 1 } { $i <= 16 } { incr i } {
 	vtkVolume volume${i}_${j}
-	volume${i}_${j} SetMapper volumeMapper${j}
-	volume${i}_${j} SetProperty volumeProperty${i}
+	volume${i}_${j} SetVolumeMapper volumeMapper${j}
+	volume${i}_${j} SetVolumeProperty volumeProperty${i}
 	set k [expr int( ($i - 1)/8 ) + 2*($j - 1)]
 	set yoff [expr 70 * $k]
 	set k [expr (( $i - 1 ) % 8)]

@@ -37,13 +37,13 @@ vtkVolumeRayCastIsosurfaceFunction  isosurfaceFunction
     isosurfaceFunction SetIsoValue 128.0
 
 vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetInput [reader GetOutput]
+    volumeMapper SetScalarInput [reader GetOutput]
     volumeMapper SetVolumeRayCastFunction isosurfaceFunction
     volumeMapper SetSampleDistance 0.25
 
 vtkVolume volume
-    volume SetMapper volumeMapper
-    volume SetProperty volumeProperty
+    volume SetVolumeMapper volumeMapper
+    volume SetVolumeProperty volumeProperty
 
 vtkContourFilter contour
   contour SetInput [reader2 GetOutput]

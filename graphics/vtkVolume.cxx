@@ -42,38 +42,34 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkVolume.h"
+#include "vtkVolumeMapper.h"
 #include "vtkVolumeCollection.h"
-#include "vtkRenderer.h"
-#include "vtkRayCaster.h"
-#include "vtkVolumeRayCastMapper.h"
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
 // orientation=(0,0,0).
 vtkVolume::vtkVolume()
 {
-  this->Mapper          	    = NULL;
-  this->Property                    = NULL;
+  this->Scale		= 1.0;
+  this->VolumeMapper	= NULL;
+  this->VolumeProperty	= NULL;
   this->ScalarOpacityArray          = NULL;
   this->RGBArray                    = NULL;
   this->GrayArray                   = NULL;
   this->CorrectedScalarOpacityArray = NULL;
-  this->CorrectedStepSize           = -1;
-
-  this->VolumeInfo         = new VTKRayCastVolumeInfo;
-  this->VolumeInfo->Volume = this;
+  this->CorrectedStepSize             = -1;
 
 }
 
 // Destruct a volume
 vtkVolume::~vtkVolume()
 {
-  if (this->Property )
+  if (this->VolumeProperty )
     {
-    this->Property->UnRegister(this);
+    this->VolumeProperty->UnRegister(this);
     }
 
-  this->SetMapper(NULL);
+  this->SetVolumeMapper(NULL);
 
   if ( this->ScalarOpacityArray )
     {
@@ -95,11 +91,6 @@ vtkVolume::~vtkVolume()
     delete [] this->CorrectedScalarOpacityArray;
     }
 
-  if ( this->VolumeInfo )
-    {
-    delete this->VolumeInfo;
-    }
-
 }
 
 void vtkVolume::GetVolumes(vtkPropCollection *vc)
@@ -113,54 +104,76 @@ vtkVolume& vtkVolume::operator=(const vtkVolume& volume)
 
   this->UserMatrix = volume.UserMatrix;
   
-  this->Mapper = volume.Mapper;
+  this->VolumeMapper = volume.VolumeMapper;
 
   *((vtkProp *)this) = volume;
   
-  this->Property = volume.Property;
+  this->Scale = volume.Scale;
+  
+  this->VolumeProperty = volume.VolumeProperty;
   
   return *this;
 }
 
-void vtkVolume::SetMapper(vtkVolumeMapper *mapper)
+void vtkVolume::SetVolumeMapper(vtkVolumeMapper *mapper)
 {
-  if (this->Mapper != mapper)
+  if (this->VolumeMapper != mapper)
     {
-    if (this->Mapper != NULL) {this->Mapper->UnRegister(this);}
-    this->Mapper = mapper;
-    if (this->Mapper != NULL) {this->Mapper->Register(this);}
+    if (this->VolumeMapper != NULL) {this->VolumeMapper->UnRegister(this);}
+    this->VolumeMapper = mapper;
+    if (this->VolumeMapper != NULL) {this->VolumeMapper->Register(this);}
     this->Modified();
     }
 }
 
-int vtkVolume::RequiresRayCasting()
+// Copy the volume's composite 4x4 matrix into the matrix provided.
+void vtkVolume::GetMatrix(vtkMatrix4x4 *result)
 {
-  int               retval;
-
-  retval = 0;
-
-  if ( this->Mapper )
+  // check whether or not need to rebuild the matrix
+  if ( this->GetMTime() > this->MatrixMTime )
     {
-    retval = this->Mapper->IsARayCastMapper();
+    this->GetOrientation();
+    this->Transform->Push();  
+    this->Transform->Identity();  
+    this->Transform->PreMultiply();  
+
+    // apply user defined matrix last if there is one 
+    if (this->UserMatrix)
+      {
+      this->Transform->Concatenate(this->UserMatrix);
+      }
+
+    // first translate
+    this->Transform->Translate(this->Position[0],
+			      this->Position[1],
+			      this->Position[2]);
+   
+    // shift to origin
+    this->Transform->Translate(this->Origin[0],
+			      this->Origin[1],
+			      this->Origin[2]);
+   
+    // rotate
+    this->Transform->RotateZ(this->Orientation[2]);
+    this->Transform->RotateX(this->Orientation[0]);
+    this->Transform->RotateY(this->Orientation[1]);
+
+    // scale
+    this->Transform->Scale(this->Scale,
+			  this->Scale,
+			  this->Scale);
+
+    // shift back from origin
+    this->Transform->Translate(-this->Origin[0],
+			      -this->Origin[1],
+			      -this->Origin[2]);
+
+    this->Matrix->DeepCopy(this->Transform->GetMatrixPointer());
+    this->MatrixMTime.Modified();
+    this->Transform->Pop();  
     }
-
-  return retval;
-}
-
-int vtkVolume::RequiresRenderingIntoImage()
-{
-  int               retval;
-
-  retval = 0;
-
-  if ( this->Mapper )
-    {
-    retval = this->Mapper->IsARenderIntoImageMapper();
-    }
-
-  return retval;
-}
-
+  result->DeepCopy(this->Matrix);
+} 
 
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 float *vtkVolume::GetBounds()
@@ -171,13 +184,13 @@ float *vtkVolume::GetBounds()
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   
   // get the bounds of the Mapper if we have one
-  if (!this->Mapper)
+  if (!this->VolumeMapper)
     {
     matrix->Delete();
     return this->Bounds;
     }
 
-  bounds = this->Mapper->GetBounds();
+  bounds = this->VolumeMapper->GetBounds();
 
   // fill out vertices of a bounding box
   bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
@@ -277,46 +290,6 @@ float vtkVolume::GetMaxZBound( )
   return this->Bounds[5];
 }
 
-int vtkVolume::RenderIntoImage( vtkViewport *vp )
-{
-  int renderedSomething = 0;
-
-  if ( !this->Mapper )
-    {
-    vtkErrorMacro( << "You must specify a mapper!\n" );
-    return 0;
-    }
-
-  // Force the creation of a property
-  if( !this->Property )
-    {
-    this->GetProperty();
-    }
-
-  if( !this->Property )
-    {
-    vtkErrorMacro( << "Error generating a property!\n" );
-    return 0;
-    }
-
-  if ( this->Mapper->GetMapperType() == VTK_SOFTWAREBUFFER_VOLUME_MAPPER )
-    {
-    renderedSomething = 1;
-    this->Mapper->Render( (vtkRenderer *)vp, this );
-    }
-
-  return renderedSomething;
-}
-
-float *vtkVolume::GetRGBAImage()
-{
-  return this->Mapper->GetRGBAPixelData();
-}
-
-float *vtkVolume::GetZImage()
-{
-  return NULL;
-}
 
 // If the volume mapper is of type VTK_FRAMEBUFFER_VOLUME_MAPPER, then
 // this is its opportunity to render
@@ -324,139 +297,81 @@ int vtkVolume::RenderTranslucentGeometry( vtkViewport *vp )
 {
   int renderedSomething = 0;
 
-  this->Update();
-
-  if ( !this->Mapper )
+  if ( !this->VolumeMapper )
     {
-    vtkErrorMacro( << "You must specify a mapper!\n" );
     return 0;
     }
 
   // Force the creation of a property
-  if( !this->Property )
+  if( !this->VolumeProperty )
     {
-    this->GetProperty();
+    this->GetVolumeProperty();
     }
 
-  if( !this->Property )
-    {
-    vtkErrorMacro( << "Error generating a property!\n" );
-    return 0;
-    }
-
-  if ( this->Mapper->GetMapperType() == VTK_FRAMEBUFFER_VOLUME_MAPPER )
+  if ( this->VolumeMapper->GetMapperType() == VTK_FRAMEBUFFER_VOLUME_MAPPER )
     {
     renderedSomething = 1;
-    this->Mapper->Render( (vtkRenderer *)vp, this );
-    this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
+    this->VolumeMapper->Render( (vtkRenderer *)vp, this );
     }
 
   return renderedSomething;
 }
 
-int vtkVolume::InitializeRayCasting( vtkViewport *vp )
+void vtkVolume::Render( vtkRenderer *ren )
 {
-  float        interactionScale;
-  float        sampleDistance;
-  vtkRenderer  *ren;
-  float        cameraPosition[3], *volumePosition;
+  if ( !this->VolumeMapper )
+    {
+    return;
+    }
 
-  this->Update();
-
-  ren = (vtkRenderer *)vp;
-
-  this->UpdateTransferFunctions( ren );
-
-  interactionScale = ren->GetRayCaster()->GetViewportStepSize();
-  sampleDistance =  
-    ((vtkVolumeRayCastMapper *)this->Mapper)->
-    GetSampleDistance() * interactionScale;
-  this->UpdateScalarOpacityforSampleSize( ren, sampleDistance );
-
-  // Get the position of the camera for use in determining the
-  // distance to the center of the volume
-  ren->GetActiveCamera()->GetPosition( cameraPosition );
-  volumePosition = this->GetCenter();
-  this->VolumeInfo->CenterDistance = 
-    sqrt( (double) 
-	  ( ( cameraPosition[0] - volumePosition[0] ) *   
-	    ( cameraPosition[0] - volumePosition[0] ) +
-	    ( cameraPosition[1] - volumePosition[1] ) *
-	    ( cameraPosition[1] - volumePosition[1] ) +
-	    ( cameraPosition[2] - volumePosition[2] ) *
-	    ( cameraPosition[2] - volumePosition[2] ) ) );
-
-
-  ((vtkVolumeRayCastMapper *)this->Mapper)->
-    InitializeRender( ren, this, this->VolumeInfo );
-
-  return 1;
-}
-
-void vtkVolume::InitializeTextureMapping( vtkViewport *vp, 
-	float sampleDistance )
-{
-  vtkRenderer  *ren;
-  float        cameraPosition[3], *volumePosition;
-
-  this->Update();
-
-  ren = (vtkRenderer *)vp;
-
-  this->UpdateTransferFunctions( ren );
-
-  this->UpdateScalarOpacityforSampleSize( ren, sampleDistance );
-}
-
-int vtkVolume::CastViewRay( VTKRayCastRayInfo *rayInfo )
-{
-  ((vtkVolumeRayCastMapper *)this->Mapper)->
-    CastViewRay( rayInfo, this->VolumeInfo );
-
-  return 1;
+  if( !this->VolumeProperty )
+    {
+    // Force the creation of a property
+    this->GetVolumeProperty();
+    }
 }
 
 void vtkVolume::ReleaseGraphicsResources(vtkWindow *win)
 {
   // pass this information onto the mapper
-  if (this->Mapper)
+  if (this->VolumeMapper)
     {
-    this->Mapper->ReleaseGraphicsResources(win);
+    this->VolumeMapper->ReleaseGraphicsResources(win);
     }
 }
 
 void vtkVolume::Update()
 {
-  if ( this->Mapper )
+  if ( this->VolumeMapper )
     {
-    this->Mapper->Update();
+    this->VolumeMapper->Update();
     }
 }
 
-void vtkVolume::SetProperty(vtkVolumeProperty *property)
+void vtkVolume::SetVolumeProperty(vtkVolumeProperty *property)
 {
-  if( this->Property != property )
+  if( this->VolumeProperty != property )
     {
-    if (this->Property != NULL) {this->Property->UnRegister(this);}
-    this->Property = property;
-    if (this->Property != NULL) 
+    if (this->VolumeProperty != NULL) {this->VolumeProperty->UnRegister(this);}
+    this->VolumeProperty = property;
+    if (this->VolumeProperty != NULL) 
       {
-      this->Property->Register(this);
-      this->Property->UpdateMTimes();
+      this->VolumeProperty->Register(this);
+      this->VolumeProperty->UpdateMTimes();
       }
     this->Modified();
     }
 }
 
-vtkVolumeProperty *vtkVolume::GetProperty()
+vtkVolumeProperty *vtkVolume::GetVolumeProperty()
 {
-  if( this->Property == NULL )
+  if( this->VolumeProperty == NULL )
     {
-    this->Property = vtkVolumeProperty::New();
-    this->Property->Register(this);
-    this->Property->Delete();
+    this->VolumeProperty = vtkVolumeProperty::New();
+    this->VolumeProperty->Register(this);
+    this->VolumeProperty->Delete();
     }
-  return this->Property;
+  return this->VolumeProperty;
 }
 
 unsigned long int vtkVolume::GetMTime()
@@ -464,9 +379,9 @@ unsigned long int vtkVolume::GetMTime()
   unsigned long mTime=this->vtkObject::GetMTime();
   unsigned long time;
 
-  if ( this->Property != NULL )
+  if ( this->VolumeProperty != NULL )
     {
-    time = this->Property->GetMTime();
+    time = this->VolumeProperty->GetMTime();
     mTime = ( time > mTime ? time : mTime );
     }
 
@@ -484,14 +399,14 @@ unsigned long int vtkVolume::GetRedrawMTime()
   unsigned long mTime=this->GetMTime();
   unsigned long time;
 
-  if ( this->Mapper != NULL )
+  if ( this->VolumeMapper != NULL )
     {
-    time = this->Mapper->GetMTime();
+    time = this->VolumeMapper->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    if (this->GetMapper()->GetInput() != NULL)
+    if (this->GetVolumeMapper()->GetScalarInput() != NULL)
       {
-      this->GetMapper()->GetInput()->Update();
-      time = this->Mapper->GetInput()->GetMTime();
+      this->GetVolumeMapper()->GetScalarInput()->Update();
+      time = this->VolumeMapper->GetScalarInput()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
       }
     }
@@ -515,21 +430,19 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
   // Update the ScalarOpacityArray if necessary.  This is necessary if
   // the ScalarOpacityArray does not exist, or the transfer function has
   // been modified more recently than the ScalarOpacityArray has.
-  scalar_opacity_transfer_function   = this->Property->GetScalarOpacity();
-  gradient_opacity_transfer_function = this->Property->GetGradientOpacity();
-  rgb_transfer_function              = this->Property->GetRGBTransferFunction();
-  gray_transfer_function             = this->Property->GetGrayTransferFunction();
-  color_channels                     = this->Property->GetColorChannels();
+  scalar_opacity_transfer_function   = this->VolumeProperty->GetScalarOpacity();
+  gradient_opacity_transfer_function = this->VolumeProperty->GetGradientOpacity();
+  rgb_transfer_function              = this->VolumeProperty->GetRGBTransferFunction();
+  gray_transfer_function             = this->VolumeProperty->GetGrayTransferFunction();
+  color_channels                     = this->VolumeProperty->GetColorChannels();
 
-  if ( ((vtkStructuredPoints *)this->Mapper->GetInput())->
-       GetPointData()->GetScalars() == NULL )
+  if ( this->VolumeMapper->GetScalarInput()->GetPointData()->GetScalars() == NULL )
     {
     vtkErrorMacro(<<"Need scalar data to volume render");
     return;
     }
     
-  data_type = ((vtkStructuredPoints *)this->Mapper->GetInput())->
-    GetPointData()->GetScalars()->GetDataType();
+  data_type = this->VolumeMapper->GetScalarInput()->GetPointData()->GetScalars()->GetDataType();
 
   if ( scalar_opacity_transfer_function == NULL )
     {
@@ -539,7 +452,7 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
   else if ( this->ScalarOpacityArray == NULL ||
 	    scalar_opacity_transfer_function->GetMTime() >
 	    this->ScalarOpacityArrayMTime ||
-	    this->Property->GetScalarOpacityMTime() >
+	    this->VolumeProperty->GetScalarOpacityMTime() >
 	    this->ScalarOpacityArrayMTime )
     {
     scalar_opacity_tf_needs_updating = 1;
@@ -552,7 +465,7 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
     }
   else if ( gradient_opacity_transfer_function->GetMTime() >
 	    this->GradientOpacityArrayMTime ||
-	    this->Property->GetGradientOpacityMTime() >
+	    this->VolumeProperty->GetGradientOpacityMTime() >
 	    this->GradientOpacityArrayMTime )
     {
     gradient_opacity_tf_needs_updating = 1;
@@ -568,7 +481,7 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
       else if ( this->GrayArray == NULL ||
 		gray_transfer_function->GetMTime() >
 		this->GrayArrayMTime ||
-		this->Property->GetGrayTransferFunctionMTime() >
+		this->VolumeProperty->GetGrayTransferFunctionMTime() >
 		this->GrayArrayMTime )
 	{
 	gray_tf_needs_updating = 1;
@@ -582,7 +495,7 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
       else if ( this->RGBArray == NULL ||
 		rgb_transfer_function->GetMTime() >
 		this->RGBArrayMTime ||
-		this->Property->GetRGBTransferFunctionMTime() >
+		this->VolumeProperty->GetRGBTransferFunctionMTime() >
 		this->RGBArrayMTime )
 	{
 	rgb_tf_needs_updating = 1;
@@ -737,8 +650,12 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample
   int needsRecomputing;
   float originalAlpha,correctedAlpha;
   float ray_scale;
+  float volumeScale;
+  float interactionScale;
 
-  ray_scale = sample_distance;
+  volumeScale = this->Scale;
+  ray_scale = sample_distance * volumeScale;
+
 
   // step size changed
   needsRecomputing =  
@@ -757,7 +674,6 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample
     {
     this->CorrectedScalarOpacityArrayMTime.Modified();
     this->CorrectedStepSize = ray_scale;
-
     for (i = 0;i < this->ArraySize;i++)
       {
       originalAlpha = *(this->ScalarOpacityArray+i);
@@ -783,28 +699,18 @@ void vtkVolume::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProp3D::PrintSelf(os,indent);
 
-  if( this->Property )
+  if( this->VolumeProperty )
     {
-    os << indent << "Property:\n";
-    this->Property->PrintSelf(os,indent.GetNextIndent());
+    os << indent << "Volume Property:\n";
+    this->VolumeProperty->PrintSelf(os,indent.GetNextIndent());
     }
   else
     {
-    os << indent << "Property: (not defined)\n";
-    }
-
-  if( this->Mapper )
-    {
-    os << indent << "Mapper:\n";
-    this->Mapper->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Mapper: (not defined)\n";
+    os << indent << "Volume Property: (not defined)\n";
     }
 
   // make sure our bounds are up to date
-  if ( this->Mapper )
+  if ( this->VolumeMapper )
     {
       this->GetBounds();
       os << indent << "Bounds: (" << this->Bounds[0] << ", " 
@@ -816,5 +722,6 @@ void vtkVolume::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Bounds: (not defined)\n";
     }
+  os << indent << "Scale: (" << this->Scale << ")\n";
 }
 

@@ -71,28 +71,21 @@ class VTK_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Set/Get the position of the camera in world coordinates.
-  void SetPosition(float a[3]) {this->SetPosition(a[0], a[1], a[2]);};
-  void SetPosition(double x, double y, double z);
-  void SetPosition(double a[3]);
-  vtkGetVectorMacro(Position,double,3);
-  void GetPosition(float a[3]) { a[0] = this->Position[0];
-      a[1] = this->Position[1]; a[2] = this->Position[2];};
+  void SetPosition(float x, float y, float z);
+  void SetPosition(float a[3]);
+  vtkGetVectorMacro(Position,float,3);
 
   // Description:
   // Set/Get the focal point of the camera in world coordinates
-  void SetFocalPoint(float a[3]) {
-    this->SetFocalPoint(a[0], a[1], a[2]);};
-  void SetFocalPoint(double x, double y, double z);
-  void SetFocalPoint(double a[3]);
-  vtkGetVectorMacro(FocalPoint,double,3);
-  void GetFocalPoint(float a[3]) { a[0] = this->FocalPoint[0];
-      a[1] = this->FocalPoint[1]; a[2] = this->FocalPoint[2];};
-  
+  void SetFocalPoint(float x, float y, float z);
+  void SetFocalPoint(float a[3]);
+  vtkGetVectorMacro(FocalPoint,float,3);
+
   // Description:
   // Set/Get the view up direction for the camera.
-  void SetViewUp(double vx, double vy, double vz);
-  void SetViewUp(double a[3]);
-  vtkGetVectorMacro(ViewUp,double,3);
+  void SetViewUp(float vx, float vy, float vz);
+  void SetViewUp(float a[3]);
+  vtkGetVectorMacro(ViewUp,float,3);
 
   // Description:
   // Set/Get the location of the front and back clipping planes along the
@@ -102,11 +95,9 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // plane can make a very big difference. Setting it to 0.01 when it
   // really could be 1.0 can have a big impact on your z-buffer resolution
   // farther away.
-  void SetClippingRange(double front, double back);
-  void SetClippingRange(double a[2]);
-  vtkGetVectorMacro(ClippingRange,double,2);
-  void GetClippingRange(float a[2]) { a[0] = this->ClippingRange[0];
-      a[1] = this->ClippingRange[1];};
+  void SetClippingRange(float front, float back);
+  void SetClippingRange(float a[2]);
+  vtkGetVectorMacro(ClippingRange,float,2);
 
   // Description:
   // This method causes the camera to set up whatever is required for
@@ -117,15 +108,15 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // Description:
   // Set/Get the camera view angle (i.e., the width of view in degrees). 
   // Larger values yield greater perspective distortion.
-  //  vtkSetClampMacro(ViewAngle,double,1.0,179.0);
-  void SetViewAngle( double angle );
-  vtkGetMacro(ViewAngle,double);
+  //  vtkSetClampMacro(ViewAngle,float,1.0,179.0);
+  void SetViewAngle( float angle );
+  vtkGetMacro(ViewAngle,float);
 
   // Description:
   // Set/Get the separation between eyes (in degrees). This is used
   // when generating stereo images.
-  vtkSetMacro(EyeAngle,double);
-  vtkGetMacro(EyeAngle,double);
+  vtkSetMacro(EyeAngle,float);
+  vtkGetMacro(EyeAngle,float);
 
   // Description:
   // Is this camera rendering in stereo?
@@ -133,23 +124,23 @@ class VTK_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Set/Get the center of the window.
-  //  vtkSetVector2Macro(WindowCenter,double);
-  void SetWindowCenter( double x, double y );
-  vtkGetVectorMacro(WindowCenter,double,2);
+  //  vtkSetVector2Macro(WindowCenter,float);
+  void SetWindowCenter( float x, float y );
+  vtkGetVectorMacro(WindowCenter,float,2);
 
   // Description:
   // Set/Get the scaling used for a parallel projection.
-  //  vtkSetMacro(ParallelScale,double);
-  void SetParallelScale( double scale );
-  vtkGetMacro(ParallelScale,double);
+  //  vtkSetMacro(ParallelScale,float);
+  void SetParallelScale( float scale );
+  vtkGetMacro(ParallelScale,float);
 
   // Description:
   // Set the size of the cameras lens in world coordinates. This is only 
   // used when the renderer is doing focal depth rendering. When that is 
   // being done the size of the focal disk will effect how significant the
   // depth effects will be.
-  vtkSetMacro(FocalDisk,double);
-  vtkGetMacro(FocalDisk,double);
+  vtkSetMacro(FocalDisk,float);
+  vtkGetMacro(FocalDisk,float);
 
   // Description:
   // Set/Get whether this is the left eye's render or the right eye's.
@@ -162,14 +153,14 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // Set the distance between clipping planes. A side effect of this method is
   // to adjust the back clipping plane to be equal to the front clipping plane 
   // plus the thickness.
-  void SetThickness(double);
-  vtkGetMacro(Thickness,double);
+  void SetThickness(float);
+  vtkGetMacro(Thickness,float);
 
   // Description:
   // Set the distance of the focal point from the camera. The focal point is 
   // modified accordingly. This should be positive.
-  void SetDistance(double);
-  vtkGetMacro(Distance,double);
+  void SetDistance(float);
+  vtkGetMacro(Distance,float);
 
   // Description: 
   // Set/Get the value of the ParallelProjection instance variable. This
@@ -190,11 +181,9 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // Description:
   // Set/Get the direction that the camera points.
   // Adjusts position to be consistent with the view plane normal.
-  void SetViewPlaneNormal(double x, double y, double z);
-  void SetViewPlaneNormal(double a[3]);
-  vtkGetVectorMacro(ViewPlaneNormal,double,3);
-  void GetViewPlaneNormal(float a[3]) { a[0] = this->ViewPlaneNormal[0];
-      a[1] = this->ViewPlaneNormal[1]; a[2] = this->ViewPlaneNormal[2];};
+  void SetViewPlaneNormal(float x, float y, float z);
+  void SetViewPlaneNormal(float a[3]);
+  vtkGetVectorMacro(ViewPlaneNormal,float,3);
 
   // Description:
   // Compute the view plane normal from the position and focal point.
@@ -214,7 +203,7 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // Description:
   // Compute the perspective transform matrix. This is used in converting 
   // between view and world coordinates.
-  void ComputePerspectiveTransform(double aspect, double nearz, double farz);
+  void ComputePerspectiveTransform(float aspect, float nearz, float farz);
 
   // Description:
   // Return the perspective transform matrix. See ComputePerspectiveTransform.
@@ -222,57 +211,57 @@ class VTK_EXPORT vtkCamera : public vtkObject
   
   // Description:
   // Return the perspective transform matrix. See ComputePerspectiveTransform.
-  vtkMatrix4x4 *GetPerspectiveTransformMatrix(double aspect,
-					      double nearz, double farz);
+  vtkMatrix4x4 *GetPerspectiveTransformMatrix(float aspect,
+					      float nearz, float farz);
 
   // Description:
   // Return the perspective transform matrix. See ComputePerspectiveTransform.
-  vtkMatrix4x4 *GetCompositePerspectiveTransformMatrix(double aspect, 
-						       double nearz, 
-						       double farz);
+  vtkMatrix4x4 *GetCompositePerspectiveTransformMatrix(float aspect, 
+						       float nearz, 
+						       float farz);
 
   // Description:
   // Set the roll angle of the camera about the view plane normal.
-  void SetRoll(double);
+  void SetRoll(float);
 
   // Description:
   // Rotate the camera around the view plane normal.
-  void Roll(double);
+  void Roll(float);
 
   // Description:
   // Returns the roll of the camera.
-  double GetRoll();
+  float GetRoll();
 
   // Description:
   // Change the ViewAngle of the camera so that more or less of a scene 
   // occupies the viewport. A value > 1 is a zoom-in. 
   // A value < 1 is a zoom-out.
-  void Zoom(double);
+  void Zoom(float);
 
   // Description:
   // Move the position of the camera along the view plane normal. Moving
   // towards the focal point (e.g., > 1) is a dolly-in, moving away 
   // from the focal point (e.g., < 1) is a dolly-out.
-  void Dolly(double);
+  void Dolly(float);
 
   // Description:
   // Rotate the camera about the view up vector centered at the focal point.
-  void Azimuth(double);
+  void Azimuth(float);
 
   // Description:
   // Rotate the focal point about the view up vector centered at the camera's 
   // position. 
-  void Yaw(double);
+  void Yaw(float);
 
   // Description:
   // Rotate the camera about the cross product of the view plane normal and 
   // the view up vector centered on the focal point.
-  void Elevation(double);
+  void Elevation(float);
 
   // Description:
   // Rotate the focal point about the cross product of the view up vector 
   // and the view plane normal, centered at the camera's position.
-  void Pitch(double);
+  void Pitch(float);
 
   // Description:
   // Recompute the view up vector so that it is perpendicular to the
@@ -283,7 +272,7 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // Returns the orientation of the camera. This is a vector of X,Y and Z 
   // rotations that when performed in the order RotateZ, RotateX, and finally
   // RotateY, will yield the same 3x3 rotation matrix for the camera.
-  double *GetOrientation();
+  float *GetOrientation();
 
   // Description:
   // Returns the WXYZ orientation of the camera. 
@@ -306,35 +295,33 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // Description:
   // For legacy compatibility. Do not use.
   vtkMatrix4x4 &GetViewTransform(){return *this->GetViewTransformMatrix();}
-  vtkMatrix4x4 &GetPerspectiveTransform(double aspect,double nearz,
-					double farz)
+  vtkMatrix4x4 &GetPerspectiveTransform(float aspect,float nearz,float farz)
     {return *this->GetPerspectiveTransformMatrix(aspect, nearz, farz);}
-  vtkMatrix4x4 &GetCompositePerspectiveTransform(double aspect, 
-						 double nearz, 
-  						 double farz)
+  vtkMatrix4x4 &GetCompositePerspectiveTransform(float aspect, float nearz, 
+  						 float farz)
     {return *this->GetCompositePerspectiveTransformMatrix(aspect,nearz,farz);}
   
     
 
 protected:
-  double WindowCenter[2];
-  double FocalPoint[3];
-  double Position[3];
-  double ViewUp[3];
-  double ViewAngle;
-  double ClippingRange[2];
-  double EyeAngle;
+  float WindowCenter[2];
+  float FocalPoint[3];
+  float Position[3];
+  float ViewUp[3];
+  float ViewAngle;
+  float ClippingRange[2];
+  float EyeAngle;
   int   LeftEye;
   int   ParallelProjection;
-  double ParallelScale;
+  float ParallelScale;
   int   Stereo;  
-  double Thickness;
-  double Distance;
-  double ViewPlaneNormal[3];
+  float Thickness;
+  float Distance;
+  float ViewPlaneNormal[3];
   vtkTransform *Transform;
   vtkTransform *PerspectiveTransform;
-  double Orientation[3];
-  double FocalDisk;
+  float Orientation[3];
+  float FocalDisk;
 
   // ViewingRaysMtime keeps track of camera modifications which will 
   // change the calculation of viewing rays for the camera before it is 
@@ -344,11 +331,11 @@ protected:
   // VPNDotDOP stores the dot product between the view plane normal and
   // the direction of projection. If this dot product changes then the view
   // rays must be updated.
-  double        VPNDotDOP;
+  float        VPNDotDOP;
 
 };
 
-inline void vtkCamera::SetWindowCenter( double x, double y )
+inline void vtkCamera::SetWindowCenter( float x, float y )
 {
   if ((this->WindowCenter[0] != x)||(this->WindowCenter[1] != y))
     {
@@ -359,10 +346,10 @@ inline void vtkCamera::SetWindowCenter( double x, double y )
     }
 }
 
-inline void vtkCamera::SetViewAngle( double angle )
+inline void vtkCamera::SetViewAngle( float angle )
 {
-  double min =   1.0;
-  double max = 179.0;
+  float min =   1.0;
+  float max = 179.0;
 
   if ( this->ViewAngle != angle )
     {
@@ -372,7 +359,7 @@ inline void vtkCamera::SetViewAngle( double angle )
     }
 }
 
-inline void vtkCamera::SetParallelScale( double scale )
+inline void vtkCamera::SetParallelScale( float scale )
 {
   if ( this->ParallelScale != scale )
     {

@@ -97,8 +97,7 @@ public:
   vtkSetObjectMacro(Input,vtkImageCache);
   vtkGetObjectMacro(Input,vtkImageCache);
   void SetInput(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput(tmp->GetOutput()); tmp->Delete();}
+    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
 
   // Description:
   // The main interface which triggers the writer to start.

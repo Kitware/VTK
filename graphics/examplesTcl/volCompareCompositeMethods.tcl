@@ -62,7 +62,7 @@ CompositeFunction2 SetCompositeMethodToClassifyFirst
 vtkFiniteDifferenceGradientEstimator GradientEstimator
 
 vtkVolumeRayCastMapper volumeMapper1
-volumeMapper1 SetInput [reader GetOutput]
+volumeMapper1 SetScalarInput [reader GetOutput]
 volumeMapper1 SetVolumeRayCastFunction CompositeFunction1
 volumeMapper1 SetGradientEstimator GradientEstimator
 volumeMapper1 SetSampleDistance 0.2
@@ -70,7 +70,7 @@ volumeMapper1 SetClippingPlanes 0 49 20 49 0 49
 volumeMapper1 ClippingOn
 
 vtkVolumeRayCastMapper volumeMapper2
-volumeMapper2 SetInput [reader GetOutput]
+volumeMapper2 SetScalarInput [reader GetOutput]
 volumeMapper2 SetVolumeRayCastFunction CompositeFunction2
 volumeMapper2 SetGradientEstimator GradientEstimator
 volumeMapper2 SetSampleDistance 0.2
@@ -78,13 +78,13 @@ volumeMapper2 SetClippingPlanes 0 49 20 49 0 49
 volumeMapper2 ClippingOn
 
 vtkVolume volume1
-volume1 SetMapper volumeMapper1
-volume1 SetProperty volumeProperty
+volume1 SetVolumeMapper volumeMapper1
+volume1 SetVolumeProperty volumeProperty
 ren1 AddVolume volume1
 
 vtkVolume volume2
-volume2 SetMapper volumeMapper2
-volume2 SetProperty volumeProperty
+volume2 SetVolumeMapper volumeMapper2
+volume2 SetVolumeProperty volumeProperty
 ren1 AddVolume volume2
 volume2 AddPosition 48 0 0
 

@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
 {
+  this->ScalarInput = NULL;
   this->RGBTextureInput = NULL;
   this->Clipping = 0;
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
@@ -52,46 +53,67 @@ vtkVolumeMapper::vtkVolumeMapper()
 
 vtkVolumeMapper::~vtkVolumeMapper()
 {
-  this->SetInput((vtkStructuredPoints *)NULL);
-  if (this->RGBTextureInput)
-    {
-    this->RGBTextureInput->Delete ();
-    this->RGBTextureInput = NULL;
-    }
+  this->SetScalarInput((vtkStructuredPoints *)NULL);
 }
 
 void vtkVolumeMapper::Update()
 {
-  if ( this->Input )
+  if ( this->ScalarInput )
     {
-    this->Input->Update();
-    }
-
-  if ( this->RGBTextureInput )
-    {
-    this->RGBTextureInput->Update();
+    this->ScalarInput->Update();
     }
 }
 
-void vtkVolumeMapper::SetInput( vtkStructuredPoints *input )
+// Get the bounds of the ScalarInput
+float *vtkVolumeMapper::GetBounds()
 {
-  if ( (vtkDataSet *)input != this->Input )
+  static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
+
+  if ( ! this->ScalarInput ) 
     {
-    // If we have data already, unregister it
-    if ( this->Input )
-      {
-      this->Input->UnRegister(this);
-      }
-    // Set the input data
-    this->Input = (vtkDataSet *)input;
-    // If this is not NULL, register it
-    if ( this->Input )
-      {
-      this->Input->Register(this);
-      }
-    // We've been modified!
-    this->Modified();    
+    return bounds;
     }
+  else
+    {
+    this->ScalarInput->Update();
+    this->ScalarInput->GetBounds(this->Bounds);
+    return this->Bounds;
+    }
+}
+
+// Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+void vtkVolumeMapper::GetBounds(float bounds[6])
+{
+  this->GetBounds();
+  for (int i=0; i<6; i++)
+    {
+    bounds[i] = this->Bounds[i];
+    }
+}
+
+float *vtkVolumeMapper::GetCenter()
+{
+  this->GetBounds();
+  for (int i=0; i<3; i++) 
+    {
+    this->Center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) / 2.0;
+    }
+  return this->Center;
+}
+
+float vtkVolumeMapper::GetLength()
+{
+  double diff, l=0.0;
+  int i;
+
+  this->GetBounds();
+  for (i=0; i<3; i++)
+    {
+    diff = this->Bounds[2*i+1] - this->Bounds[2*i];
+    l += diff * diff;
+    }
+ 
+  return (float)sqrt(l);
 }
 
 void vtkVolumeMapper::SetRGBTextureInput( vtkStructuredPoints *rgbTexture )
@@ -99,50 +121,32 @@ void vtkVolumeMapper::SetRGBTextureInput( vtkStructuredPoints *rgbTexture )
   vtkPointData    *pd;
   vtkScalars      *scalars;
 
-  if ( rgbTexture != this->RGBTextureInput )
+  if ( rgbTexture && rgbTexture != this->RGBTextureInput )
     {
-    // If we are actually setting a texture (not NULL) then
-    // do some error checking to make sure it is of the right
-    // type with the right number of components
-    if ( rgbTexture )
+    rgbTexture->Update();
+    pd = rgbTexture->GetPointData();
+    if ( !pd )
       {
-      rgbTexture->Update();
-      pd = rgbTexture->GetPointData();
-      if ( !pd )
-	{
-	vtkErrorMacro( << "No PointData in texture!" );
-	return;
-	}
-      scalars = pd->GetScalars();
-      if ( !scalars )
-	{
-	vtkErrorMacro( << "No scalars in texture!" );
-	return;
-	}
-      if ( scalars->GetDataType() != VTK_UNSIGNED_CHAR )
-	{
-	vtkErrorMacro( << "Scalars in texture must be unsigned char!" );
-	return;      
-	}
-      if ( scalars->GetNumberOfComponents() != 3 )
-	{
-	vtkErrorMacro( << "Scalars must have 3 components (r, g, and b)" );
-	return;      
-	}
+      vtkErrorMacro( << "No PointData in texture!" );
+      return;
       }
-    // If we have a texture already, unregister it
-    if ( this->RGBTextureInput )
+    scalars = pd->GetScalars();
+    if ( !scalars )
       {
-      this->RGBTextureInput->UnRegister(this);
+      vtkErrorMacro( << "No scalars in texture!" );
+      return;
       }
-    // Set the texture
+    if ( scalars->GetDataType() != VTK_UNSIGNED_CHAR )
+      {
+      vtkErrorMacro( << "Scalars in texture must be unsigned char!" );
+      return;      
+      }
+    if ( scalars->GetNumberOfComponents() != 3 )
+      {
+      vtkErrorMacro( << "Scalars must have 3 components (r, g, and b)" );
+      return;      
+      }
     this->RGBTextureInput = rgbTexture;
-    // If this is not NULL, register it
-    if ( this->RGBTextureInput )
-      {
-      this->RGBTextureInput->Register(this);
-      }
-    // We've been modified!
     this->Modified();
     }
 }
@@ -150,7 +154,16 @@ void vtkVolumeMapper::SetRGBTextureInput( vtkStructuredPoints *rgbTexture )
 // Print the vtkVolumeMapper
 void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkAbstractMapper::PrintSelf(os,indent);
+  vtkProcessObject::PrintSelf(os,indent);
+
+  if ( this->ScalarInput )
+    {
+    os << indent << "ScalarInput: (" << this->ScalarInput << ")\n";
+    }
+  else
+    {
+    os << indent << "ScalarInput: (none)\n";
+    }
 
   if ( this->RGBTextureInput )
     {

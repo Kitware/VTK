@@ -45,24 +45,24 @@ vtkVolumeProperty volumeProperty4
 vtkVolumeRayCastCompositeFunction  compositeFunction
 
 vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetInput [reader GetOutput]
+    volumeMapper SetScalarInput [reader GetOutput]
     volumeMapper SetVolumeRayCastFunction compositeFunction
 
 vtkVolume volume1
-    volume1 SetMapper volumeMapper
-    volume1 SetProperty volumeProperty1
+    volume1 SetVolumeMapper volumeMapper
+    volume1 SetVolumeProperty volumeProperty1
 
 vtkVolume volume2
-    volume2 SetMapper volumeMapper
-    volume2 SetProperty volumeProperty2
+    volume2 SetVolumeMapper volumeMapper
+    volume2 SetVolumeProperty volumeProperty2
 
 vtkVolume volume3
-    volume3 SetMapper volumeMapper
-    volume3 SetProperty volumeProperty3
+    volume3 SetVolumeMapper volumeMapper
+    volume3 SetVolumeProperty volumeProperty3
 
 vtkVolume volume4
-    volume4 SetMapper volumeMapper
-    volume4 SetProperty volumeProperty4
+    volume4 SetVolumeMapper volumeMapper
+    volume4 SetVolumeProperty volumeProperty4
 
 # Create outline
 vtkOutlineFilter outline

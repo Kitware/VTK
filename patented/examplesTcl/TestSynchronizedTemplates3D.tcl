@@ -16,8 +16,7 @@ vtkVolume16Reader v16
     v16 SetDataMask 0x7fff
 
 # write isosurface to file
-#vtkSynchronizedTemplates3D stemp
-vtkKitwareContourFilter stemp
+vtkSynchronizedTemplates3D stemp
     stemp SetInput [v16 GetOutput]
     stemp SetValue 0 1150
     stemp Update

@@ -36,13 +36,13 @@ vtkVolumeProperty volumeProperty
 vtkVolumeRayCastCompositeFunction  compositeFunction
 
 vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetInput [reader GetOutput]
+    volumeMapper SetScalarInput [reader GetOutput]
     volumeMapper SetVolumeRayCastFunction compositeFunction
     volumeMapper SetSampleDistance 0.25
 
 vtkVolume volume
-    volume SetMapper volumeMapper
-    volume SetProperty volumeProperty
+    volume SetVolumeMapper volumeMapper
+    volume SetVolumeProperty volumeProperty
 
 vtkContourFilter contour
   contour SetInput [reader2 GetOutput]

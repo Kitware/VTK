@@ -74,16 +74,14 @@ public:
   // Set an Input of this filter. 
   virtual void SetInput(int num, vtkImageCache *input);
   void SetInput(int num, vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput(num, tmp->GetOutput()); tmp->Delete();}
+    {this->SetInput(num, spts->GetStructuredPointsToImage()->GetOutput());}
 
   // Description:
   // Adds an input to the first null position in the input list.
   // Expands the list memory if necessary
   virtual void AddInput(vtkImageCache *input);
   void AddInput(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->AddInput(tmp->GetOutput()); tmp->Delete();}
+    {this->AddInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
   // Description:
   // Called by the cache

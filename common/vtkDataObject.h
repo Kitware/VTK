@@ -60,6 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 #include "vtkFieldData.h"
+
 class vtkSource;
 
 class VTK_EXPORT vtkDataObject : public vtkObject
@@ -76,9 +77,8 @@ public:
   virtual vtkDataObject *MakeObject() {return new vtkDataObject;};
 
   // Description:
-  // Set/Get the source object creating this data object.
+  // Get the source object creating this data object.
   vtkGetObjectMacro(Source,vtkSource);
-  void SetSource(vtkSource *s);
   
   // Description:
   // Data objects are composite objects and need to check each part for MTime.
@@ -132,16 +132,14 @@ public:
   vtkSetObjectMacro(FieldData,vtkFieldData);
   vtkGetObjectMacro(FieldData,vtkFieldData);
 
+  //BTX - begin tcl exclude
   // Description:
-  // Handle the source/data loop.
-  void UnRegister(vtkObject *o);
-
-  // Description:
-  // Get the net reference count. That is the count minus
-  // any self created loops. This is used in the Source/Data
-  // registration to properly free the objects.
-  virtual int GetNetReferenceCount() {return this->ReferenceCount;};
-
+  // This method is to be used only by the source (i.e., the filter generating
+  // this data object). The source is not reference counted by this data object to
+  // avoid mutually referencing loops.
+  void SetSource(vtkSource *source);
+  //ETX
+  
 protected:
   vtkSource *Source;
   vtkFieldData *FieldData; //General field data associated with data object

@@ -131,18 +131,15 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // origin and x, y, z. It then concatenates this matrix with the current
   // transformation matrix.
   void RotateWXYZ ( float angle, float x, float y, float z);
-  void RotateWXYZ (double angle, double x, double y, double z);
 
   // Description:
   // Scales the current transformation matrix in the x, y and z directions.
   // A scale factor of zero will automatically be replaced with one.
   void Scale ( float x, float y, float z);
-  void Scale ( double x, double y, double z);
 
   // Description:
   // Translate the current transformation matrix by the vector {x, y, z}.
   void Translate ( float x, float y, float z);
-  void Translate ( double x, double y, double z);
 
   // Description:
   // Transposes the current transformation matrix.
@@ -224,10 +221,7 @@ class VTK_EXPORT vtkTransform : public vtkObject
 
   // Description:
   // Multiply a xyzw point by the transform and store the result in out.
-  void MultiplyPoint (float in[4],float out[4]) {
-    this->Stack[0]->MultiplyPoint(in,out);};
-  void MultiplyPoint (double in[4],double out[4]) {      
-    this->Stack[0]->MultiplyPoint(in,out);};
+  void MultiplyPoint (float in[4],float out[4]);
 
   // Description:
   // Multiplies a list of points (inPts) by the current transformation matrix.
@@ -254,13 +248,11 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // The setting of the PreMultiplyFlag will determine if the Point is
   // Pre or Post multiplied.
   float *GetPoint();
-  double *GetDoublePoint();
   void GetPoint(float p[4]);
 
   // Description:
   // Set the point to use in the GetPoint calculations.
   vtkSetVector4Macro(Point,float);
-  vtkSetVector4Macro(DoublePoint,double);
 
   // Description:
   // For legacy compatibility. Do not use.
@@ -280,10 +272,13 @@ private:
   vtkMatrix4x4 **Stack;
   vtkMatrix4x4 **StackBottom;
   float Point[4];
-  double DoublePoint[4];
   float Orientation[3];
 
 };
 
+inline void vtkTransform::MultiplyPoint (float in[4],float out[4]) 
+{
+  this->Stack[0]->MultiplyPoint(in,out);
+}
 
 #endif

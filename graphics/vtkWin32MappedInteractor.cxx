@@ -373,7 +373,7 @@ void vtkWin32MappedInteractor::OnLButtonDown(HWND wnd,UINT nFlags, POINT& point)
   this->FindPokedCamera(point.x,this->Size[1] - point.y);
   if (nFlags & MK_SHIFT) 
     { // Pan
-    float FocalPoint[3];
+    float *FocalPoint;
     float *Result;
     
     if (this->State != VTKXI_START)
@@ -383,7 +383,7 @@ void vtkWin32MappedInteractor::OnLButtonDown(HWND wnd,UINT nFlags, POINT& point)
     this->State = VTKXI_PAN;
     
     // calculate the focal depth since we'll be using it a lot
-    this->CurrentCamera->GetFocalPoint(FocalPoint);
+    FocalPoint = this->CurrentCamera->GetFocalPoint();
     
     this->CurrentRenderer
       ->SetWorldPoint(FocalPoint[0],FocalPoint[1], FocalPoint[2],1.0);
@@ -493,13 +493,13 @@ void vtkWin32MappedInteractor::OnTimer(HWND wnd,UINT nIDEvent)
     case VTKXI_PAN :
       {
       float  FPoint[3];
-      float PPoint[3];
+      float *PPoint;
       float  APoint[3];
       float  RPoint[4];
       
       // get the current focal point and position
-      this->CurrentCamera->GetFocalPoint(FPoint);
-      this->CurrentCamera->GetPosition(PPoint);
+      memcpy(FPoint,this->CurrentCamera->GetFocalPoint(),sizeof(float)*3);
+      PPoint = this->CurrentCamera->GetPosition();
       
       xf = this->LastPosition.x;
       yf = this->Size[1] - this->LastPosition.y;
@@ -542,7 +542,7 @@ void vtkWin32MappedInteractor::OnTimer(HWND wnd,UINT nIDEvent)
     case VTKXI_ZOOM :
       {
       float zoomFactor;
-      double *clippingRange;
+      float *clippingRange;
       yf = ((this->Size[1] - this->LastPosition.y) - this->Center[1])
 	/(float)this->Center[1];
       zoomFactor = pow((double)1.1,(double) yf);

@@ -216,7 +216,7 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   vtkLight              *light;
   float                 norm;
   int                   update_flag;
-  vtkVolumeProperty     *property;
+  vtkVolumeProperty     *volumeProperty;
   vtkTransform          *transform;
   vtkMatrix4x4          *m;
   float                 in[4], out[4], zero[4];
@@ -258,12 +258,12 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   transform->SetMatrix(*m);
   transform->Inverse();
   
-  property = vol->GetProperty();
+  volumeProperty = vol->GetVolumeProperty();
 
-  material[0] = property->GetAmbient();
-  material[1] = property->GetDiffuse();
-  material[2] = property->GetSpecular();
-  material[3] = property->GetSpecularPower();
+  material[0] = volumeProperty->GetAmbient();
+  material[1] = volumeProperty->GetDiffuse();
+  material[2] = volumeProperty->GetSpecular();
+  material[3] = volumeProperty->GetSpecularPower();
 
   // Set up the lights for traversal
   lightCollection = ren->GetLights();

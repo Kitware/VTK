@@ -70,23 +70,23 @@ public:
 
   // Description:
   // Begin the rendering process.
-  virtual void Start(void);
+  void Start(void);
 
   // Description:
   // End the rendering process and display the image.
-  virtual void Frame(void);
+  void Frame(void);
 
   // Description:
   // Specify various window parameters.
-  virtual void WindowConfigure(void);
+  void WindowConfigure(void);
 
   // Description:
   // Initialize the window for rendering.
-  virtual void WindowInitialize(void);
+  void WindowInitialize(void);
 
   // Description:
   // Initialize the rendering window.
-  virtual void Initialize(void);
+  void Initialize(void);
 
   // Description:
   // Change the window to fill the entire screen.
@@ -94,22 +94,22 @@ public:
 
   // Description:
   // Resize the window.
-  virtual void WindowRemap(void);
+  void WindowRemap(void);
 
   // Description:
   // Set the preferred window size to full screen.
-  virtual void PrefFullScreen(void);
+  void PrefFullScreen(void);
 
   // Description:
   // Specify the size of the rendering window.
-  virtual void SetSize(int,int);
-  virtual void SetSize(int a[2]) {this->SetSize(a[0], a[1]);};
+  void SetSize(int,int);
+  void SetSize(int a[2]) {this->SetSize(a[0], a[1]);};
 
   // Description:
   // Get the X properties of an ideal rendering window.
   virtual Colormap GetDesiredColormap();
   virtual Visual  *GetDesiredVisual();
-  virtual XVisualInfo     *GetDesiredVisualInfo();
+  XVisualInfo     *GetDesiredVisualInfo();
   virtual int      GetDesiredDepth();
 
   // Description:

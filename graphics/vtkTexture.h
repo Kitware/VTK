@@ -131,8 +131,7 @@ public:
   vtkSetObjectMacro(Input,vtkStructuredPoints);
   vtkGetObjectMacro(Input,vtkStructuredPoints);
   void SetInput(vtkImageCache *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput(tmp->GetOutput()); tmp->Delete();}
+    {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}  
   
   // Description:
   // Specify the lookup table to convert scalars if necessary

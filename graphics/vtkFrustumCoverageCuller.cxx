@@ -39,7 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkFrustumCoverageCuller.h"
-#include "vtkProp.h"
+#include "vtkActorCollection.h"
+#include "vtkActor.h"
 #include "vtkRenderer.h"
 
 // Create a frustum coverage culler with default values
@@ -47,40 +48,31 @@ vtkFrustumCoverageCuller::vtkFrustumCoverageCuller()
 {
   this->MinimumCoverage = 0.0001;
   this->MaximumCoverage = 1.0;
-  this->SortingStyle    = VTK_CULLER_SORT_NONE;
 }
 
-// The coverage is computed for each prop, and a resulting allocated
+// The out cull method is where the culling occurs in this class.
+// The coverage is computed for each actor, and a resulting allocated
 // render time is computed. This is multiplied by the current allocated
-// render time of the prop. After this, props with no allocated time are
+// render time of the actor. After this, actors with no allocated time are
 // removed from the list (and the list length is shortened) to make sure
 // that they are not considered again by another culler or for rendering.
-float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren, 
-				      vtkProp **propList,
-				      int& listLength,
-				      int& initialized )
+float vtkFrustumCoverageCuller::OuterCullMethod( vtkRenderer *ren, 
+						 vtkProp **actorList,
+						 int& listLength,
+						 int& initialized )
 {
-  vtkProp            *prop;
+  vtkProp            *actor;
   float               total_time;
   float               *bounds, center[3], radius;
   float               planes[24], d;
   float               coverage, screen_bounds[4];
   float               previous_time;
-  int                 i, propLoop;
+  int                 i, actor_loop;
   float               full_w, full_h, part_w, part_h;
   float               *allocatedTimeList;
   int                 last_non_zero;
-  float               *distanceList;
-  int                 index;
-  float               tmp;
 
-  // We will create a center distance entry for each prop in the list
-  // If SortingStyle is set to BackToFront or FrontToBack we will then
-  // sort the props that have a non-zero AllocatedRenderTime by their
-  // center distance
-  distanceList = new float[listLength];
-
-  // We will return the total time of all props. This is used for
+  // We will return the total time of all actors. This is used for
   // normalization.
   total_time  = 0;
 
@@ -88,154 +80,153 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
   ren->GetActiveCamera()->GetFrustumPlanes( planes );
 
   // Keep a list of allocated times to help with sorting / removing
-  // props later
+  // actors later
   allocatedTimeList = new float[listLength];
 
-  // For each prop, compute coverage
-  for ( propLoop = 0; propLoop < listLength; propLoop++ )
+  // For each actor, compute coverage
+  for ( actor_loop = 0; actor_loop < listLength; actor_loop++ )
     {
-    // Get the prop out of the list
-    prop = propList[propLoop];
+    // Get the actor out of the list
+    actor = actorList[actor_loop];
 
-    // If allocated render time has not been initialized yet (if this
-    // is the first culler, it hasn't) then the previous time is set
-    // to 0.0
-    if ( !initialized )
+    // Process only if the actor is visible
+    if ( actor->GetVisibility() )
       {
-      previous_time = 1.0;
+      // If allocated render time has not been initialized yet (if this
+      // is the first culler, it hasn't) then the previous time is set
+      // to 0.0
+      if ( !initialized )
+	{
+	previous_time = 1.0;
+	}
+      else
+	{
+	previous_time = actor->GetAllocatedRenderTime();
+	}
+      
+      // Get the bounds of the actor and compute an enclosing sphere
+      bounds = actor->GetBounds();
+      // We start with a coverage of 1.0 and set it to zero if the actor
+      // is culled during the plane tests
+      coverage = 1.0;
+      // make sure the bounds are defined
+      if (bounds)
+	{
+	center[0] = (bounds[0] + bounds[1]) / 2.0;
+	center[1] = (bounds[2] + bounds[3]) / 2.0;
+	center[2] = (bounds[4] + bounds[5]) / 2.0;
+	radius = 0.5 * sqrt( (double) 
+			     ( bounds[1] - bounds[0] ) *
+			     ( bounds[1] - bounds[0] ) +
+			     ( bounds[3] - bounds[2] ) *
+			     ( bounds[3] - bounds[2] ) +
+			     ( bounds[5] - bounds[4] ) *
+			     ( bounds[5] - bounds[4] ) );
+	
+	
+	for ( i = 0; i < 6; i++ )
+	  {
+	  // Compute how far the center of the sphere is from this plane
+	  d = 
+	    planes[i*4 + 0] * center[0] +
+	    planes[i*4 + 1] * center[1] +
+	    planes[i*4 + 2] * center[2] +
+	    planes[i*4 + 3];
+	  
+	  // If d < -radius the actor is not within the view frustum
+	  if ( d < -radius )
+	    {
+	    coverage = 0.0;
+	    i = 7;
+	    }
+	  
+	  // The first four planes are the ones bounding the edges of the
+	  // view plane (the last two are the near and far planes) The
+	  // distance from the edge of the sphere to these planes is stored
+	  // to compute coverage.
+	  if ( i < 4 )
+	    {
+	    screen_bounds[i] = d - radius;
+	    }
+	  }
+	
+	// If the actor wasn't culled during the plane tests...
+	if ( coverage > 0.0 )
+	  {
+	  // Compute the width and height of this slice through the
+	  // view frustum that contains the center of the sphere
+	  full_w = screen_bounds[0] + screen_bounds[1] + 2.0 * radius;
+	  full_h = screen_bounds[2] + screen_bounds[3] + 2.0 * radius;
+	  
+	  // Subtract from the full width to get the width of the square
+	  // enclosing the circle slice from the sphere in the plane
+	  // through the center of the sphere. If the screen bounds for
+	  // the left and right planes (0,1) are greater than zero, then
+	  // the edge of the sphere was a positive distance away from the
+	  // plane, so there is a gap between the edge of the plane and
+	  // the edge of the box.
+	  part_w = full_w;
+	  if ( screen_bounds[0] > 0.0 )
+	    {
+	    part_w -= screen_bounds[0];
+	    }
+	  if ( screen_bounds[1] > 0.0 )
+	    {
+	    part_w -= screen_bounds[1];
+	    }
+	  
+	  // Do the same thing for the height with the top and bottom 
+	  // planes (2,3).
+	  part_h = full_h;
+	  if ( screen_bounds[2] > 0.0 )
+	    {
+	    part_h -= screen_bounds[2];
+	    }
+	  if ( screen_bounds[3] > 0.0 )
+	    {
+	    part_h -= screen_bounds[3];
+	    }
+	  
+	  // Compute the fraction of coverage
+	  coverage = (part_w * part_h) / (full_w * full_h);
+	  
+	  // Convert this to an allocated render time - coverage less than
+	  // the minumum result in 0.0 time, greater than the maximum result in
+	  // 1.0 time, and in between a linear ramp is used
+	  if ( coverage < this->MinimumCoverage ) 
+	    {
+	    coverage = 0;
+	    }
+	  else if ( coverage > this->MaximumCoverage )
+	    {
+	    coverage = 1.0;
+	    }
+	  else
+	    {
+	    coverage = (coverage-this->MinimumCoverage) / 
+	      this->MaximumCoverage;
+	    }
+	  }
+	}
+      
+      // Multiply the new allocated time by the previous allocated time
+      coverage *= previous_time;
+      actor->SetAllocatedRenderTime( coverage );
+      
+      // Save this in our array of allocated times which matches the
+      // actor array
+      allocatedTimeList[actor_loop] = coverage;
+      
+      // Add the time for this actor to the total time
+      total_time += coverage;
       }
     else
       {
-      previous_time = prop->GetRenderTimeMultiplier();
+      allocatedTimeList[actor_loop] = 0.0;
       }
-      
-    // Get the bounds of the prop and compute an enclosing sphere
-    bounds = prop->GetBounds();
-    // We start with a coverage of 1.0 and set it to zero if the prop
-    // is culled during the plane tests
-    coverage = 1.0;
-    // make sure the bounds are defined - they won't be for a 2D prop which
-    // means that they will never be culled. Maybe this should be changed in
-    // the future?
-    if (bounds)
-      {
-      center[0] = (bounds[0] + bounds[1]) / 2.0;
-      center[1] = (bounds[2] + bounds[3]) / 2.0;
-      center[2] = (bounds[4] + bounds[5]) / 2.0;
-      radius = 0.5 * sqrt( (double) 
-			   ( bounds[1] - bounds[0] ) *
-			   ( bounds[1] - bounds[0] ) +
-			   ( bounds[3] - bounds[2] ) *
-			   ( bounds[3] - bounds[2] ) +
-			   ( bounds[5] - bounds[4] ) *
-			   ( bounds[5] - bounds[4] ) );
-      
-      
-      for ( i = 0; i < 6; i++ )
-	{
-	// Compute how far the center of the sphere is from this plane
-	d = 
-	  planes[i*4 + 0] * center[0] +
-	  planes[i*4 + 1] * center[1] +
-	  planes[i*4 + 2] * center[2] +
-	  planes[i*4 + 3];
-	
-	// If d < -radius the prop is not within the view frustum
-	if ( d < -radius )
-	  {
-	  coverage = 0.0;
-	  i = 7;
-	  }
-	
-	// The first four planes are the ones bounding the edges of the
-	// view plane (the last two are the near and far planes) The
-	// distance from the edge of the sphere to these planes is stored
-	// to compute coverage.
-	if ( i < 4 )
-	  {
-	  screen_bounds[i] = d - radius;
-	  }
-
-	// The fifth plane is the near plane - use the distance to 
-	// the center (d) as the value to sort by
-	if ( i == 4 )
-	  {
-	  distanceList[propLoop] = d;
-	  }
-	}
-      
-      // If the prop wasn't culled during the plane tests...
-      if ( coverage > 0.0 )
-	{
-	// Compute the width and height of this slice through the
-	// view frustum that contains the center of the sphere
-	full_w = screen_bounds[0] + screen_bounds[1] + 2.0 * radius;
-	full_h = screen_bounds[2] + screen_bounds[3] + 2.0 * radius;
-	  
-	// Subtract from the full width to get the width of the square
-	// enclosing the circle slice from the sphere in the plane
-	// through the center of the sphere. If the screen bounds for
-	// the left and right planes (0,1) are greater than zero, then
-	// the edge of the sphere was a positive distance away from the
-	// plane, so there is a gap between the edge of the plane and
-	// the edge of the box.
-	part_w = full_w;
-	if ( screen_bounds[0] > 0.0 )
-	  {
-	  part_w -= screen_bounds[0];
-	  }
-	if ( screen_bounds[1] > 0.0 )
-	  {
-	  part_w -= screen_bounds[1];
-	  }
-	  
-	// Do the same thing for the height with the top and bottom 
-	// planes (2,3).
-	part_h = full_h;
-	if ( screen_bounds[2] > 0.0 )
-	  {
-	  part_h -= screen_bounds[2];
-	  }
-	if ( screen_bounds[3] > 0.0 )
-	  {
-	  part_h -= screen_bounds[3];
-	  }
-	  
-	// Compute the fraction of coverage
-	coverage = (part_w * part_h) / (full_w * full_h);
-	  
-	// Convert this to an allocated render time - coverage less than
-	// the minumum result in 0.0 time, greater than the maximum result in
-	// 1.0 time, and in between a linear ramp is used
-	if ( coverage < this->MinimumCoverage ) 
-	  {
-	  coverage = 0;
-	  }
-	else if ( coverage > this->MaximumCoverage )
-	  {
-	  coverage = 1.0;
-	  }
-	else
-	  {
-	  coverage = (coverage-this->MinimumCoverage) / 
-	    this->MaximumCoverage;
-	  }
-	}
-      }
-      
-    // Multiply the new allocated time by the previous allocated time
-    coverage *= previous_time;
-    prop->SetRenderTimeMultiplier( coverage );
-      
-    // Save this in our array of allocated times which matches the
-    // prop array. Also save the center distance
-    allocatedTimeList[propLoop] = coverage;
-  
-    // Add the time for this prop to the total time
-    total_time += coverage;
     }
-  
-  // Remove all props that have no allocated render time or are not visible
+
+  // Remove all actors that have no allocated render time or are not visible
   // from the list. First, find the last non-zero entry in the list
   last_non_zero = listLength - 1;
   while ( last_non_zero >= 0 && allocatedTimeList[last_non_zero] == 0.0 )
@@ -245,17 +236,15 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
 
   // Now traverse the list from the beginning, swapping any zero entries with
   // the last non-zero entry and finding the new last non-zero
-  for ( propLoop = 0; propLoop < last_non_zero; propLoop++ )
+  for ( actor_loop = 0; actor_loop < last_non_zero; actor_loop++ )
     {
-    if ( allocatedTimeList[propLoop] == 0.0 )
+    if ( allocatedTimeList[actor_loop] == 0.0 )
       {
-      allocatedTimeList[propLoop] = allocatedTimeList[last_non_zero];
-      distanceList[propLoop]      = distanceList[last_non_zero];
-      propList[propLoop]          = propList[last_non_zero];
+      allocatedTimeList[actor_loop] = allocatedTimeList[last_non_zero];
+      actorList[actor_loop] = actorList[last_non_zero];
 
-      propList[last_non_zero]          = NULL;
+      actorList[last_non_zero] = NULL;
       allocatedTimeList[last_non_zero] = 0.0;
-      distanceList[last_non_zero]      = 0.0;
 
       while ( last_non_zero >= 0 && allocatedTimeList[last_non_zero] == 0.0 )
 	{
@@ -267,55 +256,10 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
   // Compute the new list length
   listLength = last_non_zero + 1;
 
-  // Now reorder the list if sorting is on
-  // Do it by a simple bubble sort - there probably aren't that
-  // many props....
-  
-  if ( this->SortingStyle == VTK_CULLER_SORT_FRONT_TO_BACK )
-    {
-    for ( propLoop = 0; propLoop <= last_non_zero; propLoop++ )
-      {
-      index = propLoop;
-      while ( (index - 1) >= 0 && distanceList[index] < distanceList[index-1] )
-	{
-	tmp = distanceList[index-1];
-	distanceList[index-1] = distanceList[index];
-	distanceList[index] = tmp;
-
-	prop = propList[index-1];
-	propList[index-1] = propList[index];
-	propList[index] = prop;
-
-	index--;
-	}
-      }
-    }
-
-  if ( this->SortingStyle == VTK_CULLER_SORT_BACK_TO_FRONT )
-    {
-    for ( propLoop = 0; propLoop <= last_non_zero; propLoop++ )
-      {
-      index = propLoop;
-      while ( (index - 1) >= 0 && distanceList[index] > distanceList[index-1] )
-	{
-	tmp = distanceList[index-1];
-	distanceList[index-1] = distanceList[index];
-	distanceList[index] = tmp;
-
-	prop = propList[index-1];
-	propList[index-1] = propList[index];
-	propList[index] = prop;
-
-	index--;
-	}
-      }
-    }
-
   // The allocated render times are now initialized
   initialized = 1;
   
   delete [] allocatedTimeList;
-  delete [] distanceList;
 
   return total_time;
 }
@@ -329,8 +273,4 @@ void vtkFrustumCoverageCuller::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Maximum Coverage: " 
      << this->MaximumCoverage << endl;
-
-  os << indent << "Sorting Style: "
-     << this->GetSortingStyleAsString() << endl;
-
 }

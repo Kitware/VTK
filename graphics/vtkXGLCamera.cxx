@@ -163,7 +163,6 @@ void vtkXGLCamera::Render(vtkRenderer *aren)
  
   // insert model transformation 
   xgl_object_get(*context,XGL_CTX_VIEW_TRANS, &view_trans);
-  xgl_object_set(view_trans,  XGL_TRANS_DATA_TYPE, XGL_DATA_DBL, 0);
   xgl_transform_write(view_trans,matrix->Element[0]);
   
     // if we have a stereo renderer, draw other eye next time 

@@ -120,17 +120,20 @@ void vtkVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 }
 
 void vtkVolumeRayCastMapper::InitializeRender( vtkRenderer *ren, vtkVolume *vol,
-					       VTKRayCastVolumeInfo *volumeInfo )
+					       struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {
+  float interactionScale;
+  float sampleDistance;
+
   // make sure that we have scalar input and update the scalar input
-  if ( this->Input == NULL ) 
+  if ( this->ScalarInput == NULL ) 
     {
-    vtkErrorMacro(<< "No Input!");
+    vtkErrorMacro(<< "No ScalarInput!");
     return;
     }
   else
     {
-    this->Input->Update();
+    this->ScalarInput->Update();
     } 
 
   if ( this->RGBTextureInput )
@@ -139,6 +142,12 @@ void vtkVolumeRayCastMapper::InitializeRender( vtkRenderer *ren, vtkVolume *vol,
     }
 
   this->UpdateShadingTables( ren, vol );
+
+  vol->UpdateTransferFunctions( ren );
+
+  interactionScale = ren->GetRayCaster()->GetViewportStepSize();
+  sampleDistance =  this->SampleDistance * interactionScale;
+  vol->UpdateScalarOpacityforSampleSize( ren, sampleDistance );
 
   if ( this->RayBounder )
     {
@@ -160,38 +169,37 @@ void vtkVolumeRayCastMapper::InitializeRender( vtkRenderer *ren, vtkVolume *vol,
   volumeInfo->ScalarDataPointer = this->ScalarDataPointer;    
 }
 
-void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
-					  VTKRayCastVolumeInfo *volumeInfo )
+void vtkVolumeRayCastMapper::CastViewRay( struct VolumeRayCastRayInfoStruct *rayInfo,
+					  struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {
-  int i;
+  int largest_increment_index;
   float *volumeRayIncrement;
   float rayStart[4], rayEnd[4];
   float *rayOrigin, *rayDirection;
   float *volumeRayStart, *volumeRayEnd, *volumeRayDirection;
-  float incrementLength, rayLength;
+  float t;
   float *viewToVolumeMatrix;
   float nearplane, farplane, bounderNear, bounderFar;
-  float oneStep[4], volumeOneStep[4];
 
-  rayOrigin = rayInfo->Origin;
-  rayDirection = rayInfo->Direction;
-  volumeRayStart = rayInfo->TransformedStart;
-  volumeRayEnd = rayInfo->TransformedEnd;
-  volumeRayDirection = rayInfo->TransformedDirection;
-  volumeRayIncrement = rayInfo->TransformedIncrement;
+  rayOrigin = rayInfo->RayOrigin;
+  rayDirection = rayInfo->RayDirection;
+  volumeRayStart = rayInfo->VolumeRayStart;
+  volumeRayEnd = rayInfo->VolumeRayEnd;
+  volumeRayDirection = rayInfo->VolumeRayDirection;
+  volumeRayIncrement = rayInfo->VolumeRayIncrement;
   viewToVolumeMatrix = volumeInfo->ViewToVolumeMatrix;
 
-  nearplane = rayInfo->NearClip;
-  farplane  = rayInfo->FarClip;
+  nearplane = rayInfo->RayNearClip;
+  farplane  = rayInfo->RayFarClip;
 
-  if ( rayInfo->Pixel[0] > 0 && this->DepthRangeBufferPointer )
+  if ( rayInfo->RayPixel[0] > 0 && this->DepthRangeBufferPointer )
     {
     bounderNear = *( this->DepthRangeBufferPointer + 
-		     2 * (rayInfo->Pixel[1] * rayInfo->ImageSize[0] +
-			  rayInfo->Pixel[0]) );
+		     2 * (rayInfo->RayPixel[1] * rayInfo->ImageWidth +
+			  rayInfo->RayPixel[0]) );
     bounderFar  = *( this->DepthRangeBufferPointer + 
-		     2 * (rayInfo->Pixel[1] * rayInfo->ImageSize[0] +
-			  rayInfo->Pixel[0]) + 1 );
+		     2 * (rayInfo->RayPixel[1] * rayInfo->ImageWidth +
+			  rayInfo->RayPixel[0]) + 1 );
     if ( bounderNear > 0.0 )
       {
       if ( bounderNear > nearplane )
@@ -206,12 +214,12 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 
     if ( bounderNear <= 0.0 || nearplane >= farplane )
       {
-      rayInfo->Color[0] = 
-	rayInfo->Color[1] = 
-	rayInfo->Color[2] = 
-	rayInfo->Color[3] = 0.0;
-      rayInfo->Depth = VTK_LARGE_FLOAT;
-      rayInfo->NumberOfStepsTaken = 0;
+      rayInfo->RayColor[0] = 
+	rayInfo->RayColor[1] = 
+	rayInfo->RayColor[2] = 
+	rayInfo->RayColor[3] = 0.0;
+      rayInfo->RayDepth = VTK_LARGE_FLOAT;
+      rayInfo->VolumeRayStepsTaken = 0;
       return;
       }
     }
@@ -224,91 +232,96 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
   rayEnd[1]   = rayOrigin[1] + farplane  * rayDirection[1];
   rayEnd[2]   = rayOrigin[2] + farplane  * rayDirection[2];
 
-  oneStep[0]  = rayStart[0] + rayDirection[0] * this->WorldSampleDistance;
-  oneStep[1]  = rayStart[1] + rayDirection[1] * this->WorldSampleDistance;
-  oneStep[2]  = rayStart[2] + rayDirection[2] * this->WorldSampleDistance;
-  
   // Transform the ray start from view to volume coordinates
   vtkRayCastMatrixMultiplyPointMacro( rayStart, volumeRayStart, viewToVolumeMatrix );
 
   // Transform the ray end from view to volume coordinates
   vtkRayCastMatrixMultiplyPointMacro( rayEnd, volumeRayEnd, viewToVolumeMatrix );
 
-  // Transform a point one step from the rayStart
-  vtkRayCastMatrixMultiplyPointMacro( oneStep, volumeOneStep, viewToVolumeMatrix );
-
   // Compute the ray direction
-  volumeRayIncrement[0] = 
-    volumeOneStep[0] - volumeRayStart[0];
-  volumeRayIncrement[1] = 
-    volumeOneStep[1] - volumeRayStart[1];
-  volumeRayIncrement[2] = 
-    volumeOneStep[2] - volumeRayStart[2];
-
-  incrementLength = sqrt( (double) (volumeRayIncrement[0]*volumeRayIncrement[0] +
-				    volumeRayIncrement[1]*volumeRayIncrement[1] +
-				    volumeRayIncrement[2]*volumeRayIncrement[2]) );
-  if ( incrementLength )
+  volumeRayDirection[0] = 
+    volumeRayEnd[0] - volumeRayStart[0];
+  volumeRayDirection[1] = 
+    volumeRayEnd[1] - volumeRayStart[1];
+  volumeRayDirection[2] = 
+    volumeRayEnd[2] - volumeRayStart[2];
+  t = sqrt( (double) (volumeRayDirection[0]*volumeRayDirection[0] +
+		      volumeRayDirection[1]*volumeRayDirection[1] +
+		      volumeRayDirection[2]*volumeRayDirection[2]) );
+  if ( t )
     {
-      volumeRayDirection[0] = volumeRayIncrement[0] / incrementLength;
-      volumeRayDirection[1] = volumeRayIncrement[1] / incrementLength;
-      volumeRayDirection[2] = volumeRayIncrement[2] / incrementLength;
+      volumeRayDirection[0] /= t;
+      volumeRayDirection[1] /= t;
+      volumeRayDirection[2] /= t;
     }
 
   if ( this->ClipRayAgainstVolume( rayInfo ) )
     {
-    rayLength = 
-      sqrt((double)
-	   ((volumeRayEnd[0] - volumeRayStart[0])*(volumeRayEnd[0] - volumeRayStart[0]) +
-	    (volumeRayEnd[1] - volumeRayStart[1])*(volumeRayEnd[1] - volumeRayStart[1]) +
-	    (volumeRayEnd[2] - volumeRayStart[2])*(volumeRayEnd[2] - volumeRayStart[2])));
-
-    rayInfo->NumberOfStepsToTake = (rayLength / incrementLength) + 1;
-
-    for ( i = 0; i < 3; i++ )
+    // Compute the ray increments in x, y, and z 
+    // accounted for interaction scale, 
+    // volume scale, and word/volume transformation
+    volumeRayIncrement[0] = volumeRayDirection[0] * this->WorldSampleDistance;
+    volumeRayIncrement[1] = volumeRayDirection[1] * this->WorldSampleDistance;
+    volumeRayIncrement[2] = volumeRayDirection[2] * this->WorldSampleDistance;
+    
+    if ( fabs((double) volumeRayIncrement[0]) >= 
+	 fabs((double) volumeRayIncrement[1]) &&
+	 fabs((double) volumeRayIncrement[0]) >= 
+	 fabs((double) volumeRayIncrement[2]) )
       {
-      if ( (volumeRayStart[i] + rayInfo->NumberOfStepsToTake * volumeRayIncrement[i]) >
-	   volumeRayEnd[i] )
-	{
-        rayInfo->NumberOfStepsToTake--;
-	}
+      largest_increment_index = 0;
+      }
+    else if (fabs((double) volumeRayIncrement[1]) >= 
+	     fabs((double) volumeRayIncrement[2]))
+      {
+      largest_increment_index = 1;
+      }
+    else
+      {
+      largest_increment_index = 2;
       }
 
-    if ( rayInfo->NumberOfStepsToTake > 0 )
+
+    rayInfo->VolumeRayNumberOfSamples = 
+      (int)( ( volumeRayEnd[largest_increment_index] - 
+	       volumeRayStart[largest_increment_index] ) /
+	     volumeRayIncrement[largest_increment_index] ) + 1;
+    
+    if ( rayInfo->VolumeRayNumberOfSamples > 0 )
       {
       this->VolumeRayCastFunction->CastRay( rayInfo, volumeInfo );
       }
     else
       {
-      rayInfo->Color[0] = 
-	rayInfo->Color[1] = 
-	rayInfo->Color[2] = 
-	rayInfo->Color[3] = 0.0;
-      rayInfo->Depth = VTK_LARGE_FLOAT;
-      rayInfo->NumberOfStepsTaken = 0;
+      rayInfo->RayColor[0] = 
+	rayInfo->RayColor[1] = 
+	rayInfo->RayColor[2] = 
+	rayInfo->RayColor[3] = 0.0;
+      rayInfo->RayDepth = VTK_LARGE_FLOAT;
+      rayInfo->VolumeRayStepsTaken = 0;
       }
     }
   else
     {
-    rayInfo->Color[0] = 
-      rayInfo->Color[1] = 
-      rayInfo->Color[2] = 
-      rayInfo->Color[3] = 0.0;
-    rayInfo->Depth = VTK_LARGE_FLOAT;
-    rayInfo->NumberOfStepsTaken = 0;
+    rayInfo->RayColor[0] = 
+      rayInfo->RayColor[1] = 
+      rayInfo->RayColor[2] = 
+      rayInfo->RayColor[3] = 0.0;
+    rayInfo->RayDepth = VTK_LARGE_FLOAT;
+    rayInfo->VolumeRayStepsTaken = 0;
     }
 }
 
-int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo )
+int vtkVolumeRayCastMapper::ClipRayAgainstVolume( struct VolumeRayCastRayInfoStruct *rayInfo )
 {
   int    loop;
   float  diff;
   float  t;
   float  *rayStart, *rayEnd, *rayDirection;
 
-  rayStart = rayInfo->TransformedStart;
-  rayEnd = rayInfo->TransformedEnd;
-  rayDirection = rayInfo->TransformedDirection;
+  rayStart = rayInfo->VolumeRayStart;
+  rayEnd = rayInfo->VolumeRayEnd;
+  rayDirection = rayInfo->VolumeRayDirection;
 
   if ( rayStart[0] >= this->VolumeBounds[1] ||
        rayStart[1] >= this->VolumeBounds[3] ||
@@ -436,7 +449,6 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   vtkTransform           *worldToVolumeTransform;
   vtkTransform           *viewToVolumeTransform;
   vtkRayCaster           *ray_caster;
-  vtkStructuredPoints    *input = (vtkStructuredPoints *)this->Input;
   float                  spacing[3], data_origin[3];
   int                    i, j;
   int                    scalarDataSize[3];
@@ -464,11 +476,11 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
 
   // Get the origin of the data.  This translation is not accounted for in
   // the volume's matrix, so we must add it in.
-  input->GetOrigin( data_origin );
+  this->ScalarInput->GetOrigin( data_origin );
 
   // Get the data spacing.  This scaling is not accounted for in
   // the volume's matrix, so we must add it in.
-  input->GetSpacing( spacing );
+  this->ScalarInput->GetSpacing( spacing );
 
   // Create a transform that will account for the scaling and translation of
   // the scalar data
@@ -507,15 +519,15 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
       }
     }
   // Get the size of the data for limit checks and compute increments
-  input->GetDimensions( scalarDataSize );
+  this->ScalarInput->GetDimensions( scalarDataSize );
 
   this->WorldSampleDistance = 
     this->SampleDistance * ray_caster->GetViewportStepSize();
 
   this->ScalarDataPointer = 
-    input->GetPointData()->GetScalars()->GetVoidPointer(0);
+    this->ScalarInput->GetPointData()->GetScalars()->GetVoidPointer(0);
   this->ScalarDataType = 
-    input->GetPointData()->GetScalars()->GetDataType();
+    this->ScalarInput->GetPointData()->GetScalars()->GetDataType();
     
   if( (this->ScalarDataType != VTK_UNSIGNED_SHORT ) && 
       (this->ScalarDataType != VTK_UNSIGNED_CHAR ) )
@@ -562,11 +574,11 @@ void vtkVolumeRayCastMapper::UpdateShadingTables( vtkRenderer *ren,
   int                   shading;
   vtkVolumeProperty     *volume_property;
 
-  volume_property = vol->GetProperty();
+  volume_property = vol->GetVolumeProperty();
 
   shading = volume_property->GetShade();
 
-  this->GradientEstimator->SetInput( (vtkStructuredPoints *)this->Input );
+  this->GradientEstimator->SetScalarInput( this->ScalarInput );
 
   if ( shading )
     {

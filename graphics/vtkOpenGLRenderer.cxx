@@ -155,25 +155,26 @@ int vtkOpenGLRenderer::UpdateLights ()
 // Concrete open gl render method.
 void vtkOpenGLRenderer::DeviceRender(void)
 {
-  float  scaleFactor;
+  int    actor_count;
+  int    volume_count;
+  float  scale_factor;
   float  saved_viewport[4];
   float  new_viewport[4];
   int    saved_erase;
 
-  scaleFactor = 1.0;
+  volume_count = this->VisibleVolumeCount();
 
-  // If there is a volume renderer, get its desired viewport size
+  // If there is a volume renderer, get it's desired viewport size
   // since it may want to render actors into a smaller area for multires
   // rendering during motion
-  if ( ( this->NumberOfPropsToRayCast + 
-	 this->NumberOfPropsToRenderIntoImage ) > 0 )
+  if ( volume_count > 0 )
     {
     // Get the scale factor 
-    scaleFactor = this->RayCaster->GetViewportScaleFactor( (vtkRenderer *)this );
+    scale_factor = this->RayCaster->GetViewportScaleFactor( (vtkRenderer *)this );
     
     // If the volume renderer wants a different resolution than this
     // renderer was going to produce we need to set up the viewport
-    if ( scaleFactor != 1.0 )
+    if ( scale_factor != 1.0 )
       {
       // Get the current viewport 
       this->GetViewport( saved_viewport );
@@ -182,9 +183,9 @@ void vtkOpenGLRenderer::DeviceRender(void)
       new_viewport[0] = saved_viewport[0];
       new_viewport[1] = saved_viewport[1];
       new_viewport[2] = saved_viewport[0] + 
-	scaleFactor * ( saved_viewport[2] - saved_viewport[0] );
+	scale_factor * ( saved_viewport[2] - saved_viewport[0] );
       new_viewport[3] = saved_viewport[1] + 
-	scaleFactor * ( saved_viewport[3] - saved_viewport[1] );
+	scale_factor * ( saved_viewport[3] - saved_viewport[1] );
       
       // Set this as the new viewport.  This will cause the OpenGL
       // viewport to be set correctly in the camera render method
@@ -195,13 +196,12 @@ void vtkOpenGLRenderer::DeviceRender(void)
   // standard render method 
   this->ClearLights();
 
-  this->UpdateCamera();
+  this->UpdateCameras();
   this->UpdateLights();
 
   // set matrix mode for actors 
   glMatrixMode(GL_MODELVIEW);
-
-  this->UpdateGeometry();
+  actor_count =  this->UpdateActors();
 
   // If we are rendering with a reduced size image for the volume
   // rendering, then we need to reset the viewport so that the
@@ -211,7 +211,7 @@ void vtkOpenGLRenderer::DeviceRender(void)
   // erase variable in the render window to 0, and render the camera
   // again.  This will set our viewport back to the right size.
   // Finally, we restore the erase variable in the render window
-  if ( scaleFactor != 1.0 )
+  if ( volume_count > 0  && scale_factor != 1.0 )
     {
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
@@ -222,19 +222,11 @@ void vtkOpenGLRenderer::DeviceRender(void)
     this->RenderWindow->SetErase( saved_erase );
     }
 
-  // Let the ray caster do its thing - this will both update
-  // props that are rendered using ray casting, and props that
-  // are rendered into an image. The final image is merges with the
-  // results of the geometry rendering, and then placed up on the
-  // screen.
-  if ( ( this->NumberOfPropsToRayCast + 
-	 this->NumberOfPropsToRenderIntoImage ) > 0 )
+  volume_count = this->UpdateVolumes();
+
+  if ( !(actor_count + volume_count) )
     {
-    this->RayCaster->Render( (vtkRenderer *)this,
-			     this->NumberOfPropsToRayCast,
-			     this->RayCastPropArray,
-			     this->NumberOfPropsToRenderIntoImage,
-			     this->RenderIntoImagePropArray );
+    vtkDebugMacro(<< "No actors or volumes are on.");
     }
 
   // clean up the model view matrix set up by the camera 

@@ -63,16 +63,14 @@ public:
   // then the ScalarType of the input is used.
   virtual void SetInput1(vtkImageCache *input);
   void SetInput1(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput1(tmp->GetOutput()); tmp->Delete();}
+    {this->SetInput1(spts->GetStructuredPointsToImage()->GetOutput());}
   
   // Description:
   // Set the Input2 of this filter. If a ScalarType has not been set,
   // then the ScalarType of the input is used.
   virtual void SetInput2(vtkImageCache *input);
   void SetInput2(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput2(tmp->GetOutput()); tmp->Delete();}
+  {this->SetInput2(spts->GetStructuredPointsToImage()->GetOutput());}
   
   // Description:
   // Get the inputs to this filter.

@@ -53,8 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 
-#include "vtkTimerLog.h"
-
 // Construct empty object.
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 {
@@ -122,9 +120,6 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
   int numPts;
   vtkPolyData *input= (vtkPolyData *)this->Input;
-  vtkTimerLog *timer;
-
-  
 //
 // make sure that we've been properly initialized
 //
@@ -169,8 +164,6 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->MakeCurrent();
 #endif
 
-  timer = vtkTimerLog::New();
-
   //
   // if something has changed regenrate colors and display lists
   // if required
@@ -192,12 +185,7 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
       // get a unique display list id
       this->ListId = glGenLists(1);
       glNewList(this->ListId,GL_COMPILE_AND_EXECUTE);
-
-      // Time the actual drawing
-      timer->StartTimer();
       this->Draw(ren,act);
-      timer->StopTimer();      
-
       glEndList();
       }
     this->BuildTime.Modified();
@@ -208,10 +196,7 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     if (!this->ImmediateModeRendering && 
 	!this->GetGlobalImmediateModeRendering())
       {
-      // Time the actual drawing
-      timer->StartTimer();
       glCallList(this->ListId);
-      timer->StopTimer();      
       }
     }
    
@@ -220,15 +205,8 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   if (this->ImmediateModeRendering ||
       this->GetGlobalImmediateModeRendering())
     {
-    // Time the actual drawing
-    timer->StartTimer();
     this->Draw(ren,act);
-    timer->StopTimer();      
     }
-
-  this->TimeToDraw = (float)timer->GetElapsedTime();
-
-  timer->Delete();
 }
 
 

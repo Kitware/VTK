@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAbstractMapper.cxx
+  Module:    vtkDataSetCollection.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,89 +38,50 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkAbstractMapper.h"
+// .NAME vtkDataSetCollection - maintain an unordered list of dataset objects
+// .SECTION Description
+// vtkDataSetCollection is an object that creates and manipulates lists of
+// datasets. See also vtkCollection and subclasses.
+
+#ifndef __vtkDataSetCollection_h
+#define __vtkDataSetCollection_h
+
+#include "vtkCollection.h"
 #include "vtkDataSet.h"
 
-// Construct with initial range (0,1).
-vtkAbstractMapper::vtkAbstractMapper()
+class VTK_EXPORT vtkDataSetCollection : public vtkCollection
 {
-  this->Input = NULL;
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
-  this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
-  this->TimeToDraw = 0.0;
-}
+public:
+  static vtkDataSetCollection *New() {return new vtkDataSetCollection;};
+  const char *GetClassName() {return "vtkDataSetCollection";};
 
-vtkAbstractMapper::~vtkAbstractMapper()
-{
-}
+  // Description:
+  // Add a dataset to the list.
+  void AddItem(vtkDataSet *ds) {
+    this->vtkCollection::AddItem((vtkObject *)ds);};
+  
+  // Description:
+  // Remove a dataset from the list.
+  void RemoveItem(vtkDataSet *ds) {
+    this->vtkCollection::RemoveItem((vtkObject *)ds);};
+
+  // Description:
+  // Determine whether a particular dataset is present. Returns its position
+  // in the list.
+  int IsItemPresent(vtkDataSet *ds) {
+    return this->vtkCollection::IsItemPresent((vtkObject *)ds);};
+
+  // Description:
+  // Get the next dataset in the list.
+  vtkDataSet *GetNextItem() { 
+    return (vtkDataSet *)(this->GetNextItemAsObject());};
+
+  // Description:
+  // Get the ith dataset in the list.
+  vtkDataSet *GetItem(int i) { 
+    return (vtkDataSet *)(this->GetItemAsObject(i));};
+
+};
 
 
-// Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-float *vtkAbstractMapper::GetBounds()
-{
-  static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-
-  if ( ! this->Input ) 
-    {
-    return bounds;
-    }
-  else
-    {
-    this->Input->Update();
-    this->Input->GetBounds(this->Bounds);
-    return this->Bounds;
-    }
-}
-
-// Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-void vtkAbstractMapper::GetBounds(float bounds[6])
-{
-  this->GetBounds();
-  for (int i=0; i<6; i++)
-    {
-    bounds[i] = this->Bounds[i];
-    }
-}
-
-float *vtkAbstractMapper::GetCenter()
-{
-  this->GetBounds();
-  for (int i=0; i<3; i++) 
-    {
-    this->Center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) / 2.0;
-    }
-  return this->Center;
-}
-
-float vtkAbstractMapper::GetLength()
-{
-  double diff, l=0.0;
-  int i;
-
-  this->GetBounds();
-  for (i=0; i<3; i++)
-    {
-    diff = this->Bounds[2*i+1] - this->Bounds[2*i];
-    l += diff * diff;
-    }
- 
-  return (float)sqrt(l);
-}
-
-void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkProcessObject::PrintSelf(os,indent);
-
-  if ( this->Input )
-    {
-    os << indent << "Input: (" << this->Input << ")\n";
-    }
-  else
-    {
-    os << indent << "Input: (none)\n";
-    }
-  os << indent << "TimeToDraw: " << this->TimeToDraw << "\n";
-
-}
-
+#endif

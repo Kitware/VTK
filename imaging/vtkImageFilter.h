@@ -71,8 +71,7 @@ public:
   // Set the Input of a filter. 
   virtual void SetInput(vtkImageCache *input);
   void SetInput(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput(tmp->GetOutput()); tmp->Delete();}
+    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
 
   // Description:

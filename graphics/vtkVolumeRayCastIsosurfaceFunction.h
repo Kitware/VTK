@@ -90,8 +90,8 @@ public:
   float       Color[3];
 
 //BTX
-  void CastRay(	VTKRayCastRayInfo *rayInfo,
-		VTKRayCastVolumeInfo *volumeInfo);
+  void CastRay(	struct VolumeRayCastRayInfoStruct *rayInfo,
+		struct VolumeRayCastVolumeInfoStruct *volumeInfo);
 //ETX
 
 protected:
@@ -99,7 +99,7 @@ protected:
 //BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
 				   vtkVolume   *vol,
-				   VTKRayCastVolumeInfo *volumeInfo,
+				   struct VolumeRayCastVolumeInfoStruct *volumeInfo,
 				   vtkVolumeRayCastMapper *mapper );
 //ETX
 };

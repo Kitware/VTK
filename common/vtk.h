@@ -47,6 +47,3 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifdef VTK_USE_IMAGING
 #include "../imaging/vtkImaging.h"
 #endif
-#ifdef VTK_USE_CONTRIB
-#include "../contrib/vtkContrib.h"
-#endif

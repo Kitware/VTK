@@ -113,24 +113,24 @@ typedef struct _vtkProLocalVertex
   float   FAngle;
   } vtkProLocalVertex, *vtkProLocalVertexPtr;
     
-typedef struct _vtkProLocalTri
+typedef struct _vtkLocalTri
   {
   int     id;
   float   area;
   float   n[3];
   int     verts[3];
-  } vtkProLocalTri, *vtkProLocalTriPtr;
+  } vtkLocalTri, *vtkLocalTriPtr;
 
 //
 // Special classes for manipulating data
 //
 //BTX - begin tcl exclude
 //
-class vtkProVertexArray { //;prevent man page generation
+class vtkVertexArray { //;prevent man page generation
 public:
-  vtkProVertexArray(const int sz) 
+  vtkVertexArray(const int sz) 
     {this->MaxId = -1; this->Array = new vtkProLocalVertex[sz];};
-  ~vtkProVertexArray()
+  ~vtkVertexArray()
     {
     if (this->Array)
       {
@@ -147,11 +147,11 @@ public:
   int MaxId;             // maximum index inserted thus far
 };
 
-class vtkProTriArray { //;prevent man page generation
+class vtkTriArray { //;prevent man page generation
 public:
-  vtkProTriArray(const int sz) 
-    {this->MaxId = -1; this->Array = new vtkProLocalTri[sz];};
-  ~vtkProTriArray()
+  vtkTriArray(const int sz) 
+    {this->MaxId = -1; this->Array = new vtkLocalTri[sz];};
+  ~vtkTriArray()
     {
       if (this->Array)
 	{
@@ -159,12 +159,12 @@ public:
 	}
     };
   int GetNumberOfTriangles() {return this->MaxId + 1;};
-  void InsertNextTriangle(vtkProLocalTri& t) 
+  void InsertNextTriangle(vtkLocalTri& t) 
     {this->MaxId++; this->Array[this->MaxId] = t;};
-  vtkProLocalTri& GetTriangle(int i) {return this->Array[i];};
+  vtkLocalTri& GetTriangle(int i) {return this->Array[i];};
   void Reset() {this->MaxId = -1;};
 
-  vtkProLocalTri *Array;  // pointer to data
+  vtkLocalTri *Array;  // pointer to data
   int MaxId;           // maximum index inserted thus far
 };
 //ETX - end tcl exclude
@@ -355,8 +355,8 @@ private:
   vtkPriorityQueue *Queue;
   vtkFloatArray *VertexError;
 
-  vtkProVertexArray *V;
-  vtkProTriArray *T;
+  vtkVertexArray *V;
+  vtkTriArray *T;
 
   // Use to be static variables used by object
   vtkPolyData *Mesh; //operate on this data structure

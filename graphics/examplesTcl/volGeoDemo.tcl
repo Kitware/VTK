@@ -11,7 +11,7 @@ proc CreateDataChoice { ww type } {
     vtkVolumeRayCastCompositeFunction composite_$type
 
     vtkVolumeRayCastMapper mapper_$type
-    mapper_$type SetInput [reader_$type GetOutput]
+    mapper_$type SetScalarInput [reader_$type GetOutput]
     mapper_$type SetVolumeRayCastFunction composite_$type
 
     switch $type {
@@ -44,8 +44,8 @@ proc CreateDataChoice { ww type } {
     property_$type ShadeOn
 
     vtkVolume volume_$type
-    volume_$type SetMapper mapper_$type
-    volume_$type SetProperty property_$type
+    volume_$type SetVolumeMapper mapper_$type
+    volume_$type SetVolumeProperty property_$type
 
     vtkTkRenderWidget $ww.rw_$type -width 100 -height 100
 

@@ -73,8 +73,8 @@ public:
   // Description:
   // Set/Get the scalar input for which the normals will be 
   // calculated
-  vtkSetObjectMacro( Input, vtkStructuredPoints );
-  vtkGetObjectMacro( Input, vtkStructuredPoints );
+  vtkSetObjectMacro( ScalarInput, vtkStructuredPoints );
+  vtkGetObjectMacro( ScalarInput, vtkStructuredPoints );
 
   // Description:
   // Set/Get the scale and bias for the gradient magnitude
@@ -167,7 +167,7 @@ public:
   // this does not work with all compilers
 
   // The input scalar data on which the normals are computed
-  vtkStructuredPoints   *Input;
+  vtkStructuredPoints   *ScalarInput;
 
   // The encoded normals (2 bytes) and the size of the encoded normals
   unsigned short        *EncodedNormals;
@@ -179,8 +179,8 @@ public:
   // The time at which the normals were last built
   vtkTimeStamp          BuildTime;
 
-  vtkGetVectorMacro( InputSize, int, 3 );
-  vtkGetVectorMacro( InputAspect, float, 3 );
+  vtkGetVectorMacro( ScalarInputSize, int, 3 );
+  vtkGetVectorMacro( ScalarInputAspect, float, 3 );
 
 
 protected:
@@ -211,8 +211,8 @@ protected:
   int                        BoundsClip;
   int                        Bounds[6];
 
-  int                        InputSize[3];
-  float                      InputAspect[3];
+  int                        ScalarInputSize[3];
+  float                      ScalarInputAspect[3];
 
   int                        ComputeGradientMagnitudes;
 }; 

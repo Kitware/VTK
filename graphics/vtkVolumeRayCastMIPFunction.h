@@ -90,8 +90,8 @@ public:
   char *GetMaximizeMethodAsString(void);
 
 //BTX
-  void CastRay( VTKRayCastRayInfo *rayInfo,
-		VTKRayCastVolumeInfo *volumeInfo );
+  void CastRay( struct VolumeRayCastRayInfoStruct *rayInfo,
+		struct VolumeRayCastVolumeInfoStruct *volumeInfo );
 //ETX
 
 
@@ -101,7 +101,7 @@ protected:
 //BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
 				   vtkVolume   *vol,
-				   VTKRayCastVolumeInfo *volumeInfo,
+				   struct VolumeRayCastVolumeInfoStruct *volumeInfo,
 				   vtkVolumeRayCastMapper *mapper );
 
 //ETX

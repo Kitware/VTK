@@ -116,8 +116,7 @@ public:
   // Set the Input of the filter.
   void SetInput(vtkImageCache *Input);
   void SetInput(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-    this->SetInput(tmp->GetOutput()); tmp->Delete();};
+    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
 
   // Forward dilateErode messages to both filters.
 
