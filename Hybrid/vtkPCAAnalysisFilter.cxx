@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.1");
+vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.2");
 vtkStandardNewMacro(vtkPCAAnalysisFilter);
 
 //------------------------------------------------------------------------
@@ -71,9 +71,11 @@ static inline void MatrixMultiply(double **a, double **b, double **c,
 // The mean column is equal to the Procrustes mean (it is also returned)
 static inline void SubtractMeanColumn(double **m, double *mean, int rows, int cols)
 {
-  for (int r = 0; r < rows; r++) {
-    double csum = 0.0F;
-    for (int c = 0; c < cols; c++) {
+  int r,c;
+  double csum;
+  for (r = 0; r < rows; r++) {
+    csum = 0.0F;
+    for (c = 0; c < cols; c++) {
       csum += m[r][c];
     }
     // calculate average value of row
@@ -343,6 +345,7 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray 
   double *bloc = NewVector(bsize);
   
   const int n = this->GetOutput(0)->GetNumberOfPoints();
+  int i,j;
   
   if(shape->GetNumberOfPoints() != n) {
     vtkErrorMacro(<<"Input shape does not have the correct number of points");
@@ -352,7 +355,7 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray 
   double *shapevec = NewVector(n*3);
   
   // Copy shape and subtract mean shape
-  for (int i = 0; i < n; i++) {
+  for (i = 0; i < n; i++) {
     float *p = shape->GetPoint(i);
     shapevec[i*3  ] = p[0] - meanshape[i*3];
     shapevec[i*3+1] = p[1] - meanshape[i*3+1];
@@ -363,7 +366,7 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray 
     bloc[i] = 0;
     
     // Project the shape onto eigenvector i
-    for (int j = 0; j < n*3; j++) {
+    for (j = 0; j < n*3; j++) {
       bloc[i] += shapevec[j] * evecMat2[j][i];
     }
   }
