@@ -69,15 +69,15 @@ public:
 
   // Description:
   // Add a dataset to the list of data to append.
-  void AddInput(vtkStructuredPoints *);
+  void AddInput(vtkImageData *);
 
   // Description:
   // Remove a dataset from the list of data to append.
-  void RemoveInput(vtkStructuredPoints *);
+  void RemoveInput(vtkImageData *);
 
   // Description:
   // Get any input of this filter.
-  vtkStructuredPoints *GetInput(int idx);
+  vtkImageData *GetInput(int idx);
 
 protected:
   vtkImageComposite();
@@ -87,7 +87,7 @@ protected:
 
   // Usual data generation method
   void Execute();
-  int ComputeInputUpdateExtents(vtkDataObject *data);
+  void ComputeInputUpdateExtents(vtkDataObject *data);
 };
 
 #endif

@@ -73,26 +73,26 @@ vtkImageComposite::~vtkImageComposite()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageComposite::AddInput(vtkStructuredPoints *ds)
+void vtkImageComposite::AddInput(vtkImageData *ds)
 {
   this->vtkProcessObject::AddInput(ds);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageComposite::RemoveInput(vtkStructuredPoints *ds)
+void vtkImageComposite::RemoveInput(vtkImageData *ds)
 {
   this->vtkProcessObject::RemoveInput(ds);
 }
 
 //----------------------------------------------------------------------------
-vtkStructuredPoints *vtkImageComposite::GetInput(int idx)
+vtkImageData *vtkImageComposite::GetInput(int idx)
 {
   if (idx >= this->NumberOfInputs || idx < 0)
     {
     return NULL;
     }
   
-  return (vtkStructuredPoints *)(this->Inputs[idx]);
+  return (vtkImageData *)(this->Inputs[idx]);
 }
 
 //----------------------------------------------------------------------------
@@ -194,7 +194,7 @@ void vtkImageComposite::Execute()
 
 
 //----------------------------------------------------------------------------
-int vtkImageComposite::ComputeInputUpdateExtents(vtkDataObject *data)
+void vtkImageComposite::ComputeInputUpdateExtents(vtkDataObject *data)
 {
   vtkStructuredPoints *output = (vtkStructuredPoints*)data;
   vtkStructuredPoints *input;
@@ -208,7 +208,6 @@ int vtkImageComposite::ComputeInputUpdateExtents(vtkDataObject *data)
       input->CopyUpdateExtent(output);
       }
     }
-  return 1;
 }
 
 
