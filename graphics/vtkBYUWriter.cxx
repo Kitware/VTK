@@ -90,6 +90,9 @@ void vtkBYUWriter::WriteData()
   this->WriteDisplacementFile(numPts);
   this->WriteScalarFile(numPts);
   this->WriteTextureFile(numPts);
+
+  // Close the file
+  fclose (geomFp);
 }
 
 void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
@@ -173,6 +176,7 @@ void vtkBYUWriter::WriteDisplacementFile(int numPts)
     }
 
   vtkDebugMacro(<<"Wrote " << numPts << " displacements");
+  fclose (dispFp);
 }
 
 void vtkBYUWriter::WriteScalarFile(int numPts)
@@ -203,6 +207,7 @@ void vtkBYUWriter::WriteScalarFile(int numPts)
     if ( i != 0 && !(i % 6) ) fprintf (scalarFp, "\n");
     }
 
+  fclose (scalarFp);
   vtkDebugMacro(<<"Wrote " << numPts << " scalars");
 }
 
@@ -234,6 +239,7 @@ void vtkBYUWriter::WriteTextureFile(int numPts)
     fprintf(textureFp, "%e %e", t[0], t[1]);
     }
 
+  fclose (textureFp);
   vtkDebugMacro(<<"Wrote " << numPts << " texture coordinates");
 }
 
