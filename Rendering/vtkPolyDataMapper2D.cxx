@@ -16,11 +16,16 @@
 
 =========================================================================*/
 #include "vtkPolyDataMapper2D.h"
+
+#include "vtkCoordinate.h"
 #include "vtkImagingFactory.h"
-
 #include "vtkLookupTable.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.37");
+vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.38");
+
+vtkCxxSetObjectMacro(vtkPolyDataMapper2D,Input,vtkPolyData);
+vtkCxxSetObjectMacro(vtkPolyDataMapper2D,TransformCoordinate,vtkCoordinate);
 
 vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 {
@@ -300,8 +305,8 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+void vtkPolyDataMapper2D::SetColorModeToDefault() 
+{this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
 
-
-
-
-
+void vtkPolyDataMapper2D::SetColorModeToMapScalars() 
+{this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};

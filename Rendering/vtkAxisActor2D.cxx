@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkAxisActor2D.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.23");
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.24");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 // Instantiate this object.

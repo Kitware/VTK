@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkParallelCoordinatesActor.h"
+
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.19");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.20");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);

@@ -35,12 +35,10 @@
 
 
 #include "vtkMapper2D.h"
-#include "vtkWindow.h"
-#include "vtkViewport.h"
-#include "vtkActor2D.h"
-#include "vtkProperty2D.h"
-#include "vtkScalarsToColors.h"
-#include "vtkPolyData.h"
+
+class vtkPolyData;
+class vtkCoordinate;
+class vtkScalarsToColors;
 
 class VTK_RENDERING_EXPORT vtkPolyDataMapper2D : public vtkMapper2D
 {
@@ -51,7 +49,7 @@ public:
   
   // Description:
   // Set the input to the mapper.  
-  vtkSetObjectMacro(Input, vtkPolyData);
+  virtual void SetInput(vtkPolyData*);
   vtkGetObjectMacro(Input, vtkPolyData);
 
   // Description:
@@ -80,10 +78,8 @@ public:
   // ColorByArrayComponent() method.)
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
-  void SetColorModeToDefault() 
-    {this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
-  void SetColorModeToMapScalars() 
-    {this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};
+  void SetColorModeToDefault();
+  void SetColorModeToMapScalars();
 
   // Description:
   // Return the method of coloring scalar data.
@@ -152,7 +148,7 @@ public:
   // Specify a vtkCoordinate object to be used to transform the vtkPolyData
   // point coordinates. By default (no vtkCoordinate specified), the point 
   // coordinates are taken as local display coordinates.
-  vtkSetObjectMacro(TransformCoordinate, vtkCoordinate);
+  virtual void SetTransformCoordinate(vtkCoordinate*);
   vtkGetObjectMacro(TransformCoordinate, vtkCoordinate);
 
   // Description:

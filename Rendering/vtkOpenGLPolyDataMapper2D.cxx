@@ -15,26 +15,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <math.h>
 #include "vtkOpenGLPolyDataMapper2D.h"
-#ifndef VTK_IMPLEMENT_MESA_CXX
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
-#endif
+
+#include "vtkActor2D.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkScalarsToColors.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkViewport.h"
 #include "vtkgluPickMatrix.h"
 
+#include <math.h>
+
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.37");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.38");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
-
-#include "vtkMath.h"
-
 
 void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                                               vtkActor2D* actor)

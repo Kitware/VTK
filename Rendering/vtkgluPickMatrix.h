@@ -23,6 +23,14 @@
 #ifndef vtkgluPickMatrix_h
 #define vtkgluPickMatrix_h
 
+#ifndef VTK_IMPLEMENT_MESA_CXX
+# ifdef __APPLE__
+#  include <OpenGL/gl.h>
+# else
+#  include <GL/gl.h>
+# endif
+#endif
+
 // This function was copied from Mesa and sets up the pick matrix
 inline void vtkgluPickMatrix( GLdouble x, GLdouble y,
                               GLdouble width, GLdouble height,

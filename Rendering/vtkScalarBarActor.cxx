@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkScalarBarActor.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.39");
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.40");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 // Instantiate object with 64 maximum colors; 5 labels; font size 12
