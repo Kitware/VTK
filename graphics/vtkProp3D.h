@@ -242,7 +242,6 @@ protected:
   float         Position[3];
   float         Orientation[3];
   float         Center[3];
-  int           Visibility;
   int           Pickable;
   void          (*PickMethod)(void *);
   void          (*PickMethodArgDelete)(void *);
