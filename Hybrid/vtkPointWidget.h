@@ -178,6 +178,8 @@ protected:
   ~vtkPointWidget();
 
 //BTX - manage the state of the widget
+  friend class vtkLineWidget;
+  
   int State;
   enum WidgetState
   {

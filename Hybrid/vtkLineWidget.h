@@ -82,6 +82,9 @@ class vtkProp;
 class vtkProperty;
 class vtkSphereSource;
 class vtkCellPicker;
+class vtkPointWidget;
+class vtkPW1Callback;
+class vtkPW2Callback;
 
 class VTK_HYBRID_EXPORT vtkLineWidget : public vtk3DWidget
 {
@@ -175,7 +178,8 @@ protected:
   enum WidgetState
   {
     Start=0,
-    Moving,
+    MovingHandle,
+    MovingLine,
     Scaling,
     Outside
   };
@@ -222,6 +226,7 @@ protected:
   void HandlesOn(double length);
   void HandlesOff();
   int HighlightHandle(vtkProp *prop); //returns cell id
+  void HighlightHandles(int highlight);
   
   // Do the picking
   vtkCellPicker *HandlePicker;
@@ -238,6 +243,7 @@ protected:
   // Initial bounds
   float InitialBounds[6];
   float InitialLength;
+  float LineBounds[6];
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
@@ -248,6 +254,16 @@ protected:
   void CreateDefaultProperties();
   
   void GenerateLine();
+  
+  // Methods for managing the point widgets used to control the endpoints
+  vtkPointWidget *PointWidget1;
+  vtkPointWidget *PointWidget2;
+  vtkPW1Callback *PW1Callback;
+  vtkPW2Callback *PW2Callback;
+  vtkPointWidget *CurrentPointWidget;
+  void EnablePointWidget();
+  void DisablePointWidget();
+  void ForwardEvent(unsigned long event);
   
 private:
   vtkLineWidget(const vtkLineWidget&);  //Not implemented
