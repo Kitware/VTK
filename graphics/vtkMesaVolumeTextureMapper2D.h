@@ -58,7 +58,7 @@ public:
   const char *GetClassName() {return "vtkMesaVolumeTextureMapper2D";};
   void PrintSelf( ostream& os, vtkIndent index );
 
-  static vtkMesaVolumeTextureMapper2D *New() {return new vtkMesaVolumeTextureMapper2D;};
+  static vtkMesaVolumeTextureMapper2D *New();
   
 //BTX
 

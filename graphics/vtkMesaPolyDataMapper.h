@@ -64,7 +64,7 @@ class vtkMesaRenderer;
 class VTK_EXPORT vtkMesaPolyDataMapper : public vtkPolyDataMapper
 {
 public:
-  static vtkMesaPolyDataMapper *New() {return new vtkMesaPolyDataMapper;};
+  static vtkMesaPolyDataMapper *New();
   const char *GetClassName() {return "vtkMesaPolyDataMapper";};
 
   // Description:

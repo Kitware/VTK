@@ -53,7 +53,7 @@ class vtkMesaRenderer;
 class VTK_EXPORT vtkMesaLight : public vtkLight
 {
 public:
-  static vtkMesaLight *New() {return new vtkMesaLight;};
+  static vtkMesaLight *New();
   const char *GetClassName() {return "vtkMesaLight";};
 
   // Description:

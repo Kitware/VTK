@@ -55,7 +55,7 @@ class VTK_EXPORT vtkMesaActor : public vtkActor
 protected:
   
 public:
-  static vtkMesaActor *New() {return new vtkMesaActor;};
+  static vtkMesaActor *New();
   const char *GetClassName() {return "vtkMesaActor";};
 
   // Description:

@@ -60,11 +60,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 // make sure this file is included before the #define takes place
 // so we don't get two vtkMesaVolumeTextureMapper2D classes defined.
-#include "vtkOpenGLMesaVolumeTextureMapper2D.h"
+#include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkMesaVolumeTextureMapper2D.h"
 
-// Make sure vtkMesaVolumeTextureMapper2D is a copy of vtkOpenGLMesaVolumeTextureMapper2D
-// with vtkOpenGLMesaVolumeTextureMapper2D replaced with vtkMesaVolumeTextureMapper2D
-#define vtkOpenGLMesaVolumeTextureMapper2D vtkMesaVolumeTextureMapper2D
-#include "vtkOpenGLMesaVolumeTextureMapper2D.cxx"
-#undef vtkOpenGLMesaVolumeTextureMapper2D
+// Make sure vtkMesaVolumeTextureMapper2D is a copy of vtkOpenGLVolumeTextureMapper2D
+// with vtkOpenGLVolumeTextureMapper2D replaced with vtkMesaVolumeTextureMapper2D
+#define vtkOpenGLVolumeTextureMapper2D vtkMesaVolumeTextureMapper2D
+#include "vtkOpenGLVolumeTextureMapper2D.cxx"
+#undef vtkOpenGLVolumeTextureMapper2D

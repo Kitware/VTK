@@ -53,7 +53,7 @@ class vtkMesaRenderer;
 class VTK_EXPORT vtkMesaProperty : public vtkProperty
 {
 public:
-  static vtkMesaProperty *New() {return new vtkMesaProperty;};
+  static vtkMesaProperty *New();
   const char *GetClassName() {return "vtkMesaProperty";};
 
   // Description:

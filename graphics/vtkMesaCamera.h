@@ -53,7 +53,7 @@ class vtkMesaRenderer;
 class VTK_EXPORT vtkMesaCamera : public vtkCamera
 {
 public:
-  static vtkMesaCamera *New() {return new vtkMesaCamera;};
+  static vtkMesaCamera *New();
   const char *GetClassName() {return "vtkMesaCamera";};
 
   // Description:

@@ -55,7 +55,7 @@ class vtkRenderWindow;
 class VTK_EXPORT vtkMesaTexture : public vtkTexture
 {
 public:
-  static vtkMesaTexture *New() {return new vtkMesaTexture;};
+  static vtkMesaTexture *New();
   const char *GetClassName() {return "vtkMesaTexture";};
 
   // Description:

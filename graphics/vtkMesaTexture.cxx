@@ -66,5 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Make sure vtkMesaTexture is a copy of vtkOpenGLTexture
 // with vtkOpenGLTexture replaced with vtkMesaTexture
 #define vtkOpenGLTexture vtkMesaTexture
+#define vtkOpenGLRenderWindow vtkMesaRenderWindow
 #include "vtkOpenGLTexture.cxx"
 #undef vtkOpenGLTexture
+#undef vtkOpenGLRenderWindow
