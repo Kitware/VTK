@@ -121,7 +121,14 @@ public:
   vtkGetMacro(UseDefaultNormal,int);
   vtkBooleanMacro(UseDefaultNormal,int);
 
+  // Description:
+  // Turn on/off whether to cap the ends with polygons.
+  vtkSetMacro(Capping,int);
+  vtkGetMacro(Capping,int);
+  vtkBooleanMacro(Capping,int);
+
 protected:
+
   vtkTubeFilter();
   ~vtkTubeFilter() {};
   vtkTubeFilter(const vtkTubeFilter&) {};
@@ -136,6 +143,8 @@ protected:
   float RadiusFactor; //maxium allowablew radius
   float DefaultNormal[3];
   int UseDefaultNormal;
+
+  int Capping;
   
 };
 

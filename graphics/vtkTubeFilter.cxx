@@ -74,6 +74,7 @@ vtkTubeFilter::vtkTubeFilter()
   this->DefaultNormal[2] = 1.0;
   
   this->UseDefaultNormal = 0;
+  this->Capping = 0;
 }
 
 void vtkTubeFilter::Execute()
@@ -101,16 +102,24 @@ void vtkTubeFilter::Execute()
   vtkPointData *pd, *outPD;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
+  // Keep caps separate (add later for simplicity).
+  vtkPoints *capPoints = vtkPoints::New();
+  vtkNormals *capNormals = vtkNormals::New();
+  float capNorm[3];
+  int capPointFlag;
+
   //
   // Initialize
   //
   vtkDebugMacro(<<"Creating tube");
 
   if ( !(inPts=input->GetPoints()) || 
-  (numPts = inPts->GetNumberOfPoints()) < 1 ||
-  !(inLines = input->GetLines()) || inLines->GetNumberOfCells() < 1 )
+      (numPts = inPts->GetNumberOfPoints()) < 1 ||
+      !(inLines = input->GetLines()) || inLines->GetNumberOfCells() < 1 )
     {
     vtkErrorMacro(<< ": No input data!\n");
+    capPoints->Delete();
+    capNormals->Delete();
     return;
     }
   numNewPts = numPts * this->NumberOfSides;
@@ -133,9 +142,9 @@ void vtkTubeFilter::Execute()
     if ( this->UseDefaultNormal )
       {
       for ( i=0; i < numPts; i++)
-	{
-	inNormals->SetNormal(i,this->DefaultNormal);
-	}
+	      {
+	      inNormals->SetNormal(i,this->DefaultNormal);
+	      }
       }
     else
       {
@@ -172,25 +181,28 @@ void vtkTubeFilter::Execute()
   //
   lineNormalGenerator = vtkPolyLine::New();
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
-  {
+    {
     // if necessary calculate normals, each polyline calculates it's
     // normals independently, avoiding conflicts at shared vertices
     vtkCellArray *single_polyline = vtkCellArray::New();
-    if (generate_normals) {
+    if (generate_normals) 
+      {
       single_polyline->InsertNextCell( npts, pts );
     
       if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,single_polyline,
 					  (vtkNormals*)inNormals) )
-      {
+        {
         vtkErrorMacro(<< "No normals for line!\n");
         if (deleteNormals)
-	  {
-	  inNormals->Delete();
-	  }
-	lineNormalGenerator->Delete();
+          {
+          inNormals->Delete();
+          }
+        lineNormalGenerator->Delete();
+        capPoints->Delete();
+        capNormals->Delete();
         return;
+        }
       }
-    }
     //
     // Use "averaged" segment to create beveled effect. 
     // Watch out for first and last points.
@@ -198,9 +210,9 @@ void vtkTubeFilter::Execute()
     for (j=0; j < npts; j++)
       {
       if (npts < 2)
-	{
-	vtkErrorMacro(<< "less than two points");
-	}
+        {
+        vtkErrorMacro(<< "less than two points");
+        }
 
       if ( j == 0 ) //first point
         {
@@ -210,9 +222,10 @@ void vtkTubeFilter::Execute()
           {
           sNext[i] = pNext[i] - p[i];
           sPrev[i] = sNext[i];
+          capNorm[i] = p[i] - pNext[i];
           }
+        capPointFlag = 1;
         }
-
       else if ( j == (npts-1) ) //last point
         {
         for (i=0; i<3; i++)
@@ -220,20 +233,23 @@ void vtkTubeFilter::Execute()
           sPrev[i] = sNext[i];
           p[i] = pNext[i];
           }
+        capPointFlag = 1;
         }
-
       else
         {
-	  for (i=0; i<3; i++)
-	  {
-	  p[i] = pNext[i];
-	  }
+        for (i=0; i<3; i++)
+          {
+          p[i] = pNext[i];
+          }
         inPts->GetPoint(pts[j+1],pNext);
         for (i=0; i<3; i++)
           {
           sPrev[i] = sNext[i];
           sNext[i] = pNext[i] - p[i];
+          // Not actually used until the end.
+          capNorm[i] = pNext[i] - p[i];
           }
+        capPointFlag = 0;
         }
 
       n = inNormals->GetNormal(pts[j]);
@@ -245,38 +261,40 @@ void vtkTubeFilter::Execute()
         newPts->Delete();
         newNormals->Delete();
         newStrips->Delete();
-	lineNormalGenerator->Delete();
+        lineNormalGenerator->Delete();
+        capPoints->Delete();
+        capNormals->Delete();
         return;
         }
 
       for (i=0; i<3; i++)
-	{
-	s[i] = (sPrev[i] + sNext[i]) / 2.0; //average vector
-	}
+        {
+        s[i] = (sPrev[i] + sNext[i]) / 2.0; //average vector
+        }
       // if s is zero then just use sPrev cross n
       if (vtkMath::Normalize(s) == 0.0)
-	{
-	vtkWarningMacro(<< "using alternate bevel vector");
-	vtkMath::Cross(sPrev,n,s);
-	if (vtkMath::Normalize(s) == 0.0)
-	  {
-	  vtkErrorMacro(<< "using alternate bevel vector");
-	  }
-	}
+        {
+        vtkWarningMacro(<< "using alternate bevel vector");
+        vtkMath::Cross(sPrev,n,s);
+        if (vtkMath::Normalize(s) == 0.0)
+          {
+          vtkErrorMacro(<< "using alternate bevel vector");
+          }
+        }
       
       if ( (BevelAngle = vtkMath::Dot(sNext,sPrev)) > 1.0 )
-	{
-	BevelAngle = 1.0;
-	}
+        {
+        BevelAngle = 1.0;
+        }
       if ( BevelAngle < -1.0 )
-	{
-	BevelAngle = -1.0;
-	}
+        {
+        BevelAngle = -1.0;
+        }
       BevelAngle = acos((double)BevelAngle) / 2.0; //(0->90 degrees)
       if ( (BevelAngle = cos(BevelAngle)) == 0.0 )
-	{
-	BevelAngle = 1.0;
-	}
+        {
+        BevelAngle = 1.0;
+        }
 
       BevelAngle = this->Radius / BevelAngle; //keep tube constant radius
 
@@ -285,13 +303,15 @@ void vtkTubeFilter::Execute()
         {
         vtkErrorMacro(<<"Bad normal s = " << s[0] << " " << s[1] << " " << s[2] << " n = " << n[0] << " " << n[1] << " " << n[2]);
         if (deleteNormals)
-	  {
-	  inNormals->Delete();
-	  }
+          {
+          inNormals->Delete();
+          }
         newPts->Delete();
         newNormals->Delete();
         newStrips->Delete();
-	lineNormalGenerator->Delete();
+        lineNormalGenerator->Delete();
+        capPoints->Delete();
+        capNormals->Delete();
         return;
         }
       
@@ -302,19 +322,19 @@ void vtkTubeFilter::Execute()
         {
         sFactor = 1.0 + ((this->RadiusFactor - 1.0) * 
                   (inScalars->GetScalar(pts[j]) - range[0]) / (range[1]-range[0]));
-	if ((range[1] - range[0]) == 0.0)
-	  {
-	  vtkErrorMacro(<< "Dividing by zero");
-	  }
+        if ((range[1] - range[0]) == 0.0)
+          {
+          vtkErrorMacro(<< "Dividing by zero");
+          }
         }
       else if ( inVectors ) // use flux preserving relationship
         {
         sFactor = 
-	  sqrt((double)maxSpeed/vtkMath::Norm(inVectors->GetVector(pts[j])));
+          sqrt((double)maxSpeed/vtkMath::Norm(inVectors->GetVector(pts[j])));
         if ( sFactor > this->RadiusFactor )
-	  {
-	  sFactor = this->RadiusFactor;
-	  }
+          {
+          sFactor = this->RadiusFactor;
+          }
         }
 
       //create points around line
@@ -324,6 +344,12 @@ void vtkTubeFilter::Execute()
           {
           normal[i] = w[i]*cos((double)k*theta) + nP[i]*sin((double)k*theta);
           s[i] = p[i] + this->Radius * sFactor * normal[i];
+          }
+        if (this->Capping && capPointFlag)
+          {
+          vtkMath::Normalize(capNorm);
+          capPoints->InsertNextPoint(s);
+          capNormals->InsertNextNormal(capNorm);
           }
         ptId = newPts->InsertNextPoint(s);
         newNormals->InsertNormal(ptId,normal);
@@ -348,6 +374,66 @@ void vtkTubeFilter::Execute()
     ptOffset += this->NumberOfSides*npts;
     single_polyline->Delete();
   }
+
+  // Take care of capping
+  if (this->Capping)
+    {
+    int offset = newPts->GetNumberOfPoints();
+    int s, e;
+    // Insert new points (different normals)
+    int num = capPoints->GetNumberOfPoints();
+    float *tmp;
+    for (i = 0; i < num; ++i)
+      {
+      tmp = capPoints->GetPoint(i);
+      newPts->InsertNextPoint(tmp);
+      tmp = capNormals->GetNormal(i);
+      newNormals->InsertNextNormal(tmp);
+      }
+    // Now add the triangle strips.
+    num = num / this->NumberOfSides;
+    for (i = 0; i < num; )
+      {
+      newStrips->InsertNextCell(this->NumberOfSides);
+      newStrips->InsertCellPoint(offset);
+      newStrips->InsertCellPoint(offset+1);
+      s = offset+2;
+      e = offset + this->NumberOfSides - 1;
+      while (s <= e)
+        {
+        newStrips->InsertCellPoint(e);
+        if (e != s)
+          {
+          newStrips->InsertCellPoint(s);
+          }
+        ++s;
+        --e;
+        }
+      offset += this->NumberOfSides;
+      ++i;
+      // ends have to have a different order than starts.
+      newStrips->InsertNextCell(this->NumberOfSides);
+      newStrips->InsertCellPoint(offset+1);
+      newStrips->InsertCellPoint(offset);
+      s = offset+2;
+      e = offset + this->NumberOfSides - 1;
+      while (s <= e)
+        {
+        newStrips->InsertCellPoint(s);
+        if (e != s)
+          {
+          newStrips->InsertCellPoint(e);
+          }
+        ++s;
+        --e;
+        }
+      offset += this->NumberOfSides;
+      ++i;
+      }
+    }
+  capPoints->Delete();
+  capNormals->Delete();
+
   //
   // Update ourselves
   //
@@ -382,5 +468,6 @@ void vtkTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Default Normal: " << "( " << this->DefaultNormal[0] <<
      ", " << this->DefaultNormal[1] << ", " << this->DefaultNormal[2] <<
      " )\n";
+  os << indent << "Capping: " << this->Capping << endl;
 }
 
