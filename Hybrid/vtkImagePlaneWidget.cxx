@@ -43,7 +43,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.71");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.72");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -578,7 +578,7 @@ void vtkImagePlaneWidget::BuildRepresentation()
   points->SetPoint(1,pt1);
   points->SetPoint(2,x);
   points->SetPoint(3,pt2);
-  this->PlaneOutlineMapper->Modified();
+  this->PlaneOutlinePolyData->Modified();
 
   this->PlaneSource->GetNormal(this->Normal);
   vtkMath::Normalize(this->Normal);
@@ -2086,7 +2086,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   cursorPts->SetPoint(2,c);
   cursorPts->SetPoint(3,d);
 
-  this->CursorMapper->Modified();
+  this->CursorPolyData->Modified();
 }
 
 void vtkImagePlaneWidget::SetOrigin(float x, float y, float z)
@@ -2660,7 +2660,7 @@ void vtkImagePlaneWidget::UpdateMargins()
   marginPts->SetPoint(6,c);
   marginPts->SetPoint(7,d);
 
-  this->MarginMapper->Modified();
+  this->MarginPolyData->Modified();
 }
 
 void vtkImagePlaneWidget::Translate(double *p1, double *p2)
