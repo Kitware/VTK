@@ -66,16 +66,19 @@ void vtkImage1dMagnifyFilter::ComputeRequiredInputRegionBounds(
   outRegion->GetBounds1d(bounds);
   
   // For Min. Round Down
-  bounds[0] = floor((float)(bounds[0]) / (float)(this->MagnificationFactor));
+  bounds[0] = 
+    (int)(floor((float)(bounds[0]) / (float)(this->MagnificationFactor)));
   
   if (this->Interpolate)
     {
     // Round Up
-    bounds[1] = ceil((float)(bounds[1]) / (float)(this->MagnificationFactor));
+    bounds[1] = 
+      (int)(ceil((float)(bounds[1]) / (float)(this->MagnificationFactor)));
     }
   else
     {
-    bounds[1] = floor((float)(bounds[1]) / (float)(this->MagnificationFactor));
+    bounds[1] =
+      (int)(floor((float)(bounds[1]) / (float)(this->MagnificationFactor)));
     }
   
   inRegion->SetBounds1d(bounds);
