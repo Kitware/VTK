@@ -58,6 +58,7 @@ vtkDelaunay2D::vtkDelaunay2D()
 
 // Determine whether point x is inside of circumcircle of triangle
 // defined by points (x1, x2, x3). Returns non-zero if inside circle.
+// (Note that z-component is ignored.)
 static int InCircle (float x[3], float x1[3], float x2[3], float x3[3])
 {
   float radius2, center[2], dist2;
@@ -68,21 +69,27 @@ static int InCircle (float x[3], float x1[3], float x2[3], float x3[3])
   dist2 = (x[0]-center[0]) * (x[0]-center[0]) + 
           (x[1]-center[1]) * (x[1]-center[1]);
 
-  if ( dist2 < (0.9999*radius2) ) return 1;
+  if ( dist2 < (0.99999*radius2) ) return 1;
   else return 0;
 }
 
+#define VTK_DEL2D_TOLERANCE 1.0e-06
+
 static int NumberOfDuplicatePoints;
+static int NumberOfDegeneracies;
 
 // Recursive method to locate triangle containing point. Starts with arbitrary
 // triangle (tri) and "walks" towards it. Influenced by some of Guibas and 
-// Stolfi's work. Returns id of enclosing triangle, or -1 if no triangle found.
+// Stolfi's work. Returns id of enclosing triangle, or -1 if no triangle
+// found. Also, the array nei[3] is used to communicate info about points
+// that loe on triangle edges: nei[0] is neighboring triangle id, and nei[1]
+// and nei[2] are the vertices defining the edge.
 static int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh, 
-                        vtkFloatPoints *points, float tol)
+                        vtkFloatPoints *points, float tol, int nei[3])
 {
-  int i, j, npts, *pts, inside, i2, i3, nei[2];
+  int i, j, npts, *pts, inside, i2, i3, newNei;
   vtkIdList neighbors(2);
-  float p[3][3], v12[3], vp[3], vx[3], v1[3], v2[3], dp, minProj;
+  float p[3][3], n[2], vp[2], vx[2], dp, minProj;
   
   // get local triangle info
   Mesh->GetCellPoints(tri,npts,pts);
@@ -98,47 +105,71 @@ static int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh,
     i2 = (i+1) % 3;
     i3 = (i+2) % 3;
 
-    // compute normal and local vectors
-    for (j=0; j<3; j++)
+    // create a 2D edge normal to define a "half-space"; evaluate points (i.e.,
+    // candiate point and other triangle vertex not on this edge).
+    n[0] = -(p[i2][1] - p[i][1]);
+    n[1] = p[i2][0] - p[i][0];
+    vtkMath::Normalize2D(n);
+
+    // compute local vectors
+    for (j=0; j<2; j++)
       {
-      v12[j] = p[i2][j] - p[i][j];
       vp[j] = p[i3][j] - p[i][j];
       vx[j] = x[j] - p[i][j];
       }
 
-    if ( vtkMath::Normalize(vx) <= tol ) //check for duplicate point
+    //check for duplicate point
+    vtkMath::Normalize2D(vp);
+    if ( vtkMath::Normalize2D(vx) <= tol ) 
       {
       NumberOfDuplicatePoints++;
       return -1;
       }
 
-    // create two vectors: normal to edge and vector to point
-    vtkMath::Cross(vp,v12,v1); vtkMath::Normalize(v1);
-    vtkMath::Cross(vx,v12,v2); vtkMath::Normalize(v2);
-
-    // see if point is on opposite side of edge
-    if ( (dp=vtkMath::Dot(v1,v2)) < -1.0e-04 )
+    // see if two points are in opposite half spaces
+    dp = vtkMath::Dot2D(n,vp) * vtkMath::Dot2D(n,vx);
+    if ( dp < VTK_DEL2D_TOLERANCE )
       {
       if ( dp < minProj ) //track edge most orthogonal to point direction
         {
         inside = 0;
-        nei[0] = ptIds[i];
-        nei[1] = ptIds[i2];
+        nei[1] = ptIds[i];
+        nei[2] = ptIds[i2];
+        minProj = dp;
         }
       }//outside this edge
     }//for each edge
 
-  //if not inside, walk towards point
-  if ( !inside )
+  if ( inside ) // all edges have tested positive
     {
-    Mesh->GetCellEdgeNeighbors(tri,nei[0],nei[1],neighbors);
-    return FindTriangle(x,ptIds,neighbors.GetId(0),Mesh,points,tol);
-    }
-  else //must be in this triangle if all edges test inside
-    {
+    nei[0] = (-1);
     return tri;
     }
+
+  else if ( !inside && (fabs(minProj) < VTK_DEL2D_TOLERANCE) ) // on edge
+    {
+    Mesh->GetCellEdgeNeighbors(tri,nei[1],nei[2],neighbors);
+    nei[0] = neighbors.GetId(0);
+    return tri;
+    }
+
+  else //walk towards point
+    {
+    Mesh->GetCellEdgeNeighbors(tri,nei[1],nei[2],neighbors);
+    if ( (newNei=neighbors.GetId(0)) == nei[0] )
+      {
+      NumberOfDegeneracies++;
+      return -1;
+      }
+    else
+      {
+      nei[0] = tri;
+      return FindTriangle(x,ptIds,newNei,Mesh,points,tol,nei);
+      }
+    }
 }
+
+#undef VTK_DEL2D_TOLERANCE
 
 // Recursive method checks whether edge is Delaunay, and if not, swaps edge.
 // Continues until all edges are Delaunay. Points p1 and p2 form the edge in
@@ -204,7 +235,7 @@ static void CheckEdge(int ptId, float x[3], int p1, int p2, int tri,
 void vtkDelaunay2D::Execute()
 {
   int numPoints, numTriangles, i;
-  int ptId, tri[3];
+  int ptId, tri[4], nei[3], p1, p2;
   vtkPoints *inPoints;
   vtkFloatPoints *points;
   vtkCellArray *triangles;
@@ -212,7 +243,7 @@ void vtkDelaunay2D::Execute()
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
   float x[3];
-  int nodes[3][3], pts[3], npts, *triPts;
+  int nodes[4][3], pts[3], npts, *triPts, numNeiPts, *neiPts;
   vtkIdList neighbors(2), cells(64);
   float center[3], radius, tol;
   char *triUse = NULL;
@@ -233,6 +264,7 @@ void vtkDelaunay2D::Execute()
     return;
     }
   NumberOfDuplicatePoints = 0;
+  NumberOfDegeneracies = 0;
 //
 // Create initial bounding triangulation. Have to create bounding points.
 // Initialize mesh structure.
@@ -252,7 +284,7 @@ void vtkDelaunay2D::Execute()
     {
     x[0] = center[0] + radius*cos((double)(45.0*ptId)*vtkMath::DegreesToRadians());
     x[1] = center[1] + radius*sin((double)(45.0*ptId)*vtkMath::DegreesToRadians());
-    x[2] = 0.0;
+    x[2] = center[2];
     points->SetPoint(numPoints+ptId,x);
     }
 
@@ -286,38 +318,85 @@ void vtkDelaunay2D::Execute()
   for (ptId=0; ptId < numPoints; ptId++)
     {
     points->GetPoint(ptId,x);
-    if ( (tri[0] = FindTriangle(x,pts,tri[0],Mesh,points,tol)) >= 0 )
+    if ( (tri[0] = FindTriangle(x,pts,tri[0],Mesh,points,tol,nei)) >= 0 )
       {
-      //delete this triangle; create three new triangles
-      //first triangle is replaced with one of the new ones
-      nodes[0][0] = ptId; nodes[0][1] = pts[0]; nodes[0][2] = pts[1];
-      Mesh->RemoveReferenceToCell(pts[2], tri[0]);
-      Mesh->ReplaceCell(tri[0], 3, nodes[0]);
-      Mesh->ResizeCellList(ptId,1);
-      Mesh->AddReferenceToCell(ptId,tri[0]);
+      if ( nei[0] < 0 ) //in triangle
+        {
+        //delete this triangle; create three new triangles
+        //first triangle is replaced with one of the new ones
+        nodes[0][0] = ptId; nodes[0][1] = pts[0]; nodes[0][2] = pts[1];
+        Mesh->RemoveReferenceToCell(pts[2], tri[0]);
+        Mesh->ReplaceCell(tri[0], 3, nodes[0]);
+        Mesh->ResizeCellList(ptId,1);
+        Mesh->AddReferenceToCell(ptId,tri[0]);
 
-      //create two new triangles
-      nodes[1][0] = ptId; nodes[1][1] = pts[1]; nodes[1][2] = pts[2];
-      tri[1] = Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[1]);
+        //create two new triangles
+        nodes[1][0] = ptId; nodes[1][1] = pts[1]; nodes[1][2] = pts[2];
+        tri[1] = Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[1]);
 
-      nodes[2][0] = ptId; nodes[2][1] = pts[2]; nodes[2][2] = pts[0];
-      tri[2] = Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[2]);
+        nodes[2][0] = ptId; nodes[2][1] = pts[2]; nodes[2][2] = pts[0];
+        tri[2] = Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[2]);
 
-      // Check edge neighbors for Delaunay criterion. If not satisfied, flip
-      // edge diagonal. (This is done recursively.)
-      CheckEdge(ptId, x, pts[0], pts[1], tri[0], Mesh, points);
-      CheckEdge(ptId, x, pts[1], pts[2], tri[1], Mesh, points);
-      CheckEdge(ptId, x, pts[2], pts[0], tri[2], Mesh, points);
+        // Check edge neighbors for Delaunay criterion. If not satisfied, flip
+        // edge diagonal. (This is done recursively.)
+        CheckEdge(ptId, x, pts[0], pts[1], tri[0], Mesh, points);
+        CheckEdge(ptId, x, pts[1], pts[2], tri[1], Mesh, points);
+        CheckEdge(ptId, x, pts[2], pts[0], tri[2], Mesh, points);
+        }
 
+      else // on triangle edge
+        {
+        //update cell list
+        Mesh->GetCellPoints(nei[0],numNeiPts,neiPts);
+        for (i=0; i<3; i++)
+          {
+          if ( neiPts[i] != nei[1] && neiPts[i] != nei[2] ) p1 = neiPts[i];
+          if ( pts[i] != nei[1] && pts[i] != nei[2] ) p2 = pts[i];
+          }
+        Mesh->ResizeCellList(p1,1);
+        Mesh->ResizeCellList(p2,1);
+
+        //replace two triangles
+        Mesh->RemoveReferenceToCell(nei[2],tri[0]);
+        Mesh->RemoveReferenceToCell(nei[2],nei[0]);
+        nodes[0][0] = ptId; nodes[0][1] = p1; nodes[0][2] = nei[1];
+        Mesh->ReplaceCell(tri[0], 3, nodes[0]);
+        nodes[1][0] = ptId; nodes[1][1] = p2; nodes[1][2] = nei[1];
+        Mesh->ReplaceCell(nei[0], 3, nodes[1]);
+        Mesh->AddReferenceToCell(ptId,tri[0]);
+        Mesh->AddReferenceToCell(ptId,nei[0]);
+
+        //create two new triangles
+        nodes[2][0] = ptId; nodes[2][1] = p2; nodes[2][2] = nei[2];
+        tri[2] = Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[2]);
+
+        nodes[3][0] = ptId; nodes[3][1] = p1; nodes[3][2] = nei[2];
+        tri[3] = Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[3]);
+
+        // Check edge neighbors for Delaunay criterion.
+        for ( i=0; i<4; i++ )
+          {
+          CheckEdge (ptId, x, nodes[i][1], nodes[i][2], tri[i], Mesh, points);
+          }
+        }
       }//if triangle found
+
     else
       {
-      tri[0] = 0; //reset starting location
+      tri[0] = 0; //no triangle found
       }
+
+    if ( ! (ptId % 1000) ) vtkDebugMacro(<<"point #" << ptId);
     }//for all points
 
   vtkDebugMacro(<<"Triangulated " << numPoints <<" points, " 
                 << NumberOfDuplicatePoints << " of which were duplicates");
+
+  if ( NumberOfDegeneracies > 0 )
+    {
+    vtkWarningMacro(<< NumberOfDegeneracies 
+                    << " degenerate triangles encountered, mesh quality suspect");
+    }
 //
 // Finish up by deleting all triangles connected to initial triangulation
 //

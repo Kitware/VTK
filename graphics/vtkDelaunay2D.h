@@ -67,6 +67,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // output). (If you desire to triangulate in a different plane, you'll
 // have to use the vtkTransformFilter to transform the points into and
 // out of the x-y plane.)
+// 
+// The Delaunay triangulation can be numerically sensitive in some cases. To
+// prevent problems, try to avoid injecting points that will result in
+// triangles with bad aspect ratios (1000:1 or greater). In practice this
+// means inserting points that are "widely dispersed", and enables smooth
+// transition of triangle sizes throughout the mesh. (You may even want to
+// add extra points to create a better point distribution.) If numerical
+// problems are present, you will see a warning message to this effect at
+// the end of the triangulation process.
 
 // .SECTION Caveats
 // Points arranged on a regular lattice (termed degenerate cases) can be 
