@@ -38,7 +38,7 @@ EXAMPLES =
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${GRAPHICS_API_FLAGS} ${CONTROLLER_API_FLAGS} \
 	 -I${srcdir}/../../common -I${srcdir}/.. -I${srcdir}/../../patented \
-	-I${srcdir}/../../imaging -I${srcdir}/../../graphics
+	-I${srcdir}/../../imaging -I${srcdir}/../../graphics -I../../common
 
 VTKLIB = ${VTK_LIB_FILE}
 

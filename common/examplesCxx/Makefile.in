@@ -33,7 +33,7 @@ EXAMPLES = otherJacobi \
 	otherArrays
   
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
-	${KIT_FLAGS} -I. \
+	${KIT_FLAGS} -I. -I../../common \
 	 -I${srcdir}/../../common -I${srcdir}/..
 
 VTKLIB = ${VTK_LIB_FILE}

@@ -34,7 +34,7 @@ CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${GRAPHICS_API_FLAGS} \
 	-I${srcdir}/../../common -I${srcdir}/../../graphics \
 	-I${srcdir}/../../patented \
-	-I${srcdir}/../../imaging
+	-I${srcdir}/../../imaging -I../../common
 
 VTKLIB = ${VTK_LIB_FILE}
 
