@@ -36,7 +36,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.28");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.29");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 //----------------------------------------------------------------------------
@@ -324,7 +324,14 @@ void vtkDebugLeaks::PrintCurrentLeaks()
       msg << line << "\n";
       }
     msg << ends;
-    cancel = vtkDebugLeaks::DisplayMessageBox(msg.str());
+    if(getenv("DART_TEST_FROM_DART"))
+      {
+      cout << msg.str() << "\n";
+      }
+    else
+      {
+      cancel = vtkDebugLeaks::DisplayMessageBox(msg.str());
+      }
     msg.rdbuf()->freeze(0);
     }
 #else
