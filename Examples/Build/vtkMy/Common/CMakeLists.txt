@@ -12,14 +12,6 @@ SOURCE_FILES (Common_SRCS
 # You probably do not need to modify anything below this line
 
 #
-# Include path(s)
-#
-
-INCLUDE_DIRECTORIES(${VTKMY_BINARY_DIR}/Common)
-
-INCLUDE_DIRECTORIES(${VTKMY_SOURCE_DIR}/Common)
-
-#
 # Create the vtkmyCommon C++ library
 #
 
@@ -30,6 +22,7 @@ ADD_LIBRARY (vtkmyCommon Common_SRCS)
 #
 
 IF (VTKMY_WRAP_TCL)
+
   VTK_WRAP_TCL (vtkmyCommonTCL CommonTCL_SRCS Common_SRCS)
   ADD_LIBRARY (vtkmyCommonTCL CommonTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkmyCommonTCL 
@@ -42,7 +35,9 @@ ENDIF (VTKMY_WRAP_TCL)
 #
 
 IF (VTKMY_WRAP_PYTHON)
+
   VTK_WRAP_PYTHON (vtkmyCommonPython CommonPython_SRCS Common_SRCS)
+
   IF (APPLE)
     ADD_LIBRARY (vtkmyCommonPython MODULE CommonPython_SRCS)
   ELSE (APPLE)
@@ -50,6 +45,7 @@ IF (VTKMY_WRAP_PYTHON)
     TARGET_LINK_LIBRARIES (vtkmyCommonPython 
 	                   vtkCommonPython)
   ENDIF (APPLE)
+
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtkmyCommonPython 
 	                   vtkCommonPython
@@ -60,6 +56,7 @@ IF (VTKMY_WRAP_PYTHON)
 	                   vtkCommonPython
                            ${PYTHON_LIBRARY})
   ENDIF(WIN32)
+
 ENDIF (VTKMY_WRAP_PYTHON)
 
 #
@@ -67,6 +64,7 @@ ENDIF (VTKMY_WRAP_PYTHON)
 #
 
 IF (VTKMY_WRAP_JAVA)
+
   VTK_WRAP_TCL (vtkmyCommonJava CommonJava_SRCS Common_SRCS)
   ADD_LIBRARY (vtkmyCommonJava SHARED CommonJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkmyCommonJava 

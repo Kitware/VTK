@@ -12,15 +12,6 @@ SOURCE_FILES (Imaging_SRCS
 # You probably do not need to modify anything below this line
 
 #
-# Include path(s)
-#
-
-INCLUDE_DIRECTORIES(${VTKMY_BINARY_DIR}/Common)
-
-INCLUDE_DIRECTORIES(${VTKMY_SOURCE_DIR}/Common)
-INCLUDE_DIRECTORIES (${VTKMY_SOURCE_DIR}/Imaging)
-
-#
 # Create the vtkmyImaging C++ library
 #
 
@@ -31,6 +22,7 @@ ADD_LIBRARY (vtkmyImaging Imaging_SRCS)
 #
 
 IF (VTKMY_WRAP_TCL)
+
   VTK_WRAP_TCL (vtkmyImagingTCL ImagingTCL_SRCS Imaging_SRCS)
   ADD_LIBRARY (vtkmyImagingTCL ImagingTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkmyImagingTCL 
@@ -46,7 +38,9 @@ ENDIF (VTKMY_WRAP_TCL)
 #
 
 IF (VTKMY_WRAP_PYTHON)
+
   VTK_WRAP_PYTHON (vtkmyImagingPython ImagingPython_SRCS Imaging_SRCS)
+
   IF (APPLE)
     ADD_LIBRARY (vtkmyImagingPython MODULE ImagingPython_SRCS)
   ELSE (APPLE)
@@ -57,6 +51,7 @@ IF (VTKMY_WRAP_PYTHON)
                            vtkmyCommonPython
                            vtkCommonPython)
   ENDIF (APPLE)
+
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtkmyImagingPython 
                            vtkImagingPython
@@ -73,6 +68,7 @@ IF (VTKMY_WRAP_PYTHON)
                            vtkCommonPython
                            ${PYTHON_LIBRARY})
   ENDIF(WIN32)
+
 ENDIF (VTKMY_WRAP_PYTHON)
 
 #
@@ -80,6 +76,7 @@ ENDIF (VTKMY_WRAP_PYTHON)
 #
 
 IF (VTKMY_WRAP_JAVA)
+
   VTK_WRAP_TCL (vtkmyImagingJava ImagingJava_SRCS Imaging_SRCS)
   ADD_LIBRARY (vtkmyImagingJava SHARED ImagingJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkmyImagingJava 

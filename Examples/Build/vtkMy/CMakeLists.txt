@@ -39,6 +39,16 @@ IF (VTKMY_CAN_BUILD)
   )
 
   #
+  # You can put your include path(s) here
+  #
+
+  INCLUDE_DIRECTORIES(${VTKMY_BINARY_DIR}/Common)
+
+  INCLUDE_DIRECTORIES(${VTKMY_SOURCE_DIR}/Common)
+  INCLUDE_DIRECTORIES (${VTKMY_SOURCE_DIR}/Imaging)
+  INCLUDE_DIRECTORIES (${VTKMY_SOURCE_DIR}/Unsorted)
+
+  #
   # Build examples too ?
   #
 
