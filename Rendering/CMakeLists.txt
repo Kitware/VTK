@@ -124,6 +124,7 @@ IF (WIN32)
      vtkWin32OpenGLImageWindow
      vtkWin32OpenGLTextMapper
      vtkWin32TextMapper)
+
   LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
   ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingOpenGL_SRCS)
 ELSE (WIN32)
@@ -145,10 +146,11 @@ ELSE (WIN32)
   ENDIF (OPENGL_LIB_PATH)
 ENDIF (WIN32)
 
-
 IF (VTK_WRAP_TCL)
   SOURCE_FILES(RenderingTCL_SRCS 
-    vtkTkRenderWidget vtkTkImageViewerWidget vtkTkImageWindowWidget)
+     vtkTkRenderWidget 
+     vtkTkImageViewerWidget 
+     vtkTkImageWindowWidget)
 
   # add in the Tk values if found
   IF (TK_INCLUDE_PATH)
@@ -168,6 +170,7 @@ IF (VTK_WRAP_TCL)
   ELSE (WIN32)
     SOURCE_FILES(RenderingTCL_SRCS vtkXRenderWindowTclInteractor)
   ENDIF (WIN32)  
+
   VTK_WRAP_TCL(vtkRenderingTCL 
                RenderingTCL_SRCS 
                Rendering_SRCS 
@@ -197,6 +200,11 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkRenderingPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
+  SOURCE_FILES(RenderingPythonTkWidgets_SRCS 
+     vtkTkRenderWidgetPython
+     vtkTkImageViewerWidgetPython
+     vtkTkImageWindowWidgetPython)
+  ADD_LIBRARY(vtkRenderingPythonTkWidgets RenderingPythonTkWidgets_SRCS)
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 
