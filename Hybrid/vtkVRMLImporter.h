@@ -67,18 +67,19 @@
 
 // Includes for the yacc/lex parser
 #include "vtkVRML.h"
-
 #include "vtkImporter.h"
-class  vtkActor;
-class  vtkProperty;
-class  vtkCamera;
-class  vtkLight;
-class  vtkTransform;
-class  vtkSource;
-class  vtkLookupTable;
-class  vtkFloatArray;
-class  vtkPolyDataMapper;
+
+class vtkActor;
+class vtkProperty;
+class vtkCamera;
+class vtkLight;
+class vtkTransform;
+class vtkSource;
+class vtkLookupTable;
+class vtkFloatArray;
+class vtkPolyDataMapper;
 class vtkPoints;
+class vtkIdTypeArray;
 
 class VTK_HYBRID_EXPORT vtkVRMLImporter : public vtkImporter
 {

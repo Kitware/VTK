@@ -17,8 +17,11 @@
 =========================================================================*/
 #include "vtkImporter.h"
 #include "vtkRendererCollection.h"
+#include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkImporter, "1.20");
+vtkCxxRevisionMacro(vtkImporter, "1.21");
+
+vtkCxxSetObjectMacro(vtkImporter,RenderWindow,vtkRenderWindow);
 
 vtkImporter::vtkImporter ()
 {

@@ -26,8 +26,10 @@
 #ifndef __vtk3DSImporter_h
 #define __vtk3DSImporter_h
 
-#include <stdio.h>
 #include "vtkImporter.h"
+#include "vtkLight.h"
+#include "vtkCamera.h"
+#include "vtkProperty.h"
 #include "vtk3DS.h"
 #include "vtkPolyData.h"
 
