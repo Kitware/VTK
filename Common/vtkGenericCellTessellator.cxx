@@ -343,7 +343,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.4");
+vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.5");
 vtkStandardNewMacro(vtkGenericCellTessellator);
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetric, vtkGenericSubdivisionErrorMetric);
 
@@ -353,6 +353,9 @@ int FindEdgeParent(double p1[3], double p2[3], int &localId); //FIXME
 //
 // vtkTriangleTile
 // 
+
+class vtkTriangleTile;
+
 class vtkTriangleTile 
 {
 public:
@@ -420,6 +423,9 @@ private:
 //
 // vtkTetraTile
 // 
+
+class vtkTetraTile;
+
 class vtkTetraTile
 {
 public:
@@ -491,7 +497,8 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-int vtkTriangleTile::Refine(vtkGenericCellTessellator* tess, vtkTriangleTile res[4] )
+int vtkTriangleTile::Refine(vtkGenericCellTessellator* tess,
+                            vtkTriangleTile res[4] )
 {
   int i, index;
   int numTriangleCreated;
