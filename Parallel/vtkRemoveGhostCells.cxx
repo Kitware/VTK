@@ -71,8 +71,6 @@ void vtkRemoveGhostCells::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkCell *cell;
 
-  vtkWarningMacro(<< "Executing remove ghost cells filter");
-
   cellData = input->GetCellData();
 
   vtkFieldData* fd = cellData->GetFieldData();
