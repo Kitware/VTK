@@ -161,7 +161,8 @@ float *vtkVolume::GetBounds()
   
   // save the old transform
   this->GetMatrix(matrix);
-  this->Transform.Push(); 
+  this->Transform.Push();
+  this->Transform.PostMultiply();
   this->Transform.Identity();
   this->Transform.Concatenate(matrix);
 
@@ -179,6 +180,7 @@ float *vtkVolume::GetBounds()
     fptr += 3;
     }
   
+  this->Transform.PreMultiply();
   this->Transform.Pop();  
   
   // now calc the new bounds
