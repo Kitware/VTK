@@ -90,7 +90,7 @@ void vtkSelectVisiblePoints::Execute()
   int numPts=input->GetNumberOfPoints();
   float x[4], dx[3], z, diff;
   int selection[4];
-
+  
   if ( this->Renderer == NULL )
     {
     vtkErrorMacro(<<"Renderer must be set");
@@ -106,46 +106,86 @@ void vtkSelectVisiblePoints::Execute()
   outPts->Allocate(numPts/2+1);
   outPD->CopyAllocate(inPD);
 
+  int *size = this->Renderer->GetRenderWindow()->GetSize();
+
   // specify a selection window to avoid querying 
   if ( this->SelectionWindow )
     {
-	for (int i=0; i<4; i++)
+      for (int i=0; i<4; i++)
       {
       selection[i] = this->Selection[i];
       }
     }
   else
     {
-    int *size = this->Renderer->GetRenderWindow()->GetSize();
     selection[0] = selection[2] = 0;
     selection[1] = size[0] - 1;
     selection[3] = size[1] - 1;
     }
 
+  // Grab the composite perspective transform.  This matrix is used to convert
+  // each point to view coordinates.  vtkRenderer provides a WorldToView()
+  // method but it computes the composite perspective transform each time
+  // WorldToView() is called.  This is expensive, so we get the matrix once
+  // and handle the transformation ourselves.
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  float view[4];
+  matrix->DeepCopy(this->Renderer->GetActiveCamera()
+                   ->GetCompositePerspectiveTransformMatrix(1,0,1));
+
+  // If we have more than a few query points, we grab the z-buffer for the
+  // selection region all at once and probe the resulting array.  When we
+  // have just a few points, we perform individual z-buffer queries.
+  const int SimpleQueryLimit = 25;
+  float *zPtr = NULL;
+  if (numPts > SimpleQueryLimit)
+    {
+    zPtr = this->Renderer->GetRenderWindow()
+      ->GetZbufferData(selection[0], selection[2], selection[1], selection[3]);
+    }
+  
   x[3] = 1.0;
   for (id=(-1), ptId=0; ptId < numPts; ptId++)
     {
     // perform conversion
     input->GetPoint(ptId,x);
-    this->Renderer->SetWorldPoint(x);
-    this->Renderer->WorldToDisplay();
+    matrix->MultiplyPoint(x, view);
+    if (view[3] == 0.0)
+      {
+      continue;
+      }
+    this->Renderer->SetViewPoint(view[0]/view[3], view[1]/view[3],
+                                 view[2]/view[3]);
+    this->Renderer->ViewToDisplay();
     this->Renderer->GetDisplayPoint(dx);
     visible = 0;
 
     // check whether visible and in selection window 
     if ( dx[0] >= selection[0] && dx[0] <= selection[1] &&
-    dx[1] >= selection[2] && dx[1] <= selection[3] )
+         dx[1] >= selection[2] && dx[1] <= selection[3] )
       {
-      z = this->Renderer->GetZ(dx[0], dx[1]);
+      if (numPts > SimpleQueryLimit)
+        {
+        // Access the value from the captured zbuffer.  Note, we only
+        // captured a portion of the zbuffer, so we need to offset dx by
+        // the selection window.
+        z = zPtr[(int)dx[0] - selection[0]
+                 + ((int)dx[1] - selection[2])
+                 *(selection[1] - selection[0] + 1)];
+        }
+      else
+        {
+        z = this->Renderer->GetZ(dx[0], dx[1]);
+        }
       diff = fabs(z-dx[2]);
       if ( diff <= this->Tolerance )
 	{
-	visible = 1;
+        visible = 1;
 	}
       }
 
     if ( (visible && !this->SelectInvisible) ||
-    (!visible && this->SelectInvisible) )
+         (!visible && this->SelectInvisible) )
       {
       id = outPts->InsertNextPoint(x);
       outPD->CopyData(inPD,ptId,id);
@@ -155,6 +195,13 @@ void vtkSelectVisiblePoints::Execute()
   output->SetPoints(outPts);
   outPts->Delete();
   output->Squeeze();
+
+  matrix->Delete();
+
+  if (zPtr)
+    {
+    delete [] zPtr;
+    }
 
   vtkDebugMacro(<<"Selected " << id + 1 << " out of " 
                 << numPts << " original points");
