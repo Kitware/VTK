@@ -170,13 +170,13 @@ void vlRibbonFilter::Execute()
         sFactor = 1.0 + ((this->WidthFactor - 1.0) * 
                   (inScalars->GetScalar(j) - range[0]) / (range[1]-range[0]));
 
-      for (i=0; i<3; i++) w[i] = p[i] + w[i] * BevelAngle * sFactor;
-      ptId = newPts->InsertNextPoint(w);
+      for (i=0; i<3; i++) s[i] = p[i] + w[i] * BevelAngle * sFactor;
+      ptId = newPts->InsertNextPoint(s);
       newNormals->InsertNormal(ptId,n);
       this->PointData.CopyData(pd,pts[j],ptId);
 
-      for (i=0; i<3; i++) w[i] = p[i] - w[i] * BevelAngle * sFactor;
-      ptId = newPts->InsertNextPoint(w);
+      for (i=0; i<3; i++) s[i] = p[i] - w[i] * BevelAngle * sFactor;
+      ptId = newPts->InsertNextPoint(s);
       newNormals->InsertNormal(ptId,n);
       this->PointData.CopyData(pd,pts[j],ptId);
       }

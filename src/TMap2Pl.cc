@@ -35,21 +35,6 @@ vlTextureMapToPlane::vlTextureMapToPlane()
   this->AutomaticPlaneGeneration = 1;
 }
 
-void vlTextureMapToPlane::PrintSelf(ostream& os, vlIndent indent)
-{
-  vlDataSetToDataSetFilter::PrintSelf(os,indent);
-
-  os << indent << "S Range: (" << this->SRange[0] << ", "
-                               << this->SRange[1] << ")\n";
-  os << indent << "T Range: (" << this->TRange[0] << ", "
-                               << this->TRange[1] << ")\n";
-  os << indent << "Automatic Normal Generation: " << 
-                  (this->AutomaticPlaneGeneration ? "On\n" : "Off\n");
-  os << indent << "Normal: (" << this->Normal[0] << ", "
-                                << this->Normal[1] << ", "
-                                << this->Normal[2] << ")\n";
-}
-
 void vlTextureMapToPlane::Execute()
 {
   vlMath math;
@@ -183,6 +168,7 @@ void vlTextureMapToPlane::ComputeNormal()
 //  normal direction (dir), construct matrices appropriately.
 //
     //  Compute 3x3 least squares matrix
+  v[0] = v[1] = v[2] = 0.0;
   for (i=0; i<9; i++) m[i] = 0.0;
 
   for (ptId=0; ptId < numPts; ptId++) 
@@ -218,3 +204,19 @@ void vlTextureMapToPlane::ComputeNormal()
 
   return;
 }
+
+void vlTextureMapToPlane::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlDataSetToDataSetFilter::PrintSelf(os,indent);
+
+  os << indent << "S Range: (" << this->SRange[0] << ", "
+                               << this->SRange[1] << ")\n";
+  os << indent << "T Range: (" << this->TRange[0] << ", "
+                               << this->TRange[1] << ")\n";
+  os << indent << "Automatic Normal Generation: " << 
+                  (this->AutomaticPlaneGeneration ? "On\n" : "Off\n");
+  os << indent << "Normal: (" << this->Normal[0] << ", "
+                                << this->Normal[1] << ", "
+                                << this->Normal[2] << ")\n";
+}
+

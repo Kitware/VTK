@@ -276,7 +276,7 @@ void vlCyberReader::Execute()
 
   vlDebugMacro(<<"Reading Cyberware file: " << this->Filename);
 
-  vtx = (struct Vertex *)malloc(sizeof(struct Vertex));
+  vtx = (struct Vertex *)calloc(1,sizeof(struct Vertex));
   vtx->ltresol = 1;
   vtx->lgresol = 1;
 //
