@@ -81,6 +81,7 @@ vtkDataReader::~vtkDataReader()
 {
   if (this->FileName) delete [] this->FileName;
   if (this->ScalarsName) delete [] this->ScalarsName;
+
   if (this->VectorsName) delete [] this->VectorsName;
   if (this->TensorsName) delete [] this->TensorsName;
   if (this->NormalsName) delete [] this->NormalsName;
@@ -230,6 +231,7 @@ int vtkDataReader::Read(double *result)
   if (this->IS->fail()) return 0;
   return 1;
 }
+
 
 // Description:
 // Open a vtk data file. Returns zero if error.
@@ -427,6 +429,20 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
       a->SetFieldData(f);
       f->Delete();
       }
+    //
+    // maybe bumped into point data
+    //
+    else if ( ! strncmp(line, "point_data", 10) )
+      {
+      int npts;
+      if (!this->Read(&npts))
+        {
+        vtkErrorMacro(<<"Cannot read point data!");
+        return 0;
+        }
+
+      this->ReadPointData(ds, npts);
+      }
 
     else
       {
@@ -482,6 +498,7 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     //
     else if ( ! strncmp(line, "normals", 7) )
       {
+
       if ( ! this->ReadNormalData(a, numPts) ) return 0;
       }
     //
@@ -514,6 +531,20 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
       if ( ! (f=this->ReadFieldData(numPts)) ) return 0;
       a->SetFieldData(f);
       f->Delete();
+      }
+    //
+    // maybe bumped into cell data
+    //
+    else if ( ! strncmp(line, "cell_data", 9) )
+      {
+      int ncells;
+      if (!this->Read(&ncells))
+        {
+        vtkErrorMacro(<<"Cannot read cell data!");
+        return 0;
+        }
+
+      this->ReadCellData(ds, ncells);
       }
 
     else
@@ -556,7 +587,7 @@ static int ReadASCIIData(vtkDataReader *self, T *data, int numTuples, int numCom
       {
       if ( !self->Read(data++) )
         {
-        vtkGenericWarningMacro(<<"Error reading ascii data!" << " for file: " );
+        vtkGenericWarningMacro(<<"Error reading ascii data!");
         return 0;
         }
       }
@@ -585,29 +616,30 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
       this->IS->getline(line,256);
       this->IS->read((char *)ptr,sizeof(unsigned char)*(numTuples*numComp+7)/8);
       if (this->IS->eof())
-	{
-	vtkErrorMacro(<<"Error reading binary bit array!");
-	return NULL;
-	}
+        {
+        vtkErrorMacro(<<"Error reading binary bit array!");
+        return NULL;
+        }
       }
     else 
       {
       int b;
       for (int i=0; i<numTuples; i++)
-	{
-	for (int j=0; j<numComp; j++)
-	  {
-	  if ( !this->Read(&b) )
-	    {
-	    vtkErrorMacro(<<"Error reading binary bit array!");
-	    return NULL;
-	    }
-	  else
-	    {
-	    ((vtkBitArray *)array)->SetValue(i*numComp+j,b);
-	    }
-	  }
-	}
+        {
+
+        for (int j=0; j<numComp; j++)
+          {
+          if ( !this->Read(&b) )
+            {
+            vtkErrorMacro(<<"Error reading binary bit array!");
+            return NULL;
+            }
+          else
+            {
+            ((vtkBitArray *)array)->SetValue(i*numComp+j,b);
+            }
+          }
+        }
       }
     }
   
@@ -708,6 +740,7 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
       ReadBinaryData(this->IS, ptr, numTuples, numComp);
       vtkByteSwap::Swap4BERange((int *)ptr,numTuples*numComp);
       }
+
     else 
       {
       ReadASCIIData(this, ptr, numTuples, numComp);
@@ -838,6 +871,7 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
   else if ( axes == 1 ) rg->SetYCoordinates(coords);
   else rg->SetZCoordinates(coords);
 
+
   coords->Delete();
 
   vtkDebugMacro(<<"Read " << coords->GetNumberOfScalars() << " coordinates");
@@ -964,6 +998,7 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
     {
     vtkErrorMacro(<<"Cannot read normal data!" << " for file: " << this->FileName);
     return 0;
+
     }
 
   //
@@ -1077,13 +1112,13 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
       vtkUnsignedCharArray *ucharData=(vtkUnsignedCharArray *)scalars->GetData();
       ucharData->SetNumberOfTuples(numPts);
       for (i=0; i<numPts; i++)
-	{
-	for (j=0; j<numComp; j++)
-	  {
-	  idx = i*numComp + j;
-	  ucharData->SetValue(idx, (unsigned char) (255.0*data->GetValue(idx)));
-	  }
-	}
+        {
+        for (j=0; j<numComp; j++)
+          {
+          idx = i*numComp + j;
+          ucharData->SetValue(idx, (unsigned char) (255.0*data->GetValue(idx)));
+          }
+        }
       a->SetScalars(scalars);
       scalars->Delete();
       }
@@ -1096,6 +1131,7 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
 
   if ( this->Source )
     {
+
     float progress = this->Source->GetProgress();
     this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
     }
@@ -1224,6 +1260,7 @@ int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
     this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
     }
 
+
   return 1;
 }
 
@@ -1305,10 +1342,10 @@ vtkFieldData *vtkDataReader::ReadFieldData(int num)
     if ( data != NULL )
       {
       if ( ! skipField )
-	{
-	f->SetArray(i,data);
-	f->SetArrayName(i,name);
-	}
+        {
+        f->SetArray(i,data);
+        f->SetArrayName(i,name);
+        }
       data->Delete();
       }
     else
@@ -1353,27 +1390,6 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   else
     os << indent << "File Type: ASCII\n";
 
-  os << indent << "Read From Input String: " << 
-     (this->ReadFromInputString ? "On\n" : "Off\n");
-
-  if ( this->InputString )
-    {
-    os << indent << "Input String: " << this->InputString << "\n";
-    }
-  else
-    {
-    os << indent << "Input String: (none)\n";
-    }
-
-  if ( this->Source )
-    {
-    os << indent << "Source: " << this->Source << "\n";
-    }
-  else
-    {
-    os << indent << "Source: (none)\n";
-    }
-
   if ( this->ScalarsName )
     os << indent << "Scalars Name: " << this->ScalarsName << "\n";
   else
@@ -1388,6 +1404,7 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Normals Name: " << this->NormalsName << "\n";
   else
     os << indent << "Normals Name: (None)\n";
+
 
   if ( this->TensorsName )
     os << indent << "Tensors Name: " << this->TensorsName << "\n";
