@@ -236,7 +236,7 @@ short *vtkShortArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkShortArray::Resize(const int sz)
+void vtkShortArray::Resize(int sz)
 {
   short *newArray;
   int newSize = sz*this->NumberOfComponents;

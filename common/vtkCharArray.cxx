@@ -234,7 +234,7 @@ char *vtkCharArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkCharArray::Resize(const int sz)
+void vtkCharArray::Resize(int sz)
 {
   char *newArray;
   int newSize = sz*this->NumberOfComponents;

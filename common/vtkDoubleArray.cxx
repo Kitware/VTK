@@ -240,7 +240,7 @@ double *vtkDoubleArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkDoubleArray::Resize(const int sz)
+void vtkDoubleArray::Resize(int sz)
 {
   double *newArray;
   int newSize = sz*NumberOfComponents;

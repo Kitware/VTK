@@ -239,7 +239,7 @@ unsigned long *vtkUnsignedLongArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkUnsignedLongArray::Resize(const int sz)
+void vtkUnsignedLongArray::Resize(int sz)
 {
   unsigned long *newArray;
   int newSize = sz*this->NumberOfComponents;

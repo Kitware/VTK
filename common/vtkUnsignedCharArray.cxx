@@ -240,7 +240,7 @@ unsigned char *vtkUnsignedCharArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkUnsignedCharArray::Resize(const int sz)
+void vtkUnsignedCharArray::Resize(int sz)
 {
   unsigned char *newArray;
   int newSize = sz*this->NumberOfComponents;

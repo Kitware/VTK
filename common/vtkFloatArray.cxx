@@ -233,7 +233,7 @@ float *vtkFloatArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkFloatArray::Resize(const int sz)
+void vtkFloatArray::Resize(int sz)
 {
   float *newArray;
   int newSize = sz * this->NumberOfComponents;

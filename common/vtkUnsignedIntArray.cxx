@@ -237,7 +237,7 @@ unsigned int *vtkUnsignedIntArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkUnsignedIntArray::Resize(const int sz)
+void vtkUnsignedIntArray::Resize(int sz)
 {
   unsigned int *newArray;
   int newSize = sz*this->NumberOfComponents;
