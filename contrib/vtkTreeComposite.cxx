@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
-#elifdef VTK_USE_MESA
+#elif defined(VTK_USE_MESA)
 #include "vtkMesaRenderWindow.h"
 #endif
 
@@ -696,7 +696,7 @@ void vtkTreeComposite::InitializeOffScreen()
     // I do not want to replace the original.
     renWin = renWin;
     }
-#elifdef VTK_USE_MESA
+#elif defined(VTK_USE_MESA)
   vtkMesaRenderWindow *renWin;
   
   renWin = vtkMesaRenderWindow::SafeDownCast(this->RenderWindow);
