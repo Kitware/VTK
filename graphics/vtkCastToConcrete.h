@@ -69,6 +69,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkRectilinearGrid.h"
 
 class VTK_EXPORT vtkCastToConcrete : public vtkDataSetFilter
 {
@@ -87,6 +88,7 @@ public:
   vtkStructuredPoints *GetStructuredPointsOutput();
   vtkStructuredGrid *GetStructuredGridOutput();
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
+  vtkRectilinearGrid *GetRectilinearGridOutput();
 
 protected:
   void Execute(); //insures compatibility; satisfies abstract api in vtkFilter
@@ -96,6 +98,8 @@ protected:
   vtkStructuredPoints *StructuredPoints;
   vtkStructuredGrid *StructuredGrid;
   vtkUnstructuredGrid *UnstructuredGrid;
+  vtkRectilinearGrid *RectilinearGrid;
+
 };
 
 #endif

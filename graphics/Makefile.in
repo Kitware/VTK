@@ -122,6 +122,7 @@ vtkExtractEdges \
 vtkExtractGeometry \
 vtkExtractGrid \
 vtkExtractTensorComponents \
+vtkExtractUnstructuredGrid \
 vtkExtractVOI \
 vtkExtractVectorComponents \
 vtkFeatureEdges \
@@ -180,6 +181,12 @@ vtkPolyWriter \
 vtkProbeFilter \
 vtkProperty \
 vtkQuadric \
+vtkRectilinearGridFilter \
+vtkRectilinearGridGeometryFilter \
+vtkRectilinearGridReader \
+vtkRectilinearGridSource \
+vtkRectilinearGridToPolyFilter \
+vtkRectilinearGridWriter \
 vtkRecursiveDividingCubes \
 vtkRenderMaster \
 vtkRenderWindow \

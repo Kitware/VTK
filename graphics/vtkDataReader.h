@@ -50,10 +50,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <fstream.h>
 #include "vtkObject.h"
-#include "vtkPointSet.h"
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2
+
+class vtkDataSet;
+class vtkPointSet;
+class vtkRectilinearGrid;
 
 class VTK_EXPORT vtkDataReader : public vtkObject
 {
@@ -79,13 +82,14 @@ public:
   void SetInputString(char *in, int len);
   
   // Description:
-  // Set/Get reading from an InputString instead of the default, a file.
+  // Enable reading from an InputString instead of the default, a file.
   vtkSetMacro(ReadFromInputString,int);
   vtkGetMacro(ReadFromInputString,int);
   vtkBooleanMacro(ReadFromInputString,int);
 
   // Description:
-  // Get the type of file (ASCII or BINARY)
+  // Get the type of file (ASCII or BINARY). Returned value only valid
+  // after file has been read.
   vtkGetMacro(FileType,int);
 
   // Description:
@@ -131,6 +135,7 @@ public:
   int ReadPointData(vtkDataSet *ds, int numPts);
   int ReadPoints(vtkPointSet *ps, int numPts);
   int ReadCells(int size, int *data);
+  int ReadCoordinates(vtkRectilinearGrid *rg, int axes, int numCoords);
   void CloseVTKFile();
 
   // some functions for reading in stuff

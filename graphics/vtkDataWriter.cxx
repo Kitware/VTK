@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDataWriter.h"
+#include "vtkDataSet.h"
 #include "vtkBitScalars.h"
 #include "vtkUnsignedCharScalars.h"
 #include "vtkUnsignedShortScalars.h"
@@ -129,7 +130,7 @@ int vtkDataWriter::WriteHeader(FILE *fp)
 {
   vtkDebugMacro(<<"Writing header...");
 
-  fprintf (fp, "# vtk DataFile Version 1.0\n");
+  fprintf (fp, "# vtk DataFile Version 2.0\n");
   fprintf (fp, "%s\n", this->Header);
 
   if ( this->FileType == VTK_ASCII )
@@ -226,7 +227,6 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
         {
         p = points->GetPoint(i);
         fprintf (fp, "%g %g %g ", p[0], p[1], p[2]);
-        if ( (i%2) ) fprintf (fp,"\n");
         }
       }
     else
@@ -249,8 +249,8 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
       for (i=0; i<numPts; i++)
         {
         p = ipoints->GetPtr(3*i);
-        fprintf (fp, "%d %d %d", p[0], p[1], p[2]);
-        if ( (i%2) ) fprintf (fp,"\n");
+        fprintf (fp, "%d %d %d ", p[0], p[1], p[2]);
+        if ( !((i+1)%2) ) fprintf (fp,"\n");
         }
       }
     else
@@ -266,6 +266,165 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
   else
     {
     vtkErrorMacro(<<"Point type: " << type << " currently not supported");
+    return 0;
+    }
+
+  return 1;
+}
+
+// Description:
+// Write out coordinates for rectilinear grids.
+int vtkDataWriter::WriteCoordinates(FILE *fp, vtkScalars *coords, int axes)
+{
+  int i, ncoords=coords->GetNumberOfScalars();
+  char *type;
+  
+  if ( axes == 0 ) fprintf (fp, "X_COORDINATES %d ", ncoords);
+  else if ( axes == 1) fprintf (fp, "Y_COORDINATES %d ", ncoords);
+  else fprintf (fp, "Z_COORDINATES %d ", ncoords);
+
+  type = coords->GetDataType();
+
+  if ( !strcmp(type,"float") )
+    {
+    fprintf (fp, "float\n");
+    if ( this->FileType == VTK_ASCII )
+      {
+      float s;
+      for (i=0; i<ncoords; i++)
+        {
+        s = coords->GetScalar(i);
+        fprintf (fp, "%g ", s);
+        if ( !((i+1)%6) ) fprintf (fp,"\n");
+        }
+      }
+    else
+      {
+      vtkFloatScalars *fscalars = (vtkFloatScalars *)coords;
+      float *fptr=fscalars->GetPtr(0);
+      // swap the bytes if necc
+      vtkByteSwap::SwapWrite4BERange(fptr,ncoords,fp);
+      }
+    fprintf (fp,"\n");
+    }
+
+  else if ( !strcmp(type,"int") )
+    {
+    fprintf (fp, "int\n");
+    if ( this->FileType == VTK_ASCII )
+      {
+      int s;
+      for (i=0; i<ncoords; i++)
+        {
+        s = (int) coords->GetScalar(i);
+        fprintf (fp, "%d ", s);
+        if ( !((i+1)%6) ) fprintf (fp,"\n");
+        }
+      }
+    else
+      {
+      vtkIntScalars *iscalars = (vtkIntScalars *)coords;
+      int *iptr=iscalars->GetPtr(0);
+      // swap the bytes if necc
+      vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
+      }
+    fprintf (fp,"\n");
+    }
+
+  else if ( !strcmp(type,"bit") )
+    {
+    fprintf (fp, "int\n");
+    if ( this->FileType == VTK_ASCII )
+      {
+      int s;
+      for (i=0; i<ncoords; i++)
+        {
+        s = (int) coords->GetScalar(i);
+        fprintf (fp, "%d ", (s!=0.0?1:0));
+        if ( !((i+1)%6) ) fprintf (fp,"\n");
+        }
+      }
+    else
+      {
+      vtkBitScalars *bscalars = (vtkBitScalars *)coords;
+      unsigned char *cptr=bscalars->GetPtr(0);
+      fwrite (cptr,sizeof(char),(ncoords-1)/8+1,fp);
+      }
+    fprintf (fp,"\n");
+    }
+
+  else if ( !strcmp(type,"unsigned char") )
+    {
+    fprintf (fp, "unsigned_char\n");
+    if ( this->FileType == VTK_ASCII )
+      {
+      unsigned char s;
+      for (i=0; i<ncoords; i++)
+        {
+        s = (unsigned char) coords->GetScalar(i);
+        fprintf (fp, "%i ", s);
+        if ( !((i+1)%6) ) fprintf (fp,"\n");
+        }
+      }
+    else
+      {
+      vtkIntScalars *iscalars = (vtkIntScalars *)coords;
+      int *iptr=iscalars->GetPtr(0);
+      // swap the bytes if necc
+      vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
+      }
+    fprintf (fp,"\n");
+    }
+
+  else if ( !strcmp(type,"short") )
+    {
+    fprintf (fp, "short\n");
+    if ( this->FileType == VTK_ASCII )
+      {
+      short s;
+      for (i=0; i<ncoords; i++)
+        {
+        s = (short) coords->GetScalar(i);
+        fprintf (fp, "%hd ", s);
+        if ( !((i+1)%6) ) fprintf (fp,"\n");
+        }
+      }
+    else
+      {
+      vtkIntScalars *iscalars = (vtkIntScalars *)coords;
+      int *iptr=iscalars->GetPtr(0);
+      // swap the bytes if necc
+      vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
+      }
+    fprintf (fp,"\n");
+    }
+
+  else if ( !strcmp(type,"unsigned short") )
+    {
+    fprintf (fp, "int\n");
+    if ( this->FileType == VTK_ASCII )
+      {
+      int s;
+      for (i=0; i<ncoords; i++)
+        {
+        s = (int) coords->GetScalar(i);
+        fprintf (fp, "%hu ", s);
+        if ( !((i+1)%6) ) fprintf (fp,"\n");
+        }
+      }
+    else
+      {
+      vtkIntScalars *iscalars = (vtkIntScalars *)coords;
+      int *iptr=iscalars->GetPtr(0);
+      // swap the bytes if necc
+      vtkByteSwap::SwapWrite4BERange(iptr,ncoords,fp);
+      }
+    fprintf (fp,"\n");
+    }
+
+  else
+    {
+    vtkErrorMacro(<<"Coordinate type: " << type << " currently not supported");
     return 0;
     }
 
@@ -341,7 +500,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         for (i=0; i<numPts; i++)
           {
           s = (short) scalars->GetScalar(i);
-          fprintf (fp, "%h ", s);
+          fprintf (fp, "%hd ", s);
           if ( !((i+1)%6) ) fprintf (fp,"\n");
           }
         }
@@ -578,7 +737,7 @@ int vtkDataWriter::WriteNormalData(FILE *fp, vtkNormals *normals, int numPts)
         {
         n = normals->GetNormal(i);
         fprintf (fp, "%g %g %g ", n[0], n[1], n[2]);
-        if ( (i%2) ) fprintf (fp,"\n");
+        if ( !((i+1)%2) ) fprintf (fp,"\n");
         }
       }
     else

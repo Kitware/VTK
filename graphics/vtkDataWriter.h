@@ -53,7 +53,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <stdio.h>
 #include "vtkWriter.h"
-#include "vtkDataSet.h"
+
+class vtkDataSet;
+class vtkPoints;
+class vtkCellArray;
+class vtkScalars;
 
 class VTK_EXPORT vtkDataWriter : public vtkWriter
 {
@@ -118,6 +122,7 @@ public:
   FILE *OpenVTKFile();
   int WriteHeader(FILE *fp);
   int WritePoints(FILE *fp, vtkPoints *p);
+  int WriteCoordinates(FILE *fp, vtkScalars *coords, int axes);
   int WriteCells(FILE *fp, vtkCellArray *cells, char *label);
   int WritePointData(FILE *fp, vtkDataSet *ds);
   void CloseVTKFile(FILE *fp);
