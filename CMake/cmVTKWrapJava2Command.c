@@ -9,7 +9,7 @@ typedef struct
 {
   char *LibraryName;
   int NumberWrapped;
-  char **SourceFiles;
+  void **SourceFiles;
 } cmVTKWrapJavaData;
 
 /* do almost everything in the initial pass */
@@ -49,6 +49,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
 
   /* keep the library name */
   cdata->LibraryName = strdup(newArgv[0]);
+  cdata->SourceFiles = (void **)malloc(sizeof(void *)*newArgc);
 
   /* was the list already populated */
   def = info->CAPI->GetDefinition(mf, newArgv[1]);
@@ -99,6 +100,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
       strcat(sourceListValue,newName);
       strcat(sourceListValue,".cxx");        
       free(newName);
+      info->CAPI->Free(srcName);
       }
     }
   
@@ -107,6 +109,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
 
   info->CAPI->AddDefinition(mf, newArgv[1], sourceListValue);
   info->CAPI->FreeArguments(newArgc, newArgv);
+  free(sourceListValue);
   return 1;
 }
   
@@ -182,13 +185,18 @@ static void FinalPass(void *inf, void *mf)
 
 static void Destructor(void *inf) 
 {
+  int i;
   cmLoadedCommandInfo *info = (cmLoadedCommandInfo *)inf;
   /* get our client data from initial pass */
   cmVTKWrapJavaData *cdata = 
     (cmVTKWrapJavaData *)info->CAPI->GetClientData(info);
   if (cdata)
     {
-    info->CAPI->FreeArguments(cdata->NumberWrapped, cdata->SourceFiles);
+    for (i = 0; i < cdata->NumberWrapped; ++i)
+      {              
+      info->CAPI->DestroySourceFile(cdata->SourceFiles[i]);
+      }
+    free(cdata->SourceFiles);
     free(cdata->LibraryName);
     free(cdata);
     }
