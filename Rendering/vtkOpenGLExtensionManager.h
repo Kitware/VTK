@@ -108,8 +108,8 @@ class vtkRenderWindow;
 
 //BTX
 extern "C" {
-#if WIN32
-# include <vtkOpenGL.h>  // Needed for WINAPI
+#ifdef _WIN32
+#include <vtkOpenGL.h>  // Needed for WINAPI
   typedef int (WINAPI *vtkOpenGLExtensionManagerFunctionPointer)(void);
 #else
   typedef void (*vtkOpenGLExtensionManagerFunctionPointer)(void);
