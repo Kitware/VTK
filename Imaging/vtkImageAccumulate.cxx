@@ -79,23 +79,18 @@ vtkImageAccumulate::vtkImageAccumulate()
     }
   this->ComponentExtent[1] = 255;
   
-  this->StencilFunction = NULL;
-  this->ClippingExtents = NULL;
- 
   this->ReverseStencil = 0;
 
   this->Min[0] = this->Min[1] = this->Min[2] = 0.0;
   this->Max[0] = this->Max[1] = this->Max[2] = 0.0;
   this->Mean[0] = this->Mean[1] = this->Mean[2] = 0.0;
-  this->PixelCount = 0;
+  this->VoxelCount = 0;
 }
 
 
 //----------------------------------------------------------------------------
 vtkImageAccumulate::~vtkImageAccumulate()
 {
-  this->SetStencilFunction(NULL);
-  this->SetClippingExtents(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -145,6 +140,27 @@ void vtkImageAccumulate::GetComponentExtent(int extent[6])
 
 
 //----------------------------------------------------------------------------
+void vtkImageAccumulate::SetStencil(vtkImageStencilData *stencil)
+{
+  this->vtkProcessObject::SetNthInput(1, stencil); 
+}
+
+
+//----------------------------------------------------------------------------
+vtkImageStencilData *vtkImageAccumulate::GetStencil()
+{
+  if (this->NumberOfInputs < 2) 
+    { 
+    return NULL;
+    }
+  else
+    {
+    return (vtkImageStencilData *)(this->Inputs[1]); 
+    }
+}
+
+
+//----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
@@ -153,7 +169,7 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 				      double Min[3],
 				      double Max[3],
 				      double Mean[3],
-				      long int *PixelCount)
+				      long int *VoxelCount)
 {
   int idX, idY, idZ, idxC;
   int r1, r2, cr1, cr2, iter, rval;
@@ -171,9 +187,9 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
   sum[0] = sum[1] = sum[2] = 0.0;
   Min[0] = Min[1] = Min[2] = VTK_DOUBLE_MAX;
   Max[0] = Max[1] = Max[2] = VTK_DOUBLE_MIN;
-  *PixelCount = 0;
+  *VoxelCount = 0;
   
-  vtkImageClippingExtents *clippingExtents = self->GetClippingExtents();
+  vtkImageStencilData *stencil = self->GetStencil();
 
   // Zero count in every bin
   outData->GetExtent(min0, max0, min1, max1, min2, max2);
@@ -205,7 +221,7 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
       count++;
 	
 
-      if (clippingExtents == NULL)
+      if (stencil == NULL)
         {
         tempPtr = inPtr + (inInc2*(idZ - min2) +
                            inInc1*(idY - min1));
@@ -221,7 +237,7 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 	      Max[idxC] = *tempPtr;
 	    else if (*tempPtr < Min[idxC])
 	      Min[idxC] = *tempPtr;
-	    (*PixelCount)++;
+	    (*VoxelCount)++;
 	    // compute the index
 	    outIdx = (int) floor((((double)*tempPtr++ - origin[idxC]) / spacing[idxC]));
 	    if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
@@ -245,8 +261,8 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
         cr1 = min0;
         for (;;)
           {
-          rval = clippingExtents->GetNextExtent(r1, r2, min0, max0,
-                                                idY, idZ, iter);
+          rval = stencil->GetNextExtent(r1, r2, min0, max0,
+					idY, idZ, iter);
           cr2 = r1 - 1;
           if (!self->GetReverseStencil())
             {
@@ -266,7 +282,7 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 		  Max[idxC] = *tempPtr;
 		else if (*tempPtr < Min[idxC])
 		  Min[idxC] = *tempPtr;
-		(*PixelCount)++;
+		(*VoxelCount)++;
 		// compute the index
 		outIdx = (int) floor((((double)*tempPtr++ - origin[idxC]) / spacing[idxC]));
 		if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
@@ -311,7 +327,7 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 		  Max[idxC] = *tempPtr;
 		else if (*tempPtr < Min[idxC])
 		  Min[idxC] = *tempPtr;
-		(*PixelCount)++;
+		(*VoxelCount)++;
 		// compute the index
 		outIdx = (int) floor((((double)*tempPtr++ - origin[idxC]) / spacing[idxC]));
 		if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
@@ -334,11 +350,11 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
       }
     }
   
-  if (*PixelCount) // avoid the div0
+  if (*VoxelCount) // avoid the div0
     {
-    Mean[0] = sum[0] / (double)*PixelCount;    
-    Mean[1] = sum[1] / (double)*PixelCount;    
-    Mean[2] = sum[2] / (double)*PixelCount;    
+    Mean[0] = sum[0] / (double)*VoxelCount;    
+    Mean[1] = sum[1] / (double)*VoxelCount;    
+    Mean[2] = sum[2] / (double)*VoxelCount;    
     }
   else
     {
@@ -392,7 +408,7 @@ void vtkImageAccumulate::ExecuteData(vtkDataObject *vtkNotUsed(out))
                       inData, (VTK_TT *)(inPtr), 
                       outData, (int *)(outPtr),
 		      this->Min, this->Max,
-		      this->Mean, &this->PixelCount);
+		      this->Mean, &this->VoxelCount);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
@@ -410,18 +426,12 @@ void vtkImageAccumulate::ExecuteInformation(vtkImageData *input,
   output->SetNumberOfScalarComponents(1);
   output->SetScalarType(VTK_INT);
 
-  // See if we should be setting up some clipping extents
-  if (this->StencilFunction)
+  // need to set the spacing and origin of the stencil to match the output
+  vtkImageStencilData *stencil = this->GetStencil();
+  if (stencil)
     {
-    if (!this->ClippingExtents)
-      {
-      this->ClippingExtents = vtkImageClippingExtents::New();
-      }
-    this->ClippingExtents->SetClippingObject(this->StencilFunction);
-    }
-  if (this->ClippingExtents)
-    {
-    this->ClippingExtents->BuildExtents(input);
+    stencil->SetSpacing(input->GetSpacing());
+    stencil->SetOrigin(input->GetOrigin());
     }
 }
 
@@ -445,11 +455,10 @@ void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Mean: " << this->Mean << "\n";
   os << indent << "Min: " << this->Min << "\n";
   os << indent << "Max: " << this->Max << "\n";
-  os << indent << "PixelCount: " << this->PixelCount << "\n";
-  os << indent << "StencilFunction: " << this->StencilFunction << "\n";
+  os << indent << "VoxelCount: " << this->VoxelCount << "\n";
+  os << indent << "Stencil: " << this->GetStencil() << "\n";
   os << indent << "ReverseStencil: " << (this->ReverseStencil ?
 		                         "On\n" : "Off\n");
-  os << indent << "ClippingExtents: " << this->ClippingExtents << "\n";
 
   os << indent << "ComponentOrigin: ( "
      << this->ComponentOrigin[0] << ", "
