@@ -349,7 +349,7 @@ void vtkCamera::ComputeViewPlaneNormal()
 void vtkCamera::SetRoll(double roll)
 {
   double current;
-  double temp[4];
+  double temp[3];
 
   // roll is a rotation of camera view up about view plane normal
   vtkDebugMacro(<< " Setting Roll to " << roll << "");
@@ -370,19 +370,12 @@ void vtkCamera::SetRoll(double roll)
 
   // rotate about view plane normal
   this->Transform->RotateWXYZ(-roll,this->ViewPlaneNormal[0],
-			     this->ViewPlaneNormal[1],
-			     this->ViewPlaneNormal[2]);
-  
-  // now transform view up
-  temp[0] = this->ViewUp[0];
-  temp[1] = this->ViewUp[1];
-  temp[2] = this->ViewUp[2];
-  temp[3] = 1.0;
-  this->Transform->MultiplyPoint(temp,temp);
-  
-  // now store the result
-  this->SetViewUp((double *)temp);
+			      this->ViewPlaneNormal[1],
+			      this->ViewPlaneNormal[2]);
 
+  this->Transform->TransformVector(this->ViewUp,temp);
+  this->SetViewUp(temp);
+  
   this->Transform->Pop();
 }
 
@@ -802,6 +795,8 @@ void vtkCamera::Zoom(double amount)
 // Rotate the camera about the view up vector centered at the focal point.
 void vtkCamera::Azimuth (double angle)
 {
+  double temp[3];
+
   // azimuth is a rotation of camera position about view up vector
   this->Transform->Push();
   this->Transform->Identity();
@@ -809,33 +804,26 @@ void vtkCamera::Azimuth (double angle)
   
   // translate to focal point
   this->Transform->Translate(-this->FocalPoint[0],
-			    -this->FocalPoint[1],
-			    -this->FocalPoint[2]);
+			     -this->FocalPoint[1],
+			     -this->FocalPoint[2]);
    
   // rotate about view up
   this->Transform->RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
-			     this->ViewUp[2]);
+			      this->ViewUp[2]);
   
   // translate to focal point
   this->Transform->Translate(this->FocalPoint[0],
-			    this->FocalPoint[1],
-			    this->FocalPoint[2]);
+			     this->FocalPoint[1],
+			     this->FocalPoint[2]);
    
 
   // now transform position
-  this->Transform->SetDoublePoint(this->Position[0],this->Position[1],
-				  this->Position[2],1.0);
-  
-  // now store the result
-  this->SetPosition(this->Transform->GetDoublePoint());
+  this->Transform->TransformPoint(this->Position,temp);
+  this->SetPosition(temp);
 
   // also azimuth the vpn
-  this->Transform->Identity();
-  this->Transform->RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
-			     this->ViewUp[2]);
-  this->Transform->SetDoublePoint(this->ViewPlaneNormal[0],this->ViewPlaneNormal[1],
-				  this->ViewPlaneNormal[2],1.0);
-  this->SetViewPlaneNormal(this->Transform->GetDoublePoint());
+  this->Transform->TransformNormal(this->ViewPlaneNormal,temp);
+  this->SetViewPlaneNormal(temp);
   
   this->Transform->Pop();
 }
@@ -844,7 +832,7 @@ void vtkCamera::Azimuth (double angle)
 // the view up vector centered on the focal point.
 void vtkCamera::Elevation (double angle)
 {
-  double	axis[3];
+  double	axis[3], temp[3];
   
   // elevation is a rotation of camera position about cross between
   // view plane normal and view up
@@ -861,8 +849,8 @@ void vtkCamera::Elevation (double angle)
   
   // translate to focal point
   this->Transform->Translate(-this->FocalPoint[0],
-			    -this->FocalPoint[1],
-			    -this->FocalPoint[2]);
+			     -this->FocalPoint[1],
+			     -this->FocalPoint[2]);
    
   // rotate about view up
   this->Transform->RotateWXYZ(angle,axis[0],axis[1],axis[2]);
@@ -870,23 +858,16 @@ void vtkCamera::Elevation (double angle)
   
   // translate to focal point
   this->Transform->Translate(this->FocalPoint[0],
-			    this->FocalPoint[1],
-			    this->FocalPoint[2]);
+			     this->FocalPoint[1],
+			     this->FocalPoint[2]);
    
   // now transform position
-  this->Transform->SetDoublePoint(this->Position[0],this->Position[1],
-			    this->Position[2],1.0);
-
-  // now store the result
-  this->SetPosition(this->Transform->GetDoublePoint());
+  this->Transform->TransformPoint(this->Position,temp);
+  this->SetPosition(temp);
 
   // also elevate the vpn
-  this->Transform->Identity();
-  this->Transform->RotateWXYZ(angle,axis[0],axis[1],axis[2]);
-  this->Transform->SetDoublePoint(this->ViewPlaneNormal[0],this->ViewPlaneNormal[1],
-			   this->ViewPlaneNormal[2],1.0);
-  this->SetViewPlaneNormal(this->Transform->GetDoublePoint());
-  
+  this->Transform->TransformNormal(this->ViewPlaneNormal,temp);
+  this->SetViewPlaneNormal(temp);
   
   this->Transform->Pop();
 }
@@ -895,6 +876,8 @@ void vtkCamera::Elevation (double angle)
 // position. 
 void vtkCamera::Yaw (double angle)
 {
+  double temp[3];
+
   // yaw is a rotation of camera focal_point about view up vector
   this->Transform->Push();
   this->Transform->Identity();
@@ -902,33 +885,26 @@ void vtkCamera::Yaw (double angle)
   
   // translate to position
   this->Transform->Translate(-this->Position[0],
-			    -this->Position[1],
-			    -this->Position[2]);
+			     -this->Position[1],
+			     -this->Position[2]);
 
   // rotate about view up
   this->Transform->RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
-			     this->ViewUp[2]);
+			      this->ViewUp[2]);
   
   // translate to position
   this->Transform->Translate(this->Position[0],
-			    this->Position[1],
-			    this->Position[2]);
+			     this->Position[1],
+			     this->Position[2]);
 
   // now transform focal point
-  this->Transform->SetDoublePoint(this->FocalPoint[0],this->FocalPoint[1],
-			    this->FocalPoint[2],1.0);
-  
-  // now store the result
-  this->SetFocalPoint(this->Transform->GetDoublePoint());
+  this->Transform->TransformPoint(this->FocalPoint,temp);
+  this->SetFocalPoint(temp);
 
   // also yaw the vpn
-  this->Transform->Identity();
-  this->Transform->RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
-			     this->ViewUp[2]);
-  this->Transform->SetDoublePoint(this->ViewPlaneNormal[0],this->ViewPlaneNormal[1],
-			   this->ViewPlaneNormal[2],1.0);
-  this->SetViewPlaneNormal(this->Transform->GetDoublePoint());
-  
+  this->Transform->TransformNormal(this->ViewPlaneNormal,temp);
+  this->SetViewPlaneNormal(temp);
+
   this->Transform->Pop();
 }
 
@@ -936,7 +912,7 @@ void vtkCamera::Yaw (double angle)
 // and the view plane normal, centered at the camera's position.
 void vtkCamera::Pitch (double angle)
 {
-  double	axis[3];
+  double	axis[3],temp[3];
 
   
   // pitch is a rotation of camera focal point about cross between
@@ -954,8 +930,8 @@ void vtkCamera::Pitch (double angle)
   
   // translate to position
   this->Transform->Translate(-this->Position[0],
-			    -this->Position[1],
-			    -this->Position[2]);
+			     -this->Position[1],
+			     -this->Position[2]);
 
   // rotate about view up
   this->Transform->RotateWXYZ(angle,axis[0],axis[1],axis[2]);
@@ -963,22 +939,16 @@ void vtkCamera::Pitch (double angle)
    
   // translate to position
   this->Transform->Translate(this->Position[0],
-			    this->Position[1],
-			    this->Position[2]);
+			     this->Position[1],
+			     this->Position[2]);
 
   // now transform focal point
-  this->Transform->SetDoublePoint(this->FocalPoint[0],this->FocalPoint[1],
-			    this->FocalPoint[2],1.0);
-  
-  // now store the result
-  this->SetFocalPoint(this->Transform->GetDoublePoint());
+  this->Transform->TransformPoint(this->FocalPoint,temp);
+  this->SetFocalPoint(temp);
 
   // also pitch the vpn
-  this->Transform->Identity();
-  this->Transform->RotateWXYZ(angle,axis[0],axis[1],axis[2]);
-  this->Transform->SetDoublePoint(this->ViewPlaneNormal[0],this->ViewPlaneNormal[1],
-			   this->ViewPlaneNormal[2],1.0);
-  this->SetViewPlaneNormal(this->Transform->GetDoublePoint());
+  this->Transform->TransformNormal(this->ViewPlaneNormal,temp);
+  this->SetViewPlaneNormal(temp);
   
   this->Transform->Pop();
 }
@@ -986,23 +956,21 @@ void vtkCamera::Pitch (double angle)
 // Rotate the camera around the view plane normal.
 void vtkCamera::Roll (double angle)
 {
-  
+  double temp[3];
+
   // roll is a rotation of camera view up about view plane normal
   this->Transform->Push();
   this->Transform->Identity();
   this->Transform->PreMultiply();
 
   // rotate about view plane normal
-  this->Transform->RotateWXYZ(angle,this->ViewPlaneNormal[0],
-			     this->ViewPlaneNormal[1],
-			     this->ViewPlaneNormal[2]);
+  this->Transform->RotateWXYZ(-angle,this->ViewPlaneNormal[0],
+			      this->ViewPlaneNormal[1],
+			      this->ViewPlaneNormal[2]);
   
   // now transform view up
-  this->Transform->SetDoublePoint(this->ViewUp[0],this->ViewUp[1],
-			    this->ViewUp[2],1.0);
-  
-  // now store the result
-  this->SetViewUp(this->Transform->GetDoublePoint());
+  this->Transform->TransformVector(this->ViewUp,temp);
+  this->SetViewUp(temp);
 
   this->Transform->Pop();
 }
