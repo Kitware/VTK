@@ -40,6 +40,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTestUtilities.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLImageDataReader.h"
 

@@ -16,14 +16,15 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       volProt.cxx
       MeshQuality.cxx
 #      TestHierarchicalBox.cxx
-#      TestHierarchicalBoxPipeline.cxx
-#      TestMultiBlock.cxx
+      TestHierarchicalBoxPipeline.cxx
+      TestMultiBlock.cxx
       )
   ENDIF (VTK_DATA_ROOT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                          EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
                          FUNCTION vtkSuppressCrtDbgWarning)
-  ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
+  ADD_EXECUTABLE(${KIT}CxxTests ${Tests} 
+    vtkTestHierarchicalDataReader.cxx vtkTestMultiBlockDataReader.cxx)
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
   SET (TestsToRun ${Tests})
   REMOVE (TestsToRun ${KIT}CxxTests.cxx)
