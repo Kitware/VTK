@@ -68,9 +68,9 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.16");
+vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.17");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.16");
+vtkCxxRevisionMacro(vtkMPIController, "1.17");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------
@@ -231,7 +231,6 @@ void vtkMPIController::InitializeCommunicator(vtkMPICommunicator* comm)
       this->Communicator->Register(this); 
       } 
 
-    vtkMPICommunicator* comm = (vtkMPICommunicator*)this->Communicator;
     if (comm && comm->Comm->Handle)
       {
       this->InitializeNumberOfProcesses();
