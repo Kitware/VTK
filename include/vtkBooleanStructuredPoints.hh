@@ -52,9 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPoints.hh"
 #include "vtkStructuredPointsCollection.hh"
 
-#define UNION_OPERATOR 0
-#define INTERSECTION_OPERATOR 1
-#define DIFFERENCE_OPERATOR 2
+#define VTK_UNION_OPERATOR 0
+#define VTK_INTERSECTION_OPERATOR 1
+#define VTK_DIFFERENCE_OPERATOR 2
 
 class vtkBooleanStructuredPoints : public vtkFilter
 {

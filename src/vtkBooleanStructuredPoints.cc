@@ -56,7 +56,7 @@ vtkBooleanStructuredPoints::vtkBooleanStructuredPoints()
   this->ModelBounds[4] = 0.0;
   this->ModelBounds[5] = 0.0;
 
-  this->OperationType = UNION_OPERATOR;
+  this->OperationType = VTK_UNION_OPERATOR;
   // this->Operator = this->Union;
   this->Output = new vtkStructuredPoints;
   this->Output->SetSource(this);
@@ -245,7 +245,7 @@ void vtkBooleanStructuredPoints::Append(vtkStructuredPoints *sp)
   // now perform operation on data
   switch (this->OperationType)
     {
-    case UNION_OPERATOR :
+    case VTK_UNION_OPERATOR :
       {
       // for each cell
       for (k = 0; k < this->SampleDimensions[2]; k++)
