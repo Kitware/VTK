@@ -25,7 +25,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOBBTree, "1.49");
+vtkCxxRevisionMacro(vtkOBBTree, "1.50");
 vtkStandardNewMacro(vtkOBBTree);
 
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
@@ -677,8 +677,8 @@ int vtkOBBTree::IntersectWithLine(const float p1[3], const float p2[3],
   char *senseList = new char[listMaxSize];
 
   float point[3];
-  float distance;
-  int sense;
+  float distance = 0;
+  int sense = 0;
   vtkIdType cellId;
 
   // compute line vector from p1 to p2

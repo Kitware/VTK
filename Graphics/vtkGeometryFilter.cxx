@@ -27,7 +27,7 @@
 #include "vtkPyramid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.86");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.87");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
@@ -557,8 +557,8 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   vtkIdType cellId;
   int i;
   int allVisible;
-  vtkIdType npts;
-  vtkIdType *pts;
+  vtkIdType npts = 0;
+  vtkIdType *pts = 0;
   vtkPoints *p = input->GetPoints();
   vtkIdType numCells=input->GetNumberOfCells();
   vtkPointData *pd = input->GetPointData();

@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkButtonSource, "1.3");
+vtkCxxRevisionMacro(vtkButtonSource, "1.4");
 vtkStandardNewMacro(vtkButtonSource);
 
 // Construct 
@@ -280,8 +280,11 @@ void vtkButtonSource::Execute()
       tcoords->SetTuple(i+numPts, tcoords->GetTuple(i));
       }
     //do the polygons
-    vtkIdType *pts, opts[4];
-    int npts, numPolys=newPolys->GetNumberOfCells();
+    vtkIdType *pts = 0;
+    vtkIdType opts[4];
+    
+    vtkIdType npts = 0;
+    int numPolys=newPolys->GetNumberOfCells();
     for ( j=0, newPolys->InitTraversal(); j < numPolys; j++ )
       {
       newPolys->GetNextCell(npts,pts);

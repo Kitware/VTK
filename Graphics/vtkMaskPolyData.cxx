@@ -18,7 +18,7 @@
 #include "vtkMaskPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMaskPolyData, "1.37");
+vtkCxxRevisionMacro(vtkMaskPolyData, "1.38");
 vtkStandardNewMacro(vtkMaskPolyData);
 
 vtkMaskPolyData::vtkMaskPolyData()
@@ -40,7 +40,8 @@ void vtkMaskPolyData::Execute()
   vtkIdType id, interval;
   vtkPointData *pd;
   vtkIdType numCells;
-  vtkIdType *pts, npts;
+  vtkIdType *pts = 0;
+  vtkIdType npts = 0;
   vtkPolyData *input= this->GetInput();
   vtkPolyData *output = this->GetOutput();
   

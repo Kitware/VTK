@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.17");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.18");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 //----------------------------------------------------------------------------
@@ -66,7 +66,8 @@ void vtkQuadricDecimation::Execute()
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType edgeId, i, newCellPts[3];
   int j;
-  vtkIdType *cellPts, numCellPts;
+  vtkIdType *cellPts = 0;
+  vtkIdType numCellPts;
   float cost, x[3];
   vtkPoints *targetPoints = vtkPoints::New();
   vtkPointData *targetPointData = vtkPointData::New();

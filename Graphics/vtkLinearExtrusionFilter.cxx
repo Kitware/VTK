@@ -18,7 +18,7 @@
 #include "vtkLinearExtrusionFilter.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLinearExtrusionFilter, "1.53");
+vtkCxxRevisionMacro(vtkLinearExtrusionFilter, "1.54");
 vtkStandardNewMacro(vtkLinearExtrusionFilter);
 
 // Create object with normal extrusion type, capping on, scale factor=1.0,
@@ -87,7 +87,9 @@ void vtkLinearExtrusionFilter::Execute()
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   vtkIdType inCellId, outCellId;
   int numEdges, dim;
-  vtkIdType *pts, npts, ptId, ncells, p1, p2;
+  vtkIdType *pts = 0;
+  vtkIdType npts = 0;
+  vtkIdType ptId, ncells, p1, p2;
   int i, j;
   float *x;
   vtkPoints *newPts;

@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkTriangularTCoords, "1.22");
+vtkCxxRevisionMacro(vtkTriangularTCoords, "1.23");
 vtkStandardNewMacro(vtkTriangularTCoords);
 
 void vtkTriangularTCoords::Execute()
@@ -34,7 +34,9 @@ void vtkTriangularTCoords::Execute()
   vtkIdType numNewPts, numNewPolys, polyAllocSize;
   vtkFloatArray *newTCoords;
   vtkIdType newId, numCells, cellId;
-  vtkIdType *pts, newIds[3], npts;
+  vtkIdType *pts = 0;
+  vtkIdType newIds[3];
+  vtkIdType npts = 0;;
   int errorLogging = 1;
   vtkPoints *newPoints;
   vtkCellArray *newPolys;

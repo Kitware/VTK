@@ -21,7 +21,7 @@
 #include "vtkAppendPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVoxelContoursToSurfaceFilter, "1.18");
+vtkCxxRevisionMacro(vtkVoxelContoursToSurfaceFilter, "1.19");
 vtkStandardNewMacro(vtkVoxelContoursToSurfaceFilter);
 
 vtkVoxelContoursToSurfaceFilter::vtkVoxelContoursToSurfaceFilter()
@@ -484,8 +484,8 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
   int                  i, j;
   int                  numberOfInputCells;
   int                  currentInputCellIndex;
-  vtkIdType            npts;
-  vtkIdType            *pts;
+  vtkIdType            npts = 0;
+  vtkIdType            *pts = 0;
   float                point1[3], point2[3];
   float                currentZ;
   vtkStructuredPoints  *volume;

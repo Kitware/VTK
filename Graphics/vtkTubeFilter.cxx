@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.59");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.60");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -58,7 +58,8 @@ void vtkTubeFilter::Execute()
   vtkFloatArray *newNormals;
   vtkCellArray *newStrips;
   int i1, i2, ptOffset=0;
-  vtkIdType *pts, npts;
+  vtkIdType *pts = 0;
+  vtkIdType npts = 0;
   float p[3], pNext[3];
   float maxSpeed = 0;
   float *n, normal[3], nP[3];

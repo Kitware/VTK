@@ -19,7 +19,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.15");
+vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.16");
 vtkStandardNewMacro(vtkExtractPolyDataGeometry);
 
 // Construct object with ExtractInside turned on.
@@ -109,7 +109,8 @@ void vtkExtractPolyDataGeometry::Execute()
   // with the verts, then lines, then polys, then strips.
   //
   int numIn;
-  vtkIdType npts, *pts;
+  vtkIdType npts = 0;
+  vtkIdType *pts = 0;
   if ( input->GetNumberOfVerts() )
     {
     inVerts = input->GetVerts();

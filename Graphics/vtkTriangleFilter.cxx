@@ -20,14 +20,17 @@
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTriangleFilter, "1.46");
+vtkCxxRevisionMacro(vtkTriangleFilter, "1.47");
 vtkStandardNewMacro(vtkTriangleFilter);
 
 void vtkTriangleFilter::Execute()
 {
   vtkPolyData *input = this->GetInput();
   vtkIdType numCells=input->GetNumberOfCells();
-  vtkIdType cellNum=0, numPts, newId, npts, *pts;
+  vtkIdType cellNum=0;
+  vtkIdType numPts, newId;
+  vtkIdType npts = 0;
+  vtkIdType *pts = 0;
   int i, j;
   vtkPolyData *output=this->GetOutput();
   vtkCellData *inCD=input->GetCellData();

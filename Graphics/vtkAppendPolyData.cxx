@@ -18,7 +18,7 @@
 #include "vtkAppendPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.88");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.89");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
@@ -124,7 +124,10 @@ void vtkAppendPolyData::Execute()
   vtkDataArray *newPtTCoords = NULL;
   vtkDataArray *newPtTensors = NULL;
   int i;
-  vtkIdType *pts, *pPolys, npts, ptId, cellId;
+  vtkIdType *pts = 0;
+  vtkIdType *pPolys;
+  vtkIdType npts = 0;
+  vtkIdType ptId, cellId;
   
   vtkDebugMacro(<<"Appending polydata");
 

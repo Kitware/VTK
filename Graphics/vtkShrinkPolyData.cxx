@@ -18,7 +18,7 @@
 #include "vtkShrinkPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkShrinkPolyData, "1.59");
+vtkCxxRevisionMacro(vtkShrinkPolyData, "1.60");
 vtkStandardNewMacro(vtkShrinkPolyData);
 
 vtkShrinkPolyData::vtkShrinkPolyData(float sf)
@@ -39,8 +39,9 @@ static void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self,
   vtkPointData *pd;
   vtkCellArray *inVerts,*inLines,*inPolys,*inStrips;
   vtkIdType numNewPts, numNewLines, numNewPolys, polyAllocSize;
-  vtkIdType npts;
-  vtkIdType *pts, newIds[3];
+  vtkIdType npts = 0;
+  vtkIdType *pts = 0;
+  vtkIdType newIds[3];
   vtkPoints *newPoints;
   T *p1, *p2, *p3;
   vtkPolyData *input = self->GetInput();

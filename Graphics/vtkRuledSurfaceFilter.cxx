@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.15");
+vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.16");
 vtkStandardNewMacro(vtkRuledSurfaceFilter);
 
 vtkRuledSurfaceFilter::vtkRuledSurfaceFilter()
@@ -50,7 +50,10 @@ void vtkRuledSurfaceFilter::Execute()
   vtkCellArray *inLines, *newPolys, *newStrips;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  vtkIdType *pts, *pts2, npts, npts2;
+  vtkIdType *pts = 0;
+  vtkIdType *pts2 = 0;
+  vtkIdType npts = 0;
+  vtkIdType npts2 = 0;
   vtkPointData *inPD=input->GetPointData(), *outPD=output->GetPointData();
 
   // Check input, pass data if requested

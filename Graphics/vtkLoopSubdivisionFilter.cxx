@@ -19,7 +19,7 @@
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.14");
+vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.15");
 vtkStandardNewMacro(vtkLoopSubdivisionFilter);
 
 static float LoopWeights[4] =
@@ -28,7 +28,7 @@ static float LoopWeights[4] =
 void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
 {
   float *weights;
-  vtkIdType *pts;
+  vtkIdType *pts = 0;
   vtkIdType numPts, cellId, newId;
   int edgeId;
   vtkIdType npts;

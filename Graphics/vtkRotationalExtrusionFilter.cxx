@@ -20,7 +20,7 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.44");
+vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.45");
 vtkStandardNewMacro(vtkRotationalExtrusionFilter);
 
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
@@ -44,7 +44,9 @@ void vtkRotationalExtrusionFilter::Execute()
   vtkPoints *inPts;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   int numEdges, dim;
-  vtkIdType *pts, npts, cellId, ptId, ncells;
+  vtkIdType *pts = 0;
+  vtkIdType npts = 0;
+  vtkIdType cellId, ptId, ncells;
   float *x, newX[3], radius, angleIncr, radIncr, transIncr;
   float psi, theta;
   vtkPoints *newPts;

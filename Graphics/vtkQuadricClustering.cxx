@@ -22,7 +22,7 @@
 #include "vtkFeatureEdges.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.41");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.42");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -281,7 +281,8 @@ void vtkQuadricClustering::AddTriangles(vtkCellArray *tris, vtkPoints *points,
 {
   int j;
   vtkIdType numCells, i;
-  vtkIdType *ptIds, numPts;
+  vtkIdType *ptIds = 0;
+  vtkIdType numPts = 0;
   float *pts[3];
   vtkIdType binIds[3];
   int odd;  // Used to flip order of every other triangle in a strip.
@@ -317,7 +318,8 @@ void vtkQuadricClustering::AddPolygons(vtkCellArray *polys, vtkPoints *points,
 {
   vtkIdType numCells, i;
   int j;
-  vtkIdType *ptIds, numPts;
+  vtkIdType *ptIds = 0;
+  vtkIdType numPts = 0;
   float **pts;
   vtkIdType binIds[3];
 
@@ -429,7 +431,8 @@ void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
 {
   int j;
   vtkIdType numCells, i;
-  vtkIdType *ptIds, numPts;
+  vtkIdType *ptIds = 0;
+  vtkIdType numPts = 0;
   float *pt0, *pt1;
   vtkIdType binIds[2];
 
@@ -566,7 +569,8 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
 {
   int j;
   vtkIdType numCells, i;
-  vtkIdType *ptIds, numPts;
+  vtkIdType *ptIds = 0;
+  vtkIdType numPts = 0;
   float *pt;
   vtkIdType binId;
 
@@ -1096,7 +1100,8 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input)
   float *pt;
   int j;
   vtkIdType numCells, i;
-  vtkIdType *ptIds, numPts;
+  vtkIdType *ptIds = 0;
+  vtkIdType numPts = 0;
   vtkIdType outPtId;
   vtkIdType binId, outCellId;
 
@@ -1206,7 +1211,8 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
 {
   vtkIdType i, pointIds[2];
   int j;
-  vtkIdType *cellPts, numCellPts;
+  vtkIdType *cellPts = 0;
+  vtkIdType numCellPts;
   vtkIdList *pointIdList = vtkIdList::New();
   vtkIdType numPts = edgePts->GetNumberOfPoints();
   vtkIdType numEdges = edges->GetNumberOfCells();
