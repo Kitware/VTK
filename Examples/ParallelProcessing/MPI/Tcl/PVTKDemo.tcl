@@ -86,5 +86,5 @@ tc StartInteractor
 
 # This has to be called to clean-up. If it is not called, MPI
 # will most probably complain at exit.
-controller Finalize
+vtkCommand DeleteAllObjects
 exit
