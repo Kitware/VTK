@@ -215,6 +215,8 @@ void vtkImageClip::ExecuteData(vtkDataObject *)
   vtkImageData *outData = this->GetOutput();
   vtkImageData *inData = this->GetInput();
   
+  vtkDebugMacro(<<"Executing image clip");
+
   inExt  = inData->GetExtent(); 
 
   outData->SetExtent(inExt);
