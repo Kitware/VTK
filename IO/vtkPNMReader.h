@@ -48,7 +48,7 @@ public:
   int CanReadFile(const char* fname); 
   // Description:
   // .pnm .pgm .ppm
-  virtual const char* GetFileExensions()
+  virtual const char* GetFileExtensions()
     {
       return ".pnm .pgm .ppm";
     }

@@ -46,7 +46,7 @@ public:
 
   // Description:
   // Valid extentsions
-  virtual const char* GetFileExensions()
+  virtual const char* GetFileExtensions()
     {
       return ".MR .CT";
     }

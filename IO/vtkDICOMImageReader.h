@@ -89,7 +89,7 @@ protected:
   //
   // What file extensions are supported?
   // 
-  virtual const char* GetFileExensions()
+  virtual const char* GetFileExtensions()
   {
     return ".dcm";
   }
