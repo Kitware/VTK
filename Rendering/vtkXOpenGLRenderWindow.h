@@ -157,6 +157,10 @@ public:
   void ShowCursor();
 
   // Description:
+  // Change the shape of the cursor
+  virtual void SetCurrentCursor(int);
+
+  // Description:
   // Check to see if a mouse button has been pressed.
   // All other events are ignored by this method.
   // This is a useful check to abort a long render.
@@ -196,6 +200,16 @@ protected:
   int      CursorHidden;
   int      ForceMakeCurrent;
 
+  // we must keep track of the cursors we are using
+  Cursor XCArrow;
+  Cursor XCSizeAll;
+  Cursor XCSizeNS;
+  Cursor XCSizeWE;
+  Cursor XCSizeNE;
+  Cursor XCSizeNW;
+  Cursor XCSizeSE;
+  Cursor XCSizeSW;
+  
 private:
   vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&);  // Not implemented.
   void operator=(const vtkXOpenGLRenderWindow&);  // Not implemented.

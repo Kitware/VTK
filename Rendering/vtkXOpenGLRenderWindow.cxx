@@ -86,7 +86,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.26");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.27");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -232,6 +232,15 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->OwnWindow = 0;
  
   this->Internal = new vtkXOpenGLRenderWindowInternal(this);
+
+  this->XCArrow =   0;
+  this->XCSizeAll = 0;
+  this->XCSizeNS =  0;
+  this->XCSizeWE =  0;
+  this->XCSizeNE =  0;
+  this->XCSizeNW =  0;
+  this->XCSizeSE =  0;
+  this->XCSizeSW =  0;
 }
 
 // free up memory & close the window
@@ -240,6 +249,41 @@ vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
   GLuint id;
   short cur_light;
   vtkOpenGLRenderer *ren;
+  
+  // free the cursors
+  XUndefineCursor(this->DisplayId,this->WindowId);
+  if (this->XCArrow)
+    {
+    XFreeCursor(this->DisplayId,this->XCArrow);
+    }
+  if (this->XCSizeAll)
+    {
+    XFreeCursor(this->DisplayId,this->XCSizeAll);
+    }
+  if (this->XCSizeNS)
+    {
+    XFreeCursor(this->DisplayId,this->XCSizeNS);
+    }
+  if (this->XCSizeWE)
+    {
+    XFreeCursor(this->DisplayId,this->XCSizeWE);
+    }
+  if (this->XCSizeNE)
+    {
+    XFreeCursor(this->DisplayId,this->XCSizeNE);
+    }
+  if (this->XCSizeNW)
+    {
+    XFreeCursor(this->DisplayId,this->XCSizeNW);
+    }
+  if (this->XCSizeSE)
+    {
+    XFreeCursor(this->DisplayId,this->XCSizeSE);
+    }
+  if (this->XCSizeSW)
+    {
+    XFreeCursor(this->DisplayId,this->XCSizeSW);
+    }
   
   // make sure we have been initialized 
   if (this->Internal->ContextId 
@@ -1289,3 +1333,80 @@ void *vtkXOpenGLRenderWindow::GetGenericWindowId()
   return (void *)this->WindowId;
 }
 
+#include <X11/cursorfont.h>
+void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
+{
+  this->Superclass::SetCurrentCursor(shape);
+
+  if (shape == VTK_CURSOR_DEFAULT)
+    {
+    XUndefineCursor(this->DisplayId,this->WindowId);
+    return;
+    }
+      
+  switch (shape)
+    {
+    case VTK_CURSOR_ARROW:
+      if (!this->XCArrow)
+        {
+        this->XCArrow = XCreateFontCursor(this->DisplayId, XC_top_left_arrow);
+        }
+      XDefineCursor(this->DisplayId, this->WindowId, this->XCArrow);
+      break;
+    case VTK_CURSOR_SIZEALL:
+      if (!this->XCSizeAll)
+        {
+        this->XCSizeAll = XCreateFontCursor(this->DisplayId, XC_fleur);
+        }
+      XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeAll);
+      break;
+    case VTK_CURSOR_SIZENS:
+      if (!this->XCSizeNS)
+        {
+        this->XCSizeNS = XCreateFontCursor(this->DisplayId,  
+                                           XC_sb_v_double_arrow);
+        }
+      XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeNS);
+      break;
+    case VTK_CURSOR_SIZEWE:
+      if (!this->XCSizeWE)
+        {
+        this->XCSizeWE = XCreateFontCursor(this->DisplayId, 
+                                           XC_sb_h_double_arrow);
+        }
+      XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeWE);
+      break;
+    case VTK_CURSOR_SIZENE:
+      if (!this->XCSizeNE)
+        {
+        this->XCSizeNE = XCreateFontCursor(this->DisplayId, 
+                                           XC_top_right_corner);
+        }
+      XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeNE);
+      break;
+    case VTK_CURSOR_SIZENW:
+      if (!this->XCSizeNW)
+        {
+        this->XCSizeNW = XCreateFontCursor(this->DisplayId, 
+                                           XC_top_left_corner);
+        }
+      XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeNW);
+      break;
+    case VTK_CURSOR_SIZESE:
+      if (!this->XCSizeSE)
+        {
+        this->XCSizeSE = XCreateFontCursor(this->DisplayId, 
+                                           XC_bottom_right_corner);
+        }
+      XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeSE);
+      break;
+    case VTK_CURSOR_SIZESW:
+      if (!this->XCSizeSW)
+        {
+        this->XCSizeSW = XCreateFontCursor(this->DisplayId, 
+                                           XC_bottom_left_corner);
+        }
+      XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeSW);
+      break;
+    }
+}
