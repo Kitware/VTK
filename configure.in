@@ -130,6 +130,28 @@ AC_SUBST(GRAPHICS_API_FLAGS)
 AC_SUBST(GRAPHICS_API_LIBS)
 
 
+##########################
+##			##
+##	MPI		##
+##			##
+##########################
+# check for mpi
+use_mpi=no
+AC_ARG_WITH(mpi,
+         [  --with-mpi           create the mpi specific controller],
+	 [use_mpi=yes])
+
+if test "$use_mpi" = "yes"; then
+	CONTROLLER_API_OBJ="\${MPI_OBJ}"
+	CONTROLLER_API_FLAGS="\${MPI_INCLUDE} -DVTK_USE_MPI"
+	CONTROLLER_API_LIBS="\${MPI_LIBS}"
+fi
+
+AC_SUBST(CONTROLLER_API_OBJ)
+AC_SUBST(CONTROLLER_API_FLAGS)
+AC_SUBST(CONTROLLER_API_LIBS)
+
+
 #
 # use shared libs
 #
