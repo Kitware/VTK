@@ -74,10 +74,13 @@ public:
 
   void AddLights(vtkLight *);
   void AddActors(vtkActor *);
+
   void RemoveLights(vtkLight *);
   void RemoveActors(vtkActor *);
+
   vtkLightCollection *GetLights();
   vtkActorCollection *GetActors();
+
   void SetActiveCamera(vtkCamera *);
   vtkCamera *GetActiveCamera();
   void SetVolumeRenderer(vtkVolumeRenderer *);
@@ -116,12 +119,17 @@ public:
 
   // Description:
   // Ask all actors to build and draw themselves.
+  // Returns the number of actors processed.
   virtual int UpdateActors(void) = 0;
 
   // Description:
+  // Ask the volumes to build and draw themselves.
+  // Returns the number of volumes processed.
+  virtual int UpdateVolumes(void) = 0;
+
+  // Description:
   // Ask the active camera to do whatever it needs to do prior to rendering.
-  // This method returns one if there was an active camera and it 
-  // was on. It returns zero otherwise.
+  // Creates a camera if none found active.
   virtual int UpdateCameras(void) = 0;
 
   // Description:
@@ -129,9 +137,18 @@ public:
   // This method will return the actual number of lights that were on.
   virtual int UpdateLights(void) = 0;
 
-  void DoCameras();
-  void DoLights();
-  void DoActors();
+  // Description:
+  // Returns the number of visible actors.
+  int VisibleActorCount();
+
+  // Description:
+  // Returns the number of visible volumes.
+  int VisibleVolumeCount();
+
+  // Description:
+  // Create and add a light to renderer.
+  void CreateLight(void);
+
   void ResetCamera();
   void ResetCamera(float bounds[6]);
 
@@ -184,6 +201,9 @@ public:
   void DisplayToWorld();
   void WorldToDisplay();
 
+  void UpdateViewRays();
+  float *GetViewRays();
+
   void SetStartRenderMethod(void (*f)(void *), void *arg);
   void SetEndRenderMethod(void (*f)(void *), void *arg);
   void SetStartRenderMethodArgDelete(void (*f)(void *));
@@ -192,10 +212,15 @@ public:
 protected:
   vtkVolumeRenderer *VolumeRenderer;
   vtkNewVolumeRenderer *NewVolumeRenderer;
+
   vtkCamera *ActiveCamera;
   vtkLight  *CreatedLight;
   vtkLightCollection Lights;
   vtkActorCollection Actors;
+
+  float *ViewRays;
+  int   ViewRaysSize[2];
+
   float Ambient[3];  
   float Background[3];  
   vtkRenderWindow *RenderWindow;

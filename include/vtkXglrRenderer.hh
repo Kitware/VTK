@@ -68,9 +68,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void Render(void);
+
   int UpdateActors(void);
+  int UpdateVolumes(void);
   int UpdateCameras(void);
   int UpdateLights(void);
+
   Xgl_3d_ctx *GetContext() {return &(this->Context);};
   Xgl_win_ras  *GetRaster() 
   {return ((vtkXglrRenderWindow *)(this->GetRenderWindow()))->GetRaster();};

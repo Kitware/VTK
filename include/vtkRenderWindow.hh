@@ -242,6 +242,11 @@ public:
   virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,int front) = 0;
 
   // Description:
+  // Set/Get the zbuffer data from the frame buffer.
+  virtual float *GetZbufferData(int x, int y, int x2, int y2) = 0;
+  virtual void SetZbufferData(int x, int y, int x2, int y2, float *) = 0;
+
+  // Description:
   // Set the number of frames for doing antialiasing. The default is
   // zero. Typically five or six will yield reasonable results without
   // taking too long.

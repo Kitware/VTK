@@ -78,12 +78,54 @@ int vtkGlrRenderer::UpdateActors()
 }
 
 // Description:
+// Ask volumes to render themselves.
+int vtkGlrRenderer::UpdateVolumes()
+{
+  int count = 0;
+//  int *size;
+
+  float *zdata = NULL;
+  unsigned char *cdata = NULL;
+
+  // Get the physical window dimensions
+//  size = this->RenderWindow->GetSize();
+
+  // Store the color and zbuffer data if geometry was rendered
+/***
+  zdata = this->RenderWindow->GetZbufferData( 0, 0, size[0]-1, size[1]-1 );
+  cdata = this->RenderWindow->GetPixelData( 0, 0, size[1]-1, size[1]-1, 0 );
+
+printf("Z: %f\n", *(zdata + size[0]*(size[1]/2) + size[0]/2 ) );
+***/
+
+  if (this->NewVolumeRenderer)
+    {
+    this->NewVolumeRenderer->Render((vtkRenderer *)this);
+    count++;
+    }
+
+  // Clean Up 
+  if( zdata )
+    free( zdata );
+  if( cdata )
+    free( cdata );
+
+  return count;
+}
+
+// Description:
 // Ask active camera to load its view matrix.
 int vtkGlrRenderer::UpdateCameras ()
 {
-  // update the viewing transformation 
-  if (!this->ActiveCamera) return 0;
-  
+  if (!this->ActiveCamera)
+    {
+    vtkDebugMacro(<< "No cameras are on, creating one.");
+    // the get method will automagically create a camera
+    // and reset it since one hasn't been specified yet
+    this->GetActiveCamera();
+    }
+
+  // update the viewing transformation   
   this->ActiveCamera->Render((vtkRenderer *)this);
   return 1;
 }
@@ -134,8 +176,30 @@ int vtkGlrRenderer::UpdateLights ()
   vtkLight *light;
   short curLight;
   float status;
-  int count = 0;
+  int count;
 
+  // Check if a light is on. If not then make a new light.
+  count = 0;
+  curLight= this->NumberOfLightsBound + LIGHT0;
+
+  for(this->Lights.InitTraversal(); 
+      (light = this->Lights.GetNextItem()); )
+    {
+    status = light->GetSwitch();
+    if ((status > 0.0)&& (curLight < (LIGHT0+MAX_LIGHTS)) )
+      {
+      curLight++;
+      count++;
+      }
+    }
+
+  if( !count )
+    {
+    vtkDebugMacro(<<"No lights are on, creating one.");
+    this->CreateLight();
+    }
+
+  count = 0;
   curLight= this->NumberOfLightsBound + LIGHT0;
 
   // set the matrix mode for lighting. ident matrix on viewing stack  
@@ -164,11 +228,14 @@ int vtkGlrRenderer::UpdateLights ()
   popmatrix();
   return count;
 }
- 
+
 // Description:
 // Concrete gl render method.
 void vtkGlrRenderer::Render(void)
 {
+  int  actor_count;
+  int  volume_count;
+
   if (this->StartRenderMethod) 
     {
     (*this->StartRenderMethod)(this->StartRenderMethodArg);
@@ -176,13 +243,16 @@ void vtkGlrRenderer::Render(void)
 
   // standard render method 
   this->ClearLights();
-  this->DoCameras();
-  this->DoLights();
-  this->DoActors();
 
-  if (this->NewVolumeRenderer)
+  this->UpdateCameras();  // Creates a camera if necessary
+  this->UpdateLights();   // Creates a light if necessary
+
+  actor_count = this->UpdateActors();
+  volume_count = this->UpdateVolumes();
+
+  if ( !(actor_count + volume_count) )
     {
-    this->NewVolumeRenderer->Render((vtkRenderer *)this);
+    vtkWarningMacro(<< "No actors or volumes are on.");
     }
 
   // clean up the model view matrix set up by the camera 

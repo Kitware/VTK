@@ -75,13 +75,35 @@ int vtkSbrRenderer::UpdateActors()
 }
 
 // Description:
+// Ask volumes to render themselves.
+int vtkSbrRenderer::UpdateVolumes()
+{
+  int count = 0;
+
+  if (this->NewVolumeRenderer)
+    {
+    this->NewVolumeRenderer->Render((vtkRenderer *)this);
+    count++;
+    }
+
+  return count;
+}
+
+// Description:
 // Ask active camera to load its view matrix.
 int vtkSbrRenderer::UpdateCameras ()
 {
   // update the viewing transformation 
-  if (!this->ActiveCamera) return 0;
+  if (!this->ActiveCamera)
+    {
+    vtkDebugMacro(<< "No cameras are on, creating one.");
+    // the get method will automagically create a camera
+    // and reset it since one hasn't been specified yet
+    this->GetActiveCamera();
+    }
   
   this->ActiveCamera->Render((vtkRenderer *)this);
+
   return 1;
 }
 
@@ -111,8 +133,30 @@ int vtkSbrRenderer::UpdateLights ()
   vtkLight *light;
   short cur_light;
   float status;
-  int count = 0;
+  int count;
 
+  // Check if a light is on. If not then make a new light.
+  count = 0;
+  cur_light= this->NumberOfLightsBound;
+
+  for(this->Lights.InitTraversal(); 
+      (light = this->Lights.GetNextItem()); )
+    {
+    status = light->GetSwitch();
+    if ((status > 0.0)&& (curLight < MAX_LIGHTS))
+      {
+      curLight++;
+      count++;
+      }
+    }
+
+  if( !count )
+    {
+    vtkDebugMacro(<<"No lights are on, creating one.");
+    this->CreateLight();
+    }
+
+  count = 0;
   cur_light= this->NumberOfLightsBound;
 
   for (this->Lights.InitTraversal(); (light = this->Lights.GetNextItem()); )
@@ -140,6 +184,9 @@ int vtkSbrRenderer::UpdateLights ()
 // Concrete starbase render method.
 void vtkSbrRenderer::Render(void)
 {
+  int  actor_count;
+  int  volume_count;
+
   vtkSbrRenderWindow *temp;
 
   if (this->StartRenderMethod) 
@@ -162,18 +209,21 @@ void vtkSbrRenderer::Render(void)
 
   // standard render method 
   this->ClearLights();
-  this->DoCameras();
-  this->DoLights();
-  this->DoActors();
+
+  this->UpdateCameras();
+  this->UpdateLights();
+
+  actor_count = this->UpdateActors();
+  volume_count = this->UpdateVolumes();
+
+  if ( !(actor_count + volume_count) )
+    {
+    vtkWarningMacro(<< "No actors or volumes are on.");
+    }
 
   if (this->VolumeRenderer)
     {
     this->VolumeRenderer->Render((vtkRenderer *)this);
-    }
-
-  if (this->NewVolumeRenderer)
-    {
-    this->NewVolumeRenderer->Render((vtkRenderer *)this);
     }
 
   if (this->EndRenderMethod) 

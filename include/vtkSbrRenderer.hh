@@ -62,9 +62,12 @@ public:
 
   void Render(void);
   void ClearLights(void);
+
   int UpdateActors(void);
   int UpdateCameras(void);
   int UpdateLights(void);
+  int UpdateVolumes(void);
+
   vtkGetMacro(Fd,int);
   vtkGetMacro(LightSwitch,int);
   vtkSetMacro(LightSwitch,int);

@@ -55,6 +55,10 @@ vtkRenderer::vtkRenderer()
 {
   this->ActiveCamera = NULL;
 
+  this->ViewRays = NULL;
+  this->ViewRaysSize[0] = 0;
+  this->ViewRaysSize[1] = 0;
+
   this->Ambient[0] = 1;
   this->Ambient[1] = 1;
   this->Ambient[2] = 1;
@@ -192,48 +196,13 @@ void vtkRenderer::RemoveActors(vtkActor *actor)
   this->Actors.RemoveItem(actor);
 }
 
-// Description:
-// Process the list of lights during the rendering process. If no lights are 
-// currently on or defined, then one will be generated automatically and
-// placed at the same location and direction as the active camera.
-void vtkRenderer::DoLights()
+void vtkRenderer::CreateLight(void)
 {
-  if (!this->UpdateLights())
-    {
-    vtkDebugMacro(<<"No lights are on, creating one.");
     this->CreatedLight = new vtkLight;
     this->SelfCreatedLight = 1;
     this->AddLights(this->CreatedLight);
     this->CreatedLight->SetPosition(this->ActiveCamera->GetPosition());
     this->CreatedLight->SetFocalPoint(this->ActiveCamera->GetFocalPoint());
-    this->UpdateLights();
-    }
-}
-
-// Description:
-// Process the list of cameras during the rendering process. If a camera 
-// hasn't been specified, then one is created and correctly positioned.
-void vtkRenderer::DoCameras()
-{
-  if (!this->UpdateCameras())
-    {
-    vtkDebugMacro(<< "No cameras are on, creating one.");
-    // the get method will automagically create a camera
-    // and reset it since one hasn't been specified yet
-    this->GetActiveCamera();
-    this->UpdateCameras();
-    }
-}
-
-
-// Description:
-// Process the list of actors during the rendering process.
-void vtkRenderer::DoActors()
-{
-  if (!this->UpdateActors())
-    {
-    vtkWarningMacro(<< "No actors are on.");
-    }
 }
 
 // Description:
@@ -516,6 +485,77 @@ int vtkRenderer::IsInViewport(int x,int y)
   return 0;
 }
 
+void vtkRenderer::UpdateViewRays()
+{
+  float xpos, ypos, zpos;
+  float xinc, yinc;
+  float *vr_ptr;
+  int   *size;
+
+  float mag;
+  float nx, ny, nz;
+
+  int   x, y;
+
+  // get physical window dimensions
+  size = this->RenderWindow->GetSize();
+
+  // Allocate viewing rays memory
+  if( (!this->ViewRays) ||
+      (size[0] != this->ViewRaysSize[0]) ||
+      (size[1] != this->ViewRaysSize[1]) )
+  {
+    if( this->ViewRays )
+      free( this->ViewRays );
+
+    this->ViewRaysSize[0] = size[0];
+    this->ViewRaysSize[1] = size[1];
+
+    this->ViewRays = new float[(size[0]*size[1]*3)];
+  }
+
+  // Loop through each pixel and compute viewing ray
+  vr_ptr = this->ViewRays;
+
+  xinc = 2.0/size[0];
+  yinc = 2.0/size[1];
+
+  ypos = -1.0;
+  zpos =  1.0;
+ 
+  nx = ny = nz = 0.0;
+
+  for( y=0; y<size[1]; y++ )
+  {
+    xpos = -1.0;
+    for( x=0; x<size[0]; x++ )
+    {
+      // Normalize view ray
+      mag = sqrt( (double)(xpos*xpos + ypos*ypos + zpos*zpos) );
+
+      if( mag != 0.0 )
+      {
+        nx = xpos/mag;
+        ny = ypos/mag;
+        nz = zpos/mag;
+      }
+
+      *(vr_ptr++) = nx;
+      *(vr_ptr++) = ny;
+      *(vr_ptr++) = nz;
+
+      xpos += xinc;
+    }
+    ypos += yinc;
+  }
+
+}
+
+float *vtkRenderer::GetViewRays()
+{
+  return( this->ViewRays );
+}
+
 
 // Description:
 // Specify a function to be called before rendering process begins.
@@ -622,3 +662,26 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+int vtkRenderer::VisibleActorCount()
+{
+  vtkActor *anActor;
+  int count = 0;
+
+  // loop through actors
+  for (this->Actors.InitTraversal(); (anActor = this->Actors.GetNextItem()); )
+    if (anActor->GetVisibility())
+      count++;
+
+  return count;
+}
+
+int vtkRenderer::VisibleVolumeCount()
+{
+  int count = 0;
+
+  if( this->NewVolumeRenderer )
+    count++;
+
+  return count;
+
+}

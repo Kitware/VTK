@@ -62,7 +62,9 @@ class vtkOglrRenderer : public vtkRenderer
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void ClearLights(void);
+
   int UpdateActors(void);
+  int UpdateVolumes(void);
   int UpdateCameras(void);
   int UpdateLights(void);
 

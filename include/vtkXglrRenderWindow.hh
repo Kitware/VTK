@@ -87,6 +87,11 @@ public:
   virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
   virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *, int front);
 
+  // Description:
+  // Set/Get the zbuffer data from an image
+  virtual float *GetZbufferData( int x1, int y1, int x2, int y2 );
+  virtual void SetZbufferData( int x1, int y1, int x2, int y2, float *buffer);
+
   // Xwindow stuff
   int      GetDesiredDepth();
   Colormap GetDesiredColormap();

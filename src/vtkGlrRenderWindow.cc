@@ -897,3 +897,169 @@ void vtkGlrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
       }
     }
 }
+
+void vtkGlrRenderWindow::SetZbufferData(int x1, int y1, int x2, int y2, 
+					float *f_z_data )
+{
+  int    y_low, y_hi;
+  int    x_low, x_hi;
+  int    width, height;
+  int    i;
+
+  long   z_min;
+  long   z_max;
+  long   z_range;
+  int    z_bits;
+
+  long   value;
+
+  long   *l_z_data = NULL;
+  long   *l_z_ptr;
+  float  *f_z_ptr;
+
+  // set the current window 
+  GLXwinset(this->DisplayId,this->WindowId);
+
+  if (y1 < y2)
+    {
+    y_low = y1;
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2;
+    y_hi  = y1;
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1;
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2;
+    x_hi  = x1;
+    }
+
+  width =  abs(x2 - x1)+1;
+  height = abs(y2 - y1)+1;
+
+  /* This assumes that no one has changed the zbuffer max and min */
+  /* using lsetdepth() */
+  z_min = getgdesc(GD_ZMIN);
+  z_max = getgdesc(GD_ZMAX);
+  z_range = z_max - z_min;
+  z_bits = getgdesc(GD_BITS_NORM_ZBUFFER);
+
+  l_z_data = new long[width*height];
+  l_z_ptr = l_z_data;
+  f_z_ptr = f_z_data;
+
+  // Convert float zbuffer values into integers
+  for( i=0; i<(width*height); i++ )
+  {
+    value = (long)(*(f_z_ptr++) * (double)z_range) + z_min;
+
+    // Sign bits might need to be cut off??
+
+    *(l_z_ptr++) = value;
+  }
+
+  // Write the converted data into the zbuffer
+  pixmode( PM_ZDATA, 1 );
+
+  lrectwrite( x1, y1, x2, y2, (unsigned long *)l_z_data );
+
+  pixmode( PM_ZDATA, 0 );
+
+  free( l_z_data );
+}
+
+float *vtkGlrRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2 )
+{
+  int    y_low, y_hi;
+  int    x_low, x_hi;
+  int    width, height;
+  float  *f_z_data = NULL;
+  long   *l_z_data = NULL;
+  float  *f_z_ptr;
+
+  long   value;
+  int    i;
+
+  double z_min;
+  double z_max;
+  double z_range;
+  int    z_bits;
+
+  // Set the current window 
+  GLXwinset(this->DisplayId,this->WindowId);
+
+  if (y1 < y2)
+    {
+    y_low = y1;
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2;
+    y_hi  = y1;
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1;
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2;
+    x_hi  = x1;
+    }
+
+  width =  abs(x2 - x1)+1;
+  height = abs(y2 - y1)+1;
+
+  f_z_data = new float[width*height];
+  l_z_data = (long *)f_z_data;
+
+  readsource( SRC_ZBUFFER );
+
+  lrectread( x_low, y_low, x_hi, y_hi, (unsigned long *)l_z_data );
+
+  /* This assumes that no one has changed the zbuffer max and min */
+  /* using lsetdepth() */
+  z_min = (double)getgdesc(GD_ZMIN);
+  z_max = (double)getgdesc(GD_ZMAX);
+  z_range = z_max - z_min;
+  z_bits = getgdesc(GD_BITS_NORM_ZBUFFER);
+
+  f_z_ptr = f_z_data;
+
+  for( i=0; i<(width*height);  i++ )
+  {
+    value = *(l_z_data++);
+
+    if( z_bits == 23 || z_bits == 24 )
+    {
+      /* Extend the sign bit if necessary */
+      if( value & 0x00800000 )
+        value = 0xff800000 | value;
+      else
+        value = 0x007fffff & value;
+    }
+
+    *(f_z_ptr++) = ((double)value - z_min)/z_range;
+  }
+
+  // Get the camera matrix and invert
+  // matrix = this->renderer->GetActiveCamera()->GetViewTransform();
+
+  // matrix.Invert();
+
+  // Loop through each pixel and convert to world coordinates
+
+  return ( f_z_data );
+}
+

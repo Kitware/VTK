@@ -1047,3 +1047,15 @@ int vtkXglrRenderWindow::GetRemapWindow(void)
   // even crystal eyes does not require a remap
   return 0;
 }
+
+float *vtkXglrRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
+{
+
+  return NULL ;
+}
+
+void vtkXglrRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
+                                          float *buffer )
+{
+
+}
