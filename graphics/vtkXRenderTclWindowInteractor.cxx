@@ -164,13 +164,51 @@ void vtkXRenderWindowInteractor::Initialize()
   this->Size[0] = size[0];
   this->Size[1] = size[1];
 
-  XSelectInput(this->DisplayId,this->WindowId,
-	       KeyPressMask | ButtonPressMask | ExposureMask |
-		    StructureNotifyMask | ButtonReleaseMask);
+  this->Enable();
 
-  // add in tcl init stuff
+  // Set the event handler
   Tk_CreateGenericHandler((Tk_GenericProc *)vtkTclEventProc,(ClientData)this);
 }
+
+
+void vtkXRenderWindowInteractor::Enable()
+{
+  // avoid cycles of calling Initialize() and Enable()
+  if (this->Enabled)
+    {
+    return;
+    }
+
+  // Select the events that we want to respond to
+  // (Multiple calls to XSelectInput overrides the previous settings)
+  XSelectInput(this->DisplayId,this->WindowId,
+	       KeyPressMask | ButtonPressMask | ExposureMask |
+	       StructureNotifyMask | ButtonReleaseMask);
+
+  this->Enabled = 1;
+
+  this->Modified();
+}
+
+void vtkXRenderWindowInteractor::Disable()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  
+  // Remove the all the events that we registered for EXCEPT for
+  // StructureNotifyMask event since we need to keep track of the window
+  // size (we will not render if we are disabled, we simply track the window
+  // size changes for a possible Enable()). Expose events are disabled.
+  // (Multiple calls to XSelectInput overrides the previous settings)
+  XSelectInput(this->DisplayId,this->WindowId,
+	       StructureNotifyMask );
+
+  this->Enabled = 0;
+  this->Modified();
+}
+
 
 void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -355,7 +393,11 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	// just getting the expose configure event
 	event = &result;
 	}
-      me->GetRenderWindow()->Render();
+      // only render if we are currently accepting events
+      if (me->GetEnabled())
+	{
+	me->GetRenderWindow()->Render();
+	}
       }
       break;
       
@@ -374,7 +416,11 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	me->UpdateSize(((XConfigureEvent *)event)->width,
 		       ((XConfigureEvent *)event)->height); 
 
-	me->GetRenderWindow()->Render(); 
+	// only render if we are currently accepting events
+	if (me->GetEnabled())
+	  {
+	  me->GetRenderWindow()->Render();
+	  }
 	}
       }
       break;

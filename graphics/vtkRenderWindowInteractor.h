@@ -154,7 +154,8 @@ public:
   // Description:
   // Prepare for handling events. This must be called before the
   // interactor will work.
-  virtual void Initialize() {this->Initialized=1;this->RenderWindow->Render();}
+  virtual void Initialize() {this->Initialized=1; this->Enable();
+                             this->RenderWindow->Render();}
 
   // Description:
   // Start the event loop. This is provided so that you do not have to
@@ -162,6 +163,18 @@ public:
   // event loop if you want. Initialize should be called before Start.
   virtual void Start() {};
 
+  // Description:
+  // Enable/Disable interactions.  By default interactors are enabled when
+  // initialized.  Initialize() must be called prior to enabling/disabling
+  // interaction. These methods are used when a window/widget is being
+  // shared by multiple renderers and interactors.  This allows a "modal"
+  // display where one interactor is active when its data is to be displayed
+  // and all other interactors associated with the widget are disabled
+  // when their data is not displayed.
+  virtual void Enable() { this->Enabled = 1; this->Modified();};
+  virtual void Disable() { this->Enabled = 0; this->Modified();};
+  vtkGetMacro(Enabled, int);
+  
   // Description:
   // Set/Get the rendering window being controlled by this object.
   void SetRenderWindow(vtkRenderWindow *aren);
@@ -405,6 +418,7 @@ protected:
   int   AnimationState;
   float FocalDepth;
   int   Initialized;
+  int   Enabled;
   float DesiredUpdateRate;
   float StillUpdateRate;
   int   EventPosition[2];

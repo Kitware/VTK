@@ -221,13 +221,61 @@ void vtkXRenderWindowInteractor::Initialize()
 
   this->WindowId = XtWindow(this->top);
   ren->Render();
+  this->Enable();
+  this->Size[0] = size[0];
+  this->Size[1] = size[1];
+}
+
+void vtkXRenderWindowInteractor::Enable()
+{
+  // avoid cycles of calling Initialize() and Enable()
+  if (this->Enabled)
+    {
+    return;
+    }
+
+  // Add the event handler to the system.
+  // If we change the types of events processed by this handler, then
+  // we need to change the Disable() routine to match.  In order for Disable()
+  // to work properly, both the callback function AND the client data
+  // passed to XtAddEventHandler and XtRemoveEventHandler must MATCH
+  // PERFECTLY
   XtAddEventHandler(this->top,
 		    KeyPressMask | ButtonPressMask | ExposureMask |
 		    StructureNotifyMask | ButtonReleaseMask,
 		    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
-  this->Size[0] = size[0];
-  this->Size[1] = size[1];
+  this->Enabled = 1;
+
+  this->Modified();
 }
+
+void vtkXRenderWindowInteractor::Disable()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  
+  // Remove the event handler to the system.
+  // If we change the types of events processed by this handler, then
+  // we need to change the Disable() routine to match.  In order for Disable()
+  // to work properly, both the callback function AND the client data
+  // passed to XtAddEventHandler and XtRemoveEventHandler must MATCH
+  // PERFECTLY.
+  //
+  // NOTE: we do not remove the StructureNotifyMask event since we need to
+  // keep track of the window size (we will not render if we are disabled,
+  // we simply track the window size changes for a possible Enable()).
+  // Expose events are disabled.
+  XtRemoveEventHandler(this->top,
+		    KeyPressMask | ButtonPressMask | ExposureMask |
+		    ButtonReleaseMask,
+                    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
+
+  this->Enabled = 0;
+  this->Modified();
+}
+
 
 void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -406,7 +454,11 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	// just getting the expose configure event
 	event = &result;
 	}
-      me->GetRenderWindow()->Render();
+      // only render if we are currently accepting events
+      if (me->GetEnabled())
+	{
+	me->GetRenderWindow()->Render();
+	}
       }
       break;
       
@@ -425,7 +477,11 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	me->UpdateSize(((XConfigureEvent *)event)->width,
 		       ((XConfigureEvent *)event)->height); 
 
-	me->GetRenderWindow()->Render(); 
+	// only render if we are currently accepting events
+	if (me->GetEnabled())
+	  {
+	  me->GetRenderWindow()->Render();
+	  }
 	}
       }
       break;
@@ -803,7 +859,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         }
       break;
     }
-}
+    }
 
 void vtkXRenderWindowInteractorTimer(XtPointer client_data,
 				     XtIntervalId *vtkNotUsed(id))

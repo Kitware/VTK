@@ -70,29 +70,8 @@ vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
 
 vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
 {
-  vtkWin32OpenGLRenderWindow *tmp;
-
-  // we need to release any hold we have on a windows event loop
-  if (this->WindowId)
-    {
-    vtkWin32OpenGLRenderWindow *ren;
-    ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
-    tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
-    // watch for odd conditions
-    if (tmp != ren)
-      {
-      // OK someone else has a hold on our event handler
-      // so lets have them handle this stuff
-      // well send a USER message to the other
-      // event handler so that it can properly
-      // call this event handler if required
-      this->OldProc(this->WindowId,WM_USER+14,28,(LONG)this->OldProc);
-      }
-    else
-      {
-      SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)this->OldProc);
-      }
-    }
+  // release any hold we have on the windows event loop
+  this->Disable();
 }
 
 void  vtkWin32RenderWindowInteractor::Start()
@@ -115,7 +94,6 @@ void vtkWin32RenderWindowInteractor::Initialize()
   int *size;
   int *position;
   int argc = 0;
-  vtkWin32OpenGLRenderWindow *tmp;
 
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow)
@@ -133,8 +111,28 @@ void vtkWin32RenderWindowInteractor::Initialize()
   size    = ren->GetSize();
   position= ren->GetPosition();
   this->WindowId = ren->GetWindowId();
+
+  this->Enable();
+
+  this->Size[0] = size[0];
+  this->Size[1] = size[1];
+}
+
+
+void vtkWin32RenderWindowInteractor::Enable()
+{
+  vtkWin32OpenGLRenderWindow *ren;
+  vtkWin32OpenGLRenderWindow *tmp;
+
+  if (this->Enabled)
+    {
+    return;
+    }
+  
+  // add our callback
+  ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
   this->OldProc = (WNDPROC)GetWindowLong(this->WindowId,GWL_WNDPROC);
-  tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
+  tmp=(vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
   // watch for odd conditions
   if (tmp != ren)
     {
@@ -149,11 +147,54 @@ void vtkWin32RenderWindowInteractor::Initialize()
     {
     SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)vtkHandleMessage);
     }
-  /* add callback */
 
+  // in case the size of the window has changed while we were away
+  int *size;
+  size = ren->GetSize();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
+  
+  this->Enabled = 1;
+  this->Modified();
 }
+
+
+void vtkWin32RenderWindowInteractor::Disable()
+{
+  vtkWin32OpenGLRenderWindow *tmp;
+
+
+  if (!this->Enabled)
+    {
+    return;
+    }
+  
+  // we need to release any hold we have on a windows event loop
+  if (this->WindowId)
+    {
+    vtkWin32OpenGLRenderWindow *ren;
+    ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
+    tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
+    // watch for odd conditions
+    if (tmp != ren)
+      {
+      // OK someone else has a hold on our event handler
+      // so lets have them handle this stuff
+      // well send a USER message to the other
+      // event handler so that it can properly
+      // call this event handler if required
+      this->OldProc(this->WindowId,WM_USER+14,28,(LONG)this->OldProc);
+      }
+    else
+      {
+      SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)this->OldProc);
+      }
+
+    this->Enabled = 0;
+    this->Modified();
+    }
+}
+
 
 void vtkWin32RenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -82,6 +82,17 @@ public:
   virtual void Initialize(XtAppContext app);
 
   // Description:
+  // Enable/Disable interactions.  By default interactors are enabled when
+  // initialized.  Initialize() must be called prior to enabling/disabling
+  // interaction. These methods are used when a window/widget is being
+  // shared by multiple renderers and interactors.  This allows a "modal"
+  // display where one interactor is active when its data is to be displayed
+  // and all other interactors associated with the widget are disabled
+  // when their data is not displayed.
+  virtual void Enable();
+  virtual void Disable();
+
+  // Description:
   // This will start up the X event loop and never return. If you
   // call this method it will loop processing X events until the
   // application is exited.
@@ -121,7 +132,8 @@ public:
   // window. You must use the SetWidget method to tell this Interactor
   // about that widget. It's X and it's not terribly easy, but it looks cool.
   virtual void SetWidget(Widget);
-
+  Widget GetWidget() {return this->top;};
+  
   // Description:
   // Finish setting up a new window after the WindowRemap.
   virtual void FinishSettingUpNewWindow();

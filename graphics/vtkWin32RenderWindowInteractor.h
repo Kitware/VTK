@@ -84,6 +84,17 @@ public:
   virtual void Initialize();
 
   // Description:
+  // Enable/Disable interactions.  By default interactors are enabled when
+  // initialized.  Initialize() must be called prior to enabling/disabling
+  // interaction. These methods are used when a window/widget is being
+  // shared by multiple renderers and interactors.  This allows a "modal"
+  // display where one interactor is active when its data is to be displayed
+  // and all other interactors associated with the widget are disabled
+  // when their data is not displayed.
+  virtual void Enable();
+  virtual void Disable();
+
+  // Description:
   // This will start up the event loop and never return. If you
   // call this method it will loop processing events until the
   // application is exited.
