@@ -261,16 +261,27 @@ void vtkMultiThreader::SingleMethodExecute()
 
   pthread_attr_t attr;
 
+#ifdef VTK_HP_PTHREADS
+  pthread_attr_create( &attr );
+#else  
   pthread_attr_init(&attr);
   pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
-
+#endif
+  
   for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
     {
     this->ThreadInfoArray[thread_loop].UserData    = this->SingleData;
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
+
+#ifdef VTK_HP_PTHREADS
     pthread_create( &(process_id[thread_loop]),
-		      &attr, this->SingleMethod,  
-		      ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+		    attr, this->SingleMethod,  
+		    ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+#else
+    pthread_create( &(process_id[thread_loop]),
+		    &attr, this->SingleMethod,  
+		    ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+#endif
     }
   
   // Now, the parent thread calls this->SingleMethod() itself
@@ -321,7 +332,7 @@ void vtkMultiThreader::MultipleMethodExecute()
 
 
   for ( thread_loop = 0; thread_loop < this->NumberOfThreads; thread_loop++ )
-    if ( this->MultipleMethod[thread_loop] == (void *)NULL)
+    if ( this->MultipleMethod[thread_loop] == (vtkThreadFunctionType)NULL)
       {
       vtkErrorMacro( << "No multiple method set for: " << thread_loop );
       return;
@@ -428,14 +439,30 @@ void vtkMultiThreader::MultipleMethodExecute()
   //
   // First, start up the this->NumberOfThreads-1 processes.  Keep track
   // of their process ids for use later in the pthread_join call
+
+  pthread_attr_t attr;
+
+#ifdef VTK_HP_PTHREADS
+  pthread_attr_create( &attr );
+#else  
+  pthread_attr_init(&attr);
+  pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
+#endif
+
   for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
     {
     this->ThreadInfoArray[thread_loop].UserData = 
       this->MultipleData[thread_loop];
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
+#ifdef VTK_HP_PTHREADS
     pthread_create( &(process_id[thread_loop]),
-		      NULL, this->MultipleMethod[thread_loop],  
-		      ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+		    attr, this->MultipleMethod[thread_loop],  
+		    ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+#else
+    pthread_create( &(process_id[thread_loop]),
+		    &attr, this->MultipleMethod[thread_loop],  
+		    ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+#endif
     }
   
   // Now, the parent thread calls the last method itself
