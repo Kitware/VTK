@@ -24,7 +24,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.82");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.83");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -844,7 +844,7 @@ void vtkPLOT3DReader::Execute()
         nthOutput->SetPointVisibilityArray(this->IBlankCache[i]);
         }
       }
- }
+    }
 
   // Now read the solution.
   if (this->QFileName && this->QFileName[0] != '\0')
