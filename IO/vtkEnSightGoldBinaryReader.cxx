@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.38");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.39");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -1024,9 +1024,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
     if (component == 0)
       {
       scalars = vtkFloatArray::New();
-      scalars->SetNumberOfTuples(numPts);
       scalars->SetNumberOfComponents(numberOfComponents);
-      scalars->Allocate(numPts * numberOfComponents);
+      scalars->SetNumberOfTuples(numPts);
       }
     else
       {
@@ -1297,9 +1296,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName,
     this->ReadLine(line); // "coordinates" or "block"
     output = this->GetOutput(partId);
     numPts = output->GetNumberOfPoints();
-    tensors->SetNumberOfTuples(numPts);
     tensors->SetNumberOfComponents(6);
-    tensors->Allocate(numPts*6);
+    tensors->SetNumberOfTuples(numPts);
     comp1 = new float[numPts];
     comp2 = new float[numPts];
     comp3 = new float[numPts];
@@ -1834,9 +1832,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
     output = this->GetOutput(partId);
     numCells = output->GetNumberOfCells();
     this->ReadLine(line); // element type or "block"
-    tensors->SetNumberOfTuples(numCells);
     tensors->SetNumberOfComponents(6);
-    tensors->Allocate(numCells*6);
+    tensors->SetNumberOfTuples(numCells);
     
     // need to find out from CellIds how many cells we have of this element
     // type (and what their ids are) -- IF THIS IS NOT A BLOCK SECTION
