@@ -78,7 +78,7 @@ ren1 AddActor glyphActor
 ren1 SetBackground 1 1 1
 renWin SetSize 450 450
 renWin Render
-[ren1 GetActiveCamera] Zoom 1.5
+[ren1 GetActiveCamera] Zoom 1.3
 
 # Get handles to some useful objects
 #
