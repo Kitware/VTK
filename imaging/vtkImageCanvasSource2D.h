@@ -91,7 +91,7 @@ public:
 
   // Description:
   // To drawing into a different image, set it with this method.
-  vtkSetObjectMacro(ImageData, vtkImageData);
+  void SetImageData(vtkImageData *image);
   vtkGetObjectMacro(ImageData, vtkImageData);
   
   // Description:
