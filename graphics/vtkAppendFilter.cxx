@@ -329,9 +329,9 @@ void vtkAppendFilter::Execute()
         newCellId = output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
         outputCD->CopyData(cd,cellId,newCellId);
         }
+      ptOffset+=numPts;
+      cellOffset+=numCells;
       }
-    ptOffset+=numPts;
-    cellOffset+=numCells;
     }
   
   //
