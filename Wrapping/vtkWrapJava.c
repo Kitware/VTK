@@ -791,6 +791,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   int i;
   
   fprintf(fp,"// java wrapper for %s object\n//\n",data->ClassName);
+  fprintf(fp,"#define VTK_WRAPPING_CXX\n");
   if (strcmp("vtkObject",data->ClassName) != 0)
     {
     /* Block inclusion of full streams.  */

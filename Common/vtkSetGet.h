@@ -685,7 +685,7 @@ virtual double *Get##name() \
 #if defined(VTK_LEGACY_REMOVE)
   // Remove legacy methods completely.
 # define VTK_LEGACY(method)
-#elif defined(VTK_LEGACY_SILENT)
+#elif defined(VTK_LEGACY_SILENT) || defined(VTK_WRAPPING_CXX)
   // Provide legacy methods with no warnings.
 # define VTK_LEGACY(method) method
 #else
