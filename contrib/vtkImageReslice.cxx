@@ -78,8 +78,7 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-static void ComputeIndexMatrix(vtkImageReslice *self, 
-			       vtkMatrix4x4 *matrix)
+void vtkImageReslice::ComputeIndexMatrix(vtkMatrix4x4 *matrix)
 {
   int i;
   float inOrigin[3];
@@ -87,18 +86,18 @@ static void ComputeIndexMatrix(vtkImageReslice *self,
   float outOrigin[3];
   float outSpacing[3];
 
-  self->GetInput()->GetSpacing(inSpacing);
-  self->GetInput()->GetOrigin(inOrigin);
-  self->GetOutput()->GetSpacing(outSpacing);
-  self->GetOutput()->GetOrigin(outOrigin);  
+  this->GetInput()->GetSpacing(inSpacing);
+  this->GetInput()->GetOrigin(inOrigin);
+  this->GetOutput()->GetSpacing(outSpacing);
+  this->GetOutput()->GetOrigin(outOrigin);  
   
   vtkTransform *transform = vtkTransform::New();
   vtkMatrix4x4 *inMatrix = vtkMatrix4x4::New();
   vtkMatrix4x4 *outMatrix = vtkMatrix4x4::New();
 
-  if (self->GetResliceTransform())
+  if (this->GetResliceTransform())
     {
-    transform->SetMatrix(self->GetResliceTransform()->GetMatrix());
+    transform->SetMatrix(this->GetResliceTransform()->GetMatrix());
     }
   
   // the outMatrix takes OutputData indices to OutputData coordinates,
@@ -135,7 +134,7 @@ void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6],
   double point[4],w;
 
   // break transform down (to match vtkImageResliceExecute)
-  ComputeIndexMatrix(this,matrix);
+  this->ComputeIndexMatrix(matrix);
   matrix->Transpose();
   xAxis = matrix->Element[0];
   yAxis = matrix->Element[1];
@@ -669,7 +668,7 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   
   // change transform matrix so that instead of taking 
   // input coords -> output coords it takes output indices -> input indices
-  ComputeIndexMatrix(self,matrix);
+  self->ComputeIndexMatrix(matrix);
   
   // break matrix into a set of axes plus an origin
   // (this allows us to calculate the transform Incrementally)

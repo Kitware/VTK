@@ -58,6 +58,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageFilter.h"
 #include "vtkTransform.h"
 
+class vtkMatrix4x4;
+
 class VTK_EXPORT vtkImageReslice : public vtkImageFilter
 {
 public:
@@ -91,6 +93,8 @@ public:
   vtkGetVector3Macro(OutputOrigin, float);
   vtkSetVectorMacro(OutputExtent, int, 6);
   vtkGetVectorMacro(OutputExtent, int, 6);
+
+  void ComputeIndexMatrix(vtkMatrix4x4 *matrix);
 
 protected:
   vtkTransform *ResliceTransform;
