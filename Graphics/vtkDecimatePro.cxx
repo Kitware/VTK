@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDecimatePro, "1.69");
+vtkCxxRevisionMacro(vtkDecimatePro, "1.69.4.1");
 vtkStandardNewMacro(vtkDecimatePro);
 
 #define VTK_TOLERANCE 1.0e-05
@@ -173,12 +173,29 @@ void vtkDecimatePro::Execute()
   this->TheSplitAngle = this->SplitAngle;
   this->SplitState = VTK_STATE_UNSPLIT;
 
+  // Lets check to make sure there are only triangles in the input.
+  vtkIdType *pPolys;
+  pPolys = input->GetPolys()->GetPointer();
+  for (i = 0; i < numTris; ++i)
+    {
+    if (*pPolys != 3)
+      {
+      vtkErrorMacro("DecimatePro does not accept polygons that are not triangles.");
+      output->CopyStructure(input);
+      output->GetPointData()->PassData(input->GetPointData());
+      output->GetCellData()->PassData(input->GetCellData());
+      return;
+      }
+    pPolys += 3;
+    }
+
   // Build cell data structure. Need to copy triangle connectivity data
   // so we can modify it.
   if ( this->TargetReduction > 0.0 )
     {
     inPts = input->GetPoints();
     inPolys = input->GetPolys();
+
     // this static should be eliminated
     if (this->Mesh != NULL) {this->Mesh->Delete(); this->Mesh = NULL;}
     this->Mesh = vtkPolyData::New();
