@@ -20,8 +20,8 @@ fft SetInput [reader GetOutput]
 vtkImageButterworthHighPass highPass
 highPass SetInput [fft GetOutput]
 highPass SetOrder 2
-highPass SetXCutOff 0.1
-highPass SetYCutOff 0.1
+highPass SetXCutOff 0.2
+highPass SetYCutOff 0.2
 highPass ReleaseDataFlagOff
 #highPass DebugOn
 

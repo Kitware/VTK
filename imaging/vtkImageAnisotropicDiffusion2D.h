@@ -63,7 +63,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include "vtkImageSpatialFilter.h"
-
 class VTK_EXPORT vtkImageAnisotropicDiffusion2D : public vtkImageSpatialFilter
 {
 public:
@@ -72,6 +71,7 @@ public:
   const char *GetClassName() {return "vtkImageAnisotropicDiffusion2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  void SetFilteredAxes(int a0, int a1);
   void SetNumberOfIterations(int num);
   // Description:
   // Get the number of iterations.

@@ -18,11 +18,10 @@ reader SetDataMask 0x7fff
 
 vtkImageViewer viewer
 viewer SetInput [reader GetOutput]
-viewer SetZSlice 22
+viewer SetZSlice 14
 viewer SetDisplayExtent 20 235 0 255
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
-viewer SetOriginLocationToUpperLeft
 #viewer DebugOn
 #viewer Render
 

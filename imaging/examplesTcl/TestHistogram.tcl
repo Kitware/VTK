@@ -3,8 +3,8 @@ catch {load vtktcl}
 
 
 set firstslice 1
-set slicenumber 0
-set numslices  10
+set slicenumber 22
+set numslices  93
 set xdim 256
 set ydim 256
 
@@ -33,12 +33,11 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 # Image pipeline
 
 vtkImageVolume16Reader reader
-	#reader DebugOn
-	#reader SetDataByteOrderToLittleEndian
-	reader SetDataDimensions $xdim $ydim $numslices 1
-	reader SetFilePrefix $prefix
-	reader SetDataMask 0x7fff
-	reader ReleaseDataFlagOff
+    reader ReleaseDataFlagOff
+    reader SetDataByteOrderToLittleEndian
+    reader SetDataDimensions 256 256 93
+    reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
+    reader SetDataMask 0x7fff
 
 vtkImageHistogram hist
 	#he DebugOn
@@ -50,22 +49,17 @@ vtkImageHistogram hist
 
 vtkImageViewer viewer
 	#viewer DebugOn
-	viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer SetInput [reader GetOutput]
 	viewer SetCoordinate2 $slicenumber
 	viewer SetColorWindow $window
 	viewer SetColorLevel $level
-	viewer SetXOffset $xdim
 	viewer Render
 
 vtkImageViewer viewer1
-	viewer1 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer1 SetInput [hist GetOutput]
 	viewer1 SetCoordinate2 $slicenumber
 	viewer1 SetColorWindow $window
 	viewer1 SetColorLevel $level
-	viewer1 SetXOffset 0
-	viewer1 SetWindow [viewer GetWindow]
 
 #make interface
 #

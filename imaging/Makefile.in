@@ -29,6 +29,9 @@ vtkImageTwoInputFilter \
 vtkImageTwoOutputFilter
 
 CONCRETE = \
+vtkImageAccumulate \
+vtkImageAnisotropicDiffusion2D \
+vtkImageAnisotropicDiffusion3D \
 vtkImageAppendComponents \
 vtkImageButterworthHighPass \
 vtkImageButterworthLowPass \

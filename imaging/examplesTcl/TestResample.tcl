@@ -28,7 +28,6 @@ viewer SetInput [magnify GetOutput]
 viewer SetZSlice 125
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
-viewer SetOriginLocationToUpperLeft
 
 
 # make interface

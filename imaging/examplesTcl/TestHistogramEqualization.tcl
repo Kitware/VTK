@@ -61,7 +61,6 @@ vtkImageHistogram hist2
 	hist2 ReleaseDataFlagOff
 
 vtkImageViewer viewer3
-	viewer3 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer3 SetInput [hist2 GetOutput]
 	viewer3 SetCoordinate2 $slicenumber
 	viewer3 SetColorWindow $window
@@ -72,7 +71,6 @@ vtkImageViewer viewer3
 
 vtkImageViewer viewer
 	#viewer DebugOn
-	viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer SetInput [reader GetOutput]
 	viewer SetCoordinate2 $slicenumber
 	viewer SetColorWindow $window
@@ -81,7 +79,6 @@ vtkImageViewer viewer
 	viewer SetWindow [viewer3 GetWindow]
 
 vtkImageViewer viewer1
-	viewer1 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer1 SetInput [histequal GetOutput]
 	viewer1 SetCoordinate2 $slicenumber
 	viewer1 SetColorWindow $window
@@ -90,7 +87,6 @@ vtkImageViewer viewer1
 	viewer1 SetWindow [viewer3 GetWindow]
 
 vtkImageViewer viewer2
-	viewer2 SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 	viewer2 SetInput [hist1 GetOutput]
 	viewer2 SetCoordinate2 $slicenumber
 	viewer2 SetColorWindow $window

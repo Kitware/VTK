@@ -160,7 +160,7 @@ void vtkImageSinusoidSource::Execute(vtkImageRegion *region)
       }
     
     *ptr = this->Amplitude * 
-      cos((6.2831853 * sum / this->Period) + this->Phase);
+      cos((6.2831853 * sum / this->Period) - this->Phase);
     
     ptr += inc;
     }

@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageAnisotropicDiffusion2D fitler.
 vtkImageAnisotropicDiffusion2D::vtkImageAnisotropicDiffusion2D()
 {
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   
-  this->HandleBoundariesOn();
+  this->HandleBoundaries = 1;
   this->SetNumberOfIterations(4);
   this->DiffusionThreshold = 5.0;
   this->DiffusionFactor = 1;
@@ -99,6 +99,17 @@ vtkImageAnisotropicDiffusion2D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+//----------------------------------------------------------------------------
+void vtkImageAnisotropicDiffusion2D::SetFilteredAxes(int a0, int a1)
+{
+  int axes[2];
+  
+  axes[0] = a0;
+  axes[1] = a1;
+  this->vtkImageFilter::SetFilteredAxes(2, axes);
+}
+
+  
 
 //----------------------------------------------------------------------------
 // Description:

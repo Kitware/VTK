@@ -183,12 +183,15 @@ static void vtkImageResample1DExecute(vtkImageResample1D *self,
 			      vtkImageRegion *outRegion, T *outPtr)
 {
   int outMin0, outMax0, outMin1, outMax1, inMin0, inMax0;
-  int outIdx0, outIdx1; 
+  int outIdx0, outIdx1, inIdx0; 
   int inInc0, inInc1, outInc0, outInc1;
   T *inPtr0, *inPtr1, *outPtr0, *outPtr1;
   float magFactor;
   float val, valStep, f, fStep;
 
+  // avoid warnings
+  val = valStep = f = fStep = 0.0;
+  
   // Get information to march through data 
   inRegion->GetIncrements(inInc0, inInc1);
   outRegion->GetIncrements(outInc0, outInc1);
@@ -203,6 +206,7 @@ static void vtkImageResample1DExecute(vtkImageResample1D *self,
   outPtr1 = outPtr;
   for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
     {
+    inIdx0 = inMin0;
     inPtr0 = inPtr1;
     outPtr0 = outPtr1;
     if (inMin0 == inMax0)
@@ -229,7 +233,7 @@ static void vtkImageResample1DExecute(vtkImageResample1D *self,
       
       // Update interpolation loop parameters.
       f += fStep;
-      if (f <= 1.0)
+      if (f <= 1.0 || inIdx0 >= inMax0)
 	{
 	val += valStep;
 	}
@@ -238,6 +242,7 @@ static void vtkImageResample1DExecute(vtkImageResample1D *self,
 	f -= 1.0;
 	// interpolate start value
 	inPtr0 += inInc0;
+	++inIdx0;
 	valStep = *(inPtr0+inInc0) - *inPtr0;
 	val = *inPtr0 + valStep * f;
 	// Compute how f changes and val changes for each iteration.
