@@ -41,8 +41,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkStreamLine.h"
 #include "vtkObjectFactory.h"
-
-
+#include "vtkPolyLine.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
 
 //------------------------------------------------------------------------------
 vtkStreamLine* vtkStreamLine::New()
@@ -77,6 +78,10 @@ void vtkStreamLine::Execute()
   int i, ptId, j, id;
   vtkIdList *pts;
   float tOffset, x[3], v[3], s, r;
+  float theta;
+  vtkPolyLine* lineNormalGenerator;
+  vtkNormals* normals;
+  vtkFloatArray* rotation = 0;
   vtkPolyData *output=this->GetOutput();
 
   this->SavePointInterval = this->StepLength;
@@ -90,9 +95,19 @@ void vtkStreamLine::Execute()
   //  Convert streamer into lines. Lines may be dashed.
   //
   newPts  = vtkPoints::New();
-  newPts ->Allocate(1000);
+  newPts->Allocate(1000);
   newVectors  = vtkVectors::New();
-  newVectors ->Allocate(1000);
+  newVectors->Allocate(1000);
+  if ( this->Vorticity )
+    {
+    lineNormalGenerator = vtkPolyLine::New();
+    normals = vtkNormals::New();
+    normals->Allocate(1000);
+    rotation = vtkFloatArray::New();
+    rotation->SetNumberOfComponents(1);
+    rotation->Allocate(1000);
+    }
+
   if ( this->GetInput()->GetPointData()->GetScalars() || this->SpeedScalars )
     {
     newScalars = vtkScalars::New();
@@ -147,6 +162,14 @@ void vtkStreamLine::Execute()
           s = sPrev->s + r * (sPtr->s - sPrev->s);
           newScalars->InsertScalar(id,s);
           }
+	
+	if ( this->Vorticity )
+	  {
+	  // Store the rotation values. Used after all the streamlines
+	  // are generated.
+	  theta = sPrev->theta + r * (sPtr->theta - sPrev->theta);
+	  rotation->InsertTuple(id, &theta);
+	  }
 
         tOffset += this->StepLength;
 
@@ -159,12 +182,44 @@ void vtkStreamLine::Execute()
       pts->Reset();
       }
     } //for all streamers
-  //
-  // Update ourselves
-  //
+
   vtkDebugMacro(<<"Created " << newPts->GetNumberOfPoints() << " points, "
                << newLines->GetNumberOfCells() << " lines");
 
+  if (this->Vorticity)
+    {
+    // Rotate the normal vectors with stream vorticity
+    int nPts=newPts->GetNumberOfPoints();
+    float normal[3], local1[3], local2[3], length, costheta, sintheta;
+
+    lineNormalGenerator->GenerateSlidingNormals(newPts,newLines,normals);
+    
+    for(i=0; i<nPts; i++)
+      {
+      normals->GetNormal(i, normal);
+      newVectors->GetVector(i, v);
+      // obtain two unit orthogonal vectors on the plane perpendicular to
+      // the streamline
+      for(j=0; j<3; j++) { local1[j] = normal[j]; }
+      length = vtkMath::Normalize(local1);
+      vtkMath::Cross(local1, v, local2);
+      vtkMath::Normalize(local2);
+      // Rotate the normal with theta
+      rotation->GetTuple(i, &theta);
+      costheta = cos(theta);
+      sintheta = sin(theta);
+      for(j=0; j<3; j++)
+	{
+	normal[j] = length* (costheta*local1[j] + sintheta*local2[j]);
+	}
+      normals->SetNormal(i, normal);
+      }
+    output->GetPointData()->SetNormals(normals);
+    normals->Delete();
+    lineNormalGenerator->Delete();
+    rotation->Delete();
+    }
+    
   output->SetPoints(newPts);
   newPts->Delete();
 
@@ -180,7 +235,7 @@ void vtkStreamLine::Execute()
   pts->Delete();
   output->SetLines(newLines);
   newLines->Delete();
-
+  
   output->Squeeze();
 }
 

@@ -87,17 +87,17 @@ class vtkMultiThreader;
 #define VTK_INTEGRATE_BOTH_DIRECTIONS 2
 
 typedef struct _vtkStreamPoint {
-    float   x[3];    // position 
-    int     cellId;  // cell
-    int     subId;   // cell sub id
-    float   p[3];    // parametric coords in cell 
-    float   v[3];    // velocity 
-    float   speed;   // velocity norm 
-    float   s;       // scalar value 
-    float   t;       // time travelled so far 
-    float   d;       // distance travelled so far 
-    float   w[3];    // vorticity (if vorticity is computed)
-    float   n[3];    // normal (if vorticity is computed)
+  float   x[3];    // position 
+  int     cellId;  // cell
+  int     subId;   // cell sub id
+  float   p[3];    // parametric coords in cell 
+  float   v[3];    // velocity 
+  float   speed;   // velocity norm 
+  float   s;       // scalar value 
+  float   t;       // time travelled so far 
+  float   d;       // distance travelled so far 
+  float   omega;   // stream vorticity, if computed
+  float   theta;    // rotation angle, if vorticity is computed
 } vtkStreamPoint;
 
 //
@@ -204,8 +204,8 @@ public:
 
   // Description:
   // Specify a nominal integration step size (expressed as a fraction of
-  // the size of each cell).
-  vtkSetClampMacro(IntegrationStepLength,float,0,0.5);
+  // the size of each cell). This value can be larger than 1.
+  vtkSetClampMacro(IntegrationStepLength,float,0.0000001,VTK_LARGE_FLOAT);
   vtkGetMacro(IntegrationStepLength,float);
 
   // Description:
@@ -304,6 +304,9 @@ protected:
   // Prototype showing the integrator type to be set by the user.
   vtkInitialValueProblemSolver* Integrator;
 
+  // Interval with which the stream points will be stored.
+  // Useful in reducing the memory footprint. Since the initial
+  // value is small, by default, it will store all/most points.
   float SavePointInterval;
 
   void InitializeThreadedIntegrate();
