@@ -36,16 +36,6 @@ public:
   static vtkImageAppendComponents *New();
   vtkTypeRevisionMacro(vtkImageAppendComponents,vtkImageMultipleInputFilter);
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // Do not use these: They are for legacy compatibility back when this was a
-  // two input filter.
-  virtual void SetInput1(vtkImageData *input)
-    {VTK_LEGACY_METHOD(SetInput,"3.2"); this->SetInput(0, input);}
-  virtual void SetInput2(vtkImageData *input)
-    {VTK_LEGACY_METHOD(SetInput,"3.2"); this->SetInput(1, input);}
-#endif
-  
 protected:
   vtkImageAppendComponents() {};
   ~vtkImageAppendComponents() {};
