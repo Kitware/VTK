@@ -14,6 +14,36 @@ July 14, 1999 - Added modification by Ken Martin for VTK 2.4, to
                 use vtk widgets instead of Togl.
 Aug 29, 1999  - Renamed file to vtkRenderWidget.py
 Nov 14, 1999  - Added support for keyword 'rw'
+Mar 23, 2000  - Extensive but backwards compatible changes,
+                improved documentation
+"""
+
+"""
+A few important notes:
+
+This class is meant to be used as a base-class widget for
+doing VTK rendering in Python.
+
+In VTK (and C++) there is a very important distinction between
+public ivars (attributes in pythonspeak), protected ivars, and
+private ivars.  When you write a python class that you want
+to 'look and feel' like a VTK class, you should follow these rules.
+
+1) Attributes should never be public.  Attributes should always be
+   either protected (prefixed with a single underscore) or private
+   (prefixed with a double underscore).  You can provide access to
+   attributes through public Set/Get methods (same as VTK).
+
+2) Use a single underscore to denote a protected attribute, e.g.
+   self._RenderWindow is protected (can be accessed from this
+   class or a derived class).
+
+3) Use a double underscore to denote a private attribute, e.g.
+   self.__InExpose cannot be accessed outside of this class.
+
+All attributes should be 'declared' in the __init__() function
+i.e. set to some initial value.  Don't forget that 'None' means
+'NULL' - the python/vtk wrappers guarantee their equivalence.
 """
 
 import Tkinter
@@ -41,32 +71,54 @@ class vtkTkRenderWidget(Tkinter.Widget):
             master.tk.call('load','vtkTkRenderWidget')
 
         try: # check to see if a render window was specified
-            self.__RenderWindow = kw['rw']
+            renderWindow = kw['rw']
         except KeyError:
-            self.__RenderWindow = vtkRenderWindow()
+            renderWindow = vtkRenderWindow()
 
         try:  # was a stereo rendering context requested?
             if kw['stereo']:
-	       self.__RenderWindow.StereoCapableWindowOn()
+	       renderWindow.StereoCapableWindowOn()
                del kw['stereo']
 	except KeyError:
             pass
  
-        kw['rw'] = self.__RenderWindow.GetAddressAsString("vtkRenderWindow")
+        kw['rw'] = renderWindow.GetAddressAsString("vtkRenderWindow")
         Tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
 
-        # initialize some global variables        
+        # initialize some variables
+        self._RenderWindow = renderWindow
+        
+        self._CurrentRenderer = None
+        self._CurrentCamera = None
+        self._CurrentZoom = 1.0
+        self._CurrentLight = None
+
+        self._ViewportCenterX = 0
+        self._ViewportCenterY = 0
+        
+        self._Picker = vtkCellPicker()
+        self._PickedAssembly = None
+        self._PickedProperty = vtkProperty()
+        self._PickedProperty.SetColor(1,0,0)
+        self._PrePickedProperty = None
+        
+        self._OldFocus = None
+
+        # these record the previous mouse position
+        self._LastX = 0
+        self._LastY = 0
+
+        # private attributes
         self.__InExpose = 0
-        self.__CurrentRenderer = None
-        self.__PickedAssembly = None
-        self.__ActorPicker = vtkCellPicker()
-        self.__PickedProperty = vtkProperty()
-        self.__PickedProperty.SetColor(1,0,0)
-        self.__PrePickedProperty = None
-  
+        self.__FirstRender = 1
+
+        # create the Tk bindings
         self.BindTkRenderWidget()
 
     def BindTkRenderWidget(self):
+        """
+        Bind some default actions.
+        """
         self.bind("<ButtonPress>",
                   lambda e,s=self: s.StartMotion(e.x,e.y))
         self.bind("<ButtonRelease>",
@@ -96,178 +148,201 @@ class vtkTkRenderWidget(Tkinter.Widget):
         self.bind("<Expose>",
                   lambda e,s=self: s.Expose())
 
+    def GetZoomFactor(self):
+        return self._CurrentZoom
+
     def GetRenderWindow(self):
-        return self.__RenderWindow
+        return self._RenderWindow
 
     def GetPicker(self):
-        return self.__ActorPicker
+        return self._Picker
 
     def Expose(self):
-        if (self.__InExpose == 0):
+        if (not self.__InExpose):
             self.__InExpose = 1
             self.update()
-            self.__RenderWindow.Render()
+            self._RenderWindow.Render()
             self.__InExpose = 0
 
     def Render(self):
-        self.__CurrentLight.SetPosition(self.__CurrentCamera.GetPosition())
-        self.__CurrentLight.SetFocalPoint(self.__CurrentCamera.GetFocalPoint())
-        self.__RenderWindow.Render()
+        if (self.__FirstRender):
+            renderers = self._RenderWindow.GetRenderers()
+            renderers.InitTraversal()
+            for i in xrange(0,renderers.GetNumberOfItems()):
+                renderers.GetNextItem().ResetCamera()
+            self.__FirstRender = 0
+        
+        if (self._CurrentLight):
+            light = self._CurrentLight
+            light.SetPosition(self._CurrentCamera.GetPosition())
+            light.SetFocalPoint(self._CurrentCamera.GetFocalPoint())
+
+        self._RenderWindow.Render()
 
     def UpdateRenderer(self,x,y):
+        """
+        UpdateRenderer will identify the renderer under the mouse and set
+        up _CurrentRenderer, _CurrentCamera, and _CurrentLight.
+        """
         windowX = self.winfo_width()
         windowY = self.winfo_height()
 
-        renderers = self.__RenderWindow.GetRenderers()
+        renderers = self._RenderWindow.GetRenderers()
         numRenderers = renderers.GetNumberOfItems()
 
+        self._CurrentRenderer = None
         renderers.InitTraversal()
         for i in range(0,numRenderers):
             renderer = renderers.GetNextItem()
-            vx = float(x)/windowX
-            vy = (windowY-float(x))/windowY
+            vx,vy = (0,0)
+            if (windowX > 1):
+                vx = float(x)/(windowX-1)
+            if (windowY > 1):
+                vy = (windowY-float(y)-1)/(windowY-1)
             (vpxmin,vpymin,vpxmax,vpymax) = renderer.GetViewport()
+            
             if (vx >= vpxmin and vx <= vpxmax and
                 vy >= vpymin and vy <= vpymax):
-                self.__RendererFound = 1
-                self.__CurrentRenderer = renderer
-                self.__WindowCenterX = float(windowX)*(vpxmax-vpxmin)/2.0\
-                                       +vpxmin
-                self.__WindowCenterY = float(windowY)*(vpymax-vpymin)/2.0\
-                                       +vpymin
-                self.__CurrentCamera = self.__CurrentRenderer.GetActiveCamera()
-                lights = self.__CurrentRenderer.GetLights()
+                self._CurrentRenderer = renderer
+                self._ViewportCenterX = float(windowX)*(vpxmax-vpxmin)/2.0\
+                                        +vpxmin
+                self._ViewportCenterY = float(windowY)*(vpymax-vpymin)/2.0\
+                                        +vpymin
+                self._CurrentCamera = self._CurrentRenderer.GetActiveCamera()
+                lights = self._CurrentRenderer.GetLights()
                 lights.InitTraversal()
-                self.__CurrentLight = lights.GetNextItem()
-
+                self._CurrentLight = lights.GetNextItem()
                 break
 
-        self.__LastX = x
-        self.__LastY = y
+        self._LastX = x
+        self._LastY = y
 
     def GetCurrentRenderer(self):
-        return self.__CurrentRenderer
+        return self._CurrentRenderer
                 
     def Enter(self,x,y):
-        self.__OldFocus=self.focus_get()
+        self._OldFocus=self.focus_get()
         self.focus()
         self.UpdateRenderer(x,y)
 
     def Leave(self,x,y):
-        if (self.__OldFocus != None):
-            self.__OldFocus.focus()
+        if (self._OldFocus != None):
+            self._OldFocus.focus()
 
     def StartMotion(self,x,y):
         self.UpdateRenderer(x,y)
-        if self.__RendererFound:
-            self.__RenderWindow.SetDesiredUpdateRate(1.0)
+        if self._CurrentRenderer:
+            self._RenderWindow.SetDesiredUpdateRate(1.0)
 
     def EndMotion(self,x,y):
-        if self.__RendererFound:
-            self.__RenderWindow.SetDesiredUpdateRate(0.1)
+        if self._CurrentRenderer:
+            self._RenderWindow.SetDesiredUpdateRate(0.1)
             self.Render()
 
     def Rotate(self,x,y):
-        if self.__RendererFound:
+        if self._CurrentRenderer:
             
-            self.__CurrentCamera.Azimuth(self.__LastX - x)
-            self.__CurrentCamera.Elevation(y - self.__LastY)
-            self.__CurrentCamera.OrthogonalizeViewUp()
+            self._CurrentCamera.Azimuth(self._LastX - x)
+            self._CurrentCamera.Elevation(y - self._LastY)
+            self._CurrentCamera.OrthogonalizeViewUp()
             
-            self.__LastX = x
-            self.__LastY = y
+            self._LastX = x
+            self._LastY = y
             
+            self._CurrentRenderer.ResetCameraClippingRange()
             self.Render()
 
     def Pan(self,x,y):
-        if self.__RendererFound:
+        if self._CurrentRenderer:
             
-            renderer = self.__CurrentRenderer
-            camera = self.__CurrentCamera
-
+            renderer = self._CurrentRenderer
+            camera = self._CurrentCamera
             (fPoint0,fPoint1,fPoint2) = camera.GetFocalPoint()
             (pPoint0,pPoint1,pPoint2) = camera.GetPosition()
 
-            # Specify a point location in world coordinates
-            renderer.SetWorldPoint(fPoint0,fPoint1,fPoint2,1.0)
-            renderer.WorldToDisplay()
-            # Convert world point coordinates to display coordinates
-            dPoint = renderer.GetDisplayPoint()
-            focalDepth = dPoint[2]
+            if (camera.GetParallelProjection()):
+                renderer.SetWorldPoint(fPoint0,fPoint1,fPoint2,1.0)
+                renderer.WorldToDisplay()
+                fx,fy,fz = renderer.GetDisplayPoint()
+                renderer.SetDisplayPoint(fx-x+self._LastX,
+                                         fy+y-self._LastY,
+                                         fz)
+                renderer.DisplayToWorld()
+                fx,fy,fz,fw = renderer.GetWorldPoint()
+                camera.SetFocalPoint(fx,fy,fz)
+                
+                renderer.SetWorldPoint(pPoint0,pPoint1,pPoint2,1.0)
+                renderer.WorldToDisplay()
+                fx,fy,fz = renderer.GetDisplayPoint()
+                renderer.SetDisplayPoint(fx-x+self._LastX,
+                                         fy+y-self._LastY,
+                                         fz)
+                renderer.DisplayToWorld()
+                fx,fy,fz,fw = renderer.GetWorldPoint()
+                camera.SetPosition(fx,fy,fz)
+                
+            else:
+                # Specify a point location in world coordinates
+                renderer.SetWorldPoint(fPoint0,fPoint1,fPoint2,1.0)
+                renderer.WorldToDisplay()
+                # Convert world point coordinates to display coordinates
+                dPoint = renderer.GetDisplayPoint()
+                focalDepth = dPoint[2]
+                
+                aPoint0 = self._ViewportCenterX + (x - self._LastX)
+                aPoint1 = self._ViewportCenterY - (y - self._LastY)
+                
+                renderer.SetDisplayPoint(aPoint0,aPoint1,focalDepth)
+                renderer.DisplayToWorld()
+                
+                (rPoint0,rPoint1,rPoint2,rPoint3) = renderer.GetWorldPoint()
+                if (rPoint3 != 0.0):
+                    rPoint0 = rPoint0/rPoint3
+                    rPoint1 = rPoint1/rPoint3
+                    rPoint2 = rPoint2/rPoint3
 
-            aPoint0 = self.__WindowCenterX + (x - self.__LastX)
-            aPoint1 = self.__WindowCenterY - (y - self.__LastY)
+                camera.SetFocalPoint((fPoint0 - rPoint0) + fPoint0, 
+                                     (fPoint1 - rPoint1) + fPoint1,
+                                     (fPoint2 - rPoint2) + fPoint2) 
+                
+                camera.SetPosition((fPoint0 - rPoint0) + pPoint0, 
+                                   (fPoint1 - rPoint1) + pPoint1,
+                                   (fPoint2 - rPoint2) + pPoint2)
 
-            renderer.SetDisplayPoint(aPoint0,aPoint1,focalDepth)
-            renderer.DisplayToWorld()
-
-            (rPoint0,rPoint1,rPoint2,rPoint3) = renderer.GetWorldPoint()
-            if (rPoint3 != 0.0):
-                rPoint0 = rPoint0/rPoint3
-                rPoint1 = rPoint1/rPoint3
-                rPoint2 = rPoint2/rPoint3
-
-            camera.SetFocalPoint((fPoint0 - rPoint0)/2.0 + fPoint0, 
-                                 (fPoint1 - rPoint1)/2.0 + fPoint1,
-                                 (fPoint2 - rPoint2)/2.0 + fPoint2) 
-
-            camera.SetPosition((fPoint0 - rPoint0)/2.0 + pPoint0, 
-                               (fPoint1 - rPoint1)/2.0 + pPoint1,
-                               (fPoint2 - rPoint2)/2.0 + pPoint2)
-
-            self.__LastX = x
-            self.__LastY = y
+            self._LastX = x
+            self._LastY = y
 
             self.Render()
 
     def Zoom(self,x,y):
-        if self.__RendererFound:
+        if self._CurrentRenderer:
 
-            renderer = self.__CurrentRenderer
-            camera = self.__CurrentCamera
+            renderer = self._CurrentRenderer
+            camera = self._CurrentCamera
 
-            zoomFactor = math.pow(1.02,(0.5*(y - self.__LastY)))
+            zoomFactor = math.pow(1.02,(0.5*(self._LastY - y)))
+            self._CurrentZoom = self._CurrentZoom * zoomFactor
 
             if camera.GetParallelProjection():
-                parallelScale = camera.GetParallelScale() * zoomFactor
+                parallelScale = camera.GetParallelScale()/zoomFactor
                 camera.SetParallelScale(parallelScale)
             else:
                 camera.Dolly(zoomFactor)
                 renderer.ResetCameraClippingRange()
 
-            self.__LastX = x
-            self.__LastY = y
+            self._LastX = x
+            self._LastY = y
 
             self.Render()
 
     def Reset(self,x,y):
-        windowX = self.winfo_width()
-        windowY = self.winfo_height()
-
-        renderers = self.__RenderWindow.GetRenderers()
-        numRenderers = renderers.GetNumberOfItems()
-
-        renderers.InitTraversal()
-        for i in range(0,numRenderers):
-            renderer = renderers.GetNextItem()
-            vx = float(x)/windowX
-            vy = (windowY-float(x))/windowY
-            (vpxmin,vpymin,vpxmax,vpymax) = renderer.GetViewport()
-            if (vx >= vpxmin and vy <= vpxmax and
-                vy >= vpymin and vy <= vpymax):
-                self.__RendererFound = 1
-                self.__CurrentRenderer = renderer
-                windowCenterX = float(windowX)*(vpxmax-vpxmin)/2.0+vpxmin
-                windowCenterY = float(windowY)*(vpymax-vpymin)/2.0+vpymin
-                break
-
-        if self.__RendererFound:
-            self.__CurrentRenderer.ResetCamera()
-
+        if self._CurrentRenderer:
+            self._CurrentRenderer.ResetCamera()
+            
         self.Render()
 
     def Wireframe(self):
-        actors = self.__CurrentRenderer.GetActors()
+        actors = self._CurrentRenderer.GetActors()
         numActors = actors.GetNumberOfItems()
         actors.InitTraversal()
         for i in range(0,numActors):
@@ -277,7 +352,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
         self.Render()
         
     def Surface(self):
-        actors = self.__CurrentRenderer.GetActors()
+        actors = self._CurrentRenderer.GetActors()
         numActors = actors.GetNumberOfItems()
         actors.InitTraversal()
         for i in range(0,numActors):
@@ -287,33 +362,61 @@ class vtkTkRenderWidget(Tkinter.Widget):
         self.Render()
 
     def PickActor(self,x,y):
-        if self.__RendererFound:
+        if self._CurrentRenderer:
 
-            renderer = self.__CurrentRenderer
-            actorPicker = self.__ActorPicker
+            renderer = self._CurrentRenderer
+            picker = self._Picker
             
             windowY = self.winfo_height()
-            actorPicker.Pick(x,(windowY - y - 1),0.0,renderer)
-            assembly = actorPicker.GetAssembly()
+            picker.Pick(x,(windowY - y - 1),0.0,renderer)
+            assembly = picker.GetAssembly()
 
-            if (self.__PickedAssembly != None and
-                self.__PrePickedProperty != None):
-                self.__PickedAssembly.SetProperty(self.__PrePickedProperty)
+            if (self._PickedAssembly != None and
+                self._PrePickedProperty != None):
+                self._PickedAssembly.SetProperty(self._PrePickedProperty)
                 # release hold of the property
-                self.__PrePickedProperty.UnRegister(self.__PrePickedProperty)
-                self.__PrePickedProperty = None
+                self._PrePickedProperty.UnRegister(self._PrePickedProperty)
+                self._PrePickedProperty = None
 
             if (assembly != None):
-                self.__PickedAssembly = assembly
-                self.__PrePickedProperty = self.__PickedAssembly.GetProperty()
+                self._PickedAssembly = assembly
+                self._PrePickedProperty = self._PickedAssembly.GetProperty()
                 # hold onto the property
-                self.__PrePickedProperty.Register(self.__PrePickedProperty)
-                self.__PickedAssembly.SetProperty(self.__PickedProperty)
+                self._PrePickedProperty.Register(self._PrePickedProperty)
+                self._PickedAssembly.SetProperty(self._PickedProperty)
 
             self.Render()
     
 #support both names
 vtkRenderWidget = vtkTkRenderWidget
 
+# example of how to use the vtkTkRenderWidget:
+if __name__ == "__main__":
 
+    # create root window
+    root = Tk()
+
+    # create vtkTkRenderWidget
+    pane = vtkTkRenderWidget(root,width=300,height=300)
+
+    ren = vtkRenderer()
+    renWin = pane.GetRenderWindow()
+    renWin.AddRenderer(ren)
+
+    cone = vtkConeSource()
+    cone.SetResolution(8)
+    
+    coneMapper = vtkPolyDataMapper()
+    coneMapper.SetInput(cone.GetOutput())
+    
+    coneActor = vtkActor()
+    coneActor.SetMapper(coneMapper)
+
+    ren.AddActor(coneActor)
+
+    # pack the pane into the tk root
+    pane.pack()
+
+    # start the tk mainloop
+    root.mainloop()
 
