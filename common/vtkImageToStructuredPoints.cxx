@@ -49,12 +49,7 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 {
   int idx;
   
-  for (idx = 0; idx < 3; ++idx)
-    {
-    this->Extent[idx*2] = -VTK_LARGE_INTEGER;
-    this->Extent[idx*2+1] = VTK_LARGE_INTEGER;
-    }
-
+  this->Translate[0] = this->Translate[1] = this->Translate[2] = 0;
   this->SetOutput(0,vtkStructuredPoints::New());
 }
 
@@ -71,9 +66,6 @@ void vtkImageToStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkSource::PrintSelf(os,indent);
 
-  os << indent << "Extent: (" << this->Extent[0] << ", " << this->Extent[1] 
-     << ", " << this->Extent[2] << ", " << this->Extent[3] 
-     << ", " << this->Extent[4] << ", " << this->Extent[5] << ")\n";
 }
 
 //----------------------------------------------------------------------------
@@ -124,53 +116,12 @@ vtkImageData *vtkImageToStructuredPoints::GetVectorInput()
 
 
 
-//----------------------------------------------------------------------------
-void vtkImageToStructuredPoints::SetExtent(int num, int *extent)
-{
-  int idx, modified = 0;
-
-  if (num > 3)
-    {
-    vtkWarningMacro(<< "SetExtent: " << num << "is to large.");
-    num = 3;
-    }
-  for (idx = 0; idx < num*2; ++idx)
-    {
-    if (this->Extent[idx] != extent[idx])
-      {
-      this->Extent[idx] = extent[idx];
-      modified = 1;
-      }
-    }
-  if (modified)
-    {
-    this->Modified();
-    }
-}
-//----------------------------------------------------------------------------
-void vtkImageToStructuredPoints::GetExtent(int num, int *extent)
-{
-  int idx;
-
-  if (num > 3)
-    {
-    vtkWarningMacro(<< "GetExtent: Requesting too large");
-    num = 3;
-    }
-  
-  for (idx = 0; idx < num*2; ++idx)
-    {
-    extent[idx] = this->Extent[idx];
-    }
-  
-}  
-
-
 
 //----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::Execute()
 {
-  int *uExtent, *wExtent;
+  int uExtent[6];
+  int *wExtent;
 
   int idxX, idxY, idxZ, maxX, maxY, maxZ;
   int inIncX, inIncY, inIncZ, rowLength;
@@ -186,8 +137,15 @@ void vtkImageToStructuredPoints::Execute()
     return;
     }
 
-  uExtent = output->GetUpdateExtent();
+  output->GetUpdateExtent(uExtent);
   output->SetExtent(uExtent);
+
+  uExtent[0] += this->Translate[0];
+  uExtent[1] += this->Translate[0];
+  uExtent[2] += this->Translate[1];
+  uExtent[3] += this->Translate[1];
+  uExtent[4] += this->Translate[2];
+  uExtent[5] += this->Translate[2];
   
   // if the data extent matches the update extent then just pass the data
   // otherwise we must reformat and copy the data
@@ -282,7 +240,7 @@ void vtkImageToStructuredPoints::ExecuteInformation()
   vtkImageData *vInput = this->GetVectorInput();
   vtkStructuredPoints *output = this->GetOutput();
   int whole[6], *tmp;
-  float *spacing, *origin;
+  float *spacing, origin[3];
   
   if (output == NULL || input == NULL)
     {
@@ -304,18 +262,21 @@ void vtkImageToStructuredPoints::ExecuteInformation()
     if (tmp[3] < whole[1]) {whole[3] = tmp[3];}
     if (tmp[5] < whole[1]) {whole[5] = tmp[5];}
     }
-  // I would like to get rid of the clip feature of image to structured points.
-  // (now that structured points implements UpdateExtents).
-  if (this->Extent[0] > whole[0]) {whole[0] = this->Extent[0];}
-  if (this->Extent[2] > whole[2]) {whole[2] = this->Extent[2];}
-  if (this->Extent[4] > whole[4]) {whole[4] = this->Extent[4];}
-  if (this->Extent[1] < whole[1]) {whole[1] = this->Extent[1];}
-  if (this->Extent[3] < whole[3]) {whole[3] = this->Extent[3];}
-  if (this->Extent[5] < whole[5]) {whole[5] = this->Extent[5];}
-  
   spacing = input->GetSpacing();
-  origin = input->GetOrigin();
+  input->GetOrigin(origin);
   
+  // slide min extent to 0,0,0 (I Hate this !!!!)
+  this->Translate[0] = whole[0];
+  this->Translate[1] = whole[2];
+  this->Translate[2] = whole[4];
+  
+  origin[0] += spacing[0] * whole[0];
+  origin[1] += spacing[1] * whole[2];
+  origin[2] += spacing[2] * whole[4];
+  whole[1] -= whole[0];
+  whole[3] -= whole[2];
+  whole[5] -= whole[4];
+  whole[0] = whole[2] = whole[4];
   
   output->SetWholeExtent(whole);
   // Now should Origin and Spacing really be part of information?
@@ -328,18 +289,27 @@ void vtkImageToStructuredPoints::ExecuteInformation()
 int vtkImageToStructuredPoints::ComputeInputUpdateExtents(vtkDataObject *data)
 {
   vtkStructuredPoints *output = (vtkStructuredPoints*)data;
+  int ext[6];
   vtkImageData *input;
+  
+  output->GetUpdateExtent(ext);
+  ext[0] += this->Translate[0];
+  ext[1] += this->Translate[0];
+  ext[2] += this->Translate[1];
+  ext[3] += this->Translate[1];
+  ext[4] += this->Translate[2];
+  ext[5] += this->Translate[2];
   
   input = this->GetInput();
   if (input)
     {
-    input->SetUpdateExtent(output->GetUpdateExtent());
+    input->SetUpdateExtent(ext);
     }
 
   input = this->GetVectorInput();
   if (input)
     {
-    input->SetUpdateExtent(output->GetUpdateExtent());
+    input->SetUpdateExtent(ext);
     }
   
   return 1;

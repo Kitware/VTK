@@ -77,17 +77,13 @@ public:
   vtkImageData *GetVectorInput();
 
   // Description:
-  // Set/Get the extent to translate explicitely.
-  void SetExtent(int dim, int *extent);
-  void GetExtent(int dim, int *extent);
-
-  // Description:
   // Get the output of this source.
   vtkStructuredPoints *GetOutput();
   
 protected:
-  int Extent[6];
-
+  // to translate the wholeExtent to have min 0 ( I do not like this hack).
+  int Translate[3];
+  
   void Execute();
   void ExecuteInformation();
   int ComputeInputUpdateExtents(vtkDataObject *data);
