@@ -28,7 +28,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.3");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.4");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -346,6 +346,10 @@ void vtkBoxWidget::SetInteractor(vtkRenderWindowInteractor *i)
                    this->Priority);
     i->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->WidgetCallbackCommand,
                    this->Priority);
+    i->AddObserver(vtkCommand::MiddleButtonPressEvent, this->WidgetCallbackCommand,
+                   this->Priority);
+    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, this->WidgetCallbackCommand,
+                   this->Priority);
     i->AddObserver(vtkCommand::RightButtonPressEvent, this->WidgetCallbackCommand,
                    this->Priority);
     i->AddObserver(vtkCommand::RightButtonReleaseEvent, this->WidgetCallbackCommand,
@@ -381,6 +385,12 @@ void vtkBoxWidget::ProcessEvents(vtkObject* object, unsigned long event,
       break;
     case vtkCommand::LeftButtonReleaseEvent:
       self->OnLeftButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      break;
+    case vtkCommand::MiddleButtonPressEvent:
+      self->OnMiddleButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      break;
+    case vtkCommand::MiddleButtonReleaseEvent:
+      self->OnMiddleButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
       break;
     case vtkCommand::RightButtonPressEvent:
       self->OnRightButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
@@ -534,8 +544,7 @@ void vtkBoxWidget::HighlightOutline(int highlight)
     }
 }
 
-void vtkBoxWidget::OnLeftButtonDown (int ctrl, int shift, 
-                                                   int X, int Y)
+void vtkBoxWidget::OnLeftButtonDown (int ctrl, int shift, int X, int Y)
 {
   if ( this->Mode == vtk3DWidget::WidgetOff )
     {
@@ -586,6 +595,153 @@ void vtkBoxWidget::OnLeftButtonDown (int ctrl, int shift,
 
   this->OldX = X;
   this->OldY = Y;
+}
+
+void vtkBoxWidget::OnLeftButtonUp (int ctrl, int shift, int X, int Y)
+{
+  // See whether we're active
+  if ( this->Mode == vtk3DWidget::WidgetOff || this->State == vtk3DWidget::Outside )
+    {
+    if ( this->State == vtk3DWidget::Outside )
+      {
+      this->State = vtk3DWidget::Start;
+      }
+    return;
+    }
+
+  this->State = vtk3DWidget::Start;
+  this->HighlightFace(this->HighlightHandle(NULL));
+
+  this->WidgetCallbackCommand->SetAbortFlag(1);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->Interactor->Render();
+  
+}
+
+void vtkBoxWidget::OnMiddleButtonDown (int ctrl, int shift, int X, int Y)
+{
+  if ( this->Mode == vtk3DWidget::WidgetOff )
+    {
+    return;
+    }
+
+  this->State = vtk3DWidget::Moving;
+
+  // Okay, we can process this. Try to pick handles first;
+  // if no handles picked, then pick the bounding box.
+  vtkAssemblyPath *path;
+  this->Interactor->FindPokedRenderer(X,Y);
+  this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
+  path = this->HandlePicker->GetPath();
+  if ( path != NULL )
+    {
+    this->CurrentHandle = this->Handle[6];
+    this->HighlightOutline(1);
+    }
+  else
+    {
+    this->HexPicker->Pick(X,Y,0.0,this->CurrentRenderer);
+    path = this->HexPicker->GetPath();
+    if ( path != NULL )
+      {
+      this->CurrentHandle = this->Handle[6];
+      this->HighlightOutline(1);
+      }
+    else
+      {
+      this->HighlightFace(this->HighlightHandle(NULL));
+      this->State = vtk3DWidget::Outside;
+      return;
+      }
+    }
+  
+  this->WidgetCallbackCommand->SetAbortFlag(1);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->Interactor->Render();
+
+  this->OldX = X;
+  this->OldY = Y;
+}
+
+void vtkBoxWidget::OnMiddleButtonUp (int ctrl, int shift, int X, int Y)
+{
+  // See whether we're active
+  if ( this->Mode == vtk3DWidget::WidgetOff || this->State == vtk3DWidget::Outside )
+    {
+    if ( this->State == vtk3DWidget::Outside )
+      {
+      this->State = vtk3DWidget::Start;
+      }
+    return;
+    }
+
+  this->State = vtk3DWidget::Start;
+  this->HighlightFace(this->HighlightHandle(NULL));
+
+  this->WidgetCallbackCommand->SetAbortFlag(1);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->Interactor->Render();
+  
+}
+
+void vtkBoxWidget::OnRightButtonDown (int ctrl, int shift, int X, int Y)
+{
+  // See whether we're active
+  if ( this->Mode == vtk3DWidget::WidgetOff )
+    {
+    return;
+    }
+
+  this->State = vtk3DWidget::Scaling;
+
+  // Okay, we can process this. Try to pick handles first;
+  // if no handles picked, then pick the bounding box.
+  vtkAssemblyPath *path;
+  this->Interactor->FindPokedRenderer(X,Y);
+  this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
+  path = this->HandlePicker->GetPath();
+  if ( path == NULL )
+    {
+    this->HexPicker->Pick(X,Y,0.0,this->CurrentRenderer);
+    path = this->HexPicker->GetPath();
+    if ( path == NULL )
+      {
+      this->State = vtk3DWidget::Outside;
+      this->HighlightOutline(0);
+      return;
+      }
+    else
+      {
+      this->HighlightOutline(1);
+      }
+    }
+  
+  this->WidgetCallbackCommand->SetAbortFlag(1);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->Interactor->Render();
+  
+  this->OldX = X;
+  this->OldY = Y;
+}
+
+void vtkBoxWidget::OnRightButtonUp (int ctrl, int shift, int X, int Y)
+{
+  // See whether we're active
+  if ( this->Mode == vtk3DWidget::WidgetOff || this->State == vtk3DWidget::Outside )
+    {
+    if ( this->State == vtk3DWidget::Outside )
+      {
+      this->State = vtk3DWidget::Start;
+      }
+    return;
+    }
+
+  this->State = vtk3DWidget::Start;
+  this->HighlightOutline(0);
+  
+  this->WidgetCallbackCommand->SetAbortFlag(1);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->Interactor->Render();
 }
 
 void vtkBoxWidget::OnMouseMove (int ctrl, int shift, int X, int Y)
@@ -673,87 +829,6 @@ void vtkBoxWidget::OnMouseMove (int ctrl, int shift, int X, int Y)
   this->Interactor->Render();
   this->OldX = X;
   this->OldY = Y;
-}
-
-void vtkBoxWidget::OnLeftButtonUp (int ctrl, int shift, int X, int Y)
-{
-  // See whether we're active
-  if ( this->Mode == vtk3DWidget::WidgetOff || this->State == vtk3DWidget::Outside )
-    {
-    if ( this->State == vtk3DWidget::Outside )
-      {
-      this->State = vtk3DWidget::Start;
-      }
-    return;
-    }
-
-  this->State = vtk3DWidget::Start;
-  this->HighlightFace(this->HighlightHandle(NULL));
-
-  this->WidgetCallbackCommand->SetAbortFlag(1);
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
-  this->Interactor->Render();
-  
-}
-
-void vtkBoxWidget::OnRightButtonDown (int ctrl, int shift, int X, int Y)
-{
-  // See whether we're active
-  if ( this->Mode == vtk3DWidget::WidgetOff )
-    {
-    return;
-    }
-
-  this->State = vtk3DWidget::Scaling;
-
-  // Okay, we can process this. Try to pick handles first;
-  // if no handles picked, then pick the bounding box.
-  vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
-  this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
-  path = this->HandlePicker->GetPath();
-  if ( path == NULL )
-    {
-    this->HexPicker->Pick(X,Y,0.0,this->CurrentRenderer);
-    path = this->HexPicker->GetPath();
-    if ( path == NULL )
-      {
-      this->State = vtk3DWidget::Outside;
-      this->HighlightOutline(0);
-      return;
-      }
-    else
-      {
-      this->HighlightOutline(1);
-      }
-    }
-  
-  this->WidgetCallbackCommand->SetAbortFlag(1);
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
-  this->Interactor->Render();
-  
-  this->OldX = X;
-  this->OldY = Y;
-}
-
-void vtkBoxWidget::OnRightButtonUp (int ctrl, int shift, int X, int Y)
-{
-  // See whether we're active
-  if ( this->Mode == vtk3DWidget::WidgetOff || this->State == vtk3DWidget::Outside )
-    {
-    if ( this->State == vtk3DWidget::Outside )
-      {
-      this->State = vtk3DWidget::Start;
-      }
-    return;
-    }
-
-  this->State = vtk3DWidget::Start;
-  this->HighlightOutline(0);
-  
-  this->WidgetCallbackCommand->SetAbortFlag(1);
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
-  this->Interactor->Render();
 }
 
 void vtkBoxWidget::MoveFace(double *p1, double *p2,
