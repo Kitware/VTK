@@ -80,7 +80,7 @@ vtkObject.cxx
 vtkObjectFactory.cxx
 vtkObjectFactoryCollection.cxx
 vtkOldStyleCallbackCommand.cxx
-vtkOrderedTriangulator
+vtkOrderedTriangulator.cxx
 vtkOutputWindow.cxx
 vtkOverrideInformation.cxx
 vtkOverrideInformationCollection.cxx
