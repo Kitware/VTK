@@ -157,7 +157,8 @@ void vtkHashTable::DeleteHashEntry(void *key)
 char *vtkPythonManglePointer(void *ptr, const char *type)
 {
   static char ptrText[128];
-  sprintf(ptrText,"_%0*.*lx_%s",sizeof(void *),sizeof(void *),ptr,type);
+  sprintf(ptrText,"_%*.*lx_%s",(int)sizeof(void *),(int)sizeof(void *),
+	  ptr,type);
   return ptrText;
 }
 
@@ -178,11 +179,6 @@ void *vtkPythonUnmanglePointer(char *ptrText, int *len, const char *type)
     else if (i == 2)
       { // mangled pointer of wrong type
       *len = -1;
-      return NULL;
-      }
-    else
-      { // malformed
-      *len = -2;
       return NULL;
       }
     }
