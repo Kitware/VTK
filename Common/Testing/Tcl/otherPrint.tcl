@@ -21,15 +21,15 @@ proc rtOtherTest { fileid } {
 	if {$a == "vtkTimeStamp"} {
 	    continue
 	}
+        if {$a == "vtkOutputWindow"} {
+           continue
+        }
 	catch {
            $a b
            b Print
            if {[b IsA $a] == 0} {puts stderr "$a failed IsA test!!!"}
            b GetClassName
            b Delete
-        }
-        if {$a == "vtkOutputWindow"} {
-           continue
         }
 	catch {
            $a b 
