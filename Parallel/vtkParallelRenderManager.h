@@ -299,6 +299,7 @@ protected:
 
   int ObservingRenderWindow;
   int ObservingRenderer;
+  int ObservingAbort;
 
   unsigned long StartRenderTag;
   unsigned long EndRenderTag;
