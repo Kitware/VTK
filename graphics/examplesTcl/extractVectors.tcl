@@ -28,6 +28,7 @@ vtkContourFilter isoVx
 vtkPolyDataNormals normalsVx
     normalsVx SetInput [isoVx GetOutput]
     normalsVx SetFeatureAngle 45
+    normalsVx SetMaxRecursionDepth 100
 vtkPolyDataMapper isoVxMapper
     isoVxMapper SetInput [normalsVx GetOutput]
     isoVxMapper ScalarVisibilityOff
@@ -43,6 +44,7 @@ vtkContourFilter isoVy
 vtkPolyDataNormals normalsVy
     normalsVy SetInput [isoVy GetOutput]
     normalsVy SetFeatureAngle 45
+    normalsVy SetMaxRecursionDepth 100
 vtkPolyDataMapper isoVyMapper
     isoVyMapper SetInput [normalsVy GetOutput]
     isoVyMapper ScalarVisibilityOff
@@ -58,6 +60,7 @@ vtkContourFilter isoVz
 vtkPolyDataNormals normalsVz
     normalsVz SetInput [isoVz GetOutput]
     normalsVz SetFeatureAngle 45
+    normalsVz SetMaxRecursionDepth 100
 vtkPolyDataMapper isoVzMapper
     isoVzMapper SetInput [normalsVz GetOutput]
     isoVzMapper ScalarVisibilityOff
