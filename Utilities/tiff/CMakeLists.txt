@@ -14,7 +14,14 @@ tif_write.c tif_zip.c)
 ADD_DEFINITIONS( -DJPEG_SUPPORT -DZIP_SUPPORT -DZLIB_DLL -D_HPUX_SOURCE)
 
 ADD_LIBRARY(vtktiff common_SRCS)
+SET(WINDOWS 0)
 IF (WIN32)
+   IF (NOT UNIX)
+   SET(WINDOWS 1)
+   ENDIF (NOT UNIX)
+ENDIF (WIN32)
+ 
+IF(WINDOWS)
    IF (BUILD_SHARED_LIBS)
       ADD_DEFINITIONS( -DTIFFDLL -DUSE_WINDOWS_MESSAGEBOX )
    ELSE (BUILD_SHARED_LIBS)
@@ -25,7 +32,7 @@ IF (WIN32)
    IF (NOT BORLAND)
       SOURCE_FILES(common_SRCS vtktiff.def)
    ENDIF(NOT BORLAND)
-ELSE (WIN32)
+ELSE (WINDOWS)
    SOURCE_FILES(common_SRCS tif_unix.c GENERATED tif_fax3sm.c)
    ADD_EXECUTABLE(mkg3states mkg3states)     
    ADD_CUSTOM_COMMAND(
@@ -34,7 +41,7 @@ ELSE (WIN32)
      ARGS -c const ${VTK_BINARY_DIR}/Utilities/tiff/tif_fax3sm.c 
      TARGET vtktiff 
      OUTPUTS ${VTK_BINARY_DIR}/Utilities/tiff/tif_fax3sm.c)
-ENDIF (WIN32)
+ENDIF (WINDOWS)
 
 TARGET_LINK_LIBRARIES( vtktiff vtkjpeg vtkzlib )
 
