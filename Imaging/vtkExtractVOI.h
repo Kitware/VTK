@@ -39,12 +39,12 @@
 #ifndef __vtkExtractVOI_h
 #define __vtkExtractVOI_h
 
-#include "vtkStructuredPointsToStructuredPointsFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_IMAGING_EXPORT vtkExtractVOI : public vtkStructuredPointsToStructuredPointsFilter
+class VTK_IMAGING_EXPORT vtkExtractVOI : public vtkImageToImageFilter
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractVOI,vtkStructuredPointsToStructuredPointsFilter);
+  vtkTypeRevisionMacro(vtkExtractVOI,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -70,8 +70,8 @@ protected:
   vtkExtractVOI();
   ~vtkExtractVOI() {};
 
-  void Execute();
-  void ExecuteInformation();
+  virtual void ExecuteInformation();
+  virtual void ExecuteData(vtkDataObject *);
 
   int VOI[6];
   int SampleRate[3];

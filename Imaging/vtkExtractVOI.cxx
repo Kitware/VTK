@@ -18,7 +18,7 @@
 #include "vtkExtractVOI.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractVOI, "1.27");
+vtkCxxRevisionMacro(vtkExtractVOI, "1.28");
 vtkStandardNewMacro(vtkExtractVOI);
 
 // Construct object to extract all of the input data.
@@ -33,7 +33,7 @@ vtkExtractVOI::vtkExtractVOI()
 void vtkExtractVOI::ExecuteInformation()
 {
   vtkImageData *input=this->GetInput();
-  vtkStructuredPoints *output=this->GetOutput();
+  vtkImageData *output=this->GetOutput();
   int i, dims[3], outDims[3], voi[6];
   int rate[3];
   int wholeExtent[6];
@@ -43,8 +43,6 @@ void vtkExtractVOI::ExecuteInformation()
     vtkErrorMacro("Missing input");
     return;
     }
-  this->vtkStructuredPointsToStructuredPointsFilter::ExecuteInformation();
-
   input->GetWholeExtent( wholeExtent );
   dims[0] = wholeExtent[1] - wholeExtent[0] + 1;
   dims[1] = wholeExtent[3] - wholeExtent[2] + 1;
@@ -96,15 +94,14 @@ void vtkExtractVOI::ExecuteInformation()
   wholeExtent[5] = outDims[2] - 1;
   
   output->SetWholeExtent( wholeExtent );
-  output->SetScalarType( input->GetScalarType() );
 }
 
-void vtkExtractVOI::Execute()
+void vtkExtractVOI::ExecuteData(vtkDataObject *outp)
 {
   vtkImageData *input=this->GetInput();
   vtkPointData *pd=input->GetPointData();
   vtkCellData *cd=input->GetCellData();
-  vtkStructuredPoints *output=this->GetOutput();
+  vtkImageData *output = this->AllocateOutputData(outp);
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
   int i, j, k, dims[3], outDims[3], voi[6], dim, idx, newIdx;
@@ -113,9 +110,9 @@ void vtkExtractVOI::Execute()
   int sliceSize, outSize, jOffset, kOffset, rate[3];
 
   vtkDebugMacro(<< "Extracting VOI");
-//
-// Check VOI and clamp as necessary. Compute output parameters,
-//
+  //
+  // Check VOI and clamp as necessary. Compute output parameters,
+  //
   input->GetDimensions(dims);
   input->GetOrigin(origin);
   input->GetSpacing(ar);
@@ -169,27 +166,27 @@ void vtkExtractVOI::Execute()
   output->SetDimensions(outDims);
   output->SetSpacing(outAR);
   output->SetOrigin(outOrigin);
-//
-// If output same as input, just pass data through
-//
+  // 
+  // If output same as input, just pass data through
+  //
   if ( outDims[0] == dims[0] && outDims[1] == dims[1] && outDims[2] == dims[2] &&
-  rate[0] == 1 && rate[1] == 1 && rate[2] == 1 )
+       rate[0] == 1 && rate[1] == 1 && rate[2] == 1 )
     {
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
     vtkDebugMacro(<<"Passed data through because input and output are the same");
     return;
     }
-//
-// Allocate necessary objects
-//
+  //
+  // Allocate necessary objects
+  //
   outPD->CopyAllocate(pd,outSize,outSize);
   outCD->CopyAllocate(cd,outSize,outSize);
   sliceSize = dims[0]*dims[1];
-
-//
-// Traverse input data and copy point attributes to output
-//
+  
+  //
+  // Traverse input data and copy point attributes to output
+  //
   newIdx = 0;
   for ( k=voi[4]; k <= voi[5]; k += rate[2] )
     {
@@ -205,9 +202,9 @@ void vtkExtractVOI::Execute()
       }
     }
 
-//
-// Traverse input data and copy cell attributes to output
-//
+  //
+  // Traverse input data and copy cell attributes to output
+  //
   newCellId = 0;
   sliceSize = (dims[0]-1)*(dims[1]-1);
   for ( k=voi[4]; k < voi[5]; k += rate[2] )
@@ -223,10 +220,10 @@ void vtkExtractVOI::Execute()
         }
       }
     }
-
+  
   vtkDebugMacro(<<"Extracted " << newIdx << " point attributes on "
-                << dim << "-D dataset\n\tDimensions are (" << outDims[0]
-                << "," << outDims[1] << "," << outDims[2] <<")");
+  << dim << "-D dataset\n\tDimensions are (" << outDims[0]
+  << "," << outDims[1] << "," << outDims[2] <<")");
 }
 
 
