@@ -43,7 +43,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.19");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.20");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 int vtkDebugLeaks::PromptUser = 1;
@@ -143,6 +143,14 @@ public:
   int DecrementCount(const char* name);
   void PrintTable();
   int IsEmpty();
+  ~vtkDebugLeaksHashTable()
+    {
+      for (int i = 0; i < 64; i++)
+        {
+        delete this->Nodes[i];
+        }
+    }
+
 private:
   vtkDebugLeaksHashNode* Nodes[64];
 };
