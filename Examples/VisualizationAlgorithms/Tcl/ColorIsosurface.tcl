@@ -1,11 +1,14 @@
-# This example shows how to color an isosurface with other data.
+# This example shows how to color an isosurface with other data. Basically
+# an isosurface is generated, and a data array is selected and used by the
+# mapper to color the surface.
 
 package require vtk
 package require vtkinteraction
 
-# Read some data. The important thing here is to read a function
-# as a data array as well as the scalar and vector. Later this
-# data array will be used to color the isosurface.
+# Read some data. The important thing here is to read a function as a data
+# array as well as the scalar and vector.  (here function 153 is named
+# "Velocity Magnitude").Later this data array will be used to color the
+# isosurface.  
 #
 vtkPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
@@ -16,6 +19,10 @@ vtkPLOT3DReader pl3d
     pl3d Update
     pl3d DebugOn
     
+# The contoru filter uses the labeled scalar (function number 100
+# above to generate the contour surface; all other data is interpolated
+# during the contouring process.
+#
 vtkContourFilter iso
     iso SetInput [pl3d GetOutput]
     iso SetValue 0 .24
@@ -24,6 +31,9 @@ vtkPolyDataNormals normals
     normals SetInput [iso GetOutput]
     normals SetFeatureAngle 45
 
+# We indicate to the mapper to use the velcoity magnitude, which is a 
+# vtkDataArray that makes up part of the point attribute data.
+#
 vtkPolyDataMapper isoMapper
     isoMapper SetInput [normals GetOutput]
     isoMapper ScalarVisibilityOn
@@ -42,7 +52,7 @@ vtkPolyDataMapper outlineMapper
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 
-# Create the RenderWindow, Renderer and both Actors
+# Create the usual rendering stuff.
 #
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -67,10 +77,7 @@ $cam1 SetViewUp -0.16123 0.264271 0.950876
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
-
 renWin Render
-#renWin SetFileName "combColorIso.tcl.ppm"
-#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
