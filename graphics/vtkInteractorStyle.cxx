@@ -67,8 +67,8 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->CurrentActor     = NULL;
 
   this->State    = VTKIS_START;
-  this->CtrlKey  = false;
-  this->ShiftKey = false;
+  this->CtrlKey  = 0;
+  this->ShiftKey = 1;
 
   this->LeftButtonPressMethod = NULL;
   this->LeftButtonPressMethodArgDelete = NULL;
