@@ -228,6 +228,10 @@ public:
   virtual void EndPickCallback();
   
   // Description:
+  // Get the current position of the mouse.
+  virtual void GetMousePosition(int *x, int *y) { *x = 0 ; *y = 0; };
+
+  // Description:
   // Render the scene. Just pass the render call on to the 
   // associated vtkRenderWindow.
   void Render();
