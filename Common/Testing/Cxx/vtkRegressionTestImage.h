@@ -5,11 +5,16 @@
 // example program. This capability is critical for regression testing.
 // This function returns 1 if test passed, 0 if test failed.
 
+#include <sys/stat.h>
+
 #include "vtkWindowToImageFilter.h"
 #include "vtkPNGReader.h"
 #include "vtkPNGWriter.h"
 #include "vtkImageDifference.h"
 #include "vtkGetDataRoot.h"
+
+static char* IncrementFileName(const char* fname, int count);
+static int LookForFile(const char* newFileName);
 
 int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw, 
                             float thresh ) 
@@ -29,6 +34,7 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw,
 
   if( imageIndex != -1 ) 
     { 
+    // Prepend the data root to the filename
     char* fname=vtkExpandDataFileName(argc, argv, argv[imageIndex]);
 
     vtkWindowToImageFilter *rt_w2if = vtkWindowToImageFilter::New(); 
@@ -66,16 +72,70 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw,
     rt_id->Update(); 
     rt_w2if->Delete(); 
     rt_png->Delete(); 
-    if (rt_id->GetThresholdedError() <= thresh) 
+
+    float maxError = rt_id->GetThresholdedError();
+    if (maxError <= thresh) 
       { 
       rt_id->Delete(); 
       delete[] fname;
       return 1; 
-      } 
-    cerr << "Failed Image Test : " << rt_id->GetThresholdedError() << endl;
+      }
+    // If the test failed with the first image (foo.png)
+    // check if there are images of the form foo_N.png
+    // (where N=1,2,3...) and compare against them.
+    float error;
+    int count=0, errIndex=-1;
+    char* newFileName;
+    while (1)
+      {
+      newFileName = IncrementFileName(fname, count);
+      if (!LookForFile(newFileName))
+	{
+	delete[] newFileName;
+	break;
+	}
+      rt_png->SetFileName(newFileName);
+      rt_png->Update();
+      rt_id->Update();
+      error = rt_id->GetThresholdedError();
+      if (error <= thresh) 
+	{ 
+	rt_id->Delete(); 
+	delete[] fname;
+	delete[] newFileName;
+	return 1; 
+	}
+      else
+	{
+	if (maxError < error)
+	  {
+	  errIndex = count;
+	  maxError = error;
+	  }
+	}
+      ++count;
+      delete[] newFileName;
+      }
+    
+    cerr << "Failed Image Test : " << maxError << endl;
     char *rt_diffName = new char [strlen(fname) + 12];
     sprintf(rt_diffName,"%s.diff.png",fname);
     FILE *rt_dout = fopen(rt_diffName,"wb"); 
+    if (errIndex >= 0)
+      {
+      newFileName = IncrementFileName(fname, errIndex);
+      rt_png->SetFileName(newFileName);
+      delete[] newFileName;
+      rt_png->Update();
+      rt_id->Update();
+      }
+    else
+      {
+      rt_png->SetFileName(fname);
+      rt_png->Update();
+      rt_id->Update();
+      }
+
     if (rt_dout) 
       { 
       fclose(rt_dout);
@@ -91,6 +151,52 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw,
     return 0;
     }
   return 2;
+}
+
+static char* IncrementFileName(const char* fname, int count)
+{
+  char counts[256];
+  sprintf(counts, "%d", count);
+  
+  int orgLen = strlen(fname);
+  if (orgLen < 5)
+    {
+    return 0;
+    }
+  int extLen = strlen(counts);
+  char* newFileName = new char[orgLen+extLen+2];
+  strcpy(newFileName, fname);
+
+  newFileName[orgLen-4] = '_';
+  int i, marker;
+  for(marker=orgLen-3, i=0; marker < orgLen-3+extLen; marker++, i++)
+    {
+    newFileName[marker] = counts[i];
+    }
+  newFileName[marker++] = '.';
+  newFileName[marker++] = 'p';
+  newFileName[marker++] = 'n';
+  newFileName[marker++] = 'g';
+  newFileName[marker] = '\0';
+  
+  return newFileName;
+}
+
+static int LookForFile(const char* newFileName)
+{
+  if (!newFileName)
+    {
+    return 0;
+    }
+  struct stat fs;
+  if (stat(newFileName, &fs) != 0) 
+    {
+    return 0;
+    }
+  else
+    {
+    return 1;
+    }
 }
 
 #define vtkRegressionTestImage(rw) \
