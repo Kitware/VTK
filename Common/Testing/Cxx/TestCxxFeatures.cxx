@@ -21,7 +21,7 @@
 // Provides a reference for the set of C++ features that can be used
 // by VTK.
 
-#include "vtkSystemIncludes.h"
+#include "vtkConfigure.h"
 
 //----------------------------------------------------------------------------
 
@@ -75,6 +75,20 @@
 #if !defined(VTK_CLASS_TEMPLATE_SPECIALIZATION)
 # define VTK_CLASS_TEMPLATE_SPECIALIZATION template <>
 #endif
+
+//----------------------------------------------------------------------------
+
+/* Test inclusion of iosfwd header.  */
+#if defined(VTK_USE_ANSI_STDLIB) && !defined(VTK_CXX_ACC)
+# include <iosfwd>
+#else
+// No iosfwd header.  Just see if forward declaring the class works.
+class ostream;
+#endif
+
+//----------------------------------------------------------------------------
+
+#include "vtkSystemIncludes.h"
 
 //----------------------------------------------------------------------------
 
