@@ -159,7 +159,7 @@ void vtkImageReslice::ComputeIndexMatrix(vtkMatrix4x4 *matrix)
 }
 
 //----------------------------------------------------------------------------
-static void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
+void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
 						      int inExt[6], 
 						      int outExt[6]);
 
@@ -435,7 +435,7 @@ static int vtkNearestNeighborInterpolation(float *point, T *inPtr, T *outPtr,
 
 // set up the lookup indices and the interpolation coefficients
 
-static void SetInterpCoeffs(float F[4],int *l, int *m, float f, 
+void SetInterpCoeffs(float F[4],int *l, int *m, float f, 
 		     int doInterp, int linInterp)
 {   
   float fp1,fm1,fm2;
@@ -464,35 +464,35 @@ static void SetInterpCoeffs(float F[4],int *l, int *m, float f,
 
 // clamping functions for each type
 
-static inline void vtkResliceClamp(double val, unsigned char& clamp)
+inline void vtkResliceClamp(double val, unsigned char& clamp)
 {
   if (val < VTK_UNSIGNED_CHAR_MIN) val = VTK_UNSIGNED_CHAR_MIN;
   if (val > VTK_UNSIGNED_CHAR_MAX) val = VTK_UNSIGNED_CHAR_MAX;
   clamp = (unsigned char)(val);
 }
 
-static inline void vtkResliceClamp(double val, short& clamp)
+inline void vtkResliceClamp(double val, short& clamp)
 {
   if (val < VTK_SHORT_MIN) val = VTK_SHORT_MIN;
   if (val > VTK_SHORT_MAX) val = VTK_SHORT_MAX;
   clamp = short(val);
 }
 
-static inline void vtkResliceClamp(double val, unsigned short& clamp)
+inline void vtkResliceClamp(double val, unsigned short& clamp)
 {
   if (val < VTK_UNSIGNED_SHORT_MIN) val = VTK_UNSIGNED_SHORT_MIN;
   if (val > VTK_UNSIGNED_SHORT_MAX) val = VTK_UNSIGNED_SHORT_MAX;
   clamp = (unsigned short)(val);
 }
 
-static inline void vtkResliceClamp(double val, int& clamp)
+inline void vtkResliceClamp(double val, int& clamp)
 {
   if (val < VTK_INT_MIN) val = VTK_INT_MIN;
   if (val > VTK_INT_MAX) val = VTK_INT_MAX;
   clamp = int(val);
 }
 
-static inline void vtkResliceClamp(double val, float& clamp)
+inline void vtkResliceClamp(double val, float& clamp)
 {
   if (val < VTK_FLOAT_MIN) val = VTK_FLOAT_MIN;
   if (val > VTK_FLOAT_MAX) val = VTK_FLOAT_MAX;
@@ -697,7 +697,7 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
 // The remainder of this file is the 'optimized' version of the code.
 
 //----------------------------------------------------------------------------
-static void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
+void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
 						      int inExt[6], 
 						      int outExt[6])
 {
@@ -767,7 +767,7 @@ static void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
 // find approximate intersection of line with the plane x = x_min,
 // y = y_min, or z = z_min (lower limit of data extent) 
 
-static int intersectionLow(double *point, float *axis, int *sign,
+int intersectionLow(double *point, float *axis, int *sign,
 			   int *limit, int ai, int *outExt)
 {
   // approximate value of r
@@ -796,7 +796,7 @@ static int intersectionLow(double *point, float *axis, int *sign,
 }
 
 // same as above, but for x = x_max
-static int intersectionHigh(double *point, float *axis, int *sign, 
+int intersectionHigh(double *point, float *axis, int *sign, 
 			    int *limit, int ai, int *outExt)
 {
   int r;
@@ -822,7 +822,7 @@ static int intersectionHigh(double *point, float *axis, int *sign,
   return r;
 }
 
-static int isBounded(double *point, float *xAxis, int *inMin, 
+int isBounded(double *point, float *xAxis, int *inMin, 
 		     int *inMax, int ai, int r)
 {
   int bi = ai+1; 
