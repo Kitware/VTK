@@ -36,7 +36,9 @@
 #include "vtkTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.7");
+#define ABS(x) ((x)<0 ? -(x) : (x))
+
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.8");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -882,7 +884,7 @@ void vtkImagePlaneWidget::UpdateOrigin()
     int k = 0;
     for ( i = 0; i < 3; i++ )
       {
-      abs_normal[i] = abs(abs_normal[i]);
+      abs_normal[i] = ABS(abs_normal[i]);
       if ( abs_normal[i] > nmax )
         {
         nmax = abs_normal[i];
