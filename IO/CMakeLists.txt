@@ -78,7 +78,8 @@ WRAP_EXCLUDE_FILES(vtkPLY)
 
 IF(VTK_MAKE_INSTANTIATOR)
   # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkIO IO_SRCS VTK_IO_EXPORT
+  VTK_MAKE_INSTANTIATOR(vtkIOInstantiator IO_SRCS IO_SRCS
+                        EXPORT_MACRO VTK_IO_EXPORT
                         HEADER_LOCATION ${VTK_BINARY_DIR})
 ENDIF(VTK_MAKE_INSTANTIATOR)
 
