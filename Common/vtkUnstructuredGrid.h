@@ -136,12 +136,12 @@ public:
 
   // Description:
   // Set / Get the piece and the number of pieces. Similar to extent in 3D.
-  vtkGetMacro( Piece, int );
-  vtkGetMacro( NumberOfPieces, int );
+  virtual int GetPiece();
+  virtual int GetNumberOfPieces();
 
   // Description:
-  // Set / Get the ghost level.
-  vtkGetMacro( GhostLevel, int );
+  // Get the ghost level.
+  virtual int GetGhostLevel();
   
   // Description:
   // Return the actual size of the data in kilobytes. This number

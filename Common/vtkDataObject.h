@@ -41,6 +41,8 @@ class vtkProcessObject;
 class vtkSource;
 class vtkSourceToDataObjectFriendship;
 class vtkExtentTranslator;
+class vtkInformationIntegerKey;
+class vtkInformationIntegerVectorKey;
 
 #define VTK_PIECES_EXTENT   0
 #define VTK_3D_EXTENT       1
@@ -73,7 +75,7 @@ public:
   // The information object also needs to be considered.
   unsigned long int GetMTime();
 
-  // Rescription:
+  // Description:
   // Restore data object to initial state,
   virtual void Initialize();
 
@@ -318,6 +320,13 @@ public:
   // with only one piece (no streaming possible).
   virtual int GetExtentType() { return VTK_PIECES_EXTENT; };
 
+  static vtkInformationIntegerKey* DATA_TYPE();
+  static vtkInformationIntegerKey* DATA_EXTENT_TYPE();
+  static vtkInformationIntegerVectorKey* DATA_EXTENT();
+  static vtkInformationIntegerKey* DATA_PIECE_NUMBER();
+  static vtkInformationIntegerKey* DATA_NUMBER_OF_PIECES();
+  static vtkInformationIntegerKey* DATA_NUMBER_OF_GHOST_LEVELS();
+
 protected:
 
   vtkDataObject();
@@ -355,7 +364,6 @@ protected:
   // represent the whole extent, the extent currently in memory, and the
   // requested update extent. The extent is given as 3 min/max pairs.
   int WholeExtent[6];
-  int Extent[6];
   int UpdateExtent[6];
   // First update, the update extent will be set to the whole extent.
   unsigned char UpdateExtentInitialized;  
@@ -363,8 +371,6 @@ protected:
   vtkExtentTranslator *ExtentTranslator;
  
   // Unstructured request stuff
-  int NumberOfPieces;
-  int Piece;
   int MaximumNumberOfPieces;
   int UpdateNumberOfPieces;
   int UpdatePiece;
@@ -381,7 +387,6 @@ protected:
   // matches the update extent.
   virtual void Crop();
   
-  int GhostLevel;
   int UpdateGhostLevel;
 
   // Data will release after use by a filter if this flag is set

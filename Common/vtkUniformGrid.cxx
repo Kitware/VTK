@@ -19,6 +19,7 @@
 #include "vtkEmptyCell.h"
 #include "vtkGenericCell.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkLargeInteger.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
@@ -30,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkUniformGrid, "1.3");
+vtkCxxRevisionMacro(vtkUniformGrid, "1.4");
 vtkStandardNewMacro(vtkUniformGrid);
 
 vtkCxxSetObjectMacro(vtkUniformGrid,
@@ -56,11 +57,17 @@ vtkUniformGrid::vtkUniformGrid()
   for (idx = 0; idx < 3; ++idx)
     {
     this->Dimensions[idx] = 0;
-    this->Extent[idx*2] = 0;
-    this->Extent[idx*2+1] = -1;    
     this->Origin[idx] = 0.0;
     this->Spacing[idx] = 1.0;
     }
+#if 0
+  this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
+  this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
+#else
+  int extent[6] = {0, -1, 0, -1, 0, -1};
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
+#endif
 
   this->PointVisibility = vtkStructuredVisibilityConstraint::New();
   this->CellVisibility = vtkStructuredVisibilityConstraint::New();
@@ -92,14 +99,23 @@ void vtkUniformGrid::CopyStructure(vtkDataSet *ds)
     return;
     }
 
-  for (int i=0; i<3; i++)
+  int i;
+  for (i=0; i<3; i++)
     {
-    this->Extent[i] = sPts->Extent[i];
-    this->Extent[i+3] = sPts->Extent[i+3];
     this->Dimensions[i] = sPts->Dimensions[i];
     this->Spacing[i] = sPts->Spacing[i];
     this->Origin[i] = sPts->Origin[i];
     }
+#if 0
+  for (i=0; i<6; i++)
+    {
+    this->Extent[i] = sPts->Extent[i];
+    }
+#else
+  this->Information->Set(vtkDataObject::DATA_EXTENT(),
+                         sPts->Information->Get(vtkDataObject::DATA_EXTENT()),
+                         6);
+#endif
   this->DataDescription = sPts->DataDescription;
   this->CopyInformation(sPts);
 
@@ -131,6 +147,8 @@ vtkCell *vtkUniformGrid::GetCell(vtkIdType cellId)
   double x[3];
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
+  int extent[6];
+  this->GetExtent(extent);
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
   
@@ -215,13 +233,13 @@ vtkCell *vtkUniformGrid::GetCell(vtkIdType cellId)
   npts = 0;
   for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
     {
-    x[2] = origin[2] + (loc[2]+this->Extent[4]) * spacing[2]; 
+    x[2] = origin[2] + (loc[2]+extent[4]) * spacing[2]; 
     for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
       {
-      x[1] = origin[1] + (loc[1]+this->Extent[2]) * spacing[1]; 
+      x[1] = origin[1] + (loc[1]+extent[2]) * spacing[1]; 
       for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
         {
-        x[0] = origin[0] + (loc[0]+this->Extent[0]) * spacing[0]; 
+        x[0] = origin[0] + (loc[0]+extent[0]) * spacing[0]; 
 
         idx = loc[0] + loc[1]*dims[0] + loc[2]*d01;
         cell->PointIds->SetId(npts,idx);
@@ -244,6 +262,8 @@ void vtkUniformGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
   double x[3];
+  int extent[6];
+  this->GetExtent(extent);
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
   
@@ -329,13 +349,13 @@ void vtkUniformGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
   // Extract point coordinates and point ids
   for (npts=0,loc[2]=kMin; loc[2]<=kMax; loc[2]++)
     {
-    x[2] = origin[2] + (loc[2]+this->Extent[4]) * spacing[2]; 
+    x[2] = origin[2] + (loc[2]+extent[4]) * spacing[2]; 
     for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
       {
-      x[1] = origin[1] + (loc[1]+this->Extent[2]) * spacing[1]; 
+      x[1] = origin[1] + (loc[1]+extent[2]) * spacing[1]; 
       for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
         {
-        x[0] = origin[0] + (loc[0]+this->Extent[0]) * spacing[0]; 
+        x[0] = origin[0] + (loc[0]+extent[0]) * spacing[0]; 
 
         idx = loc[0] + loc[1]*dims[0] + loc[2]*d01;
         cell->PointIds->SetId(npts,idx);
@@ -356,6 +376,8 @@ void vtkUniformGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
   int *dims = this->GetDimensions();
+  int extent[6];
+  this->GetExtent(extent);
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
   
@@ -431,19 +453,19 @@ void vtkUniformGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
     // Extract point coordinates
     for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
       {
-      x[2] = origin[2] + (loc[2]+this->Extent[4]) * spacing[2]; 
+      x[2] = origin[2] + (loc[2]+extent[4]) * spacing[2]; 
       bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
       bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
       }
     for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
       {
-      x[1] = origin[1] + (loc[1]+this->Extent[2]) * spacing[1]; 
+      x[1] = origin[1] + (loc[1]+extent[2]) * spacing[1]; 
       bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
       bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
       }
     for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
       {
-      x[0] = origin[0] + (loc[0]+this->Extent[0]) * spacing[0]; 
+      x[0] = origin[0] + (loc[0]+extent[0]) * spacing[0]; 
       bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
       bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
       }
@@ -462,6 +484,8 @@ double *vtkUniformGrid::GetPoint(vtkIdType ptId)
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
   int *dims = this->GetDimensions();
+  int extent[6];
+  this->GetExtent(extent);
 
   x[0] = x[1] = x[2] = 0.0;
   if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
@@ -521,7 +545,7 @@ double *vtkUniformGrid::GetPoint(vtkIdType ptId)
 
   for (i=0; i<3; i++)
     {
-    x[i] = origin[i] + (loc[i]+this->Extent[i*2]) * spacing[i];
+    x[i] = origin[i] + (loc[i]+extent[i*2]) * spacing[i];
     }
 
   return x;
@@ -535,6 +559,8 @@ vtkIdType vtkUniformGrid::FindPoint(double x[3])
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
   int *dims = this->GetDimensions();
+  int extent[6];
+  this->GetExtent(extent);
 
   //
   //  Compute the ijk location
@@ -543,12 +569,12 @@ vtkIdType vtkUniformGrid::FindPoint(double x[3])
     {
     d = x[i] - origin[i];
     loc[i] = (int) ((d / spacing[i]) + 0.5);
-    if ( loc[i] < this->Extent[i*2] || loc[i] > this->Extent[i*2+1] )
+    if ( loc[i] < extent[i*2] || loc[i] > extent[i*2+1] )
       {
       return -1;
       } 
     // since point id is relative to the first point actually stored
-    loc[i] -= this->Extent[i*2];
+    loc[i] -= extent[i*2];
     }
   //
   //  From this location get the point id
@@ -620,6 +646,8 @@ vtkCell *vtkUniformGrid::FindAndGetCell(double x[3],
   vtkCell *cell = NULL;
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
+  int extent[6];
+  this->GetExtent(extent);
 
   if ( this->ComputeStructuredCoordinates(x, loc, pcoords) == 0 )
     {
@@ -717,8 +745,8 @@ vtkCell *vtkUniformGrid::FindAndGetCell(double x[3],
       {
       xOut[1] = origin[1] + j * spacing[1]; 
       // make idx relative to the extent not the whole extent
-      idx = loc[0]-this->Extent[0] + (j-this->Extent[2])*dims[0]
-        + (k-this->Extent[4])*d01;
+      idx = loc[0]-extent[0] + (j-extent[2])*dims[0]
+        + (k-extent[4])*d01;
       for (i = loc[0]; i <= iMax; i++, idx++)
         {
         xOut[0] = origin[0] + i * spacing[0]; 
@@ -772,21 +800,23 @@ void vtkUniformGrid::ComputeBounds()
 {
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
+  int extent[6];
+  this->GetExtent(extent);
   
-  if ( this->Extent[0] > this->Extent[1] || 
-       this->Extent[2] > this->Extent[3] ||
-       this->Extent[4] > this->Extent[5] )
+  if ( extent[0] > extent[1] || 
+       extent[2] > extent[3] ||
+       extent[4] > extent[5] )
     {
     vtkMath::UninitializeBounds(this->Bounds);
     return;
     }
-  this->Bounds[0] = origin[0] + (this->Extent[0] * spacing[0]);
-  this->Bounds[2] = origin[1] + (this->Extent[2] * spacing[1]);
-  this->Bounds[4] = origin[2] + (this->Extent[4] * spacing[2]);
+  this->Bounds[0] = origin[0] + (extent[0] * spacing[0]);
+  this->Bounds[2] = origin[1] + (extent[2] * spacing[1]);
+  this->Bounds[4] = origin[2] + (extent[4] * spacing[2]);
 
-  this->Bounds[1] = origin[0] + (this->Extent[1] * spacing[0]);
-  this->Bounds[3] = origin[1] + (this->Extent[3] * spacing[1]);
-  this->Bounds[5] = origin[2] + (this->Extent[5] * spacing[2]);
+  this->Bounds[1] = origin[0] + (extent[1] * spacing[0]);
+  this->Bounds[3] = origin[1] + (extent[3] * spacing[1]);
+  this->Bounds[5] = origin[2] + (extent[5] * spacing[2]);
 }
 
 //----------------------------------------------------------------------------
@@ -818,6 +848,8 @@ int vtkUniformGrid::ComputeStructuredCoordinates(double x[3], int ijk[3],
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
   int *dims = this->GetDimensions();
+  int extent[6];
+  this->GetExtent(extent);
   
   //
   //  Compute the ijk location
@@ -828,17 +860,17 @@ int vtkUniformGrid::ComputeStructuredCoordinates(double x[3], int ijk[3],
     doubleLoc = d / spacing[i];
     // Floor for negtive indexes.
     ijk[i] = (int) (floor(doubleLoc));
-    if ( ijk[i] >= this->Extent[i*2] && ijk[i] < this->Extent[i*2 + 1] )
+    if ( ijk[i] >= extent[i*2] && ijk[i] < extent[i*2 + 1] )
       {
       pcoords[i] = doubleLoc - (double)ijk[i];
       }
 
-    else if ( ijk[i] < this->Extent[i*2] || ijk[i] > this->Extent[i*2+1] ) 
+    else if ( ijk[i] < extent[i*2] || ijk[i] > extent[i*2+1] ) 
       {
       return 0;
       } 
 
-    else //if ( ijk[i] == this->Extent[i*2+1] )
+    else //if ( ijk[i] == extent[i*2+1] )
       {
       if (dims[i] == 1)
         {
@@ -863,6 +895,8 @@ void vtkUniformGrid::PrintSelf(ostream& os, vtkIndent indent)
 
   int idx;
   int *dims = this->GetDimensions();
+  int extent[6];
+  this->GetExtent(extent);
   
   os << indent << "Spacing: (" << this->Spacing[0] << ", "
                                << this->Spacing[1] << ", "
@@ -873,10 +907,10 @@ void vtkUniformGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Dimensions: (" << dims[0] << ", "
                                   << dims[1] << ", "
                                   << dims[2] << ")\n";
-  os << indent << "Extent: (" << this->Extent[0];
+  os << indent << "Extent: (" << extent[0];
   for (idx = 1; idx < 6; ++idx)
     {
-    os << ", " << this->Extent[idx];
+    os << ", " << extent[idx];
     }
   os << ")\n";
   os << indent << "WholeExtent: (" << this->WholeExtent[0];
@@ -900,13 +934,41 @@ void vtkUniformGrid::SetExtent(int x1, int x2, int y1, int y2, int z1, int z2)
   this->SetExtent(ext);
 }
 
+//----------------------------------------------------------------------------
+int* vtkUniformGrid::GetExtent()
+{
+  return this->Information->Get(vtkDataObject::DATA_EXTENT());
+}
+
+//----------------------------------------------------------------------------
+void vtkUniformGrid::GetExtent(int& x1, int& x2,
+                             int& y1, int& y2,
+                             int& z1, int& z2)
+{
+  int extent[6];
+  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
+  x1 = extent[0];
+  x2 = extent[1];
+  y1 = extent[2];
+  y2 = extent[3];
+  z1 = extent[4];
+  z2 = extent[5];
+}
+
+//----------------------------------------------------------------------------
+void vtkUniformGrid::GetExtent(int* extent)
+{
+  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
+}
 
 //----------------------------------------------------------------------------
 int *vtkUniformGrid::GetDimensions()
 {
-  this->Dimensions[0] = this->Extent[1] - this->Extent[0] + 1;
-  this->Dimensions[1] = this->Extent[3] - this->Extent[2] + 1;
-  this->Dimensions[2] = this->Extent[5] - this->Extent[4] + 1;
+  int extent[6];
+  this->GetExtent(extent);
+  this->Dimensions[0] = extent[1] - extent[0] + 1;
+  this->Dimensions[1] = extent[3] - extent[2] + 1;
+  this->Dimensions[2] = extent[5] - extent[4] + 1;
 
   return this->Dimensions;
 }
@@ -925,7 +987,10 @@ void vtkUniformGrid::SetExtent(int *extent)
 {
   int description;
 
-  description = vtkStructuredData::SetExtent(extent, this->Extent);
+  int newExtent[6];
+  this->Information->Get(vtkDataObject::DATA_EXTENT(), newExtent);
+  description = vtkStructuredData::SetExtent(extent, newExtent);
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), newExtent, 6);
   if ( description < 0 ) //improperly specified
     {
     vtkErrorMacro (<< "Bad Extent, retaining previous values");

@@ -22,6 +22,7 @@
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
 #include "vtkPixel.h"
@@ -48,7 +49,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.120");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.121");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -78,6 +79,11 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->QuadraticPyramid = vtkQuadraticPyramid::New();
   this->ConvexPointSet = vtkConvexPointSet::New();
   this->EmptyCell = vtkEmptyCell::New();
+
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
+  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 
   this->Connectivity = NULL;
   this->Links = NULL;
@@ -158,6 +164,24 @@ vtkUnstructuredGrid::~vtkUnstructuredGrid()
   this->EmptyCell->Delete();
 }
 
+//----------------------------------------------------------------------------
+int vtkUnstructuredGrid::GetPiece()
+{
+  return this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+}
+
+//----------------------------------------------------------------------------
+int vtkUnstructuredGrid::GetNumberOfPieces()
+{
+  return this->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+}
+
+//----------------------------------------------------------------------------
+int vtkUnstructuredGrid::GetGhostLevel()
+{
+  return this->Information->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS());
+}
+
 // Copy the geometric and topological structure of an input unstructured grid.
 void vtkUnstructuredGrid::CopyStructure(vtkDataSet *ds)
 {
@@ -216,6 +240,10 @@ void vtkUnstructuredGrid::Initialize()
     this->Locations->UnRegister(this);
     this->Locations = NULL;
     }
+
+  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 0);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 }
 
 int vtkUnstructuredGrid::GetCellType(vtkIdType cellId)
@@ -936,9 +964,9 @@ void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Number Of Pieces: " << this->NumberOfPieces << endl;
-  os << indent << "Piece: " << this->Piece << endl;
-  os << indent << "Ghost Level: " << this->GhostLevel << endl;
+  os << indent << "Number Of Pieces: " << this->GetNumberOfPieces() << endl;
+  os << indent << "Piece: " << this->GetPiece() << endl;
+  os << indent << "Ghost Level: " << this->GetGhostLevel() << endl;
   
   os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "
      << this->UpdateExtent[1] << ", " << this->UpdateExtent[2] << ", "

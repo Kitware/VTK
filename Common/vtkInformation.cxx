@@ -32,7 +32,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformation, "1.16");
+vtkCxxRevisionMacro(vtkInformation, "1.17");
 vtkStandardNewMacro(vtkInformation);
 
 #ifdef VTK_DEBUG_LEAKS
@@ -267,11 +267,6 @@ VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_NAME, String);
 VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_NUMBER_OF_COMPONENTS, Integer);
 VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_NUMBER_OF_TUPLES, Integer);
 VTK_INFORMATION_DEFINE_KEY_METHOD(FIELD_OPERATION, Integer);
-VTK_INFORMATION_DEFINE_KEY_METHOD(DATA_TYPE, Integer);
-VTK_INFORMATION_DEFINE_KEY_METHOD(DATA_EXTENT_TYPE, Integer);
-VTK_INFORMATION_DEFINE_KEY_METHOD(DATA_EXTENT, IntegerVector);
-VTK_INFORMATION_DEFINE_KEY_METHOD(DATA_PIECE_NUMBER, Integer);
-VTK_INFORMATION_DEFINE_KEY_METHOD(DATA_NUMBER_OF_PIECES, Integer);
 
 //----------------------------------------------------------------------------
 #define VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(name, type)                  \

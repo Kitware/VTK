@@ -352,13 +352,13 @@ public:
     { this->vtkPointSet::SetUpdateExtent( ext ); };
 
   // Description:
-  // Set / Get the piece and the number of pieces. Similar to extent in 3D.
-  vtkGetMacro( Piece, int );
-  vtkGetMacro( NumberOfPieces, int );
+  // Get the piece and the number of pieces. Similar to extent in 3D.
+  virtual int GetPiece();
+  virtual int GetNumberOfPieces();
 
   // Description:
   // Get the ghost level.
-  vtkGetMacro( GhostLevel, int );
+  virtual int GetGhostLevel();
   
   // Description:
   // Return the actual size of the data in kilobytes. This number

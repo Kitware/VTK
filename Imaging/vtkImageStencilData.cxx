@@ -13,12 +13,14 @@
 
 =========================================================================*/
 #include "vtkImageStencilData.h"
+
 #include "vtkImageStencilSource.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.11");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.12");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -35,6 +37,10 @@ vtkImageStencilData::vtkImageStencilData()
   this->NumberOfExtentEntries = 0;
   this->ExtentLists = NULL;
   this->ExtentListLengths = NULL;
+
+  int extent[6] = {0, -1, 0, -1, 0, -1};
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
 }
 
 //----------------------------------------------------------------------------
@@ -47,14 +53,16 @@ vtkImageStencilData::~vtkImageStencilData()
 void vtkImageStencilData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  int extent[6];
+  this->GetExtent(extent);
 
   os << indent << "Extent: (" 
-     << this->Extent[0] << ", "
-     << this->Extent[1] << ", "
-     << this->Extent[2] << ", "
-     << this->Extent[3] << ", "
-     << this->Extent[4] << ", "
-     << this->Extent[5] << ")\n";
+     << extent[0] << ", "
+     << extent[1] << ", "
+     << extent[2] << ", "
+     << extent[3] << ", "
+     << extent[4] << ", "
+     << extent[5] << ")\n";
 
   os << indent << "Spacing: (" 
      << this->Spacing[0] << ", "
@@ -98,8 +106,54 @@ void vtkImageStencilData::Initialize()
     }
   this->ExtentListLengths = NULL;
 
-  this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
-  this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
+  int extent[6] = {0, -1, 0, -1, 0, -1};
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStencilData::SetExtent(int* extent)
+{
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStencilData::SetExtent(int x1, int x2, int y1, int y2, int z1, int z2)
+{
+  int ext[6];
+  ext[0] = x1;
+  ext[1] = x2;
+  ext[2] = y1;
+  ext[3] = y2;
+  ext[4] = z1;
+  ext[5] = z2;
+  this->SetExtent(ext);
+}
+
+//----------------------------------------------------------------------------
+int* vtkImageStencilData::GetExtent()
+{
+  return this->Information->Get(vtkDataObject::DATA_EXTENT());
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStencilData::GetExtent(int& x1, int& x2,
+                             int& y1, int& y2,
+                             int& z1, int& z2)
+{
+  int extent[6];
+  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
+  x1 = extent[0];
+  x2 = extent[1];
+  y1 = extent[2];
+  y2 = extent[3];
+  z1 = extent[4];
+  z2 = extent[5];
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStencilData::GetExtent(int* extent)
+{
+  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
 }
 
 //----------------------------------------------------------------------------
@@ -230,13 +284,8 @@ void vtkImageStencilData::UpdateData()
     if (this->Source)
       {
       this->Source->UpdateData(this);
-      // This is now douplicated in the method "DataHasBeenGenerated"
-      // It can probably be removed from this method.
-      this->Piece = this->UpdatePiece;
-      this->NumberOfPieces = this->UpdateNumberOfPieces;
-      this->GhostLevel = this->UpdateGhostLevel;
-      } 
-    } 
+      }
+    }
 
   // Filters, that can't handle more data than they request, set this flag.
   if (this->RequestExactExtent)
@@ -261,7 +310,8 @@ int vtkImageStencilData::SpacingOrOriginHasChanged()
 //----------------------------------------------------------------------------
 void vtkImageStencilData::AllocateExtents()
 {
-  int *extent = this->Extent;
+  int extent[6];
+  this->GetExtent(extent);
   int numEntries = (extent[3] - extent[2] + 1)*(extent[5] - extent[4] + 1);
 
   if (numEntries != this->NumberOfExtentEntries)
@@ -316,10 +366,12 @@ int vtkImageStencilData::GetNextExtent(int &r1, int &r2,
                                        int rmin, int rmax,
                                        int yIdx, int zIdx, int &iter)
 {
-  int yExt = this->Extent[3] - this->Extent[2] + 1;
-  int zExt = this->Extent[5] - this->Extent[4] + 1;
-  yIdx -= this->Extent[2];
-  zIdx -= this->Extent[4];
+  int extent[6];
+  this->GetExtent(extent);
+  int yExt = extent[3] - extent[2] + 1;
+  int zExt = extent[5] - extent[4] + 1;
+  yIdx -= extent[2];
+  zIdx -= extent[4];
 
   // initialize r1, r2 to defaults
   r1 = rmax + 1;
@@ -401,7 +453,8 @@ int vtkImageStencilData::GetNextExtent(int &r1, int &r2,
 void vtkImageStencilData::InsertNextExtent(int r1, int r2, int yIdx, int zIdx)
 {
   // calculate the index into the extent array
-  int *extent = this->Extent;
+  int extent[6];
+  this->GetExtent(extent);
   int yExt = extent[3] - extent[2] + 1;
   int incr = (zIdx - extent[4])*yExt + (yIdx - extent[2]);
 

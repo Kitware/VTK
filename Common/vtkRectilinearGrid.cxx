@@ -18,6 +18,7 @@
 #include "vtkExtentTranslator.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
+#include "vtkInformation.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -28,7 +29,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.63");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.64");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -46,8 +47,9 @@ vtkRectilinearGrid::vtkRectilinearGrid()
   this->Dimensions[0] = 0;
   this->Dimensions[1] = 0;
   this->Dimensions[2] = 0;
-  this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
-  this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
+  int extent[6] = {0, -1, 0, -1, 0, -1};
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
   this->DataDescription = VTK_EMPTY;
 
   vtkDoubleArray *fs=vtkDoubleArray::New(); fs->Allocate(1);
@@ -77,11 +79,8 @@ vtkRectilinearGrid::~vtkRectilinearGrid()
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::Initialize()
 {
-  vtkDataSet::Initialize();
-  // Superclass does not know about dimensions ivar.
-  this->Dimensions[0] = 0;
-  this->Dimensions[1] = 0;
-  this->Dimensions[2] = 0;
+  this->Superclass::Initialize();
+  this->SetDimensions(0,0,0);
 
   if ( this->XCoordinates ) 
     {
@@ -115,10 +114,9 @@ void vtkRectilinearGrid::CopyStructure(vtkDataSet *ds)
     {
     this->Dimensions[i] = rGrid->Dimensions[i];
     }
-  for (i=0; i<6; i++)
-    {
-    this->Extent[i] = rGrid->Extent[i];
-    }
+  this->Information->Set(vtkDataObject::DATA_EXTENT(),
+                         rGrid->Information->Get(vtkDataObject::DATA_EXTENT()),
+                         6);
   this->DataDescription = rGrid->DataDescription;
 
   this->SetXCoordinates(rGrid->XCoordinates);
@@ -737,7 +735,10 @@ void vtkRectilinearGrid::SetExtent(int extent[6])
 {
   int description;
 
-  description = vtkStructuredData::SetExtent(extent, this->Extent);
+  int newExtent[6];
+  this->Information->Get(vtkDataObject::DATA_EXTENT(), newExtent);
+  description = vtkStructuredData::SetExtent(extent, newExtent);
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), newExtent, 6);
   if ( description < 0 ) //improperly specified
     {
     vtkErrorMacro (<< "Bad Extent, retaining previous values");
@@ -767,6 +768,33 @@ void vtkRectilinearGrid::SetExtent(int xMin, int xMax, int yMin, int yMax,
   extent[4] = zMin; extent[5] = zMax;
   
   this->SetExtent(extent);
+}
+
+//----------------------------------------------------------------------------
+int* vtkRectilinearGrid::GetExtent()
+{
+  return this->Information->Get(vtkDataObject::DATA_EXTENT());
+}
+
+//----------------------------------------------------------------------------
+void vtkRectilinearGrid::GetExtent(int& x1, int& x2,
+                                   int& y1, int& y2,
+                                   int& z1, int& z2)
+{
+  int extent[6];
+  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
+  x1 = extent[0];
+  x2 = extent[1];
+  y1 = extent[2];
+  y2 = extent[3];
+  z1 = extent[4];
+  z2 = extent[5];
+}
+
+//----------------------------------------------------------------------------
+void vtkRectilinearGrid::GetExtent(int* extent)
+{
+  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
 }
 
 //----------------------------------------------------------------------------
@@ -956,19 +984,21 @@ void vtkRectilinearGrid::Crop()
   int uExt[6];
   // What we have.
   int ext[6];
+  int extent[6];
+  this->GetExtent(extent);
 
   // If the update extent is larger than the extent, 
   // we cannot do anything about it here.
   for (i = 0; i < 3; ++i)
     {
     uExt[i*2] = this->UpdateExtent[i*2];
-    ext[i*2] = this->Extent[i*2];
+    ext[i*2] = extent[i*2];
     if (uExt[i*2] < ext[i*2])
       {
       uExt[i*2] = ext[i*2];
       }
     uExt[i*2+1] = this->UpdateExtent[i*2+1];
-    ext[i*2+1] = this->Extent[i*2+1];
+    ext[i*2+1] = extent[i*2+1];
     if (uExt[i*2+1] > ext[i*2+1])
       {
       uExt[i*2+1] = ext[i*2+1];
@@ -1049,17 +1079,17 @@ void vtkRectilinearGrid::Crop()
 
     // Traverse this data and copy point attributes to output
     newId = 0;
-    inInc1 = (this->Extent[1]-this->Extent[0]+1);
-    inInc2 = inInc1*(this->Extent[3]-this->Extent[2]+1);
+    inInc1 = (extent[1]-extent[0]+1);
+    inInc2 = inInc1*(extent[3]-extent[2]+1);
     for ( k=uExt[4]; k <= uExt[5]; ++k)
       { 
-      kOffset = (k - this->Extent[4]) * inInc2;
+      kOffset = (k - extent[4]) * inInc2;
       for ( j=uExt[2]; j <= uExt[3]; ++j)
         {
-        jOffset = (j - this->Extent[2]) * inInc1;
+        jOffset = (j - extent[2]) * inInc1;
         for ( i=uExt[0]; i <= uExt[1]; ++i)
           {
-          idx = (i - this->Extent[0]) + jOffset + kOffset;
+          idx = (i - extent[0]) + jOffset + kOffset;
           outPD->CopyData(inPD, idx, newId++);
           }
         }
@@ -1067,17 +1097,17 @@ void vtkRectilinearGrid::Crop()
 
     // Traverse input data and copy cell attributes to output
     newId = 0;
-    inInc1 = (this->Extent[1] - this->Extent[0]);
-    inInc2 = inInc1*(this->Extent[3] - this->Extent[2]);
+    inInc1 = (extent[1] - extent[0]);
+    inInc2 = inInc1*(extent[3] - extent[2]);
     for ( k=uExt[4]; k < uExt[5]; ++k )
       {
-      kOffset = (k - this->Extent[4]) * inInc2;
+      kOffset = (k - extent[4]) * inInc2;
       for ( j=uExt[2]; j < uExt[3]; ++j )
         {
-        jOffset = (j - this->Extent[2]) * inInc1;
+        jOffset = (j - extent[2]) * inInc1;
         for ( i=uExt[0]; i < uExt[1]; ++i )
           {
-          idx = (i - this->Extent[0]) + jOffset + kOffset;
+          idx = (i - extent[0]) + jOffset + kOffset;
           outCD->CopyData(inCD, idx, newId++);
           }
         }
@@ -1124,12 +1154,18 @@ void vtkRectilinearGrid::UpdateData()
   //  image->Delete();
   //  }
 
+  int piece = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  int numberOfPieces =
+    this->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+  int ghostLevel =
+    this->Information->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS());
+
   // Try to avoid generating these if the input has generated them,
   // or the image data is already up to date.
   // I guess we relly need an MTime check.
-  if(this->Piece != this->UpdatePiece ||
-     this->NumberOfPieces != this->UpdateNumberOfPieces ||
-     this->GhostLevel != this->UpdateGhostLevel ||
+  if(piece != this->UpdatePiece ||
+     numberOfPieces != this->UpdateNumberOfPieces ||
+     ghostLevel != this->UpdateGhostLevel ||
      !this->PointData->GetArray("vtkGhostLevels") ||
      !this->CellData->GetArray("vtkGhostLevels"))
     { // Create ghost levels for cells and points.
@@ -1149,9 +1185,9 @@ void vtkRectilinearGrid::UpdateData()
     // ---- POINTS ----
     // Allocate the appropriate number levels (number of points).
     levels = vtkUnsignedCharArray::New();
-    levels->Allocate((this->Extent[1]-this->Extent[0] + 1) *
-                     (this->Extent[3]-this->Extent[2] + 1) *
-                     (this->Extent[5]-this->Extent[4] + 1));
+    levels->Allocate((extent[1]-extent[0] + 1) *
+                     (extent[3]-extent[2] + 1) *
+                     (extent[5]-extent[4] + 1));
     
     //cerr << "max: " << extent[0] << ", " << extent[1] << ", " 
     //   << extent[2] << ", " << extent[3] << ", " 
@@ -1228,9 +1264,9 @@ void vtkRectilinearGrid::UpdateData()
     // ---- CELLS ----
     // Allocate the appropriate number levels (number of cells).
     levels = vtkUnsignedCharArray::New();
-    levels->Allocate((this->Extent[1]-this->Extent[0]) *
-                     (this->Extent[3]-this->Extent[2]) *
-                     (this->Extent[5]-this->Extent[4]));
+    levels->Allocate((extent[1]-extent[0]) *
+                     (extent[3]-extent[2]) *
+                     (extent[5]-extent[4]));
     
     // Loop through the cells in this image.
     // Cells may be 2d or 1d ... Treat all as 3D
@@ -1328,10 +1364,12 @@ void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
      << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
      << this->WholeExtent[5] << endl;
 
-  os << indent << "Extent: " << this->Extent[0] << ", "
-     << this->Extent[1] << ", " << this->Extent[2] << ", "
-     << this->Extent[3] << ", " << this->Extent[4] << ", "
-     << this->Extent[5] << endl;
+  int extent[6];
+  this->GetExtent(extent);
+  os << indent << "Extent: " << extent[0] << ", "
+     << extent[1] << ", " << extent[2] << ", "
+     << extent[3] << ", " << extent[4] << ", "
+     << extent[5] << endl;
 
 }
 

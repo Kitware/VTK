@@ -54,6 +54,7 @@ vtkImageConvolve        GetKernel3x3            301 9
 vtkImageConvolve        GetKernel5x5            301 25
 vtkImageConvolve        GetKernel3x3x3          301 27
 vtkImageData            GetDimensions           304 3
+vtkImageData            GetExtent               304 6
 vtkImageData            GetIncrements           304 3
 vtkImageData            GetPoint                307 3
 vtkImageEllipsoidSource GetWholeExtent          304 6
@@ -140,6 +141,7 @@ vtkPyramid              GetFaceArray            304 4
 vtkQuadricClustering    GetNumberOfDivisions    304 3
 vtkRayCaster            GetParallelIncrements   301 2
 vtkRayCaster            GetParallelStartPosition 301 3
+vtkRectilinearGrid      GetExtent               304 6
 vtkRectilinearGrid      GetPoint                307 3
 vtkRecursiveSphereDirectionEncoder GetDecodedGradient 301 3
 vtkRenderer		ComputeVisiblePropBounds    307 6
@@ -147,6 +149,7 @@ vtkScalarsToColors      GetColor                307 3
 vtkSplineWidget         GetHandlePosition       307 3
 vtkStreamer             GetStartPosition        307 3
 vtkStructuredGrid       GetDimensions           304 3
+vtkStructuredGrid       GetExtent               304 6
 vtkStructuredGrid       GetPoint                307 3
 vtkStructuredGrid       GetScalarRange          307 2
 vtkStructuredPointsGeometryFilter GetExtent     304 6

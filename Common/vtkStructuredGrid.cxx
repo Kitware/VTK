@@ -19,6 +19,7 @@
 #include "vtkExtentTranslator.h"
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
+#include "vtkInformation.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -27,7 +28,7 @@
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.100");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.101");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,
@@ -58,9 +59,9 @@ vtkStructuredGrid::vtkStructuredGrid()
   this->PointVisibility = vtkStructuredVisibilityConstraint::New();
   this->CellVisibility = vtkStructuredVisibilityConstraint::New();
 
-  this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
-  this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
-  
+  int extent[6] = {0, -1, 0, -1, 0, -1};
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
 }
 
 //----------------------------------------------------------------------------
@@ -90,10 +91,9 @@ void vtkStructuredGrid::CopyStructure(vtkDataSet *ds)
     {
     this->Dimensions[i] = sg->Dimensions[i];
     }
-  for (i=0; i<6; i++)
-    {
-    this->Extent[i] = sg->Extent[i];
-    }
+  this->Information->Set(vtkDataObject::DATA_EXTENT(),
+                         sg->Information->Get(vtkDataObject::DATA_EXTENT()),
+                         6);
 
   this->DataDescription = sg->DataDescription;
 
@@ -868,7 +868,10 @@ void vtkStructuredGrid::SetExtent(int extent[6])
 {
   int description;
 
-  description = vtkStructuredData::SetExtent(extent, this->Extent);
+  int newExtent[6];
+  this->Information->Get(vtkDataObject::DATA_EXTENT(), newExtent);
+  description = vtkStructuredData::SetExtent(extent, newExtent);
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), newExtent, 6);
 
   if ( description < 0 ) //improperly specified
     {
@@ -902,6 +905,33 @@ void vtkStructuredGrid::SetExtent(int xMin, int xMax,
   this->SetExtent(extent);
 }
 
+//----------------------------------------------------------------------------
+int* vtkStructuredGrid::GetExtent()
+{
+  return this->Information->Get(vtkDataObject::DATA_EXTENT());
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::GetExtent(int& x1, int& x2,
+                                  int& y1, int& y2,
+                                  int& z1, int& z2)
+{
+  int extent[6];
+  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
+  x1 = extent[0];
+  x2 = extent[1];
+  y1 = extent[2];
+  y2 = extent[3];
+  z1 = extent[4];
+  z2 = extent[5];
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::GetExtent(int* extent)
+{
+  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
+}
+
 int *vtkStructuredGrid::GetDimensions () 
 {
   this->GetDimensions(this->Dimensions);
@@ -909,10 +939,12 @@ int *vtkStructuredGrid::GetDimensions ()
 } 
 
 void vtkStructuredGrid::GetDimensions (int dim[3]) 
-{ 
-  dim[0] = this->Extent[1] - this->Extent[0] + 1;
-  dim[1] = this->Extent[3] - this->Extent[2] + 1;
-  dim[2] = this->Extent[5] - this->Extent[4] + 1;
+{
+  int extent[6];
+  this->GetExtent(extent);
+  dim[0] = extent[1] - extent[0] + 1;
+  dim[1] = extent[3] - extent[2] + 1;
+  dim[2] = extent[5] - extent[4] + 1;
 }
 
 //----------------------------------------------------------------------------
@@ -1075,27 +1107,29 @@ void vtkStructuredGrid::Crop()
 {
   int i, j, k;
   int uExt[6];
+  int extent[6];
+  this->GetExtent(extent);
 
   // If the update extent is larger than the extent, 
   // we cannot do anything about it here.
   for (i = 0; i < 3; ++i)
     {
     uExt[i*2] = this->UpdateExtent[i*2];
-    if (uExt[i*2] < this->Extent[i*2])
+    if (uExt[i*2] < extent[i*2])
       {
-      uExt[i*2] = this->Extent[i*2];
+      uExt[i*2] = extent[i*2];
       }
     uExt[i*2+1] = this->UpdateExtent[i*2+1];
-    if (uExt[i*2+1] > this->Extent[i*2+1])
+    if (uExt[i*2+1] > extent[i*2+1])
       {
-      uExt[i*2+1] = this->Extent[i*2+1];
+      uExt[i*2+1] = extent[i*2+1];
       }
     }
   
   // If extents already match, then we need to do nothing.
-  if (this->Extent[0] == uExt[0] && this->Extent[1] == uExt[1]
-      && this->Extent[2] == uExt[2] && this->Extent[3] == uExt[3]
-      && this->Extent[4] == uExt[4] && this->Extent[5] == uExt[5])
+  if (extent[0] == uExt[0] && extent[1] == uExt[1]
+      && extent[2] == uExt[2] && extent[3] == uExt[3]
+      && extent[4] == uExt[4] && extent[5] == uExt[5])
     {
     return;
     }
@@ -1136,17 +1170,17 @@ void vtkStructuredGrid::Crop()
 
     // Traverse this data and copy point attributes to output
     newId = 0;
-    inInc1 = (this->Extent[1]-this->Extent[0]+1);
-    inInc2 = inInc1*(this->Extent[3]-this->Extent[2]+1);
+    inInc1 = (extent[1]-extent[0]+1);
+    inInc2 = inInc1*(extent[3]-extent[2]+1);
     for ( k=uExt[4]; k <= uExt[5]; ++k)
       { 
-      kOffset = (k - this->Extent[4]) * inInc2;
+      kOffset = (k - extent[4]) * inInc2;
       for ( j=uExt[2]; j <= uExt[3]; ++j)
         {
-        jOffset = (j - this->Extent[2]) * inInc1;
+        jOffset = (j - extent[2]) * inInc1;
         for ( i=uExt[0]; i <= uExt[1]; ++i)
           {
-          idx = (i - this->Extent[0]) + jOffset + kOffset;
+          idx = (i - extent[0]) + jOffset + kOffset;
           newPts->SetPoint(newId,inPts->GetPoint(idx));
           outPD->CopyData(inPD, idx, newId++);
           }
@@ -1155,17 +1189,17 @@ void vtkStructuredGrid::Crop()
 
     // Traverse input data and copy cell attributes to output
     newId = 0;
-    inInc1 = (this->Extent[1] - this->Extent[0]);
-    inInc2 = inInc1*(this->Extent[3] - this->Extent[2]);
+    inInc1 = (extent[1] - extent[0]);
+    inInc2 = inInc1*(extent[3] - extent[2]);
     for ( k=uExt[4]; k < uExt[5]; ++k )
       {
-      kOffset = (k - this->Extent[4]) * inInc2;
+      kOffset = (k - extent[4]) * inInc2;
       for ( j=uExt[2]; j < uExt[3]; ++j )
         {
-        jOffset = (j - this->Extent[2]) * inInc1;
+        jOffset = (j - extent[2]) * inInc1;
         for ( i=uExt[0]; i < uExt[1]; ++i )
           {
-          idx = (i - this->Extent[0]) + jOffset + kOffset;
+          idx = (i - extent[0]) + jOffset + kOffset;
           outCD->CopyData(inCD, idx, newId++);
           }
         }
@@ -1196,10 +1230,12 @@ void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
      << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
      << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
      << this->WholeExtent[5] << endl;
-  os << indent << "Extent: " << this->Extent[0] << ", "
-     << this->Extent[1] << ", " << this->Extent[2] << ", "
-     << this->Extent[3] << ", " << this->Extent[4] << ", "
-     << this->Extent[5] << endl;
+  int extent[6];
+  this->GetExtent(extent);
+  os << indent << "Extent: " << extent[0] << ", "
+     << extent[1] << ", " << extent[2] << ", "
+     << extent[3] << ", " << extent[4] << ", "
+     << extent[5] << endl;
 
   os << ")\n";
 }
@@ -1229,12 +1265,18 @@ void vtkStructuredGrid::UpdateData()
     return;
     }
 
+  int piece = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  int numberOfPieces =
+    this->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+  int ghostLevel =
+    this->Information->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS());
+
   // Try to avoid generating these if the input has generated them,
   // or the image data is already up to date.
   // I guess we relly need an MTime check.
-  if(this->Piece != this->UpdatePiece ||
-     this->NumberOfPieces != this->UpdateNumberOfPieces ||
-     this->GhostLevel != this->UpdateGhostLevel ||
+  if(piece != this->UpdatePiece ||
+     numberOfPieces != this->UpdateNumberOfPieces ||
+     ghostLevel != this->UpdateGhostLevel ||
      !this->PointData->GetArray("vtkGhostLevels"))
     { // Create ghost levels for cells and points.
     vtkUnsignedCharArray *levels;
@@ -1253,9 +1295,9 @@ void vtkStructuredGrid::UpdateData()
     // ---- POINTS ----
     // Allocate the appropriate number levels (number of points).
     levels = vtkUnsignedCharArray::New();
-    levels->Allocate((this->Extent[1]-this->Extent[0] + 1) *
-                     (this->Extent[3]-this->Extent[2] + 1) *
-                     (this->Extent[5]-this->Extent[4] + 1));
+    levels->Allocate((extent[1]-extent[0] + 1) *
+                     (extent[3]-extent[2] + 1) *
+                     (extent[5]-extent[4] + 1));
     
     // Loop through the points in this grid.
     for (k = extent[4]; k <= extent[5]; ++k)
@@ -1325,9 +1367,9 @@ void vtkStructuredGrid::UpdateData()
     // ---- CELLS ----
     // Allocate the appropriate number levels (number of cells).
     levels = vtkUnsignedCharArray::New();
-    levels->Allocate((this->Extent[1]-this->Extent[0]) *
-                     (this->Extent[3]-this->Extent[2]) *
-                     (this->Extent[5]-this->Extent[4]));
+    levels->Allocate((extent[1]-extent[0]) *
+                     (extent[3]-extent[2]) *
+                     (extent[5]-extent[4]));
     
     // Loop through the cells in this image.
     // Cells may be 2d or 1d ... Treat all as 3D

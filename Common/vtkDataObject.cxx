@@ -23,8 +23,10 @@
 #include "vtkSource.h"
 #include "vtkTrivialProducer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationIntegerVectorKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.106");
+vtkCxxRevisionMacro(vtkDataObject, "1.107");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -40,7 +42,7 @@ vtkDataObject::vtkDataObject()
   this->Source = NULL;
   this->ProducerPort = 0;
 
-  this->Information = 0;
+  this->Information = vtkInformation::New();
 
   // We have to assume that if a user is creating the data on their own,
   // then they will fill it with valid data.
@@ -56,23 +58,17 @@ vtkDataObject::vtkDataObject()
   this->WholeExtent[0] = this->WholeExtent[2] = this->WholeExtent[4] = 0;
   this->WholeExtent[1] = this->WholeExtent[3] = this->WholeExtent[5] = -1;
 
-  this->Extent[0] = this->Extent[2] = this->Extent[4] =  0;
-  this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
-
   this->UpdateExtent[0] = this->UpdateExtent[2] = this->UpdateExtent[4] = 0;
   this->UpdateExtent[1] = this->UpdateExtent[3] = this->UpdateExtent[5] = 0;
 
   // If we used pieces instead of 3D extent, then assume this object was
   // created by the user and this is piece 0 of 1 pieces.
-  this->Piece          =  -1;
-  this->NumberOfPieces =  1;
   this->MaximumNumberOfPieces = -1;
 
   this->UpdatePiece          =   0;
   this->UpdateNumberOfPieces =   1;
 
   // ivars for ghost levels
-  this->GhostLevel = 0;
   this->UpdateGhostLevel = 0;
   
   this->PipelineMTime = 0;
@@ -127,12 +123,6 @@ unsigned long int vtkDataObject::GetMTime()
 void vtkDataObject::Initialize()
 {
   this->FieldData->Initialize();
-
-  this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
-  this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
-  this->Piece = -1;
-  this->NumberOfPieces = 0;
-  this->GhostLevel = 0;
   this->Modified();
 }
 
@@ -223,9 +213,9 @@ void vtkDataObject::DataHasBeenGenerated()
   // This is here so that the data can be easlily marked as up to date.
   // It is used specifically when the filter vtkQuadricClustering
   // is executed manually with the append methods. 
-  this->Piece = this->UpdatePiece;
-  this->NumberOfPieces = this->UpdateNumberOfPieces;
-  this->GhostLevel = this->UpdateGhostLevel;
+  this->Information->Set(DATA_PIECE_NUMBER(), this->UpdatePiece);
+  this->Information->Set(DATA_NUMBER_OF_PIECES(), this->UpdateNumberOfPieces);
+  this->Information->Set(DATA_NUMBER_OF_GHOST_LEVELS(), this->UpdateGhostLevel);
 }
 
 //----------------------------------------------------------------------------
@@ -314,7 +304,7 @@ void vtkDataObject::UpdateInformation()
     {
     // If we don't have a source, then let's make our whole
     // extent equal to our extent.
-    memcpy( this->WholeExtent, this->Extent, 6*sizeof(int) );
+    this->Information->Get(DATA_EXTENT(), this->WholeExtent);
     // We also need to set the PipeineMTime to our MTime.
     this->PipelineMTime = this->GetMTime();
     }
@@ -429,11 +419,13 @@ void vtkDataObject::UpdateData()
     if (this->Source)
       {
       this->Source->UpdateData(this);
+#if 0
       // This is now douplicated in the method "DataHasBeenGenerated"
       // It can probably be removed from this method.
-      this->Piece = this->UpdatePiece;
-      this->NumberOfPieces = this->UpdateNumberOfPieces;
-      this->GhostLevel = this->UpdateGhostLevel;
+      this->Information->Set(DATA_PIECE_NUMBER(), this->UpdatePiece);
+      this->Information->Set(DATA_NUMBER_OF_PIECES(), this->UpdateNumberOfPieces);
+      this->Information->Set(DATA_NUMBER_OF_GHOST_LEVELS(), this->UpdateGhostLevel);
+#endif
       } 
     } 
 
@@ -694,25 +686,34 @@ int vtkDataObject::UpdateExtentIsOutsideOfTheExtent()
   switch ( this->GetExtentType() )
     {
     case VTK_PIECES_EXTENT:
-      if ( this->UpdatePiece != this->Piece ||
-           this->UpdateNumberOfPieces != this->NumberOfPieces ||
-           this->UpdateGhostLevel != this->GhostLevel)
+      {
+      int piece = this->Information->Get(DATA_PIECE_NUMBER());
+      int numberOfPieces =
+        this->Information->Get(DATA_NUMBER_OF_PIECES());
+      int ghostLevel =
+        this->Information->Get(DATA_NUMBER_OF_GHOST_LEVELS());
+      if ( this->UpdatePiece != piece ||
+           this->UpdateNumberOfPieces != numberOfPieces ||
+           this->UpdateGhostLevel != ghostLevel)
         {
         return 1;
         }
-      break;
+      } break;
 
     case VTK_3D_EXTENT:
-      if ( this->UpdateExtent[0] < this->Extent[0] ||
-           this->UpdateExtent[1] > this->Extent[1] ||
-           this->UpdateExtent[2] < this->Extent[2] ||
-           this->UpdateExtent[3] > this->Extent[3] ||
-           this->UpdateExtent[4] < this->Extent[4] ||
-           this->UpdateExtent[5] > this->Extent[5] )
+      {
+      int extent[6];
+      this->Information->Get(DATA_EXTENT(), extent);
+      if ( this->UpdateExtent[0] < extent[0] ||
+           this->UpdateExtent[1] > extent[1] ||
+           this->UpdateExtent[2] < extent[2] ||
+           this->UpdateExtent[3] > extent[3] ||
+           this->UpdateExtent[4] < extent[4] ||
+           this->UpdateExtent[5] > extent[5] )
         {
         return 1;
         }
-      break;
+      } break;
 
     // We should never have this case occur
     default:
@@ -803,15 +804,33 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
   int idx;
 
   this->DataReleased = src->DataReleased;
+  if(src->Information->Has(DATA_EXTENT()))
+    {
+    this->Information->Set(DATA_EXTENT(),
+                           src->Information->Get(DATA_EXTENT()),
+                           6);
+    }
+  if(src->Information->Has(DATA_PIECE_NUMBER()))
+    {
+    this->Information->Set(DATA_PIECE_NUMBER(),
+                           src->Information->Get(DATA_PIECE_NUMBER()));
+    }
+  if(src->Information->Has(DATA_NUMBER_OF_PIECES()))
+    {
+    this->Information->Set(DATA_NUMBER_OF_PIECES(),
+                           src->Information->Get(DATA_NUMBER_OF_PIECES()));
+    }
+  if(src->Information->Has(DATA_NUMBER_OF_GHOST_LEVELS()))
+    {
+    this->Information->Set(DATA_NUMBER_OF_GHOST_LEVELS(),
+                           src->Information->Get(DATA_NUMBER_OF_GHOST_LEVELS()));
+    }
   for (idx = 0; idx < 6; ++idx)
     {
     this->WholeExtent[idx] = src->WholeExtent[idx];
-    this->Extent[idx] = src->Extent[idx];
     // Copying these update variables caused me no end of grief.
     //this->UpdateExtent[idx] = src->UpdateExtent[idx];
     }
-  this->Piece = src->Piece;
-  this->NumberOfPieces = src->NumberOfPieces;
   this->MaximumNumberOfPieces = src->MaximumNumberOfPieces;
   // Copying these update variables caused me no end of grief.
   //this->UpdateNumberOfPieces = src->UpdateNumberOfPieces;
@@ -905,6 +924,20 @@ void vtkDataObject::RemoveReferences()
 #endif
   this->Superclass::RemoveReferences();
 }
+
+#define VTK_DATA_OBJECT_DEFINE_KEY_METHOD(NAME, type)                       \
+  vtkInformation##type##Key* vtkDataObject::NAME()                          \
+    {                                                                       \
+    static vtkInformation##type##Key instance(#NAME, "vtkDataObject");      \
+    return &instance;                                                       \
+    }
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_TYPE, Integer);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_EXTENT_TYPE, Integer);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_EXTENT, IntegerVector);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_PIECE_NUMBER, Integer);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_NUMBER_OF_PIECES, Integer);
+VTK_DATA_OBJECT_DEFINE_KEY_METHOD(DATA_NUMBER_OF_GHOST_LEVELS, Integer);
+#undef VTK_DATA_OBJECT_DEFINE_KEY_METHOD
 
 //----------------------------------------------------------------------------
 void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)

@@ -19,6 +19,7 @@
 #include "vtkCriticalSection.h"
 #include "vtkEmptyCell.h"
 #include "vtkGenericCell.h"
+#include "vtkInformation.h"
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -31,7 +32,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.158");
+vtkCxxRevisionMacro(vtkPolyData, "1.159");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -61,6 +62,11 @@ vtkPolyData::vtkPolyData ()
   this->Lines = NULL;
   this->Polys = NULL;
   this->Strips = NULL;
+
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
+  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 
   // static variable, initialized only once.
   DummyCritSect.Lock();
@@ -142,6 +148,24 @@ vtkPolyData::~vtkPolyData()
     {
     this->EmptyCell->Delete();
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyData::GetPiece()
+{
+  return this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyData::GetNumberOfPieces()
+{
+  return this->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyData::GetGhostLevel()
+{
+  return this->Information->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS());
 }
 
 //----------------------------------------------------------------------------
@@ -780,6 +804,10 @@ void vtkPolyData::Initialize()
     this->Links->UnRegister(this);
     this->Links = NULL;
     }
+
+  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 0);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 }
 
 //----------------------------------------------------------------------------
@@ -1953,10 +1981,9 @@ void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Polygons: " << this->GetNumberOfPolys() << "\n";
   os << indent << "Number Of Triangle Strips: " << this->GetNumberOfStrips() << "\n";
 
-  os << indent << "Number Of Pieces: " << this->NumberOfPieces << endl;
-  os << indent << "Piece: " << this->Piece << endl;
-  os << indent << "Ghost Level: " << this->GhostLevel << endl;
-  
+  os << indent << "Number Of Pieces: " << this->GetNumberOfPieces() << endl;
+  os << indent << "Piece: " << this->GetPiece() << endl;
+  os << indent << "Ghost Level: " << this->GetGhostLevel() << endl;
   os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "
      << this->UpdateExtent[1] << ", " << this->UpdateExtent[2] << ", "
      << this->UpdateExtent[3] << ", " << this->UpdateExtent[4] << ", "

@@ -160,11 +160,6 @@ public:
   static vtkInformationIntegerKey* FIELD_NUMBER_OF_TUPLES();
   static vtkInformationIntegerKey* FIELD_OPERATION();
   static vtkInformationStringKey* FIELD_NAME();
-  static vtkInformationIntegerKey* DATA_TYPE();
-  static vtkInformationIntegerKey* DATA_EXTENT_TYPE();
-  static vtkInformationIntegerVectorKey* DATA_EXTENT();
-  static vtkInformationIntegerKey* DATA_PIECE_NUMBER();
-  static vtkInformationIntegerKey* DATA_NUMBER_OF_PIECES();
 
   // Description:
   // Upcast the given key instance.

@@ -82,6 +82,10 @@ public:
   int GetMaxCellSize() {return 8;}; //voxel is the largest
 
   // Description:
+  // Restore data object to initial state,
+  void Initialize();
+
+  // Description:
   // Set dimensions of structured points dataset.
   void SetDimensions(int i, int j, int k);
 
@@ -159,7 +163,9 @@ public:
   // The Extent is stored  in the order (X, Y, Z).
   void SetExtent(int extent[6]);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
-  vtkGetVector6Macro(Extent,int);
+  int* GetExtent();
+  void GetExtent(int& x1, int& x2, int& y1, int& y2, int& z1, int& z2);
+  void GetExtent(int* extent);
 
   // Description:
   // Get the estimated size of this data object itself. Should be called
