@@ -53,8 +53,6 @@ void vtkVectorTopology::Execute()
   int cellId, i, j, ptId, npts;
   int negative[3], positive[3], subId=0;
   float x[3], pcoords[3], *v;
-  vtkIdList *cellPts;
-  vtkFloatVectors cellVectors(VTK_CELL_SIZE);
   vtkCell *cell;
   vtkVectors *inVectors;
   vtkFloatPoints *newPts;
@@ -89,8 +87,6 @@ void vtkVectorTopology::Execute()
   for (cellId=0; cellId<Input->GetNumberOfCells(); cellId++)
     {
     cell = Input->GetCell(cellId);
-    cellPts = cell->GetPointIds();
-    inVectors->GetVectors(*cellPts,cellVectors);
     npts = cell->GetNumberOfPoints();
     for (i=0; i<3; i++) negative[i] = positive[i] = 0;
     for (i=0; i < npts; i++)
