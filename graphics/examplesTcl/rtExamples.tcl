@@ -44,7 +44,7 @@ if { [catch {set logFileName $env(VTK_REGRESSION_LOG) }] != 0} {
 if { $argv != ""} {
     set files $argv
 } else {
-    set files [lsort [glob {[A-z]*.tcl}]]
+    set files [lsort [glob {*.tcl}]]
 }
 
 # remove files that are not suitable for regression tests or simply don't 
