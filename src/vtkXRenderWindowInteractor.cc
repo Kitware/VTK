@@ -85,6 +85,7 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
   this->State = VTKXI_START;
   this->App = 0;
   this->top = 0;
+  this->WaitingForMarker = 0;
 }
 
 vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
@@ -297,18 +298,60 @@ void  vtkXRenderWindowInteractor::EndPan()
 void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data, 
 				    XEvent *event, Boolean *ctd)
 {
+  XEvent marker;
   vtkXRenderWindowInteractor *me;
 
   me = (vtkXRenderWindowInteractor *)client_data;
 
   switch (event->type) 
     {
-    case Expose : me->GetRenderWindow()->Render(); break;
+    case ClientMessage :
+      me->WaitingForMarker = 0;
+      break;
+  
+    case Expose : 
+      if (!me->WaitingForMarker)
+	{
+	// put in a marker
+	marker.type = ClientMessage;
+	marker.xclient.display = me->DisplayId;
+	marker.xclient.window = me->WindowId;
+	marker.xclient.format = 32;
+	XSendEvent(me->DisplayId, me->WindowId,
+		   (Bool) 0, (long) 0, &marker);
+	XSync(me->DisplayId,False);
+	me->WaitingForMarker = 1;
+	me->GetRenderWindow()->Render();
+	}
+      break;
       
     case ConfigureNotify : 
-      me->UpdateSize(((XConfigureEvent *)event)->width,
-		     ((XConfigureEvent *)event)->height); 
-      me->GetRenderWindow()->Render(); 
+      {
+      XEvent result;
+      while (XCheckTypedWindowEvent(me->DisplayId, me->WindowId,
+				    ConfigureNotify, &result))
+	{
+	// just getting the last configure event
+	event = &result;
+	}
+      if ((((XConfigureEvent *)event)->width != me->Size[0]) ||
+	  (((XConfigureEvent *)event)->height != me->Size[1]))
+	{
+	me->UpdateSize(((XConfigureEvent *)event)->width,
+		       ((XConfigureEvent *)event)->height); 
+	// while we are at it clear out any expose events
+	// put in a marker
+	marker.type = ClientMessage;
+	marker.xclient.display = me->DisplayId;
+	marker.xclient.window = me->WindowId;
+	marker.xclient.format = 32;
+	XSendEvent(me->DisplayId, me->WindowId,
+		   (Bool) 0, (long) 0, &marker);
+	XSync(me->DisplayId,False);
+	me->WaitingForMarker = 1;
+	me->GetRenderWindow()->Render(); 
+	}
+      }
       break;
 
     case ButtonPress : 
