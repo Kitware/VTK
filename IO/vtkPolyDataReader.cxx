@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataReader, "1.26");
+vtkCxxRevisionMacro(vtkPolyDataReader, "1.27");
 vtkStandardNewMacro(vtkPolyDataReader);
 
 vtkPolyDataReader::vtkPolyDataReader()
@@ -39,14 +39,15 @@ vtkPolyDataReader::~vtkPolyDataReader()
 }
 
 //----------------------------------------------------------------------------
-vtkPolyData *vtkPolyDataReader::GetOutput()
+vtkPolyData* vtkPolyDataReader::GetOutput()
 {
-  if (this->NumberOfOutputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkPolyData *)(this->Outputs[0]);
+  return this->GetOutput(0);
+}
+
+//----------------------------------------------------------------------------
+vtkPolyData* vtkPolyDataReader::GetOutput(int idx)
+{
+  return static_cast<vtkPolyData*>(this->vtkSource::GetOutput(idx));
 }
 
 //----------------------------------------------------------------------------
