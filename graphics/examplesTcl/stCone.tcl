@@ -22,7 +22,6 @@ vtkActor coneActor
 # assign our actor to the renderer
 ren1 AddActor coneActor
 renWin Render
-renWin Render
 
 vtkWindowToImageFilter w2if
   w2if SetInput renWin
