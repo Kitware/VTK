@@ -8,12 +8,9 @@ package require vtkinteraction
 
 # Create the image
 #
-vtkImageReader reader
-  [reader GetOutput] ReleaseDataFlagOff
-  reader SetDataByteOrderToLittleEndian
-  reader SetDataExtent 0 255 0 255 17 17
-  reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/fullHead/headsq"
-  reader SetDataMask 0x7fff
+vtkPNGReader reader
+  reader SetDataSpacing 0.8 0.8 1.5
+  reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
 
 vtkImageShiftScale shiftScale
   shiftScale SetInput [reader GetOutput]
