@@ -19,6 +19,7 @@ vtkPipelineSize
 vtkPImageWriter 
 vtkPLinearExtrusionFilter
 vtkPPolyDataNormals 
+vtkPOPReader 
 vtkPSphereSource 
 vtkRTAnalyticSource 
 vtkSharedMemoryCommunicator 
