@@ -447,6 +447,16 @@ public:
                                vtkPoints *pts, vtkCellArray *cellArray, 
                                vtkPointData *pd, vtkCellData *cd );
   
+  // Description:
+  // Return the 3 ids of the vertices defining face `faceId', assuming the
+  // cell is a tetrahedron
+  // \pre is_a_tetra: GetType()==VTK_TETRA || GetType()==VTK_QUADRATIC_TETRA
+  //                  GetType()==VTK_HIGHER_ORDER_TETRAHEDRON
+  // \pre valid_faceId_range: faceId>=0 && faceId<=3
+  // \post result_exists: result!=0
+  // \post valid_size: sizeof(result)>=3
+  virtual int *GetFaceArray(int faceId)=0;
+  
 protected:
   vtkGenericAdaptorCell();
   virtual ~vtkGenericAdaptorCell();
