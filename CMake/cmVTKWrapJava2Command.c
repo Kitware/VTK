@@ -19,8 +19,6 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   int i;
   int newArgc;
   char **newArgv;
-  int numClasses = 0;
-  char **classes = 0;
   int numWrapped = 0;
   cmVTKWrapJavaData *cdata = 
     (cmVTKWrapJavaData *)malloc(sizeof(cmVTKWrapJavaData));
@@ -60,7 +58,8 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   def = info->CAPI->GetDefinition(mf, newArgv[1]);
   sourceListValue = 
     (char *)malloc(info->CAPI->GetTotalArgumentSize(newArgc,newArgv)+
-                   newArgc*12 + (def ? strlen(def) : 1));  
+                   newArgc*12 + (def ? strlen(def) : 1));
+  sourceListValue[0] = 0;
   if (def)
     {
     sprintf(sourceListValue,"%s",def);
@@ -84,7 +83,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
       {
       void *file = info->CAPI->CreateSourceFile();
       char *srcName;
-      char *hname;
+      char *hname=0;
       srcName = info->CAPI->GetFilenameWithoutExtension(newArgv[i]);
       if (curr)
         {
@@ -92,14 +91,11 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
         info->CAPI->SourceFileSetProperty(file,"ABSTRACT",
                                           (abst ? "1" : "0"));
         }
-      classes[numClasses] = strdup(srcName);
-      numClasses++;
       newName = (char *)malloc(strlen(srcName)+5);
       sprintf(newName,"%sJava",srcName);
       info->CAPI->SourceFileSetName2(file, newName, 
                                      info->CAPI->GetCurrentOutputDirectory(mf),
                                      "cxx",0);
-
       hname = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
       sprintf(hname,"%s/%s.h",cdir,srcName);
       /* add starting depends */
@@ -113,14 +109,14 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
       strcat(sourceListValue,".cxx");        
 
       /* Write file to java dependency file */
-      fprintf(fp, "  %s/%s.java", resultDirectory, srcName);
+      fprintf(fp, "  %s/%s.java\n", resultDirectory, srcName);
       free(newName);
       info->CAPI->Free(srcName);
       }
     }
 
   /* Finalize java dependency file */
-  fprintf(fp, "  )\n");
+  fprintf(fp, ")\n");
   fclose(fp);
   
   cdata->NumberWrapped = numWrapped;
