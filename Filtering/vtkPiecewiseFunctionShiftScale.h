@@ -20,15 +20,15 @@
 #ifndef __vtkPiecewiseFunctionShiftScale_h
 #define __vtkPiecewiseFunctionShiftScale_h
 
-#include "vtkPiecewiseFunctionToPiecewiseFunctionFilter.h"
+#include "vtkPiecewiseFunctionAlgorithm.h"
 
 class vtkPiecewiseFunction;
 
-class VTK_FILTERING_EXPORT vtkPiecewiseFunctionShiftScale : public vtkPiecewiseFunctionToPiecewiseFunctionFilter
+class VTK_FILTERING_EXPORT vtkPiecewiseFunctionShiftScale : public vtkPiecewiseFunctionAlgorithm
 {
 public:
   static vtkPiecewiseFunctionShiftScale *New();
-  vtkTypeRevisionMacro(vtkPiecewiseFunctionShiftScale, vtkPiecewiseFunctionToPiecewiseFunctionFilter);
+  vtkTypeRevisionMacro(vtkPiecewiseFunctionShiftScale, vtkPiecewiseFunctionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   vtkSetMacro(PositionShift, double);
@@ -45,9 +45,8 @@ protected:
   vtkPiecewiseFunctionShiftScale();
   ~vtkPiecewiseFunctionShiftScale();
   
-  void Execute();
-  
-  vtkPiecewiseFunction *Input;
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
   
   double PositionShift;
   double PositionScale;

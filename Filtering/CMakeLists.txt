@@ -124,9 +124,8 @@ vtkOrderedTriangulator.cxx
 vtkPentagonalPrism.cxx
 vtkPerlinNoise.cxx
 vtkPiecewiseFunction.cxx
+vtkPiecewiseFunctionAlgorithm.cxx
 vtkPiecewiseFunctionShiftScale.cxx
-vtkPiecewiseFunctionSource.cxx
-vtkPiecewiseFunctionToPiecewiseFunctionFilter.cxx
 vtkPixel.cxx
 vtkPointData.cxx
 vtkPointLocator.cxx
@@ -249,8 +248,6 @@ vtkInformationUnsignedLongKey
 vtkLocator
 vtkMapper2D
 vtkNonLinearCell
-vtkPiecewiseFunctionSource
-vtkPiecewiseFunctionToPiecewiseFunctionFilter
 vtkPointSet
 vtkPointSetSource
 vtkPointSetToPointSetFilter

@@ -14,16 +14,16 @@
 =========================================================================*/
 #include "vtkPiecewiseFunctionShiftScale.h"
 
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunctionShiftScale, "1.5");
+vtkCxxRevisionMacro(vtkPiecewiseFunctionShiftScale, "1.6");
 vtkStandardNewMacro(vtkPiecewiseFunctionShiftScale);
 
 vtkPiecewiseFunctionShiftScale::vtkPiecewiseFunctionShiftScale()
 {
-  this->Input = NULL;
-  
   this->PositionShift = 0.0;
   this->PositionScale = 1.0;
   this->ValueShift = 0.0;
@@ -34,16 +34,17 @@ vtkPiecewiseFunctionShiftScale::~vtkPiecewiseFunctionShiftScale()
 {
 }
 
-void vtkPiecewiseFunctionShiftScale::Execute()
+int vtkPiecewiseFunctionShiftScale::RequestData(
+  vtkInformation *,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPiecewiseFunction *input = this->GetInput();
-  vtkPiecewiseFunction *output = this->GetOutput();
-  
-  if ( ! input )
-    {
-    vtkErrorMacro("No input set.");
-    return;
-    }
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkPiecewiseFunction *input = vtkPiecewiseFunction::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPiecewiseFunction *output = vtkPiecewiseFunction::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   double *inFunction = input->GetDataPointer();
   int numInValues = input->GetSize();
@@ -59,13 +60,14 @@ void vtkPiecewiseFunctionShiftScale::Execute()
                      (inFunction[2*i+1] + this->ValueShift) *
                      this->ValueScale);
     }
+
+  return 1;
 }
 
 void vtkPiecewiseFunctionShiftScale::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   
-  os << indent << "Input: " << this->Input << "\n";
   os << indent << "PositionShift: " << this->PositionShift << "\n";
   os << indent << "PositionScale: " << this->PositionScale << "\n";
   os << indent << "ValueShift: " << this->ValueShift << "\n";
