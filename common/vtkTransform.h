@@ -84,13 +84,13 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   // Set the transformation to the identity transformation.  If 
   // the transform has an Input, then the transformation will be
   // reset so that it is the same as the Input.
-  void Identity() { this->Concatenation->Identity(); this->Modified(); };
+  void Identity();
 
   // Description:
   // Invert the transformation.  This will also set a flag so that
   // the transformation will use the inverse of its Input, if an Input
   // has been set.
-  void Inverse() { this->Concatenation->Inverse(); this->Modified(); };
+  void Inverse();
 
   // Description:
   // Create a translation matrix and concatenate it with the current
@@ -361,6 +361,12 @@ protected:
   vtkLinearTransform *Input;
   vtkTransformConcatenation *Concatenation;
   vtkTransformConcatenationStack *Stack;
+
+//BTX
+  // this allows us to check whether people have been fooling
+  // around with our matrix
+//ETX
+  unsigned long MatrixUpdateMTime;
 
 //BTX
   // legacy 

@@ -72,6 +72,9 @@ vtkTransform::vtkTransform()
   this->Point[0] = this->Point[1] = this->Point[2] = this->Point[3] = 0.0;
   this->DoublePoint[0] = 
     this->DoublePoint[1] = this->DoublePoint[2] = this->DoublePoint[3] = 0.0;
+
+  // save the original matrix MTime as part of a hack to support legacy code
+  this->MatrixUpdateMTime = this->Matrix->GetMTime();
 }
 
 //----------------------------------------------------------------------------
@@ -105,6 +108,34 @@ void vtkTransform::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point: " << "( " << 
      this->Point[0] << ", " << this->Point[1] << ", " <<
      this->Point[2] << ", " << this->Point[3] << ")\n";
+}
+
+//----------------------------------------------------------------------------
+void vtkTransform::Identity() 
+{
+  this->Concatenation->Identity();
+  this->Modified();
+
+  // support for the legacy hack in InternalUpdate
+  if (this->Matrix->GetMTime() > this->MatrixUpdateMTime)
+    {
+    vtkDebugMacro(<<"Identity: Legacy Hack");
+    this->Matrix->Identity();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkTransform::Inverse() 
+{
+  this->Concatenation->Inverse();
+  this->Modified();
+
+  // for the legacy hack in InternalUpdate
+  if (this->Matrix->GetMTime() > this->MatrixUpdateMTime)
+    {
+    vtkDebugMacro(<<"Inverse: Legacy Hack");
+    this->Matrix->Invert();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -142,11 +173,42 @@ void vtkTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
     this->Point[j] = transform->Point[j];
     this->DoublePoint[j] = transform->DoublePoint[j];
     }
+
+  // to support the legacy hack in InternalUpdate
+  this->Matrix->DeepCopy(transform->Matrix);
+  this->MatrixUpdateMTime = this->Matrix->GetMTime();
+  if (transform->Matrix->GetMTime() > transform->MatrixUpdateMTime)
+    { // this copies the legacy hack flag to the transform
+    vtkDebugMacro(<<"InternalDeepCopy: Legacy Hack");
+    this->MatrixUpdateMTime--;
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkTransform::InternalUpdate()
 {
+  int i;
+  int nTransforms = this->Concatenation->GetNumberOfTransforms();
+  int nPreTransforms = this->Concatenation->GetNumberOfPreTransforms();
+
+  // check to see whether someone has been fooling around with our matrix
+  int doTheLegacyHack = 0;
+  if (this->Matrix->GetMTime() > this->MatrixUpdateMTime)
+    {
+    vtkDebugMacro(<<"InternalUpdate: this->Matrix was modified by something other than 'this'");
+
+    // check to see if we have any inputs or concatenated transforms
+    int isPipelined = (this->Input != 0);
+    for (i = 0; i < nTransforms && !isPipelined; i++)
+      { // the vtkSimpleTransform is just a matrix placeholder, 
+	// it is not a real transform
+      isPipelined = 
+	!this->Concatenation->GetTransform(i)->IsA("vtkSimpleTransform");
+      }
+    // do the legacy hack only if we have no input transforms
+    doTheLegacyHack = !isPipelined;
+    }
+
   // copy matrix from input
   if (this->Input)
     {
@@ -157,15 +219,21 @@ void vtkTransform::InternalUpdate()
       this->Matrix->Invert();
       }
     }
-  else
-  // no input, start with identity
+  else if (doTheLegacyHack)
     {
+    vtkDebugMacro(<<"InternalUpdate: doing hack to support legacy code");
+    // this heuristic works perfectly if GetMatrix() or GetMatrixPointer()
+    // was called immediately prior to the matrix modifications 
+    // (fortunately, this is almost always the case)
+    if (this->Matrix->GetMTime() > this->Concatenation->GetMaxMTime())
+      { // don't apply operations that occurred after matrix modification
+      nPreTransforms = nTransforms = 0;
+      }
+    }
+  else
+    {  // otherwise, we start with the identity transform as our base
     this->Matrix->Identity();
     }
-
-  int i;
-  int nTransforms = this->Concatenation->GetNumberOfTransforms();
-  int nPreTransforms = this->Concatenation->GetNumberOfPreTransforms();
 
   // concatenate PreTransforms 
   for (i = nPreTransforms-1; i >= 0; i--)
@@ -183,6 +251,16 @@ void vtkTransform::InternalUpdate()
       (vtkHomogenousTransform *)this->Concatenation->GetTransform(i);
     vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),this->Matrix,
 			      this->Matrix);
+    }
+
+  if (doTheLegacyHack)
+    { // the transform operations have been incorporated into the matrix,
+      // so delete them
+    this->Concatenation->Identity();
+    }
+  else
+    { // having this in the 'else' forces the legacy flag to be sticky
+    this->MatrixUpdateMTime = this->Matrix->GetMTime();
     }
 }  
 
@@ -254,6 +332,15 @@ unsigned long vtkTransform::GetMTime()
 {
   unsigned long mtime = this->vtkLinearTransform::GetMTime();
   unsigned long mtime2;
+
+  // checking the matrix MTime is part of the legacy hack in InternalUpdate
+  if ((mtime2 = this->Matrix->GetMTime()) > this->MatrixUpdateMTime)
+    {
+    if (mtime2 > mtime)
+      {
+      mtime = mtime2;
+      }
+    }  
 
   if (this->Input)
     {
