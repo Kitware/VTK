@@ -83,6 +83,16 @@ public:
   int AddLOD( vtkVolumeMapper *m, float time );
 
   // Description:
+  // Get the current number of LODs.
+  vtkGetMacro(NumberOfLODs, int);
+ 
+  // Description:
+  // Get the current index, used to determine the ID of the next LOD that is added.
+  // Useful for guessing what IDs have been used (with NumberOfLODs, without 
+  // depending on the constructor initialization to 1000.
+  vtkGetMacro(CurrentIndex, int);
+
+  // Description:
   // Delete a level of detail given an ID. This is the ID returned by the
   // AddLOD method
   void RemoveLOD( int id );
