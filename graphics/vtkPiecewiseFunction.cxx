@@ -94,10 +94,14 @@ void vtkPiecewiseFunction::DeepCopy( vtkDataObject *o )
     {
     this->ArraySize    = f->ArraySize;
     this->Clamping     = f->Clamping;
-    this->Function     = new float[this->ArraySize*2]; 
     this->FunctionSize = f->FunctionSize;
     memcpy( this->FunctionRange, f->FunctionRange, 2*sizeof(float) );
-    memcpy( this->Function, f->Function, this->ArraySize*2*sizeof(float) );
+    if ( this->ArraySize > 0 )
+      {
+      delete [] this->Function;
+      this->Function     = new float[this->ArraySize*2];
+      memcpy( this->Function, f->Function, this->ArraySize*2*sizeof(float) );
+      }
     }
 
   // Do the superclass
