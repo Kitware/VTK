@@ -13,6 +13,7 @@ proc BindTkRenderWidget {widget} {
     bind $widget <KeyPress-u> {wm deiconify .vtkInteract}
     bind $widget <KeyPress-w> {Wireframe %W}
     bind $widget <KeyPress-s> {Surface %W}
+    bind $widget <KeyPress-p> {PickActor %W %x %y}
     bind $widget <Enter> {Enter %W %x %y}
     bind $widget <Leave> {focus $oldFocus}
     bind $widget <Expose> {Expose %W}
@@ -53,21 +54,21 @@ proc UpdateRenderer {widget x y} {
 
     $renderers InitTraversal; set RendererFound 0
     for {set i 0} {$i < $numRenderers} {incr i} {
-	set CurrentRenderer [$renderers GetNextItem]
-	set vx [expr double($x) / $WindowX]
-	set vy [expr ($WindowY - double($y)) / $WindowY]
-	set viewport [$CurrentRenderer GetViewport]
-	set vpxmin [lindex $viewport 0]
-	set vpymin [lindex $viewport 1]
-	set vpxmax [lindex $viewport 2]
-	set vpymax [lindex $viewport 3]
-	if { $vx >= $vpxmin && $vx <= $vpxmax && \
-	$vy >= $vpymin && $vy <= $vpymax} {
+        set CurrentRenderer [$renderers GetNextItem]
+        set vx [expr double($x) / $WindowX]
+        set vy [expr ($WindowY - double($y)) / $WindowY]
+        set viewport [$CurrentRenderer GetViewport]
+        set vpxmin [lindex $viewport 0]
+        set vpymin [lindex $viewport 1]
+        set vpxmax [lindex $viewport 2]
+        set vpymax [lindex $viewport 3]
+        if { $vx >= $vpxmin && $vx <= $vpxmax && \
+        $vy >= $vpymin && $vy <= $vpymax} {
             set RendererFound 1
             set WindowCenterX [expr double($WindowX)*(($vpxmax - $vpxmin)/2.0\
                                 + $vpxmin)]
             set WindowCenterY [expr double($WindowY)*(($vpymax - $vpymin)/2.0\
-		                + $vpymin)]
+                                + $vpymin)]
             break
         }
     }
@@ -177,7 +178,7 @@ proc Pan {widget x y} {
     set LastX $x
     set LastY $y
 
-    Render widget
+    Render $widget
 }
 
 proc Zoom {widget x y} {
@@ -223,17 +224,17 @@ proc Reset {widget x y} {
 
     $renderers InitTraversal; set RendererFound 0
     for {set i 0} {$i < $numRenderers} {incr i} {
-	set CurrentRenderer [$renderers GetNextItem]
-	set vx [expr double($x) / $WindowX]
-	set vy [expr ($WindowY - double($y)) / $WindowY]
+        set CurrentRenderer [$renderers GetNextItem]
+        set vx [expr double($x) / $WindowX]
+        set vy [expr ($WindowY - double($y)) / $WindowY]
 
-	set viewport [$CurrentRenderer GetViewport]
-	set vpxmin [lindex $viewport 0]
-	set vpymin [lindex $viewport 1]
-	set vpxmax [lindex $viewport 2]
-	set vpymax [lindex $viewport 3]
-	if { $vx >= $vpxmin && $vx <= $vpxmax && \
-	$vy >= $vpymin && $vy <= $vpymax} {
+        set viewport [$CurrentRenderer GetViewport]
+        set vpxmin [lindex $viewport 0]
+        set vpymin [lindex $viewport 1]
+        set vpxmax [lindex $viewport 2]
+        set vpymax [lindex $viewport 3]
+        if { $vx >= $vpxmin && $vx <= $vpxmax && \
+        $vy >= $vpymin && $vy <= $vpymax} {
             set RendererFound 1
             break
         }
@@ -269,6 +270,37 @@ proc Surface {widget} {
     while { $actor != "" } {
         [$actor GetProperty] SetRepresentationToSurface
         set actor [$actors GetNextItem]
+    }
+
+    Render $widget
+}
+
+# Used to support picking operations
+#
+set PickedAssembly ""
+vtkCellPicker ActorPicker
+vtkProperty PickedProperty
+    PickedProperty SetColor 1 0 0
+set PrePickedProperty ""
+
+proc PickActor {widget x y} {
+    global CurrentRenderer RendererFound
+    global PickedAssembly PrePickedProperty WindowY
+
+    set WindowY [lindex [$widget configure -height] 4]
+
+    if { ! $RendererFound } { return }
+    ActorPicker Pick $x [expr $WindowY - $y - 1] 0.0 $CurrentRenderer
+    set assembly [ActorPicker GetAssembly]
+
+    if { $PickedAssembly != "" && $PrePickedProperty != "" } {
+        $PickedAssembly SetProperty $PrePickedProperty
+    }
+
+    if { $assembly != "" } {
+        set PickedAssembly $assembly
+        set PrePickedProperty [$PickedAssembly GetProperty]
+        $PickedAssembly SetProperty PickedProperty
     }
 
     Render $widget
