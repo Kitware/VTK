@@ -17,7 +17,7 @@
 // vtkStructuredPointsWriter is a source object that writes ASCII or binary 
 // structured points data in vtk file format. See text for format details.
 // .SECTION Caveats
-// Binary files written on one system may not be writable on other systems.
+// Binary files written on one system may not be readable on other systems.
 
 #ifndef __vtkStructuredPointsWriter_h
 #define __vtkStructuredPointsWriter_h

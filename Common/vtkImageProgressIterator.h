@@ -18,7 +18,7 @@
 // image. Typically used to iterate over the output image
 
 // .SECTION See also
-// vtkImage vtkImageIterator
+// vtkImageData vtkImageIterator
 
 #ifndef __vtkImageProgressIterator_h
 #define __vtkImageProgressIterator_h

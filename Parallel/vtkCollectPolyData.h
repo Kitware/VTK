@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // .NAME vtkCollectPolyData - Collect distributed polydata.
-// .DESCRIPTION
+// .SECTION Description
 // This filter has code to collect polydat from across processes onto node 0.
 // Collection can be turned on or off using the "PassThrough" flag.
 

@@ -29,7 +29,7 @@
 // orthogonal to its gradient vector.
 
 // .SECTION see also
-// vtkImage vtkImageGradient vtkLinkEdgels
+// vtkImageData vtkImageGradient vtkLinkEdgels
 
 #ifndef __vtkSubPixelPositionEdgels_h
 #define __vtkSubPixelPositionEdgels_h

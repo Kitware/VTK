@@ -18,7 +18,7 @@
 // image. This should be used internally by Filter writers.
 
 // .SECTION See also
-// vtkImage vtkImageProgressIterator
+// vtkImageData vtkImageProgressIterator
 
 #ifndef __vtkImageIterator_h
 #define __vtkImageIterator_h

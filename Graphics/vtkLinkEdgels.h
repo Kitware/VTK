@@ -40,7 +40,7 @@
 // can also be used after this filter to adjust the edgel locations.
 
 // .SECTION see also
-// vtkImage vtkImageGradient vtkNonMaximumSuppression
+// vtkImageData vtkImageGradient vtkImageNonMaximumSuppression
 
 #ifndef __vtkLinkEdgels_h
 #define __vtkLinkEdgels_h

@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // .NAME vtkDuplicatePolyData - For distributed tiled displays.
-// .DESCRIPTION
+// .SECTION Description
 // This filter collects poly data and duplicates it on every node.
 // Converts data parallel so every node has a complete copy of the data.
 // The filter is used at the end of a pipeline for driving a tiled

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkTransmitUnstructuredGridPiece - Return specified piece, including specified
 // number of ghost levels.
-// .DESCRIPTION
+// .SECTION Description
 // This filter updates the appropriate piece by requesting the piece from 
 // process 0.  Process 0 always updates all of the data.  It is important that 
 // Execute get called on all processes, otherwise the filter will deadlock.
