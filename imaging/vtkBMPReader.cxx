@@ -40,11 +40,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkBMPReader.h"
+#include "vtkByteSwap.h"
 #include <stdio.h>
 
 vtkBMPReader::vtkBMPReader()
 {
   this->Colors = NULL;
+  this->SetDataByteOrderToLittleEndian();
 }
 
 //----------------------------------------------------------------------------
@@ -127,7 +129,8 @@ void vtkBMPReader::UpdateImageInformation()
 
   // get size of header
   fread(&infoSize,sizeof(long),1,fp);
-  
+  vtkByteSwap::Swap4LE(&infoSize);
+		       
   // error checking
   if ((infoSize != 40)&&(infoSize != 12))
     {
@@ -141,13 +144,17 @@ void vtkBMPReader::UpdateImageInformation()
     {
     // now get the dimensions
     fread(&xsize,sizeof(long),1,fp);
+    vtkByteSwap::Swap4LE(&xsize);
     fread(&ysize,sizeof(long),1,fp);
+    vtkByteSwap::Swap4LE(&ysize);
     }
   else
     {
     fread(&stmp,sizeof(short),1,fp);
+    vtkByteSwap::Swap2LE(&stmp);
     xsize = stmp;
     fread(&stmp,sizeof(short),1,fp);
+    vtkByteSwap::Swap2LE(&stmp);
     ysize = stmp;
     }
   
@@ -166,6 +173,7 @@ void vtkBMPReader::UpdateImageInformation()
   fread(&stmp,sizeof(short),1,fp);
   // read depth
   fread(&this->Depth,sizeof(short),1,fp);
+  vtkByteSwap::Swap2LE(&this->Depth);
   if ((this->Depth != 8)&&(this->Depth != 24))
     {
     vtkErrorMacro(<<"Only BMP depths of (8,24) are supported. Not " << this->Depth);
@@ -296,7 +304,7 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
   unsigned char *buf;
   int inExtent[6];
   int dataExtent[6];
-  int comp, pixelSkip;
+  int pixelSkip;
   unsigned char *inPtr;
   
   // Get the requested extents.
@@ -361,14 +369,8 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
 	return;
 	}
       
-      // handle swapping
-      //      if (self->SwapBytes)
-      //	{
-      //	vtkByteSwap::SwapVoidRange(buf, pixelRead, 1);
-      //	}
-      
       // copy the bytes into the typed data
-      inPtr = (unsigned char *)(buf);
+      inPtr = buf;
       for (idx0 = dataExtent[0]; idx0 <= dataExtent[1]; ++idx0)
 	{
 	// Copy pixel into the output.
@@ -378,7 +380,13 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
 	  outPtr0[1] = (OT)(self->Colors[inPtr[0]*3+1]);
 	  outPtr0[2] = (OT)(self->Colors[inPtr[0]*3+2]);
 	  }
-	else
+	else if (self->SwapBytes)
+	  {
+	  outPtr0[0] = (OT)(inPtr[2]);
+	  outPtr0[1] = (OT)(inPtr[1]);
+	  outPtr0[2] = (OT)(inPtr[0]);
+	  }
+	else 
 	  {
 	  outPtr0[0] = (OT)(inPtr[0]);
 	  outPtr0[1] = (OT)(inPtr[1]);
