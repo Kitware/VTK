@@ -4,6 +4,8 @@ vtkBitmap		GetColor	313 4
 vtkCamera		GetOrientation	301 3
 vtkCamera		GetOrientationWXYZ	301 4
 vtkCell  		GetBounds	301 6
+vtkColorTransferFunction GetRange	301 2
+vtkColorTransferFunction GetValue	301 3
 vtkCoordinate           GetComputedDisplayValue 304 2
 vtkCoordinate           GetComputedViewportValue 304 2
 vtkCoordinate           GetComputedLocalDisplayValue 304 2
