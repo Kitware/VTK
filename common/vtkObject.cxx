@@ -48,19 +48,24 @@ static int vtkObjectGlobalWarningDisplay = 1;
 #ifdef _WIN32
 void* vtkObject::operator new(size_t nSize, const char *, int)
 {
-void* p=malloc(nSize);
-return p;
+  void* p=malloc(nSize);
+  return p;
 }
 
 void* vtkObject::operator new(size_t nSize)
 {
-void* p=malloc(nSize);
-return p;
+  void* p=malloc(nSize);
+  return p;
+}
+
+void vtkObject::operator delete( void *p, const char *, int)
+{
+  free(p);
 }
 
 void vtkObject::operator delete( void *p )
 {
-free(p);
+  free(p);
 }
 #endif 
 
