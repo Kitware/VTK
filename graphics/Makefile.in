@@ -61,6 +61,7 @@ vtkDataSetToStructuredPointsFilter \
 vtkDataSetToUnstructuredGridFilter \
 vtkDicer \
 vtkEncodedGradientEstimator \
+vtkEnSightReader \
 vtkExporter \
 vtkGraphicsFactory \
 vtkImporter \
