@@ -126,6 +126,7 @@ void vtkIdentityTransform::InternalTransformNormal(const float in[3],
 						   float out[3])
 {
   vtkIdentityTransformPoint(in,out);
+  vtkMath::Normalize(out);
 }
 
 //------------------------------------------------------------------------
@@ -133,6 +134,7 @@ void vtkIdentityTransform::InternalTransformNormal(const double in[3],
 						   double out[3])
 {
   vtkIdentityTransformPoint(in,out);
+  vtkMath::Normalize(out);
 }
 
 //------------------------------------------------------------------------
