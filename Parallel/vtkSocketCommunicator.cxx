@@ -1,31 +1,32 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkSocketCommunicator.cxx
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+Program:   Visualization Toolkit
+Module:    vtkSocketCommunicator.cxx
+Language:  C++
+Date:      $Date$
+Version:   $Revision$
 
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even 
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkSocketCommunicator.h"
-#include "vtkSocketController.h"
+
 #include "vtkObjectFactory.h"
+#include "vtkSocketController.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
- #include <sys/types.h>
- #include <sys/socket.h>
- #include <netinet/in.h>
- #include <arpa/inet.h>
- #include <netdb.h>
- #include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
 #endif
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -35,29 +36,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-// These macros are used to decrease the number of lines 
-// not covered during testing (macros count as one line)
-#define vtkSCCheckForError \
-  if ( checkForError(remoteProcessId, this->NumberOfProcesses) ) \
-    { \
-    return 0; \
-    } 
-
-#define vtkSCSendError \
-  if (sent == -1 || sent == 0) \
-    { \
-    vtkGenericWarningMacro("Could not send message."); \
-    return 0; \
-    } 
-
-#define vtkSCReceiveError \
-  if (received == -1 || received == 0) \
-    { \
-    vtkErrorMacro("Could not receive message."); \
-    return 0; \
-    }
-
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.39");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.40");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -68,9 +47,8 @@ vtkSocketCommunicator::vtkSocketCommunicator()
   this->NumberOfProcesses = 2;
   this->SwapBytesInReceivedData = 0;
   this->PerformHandshake = 1;
-
-  this->TraceFile = 0;
-  //this->TraceFile = new ofstream("socket.txt", ios::out);
+  this->LogStream = 0;
+  this->LogFile = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -81,15 +59,8 @@ vtkSocketCommunicator::~vtkSocketCommunicator()
     vtkCloseSocketMacro(this->Socket);
     this->Socket = -1;
     }
-
-  if ( this->TraceFile )
-    {
-    this->TraceFile->close();
-    delete this->TraceFile;
-    this->TraceFile = 0;
-    }
+  this->SetLogStream(0);
 }
-
 
 //----------------------------------------------------------------------------
 void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
@@ -103,153 +74,118 @@ void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
      << ( this->PerformHandshake ? "Yes" : "No" ) << endl;
 }
 
-static inline int checkForError(int id, int maxId)
+//----------------------------------------------------------------------------
+void vtkSocketCommunicator::SetLogStream(ostream* stream)
 {
-  if ( id == 0 )
+  if(this->LogStream != stream)
     {
-    vtkGenericWarningMacro("Can not connect to myself!");
-    return 1;
+    // If the log stream is our own log file, close the file.
+    if(this->LogFile && this->LogFile == this->LogStream)
+      {
+      delete this->LogFile;
+      this->LogFile = 0;
+      }
+    
+    // Use the given log stream.
+    this->LogStream = stream;
     }
-  else if ( id >= maxId )
-    {
-    vtkGenericWarningMacro("No port for process " << id << " exists.");
-    return 1;
-    }
-  return 0;
 }
 
-static int SendMessage(char* data, int length, int tag, int sock)
+//----------------------------------------------------------------------------
+ostream* vtkSocketCommunicator::GetLogStream()
 {
+  return this->LogStream;
+}
 
-  int sent, total = 0;
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::LogToFile(const char* name)
+{
+  return this->LogToFile(name, 0);
+}
 
-  total = send(sock, (char*)&tag, sizeof(int), 0);
-  if (total == -1 || total == 0)
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::LogToFile(const char* name, int append)
+{
+  // Close old logging file.
+  if(this->LogFile)
     {
-    vtkGenericWarningMacro("Could not send tag.");
-    return 0;
+    delete this->LogFile;
+    this->LogFile = 0;
     }
-  while ( total < (int)sizeof(int) )
+  this->LogStream = 0;
+  
+  // Log to given file, if any.
+  if(name && name[0])
     {
-    sent = send ( sock, data + total, sizeof(int) - total, 0 );
-    vtkSCSendError;
-    total += sent;
+    this->LogFile = new ofstream(name, (ios::out |
+                                        (append? ios::ate : ios::trunc)));
+    if(!this->LogFile)
+      {
+      return 0;
+      }
+    if(!*this->LogFile)
+      {
+      delete this->LogFile;
+      this->LogFile = 0;
+      return 0;
+      }
+    this->LogStream = this->LogFile;
     }
-
-  total = send(sock, data, length, 0);
-  if (total == -1 || total == 0)
-    {
-    vtkGenericWarningMacro("Could not send message.");
-    return 0;
-    }
-  while ( total < length )
-    {
-    sent = send ( sock, data + total, length - total, 0 );
-    vtkSCSendError;
-    total += sent;
-    }
-
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::Send(int *data, int length, int remoteProcessId, 
+int vtkSocketCommunicator::Send(int* data, int length, int remoteProcessId, 
                                 int tag)
 {
-  vtkSCCheckForError;
-
-  if ( this->TraceFile )
-    {
-    *this->TraceFile << "Send int    " << length << ", to " 
-                     << remoteProcessId << ", tag " << tag << endl;
-    if (length == 3)
-      {
-      *this->TraceFile << "        " << data[0] << ", " << data[1] << ", " 
-                       << data[2] << endl;
-      }
-    }
-
-  return ::SendMessage(reinterpret_cast<char*>(data), length*sizeof(int), 
-                     tag, this->Socket);
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  return this->SendTagged(data, static_cast<int>(sizeof(int)),
+                          length, tag, "int");
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::Send(unsigned long *data, int length, 
+int vtkSocketCommunicator::Send(unsigned long* data, int length, 
                                 int remoteProcessId, int tag)
 {
-  vtkSCCheckForError;
-
-  if ( this->TraceFile )
-    {
-    *this->TraceFile << "Send ulong  " << length << ", to " 
-                     << remoteProcessId << ", tag " << tag << endl;
-    }
-  return ::SendMessage(reinterpret_cast<char*>(data),length*sizeof(unsigned long), 
-                     tag, this->Socket);
-}
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Send(char *data, int length, 
-                                int remoteProcessId, int tag)
-{
-  vtkSCCheckForError;
-
-  if ( this->TraceFile )
-    {
-    *this->TraceFile << "Send char   " << length << ", to " 
-                     << remoteProcessId << ", tag " << tag << endl;
-    if ( length < 80)
-      {
-      *this->TraceFile << "        " << data << endl;
-      }
-    }
-
-  return ::SendMessage(reinterpret_cast<char*>(data), length, tag, this->Socket);
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  return this->SendTagged(data, static_cast<int>(sizeof(unsigned long)),
+                          length, tag, "ulong");
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::Send(unsigned char *data, int length, 
+int vtkSocketCommunicator::Send(char* data, int length, 
                                 int remoteProcessId, int tag)
 {
-  vtkSCCheckForError;
-
-  if ( this->TraceFile )
-    {
-    *this->TraceFile << "Send uchar  " << length << ", to " 
-                     << remoteProcessId << ", tag " << tag << endl;
-    }
-
-  return ::SendMessage(reinterpret_cast<char*>(data), length, tag, this->Socket);
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  return this->SendTagged(data, static_cast<int>(sizeof(char)),
+                          length, tag, "char");
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::Send(float *data, int length, 
+int vtkSocketCommunicator::Send(unsigned char* data, int length, 
                                 int remoteProcessId, int tag)
 {
-  vtkSCCheckForError;
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  return this->SendTagged(data, static_cast<int>(sizeof(unsigned char)),
+                          length, tag, "uchar");
+}
 
-  if ( this->TraceFile )
-    {
-    *this->TraceFile << "Send float  " << length << ", to " 
-                     << remoteProcessId << ", tag " << tag << endl;
-    }
-
-  return ::SendMessage(reinterpret_cast<char*>(data), length*sizeof(float), 
-                     tag, this->Socket);
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::Send(float* data, int length, 
+                                int remoteProcessId, int tag)
+{
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  return this->SendTagged(data, static_cast<int>(sizeof(float)),
+                          length, tag, "float");
 }
 
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::Send(double *data, int length, 
                                 int remoteProcessId, int tag)
 {
-  vtkSCCheckForError;
-
-  if ( this->TraceFile )
-    {
-    *this->TraceFile << "Send double " << length << ", to " 
-                     << remoteProcessId << ", tag " << tag << endl;
-    }
-  return ::SendMessage(reinterpret_cast<char*>(data), length*sizeof(double), 
-                     tag, this->Socket);
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  return this->SendTagged(data, static_cast<int>(sizeof(double)),
+                          length, tag, "double");
 }
 
 #ifdef VTK_USE_64BIT_IDS
@@ -257,264 +193,83 @@ int vtkSocketCommunicator::Send(double *data, int length,
 int vtkSocketCommunicator::Send(vtkIdType *data, int length, 
                                 int remoteProcessId, int tag)
 {
-  vtkSCCheckForError;
-
-  return ::SendMessage(reinterpret_cast<char*>(data), length*sizeof(vtkIdType), 
-                     tag, this->Socket);
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  return this->SendTagged(data, static_cast<int>(sizeof(vtkIdType)),
+                          length, tag, "vtkIdType");
 }
 #endif
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
-                                           int tag )
-{
-  int totalLength = length * size;
-  int received, total;
-  int recvTag = -1;
-  char* charTag = (char*)&recvTag;
-
-  total = recv( this->Socket, charTag, sizeof(int), MSG_PEEK );
-
-  if ( total == -1 || total == 0 )
-    {
-    vtkErrorMacro("Could not receive tag.");
-    if ( this->TraceFile )
-      {
-      *this->TraceFile << "****Could not receive tag" << endl;
-      }
-    return 0;
-    }
-  while ( total < (int)sizeof(int) )
-    {
-    received = recv( this->Socket, &(charTag[total]), sizeof(int) - total, 0 );
-    vtkSCReceiveError;
-    total += received;
-    }
-
-  if ( this->SwapBytesInReceivedData )
-    {
-    vtkSwap4( charTag );
-    }
-  if ( recvTag != tag )
-    {
-    if ( this->TraceFile )
-      {
-      *this->TraceFile << "****Tag mismatch: got " << recvTag 
-                       << " expecting " << tag << endl;
-      }
-    vtkErrorMacro("Tag mismatch: got " << recvTag << " expecting " << tag);
-    return 0;
-    }
-  
-  // Since we've already peeked at the entire tag, it must all be here, so
-  // we should be able to get all of it in one try.
-  received = recv( this->Socket, charTag, sizeof(int), 0 );
-  if ( received == -1 || received == 0 )
-    {
-    if ( this->TraceFile )
-      {
-      *this->TraceFile << "****Could not receive tag (even though it's already here).\n";
-      }
-    vtkErrorMacro("Could not receive tag (even though it's already here).");
-    return 0;
-    }
-
-  total = recv( this->Socket, data, totalLength, 0 );
-  if (total == -1 || total == 0)
-    {
-    if ( this->TraceFile )
-      {
-      *this->TraceFile << "****Could not receive message." << endl;
-      }
-    vtkErrorMacro("Could not receive message.");
-    return 0;
-    }
-  while ( total < totalLength )
-    {
-    received = recv( this->Socket, &(data[total]), totalLength - total, 0 );
-    vtkSCReceiveError;
-    total += received;
-    }
-
-  // Unless we're dealing with chars, then check byte ordering
-  // This is really bad and should probably use some enum for types
-  if (this->SwapBytesInReceivedData)
-    {
-    if (size == 4)
-      {
-      vtkDebugMacro(<< " swapping 4 range, size = " << size 
-      << " length = " << length);
-      vtkSwap4Range(data, length);
-      }
-    else if (size == 8)
-      {
-      vtkDebugMacro(<< " swapping 8 range, size = " << size 
-      << " length = " << length );
-      vtkSwap8Range(data, length);
-      }
-    }
-  
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::ReceiveMessage(char *data, int *length, 
-                                          int maxlength)
-{
-  if ( this->Socket < 0 )
-    {
-    if ( this->IsConnected )
-      {
-      this->CloseConnection();
-      }
-    return VTK_ERROR;
-    }
-
-  *length = recv( this->Socket, data, maxlength, 0 );
-
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  if ( GetLastError( ) == WSAECONNRESET )
-    {
-    if ( this->IsConnected )
-      {
-      this->CloseConnection();
-      }
-    return VTK_ERROR;
-    }
-#endif
-
-  if ( *length <= 0 )
-    {
-    return VTK_ERROR;
-    }
-  return VTK_OK;
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::SendMessage(const char *data, int length)
-{
-  if ( this->Socket < 0 || length < 0 || !data )
-    {
-    return VTK_ERROR;
-    }
-  int total = 0;
-  total = send(this->Socket, data, length, 0);
-  if ( total != length )
-    {
-    return VTK_ERROR;
-    }
-  return VTK_OK;
-}
-
-//----------------------------------------------------------------------------
-int vtkSocketCommunicator::Receive(int *data, int length, int remoteProcessId, 
+int vtkSocketCommunicator::Receive(int* data, int length, int remoteProcessId, 
                                    int tag)
 {
-  vtkSCCheckForError;
-
-  if ( this->TraceFile )
-    {
-    *this->TraceFile << "Recv int    " << length << ", from " 
-                     << remoteProcessId << ", tag " << tag << endl;
-    }
-
-  int retval = this->ReceiveMessage( (char *)data, sizeof(int), length, tag );
-
-  if (this->TraceFile && length == 3)
-    {
-    *this->TraceFile << "        " << data[0] << ", " 
-                     << data[1] << ", " << data[2] << endl;
-    }
-
-  if ( tag == vtkMultiProcessController::RMI_TAG )
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  int ret = this->ReceiveTagged(data, static_cast<int>(sizeof(int)),
+                                length, tag, "int");
+  if(tag == vtkMultiProcessController::RMI_TAG)
     {
     data[2] = 1;
-    }
-
-  return retval;
+    }  
+  return ret;
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::Receive(unsigned long *data, int length, 
+int vtkSocketCommunicator::Receive(unsigned long* data, int length, 
                                    int remoteProcessId, int tag)
 {
-  vtkSCCheckForError;
-
-  if ( this->TraceFile )
-    {
-    *this->TraceFile << "Receive ulong  " << length << ", from " 
-                     << remoteProcessId << ", tag " << tag << endl;
-    }
-  return this->ReceiveMessage( (char *)data, sizeof(unsigned long), 
-                               length, tag );
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  return this->ReceiveTagged(data, static_cast<int>(sizeof(unsigned long)),
+                             length, tag, "ulong");
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::Receive(char *data, int length, 
+int vtkSocketCommunicator::Receive(char* data, int length, 
                                    int remoteProcessId, int tag)
 {
-  vtkSCCheckForError;
-
-  if ( this->TraceFile )
-    {
-    *this->TraceFile << "Recv char   " << length << ", from " 
-                     << remoteProcessId << ", tag " << tag << endl;
-    }
-  int retVal = this->ReceiveMessage( data, sizeof(char), length, tag);
-  if (this->TraceFile &&  length < 80)
-    {
-    *this->TraceFile << "        " << data << endl;
-    }
-  return retVal;
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  return this->ReceiveTagged(data, static_cast<int>(sizeof(char)),
+                             length, tag, "char");
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::Receive(unsigned char *data, int length, 
+int vtkSocketCommunicator::Receive(unsigned char* data, int length, 
                                    int remoteProcessId, int tag)
 {
-  vtkSCCheckForError;
-  if ( this->TraceFile )
-    {
-    *this->TraceFile << "Recv uchar  " << length << ", from " 
-                     << remoteProcessId << ", tag " << tag << endl;
-    }
-  return this->ReceiveMessage( (char *)data, sizeof(char), length, tag);
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  return this->ReceiveTagged(data, static_cast<int>(sizeof(unsigned char)),
+                             length, tag, "uchar");
 }
 
-int vtkSocketCommunicator::Receive(float *data, int length, 
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::Receive(float* data, int length, 
                                    int remoteProcessId, int tag)
 {
-  vtkSCCheckForError;
-  if ( this->TraceFile )
-    {
-    *this->TraceFile << "Recv float  " << length << ", from " 
-                     << remoteProcessId << ", tag " << tag << endl;
-    }
-  return this->ReceiveMessage( (char *)data, sizeof(float), length, tag);
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  return this->ReceiveTagged(data, static_cast<int>(sizeof(float)),
+                             length, tag, "float");
 }
 
-int vtkSocketCommunicator::Receive(double *data, int length, 
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::Receive(double* data, int length, 
                                    int remoteProcessId, int tag)
 {
-  vtkSCCheckForError;
-  if ( this->TraceFile )
-    {
-    *this->TraceFile << "Recv double " << length << ", from " 
-                     << remoteProcessId << ", tag " << tag << endl;
-    }
-  return this->ReceiveMessage( (char *)data, sizeof(double), length, tag);
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  return this->ReceiveTagged(data, static_cast<int>(sizeof(double)),
+                             length, tag, "double");
 }
 
+//----------------------------------------------------------------------------
 #ifdef VTK_USE_64BIT_IDS
-int vtkSocketCommunicator::Receive(vtkIdType *data, int length, 
+int vtkSocketCommunicator::Receive(vtkIdType* data, int length, 
                                    int remoteProcessId, int tag)
 {
-  vtkSCCheckForError;
-
-  return this->ReceiveMessage( (char *)data, sizeof(vtkIdType), length, tag);
+  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  return this->ReceiveTagged(data, static_cast<int>(sizeof(vtkIdType)),
+                             length, tag, "vtkIdType");
 }
 #endif
 
+//----------------------------------------------------------------------------
 int vtkSocketCommunicator::WaitForConnection(int port)
 {
 
@@ -552,14 +307,14 @@ int vtkSocketCommunicator::WaitForConnection(int port)
     {
     // Handshake to determine if the client machine has the same endianness
     char clientIsBE;
-    if ( !this->ReceiveMessage( &clientIsBE, sizeof(char), 1,
-                                vtkSocketController::ENDIAN_TAG) )
+    if(!this->ReceiveTagged(&clientIsBE, static_cast<int>(sizeof(char)),
+                            1, vtkSocketController::ENDIAN_TAG, 0))
       {
       vtkErrorMacro("Endian handshake failed.");
       return 0;
       }
     vtkDebugMacro(<< "Client is " << ( clientIsBE ? "big" : "little" ) 
-    << "-endian");
+                  << "-endian");
     
 #ifdef VTK_WORDS_BIGENDIAN
     char IAmBE = 1;
@@ -567,7 +322,12 @@ int vtkSocketCommunicator::WaitForConnection(int port)
     char IAmBE = 0;
 #endif
     vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
-    ::SendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket );
+    if(!this->SendTagged(&IAmBE, static_cast<int>(sizeof(char)),
+                         1, vtkSocketController::ENDIAN_TAG, 0))
+      {
+      vtkErrorMacro("Endian handshake failed.");
+      return 0;
+      }
     
     if ( clientIsBE != IAmBE )
       {
@@ -633,11 +393,16 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
   char IAmBE = 0;
 #endif
   vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
-  ::SendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket );
+  if(!this->SendTagged(&IAmBE, static_cast<int>(sizeof(char)),
+                       1, vtkSocketController::ENDIAN_TAG, 0))
+    {
+    vtkErrorMacro("Endian handshake failed.");
+    return 0;
+    }
 
   char serverIsBE;
-  if ( !this->ReceiveMessage( &serverIsBE, sizeof(char), 1,
-                              vtkSocketController::ENDIAN_TAG ) )
+  if (!this->ReceiveTagged(&serverIsBE, static_cast<int>(sizeof(char)), 1,
+                           vtkSocketController::ENDIAN_TAG, 0))
     {
     vtkErrorMacro("Endian handshake failed.");
     return 0;
@@ -651,3 +416,296 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
 
   return 1;
 }
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::SendInternal(int socket, void* data, int length)
+{
+  char* buffer = reinterpret_cast<char*>(data);
+  int total = 0;
+  do
+    {
+    int n = send(socket, buffer+total, length-total, 0);
+    if(n < 1)
+      {
+      return 0;
+      }
+    total += n;
+    } while(total < length);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::ReceiveInternal(int socket, void* data, int length)
+{
+  char* buffer = reinterpret_cast<char*>(data);
+  int total = 0;
+  do
+    {
+    int n = recv(socket, buffer+total, length-total, 0);
+    if(n < 1)
+      {
+      return 0;
+      }
+    total += n;
+    } while(total < length);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::SendTagged(void* data, int wordSize,
+                                      int numWords, int tag,
+                                      const char* logName)
+{
+  if(!this->SendInternal(this->Socket, &tag, static_cast<int>(sizeof(int))))
+    {
+    vtkErrorMacro("Could not send tag.");
+    return 0;
+    }  
+  if(!this->SendInternal(this->Socket, data, wordSize*numWords))
+    {
+    vtkErrorMacro("Could not send message.");
+    return 0;
+    }
+  
+  // Log this event.
+  this->LogTagged("Sent", data, wordSize, numWords, tag, logName);
+  
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
+                                         int numWords, int tag,
+                                         const char* logName)
+{
+  int recvTag = -1;
+  if(!this->ReceiveInternal(this->Socket, &recvTag,
+                            static_cast<int>(sizeof(int))))
+    {
+    vtkErrorMacro("Could not receive tag.");
+    return 0;
+    }
+  if(this->SwapBytesInReceivedData)
+    {
+    vtkSwap4(reinterpret_cast<char*>(&recvTag));
+    }
+  if(recvTag != tag)
+    {
+    vtkErrorMacro("Tag mismatch: got " << recvTag << ", expecting " << tag
+                  << ".");
+    return 0;
+    }
+  if(!this->ReceiveInternal(this->Socket, data, wordSize*numWords))
+    {
+    vtkErrorMacro("Could not receive message.");
+    return 0;
+    }
+  // Unless we're dealing with chars, then check byte ordering.
+  // This is really bad and should probably use some enum for types
+  if(this->SwapBytesInReceivedData)
+    {
+    if(wordSize == 4)
+      {
+      vtkDebugMacro(<< " swapping 4 range, size = " << wordSize 
+                    << " length = " << numWords);
+      vtkSwap4Range(reinterpret_cast<char*>(data), numWords);
+      }
+    else if(wordSize == 8)
+      {
+      vtkDebugMacro(<< " swapping 8 range, size = " << wordSize
+                    << " length = " << numWords );
+      vtkSwap8Range(reinterpret_cast<char*>(data), numWords);
+      }
+    }
+  
+  // Log this event.
+  this->LogTagged("Received", data, wordSize, numWords, tag, logName);
+  
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+template <class T, class OutType>
+void vtkSocketCommunicatorLogArray(ostream& os, T* array, int length, int max,
+                                   OutType*)
+{
+  if(length > 0)
+    {
+    int num = (length <= max)? length:max;
+    os << " data={" << static_cast<OutType>(array[0]);
+    for(int i=1; i < num; ++i)
+      {
+      os << " " << static_cast<OutType>(array[i]);
+      }
+    if(length > max)
+      {
+      os << " ...";
+      }
+    os << "}";
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSocketCommunicator::LogTagged(const char* name, void* data,
+                                      int wordSize, int numWords,
+                                      int tag, const char* logName)
+{
+  if(this->LogStream)
+    {
+    // Log the general event information.
+    *this->LogStream << name;
+    if(logName)
+      {
+      *this->LogStream << " " << logName;
+      }
+    *this->LogStream << " data: tag=" << tag
+                     << " wordSize=" << wordSize
+                     << " numWords=" << numWords;
+    
+    // If this is a string, log the first 70 characters.  If this is
+    // an array of data values, log the first few.
+    if(wordSize == static_cast<int>(sizeof(char)) && logName &&
+       (strcmp(logName, "char") == 0))
+      {
+      char* chars = reinterpret_cast<char*>(data);
+      if((chars[numWords-1]) == 0 &&
+         (static_cast<int>(strlen(chars)) == numWords-1))
+        {
+        // String data.  Display the first 70 characters.
+        *this->LogStream << " data={";
+        if(numWords <= 71)
+          {
+          *this->LogStream << chars;
+          }
+        else
+          {
+          this->LogStream->write(reinterpret_cast<char*>(data), 70);
+          *this->LogStream << " ...";
+          }
+        *this->LogStream << "}";
+        }
+      else
+        {
+        // Not string data.  Display the characters as integer values.
+        vtkSocketCommunicatorLogArray(*this->LogStream,
+                                      reinterpret_cast<char*>(data),
+                                      numWords, 6, static_cast<int*>(0));
+        }
+      }
+    else if(wordSize == static_cast<int>(sizeof(int)) && logName &&
+            (strcmp(logName, "int") == 0))
+      {
+      vtkSocketCommunicatorLogArray(*this->LogStream,
+                                    reinterpret_cast<int*>(data),
+                                    numWords, 6, static_cast<int*>(0));
+      }
+    else if(wordSize == static_cast<int>(sizeof(unsigned char)) && logName &&
+            (strcmp(logName, "uchar") == 0))
+      {
+      vtkSocketCommunicatorLogArray(*this->LogStream,
+                                    reinterpret_cast<unsigned char*>(data),
+                                    numWords, 6, static_cast<int*>(0));
+      }
+    else if(wordSize == static_cast<int>(sizeof(unsigned long)) && logName &&
+            (strcmp(logName, "ulong") == 0))
+      {
+      vtkSocketCommunicatorLogArray(*this->LogStream,
+                                    reinterpret_cast<unsigned long*>(data),
+                                    numWords, 6, static_cast<unsigned long*>(0));
+      }
+    else if(wordSize == static_cast<int>(sizeof(float)) && logName &&
+            (strcmp(logName, "float") == 0))
+      {
+      vtkSocketCommunicatorLogArray(*this->LogStream,
+                                    reinterpret_cast<float*>(data),
+                                    numWords, 6, static_cast<float*>(0));
+      }
+    else if(wordSize == static_cast<int>(sizeof(double)) && logName &&
+            (strcmp(logName, "double") == 0))
+      {
+      vtkSocketCommunicatorLogArray(*this->LogStream,
+                                    reinterpret_cast<double*>(data),
+                                    numWords, 6, static_cast<double*>(0));
+      }
+#ifdef VTK_USE_64BIT_IDS
+    else if(wordSize == static_cast<int>(sizeof(vtkIdType)) && logName &&
+            (strcmp(logName, "vtkIdType") == 0))
+      {
+      vtkSocketCommunicatorLogArray(*this->LogStream,
+                                    reinterpret_cast<vtkIdType*>(data),
+                                    numWords, 6, static_cast<vtkIdType*>(0));
+      }
+#endif
+    *this->LogStream << "\n";
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::CheckForErrorInternal(int id)
+{
+  if(id == 0)
+    {
+    vtkErrorMacro("Can not connect to myself!");
+    return 1;
+    }
+  else if(id >= this->NumberOfProcesses)
+    {
+    vtkErrorMacro("No port for process " << id << " exists.");
+    return 1;
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+#ifndef VTK_REMOVE_LEGACY_CODE
+int vtkSocketCommunicator::ReceiveMessage(char* data, int* length,
+                                          int maxlength)
+{
+  VTK_LEGACY_METHOD(ReceiveMessage, "4.4");
+  if ( this->Socket < 0 )
+    {
+    if ( this->IsConnected )
+      {
+      this->CloseConnection();
+      }
+    return VTK_ERROR;
+    }
+  
+  // Do not need a loop because we don't care how much we get.
+  *length = recv( this->Socket, data, maxlength, 0 );
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+  if ( GetLastError( ) == WSAECONNRESET )
+    {
+    if ( this->IsConnected )
+      {
+      this->CloseConnection();
+      }
+    return VTK_ERROR;
+    }
+#endif
+
+  if ( *length <= 0 )
+    {
+    return VTK_ERROR;
+    }
+  return VTK_OK;
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_REMOVE_LEGACY_CODE
+int vtkSocketCommunicator::SendMessage(const char *data, int length)
+{
+  VTK_LEGACY_METHOD(SendMessage, "4.4");
+  if(this->Socket < 0 || length < 1 || !data)
+    {
+    return VTK_ERROR;
+    }
+  if(!this->SendInternal(this->Socket, const_cast<char*>(data), length))
+    {
+    return VTK_ERROR;
+    }
+  return VTK_OK;
+}
+#endif

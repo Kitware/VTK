@@ -122,16 +122,29 @@ public:
   vtkBooleanMacro(PerformHandshake, int);
   vtkGetMacro(PerformHandshake, int);
 
+  //BTX
   // Description:
-  // Wait for message and store it in the data. The message
-  // has maximum length of maxlength. It's actual length
-  // is stored in length.
+  // Get/Set the output stream to which communications should be
+  // logged.  This is intended as a debugging feature.
+  virtual void SetLogStream(ostream* stream);
+  virtual ostream* GetLogStream();
+  //ETX
+  
+  // Description:
+  // Log messages to the given file.  The file is truncated unless the
+  // second argument is non-zero (default is to truncate).  If the
+  // file name is empty or NULL, logging is disabled.  Returns 0 if
+  // the file failed to open, and 1 otherwise.
+  virtual int LogToFile(const char* name);
+  virtual int LogToFile(const char* name, int append);
+  
+#ifndef VTK_REMOVE_LEGACY_CODE
+  // Description:
+  // For legacy compatibility.  Do not use.
   int ReceiveMessage(char *data, int *length, int maxlength);
-
-  // Description:
-  // Send message. 
   int SendMessage(const char *data, int length);
-
+#endif
+  
 protected:
 
   int Socket;
@@ -139,14 +152,26 @@ protected:
   int NumberOfProcesses;
   int SwapBytesInReceivedData;
   int PerformHandshake;
-
+  
+  ofstream* LogFile;
+  ostream* LogStream;
+  
   vtkSocketCommunicator();
   ~vtkSocketCommunicator();
-
-  int ReceiveMessage(char *data, int size, int length, int tag );
-
-  ofstream *TraceFile;
-
+  
+  // Wrappers around send/recv calls to implement loops.  Return 1 for
+  // success, and 0 for failure.
+  int SendInternal(int socket, void* data, int length);
+  int ReceiveInternal(int socket, void* data, int length);
+  int SendTagged(void* data, int wordSize, int numWords, int tag,
+                 const char* logName);
+  int ReceiveTagged(void* data, int wordSize, int numWords, int tag,
+                    const char* logName);
+  
+  // Internal utility methods.
+  void LogTagged(const char* name, void* data, int wordSize, int numWords,
+                 int tag, const char* logName);
+  int CheckForErrorInternal(int id);
 private:
   vtkSocketCommunicator(const vtkSocketCommunicator&);  // Not implemented.
   void operator=(const vtkSocketCommunicator&);  // Not implemented.
