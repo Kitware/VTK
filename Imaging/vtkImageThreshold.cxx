@@ -18,7 +18,7 @@
 #include "vtkImageThreshold.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageThreshold, "1.36");
+vtkCxxRevisionMacro(vtkImageThreshold, "1.37");
 vtkStandardNewMacro(vtkImageThreshold);
 
 //----------------------------------------------------------------------------
@@ -140,7 +140,11 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
   // Make sure the thresholds are valid for the input scalar range
   if (self->GetLowerThreshold() < (float) inData->GetScalarTypeMin())
     {
-    lowerThreshold = inData->GetScalarTypeMin();
+    lowerThreshold = (IT) inData->GetScalarTypeMin();
+    }
+  else if (self->GetLowerThreshold() > (float) inData->GetScalarTypeMax())
+    {
+    lowerThreshold = (IT) inData->GetScalarTypeMax();
     }
   else
     {
@@ -148,7 +152,11 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
     }
   if (self->GetUpperThreshold() > (float) inData->GetScalarTypeMax())
     {
-    upperThreshold = inData->GetScalarTypeMax();
+    upperThreshold = (IT) inData->GetScalarTypeMax();
+    }
+  else if (self->GetUpperThreshold() < (float) inData->GetScalarTypeMin())
+    {
+    upperThreshold = (IT) inData->GetScalarTypeMin();
     }
   else
     {
@@ -158,19 +166,27 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
   // Make sure the replacement values are within the output scalar range
   if (self->GetInValue() < (float) outData->GetScalarTypeMin())
     {
-    inValue = outData->GetScalarTypeMin();
+    inValue = (OT) outData->GetScalarTypeMin();
+    }
+  else if (self->GetInValue() > (float) outData->GetScalarTypeMax())
+    {
+    inValue = (OT) outData->GetScalarTypeMax();
     }
   else
     {
-    inValue = (IT) self->GetInValue();
+    inValue = (OT) self->GetInValue();
     }
   if (self->GetOutValue() > (float) outData->GetScalarTypeMax())
     {
-    outValue = outData->GetScalarTypeMax();
+    outValue = (OT) outData->GetScalarTypeMax();
+    }
+  else if (self->GetOutValue() < (float) outData->GetScalarTypeMin())
+    {
+    outValue = (OT) outData->GetScalarTypeMin();
     }
   else
     {
-    outValue = (IT) self->GetOutValue();
+    outValue = (OT) self->GetOutValue();
     }
 
   // find the region to loop over
