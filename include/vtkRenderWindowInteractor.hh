@@ -89,7 +89,7 @@ public:
   vtkBooleanMacro(LightFollowCamera,int);
 
   // Description:
-  // Set/Get the desired update rate. This is use dby vtkLODActors to tell 
+  // Set/Get the desired update rate. This is used by vtkLODActors to tell 
   // them how quickly they need to render.  This update is in effect only
   // when the camera is being rotated, or zoomed.  When the interactor is
   // still the StillUpdateRate is used instead. A value of zero indicates
@@ -109,7 +109,7 @@ public:
 
   // Description:
   // When an event occurs we must determine which Renderer the event
-  // occured within since one RenderWindow may contain multiple 
+  // occurred within since one RenderWindow may contain multiple 
   // renderers. We also need to know what camera to operate on.
   // This is just the ActiveCamera of the poked renderer. 
   void FindPokedCamera(int,int);
