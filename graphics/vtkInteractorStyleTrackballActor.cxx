@@ -42,7 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkInteractorStyleTrackballActor.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
-#include "vtkPropPicker.h"
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleTrackballActor *vtkInteractorStyleTrackballActor::New() 
@@ -86,7 +85,7 @@ vtkInteractorStyleTrackballActor::vtkInteractorStyleTrackballActor()
   
   this->Radius = 0.0;
   
-  this->InteractionPicker = vtkPropPicker::New();
+  this->InteractionPicker = vtkCellPicker::New();
 }
 
 //----------------------------------------------------------------------------
@@ -123,7 +122,7 @@ void vtkInteractorStyleTrackballActor::OnMouseMove(int vtkNotUsed(ctrl),
   else if (this->State == VTK_INTERACTOR_STYLE_ACTOR_SCALE)
     {
     this->FindPokedCamera(x, y);
-    this->SpinXY(x, y, this->LastPos[0], this->LastPos[1]);
+    this->ScaleXY(x, y, this->LastPos[0], this->LastPos[1]);
     }
 
   this->LastPos[0] = x;

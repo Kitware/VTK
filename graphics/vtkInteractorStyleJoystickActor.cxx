@@ -42,7 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkInteractorStyleJoystickActor.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
-#include "vtkPropPicker.h"
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleJoystickActor *vtkInteractorStyleJoystickActor::New() 
@@ -85,8 +84,8 @@ vtkInteractorStyleJoystickActor::vtkInteractorStyleJoystickActor()
   this->OldPickPoint[3] = 1.0;
   
   this->Radius = 0.0;
-  
-  this->InteractionPicker = vtkPropPicker::New();
+
+  this->InteractionPicker = vtkCellPicker::New();
 }
 
 //----------------------------------------------------------------------------

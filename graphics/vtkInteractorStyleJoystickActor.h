@@ -46,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkInteractorStyleJoystickActor_h
 
 #include "vtkInteractorStyle.h"
+#include "vtkCellPicker.h"
 
 
 #define VTK_INTERACTOR_STYLE_ACTOR_NONE    0
@@ -111,7 +112,8 @@ protected:
   float MotionVector[3];
   double ViewPoint[3];
   double ViewFocus[3];
-  vtkAbstractPropPicker *InteractionPicker;
+//  vtkAbstractPropPicker *InteractionPicker;
+  vtkCellPicker *InteractionPicker;
 };
 
 #endif
