@@ -100,6 +100,7 @@ vtkQuantizePolyDataPoints
 vtkRearrangeFields
 vtkRectilinearGridGeometryFilter
 vtkRecursiveDividingCubes
+vtkReflectionFilter
 vtkReverseSense
 vtkRibbonFilter
 vtkRotationalExtrusionFilter
