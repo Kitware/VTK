@@ -23,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.16");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.17");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -195,10 +195,15 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
         cam = aren->GetActiveCamera();
         float *vp = aren->GetViewport();
         float visVP[4];
-        visVP[0] = (vp[0] >= tvp[0]) ? vp[0] : tvp[0];
-        visVP[1] = (vp[1] >= tvp[1]) ? vp[1] : tvp[1];
-        visVP[2] = (vp[2] <= tvp[2]) ? vp[2] : tvp[2];
-        visVP[3] = (vp[3] <= tvp[3]) ? vp[3] : tvp[3];
+        visVP[0] = (vp[0] < tvp[0]) ? tvp[0] : vp[0];
+        visVP[0] = (visVP[0] > tvp[2]) ? tvp[2] : visVP[0];
+        visVP[1] = (vp[1] < tvp[1]) ? tvp[1] : vp[1];
+        visVP[1] = (visVP[1] > tvp[3]) ? tvp[3] : visVP[1];
+        visVP[2] = (vp[2] > tvp[2]) ? tvp[2] : vp[2];
+        visVP[2] = (visVP[2] < tvp[0]) ? tvp[0] : visVP[2];
+        visVP[3] = (vp[3] > tvp[3]) ? tvp[3] : vp[3];
+        visVP[3] = (visVP[3] < tvp[1]) ? tvp[1] : visVP[3];
+
         // compute magnification
         float mag = (visVP[3] - visVP[1])/(vp[3] - vp[1]);
         // compute the delta
