@@ -92,8 +92,9 @@ public:
   // Description:
   // Methods used to specify the region to be displayed.
   // The actual extent displayed is clipped by the "WholeExtent".
-  vtkSetVectorMacro(DisplayExtent, int, 6);
-  vtkGetVectorMacro(DisplayExtent, int, 6);  
+  // The ZSlice is stored in values 5 and 6 of the display extent.
+  vtkSetVectorMacro(DisplayExtent, int, 4);
+  vtkGetVectorMacro(DisplayExtent, int, 4);  
 
   // Description:
   // This is for a tcl interface

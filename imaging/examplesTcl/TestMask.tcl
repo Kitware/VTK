@@ -11,8 +11,6 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 94
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
-reader SetOutputScalarType $VTK_SHORT
-reader DebugOn
 
 vtkImageEllipsoidSource sphere
 sphere SetWholeExtent 0 255 0 255 1 94

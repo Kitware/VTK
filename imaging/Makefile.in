@@ -57,6 +57,7 @@ vtkImageIslandRemoval2D \
 vtkImageLogic \
 vtkImageMagnify \
 vtkImageMagnitude \
+vtkImageMask \
 vtkImageMathematics \
 vtkImageMedian3D \
 vtkImageMirrorPad \
@@ -98,7 +99,6 @@ vtkTIFFWriter
 #vtkImageLogarithmicScale \
 #vtkImageMIPFilter \
 #vtkImageMagnify1D \
-#vtkImageMask \
 #vtkImageNoiseSource \
 #vtkImageOpenClose3D \
 #vtkImageRange3D \

@@ -278,6 +278,7 @@ void vtkImageMultipleInputFilter::RecursiveStreamUpdate(vtkImageData *outData,
   int memory, divide;
   vtkImageData **inDatas;
   
+  memory = 0;
   inDatas = new vtkImageData *[this->NumberOfInputs];
   
   // Compute the required input region extent.
@@ -285,11 +286,15 @@ void vtkImageMultipleInputFilter::RecursiveStreamUpdate(vtkImageData *outData,
   divide = 0;
   for (idx = 0; idx < this->NumberOfInputs; idx++)
     {
-    this->ComputeRequiredInputUpdateExtent(this->Inputs[idx]->GetUpdateExtent(),
-					   this->Output->GetUpdateExtent(),idx);
-    // determine the amount of memory that will be used by the input region.
-    memory = this->Inputs[idx]->GetUpdateExtentMemorySize();
-    if (memory > this->Inputs[idx]->GetMemoryLimit()) divide = 1;
+    if (this->Inputs[idx])
+      {
+      this->ComputeRequiredInputUpdateExtent(
+		     this->Inputs[idx]->GetUpdateExtent(),
+		     this->Output->GetUpdateExtent(),idx);
+      // determine the amount of memory that will be used by the input region.
+      memory = this->Inputs[idx]->GetUpdateExtentMemorySize();
+      if (memory > this->Inputs[idx]->GetMemoryLimit()) divide = 1;
+      }
     }
   
   // Split the inRegion if we are streaming.
@@ -330,8 +335,11 @@ void vtkImageMultipleInputFilter::RecursiveStreamUpdate(vtkImageData *outData,
   // No Streaming required.
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    // Get the input region (Update extent was set at start of this method).
-    inDatas[idx] = this->Inputs[idx]->UpdateAndReturnData();
+    if (this->Inputs[idx])
+      {
+      // Get the input region (Update extent was set at start of this method).
+      inDatas[idx] = this->Inputs[idx]->UpdateAndReturnData();
+      }
     }
 
   // The StartMethod call is placed here to be after updating the input.
@@ -421,6 +429,7 @@ vtkImageMultipleInputFilter::ComputeRequiredInputUpdateExtent(int inExt[6],
 							      int outExt[6],
 							      int whichInput)
 {
+  whichInput = whichInput;
   memcpy(inExt,outExt,sizeof(int)*6);
 }
 
@@ -511,10 +520,11 @@ void vtkImageMultipleInputFilter::Execute(vtkImageData **inDatas,
 // Description:
 // The execute method created by the subclass.
 void vtkImageMultipleInputFilter::ThreadedExecute(vtkImageData 
-						  **vtkNotUsed(inData), 
-						  vtkImageData *vtkNotUsed(outData),
-						  int extent[6], int threadId)
+				  **vtkNotUsed(inData), 
+				  vtkImageData *vtkNotUsed(outData),
+				  int extent[6], int threadId)
 {
+  extent = extent;
   vtkErrorMacro("subclase should override this method!!!");
 }
 

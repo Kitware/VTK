@@ -87,9 +87,8 @@ protected:
   float MaskedOutputValue;
   int NotMask;
   
-  void Execute(vtkImageRegion *inRegion1, 
-	       vtkImageRegion *inRegion2, 
-	       vtkImageRegion *outRegion);
+  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
+		       int extent[6], int id);
 };
 
 #endif

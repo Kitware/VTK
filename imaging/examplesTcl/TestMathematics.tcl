@@ -15,10 +15,13 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
-reader SetOutputScalarTypeToFloat
+
+vtkImageCast cast
+cast SetInput [reader GetOutput]
+cast SetOutputScalarTypeToFloat
 
 vtkImageShiftScale shiftScale
-shiftScale SetInput [reader GetOutput]
+shiftScale SetInput [cast GetOutput]
 shiftScale SetShift 1.0
 
 vtkImageMathematics log

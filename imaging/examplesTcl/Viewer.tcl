@@ -19,14 +19,16 @@ reader SetDataMask 0x7fff
 vtkImageViewer viewer
 viewer SetInput [reader GetOutput]
 viewer SetZSlice 14
-viewer SetDisplayExtent 20 235 0 255
+viewer SetDisplayExtent 0 255 0 255 0 20
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
 #viewer DebugOn
-#viewer Render
+viewer Render
+
+viewer SetPosition 50 50
 
 #make interface
-source WindowLevelInterface.tcl
+#source WindowLevelInterface.tcl
 
 
 

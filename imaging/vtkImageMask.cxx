@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRegion.h"
 #include "vtkImageMask.h"
 
 
@@ -48,133 +47,153 @@ vtkImageMask::vtkImageMask()
 {
   this->MaskedOutputValue = 0.0;
   this->NotMask = 0;
-  
-  this->NumberOfExecutionAxes = 2;
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-static void vtkImageMaskExecute(vtkImageMask *self,
-			 vtkImageRegion *in1Region, T *in1Ptr,
-			 vtkImageRegion *in2Region, unsigned char *in2Ptr,
-			 vtkImageRegion *outRegion, T *outPtr)
+static void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
+			 vtkImageData *in1Data, T *in1Ptr,
+			 vtkImageData *in2Data, unsigned char *in2Ptr,
+			 vtkImageData *outData, T *outPtr)
 {
-  int min0, max0, min1, max1;
-  int idx0, idx1;
-  int in1Inc0, in1Inc1;
-  int in2Inc0, in2Inc1;
-  int outInc0, outInc1;
-  T *in1Ptr0, *in1Ptr1;
-  unsigned char *in2Ptr0, *in2Ptr1;
-  T *outPtr0, *outPtr1;
-  T maskedValue;
+  int num0, num1, num2, numC, pixSize;
+  int idx0, idx1, idx2;
+  int in1Inc0, in1Inc1, in1Inc2;
+  int in2Inc0, in2Inc1, in2Inc2;
+  int outInc0, outInc1, outInc2;
+  T *maskedValue;
   int maskState;
   
-  maskedValue = (T)(self->GetMaskedOutputValue());
-  maskState = self->GetNotMask();
-
-  // Get information to march through data 
-  in1Region->GetIncrements(in1Inc0, in1Inc1);
-  in2Region->GetIncrements(in2Inc0, in2Inc1);
-  outRegion->GetIncrements(outInc0, outInc1);
-  outRegion->GetExtent(min0, max0, min1, max1);
-
-  // Loop through ouput pixels
-  in1Ptr1 = in1Ptr;
-  in2Ptr1 = in2Ptr;
-  outPtr1 = outPtr;
-  for (idx1 = min1; idx1 <= max1; ++idx1)
+  numC = outData->GetNumberOfScalarComponents();
+  maskedValue = new T[numC];
+  for (idx0 = 0; idx0 < numC; ++idx0)
     {
-    outPtr0 = outPtr1;
-    in1Ptr0 = in1Ptr1;
-    in2Ptr0 = in2Ptr1;
-    for (idx0 = min0; idx0 <= max0; ++idx0)
-      {
-      
-      // Pixel operation
-      if (*in2Ptr0 && maskState == 1)
-	{
-	*outPtr0 = maskedValue;
-	}
-      else if ( ! *in2Ptr0 && maskState == 0)
-	{
-	*outPtr0 = maskedValue;
-	}
-      else
-      	{
-	*outPtr0 = *in1Ptr0;
-	}
-      
-      outPtr0 += outInc0;
-      in1Ptr0 += in1Inc0;
-      in2Ptr0 += in2Inc0;
-      }
-    outPtr1 += outInc1;
-    in1Ptr1 += in1Inc1;
-    in2Ptr1 += in2Inc1;
+    maskedValue[idx0] = (T)(self->GetMaskedOutputValue());
     }
+  pixSize = numC * sizeof(T);
+  maskState = self->GetNotMask();
+  
+  // Get information to march through data 
+  in1Data->GetContinuousIncrements(ext, in1Inc0, in1Inc1, in1Inc2);
+  in2Data->GetContinuousIncrements(ext, in2Inc0, in2Inc1, in2Inc2);
+  outData->GetContinuousIncrements(ext, outInc0, outInc1, outInc2);
+  num0 = ext[1] - ext[0] + 1;
+  num1 = ext[3] - ext[2] + 1;
+  num2 = ext[5] - ext[4] + 1;
+  
+  // Loop through ouput pixels
+  for (idx2 = 0; idx2 < num2; ++idx2)
+    {
+    for (idx1 = 0; idx1 < num1; ++idx1)
+      {
+      for (idx0 = 0; idx0 < num0; ++idx0)
+	{
+      
+	// Pixel operation
+	if (*in2Ptr && maskState == 1)
+	  {
+	  memcpy(outPtr, maskedValue, pixSize);
+	  }
+	else if ( ! *in2Ptr && maskState == 0)
+	  {
+	  memcpy(outPtr, maskedValue, pixSize);
+	  }
+	else
+	  {
+	  memcpy(outPtr, in1Ptr, pixSize);
+	  }
+	
+	in1Ptr += numC;
+	outPtr += numC;
+	in2Ptr += 1;
+	}
+      in1Ptr += in1Inc1;
+      in2Ptr += in2Inc1;
+      outPtr += outInc1;
+      }
+    in1Ptr += in1Inc2;
+    in2Ptr += in2Inc2;
+    outPtr += outInc2;
+    }
+  
+  delete maskedValue;
 }
 
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a input and output regions, and executes the filter
+// This method is passed a input and output Datas, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
-// the regions data types.
-void vtkImageMask::Execute(vtkImageRegion *inRegion1, 
-			   vtkImageRegion *inRegion2, 
-			   vtkImageRegion *outRegion)
+// the Datas data types.
+void vtkImageMask::ThreadedExecute(vtkImageData **inData, 
+				   vtkImageData *outData,
+				   int outExt[6], int id)
 {
-  void *inPtr1 = inRegion1->GetScalarPointer();
-  void *inPtr2 = inRegion2->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *inPtr1 = inData[0]->GetScalarPointerForExtent(outExt);
+  void *inPtr2 = inData[1]->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  int *tExt;
+  id = id;
   
-  // this filter expects that inputs are the same type as output.
-  if (inRegion1->GetScalarType() != outRegion->GetScalarType() ||
-      inRegion2->GetScalarType() != VTK_UNSIGNED_CHAR)
+  tExt = inData[1]->GetExtent();
+  if (tExt[0] > outExt[0] || tExt[1] < outExt[1] || 
+      tExt[2] > outExt[2] || tExt[3] < outExt[3] ||
+      tExt[4] > outExt[4] || tExt[5] < outExt[5])
     {
-    vtkErrorMacro(<< "Execute: image ScalarType (" 
-      << inRegion1->GetScalarType() << ") must match out ScalarType (" 
-      << outRegion->GetScalarType() << "), and mask scalar type (" 
-      << inRegion2->GetScalarType() << ") must be unsigned char.");
+    vtkErrorMacro("Mask extent not large enough");
     return;
     }
   
-  switch (inRegion1->GetScalarType())
+  if (inData[1]->GetNumberOfScalarComponents() != 1)
+    {
+    vtkErrorMacro("Maks can have one comenent");
+    }
+    
+  if (inData[0]->GetScalarType() != outData->GetScalarType() ||
+      inData[1]->GetScalarType() != VTK_UNSIGNED_CHAR)
+    {
+    vtkErrorMacro(<< "Execute: image ScalarType (" 
+      << inData[0]->GetScalarType() << ") must match out ScalarType (" 
+      << outData->GetScalarType() << "), and mask scalar type (" 
+      << inData[1]->GetScalarType() << ") must be unsigned char.");
+    return;
+    }
+  
+  switch (inData[0]->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageMaskExecute(this, 
-			  inRegion1, (float *)(inPtr1), 
-			  inRegion2, (unsigned char *)(inPtr2), 
-			  outRegion, (float *)(outPtr));
+      vtkImageMaskExecute(this, outExt,
+			  inData[0], (float *)(inPtr1), 
+			  inData[1], (unsigned char *)(inPtr2), 
+			  outData, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageMaskExecute(this, 
-			  inRegion1, (int *)(inPtr1), 
-			  inRegion2, (unsigned char *)(inPtr2), 
-			  outRegion, (int *)(outPtr));
+      vtkImageMaskExecute(this,  outExt,
+			  inData[0], (int *)(inPtr1), 
+			  inData[1], (unsigned char *)(inPtr2), 
+			  outData, (int *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageMaskExecute(this, 
-			  inRegion1, (short *)(inPtr1), 
-			  inRegion2, (unsigned char *)(inPtr2), 
-			  outRegion, (short *)(outPtr));
+      vtkImageMaskExecute(this,  outExt,
+			  inData[0], (short *)(inPtr1), 
+			  inData[1], (unsigned char *)(inPtr2), 
+			  outData, (short *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageMaskExecute(this, 
-			  inRegion1, (unsigned short *)(inPtr1), 
-			  inRegion2, (unsigned char *)(inPtr2), 
-			  outRegion, (unsigned short *)(outPtr));
+      vtkImageMaskExecute(this,  outExt,
+			  inData[0], (unsigned short *)(inPtr1), 
+			  inData[1], (unsigned char *)(inPtr2), 
+			  outData, (unsigned short *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageMaskExecute(this, 
-			  inRegion1, (unsigned char *)(inPtr1), 
-			  inRegion2, (unsigned char *)(inPtr2), 
-			  outRegion, (unsigned char *)(outPtr));
+      vtkImageMaskExecute(this,  outExt,
+			  inData[0], (unsigned char *)(inPtr1), 
+			  inData[1], (unsigned char *)(inPtr2), 
+			  outData, (unsigned char *)(outPtr));
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
