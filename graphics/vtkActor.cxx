@@ -120,9 +120,15 @@ int vtkActor::GetIsOpaque()
 {
   if (this->Property->GetOpacity() >= 1.0)
     {
-    if (this->Texture && this->Texture->GetInput()) 
+    if (this->Texture && this->Texture->GetInput())
       {
+      this->Texture->GetInput()->UpdateInformation();
+      this->Texture->GetInput()->SetUpdateExtent(this->Texture->GetInput()->GetWholeExtent());
       this->Texture->GetInput()->Update();
+      if (this->Texture->GetInput()->GetPointData()->GetScalars() == NULL)
+        { // Handle gracefully. What should it return? 
+        return 1;
+        }
       if (this->Texture->GetInput()->GetPointData()->GetScalars()->GetNumberOfComponents()%2)
         {
         return 1;
