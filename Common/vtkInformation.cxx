@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformation, "1.4");
+vtkCxxRevisionMacro(vtkInformation, "1.5");
 vtkStandardNewMacro(vtkInformation);
 
 #ifdef VTK_DEBUG_LEAKS
@@ -108,6 +108,12 @@ vtkObjectBase* vtkInformation::GetAsObjectBase(vtkInformationKey* key)
     return i->second.GetPointer();
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Clear()
+{
+  this->Copy(0);
 }
 
 //----------------------------------------------------------------------------

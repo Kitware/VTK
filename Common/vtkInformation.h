@@ -48,6 +48,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Clear all information entries.
+  void Clear();
+
+  // Description:
   // Copy all information entries from the given vtkInformation
   // instance.  Any previously existing entries are removed.
   void Copy(vtkInformation* from);
