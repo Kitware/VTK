@@ -255,7 +255,6 @@ void vtkInteractorStyleJoystickCamera::SpinXY(int x, int y)
 void vtkInteractorStyleJoystickCamera::OnLeftButtonDown(int ctrl, int shift, 
 						int x, int y) 
 {
-  cerr << "**** Left Button Down\n";
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
     {
@@ -295,7 +294,6 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonUp(int ctrl, int shift,
 void vtkInteractorStyleJoystickCamera::OnMiddleButtonDown(int ctrl, int shift, 
 						 int x, int y) 
 {
-  cerr << "**** Middle Button Down\n";
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
     {
@@ -317,7 +315,6 @@ void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp(int ctrl, int shift,
 void vtkInteractorStyleJoystickCamera::OnRightButtonDown(int ctrl, int shift, 
 						int x, int y) 
 {
-  cerr << "**** Right Button Down\n";
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
     {

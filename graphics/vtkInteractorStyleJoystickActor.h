@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkInteractorStyleTrackballActor.h
+  Module:    vtkInteractorStyleJoystickActor.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -40,18 +40,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-// .NAME vtkInteractorStyleTrackballActor - Manipulation of an implicit plane.
+// .NAME vtkInteractorStyleJoystickActor - Manipulation of an implicit plane.
 
-// .SECTION Description
-// vtkInteractorStyleTrackballActor Allows interactive definition of a plane
-// by manipulating a vtkPlane's parameters.  
-// The center of the plane is hot.  The center provides
-// rotation (left mouse button), XY translation relative to camera (middle),
-// and translation along camera's view-plane normal (right).
-
-
-#ifndef __vtkInteractorStyleTrackballActor_h
-#define __vtkInteractorStyleTrackballActor_h
+#ifndef __vtkInteractorStyleJoystickActor_h
+#define __vtkInteractorStyleJoystickActor_h
 
 #include "vtkInteractorStyle.h"
 
@@ -63,16 +55,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_INTERACTOR_STYLE_ACTOR_SPIN    4
 #define VTK_INTERACTOR_STYLE_ACTOR_SCALE   5
 
-class VTK_EXPORT vtkInteractorStyleTrackballActor : public vtkInteractorStyle
+class VTK_EXPORT vtkInteractorStyleJoystickActor : public vtkInteractorStyle
 {
 public:
   // Description:
   // This class must be supplied with a vtkRenderWindowInteractor wrapper or
   // parent. This class should not normally be instantiated by application
   // programmers.
-  static vtkInteractorStyleTrackballActor *New();
+  static vtkInteractorStyleJoystickActor *New();
 
-  vtkTypeMacro(vtkInteractorStyleTrackballActor, vtkObject);
+  vtkTypeMacro(vtkInteractorStyleJoystickActor, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Generic event bindings must be overridden in subclasses
@@ -83,18 +75,19 @@ public:
   void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
   void OnRightButtonDown(int ctrl, int shift, int x, int y);
   void OnRightButtonUp  (int ctrl, int shift, int x, int y);
+  void OnTimer(void);
 
 protected:
-  vtkInteractorStyleTrackballActor();
-  ~vtkInteractorStyleTrackballActor();
-  vtkInteractorStyleTrackballActor(const vtkInteractorStyleTrackballActor&) {};
-  void operator=(const vtkInteractorStyleTrackballActor&) {};
+  vtkInteractorStyleJoystickActor();
+  ~vtkInteractorStyleJoystickActor();
+  vtkInteractorStyleJoystickActor(const vtkInteractorStyleJoystickActor&) {};
+  void operator=(const vtkInteractorStyleJoystickActor&) {};
 
-  void RotateXY(int x, int y, int oldX, int oldY);
-  void PanXY(int x, int y, int oldX, int oldY);
-  void DollyXY(int dx, int dy);
-  void SpinXY(int dx, int dy, int oldX, int oldY);
-  void ScaleXY(int x, int y, int oldX, int oldY);
+  void RotateXY(int x, int y);
+  void PanXY(int x, int y);
+  void DollyXY(int x, int y);
+  void SpinXY(int x, int y);
+  void ScaleXY(int x, int y);
   void FindPickedActor(int x, int y);
   void Prop3DTransform(vtkProp3D *prop3D, double *boxCenter,
                       int numRotation, double **rotate,

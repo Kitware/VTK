@@ -249,9 +249,8 @@ void vtkInteractorStyleTrackballCamera::SpinXY(int x, int y, int oldX, int oldY)
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl, int shift, 
-						int x, int y) 
+							 int x, int y) 
 {
-  cerr << "**** Left Button Down\n";
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
     {
@@ -271,16 +270,15 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::OnLeftButtonUp(int ctrl, int shift, 
-					      int x, int y) 
+						       int x, int y) 
 {
   this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown(int ctrl, int shift, 
-						 int x, int y) 
+							   int x, int y) 
 {
-  cerr << "**** Middle Button Down\n";
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
     {
@@ -298,9 +296,8 @@ void vtkInteractorStyleTrackballCamera::OnMiddleButtonUp(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::OnRightButtonDown(int ctrl, int shift, 
-						int x, int y) 
+							  int x, int y) 
 {
-  cerr << "**** Right Button Down\n";
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
     {
@@ -312,7 +309,7 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonDown(int ctrl, int shift,
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::OnRightButtonUp(int ctrl, int shift, 
-					      int x, int y) 
+							int x, int y) 
 {
   this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
 }

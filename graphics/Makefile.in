@@ -168,6 +168,7 @@ vtkImplicitVolume \
 vtkImplicitWindowFunction \
 vtkInteractorStyle \
 vtkInteractorStyleFlight \
+vtkInteractorStyleJoystickActor \
 vtkInteractorStyleJoystickCamera \
 vtkInteractorStyleTrackball \
 vtkInteractorStyleTrackballActor \
