@@ -21,9 +21,13 @@ set dimensions(1) "10 1 1"
 set dimensions(2) "10 10 1"
 set dimensions(3) "10 10 10"
 set dims "0 1 2 3"
+set array(0) vtkUnsignedCharArray
+set array(1) vtkShortArray
+set array(2) vtkLongArray
+set array(3) vtkDoubleArray
 foreach dim $dims {
     set numTuples [expr [lindex $dimensions($dim) 0] * [lindex $dimensions($dim) 1] * [lindex $dimensions($dim) 2]]
-  vtkDoubleArray da$dim
+  $array($dim) da$dim
       da$dim SetNumberOfTuples $numTuples
   for {set i 0} {$i < $numTuples} {incr i} {
     da$dim InsertComponent $i 0 [math Random -100 100]
@@ -56,7 +60,7 @@ $cam1 Azimuth -30
 $cam1 Elevation 30
 $cam1 Zoom 2.5
 iren Initialize
-#renWin SetFileName "StructuredPointsGeometryFilter.tcl.ppm"
+#renWin SetFileName "StructuredPointsGeometry.tcl.ppm"
 #renWin SaveImageAsPPM
 
 proc TkCheckAbort {} {
