@@ -663,7 +663,7 @@ LRESULT APIENTRY vtkImageWin32ViewerWndProc(HWND hWnd, UINT message,
         me = vtkImageWin32ViewerPtr;
         SetWindowLong(hWnd,GWL_USERDATA,(LONG)me);
         me->DeviceContext = GetDC(hWnd);
-        if (me->GetGrayScale())
+        if (me->GetGrayScaleHint())
           {
           vtkImageWin32ViewerSetupGrayPixelFormat(me->DeviceContext);
           vtkImageWin32ViewerSetupGrayPalette(me->DeviceContext,me);
