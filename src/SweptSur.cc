@@ -105,7 +105,6 @@ void vtkSweptSurface::SetModelBounds(float xmin, float xmax, float ymin, float y
 void vtkSweptSurface::Execute()
 {
   int i, numPts, numOutPts;
-  float ar[3];
   vtkPointData *pd;
   vtkScalars *inScalars, *newScalars;
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
