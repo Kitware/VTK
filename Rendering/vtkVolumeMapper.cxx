@@ -20,7 +20,7 @@
 #include "vtkImageClip.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkVolumeMapper, "1.44");
+vtkCxxRevisionMacro(vtkVolumeMapper, "1.44.2.1");
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
@@ -39,7 +39,8 @@ vtkVolumeMapper::vtkVolumeMapper()
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
   this->CroppingRegionFlags = VTK_CROP_SUBVOLUME;
-  
+
+  this->UseImageClipper = 1;
   this->ImageClipper = vtkImageClip::New();
   this->ImageClipper->ClipDataOn();
   
@@ -104,10 +105,42 @@ float *vtkVolumeMapper::GetBounds()
     }
 }
 
+void vtkVolumeMapper::SetUseImageClipper(int arg)
+{
+  if (this->UseImageClipper == arg)
+    {
+    return;
+    }
+
+  this->UseImageClipper = arg;
+  this->Modified();
+
+  // Force a change of the input to reconnect the pipeline correctly
+
+  vtkImageData *input = this->GetInput();
+  input->Register(this);
+  this->SetInput(NULL);
+  this->SetInput(input);
+  input->UnRegister(this);
+}
+
 void vtkVolumeMapper::SetInput( vtkImageData *input )
 {
-  this->ImageClipper->SetInput( input );
-  this->vtkProcessObject::SetNthInput(0, this->ImageClipper->GetOutput() );
+  if (this->UseImageClipper)
+    {
+    this->ImageClipper->SetInput(input);
+    /*
+      if (input)
+      {
+      this->ImageClipper->ResetOutputWholeExtent();
+      }
+    */
+    this->vtkProcessObject::SetNthInput(0, this->ImageClipper->GetOutput());
+    }
+  else
+    {
+    this->vtkProcessObject::SetNthInput(0, input);
+    }
 }
 
 vtkImageData *vtkVolumeMapper::GetInput()
@@ -158,5 +191,8 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
   // Don't print this->VoxelCroppingRegionPlanes
   
   os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
+
+  os << indent << "UseImageClipper: " 
+     << (this->UseImageClipper ? "On\n" : "Off\n");
 }
 
