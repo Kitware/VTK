@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 1.6)
+(VERSION 1.6)
 
 # Set the project/library name here.  Classes should be declared as
 # "class vtkLocal_EXPORT vtkFoo", where vtkLocal is the name of the
@@ -24,12 +24,11 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})
 
 # Find and load VTK settings.
-INCLUDE(${CMAKE_ROOT}/Modules/FindVTK.cmake)
-IF(VTK_FOUND)
-  INCLUDE(${VTK_USE_FILE})
-ELSE(VTK_FOUND)
-  MESSAGE(FATAL_ERROR "Set VTK_DIR.")
-ENDIF(VTK_FOUND)
+FIND_PACKAGE(VTK)
+IF(NOT VTK_DIR)
+  MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
+ENDIF(NOT VTK_DIR)
+INCLUDE(${VTK_USE_FILE})
 
 # Give user option of building shared or static libraries.  Default to
 # the choice made for VTK.
