@@ -18,14 +18,11 @@ vtkWin32ImageMapper* vtkWin32ImageMapper::New()
   return new vtkWin32ImageMapper;
 }
 
-
-
-
 vtkWin32ImageMapper::vtkWin32ImageMapper()
 {
   this->HBitmap = (HBITMAP)0;
   this->DataOut = NULL;
-
+  this->LookupTable = NULL;
 }
 
 vtkWin32ImageMapper::~vtkWin32ImageMapper()
@@ -35,16 +32,20 @@ vtkWin32ImageMapper::~vtkWin32ImageMapper()
     DeleteObject(this->HBitmap);
     this->HBitmap = (HBITMAP)0;
     }
+  if (this->LookupTable)
+    {
+    this->LookupTable->Delete();
+    }
 }
 
-/* 
- * This templated routine calculates effective lower and upper limits 
- * for a window of values of type T, lower and upper. 
+/*
+ * This templated routine calculates effective lower and upper limits
+ * for a window of values of type T, lower and upper.
  */
 template <class T>
-static void vtkWin32ImageMapperClamps ( vtkImageData *data, float w, 
-					float l, T& lower, T& upper, 
-					unsigned char &lower_val, 
+static void vtkWin32ImageMapperClamps ( vtkImageData *data, float w,
+					float l, T& lower, T& upper,
+					unsigned char &lower_val,
 					unsigned char &upper_val)
 {
   double f_lower, f_upper, f_lower_val, f_upper_val;
@@ -75,8 +76,8 @@ static void vtkWin32ImageMapperClamps ( vtkImageData *data, float w,
     lower = (T) range[1];
     adjustedLower = range[1];
     }
-  
-  
+
+
   // Set the correct upper value
   if ( f_upper >= range[0])
     {
@@ -96,7 +97,7 @@ static void vtkWin32ImageMapperClamps ( vtkImageData *data, float w,
     upper = (T) range [0];
     adjustedUpper = range [0];
     }
-  
+
   // now compute the lower and upper values
   if (w >= 0)
     {
@@ -108,8 +109,8 @@ static void vtkWin32ImageMapperClamps ( vtkImageData *data, float w,
     f_lower_val = 255.0 + 255.0*(adjustedLower - f_lower)/w;
     f_upper_val = 255.0 + 255.0*(adjustedUpper - f_lower)/w;
     }
-  
-  if (f_upper_val > 255) 
+
+  if (f_upper_val > 255)
     {
     upper_val = 255;
     }
@@ -121,8 +122,8 @@ static void vtkWin32ImageMapperClamps ( vtkImageData *data, float w,
     {
     upper_val = (unsigned char)(f_upper_val);
     }
-  
-  if (f_lower_val > 255) 
+
+  if (f_lower_val > 255)
     {
     lower_val = 255;
     }
@@ -133,16 +134,16 @@ static void vtkWin32ImageMapperClamps ( vtkImageData *data, float w,
   else
     {
     lower_val = (unsigned char)(f_lower_val);
-    }  
+    }
 }
 
 //----------------------------------------------------------------------------
 // A templated function that handles gray scale images.
 template <class T>
-static void vtkWin32ImageMapperRenderGray(vtkWin32ImageMapper *self, 
-					  vtkImageData *data,
-					  T *inPtr, unsigned char *outPtr,
-					  float shift, float scale)
+static void vtkWin32ImageMapperRenderGray(
+        vtkImageData *data, T *inPtr, unsigned char *outPtr, int DisplayExtent[6],
+        float cwindow, float clevel, float cshift, float cscale,
+        vtkLookupTable *lut)
 {
   unsigned char colorIdx;
   T *inPtr0, *inPtr1, *endPtr;
@@ -152,15 +153,14 @@ static void vtkWin32ImageMapperRenderGray(vtkWin32ImageMapper *self,
   T   lower, upper;
   int rowAdder;
   unsigned char lower_val, upper_val;
-  
-  vtkWin32ImageMapperClamps ( data, self->GetColorWindow(), 
-			      self->GetColorLevel(), 
+
+  vtkWin32ImageMapperClamps ( data, cwindow, clevel,
 			      lower, upper, lower_val, upper_val );
-  
-  inMin0 = self->DisplayExtent[0];
-  inMax0 = self->DisplayExtent[1];
-  inMin1 = self->DisplayExtent[2];
-  inMax1 = self->DisplayExtent[3];
+
+  inMin0 = DisplayExtent[0];
+  inMax0 = DisplayExtent[1];
+  inMin1 = DisplayExtent[2];
+  inMax1 = DisplayExtent[3];
 
   // data->GetIncrements(inInc0, inInc1);
   int* tempIncs = data->GetIncrements();
@@ -171,51 +171,220 @@ static void vtkWin32ImageMapperRenderGray(vtkWin32ImageMapper *self,
   rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
   inPtr1 = inPtr;
 
-  for (idx1 = inMin1; idx1 <= inMax1; idx1++)
+  if (!lut)
     {
-    inPtr0 = inPtr1;
-    endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
-    while (inPtr0 != endPtr)
+    for (idx1 = inMin1; idx1 <= inMax1; idx1++)
       {
-      if (*inPtr0 <= lower) 
-	{
-	*outPtr++ = lower_val;
-	*outPtr++ = lower_val;
-	*outPtr++ = lower_val;
-	}
-      else if (*inPtr0 >= upper)
-	{
-	*outPtr++ = upper_val;
-	*outPtr++ = upper_val;
-	*outPtr++ = upper_val;
-	}
-      else
-	{
-	// Because i_lower and sscale are of integer type
-	// this is fast for all types used by this
-	// template (float is treated separately).
-	colorIdx = (int) ((*inPtr0 + shift)*scale);
-	*outPtr++ = colorIdx;
-	*outPtr++ = colorIdx;
-	*outPtr++ = colorIdx;
-	}
-      inPtr0 += inInc0;
+      inPtr0 = inPtr1;
+      endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
+      while (inPtr0 != endPtr)
+        {
+        if (*inPtr0 <= lower)
+	      {
+	      *outPtr++ = lower_val;
+	      *outPtr++ = lower_val;
+	      *outPtr++ = lower_val;
+	      }
+        else if (*inPtr0 >= upper)
+	      {
+	      *outPtr++ = upper_val;
+	      *outPtr++ = upper_val;
+	      *outPtr++ = upper_val;
+	      }
+        else
+	      {
+          // Because i_lower and sscale are of integer type
+	      // this is fast for all types used by this
+	      // template (float is treated separately).
+	      colorIdx = (int) ((*inPtr0 + cshift)*cscale);
+	      *outPtr++ = colorIdx;
+	      *outPtr++ = colorIdx;
+	      *outPtr++ = colorIdx;
+	      }
+        inPtr0 += inInc0;
+        }
+      // rows must be a multiple of four bytes
+      // so pad it if neccessary
+      outPtr += rowAdder;
+      inPtr1 += inInc1;
       }
-    // rows must be a multiple of four bytes
-    // so pad it if neccessary
-    outPtr += rowAdder;
-    inPtr1 += inInc1;
+    }
+  else
+    {
+    // make a copy of lower and upper RGBA values to save time
+    unsigned char *Prgbalower = lut->MapValue(lower);
+    unsigned char  rgbalower[4] =
+        { Prgbalower[0], Prgbalower[1], Prgbalower[2], Prgbalower[3] };
+    unsigned char *Prgbaupper = lut->MapValue(upper);
+    unsigned char  rgbaupper[4] =
+        { Prgbaupper[0], Prgbaupper[1], Prgbaupper[2], Prgbaupper[3] };
+
+    for (idx1 = inMin1; idx1 <= inMax1; idx1++)
+      {
+      inPtr0 = inPtr1;
+      endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
+      while (inPtr0 != endPtr)
+        {
+        if (*inPtr0 <= lower)
+	      {
+	      *outPtr++ = rgbalower[2];
+	      *outPtr++ = rgbalower[1];
+	      *outPtr++ = rgbalower[0];
+	      }
+        else if (*inPtr0 >= upper)
+	      {
+	      *outPtr++ = rgbaupper[2];
+	      *outPtr++ = rgbaupper[1];
+	      *outPtr++ = rgbaupper[0];
+	      }
+        else
+	      {
+          // Because i_lower and sscale are of integer type
+	      // this is fast for all types used by this
+	      // template (float is treated separately).
+	      colorIdx = (int) ((*inPtr0 + cshift)*cscale);
+          unsigned char *Prgba = lut->MapValue(colorIdx);
+	      *outPtr++ = Prgba[2];
+	      *outPtr++ = Prgba[1];
+	      *outPtr++ = Prgba[0];
+	      }
+        inPtr0 += inInc0;
+        }
+      // rows must be a multiple of four bytes
+      // so pad it if neccessary
+      outPtr += rowAdder;
+      inPtr1 += inInc1;
+      }
     }
 }
+//----------------------------------------------------------------------------
+// A templated function that handles gray scale images.
+template <class T>
+static void vtkWin32ImageMapperRenderShortGray(
+        vtkImageData *data, T *inPtr, unsigned char *outPtr, int DisplayExtent[6],
+        float cwindow, float clevel, float cshift, float cscale,
+        vtkLookupTable *lut)
+{
+  unsigned char colorIdx;
+  T *inPtr0, *inPtr1, *endPtr;
+  int inMin0, inMax0, inMin1, inMax1;
+  int inInc0, inInc1;
+  int idx1;
+  T   lower, upper;
+  long sscale, sshift;
+  int rowAdder;
+  unsigned char lower_val, upper_val;
 
+  vtkWin32ImageMapperClamps ( data, cwindow, clevel,
+			      lower, upper, lower_val, upper_val );
+
+  sscale = cscale*4096.0;
+  sshift = sscale*cshift;
+
+  // data->GetExtent(inMin0, inMax0, inMin1, inMax1);
+  inMin0 = DisplayExtent[0];
+  inMax0 = DisplayExtent[1];
+  inMin1 = DisplayExtent[2];
+  inMax1 = DisplayExtent[3];
+
+  // data->GetIncrements(inInc0, inInc1);
+  int* tempIncs = data->GetIncrements();
+  inInc0 = tempIncs[0];
+  inInc1 = tempIncs[1];
+
+  // Loop through in regions pixels
+  rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
+  inPtr1 = inPtr;
+  if (!lut)
+    {
+    for (idx1 = inMin1; idx1 <= inMax1; idx1++)
+      {
+      inPtr0 = inPtr1;
+      endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
+      while (inPtr0 != endPtr)
+        {
+        if (*inPtr0 <= lower)
+          {
+          *outPtr++ = lower_val;
+          *outPtr++ = lower_val;
+          *outPtr++ = lower_val;
+          }
+        else if (*inPtr0 >= upper)
+          {
+          *outPtr++ = upper_val;
+          *outPtr++ = upper_val;
+          *outPtr++ = upper_val;
+          }
+        else
+          {
+          colorIdx = ((*inPtr0) * sscale + sshift) >> 12;
+          *outPtr++ = colorIdx;
+          *outPtr++ = colorIdx;
+          *outPtr++ = colorIdx;
+          }
+        inPtr0 += inInc0;
+        }
+      // rows must be a multiple of four bytes
+      // so pad it if neccessary
+      outPtr += rowAdder;
+      inPtr1 += inInc1;
+      }
+    }
+  else
+    {
+    // make a copy of lower and upper RGBA values to save time
+    unsigned char *Prgbalower = lut->MapValue(lower);
+    unsigned char  rgbalower[4] =
+        { Prgbalower[0], Prgbalower[1], Prgbalower[2], Prgbalower[3] };
+    unsigned char *Prgbaupper = lut->MapValue(upper);
+    unsigned char  rgbaupper[4] =
+        { Prgbaupper[0], Prgbaupper[1], Prgbaupper[2], Prgbaupper[3] };
+
+    for (idx1 = inMin1; idx1 <= inMax1; idx1++)
+      {
+      inPtr0 = inPtr1;
+      endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
+      while (inPtr0 != endPtr)
+        {
+        if (*inPtr0 <= lower)
+	      {
+	      *outPtr++ = rgbalower[2];
+	      *outPtr++ = rgbalower[1];
+	      *outPtr++ = rgbalower[0];
+	      }
+        else if (*inPtr0 >= upper)
+	      {
+	      *outPtr++ = rgbaupper[2];
+	      *outPtr++ = rgbaupper[1];
+	      *outPtr++ = rgbaupper[0];
+	      }
+        else
+	      {
+          // Because i_lower and sscale are of integer type
+	      // this is fast for all types used by this
+	      // template (float is treated separately).
+          colorIdx = ((*inPtr0) * sscale + sshift) >> 12;
+          unsigned char *Prgba = lut->MapValue(colorIdx);
+	      *outPtr++ = Prgba[2];
+	      *outPtr++ = Prgba[1];
+	      *outPtr++ = Prgba[0];
+	      }
+        inPtr0 += inInc0;
+        }
+      // rows must be a multiple of four bytes
+      // so pad it if neccessary
+      outPtr += rowAdder;
+      inPtr1 += inInc1;
+      }
+    }
+}
 
 //----------------------------------------------------------------------------
 // A templated function that handles color images. (only True Color 24 bit)
 template <class T>
-static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self, 
-					   vtkImageData *data, T *redPtr,
-					   int bpp, unsigned char *outPtr,
-					   float shift, float scale)
+static void vtkWin32ImageMapperRenderColor(
+        vtkImageData *data, T *redPtr, int bpp, unsigned char *outPtr,
+        int DisplayExtent[6], float cwindow, float clevel, float cshift, float cscale)
 {
   unsigned char red, green, blue;
   T *redPtr0, *redPtr1;
@@ -226,15 +395,15 @@ static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self,
   int idx0, idx1;
   T   lower, upper;
   int rowAdder;
-  T *greenPtr; 
-  T *bluePtr;  
+  T *greenPtr;
+  T *bluePtr;
   unsigned char lower_val, upper_val;
-  
+
   // data->GetExtent(inMin0, inMax0, inMin1, inMax1);
-  inMin0 = self->DisplayExtent[0];
-  inMax0 = self->DisplayExtent[1];
-  inMin1 = self->DisplayExtent[2];
-  inMax1 = self->DisplayExtent[3];
+  inMin0 = DisplayExtent[0];
+  inMax0 = DisplayExtent[1];
+  inMin1 = DisplayExtent[2];
+  inMax1 = DisplayExtent[3];
 
   // data->GetIncrements(inInc0, inInc1);
   int* tempIncs = data->GetIncrements();
@@ -258,8 +427,7 @@ static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self,
     bluePtr = redPtr;
     }
 
-  vtkWin32ImageMapperClamps ( data, self->GetColorWindow(), 
-			      self->GetColorLevel(), 
+  vtkWin32ImageMapperClamps ( data, cwindow, clevel,
 			      lower, upper, lower_val, upper_val );
 
   // Loop through in regions pixels
@@ -284,7 +452,7 @@ static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self,
 	}
       else
 	{
-	red = (unsigned char)(((float)(*redPtr0) + shift) * scale);
+	red = (unsigned char)(((float)(*redPtr0) + cshift) * cscale);
 	}
 
       if (*greenPtr0 <= lower)
@@ -297,7 +465,7 @@ static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self,
 	}
       else
 	{
-	green = (unsigned char)(((float)(*greenPtr0) + shift) * scale);
+	green = (unsigned char)(((float)(*greenPtr0) + cshift) * cscale);
 	}
   
       if (*bluePtr0 <= lower)
@@ -310,7 +478,7 @@ static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self,
 	}
       else
 	{
-	blue = (unsigned char)(((float)(*bluePtr0) + shift) * scale);
+	blue = (unsigned char)(((float)(*bluePtr0) + cshift) * cscale);
 	}
       *outPtr++ = blue;
       *outPtr++ = green;
@@ -330,99 +498,174 @@ static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self,
     }
 }
 
-
-
-
-
-
-
-//----------------------------------------------------------------------------
-// A templated function that handles gray scale images.
-
-template <class T>
-static void vtkWin32ImageMapperRenderShortGray(vtkWin32ImageMapper *self,
-					       vtkImageData *data,
-					       T *inPtr, unsigned char *outPtr,
-					       float shift, float scale)
+HBITMAP vtkWin32ImageMapper::CreateBitmapObject(
+    HBITMAP oldBitmap, BITMAPINFO &dataHeader, HDC windowDC,
+    unsigned char *&DataOut, vtkImageData *data, int width, int height)
 {
-  unsigned char colorIdx;
-  T *inPtr0, *inPtr1, *endPtr;
-  int inMin0, inMax0, inMin1, inMax1;
-  int inInc0, inInc1;
-  int idx1;
-  T   lower, upper;
-  long sscale, sshift;
-  int rowAdder;
-  unsigned char lower_val, upper_val;
-  
-  vtkWin32ImageMapperClamps ( data, self->GetColorWindow(), 
-			      self->GetColorLevel(), 
-			      lower, upper, lower_val, upper_val );
-  
-  sscale = scale*4096.0;
-  sshift = sscale*shift;
-  
-  // data->GetExtent(inMin0, inMax0, inMin1, inMax1);
-  inMin0 = self->DisplayExtent[0];
-  inMax0 = self->DisplayExtent[1];
-  inMin1 = self->DisplayExtent[2];
-  inMax1 = self->DisplayExtent[3];
-
-  // data->GetIncrements(inInc0, inInc1);
-  int* tempIncs = data->GetIncrements();
-  inInc0 = tempIncs[0];
-  inInc1 = tempIncs[1];
-
-  // Loop through in regions pixels
-  rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
-  inPtr1 = inPtr;
-  for (idx1 = inMin1; idx1 <= inMax1; idx1++)
+  // make sure width is 4 byte aligned
+  int dataWidth = ((width*3+3)/4)*4;
+  // Allow 8 bit palette bmp if desired
+  //
+  if (!oldBitmap)
     {
-    inPtr0 = inPtr1;
-    endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
-    while (inPtr0 != endPtr)
-      {
-      if (*inPtr0 <= lower)
-        {
-        *outPtr++ = lower_val;
-        *outPtr++ = lower_val;
-        *outPtr++ = lower_val;
-        }
-      else if (*inPtr0 >= upper)
-        {
-        *outPtr++ = upper_val;
-        *outPtr++ = upper_val;
-        *outPtr++ = upper_val;
-        }
-      else
-        {
-        colorIdx = ((*inPtr0) * sscale + sshift) >> 12;
-        *outPtr++ = colorIdx;
-        *outPtr++ = colorIdx;
-        *outPtr++ = colorIdx;
-        }
-      inPtr0 += inInc0;
-      }
-    // rows must be a multiple of four bytes
-    // so pad it if neccessary
-    outPtr += rowAdder;
-    inPtr1 += inInc1;
+    dataHeader.bmiHeader.biSize         = 40;
+    dataHeader.bmiHeader.biWidth        = width;
+    dataHeader.bmiHeader.biHeight       = height;
+    dataHeader.bmiHeader.biPlanes       = 1;
+    dataHeader.bmiHeader.biBitCount     = 24;
+    dataHeader.bmiHeader.biCompression  = BI_RGB;
+    dataHeader.bmiHeader.biSizeImage    = dataWidth*height;
+    dataHeader.bmiHeader.biClrUsed      = 0;
+    dataHeader.bmiHeader.biClrImportant = 0;
+    // try using a DIBsection
+    return CreateDIBSection(windowDC, &dataHeader, DIB_RGB_COLORS,
+        (void **)(&(DataOut)), NULL, 0);
     }
+  else
+    {
+    BITMAP bm;
+    GetObject(oldBitmap, sizeof (BITMAP), (LPSTR) &bm);
 
+    // if data size differs from bitmap size, reallocate the bitmap
+    if ((width != bm.bmWidth) || (height != bm.bmHeight))
+      {
+      DeleteObject(oldBitmap);
+      dataHeader.bmiHeader.biWidth        = width;
+      dataHeader.bmiHeader.biHeight       = height;
+      dataHeader.bmiHeader.biSizeImage    = dataWidth*height;
+      dataHeader.bmiHeader.biClrUsed      = 0;
+      dataHeader.bmiHeader.biClrImportant = 0;
+      // try using a DIBsection
+      return CreateDIBSection(windowDC, &dataHeader, DIB_RGB_COLORS,
+        (void **)(&(DataOut)), NULL, 0);
+      }
+    }
+    return oldBitmap;
 }
-
-
+//----------------------------------------------------------------------------
+void vtkWin32ImageMapper::GenerateBitmapData(
+    vtkImageData *data, void *inptr, unsigned char *DataOut, int dim,
+    int DisplayExtent[6], float cwindow, float clevel, float cshift, float cscale,
+    vtkLookupTable *lut)
+{
+  if (dim > 1)
+    {
+    // Call the appropriate templated function
+    switch (data->GetScalarType())
+      {
+      case VTK_DOUBLE:
+//        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Double");
+        vtkWin32ImageMapperRenderColor(data, (double *)(inptr), dim, DataOut,
+                    DisplayExtent, cwindow, clevel, cshift, cscale);
+        break;
+      case VTK_FLOAT:
+//        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Float");
+        vtkWin32ImageMapperRenderColor(data, (float *)(inptr), dim, DataOut,
+                    DisplayExtent, cwindow, clevel, cshift, cscale);
+        break;
+      case VTK_LONG:
+//        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Long");
+        vtkWin32ImageMapperRenderColor(data, (long *)(inptr), dim, DataOut,
+                    DisplayExtent, cwindow, clevel, cshift, cscale);
+        break;
+      case VTK_UNSIGNED_LONG:
+//        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Unsigned Long");
+        vtkWin32ImageMapperRenderColor(data, (unsigned long *)(inptr), dim, DataOut,
+                    DisplayExtent, cwindow, clevel, cshift, cscale);
+        break;
+      case VTK_INT:
+//        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Int");
+        vtkWin32ImageMapperRenderColor(data, (int *)(inptr), dim, DataOut,
+                    DisplayExtent, cwindow, clevel, cshift, cscale);
+        break;
+      case VTK_UNSIGNED_INT:
+//        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Unsigned Int");
+        vtkWin32ImageMapperRenderColor(data, (unsigned int *)(inptr), dim, DataOut,
+                    DisplayExtent, cwindow, clevel, cshift, cscale);
+        break;
+      case VTK_SHORT:
+//        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Short");
+        vtkWin32ImageMapperRenderColor(data, (short *)(inptr), dim, DataOut,
+                    DisplayExtent, cwindow, clevel, cshift, cscale);
+        break;
+      case VTK_UNSIGNED_SHORT:
+//        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Unsigned Short");
+        vtkWin32ImageMapperRenderColor(data, (unsigned short *)(inptr), dim, DataOut,
+                    DisplayExtent, cwindow, clevel, cshift, cscale);
+        break;
+      case VTK_CHAR:
+//        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Char");
+        vtkWin32ImageMapperRenderColor(data, (char *)(inptr), dim, DataOut,
+                    DisplayExtent, cwindow, clevel, cshift, cscale);
+        break;
+      case VTK_UNSIGNED_CHAR:
+//        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Unsigned Char");
+        vtkWin32ImageMapperRenderColor(data, (unsigned char *)(inptr), dim, DataOut,
+                    DisplayExtent, cwindow, clevel, cshift, cscale);
+        break;
+      }
+    }
+  else
+    {
+    // GrayScale images.
+    // Call the appropriate templated function
+      switch (data->GetScalarType())
+      {
+        case VTK_DOUBLE:
+          vtkWin32ImageMapperRenderGray(data, (double *)(inptr), DataOut,
+            DisplayExtent, cwindow, clevel, cshift, cscale, lut);
+          break;
+        case VTK_FLOAT:
+          vtkWin32ImageMapperRenderGray(data, (float *)(inptr), DataOut,
+            DisplayExtent, cwindow, clevel, cshift, cscale, lut);
+          break;
+        case VTK_LONG:
+          vtkWin32ImageMapperRenderGray(data, (long *)(inptr), DataOut,
+            DisplayExtent, cwindow, clevel, cshift, cscale, lut);
+          break;
+        case VTK_UNSIGNED_LONG:
+          vtkWin32ImageMapperRenderGray(data, (unsigned long *)(inptr), DataOut,
+            DisplayExtent, cwindow, clevel, cshift, cscale, lut);
+          break;
+        case VTK_INT:
+          vtkWin32ImageMapperRenderGray(data, (int *)(inptr), DataOut,
+            DisplayExtent, cwindow, clevel, cshift, cscale, lut);
+          break;
+        case VTK_UNSIGNED_INT:
+          vtkWin32ImageMapperRenderGray(data, (unsigned int *)(inptr), DataOut,
+            DisplayExtent, cwindow, clevel, cshift, cscale, lut);
+          break;
+        case VTK_SHORT:
+          vtkWin32ImageMapperRenderShortGray(data, (short *)(inptr), DataOut,
+            DisplayExtent, cwindow, clevel, cshift, cscale, lut);
+          break;
+        case VTK_UNSIGNED_SHORT:
+          vtkWin32ImageMapperRenderShortGray(data, (unsigned short *)(inptr), DataOut,
+            DisplayExtent, cwindow, clevel, cshift, cscale, lut);
+          break;
+        case VTK_CHAR:
+          vtkWin32ImageMapperRenderShortGray(data, (int *)(inptr), DataOut,
+            DisplayExtent, cwindow, clevel, cshift, cscale, lut);
+          break;
+        case VTK_UNSIGNED_CHAR:
+          vtkWin32ImageMapperRenderShortGray(data, (unsigned char *)(inptr), DataOut,
+            DisplayExtent, cwindow, clevel, cshift, cscale, lut);
+          break;
+      }
+    }
+}
 //----------------------------------------------------------------------------
 // Expects data to be X, Y, components
 
-void vtkWin32ImageMapper::RenderData(vtkViewport* viewport, 
+void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
 				     vtkImageData *data, vtkActor2D *actor)
 {
-  int dataWidth, width, height;
-  void *ptr0;
-  float shift, scale;
+  int width, height;
+  void *inptr;
+  float cshift, cscale, cwindow, clevel;
   HDC compatDC;
   HBITMAP hOldBitmap;
+
   static BITMAPINFO dataHeader;
 
   vtkWindow* window = (vtkWindow *) viewport->GetVTKWindow();
@@ -439,198 +682,26 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
   HDC windowDC = (HDC) window->GetGenericContext();
 
   // Determine the size of the displayed data.
-  width = (this->DisplayExtent[1] - this->DisplayExtent[0] + 1);
+  width  = (this->DisplayExtent[1] - this->DisplayExtent[0] + 1);
   height = (this->DisplayExtent[3] - this->DisplayExtent[2] + 1);
-  
-  dataWidth = ((width*3+3)/4)*4;
-  
-  shift = this->GetColorShift();
-  scale = this->GetColorScale();
-  
-  if (!this->HBitmap)
-    {
-    vtkDebugMacro (<< "vtkWin32ImageMapper::RenderData - creating HBitmap: " << width << "," << height
-    << "(" << dataWidth*height << " bytes)");
-    
-    dataHeader.bmiHeader.biSize = 40;
-    dataHeader.bmiHeader.biWidth = width;
-    dataHeader.bmiHeader.biHeight = height;
-    dataHeader.bmiHeader.biPlanes = 1;
-    dataHeader.bmiHeader.biBitCount = 24;
-    dataHeader.bmiHeader.biCompression = BI_RGB;
-    dataHeader.bmiHeader.biSizeImage = dataWidth*height;
-    dataHeader.bmiHeader.biClrUsed = 0;
-    dataHeader.bmiHeader.biClrImportant = 0;
 
-    // try using a DIBsection
-    this->HBitmap = CreateDIBSection(windowDC, &dataHeader,
-				     DIB_RGB_COLORS,
-				     (void **)(&(this->DataOut)), 
-				     NULL, 0);
-    }
-  else 
-    {
-    BITMAP bm;
-    GetObject(this->HBitmap, sizeof (BITMAP), (LPSTR) &bm);
+  cshift  = this->GetColorShift();
+  cscale  = this->GetColorScale();
+  cwindow = this->GetColorWindow();
+  clevel  = this->GetColorScale();
 
-    vtkDebugMacro(<< "vtkWin32ImageMapper::RenderData - Bitmap width: "
-    << bm.bmWidth);
-    vtkDebugMacro(<< "vtkWin32ImageMapper::RenderData - Bitmap height: "
-    << bm.bmHeight);
-
-    // if data size differs from bitmap size, reallocate the bitmap
-    if ((width != bm.bmWidth) || (height != bm.bmHeight))
-      {
-      vtkDebugMacro(<< "vtkWin32ImageMapper::RenderData - Changing bitmap size to: "
-      << width << "," << height << "(" << dataWidth*height << " bytes)");  	
-
-      DeleteObject(this->HBitmap);
-
-      dataHeader.bmiHeader.biWidth = width;
-      dataHeader.bmiHeader.biHeight = height;
-      dataHeader.bmiHeader.biSizeImage = dataWidth*height;
-      dataHeader.bmiHeader.biClrUsed = 0;
-      dataHeader.bmiHeader.biClrImportant = 0;  
-      // try using a DIBsection
-      this->HBitmap = CreateDIBSection(windowDC, &dataHeader, 
-				       DIB_RGB_COLORS, 
-				       (void **)(&(this->DataOut)), NULL, 0);
-      }
- 
-    }
+  this->HBitmap = CreateBitmapObject(this->HBitmap, dataHeader, windowDC,
+    this->DataOut, data, width, height);
 
   int dim = 0;
   dim = data->GetNumberOfScalarComponents();
-  ptr0 = data->GetScalarPointer(this->DisplayExtent[0], 
-				this->DisplayExtent[2], 
-				this->DisplayExtent[4]);
+  inptr = data->GetScalarPointer(
+            this->DisplayExtent[0],
+            this->DisplayExtent[2],
+            this->DisplayExtent[4]);
 
-  if (dim > 1)    
-
-    {
-    // Call the appropriate templated function
-    switch (data->GetScalarType())
-      {
-      case VTK_DOUBLE:
-        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Double");
-        vtkWin32ImageMapperRenderColor(this, data,
-				       (double *)(ptr0), dim,
-				       this->DataOut, shift, scale);
-        break;
-      case VTK_FLOAT:
-        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Float");
-        vtkWin32ImageMapperRenderColor(this, data,
-				       (float *)(ptr0), dim,
-				       this->DataOut, shift, scale);
-        break;
-      case VTK_LONG:
-        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Long");
-        vtkWin32ImageMapperRenderColor(this, data,
-				       (long *)(ptr0), dim,
-				       this->DataOut, shift, scale);
-        break;
-      case VTK_UNSIGNED_LONG:
-        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Unsigned Long");
-        vtkWin32ImageMapperRenderColor(this, data, (unsigned long *)(ptr0),
-				       dim, this->DataOut, shift, scale);
-        break;
-      case VTK_INT:
-        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Int");
-        vtkWin32ImageMapperRenderColor(this, data,
-				       (int *)(ptr0), dim,
-				       this->DataOut, shift, scale);
-        break;
-      case VTK_UNSIGNED_INT:
-        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Unsigned Int");
-        vtkWin32ImageMapperRenderColor(this, data, (unsigned int *)(ptr0),
-				       dim, this->DataOut, shift, scale);
-        break;
-      case VTK_SHORT:
-        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Short");
-        vtkWin32ImageMapperRenderColor(this, data,
-				       (short *)(ptr0), dim,
-				       this->DataOut, shift, scale);
-        break;
-      case VTK_UNSIGNED_SHORT:
-        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Unsigned Short");
-        vtkWin32ImageMapperRenderColor(this, data, (unsigned short *)(ptr0),
-				       dim, this->DataOut, shift, scale);
-        break;
-      case VTK_CHAR:
-        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Char");
-        vtkWin32ImageMapperRenderColor(this, data,
-				       (char *)(ptr0), dim,
-				       this->DataOut, shift, scale);
-        break;
-      case VTK_UNSIGNED_CHAR:
-        vtkDebugMacro(<<"vtkWin32ImageMappper::RenderData - RenderColor, Unsigned Char");
-        vtkWin32ImageMapperRenderColor(this, data, (unsigned char *)(ptr0),
-				       dim,this->DataOut, shift, scale);
-        break;
-      }
-    }
-  else
-    {
-    // GrayScale images.
-    // Call the appropriate templated function
-    switch (data->GetScalarType())
-      {
-      case VTK_DOUBLE:
-	vtkWin32ImageMapperRenderGray(this, data, (double *)(ptr0), 
-				      this->DataOut,
-				      shift, scale);
-	break;
-      case VTK_FLOAT:
-	vtkWin32ImageMapperRenderGray(this, data, (float *)(ptr0), 
-				      this->DataOut,
-				      shift, scale);
-	break;
-      case VTK_LONG:
-	vtkWin32ImageMapperRenderGray(this, data, (long *)(ptr0), 
-				      this->DataOut,
-				      shift, scale);
-	break;
-      case VTK_UNSIGNED_LONG:
-	vtkWin32ImageMapperRenderGray(this, data, 
-                                      (unsigned long *)(ptr0),
-                                      this->DataOut, 
-                                      shift, scale);
-	break;
-      case VTK_INT:
-	vtkWin32ImageMapperRenderGray(this, data, (int *)(ptr0), 
-				      this->DataOut,
-				      shift, scale);
-	break;
-      case VTK_UNSIGNED_INT:
-	vtkWin32ImageMapperRenderGray(this, data, 
-                                      (unsigned int *)(ptr0),
-                                      this->DataOut, 
-                                      shift, scale);
-	break;
-      case VTK_SHORT:
-	vtkWin32ImageMapperRenderShortGray(this, data, (short *)(ptr0),
-					   this->DataOut,
-					   shift, scale);
-	break;
-      case VTK_UNSIGNED_SHORT:
-	vtkWin32ImageMapperRenderShortGray(this, data, 
-					   (unsigned short *)(ptr0),
-					   this->DataOut, 
-					   shift, scale);
-	break;
-      case VTK_CHAR:
-	vtkWin32ImageMapperRenderShortGray(this, data, (int *)(ptr0), 
-                                           this->DataOut,
-                                           shift, scale);
-	break;
-      case VTK_UNSIGNED_CHAR:
-	vtkWin32ImageMapperRenderShortGray(this, data, 
-					   (unsigned char *)(ptr0),
-					   this->DataOut, 
-					   shift, scale);
-	break;
-      }
-    }
+  GenerateBitmapData(data, inptr, this->DataOut, dim,
+    this->DisplayExtent, cwindow, clevel, cshift, cscale, this->LookupTable);
 
 
   compatDC = CreateCompatibleDC(windowDC);
@@ -639,7 +710,7 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
 
   //  float* actorScale = actor->GetScale();
   float actorScale[2]; actorScale[0] = actorScale[1] = 1.0;
-    
+
   int xSize= (int) (actorScale[0] * (float) width);
   int ySize = (int) (actorScale[1] * (float) height);
 
@@ -647,7 +718,7 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
   int* actorPos = 
     actor->GetPositionCoordinate()->GetComputedLocalDisplayValue(viewport);
   // negative positions will already be clipped to viewport
-  actorPos[0] += this->PositionAdjustment[0]; 
+  actorPos[0] += this->PositionAdjustment[0];
   actorPos[1] -= this->PositionAdjustment[1];
 
   actorPos[1] = actorPos[1] - height + 1;

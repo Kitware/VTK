@@ -52,8 +52,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "vtkImageMapper.h"
+#include "vtkLookupTable.h"
 class vtkImageActor2D;
-
 
 class VTK_EXPORT vtkWin32ImageMapper : public vtkImageMapper
 {
@@ -69,13 +69,38 @@ public:
   // Description:
   // Called by the Render function in vtkImageMapper.  Actually draws
   // the image to the screen.
-  void RenderData(vtkViewport* viewport, vtkImageData* data, 
+  void RenderData(vtkViewport* viewport, vtkImageData* data,
 		  vtkActor2D* actor);
+
+  // Description:
+  // An optional lookuptable which is used to generate colours in place of
+  // a grayscale bitmap when the scalar dimension is 1. A NULL lookuptable
+  // will result in the default grayscale image. Ensure that the range of the
+  // lookuptable is {0,255} for full colour effects
+  vtkSetObjectMacro(LookupTable, vtkLookupTable);
+  vtkGetObjectMacro(LookupTable, vtkLookupTable);
+
+  // Description:
+  // CreateBitmapObject and GenerateBitmapData are utility functions which
+  // allow one to hook into the display routines and provide the user
+  // with an easy way of converting an ImageData object into a windows
+  // bitmap object. They are also used internally by the mapper and should not
+  // be modified or used standalone alone without caution.
+  static HBITMAP CreateBitmapObject(
+    HBITMAP oldBitmap, BITMAPINFO &dataHeader, HDC windowDC,
+    unsigned char *&DataOut, vtkImageData *data, int width, int height);
+
+  static void GenerateBitmapData(
+    vtkImageData *data, void *inptr, unsigned char *DataOut, int dim,
+    int DisplayExtent[6], float cwindow, float clevel, float cshift, float cscale,
+    vtkLookupTable *lut);
 
   unsigned char *DataOut;	// the data in the DIBSection
   HBITMAP HBitmap;			// our handle to the DIBSection
 
 protected:
+  vtkLookupTable *LookupTable;
+
   vtkWin32ImageMapper();
   ~vtkWin32ImageMapper();
   vtkWin32ImageMapper(const vtkWin32ImageMapper&) {};
