@@ -82,13 +82,13 @@ void vtkEdgePoints::Execute()
   vtkPoints *newPts;
   vtkCellArray *newVerts;
   int cellId, above, below, ptId, i, numEdges, edgeId, newCellId;
-  vtkCell *cell, *edge;
+  vtkCell *edge;
   float range[2];
   float s0, s1, x0[3], x1[3], x[3], t;
   float e0Scalar, deltaScalar;
   int e0, e1;
   int pts[1], p1, p2;
-  int estimatedSize;
+  int numCells, estimatedSize;
   vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   vtkScalars *cellScalars;
@@ -96,10 +96,9 @@ void vtkEdgePoints::Execute()
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
 
   vtkDebugMacro(<< "Generating edge points");
-  //
+
   // Initialize and check input
   //
-
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to contour");
@@ -113,7 +112,8 @@ void vtkEdgePoints::Execute()
     return;
     }
 
-  estimatedSize = (int) (input->GetNumberOfCells () * .75);
+  numCells = input->GetNumberOfCells();
+  estimatedSize = (int) (numCells * .75);
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
     {
@@ -132,15 +132,25 @@ void vtkEdgePoints::Execute()
   // interpolate data along edge; copy cell data
   outPd->InterpolateAllocate(inPd,5000,10000);
   outCd->CopyAllocate(inCd,5000,10000);
-  //
+
   // Traverse all edges. Since edges are not explicitly represented, use a
   // trick: traverse all cells and obtain cell edges and then cell edge
   // neighbors. If cell id < all edge neigbors ids, then this edge has not
   // yet been visited and is processed.
   //
-  for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
+  int abort=0;
+  int progressInterval = numCells/20 + 1;
+  vtkGenericCell *cell = vtkGenericCell::New();
+  for (cellId=0; cellId < numCells && !abort; cellId++)
     {
-    cell = input->GetCell(cellId);
+    if ( ! (cellId % progressInterval) ) 
+      {
+      vtkDebugMacro(<<"Processing #" << cellId);
+      this->UpdateProgress ((float)cellId/numCells);
+      abort = this->GetAbortExecute();
+      }
+
+    input->GetCell(cellId,cell);
     inScalars->GetScalars(cell->PointIds, cellScalars);
 
     // loop over cell points to check if cell straddles isosurface value
@@ -213,9 +223,10 @@ void vtkEdgePoints::Execute()
         } //dimension 2 and higher
       } //above and below
     } //for all cells
+  cell->Delete();
 
   vtkDebugMacro(<<"Created: " << newPts->GetNumberOfPoints() << " points");
-  //
+
   // Update ourselves.  Because we don't know up front how many verts we've 
   // created, take care to reclaim memory. 
   //
