@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMarchingCubesCases.h"
 #include "vtkMath.h"
 #include "vtkUnsignedCharScalars.h"
+#include "vtkUnsignedShortScalars.h"
 #include "vtkShortScalars.h"
 #include "vtkIntScalars.h"
 #include "vtkFloatScalars.h"
@@ -409,6 +410,13 @@ void vtkSliceCubes::Execute()
     {
     vtkUnsignedCharScalars *scalars = (vtkUnsignedCharScalars *)inScalars;
     unsigned char *s = scalars->GetPtr(0);
+    numTriangles = Contour(s,scalars,imageRange,dims,origin,aspectRatio,this->Value,
+                  xmin,xmax,outFP,this->Reader,this->Debug);
+    }
+  else if ( !strcmp(type,"unsigned short") )
+    {
+    vtkUnsignedShortScalars *scalars = (vtkUnsignedShortScalars *)inScalars;
+    unsigned short *s = scalars->GetPtr(0);
     numTriangles = Contour(s,scalars,imageRange,dims,origin,aspectRatio,this->Value,
                   xmin,xmax,outFP,this->Reader,this->Debug);
     }
