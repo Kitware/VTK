@@ -476,7 +476,8 @@ case $system in
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS=""
-	VTK_SHLIB_LINK_FLAGS=""
+	VTK_SHLIB_BUILD_FLAGS='-shared -Wl,-expect_unresolved,"*"'
+	VTK_SHLIB_LINK_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
 	;;
     RISCos-*)
 	SHLIB_CFLAGS="-G 0"
