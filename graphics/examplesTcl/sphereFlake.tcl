@@ -61,18 +61,17 @@ proc AddSpheres { flake_list radius } {
 
       if { $r == $radius } {
 	
-	set x_angle 80
+	set x_angle -80
 	set y_angle 0
 
 	set new_r [expr $r / 5.0]
 
 	for { set i 0 } { $i < 9 } { incr i } {
 	    t Identity
-	    t RotateX $x_angle
 	    t RotateY $y_angle
+	    t RotateX $x_angle
 
-	    t SetPoint 0 0 1 1
-	    set point [t GetPoint]
+            set point [t TransformPoint 0 0 1]
 
 	    set new_x [expr ( $x + [lindex $point 0] * ( $r * 1.5 ) )]
 	    set new_y [expr ( $y + [lindex $point 1] * ( $r * 1.5 ) )]
@@ -91,8 +90,8 @@ proc AddSpheres { flake_list radius } {
 	    }
 	    
 	    set new_list [linsert $new_list end [list $new_x $new_y $new_z $new_r $cr $cg $cb]]
-	    set x_angle [expr $x_angle - 20.0]
-	    set y_angle [expr $y_angle + 70.0]
+	    set x_angle [expr $x_angle + 20.0]
+	    set y_angle [expr $y_angle - 70.0]
 	}
       }
     }
