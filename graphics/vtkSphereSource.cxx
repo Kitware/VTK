@@ -314,6 +314,7 @@ void vtkSphereSource::Execute()
   //
   // Update ourselves and release memeory
   //
+  newPoints->Squeeze();
   output->SetPoints(newPoints);
   newPoints->Delete();
 

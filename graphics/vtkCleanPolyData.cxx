@@ -387,6 +387,7 @@ void vtkCleanPolyData::Execute()
   }
   //
   output->SetPoints(newPts);
+  newPts->Squeeze();
   newPts->Delete();
   if (newVerts) {
       newVerts->Squeeze();
