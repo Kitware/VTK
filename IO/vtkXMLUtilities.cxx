@@ -30,7 +30,7 @@
 typedef vtkstd::vector<vtkXMLDataElement*> vtkXMLUtilitiesDataElementContainer;
 
 vtkStandardNewMacro(vtkXMLUtilities);
-vtkCxxRevisionMacro(vtkXMLUtilities, "1.1");
+vtkCxxRevisionMacro(vtkXMLUtilities, "1.2");
 
 #define  VTK_XML_UTILITIES_FACTORED_POOL_NAME "FactoredPool"
 #define  VTK_XML_UTILITIES_FACTORED_NAME      "Factored"
@@ -359,9 +359,9 @@ vtkXMLUtilities::ReadElementFromStream(istream &is, int encoding)
   if (xml_parser->Parse())
     {
     res = xml_parser->GetRootElement();
-    // WARNING, this will be (must have been) fixed by Brad at some point
-    // in the main tree
-    // res->SetReferenceCount(res->GetReferenceCount() + 1);
+    // Bump up the ref count since we are going to delete the parser
+    // which actually owns the element
+    res->SetReferenceCount(res->GetReferenceCount() + 1);
     vtkXMLUtilities::UnFactorElements(res);
     }
 
