@@ -17,7 +17,8 @@ ENDIF (VTK_USE_HYBRID)
 
 ADD_EXECUTABLE(SocketServer SocketServer)
 ADD_EXECUTABLE(SocketClient SocketClient)
-
+ADD_EXECUTABLE(GenericCommunicator GenericCommunicator)
+ 
 LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
 IF (VTK_MANGLE_MESA)
   LINK_LIBRARIES( ${MESA_LIBRARY})
@@ -53,12 +54,20 @@ IF (VTK_DATA_ROOT)
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/ParallelIsoTest.png
                  ${MPI_POSTFLAGS})
+        ADD_TEST(TestCommunicatorMPI-image ${MPIRUN} ${MPI_PREFLAGS}
+                 ${CXX_TEST_PATH}/GenericCommunicator
+                 -D ${VTK_DATA_ROOT}
+                 -V Baseline/Parallel/GenericCommunicator.png
+                 ${MPI_POSTFLAGS})
       ENDIF(MPIRUN)
     ELSE (VTK_USE_MPI)
       IF (CMAKE_USE_PTHREADS OR CMAKE_USE_SPROC)
         ADD_TEST(ParallelIso-image ${CXX_TEST_PATH}/ParallelIsoTest
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/ParallelIsoTest.png)
+        ADD_TEST(TestCommunicator-image ${CXX_TEST_PATH}/GenericCommunicator
+                 -D ${VTK_DATA_ROOT}
+                 -V Baseline/Parallel/GenericCommunicator.png)
       ENDIF (CMAKE_USE_PTHREADS OR CMAKE_USE_SPROC)
     ENDIF (VTK_USE_MPI)
   ENDIF (VTK_USE_HYBRID)
@@ -71,9 +80,12 @@ ELSE (VTK_DATA_ROOT)
       IF (MPIRUN)
         ADD_TEST(ParallelIsoMPI ${MPIRUN} ${MPI_PREFLAGS}
                  ${CXX_TEST_PATH}/ParallelIsoTest ${MPI_POSTFLAGS})
+        ADD_TEST(TestCommunicatorMPI ${MPIRUN} ${MPI_PREFLAGS}
+                 ${CXX_TEST_PATH}/GenericCommunicator ${MPI_POSTFLAGS})
       ENDIF(MPIRUN)
     ELSE (VTK_USE_MPI)
       ADD_TEST(ParallelIso ${CXX_TEST_PATH}/ParallelIsoTest)
+      ADD_TEST(TestCommunicator ${CXX_TEST_PATH}/GenericCommunicator)
     ENDIF (VTK_USE_MPI)
   ENDIF (VTK_USE_HYBRID)
 ENDIF (VTK_DATA_ROOT)
