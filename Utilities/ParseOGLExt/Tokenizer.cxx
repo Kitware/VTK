@@ -24,6 +24,8 @@
 
 #include "Tokenizer.h"
 
+#include "vtkSystemIncludes.h"
+
 Tokenizer::Tokenizer(const char *s, const char *delim)
   : FullString(s), Delim(delim)
 {
