@@ -389,7 +389,7 @@ void vtkDecimatePro::Execute()
         previousError = error;
         }
 
-      else //Couldn't delete the vertex, so we'll re-insert it
+      else //Couldn't delete the vertex, so we'll re-insert it to be recycled
         { 
         numRecycles++;
         VertexQueue->Insert(ptId,VTK_RECYCLE);
@@ -870,17 +870,11 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
     VertexQueue->Insert(id,error);    
     }
 
-  //
-  // Default case just splits off triangle(s) in current loop. Other
-  // triangles are given a new vertex and are re-inserted.
-  //
-  else
+  //triangulation has failed so we'll cut the loop in half
+  else if ( type == VTK_RECYCLE ) 
     {
-    static int triCopy[VTK_MAX_TRIS_PER_VERTEX]; //need to copy list since list changes
-    for ( i=0; i < numTris; i++ ) triCopy[i] = tris[i];
-
     // First triangle is detached from other vertices
-    Mesh->GetCellPoints(triCopy[0],nverts,verts);
+    Mesh->GetCellPoints(tris[0],nverts,verts);
     p1 = ( verts[0] != ptId ? verts[0] : verts[1] );
     p2 = ( verts[1] != ptId && verts[1] != p1 ? verts[1] : verts[2] );
     Mesh->GetPoint(p1,x1);
@@ -892,14 +886,14 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
     // attaching triangles to it (and detaching from old).
     for ( i=1; i < numTris; i++ )
       {
-      Mesh->RemoveReferenceToCell(ptId,triCopy[i]);
+      Mesh->RemoveReferenceToCell(ptId,tris[i]);
 
       id = Mesh->InsertNextLinkedPoint(X,1);
-      Mesh->AddReferenceToCell(id,triCopy[i]);
-      Mesh->ReplaceCellPoint(triCopy[i], ptId, id);
+      Mesh->AddReferenceToCell(id,tris[i]);
+      Mesh->ReplaceCellPoint(tris[i], ptId, id);
 
       // Compute error and insert into priority queue
-      Mesh->GetCellPoints(triCopy[i],nverts,verts);
+      Mesh->GetCellPoints(tris[i],nverts,verts);
       p1 = ( verts[0] != id ? verts[0] : verts[1] );
       p2 = ( verts[1] != id && verts[1] != p1 ? verts[1] : verts[2] );
       Mesh->GetPoint(p1,x1);
@@ -907,6 +901,56 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
       error = ComputeSingleTriangleError(X, x1, x2);
       VertexQueue->Insert(id,error);    
       }
+    }
+
+  // Default case just splits off triangle(s) that form manifold groups
+  else
+    {
+    static vtkIdList triangles(VTK_MAX_TRIS_PER_VERTEX);
+    static vtkIdList cellIds(5,10);
+    static vtkIdList group(VTK_MAX_TRIS_PER_VERTEX);
+    int startTri, p[2];
+
+    for ( triangles.Reset(), i=0; i < numTris; i++ ) triangles.SetId(i,tris[i]);
+
+    // now group into manifold pieces
+    for ( group.Reset(), i=0, id=ptId; triangles.GetNumberOfIds() > 0; i++ )
+      {
+      startTri = triangles.GetId(0);
+      triangles.DeleteId(startTri);
+      Mesh->GetCellPoints(startTri,nverts,verts);
+      p[0] = ( verts[0] != ptId ? verts[0] : verts[1] );
+      p[1] = ( verts[1] != ptId && verts[1] != p[0] ? verts[1] : verts[2] );
+
+      //grab manifold group - j index is the forward/backward direction around vertex
+      for ( j=0; j < 2; j++ )
+        {
+        for ( tri=startTri; p[j] >= 0; )
+          {
+          Mesh->GetCellEdgeNeighbors(tri, ptId, p[j], cellIds);
+          if ( cellIds.GetNumberOfIds() == 1 && triangles.IsId((tri=cellIds.GetId(0))))
+            {
+            group.InsertNextId(tri);
+            triangles.DeleteId(tri);
+            Mesh->GetCellPoints(tri,nverts,verts);
+            p[j] = ( verts[1] != ptId && verts[1] != p[j] ? verts[1] : verts[2] );
+            }
+          else p[j] = -1;
+          }
+        }//for both directions
+
+      // reconnect group into manifold chunk (first group is left attached)
+      if ( i != 0 ) 
+        {
+        id = Mesh->InsertNextLinkedPoint(X,group.GetNumberOfIds());
+        for ( j=0; j < group.GetNumberOfIds(); j++ )
+          {
+          tri = group.GetId(j);
+          Mesh->RemoveReferenceToCell(ptId, tri);
+          Mesh->ReplaceCellPoint(tri, ptId, id);
+          }
+        }//if not first group
+      }//for all groups
     }
 
   return;
