@@ -32,6 +32,7 @@ reader SetPixelMask 0x7fff;
 vtkImageShrink3D shrink;
 shrink SetInput [reader GetOutput];
 shrink SetShrinkFactors 4 4 1;
+# Add Max
 shrink AveragingOn;
 shrink ReleaseDataFlagOff;
 
@@ -54,6 +55,7 @@ thresh2 ReplaceInOn;
 
 # connectivity
 
+# We might combine dilate and subtract (bone 1, transition 2, all else 0)
 vtkImageDilateErode3D dilate;
 dilate SetInput [thresh1 GetOutput];
 dilate SetDilateValue 255;
