@@ -37,7 +37,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.3");
+vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.4");
 vtkStandardNewMacro(vtkUnstructuredGridPreIntegration);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridPreIntegration, Integrator,
@@ -203,7 +203,7 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     tmpProperty->SetSpecular(this->Property->GetSpecular(component));
     tmpProperty->SetSpecularPower(this->Property->GetSpecularPower(component));
     tmpScalars->SetTuple1(0, range[0]);
-    tmpScalars->SetTuple1(1, range[0]);
+    tmpScalars->SetTuple1(1, range[1]);
     this->Integrator->Initialize(tmpVolume, tmpScalars);
 
     // Set values for next smallest d (the base values).
