@@ -40,19 +40,34 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkRIBExporter - export a scene into RenderMan RIB format.
 // .SECTION Description
-
 // vtkRIBExporter is a concrete subclass of vtkExporter that writes a
-// Renderman .RIB files. The input specifies a vtkRenderWindow. All visible
-// actors and lights will be included in the rib file. The following file
-// naming conventions apply:
-// rib file - FilePrefix.rib
-// image file created by RenderMan - FilePrefix.tif
-// texture files - TexturePrefix_0xADDR_MTIME.tif
-// This object does NOT generate an image file. The user must run either RenderMan
-// or a RenderMan emulator like Blue Moon Ray Tracer (BMRT).
+// Renderman .RIB files. The input specifies a vtkRenderWindow. All
+// visible actors and lights will be included in the rib file. The
+// following file naming conventions apply:
+//   rib file - FilePrefix.rib
+//   image file created by RenderMan - FilePrefix.tif
+//   texture files - TexturePrefix_0xADDR_MTIME.tif
+// This object does NOT generate an image file. The user must run either
+// RenderMan or a RenderMan emulator like Blue Moon Ray Tracer (BMRT).
+// vtk properties are convert to Renderman shaders as follows:
+//   Normal property, no texture map - plastic.sl
+//   Normal property with texture map - txtplastic.sl
+// These two shaders must be compiled by the rendering package being
+// used.  vtkRIBExporter also supports custom shaders. The shaders are
+// written using the Renderman Shading Language. See "The Renderman
+// Companion", ISBN 0-201-50868, 1989 for details on writing shaders.
+// vtkRIBProperty specifies the declarations and parameter settings for
+// custom shaders.
+// Tcl Example: generate a rib file for the current rendering.
+// vtkRIBExporter myRIB
+//   myRIB SetInput $renWin
+//   myRIB SetFIlePrefix mine
+//   myRIB Write
+// This will create a file mine.rib. After running this file through
+// a Renderman renderer a file mine.tif will contain the rendered image.
 //
 // .SECTION See Also
-// vtkExporter
+// vtkExporter vtkRIBProperty
 
 
 #ifndef __vtkRIBExporter_h
