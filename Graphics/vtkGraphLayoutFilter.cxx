@@ -177,7 +177,12 @@ void vtkGraphLayoutFilter::Execute()
   float volume = (this->GraphBounds[1] - this->GraphBounds[0]) *
     (this->GraphBounds[3] - this->GraphBounds[2]) *
     (this->GraphBounds[5] - this->GraphBounds[4]);
-  float temp = 1000.0;
+  float temp = sqrt( (this->GraphBounds[1]-this->GraphBounds[0])*
+                     (this->GraphBounds[1]-this->GraphBounds[0]) +
+                     (this->GraphBounds[3]-this->GraphBounds[2])*
+                     (this->GraphBounds[3]-this->GraphBounds[2]) +
+                     (this->GraphBounds[5]-this->GraphBounds[4])*
+                     (this->GraphBounds[5]-this->GraphBounds[4]) );
   // The optimal distance between vertices.
   float k = pow((double)volume/numPts,0.33333);
 
