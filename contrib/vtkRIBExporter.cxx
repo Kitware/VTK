@@ -1007,7 +1007,7 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
 
     iac1->SetInput1( anImage);
     iac1->SetInput2( anImage);
-    iac2->SetInput1(iac2->GetOutput ());
+    iac2->SetInput1(iac1->GetOutput ());
     iac2->SetInput2( anImage);
     icp->SetInput( iac2->GetOutput ());
     icp->SetConstant(255);
