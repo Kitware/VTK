@@ -359,7 +359,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.15");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.16");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -1564,14 +1564,6 @@ void vtkSimpleCellTessellator::Initialize(vtkGenericDataSet *ds)
     this->NumberOfPoints = this->DataSet->GetNumberOfPoints();
     this->EdgeTable->Initialize(this->NumberOfPoints);
     }
-}
-
-//-----------------------------------------------------------------------------
-// Description:
-// Return the internal edge table.
-vtkGenericEdgeTable *vtkSimpleCellTessellator::GetEdgeTable()
-{
-  return this->EdgeTable;
 }
 
 //-----------------------------------------------------------------------------

@@ -79,10 +79,6 @@ public:
   void Initialize(vtkIdType start);
   
   // Description:
-  // Return the last point id inserted.
-  vtkIdType GetLastPointId();
-  
-  // Description:
   // Return the total number of components for the point-centered attributes.
   // \post positive_result: result>0
   int GetNumberOfComponents();

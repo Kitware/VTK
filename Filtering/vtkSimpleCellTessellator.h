@@ -118,11 +118,6 @@ public:
   // Initialize the tessellator with a data set `ds'.
   void Initialize(vtkGenericDataSet *ds);
   
-
-  // Description:
-  // Return the internal edge table.
-  vtkGenericEdgeTable *GetEdgeTable();
-  
   // Description:
   // Return the number of fixed subdivisions. It is used to prevent from
   // infinite loop in degenerated cases. For order 3 or higher, if the

@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.7");
+vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.8");
 vtkStandardNewMacro(vtkGenericEdgeTable);
 
 static int PRIME_NUMBERS[] = {1, 3, 7, 13, 31, 61, 127,  251,  509,  1021,
@@ -532,14 +532,6 @@ void vtkGenericEdgeTable::Initialize(vtkIdType start)
   this->LastPointId = start;
 }
 
-//-----------------------------------------------------------------------------
-// Description:
-// Return the last point id inserted.
-vtkIdType vtkGenericEdgeTable::GetLastPointId()
-{
-  return this->LastPointId;
-}
-  
 //-----------------------------------------------------------------------------
 // Description:
 // Return the total number of components for the point-centered attributes.
