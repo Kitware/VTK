@@ -173,6 +173,12 @@ void vtkSampleFunction::Execute()
       {
       p = output->GetPoint(ptId);
       this->ImplicitFunction->FunctionGradient(p, n);
+//
+// The normal is the negative of the gradient
+//
+      n[0] = -n[0];
+      n[1] = -n[1];
+      n[2] = -n[2];
       vtkMath::Normalize(n);
       newNormals->SetNormal(ptId,n);
       }
