@@ -27,7 +27,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.34.2.2");
+vtkCxxRevisionMacro(vtkImageReslice, "1.34.2.3");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -784,27 +784,64 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
         break
 
 //----------------------------------------------------------------------------
-// rounding functions for each type, with some crazy stunts to avoid
-// the use of the 'floor' function which is too slow on x86
+// rounding functions for each type, where 'F' is a floating-point type
 
-template<class T>
-inline void vtkResliceRound(float val, T& rnd)
+template <class F>
+inline void vtkResliceRound(F val, char& rnd)
 {
   rnd = vtkResliceRound(val);
 }
 
-template<class T>
-inline void vtkResliceRound(double val, T& rnd)
+template <class F>
+inline void vtkResliceRound(F val, unsigned char& rnd)
 {
   rnd = vtkResliceRound(val);
 }
 
-inline void vtkResliceRound(float val, float& rnd)
+template <class F>
+inline void vtkResliceRound(F val, short& rnd)
+{
+  rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, unsigned short& rnd)
+{
+  rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, int& rnd)
+{
+  rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, unsigned int& rnd)
+{
+  rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, long& rnd)
+{
+  rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, unsigned long& rnd)
+{
+  rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, float& rnd)
 {
   rnd = val;
 }
 
-inline void vtkResliceRound(float val, double& rnd)
+template <class F>
+inline void vtkResliceRound(F val, double& rnd)
 {
   rnd = val;
 }
