@@ -31,8 +31,8 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   // ImplicitFunction interface
-  float Evaluate(float x, float y, float z);
-  void EvaluateGradient(float x, float y, float z, float n[3]);
+  float EvaluateFunction(float x[3]);
+  void EvaluateGradient(float x[3], float n[3]);
 
   vlSetMacro(Radius,float);
   vlGetMacro(Radius,float);

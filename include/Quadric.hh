@@ -32,8 +32,8 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   // ImplicitFunction interface
-  float Evaluate(float x, float y, float z);
-  void EvaluateGradient(float x, float y, float z, float g[3]);
+  float EvaluateFunction(float x[3]);
+  void EvaluateGradient(float x[3], float g[3]);
 
   void SetCoefficients(float a[10]);
   void SetCoefficients(float a0, float a1, float a2, float a3, float a4, 

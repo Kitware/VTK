@@ -35,11 +35,11 @@ public:
 
   // project point onto plane, returning coordinates
   void ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3]);
+  float Evaluate(float normal[3], float origin[3], float x[3]);
 
   // ImplicitFunction interface
-  float Evaluate(float x, float y, float z);
-  float Evaluate(float normal[3], float origin[3], float x[3]);
-  void EvaluateGradient(float x, float y, float z, float g[3]);
+  float EvaluateFunction(float x[3]);
+  void EvaluateGradient(float x[3], float g[3]);
 
   vlSetVector3Macro(Normal,float);
   vlGetVectorMacro(Normal,float,3);

@@ -28,21 +28,21 @@ vlSphere::vlSphere()
 
 // Description
 // Evaluate sphere equation ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) - R^2.
-float vlSphere::Evaluate(float x, float y, float z)
+float vlSphere::EvaluateFunction(float x[3])
 {
-  return ( ((x - this->Center[0]) * (x - this->Center[0]) + 
-           (y - this->Center[1]) * (y - this->Center[1]) + 
-           (z - this->Center[2]) * (z - this->Center[2])) - 
+  return ( ((x[0] - this->Center[0]) * (x[0] - this->Center[0]) + 
+           (x[1] - this->Center[1]) * (x[1] - this->Center[1]) + 
+           (x[2] - this->Center[2]) * (x[2] - this->Center[2])) - 
            this->Radius*this->Radius );
 }
 
 // Description
 // Evaluate sphere gradient.
-void vlSphere::EvaluateGradient(float x, float y, float z, float n[3])
+void vlSphere::EvaluateGradient(float x[3], float n[3])
 {
-  n[0] = 2.0 * (x - this->Center[0]);
-  n[1] = 2.0 * (y - this->Center[1]);
-  n[2] = 2.0 * (z - this->Center[2]);
+  n[0] = 2.0 * (x[0] - this->Center[0]);
+  n[1] = 2.0 * (x[1] - this->Center[1]);
+  n[2] = 2.0 * (x[2] - this->Center[2]);
 }
 
 void vlSphere::PrintSelf(ostream& os, vlIndent indent)
@@ -51,5 +51,5 @@ void vlSphere::PrintSelf(ostream& os, vlIndent indent)
 
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Center: (" << this->Center[0] << ", " 
-    << this->Center[1] << ", " << this->Center[2] << ")\n";
+     << this->Center[1] << ", " << this->Center[2] << ")\n";
 }

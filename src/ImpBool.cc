@@ -64,7 +64,7 @@ void vlImplicitBoolean::RemoveFunction(vlImplicitFunction *f)
 
 // Description
 // Evaluate boolean combinations of implicit function using current operator.
-float vlImplicitBoolean::Evaluate(float x, float y, float z)
+float vlImplicitBoolean::EvaluateFunction(float x[3])
 {
   float value, v;
   vlImplicitFunction *f;
@@ -74,7 +74,7 @@ float vlImplicitBoolean::Evaluate(float x, float y, float z)
     for (value = LARGE_FLOAT, this->FunctionList.InitTraversal(); 
     f=this->FunctionList.GetNextItem(); )
       {
-      if ( (v=f->Evaluate(x,y,z)) < value ) value = v;
+      if ( (v=f->FunctionValue(x)) < value ) value = v;
       }
     }
 
@@ -83,7 +83,7 @@ float vlImplicitBoolean::Evaluate(float x, float y, float z)
     for (value=-LARGE_FLOAT, this->FunctionList.InitTraversal(); 
     f=this->FunctionList.GetNextItem(); )
       {
-      if ( (v=f->Evaluate(x,y,z)) > value ) value = v;
+      if ( (v=f->FunctionValue(x)) > value ) value = v;
       }
     }
 
@@ -92,14 +92,14 @@ float vlImplicitBoolean::Evaluate(float x, float y, float z)
     vlImplicitFunction *firstF;
     this->FunctionList.InitTraversal();
     if ( (firstF = this->FunctionList.GetNextItem()) != NULL )
-      value = firstF->Evaluate(x,y,z);
+      value = firstF->FunctionValue(x);
 
     for (this->FunctionList.InitTraversal(); 
     f=this->FunctionList.GetNextItem(); )
       {
       if ( f != firstF )
         {
-        if ( (v=(-1.0)*f->Evaluate(x,y,z)) > value ) value = v;
+        if ( (v=(-1.0)*f->FunctionValue(x)) > value ) value = v;
         }
       }
     }//else
@@ -109,7 +109,7 @@ float vlImplicitBoolean::Evaluate(float x, float y, float z)
 
 // Description
 // Evaluate gradient of boolean combination.
-void vlImplicitBoolean::EvaluateGradient(float x, float y, float z, float g[3])
+void vlImplicitBoolean::EvaluateGradient(float x[3], float g[3])
 {
   float value, v;
   vlImplicitFunction *f;
@@ -119,10 +119,10 @@ void vlImplicitBoolean::EvaluateGradient(float x, float y, float z, float g[3])
     for (value = LARGE_FLOAT, this->FunctionList.InitTraversal(); 
     f=this->FunctionList.GetNextItem(); )
       {
-      if ( (v=f->Evaluate(x,y,z)) < value )
+      if ( (v=f->FunctionValue(x)) < value )
         {
         value = v;
-        f->EvaluateGradient(x,y,z,g);
+        f->FunctionGradient(x,g);
         }
       }
     }
@@ -132,10 +132,10 @@ void vlImplicitBoolean::EvaluateGradient(float x, float y, float z, float g[3])
     for (value=-LARGE_FLOAT, this->FunctionList.InitTraversal(); 
     f=this->FunctionList.GetNextItem(); )
       {
-      if ( (v=f->Evaluate(x,y,z)) > value ) 
+      if ( (v=f->FunctionValue(x)) > value ) 
         {
         value = v;
-        f->EvaluateGradient(x,y,z,g);
+        f->FunctionGradient(x,g);
         }
       }
     }
@@ -147,8 +147,8 @@ void vlImplicitBoolean::EvaluateGradient(float x, float y, float z, float g[3])
     this->FunctionList.InitTraversal();
     if ( (firstF = this->FunctionList.GetNextItem()) != NULL )
       {
-      value = firstF->Evaluate(x,y,z);
-      firstF->EvaluateGradient(x,y,z,gTemp); 
+      value = firstF->FunctionValue(x);
+      firstF->FunctionGradient(x,gTemp); 
       g[0] = -1.0*gTemp[0]; g[1] = -1.0*gTemp[1]; g[2] = -1.0*gTemp[2];
       }
 
@@ -157,10 +157,10 @@ void vlImplicitBoolean::EvaluateGradient(float x, float y, float z, float g[3])
       {
       if ( f != firstF )
         {
-        if ( (v=(-1.0)*f->Evaluate(x,y,z)) > value )
+        if ( (v=(-1.0)*f->FunctionValue(x)) > value )
           {
           value = v;
-          f->EvaluateGradient(x,y,z,gTemp);
+          f->FunctionGradient(x,gTemp);
           g[0] = -1.0*gTemp[0]; g[1] = -1.0*gTemp[1]; g[2] = -1.0*gTemp[2];
           }
         }

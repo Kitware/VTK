@@ -33,16 +33,6 @@ vlQuadric::vlQuadric()
 }
 
 // Description
-// Evaluate quadric equation.
-float vlQuadric::Evaluate(float x, float y, float z)
-{
-  float *a = this->Coefficients;
-  return ( a[0]*x*x + a[1]*y*y + a[2]*z*z +
-           a[3]*x*y + a[4]*y*z + a[5]*x*z +
-           a[6]*x + a[7]*y + a[8]*z + a[9] );
-}
-
-// Description
 // Set the 10 coefficients of the quadric equation.
 void vlQuadric::SetCoefficients(float a[10])
 {
@@ -61,14 +51,24 @@ void vlQuadric::SetCoefficients(float a[10])
 }
 
 // Description
+// Evaluate quadric equation.
+float vlQuadric::EvaluateFunction(float x[3])
+{
+  float *a = this->Coefficients;
+  return ( a[0]*x[0]*x[0] + a[1]*x[1]*x[1] + a[2]*x[2]*x[2] +
+           a[3]*x[0]*x[1] + a[4]*x[1]*x[2] + a[5]*x[0]*x[2] +
+           a[6]*x[0] + a[7]*x[1] + a[8]*x[2] + a[9] );
+}
+
+// Description
 // Evaluate the gradient to the quadric equation.
-void vlQuadric::EvaluateGradient(float x, float y, float z, float n[3])
+void vlQuadric::EvaluateGradient(float x[3], float n[3])
 {
   float *a=this->Coefficients;
 
-  n[0] = 2.0*a[0]*x + a[3]*y + a[5]*z + a[6];
-  n[1] = 2.0*a[1]*y + a[3]*x + a[4]*z + a[7];
-  n[2] = 2.0*a[2]*z + a[4]*y + a[5]*x + a[8];
+  n[0] = 2.0*a[0]*x[0] + a[3]*x[1] + a[5]*x[2] + a[6];
+  n[1] = 2.0*a[1]*x[1] + a[3]*x[0] + a[4]*x[2] + a[7];
+  n[2] = 2.0*a[2]*x[2] + a[4]*x[1] + a[5]*x[0] + a[8];
 }
 
 

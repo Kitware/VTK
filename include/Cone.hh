@@ -16,7 +16,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .NAME vlCone - implicit function for a cone
 // .SECTION Description
 // vlCone computes the implicit function and function gradient for a cone.
-// vlCone is a concrete implementation of vlImplicitFunction.
+// vlCone is a concrete implementation of vlImplicitFunction. The cone is
+// centered at the origin with axis of rotation coincident with z-axis.
 
 #ifndef __vlCone_h
 #define __vlCone_h
@@ -31,21 +32,21 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   // ImplicitFunction interface
-  float Evaluate(float x, float y, float z);
-  void EvaluateGradient(float x, float y, float z, float g[3]);
+  float EvaluateFunction(float x[3]);
+  void EvaluateGradient(float x[3], float g[3]);
 
-  vlSetVector3Macro(Apex,float);
-  vlGetVectorMacro(Apex,float,3);
+  // Description:
+  // Set/Get height of cone.
+  vlSetMacro(Height,float);
+  vlGetMacro(Height,float);
 
-  vlSetVector3Macro(Base,float);
-  vlGetVectorMacro(Base,float,3);
-
+  // Description:
+  // Set/Get the radius of the cone's base.
   vlSetMacro(BaseRadius,float);
   vlGetMacro(BaseRadius,float);
 
 protected:
-  float Apex[3];
-  float Base[3];
+  float Height;
   float BaseRadius;
 
 };
