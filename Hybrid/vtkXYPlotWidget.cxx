@@ -24,7 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkXYPlotWidget, "1.1");
+vtkCxxRevisionMacro(vtkXYPlotWidget, "1.2");
 vtkStandardNewMacro(vtkXYPlotWidget);
 vtkCxxSetObjectMacro(vtkXYPlotWidget, XYPlotActor, vtkXYPlotActor);
 
@@ -60,15 +60,17 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
       return;
       }
     
-    this->CurrentRenderer = 
-      this->Interactor->FindPokedRenderer(
+    if ( ! this->CurrentRenderer )
+      {
+      this->CurrentRenderer = this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]);
-    if (this->CurrentRenderer == NULL)
-      {
-      return;
+      if (this->CurrentRenderer == NULL)
+        {
+        return;
+        }
       }
-    
+
     this->Enabled = 1;
     
     // listen for the following events
@@ -99,7 +101,9 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
     // turn off the line
     this->CurrentRenderer->RemoveActor(this->XYPlotActor);
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
+    this->CurrentRenderer = NULL;
     }
+
   this->Interactor->Render();
 }
 

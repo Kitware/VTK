@@ -41,7 +41,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.16");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.17");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -227,12 +227,15 @@ void vtkImplicitPlaneWidget::SetEnabled(int enabling)
       return;
       }
     
-    this->CurrentRenderer = this->Interactor->FindPokedRenderer(
-      this->Interactor->GetLastEventPosition()[0],
-      this->Interactor->GetLastEventPosition()[1]);
-    if (this->CurrentRenderer == NULL)
+    if ( ! this->CurrentRenderer )
       {
-      return;
+      this->CurrentRenderer = this->Interactor->FindPokedRenderer(
+        this->Interactor->GetLastEventPosition()[0],
+        this->Interactor->GetLastEventPosition()[1]);
+      if (this->CurrentRenderer == NULL)
+        {
+        return;
+        }
       }
 
     this->Enabled = 1;
@@ -314,6 +317,7 @@ void vtkImplicitPlaneWidget::SetEnabled(int enabling)
     this->CurrentRenderer->RemoveActor(this->CutActor);
 
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
+    this->CurrentRenderer = NULL;
     }
 
   this->Interactor->Render();

@@ -44,7 +44,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.56");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.57");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -249,12 +249,15 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
       return;
       }
     
-    this->CurrentRenderer = 
-      this->Interactor->FindPokedRenderer(this->Interactor->GetLastEventPosition()[0],
-                                          this->Interactor->GetLastEventPosition()[1]);
-    if ( this->CurrentRenderer == 0 )
+    if ( ! this->CurrentRenderer )
       {
-      return;
+      this->CurrentRenderer = this->Interactor->FindPokedRenderer(
+        this->Interactor->GetLastEventPosition()[0],
+        this->Interactor->GetLastEventPosition()[1]);
+      if (this->CurrentRenderer == NULL)
+        {
+        return;
+        }
       }
 
     this->Enabled = 1;
@@ -339,6 +342,7 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
       }
 
     this->InvokeEvent(vtkCommand::DisableEvent,0);
+    this->CurrentRenderer = NULL;
     }
 
   this->Interactor->Render();
