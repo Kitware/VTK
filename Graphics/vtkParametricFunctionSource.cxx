@@ -24,8 +24,9 @@
 #include "vtkPolyData.h"
 
 #include <cmath>
+#include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.1");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.2");
 
 vtkParametricFunctionSource::vtkParametricFunctionSource(void) :
   NumberOfUPoints(0)
