@@ -356,7 +356,6 @@ protected:
 
   char* Name;
 
-private:
   double Range[2];
 
   // We can have arbitrary number of components, but 11 should
@@ -369,6 +368,7 @@ private:
      ComponentRangeComputeTime[VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES];
   double ComponentRange[VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES][2];
   
+private:
   double* GetTupleN(vtkIdType i, int n);
   
 private:

@@ -178,6 +178,9 @@ protected:
   vtkRenderer *CurrentRenderer;
   vtkRenderer *DefaultRenderer;
 
+  unsigned long CharObserverTag;
+  unsigned long DeleteObserverTag;
+
 private:
   vtkInteractorObserver(const vtkInteractorObserver&);  // Not implemented.
   void operator=(const vtkInteractorObserver&);  // Not implemented.

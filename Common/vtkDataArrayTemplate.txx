@@ -483,4 +483,120 @@ vtkIdType vtkDataArrayTemplate<T>::InsertNextValue(T f)
   return this->MaxId;
 }
 
+//----------------------------------------------------------------------------
+template <class T>
+void vtkDataArrayTemplate<T>::ComputeRange(int comp)
+{
+  // If we got component -1 on a vector array, compute vector magnitude.
+  if(comp < 0 && this->NumberOfComponents == 1)
+    {
+    comp = 0;
+    }
+
+  // Choose index into component range cache.
+  int index = (comp<0)? this->NumberOfComponents : comp;
+
+  if(index >= VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES ||
+     (this->GetMTime() > this->ComponentRangeComputeTime[index]))
+    {
+    // We need to compute the range.
+    this->Range[0] =  VTK_DOUBLE_MAX;
+    this->Range[1] =  VTK_DOUBLE_MIN;
+
+    if(comp >= 0)
+      {
+      this->ComputeScalarRange(comp);
+      }
+    else
+      {
+      this->ComputeVectorRange();
+      }
+
+    // Store the result in the range cache if there is room.
+    if(index < VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES)
+      {
+      this->ComponentRangeComputeTime[index].Modified();
+      this->ComponentRange[index][0] = this->Range[0];
+      this->ComponentRange[index][1] = this->Range[1];
+      }
+    }
+  else
+    {
+    // Copy value from range cache entry for this component.
+    this->Range[0] = this->ComponentRange[index][0];
+    this->Range[1] = this->ComponentRange[index][1];
+    }
+}
+
+//----------------------------------------------------------------------------
+template <class T>
+void vtkDataArrayTemplate<T>::ComputeScalarRange(int comp)
+{
+  // Compute range only if there are data.
+  T* begin = this->Array+comp;
+  T* end = this->Array+comp+this->MaxId+1;
+  if(begin == end)
+    {
+    return;
+    }
+
+  // Compute the range of scalar values.
+  int numComp = this->NumberOfComponents;
+  T range[2] = {*begin, *begin};
+  for(T* i = begin+numComp; i != end; i += numComp)
+    {
+    T s = *i;
+    if(s < range[0])
+      {
+      range[0] = s;
+      }
+    else if(s > range[1])
+      {
+      range[1] = s;
+      }
+    }
+
+  // Store the range.
+  this->Range[0] = range[0];
+  this->Range[1] = range[1];
+}
+
+//----------------------------------------------------------------------------
+template <class T>
+void vtkDataArrayTemplate<T>::ComputeVectorRange()
+{
+  // Compute range only if there are data.
+  T* begin = this->Array;
+  T* end = this->Array+this->MaxId+1;
+  if(begin == end)
+    {
+    return;
+    }
+
+  // Compute the range of vector magnitude squared.
+  int numComp = this->NumberOfComponents;
+  double range[2] = {VTK_DOUBLE_MAX, VTK_DOUBLE_MIN};
+  for(T* i = begin; i != end; i += numComp)
+    {
+    double s = 0.0;
+    for(int j=0; j < numComp; ++j)
+      {
+      double t = i[j];
+      s += t*t;
+      }
+    if(s < range[0])
+      {
+      range[0] = s;
+      }
+    else if(s > range[1])
+      {
+      range[1] = s;
+      }
+    }
+
+  // Store the range of vector magnitude.
+  this->Range[0] = sqrt(range[0]);
+  this->Range[1] = sqrt(range[1]);
+}
+
 #endif

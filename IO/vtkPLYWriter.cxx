@@ -24,7 +24,7 @@
 
 #include <stddef.h>
 
-vtkCxxRevisionMacro(vtkPLYWriter, "1.18");
+vtkCxxRevisionMacro(vtkPLYWriter, "1.18.6.1");
 vtkStandardNewMacro(vtkPLYWriter);
 
 vtkCxxSetObjectMacro(vtkPLYWriter,LookupTable,vtkScalarsToColors);
@@ -78,11 +78,11 @@ void vtkPLYWriter::WriteData()
   float version;
   static const char *elemNames[] = { "vertex", "face" };
   static PlyProperty vertProps[] = { // property information for a vertex
-    {"x", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x[0])), 
+    {"x", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)),
      0, 0, 0, 0},
-    {"y", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x[1])), 
+    {"y", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(float)),
      0, 0, 0, 0},
-    {"z", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x[2])), 
+    {"z", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(float)+sizeof(float)),
      0, 0, 0, 0},
     {"red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,red)), 
      0, 0, 0, 0},

@@ -33,7 +33,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.32");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.32.2.1");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -1284,6 +1284,7 @@ int vtkXMLWriter::WriteAsciiData(void* data, int numWords, int wordType,
   void* b = data;
   int nw = numWords;
   vtkIndent i = indent;
+  this->Stream->precision(11);
   ostream& os = *(this->Stream);
   switch(wordType)
     {

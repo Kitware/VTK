@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.28");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.28.6.1");
 
 vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);
 
@@ -46,6 +46,9 @@ vtkInteractorObserver::vtkInteractorObserver()
 
   this->KeyPressActivation = 1;
   this->KeyPressActivationValue = 'i';
+
+  this->CharObserverTag = 0;
+  this->DeleteObserverTag = 0;
 }
 
 vtkInteractorObserver::~vtkInteractorObserver()
@@ -55,6 +58,7 @@ vtkInteractorObserver::~vtkInteractorObserver()
   this->SetDefaultRenderer(NULL);
   this->EventCallbackCommand->Delete();
   this->KeyPressCallbackCommand->Delete();
+  this->SetInteractor(0);
 }
 
 //----------------------------------------------------------------------------
@@ -114,7 +118,10 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
   if (this->Interactor)
     {
     this->SetEnabled(0); //disable the old interactor
-    this->Interactor->RemoveObserver(this->KeyPressCallbackCommand);
+    this->Interactor->RemoveObserver(this->CharObserverTag);
+    this->CharObserverTag = 0;
+    this->Interactor->RemoveObserver(this->DeleteObserverTag);
+    this->DeleteObserverTag = 0;
     }
 
   this->Interactor = i;
@@ -122,11 +129,10 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
   // add observers for each of the events handled in ProcessEvents
   if (i)
     {
-    i->AddObserver(vtkCommand::CharEvent, 
+    this->CharObserverTag = i->AddObserver(vtkCommand::CharEvent, 
                    this->KeyPressCallbackCommand, 
                    this->Priority);
-
-    i->AddObserver(vtkCommand::DeleteEvent, 
+    this->DeleteObserverTag = i->AddObserver(vtkCommand::DeleteEvent, 
                    this->KeyPressCallbackCommand, 
                    this->Priority);
     }
@@ -139,19 +145,27 @@ void vtkInteractorObserver::ProcessEvents(vtkObject* vtkNotUsed(object),
                                           void* clientdata, 
                                           void* vtkNotUsed(calldata))
 {
-  vtkInteractorObserver* self 
-    = reinterpret_cast<vtkInteractorObserver *>( clientdata );
-
-  //look for char and delete events
-  switch(event)
+  if (event == vtkCommand::CharEvent || 
+      event == vtkCommand::DeleteEvent)
     {
-    case vtkCommand::CharEvent:
+    vtkObject *vobj = reinterpret_cast<vtkObject *>( clientdata );
+  vtkInteractorObserver* self 
+      = vtkInteractorObserver::SafeDownCast(vobj);
+    if (self)
+      {
+      if (event == vtkCommand::CharEvent)
+    {
       self->OnChar();
-      break;
-    case vtkCommand::DeleteEvent:
-      //self->Interactor = NULL; //commented out, can't write to a 
-      //self->Enabled = 0;       //deleted object
-      break;
+        }
+      else // delete event
+        {
+        self->SetInteractor(0);
+        }
+      }
+    else
+      {
+      vtkGenericWarningMacro("Process Events received a bad client data. The client data class name was " << vobj->GetClassName());
+      }
     }
 }
 

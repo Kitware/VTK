@@ -20,7 +20,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkVolume16Reader, "1.51");
+vtkCxxRevisionMacro(vtkVolume16Reader, "1.51.6.1");
 vtkStandardNewMacro(vtkVolume16Reader);
 
 vtkCxxSetObjectMacro(vtkVolume16Reader,Transform,vtkTransform);
@@ -364,12 +364,12 @@ int vtkVolume16Reader:: Read16BitImage (FILE *fp, unsigned short *pixels, int xs
     }
 
   shortPtr = pixels;
-  shortPtr = shortPtr + xsize*(ysize - 1);
-  for (int j=0; j<ysize; j++, shortPtr = shortPtr - xsize)
+  shortPtr += xsize*(ysize - 1);
+  for (int j=0; j<ysize; j++, shortPtr -= xsize)
     {
     if ( ! fread(shortPtr,sizeof (unsigned short),xsize,fp) )
       {
-      vtkErrorMacro(<<"Error reaading raw pgm data!");
+      vtkErrorMacro(<<"Error reading raw pgm data!");
       return 0;
       }
     }

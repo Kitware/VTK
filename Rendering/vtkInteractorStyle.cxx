@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.95");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.95.2.1");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
@@ -1084,7 +1084,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       break;
 
     case vtkCommand::DeleteEvent:
-      self->Interactor = 0;
+      self->SetInteractor(0);
       break;
     }
 }

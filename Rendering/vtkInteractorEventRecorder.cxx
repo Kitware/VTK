@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.7");
+vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.7.4.1");
 vtkStandardNewMacro(vtkInteractorEventRecorder);
 
 float vtkInteractorEventRecorder::StreamVersion = 1.0;
@@ -44,6 +44,8 @@ vtkInteractorEventRecorder::vtkInteractorEventRecorder()
 
 vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
 {
+  this->SetInteractor(0);
+  
   if ( this->FileName )
     {
     delete [] this->FileName;
@@ -295,8 +297,8 @@ void vtkInteractorEventRecorder::ProcessCharEvent(vtkObject* object,
   switch(event)
     {
     case vtkCommand::DeleteEvent:
-      //self->Interactor = NULL; //its going bye bye
-      //self->Enabled = 0;       //can't write to a deleted object
+      // if the interactor is being deleted then remove the event handlers
+      self->SetInteractor(0);
       break;
 
     case vtkCommand::CharEvent:
