@@ -1,5 +1,4 @@
-package require vtktcl
-package require vtktcl_interact
+package require vtktcl_interactor
 
 # Create the RenderWindow, Renderer and both Actors
 #
