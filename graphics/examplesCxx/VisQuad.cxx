@@ -10,7 +10,7 @@
 
 #include "SaveImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   vtkRenderer *ren1 = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -75,4 +75,6 @@ void main( int argc, char *argv[] )
   outline->Delete();
   outlineMapper->Delete();
   outlineActor->Delete();
+
+  exit( 1 );
 }
