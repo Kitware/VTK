@@ -79,6 +79,11 @@ vtkPointSet(sg)
 vtkStructuredGrid::~vtkStructuredGrid()
 {
   this->Initialize();
+  if (this->PointVisibility) 
+    {
+    this->PointVisibility->UnRegister((vtkObject *)this);
+    }
+  this->PointVisibility = NULL;
 }
 
 // Description:
@@ -110,7 +115,10 @@ void vtkStructuredGrid::CopyStructure(vtkDataSet *ds)
 void vtkStructuredGrid::Initialize()
 {
   vtkPointSet::Initialize(); 
-  if ( this->PointVisibility ) delete [] this->PointVisibility;
+  if ( this->PointVisibility ) 
+    this->PointVisibility->UnRegister(this);
+  this->PointVisibility = NULL;
+  this->Blanking = 0;
 }
 
 int vtkStructuredGrid::GetCellType(int cellId)
@@ -152,8 +160,7 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
     vtkErrorMacro (<<"No data");
     return NULL;
     }
-
-  // 
+ 
   switch (this->DataDescription)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
@@ -261,12 +268,24 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
 // solid obstacles.
 void vtkStructuredGrid::BlankingOn()
 {
-  this->Blanking = 1;
-  this->Modified();
+  if (!this->Blanking)
+    {
+    this->Blanking = 1;
+    this->Modified();
 
+    if ( !this->PointVisibility )
+      {
+      this->AllocatePointVisibility();
+      }
+    }
+}
+
+void vtkStructuredGrid::AllocatePointVisibility()
+{
   if ( !this->PointVisibility )
     {
-    this->PointVisibility = new vtkBitScalars(this->GetNumberOfPoints(),1000);
+    this->PointVisibility = 
+      new vtkBitScalars(this->GetNumberOfPoints(),1000);
     this->PointVisibility->Register((vtkObject *)this);
     for (int i=0; i<this->GetNumberOfPoints(); i++)
       {
@@ -280,15 +299,18 @@ void vtkStructuredGrid::BlankingOn()
 // Turn off data blanking.
 void vtkStructuredGrid::BlankingOff()
 {
-  this->Blanking = 0;
-  this->Modified();
+  if (this->Blanking)
+    {
+    this->Blanking = 0;
+    this->Modified();
+    }
 }
 
 // Description:
 // Turn off a particular data point.
 void vtkStructuredGrid::BlankPoint(int ptId)
 {
-  if ( !this->PointVisibility ) this->BlankingOn();
+  if ( !this->PointVisibility ) this->AllocatePointVisibility();
   this->PointVisibility->InsertScalar(ptId,0);
 }
 
@@ -296,7 +318,7 @@ void vtkStructuredGrid::BlankPoint(int ptId)
 // Turn on a particular data point.
 void vtkStructuredGrid::UnBlankPoint(int ptId)
 {
-  if ( !this->PointVisibility ) this->BlankingOn();
+  if ( !this->PointVisibility ) this->AllocatePointVisibility();
   this->PointVisibility->InsertScalar(ptId,1);
 }
 
