@@ -151,9 +151,9 @@ int main(int argc, char **argv)
     PyList_Insert(path, 0, newpath);
     Py_DECREF(newpath);
     }
-  if ( ::vtkPythonAppInitFileExists(VTK_PYTHON_SOURCE_DIR) )
+  if ( ::vtkPythonAppInitFileExists(VTK_PYTHON_PACKAGE_DIR) )
     {
-    newpath = PyString_FromString(VTK_PYTHON_SOURCE_DIR);
+    newpath = PyString_FromString(VTK_PYTHON_PACKAGE_DIR);
     PyList_Insert(path, 0, newpath);
     Py_DECREF(newpath);
     }
