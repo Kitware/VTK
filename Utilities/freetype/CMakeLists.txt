@@ -89,7 +89,7 @@ ENDIF (UNIX)
 # Apple flags and specific drivers
 #
 IF (APPLE)
-  SET (VTKFREETYPE_USE_CARBON 1)
+  SET (VTKFREETYPE_USE_CARBON 0)
   SET( FREETYPE_SRCS ${FREETYPE_SRCS} src/base/ftmac.c)
 ENDIF (APPLE)
 
