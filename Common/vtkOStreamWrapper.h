@@ -69,9 +69,14 @@ public:
   vtkOStreamWrapper& operator << (unsigned long);
   vtkOStreamWrapper& operator << (float);
   vtkOStreamWrapper& operator << (double);
+
+  // Need to switch on bool type because this wrapper is supposed to
+  // be as transparent as possible to user code.  This example should
+  // not be used to justify using bool elsewhere in VTK.
 #ifdef VTK_COMPILER_HAS_BOOL
   vtkOStreamWrapper& operator << (bool);
 #endif
+  
 #ifdef VTK_NEED_ID_TYPE_STREAM_OPERATORS
   vtkOStreamWrapper& operator << (vtkIdType);
 #endif
