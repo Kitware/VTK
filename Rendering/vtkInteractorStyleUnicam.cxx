@@ -49,18 +49,21 @@ vtkInteractorStyleUnicam::vtkInteractorStyleUnicam()
 
   // create focus sphere actor
   vtkSphereSource *sphere = vtkSphereSource::New();
-    sphere->SetThetaResolution(6); sphere->SetPhiResolution(6);
+  sphere->SetThetaResolution(6); 
+  sphere->SetPhiResolution(6);
   vtkPolyDataMapper *sphereMapper = vtkPolyDataMapper::New();
-    sphereMapper->SetInput(sphere->GetOutput());
-
+  sphereMapper->SetInput(sphere->GetOutput());
+  sphere->Delete();
+  
   // XXX - would like to make the focus sphere not be affected by
   // XXX - the lights-- i.e., always be easily easily seen.  i'm not sure
   // XXX - how to do that.
   this->FocusSphere = vtkActor::New();
-    this->FocusSphere->SetMapper(sphereMapper);
-    this->FocusSphere->GetProperty()->SetColor(0.8900,0.6600,0.4100);
-    this->FocusSphere->GetProperty()->SetRepresentationToWireframe();
-
+  this->FocusSphere->SetMapper(sphereMapper);
+  this->FocusSphere->GetProperty()->SetColor(0.8900,0.6600,0.4100);
+  this->FocusSphere->GetProperty()->SetRepresentationToWireframe();
+  sphereMapper->Delete();
+  
   // set WorldUpVector to be z-axis by default
   WorldUpVector[0] = 0;
   WorldUpVector[1] = 0;
