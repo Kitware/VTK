@@ -16,12 +16,9 @@ vtkImageDecomposedFilter \
 vtkImageMultipleInputFilter 
 
 CONCRETE = \
-vtkImageAdaptiveFilter \
 vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
 vtkImageArithmetic \
-vtkImageCTAComposite \
-vtkImageConnectivity \
 vtkImageConvolution1D \
 vtkImageDilate1D \
 vtkImageDilateErode \
@@ -44,7 +41,6 @@ vtkImageIslandRemoval2D \
 vtkImageMagnify1D \
 vtkImageMagnify \
 vtkImageMagnitude \
-vtkImageMarkBoundary \
 vtkImageMatte \
 vtkImageMean \
 vtkImageMean1D \
@@ -55,13 +51,11 @@ vtkImageOpenClose \
 vtkImageRFFT \
 vtkImageRFFT1D \
 vtkImageScatterPlot \
-vtkImageSGComposite \
 vtkImageShiftScale \
 vtkImageShortReader \
 vtkImageShortWriter \
 vtkImageShrink3D \
 vtkImageSpatialFilter \
-vtkImageSubSampling \
 vtkImageThreshold \
 vtkImageXViewer 
 
