@@ -102,7 +102,7 @@ void vtkOutlineCornerSource::Execute()
   newLines->Allocate(newLines->EstimateSize(24,2));
 
   float x[3];
-  int pts[2];
+  vtkIdType pts[2];
 
   int pid = 0;
 

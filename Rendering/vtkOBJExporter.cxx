@@ -156,7 +156,8 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   float *tempf, *p;
   vtkCellArray *cells;
   vtkTransform *trans = vtkTransform::New();
-  int npts, *indx;
+  int npts;
+  vtkIdType *indx;
   
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == NULL)

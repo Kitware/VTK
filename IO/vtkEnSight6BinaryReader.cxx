@@ -749,7 +749,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
     {
     this->MeasuredNodeIds->InsertNextId(pointIds[i]);
     points->InsertNextPoint(xCoords[i], yCoords[i], zCoords[i]);
-    pd->InsertNextCell(VTK_VERTEX, 1, &pointIds[i]);
+    pd->InsertNextCell(VTK_VERTEX, 1, (vtkIdType*)&pointIds[i]);
     }
 
   pd->SetPoints(points);
@@ -1785,9 +1785,11 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
 {
   int lineRead = 1;
   int i;
-  int *nodeIds, *nodeIdList;
+  int *nodeIdList;
+  vtkIdType *nodeIds;
   int numElements;
-  int idx, cellId, cellType;
+  int idx, cellType;
+  vtkIdType cellId;
   
   if (this->GetOutput(partId) == NULL)
     {
@@ -1819,7 +1821,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
       {
       vtkDebugMacro("point");
       
-      nodeIds = new int[1];        
+      nodeIds = new vtkIdType[1];
       this->ReadInt(&numElements);
       if (this->ElementIdsListed)
         {
@@ -1850,7 +1852,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
       {
       vtkDebugMacro("bar2");
       
-      nodeIds = new int[2];
+      nodeIds = new vtkIdType[2];
       this->ReadInt(&numElements);
       if (this->ElementIdsListed)
         {
@@ -1885,7 +1887,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
       vtkDebugMacro("bar3");
       vtkWarningMacro("Only vertex nodes of this element will be read.");
       
-      nodeIds = new int[2];
+      nodeIds = new vtkIdType[2];
       this->ReadInt(&numElements);
       if (this->ElementIdsListed)
         {
@@ -1930,7 +1932,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         cellType = VTK_ENSIGHT_TRIA6;
         }
       
-      nodeIds = new int[3];
+      nodeIds = new vtkIdType[3];
       this->ReadInt(&numElements);
       if (this->ElementIdsListed)
         {
@@ -1993,7 +1995,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         cellType = VTK_ENSIGHT_QUAD4;
         }
       
-      nodeIds = new int[4];
+      nodeIds = new vtkIdType[4];
       this->ReadInt(&numElements);
       if (this->ElementIdsListed)
         {
@@ -2059,7 +2061,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         cellType = VTK_ENSIGHT_TETRA4;
         }
       
-      nodeIds = new int[4];
+      nodeIds = new vtkIdType[4];
       this->ReadInt(&numElements);
       if (this->ElementIdsListed)
         {
@@ -2125,7 +2127,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         cellType = VTK_ENSIGHT_PYRAMID5;
         }
 
-      nodeIds = new int[5];
+      nodeIds = new vtkIdType[5];
       this->ReadInt(&numElements);
       if (this->ElementIdsListed)
         {
@@ -2194,7 +2196,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         cellType = VTK_ENSIGHT_HEXA8;
         }
       
-      nodeIds = new int[8];
+      nodeIds = new vtkIdType[8];
       this->ReadInt(&numElements);
       if (this->ElementIdsListed)
         {
@@ -2272,7 +2274,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
         cellType = VTK_ENSIGHT_PENTA6;
         }
       
-      nodeIds = new int[6];
+      nodeIds = new vtkIdType[6];
       this->ReadInt(&numElements);
       if (this->ElementIdsListed)
         {

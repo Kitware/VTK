@@ -87,7 +87,8 @@ void vtkEdgePoints::Execute()
   float s0, s1, x0[3], x1[3], x[3], t;
   float e0Scalar, deltaScalar;
   int e0, e1;
-  int pts[1], p1, p2;
+  int p1, p2;
+  vtkIdType pts[1];
   int numCells, estimatedSize;
   vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();

@@ -61,7 +61,7 @@ public:
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that ext is no longer used.
-  int Allocate(const int sz, const int ext=1000);
+  int Allocate(const vtkIdType sz, const int ext=1000);
 
   // Description:
   // Release storage and reset array to initial state.
@@ -73,28 +73,28 @@ public:
   
   // Description:
   // Set the number of n-tuples in the array.
-  void SetNumberOfTuples(const int number);
+  void SetNumberOfTuples(const vtkIdType number);
 
   // Description:
   // Get a pointer to a tuple at the ith location. This is a dangerous method
   // (it is not thread safe since a pointer is returned).
-  float *GetTuple(const int i);
+  float *GetTuple(const vtkIdType i);
 
   // Description:
   // Copy the tuple value into a user-provided array.
-  void GetTuple(const int i, float * tuple);
-  void GetTuple(const int i, double * tuple);
+  void GetTuple(const vtkIdType i, float * tuple);
+  void GetTuple(const vtkIdType i, double * tuple);
   
   // Description:
   // Set the tuple value at the ith location in the array.
-  void SetTuple(const int i, const float * tuple);
-  void SetTuple(const int i, const double * tuple);
+  void SetTuple(const vtkIdType i, const float * tuple);
+  void SetTuple(const vtkIdType i, const double * tuple);
   
   // Description:
   // Insert (memory allocation performed) the tuple into the ith location
   // in the array.
-  void InsertTuple(const int i, const float * tuple);
-  void InsertTuple(const int i, const double * tuple);
+  void InsertTuple(const vtkIdType i, const float * tuple);
+  void InsertTuple(const vtkIdType i, const double * tuple);
 
   // Description:
   // Insert (memory allocation performed) the tuple onto the end of the array.
@@ -107,11 +107,11 @@ public:
 
   // Description:
   // Resize the array while conserving the data.
-  virtual void Resize(int numTuples);
+  virtual void Resize(vtkIdType numTuples);
 
   // Description:
   // Get the data at a particular index.
-  int GetValue(const int id);
+  int GetValue(const vtkIdType id);
 
   // Description:
   // Fast method based setting of values without memory checks. First
@@ -119,28 +119,29 @@ public:
   // Specify the number of values for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
   // SetValue() method for fast insertion.
-  void SetNumberOfValues(const int number);
+  void SetNumberOfValues(const vtkIdType number);
 
   // Description:
   // Set the data at a particular index. Does not do range checking. Make sure
   // you use the method SetNumberOfValues() before inserting data.
-  void SetValue(const int id, const int value);
+  void SetValue(const vtkIdType id, const int value);
 
   // Description:
   // Insets values and checks to make sure there is enough memory
-  void InsertValue(const int id, const int i);
+  void InsertValue(const vtkIdType id, const int i);
   int InsertNextValue(const int i);
 
   // Description:
   // Direct manipulation of the underlying data.
-  unsigned char *GetPointer(const int id) {return this->Array + id/8;}
+  unsigned char *GetPointer(const vtkIdType id) {return this->Array + id/8;}
 
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of
   // data values requested.
-  unsigned char *WritePointer(const int id, const int number);
-  void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
+  unsigned char *WritePointer(const vtkIdType id, const vtkIdType number);
+  void *GetVoidPointer(const vtkIdType id)
+    {return (void *)this->GetPointer(id);};
 
   // Description:
   // Deep copy of another bit array.
@@ -153,19 +154,20 @@ public:
   // from deleting the array when it cleans up or reallocates memory.
   // The class uses the actual array provided; it does not copy the data 
   // from the suppled array.
-  void SetArray(unsigned char* array, int size, int save);
-  void SetVoidArray(void *array,int size, int save) 
+  void SetArray(unsigned char* array, vtkIdType size, int save);
+  void SetVoidArray(void *array, vtkIdType size, int save) 
     {this->SetArray((unsigned char *)array, size, save);};
 
  
 protected:
-  vtkBitArray(int numComp=1);
+  vtkBitArray(vtkIdType numComp=1);
   ~vtkBitArray();
   vtkBitArray(const vtkBitArray&) {};
   void operator=(const vtkBitArray&) {};
 
   unsigned char *Array;   // pointer to data
-  unsigned char *ResizeAndExtend(const int sz);  // function to resize data
+  unsigned char *ResizeAndExtend(const vtkIdType sz);
+    // function to resize data
 
   int TupleSize; //used for data conversion
   float *Tuple;
@@ -178,9 +180,10 @@ private:
   
 };
 
-inline unsigned char *vtkBitArray::WritePointer(const int id, const int number)
+inline unsigned char *vtkBitArray::WritePointer(const vtkIdType id,
+                                                const vtkIdType number)
 {
-  int newSize=id+number;
+  vtkIdType newSize=id+number;
   if ( newSize > this->Size )
     {
     this->ResizeAndExtend(newSize);
@@ -192,13 +195,13 @@ inline unsigned char *vtkBitArray::WritePointer(const int id, const int number)
   return this->Array + id/8;
 }
 
-inline void vtkBitArray::SetNumberOfValues(const int number) 
+inline void vtkBitArray::SetNumberOfValues(const vtkIdType number) 
 {
   this->Allocate(number);
   this->MaxId = number - 1;
 }
 
-inline void vtkBitArray::SetValue(const int id, const int value) 
+inline void vtkBitArray::SetValue(const vtkIdType id, const int value) 
 {
   if (value)
     {
@@ -210,7 +213,7 @@ inline void vtkBitArray::SetValue(const int id, const int value)
     }
 }
 
-inline void vtkBitArray::InsertValue(const int id, const int i)
+inline void vtkBitArray::InsertValue(const vtkIdType id, const int i)
 {
   if ( id >= this->Size )
     {

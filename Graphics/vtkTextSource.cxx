@@ -208,7 +208,7 @@ void vtkTextSource::Execute()
   float x[3];
   int pos = 0;
   int pixelPos;
-  int pts[5];
+  vtkIdType pts[5];
   int numPolys = 0;
   int acol;
   int drawingWhite = 0;

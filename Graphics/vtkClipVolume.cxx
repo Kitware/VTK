@@ -159,8 +159,9 @@ void vtkClipVolume::Execute()
   int above, below;
   vtkIdList *tetraIds;
   vtkPoints *tetraPts; 
-  int ii, jj, pts[4], id, ntetra;
-    
+  int ii, jj, id, ntetra;
+  vtkIdType pts[4];
+  
   vtkDebugMacro(<< "Clipping volume");
   
   // Initialize self; create output objects
@@ -422,8 +423,8 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars,
 {
   float x[3], *xPtr, s1, s2, t, voxelOrigin[3];
   float bounds[6], p1[3], p2[3];
-  int i, edgeNum, numPts, id;
-  int ptId;
+  int i, edgeNum, numPts;
+  vtkIdType id, ptId;
   vtkUnstructuredGrid *output=this->GetOutput();
   vtkUnstructuredGrid *clippedOutput=this->GetClippedOutput();
   static int edges[12][2] = { {0,1}, {2,3}, {4,5}, {6,7},

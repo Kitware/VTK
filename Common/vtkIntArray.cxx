@@ -63,7 +63,7 @@ vtkDataArray *vtkIntArray::MakeObject()
 }
 
 // Instantiate object.
-vtkIntArray::vtkIntArray(int numComp)
+vtkIntArray::vtkIntArray(vtkIdType numComp)
 {
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
   this->Array = NULL;
@@ -108,7 +108,7 @@ void vtkIntArray::SetArray(int* array, int size, int save)
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkIntArray::Allocate(const int sz, const int vtkNotUsed(ext))
+int vtkIntArray::Allocate(const vtkIdType sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size )
     {
@@ -185,10 +185,10 @@ void vtkIntArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Protected function does "reallocate"
 //
-int *vtkIntArray::ResizeAndExtend(const int sz)
+int *vtkIntArray::ResizeAndExtend(const vtkIdType sz)
 {
   int *newArray;
-  int newSize;
+  vtkIdType newSize;
 
   if ( sz > this->Size ) 
     {
@@ -236,10 +236,10 @@ int *vtkIntArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkIntArray::Resize(int sz)
+void vtkIntArray::Resize(vtkIdType sz)
 {
   int *newArray;
-  int newSize = sz*this->NumberOfComponents;
+  vtkIdType newSize = sz*this->NumberOfComponents;
 
   if (newSize == this->Size)
     {
@@ -280,14 +280,14 @@ void vtkIntArray::Resize(int sz)
 }
 
 // Set the number of n-tuples in the array.
-void vtkIntArray::SetNumberOfTuples(const int number)
+void vtkIntArray::SetNumberOfTuples(const vtkIdType number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
-float *vtkIntArray::GetTuple(const int i) 
+float *vtkIntArray::GetTuple(const vtkIdType i) 
 {
   if ( this->TupleSize < this->NumberOfComponents )
     {
@@ -305,7 +305,7 @@ float *vtkIntArray::GetTuple(const int i)
 }
 
 // Copy the tuple value into a user-provided array.
-void vtkIntArray::GetTuple(const int i, float * tuple) 
+void vtkIntArray::GetTuple(const vtkIdType i, float * tuple) 
 {
   int *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -314,7 +314,7 @@ void vtkIntArray::GetTuple(const int i, float * tuple)
     }
 }
 
-void vtkIntArray::GetTuple(const int i, double * tuple) 
+void vtkIntArray::GetTuple(const vtkIdType i, double * tuple) 
 {
   int *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -324,18 +324,18 @@ void vtkIntArray::GetTuple(const int i, double * tuple)
 }
 
 // Set the tuple value at the ith location in the array.
-void vtkIntArray::SetTuple(const int i, const float * tuple)
+void vtkIntArray::SetTuple(const vtkIdType i, const float * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
     this->Array[loc+j] = (int)tuple[j];
     }
 }
 
-void vtkIntArray::SetTuple(const int i, const double * tuple)
+void vtkIntArray::SetTuple(const vtkIdType i, const double * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
     this->Array[loc+j] = (int)tuple[j];
@@ -344,7 +344,7 @@ void vtkIntArray::SetTuple(const int i, const double * tuple)
 
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
-void vtkIntArray::InsertTuple(const int i, const float * tuple)
+void vtkIntArray::InsertTuple(const vtkIdType i, const float * tuple)
 {
   int *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -354,7 +354,7 @@ void vtkIntArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-void vtkIntArray::InsertTuple(const int i, const double * tuple)
+void vtkIntArray::InsertTuple(const vtkIdType i, const double * tuple)
 {
   int *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -367,7 +367,7 @@ void vtkIntArray::InsertTuple(const int i, const double * tuple)
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkIntArray::InsertNextTuple(const float * tuple)
 {
-  int i = this->MaxId + 1;
+  vtkIdType i = this->MaxId + 1;
   int *t = this->WritePointer(i,this->NumberOfComponents);
 
   for (i=0; i<this->NumberOfComponents; i++)
@@ -380,7 +380,7 @@ int vtkIntArray::InsertNextTuple(const float * tuple)
 
 int vtkIntArray::InsertNextTuple(const double * tuple)
 {
-  int i = this->MaxId + 1;
+  vtkIdType i = this->MaxId + 1;
   int *t = this->WritePointer(i,this->NumberOfComponents);
 
   for (i=0; i<this->NumberOfComponents; i++)

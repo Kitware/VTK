@@ -6861,7 +6861,7 @@ void vtkEarthSource::Execute()
   vtkNormals *newNormals;
   vtkCellArray *newPolys;
   float x[3], base[3];
-  int Pts[4000];
+  vtkIdType Pts[4000];
   vtkPolyData *output = this->GetOutput();
   int npts, land, offset;
   int actualpts, actualpolys;

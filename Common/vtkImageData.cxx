@@ -237,10 +237,11 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
 
 //----------------------------------------------------------------------------
 
-vtkCell *vtkImageData::GetCell(int cellId)
+vtkCell *vtkImageData::GetCell(vtkIdType cellId)
 {
   vtkCell *cell = NULL;
-  int idx, loc[3], npts;
+  int loc[3];
+  vtkIdType idx, npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int *dims = this->GetDimensions();
   int d01 = dims[0]*dims[1];
@@ -339,9 +340,10 @@ vtkCell *vtkImageData::GetCell(int cellId)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::GetCell(int cellId, vtkGenericCell *cell)
+void vtkImageData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 {
-  int npts, loc[3], idx;
+  vtkIdType npts, idx;
+  int loc[3];
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int *dims = this->GetDimensions();
   int d01 = dims[0]*dims[1];
@@ -439,7 +441,7 @@ void vtkImageData::GetCell(int cellId, vtkGenericCell *cell)
 //----------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without
 // constructing a cell.
-void vtkImageData::GetCellBounds(int cellId, float bounds[6])
+void vtkImageData::GetCellBounds(vtkIdType cellId, float bounds[6])
 {
   int loc[3], iMin, iMax, jMin, jMax, kMin, kMax;
   float x[3];
@@ -534,7 +536,7 @@ void vtkImageData::GetCellBounds(int cellId, float bounds[6])
 }
 
 //----------------------------------------------------------------------------
-float *vtkImageData::GetPoint(int ptId)
+float *vtkImageData::GetPoint(vtkIdType ptId)
 {
   static float x[3];
   int i, loc[3];
@@ -604,7 +606,7 @@ float *vtkImageData::GetPoint(int ptId)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageData::FindPoint(float x[3])
+vtkIdType vtkImageData::FindPoint(float x[3])
 {
   int i, loc[3];
   float d;
@@ -634,9 +636,9 @@ int vtkImageData::FindPoint(float x[3])
 }
 
 //----------------------------------------------------------------------------
-int vtkImageData::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
-				  vtkGenericCell *vtkNotUsed(gencell),
-				  int vtkNotUsed(cellId), 
+vtkIdType vtkImageData::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
+                                 vtkGenericCell *vtkNotUsed(gencell),
+                                 vtkIdType vtkNotUsed(cellId), 
 				  float vtkNotUsed(tol2), 
 				  int& subId, float pcoords[3], 
 				  float *weights)
@@ -646,9 +648,10 @@ int vtkImageData::FindCell(float x[3], vtkCell *vtkNotUsed(cell),
 }
 
 //----------------------------------------------------------------------------
-int vtkImageData::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
-                         int vtkNotUsed(cellId), float vtkNotUsed(tol2), 
-                         int& subId, float pcoords[3], float *weights)
+vtkIdType vtkImageData::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
+                                 vtkIdType vtkNotUsed(cellId),
+                                 float vtkNotUsed(tol2), 
+                                 int& subId, float pcoords[3], float *weights)
 {
   int loc[3];
   int *dims = this->GetDimensions();
@@ -670,14 +673,15 @@ int vtkImageData::FindCell(float x[3], vtkCell *vtkNotUsed(cell),
 
 //----------------------------------------------------------------------------
 vtkCell *vtkImageData::FindAndGetCell(float x[3],
-		vtkCell *vtkNotUsed(cell), int vtkNotUsed(cellId),
-	        float vtkNotUsed(tol2), int& subId, 
-                float pcoords[3], float *weights)
+                                      vtkCell *vtkNotUsed(cell),
+                                      vtkIdType vtkNotUsed(cellId),
+                                      float vtkNotUsed(tol2), int& subId, 
+                                      float pcoords[3], float *weights)
 {
   int i, j, k, loc[3];
-  int npts, idx;
+  vtkIdType npts, idx;
   int *dims = this->GetDimensions();
-  int d01 = dims[0]*dims[1];
+  vtkIdType d01 = dims[0]*dims[1];
   float xOut[3];
   int iMax = 0;
   int jMax = 0;
@@ -786,7 +790,7 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
 }
 
 //----------------------------------------------------------------------------
-int vtkImageData::GetCellType(int vtkNotUsed(cellId))
+int vtkImageData::GetCellType(vtkIdType vtkNotUsed(cellId))
 {
   switch (this->DataDescription)
     {
@@ -832,7 +836,7 @@ void vtkImageData::ComputeBounds()
 // from which the gradient is to be computed. This method will treat 
 // only 3D structured point datasets (i.e., volumes).
 void vtkImageData::GetVoxelGradient(int i, int j, int k, vtkScalars *s, 
-                                          vtkVectors *g)
+                                    vtkVectors *g)
 {
   float gv[3];
   int ii, jj, kk, idx=0;
@@ -856,11 +860,11 @@ void vtkImageData::GetVoxelGradient(int i, int j, int k, vtkScalars *s,
 // The scalars s are the scalars from which the gradient is to be computed.
 // This method will treat structured point datasets of any dimension.
 void vtkImageData::GetPointGradient(int i,int j,int k, vtkScalars *s, 
-                                          float g[3])
+                                    float g[3])
 {
   int *dims=this->GetDimensions();
   float *ar=this->GetSpacing();
-  int ijsize=dims[0]*dims[1];
+  vtkIdType ijsize=dims[0]*dims[1];
   float sp, sm;
 
   // x-direction
@@ -1984,9 +1988,9 @@ void vtkImageData::InternalImageDataCopy(vtkImageData *src)
 
 
 //----------------------------------------------------------------------------
-int vtkImageData::GetNumberOfCells() 
+vtkIdType vtkImageData::GetNumberOfCells() 
 {
-  int nCells=1;
+  vtkIdType nCells=1;
   int i;
   int *dims = this->GetDimensions();
 

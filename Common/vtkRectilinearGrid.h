@@ -95,31 +95,33 @@ public:
 
   // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
-  int GetNumberOfCells();
-  int GetNumberOfPoints();
-  float *GetPoint(int ptId);
-  void GetPoint(int id, float x[3]);
-  vtkCell *GetCell(int cellId);
-  void GetCell(int cellId, vtkGenericCell *cell);
-  void GetCellBounds(int cellId, float bounds[6]);
+  vtkIdType GetNumberOfCells();
+  vtkIdType GetNumberOfPoints();
+  float *GetPoint(vtkIdType ptId);
+  void GetPoint(vtkIdType id, float x[3]);
+  vtkCell *GetCell(vtkIdType cellId);
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell);
+  void GetCellBounds(vtkIdType cellId, float bounds[6]);
   int FindPoint(float x, float y, float z) { return this->vtkDataSet::FindPoint(x, y, z);};
-  int FindPoint(float x[3]);
-  int FindCell(float x[3], vtkCell *cell, int cellId, float tol2, int& subId, 
-               float pcoords[3], float *weights);
-  int FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
-	       int cellId, float tol2, int& subId, 
-               float pcoords[3], float *weights);
-  vtkCell *FindAndGetCell(float x[3], vtkCell *cell, int cellId, 
-               float tol2, int& subId, float pcoords[3], float *weights);
-  int GetCellType(int cellId);
-  void GetCellPoints(int cellId, vtkIdList *ptIds)
+  vtkIdType FindPoint(float x[3]);
+  vtkIdType FindCell(float x[3], vtkCell *cell, vtkIdType cellId, float tol2,
+                     int& subId, float pcoords[3], float *weights);
+  vtkIdType FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
+                     vtkIdType cellId, float tol2, int& subId, 
+                     float pcoords[3], float *weights);
+  vtkCell *FindAndGetCell(float x[3], vtkCell *cell, vtkIdType cellId, 
+                          float tol2, int& subId, float pcoords[3],
+                          float *weights);
+  int GetCellType(vtkIdType cellId);
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
     {vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
 				      this->Dimensions);}
-  void GetPointCells(int ptId, vtkIdList *cellIds)
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);}
   void ComputeBounds();
   int GetMaxCellSize() {return 8;}; //voxel is the largest
-  void GetCellNeighbors(int cellId, vtkIdList *ptIds, vtkIdList *cellIds);
+  void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
+                        vtkIdList *cellIds);
 
   // Description:
   // Set dimensions of rectilinear grid dataset.
@@ -144,11 +146,11 @@ public:
 
   // Description:
   // Given a location in structured coordinates (i-j-k), return the point id.
-  int ComputePointId(int ijk[3]);
+  vtkIdType ComputePointId(int ijk[3]);
 
   // Description:
   // Given a location in structured coordinates (i-j-k), return the cell id.
-  int ComputeCellId(int ijk[3]);
+  vtkIdType ComputeCellId(int ijk[3]);
 
   // Description:
   // Specify the grid coordinates in the x-direction.
@@ -230,16 +232,16 @@ protected:
 private:
   // Description:
   // For legacy compatibility. Do not use.
-  void GetCellNeighbors(int cellId, vtkIdList& ptIds, vtkIdList& cellIds)
+  void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
     {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
 };
 
 
 
 
-inline int vtkRectilinearGrid::GetNumberOfCells() 
+inline vtkIdType vtkRectilinearGrid::GetNumberOfCells() 
 {
-  int nCells=1;
+  vtkIdType nCells=1;
   int i;
 
   for (i=0; i<3; i++)
@@ -253,7 +255,7 @@ inline int vtkRectilinearGrid::GetNumberOfCells()
   return nCells;
 }
 
-inline int vtkRectilinearGrid::GetNumberOfPoints()
+inline vtkIdType vtkRectilinearGrid::GetNumberOfPoints()
 {
   return this->Dimensions[0]*this->Dimensions[1]*this->Dimensions[2];
 }
@@ -263,12 +265,12 @@ inline int vtkRectilinearGrid::GetDataDimension()
   return vtkStructuredData::GetDataDimension(this->DataDescription);
 }
 
-inline int vtkRectilinearGrid::ComputePointId(int ijk[3])
+inline vtkIdType vtkRectilinearGrid::ComputePointId(int ijk[3])
 {
   return vtkStructuredData::ComputePointId(this->Dimensions,ijk);
 }
 
-inline int vtkRectilinearGrid::ComputeCellId(int ijk[3])
+inline vtkIdType vtkRectilinearGrid::ComputeCellId(int ijk[3])
 {
   return vtkStructuredData::ComputeCellId(this->Dimensions,ijk);
 }

@@ -121,7 +121,7 @@ void vtkCellCenters::Execute()
 
   if ( this->VertexCells )
     {
-    int pts[1];
+    vtkIdType pts[1];
     vtkCellData *outCD=output->GetCellData();
     vtkCellArray *verts = vtkCellArray::New();
     verts->Allocate(verts->EstimateSize(1,numCells),1);

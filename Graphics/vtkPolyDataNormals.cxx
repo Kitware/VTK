@@ -81,7 +81,8 @@ vtkPolyDataNormals::vtkPolyDataNormals()
 void vtkPolyDataNormals::Execute()
 {
   int i, j;
-  int *pts, npts;
+  int npts;
+  vtkIdType *pts;
   int numNewPts;
   float *polyNormal, *vertNormal, length;
   float flipDirection=1.0;
@@ -395,8 +396,9 @@ void vtkPolyDataNormals::TraverseAndOrder (void)
 {
   int p1, p2;
   int i, j, k, l;
-  int npts, *pts, numIds, cellId;
-  int numNeiPts, *neiPts, neighbor;
+  int npts, numIds, cellId;
+  vtkIdType *pts, *neiPts;
+  int numNeiPts, neighbor;
   vtkIdList *tmpWave;
 
   // propagate wave until nothing left in wave
@@ -470,7 +472,7 @@ void vtkPolyDataNormals::MarkAndSplit (int ptId)
 
   // Get the cells using this point and make sure that we have to do something
   unsigned short ncells;
-  int *cells;
+  vtkIdType *cells;
   this->OldMesh->GetPointCells(ptId,ncells,cells);
   if ( ncells <= 1 )
     {
@@ -492,7 +494,8 @@ void vtkPolyDataNormals::MarkAndSplit (int ptId)
 
   // Loop over all cells and mark the region that each is in.
   //
-  int numPts, *pts;
+  int numPts;
+  vtkIdType *pts;
   int numRegions = 0;
   int neiPt[2], nei, spot, cellId, neiCellId;
   float *thisNormal, *neiNormal;

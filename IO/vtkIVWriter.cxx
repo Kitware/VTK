@@ -99,7 +99,8 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   vtkPoints *points = NULL;
   int i;
   vtkCellArray *cells;
-  int npts, *indx;
+  int npts;
+  vtkIdType *indx;
   vtkPolyDataMapper *pm;
   vtkScalars *colors;
   

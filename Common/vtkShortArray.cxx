@@ -63,7 +63,7 @@ vtkDataArray *vtkShortArray::MakeObject()
 }
 
 // Instantiate object.
-vtkShortArray::vtkShortArray(int numComp)
+vtkShortArray::vtkShortArray(vtkIdType numComp)
 {
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
   this->Array = NULL;
@@ -87,7 +87,7 @@ vtkShortArray::~vtkShortArray()
 // from deleting the array when it cleans up or reallocates memory.
 // The class uses the actual array provided; it does not copy the data 
 // from the suppled array.
-void vtkShortArray::SetArray(short* array, int size, int save)
+void vtkShortArray::SetArray(short* array, vtkIdType size, int save)
 {
   if ((this->Array) && (!this->SaveUserArray))
     {
@@ -108,7 +108,7 @@ void vtkShortArray::SetArray(short* array, int size, int save)
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkShortArray::Allocate(const int sz, const int vtkNotUsed(ext))
+int vtkShortArray::Allocate(const vtkIdType sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size )
     {
@@ -185,10 +185,10 @@ void vtkShortArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Private function does "reallocate"
 //
-short *vtkShortArray::ResizeAndExtend(const int sz)
+short *vtkShortArray::ResizeAndExtend(const vtkIdType sz)
 {
   short *newArray;
-  int newSize;
+  vtkIdType newSize;
 
   if ( sz > this->Size ) 
     {
@@ -236,10 +236,10 @@ short *vtkShortArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkShortArray::Resize(int sz)
+void vtkShortArray::Resize(vtkIdType sz)
 {
   short *newArray;
-  int newSize = sz*this->NumberOfComponents;
+  vtkIdType newSize = sz*this->NumberOfComponents;
 
   if (newSize == this->Size)
     {
@@ -280,14 +280,14 @@ void vtkShortArray::Resize(int sz)
 }
 
 // Set the number of n-tuples in the array.
-void vtkShortArray::SetNumberOfTuples(const int number)
+void vtkShortArray::SetNumberOfTuples(const vtkIdType number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
-float *vtkShortArray::GetTuple(const int i) 
+float *vtkShortArray::GetTuple(const vtkIdType i) 
 {
   if ( this->TupleSize < this->NumberOfComponents )
     {
@@ -305,7 +305,7 @@ float *vtkShortArray::GetTuple(const int i)
 }
 
 // Copy the tuple value into a user-provided array.
-void vtkShortArray::GetTuple(const int i, float * tuple) 
+void vtkShortArray::GetTuple(const vtkIdType i, float * tuple) 
 {
   short *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -314,7 +314,7 @@ void vtkShortArray::GetTuple(const int i, float * tuple)
     }
 }
 
-void vtkShortArray::GetTuple(const int i, double * tuple) 
+void vtkShortArray::GetTuple(const vtkIdType i, double * tuple) 
 {
   short *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -324,18 +324,18 @@ void vtkShortArray::GetTuple(const int i, double * tuple)
 }
 
 // Set the tuple value at the ith location in the array.
-void vtkShortArray::SetTuple(const int i, const float * tuple)
+void vtkShortArray::SetTuple(const vtkIdType i, const float * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++) 
     {
     this->Array[loc+j] = (short)tuple[j];
     }
 }
 
-void vtkShortArray::SetTuple(const int i, const double * tuple)
+void vtkShortArray::SetTuple(const vtkIdType i, const double * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++) 
     {
     this->Array[loc+j] = (short)tuple[j];
@@ -344,7 +344,7 @@ void vtkShortArray::SetTuple(const int i, const double * tuple)
 
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
-void vtkShortArray::InsertTuple(const int i, const float * tuple)
+void vtkShortArray::InsertTuple(const vtkIdType i, const float * tuple)
 {
   short *t
     = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
@@ -355,7 +355,7 @@ void vtkShortArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-void vtkShortArray::InsertTuple(const int i, const double * tuple)
+void vtkShortArray::InsertTuple(const vtkIdType i, const double * tuple)
 {
   short *t
     = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
@@ -369,7 +369,7 @@ void vtkShortArray::InsertTuple(const int i, const double * tuple)
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkShortArray::InsertNextTuple(const float * tuple)
 {
-  int i = this->MaxId + 1;
+  vtkIdType i = this->MaxId + 1;
   short *t = this->WritePointer(i,this->NumberOfComponents);
 
   for (i=0; i<this->NumberOfComponents; i++)
@@ -382,7 +382,7 @@ int vtkShortArray::InsertNextTuple(const float * tuple)
 
 int vtkShortArray::InsertNextTuple(const double * tuple)
 {
-  int i = this->MaxId + 1;
+  vtkIdType i = this->MaxId + 1;
   short *t = this->WritePointer(i,this->NumberOfComponents);
 
   for (i=0; i<this->NumberOfComponents; i++)
@@ -395,7 +395,7 @@ int vtkShortArray::InsertNextTuple(const double * tuple)
 
 // Return the data component at the ith tuple and jth component location.
 // Note that i<NumberOfTuples and j<NumberOfComponents.
-float vtkShortArray::GetComponent(const int i, const int j)
+float vtkShortArray::GetComponent(const vtkIdType i, const int j)
 {
   return (float) this->GetValue(i*this->NumberOfComponents + j);
 }
@@ -404,14 +404,15 @@ float vtkShortArray::GetComponent(const int i, const int j)
 // Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
 // memory has been allocated (use SetNumberOfTuples() and 
 // SetNumberOfComponents()).
-void vtkShortArray::SetComponent(const int i, const int j, const float c)
+void vtkShortArray::SetComponent(const vtkIdType i, const int j, const float c)
 {
   this->SetValue(i*this->NumberOfComponents + j, (short)c);
 }
 
 // Insert the data component at ith tuple and jth component location. 
 // Note that memory allocation is performed as necessary to hold the data.
-void vtkShortArray::InsertComponent(const int i, const int j, const float c)
+void vtkShortArray::InsertComponent(const vtkIdType i, const int j,
+                                    const float c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, (short)c);
 }

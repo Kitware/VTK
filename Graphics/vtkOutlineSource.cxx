@@ -75,7 +75,7 @@ void vtkOutlineSource::Execute()
 {
   float *bounds;
   float x[3];
-  int pts[2];
+  vtkIdType pts[2];
   vtkPoints *newPts;
   vtkCellArray *newLines;
   vtkPolyData *output = this->GetOutput();

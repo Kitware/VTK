@@ -212,7 +212,7 @@ void vtkPolyData::CopyStructure(vtkDataSet *ds)
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyData::GetCellType(int cellId)
+int vtkPolyData::GetCellType(vtkIdType cellId)
 {
   if ( !this->Cells )
     {
@@ -222,9 +222,10 @@ int vtkPolyData::GetCellType(int cellId)
 }
 
 //----------------------------------------------------------------------------
-vtkCell *vtkPolyData::GetCell(int cellId)
+vtkCell *vtkPolyData::GetCell(vtkIdType cellId)
 {
-  int i, loc, numPts, *pts;
+  int i, loc, numPts;
+  vtkIdType *pts;
   vtkCell *cell = NULL;
   unsigned char type;
 
@@ -338,9 +339,10 @@ vtkCell *vtkPolyData::GetCell(int cellId)
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyData::GetCell(int cellId, vtkGenericCell *cell)
+void vtkPolyData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 {
-  int             i, loc, numPts, *pts;
+  int             i, loc, numPts;
+  vtkIdType       *pts;
   unsigned char   type;
   float           x[3];
 
@@ -418,7 +420,8 @@ void vtkPolyData::GetCell(int cellId, vtkGenericCell *cell)
 void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
                             vtkPointLocator *locator)
 {
-  int numPts, cellId, numCellPts, i, ptId, newId, newCellId, locatorPtId;
+  vtkIdType cellId, ptId, newId, newCellId, locatorPtId;
+  int numPts, numCellPts, i;
   vtkPoints *newPoints;
   vtkIdList *pointMap = vtkIdList::New(); //maps old pt ids into new
   vtkIdList *cellPts, *newCellPts = vtkIdList::New();
@@ -490,9 +493,10 @@ void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
 //----------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without
 // constructing a cell.
-void vtkPolyData::GetCellBounds(int cellId, float bounds[6])
+void vtkPolyData::GetCellBounds(vtkIdType cellId, float bounds[6])
 {
-  int i, loc, numPts, *pts;
+  int i, loc, numPts;
+  vtkIdType *pts;
   unsigned char type;
   float x[3];
 
@@ -580,7 +584,8 @@ void vtkPolyData::ComputeBounds()
       return;
       } 
 
-    int t, i, npts, *pts;
+    int t, i, npts;
+    vtkIdType *pts;
     float x[3];
 
     this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
@@ -875,29 +880,29 @@ int vtkPolyData::GetMaxCellSize()
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyData::GetNumberOfCells() 
+vtkIdType vtkPolyData::GetNumberOfCells() 
 {
   return this->GetNumberOfVerts() + this->GetNumberOfLines() + 
          this->GetNumberOfPolys() + this->GetNumberOfStrips();
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyData::GetNumberOfVerts() 
+vtkIdType vtkPolyData::GetNumberOfVerts() 
 {
   return (this->Verts ? this->Verts->GetNumberOfCells() : 0);
 }
 
-int vtkPolyData::GetNumberOfLines() 
+vtkIdType vtkPolyData::GetNumberOfLines() 
 {
   return (this->Lines ? this->Lines->GetNumberOfCells() : 0);
 }
 
-int vtkPolyData::GetNumberOfPolys() 
+vtkIdType vtkPolyData::GetNumberOfPolys() 
 {
   return (this->Polys ? this->Polys->GetNumberOfCells() : 0);
 }
 
-int vtkPolyData::GetNumberOfStrips() 
+vtkIdType vtkPolyData::GetNumberOfStrips() 
 {
   return (this->Strips ? this->Strips->GetNumberOfCells() : 0);
 }
@@ -924,12 +929,13 @@ void vtkPolyData::DeleteCells()
 // Create data structure that allows random access of cells.
 void vtkPolyData::BuildCells()
 {
-  int numCells;
+  vtkIdType numCells;
   vtkCellArray *inVerts=this->GetVerts();
   vtkCellArray *inLines=this->GetLines();
   vtkCellArray *inPolys=this->GetPolys();
   vtkCellArray *inStrips=this->GetStrips();
-  int npts, *pts;
+  int npts;
+  vtkIdType *pts;
   vtkCellTypes *cells;
 
   vtkDebugMacro (<< "Building PolyData cells.");
@@ -1034,10 +1040,12 @@ void vtkPolyData::BuildLinks()
 
 //----------------------------------------------------------------------------
 // Copy a cells point ids into list provided. (Less efficient.)
-void vtkPolyData::GetCellPoints(int cellId, vtkIdList *ptIds)
+void vtkPolyData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 {
-  int i, npts, *pts;
-
+  vtkIdType i;
+  int npts;
+  vtkIdType *pts;
+  
   ptIds->Reset();
   if ( this->Cells == NULL )
     {
@@ -1055,7 +1063,7 @@ void vtkPolyData::GetCellPoints(int cellId, vtkIdList *ptIds)
 //----------------------------------------------------------------------------
 // Return a pointer to a list of point ids defining cell. (More efficient.)
 // Assumes that cells have been built (with BuildCells()).
-void vtkPolyData::GetCellPoints(int cellId, int& npts, int* &pts)
+void vtkPolyData::GetCellPoints(vtkIdType cellId, int& npts, vtkIdType* &pts)
 {
   int loc;
   unsigned char type;
@@ -1088,11 +1096,11 @@ void vtkPolyData::GetCellPoints(int cellId, int& npts, int* &pts)
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyData::GetPointCells(int ptId, vtkIdList *cellIds)
+void vtkPolyData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
 {
-  int *cells;
-  int numCells;
-  int i;
+  vtkIdType *cells;
+  vtkIdType numCells;
+  vtkIdType i;
 
   if ( ! this->Links )
     {
@@ -1114,7 +1122,7 @@ void vtkPolyData::GetPointCells(int ptId, vtkIdList *cellIds)
 // triangle strip arrays. Use this method before the method 
 // PolyData::InsertNextCell(). (Or, provide vertex, line, polygon, and
 // triangle strip cell arrays.)
-void vtkPolyData::Allocate(int numCells, int extSize)
+void vtkPolyData::Allocate(vtkIdType numCells, int extSize)
 {
   vtkCellArray *cells;
 
@@ -1151,7 +1159,7 @@ void vtkPolyData::Allocate(int numCells, int extSize)
 // the PolyData::Allocate() function has been called first or that vertex,
 // line, polygon, and triangle strip arrays have been supplied.
 // Note: will also insert vtkPIXEL, but converts it to vtkQUAD.
-int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
+int vtkPolyData::InsertNextCell(int type, int npts, vtkIdType *pts)
 {
   int id;
 
@@ -1185,7 +1193,7 @@ int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
 
     case VTK_PIXEL: //need to rearrange vertices
       {
-      static int pixPts[4];
+      static vtkIdType pixPts[4];
       pixPts[0] = pts[0];
       pixPts[1] = pts[1];
       pixPts[2] = pts[3];
@@ -1245,7 +1253,7 @@ int vtkPolyData::InsertNextCell(int type, vtkIdList *pts)
 
     case VTK_PIXEL: //need to rearrange vertices
       {
-      static int pixPts[4];
+      static vtkIdType pixPts[4];
       pixPts[0] = pts->GetId(0);
       pixPts[1] = pts->GetId(1);
       pixPts[2] = pts->GetId(3);
@@ -1320,7 +1328,7 @@ void vtkPolyData::Reset()
 
 //----------------------------------------------------------------------------
 // Reverse the order of point ids defining the cell.
-void vtkPolyData::ReverseCell(int cellId)
+void vtkPolyData::ReverseCell(vtkIdType cellId)
 {
   int loc, type;
 
@@ -1369,7 +1377,7 @@ int vtkPolyData::InsertNextLinkedPoint(float x[3], int numLinks)
 // Add a new cell to the cell data structure (after cell pointers have been
 // built). This method adds the cell and then updates the links from the points
 // to the cells. (Memory is allocated as necessary.)
-int vtkPolyData::InsertNextLinkedCell(int type, int npts, int *pts)
+int vtkPolyData::InsertNextLinkedCell(int type, int npts, vtkIdType *pts)
 {
   int i, id;
 
@@ -1389,7 +1397,7 @@ int vtkPolyData::InsertNextLinkedCell(int type, int npts, int *pts)
 // consider using RemoveCellReference() to remove the references from all the 
 // cell's points to the cell. This operator does not reallocate memory; use the
 // operator ResizeCellList() to do this if necessary.
-void vtkPolyData::RemoveReferenceToCell(int ptId, int cellId)
+void vtkPolyData::RemoveReferenceToCell(vtkIdType ptId, vtkIdType cellId)
 {
   this->Links->RemoveCellReference(cellId, ptId);  
 }
@@ -1399,7 +1407,7 @@ void vtkPolyData::RemoveReferenceToCell(int ptId, int cellId)
 // consider using AddCellReference() to add the references from all the 
 // cell's points to the cell.) This operator does not realloc memory; use the
 // operator ResizeCellList() to do this if necessary.
-void vtkPolyData::AddReferenceToCell(int ptId, int cellId)
+void vtkPolyData::AddReferenceToCell(vtkIdType ptId, vtkIdType cellId)
 {
   this->Links->AddCellReference(cellId, ptId);  
 }
@@ -1409,7 +1417,7 @@ void vtkPolyData::AddReferenceToCell(int ptId, int cellId)
 // operator is (typically) used when links from points to cells have not been 
 // built (i.e., BuildLinks() has not been executed). Use the operator 
 // ReplaceLinkedCell() to replace a cell when cell structure has been built.
-void vtkPolyData::ReplaceCell(int cellId, int npts, int *pts)
+void vtkPolyData::ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts)
 {
   int loc, type;
 
@@ -1450,7 +1458,7 @@ void vtkPolyData::ReplaceCell(int cellId, int npts, int *pts)
 // RemoveCellReference() to delete all references from points to (old) cell.
 // You may also want to consider using the operator ResizeCellList() if the 
 // link list is changing size.
-void vtkPolyData::ReplaceLinkedCell(int cellId, int npts, int *pts)
+void vtkPolyData::ReplaceLinkedCell(vtkIdType cellId, int npts, vtkIdType *pts)
 {
   int loc = this->Cells->GetCellLocation(cellId);
   int type = this->Cells->GetCellType(cellId);
@@ -1487,14 +1495,15 @@ void vtkPolyData::ReplaceLinkedCell(int cellId, int npts, int *pts)
 // Get the neighbors at an edge. More efficient than the general 
 // GetCellNeighbors(). Assumes links have been built (with BuildLinks()), 
 // and looks specifically for edge neighbors.
-void vtkPolyData::GetCellEdgeNeighbors(int cellId, int p1, int p2,
-                                      vtkIdList *cellIds)
+void vtkPolyData::GetCellEdgeNeighbors(vtkIdType cellId, int p1, int p2,
+                                       vtkIdList *cellIds)
 {
-  int *cells;
-  int numCells;
-  int i,j;
-  int npts, *pts;
-
+  vtkIdType *cells;
+  vtkIdType numCells;
+  vtkIdType i,j;
+  int npts;
+  vtkIdType *pts;
+  
   cellIds->Reset();
 
   numCells = this->Links->GetNcells(p1);
@@ -1539,13 +1548,14 @@ static int idsortcompare (const void *arg1, const void *arg2)
 
 
 //----------------------------------------------------------------------------
-void vtkPolyData::GetCellNeighbors(int cellId, vtkIdList *ptIds,
+void vtkPolyData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                    vtkIdList *cellIds)
 {
-  int i, numPts, cellNum;
-  int ptId, numPrime, *primeCells;
+  vtkIdType i, numPts, cellNum;
+  vtkIdType ptId, numPrime;
   int listsize;
-
+  vtkIdType *primeCells;
+  
   if ( ! this->Links )
     {
     this->BuildLinks();

@@ -98,7 +98,7 @@ public:
   // Description:
   // Given a triangle strip, decompose it into a list of (triangle) 
   // polygons. The polygons are appended to the end of the list of triangles.
-  static void DecomposeStrip(int npts, int *pts, vtkCellArray *tris);
+  static void DecomposeStrip(int npts, vtkIdType *pts, vtkCellArray *tris);
   
 
 protected:

@@ -246,7 +246,7 @@ void vtkLine::Contour(float value, vtkScalars *cellScalars,
   VERT_CASES *vertCase;
   VERT_LIST *vert;
   float t, x[3], *x1, *x2;
-  int pts[1];
+  vtkIdType pts[1];
 
   //
   // Build the case table
@@ -534,7 +534,7 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
   static int CASE_MASK[3] = {1,2};
   LINE_CASES *lineCase;
   int i, j, index, *vert, newCellId;
-  int pts[3];
+  vtkIdType pts[3];
   int vertexId;
   float t, x1[3], x2[3], x[3];
 

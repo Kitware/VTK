@@ -80,7 +80,7 @@ vtkVoidArray::~vtkVoidArray()
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkVoidArray::Allocate(const int sz, const int vtkNotUsed(ext))
+int vtkVoidArray::Allocate(const vtkIdType sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size || this->Array != NULL )
     {
@@ -147,10 +147,10 @@ void vtkVoidArray::PrintSelf(ostream& os, vtkIndent indent)
 
 // Protected function does "reallocate"
 //
-void** vtkVoidArray::ResizeAndExtend(const int sz)
+void** vtkVoidArray::ResizeAndExtend(const vtkIdType sz)
 {
   void** newArray;
-  int newSize;
+  vtkIdType newSize;
 
   if ( sz > this->Size )
     {
@@ -191,10 +191,10 @@ void** vtkVoidArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkVoidArray::Resize(int sz)
+void vtkVoidArray::Resize(vtkIdType sz)
 {
   void** newArray;
-  int newSize = sz*this->NumberOfComponents;
+  vtkIdType newSize = sz*this->NumberOfComponents;
 
   if (newSize == this->Size)
     {
@@ -228,42 +228,48 @@ void vtkVoidArray::Resize(int sz)
 }
 
 // Set the number of n-tuples in the array.
-void vtkVoidArray::SetNumberOfTuples(const int number)
+void vtkVoidArray::SetNumberOfTuples(const vtkIdType number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
 // Get a pointer to a tuple at the ith location.
-float *vtkVoidArray::GetTuple(const int vtkNotUsed(i))
+float *vtkVoidArray::GetTuple(const vtkIdType vtkNotUsed(i))
 {
   return NULL;
 }
 
 // Copy the tuple value into a user-provided array.
-void vtkVoidArray::GetTuple(const int vtkNotUsed(i), float * vtkNotUsed(tuple))
+void vtkVoidArray::GetTuple(const vtkIdType vtkNotUsed(i),
+                            float * vtkNotUsed(tuple))
 {
 }
 
-void vtkVoidArray::GetTuple(const int vtkNotUsed(i), double * vtkNotUsed(tuple))
+void vtkVoidArray::GetTuple(const vtkIdType vtkNotUsed(i),
+                            double * vtkNotUsed(tuple))
 {
 }
 
 // Set the tuple value at the ith location in the array.
-void vtkVoidArray::SetTuple(const int vtkNotUsed(i), const float * vtkNotUsed(tuple))
+void vtkVoidArray::SetTuple(const vtkIdType vtkNotUsed(i),
+                            const float * vtkNotUsed(tuple))
 {
 }
 
-void vtkVoidArray::SetTuple(const int vtkNotUsed(i), const double * vtkNotUsed(tuple))
+void vtkVoidArray::SetTuple(const vtkIdType vtkNotUsed(i),
+                            const double * vtkNotUsed(tuple))
 {
 }
 
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
-void vtkVoidArray::InsertTuple(const int vtkNotUsed(i), const float * vtkNotUsed(tuple))
+void vtkVoidArray::InsertTuple(const vtkIdType vtkNotUsed(i),
+                               const float * vtkNotUsed(tuple))
 {
 }
 
-void vtkVoidArray::InsertTuple(const int vtkNotUsed(i), const double * vtkNotUsed(tuple))
+void vtkVoidArray::InsertTuple(const vtkIdType vtkNotUsed(i),
+                               const double * vtkNotUsed(tuple))
 {
 }
 

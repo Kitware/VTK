@@ -214,7 +214,7 @@ static void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, i
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
   int contNum, jOffset, kOffset, idx, ii, index, *vert;
-  int ptIds[3];
+  vtkIdType ptIds[3];
   int ComputeNormals = newNormals != NULL;
   int ComputeGradients = newGradients != NULL;
   int ComputeScalars = newScalars != NULL;

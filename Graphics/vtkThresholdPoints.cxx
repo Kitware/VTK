@@ -105,7 +105,8 @@ void vtkThresholdPoints::Execute()
   vtkPoints *newPoints;
   vtkPointData *pd, *outPD;
   vtkCellArray *verts;
-  int ptId, pts[1], numPts;
+  int ptId, numPts;
+  vtkIdType pts[1];
   float *x;
   vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();

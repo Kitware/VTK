@@ -80,7 +80,7 @@ void vtkCylinderSource::Execute()
   float xtop[3], tctop[2], ntop[3];
   float *center = this->Center;
   int i, idx;
-  int pts[VTK_CELL_SIZE];
+  vtkIdType pts[VTK_CELL_SIZE];
   vtkPoints *newPoints; 
   vtkFloatArray *newNormals;
   vtkFloatArray *newTCoords;

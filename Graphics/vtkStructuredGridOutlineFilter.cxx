@@ -71,7 +71,8 @@ void vtkStructuredGridOutlineFilter::Execute()
   vtkPoints *newPts;
   vtkCellArray *newLines;
   vtkPolyData *output=this->GetOutput();
-  int numPts, idx, offset, ids[2];
+  int numPts, idx, offset;
+  vtkIdType ids[2];
   // for marching through the points along an edge.
   int start = 0, num = 0, inc = 0, id;
 

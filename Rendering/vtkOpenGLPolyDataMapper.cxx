@@ -364,7 +364,8 @@ void vtkOpenGLDraw01(vtkCellArray *aPrim, GLenum aGlFunction,
                      int &, vtkPoints *p, vtkNormals *, vtkScalars *, 
                      vtkTCoords *, vtkOpenGLRenderer *ren, int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -409,7 +410,8 @@ void vtkOpenGLDrawN013(vtkCellArray *aPrim, GLenum aGlFunction,
                        vtkScalars *, vtkTCoords *, vtkOpenGLRenderer *ren,
                        int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
 
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -455,7 +457,8 @@ void vtkOpenGLDrawCN013(vtkCellArray *aPrim, GLenum aGlFunction,
                         vtkScalars *, vtkTCoords *, vtkOpenGLRenderer *ren,
                         int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -502,7 +505,8 @@ void vtkOpenGLDrawS01(vtkCellArray *aPrim, GLenum aGlFunction,
                       vtkScalars *c, vtkTCoords *, vtkOpenGLRenderer *ren,
                       int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -548,7 +552,8 @@ void vtkOpenGLDrawNS013(vtkCellArray *aPrim, GLenum aGlFunction,
                         vtkScalars *c, vtkTCoords *, vtkOpenGLRenderer *ren,
                         int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -595,7 +600,8 @@ void vtkOpenGLDrawCNS013(vtkCellArray *aPrim, GLenum aGlFunction,
                          vtkScalars *c, vtkTCoords *, vtkOpenGLRenderer *ren,
                          int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -643,7 +649,8 @@ void vtkOpenGLDrawT01(vtkCellArray *aPrim, GLenum aGlFunction,
                       vtkScalars *, vtkTCoords *t, vtkOpenGLRenderer *ren,
                       int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -689,7 +696,8 @@ void vtkOpenGLDrawNT013(vtkCellArray *aPrim, GLenum aGlFunction,
                         vtkScalars *, vtkTCoords *t, vtkOpenGLRenderer *ren,
                         int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -735,7 +743,8 @@ void vtkOpenGLDrawCNT013(vtkCellArray *aPrim, GLenum aGlFunction,
                          vtkScalars *, vtkTCoords *t, vtkOpenGLRenderer *ren,
                          int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -782,7 +791,8 @@ void vtkOpenGLDrawST01(vtkCellArray *aPrim, GLenum aGlFunction,
                        vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
                        int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -829,7 +839,8 @@ void vtkOpenGLDrawNST013(vtkCellArray *aPrim, GLenum aGlFunction,
                          vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
                          int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -877,7 +888,8 @@ void vtkOpenGLDrawCNST013(vtkCellArray *aPrim, GLenum aGlFunction,
                           vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
                           int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -926,7 +938,8 @@ void vtkOpenGLDrawCS01(vtkCellArray *aPrim, GLenum aGlFunction,
                        vtkScalars *c, vtkTCoords *, vtkOpenGLRenderer *ren,
                        int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -972,7 +985,8 @@ void vtkOpenGLDrawNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
                          vtkScalars *c, vtkTCoords *, vtkOpenGLRenderer *ren,
                          int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -1020,7 +1034,8 @@ void vtkOpenGLDrawCNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
                           vtkScalars *c, vtkTCoords *, vtkOpenGLRenderer *ren,
                           int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -1068,7 +1083,8 @@ void vtkOpenGLDrawCST01(vtkCellArray *aPrim, GLenum aGlFunction,
                         vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
                         int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -1115,7 +1131,8 @@ void vtkOpenGLDrawNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
                           vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
                           int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -1163,7 +1180,8 @@ void vtkOpenGLDrawCNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
                            vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
                            int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   GLenum previousGlFunction=GL_INVALID_VALUE;
@@ -1212,7 +1230,8 @@ void vtkOpenGLDraw3(vtkCellArray *aPrim, GLenum aGlFunction,
                     int &, vtkPoints *p, vtkNormals *, vtkScalars *, 
                     vtkTCoords *, vtkOpenGLRenderer *ren, int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   float polyNorm[3];
   
@@ -1261,7 +1280,8 @@ void vtkOpenGLDrawS3(vtkCellArray *aPrim, GLenum aGlFunction,
                      vtkScalars *c, vtkTCoords *, vtkOpenGLRenderer *ren,
                      int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   float polyNorm[3];
   
@@ -1311,7 +1331,8 @@ void vtkOpenGLDrawT3(vtkCellArray *aPrim, GLenum aGlFunction,
                      vtkScalars *, vtkTCoords *t, vtkOpenGLRenderer *ren,
                      int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   float polyNorm[3];
   
@@ -1361,7 +1382,8 @@ void vtkOpenGLDrawST3(vtkCellArray *aPrim, GLenum aGlFunction,
                       vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
                       int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   float polyNorm[3];
   
@@ -1412,7 +1434,8 @@ void vtkOpenGLDrawCS3(vtkCellArray *aPrim, GLenum aGlFunction,
                       vtkScalars *c, vtkTCoords *, vtkOpenGLRenderer *ren,
                       int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   float polyNorm[3];
   
@@ -1462,7 +1485,8 @@ void vtkOpenGLDrawCST3(vtkCellArray *aPrim, GLenum aGlFunction,
                        vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
                        int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   float polyNorm[3];
   
@@ -1514,8 +1538,9 @@ void vtkOpenGLDraw2(vtkCellArray *aPrim, GLenum aGlFunction,
                     int &, vtkPoints *p, vtkNormals *, vtkScalars *, 
                     vtkTCoords *, vtkOpenGLRenderer *ren, int &noAbort)
 {
-  int j, npts, *pts;
-  int idx[3];
+  int j, npts;
+  vtkIdType *pts;
+  vtkIdType idx[3];
   int count = 0;
   float polyNorm[3];
   
@@ -1581,8 +1606,9 @@ void vtkOpenGLDrawS2(vtkCellArray *aPrim, GLenum aGlFunction,
                      vtkScalars *c, vtkTCoords *, vtkOpenGLRenderer *ren,
                      int &noAbort)
 {
-  int j, npts, *pts;
-  int idx[3];
+  int j, npts;
+  vtkIdType *pts;
+  vtkIdType idx[3];
   int count = 0;
   float polyNorm[3];
   
@@ -1649,8 +1675,8 @@ void vtkOpenGLDrawT2(vtkCellArray *aPrim, GLenum aGlFunction,
                      vtkScalars *, vtkTCoords *t, vtkOpenGLRenderer *ren,
                      int &noAbort)
 {
-  int j, npts, *pts;
-  int idx[3];
+  int j, npts;
+  vtkIdType idx[3], *pts;
   int count = 0;
   float polyNorm[3];
   
@@ -1717,8 +1743,8 @@ void vtkOpenGLDrawST2(vtkCellArray *aPrim, GLenum aGlFunction,
                       vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
                       int &noAbort)
 {
-  int j, npts, *pts;
-  int idx[3];
+  int j, npts;
+  vtkIdType idx[3], *pts;
   int count = 0;
   float polyNorm[3];
   
@@ -1786,8 +1812,8 @@ void vtkOpenGLDrawCS2(vtkCellArray *aPrim, GLenum aGlFunction,
                       vtkScalars *c, vtkTCoords *, vtkOpenGLRenderer *ren,
                       int &noAbort)
 {
-  int j, npts, *pts;
-  int idx[3];
+  int j, npts;
+  vtkIdType idx[3], *pts;
   int count = 0;
   float polyNorm[3];
   
@@ -1854,8 +1880,8 @@ void vtkOpenGLDrawCST2(vtkCellArray *aPrim, GLenum aGlFunction,
                       vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
                       int &noAbort)
 {
-  int j, npts, *pts;
-  int idx[3];
+  int j, npts;
+  vtkIdType idx[3], *pts;
   int count = 0;
   float polyNorm[3];
   
@@ -1927,8 +1953,8 @@ void vtkOpenGLDrawW(vtkCellArray *aPrim, GLenum,
                    int &, vtkPoints *p, vtkNormals *, vtkScalars *, 
                    vtkTCoords *, vtkOpenGLRenderer *ren, int &noAbort)
 {
-  int j, npts, *pts;
-  int idx[3];
+  int j, npts;
+  vtkIdType idx[3], *pts;
   int count = 0;
   float polyNorm[3];
   
@@ -1988,7 +2014,8 @@ void vtkOpenGLDrawNW(vtkCellArray *aPrim, GLenum,
                      vtkScalars *, vtkTCoords *, vtkOpenGLRenderer *ren,
                      int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
@@ -2030,8 +2057,8 @@ void vtkOpenGLDrawSW(vtkCellArray *aPrim, GLenum,
                      vtkScalars *c, vtkTCoords *, vtkOpenGLRenderer *ren,
                      int &noAbort)
 {
-  int j, npts, *pts;
-  int idx[3];
+  int j, npts;
+  vtkIdType *pts, idx[3];
   int count = 0;
   float polyNorm[3];
   
@@ -2093,7 +2120,8 @@ void vtkOpenGLDrawNSW(vtkCellArray *aPrim, GLenum,
                       vtkScalars *c, vtkTCoords *, vtkOpenGLRenderer *ren,
                       int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
@@ -2136,8 +2164,8 @@ void vtkOpenGLDrawTW(vtkCellArray *aPrim, GLenum,
                      vtkScalars *, vtkTCoords *t, vtkOpenGLRenderer *ren,
                      int &noAbort)
 {
-  int j, npts, *pts;
-  int idx[3];
+  int j, npts;
+  vtkIdType *pts, idx[3];
   int count = 0;
   float polyNorm[3];
   
@@ -2199,7 +2227,8 @@ void vtkOpenGLDrawNTW(vtkCellArray *aPrim, GLenum,
                       vtkScalars *, vtkTCoords *t, vtkOpenGLRenderer *ren,
                       int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
@@ -2241,8 +2270,8 @@ void vtkOpenGLDrawSTW(vtkCellArray *aPrim, GLenum,
                      vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
                      int &noAbort)
 {
-  int j, npts, *pts;
-  int idx[3];
+  int j, npts;
+  vtkIdType *pts, idx[3];
   int count = 0;
   float polyNorm[3];
   
@@ -2306,7 +2335,8 @@ void vtkOpenGLDrawNSTW(vtkCellArray *aPrim, GLenum,
                       vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
                       int &noAbort)
 {
-  int j, npts, *pts;
+  int j, npts;
+  vtkIdType *pts;
   int count = 0;
   
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 

@@ -197,7 +197,7 @@ void vtkGlyph3D::Execute()
     defaultPoints->Allocate(6);
     defaultPoints->InsertNextPoint(0, 0, 0);
     defaultPoints->InsertNextPoint(1, 0, 0);
-    int defaultPointIds[2];
+    vtkIdType defaultPointIds[2];
     defaultPointIds[0] = 0;
     defaultPointIds[1] = 1;
     defaultSource->SetPoints(defaultPoints);

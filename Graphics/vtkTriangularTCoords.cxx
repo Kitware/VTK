@@ -66,7 +66,8 @@ void vtkTriangularTCoords::Execute()
   vtkCellArray *inPolys,*inStrips;
   int numNewPts, numNewPolys, polyAllocSize;
   vtkTCoords *newTCoords;
-  int npts, *pts, newId, newIds[3], numCells, cellId;
+  int npts, newId, numCells, cellId;
+  vtkIdType *pts, newIds[3];
   int errorLogging = 1;
   vtkPoints *newPoints;
   vtkCellArray *newPolys;

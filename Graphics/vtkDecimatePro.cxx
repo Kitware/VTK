@@ -152,9 +152,11 @@ void vtkDecimatePro::Execute()
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   int type, totalEliminated, numPops;
-  int numRecycles, npts, *pts;
+  int numRecycles, npts;
+  vtkIdType *pts;
   unsigned short int ncells;
-  int *cells, pt1, pt2, cellId, fedges[2];
+  int pt1, pt2, cellId, fedges[2];
+  vtkIdType *cells;
   vtkIdList *CollapseTris;
   float max, *bounds;
   if (!input)
@@ -165,7 +167,8 @@ void vtkDecimatePro::Execute()
   vtkPointData *outputPD=output->GetPointData();
   vtkPointData *inPD=input->GetPointData();
   vtkPointData *meshPD=0;
-  int *map, numNewPts, totalPts, newCellPts[3];
+  int *map, numNewPts, totalPts;
+  vtkIdType newCellPts[3];
   int abortExecute=0;
 
   vtkDebugMacro(<<"Executing progressive decimation...");
@@ -462,7 +465,8 @@ static float ComputeSimpleError(float x[3], float normal[3], float point[3])
 //
 void vtkDecimatePro::SplitMesh()
 {
-  int ptId, *cells, type, fedges[2];
+  int ptId, type, fedges[2];
+  vtkIdType *cells;
   unsigned short int ncells;
 
   this->CosAngle = cos ((double) vtkMath::DegreesToRadians() * this->SplitAngle);
@@ -487,14 +491,15 @@ void vtkDecimatePro::SplitMesh()
 // Evalute the local topology/geometry of a vertex. This is a two-pass
 // process: first topology is examined, and then the geometry.
 //
-int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tris,
-                          int fedges[2])
+int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris,
+                                   vtkIdType *tris, int fedges[2])
 {
   int numVerts, numNei, numFEdges;
   vtkProLocalTri t;
   vtkProLocalVertex sn;
   int startVertex, nextVertex;
-  int i, j, *verts, numNormals, vtype;
+  int i, j, numNormals, vtype;
+  vtkIdType *verts;
   float *x1, *x2, *normal;
   float v1[3], v2[3], center[3];
   //
@@ -841,12 +846,13 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
 //
 // Split the vertex by modifying topological connections.
 //
-void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris, int *tris,
-                        int insert)
-
+void vtkDecimatePro::SplitVertex(int ptId, int type,
+                                 unsigned short int numTris, vtkIdType *tris,
+                                 int insert)
 {
   int i, j, id, fedge1, fedge2;
-  int nverts, *verts, tri, numSplitTris, veryFirst;
+  int nverts, tri, numSplitTris, veryFirst;
+  vtkIdType *verts;
   float error;
   int startTri, p[2], maxGroupSize;
   vtkPointData* meshPD = this->Mesh->GetPointData();
@@ -1555,7 +1561,8 @@ int vtkDecimatePro::Pop(float &error)
 // Computes error and inserts point into priority queue.
 void vtkDecimatePro::Insert(int ptId, float error)
 {
-  int type, *cells, simpleType;
+  int type, simpleType;
+  vtkIdType *cells;
   int fedges[2];
   unsigned short int ncells;
 

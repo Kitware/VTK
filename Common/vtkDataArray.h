@@ -85,7 +85,7 @@ public:
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that ext is no longer used.
-  virtual int Allocate(const int sz, const int ext=1000) = 0;
+  virtual int Allocate(const vtkIdType sz, const int ext=1000) = 0;
   virtual void Initialize() = 0;
 
   // Description:
@@ -108,25 +108,25 @@ public:
   // Description:
   // Set the number of tuples (a component group) in the array. Note that 
   // this may allocate space depending on the number of components.
-  virtual void SetNumberOfTuples(const int number) = 0;
+  virtual void SetNumberOfTuples(const vtkIdType number) = 0;
 
   // Description:
   // Get the number of tuples (a component group) in the array.
-  int GetNumberOfTuples() 
+  vtkIdType GetNumberOfTuples() 
     {return (this->MaxId + 1)/this->NumberOfComponents;}
 
   // Description:
   // Get the data tuple at ith location. Return it as a pointer to an array.
   // Note: this method is not thread-safe, and the pointer is only valid
   // as long as another method invocation to a vtk object is not performed.
-  virtual float *GetTuple(const int i) = 0;
+  virtual float *GetTuple(const vtkIdType i) = 0;
 
   // Description:
   // Get the data tuple at ith location by filling in a user-provided array,
   // Make sure that your array is large enough to hold the NumberOfComponents
   // amount of data being returned.
-  virtual void GetTuple(const int i, float * tuple) = 0;
-  virtual void GetTuple(const int i, double * tuple);
+  virtual void GetTuple(const vtkIdType i, float * tuple) = 0;
+  virtual void GetTuple(const vtkIdType i, double * tuple);
 
   // Description:
   void GetTuples(vtkIdList *ptIds, vtkDataArray *da);
@@ -135,14 +135,14 @@ public:
   // Set the data tuple at ith location. Note that range checking or
   // memory allocation is not performed; use this method in conjunction
   // with SetNumberOfTuples() to allocate space.
-  virtual void SetTuple(const int i, const float * tuple) = 0;
-  virtual void SetTuple(const int i, const double * tuple);
+  virtual void SetTuple(const vtkIdType i, const float * tuple) = 0;
+  virtual void SetTuple(const vtkIdType i, const double * tuple);
 
   // Description:
   // Insert the data tuple at ith location. Note that memory allocation
   // is performed as necessary to hold the data.
-  virtual void InsertTuple(const int i, const float * tuple) = 0;
-  virtual void InsertTuple(const int i, const double * tuple);
+  virtual void InsertTuple(const vtkIdType i, const float * tuple) = 0;
+  virtual void InsertTuple(const vtkIdType i, const double * tuple);
 
   // Description:
   // Insert the data tuple at the end of the array and return the location at
@@ -155,19 +155,19 @@ public:
   // Return the data component at the ith tuple and jth component location.
   // Note that i is less than NumberOfTuples and j is less than 
   // NumberOfComponents.
-  virtual float GetComponent(const int i, const int j);
+  virtual float GetComponent(const vtkIdType i, const int j);
 
   // Description:
   // Set the data component at the ith tuple and jth component location.
   // Note that i is less than NumberOfTuples and j is less than
   //  NumberOfComponents. Make sure enough memory has been allocated 
   // (use SetNumberOfTuples() and SetNumberOfComponents()).
-  virtual void SetComponent(const int i, const int j, const float c);
+  virtual void SetComponent(const vtkIdType i, const int j, const float c);
 
   // Description:
   // Insert the data component at ith tuple and jth component location. 
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertComponent(const int i, const int j, const float c);
+  virtual void InsertComponent(const vtkIdType i, const int j, const float c);
 
   // Description:
   // Get the data as a float array in the range (tupleMin,tupleMax) and
@@ -176,8 +176,8 @@ public:
   // process typically requires casting the data from native form into
   // floating point values. This method is provided as a convenience for data
   // exchange, and is not very fast.
-  virtual void GetData(int tupleMin, int tupleMax, int compMin, int compMax, 
-		       vtkFloatArray* data);
+  virtual void GetData(vtkIdType tupleMin, vtkIdType tupleMax, int compMin,
+                       int compMax, vtkFloatArray* data);
 
   // Description:
   // Deep copy of data. Copies data from different data arrays even if
@@ -187,7 +187,7 @@ public:
   // Description:
   // Return a void pointer. For image pipeline interface and other 
   // special pointer manipulation.
-  virtual void *GetVoidPointer(const int id) = 0;
+  virtual void *GetVoidPointer(const vtkIdType id) = 0;
 
   // Description:
   // Free any unnecessary memory.
@@ -195,7 +195,7 @@ public:
 
   // Description:
   // Resize the array while conserving the data.
-  virtual void Resize(int numTuples) = 0;
+  virtual void Resize(vtkIdType numTuples) = 0;
 
   // Description:
   // Reset to an empty state, without freeing any memory.
@@ -204,12 +204,12 @@ public:
 
   // Description:
   // Return the size of the data.
-  int GetSize() 
+  vtkIdType GetSize() 
     {return this->Size;}
   
   // Description:
   // What is the maximum id currently in the array.
-  int GetMaxId() 
+  vtkIdType GetMaxId() 
     {return this->MaxId;}
 
   // Description:
@@ -218,8 +218,9 @@ public:
   // the array supplied by the user.  Set save to 1 to keep the class
   // from deleting the array when it cleans up or reallocates memory.
   // The class uses the actual array provided; it does not copy the data 
-  // from the suppled array.
-  virtual void SetVoidArray(void *vtkNotUsed(array),int vtkNotUsed(size),
+  // from the supplied array.
+  virtual void SetVoidArray(void *vtkNotUsed(array),
+                            vtkIdType vtkNotUsed(size),
 			    int vtkNotUsed(save)) {};
 
   // Description:
@@ -257,15 +258,15 @@ public:
 
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
-  vtkDataArray(int numComp=1);
+  vtkDataArray(vtkIdType numComp=1);
   ~vtkDataArray();
   vtkDataArray(const vtkDataArray&) {};
   void operator=(const vtkDataArray&) {};
 
   vtkLookupTable *LookupTable;
 
-  int Size;      // allocated size of data
-  int MaxId;     // maximum index inserted thus far
+  vtkIdType Size;      // allocated size of data
+  vtkIdType MaxId;     // maximum index inserted thus far
   int NumberOfComponents; // the number of components per tuple
 
   static unsigned long ArrayNamePostfix;

@@ -164,7 +164,7 @@ public:
   // Note this combines the functionality of IsInsertedPoint() followed
   // by a call to InsertNextPoint().
   // This method is not thread safe.
-  virtual int InsertUniquePoint(const float x[3], int &ptId);
+  virtual int InsertUniquePoint(const float x[3], vtkIdType &ptId);
 
   // Description:
   // Given a position x, return the id of the point closest to it. This method

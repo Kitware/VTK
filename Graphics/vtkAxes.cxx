@@ -82,7 +82,7 @@ void vtkAxes::Execute()
   vtkFloatArray *newScalars;
   vtkFloatArray *newNormals;
   float x[3], n[3];
-  int ptIds[2];
+  vtkIdType ptIds[2];
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<<"Creating x-y-z axes");

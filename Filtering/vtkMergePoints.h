@@ -74,7 +74,7 @@ public:
   // the point (newly inserted or not) is returned in the ptId argument.
   // Note this combines the functionality of IsInsertedPoint() followed
   // by a call to InsertNextPoint().
-  int InsertUniquePoint(const float x[3], int &ptId);
+  int InsertUniquePoint(const float x[3], vtkIdType &ptId);
   
 protected:
   vtkMergePoints() {};

@@ -268,7 +268,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   int idx, vidx;
   float x[3], xz[3];
   int v0, v1, v2, v3;
-  int ptIds[3];
+  vtkIdType ptIds[3];
   float value;
   int *wholeExt;
   // We need to know the edgePointId's for interpolating attributes.
@@ -747,7 +747,8 @@ VTK_THREAD_RETURN_TYPE vtkSyncTempThreadedExecute( void *arg )
 void vtkSynchronizedTemplates3D::Execute()
 {
   int idx, inId, outId, offset, num, ptIdx, newIdx;
-  int numCellPts, *cellPts, newCellPts[3];
+  int numCellPts;
+  vtkIdType newCellPts[3], *cellPts;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outPD;
   vtkCellData *outCD;

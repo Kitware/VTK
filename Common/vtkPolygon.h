@@ -92,7 +92,8 @@ public:
 
   // Description:
   // Polygon specific
-  static void ComputeNormal(vtkPoints *p, int numPts, int *pts, float n[3]);
+  static void ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
+                            float n[3]);
   static void ComputeNormal(vtkPoints *p, float n[3]);
   
   // Description:

@@ -567,7 +567,8 @@ static void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
   int inc0, inc1, inc2;
   int valueIdx;
   float value;
-  int cubeIndex, ii, pointIds[3];
+  int cubeIndex, ii;
+  vtkIdType pointIds[3];
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
 

@@ -75,7 +75,8 @@ void vtkStructuredPointsGeometryFilter::Execute()
 {
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6];
-  int ptIds[4], idx, startIdx, startCellIdx;
+  int idx, startIdx, startCellIdx;
+  vtkIdType ptIds[4];
   int cellId;
   vtkPoints *newPts=0;
   vtkCellArray *newVerts=0;

@@ -65,7 +65,7 @@ vtkDataArray *vtkBitArray::MakeObject()
 }
 
 // Instantiate object.
-vtkBitArray::vtkBitArray(int numComp)
+vtkBitArray::vtkBitArray(vtkIdType numComp)
 {
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
   this->Array = NULL;
@@ -89,7 +89,7 @@ vtkBitArray::~vtkBitArray()
 // from deleting the array when it cleans up or reallocates memory.
 // The class uses the actual array provided; it does not copy the data 
 // from the suppled array.
-void vtkBitArray::SetArray(unsigned char* array, int size, int save)
+void vtkBitArray::SetArray(unsigned char* array, vtkIdType size, int save)
 {
   
   if ((this->Array) && (!this->SaveUserArray))
@@ -111,7 +111,7 @@ void vtkBitArray::SetArray(unsigned char* array, int size, int save)
 }
 
 // Get the data at a particular index.
-int vtkBitArray::GetValue(const int id)
+int vtkBitArray::GetValue(const vtkIdType id)
 {
   if (this->Array[id/8]&(0x80 >> (id%8)))
     {
@@ -121,7 +121,7 @@ int vtkBitArray::GetValue(const int id)
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkBitArray::Allocate(const int sz, const int vtkNotUsed(ext))
+int vtkBitArray::Allocate(const vtkIdType sz, const int vtkNotUsed(ext))
 {
   if ( sz > this->Size )
     {
@@ -199,10 +199,10 @@ void vtkBitArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Private function does "reallocate". Sz is the number of "bits", and we
 // can allocate only 8-bit bytes.
-unsigned char *vtkBitArray::ResizeAndExtend(const int sz)
+unsigned char *vtkBitArray::ResizeAndExtend(const vtkIdType sz)
 {
   unsigned char *newArray;
-  int newSize;
+  vtkIdType newSize;
 
   if ( sz > this->Size ) 
     {
@@ -252,10 +252,10 @@ unsigned char *vtkBitArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkBitArray::Resize(int sz)
+void vtkBitArray::Resize(vtkIdType sz)
 {
   unsigned char *newArray;
-  int newSize = sz*this->NumberOfComponents;
+  vtkIdType newSize = sz*this->NumberOfComponents;
 
   if (newSize == this->Size)
     {
@@ -298,14 +298,14 @@ void vtkBitArray::Resize(int sz)
 }
 
 // Set the number of n-tuples in the array.
-void vtkBitArray::SetNumberOfTuples(const int number)
+void vtkBitArray::SetNumberOfTuples(const vtkIdType number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
-float *vtkBitArray::GetTuple(const int i)
+float *vtkBitArray::GetTuple(const vtkIdType i)
 {
   if ( this->TupleSize < this->NumberOfComponents )
     {
@@ -324,9 +324,9 @@ float *vtkBitArray::GetTuple(const int i)
 }
 
 // Copy the tuple value into a user-provided array.
-void vtkBitArray::GetTuple(const int i, float * tuple)
+void vtkBitArray::GetTuple(const vtkIdType i, float * tuple)
 {
-  int loc = this->NumberOfComponents*i;
+  vtkIdType loc = this->NumberOfComponents*i;
 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
@@ -334,9 +334,9 @@ void vtkBitArray::GetTuple(const int i, float * tuple)
     }
 }
 
-void vtkBitArray::GetTuple(const int i, double * tuple)
+void vtkBitArray::GetTuple(const vtkIdType i, double * tuple)
 {
-  int loc = this->NumberOfComponents*i;
+  vtkIdType loc = this->NumberOfComponents*i;
 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
@@ -345,9 +345,9 @@ void vtkBitArray::GetTuple(const int i, double * tuple)
 }
 
 // Set the tuple value at the ith location in the array.
-void vtkBitArray::SetTuple(const int i, const float * tuple)
+void vtkBitArray::SetTuple(const vtkIdType i, const float * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
@@ -355,9 +355,9 @@ void vtkBitArray::SetTuple(const int i, const float * tuple)
     }
 }
 
-void vtkBitArray::SetTuple(const int i, const double * tuple)
+void vtkBitArray::SetTuple(const vtkIdType i, const double * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
@@ -367,9 +367,9 @@ void vtkBitArray::SetTuple(const int i, const double * tuple)
 
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
-void vtkBitArray::InsertTuple(const int i, const float * tuple)
+void vtkBitArray::InsertTuple(const vtkIdType i, const float * tuple)
 {
-  int loc = this->NumberOfComponents*i;
+  vtkIdType loc = this->NumberOfComponents*i;
 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
@@ -377,9 +377,9 @@ void vtkBitArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-void vtkBitArray::InsertTuple(const int i, const double * tuple)
+void vtkBitArray::InsertTuple(const vtkIdType i, const double * tuple)
 {
-  int loc = this->NumberOfComponents*i;
+  vtkIdType loc = this->NumberOfComponents*i;
 
   for (int j=0; j<this->NumberOfComponents; j++)
     {

@@ -68,7 +68,7 @@ vtkCellArray::vtkCellArray()
   this->TraversalLocation = 0;
 }
 
-vtkCellArray::vtkCellArray(const int sz, const int ext)
+vtkCellArray::vtkCellArray(const vtkIdType sz, const int ext)
 {
   this->Ia = vtkIntArray::New();
   this->Ia->Allocate(sz,ext);

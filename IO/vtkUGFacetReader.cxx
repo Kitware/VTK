@@ -113,7 +113,7 @@ void vtkUGFacetReader::Execute()
   FILE *fp;
   char header[36];
   struct {float  v1[3], v2[3], v3[3], n1[3], n2[3], n3[3];} facet;
-  int ptId[3];
+  vtkIdType ptId[3];
   short ugiiColor, direction;
   int numberTris, numFacetSets, setNumber, facetNumber;
   vtkPoints *newPts, *mergedPts;
@@ -231,7 +231,8 @@ void vtkUGFacetReader::Execute()
   //
   if ( this->Merging )
     {
-    int npts, *pts, i, nodes[3];
+    int npts, i;
+    vtkIdType *pts, nodes[3];
     float *x;
 
     mergedPts = vtkPoints::New();

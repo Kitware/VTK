@@ -228,7 +228,7 @@ int vtkWin32OutputWindow::Initialize()
 void vtkWin32OutputWindow::PromptText(const char* someText)
 {
   ostrstream vtkmsg;
-  vtkmsg << someText << "\nPress Cancel to supress any further messages." 
+  vtkmsg << someText << "\nPress Cancel to suppress any further messages." 
          << ends;
   if (MessageBox(NULL, vtkmsg.str(), "Error",
 		 MB_ICONERROR | MB_OKCANCEL) == IDCANCEL) 

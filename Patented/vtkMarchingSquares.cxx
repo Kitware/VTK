@@ -175,7 +175,7 @@ static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir
                   vtkPointLocator *p, vtkCellArray *lines)
 {
   int i, j;
-  int ptIds[2];
+  vtkIdType ptIds[2];
   float t, *x1, *x2, x[3], xp, yp;
   float pts[4][3], min, max;
   int contNum, jOffset, idx, ii, jj, index, *vert;

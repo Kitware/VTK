@@ -866,7 +866,7 @@ int vtkOrderedTriangulator::GetTetras(int classification,
   vtkOTTetra::TetraClassification type; //inside, outside
 
   // loop over all tetras getting the ones with the classification requested
-  int pts[4];
+  vtkIdType pts[4];
   for (tptr=this->Mesh->Tetras.Begin(); 
        tptr != this->Mesh->Tetras.End(); ++tptr)
     {
@@ -922,7 +922,7 @@ int vtkOrderedTriangulator::AddTetras(int classification,
   vtkOTTetra::TetraClassification type; //inside, outside
 
   // loop over all tetras getting the ones with the classification requested
-  int pts[4];
+  vtkIdType pts[4];
   for (tptr=this->Mesh->Tetras.Begin(); 
        tptr != this->Mesh->Tetras.End(); ++tptr)
     {

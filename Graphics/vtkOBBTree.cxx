@@ -305,7 +305,7 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
                             float mid[3], float min[3], float size[3])
   {
   int numCells, i, j, k, cellId, numPts, type, ptId, pId, qId, rId;
-  int *ptIds;
+  vtkIdType *ptIds;
   float *p, *q, *r, mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
   float *a[3], a0[3], a1[3], a2[3];
   float tMin[3], tMax[3], closest[3], t;
@@ -898,8 +898,9 @@ void vtkOBBTree::GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel,
   if ( level == repLevel || (repLevel < 0 && OBBptr->Kids == NULL) )
     {
     float x[3];
-    int ptIds[4], cubeIds[8];
-
+    int cubeIds[8];
+    vtkIdType ptIds[4];
+    
     x[0] = OBBptr->Corner[0];
     x[1] = OBBptr->Corner[1];
     x[2] = OBBptr->Corner[2];

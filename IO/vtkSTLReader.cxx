@@ -169,7 +169,8 @@ void vtkSTLReader::Execute()
 //  if (0)
   if ( this->Merging )  
   {
-    int npts, *pts, i, nodes[3];
+    int npts, i;
+    vtkIdType *pts, nodes[3];
     float *x;
     int nextCell=0;
 
@@ -249,7 +250,8 @@ void vtkSTLReader::Execute()
 
 int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts, vtkCellArray *newPolys)
 {
-  int i, numTris, pts[3];
+  int i, numTris;
+  vtkIdType pts[3];
   unsigned long   ulint;
   unsigned short  ibuff2;
   char    header[81];
@@ -312,7 +314,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts, vtkCellArray *newPol
 {
   char line[256];
   float x[3];
-  int pts[3];
+  vtkIdType pts[3];
   int done;
   int currentSolid = 0;
 

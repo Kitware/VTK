@@ -375,7 +375,7 @@ void vtkPyramid::Contour(float value, vtkScalars *cellScalars,
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert, newCellId;
-  int pts[3];
+  vtkIdType pts[3];
   float t, *x1, *x2, x[3];
 
   // Build the case table

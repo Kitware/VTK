@@ -63,7 +63,8 @@ void vtkCell3D::Clip(float value, vtkScalars *cellScalars,
   int numEdges=this->GetNumberOfEdges();
   int *edges;
   int i;
-  int type, ptId, id;
+  int type;
+  vtkIdType id, ptId;
   int internalId[VTK_CELL_SIZE];
   float s1, s2, *xPtr, t, p1[3], p2[3], x[3];
   

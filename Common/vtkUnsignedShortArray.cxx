@@ -63,7 +63,7 @@ vtkDataArray *vtkUnsignedShortArray::MakeObject()
 }
 
 // Instantiate object.
-vtkUnsignedShortArray::vtkUnsignedShortArray(int numComp)
+vtkUnsignedShortArray::vtkUnsignedShortArray(vtkIdType numComp)
 {
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
   this->Array = NULL;
@@ -87,7 +87,8 @@ vtkUnsignedShortArray::~vtkUnsignedShortArray()
 // from deleting the array when it cleans up or reallocates memory.
 // The class uses the actual array provided; it does not copy the data 
 // from the suppled array.
-void vtkUnsignedShortArray::SetArray(unsigned short* array, int size, int save)
+void vtkUnsignedShortArray::SetArray(unsigned short* array, vtkIdType size,
+                                     int save)
 {
   if ((this->Array) && (!this->SaveUserArray))
     {
@@ -108,7 +109,8 @@ void vtkUnsignedShortArray::SetArray(unsigned short* array, int size, int save)
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkUnsignedShortArray::Allocate(const int sz, const int vtkNotUsed(ext))
+int vtkUnsignedShortArray::Allocate(const vtkIdType sz,
+                                    const int vtkNotUsed(ext))
 {
   if ( sz > this->Size )
     {
@@ -187,10 +189,10 @@ void vtkUnsignedShortArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Private function does "reallocate"
 //
-unsigned short *vtkUnsignedShortArray::ResizeAndExtend(const int sz)
+unsigned short *vtkUnsignedShortArray::ResizeAndExtend(const vtkIdType sz)
 {
   unsigned short *newArray;
-  int newSize;
+  vtkIdType newSize;
 
   if ( sz > this->Size )
     {
@@ -238,10 +240,10 @@ unsigned short *vtkUnsignedShortArray::ResizeAndExtend(const int sz)
   return this->Array;
 }
 
-void vtkUnsignedShortArray::Resize(int sz)
+void vtkUnsignedShortArray::Resize(vtkIdType sz)
 {
   unsigned short *newArray;
-  int newSize = sz*this->NumberOfComponents;
+  vtkIdType newSize = sz*this->NumberOfComponents;
 
   if (newSize == this->Size)
     {
@@ -282,14 +284,14 @@ void vtkUnsignedShortArray::Resize(int sz)
 }
 
 // Set the number of n-tuples in the array.
-void vtkUnsignedShortArray::SetNumberOfTuples(const int number)
+void vtkUnsignedShortArray::SetNumberOfTuples(const vtkIdType number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
-float *vtkUnsignedShortArray::GetTuple(const int i) 
+float *vtkUnsignedShortArray::GetTuple(const vtkIdType i) 
 {
   if ( this->TupleSize < this->NumberOfComponents )
     {
@@ -307,7 +309,7 @@ float *vtkUnsignedShortArray::GetTuple(const int i)
 }
 
 // Copy the tuple value into a user-provided array.
-void vtkUnsignedShortArray::GetTuple(const int i, float * tuple) 
+void vtkUnsignedShortArray::GetTuple(const vtkIdType i, float * tuple) 
 {
   unsigned short *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -316,7 +318,7 @@ void vtkUnsignedShortArray::GetTuple(const int i, float * tuple)
     }
 }
 
-void vtkUnsignedShortArray::GetTuple(const int i, double * tuple) 
+void vtkUnsignedShortArray::GetTuple(const vtkIdType i, double * tuple) 
 {
   unsigned short *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -326,9 +328,9 @@ void vtkUnsignedShortArray::GetTuple(const int i, double * tuple)
 }
 
 // Set the tuple value at the ith location in the array.
-void vtkUnsignedShortArray::SetTuple(const int i, const float * tuple)
+void vtkUnsignedShortArray::SetTuple(const vtkIdType i, const float * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
 
   for (int j=0; j<this->NumberOfComponents; j++) 
     {
@@ -336,9 +338,9 @@ void vtkUnsignedShortArray::SetTuple(const int i, const float * tuple)
     }
 }
 
-void vtkUnsignedShortArray::SetTuple(const int i, const double * tuple)
+void vtkUnsignedShortArray::SetTuple(const vtkIdType i, const double * tuple)
 {
-  int loc = i * this->NumberOfComponents; 
+  vtkIdType loc = i * this->NumberOfComponents; 
 
   for (int j=0; j<this->NumberOfComponents; j++) 
     {
@@ -348,7 +350,7 @@ void vtkUnsignedShortArray::SetTuple(const int i, const double * tuple)
 
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
-void vtkUnsignedShortArray::InsertTuple(const int i, const float * tuple)
+void vtkUnsignedShortArray::InsertTuple(const vtkIdType i, const float * tuple)
 {
   unsigned short *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -358,7 +360,8 @@ void vtkUnsignedShortArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-void vtkUnsignedShortArray::InsertTuple(const int i, const double * tuple)
+void vtkUnsignedShortArray::InsertTuple(const vtkIdType i,
+                                        const double * tuple)
 {
   unsigned short *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -371,7 +374,7 @@ void vtkUnsignedShortArray::InsertTuple(const int i, const double * tuple)
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkUnsignedShortArray::InsertNextTuple(const float * tuple)
 {
-  int i = this->MaxId + 1;
+  vtkIdType i = this->MaxId + 1;
   unsigned short *t = this->WritePointer(i,this->NumberOfComponents);
 
   for (i=0; i<this->NumberOfComponents; i++)
@@ -384,7 +387,7 @@ int vtkUnsignedShortArray::InsertNextTuple(const float * tuple)
 
 int vtkUnsignedShortArray::InsertNextTuple(const double * tuple)
 {
-  int i = this->MaxId + 1;
+  vtkIdType i = this->MaxId + 1;
   unsigned short *t = this->WritePointer(i,this->NumberOfComponents);
 
   for (i=0; i<this->NumberOfComponents; i++)
@@ -397,7 +400,7 @@ int vtkUnsignedShortArray::InsertNextTuple(const double * tuple)
 
 // Return the data component at the ith tuple and jth component location.
 // Note that i<NumberOfTuples and j<NumberOfComponents.
-float vtkUnsignedShortArray::GetComponent(const int i, const int j)
+float vtkUnsignedShortArray::GetComponent(const vtkIdType i, const int j)
 {
   return (float) this->GetValue(i*this->NumberOfComponents + j);
 }
@@ -406,14 +409,16 @@ float vtkUnsignedShortArray::GetComponent(const int i, const int j)
 // Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
 // memory has been allocated (use SetNumberOfTuples() and 
 // SetNumberOfComponents()).
-void vtkUnsignedShortArray::SetComponent(const int i, const int j, const float c)
+void vtkUnsignedShortArray::SetComponent(const vtkIdType i, const int j,
+                                         const float c)
 {
   this->SetValue(i*this->NumberOfComponents + j, (short)c);
 }
 
 // Insert the data component at ith tuple and jth component location. 
 // Note that memory allocation is performed as necessary to hold the data.
-void vtkUnsignedShortArray::InsertComponent(const int i, const int j, const float c)
+void vtkUnsignedShortArray::InsertComponent(const vtkIdType i, const int j,
+                                            const float c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, (short)c);
 }

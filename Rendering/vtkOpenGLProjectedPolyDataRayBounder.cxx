@@ -88,7 +88,8 @@ void vtkOpenGLProjectedPolyDataRayBounder::Build( vtkPolyData *pdata )
   vtkCellArray   *polys;
   vtkCellArray   *strips;
   vtkPoints      *points;
-  int            *pts, npts;
+  int            npts;
+  vtkIdType      *pts;
   int            current_num_vertices = -1;
   int            i;
 

@@ -62,7 +62,7 @@ vtkLoopSubdivisionFilter* vtkLoopSubdivisionFilter::New()
 void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
 {
   float *weights;
-  int *pts;
+  vtkIdType *pts;
   int numPts;
   int cellId, edgeId, newId;
   int npts;

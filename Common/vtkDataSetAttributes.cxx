@@ -762,7 +762,8 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
 {
   int numComp=fromData->GetNumberOfComponents();
   int i, j, numIds=ptIds->GetNumberOfIds();
-  int *ids=ptIds->GetPointer(0), idx=toId*numComp;
+  vtkIdType *ids=ptIds->GetPointer(0);
+  int idx=toId*numComp;
   double c;
   
   switch (fromData->GetDataType())
