@@ -5,7 +5,6 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -49,9 +48,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageToImageFilter.h"
 
-
-#define VTK_IMAGE_DATA_STREAMER_BLOCK_MODE 0
-#define VTK_IMAGE_DATA_STREAMER_SLAB_MODE 1
+// Don't change the numbers here - they are used in the code
+// to indicate array indices.
+#define VTK_IMAGE_DATA_STREAMER_X_SLAB_MODE 0
+#define VTK_IMAGE_DATA_STREAMER_Y_SLAB_MODE 1
+#define VTK_IMAGE_DATA_STREAMER_Z_SLAB_MODE 2
+#define VTK_IMAGE_DATA_STREAMER_BLOCK_MODE 3
 
 class VTK_EXPORT vtkImageDataStreamer : public vtkImageToImageFilter
 {
@@ -73,8 +75,12 @@ public:
   // then it starts bereaking up other axes.
   void SetSplitModeToBlock()
     {this->SplitMode = VTK_IMAGE_DATA_STREAMER_BLOCK_MODE;}
-  void SetSplitModeToSlab()
-    {this->SplitMode = VTK_IMAGE_DATA_STREAMER_SLAB_MODE;}
+  void SetSplitModeToXSlab()
+    {this->SplitMode = VTK_IMAGE_DATA_STREAMER_X_SLAB_MODE;}
+ void SetSplitModeToYSlab()
+    {this->SplitMode = VTK_IMAGE_DATA_STREAMER_Y_SLAB_MODE;}
+ void SetSplitModeToZSlab()
+    {this->SplitMode = VTK_IMAGE_DATA_STREAMER_Z_SLAB_MODE;}
 
   // Description:
   // Need to override since this is where streaming will be done
