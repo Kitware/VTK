@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkMPIGroup.h"
+#include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
 
 vtkMPIGroup* vtkMPIGroup::New()
@@ -93,7 +94,7 @@ vtkMPIGroup::~vtkMPIGroup()
   this->MaximumNumberOfProcessIds = 0;
 }
 
-void vtkMPIGroup::Initialize(vtkMPIController* controller)
+void vtkMPIGroup::Initialize(int numProcIds)
 {
   if (this->Initialized)
     {
@@ -106,13 +107,23 @@ void vtkMPIGroup::Initialize(vtkMPIController* controller)
     delete[] this->ProcessIds;
     }
 
-  this->MaximumNumberOfProcessIds = controller->GetNumberOfProcesses();
+  this->MaximumNumberOfProcessIds = numProcIds;
   if ( this->MaximumNumberOfProcessIds > 0 )
     {
     this->ProcessIds = new int[this->MaximumNumberOfProcessIds];
     }
+  else
+    {
+    return;
+    }
 
   this->Initialized = 1;
+  return;
+}
+
+void vtkMPIGroup::Initialize(vtkMPIController* controller)
+{
+  this->Initialize(controller->GetNumberOfProcesses());
   return;
 }
 
@@ -125,7 +136,7 @@ int vtkMPIGroup::AddProcessId(int processId)
     }
   if ( processId >= this->MaximumNumberOfProcessIds )
     {
-    vtkErrorMacro("Process id " << processId << " is not valid.");
+    vtkWarningMacro("Process id " << processId << " is not valid.");
     return 0;
     }
   if ( this->FindProcessId(processId) >= 0 )

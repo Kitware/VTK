@@ -53,7 +53,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMPIGroup_h
 #define __vtkMPIGroup_h
 
-#include "vtkMPIController.h"
+#include "vtkObject.h"
+
+class vtkMPIController;
+class vtkMPICommunicator;
 
 class VTK_EXPORT vtkMPIGroup : public vtkObject
 {
@@ -102,7 +105,24 @@ public:
   // MaximumNumberOfProcessIds.
   void CopyProcessIdsFrom(vtkMPIGroup* group);
 
+  // Description:
+  // Returns the number of ids currently stored.
+  int GetNumberOfProcessIds()
+    {
+      return this->CurrentPosition;
+    }
+
+//BTX
+
+  friend vtkMPICommunicator;
+
+//ETX
+
 protected:
+
+  // Description:
+  // Allocate memory for numProcIds process ids
+  void Initialize(int numProcIds);
 
   int* ProcessIds;
   int MaximumNumberOfProcessIds;

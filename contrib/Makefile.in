@@ -12,8 +12,8 @@ VPATH         = @srcdir@
 
 MPI_OBJ = \
 vtkMPIController \
-vtkMPIGroup
-
+vtkMPIGroup \
+vtkMPICommunicator
 
 ABSTRACT_H = 
 
