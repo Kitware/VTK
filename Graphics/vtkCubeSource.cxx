@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkCubeSource.h"
 #include "vtkPoints.h"
-#include "vtkNormals.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
 
@@ -81,8 +81,8 @@ void vtkCubeSource::Execute()
   int i, j, k;
   int pts[4];
   vtkPoints *newPoints; 
-  vtkNormals *newNormals;
-  vtkTCoords *newTCoords; // CCS 7/27/98 Added for Texture Mapping
+  vtkFloatArray *newNormals;
+  vtkFloatArray *newTCoords; // CCS 7/27/98 Added for Texture Mapping
   vtkCellArray *newPolys;
   vtkPolyData *output = this->GetOutput();
   
@@ -92,12 +92,14 @@ void vtkCubeSource::Execute()
 //
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  newNormals = vtkNormals::New();
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(numPts);
-  newNormals->GetData()->SetName("Normals");
-  newTCoords = vtkTCoords::New();
+  newNormals->SetName("Normals");
+  newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents(2);
   newTCoords->Allocate(numPts);
-  newTCoords->GetData()->SetName("TCoords");
+  newTCoords->SetName("TCoords");
 
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
@@ -118,8 +120,8 @@ void vtkCubeSource::Execute()
         {
 	tc[0] = (x[2] + 0.5) * ( 1 - 2*i );
         newPoints->InsertNextPoint(x);
-        newTCoords->InsertNextTCoord(tc);
-        newNormals->InsertNextNormal(n);
+        newTCoords->InsertNextTuple(tc);
+        newNormals->InsertNextTuple(n);
         }
       }
     }
@@ -140,8 +142,8 @@ void vtkCubeSource::Execute()
         {
 	tc[1] = ( x[2] + 0.5 ) * -1;
         newPoints->InsertNextPoint(x);
-        newTCoords->InsertNextTCoord(tc);
-        newNormals->InsertNextNormal(n);
+        newTCoords->InsertNextTuple(tc);
+        newNormals->InsertNextTuple(n);
         }
       }
     }
@@ -162,8 +164,8 @@ void vtkCubeSource::Execute()
         {
 	tc[0] = ( x[0] + 0.5 ) * ( 2*i - 1 );
         newPoints->InsertNextPoint(x);
-	newTCoords->InsertNextTCoord(tc);
-        newNormals->InsertNextNormal(n);
+	newTCoords->InsertNextTuple(tc);
+        newNormals->InsertNextTuple(n);
         }
       }
     }
