@@ -84,6 +84,10 @@ public:
   virtual void GetPosition(int* x, int* y);
 
   // Description:
+  // Set the desired background color for the window.
+  virtual void SetBackgroundColor(float r, float g, float b) = 0;
+  
+  // Description:
   // Sets the size of a window in pixels.
   virtual void SetSize(int , int ) = 0;
   virtual void SetSize(int a[2]) { this->SetSize(a[0], a[1]); };
