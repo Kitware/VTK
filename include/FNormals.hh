@@ -6,12 +6,10 @@
 #ifndef __vlFloatNormals_h
 #define __vlFloatNormals_h
 
-#include "Object.hh"
+#include "Normals.hh"
 #include "FArray.hh"
-#include "FTriple.hh"
-#include "IdList.hh"
 
-class vlFloatNormals : public vlObject 
+class vlFloatNormals : public vlNormals
 {
 public:
   vlFloatNormals() {};
@@ -25,17 +23,7 @@ public:
   void Reset() {this->N.Reset();};
   vlFloatNormals &operator=(const vlFloatNormals& fn);
   void operator+=(const vlFloatNormals& fn);
-  void operator+=(const vlFloatTriple& ft) {
-    this->N += ft.X[0];
-    this->N += ft.X[1];
-    this->N += ft.X[2];
-  }
-  vlFloatTriple &operator[](const int i) {this->Ft.X = this->N.GetPtr(3*i); return this->Ft;};
-  void InsertNormal(const int i, vlFloatTriple &ft) {
-      this->N.InsertValue(3*i+2, ft.X[2]);
-      this->N[3*i] =  ft.X[0];
-      this->N[3*i+1] =  ft.X[1];
-  }
+
   void InsertNormal(const int i, float *x) {
       this->N.InsertValue(3*i+2, x[2]);
       this->N[3*i] =  x[0];
@@ -48,18 +36,9 @@ public:
     this->N[id-1] = x[1];
     return id/3;
   }
-  int InsertNextNormal(vlFloatTriple &ft) {
-    int id = this->N.GetMaxId() + 3;
-    this->N.InsertValue(id,ft.X[2]);
-    this->N[id-2] = ft.X[0];
-    this->N[id-1] = ft.X[1];
-    return id/3;
-  }
-  void GetNormals(vlIdList& ptId, vlFloatNormals& fn);
-  float *GetArray() {return this->N.GetArray();};
+
 private:
   vlFloatArray N;
-  vlFloatTriple Ft;
 };
 
 #endif
