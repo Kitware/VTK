@@ -99,6 +99,14 @@ public:
   vtkSetClampMacro(MaxRecursionDepth,int,10,VTK_LARGE_INTEGER);
   vtkGetMacro(MaxRecursionDepth,int);
 
+  // Description:
+  // Turn on/off traversal across non-manifold edges. This will prevent
+  // problems where the consistency of polygonal ordering is corrupted due
+  // to topological loops.
+  vtkSetMacro(NonManifoldTraversal,int);
+  vtkGetMacro(NonManifoldTraversal,int);
+  vtkBooleanMacro(NonManifoldTraversal,int);
+
 protected:
   // Usual data generation method
   void Execute();
@@ -108,6 +116,7 @@ protected:
   int Consistency;
   int FlipNormals;
   int MaxRecursionDepth;
+  int NonManifoldTraversal;
 
   void TraverseAndOrder(int cellId);
   void MarkAndReplace(int cellId, int n, int replacement);

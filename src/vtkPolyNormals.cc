@@ -45,13 +45,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Construct with feature angle=30, splitting and consistency turned on, 
-// and flipNormals turned off.
+// flipNormals turned off, and non-manifold traversal turned on.
 vtkPolyNormals::vtkPolyNormals()
 {
   this->FeatureAngle = 30.0;
   this->Splitting = 1;
   this->Consistency = 1;
   this->FlipNormals = 0;
+  this->NonManifoldTraversal = 1;
   this->MaxRecursionDepth = 10000;
 }
 
@@ -302,7 +303,7 @@ void vtkPolyNormals::Execute()
 void vtkPolyNormals::TraverseAndOrder (int cellId)
 {
   int p1, p2;
-  int j, k, l;
+  int j, k, l, numNei;
   int npts, *pts;
   vtkIdList cellIds(VTK_CELL_SIZE);
   int numNeiPts, *neiPts, neighbor;
@@ -328,26 +329,30 @@ void vtkPolyNormals::TraverseAndOrder (int cellId)
 //  Check the direction of the neighbor ordering.  Should be
 //  consistent with us (i.e., if we are n1->n2, neighbor should be n2->n1).
 //
-    for (k=0; k < cellIds.GetNumberOfIds(); k++) 
+    if ( (numNei=cellIds.GetNumberOfIds()) == 1 ||
+    this->NonManifoldTraversal )
       {
-      if ( ! Visited[cellIds.GetId(k)] ) 
+      for (k=0; k < cellIds.GetNumberOfIds(); k++) 
         {
-        neighbor = cellIds.GetId(k);
-        NewMesh->GetCellPoints(neighbor,numNeiPts,neiPts);
-        for (l=0; l < numNeiPts; l++)
-          if (neiPts[l] == p2)
-             break;
-//
-//  Have to reverse ordering if neighbor not consistent
-//
-         if ( neiPts[(l+1)%numNeiPts] != p1 ) 
-           {
-           NumFlips++;
-           NewMesh->ReverseCell(neighbor);
-           }
-         this->TraverseAndOrder (neighbor);
-        }
-      } // for each edge neighbor
+        if ( ! Visited[cellIds.GetId(k)] ) 
+          {
+          neighbor = cellIds.GetId(k);
+          NewMesh->GetCellPoints(neighbor,numNeiPts,neiPts);
+          for (l=0; l < numNeiPts; l++)
+            if (neiPts[l] == p2)
+               break;
+  //
+  //  Have to reverse ordering if neighbor not consistent
+  //
+           if ( neiPts[(l+1)%numNeiPts] != p1 ) 
+             {
+             NumFlips++;
+             NewMesh->ReverseCell(neighbor);
+             }
+           this->TraverseAndOrder (neighbor);
+          }
+        } // for each edge neighbor
+      } //for manifold or non-manifold traversal allowed
     } // for all edges of this polygon
 
   RecursionDepth--;
