@@ -108,8 +108,11 @@ protected:
 					     vtkImageRegion *outRegion);
   virtual void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 						vtkImageRegion *inRegion);
-  virtual void Execute(int axisIdx, vtkImageRegion *inRegion, 
-		       vtkImageRegion *outRegion);
+  virtual void Execute5d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  virtual void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  virtual void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  virtual void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  virtual void Execute1d(vtkImageRegion *inRegion,vtkImageRegion *outRegion);
 };
 
 #endif
