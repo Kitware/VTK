@@ -479,7 +479,6 @@ void vlGlrRenderWindow::WindowRemap()
 int *vlGlrRenderWindow::GetSize(void)
 {
   XWindowAttributes attribs;
-  int size[2];
 
   // if we aren't mapped then just return the ivar 
   if (!this->Mapped)
@@ -491,17 +490,16 @@ int *vlGlrRenderWindow::GetSize(void)
   XGetWindowAttributes(this->DisplayId, 
 		       this->WindowId, &attribs);
 
-  size[0] = attribs.width;
-  size[1] = attribs.height;
+  this->Size[0] = attribs.width;
+  this->Size[1] = attribs.height;
   
-  return size;
+  return this->Size;
 }
 
 int *vlGlrRenderWindow::GetPosition(void)
 {
   XWindowAttributes attribs;
   int x,y;
-  int pos[2];
   Window child;
   
   // if we aren't mapped then just return the ivar 
@@ -517,9 +515,9 @@ int *vlGlrRenderWindow::GetPosition(void)
 
   XTranslateCoordinates(this->DisplayId,this->WindowId,
 		 RootWindowOfScreen(ScreenOfDisplay(this->DisplayId,0)),
-			x,y,&pos[0],&pos[1],&child);
+			x,y,&this->Position[0],&this->Position[1],&child);
 
-  return pos;
+  return this->Position;
 }
 
 void vlGlrRenderWindow::SetSize(int x,int y)
