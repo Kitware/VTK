@@ -215,10 +215,17 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
     for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
       {
       id = (GLuint) this->TextureResourceIds->GetId(i);
+#ifdef GL_VERSION_1_1
       if (glIsTexture(id))
 	{
 	glDeleteTextures(1, &id);
 	}
+#else
+      if (glIsList(id))
+        {
+        glDeleteLists(id,1);
+        }
+#endif
       }
 
     // tell each of the renderers that this render window/graphics context
