@@ -30,7 +30,8 @@ vtkRIBLight \
 vtkRIBProperty \
 vtkSuperquadric \
 vtkSuperquadricSource \
-vtkSubdivideTetra 
+vtkSubdivideTetra \
+vtkCellDerivatives
 
 
 #------------------------------------------------------------------------------
