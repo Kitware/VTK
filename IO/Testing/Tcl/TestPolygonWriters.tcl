@@ -139,6 +139,12 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    stlBinary SetFileType 2
    stlBinary Write
    file delete -force brainBinary.stl
+
+   vtkCGMWriter cgm
+   cgm SetInput [triangles GetOutput]
+   cgm SetFileName brain.cgm
+   cgm Write
+   file delete -force brain.cgm
 }
  
   
