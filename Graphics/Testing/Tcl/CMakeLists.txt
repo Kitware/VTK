@@ -52,6 +52,7 @@ IF (VTK_USE_RENDERING)
       extractUGrid
       ExtractTensors
       extractVectors
+      extrudeCopyCD
       fieldToSGrid
       geomFilter
       glyph2D
