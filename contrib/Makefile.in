@@ -46,6 +46,7 @@ vtkCubeAxesActor2D \
 vtkSurfaceReconstructionFilter \
 vtkVideoSource \
 vtkVolumeProMapper \
+vtkThinPlateSplineMeshWarp \
  ${CONTROLLER_API_OBJ}
 
 
