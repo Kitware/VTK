@@ -98,11 +98,14 @@
 # define vtkstd
 #endif
 
+#if !defined(VTK_CXX_SGI_6)
+// Fails on kulu.crd IRIX64-6.5-CC-o32 (old SGI compiler).
 void UsingStdVector()
 {
   using vtkstd::vector;
   vector<int>();
 }
+#endif
 
 //----------------------------------------------------------------------------
 
@@ -113,7 +116,7 @@ int FullySpecializedFunction(T*)
   return 0;
 }
 
-#if 0
+#if !defined(VTK_CXX_SGI_6)
 // Fails on kulu.crd IRIX64-6.5-CC-o32 (old SGI compiler).
 template <>
 int FullySpecializedFunction<int>(int*)
