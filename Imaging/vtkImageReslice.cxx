@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.44");
+vtkCxxRevisionMacro(vtkImageReslice, "1.45");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -375,7 +375,7 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
   double point[4],f;
   double *inSpacing,*inOrigin,*outSpacing,*outOrigin,inInvSpacing[3];
 
-  int wrap = this->Wrap;
+  int wrap = this->Wrap || this->Mirror;
   
   inOrigin = this->GetInput()->GetOrigin();
   inSpacing = this->GetInput()->GetSpacing();
@@ -409,7 +409,7 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
     
     if (this->ResliceAxes)
       {
-      point[3] = 1.0f;
+      point[3] = 1.0;
       this->ResliceAxes->MultiplyPoint(point, point);
       f = 1.0/point[3];
       point[0] *= f;
@@ -441,7 +441,7 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
           {
           inExt[2*j+1] = k;
           }
-        if (!wrap && k == point[j])
+        if (k == point[j])
           {
           inExt[2*j] = inExt[2*j+1] = k;
           }
@@ -528,7 +528,7 @@ void vtkImageReslice::GetAutoCroppedOutputBounds(vtkImageData *input,
     point[0] = inOrigin[0] + inWholeExt[i%2]*inSpacing[0];
     point[1] = inOrigin[1] + inWholeExt[2+(i/2)%2]*inSpacing[1];
     point[2] = inOrigin[2] + inWholeExt[4+(i/4)%2]*inSpacing[2];
-    point[3] = 1.0f;
+    point[3] = 1.0;
 
     if (this->ResliceTransform)
       {
@@ -1726,7 +1726,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
           // apply ResliceAxes matrix
           if (matrix)
             {
-            point[3] = 1.0f;
+            point[3] = 1.0;
             matrix->MultiplyPoint(point, point);
             f = 1.0/point[3];
             point[0] *= f;
@@ -1822,7 +1822,7 @@ void vtkResliceOptimizedComputeInputUpdateExtent(vtkImageReslice *self,
   F inPoint1[4];
   F inPoint[4], f;
 
-  int wrap = self->GetWrap();
+  int wrap = self->GetWrap() || self->GetMirror();
 
   // convert matrix from world coordinates to pixel indices
   for (i = 0; i < 4; i++)
@@ -1885,7 +1885,7 @@ void vtkResliceOptimizedComputeInputUpdateExtent(vtkImageReslice *self,
           { 
           inExt[2*j+1] = k;
           }
-        if (!wrap && k == inPoint[j])
+        if (k == inPoint[j])
           {
           inExt[2*j] = inExt[2*j+1] = k;
           }
@@ -3495,7 +3495,7 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
     if ((this->OptimizedTransform == NULL && 
          (inSpacing[i] != outSpacing[i] || inOrigin[i] != outOrigin[i])) ||
         (this->OptimizedTransform != NULL &&
-         (inSpacing[i] != 1.0f || inOrigin[i] != 0.0f))) 
+         (inSpacing[i] != 1.0 || inOrigin[i] != 0.0))) 
       {
       isIdentity = 0;
       }
