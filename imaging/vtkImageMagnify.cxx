@@ -74,14 +74,8 @@ void vtkImageMagnify::ExecuteImageInformation()
     {
     // Scale the output extent
     outExt[idx*2] = inExt[idx*2] * this->MagnificationFactors[idx];
-    if (this->Interpolate)
-      {
-      outExt[idx*2+1] = inExt[idx*2+1]*this->MagnificationFactors[idx];
-      }
-    else
-      {
-      outExt[idx*2+1] = (inExt[idx*2+1]+1) *this->MagnificationFactors[idx] -1;
-      }
+    outExt[idx*2+1] = outExt[idx*2] + 
+      (inExt[idx*2+1] - inExt[idx*2] + 1)*this->MagnificationFactors[idx] - 1;
     
     // Change the data spacing
     outSpacing[idx] = spacing[idx] / (float)(this->MagnificationFactors[idx]);
@@ -105,18 +99,8 @@ void vtkImageMagnify::ComputeRequiredInputUpdateExtent(int inExt[6],
     // For Min. Round Down
     inExt[idx*2] = (int)(floor((float)(outExt[idx*2]) / 
 			       (float)(this->MagnificationFactors[idx])));
-    
-    if (this->Interpolate)
-      {
-      // Round Up
-      inExt[idx*2+1] = (int)(ceil((float)(outExt[idx*2+1]) / 
-				  (float)(this->MagnificationFactors[idx])));
-      }
-    else
-      {
-      inExt[idx*2+1] = (int)(floor((float)(outExt[idx*2+1]) / 
-				   (float)(this->MagnificationFactors[idx])));
-      }
+    inExt[idx*2+1] = (int)(floor((float)(outExt[idx*2+1]) / 
+				 (float)(this->MagnificationFactors[idx])));
     }
 }
 
@@ -148,6 +132,9 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
   float iMag, iMagP, iMagPY, iMagPZ, iMagPYZ;
   T dataP, dataPX, dataPY, dataPZ;
   T dataPXY, dataPXZ, dataPYZ, dataPXYZ;
+  int interpSetup;
+  int *wExtent;
+  T *maxInPtr; 
 
   interpolate = self->GetInterpolate();
   magX = self->GetMagnificationFactors()[0];
@@ -166,7 +153,11 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
   // Get increments to march through data 
   inData->GetIncrements(inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  
+
+  // where do we have to stop interpolations due to boundaries
+  wExtent = inData->GetExtent();
+  maxInPtr = (T*)inData->GetScalarPointer(wExtent[1],wExtent[3],wExtent[5]);
+
   // Loop through ouput pixels
   inPtrOrig = inPtr;
   outPtrOrig = outPtr;
@@ -174,11 +165,11 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
     {
     inPtrZ = inPtrOrig + idxC;
     outPtr = outPtrOrig + idxC;
-    magZIdx = magZ - 1;
+    magZIdx = magZ - outExt[4]%magZ - 1;
     for (idxZ = 0; idxZ <= maxZ; idxZ++, magZIdx--)
       {
       inPtrY = inPtrZ;
-      magYIdx = magY - 1;
+      magYIdx = magY - outExt[2]%magY - 1;
       for (idxY = 0; idxY <= maxY; idxY++, magYIdx--)
 	{
 	if (!id) 
@@ -196,8 +187,9 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 	  iMagPYZ = (magY - magYIdx - 1)*(magZ - magZIdx - 1)*iMag;
 	  }
 	
-	magXIdx = magX - 1;
+	magXIdx = magX - outExt[0]%magX - 1;
 	inPtrX = inPtrY;
+	interpSetup = 0;
 	for (idxX = 0; idxX <= maxX; idxX++, magXIdx--)
 	  {
 	  // Pixel operation
@@ -207,17 +199,18 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 	    }
 	  else
 	    {
-	    // setup data values for interp
-	    if (magXIdx == (magX - 1)) 
+	    // setup data values for interp, overload dataP as an 
+	    // indicator of if this has been done yet
+	    if (!interpSetup) 
 	      {
 	      int tiX, tiY, tiZ;
 	      
 	      dataP = *inPtrX;
-	      if (idxX != maxX) tiX = inIncX;
+	      if (inPtrX + inIncX <= maxInPtr) tiX = inIncX;
 	      else tiX = 0;
-	      if (idxY != maxY) tiY = inIncY;
+	      if (inPtrX + inIncY <= maxInPtr) tiY = inIncY;
 	      else tiY = 0;
-	      if (idxZ != maxZ) tiZ = inIncZ;
+	      if (inPtrX + inIncZ <= maxInPtr) tiZ = inIncZ;
 	      else tiZ = 0;
 	      dataPX = *(inPtrX + tiX);
 	      dataPY = *(inPtrX + tiY);
@@ -226,10 +219,10 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 	      dataPXZ = *(inPtrX + tiX + tiZ);
 	      dataPYZ = *(inPtrX + tiY + tiZ);
 	      dataPXYZ = *(inPtrX + tiX + tiY + tiZ);
+	      interpSetup = 1;
 	      }
 	    *outPtr = (T)
-	      (
-	       dataP*(magXIdx + 1)*iMagP + 
+	      (dataP*(magXIdx + 1)*iMagP + 
 	       dataPX*(magX - magXIdx - 1)*iMagP +
 	       dataPY*(magXIdx + 1)*iMagPY + 
 	       dataPXY*(magX - magXIdx - 1)*iMagPY +
@@ -243,6 +236,7 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 	    {
 	    inPtrX += inIncX;
 	    magXIdx = magX;
+	    interpSetup = 0;
 	    }
 	  }
 	outPtr += outIncY;
