@@ -128,7 +128,7 @@ void vtkGeneralTransformInverse::InternalTransformDerivative(
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkGeneralTransformInverse::VirtualGetInverse()
+vtkGeneralTransform *vtkGeneralTransformInverse::GetInverse()
 {
   return this->MyInverse;
 }

@@ -205,7 +205,7 @@ void vtkLinearTransform::TransformVectors(vtkVectors *inNms,
 //----------------------------------------------------------------------------
 // The vtkLinearTransformInverse is a special-purpose class.
 // See vtkLinearTransformInverse.h for more details.
-vtkGeneralTransform *vtkLinearTransform::VirtualGetInverse()
+vtkGeneralTransform *vtkLinearTransform::GetInverse()
 {
   if (this->MyInverse == NULL)
     {

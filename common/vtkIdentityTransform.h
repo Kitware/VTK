@@ -103,7 +103,7 @@ public:
 
   // Description:
   // Get the inverse of this transform, i.e. the transform itself.
-  vtkGeneralTransform *GetInverse() { return this; };
+  vtkGeneralTransform *GetInverse();
 
   // Description:
   // Make a transform of the same type.  This will actually
@@ -132,8 +132,6 @@ protected:
   ~vtkIdentityTransform();
   vtkIdentityTransform(const vtkIdentityTransform&) {};
   void operator=(const vtkIdentityTransform&) {};
-
-  vtkGeneralTransform *VirtualGetInverse();
 
   static vtkIdentityTransform *TheIdentityTransform;
 };

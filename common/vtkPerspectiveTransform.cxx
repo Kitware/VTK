@@ -217,7 +217,7 @@ void vtkPerspectiveTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 //----------------------------------------------------------------------------
 // The vtkPerspectiveTransformInverse is a special-purpose class.
 // See vtkPerspectiveTransformInverse.h for more details.
-vtkGeneralTransform *vtkPerspectiveTransform::VirtualGetInverse()
+vtkGeneralTransform *vtkPerspectiveTransform::GetInverse()
 {
   if (this->MyInverse == NULL)
     {

@@ -172,7 +172,7 @@ void vtkGeneralTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 //----------------------------------------------------------------------------
 // The vtkGeneralTransformInverse is a special-purpose class.
 // See vtkGeneralTransformInverse.h for more details.
-vtkGeneralTransform *vtkGeneralTransform::VirtualGetInverse()
+vtkGeneralTransform *vtkGeneralTransform::GetInverse()
 {
   if (this->MyInverse == NULL)
     {

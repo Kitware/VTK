@@ -60,7 +60,8 @@ public:
 
   // Description:
   // Set the transform that you want this to be an inverse of.
-  virtual void SetInverse(vtkPerspectiveTransform *transform);
+  void SetInverse(vtkPerspectiveTransform *transform);
+  vtkGeneralTransform *GetInverse();
  
   // Description:
   // Get the cached copy of the forward transform (i.e. the inverse
@@ -99,8 +100,6 @@ protected:
   ~vtkPerspectiveTransformInverse();
   vtkPerspectiveTransformInverse(const vtkPerspectiveTransformInverse&) {};
   void operator=(const vtkPerspectiveTransformInverse&) {};
-
-  vtkGeneralTransform *VirtualGetInverse();
 
   int UpdateRequired;
   vtkPerspectiveTransform *Transform;

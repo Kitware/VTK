@@ -216,7 +216,7 @@ void vtkIdentityTransform::TransformVectors(vtkVectors *inNms,
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkIdentityTransform::VirtualGetInverse()
+vtkGeneralTransform *vtkIdentityTransform::GetInverse()
 {
   return this;
 }

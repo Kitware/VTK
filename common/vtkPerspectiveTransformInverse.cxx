@@ -110,7 +110,7 @@ void vtkPerspectiveTransformInverse::SetInverse(vtkPerspectiveTransform *trans)
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkPerspectiveTransformInverse::VirtualGetInverse()
+vtkGeneralTransform *vtkPerspectiveTransformInverse::GetInverse()
 {
   return (vtkPerspectiveTransform *)this->MyInverse;
 }

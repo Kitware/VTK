@@ -62,7 +62,8 @@ public:
 
   // Description:
   // Set the transform that you want this to be an inverse of.
-  virtual void SetInverse(vtkGeneralTransform *transform);
+  void SetInverse(vtkGeneralTransform *transform);
+  vtkGeneralTransform *GetInverse();
  
   // Description:
   // Get the cached copy of the forward transform (i.e. the inverse

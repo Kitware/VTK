@@ -97,8 +97,9 @@ public:
   // Description:
   // Get the inverse of this transform.  If you modify this transform,
   // the returned inverse transform will automatically update.
-  vtkGeneralTransform *GetInverse() {
-    return (vtkPerspectiveTransform *)this->VirtualGetInverse(); };
+  vtkGeneralTransform *GetInverse();
+  vtkPerspectiveTransform *GetPerspectiveInverse() {
+    return (vtkPerspectiveTransform *)this->GetInverse(); };
 
   // Description:
   // This will calculate the transformation without calling Update.
@@ -117,8 +118,6 @@ protected:
   ~vtkPerspectiveTransform() { if (this->Matrix) { this->Matrix->Delete(); } };
   vtkPerspectiveTransform(const vtkPerspectiveTransform&) {};
   void operator=(const vtkPerspectiveTransform&) {};
-
-  vtkGeneralTransform *VirtualGetInverse();
 
   vtkMatrix4x4 *Matrix;
 };
