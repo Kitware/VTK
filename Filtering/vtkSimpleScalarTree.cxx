@@ -43,6 +43,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkSimpleScalarTree, "1.2");
+vtkStandardNewMacro(vtkSimpleScalarTree);
+
 class vtkScalarNode {};
 
 template <class TScalar>
@@ -52,19 +55,6 @@ public:
   TScalar min;
   TScalar max;
 };
-
-//--------------------------------------------------------------------------
-vtkSimpleScalarTree* vtkSimpleScalarTree::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSimpleScalarTree");
-  if(ret)
-    {
-    return (vtkSimpleScalarTree*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSimpleScalarTree;
-}
 
 // Instantiate scalar tree with maximum level of 20 and branching
 // factor of 5.
@@ -382,10 +372,10 @@ vtkCell *vtkSimpleScalarTree::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts
 
 void vtkSimpleScalarTree::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkScalarTree::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Level: " << this->Level << "\n" ;
-  os << indent << "MaxLevel: " << this->MaxLevel << "\n" ;
+  os << indent << "Max Level: " << this->MaxLevel << "\n" ;
   os << indent << "Branching Factor: " << this->BranchingFactor << "\n" ;
 }
 

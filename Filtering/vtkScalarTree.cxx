@@ -43,6 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkScalarTree, "1.25");
+
 // Instantiate scalar tree with maximum level of 20 and branching
 // factor of 5.
 vtkScalarTree::vtkScalarTree()
@@ -58,7 +60,7 @@ vtkScalarTree::~vtkScalarTree()
 
 void vtkScalarTree::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->DataSet )
     {
