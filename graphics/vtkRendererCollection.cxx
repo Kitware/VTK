@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include <stdlib.h>
 #include "vtkRendererCollection.h"
+#include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
 
@@ -64,21 +65,66 @@ vtkRendererCollection* vtkRendererCollection::New()
 // Forward the Render() method to each renderer in the list.
 void vtkRendererCollection::Render()
 {
-  vtkRenderer *ren;
+  vtkRenderer      *ren, *firstRen;
+  vtkRenderWindow  *renWin;
+  int               numLayers, i;
 
-  for (this->InitTraversal(); (ren = this->GetNextItem()); )
+  this->InitTraversal();
+  firstRen = this->GetNextItem();
+  if (firstRen == NULL)
     {
-    ren->Render();
+    // We cannot determine the number of layers because there are no
+    // renderers.  No problem, just return.
+    return;
+    }
+  renWin = firstRen->GetRenderWindow();
+  numLayers = renWin->GetNumLayers();
+
+  // Only have the renderers render from back to front.  This is
+  // necessary because only the renderers on the back layer do Clears and
+  // Clears blow away everything before it.
+  for (i = numLayers-1 ; i >= 0 ; i--)
+    {
+    for (this->InitTraversal(); (ren = this->GetNextItem()); )
+      {
+      if (ren->GetLayer() == i)
+        {
+        ren->Render();
+        }
+      }
     }
 }
 
 void vtkRendererCollection::RenderOverlay()
 {
-  vtkRenderer *ren;
+  vtkRenderer      *ren, *firstRen;
+  vtkRenderWindow  *renWin;
+  int               numLayers, i;
 
-  for (this->InitTraversal(); (ren = this->GetNextItem()); )
+  this->InitTraversal();
+  firstRen = this->GetNextItem();
+  if (firstRen == NULL)
     {
-    ren->RenderOverlay();
+    // We cannot determine the number of layers because there are no
+    // renderers.  No problem, just return.
+    return;
+    }
+  renWin = firstRen->GetRenderWindow();
+  numLayers = renWin->GetNumLayers();
+
+  // Only have the renderers render from back to front.  This is
+  // necessary because only the renderers on the back layer do Clears and
+  // Clears blow away everything before it.
+  for (i = numLayers-1 ; i >= 0 ; i--)
+    {
+    for (this->InitTraversal(); (ren = this->GetNextItem()); )
+      {
+      if (ren->GetLayer() == i)
+        {
+        ren->RenderOverlay();
+        }
+      }
     }
 }
+
 
