@@ -177,6 +177,7 @@ protected:
   int CheckSyntax();
   void RemoveSpaces();
   char* RemoveSpacesFrom(const char* variableName);
+  int OperatorWithinVariable(int idx);
   
   int BuildInternalFunctionStructure();
   void BuildInternalSubstringStructure(int beginIndex, int endIndex);

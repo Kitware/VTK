@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.24.6.1");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.24.6.2");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -1074,6 +1074,48 @@ void vtkFunctionParser::RemoveSpaces()
   delete [] tempString;
 }
 
+int vtkFunctionParser::OperatorWithinVariable(int idx)
+{
+  int i;
+  char *tmpString;
+  int start, end;
+  
+  for (i = 0; i < this->NumberOfScalarVariables; i++)
+    {
+    if (strchr(this->ScalarVariableNames[i], this->Function[idx]) != 0)
+      {
+      tmpString = strstr(this->Function, this->ScalarVariableNames[i]);
+      if (tmpString)
+        {
+        start = (int)(tmpString - this->Function);
+        end = start + strlen(this->ScalarVariableNames[i]);
+        if (start <= idx && end >= idx)
+          {
+          return 1;
+          }
+        }
+      }
+    }
+  for (i = 0; i < this->NumberOfVectorVariables; i++)
+    {
+    if (strchr(this->VectorVariableNames[i], this->Function[idx]) != 0)
+      {
+      tmpString = strstr(this->Function, this->VectorVariableNames[i]);
+      if (tmpString)
+        {
+        start = (int)(tmpString - this->Function);
+        end = start + strlen(this->VectorVariableNames[i]);
+        if (start <= idx && end >= idx)
+          {
+          return 1;
+          }
+        }
+      }
+    }
+  
+  return 0;
+}
+
 int vtkFunctionParser::CheckSyntax()
 {
   int index = 0, parenthesisCount = 0, currentChar;
@@ -1370,7 +1412,8 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
               isdigit(this->Function[i-2])))) &&
           !(this->Function[i] == '.' &&
             (i+1 < this->FunctionLength) &&
-             (isdigit(this->Function[i+1]))))
+             (isdigit(this->Function[i+1]))) &&
+          !this->OperatorWithinVariable(i))
         {
         this->BuildInternalSubstringStructure(beginIndex, i-1);
         this->BuildInternalSubstringStructure(i+1, endIndex);
