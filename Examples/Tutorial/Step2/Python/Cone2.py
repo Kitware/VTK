@@ -12,7 +12,7 @@
 # is observed.
 #
 
-from vtkpython import *
+import vtk
 import time
 
 #
@@ -25,26 +25,26 @@ def myCallback(obj,string):
 #
 # create the basic pipeline as in Step1
 #
-cone = vtkConeSource()
+cone = vtk.vtkConeSource()
 cone.SetHeight( 3.0 )
 cone.SetRadius( 1.0 )
 cone.SetResolution( 10 )
   
-coneMapper = vtkPolyDataMapper()
+coneMapper = vtk.vtkPolyDataMapper()
 coneMapper.SetInput( cone.GetOutput() )
-coneActor = vtkActor()
+coneActor = vtk.vtkActor()
 coneActor.SetMapper( coneMapper )
 
-ren1= vtkRenderer()
+ren1= vtk.vtkRenderer()
 ren1.AddActor( coneActor )
 ren1.SetBackground( 0.1, 0.2, 0.4 )
 
 #
 # Add the observer here
 #
-ren1.AddObserver("StartEvent",myCallback)
+ren1.AddObserver("StartEvent", myCallback)
 
-renWin = vtkRenderWindow()
+renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer( ren1 )
 renWin.SetSize( 300, 300 )
 
@@ -53,16 +53,6 @@ renWin.SetSize( 300, 300 )
 #
 for i in range(0,360):
     time.sleep(0.03)
-
     renWin.Render()
     ren1.GetActiveCamera().Azimuth( 1 )
   
-#
-# Free up any objects we created
-#
-cone = None
-coneMapper = None
-coneActor = None 
-ren1 = None
-renWin = None
-

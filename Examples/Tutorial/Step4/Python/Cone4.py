@@ -5,9 +5,8 @@
 # derivative of Cone.py, see that example for more information.
 #
 
-from vtkpython import *
+import vtk
 import time
-
 
 # 
 # Next we create an instance of vtkConeSource and set some of its
@@ -15,7 +14,7 @@ import time
 # pipeline (it is a source process object); it produces data (output type is
 # vtkPolyData) which other filters may process.
 #
-cone = vtkConeSource ()
+cone = vtk.vtkConeSource ()
 cone.SetHeight( 3.0 )
 cone.SetRadius( 1.0 )
 cone.SetResolution( 10 )
@@ -27,7 +26,7 @@ cone.SetResolution( 10 )
 # vtkPolyDataMapper to map the polygonal data into graphics primitives. We
 # connect the output of the cone souece to the input of this mapper.
 #
-coneMapper = vtkPolyDataMapper()
+coneMapper = vtk.vtkPolyDataMapper()
 coneMapper.SetInput(cone.GetOutput())
 
 # 
@@ -35,7 +34,7 @@ coneMapper.SetInput(cone.GetOutput())
 # modified to give it different surface properties. By default, an actor
 # is create with a property so the GetProperty() method can be used.
 #
-coneActor = vtkActor()
+coneActor = vtk.vtkActor()
 coneActor.SetMapper(coneMapper)
 coneActor.GetProperty().SetColor(0.2, 0.63, 0.79)
 coneActor.GetProperty().SetDiffuse(0.7)
@@ -46,7 +45,7 @@ coneActor.GetProperty().SetSpecularPower(20)
 # Create a property and directly manipulate it. Assign it to the
 # second actor.
 #
-property = vtkProperty()
+property = vtk.vtkProperty()
 property.SetColor(1.0, 0.3882, 0.2784)
 property.SetDiffuse(0.7)
 property.SetSpecular(0.4)
@@ -58,7 +57,7 @@ property.SetSpecularPower(20)
 # property can be shared among many actors. Note also that we use the
 # same mapper as the first actor did. This way we avoid duplicating
 # geometry, which may save lots of memory if the geoemtry is large.
-coneActor2 = vtkActor()
+coneActor2 = vtk.vtkActor()
 coneActor2.SetMapper(coneMapper)
 coneActor2.GetProperty().SetColor(0.2, 0.63, 0.79)
 coneActor2.SetProperty(property)
@@ -69,7 +68,7 @@ coneActor2.SetPosition(0, 2, 0)
 # viewport. It is part or all of a window on the screen and it is responsible
 # for drawing the actors it has.  We also set the background color here.
 #
-ren1 = vtkRenderer()
+ren1 = vtk.vtkRenderer()
 ren1.AddActor(coneActor)
 ren1.AddActor(coneActor2)
 ren1.SetBackground(0.1, 0.2, 0.4)
@@ -79,7 +78,7 @@ ren1.SetBackground(0.1, 0.2, 0.4)
 # We put our renderer into the render window using AddRenderer. We also
 # set the size to be 300 pixels by 300.
 #
-renWin = vtkRenderWindow()
+renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren1)
 renWin.SetSize(300, 300)
 
@@ -91,18 +90,4 @@ for i in range(0,360):
     
     renWin.Render()
     ren1.GetActiveCamera().Azimuth( 1 )
-
-  
-#
-# Free up any objects we created
-#
-cone = None
-coneMapper = None
-coneActor = None
-coneActor2 = None
-property = None
-ren1 = None
-renWin = None
-
-
 

@@ -10,7 +10,7 @@
 # First we include the VTK Python packages that will make available 
 # all of the VTK commands to Python.
 #
-from vtkpython import *
+import vtk
 import time
 
 # 
@@ -19,7 +19,7 @@ import time
 # pipeline (it is a source process object); it produces data (output type is
 # vtkPolyData) which other filters may process.
 #
-cone = vtkConeSource()
+cone = vtk.vtkConeSource()
 cone.SetHeight( 3.0 )
 cone.SetRadius( 1.0 )
 cone.SetResolution( 10 )
@@ -31,7 +31,7 @@ cone.SetResolution( 10 )
 # vtkPolyDataMapper to map the polygonal data into graphics primitives. We
 # connect the output of the cone souece to the input of this mapper.
 #
-coneMapper = vtkPolyDataMapper()
+coneMapper = vtk.vtkPolyDataMapper()
 coneMapper.SetInput( cone.GetOutput() )
 
 # 
@@ -40,7 +40,7 @@ coneMapper.SetInput( cone.GetOutput() )
 # vtkProperty instance, and includes an internal transformation matrix. We
 # set this actor's mapper to be coneMapper which we created above.
 #
-coneActor = vtkActor()
+coneActor = vtk.vtkActor()
 coneActor.SetMapper( coneMapper )
 
 #
@@ -49,7 +49,7 @@ coneActor.SetMapper( coneMapper )
 # responsible for drawing the actors it has.  We also set the background
 # color here
 #
-ren1= vtkRenderer()
+ren1= vtk.vtkRenderer()
 ren1.AddActor( coneActor )
 ren1.SetBackground( 0.1, 0.2, 0.4 )
 
@@ -58,7 +58,7 @@ ren1.SetBackground( 0.1, 0.2, 0.4 )
 # We put our renderer into the render window using AddRenderer. We also
 # set the size to be 300 pixels by 300
 #
-renWin = vtkRenderWindow()
+renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer( ren1 )
 renWin.SetSize( 300, 300 )
 
@@ -70,13 +70,3 @@ for i in range(0,360):
 
     renWin.Render()
     ren1.GetActiveCamera().Azimuth( 1 )
-  
-#
-# Free up any objects we created
-#
-cone = None
-coneMapper = None
-coneActor = None 
-ren1 = None
-renWin = None
-
