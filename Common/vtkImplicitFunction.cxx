@@ -18,7 +18,7 @@
 #include "vtkAbstractTransform.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImplicitFunction, "1.36");
+vtkCxxRevisionMacro(vtkImplicitFunction, "1.37");
 vtkCxxSetObjectMacro(vtkImplicitFunction,Transform,vtkAbstractTransform);
 
 vtkImplicitFunction::vtkImplicitFunction()
@@ -28,6 +28,8 @@ vtkImplicitFunction::vtkImplicitFunction()
 
 vtkImplicitFunction::~vtkImplicitFunction()
 {
+  //static_cast needed since otherwise the
+  //call to SetTransform becomes ambiguous
   this->SetTransform(static_cast<vtkAbstractTransform*>(NULL));
 }
 
@@ -147,5 +149,6 @@ void vtkImplicitFunction::SetTransform(double elements[16])
   vtkTransform* transform = vtkTransform::New();
   transform->SetMatrix(elements);
   this->SetTransform(transform);
+  transform->Delete();
 }
 
