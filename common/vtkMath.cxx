@@ -1292,7 +1292,7 @@ static inline void vtkSwapVectors3(T v1[3], T v2[3])
 // elements are inverted, to convert a division to a multiplication
 // in the backsubstitution.
 template<class T>
-static void vtkLUFactor3x3(T A[3][3], int index[3])
+static inline void vtkLUFactor3x3(T A[3][3], int index[3])
 {
   int i,maxI;
   T tmp,largest;
@@ -1376,7 +1376,7 @@ void vtkMath::LUFactor3x3(double A[3][3], int index[3])
 // Backsubsitution with an LU-decomposed matrix.  This is the standard
 // LU decomposition, except that the diagonals elements have been inverted.
 template<class T, class T2>
-static void vtkLUSolve3x3(T A[3][3], const int index[3], T2 x[3])
+static inline void vtkLUSolve3x3(T A[3][3], const int index[3], T2 x[3])
 {
   T2 sum;
 
@@ -1428,8 +1428,8 @@ static inline void vtkLinearSolve3x3(T A[3][3], T2 x[3], T3 y[3])
     y[i] = x[i];
     }
 
-  vtkLUFactor3x3(B,index);
-  vtkLUSolve3x3(B,index,y);
+  vtkMath::LUFactor3x3(B,index);
+  vtkMath::LUSolve3x3(B,index,y);
 }
 
 void vtkMath::LinearSolve3x3(const float A[3][3], 
@@ -1544,13 +1544,13 @@ static inline void vtkInvert3x3(T1 A[3][3], T2 AI[3][3])
     AI[k][2] = A[k][2];
     }
   // invert one column at a time
-  vtkLUFactor3x3(AI,index);
+  vtkMath::LUFactor3x3(AI,index);
   for (int i = 0; i < 3; i++)
     {
     T2 *x = tmp[i];
     x[0] = x[1] = x[2] = 0.0;
     x[i] = 1.0;
-    vtkLUSolve3x3(AI,index,x);
+    vtkMath::LUSolve3x3(AI,index,x);
     }
   for (int j = 0; j < 3; j++)
     {
