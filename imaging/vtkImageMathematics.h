@@ -69,6 +69,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_ATAN2        15
 #define VTK_MULTIPLYBYK  16
 #define VTK_ADDC         17
+#define VTK_CONJUGATE    18
+#define VTK_COMPLEX_MULTIPLY  19
 
 #include "vtkImageTwoInputFilter.h"
 
@@ -87,6 +89,10 @@ public:
   void SetOperationToSubtract() {this->SetOperation(VTK_SUBTRACT);};
   void SetOperationToMultiply() {this->SetOperation(VTK_MULTIPLY);};
   void SetOperationToDivide() {this->SetOperation(VTK_DIVIDE);};
+  void SetOperationToConjugate() {this->SetOperation(VTK_CONJUGATE);};
+  void SetOperationToComplexMultiply() 
+    {this->SetOperation(VTK_COMPLEX_MULTIPLY);};
+
   void SetOperationToInvert() {this->SetOperation(VTK_INVERT);};
   void SetOperationToSin() {this->SetOperation(VTK_SIN);};
   void SetOperationToCos() {this->SetOperation(VTK_COS);};

@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkImageMathematics* vtkImageMathematics::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -132,6 +132,11 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
   
   // find the region to loop over
   rowLength = (outExt[1] - outExt[0]+1)*in1Data->GetNumberOfScalarComponents();
+  // What a pain.  Maybe I should just make another filter.
+  if (op == VTK_CONJUGATE)
+    {
+    rowLength = (outExt[1] - outExt[0]+1);
+    }
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
   target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
@@ -194,6 +199,13 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
 	  case VTK_ADDC:
 	    *outPtr = (T)((T)constantc + *in1Ptr);
 	    break;
+	  case VTK_CONJUGATE:
+	    outPtr[0] = in1Ptr[0];
+	    outPtr[1] = -in1Ptr[1];
+	    // Why bother trtying to figure out the continuous increments.
+	    outPtr++;
+	    in1Ptr++;
+	    break;
 	  }
 	outPtr++;
 	in1Ptr++;
@@ -231,6 +243,12 @@ static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
   
   // find the region to loop over
   rowLength = (outExt[1] - outExt[0]+1)*in1Data->GetNumberOfScalarComponents();
+  // What a pain.  Maybe I should just make another filter.
+  if (op == VTK_COMPLEX_MULTIPLY)
+    {
+    rowLength = (outExt[1] - outExt[0]+1);
+    }
+
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
   target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
@@ -308,6 +326,14 @@ static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
 	        *outPtr =  (T)atan2((double)*in1Ptr,(double)*in2Ptr);
 		}
 	    break;
+	  case VTK_COMPLEX_MULTIPLY:
+	    outPtr[0] = in1Ptr[0] * in2Ptr[0] - in1Ptr[1] * in2Ptr[1];
+	    outPtr[1] = in1Ptr[1] * in2Ptr[0] + in1Ptr[0] * in2Ptr[1];
+	    // Why bother trtying to figure out the continuous increments.
+	    outPtr++;
+	    in1Ptr++;
+	    in2Ptr++;
+	    break;
 	  }
 	outPtr++;
 	in1Ptr++;
@@ -349,9 +375,11 @@ void vtkImageMathematics::ThreadedExecute(vtkImageData **inData,
   inPtr1 = inData[0]->GetScalarPointerForExtent(outExt);
   outPtr = outData->GetScalarPointerForExtent(outExt);
   
+
   if (this->Operation == VTK_ADD || this->Operation == VTK_SUBTRACT || 
       this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE ||
-      this->Operation == VTK_MIN || this->Operation == VTK_MAX || this->Operation == VTK_ATAN2) 
+      this->Operation == VTK_MIN || this->Operation == VTK_MAX || 
+      this->Operation == VTK_ATAN2 || this->Operation == VTK_COMPLEX_MULTIPLY) 
     {
     void *inPtr2;
     
@@ -360,6 +388,17 @@ void vtkImageMathematics::ThreadedExecute(vtkImageData **inData,
       vtkErrorMacro(<< "Input " << 1 << " must be specified.");
       return;
       }
+
+    if ( this->Operation == VTK_COMPLEX_MULTIPLY )
+      {
+      if (inData[0]->GetNumberOfScalarComponents() != 2 ||
+	  inData[1]->GetNumberOfScalarComponents() != 2)
+	{
+        vtkErrorMacro("Complex inputs must have two components.");
+	return;
+	}
+      }
+
     inPtr2 = inData[1]->GetScalarPointerForExtent(outExt);
 
     // this filter expects that input is the same type as output.
@@ -478,6 +517,16 @@ void vtkImageMathematics::ThreadedExecute(vtkImageData **inData,
       << ", must match out ScalarType " << outData->GetScalarType());
       return;
       }
+
+    if ( this->Operation == VTK_CONJUGATE )
+      {
+      if (inData[0]->GetNumberOfScalarComponents() != 2)
+	{
+        vtkErrorMacro("Complex inputs must have two components.");
+	return;
+	}
+      }
+
     switch (inData[0]->GetScalarType())
       {
       case VTK_DOUBLE:
