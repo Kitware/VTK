@@ -20,6 +20,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "Actor.hh"
 
+// Description:
+// Creates an actor with the following defaults: origin(0,0,0) 
+// position(0,0,0) scale(1,1,1) visibility=1 pickable=1 dragable=1
+// orientation= (0,0,0)
 vlActor::vlActor()
 {
   this->Mapper = 0;
@@ -51,6 +55,9 @@ vlActor::~vlActor()
   if ( this->Mapper ) this->Mapper->UnRegister(this);
 }
 
+// Description:
+// This causes the actor to be rendered. It in turn will render the actor's
+// property and then mapper.  
 void vlActor::Render(vlRenderer *ren)
 {
   /* render the property */
@@ -61,6 +68,9 @@ void vlActor::Render(vlRenderer *ren)
 
 }
 
+// Description:
+// This is the method that is used to connect an actor to the end of a
+// visualization pipeline, i.e. the Mapper.  
 void vlActor::SetMapper(vlMapper *m)
 {
   if ( this->Mapper != m )
@@ -72,6 +82,8 @@ void vlActor::SetMapper(vlMapper *m)
     }
 }
 
+// Description:
+// Returns the Mapper that this actor is getting it's data from.
 vlMapper *vlActor::GetMapper()
 {
   return this->Mapper;
@@ -121,6 +133,10 @@ void vlActor::PrintSelf(ostream& os, vlIndent indent)
     }
 }
 
+// Description:
+// Sets the orientation of the actor.  Orientation is specified as
+// X,Y and Z rotations in that order, but they are performed as
+// RotateZ, RotateX and finally RotateY.
 void vlActor::SetOrientation (float x,float y,float z)
 {
   // store the coordinates
@@ -143,6 +159,11 @@ void vlActor::SetOrientation(float a[3])
   this->SetOrientation(a[0],a[1],a[2]);
 }
 
+// Description:
+// Returns the orientation of the actor as s vector of X,Y and Z rotation.
+// The ordering in which these rotations must be done to generate the 
+// same matrix is RotateZ, RotateX and finally RotateY. See also 
+// SetOrientation.
 float *vlActor::GetOrientation ()
 {
   float   *orientation;
@@ -159,6 +180,9 @@ float *vlActor::GetOrientation ()
   return this->Orientation;
 } // vlActor::Getorientation 
 
+// Description:
+// Add to the current orientation. See SetOrientation and GetOrientation for 
+// more details.
 void vlActor::AddOrientation (float a1,float a2,float a3)
 {
   float *orient;
@@ -173,24 +197,33 @@ void vlActor::AddOrientation(float a[3])
   this->AddOrientation(a[0],a[1],a[2]);
 }
 
+// Description:
+// Rotate the actor in degrees about the X axis using the right hand rule.
 void vlActor::RotateX (float angle)
 {
   this->Transform.RotateX(angle);
   this->Modified();
 } 
 
+// Description:
+// Rotate the actor in degrees about the Y axis using the right hand rule.
 void vlActor::RotateY (float angle)
 {
   this->Transform.RotateY(angle);
   this->Modified();
 } 
 
+// Description:
+// Rotate the actor in degrees about the Z axis using the right hand rule.
 void vlActor::RotateZ (float angle)
 {
   this->Transform.RotateZ(angle);
   this->Modified();
 } 
 
+// Description:
+// Rotate the actor in degrees about an arbitrary axis specified by the 
+// last three arguments. 
 void vlActor::RotateWXYZ (float degree, float x, float y, float z)
 {
   this->Transform.PostMultiply();  
@@ -199,6 +232,8 @@ void vlActor::RotateWXYZ (float degree, float x, float y, float z)
   this->Modified();
 }
 
+// Description:
+// Return the 4x4 composit matrix for this actor.
 vlMatrix4x4 vlActor::GetMatrix ()
 {
   vlMatrix4x4 result;
@@ -240,7 +275,8 @@ vlMatrix4x4 vlActor::GetMatrix ()
   return(result);
 } 
 
-// Get the bounds for this Actor
+// Description:
+// Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 float *vlActor::GetBounds()
 {
   int i,n;
@@ -296,21 +332,24 @@ float *vlActor::GetBounds()
   return this->Bounds;
 }
 
-// Get the actors x range in world coordinates
+// Description:
+// Get the actors x range in world coordinates.
 float *vlActor::GetXRange()
 {
   this->GetBounds();
   return this->Bounds;
 }
 
-// Get the actors y range in world coordinates
+// Description:
+// Get the actors y range in world coordinates.
 float *vlActor::GetYRange()
 {
   this->GetBounds();
   return &(this->Bounds[2]);
 }
 
-// Get the actors z range in world coordinates
+// Description:
+// Get the actors z range in world coordinates.
 float *vlActor::GetZRange()
 {
   this->GetBounds();
