@@ -201,7 +201,9 @@ public:
   // Description:
   // These methods map from one coordinate system to another.
   // They are primarily used by the vtkCoordinate object and
-  // are often strung together.
+  // are often strung together. These methods return valid information
+  // only if the window has been realized (e.g., GetSize() returns
+  // something other than (0,0)).
   virtual void LocalDisplayToDisplay(float &x, float &y);
   virtual void DisplayToNormalizedDisplay(float &u, float &v);
   virtual void NormalizedDisplayToViewport(float &x, float &y);
@@ -219,24 +221,33 @@ public:
   // a viewport
 
   // Description:
-  //  Return the Prop that has the highest z value at the given x, y position in
+  // Return the Prop that has the highest z value at the given x, y position in
   // the viewport.  Basically, the top most prop that renders the pixel
   // at selectionX, selectionY will be returned.   If no Props are there
   // NULL is returned.  This method selects from the Viewports Prop list.
   virtual vtkProp* PickProp(float selectionX, float selectionY) = 0;
+
   // Description:
   // Same as PickProp with two arguments, but selects from the given
   // collection of Props instead of the Renderers props.  Make sure
   // the Props in the collection are in this renderer.
-  vtkProp* PickPropFrom(float selectionX, float selectionY, vtkPropCollection*);
+  vtkProp* PickPropFrom(float selectionX, float selectionY, 
+                        vtkPropCollection*);
+  
+  // Description:
+  // Methods used to return the pick (x,y) in local display coordinates (i.e.,
+  // it's that same as slectionX and selectionY).
   vtkGetMacro(PickX, float);
   vtkGetMacro(PickY, float);
   vtkGetMacro(IsPicking, int);
-  // Description: Return the Z value for the last picked Prop
+
+  // Description: Return the Z value for the last picked Prop.
   virtual float GetPickedZ() = 0;
   
   // Description:
-  // Get the size and origin of the viewport in display coordinates
+  // Get the size and origin of the viewport in display coordinates. Note:
+  // if the window has not yet been realized, GetSize() and GetOrigin() 
+  // return (0,0).
   int *GetSize();
   int *GetOrigin();
 
