@@ -406,7 +406,7 @@ void vtkInteractorStyleUnicam::Rotate( int X, int Y )
     float dvec[3];
     float from[3];
     this->CurrentCamera->GetPosition(from);
-    for(int i=0;i<3;i++)
+    for(int i=0; i<3; i++)
       {
       dvec[i] = from[i] - center[i];
       }
@@ -434,6 +434,7 @@ void vtkInteractorStyleUnicam::Rotate( int X, int Y )
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::Zoom( int X, int Y )
 {
+  int i;
   float cn[2], ln[2];
   NormalizeMouseXY(X, Y, &cn[0], &cn[1]);
   NormalizeMouseXY(this->LastPix[0], this->LastPix[1], &ln[0], &ln[1]);
@@ -447,31 +448,31 @@ void vtkInteractorStyleUnicam::Zoom( int X, int Y )
   double     ratio;
 
   // 1. handle zooming
-  // XXX - assume perspective projection for now..
+  // XXX - assume perspective projection for now.
   float from[3];
   this->FindPokedCamera(X, Y);
   this->CurrentCamera->GetPosition(from);
   
   float movec[3];
-  for(int i=0;i<3;i++)
+  for(i=0; i<3; i++)
     {
     movec[i] = this->DownPt[i] - from[i];
     }
 
   float movec_n[3];  // normalized movec
-  for(i=0;i<3;i++)
+  for(i=0; i<3; i++)
     {
     movec_n[i] = movec[i];
     }
   vtkMath::Normalize(movec_n);
 
-  for(i=0;i<3;i++)
+  for(i=0; i<3; i++)
     {
     this->Center[i] = this->DownPt[i];
     }
 
   float trans1[3];
-  for(i=0;i<3;i++)
+  for(i=0; i<3; i++)
     {
     trans1[i] = movec_n[i] * (vtkMath::Norm(movec) * delta[1] * -4);
     }
@@ -487,7 +488,7 @@ void vtkInteractorStyleUnicam::Zoom( int X, int Y )
   this->CameraToWorld(at_v, at_v);
 
   float vec[3];
-  for(i=0;i<3;i++)
+  for(i=0; i<3; i++)
     {
     vec[i] = movec[i] * at_v[i];
     }
@@ -505,7 +506,7 @@ void vtkInteractorStyleUnicam::Zoom( int X, int Y )
   vtkMath::Normalize(rightV);
 
   float trans2[3];
-  for(i=0;i<3;i++)
+  for(i=0; i<3; i++)
     {
     trans2[i] = -delta[0]/2 * rightV[i] * ratio;
     }
@@ -518,6 +519,8 @@ void vtkInteractorStyleUnicam::Pan( int X, int Y )
 {
   float delta[2];
   float cn[2], ln[2];
+  int i;
+
   NormalizeMouseXY(X, Y, &cn[0], &cn[1]);
   NormalizeMouseXY(this->LastPix[0], this->LastPix[1], &ln[0], &ln[1]);
   delta[0] = cn[0] - ln[0];
@@ -532,7 +535,7 @@ void vtkInteractorStyleUnicam::Pan( int X, int Y )
   this->CurrentCamera->GetPosition(from);
 
   float movec[3];
-  for(int i=0;i<3;i++)
+  for(i=0; i<3; i++)
     {
     movec[i] = this->DownPt[i] - from[i];
     }
@@ -551,7 +554,7 @@ void vtkInteractorStyleUnicam::Pan( int X, int Y )
   this->CameraToWorld(at_v, at_v);
 
   float vec[3];
-  for(i=0;i<3;i++)
+  for(i=0; i<3; i++)
     {
     vec[i] = movec[i] * at_v[i];
     }
@@ -575,7 +578,7 @@ void vtkInteractorStyleUnicam::Pan( int X, int Y )
   vtkMath::Normalize(upV);
 
   float trans[3];
-  for(i=0;i<3;i++)
+  for(i=0; i<3; i++)
     {
     trans[i] = (-delta[0]/2 * rightV[i] * ratio +
 		-delta[1]/2 * upV[i]    * ratio);
@@ -655,15 +658,15 @@ void vtkInteractorStyleUnicam::MyTranslateCamera(float v[3])
   this->CurrentCamera->GetPosition  (p);
   this->CurrentCamera->GetFocalPoint(f);
 
-  float new_p[3], new_f[3];
+  float newP[3], newF[3];
   for(int i=0;i<3;i++) 
     {
-    new_p[i] = p[i] + v[i];
-    new_f[i] = f[i] + v[i];
+    newP[i] = p[i] + v[i];
+    newF[i] = f[i] + v[i];
     }
 
-  this->CurrentCamera->SetPosition  (new_p);
-  this->CurrentCamera->SetFocalPoint(new_f);
+  this->CurrentCamera->SetPosition  (newP);
+  this->CurrentCamera->SetFocalPoint(newF);
 
   this->CurrentRenderer->ResetCameraClippingRange();
 }
