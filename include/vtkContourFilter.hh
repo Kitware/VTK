@@ -58,6 +58,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkCleanPolyData to remove the coincident points. Also, the isosurface
 // is not generated with surface normals. Use vtkPolyNormals to create them,
 // if desired.
+// .SECTION See Also
+// vtkMarchingCubes vtkSliceCubes vtkDividingCubes
 
 #ifndef __vtkContourFilter_h
 #define __vtkContourFilter_h

@@ -65,7 +65,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Provides opportunity for data to clean itself up before execution.
+  // Provides opportunity for data to insure internal consistency before 
+  // access.
   virtual void Update();
 
   // Description:
@@ -188,7 +189,7 @@ public:
 
   // Description:
   // Convenience method to get the range of the scalar data if there is any.
-  // otherwise it will return 0 to 1.
+  // Otherwise it will return (0,1).
   float *GetScalarRange();
   
   // Description:

@@ -41,10 +41,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkDecimate - reduce the number of triangles in a mesh
 // .SECTION Description
 // vtkDecimate is a filter to reduce the number of triangles in a triangle 
-// mesh, while preserving the original topology and a good approximation
-// to the original geometry. The input to vtkDecimate is a vtkPolyData object,
-// and only triangles are treated. If you desire to decimate polygonal
-// meshes, first triangulate the polygons with the vtkTriangleFilter object.
+// mesh, while preserving the original topology and a forming good 
+// approximation to the original geometry. The input to vtkDecimate is a 
+// vtkPolyData object, and only triangles are treated. If you desire to 
+// decimate polygonal meshes, first triangulate the polygons with the 
+// vtkTriangleFilter object.
 //
 // The algorithm proceeds as follows. Each vertex in the triangle
 // list is evaluated for local planarity (i.e., the triangles using

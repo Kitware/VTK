@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkDataSetToStructuredGridFilter - abstract filter class
 // .SECTION Description
 // vtkDataSetToStructuredGridFilter is an abstract filter class whose 
-// subclasses take as input any dataset and generate an structured
+// subclasses take as input any dataset and generate a structured
 // grid on output.
 
 #ifndef __vtkDataSetToStructuredGridFilter_h

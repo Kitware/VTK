@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of the disk, and the radial and circumferential resolution of the 
 // polygonal representation. 
 // .SECTION SEE ALSO
-// If you desire to create a solid object you can use vtkLinearExtrusionFilter.
+// vtkLinearExtrusionFilter
 
 #ifndef __vtkDiskSource_h
 #define __vtkDiskSource_h
@@ -60,12 +60,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify radius of hole in disc.
+  // Specify inner radius of hole in disc.
   vtkSetClampMacro(InnerRadius,float,0.0,VTK_LARGE_FLOAT)
   vtkGetMacro(InnerRadius,float);
 
   // Description:
-  // Specify radius of disc.
+  // Specify outer radius of disc.
   vtkSetClampMacro(OuterRadius,float,0.0,VTK_LARGE_FLOAT)
   vtkGetMacro(OuterRadius,float);
 

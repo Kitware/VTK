@@ -40,10 +40,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkAPixmap - scalar data in rgba (color + opacity) form
 // .SECTION Description
-// vtkAPixmap is a concrete implementation of vtkScalars. Scalars are
+// vtkAPixmap is a concrete implementation of vtkColorScalars. Scalars are
 // represented using three values for color (red, green, blue) plus alpha
-// transparency value. Each of r,g,b,a components ranges from (0,255) (i.e.,
+// opacity value. Each of r,g,b,a components ranges from (0,255) (i.e.,
 // an unsigned char value).
+// .SECTION See Also
+// vtkGraymap vtkAGraymap vtkPixmap vtkBitmap
 
 #ifndef __vtkAPixmap_h
 #define __vtkAPixmap_h

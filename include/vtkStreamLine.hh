@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // segment lengths of size StepLength. Smaller values reduce in more line 
 // primitives but smoother streamlines. The StepLength instance variable is 
 // defined in terms of time (i.e., the distance that the particle travels in
-// the specified time period) Thus the line segments will be smaller in areas
+// the specified time period). Thus the line segments will be smaller in areas
 // of low velocity and larger in regions of high velocity. (NOTE: This is
 // different than the IntegrationStepLength defined by the superclass
 // vtkStreamer. IntegrationStepLength is used to control integration step 

@@ -38,11 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOglrRenderer - SGI OpenGL renderer
+// .NAME vtkOglrRenderer - OpenGL renderer
 // .SECTION Description
 // vtkOglrRenderer is a concrete implementation of the abstract class
-// vtkRenderer. vtkOglrRenderer interfaces to the Silicon Graphics OpenGL
-// graphics library.
+// vtkRenderer. vtkOglrRenderer interfaces to the OpenGL graphics library.
 
 #ifndef __vtkOglrRenderer_hh
 #define __vtkOglrRenderer_hh

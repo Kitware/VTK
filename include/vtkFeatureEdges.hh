@@ -47,6 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // dihedral angle > FeatureAngle). These edges may be extracted in any
 // combination. Edges may also be "colored" (i.e., scalar values assigned)
 // based on edge type.
+// .SECTION See Also
+// vtkFeatureVertices
 
 #ifndef __vtkFeatureEdges_h
 #define __vtkFeatureEdges_h

@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // point attribute data (e.g., scalars, vectors, normals, texture 
 // coordinates, etc.) Special methods are provided to work with filter
 // objects such as passing data through filter, copying data from one 
-// point to another, and interpolating data given shape functions.
+// point to another, and interpolating data given cell interpolation weights.
 
 #ifndef __vtkPointData_h
 #define __vtkPointData_h

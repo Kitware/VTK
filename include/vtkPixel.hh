@@ -42,7 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkPixel is a concrete implementation of vtkCell to represent a 2D
 // orthogonal quadrilateral. Unlike vtkQuad, the corners are at right angles,
-// leading to large increases in computational efficiency.
+// and aligned along x-y-z coordinate axes leading to large increases in 
+// computational efficiency. 
 
 #ifndef __vtkPixel_h
 #define __vtkPixel_h

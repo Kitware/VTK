@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOglrCamera - SGI OpenGL camera
+// .NAME vtkOglrCamera - OpenGL camera
 // .SECTION Description
 // vtkOglrCamera is a concrete implementation of the abstract class vtkCamera.
-// vtkOglrCamera interfaces to the Silicon Graphics OpenGL rendering library.
+// vtkOglrCamera interfaces to the OpenGL rendering library.
 
 #ifndef __vtkOglrCamera_hh
 #define __vtkOglrCamera_hh

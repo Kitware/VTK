@@ -57,11 +57,11 @@ class vtkIdList : public vtkObject
   vtkIdList &operator=(const vtkIdList& ids) {this->Ia = ids.Ia; return *this;};
   void Squeeze() {this->Ia.Squeeze();};
 
-  int GetNumberOfIds() {return (this->Ia.GetMaxId() + 1);};
-  int GetId(const int i) {return this->Ia[i];};
-  void SetId(const int i, const int id) {this->Ia[i]=id;};
-  void InsertId(const int i, const int id) {this->Ia.InsertValue(i,id);};
-  int InsertNextId(const int id) {return this->Ia.InsertNextValue(id);};
+  int GetNumberOfIds();
+  int GetId(const int i);
+  void SetId(const int i, const int id);
+  void InsertId(const int i, const int id);
+  int InsertNextId(const int id);
   int getChunk(const int sz);
   void Reset() {this->Ia.Reset();};
 
@@ -74,6 +74,44 @@ protected:
   vtkIntArray Ia;
 };
 
+// Description:
+// Return the number of id's in the list.
+inline int vtkIdList::GetNumberOfIds() 
+{
+  return (this->Ia.GetMaxId() + 1);
+}
+
+// Description:
+// Return the id at location i.
+inline int vtkIdList::GetId(const int i) 
+{
+  return this->Ia[i];
+}
+
+// Description:
+// Set the id at location i. Doesn't do range checking.
+inline void vtkIdList::SetId(const int i, const int id) 
+{
+  this->Ia[i]=id;
+}
+
+// Description:
+// Set the id at location i. Does range checking and allocates memory
+// as necessary.
+inline void vtkIdList::InsertId(const int i, const int id) 
+{
+  this->Ia.InsertValue(i,id);
+}
+
+// Description:
+// Add the id specified to the end of the list. Range checking is performed.
+inline int vtkIdList::InsertNextId(const int id) 
+{
+  return this->Ia.InsertNextValue(id);
+}
+
+// Description:
+// Get a piece of memory to write into. Allocates memory as necessary.
 inline int vtkIdList::getChunk(const int sz) 
 { // get chunk of memory
   int pos = this->Ia.GetMaxId()+1;
@@ -81,6 +119,8 @@ inline int vtkIdList::getChunk(const int sz)
   return pos;
 }
 
+// Description:
+// Return 1 if id specified is contained in list; 0 otherwise.
 inline int vtkIdList::IsId(int id)
 {
   for(int i=0; i<this->GetNumberOfIds(); i++) 

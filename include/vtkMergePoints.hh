@@ -44,6 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The primary difference between vtkMergePoints and its superclass
 // vtkLocator is that vtkMergePoints merges precisely coincident points
 // and is therefor much faster.
+// .SECTION See Also
+// vtkCleanPolyData
 
 #ifndef __vtkMergePoints_h
 #define __vtkMergePoints_h

@@ -40,10 +40,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkAGraymap - scalar data in intensity + alpha (grayscale + opacity) form
 // .SECTION Description
-// vtkAGraymap is a concrete implementation of vtkScalars. vtkAGraymap 
+// vtkAGraymap is a concrete implementation of vtkColorScalars. vtkAGraymap 
 // represents scalars using one value for intensity (grayscale) and
 // one value for alpha (opacity). The intensity and alpha values range 
 // between (0,255) (i.e., an unsigned char value).
+//
+// If you use the method SetColor() (inherited from superclass vtkColorScalars)
+// the rgba components are converted to intensity-alpha using the standard
+// luminance equation Luminance = 0.30*red + 0.59*green + 0.11*blue.
+// .SECTION See Also
+// vtkGraymap vtkPixmap vtkAPixmap vtkBitmap
 
 #ifndef __vtkAGraymap_h
 #define __vtkAGraymap_h
@@ -135,7 +141,8 @@ inline int vtkAGraymap::InsertNextColor(unsigned char rgba[4])
 }
 
 // Description:
-// Get pointer to array of data starting at data position "id".
+// Get pointer to array of data starting at data position "id". Form of
+// data is a list of repeated intensity/alpha pairs.
 inline unsigned char *vtkAGraymap::GetPtr(const int id)
 {
   return this->S.GetPtr(2*id);

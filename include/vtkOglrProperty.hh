@@ -38,11 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOglrProperty - SGI OpenGL property
+// .NAME vtkOglrProperty - OpenGL property
 // .SECTION Description
 // vtkOglrProperty is a concrete implementation of the abstract class 
-// vtkProperty. vtkOglrProperty interfaces to the Silicon Graphics 
-// OpenGL rendering library.
+// vtkProperty. vtkOglrProperty interfaces to the OpenGL rendering library.
 
 #ifndef __vtkOglrProperty_hh
 #define __vtkOglrProperty_hh

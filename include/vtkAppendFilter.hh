@@ -46,6 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // only if all datasets have the point attributes available. (For example, 
 // if one dataset has scalars but another does not, scalars will not be 
 // appended.)
+// .SECTION See Also
+// vtkAppendPolyData
 
 #ifndef __vtkAppendFilter_h
 #define __vtkAppendFilter_h

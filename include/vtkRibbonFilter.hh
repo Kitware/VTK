@@ -49,7 +49,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // The input line must not have duplicate points, or normals at points that
 // are parallel to the incoming/outgoing line segments. (Duplicate points
-// can be removed with vtkCleanPolyData).
+// can be removed with vtkCleanPolyData.)
+// .SECTION See Also
+// vtkTubeFilter
 
 #ifndef __vtkRibbonFilter_h
 #define __vtkRibbonFilter_h

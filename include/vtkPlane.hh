@@ -66,9 +66,14 @@ public:
   float EvaluateFunction(float x[3]);
   void EvaluateGradient(float x[3], float g[3]);
 
+  // Description:
+  // Set/get plane normal. Plane is defined by point and normal.
   vtkSetVector3Macro(Normal,float);
   vtkGetVectorMacro(Normal,float,3);
 
+  // Description:
+  // Set/get point through which plane passes. Plane is defined by point 
+  // and normal.
   vtkSetVector3Macro(Origin,float);
   vtkGetVectorMacro(Origin,float,3);
 

@@ -44,8 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // points dataset. As each point is injected, it "splats" or distributes 
 // values to neighboring voxels in the structured points dataset. Data is
 // distributed using a Gaussian distribution function. The distribution
-// function is modified using scalar values (expands distribution) or normals
-// (creates ellipsoidal distribution rather than spherical).
+// function is modified using scalar values (expands distribution) or 
+// normals/vectors (creates ellipsoidal distribution rather than spherical).
 
 #ifndef __vtkGaussianSplatter_h
 #define __vtkGaussianSplatter_h

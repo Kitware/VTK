@@ -70,7 +70,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // their own representation of the integration path (i.e., lines, dashed 
 // lines, points, etc.).
 // .SECTION See Also
-// vtkStreamLine, vtkDashedStreamLine, vtkStreamPoints
+// vtkStreamLine vtkDashedStreamLine vtkStreamPoints
 
 #ifndef __vtkStreamer_h
 #define __vtkStreamer_h

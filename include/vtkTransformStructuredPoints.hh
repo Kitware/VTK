@@ -46,8 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // to a user  specified transformation object. The point is used to sample
 // the input. If the point does not fall inside the input structured point 
 // set, then the point is assigned a fill value (user specified). Otherwise,
-// tri-linear interpolation is used to assign the value. (This object is 
-// used to support the computation of swept surfaces and volumes).
+// tri-linear interpolation is used to assign the value.
 
 #ifndef __vtkTransformStructuredPoints_h
 #define __vtkTransformStructuredPoints_h

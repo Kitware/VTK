@@ -40,8 +40,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkBitmap - scalar data in bitmap form
 // .SECTION Description
-// vtkBitmap is a concrete implementation of vtkScalars. Scalars are
+// vtkBitmap is a concrete implementation of vtkColorScalars. Scalars are
 // represented using a packed character array of (0,1) values.
+//
+// If you use the method SetColor() (inherited method) the conversion to bit 
+// value is as follows. Any non-black color is set "on" and black is set "off".
+// .SECTION See Also
+// vtkGraymap vtkAGraymap vtkPixmap vtkAPixmap 
 
 #ifndef __vtkBitmap_h
 #define __vtkBitmap_h

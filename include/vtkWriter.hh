@@ -43,6 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkWriter is an abstract class for mapper objects that write their data
 // to disk (or into a communications port). All writers respond to Write()
 // method. This method insures that there is input and input is up to date.
+//
+// vtkWriter provides the convenience methods StartWrite() and EndWrite().
+// These methods are executed before and after execution of the Write() 
+// method. You can also specify arguments to these methods.
 // .SECTION Caveats
 // Every subclass of vtkWriter must implement a WriteData() method. Most likely
 // will have to create SetInput() method as well.

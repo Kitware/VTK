@@ -43,6 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImplicitModeller is a filter that computes the distance from the input
 // geometry on a structured point set. This distance function can then be
 // "contoured" to generate new, offset surfaces from the original geometry.
+// .SECTION See Also
+// vtkSampleFunction
 
 #ifndef __vtkImplicitModeller_h
 #define __vtkImplicitModeller_h

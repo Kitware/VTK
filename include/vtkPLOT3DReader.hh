@@ -84,7 +84,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // a function of this class's gas constants (R, Gamma) and the equations used.
 // They may not be suitable for your computational domain.
 //
-//    The format of the function file is as follows. An integer indicating 
+// The format of the function file is as follows. An integer indicating 
 // number of grids, then an integer specifying number of functions per each 
 // grid. This is followed by the (integer) dimensions of each grid in the 
 // file. Finally, for each grid, and for each function, a float value per 

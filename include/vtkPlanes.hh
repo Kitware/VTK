@@ -70,9 +70,14 @@ public:
   float EvaluateFunction(float x[3]);
   void EvaluateGradient(float x[3], float n[3]);
 
+  // Description:
+  // Specify a list of points defining points through which the planes pass.
   vtkSetRefCountedObjectMacro(Points,vtkPoints);
   vtkGetObjectMacro(Points,vtkPoints);
 
+  // Description:
+  // Specify a list of normal vectors for the planes. There is a one-to-one
+  // correspondance between plane points and plane normals.
   vtkSetRefCountedObjectMacro(Normals,vtkNormals);
   vtkGetObjectMacro(Normals,vtkNormals);
 

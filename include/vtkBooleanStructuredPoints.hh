@@ -44,6 +44,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // two or more input structured point sets. Operations supported include union,
 // intersection, and difference. A special method is provided that allows 
 // incremental appending of data to the filter output.
+// .SECTION Caveats
+// To boolean two structured point datasets together requires that the 
+// dimensions of each dataset is identical. The origin and aspect ratio are 
+// ignored.
 
 #ifndef __vtkBooleanStructuredPoints_h
 #define __vtkBooleanStructuredPoints_h

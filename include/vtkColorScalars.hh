@@ -45,15 +45,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // In order to be a vtkScalar subclass, vtkColorScalars must be able to 
 // return a single value given a point id. By default, this operation is 
-// performed by computing intensity as the single value. Concrete subclasses 
-// of vtkColorScalars may have additional methods to convert multi-dimensional
-// color information into a single scalar value.
+// performed by computing luminance (or equivalent) as the single value. 
+// Concrete subclasses of vtkColorScalars may have additional methods to 
+// convert multi-dimensional color information into a single scalar value.
 // .SECTION Caveats
 // Derived classes of vtkColorScalars treat colors differently. All derived 
 // classes will return a rgba (red-green-blue-alpha transparency) array in
 // response to "GetColor()" methods. However, when setting colors, the rgba
-// data may be converted to internal form. For example, a vtkGrayMap just
-// takes the maximum component of rgb and uses that as its gray value.
+// data is converted to internal form. For example, a vtkGrayMap converts
+// rgba into a luminance value and stores that.
 
 #ifndef __vtkColorScalars_h
 #define __vtkColorScalars_h

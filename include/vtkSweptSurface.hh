@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // structured point dataset) and the output is a structured point dataset 
 // (i.e., an implicit representation of the swept surface). If you wish to
 // generate a polygonal representation of swept surface you will have to 
-// use a contouring filter (e.g., vtkMarchingCubes). (You may also wish to
+// use a contouring filter (e.g., vtkContourFilter). (You may also wish to
 // use vtkDecimate to reduce mesh size).
 //
 // The swept surface algorithm can be summarized as follows. A geometry 

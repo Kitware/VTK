@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkQuad - a cell that represents a four sided quadrilateral
+// .NAME vtkQuad - a cell that represents a 2D quadrilateral
 // .SECTION Description
 // vtkQuad is a concrete implementation of vtkCell to represent a 2D 
 // quadrilateral.

@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // "inverse distance weighted". Once the structured points are computed, the 
 // usual visualization techniques can be used visualize the structured points.
 // .SECTION Caveats
-//
 // The input to this filter is any dataset type. This filter can be used 
 // to resample any form of data, i.e., the input data need not be 
 // unstructured. 
@@ -74,9 +73,10 @@ public:
 
   // Description:
   // Specify i-j-k dimensions on which to sample input points.
+  vtkGetVectorMacro(SampleDimensions,int,3);
+
   void SetSampleDimensions(int i, int j, int k);
   void SetSampleDimensions(int dim[3]);
-  vtkGetVectorMacro(SampleDimensions,int,3);
 
   // Description:
   // Specify influence distance of each input point. This distance is a 

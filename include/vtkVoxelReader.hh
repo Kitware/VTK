@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkVoxelReader
+// .NAME vtkVoxelReader - read a binary 0/1 bit voxel file
 // .SECTION Description
 // vtkVoxelReader reads a binary 0/1 bit voxel file. File is written by
 // vtkVoxelModeller.

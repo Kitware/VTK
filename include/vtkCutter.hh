@@ -43,6 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkCutter is a filter to cut through data using any subclass of 
 // vtkImplicitFunction. That is, a polygonal surface is created
 // corresponding to the implicit function F(x,y,z) = 0.
+// .SECTION See Also
+// vtkImplicitFunction
 
 #ifndef __vtkCutter_h
 #define __vtkCutter_h

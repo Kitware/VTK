@@ -41,9 +41,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkCellList - object provides direct access to cells in vtkCellArray
 // .SECTION Description
 // Supplemental object to vtkCellArray to allow random access into cells.
-// The "location" field is the location in the vtkCellArray list in terms of an 
-// integer offset.  An integer offset was used instead of a pointer for easy 
-// storage and inter-process communication.
+// The "location" field is the location in the vtkCellArray list in terms of 
+// an integer offset.  An integer offset was used instead of a pointer for 
+// easy storage and inter-process communication.
+// .SECTION See Also
+// vtkCellArray vtkLinkList
 
 #ifndef __vtkCellList_h
 #define __vtkCellList_h

@@ -41,15 +41,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkTexture - handles properties associated with a texture map
 // .SECTION Description
 // vtkTexture is an object that handles loading and binding of texture
-// maps. It obtains its data from a StructuredPoints input. Multiple 
-// actors using the same texture map should share the same vtkTexture
-// object.  This reduces the amount of memory being used. Currently
-// only 2D texture maps are supported even though the data pipeline
-// supports 1,2, and 3D texture coordinates. Some renderers such as
-// OpenGL require that a texture map be a power of two so be warned.
-
+// maps. It obtains its data from an input structured points dataset type.
+// Thus you can create visualization pipelines to read, process, and 
+// construct textures. Note that textures will only work if texture
+// coordinates are also defined, and if the rendering system supports 
+// texture.
+//
+// Instances of vtkTexture are associated with actors via the actor's
+// SetTexture() method. Actors can share texture maps (this is encouraged
+// to save memory resources.) 
+// .SECTION Caveats
+// Currently only 2D texture maps are supported even though the data pipeline
+// supports 1,2, and 3D texture coordinates. 
+// 
+// Some renderers such as OpenGL require that the texture map dimensions are
+// a power of two in each direction. Other renderers may have similar
+// (ridiculous) restrictions so be careful out there...
 // .SECTION See Also
-// vtkRenderer vtkTextureDevice
+// vtkActor vtkRenderer vtkTextureDevice
 
 #ifndef __vtkTexture_hh
 #define __vtkTexture_hh
@@ -69,8 +78,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Renders a texture map. It first checks the MTimes to make sure
-  // the texture maps Input is valid then it invokes the Load method.
+  // Renders a texture map. It first checks the object's modified time
+  // to make sure the texture maps Input is valid then it invokes the 
+  // Load() method.
   virtual void Render(vtkRenderer *ren);
 
   // Description:

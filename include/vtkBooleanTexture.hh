@@ -53,14 +53,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // (0,0.5-thickness/2).  An out region is where the texture coordinate
 // is (0.5+thickness/2). An on region is between
 // (0.5-thickness/2,0.5+thickness/2). The combination in, on, and out
-// for each of the s-t texture coordinates results in 8 possible
-// combinations. For each combination, a different value of intensity
-// and transparency can be assigned. To assign maximum intensity
+// for each of the s-t texture coordinates results in 16 possible
+// combinations (see text). For each combination, a different value of 
+// intensity and transparency can be assigned. To assign maximum intensity
 // and/or opacity use the value 255. A minimum value of 0 results in
 // a black region (for intensity) and a fully transparent region (for
 // transparency).
 // .SECTION See Also
-// vtkImplicitTextureCoords
+// vtkImplicitTextureCoords vtkThresholdTextureCoords
 
 #ifndef __vtkBooleanTexture_h
 #define __vtkBooleanTexture_h

@@ -45,13 +45,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // through the filter. This filter is specialized for polygonal data. See
 // vtkTransformFilter for more general data.
 //
-// (An alternative method of transformation is to use vtkActors methods
+// An alternative method of transformation is to use vtkActors methods
 // to scale, rotate, and translate objects. The difference between the
 // two methods is that vtkActor's transformation simply effects where
 // objects are rendered (via the graphics pipeline), whereas
 // vtkTransformPolyFilter actually modifies point coordinates in the 
 // visualization pipeline. This is necessary for some objects 
-// (e.g., vtkProbeFilter) that require point coordinates as input).
+// (e.g., vtkProbeFilter) that require point coordinates as input.
+// .SECTION See Also
+// vtkTransform vtkTransformFilter vtkActor
 
 #ifndef __vtkTransformPolyFilter_h
 #define __vtkTransformPolyFilter_h

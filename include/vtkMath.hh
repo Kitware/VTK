@@ -77,15 +77,8 @@ public:
   float Random();  
   float Random(float min, float max);
 
-  // Solution of linear equations
-  void SingularValueDecomposition(double **a, int m, int n, 
-                                  double *w, double **v);
-  void SingularValueBackSubstitution(double **u, double *w, double **v,
-                                     int m, int n, double *b, double *x);
-
-  // Eigenvalue/vector extraction
-  int Jacobi(float **a, int n, float *d, float **v, int *nrot);
-  void Eigsrt(float *d, float **v, int n);
+  // Eigenvalue/vector extraction for 3x3 matrices
+  int Jacobi(float **a, float *d, float **v);
 
 protected:
   static long Seed;

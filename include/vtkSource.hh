@@ -38,12 +38,36 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkSource - abstract class specifies interface of data sources
+// .NAME vtkSource - abstract class specifies interface for visualization network source (or objects that generate output data)
 // .SECTION Description
 // vtkSource is an abstract object that specifies behavior and interface
 // of source objects. Source objects are objects that begin visualization
 // pipeline. Sources include readers (read data from file or communications
-// port) and procedural sources (generate data programmatically).
+// port) and procedural sources (generate data programmatically). vtkSource 
+// objects are also objects that generate output data. In this sense
+// vtkSource is used as a superclass to vtkFilter.
+//
+// Concrete subclasses of vtkSource must define Update() and Execute() 
+// methods. The public method Update() invokes network execution and will
+// bring the network up-to-date. The protected Execute() method actually
+// does the work of data creation/generation. The difference between the two
+// methods is that Update() implements input consistency checks and modified
+// time comparisons and then invokes the Execute() which is an implementation 
+// of a particular algorithm.
+//
+// vtkSource provides a mechanism for invoking the methods StartMethod() and
+// EndMethod() before and after object execution (via Execute()). These are
+// convenience methods you can use for any purpose (e.g., debugging info,
+// highlighting/notifying user interface, etc.) These methods accept a single
+// void* pointer that can be used to send data to the methods. It is also
+// possible to specify a function to delete the argument via 
+// StartMethodArgDelete and EndMethodArgDelete.
+//
+// An important feature of subclasses of vtkSource is that it is possible 
+// to control the memory-management model (i.e., retain output versus delete
+// output data). If enabled the ReleaseDataFlag enables the deletion of the
+// output data once the downstream process object finishes processing the
+// data (please see text).
 
 #ifndef __vtkSource_h
 #define __vtkSource_h

@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // and finding the closest point.
 // .SECTION Caveats
 // Many other types of spatial locators have been developed such as 
-// octrees and k-d trees. These are often more efficient for the 
+// octrees and kd-trees. These are often more efficient for the 
 // operations described here.
 
 #ifndef __vtkLocator_h

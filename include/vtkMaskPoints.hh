@@ -43,7 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkMaskPoints is a filter that passes through points and point attributes 
 // from input dataset. (Other geometry is not passed through). It is 
 // possible to mask every nth point, and to specify an initial offset
-// to begin masking from.
+// to begin masking from. A special random mode feature enables random 
+// selection of points.
 
 #ifndef __vtkMaskPoints_h
 #define __vtkMaskPoints_h

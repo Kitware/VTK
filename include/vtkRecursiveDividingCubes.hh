@@ -46,15 +46,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // clouds can be used as a source to generate streamlines or to generate 
 // "transparent" surfaces.
 //
-//  This implementation differs from vtkDividingCubes in that it uses a 
-// recursive procedure. For non-cubical voxels, this can result in generating 
+// This implementation differs from vtkDividingCubes in that it uses a 
+// recursive procedure. In many cases this can result in generating 
 // more points than the procedural implementation of vtkDividingCubes. This is
 // because the recursive procedure divides voxels by multiples of powers of 
 // two. This can over constrain subdivision. One of the advantages of the 
 // recursive technique is that the recursion is terminated earlier which in
 // some cases can be more efficient.
 // .SECTION See Also
-// vtkDividingCubes, vtkContourFilter, vtkMarchingCubes
+// vtkDividingCubes vtkContourFilter vtkMarchingCubes
 
 #ifndef __vtkRecursiveDividingCubes_h
 #define __vtkRecursiveDividingCubes_h

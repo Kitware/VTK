@@ -38,11 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOglrTexture - SGI OpenGL texture map
+// .NAME vtkOglrTexture - OpenGL texture map
 // .SECTION Description
 // vtkOglrTexture is a concrete implementation of the abstract class 
-// vtkTexture. vtkOglrTexture interfaces to the Silicon Graphics OpenGL 
-// rendering library.
+// vtkTexture. vtkOglrTexture interfaces to the OpenGL rendering library.
 
 #ifndef __vtkOglrTexture_hh
 #define __vtkOglrTexture_hh

@@ -41,7 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkMergeFilter - extract separate components of data from different datasets
 // .SECTION Description
 // vtkMergeFilter is a filter that extracts separate components of data from
-// different datasets and merges them into a single dataset.
+// different datasets and merges them into a single dataset. The output from
+// this filter is of the same type as the input (i.e., vtkDataSet.)
 
 #ifndef __vtkMergeFilter_h
 #define __vtkMergeFilter_h

@@ -46,6 +46,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // used as a source to generate streamlines or to generate "transparent"
 // surfaces. This filter is based on the generate program written by
 // H. Cline, S. Ludke and W. Lorensen.
+//
+// The density of the point cloud is controlled by the Distance instance 
+// variable. This is a distance value in global coordinates specifying the 
+// approximate distance between points.
 
 #ifndef __vtkDividingCubes_h
 #define __vtkDividingCubes_h

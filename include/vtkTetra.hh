@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkTetra - a cell that represents a tetrahedron
+// .NAME vtkTetra - a 3D cell that represents a tetrahedron
 // .SECTION Description
 // vtkTetra is a concrete implementation of vtkCell to represent a 3D
 // tetrahedron.

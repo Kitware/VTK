@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkConnectivityFilter - extract geometry based on geometric connectivity
+// .NAME vtkConnectivityFilter - extract data based on geometric connectivity
 // .SECTION Description
 // vtkConnectivityFilter is a filter that extracts cells that share common 
 // points. The filter works in one of four ways: 1) extract the largest
@@ -80,8 +80,9 @@ public:
   void DeleteSeed(int id);
 
   // Description:
-  // Extraction algorithm works recursively. In some systems the stack depth
-  // is limited. This methods specifies the maximum recursion depth.
+  // The connectivity extraction algorithm works recursively. In some systems 
+  // the stack depth is limited. This methods specifies the maximum recursion 
+  // depth.
   vtkSetClampMacro(MaxRecursionDepth,int,10,VTK_LARGE_INTEGER);
   vtkGetMacro(MaxRecursionDepth,int);
 

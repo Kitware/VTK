@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // When vtkGeometryFilter extracts cells (or boundaries of cells) it may create
 // duplicate points. Use vtkCleanPolyData to merge duplicate points.
 // .SECTION See Also
-// vtkStructuredPointsGeometryFilter, vtkStructuredGridGeometryFilter
+// vtkStructuredPointsGeometryFilter vtkStructuredGridGeometryFilter
 
 #ifndef __vtkGeometryFilter_h
 #define __vtkGeometryFilter_h

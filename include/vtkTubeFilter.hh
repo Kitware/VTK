@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkTubeFilter is a filter that generates a tube around each input line. 
 // The tubes are made up of triangle strips and rotate around the tube with
 // the rotation of the line normals. (If no normals are present, they are
-// computed automatically). The radius of the tube can be set to vary with 
+// computed automatically.) The radius of the tube can be set to vary with 
 // scalar or vector value. If the radius varies with scalar value the radius
 // is linearly adjusted. If the radius varies with vector value, a mass
 // flux preserving variation is used. The number of sides for the tube can 
@@ -55,6 +55,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The input line must not have duplicate points, or normals at points that
 // are parallel to the incoming/outgoing line segments. (Duplicate points
 // can be removed with vtkCleanPolyData).
+// .SECTION See Also
+// vtkRibbonFilter
 
 #ifndef __vtkTubeFilter_h
 #define __vtkTubeFilter_h

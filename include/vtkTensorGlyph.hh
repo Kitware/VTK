@@ -52,21 +52,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // lies along the major eigenvector, y-axis along the medium eigenvector, and
 // z-axis along the minor.
 //
-//  A scale factor is provided to control the amount of scaling. Also, you 
-// can turn off scaling completely if desired. The boolean variable ClampScaling
-// controls whether the scaling is performed logarithmically. That is, the
-// log base 10 of the scale factors (i.e., absolute values of eigenvalues)
-// are used. This is useful in certain applications where singularities or 
-// large order of magnitude differences exist in the eigenvalues.
+// A scale factor is provided to control the amount of scaling. Also, you 
+// can turn off scaling completely if desired. The boolean variable 
+// ClampScaling controls the maximum scaling (in conjunection with
+// MaxScaleFactor.) This is useful in certain applications where 
+// singularities or large order of magnitude differences exist in 
+// the eigenvalues.
 //
 // Another instance variable, ExtractEigenvalues, has been provided to 
 // control extraction of eigenvalues/eigenvectors. If this boolean is false,
 // then eigenvalues/eigenvectors are not extracted, and the columns of the
-// matrix are taken as the eigenvectors (norm of column is eigenvalue). 
+// tensor are taken as the eigenvectors (norm of column is eigenvalue). 
 // This allows additional capability over the vtkGlyph3D object. That is, the
 // glyph can be oriented in three directions instead of one.
 // .SECTION See Also
-// vtkGlyph3D, vtkPointLoad, vtkHyperStreamline
+// vtkGlyph3D vtkPointLoad vtkHyperStreamline
 
 #ifndef __vtkTensorGlyph_h
 #define __vtkTensorGlyph_h
@@ -114,8 +114,9 @@ public:
   vtkBooleanMacro(ColorGlyphs,int);
 
   // Description:
-  // Turn on/off logarithmic scaling. If scaling is on, the log base 10
-  // of the original scale factors are used to scale the glyphs.
+  // Turn on/off scalar clamping. If scalar clamping is on, the ivar
+  // MaxScaleFactor is used to control the maximum scale factor. (This is
+  // useful to prevent uncontrolled scaling near singularities.)
   vtkSetMacro(ClampScaling,int);
   vtkGetMacro(ClampScaling,int);
   vtkBooleanMacro(ClampScaling,int);

@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // returns the id of the closest cell within the tolerance along the pick
 // ray, and the dataset that was picked.
 // .SECTION See Also
-// For quick picking, see vtkPicker. To pick points, see vtkPointPicker.
+// vtkPicker vtkPointPicker
 
 #ifndef __vtkCellPicker_h
 #define __vtkCellPicker_h
@@ -69,7 +69,7 @@ public:
   vtkGetMacro(SubId,int);
 
   // Description:
-  // Get the parametric coordinates of the picked cell. Only valid is 
+  // Get the parametric coordinates of the picked cell. Only valid if 
   // pick was made.
   vtkGetVectorMacro(PCoords,float,3);
 

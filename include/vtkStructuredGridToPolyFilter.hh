@@ -40,9 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkStructuredGridToPolyFilter - abstract filter class
 // .SECTION Description
-// vtkStructuredGridToPolyFilter are filters whose subclasses take as input
-// structured data (e.g., structured points, structured grid) and generate
-// polygonal data on output.
+// vtkStructuredGridToPolyFilter is a filter whose subclasses take as input
+// structured grid datasets and generate polygonal data on output. 
 
 #ifndef __vtkStructuredGridToPolyFilter_h
 #define __vtkStructuredGridToPolyFilter_h

@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOglrLight - SGI OpenGL light
+// .NAME vtkOglrLight - OpenGL light
 // .SECTION Description
 // vtkOglrLight is a concrete implementation of the abstract class vtkLight.
-// vtkOglrLight interfaces to the Silicon Graphics OpenGL rendering library.
+// vtkOglrLight interfaces to the OpenGL rendering library.
 
 #ifndef __vtkOglrLight_hh
 #define __vtkOglrLight_hh

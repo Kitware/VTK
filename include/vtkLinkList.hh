@@ -45,6 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of Links, each link represents a dynamic list of cell id's using the 
 // point. The information provided by this object can be used to determine 
 // neighbors and construct other local topological information.
+// .SECTION See Also
+// vtkCellArray vtkCellList
 
 #ifndef __vtkLinkList_h
 #define __vtkLinkList_h

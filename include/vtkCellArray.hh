@@ -51,6 +51,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // random access.  This functionality (when necessary) is accomplished by 
 // using the vtkCellList and vtkLinkList objects to extend the definition of 
 // the data structure.
+// .SECTION See Also
+// vtkCellList vtkLinkList
 
 #ifndef __vtkCellArray_h
 #define __vtkCellArray_h
@@ -78,6 +80,7 @@ public:
   int GetNextCell(int& npts, int* &pts);
 
   int GetSize();
+  int GetNumberOfConnectivityEntries();
   void GetCell(int loc, int &npts, int* &pts);
 
   // methods to insert cells. Can be used in combination.
@@ -212,12 +215,12 @@ inline void vtkCellArray::Reset()
 inline void vtkCellArray::Squeeze() {this->Ia.Squeeze();}
 
 // Description:
-// Cell traversal methods that are more efficient than vtkDataSet traversal
+// A cell traversal methods that is more efficient than vtkDataSet traversal
 // methods.  InitTraversal() initializes the traversal of the list of cells.
 inline void vtkCellArray::InitTraversal() {this->Location=0;}
 
 // Description:
-// Cell traversal methods that are more efficient than vtkDataSet traversal
+// A cell traversal methods that is more efficient than vtkDataSet traversal
 // methods.  GetNextCell() gets the next cell in the list. If end of list
 // is encountered, 0 is returned.
 inline int vtkCellArray::GetNextCell(int& npts, int* &pts)
@@ -236,8 +239,17 @@ inline int vtkCellArray::GetNextCell(int& npts, int* &pts)
 }
 
 // Description:
-// Get the size of the allocated data.
+// Get the size of the allocated connectivity array.
 inline int vtkCellArray::GetSize() {return Ia.GetSize();};
+
+// Description:
+// Get the total number of entries (i.e., data values) in the connectivity 
+// array. This may be much less than the allocated size (i.e., return value 
+// from GetSize().)
+inline int vtkCellArray::GetNumberOfConnectivityEntries() 
+{
+  return Ia.GetMaxId()+1;
+}
 
 // Description:
 // Internal method used to retrieve a cell given an offset into

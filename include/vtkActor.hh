@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkActor - represents an object (geometry & properties) in a scene 
+// .NAME vtkActor - represents an object (geometry & properties) in a rendered scene 
 // .SECTION Description
 // vtkActor is used to represent an entity in a rendering scene.  It
 // handles functions related to the actors position, orientation and
@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // possibly a texture map.
 
 // .SECTION See Also
-// vtkProperty vtkTexture vtkMapper
+// vtkProperty vtkTexture vtkMapper vtkFollower vtkLODActor
 
 #ifndef __vtkActor_hh
 #define __vtkActor_hh
@@ -76,7 +76,7 @@ class vtkActor : public vtkObject
   // Description: 
   // Set/Get the property object that controls this
   // actors surface properties.  This is should be an instance of a
-  // vtkProperty object.  Every Actor must have a property associated
+  // vtkProperty object.  Every actor must have a property associated
   // with it.  If one isn't specified then one will be generated
   // automatically. Multiple actors can share one property object.
   void SetProperty(vtkProperty *lut);
@@ -84,7 +84,7 @@ class vtkActor : public vtkObject
   vtkProperty *GetProperty();
 
   // Description: 
-  // Set/Get the Texture object to control rendering
+  // Set/Get the texture object to control rendering
   // texture maps.  This will be a vtkTexture object. An actor does
   // not need to have an associated texture map and multiple actors
   // can share one texture.
@@ -93,7 +93,7 @@ class vtkActor : public vtkObject
 
   // Description:
   // This is the method that is used to connect an actor to the end of a
-  // visualization pipeline, i.e. the Mapper. This should be a subclass
+  // visualization pipeline, i.e. the mapper. This should be a subclass
   // of vtkMapper. Typically vtkPolyMapper and vtkDataSetMapper will
   // be used.
   vtkSetObjectMacro(Mapper,vtkMapper);
