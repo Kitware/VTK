@@ -1,8 +1,8 @@
 set NAME skin
-set SLICE_ORDER is
+set SLICE_ORDER hfsi
 set ROWS 470
 set COLUMNS 500
-set STUDY ../slices/frog
+set STUDY ../../../vtkdata/frog/frog
 set PIXEL_SIZE 1
 set SPACING 1.5
 set START_SLICE 1

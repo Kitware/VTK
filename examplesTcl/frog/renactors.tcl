@@ -3,8 +3,8 @@
 #
 
 # get the interactor ui
-source vtkInt.tcl
-source colors.tcl
+source ../vtkInt.tcl
+source ../colors.tcl
 
 proc mkname {a b} {return $a$b}
 
