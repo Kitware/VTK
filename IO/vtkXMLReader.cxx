@@ -28,10 +28,11 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 #include "vtkXMLFileReadTester.h"
+#include "vtkZLibDataCompressor.h"
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.7");
+vtkCxxRevisionMacro(vtkXMLReader, "1.7.2.1");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -184,6 +185,14 @@ void vtkXMLReader::SetupCompressor(const char* type)
     }
   vtkObject* object = vtkInstantiator::CreateInstance(type);
   vtkDataCompressor* compressor = vtkDataCompressor::SafeDownCast(object);
+  
+  // In static builds, the vtkZLibDataCompressor may not have been
+  // registered with the vtkInstantiator.  Check for it here.
+  if(!compressor && (strcmp(type, "vtkZLibDataCompressor") == 0))
+    {
+    compressor = vtkZLibDataCompressor::New();
+    }
+  
   if(!compressor)
     {
     vtkErrorMacro("Error creating " << type);
