@@ -63,6 +63,7 @@ vtkThinPlateSplineMeshWarp::vtkThinPlateSplineMeshWarp()
   this->SourceLandmarks=NULL;
   this->TargetLandmarks=NULL;
   this->Sigma=1.0;
+  this->GenerateDisplacementVectors = 0;
 }
 
 vtkThinPlateSplineMeshWarp::~vtkThinPlateSplineMeshWarp()
@@ -89,7 +90,7 @@ inline double** NewMatrix(int x,int y)
     }
   return m;
 }
-inline void DeleteMatrix(double** m,int x,int y) 
+inline void DeleteMatrix(double** m,int x,int vtkNotUsed(y)) 
 {
   for(int i=0;i<x;i++) 
     {
@@ -131,7 +132,6 @@ inline void TransposeMatrix(double*** m,int x,int y)
     {
     // matrix is not square, must reallocate memory first
     double **result = NewMatrix(y,x);
-    int r,c;
     for(r=0;r<y;r++)
       {
       for(c=0;c<x;c++)
@@ -187,6 +187,9 @@ inline float U(float x,float sigma) {
 
 void vtkThinPlateSplineMeshWarp::Execute()
 {
+  int numPts;
+  vtkVectors *displacements;
+
   if(this->SourceLandmarks==NULL)
     {
     vtkWarningMacro(<<"No source landmarks - output will be empty");
@@ -271,7 +274,16 @@ void vtkThinPlateSplineMeshWarp::Execute()
   vtkPoints *outputPoints = vtkPoints::New();
   output->SetPoints(outputPoints);
   outputPoints->Delete();
-  outputPoints->SetNumberOfPoints(input->GetPoints()->GetNumberOfPoints());
+  numPts = input->GetPoints()->GetNumberOfPoints();
+  outputPoints->SetNumberOfPoints(numPts);
+
+  if (this->GenerateDisplacementVectors)
+    {
+    displacements = vtkVectors::New();
+    displacements->SetNumberOfVectors(numPts);
+    output->GetPointData()->SetVectors(displacements);
+    displacements->Delete();
+    }
 
   double **SOURCE = NewMatrix(D,1); // we know the target, we want the source
   double **UDX = NewMatrix(N+D+1,1);
@@ -293,6 +305,12 @@ void vtkThinPlateSplineMeshWarp::Execute()
     MatrixMultiply(W,UDX,SOURCE,D,N+D+1,N+D+1,1);
     //SOURCE = W*UDX; // would be so effortless...
     output->GetPoints()->SetPoint(j,SOURCE[0][0],SOURCE[1][0],SOURCE[2][0]);
+    if (this->GenerateDisplacementVectors)
+      {
+      displacements->SetVector(j, SOURCE[0][0]-point[0], 
+			          SOURCE[1][0]-point[1], 
+			          SOURCE[2][0]-point[2]);
+      }
     }
 
   DeleteMatrix(UDX,N+D+1,1);
@@ -308,6 +326,7 @@ void vtkThinPlateSplineMeshWarp::PrintSelf(ostream& os, vtkIndent indent)
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
   
   os << indent << "Sigma:" << this->Sigma << "\n";
+  os << indent << "Generate Displacement Vectors: " << (this->GenerateDisplacementVectors ? "On\n" : "Off\n");
   os << indent << "Source Landmarks: " << this->SourceLandmarks << "\n";
   os << indent << "Target Landmarks: " << this->TargetLandmarks << "\n";
 }
