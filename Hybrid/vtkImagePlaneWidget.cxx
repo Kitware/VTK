@@ -38,7 +38,7 @@
 
 #define ABS(x) ((x)<0 ? -(x) : (x))
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.10");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.11");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -790,7 +790,7 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
 
 void vtkImagePlaneWidget::GenerateTexturePlane()
 {
-  this->ImageData = dynamic_cast<vtkImageData *>(this->Input);
+  this->ImageData = (vtkImageData *) this->GetInput();
   if( ! this->ImageData )
     {
     vtkGenericWarningMacro(<<"Must call SetInput() with vtkImageData*!");
