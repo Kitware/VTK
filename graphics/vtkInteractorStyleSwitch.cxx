@@ -144,6 +144,12 @@ void vtkInteractorStyleSwitch::OnMouseMove(int ctrl, int shift, int x, int y)
 void vtkInteractorStyleSwitch::OnLeftButtonDown(int ctrl, int shift, 
 						int x, int y) 
 {
+  if (this->LeftButtonPressMethod) 
+    {
+    (*this->LeftButtonPressMethod)(this->LeftButtonPressMethodArg);
+    return;
+    }
+
   if (this->JoystickOrTrackball == VTKIS_JOYSTICK && 
       this->CameraOrActor == VTKIS_CAMERA)
     {
@@ -170,6 +176,12 @@ void vtkInteractorStyleSwitch::OnLeftButtonDown(int ctrl, int shift,
 void vtkInteractorStyleSwitch::OnLeftButtonUp(int ctrl, int shift,
 					      int x, int y) 
 {
+  if (this->LeftButtonReleaseMethod) 
+    {
+    (*this->LeftButtonReleaseMethod)(this->LeftButtonReleaseMethodArg);
+    return;
+    }
+
   if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
       this->CameraOrActor == VTKIS_CAMERA)
     {
@@ -196,6 +208,12 @@ void vtkInteractorStyleSwitch::OnLeftButtonUp(int ctrl, int shift,
 void vtkInteractorStyleSwitch::OnMiddleButtonDown(int ctrl, int shift, 
 						  int x, int y) 
 {
+  if (this->MiddleButtonPressMethod) 
+    {
+    (*this->MiddleButtonPressMethod)(this->MiddleButtonPressMethodArg);
+    return;
+    }
+
   if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
       this->CameraOrActor == VTKIS_CAMERA)
     {
@@ -221,6 +239,12 @@ void vtkInteractorStyleSwitch::OnMiddleButtonDown(int ctrl, int shift,
 void vtkInteractorStyleSwitch::OnMiddleButtonUp(int ctrl, int shift, 
 						int x, int y) 
 {
+  if (this->MiddleButtonReleaseMethod) 
+    {
+    (*this->MiddleButtonReleaseMethod)(this->MiddleButtonReleaseMethodArg);
+    return;
+    }
+
   if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
       this->CameraOrActor == VTKIS_CAMERA)
     {
@@ -247,6 +271,12 @@ void vtkInteractorStyleSwitch::OnMiddleButtonUp(int ctrl, int shift,
 void vtkInteractorStyleSwitch::OnRightButtonDown(int ctrl, int shift,
 						 int x, int y)
 {
+  if (this->RightButtonPressMethod) 
+    {
+    (*this->RightButtonPressMethod)(this->RightButtonPressMethodArg);
+    return;
+    }
+
   if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
       this->CameraOrActor == VTKIS_CAMERA)
     {
@@ -272,6 +302,12 @@ void vtkInteractorStyleSwitch::OnRightButtonDown(int ctrl, int shift,
 void vtkInteractorStyleSwitch::OnRightButtonUp(int ctrl, int shift,
 					       int x, int y)
 {
+  if (this->RightButtonReleaseMethod) 
+    {
+    (*this->RightButtonReleaseMethod)(this->RightButtonReleaseMethodArg);
+    return;
+    }
+
   if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
       this->CameraOrActor == VTKIS_CAMERA)
     {
