@@ -33,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.29");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.30");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -321,11 +321,11 @@ void vtkClipDataSet::Execute()
         //For each new cell added, got to set the type of the cell
         switch ( cell->GetCellDimension() )
           {
-          case 0: //points are generated-------------------------------
+          case 0: //points are generated--------------------------------
             cellType = (npts > 1 ? VTK_POLY_VERTEX : VTK_VERTEX);
             break;
 
-          case 1: //lines are generated----------------------------------
+          case 1: //lines are generated---------------------------------
             cellType = (npts > 2 ? VTK_POLY_LINE : VTK_LINE);
             break;
 
@@ -334,7 +334,7 @@ void vtkClipDataSet::Execute()
                         (npts == 4 ? VTK_QUAD : VTK_POLYGON));
             break;
 
-          case 3: //tetrahedra or wedges are generated------------------------------
+          case 3: //tetrahedra or wedges are generated------------------
             cellType = (npts == 4 ? VTK_TETRA : VTK_WEDGE);
             break;
           } //switch
