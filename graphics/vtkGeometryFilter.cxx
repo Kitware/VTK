@@ -1063,7 +1063,7 @@ void vtkGeometryFilter::ComputeInputUpdateExtents(vtkDataObject *output)
   numPieces = output->GetUpdateNumberOfPieces();
   ghostLevels = output->GetUpdateGhostLevel();
   
-  if (numPieces > 0)
+  if (numPieces > 1)
     {
     ++ghostLevels;
     }
