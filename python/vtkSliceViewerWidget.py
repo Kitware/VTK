@@ -34,12 +34,15 @@ from Tkinter import *
 import Tkinter
 import math, os
 
-class SliceViewerWidget(Tkinter.Widget):
+class vtkSliceViewerWidget(Tkinter.Widget):
     def __init__(self, master, cnf={}, **kw):
         try: # check for VTK_TK_WIDGET_PATH environment variable
 	    tkWidgetPath = os.environ['VTK_TK_WIDGET_PATH']
         except KeyError:
-            tkWidgetPath = "."
+            if __name__ == "__main__":
+                tkWidgetPath = os.path.dirname(os.path.abspath(sys.argv[0]))
+            else:
+                tkWidgetPath = os.path.abspath(os.path.dirname(__file__))
 
         try: # try specified path or current directory
             master.tk.call('load',os.path.join(tkWidgetPath, \
@@ -414,31 +417,37 @@ class SliceViewerWidget(Tkinter.Widget):
 if __name__ == '__main__':
     # short how-to-use example
 
+    import os
+    try:
+        VTK_DATA = os.environ['VTK_DATA']
+    except KeyError:
+        VTK_DATA = '../../vtkdata/'
+
     reader = vtkImageReader()
     reader.ReleaseDataFlagOff()
     reader.SetDataByteOrderToLittleEndian()
-    reader.SetDataSpacing(1.0,1.0,2.0)
+    reader.SetDataSpacing(1.0,1.0,-2.0)
     reader.SetDataExtent(0,255,0,255,1,93)
-    reader.SetDataOrigin(-127.5,-127.5,-94.0)
-    reader.SetFilePrefix('../../../vtkdata/fullHead/headsq')
+    reader.SetDataOrigin(-127.5,-127.5, 94.0)
+    reader.SetFilePrefix(os.path.join(VTK_DATA,'fullHead/headsq'))
     reader.SetDataMask(0x7fff)
     reader.UpdateWholeExtent()
     
     # set the slice orientation to view
     sagittal = ( 0, 1, 0,
-                 0, 0,-1,
-                -1, 0, 0 )
+                 0, 0, 1,
+                 1, 0, 0 )
     
     coronal =  ( 1, 0, 0,
-                 0, 0,-1,
-                 0, 1, 0 )
+                 0, 0, 1,
+                 0,-1, 0 )
     
     axial =    ( 1, 0, 0,
                  0, 1, 0,
                  0, 0, 1 )    
 
     oblique = vtkTransform()
-    oblique.RotateWXYZ(-50,1,0,0)
+    oblique.RotateWXYZ(-50,1,1,1)
 
     root = Tk()
 
@@ -450,19 +459,19 @@ if __name__ == '__main__':
 
     frame = Frame(root)
     
-    viewer1 = SliceViewerWidget(frame,width=256,height=256)
+    viewer1 = vtkSliceViewerWidget(frame,width=256,height=256)
     viewer1.SetResliceAxes(coronal)
     viewer1.SetInput(reader.GetOutput())
 
-    viewer2 = SliceViewerWidget(frame,width=256,height=256)
+    viewer2 = vtkSliceViewerWidget(frame,width=256,height=256)
     viewer2.SetResliceAxes(sagittal)
     viewer2.SetInput(reader.GetOutput())
 
-    viewer3 = SliceViewerWidget(frame,width=256,height=256)
+    viewer3 = vtkSliceViewerWidget(frame,width=256,height=256)
     viewer3.SetResliceAxes(axial)
     viewer3.SetInput(reader.GetOutput())
 
-    viewer4 = SliceViewerWidget(frame,width=256,height=256)
+    viewer4 = vtkSliceViewerWidget(frame,width=256,height=256)
     viewer4.SetResliceAxes(oblique.GetMatrix())
     viewer4.SetInput(reader.GetOutput())
 
