@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.6");
+vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.7");
 
 //----------------------------------------------------------------------------
 vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
@@ -191,6 +191,13 @@ VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
     
   if (threadId < total)
     {
+    // return if nothing to do
+    if (splitExt[1] < splitExt[0] ||
+        splitExt[3] < splitExt[2] ||
+        splitExt[5] < splitExt[4])
+      {
+      return VTK_THREAD_RETURN_VALUE;
+      }
     str->Filter->ThreadedRequestData(str->Request,
                                      str->InputsInfo, str->OutputsInfo,
                                      str->Inputs, str->Outputs, 
