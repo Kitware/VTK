@@ -48,10 +48,19 @@ vtkHashMap<KeyType,DataType>::NewIterator()
 
 //----------------------------------------------------------------------------
 template<class KeyType, class DataType>
+vtkIdType vtkHashMap<KeyType,DataType>::HashKey(const KeyType& key)
+{
+  return static_cast<vtkIdType>(
+    vtkHashMapHashMethod(key) % 
+    static_cast<unsigned long>(this->NumberOfBuckets) );
+}
+
+//----------------------------------------------------------------------------
+template<class KeyType, class DataType>
 int vtkHashMap<KeyType,DataType>::SetItem(const KeyType& key,
                                           const DataType& data)
 {
-  vtkIdType bucket = vtkHashMapHashMethod(key) % this->NumberOfBuckets;
+  vtkIdType bucket = this->HashKey(key);
   ItemType item = { key, data };
   vtkIdType index=0;
   
@@ -73,8 +82,8 @@ int vtkHashMap<KeyType,DataType>::SetItem(const KeyType& key,
 template<class KeyType, class DataType>
 int vtkHashMap<KeyType,DataType>::RemoveItem(const KeyType& key)
 {
-  vtkIdType bucket = vtkHashMapHashMethod(key) % this->NumberOfBuckets;
-  ItemType item = { key, DataType() };
+  vtkIdType bucket = this->HashKey(key);
+  ItemType item = { k2ey, DataType() };
   vtkIdType index=0;
   
   if(this->Buckets[bucket]->FindItem(item, index) == VTK_OK)
@@ -101,7 +110,7 @@ void vtkHashMap<KeyType,DataType>::RemoveAllItems()
 template<class KeyType, class DataType>
 int vtkHashMap<KeyType,DataType>::GetItem(const KeyType& key, DataType& data)
 {
-  vtkIdType bucket = vtkHashMapHashMethod(key) % this->NumberOfBuckets;
+  vtkIdType bucket = this->HashKey(key);
   ItemType item = { key, DataType() };
   vtkIdType index=0;
   
@@ -247,7 +256,7 @@ void vtkHashMap<KeyType,DataType>::RehashItems(vtkIdType newNumberOfBuckets)
   while(!it->IsDoneWithTraversal())
     {
     it->Iterator->GetData(item);
-    bucket = vtkHashMapHashMethod(item.Key) % newNumberOfBuckets;
+    bucket = this->HashKey(item.Key);
     newBuckets[bucket]->AppendItem(item);
     it->GoToNextItem();
     }

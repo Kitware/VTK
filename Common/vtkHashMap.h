@@ -100,7 +100,7 @@ public:
   // Get the data asociated with the given key.
   // It returns VTK_OK if successfull.
   int GetItem(const KeyType& key, DataType& data);
-  
+
   // Description:
   // Return the number of items currently held in this container.
   vtkIdType GetNumberOfItems() const;
@@ -134,6 +134,10 @@ protected:
   // Change the number of buckets to the given number and re-hash the
   // items.
   void RehashItems(vtkIdType newNumberOfBuckets);
+
+  // Description:
+  // Hash key...
+  vtkIdType HashKey(const KeyType& key);
   
   float MaximumLoadFactor;
   vtkIdType NumberOfItems;
@@ -145,16 +149,20 @@ private:
   void operator=(const vtkHashMap<KeyType,DataType>&); // Not implemented
 };
 
-static inline vtkIdType vtkHashMapHashMethod(int x) { return x; }
-static inline vtkIdType vtkHashMapHashMethod(const char* s)
+static inline unsigned long vtkHashMapHashMethod(int x) 
+{ return static_cast<unsigned long>(x); }
+static inline unsigned long vtkHashMapHashMethod(const char* s)
 {
-  vtkIdType h = 0;
+  unsigned long h = 0;
   for(;*s;++s)
     {
     h = 5*h + *s;
     }
   return h;
 }
+
+static inline unsigned long vtkHashMapHashMethod(vtkObjectBase* o) 
+{ return reinterpret_cast<unsigned long>(o); }
 
 #ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #include "vtkHashMap.txx"
