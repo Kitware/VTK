@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.26");
+vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.26.10.1");
 vtkStandardNewMacro(vtkImageContinuousDilate3D);
 
 //----------------------------------------------------------------------------
@@ -116,7 +116,7 @@ void vtkImageContinuousDilate3D::SetKernelSize(int size0, int size1, int size2)
 template <class T>
 void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
                                        vtkImageData *mask,
-                                       vtkImageData *inData, T *inPtr, 
+                                       vtkImageData *inData, 
                                        vtkImageData *outData, 
                                        int *outExt, T *outPtr, int id,
                                        const char* inputScalars)
@@ -127,7 +127,7 @@ void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
   int outIdx0, outIdx1, outIdx2;
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;
-  T *inPtr0, *inPtr1, *inPtr2;
+  T *inPtr, *inPtr0, *inPtr1, *inPtr2;
   T *outPtr0, *outPtr1, *outPtr2;
   int numComps, outIdxC;
   // For looping through hood pixels
@@ -152,8 +152,8 @@ void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
-  self->GetInput()->GetUpdateExtent(inImageMin0, inImageMax0, inImageMin1,
-                                   inImageMax1, inImageMin2, inImageMax2);
+  inData->GetUpdateExtent(inImageMin0, inImageMax0, inImageMin1,
+                          inImageMax1, inImageMin2, inImageMax2);
   outData->GetIncrements(outInc0, outInc1, outInc2); 
   outMin0 = outExt[0];   outMax0 = outExt[1];
   outMin1 = outExt[2];   outMax1 = outExt[3];
@@ -280,16 +280,11 @@ void vtkImageContinuousDilate3D::ThreadedExecute(vtkImageData *inData,
                                                  vtkImageData *outData, 
                                                  int outExt[6], int id)
 {
-  int inExt[6];
-  this->ComputeInputUpdateExtent(inExt,outExt);
-  void *inPtr;
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;
   vtkDataArray *inArray;
 
   inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
-  // Reset later.
-  inPtr = inArray->GetVoidPointer(0);
 
   // Error checking on mask
   this->Ellipse->GetOutput()->Update();
@@ -311,8 +306,8 @@ void vtkImageContinuousDilate3D::ThreadedExecute(vtkImageData *inData,
 
   switch (inArray->GetDataType())
     {
-    vtkTemplateMacro9(vtkImageContinuousDilate3DExecute, this, 
-                      mask, inData, (VTK_TT *)(inPtr), 
+    vtkTemplateMacro8(vtkImageContinuousDilate3DExecute, this, 
+                      mask, inData,
                       outData, outExt, (VTK_TT *)(outPtr), id,
                       this->InputScalarsSelection);
     default:
