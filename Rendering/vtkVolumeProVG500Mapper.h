@@ -48,47 +48,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // a vtkVolumeProMapper will automatically create the object of the right 
 // type.
 //
-// This class is not included in the contrib Makefile.in by default. If you
+// This class is not included in the Rendering CMakeLists by default. If you
 // want to add this class to your vtk build, you need to have the vli header
-// and library files, and you will need to perform the following steps:
+// and library files, and you will need to perform the following step:
 //
-// 1. Make sure you are building with the contrib kit. On Unix add
-//    --with-contrib to your configure line, on Windows check the
-//   contrib box on PCMaker.
-//
-// 2. Edit the Makefile.in in contrib. Add the following three classes to
-//    the CONCRETE list of classes:  vtkVolumeProVG500Mapper, 
-//    vtkOpenGLVolumeProVG500Mapper. Please be
-//    certain that there are no spaces after the "\" that separates lines.
-//
-// 3. Specify the include path for vli.h to the vtk make process.
-//    For Windows, add the option -I "/path/to/vli/" to the Advanced Options 
-//    Extra Compiler flags of pcmaker.  For example, the following works here:
-//    -I "c:\Program Files/VolumePro/inc" -DVTK_USE_VLI
-//    For UNIX, add the path to USER_CXXFLAGS as a -I option to the compiler.
-//    Or you can edit vtkVolumeProMapper.h and specify the include path
-//    for vli.h, or simply copy the vli.h file to your contrib directory.
-//
-// 4. Add a -DVTK_USE_VLI to the compile options.  
-//    For Windows, add the flag in the Advanced Options Extra Compiler Flags
-//    of pcmaker.  
-//    For Unix, add the flag to USER_CXXFLAGS in user.make.
-//
-// 5. On Windows - add the vli.lib file to the Extra Linker Flags under
-//    the Advanced Options. For example the following works here:
-//    "c:\program files\volumepro\lib\vli.lib"
-//    On Unix - add the vli shared object to the
-//    KIT_LIBS in the Makefile.in in contrib.
-//  
-// 6. On Windows - make sure vli.dll is somewhere in your path before you
-//    run vtk. You can put it in your vtkbin/lib or vtkbin/Debug/lib if
-//    you want. On Unix - make sure the vli shared object is in your
-//    shared library path before you run.
-//
-// 7. Reconfigure and rebuild vtk. You should now be able to create a
-//    vtkVolumeProMapper which, if you have a VolumePRO board and the
-//    device driver is running, should connect to the hardware and render
-//    your volumes quickly.
+// 1. Run cmake, and set the VTK_USE_VOLUMEPRO flag to true, and rebuild
+//   VTK.
 //
 // For more information on the VolumePRO hardware, please see:
 //
@@ -108,7 +73,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVolumeProMapper.h"
 #include "vli.h"
 
-class VTK_RENDERING_EXPORT vtkVolumeProVG500Mapper : public vtkVolumeProMapper
+#ifdef VTK_USE_VOLUMEPRO
+#define VTK_VOLUMEPRO_EXPORT VTK_RENDERING_EXPORT
+#else
+#define VTK_VOLUMEPRO_EXPORT 
+#endif
+
+class VTK_VOLUMEPRO_EXPORT vtkVolumeProVG500Mapper : public vtkVolumeProMapper
 {
 public:
   vtkTypeMacro(vtkVolumeProVG500Mapper,vtkVolumeProMapper);
