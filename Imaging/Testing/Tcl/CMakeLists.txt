@@ -75,6 +75,7 @@ IF (VTK_USE_RENDERING)
         TestStencilWithImage
         TestThreshold
         TestVariance3D
+        TestWipe
         TestWrapPad
 	voxelModel
         )

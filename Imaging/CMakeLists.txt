@@ -83,6 +83,7 @@ vtkImageQuantizeRGBToIndex.cxx
 vtkImageRFFT.cxx
 vtkImageRGBToHSV.cxx
 vtkImageRange3D.cxx
+vtkImageRectilinearWipe.cxx
 vtkImageResample.cxx
 vtkImageReslice.cxx
 vtkImageSeedConnectivity.cxx
