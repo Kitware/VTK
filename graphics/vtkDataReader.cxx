@@ -1947,31 +1947,23 @@ int vtkDataReader::CharacterizeFile()
     return 0;
     }
   
-  //If it's ASCII, read line-by-line looking for key words
-  if ( this->FileType == VTK_ASCII )
-    {
-    char line[256];
-    while (this->ReadLine(line))
+  char line[256];
+  while (this->ReadLine(line))
       {
-      this->CheckFor("scalars", line, this->NumberOfScalarsInFile,
-                     this->ScalarsNameInFile, this->ScalarsNameAllocSize);
-      this->CheckFor("vectors", line, this->NumberOfVectorsInFile,
-                     this->VectorsNameInFile, this->VectorsNameAllocSize);
-      this->CheckFor("tensors", line, this->NumberOfTensorsInFile,
-                     this->TensorsNameInFile, this->TensorsNameAllocSize);
-      this->CheckFor("normals", line, this->NumberOfNormalsInFile,
-                     this->NormalsNameInFile, this->NormalsNameAllocSize);
-      this->CheckFor("tcoords", line, this->NumberOfTCoordsInFile,
-                     this->TCoordsNameInFile, this->TCoordsNameAllocSize);
-      this->CheckFor("ghostlevels", line, this->NumberOfGhostLevelsInFile,
-                     this->GhostLevelsNameInFile, this->GhostLevelsNameAllocSize);
-      this->CheckFor("fielddata", line, this->NumberOfFieldDataInFile,
-                     this->FieldDataNameInFile, this->FieldDataNameAllocSize);
-      }
-    }
-  else //binary
-    {
-    vtkErrorMacro(<<"Can't handle binary yet");
+    this->CheckFor("scalars", line, this->NumberOfScalarsInFile,
+                   this->ScalarsNameInFile, this->ScalarsNameAllocSize);
+    this->CheckFor("vectors", line, this->NumberOfVectorsInFile,
+                   this->VectorsNameInFile, this->VectorsNameAllocSize);
+    this->CheckFor("tensors", line, this->NumberOfTensorsInFile,
+                   this->TensorsNameInFile, this->TensorsNameAllocSize);
+    this->CheckFor("normals", line, this->NumberOfNormalsInFile,
+                   this->NormalsNameInFile, this->NormalsNameAllocSize);
+    this->CheckFor("tcoords", line, this->NumberOfTCoordsInFile,
+                   this->TCoordsNameInFile, this->TCoordsNameAllocSize);
+    this->CheckFor("ghostlevels", line, this->NumberOfGhostLevelsInFile,
+                   this->GhostLevelsNameInFile, this->GhostLevelsNameAllocSize);
+    this->CheckFor("fielddata", line, this->NumberOfFieldDataInFile,
+                   this->FieldDataNameInFile, this->FieldDataNameAllocSize);
     }
 
   this->CloseVTKFile ();
