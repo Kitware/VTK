@@ -206,7 +206,8 @@ void vtkXTextMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 {
   if (this->Input == NULL) 
     {
-    vtkErrorMacro (<<"vtkXTextMapper::Render - No input");
+    vtkDebugMacro (<<"vtkXTextMapper::Render - No input");
+    return;
     }
   
   // Get the window info
