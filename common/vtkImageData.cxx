@@ -301,7 +301,14 @@ void vtkImageData::AllocateScalars()
     }
   
   // if the current type matches the new type then ignore
-  if (vtkGetScalarType(this) == this->ScalarType) return;
+  if (vtkGetScalarType(this) == this->ScalarType) 
+    {
+    this->PointData.GetScalars()->
+      SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
+			 (this->Extent[3] - this->Extent[2] + 1)*
+			 (this->Extent[5] - this->Extent[4] + 1));
+    return;
+    }
   
   // otherwise delete the old data (if any) 
   if (this->PointData.GetScalars())
