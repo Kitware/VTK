@@ -52,6 +52,7 @@ vtkGraphLayoutFilter layout2D
 
 vtkGraphLayoutFilter layout3D
     layout3D SetInput pd
+    layout3D SetMaxNumberOfIterations 100
     layout3D ThreeDimensionalLayoutOn
     layout3D AutomaticBoundsComputationOff
     layout3D SetGraphBounds 0.0 2.0 -1.0 1.0 -1.0 1.0
