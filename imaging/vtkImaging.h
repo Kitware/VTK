@@ -39,6 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
+#include "vtkBMPReader.h"
+#include "vtkBMPWriter.h"
 #include "vtkImageAccumulate.h"
 #include "vtkImageAnisotropicDiffusion2D.h"
 #include "vtkImageAnisotropicDiffusion3D.h"
