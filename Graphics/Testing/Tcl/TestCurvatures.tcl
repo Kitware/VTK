@@ -16,8 +16,8 @@ vtkSuperquadricSource torus
     torus SetScale 1.0 1.0 1.0
     torus SetPhiResolution 64
     torus SetThetaResolution 64
-    torus SetPhiRoundness 0.5
-    torus SetThetaRoundness 0.5
+    torus SetPhiRoundness 1.0
+    torus SetThetaRoundness 1.0
     torus SetThickness 0.5
     torus SetSize 0.5
     torus SetToroidal 1
@@ -43,22 +43,30 @@ vtkCurvatures curve2
     curve2 SetInput [cleaner GetOutput]
     curve2 SetCurvatureTypeToMean
 
-vtkLookupTable lut
-    lut SetNumberOfColors 256
-    lut SetHueRange 0.15 1.0
-    lut SetSaturationRange 1.0 1.0
-    lut SetValueRange 1.0 1.0
-    lut SetAlphaRange 1.0 1.0
-    lut SetRange -20 20
+vtkLookupTable lut1
+    lut1 SetNumberOfColors 256
+    lut1 SetHueRange 0.15 1.0
+    lut1 SetSaturationRange 1.0 1.0
+    lut1 SetValueRange 1.0 1.0
+    lut1 SetAlphaRange 1.0 1.0
+    lut1 SetRange -20 20
+
+vtkLookupTable lut2
+    lut2 SetNumberOfColors 256
+    lut2 SetHueRange 0.15 1.0
+    lut2 SetSaturationRange 1.0 1.0
+    lut2 SetValueRange 1.0 1.0
+    lut2 SetAlphaRange 1.0 1.0
+    lut2 SetRange 0 4
 
 vtkPolyDataMapper cmapper1
     cmapper1 SetInput [curve1 GetOutput]
-    cmapper1 SetLookupTable lut
+    cmapper1 SetLookupTable lut1
     cmapper1 SetUseLookupTableScalarRange 1
 
 vtkPolyDataMapper cmapper2
     cmapper2 SetInput [curve2 GetOutput]
-    cmapper2 SetLookupTable lut
+    cmapper2 SetLookupTable lut2
     cmapper2 SetUseLookupTableScalarRange 1
 
 vtkActor cActor1

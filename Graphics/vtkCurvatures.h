@@ -24,6 +24,7 @@
 // discrete Gauss curvature (K) computation,
 // K(vertex v) = 2*PI-\sum_{facet neighbs f of v} (angle_f at v)
 // The contribution of every facet is for the moment weighted by Area(facet)/3
+// The units of Gaussian Curvature are [1/m^2]
 //
 // Mean Curvature
 // H(vertex v) = average over edges neighbs e of H(e)
@@ -31,6 +32,7 @@
 // NB: dihedral_angle is the ORIENTED angle between -PI and PI,
 // this means that the surface is assumed to be orientable
 // the computation creates the orientation
+// The units of Mean Curvature are [1/m]
 //
 // NB. The sign of the Gauss curvature is a geometric ivariant, it should be +ve
 // when the surface looks like a sphere, -ve when it looks like a saddle,
@@ -68,8 +70,10 @@ public:
 
   // Description:
   // Set/Get Curvature type
-  // VTK_CURVATURE_GAUSS: Gauss curvature K, stored as DataArray "Gauss_Curvature"
-  // VTK_CURVATURE_MEAN : Mean curvature  H, stored as DataArray "Mean_Curvature"
+  // VTK_CURVATURE_GAUSS: Gaussian curvature, stored as
+  // DataArray "Gauss_Curvature"
+  // VTK_CURVATURE_MEAN : Mean curvature, stored as
+  // DataArray "Mean_Curvature"
   vtkSetMacro(CurvatureType,int);
   vtkGetMacro(CurvatureType,int);
   void SetCurvatureTypeToGaussian()
@@ -85,8 +89,6 @@ public:
   vtkBooleanMacro(InvertMeanCurvature,int);
 protected:
   vtkCurvatures();
-  vtkCurvatures(const vtkCurvatures&) {};
-  void operator=(const vtkCurvatures&) {};
 
   // Usual data generation method
   void Execute();
@@ -105,6 +107,8 @@ protected:
   int InvertMeanCurvature;
 
 private:
+  vtkCurvatures(const vtkCurvatures&);  // Not implemented.
+  void operator=(const vtkCurvatures&);  // Not implemented.
 
 };
 

@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkTensor.h"
 
-vtkCxxRevisionMacro(vtkCurvatures, "1.1");
+vtkCxxRevisionMacro(vtkCurvatures, "1.2");
 vtkStandardNewMacro(vtkCurvatures);
 
 //------------------------------------------------------------------------------
@@ -58,6 +58,7 @@ void vtkCurvatures::GetMeanCurvature()
     // Empty array check
     if (mesh->GetNumberOfPolys()==0 || mesh->GetNumberOfPoints()==0)
       {
+      vtkErrorMacro("No points/cells to operate on");
       return;
       }
 
@@ -68,7 +69,6 @@ void vtkCurvatures::GetMeanCurvature()
 
     vtkTriangle* facet;
     vtkTriangle* neighbour;
-    //vtkMath*   op;
     //     create-allocate
     vertices   = vtkIdList::New();
     vertices_n = vtkIdList::New();
@@ -95,10 +95,10 @@ void vtkCurvatures::GetMeanCurvature()
     float vn1[3]; // vertices for computation of neighbour's n
     float vn2[3];
     float e[3];   // edge (oriented)
-    
+
     double cs, sn;    // cs: cos; sn sin
-    double angle, length, Af, Hf, Hl, Hr;  // temporary store
-    
+    double angle, length, Af, Hf;  // temporary store
+
     mesh->BuildLinks();
     //data init
     f = 0;
@@ -160,7 +160,7 @@ void vtkCurvatures::GetMeanCurvature()
           vtkMath::Cross(n_f,n_n,t);
           sn = double(vtkMath::Dot(t,e));
           // signed angle in [-pi,pi]
-          if (sn!=0.0 && cs!=0.0)
+          if (sn!=0.0 || cs!=0.0)
             {
             angle = atan2(sn,cs);
             Hf    = length*angle;
@@ -215,7 +215,7 @@ void vtkCurvatures::GetMeanCurvature()
     neighbour ->Delete();
 
     if (meanCurvature) meanCurvature->Delete();
-    if (num_neighb) delete [] num_neighb; 
+    if (num_neighb) delete [] num_neighb;
 };
 //--------------------------------------------
 #define CLAMP_MACRO(v)    ((v)<(-1) ? (-1) : (v) > (1) ? (1) : v)
@@ -229,6 +229,7 @@ void vtkCurvatures::GetGaussCurvature()
     // Empty array check
     if (output->GetNumberOfPolys()==0 || output->GetNumberOfPoints()==0)
       {
+      vtkErrorMacro("No points/cells to operate on");
       return;
       }
 
@@ -237,14 +238,13 @@ void vtkCurvatures::GetGaussCurvature()
     // other data
     int Nf   = output->GetNumberOfCells ();
     int Nv   = output->GetNumberOfPoints();
-    int nv   = 0;
 
     double* K = new double[Nv];
     double* dA = new double[Nv];
-    
+    double pi2 = 2.0*vtkMath::Pi();
     for (int k = 0; k < Nv; k++)
       {
-      K[k]  = 2*vtkMath::Pi();
+      K[k]  = pi2;
       dA[k] = 0.0;
       }
 
@@ -268,15 +268,19 @@ void vtkCurvatures::GetGaussCurvature()
 
       e2[0] = v0[0] ; e2[1] = v0[1] ; e2[2] = v0[2] ;
       e2[0] -= v2[0]; e2[1] -= v2[1]; e2[2] -= v2[2];
+
       // normalise
       vtkMath::Normalize(e0); vtkMath::Normalize(e1); vtkMath::Normalize(e2);
-
       // angles
       // I get lots of acos domain errors so clamp the value to +/-1 as the
       // normalize function can return 1.000000001 etc (I think)
-      alpha0 = acos(-CLAMP_MACRO(vtkMath::Dot(e1,e2)));
-      alpha1 = acos(-CLAMP_MACRO(vtkMath::Dot(e2,e0)));
-      alpha2 = acos(-CLAMP_MACRO(vtkMath::Dot(e0,e1)));
+      double ac1 = vtkMath::Dot(e1,e2);
+      double ac2 = vtkMath::Dot(e2,e0);
+      double ac3 = vtkMath::Dot(e0,e1);
+      alpha0 = acos(-CLAMP_MACRO(ac1));
+      alpha1 = acos(-CLAMP_MACRO(ac2));
+      alpha2 = acos(-CLAMP_MACRO(ac3));
+
       // surf. area
       A = double(facet->TriangleArea(v0,v1,v2));
       // UPDATE
@@ -293,7 +297,7 @@ void vtkCurvatures::GetGaussCurvature()
     vtkDoubleArray* gaussCurvature = vtkDoubleArray::New();
     gaussCurvature->SetName("Gauss_Curvature");
     gaussCurvature->SetNumberOfComponents(1);
-    gaussCurvature->SetNumberOfTuples(output->GetNumberOfPoints());
+    gaussCurvature->SetNumberOfTuples(numPts);
     double *gaussCurvatureData = gaussCurvature->GetPointer(0);
 
     for (int v = 0; v < Nv; v++)
@@ -314,8 +318,8 @@ void vtkCurvatures::GetGaussCurvature()
     vtkDebugMacro("Set Values of Gauss Curvature: Done");
     /*******************************************************/
     if (facet) facet->Delete();
-    if (K)              delete [] K;  K = NULL;
-    if (dA)             delete [] dA; dA = NULL;
+    if (K)              delete [] K;
+    if (dA)             delete [] dA;
     if (gaussCurvature) gaussCurvature->Delete();
     /*******************************************************/
 };
