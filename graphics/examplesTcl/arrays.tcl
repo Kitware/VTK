@@ -26,6 +26,6 @@ foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt Uns
       }
   }
 }
-#vtkCommand DeleteAllObjects
+vtkCommand DeleteAllObjects
 exit
 
