@@ -56,9 +56,10 @@ void vtkTransformPolyFilter::Execute()
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<<"Executing polygonal transformation");
-//
-// Check input
-//
+
+  //
+  // Check input
+  //
   if ( this->Transform == NULL )
     {
     vtkErrorMacro(<<"No transform defined!");
@@ -67,6 +68,7 @@ void vtkTransformPolyFilter::Execute()
 
   inPts = input->GetPoints();
   pd = input->GetPointData();
+  outPD = output->GetPointData();
   inVectors = pd->GetVectors();
   inNormals = pd->GetNormals();
 
