@@ -458,15 +458,27 @@ ENDIF(BUILD_TESTING)
 # the VTK build.  Doing so will not work because they are designed to
 # be built out-of-tree.
 IF(BUILD_EXAMPLES)
-  # The examples tree now requires CMake 2.0 or higher.
+  SET(VTK_CMAKE_VERSION_FOR_EXAMPLES)
+  # The examples tree now requires CMake 2.0.4 or higher.
   IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
-    # Disabling temporarily (again) until more testing can be done by hand.
-    # SUBDIRS(Examples)
-  ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
-    MESSAGE(
-      "Warning: The BUILD_EXAMPLES option now requires CMake 2.0 or higher "
-      "and is being ignored.")
+    IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" EQUAL 2.0)
+      # Have version 2.0.  Check for the Modules/CMakeTestForFreeVC.cxx
+      # file which was added in 2.0.4 (this is a nasty hack).
+      IF(EXISTS ${CMAKE_ROOT}/Modules/CMakeTestForFreeVC.cxx)
+        SET(VTK_CMAKE_VERSION_FOR_EXAMPLES 1)
+      ENDIF(EXISTS ${CMAKE_ROOT}/Modules/CMakeTestForFreeVC.cxx)
+    ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" EQUAL 2.0)
+      # Have version 2.1 or higher.
+      SET(VTK_CMAKE_VERSION_FOR_EXAMPLES 1)
+    ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" EQUAL 2.0)
   ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
+  IF(VTK_CMAKE_VERSION_FOR_EXAMPLES)
+    SUBDIRS(Examples)
+  ELSE(VTK_CMAKE_VERSION_FOR_EXAMPLES)
+    MESSAGE(
+      "Warning: The BUILD_EXAMPLES option now requires CMake 2.0.4 or higher "
+      "and is being ignored.")
+  ENDIF(VTK_CMAKE_VERSION_FOR_EXAMPLES)
 ENDIF(BUILD_EXAMPLES)
 
 #-----------------------------------------------------------------------------
