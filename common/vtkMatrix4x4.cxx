@@ -289,6 +289,7 @@ vtkMatrix4x4& vtkMatrix4x4::operator= (const vtkMatrix4x4& source)
       this->Element[i][j] = source.Element[i][j];
       }
     }
+  this->Modified ();
   return *this;
 }
 
