@@ -269,11 +269,6 @@ public:
   //    Then the following methods return the ranges.
   //    Returns 1 on error, 0 otherwise.
 
-  int GetCellArrayGlobalRange(int arrayIndex, float range[2]);
-  int GetPointArrayGlobalRange(int arrayIndex, float range[2]);
-  int GetCellArrayGlobalRange(int arrayIndex, double range[2]);
-  int GetPointArrayGlobalRange(int arrayIndex, double range[2]);
-
   int GetCellArrayGlobalRange(const char *name, float range[2]);
   int GetPointArrayGlobalRange(const char *name, float range[2]);
   int GetCellArrayGlobalRange(const char *name, double range[2]);
@@ -286,6 +281,9 @@ protected:
 
   void SingleProcessBuildLocator();
   int MultiProcessBuildLocator(double *bounds);
+
+  int GetCellArrayGlobalRange(int arrayIndex, double range[2]);
+  int GetPointArrayGlobalRange(int arrayIndex, double range[2]);
 
 private:
 
@@ -428,8 +426,7 @@ private:
   void AddEntry(int *list, int len, int id);
   static int BinarySearch(int *list, int len, int which);
 
-  static int FindLocalArrayIndex(const char *n, const char **names, int len);
-
+  static int FindNextLocalArrayIndex(const char *n, const char **names, int len, int start=0);
 
   vtkPKdTree(const vtkPKdTree&); // Not implemented
   void operator=(const vtkPKdTree&); // Not implemented
