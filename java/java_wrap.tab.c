@@ -91,9 +91,7 @@ typedef union
 #include <memory.h>
 #endif
 
-#ifndef _WIN32
 #include <values.h>
-#endif
 
 #ifdef __cplusplus
 
@@ -332,7 +330,7 @@ output_temp(int i)
     }
 
   fprintf(yyout,";\n");
-  if ((i == 10) && ((arg_types[i] == 309)||(arg_types[i] == 109)))
+  if ((i == 10) && ((arg_types[i]%1000 == 309)||(arg_types[i]%1000 == 109)))
     {
     fprintf(yyout,"  jobject tempH;\n");
     }
@@ -576,7 +574,7 @@ output_function()
 	fprintf(yyout,"\n");
 
 	/* does this return a vtkObject if so must do special stuff */
-	if ((arg_types[10] == 309)||(arg_types[10] == 109))
+	if ((arg_types[10]%1000 == 309)||(arg_types[10]%1000 == 109))
 	  {
 	  handle_vtkobj_return();
 	  }
