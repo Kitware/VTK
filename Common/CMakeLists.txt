@@ -60,7 +60,6 @@ vtkHexahedron
 vtkIdentityTransform 
 vtkIdList 
 vtkImageData 
-vtkImageToStructuredPoints 
 vtkImplicitFunctionCollection 
 vtkIndent 
 vtkIntArray 

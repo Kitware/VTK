@@ -21,6 +21,7 @@ vtkImageInPlaceFilter
 vtkImageMultipleInputFilter
 vtkImageSource 
 vtkImageToImageFilter
+vtkImageToStructuredPoints 
 vtkImageTwoInputFilter
 vtkInterpolatingSubdivisionFilter
 vtkMaskPoints
