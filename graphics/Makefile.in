@@ -228,7 +228,6 @@ vtkSmoothPolyDataFilter \
 vtkSpatialRepresentationFilter \
 vtkSphere \
 vtkSphereSource \
-vtkSphereTree \
 vtkStreamLine \
 vtkStreamPoints \
 vtkStreamer \
