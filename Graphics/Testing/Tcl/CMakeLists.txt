@@ -32,6 +32,7 @@ IF (VTK_USE_RENDERING)
       contour2DAll
       contour3DAll
       cowHair
+      cowHair2
       createBFont
       cursor3D
       cutLoop
