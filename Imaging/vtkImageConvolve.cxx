@@ -74,7 +74,10 @@ vtkImageConvolve::vtkImageConvolve()
 void vtkImageConvolve::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkImageToImageFilter::PrintSelf(os, indent);
+
   os << indent << "Dimensionality: " << this->Dimensionality;
+  os << indent << "Kernel: (" << this->Kernel[0] << ", " 
+     << this->Kernel[1] << ", " << this->Kernel[2] << ")\n";
 }
 
 
