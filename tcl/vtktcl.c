@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "tk.h"
+#include "vtkToolkits.h"
 
 extern Vtkcommontcl_Init(Tcl_Interp *interp);
 

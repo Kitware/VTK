@@ -10,6 +10,11 @@ AC_ARG_WITH(tkwidget,
 	 if test "$withval" = yes; then
 	 TKWIDGET="vtkTkImageViewerWidget.o vtkTkImageWindowWidget.o"
          fi)
+AC_ARG_WITH(tkwidgets,
+         [  --with-tkwidgets           build the vtkTkImageViewerWidget class],
+	 if test "$withval" = yes; then
+	 TKWIDGET="vtkTkImageViewerWidget.o vtkTkImageWindowWidget.o"
+         fi)
 AC_SUBST(TKWIDGET)
 
 if test ! -r targets.make

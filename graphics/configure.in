@@ -9,6 +9,11 @@ AC_ARG_WITH(tkwidget,
 	 if test "$withval" = yes; then
 	 TKWIDGET=vtkTkRenderWidget.o
          fi,)
+AC_ARG_WITH(tkwidgets,
+         [  --with-tkwidgets           build the vtkTkRenderWidget class],
+	 if test "$withval" = yes; then
+	 TKWIDGET=vtkTkRenderWidget.o
+         fi,)
 AC_SUBST(TKWIDGET)
 
 AC_ARG_WITH(shared,

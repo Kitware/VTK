@@ -53,6 +53,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkSystemIncludes_h
 #define __vtkSystemIncludes_h
 
+/* first include the local configuration for this machine */
+/* this only applies to UNIX systems */
+#ifndef _WIN32
+#include "vtkConfigure.h"
+#endif
+
 // include  generic stuff 
 #include <stdio.h>
 #include <stdlib.h>

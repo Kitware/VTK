@@ -1,6 +1,9 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT()
 
+AC_CONFIG_HEADER(common/vtkConfigure.h common/vtkToolkits.h)
+
+
 VTK_OBJ=`pwd`
 AC_SUBST(VTK_OBJ)
 
@@ -16,9 +19,8 @@ AC_PATH_XTRA
 # get byte swapping info
 AC_C_BIGENDIAN
 if test $ac_cv_c_bigendian = yes; then
-  BIGENDIAN="-DVTK_WORDS_BIGENDIAN"
+  AC_DEFINE(VTK_WORDS_BIGENDIAN)
 fi
-AC_SUBST(BIGENDIAN)
 
 # some stuff Tcl uses
 #
@@ -91,7 +93,7 @@ GRAPHICS_API_LIBS="$GRAPHICS_API_LIBS $OPENGLSW"
 if test "$use_oglr" = "yes"; then
 	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${OGLR_OBJ}"
 	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -lGL"
-	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_OGLR ${OGLR_INCLUDE}"
+	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} ${OGLR_INCLUDE}"
 fi
 
 
@@ -116,20 +118,49 @@ AC_ARG_WITH(opengl,
 	 [force_opengl=yes])
 
 if test "$use_mesa" = "yes"; then
+	AC_DEFINE(VTK_USE_MESA)
 	if test "$force_opengl" = "yes"; then
 		GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${MESA_OBJ}"
-		GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} \${MESA_INCLUDE} -DVTK_USE_MESA"
+		GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} \${MESA_INCLUDE}"
 		GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} \${MESA_LIB}"
+		if test "$use_oglr" = "yes"; then
+		  AC_DEFINE(VTK_USE_OGLR)
+		fi
 	else
 		GRAPHICS_API_OBJ="\${MESA_OBJ}"
-		GRAPHICS_API_FLAGS="\${MESA_INCLUDE} -DVTK_USE_MESA"
+		GRAPHICS_API_FLAGS="\${MESA_INCLUDE}"
 		GRAPHICS_API_LIBS="\${MESA_LIB}"
 	fi
+else
+if test "$use_oglr" = "yes"; then
+  AC_DEFINE(VTK_USE_OGLR)
+fi
 fi
 
 AC_SUBST(GRAPHICS_API_OBJ)
 AC_SUBST(GRAPHICS_API_FLAGS)
 AC_SUBST(GRAPHICS_API_LIBS)
+
+
+##########################
+##			##
+##	TkWidget	##
+##			##
+##########################
+# check for tkwidget
+USE_TKWIDGET_FLAG=""
+  AC_ARG_WITH(tkwidget,
+         [  --with-tkwidget           build the vtkTkRenderWidget class],
+	 if test "$withval" = yes; then
+	 AC_DEFINE(VTK_USE_TKWIDGET)
+         fi)
+# check for tkwidget alternate spelling
+USE_TKWIDGET_FLAG=""
+  AC_ARG_WITH(tkwidgets,
+         [  --with-tkwidgets           build the vtkTkRenderWidget class],
+	 if test "$withval" = yes; then
+	 AC_DEFINE(VTK_USE_TKWIDGET)
+         fi)
 
 
 ##########################
@@ -143,10 +174,12 @@ AC_ARG_WITH(mpi,
          [  --with-mpi           create the mpi specific controller],
 	 [use_mpi=yes])
 
+VTK_USE_MPI=0
 if test "$use_mpi" = "yes"; then
 	CONTROLLER_API_OBJ="\${MPI_OBJ}"
-	CONTROLLER_API_FLAGS="\${MPI_INCLUDE} -DVTK_USE_MPI"
+	CONTROLLER_API_FLAGS="\${MPI_INCLUDE}"
 	CONTROLLER_API_LIBS="\${MPI_LIBS}"
+	AC_DEFINE(VTK_USE_MPI)
 fi
 
 AC_SUBST(CONTROLLER_API_OBJ)
@@ -213,22 +246,24 @@ AC_ARG_WITH(graphics,
          USE_GRAPHICS_LIBS="-L\${VTK_OBJ}/graphics -lVTKGraphicsTcl -lVTKGraphics "
          USE_GRAPHICS_PYTHON="-L\${VTK_OBJ}/graphics -lVTKGraphicsPython "
          USE_GRAPHICS_JAVA="-L\${VTK_OBJ}/graphics -lVTKGraphicsJava -lVTKGraphics "
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_graphics"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_graphics"
+	 AC_DEFINE(VTK_USE_GRAPHICS)
          fi
          ,
          graphicsdir=graphics
          USE_GRAPHICS_LIBS="-L\${VTK_OBJ}/graphics -lVTKGraphicsTcl -lVTKGraphics"
          USE_GRAPHICS_PYTHON="-L\${VTK_OBJ}/graphics -lVTKGraphicsPython "
          USE_GRAPHICS_JAVA="-L\${VTK_OBJ}/graphics -lVTKGraphicsJava -lVTKGraphics"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_graphics"
-         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_graphics")
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_graphics"
+	 AC_DEFINE(VTK_USE_GRAPHICS))
 
 AC_ARG_WITH(imaging,
          [  --without-imaging       do not include the imaging classes],
@@ -237,21 +272,23 @@ AC_ARG_WITH(imaging,
          USE_IMAGING_LIBS="-L\${VTK_OBJ}/imaging -lVTKImagingTcl -lVTKImaging"
          USE_IMAGING_PYTHON="-L\${VTK_OBJ}/imaging -lVTKImagingPython"
          USE_IMAGING_JAVA="-L\${VTK_OBJ}/imaging -lVTKImagingJava -lVTKImaging"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_imaging"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_imaging"
+	 AC_DEFINE(VTK_USE_IMAGING)
          fi,
          imagingdir=imaging
          USE_IMAGING_LIBS="-L\${VTK_OBJ}/imaging -lVTKImagingTcl -lVTKImaging"
          USE_IMAGING_PYTHON="-L\${VTK_OBJ}/imaging -lVTKImagingPython"
          USE_IMAGING_JAVA="-L\${VTK_OBJ}/imaging -lVTKImagingJava -lVTKImaging"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_imaging"
-         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_imaging")
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_imaging"
+	 AC_DEFINE(VTK_USE_IMAGING))
 
 AC_ARG_WITH(tkwidget,
          [  --with-tkwidget           build the vtkTkRenderWidget class],,)
@@ -263,11 +300,12 @@ AC_ARG_WITH(patented,
          USE_PATENTED_LIBS="-L\${VTK_OBJ}/patented -lVTKPatentedTcl -lVTKPatented"
          USE_PATENTED_PYTHON="-L\${VTK_OBJ}/patented -lVTKPatentedPython"
          USE_PATENTED_JAVA="-L\${VTK_OBJ}/patented -lVTKPatentedJava -lVTKPatented"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../patented -DVTK_USE_PATENTED"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../patented"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_patented"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_patented"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_patented"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_patented"
+	 AC_DEFINE(VTK_USE_PATENTED)
          fi,)
 
 AC_ARG_WITH(contrib,
@@ -277,11 +315,12 @@ AC_ARG_WITH(contrib,
          USE_CONTRIB_LIBS="-L\${VTK_OBJ}/contrib -lVTKContribTcl -lVTKContrib "
          USE_CONTRIB_PYTHON="-L\${VTK_OBJ}/contrib -lVTKContribPython "
          USE_CONTRIB_JAVA="-L\${VTK_OBJ}/contrib -lVTKContribJava -lVTKContrib "
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../contrib -DVTK_USE_CONTRIB"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../contrib"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_contrib"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_contrib"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_contrib"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_contrib"
+	 AC_DEFINE(VTK_USE_CONTRIB)
          fi,)
 
 AC_ARG_WITH(local,
@@ -291,11 +330,12 @@ AC_ARG_WITH(local,
          USE_LOCAL_LIBS="-L\${VTK_OBJ}/local -lVTKLocalTcl -lVTKLocal "
          USE_LOCAL_PYTHON="-L\${VTK_OBJ}/local -lVTKLocalPython "
          USE_LOCAL_JAVA="-L\${VTK_OBJ}/local -lVTKLocalJava -lVTKLocal "
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../local -DVTK_USE_LOCAL"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../local"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_local"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_local"
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_local"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_local"
+	 AC_DEFINE(VTK_USE_LOCAL)
          fi,)
 
 AC_SUBST(BUILD_TOOLKITS)
@@ -644,7 +684,9 @@ fi
 ##			##
 ##########################
 THREAD_LIBS=""
-THREAD_FLAGS=""
+VTK_USE_PTHREADS=0
+VTK_USE_SPROC=0
+VTK_HP_PTHREADS=0
 use_sproc=no
 AC_CHECK_HEADERS(sys/prctl.h, [use_sproc=yes])
 if test "$use_sproc" = "yes"; then
@@ -653,7 +695,7 @@ case $system in
 	use_sproc=no
 	;;
     IRIX*)
-	THREAD_FLAGS="-DVTK_USE_SPROC"
+	VTK_USE_SPROC=1
 	;;
 esac
 fi
@@ -671,7 +713,7 @@ if test "$use_pthreads" = "yes"; then
     if test "`/usr/bin/uname -s -r`" = "SunOS 5.7"; then
       AC_CHECK_LIB(thread, thr_create, THREAD_LIBS="$THREAD_LIBS -lthread")
     fi
-	THREAD_FLAGS="-DVTK_USE_PTHREADS"
+	VTK_USE_PTHREADS=1
   fi
 fi
 
@@ -681,15 +723,16 @@ if test "$use_pthreads" = "yes"; then
 case $system in
     HP-UX-*.10.*)
 	THREAD_LIBS="-lcma"
-	THREAD_FLAGS="-DVTK_USE_PTHREADS -DVTK_HP_PTHREADS"
+	VTK_USE_PTHREADS=1 
+	VTK_HP_PTHREADS=1
 	;;
     OSF1-V*)
-        THREAD_FLAGS=""
         THREAD_LIBS=""
+	VTK_USE_PTHREADS=0 
         ;;
     FreeBSD*)
-	THREAD_FLAGS=""
 	THREAD_LIBS=""
+	VTK_USE_PTHREADS=0
 	;;
 esac
 fi
@@ -699,11 +742,20 @@ fi
 AC_ARG_WITH(java,
          [  --with-java             build vtk with java support],
 	 if test "$withval" = yes; then
-	 THREAD_FLAGS=""
+	 VTK_USE_PTHREADS=0
+	 VTK_USE_SPROC=0
          THREAD_LIBS=""
          fi)
 
-AC_SUBST(THREAD_FLAGS)
+if test $VTK_USE_SPROC = 1; then
+AC_DEFINE(VTK_USE_SPROC)
+fi
+if test $VTK_USE_PTHREADS = 1; then
+AC_DEFINE(VTK_USE_PTHREADS)
+fi
+if test $VTK_HP_PTHREADS = 1; then
+AC_DEFINE(VTK_HP_PTHREADS)
+fi
 AC_SUBST(THREAD_LIBS)
 
 # on hp use -Aa for ansi

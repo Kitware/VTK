@@ -14,6 +14,8 @@ ac_default_prefix=/usr/local
 ac_help="$ac_help
   --with-tkwidget           build the vtkTkRenderWidget class"
 ac_help="$ac_help
+  --with-tkwidgets           build the vtkTkRenderWidget class"
+ac_help="$ac_help
   --with-shared               create shared libraries"
 ac_help="$ac_help
   --with-bsdmake            uses bsd style makefile includes"
@@ -529,6 +531,14 @@ TKWIDGET=""
 # Check whether --with-tkwidget or --without-tkwidget was given.
 if test "${with_tkwidget+set}" = set; then
   withval="$with_tkwidget"
+  if test "$withval" = yes; then
+	 TKWIDGET=vtkTkRenderWidget.o
+         fi
+fi
+
+# Check whether --with-tkwidgets or --without-tkwidgets was given.
+if test "${with_tkwidgets+set}" = set; then
+  withval="$with_tkwidgets"
   if test "$withval" = yes; then
 	 TKWIDGET=vtkTkRenderWidget.o
          fi

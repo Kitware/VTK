@@ -3,14 +3,6 @@
 #
 AC_INIT(vtktcl.c)
 
-USE_TKWIDGET_FLAG=""
-  AC_ARG_WITH(tkwidget,
-         [  --with-tkwidget           build the vtkTkRenderWidget class],
-	 if test "$withval" = yes; then
-	 USE_TKWIDGET_FLAG=-DVTK_USE_TKWIDGET
-         fi)
-AC_SUBST(USE_TKWIDGET_FLAG)
-
 # option for handling BSD style makefile includes
 #
 AC_ARG_WITH(bsdmake,

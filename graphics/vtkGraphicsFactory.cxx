@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObjectFactory.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkToolkits.h"
 
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLActor.h"

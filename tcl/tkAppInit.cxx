@@ -18,6 +18,7 @@
 #endif
 
 #include "vtkSystemIncludes.h"
+#include "vtkToolkits.h"
 
 /*
  *----------------------------------------------------------------------
