@@ -26,7 +26,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.39");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.40");
 
 //----------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()
@@ -80,7 +80,7 @@ vtkEnSightReader::vtkEnSightReader()
   
   this->OutputsAreValid = 1;
   this->InitialRead = 1;
-  this->NumberOfNewOutputs;
+  this->NumberOfNewOutputs = 0;
 }
 
 //----------------------------------------------------------------------------
