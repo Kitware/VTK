@@ -10,7 +10,9 @@
 
 void quit_cb(Widget,XtPointer,XtPointer);
 
-main (int argc, char *argv[])
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   // X window stuff
   XtAppContext app;
@@ -33,6 +35,7 @@ main (int argc, char *argv[])
   
   renWin = vtkXRenderWindow::New();
   ren1 = vtkRenderer::New();
+  renWin->SetSize( 300, 300 );
   renWin->AddRenderer(ren1);
   
   sphere = vtkSphereSource::New();
@@ -107,6 +110,9 @@ main (int argc, char *argv[])
   iren->SetRenderWindow(renWin);
   iren->SetWidget(vtk);
   iren->Initialize(app);
+  renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   XtAppMainLoop(app);
 }

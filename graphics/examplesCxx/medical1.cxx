@@ -7,7 +7,10 @@
 #include "vtkOutlineFilter.h"
 #include "vtkCamera.h"
 #include "../patented/vtkMarchingCubes.h"
-main ()
+
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   // create the renderer stuff
   vtkRenderer *aRenderer = vtkRenderer::New();
@@ -59,7 +62,10 @@ main ()
   aRenderer->SetBackground(1,1,1);
 
   // interact with data
-  renWin->SetSize(640, 480);
+  renWin->SetSize( 300, 300);
   renWin->Render();
+
+  SAVEIMAGE( renWin );
+
   iren->Start(); 
 }

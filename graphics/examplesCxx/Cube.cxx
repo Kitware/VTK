@@ -9,7 +9,9 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   int i;
   static float x[8][3]={{0,0,0}, {1,0,0}, {1,1,0}, {0,1,0},
@@ -55,10 +57,13 @@ main ()
       renderer->ResetCamera();
       renderer->SetBackground(1,1,1);
   
-  renWin->SetSize(450,450);
+  renWin->SetSize(300,300);
 
   // interact with data
   renWin->Render();
+
+  SAVEIMAGE( renWin );
+
   iren->Start();
 
   // Clean up

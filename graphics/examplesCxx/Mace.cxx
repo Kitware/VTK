@@ -7,7 +7,9 @@
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   vtkRenderer *renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -41,10 +43,13 @@ main ()
   renderer->AddActor(sphereActor);
   renderer->AddActor(spikeActor);
   renderer->SetBackground(1,1,1);
-  renWin->SetSize(450,450);
+  renWin->SetSize(300,300);
 
   // interact with data
   renWin->Render();
+
+  SAVEIMAGE( renWin );
+
   iren->Start();
 
   // Clean up

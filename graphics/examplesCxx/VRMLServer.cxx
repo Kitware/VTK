@@ -6,7 +6,7 @@
 #include "vtkStructuredGridGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
 
-
+#include "SaveImage.h"
 
 char *getCGIValue(char *key, char *input)
 {
@@ -52,7 +52,7 @@ char *getCGIValue(char *key, char *input)
   return result;
 }
 
-int main ()
+int main( int argc, char *argv[] )
 {
   char arg1[1024];
   float isoval;
@@ -163,6 +163,11 @@ int main ()
   writer->SetInput( renWin );
   writer->SetFilePointer( stdout );
   writer->Write();
+
+  renWin->SetSize( 300, 300 );
+  renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   return 0;
 }

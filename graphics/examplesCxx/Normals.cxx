@@ -6,22 +6,25 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   vtkRenderer *aren    = vtkRenderer::New();
   vtkRenderWindow *renWin  = vtkRenderWindow::New();
     renWin->AddRenderer(aren);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
+  renWin->SetSize( 300, 300 );
 
   vtkSTLReader *stl = vtkSTLReader::New();
     stl->SetFileName("../../../vtkdata/cadPart.stl");
-    stl->DebugOn();
+    //stl->DebugOn();
 
   vtkPolyDataNormals *normals = vtkPolyDataNormals::New();
     normals->SetInput(stl->GetOutput());
     normals->SetFeatureAngle(60);
-    normals->DebugOn();
+    //normals->DebugOn();
 
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
     mapper->SetInput(normals->GetOutput());
@@ -34,6 +37,8 @@ main ()
   aren->SetBackground(0.2,0.2,0.2);
 
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   // interact with data
   iren->Start();

@@ -7,7 +7,9 @@
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   float i;
 
@@ -53,8 +55,8 @@ main ()
   ren1->AddActor(sphereActor2);
   ren1->AddActor(spikeActor2);
   ren1->SetBackground(0.1,0.2,0.4);
-  renWin->SetSize(1002,1002);
-  renWin->DoubleBufferOff();
+  renWin->SetSize(300,300);
+  renWin->DoubleBufferOn();
 
   // do the first render and then zoom in a little
   renWin->Render();
@@ -68,6 +70,10 @@ main ()
     sphereActor2->RotateY(2);
     renWin->Render();
     }
+
+  renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   iren->Start();
 

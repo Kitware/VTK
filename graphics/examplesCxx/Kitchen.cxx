@@ -10,7 +10,9 @@
 #include "vtkStreamLine.h"
 #include "vtkCamera.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   float range[2], c[3];
   float maxVelocity, maxTime, length;
@@ -25,7 +27,7 @@ main ()
 // Read data
 //
   vtkStructuredGridReader *reader = vtkStructuredGridReader::New();
-    reader->DebugOn();
+    //reader->DebugOn();
     reader->SetFileName("../../../vtkdata/kitchen.vtk");
     reader->Update(); //force a read to occur
 
@@ -234,14 +236,14 @@ main ()
     rake->SetMapper(rakeMapper);
 
   vtkStreamLine *streamers = vtkStreamLine::New();
-    streamers->DebugOn();
+    //streamers->DebugOn();
     streamers->SetInput(reader->GetOutput());
     streamers->SetSource(line->GetOutput());
     streamers->SetMaximumPropagationTime(maxTime);
     streamers->SetStepLength(maxTime/500.0);
     streamers->SetIntegrationStepLength(0.2);
     streamers->Update();
-    streamers->DebugOff();
+    //streamers->DebugOff();
   vtkPolyDataMapper *streamersMapper = vtkPolyDataMapper::New();
     streamersMapper->SetInput(streamers->GetOutput());
     streamersMapper->SetScalarRange(range);
@@ -279,8 +281,10 @@ main ()
   aren->ResetCamera();
   aCamera->Elevation(90.0);
 
-  renWin->SetSize(750,750);
+  renWin->SetSize(300,300);
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   // interact with data
   iren->Start();

@@ -19,7 +19,9 @@ float positions[][3] = {
 
 vtkBooleanTexture *makeBooleanTexture (int, int, int);
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   int i;
   vtkBooleanTexture *aBoolean[16];
@@ -72,12 +74,14 @@ main ()
   aren->SetBackground (0.4392,0.5020,0.5647);
   aren->GetActiveCamera()->Zoom(1.4);
   renWin->DoubleBufferOff();
-  renWin->SetSize(1000,1000);
+  renWin->SetSize(300,300);
 
   // interact with data
-  renWin->SetFileName("plate42.ppm");
+  //renWin->SetFileName("plate42.ppm");
   renWin->Render();
-  renWin->SaveImageAsPPM();
+  //renWin->SaveImageAsPPM();
+
+  SAVEIMAGE( renWin );
   
   iren->Start();
 

@@ -9,6 +9,8 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 
+#include "SaveImage.h"
+
 // Global variables to allow access by UserMethod
 vtkRenderWindow *renWin;
 vtkPolyData *inputDataSet;
@@ -37,7 +39,7 @@ void UserMethod(void *arg)
    }
 }
 
-void main ()
+void main( int argc, char *argv[] )
 {
    // Create the vtk renderer stuff
    vtkRenderer *ren = vtkRenderer::New();
@@ -82,6 +84,9 @@ void main ()
 
    // interact with data
    renWin->Render();
+
+   SAVEIMAGE( renWin );
+
    iren->Start();
 
    // Clean up

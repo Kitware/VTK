@@ -7,7 +7,9 @@
 #include "vtkCubeSource.h"
 #include "vtkSphereSource.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   int i;
   
@@ -58,8 +60,10 @@ main ()
   ren3->AddActor(cubeActor);
 
   // set the size of our window
-  renWindow1->SetSize(800,400);
-  renWindow2->SetSize(400,400);
+  renWindow1->SetSize(300,150);
+  renWindow1->SetPosition(0,50);
+  renWindow2->SetSize(300,300);
+  renWindow2->SetPosition(0,300);
 
   // set the viewports and background of the renderers
   ren1->SetViewport(0,0,0.5,1);
@@ -71,6 +75,8 @@ main ()
   // draw the resulting scene
   renWindow1->Render();
   renWindow2->Render();
+
+  SAVEIMAGE( renWindow1 );
 
   iren1->Start();
 

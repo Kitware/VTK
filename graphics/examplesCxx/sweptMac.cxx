@@ -14,7 +14,9 @@
 #include "vtkContourFilter.h"
 #include "vtkPolyDataMapper.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   vtkRenderer *ren = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -91,10 +93,12 @@ main ()
   ren->AddActor(maceActor);
   ren->AddActor(sweptSurface);
   ren->SetBackground(1,1,1);
-  renWin->SetSize(750,750);
+  renWin->SetSize(300,300);
 
   // allow keyboard manipulation of object
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   iren->Start();
 }

@@ -3,6 +3,7 @@
 //
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 #include "vtkVectorText.h"
 #include "vtkLinearExtrusionFilter.h"
@@ -14,30 +15,39 @@
 #include "vtkVectorText.h"
 #include "vtkLinearExtrusionFilter.h"
 
-main (int argc, char *argv[])
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] ) 
 {
   vtkVectorText *letters[26];
   vtkLinearExtrusionFilter *extrude[26];
   vtkPolyDataMapper *mappers[26];
   vtkActor *actors[26];
+  char filename[512];
   char text[2];
   static char alphabet[]="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   int i, j, freq[26], maxFreq;
   float x, y;
   FILE *fPtr;
   int c;
+
 //
 // count the letters
 //
-  if ( argc < 2 )
+  if ( (argc == 1) || ((argc == 2) && !(strcmp("-S", argv[1]))) )
     {
     cerr << "Please provide filename: " << argv[0] << " filename\n";
-    exit(1);
+    strcpy( filename, "./Makefile" );
+    cerr << "Using the file " << filename << " as input\n";
+    }
+  else
+    {
+    strcpy( filename, argv[1] );
     }
 
-  if ( (fPtr = fopen (argv[1], "r")) == NULL )
+  if ( (fPtr = fopen (filename, "r")) == NULL )
     {
-    cerr << "Cannot open file: " <<  argv[1] << "\n";
+    cerr << "Cannot open file: " <<  filename << "\n";
     exit(1);
     }
 
@@ -93,8 +103,14 @@ main (int argc, char *argv[])
       actors[j*13 + i]->SetPosition(x, y, 0.0);
 
   ren->SetBackground(1,1,1);
-  renWin->SetSize(1250,500);
+  ren->GetActiveCamera()->Elevation(30.0);
+  ren->GetActiveCamera()->Azimuth(30.0);
+  ren->GetActiveCamera()->Zoom(2.7);
+
+  renWin->SetSize(300,150);
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   // interact with data
   iren->Start();
@@ -110,4 +126,6 @@ main (int argc, char *argv[])
     mappers[i]->Delete();
     actors[i]->Delete();
     }
+
+  exit( 0 );
 }

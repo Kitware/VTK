@@ -16,7 +16,9 @@
 #include "vtkStructuredPointsReader.h"
 #include "vtkTexture.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   vtkRenderer *aren = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -76,10 +78,12 @@ main ()
   aren->AddActor(innerSphere);
   aren->AddActor(outerSphere);
   aren->SetBackground (0.4392,0.5020,0.5647);
-  renWin->SetSize(500,500);
+  renWin->SetSize(300,300);
 
   // interact with data
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   iren->Start();
 

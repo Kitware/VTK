@@ -30,7 +30,9 @@ int randomMode = 1;
 float xIncr, yIncr, zIncr;
 short	*slice;
 
-main ( )
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   int	i, j;
   float	xx, yy, zz;
@@ -126,10 +128,13 @@ main ( )
   renderer->AddActor(actor);
       renderer->SetBackground(1,1,1);
   
-  renWin->SetSize(750,750);
+  renWin->SetSize(300,300);
 
   // interact with data
   renWin->Render();
+
+  SAVEIMAGE( renWin );
+
   iren->Start();
 
   // Clean up

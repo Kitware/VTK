@@ -21,7 +21,9 @@ static vtkUnstructuredGrid *cells;
 static vtkRenderWindow *renWin;
 static vtkActor *cellsActor, *plateActor;
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   vtkRenderer *renderer = vtkRenderer::New();
   renWin = vtkRenderWindow::New();
@@ -37,7 +39,7 @@ main ()
   // read data file
   vtkPolyDataReader *plate = vtkPolyDataReader::New();
     plate->SetFileName("../../../vtkdata/plate.vtk");
-    plate->DebugOn();
+    //plate->DebugOn();
     plateOutput = plate->GetOutput();
   vtkPolyDataMapper *plateMapper = vtkPolyDataMapper::New();
     plateMapper->SetInput(plate->GetOutput());
@@ -73,10 +75,16 @@ main ()
   renderer->AddActor(plateActor);
   renderer->AddActor(sphereActor);
   renderer->SetBackground(1,1,1);
-  renWin->SetSize(750,750);
+  renderer->GetActiveCamera()->Elevation(30.0);
+  renderer->GetActiveCamera()->Azimuth(30.0);
+  renderer->GetActiveCamera()->Zoom(0.75);
+
+  renWin->SetSize(300,300);
 
   // interact with data
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   iren->SetEndPickMethod(PickCells,(void *)iren);
   iren->Start();

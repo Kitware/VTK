@@ -15,7 +15,9 @@
 static vtkDataSet *ReadFinancialData(char *x, char *y, char *z, char *s);
 static int ParseFile(FILE *file, char *tag, float *data);
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   float bounds[6];
   int npts;
@@ -86,10 +88,15 @@ main ()
   renderer->AddActor(axesActor);
   renderer->AddActor(popActor);
   renderer->SetBackground(1,1,1);
-  renWin->SetSize(500,500);
+  renWin->SetSize(300,300);
 
   // interact with data
   iren->Initialize();
+
+  renWin->Render();
+
+  SAVEIMAGE( renWin );
+
   iren->Start();
 
   // Clean up

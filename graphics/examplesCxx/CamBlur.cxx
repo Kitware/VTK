@@ -7,7 +7,9 @@
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   char c;
   float i;
@@ -56,7 +58,7 @@ main ()
   ren1->AddActor(sphereActor2);
   ren1->AddActor(spikeActor2);
   ren1->SetBackground(0.1,0.2,0.4);
-  renWin->SetSize(1002,1002);
+  renWin->SetSize(300,300);
   renWin->DoubleBufferOff();
 
   // do the first render and then zoom in a little
@@ -69,6 +71,8 @@ main ()
   renWin->Render();
 //  renWin->SetFileName("plate6.ppm");
 //  renWin->SaveImageAsPPM();
+
+  SAVEIMAGE( renWin );
 
   cin >> c;
 

@@ -10,7 +10,9 @@
 #include "vtkOutlineFilter.h"
 #include "vtkLight.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   vtkCamera *camera;
   float range[2];
@@ -20,6 +22,8 @@ main ()
     renWin->AddRenderer(aren);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
+  renWin->SetSize( 300, 300 );
+
 //
 // Create surface of implicit function
 //
@@ -30,14 +34,14 @@ main ()
   vtkSampleFunction *sample = vtkSampleFunction::New();
     sample->SetSampleDimensions(25,25,25);
     sample->SetImplicitFunction(quadric);
-    sample->DebugOn();
+    //sample->DebugOn();
 
   // Generate implicit surface
   vtkContourFilter *contour = vtkContourFilter::New();
     contour->SetInput(sample->GetOutput());
     range[0] = 1.0; range[1] = 6.0;
     contour->GenerateValues(3,range);
-    contour->DebugOn();
+    //contour->DebugOn();
 
   // Map contour
   vtkPolyDataMapper *contourMapper = vtkPolyDataMapper::New();
@@ -70,6 +74,8 @@ main ()
   light->SetPosition(camera->GetPosition());
 
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   // interact with data
   iren->Start();

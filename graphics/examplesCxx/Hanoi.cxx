@@ -19,6 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // where -p is the number of starting pucks on the peg; 
 //       -s is the number of steps to take during animation;
 //       -r is the resolution of each puck
+//	 -S save image for regression testing
 
 #include <iostream.h>
 #include <stdlib.h>
@@ -34,6 +35,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vtkPolyDataMapper.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
+
+#include "SaveImage.h"
 
 // Some static variables to define geometry
 static int NumberOfPucks; //number of pucks to move
@@ -120,13 +123,14 @@ static void Hanoi (int n, int peg1, int peg2, int peg3)
 #define MAX_PUCKS 20
 extern char * optarg;
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   vtkActor *peg[3], *puck[MAX_PUCKS];
   int i, c;
   float scale;
   vtkMath math;
   int puckResolution=48;
+
 //
 // Parse command line
 //
@@ -135,7 +139,7 @@ main(int argc, char *argv[])
   NumberOfSteps = 5;
 
   // parse
-  while ((c = getopt(argc, argv, "p:s:")) != EOF) 
+  while ((c = getopt(argc, argv, "p:s:r:S")) != EOF) 
     {
     switch (c) 
       {
@@ -154,7 +158,6 @@ main(int argc, char *argv[])
       case 'r':
         puckResolution = atoi(optarg);
         break;
-
       }
     }
 //
@@ -191,7 +194,7 @@ main(int argc, char *argv[])
   vtkRenderer *aren = vtkRenderer::New();
     Renwin = vtkRenderWindow::New();
     Renwin->AddRenderer(aren);
-    Renwin->SetSize(1200,750);
+    Renwin->SetSize(300,200);
 
   aren->SetBackground(1,1,1);
 
@@ -275,9 +278,11 @@ main(int argc, char *argv[])
   Hanoi (1, 0, 1, 2);
   Hanoi (NumberOfPucks-1, 2, 1, 0);
 
-  Renwin->Render();
-  Renwin->SetFileName("hanoi2.ppm");
-  Renwin->SaveImageAsPPM();
+  SAVEIMAGE( Renwin );
+
+  //Renwin->Render();
+  //Renwin->SetFileName("hanoi2.ppm");
+  //Renwin->SaveImageAsPPM();
 //
 // Report output
 //

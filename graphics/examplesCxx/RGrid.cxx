@@ -7,7 +7,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   int i;
   static float x[47]={-1.22396, -1.17188, -1.11979, -1.06771, -1.01562, -0.963542, 
@@ -68,11 +70,17 @@ main ()
 
   renderer->AddActor(wireActor);
   renderer->SetBackground(1,1,1);
+  renderer->GetActiveCamera()->Elevation(60.0);
+  renderer->GetActiveCamera()->Azimuth(30.0);
+  renderer->GetActiveCamera()->Zoom(1.0);
   
-  renWin->SetSize(450,450);
+  renWin->SetSize(300,300);
 
   // interact with data
   renWin->Render();
+
+  SAVEIMAGE( renWin );
+
   iren->Start();
 
   // Clean up

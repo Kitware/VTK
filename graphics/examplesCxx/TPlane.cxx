@@ -7,7 +7,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   vtkRenderer *ren1 = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -31,13 +33,15 @@ main ()
 
   ren1->AddActor(planeActor);
   ren1->SetBackground(0.2,0.3,0.4);
-  renWin->SetSize(500,500);
+  renWin->SetSize(300,300);
 
   // interact with data
   renWin->Render();
 
   ren1->GetActiveCamera()->Zoom(1.4);
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   iren->Start();
 

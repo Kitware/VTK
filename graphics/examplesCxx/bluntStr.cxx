@@ -9,7 +9,9 @@
 #include "vtkLineSource.h"
 #include "vtkDashedStreamLine.h"
 
-main ()
+#include "SaveImage.h"
+
+int main( int argc, char *argv[] )
 {
   float range[2], c[3];
   float maxVelocity, maxTime, length;
@@ -21,7 +23,7 @@ main ()
     iren->SetRenderWindow(renWin);
 
   vtkPLOT3DReader *reader = vtkPLOT3DReader::New();
-    reader->DebugOn();
+    //reader->DebugOn();
     reader->SetXYZFileName("../../../vtkdata/bluntfinxyz.bin");
     reader->SetQFileName("../../../vtkdata/bluntfinq.bin");
     reader->SetFileFormat(VTK_WHOLE_SINGLE_GRID_NO_IBLANKING);
@@ -81,7 +83,7 @@ main ()
     rake1->GetProperty()->SetColor(1.0,1.0,1.0);
 
   vtkDashedStreamLine *streamers = vtkDashedStreamLine::New();
-    streamers->DebugOn();
+  //  streamers->DebugOn();
     streamers->SetInput(reader->GetOutput());
     streamers->SetSource(line1->GetOutput());
     streamers->SetMaximumPropagationTime(maxTime);
@@ -89,7 +91,7 @@ main ()
     streamers->SetDashFactor(0.50);
     streamers->SetIntegrationStepLength(0.2);
     streamers->Update();
-    streamers->DebugOff();
+    //streamers->DebugOff();
 
   vtkPolyDataMapper *streamersMapper = vtkPolyDataMapper::New();
     streamersMapper->SetInput(streamers->GetOutput());
@@ -104,9 +106,14 @@ main ()
   aren->AddActor(rake1);
   aren->AddActor(lines);
   aren->SetBackground(0.0,0.0,0.0);
+  aren->GetActiveCamera()->Elevation(30.0);
+  aren->GetActiveCamera()->Azimuth(30.0);
+  aren->GetActiveCamera()->Zoom(2.0);
 
-  renWin->SetSize(1000,500);
+  renWin->SetSize(300,150);
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   // interact with data
   iren->Start();
@@ -131,4 +138,6 @@ main ()
   streamers->Delete();
   streamersMapper->Delete();
   lines->Delete();
+
+  return( 0 );
 }

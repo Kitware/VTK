@@ -73,6 +73,7 @@ main (int argc, char *argv[])
   button = XtVaCreateManagedWidget("Exit",xmPushButtonWidgetClass, 
 				   toplevel,
 				   XmNwidth, 50, XmNheight, 50,
+				   XmNx, 100, XmNy, 0,
 				   NULL);
   
   XtRealizeWidget(toplevel);

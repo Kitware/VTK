@@ -7,7 +7,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   int i, j, k, kOffset, jOffset, offset;
   float x, y, z, s, sp;
@@ -57,10 +59,13 @@ main ()
 
   renderer->AddActor(volActor);
       renderer->SetBackground(1,1,1);
-  renWin->SetSize(450,450);
+  renWin->SetSize(300,300);
 
   // interact with data
   renWin->Render();
+
+  SAVEIMAGE( renWin );
+
   iren->Start();
 
   // Clean up

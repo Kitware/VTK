@@ -4,7 +4,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   int i;
 
@@ -28,7 +30,7 @@ main ()
   ren2->AddActor(coneActor);
 
   // set the size of our window
-  renWindow->SetSize(400,200);
+  renWindow->SetSize(300,150);
 
   // set the viewports and background of the renderers
   ren1->SetViewport(0,0,0.5,1);
@@ -49,6 +51,8 @@ main ()
     ren2->GetActiveCamera()->Azimuth(9);
     renWindow->Render();
     }
+
+  SAVEIMAGE( renWindow );
 
   // Clean up
   ren1->Delete();

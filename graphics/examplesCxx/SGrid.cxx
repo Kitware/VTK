@@ -9,7 +9,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   int i, j, k, kOffset, jOffset, offset;
   float x[3], v[3], rMin=0.5, rMax=1.0, deltaRad, deltaZ;
@@ -73,10 +75,16 @@ main ()
 
   renderer->AddActor(sgridActor);
   renderer->SetBackground(1,1,1);
-  renWin->SetSize(450,450);
+  renderer->GetActiveCamera()->Elevation(60.0);
+  renderer->GetActiveCamera()->Azimuth(30.0);
+  renderer->GetActiveCamera()->Zoom(1.25);
+  renWin->SetSize(300,300);
 
   // interact with data
   renWin->Render();
+
+  SAVEIMAGE( renWin );
+
   iren->Start();
 
   renderer->Delete();

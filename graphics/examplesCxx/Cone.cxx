@@ -4,7 +4,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   char a;
   
@@ -12,6 +14,7 @@ main ()
   vtkRenderer *ren = vtkRenderer::New();
   vtkRenderWindow *renWindow = vtkRenderWindow::New();
     renWindow->AddRenderer(ren);
+  renWindow->SetSize( 300, 300 );
 
   // create an actor and give it cone geometry
   vtkConeSource *cone = vtkConeSource::New();
@@ -26,6 +29,8 @@ main ()
 
   // draw the resulting scene
   renWindow->Render();
+
+  SAVEIMAGE( renWindow );
 
   // loop until key is pressed
   cout << "Press any key followed by <Enter> to exit>> ";

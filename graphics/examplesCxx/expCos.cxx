@@ -15,7 +15,9 @@
 #include "vtkPolyData.h"
 #include "vtkActor.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   int i, numPts;
   float x[3];
@@ -82,10 +84,12 @@ main ()
   // assign our actor to the renderer
   ren->AddActor(carpet);
   ren->SetBackground(1,1,1);
-  renWin->SetSize(750,750);
+  renWin->SetSize(300,300);
 
   // draw the resulting scene
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   // Begin mouse interaction
   iren->Start();

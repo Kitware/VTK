@@ -8,7 +8,9 @@
 #include "vtkGlyph3D.h"
 #include "vtkRenderWindowInteractor.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   vtkRenderer *ren1 = vtkRenderer::New();
   vtkRenderer *ren2 = vtkRenderer::New();
@@ -60,12 +62,14 @@ main ()
   ren2->AddActor(spikeActor2);
   ren2->SetBackground(0.1,0.2,0.4);
   ren2->SetViewport(0.5,0,1.0,1.0);
-  renWin->SetSize(600,300);
+  renWin->SetSize(300,150);
+  renWin->SetPosition(0, 500);
 
   ren3->AddActor(sphereActor3);
   ren3->AddActor(spikeActor3);
   ren3->SetBackground(0.1,0.4,0.2);
   renWin2->SetSize(300,300);
+  renWin2->SetPosition(0, 100);
 
   // allow keyboard manipulation of object
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
@@ -75,6 +79,8 @@ main ()
   vtkRenderWindowInteractor *iren2 = vtkRenderWindowInteractor::New();
     iren2->SetRenderWindow(renWin2);
   renWin2->Render();
+
+  SAVEIMAGE( renWin );
 
   iren->Start();
 

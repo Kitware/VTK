@@ -13,7 +13,9 @@
 #include "vtkOutlineFilter.h"
 #include "vtkConeSource.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   float x[3], n[3];
 
@@ -85,8 +87,10 @@ main ()
       aren->AddActor(outlineActor);
       aren->AddActor(coneActor);
 
-  renWin->SetSize(750,750);
+  renWin->SetSize(300,300);
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   // interact with data
   iren->Start();

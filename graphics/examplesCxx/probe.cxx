@@ -10,7 +10,9 @@
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   vtkRenderer *renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -20,7 +22,7 @@ main ()
 
   // read data
   vtkPLOT3DReader *reader = vtkPLOT3DReader::New();
-    reader->DebugOn();
+    //reader->DebugOn();
     reader->SetXYZFileName("../../../vtkdata/combxyz.bin");
     reader->SetQFileName("../../../vtkdata/combq.bin");
     reader->SetFileFormat(VTK_WHOLE_SINGLE_GRID_NO_IBLANKING);
@@ -76,8 +78,10 @@ main ()
   renderer->AddActor(cursorActor);
   renderer->AddActor(glyphActor);
   renderer->SetBackground(1.0,1.0,1.0);
-  renWin->SetSize(752,752);
+  renWin->SetSize(300,300);
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   iren->Start();
 

@@ -6,7 +6,9 @@
 #include "vtkDataSetMapper.h"
 #include "vtkActor.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   int i;
   static float x[27][3]={{0,0,0}, {1,0,0}, {2,0,0}, {0,1,0}, {1,1,0}, {2,1,0},
@@ -69,11 +71,17 @@ main ()
   renderer->AddActor(ugridActor);
       renderer->AddActor(wireActor);
       renderer->SetBackground(1,1,1);
+      renderer->GetActiveCamera()->Elevation(60.0);
+      renderer->GetActiveCamera()->Azimuth(30.0);
+      renderer->GetActiveCamera()->Zoom(0.75);
   
-  renWin->SetSize(450,450);
+  renWin->SetSize(300,300);
 
   // interact with data
   renWin->Render();
+
+  SAVEIMAGE( renWin );
+
   iren->Start();
 
   // Clean up

@@ -9,7 +9,9 @@
 #include "vtkDataSetMapper.h"
 #include "vtkActor.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   vtkRenderer *renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -46,9 +48,15 @@ main ()
 
   renderer->AddActor(actor);
   renderer->SetBackground(1,1,1);
-  renWin->SetSize(450,450);
+  renderer->GetActiveCamera()->Elevation(60.0);
+  renderer->GetActiveCamera()->Azimuth(30.0);
+  renderer->GetActiveCamera()->Zoom(1.3);
+
+  renWin->SetSize(300,300);
 
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   // interact with data
   iren->Start();

@@ -8,7 +8,9 @@
 #include "vtkActor.h"
 #include "vtkOutlineFilter.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   vtkRenderer *aren = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -48,8 +50,10 @@ main ()
       aren->AddActor(contourActor);
       aren->AddActor(outlineActor);
 
-  renWin->SetSize(600,600);
+  renWin->SetSize(300,300);
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   // interact with data
   iren->Start();

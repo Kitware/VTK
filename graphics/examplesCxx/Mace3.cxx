@@ -7,7 +7,9 @@
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   // create the rendering objects
   vtkRenderer *ren1 = vtkRenderer::New();
@@ -42,7 +44,7 @@ main ()
   ren1->AddActor(sphereActor);
   ren1->AddActor(spikeActor);
   ren1->SetBackground(0.2,0.3,0.4);
-  renWin->SetSize(400,400);
+  renWin->SetSize(300,300);
 
   // do the first render and then zoom in a little
   renWin->Render();
@@ -53,6 +55,8 @@ main ()
   renWin->Render();
   renWin->Render();
   renWin->SaveImageAsPPM();
+
+  SAVEIMAGE( renWin );
 
   // Clean up
   ren1->Delete();

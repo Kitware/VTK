@@ -16,13 +16,16 @@
 #include "vtkContourFilter.h"
 #include "vtkProperty.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   vtkRenderer *aRenderer = vtkRenderer::New();
   vtkRenderWindow *ourRenderingWindow = vtkRenderWindow::New();
       ourRenderingWindow->AddRenderer(aRenderer);
   vtkRenderWindowInteractor *ourInteractor = vtkRenderWindowInteractor::New();
       ourInteractor->SetRenderWindow(ourRenderingWindow);
+  ourRenderingWindow->SetSize( 300, 300 );
 
   // read the geometry file containing the letter v
   vtkPolyDataReader *letterVBYU = vtkPolyDataReader::New();
@@ -122,6 +125,8 @@ main ()
   aRenderer->SetBackground(1,1,1);
 
   ourRenderingWindow->Render();
+
+  SAVEIMAGE( ourRenderingWindow );
 
   // interact with data
   ourInteractor->Start();

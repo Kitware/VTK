@@ -6,7 +6,9 @@
 #include "vtkActor.h"
 #include "vtkProperty.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   char a;
   
@@ -16,6 +18,7 @@ main ()
     renWindow->AddRenderer(ren);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWindow);
+  renWindow->SetSize( 300, 300 );
 
   // create an actor and give it cone geometry
   vtkConeSource *cone = vtkConeSource::New();
@@ -46,6 +49,8 @@ main ()
 
   // draw the resulting scene
   renWindow->Render();
+
+  SAVEIMAGE( renWindow );
 
   //  Begin mouse interaction
   iren->Start();

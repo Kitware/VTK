@@ -8,7 +8,9 @@
 #include "vtkVolumeRayCastMapper.h"
 #include "vtkVolume.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   // Create the renderer, render window, and interactor
   vtkRenderer *ren1 = vtkRenderer::New();
@@ -57,9 +59,11 @@ main ()
   ren1->GetActiveCamera()->Azimuth(20.0);
   ren1->GetActiveCamera()->Dolly(1.60);
 
-  renWin->SetSize(200,200);
+  renWin->SetSize(300,300);
 
   renWin->Render();
+
+  SAVEIMAGE( renWin );
 
   // Interact with the data at 3 frames per second
   iren->SetDesiredUpdateRate(3.0);

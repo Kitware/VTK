@@ -8,13 +8,16 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 
-main ()
+#include "SaveImage.h"
+
+void main( int argc, char *argv[] )
 {
   vtkRenderer *ren1 = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
     renWin->AddRenderer(ren1);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
+  renWin->SetSize( 300, 300 );
   
   // Quadric definition
   vtkQuadric *quadric = vtkQuadric::New();
@@ -54,8 +57,11 @@ main ()
 
   renWin->Render();
 
+  SAVEIMAGE( renWin );
+
   // interact with data
   iren->Initialize();
+  iren->Start();
 
   // Clean up
   ren1->Delete();
