@@ -26,7 +26,7 @@
 
 // .SECTION See Also
 // vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra
-// vtQuadraticQuad
+// vtkQuadraticQuad
 
 #ifndef __vtkQuadraticHexahedron_h
 #define __vtkQuadraticHexahedron_h
