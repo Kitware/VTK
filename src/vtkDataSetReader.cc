@@ -142,21 +142,19 @@ char *vtkDataSetReader::GetLookupTableName()
 
 void vtkDataSetReader::Execute()
 {
-  FILE *fp;
-  int retStat;
-  char line[257];
+  char line[256];
   vtkDataSet *output;
   
   vtkDebugMacro(<<"Reading vtk dataset...");
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 
-  if ( !(fp=this->Reader.OpenVTKFile()) || !this->Reader.ReadHeader(fp) )
+  if (!this->Reader.OpenVTKFile() || !this->Reader.ReadHeader())
       return;
 //
 // Determine dataset type
 //
-  if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
+  if (!this->Reader.ReadString(line))
     {
     vtkErrorMacro(<< "Premature EOF reading dataset keyword");
     return;
@@ -167,17 +165,19 @@ void vtkDataSetReader::Execute()
 //
 // See if type is recognized.
 //
-    if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
+    if (!this->Reader.ReadString(line))
       {
       vtkErrorMacro(<< "Premature EOF reading type");
       return;
       }
 
-    rewind(fp);
+    this->Reader.CloseVTKFile();
     if ( ! strncmp(this->Reader.LowerCase(line),"polydata",8) )
       {
       vtkPolyReader *preader = new vtkPolyReader;
       preader->SetFilename(this->Reader.GetFilename());
+      preader->SetInputString(this->Reader.GetInputString());
+      preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
       preader->SetScalarsName(this->Reader.GetScalarsName());
       preader->SetVectorsName(this->Reader.GetVectorsName());
       preader->SetNormalsName(this->Reader.GetNormalsName());
@@ -192,6 +192,8 @@ void vtkDataSetReader::Execute()
       {
       vtkStructuredPointsReader *preader = new vtkStructuredPointsReader;
       preader->SetFilename(this->Reader.GetFilename());
+      preader->SetInputString(this->Reader.GetInputString());
+      preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
       preader->SetScalarsName(this->Reader.GetScalarsName());
       preader->SetVectorsName(this->Reader.GetVectorsName());
       preader->SetNormalsName(this->Reader.GetNormalsName());
@@ -206,6 +208,8 @@ void vtkDataSetReader::Execute()
       {
       vtkStructuredGridReader *preader = new vtkStructuredGridReader;
       preader->SetFilename(this->Reader.GetFilename());
+      preader->SetInputString(this->Reader.GetInputString());
+      preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
       preader->SetScalarsName(this->Reader.GetScalarsName());
       preader->SetVectorsName(this->Reader.GetVectorsName());
       preader->SetNormalsName(this->Reader.GetNormalsName());
@@ -220,6 +224,8 @@ void vtkDataSetReader::Execute()
       {
       vtkUnstructuredGridReader *preader = new vtkUnstructuredGridReader;
       preader->SetFilename(this->Reader.GetFilename());
+      preader->SetInputString(this->Reader.GetInputString());
+      preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
       preader->SetScalarsName(this->Reader.GetScalarsName());
       preader->SetVectorsName(this->Reader.GetVectorsName());
       preader->SetNormalsName(this->Reader.GetNormalsName());

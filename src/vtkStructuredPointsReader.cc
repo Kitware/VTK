@@ -143,10 +143,8 @@ char *vtkStructuredPointsReader::GetLookupTableName()
 
 void vtkStructuredPointsReader::Execute()
 {
-  FILE *fp;
   int numPts=0;
-  int retStat;
-  char line[257];
+  char line[256];
   int npts;
   int dimsRead=0, arRead=0, originRead=0;
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
@@ -156,12 +154,12 @@ void vtkStructuredPointsReader::Execute()
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 
-  if ( !(fp=this->Reader.OpenVTKFile()) || !this->Reader.ReadHeader(fp) )
+  if (!this->Reader.OpenVTKFile() || !this->Reader.ReadHeader())
       return;
 //
 // Read structured points specific stuff
 //
-  if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
+  if (!this->Reader.ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
     return;
@@ -172,7 +170,7 @@ void vtkStructuredPointsReader::Execute()
 //
 // Make sure we're reading right type of geometry
 //
-    if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
+    if (!this->Reader.ReadString(line))
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
       return;
@@ -189,13 +187,14 @@ void vtkStructuredPointsReader::Execute()
     numPts = output->GetNumberOfPoints(); // get default
     while (1)
       {
-      if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) break;
+      if (!this->Reader.ReadString(line)) break;
 
       if ( ! strncmp(this->Reader.LowerCase(line),"dimensions",10) )
         {
         int dim[3];
-        if ( (retStat=fscanf(fp,"%d %d %d",dim, dim+1, dim+2)) == EOF
-        || retStat < 3 ) 
+        if (!(this->Reader.ReadInt(dim) && 
+	      this->Reader.ReadInt(dim+1) && 
+	      this->Reader.ReadInt(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
           return;
@@ -209,8 +208,9 @@ void vtkStructuredPointsReader::Execute()
       else if ( ! strncmp(line,"aspect_ratio",12) )
         {
         float ar[3];
-        if ( (retStat=fscanf(fp,"%f %f %f",ar, ar+1, ar+2)) == EOF
-        || retStat < 3 ) 
+        if (!(this->Reader.ReadFloat(ar) && 
+	      this->Reader.ReadFloat(ar+1) && 
+	      this->Reader.ReadFloat(ar+2)))
           {
           vtkErrorMacro(<<"Error reading aspect ratio!");
           return;
@@ -223,8 +223,9 @@ void vtkStructuredPointsReader::Execute()
       else if ( ! strncmp(line,"origin",6) )
         {
         float origin[3];
-        if ( (retStat=fscanf(fp,"%f %f %f",origin, origin+1, origin+2)) == EOF
-        || retStat < 3 ) 
+        if (!(this->Reader.ReadFloat(origin) && 
+	      this->Reader.ReadFloat(origin+1) && 
+	      this->Reader.ReadFloat(origin+2)))
           {
           vtkErrorMacro(<<"Error reading origin!");
           return;
@@ -236,7 +237,7 @@ void vtkStructuredPointsReader::Execute()
 
       else if ( ! strncmp(line, "point_data", 10) )
         {
-        if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
+        if (!this->Reader.ReadInt(&npts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
           return;
@@ -248,7 +249,7 @@ void vtkStructuredPointsReader::Execute()
           return;
           }
 
-        this->Reader.ReadPointData(fp, output, npts);
+        this->Reader.ReadPointData(output, npts);
         break; //out of this loop
         }
 
@@ -267,12 +268,12 @@ void vtkStructuredPointsReader::Execute()
   else if ( !strncmp(line,"point_data",10) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
+    if (!this->Reader.ReadInt(&npts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
       return;
       }
-    this->Reader.ReadPointData(fp, output, numPts);
+    this->Reader.ReadPointData(output, numPts);
     }
 
   else 

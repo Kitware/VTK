@@ -143,10 +143,8 @@ char *vtkPolyReader::GetLookupTableName()
 
 void vtkPolyReader::Execute()
 {
-  FILE *fp;
   int numPts=0;
-  int retStat;
-  char line[257];
+  char line[256];
   int npts, size, ncells;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
@@ -155,13 +153,12 @@ void vtkPolyReader::Execute()
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 
-  if ( !(fp=this->Reader.OpenVTKFile()) ||
-  ! this->Reader.ReadHeader(fp) )
+  if ( !(this->Reader.OpenVTKFile()) || !this->Reader.ReadHeader())
       return;
 //
 // Read polygonal data specific stuff
 //
-  if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
+  if (!this->Reader.ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
     return;
@@ -172,7 +169,7 @@ void vtkPolyReader::Execute()
 //
 // Make sure we're reading right type of geometry
 //
-    if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
+    if (!this->Reader.ReadString(line))
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
       return;
@@ -188,29 +185,29 @@ void vtkPolyReader::Execute()
 //
     while (1)
       {
-      if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) break;
+      if (!this->Reader.ReadString(line)) break;
 
       if ( ! strncmp(this->Reader.LowerCase(line),"points",6) )
         {
-        if ( (retStat=fscanf(fp,"%d", &numPts)) == EOF || retStat < 1 ) 
+        if (!this->Reader.ReadInt(&numPts))
           {
           vtkErrorMacro(<<"Cannot read number of points!");
           return;
           }
 
-        this->Reader.ReadPoints(fp, output, numPts);
+        this->Reader.ReadPoints(output, numPts);
         }
 
       else if ( ! strncmp(line,"vertices",8) )
         {
         vtkCellArray *verts = new vtkCellArray;
-        if ( (retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2 ) 
+        if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
           {
           vtkErrorMacro(<<"Cannot read vertices!");
           return;
           }
 
-        this->Reader.ReadCells(fp, size, verts->WritePtr(ncells,size));
+        this->Reader.ReadCells(size, verts->WritePtr(ncells,size));
         verts->WrotePtr();
         output->SetVerts(verts);
         verts->Delete();
@@ -220,13 +217,13 @@ void vtkPolyReader::Execute()
       else if ( ! strncmp(line,"lines",5) )
         {
         vtkCellArray *lines = new vtkCellArray;
-        if ( (retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2 ) 
+        if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
           {
           vtkErrorMacro(<<"Cannot read lines!");
           return;
           }
 
-        this->Reader.ReadCells(fp, size, lines->WritePtr(ncells,size));
+        this->Reader.ReadCells(size, lines->WritePtr(ncells,size));
         lines->WrotePtr();
         output->SetLines(lines);
         lines->Delete();
@@ -236,13 +233,13 @@ void vtkPolyReader::Execute()
       else if ( ! strncmp(line,"polygons",8) )
         {
         vtkCellArray *polys = new vtkCellArray;
-        if ( (retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2 ) 
+        if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
           {
           vtkErrorMacro(<<"Cannot read polygons!");
           return;
           }
 
-        this->Reader.ReadCells(fp, size, polys->WritePtr(ncells,size));
+        this->Reader.ReadCells(size, polys->WritePtr(ncells,size));
         polys->WrotePtr();
         output->SetPolys(polys);
         polys->Delete();
@@ -252,13 +249,13 @@ void vtkPolyReader::Execute()
       else if ( ! strncmp(line,"triangle_strips",15) )
         {
         vtkCellArray *tris = new vtkCellArray;
-        if ( (retStat=fscanf(fp,"%d %d", &ncells, &size)) == EOF || retStat < 2 ) 
+        if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
           {
           vtkErrorMacro(<<"Cannot read triangle strips!");
           return;
           }
 
-        this->Reader.ReadCells(fp, size, tris->WritePtr(ncells,size));
+        this->Reader.ReadCells(size, tris->WritePtr(ncells,size));
         tris->WrotePtr();
         output->SetStrips(tris);
         tris->Delete();
@@ -267,7 +264,7 @@ void vtkPolyReader::Execute()
 
       else if ( ! strncmp(line, "point_data", 10) )
         {
-        if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
+        if (!this->Reader.ReadInt(&npts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
           return;
@@ -279,7 +276,7 @@ void vtkPolyReader::Execute()
           return;
           }
 
-        this->Reader.ReadPointData(fp, output, npts);
+        this->Reader.ReadPointData(output, npts);
         break; //out of this loop
         }
 
@@ -299,13 +296,13 @@ void vtkPolyReader::Execute()
   else if ( !strncmp(line, "point_data", 10) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if ( (retStat=fscanf(fp,"%d", &numPts)) == EOF || retStat < 1 ) 
+    if (!this->Reader.ReadInt(&numPts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
       return;
       }
 
-    this->Reader.ReadPointData(fp, output, numPts);
+    this->Reader.ReadPointData(output, numPts);
     }
 
   else 

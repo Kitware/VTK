@@ -143,10 +143,8 @@ char *vtkStructuredGridReader::GetLookupTableName()
 
 void vtkStructuredGridReader::Execute()
 {
-  FILE *fp;
   int numPts=0, npts;
-  int retStat;
-  char line[257];
+  char line[256];
   int dimsRead=0;
   vtkStructuredGrid *output=(vtkStructuredGrid *)this->Output;
   
@@ -154,12 +152,12 @@ void vtkStructuredGridReader::Execute()
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 
-  if ( !(fp=this->Reader.OpenVTKFile()) || !this->Reader.ReadHeader(fp) )
+  if (!this->Reader.OpenVTKFile() || !this->Reader.ReadHeader())
       return;
 //
 // Read structured grid specific stuff
 //
-  if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
+  if (!this->Reader.ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
     return;
@@ -170,7 +168,7 @@ void vtkStructuredGridReader::Execute()
 //
 // Make sure we're reading right type of geometry
 //
-    if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) 
+    if (!this->Reader.ReadString(line))
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
       return;
@@ -186,13 +184,14 @@ void vtkStructuredGridReader::Execute()
 //
     while (1)
       {
-      if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) break;
+      if (!this->Reader.ReadString(line)) break;
 
       if ( ! strncmp(this->Reader.LowerCase(line),"dimensions",10) )
         {
         int dim[3];
-        if ( (retStat=fscanf(fp,"%d %d %d",dim, dim+1, dim+2)) == EOF
-        || retStat < 3 ) 
+        if (!(this->Reader.ReadInt(dim) && 
+	      this->Reader.ReadInt(dim+1) && 
+	      this->Reader.ReadInt(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
           return;
@@ -205,18 +204,18 @@ void vtkStructuredGridReader::Execute()
 
       else if ( ! strncmp(line,"points",6) )
         {
-        if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
+        if (!this->Reader.ReadInt(&npts))
           {
           vtkErrorMacro(<<"Error reading points!");
           return;
           }
 
-        this->Reader.ReadPoints(fp, output, npts);
+        this->Reader.ReadPoints(output, npts);
         }
 
       else if ( ! strncmp(line, "point_data", 10) )
         {
-        if ( (retStat=fscanf(fp,"%d", &numPts)) == EOF || retStat < 1 ) 
+        if (!this->Reader.ReadInt(&numPts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
           return;
@@ -228,7 +227,7 @@ void vtkStructuredGridReader::Execute()
           return;
           }
 
-        this->Reader.ReadPointData(fp, output, npts);
+        this->Reader.ReadPointData(output, npts);
         break; //out of this loop
         }
 
@@ -246,7 +245,7 @@ void vtkStructuredGridReader::Execute()
   else if ( !strncmp(line, "point_data", 10) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
+    if (!this->Reader.ReadInt(&npts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
       return;

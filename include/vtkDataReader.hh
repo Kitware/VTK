@@ -54,7 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_ASCII 1
 #define VTK_BINARY 2
 
-
 class vtkDataReader : public vtkObject
 {
 public:
@@ -66,6 +65,17 @@ public:
   // Specify file name of vtk data file to read.
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
+
+  // Description:
+  // Specify the InputString for use when reading from a character array.
+  vtkSetStringMacro(InputString);
+  vtkGetStringMacro(InputString);
+
+  // Description:
+  // Set/Get reading from an InputString instead of the default, a file.
+  vtkSetMacro(ReadFromInputString,int);
+  vtkGetMacro(ReadFromInputString,int);
+  vtkBooleanMacro(ReadFromInputString,int);
 
   // Description:
   // Get the type of file (ASCII or BINARY)
@@ -109,16 +119,27 @@ public:
 
   // Special methods
   char *LowerCase(char *);
-  FILE *OpenVTKFile();
-  int ReadHeader(FILE *fp);
-  int ReadPointData(FILE *fp, vtkDataSet *ds, int numPts);
-  int ReadPoints(FILE *fp, vtkPointSet *ps, int numPts);
-  int ReadCells(FILE *fp, int size, int *data);
-  void CloseVTKFile(FILE *fp);
+  int OpenVTKFile();
+  int ReadHeader();
+  int ReadPointData(vtkDataSet *ds, int numPts);
+  int ReadPoints(vtkPointSet *ps, int numPts);
+  int ReadCells(int size, int *data);
+  void CloseVTKFile();
+
+  // some functions for reading in stuff
+  int ReadLine(char result[256]);
+  int ReadString(char result[256]);
+  int ReadInt(int *result);
+  int ReadUChar(unsigned char *result);
+  int ReadShort(short *result);
+  int ReadFloat(float *result);
+  void EatWhiteSpace();
+  FILE *GetFP() {return this->fp;};
 
 protected:
   char *Filename;
   int FileType;
+  FILE *fp;
 
   char *ScalarsName;
   char *VectorsName;
@@ -128,16 +149,20 @@ protected:
   char *LookupTableName;
   char *ScalarLut;
 
+  int ReadFromInputString;
+  char *InputString;
+  int InputStringPos;
+
   vtkSetStringMacro(ScalarLut);
   vtkGetStringMacro(ScalarLut);
 
-  int ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts);
-  int ReadVectorData(FILE *fp, vtkDataSet *ds, int numPts);
-  int ReadNormalData(FILE *fp, vtkDataSet *ds, int numPts);
-  int ReadTensorData(FILE *fp, vtkDataSet *ds, int numPts);
-  int ReadCoScalarData(FILE *fp, vtkDataSet *ds, int numPts);
-  int ReadLutData(FILE *fp, vtkDataSet *ds);
-  int ReadTCoordsData(FILE *fp, vtkDataSet *ds, int numPts);
+  int ReadScalarData(vtkDataSet *ds, int numPts);
+  int ReadVectorData(vtkDataSet *ds, int numPts);
+  int ReadNormalData(vtkDataSet *ds, int numPts);
+  int ReadTensorData(vtkDataSet *ds, int numPts);
+  int ReadCoScalarData(vtkDataSet *ds, int numPts);
+  int ReadLutData(vtkDataSet *ds);
+  int ReadTCoordsData(vtkDataSet *ds, int numPts);
 };
 
 #endif
