@@ -60,11 +60,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_FILTERING_EXPORT vtkImplicitSum : public vtkImplicitFunction
 {
 public:
+//BTX
 #ifdef vtkTypeRevisionMacro
   vtkTypeRevisionMacro(vtkImplicitSum,vtkImplicitFunction);
 #else
   vtkTypeMacro(vtkImplicitSum,vtkImplicitFunction);
 #endif
+//ETX
 
   void PrintSelf(ostream& os, vtkIndent indent);
 

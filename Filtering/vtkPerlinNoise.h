@@ -38,11 +38,13 @@
 class VTK_FILTERING_EXPORT vtkPerlinNoise : public vtkImplicitFunction
 {
 public:
+//BTX
 #ifdef vtkTypeRevisionMacro
   vtkTypeRevisionMacro(vtkPerlinNoise,vtkImplicitFunction);
 #else
   vtkTypeMacro(vtkPerlinNoise,vtkImplicitFunction);
 #endif
+//ETX
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
