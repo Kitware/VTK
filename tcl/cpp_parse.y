@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#define yyerror(a) fprintf(stderr,"%s\n",a)
+#define yywrap() 1
 FILE *fhint;
 char *class_name;
 char *file_name;
