@@ -480,12 +480,14 @@ void vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, U
   int shift = GetKeyState(VK_SHIFT) & (~1);
   WORD nChar = 0;
   {
+#ifndef _WIN32_WCE
     BYTE keyState[256];
     GetKeyboardState(keyState);
     if (ToAscii(vCode,nFlags & 0xff,keyState,&nChar,0) == 0)
       {
       nChar = 0;
       }
+#endif
   } 
   char *keysym = AsciiToKeySymTable[(unsigned char)nChar];
   if (keysym == 0)
@@ -512,11 +514,13 @@ void vtkWin32RenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCnt, UIN
   WORD nChar = 0;
   {
     BYTE keyState[256];
+#ifndef _WIN32_WCE
     GetKeyboardState(keyState);
     if (ToAscii(vCode,nFlags & 0xff,keyState,&nChar,0) == 0)
       {
       nChar = 0;
       }
+#endif
   }
   char *keysym = AsciiToKeySymTable[(unsigned char)nChar];
   if (keysym == 0)
@@ -565,6 +569,10 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam,
     }
   return vtkHandleMessage2(hWnd,uMsg,wParam, lParam, me);
 }
+
+#ifndef MAKEPOINTS
+#define MAKEPOINTS(l)   (*((POINTS FAR *) & (l))) 
+#endif
 
 LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam, 
                                    LPARAM lParam, 
@@ -617,9 +625,11 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
       me->OnMouseMove(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
       break;
 
+#ifdef WM_MCVMOUSEMOVE
     case WM_NCMOUSEMOVE:
       me->OnNCMouseMove(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
       break;
+#endif
 
     case WM_CLOSE:
       // Don't know what to put here ! Why so many callbacks ?
