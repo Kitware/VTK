@@ -88,7 +88,7 @@ proc  OKB {} {
     global prefix numslices firstslice subx suby subz
     reader  SetFilePrefix $prefix;
     puts    $prefix
-    reader  SetDimensions 512 512 $numslices 1;
+    reader  SetDataDimensions 512 512 $numslices 1;
     reader  SetFirst $firstslice;
     set firstslice  [.load_param.t1.group1.first get];
     set numslices   [.load_param.t1.group1.number get];

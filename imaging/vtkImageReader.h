@@ -38,10 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageReader - Reads images from a binary file.
+// .NAME vtkImageReader - Superclass of binary file readers.
 // .SECTION Description
-// vtkImageReader will read an image saved as a binary file of any data type.
-// This reader assumes the whole image extent is save in one file.
+// vtkImageReader provides methods needed to read a region from a file.
 
 
 #ifndef __vtkImageReader_h
@@ -104,17 +103,25 @@ public:
   vtkImageGetMacro(DataOrigin,float);
   float *GetDataOrigin() {return this->DataOrigin;};  
   
-  // Description:
-  // Set the name of the file to be read.
-  void SetFileName(char *fileName);
-  
-  
   void UpdateImageInformation(vtkImageRegion *region);
   vtkImageSource *GetOutput();
   
   // Description:
   // Get the size of the header computed by this object.
   vtkGetMacro(HeaderSize, int);
+  
+  // Description:
+  // Set/Get the pixel mask. The mask is for legacy compatablilty.
+  vtkGetMacro(PixelMask,unsigned short);
+  void SetPixelMask(int val) 
+  {this->PixelMask = ((unsigned short)(val)); this->Modified();};
+  
+  // Description:
+  // Set/Get the byte swapping to explicitely swap the bytes of a file.
+  vtkSetMacro(SwapBytes,int);
+  vtkGetMacro(SwapBytes,int);
+  vtkBooleanMacro(SwapBytes,int);
+
   
   // following should only be used by methods or template helpers, not users
   int InputScalarType;
@@ -123,25 +130,26 @@ public:
   int HeaderSize;
   // For seeking to the correct location in the files.
   int FileIncrements[VTK_IMAGE_DIMENSIONS];
-  int DataExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
-
+  int FileExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  unsigned short PixelMask;  // Mask each pixel with ... legacy ...
+  int SwapBytes; // legacy
+  void Swap(unsigned char *buf, int length);
+  
+  
 protected:
   
   int Initialized;
-
   char *FileName;
+  int PixelSize;
   
   int DataDimensions[VTK_IMAGE_DIMENSIONS];
   float DataAspectRatio[VTK_IMAGE_DIMENSIONS];
   float DataOrigin[VTK_IMAGE_DIMENSIONS];
+  int DataExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
   
-  // The first image file has this index
-  int First;
-
-  void Initialize();
-  void UpdatePointData(vtkImageRegion *outRegion);    
+  virtual void Initialize();
+  virtual void UpdatePointData(vtkImageRegion *outRegion) = 0;    
   void UpdateFromFile(vtkImageRegion *region);
-  
 };
 
 #endif

@@ -35,9 +35,9 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageShortReader reader;
+vtkImageSeriesReader reader;
 	#reader DebugOn
-	reader  SetDimensions 512 512 $numslices 1;
+	reader  SetDataDimensions 512 512 $numslices 1;
         reader  SetFirst $firstslice;
 	reader  SetFilePrefix $prefix;
 	reader  SetOutputScalarType $VTK_SHORT;
@@ -94,7 +94,7 @@ vtkImageAdaptiveFilter af;
 
 vtkImageCTAComposite composite;
 	composite SetMaskInput       [mb     GetOutput];
-	composite SetOriginalInput   [reader GetOutput];
+	composite SetDataOriginalInput   [reader GetOutput];
 	composite SetSubSampledInput [af     GetOutput];
 	composite SetMagnificationFactors $subx $suby $subz;
 	composite SetReplaceValue $invalue;

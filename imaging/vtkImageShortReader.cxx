@@ -47,6 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageShortReader::vtkImageShortReader()
 {
   int idx;
+ 
+  vtkErrorMacro(<< "vtkImageShortReader is being phased out. "
+  << "Use vtkImageSeriesReader instead");
   
   this->File = NULL;
   this->PixelMask = 0xffff;

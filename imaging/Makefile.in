@@ -18,6 +18,7 @@ vtkImageFourierFilter \
 vtkImageMultipleInputFilter \
 vtkImagePadFilter \
 vtkImageInPlaceFilter \
+vtkImageReader \
 vtkImageSpatialFilter \
 vtkImageTwoInputFilter \
 vtkImageTwoOutputFilter \
@@ -44,6 +45,7 @@ vtkImageDotProduct \
 vtkImageDuotone \
 vtkImageFFT \
 vtkImageFFT1D \
+vtkImageFileReader \
 vtkImageFourierBandPass \
 vtkImageFourierWavelet2D \
 vtkImageGaussianSmooth \
@@ -67,12 +69,12 @@ vtkImageMirrorPad \
 vtkImageNonMaximumSuppression \
 vtkImageOpenClose \
 vtkImagePaint \
-vtkImageReader \
 vtkImageRDuotone \
 vtkImageRFFT \
 vtkImageRFFT1D \
 vtkImageRobotSpace2D \
 vtkImageScatterPlot \
+vtkImageSeriesReader \
 vtkImageShiftScale \
 vtkImageShortReader \
 vtkImageShortWriter \

@@ -20,10 +20,10 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageShortReader reader;
+vtkImageSeriesReader reader;
         reader DebugOn
 	#reader SwapBytesOff;
-	reader SetDimensions 128 128 $numslices 1;
+	reader SetDataDimensions 128 128 $numslices 1;
         reader  SetFirst $firstslice;
 	reader SetFilePrefix $prefix ;
 	reader SetPixelMask 0x7fff;

@@ -24,10 +24,10 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageShortReader reader;
+vtkImageSeriesReader reader;
 #reader DebugOn
 reader SwapBytesOn;
-reader SetDimensions 256 256 93;
+reader SetDataDimensions 256 256 93;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 
@@ -50,11 +50,11 @@ writer Write;
 
 
 
-vtkImageShortReader reader2;
+vtkImageSeriesReader reader2;
 #reader2 DebugOn
 reader2 ReleaseDataFlagOff;
 reader2 SwapBytesOn;
-reader2 SetDimensions 256 256 93;
+reader2 SetDataDimensions 256 256 93;
 reader2 SetFilePrefix "test"
 
 vtkImageXViewer viewer;

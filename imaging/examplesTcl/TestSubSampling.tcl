@@ -18,11 +18,11 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 set prefix "/home/alyassin2/database/gems/CTangio/CW1/original/i7903CTGE";
 # Image pipeline
 
-vtkImageShortReader reader;
+vtkImageSeriesReader reader;
 #reader DebugOn
 	reader ReleaseDataFlagOff;
 	reader SwapBytesOff;
-	reader SetDimensions 512 512 $numslices 1;
+	reader SetDataDimensions 512 512 $numslices 1;
 	reader SetFilePrefix $prefix;
 	reader SetPixelMask 0x7fff;
 

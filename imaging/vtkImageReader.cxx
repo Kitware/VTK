@@ -60,6 +60,7 @@ vtkImageReader::vtkImageReader()
     {
     this->FileIncrements[idx] = 1;
     this->DataExtent[idx*2] = this->DataExtent[idx*2 + 1] = 0;
+    this->FileExtent[idx*2] = this->FileExtent[idx*2 + 1] = 0;
     this->DataDimensions[idx] = 1;
     this->DataAspectRatio[idx] = 1.0;
     this->DataOrigin[idx] = 0.0;
@@ -70,11 +71,22 @@ vtkImageReader::vtkImageReader()
   this->HeaderSize = 0;
   this->FileSize = 0;
   this->Initialized = 0;
+
+  // Left over from short reader
+  this->PixelMask = 0xffff;
+  this->SwapBytes = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkImageReader::~vtkImageReader()
 { 
+  if (this->File)
+    {
+    this->File->close();
+    delete this->File;
+    this->File = NULL;
+    }
+  
   if (this->FileName)
     {
     delete [] this->FileName;
@@ -87,9 +99,13 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkObject::PrintSelf(os,indent);
+  vtkImageCachedSource::PrintSelf(os,indent);
+  
+  if (this->FileName)
+    {
+    os << indent << "FileName: " << this->FileName << "\n";
+    }
 
-  os << indent << "FileName: " << this->FileName << "\n";
   os << indent << "InputScalarType: " 
      << vtkImageScalarTypeNameMacro(this->InputScalarType) << "\n";
 
@@ -246,7 +262,6 @@ void vtkImageReader::UpdateImageInformation(vtkImageRegion *region)
 // This function opens the first file to determine the header size.
 void vtkImageReader::Initialize()
 {
-  int pixelSize;
   int idx, inc;
   
   if (this->Initialized)
@@ -264,19 +279,19 @@ void vtkImageReader::Initialize()
   switch (this->InputScalarType)
     {
     case VTK_FLOAT:
-      pixelSize = sizeof(float);
+      this->PixelSize = sizeof(float);
       break;
     case VTK_INT:
-      pixelSize = sizeof(int);
+      this->PixelSize = sizeof(int);
       break;
     case VTK_SHORT:
-      pixelSize = sizeof(short);
+      this->PixelSize = sizeof(short);
       break;
     case VTK_UNSIGNED_SHORT:
-      pixelSize = sizeof(unsigned short);
+      this->PixelSize = sizeof(unsigned short);
       break;
     case VTK_UNSIGNED_CHAR:
-      pixelSize = sizeof(unsigned char);
+      this->PixelSize = sizeof(unsigned char);
       break;
     default:
       vtkErrorMacro(<< "Initialize: Unknown InputScalarType");
@@ -284,7 +299,7 @@ void vtkImageReader::Initialize()
     }
 
   // compute the increments (in units of bytes)
-  inc = pixelSize;
+  inc = this->PixelSize;
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     this->FileIncrements[idx] = inc;
@@ -320,21 +335,6 @@ void vtkImageReader::Initialize()
 
 //----------------------------------------------------------------------------
 // Description:
-// This method sets the file name.
-void vtkImageReader::SetFileName(char *name)
-{
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  this->FileName = new char[strlen(name) + 1];
-  strcpy(this->FileName, name);
-  this->Initialized = 0;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// Description:
 // This function reads in one region of one slice.
 // templated to handle different data types.
 template <class IT, class OT>
@@ -355,10 +355,10 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region,
   region->GetIncrements(outInc0, outInc1, outInc2, outInc3);
 
   // region offset - file offset
-  streamStart = (min0 - self->DataExtent[0]) * self->FileIncrements[0] 
-    + (min1 - self->DataExtent[2]) * self->FileIncrements[1]
-    + (min2 - self->DataExtent[4]) * self->FileIncrements[3] 
-    + (min3 - self->DataExtent[6]) * self->FileIncrements[4];
+  streamStart = (min0 - self->FileExtent[0]) * self->FileIncrements[0] 
+    + (min1 - self->FileExtent[2]) * self->FileIncrements[1]
+    + (min2 - self->FileExtent[4]) * self->FileIncrements[3] 
+    + (min3 - self->FileExtent[6]) * self->FileIncrements[4];
 
   streamStart += self->HeaderSize;
 
@@ -416,11 +416,28 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region,
 	  return;
 	  }
 	
+	// handle swapping (legacy)
+	if (self->SwapBytes)
+	  {
+	  self->Swap(buf, streamRead);
+	  }
+	
 	// copy the bytes into the typed region
 	inPtr = (IT *)(buf);
 	for (idx0 = min0; idx0 <= max0; ++idx0)
 	  {
-	  *outPtr0 = (OT)(*inPtr);
+
+	  // Copy pixel into the output.
+	  if (self->PixelMask == 0xffff)
+	    {
+	    *outPtr0 = (OT)(*inPtr);
+	    }
+	  else
+	    {
+	    // left over from short reader (what about other types.
+	    *outPtr0 = (OT)((short)(*inPtr) & self->PixelMask);
+	    }
+	  
 	  // move to next pixel
 	  inPtr += 1;
 	  outPtr0 += outInc0;
@@ -483,7 +500,7 @@ void vtkImageReaderUpdate1(vtkImageReader *self,
 void vtkImageReader::UpdateFromFile(vtkImageRegion *region)
 {
   void *ptr;
-
+  
   // Call the correct templated function for the output
   switch (this->GetInputScalarType())
     {
@@ -510,20 +527,6 @@ void vtkImageReader::UpdateFromFile(vtkImageRegion *region)
 
 //----------------------------------------------------------------------------
 // Description:
-// This function is called by the cache to update a region.
-void vtkImageReader::UpdatePointData(vtkImageRegion *region)
-{
-  if ( ! this->Initialized)
-    {
-    this->Initialize();
-    }
-  this->UpdateFromFile(region);
-}
-
-
-
-//----------------------------------------------------------------------------
-// Description:
 // Sets the default ScalarType of the cache.
 vtkImageSource *vtkImageReader::GetOutput()
 {
@@ -535,6 +538,40 @@ vtkImageSource *vtkImageReader::GetOutput()
   
   return this->Output;
 }
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Swaps the bytes of a buffer.  It uses the PixelSize ivar.
+// Assumes the pixel size is divisible by two.
+void vtkImageReader::Swap(unsigned char *buffer, int length)
+{
+  unsigned char temp, *out;
+  int idx1, idx2, inc, half;
+  
+  half = this->PixelSize / 2;
+  inc = this->PixelSize - 1;
+  
+  for (idx1 = 0; idx1 < length; ++idx1)
+    {
+    out = buffer + inc;
+    for (idx2 = 0; idx2 < half; ++idx2)
+      {
+      temp = *out;
+      *out = *buffer;
+      *buffer = temp;
+      ++buffer;
+      --out;
+      }
+    buffer += half;
+    }
+}
+
+  
+    
+    
+  
 
 
 

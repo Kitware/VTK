@@ -6,13 +6,13 @@ source vtkImageInclude.tcl
 
 # Image pipeline
 
-vtkImageReader reader;
+vtkImageFileReader reader;
 reader ReleaseDataFlagOff;
 reader SetAxes $VTK_IMAGE_COMPONENT_AXIS $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS 
-reader SetDataDimensions 3 576 406;
-reader SetFileName "/home/lawcc/pics/foo2.ppm";
+reader SetDataDimensions 3 512 256;
+reader SetFileName "../../data/earth.ppm";
 reader SetInputScalarType $VTK_UNSIGNED_CHAR;
-reader DebugOn
+#reader DebugOn
 
 
 vtkImageXViewer viewer;
