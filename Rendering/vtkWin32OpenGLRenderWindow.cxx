@@ -286,12 +286,6 @@ void vtkWin32OpenGLRenderWindow::SetPosition(int x, int y)
     }
 }
 
-// this function is needed because SwapBuffers is an ivar,
-// as well as a Win32 API
-inline static void vtkWin32OpenGLSwapBuffers(HDC hdc)
-{
-  SwapBuffers(hdc);
-}
 
 // End the rendering process and display the image.
 void vtkWin32OpenGLRenderWindow::Frame(void)
@@ -299,7 +293,9 @@ void vtkWin32OpenGLRenderWindow::Frame(void)
   this->MakeCurrent();
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
     {
-    vtkWin32OpenGLSwapBuffers(this->DeviceContext);
+    // use global scope to get Win32 API SwapBuffers and not be
+    // confused with this->SwapBuffers
+    ::SwapBuffers(this->DeviceContext);
     vtkDebugMacro(<< " SwapBuffers\n");
     }
   else
