@@ -80,8 +80,9 @@ static void kwsysProcessRestoreDefaultSignalHandlers();
 /* Structure containing data used to implement the child's execution.  */
 struct kwsysProcess_s
 {
-  /* The command line to execute. */
-  char** Command;
+  /* The command lines to execute.  */
+  char*** Commands;
+  int NumberOfCommands;
 
   /* Descriptors for the read ends of the child's output pipes. */
   int PipeReadEnds[KWSYSPE_PIPE_COUNT];
@@ -173,32 +174,101 @@ void kwsysProcess_Delete(kwsysProcess* cp)
 }
 
 /*--------------------------------------------------------------------------*/
-void kwsysProcess_SetCommand(kwsysProcess* cp, char const* const* command)
+int kwsysProcess_SetCommand(kwsysProcess* cp, char const* const* command)
 {
-  if(cp->Command)
+  int i;
+  for(i=0; i < cp->NumberOfCommands; ++i)
     {
-    char** c = cp->Command;
+    char** c = cp->Commands[i];
     while(*c)
       {
       free(*c++);
       }
-    free(cp->Command);
-    cp->Command = 0;
+    free(cp->Commands[i]);
+    }
+  cp->NumberOfCommands = 0;
+  if(cp->Commands)
+    {
+    free(cp->Commands);
+    cp->Commands = 0;
     }
   if(command)
     {
-    char const* const* c = command;
-    int n = 0;
-    int i = 0;
-    while(*c++);
-    n = c - command - 1;
-    cp->Command = (char**)malloc((n+1)*sizeof(char*));
-    for(i=0; i < n; ++i)
-      {
-      cp->Command[i] = strdup(command[i]);
-      }
-    cp->Command[n] = 0;
+    return kwsysProcess_AddCommand(cp, command);
     }
+  return 1;
+}
+
+/*--------------------------------------------------------------------------*/
+int kwsysProcess_AddCommand(kwsysProcess* cp, char const* const* command)
+{
+  int newNumberOfCommands;
+  char*** newCommands;
+
+  /* Make sure we have a command to add.  */
+  if(!command)
+    {
+    return 0;
+    }
+
+  /* Allocate a new array for command pointers.  */
+  newNumberOfCommands = cp->NumberOfCommands + 1;
+  if(!(newCommands = (char***)malloc(sizeof(char**) * newNumberOfCommands)))
+    {
+    /* Out of memory.  */
+    return 0;
+    }
+
+  /* Copy any existing commands into the new array.  */
+  {
+  int i;
+  for(i=0; i < cp->NumberOfCommands; ++i)
+    {
+    newCommands[i] = cp->Commands[i];
+    }
+  }
+
+  /* Add the new command.  */
+  {
+  char const* const* c = command;
+  int n = 0;
+  int i = 0;
+  while(*c++);
+  n = c - command - 1;
+  newCommands[cp->NumberOfCommands] = (char**)malloc((n+1)*sizeof(char*));
+  if(!newCommands[cp->NumberOfCommands])
+    {
+    /* Out of memory.  */
+    free(newCommands);
+    return 0;
+    }
+  for(i=0; i < n; ++i)
+    {
+    newCommands[cp->NumberOfCommands][i] = strdup(command[i]);
+    if(!newCommands[cp->NumberOfCommands][i])
+      {
+      break;
+      }
+    }
+  if(i < n)
+    {
+    /* Out of memory.  */
+    for(;i > 0; --i)
+      {
+      free(newCommands[cp->NumberOfCommands][i-1]);
+      }
+    free(newCommands);
+    return 0;
+    }
+  newCommands[cp->NumberOfCommands][n] = 0;
+  }
+
+  /* Successfully allocated new command array.  Free the old array. */
+  free(cp->Commands);
+  cp->Commands = newCommands;
+  cp->NumberOfCommands = newNumberOfCommands;
+
+  return 1;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -401,8 +471,8 @@ void kwsysProcess_Execute(kwsysProcess* cp)
 }
 
 /*--------------------------------------------------------------------------*/
-int kwsysProcess_WaitForData(kwsysProcess* cp, int pipes, char** data, int* length,
-                          double* userTimeout)
+int kwsysProcess_WaitForData(kwsysProcess* cp, int pipes, char** data,
+                             int* length, double* userTimeout)
 {
   int i;
   int max = -1;
