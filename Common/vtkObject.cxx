@@ -55,6 +55,7 @@ class vtkObserver
   vtkObserver():Command(0),Event(0),Tag(0),Next(0) {}
   ~vtkObserver();
 
+  float Priority;
   vtkCommand *Command;
   unsigned long Event;
   unsigned long Tag;
@@ -64,19 +65,19 @@ class vtkObserver
 class vtkSubjectHelper
 {
 public:
-  vtkSubjectHelper():Start(0),End(0),Count(1) {}
+  vtkSubjectHelper():Start(0),Count(1) {}
   ~vtkSubjectHelper();
   
-  unsigned long AddObserver(unsigned long event, vtkCommand *cmd);
+  unsigned long AddObserver(unsigned long event, vtkCommand *cmd, float p);
   void RemoveObserver(unsigned long tag);
   void InvokeEvent(unsigned long event, void *callData, vtkObject *self);
   vtkCommand *GetCommand(unsigned long tag);
+  unsigned long GetTag(vtkCommand*);
   int HasObserver(unsigned long event);
   void PrintSelf(ostream& os, vtkIndent indent);
   
 protected:
   vtkObserver *Start;
-  vtkObserver *End;
   unsigned long Count;
 };
 
@@ -274,7 +275,7 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
 
 void vtkObject::CollectRevisions(ostream& os)
 {
-  os << "vtkObject 1.69\n";
+  os << "vtkObject 1.70\n";
 }
 
 //----------------------------------Command/Observer stuff-------------------
@@ -296,33 +297,59 @@ vtkSubjectHelper::~vtkSubjectHelper()
     elem = next;
     }
   this->Start = NULL;
-  this->End = NULL;
 }
 
 
 unsigned long vtkSubjectHelper::
-AddObserver(unsigned long event, vtkCommand *cmd)
+AddObserver(unsigned long event, vtkCommand *cmd, float p)
 {
   vtkObserver *elem;
 
+  // initialize the new observer element
   elem = new vtkObserver;
-  
+  elem->Priority = p;
+  elem->Next = NULL;
+  elem->Event = event;
+  elem->Command = cmd;
+  cmd->Register();
+  elem->Tag = this->Count;
+  this->Count++;
+
+  // now insert into the list
+  // if no other elements in the list then this is Start
   if (!this->Start)
     {
     this->Start = elem;
     }
   else
     {
-    this->End->Next = elem;
+    // insert high priority first
+    vtkObserver* prev = 0;
+    vtkObserver* pos = this->Start;
+    while(pos->Priority >= elem->Priority && pos->Next)
+      {
+      prev = pos;
+      pos = pos->Next;
+      }
+    // pos is Start and elem should not be start
+    if(pos->Priority > elem->Priority)
+      {
+      pos->Next = elem;
+      }
+    else
+      {
+      if(prev)
+        {
+        prev->Next = elem;
+        }
+      elem->Next = pos;
+      // check to see if the new element is the start
+      if(pos == this->Start)
+        {
+        this->Start = elem;
+        }
+      }
     }
-  this->End = elem;
-
-  elem->Event = event;
-  elem->Command = cmd;
-  cmd->Register();
-  elem->Next = NULL;
-  elem->Tag = this->Count;
-  this->Count++;
   return elem->Tag;
 }
 
@@ -347,10 +374,6 @@ void vtkSubjectHelper::RemoveObserver(unsigned long tag)
         {
         this->Start = elem->Next;
         next = this->Start;
-        }
-      if (elem == this->End)
-        {
-        this->End = prev;
         }
       delete elem;
       elem = next;
@@ -388,10 +411,32 @@ void vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
     next = elem->Next;
     if (elem->Event == event || elem->Event == vtkCommand::AnyEvent)
       {
+      int abort = 0;
+      elem->Command->SetAbortFlagPointer(&abort);
       elem->Command->Execute(self,event,callData);
+      // if the command set the abort flag, then stop firing events
+      // and return
+      if(abort)
+        {
+        return;
+        }
       }
     elem = next;
     }  
+}
+
+unsigned long vtkSubjectHelper::GetTag(vtkCommand* cmd)
+{
+  vtkObserver *elem = this->Start;
+  while (elem)
+    {
+    if (elem->Command == cmd)
+      {
+      return elem->Tag;
+      }
+    elem = elem->Next;
+    }  
+  return 0;
 }
 
 vtkCommand *vtkSubjectHelper::GetCommand(unsigned long tag)
@@ -427,18 +472,18 @@ void vtkSubjectHelper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //--------------------------------vtkObject observer-----------------------
-unsigned long vtkObject::AddObserver(unsigned long event, vtkCommand *cmd)
+unsigned long vtkObject::AddObserver(unsigned long event, vtkCommand *cmd, float p)
 {
   if (!this->SubjectHelper)
     {
     this->SubjectHelper = new vtkSubjectHelper;
     }
-  return this->SubjectHelper->AddObserver(event,cmd);
+  return this->SubjectHelper->AddObserver(event,cmd, p);
 }
 
-unsigned long vtkObject::AddObserver(const char *event,vtkCommand *cmd)
+unsigned long vtkObject::AddObserver(const char *event,vtkCommand *cmd, float p)
 {
-  return this->AddObserver(vtkCommand::GetEventIdFromString(event), cmd);
+  return this->AddObserver(vtkCommand::GetEventIdFromString(event), cmd, p);
 }
 
 vtkCommand *vtkObject::GetCommand(unsigned long tag)
@@ -455,6 +500,18 @@ void vtkObject::RemoveObserver(unsigned long tag)
   if (this->SubjectHelper)
     {
     this->SubjectHelper->RemoveObserver(tag);
+    }
+}
+
+void vtkObject::RemoveObserver(vtkCommand* c)
+{
+  if (this->SubjectHelper)
+    {
+    unsigned long tag = this->SubjectHelper->GetTag(c);
+    if(tag)
+      {
+      this->SubjectHelper->RemoveObserver(tag);
+      }
     }
 }
 
