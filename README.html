@@ -17,6 +17,7 @@ Welcome To The Visualization Toolkit
     <UL>
     <LI> <A HREF="#Copyright">Copyright Notice</A>
     <LI> <A HREF="#Introduction">Introduction</A>
+    <LI> <A HREF="#Organization">Organization</A>
     <LI> <A HREF="#Documentation">Documentation</A>
     <LI> <A HREF="#Installation">Installation</A>
         <UL>
@@ -72,7 +73,43 @@ to a world-wide user base in the commercial, academic, and research
 communities.<p>
 
 This is VTK version 4.0 and greater. For more information and a FAQ see our
-web page at <A HREF="http://www.kitware.com/">http://www.kitware.com</A><p>
+web page at 
+<A HREF="http://public.kitware.com/VTK">http://public.kitware.com/VTK</A><p>
+
+<HR>
+<h1><A NAME="Organization">Organization</h1>
+The VTK 4.0 source code repository is organized into four major sections.
+  <ul>
+  <li>The source code is found in the directories Common, Rendering,
+         Filtering, Graphics, Imaging, Hybrid, Parallel, and Patented.<p>
+         <ul>
+         <li><b>Common</b>- Core classes
+         <li><b>Rendering</b>- Classes used to render
+         <li><b>Filtering</b>- Abstract superclasses for filtering data
+         <li><b>Graphics</b>- Filters that process 3D data
+         <li><b>Imaging</b>- Specialized image processing filters
+         <li><b>Hybrid</b>- Complex classes that depend on imaging and graphics
+         <li><b>Parallel</b>- Parallel processing support such as MPI
+         <li><b>Patented</b>- Patented classes, to be used in 
+         commercial applications only with a license
+         </ul>
+         </li><p>
+  <li><B>Examples</B> that are reasonably well documented are found in the
+         VTK/Examples directory. You may wish to start with the examples
+         found in the Tutorial directory.<p></li>
+  <li>The <B>Utilities</B> directory includes things like jpeg, png, 
+         and zlib source code. This code is used by VTK in various ways 
+         (reading/writing data, etc.)<p></li>
+  <li>The <B>Wrapping</B> directory contains code related to VTK's automated
+         wrapping process. The wrapping process automatically generates
+         Tcl, Python, and/or Java bindings depending on how the build
+         process is configured.<p></li>
+  </ul>
+
+There are hundreds of testing examples located in the Testing/ directory
+under each source code directory (e.g., Graphics/Testing). These are 
+undocumented tests but can be helpful in some cases.<p>
+
 
 <HR>
 <h1><A NAME="Documentation">Documentation</h1>
@@ -90,6 +127,10 @@ objects in VTK as well as a FAQ.
 </pre>
 You can also order the VTK User's Guide from Kitware,Inc. See the
 web page <A HREF="http://www.kitware.com/products/vtkguide.html">http://www.kitware.com/products/vtkguide.html</A><p>
+
+On-line Doxygen man pages are also available at
+<A href="http://public.kitware.com/VTK/doc/nightly/html/">
+http://public.kitware.com/VTK/doc/nightly/html/</a><p>
 
 <HR>
 <h1><A NAME="Installation">Installation</h1>
