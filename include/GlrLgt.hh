@@ -22,7 +22,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlGlrLight_hh
 
 #include "Light.hh"
-#include "gl.h"
 
 class vlGlrRenderer;
 
