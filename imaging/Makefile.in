@@ -150,7 +150,6 @@ vtkScaledTextActor \
 vtkTextMapper \
 vtkTIFFReader \
 vtkTIFFWriter \
-vtkXYPlotActor \
 ${UNIX_CONCRETE} \
 ${GRAPHICS_API_OBJ} 
 

@@ -57,6 +57,7 @@ vtkVolumeProMapper \
 vtkInputPort \
 vtkOutputPort \
 vtkVRMLImporter \
+vtkXYPlotActor \
 ${CONTROLLER_API_OBJ}
 
 #vtkPolyDataCollector \
