@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.5");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.6");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -41,24 +41,7 @@ vtkMetaImageReader::~vtkMetaImageReader()
 //----------------------------------------------------------------------------
 void vtkMetaImageReader::SetFileName(const char* fname)
 {
-  if ( fname == this->MHDFileName )
-    {
-    return;
-    }
-  if ( fname && this->MHDFileName && strcmp(fname, this->MHDFileName) == 0 )
-    {
-    return;
-    }
-  if ( this->MHDFileName )
-    {
-    delete [] this->MHDFileName;
-    this->MHDFileName = 0;
-    }
-  if ( fname )
-    {
-    this->MHDFileName = new char [ strlen(fname) + 1 ];
-    strcpy(this->MHDFileName, fname);
-    }
+  this->SetMHDFileName(fname);
 }
 
 //----------------------------------------------------------------------------
@@ -453,8 +436,21 @@ void vtkMetaImageReader::ExecuteInformation()
         }
       else if ( vtkMetaImageReaderInternal::StringEquals(key, "ElementDataFile", keylen) )
         {
-        datafile = path + "/";
-        datafile.append(value, valuelen);
+        if ( value[0] == '/' || 
+          ( value[1] == ':' && ( value[2] == '/' || value[2] == '\\' ) ) ||
+          ( value[0] == '\\' && value[1] == '\\' ) )
+          {
+          datafile = "";
+          datafile.append(value, valuelen);
+          vtkDebugMacro("Use absolute path");
+          }
+        else
+          {
+          datafile = path;
+          datafile += "/";
+          datafile.append(value, valuelen);
+          vtkDebugMacro("Use relative path");
+          }
 
         if ( stat( datafile.c_str(), &fs) )
           {
@@ -507,6 +503,7 @@ void vtkMetaImageReader::ExecuteInformation()
     this->SetDataByteOrderToLittleEndian();
     }
 
+  cout << "Read file: " << datafile.c_str() << endl;
   this->Superclass::SetFileName(datafile.c_str());
   this->Superclass::ExecuteInformation();
 }

@@ -88,6 +88,7 @@ protected:
 
   void ExecuteInformation();
 
+  vtkSetStringMacro(MHDFileName);
   char* MHDFileName;
 
 private:
