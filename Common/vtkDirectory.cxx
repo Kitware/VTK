@@ -19,7 +19,7 @@
 
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkDirectory, "1.16");
+vtkCxxRevisionMacro(vtkDirectory, "1.17");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -72,9 +72,9 @@ void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-// First microsoft compilers
+// First microsoft and borland compilers
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__BORLANDC__)
 #include <windows.h>
 #include <io.h>
 #include <ctype.h>
