@@ -43,6 +43,8 @@ mapToRGBA AddObserver EndEvent changeLUT
 vtkImageDataStreamer imageStreamer
 imageStreamer SetInput [mapToRGBA GetOutput]
 imageStreamer SetNumberOfStreamDivisions 8
+# make sure we get the correct translator.
+imageStreamer UpdateInformation
 [imageStreamer GetExtentTranslator] SetSplitModeToBlock
 
 # set the window/level to 255.0/127.5 to view full range

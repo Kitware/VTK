@@ -10,11 +10,11 @@ vtkImageGaussianSource gauss
 
 vtkBranchExtentTranslator translator
   translator SetOriginalSource [gauss GetOutput]
+  [gauss GetOutput] SetExtentTranslator translator
 
 vtkImageClip clip1
   clip1 SetOutputWholeExtent 7 28 0 15 1 1
   clip1 SetInput [gauss GetOutput]
-  [clip1 GetOutput] SetExtentTranslator translator
 vtkDataSetSurfaceFilter surf1
   surf1 SetInput [clip1 GetOutput]
 vtkTriangleFilter tf1
@@ -34,7 +34,6 @@ vtkActor actor1
 vtkImageClip clip2
   clip2 SetOutputWholeExtent 16 18 3 10 0 0
   clip2 SetInput [gauss GetOutput]
-  [clip2 GetOutput] SetExtentTranslator translator
 vtkDataSetSurfaceFilter surf2
   surf2 SetInput [clip2 GetOutput]
 vtkTriangleFilter tf2
@@ -54,7 +53,6 @@ vtkActor actor2
 vtkImageClip clip3
   clip3 SetOutputWholeExtent 1 10 0 15 0 2
   clip3 SetInput [gauss GetOutput]
-  [clip3 GetOutput] SetExtentTranslator translator
 vtkDataSetSurfaceFilter surf3
   surf3 SetInput [clip3 GetOutput]
 vtkTriangleFilter tf3
@@ -67,12 +65,6 @@ vtkPolyDataMapper mapper3
 vtkActor actor3
   actor3 SetMapper mapper3
   actor3 SetPosition 30 0 0
-
-
-
-
-
-
 
 
 
@@ -96,3 +88,8 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 wm withdraw .
 
+
+renWin Render
+
+# break loop to avoid a memory leak.
+translator SetOriginalSource {}

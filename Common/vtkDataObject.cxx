@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.90");
+vtkCxxRevisionMacro(vtkDataObject, "1.91");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -608,6 +608,7 @@ void vtkDataObject::CopyInformation( vtkDataObject *data )
     {
     this->MaximumNumberOfPieces = data->GetMaximumNumberOfPieces();
     }
+  this->SetExtentTranslator(data->GetExtentTranslator());
 }
 
 //----------------------------------------------------------------------------
