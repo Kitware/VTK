@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPNMSource.hh"
+#include "vtkPNMReader.hh"
 
-char vtkPNMSourceGetChar(FILE *fp)
+char vtkPNMReaderGetChar(FILE *fp)
 {
   char c;
   int result;
@@ -67,20 +67,20 @@ char vtkPNMSourceGetChar(FILE *fp)
   return c;
 }
 
-int vtkPNMSourceGetInt(FILE *fp)
+int vtkPNMReaderGetInt(FILE *fp)
 {
   char c;
   int result = 0;
   
   do
     {
-    c = vtkPNMSourceGetChar(fp);
+    c = vtkPNMReaderGetChar(fp);
     }
   while ((c < '1')||(c > '9'));
   do
     {
     result = result * 10 + (c - '0');
-    c = vtkPNMSourceGetChar(fp);
+    c = vtkPNMReaderGetChar(fp);
     }
   while ((c >= '0')&&(c <= '9'));
 
@@ -88,7 +88,7 @@ int vtkPNMSourceGetInt(FILE *fp)
 }
   
 
-vtkPNMSource::vtkPNMSource()
+vtkPNMReader::vtkPNMReader()
 {
   this->Filename = NULL;
   this->ImageRange[0] = this->ImageRange[1] = -1;
@@ -97,7 +97,7 @@ vtkPNMSource::vtkPNMSource()
   this->DataAspectRatio[0] = this->DataAspectRatio[1] = this->DataAspectRatio[2] = 1.0;
 }
 
-void vtkPNMSource::Execute()
+void vtkPNMReader::Execute()
 {
   vtkColorScalars *newScalars;
   int dim[3];
@@ -126,7 +126,7 @@ void vtkPNMSource::Execute()
   newScalars->Delete();
 }
 
-vtkColorScalars *vtkPNMSource::ReadImage(int dim[3])
+vtkColorScalars *vtkPNMReader::ReadImage(int dim[3])
 {
   char magic[80];
   vtkPixmap *pixmap;
@@ -148,16 +148,16 @@ vtkColorScalars *vtkPNMSource::ReadImage(int dim[3])
   // get the magic number
   do
     {
-    c = vtkPNMSourceGetChar(fp);
+    c = vtkPNMReaderGetChar(fp);
     }
   while (c != 'P');
   magic[0] = c;
-  magic[1] = vtkPNMSourceGetChar(fp);
+  magic[1] = vtkPNMReaderGetChar(fp);
   magic[2] = '\0';
 
   // now get the dimensions
-  dim[0] = vtkPNMSourceGetInt(fp);
-  dim[1] = vtkPNMSourceGetInt(fp);
+  dim[0] = vtkPNMReaderGetInt(fp);
+  dim[1] = vtkPNMReaderGetInt(fp);
 
   // check input
   if ( (numPts = dim[0]*dim[1]) < 1 )
@@ -206,7 +206,7 @@ vtkColorScalars *vtkPNMSource::ReadImage(int dim[3])
   return s;
 }
 
-vtkColorScalars *vtkPNMSource::ReadVolume(int dim[3])
+vtkColorScalars *vtkPNMReader::ReadVolume(int dim[3])
 {
   vtkColorScalars *s=NULL;
 
@@ -214,13 +214,13 @@ vtkColorScalars *vtkPNMSource::ReadVolume(int dim[3])
 }
 
 
-int vtkPNMSource::ReadBinaryPBM(FILE *fp, vtkBitmap* bitmap, int numPts,
+int vtkPNMReader::ReadBinaryPBM(FILE *fp, vtkBitmap* bitmap, int numPts,
                                int xsize, int ysize)
 {
   int max, j, packedXSize=xsize/8;
   unsigned char *cptr;
 
-  max = vtkPNMSourceGetInt(fp);
+  max = vtkPNMReaderGetInt(fp);
 
 //
 // Since pnm coordinate system is at upper left of image, need to convert
@@ -239,13 +239,13 @@ int vtkPNMSource::ReadBinaryPBM(FILE *fp, vtkBitmap* bitmap, int numPts,
   return 1;
 }
 
-int vtkPNMSource::ReadBinaryPGM(FILE *fp, vtkGraymap* graymap, int numPts,
+int vtkPNMReader::ReadBinaryPGM(FILE *fp, vtkGraymap* graymap, int numPts,
                                int xsize, int ysize)
 {
   int max, j;
   unsigned char *cptr;
 
-  max = vtkPNMSourceGetInt(fp);
+  max = vtkPNMReaderGetInt(fp);
 //
 // Since pnm coordinate system is at upper left of image, need to convert
 // to lower rh corner origin by reading a row at a time.
@@ -263,13 +263,13 @@ int vtkPNMSource::ReadBinaryPGM(FILE *fp, vtkGraymap* graymap, int numPts,
   return 1;
 }
 
-int vtkPNMSource::ReadBinaryPPM(FILE *fp, vtkPixmap* pixmap, int numPts,
+int vtkPNMReader::ReadBinaryPPM(FILE *fp, vtkPixmap* pixmap, int numPts,
                                int xsize, int ysize)
 {
   int max, j;
   unsigned char *cptr;
 
-  max = vtkPNMSourceGetInt(fp);
+  max = vtkPNMReaderGetInt(fp);
 //
 // Since pnm coordinate system is at upper left of image, need to convert
 // to lower rh corner origin by reading a row at a time.
@@ -287,7 +287,7 @@ int vtkPNMSource::ReadBinaryPPM(FILE *fp, vtkPixmap* pixmap, int numPts,
   return 1;
 }
 
-void vtkPNMSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPNMReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 

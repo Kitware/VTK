@@ -38,13 +38,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkPNMSource - read pnm (i.e., portable anymap) files
+// .NAME vtkPNMReader - read pnm (i.e., portable anymap) files
 // .SECTION Description
-// vtkPNMSource is a source object that reads pnm (portable anymap) files.
+// vtkPNMReader is a source object that reads pnm (portable anymap) files.
 // This includes .pbm (bitmap), .pgm (grayscale), and .ppm (pixmap) files.
 // (Currently this object only reads binary versions of these files).
 //
-// PNMSource creates structured point datasets. The dimension of the 
+// PNMReader creates structured point datasets. The dimension of the 
 // dataset depends upon the number of files read. Reading a single file 
 // results in a 2D image, while reading more than one file results in a 
 // 3D volume.
@@ -59,8 +59,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // differentiate between reading images and volumes, the image range is set
 // to  (-1,-1) to read a single image file.
 
-#ifndef __vtkPNMSource_h
-#define __vtkPNMSource_h
+#ifndef __vtkPNMReader_h
+#define __vtkPNMReader_h
 
 #include <stdio.h>
 #include "vtkStructuredPointsSource.hh"
@@ -68,11 +68,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGraymap.hh"
 #include "vtkBitmap.hh"
 
-class vtkPNMSource : public vtkStructuredPointsSource
+class vtkPNMReader : public vtkStructuredPointsSource
 {
 public:
-  vtkPNMSource();
-  char *GetClassName() {return "vtkPNMSource";};
+  vtkPNMReader();
+  char *GetClassName() {return "vtkPNMReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
