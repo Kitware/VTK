@@ -27,6 +27,7 @@ IF (VTK_USE_RENDERING)
       clipQuadraticCells
       clipVolume
       clipVolume2
+      clipVolume3
       combStreamers
       combStreamers2
       coneResolution
@@ -192,6 +193,8 @@ IF (VTK_USE_RENDERING)
       capSphere
       CellDataToPointData
       clipVolume
+      clipVolume2
+      clipVolume3
       coneResolution
       constrainedDelaunay
       contourCells
