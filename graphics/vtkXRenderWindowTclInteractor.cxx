@@ -495,5 +495,5 @@ int vtkXRenderWindowTclInteractor::DestroyTimer(void)
 
 void vtkXRenderWindowTclInteractor::TerminateApp(void) 
 {
-  Tcl_Exit(1);
+  Tcl_Finalize();
 }
