@@ -88,15 +88,10 @@ all:  java_parse java_wrap vtk/vtkPanel.class
 vtk/vtkPanel.class: vtk/vtkPanel.java
 	${JAVAC} -d ${JAVA_CLASS_HOME} ${srcdir}/vtk/vtkPanel.java
 
-
-java_parse: $(srcdir)/java_parse.y $(srcdir)/concrete.l
-	$(LEX) $(srcdir)/concrete.l
-	$(YACC) -b java_parse $(srcdir)/java_parse.y 
+java_parse: $(srcdir)/java_parse.tab.c $(srcdir)/lex.yy.c
 	$(CC) $(C_FLAGS) -I. -o java_parse java_parse.tab.c -lm
 
-java_wrap: $(srcdir)/java_wrap.y $(srcdir)/concrete.l
-	$(LEX) $(srcdir)/concrete.l
-	$(YACC) -b java_wrap $(srcdir)/java_wrap.y 
+java_wrap: $(srcdir)/java_wrap.tab.c $(srcdir)/lex.yy.c
 	$(CC) $(C_FLAGS) -I. -o java_wrap java_wrap.tab.c -lm
 
 #------------------------------------------------------------------------------
