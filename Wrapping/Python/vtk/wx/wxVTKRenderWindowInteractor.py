@@ -223,7 +223,9 @@ class wxVTKRenderWindowInteractor(baseClass):
 
     def OnMotion(self, event):
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
-                                            0, 0, chr(0), 0, None)
+                                            event.ControlDown(), 
+					    event.ShiftDown(), 
+					    chr(0), 0, None)
         self._Iren.MouseMoveEvent()
 
     def OnEnter(self,event):
@@ -231,7 +233,9 @@ class wxVTKRenderWindowInteractor(baseClass):
             self.__OldFocus = wxWindow_FindFocus()
             self.SetFocus()
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
-                                            0, 0, chr(0), 0, None)
+                                            event.ControlDown(), 
+					    event.ShiftDown(), 
+					    chr(0), 0, None)
         self._Iren.EnterEvent()
         
     def OnLeave(self,event):
@@ -239,7 +243,9 @@ class wxVTKRenderWindowInteractor(baseClass):
             self.__OldFocus.SetFocus()
             self.__OldFocus = None
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
-                                            0, 0, chr(0), 0, None)
+                                            event.ControlDown(), 
+					    event.ShiftDown(), 
+					    chr(0), 0, None)
         self._Iren.LeaveEvent()        
 
     def OnButtonDown(self,event):
