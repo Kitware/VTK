@@ -252,9 +252,9 @@ void vtkImageCache::GetUpdateExtent(int &xMin, int &xMax, int &yMin, int &yMax,
 				    int &zMin, int &zMax, int &tMin, int &tMax)
 {
   xMin = this->UpdateExtent[0]; xMax = this->UpdateExtent[1];
-  yMin = this->UpdateExtent[2]; yMax = this->UpdateExtent[2];
-  zMin = this->UpdateExtent[4]; zMax = this->UpdateExtent[4];
-  tMin = this->UpdateExtent[6]; tMax = this->UpdateExtent[6];
+  yMin = this->UpdateExtent[2]; yMax = this->UpdateExtent[3];
+  zMin = this->UpdateExtent[4]; zMax = this->UpdateExtent[5];
+  tMin = this->UpdateExtent[6]; tMax = this->UpdateExtent[7];
 }
 //----------------------------------------------------------------------------
 void vtkImageCache::GetAxesUpdateExtent(int num, int *axes, int *extent)
