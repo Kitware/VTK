@@ -161,7 +161,7 @@ PlyFile *vtkPLY::ply_open_for_writing(
 
   /* open the file for writing */
 
-  fp = fopen (name, "w+b");
+  fp = fopen (name, "wb");
   if (fp == NULL) {
     return (NULL);
   }
@@ -771,7 +771,7 @@ PlyFile *vtkPLY::ply_open_for_reading(
 
   /* open the file for reading */
 
-  fp = fopen (name, "r+b");
+  fp = fopen (name, "rb");
   if (fp == NULL)
     return (NULL);
 
