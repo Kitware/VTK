@@ -40,6 +40,13 @@ public:
   // Get the next plane in the list.
   vtkPlane *GetNextItem();
   
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkPlane *GetNextPlane(vtkCollectionSimpleIterator &cookie);
+  //ETX
+
 protected:
   vtkPlaneCollection() {};
   ~vtkPlaneCollection() {};
@@ -61,7 +68,7 @@ inline void vtkPlaneCollection::AddItem(vtkPlane *f)
 
 inline vtkPlane *vtkPlaneCollection::GetNextItem() 
 { 
-  return static_cast<vtkPlane *>(this->GetNextItemAsObject());
+ return static_cast<vtkPlane *>(this->GetNextItemAsObject());
 }
 
 #endif

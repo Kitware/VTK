@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitSum, "1.5");
+vtkCxxRevisionMacro(vtkImplicitSum, "1.6");
 vtkStandardNewMacro(vtkImplicitSum);
 
 // Constructor.
@@ -51,8 +51,9 @@ unsigned long int vtkImplicitSum::GetMTime()
     mtime = fMtime;
     }
 
-  for (this->FunctionList->InitTraversal(); 
-       (f=this->FunctionList->GetNextItem()); )
+  vtkCollectionSimpleIterator sit;
+  for (this->FunctionList->InitTraversal(sit); 
+       (f=this->FunctionList->GetNextImplicitFunction(sit)); )
     {
     fMtime = f->GetMTime();
     if ( fMtime > mtime )
@@ -118,8 +119,9 @@ double vtkImplicitSum::EvaluateFunction(double x[3])
   vtkImplicitFunction *f;
   double *weights = this->Weights->GetPointer(0);
 
-  for (i = 0, this->FunctionList->InitTraversal(); 
-       (f=this->FunctionList->GetNextItem()); i++)
+  vtkCollectionSimpleIterator sit;
+  for (i = 0, this->FunctionList->InitTraversal(sit); 
+       (f=this->FunctionList->GetNextImplicitFunction(sit)); i++)
     { 
     c = weights[i];
     if (c != 0.0)
@@ -144,8 +146,9 @@ void vtkImplicitSum::EvaluateGradient(double x[3], double g[3])
   double *weights = this->Weights->GetPointer(0);
 
   g[0] = g[1] = g[2] = 0.0;
-  for (i = 0, this->FunctionList->InitTraversal(); 
-       (f=this->FunctionList->GetNextItem()); i++)
+  vtkCollectionSimpleIterator sit;
+  for (i = 0, this->FunctionList->InitTraversal(sit); 
+       (f=this->FunctionList->GetNextImplicitFunction(sit)); i++)
     {
     c = weights[i];
     if ( c != 0.0 ) 
