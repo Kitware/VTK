@@ -196,7 +196,7 @@ int vtkTriangleStrip::IntersectWithLine(float p1[3], float p2[3], float tol,
   return 0;
 }
 
-int vtkTriangleStrip::Triangulate(int index, vtkFloatPoints &pts)
+int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
 {
   pts.Reset();
   for (int subId=0; subId<this->Points.GetNumberOfPoints()-2; subId++)
@@ -221,3 +221,36 @@ void vtkTriangleStrip::Derivatives(int subId, float pcoords[3], float *values,
   tri.Derivatives(0, pcoords, values, dim, derivs);
 }
 
+// Description:
+// Given a list of triangle strips, decompose into a list of (triangle) 
+// polygons. The polygons are appended to the end of the list of polygons.
+void vtkTriangleStrip::DecomposeStrips(vtkCellArray *strips, vtkCellArray *polys)
+{
+  int npts, *pts, p1, p2, p3, i;
+
+  for (strips->InitTraversal(); strips->GetNextCell(npts,pts); )
+    {
+    p1 = pts[0];
+    p2 = pts[1];
+    p3 = pts[2];
+    for (i=0; i<(npts-2); i++)
+      {
+      polys->InsertNextCell(3);
+      if ( (i % 2) ) // flip ordering to preserve consistency
+        {
+        polys->InsertCellPoint(p2);
+        polys->InsertCellPoint(p1);
+        polys->InsertCellPoint(p3);
+        }
+      else
+        {
+        polys->InsertCellPoint(p1);
+        polys->InsertCellPoint(p2);
+        polys->InsertCellPoint(p3);
+        }
+      p1 = p2;
+      p2 = p3;
+      p3 = pts[3+i];
+      }
+    }
+}

@@ -39,9 +39,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPolyNormals.hh"
-#include "vtkPolygon.hh"
 #include "vtkMath.hh"
 #include "vtkFloatNormals.hh"
+#include "vtkPolygon.hh"
+#include "vtkTriangleStrip.hh"
 
 // Description:
 // Construct with feature angle=30, splitting and consistency turned on, 
@@ -74,10 +75,10 @@ void vtkPolyNormals::Execute()
   int numNewPts;
   float *polyNormal, *vertNormal, length;
   float flipDirection=1.0;
-  int replacementPoint, numPolys;
+  int replacementPoint, numPolys, numStrips;
   int cellId, numPts;
   vtkPoints *inPts;
-  vtkCellArray *inPolys;
+  vtkCellArray *inPolys, *inStrips, *polys;
   vtkPolygon poly;
   vtkMath math;
   vtkFloatPoints *newPts = NULL;
@@ -93,7 +94,8 @@ void vtkPolyNormals::Execute()
   vtkDebugMacro(<<"Generating surface normals");
 
   numPolys=input->GetNumberOfPolys();
-  if ( (numPts=input->GetNumberOfPoints()) < 1 || numPolys < 1)
+  numStrips=input->GetNumberOfStrips();
+  if ( (numPts=input->GetNumberOfPoints()) < 1 || (numPolys < 1 && numStrips < 1) )
     {
     vtkErrorMacro(<<"No data to generate normals for!");
     return;
@@ -105,10 +107,29 @@ void vtkPolyNormals::Execute()
 //
   inPts = input->GetPoints();
   inPolys = input->GetPolys();
+  inStrips = input->GetStrips();
 
   OldMesh = new vtkPolyData;
   OldMesh->SetPoints(inPts);
-  OldMesh->SetPolys(inPolys);
+  if ( numStrips > 0 ) //have to decompose strips into triangles
+    {
+    vtkTriangleStrip strip;
+    if ( numPolys > 0 ) polys = new vtkCellArray(*(inPolys));
+    else 
+      {
+      polys = new vtkCellArray();
+      polys->Allocate(polys->EstimateSize(numStrips,5));
+      }
+    strip.DecomposeStrips(inStrips,polys);
+    OldMesh->SetPolys(polys);
+    polys->Delete();
+    numPolys = polys->GetNumberOfCells();//added some new triangles
+    }
+  else
+    {
+    OldMesh->SetPolys(inPolys);
+    polys = inPolys;
+    }
   OldMesh->BuildLinks();
   
   pd = input->GetPointData();
@@ -117,9 +138,9 @@ void vtkPolyNormals::Execute()
   NewMesh = new vtkPolyData;
   NewMesh->SetPoints(inPts);
   // create a copy because we're modifying it
-  newPolys = new vtkCellArray(*(inPolys));
+  newPolys = new vtkCellArray(*(polys));
   NewMesh->SetPolys(newPolys);
-  NewMesh->BuildCells();
+  NewMesh->BuildCells(); //builds connectivity
 
 //
 // The visited array keeps track of which polygons have been visited.
