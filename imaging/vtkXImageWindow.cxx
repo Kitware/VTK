@@ -596,12 +596,6 @@ int *vtkXImageWindow::GetPosition(void)
 // Move the window to a new position on the display.
 void vtkXImageWindow::SetPosition(int x, int y)
 {
-  // what should I do if a window has not been created (lawcc dfss)
-  if (this->WindowId == (Window)(NULL))
-    {
-    this->MakeDefaultWindow();
-    }
-  
   // if we aren't mapped then just set the ivars
   if (!this->Mapped)
     {
