@@ -820,6 +820,12 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t )
   this->EstimatedRenderTime = 0.0;
   this->AllocatedRenderTime = t;
 
+  // Push the matrix down into the selected LOD
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  this->GetMatrix( matrix );
+  this->LODs[this->SelectedLODIndex].Prop3D->SetUserMatrix( matrix );
+  matrix->Delete();
+
 }
 
 void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
