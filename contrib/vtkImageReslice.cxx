@@ -227,6 +227,23 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
 }
 
 //----------------------------------------------------------------------------
+
+// there were bugs either in ComputeRequiredInputUpdateExtent
+// or in vtkImageResliceExecute, so for now just set the required
+// input extent to the whole extent
+void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6], 
+					               int outExt[6])
+{
+  int i;
+  int *wholeExtent = this->GetInput()->GetWholeExtent();
+
+  for (i = 0; i < 6; i++)
+    {
+    inExt[i] = wholeExtent[i];
+    }
+}
+
+/*
 static void ComputeInputUpdateExtentOptimized(vtkImageReslice *self,
 					      int inExt[6], 
 					      int outExt[6]);
@@ -320,6 +337,7 @@ void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6],
       }
     }
 }
+*/
 
 //----------------------------------------------------------------------------
 void vtkImageReslice::ExecuteInformation(vtkImageData *input, 
