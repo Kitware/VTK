@@ -26,7 +26,7 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkKdNode, "1.7");
+vtkCxxRevisionMacro(vtkKdNode, "1.8");
 vtkStandardNewMacro(vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Left, vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Right, vtkKdNode);
@@ -700,7 +700,7 @@ int vtkKdNode::IntersectsCell(vtkCell *cell, int useDataBounds, int cellRegion,
 
   double *cellBounds = NULL;
   int deleteCellBounds = (bounds == NULL);
-  
+
   if (deleteCellBounds)
     {
     cellBounds = new double [6];
@@ -734,18 +734,17 @@ int vtkKdNode::IntersectsCell(vtkCell *cell, int useDataBounds, int cellRegion,
     // quick test - if any of the points are in this region,
     // then it intersects
 
-    vtkPoints *pts = cell->Points;
+    vtkPoints *pts = cell->GetPoints();
     int npts = pts->GetNumberOfPoints();
-    double *pt = pts->GetPoint(0);
 
     for (i=0; i < npts ; i++)
       {
+      double *pt = pts->GetPoint(i);
       if (this->ContainsPoint(pt[0],pt[1],pt[2], useDataBounds))
         {
         intersects = 1;
         break;
         }
-      pt += 3;
       }
 
     if ((dim == 0) && (intersects != 1))
