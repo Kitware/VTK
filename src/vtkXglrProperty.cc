@@ -55,7 +55,7 @@ void vtkXglrProperty::Render(vtkProperty *prop, vtkRenderer *ren)
 // Actual property render method.
 void vtkXglrProperty::Render(vtkProperty *prop, vtkXglrRenderer *ren)
 {
-  int method, line_method;
+  int method, line_method, backface, twoSidedLighting;
   Xgl_ctx *context;
   Xgl_color_rgb diffuseColor;
   Xgl_color_rgb specularColor;
@@ -91,40 +91,58 @@ void vtkXglrProperty::Render(vtkProperty *prop, vtkXglrRenderer *ren)
     xgl_object_set(*context, XGL_3D_CTX_SURF_FACE_CULL, XGL_CULL_FRONT, 0);
     }
 
-  // see if this is a frontface or backface property 
-  if ( ! prop->GetBackface() ) 
+  // set property according to backface and two-sided lighting flags
+  backface = prop->GetBackface();
+  twoSidedLighting = ren->GetTwoSidedLighting();
+
+  if ( ! backface && twoSidedLighting ) 
     {
     xgl_object_set(*context,
-		   XGL_3D_CTX_SURF_FRONT_AMBIENT, Ambient,
-		   XGL_3D_CTX_SURF_FRONT_DIFFUSE, Diffuse,
-		   XGL_3D_CTX_SURF_FRONT_SPECULAR, Specular,
-		   XGL_3D_CTX_SURF_FRONT_SPECULAR_POWER, 
-		   prop->GetSpecularPower(),
-		   XGL_3D_CTX_SURF_FRONT_SPECULAR_COLOR, &specularColor,
-		   XGL_CTX_SURF_FRONT_COLOR, &diffuseColor,
-		   XGL_CTX_LINE_COLOR, &diffuseColor,
-		   XGL_3D_CTX_SURF_BACK_AMBIENT, Ambient,
-		   XGL_3D_CTX_SURF_BACK_DIFFUSE, Diffuse,
-		   XGL_3D_CTX_SURF_BACK_SPECULAR, Specular,
-		   XGL_3D_CTX_SURF_BACK_SPECULAR_POWER, 
-		   prop->GetSpecularPower(),
-		   XGL_3D_CTX_SURF_BACK_SPECULAR_COLOR, &specularColor,
-		   XGL_3D_CTX_SURF_BACK_COLOR, &diffuseColor,
-		   XGL_3D_CTX_SURF_FRONT_TRANSP, 1.0-prop->GetOpacity(),
-		   XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-prop->GetOpacity(),
-		   NULL);
+               XGL_3D_CTX_SURF_FRONT_AMBIENT, Ambient,
+               XGL_3D_CTX_SURF_FRONT_DIFFUSE, Diffuse,
+               XGL_3D_CTX_SURF_FRONT_SPECULAR, Specular,
+               XGL_3D_CTX_SURF_FRONT_SPECULAR_POWER, prop->GetSpecularPower(),
+               XGL_3D_CTX_SURF_FRONT_SPECULAR_COLOR, &specularColor,
+               XGL_CTX_SURF_FRONT_COLOR, &diffuseColor,
+               XGL_3D_CTX_SURF_FRONT_TRANSP, 1.0-prop->GetOpacity(),
+               XGL_CTX_LINE_COLOR, &diffuseColor,
+               XGL_3D_CTX_SURF_BACK_AMBIENT, Ambient,
+               XGL_3D_CTX_SURF_BACK_DIFFUSE, Diffuse,
+               XGL_3D_CTX_SURF_BACK_SPECULAR, Specular,
+               XGL_3D_CTX_SURF_BACK_SPECULAR_POWER, prop->GetSpecularPower(),
+               XGL_3D_CTX_SURF_BACK_SPECULAR_COLOR, &specularColor,
+               XGL_3D_CTX_SURF_BACK_COLOR, &diffuseColor,
+               XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-prop->GetOpacity(),
+               NULL);
+    }
+  else if ( ! backface && ! twoSidedLighting )
+    {
+    static float bfaceAmbient=0.0;
+    static float bfaceDiffuse=0.0;
+    static float bfaceSpecular=0.0;
+    static float bfaceSpecularPower=0.0;
+
+    xgl_object_set(*context,
+               XGL_3D_CTX_SURF_FRONT_AMBIENT, Ambient,
+               XGL_3D_CTX_SURF_FRONT_DIFFUSE, Diffuse,
+               XGL_3D_CTX_SURF_FRONT_SPECULAR, Specular,
+               XGL_3D_CTX_SURF_FRONT_SPECULAR_POWER, prop->GetSpecularPower(),
+               XGL_3D_CTX_SURF_FRONT_SPECULAR_COLOR, &specularColor,
+               XGL_CTX_SURF_FRONT_COLOR, &diffuseColor,
+               XGL_3D_CTX_SURF_FRONT_TRANSP, 1.0-prop->GetOpacity(),
+               XGL_CTX_LINE_COLOR, &diffuseColor,
+               XGL_3D_CTX_SURF_BACK_AMBIENT, bfaceAmbient,
+               XGL_3D_CTX_SURF_BACK_DIFFUSE, bfaceDiffuse,
+               XGL_3D_CTX_SURF_BACK_SPECULAR, bfaceSpecular,
+               XGL_3D_CTX_SURF_BACK_SPECULAR_POWER, bfaceSpecularPower,
+               XGL_3D_CTX_SURF_BACK_SPECULAR_COLOR, &specularColor,
+               XGL_3D_CTX_SURF_BACK_COLOR, &diffuseColor,
+               XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-prop->GetOpacity(),
+               NULL);
     }
   else 
     {
-    xgl_object_set(*context,
-		 XGL_3D_CTX_SURF_BACK_AMBIENT, Ambient,
-		 XGL_3D_CTX_SURF_BACK_DIFFUSE, Diffuse,
-		 XGL_3D_CTX_SURF_BACK_SPECULAR, Specular,
-		 XGL_3D_CTX_SURF_BACK_SPECULAR_POWER, prop->GetSpecularPower(),
-		 XGL_3D_CTX_SURF_BACK_SPECULAR_COLOR, &specularColor,
-		 XGL_3D_CTX_SURF_BACK_COLOR, &diffuseColor,
-		 XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-prop->GetOpacity(),
-		 NULL);
+    vtkErrorMacro(<<"Backface properties not implemented yet");
     return;
     }		 
 
