@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkFilter.cc
+  Module:    $$
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+  Date:      $$
+  Version:   $$
 
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -38,71 +38,31 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkFilter.hh"
+// .NAME vtkExtractEdges - extract cell edges from any type of data
+// .SECTION Description
+// vtkExtractEdges is a filter to extract edges from a dataset. Edges
+// are extracted as lines or polylines.
+// .SECTION See Also
+// vtkFeatureEdges
 
-// Description:
-// Construct new filter without start or end methods.
-vtkFilter::vtkFilter()
+#ifndef __vtkExtractEdges_h
+#define __vtkExtractEdges_h
+
+#include "vtkDataSetToPolyFilter.hh"
+
+class vtkExtractEdges : public vtkDataSetToPolyFilter
 {
-  this->Input = NULL;
-  this->Updating = 0;
-}
+public:
+  vtkExtractEdges();
+  char *GetClassName() {return "vtkExtractEdges";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-// Description:
-// Update input to this filter and the filter itself.
-void vtkFilter::Update()
-{
-  // make sure input is available
-  if ( !this->Input )
-    {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
-    }
+protected:
+  // Usual data generation method
+  void Execute();
 
-  // prevent chasing our tail
-  if (this->Updating) return;
+};
 
-  this->Updating = 1;
-  this->Input->Update();
-  this->Updating = 0;
+#endif
 
-  if (this->Input->GetMTime() > this->ExecuteTime ||
-  this->GetMTime() > this->ExecuteTime )
-    {
-    if ( this->Input->GetDataReleased() )
-      {
-      this->Input->ForceUpdate();
-      }
-
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
-    this->Output->Initialize(); //clear output
-    this->Execute();
-    this->ExecuteTime.Modified();
-    this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
-    }
-
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
-}
-
-void vtkFilter::Execute()
-{
-  vtkErrorMacro(<< "Execution of filter should be in derived class");
-}
-
-void vtkFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkSource::PrintSelf(os,indent);
-
-  os << indent << "Execute Time: " <<this->ExecuteTime.GetMTime() << "\n";
-
-  if ( this->Input )
-    {
-    os << indent << "Input: (" << (void *)this->Input << ")\n";
-    }
-  else
-    {
-    os << indent << "Input: (none)\n";
-    }
-}
 

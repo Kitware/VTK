@@ -152,9 +152,14 @@ void vtkExtractVectorComponents::Update()
   this->Input->Update();
   this->Updating = 0;
 
-  if (this->Input->GetMTime() > this->ExecuteTime ||
-  this->GetMTime() > this->ExecuteTime || this->GetDataReleased())
+  if ( this->Input->GetMTime() > this->ExecuteTime ||
+  this->GetMTime() > this->ExecuteTime )
     {
+    if ( this->Input->GetDataReleased() )
+      {
+      this->Input->ForceUpdate();
+      }
+
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     // clear just point data output because structure is copied from input
     this->VxComponent->CopyStructure(this->Input);

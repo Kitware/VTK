@@ -103,6 +103,15 @@ void vtkDataSet::Update()
     }
 }
 
+void vtkDataSet::ForceUpdate()
+{
+  if (this->Source)
+    {
+    this->Source->Modified();
+    this->Source->Update();
+    }
+}
+
 // Description:
 // Compute the data bounding box from data points.
 void vtkDataSet::ComputeBounds()

@@ -66,8 +66,12 @@ public:
 
   // Description:
   // Provides opportunity for data to insure internal consistency before 
-  // access.
+  // access. Also causes owning filter (if any) to update itself.
   virtual void Update();
+
+  // Description:
+  // Force the data to update itself no matter what.
+  virtual void ForceUpdate();
 
   // Description:
   // Create concrete instance of this dataset.

@@ -99,8 +99,13 @@ void vtkPointSetToPointSetFilter::Update()
   this->Updating = 0;
 
   if (this->Input->GetMTime() > this->ExecuteTime ||
-  this->GetMTime() > this->ExecuteTime || this->GetDataReleased())
+  this->GetMTime() > this->ExecuteTime )
     {
+    if ( this->Input->GetDataReleased() )
+      {
+      this->Input->ForceUpdate();
+      }
+
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     // clear points and point data output 
     this->Output->CopyStructure(this->Input);

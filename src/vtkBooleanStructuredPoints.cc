@@ -110,9 +110,13 @@ void vtkBooleanStructuredPoints::Update()
     }
   this->Updating = 0;
 
-  if (mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime ||
-  this->GetDataReleased() )
+  if ( mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime )
     {
+    for ( this->InputList.InitTraversal(); ds=this->InputList.GetNextItem(); )
+      {
+      if ( ds->GetDataReleased() ) ds->ForceUpdate();
+      }
+
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Output->Initialize(); //clear output
     this->Execute();

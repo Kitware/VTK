@@ -101,7 +101,7 @@ void vtkSource::SetReleaseDataFlag(int i)
 void vtkSource::Update()
 {
   // Make sure virtual getMTime method is called since subclasses will overload
-  if (this->GetMTime() > this->ExecuteTime || this->GetDataReleased())
+  if ( this->GetMTime() > this->ExecuteTime )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Output->Initialize(); //clear output

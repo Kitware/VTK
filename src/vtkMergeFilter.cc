@@ -132,9 +132,16 @@ void vtkMergeFilter::Update()
     }
   this->Updating = 0;
 
-  if (mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime ||
-      this->GetDataReleased() )
+  if ( mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime )
     {
+    if ( this->Geometry->GetDataReleased() ) this->Geometry->ForceUpdate();
+    if ( this->Scalars->GetDataReleased() ) this->Scalars->ForceUpdate();
+    if ( this->Vectors->GetDataReleased() ) this->Vectors->ForceUpdate();
+    if ( this->Normals->GetDataReleased() ) this->Normals->ForceUpdate();
+    if ( this->TCoords->GetDataReleased() ) this->TCoords->ForceUpdate();
+    if ( this->Tensors->GetDataReleased() ) this->Tensors->ForceUpdate();
+    if ( this->UserDefined->GetDataReleased() ) this->UserDefined->ForceUpdate();
+
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Output->Initialize(); //clear output
     this->Execute();

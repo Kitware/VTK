@@ -264,6 +264,14 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CurrentCamera:   " << this->CurrentCamera << "\n";
   os << indent << "CurrentLight:    " << this->CurrentLight << "\n";
   os << indent << "CurrentRenderer: " << this->CurrentRenderer << "\n";
+  if ( this->Picker )
+    {
+    os << indent << "Picker: " << this->Picker << "\n";
+    }
+  else
+    {
+    os << indent << "Picker: (none)\n";
+    }
   os << indent << "LightFollowCamera: " << (this->LightFollowCamera ? "On\n" : "Off\n");
   os << indent << "DesiredUpdateRate: " << this->DesiredUpdateRate << "\n";
   os << indent << "StillUpdateRate: " << this->StillUpdateRate << "\n";

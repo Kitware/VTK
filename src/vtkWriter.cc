@@ -66,6 +66,7 @@ void vtkWriter::Write()
     }
 
   this->Input->Update();
+  if ( this->Input->GetDataReleased() ) this->Input->ForceUpdate();
 
   if ( this->StartWrite ) (*this->StartWrite)(this->StartWriteArg);
   this->WriteData();

@@ -203,8 +203,11 @@ void vtkStreamer::Update()
 
   if (this->Input->GetMTime() > this->ExecuteTime || 
   (this->Source && this->Source->GetMTime() > this->ExecuteTime) || 
-  this->GetMTime() > this->ExecuteTime || this->GetDataReleased() )
+  this->GetMTime() > this->ExecuteTime )
     {
+    if ( this->Input->GetDataReleased() ) this->Input->ForceUpdate();
+    if ( this->Source->GetDataReleased() ) this->Source->ForceUpdate();
+
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Output->Initialize(); //clear output
     this->Execute();
