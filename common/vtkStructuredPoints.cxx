@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkStructuredPoints::vtkStructuredPoints()
 {
+  this->ScalarType = VTK_FLOAT;
 }
 
 

@@ -30,7 +30,6 @@ my_close ReleaseDataFlagOff
 my_close DebugOn
 my_close DebugOff
 my_close GetOutput
-my_close GetPipelineMTime
 my_close GetCloseValue
 my_close GetOpenValue
 #my_close SetProgressMethod {set pro [my_close GetProgress]; puts "Completed $pro"; flush stdout}

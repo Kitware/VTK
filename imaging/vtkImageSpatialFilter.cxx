@@ -90,16 +90,27 @@ void vtkImageSpatialFilter::PrintSelf(ostream& os, vtkIndent indent)
 // output.
 void vtkImageSpatialFilter::ExecuteInformation()
 {
-  int extent[6];
-  float spacing[3];
+  vtkImageData *input = this->GetInput();
+  vtkImageData *output = this->GetOutput();
   
-  this->GetInput()->GetWholeExtent(extent);
-  this->GetInput()->GetSpacing(spacing);
+  output->SetSpacing(input->GetSpacing());
+  output->SetOrigin(input->GetOrigin());
+  output->SetScalarType(input->GetScalarType());
+  output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
 
-  this->ComputeOutputWholeExtent(extent, this->HandleBoundaries);
-  this->GetOutput()->SetWholeExtent(extent);
-  
-  this->GetOutput()->SetSpacing(spacing);
+  if ( ! this->Bypass)
+    {
+    int extent[6];
+    input->GetWholeExtent(extent);
+    this->ComputeOutputWholeExtent(extent, this->HandleBoundaries);
+    output->SetWholeExtent(extent);
+    // Maybe the subclass is using the old style method.
+    this->ExecuteImageInformation();
+    }
+  else
+    {
+    output->SetWholeExtent(input->GetWholeExtent());
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -72,7 +72,7 @@ public:
 		  int num, int total);
 
 protected:
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteImageInformation(vtkImageData *inData, vtkImageData *outData);
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int outExt[6], int threadId);

@@ -339,6 +339,10 @@ void vtkSource::InternalUpdate(vtkDataObject *output)
 	}
       }  
     }
+  
+  // Information gets invalidated as soon as Update is called,
+  // so validate it again here.
+  this->InformationTime.Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -468,9 +472,11 @@ void vtkSource::UpdateInformation()
   if (t1 > this->InformationTime.GetMTime())
     {
     this->ExecuteInformation();
+    // This call to modify is almost useless.  Update invalidates this time.
+    // InformationTime is modified at the end of InternalUpdate too.
+    // Keep this modified in case we have multiple calls to UpdateInformation.
     this->InformationTime.Modified();
     }
-
 }
 
 //----------------------------------------------------------------------------

@@ -201,7 +201,21 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
 // an imaging style Execute method.
 void vtkImageToImageFilter::Execute()
 {
-  this->Execute(this->GetInput(), this->GetOutput());
+  if (this->Bypass == 0)
+    {
+    this->Execute(this->GetInput(), this->GetOutput());
+    }
+  else
+    {
+    vtkImageData *inData = this->GetInput();
+
+    if ( inData == NULL)
+      {
+      vtkErrorMacro("No Input.");
+      return;
+      }    
+    this->GetOutput()->GetPointData()->PassData(inData->GetPointData());
+    }
 }
 
 

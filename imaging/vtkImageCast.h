@@ -94,7 +94,7 @@ public:
 protected:
   int ClampOverflow;
   int OutputScalarType;
-  void ExecuteInformation();
+  void ExecuteImageInformation();
   void InternalUpdate(vtkImageData *data);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);

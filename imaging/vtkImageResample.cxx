@@ -162,8 +162,8 @@ void vtkImageResample::ComputeInputUpdateExtent(int inExt[6],
 
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
-void vtkImageResample::ExecuteInformation(vtkImageData *inData, 
-					  vtkImageData *outData) 
+void vtkImageResample::ExecuteImageInformation(vtkImageData *inData, 
+					       vtkImageData *outData) 
 {
   int wholeMin, wholeMax, axis, ext[6];
   float spacing[3], factor;
@@ -194,12 +194,6 @@ void vtkImageResample::ExecuteInformation(vtkImageData *inData,
     // Cause MagnificationFactor to recompute.
     this->MagnificationFactors[axis] = 0.0;
     }
-
-  // Set default values
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
-  this->GetOutput()->SetNumberOfScalarComponents(
-                            this->GetInput()->GetNumberOfScalarComponents());
 }
 
 
