@@ -37,7 +37,7 @@ echo beginning cvs update at >> %vtk_build_log%
 time /t >> %vtk_build_log%
 cd %vtk_source_tree%
 cd >> %vtk_build_log%
-cvs update -d >> %vtk_build_log%
+cvs update -d -A -R >> %vtk_build_log%
 
 
 :config
