@@ -55,7 +55,6 @@ vtkClipVolume::vtkClipVolume(vtkImplicitFunction *cf)
   this->Locator = NULL;
   this->Value = 0.0;
   this->GenerateClipScalars = 0;
-  this->SelfCreatedLocator = 0;
 
   this->GenerateClippedOutput = 0;
   this->ClippedOutput = vtkUnstructuredGrid::New();
@@ -75,10 +74,14 @@ vtkClipVolume::vtkClipVolume(vtkImplicitFunction *cf)
 vtkClipVolume::~vtkClipVolume()
 {
   this->ClippedOutput->Delete();
-  if ( this->SelfCreatedLocator && this->Locator ) this->Locator->Delete();
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
   
   if ( this->Mesh ) this->Mesh->Delete();
-  this->MeshLocator->Delete();
+  this->MeshLocator->UnRegister(this);
   this->Triangulator->Delete();
 }
 
@@ -126,7 +129,6 @@ void vtkClipVolume::Execute()
   float value, s, *x, origin[3], spacing[3];
   int estimatedSize, numCells=input->GetNumberOfCells();
   int numPts=input->GetNumberOfPoints();
-  int numberOfPoints;
   vtkPointData *inPD=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *inCD=input->GetCellData(), *outCD=output->GetCellData();
   vtkCellData *clippedCD=clippedOutput->GetCellData();
@@ -348,7 +350,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
                               vtkCellData *inCD, int cellId, 
 			      vtkCellData *outCD, vtkCellData *clippedCD)
 {
-  float bounds[6], x[3], *xPtr, s1, s2, t, voxelOrigin[3];
+  float x[3], *xPtr, s1, s2, t, voxelOrigin[3];
   float length, center[3], p1[3], p2[3];
   int i, j, k, edgeNum, numPts, numTetras, npts, *pts, tPts[4];
   int numOutTetras, numMergedPts, ptId, newCellId;
@@ -536,20 +538,31 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
 // an instance of vtkMergePoints is used.
 void vtkClipVolume::SetLocator(vtkPointLocator *locator)
 {
-  if ( this->Locator != locator ) 
+  if ( this->Locator == locator ) 
     {
-    if ( this->SelfCreatedLocator ) this->Locator->Delete();
-    this->SelfCreatedLocator = 0;
-    this->Locator = locator;
-    this->Modified();
+    return;
     }
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
+
+  if (locator)
+    {
+    locator->Register(this);
+    }
+
+  this->Locator = locator;
+  this->Modified();
 }
 
 void vtkClipVolume::CreateDefaultLocator()
 {
-  if ( this->SelfCreatedLocator ) this->Locator->Delete();
-  this->Locator = vtkMergePoints::New();
-  this->SelfCreatedLocator = 1;
+  if ( this->Locator == NULL )
+    {
+    this->Locator = vtkMergePoints::New();
+    }
 }
 
 void vtkClipVolume::PrintSelf(ostream& os, vtkIndent indent)

@@ -65,7 +65,7 @@ public:
   
   // Description:
   // Set/Get the scalar input object from the image pipeline.
-  vtkSetObjectMacro(Input,vtkImageCache);
+  vtkSetReferenceCountedObjectMacro(Input,vtkImageCache);
   vtkGetObjectMacro(Input,vtkImageCache);
 
   // Description:

@@ -59,6 +59,20 @@ vtkImageTwoOutputFilter::vtkImageTwoOutputFilter()
   this->NumberOfExecutionAxes = -1;
 }
 
+vtkImageTwoOutputFilter::vtkImageTwoOutputFilter()
+{
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    this->Input == NULL;
+    }
+  if (this->Output2)
+    {
+    this->Output2->UnRegister(this);
+    this->Output2 == NULL;
+    }
+}
+
 //----------------------------------------------------------------------------
 void vtkImageTwoOutputFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -161,6 +175,17 @@ void vtkImageTwoOutputFilter::SetInput(vtkImageCache *input)
   if (input == this->Input)
     {
     return;
+    }
+  
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    this->Input == NULL;
+    }
+  
+  if (input)
+    {
+    input->Register(this);
     }
   
   this->Input = input;

@@ -75,7 +75,6 @@ protected:
   void Execute();
 
   vtkPointLocator *Locator;
-  int SelfCreatedLocator;
 };
 
 #endif

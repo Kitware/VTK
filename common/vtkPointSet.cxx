@@ -53,12 +53,20 @@ vtkDataSet(ps)
   if (this->Points) this->Points->Register(this);
 
   this->Locator = ps.Locator;
+  if (this->Locator)
+    {
+    this->Locator->Register(this);
+    }
 }
 
 vtkPointSet::~vtkPointSet ()
 {
   this->Initialize();
-  if ( this->Locator ) this->Locator->Delete();
+  if ( this->Locator ) 
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
 }
 
 // Description:

@@ -14,6 +14,33 @@ source ../../examplesTcl/vtkInt.tcl
 
 
 
+# A global variable similar to "DebugOn"
+# When this is set to 1, the method calls will be echoed, and
+# the mtime results displayed.  When an error is encountered,
+# an interactor will popup.
+set DEBUG 1
+
+
+
+
+
+
+proc debug {} {
+   global CONTINUE
+
+   set CONTINUE 0
+
+   wm deiconify .vtkInteract
+   while { $CONTINUE == 0 } {
+      update
+   }
+   wm withdraw .vtkInteract
+}
+
+
+
+
+
 # finds all objects by doing an "ls"
 proc TestKit {kit} {
    global testObject
@@ -29,8 +56,12 @@ proc TestKit {kit} {
 }
 
 proc TestObject {kit objectClass} {
+   global DEBUG
 
    #puts "    Object: $objectClass"
+
+   # This checks all the objects (not just sources)
+   # (unlike CheckModifyTime3.tcl)
 
    # make sure we can actualy create the object
    set objectName [new $objectClass]
@@ -68,14 +99,15 @@ proc TestObject {kit objectClass} {
       set str [lindex $methodList $idx]
    }
 
-   #$objectName Delete
+   if {$DEBUG} {puts "$objectName Delete"}
+   $objectName Delete
 }
 
 
 
 
 proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
-   global ERROR_LOG_FD ERROR_STRING
+   global ERROR_LOG_FD ERROR_STRING DEBUG
 
    #puts "        Method: $methodName with $numberOfArgs args"
 
@@ -85,6 +117,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
 
    if { $numberOfArgs == 0} {
       set argTypes ""
+      return
    } else {
       set argTypes [GetArgTypes $methodName $numberOfArgs $methodClass $kit]
       # error checking
@@ -102,76 +135,69 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
 
    #puts "                 args [llength $argTypes] : $argTypes"
 
-   # format the first call
-   set argValues [GetArgValues $argTypes 1 $kit]
-   set call1 "$objectName $methodName $argValues"
-
-   # record the original mtime
    if {[catch {set modifyTime0 [$objectName GetMTime]}] != 0} {
-      # not a subclass of vtkObject.
       return
    }
 
-   # make the first call
-   #puts "             call1: $call1"   
-   if { [catch {eval $call1}] != 0} {
-      # puts "---- Method call did not work !!!!!"
-      # puts "$call1"
-      # debug
+   # third call
+   set argValues3 [GetArgValues $argTypes 2 $kit]
+   set call3 "$objectName $methodName $argValues3"
+   if {$DEBUG} { puts "  $call3; $objectName GetMTime"}
+   if { [catch {eval $call3}] != 0} {
       return
    }
-   set modifyTime1a [$objectName GetMTime]
-   
-   # make another call the same as the first
-   # debug for SetCache
-   #puts "             call1: $call1"   
-   eval $call1
-   set modifyTime1b [$objectName GetMTime]
+   if {[catch {set modifyTime3 [$objectName GetMTime]}] != 0} {
+      return
+   }
+   if {$DEBUG} { puts "        = $modifyTime3"}
 
-   # make a call with different args
-   set argValues [GetArgValues $argTypes 0 $kit]
-   set call2 "$objectName $methodName $argValues"
-   #puts "             call2: $call2"
-   eval $call2
-   set modifyTime2 [$objectName GetMTime]
+   # forth call (reset test)
+   if {$DEBUG} { puts "  $call3; $objectName GetMTime"}
+   if { [catch {eval $call3}] != 0} {
+      return
+   }
+   if {[catch {set modifyTime4 [$objectName GetMTime]}] != 0} {
+      return
+   }
+   if {$DEBUG} { puts "        = $modifyTime4"}
 
-   #puts "             MTime: $modifyTime0, $modifyTime1a, $modifyTime1b"  
-   if { $modifyTime1a != $modifyTime1b} {
+   if { $modifyTime3 != $modifyTime4} {
       set ERROR_STRING [format "%s   %s %s," $ERROR_STRING \
-			  $methodClass $methodName]
-      #puts "--------------------------- error -------------------------------"
-      #puts $ERROR_LOG_FD "MTime changed : ------------------------"
-      #puts $ERROR_LOG_FD " MTime: $modifyTime0, $modifyTime1a, $modifyTime1b"  
-      #puts $ERROR_LOG_FD " $call1"
-      #puts $ERROR_LOG_FD " method class: $methodClass"
-      #flush $ERROR_LOG_FD
+				$methodClass $methodName]
+      puts "--------------------- reset error -------------------------------"
+      puts "MTime changed : ------------------------"
+      puts "MTime: $modifyTime3, $modifyTime4"  
+      puts " method class: $methodClass"
+      if {$DEBUG} { debug}
    }
 
-   if { $modifyTime1a == $modifyTime0} {
-#      puts "--------------------------- error -------------------------------"
-#      puts $ERROR_LOG_FD "MTime did not change :"
-#      puts $ERROR_LOG_FD "             MTime: $modifyTime0, $modifyTime1a, $modifyTime1b"  
-#      puts $ERROR_LOG_FD "    $call1"
-#      flush $ERROR_LOG_FD
-   }
+   DeleteArgValues $argValues3
 }
-
 
 
 # I am not going to worry about deleting old objects created as arguments.
 proc GetArgValues {argTypes val kit} {
+
    # create an empty list
    if { [llength $argTypes] == 0} {
       return {}
    }
 
+   set count -1
    foreach type $argTypes {
+      incr count
       switch $type {
-	 "int" {lappend argValues $val} 
-	 "float" {lappend argValues $val} 
-	 "short" {lappend argValues $val} 
-	 "unsigned char" {lappend argValues $val} 
-	 "char *" {lappend argValues "a$val"} 
+	 "int" {lappend argValues [expr $val + $count]} 
+	 "float" {lappend argValues [expr $val + $count]} 
+	 "short" {lappend argValues [expr $val + $count]} 
+	 "unsigned char" {lappend argValues [expr $val + $count]} 
+	 "char *" {
+	    if {$val == 2} {
+	       lappend argValues "c$val"
+	    } else {
+	       lappend argValues "a$val"
+	    } 
+	 }
 	 "default" {
 	    if { [string range $type 0 2] != "vtk"} {
 	       # puts "--- Cannot handle type:$type"
@@ -194,6 +220,17 @@ proc GetArgValues {argTypes val kit} {
    return $argValues
 }
 
+proc DeleteArgValues {argValues} {
+   global DEBUG
+
+   foreach arg $argValues {
+      if { [string range $arg 0 2] == "vtk"} {
+	 # It is a vtk object. Delete it..
+	 if {$DEBUG} {puts "$arg Delete"}
+	 $arg Delete
+      }
+   }
+}
 
 # This is going to be a complex procedure.  It has to look in the header file
 # to see what type of arguments a method takes.  Specifically if the 
@@ -440,8 +477,6 @@ proc ConcreteNew {class kit} {
       return $objectName
    }
 
-   #puts "               Searching for concrete subclass of $class in $kit"
-
    # have we found a concrete subclass before?
    if {[catch {set concrete_class $CONCRETE_ARRAY($class)}] == 0} {
       #puts "                 concete for $class: $concrete_class found before"
@@ -453,12 +488,12 @@ proc ConcreteNew {class kit} {
       }
       return $objectName
    }
+   
 
    # look through all the objects in the kit to find a sub class
    set inFiles [lsort [glob -nocomplain ../../$kit/*.h]]
    foreach f $inFiles {
       set subClass [file rootname [file tail $f]]
-      #puts "check $subClass"
       if { [CheckSubclassRelationship $class $subClass $kit] == 1} {
 	 set objectName [ConcreteNew $subClass $kit]
 	 if { $objectName != "" } {
@@ -514,11 +549,10 @@ proc ConcreteNew {class kit} {
    }
 
 
-   # could not find a concrete subclass !!!
+   #puts "could not find a concrete subclass !!!"
 
    return ""
 }
-
 
 proc CheckSubclassRelationship {class subClass subClassKit} {
    #puts "    CheckSubclassRelationship $class $subClass"
@@ -571,8 +605,11 @@ proc CheckSubclassRelationship {class subClass subClassKit} {
    return 0
 }
 
+
 # A method to make an instance of a class with a unique name.
 proc new {className} {
+   global DEBUG
+
    set counterName [format {%sCounter} $className]
    global $counterName
    if {[info exists $counterName] == 0} {
@@ -588,6 +625,8 @@ proc new {className} {
       return ""
    }
  
+   if {$DEBUG} {puts "$className $instanceName"}
+
    return $instanceName
 }
 
@@ -598,8 +637,31 @@ proc CheckException {methodName} {
       return 1
    }
 
+   if {$methodName == "SetNormal"} {
+      # ( vtkPlaneSource:: Error with these args)
+      return 1
+   }
+
    if {$methodName == "SetSize"} {
       # window size 0 0 gives problems
+      return 1
+   }
+
+   if {$methodName == "SetDebug"} {
+      return 1
+   }
+   if {$methodName == "SetGlobalWarningDisplay"} {
+      return 1
+   }
+   if {$methodName == "SetReleaseDataFlag"} {
+      return 1
+   }
+   if {$methodName == "SetDataReleased"} {
+      return 1
+   }
+
+   if {$methodName == "SetFilteredAxes"} {
+      # 0 0 and 1 1 are not valid
       return 1
    }
 
@@ -644,8 +706,5 @@ set ERROR_STRING "Reset Modify Time Bugs:"
 
 mapper SetInput $ERROR_STRING
 viewer Render
-
-
-
 
 

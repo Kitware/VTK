@@ -65,6 +65,11 @@ vtkSpatialRepresentationFilter::~vtkSpatialRepresentationFilter()
     {
     if ( this->OutputList[i] != NULL ) delete this->OutputList[i];
     }
+  if ( this->SpatialRepresentation )
+    {
+    this->SpatialRepresentation->UnRegister(this);
+    this->SpatialRepresentation = NULL;
+    }
 }
 
 vtkPolyData *vtkSpatialRepresentationFilter::GetOutput()

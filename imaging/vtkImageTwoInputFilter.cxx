@@ -64,6 +64,17 @@ void vtkImageTwoInputFilter::SetInput1(vtkImageCache *input)
     return;
     }
   
+  if (this->Inputs[0] != NULL)
+    {
+    this->Inputs[0]->UnRegister(this);
+    this->Inputs[0] = NULL;
+    }
+  
+  if (input)
+    {
+    input->Register(this);
+    }
+  
   this->Inputs[0] = input;
   this->Modified();
 }
@@ -83,6 +94,17 @@ void vtkImageTwoInputFilter::SetInput2(vtkImageCache *input)
   if (input == this->Inputs[1])
     {
     return;
+    }
+  
+  if (this->Inputs[1] != NULL)
+    {
+    this->Inputs[1]->UnRegister(this);
+    this->Inputs[1] = NULL;
+    }
+  
+  if (input)
+    {
+    input->Register(this);
     }
   
   this->Inputs[1] = input;

@@ -54,6 +54,10 @@ vtkImageFilter::vtkImageFilter()
 vtkImageFilter::~vtkImageFilter()
 {
   this->Threader->Delete();
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -108,6 +112,16 @@ void vtkImageFilter::SetInput(vtkImageCache *input)
   if (input == this->Input)
     {
     return;
+    }
+  
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    }
+  
+  if (input)
+    {
+    input->Register(this);
     }
   
   this->Input = input;

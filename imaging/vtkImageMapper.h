@@ -53,10 +53,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMapper2D.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
+#include "vtkImageCache.h"
 
 class vtkWindow;
 class vtkViewport;
-class vtkImageCache;
 class vtkActor2D;
 class vtkImageData;
 
@@ -64,6 +64,7 @@ class VTK_EXPORT vtkImageMapper : public vtkMapper2D
 {
 public:
   vtkImageMapper();
+  ~vtkImageMapper();
 
   const char *GetClassName() {return "vtkImageMapper";};
   static vtkImageMapper *New();
@@ -83,7 +84,7 @@ public:
   // Set/Get the input for the image mapper.  The 
   // input can be either a vtkImageCache or a 
   // vtkStructuredPoints data set.
-  vtkSetObjectMacro(Input, vtkImageCache);
+  vtkSetReferenceCountedObjectMacro(Input, vtkImageCache);
   vtkGetObjectMacro(Input,vtkImageCache);
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}

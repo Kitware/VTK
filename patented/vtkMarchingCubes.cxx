@@ -77,14 +77,16 @@ vtkMarchingCubes::vtkMarchingCubes()
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
   this->Locator = NULL;
-  this->SelfCreatedLocator = 0;
 }
 
 vtkMarchingCubes::~vtkMarchingCubes()
 {
   this->ContourValues->Delete();
-  if ( this->SelfCreatedLocator ) this->Locator->Delete();
-  this->SelfCreatedLocator = 0;
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
 }
 
 // Description:
@@ -96,8 +98,11 @@ unsigned long vtkMarchingCubes::GetMTime()
   unsigned long mTime2=this->ContourValues->GetMTime();
 
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
-  mTime2=this->Locator->GetMTime();
-  mTime = ( mTime2 > mTime ? mTime2 : mTime );
+  if (this->Locator)
+    {
+    mTime2=this->Locator->GetMTime();
+    mTime = ( mTime2 > mTime ? mTime2 : mTime );
+    }
 
   return mTime;
 }
@@ -580,20 +585,32 @@ void vtkMarchingCubes::Execute()
 // an instance of vtkMergePoints is used.
 void vtkMarchingCubes::SetLocator(vtkPointLocator *locator)
 {
-  if ( this->Locator != locator ) 
+  if ( this->Locator == locator ) 
     {
-    if ( this->SelfCreatedLocator ) this->Locator->Delete();
-    this->SelfCreatedLocator = 0;
-    this->Locator = locator;
-    this->Modified();
+    return;
     }
+  
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
+  
+  if (locator)
+    {
+    locator->Register(this);
+    }
+  
+  this->Locator = locator;
+  this->Modified();
 }
 
 void vtkMarchingCubes::CreateDefaultLocator()
 {
-  if ( this->SelfCreatedLocator ) this->Locator->Delete();
-  this->Locator = vtkMergePoints::New();
-  this->SelfCreatedLocator = 1;
+  if ( this->Locator == NULL)
+    {
+    this->Locator = vtkMergePoints::New();
+    }
 }
 
 void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)

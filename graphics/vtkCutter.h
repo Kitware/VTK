@@ -122,7 +122,6 @@ protected:
   vtkImplicitFunction *CutFunction;
   
   vtkPointLocator *Locator;
-  int SelfCreatedLocator;
   int SortBy;
   vtkContourValues *ContourValues;
   int GenerateCutScalars;

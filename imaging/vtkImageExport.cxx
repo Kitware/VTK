@@ -62,6 +62,11 @@ vtkImageExport::vtkImageExport()
 //----------------------------------------------------------------------------
 vtkImageExport::~vtkImageExport()
 {
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    this->Input = NULL;
+    }
 }
 
 

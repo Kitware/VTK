@@ -96,7 +96,7 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkObject::PrintSelf(os,indent);
+  vtkReferenceCount::PrintSelf(os,indent);
 
   os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
   os << indent << "NumberOfScalarComponents: " << 

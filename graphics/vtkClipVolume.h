@@ -161,7 +161,6 @@ protected:
 		 vtkCellData *clippedCD);
   vtkImplicitFunction *ClipFunction;
   vtkPointLocator *Locator;
-  int SelfCreatedLocator;
   int InsideOut;
   float Value;
   int GenerateClipScalars;

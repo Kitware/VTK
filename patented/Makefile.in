@@ -23,7 +23,10 @@ vtkImageMarchingCubes \
 vtkMarchingCubes \
 vtkMarchingSquares \
 vtkSliceCubes \
-vtkSweptSurface 
+vtkSweptSurface \
+vtkRenderController \
+vtkMultiLODActor \
+vtkLOD
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make

@@ -69,7 +69,7 @@ vtkImageSource::~vtkImageSource()
 {
   if (this->Output)
     {
-    this->Output->Delete();
+    this->Output->UnRegister(this);
     this->Output = NULL;
     }
 }
@@ -199,11 +199,12 @@ void vtkImageSource::SetCache(vtkImageCache *cache)
     {
     // cache->ReleaseData();
     cache->SetSource(this);
+    cache->Register(this);
     }
   
   if (this->Output)
     {
-    this->Output->Delete();
+    this->Output->UnRegister(this);
     this->Output = NULL;
     }
 

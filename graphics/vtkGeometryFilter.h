@@ -156,7 +156,6 @@ protected:
 
   int Merging;
   vtkPointLocator *Locator;
-  int SelfCreatedLocator;
 };
 
 #endif

@@ -136,7 +136,6 @@ vtkDelaunay3D::vtkDelaunay3D()
   this->Tolerance = 0.001;
   this->BoundingTriangulation = 0;
   this->Offset = 2.5;
-  this->SelfCreatedLocator = 0;
   this->Locator = NULL;
 
   this->Output = vtkUnstructuredGrid::New();
@@ -147,7 +146,11 @@ vtkDelaunay3D::vtkDelaunay3D()
 
 vtkDelaunay3D::~vtkDelaunay3D()
 {
-  if ( this->SelfCreatedLocator && this->Locator ) this->Locator->Delete();
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
   if ( this->Spheres ) delete this->Spheres;
 }
 
@@ -856,20 +859,30 @@ void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
 // an instance of vtkMergePoints is used.
 void vtkDelaunay3D::SetLocator(vtkPointLocator *locator)
 {
-  if ( this->Locator != locator ) 
+  if ( this->Locator == locator ) 
     {
-    if ( this->SelfCreatedLocator ) this->Locator->Delete();
-    this->SelfCreatedLocator = 0;
-    this->Locator = locator;
-    this->Modified();
+    return;
+    }  
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
     }
+  if ( locator )
+    {
+    locator->Register(this);
+    }
+  
+  this->Locator = locator;
+  this->Modified();
 }
 
 void vtkDelaunay3D::CreateDefaultLocator()
 {
-  if ( this->SelfCreatedLocator ) this->Locator->Delete();
-  this->Locator = vtkPointLocator::New();
-  this->SelfCreatedLocator = 1;
+  if ( this->Locator == NULL )
+    {
+    this->Locator = vtkPointLocator::New();
+    }
 }
 
 // See whether point is in sphere of tetrahedron

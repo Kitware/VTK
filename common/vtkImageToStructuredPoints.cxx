@@ -68,6 +68,17 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 //----------------------------------------------------------------------------
 vtkImageToStructuredPoints::~vtkImageToStructuredPoints()
 {
+  if (this->Input) 
+    {
+    this->Input->UnRegister(this);
+    this->Input = NULL;
+    }
+  
+  if (this->VectorInput) 
+    {
+    this->VectorInput->UnRegister(this);
+    this->VectorInput = NULL;
+    }
 }
 
 

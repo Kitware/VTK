@@ -75,11 +75,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkLocator_h
 #define __vtkLocator_h
 
-#include "vtkObject.h"
+#include "vtkReferenceCount.h"
 #include "vtkDataSet.h"
 class vtkPolyData;
 
-class VTK_EXPORT vtkLocator : public vtkObject
+class VTK_EXPORT vtkLocator : public vtkReferenceCount
 {
 public:
   vtkLocator();

@@ -150,7 +150,6 @@ protected:
   int ComputeGradients;
   int ComputeScalars;
   vtkPointLocator *Locator;
-  int SelfCreatedLocator;
   int UseScalarTree;
   vtkScalarTree *ScalarTree;
 

@@ -178,7 +178,7 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 		  ((n[1]==0 || n[2]==0 || n[3]==0) && 
 		   (n[3]==0 || n[4]==0 || n[5]==0) && 
 		   (n[5]==0 || n[6]==0 || n[7]==0) && 
-		   (n[7]==0 || n[8]==0 || n[0]==0)))
+		   (n[7]==0 || n[0]==0 || n[1]==0)))
 		{
 		// special condition (making another prune level)
 		// pruning 135 degree corners

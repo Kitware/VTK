@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkSource.h"
 #include "vtkImageData.h"
-class vtkImageCache;
+#include "vtkImageCache.h"
 class vtkVectors;
 
 class VTK_EXPORT vtkImageToStructuredPoints : public vtkSource
@@ -67,12 +67,12 @@ public:
   
   // Description:
   // Set/Get the input object from the image pipeline.
-  vtkSetObjectMacro(Input,vtkImageCache);
+  vtkSetReferenceCountedObjectMacro(Input,vtkImageCache);
   vtkGetObjectMacro(Input,vtkImageCache);
 
   // Description:
   // Set/Get the input object from the image pipeline.
-  vtkSetObjectMacro(VectorInput,vtkImageCache);
+  vtkSetReferenceCountedObjectMacro(VectorInput,vtkImageCache);
   vtkGetObjectMacro(VectorInput,vtkImageCache);
 
     // Set/Get the extent to translate explicitely.

@@ -135,7 +135,6 @@ protected:
   int ComputeGradients;
   int ComputeScalars;
   vtkPointLocator *Locator;
-  int SelfCreatedLocator;
 };
 
 // Description:

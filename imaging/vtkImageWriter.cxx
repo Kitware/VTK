@@ -66,6 +66,12 @@ vtkImageWriter::vtkImageWriter()
 //----------------------------------------------------------------------------
 vtkImageWriter::~vtkImageWriter()
 {
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    this->Input == NULL;
+    }
+  
   // get rid of memory allocated for file names
   if (this->FilePrefix)
     {

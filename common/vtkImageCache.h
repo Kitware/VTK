@@ -56,10 +56,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageCache_h
 #define __vtkImageCache_h
 class vtkImageToStructuredPoints;
+#include "vtkReferenceCount.h"
 #include "vtkImageSource.h"
 #include "vtkImageData.h"
 
-class VTK_EXPORT vtkImageCache : public vtkObject
+class VTK_EXPORT vtkImageCache : public vtkReferenceCount
 {
 public:
   vtkImageCache();

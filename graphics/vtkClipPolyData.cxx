@@ -54,7 +54,6 @@ vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction *cf)
   this->Locator = NULL;
   this->Value = 0.0;
   this->GenerateClipScalars = 0;
-  this->SelfCreatedLocator = 0;
 
   this->GenerateClippedOutput = 0;
   this->ClippedOutput = vtkPolyData::New();
@@ -64,7 +63,11 @@ vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction *cf)
 vtkClipPolyData::~vtkClipPolyData()
 {
   this->ClippedOutput->Delete();
-  if ( this->SelfCreatedLocator && this->Locator ) this->Locator->Delete();
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
 }
 
 // Description:
@@ -310,21 +313,34 @@ void vtkClipPolyData::Execute()
 // an instance of vtkMergePoints is used.
 void vtkClipPolyData::SetLocator(vtkPointLocator *locator)
 {
-  if ( this->Locator != locator ) 
+  if ( this->Locator == locator)
     {
-    if ( this->SelfCreatedLocator ) this->Locator->Delete();
-    this->SelfCreatedLocator = 0;
-    this->Locator = locator;
-    this->Modified();
+    return;
     }
+  
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
+
+  if ( locator )
+    {
+    locator->Register(this);
+    }
+
+  this->Locator = locator;
+  this->Modified();
 }
 
 void vtkClipPolyData::CreateDefaultLocator()
 {
-  if ( this->SelfCreatedLocator ) this->Locator->Delete();
-  this->Locator = vtkMergePoints::New();
-  this->SelfCreatedLocator = 1;
+  if ( this->Locator == NULL )
+    {
+    this->Locator = vtkMergePoints::New();
+    }
 }
+
 
 void vtkClipPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -124,8 +124,6 @@ protected:
   vtkContourValues *ContourValues;
   int ImageRange[6];
   vtkPointLocator *Locator;
-  int SelfCreatedLocator;
-
 };
 
 // Description:

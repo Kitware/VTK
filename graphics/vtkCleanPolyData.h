@@ -88,7 +88,6 @@ protected:
 
   float Tolerance;
   vtkPointLocator *Locator;
-  int SelfCreatedLocator;
 };
 
 #endif

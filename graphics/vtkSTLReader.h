@@ -96,7 +96,6 @@ protected:
   char *FileName;
   int Merging;
   vtkPointLocator *Locator;
-  int SelfCreatedLocator;
 
   void Execute();
   int ReadBinarySTL(FILE *fp, vtkPoints*, vtkCellArray*);

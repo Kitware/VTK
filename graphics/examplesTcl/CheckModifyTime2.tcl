@@ -3,8 +3,18 @@
 # This might get some of the sub objects, but others could return NULL.
 # This approach is to set the object first, then modify it.
 
+# If A Get object method exists without a Setobject method,  this script
+# will miss it.
+
+
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
+
+# A global variable similar to "DebugOn"
+# When this is set to 1, the method calls will be echoed, and
+# the mtime results displayed.  When an error is encountered,
+# an interactor will popup.
+set DEBUG 0
 
 
 
@@ -37,7 +47,7 @@ proc TestKit {kit} {
 }
 
 proc TestObject {kit objectClass} {
-
+   global DEBUG
    #puts "    Object: $objectClass"
 
    if { [CheckSubclassRelationship "vtkImageSource" $objectClass $kit] == 0 \
@@ -83,6 +93,7 @@ proc TestObject {kit objectClass} {
       set str [lindex $methodList $idx]
    }
 
+   if {$DEBUG} {puts "$objectName Delete"}
    $objectName Delete
 }
 
@@ -90,7 +101,7 @@ proc TestObject {kit objectClass} {
 
 
 proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
-   global ERROR_LOG_FD ERROR_STRING
+   global ERROR_LOG_FD ERROR_STRING DEBUG
 
    # do not duplicate calls
    set token "$methodClass::$methodName"
@@ -132,50 +143,52 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    #puts "*        Method: $methodName with $numberOfArgs args"
    #puts "                 args [llength $argTypes] : $argTypes"
 
+
    # format first call
    set argValues [GetArgValues $argTypes 1 $kit]
    set subObject [lindex $argValues 0]
-   #puts "                 $argValues"
-
-   set call1 "$objectName $methodName $subObject"
-   #puts "             call1: $call1"
    # set the subobject
-   if { [catch {eval $call1}] != 0} {
+   if {$DEBUG} {puts "  $objectName $methodName $subObject"}
+   if { [catch {$objectName $methodName $subObject}] != 0} {
       #puts "---- call1 did not work !!!!!"
       #puts "$call1"
       # debug
       return
    }
-
    # record the original mtime
+   if {$DEBUG} {puts "  $objectName GetMTime"}
    if {[catch {set modifyTime0 [$objectName GetMTime]}] != 0} {
       #puts "--- GetMTime did not work !"
       # not a subclass of vtkObject.
       return
    }
+   if {$DEBUG} {puts "         = $modifyTime0"}
 
    # modify the subobject
    # record the original mtime
+   if {$DEBUG} {puts "  $subObject Modified"}
    if {[catch {$subObject Modified}] != 0} {
       #puts "--- Modified did not work !"
       return
    }
 
    # record the new mtime
+   if {$DEBUG} {puts "  $objectName GetMTime"}
    if {[catch {set modifyTime1 [$objectName GetMTime]}] != 0} {
       # not a subclass of vtkObject.
       return
    }
+   if {$DEBUG} {puts "         = $modifyTime1"}
 
    #puts "             MTime: $modifyTime0, $modifyTime1"  
    if { $modifyTime0 == $modifyTime1} {
       set ERROR_STRING [format "%s   %s %s," $ERROR_STRING \
 			  $call1, $methodClass]      
-      #puts "--------------------------- error -------------------------------"
-      #puts $ERROR_LOG_FD "---------------------------------------------------" 
-      #puts $ERROR_LOG_FD " $call1   (method class: $methodClass)"
-      flush $ERROR_LOG_FD
+      if {$DEBUG} {puts "----------------- error ---------------------------"}
+      if {$DEBUG}{puts " $call1   (method class: $methodClass)"}
+      if {$DEBUG} {debug}
    }
+   DeleteArgValues $argValues
 }
 
 
@@ -216,6 +229,18 @@ proc GetArgValues {argTypes val kit} {
    return $argValues
 }
 
+proc DeleteArgValues {argValues} {
+   global DEBUG
+
+   foreach arg $argValues {
+      if { [string range $arg 0 2] == "vtk"} {
+	 # It is a vtk object. Delete it..
+	 #puts "$arg                       \t Delete argument"
+	 if {$DEBUG} {puts "$arg Delete"}
+	 $arg Delete
+      }
+   }
+}
 
 # This is going to be a complex procedure.  It has to look in the header file
 # to see what type of arguments a method takes.  Specifically if the 
@@ -594,6 +619,8 @@ proc CheckSubclassRelationship {class subClass subClassKit} {
 
 # A method to make an instance of a class with a unique name.
 proc new {className} {
+   global DEBUG
+
    set counterName [format {%sCounter} $className]
    global $counterName
    if {[info exists $counterName] == 0} {
@@ -608,7 +635,9 @@ proc new {className} {
    if {[catch "$className $instanceName"] != 0} {
       return ""
    }
- 
+
+   if {$DEBUG} {puts "$className $instanceName"}
+
    return $instanceName
 }
 
@@ -725,10 +754,10 @@ set imager [viewer GetImager]
 set ERROR_STRING "Subobject Modify Time Bugs:"
 
 
-#TestKit common
-#TestKit graphics
-#TestKit imaging
-#TestKit patented
+TestKit common
+TestKit graphics
+TestKit imaging
+TestKit patented
 
 mapper SetInput $ERROR_STRING
 viewer Render

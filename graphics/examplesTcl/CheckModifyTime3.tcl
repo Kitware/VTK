@@ -4,9 +4,24 @@
 # since it is easy, also check that MTime does not change when the variable 
 # is reset.  (Keep original reset script because it test more).
 
+# this script deletes all objects created, so it is a Good 
+# reference counting check as well.
 
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
+
+
+
+
+# A global variable similar to "DebugOn"
+# When this is set to 1, the method calls will be echoed, and
+# the mtime results displayed.  When an error is encountered,
+# an interactor will popup.
+set DEBUG 0
+
+
+
+
 
 
 proc debug {} {
@@ -40,8 +55,9 @@ proc TestKit {kit} {
 }
 
 proc TestObject {kit objectClass} {
+   global DEBUG
 
-   puts "    Object: $objectClass"
+   #puts "    Object: $objectClass"
 
    if { [CheckSubclassRelationship "vtkImageSource" $objectClass $kit] == 0 \
 	&& [CheckSubclassRelationship "vtkSource" $objectClass $kit] == 0} {
@@ -86,7 +102,7 @@ proc TestObject {kit objectClass} {
       set str [lindex $methodList $idx]
    }
 
-   puts "$objectName                  \t Delete Object"
+   if {$DEBUG} {puts "$objectName Delete"}
    $objectName Delete
 }
 
@@ -94,7 +110,7 @@ proc TestObject {kit objectClass} {
 
 
 proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
-   global ERROR_LOG_FD ERROR_STRING_CHANGE ERROR_STRING_RESET
+   global ERROR_LOG_FD ERROR_STRING_CHANGE ERROR_STRING_RESET DEBUG
 
    #puts "        Method: $methodName with $numberOfArgs args"
 
@@ -127,73 +143,73 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    }
 
    # first call
-   set argValues [GetArgValues $argTypes 0 $kit]
-   set call1 "$objectName $methodName $argValues"
-   puts "                    $call1"
+   set argValues1 [GetArgValues $argTypes 0 $kit]
+   set call1 "$objectName $methodName $argValues1"
+   if {$DEBUG} {puts "  $call1; $objectName GetMTime"}
    if { [catch {eval $call1}] != 0} {
       return
    }
-   DeleteArgValues $argValues $argTypes
    if {[catch {set modifyTime1 [$objectName GetMTime]}] != 0} {
       return
    }
+   if {$DEBUG} { puts "        = $modifyTime1"}
    # second call
-   set argValues [GetArgValues $argTypes 1 $kit]
-   set call2 "$objectName $methodName $argValues"
-   puts "                    $call2"
+   set argValues2 [GetArgValues $argTypes 1 $kit]
+   set call2 "$objectName $methodName $argValues2"
+   if {$DEBUG} { puts "  $call2; $objectName GetMTime"}
    if { [catch {eval $call2}] != 0} {
       return
    }
-   DeleteArgValues $argValues $argTypes
    if {[catch {set modifyTime2 [$objectName GetMTime]}] != 0} {
       return
    }
+   if {$DEBUG} { puts "        = $modifyTime2"}
    # third call
-   set argValues [GetArgValues $argTypes 2 $kit]
-   set call3 "$objectName $methodName $argValues"
-   puts "                    $call3"
+   set argValues3 [GetArgValues $argTypes 2 $kit]
+   set call3 "$objectName $methodName $argValues3"
+   if {$DEBUG} { puts "  $call3; $objectName GetMTime"}
    if { [catch {eval $call3}] != 0} {
       return
    }
-   DeleteArgValues $argValues $argTypes
    if {[catch {set modifyTime3 [$objectName GetMTime]}] != 0} {
       return
    }
-
+   if {$DEBUG} { puts "        = $modifyTime3"}
    if { $modifyTime0 == $modifyTime1 && $modifyTime0 == $modifyTime2 && \
 	  $modifyTime0 == $modifyTime3} {
       set ERROR_STRING_CHANGE [format "%s   %s %s," $ERROR_STRING_CHANGE \
 			  $methodClass $methodName]
-      #puts "--------------------------- error -------------------------------"
-      #puts "MTime did not changed : ------------------------"
-      #puts "MTime: $modifyTime0, $modifyTime1, $modifyTime2, $modifyTime3"  
-      #puts " $call2"
-      #puts " method class: $methodClass"
-      #puts " $call1"
-      #puts " $call2"
-      #puts " $call3"
-      #debug
+      puts "--------------------------- error -------------------------------"
+      puts "MTime did not changed : ------------------------"
+      puts "MTime: $modifyTime0, $modifyTime1, $modifyTime2, $modifyTime3"  
+      puts " method class: $methodClass"
+      if {$DEBUG} { debug}
    }
 
    # forth call (reset test)
+   if {$DEBUG} { puts "  $call3; $objectName GetMTime"}
    if { [catch {eval $call3}] != 0} {
       return
    }
    if {[catch {set modifyTime4 [$objectName GetMTime]}] != 0} {
       return
    }
+   if {$DEBUG} { puts "        = $modifyTime4"}
 
    if { $modifyTime3 != $modifyTime4} {
       set ERROR_STRING_RESET [format "%s   %s %s," $ERROR_STRING_RESET \
 				$methodClass $methodName]
-      #puts "--------------------- reset error -------------------------------"
-      #puts "MTime changed : ------------------------"
-      #puts "MTime: $modifyTime3, $modifyTime4"  
-      #puts " method class: $methodClass"
-      #puts " $call3"
-      #debug
+      puts "--------------------- reset error -------------------------------"
+      puts "MTime changed : ------------------------"
+      puts "MTime: $modifyTime3, $modifyTime4"  
+      puts " method class: $methodClass"
+      if {$DEBUG} { debug}
    }
 
+
+   DeleteArgValues $argValues1
+   DeleteArgValues $argValues2
+   DeleteArgValues $argValues3
 }
 
 
@@ -242,23 +258,17 @@ proc GetArgValues {argTypes val kit} {
    return $argValues
 }
 
-proc DeleteArgValues {argValues argTypes} {
+proc DeleteArgValues {argValues} {
+   global DEBUG
 
-
-   # create an empty list
-   set length [llength $argTypes]
-
-   for {set idx 0} {$idx < $length} {incr idx} {
-      set type [lindex $argTypes $idx]
-      if { [string range $type 0 2] == "vtk"} {
+   foreach arg $argValues {
+      if { [string range $arg 0 2] == "vtk"} {
 	 # It is a vtk object. Delete it..
-	 set obj [lindex $argValues $idx]
-	 puts "$obj                       \t Delete argument"
-	 $obj Delete
+	 if {$DEBUG} {puts "$arg Delete"}
+	 $arg Delete
       }
    }
 }
-
 
 # This is going to be a complex procedure.  It has to look in the header file
 # to see what type of arguments a method takes.  Specifically if the 
@@ -636,6 +646,8 @@ proc CheckSubclassRelationship {class subClass subClassKit} {
 
 # A method to make an instance of a class with a unique name.
 proc new {className} {
+   global DEBUG
+
    set counterName [format {%sCounter} $className]
    global $counterName
    if {[info exists $counterName] == 0} {
@@ -651,7 +663,7 @@ proc new {className} {
       return ""
    }
  
-   puts "$instanceName   \tCreate"
+   if {$DEBUG} {puts "$className $instanceName"}
 
    return $instanceName
 }
@@ -739,12 +751,12 @@ set ERROR_STRING_CHANGE "Change Modify Time Bugs:"
 set ERROR_STRING_RESET "Reset Modify Time Bugs:"
 
 
-#TestObject common vtkStructuredPointsToImage
+#TestObject graphics vtkBrownianPoints
 
-#TestKit graphics
-#TestKit imaging
-#TestKit patented
-#TestKit common
+TestKit graphics
+TestKit imaging
+TestKit patented
+TestKit common
 
 mapper SetInput $ERROR_STRING_CHANGE
 mapper2 SetInput $ERROR_STRING_RESET

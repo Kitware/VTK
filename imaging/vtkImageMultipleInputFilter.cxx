@@ -56,6 +56,17 @@ vtkImageMultipleInputFilter::vtkImageMultipleInputFilter()
 //----------------------------------------------------------------------------
 vtkImageMultipleInputFilter::~vtkImageMultipleInputFilter()
 {
+  int idx;
+  
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx])
+      {
+      this->Inputs[idx]->UnRegister(this);
+      this->Inputs[idx] = NULL;
+      }
+    }
+      
   this->Threader->Delete();
   if (this->Inputs)
     {
@@ -169,11 +180,17 @@ void vtkImageMultipleInputFilter::AddInput(vtkImageCache *input)
 {
   int idx;
   
+  if (input)
+    {
+    input->Register(this);
+    }
+  this->Modified();
+  
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     if (this->Inputs[idx] == NULL)
       {
-      this->Inputs[idx] = input;
+      this->Inputs[idx] == input;
       return;
       }
     }
@@ -185,26 +202,37 @@ void vtkImageMultipleInputFilter::AddInput(vtkImageCache *input)
 //----------------------------------------------------------------------------
 // Description:
 // Set an Input of this filter. 
-void vtkImageMultipleInputFilter::SetInput(int num, vtkImageCache *input)
+void vtkImageMultipleInputFilter::SetInput(int idx, vtkImageCache *input)
 {
-  if (num < 0)
+  if (idx < 0)
     {
-    vtkErrorMacro(<< "SetInput: " << num << ", cannot set input. ");
+    vtkErrorMacro(<< "SetInput: " << idx << ", cannot set input. ");
     return;
     }
   // Expand array if necessary.
-  if (num >= this->NumberOfInputs)
+  if (idx >= this->NumberOfInputs)
     {
-    this->SetNumberOfInputs(num + 1);
+    this->SetNumberOfInputs(idx + 1);
     }
   
   // does this change anything?
-  if (input == this->Inputs[num])
+  if (input == this->Inputs[idx])
     {
     return;
     }
   
-  this->Inputs[num] = input;
+  if (this->Inputs[idx])
+    {
+    this->Inputs[idx]->UnRegister(this);
+    this->Inputs[idx] = NULL;
+    }
+  
+  if (input)
+    {
+    input->Register(this);
+    }
+
+  this->Inputs[idx] = input;
   this->Modified();
 }
 

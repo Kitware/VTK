@@ -125,7 +125,6 @@ protected:
   char *FileName;
   char *LimitsFileName;
   vtkPointLocator *Locator;
-  int SelfCreatedLocator;
   int FlipNormals;
   int Normals;
 

@@ -78,12 +78,16 @@ vtkMarchingSquares::vtkMarchingSquares()
   this->ImageRange[4] = 0; this->ImageRange[5] = 0;
 
   this->Locator = NULL;
-  this->SelfCreatedLocator = 0;
 }
 
 vtkMarchingSquares::~vtkMarchingSquares()
 {
   this->ContourValues->Delete();
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
 }
 
 void vtkMarchingSquares::SetImageRange(int imin, int imax, int jmin, int jmax, 
@@ -110,8 +114,11 @@ unsigned long vtkMarchingSquares::GetMTime()
   unsigned long mTime2=this->ContourValues->GetMTime();
 
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
-  mTime2=this->Locator->GetMTime();
-  mTime = ( mTime2 > mTime ? mTime2 : mTime );
+  if (this->Locator)
+    {
+    mTime2=this->Locator->GetMTime();
+    mTime = ( mTime2 > mTime ? mTime2 : mTime );
+    }
 
   return mTime;
 }
@@ -474,20 +481,32 @@ void vtkMarchingSquares::Execute()
 // an instance of vtkMergePoints is used.
 void vtkMarchingSquares::SetLocator(vtkPointLocator *locator)
 {
-  if ( this->Locator != locator ) 
+  if ( this->Locator == locator)
     {
-    if ( this->SelfCreatedLocator ) this->Locator->Delete();
-    this->SelfCreatedLocator = 0;
-    this->Locator = locator;
-    this->Modified();
+    return;
     }
+
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
+  
+  if ( locator )
+    {
+    locator->Register(this);
+    }
+  
+  this->Locator = locator;
+  this->Modified();
 }
 
 void vtkMarchingSquares::CreateDefaultLocator()
 {
-  if ( this->SelfCreatedLocator ) this->Locator->Delete();
-  this->Locator = vtkMergePoints::New();
-  this->SelfCreatedLocator = 1;
+  if ( this->Locator == NULL)
+    {
+    this->Locator = vtkMergePoints::New();
+    }
 }
 
 void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)

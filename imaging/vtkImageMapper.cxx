@@ -71,6 +71,15 @@ vtkImageMapper::vtkImageMapper()
   this->ZSlice = 0;
 }
 
+vtkImageMapper::~vtkImageMapper()
+{
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    this->Input == NULL;
+    }
+}
+
 void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkMapper2D::PrintSelf(os, indent);

@@ -64,7 +64,6 @@ vtkContourFilter::vtkContourFilter()
   this->ComputeScalars = 1;
 
   this->Locator = NULL;
-  this->SelfCreatedLocator = 0;
 
   this->UseScalarTree = 0;
   this->ScalarTree = NULL;
@@ -73,7 +72,11 @@ vtkContourFilter::vtkContourFilter()
 vtkContourFilter::~vtkContourFilter()
 {
   this->ContourValues->Delete();
-  if ( this->SelfCreatedLocator && this->Locator ) this->Locator->Delete();
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
   if ( this->ScalarTree ) this->ScalarTree->Delete();
 }
 
@@ -293,20 +296,29 @@ void vtkContourFilter::StructuredPointsContour(int dim)
 // an instance of vtkMergePoints is used.
 void vtkContourFilter::SetLocator(vtkPointLocator *locator)
 {
-  if ( this->Locator != locator ) 
+  if ( this->Locator == locator ) 
     {
-    if ( this->SelfCreatedLocator ) this->Locator->Delete();
-    this->SelfCreatedLocator = 0;
-    this->Locator = locator;
-    this->Modified();
+    return;
     }
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
+  if ( locator )
+    {
+    locator->Register(this);
+    }
+  this->Locator = locator;
+  this->Modified();
 }
 
 void vtkContourFilter::CreateDefaultLocator()
 {
-  if ( this->SelfCreatedLocator ) this->Locator->Delete();
-  this->Locator = vtkMergePoints::New();
-  this->SelfCreatedLocator = 1;
+  if ( this->Locator == NULL )
+    {
+    this->Locator = vtkMergePoints::New();
+    }
 }
 
 void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)

@@ -188,7 +188,6 @@ protected:
   float Offset;
 
   vtkPointLocator *Locator;  //help locate points faster
-  int SelfCreatedLocator;
   
   vtkSphereArray *Spheres;   //used to keep track of circumspheres
   int InSphere(float x[3], int tetraId);

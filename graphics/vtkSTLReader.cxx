@@ -53,13 +53,16 @@ vtkSTLReader::vtkSTLReader()
   this->FileName = NULL;
   this->Merging = 1;
   this->Locator = NULL;
-  this->SelfCreatedLocator = 0;
 }
 
 vtkSTLReader::~vtkSTLReader()
 {
   if (this->FileName) delete [] this->FileName;
-  if (this->SelfCreatedLocator) this->Locator->Delete();
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
 }
 
 // Description:
@@ -306,20 +309,29 @@ int vtkSTLReader::GetSTLFileType(FILE *fp)
 // default an instance of vtkMergePoints is used.
 void vtkSTLReader::SetLocator(vtkPointLocator *locator)
 {
-  if ( this->Locator != locator ) 
+  if ( this->Locator == locator ) 
     {
-    if ( this->SelfCreatedLocator ) this->Locator->Delete();
-    this->SelfCreatedLocator = 0;
-    this->Locator = locator;
-    this->Modified();
+    return;
     }
+  if ( this->Locator )
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = NULL;
+    }
+  if ( locator )
+    {
+    locator->Register(this);
+    }
+  this->Locator = locator;
+  this->Modified();
 }
 
 void vtkSTLReader::CreateDefaultLocator()
 {
-  if ( this->SelfCreatedLocator ) this->Locator->Delete();
-  this->Locator = vtkMergePoints::New();
-  this->SelfCreatedLocator = 1;
+  if ( this->Locator == NULL )
+    {
+    this->Locator = vtkMergePoints::New();
+    }
 }
 
 void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)
