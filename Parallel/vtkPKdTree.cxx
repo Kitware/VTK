@@ -30,11 +30,13 @@
 #include "vtkPointData.h"
 #include "vtkIntArray.h"
 #include "vtkIdList.h"
+#include "vtkSubGroup.h"
 #include <vtkstd/queue>
 #include <vtkstd/algorithm>
 
 // Timing data ---------------------------------------------
 
+#if 0
 #define MSGSIZE 60
 
 static char dots[MSGSIZE] = "...........................................................";
@@ -66,9 +68,14 @@ static char * makeEntry(const char *s)
   if (this->GetTiming())\
     { char *s2 = makeEntry(s); this->TimerLog->MarkEndEvent(s2); }
 
+#else
+#define TIMER(s) 
+#define TIMERDONE(s)
+#endif
+
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.3");
+vtkCxxRevisionMacro(vtkPKdTree, "1.4");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -78,6 +85,7 @@ const int vtkPKdTree::RoundRobinAssignment  = 3;
 
 #define FreeList(list)   if (list) {delete [] list; list = NULL;}
 #define FreeItem(item)   if (item) {delete item; item = NULL;}
+#define FreeObject(item)   if (item) {item->Delete(); item = NULL;}
 
 static char errstr[256];
 
@@ -368,7 +376,8 @@ void vtkPKdTree::BuildLocator()
 
   TIMER("Determine if we need to rebuild");
 
-  this->SubGroup = new vtkSubGroup(0, this->NumProcesses-1,
+  this->SubGroup = vtkSubGroup::New();
+  this->SubGroup->Initialize(0, this->NumProcesses-1,
              this->MyId, 0x00001000, this->Controller->GetCommunicator());
 
   int vote;
@@ -406,7 +415,7 @@ doneError:
 
 done:
 
-  FreeItem(this->SubGroup);
+  FreeObject(this->SubGroup);
 
   this->UpdateBuildTime();
 
@@ -480,7 +489,7 @@ int vtkPKdTree::MultiProcessBuildLocator()
   //   the points into spatial regions.  Sub-groups of processors
   //   will form vtkSubGroups to divide sub-regions of space.
 
-  FreeItem(this->SubGroup);
+  FreeObject(this->SubGroup);
 
   TIMER("Compute tree");
 
@@ -488,7 +497,8 @@ int vtkPKdTree::MultiProcessBuildLocator()
 
   TIMERDONE("Compute tree");
 
-  this->SubGroup = new vtkSubGroup(0, this->NumProcesses-1,
+  this->SubGroup = vtkSubGroup::New();
+  this->SubGroup->Initialize(0, this->NumProcesses-1,
              this->MyId, 0x00002000, this->Controller->GetCommunicator());
 
   if (this->AllCheckForFailure(fail, "BreadthFirstDivide", "memory allocation"))
@@ -496,10 +506,13 @@ int vtkPKdTree::MultiProcessBuildLocator()
     goto doneError6;
     }
 
+  FreeObject(this->SubGroup);
+
   // I only have a partial tree at this point, the regions in which
   //   I participated.  Now collect the entire tree.
 
-  this->SubGroup = new vtkSubGroup(0, this->NumProcesses-1,
+  this->SubGroup = vtkSubGroup::New();
+  this->SubGroup->Initialize(0, this->NumProcesses-1,
              this->MyId, 0x00003000, this->Controller->GetCommunicator());
 
   TIMER("Complete tree");
@@ -525,7 +538,8 @@ done6:
   delete [] this->PtArray;
   this->CurrentPtArray = this->PtArray = NULL;
 
-  FreeItem(this->SubGroup);
+  FreeObject(this->SubGroup);
+
   if (volBounds)
     {
     FreeList(volBounds);
@@ -676,7 +690,8 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
 
   if ((this->MyId < p1) || (this->MyId > p2)) return 0;
 
-  this->SubGroup = new vtkSubGroup(p1, p2, this->MyId, tag, 
+  this->SubGroup = vtkSubGroup::New();
+  this->SubGroup->Initialize(p1, p2, this->MyId, tag, 
               this->Controller->GetCommunicator());
 
   int maxdim = this->SelectCutDirection(kd);
@@ -691,7 +706,7 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
     // should probably try a different direction
 
     kd->SetDim(3);  // indicates region is not divided 
-    FreeItem(this->SubGroup);
+    FreeObject(this->SubGroup);
     return 0;
     }
 
@@ -706,7 +721,7 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
     FreeList(newDataBounds);
     FreeItem(left);
     FreeItem(right);
-    FreeItem(this->SubGroup);
+    FreeObject(this->SubGroup);
     return -1;
     }
 
@@ -743,7 +758,7 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
 
   delete [] newDataBounds;
 
-  FreeItem(this->SubGroup);
+  FreeObject(this->SubGroup);
 
   return midpt;
 }
@@ -1019,7 +1034,7 @@ void vtkPKdTree::ExchangeLocalVals(int pos1, int pos2)
 
 int vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
 {
-  int TLocation = 0;
+  int TLocation;
 
   int rootrank = this->SubGroup->getLocalRank(p1);
 
@@ -1050,8 +1065,8 @@ int vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
 
   int tag = this->SubGroup->tag;
 
-  vtkSubGroup *sg = new vtkSubGroup(p1, p2, me, tag,
-                      this->Controller->GetCommunicator());
+  vtkSubGroup *sg = vtkSubGroup::New();
+  sg->Initialize(p1, p2, me, tag, this->Controller->GetCommunicator());
 
   int hasK   = this->WhoHas(K);
 
@@ -1116,8 +1131,7 @@ int vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
   sg->Gather(&J, Jval, 1, rootrank);
   sg->Broadcast(Jval, nprocs, rootrank);
 
-
-  delete sg;
+  sg->Delete();;
 
   int leftRemaining = 0;
 
@@ -2211,7 +2225,8 @@ int vtkPKdTree::CreateProcessCellCountData()
   tempbuf = NULL;
   procData = myData = NULL;
 
-  this->SubGroup = new vtkSubGroup(0, this->NumProcesses-1,
+  this->SubGroup = vtkSubGroup::New();
+  this->SubGroup->Initialize(0, this->NumProcesses-1,
              this->MyId, 0x0000f000, this->Controller->GetCommunicator());
 
   int fail = this->AllocateAndZeroProcessDataLists();
@@ -2221,7 +2236,8 @@ int vtkPKdTree::CreateProcessCellCountData()
   if (this->AllCheckForFailure(fail, "BuildRegionProcessTables", "memory allocation"))
     {
     this->FreeProcessDataLists();
-    FreeItem(this->SubGroup);
+    this->SubGroup->Delete();
+    this->SubGroup = NULL;
     return 1;
     }
 
@@ -2361,7 +2377,8 @@ done4:
     }
 
   FreeList(cellCounts);
-  FreeItem(this->SubGroup);
+  this->SubGroup->Delete();
+  this->SubGroup = NULL;
   
   return retval;
 }
@@ -2376,7 +2393,8 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
 
   if (this->NumProcesses > 1)
     {
-    this->SubGroup = new vtkSubGroup(0, this->NumProcesses-1,
+    this->SubGroup = vtkSubGroup::New();
+    this->SubGroup->Initialize(0, this->NumProcesses-1,
                this->MyId, 0x0000f000, this->Controller->GetCommunicator());
     }
 
@@ -2385,7 +2403,7 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
   if (this->AllCheckForFailure(fail, "BuildFieldArrayMinMax", "memory allocation"))
     {
     this->FreeFieldArrayMinMax();
-    FreeItem(this->SubGroup);
+    FreeObject(this->SubGroup);
     return 1;
     }
 
@@ -2406,7 +2424,8 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
 
       this->CellDataMin[ar] = range[0];
       this->CellDataMax[ar] = range[1];
-      this->CellDataName[ar] = strdup(array->GetName());
+
+      this->CellDataName[ar] = vtkPKdTree::StrDupWithNew(array->GetName());
       }
 
     if (this->NumProcesses > 1)
@@ -2429,7 +2448,8 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
 
       this->PointDataMin[ar] = range[0];
       this->PointDataMax[ar] = range[1];
-      this->PointDataName[ar] = strdup(array->GetName());
+
+      this->PointDataName[ar] = StrDupWithNew(array->GetName());
       }
 
     if (this->NumProcesses > 1)
@@ -2444,7 +2464,7 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
 
   TIMERDONE("Get global ranges");
 
-  FreeItem(this->SubGroup);
+  FreeObject(this->SubGroup);
 
   return 0;
 }
@@ -3279,6 +3299,28 @@ void vtkPKdTree::PrintTables(ostream & os, vtkIndent indent)
       }
     }
 }
+char *vtkPKdTree::StrDupWithNew(const char *s)
+{   
+  char *newstr = NULL;
+    
+  if (s)
+    {
+    int len = strlen(s);
+    if (len == 0)
+      {
+      newstr = new char [1];
+      newstr[0] = '\0';
+      }
+    else
+      {                            
+      newstr = new char [len + 1];
+      strcpy(newstr, s);
+      }
+    } 
+
+  return newstr;
+}
+
 void vtkPKdTree::PrintSelf(ostream& os, vtkIndent indent)
 {  
   this->Superclass::PrintSelf(os,indent);
@@ -3310,500 +3352,4 @@ void vtkPKdTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CurrentPtArray: " << this->CurrentPtArray << endl;
   os << indent << "NextPtArray: " << this->NextPtArray << endl;
   os << indent << "SelectBuffer: " << this->SelectBuffer << endl;
-}
-
-//
-// sub group operations - we need reduce min, reduce max, reduce sum,
-//    gather, and broadcast.
-//    A process can only have one of these groups at a time, different groups
-//    across the application must have unique tags.  A group must be a
-//    contiguous set of process Ids.
-//
-
-vtkSubGroup::vtkSubGroup(int p0, int p1, int me, int itag, vtkCommunicator *c)
-{
-  int i, ii;
-  this->nmembers = p1 - p0 + 1;
-  this->tag = itag;
-  this->comm = c;
-
-  this->members = new int [this->nmembers];
-
-  this->myLocalRank = -1;
-
-  for (i=p0, ii=0; i<=p1; i++)
-    {
-    if (i == me) this->myLocalRank = ii;
-    this->members[ii++] = i;
-    }
-
-  if (this->myLocalRank == -1)
-    {
-    FreeList(this->members);
-    return;
-    }
-
-  this->gatherRoot = this->gatherLength = -1;
-
-  this->computeFanInTargets();
-}
-
-int vtkSubGroup::computeFanInTargets()
-{
-  int i;
-  this->nTo = 0;
-  this->nFrom = 0;
-
-  for (i = 1; i < this->nmembers; i <<= 1)
-    {
-    int other = this->myLocalRank ^ i;
-
-    if (other >= this->nmembers) continue;
-
-    if (this->myLocalRank > other)
-      {
-      this->fanInTo = other;
-
-      this->nTo++;   /* one at most */
-
-      break;
-      }
-    else
-      {
-      this->fanInFrom[this->nFrom] = other;
-      this->nFrom++;
-      }
-    }
-  return 0;
-}
-void vtkSubGroup::moveRoot(int root)
-{
-  int tmproot = this->members[root];
-  this->members[root] = this->members[0];
-  this->members[0] = tmproot;
-
-  return;
-}
-void vtkSubGroup::restoreRoot(int root)
-{
-  if (root == 0) return;
-
-  this->moveRoot(root);
-
-  if (this->myLocalRank == root)
-    {
-    this->myLocalRank = 0;
-    this->computeFanInTargets();
-    }
-  else if (this->myLocalRank == 0)
-    {
-    this->myLocalRank = root;
-    this->computeFanInTargets();
-    }
-
-  return;
-}
-void vtkSubGroup::setUpRoot(int root)
-{
-  if (root == 0) return;
-
-  this->moveRoot(root);
-
-  if (this->myLocalRank == root)
-    {
-    this->myLocalRank = 0;
-    this->computeFanInTargets();
-    }
-  else if (this->myLocalRank == 0)
-    {
-    this->myLocalRank = root;
-    this->computeFanInTargets();
-    }
-
-  return;
-}
-
-vtkSubGroup::~vtkSubGroup()
-{
-  FreeList(this->members);
-}
-void vtkSubGroup::setGatherPattern(int root, int length)
-{
-  int i;
-
-  if ( (root == this->gatherRoot) && (length == this->gatherLength))
-    {
-    return;
-    }
-
-  this->gatherRoot   = root;
-  this->gatherLength = length;
-
-  int clogn; // ceiling(log2(this->nmembers))
-  for (clogn=0; 1<<clogn < this->nmembers; clogn++);
-
-  int left = 0;
-  int right = this->nmembers - 1;
-  int iroot = root;
-
-  this->nSend = 0;
-  this->nRecv = 0;
-
-  for (i=0; i<clogn; i++)
-    {
-    int src, offset, len;
-
-    int mid = (left + right) / 2;
-
-    if (iroot <= mid) 
-      {
-      src = (iroot == left ? mid + 1 : right);
-      } 
-    else 
-      {
-      src = (iroot == right ? mid : left);
-      }
-    if (src <= mid) 
-      {                   /* left ... mid */
-      offset = left * length;
-      len =  (mid - left + 1) * length;
-      } 
-    else 
-      {                            /* mid+1 ... right */
-      offset = (mid + 1) * length;
-      len    = (right - mid) * length;
-      }
-    if (this->myLocalRank == iroot) 
-      {
-      this->recvId[this->nRecv] = this->members[src];
-      this->recvOffset[this->nRecv] = offset;
-      this->recvLength[this->nRecv] = len;
-            
-      this->nRecv++;
-        
-      } 
-    else if (this->myLocalRank == src) 
-      {
-      this->sendId = this->members[iroot];
-      this->sendOffset = offset;
-      this->sendLength = len;
-            
-      this->nSend++;
-      }
-    if (this->myLocalRank <= mid) 
-      {
-      if (iroot > mid) 
-        {
-        iroot = src;
-        }
-      right = mid;
-      } 
-    else 
-      {
-      if (iroot <= mid) 
-        {
-        iroot = src;
-        }
-      left = mid + 1;
-      }
-    if (left == right) break;
-    }
-  return;
-}
-
-int vtkSubGroup::getLocalRank(int processId)
-{
-  int localRank = processId - this->members[0];
-
-  if ( (localRank < 0) || (localRank >= this->nmembers)) return -1;
-  else return localRank;
-}
-#define MINOP  if (tempbuf[p] < buf[p]) buf[p] = tempbuf[p];
-#define MAXOP  if (tempbuf[p] > buf[p]) buf[p] = tempbuf[p];
-#define SUMOP  buf[p] += tempbuf[p];
-
-#define REDUCE(Type, name, op) \
-int vtkSubGroup::Reduce##name(Type *data, Type *to, int size, int root) \
-{ \
-  int i, p;\
-  if (this->nmembers == 1)\
-    {                     \
-    for (i=0; i<size; i++) to[i] = data[i];\
-    return 0;\
-    }\
-  if ( (root < 0) || (root >= this->nmembers)) return 1;\
-  if (root != 0) this->setUpRoot(root); \
-  Type *buf, *tempbuf; \
-  tempbuf = new Type [size]; \
-  if (this->nTo > 0)      \
-    {                     \
-    buf = new Type [size];\
-    }        \
-  else       \
-    {        \
-    buf = to;\
-    } \
-  if (buf != data) memcpy(buf, data, size * sizeof(Type));\
-  for (i=0; i < this->nFrom; i++) \
-   {                              \
-    this->comm->Receive(tempbuf, size,\
-                      this->members[this->fanInFrom[i]], this->tag);\
-    for (p=0; p<size; p++){ op }\
-    }\
-  delete [] tempbuf;\
-  if (this->nTo > 0)\
-    {               \
-    this->comm->Send(buf, size, this->members[this->fanInTo], this->tag);\
-    delete [] buf;\
-    }\
-  if (root != 0) this->restoreRoot(root);\
-  return 0; \
-}
-
-REDUCE(int, Min, MINOP)
-REDUCE(float, Min, MINOP)
-REDUCE(double, Min, MINOP)
-REDUCE(int, Max, MAXOP)
-REDUCE(float, Max, MAXOP)
-REDUCE(double, Max, MAXOP)
-REDUCE(int, Sum, SUMOP)
-
-#define BROADCAST(Type) \
-int vtkSubGroup::Broadcast(Type *data, int length, int root) \
-{ \
-  int i;\
-  if (this->nmembers == 1) return 0;\
-  if ( (root < 0) || (root >= this->nmembers)) return 1;\
-  if (root != 0) this->setUpRoot(root); \
-  if (this->nTo > 0) \
-    {                \
-    this->comm->Receive(data, length, this->members[this->fanInTo], this->tag);\
-    } \
-  for (i = this->nFrom-1 ; i >= 0; i--) \
-    {                                   \
-    this->comm->Send(data, length, this->members[this->fanInFrom[i]], this->tag); \
-    } \
-  if (root != 0) this->restoreRoot(root); \
-  return 0; \
-}
-
-BROADCAST(char)
-BROADCAST(int)
-BROADCAST(float)
-BROADCAST(double)
-
-#define GATHER(Type)\
-int vtkSubGroup::Gather(Type *data, Type *to, int length, int root)\
-{ \
-  int i;\
-  Type *recvBuf;\
-  if (this->nmembers == 1)\
-    {                     \
-    for (i=0; i<length; i++) to[i] = data[i];\
-    return 0;\
-    }\
-  if ( (root < 0) || (root >= this->nmembers)) return 1;\
-  this->setGatherPattern(root, length);\
-  if (this->nSend > 0)\
-    {                 \
-    recvBuf = new Type [length * this->nmembers];\
-    }\
-  else   \
-    {    \
-    recvBuf = to;\
-    }\
-  for (i=0; i<this->nRecv; i++) \
-    {                           \
-    this->comm->Receive(recvBuf + this->recvOffset[i], \
-              this->recvLength[i], this->recvId[i], this->tag);\
-    }\
-  memcpy(recvBuf + (length * this->myLocalRank), data,\
-         length * sizeof(Type));\
-  if (this->nSend > 0) \
-    {                  \
-    this->comm->Send(recvBuf + this->sendOffset,\
-                     this->sendLength, this->sendId, this->tag);\
-    delete [] recvBuf;\
-    }\
-  return 0; \
-}
-
-GATHER(int)
-GATHER(char)
-GATHER(float)
-
-int vtkSubGroup::AllReduceUniqueList(int *list, int len, int **newList)
-{
-  int transferLen, myListLen, lastListLen, nextListLen;
-  int *myList, *lastList, *nextList;
-
-  myListLen = vtkPKdTree::MakeSortedUnique(list, len, &myList);
-
-  if (this->nmembers == 1)
-    { 
-    *newList = myList;
-    return myListLen;
-    }
-
-  lastList = myList;
-  lastListLen = myListLen;
-
-  for (int i=0; i < this->nFrom; i++)
-    { 
-    this->comm->Receive(&transferLen, 1,
-                      this->members[this->fanInFrom[i]], this->tag); 
-
-    int *buf = new int [transferLen];
-
-    this->comm->Receive(buf, transferLen,
-                      this->members[this->fanInFrom[i]], this->tag+1); 
-
-    nextListLen = vtkSubGroup::MergeSortedUnique(lastList, lastListLen, 
-                                           buf, transferLen, &nextList);
-
-    delete [] buf;
-    delete [] lastList;
-
-    lastList = nextList;
-    lastListLen = nextListLen;
-    }                                                     
-
-  if (this->nTo > 0)
-    { 
-    this->comm->Send(&lastListLen, 1, this->members[this->fanInTo], this->tag);
-
-    this->comm->Send(lastList, lastListLen, 
-                     this->members[this->fanInTo], this->tag+1); 
-    }                
-
-
-  this->Broadcast(&lastListLen, 1, 0);
-
-  if (this->myLocalRank > 0)
-    {
-    delete [] lastList;
-    lastList = new int [lastListLen];
-    }
-
-  this->Broadcast(lastList, lastListLen, 0);
-
-  *newList = lastList;
-
-  return lastListLen; 
-}
-int vtkSubGroup::MergeSortedUnique(int *list1, int len1, int *list2, int len2,
-                                   int **newList)
-{
-  int newLen = 0;
-  int i1=0;
-  int i2=0;
-
-  int *newl = new int [len1 + len2];
-
-  if (newl == NULL) return 0;
-
-  while ((i1 < len1) || (i2 < len2))
-    {
-    if (i2 == len2)
-      {
-      newl[newLen++] = list1[i1++];
-      }
-    else if (i1 == len1)
-      {
-      newl[newLen++] = list2[i2++];
-      }
-    else if (list1[i1] < list2[i2])
-      {
-      newl[newLen++] = list1[i1++];
-      }
-    else if (list1[i1] > list2[i2])
-      {
-      newl[newLen++] = list2[i2++];
-      }
-    else
-      {
-      newl[newLen++] = list1[i1++];
-      i2++;
-      }
-    }
-
-  *newList = newl;
-
-  return newLen;
-}
-int vtkPKdTree::MakeSortedUnique(int *list, int len, int **newList)
-{
-  int i, newlen;
-  int *newl;
-
-  newl = new int [len];
-  if (newl == NULL) return 0;
-
-  memcpy(newl, list, len * sizeof(int));
-  vtkstd::sort(newl, newl + len);
-
-  for (i=1, newlen=1; i<len; i++)
-    {
-    if (newl[i] == newl[newlen-1]) continue;
-
-    newl[newlen++] = newl[i];
-    }
-  
-  *newList = newl;
-
-  return newlen;
-}
-
-int vtkSubGroup::Barrier()
-{
-  float token = 0;
-  float result;
-
-  this->ReduceMin(&token, &result, 1, 0);
-  this->Broadcast(&token, 1, 0);
-  return 0;
-}
-
-void vtkSubGroup::PrintSubGroup() const
-{
-  int i;
-  cout << "(Fan In setup ) nFrom: " << this->nFrom << ", nTo: " << this->nTo << endl;
-  if (this->nFrom > 0)
-    {
-    for (i=0; i<nFrom; i++)
-      {
-      cout << "fanInFrom[" << i << "] = " << this->fanInFrom[i] << endl;
-      }
-    }
-  if (this->nTo > 0) cout << "fanInTo = " << this->fanInTo << endl;
-
-  cout << "(Gather setup ) nRecv: " << this->nRecv << ", nSend: " << this->nSend << endl;
-  if (this->nRecv > 0)
-    {
-    for (i=0; i<nRecv; i++)
-      {
-      cout << "recvId[" << i << "] = " << this->recvId[i];
-      cout << ", recvOffset[" << i << "] = " << this->recvOffset[i]; 
-      cout << ", recvLength[" << i << "] = " << this->recvLength[i] << endl;
-      }
-    }
-  if (nSend > 0)
-    {
-    cout << "sendId = " << this->sendId;
-    cout << ", sendOffset = " << this->sendOffset;
-    cout << ", sendLength = " << this->sendLength << endl;
-    }
-  cout << "gatherRoot " << this->gatherRoot ;
-  cout << ", gatherLength " << this->gatherLength << endl;
-
-  cout << "nmembers: " << this->nmembers << endl;
-  cout << "myLocalRank: " << this->myLocalRank << endl;
-  for (i=0; i<this->nmembers; i++)
-    {
-    cout << "  " << this->members[i];
-    if (i && (i%20 == 0)) cout << endl;
-    }
-  cout << endl;
-  cout << "comm: " << this->comm;
-  cout << endl;
 }

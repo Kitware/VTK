@@ -297,13 +297,6 @@ public:
   int GetCellArrayGlobalRange(const char *name, double range[2]);
   int GetPointArrayGlobalRange(const char *name, double range[2]);
 
-  // Description:
-  //   This is a useful function that probably belongs in some
-  //   other class.  It takes a list and creates a new sorted 
-  //   list of unique IDs.
-
-  static int MakeSortedUnique(int *list, int len, int **newList);
-
 protected:
 
   vtkPKdTree();
@@ -321,6 +314,8 @@ private:
   vtkMultiProcessController *Controller;
 
   vtkSubGroup *SubGroup;
+
+  static char *StrDupWithNew(const char *s);
 
   int NumProcesses;
   int MyId;
@@ -461,66 +456,4 @@ private:
   void operator=(const vtkPKdTree&); // Not implemented
 };
 
-//BTX
-class VTK_PARALLEL_EXPORT vtkSubGroup{
-public:
-
-  enum {MINOP = 1, MAXOP = 2, SUMOP = 3};
-
-  vtkSubGroup(int p0, int p1, int me, int tag, vtkCommunicator *c);
-  ~vtkSubGroup();
-
-  int Gather(int *data, int *to, int length, int root);
-  int Gather(char *data, char *to, int length, int root);
-  int Gather(float *data, float *to, int length, int root);
-  int Broadcast(float *data, int length, int root);
-  int Broadcast(double *data, int length, int root);
-  int Broadcast(int *data, int length, int root);
-  int Broadcast(char *data, int length, int root);
-  int ReduceSum(int *data, int *to, int length, int root);
-  int ReduceMax(float *data, float *to, int length, int root);
-  int ReduceMax(double *data, double *to, int length, int root);
-  int ReduceMax(int *data, int *to, int length, int root);
-  int ReduceMin(float *data, float *to, int length, int root);
-  int ReduceMin(double *data, double *to, int length, int root);
-  int ReduceMin(int *data, int *to, int length, int root);
-
-  int AllReduceUniqueList(int *list, int len, int **newList);
-  int MergeSortedUnique(int *list1, int len1, int *list2, int len2, int **newList);
-
-  void setGatherPattern(int root, int length);
-  int getLocalRank(int processID);
-
-  int Barrier();
-
-  void PrintSubGroup() const;
-
-  int tag;
-
-private:
-  int computeFanInTargets();
-  void restoreRoot(int rootLoc);
-  void moveRoot(int rootLoc);
-  void setUpRoot(int root);
-
-  int fanInFrom[20];         // reduce, broadcast
-  int fanInTo;
-  int nFrom, nTo;
-
-  int sendId;                // gather
-  int sendOffset;
-  int sendLength;
-  int recvId[20];
-  int recvOffset[20];
-  int recvLength[20];
-  int nSend, nRecv;
-  int gatherRoot, gatherLength;
-
-  int *members;
-  int nmembers;
-  int myLocalRank;
-
-  vtkCommunicator *comm;
-};
-//ETX
 #endif
