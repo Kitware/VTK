@@ -53,6 +53,11 @@ vtkVolumeMapper::vtkVolumeMapper()
 vtkVolumeMapper::~vtkVolumeMapper()
 {
   this->SetInput((vtkStructuredPoints *)NULL);
+  if (this->RGBTextureInput)
+    {
+    this->RGBTextureInput->Delete ();
+    this->RGBTextureInput = NULL;
+    }
 }
 
 void vtkVolumeMapper::Update()
