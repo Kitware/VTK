@@ -96,7 +96,7 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-void vtkImageIslandRemoval2D::EnlargeOutputUpdateExtents( vtkDataObject *data )
+void vtkImageIslandRemoval2D::EnlargeOutputUpdateExtents( vtkDataObject *vtkNotUsed(data) )
 {
   int wholeExtent[6];
   int extent[6];

@@ -64,7 +64,7 @@ vtkImageMagnitude* vtkImageMagnitude::New()
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that the first axis will collapse.
-void vtkImageMagnitude::ExecuteInformation(vtkImageData *inData, 
+void vtkImageMagnitude::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
 					   vtkImageData *outData)
 {
   outData->SetNumberOfScalarComponents(1);

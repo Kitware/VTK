@@ -7,7 +7,7 @@
   Version:   $Revision$
   Thanks:    Thanks to C. Charles Law who developed this class.
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -68,7 +68,7 @@ public:
   
   // Description:
   // Obsolete feature - do not use.
-  void SetBypass( int v ) {};
+  void SetBypass( int ) {};
   void BypassOn() {};
   void BypassOff() {};
   vtkGetMacro(Bypass,int);
@@ -87,10 +87,10 @@ public:
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
   vtkGetMacro( NumberOfThreads, int );
 
-  void SetInputMemoryLimit(int limit) 
-    {vtkErrorMacro( << "Obsolete: Use a streamer!" );};
+  void SetInputMemoryLimit(int) 
+    {vtkErrorMacro( << "SetInputMemoryLimit is obsolete: Use a vtkImageDataStreamer instead!" );};
   long GetInputMemoryLimit()
-    {vtkErrorMacro( << "Obsolete: Use a streamer!" ); return 0;};
+    {vtkErrorMacro( << "GetInputMemoryLimit is obsolete: Use a vtkImageDataStreamer instead!" ); return 0;};
 
   // Description:
   // Putting this here until I merge graphics and imaging streaming.

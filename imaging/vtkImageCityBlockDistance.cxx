@@ -67,7 +67,7 @@ vtkImageCityBlockDistance::vtkImageCityBlockDistance()
 
 //----------------------------------------------------------------------------
 void vtkImageCityBlockDistance::EnlargeOutputUpdateExtents( vtkDataObject 
-							    *data)
+							    *vtkNotUsed(data))
 {
   int *wholeExtent, updateExtent[6], idx;
   

@@ -212,7 +212,7 @@ void vtkImageImport::SetImportVoidPointer(void *ptr, int save)
 
 
 //----------------------------------------------------------------------------
-void vtkImageImport::EnlargeOutputUpdateExtents( vtkDataObject *data )
+void vtkImageImport::EnlargeOutputUpdateExtents( vtkDataObject *vtkNotUsed(data) )
 {
   int *wholeExtent, updateExtent[6], idx;
   

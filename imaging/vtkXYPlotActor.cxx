@@ -267,11 +267,9 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   // Check modified time to see whether we have to rebuild.
-  unsigned long vmtime=viewport->GetMTime();
-  unsigned long thisMTime=this->GetMTime();
   if ( mtime > this->BuildTime || 
-  viewport->GetMTime() > this->BuildTime ||
-  this->GetMTime() > this->BuildTime )
+       viewport->GetMTime() > this->BuildTime ||
+       this->GetMTime() > this->BuildTime )
     {
     float range[2], xRange[2], yRange[2], interval, *lengths=NULL;
     int pos[2], pos2[2], numTicks, *size=viewport->GetSize();

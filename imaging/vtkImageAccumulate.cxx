@@ -318,7 +318,7 @@ void vtkImageAccumulate::ComputeInputUpdateExtent(int inExt[6],
 }
 
 //----------------------------------------------------------------------------
-void vtkImageAccumulate::EnlargeOutputUpdateExtents( vtkDataObject *data )
+void vtkImageAccumulate::EnlargeOutputUpdateExtents( vtkDataObject *vtkNotUsed(data) )
 {
   int wholeExtent[8];
   

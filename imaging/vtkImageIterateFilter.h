@@ -68,9 +68,10 @@ public:
   vtkGetMacro(NumberOfIterations,int);  
 
   void ComputeInputUpdateExtents( vtkDataObject *output );
-  void ComputeInputUpdateExtent( int inExt[6], int outExt[6] )
-    { vtkErrorMacro( << "Should be implemented in subclass" );};
-
+  //BTX
+  void ComputeInputUpdateExtent( int [6], int [6] )
+    { vtkErrorMacro( << "ComputeInputUpdateExtent should be implemented in subclass" );};
+  //ETX
 
 protected:
   vtkImageIterateFilter();

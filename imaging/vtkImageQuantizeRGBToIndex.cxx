@@ -684,7 +684,7 @@ void vtkImageQuantizeRGBToIndex::ComputeInputUpdateExtent(int inExt[6],
 }
 
 void vtkImageQuantizeRGBToIndex::EnlargeOutputUpdateExtents( vtkDataObject 
-							     *data )
+							     *vtkNotUsed(data) )
 {
   int wholeExtent[8];
   
