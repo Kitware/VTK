@@ -266,6 +266,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
       {
       classes[i] = info->CAPI->GetFilenameWithoutExtension(classes[i]);
       }
+    free(srcName);
     }    
   
   /* Generate the header */
@@ -283,6 +284,15 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   GenerateImplementationFile(info, fullName, newArgv[0], numClasses, classes);
   free(fullName);
   
+  /* free the classes */
+  for (i = 0; i < numClasses; ++i)
+    {
+    if (classes[i])
+      {
+      free(classes[i]);
+      }
+    }
+  
   /* Add the generated source file into the source list. */
   cfile = info->CAPI->CreateSourceFile();
   info->CAPI->SourceFileSetProperty(cfile,"WRAP_EXCLUDE","1");
@@ -292,6 +302,9 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
                                  "cxx",0);
   info->CAPI->AddSource(mf,cfile);
 
+  info->CAPI->FreeArguments(newArgc, newArgv);
+  free(classes);
+  free(includes);
   return 1;
 }
 

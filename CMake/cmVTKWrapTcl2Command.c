@@ -298,6 +298,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
         strcat(sourceListValue,newName);
         strcat(sourceListValue,".cxx");        
         free(newName);
+        free(srcName);
         }
       }
     /* add the init file */
