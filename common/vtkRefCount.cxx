@@ -96,7 +96,11 @@ void vtkRefCount::UnRegister(vtkObject* o)
     vtkErrorMacro(<<"Attempting to UnRegister an object which has reference counting turned off.");
     }
 
-  vtkDebugMacro(<< "UnRegistered by " <<o->GetClassName() << " (" << 0 << ")");
+  if (o)
+    vtkDebugMacro(<< "UnRegistered by " <<o->GetClassName() << " (" << 0 << ")");
+  else
+    vtkDebugMacro(<< "UnRegistered by NULL");
+    
 
   if (--this->RefCount <= 0) delete this;
 }
