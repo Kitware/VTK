@@ -82,12 +82,8 @@ vtkParticleReader::vtkParticleReader()
 {
   this->FileName = NULL;
   this->File = NULL;
-#ifndef VTK_WORDS_BIGENDIAN
-  this->SwapBytes = 1;
-#else
   this->SwapBytes = 0;
-#endif
-
+  this->SetDataByteOrderToBigEndian();
 
   this->NumberOfPoints = 0;
 }
@@ -273,16 +269,6 @@ void vtkParticleReader::Execute()
   array->Delete();
   array = NULL;
 }
-
-
-
-
-
-
-
-
-
-
 
 
 //----------------------------------------------------------------------------
