@@ -90,11 +90,24 @@ public:
   // Set what type of scalar data this source should generate.
   vtkSetMacro(OutputScalarType,int);
   vtkGetMacro(OutputScalarType,int);
-  void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);}
-  void SetOutputScalarTypeToInt(){this->SetOutputScalarType(VTK_INT);}
-  void SetOutputScalarTypeToShort(){this->SetOutputScalarType(VTK_SHORT);}
+  void SetOutputScalarTypeToDouble()
+    {this->SetOutputScalarType(VTK_DOUBLE);}
+  void SetOutputScalarTypeToFloat()
+    {this->SetOutputScalarType(VTK_FLOAT);}
+  void SetOutputScalarTypeToLong()
+    {this->SetOutputScalarType(VTK_LONG);}
+  void SetOutputScalarTypeToUnsignedLong()
+    {this->SetOutputScalarType(VTK_UNSIGNED_LONG);};
+  void SetOutputScalarTypeToInt()
+    {this->SetOutputScalarType(VTK_INT);}
+  void SetOutputScalarTypeToUnsignedInt()
+    {this->SetOutputScalarType(VTK_UNSIGNED_INT);}
+  void SetOutputScalarTypeToShort()
+    {this->SetOutputScalarType(VTK_SHORT);}
   void SetOutputScalarTypeToUnsignedShort()
     {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
+  void SetOutputScalarTypeToChar()
+    {this->SetOutputScalarType(VTK_CHAR);}
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
   

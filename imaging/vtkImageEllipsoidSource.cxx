@@ -104,7 +104,7 @@ void vtkImageEllipsoidSource::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkImageEllipsoidSource::SetWholeExtent(int extent[6])
 {
-  int idx, modified = 0;
+  int idx;
   
   for (idx = 0; idx < 6; ++idx)
     {
@@ -113,10 +113,6 @@ void vtkImageEllipsoidSource::SetWholeExtent(int extent[6])
       this->WholeExtent[idx] = extent[idx];
       this->Modified();
       }
-    }
-  if (modified)
-    {
-    this->Modified();
     }
 }
 
@@ -182,7 +178,7 @@ static void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
   int min0, max0;
   int idx0, idx1, idx2;
   int inc0, inc1, inc2;
-  float s0, s1, s2, temp;
+  double s0, s1, s2, temp;
   T outVal, inVal;
   float *center, *radius;
   unsigned long count = 0;
@@ -202,14 +198,14 @@ static void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
 
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
     {
-    // handle divied by zero
+    // handle divide by zero
     if (radius[2] != 0.0)
       {
-      temp = ((float)idx2 - center[2]) / radius[2];
+      temp = ((double)idx2 - center[2]) / radius[2];
       }
     else
       {
-      if ((float)idx2 - center[2] == 0.0)
+      if ((double)idx2 - center[2] == 0.0)
 	{
 	temp = 0.0;
 	}
@@ -229,14 +225,14 @@ static void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
 	}
       count++;
       
-      // handle divied by zero
+      // handle divide by zero
       if (radius[1] != 0.0)
 	{
-	temp = ((float)idx1 - center[1]) / radius[1];
+	temp = ((double)idx1 - center[1]) / radius[1];
 	}
       else
 	{
-	if ((float)idx1 - center[1] == 0.0)
+	if ((double)idx1 - center[1] == 0.0)
 	  {
 	  temp = 0.0;
 	  }
@@ -249,14 +245,14 @@ static void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
       s1 = temp * temp;
       for (idx0 = min0; idx0 <= max0; ++idx0)
 	{
-	// handle divied by zero
+	// handle divide by zero
 	if (radius[0] != 0.0)
 	  {
-	  temp = ((float)idx0 - center[0]) / radius[0];
+	  temp = ((double)idx0 - center[0]) / radius[0];
 	  }
 	else
 	  {
-	  if ((float)idx0 - center[0] == 0.0)
+	  if ((double)idx0 - center[0] == 0.0)
 	    {
 	    temp = 0.0;
 	    }
