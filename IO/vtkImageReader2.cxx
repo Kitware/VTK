@@ -143,6 +143,7 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
   if (this->InternalFileName)
     {
     delete [] this->InternalFileName;
+    this->InternalFileName = NULL;
     }
   
   if (!this->FileName && !this->FilePattern)
@@ -169,7 +170,7 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
     else
       {
       this->InternalFileName = new char [strlen(this->FilePattern) + 10];
-      sprintf (this->InternalFileName, this->FilePattern, slice);
+      sprintf (this->InternalFileName, this->FilePattern, "", slice);
       }
     }
 }

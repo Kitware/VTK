@@ -84,6 +84,7 @@ void vtkDataSetToDataObjectFilter::Execute()
 {
   vtkDataSet *input = this->GetInput();
   vtkFieldData *fd=vtkFieldData::New();
+  vtkPoints *pts;
   vtkDataArray *da;
   int i;
   
@@ -93,9 +94,13 @@ void vtkDataSetToDataObjectFilter::Execute()
     {
     if ( input->GetDataObjectType() == VTK_POLY_DATA )
       {
-      da = ((vtkPolyData *)input)->GetPoints()->GetData();
-      da->SetName("Points");
-      fd->AddArray( da );
+      pts = ((vtkPolyData *)input)->GetPoints();
+      if (pts)
+        {
+        da = pts->GetData();
+        da->SetName("Points");
+        fd->AddArray( da );
+        }
       }
 
     else if ( input->GetDataObjectType() == VTK_STRUCTURED_POINTS )
@@ -127,9 +132,13 @@ void vtkDataSetToDataObjectFilter::Execute()
     
     else if ( input->GetDataObjectType() == VTK_STRUCTURED_GRID )
       {
-      da = ((vtkStructuredGrid *)input)->GetPoints()->GetData();
-      da->SetName("Points");
-      fd->AddArray(da);
+      pts = ((vtkPolyData *)input)->GetPoints();
+      if (pts)
+        {
+        da = pts->GetData();
+        da->SetName("Points");
+        fd->AddArray( da );
+        }
       }
     
     else if ( input->GetDataObjectType() == VTK_RECTILINEAR_GRID )
@@ -148,9 +157,13 @@ void vtkDataSetToDataObjectFilter::Execute()
     
     else if ( input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
       {
-      da = ((vtkUnstructuredGrid *)input)->GetPoints()->GetData();
-      da->SetName("Points");
-      fd->AddArray( da );
+      pts = ((vtkPolyData *)input)->GetPoints();
+      if (pts)
+        {
+        da = pts->GetData();
+        da->SetName("Points");
+        fd->AddArray( da );
+        }
       }
 
     else

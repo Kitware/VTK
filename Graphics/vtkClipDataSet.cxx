@@ -285,7 +285,7 @@ void vtkClipDataSet::Execute()
                inPD, outPD, inCD, cellId, outCD[0], this->InsideOut);
     numNew[0] = conn[0]->GetNumberOfCells() - num[0];
     num[0] = conn[0]->GetNumberOfCells();
-
+ 
     if ( this->GenerateClippedOutput )
       {
       cell->Clip(this->Value, cellScalars, this->Locator, conn[1],

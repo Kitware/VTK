@@ -241,6 +241,10 @@ inline vtkIdType vtkStructuredGrid::GetNumberOfCells()
   this->GetDimensions(dims);
   for (i=0; i<3; i++)
     {
+    if (dims[i] <= 0)
+      {
+      return 0;
+      }
     if (dims[i] > 1)
       {
       nCells *= (dims[i]-1);

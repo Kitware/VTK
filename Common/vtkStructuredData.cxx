@@ -65,6 +65,8 @@ int vtkStructuredData::GetDataDimension(int dataDescription)
 {
   switch (dataDescription)
     {
+    case VTK_EMPTY: return 0;  // Should I put -1?
+
     case VTK_SINGLE_POINT: return 0;
 
     case VTK_X_LINE: case VTK_Y_LINE: case VTK_Z_LINE: return 1;
@@ -94,7 +96,7 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
     {
     if ( inDim[0]<1 || inDim[1]<1 || inDim[2]<1 )
       {
-      return -1;
+      return VTK_EMPTY;
       }
 
     for (dataDim=0, i=0; i<3 ; i++)
@@ -168,7 +170,7 @@ int vtkStructuredData::SetExtent(int inExt[3], int ext[3])
   
   if ( inExt[0]>inExt[1] || inExt[2]>inExt[3] || inExt[4]>inExt[5] )
     {
-    return -1;
+    return VTK_EMPTY;
     }
 
   dataDim = 0;
@@ -238,6 +240,9 @@ void vtkStructuredData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds,
 
   switch (dataDescription)
     {
+    case VTK_EMPTY: 
+      return;
+
     case VTK_SINGLE_POINT: // cellId can only be = 0
       break;
 

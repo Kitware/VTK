@@ -114,18 +114,12 @@ vtkSharedMemoryCommunicator::vtkSharedMemoryCommunicator()
 
 vtkSharedMemoryCommunicator::~vtkSharedMemoryCommunicator()
 {
-  if (this->Communicators)
+  if (this->LocalThreadId == 0)
     {
-    for (int i = 1; i < this->NumberOfThreads; ++i)
-      {
-      if (this->Communicators[i])
-	{
-	this->Communicators[i]->Delete();
-	}
-      }
+    delete [] this->Communicators;
+    this->Communicators = NULL;
     }
-  delete[] this->Communicators;
-  this->Communicators = 0;
+
   // Note the communicators are not deleted because ThreadedControllers
   // delete them when they are destroyed
   delete this->MessageListLock;

@@ -76,13 +76,13 @@ vtkStructuredGrid::vtkStructuredGrid()
   this->Dimensions[0] = 0;
   this->Dimensions[1] = 0;
   this->Dimensions[2] = 0;
-  this->DataDescription = VTK_SINGLE_POINT;
+  this->DataDescription = VTK_EMPTY;
   
   this->Blanking = 0;
   this->PointVisibility = NULL;
 
   this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
-  this->Extent[1] = this->Extent[3] = this->Extent[5] = 0;
+  this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
   
 }
 
@@ -145,6 +145,9 @@ int vtkStructuredGrid::GetCellType(vtkIdType cellId)
 
   switch (this->DataDescription)
     {
+    case VTK_EMPTY: 
+      return VTK_EMPTY_CELL;
+
     case VTK_SINGLE_POINT: 
       return VTK_VERTEX;
 
@@ -189,6 +192,9 @@ vtkCell *vtkStructuredGrid::GetCell(vtkIdType cellId)
 
   switch (this->DataDescription)
     {
+    case VTK_EMPTY:
+      return this->EmptyCell;
+
     case VTK_SINGLE_POINT: // cellId can only be = 0
       cell = this->Vertex;
       cell->PointIds->SetId(0,0);
@@ -314,6 +320,10 @@ void vtkStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 
   switch (this->DataDescription)
     {
+    case VTK_EMPTY: 
+      cell->SetCellTypeToEmptyCell();
+      return;
+
     case VTK_SINGLE_POINT: // cellId can only be = 0
       cell->SetCellTypeToVertex();
       cell->PointIds->SetId(0,0);
@@ -440,6 +450,8 @@ void vtkStructuredGrid::GetCellBounds(vtkIdType cellId, float bounds[6])
 
   switch (this->DataDescription)
     {
+    case VTK_EMPTY:
+      return;
     case VTK_SINGLE_POINT: // cellId can only be = 0
       this->Points->GetPoint( 0, x );
       bounds[0] = bounds[1] = x[0];
@@ -657,6 +669,9 @@ unsigned char vtkStructuredGrid::IsCellVisible(vtkIdType cellId)
 
   switch (this->DataDescription)
     {
+    case VTK_EMPTY:
+      return 0;
+
     case VTK_SINGLE_POINT: // cellId can only be = 0
       numIds = 1;
       ptIds[0] = iMin + jMin*this->Dimensions[0] + kMin*d01;
@@ -781,6 +796,9 @@ void vtkStructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 
   switch (this->DataDescription)
     {
+    case VTK_EMPTY:
+      return;
+
     case VTK_SINGLE_POINT: // cellId can only be = 0
       ptIds->SetNumberOfIds(1);
       ptIds->SetId(0, iMin + jMin*this->Dimensions[0] + kMin*d01);
@@ -1130,6 +1148,13 @@ void vtkStructuredGrid::Crop()
     vtkPoints *newPts, *inPts;
     int inInc1, inInc2;
 
+    // Get the points.  Protect against empty data objects.
+    inPts = this->GetPoints();
+    if (inPts == NULL)
+      {
+      return;
+      }
+
     vtkDebugMacro(<< "Cropping Grid");
 
     newGrid = vtkStructuredGrid::New();
@@ -1137,7 +1162,6 @@ void vtkStructuredGrid::Crop()
     inCD  = this->GetCellData();
     outPD = newGrid->GetPointData();
     outCD = newGrid->GetCellData();
-    inPts = this->GetPoints();
 
     // Allocate necessary objects
     //

@@ -69,10 +69,12 @@ vtkRectilinearGrid::vtkRectilinearGrid()
   this->Pixel = vtkPixel::New();
   this->Voxel = vtkVoxel::New();
   
-  this->Dimensions[0] = 1;
-  this->Dimensions[1] = 1;
-  this->Dimensions[2] = 1;
-  this->DataDescription = VTK_SINGLE_POINT;
+  this->Dimensions[0] = 0;
+  this->Dimensions[1] = 0;
+  this->Dimensions[2] = 0;
+  this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
+  this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
+  this->DataDescription = VTK_EMPTY;
 
   vtkFloatArray *fs=vtkFloatArray::New(); fs->Allocate(1);
   fs->SetNumberOfTuples(1);
@@ -164,6 +166,10 @@ vtkCell *vtkRectilinearGrid::GetCell(vtkIdType cellId)
 
   switch (this->DataDescription)
     {
+    case VTK_EMPTY:
+      //return this->EmptyCell;
+      return NULL;
+
     case VTK_SINGLE_POINT: // cellId can only be = 0
       cell = this->Vertex;
       break;
@@ -256,6 +262,10 @@ void vtkRectilinearGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 
   switch (this->DataDescription)
     {
+    case VTK_EMPTY:
+      cell->SetCellTypeToEmptyCell();
+      break;
+
     case VTK_SINGLE_POINT: // cellId can only be = 0
       cell->SetCellTypeToVertex();
       break;
@@ -341,9 +351,14 @@ void vtkRectilinearGrid::GetCellBounds(vtkIdType cellId, float bounds[6])
   float x[3];
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
+  bounds[0] = bounds[2] = bounds[4] =  VTK_LARGE_FLOAT;
+  bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
 
   switch (this->DataDescription)
     {
+    case VTK_EMPTY:
+      return;
+
     case VTK_SINGLE_POINT: // cellId can only be = 0
       break;
 
@@ -393,9 +408,6 @@ void vtkRectilinearGrid::GetCellBounds(vtkIdType cellId, float bounds[6])
       break;
     }
 
-  bounds[0] = bounds[2] = bounds[4] =  VTK_LARGE_FLOAT;
-  bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
-
   // Extract point coordinates
   for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
     {
@@ -425,6 +437,13 @@ float *vtkRectilinearGrid::GetPoint(vtkIdType ptId)
   
   switch (this->DataDescription)
     {
+    case VTK_EMPTY: 
+      this->PointReturn[0] = 0.0;
+      this->PointReturn[1] = 0.0;
+      this->PointReturn[2] = 0.0;
+      vtkErrorMacro("Requesting a point from an empty data set.");
+      return this->PointReturn;
+
     case VTK_SINGLE_POINT: 
       loc[0] = loc[1] = loc[2] = 0;
       break;
@@ -482,6 +501,11 @@ void vtkRectilinearGrid::GetPoint(vtkIdType ptId, float x[3])
   
   switch (this->DataDescription)
     {
+    case VTK_EMPTY:
+      vtkErrorMacro("Requesting a point from an empty data set.");
+      x[0] = x[1] = x[2] = 0.0;
+      return;
+       
     case VTK_SINGLE_POINT: 
       loc[0] = loc[1] = loc[2] = 0;
       break;
@@ -647,6 +671,9 @@ int vtkRectilinearGrid::GetCellType(vtkIdType vtkNotUsed(cellId))
 {
   switch (this->DataDescription)
     {
+    case VTK_EMPTY: 
+      return VTK_EMPTY_CELL;
+
     case VTK_SINGLE_POINT: 
       return VTK_VERTEX;
 

@@ -190,18 +190,28 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
   vtkPointSet *input = (vtkPointSet*) this->GetInput(); //has to be
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkIdType numCells = input->GetNumberOfCells();
-  vtkGenericCell *cell = vtkGenericCell::New();
+  vtkGenericCell *cell;
   vtkIdType newCellId, i, j;
   int k;
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
-  vtkPoints *cellPts = vtkPoints::New();
-  vtkIdList *cellPtIds = vtkIdList::New();
+  vtkPoints *cellPts;
+  vtkIdList *cellPtIds;
   vtkIdType ptId, numTets, ncells;
   int type;
   int npts, numSimplices, dim;
   vtkIdType pts[4];
   float *xPtr;
+
+  if (numCells == 0)
+    {
+    return;
+    }
+
+  cell = vtkGenericCell::New();
+  cellPts = vtkPoints::New();
+  cellPtIds = vtkIdList::New();
+
 
   // Create an array of points
   output->Allocate(input->GetNumberOfCells()*5);
