@@ -12,6 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*
+
+This file must be translated to C and modified to build everywhere.
+
+Run yacc like this:
+
+  yacc -b vtkParse vtkParse.y
+
+Modify vtkParse.tab.c:
+  - remove TABs
+*/
+
 
 %{
 #include <stdio.h>
@@ -20,6 +32,7 @@
 #define yyerror(a) fprintf(stderr,"%s\n",a)
 #define yywrap() 1
 
+int yylex(void);
 void output_function();
 
 /* vtkstrdup is not part of POSIX so we create our own */
@@ -44,7 +57,7 @@ char *vtkstrdup(const char *in)
   int CommentState;
   int openSig;
   int invertSig;
-  int sigAllocatedLength;
+  unsigned int sigAllocatedLength;
   
 #define YYMAXDEPTH 1000
 
@@ -192,6 +205,17 @@ function: '~' func { preSig("~"); output_function(); }
          currentFunction->ReturnType = $<integer>1;
          output_function();
 	 } 
+      | type CONST func 
+         {
+         currentFunction->ReturnType = $<integer>1;
+         output_function();
+	 } 
+      | VIRTUAL type CONST func 
+         {
+         preSig("virtual ");
+         currentFunction->ReturnType = $<integer>2;
+         output_function();
+	 }
       | VIRTUAL type func 
          {
          preSig("virtual ");
@@ -284,8 +308,8 @@ var_array: { $<integer>$ = 0; }
            { postSig("[]"); $<integer>$ = 300 + $<integer>4 % 1000; };
 
 type: const_mod type_red1 {$<integer>$ = 1000 + $<integer>2;} 
-          | type_red1 {$<integer>$ = $<integer>1;}; 
-          | static_mod type_red1 {$<integer>$ = 2000 + $<integer>2;}; 
+          | type_red1 {$<integer>$ = $<integer>1;}
+          | static_mod type_red1 {$<integer>$ = 2000 + $<integer>2;}
           | static_mod const_mod type_red1 {$<integer>$ = 3000 + $<integer>3;}; 
 
 type_red1: type_red2 {$<integer>$ = $<integer>1;} 
