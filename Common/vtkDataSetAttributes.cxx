@@ -29,7 +29,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.74");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.75");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -909,7 +909,7 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
           {
           c += weights[j]*from[ids[j]*numComp+i];
           }
-        *to++ = c;
+        *to++ = (float) c;
         }
       }
       break;
@@ -924,7 +924,7 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
           {
           c += weights[j]*from[ids[j]*numComp+i];
           }
-        *to++ = (double) c;
+        *to++ = c;
         }
       }
       break;
@@ -1076,7 +1076,7 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
       for (i=0; i<numComp; i++)
         {
         c = (1.0 - t) * from[idx1+i] + t * from[idx2+i];
-        *to++ = c;
+        *to++ = (float) c;
         }
       }
       break;
@@ -1088,7 +1088,7 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
       for (i=0; i<numComp; i++)
         {
         c = (1.0 - t) * from[idx1+i] + t * from[idx2+i];
-        *to++ = (double) c;
+        *to++ = c;
         }
       }
       break;
@@ -1256,7 +1256,7 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData1,
         {
         ii = idx + i;
         c = (1.0 - t) * from1[ii] + t * from2[ii];
-        *to++ = c;
+        *to++ = (float) c;
         }
       }
       break;
@@ -1270,7 +1270,7 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData1,
         {
         ii = idx + i;
         c = (1.0 - t) * from1[ii] + t * from2[ii];
-        *to++ = (double) c;
+        *to++ = c;
         }
       }
       break;
