@@ -80,9 +80,9 @@ void vtkRendererCollection::Render()
   renWin = firstRen->GetRenderWindow();
   numLayers = renWin->GetNumLayers();
 
-  // Only have the renderers render from back to front.  This is
-  // necessary because only the renderers on the back layer do Clears and
-  // Clears blow away everything before it.
+  // Only have the renderers render from back to front.  This is necessary
+  // because transparent renderers clear the z-buffer before each render and
+  // then overlay their image.
   for (i = numLayers-1 ; i >= 0 ; i--)
     {
     for (this->InitTraversal(); (ren = this->GetNextItem()); )
@@ -91,6 +91,15 @@ void vtkRendererCollection::Render()
         {
         ren->Render();
         }
+      }
+    }
+
+  // Let the user know if they have put a renderer at an unused layer.
+  for (this->InitTraversal(); (ren = this->GetNextItem()); )
+    {
+    if (ren->GetLayer() < 0 || ren->GetLayer() >= numLayers)
+      {
+      vtkErrorMacro(<< "Invalid layer for renderer: not rendered.");
       }
     }
 }
@@ -112,9 +121,9 @@ void vtkRendererCollection::RenderOverlay()
   renWin = firstRen->GetRenderWindow();
   numLayers = renWin->GetNumLayers();
 
-  // Only have the renderers render from back to front.  This is
-  // necessary because only the renderers on the back layer do Clears and
-  // Clears blow away everything before it.
+  // Only have the renderers render from back to front.  This is necessary
+  // because transparent renderers clear the z-buffer before each render and
+  // then overlay their image.
   for (i = numLayers-1 ; i >= 0 ; i--)
     {
     for (this->InitTraversal(); (ren = this->GetNextItem()); )
@@ -123,6 +132,15 @@ void vtkRendererCollection::RenderOverlay()
         {
         ren->RenderOverlay();
         }
+      }
+    }
+
+  // Let the user know if they have put a renderer at an unused layer.
+  for (this->InitTraversal(); (ren = this->GetNextItem()); )
+    {
+    if (ren->GetLayer() < 0 || ren->GetLayer() >= numLayers)
+      {
+      vtkErrorMacro(<< "Invalid layer for renderer: not render overlayed.");
       }
     }
 }
