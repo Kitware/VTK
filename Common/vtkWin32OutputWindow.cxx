@@ -198,7 +198,7 @@ int vtkWin32OutputWindow::Initialize()
   
   lpParam.lpszName = "Output Control";
   lpParam.lpszClass = "EDIT"; // use the RICHEDIT control widget
-  lpParam.dwExStyle = NULL;
+  lpParam.dwExStyle = 0;
   // Create the EDIT window as a child of win
   vtkWin32OutputWindow::OutputWindow = CreateWindow(
     lpParam.lpszClass,  // pointer to registered class name

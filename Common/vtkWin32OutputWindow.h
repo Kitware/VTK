@@ -70,7 +70,7 @@ public:
   static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, 
 				  WPARAM wParam, LPARAM lParam);
   //ETX
-private: 
+protected: 
   vtkWin32OutputWindow() {}; 
   virtual ~vtkWin32OutputWindow() {}; 
   vtkWin32OutputWindow(const vtkWin32OutputWindow&);
