@@ -210,6 +210,11 @@ void vtkRenderWindow::SetStereoCapableWindow(int capable)
 // Turn on stereo rendering
 void vtkRenderWindow::SetStereoRender(int stereo)
 {
+  if (stereo == this->StereoRender)
+    {
+    return;
+    }
+  
   if (this->StereoCapableWindow ||
       (!this->StereoCapableWindow
        && this->StereoType != VTK_STEREO_CRYSTAL_EYES))
