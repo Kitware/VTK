@@ -61,7 +61,9 @@ vtkXglrRenderWindow::vtkXglrRenderWindow()
   this->WindowRaster = NULL;
   this->GetRas = NULL;
   this->SetRas = NULL;
-  strcpy(this->Name,"Visualization Toolkit - XGL");
+  if ( this->WindowName )
+    delete [] this->WindowName;
+  this->WindowName = strdup("Visualization Toolkit - XGL");
 }
 
 // Description:
@@ -541,9 +543,9 @@ void vtkXglrRenderWindow::WindowInitialize (void)
     this->OwnWindow = 0;
     }
   
-  list[0] = this->Name;
+  list[0] = this->WindowName;
   XStringListToTextProperty( list, 1, &window_name );
-  list[0] = this->Name;
+  list[0] = this->WindowName;
   XStringListToTextProperty( list, 1, &icon_name );
 
   size_hints = XAllocSizeHints();
@@ -563,8 +565,8 @@ void vtkXglrRenderWindow::WindowInitialize (void)
   wm_hints = XAllocWMHints();
 
   class_hint = XAllocClassHint();
-  class_hint->res_name = this->Name;
-  class_hint->res_class = this->Name;
+  class_hint->res_name = this->WindowName;
+  class_hint->res_class = this->WindowName;
   
   XSetWMProperties(this->DisplayId, 
 		   this->WindowId, &window_name, &icon_name,
