@@ -429,7 +429,6 @@ int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
 // Following is used in a number of routines.  Made static to avoid 
 // constructor / destructor calls.
 //
-static vtkIdList Tris((MAX_CELL_SIZE-2)*3);
 
 #define TOLERANCE 1.0e-06
 
@@ -447,6 +446,7 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
   float *bounds, d;
   int verts[MAX_CELL_SIZE];
   int numVerts=this->PointIds.GetNumberOfIds();
+  static vtkIdList Tris((MAX_CELL_SIZE-2)*3);
 
   bounds = this->GetBounds();
   
@@ -674,6 +674,7 @@ void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars,
   float *bounds, d;
   int polyVerts[MAX_CELL_SIZE];
   static vtkTriangle tri;
+  static vtkIdList Tris((MAX_CELL_SIZE-2)*3);
   static vtkFloatScalars triScalars(3);
 
   bounds = this->GetBounds();
