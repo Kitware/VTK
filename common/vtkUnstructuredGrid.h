@@ -52,8 +52,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointSet.h"
 #include "vtkIdList.h"
 #include "vtkCellArray.h"
-#include "vtkCellTypes.h"
 #include "vtkCellLinks.h"
+#include "vtkIntArray.h"
+#include "vtkUnsignedCharArray.h"
 class vtkVertex;
 class vtkPolyVertex;
 class vtkLine;
@@ -79,19 +80,20 @@ public:
   // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
   int GetDataObjectType() {return VTK_UNSTRUCTURED_GRID;};
-  void Allocate(int numCells=1000, int extSize=1000);
+  virtual void Allocate(int numCells=1000, int extSize=1000);
   int InsertNextCell(int type, int npts, int *pts);
   int InsertNextCell(int type, vtkIdList *ptIds);
   void Reset();
   void SetCells(int *types, vtkCellArray *cells);
+  void SetCells(vtkUnsignedCharArray *cellTypes, vtkIntArray *cellLocations, vtkCellArray *cells);
   vtkCellArray *GetCells() {return this->Connectivity;};
   vtkDataObject *MakeObject() {return vtkUnstructuredGrid::New();};
-  void CopyStructure(vtkDataSet *ds);
+  virtual void CopyStructure(vtkDataSet *ds);
   int GetNumberOfCells();
-  vtkCell *GetCell(int cellId);
-  void GetCell(int cellId, vtkGenericCell *cell);
-  void GetCellBounds(int cellId, float bounds[6]);
-  void GetCellPoints(int cellId, vtkIdList *ptIds);
+  virtual vtkCell *GetCell(int cellId);
+  virtual void GetCell(int cellId, vtkGenericCell *cell);
+  virtual void GetCellBounds(int cellId, float bounds[6]);
+  virtual void GetCellPoints(int cellId, vtkIdList *ptIds);
   void GetPointCells(int ptId, vtkIdList *cellIds);
 
   int GetCellType(int cellId);
@@ -100,7 +102,7 @@ public:
   int GetMaxCellSize();
   void BuildLinks();
   vtkCellLinks *GetCellLinks() {return this->Links;};
-  void GetCellPoints(int cellId, int& npts, int* &pts);
+  virtual void GetCellPoints(int cellId, int& npts, int* &pts);
   void ReplaceCell(int cellId, int npts, int *pts);
   int InsertNextLinkedCell(int type, int npts, int *pts); 
   void RemoveReferenceToCell(int ptId, int cellId);
@@ -158,8 +160,8 @@ public:
     
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy(vtkDataObject *src);  
-  void DeepCopy(vtkDataObject *src);
+  virtual void ShallowCopy(vtkDataObject *src);  
+  virtual void DeepCopy(vtkDataObject *src);
 
 #ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
@@ -196,9 +198,10 @@ protected:
   
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
-  vtkCellTypes *Cells;
   vtkCellArray *Connectivity;
   vtkCellLinks *Links;
+  vtkUnsignedCharArray *Types;
+  vtkIntArray *Locations;
 
  private:
   // Hide these from the user and the compiler.
