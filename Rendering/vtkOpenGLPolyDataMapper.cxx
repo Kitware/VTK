@@ -41,7 +41,7 @@
 #include "vtkCommand.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.66");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.67");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -216,6 +216,7 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
   // if something has changed regenerate colors and display lists
   // if required
   //
+  int noAbort=1;
   if ( this->GetMTime() > this->BuildTime || 
        input->GetMTime() > this->BuildTime ||
        act->GetProperty()->GetMTime() > this->BuildTime ||
@@ -234,7 +235,7 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
       this->ListId = glGenLists(1);
       glNewList(this->ListId,GL_COMPILE);
 
-      this->Draw(ren,act);
+      noAbort = this->Draw(ren,act);
       glEndList();
 
       // Time the actual drawing
@@ -247,7 +248,10 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
       this->ReleaseGraphicsResources(ren->GetRenderWindow());
       this->LastWindow = ren->GetRenderWindow();
       }
-    this->BuildTime.Modified();
+    if (noAbort)
+      {
+      this->BuildTime.Modified();
+      }
     }
   // if nothing changed but we are using display lists, draw it
   else
@@ -2388,7 +2392,7 @@ static void vtkOpenGLDrawNSTW(vtkCellArray *aPrim, GLenum,
 }
 
 // Draw method for OpenGL.
-void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
+int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 {
   vtkOpenGLRenderer *ren = (vtkOpenGLRenderer *)aren;
   int rep, interpolation;
@@ -2418,7 +2422,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   // if the primitives are invisable then get out of here 
   if (tran <= 0.0)
     {
-    return;
+    return noAbort;
     }
 
   // get the representation (e.g., surface / wireframe / points)
@@ -2566,7 +2570,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 30: draw0 = vtkOpenGLDrawCNCST013; break;
     default:
       // This case should never be reached.
-      return;
+      return noAbort;
     }
 
   // how do we draw lines
@@ -2595,7 +2599,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 30: draw1 = vtkOpenGLDrawCNCST013; break;
     default:
       // This case should never be reached.
-      return;
+      return noAbort;
     }
 
   // how do we draw tstrips
@@ -2628,7 +2632,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 30: draw2 = vtkOpenGLDrawCST2; break;
     default:
       // This case should never be reached.
-      return;
+      return noAbort;
     }
   switch (idx)
     {
@@ -2652,7 +2656,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 30: draw2W = vtkOpenGLDrawTW; break;
     default:
       // This case should never be reached.
-      return;
+      return noAbort;
     }
   
   // how do we draw polys
@@ -2681,7 +2685,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 30: draw3 = vtkOpenGLDrawCNCST013; break;
     default:
       // This case should never be reached.
-      return;
+      return noAbort;
     }
 
   if ( this->GetResolveCoincidentTopology() )
@@ -2779,4 +2783,6 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 #endif
       }
     }
+
+  return noAbort;
 }

@@ -56,7 +56,7 @@ public:
 
   // Description:
   // Draw method for OpenGL.
-  virtual void Draw(vtkRenderer *ren, vtkActor *a);
+  virtual int Draw(vtkRenderer *ren, vtkActor *a);
   
   //BTX  begin tcl exclude
   
