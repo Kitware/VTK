@@ -34,7 +34,7 @@
 #include "vtkCell.h"
 #include "vtkCellTypes.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.21");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.22");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -888,7 +888,7 @@ double vtkMeshQuality::TetRadiusRatio( vtkCell* cell )
   vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
   double ab[3],bc[3],ac[3],ad[3],bd[3],cd[3],u[3];
-  double abc,abd,acd,bcd,a,b,c,q1,q2,det;
+  double abc,abd,acd,bcd,a,b,c,det;
   static double normal_coeff=1. / 12.;
   
   p = cell->GetPoints();
