@@ -411,7 +411,7 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 
 	case XK_w : //change all actors to wireframe
 	  {
-	  vtkActorCollection *ac, *pc;
+	  vtkActorCollection *ac;
 	  vtkActor *anActor, *aPart;
 	  
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
@@ -419,8 +419,7 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	  ac = me->CurrentRenderer->GetActors();
 	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
 	    {
-            pc = anActor->GetComposingParts();
-            for (pc->InitTraversal(); (aPart = pc->GetNextItem()); )
+            for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
               {
               aPart->GetProperty()->SetWireframe();
               }
@@ -432,7 +431,7 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 
 	case XK_s : //change all actors to "surface" or solid
 	  {
-	  vtkActorCollection *ac, *pc;
+	  vtkActorCollection *ac;
 	  vtkActor *anActor, *aPart;
 	  
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
@@ -440,8 +439,7 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	  ac = me->CurrentRenderer->GetActors();
 	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
 	    {
-            pc = anActor->GetComposingParts();
-            for (pc->InitTraversal(); (aPart = pc->GetNextItem()); )
+            for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
               {
               aPart->GetProperty()->SetSurface();
               }
@@ -491,7 +489,7 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
           me->Picker->Pick(((XButtonEvent*)event)->x,
                              me->Size[1] - ((XButtonEvent*)event)->y, 0.0,
                              me->CurrentRenderer);
-          me->HighlightActor(me->Picker->GetActor());
+          me->HighlightActor(me->Picker->GetAssembly());
           if ( me->EndPickMethod ) 
             (*me->EndPickMethod)(me->EndPickMethodArg);
           }

@@ -228,7 +228,6 @@ void vtkRenderer::DoActors()
 void vtkRenderer::ResetCamera()
 {
   vtkVolume *aVolume;
-  vtkActorCollection *pc;
   vtkActor *anActor, *aPart;
   float *bounds;
   float allBounds[6];
@@ -240,11 +239,10 @@ void vtkRenderer::ResetCamera()
   // loop through actors (and their parts)
   for (this->Actors.InitTraversal(); (anActor = this->Actors.GetNextItem());)
     {
-    pc = anActor->GetComposingParts();
-    for ( pc->InitTraversal(); (aPart = pc->GetNextItem()); )
+    for ( anActor->InitPartTraversal(); aPart = anActor->GetNextPart(); )
       {
       // if it's invisible, or has no geometry, we can skip the rest 
-      if ( aPart->GetVisibility() && aPart->GetMapper() != NULL )
+      if ( aPart->GetVisibility() )
         {
         nothingVisible = 0;
         bounds = aPart->GetBounds();

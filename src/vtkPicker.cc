@@ -66,6 +66,7 @@ vtkPicker::vtkPicker()
   this->MapperPosition[1] = 0.0;
   this->MapperPosition[2] = 0.0;
 
+  this->Assembly = NULL;
   this->Actor = NULL;
   this->Mapper = NULL;
   this->DataSet = NULL;
@@ -73,13 +74,14 @@ vtkPicker::vtkPicker()
 }
 
 // Update state when actor is picked.
-void vtkPicker::MarkPicked(vtkActor *actor, vtkMapper *mapper, float tMin, 
-                          float mapperPos[3])
+void vtkPicker::MarkPicked(vtkActor *assem, vtkActor *actor, vtkMapper *mapper,
+                           float tMin, float mapperPos[3])
 {
   int i;
   float mapperHPosition[4];
   float *worldHPosition;
 
+  this->Assembly = assem;
   this->Actor = actor;
   this->Mapper = mapper;
   this->DataSet = mapper->GetInput();
@@ -108,7 +110,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
                    vtkRenderer *renderer)
 {
   int i;
-  vtkActorCollection *actors, *parts;
+  vtkActorCollection *actors;
   vtkActor *actor, *part;
   vtkCamera *camera;
   vtkMapper *mapper;
@@ -226,8 +228,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   actors = renderer->GetActors();
   for ( actors->InitTraversal(); (actor=actors->GetNextItem()); )
     {
-    parts = actor->GetComposingParts();
-    for ( parts->InitTraversal(); (part=parts->GetNextItem()); )
+    for ( actor->InitPartTraversal(); part=actor->GetNextPart(); )
       {
       visible = part->GetVisibility();
       pickable = part->GetPickable();
@@ -237,7 +238,8 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 //  use the inverted matrix to transform the ray points into mapper
 //  coordinates. 
 //
-      if ( visible && pickable && (opacity != 0.0) )
+      if ( visible && pickable && (opacity != 0.0) &&
+      (mapper = part->GetMapper()) != NULL )
         {
         this->Transform.SetMatrix(part->GetMatrix());
         this->Transform.Push();
@@ -258,26 +260,24 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
           }
 
         this->Transform.Pop();
-  //
-  //  Have the ray endpoints in mapper space, now need to compare this
-  //  with the mapper bounds to see whether intersection is possible.
-  //
-        if ( (mapper = part->GetMapper()) != NULL )
+//
+//  Have the ray endpoints in mapper space, now need to compare this
+//  with the mapper bounds to see whether intersection is possible.
+//
+//
+//  Get the bounding box of the modeller.  Note that the tolerance is
+//  added to the bounding box to make sure things on the edge of the
+//  bounding box are picked correctly.
+//
+        bounds = mapper->GetBounds();
+        if ( cell.HitBBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
           {
-  //
-  //  Get the bounding box of the modeller.  Note that the tolerance is
-  //  added to the bounding box to make sure things on the edge of the
-  //  bounding box are picked correctly.
-  //
-          bounds = mapper->GetBounds();
-          if ( cell.HitBBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
-            {
-            picked = 1;
-            this->IntersectWithLine((float *)p1Mapper, (float *)p2Mapper,tol,part,mapper);
-            this->Actors.AddItem(part);
-            }
+          picked = 1;
+          this->IntersectWithLine((float *)p1Mapper, (float *)p2Mapper,tol,actor,part,mapper);
+          this->Actors.AddItem(part);
           }
-        }//if visible and pickable
+
+        }//if visible and pickable not transparent and has mapper
       }//for all parts
     }//for all actors
 
@@ -286,7 +286,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 
 // Intersect data with specified ray.
 void vtkPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
-                                 vtkActor *actor, vtkMapper *mapper)
+                           vtkActor *assem, vtkActor *actor, vtkMapper *mapper)
 {
   int i;
   float *center, t, ray[3], rayFactor;
@@ -305,7 +305,7 @@ void vtkPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
 
   if ( t >= 0.0 && t <= 1.0 && t < this->GlobalTMin ) 
     {
-    this->MarkPicked(actor, mapper, t, center);
+    this->MarkPicked(assem, actor, mapper, t, center);
     }
 }
 
@@ -322,6 +322,7 @@ void vtkPicker::Initialize()
   this->MapperPosition[1] = 0.0;
   this->MapperPosition[2] = 0.0;
 
+  this->Assembly = NULL;
   this->Actor = NULL;
   this->Mapper = NULL;
   this->GlobalTMin = VTK_LARGE_FLOAT;
@@ -342,6 +343,7 @@ void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Mapper Position: (" <<  this->MapperPosition[0] << ","
      << this->MapperPosition[1] << ","
      << this->MapperPosition[2] << ")\n";
+  os << indent << "Assembly: " << this->Assembly << "\n";
   os << indent << "Actor: " << this->Actor << "\n";
   os << indent << "Mapper: " << this->Mapper << "\n";
 }

@@ -48,7 +48,7 @@ vtkCellPicker::vtkCellPicker()
 }
 
 void vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
-                                     vtkActor *a, vtkMapper *m)
+                                    vtkActor *assem, vtkActor *a, vtkMapper *m)
 {
   int numCells;
   int cellId, i, minCellId, minSubId, subId;
@@ -83,7 +83,7 @@ void vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
 //
   if ( minCellId>(-1) && tMin < this->GlobalTMin ) 
     {
-    this->MarkPicked(a, m, tMin, minXYZ);
+    this->MarkPicked(assem, a, m, tMin, minXYZ);
     this->CellId = minCellId;
     this->SubId = minSubId;
     for (i=0; i<3; i++) this->PCoords[i] = minPcoords[i];

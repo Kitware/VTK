@@ -83,7 +83,7 @@ vtkActor::vtkActor()
   this->SelfCreatedProperty = 0;
   this->Device = NULL;
 
-  this->ComposingParts.AddItem(this);
+  this->TraversalLocation = 0;
 }
 
 vtkActor::~vtkActor()
@@ -95,6 +95,33 @@ vtkActor::~vtkActor()
     {
     this->Device->Delete();
     }
+}
+
+// Description:
+// Shallow copy of an actor.
+vtkActor& vtkActor::operator=(const vtkActor& actor)
+{
+  int i;
+
+  this->UserMatrix = actor.UserMatrix;
+  this->Mapper = actor.Mapper;
+  this->Property = actor.Property;
+  this->Texture = actor.Texture;
+
+  for (i=0; i < 3; i++) 
+    {
+    this->Origin[i] = actor.Origin[i];
+    this->Position[i] = actor.Position[i];
+    this->Orientation[i] = actor.Orientation[i];
+    this->Scale[i] = actor.Scale[i];
+    this->Center[i] = actor.Center[i];
+    }
+
+  this->Visibility = actor.Visibility;
+  this->Pickable   = actor.Pickable;
+  this->Dragable   = actor.Dragable;
+  
+  for (i=0; i < 6; i++) this->Bounds[i] = actor.Bounds[i];
 }
 
 // Description:
@@ -422,9 +449,47 @@ float *vtkActor::GetZRange()
   return &(this->Bounds[4]);
 }
 
-void vtkActor::AddComposingParts(vtkActorCollection &parts)
+vtkActor *vtkActor::GetNextPart()
 {
-  parts.AddItem(this);
+  if ( this->TraversalLocation++ == 0 ) return this;
+  else return NULL;
+}
+
+unsigned long int vtkActor::GetMTime()
+{
+  unsigned long mTime=this->vtkObject::GetMTime();
+  unsigned long time;
+
+  if ( this->Property != NULL )
+    {
+    time = this->Property->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  if ( this->UserMatrix != NULL )
+    {
+    time = this->UserMatrix->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  if ( this->Texture != NULL )
+    {
+    time = this->Texture->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  return mTime;
+}
+
+// Description:
+// Update visualization pipeline and any other parts of actor that are
+// necessary.
+void vtkActor::Update()
+{
+  if ( this->Mapper )
+    {
+    this->Mapper->Update();
+    }
 }
 
 void vtkActor::PrintSelf(ostream& os, vtkIndent indent)

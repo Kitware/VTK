@@ -47,7 +47,7 @@ vtkPointPicker::vtkPointPicker()
 }
 
 void vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
-                                      vtkActor *a, vtkMapper *m)
+                                    vtkActor *assem, vtkActor *a, vtkMapper *m)
 {
   static vtkMath math;
   vtkDataSet *input=m->GetInput();
@@ -99,7 +99,7 @@ void vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
 //
   if ( minPtId>(-1) && tMin < this->GlobalTMin ) 
     {
-    this->MarkPicked(a, m, tMin, minXYZ);
+    this->MarkPicked(assem, a, m, tMin, minXYZ);
     this->PointId = minPtId;
     vtkDebugMacro("Picked point id= " << minPtId);
     }

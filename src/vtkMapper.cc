@@ -191,6 +191,16 @@ float *vtkMapper::GetCenter()
   return center;
 }
 
+// Description:
+// Update the network connected to this mapper.
+void vtkMapper::Update()
+{
+  if ( this->Input )
+    {
+    this->Input->Update();
+    }
+}
+
 void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
