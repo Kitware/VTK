@@ -225,7 +225,13 @@ IF(PYTHON_EXECUTABLE)
     FOREACH(file ${VTK_PYTHON_FILES})
       SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
       SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${file}.py")
-      CONFIGURE_FILE(${src} ${tgt} COPYONLY)
+      MESSAGE("Add custom command")
+      ADD_CUSTOM_COMMAND(SOURCE ${src}
+		         COMMAND ${CMAKE_COMMAND}
+                         ARGS -E copy ${src} ${tgt}
+                         OUTPUTS ${tgt}
+			 TARGET vtkpython_pyc
+                         COMMENT "source copy")
     ENDFOREACH(file)
     CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtk.pth
                    ${VTK_BINARY_DIR}/Wrapping/Python/vtk.pth COPYONLY)
