@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkDataReader.hh"
 #include <ctype.h>
-
+#include <strstream.h>
 #include "vtkBitScalars.hh"
 #include "vtkUnsignedCharScalars.hh"
 #include "vtkFloatScalars.hh"
@@ -73,6 +73,7 @@ vtkDataReader::vtkDataReader()
   this->InputString = NULL;
   this->InputStringPos = 0;
   this->ReadFromInputString = 0;
+  this->IS = NULL;
 }  
 
 vtkDataReader::~vtkDataReader()
@@ -94,7 +95,7 @@ vtkDataReader::~vtkDataReader()
 void vtkDataReader::EatWhiteSpace()
 {
   while ((this->InputString[this->InputStringPos] < 33)&&
-	 (this->InputString[this->InputStringPos] != '\0'))
+         (this->InputString[this->InputStringPos] != '\0'))
     {
     this->InputStringPos++;
     }
@@ -105,42 +106,9 @@ void vtkDataReader::EatWhiteSpace()
 // Returns zero if there was an error.
 int vtkDataReader::ReadLine(char result[256])
 {
-  if (this->ReadFromInputString)
-    {
-    int i = 0;
-
-    while ((this->InputString[this->InputStringPos] != '\n')&&
-	   (this->InputString[this->InputStringPos] != '\0')&&
-	   (i < 255))
-      {
-      result[i] = this->InputString[this->InputStringPos];
-      i++; this->InputStringPos++;
-      }
-    if (i == 255)
-      {
-      result[i] = '\0';
-      return 1;
-      }
-    if (this->InputString[this->InputStringPos] == '\n')
-      {
-      result[i] = '\n';
-      result[i+1] = '\0';
-      this->InputStringPos++;
-      return 1;
-      }
-    else
-      {
-      result[i] = '\0';
-      return 0;
-      }
-    }
-  else
-    {
-    if (fgets(result, 255, this->fp) == NULL) return 0;
-    return 1;
-    }
-
-  return 0;
+  this->IS->getline(result,256);
+  if (this->IS->eof()) return 0;
+  return 1;
 }
 
 // Description:
@@ -148,44 +116,9 @@ int vtkDataReader::ReadLine(char result[256])
 // Returns zero if there was an error.
 int vtkDataReader::ReadString(char result[256])
 {
-  if (this->ReadFromInputString)
-    {
-    int i = 0;
-
-    this->EatWhiteSpace();
-    while ((this->InputString[this->InputStringPos] > 32)&&
-	   (this->InputString[this->InputStringPos] != '\0')&&
-	   (i < 255))
-      {
-      result[i] = this->InputString[this->InputStringPos];
-      i++; this->InputStringPos++;
-      }
-    if (i == 255)
-      {
-      result[i] = '\0';
-      return 1;
-      }
-    if (this->InputString[this->InputStringPos] < 33)
-      {
-      result[i] = '\0';
-      if (i) return 1;
-      else return 0;
-      }
-    if (this->InputString[this->InputStringPos] == '\0')
-      {
-      result[i] = '\0';
-      return 0;
-      }
-    }
-  else
-    {
-    int retStat;
-
-    if ((retStat = fscanf(this->fp,"%256s",result)) == EOF || retStat < 1)
-      return 0;
-    else return 1;
-    }
-  return 0;
+  *this->IS >> result;
+  if (this->IS->fail()) return 0;
+  return 1;
 }
 
 // Description:
@@ -193,23 +126,9 @@ int vtkDataReader::ReadString(char result[256])
 // Returns zero if there was an error.
 int vtkDataReader::ReadInt(int *result)
 {
-  int retStat;
-
-  if (this->ReadFromInputString)
-    {
-    static char line[256];
-    if (!this->ReadString(line)) return 0;
-
-    if ((retStat = sscanf(line,"%d",result)) == EOF || retStat < 1) return 0;
-    else return 1;
-    }
-  else
-    {
-    if ((retStat = fscanf(this->fp,"%d",result)) == EOF || retStat < 1)
-      return 0;
-    else return 1;
-    }
-  return 0;
+  *this->IS >> *result;
+  if (this->IS->fail()) return 0;
+  return 1;
 }
 
 int vtkDataReader::ReadShort(short *result)
@@ -231,23 +150,9 @@ int vtkDataReader::ReadUChar(unsigned char *result)
 // Returns zero if there was an error.
 int vtkDataReader::ReadFloat(float *result)
 {
-  int retStat;
-
-  if (this->ReadFromInputString)
-    {
-    static char line[256];
-    if (!this->ReadString(line)) return 0;
-
-    if ((retStat = sscanf(line,"%f",result)) == EOF || retStat < 1) return 0;
-    else return 1;
-    }
-  else
-    {
-    if ((retStat = fscanf(this->fp,"%f",result)) == EOF || retStat < 1)
-      return 0;
-    else return 1;
-    }
-  return 0;
+  *this->IS >> *result;
+  if (this->IS->fail()) return 0;
+  return 1;
 }
 
 // Description:
@@ -259,7 +164,7 @@ int vtkDataReader::OpenVTKFile()
     if (this->InputString)
       {
       vtkDebugMacro(<< "Reading from InputString");
-      this->InputStringPos = 0;
+      this->IS = new istrstream(this->InputString,strlen(this->InputString));
       return 1;
       }
     }
@@ -272,7 +177,7 @@ int vtkDataReader::OpenVTKFile()
       vtkErrorMacro(<< "No file specified!");
       return 0;
        }
-    if ((this->fp = fopen(this->Filename, "rb")) == NULL)
+    if (!(this->IS = new ifstream(this->Filename, ios::in)))
       {
       vtkErrorMacro(<< "Unable to open file: "<< this->Filename);
       return 0;
@@ -290,9 +195,9 @@ int vtkDataReader::ReadHeader()
   char line[256];
 
   vtkDebugMacro(<< "Reading vtk file header");
-//
-// read header
-//
+  //
+  // read header
+  //
   if (!this->ReadLine(line))
     {
     vtkErrorMacro(<<"Premature EOF reading first line!");
@@ -303,18 +208,18 @@ int vtkDataReader::ReadHeader()
     vtkErrorMacro(<< "Unrecognized file type: "<< line);
     return 0;
     }
-//
-// read title
-//
+  //
+  // read title
+  //
   if (!this->ReadLine(line))
     {
     vtkErrorMacro(<<"Premature EOF reading title!");
     return 0;
     }
   vtkDebugMacro(<< "Reading vtk file entitled: " << line);
-//
-// read type
-//
+  //
+  // read type
+  //
   if (!this->ReadString(line))
     {
     vtkErrorMacro(<<"Premature EOF reading file type!");
@@ -330,6 +235,22 @@ int vtkDataReader::ReadHeader()
     return 0;
     }
 
+  // if this is a binary file we need to make sure that we opened it 
+  // as a binary file.
+  if (this->FileType == VTK_BINARY)
+    {
+    vtkDebugMacro(<< "Opening vtk file as binary");
+    delete this->IS;
+    if (!(this->IS = new ifstream(this->Filename, ios::in | ios::bin)))
+      {
+      vtkErrorMacro(<< "Unable to open file: "<< this->Filename);
+      return 0;
+      }
+    // read up to the same point in the file
+    this->ReadLine(line);
+    this->ReadLine(line);
+    this->ReadString(line);
+    }
   return 1;
 }
 
@@ -427,8 +348,10 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
     int *ptr = points->WritePtr(0,numPts);
     if (this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(int),3*numPts,this->fp) != (3*numPts)) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(int)*3*numPts);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary points!");
         return 0;
@@ -459,8 +382,10 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
     float *ptr = points->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(float),3*numPts,this->fp) != (3*numPts)) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(float)*3*numPts);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary points!");
         return 0;
@@ -534,8 +459,10 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
     unsigned char *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(unsigned char),(numPts+1)/8,this->fp) != ((numPts+1)/8)) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(unsigned char)*(numPts+7)/8);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary bit scalars!");
         return 0;
@@ -565,8 +492,10 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
     unsigned char *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(unsigned char),numPts,this->fp) != numPts) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(unsigned char)*numPts);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary char scalars!");
         return 0;
@@ -597,8 +526,10 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
     short *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(short),numPts,this->fp) != numPts) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(short)*numPts);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary short scalars!");
         return 0;
@@ -629,8 +560,10 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
     int *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(int),numPts,this->fp) != numPts) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(int)*numPts);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary int scalars!");
         return 0;
@@ -661,10 +594,12 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
     float *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(int),numPts,this->fp) != numPts) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(float)*numPts);
+      if (this->IS->eof())
         {
-        vtkErrorMacro(<<"Error reading binary int scalars!");
+        vtkErrorMacro(<<"Error reading binary float scalars!");
         return 0;
         }
       swap.Swap4BERange(ptr,numPts);
@@ -726,8 +661,10 @@ int vtkDataReader::ReadVectorData(vtkDataSet *ds, int numPts)
     float *ptr = vectors->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(float),3*numPts,this->fp) != (3*numPts)) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(float)*3*numPts);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary vectors!");
         return 0;
@@ -791,8 +728,10 @@ int vtkDataReader::ReadNormalData(vtkDataSet *ds, int numPts)
     float *ptr = normals->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(float),3*numPts,this->fp) != (3*numPts)) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(float)*3*numPts);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary normals!");
         return 0;
@@ -857,8 +796,10 @@ int vtkDataReader::ReadTensorData(vtkDataSet *ds, int numPts)
     float *ptr = tensors->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(float),9*numPts,this->fp) != (9*numPts)) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(float)*9*numPts);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary tensors!");
         return 0;
@@ -926,8 +867,10 @@ int vtkDataReader::ReadCoScalarData(vtkDataSet *ds, int numPts)
     unsigned char *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(unsigned char),numPts,this->fp) != numPts) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(unsigned char)*numPts);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary graymap!");
         return 0;
@@ -959,8 +902,10 @@ int vtkDataReader::ReadCoScalarData(vtkDataSet *ds, int numPts)
     unsigned char *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(unsigned char),2*numPts,this->fp) != (2*numPts)) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(unsigned char)*2*numPts);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary alpha-graymap!");
         return 0;
@@ -993,8 +938,10 @@ int vtkDataReader::ReadCoScalarData(vtkDataSet *ds, int numPts)
     unsigned char *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(unsigned char),3*numPts,this->fp) != (3*numPts)) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(unsigned char)*3*numPts);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary pixmap!");
         return 0;
@@ -1030,8 +977,10 @@ int vtkDataReader::ReadCoScalarData(vtkDataSet *ds, int numPts)
     unsigned char *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(unsigned char),4*numPts,this->fp) != (4*numPts)) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(unsigned char)*4*numPts);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary alpha-pixmap!");
         return 0;
@@ -1109,8 +1058,10 @@ int vtkDataReader::ReadTCoordsData(vtkDataSet *ds, int numPts)
     float *ptr = tcoords->WritePtr(0,numPts);
     if ( this->FileType == VTK_BINARY)
       {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(float),dim*numPts,this->fp) != (dim*numPts)) )
+      // suck up newline
+      this->IS->getline(line,256);
+      this->IS->read(ptr,sizeof(float)*dim*numPts);
+      if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary tensors!");
         return 0;
@@ -1175,12 +1126,14 @@ int vtkDataReader::ReadLutData(vtkDataSet *ds)
 
   if ( this->FileType == VTK_BINARY)
     {
-      if ( (fgets(line,256,this->fp) == NULL) || //suck up newline
-      (fread(ptr,sizeof(unsigned char),4*size,this->fp) != (4*size)) )
-        {
-        vtkErrorMacro(<<"Error reading binary lookup table!");
-        return 0;
-        }
+    // suck up newline
+    this->IS->getline(line,256);
+    this->IS->read(ptr,sizeof(unsigned char)*4*size);
+    if (this->IS->eof())
+      {
+      vtkErrorMacro(<<"Error reading binary lookup table!");
+      return 0;
+      }
     lut->WrotePtr();
     }
   else // ascii
@@ -1215,8 +1168,10 @@ int vtkDataReader::ReadCells(int size, int *data)
 
   if ( this->FileType == VTK_BINARY)
     {
-    if ( (fgets(line,255,this->fp) == NULL) || //suck up newline
-    (fread(data,sizeof(int),size,this->fp) != size) )
+    // suck up newline
+    this->IS->getline(line,256);
+    this->IS->read(data,sizeof(int)*size);
+    if (this->IS->eof())
       {
       vtkErrorMacro(<<"Error reading binary cell data!");
       return 0;
@@ -1253,8 +1208,8 @@ char *vtkDataReader::LowerCase(char *str)
 void vtkDataReader::CloseVTKFile()
 {
   vtkDebugMacro(<<"Closing vtk file");
-  if ( this->fp != NULL ) fclose(this->fp);
-  this->fp = NULL;
+  if ( this->IS != NULL ) delete this->IS;
+  this->IS = NULL;
 }
 
 void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)

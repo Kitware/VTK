@@ -227,9 +227,10 @@ void vtkUnstructuredGridReader::Execute()
         types = new int[ncells];
         if (this->Reader.GetFileType() == VTK_BINARY)
           {
-          if ( (fgets(line,256,this->Reader.GetFP()) == NULL) ||
-	       (fread(types,sizeof(int),ncells,this->Reader.GetFP()) 
-		!= ncells) )
+	  // suck up newline
+	  this->Reader.GetIStream()->getline(line,256);
+	  this->Reader.GetIStream()->read(types,sizeof(int)*ncells);
+	  if (this->Reader.GetIStream()->eof())
             {
             vtkErrorMacro(<<"Error reading binary cell types!");
             return;
