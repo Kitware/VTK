@@ -110,5 +110,6 @@ protected:
 // all other classes necessary for compilation are also included. 
 #include "IdList.hh"
 #include "FScalars.hh"
+#include "Lut.hh"
 
 #endif
