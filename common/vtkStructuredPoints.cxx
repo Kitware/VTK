@@ -54,6 +54,21 @@ int vtkStructuredPoints::ClipUpdateExtentWithWholeExtent()
   return 1;
 }
 
+// I trying to solve a problem with image information.
+// vtkDataSetToDataSetFilters do not have the same methods 
+// to fill in information as vtkStructuredPointsSource.
+void vtkStructuredPoints::InternalUpdate()
+{
+  vtkScalars *scalars;
+
+  this->vtkImageData::InternalUpdate();
+  scalars = this->GetPointData()->GetScalars();
+  if (scalars)
+    {
+    this->SetScalarType(scalars->GetDataType());
+    this->SetNumberOfScalarComponents(scalars->GetNumberOfComponents());
+    }
+}
 
 
 

@@ -69,6 +69,8 @@ public:
   // To simplify filter superclasses,
   int GetDataObjectType() {return VTK_STRUCTURED_POINTS;}
 
+  void InternalUpdate();
+
 protected:
   vtkStructuredPoints();
   ~vtkStructuredPoints() {};
