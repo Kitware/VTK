@@ -135,47 +135,47 @@ public:
 
   // Description:
   // Return the table index associated with a particular value.
-  virtual int GetIndex(float v);
+  virtual vtkIdType GetIndex(float v);
 
   // Description:
   // Specify the number of values (i.e., colors) in the lookup
   // table.
-  void SetNumberOfTableValues(int number);
-  int GetNumberOfTableValues() { return this->NumberOfColors; };
+  void SetNumberOfTableValues(vtkIdType number);
+  vtkIdType GetNumberOfTableValues() { return this->NumberOfColors; };
 
   // Description:
   // Directly load color into lookup table. Use [0,1] float values for color
   // component specification. Make sure that you've either used the
   // Build() method or used SetNumberOfTableValues() prior to using this
   // method.
-  void SetTableValue(int indx, float rgba[4]);
+  void SetTableValue(vtkIdType indx, float rgba[4]);
 
   // Description:
   // Directly load color into lookup table. Use [0,1] float values for color 
   // component specification.
-  void SetTableValue(int indx, float r, float g, float b, float a=1.0);
+  void SetTableValue(vtkIdType indx, float r, float g, float b, float a=1.0);
 
   // Description:
   // Return a rgba color value for the given index into the lookup table. Color
   // components are expressed as [0,1] float values.
-  float *GetTableValue(int id);
+  float *GetTableValue(vtkIdType id);
 
   // Description:
   // Return a rgba color value for the given index into the lookup table. Color
   // components are expressed as [0,1] float values.
-  void GetTableValue(int id, float rgba[4]);
+  void GetTableValue(vtkIdType id, float rgba[4]);
 
   // Description:
   // Get pointer to color table data. Format is array of unsigned char
   // r-g-b-a-r-g-b-a...
-  unsigned char *GetPointer(const int id) {
+  unsigned char *GetPointer(const vtkIdType id) {
     return this->Table->GetPointer(4*id); };
 
   // Description:
   // Get pointer to data. Useful for direct writes into object. MaxId is bumped
   // by number (and memory allocated if necessary). Id is the location you 
   // wish to write into; number is the number of rgba values to write.
-  unsigned char *WritePointer(const int id, const int number);
+  unsigned char *WritePointer(const vtkIdType id, const int number);
 
   // Description:
   // Sets/Gets the range of scalars which will be mapped.  This is a duplicate
@@ -189,8 +189,8 @@ public:
   // SetNumberOfTableValues() instead, it can be used both before and
   // after the table has been built whereas SetNumberOfColors() has no
   // effect after the table has been built.
-  vtkSetClampMacro(NumberOfColors,int,2,65535);
-  vtkGetMacro(NumberOfColors,int);
+  vtkSetClampMacro(NumberOfColors,vtkIdType,2,VTK_LARGE_ID);
+  vtkGetMacro(NumberOfColors,vtkIdType);
 
   // Description:
   // map a set of scalars through the lookup table
@@ -202,7 +202,7 @@ protected:
   vtkLookupTable(int sze=256, int ext=256);
   ~vtkLookupTable();
 
-  int NumberOfColors;
+  vtkIdType NumberOfColors;
   vtkUnsignedCharArray *Table;
   float TableRange[2];
   float HueRange[2];
@@ -214,6 +214,7 @@ protected:
   vtkTimeStamp InsertTime;
   vtkTimeStamp BuildTime;
   float RGBA[4]; //used during conversion process
+
 private:
   vtkLookupTable(const vtkLookupTable&);  // Not implemented.
   void operator=(const vtkLookupTable&);  // Not implemented.
