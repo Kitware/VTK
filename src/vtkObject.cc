@@ -129,3 +129,11 @@ int vtkObject::GetDebug()
 {
   return this->Debug;
 }
+
+// Description:
+// Set the value of the debug flag. A non-zero value turns debugging on.
+void vtkObject::SetDebug(int debugFlag)
+{
+  this->Debug = debugFlag;
+}
+

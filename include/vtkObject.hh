@@ -71,6 +71,7 @@ public:
   virtual void DebugOn();
   virtual void DebugOff();
   int GetDebug();
+  void SetDebug(int debugFlag);
 
   // modified time
   virtual unsigned long int GetMTime();
