@@ -69,7 +69,7 @@ public:
 
   // Description:
   // We need to check the modified time of the lookup table too.
-  unsigned long GetMTime();
+  virtual unsigned long GetMTime();
 
 protected:
   vtkImageMapToColors();
