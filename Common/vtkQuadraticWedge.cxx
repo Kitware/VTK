@@ -26,7 +26,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.2");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.3");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
 // Construct the wedge with 15 points + 3 extra points for internal
@@ -528,7 +528,7 @@ void vtkQuadraticWedge::Derivatives(int vtkNotUsed(subId),
 
 // Clip this quadratic wedge using scalar value provided. Like contouring, 
 // except that it cuts the wedge to produce tetrahedra.
-void vtkQuadraticWedge::Clip(double value, vtkDataArray* cellScalars, 
+void vtkQuadraticWedge::Clip(double value, vtkDataArray* vtkNotUsed(cellScalars), 
                              vtkPointLocator* locator, vtkCellArray* tets,
                              vtkPointData* inPd, vtkPointData* outPd,
                              vtkCellData* inCd, vtkIdType cellId, 

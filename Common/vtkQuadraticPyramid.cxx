@@ -27,7 +27,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.4");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.5");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 // Construct the wedge with 13 points + 1 extra point for internal
@@ -336,7 +336,7 @@ void vtkQuadraticPyramid::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
 }
 
 void vtkQuadraticPyramid::Contour(double value, 
-                                  vtkDataArray* cellScalars, 
+                                  vtkDataArray* vtkNotUsed(cellScalars), 
                                   vtkPointLocator* locator, 
                                   vtkCellArray *verts, 
                                   vtkCellArray* lines, 
@@ -557,7 +557,7 @@ void vtkQuadraticPyramid::Derivatives(int vtkNotUsed(subId),
 
 // Clip this quadratic pyramid using scalar value provided. Like contouring, 
 // except that it cuts the pyramid to produce tetrahedra.
-void vtkQuadraticPyramid::Clip(double value, vtkDataArray* cellScalars, 
+void vtkQuadraticPyramid::Clip(double value, vtkDataArray* vtkNotUsed(cellScalars), 
                                vtkPointLocator* locator, vtkCellArray* tets,
                                vtkPointData* inPd, vtkPointData* outPd,
                                vtkCellData* inCd, vtkIdType cellId, 
