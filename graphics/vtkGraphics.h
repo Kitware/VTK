@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkAxes.h"
 #include "vtkBYUReader.h"
 #include "vtkBYUWriter.h"
-#include "vtkBooleanStructuredPoints.h"
 #include "vtkBooleanTexture.h"
 #include "vtkBrownianPoints.h"
 #include "vtkCamera.h"
