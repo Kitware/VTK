@@ -26,8 +26,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlMaskPolyData : public vlPolyToPolyFilter
 {
 public:
-  //vlMaskPolyData();
-  //~vlMaskPolyData();
+  vlMaskPolyData();
+  ~vlMaskPolyData() {};
   char *GetClassName() {return "vlMaskPolyData";};
   void PrintSelf(ostream& os, vlIndent indent);
 
@@ -43,10 +43,8 @@ public:
 
 protected:
   void Execute();
-  // every OnRatio entity is on; all others are off.
-  int OnRatio;
-  // offset (or starting point id)
-  int Offset;
+  int OnRatio; // every OnRatio entity is on; all others are off.
+  int Offset;  // offset (or starting point id)
 };
 
 #endif

@@ -15,8 +15,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "MaskPoly.hh"
 
+vlMaskPolyData::vlMaskPolyData()
+{
+  this->OnRatio = 11;
+  this->Offset = 0;
+}
+
 //
-// Down sample polygonal data.  Don't down sample points, usually not worth it.
+// Down sample polygonal data.  Don't down sample points (that is, use the
+// original points, since usually not worth it.
 //
 void vlMaskPolyData::Execute()
 {

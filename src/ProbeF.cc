@@ -15,6 +15,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "ProbeF.hh"
 
+vlProbeFilter::vlProbeFilter()
+{
+  this->Source = NULL;
+}
+
 void vlProbeFilter::Execute()
 {
   int cellId, ptId;
@@ -107,5 +112,15 @@ void vlProbeFilter::Update()
     this->Execute();
     this->ExecuteTime.Modified();
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    }
+}
+
+void vlProbeFilter::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlProbeFilter::GetClassName()))
+    {
+    vlDataSetToDataSetFilter::PrintSelf(os,indent);
+
+    os << indent << "Source: " << this->Source << "\n";
     }
 }

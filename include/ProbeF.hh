@@ -27,10 +27,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlProbeFilter : public vlDataSetToDataSetFilter
 {
 public:
-  // vlProbeFilter();
-  // ~vlProbeFilter();
+  vlProbeFilter();
+  ~vlProbeFilter() {};
   char *GetClassName() {return "vlProbeFilter";};
-  // void PrintSelf(ostream& os, vlIndent indent);
+  void PrintSelf(ostream& os, vlIndent indent);
 
   void Update();
   void Initialize();
