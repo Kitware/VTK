@@ -824,6 +824,9 @@ void vtkRenderWindow::StereoUpdate(void)
       case VTK_STEREO_RED_BLUE:
         this->StereoStatus = 1;
         break;
+      case VTK_STEREO_DRESDEN:
+        this->StereoStatus = 1;
+	break;      
       case VTK_STEREO_INTERLACED:
         this->StereoStatus = 1;
       }
@@ -835,6 +838,9 @@ void vtkRenderWindow::StereoUpdate(void)
       case VTK_STEREO_RED_BLUE:
         this->StereoStatus = 0;
         break;
+      case VTK_STEREO_DRESDEN:
+        this->StereoStatus = 0;
+	break;
       case VTK_STEREO_INTERLACED:
         this->StereoStatus = 0;
         break;
@@ -847,7 +853,8 @@ void vtkRenderWindow::StereoUpdate(void)
 void vtkRenderWindow::StereoMidpoint(void)
 {
   if ((this->StereoType == VTK_STEREO_RED_BLUE) ||
-      (this->StereoType == VTK_STEREO_INTERLACED))
+      (this->StereoType == VTK_STEREO_INTERLACED) ||
+	  (this->StereoType == VTK_STEREO_DRESDEN) )
     {
     int *size;
     // get the size
@@ -964,6 +971,82 @@ void vtkRenderWindow::StereoRenderComplete(void)
         p2 += line;
         }
 
+      this->ResultFrame = result;
+      delete [] this->StereoBuffer;
+      this->StereoBuffer = NULL;
+      delete [] buff;
+      }
+      break;
+      
+    case VTK_STEREO_DRESDEN:
+      {
+      unsigned char *buff;
+      unsigned char *p1, *p2, *p3;
+      unsigned char* result;
+      int *size, line;
+      int x,y;
+      float t1, t2, t3;
+      
+      // get the size
+      size = this->GetSize();
+      // get the data
+      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
+      p1 = this->StereoBuffer;
+      p2 = buff;
+      line = size[0] * 3;
+      
+      // allocate the result
+      result = new unsigned char [size[0]*size[1]*3];
+      if (!result) 
+        {
+        vtkErrorMacro(
+          <<"Couldn't allocate memory for dresden display stereo.");
+        return;
+        }
+      
+      // now merge the two images 
+      p3 = result;
+      
+      for (y = 0; y < size[1]; y++ ) 
+        {
+        for (x = 0; x < size[0]; x+=2) 
+          {
+          *p3++ = *p1++;
+          *p3++ = *p1++;
+          *p3++ = *p1++;
+          
+          p3+=3;
+          p1+=3;
+          }
+        if( size[0] % 2 == 1 ) 
+          {
+          p3 -= 3;
+          p1 -= 3;
+          }
+        }
+      
+      // now the other eye
+      p3 = result + 3;
+      p2 += 3;
+      
+      for (y = 0; y < size[1]; y++) 
+        {
+        for (x = 1; x < size[0]; x+=2) 
+          {
+          *p3++ = *p2++;
+          *p3++ = *p2++;
+          *p3++ = *p2++;
+          
+          p3+=3;
+          p2+=3;
+          }
+        if( size[0] % 2 == 1 ) 
+          {
+          p3 += 3;
+          p2 += 3;
+          }
+        }
+      
       this->ResultFrame = result;
       delete [] this->StereoBuffer;
       this->StereoBuffer = NULL;
