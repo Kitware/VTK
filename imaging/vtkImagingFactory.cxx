@@ -75,7 +75,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #include "vtkQuartzTextMapper.h"
   #include "vtkQuartzImageWindow.h"
   #include "vtkQuartzImageMapper.h"
-  #include "vtkQuartzPolyDataMapper2D.h"
  #endif
 #endif
 
