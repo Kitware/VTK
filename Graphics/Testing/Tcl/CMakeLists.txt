@@ -91,6 +91,8 @@ IF (VTK_USE_RENDERING)
       smoothMeshOnMesh
       socbal
       spatialRepAll
+      spherePuzzle
+      spherePuzzleArrows
       splitVectors
       stereoDresdenMace
       StreamPolyData

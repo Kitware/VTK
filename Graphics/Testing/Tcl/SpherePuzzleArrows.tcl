@@ -130,10 +130,10 @@ set cam [ren1 GetActiveCamera]
 $cam Elevation -40
 update
 
-ButtonCallback 218 205
 ButtonCallback 261 272
-ButtonCallback 213 293
-ButtonCallback 203 238
-ButtonCallback 134 214
+arrows SetPermutation puzzle
+renWin Render
+
+
 
 
