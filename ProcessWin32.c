@@ -266,7 +266,7 @@ kwsysProcess* kwsysProcess_New()
   ZeroMemory(&osv, sizeof(osv));
   osv.dwOSVersionInfoSize = sizeof(osv);
   GetVersionEx(&osv);
-  if(osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS || 1)
+  if(osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
     {
     /* This is Win9x.  We need the console forwarding executable to
        work-around a Windows 9x bug.  */
