@@ -45,19 +45,18 @@ void process(vtkMultiProcessController* controller, void* arg)
 
   vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  iren->Initialize();
 
   // This class allows all processes to composite their images.
   // The root process then displays it in it's render window.
   vtkTreeComposite* tc = vtkTreeComposite::New();
   tc->SetRenderWindow(renWin);
 
-// Generate the pipeline see task1.cxx and task2.cxx)
+  // Generate the pipeline see task1.cxx and task2.cxx)
   vtkPolyDataMapper* mapper = (*task)(renWin, EXTENT, cam);
   
   // Only the root process will have an active interactor. All
   // the other render windows will be slaved to the root.
-  iren->Start();
+  tc->StartInteractor();
 
   // Clean-up
   iren->Delete();

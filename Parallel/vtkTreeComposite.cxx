@@ -119,7 +119,6 @@ vtkTreeComposite::vtkTreeComposite()
   this->Controller = vtkMultiProcessController::GetGlobalController();
 
   this->StartTag = this->EndTag = 0;
-  this->StartInteractorTag = 0;
   this->EndInteractorTag = 0;
 
   this->PData = this->ZData = NULL;
@@ -186,24 +185,6 @@ void vtkTreeCompositeEndRender(vtkObject *caller,
     }
 
   self->EndRender();
-}
-
-//-------------------------------------------------------------------------
-void vtkTreeCompositeStartInteractor(vtkObject *vtkNotUsed(o),
-				     unsigned long vtkNotUsed(event), 
-                                     void *clientData, void *)
-{
-  vtkTreeComposite *self = (vtkTreeComposite *)clientData;
-  
-  // If we stay with event driven compositing, I think in the future
-  // we should pass all events through the RenderWindow.
-  //if (caller != self->GetRenderWindowInteractor) // private
-  //  { // Sanity check.
-  //  vtkGenericErrorMacro("Caller mismatch.");
-  //  return;
-  //  }
-
-  self->StartInteractor();
 }
 
 //-------------------------------------------------------------------------
@@ -385,11 +366,7 @@ vtkTreeComposite::SetRenderWindowInteractor(vtkRenderWindowInteractor *iren)
   
   if (this->RenderWindowInteractor)
     {
-    if (this->Controller->GetLocalProcessId() > 0)
-      {
-      this->RenderWindowInteractor->RemoveObserver(this->StartInteractorTag);
-      }
-    else
+    if (!this->Controller->GetLocalProcessId())
       {
       this->RenderWindowInteractor->RemoveObserver(this->EndInteractorTag);
       }
@@ -401,16 +378,7 @@ vtkTreeComposite::SetRenderWindowInteractor(vtkRenderWindowInteractor *iren)
     iren->Register(this);
     this->RenderWindowInteractor = iren;
 
-    if (this->Controller->GetLocalProcessId() > 0)
-      {
-      vtkCallbackCommand *cbc;
-      cbc= new vtkCallbackCommand;
-      cbc->SetCallback(vtkTreeCompositeStartInteractor);
-      cbc->SetClientData((void*)this);
-      // IRen will delete the cbc when the observer is removed.
-      this->StartInteractorTag = iren->AddObserver(vtkCommand::StartEvent,cbc);
-      }
-    else
+    if (!this->Controller->GetLocalProcessId())
       {
       vtkCallbackCommand *cbc;
       cbc= new vtkCallbackCommand;
@@ -511,6 +479,7 @@ void vtkTreeComposite::InitializeRMIs()
 // This is only called in the satellite processes (not 0).
 void vtkTreeComposite::StartInteractor()
 {
+
   if (this->Controller == NULL)
     {
     vtkErrorMacro("Missing Controller.");
@@ -518,8 +487,22 @@ void vtkTreeComposite::StartInteractor()
     }
 
   this->InitializeRMIs();
-  this->Controller->ProcessRMIs();
-  this->RenderWindowInteractor->TerminateApp();
+
+  if (!this->Controller->GetLocalProcessId())
+    {
+    if (!this->RenderWindowInteractor)
+      {
+      vtkErrorMacro("Missing interactor.");
+      this->ExitInteractor();
+      return;
+      }
+    this->RenderWindowInteractor->Initialize();
+    this->RenderWindowInteractor->Start();
+    }
+  else
+    {
+    this->Controller->ProcessRMIs();
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -539,7 +522,6 @@ void vtkTreeComposite::ExitInteractor()
     {
     this->Controller->TriggerRMI(id, vtkMultiProcessController::BREAK_RMI_TAG);
     }
-  this->RenderWindowInteractor->TerminateApp();
 }
 
 

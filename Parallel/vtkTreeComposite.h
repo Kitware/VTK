@@ -200,7 +200,6 @@ protected:
   vtkRenderWindowInteractor* RenderWindowInteractor;
   vtkMultiProcessController* Controller;
 
-  unsigned long StartInteractorTag;
   unsigned long EndInteractorTag;
   unsigned long StartTag;
   unsigned long EndTag;

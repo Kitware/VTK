@@ -78,12 +78,11 @@ tc InitializePieces
 # before the first render
 ren ResetCamera
 
-iren Initialize
 wm withdraw .
 
 # Only the root process will have an active interactor. All
 # the other render windows will be slaved to the root.
-iren Start
+tc StartInteractor
 
 # This has to be called to clean-up. If it is not called, MPI
 # will most probably complain at exit.
