@@ -429,6 +429,10 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	    *outPtr0 += diff * this->DiffusionFactor;
 	    }
 	  }
+	}
+      }
+    }
+}
 
 
   
