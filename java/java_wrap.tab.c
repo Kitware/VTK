@@ -150,14 +150,14 @@ output_proto_vars(int i)
 
   if ((arg_types[i] == 301)||(arg_types[i] == 307))
     {
-    fprintf(yyout,"jarray ");
+    fprintf(yyout,"jdoubleArray ");
     fprintf(yyout,"id%i",i);
     return;
     }
 
   if ((arg_types[i] == 304)||(arg_types[i] == 306))
     {
-    fprintf(yyout,"jarray ");
+    fprintf(yyout,"jlongArray ");
     fprintf(yyout,"id%i",i);
     return;
     }
