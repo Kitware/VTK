@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.3");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.4");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
@@ -98,8 +98,8 @@ void vtkMetaImageWriter::Write()
     delete [] rfname;
     }
 
-  ofstream ofs(this->MHDFileName, ios::out);
-  if ( !ofs )
+  ofstream ofs_with_warning_C4701(this->MHDFileName, ios::out);
+  if ( !ofs_with_warning_C4701 )
     {
     vtkErrorMacro("Cannot open file: " << this->MHDFileName << " for writing");
     return;
@@ -161,7 +161,7 @@ void vtkMetaImageWriter::Write()
       }
     }
 
-  ofs 
+  ofs_with_warning_C4701 
     << "ObjectType = Image" << endl
     << "NDims = " << ndims << endl
     << "BinaryData = True" << endl
