@@ -84,6 +84,7 @@ vtkDecimatePro::vtkDecimatePro()
   this->EdgeLengths = vtkPriorityQueue::New();
   this->EdgeLengths->Allocate(VTK_MAX_TRIS_PER_VERTEX);
   
+  this->TempPD = vtkPointData::New();
   this->InflectionPoints = vtkFloatArray::New();
   this->TargetReduction = 0.90;
   this->FeatureAngle = 15.0;
@@ -114,6 +115,7 @@ vtkDecimatePro::~vtkDecimatePro()
     {
     this->VertexError->Delete();
     }
+  this->TempPD->Delete();
   this->Neighbors->Delete();
   this->EdgeLengths->Delete();
   delete this->V;
@@ -141,6 +143,7 @@ void vtkDecimatePro::Execute()
   float max, *bounds;
   vtkPointData *outputPD=output->GetPointData();
   vtkPointData *inPD=input->GetPointData();
+  vtkPointData *newPD;
   int *map, numNewPts, totalPts, newCellPts[3];
   int abortExecute=0;
 
@@ -180,17 +183,22 @@ void vtkDecimatePro::Execute()
     // this static should be eliminated
     if (this->Mesh != NULL) {this->Mesh->Delete(); this->Mesh = NULL;}
     this->Mesh = vtkPolyData::New();
+
     newPts = vtkPoints::New(); newPts->SetNumberOfPoints(numPts);
-    for ( i=0; i < numPts; i++ )
-      {
-      newPts->SetPoint(i,inPts->GetPoint(i));
-      }
+    newPts->DeepCopy(inPts);
+    this->Mesh->SetPoints(newPts);
+    newPts->Delete(); //registered by Mesh and preserved
+
     newPolys = vtkCellArray::New();
     newPolys->DeepCopy(inPolys);
-    this->Mesh->SetPoints(newPts);
     this->Mesh->SetPolys(newPolys);
-    newPts->Delete(); //registered by Mesh and preserved
     newPolys->Delete(); //registered by Mesh and preserved
+
+    this->Mesh->GetPointData()->CopyAllocate(inPD, numPts);
+    this->Mesh->GetPointData()->DeepCopy(inPD);
+
+    this->TempPD->CopyAllocate(this->Mesh->GetPointData(), 1);
+
     this->Mesh->BuildLinks();
     }
   else
@@ -351,7 +359,7 @@ void vtkDecimatePro::Execute()
       }
     }
 
-  outputPD->CopyAllocate(inPD,numNewPts);
+  outputPD->CopyAllocate(this->Mesh->GetPointData(),numNewPts);
 
   // Copy points in place
   for (ptId=0; ptId < totalPts; ptId++)
@@ -359,9 +367,10 @@ void vtkDecimatePro::Execute()
     if ( map[ptId] > -1 )
       {
       newPts->SetPoint(map[ptId],newPts->GetPoint(ptId));
-      outputPD->CopyData(inPD,ptId,map[ptId]);
+      outputPD->CopyData(this->Mesh->GetPointData(),ptId,map[ptId]);
       }
     }
+
   newPts->SetNumberOfPoints(numNewPts);
   newPts->Squeeze();
 
@@ -433,8 +442,9 @@ void vtkDecimatePro::SplitMesh()
     this->Mesh->GetPointCells(ptId,ncells,cells);
 
     if ( ncells > 0 && 
-    ((type=this->EvaluateVertex(ptId,ncells,cells,fedges)) == VTK_CORNER_VERTEX ||
-    type == VTK_INTERIOR_EDGE_VERTEX || type == VTK_NON_MANIFOLD_VERTEX) )
+	 ((type=this->EvaluateVertex(ptId,ncells,cells,fedges)) == VTK_CORNER_VERTEX ||
+	  type == VTK_INTERIOR_EDGE_VERTEX ||
+	  type == VTK_NON_MANIFOLD_VERTEX) )
       {
       this->SplitVertex(ptId, type, ncells, cells, 0);
       }
@@ -834,7 +844,8 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
 
     // Now split region
     id = this->Mesh->InsertNextLinkedPoint(this->X,numSplitTris);
-
+    this->TempPD->CopyData(this->Mesh->GetPointData(), ptId, 0);
+    this->Mesh->GetPointData()->CopyData(this->TempPD, 0, id);
     for ( i=fedge1; i < fedge2; i++ )
       { //disconnect from existing vertex
       tri = this->T->Array[i].id;
@@ -886,6 +897,9 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
 
       // Now split region
       id = this->Mesh->InsertNextLinkedPoint(this->X,numSplitTris);
+      this->TempPD->CopyData(this->Mesh->GetPointData(), ptId, 0);
+      this->Mesh->GetPointData()->CopyData(this->TempPD, 0, id);
+
       for ( j=fedge1; j < fedge2; j++ )
         { //disconnect from existing vertex
         tri = this->T->Array[j].id;
@@ -1004,6 +1018,9 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
       if ( i != 0 ) 
         {
         id = this->Mesh->InsertNextLinkedPoint(this->X,group->GetNumberOfIds());
+	this->TempPD->CopyData(this->Mesh->GetPointData(), ptId, 0);
+	this->Mesh->GetPointData()->CopyData(this->TempPD, 0, id);
+
         for ( j=0; j < group->GetNumberOfIds(); j++ )
           {
           tri = group->GetId(j);
