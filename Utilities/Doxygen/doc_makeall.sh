@@ -171,7 +171,7 @@ fi
 # ----------------------------------------------------------------------------
 # Clean-up.
 
-# rm -fr $INTERMEDIATE_DOX_DIR
+rm -fr $INTERMEDIATE_DOX_DIR
 
 if test "x$VTK_TAGFILE" != "x" ; then
     rm -fr $VTK_TAGFILE_DEST_DIR/$VTK_TAGFILE
