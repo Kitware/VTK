@@ -40,7 +40,8 @@ void main( int argc, char *argv[] )
 
   // draw the resulting scene
   renWindow->Render();
-
+  ren1->LightFollowCameraOff();
+  
   // make one view 90 degrees fromother
   ren1->GetActiveCamera()->Azimuth(90);
 
