@@ -1,3 +1,7 @@
+#
+# Test butterfly subdivision of point data
+#
+
 catch {load vtktcl}
 
 source ../../examplesTcl/vtkInt.tcl
