@@ -1,62 +1,55 @@
-# These are always built with VTK. If they are not found, throw
-# an exception
-try:
-    from vtkCommonPython import *
-except ImportError:
-    from libvtkCommonPython import *
-try:
-    from vtkFilteringPython import *
-except ImportError:
-    from libvtkFilteringPython import *
-try:
-    from vtkIOPython import *
-except ImportError:
-    from libvtkIOPython import *
-try:
-    from vtkImagingPython import *
-except ImportError:
-    from libvtkImagingPython import *
-try:
-    from vtkGraphicsPython import *
-except ImportError:
-    from libvtkGraphicsPython import *
+"""vtkpython -- the primary module for the vtk-python wrappers.
 
-# These are optional. If they are not found, continue.
-try:
-    from vtkRenderingPython import *
-except ImportError:
+This module loads the various shared object files that make up
+the vtk-python interface. 
+"""
+
+#-----------------------------------------------------------------------------
+# load all of the kit modules into python 
+
+import os
+
+required_kits = ['Common','Filtering','IO','Imaging','Graphics']
+optional_kits = ['Rendering','Hybrid','Parallel','Patented']
+
+# the vtkpython.kits variable tells us which kits we actually have
+kits = []
+
+def vtkCreateKitModuleName(kit):
+    """vtkCreateKitModuleName(kit) -- create module name from kit name
+    """
+    if os.name == 'posix':
+        return 'libvtk'+kit+'Python'
+    else:
+        return 'vtk+'+kit+'Python'
+
+# load the required kits
+for kit in required_kits:
+    kit_name = vtkCreateKitModuleName(kit)
+    exec "from "+kit_name+" import *"
+    kits.append(kit)
+
+# try to load the optional kits
+for kit in optional_kits:
+    kit_name = vtkCreateKitModuleName(kit)
     try:
-        from libvtkRenderingPython import *
-    except:
+        exec "from "+kit_name+" import *"
+        kits.append(kit)
+    except ImportError:
         pass
-try:
-    from vtkHybridPython import *
-except ImportError:
-    try:
-        from libvtkHybridPython import *
-    except:
-        pass
-try:
-    from vtkParallelPython import *
-except ImportError:
-    try:
-        from libvtkParallelPython import *
-    except:
-        pass
-try:
-    from vtkPatentedPython import *
-except ImportError:
-    try:
-        from libvtkPatentedPython import *
-    except:
-        pass
-    
+
+#-----------------------------------------------------------------------------
+# the following pieces are for the vtk regression testing and examples
 
 import sys, os.path
 from vtkGetDataRoot import vtkGetDataRoot
     
 def vtkRegressionTestImage( renWin ):
+    """vtkRegressionTestImage(renWin) -- produce regression image for window
 
+    This function writes out a regression .png file for a vtkWindow.
+    Does anyone involved in testing care to elaborate?
+    """
     dl = vtkDebugLeaks()
     dl.PromptUserOff()
     imageIndex=-1;
@@ -65,7 +58,7 @@ def vtkRegressionTestImage( renWin ):
             imageIndex = i+1
 
     if imageIndex != -1:
-        fname = vtkGetDataRoot() + '/' + sys.argv[imageIndex]
+        fname = os.path.join(vtkGetDataRoot(), sys.argv[imageIndex])
 
         rt_w2if = vtkWindowToImageFilter()
         rt_w2if.SetInput(renWin)
