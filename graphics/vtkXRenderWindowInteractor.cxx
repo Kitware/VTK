@@ -306,7 +306,7 @@ void vtkXRenderWindowInteractor::Enable()
   XtAddEventHandler(this->top,
 		    KeyPressMask | ButtonPressMask | ExposureMask |
 		    StructureNotifyMask | ButtonReleaseMask | EnterWindowMask |
-                    PointerMotionMask,
+                    PointerMotionHintMask | PointerMotionMask,
 		    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
   this->Enabled = 1;
 
@@ -334,7 +334,7 @@ void vtkXRenderWindowInteractor::Disable()
   XtRemoveEventHandler(this->top,
 		    KeyPressMask | ButtonPressMask | ExposureMask |
 		    ButtonReleaseMask | EnterWindowMask |
-                    PointerMotionMask,
+                    PointerMotionHintMask | PointerMotionMask,
                     False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
 
   this->Enabled = 0;
@@ -373,17 +373,10 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
   vtkXRenderWindowInteractor *me;
   me = (vtkXRenderWindowInteractor *)client_data;
 
-  Window root,child;
-  int root_x,root_y;
-  int x,y;
-  unsigned int keys;
-
-  // get the pointer position
-  XQueryPointer(me->DisplayId,me->WindowId,
-		&root,&child,&root_x,&root_y,&x,&y,&keys);
-  if (!me->Enabled) return;
-  me->InteractorStyle->OnMouseMove(0,0,x,me->Size[1] - y);
-  me->InteractorStyle->OnTimer();
+  if (me->Enabled) 
+    {
+    me->InteractorStyle->OnTimer();
+    }
 }
 
 int vtkXRenderWindowInteractor::CreateTimer(int vtkNotUsed(timertype)) 
@@ -406,9 +399,9 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 					Boolean *vtkNotUsed(ctd))
 {
   vtkXRenderWindowInteractor *me;
+  int xp,yp;
 
   me = (vtkXRenderWindowInteractor *)client_data;
-  int xp,yp;
   
   switch (event->type) 
     {
@@ -569,8 +562,12 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         {
 	shift = 1;
         }
-      xp = ((XMotionEvent*)event)->x;
-      yp = me->Size[1] - ((XMotionEvent*)event)->y - 1;
+
+      // Note that even though the (x,y) location of the pointer is event structure,
+      // we must call XQueryPointer for the hints (motion event compression) to
+      // work properly.
+      me->GetMousePosition(&xp, &yp);
+
       me->InteractorStyle->OnMouseMove(ctrl, shift, xp, yp);
       }
       break;
@@ -594,6 +591,8 @@ void vtkXRenderWindowInteractor::GetMousePosition(int *x, int *y)
 
   XQueryPointer(this->DisplayId,this->WindowId,
 		&root,&child,&root_x,&root_y,x,y,&keys);
+
+  *y = this->Size[1] - *y - 1;
 }
 
 void vtkXRenderWindowInteractor::Timer(XtPointer client_data,
