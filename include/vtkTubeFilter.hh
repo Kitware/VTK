@@ -99,7 +99,7 @@ public:
   // Set the default normal to use if no normals are supplied, and the
   // DefaultNormalOn is set.
   vtkSetVector3Macro(DefaultNormal,float);
-  vtkGetVector3Macro(DefaultNormal,float);
+  vtkGetVectorMacro(DefaultNormal,float,3);
 
   // Description:
   // Set a boolean to control whether to use default normals.
