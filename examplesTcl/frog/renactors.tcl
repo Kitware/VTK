@@ -18,8 +18,8 @@ proc MakeActor { name r g b} {
        $reader SetFileName $filename
     set mapper [eval mkname $name PolyDataMapper]
     vtkPolyDataMapper $mapper
-        $mapper SetInput [$reader GetOutput];
-        $mapper ScalarVisibilityOff;
+        $mapper SetInput [$reader GetOutput]
+        $mapper ScalarVisibilityOff
     set actor [ eval mkname $name Actor]
     vtkLODActor $actor
         $actor SetMapper $mapper
@@ -45,8 +45,8 @@ proc MakeConnectedActor { name r g b} {
        $connect SetExtractionModeToLargestRegion
     set mapper [eval mkname $name PolyDataMapper]
     vtkPolyDataMapper $mapper
-        $mapper SetInput [$connect GetOutput];
-        $mapper ScalarVisibilityOff;
+        $mapper SetInput [$connect GetOutput]
+        $mapper ScalarVisibilityOff
     set actor [ eval mkname $name Actor]
     vtkLODActor $actor
         $actor SetMapper $mapper
@@ -87,17 +87,17 @@ ren1 AddActor [eval MakeActor skeleton $wheat]
 ren1 AddActor [eval MakeActor skin $lime_green]
 [skinActor GetProperty] SetOpacity .4
 
-ren1 SetBackground 0.2 0.3 0.4;
-renWin SetSize 450 450;
-[ren1 GetActiveCamera] SetViewUp 0 -1 0;
+ren1 SetBackground 0.2 0.3 0.4
+renWin SetSize 450 450
+[ren1 GetActiveCamera] SetViewUp 0 -1 0
 [ren1 GetActiveCamera] Azimuth 230
 [ren1 GetActiveCamera] Elevation 30
 [ren1 GetActiveCamera] Dolly 1.75
-iren Initialize;
+iren Initialize
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract};
+iren SetUserMethod {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

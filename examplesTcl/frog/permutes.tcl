@@ -1,4 +1,3 @@
-
 #
 # these transformations permute medical image data to maintain proper orientation
 # regardless os the acqusition order. After apply these transforms with

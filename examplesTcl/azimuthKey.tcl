@@ -13,7 +13,6 @@ proc KeyRender {} {
     [ren1 GetLights] InitTraversal
     set light [[ren1 GetLights] GetNextItem]
     set camera [ren1 GetActiveCamera]
-    $camera SetViewUp 0 -1 0
     $camera ComputeViewPlaneNormal
     $camera SetClippingRange 10 5000
     eval $light SetPosition [$camera GetPosition]
@@ -27,28 +26,31 @@ proc KeyRender {} {
 KeyAdd Azimuth [$camera GetPosition]
 $camera Azimuth 1
 KeyAdd Azimuth [$camera GetPosition]
-$camera Azimuth 5
+$camera Azimuth 2
 KeyAdd Azimuth [$camera GetPosition]
-for {set i 0} {$i <= 8} {incr i} {
+for {set i 0} {$i <= 36} {incr i} {
   $camera Azimuth 10
   KeyAdd Azimuth [$camera GetPosition]
 }
-$camera Azimuth 5
+$camera Azimuth 2
 KeyAdd Azimuth [$camera GetPosition]
 $camera Azimuth 1
 KeyAdd Azimuth [$camera GetPosition]
 
+$camera Azimuth 0
+KeyAdd Azimuth [$camera GetPosition]
+
 $camera Azimuth -1
 KeyAdd Azimuth [$camera GetPosition]
-$camera Azimuth -5
+$camera Azimuth -2
 KeyAdd Azimuth [$camera GetPosition]
-for {set i 0} {$i <= 8} {incr i} {
+for {set i 0} {$i <= 36} {incr i} {
   $camera Azimuth -10
   KeyAdd Azimuth [$camera GetPosition]
 }
-$camera Azimuth -5
+$camera Azimuth -2
 KeyAdd Azimuth [$camera GetPosition]
 $camera Azimuth -1
 KeyAdd Azimuth [$camera GetPosition]
 
-KeyRun Azimuth 30
+KeyRun Azimuth 120
