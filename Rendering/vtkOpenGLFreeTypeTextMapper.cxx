@@ -22,14 +22,12 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-// Use pixmaps for antialiased fonts
-// Use bitmaps for normal (jaggy but faster) fonts
-
 #include "vtkfreetypeConfig.h"
 #include "vtkftglConfig.h"
-#include "FTGLPixmapFont.h"
-#include "FTGLBitmapFont.h"
+#include "FTGLPixmapFont.h" // Use pixmaps for antialiased fonts
+#include "FTGLBitmapFont.h" // Use bitmaps for normal (jaggy but faster) fonts
 
+//----------------------------------------------------------------------------
 // Print debug info
 
 #define VTK_FTTM_DEBUG 0
@@ -48,13 +46,14 @@
 
 #define VTK_FTTM_CACHE_BY_SIZE 0
 
+//----------------------------------------------------------------------------
 // The embedded fonts
 // Create a lookup table between the text mapper attributes 
 // and the font buffers.
 
 #include "fonts/vtkEmbeddedFonts.h"
 
-struct vtkEmbeddedFontStruct
+struct EmbeddedFontStruct
 {
   size_t length;
   unsigned char* ptr;
@@ -62,7 +61,7 @@ struct vtkEmbeddedFontStruct
 
 // Fonts, organized by [Family][Bold][Italic]
  
-static vtkEmbeddedFontStruct embedded_fonts[3][2][2] = 
+static EmbeddedFontStruct EmbeddedFonts[3][2][2] = 
 {
   {
     {
@@ -120,65 +119,10 @@ static vtkEmbeddedFontStruct embedded_fonts[3][2][2] =
   }
 };
 
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.5");
-vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
-
 //----------------------------------------------------------------------------
-vtkOpenGLFreeTypeTextMapper::vtkOpenGLFreeTypeTextMapper()
-{
-  this->LastSize[0] = 0;
-  this->LastSize[1] = 0;
-}
+// Is antialiasing requested by a text prop
 
-//----------------------------------------------------------------------------
-vtkOpenGLFreeTypeTextMapper::~vtkOpenGLFreeTypeTextMapper()
-{
-  if (this->LastWindow)
-    {
-    this->ReleaseGraphicsResources(this->LastWindow);
-    }  
-}
-
-//----------------------------------------------------------------------------
-
-// A cache element
-
-struct vtkFontStruct
-{
-  vtkWindow *Window;
-  int FontFamily;
-  int Bold;
-  int Italic;
-  char *FaceFileName;
-  int AntiAliasing;
-#if VTK_FTTM_CACHE_BY_SIZE
-  int FontSize;
-#endif
-#if VTK_FTTM_CACHE_BY_RGBA
-  unsigned char Red;
-  unsigned char Green;
-  unsigned char Blue;
-  unsigned char Alpha;
-#endif
-  FTFont *Font;
-
-};
-
-// The cache itself
-
-#define FONT_CACHE_SIZE 30
-  
-static vtkFontStruct *cache[FONT_CACHE_SIZE] = 
-{
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-};
-
-static int numCached = 0;
-
-//----------------------------------------------------------------------------
-int vtkFontStructIsAntiAliasingRequested(vtkTextProperty *tprop)
+int IsAntiAliasingRequestedByThisProperty(vtkTextProperty *tprop)
 {
   return
     (tprop->GetGlobalAntiAliasing() == VTK_TEXT_GLOBAL_ANTIALIASING_ALL || 
@@ -187,25 +131,101 @@ int vtkFontStructIsAntiAliasingRequested(vtkTextProperty *tprop)
 }
 
 //----------------------------------------------------------------------------
-// Get a font from the cache given the text property and the viewport.
-// In both cases, if no font is found in the cache, one is created and
-// stored with the given color parameters.
-// If AntiAliasing is Off, the font is a bitmap, thus color are not
-// used in the cache (since glBitmap honors glColor*)
-// If override_color is true, then red, green, blue are used as text
-// color instead of the colors found in the vtkTextProperty.
+// A cache
 
-FTFont* vtkFontStructGetFTFont(vtkTextProperty *tprop, 
-                               vtkViewport *vp,
-                               int override_color = 0,
-                               unsigned char red = 0,
-                               unsigned char green = 0,
-                               unsigned char blue = 0)
+#define FONT_CACHE_CAPACITY 30
+
+class vtkFontCache
+{
+public:
+
+  // Cache entry
+
+  struct Entry
+  {
+    int FontFamily;
+    int Bold;
+    int Italic;
+    char *FaceFileName;
+    int AntiAliasing;
+#if VTK_FTTM_CACHE_BY_SIZE
+    int FontSize;
+#endif
+#if VTK_FTTM_CACHE_BY_RGBA
+    unsigned char Red;
+    unsigned char Green;
+    unsigned char Blue;
+    unsigned char Alpha;
+#endif
+    FTFont *Font;
+  };
+
+  // Create and destroy cache
+
+  vtkFontCache();
+  ~vtkFontCache();
+
+  // Get font from cache given a text prop
+
+  FTFont* GetFont(vtkTextProperty *tprop, 
+                  int override_color = 0,
+                  unsigned char red = 0,
+                  unsigned char green = 0,
+                  unsigned char blue = 0);
+
+private:
+
+  Entry *Entries[FONT_CACHE_CAPACITY];
+  size_t NumberOfEntries;
+};
+
+// Create cache
+
+vtkFontCache::vtkFontCache() 
+{
+  this->NumberOfEntries = 0;
+
+  int i;
+  for (i = 0; i < FONT_CACHE_CAPACITY; i++)
+    {
+    this->Entries[i] = NULL;
+    }
+}
+
+// Destroy cache
+
+vtkFontCache::~vtkFontCache() 
+{
+#if VTK_FTTM_DEBUG
+  printf("vtkFontCache::~vtkFontCache()\n");
+#endif  
+
+  int i;
+  for (i = 0; i < NumberOfEntries; i++)
+    {
+    delete this->Entries[i]->Font;
+    delete this->Entries[i];
+    }
+
+  this->NumberOfEntries = 0;
+}
+
+// Get a font from the cache given the text property. If no font is
+// found in the cache, one is created and stored with the given color
+// parameters.  If AntiAliasing is Off, the font is a bitmap, thus
+// color are not used in the cache (since glBitmap honors glColor*) If
+// override_color is true, then red, green, blue are used as text color
+// instead of the colors found in the vtkTextProperty.
+
+FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop, 
+                              int override_color,
+                              unsigned char red,
+                              unsigned char green,
+                              unsigned char blue)
 {
   int i, j;
-  vtkWindow *win = vp->GetVTKWindow();
 
-  int antialiasing_requested = vtkFontStructIsAntiAliasingRequested(tprop);
+  int antialiasing_requested = IsAntiAliasingRequestedByThisProperty(tprop);
 
 #if VTK_FTTM_CACHE_BY_RGBA
   float opacity = tprop->GetOpacity();
@@ -218,58 +238,65 @@ FTFont* vtkFontStructGetFTFont(vtkTextProperty *tprop,
     blue  = (tpropColor[2] < 0.0) ? 0 : (unsigned char)(tpropColor[2] * 255.0);
     }
 #endif
-
+  
   // Has the font been cached ?
-
-  for (i = 0; i < numCached; i++)
+  
+  for (i = 0; i < this->NumberOfEntries; i++)
     {
-    if (cache[i]->Window       == win &&
-        // If a face file name has been specified, it overrides the 
-        // font family as well as italic and bold attributes
-        ((!tprop->GetFaceFileName() && 
-          !cache[i]->FaceFileName &&
-          cache[i]->FontFamily == tprop->GetFontFamily() &&
-          cache[i]->Italic     == tprop->GetItalic() &&
-          cache[i]->Bold       == tprop->GetBold()) ||
-         (tprop->GetFaceFileName() && 
-          cache[i]->FaceFileName && 
-          !strcmp(tprop->GetFaceFileName(), cache[i]->FaceFileName))) &&
-        cache[i]->AntiAliasing == antialiasing_requested
+    if (
+      // If a face file name has been specified, it overrides the 
+      // font family as well as italic and bold attributes
+
+      ((!tprop->GetFaceFileName() && 
+        !this->Entries[i]->FaceFileName &&
+        this->Entries[i]->FontFamily == tprop->GetFontFamily() &&
+        this->Entries[i]->Italic     == tprop->GetItalic() &&
+        this->Entries[i]->Bold       == tprop->GetBold()) ||
+
+       (tprop->GetFaceFileName() && 
+        this->Entries[i]->FaceFileName && 
+        !strcmp(tprop->GetFaceFileName(), this->Entries[i]->FaceFileName))) &&
+
+      this->Entries[i]->AntiAliasing == antialiasing_requested
+
 #if VTK_FTTM_CACHE_BY_RGBA
-        && (!antialiasing_requested ||
-            (cache[i]->Red         == red &&
-             cache[i]->Green       == green &&
-             cache[i]->Blue        == blue &&
-             cache[i]->Alpha       == alpha))
+      && (!antialiasing_requested ||
+          (this->Entries[i]->Red     == red &&
+           this->Entries[i]->Green   == green &&
+           this->Entries[i]->Blue    == blue &&
+           this->Entries[i]->Alpha   == alpha))
 #endif
+
 #if VTK_FTTM_CACHE_BY_SIZE
-        && cache[i]->FontSize     == tprop->GetFontSize()
+      && this->Entries[i]->FontSize  == tprop->GetFontSize()
 #endif
+
       )
       {
       // Make this the most recently used
       if (i != 0)
         {
-        vtkFontStruct *tmp = cache[i];
+        vtkFontCache::Entry *tmp = this->Entries[i];
         for (j = i - 1; j >= 0; j--)
           {
-          cache[j+1] = cache[j];
+          this->Entries[j+1] = this->Entries[j];
           }
-        cache[0] = tmp;
+        this->Entries[0] = tmp;
         }
-      return cache[0]->Font;
+      return this->Entries[0]->Font;
       }
     }
 
 #if VTK_FTTM_DEBUG
-  printf("Caching (%2d) [size: %2d] ", numCached, tprop->GetFontSize());
+  printf("Caching (%2d) [S: %2d] ", 
+         this->NumberOfEntries, tprop->GetFontSize());
   if (tprop->GetFaceFileName())
     {
-    printf("[face filename: %s] ", tprop->GetFaceFileName());
+    printf("[F: %s] ", tprop->GetFaceFileName());
     }
   else
     {
-    printf("[family: %d] [italic: %d] [bold: %d] ", 
+    printf("[F: %d] [I: %d] [B: %d] ", 
            tprop->GetFontFamily(), tprop->GetItalic(), tprop->GetBold());
     }
 #if VTK_FTTM_CACHE_BY_RGBA
@@ -308,8 +335,8 @@ FTFont* vtkFontStructGetFTFont(vtkTextProperty *tprop,
   else
     {
     if (!font->Open(
-      embedded_fonts[tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].ptr, 
-      embedded_fonts[tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].length,
+      EmbeddedFonts[tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].ptr, 
+      EmbeddedFonts[tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].length,
       false))
       {
       vtkErrorWithObjectMacro(tprop,<< "Unable to create font !");
@@ -324,95 +351,101 @@ FTFont* vtkFontStructGetFTFont(vtkTextProperty *tprop,
   
   // We need to make room for a new font
 
-  if (numCached == FONT_CACHE_SIZE)
+  if (this->NumberOfEntries == FONT_CACHE_CAPACITY)
     {
-    delete cache[FONT_CACHE_SIZE - 1]->Font;
-    if (cache[FONT_CACHE_SIZE - 1]->FaceFileName)
+    delete this->Entries[FONT_CACHE_CAPACITY - 1]->Font;
+    if (this->Entries[FONT_CACHE_CAPACITY - 1]->FaceFileName)
       {
-      delete cache[FONT_CACHE_SIZE - 1]->FaceFileName;
+      delete this->Entries[FONT_CACHE_CAPACITY - 1]->FaceFileName;
       }
-    numCached = FONT_CACHE_SIZE - 1;
+    this->NumberOfEntries = FONT_CACHE_CAPACITY - 1;
     }
 
   // Add the new font
 
-  if (!cache[numCached])
+  if (!this->Entries[this->NumberOfEntries])
     {
-    cache[numCached] = new vtkFontStruct;
+    this->Entries[this->NumberOfEntries] = new vtkFontCache::Entry;
     }
   
   // Set the other info
 
-  cache[numCached]->Window       = win;
   if (tprop->GetFaceFileName())
     {
-    cache[numCached]->FaceFileName = 
+    this->Entries[this->NumberOfEntries]->FaceFileName = 
       new char [strlen(tprop->GetFaceFileName()) + 1];
-    strcpy(cache[numCached]->FaceFileName, tprop->GetFaceFileName());
+    strcpy(this->Entries[this->NumberOfEntries]->FaceFileName, 
+           tprop->GetFaceFileName());
     }
   else
     {
-    cache[numCached]->FontFamily   = tprop->GetFontFamily();
-    cache[numCached]->Bold         = tprop->GetBold();
-    cache[numCached]->Italic       = tprop->GetItalic();
-    cache[numCached]->FaceFileName = 0;
+    this->Entries[this->NumberOfEntries]->FontFamily  = tprop->GetFontFamily();
+    this->Entries[this->NumberOfEntries]->Bold        = tprop->GetBold();
+    this->Entries[this->NumberOfEntries]->Italic      = tprop->GetItalic();
+    this->Entries[this->NumberOfEntries]->FaceFileName = 0;
     }
-  cache[numCached]->AntiAliasing   = antialiasing_requested;
+
+  this->Entries[this->NumberOfEntries]->AntiAliasing  = antialiasing_requested;
+
 #if VTK_FTTM_CACHE_BY_SIZE
-  cache[numCached]->FontSize       = tprop->GetFontSize();
+  this->Entries[this->NumberOfEntries]->FontSize      = tprop->GetFontSize();
 #endif
+
 #if VTK_FTTM_CACHE_BY_RGBA
   if (antialiasing_requested)
     {
-    cache[numCached]->Red          = red;
-    cache[numCached]->Green        = green;
-    cache[numCached]->Blue         = blue;
-    cache[numCached]->Alpha        = alpha;
+    this->Entries[this->NumberOfEntries]->Red         = red;
+    this->Entries[this->NumberOfEntries]->Green       = green;
+    this->Entries[this->NumberOfEntries]->Blue        = blue;
+    this->Entries[this->NumberOfEntries]->Alpha       = alpha;
     }
 #endif
-  cache[numCached]->Font           = font;
+
+  this->Entries[this->NumberOfEntries]->Font          = font;
 
   // Now resort the list
 
-  vtkFontStruct *tmp = cache[numCached];
-  for (i = numCached - 1; i >= 0; i--)
+  vtkFontCache::Entry *tmp = this->Entries[this->NumberOfEntries];
+  for (i = this->NumberOfEntries - 1; i >= 0; i--)
     {
-    cache[i+1] = cache[i];
+    this->Entries[i+1] = this->Entries[i];
     }
-  cache[0] = tmp;
+  this->Entries[0] = tmp;
 
-  numCached++;
-  return cache[0]->Font;
+  this->NumberOfEntries++;
+  return this->Entries[0]->Font;
+}
+
+// Now we need a cache singleton
+
+vtkFontCache FontCacheSingleton;
+
+//----------------------------------------------------------------------------
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.6");
+vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
+
+//----------------------------------------------------------------------------
+vtkOpenGLFreeTypeTextMapper::vtkOpenGLFreeTypeTextMapper()
+{
+  this->LastSize[0] = 0;
+  this->LastSize[1] = 0;
+}
+
+//----------------------------------------------------------------------------
+vtkOpenGLFreeTypeTextMapper::~vtkOpenGLFreeTypeTextMapper()
+{
+  if (this->LastWindow)
+    {
+    this->ReleaseGraphicsResources(this->LastWindow);
+    }  
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLFreeTypeTextMapper::ReleaseGraphicsResources(vtkWindow *win)
 {
-  int i,j;
-  
 #if VTK_FTTM_DEBUG
     printf("vtkOpenGLFreeTypeTextMapper::ReleaseGraphicsResources\n");
 #endif
-
-  // Free up any cached font associated with this window
-  // has the font been cached ?
-
-  for (i = 0; i < numCached; i++)
-    {
-    if (cache[i]->Window == win)
-      {
-      delete cache[i]->Font;
-      delete cache[i];
-      // Resort them
-      numCached--;
-      for (j = i; j < numCached; j++)
-        {
-        cache[j] = cache[j+1];
-        }
-      cache[numCached] = NULL;
-      i--;
-      }
-    }
   
   this->LastWindow = NULL;
   
@@ -421,7 +454,7 @@ void vtkOpenGLFreeTypeTextMapper::ReleaseGraphicsResources(vtkWindow *win)
   // occurred. Old fonts, cached sizes etc are all no longer valid, so we send
   // ourselves a general modified message.
 
-  this->Modified();
+  // this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -457,7 +490,7 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
       tprop->GetMTime() < this->SizeBuildTime)
     {
 #if VTK_FTTM_DEBUG
-  printf("vtkOpenGLFreeTypeTextMapper::GetSize: cache hit\n");
+  printf("vtkOpenGLFreeTypeTextMapper::GetSize: In cache!\n");
 #endif
 
     size[0] = this->LastSize[0];
@@ -468,7 +501,7 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
   // Check for font and try to set the size
 
   FTFont *font;
-  font = vtkFontStructGetFTFont(tprop, viewport);
+  font = FontCacheSingleton.GetFont(tprop);
 
   if (font == NULL) 
     {
@@ -476,19 +509,13 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
     size[0] = size[1] = 0;
     return;
     }
-
-#if VTK_FTTM_DEBUG
-  printf("vtkOpenGLFreeTypeTextMapper::GetSize: %d %d\n", 
-         font->GetSize().GetSizeInPoints(), tprop->GetFontSize());
-#endif
-
   // Set the size (costly)
 
   if (font->GetSize().GetSizeInPoints() != tprop->GetFontSize())
     {
 #if VTK_FTTM_DEBUG
-    printf("vtkOpenGLFreeTypeTextMapper::GetSize: FaceSize(%d)\n", 
-           tprop->GetFontSize());
+    printf("vtkOpenGLFreeTypeTextMapper::GetSize: FaceSize: %d => %d\n", 
+           font->GetSize().GetSizeInPoints(), tprop->GetFontSize());
 #endif
     font->FaceSize(tprop->GetFontSize());
     }
@@ -496,7 +523,7 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
   float llx, lly, llz, urx, ury, urz;
 
 #if VTK_FTTM_CACHE_BY_RGBA
-  int antialiasing_requested = vtkFontStructIsAntiAliasingRequested(tprop);
+  int antialiasing_requested = IsAntiAliasingRequestedByThisProperty(tprop);
   // Set the color here since computing the BBox might load/render glyphs
   // on demand and this color has to be consistent for a given pixmap font.
   // TOFIX: this will be fixed as soon as BBox do not *render* glyphs to
@@ -515,6 +542,11 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
 #endif
 
   font->BBox(this->Input, llx, lly, llz, urx, ury, urz);
+
+#if VTK_FTTM_DEBUG
+    printf("vtkOpenGLFreeTypeTextMapper::GetSize: BBox (%d)\n", 
+           tprop->GetFontSize());
+#endif
 
   this->LastSize[0] = size[0] = (int)(urx - llx);
   this->LastSize[1] = size[1] = (int)(ury - lly);
@@ -593,7 +625,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   // (incoming ::GetSize() might not do it since it caches the result)
   
   FTFont *font;
-  font = vtkFontStructGetFTFont(tprop, viewport, 1, red, green, blue);
+  font = FontCacheSingleton.GetFont(tprop, 1, red, green, blue);
   if (font == NULL) 
     {
     vtkErrorMacro(<< "Render - No font");
@@ -723,11 +755,10 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 #if VTK_FTTM_CACHE_BY_RGBA
     FTFont *shadow_font;
     int shadow_font_is_ok = 1;
-    if (vtkFontStructIsAntiAliasingRequested(tprop))
+    if (IsAntiAliasingRequestedByThisProperty(tprop))
       {
-      shadow_font = vtkFontStructGetFTFont(
-        tprop, viewport, 
-        1, shadow_red, shadow_green, shadow_blue);
+      shadow_font = FontCacheSingleton.GetFont(
+        tprop, 1, shadow_red, shadow_green, shadow_blue);
 
       if (shadow_font == NULL) 
         {
