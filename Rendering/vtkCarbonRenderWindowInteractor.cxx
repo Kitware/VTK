@@ -49,11 +49,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActor.h"
 #include <OpenGL/gl.h>
 #include "vtkObjectFactory.h"
+#include "vtkCommand.h"
 
 #import <Carbon/Carbon.h>
 
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.2");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.3");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
