@@ -168,6 +168,11 @@ public:
   void ShallowCopy(vtkDataObject *src);  
   void DeepCopy(vtkDataObject *src);
 
+  // Description:
+  // This method calls the superclass then 
+  // generates ghost levels if necessary.
+  virtual void UpdateData();
+
 protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid();
