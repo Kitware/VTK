@@ -77,8 +77,10 @@ public:
   
   
   // Description:
-  // This method sets the number of inputs which also affects the
-  // input neighborhood needed to compute one output pixel.
+  // This method sets the number of interations which also affects the
+  // input neighborhood needed to compute one output pixel.  Each iterations
+  // requires an extra pixel layer on the neighborhood.  This is only relavent
+  // when you are trying to stream or are requesting a sub extent of the "wholeExtent".
   void SetNumberOfIterations(int num);
   
   // Description:
@@ -86,7 +88,11 @@ public:
   vtkGetMacro(NumberOfIterations,int);
 
   // Description:
-  // Set/Get the difference threshold that stops diffusion.
+  // Set/Get the difference threshold that stops diffusion. 
+  // when the difference between two pixel is greater than this threshold,
+  // the pixels are not diffused.  This causes diffusion to avoid sharp edges.
+  // If the GradientMagnitudeThreshold is set, then gradient magnitude is used 
+  // for comparison instead of pixel differences.
   vtkSetMacro(DiffusionThreshold,float);
   vtkGetMacro(DiffusionThreshold,float);
   

@@ -41,6 +41,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkImageButterworthHighPass - Frequency domain high pass.
 // .SECTION Description
+// This filter only works on an image after it has been converted to
+// frequency domain by a vtkImageFFT filter.  A vtkImageRFFT filter
+// can be used to convert the output back into the spatial domain.
 // vtkImageButterworthHighPass  the frequency components around 0 are
 // attenuated.  Input and output are in floats, with two components
 // (complex numbers).

@@ -65,7 +65,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // This axis is expanded to hold the multiple images.
+  // This axis is expanded to hold the multiple images.  
+  // The default AppendAxis is the X axis.
+  // If you want to create a volue from a series of XY images, then you should
+  // set the AppendAxis to 2 (Z axis).
   vtkSetMacro(AppendAxis, int);
   vtkGetMacro(AppendAxis, int);
   
