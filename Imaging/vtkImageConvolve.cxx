@@ -65,16 +65,19 @@ vtkImageConvolve* vtkImageConvolve::New()
 // By default zero values are eroded.
 vtkImageConvolve::vtkImageConvolve()
 {
+  int idx;
+  for (idx = 0; idx < 343; idx++)
+    {
+    this->Kernel[idx] = 0.0;
+    }
+
   // Construct a primary id function kernel that does nothing at all
   float kernel[9];
-
-  for (int idx = 0; idx < 9; idx++)
+  for (idx = 0; idx < 9; idx++)
     {
     kernel[idx] = 0.0;
     }
-
   kernel[4] = 1.0; 
-
   this->SetKernel3x3(kernel);
 }
 
@@ -176,6 +179,8 @@ void vtkImageConvolve::SetKernel7x7x7(float kernel[343])
 void vtkImageConvolve::SetKernel(const float* kernel,
 				 int sizeX, int sizeY, int sizeZ)
 {
+  int modified=0;
+
   // Set the correct kernel size
   this->KernelSize[0] = sizeX;
   this->KernelSize[1] = sizeY;
@@ -185,7 +190,15 @@ void vtkImageConvolve::SetKernel(const float* kernel,
 
   for (int idx = 0; idx < kernelLength; idx++)
     {
-    this->Kernel[idx] = kernel[idx];
+    if ( this->Kernel[idx] =! kernel[idx] )
+      {
+      modified = 1;
+      this->Kernel[idx] = kernel[idx];
+      }
+    }
+  if (modified)
+    {
+    this->Modified();
     }
 }
 
