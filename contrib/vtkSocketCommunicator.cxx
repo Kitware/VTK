@@ -139,7 +139,7 @@ template <class T>
 static int sendMessage(T* data, int length, int tag, int sock)
 {
   // Need to check the return value of these
-  send(sock, (char *)tag, sizeof(int), 0);
+  send(sock, (char *)&tag, sizeof(int), 0);
   send(sock, (char *)data, length*sizeof(T), 0);
   return 1;
 }
