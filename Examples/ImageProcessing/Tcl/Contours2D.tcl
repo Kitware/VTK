@@ -49,10 +49,7 @@ ren1 AddActor contActor
 ren1 AddActor outlineActor
 
 [ren1 GetActiveCamera] Zoom 1.5
-iren SetUserMethod {wm deiconify .vtkInteract}
+#iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize;
-
-#renWin SetFileName MSquares.tcl.ppm
-#renWin SaveImageAsPPM
 
 wm withdraw .
