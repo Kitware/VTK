@@ -171,7 +171,7 @@ void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
   // get the perspective transformation from the active camera
   // given the aspect ratio
   mat = Renderer->GetActiveCamera()->GetPerspectiveTransform(
-    aspect[0]/aspect[1],0,1);
+    aspect[0]/aspect[1],-1,1);
 
   // Invert this matrix because we want to go from screen space to
   // camera space
