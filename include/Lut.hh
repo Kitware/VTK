@@ -20,10 +20,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // or rgba into scalar values. The color table can be created by direct 
 // insertion of color values, or by specifying  hue, saturation, value, and 
 // alpha range and generating a table.
+//    This class is designed as a base class for derivation by other classes. 
+// The Build(), MapValue(), and SetTableRange() methods are virtual and may 
+// require overloading in subclasses.
 // .SECTION Caveats
 //    vtkLookupTable is a reference counted object. Therefore you should 
 // always use operator "new" to construct new objects. This procedure will
 // avoid memory problems (see text).
+// .SECTION See Also
+// vtkLogLookupTable
 
 #ifndef __vtkLookupTable_h
 #define __vtkLookupTable_h
@@ -36,7 +41,7 @@ class vtkLookupTable : public vtkRefCount
 public:
   vtkLookupTable(int sze=256, int ext=256);
   int Allocate(int sz=256, int ext=256);
-  void Build();
+  virtual void Build();
   char *GetClassName() {return "vtkLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -46,7 +51,7 @@ public:
   vtkGetMacro(NumberOfColors,int);
 
   void SetTableRange(float r[2]); // can't use macro 'cause don't want modified
-  void SetTableRange(float min, float max);
+  virtual void SetTableRange(float min, float max);
   vtkGetVectorMacro(TableRange,float,2);
 
   // Description:
@@ -72,7 +77,7 @@ public:
   vtkSetVector2Macro(AlphaRange,float);
   vtkGetVectorMacro(AlphaRange,float,2);
 
-  unsigned char *MapValue(float v);
+  virtual unsigned char *MapValue(float v);
 
   void SetTableValue (int indx, float rgba[4]);
   void SetTableValue (int indx, float r, float g, float b, float a=1.0);
