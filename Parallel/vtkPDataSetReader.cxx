@@ -31,7 +31,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.15.4.2");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.15.4.3");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -1180,6 +1180,11 @@ void vtkPDataSetReader::ImageDataExecute()
             }
           }
         output->CopyAndCastFrom(reader->GetOutput(), ext);
+        vtkDataArray *scalars = reader->GetOutput()->GetPointData()->GetScalars();
+        if (scalars && scalars->GetName())
+          {
+          output->GetPointData()->GetScalars()->SetName(scalars->GetName());
+          }
         }
       }
     }
