@@ -1,0 +1,55 @@
+#
+# vtk library makefile
+#
+
+#
+# Makefile for Visualization Toolkit sources. 
+# 
+#------------------------------------------------------------------------------
+#
+
+SHELL = /bin/sh
+.SUFFIXES: .cxx
+
+srcdir        = @srcdir@
+VPATH         = @srcdir@
+
+#------------------------------------------------------------------------------
+# Autoconfig defines that can be overridden in user.make
+
+@MAKEINCLUDE@ @MAKEQUOTE@../system.make@MAKEQUOTE@
+
+#------------------------------------------------------------------------------
+# Include user-editable defines.
+
+@MAKEINCLUDE@ @MAKEQUOTE@../user.make@MAKEQUOTE@
+
+#------------------------------------------------------------------------------
+
+CXX_FLAGS = ${USER_CXXFLAGS} ${CPPFLAGS} ${CXXFLAGS} -I${srcdir} \
+	-I${srcdir}/../common ${TK_INCLUDE} ${TCL_INCLUDE} \
+	${GRAPHICS_API_FLAGS} ${USE_TOOLKIT_FLAGS}
+
+C_FLAGS = ${USER_CFLAGS} ${CPPFLAGS} ${CFLAGS} -I${srcdir} \
+	${TK_INCLUDE} ${TCL_INCLUDE} \
+	${GRAPHICS_API_FLAGS} ${USE_TOOLKIT_FLAGS}
+
+all:  vtkWrapTcl vtkWrapTclInit vtkPrint
+
+vtkWrapTclInit: vtkWrapTclInit.c
+	$(CC) $(C_FLAGS) -o vtkWrapTclInit $(srcdir)/vtkWrapTclInit.c
+
+vtkParse.o: $(srcdir)/vtkParse.tab.c $(srcdir)/lex.yy.c
+	$(CC) $(C_FLAGS) -I. -c -o vtkParse.o $(srcdir)/vtkParse.tab.c -lm
+
+vtkPrint: vtkParse.o $(srcdir)/vtkPrint.c
+	$(CC) $(C_FLAGS) -I. -o vtkPrint $(srcdir)/vtkPrint.c vtkParse.o -lm
+
+vtkWrapTcl: vtkParse.o $(srcdir)/vtkWrapTcl.c
+	$(CC) $(C_FLAGS) -I. -o vtkWrapTcl $(srcdir)/vtkWrapTcl.c vtkParse.o -lm
+
+#------------------------------------------------------------------------------
+clean: 
+	-rm -f *.o *.a vtkPrint vtkWrapTcl vtkWrapTclInit Makefile
+
+
