@@ -3,11 +3,11 @@ PROJECT(VTK)
 INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j).*$")
 
 # VTK version number.  An even minor number corresponds to releases.
-SET(VTK_VERSION_MAJOR 4)
-SET(VTK_VERSION_MINOR 1)
-SET(VTK_VERSION_PATCH 1)
-SET(VTK_VERSION_STRING
-    "${VTK_VERSION_MAJOR}.${VTK_VERSION_MINOR}.${VTK_VERSION_PATCH}")
+SET(VTK_MAJOR_VERSION 4)
+SET(VTK_MINOR_VERSION 1)
+SET(VTK_BUILD_VERSION 1)
+SET(VTK_VERSION
+    "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 
 # Figure out which version of the VTK_MAKE_INSTANTIATOR command is
 # available with this version of CMake.
