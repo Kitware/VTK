@@ -37,7 +37,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridHomogeneousRayIntegrator, "1.4");
+vtkCxxRevisionMacro(vtkUnstructuredGridHomogeneousRayIntegrator, "1.5");
 vtkStandardNewMacro(vtkUnstructuredGridHomogeneousRayIntegrator);
 
 //-----------------------------------------------------------------------------
@@ -101,7 +101,12 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::GetTransferFunctionTables(vtkD
 
   for (int c = 0; c < this->NumComponents; c++)
     {
-    double *range = scalars->GetRange(c);
+    double range[2];
+    scalars->GetRange(range, c);
+    if (range[0] >= range[1])
+      {
+      range[1] = range[0] + 1;
+      }
     this->TableScale[c] = this->TransferFunctionTableSize/(range[1]-range[0]);
     this->TableShift[c]
       = -range[0]*this->TransferFunctionTableSize/(range[1]-range[0]);
