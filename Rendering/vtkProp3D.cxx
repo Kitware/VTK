@@ -80,6 +80,7 @@ vtkProp3D::vtkProp3D()
   this->Transform = vtkTransform::New();
   
   this->CachedProp3D = NULL;
+  this->IsIdentity = 1;
 }
 
 vtkProp3D::~vtkProp3D()
@@ -113,11 +114,13 @@ void vtkProp3D::AddPosition (float deltaX,float deltaY,float deltaZ)
   position[2] = this->Position[2] + deltaZ;
   
   this->SetPosition(position);
+  this->IsIdentity = 0;
 }
 
 void vtkProp3D::AddPosition (float deltaPosition[3])
 {
   this->AddPosition (deltaPosition[0], deltaPosition[1], deltaPosition[2]);
+  this->IsIdentity = 0;
 }
 
 // Sets the orientation of the Prop3D.  Orientation is specified as
@@ -130,6 +133,7 @@ void vtkProp3D::SetOrientation (float x,float y,float z)
     {
     return;
     }
+  this->IsIdentity = 0;
     
   // store the coordinates
   this->Orientation[0] = x;
@@ -218,6 +222,7 @@ void vtkProp3D::AddOrientation(float a[3])
 // is applied before all others in the current transformation matrix.
 void vtkProp3D::RotateX (float angle)
 {
+  this->IsIdentity = 0;
   this->Transform->PreMultiply ();
   this->Transform->RotateX(angle);
   this->Modified();
@@ -229,6 +234,7 @@ void vtkProp3D::RotateX (float angle)
 // is applied before all others in the current transformation matrix.
 void vtkProp3D::RotateY (float angle)
 {
+  this->IsIdentity = 0;
   this->Transform->PreMultiply ();
   this->Transform->RotateY(angle);
   this->Modified();
@@ -241,6 +247,7 @@ void vtkProp3D::RotateY (float angle)
 
 void vtkProp3D::RotateZ (float angle)
 {
+  this->IsIdentity = 0;
   this->Transform->PreMultiply ();
   this->Transform->RotateZ(angle);
   this->Modified();
@@ -251,6 +258,7 @@ void vtkProp3D::RotateZ (float angle)
 // rotate an about its model axes, use RotateX, RotateY, RotateZ.
 void vtkProp3D::RotateWXYZ (float degree, float x, float y, float z)
 {
+  this->IsIdentity = 0;
   this->Transform->PostMultiply();  
   this->Transform->RotateWXYZ(degree,x,y,z);
   this->Transform->PreMultiply();  
@@ -259,6 +267,7 @@ void vtkProp3D::RotateWXYZ (float degree, float x, float y, float z)
 
 void vtkProp3D::SetUserTransform(vtkLinearTransform *transform)
 {
+  this->IsIdentity = 0;
   if (transform == this->UserTransform) 
     { 
     return; 
@@ -285,6 +294,7 @@ void vtkProp3D::SetUserTransform(vtkLinearTransform *transform)
 
 void vtkProp3D::SetUserMatrix(vtkMatrix4x4 *matrix)
 {
+  this->IsIdentity = 0;
   if (matrix == this->UserMatrix) 
     { 
     return; 
@@ -324,6 +334,11 @@ void vtkProp3D::GetMatrix(double result[16])
 
 void vtkProp3D::ComputeMatrix()
 {
+  if (this->IsIdentity)
+    {
+    return;
+    }
+
   // check whether or not need to rebuild the matrix
   if ( this->GetMTime() > this->MatrixMTime )
     {

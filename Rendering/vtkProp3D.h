@@ -249,6 +249,10 @@ public:
       return this->Matrix; 
     }
 
+  // Description: 
+  // Is the matrix for this actor identity
+  vtkGetMacro(IsIdentity,int);
+  
 protected:
   vtkProp3D();
   ~vtkProp3D();
@@ -267,7 +271,7 @@ protected:
   vtkTransform  *Transform;
   float         Bounds[6];
   vtkProp3D     *CachedProp3D; //support the PokeMatrix() method
-  
+  int           IsIdentity;
 };
 
 #endif
