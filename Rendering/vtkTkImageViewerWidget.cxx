@@ -299,7 +299,7 @@ static void vtkTkImageViewerWidget_Destroy(char *memPtr)
     self->ImageViewer->SetWindowId ( (void*)NULL );
     self->ImageViewer->UnRegister(NULL);
     self->ImageViewer = NULL;
-    ckfree (self->IV);
+    free (self->IV);
   }
   ckfree((char *) memPtr);
 }
