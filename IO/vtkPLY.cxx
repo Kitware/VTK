@@ -43,6 +43,40 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+/*
+
+The interface routines for reading and writing PLY polygon files.
+
+Greg Turk, February 1994
+
+---------------------------------------------------------------
+
+A PLY file contains a single polygonal _object_.
+
+An object is composed of lists of _elements_.  Typical elements are
+vertices, faces, edges and materials.
+
+Each type of element for a given object has one or more _properties_
+associated with the element type.  For instance, a vertex element may
+have as properties the floating-point values x,y,z and the three unsigned
+chars representing red, green and blue.
+
+---------------------------------------------------------------
+
+Copyright (c) 1994 The Board of Trustees of The Leland Stanford
+Junior University.  All rights reserved.   
+  
+Permission to use, copy, modify and distribute this software and its   
+documentation for any purpose is hereby granted without fee, provided   
+that the above copyright notice and this permission notice appear in   
+all copies of this software and that you do not sell the software.   
+  
+THE SOFTWARE IS PROVIDED "AS IS" AND WITHOUT WARRANTY OF ANY KIND,   
+EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY   
+WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.   
+
+*/
+
 #include "vtkPLY.h"
 
 char *type_names[] = {
@@ -162,6 +196,7 @@ PlyFile *vtkPLY::ply_open_for_writing(
   /* open the file for writing */
 
   fp = fopen (name, "wb");
+  free (name); //wjs remove memory leak//
   if (fp == NULL) {
     return (NULL);
   }
@@ -270,7 +305,7 @@ void vtkPLY::ply_describe_property(
   }
 
   /* copy the new property */
-
+  elem->other_offset = 0; //added by wjs Purify UMR
   elem_prop = (PlyProperty *) myalloc (sizeof (PlyProperty));
   elem->props[elem->nprops - 1] = elem_prop;
   elem->store_prop[elem->nprops - 1] = NAMED_PROP;
@@ -1314,9 +1349,32 @@ Entry:
 
 void vtkPLY::ply_close(PlyFile *plyfile)
 {
-  fclose (plyfile->fp);
+  // Changed by Will Schroeder. Old stuff leaked like a sieve.
 
   /* free up memory associated with the PLY file */
+  fclose (plyfile->fp);
+
+  int i, j;
+  PlyElement *elem;
+  for (i=0; i<plyfile->nelems; i++)
+    {
+    elem = plyfile->elems[i];
+    if ( elem->name ) {free(elem->name);}
+    for (j=0; j<elem->nprops; j++)
+      {
+      free (elem->props[j]);
+      }
+    free (elem->props);
+    free (elem->store_prop);
+    free (elem);
+    }
+
+  for (i=0; i<plyfile->num_comments; i++)
+    {
+    free (plyfile->comments[i]);
+    }
+  free (plyfile->comments);
+  
   free (plyfile);
 }
 
