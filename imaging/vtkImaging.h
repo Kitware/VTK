@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageDifference.h"
 #include "vtkImageDivergence.h"
 #include "vtkImageDotProduct.h"
-#include "vtkImageElipsoidSource.h"
+#include "vtkImageEllipsoidSource.h"
 #include "vtkImageEuclideanToPolar.h"
 #include "vtkImageExtractComponents.h"
 #include "vtkImageFFT.h"
