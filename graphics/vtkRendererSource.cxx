@@ -205,9 +205,6 @@ unsigned long vtkRendererSource::GetMTime()
 void vtkRendererSource::UpdateInformation()
 {
   unsigned long t1, t2, size;
-  float locality, l2;
-  int idx;
-  vtkDataObject *pd;
   vtkStructuredPoints *output = this->GetOutput();
   vtkRenderer *ren = this->GetInput();
   vtkActorCollection *actors;

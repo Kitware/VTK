@@ -174,9 +174,7 @@ char *vtkStructuredGridReader::GetFieldDataName()
 // We just need to read the dimensions
 void vtkStructuredGridReader::ExecuteInformation()
 {
-  int numPts=0, npts, numCells=0, ncells;
   char line[256];
-  int dimsRead=0;
   vtkStructuredGrid *output = this->GetOutput();
   
   if (!this->Reader->OpenVTKFile() || !this->Reader->ReadHeader())
