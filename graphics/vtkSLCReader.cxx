@@ -119,8 +119,9 @@ void vtkSLCReader::Execute()
 
   plane_size = size[0] * size[1];
   volume_size = plane_size * size[2];
-  newScalars = new vtkUnsignedCharScalars(volume_size);
-//  newScalars = new vtkUnsignedShortScalars(volume_size);
+  newScalars = new vtkUnsignedCharScalars();
+//  newScalars = new vtkUnsignedShortScalars();
+  newScalars->SetNumberOfScalars(volume_size);
 
   // Skip Over Icon
   fscanf( fp, "%d %d X", &icon_width,  &icon_height );
@@ -186,8 +187,8 @@ void vtkSLCReader::Execute()
     // Copy plane into volume
     for( i=0; i<plane_size; i++ )
     {
-      newScalars->SetScalar( (z_counter*plane_size + i), *sptr++ );
-//      newScalars->SetScalar( (z_counter*plane_size + i), (unsigned short)(*sptr++) );
+    newScalars->SetScalar( (z_counter*plane_size + i), *sptr++ );
+    //      newScalars->SetScalar( (z_counter*plane_size + i), (unsigned short)(*sptr++) );
     }
   }
 
