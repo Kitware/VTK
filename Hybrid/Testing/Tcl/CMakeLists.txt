@@ -5,6 +5,7 @@ IF (VTK_USE_RENDERING)
   #
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile 
+      banana
       camera
       cubeAxes
       depthSort
@@ -15,6 +16,7 @@ IF (VTK_USE_RENDERING)
       TestGridWarpCubic
       TestGridWarpLinear
       TestGridWarpNearest
+      TestICPTransform
       TestImageStencilWithPolydata
       TestThinPlateWarp
       TestThinPlateWarp3D
