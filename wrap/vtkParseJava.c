@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int numberOfWrappedFunctions = 0;
 FunctionInfo *wrappedFunctions[1000];
-FunctionInfo *currentFunction;
+extern FunctionInfo *currentFunction;
 
 void output_temp(FILE *fp,int i)
 {
