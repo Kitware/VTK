@@ -160,11 +160,11 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 	    n[7] = (idx1<wholeMax1)&&(idx0>wholeMin0) 
 	      ? *(inPtr0+inInc1-inInc0) : 0;
 	    
-	    countFaces = (n[0]>1)+(n[2]>1)+(n[4]>1)+(n[6]>1);
-	    countCorners = (n[1]>1)+(n[3]>1)+(n[5]>1)+(n[7]>1);
+	    countFaces = (n[0]>0)+(n[2]>0)+(n[4]>0)+(n[6]>0);
+	    countCorners = (n[1]>0)+(n[3]>0)+(n[5]>0)+(n[7]>0);
 	    
 	    // special case
-	    if (prune && ((countFaces + countCorners) <= 1))
+	    if (prune > 1 && ((countFaces + countCorners) <= 1))
 	      {
 	      *inPtr0 = 1;
 	      }
@@ -172,30 +172,44 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 	    // one of four face neighbors has to be off
 	    if (n[0] == 0 || n[2] == 0 ||
 		n[4] == 0 || n[6] == 0)
-	      { // remaining pixels need to be connected.
-	      // across corners
-	      if (1)
-		//(n[0] == 0 || n[2] == 0 || n[1] > 0) &&
-		//  (n[2] == 0 || n[4] == 0 || n[3] > 0) &&
-		//  (n[4] == 0 || n[6] == 0 || n[5] > 0) &&
-		//  (n[6] == 0 || n[0] == 0 || n[7] > 0))
+	      {
+	      // Special condition not to prune diamond corners
+	      if (prune > 1 || countFaces != 1 || countCorners != 2 ||
+		  ((n[1]==0 || n[2]==0 || n[3]==0) && 
+		   (n[3]==0 || n[4]==0 || n[5]==0) && 
+		   (n[5]==0 || n[6]==0 || n[7]==0) && 
+		   (n[7]==0 || n[8]==0 || n[0]==0)))
 		{
-		// do not break corner connectivity
-		if ((n[1] <= 1 || n[0] > 1 || n[2] > 1) &&
-		    (n[3] <= 1 || n[2] > 1 || n[4] > 1) &&
-		    (n[5] <= 1 || n[4] > 1 || n[6] > 1) &&
-		    (n[7] <= 1 || n[6] > 1 || n[0] > 1))
+		// special condition (making another prune level)
+		// pruning 135 degree corners
+		if (prune || countFaces != 2 || countCorners != 2 ||
+		    ((n[1]==0 || n[2]==0 || n[3]==0 || n[4]) && 
+		     (n[0]==0 || n[1]==0 || n[2]==0 || n[3]) && 
+		     (n[7]==0 || n[0]==0 || n[1]==0 || n[2]) && 
+		     (n[6]==0 || n[7]==0 || n[0]==0 || n[1]) && 
+		     (n[5]==0 || n[6]==0 || n[7]==0 || n[0]) && 
+		     (n[4]==0 || n[5]==0 || n[6]==0 || n[7]) && 
+		     (n[3]==0 || n[4]==0 || n[5]==0 || n[6]) && 
+		     (n[2]==0 || n[3]==0 || n[4]==0 || n[5])))
 		  {
-		  // opposite faces (special conedition so double thick lines
-		  // will not be completely eroded)
-		  if ((n[0] == 0 || n[4] == 0 || n[2] > 1 || n[6] > 1) &&
-		      (n[2] == 0 || n[6] == 0 || n[0] > 1 || n[4] > 1))
+		  // remaining pixels need to be connected.
+		  // do not break corner connectivity
+		  if ((n[1] == 0 || n[0] > 1 || n[2] > 1) &&
+		      (n[3] == 0 || n[2] > 1 || n[4] > 1) &&
+		      (n[5] == 0 || n[4] > 1 || n[6] > 1) &&
+		      (n[7] == 0 || n[6] > 1 || n[0] > 1))
 		    {
-		    // check to stop pruning (sort of a hack huristic)
-		    if (prune || (countFaces > 2) || 
-			((countFaces == 2) && (countCorners > 1)))
+		    // opposite faces (special condition so double thick lines
+		    // will not be completely eroded)
+		    if ((n[0] == 0 || n[4] == 0 || n[2] > 1 || n[6] > 1) &&
+			(n[2] == 0 || n[6] == 0 || n[0] > 1 || n[4] > 1))
 		      {
-		      *inPtr0 = 1;
+		      // check to stop pruning (sort of a hack huristic)
+		      if (prune > 1 || (countFaces > 2) || 
+			  ((countFaces == 2) && (countCorners > 1)))
+			{
+			*inPtr0 = 1;
+			}
 		      }
 		    }
 		  }
@@ -287,7 +301,7 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
   tempData->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
   tempData->CopyAndCastFrom(inData, inExt);
 
-  inPtr = tempData->GetScalarPointerForExtent(inExt);
+  inPtr = tempData->GetScalarPointerForExtent(outExt);
   switch (tempData->GetScalarType())
     {
     case VTK_FLOAT:

@@ -20,9 +20,22 @@ canvas FillBox 10 110 10 110
 canvas SetDrawColor 0
 canvas FillBox 30 90 30 90
 
+
+# put a stop sign in the box
+canvas SetDrawColor 255
+canvas DrawSegment 52 80 68 80
+canvas DrawSegment 68 80 80 68
+canvas DrawSegment 80 68 80 52
+canvas DrawSegment 80 52 68 40
+canvas DrawSegment 68 40 52 40
+canvas DrawSegment 52 40 40 52
+canvas DrawSegment 40 52 40 68
+canvas DrawSegment 40 68 52 80
+canvas FillPixel 60 60
+
 # diamond
 canvas SetDrawColor 255
-canvas FillTube 145 145 195 195 35
+canvas FillTube 145 145 195 195 34
 canvas SetDrawColor 0
 canvas FillTube 165 165 175 175 7
 

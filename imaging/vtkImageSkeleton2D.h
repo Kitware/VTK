@@ -41,8 +41,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageSkeleton2D - Skeleton of 2D images.
 // .SECTION Description
 // vtkImageSkeleton2D should leave only single pixel width lines
-// of non-zero-valued pixels.  Input scalar type has to be the same as output.
-// This is my first attempt at a skeleton, and may not work entirely correctly.
+// of non-zero-valued pixels (values of 1 are not allowed).  
+// It works by errosion on a 3x3 neighborhood with special rules.
+// Number of iterations determines how far the filter can errode.
+// There are three pruning levels:  
+//  prune == 0 will leave traces on all angles...
+//  prune == 1 will not leave traces on 135 degree angles, but will on 90.
+//  prune == 2 does not leave traces on any angles leaving only closed loops.
+// Output scalar type is the same as input.
+
 
 
 #ifndef __vtkImageSkeleton2D_h
