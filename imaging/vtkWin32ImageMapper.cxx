@@ -291,16 +291,16 @@ static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self,
     bluePtr0 = bluePtr1;
     for (idx0 = inMin0; idx0 <= inMax0; idx0++)
       {
-      if (*redPtr0 < lower) red = lower_val;
-      else if (*redPtr0 > upper) red = upper_val;
+      if (*redPtr0 <= lower) red = lower_val;
+      else if (*redPtr0 >= upper) red = upper_val;
       else red = (unsigned char)(((float)(*redPtr0) + shift) * scale);
 
-      if (*greenPtr0 < lower) green = lower_val;
-      else if (*greenPtr0 > upper) green = upper_val;
+      if (*greenPtr0 <= lower) green = lower_val;
+      else if (*greenPtr0 >= upper) green = upper_val;
       else green = (unsigned char)(((float)(*greenPtr0) + shift) * scale);
   
-      if (*bluePtr0 < lower) blue = lower_val;
-      else if (*bluePtr0 > upper) blue = upper_val;
+      if (*bluePtr0 <= lower) blue = lower_val;
+      else if (*bluePtr0 >= upper) blue = upper_val;
       else blue = (unsigned char)(((float)(*bluePtr0) + shift) * scale);
       *outPtr++ = blue;
       *outPtr++ = green;
@@ -374,13 +374,13 @@ static void vtkWin32ImageMapperRenderShortGray(vtkWin32ImageMapper *self,
     endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
     while (inPtr0 != endPtr)
       {
-      if (*inPtr0 < lower)
+      if (*inPtr0 <= lower)
         {
         *outPtr++ = lower_val;
         *outPtr++ = lower_val;
         *outPtr++ = lower_val;
         }
-      else if (*inPtr0 > upper)
+      else if (*inPtr0 >= upper)
         {
         *outPtr++ = upper_val;
         *outPtr++ = upper_val;
