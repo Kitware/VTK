@@ -108,7 +108,7 @@ static void ContourImage(vtkSynchronizedTemplates2D *self,
   float *origin = self->GetInput()->GetOrigin();
   float *spacing = self->GetInput()->GetSpacing();
   float y, t;
-  int *itmp, *isect1Ptr, *isect2Ptr;
+  int *isect1Ptr, *isect2Ptr;
   int ptIds[2];
   int *tablePtr;
   int v0, v1, v2;
