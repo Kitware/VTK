@@ -321,7 +321,7 @@ void vtkTransform::RotateWXYZ ( float angle, float x, float y, float z)
 // A scale factor of zero will automatically be replaced with one.
 void vtkTransform::Scale ( float x, float y, float z)
 {
-  vtkMatrix4x4 ctm;
+  vtkMatrix4x4 ctm; //constructed as identity
 
   if (x != 1.0 || y != 1.0 || z != 1.0) 
     {
@@ -346,8 +346,6 @@ void vtkTransform::Scale ( float x, float y, float z)
       ctm.Element[2][2] = 1.0;
       }
 
-    ctm.Element[3][3] = 1.0;
-
     // concatenate with current transformation matrix
     this->Concatenate (ctm);
     }
@@ -357,15 +355,10 @@ void vtkTransform::Scale ( float x, float y, float z)
 // Translate the current transformation matrix by the vector {x, y, z}.
 void vtkTransform::Translate ( float x, float y, float z)
 {
-  vtkMatrix4x4 ctm;
+  vtkMatrix4x4 ctm; //constructed as identity matrix
 
   if (x != 0.0 || y != 0.0 || z != 0.0) 
     {
-    ctm.Element[0][0] = 1.0;
-    ctm.Element[1][1] = 1.0;
-    ctm.Element[2][2] = 1.0;
-    ctm.Element[3][3] = 1.0;
-
     ctm.Element[0][3] = x;
     ctm.Element[1][3] = y;
     ctm.Element[2][3] = z;

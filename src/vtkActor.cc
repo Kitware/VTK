@@ -204,8 +204,10 @@ void vtkActor::SetOrientation (float x,float y,float z)
   this->Orientation[1] = y;
   this->Orientation[2] = z;
 
-  vtkDebugMacro(<< " Orientation set to ( " <<  this->Orientation[0] << ", "
-  << this->Orientation[1] << ", " << this->Orientation[2] << ")\n");
+  vtkDebugMacro(<< " Orientation set to ( " 
+                << this->Orientation[0] << ", "
+                << this->Orientation[1] << ", " 
+                << this->Orientation[2] << ")\n");
 
   this->Transform.Identity();
   this->Transform.PreMultiply ();
@@ -317,7 +319,7 @@ void vtkActor::GetMatrix(vtkMatrix4x4& result)
   this->Transform.Identity();  
   this->Transform.PostMultiply();  
 
-  // shift back from origin
+  // shift back to actor's origin
   this->Transform.Translate(-this->Origin[0],
 			    -this->Origin[1],
 			    -this->Origin[2]);
@@ -332,16 +334,11 @@ void vtkActor::GetMatrix(vtkMatrix4x4& result)
   this->Transform.RotateX(this->Orientation[0]);
   this->Transform.RotateZ(this->Orientation[2]);
 
-  // shift to origin
-  this->Transform.Translate(this->Origin[0],
-			    this->Origin[1],
-			    this->Origin[2]);
+  // move back from origin and translate
+  this->Transform.Translate(this->Origin[0] + this->Position[0],
+			    this->Origin[1] + this->Position[1],
+			    this->Origin[2] + this->Position[2]);
    
-  // first translate
-  this->Transform.Translate(this->Position[0],
-			    this->Position[1],
-			    this->Position[2]);
-  
   // apply user defined matrix last if there is one 
   if (this->UserMatrix)
     {
@@ -564,12 +561,12 @@ void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Mapper: (none)\n";
     }
   os << indent << "Orientation: (" << this->Orientation[0] << ", " 
-    << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
+     << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
   os << indent << "Origin: (" << this->Origin[0] << ", " 
-    << this->Origin[1] << ", " << this->Origin[2] << ")\n";
+     << this->Origin[1] << ", " << this->Origin[2] << ")\n";
   os << indent << "Pickable: " << (this->Pickable ? "On\n" : "Off\n");
   os << indent << "Position: (" << this->Position[0] << ", " 
-    << this->Position[1] << ", " << this->Position[2] << ")\n";
+     << this->Position[1] << ", " << this->Position[2] << ")\n";
   if ( this->Property )
     {
     os << indent << "Property:\n";
@@ -580,7 +577,7 @@ void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Property: (none)\n";
     }
   os << indent << "Scale: (" << this->Scale[0] << ", " 
-    << this->Scale[1] << ", " << this->Scale[2] << ")\n";
+     << this->Scale[1] << ", " << this->Scale[2] << ")\n";
   os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
 }
 
