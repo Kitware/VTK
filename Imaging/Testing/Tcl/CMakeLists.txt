@@ -44,6 +44,7 @@ IF (VTK_USE_RENDERING)
         TestEuclideanToPolar
         TestGradient
         TestGradientMagnitude
+        TestGradientMagnitude2
         TestGridSource
         TestHSVToRGB
         TestHybridMedian2D
