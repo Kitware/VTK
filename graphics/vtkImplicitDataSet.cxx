@@ -88,7 +88,7 @@ float vtkImplicitDataSet::EvaluateFunction(float x[3])
     }
 
   // Find the cell that contains xyz and get it
-  cell = this->DataSet->FindAndGetCell(x,NULL,0.0,subId,pcoords,this->Weights);
+  cell = this->DataSet->FindAndGetCell(x,NULL,-1,0.0,subId,pcoords,this->Weights);
 
   if (cell)
     { // Interpolate the point data
@@ -148,7 +148,7 @@ void vtkImplicitDataSet::EvaluateGradient(float x[3], float n[3])
     }
 
   // Find the cell that contains xyz and get it
-  cell = this->DataSet->FindAndGetCell(x,NULL,0.0,subId,pcoords,this->Weights);
+  cell = this->DataSet->FindAndGetCell(x,NULL,-1,0.0,subId,pcoords,this->Weights);
 
   if (cell)
     { // Interpolate the point data

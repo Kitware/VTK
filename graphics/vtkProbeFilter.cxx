@@ -79,7 +79,7 @@ void vtkProbeFilter::Execute()
     x = input->GetPoint(ptId);
 
     // Find the cell that contains xyz and get it
-    cell = source->FindAndGetCell(x,NULL,tol2,subId,pcoords,weights);
+    cell = source->FindAndGetCell(x,NULL,-1,tol2,subId,pcoords,weights);
     if (cell)
       {
       // Interpolate the point data

@@ -356,7 +356,7 @@ void vtkHyperStreamline::Execute()
     {
     sPtr = this->Streamers[0].InsertNextHyperPoint();
     for (i=0; i<3; i++) sPtr->x[i] = this->StartPosition[i];
-    sPtr->cellId = input->FindCell(this->StartPosition, NULL, 0.0, 
+    sPtr->cellId = input->FindCell(this->StartPosition, NULL, (-1), 0.0, 
                                    sPtr->subId, sPtr->p, w);
     }
 
@@ -475,7 +475,7 @@ void vtkHyperStreamline::Execute()
         }
       else
         { //integration has passed out of cell
-        sNext->cellId = input->FindCell(xNext, cell, tol2, 
+        sNext->cellId = input->FindCell(xNext, cell, sPtr->cellId, tol2, 
                                         sNext->subId, sNext->p, w);
         if ( sNext->cellId >= 0 ) //make sure not out of dataset
           {

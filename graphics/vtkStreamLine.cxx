@@ -151,7 +151,7 @@ void vtkStreamLine::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStreamer::PrintSelf(os,indent);
 
-  os << indent << "Step Length: " << this->StepLength << " <<\n";
+  os << indent << "Step Length: " << this->StepLength << "\n";
 
 }
 

@@ -277,7 +277,7 @@ void vtkStreamer::Integrate()
     {
     sPtr = this->Streamers[0].InsertNextStreamPoint();
     for (i=0; i<3; i++) sPtr->x[i] = this->StartPosition[i];
-    sPtr->cellId = input->FindCell(this->StartPosition, NULL, 0.0, 
+    sPtr->cellId = input->FindCell(this->StartPosition, NULL, -1, 0.0, 
                                    sPtr->subId, sPtr->p, w);
     }
 
@@ -294,7 +294,7 @@ void vtkStreamer::Integrate()
       {
       sPtr = this->Streamers[offset*ptId].InsertNextStreamPoint();
       source->GetPoint(ptId,sPtr->x);
-      sPtr->cellId = input->FindCell(sPtr->x, NULL, tol2,
+      sPtr->cellId = input->FindCell(sPtr->x, NULL, -1, tol2,
                                      sPtr->subId, sPtr->p, w);
       }
     }
@@ -393,7 +393,7 @@ void vtkStreamer::Integrate()
         }
       else
         { //integration has passed out of cell
-        sNext->cellId = input->FindCell(xNext, cell, tol2, 
+        sNext->cellId = input->FindCell(xNext, cell, sPtr->cellId, tol2, 
                                         sNext->subId, sNext->p, w);
         if ( sNext->cellId >= 0 ) //make sure not out of dataset
           {
