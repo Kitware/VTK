@@ -34,6 +34,7 @@ class vtkExecutiveInternals;
 class vtkInformation;
 class vtkInformationExecutiveKey;
 class vtkInformationIntegerKey;
+class vtkInformationKeyVectorKey;
 class vtkInformationVector;
 
 class VTK_FILTERING_EXPORT vtkExecutive : public vtkObject
@@ -108,6 +109,7 @@ public:
   static vtkInformationIntegerKey* ALGORITHM_AFTER_FORWARD();
   static vtkInformationIntegerKey* ALGORITHM_DIRECTION();
   static vtkInformationIntegerKey* FORWARD_DIRECTION();
+  static vtkInformationKeyVectorKey* KEYS_TO_COPY();
   //BTX
   enum { RequestUpstream, RequestDownstream };
   //ETX

@@ -21,6 +21,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationExecutiveKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationKeyVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
@@ -28,13 +29,14 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.9");
+vtkCxxRevisionMacro(vtkExecutive, "1.10");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
 vtkInformationKeyMacro(vtkExecutive, EXECUTIVE, Executive);
 vtkInformationKeyMacro(vtkExecutive, FORWARD_DIRECTION, Integer);
 vtkInformationKeyMacro(vtkExecutive, FROM_OUTPUT_PORT, Integer);
+vtkInformationKeyMacro(vtkExecutive, KEYS_TO_COPY, KeyVector);
 vtkInformationKeyMacro(vtkExecutive, PORT_NUMBER, Integer);
 
 //----------------------------------------------------------------------------
@@ -543,9 +545,73 @@ int vtkExecutive::ForwardUpstream(vtkInformation* request)
 }
 
 //----------------------------------------------------------------------------
-void vtkExecutive::CopyDefaultInformation(vtkInformation*, int)
+void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
+                                          int direction)
 {
-  // Nothing copied by default in vtkExecutive.
+  if(direction == vtkExecutive::RequestDownstream)
+    {
+    // Copy information from the first input to all outputs.
+    if(this->GetNumberOfInputPorts() > 0 &&
+       this->Algorithm->GetNumberOfInputConnections(0) > 0)
+      {
+      vtkInformationKey** keys = request->Get(KEYS_TO_COPY());
+      int length = request->Length(KEYS_TO_COPY());
+      vtkInformation* inInfo = this->GetInputInformation(0, 0);
+      for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+        {
+        vtkInformation* outInfo = this->GetOutputInformation(i);
+        for(int j=0; j < length; ++j)
+          {
+          // Copy the entry.
+          outInfo->CopyEntry(inInfo, keys[j]);
+
+          // If the entry is a key vector, copy all the keys listed.
+          if(vtkInformationKeyVectorKey* vkey =
+             vtkInformationKeyVectorKey::SafeDownCast(keys[j]))
+            {
+            outInfo->CopyEntries(inInfo, vkey);
+            }
+          }
+        }
+      }
+    }
+  else
+    {
+    // Get the output port from which the request was made.  Use zero
+    // if output port was not specified.
+    int outputPort = 0;
+    if(request->Has(FROM_OUTPUT_PORT()))
+      {
+      outputPort = request->Get(FROM_OUTPUT_PORT());
+      }
+
+    // Copy information from the requesting output to all inputs.
+    if(outputPort < this->GetNumberOfOutputPorts())
+      {
+      vtkInformationKey** keys = request->Get(KEYS_TO_COPY());
+      int length = request->Length(KEYS_TO_COPY());
+      vtkInformation* outInfo = this->GetOutputInformation(outputPort);
+      for(int i=0; i < this->GetNumberOfInputPorts(); ++i)
+        {
+        for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
+          {
+          vtkInformation* inInfo = this->GetInputInformation(i, j);
+          for(int k=0; k < length; ++k)
+            {
+            // Copy the entry.
+            inInfo->CopyEntry(outInfo, keys[k]);
+
+            // If the entry is a key vector, copy all the keys listed.
+            if(vtkInformationKeyVectorKey* vkey =
+               vtkInformationKeyVectorKey::SafeDownCast(keys[k]))
+              {
+              inInfo->CopyEntries(outInfo, vkey);
+              }
+            }
+          }
+        }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
