@@ -24,6 +24,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     {
     fprintf(fp,"  Function Name: %s\n",data->Functions[i].Name ?
 	    data->Functions[i].Name : "None");
+    fprintf(fp,"  Function Signature: %s\n",data->Functions[i].Signature ?
+	    data->Functions[i].Signature : "None");
     fprintf(fp,"    Number Of Arguments: %i\n",
 	    data->Functions[i].NumberOfArguments);
     fprintf(fp,"    Array Failure: %s\n",

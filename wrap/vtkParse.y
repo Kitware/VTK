@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #define yyerror(a) fprintf(stderr,"%s\n",a)
 #define yywrap() 1
 
@@ -56,8 +57,46 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   int  HaveComment;
   char CommentText[10000];
   int CommentState;
+  int openSig;
+  int invertSig;
   
 #define YYMAXDEPTH 1000
+
+  void preSig(char *arg)
+    {
+    if (!currentFunction->Signature)
+      {
+      currentFunction->Signature = malloc(2048);
+      sprintf(currentFunction->Signature,"%s",arg);
+      }    
+    else if (openSig)
+      {
+      char *tmp = strdup(currentFunction->Signature);
+      sprintf(currentFunction->Signature,"%s%s",arg,tmp);
+      free(tmp);
+      }
+    }
+  void postSig(char *arg)
+    {
+    if (!currentFunction->Signature)
+      {
+      currentFunction->Signature = malloc(2048);
+      sprintf(currentFunction->Signature,"%s",arg);
+      }    
+    else if (openSig)
+      {
+      char *tmp = strdup(currentFunction->Signature);
+      if (invertSig)
+        {
+        sprintf(currentFunction->Signature,"%s%s",arg,tmp);
+        }
+      else
+        {
+        sprintf(currentFunction->Signature,"%s%s",tmp,arg);
+        }
+      free(tmp);
+      }
+    }
 %}
 
 %union{
@@ -131,8 +170,8 @@ class_def_body: class_def_item | class_def_item class_def_body;
 class_def_item: scope_type ':' | var 
    | function | FRIEND function | macro ';' | macro;
 
-function: '~' func { output_function(); } 
-      | VIRTUAL '~' func { output_function(); }
+function: '~' func { preSig("~"); output_function(); } 
+      | VIRTUAL '~' func { preSig("virtual ~"); output_function(); }
       | func 
          {
          output_function();
@@ -144,16 +183,19 @@ function: '~' func { output_function(); }
 	 } 
       | VIRTUAL type func 
          {
+         preSig("virtual ");
          currentFunction->ReturnType = $<integer>2;
          output_function();
 	 }
       | VIRTUAL func
          {
+         preSig("virtual ");
          output_function();
 	 };
 
-func: any_id '(' args_list ')' func_end
+func: func_beg  { postSig(");"); openSig = 0; } func_end
     {
+      openSig = 1;
       currentFunction->Name = $<str>1; 
       fprintf(stderr,"   Parsed func %s\n",$<str>1); 
     }  
@@ -162,15 +204,19 @@ func: any_id '(' args_list ')' func_end
       currentFunction->IsOperator = 1; 
       fprintf(stderr,"   Converted operator\n"); 
     }
-  | any_id '(' args_list ')' '=' NUM ';'
+  | func_beg '=' NUM ';'
     { 
+      postSig(") = 0;"); 
       currentFunction->Name = $<str>1; 
       fprintf(stderr,"   Parsed func %s\n",$<str>1); 
       currentFunction->IsPureVirtual = 1; 
       data.IsAbstract = 1;
     };
 
-any_id: VTK_ID | ID;
+func_beg: any_id '('  {postSig(" ("); } args_list ')';
+
+
+any_id: VTK_ID {postSig($<str>1);} | ID {postSig($<str>1);};
 
 func_end: ';' 
     | CONST ';'
@@ -183,7 +229,7 @@ func_end: ';'
 args_list: | more_args;
 
 more_args: arg { currentFunction->NumberOfArguments++;} 
-  | arg { currentFunction->NumberOfArguments++;} ',' more_args;
+  | arg { currentFunction->NumberOfArguments++; postSig(", ");} ',' more_args;
 
 arg: type 
     {
@@ -198,6 +244,7 @@ arg: type
     } opt_var_assign
   | VAR_FUNCTION 
     { 
+      postSig("void (*func)(void *) ");
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 5000;
     };
@@ -209,9 +256,11 @@ var: type var_id ';' | VAR_FUNCTION ';';
 var_id: any_id var_array;
 
 var_array: 
-  | ARRAY_NUM var_array { currentFunction->ArrayFailure = 1; }
+  | ARRAY_NUM 
+     {char temp[100]; sprintf(temp,"[%i]",$<integer>1); postSig(temp);} 
+     var_array { currentFunction->ArrayFailure = 1; }
   | '[' maybe_other_no_semi ']' var_array 
-    { currentFunction->ArrayFailure = 1; };
+    { postSig("[]"); currentFunction->ArrayFailure = 1; };
 
 
 type: CONST type_red1 {$<integer>$ = 1000 + $<integer>2;} 
@@ -230,25 +279,27 @@ type_red1: type_red2 {$<integer>$ = $<integer>1;}
    500 = *&
    700 = **
    */
-type_indirection: '&' { $<integer>$ = 100;} 
-                | '*' { $<integer>$ = 300;} 
+type_indirection: '&' { postSig("&"); $<integer>$ = 100;} 
+                | '*' { postSig("*"); $<integer>$ = 300;} 
                 | '&' type_indirection { $<integer>$ = 100 + $<integer>2;}
                 | '*' type_indirection { $<integer>$ = 400 + $<integer>2;};
 
-type_red2: UNSIGNED type_primitive { $<integer>$ = 10 + $<integer>2;} 
+type_red2: UNSIGNED {postSig("unsigned ");} 
+             type_primitive { $<integer>$ = 10 + $<integer>2;} 
                   | type_primitive { $<integer>$ = $<integer>1;};
 
 type_primitive: 
-  FLOAT  { $<integer>$ = 1;} | 
-  VOID   { $<integer>$ = 2;} | 
-  CHAR   { $<integer>$ = 3;} | 
-  INT    { $<integer>$ = 4;} | 
-  SHORT  { $<integer>$ = 5;} | 
-  LONG   { $<integer>$ = 6;} | 
-  DOUBLE { $<integer>$ = 7;} | 
-  ID     { $<integer>$ = 8;} |
+  FLOAT  { postSig("float "); $<integer>$ = 1;} | 
+  VOID   { postSig("void "); $<integer>$ = 2;} | 
+  CHAR   { postSig("char "); $<integer>$ = 3;} | 
+  INT    { postSig("int "); $<integer>$ = 4;} | 
+  SHORT  { postSig("short "); $<integer>$ = 5;} | 
+  LONG   { postSig("long "); $<integer>$ = 6;} | 
+  DOUBLE { postSig("double "); $<integer>$ = 7;} | 
+  ID     { postSig($<str>1); postSig(" "); $<integer>$ = 8;} |
   VTK_ID  
     { 
+      postSig($<str>1); postSig(" ");
       $<integer>$ = 9; 
       currentFunction->ArgClasses[currentFunction->NumberOfArguments] =
         strdup($1); 
@@ -284,8 +335,10 @@ float_prim: NUM {$<integer>$ = $1;}
          | NUM '.' NUM {$<integer>$ = -1;} | any_id {$<integer>$ = -1;};
 
 macro:
-  SetMacro '(' any_id ',' type_red2 ')'
+  SetMacro '(' any_id ',' 
+           {preSig("void Set"); postSig(" ("); } type_red2 ')'
    {
+   postSig(");");
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
@@ -294,7 +347,8 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
    }
-| GetMacro '(' any_id ',' type_red2 ')'
+| GetMacro '('{postSig("Get");} any_id ',' {postSig(" ();"); invertSig = 1;} 
+    type_red2 ')'
    { 
    sprintf(temps,"Get%s",$<str>3); 
    currentFunction->Name = strdup(temps);
@@ -302,8 +356,9 @@ macro:
    currentFunction->ReturnType = $<integer>5;
    output_function();
    }
-| SetStringMacro '(' any_id ')'
-   { 
+| SetStringMacro '(' {preSig("void Set");} any_id ')'
+   {
+   postSig(" (char *);"); 
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
@@ -312,15 +367,18 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
    }
-| GetStringMacro '(' any_id ')'
+| GetStringMacro '(' {preSig("char *Get");} any_id ')'
    { 
+   postSig(" ();");
    sprintf(temps,"Get%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 303;
    output_function();
    }
-| SetClampMacro  '(' any_id ',' type_red2 ',' maybe_other_no_semi ')'
+| SetClampMacro  '(' any_id ',' 
+    {preSig("void Set"); postSig(" ("); } type_red2 
+    {postSig(");"); openSig = 0;} ',' maybe_other_no_semi ')'
    { 
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
@@ -330,8 +388,10 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
    }
-| SetObjectMacro '(' any_id ',' type_red2 ')'
+| SetObjectMacro '(' any_id ',' 
+  {preSig("void Set"); postSig(" ("); } type_red2 ')'
    { 
+   postSig("*);");
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
@@ -340,8 +400,10 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
    }
-| SetReferenceCountedObjectMacro '(' any_id ',' type_red2 ')'
+| SetReferenceCountedObjectMacro '(' any_id ','   
+   {preSig("void Set"); postSig(" ("); } type_red2 ')'
    { 
+   postSig("*);");
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
@@ -350,7 +412,8 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
    }
-| GetObjectMacro '(' any_id ',' type_red2 ')'
+| GetObjectMacro '(' {postSig("Get");} any_id ',' 
+   {postSig(" ();"); invertSig = 1;} type_red2 ')'
    { 
    sprintf(temps,"Get%s",$<str>3); 
    currentFunction->Name = strdup(temps);
@@ -358,20 +421,32 @@ macro:
    currentFunction->ReturnType = 309;
    output_function();
    }
-| BooleanMacro   '(' any_id ',' type_red2 ')'
+| BooleanMacro '(' any_id 
+    {preSig("void "); postSig("On ();"); openSig = 0; } 
+        ',' type_red2 ')'
    { 
    sprintf(temps,"%sOn",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 2;
    output_function();
+   currentFunction->Signature = (char *)malloc(512);
+   sprintf(currentFunction->Signature,"void %sOff ();",$<str>3); 
    sprintf(temps,"%sOff",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
    output_function();
    }
-| SetVector2Macro '(' any_id ',' type_red2 ')'
+| SetVector2Macro '(' any_id ',' 
+     {
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     } 
+      type_red2 ')'
    { 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"void Set%s (%s , %s);",$<str>3,
+     local, local);
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 2;
@@ -382,14 +457,24 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
 
+   currentFunction->Signature = (char *)malloc(1024);
+   sprintf(currentFunction->Signature,"void Set%s (%s a[2]);",$<str>3,
+     local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 300 + $<integer>5;
    currentFunction->ArgCounts[0] = 2;
    output_function();
    }
-| GetVector2Macro  '(' any_id ',' type_red2 ')'
+| GetVector2Macro  '(' any_id ',' 
+     {
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     } 
+      type_red2 ')'
    { 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
    sprintf(temps,"Get%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
@@ -398,8 +483,16 @@ macro:
    currentFunction->HintSize = 2;
    output_function();
    }
-| SetVector3Macro '(' any_id ',' type_red2 ')'
+| SetVector3Macro '(' any_id ',' 
+     {
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     } 
+      type_red2 ')'
    { 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"void Set%s (%s , %s, %s);",
+     $<str>3, local, local, local);
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 3;
@@ -412,14 +505,24 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
 
+   currentFunction->Signature = (char *)malloc(1024);
+   sprintf(currentFunction->Signature,"void Set%s (%s a[3]);",$<str>3,
+     local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 300 + $<integer>5;
    currentFunction->ArgCounts[0] = 3;
    output_function();
    }
-| GetVector3Macro  '(' any_id ',' type_red2 ')'
+| GetVector3Macro  '(' any_id ','
+     {
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     } 
+      type_red2 ')'
    { 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
    sprintf(temps,"Get%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
@@ -428,8 +531,16 @@ macro:
    currentFunction->HintSize = 3;
    output_function();
    }
-| SetVector4Macro '(' any_id ',' type_red2 ')'
+| SetVector4Macro '(' any_id ',' 
+     {
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     } 
+      type_red2 ')'
    { 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"void Set%s (%s , %s, %s, %s);",
+     $<str>3, local, local, local, local);
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 4;
@@ -444,14 +555,24 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
 
+   currentFunction->Signature = (char *)malloc(1024);
+   sprintf(currentFunction->Signature,"void Set%s (%s a[4]);",$<str>3,
+     local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 300 + $<integer>5;
    currentFunction->ArgCounts[0] = 4;
    output_function();
    }
-| GetVector4Macro  '(' any_id ',' type_red2 ')'
+| GetVector4Macro  '(' any_id ','
+     {
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     } 
+      type_red2 ')'
    { 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
    sprintf(temps,"Get%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
@@ -460,8 +581,16 @@ macro:
    currentFunction->HintSize = 4;
    output_function();
    }
-| SetVector6Macro '(' any_id ',' type_red2 ')'
+| SetVector6Macro '(' any_id ','
+     {
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     } 
+      type_red2 ')'
    { 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"void Set%s (%s , %s, %s, %s, %s, %s);",
+     $<str>3, local, local, local, local, local, local);
    sprintf(temps,"Set%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 6;
@@ -480,14 +609,24 @@ macro:
    currentFunction->ReturnType = 2;
    output_function();
 
+   currentFunction->Signature = (char *)malloc(1024);
+   sprintf(currentFunction->Signature,"void Set%s (%s a[6]);",$<str>3,
+     local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 300 + $<integer>5;
    currentFunction->ArgCounts[0] = 6;
    output_function();
    }
-| GetVector6Macro  '(' any_id ',' type_red2 ')'
+| GetVector6Macro  '(' any_id ','
+     {
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     } 
+      type_red2 ')'
    { 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
    sprintf(temps,"Get%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
@@ -496,8 +635,16 @@ macro:
    currentFunction->HintSize = 6;
    output_function();
    }
-| SetVectorMacro  '(' any_id ',' type_red2 ',' float_num ')'
+| SetVectorMacro  '(' any_id ',' 
+      {
+      free (currentFunction->Signature);
+      currentFunction->Signature = NULL;
+      } 
+     type_red2 ',' float_num ')'
    {
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"void Set%s (%s [%i]);",$<str>3,
+      local, $<integer>7);
      sprintf(temps,"Set%s",$<str>3); 
      currentFunction->Name = strdup(temps);
      currentFunction->ReturnType = 2;
@@ -506,8 +653,15 @@ macro:
      currentFunction->ArgCounts[0] = $<integer>7;
      output_function();
    }
-| GetVectorMacro  '(' any_id ',' type_red2 ',' float_num ')'
+| GetVectorMacro  '(' any_id ',' 
+     {
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     } 
+     type_red2 ',' float_num ')'
    { 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
    sprintf(temps,"Get%s",$<str>3); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
@@ -518,6 +672,10 @@ macro:
    }
 | ViewportCoordinateMacro '(' any_id ')'
    { 
+     char *local = strdup(currentFunction->Signature);
+     sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
+       $<str>3);
+
      sprintf(temps,"Get%sCoordinate",$<str>3); 
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 0;
@@ -525,6 +683,9 @@ macro:
      currentFunction->ReturnClass = strdup("vtkCoordinate");
      output_function();
 
+     currentFunction->Signature = (char *)malloc(1024);
+     sprintf(currentFunction->Signature,"void Set%s (float , float);",
+       $<str>3);
      sprintf(temps,"Set%s",$<str>3); 
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 2;
@@ -535,12 +696,17 @@ macro:
      currentFunction->ReturnType = 2;
      output_function();
 
+     currentFunction->Signature = (char *)malloc(1024);
+     sprintf(currentFunction->Signature,"void Set%s (float a[2]);",
+       $<str>3);
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = 301;
      currentFunction->ArgCounts[0] = 2;
      output_function();
      
+     currentFunction->Signature = (char *)malloc(1024);
+     sprintf(currentFunction->Signature,"float *Get%s ();", $<str>3);
      sprintf(temps,"Get%s",$<str>3); 
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 0;
@@ -551,6 +717,10 @@ macro:
    }
 | WorldCoordinateMacro '(' any_id ')'
    { 
+     char *local = strdup(currentFunction->Signature);
+     sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
+       $<str>3);
+
      sprintf(temps,"Get%sCoordinate",$<str>3); 
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 0;
@@ -558,6 +728,9 @@ macro:
      currentFunction->ReturnClass = strdup("vtkCoordinate");
      output_function();
 
+     currentFunction->Signature = (char *)malloc(1024);
+     sprintf(currentFunction->Signature,"void Set%s (float , float, float);",
+       $<str>3);
      sprintf(temps,"Set%s",$<str>3); 
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 3;
@@ -570,12 +743,17 @@ macro:
      currentFunction->ReturnType = 2;
      output_function();
 
+     currentFunction->Signature = (char *)malloc(1024);
+     sprintf(currentFunction->Signature,"void Set%s (float a[3]);",
+       $<str>3);
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = 301;
      currentFunction->ArgCounts[0] = 3;
      output_function();
      
+     currentFunction->Signature = (char *)malloc(1024);
+     sprintf(currentFunction->Signature,"float *Get%s ();", $<str>3);
      sprintf(temps,"Get%s",$<str>3); 
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 0;
@@ -620,6 +798,9 @@ void InitFunction(FunctionInfo *func)
   func->ReturnType = 2;
   func->ReturnClass = NULL;
   func->Comment = NULL;
+  func->Signature = NULL;
+  openSig = 1;
+  invertSig = 0;
 }
 
 /* when the cpp file doesn't have enough info use the hint file */

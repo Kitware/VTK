@@ -1,7 +1,30 @@
-
-# line 43 "vtkParse.y"
+#if defined(__STDC__) || defined(__cplusplus)
+#define YYCONST const
+#define YYPARAMS(x) x
+#define YYDEFUN(name, arglist, args) name(args)
+#define YYAND ,
+#define YYPTR void *
+#else
+#define YYCONST
+#define YYPARAMS(x) ()
+#define YYDEFUN(name, arglist, args) name arglist args;
+#define YYAND ;
+#define YYPTR char *
+#endif
+#ifndef lint
+YYCONST static char yysccsid[] = "@(#)yaccpar	1.8 (Berkeley +Cygnus.28) 01/20/91";
+#endif
+#define YYBYACC 1
+#ifndef YYDONT_INCLUDE_STDIO
+#include <stdio.h>
+#endif
+#ifdef __cplusplus
+#include <stdlib.h> /* for malloc/realloc/free */
+#endif
+#line 43 "vtkParse.y"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #define yyerror(a) fprintf(stderr,"%s\n",a)
 #define yywrap() 1
 
@@ -16,115 +39,662 @@
   int  HaveComment;
   char CommentText[10000];
   int CommentState;
+  int openSig;
+  int invertSig;
   
 #define YYMAXDEPTH 1000
 
-# line 63 "vtkParse.y"
-typedef union
-#ifdef __cplusplus
-	YYSTYPE
-#endif
-{
+  void preSig(char *arg)
+    {
+    if (!currentFunction->Signature)
+      {
+      currentFunction->Signature = malloc(2048);
+      sprintf(currentFunction->Signature,"%s",arg);
+      }    
+    else if (openSig)
+      {
+      char *tmp = strdup(currentFunction->Signature);
+      sprintf(currentFunction->Signature,"%s%s",arg,tmp);
+      free(tmp);
+      }
+    }
+  void postSig(char *arg)
+    {
+    if (!currentFunction->Signature)
+      {
+      currentFunction->Signature = malloc(2048);
+      sprintf(currentFunction->Signature,"%s",arg);
+      }    
+    else if (openSig)
+      {
+      char *tmp = strdup(currentFunction->Signature);
+      if (invertSig)
+        {
+        sprintf(currentFunction->Signature,"%s%s",arg,tmp);
+        }
+      else
+        {
+        sprintf(currentFunction->Signature,"%s%s",tmp,arg);
+        }
+      free(tmp);
+      }
+    }
+#line 102 "vtkParse.y"
+typedef union{
   char *str;
   int   integer;
   } YYSTYPE;
-# define CLASS 257
-# define PUBLIC 258
-# define PRIVATE 259
-# define PROTECTED 260
-# define VIRTUAL 261
-# define STRING 262
-# define NUM 263
-# define ID 264
-# define INT 265
-# define FLOAT 266
-# define SHORT 267
-# define LONG 268
-# define DOUBLE 269
-# define VOID 270
-# define CHAR 271
-# define CLASS_REF 272
-# define OTHER 273
-# define CONST 274
-# define OPERATOR 275
-# define UNSIGNED 276
-# define FRIEND 277
-# define VTK_ID 278
-# define STATIC 279
-# define VAR_FUNCTION 280
-# define ARRAY_NUM 281
-# define SetMacro 282
-# define GetMacro 283
-# define SetStringMacro 284
-# define GetStringMacro 285
-# define SetClampMacro 286
-# define SetObjectMacro 287
-# define SetReferenceCountedObjectMacro 288
-# define GetObjectMacro 289
-# define BooleanMacro 290
-# define SetVector2Macro 291
-# define SetVector3Macro 292
-# define SetVector4Macro 293
-# define SetVector6Macro 294
-# define GetVector2Macro 295
-# define GetVector3Macro 296
-# define GetVector4Macro 297
-# define GetVector6Macro 298
-# define SetVectorMacro 299
-# define GetVectorMacro 300
-# define ViewportCoordinateMacro 301
-# define WorldCoordinateMacro 302
-
-#ifdef __STDC__
-#include <stdlib.h>
-#include <string.h>
-#else
-#include <malloc.h>
-#include <memory.h>
+#line 88 "vtkParse.tab.c"
+#define CLASS 257
+#define PUBLIC 258
+#define PRIVATE 259
+#define PROTECTED 260
+#define VIRTUAL 261
+#define STRING 262
+#define NUM 263
+#define ID 264
+#define INT 265
+#define FLOAT 266
+#define SHORT 267
+#define LONG 268
+#define DOUBLE 269
+#define VOID 270
+#define CHAR 271
+#define CLASS_REF 272
+#define OTHER 273
+#define CONST 274
+#define OPERATOR 275
+#define UNSIGNED 276
+#define FRIEND 277
+#define VTK_ID 278
+#define STATIC 279
+#define VAR_FUNCTION 280
+#define ARRAY_NUM 281
+#define SetMacro 282
+#define GetMacro 283
+#define SetStringMacro 284
+#define GetStringMacro 285
+#define SetClampMacro 286
+#define SetObjectMacro 287
+#define SetReferenceCountedObjectMacro 288
+#define GetObjectMacro 289
+#define BooleanMacro 290
+#define SetVector2Macro 291
+#define SetVector3Macro 292
+#define SetVector4Macro 293
+#define SetVector6Macro 294
+#define GetVector2Macro 295
+#define GetVector3Macro 296
+#define GetVector4Macro 297
+#define GetVector6Macro 298
+#define SetVectorMacro 299
+#define GetVectorMacro 300
+#define ViewportCoordinateMacro 301
+#define WorldCoordinateMacro 302
+#define YYERRCODE 256
+static YYCONST short yylhs[] = {                                        -1,
+    0,    4,    2,    5,    5,    6,    6,    6,    6,    6,
+    6,    9,    9,    9,    9,    9,    9,   15,   11,   11,
+   11,   19,   13,   17,   17,   14,   14,   14,   14,   14,
+   14,   14,   18,   18,   20,   22,   20,   21,   25,   21,
+   21,   24,   24,    8,    8,   23,   27,   28,   27,   27,
+   12,   12,   12,   12,   29,   29,   31,   31,   31,   31,
+   33,   30,   30,   32,   32,   32,   32,   32,   32,   32,
+   32,   32,    3,    3,   34,   35,   34,    7,    7,    7,
+   26,   26,   36,   36,   36,   37,   10,   38,   39,   10,
+   40,   10,   41,   10,   42,   43,   10,   44,   10,   45,
+   10,   46,   47,   10,   48,   10,   49,   10,   50,   10,
+   51,   10,   52,   10,   53,   10,   54,   10,   55,   10,
+   56,   10,   57,   10,   58,   10,   10,   10,    1,    1,
+   16,   16,   59,   59,   60,   60,   60,   60,   60,   60,
+   60,   60,   60,   60,   60,   60,   60,   60,   60,   60,
+   60,   60,   60,   60,   61,   62,   63,
+};
+static YYCONST short yylen[] = {                                         2,
+    3,    0,    7,    1,    2,    2,    1,    1,    2,    2,
+    1,    2,    3,    1,    2,    3,    2,    0,    3,    3,
+    4,    0,    5,    1,    1,    1,    2,    5,    4,    4,
+    3,    3,    0,    1,    1,    0,    4,    1,    0,    4,
+    1,    0,    2,    3,    2,    2,    0,    0,    3,    4,
+    2,    1,    2,    3,    1,    2,    1,    1,    2,    2,
+    0,    3,    1,    1,    1,    1,    1,    1,    1,    1,
+    1,    1,    0,    2,    2,    0,    5,    1,    1,    1,
+    2,    1,    1,    3,    1,    0,    7,    0,    0,    8,
+    0,    5,    0,    5,    0,    0,   10,    0,    7,    0,
+    7,    0,    0,    8,    0,    7,    0,    7,    0,    7,
+    0,    7,    0,    7,    0,    7,    0,    7,    0,    7,
+    0,    7,    0,    9,    0,    9,    4,    4,    0,    2,
+    0,    2,    1,    1,    1,    1,    1,    1,    1,    1,
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+    1,    1,    1,    1,    3,    3,    3,
+};
+static YYCONST short yydefred[] = {                                      0,
+  143,  145,   71,   67,   64,   68,   69,   70,   65,   66,
+  146,  135,  149,  150,   61,   72,  153,  154,    0,  140,
+  133,  152,  139,    0,  141,    0,  147,  138,  151,  142,
+    0,    0,  144,   63,    0,  134,  136,  137,  148,    0,
+    0,    0,    0,    0,    0,  130,   62,  155,  156,  157,
+    2,    1,    0,    0,    0,   78,   79,   80,    0,   74,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    7,    8,    0,   14,    0,
+    0,    0,   52,    0,    0,    0,   17,    0,   51,    0,
+    0,    9,    0,    0,   53,   45,    0,   88,   91,   93,
+    0,    0,    0,  102,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,   25,   24,   12,
+    3,    5,    6,   10,   15,    0,    0,    0,    0,   22,
+    0,    0,   56,    0,   13,   16,   20,  132,   54,    0,
+    0,    0,    0,    0,    0,    0,    0,  105,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+   48,    0,   46,   44,    0,    0,    0,    0,   26,   19,
+    0,   59,   60,   77,   86,    0,    0,    0,   95,   98,
+  100,    0,    0,  107,  111,  115,  119,  109,  113,  117,
+  121,  123,  125,  127,  128,    0,    0,   21,    0,   27,
+    0,    0,   41,    0,    0,   34,    0,    0,   89,   92,
+   94,    0,    0,    0,  103,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,   49,    0,    0,    0,
+   32,    0,   39,   23,    0,    0,    0,   96,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,   50,    0,   29,    0,    0,   87,    0,    0,
+   99,  101,    0,  106,  108,  112,  116,  120,  110,  114,
+  118,  122,    0,    0,   28,    0,   40,   37,   90,    0,
+  104,    0,    0,   85,    0,   82,    0,   43,    0,    0,
+   81,  124,  126,   97,   84,
+};
+static YYCONST short yydgoto[] = {                                      31,
+   32,   45,   55,   53,   93,   94,   59,   96,   97,   98,
+   99,  100,  101,  190,  149,  110,  102,  225,  191,  226,
+  227,  255,  147,  297,  276,  305,  183,  216,  103,   33,
+  153,   34,   40,   60,  105,  306,  228,  161,  257,  162,
+  163,  232,  280,  233,  234,  167,  261,  203,  237,  241,
+  238,  242,  239,  243,  240,  244,  245,  246,   35,   36,
+   37,   38,   39,
+};
+static YYCONST short yysindex[] = {                                    -38,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,  -38,    0,
+    0,    0,    0,  -38,    0,  -38,    0,    0,    0,    0,
+    0, -245,    0,    0,  -38,    0,    0,    0,    0,  372,
+  -85,    9,   -7, -222,  -38,    0,    0,    0,    0,    0,
+    0,    0,   34, -146,  -18,    0,    0,    0, -170,    0,
+  333,    0,  -80,    0,  249,   -1, -102,    0,  -56,   50,
+   75,   81,   83,   87,   89,   90,   91,   92,   94,   95,
+   96,   97,   98,   99,  100,  101,  103,  104,  105,  106,
+  107, -202,    3,  333,  102,    0,    0,   93,    0, -202,
+  109,  110,    0,   10,  112, -202,    0, -202,    0,  116,
+   -1,    0, -202,  249,    0,    0, -229,    0,    0,    0,
+ -229, -229, -229,    0, -229, -229, -229, -229, -229, -229,
+ -229, -229, -229, -229, -229, -229, -229,    0,    0,    0,
+    0,    0,    0,    0,    0,  -37,  119, -109,  -28,    0,
+   10,   10,    0, -146,    0,    0,    0,    0,    0,  114,
+ -229, -229, -229,  117,  127,  135, -229,    0,  136,  137,
+  139,  148,  149,  153,  157,  159,  160,  162,  166,  175,
+    0,   -1,    0,    0,  158,  -48,  -38,   -1,    0,    0,
+  115,    0,    0,    0,    0,  177,  182,  201,    0,    0,
+    0,  203,  205,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,  -81,  161,    0,  -38,    0,
+  126,  196,    0, -229,  216,    0,    0,  249,    0,    0,
+    0,  249,  249,  249,    0,  249,  249,  249,  249,  249,
+  249,  249,  249,  249,  249,  249,    0,  -81,  151,  224,
+    0,  -81,    0,    0,  242,  247,  249,    0,  251,  252,
+  249,  253,  254,  256,  261,  263,  265,  266,  267,  268,
+  269,  270,    0,  258,    0,  250,  115,    0,  271,  274,
+    0,    0,  278,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,   27,   27,    0,   27,    0,    0,    0,   -1,
+    0,  264, -162,    0,  282,    0,  296,    0,  297,   52,
+    0,    0,    0,    0,    0,
+};
+static YYCONST short yyrindex[] = {                                     82,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,  215,    0,
+    0,    0,    0,  301,    0,  255,    0,    0,    0,    0,
+    0,    0,    0,    0,    1,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,  343,    0,    0,    0,    0,    0,
+    0,    0,  221,    0,    0,    0,    0,    0,    0,    0,
+    0,  -17,    0,  -25,    0,  287,    0,   21,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,  222,    0,    0,    0,  156,    0,    0,
+  -26,    0,    0,  -19,    0,    0,    0,    0,    0,    0,
+  -23,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,  291,    0,    0,    0,    0,
+   23,   25,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,  259,    0,    0,    0,    0,  215,  287,    0,    0,
+  310,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,   37,    0,    0,  215,    0,
+    0,    0,    0,   14,    0,    0,   24,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,   37,    0,  210,
+    0,   38,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,  281,    0,   36,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,  312,
+    0,   63,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,
+};
+static YYCONST short yygindex[] = {                                      0,
+   65,    0,    0,    0,  260,    0,  -47,    0,  288,    0,
+   11,  -58,    0,    0,    0,  -95,  241,    0,    0,   79,
+    0,    0,  133,    0,    0, -176, -197,    0,  -31,   88,
+ -123,  319,    0,  206,    0,   58,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,  -40,
+    0,    0,    0,
+};
+#define YYTABLESIZE 650
+static YYCONST short yytable[] = {                                      27,
+  129,   24,  150,   28,  108,   25,   29,   30,  113,  182,
+  220,   44,   71,   95,   25,  158,   71,  131,  247,   20,
+   21,   55,   23,   92,   55,  111,   76,  192,  193,  188,
+  189,   18,   18,  109,  138,  131,   27,  115,   24,   48,
+   28,  129,   25,   29,   30,  106,   95,  151,  139,   49,
+  273,  152,   26,  182,   38,   51,   20,   38,   72,   23,
+   24,  138,   72,   57,   35,   58,   57,   36,   58,  131,
+  111,  303,   66,  107,  219,  139,   42,   47,   47,   42,
+   47,   47,  159,   41,   19,   50,  217,   22,   42,   26,
+   43,   54,  222,  129,  187,   47,   18,   47,   47,   46,
+  302,  138,  140,   83,   61,   75,   83,   62,  116,   52,
+  145,   56,   57,   58,  117,  139,  155,  307,  156,  308,
+  118,   19,  119,  145,   22,  129,  120,  141,  121,  122,
+  123,  124,  224,  125,  126,  127,  128,  129,  130,  131,
+  132,  111,  133,  134,  135,  136,  137,  111,  104,  150,
+  104,  144,  104,  185,  104,  154,  104,  195,   63,  143,
+  199,   64,    4,    5,    6,    7,    8,    9,   10,  148,
+  200,   65,   66,   15,  157,   68,   69,  184,  201,  204,
+  205,  104,  206,   64,    4,    5,    6,    7,    8,    9,
+   10,  207,  208,   65,   66,   15,  209,   68,   69,  181,
+  210,  104,  211,  212,  309,  213,  214,    3,    4,    5,
+    6,    7,    8,    9,   10,  215,  218,  114,  224,   15,
+  229,   16,  230,    1,    2,    3,    4,    5,    6,    7,
+    8,    9,   10,   11,   12,   13,   14,   15,   71,   16,
+   17,  231,   18,  181,   55,  186,  235,   18,  236,   71,
+  250,  221,   71,  248,  251,   55,  254,  129,   55,  111,
+    1,    2,    3,    4,    5,    6,    7,    8,    9,   10,
+   11,   12,   13,   14,   15,  274,   16,   17,  104,   18,
+   11,   11,  275,  249,   72,  277,   57,  278,   58,  302,
+  138,  281,  282,  284,  285,   72,  286,   57,   72,   58,
+   57,  287,   58,  288,  139,  289,  290,  291,  292,  310,
+  296,  299,  293,  294,  315,  256,  295,  300,  301,  258,
+  259,  260,  312,  262,  263,  264,  265,  266,  267,  268,
+  269,  270,  271,  272,   31,   31,  313,  314,  129,  129,
+  146,  129,  129,   73,  279,  131,    4,  129,  283,   47,
+   33,  131,  131,  142,  112,  298,  253,  160,   47,  194,
+  311,  164,  165,  166,  104,  168,  169,  170,  171,  172,
+  173,  174,  175,  176,  177,  178,  179,  180,    3,    4,
+    5,    6,    7,    8,    9,   10,    0,    0,   65,    0,
+   15,    0,   16,   69,  223,    0,    0,    0,    0,    0,
+    0,  196,  197,  198,    0,   30,   30,  202,    0,    0,
+    0,    0,    0,   11,   11,   11,   11,    0,    0,   11,
+   11,   11,   11,   11,   11,   11,   11,    0,    0,   11,
+   11,   11,   11,   11,   11,   11,    0,   11,   11,   11,
+   11,   11,   11,   11,   11,   11,   11,   11,   11,   11,
+   11,   11,   11,   11,   11,   11,   11,   11,   92,    0,
+    0,    0,    0,    0,  252,    0,    0,   31,   31,   31,
+   31,    0,    0,   31,   31,   31,   31,   31,   31,   31,
+   31,    0,    0,   31,   31,   31,   31,   31,   31,   31,
+    0,   31,   31,   31,   31,   31,   31,   31,   31,   31,
+   31,   31,   31,   31,   31,   31,   31,   31,   31,   31,
+   31,   31,    3,    4,    5,    6,    7,    8,    9,   10,
+    0,    0,    0,    0,   15,    0,   16,    0,    0,    0,
+    0,    0,    0,  304,  304,    0,  304,    0,   30,   30,
+   30,   30,    0,  304,   30,   30,   30,   30,   30,   30,
+   30,   30,    0,    0,   30,   30,   30,   30,   30,   30,
+   30,    0,   30,   30,   30,   30,   30,   30,   30,   30,
+   30,   30,   30,   30,   30,   30,   30,   30,   30,   30,
+   30,   30,   30,    0,    0,    0,    0,    0,    0,    0,
+   56,   57,   58,   63,    0,    0,   64,    4,    5,    6,
+    7,    8,    9,   10,    0,    0,   65,   66,   15,   67,
+   68,   69,   70,    0,   71,   72,   73,   74,   75,   76,
+   77,   78,   79,   80,   81,   82,   83,   84,   85,   86,
+   87,   88,   89,   90,   91,    3,    4,    5,    6,    7,
+    8,    9,   10,    0,    0,    0,    0,    0,    0,   16,
+};
+static YYCONST short yycheck[] = {                                      38,
+    0,   40,   40,   42,   63,   44,   45,   46,   67,   91,
+   59,  257,   38,   61,   40,  111,   42,   41,  216,   58,
+   59,   41,   61,  126,   44,   66,   44,  151,  152,   58,
+   59,   58,   59,   65,  264,   59,   38,   69,   40,  125,
+   42,   41,   44,   45,   46,  126,   94,   38,  278,   41,
+  248,   42,   91,   91,   41,  278,   58,   44,   38,   61,
+   40,  264,   42,   41,   41,   41,   44,   44,   44,   93,
+  111,   45,  275,   63,  123,  278,   41,   41,   41,   44,
+   44,   44,  114,   19,  123,   93,  182,  126,   24,   91,
+   26,   58,  188,   93,  123,   59,  123,   61,   61,   35,
+  263,  264,   92,   41,  123,  123,   44,  278,   59,   45,
+  100,  258,  259,  260,   40,  278,  106,  294,  108,  296,
+   40,  123,   40,  113,  126,  125,   40,  125,   40,   40,
+   40,   40,  191,   40,   40,   40,   40,   40,   40,   40,
+   40,  182,   40,   40,   40,   40,   40,  188,   61,   40,
+   63,   59,   65,  263,   67,   44,   69,   44,  261,   58,
+   44,  264,  265,  266,  267,  268,  269,  270,  271,   61,
+   44,  274,  275,  276,   59,  278,  279,   59,   44,   44,
+   44,   94,   44,  264,  265,  266,  267,  268,  269,  270,
+  271,   44,   44,  274,  275,  276,   44,  278,  279,  281,
+   44,  114,   44,   44,  300,   44,   41,  264,  265,  266,
+  267,  268,  269,  270,  271,   41,   59,  274,  277,  276,
+   44,  278,   41,  262,  263,  264,  265,  266,  267,  268,
+  269,  270,  271,  272,  273,  274,  275,  276,  264,  278,
+  279,   41,  281,  281,  264,  274,   44,  274,   44,  275,
+  125,  187,  278,   93,   59,  275,   41,  257,  278,  300,
+  262,  263,  264,  265,  266,  267,  268,  269,  270,  271,
+  272,  273,  274,  275,  276,  125,  278,  279,  191,  281,
+  125,  126,   59,  219,  264,   44,  264,   41,  264,  263,
+  264,   41,   41,   41,   41,  275,   41,  275,  278,  275,
+  278,   41,  278,   41,  278,   41,   41,   41,   41,   46,
+   61,   41,   44,   44,  263,  228,   59,   44,   41,  232,
+  233,  234,   41,  236,  237,  238,  239,  240,  241,  242,
+  243,  244,  245,  246,  125,  126,   41,   41,  257,  125,
+  100,   41,    0,  123,  257,   59,  125,   93,  261,   59,
+   41,   93,   41,   94,   67,  277,  224,  117,   40,  154,
+  303,  121,  122,  123,  277,  125,  126,  127,  128,  129,
+  130,  131,  132,  133,  134,  135,  136,  137,  264,  265,
+  266,  267,  268,  269,  270,  271,   -1,   -1,  274,   -1,
+  276,   -1,  278,  279,  280,   -1,   -1,   -1,   -1,   -1,
+   -1,  161,  162,  163,   -1,  125,  126,  167,   -1,   -1,
+   -1,   -1,   -1,  258,  259,  260,  261,   -1,   -1,  264,
+  265,  266,  267,  268,  269,  270,  271,   -1,   -1,  274,
+  275,  276,  277,  278,  279,  280,   -1,  282,  283,  284,
+  285,  286,  287,  288,  289,  290,  291,  292,  293,  294,
+  295,  296,  297,  298,  299,  300,  301,  302,  126,   -1,
+   -1,   -1,   -1,   -1,  224,   -1,   -1,  258,  259,  260,
+  261,   -1,   -1,  264,  265,  266,  267,  268,  269,  270,
+  271,   -1,   -1,  274,  275,  276,  277,  278,  279,  280,
+   -1,  282,  283,  284,  285,  286,  287,  288,  289,  290,
+  291,  292,  293,  294,  295,  296,  297,  298,  299,  300,
+  301,  302,  264,  265,  266,  267,  268,  269,  270,  271,
+   -1,   -1,   -1,   -1,  276,   -1,  278,   -1,   -1,   -1,
+   -1,   -1,   -1,  293,  294,   -1,  296,   -1,  258,  259,
+  260,  261,   -1,  303,  264,  265,  266,  267,  268,  269,
+  270,  271,   -1,   -1,  274,  275,  276,  277,  278,  279,
+  280,   -1,  282,  283,  284,  285,  286,  287,  288,  289,
+  290,  291,  292,  293,  294,  295,  296,  297,  298,  299,
+  300,  301,  302,   -1,   -1,   -1,   -1,   -1,   -1,   -1,
+  258,  259,  260,  261,   -1,   -1,  264,  265,  266,  267,
+  268,  269,  270,  271,   -1,   -1,  274,  275,  276,  277,
+  278,  279,  280,   -1,  282,  283,  284,  285,  286,  287,
+  288,  289,  290,  291,  292,  293,  294,  295,  296,  297,
+  298,  299,  300,  301,  302,  264,  265,  266,  267,  268,
+  269,  270,  271,   -1,   -1,   -1,   -1,   -1,   -1,  278,
+};
+#define YYFINAL 31
+#ifndef YYDEBUG
+#define YYDEBUG 0
 #endif
-
-#ifndef WIN32
-#include <values.h>
+#define YYMAXTOKEN 302
+#if YYDEBUG
+static YYCONST char *YYCONST yyname[] = {
+"end-of-file",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,"'&'",0,"'('","')'","'*'",0,"','","'-'","'.'",0,0,0,0,0,0,0,0,0,0,0,
+"':'","';'",0,"'='",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+"'['",0,"']'",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"'{'",0,
+"'}'","'~'",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"CLASS","PUBLIC","PRIVATE","PROTECTED",
+"VIRTUAL","STRING","NUM","ID","INT","FLOAT","SHORT","LONG","DOUBLE","VOID",
+"CHAR","CLASS_REF","OTHER","CONST","OPERATOR","UNSIGNED","FRIEND","VTK_ID",
+"STATIC","VAR_FUNCTION","ARRAY_NUM","SetMacro","GetMacro","SetStringMacro",
+"GetStringMacro","SetClampMacro","SetObjectMacro",
+"SetReferenceCountedObjectMacro","GetObjectMacro","BooleanMacro",
+"SetVector2Macro","SetVector3Macro","SetVector4Macro","SetVector6Macro",
+"GetVector2Macro","GetVector3Macro","GetVector4Macro","GetVector6Macro",
+"SetVectorMacro","GetVectorMacro","ViewportCoordinateMacro",
+"WorldCoordinateMacro",
+};
+static YYCONST char *YYCONST yyrule[] = {
+"$accept : strt",
+"strt : maybe_other class_def maybe_other",
+"$$1 :",
+"class_def : CLASS VTK_ID $$1 optional_scope '{' class_def_body '}'",
+"class_def_body : class_def_item",
+"class_def_body : class_def_item class_def_body",
+"class_def_item : scope_type ':'",
+"class_def_item : var",
+"class_def_item : function",
+"class_def_item : FRIEND function",
+"class_def_item : macro ';'",
+"class_def_item : macro",
+"function : '~' func",
+"function : VIRTUAL '~' func",
+"function : func",
+"function : type func",
+"function : VIRTUAL type func",
+"function : VIRTUAL func",
+"$$2 :",
+"func : func_beg $$2 func_end",
+"func : OPERATOR maybe_other_no_semi ';'",
+"func : func_beg '=' NUM ';'",
+"$$3 :",
+"func_beg : any_id '(' $$3 args_list ')'",
+"any_id : VTK_ID",
+"any_id : ID",
+"func_end : ';'",
+"func_end : CONST ';'",
+"func_end : CONST '{' maybe_other '}' ';'",
+"func_end : '{' maybe_other '}' ';'",
+"func_end : CONST '{' maybe_other '}'",
+"func_end : '{' maybe_other '}'",
+"func_end : ':' maybe_other_no_semi ';'",
+"args_list :",
+"args_list : more_args",
+"more_args : arg",
+"$$4 :",
+"more_args : arg $$4 ',' more_args",
+"arg : type",
+"$$5 :",
+"arg : type var_id $$5 opt_var_assign",
+"arg : VAR_FUNCTION",
+"opt_var_assign :",
+"opt_var_assign : '=' float_num",
+"var : type var_id ';'",
+"var : VAR_FUNCTION ';'",
+"var_id : any_id var_array",
+"var_array :",
+"$$6 :",
+"var_array : ARRAY_NUM $$6 var_array",
+"var_array : '[' maybe_other_no_semi ']' var_array",
+"type : CONST type_red1",
+"type : type_red1",
+"type : STATIC type_red1",
+"type : STATIC CONST type_red1",
+"type_red1 : type_red2",
+"type_red1 : type_red2 type_indirection",
+"type_indirection : '&'",
+"type_indirection : '*'",
+"type_indirection : '&' type_indirection",
+"type_indirection : '*' type_indirection",
+"$$7 :",
+"type_red2 : UNSIGNED $$7 type_primitive",
+"type_red2 : type_primitive",
+"type_primitive : FLOAT",
+"type_primitive : VOID",
+"type_primitive : CHAR",
+"type_primitive : INT",
+"type_primitive : SHORT",
+"type_primitive : LONG",
+"type_primitive : DOUBLE",
+"type_primitive : ID",
+"type_primitive : VTK_ID",
+"optional_scope :",
+"optional_scope : ':' scope_list",
+"scope_list : scope_type VTK_ID",
+"$$8 :",
+"scope_list : scope_type VTK_ID $$8 ',' scope_list",
+"scope_type : PUBLIC",
+"scope_type : PRIVATE",
+"scope_type : PROTECTED",
+"float_num : '-' float_prim",
+"float_num : float_prim",
+"float_prim : NUM",
+"float_prim : NUM '.' NUM",
+"float_prim : any_id",
+"$$9 :",
+"macro : SetMacro '(' any_id ',' $$9 type_red2 ')'",
+"$$10 :",
+"$$11 :",
+"macro : GetMacro '(' $$10 any_id ',' $$11 type_red2 ')'",
+"$$12 :",
+"macro : SetStringMacro '(' $$12 any_id ')'",
+"$$13 :",
+"macro : GetStringMacro '(' $$13 any_id ')'",
+"$$14 :",
+"$$15 :",
+"macro : SetClampMacro '(' any_id ',' $$14 type_red2 $$15 ',' maybe_other_no_semi ')'",
+"$$16 :",
+"macro : SetObjectMacro '(' any_id ',' $$16 type_red2 ')'",
+"$$17 :",
+"macro : SetReferenceCountedObjectMacro '(' any_id ',' $$17 type_red2 ')'",
+"$$18 :",
+"$$19 :",
+"macro : GetObjectMacro '(' $$18 any_id ',' $$19 type_red2 ')'",
+"$$20 :",
+"macro : BooleanMacro '(' any_id $$20 ',' type_red2 ')'",
+"$$21 :",
+"macro : SetVector2Macro '(' any_id ',' $$21 type_red2 ')'",
+"$$22 :",
+"macro : GetVector2Macro '(' any_id ',' $$22 type_red2 ')'",
+"$$23 :",
+"macro : SetVector3Macro '(' any_id ',' $$23 type_red2 ')'",
+"$$24 :",
+"macro : GetVector3Macro '(' any_id ',' $$24 type_red2 ')'",
+"$$25 :",
+"macro : SetVector4Macro '(' any_id ',' $$25 type_red2 ')'",
+"$$26 :",
+"macro : GetVector4Macro '(' any_id ',' $$26 type_red2 ')'",
+"$$27 :",
+"macro : SetVector6Macro '(' any_id ',' $$27 type_red2 ')'",
+"$$28 :",
+"macro : GetVector6Macro '(' any_id ',' $$28 type_red2 ')'",
+"$$29 :",
+"macro : SetVectorMacro '(' any_id ',' $$29 type_red2 ',' float_num ')'",
+"$$30 :",
+"macro : GetVectorMacro '(' any_id ',' $$30 type_red2 ',' float_num ')'",
+"macro : ViewportCoordinateMacro '(' any_id ')'",
+"macro : WorldCoordinateMacro '(' any_id ')'",
+"maybe_other :",
+"maybe_other : other_stuff maybe_other",
+"maybe_other_no_semi :",
+"maybe_other_no_semi : other_stuff_no_semi maybe_other_no_semi",
+"other_stuff : ';'",
+"other_stuff : other_stuff_no_semi",
+"other_stuff_no_semi : OTHER",
+"other_stuff_no_semi : braces",
+"other_stuff_no_semi : parens",
+"other_stuff_no_semi : '*'",
+"other_stuff_no_semi : '='",
+"other_stuff_no_semi : ':'",
+"other_stuff_no_semi : ','",
+"other_stuff_no_semi : '.'",
+"other_stuff_no_semi : STRING",
+"other_stuff_no_semi : type_red2",
+"other_stuff_no_semi : NUM",
+"other_stuff_no_semi : CLASS_REF",
+"other_stuff_no_semi : '&'",
+"other_stuff_no_semi : brackets",
+"other_stuff_no_semi : CONST",
+"other_stuff_no_semi : OPERATOR",
+"other_stuff_no_semi : '-'",
+"other_stuff_no_semi : '~'",
+"other_stuff_no_semi : STATIC",
+"other_stuff_no_semi : ARRAY_NUM",
+"braces : '{' maybe_other '}'",
+"parens : '(' maybe_other ')'",
+"brackets : '[' maybe_other ']'",
+};
 #endif
-
-#ifdef __cplusplus
-
-#ifndef yyerror
-	void yyerror(const char *);
+#define YYLEX yylex()
+#define YYEMPTY -1
+#define yyclearin (yychar=(YYEMPTY))
+#define yyerrok (yyerrflag=0)
+#ifndef YYINITDEPTH
+#define YYINITDEPTH 200
 #endif
-
-#ifndef yylex
-#ifdef __EXTERN_C__
-	extern "C" { int yylex(void); }
-#else
-	int yylex(void);
-#endif
-#endif
-	int yyparse(void);
-
-#endif
-#define yyclearin yychar = -1
-#define yyerrok yyerrflag = 0
-extern int yychar;
-extern int yyerrflag;
-YYSTYPE yylval;
-YYSTYPE yyval;
-typedef int yytabelem;
+#ifdef YYSTACKSIZE
 #ifndef YYMAXDEPTH
-#define YYMAXDEPTH 150
+#define YYMAXDEPTH YYSTACKSIZE
 #endif
-#if YYMAXDEPTH > 0
-int yy_yys[YYMAXDEPTH], *yys = yy_yys;
-YYSTYPE yy_yyv[YYMAXDEPTH], *yyv = yy_yyv;
-#else	/* user does initial allocation */
-int *yys;
-YYSTYPE *yyv;
+#else
+#ifdef YYMAXDEPTH
+#define YYSTACKSIZE YYMAXDEPTH
+#else
+#define YYSTACKSIZE 500
+#define YYMAXDEPTH 500
 #endif
-static int yymaxdepth = YYMAXDEPTH;
-# define YYERRCODE 256
+#endif
+#ifndef YYMAXSTACKSIZE
+#define YYMAXSTACKSIZE 10000
+#endif
+int yydebug;
+int yynerrs;
+int yyerrflag;
+int yychar;
+YYSTYPE yyval;
+YYSTYPE yylval;
+static short *yyss;
+static YYSTYPE *yyvs;
+static int yystacksize;
+#define yyfree(x) free(x)
+extern int yylex();
 
-# line 605 "vtkParse.y"
+static YYPTR
+YYDEFUN (yymalloc, (bytes), unsigned bytes)
+{
+    YYPTR ptr = (YYPTR) malloc (bytes);
+    if (ptr != 0) return (ptr);
+    yyerror ("yyparse: memory exhausted");
+    return (0);
+}
 
+static YYPTR
+YYDEFUN (yyrealloc, (old, bytes), YYPTR old YYAND unsigned bytes)
+{
+    YYPTR ptr = (YYPTR) realloc (old, bytes);
+    if (ptr != 0) return (ptr);
+    yyerror ("yyparse: memory exhausted");
+    return (0);
+}
+
+static int
+#ifdef __GNUC__
+__inline__
+#endif
+yygrow ()
+{
+    int old_stacksize = yystacksize;
+    short *new_yyss;
+    YYSTYPE *new_yyvs;
+
+    if (yystacksize == YYMAXSTACKSIZE)
+        return (1);
+    yystacksize += (yystacksize + 1 ) / 2;
+    if (yystacksize > YYMAXSTACKSIZE)
+        yystacksize = YYMAXSTACKSIZE;
+#if YYDEBUG
+    if (yydebug)
+        printf("yydebug: growing stack size from %d to %d\n",
+               old_stacksize, yystacksize);
+#endif
+    new_yyss = (short *) yyrealloc ((char *)yyss, yystacksize * sizeof (short));
+    if (new_yyss == 0)
+        return (1);
+    new_yyvs = (YYSTYPE *) yyrealloc ((char *)yyvs, yystacksize * sizeof (YYSTYPE));
+    if (new_yyvs == 0)
+    {
+        yyfree (new_yyss);
+        return (1);
+    }
+    yyss = new_yyss;
+    yyvs = new_yyvs;
+    return (0);
+}
+#line 784 "vtkParse.y"
 #include <string.h>
 #include "lex.yy.c"
 
@@ -142,6 +712,9 @@ void InitFunction(FunctionInfo *func)
   func->ReturnType = 2;
   func->ReturnClass = NULL;
   func->Comment = NULL;
+  func->Signature = NULL;
+  openSig = 1;
+  invertSig = 0;
 }
 
 /* when the cpp file doesn't have enough info use the hint file */
@@ -268,1393 +841,897 @@ int main(int argc,char *argv[])
  
 
 
-yytabelem yyexca[] ={
--1, 1,
-	0, -1,
-	-2, 0,
--1, 100,
-	40, 21,
-	-2, 67,
--1, 101,
-	40, 22,
-	-2, 66,
--1, 102,
-	44, 71,
-	-2, 70,
--1, 180,
-	44, 33,
-	-2, 32,
-	};
-# define YYNPROD 131
-# define YYLAST 544
-yytabelem yyact[]={
+#line 845 "vtkParse.tab.c"
+#define YYABORT goto yyabort
+#define YYACCEPT goto yyaccept
+#define YYERROR goto yyerrlab
 
-    70,    18,   143,    27,   102,     9,   113,    12,    22,    13,
-   153,    48,    38,    34,    31,    35,    36,    37,    32,    33,
-   112,    11,     4,    18,    10,    27,    39,     9,   271,    12,
-    22,    13,   269,   272,   113,    38,    34,    31,    35,    36,
-    37,    32,    33,    11,   287,    94,    10,    28,   112,    39,
-    96,   182,   260,   153,    30,    41,   179,   270,    97,   285,
-    58,    59,    60,   110,    70,    38,    34,    31,    35,    36,
-    37,    32,    33,   113,    56,   142,    30,    28,   277,    39,
-   103,    49,   239,   236,    98,   235,    26,   112,    55,    23,
-    38,    34,    31,    35,    36,    37,    32,    33,   216,    51,
-   267,   288,    28,   286,    39,   278,   275,   183,    26,   150,
-   114,    23,   108,   105,    54,   283,   259,   258,   245,   240,
-   208,   207,    19,   206,   205,   204,   203,   111,   202,   116,
-   201,   200,    58,    59,    60,    71,   151,   261,   101,    34,
-    31,    35,    36,    37,    32,    33,   146,   238,    94,    98,
-    28,    66,   100,    96,    69,    65,    73,    74,    75,    76,
-    77,    78,    79,    80,    81,    82,    84,    86,    88,    83,
-    85,    87,    89,    90,    91,    92,    93,   144,   156,   157,
-   158,   159,   160,   161,   162,   163,   164,   165,   166,   167,
-   168,   169,   170,   171,   172,   173,   174,   175,   176,    71,
-   152,   262,   101,    34,    31,    35,    36,    37,    32,    33,
-     5,   199,    94,    98,    28,    95,   100,    96,   198,    68,
-   197,   196,   106,   195,    61,    14,    16,    38,    34,    31,
-    35,    36,    37,    32,    33,    17,     6,    20,    21,    28,
-   214,    39,    24,   152,    25,   213,   194,    14,    16,    38,
-    34,    31,    35,    36,    37,    32,    33,    17,     6,    20,
-    21,    28,   215,    39,    24,    72,    25,   101,    34,    31,
-    35,    36,    37,    32,    33,   272,   113,    94,    98,    28,
-     2,   100,    96,    15,    42,    57,   107,   104,   191,   188,
-   112,   117,   274,   190,   185,   186,   187,   265,   237,   282,
-   279,   147,   284,   281,   143,   148,   280,    43,    44,   145,
-   140,    46,   141,   257,   256,   255,   254,   273,   273,   253,
-   252,    47,   251,   184,   250,   249,   273,   248,   247,   273,
-   246,   189,   244,   243,   109,   211,   115,   118,   210,    99,
-   209,    63,   193,   192,    50,   139,    99,   138,    63,   137,
-    99,   136,   135,   242,   134,    99,   145,   133,   177,   132,
-   131,   130,   129,   181,   145,   128,   127,   126,   125,   124,
-   123,   122,   121,   109,   120,   119,    29,     8,    99,     7,
-    99,     3,   154,   155,   149,   266,   241,   212,   180,   234,
-   178,    67,    64,    62,    53,    52,    40,     1,     0,     0,
-     0,     0,     0,     0,     0,    45,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,   264,     0,     0,
-     0,     0,     0,   268,     0,     0,    99,    99,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-   145,     0,     0,     0,     0,     0,   145,     0,     0,     0,
-   181,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,   217,   218,     0,     0,   219,   220,
-   221,   222,   223,   224,   225,   226,   227,   228,   229,   230,
-   231,   232,   233,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,   263,
-     0,     0,     0,     0,    99,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,   276 };
-yytabelem yypact[]={
-
-   -37,-10000000,  -202,   -37,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
--10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
--10000000,-10000000,-10000000,-10000000,-10000000,-10000000,   -37,   -37,  -252,-10000000,
-   -37,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
-   -37,  -267,-10000000,   -44,   303,-10000000,     6,-10000000,-10000000,-10000000,
--10000000,-10000000,    56,   -35,  -198,  -126,-10000000,  -274,-10000000,-10000000,
--10000000,   -45,  -126,    55,-10000000,-10000000,   -62,    53,  -191,    51,
-  -191,     3,-10000000,   335,   334,   332,   331,   330,   329,   328,
-   327,   326,   325,   322,   321,   320,   319,   317,   314,   312,
-   311,   309,   307,   305,  -174,-10000000,  -199,   264,   -15,   263,
--10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,  -191,-10000000,-10000000,
-    50,   -38,-10000000,-10000000,-10000000,-10000000,  -191,  -191,-10000000,  -258,
-  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,
-  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,  -258,
--10000000,-10000000,  -174,  -229,    48,   -15,-10000000,   263,   263,   252,
--10000000,-10000000,   -81,   -15,-10000000,-10000000,   249,   244,   302,   301,
-   202,   179,   177,   176,   174,   167,    87,    86,    84,    82,
-    81,    80,    79,    77,    76,   299,   297,-10000000,   294,-10000000,
--10000000,  -258,-10000000,-10000000,-10000000,-10000000,-10000000,  -198,-10000000,     5,
-  -174,  -174,-10000000,-10000000,  -174,  -174,  -174,  -174,  -174,  -174,
-  -174,  -174,  -174,  -174,  -174,  -174,  -174,  -174,  -174,-10000000,
--10000000,    24,    75,-10000000,   -81,-10000000,   -81,   292,   291,    74,
-   289,   287,   286,   284,   283,   281,   279,   278,   275,   274,
-   273,   272,    73,    72,-10000000,  -211,-10000000,    78,   -37,   -15,
-  -229,    39,-10000000,-10000000,-10000000,   -15,-10000000,-10000000,-10000000,-10000000,
--10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,    12,    12,
-    47,-10000000,   -37,   -47,    46,-10000000,-10000000,    12,   265,   262,
-  -230,-10000000,    69,-10000000,   261,-10000000,   -66,    44,-10000000,-10000000,
--10000000,-10000000,-10000000,  -219,-10000000,    42,-10000000,-10000000,-10000000 };
-yytabelem yypgo[]={
-
-     0,   397,   280,   396,   395,   394,   224,   393,   285,   392,
-   155,   391,   265,   219,    58,   390,   389,   177,    56,   388,
-   387,    63,   386,   385,    32,   136,   215,   283,   146,   376,
-    74,   384,    28,   381,   210,   379,   377,   122 };
-yytabelem yyr1[]={
-
-     0,     1,     4,     3,     6,     6,     7,     7,     7,     7,
-     7,     7,    10,    10,    10,    10,    10,    10,    12,    12,
-    12,    14,    14,    16,    16,    16,    16,    16,    16,    16,
-    15,    15,    18,    20,    18,    19,    22,    19,    19,    23,
-    23,     9,     9,    21,    25,    25,    25,    13,    13,    13,
-    13,    26,    26,    28,    28,    28,    28,    27,    27,    29,
-    29,    29,    29,    29,    29,    29,    29,    29,     5,     5,
-    30,    31,    30,     8,     8,     8,    24,    24,    32,    32,
-    32,    11,    11,    11,    11,    11,    11,    11,    11,    11,
-    11,    11,    11,    11,    11,    11,    11,    11,    11,    11,
-    11,    11,     2,     2,    17,    17,    33,    33,    34,    34,
-    34,    34,    34,    34,    34,    34,    34,    34,    34,    34,
-    34,    34,    34,    34,    34,    34,    34,    34,    35,    36,
-    37 };
-yytabelem yyr2[]={
-
-     0,     6,     1,    14,     2,     4,     4,     2,     2,     4,
-     4,     2,     5,     7,     3,     5,     7,     5,    11,     7,
-    15,     2,     2,     2,     4,    10,     8,     8,     6,     6,
-     0,     2,     3,     1,     8,     3,     1,     8,     3,     0,
-     4,     6,     4,     4,     0,     5,     9,     5,     3,     5,
-     7,     3,     5,     3,     3,     5,     5,     5,     3,     3,
-     3,     3,     3,     3,     3,     3,     3,     3,     0,     4,
-     5,     1,    10,     3,     3,     3,     4,     2,     3,     7,
-     3,    13,    13,     9,     9,    17,    13,    13,    13,    13,
-    13,    13,    13,    13,    13,    13,    13,    13,    17,    17,
-     9,     9,     0,     4,     0,     4,     2,     2,     2,     2,
-     2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,     2,     2,     2,     2,     2,     6,     6,
-     6 };
-yytabelem yychk[]={
-
--10000000,    -1,    -2,   -33,    59,   -34,   273,   -35,   -36,    42,
-    61,    58,    44,    46,   262,   -27,   263,   272,    38,   -37,
-   274,   275,    45,   126,   279,   281,   123,    40,   276,   -29,
-    91,   266,   270,   271,   265,   267,   268,   269,   264,   278,
-    -3,   257,    -2,    -2,    -2,   -29,    -2,    -2,   278,   125,
-    41,    93,    -4,    -5,    58,   123,   -30,    -8,   258,   259,
-   260,    -6,    -7,    -8,    -9,   -10,   277,   -11,   -13,   280,
-   126,   261,   -12,   282,   283,   284,   285,   286,   287,   288,
-   289,   290,   291,   295,   292,   296,   293,   297,   294,   298,
-   299,   300,   301,   302,   274,   -26,   279,   -14,   275,   -27,
-   278,   264,   278,   125,    -6,    58,   -10,   -13,    59,   -12,
-   -21,   -14,   278,   264,    59,   -12,   126,   -13,   -12,    40,
-    40,    40,    40,    40,    40,    40,    40,    40,    40,    40,
-    40,    40,    40,    40,    40,    40,    40,    40,    40,    40,
-   -26,   -26,   274,    40,   -17,   -34,   -28,    38,    42,   -31,
-    59,   -25,   281,    91,   -12,   -12,   -14,   -14,   -14,   -14,
-   -14,   -14,   -14,   -14,   -14,   -14,   -14,   -14,   -14,   -14,
-   -14,   -14,   -14,   -14,   -14,   -14,   -14,   -26,   -15,   -18,
-   -19,   -13,   280,    59,   -17,   -28,   -28,    44,   -25,   -17,
-    44,    44,    41,    41,    44,    44,    44,    44,    44,    44,
-    44,    44,    44,    44,    44,    44,    44,    44,    44,    41,
-    41,    41,   -20,   -21,   -14,   -30,    93,   -27,   -27,   -27,
-   -27,   -27,   -27,   -27,   -27,   -27,   -27,   -27,   -27,   -27,
-   -27,   -27,   -27,   -27,   -16,    61,    59,   274,   123,    58,
-    44,   -22,   -25,    41,    41,    44,    41,    41,    41,    41,
-    41,    41,    41,    41,    41,    41,    41,    41,    44,    44,
-   263,    59,   123,    -2,   -17,   -18,   -23,    61,   -17,   -24,
-    45,   -32,   263,   -14,   -24,    59,    -2,   125,    59,   -24,
-    41,    41,   -32,    46,    41,   125,    59,   263,    59 };
-yytabelem yydef[]={
-
-   102,    -2,     0,   102,   106,   107,   108,   109,   110,   111,
-   112,   113,   114,   115,   116,   117,   118,   119,   120,   121,
-   122,   123,   124,   125,   126,   127,   102,   102,     0,    58,
-   102,    59,    60,    61,    62,    63,    64,    65,    66,    67,
-   102,     0,   103,     0,     0,    57,     0,     1,     2,   128,
-   129,   130,    68,     0,     0,     0,    69,     0,    73,    74,
-    75,     0,     4,     0,     7,     8,     0,    11,     0,     0,
-     0,     0,    14,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,    48,     0,     0,   104,    51,
-    -2,    -2,    -2,     3,     5,     6,     9,     0,    10,    15,
-     0,    44,    21,    22,    42,    12,     0,     0,    17,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-    47,    49,     0,    30,     0,   104,    52,    53,    54,     0,
-    41,    43,    44,   104,    13,    16,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,    50,     0,    31,
-    -2,    35,    38,    19,   105,    55,    56,     0,    45,     0,
-     0,     0,    83,    84,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,   100,
-   101,     0,     0,    36,    44,    72,    44,     0,     0,     0,
-     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,    18,     0,    23,     0,   102,   104,
-     0,    39,    46,    81,    82,   104,    86,    87,    88,    89,
-    90,    91,    92,    93,    94,    95,    96,    97,     0,     0,
-     0,    24,   102,     0,     0,    34,    37,     0,     0,     0,
-     0,    77,    78,    80,     0,    20,     0,    28,    29,    40,
-    85,    98,    76,     0,    99,    27,    26,    79,    25 };
-typedef struct
+#if YYDEBUG
 #ifdef __cplusplus
-	yytoktype
-#endif
-{ char *t_name; int t_val; } yytoktype;
-#ifndef YYDEBUG
-#	define YYDEBUG	0	/* don't allow debugging */
-#endif
-
-#if YYDEBUG
-
-yytoktype yytoks[] =
-{
-	"CLASS",	257,
-	"PUBLIC",	258,
-	"PRIVATE",	259,
-	"PROTECTED",	260,
-	"VIRTUAL",	261,
-	"STRING",	262,
-	"NUM",	263,
-	"ID",	264,
-	"INT",	265,
-	"FLOAT",	266,
-	"SHORT",	267,
-	"LONG",	268,
-	"DOUBLE",	269,
-	"VOID",	270,
-	"CHAR",	271,
-	"CLASS_REF",	272,
-	"OTHER",	273,
-	"CONST",	274,
-	"OPERATOR",	275,
-	"UNSIGNED",	276,
-	"FRIEND",	277,
-	"VTK_ID",	278,
-	"STATIC",	279,
-	"VAR_FUNCTION",	280,
-	"ARRAY_NUM",	281,
-	"SetMacro",	282,
-	"GetMacro",	283,
-	"SetStringMacro",	284,
-	"GetStringMacro",	285,
-	"SetClampMacro",	286,
-	"SetObjectMacro",	287,
-	"SetReferenceCountedObjectMacro",	288,
-	"GetObjectMacro",	289,
-	"BooleanMacro",	290,
-	"SetVector2Macro",	291,
-	"SetVector3Macro",	292,
-	"SetVector4Macro",	293,
-	"SetVector6Macro",	294,
-	"GetVector2Macro",	295,
-	"GetVector3Macro",	296,
-	"GetVector4Macro",	297,
-	"GetVector6Macro",	298,
-	"SetVectorMacro",	299,
-	"GetVectorMacro",	300,
-	"ViewportCoordinateMacro",	301,
-	"WorldCoordinateMacro",	302,
-	"-unknown-",	-1	/* ends search */
-};
-
-char * yyreds[] =
-{
-	"-no such reduction-",
-	"strt : maybe_other class_def maybe_other",
-	"class_def : CLASS VTK_ID",
-	"class_def : CLASS VTK_ID optional_scope '{' class_def_body '}'",
-	"class_def_body : class_def_item",
-	"class_def_body : class_def_item class_def_body",
-	"class_def_item : scope_type ':'",
-	"class_def_item : var",
-	"class_def_item : function",
-	"class_def_item : FRIEND function",
-	"class_def_item : macro ';'",
-	"class_def_item : macro",
-	"function : '~' func",
-	"function : VIRTUAL '~' func",
-	"function : func",
-	"function : type func",
-	"function : VIRTUAL type func",
-	"function : VIRTUAL func",
-	"func : any_id '(' args_list ')' func_end",
-	"func : OPERATOR maybe_other_no_semi ';'",
-	"func : any_id '(' args_list ')' '=' NUM ';'",
-	"any_id : VTK_ID",
-	"any_id : ID",
-	"func_end : ';'",
-	"func_end : CONST ';'",
-	"func_end : CONST '{' maybe_other '}' ';'",
-	"func_end : '{' maybe_other '}' ';'",
-	"func_end : CONST '{' maybe_other '}'",
-	"func_end : '{' maybe_other '}'",
-	"func_end : ':' maybe_other_no_semi ';'",
-	"args_list : /* empty */",
-	"args_list : more_args",
-	"more_args : arg",
-	"more_args : arg",
-	"more_args : arg ',' more_args",
-	"arg : type",
-	"arg : type var_id",
-	"arg : type var_id opt_var_assign",
-	"arg : VAR_FUNCTION",
-	"opt_var_assign : /* empty */",
-	"opt_var_assign : '=' float_num",
-	"var : type var_id ';'",
-	"var : VAR_FUNCTION ';'",
-	"var_id : any_id var_array",
-	"var_array : /* empty */",
-	"var_array : ARRAY_NUM var_array",
-	"var_array : '[' maybe_other_no_semi ']' var_array",
-	"type : CONST type_red1",
-	"type : type_red1",
-	"type : STATIC type_red1",
-	"type : STATIC CONST type_red1",
-	"type_red1 : type_red2",
-	"type_red1 : type_red2 type_indirection",
-	"type_indirection : '&'",
-	"type_indirection : '*'",
-	"type_indirection : '&' type_indirection",
-	"type_indirection : '*' type_indirection",
-	"type_red2 : UNSIGNED type_primitive",
-	"type_red2 : type_primitive",
-	"type_primitive : FLOAT",
-	"type_primitive : VOID",
-	"type_primitive : CHAR",
-	"type_primitive : INT",
-	"type_primitive : SHORT",
-	"type_primitive : LONG",
-	"type_primitive : DOUBLE",
-	"type_primitive : ID",
-	"type_primitive : VTK_ID",
-	"optional_scope : /* empty */",
-	"optional_scope : ':' scope_list",
-	"scope_list : scope_type VTK_ID",
-	"scope_list : scope_type VTK_ID",
-	"scope_list : scope_type VTK_ID ',' scope_list",
-	"scope_type : PUBLIC",
-	"scope_type : PRIVATE",
-	"scope_type : PROTECTED",
-	"float_num : '-' float_prim",
-	"float_num : float_prim",
-	"float_prim : NUM",
-	"float_prim : NUM '.' NUM",
-	"float_prim : any_id",
-	"macro : SetMacro '(' any_id ',' type_red2 ')'",
-	"macro : GetMacro '(' any_id ',' type_red2 ')'",
-	"macro : SetStringMacro '(' any_id ')'",
-	"macro : GetStringMacro '(' any_id ')'",
-	"macro : SetClampMacro '(' any_id ',' type_red2 ',' maybe_other_no_semi ')'",
-	"macro : SetObjectMacro '(' any_id ',' type_red2 ')'",
-	"macro : SetReferenceCountedObjectMacro '(' any_id ',' type_red2 ')'",
-	"macro : GetObjectMacro '(' any_id ',' type_red2 ')'",
-	"macro : BooleanMacro '(' any_id ',' type_red2 ')'",
-	"macro : SetVector2Macro '(' any_id ',' type_red2 ')'",
-	"macro : GetVector2Macro '(' any_id ',' type_red2 ')'",
-	"macro : SetVector3Macro '(' any_id ',' type_red2 ')'",
-	"macro : GetVector3Macro '(' any_id ',' type_red2 ')'",
-	"macro : SetVector4Macro '(' any_id ',' type_red2 ')'",
-	"macro : GetVector4Macro '(' any_id ',' type_red2 ')'",
-	"macro : SetVector6Macro '(' any_id ',' type_red2 ')'",
-	"macro : GetVector6Macro '(' any_id ',' type_red2 ')'",
-	"macro : SetVectorMacro '(' any_id ',' type_red2 ',' float_num ')'",
-	"macro : GetVectorMacro '(' any_id ',' type_red2 ',' float_num ')'",
-	"macro : ViewportCoordinateMacro '(' any_id ')'",
-	"macro : WorldCoordinateMacro '(' any_id ')'",
-	"maybe_other : /* empty */",
-	"maybe_other : other_stuff maybe_other",
-	"maybe_other_no_semi : /* empty */",
-	"maybe_other_no_semi : other_stuff_no_semi maybe_other_no_semi",
-	"other_stuff : ';'",
-	"other_stuff : other_stuff_no_semi",
-	"other_stuff_no_semi : OTHER",
-	"other_stuff_no_semi : braces",
-	"other_stuff_no_semi : parens",
-	"other_stuff_no_semi : '*'",
-	"other_stuff_no_semi : '='",
-	"other_stuff_no_semi : ':'",
-	"other_stuff_no_semi : ','",
-	"other_stuff_no_semi : '.'",
-	"other_stuff_no_semi : STRING",
-	"other_stuff_no_semi : type_red2",
-	"other_stuff_no_semi : NUM",
-	"other_stuff_no_semi : CLASS_REF",
-	"other_stuff_no_semi : '&'",
-	"other_stuff_no_semi : brackets",
-	"other_stuff_no_semi : CONST",
-	"other_stuff_no_semi : OPERATOR",
-	"other_stuff_no_semi : '-'",
-	"other_stuff_no_semi : '~'",
-	"other_stuff_no_semi : STATIC",
-	"other_stuff_no_semi : ARRAY_NUM",
-	"braces : '{' maybe_other '}'",
-	"parens : '(' maybe_other ')'",
-	"brackets : '[' maybe_other ']'",
-};
-#endif /* YYDEBUG */
-# line	1 "/usr/ccs/bin/yaccpar"
-/*
- * Copyright (c) 1993 by Sun Microsystems, Inc.
- */
-
-#pragma ident	"@(#)yaccpar	6.12	93/06/07 SMI"
-
-/*
-** Skeleton parser driver for yacc output
-*/
-
-/*
-** yacc user known macros and defines
-*/
-#define YYERROR		goto yyerrlab
-#define YYACCEPT	return(0)
-#define YYABORT		return(1)
-#define YYBACKUP( newtoken, newvalue )\
-{\
-	if ( yychar >= 0 || ( yyr2[ yytmp ] >> 1 ) != 1 )\
-	{\
-		yyerror( "syntax error - cannot backup" );\
-		goto yyerrlab;\
-	}\
-	yychar = newtoken;\
-	yystate = *yyps;\
-	yylval = newvalue;\
-	goto yynewstate;\
-}
-#define YYRECOVERING()	(!!yyerrflag)
-#define YYNEW(type)	malloc(sizeof(type) * yynewmax)
-#define YYCOPY(to, from, type) \
-	(type *) memcpy(to, (char *) from, yynewmax * sizeof(type))
-#define YYENLARGE( from, type) \
-	(type *) realloc((char *) from, yynewmax * sizeof(type))
-#ifndef YYDEBUG
-#	define YYDEBUG	1	/* make debugging available */
-#endif
-
-/*
-** user known globals
-*/
-int yydebug;			/* set to 1 to get debugging */
-
-/*
-** driver internal defines
-*/
-#define YYFLAG		(-10000000)
-
-/*
-** global variables used by the parser
-*/
-YYSTYPE *yypv;			/* top of value stack */
-int *yyps;			/* top of state stack */
-
-int yystate;			/* current state */
-int yytmp;			/* extra var (lasts between blocks) */
-
-int yynerrs;			/* number of errors */
-int yyerrflag;			/* error recovery flag */
-int yychar;			/* current input token number */
-
-
-
-#ifdef YYNMBCHARS
-#define YYLEX()		yycvtok(yylex())
-/*
-** yycvtok - return a token if i is a wchar_t value that exceeds 255.
-**	If i<255, i itself is the token.  If i>255 but the neither 
-**	of the 30th or 31st bit is on, i is already a token.
-*/
-#if defined(__STDC__) || defined(__cplusplus)
-int yycvtok(int i)
+extern "C" char *getenv();
 #else
-int yycvtok(i) int i;
+extern char *getenv();
 #endif
+#endif
+
+int
+yyparse()
 {
-	int first = 0;
-	int last = YYNMBCHARS - 1;
-	int mid;
-	wchar_t j;
+    register int yym, yyn, yystate;
+    register YYSTYPE *yyvsp;
+    register short *yyssp;
+    short *yysse;
+#if YYDEBUG
+    register YYCONST char *yys;
 
-	if(i&0x60000000){/*Must convert to a token. */
-		if( yymbchars[last].character < i ){
-			return i;/*Giving up*/
-		}
-		while ((last>=first)&&(first>=0)) {/*Binary search loop*/
-			mid = (first+last)/2;
-			j = yymbchars[mid].character;
-			if( j==i ){/*Found*/ 
-				return yymbchars[mid].tvalue;
-			}else if( j<i ){
-				first = mid + 1;
-			}else{
-				last = mid -1;
-			}
-		}
-		/*No entry in the table.*/
-		return i;/* Giving up.*/
-	}else{/* i is already a token. */
-		return i;
-	}
-}
-#else/*!YYNMBCHARS*/
-#define YYLEX()		yylex()
-#endif/*!YYNMBCHARS*/
-
-/*
-** yyparse - return 0 if worked, 1 if syntax error not recovered from
-*/
-#if defined(__STDC__) || defined(__cplusplus)
-int yyparse(void)
-#else
-int yyparse()
-#endif
-{
-	register YYSTYPE *yypvt;	/* top of value stack for $vars */
-
-#if defined(__cplusplus) || defined(lint)
-/*
-	hacks to please C++ and lint - goto's inside switch should never be
-	executed; yypvt is set to 0 to avoid "used before set" warning.
-*/
-	static int __yaccpar_lint_hack__ = 0;
-	switch (__yaccpar_lint_hack__)
-	{
-		case 1: goto yyerrlab;
-		case 2: goto yynewstate;
-	}
-	yypvt = 0;
+    if (yys = getenv("YYDEBUG"))
+    {
+        yyn = *yys;
+        if (yyn >= '0' && yyn <= '9')
+            yydebug = yyn - '0';
+    }
 #endif
 
-	/*
-	** Initialize externals - yyparse may be called more than once
-	*/
-	yypv = &yyv[-1];
-	yyps = &yys[-1];
-	yystate = 0;
-	yytmp = 0;
-	yynerrs = 0;
-	yyerrflag = 0;
-	yychar = -1;
+    yynerrs = 0;
+    yyerrflag = 0;
+    yychar = (-1);
 
-#if YYMAXDEPTH <= 0
-	if (yymaxdepth <= 0)
-	{
-		if ((yymaxdepth = YYEXPAND(0)) <= 0)
-		{
-			yyerror("yacc initialization error");
-			YYABORT;
-		}
-	}
+    if (yyss == 0)
+    {
+        yyss = (short *) yymalloc (YYSTACKSIZE * sizeof (short));
+        if (yyss == 0)
+          goto yyabort;
+        yyvs = (YYSTYPE *) yymalloc (YYSTACKSIZE * sizeof (YYSTYPE));
+        if (yyvs == 0)
+        {
+            yyfree (yyss);
+            goto yyabort;
+        }
+        yystacksize = YYSTACKSIZE;
+    }
+    yysse = yyss + yystacksize - 1;
+    yyssp = yyss;
+    yyvsp = yyvs;
+    *yyssp = yystate = 0;
+    goto yyloop;
+
+yypush_lex:
+    yyval = yylval;
+    yystate = yytable[yyn];
+yypush:
+    if (yyssp >= yysse)
+    {
+        int depth = yyssp - yyss;
+        if (yygrow() != 0)
+             goto yyoverflow;
+        yysse = yyss + yystacksize -1;
+        yyssp = depth + yyss;
+        yyvsp = depth + yyvs;
+    }
+    *++yyssp = yystate;
+    *++yyvsp = yyval;
+
+yyloop:
+    if (yyn = yydefred[yystate]) goto yyreduce;
+    yyn = yysindex[yystate];
+    if (yychar < 0)
+    {
+        if ((yychar = yylex()) < 0) yychar = 0;
+#if YYDEBUG
+        if (yydebug)
+        {
+            yys = 0;
+            if (yychar <= YYMAXTOKEN) yys = yyname[yychar];
+            if (!yys) yys = "illegal-symbol";
+            printf("yydebug: state %d, reading %d (%s)\n", yystate,
+                    yychar, yys);
+        }
 #endif
-
-	{
-		register YYSTYPE *yy_pv;	/* top of value stack */
-		register int *yy_ps;		/* top of state stack */
-		register int yy_state;		/* current state */
-		register int  yy_n;		/* internal state number info */
-	goto yystack;	/* moved from 6 lines above to here to please C++ */
-
-		/*
-		** get globals into registers.
-		** branch to here only if YYBACKUP was called.
-		*/
-	yynewstate:
-		yy_pv = yypv;
-		yy_ps = yyps;
-		yy_state = yystate;
-		goto yy_newstate;
-
-		/*
-		** get globals into registers.
-		** either we just started, or we just finished a reduction
-		*/
-	yystack:
-		yy_pv = yypv;
-		yy_ps = yyps;
-		yy_state = yystate;
-
-		/*
-		** top of for (;;) loop while no reductions done
-		*/
-	yy_stack:
-		/*
-		** put a state and value onto the stacks
-		*/
+    }
+    if (yyn != 0
+        && ((yyn += yychar), ((unsigned)yyn <= (unsigned)YYTABLESIZE))
+        && yycheck[yyn] == yychar)
+    {
 #if YYDEBUG
-		/*
-		** if debugging, look up token value in list of value vs.
-		** name pairs.  0 and negative (-1) are special values.
-		** Note: linear search is used since time is not a real
-		** consideration while debugging.
-		*/
-		if ( yydebug )
-		{
-			register int yy_i;
-
-			printf( "State %d, token ", yy_state );
-			if ( yychar == 0 )
-				printf( "end-of-file\n" );
-			else if ( yychar < 0 )
-				printf( "-none-\n" );
-			else
-			{
-				for ( yy_i = 0; yytoks[yy_i].t_val >= 0;
-					yy_i++ )
-				{
-					if ( yytoks[yy_i].t_val == yychar )
-						break;
-				}
-				printf( "%s\n", yytoks[yy_i].t_name );
-			}
-		}
-#endif /* YYDEBUG */
-		if ( ++yy_ps >= &yys[ yymaxdepth ] )	/* room on stack? */
-		{
-			/*
-			** reallocate and recover.  Note that pointers
-			** have to be reset, or bad things will happen
-			*/
-			int yyps_index = (yy_ps - yys);
-			int yypv_index = (yy_pv - yyv);
-			int yypvt_index = (yypvt - yyv);
-			int yynewmax;
-#ifdef YYEXPAND
-			yynewmax = YYEXPAND(yymaxdepth);
-#else
-			yynewmax = 2 * yymaxdepth;	/* double table size */
-			if (yymaxdepth == YYMAXDEPTH)	/* first time growth */
-			{
-				char *newyys = (char *)YYNEW(int);
-				char *newyyv = (char *)YYNEW(YYSTYPE);
-				if (newyys != 0 && newyyv != 0)
-				{
-					yys = YYCOPY(newyys, yys, int);
-					yyv = YYCOPY(newyyv, yyv, YYSTYPE);
-				}
-				else
-					yynewmax = 0;	/* failed */
-			}
-			else				/* not first time */
-			{
-				yys = YYENLARGE(yys, int);
-				yyv = YYENLARGE(yyv, YYSTYPE);
-				if (yys == 0 || yyv == 0)
-					yynewmax = 0;	/* failed */
-			}
+        if (yydebug)
+            printf("yydebug: state %d, shifting to state %d\n",
+                    yystate, yytable[yyn]);
 #endif
-			if (yynewmax <= yymaxdepth)	/* tables not expanded */
-			{
-				yyerror( "yacc stack overflow" );
-				YYABORT;
-			}
-			yymaxdepth = yynewmax;
-
-			yy_ps = yys + yyps_index;
-			yy_pv = yyv + yypv_index;
-			yypvt = yyv + yypvt_index;
-		}
-		*yy_ps = yy_state;
-		*++yy_pv = yyval;
-
-		/*
-		** we have a new state - find out what to do
-		*/
-	yy_newstate:
-		if ( ( yy_n = yypact[ yy_state ] ) <= YYFLAG )
-			goto yydefault;		/* simple state */
-#if YYDEBUG
-		/*
-		** if debugging, need to mark whether new token grabbed
-		*/
-		yytmp = yychar < 0;
+        if (yyerrflag > 0)  --yyerrflag;
+        yychar = (-1);
+        goto yypush_lex;
+    }
+    yyn = yyrindex[yystate];
+    if (yyn != 0
+        && ((yyn += yychar), ((unsigned)yyn <= (unsigned)YYTABLESIZE))
+        && yycheck[yyn] == yychar)
+    {
+        yyn = yytable[yyn];
+        goto yyreduce;
+    }
+    if (yyerrflag) goto yyinrecovery;
+#ifdef lint
+    goto yynewerror;
 #endif
-		if ( ( yychar < 0 ) && ( ( yychar = YYLEX() ) < 0 ) )
-			yychar = 0;		/* reached EOF */
-#if YYDEBUG
-		if ( yydebug && yytmp )
-		{
-			register int yy_i;
-
-			printf( "Received token " );
-			if ( yychar == 0 )
-				printf( "end-of-file\n" );
-			else if ( yychar < 0 )
-				printf( "-none-\n" );
-			else
-			{
-				for ( yy_i = 0; yytoks[yy_i].t_val >= 0;
-					yy_i++ )
-				{
-					if ( yytoks[yy_i].t_val == yychar )
-						break;
-				}
-				printf( "%s\n", yytoks[yy_i].t_name );
-			}
-		}
-#endif /* YYDEBUG */
-		if ( ( ( yy_n += yychar ) < 0 ) || ( yy_n >= YYLAST ) )
-			goto yydefault;
-		if ( yychk[ yy_n = yyact[ yy_n ] ] == yychar )	/*valid shift*/
-		{
-			yychar = -1;
-			yyval = yylval;
-			yy_state = yy_n;
-			if ( yyerrflag > 0 )
-				yyerrflag--;
-			goto yy_stack;
-		}
-
-	yydefault:
-		if ( ( yy_n = yydef[ yy_state ] ) == -2 )
-		{
-#if YYDEBUG
-			yytmp = yychar < 0;
+yynewerror:
+    yyerror("syntax error");
+#ifdef lint
+    goto yyerrlab;
 #endif
-			if ( ( yychar < 0 ) && ( ( yychar = YYLEX() ) < 0 ) )
-				yychar = 0;		/* reached EOF */
+yyerrlab:
+    ++yynerrs;
+yyinrecovery:
+    if (yyerrflag < 3)
+    {
+        yyerrflag = 3;
+        for (;;)
+        {
+            yyn = yysindex[*yyssp];
+            if (yyn != 0
+                && ((yyn += YYERRCODE), ((unsigned)yyn <= (unsigned)YYTABLESIZE))
+                && yycheck[yyn] == YYERRCODE)
+            {
 #if YYDEBUG
-			if ( yydebug && yytmp )
-			{
-				register int yy_i;
-
-				printf( "Received token " );
-				if ( yychar == 0 )
-					printf( "end-of-file\n" );
-				else if ( yychar < 0 )
-					printf( "-none-\n" );
-				else
-				{
-					for ( yy_i = 0;
-						yytoks[yy_i].t_val >= 0;
-						yy_i++ )
-					{
-						if ( yytoks[yy_i].t_val
-							== yychar )
-						{
-							break;
-						}
-					}
-					printf( "%s\n", yytoks[yy_i].t_name );
-				}
-			}
-#endif /* YYDEBUG */
-			/*
-			** look through exception table
-			*/
-			{
-				register int *yyxi = yyexca;
-
-				while ( ( *yyxi != -1 ) ||
-					( yyxi[1] != yy_state ) )
-				{
-					yyxi += 2;
-				}
-				while ( ( *(yyxi += 2) >= 0 ) &&
-					( *yyxi != yychar ) )
-					;
-				if ( ( yy_n = yyxi[1] ) < 0 )
-					YYACCEPT;
-			}
-		}
-
-		/*
-		** check for syntax error
-		*/
-		if ( yy_n == 0 )	/* have an error */
-		{
-			/* no worry about speed here! */
-			switch ( yyerrflag )
-			{
-			case 0:		/* new error */
-				yyerror( "syntax error" );
-				goto skip_init;
-			yyerrlab:
-				/*
-				** get globals into registers.
-				** we have a user generated syntax type error
-				*/
-				yy_pv = yypv;
-				yy_ps = yyps;
-				yy_state = yystate;
-			skip_init:
-				yynerrs++;
-				/* FALLTHRU */
-			case 1:
-			case 2:		/* incompletely recovered error */
-					/* try again... */
-				yyerrflag = 3;
-				/*
-				** find state where "error" is a legal
-				** shift action
-				*/
-				while ( yy_ps >= yys )
-				{
-					yy_n = yypact[ *yy_ps ] + YYERRCODE;
-					if ( yy_n >= 0 && yy_n < YYLAST &&
-						yychk[yyact[yy_n]] == YYERRCODE)					{
-						/*
-						** simulate shift of "error"
-						*/
-						yy_state = yyact[ yy_n ];
-						goto yy_stack;
-					}
-					/*
-					** current state has no shift on
-					** "error", pop stack
-					*/
-#if YYDEBUG
-#	define _POP_ "Error recovery pops state %d, uncovers state %d\n"
-					if ( yydebug )
-						printf( _POP_, *yy_ps,
-							yy_ps[-1] );
-#	undef _POP_
+                if (yydebug)
+                    printf("yydebug: state %d, error recovery shifting\
+ to state %d\n", *yyssp, yytable[yyn]);
 #endif
-					yy_ps--;
-					yy_pv--;
-				}
-				/*
-				** there is no state on stack with "error" as
-				** a valid shift.  give up.
-				*/
-				YYABORT;
-			case 3:		/* no shift yet; eat a token */
+                goto yypush_lex;
+            }
+            else
+            {
 #if YYDEBUG
-				/*
-				** if debugging, look up token in list of
-				** pairs.  0 and negative shouldn't occur,
-				** but since timing doesn't matter when
-				** debugging, it doesn't hurt to leave the
-				** tests here.
-				*/
-				if ( yydebug )
-				{
-					register int yy_i;
-
-					printf( "Error recovery discards " );
-					if ( yychar == 0 )
-						printf( "token end-of-file\n" );
-					else if ( yychar < 0 )
-						printf( "token -none-\n" );
-					else
-					{
-						for ( yy_i = 0;
-							yytoks[yy_i].t_val >= 0;
-							yy_i++ )
-						{
-							if ( yytoks[yy_i].t_val
-								== yychar )
-							{
-								break;
-							}
-						}
-						printf( "token %s\n",
-							yytoks[yy_i].t_name );
-					}
-				}
-#endif /* YYDEBUG */
-				if ( yychar == 0 )	/* reached EOF. quit */
-					YYABORT;
-				yychar = -1;
-				goto yy_newstate;
-			}
-		}/* end if ( yy_n == 0 ) */
-		/*
-		** reduction by production yy_n
-		** put stack tops, etc. so things right after switch
-		*/
-#if YYDEBUG
-		/*
-		** if debugging, print the string that is the user's
-		** specification of the reduction which is just about
-		** to be done.
-		*/
-		if ( yydebug )
-			printf( "Reduce by (%d) \"%s\"\n",
-				yy_n, yyreds[ yy_n ] );
+                if (yydebug)
+                    printf("yydebug: error recovery discarding state %d\n",
+                            *yyssp);
 #endif
-		yytmp = yy_n;			/* value to switch over */
-		yypvt = yy_pv;			/* $vars top of value stack */
-		/*
-		** Look in goto table for next state
-		** Sorry about using yy_state here as temporary
-		** register variable, but why not, if it works...
-		** If yyr2[ yy_n ] doesn't have the low order bit
-		** set, then there is no action to be done for
-		** this reduction.  So, no saving & unsaving of
-		** registers done.  The only difference between the
-		** code just after the if and the body of the if is
-		** the goto yy_stack in the body.  This way the test
-		** can be made before the choice of what to do is needed.
-		*/
-		{
-			/* length of production doubled with extra bit */
-			register int yy_len = yyr2[ yy_n ];
-
-			if ( !( yy_len & 01 ) )
-			{
-				yy_len >>= 1;
-				yyval = ( yy_pv -= yy_len )[1];	/* $$ = $1 */
-				yy_state = yypgo[ yy_n = yyr1[ yy_n ] ] +
-					*( yy_ps -= yy_len ) + 1;
-				if ( yy_state >= YYLAST ||
-					yychk[ yy_state =
-					yyact[ yy_state ] ] != -yy_n )
-				{
-					yy_state = yyact[ yypgo[ yy_n ] ];
-				}
-				goto yy_stack;
-			}
-			yy_len >>= 1;
-			yyval = ( yy_pv -= yy_len )[1];	/* $$ = $1 */
-			yy_state = yypgo[ yy_n = yyr1[ yy_n ] ] +
-				*( yy_ps -= yy_len ) + 1;
-			if ( yy_state >= YYLAST ||
-				yychk[ yy_state = yyact[ yy_state ] ] != -yy_n )
-			{
-				yy_state = yyact[ yypgo[ yy_n ] ];
-			}
-		}
-					/* save until reenter driver code */
-		yystate = yy_state;
-		yyps = yy_ps;
-		yypv = yy_pv;
-	}
-	/*
-	** code supplied by user is placed in this switch
-	*/
-	switch( yytmp )
-	{
-		
+                if (yyssp <= yyss) goto yyabort;
+                --yyssp;
+                --yyvsp;
+            }
+        }
+    }
+    else
+    {
+        if (yychar == 0) goto yyabort;
+#if YYDEBUG
+        if (yydebug)
+        {
+            yys = 0;
+            if (yychar <= YYMAXTOKEN) yys = yyname[yychar];
+            if (!yys) yys = "illegal-symbol";
+            printf("yydebug: state %d, error recovery discards token %d (%s)\n",
+                    yystate, yychar, yys);
+        }
+#endif
+        yychar = (-1);
+        goto yyloop;
+    }
+yyreduce:
+#if YYDEBUG
+    if (yydebug)
+        printf("yydebug: state %d, reducing by rule %d (%s)\n",
+                yystate, yyn, yyrule[yyn]);
+#endif
+    yym = yylen[yyn];
+    yyval = yyvsp[1-yym];
+    switch (yyn)
+    {
 case 2:
-# line 124 "vtkParse.y"
+#line 163 "vtkParse.y"
 {
-      data.ClassName = strdup(yypvt[-0].str);
-      } break;
+      data.ClassName = strdup(yyvsp[0].str);
+      }
+break;
 case 12:
-# line 134 "vtkParse.y"
-{ output_function(); } break;
+#line 173 "vtkParse.y"
+{ preSig("~"); output_function(); }
+break;
 case 13:
-# line 135 "vtkParse.y"
-{ output_function(); } break;
+#line 174 "vtkParse.y"
+{ preSig("virtual ~"); output_function(); }
+break;
 case 14:
-# line 137 "vtkParse.y"
+#line 176 "vtkParse.y"
 {
          output_function();
-	 } break;
+	 }
+break;
 case 15:
-# line 141 "vtkParse.y"
+#line 180 "vtkParse.y"
 {
-         currentFunction->ReturnType = yypvt[-1].integer;
+         currentFunction->ReturnType = yyvsp[-1].integer;
          output_function();
-	 } break;
+	 }
+break;
 case 16:
-# line 146 "vtkParse.y"
+#line 185 "vtkParse.y"
 {
-         currentFunction->ReturnType = yypvt[-1].integer;
+         preSig("virtual ");
+         currentFunction->ReturnType = yyvsp[-1].integer;
          output_function();
-	 } break;
+	 }
+break;
 case 17:
-# line 151 "vtkParse.y"
+#line 191 "vtkParse.y"
 {
+         preSig("virtual ");
          output_function();
-	 } break;
+	 }
+break;
 case 18:
-# line 156 "vtkParse.y"
-{
-      currentFunction->Name = yypvt[-4].str; 
-      fprintf(stderr,"   Parsed func %s\n",yypvt[-4].str); 
-    } break;
+#line 196 "vtkParse.y"
+{ postSig(");"); openSig = 0; }
+break;
 case 19:
-# line 161 "vtkParse.y"
+#line 197 "vtkParse.y"
+{
+      openSig = 1;
+      currentFunction->Name = yyvsp[-2].str; 
+      fprintf(stderr,"   Parsed func %s\n",yyvsp[-2].str); 
+    }
+break;
+case 20:
+#line 203 "vtkParse.y"
 { 
       currentFunction->IsOperator = 1; 
       fprintf(stderr,"   Converted operator\n"); 
-    } break;
-case 20:
-# line 166 "vtkParse.y"
+    }
+break;
+case 21:
+#line 208 "vtkParse.y"
 { 
-      currentFunction->Name = yypvt[-6].str; 
-      fprintf(stderr,"   Parsed func %s\n",yypvt[-6].str); 
+      postSig(") = 0;"); 
+      currentFunction->Name = yyvsp[-3].str; 
+      fprintf(stderr,"   Parsed func %s\n",yyvsp[-3].str); 
       currentFunction->IsPureVirtual = 1; 
       data.IsAbstract = 1;
-    } break;
-case 32:
-# line 185 "vtkParse.y"
-{ currentFunction->NumberOfArguments++;} break;
-case 33:
-# line 186 "vtkParse.y"
-{ currentFunction->NumberOfArguments++;} break;
+    }
+break;
+case 22:
+#line 216 "vtkParse.y"
+{postSig(" ("); }
+break;
+case 24:
+#line 219 "vtkParse.y"
+{postSig(yyvsp[0].str);}
+break;
+case 25:
+#line 219 "vtkParse.y"
+{postSig(yyvsp[0].str);}
+break;
 case 35:
-# line 189 "vtkParse.y"
-{
-      currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
-      currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
-	yypvt[-0].integer;} break;
+#line 231 "vtkParse.y"
+{ currentFunction->NumberOfArguments++;}
+break;
 case 36:
-# line 194 "vtkParse.y"
+#line 232 "vtkParse.y"
+{ currentFunction->NumberOfArguments++; postSig(", ");}
+break;
+case 38:
+#line 235 "vtkParse.y"
 {
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
-	yypvt[-1].integer;
-    } break;
-case 38:
-# line 200 "vtkParse.y"
+	yyvsp[0].integer;}
+break;
+case 39:
+#line 240 "vtkParse.y"
+{
+      currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
+      currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
+	yyvsp[-1].integer;
+    }
+break;
+case 41:
+#line 246 "vtkParse.y"
 { 
+      postSig("void (*func)(void *) ");
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 5000;
-    } break;
-case 45:
-# line 212 "vtkParse.y"
-{ currentFunction->ArrayFailure = 1; } break;
-case 46:
-# line 214 "vtkParse.y"
-{ currentFunction->ArrayFailure = 1; } break;
-case 47:
-# line 217 "vtkParse.y"
-{yyval.integer = 1000 + yypvt[-0].integer;} break;
+    }
+break;
 case 48:
-# line 218 "vtkParse.y"
-{yyval.integer = yypvt[-0].integer;} break;
+#line 260 "vtkParse.y"
+{char temp[100]; sprintf(temp,"[%i]",yyvsp[0].integer); postSig(temp);}
+break;
 case 49:
-# line 219 "vtkParse.y"
-{yyval.integer = 2000 + yypvt[-0].integer;} break;
+#line 261 "vtkParse.y"
+{ currentFunction->ArrayFailure = 1; }
+break;
 case 50:
-# line 220 "vtkParse.y"
-{yyval.integer = 3000 + yypvt[-0].integer;} break;
+#line 263 "vtkParse.y"
+{ postSig("[]"); currentFunction->ArrayFailure = 1; }
+break;
 case 51:
-# line 222 "vtkParse.y"
-{yyval.integer = yypvt[-0].integer;} break;
+#line 266 "vtkParse.y"
+{yyval.integer = 1000 + yyvsp[0].integer;}
+break;
 case 52:
-# line 224 "vtkParse.y"
-{yyval.integer = yypvt[-1].integer + yypvt[-0].integer;} break;
+#line 267 "vtkParse.y"
+{yyval.integer = yyvsp[0].integer;}
+break;
 case 53:
-# line 233 "vtkParse.y"
-{ yyval.integer = 100;} break;
+#line 268 "vtkParse.y"
+{yyval.integer = 2000 + yyvsp[0].integer;}
+break;
 case 54:
-# line 234 "vtkParse.y"
-{ yyval.integer = 300;} break;
+#line 269 "vtkParse.y"
+{yyval.integer = 3000 + yyvsp[0].integer;}
+break;
 case 55:
-# line 235 "vtkParse.y"
-{ yyval.integer = 100 + yypvt[-0].integer;} break;
+#line 271 "vtkParse.y"
+{yyval.integer = yyvsp[0].integer;}
+break;
 case 56:
-# line 236 "vtkParse.y"
-{ yyval.integer = 400 + yypvt[-0].integer;} break;
+#line 273 "vtkParse.y"
+{yyval.integer = yyvsp[-1].integer + yyvsp[0].integer;}
+break;
 case 57:
-# line 238 "vtkParse.y"
-{ yyval.integer = 10 + yypvt[-0].integer;} break;
+#line 282 "vtkParse.y"
+{ postSig("&"); yyval.integer = 100;}
+break;
 case 58:
-# line 239 "vtkParse.y"
-{ yyval.integer = yypvt[-0].integer;} break;
+#line 283 "vtkParse.y"
+{ postSig("*"); yyval.integer = 300;}
+break;
 case 59:
-# line 242 "vtkParse.y"
-{ yyval.integer = 1;} break;
+#line 284 "vtkParse.y"
+{ yyval.integer = 100 + yyvsp[0].integer;}
+break;
 case 60:
-# line 243 "vtkParse.y"
-{ yyval.integer = 2;} break;
+#line 285 "vtkParse.y"
+{ yyval.integer = 400 + yyvsp[0].integer;}
+break;
 case 61:
-# line 244 "vtkParse.y"
-{ yyval.integer = 3;} break;
+#line 287 "vtkParse.y"
+{postSig("unsigned ");}
+break;
 case 62:
-# line 245 "vtkParse.y"
-{ yyval.integer = 4;} break;
+#line 288 "vtkParse.y"
+{ yyval.integer = 10 + yyvsp[-1].integer;}
+break;
 case 63:
-# line 246 "vtkParse.y"
-{ yyval.integer = 5;} break;
+#line 289 "vtkParse.y"
+{ yyval.integer = yyvsp[0].integer;}
+break;
 case 64:
-# line 247 "vtkParse.y"
-{ yyval.integer = 6;} break;
+#line 292 "vtkParse.y"
+{ postSig("float "); yyval.integer = 1;}
+break;
 case 65:
-# line 248 "vtkParse.y"
-{ yyval.integer = 7;} break;
+#line 293 "vtkParse.y"
+{ postSig("void "); yyval.integer = 2;}
+break;
 case 66:
-# line 249 "vtkParse.y"
-{ yyval.integer = 8;} break;
+#line 294 "vtkParse.y"
+{ postSig("char "); yyval.integer = 3;}
+break;
 case 67:
-# line 251 "vtkParse.y"
+#line 295 "vtkParse.y"
+{ postSig("int "); yyval.integer = 4;}
+break;
+case 68:
+#line 296 "vtkParse.y"
+{ postSig("short "); yyval.integer = 5;}
+break;
+case 69:
+#line 297 "vtkParse.y"
+{ postSig("long "); yyval.integer = 6;}
+break;
+case 70:
+#line 298 "vtkParse.y"
+{ postSig("double "); yyval.integer = 7;}
+break;
+case 71:
+#line 299 "vtkParse.y"
+{ postSig(yyvsp[0].str); postSig(" "); yyval.integer = 8;}
+break;
+case 72:
+#line 301 "vtkParse.y"
 { 
+      postSig(yyvsp[0].str); postSig(" ");
       yyval.integer = 9; 
       currentFunction->ArgClasses[currentFunction->NumberOfArguments] =
-        strdup(yypvt[-0].str); 
+        strdup(yyvsp[0].str); 
       /* store the string into the return value just in case we need it */
       /* this is a parsing hack because the first "type" parser will */
       /* possibly be ht ereturn type of the first argument */
       if ((!currentFunction->ReturnClass) && 
           (!currentFunction->NumberOfArguments)) 
         { 
-        currentFunction->ReturnClass = strdup(yypvt[-0].str); 
+        currentFunction->ReturnClass = strdup(yyvsp[0].str); 
         }
-    } break;
-case 70:
-# line 268 "vtkParse.y"
-{ 
-      data.SuperClasses[data.NumberOfSuperClasses] = strdup(yypvt[-0].str); 
-      data.NumberOfSuperClasses++; 
-    } break;
-case 71:
-# line 273 "vtkParse.y"
-{ 
-      data.SuperClasses[data.NumberOfSuperClasses] = strdup(yypvt[-0].str); 
-      data.NumberOfSuperClasses++; 
-    } break;
-case 73:
-# line 278 "vtkParse.y"
-{in_public = 1;} break;
-case 74:
-# line 278 "vtkParse.y"
-{in_public = 0;} break;
+    }
+break;
 case 75:
-# line 279 "vtkParse.y"
-{in_public = 0;} break;
+#line 319 "vtkParse.y"
+{ 
+      data.SuperClasses[data.NumberOfSuperClasses] = strdup(yyvsp[0].str); 
+      data.NumberOfSuperClasses++; 
+    }
+break;
+case 76:
+#line 324 "vtkParse.y"
+{ 
+      data.SuperClasses[data.NumberOfSuperClasses] = strdup(yyvsp[0].str); 
+      data.NumberOfSuperClasses++; 
+    }
+break;
 case 78:
-# line 283 "vtkParse.y"
-{yyval.integer = yypvt[-0].integer;} break;
+#line 329 "vtkParse.y"
+{in_public = 1;}
+break;
 case 79:
-# line 284 "vtkParse.y"
-{yyval.integer = -1;} break;
+#line 329 "vtkParse.y"
+{in_public = 0;}
+break;
 case 80:
-# line 284 "vtkParse.y"
-{yyval.integer = -1;} break;
-case 81:
-# line 288 "vtkParse.y"
+#line 330 "vtkParse.y"
+{in_public = 0;}
+break;
+case 83:
+#line 334 "vtkParse.y"
+{yyval.integer = yyvsp[0].integer;}
+break;
+case 84:
+#line 335 "vtkParse.y"
+{yyval.integer = -1;}
+break;
+case 85:
+#line 335 "vtkParse.y"
+{yyval.integer = -1;}
+break;
+case 86:
+#line 339 "vtkParse.y"
+{preSig("void Set"); postSig(" ("); }
+break;
+case 87:
+#line 340 "vtkParse.y"
 {
-   sprintf(temps,"Set%s",yypvt[-3].str); 
+   postSig(");");
+   sprintf(temps,"Set%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = yypvt[-1].integer;
+   currentFunction->ArgTypes[0] = yyvsp[-2].integer;
    currentFunction->ArgCounts[0] = 0;
    currentFunction->ReturnType = 2;
    output_function();
-   } break;
-case 82:
-# line 298 "vtkParse.y"
+   }
+break;
+case 88:
+#line 350 "vtkParse.y"
+{postSig("Get");}
+break;
+case 89:
+#line 350 "vtkParse.y"
+{postSig(" ();"); invertSig = 1;}
+break;
+case 90:
+#line 352 "vtkParse.y"
 { 
-   sprintf(temps,"Get%s",yypvt[-3].str); 
+   sprintf(temps,"Get%s",yyvsp[-5].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = yypvt[-1].integer;
+   currentFunction->ReturnType = yyvsp[-3].integer;
    output_function();
-   } break;
-case 83:
-# line 306 "vtkParse.y"
-{ 
-   sprintf(temps,"Set%s",yypvt[-1].str); 
+   }
+break;
+case 91:
+#line 359 "vtkParse.y"
+{preSig("void Set");}
+break;
+case 92:
+#line 360 "vtkParse.y"
+{
+   postSig(" (char *);"); 
+   sprintf(temps,"Set%s",yyvsp[-2].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 303;
    currentFunction->ArgCounts[0] = 0;
    currentFunction->ReturnType = 2;
    output_function();
-   } break;
-case 84:
-# line 316 "vtkParse.y"
+   }
+break;
+case 93:
+#line 370 "vtkParse.y"
+{preSig("char *Get");}
+break;
+case 94:
+#line 371 "vtkParse.y"
 { 
-   sprintf(temps,"Get%s",yypvt[-1].str); 
+   postSig(" ();");
+   sprintf(temps,"Get%s",yyvsp[-2].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 303;
    output_function();
-   } break;
-case 85:
-# line 324 "vtkParse.y"
+   }
+break;
+case 95:
+#line 380 "vtkParse.y"
+{preSig("void Set"); postSig(" ("); }
+break;
+case 96:
+#line 381 "vtkParse.y"
+{postSig(");"); openSig = 0;}
+break;
+case 97:
+#line 382 "vtkParse.y"
 { 
-   sprintf(temps,"Set%s",yypvt[-5].str); 
+   sprintf(temps,"Set%s",yyvsp[-7].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = yypvt[-3].integer;
+   currentFunction->ArgTypes[0] = yyvsp[-5].integer;
    currentFunction->ArgCounts[0] = 0;
    currentFunction->ReturnType = 2;
    output_function();
-   } break;
-case 86:
-# line 334 "vtkParse.y"
+   }
+break;
+case 98:
+#line 392 "vtkParse.y"
+{preSig("void Set"); postSig(" ("); }
+break;
+case 99:
+#line 393 "vtkParse.y"
 { 
-   sprintf(temps,"Set%s",yypvt[-3].str); 
+   postSig("*);");
+   sprintf(temps,"Set%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 309;
    currentFunction->ArgCounts[0] = 1;
    currentFunction->ReturnType = 2;
    output_function();
-   } break;
-case 87:
-# line 344 "vtkParse.y"
+   }
+break;
+case 100:
+#line 404 "vtkParse.y"
+{preSig("void Set"); postSig(" ("); }
+break;
+case 101:
+#line 405 "vtkParse.y"
 { 
-   sprintf(temps,"Set%s",yypvt[-3].str); 
+   postSig("*);");
+   sprintf(temps,"Set%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 309;
    currentFunction->ArgCounts[0] = 1;
    currentFunction->ReturnType = 2;
    output_function();
-   } break;
-case 88:
-# line 354 "vtkParse.y"
+   }
+break;
+case 102:
+#line 415 "vtkParse.y"
+{postSig("Get");}
+break;
+case 103:
+#line 416 "vtkParse.y"
+{postSig(" ();"); invertSig = 1;}
+break;
+case 104:
+#line 417 "vtkParse.y"
 { 
-   sprintf(temps,"Get%s",yypvt[-3].str); 
+   sprintf(temps,"Get%s",yyvsp[-5].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 309;
    output_function();
-   } break;
-case 89:
-# line 362 "vtkParse.y"
+   }
+break;
+case 105:
+#line 425 "vtkParse.y"
+{preSig("void "); postSig("On ();"); openSig = 0; }
+break;
+case 106:
+#line 427 "vtkParse.y"
 { 
-   sprintf(temps,"%sOn",yypvt[-3].str); 
+   sprintf(temps,"%sOn",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 2;
    output_function();
-   sprintf(temps,"%sOff",yypvt[-3].str); 
+   currentFunction->Signature = (char *)malloc(512);
+   sprintf(currentFunction->Signature,"void %sOff ();",yyvsp[-4].str); 
+   sprintf(temps,"%sOff",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
    output_function();
-   } break;
-case 90:
-# line 374 "vtkParse.y"
+   }
+break;
+case 107:
+#line 441 "vtkParse.y"
+{
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
+break;
+case 108:
+#line 446 "vtkParse.y"
 { 
-   sprintf(temps,"Set%s",yypvt[-3].str); 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"void Set%s (%s , %s);",yyvsp[-4].str,
+     local, local);
+   sprintf(temps,"Set%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 2;
-   currentFunction->ArgTypes[0] = yypvt[-1].integer;
+   currentFunction->ArgTypes[0] = yyvsp[-2].integer;
    currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = yypvt[-1].integer;
+   currentFunction->ArgTypes[1] = yyvsp[-2].integer;
    currentFunction->ArgCounts[1] = 0;
    currentFunction->ReturnType = 2;
    output_function();
 
+   currentFunction->Signature = (char *)malloc(1024);
+   sprintf(currentFunction->Signature,"void Set%s (%s a[2]);",yyvsp[-4].str,
+     local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 300 + yypvt[-1].integer;
+   currentFunction->ArgTypes[0] = 300 + yyvsp[-2].integer;
    currentFunction->ArgCounts[0] = 2;
    output_function();
-   } break;
-case 91:
-# line 392 "vtkParse.y"
+   }
+break;
+case 109:
+#line 470 "vtkParse.y"
+{
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
+break;
+case 110:
+#line 475 "vtkParse.y"
 { 
-   sprintf(temps,"Get%s",yypvt[-3].str); 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-4].str);
+   sprintf(temps,"Get%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + yypvt[-1].integer;
+   currentFunction->ReturnType = 300 + yyvsp[-2].integer;
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 2;
    output_function();
-   } break;
-case 92:
-# line 402 "vtkParse.y"
+   }
+break;
+case 111:
+#line 487 "vtkParse.y"
+{
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
+break;
+case 112:
+#line 492 "vtkParse.y"
 { 
-   sprintf(temps,"Set%s",yypvt[-3].str); 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"void Set%s (%s , %s, %s);",
+     yyvsp[-4].str, local, local, local);
+   sprintf(temps,"Set%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 3;
-   currentFunction->ArgTypes[0] = yypvt[-1].integer;
+   currentFunction->ArgTypes[0] = yyvsp[-2].integer;
    currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = yypvt[-1].integer;
+   currentFunction->ArgTypes[1] = yyvsp[-2].integer;
    currentFunction->ArgCounts[1] = 0;
-   currentFunction->ArgTypes[2] = yypvt[-1].integer;
+   currentFunction->ArgTypes[2] = yyvsp[-2].integer;
    currentFunction->ArgCounts[2] = 0;
    currentFunction->ReturnType = 2;
    output_function();
 
+   currentFunction->Signature = (char *)malloc(1024);
+   sprintf(currentFunction->Signature,"void Set%s (%s a[3]);",yyvsp[-4].str,
+     local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 300 + yypvt[-1].integer;
+   currentFunction->ArgTypes[0] = 300 + yyvsp[-2].integer;
    currentFunction->ArgCounts[0] = 3;
    output_function();
-   } break;
-case 93:
-# line 422 "vtkParse.y"
+   }
+break;
+case 113:
+#line 518 "vtkParse.y"
+{
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
+break;
+case 114:
+#line 523 "vtkParse.y"
 { 
-   sprintf(temps,"Get%s",yypvt[-3].str); 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-4].str);
+   sprintf(temps,"Get%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + yypvt[-1].integer;
+   currentFunction->ReturnType = 300 + yyvsp[-2].integer;
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 3;
    output_function();
-   } break;
-case 94:
-# line 432 "vtkParse.y"
+   }
+break;
+case 115:
+#line 535 "vtkParse.y"
+{
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
+break;
+case 116:
+#line 540 "vtkParse.y"
 { 
-   sprintf(temps,"Set%s",yypvt[-3].str); 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"void Set%s (%s , %s, %s, %s);",
+     yyvsp[-4].str, local, local, local, local);
+   sprintf(temps,"Set%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 4;
-   currentFunction->ArgTypes[0] = yypvt[-1].integer;
+   currentFunction->ArgTypes[0] = yyvsp[-2].integer;
    currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = yypvt[-1].integer;
+   currentFunction->ArgTypes[1] = yyvsp[-2].integer;
    currentFunction->ArgCounts[1] = 0;
-   currentFunction->ArgTypes[2] = yypvt[-1].integer;
+   currentFunction->ArgTypes[2] = yyvsp[-2].integer;
    currentFunction->ArgCounts[2] = 0;
-   currentFunction->ArgTypes[3] = yypvt[-1].integer;
+   currentFunction->ArgTypes[3] = yyvsp[-2].integer;
    currentFunction->ArgCounts[3] = 0;
    currentFunction->ReturnType = 2;
    output_function();
 
+   currentFunction->Signature = (char *)malloc(1024);
+   sprintf(currentFunction->Signature,"void Set%s (%s a[4]);",yyvsp[-4].str,
+     local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 300 + yypvt[-1].integer;
+   currentFunction->ArgTypes[0] = 300 + yyvsp[-2].integer;
    currentFunction->ArgCounts[0] = 4;
    output_function();
-   } break;
-case 95:
-# line 454 "vtkParse.y"
+   }
+break;
+case 117:
+#line 568 "vtkParse.y"
+{
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
+break;
+case 118:
+#line 573 "vtkParse.y"
 { 
-   sprintf(temps,"Get%s",yypvt[-3].str); 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-4].str);
+   sprintf(temps,"Get%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + yypvt[-1].integer;
+   currentFunction->ReturnType = 300 + yyvsp[-2].integer;
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 4;
    output_function();
-   } break;
-case 96:
-# line 464 "vtkParse.y"
+   }
+break;
+case 119:
+#line 585 "vtkParse.y"
+{
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
+break;
+case 120:
+#line 590 "vtkParse.y"
 { 
-   sprintf(temps,"Set%s",yypvt[-3].str); 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"void Set%s (%s , %s, %s, %s, %s, %s);",
+     yyvsp[-4].str, local, local, local, local, local, local);
+   sprintf(temps,"Set%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 6;
-   currentFunction->ArgTypes[0] = yypvt[-1].integer;
+   currentFunction->ArgTypes[0] = yyvsp[-2].integer;
    currentFunction->ArgCounts[0] = 0;
-   currentFunction->ArgTypes[1] = yypvt[-1].integer;
+   currentFunction->ArgTypes[1] = yyvsp[-2].integer;
    currentFunction->ArgCounts[1] = 0;
-   currentFunction->ArgTypes[2] = yypvt[-1].integer;
+   currentFunction->ArgTypes[2] = yyvsp[-2].integer;
    currentFunction->ArgCounts[2] = 0;
-   currentFunction->ArgTypes[3] = yypvt[-1].integer;
+   currentFunction->ArgTypes[3] = yyvsp[-2].integer;
    currentFunction->ArgCounts[3] = 0;
-   currentFunction->ArgTypes[4] = yypvt[-1].integer;
+   currentFunction->ArgTypes[4] = yyvsp[-2].integer;
    currentFunction->ArgCounts[4] = 0;
-   currentFunction->ArgTypes[5] = yypvt[-1].integer;
+   currentFunction->ArgTypes[5] = yyvsp[-2].integer;
    currentFunction->ArgCounts[5] = 0;
    currentFunction->ReturnType = 2;
    output_function();
 
+   currentFunction->Signature = (char *)malloc(1024);
+   sprintf(currentFunction->Signature,"void Set%s (%s a[6]);",yyvsp[-4].str,
+     local);
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 1;
-   currentFunction->ArgTypes[0] = 300 + yypvt[-1].integer;
+   currentFunction->ArgTypes[0] = 300 + yyvsp[-2].integer;
    currentFunction->ArgCounts[0] = 6;
    output_function();
-   } break;
-case 97:
-# line 490 "vtkParse.y"
+   }
+break;
+case 121:
+#line 622 "vtkParse.y"
+{
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
+break;
+case 122:
+#line 627 "vtkParse.y"
 { 
-   sprintf(temps,"Get%s",yypvt[-3].str); 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-4].str);
+   sprintf(temps,"Get%s",yyvsp[-4].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + yypvt[-1].integer;
+   currentFunction->ReturnType = 300 + yyvsp[-2].integer;
    currentFunction->HaveHint = 1;
    currentFunction->HintSize = 6;
    output_function();
-   } break;
-case 98:
-# line 500 "vtkParse.y"
+   }
+break;
+case 123:
+#line 639 "vtkParse.y"
 {
-     sprintf(temps,"Set%s",yypvt[-5].str); 
+      free (currentFunction->Signature);
+      currentFunction->Signature = NULL;
+      }
+break;
+case 124:
+#line 644 "vtkParse.y"
+{
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"void Set%s (%s [%i]);",yyvsp[-6].str,
+      local, yyvsp[-2].integer);
+     sprintf(temps,"Set%s",yyvsp[-6].str); 
      currentFunction->Name = strdup(temps);
      currentFunction->ReturnType = 2;
      currentFunction->NumberOfArguments = 1;
-     currentFunction->ArgTypes[0] = 300 + yypvt[-3].integer;
-     currentFunction->ArgCounts[0] = yypvt[-1].integer;
+     currentFunction->ArgTypes[0] = 300 + yyvsp[-4].integer;
+     currentFunction->ArgCounts[0] = yyvsp[-2].integer;
      output_function();
-   } break;
-case 99:
-# line 510 "vtkParse.y"
+   }
+break;
+case 125:
+#line 657 "vtkParse.y"
+{
+     free (currentFunction->Signature);
+     currentFunction->Signature = NULL;
+     }
+break;
+case 126:
+#line 662 "vtkParse.y"
 { 
-   sprintf(temps,"Get%s",yypvt[-5].str); 
+   char *local = strdup(currentFunction->Signature);
+   sprintf(currentFunction->Signature,"%s *Get%s ();",local, yyvsp[-6].str);
+   sprintf(temps,"Get%s",yyvsp[-6].str); 
    currentFunction->Name = strdup(temps);
    currentFunction->NumberOfArguments = 0;
-   currentFunction->ReturnType = 300 + yypvt[-3].integer;
+   currentFunction->ReturnType = 300 + yyvsp[-4].integer;
    currentFunction->HaveHint = 1;
-   currentFunction->HintSize = yypvt[-1].integer;
+   currentFunction->HintSize = yyvsp[-2].integer;
    output_function();
-   } break;
-case 100:
-# line 520 "vtkParse.y"
+   }
+break;
+case 127:
+#line 674 "vtkParse.y"
 { 
-     sprintf(temps,"Get%sCoordinate",yypvt[-1].str); 
+     char *local = strdup(currentFunction->Signature);
+     sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
+       yyvsp[-1].str);
+
+     sprintf(temps,"Get%sCoordinate",yyvsp[-1].str); 
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = 309;
      currentFunction->ReturnClass = strdup("vtkCoordinate");
      output_function();
 
-     sprintf(temps,"Set%s",yypvt[-1].str); 
+     currentFunction->Signature = (char *)malloc(1024);
+     sprintf(currentFunction->Signature,"void Set%s (float , float);",
+       yyvsp[-1].str);
+     sprintf(temps,"Set%s",yyvsp[-1].str); 
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 2;
      currentFunction->ArgTypes[0] = 1;
@@ -1664,31 +1741,44 @@ case 100:
      currentFunction->ReturnType = 2;
      output_function();
 
+     currentFunction->Signature = (char *)malloc(1024);
+     sprintf(currentFunction->Signature,"void Set%s (float a[2]);",
+       yyvsp[-1].str);
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = 301;
      currentFunction->ArgCounts[0] = 2;
      output_function();
      
-     sprintf(temps,"Get%s",yypvt[-1].str); 
+     currentFunction->Signature = (char *)malloc(1024);
+     sprintf(currentFunction->Signature,"float *Get%s ();", yyvsp[-1].str);
+     sprintf(temps,"Get%s",yyvsp[-1].str); 
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = 301;
      currentFunction->HaveHint = 1;
      currentFunction->HintSize = 2;
      output_function();
-   } break;
-case 101:
-# line 553 "vtkParse.y"
+   }
+break;
+case 128:
+#line 719 "vtkParse.y"
 { 
-     sprintf(temps,"Get%sCoordinate",yypvt[-1].str); 
+     char *local = strdup(currentFunction->Signature);
+     sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
+       yyvsp[-1].str);
+
+     sprintf(temps,"Get%sCoordinate",yyvsp[-1].str); 
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = 309;
      currentFunction->ReturnClass = strdup("vtkCoordinate");
      output_function();
 
-     sprintf(temps,"Set%s",yypvt[-1].str); 
+     currentFunction->Signature = (char *)malloc(1024);
+     sprintf(currentFunction->Signature,"void Set%s (float , float, float);",
+       yyvsp[-1].str);
+     sprintf(temps,"Set%s",yyvsp[-1].str); 
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 3;
      currentFunction->ArgTypes[0] = 1;
@@ -1700,22 +1790,76 @@ case 101:
      currentFunction->ReturnType = 2;
      output_function();
 
+     currentFunction->Signature = (char *)malloc(1024);
+     sprintf(currentFunction->Signature,"void Set%s (float a[3]);",
+       yyvsp[-1].str);
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = 301;
      currentFunction->ArgCounts[0] = 3;
      output_function();
      
-     sprintf(temps,"Get%s",yypvt[-1].str); 
+     currentFunction->Signature = (char *)malloc(1024);
+     sprintf(currentFunction->Signature,"float *Get%s ();", yyvsp[-1].str);
+     sprintf(temps,"Get%s",yyvsp[-1].str); 
      currentFunction->Name = strdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = 301;
      currentFunction->HaveHint = 1;
      currentFunction->HintSize = 3;
      output_function();
-   } break;
-# line	532 "/usr/ccs/bin/yaccpar"
-	}
-	goto yystack;		/* reset registers in driver code */
+   }
+break;
+#line 1814 "vtkParse.tab.c"
+    }
+    yyssp -= yym;
+    yyvsp -= yym;
+    yym = yylhs[yyn];
+    yystate = *yyssp;
+    if (yystate == 0 && yym == 0)
+    {
+#if YYDEBUG
+        if (yydebug)
+            printf("yydebug: after reduction, shifting from state 0 to\
+ state %d\n", YYFINAL);
+#endif
+        yystate = YYFINAL;
+        *++yyssp = YYFINAL;
+        *++yyvsp = yyval;
+        if (yychar < 0)
+        {
+            if ((yychar = yylex()) < 0) yychar = 0;
+#if YYDEBUG
+            if (yydebug)
+            {
+                yys = 0;
+                if (yychar <= YYMAXTOKEN) yys = yyname[yychar];
+                if (!yys) yys = "illegal-symbol";
+                printf("yydebug: state %d, reading %d (%s)\n",
+                        YYFINAL, yychar, yys);
+            }
+#endif
+        }
+        if (yychar == 0) goto yyaccept;
+        goto yyloop;
+    }
+    yyn = yygindex[yym];
+	 if (yyn != 0
+        && ((yyn += yystate), ((unsigned)yyn <= (unsigned)YYTABLESIZE))
+        && yycheck[yyn] == yystate)
+        yystate = yytable[yyn];
+    else
+        yystate = yydgoto[yym];
+#if YYDEBUG
+    if (yydebug)
+        printf("yydebug: after reduction, shifting from state %d \
+to state %d\n", *yyssp, yystate);
+#endif
+    goto yypush;
+yyoverflow:
+    yyerror("yacc stack overflow");
+yyabort:
+    return (1);
+yyaccept:
+    return (0);
 }
-

@@ -57,6 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
     int   ReturnType;
     char *ReturnClass;
     char *Comment;
+    char *Signature;  
   } FunctionInfo;
   
   typedef struct _FileInfo
