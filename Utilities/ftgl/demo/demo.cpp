@@ -1,7 +1,7 @@
 // source changed by mrn@paus.ch/ max rheiner
 // original source: henryj@paradise.net.nz
 
-#include <iostream>
+#include <iostream.h>
 #include <stdlib.h> // exit()
 
 #ifdef __APPLE_CC__
