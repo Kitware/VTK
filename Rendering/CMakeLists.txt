@@ -54,7 +54,6 @@ vtkPicker
 vtkPointPicker
 vtkPolyDataMapper
 vtkPolyDataMapper2D
-vtkProjectedPolyDataRayBounder
 vtkProp3D
 vtkProp3DCollection
 vtkPropPicker
@@ -74,7 +73,6 @@ vtkSelectVisiblePoints
 vtkTextMapper
 vtkTexture
 vtkVRMLExporter
-vtkViewRays
 vtkVolume
 vtkVolumeCollection
 vtkVolumeMapper
