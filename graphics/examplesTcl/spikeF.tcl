@@ -19,7 +19,6 @@ vtkRenderWindowInteractor iren
 vtkPolyDataReader cyber
     cyber SetFileName "$VTK_DATA/fran_cut.vtk"
 vtkPolyDataNormals normals
-    normals SetMaxRecursionDepth 100
     normals SetInput [cyber GetOutput]
 vtkPolyDataMapper cyberMapper
     cyberMapper SetInput [normals GetOutput]

@@ -31,7 +31,6 @@ vtkProbeFilter probe
     probe SetInput [iso GetOutput]
     probe SetSource [fd2ad GetOutput]
 vtkPolyDataNormals normals
-    normals SetMaxRecursionDepth 1000
     normals SetInput [probe GetPolyDataOutput]
     normals SetFeatureAngle 45
 vtkPolyDataMapper isoMapper

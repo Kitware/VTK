@@ -90,7 +90,6 @@ blobbyLogoIso SetInput [blobbyLogoImp GetOutput ]
 vtkPolyDataNormals blobbyLogoNormals
 blobbyLogoNormals SetInput [blobbyLogoIso GetOutput ]
   blobbyLogoNormals SetFeatureAngle 60.0
-  blobbyLogoNormals SetMaxRecursionDepth 100
 
 # map to rendering primitives
 vtkPolyDataMapper blobbyLogoMapper
