@@ -12,7 +12,7 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/* 
+/*
  * tkAppInit.c --
  *
  *      Provides a default version of the Tcl_AppInit procedure for
@@ -113,7 +113,7 @@ public:
       MPI_Init(argc, argv);
       this->Controller = vtkMPIController::New();
       this->Controller->Initialize(argc, argv, 1);
-      vtkMultiProcessController::SetGlobalController(this->Controller);      
+      vtkMultiProcessController::SetGlobalController(this->Controller);
     }
   ~vtkMPICleanup()
     {
@@ -209,7 +209,7 @@ extern "C" int Vtkhybridtcl_Init(Tcl_Interp *interp);
 extern "C" int Vtkparalleltcl_Init(Tcl_Interp *interp);
 #endif
 
-void help() 
+void help()
 {
 }
 
@@ -245,7 +245,7 @@ const char* vtkTkAppInitGetFilenamePath(const char *filename, char *path)
     strncpy(path, filename, length);
     }
   path[length] = '\0';
-  
+
   return path;
 }
 
@@ -271,13 +271,13 @@ const char* vtkTkAppInitConvertToUnixSlashes(const char* path, char *unix_path)
       }
     }
   strcat(unix_path, path);
-  
+
   size_t length = strlen(unix_path);
   if (length < 1)
     {
     return unix_path;
     }
-  
+
   size_t i;
   for (i = 0; i < length; ++i)
     {
@@ -286,12 +286,12 @@ const char* vtkTkAppInitConvertToUnixSlashes(const char* path, char *unix_path)
       unix_path[i] = '/';
       }
     }
-  
+
   if (unix_path[length - 1] == '/')
     {
     unix_path[length - 1] = '\0';
     }
-  
+
   return unix_path;
 }
 #endif
@@ -347,7 +347,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
         // This *is* mandatory if we want encodings files to be found, as they
         // are searched by browsing TclGetLibraryPath().
         // (nope, updating the Tcl tcl_libPath var won't do the trick)
-        
+
         Tcl_Obj *new_libpath = Tcl_NewObj();
 
         if (!has_tcllibpath_env)
@@ -357,7 +357,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
           if (vtkTkAppInitFileExists(tcl_library))
             {
             // Setting TCL_LIBRARY won't do the trick, it's too late
-            Tcl_SetVar(interp, "tcl_library", tcl_library, 
+            Tcl_SetVar(interp, "tcl_library", tcl_library,
                        TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
             Tcl_Obj *obj = Tcl_NewStringObj(tcl_library, -1);
             if (obj)
@@ -375,7 +375,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
           if (vtkTkAppInitFileExists(tk_library))
             {
             // Setting TK_LIBRARY won't do the trick, it's too late
-            Tcl_SetVar(interp, "tk_library", tk_library, 
+            Tcl_SetVar(interp, "tk_library", tk_library,
                        TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
             Tcl_Obj *obj = Tcl_NewStringObj(tk_library, -1);
             if (obj)
@@ -391,42 +391,42 @@ int Tcl_AppInit(Tcl_Interp *interp)
     }
 #endif
 
-  if (Tcl_Init(interp) == TCL_ERROR) 
+  if (Tcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
 
 #ifdef VTK_USE_RENDERING
-  if (Tk_Init(interp) == TCL_ERROR) 
+  if (Tk_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
 #endif
 
   /* init the core vtk stuff */
-  if (Vtkcommontcl_Init(interp) == TCL_ERROR) 
+  if (Vtkcommontcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
-  if (Vtkfilteringtcl_Init(interp) == TCL_ERROR) 
+  if (Vtkfilteringtcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
-  if (Vtkimagingtcl_Init(interp) == TCL_ERROR) 
+  if (Vtkimagingtcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
-  if (Vtkgraphicstcl_Init(interp) == TCL_ERROR) 
+  if (Vtkgraphicstcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
-  if (Vtkiotcl_Init(interp) == TCL_ERROR) 
+  if (Vtkiotcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
-    
+
 #ifdef VTK_USE_RENDERING
-  if (Vtkrenderingtcl_Init(interp) == TCL_ERROR) 
+  if (Vtkrenderingtcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
@@ -437,11 +437,11 @@ int Tcl_AppInit(Tcl_Interp *interp)
   // Also, Cocoa does not suport those widgets yet
 
 #if defined(VTK_DISABLE_TK_INIT) && !defined(VTK_USE_COCOA)
-  if (Vtktkrenderwidget_Init(interp) == TCL_ERROR) 
+  if (Vtktkrenderwidget_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
-  if (Vtktkimageviewerwidget_Init(interp) == TCL_ERROR) 
+  if (Vtktkimageviewerwidget_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
@@ -449,21 +449,21 @@ int Tcl_AppInit(Tcl_Interp *interp)
 #endif
 
 #ifdef VTK_USE_PATENTED
-  if (Vtkpatentedtcl_Init(interp) == TCL_ERROR) 
+  if (Vtkpatentedtcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
 #endif
 
 #ifdef VTK_USE_HYBRID
-  if (Vtkhybridtcl_Init(interp) == TCL_ERROR) 
+  if (Vtkhybridtcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
 #endif
 
 #ifdef VTK_USE_PARALLEL
-  if (Vtkparalleltcl_Init(interp) == TCL_ERROR) 
+  if (Vtkparalleltcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
@@ -488,7 +488,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
     "    if {[lindex $args 0] == \"require\"} {\n"
     "      set expecting {can\'t find package vtk}\n"
     "      if {![string compare -length [string length $expecting] $catch_res $expecting]} {\n"
-    "        set msg {The Tcl interpreter was probably not able to find the" 
+    "        set msg {The Tcl interpreter was probably not able to find the"
     " VTK packages.  Please check that your TCLLIBPATH environment variable"
     " includes the path to your VTK Tcl directory.  You might find it under"
     " your VTK binary directory in Wrapping/Tcl, or under your"
@@ -519,7 +519,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
    * where "app" is the name of the application.  If this line is deleted
    * then no user-specific startup file will be run under any conditions.
    */
-  
+
   Tcl_SetVar(interp,
              (char *) "tcl_rcFileName",
              (char *) "~/.vtkrc",
