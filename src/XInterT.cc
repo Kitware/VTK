@@ -31,6 +31,7 @@ extern int TkXFileProc(ClientData clientData, int mask, int flags);
 
 #define TK_IS_DISPLAY   32
 
+
 // returns 1 if done
 static int vtkTclEventProc(XtPointer clientData,XEvent *event)
 {
@@ -118,7 +119,6 @@ void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
 // Begin processing keyboard strokes.
 void vtkXRenderWindowInteractor::Initialize()
 {
-  Display *display;
   static int any_initialized = 0;
   static XtAppContext app;
   vtkXRenderWindow *ren;
@@ -137,61 +137,77 @@ void vtkXRenderWindowInteractor::Initialize()
     }
 
   this->Initialized = 1;
+  ren = (vtkXRenderWindow *)(this->RenderWindow);
 
   // do initialization stuff if not initialized yet
-  if (this->App)
+  // do we already have a display
+  this->DisplayId = ren->GetDisplayId();
+  if (!this->DisplayId)
     {
-    any_initialized = 1;
-    app = this->App;
+    if (this->App)
+      {
+      any_initialized = 1;
+      app = this->App;
+      }
+    if (!any_initialized)
+      {
+      XtToolkitInitialize();
+      app = XtCreateApplicationContext();
+      any_initialized = 1;
+      }
+    this->App = app;
+    
+    this->DisplayId = 
+      XtOpenDisplay(this->App,NULL,"VTK","vtk",NULL,0,&argc,NULL);
     }
-  if (!any_initialized)
-    {
-    XtToolkitInitialize();
-    app = XtCreateApplicationContext();
-    any_initialized = 1;
-    }
-  this->App = app;
-
-  display = XtOpenDisplay(this->App,NULL,"VTK","vtk",NULL,0,&argc,NULL);
-
+  
   // get the info we need from the RenderingWindow
-  ren = (vtkXRenderWindow *)(this->RenderWindow);
-  ren->SetDisplayId(display);
+  ren->SetDisplayId(this->DisplayId);
   depth   = ren->GetDesiredDepth();
   cmap    = ren->GetDesiredColormap();
   vis     = ren->GetDesiredVisual();
   size    = ren->GetSize();
   position= ren->GetPosition();
+  
+  // do we have a window already
+  this->WindowId = ren->GetWindowId();
+  if (!this->WindowId)
+    {
+    this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vtk",
+				   applicationShellWidgetClass,
+				   this->DisplayId,
+				   XtNdepth, depth,
+				   XtNcolormap, cmap,
+				   XtNvisual, vis,
+				   XtNx, position[0],
+				   XtNy, position[1],
+				   XtNwidth, size[0],
+				   XtNheight, size[1],
+				   XtNmappedWhenManaged, 0,
+				   NULL);
+    
+    XtRealizeWidget(this->top);
 
-  this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vtk",
-				 applicationShellWidgetClass,
-				 display,
-				 XtNdepth, depth,
-				 XtNcolormap, cmap,
-				 XtNvisual, vis,
-				 XtNx, position[0],
-				 XtNy, position[1],
-				 XtNwidth, size[0],
-				 XtNheight, size[1],
-				 XtNmappedWhenManaged, 0,
-				 NULL);
-
-  XtRealizeWidget(this->top);
-
-  /* add callback */
-  XSync(display,False);
-  ren->SetWindowId(XtWindow(this->top));
+    /* add callback */
+    XSync(this->DisplayId,False);
+    ren->SetWindowId(XtWindow(this->top));
+    this->WindowId = XtWindow(this->top);
+    }
+  
+  size = ren->GetSize();
   ren->Render();
-  XtAddEventHandler(this->top,
-		    KeyPressMask | ButtonPressMask | ExposureMask |
-		    StructureNotifyMask | ButtonReleaseMask,
-		    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
+  size = ren->GetSize();
+
   this->Size[0] = size[0];
   this->Size[1] = size[1];
 
+  XSelectInput(this->DisplayId,this->WindowId,
+		    KeyPressMask | ButtonPressMask | ExposureMask |
+		    StructureNotifyMask | ButtonReleaseMask);
+
   // add in tcl init stuff
-  Tk_CreateFileHandler2(ConnectionNumber(display), TkXFileProc,
-			(ClientData) display);
+  Tk_CreateFileHandler2(ConnectionNumber(this->DisplayId), TkXFileProc,
+			(ClientData) this->DisplayId);
 //  Tk_CreateFileHandler(ConnectionNumber(display),
 //		       TK_READABLE|TK_IS_DISPLAY, 
 //		       (void (*)(void *,int)) NULL,
@@ -440,7 +456,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
     {
     case VTKXI_ROTATE :
       // get the pointer position
-      XQueryPointer(XtDisplay(me->top),XtWindow(me->top),
+      XQueryPointer(me->DisplayId,me->WindowId,
 		    &root,&child,&root_x,&root_y,&x,&y,&keys);
       xf = (x - me->Center[0]) * me->DeltaAzimuth;
       yf = ((me->Size[1] - y) - me->Center[1]) * me->DeltaElevation;
@@ -468,7 +484,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
       PPoint = me->CurrentCamera->GetPosition();
 
       // get the pointer position
-      XQueryPointer(XtDisplay(me->top),XtWindow(me->top),
+      XQueryPointer(me->DisplayId,me->WindowId,
 		    &root,&child,&root_x,&root_y,&x,&y,&keys);
 
       APoint[0] = x;
@@ -507,7 +523,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
       float *clippingRange;
 
       // get the pointer position
-      XQueryPointer(XtDisplay(me->top),XtWindow(me->top),
+      XQueryPointer(me->DisplayId,me->WindowId,
 		    &root,&child,&root_x,&root_y,&x,&y,&keys);
       yf = ((me->Size[1] - y) - me->Center[1])/(float)me->Center[1];
       zoomFactor = pow(1.1,yf);
