@@ -118,7 +118,8 @@ void vtkFileOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkOutputWindow::PrintSelf(os, indent);
   os << indent << "OStream: " << this->OStream << endl;
-  os << indent << "FileName: " << this->FileName << endl;
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
   os << indent << "Append: " << (this->Append ? "On" : "Off") << endl;
   os << indent << "Flush: " << (this->Flush ? "On" : "Off") << endl;
 }
