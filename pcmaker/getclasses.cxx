@@ -861,7 +861,6 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int doAddedValue, int debugFlag
     fprintf(fp,"   nmake ..\\lib\\vtkjava.dll\n");
     fprintf(fp,"   nmake ..\\lib\\vtkjava.dll\n");
     fprintf(fp,"   cd ../\n\n");
-    fclose(fp);
     }
 
   // tcl
