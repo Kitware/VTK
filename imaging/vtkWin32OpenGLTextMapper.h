@@ -73,7 +73,7 @@ public:
 
   // Description:
   // An internal function used for caching font display lists.
-  static int GetListBaseForFont(vtkTextMapper *tm, vtkViewport *vp, HDC);
+  static int GetListBaseForFont(vtkTextMapper *tm, vtkViewport *vp);
 
 protected:
 };

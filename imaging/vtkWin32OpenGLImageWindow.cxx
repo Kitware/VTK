@@ -185,7 +185,7 @@ void vtkWin32OpenGLImageWindow::SetPosition(int x, int y)
 
 static void vtkWin32OpenGLSwapBuffers(HDC hdc)
 {
-  this->SwapBuffers(hdc);
+  SwapBuffers(hdc);
 }
 
 // End the rendering process and display the image.

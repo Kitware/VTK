@@ -55,8 +55,7 @@ static vtkFontStruct *cache[10] = {NULL,NULL,NULL,NULL,NULL,
 static numCached = 0;
 
 int vtkWin32OpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm, 
-						 vtkViewport *vp, 
-						 HDC hdc)
+						 vtkViewport *vp)
 {
   int i, j;
   vtkWindow *win = vp->GetVTKWindow();
@@ -84,7 +83,7 @@ int vtkWin32OpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm,
       }
     }
   
-  HDC hdc = (HDC) window->GetGenericContext();
+  HDC hdc = (HDC) win->GetGenericContext();
 
   // OK the font is not cached
   // so we need to make room for a new font
