@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // with separate normals to give crisp (rendered) surface definition. It is
 // also possible to globally flip the normal orientation.
 //
-// The algorithm works by determing normals for each polyon and then
+// The algorithm works by determining normals for each polygon and then
 // averaging them at shared points. When sharp edges are present, the edges
 // are split and new points generated to prevent blurry edges (due to 
 // Gouraud shading).
