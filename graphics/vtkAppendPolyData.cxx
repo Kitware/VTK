@@ -480,7 +480,7 @@ void vtkAppendPolyData::Execute()
     ttype = ds->GetPoints()->GetData()->GetDataType();
     if (ttype!=pointtype)
       {
-      AllSame = false;
+      AllSame = 0;
       vtkDebugMacro(<<"Different point data types");
       }
     pointtype = pointtype>ttype ? pointtype : ttype;
@@ -614,7 +614,7 @@ void vtkAppendPolyData::Execute()
             newLines->InsertCellPoint(pts[i]+ptOffset);
             }
           }
-      
+
         for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
           {
           newStrips->InsertNextCell(npts);
@@ -744,7 +744,7 @@ vtkPolyData *vtkAppendPolyData::GetInput(int idx)
     {
     return NULL;
     }
-  
+
   return (vtkPolyData *)(this->Inputs[idx]);
 }
 
@@ -866,17 +866,17 @@ void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest, vtkDataArray *
     case VTK_DOUBLE:
       dDest = (double*)(dest->GetVoidPointer(offset*src->GetNumberOfComponents()));
       //
+      dSrc = (double*)(src->GetVoidPointer(0));
+      fSrc = (float*)(src->GetVoidPointer(0));
       switch (src->GetDataType())
         {
         case VTK_FLOAT:
-          fSrc = (float*)(src->GetVoidPointer(0));
           for (int p=0; p<vals; p++)
             {
               dDest[p] = (double) fSrc[p];
             }
           break;
         case VTK_DOUBLE:
-          dSrc = (double*)(src->GetVoidPointer(0));
           memcpy(dDest, dSrc, vals*sizeof(double));
           break;
         default:
