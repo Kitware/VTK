@@ -69,3 +69,11 @@
 #define VTK_MINOR_VERSION @VTK_MINOR_VERSION@
 #define VTK_BUILD_VERSION @VTK_BUILD_VERSION@
 #define VTK_VERSION "@VTK_VERSION@"
+
+/* Size of fundamental data types.  */
+#cmakedefine VTK_SIZEOF_CHAR   ${VTK_SIZEOF_CHAR}
+#cmakedefine VTK_SIZEOF_DOUBLE ${VTK_SIZEOF_DOUBLE}
+#cmakedefine VTK_SIZEOF_FLOAT  ${VTK_SIZEOF_FLOAT}
+#cmakedefine VTK_SIZEOF_INT    ${VTK_SIZEOF_INT}
+#cmakedefine VTK_SIZEOF_LONG   ${VTK_SIZEOF_LONG}
+#cmakedefine VTK_SIZEOF_SHORT  ${VTK_SIZEOF_SHORT}
