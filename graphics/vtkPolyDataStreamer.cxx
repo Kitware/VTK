@@ -64,8 +64,6 @@ vtkPolyDataStreamer* vtkPolyDataStreamer::New()
 //----------------------------------------------------------------------------
 vtkPolyDataStreamer::vtkPolyDataStreamer()
 {
-  this->MemoryLimit = 1000000;
-  this->UseMemoryLimit = 0;
   this->NumberOfStreamDivisions = 2;
   this->ColorByPiece = 0;
 }
@@ -76,50 +74,15 @@ vtkPolyDataStreamer::~vtkPolyDataStreamer()
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataStreamer::ComputeNumberOfStreamDivisionsFromMemoryLimit()
-{
-  unsigned long num;
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
-
-  if (this->UseMemoryLimit == 0)
-    { // This method should never have been called.
-    return;
-    }
-
-  if (input == NULL)
-    {
-    this->NumberOfStreamDivisions = 1;
-    return;
-    }
-  
-  num = output->GetEstimatedMemorySize();
-  num = 1 + num / this->MemoryLimit;
-    
-  this->NumberOfStreamDivisions = num;
-}
-
-//----------------------------------------------------------------------------
 void vtkPolyDataStreamer::SetNumberOfStreamDivisions(int num)
 {
-  if (this->UseMemoryLimit == 0 && this->NumberOfStreamDivisions == num)
+  if (this->NumberOfStreamDivisions == num)
     {
     return;
     }
 
   this->Modified();
-  this->UseMemoryLimit = 0;
   this->NumberOfStreamDivisions = num;
-}
-
-//----------------------------------------------------------------------------
-int vtkPolyDataStreamer::GetNumberOfStreamDivisions()
-{
-  if (this->UseMemoryLimit)
-    {
-    this->ComputeNumberOfStreamDivisionsFromMemoryLimit();
-    }
-  return this->NumberOfStreamDivisions;
 }
 
 //----------------------------------------------------------------------------
@@ -134,7 +97,6 @@ void vtkPolyDataStreamer::ComputeInputUpdateExtents(vtkDataObject *output)
   this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
 
   // If we are actually streaming, then bypass the normal update process.
-  this->ComputeNumberOfStreamDivisionsFromMemoryLimit();
   if (this->NumberOfStreamDivisions > 1)
     {
     this->GetInput()->SetUpdateExtent(-1, 0, 0);
@@ -202,10 +164,6 @@ void vtkPolyDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "NumberOfStreamDivisions: " << this->NumberOfStreamDivisions << endl;
-  if (this->UseMemoryLimit)
-    {
-    os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
-    }
   os << indent << "ColorByPiece: " << this->ColorByPiece << endl;
 }
 

@@ -68,13 +68,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Ideally, this filter should determine how to break up the input by
-  // a limit on the memory use.  Not all polydata sources and filters 
-  // set the EstimatedMemorySize correctly.  The current method is to specify 
-  // the concrete number of divisions. Any request wil be further split by this 
-  // factor.
+  // Set the number of pieces to divide the problem into.
   void SetNumberOfStreamDivisions(int num);
-  int GetNumberOfStreamDivisions();
+  vtkGetMacro(NumberOfStreamDivisions,int);
   
   // Description:
   // By default, this option is off.  When it is on, cell scalars are generated
@@ -94,14 +90,8 @@ protected:
   void Execute();
   void ComputeInputUpdateExtents(vtkDataObject *output);
   
-  // I intend on having both options available.
-  int UseMemoryLimit;
-  unsigned long MemoryLimit;
   int NumberOfStreamDivisions;
-  void ComputeNumberOfStreamDivisionsFromMemoryLimit();
-
   int ColorByPiece;
-
 };
 
 #endif
