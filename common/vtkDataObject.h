@@ -183,31 +183,12 @@ public:
   virtual void UpdateData();
 
   // Description:
-  // Get the maximum size of the pipeline. Should only be called after
-  // UpdateInformation() and PropagateUpdateExtent() have both been called.
-  // The size is returned in kilobytes.
-  unsigned long GetEstimatedPipelineMemorySize();
-
-  // Description:
   // Get the estimated size of this data object itself. Should be called
   // after UpdateInformation() and PropagateUpdateExtent() have both been 
   // called. Should be overridden in a subclass - otherwise the default
   // is to assume that this data object requires no memory.
   // The size is returned in kilobytes.
   virtual unsigned long GetEstimatedMemorySize();
-
-  // Description:
-  // Propogate the computation of the maximum size of the pipeline.
-  // The first size returned is the size of the pipeline after the source
-  // has executed (and has therefore had a chance to release any of its
-  // input data). The second size returned is the estimated size of this
-  // data object according to the source. If this is structured data, then
-  // the source likely asked this object for its estimated size. If it
-  // is unstructured data, then the source should have made its own
-  // prediction as to its output size. The third size returned is the
-  // maximum pipeline size encounted upstream during this propagation.
-  // All sizes are in kilobytes.
-  void ComputeEstimatedPipelineMemorySize( unsigned long sizes[3] );
 
   // Description:
   // A generic way of specifying an update extent.  Subclasses
@@ -407,10 +388,6 @@ protected:
 
   // When was this data last generated?
   vtkTimeStamp UpdateTime;  
-
-  // A guess at how much memory would be consumed by the data object
-  // if the WholeExtent were updated.
-  unsigned long EstimatedWholeMemorySize;
 
   // The Maximum MTime of all upstream filters and data objects.
   // This does not include the MTime of this data object.

@@ -332,48 +332,6 @@ void vtkDataObject::UpdateData()
 }
 
 //----------------------------------------------------------------------------
-
-unsigned long vtkDataObject::GetEstimatedPipelineMemorySize()
-{
-  unsigned long sizes[3];
-  unsigned long memorySize = 0;
-
-  if (this->Source)
-    {
-    this->Source->ComputeEstimatedPipelineMemorySize( this, sizes );
-    memorySize = sizes[2];
-    } 
-
-  return memorySize;
-} 
-
-//----------------------------------------------------------------------------
-
-void vtkDataObject::ComputeEstimatedPipelineMemorySize(unsigned long sizes[3])
-{
-  if (this->Source)
-    {
-    this->Source->ComputeEstimatedPipelineMemorySize( this, sizes );
-    } 
-  else
-    {
-    unsigned long size = this->GetActualMemorySize();
-    sizes[0] = size;
-    sizes[1] = size;
-    sizes[2] = size;
-    }
-}
-
-//----------------------------------------------------------------------------
-
-unsigned long vtkDataObject::GetEstimatedMemorySize()
-{
-  // This should be implemented in a subclass. If not, default to
-  // estimating that no memory is used.
-  return 0;
-}
-
-//----------------------------------------------------------------------------
 void vtkDataObject::SetUpdateExtent( int x1, int x2, 
 				     int y1, int y2, 
 				     int z1, int z2 )
@@ -457,6 +415,13 @@ void vtkDataObject::UnRegister(vtkObject *o)
 unsigned long vtkDataObject::GetUpdateTime()
 {
   return this->UpdateTime.GetMTime();
+}
+
+unsigned long vtkDataObject::GetEstimatedMemorySize()
+{
+  // This should be implemented in a subclass. If not, default to
+  // estimating that no memory is used.
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -672,7 +637,6 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
   this->UpdatePiece = src->UpdatePiece;
   this->UpdateGhostLevel = src->UpdateGhostLevel;
   this->ReleaseDataFlag = src->ReleaseDataFlag;
-  this->EstimatedWholeMemorySize = src->EstimatedWholeMemorySize;
   this->PipelineMTime = src->PipelineMTime;
   this->Locality = src->Locality;
 }
