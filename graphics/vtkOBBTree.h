@@ -82,7 +82,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 //BTX - begin tcl exclude
 //
-class VTK_EXPORT vtkOBBNode { //;prevent man page generation
+class vtkOBBNode { //;prevent man page generation
 public:
   vtkOBBNode();
   ~vtkOBBNode();
