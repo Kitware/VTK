@@ -18,6 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <tk.h>
 #include <string.h>
 
+extern int vtkTclDeleteObjectFromHash(ClientData cd);
 extern void vtkTclGenericDeleteObject(ClientData cd);
 extern vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
 			  int command(ClientData, Tcl_Interp *,int, char *[]));
