@@ -241,7 +241,7 @@ void vtkPDataSetReader::ExecuteInformation()
   if (strncmp(str, "<File version=\"pvtk-1.0\"", 24) != 0)
     {
     // Find out the type from the file.
-    if (strncmp(str, "# vtk DataFile Version 3.0", 26) != 0)
+    if (strncmp(str, "# vtk DataFile Version", 22) != 0)
       {
       vtkErrorMacro("This does not look like a VTK file: " 
                     << this->FileName << ", " << str);
@@ -254,6 +254,7 @@ void vtkPDataSetReader::ExecuteInformation()
     while (strncmp(str, "DATASET", 7) != 0 && i < 6)
       {
       file->getline(str, 1024);
+      ++i;
       }
 
     if (strncmp(str, "DATASET POLYDATA", 16) == 0)
@@ -306,46 +307,33 @@ void vtkPDataSetReader::ExecuteInformation()
       vtkImageData *image = (vtkImageData*)(this->CheckOutput());
 
       file->getline(str, 1024, ' ');
-      if (strncmp(str, "DIMENSIONS", 10) != 0)
+      // hack to stop reading.
+      while (strlen(str) > 5)
         {
-        vtkErrorMacro("Expecting 'DIMENSIONS' insted of: " << str);
-        file->close();
-        delete file;
-        return;
+        if (strncmp(str, "DIMENSIONS", 10) == 0)
+          {
+          *file >> dx;
+          *file >> dy;
+          *file >> dz;
+          image->SetWholeExtent(0, dx-1, 0, dy-1, 0, dz-1);
+          }
+        if (strncmp(str, "SPACING", 7) == 0 || strncmp(str, "ASPECT_RATIO", 12) == 0)
+          {
+          *file >> x;
+          *file >> y;
+          *file >> z;
+          image->SetSpacing(x, y, z);
+          }
+        if (strncmp(str, "ORIGIN", 6) == 0)
+          {
+          *file >> x;
+          *file >> y;
+          *file >> z;
+          image->SetOrigin(x, y, z);
+          }
+        file->getline(str, 1024);
+        file->getline(str, 1024, ' ');
         }
-      *file >> dx;
-      *file >> dy;
-      *file >> dz;
-      image->SetScalarTypeToFloat();
-      image->SetWholeExtent(0, dx-1, 0, dy-1, 0, dz-1);
-
-      file->getline(str, 1024);
-      file->getline(str, 1024, ' ');
-      if (strncmp(str, "SPACING", 7) != 0)
-        {
-        vtkErrorMacro("Expecting 'ASPECT_RATIO' insted of: " << str);
-        file->close();
-        delete file;
-        return;
-        }
-      *file >> x;
-      *file >> y;
-      *file >> z;
-      image->SetSpacing(x, y, z);
-
-      file->getline(str, 1024);
-      file->getline(str, 1024, ' ');
-      if (strncmp(str, "ORIGIN", 6) != 0)
-        {
-        vtkErrorMacro("Expecting 'ASPECT_RATIO' insted of: " << str);
-        file->close();
-        delete file;
-        return;
-        }
-      *file >> x;
-      *file >> y;
-      *file >> z;
-      image->SetOrigin(x, y, z);
       }
     else 
       {
