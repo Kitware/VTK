@@ -24,7 +24,7 @@
 #include "vtkEnSightGoldReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.27");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.28");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSetTimeValuesCollection, 
@@ -128,6 +128,11 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
 void vtkGenericEnSightReader::Execute()
 {
   int i;
+
+  if ( !this->Reader )
+    {
+    return;
+    }
 
   this->Reader->SetTimeValue(this->GetTimeValue());
   this->Reader->Update();
