@@ -32,7 +32,7 @@ void vlSTLReader::Execute()
 
   if ((fp = fopen(this->Filename, "r")) == NULL)
     {
-    vlErrorMacro(<< "File " << this->Filename << " not found\n");
+    vlErrorMacro(<< "File " << this->Filename << " not found");
     return;
     }
 
@@ -51,8 +51,8 @@ void vlSTLReader::Execute()
     if ( this->ReadBinarySTL(fp,newPts,newPolys) ) return;
     }
 
-  vlDebugMacro(<< "Read " << newPts->NumberOfPoints() << " points\n");
-  vlDebugMacro(<< "Read " << newPolys->GetNumberOfCells() << " triangles\n");
+  vlDebugMacro(<< "Read " << newPts->NumberOfPoints() << " points");
+  vlDebugMacro(<< "Read " << newPolys->GetNumberOfCells() << " triangles");
 //
 // Since we sized the dynamic arrays arbitrarily to begin with 
 // need to resize them to fit data
@@ -76,7 +76,7 @@ int vlSTLReader::ReadBinarySTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *new
   typedef struct  {float  n[3], v1[3], v2[3], v3[3];} facet_t;
   facet_t facet;
 
-  vlDebugMacro(<< " Reading BINARY STL file\n");
+  vlDebugMacro(<< " Reading BINARY STL file");
 //
 //  File is read to obtain raw information as well as bounding box
 //
@@ -89,7 +89,7 @@ int vlSTLReader::ReadBinarySTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *new
 //
   if ( (numTris = (int) ulint) <= 0 )
     {
-    vlDebugMacro(<< "Bad binary count (" << numTris << ")\n");
+    vlDebugMacro(<< "Bad binary count (" << numTris << ")");
     }
 
   while ( fread(&facet,48,1,fp) > 0 )
@@ -117,8 +117,8 @@ int vlSTLReader::ReadBinarySTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *new
 
     newPolys->InsertNextCell(3,pts);
 
-    if (this->Debug && (i % 5000) == 0 && i != 0 )
-      fprintf (stderr,"%s: triangle #%d\n", this->GetClassName(), i);
+    if ( (i % 5000) == 0 && i != 0 )
+      vlDebugMacro(<< "triangle# " << i);
     }
 
   return 0;
@@ -131,7 +131,7 @@ int vlSTLReader::ReadASCIISTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *newP
   float x[3];
   int pts[3];
 
-  vlDebugMacro(<< " Reading ASCII STL file\n");
+  vlDebugMacro(<< " Reading ASCII STL file");
 //
 //  Ingest header and junk to get to first vertex
 //
@@ -153,8 +153,8 @@ int vlSTLReader::ReadASCIISTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *newP
 
     newPolys->InsertNextCell(3,pts);
 
-    if (this->Debug && ((newPolys->GetNumberOfCells() % 5000) == 0) )
-      fprintf (stderr,"%s: triangle #%d\n", this->GetClassName(), newPolys->GetNumberOfCells());
+    if ( (newPolys->GetNumberOfCells() % 5000) == 0 )
+      vlDebugMacro(<< "triangle# " << newPolys->GetNumberOfCells());
     }
 
   return 0;
