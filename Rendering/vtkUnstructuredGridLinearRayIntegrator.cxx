@@ -74,7 +74,7 @@ public:
   vtkstd::vector<acolor> Colors;
 };
 
-const static double huebends[6] = {
+static const double huebends[6] = {
   1.0/6.0, 1.0/3.0, 0.5, 2.0/3.0, 5.0/6.0, 1.0
 };
 
@@ -282,7 +282,7 @@ inline void vtkLinearRayIntegratorTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.12");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.13");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()

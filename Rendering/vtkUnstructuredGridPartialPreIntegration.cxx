@@ -63,7 +63,7 @@ public:
   vtkstd::vector<acolor> Colors;
 };
 
-const static double huebends[6] = {
+static const double huebends[6] = {
   1.0/6.0, 1.0/3.0, 0.5, 2.0/3.0, 5.0/6.0, 1.0
 };
 
@@ -271,7 +271,7 @@ inline void vtkPartialPreIntegrationTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.7");
+vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.8");
 vtkStandardNewMacro(vtkUnstructuredGridPartialPreIntegration);
 
 float vtkUnstructuredGridPartialPreIntegration::PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
