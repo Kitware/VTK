@@ -26,7 +26,7 @@
 
 #include <GL/gl.h>
 
-vtkCxxRevisionMacro(vtkOpenGLVolumeProVG500Mapper, "1.18");
+vtkCxxRevisionMacro(vtkOpenGLVolumeProVG500Mapper, "1.19");
 vtkStandardNewMacro(vtkOpenGLVolumeProVG500Mapper);
 
 void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
@@ -145,3 +145,8 @@ void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
   glEnable( GL_LIGHTING );
 }
 
+//----------------------------------------------------------------------------
+void vtkOpenGLVolumeProVG500Mapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

@@ -28,7 +28,7 @@
 
 #include <GL/gl.h>
 
-vtkCxxRevisionMacro(vtkOpenGLVolumeProVP1000Mapper, "1.11");
+vtkCxxRevisionMacro(vtkOpenGLVolumeProVP1000Mapper, "1.12");
 vtkStandardNewMacro(vtkOpenGLVolumeProVP1000Mapper);
 
 void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,
@@ -249,4 +249,10 @@ void vtkOpenGLVolumeProVP1000Mapper::RenderBoundingBox(vtkRenderer *ren,
   
   glEnable( GL_LIGHTING );
   glFlush();
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLVolumeProVP1000Mapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }
