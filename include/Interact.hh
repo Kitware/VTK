@@ -69,7 +69,9 @@ public:
   virtual void HighlightActor(vlActor *actor);
 
   void SetStartPickMethod(void (*f)(void *), void *arg);
+  void SetStartPickMethodArgDelete(void (*f)(void *));
   void SetEndPickMethod(void (*f)(void *), void *arg);
+  void SetEndPickMethodArgDelete(void (*f)(void *));
 
   void SetPicker(vlPicker *picker);
   void SetPicker(vlPicker& picker) {this->SetPicker(&picker);};
@@ -81,6 +83,9 @@ public:
   // Description:
   // Create default picker. Used to create one when none is specified.
   virtual vlPicker *CreateDefaultPicker();
+
+  void SetUserMethod(void (*f)(void *), void *arg);
+  void SetUserMethodArgDelete(void (*f)(void *));
 
 protected:
   vlRenderWindow *RenderWindow;
@@ -107,9 +112,15 @@ protected:
 
   // methods called prior to and after picking
   void (*StartPickMethod)(void *);
+  void (*StartPickMethodArgDelete)(void *);
   void *StartPickMethodArg;
   void (*EndPickMethod)(void *);
+  void (*EndPickMethodArgDelete)(void *);
   void *EndPickMethodArg;
+  void (*UserMethod)(void *);
+  void (*UserMethodArgDelete)(void *);
+  void *UserMethodArg;
+
 };
 
 #endif

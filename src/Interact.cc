@@ -37,9 +37,14 @@ vlRenderWindowInteractor::vlRenderWindowInteractor()
   this->CurrentActor = NULL;
 
   this->StartPickMethod = NULL;
+  this->StartPickMethodArgDelete = NULL;
   this->StartPickMethodArg = NULL;
   this->EndPickMethod = NULL;
+  this->EndPickMethodArgDelete = NULL;
   this->EndPickMethodArg = NULL;
+  this->UserMethod = NULL;
+  this->UserMethodArgDelete = NULL;
+  this->UserMethodArg = NULL;
 }
 
 vlRenderWindowInteractor::~vlRenderWindowInteractor()
@@ -172,6 +177,55 @@ vlPicker *vlRenderWindowInteractor::CreateDefaultPicker()
   if ( this->SelfCreatedPicker ) delete this->Picker;
   this->SelfCreatedPicker = 1;
   return new vlCellPicker;
+}
+
+// Description:
+// Set the user method. This method is invokedon a ctrl-u.
+void vlRenderWindowInteractor::SetUserMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->UserMethod || arg != this->UserMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->UserMethodArg)&&(this->UserMethodArgDelete))
+      {
+      (*this->UserMethodArgDelete)(this->UserMethodArg);
+      }
+    this->UserMethod = f;
+    this->UserMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vlRenderWindowInteractor::SetUserMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->UserMethodArgDelete)
+    {
+    this->UserMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vlRenderWindowInteractor::SetStartPickMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->StartPickMethodArgDelete)
+    {
+    this->StartPickMethodArgDelete = f;
+    this->Modified();
+    }
+}
+// Description:
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vlRenderWindowInteractor::SetEndPickMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->EndPickMethodArgDelete)
+    {
+    this->EndPickMethodArgDelete = f;
+    this->Modified();
+    }
 }
 
 void vlRenderWindowInteractor::PrintSelf(ostream& os, vlIndent indent)
