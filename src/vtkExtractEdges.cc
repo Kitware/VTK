@@ -55,7 +55,7 @@ void vtkExtractEdges::Execute()
   vtkFloatPoints *newPts;
   vtkCellArray *newLines;
   int numCells, cellNum, numEdges, edgeNum, numEdgePts, numCellEdges;
-  int numPts, numNewPts, i, id, pts[2], pt1, pt2;
+  int numPts, numNewPts, i, pts[2], pt1, pt2;
   vtkEdgeTable *edgeTable;
   vtkCell *cell, *edge;
 

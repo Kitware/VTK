@@ -801,7 +801,7 @@ static long getheader(int fd)
 	char *endstr = HEADEREND;
 	char *temp_header;
 	char *addr;
-	int n;
+	int n=0;
 
 	temp_header = (char *)malloc(MAXHEADER);
 
