@@ -255,6 +255,14 @@ if {$validImageFound != 0} {
    puts -nonewline "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">"
    puts -nonewline "$imageError"
    puts "</DartMeasurement>"
+
+   if { $errIndex <= 0} {
+       puts -nonewline "<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>"
+   } else {
+       puts -nonewline "<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\">"
+       puts -nonewline "$errIndex"
+       puts "</DartMeasurement>"
+   }
 }
 
 vtkCommand DeleteAllObjects
