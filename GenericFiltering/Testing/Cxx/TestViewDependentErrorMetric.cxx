@@ -198,7 +198,7 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
   int i=0;
   int n=ds->GetAttributes()->GetNumberOfAttributes();
   int found=0;
-  vtkGenericAttribute *attribute;
+  vtkGenericAttribute *attribute=0;
   while(i<n&&!found)
     {
     attribute=ds->GetAttributes()->GetAttribute(i);
