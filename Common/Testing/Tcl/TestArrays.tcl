@@ -1,3 +1,9 @@
+for {set i  0} {$i < [expr $argc - 1]} {incr i} {
+   if {[lindex $argv $i] == "-A"} {
+      set auto_path "$auto_path [lindex $argv [expr $i +1]]"
+   }
+}
+
 package require vtktcl
 puts "Array test started"
 
