@@ -20,7 +20,7 @@
 
 #include "math.h"
 
-vtkCxxRevisionMacro(vtkGridTransform, "1.24");
+vtkCxxRevisionMacro(vtkGridTransform, "1.25");
 vtkStandardNewMacro(vtkGridTransform);
 
 vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
@@ -815,6 +815,7 @@ void vtkTricubicInterpolation(double point[3], double displacement[3],
                      (float *)gridPtr,
                      interpModeX, interpModeY, interpModeZ,
                      factX, factY, factZ);
+      break;
     case VTK_DOUBLE:
       vtkCubicHelper(displacement, derivatives, f[0], f[1], f[2],
                      (double *)gridPtr,
