@@ -126,6 +126,52 @@ void vtkSweptSurface::SetModelBounds(float xmin, float xmax, float ymin,
   this->SetModelBounds(bounds);
 }
 
+
+void vtkSweptSurface::ExecuteInformation()
+{
+  float origin[3], spacing[3], bbox[24];
+  vtkImageData *input = this->GetInput();
+  vtkStructuredPoints *output = this->GetOutput();
+
+
+  // make sure there is input
+  if (input == NULL)
+    {
+    vtkErrorMacro(<<"Input is NULL");
+    return;
+    }
+  
+  // check that path is defined
+  if ( this->Transforms == NULL )
+    {
+    vtkErrorMacro(<<"No path defined!");
+    return;
+    }
+
+  if ( this->Transforms->GetNumberOfItems() < 2 )
+    {
+    vtkErrorMacro(<<"At least two transforms are required to define path!");
+    return;
+    }
+
+  /*
+   *
+   */
+  output->SetWholeExtent(0, this->SampleDimensions[0]-1,
+                         0, this->SampleDimensions[1]-1,
+                         0, this->SampleDimensions[2]-1);
+
+  this->ComputeBounds(origin, spacing, bbox);
+  output->SetSpacing(spacing);
+  output->SetOrigin(origin);
+  output->SetNumberOfScalarComponents(1);
+  output->SetScalarType(VTK_FLOAT);
+
+}
+
+
+
+
 void vtkSweptSurface::Execute()
 {
   int i, numOutPts;

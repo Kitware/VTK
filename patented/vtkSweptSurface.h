@@ -173,6 +173,7 @@ protected:
   void operator=(const vtkSweptSurface&) {};
 
   void Execute();
+  void ExecuteInformation();
 
   void ComputeBounds(float origin[3], float ar[3], float bbox[24]);
   int ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2, float bbox[24]);
