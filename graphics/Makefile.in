@@ -43,6 +43,7 @@ vtkXGLTexture
 
 ABSTRACT_H = \
 vtkCuller \
+vtkDirectionEncoder \
 vtkRayBounder 
 
 CONCRETE_H = \
@@ -57,7 +58,6 @@ vtkStructuredPointsCollection \
 vtkVolumeCollection
 
 ABSTRACT = \
-vtkDirectionEncoder \
 vtkEncodedGradientEstimator \
 vtkExporter \
 vtkImporter \

@@ -70,6 +70,7 @@ static void ComputeGradients(
   float               n[3], t;
   float               gvalue;
   float               normalize_factor;
+  float               zeroNormalTolerance;
   vtkDirectionEncoder *direction_encoder;
   
   // Compute steps through the volume in x, y, and z
@@ -82,6 +83,10 @@ static void ComputeGradients(
   ystep *= estimator->SampleSpacingInVoxels;
   zstep *= estimator->SampleSpacingInVoxels;
 
+  // Get the length at or below which normals are considered to
+  // be "zero"
+  zeroNormalTolerance = estimator->GetZeroNormalTolerance();
+  
   // Compute an offset based on the thread_id. The volume will
   // be broken into large slabs (thread_count slabs). For this thread
   // we need to access the correct slab. Also compute the z plane that
@@ -225,11 +230,15 @@ static void ComputeGradients(
 	  }
 
 	// Normalize the gradient direction
-	if ( t )
+	if ( t > zeroNormalTolerance )
 	  {
 	  n[0] /= t;
 	  n[1] /= t;
 	  n[2] /= t;
+	  }
+	else
+	  {
+	  n[0] = n[1] = n[2] = 0.0;
 	  }
 
 	// Convert the gradient direction into an encoded index value

@@ -83,16 +83,16 @@ int vtkRecursiveSphereDirectionEncoder::GetEncodedDirection( float n[3] )
   // This is done by computing the (x,y) grid position of this 
   // normal in the 2*NORM_SQR_SIZE - 1 grid, then passing this
   // through the IndexTable to look up the 16 bit index value
-  if ( (n[0]*n[0] + n[1]*n[1] + n[2]*n[2]) > 
-       this->ZeroNormalToleranceSquared )
-    {
 
-    // Don't use fabs because it is slow - just convert to absolute
-    // using a simple conditional.
-    t =  
-      ((n[0]>=0.0)?(n[0]):(-n[0])) + 
-      ((n[1]>=0.0)?(n[1]):(-n[1])) + 
-      ((n[2]>=0.0)?(n[2]):(-n[2]));
+  // Don't use fabs because it is slow - just convert to absolute
+  // using a simple conditional.
+  t =  
+    ((n[0]>=0.0)?(n[0]):(-n[0])) + 
+    ((n[1]>=0.0)?(n[1]):(-n[1])) + 
+    ((n[2]>=0.0)?(n[2]):(-n[2]));
+  
+  if ( t )
+    {
 
     t = 1.0 / t;
     

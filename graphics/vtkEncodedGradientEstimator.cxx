@@ -66,7 +66,7 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
   this->UseCircleClip              = 0;
   this->LastUpdateTimeInSeconds    = -1.0;
   this->LastUpdateTimeInCPUSeconds = -1.0;
-
+  this->ZeroNormalTolerance        = 0.0;
 }
 
 // Destruct a vtkEncodedGradientEstimator - free up any memory used
@@ -94,6 +94,21 @@ vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
   if ( this->CircleLimits )
     {
     delete [] this->CircleLimits;
+    }
+}
+
+void vtkEncodedGradientEstimator::SetZeroNormalTolerance( float v )
+{
+  if ( this->ZeroNormalTolerance != v )
+    {
+    if ( v < 0.0 )
+      {
+      vtkErrorMacro( << "The ZeroNormalTolerance must be a value >= 0.0" );
+      return;
+      }
+
+    this->ZeroNormalTolerance = v;
+    this->Modified();
     }
 }
 

@@ -137,6 +137,16 @@ public:
   vtkGetMacro( UseCircleClip, int );
   int *GetCircleLimits() { return this->CircleLimits; };
 
+    // Description:
+  // Set / Get the ZeroNormalTolerance - this defines the minimum magnitude 
+  // of a gradient that is considered sufficient to define a 
+  // direction. Gradients with magnitudes at or less than this value are given
+  // a "zero normal" index. These are handled specially in the shader, 
+  // and you can set the intensity of light for these zero normals in
+  // the gradient shader.
+  void SetZeroNormalTolerance( float v );
+  vtkGetMacro( ZeroNormalTolerance, float );
+
   // These variables should be protected but are being
   // made public to be accessible to the templated function.
   // We used to have the templated function as a friend, but
@@ -179,6 +189,8 @@ protected:
 
   float                      LastUpdateTimeInSeconds;
   float                      LastUpdateTimeInCPUSeconds;
+
+  float                      ZeroNormalTolerance;
 
   int                        ClipOutsideCircle;
   int                        *CircleLimits;
