@@ -382,14 +382,16 @@ void makeMakefile(CPcmakerDlg *vals)
     sprintf(fname,"%s\\patented\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("patented"));
   }
-  if (vals->m_GEMSIO)
+  if (vals->m_Working)
+  {
+    sprintf(fname,"%s\\working\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("working"));
+  }
+  if (vals->m_GEMSIP)
   {
     doAddedValue = 1;
     sprintf(fname,"%s\\gemsio\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("gemsio"));
-  }
-  if (vals->m_GEMSIP)
-  {
     doAddedValue = 1;
     sprintf(fname,"%s\\gemsip\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("gemsip"));
@@ -811,8 +813,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
     }
-  if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" \\\n",
-    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+  if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   if (vals->m_Lean)
     {
     fprintf(fp," /D \"VTK_LEAN_AND_MEAN\" /Fo\"$(OUTDIR)/\" /c \n");
@@ -1211,8 +1213,8 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
     }
-  if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" \\\n",
-    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+  if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"/I \"%s\\include\" /I \"%s\\include\\win32\" /Fo\"$(OUTDIR)/\" /c \n",
     vals->m_WhereJDK, vals->m_WhereJDK);
   fprintf(fp,"LINK32=link.exe\n");

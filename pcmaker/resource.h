@@ -20,6 +20,7 @@
 #define IDC_GenericComp                 1015
 #define IDC_Debug                       1017
 #define IDC_GEMSIO                      1018
+#define IDC_WORKING                     1018
 #define IDC_GEMSIP                      1019
 #define IDC_GEMSVOLUME                  1020
 #define IDC_CHECK5                      1021

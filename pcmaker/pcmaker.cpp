@@ -163,7 +163,7 @@ BOOL CPcmakerApp::InitInstance()
       AfxMessageBox("Incorrect command line arguments!");
 
     if (sscanf(GetNextArg(m_lpCmdLine),"%i",&tempi) == 1)
-      dlg.m_GEMSIO = tempi;
+      dlg.m_Working = tempi;
     else
       AfxMessageBox("Incorrect command line arguments!");
 

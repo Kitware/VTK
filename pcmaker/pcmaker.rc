@@ -101,10 +101,10 @@ BEGIN
     EDITTEXT        IDC_WHERECOMPILER,16,75,153,14,ES_AUTOHSCROLL
     CONTROL         "Build a Debug Version",IDC_Debug,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,189,39,85,10
-    CONTROL         "GemsIO",IDC_GEMSIO,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Working",IDC_WORKING,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,15,157,41,10
-    CONTROL         "GemsIP",IDC_GEMSIP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,68,157,41,10
+    CONTROL         "GemsIO/IP",IDC_GEMSIP,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,68,157,47,10
     CONTROL         "GemsVolume",IDC_GEMSVOLUME,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,117,157,57,10
     CONTROL         "Include Patented Algorithms",IDC_PATENTED,"Button",
