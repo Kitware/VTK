@@ -22,6 +22,8 @@ SET ( Kit_SRCS
 vtk3DSImporter.cxx
 vtk3DWidget.cxx
 vtkArcPlotter.cxx
+vtkAnnotatedCubeActor.cxx
+vtkAxesActor.cxx
 vtkBoxWidget.cxx
 vtkCaptionActor2D.cxx
 vtkCubeAxesActor2D.cxx
