@@ -413,6 +413,7 @@ case $system in
 	SHLIB_SUFFIX="..o"
 	SHLIB_VERSION=""
 	DL_LIBS=""
+        AC_CHECK_LIB(ld,printf, DL_LIBS="-lld")
 	LD_FLAGS=""
 	LD_SEARCH_FLAGS=""
 	;;
