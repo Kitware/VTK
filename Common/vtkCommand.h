@@ -139,6 +139,7 @@ public:
     ResetCameraClippingRangeEvent,
     ModifiedEvent,
     WindowLevelEvent,
+    ResetWindowLevelEvent,
     NextDataEvent,
     PushDataStartEvent,
     SetOutputEvent,
