@@ -36,7 +36,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.12");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.13");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -513,6 +513,7 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
       case vtkAVSucdReader::HEX:   types[i] = VTK_HEXAHEDRON; break;
       default:
         vtkErrorMacro( << "cell type: " << Ctype[4*i+3] << "not supported\n");
+        delete [] Ctype;
         return;
       }
     }
