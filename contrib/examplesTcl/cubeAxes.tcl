@@ -79,6 +79,7 @@ vtkCubeAxesActor2D axes2
     axes2 SetFlyModeToClosestTriad
     axes2 SetFontFactor 0.8
     [axes2 GetProperty] SetColor 1 1 1
+    axes2 ScalingOff
 ren2 AddProp axes2 
 
 renWin Render

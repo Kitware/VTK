@@ -44,9 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkCubeAxesActor2D* vtkCubeAxesActor2D::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -59,9 +57,6 @@ vtkCubeAxesActor2D* vtkCubeAxesActor2D::New()
   return new vtkCubeAxesActor2D;
 }
 
-
-
-
 // Instantiate this object.
 vtkCubeAxesActor2D::vtkCubeAxesActor2D()
 {
@@ -73,6 +68,7 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
 
   this->Camera = NULL;
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
+  this->Scaling = 1;
 
   this->XAxis = vtkAxisActor2D::New();
   this->XAxis->GetPoint1Coordinate()->SetCoordinateSystemToDisplay();
@@ -655,6 +651,8 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Fly Mode: OUTER_EDGES\n";
     }
 
+  os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");
+
   os << indent << "Number Of Labels: " << this->NumberOfLabels << "\n";
   os << indent << "X Label: " << this->XLabel << "\n";
   os << indent << "Y Label: " << this->YLabel << "\n";
@@ -690,8 +688,8 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
 static int IsInBounds(float x[3], float bounds[6]);
 
 // Clip the axes to fit into the viewport. Do this clipping each of the three
-// axes to determine which part of the cube is in view.
-//
+// axes to determine which part of the cube is in view. Returns 0 if
+// nothing should be drawn.
 #define VTK_DIVS 10
 int vtkCubeAxesActor2D::ClipBounds(vtkViewport *viewport, float pts[8][3], 
                                    float bounds[6])
@@ -702,9 +700,14 @@ int vtkCubeAxesActor2D::ClipBounds(vtkViewport *viewport, float pts[8][3],
   float delX, delY, delZ, bounds2[6], scale2, newScale, origin[3];
   float aspect[2];
 
-  viewport->GetAspect( aspect );
+  // Only do this mojo if scaling is required
+  if ( ! this->Scaling )
+    {
+    return 1;
+    }
 
   // Get the 6 planes defining the view frustrum
+  viewport->GetAspect( aspect );
   this->Camera->GetFrustumPlanes((aspect[0] / aspect[1]), planes);
 
   // Hunt for the point in the bounds furthest inside the frustum
