@@ -15,15 +15,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 // .NAME vlGeometryFilter - extract geometry from data (or convert data to polygonal type)
 // .SECTION Description
-// vlGeometryFilter is a filter to extract geometry (and associated data)
-// from a dataset. Geometry is obtained as follows: all 0D, 1D, and 2D cells
-// are extracted. All 2D faces that are used by only one 3D cell (i.e., 
-// boundary faces) are extracted. It is also possible to specify conditions
-// on point ids, cell ids, and on bounding box to control the extraction 
-// process.
+// vlGeometryFilter is a general-purpose filter to extract geometry (and 
+// associated data) from any type of dataset. Geometry is obtained as 
+// follows: all 0D, 1D, and 2D cells are extracted. All 2D faces that are 
+// used by only one 3D cell (i.e., boundary faces) are extracted. It is 
+// also possible to specify conditions on point ids, cell ids, and on 
+// bounding box (referred to as "Extent") to control the extraction process.
 //    This filter may be also used to convert any type of data to polygonal
 // type. The conversion process may be less than satisfactory for some 3D
-// datasets.
+// datasets. For example, this filter will extract the outer surface of a 
+// volume or structured grid dataset. (For structured data you may want to
+// use vlStructuredPointsGeometryFilter or vlStructuredGridGeometryFilter).
+// .SECTION See Also
+// vlStructuredPointsGeometryFilter, vlStructuredGridGeometryFilter
 
 #ifndef __vlGeometryFilter_h
 #define __vlGeometryFilter_h
