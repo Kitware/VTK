@@ -31,11 +31,10 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.1");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.1.2.1");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
-  this->CurrentCellDimension = MRegion;
   this->Tetra = vtkTetra::New();
   this->Triangle = vtkTriangle::New();
   this->Line = vtkLine::New();
@@ -172,9 +171,8 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
   this->Reset();
 
   //Tessellate this cell into linear elements:
-  if( this->CurrentCellDimension == MRegion )
+  if( this->GetDimension() == 3 )
     {
-    //int numComp = this->CurrentSimmetrixAttribute->GetNumberOfComponents();  //FIXME
     int numComp = attributes->GetAttribute( 
       attributes->GetActiveAttribute() )->GetNumberOfComponents();
     int currComp = attributes->GetActiveComponent();
@@ -232,9 +230,8 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
         }
       }
     }
-  else if( CurrentCellDimension == MFace )
+  else if( this->GetDimension() == 2 )
     {
-    //int numComp = this->CurrentSimmetrixAttribute->GetNumberOfComponents();
     int numComp = attributes->GetAttribute( attributes->GetActiveAttribute() )->GetNumberOfComponents();
     int currComp = attributes->GetActiveComponent();
     this->InternalScalars->SetNumberOfComponents(numComp);
@@ -307,9 +304,8 @@ void vtkGenericAdaptorCell::Clip(double value, vtkImplicitFunction *f,
   this->Reset();
 
   //Tessellate this cell into linear elements:
-  if( this->CurrentCellDimension == MRegion )
+  if( this->GetDimension() == 3 )
     {
-    //int numComp = this->CurrentSimmetrixAttribute->GetNumberOfComponents();
     int numComp = attributes->GetAttribute( attributes->GetActiveAttribute() )->GetNumberOfComponents();
     int currComp = attributes->GetActiveComponent();
     this->InternalScalars->SetNumberOfComponents(numComp);
@@ -352,7 +348,6 @@ void vtkGenericAdaptorCell::Clip(double value, vtkImplicitFunction *f,
   }
   else
   {
-    //int numComp = this->CurrentSimmetrixAttribute->GetNumberOfComponents();
     int numComp = attributes->GetAttribute( attributes->GetActiveAttribute() )->GetNumberOfComponents();
     int currComp = attributes->GetActiveComponent();
     this->InternalScalars->SetNumberOfComponents(numComp);
@@ -426,9 +421,12 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
   assert("pre: pd_exist" && pd!=0);
   assert("pre: cd_exist" && cd!=0);
   
+  (void)cd; // We should copy the attribute centered on cell into created
+  // sub-cells.
+  
   this->Reset();
 
-  if( this->CurrentCellDimension == MRegion)
+  if( this->GetDimension() == 3)
     {
     int numComp = attributes->GetAttribute( 
         attributes->GetActiveAttribute() )->GetNumberOfComponents();
@@ -470,7 +468,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
         }
       }
     }
-  else if( this->CurrentCellDimension == MFace)
+  else if( this->GetDimension() == 2)
     {
     // FIXME: The tessellator should take all attributes in argument, not only
     // the active attribute
@@ -489,6 +487,8 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
     if(tetsScalars==0)
       {
       tetsScalars= vtkDoubleArray::New();
+      tetsScalars->SetName(attributes->GetAttribute( 
+                             attributes->GetActiveAttribute() )->GetName());
       pd->SetScalars(tetsScalars);
       tetsScalars->Delete();
       }
@@ -501,7 +501,6 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
       for(int i=0;i<npts;i++,point+=3,scalar++)
         {
         outpoints->InsertPoint(pts[i], point );
-        pd->InsertTuple(pts[i], scalar);
         tetsScalars->InsertTuple(pts[i], scalar); //FIXME
         }
       }
@@ -512,17 +511,17 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
     }
 }  
 
-
 //----------------------------------------------------------------------------
 void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attributes,
                                      vtkGenericCellTessellator *tess,
                                      int index, vtkPoints *points,
-                                     vtkCellArray *cellArray, vtkPointData *pd,
+                                            vtkCellArray *cellArray,
+                                            vtkPointData *pd,
                                      vtkCellData *vtkNotUsed(cd) )
 {
   this->Reset();
 
-  if( this->CurrentCellDimension == MRegion)
+  if( this->GetDimension() == 3)
     {
     tess->TessellateTriangleFace(this, attributes, index, 
       this->InternalPoints, this->InternalCellArray, this->InternalScalars);
@@ -538,6 +537,8 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
       {
       tetsScalars = vtkDoubleArray::New();
       pd->SetScalars(tetsScalars);
+      tetsScalars->SetName(attributes->GetAttribute( 
+                             attributes->GetActiveAttribute() )->GetName());
       tetsScalars->Delete();
       }
 
@@ -558,4 +559,3 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
     vtkErrorMacro( << "This is not a 3D cell" );
     }
 }  
-

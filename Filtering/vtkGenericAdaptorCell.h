@@ -242,7 +242,8 @@ public:
   //                     pcoords[1]<=1 && pcoords[2]>=0 && pcoords[2]<=1
   // \pre val_exists: val!=0
   // \pre valid_size: sizeof(val)==c->GetNumberOfComponents()
-  virtual void InterpolateTuple(vtkGenericAttributeCollection *c, double pcoords[3],
+  virtual void InterpolateTuple(vtkGenericAttributeCollection *c,
+                                double pcoords[3],
                                 double *val) = 0;
   
   // Description:
@@ -447,6 +448,16 @@ public:
                                vtkPoints *pts, vtkCellArray *cellArray, 
                                vtkPointData *pd, vtkCellData *cd );
   
+  // Description:
+  // Return the 3 ids of the vertices defining face `faceId', assuming the
+  // cell is a tetrahedron
+  // \pre is_a_tetra: GetType()==VTK_TETRA || GetType()==VTK_QUADRATIC_TETRA
+  //                  GetType()==VTK_HIGHER_ORDER_TETRAHEDRON
+  // \pre valid_faceId_range: faceId>=0 && faceId<=3
+  // \post result_exists: result!=0
+  // \post valid_size: sizeof(result)>=3
+  virtual int *GetFaceArray(int faceId)=0;
+  
 protected:
   vtkGenericAdaptorCell();
   virtual ~vtkGenericAdaptorCell();
@@ -454,11 +465,6 @@ protected:
   // Description:
   // Reset internal structures.
   void Reset();
-
-//BTX
-  vtkGetMacro(CurrentCellDimension, int);
-  enum { MVertex, MEdge, MFace, MRegion } CurrentCellDimension;
-//ETX
 
   //Internal tetra used for the contouring/clipping algoirthm
   vtkTetra       *Tetra;
