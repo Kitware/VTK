@@ -97,7 +97,6 @@ public:
   virtual void CreateDefaultLookupTable();
 
   void SetLookupTable(vlLookupTable *lut);
-  void SetLookupTable(vlLookupTable& lut) {this->SetLookupTable(&lut);};
   vlGetObjectMacro(LookupTable,vlLookupTable);
 
 protected:
@@ -110,6 +109,5 @@ protected:
 // all other classes necessary for compilation are also included. 
 #include "IdList.hh"
 #include "FScalars.hh"
-#include "Lut.hh"
 
 #endif
