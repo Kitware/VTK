@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkAppendPolyData.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.89");
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.90");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------

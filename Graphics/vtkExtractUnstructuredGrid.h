@@ -41,6 +41,8 @@
 
 #include "vtkUnstructuredGridToUnstructuredGridFilter.h"
 
+class vtkPointLocator;
+
 class VTK_GRAPHICS_EXPORT vtkExtractUnstructuredGrid : public vtkUnstructuredGridToUnstructuredGridFilter
 {
 public:

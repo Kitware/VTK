@@ -40,6 +40,8 @@
 
 #include "vtkPolyDataToPolyDataFilter.h"
 
+class vtkPointLocator;
+
 class VTK_GRAPHICS_EXPORT vtkFeatureEdges : public vtkPolyDataToPolyDataFilter
 {
 public:

@@ -16,9 +16,12 @@
 
 =========================================================================*/
 #include "vtkImageDataGeometryFilter.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.5");
+#include "vtkObjectFactory.h"
+#include "vtkImageData.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.6");
 vtkStandardNewMacro(vtkImageDataGeometryFilter);
 
 // Construct with initial extent of all the data

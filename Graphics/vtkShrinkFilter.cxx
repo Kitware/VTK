@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkShrinkFilter.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkShrinkFilter, "1.57");
+#include "vtkObjectFactory.h"
+#include "vtkUnstructuredGrid.h"
+
+vtkCxxRevisionMacro(vtkShrinkFilter, "1.58");
 vtkStandardNewMacro(vtkShrinkFilter);
 
 vtkShrinkFilter::vtkShrinkFilter(float sf)

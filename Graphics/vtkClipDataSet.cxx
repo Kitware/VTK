@@ -16,13 +16,15 @@
 
 =========================================================================*/
 #include "vtkClipDataSet.h"
+
+#include "vtkFloatArray.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.17");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.18");
 vtkStandardNewMacro(vtkClipDataSet);
 
 //----------------------------------------------------------------------------

@@ -16,9 +16,13 @@
 
 =========================================================================*/
 #include "vtkOutlineCornerSource.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOutlineCornerSource, "1.5");
+#include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkOutlineCornerSource, "1.6");
 vtkStandardNewMacro(vtkOutlineCornerSource);
 
 //----------------------------------------------------------------------------

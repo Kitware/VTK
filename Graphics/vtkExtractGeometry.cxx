@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkExtractGeometry.h"
+
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGeometry, "1.45");
+vtkCxxRevisionMacro(vtkExtractGeometry, "1.46");
 vtkStandardNewMacro(vtkExtractGeometry);
 
 // Construct object with ExtractInside turned on.

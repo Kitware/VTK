@@ -16,13 +16,16 @@
 
 =========================================================================*/
 #include "vtkQuadricClustering.h"
-#include "vtkMath.h"
-#include "vtkTriangle.h"
-#include "vtkObjectFactory.h"
-#include "vtkFeatureEdges.h"
-#include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.45");
+#include "vtkCellArray.h"
+#include "vtkFeatureEdges.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkTimerLog.h"
+#include "vtkTriangle.h"
+
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.46");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------

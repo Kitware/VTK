@@ -88,6 +88,10 @@
 
 #include "vtkUnstructuredGridSource.h"
 
+class vtkIdList;
+class vtkPointLocator;
+class vtkPointSet;
+class vtkPoints;
 class vtkTetraArray;
 
 class VTK_GRAPHICS_EXPORT vtkDelaunay3D : public vtkUnstructuredGridSource

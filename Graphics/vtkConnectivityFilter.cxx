@@ -16,11 +16,17 @@
 
 =========================================================================*/
 #include "vtkConnectivityFilter.h"
+
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
+#include "vtkPoints.h"
+#include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkConnectivityFilter, "1.66");
+vtkCxxRevisionMacro(vtkConnectivityFilter, "1.67");
 vtkStandardNewMacro(vtkConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.

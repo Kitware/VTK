@@ -16,14 +16,16 @@
 
 =========================================================================*/
 #include "vtkWindowedSincPolyDataFilter.h"
+
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
-#include "vtkTriangleFilter.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
+#include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.28");
+vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.29");
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 // Construct object with number of iterations 20; passband .1;

@@ -16,13 +16,17 @@
 
 =========================================================================*/
 #include "vtkPointSource.h"
+
+#include "vtkCellArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPointSource, "1.40");
+vtkCxxRevisionMacro(vtkPointSource, "1.41");
 vtkStandardNewMacro(vtkPointSource);
 
 //----------------------------------------------------------------------------

@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkLineSource.h"
+
 #include "vtkPoints.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
 #include <math.h>
-vtkCxxRevisionMacro(vtkLineSource, "1.40");
+vtkCxxRevisionMacro(vtkLineSource, "1.41");
 vtkStandardNewMacro(vtkLineSource);
 
 vtkLineSource::vtkLineSource(int res)

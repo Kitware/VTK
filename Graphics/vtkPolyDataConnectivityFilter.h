@@ -54,6 +54,8 @@
 #define VTK_EXTRACT_CLOSEST_POINT_REGION 6
 
 class vtkDataArray;
+class vtkIdList;
+class vtkIdTypeArray;
 
 class VTK_GRAPHICS_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataToPolyDataFilter
 {

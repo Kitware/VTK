@@ -39,6 +39,8 @@
 
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
+class vtkVoxel;
+
 class VTK_GRAPHICS_EXPORT vtkRecursiveDividingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:

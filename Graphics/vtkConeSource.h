@@ -32,6 +32,8 @@
 
 #include "vtkPolyDataSource.h"
 
+#include "vtkCell.h" // Needed for VTK_CELL_SIZE
+
 class VTK_GRAPHICS_EXPORT vtkConeSource : public vtkPolyDataSource 
 {
 public:

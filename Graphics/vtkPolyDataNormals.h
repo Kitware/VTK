@@ -39,7 +39,10 @@
 #define __vtkPolyDataNormals_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
+
 class vtkFloatArray;
+class vtkIdList;
+class vtkPolyData;
 
 class VTK_GRAPHICS_EXPORT vtkPolyDataNormals : public vtkPolyDataToPolyDataFilter
 {

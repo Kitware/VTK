@@ -53,6 +53,8 @@
 
 #include "vtkPolyDataToPolyDataFilter.h"
 
+class vtkDataArray;
+
 #define VTK_VECTOR_EXTRUSION 1
 #define VTK_NORMAL_EXTRUSION 2
 #define VTK_POINT_EXTRUSION 3

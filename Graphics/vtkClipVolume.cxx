@@ -16,13 +16,16 @@
 
 =========================================================================*/
 #include "vtkClipVolume.h"
-#include "vtkMergePoints.h"
-#include "vtkVoxel.h"
-#include "vtkOrderedTriangulator.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.47");
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+#include "vtkOrderedTriangulator.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkVoxel.h"
+
+vtkCxxRevisionMacro(vtkClipVolume, "1.48");
 vtkStandardNewMacro(vtkClipVolume);
 
 // Construct with user-specified implicit function; InsideOut turned off; value

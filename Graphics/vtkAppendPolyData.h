@@ -33,6 +33,11 @@
 
 #include "vtkPolyDataToPolyDataFilter.h"
 
+class vtkCellArray;
+class vtkDataArray;
+class vtkPoints;
+class vtkPolyData;
+
 class VTK_GRAPHICS_EXPORT vtkAppendPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:

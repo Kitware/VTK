@@ -25,6 +25,8 @@
 #include "vtkPolyDataSource.h"
 #include "vtkSpherePuzzle.h"
 
+class vtkPoints;
+class vtkCellArray;
 
 class VTK_EXPORT vtkSpherePuzzleArrows : public vtkPolyDataSource 
 {

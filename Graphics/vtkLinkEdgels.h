@@ -50,6 +50,11 @@
 
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
+class vtkCellArray;
+class vtkDataArray;
+class vtkFloatArray;
+class vtkPoints;
+
 class VTK_GRAPHICS_EXPORT vtkLinkEdgels : public vtkStructuredPointsToPolyDataFilter
 {
 public:

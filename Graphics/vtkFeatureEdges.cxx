@@ -16,15 +16,17 @@
 
 =========================================================================*/
 #include "vtkFeatureEdges.h"
-#include "vtkMath.h"
-#include "vtkPolygon.h"
-#include "vtkMergePoints.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkTriangleStrip.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkFeatureEdges, "1.60");
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
+#include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
+#include "vtkTriangleStrip.h"
+#include "vtkUnsignedCharArray.h"
+
+vtkCxxRevisionMacro(vtkFeatureEdges, "1.61");
 vtkStandardNewMacro(vtkFeatureEdges);
 
 // Construct object with feature angle = 30; all types of edges, except 

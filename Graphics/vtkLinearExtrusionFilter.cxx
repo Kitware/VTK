@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkLinearExtrusionFilter.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLinearExtrusionFilter, "1.54");
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkLinearExtrusionFilter, "1.55");
 vtkStandardNewMacro(vtkLinearExtrusionFilter);
 
 // Create object with normal extrusion type, capping on, scale factor=1.0,

@@ -56,6 +56,10 @@
 
 #include "vtkPolyDataToPolyDataFilter.h"
 
+class vtkIdList;
+class vtkPoints;
+class vtkPolyData;
+
 #define VTK_RULED_MODE_RESAMPLE 0
 #define VTK_RULED_MODE_POINT_WALK 1
 

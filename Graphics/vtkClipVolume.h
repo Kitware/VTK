@@ -56,8 +56,14 @@
 #include "vtkStructuredPointsToUnstructuredGridFilter.h"
 #include "vtkImplicitFunction.h"
 
+class vtkCellData;
+class vtkImplicitFunction;
 class vtkMergePoints;
 class vtkOrderedTriangulator;
+class vtkPointData;
+class vtkPointLocator;
+class vtkPoints;
+class vtkUnstructuredGrid;
 
 class VTK_GRAPHICS_EXPORT vtkClipVolume : public vtkStructuredPointsToUnstructuredGridFilter
 {

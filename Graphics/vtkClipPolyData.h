@@ -62,6 +62,8 @@
 #include "vtkPolyDataToPolyDataFilter.h"
 #include "vtkImplicitFunction.h"
 
+class vtkPointLocator;
+
 class VTK_GRAPHICS_EXPORT vtkClipPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:

@@ -16,15 +16,17 @@
 
 =========================================================================*/
 #include "vtkClipPolyData.h"
+
 #include "vtkMergePoints.h"
 #include "vtkLine.h"
 #include "vtkTriangle.h"
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
+#include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipPolyData, "1.48");
+vtkCxxRevisionMacro(vtkClipPolyData, "1.49");
 vtkStandardNewMacro(vtkClipPolyData);
 
 //----------------------------------------------------------------------------

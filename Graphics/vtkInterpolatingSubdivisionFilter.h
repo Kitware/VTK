@@ -32,9 +32,13 @@
 
 #include "vtkPolyDataToPolyDataFilter.h"
 
-class vtkIntArray;
-class vtkIdList;
 class vtkCellArray;
+class vtkCellData;
+class vtkIdList;
+class vtkIntArray;
+class vtkPointData;
+class vtkPoints;
+class vtkPolyData;
 
 class VTK_GRAPHICS_EXPORT vtkInterpolatingSubdivisionFilter : public vtkPolyDataToPolyDataFilter
 {

@@ -16,17 +16,19 @@
 
 =========================================================================*/
 #include "vtkContourGrid.h"
+
 #include "vtkCell.h"
-#include "vtkMergePoints.h"
 #include "vtkContourValues.h"
-#include "vtkSimpleScalarTree.h"
-#include "vtkObjectFactory.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkFloatArray.h"
+#include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkSimpleScalarTree.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourGrid, "1.18");
+vtkCxxRevisionMacro(vtkContourGrid, "1.19");
 vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkInterpolatingSubdivisionFilter.h"
-#include "vtkEdgeTable.h"
 
-vtkCxxRevisionMacro(vtkInterpolatingSubdivisionFilter, "1.18");
+#include "vtkEdgeTable.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkInterpolatingSubdivisionFilter, "1.19");
 
 // Construct object with number of subdivisions set to 1.
 vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter()

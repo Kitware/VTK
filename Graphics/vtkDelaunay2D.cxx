@@ -16,14 +16,16 @@
 
 =========================================================================*/
 #include "vtkDelaunay2D.h"
-#include "vtkMath.h"
-#include "vtkTriangle.h"
-#include "vtkPolygon.h"
-#include "vtkPlane.h"
-#include "vtkDoubleArray.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.53");
+#include "vtkDoubleArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
+#include "vtkTriangle.h"
+
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.54");
 vtkStandardNewMacro(vtkDelaunay2D);
 
 // Construct object with Alpha = 0.0; Tolerance = 0.00001; Offset = 1.25;

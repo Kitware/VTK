@@ -84,6 +84,8 @@
 #define VTK_INSIDE_CLOSEST_POINT_REGION 2
 
 class vtkCharArray;
+class vtkPoints;
+class vtkIdList;
 
 class VTK_GRAPHICS_EXPORT vtkSelectPolyData : public vtkPolyDataToPolyDataFilter
 {
@@ -117,7 +119,7 @@ public:
   // Description:
   // Set/Get the array of point coordinates defining the loop. There must
   // be at least three points used to define a loop.
-  vtkSetObjectMacro(Loop,vtkPoints);
+  virtual void SetLoop(vtkPoints*);
   vtkGetObjectMacro(Loop,vtkPoints);
 
   // Description:

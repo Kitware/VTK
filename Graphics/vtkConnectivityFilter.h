@@ -59,7 +59,10 @@
 #define VTK_EXTRACT_ALL_REGIONS 5
 #define VTK_EXTRACT_CLOSEST_POINT_REGION 6
 
+class vtkDataArray;
 class vtkFloatArray;
+class vtkIdList;
+class vtkIntArray;
 
 class VTK_GRAPHICS_EXPORT vtkConnectivityFilter : public vtkDataSetToUnstructuredGridFilter
 {

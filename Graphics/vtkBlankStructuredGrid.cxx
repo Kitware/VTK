@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkBlankStructuredGrid.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBlankStructuredGrid, "1.6");
+#include "vtkObjectFactory.h"
+#include "vtkStructuredGrid.h"
+
+vtkCxxRevisionMacro(vtkBlankStructuredGrid, "1.7");
 vtkStandardNewMacro(vtkBlankStructuredGrid);
 
 // Construct object to extract all of the input data.

@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkExtractPolyDataGeometry.h"
+
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.16");
+vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.17");
 vtkStandardNewMacro(vtkExtractPolyDataGeometry);
 
 // Construct object with ExtractInside turned on.

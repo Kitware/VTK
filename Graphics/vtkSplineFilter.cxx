@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkSplineFilter.h"
-#include "vtkObjectFactory.h"
+
 #include "vtkCardinalSpline.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.7");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.8");
 vtkStandardNewMacro(vtkSplineFilter);
 
 vtkSplineFilter::vtkSplineFilter()

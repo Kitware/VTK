@@ -43,7 +43,10 @@
 
 #include "vtkPolyDataToPolyDataFilter.h"
 
+class vtkCellArray;
 class vtkPlanes;
+class vtkPoints;
+class vtkPolyData;
 
 class VTK_GRAPHICS_EXPORT vtkHull : public vtkPolyDataToPolyDataFilter
 {

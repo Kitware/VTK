@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkExtractUnstructuredGrid.h"
+
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.28");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.29");
 vtkStandardNewMacro(vtkExtractUnstructuredGrid);
 
 // Construct with all types of clipping turned off.

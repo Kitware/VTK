@@ -16,13 +16,16 @@
 
 =========================================================================*/
 #include "vtkPlaneSource.h"
-#include "vtkPoints.h"
-#include "vtkMath.h"
-#include "vtkTransform.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPlaneSource, "1.57");
+#include "vtkCellArray.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkTransform.h"
+
+vtkCxxRevisionMacro(vtkPlaneSource, "1.58");
 vtkStandardNewMacro(vtkPlaneSource);
 
 // Construct plane perpendicular to z-axis, resolution 1x1, width and height

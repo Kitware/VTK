@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkGlyphSource2D.h"
+
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkGlyphSource2D, "1.10");
+vtkCxxRevisionMacro(vtkGlyphSource2D, "1.11");
 vtkStandardNewMacro(vtkGlyphSource2D);
 
 //----------------------------------------------------------------------------

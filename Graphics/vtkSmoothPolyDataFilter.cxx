@@ -16,14 +16,16 @@
 
 =========================================================================*/
 #include "vtkSmoothPolyDataFilter.h"
-#include "vtkMath.h"
-#include "vtkTriangleFilter.h"
-#include "vtkPolygon.h"
-#include "vtkCellLocator.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.34");
+#include "vtkCellLocator.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
+#include "vtkTriangleFilter.h"
+
+vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.35");
 vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing

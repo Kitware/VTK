@@ -48,6 +48,12 @@
 #define VTK_TCOORDS_FROM_LENGTH            2
 #define VTK_TCOORDS_FROM_SCALARS           3
 
+class vtkCellArray;
+class vtkCellData;
+class vtkFloatArray;
+class vtkPointData;
+class vtkPoints;
+
 class VTK_GRAPHICS_EXPORT vtkSplineFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
@@ -146,7 +152,7 @@ protected:
                      vtkFloatArray *newTCoords);
 
   void GenerateLine(vtkIdType offset, vtkIdType numGenPts, vtkIdType inCellId,
-                  vtkCellData *cd, vtkCellData *outCD, vtkCellArray *newLines);
+                    vtkCellData *cd, vtkCellData *outCD, vtkCellArray *newLines);
 
   //helper members
   vtkFloatArray *TCoordMap;

@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkTransformPolyDataFilter.h"
+
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.26");
+vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.27");
 vtkStandardNewMacro(vtkTransformPolyDataFilter);
 
 vtkTransformPolyDataFilter::vtkTransformPolyDataFilter()

@@ -45,6 +45,10 @@
 #define VTK_THICKARROW_GLYPH 10
 #define VTK_HOOKEDARROW_GLYPH 11
 
+class vtkPoints;
+class vtkUnsignedCharArray;
+class vtkCellArray;
+
 class VTK_GRAPHICS_EXPORT vtkGlyphSource2D : public vtkPolyDataSource 
 {
 public:

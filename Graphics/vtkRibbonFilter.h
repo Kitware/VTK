@@ -43,6 +43,13 @@
 #define VTK_TCOORDS_FROM_LENGTH            2
 #define VTK_TCOORDS_FROM_SCALARS           3
 
+class vtkCellArray;
+class vtkCellData;
+class vtkDataArray;
+class vtkFloatArray;
+class vtkPointData;
+class vtkPoints;
+
 class VTK_GRAPHICS_EXPORT vtkRibbonFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:

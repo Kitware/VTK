@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkThreshold.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkThreshold, "1.58");
+#include "vtkObjectFactory.h"
+#include "vtkUnstructuredGrid.h"
+
+vtkCxxRevisionMacro(vtkThreshold, "1.59");
 vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 

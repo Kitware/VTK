@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkLoopSubdivisionFilter.h"
+
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.15");
+vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.16");
 vtkStandardNewMacro(vtkLoopSubdivisionFilter);
 
 static float LoopWeights[4] =

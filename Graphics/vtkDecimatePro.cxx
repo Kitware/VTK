@@ -16,14 +16,16 @@
 
 =========================================================================*/
 #include "vtkDecimatePro.h"
-#include "vtkMath.h"
-#include "vtkTriangle.h"
-#include "vtkPlane.h"
-#include "vtkLine.h"
-#include "vtkFloatArray.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDecimatePro, "1.68");
+#include "vtkFloatArray.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPolyData.h"
+#include "vtkTriangle.h"
+
+vtkCxxRevisionMacro(vtkDecimatePro, "1.69");
 vtkStandardNewMacro(vtkDecimatePro);
 
 #define VTK_TOLERANCE 1.0e-05

@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkSubdivideTetra.h"
+
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkSubdivideTetra, "1.22");
+vtkCxxRevisionMacro(vtkSubdivideTetra, "1.23");
 vtkStandardNewMacro(vtkSubdivideTetra);
 
 // Description:

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkReflectionFilter.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkReflectionFilter, "1.7");
+#include "vtkObjectFactory.h"
+#include "vtkUnstructuredGrid.h"
+
+vtkCxxRevisionMacro(vtkReflectionFilter, "1.8");
 vtkStandardNewMacro(vtkReflectionFilter);
 
 //---------------------------------------------------------------------------

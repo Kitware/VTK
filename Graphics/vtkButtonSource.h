@@ -39,6 +39,10 @@
 
 #include "vtkPolyDataSource.h"
 
+class vtkCellArray;
+class vtkFloatArray;
+class vtkPoints;
+
 #define VTK_TEXTURE_STYLE_FIT_IMAGE    0
 #define VTK_TEXTURE_STYLE_PROPORTIONAL 1
 

@@ -16,9 +16,13 @@
 
 =========================================================================*/
 #include "vtkOutlineSource.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOutlineSource, "1.28");
+#include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkOutlineSource, "1.29");
 vtkStandardNewMacro(vtkOutlineSource);
 
 //----------------------------------------------------------------------------

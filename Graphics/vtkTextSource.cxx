@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkTextSource.h"
-#include "vtkPoints.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTextSource, "1.43");
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkUnsignedCharArray.h"
+
+vtkCxxRevisionMacro(vtkTextSource, "1.44");
 vtkStandardNewMacro(vtkTextSource);
 
 #define vtkfont_width 9

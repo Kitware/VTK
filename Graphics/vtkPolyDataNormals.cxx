@@ -16,13 +16,15 @@
 
 =========================================================================*/
 #include "vtkPolyDataNormals.h"
-#include "vtkMath.h"
+
 #include "vtkFloatArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPolyDataNormals, "1.53");
+vtkCxxRevisionMacro(vtkPolyDataNormals, "1.54");
 vtkStandardNewMacro(vtkPolyDataNormals);
 
 // Construct with feature angle=30, splitting and consistency turned on, 

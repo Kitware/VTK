@@ -16,13 +16,16 @@
 
 =========================================================================*/
 #include "vtkRecursiveDividingCubes.h"
-#include "vtkMath.h"
-#include "vtkVoxel.h"
-#include "vtkFloatArray.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkRecursiveDividingCubes, "1.35");
+#include "vtkCellArray.h"
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkVoxel.h"
+
+vtkCxxRevisionMacro(vtkRecursiveDividingCubes, "1.36");
 vtkStandardNewMacro(vtkRecursiveDividingCubes);
 
 vtkRecursiveDividingCubes::vtkRecursiveDividingCubes()

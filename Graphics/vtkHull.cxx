@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkHull.h"
+
 #include "vtkPlanes.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHull, "1.30");
+vtkCxxRevisionMacro(vtkHull, "1.31");
 vtkStandardNewMacro(vtkHull);
 
 // Construct an the hull object with no planes

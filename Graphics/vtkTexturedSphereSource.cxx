@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkTexturedSphereSource.h"
-#include "vtkPoints.h"
+
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTexturedSphereSource, "1.26");
+vtkCxxRevisionMacro(vtkTexturedSphereSource, "1.27");
 vtkStandardNewMacro(vtkTexturedSphereSource);
 
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi

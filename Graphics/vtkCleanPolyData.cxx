@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkCleanPolyData.h"
+
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkCleanPolyData, "1.70");
+vtkCxxRevisionMacro(vtkCleanPolyData, "1.71");
 vtkStandardNewMacro(vtkCleanPolyData);
 
 //---------------------------------------------------------------------------

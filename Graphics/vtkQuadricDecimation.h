@@ -36,6 +36,8 @@
 #include "vtkPriorityQueue.h"
 #include "vtkIdList.h"
 
+class vtkPointData;
+
 typedef struct {
   float *Quadric;
 } VTK_ERROR_QUADRIC;

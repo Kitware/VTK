@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkAppendFilter.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAppendFilter, "1.58");
+#include "vtkObjectFactory.h"
+#include "vtkUnstructuredGrid.h"
+
+vtkCxxRevisionMacro(vtkAppendFilter, "1.59");
 vtkStandardNewMacro(vtkAppendFilter);
 
 //----------------------------------------------------------------------------

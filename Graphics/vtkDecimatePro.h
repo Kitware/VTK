@@ -80,7 +80,9 @@
 #define __vtkDecimatePro_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
+
 #include "vtkPriorityQueue.h"
+#include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
 // Special structures for building loops
 typedef struct _vtkProLocalVertex 

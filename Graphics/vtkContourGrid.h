@@ -57,6 +57,7 @@
 
 class vtkScalarTree;
 class vtkEdgeTable;
+class vtkPointLocator;
 
 class VTK_GRAPHICS_EXPORT vtkContourGrid : public vtkUnstructuredGridToPolyDataFilter
 {

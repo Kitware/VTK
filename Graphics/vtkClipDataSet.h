@@ -63,6 +63,8 @@
 #include "vtkDataSetToUnstructuredGridFilter.h"
 #include "vtkImplicitFunction.h"
 
+class vtkPointLocator;
+
 class VTK_GRAPHICS_EXPORT vtkClipDataSet : public vtkDataSetToUnstructuredGridFilter
 {
 public:

@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkButterflySubdivisionFilter.h"
+
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkButterflySubdivisionFilter, "1.11");
+vtkCxxRevisionMacro(vtkButterflySubdivisionFilter, "1.12");
 vtkStandardNewMacro(vtkButterflySubdivisionFilter);
 
 static float butterflyWeights[8] =

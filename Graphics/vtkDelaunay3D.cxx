@@ -24,8 +24,9 @@
 #include "vtkPolyData.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
+#include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDelaunay3D, "1.62");
+vtkCxxRevisionMacro(vtkDelaunay3D, "1.63");
 vtkStandardNewMacro(vtkDelaunay3D);
 
 //----------------------------------------------------------------------------

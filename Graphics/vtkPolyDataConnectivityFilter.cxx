@@ -16,11 +16,14 @@
 
 =========================================================================*/
 #include "vtkPolyDataConnectivityFilter.h"
+
+#include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataConnectivityFilter, "1.33");
+vtkCxxRevisionMacro(vtkPolyDataConnectivityFilter, "1.34");
 vtkStandardNewMacro(vtkPolyDataConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.

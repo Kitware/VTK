@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkExtractRectilinearGrid.h"
+
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.3");
+vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.4");
 vtkStandardNewMacro(vtkExtractRectilinearGrid);
 
 // Construct object to extract all of the input data.
