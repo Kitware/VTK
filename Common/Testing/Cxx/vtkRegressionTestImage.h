@@ -21,7 +21,12 @@
 
 #include "vtkTesting.h"
 
-class vtkRegressionTester : public vtkTesting {};
+class vtkRegressionTester : public vtkTesting 
+{
+private:
+  vtkRegressionTester(const vtkRegressionTester&);  // Not implemented.
+  void operator=(const vtkRegressionTester&);  // Not implemented.
+};
 
 #define vtkRegressionTestImage(rw) \
 vtkTesting::Test(argc, argv, rw, 10)

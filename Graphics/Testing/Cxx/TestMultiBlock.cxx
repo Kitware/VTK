@@ -63,9 +63,9 @@ int TestMultiBlock(int argc, char* argv[])
     {
     // Here we load the three separate files (each containing
     // a structured grid dataset)
-    ostrstream fname;
-    fname << "Data/multicomb_" << i << ".vts" << ends;
-    char* fstr = fname.str();
+    char* fstr = new char [strlen("Data/multicomb_") + 
+                          strlen(".vts") + 10];
+    sprintf(fstr,"Data/multicomb_%i.vts",i);
     char* cfname = 
       vtkTestUtilities::ExpandDataFileName(argc, argv, fstr);
     reader->SetFileName(cfname);

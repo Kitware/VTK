@@ -48,7 +48,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.77");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.78");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -555,7 +555,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
       {
       newScalars->SetName(inScalars->GetName());
       }
-    int idx = output->GetPointData()->AddArray(newScalars);
+    idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     newScalars = NULL;

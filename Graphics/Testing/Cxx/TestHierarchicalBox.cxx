@@ -70,9 +70,9 @@ int TestHierarchicalBox(int argc, char* argv[])
     {
     // Here we load the 16 separate files (each containing
     // an image dataset -uniform rectilinear grid-)
-    ostrstream fname;
-    fname << "Data/chombo3d/chombo3d_" << i << ".vti" << ends;
-    char* fstr = fname.str();
+    char* fstr = new char [strlen("Data/chombo3d/chombo3d_") + 
+                          strlen(".vti") + 10];
+    sprintf(fstr,"Data/chombo3d/chombo3d_%i.vti",i);
     char* cfname = 
       vtkTestUtilities::ExpandDataFileName(argc, argv, fstr);
     reader->SetFileName(cfname);

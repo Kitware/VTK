@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.4");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.5");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -525,7 +525,7 @@ int vtkMetaImageReader::CanReadFile(const char* fname)
     }
 
   ifstream ifs(fname);
-  if ( !fname )
+  if ( !ifs )
     {
     return 0;
     }
