@@ -417,7 +417,7 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
 				me->Size[1] - ((XKeyEvent*)event)->y);
 	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
+	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
 	    {
 	    anActor->GetProperty()->SetWireframe();
 	    }
@@ -434,7 +434,7 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
 			        me->Size[1] - ((XKeyEvent*)event)->y);
 	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
+	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
 	    {
 	    anActor->GetProperty()->SetSurface();
 	    }
