@@ -177,7 +177,9 @@ vtkXMLFileOutputWindow.cxx
 )
 
 IF (WIN32)
-  SET(Kit_SRCS ${Kit_SRCS} vtkWin32OutputWindow.cxx)
+  IF (NOT VTK_USE_X)
+    SET(Kit_SRCS ${Kit_SRCS} vtkWin32OutputWindow.cxx)
+  ENDIF (NOT VTK_USE_X)
 ENDIF (WIN32)
 
 SET_SOURCE_FILES_PROPERTIES(
