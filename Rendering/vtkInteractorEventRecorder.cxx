@@ -20,8 +20,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.1");
+vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.2");
 vtkStandardNewMacro(vtkInteractorEventRecorder);
+
+float vtkInteractorEventRecorder::StreamVersion = 1.0;
 
 vtkInteractorEventRecorder::vtkInteractorEventRecorder()
 {
@@ -119,6 +121,7 @@ void vtkInteractorEventRecorder::Record()
         delete this->OutputStream;
         return;
         }
+      *this->OutputStream << "# StreamVersion " << vtkInteractorEventRecorder::StreamVersion << "\n";
       }
     
     this->State = vtkInteractorEventRecorder::Recording;
@@ -144,30 +147,66 @@ void vtkInteractorEventRecorder::Play()
     this->State = vtkInteractorEventRecorder::Playing;
 
     // Read events and invoke them on the object in question
-    char event[128], keySym[64];
+    char event[128], keySym[64], buffer[512];
     int pos[2], ctrlKey, shiftKey, keyCode, repeatCount;
+    float stream_version = 0.0, tempf;
 
     while ( ! this->InputStream->eof() )
       {
       this->InputStream->width(256);
       *this->InputStream >> event;
-      *this->InputStream >> pos[0];
-      *this->InputStream >> pos[1];
-      *this->InputStream >> ctrlKey;
-      *this->InputStream >> shiftKey;
-      *this->InputStream >> keyCode;
-      *this->InputStream >> repeatCount;
-      *this->InputStream >> keySym;
 
-      this->Interactor->SetEventPosition(pos);
-      this->Interactor->SetControlKey(ctrlKey);
-      this->Interactor->SetShiftKey(shiftKey);
-      this->Interactor->SetKeyCode(keyCode);
-      this->Interactor->SetRepeatCount(repeatCount);
-      this->Interactor->SetKeySym(keySym);
+      // Quick skip comment
 
-      unsigned long ievent = vtkCommand::GetEventIdFromString(event);
-      this->Interactor->InvokeEvent(ievent, NULL);
+      if (*event == '#')
+        {
+        this->InputStream->getline(buffer, 512);
+
+        // Parse the StreamVersion (not using >> since comment could be empty)
+        // Expecting: # StreamVersion x.y
+
+        if (strlen(buffer) > 15 && !strncmp(buffer, " StreamVersion ", 15))
+          {
+          int res = sscanf(buffer + 15, "%f", &tempf);
+          if (res && res != EOF)
+            {
+            stream_version = tempf;
+            }
+          }
+        }
+      else
+        {
+        unsigned long ievent = vtkCommand::GetEventIdFromString(event);
+        if (ievent == vtkCommand::NoEvent)
+          {
+          this->InputStream->ignore(512, '\n');
+          }
+        else
+          {
+          /*
+          if (stream_version >= 1.1)
+            {
+            // We could grab the time info here
+            }
+          */
+          *this->InputStream >> pos[0];
+          *this->InputStream >> pos[1];
+          *this->InputStream >> ctrlKey;
+          *this->InputStream >> shiftKey;
+          *this->InputStream >> keyCode;
+          *this->InputStream >> repeatCount;
+          *this->InputStream >> keySym;
+          
+          this->Interactor->SetEventPosition(pos);
+          this->Interactor->SetControlKey(ctrlKey);
+          this->Interactor->SetShiftKey(shiftKey);
+          this->Interactor->SetKeyCode(keyCode);
+          this->Interactor->SetRepeatCount(repeatCount);
+          this->Interactor->SetKeySym(keySym);
+          
+          this->Interactor->InvokeEvent(ievent, NULL);
+          }
+        }
       }
     }
 
