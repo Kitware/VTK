@@ -38,7 +38,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.25");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.26");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -124,7 +124,7 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
   // vtkOpenGLPolyDataMapper::Draw() method if points or lines
   // are encountered without normals. 
   this->GetColor( color );
-  color[3] = 1.0;
+  color[3] = this->Opacity;
   glColor4fv( color );
 
   // Set the PointSize
