@@ -60,6 +60,15 @@ vtkBooleanTexture::vtkBooleanTexture()
 
 void vtkBooleanTexture::Execute()
 {
+  unsigned char _InIn[4];
+  unsigned char _InOut[4];
+  unsigned char _OutIn[4];
+  unsigned char _OutOut[4];
+  unsigned char _OnOn[4];
+  unsigned char _OnIn[4];
+  unsigned char _OnOut[4];
+  unsigned char _InOn[4];
+  unsigned char _OutOn[4];
   int numPts, i, j;
   vtkAGraymap *newScalars;
   int midILower, midJLower, midIUpper, midJUpper;
@@ -81,6 +90,28 @@ void vtkBooleanTexture::Execute()
   midIUpper = (int) ((float)(this->XSize - 1) / 2.0 + this->Thickness / 2.0);
   midJUpper = (int) ((float)(this->YSize - 1) / 2.0 + this->Thickness / 2.0);
 //
+// Convert intesity, alpha to rgba
+//
+  _InIn[0] = _InIn[1] = _InIn[2] = this->InIn[1];
+  _InIn[3] = this->InIn[0];
+  _InOut[0] = _InOut[1] = _InOut[2] = this->InOut[1];
+  _InOut[3] = this->InOut[0];
+  _OutIn[0] = _OutIn[1] = _OutIn[2] = this->OutIn[1];
+  _OutIn[3] = this->OutIn[0];
+  _OutOut[0] = _OutOut[1] = _OutOut[2] = this->OutOut[1];
+  _OutOut[3] = this->OutOut[0];
+  _OnOn[0] = _OnOn[1] = _OnOn[2] = this->OnOn[1];
+  _OnOn[3] = this->OnOn[0];
+  _OnIn[0] = _OnIn[1] = _OnIn[2] = this->OnIn[1];
+  _OnIn[3] = this->OnIn[0];
+  _OnOut[0] = _OnOut[1] = _OnOut[2] = this->OnOut[1];
+  _OnOut[3] = this->OnOut[0];
+  _InOn[0] = _InOn[1] = _InOn[2] = this->InOn[1];
+  _InOn[3] = this->InOn[0];
+  _OutOn[0] = _OutOn[1] = _OutOn[2] = this->OutOn[1];
+  _OutOn[3] = this->OutOn[0];
+
+//
 // Create texture map
 //
   for (j = 0; j < this->YSize; j++) 
@@ -88,23 +119,23 @@ void vtkBooleanTexture::Execute()
     for (i = 0; i < this->XSize; i++) 
       {
       if (i < midILower && j < midJLower) 
-        newScalars->InsertNextColor((unsigned char *)this->InIn);
+        newScalars->InsertNextColor((unsigned char *)_InIn);
       else if (i > midIUpper && j < midJLower) 
-        newScalars->InsertNextColor((unsigned char *)this->OutIn);
+        newScalars->InsertNextColor((unsigned char *)_OutIn);
       else if (i < midILower && j > midJUpper) 
-        newScalars->InsertNextColor((unsigned char *)this->InOut);
+        newScalars->InsertNextColor((unsigned char *)_InOut);
       else if (i > midIUpper && j > midJUpper) 
-        newScalars->InsertNextColor((unsigned char *)this->OutOut);
+        newScalars->InsertNextColor((unsigned char *)_OutOut);
       else if ((i >= midILower && i <= midIUpper) && (j >= midJLower && j <= midJUpper)) 
-        newScalars->InsertNextColor((unsigned char *)this->OnOn);
+        newScalars->InsertNextColor((unsigned char *)_OnOn);
       else if ((i >= midILower && i <= midIUpper) && j < midJLower) 
-        newScalars->InsertNextColor((unsigned char *)this->OnIn);
+        newScalars->InsertNextColor((unsigned char *)_OnIn);
       else if ((i >= midILower && i <= midIUpper) && j > midJUpper) 
-        newScalars->InsertNextColor((unsigned char *)this->OnOut);
+        newScalars->InsertNextColor((unsigned char *)_OnOut);
       else if (i < midILower && (j >= midJLower && j <= midJUpper)) 
-        newScalars->InsertNextColor((unsigned char *)this->InOn);
+        newScalars->InsertNextColor((unsigned char *)_InOn);
       else if (i > midIUpper && (j >= midJLower && j <= midJUpper)) 
-        newScalars->InsertNextColor((unsigned char *)this->OutOn);
+        newScalars->InsertNextColor((unsigned char *)_OutOn);
       }
     }
 
