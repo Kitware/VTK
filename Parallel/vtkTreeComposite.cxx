@@ -569,18 +569,13 @@ void vtkTreeComposite::StartRender()
   rens = this->RenderWindow->GetRenderers();
   numProcs = controller->GetNumberOfProcesses();
   size = this->RenderWindow->GetSize();
-  // It would probably be better to reduce the viewport not the size.
   if (this->ReductionFactor > 0)
     {
-    winInfo.Size[0] = size[0] / this->ReductionFactor;
-    winInfo.Size[1] = size[1] / this->ReductionFactor;
+    winInfo.Size[0] = (int)((float)size[0] / this->ReductionFactor + 0.5);
+    winInfo.Size[1] = (int)((float)size[1] / this->ReductionFactor + 0.5);
     vtkRenderer* renderer =
       ((vtkRenderer*)this->RenderWindow->GetRenderers()->GetItemAsObject(0));
-//    int eraseState = renderer->GetRenderWindow()->GetErase();
-//    renderer->GetRenderWindow()->SetErase(0);
     renderer->SetViewport(0, 0, 1.0/this->ReductionFactor, 1.0/this->ReductionFactor);
-//    renderer->GetActiveCamera()->Render(renderer);
-//    renderer->GetRenderWindow()->SetErase(eraseState);      
     }
   else
     {
@@ -1115,7 +1110,7 @@ void vtkTreeComposite::Composite()
   
   timer->StopTimer();
   this->TransmitTime = timer->GetElapsedTime();
-  
+    
   if (myId == 0) 
     {
     int windowSize[2];
