@@ -27,7 +27,7 @@
       file = NULL; \
       } \
 
-vtkCxxRevisionMacro(vtkPImageWriter, "1.7");
+vtkCxxRevisionMacro(vtkPImageWriter, "1.7.10.1");
 vtkStandardNewMacro(vtkPImageWriter);
 
 #ifdef write
@@ -124,7 +124,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   this->GetInput()->PropagateUpdateExtent();
 
   // Now we can ask how big the pipeline will be
-  inputMemorySize = this->SizeEstimator->GetEstimatedSize(this->GetInput());
+  inputMemorySize = this->SizeEstimator->GetEstimatedSize(this,0,0);
 
   // will the current request fit into memory
   // if so the just get the data and write it out
