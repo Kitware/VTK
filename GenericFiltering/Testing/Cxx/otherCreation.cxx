@@ -157,7 +157,7 @@ int TestEmpty(ostream &strm)
   ds->GetCenter(center);
   MacroTest(strm,indent,"volatile center",(fabs(center[0])<epsilon)&&(fabs(center[1])<epsilon)&&(fabs(center[2])<epsilon));
   
-  MacroTest(strm,indent,"diagonal length",fabs(ds->GetLength()-2*sqrt(3))<epsilon);
+  MacroTest(strm,indent,"diagonal length",fabs(ds->GetLength()-2*sqrt(3.0))<epsilon);
   
   strm<<"GetBounds() end"<<endl;
   
@@ -358,7 +358,7 @@ int TestWithPoints(ostream &strm)
   MacroTest(strm,indent,"volatile center",(fabs(c[0]-1.5)<epsilon)&&(fabs(c[1]-1.5)<epsilon)&&(fabs(c[2]-1.5)<epsilon));
   ds->GetCenter(center);
   MacroTest(strm,indent,"valid center",(fabs(center[0]-1.5)<epsilon)&&(fabs(center[1]-1.5)<epsilon)&&(fabs(center[2]-1.5)<epsilon));
-  MacroTest(strm,indent,"diagonal length",fabs(ds->GetLength()-sqrt(155))<epsilon);
+  MacroTest(strm,indent,"diagonal length",fabs(ds->GetLength()-sqrt(155.0))<epsilon);
   strm<<"GetBounds() end"<<endl;
    
   vtkGenericAttributeCollection *attributes=0;
@@ -660,7 +660,7 @@ int TestWithPointsAndCells(ostream &strm)
   MacroTest(strm,indent,"volatile center",(fabs(c[0]-7)<epsilon)&&(fabs(c[1])<epsilon)&&(fabs(c[2]-0.5)<epsilon));
   ds->GetCenter(center);
   MacroTest(strm,indent,"valid center",(fabs(center[0]-7)<epsilon)&&(fabs(center[1])<epsilon)&&(fabs(center[2]-0.5)<epsilon));
-  MacroTest(strm,indent,"diagonal length",fabs(ds->GetLength()-sqrt(201))<epsilon);
+  MacroTest(strm,indent,"diagonal length",fabs(ds->GetLength()-sqrt(201.0))<epsilon);
   strm<<"GetBounds() end"<<endl;
    
   vtkGenericAttributeCollection *attributes=0;
@@ -1035,7 +1035,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   MacroTest(strm,indent,"volatile center",(fabs(c[0]-7)<epsilon)&&(fabs(c[1])<epsilon)&&(fabs(c[2]-0.5)<epsilon));
   ds->GetCenter(center);
   MacroTest(strm,indent,"valid center",(fabs(center[0]-7)<epsilon)&&(fabs(center[1])<epsilon)&&(fabs(center[2]-0.5)<epsilon));
-  MacroTest(strm,indent,"diagonal length",fabs(ds->GetLength()-sqrt(201))<epsilon);
+  MacroTest(strm,indent,"diagonal length",fabs(ds->GetLength()-sqrt(201.0))<epsilon);
   strm<<"GetBounds() end"<<endl;
    
   vtkGenericAttributeCollection *attributes=0;
