@@ -16,12 +16,15 @@
 
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSpatialFilter, "1.52");
+vtkCxxRevisionMacro(vtkImageSpatialFilter, "1.52.10.1");
 vtkStandardNewMacro(vtkImageSpatialFilter);
 
 //----------------------------------------------------------------------------
@@ -63,38 +66,33 @@ void vtkImageSpatialFilter::PrintSelf(ostream& os, vtkIndent indent)
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
-void vtkImageSpatialFilter::ExecuteInformation()
+void vtkImageSpatialFilter::ExecuteInformation(
+  vtkInformation       * vtkNotUsed( request ),
+  vtkInformationVector * inputVector, 
+  vtkInformationVector * outputVector)
 {
-  vtkImageData *input = this->GetInput();
-  vtkImageData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = 
+    this->GetInputConnectionInformation(inputVector,0,0);
   
-  if (!input)
-    {
-    vtkErrorMacro(<< "Input not set.");
-    return;
-    }
-  // Copy the defaults
-  output->CopyTypeSpecificInformation( input );
-
   // Take this opportunity to override the defaults. 
   int extent[6];
-  input->GetWholeExtent(extent);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
   this->ComputeOutputWholeExtent(extent, this->HandleBoundaries);
-  output->SetWholeExtent(extent);
-  this->ExecuteInformation(input, output);
-
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
+  
+  // the following should be handled by the superclass now
+#if 0
   vtkDataArray *inArray;
   inArray = input->GetPointData()->GetScalars(this->InputScalarsSelection);
   if (inArray)
     {
-    output->SetScalarType(inArray->GetDataType());
-    output->SetNumberOfScalarComponents(inArray->GetNumberOfComponents());
+    outInfo->Set(vtkDataObject::SCALAR_TYPE(),inArray->GetDataType());
+    outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
+                 inArray->GetNumberOfComponents());
     }
-}
-//----------------------------------------------------------------------------
-void vtkImageSpatialFilter::ExecuteInformation(
-           vtkImageData *vtkNotUsed(inData), vtkImageData *vtkNotUsed(outData))
-{
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -123,35 +121,40 @@ void vtkImageSpatialFilter::ComputeOutputWholeExtent(int extent[6],
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void vtkImageSpatialFilter::ComputeInputUpdateExtent(int extent[6], 
-                                                     int inExtent[6])
+void vtkImageSpatialFilter::ComputeInputUpdateExtent (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector *inputVector,
+  vtkInformationVector *outputVector)
 {
   int idx;
-  int *wholeExtent;
+  int wholeExtent[6];
+  int outUExt[6];
+  int inUExt[6];
   
-  if (!this->GetInput())
-    {
-    return;
-    }
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = 
+    this->GetInputConnectionInformation(inputVector,0,0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExtent);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),outUExt);
 
-  wholeExtent = this->GetInput()->GetWholeExtent();
   for (idx = 0; idx < 3; ++idx)
     {
     // Magnify by strides
-    extent[idx*2] = inExtent[idx*2];
-    extent[idx*2+1] = inExtent[idx*2+1];
+    inUExt[idx*2] = outUExt[idx*2];
+    inUExt[idx*2+1] = outUExt[idx*2+1];
 
     // Expand to get inRegion Extent
-    extent[idx*2] -= this->KernelMiddle[idx];
-    extent[idx*2+1] += (this->KernelSize[idx]-1) - this->KernelMiddle[idx];
+    inUExt[idx*2] -= this->KernelMiddle[idx];
+    inUExt[idx*2+1] += (this->KernelSize[idx]-1) - this->KernelMiddle[idx];
     
     // If the expanded region is out of the IMAGE Extent (grow min)
-    if (extent[idx*2] < wholeExtent[idx*2])
+    if (inUExt[idx*2] < wholeExtent[idx*2])
       {
       if (this->HandleBoundaries)
         {
         // shrink the required region extent
-        extent[idx*2] = wholeExtent[idx*2];
+        inUExt[idx*2] = wholeExtent[idx*2];
         }
       else
         {
@@ -159,12 +162,12 @@ void vtkImageSpatialFilter::ComputeInputUpdateExtent(int extent[6],
         }
       }
     // If the expanded region is out of the IMAGE Extent (shrink max)      
-    if (extent[idx*2+1] > wholeExtent[idx*2+1])
+    if (inUExt[idx*2+1] > wholeExtent[idx*2+1])
       {
       if (this->HandleBoundaries)
         {
         // shrink the required region extent
-        extent[idx*2+1] = wholeExtent[idx*2+1];
+        inUExt[idx*2+1] = wholeExtent[idx*2+1];
         }
       else
         {
@@ -172,6 +175,7 @@ void vtkImageSpatialFilter::ComputeInputUpdateExtent(int extent[6],
         }
       }
     }
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inUExt,6);
 }
 
 
