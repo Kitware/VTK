@@ -570,6 +570,8 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
     {
     matrix[i][0] = matrix[i][1] = matrix[i][2] = matrix[i][3] = 0;
     matrix[i][i] = 1;
+    imatrix[i][0] = imatrix[i][1] = imatrix[i][2] = imatrix[i][3] = 0;
+    imatrix[i][i] = 1;
     }
   if (this->ResliceAxes)
     {
