@@ -25,7 +25,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.3");
+vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.4");
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
@@ -47,7 +47,6 @@ vtkGenericAttributeCollection::vtkGenericAttributeCollection()
   this->NumberOfComponents = 0;
   this->MaxNumberOfComponents = 0; // cache
   this->ActualMemorySize = 0;
-  //vtkTimeStamp ComputeTime; // cache time stamp
 }
 
 //----------------------------------------------------------------------------
@@ -341,7 +340,7 @@ void vtkGenericAttributeCollection::ComputeNumbers()
 // Description:
 // Set the scalar attribute to be processed.
 void vtkGenericAttributeCollection::SetActiveAttribute(int attribute,
-                                                int component)
+                                                       int component)
 {
   assert("pre: not_empty" && !IsEmpty());
   assert("pre: valid_attribute" && (attribute>=0)&&(attribute<this->GetNumberOfAttributes()));
@@ -357,11 +356,11 @@ void vtkGenericAttributeCollection::SetActiveAttribute(int attribute,
 // Description
 // Does the array `attributes' of size `size' have `attribute'?
 int vtkGenericAttributeCollection::HasAttribute(int size,
-                                         int *attributes,
-                                         int attribute)
+                                                int *attributes,
+                                                int attribute)
 {
   assert("pre: positive_size" && size>=0);
-  assert("pre: valid_attributes" && size>0 && attributes!=0);
+  assert("pre: valid_attributes" && ((!size>0)||(attributes!=0))); // size>0 => attributes!=0 (A=>B: !A||B )
 
   int result = 0; // false
   int i;
@@ -381,14 +380,14 @@ int vtkGenericAttributeCollection::HasAttribute(int size,
 // Description:
 // Set the attributes to interpolate.
 void vtkGenericAttributeCollection::SetAttributesToInterpolate(int size,
-                                                        int *attributes)
+                                                               int *attributes)
 {
   assert("pre: not_empty" && !this->IsEmpty());
   assert("pre: positive_size" && size>=0);
   assert("pre: magic_number" && size<=10);
-//  assert("pre: valid_attributes" && size>0 attributes!=0));
-//  assert("pre: valid_attributes_contents" && vtkImplies(attributes!=0,!this->HasAttribute(size,attributes,this->GetActiveAttribute())));
-
+  assert("pre: valid_attributes" && ((!size>0)||(attributes!=0)));  // size>0 => attributes!=0 (A=>B: !A||B )
+  assert("pre: valid_attributes_contents" && (!(attributes!=0) || !(!this->HasAttribute(size,attributes,this->GetActiveAttribute())))); // attributes!=0 => !this->HasAttribute(size,attributes,this->GetActiveAttribute()) (A=>B: !A||B )
+  
   this->NumberOfAttributesToInterpolate = size;
   for(int i=0; i<size; ++i)
     {
