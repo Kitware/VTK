@@ -204,11 +204,11 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       }
 
     // -- decide whether the texture needs to be resampled --
-    bool resampleNeeded = false;
+    int resampleNeeded = 0;
     // if not a power of two then resampling is required
     if ((xs > 1)||(ys > 1))
       {
-      resampleNeeded = true;
+      resampleNeeded = 1;
       }
     int maxDimGL;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE,&maxDimGL);
@@ -216,7 +216,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     if ( xsize > maxDimGL || ysize > maxDimGL )
       {
       vtkDebugMacro( "Texture too big for gl, maximum is " << maxDimGL);
-      resampleNeeded = true;
+      resampleNeeded = 1;
       }
 
     if ( resampleNeeded )
