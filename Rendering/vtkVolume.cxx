@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.67");
+vtkCxxRevisionMacro(vtkVolume, "1.68");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -517,9 +517,10 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
   vtkPiecewiseFunction      *graytf;
   vtkColorTransferFunction  *rgbtf;
   int                        colorChannels;
-  int                        sotfNeedsUpdate = 0;
-  int                        rgbtfNeedsUpdate = 0;
-  int                        graytfNeedsUpdate = 0;
+  
+  //int                        sotfNeedsUpdate = 0;
+  //int                        rgbtfNeedsUpdate = 0;
+  //int                        graytfNeedsUpdate = 0;
   int                        arraySize = 0;
   
   // Check that we have scalars

@@ -28,7 +28,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.5");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.6");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -315,7 +315,7 @@ void vtkBoxWidget::SetEnabled(int enabling)
 }
 
 void vtkBoxWidget::ProcessEvents(vtkObject* object, unsigned long event,
-                                       void* clientdata, void* calldata)
+                                 void* clientdata, void* vtkNotUsed(calldata))
 {
   vtkBoxWidget* self = reinterpret_cast<vtkBoxWidget *>( clientdata );
   vtkRenderWindowInteractor* rwi = static_cast<vtkRenderWindowInteractor *>( object );
@@ -427,7 +427,7 @@ void vtkBoxWidget::PositionHandles()
   double *p1 = pts + 3*1;
   double *p2 = pts + 3*2;
   double *p3 = pts + 3*3;
-  double *p4 = pts + 3*4;
+  //double *p4 = pts + 3*4;
   double *p5 = pts + 3*5;
   double *p6 = pts + 3*6;
   double *p7 = pts + 3*7;
@@ -531,7 +531,8 @@ void vtkBoxWidget::HighlightOutline(int highlight)
     }
 }
 
-void vtkBoxWidget::OnLeftButtonDown (int ctrl, int shift, int X, int Y)
+void vtkBoxWidget::OnLeftButtonDown (int vtkNotUsed(ctrl), int shift, 
+                                     int X, int Y)
 {
   this->State = vtkBoxWidget::Moving;
 
@@ -579,7 +580,8 @@ void vtkBoxWidget::OnLeftButtonDown (int ctrl, int shift, int X, int Y)
   this->OldY = Y;
 }
 
-void vtkBoxWidget::OnLeftButtonUp (int ctrl, int shift, int X, int Y)
+void vtkBoxWidget::OnLeftButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed(shift),
+                                   int vtkNotUsed(X), int vtkNotUsed(Y))
 {
   if ( this->State == vtkBoxWidget::Outside )
     {
@@ -595,7 +597,8 @@ void vtkBoxWidget::OnLeftButtonUp (int ctrl, int shift, int X, int Y)
   
 }
 
-void vtkBoxWidget::OnMiddleButtonDown (int ctrl, int shift, int X, int Y)
+void vtkBoxWidget::OnMiddleButtonDown (int vtkNotUsed(ctrl), 
+                                       int vtkNotUsed(shift), int X, int Y)
 {
   this->State = vtkBoxWidget::Moving;
 
@@ -635,7 +638,9 @@ void vtkBoxWidget::OnMiddleButtonDown (int ctrl, int shift, int X, int Y)
   this->OldY = Y;
 }
 
-void vtkBoxWidget::OnMiddleButtonUp (int ctrl, int shift, int X, int Y)
+void vtkBoxWidget::OnMiddleButtonUp (int vtkNotUsed(ctrl), 
+                                     int vtkNotUsed(shift), int vtkNotUsed(X), 
+                                     int vtkNotUsed(Y))
 {
   if ( this->State == vtkBoxWidget::Outside )
     {
@@ -651,7 +656,8 @@ void vtkBoxWidget::OnMiddleButtonUp (int ctrl, int shift, int X, int Y)
   
 }
 
-void vtkBoxWidget::OnRightButtonDown (int ctrl, int shift, int X, int Y)
+void vtkBoxWidget::OnRightButtonDown (int vtkNotUsed(ctrl), 
+                                      int vtkNotUsed(shift), int X, int Y)
 {
   this->State = vtkBoxWidget::Scaling;
 
@@ -685,7 +691,9 @@ void vtkBoxWidget::OnRightButtonDown (int ctrl, int shift, int X, int Y)
   this->OldY = Y;
 }
 
-void vtkBoxWidget::OnRightButtonUp (int ctrl, int shift, int X, int Y)
+void vtkBoxWidget::OnRightButtonUp (int vtkNotUsed(ctrl), 
+                                    int vtkNotUsed(shift), int vtkNotUsed(X), 
+                                    int vtkNotUsed(Y))
 {
   if ( this->State == vtkBoxWidget::Outside )
     {
@@ -700,7 +708,8 @@ void vtkBoxWidget::OnRightButtonUp (int ctrl, int shift, int X, int Y)
   this->Interactor->Render();
 }
 
-void vtkBoxWidget::OnMouseMove (int ctrl, int shift, int X, int Y)
+void vtkBoxWidget::OnMouseMove (int vtkNotUsed(ctrl), int vtkNotUsed(shift), 
+                                int X, int Y)
 {
   // See whether we're active
   if ( this->State == vtkBoxWidget::Outside || this->State == vtkBoxWidget::Start )
@@ -927,10 +936,12 @@ void vtkBoxWidget::Translate(double *p1, double *p2)
   this->PositionHandles();
 }
 
-void vtkBoxWidget::Scale(double *p1, double *p2, int X, int Y)
+void vtkBoxWidget::Scale(double* vtkNotUsed(p1), double* vtkNotUsed(p2), 
+                         int X, int Y)
 {
   double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
-  double *center = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(3*14);
+  double *center 
+    = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(3*14);
   double sf;
 
   if ( Y > this->OldY )
@@ -1130,12 +1141,12 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
   double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
   double *p0 = pts;
   double *p1 = pts + 3*1;
-  double *p2 = pts + 3*2;
+  //double *p2 = pts + 3*2;
   double *p3 = pts + 3*3;
   double *p4 = pts + 3*4;
-  double *p5 = pts + 3*5;
-  double *p6 = pts + 3*6;
-  double *p7 = pts + 3*7;
+  //double *p5 = pts + 3*5;
+  //double *p6 = pts + 3*6;
+  //double *p7 = pts + 3*7;
   double *p14 = pts + 3*14;
   double center[3], scale[3], scaleVec[3][3];
   int i;

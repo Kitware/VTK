@@ -28,7 +28,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.4");
+vtkCxxRevisionMacro(vtkLineWidget, "1.5");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -225,7 +225,7 @@ void vtkLineWidget::SetEnabled(int enabling)
 }
 
 void vtkLineWidget::ProcessEvents(vtkObject* object, unsigned long event,
-                                       void* clientdata, void* calldata)
+                                  void* clientdata, void* vtkNotUsed(calldata))
 {
   vtkLineWidget* self = reinterpret_cast<vtkLineWidget *>( clientdata );
   vtkRenderWindowInteractor* rwi = static_cast<vtkRenderWindowInteractor *>( object );
@@ -365,7 +365,8 @@ void vtkLineWidget::HighlightLine(int highlight)
     }
 }
 
-void vtkLineWidget::OnLeftButtonDown (int ctrl, int shift, 
+void vtkLineWidget::OnLeftButtonDown (int vtkNotUsed(ctrl), 
+                                      int vtkNotUsed(shift), 
                                       int X, int Y)
 {
   // We're only here is we are enabled
@@ -405,7 +406,8 @@ void vtkLineWidget::OnLeftButtonDown (int ctrl, int shift,
   this->OldY = Y;
 }
 
-void vtkLineWidget::OnMouseMove (int ctrl, int shift, int X, int Y)
+void vtkLineWidget::OnMouseMove (int vtkNotUsed(ctrl), 
+                                 int vtkNotUsed(shift), int X, int Y)
 {
   // See whether we're active
   if ( this->State == vtkLineWidget::Outside || this->State == vtkLineWidget::Start )
@@ -467,7 +469,9 @@ void vtkLineWidget::OnMouseMove (int ctrl, int shift, int X, int Y)
   this->OldY = Y;
 }
 
-void vtkLineWidget::OnLeftButtonUp (int ctrl, int shift, int X, int Y)
+void vtkLineWidget::OnLeftButtonUp (int vtkNotUsed(ctrl), 
+                                    int vtkNotUsed(shift), 
+                                    int vtkNotUsed(X), int vtkNotUsed(Y))
 {
   if ( this->State == vtkLineWidget::Outside )
     {
@@ -483,7 +487,8 @@ void vtkLineWidget::OnLeftButtonUp (int ctrl, int shift, int X, int Y)
   this->Interactor->Render();
 }
 
-void vtkLineWidget::OnMiddleButtonDown (int ctrl, int shift, int X, int Y)
+void vtkLineWidget::OnMiddleButtonDown (int vtkNotUsed(ctrl), 
+                                        int vtkNotUsed(shift), int X, int Y)
 {
   this->State = vtkLineWidget::Moving;
 
@@ -517,7 +522,9 @@ void vtkLineWidget::OnMiddleButtonDown (int ctrl, int shift, int X, int Y)
   this->OldY = Y;
 }
 
-void vtkLineWidget::OnMiddleButtonUp (int ctrl, int shift, int X, int Y)
+void vtkLineWidget::OnMiddleButtonUp (int vtkNotUsed(ctrl), 
+                                      int vtkNotUsed(shift), 
+                                      int vtkNotUsed(X), int vtkNotUsed(Y))
 {
   if ( this->State == vtkLineWidget::Outside )
     {
@@ -532,7 +539,8 @@ void vtkLineWidget::OnMiddleButtonUp (int ctrl, int shift, int X, int Y)
   this->Interactor->Render();
 }
 
-void vtkLineWidget::OnRightButtonDown (int ctrl, int shift, int X, int Y)
+void vtkLineWidget::OnRightButtonDown (int vtkNotUsed(ctrl), 
+                                       int vtkNotUsed(shift), int X, int Y)
 {
   this->State = vtkLineWidget::Scaling;
 
@@ -566,7 +574,9 @@ void vtkLineWidget::OnRightButtonDown (int ctrl, int shift, int X, int Y)
   this->OldY = Y;
 }
 
-void vtkLineWidget::OnRightButtonUp (int ctrl, int shift, int X, int Y)
+void vtkLineWidget::OnRightButtonUp (int vtkNotUsed(ctrl), 
+                                     int vtkNotUsed(shift), 
+                                     int vtkNotUsed(X), int vtkNotUsed(Y))
 {
   if ( this->State == vtkLineWidget::Outside )
     {

@@ -19,7 +19,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.4");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.5");
 
 vtkInteractorObserver::vtkInteractorObserver()
 {
@@ -77,11 +77,15 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
   this->Modified();
 }
 
-void vtkInteractorObserver::ProcessEvents(vtkObject* object, unsigned long event,
-                                          void* clientdata, void* calldata)
+void vtkInteractorObserver::ProcessEvents(vtkObject* object, 
+                                          unsigned long event,
+                                          void* clientdata, 
+                                          void* vtkNotUsed(calldata))
 {
-  vtkInteractorObserver* self = reinterpret_cast<vtkInteractorObserver *>( clientdata );
-  vtkRenderWindowInteractor* rwi = static_cast<vtkRenderWindowInteractor *>( object );
+  vtkInteractorObserver* self 
+    = reinterpret_cast<vtkInteractorObserver *>( clientdata );
+  vtkRenderWindowInteractor* rwi 
+    = static_cast<vtkRenderWindowInteractor *>( object );
 
   //look for char and delete events
   switch(event)
@@ -136,7 +140,8 @@ void vtkInteractorObserver::ComputeWorldToDisplay(double x, double y,
   this->CurrentRenderer->GetDisplayPoint(displayPt);
 }
 
-void vtkInteractorObserver::OnChar(int ctrl, int shift, char keycode, int repeatcount) 
+void vtkInteractorObserver::OnChar(int vtkNotUsed(ctrl), int vtkNotUsed(shift),
+                                   char keycode, int vtkNotUsed(repeatcount))
 {
   // catch additional keycodes otherwise
   if ( this->KeyPressActivation )
