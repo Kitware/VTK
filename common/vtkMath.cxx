@@ -101,6 +101,16 @@ void vtkMath::Cross(float x[3], float y[3], float z[3])
   z[0] = Zx; z[1] = Zy; z[2] = Zz; 
 }
 
+// Cross product of two 3-vectors. Result vector in z[3].
+void vtkMath::Cross(double x[3], double y[3], double z[3])
+{
+  double Zx = x[1]*y[2] - x[2]*y[1]; 
+  double Zy = x[2]*y[0] - x[0]*y[2];
+  double Zz = x[0]*y[1] - x[1]*y[0];
+  z[0] = Zx; z[1] = Zy; z[2] = Zz; 
+}
+
+
 #define VTK_SMALL_NUMBER 1.0e-12
 
 // Solve linear equations Ax = b using Crout's method. Input is square matrix A

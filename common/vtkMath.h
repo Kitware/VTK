@@ -64,6 +64,10 @@ public:
   static float DegreesToRadians() {return 0.017453292;};
 
   // Description:
+  // Useful constants. (double-precision version)
+  static double DoubleDegreesToRadians() {return 0.017453292519943295;};
+
+  // Description:
   // Dot product of two 3-vectors (float version).
   static float Dot(float x[3], float y[3]) 
   {return (x[0]*y[0] + x[1]*y[1] + x[2]*y[2]);};
@@ -76,6 +80,11 @@ public:
   // Description:
   // Cross product of two 3-vectors. Result vector in z[3].
   static void Cross(float x[3], float y[3], float z[3]);
+
+  // Description:
+  // Cross product of two 3-vectors. Result vector in z[3]. (double-precision
+  // version)
+  static void Cross(double x[3], double y[3], double z[3]);
 
   // Description:
   // Compute the norm of 3-vector.
