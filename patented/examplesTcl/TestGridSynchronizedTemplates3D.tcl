@@ -18,7 +18,7 @@ set value [expr ($min + $max) / 2.0]
 vtkGridSynchronizedTemplates3D cf
     cf SetInput [pl3d GetOutput]
     cf SetValue 0 $value
-	cf ComputeNormalsOff
+	#cf ComputeNormalsOff
 
 vtkPolyDataMapper cfMapper
 	cfMapper ImmediateModeRenderingOn
@@ -66,14 +66,14 @@ iren Initialize
 iren SetUserMethod {wm deiconify .vtkInteract}
 
 # loop over surfaces
-for {set nloops 0} {$nloops < 3} {incr nloops} {
+for {set nloops 0} {$nloops < 2} {incr nloops} {
     for {set i 0} {$i < 17} {incr i} {
       cf SetValue 0 [expr $min + ($i/16.0)*($max - $min)]
       renWin Render
     }
 }
 
-cf SetValue 0 $value
+cf SetValue 0 [expr $min + (0.2)*($max - $min)]
 renWin Render
 
 #renWin SetFileName aniIso.tcl.ppm
