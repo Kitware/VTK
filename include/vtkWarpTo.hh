@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkWarpTo : public vtkPointSetToPointSetFilter
 {
 public:
-  vtkWarpTo() : ScaleFactor(1.0) {};
+  vtkWarpTo() {this->ScaleFactor = 0.5; this->Absolute = 0;};
   char *GetClassName() {return "vtkWarpTo";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -65,10 +65,18 @@ public:
   vtkGetVectorMacro(Position,float,3);
   vtkSetVector3Macro(Position,float);
 
+  // Description:
+  // Set/Get the Absolute ivar. Turning Absolute on causes scale factor
+  // of the new position to be one unit away from Position.
+  vtkSetMacro(Absolute,int);
+  vtkGetMacro(Absolute,int);
+  vtkBooleanMacro(Absolute,int);
+  
 protected:
   void Execute();
   float ScaleFactor;
   float Position[3];
+  int   Absolute;
 };
 
 #endif
