@@ -31,8 +31,8 @@ public:
   vlSbrTexture();
   char *GetClassName() {return "vlSbrTexture";};
   
-  void Load(vlRenderer *ren);
-  void Load(vlSbrRenderer *ren);
+  void Load(vlTexture *txt, vlRenderer *ren);
+  void Load(vlTexture *txt, vlSbrRenderer *ren);
   
 protected:
   vlTimeStamp   LoadTime;
