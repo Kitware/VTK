@@ -164,7 +164,7 @@ void vtkPNGReader::ExecuteInformation()
   this->vtkImageReader2::ExecuteInformation();
 
   // close the file
-  png_destroy_read_struct(&png_ptr, &info_ptr,NULL);
+  png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
   fclose(fp);
 }
 
@@ -272,10 +272,11 @@ static void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
     memcpy(outPtr2,row_pointers[height - i - 1] + outExt[0]*pixSize,outSize);
     outPtr2 += outInc[1];
     }
-  
+  delete [] row_pointers;
+
   // close the file
   png_read_end(png_ptr, NULL);
-  png_destroy_read_struct(&png_ptr, &info_ptr,NULL);
+  png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
   fclose(fp);
 }
 
