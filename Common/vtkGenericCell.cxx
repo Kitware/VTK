@@ -39,7 +39,7 @@
 #include "vtkConvexPointSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.15");
+vtkCxxRevisionMacro(vtkGenericCell, "1.16");
 vtkStandardNewMacro(vtkGenericCell);
 
 // Construct cell.
@@ -83,6 +83,16 @@ int vtkGenericCell::GetCellDimension()
 int vtkGenericCell::IsLinear()
 {
   return this->Cell->IsLinear();
+}
+
+int vtkGenericCell::RequiresInitialization()
+{
+  return this->Cell->RequiresInitialization();
+}
+
+void vtkGenericCell::Initialize()
+{
+  this->Cell->Initialize();
 }
 
 int vtkGenericCell::GetNumberOfEdges()
@@ -252,7 +262,7 @@ void vtkGenericCell::SetCellType(int cellType)
     this->Points->Register(this);
     this->PointIds = this->Cell->PointIds;
     this->PointIds->Register(this);
-    }
+    }//need to change cell type
 }
 
 

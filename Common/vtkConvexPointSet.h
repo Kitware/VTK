@@ -53,6 +53,11 @@ public:
   virtual int GetCellType() {return VTK_CONVEX_POINT_SET;}
 
   // Description:
+  // This cell requires that it be initialized prior to access.
+  virtual int RequiresInitialization() {return 1;}
+  virtual void Initialize();
+
+  // Description:
   // A convex point set has no explicit cell edge or faces; however
   // implicitly (after triangulation) it does. Currently the method
   // GetNumberOfEdges() always returns 0 while the GetNumberOfFaces() returns

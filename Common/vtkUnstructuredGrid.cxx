@@ -38,7 +38,7 @@
 #include "vtkConvexPointSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.107");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.108");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -313,6 +313,11 @@ vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
     cell->Points->SetPoint(i,this->Points->GetPoint(pts[i]));
     }
 
+  if ( cell->RequiresInitialization() )
+    {
+    cell->Initialize(); //hack to make sure it retriangulates
+    }
+
   return cell;
 }
 
@@ -336,6 +341,11 @@ void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
     cell->PointIds->SetId(i,pts[i]);
     this->Points->GetPoint(pts[i], x);
     cell->Points->SetPoint(i, x);
+    }
+
+  if ( cell->RequiresInitialization() )
+    {
+    cell->Initialize(); //hack to make sure it retriangulates
     }
 }
 

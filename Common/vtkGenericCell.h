@@ -49,6 +49,8 @@ public:
   int GetCellType();
   int GetCellDimension();
   int IsLinear();
+  int RequiresInitialization();
+  void Initialize();
   int GetNumberOfEdges();
   int GetNumberOfFaces();
   vtkCell *GetEdge(int edgeId);

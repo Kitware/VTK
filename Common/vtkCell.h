@@ -88,10 +88,16 @@ public:
   virtual int GetCellDimension() = 0;
 
   // Description:
-  // Non-linear cells require special treatment 
-  // beyond the usual cell type and connectivity list information.
-  // Most cells in VTK are implicit cells.
+  // Non-linear cells require special treatment beyond the usual cell type
+  // and connectivity list information.  Most cells in VTK are implicit
+  // cells.
   virtual int IsLinear() {return 1;}
+
+  // Description:
+  // Some cells require initialization prior to access. For example, they
+  // may have to triangulate themselves or set up internal data structures.
+  virtual int RequiresInitialization() {return 0;}
+  virtual void Initialize() {}
 
   // Description:
   // Explicit cells require additional representational information
