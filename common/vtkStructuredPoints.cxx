@@ -104,6 +104,7 @@ void vtkStructuredPoints::CopyStructure(vtkDataSet *ds)
     this->Origin[i] = sPts->Origin[i];
     this->Spacing[i] = sPts->Spacing[i];
     }
+  this->DataDescription = sPts->DataDescription;
  }
 
 vtkCell *vtkStructuredPoints::GetCell(int cellId)
