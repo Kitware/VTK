@@ -65,7 +65,7 @@ ENDIF (UNIX)
 
 IF (APPLE)
   ADD_DEFINITIONS(-DTARGET_API_MAC_CARBON)
-  SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated")
+  SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -fpascal-strings")
   SET (CMAKE_SHLIB_LINK_FLAGS "${CMAKE_SHLIB_LINK_FLAGS} -multiply_defined suppress -framework Carbon")
   SOURCE_FILES (FREETYPE_SRCS src/base/ftmac.c)
 ENDIF (APPLE)
