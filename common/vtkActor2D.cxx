@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkActor2D.h"
 #include "vtkProperty2D.h"
 #include "vtkMapper2D.h"
+#include "vtkPropCollection.h"
 
 // Creates an actor2D with the following defaults: 
 // position -1, -1 (view coordinates)
@@ -208,6 +209,11 @@ vtkProperty2D *vtkActor2D::GetProperty()
     this->Modified();
     }
   return this->Property;
+}
+
+void vtkActor2D::GetActors2D(vtkPropCollection *ac)
+{
+  ac->AddItem(this);
 }
 
 void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)

@@ -115,6 +115,12 @@ public:
   // Return this objects MTime.
   unsigned long GetMTime();
 
+  // Description: 
+  // For some exporters and other other operations we must be
+  // able to collect all the actors or volumes. These methods
+  // are used in that process.
+  virtual void GetActors2D(vtkPropCollection *pc);
+
 protected:
   vtkMapper2D *Mapper;
   int LayerNumber;
