@@ -572,10 +572,5 @@ vtkProp* vtkViewport::PickPropFrom(float selectionX, float selectionY, vtkPropCo
 {
   this->PickFromProps = pickfrom;
   return this->PickProp(selectionX, selectionY);
-  if(this->PickFromProps)
-    {
-    this->PickFromProps->Delete();
-    }
-  this->PickFromProps = NULL;
 }
 
