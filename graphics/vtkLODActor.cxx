@@ -164,14 +164,19 @@ void vtkLODActor::Render(vtkRenderer *ren)
     if (!(refreshCount % 97))
       {
       if (this->Timings[0] < (myTime*2.0))
-	{
-	this->Timings[0] = -1;
-	}
+	      {
+	      this->Timings[0] = -1;
+	      }
       this->Timings[1] = -1;
       this->Timings[2] = -1;
       }
     
-    this->Timings[choice] = (float)(vtkTimerLog::GetCurrentTime() - aTime);
+    // make sure this wasn't an aborted render because that will
+    // screwe up the timings
+    if (!(ren->GetRenderWindow()->GetAbortRender()))
+      {
+      this->Timings[choice] = (float)(vtkTimerLog::GetCurrentTime() - aTime);
+      }
     }
 
   refreshCount++;
