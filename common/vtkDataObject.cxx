@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkDataObject* vtkDataObject::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -63,14 +63,17 @@ vtkDataObject* vtkDataObject::New()
 
 
 
-// Initialize static member that controls global data release after use by filter
+// Initialize static member that controls global data release 
+// after use by filter
 static int vtkDataObjectGlobalReleaseDataFlag = 0;
 
 //----------------------------------------------------------------------------
 vtkDataObject::vtkDataObject()
 {
   this->Source = NULL;
-  this->DataReleased = 1;
+  // We have to assume that if a user is creating the data on their own,
+  // then they will fill it with valid data.
+  this->DataReleased = 0;
   this->ReleaseDataFlag = 0;
   this->FieldData = vtkFieldData::New();
   // --- streaming stuff ---
@@ -145,6 +148,13 @@ void vtkDataObject::ReleaseData()
 {
   this->Initialize();
   this->DataReleased = 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::DataHasBeenGenerated()
+{
+  this->DataReleased = 0;
+  this->UpdateTime.Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -227,8 +237,6 @@ void vtkDataObject::InternalUpdate()
     {
     this->Source->InternalUpdate(this);
     }
-  this->DataReleased = 0;
-  this->UpdateTime.Modified();
   
   this->WaitingForUpdate = 0;
 }

@@ -49,12 +49,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkImageData* vtkImageData::New()
 {
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageData");
-  if(ret)
+  if (ret)
     {
     return (vtkImageData*)ret;
     }
@@ -75,6 +75,8 @@ vtkImageData::vtkImageData()
   this->Pixel = vtkPixel::New();
   this->Voxel = vtkVoxel::New();
   
+  // I do not like defaulting to one pixel, but it avoids
+  // alot of special case checking.
   this->Dimensions[0] = 1;
   this->Dimensions[1] = 1;
   this->Dimensions[2] = 1;
@@ -264,7 +266,6 @@ int vtkImageData::ClipUpdateExtentWithWholeExtent()
     {
     minIdx = 2*idx;
     maxIdx = 2*idx + 1;
-    
     // make sure there is overlap!
     if (uExt[minIdx] > wExt[maxIdx])
       {

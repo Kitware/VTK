@@ -339,55 +339,75 @@ void vtkSource::InternalUpdate(vtkDataObject *output)
       this->Updating = 0;
       
       // Update the inputs (these should be sorted by Locality)
-      this->Updating = 1;
       for (idx = 0; idx < this->NumberOfInputs; ++idx)
         {
         if (this->Inputs[idx] != NULL)
           {
+	  this->Updating = 1;
           this->Inputs[idx]->InternalUpdate();
+	  // Special case for pipeline parallelism:
+	  // If any inputs did not generate data, do not execute.
+	  // In the futured we may want to include a check to see if the input
+	  // has actually changed (mtime comparison).
+	  if (this->Inputs[idx]->GetDataReleased())
+	    {
+	    vtkDebugMacro("Filter not executing because input (" 
+			  << this->Inputs[idx] << ") is released");
+	    this->Updating = 0;
+	    return;
+	    }
+	  this->Updating = 0;	  
           }
         }
-      this->Updating = 0;
       
       // Let the source initialize the data for streaming.
       // This allocates memory, so should be after input update,
       // but should be done only once per execute.
       if (division == 0)
-        {
-        this->StreamExecuteStart();
-        }
+	{
+	this->StreamExecuteStart();
+	}
       
       // Execute
       if ( this->StartMethod )
-        {
-        (*this->StartMethod)(this->StartMethodArg);
-        }
+	{
+	(*this->StartMethod)(this->StartMethodArg);
+	}
       // reset Abort flag
       this->AbortExecute = 0;
       this->Progress = 0.0;
       this->Execute();
       if ( !this->AbortExecute )
-        {
-        this->UpdateProgress(1.0);
-        }
+	{
+	this->UpdateProgress(1.0);
+	}
       if ( this->EndMethod )
-        {
-        (*this->EndMethod)(this->EndMethodArg);
-        }
+	{
+	(*this->EndMethod)(this->EndMethodArg);
+	}
+      }
+    
+    // Let the source clean up after streaming.
+    this->StreamExecuteEnd();
+    
+    // Now we have to mark the data as up to data.
+    for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+      {
+      if (this->Outputs[idx])
+	{
+	this->Outputs[idx]->DataHasBeenGenerated();
+	}
       }
     }
-  
-  // Let the source clean up after streaming.
-  this->StreamExecuteEnd();
   
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     if (this->Inputs[idx] != NULL)
       {
       if ( this->Inputs[idx]->ShouldIReleaseData() )
-        {
-        this->Inputs[idx]->ReleaseData();
-        }
+	{
+	this->Inputs[idx]->ReleaseData();
+	}
       }  
     }
   

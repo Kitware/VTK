@@ -100,6 +100,14 @@ public:
   void ReleaseData();
 
   // Description:
+  // This method is called by the source when it executes to generate data.
+  // It is sort of the opposite of ReleaseData.
+  // It sets the DataReleased flag to 0, and sets a new UpdateTime.
+  // The source has to have control of these values because with Pipeline 
+  // Parallelism Update can be called withoput producing valid data.
+  void DataHasBeenGenerated();
+  
+  // Description:
   // Return flag indicating whether data should be released after use  
   // by a filter.
   int ShouldIReleaseData();
