@@ -133,7 +133,7 @@ int IsAntiAliasingRequestedByThisProperty(vtkTextProperty *tprop)
 //----------------------------------------------------------------------------
 // A cache
 
-#define FONT_CACHE_CAPACITY 60
+#define FONT_CACHE_CAPACITY 150
 
 class vtkFontCache
 {
@@ -424,7 +424,7 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 vtkFontCache FontCacheSingleton;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.8");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.9");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
