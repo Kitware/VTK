@@ -60,6 +60,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // you to select this data. Other important ivars include HeaderSize, which
 // allows you to skip over initial info, and SwapBytes, which turns on/off
 // byte swapping.
+//
+// The Transform instance variable specifies a permutation transformation
+// to map slice space into world space.
 // .SECTION See Also
 // vtkSliceCubes vtkMarchingCubes
 
@@ -68,6 +71,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <stdio.h>
 #include "vtkVolumeReader.h"
+#include "vtkTransform.h"
 
 class vtkVolume16Reader : public vtkVolumeReader
 {
@@ -98,6 +102,13 @@ public:
   vtkGetMacro(SwapBytes,int);
   vtkBooleanMacro(SwapBytes,int);
 
+  // Description:
+  // Set/Get transformation matrix to transform the data from slice space
+  // into world space. This matirx must be a permutation matrix. To qualify,
+  // the sums of the rows must be + or - 1.
+  vtkSetObjectMacro(Transform,vtkTransform);
+  vtkGetObjectMacro(Transform,vtkTransform);
+
   // Other objects make use of these methods
   vtkStructuredPoints *GetImage(int ImageNumber);
 
@@ -107,7 +118,14 @@ protected:
   short DataMask;
   int   SwapBytes;
   int   HeaderSize;
+  vtkTransform *Transform;
 
+  void TransformSlice (short *slice, short *pixels, int k, int dimensions[3], int bounds[3]);
+  void ComputeTransformedDimensions(int dimensions[3]);
+  void ComputeTransformedBounds(int bounds[6]);
+  void ComputeTransformedAspectRatio(float aspectRatio[3]);
+  void ComputeTransformedOrigin(float origin[3]);
+  void AdjustAspectRatioAndOrigin(int dimensions[3], float aspectRatio[3], float origin[3]);
   vtkScalars *ReadImage(int ImageNumber);
   vtkScalars *ReadVolume(int FirstImage, int LastImage);
   int Read16BitImage(FILE *fp, short *pixels, int xsize, int ysize, 
