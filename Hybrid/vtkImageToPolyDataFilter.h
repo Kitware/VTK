@@ -84,8 +84,7 @@ public:
 
   // Description:
   // Instantiate object with initial number of colors 256.
-  static vtkImageToPolyDataFilter *New() 
-    {return new vtkImageToPolyDataFilter;};
+  static vtkImageToPolyDataFilter* New();
 
   // Description:
   // Specify how to create the output. Pixelize means converting the image
