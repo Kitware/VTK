@@ -1,3 +1,5 @@
+# Developed By Majeid Alyassin
+
 wm withdraw .
 toplevel .load_param  
 wm title .load_param {Load Parameters}
