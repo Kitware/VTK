@@ -86,8 +86,8 @@ protected:
   virtual void StartPick(unsigned int pickFromSize){};
   virtual void SetPickId(unsigned int pickID){};
   virtual void DonePick(){};
-  virtual unsigned int GetPickedID(){};
-  virtual float GetPickedZ(){};
+  virtual unsigned int GetPickedID(){return 0;};
+  virtual float GetPickedZ(){return 0;};
   //ETX
 
 };
