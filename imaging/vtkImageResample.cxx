@@ -576,7 +576,7 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
   // that the same calculations are done. same
   // accumulated errors etc.
   xPos = xStart;
-  xMaxIdx = 0;
+  xMaxIdx = maxX;
   int itmp = 0;
   for (idxX = 0; idxX <= maxX; idxX++)
     {
@@ -586,18 +586,19 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
       {
       xPos -= 1.0;
       itmp++;
-      if (itmp >= inMaxX && !xMaxIdx)
-        {
-        xMaxIdx = idxX - 1;
-        }
       *pXSteps = *pXSteps + 1;
+      }
+    if (itmp >= inMaxX && idxX <= xMaxIdx)
+      {
+      xMaxIdx = idxX - 1;
       }
     *pXRatios = xPos;
     pXRatios++;
     pXSteps++;
     }
+
   yPos = yStart;
-  yMaxIdx = -1;
+  yMaxIdx = maxY;
   itmp = 0;
   for (idxY = 0; idxY <= maxY; idxY++)
     {
@@ -606,14 +607,15 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
       {
       yPos -= 1.0;
       itmp++;
-      if (itmp >= inMaxY && yMaxIdx == -1)
-        {
-        yMaxIdx = idxY - 1;
-        }
+      }
+    if (itmp >= inMaxY && idxY <= yMaxIdx)
+      {
+      yMaxIdx = idxY - 1;
       }
     }
+  
   zPos = zStart;
-  zMaxIdx = -1;
+  zMaxIdx = maxZ;
   itmp = 0;
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
@@ -622,10 +624,10 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
       {
       zPos -= 1.0;
       itmp++;
-      if (itmp >= inMaxZ && zMaxIdx == -1)
-        {
-        zMaxIdx = idxZ - 1;
-        }
+      }
+    if (itmp >= inMaxZ && idxZ <= zMaxIdx)
+      {
+      zMaxIdx = idxZ - 1;
       }
     }
   
