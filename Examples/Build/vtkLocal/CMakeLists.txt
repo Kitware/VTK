@@ -31,7 +31,7 @@ ENDIF(VTK_FOUND)
 
 # Give user option of building shared or static libraries.  Default to
 # the choice made for VTK.
-OPTION(BUILD_SHARED_LIBS "Build with shared libraries." 
+OPTION(BUILD_SHARED_LIBS "Build with shared libraries."
        ${VTK_BUILD_SHARED_LIBS})
 
 # Set VTKLOCAL_BUILD_SHARED_LIBS to 1 or 0 for use in creating the
@@ -71,13 +71,13 @@ IF(VTK_FOUND)
 
   # Create the instantiator for these classes.
   SET(VTK_USE_INSTANTIATOR_NEW 1)
-  VTK_MAKE_INSTANTIATOR3("${PROJECT_NAME}Instantiator" 
+  VTK_MAKE_INSTANTIATOR3("${PROJECT_NAME}Instantiator"
     vtkLocalInstantiator_SRCS
     "${vtkLocal_SRCS}"
     "VTK_${PROJECT_NAME}_EXPORT"
     ${PROJECT_BINARY_DIR}
     "${PROJECT_NAME}Configure.h")
-  
+
   # Create the library.
   ADD_LIBRARY(${PROJECT_NAME} ${vtkLocal_SRCS} ${vtkLocalInstantiator_SRCS})
   TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${vtkLocal_LIBS})
