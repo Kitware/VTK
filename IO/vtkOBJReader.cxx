@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkOBJReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkOBJReader, "1.20");
+#include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkOBJReader, "1.21");
 vtkStandardNewMacro(vtkOBJReader);
 
 // Description:

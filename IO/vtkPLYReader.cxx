@@ -16,14 +16,16 @@
 
 =========================================================================*/
 #include "vtkPLYReader.h"
-#include "vtkPLY.h"
+
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPLY.h"
+#include "vtkPolyData.h"
 
 #include <ctype.h>
 #include <stddef.h>
 
-vtkCxxRevisionMacro(vtkPLYReader, "1.12");
+vtkCxxRevisionMacro(vtkPLYReader, "1.13");
 vtkStandardNewMacro(vtkPLYReader);
 
 #ifndef true

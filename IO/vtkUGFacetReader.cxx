@@ -21,9 +21,10 @@
 #include "vtkFloatArray.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 #include "vtkShortArray.h"
 
-vtkCxxRevisionMacro(vtkUGFacetReader, "1.42");
+vtkCxxRevisionMacro(vtkUGFacetReader, "1.43");
 vtkStandardNewMacro(vtkUGFacetReader);
 
 // Construct object to extract all parts, and with point merging

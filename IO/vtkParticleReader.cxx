@@ -16,13 +16,15 @@
 
 =========================================================================*/
 #include "vtkParticleReader.h"
-#include "vtkFloatArray.h"
-#include "vtkCellArray.h"
-#include "vtkPoints.h"
-#include "vtkObjectFactory.h"
-#include "vtkByteSwap.h"
 
-vtkCxxRevisionMacro(vtkParticleReader, "1.11");
+#include "vtkByteSwap.h"
+#include "vtkCellArray.h"
+#include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkParticleReader, "1.12");
 vtkStandardNewMacro(vtkParticleReader);
 
 // These are copied right from vtkImageReader.

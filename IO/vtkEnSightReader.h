@@ -23,6 +23,7 @@
 #include "vtkGenericEnSightReader.h"
 
 class vtkDataSetCollection;
+class vtkIdList;
 
 class VTK_IO_EXPORT vtkEnSightReader : public vtkGenericEnSightReader
 {

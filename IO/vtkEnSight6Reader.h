@@ -41,6 +41,7 @@
 #include "vtkEnSightReader.h"
 
 class vtkIdTypeArray;
+class vtkPoints;
 
 class VTK_IO_EXPORT vtkEnSight6Reader : public vtkEnSightReader
 {

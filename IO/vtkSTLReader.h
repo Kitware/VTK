@@ -37,8 +37,10 @@
 
 #include "vtkPolyDataSource.h"
 
-class vtkPoints;
 class vtkCellArray;
+class vtkFloatArray;
+class vtkPointLocator;
+class vtkPoints;
 
 class VTK_IO_EXPORT vtkSTLReader : public vtkPolyDataSource 
 {

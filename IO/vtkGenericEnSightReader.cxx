@@ -18,14 +18,15 @@
 #include "vtkGenericEnSightReader.h"
 
 #include "vtkDataArrayCollection.h"
-#include "vtkIdListCollection.h"
+#include "vtkDataSet.h"
 #include "vtkEnSight6BinaryReader.h"
 #include "vtkEnSight6Reader.h"
 #include "vtkEnSightGoldBinaryReader.h"
 #include "vtkEnSightGoldReader.h"
+#include "vtkIdListCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.33");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.34");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 

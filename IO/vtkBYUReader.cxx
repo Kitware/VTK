@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkBYUReader.h"
-#include "vtkPoints.h"
+
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkBYUReader, "1.46");
+vtkCxxRevisionMacro(vtkBYUReader, "1.47");
 vtkStandardNewMacro(vtkBYUReader);
 
 vtkBYUReader::vtkBYUReader()

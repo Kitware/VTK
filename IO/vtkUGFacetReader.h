@@ -26,6 +26,7 @@
 
 #include "vtkPolyDataSource.h"
 
+class vtkPointLocator;
 class vtkShortArray;
 
 class VTK_IO_EXPORT vtkUGFacetReader : public vtkPolyDataSource 
