@@ -416,6 +416,9 @@ IF(VTK_WRAP_PYTHON)
   INSTALL_FILES(/include/vtk .h
     vtkPythonUtil
   )
+  INSTALL_FILES(/include/vtk FILES
+    vtkPython.h
+  )
   IF (TK_LIBRARY)
         IF(NOT VTK_USE_COCOA)
       INSTALL_FILES(/include/vtk .h
