@@ -116,16 +116,7 @@ void vtkStructuredGrid::CopyStructure(vtkDataSet *ds)
   this->DataDescription = sg->DataDescription;
 
   this->Blanking = sg->Blanking;
-  if ( sg->PointVisibility != NULL && 
-  sg->PointVisibility != this->PointVisibility )
-    {
-    if ( this->PointVisibility ) 
-      {
-      this->PointVisibility->UnRegister((vtkObject *)this);
-      }
-    this->PointVisibility = sg->PointVisibility;
-    this->PointVisibility->Register((vtkObject *)this);
-    }
+  this->SetPointVisibility(sg->PointVisibility);
 }
 
 //----------------------------------------------------------------------------
@@ -568,12 +559,10 @@ void vtkStructuredGrid::AllocatePointVisibility()
     {
     this->PointVisibility = vtkUnsignedCharArray::New();
     this->PointVisibility->Allocate(this->GetNumberOfPoints(),1000);
-    this->PointVisibility->Register((vtkObject *)this);
     for (int i=0; i<this->GetNumberOfPoints(); i++)
       {
       this->PointVisibility->SetValue(i,1);
       }
-    this->PointVisibility->Delete();
     }
 }
 
@@ -610,7 +599,7 @@ void vtkStructuredGrid::BlankPoint(int ptId)
     {
     this->AllocatePointVisibility();
     }
-  this->PointVisibility->InsertValue(ptId,0);
+  this->PointVisibility->SetValue(ptId,0);
 }
 
 //----------------------------------------------------------------------------
@@ -626,14 +615,18 @@ void vtkStructuredGrid::UnBlankPoint(int ptId)
 
 void vtkStructuredGrid::SetPointVisibility(vtkUnsignedCharArray *ptVis)
 {
-  if ( this->PointVisibility )
+  if ( ptVis != this->PointVisibility )
     {
-    this->PointVisibility->Delete();
-    }
-  this->PointVisibility = ptVis;
-  if ( ptVis )
-    {
-    ptVis->Register(this);
+    if ( this->PointVisibility )
+      {
+      this->PointVisibility->Delete();
+      }
+    this->PointVisibility = ptVis;
+    if ( ptVis )
+      {
+      ptVis->Register(this);
+      }
+    this->Modified();
     }
 }
 
