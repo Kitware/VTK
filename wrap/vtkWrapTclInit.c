@@ -31,6 +31,7 @@ void stuffit()
     fprintf(stdout,"extern Tcl_HashTable vtkPointerLookup;\n");
     fprintf(stdout,"extern Tcl_HashTable vtkCommandLookup;\n");
     }
+  fprintf(stdout,"extern void vtkTclDeleteObjectFromHash(void *);\n");  
   fprintf(stdout,"extern void vtkTclListInstances(Tcl_Interp *interp, ClientData arg);\n");
   
   fprintf(stdout,"\n\nextern \"C\" {int %s_SafeInit(Tcl_Interp *interp);}\n\n",
@@ -66,6 +67,7 @@ void stuffit()
 	    names[i]);
     fprintf(stdout,"                      temp,(Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);\n");
     fprintf(stdout,"    entry = Tcl_CreateHashEntry(&vtkCommandLookup,argv[1],&is_new);\n    Tcl_SetHashValue(entry,(ClientData)(%sCommand));\n",names[i]);
+    fprintf(stdout,"    ((vtkObject *)temp)->SetDeleteMethod(vtkTclDeleteObjectFromHash);\n");
     fprintf(stdout,"    }\n\n");
     }
 
@@ -134,6 +136,7 @@ int main(int argc,char *argv[])
   
   fprintf(stdout,"#include <string.h>\n");
   fprintf(stdout,"#include <tcl.h>\n\n");
+  fprintf(stdout,"#include \"vtkObject.h\"\n");
 
   stuffit();
   
