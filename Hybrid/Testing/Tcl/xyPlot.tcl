@@ -81,7 +81,7 @@ vtkXYPlotActor xyplot
     eval $tprop SetColor [[xyplot GetProperty] GetColor]
     xyplot SetAxisTitleTextProperty $tprop
     xyplot SetAxisLabelTextProperty $tprop
-    xyplot SetLabelFormat "%-#6.1f"
+    xyplot SetLabelFormat "%-#6.2f"
 
 vtkXYPlotActor xyplot2
     xyplot2 AddInput [probe GetOutput]
