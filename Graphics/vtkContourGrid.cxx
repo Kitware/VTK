@@ -391,4 +391,7 @@ void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
+  os << indent << "InputScalarsSelection: " 
+     << (this->InputScalarsSelection ? this->InputScalarsSelection : "(none)") << "\n";
+  
 }
