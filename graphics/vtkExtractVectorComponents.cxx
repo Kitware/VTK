@@ -198,6 +198,7 @@ void vtkExtractVectorComponents::Update()
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
+    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
     this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }

@@ -85,10 +85,10 @@ void vtkImageDifference::Execute()
     }
 
   // make sure the images are of the correct type
-  if (strcmp(pd1->GetScalars()->GetScalarType(),"ColorScalar") ||
-      strcmp(pd2->GetScalars()->GetScalarType(),"ColorScalar"))
+  if ( pd1->GetScalars()->GetScalarType() != VTK_COLOR_SCALAR ||
+       pd2->GetScalars()->GetScalarType() != VTK_COLOR_SCALAR )
     {
-    vtkWarningMacro(<< "Scalars must be of type ColorScalar.");
+    vtkWarningMacro(<< "Scalars must be of type vtkColorScalar.");
     return;
     }
 
@@ -249,6 +249,7 @@ void vtkImageDifference::Update()
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);
+    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
 

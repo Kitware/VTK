@@ -93,6 +93,7 @@ void vtkCastToConcrete::Update()
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
+    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
 }
@@ -101,31 +102,31 @@ void vtkCastToConcrete::Execute()
 {
   vtkDebugMacro(<<"Casting to concrete type...");
 
-  if ( ! strcmp(this->Input->GetDataType(),"vtkPolyData") )
+  if ( this->Input->GetDataSetType() == VTK_POLY_DATA )
     {
     this->PolyData->CopyStructure(this->Input);
     this->PolyData->GetPointData()->PassData(this->Input->GetPointData());
     }
 
-  else if ( ! strcmp(this->Input->GetDataType(),"vtkStructuredPoints") )
+  else if ( this->Input->GetDataSetType() == VTK_STRUCTURED_POINTS )
     {
     this->StructuredPoints->CopyStructure(this->Input);
     this->StructuredPoints->GetPointData()->PassData(this->Input->GetPointData());
     }
 
-  else if ( ! strcmp(this->Input->GetDataType(),"vtkStructuredGrid") )
+  else if ( this->Input->GetDataSetType() == VTK_STRUCTURED_GRID )
     {
     this->StructuredGrid->CopyStructure(this->Input);
     this->StructuredGrid->GetPointData()->PassData(this->Input->GetPointData());
     }
 
-  else if ( ! strcmp(this->Input->GetDataType(),"vtkUnstructuredGrid") )
+  else if ( this->Input->GetDataSetType() == VTK_UNSTRUCTURED_GRID )
     {
     this->UnstructuredGrid->CopyStructure(this->Input);
     this->UnstructuredGrid->GetPointData()->PassData(this->Input->GetPointData());
     }
 
-  else if ( ! strcmp(this->Input->GetDataType(),"vtkRectilinearGrid") )
+  else if ( this->Input->GetDataSetType() == VTK_RECTILINEAR_GRID )
     {
     this->RectilinearGrid->CopyStructure(this->Input);
     this->RectilinearGrid->GetPointData()->PassData(this->Input->GetPointData());
@@ -160,7 +161,7 @@ vtkPolyData *vtkCastToConcrete::GetPolyDataOutput()
     }
   else
     {
-    if ( strcmp(this->Input->GetDataType(),"vtkPolyData") )
+    if ( this->Input->GetDataSetType() != VTK_POLY_DATA )
       {
       vtkErrorMacro(<<"Cannot cast to type requested");
       return NULL;
@@ -181,7 +182,7 @@ vtkStructuredPoints *vtkCastToConcrete::GetStructuredPointsOutput()
     }
   else
     {
-    if ( strcmp(this->Input->GetDataType(),"vtkStructuredPoints") )
+    if ( this->Input->GetDataSetType() != VTK_STRUCTURED_POINTS )
       {
       vtkErrorMacro(<<"Cannot cast to type requested");
       return NULL;
@@ -202,7 +203,7 @@ vtkStructuredGrid *vtkCastToConcrete::GetStructuredGridOutput()
     }
   else
     {
-    if ( strcmp(this->Input->GetDataType(),"vtkStructuredGrid") )
+    if ( this->Input->GetDataSetType() != VTK_STRUCTURED_GRID )
       {
       vtkErrorMacro(<<"Cannot cast to type requested");
       return NULL;
@@ -223,7 +224,7 @@ vtkUnstructuredGrid *vtkCastToConcrete::GetUnstructuredGridOutput()
     }
   else
     {
-    if ( strcmp(this->Input->GetDataType(),"vtkUnstructuredGrid") )
+    if ( this->Input->GetDataSetType() != VTK_UNSTRUCTURED_GRID )
       {
       vtkErrorMacro(<<"Cannot cast to type requested");
       return NULL;
@@ -244,7 +245,7 @@ vtkRectilinearGrid *vtkCastToConcrete::GetRectilinearGridOutput()
     }
   else
     {
-    if ( strcmp(this->Input->GetDataType(),"vtkRectilinearGrid") )
+    if ( this->Input->GetDataSetType() != VTK_RECTILINEAR_GRID )
       {
       vtkErrorMacro(<<"Cannot cast to type requested");
       return NULL;

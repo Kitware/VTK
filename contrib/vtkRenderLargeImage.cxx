@@ -123,7 +123,7 @@ void vtkRenderLargeImage::Execute(vtkImageData *data)
   
   if (this->Output->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
-    vtkErrorMacro("mismathc in scalar types!");
+    vtkErrorMacro("mismatch in scalar types!");
     return;
     }
   

@@ -120,7 +120,7 @@ void vtkContourFilter::Execute()
     }
 
   // If structured points, use more efficient algorithms
-  if ( ! strcmp(this->Input->GetDataType(),"vtkStructuredPoints") )
+  if ( this->Input->GetDataSetType() == VTK_STRUCTURED_POINTS )
     {
     int dim = this->Input->GetCell(0)->GetCellDimension();
 

@@ -82,6 +82,7 @@ void vtkFilter::Update()
     this->Output->Initialize(); //clear output
     this->Execute();
     this->ExecuteTime.Modified();
+    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
     this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
@@ -97,8 +98,6 @@ void vtkFilter::Execute()
 void vtkFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkSource::PrintSelf(os,indent);
-
-  os << indent << "Execute Time: " <<this->ExecuteTime.GetMTime() << "\n";
 
   if ( this->Input )
     {

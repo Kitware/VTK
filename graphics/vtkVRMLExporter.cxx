@@ -260,7 +260,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   ds = anActor->GetMapper()->GetInput();
   
   // we really want polydata
-  if (strcmp(ds->GetClassName(),"vtkPolyData"))
+  if ( ds->GetDataSetType() != VTK_POLY_DATA )
     {
     gf = vtkGeometryFilter::New();
     gf->SetInput(ds);
@@ -342,7 +342,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     // make sure using unsigned char data of color scalars type
     if (aTexture->GetMapColorScalarsThroughLookupTable () ||
         (scalars->GetDataType() != VTK_UNSIGNED_CHAR ||
-        strcmp(scalars->GetScalarType(),"ColorScalar")) )
+         scalars->GetScalarType() != VTK_COLOR_SCALAR) )
       {
       mappedScalars = aTexture->GetMappedScalars ();
       }

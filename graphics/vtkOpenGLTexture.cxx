@@ -90,7 +90,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
     // make sure using unsigned char data of color scalars type
     if (this->MapColorScalarsThroughLookupTable ||
         (scalars->GetDataType() != VTK_UNSIGNED_CHAR ||
-	 strcmp(scalars->GetScalarType(),"ColorScalar")) )
+	 scalars->GetScalarType() != VTK_COLOR_SCALAR) )
       {
       dataPtr = this->MapScalarsToColors (scalars);
       bytesPerPixel = 4;

@@ -444,7 +444,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
   else 
     name = this->LookupTableName;
 
-  if ( ! strcmp(scalars->GetScalarType(),"SingleValued") )
+  if ( scalars->GetScalarType() == VTK_SINGLE_VALUED )
     {
     fprintf (fp, "SCALARS ");
     switch (scalars->GetDataType())

@@ -89,27 +89,27 @@ void vtkDataSetToDataSetFilter::SetInput(vtkDataSet *input)
 
     if ( this->Input == NULL ) return;
 
-    if ( ! strcmp(this->Input->GetDataType(),"vtkPolyData") )
+    if ( this->Input->GetDataSetType() == VTK_POLY_DATA )
       {
       this->Output = this->PolyData;
       }
 
-    else if ( ! strcmp(this->Input->GetDataType(),"vtkStructuredPoints") )
+    else if ( this->Input->GetDataSetType() == VTK_STRUCTURED_POINTS )
       {
       this->Output = this->StructuredPoints;
       }
 
-    else if ( ! strcmp(this->Input->GetDataType(),"vtkStructuredGrid") )
+    else if ( this->Input->GetDataSetType() == VTK_STRUCTURED_GRID )
       {
       this->Output = this->StructuredGrid;
       }
 
-    else if ( ! strcmp(this->Input->GetDataType(),"vtkUnstructuredGrid") )
+    else if ( this->Input->GetDataSetType() == VTK_UNSTRUCTURED_GRID )
       {
       this->Output = this->UnstructuredGrid;
       }
 
-    else if ( ! strcmp(this->Input->GetDataType(),"vtkRectilinearGrid") )
+    else if ( this->Input->GetDataSetType() == VTK_RECTILINEAR_GRID )
       {
       this->Output = this->RectilinearGrid;
       }
@@ -164,6 +164,7 @@ void vtkDataSetToDataSetFilter::Update()
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
+    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
     this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }

@@ -243,9 +243,12 @@ void vtkImplicitTextureCoords::Update()
 
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     // copy topological/geometric structure from input
+    this->AbortExecute = 0;
+    this->Progress = 0.0;
     this->Output->CopyStructure(this->Input);
     this->Execute();
     this->ExecuteTime.Modified();
+    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
     this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }

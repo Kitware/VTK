@@ -66,11 +66,6 @@ vtkExtractUnstructuredGrid::vtkExtractUnstructuredGrid()
   this->Output->SetSource(this);
 }
 
-vtkExtractUnstructuredGrid::~vtkExtractUnstructuredGrid()
-{
-  this->Output->Delete();
-}
-
 // Description:
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
 void vtkExtractUnstructuredGrid::SetExtent(float xMin,float xMax, float yMin,

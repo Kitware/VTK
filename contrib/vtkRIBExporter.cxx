@@ -562,7 +562,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
 	matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]);
 
   // we really want polydata
-  if (strcmp(aDataSet->GetClassName(),"vtkPolyData"))
+  if ( aDataSet->GetDataSetType() != VTK_POLY_DATA )
     {
     geometryFilter = vtkGeometryFilter::New();
     geometryFilter->SetInput(aDataSet);
@@ -935,7 +935,7 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
     // make sure using unsigned char data of color scalars type
     if (aTexture->GetMapColorScalarsThroughLookupTable () ||
         (scalars->GetDataType() != VTK_UNSIGNED_CHAR ||
-        strcmp(scalars->GetScalarType(),"ColorScalar")) )
+        scalars->GetScalarType() != VTK_COLOR_SCALAR) )
       {
       mappedScalars = aTexture->GetMappedScalars ();
       }

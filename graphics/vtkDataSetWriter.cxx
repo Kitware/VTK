@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPointsWriter.h"
 #include "vtkStructuredGridWriter.h"
 #include "vtkUnstructuredGridWriter.h"
+#include "vtkRectilinearGridWriter.h"
 
 // Description:
 // Specify the input data or filter.
@@ -58,38 +59,45 @@ void vtkDataSetWriter::SetInput(vtkDataSet *input)
 
 void vtkDataSetWriter::WriteData()
 {
-  char *type;
+  int type;
   vtkPolyDataWriter pwriter;
   vtkStructuredPointsWriter spwriter;
   vtkStructuredGridWriter sgwriter;
   vtkUnstructuredGridWriter ugwriter;
+  vtkRectilinearGridWriter rgwriter;
   vtkDataWriter *writer;
 
   vtkDebugMacro(<<"Writing vtk dataset...");
 
-  type = this->Input->GetDataType();
-  if ( ! strcmp(type,"vtkPolyData") )
+  type = this->Input->GetDataSetType();
+  if ( type == VTK_POLY_DATA )
     {
     pwriter.SetInput((vtkPolyData *)this->Input);
     writer = (vtkDataWriter *)&pwriter;
     }
 
-  else if ( ! strcmp(type,"vtkStructuredPoints") )
+  else if ( type == VTK_STRUCTURED_POINTS )
     {
     spwriter.SetInput((vtkStructuredPoints *)this->Input);
     writer = (vtkDataWriter *)&spwriter;
     }
 
-  else if ( ! strcmp(type,"vtkStructuredGrid") )
+  else if ( type == VTK_STRUCTURED_GRID )
     {
     sgwriter.SetInput((vtkStructuredGrid *)this->Input);
     writer = (vtkDataWriter *)&sgwriter;
     }
 
-  else if ( ! strcmp(type,"vtkUnstructuredGrid") )
+  else if ( type == VTK_UNSTRUCTURED_GRID )
     {
     ugwriter.SetInput((vtkUnstructuredGrid *)this->Input);
     writer = (vtkDataWriter *)&ugwriter;
+    }
+
+  else if ( type == VTK_RECTILINEAR_GRID )
+    {
+    rgwriter.SetInput((vtkRectilinearGrid *)this->Input);
+    writer = (vtkDataWriter *)&sgwriter;
     }
 
   else

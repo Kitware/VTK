@@ -155,7 +155,7 @@ vtkColorScalars *vtkMapper::GetColors()
   // create colors
   //
   numPts = this->Input->GetNumberOfPoints();
-  if ( strcmp(scalars->GetScalarType(),"ColorScalar") )
+  if ( scalars->GetScalarType() != VTK_COLOR_SCALAR )
     {
     if ( this->Colors == NULL ) 
       {

@@ -79,17 +79,17 @@ void vtkPointSetToPointSetFilter::SetInput(vtkPointSet *input)
 
     if ( this->Input == NULL ) return;
 
-    if ( ! strcmp(this->Input->GetDataType(),"vtkPolyData") )
+    if ( this->Input->GetDataSetType() == VTK_POLY_DATA )
       {
       this->Output = this->PolyData;
       }
 
-    else if ( ! strcmp(this->Input->GetDataType(),"vtkStructuredGrid") )
+    else if ( this->Input->GetDataSetType() == VTK_STRUCTURED_GRID )
       {
       this->Output = this->StructuredGrid;
       }
 
-    else if ( ! strcmp(this->Input->GetDataType(),"vtkUnstructuredGrid") )
+    else if ( this->Input->GetDataSetType() == VTK_UNSTRUCTURED_GRID )
       {
       this->Output = this->UnstructuredGrid;
       }
@@ -145,6 +145,7 @@ void vtkPointSetToPointSetFilter::Update()
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
+    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
     this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }

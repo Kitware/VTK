@@ -110,6 +110,7 @@ public:
   void SetColor(float r,float g,float b);
   void SetColor(float a[3]) { this->SetColor(a[0], a[1], a[2]); };
   float *GetColor();
+  void GetColor(float rgb[3]);
 
   // Description:
   // Set/Get the ambient lighting coefficient.

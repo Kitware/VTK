@@ -64,7 +64,6 @@ class VTK_EXPORT vtkExtractUnstructuredGrid : public vtkUnstructuredGridFilter
 {
 public:
   vtkExtractUnstructuredGrid();
-  ~vtkExtractUnstructuredGrid();
   static vtkExtractUnstructuredGrid *New() {return new vtkExtractUnstructuredGrid;};
   const char *GetClassName() {return "vtkExtractUnstructuredGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);
