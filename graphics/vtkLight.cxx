@@ -116,7 +116,7 @@ float *vtkLight::GetTransformedPosition()
 
 void vtkLight::GetTransformedFocalPoint(float a[3]) 
 {
-  float f[3];
+  float f[4];
 
   f[0] = this->FocalPoint[0];
   f[1] = this->FocalPoint[1];
