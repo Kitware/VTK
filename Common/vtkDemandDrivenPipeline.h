@@ -52,6 +52,10 @@ public:
                                                int port);
 
   // Description:
+  // Get the PipelineMTime for this exective
+  vtkGetMacro(PipelineMTime, unsigned long);
+    
+  // Description:
   // Get the data object storing the output for the given port.
   virtual vtkDataObject* GetOutputData(int port);
   virtual vtkDataObject* GetOutputData(vtkAlgorithm* algorithm, int port);
