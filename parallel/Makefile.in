@@ -23,6 +23,7 @@ ABSTRACT = \
 vtkCommunicator 
 
 CONCRETE = \
+vtkCutMaterial \
 vtkExtractPolyDataPiece \
 vtkExtractUnstructuredGridPiece \
 vtkGetRemoteGhostCells \
