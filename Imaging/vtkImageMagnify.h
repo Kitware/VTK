@@ -58,6 +58,8 @@ protected:
                            vtkImageData ***inData, vtkImageData **outData,
                            int outExt[6], int id);
 
+  void InternalRequestUpdateExtent(int *inExt, int *outExt);
+
 private:
   vtkImageMagnify(const vtkImageMagnify&);  // Not implemented.
   void operator=(const vtkImageMagnify&);  // Not implemented.

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMagnify, "1.45");
+vtkCxxRevisionMacro(vtkImageMagnify, "1.46");
 vtkStandardNewMacro(vtkImageMagnify);
 
 //----------------------------------------------------------------------------
@@ -45,16 +45,14 @@ void vtkImageMagnify::ExecuteInformation (
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
-  double *spacing;
+  double spacing[3];
   int idx;
   double outSpacing[3];
   int inExt[6], outExt[6];
   
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inExt);
+  inInfo->Get(vtkDataObject::SPACING(), spacing);
   
-  vtkImageData *inData = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  spacing = inData->GetSpacing();
   for (idx = 0; idx < 3; idx++)
     {
     // Scale the output extent
@@ -82,9 +80,17 @@ void vtkImageMagnify::RequestUpdateExtent (
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
-  int idx;
   int outExt[6], inExt[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
+
+  this->InternalRequestUpdateExtent(inExt, outExt);
+  
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
+}
+
+void vtkImageMagnify::InternalRequestUpdateExtent(int *inExt, int *outExt)
+{
+  int idx;
 
   for (idx = 0; idx < 3; idx++)
     {
@@ -94,7 +100,6 @@ void vtkImageMagnify::RequestUpdateExtent (
     inExt[idx*2+1] = (int)(floor((double)(outExt[idx*2+1]) / 
                                  (double)(this->MagnificationFactors[idx])));
     }
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 }
 
 //----------------------------------------------------------------------------
@@ -280,17 +285,15 @@ void vtkImageMagnifyExecute(vtkImageMagnify *self,
 }
 
 void vtkImageMagnify::ThreadedRequestData(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector,
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector),
   vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
   int inExt[6];
-  this->RequestUpdateExtent(request, inputVector, outputVector);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
+  this->InternalRequestUpdateExtent(inExt, outExt);
 
   void *inPtr = inData[0][0]->GetScalarPointerForExtent(inExt);
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
