@@ -364,6 +364,18 @@ float *vtkActor::GetBounds()
 }
 
 // Description:
+// Get the center of the bounding box in world coordinates
+float *vtkActor::GetCenter()
+{
+  this->GetBounds();
+  this->Center[0] = (this->Bounds[1] + this->Bounds[0])/2.0;
+  this->Center[1] = (this->Bounds[3] + this->Bounds[2])/2.0;
+  this->Center[2] = (this->Bounds[5] + this->Bounds[4])/2.0;
+  
+  return this->Center;
+}
+
+// Description:
 // Get the actors x range in world coordinates.
 float *vtkActor::GetXRange()
 {
