@@ -63,7 +63,6 @@ if {[rtTester IsValidImageSpecified] != 0} {
       }
    }
    set rtResult [rtTester RegressionTest $threshold]
-#   puts [rtTester GetLastResultText]
 }
 
 vtkCommand DeleteAllObjects
