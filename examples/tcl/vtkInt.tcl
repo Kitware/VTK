@@ -1,8 +1,5 @@
 # a generic interactor for tcl and vtk
 #
-catch {unset vtkInteract.bold}
-catch {unset vtkInteract.normal}
-catch {unset vtkInteract.tagcount}
 set vtkInteractBold "-background #43ce80 -relief raised -borderwidth 1"
 set vtkInteractNormal "-background #c0c0c0 -relief flat"
 set vtkInteractTagcount 1;
