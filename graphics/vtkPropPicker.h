@@ -83,6 +83,9 @@ public:
   // Overide superclasses' Pick() method.
   int Pick(float selectionX, float selectionY, float selectionZ, 
            vtkRenderer *renderer);  
+  int Pick(float selectionPt[3], vtkRenderer *renderer)
+    { return this->Pick( selectionPt[0], 
+			 selectionPt[1], selectionPt[2], renderer); };  
 
   // Return the vtkProp that has been picked. If NULL, nothing was picked.
   vtkGetObjectMacro(Prop, vtkProp);
