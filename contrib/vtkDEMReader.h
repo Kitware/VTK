@@ -166,6 +166,7 @@ protected:
   int ReadTypeARecord ();
   int ReadProfiles (vtkImageData *data);
   void Execute();
+  void Execute(vtkImageData *outData) {this->vtkImageSource::Execute(outData);}
 };
 
 #endif
