@@ -48,9 +48,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPiecewiseFunction_h
 #define __vtkPiecewiseFunction_h
 
-#include "vtkObject.h"
+#include "vtkDataObject.h"
 
-class VTK_EXPORT vtkPiecewiseFunction : public vtkObject
+class VTK_EXPORT vtkPiecewiseFunction : public vtkDataObject
 {
 public:
   vtkPiecewiseFunction();
@@ -58,6 +58,10 @@ public:
   static vtkPiecewiseFunction *New() {return new vtkPiecewiseFunction;};
   const char *GetClassName() {return "vtkPiecewiseFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  vtkDataObject *MakeObject();
+  void Initialize();
+  void DeepCopy( vtkPiecewiseFunction *f );
 
   // Description:
   // Get the number of points used to specify the function
@@ -155,5 +159,4 @@ protected:
 };
 
 #endif
-
 

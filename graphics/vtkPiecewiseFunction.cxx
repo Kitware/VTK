@@ -60,9 +60,45 @@ vtkPiecewiseFunction::~vtkPiecewiseFunction()
     }
 }
 
+void vtkPiecewiseFunction::DeepCopy( vtkPiecewiseFunction *f )
+{
+  this->ArraySize    = f->ArraySize;
+  this->Clamping     = f->Clamping;
+  this->Function     = new float[this->ArraySize*2]; 
+  this->FunctionSize = f->FunctionSize;
+  memcpy( this->FunctionRange, f->FunctionRange, 2*sizeof(float) );
+  memcpy( this->Function, f->Function, this->ArraySize*2*sizeof(float) );
+}
+
+vtkDataObject *vtkPiecewiseFunction::MakeObject()
+{
+  vtkPiecewiseFunction *f;
+
+  f = vtkPiecewiseFunction::New();
+  f->DeepCopy( this );
+  return (vtkDataObject *)f;
+}
+
+void vtkPiecewiseFunction::Initialize()
+{
+  if ( this->Function)
+    {
+    delete this->Function;
+    }
+
+  this->ArraySize     	 = 64;
+  this->Clamping         = 1;
+  this->Function      	 = new float[this->ArraySize*2];
+  this->FunctionSize  	 = 0;
+  this->FunctionRange[0] = 0;
+  this->FunctionRange[1] = 0;
+}
+
+
 // Return the number of points which specify this function
 int vtkPiecewiseFunction::GetSize()
 {
+  this->Update();
   return( this->FunctionSize );
 }
 
@@ -80,6 +116,8 @@ char *vtkPiecewiseFunction::GetType()
   float value;
   float prev_value;
   int   function_type;
+
+  this->Update();
 
   function_type = 0;
 
@@ -155,6 +193,8 @@ float vtkPiecewiseFunction::GetFirstNonZeroValue()
   int   i;
   int   all_zero = 1;
   float x = 0.0;
+
+  this->Update();
 
   // Check if no points specified
   if( this->FunctionSize == 0 )
@@ -415,6 +455,8 @@ float vtkPiecewiseFunction::GetValue( float x )
   float slope;
   float value;
 
+  this->Update();
+
   if( this->FunctionSize == 0 )
     {
     return 0.0;
@@ -489,6 +531,8 @@ void vtkPiecewiseFunction::GetTable( float x1, float x2, int size, float* table 
   float inc;
   int   i;
 
+  this->Update();
+
   if( x1 == x2 )
     {
     return;
@@ -550,4 +594,3 @@ void vtkPiecewiseFunction::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << indent << i << ": " << this->Function[(2*i)] << ", " << this->Function[(2*i+1)] << "\n";
     }
 }
-
