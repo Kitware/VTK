@@ -1,7 +1,5 @@
 package require vtk
 
-wm withdraw .
-
 # List of types and corresponding file extensions.
 set types {
     {ImageData vti}
