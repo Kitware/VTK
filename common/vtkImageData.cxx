@@ -351,6 +351,9 @@ void vtkImageData::AllocateScalars()
       break;
     }
   
+  // Unregister the scalars since PointData now has a references
+  this->PointData.GetScalars()->UnRegister(this);
+  
   // allocate enough memory
   this->PointData.GetScalars()->
     SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
