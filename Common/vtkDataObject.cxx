@@ -24,7 +24,7 @@
 #include "vtkTrivialProducer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.105");
+vtkCxxRevisionMacro(vtkDataObject, "1.106");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -930,6 +930,15 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Source: (none)\n";
+    }
+
+  if ( this->Information )
+    {
+    os << indent << "Information: " << this->Information << "\n";
+    }
+  else
+    {
+    os << indent << "Information: (none)\n";
     }
 
   os << indent << "Release Data: " 
