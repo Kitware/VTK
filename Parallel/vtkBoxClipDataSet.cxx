@@ -1,4 +1,4 @@
-/*=========================================================================
+u/*=========================================================================
 
   Program:   Visualization Toolkit
   Module:    vtkBoxClipDataSet.cxx
@@ -33,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.11");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.12");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -228,7 +228,7 @@ void vtkBoxClipDataSet::Execute()
   num[0]    = num[1]      = 0;
   numNew[0] = numNew[1]   = 0;
 
-  unsigned orientation = this->GetOrientation();   //Test if there is a transformation 
+  unsigned int orientation = this->GetOrientation();   //Test if there is a transformation 
 
   //clock_t init_tmp = clock();
   for (cellId=0; cellId < numCells && !abort; cellId++)
@@ -512,7 +512,7 @@ void vtkBoxClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
 //
 // MinEdgF search the smallest vertex index in linear order of a face(4 vertices)
 //
-void vtkBoxClipDataSet::MinEdgeF(unsigned *id_v, vtkIdType *cellIds,unsigned *edgF)
+void vtkBoxClipDataSet::MinEdgeF(unsigned int *id_v, vtkIdType *cellIds,unsigned int *edgF)
 {
     
   int i;
@@ -666,7 +666,7 @@ void vtkBoxClipDataSet::WedgeToTetra(vtkIdType *wedgeId, vtkIdType *cellIds,
 void  vtkBoxClipDataSet::PyramidToTetra(vtkIdType *pyramId, vtkIdType *cellIds,vtkCellArray *newCellArray)
 {
   vtkIdType xmin;
-  unsigned i,j,idpy;
+  unsigned int i,j,idpy;
   vtkIdType tab[4];
 
   // the table 'vpy' set  3  possibilities of the smallest index 
@@ -802,14 +802,14 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
   vtkIdType ptstetra = 4;
   vtkIdType xmin;  
   int i,j;
-  unsigned id   =0;
-  unsigned idpy =0;
+  unsigned int id   =0;
+  unsigned int idpy =0;
         
-  unsigned Edg_f[6][2]; //edge selected of each face
-  unsigned idv[4];
+  unsigned int Edg_f[6][2]; //edge selected of each face
+  unsigned int idv[4];
     
-  unsigned idopos;
-  unsigned numbertetra;
+  unsigned int idopos;
+  unsigned int numbertetra;
 
   static vtkIdType tri[3] = {0, 1, 2};
 
@@ -967,7 +967,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
                                         {4,5,6,0,1,2},{6,5,7,2,1,3},
                                         {3,7,5,2,6,4},{1,3,5,0,2,4},
                                         {0,1,4,2,3,6},{1,5,4,3,7,6}}; 
-        unsigned edgeId = 10*Edg_f[i][0]+ Edg_f[i][1];
+        unsigned int edgeId = 10*Edg_f[i][0]+ Edg_f[i][1];
         switch(edgeId)     
           {
           case 5:   // edge(v0,v5):10*0 + 5
@@ -1059,7 +1059,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
         }
   
       //two cases: 
-      static unsigned tabopos[8] = {6,7,4,5,2,3,0,1};
+      static unsigned int tabopos[8] = {6,7,4,5,2,3,0,1};
       idopos      = tabopos[id];
       numbertetra = 5;
       for(i=0;i<6;i++) 
@@ -1110,7 +1110,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
                                         {4,5,7,0,1,3},{7,5,6,3,1,2},
                                         {2,6,5,3,7,4},{1,2,5,0,3,4},
                                         {0,1,4,3,2,7},{1,5,4,2,6,7}}; 
-        unsigned edgeId = 10*Edg_f[i][0]+ Edg_f[i][1];
+        unsigned int edgeId = 10*Edg_f[i][0]+ Edg_f[i][1];
 
         switch(edgeId)
           {
@@ -1247,9 +1247,9 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts,vtkIdType *cellIds,vtkCellArr
   vtkIdType tabp[5];
   vtkIdType tab[3][4];
   
-  unsigned i,j;
-  unsigned id =0;
-  unsigned idpy;
+  unsigned int i,j;
+  unsigned int id =0;
+  unsigned int idpy;
 
   vtkIdType xmin;
         
@@ -1584,9 +1584,9 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
   vtkIdType     ptstetra = 4;
 
   vtkIdType i,j;
-  unsigned allInside;
-  unsigned idcellnew;
-  unsigned ind[3];
+  unsigned int allInside;
+  unsigned int idcellnew;
+  unsigned int ind[3];
 
   vtkIdType edges[6][2] = { {0,1}, {1,2}, {2,0},
                             {0,3}, {1,3}, {2,3} };  /* Edges Tetrahedron */
@@ -1603,15 +1603,15 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
 
   // Convert all volume cells to tetrahedra       
   this->CellGrid(cellType,npts,cellptId,arraytetra);   
-  unsigned totalnewtetra = arraytetra->GetNumberOfCells();
-  unsigned idtetranew;
+  unsigned int totalnewtetra = arraytetra->GetNumberOfCells();
+  unsigned int idtetranew;
 
   for (idtetranew = 0 ; idtetranew < totalnewtetra; idtetranew++) 
     {
     arraytetra->GetNextCell(ptstetra,v_id);
 
     // Test Outside: see(1)
-    unsigned test[6] = {1,1,1,1,1,1};
+    unsigned int test[6] = {1,1,1,1,1,1};
     for (i=0; i<4; i++)
       {       
       cellPts->GetPoint(v_id[i],v);
@@ -1684,17 +1684,17 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
 
     // tab4: tetrahedron intersection in 4 edges.see (2)
 
-    unsigned tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
+    unsigned int tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
                             {2,0,0,3,2,1},
                             {3,3,2,0,2,1},
                             {1,0,2,0,1,3},
                             {0,0,1,2,3,3},
                             {0,1,2,1,2,3}};
-    unsigned tab3[4][6] = { {0,2,1,1,3,2},
+    unsigned int tab3[4][6] = { {0,2,1,1,3,2},
                             {0,2,1,0,3,2},
                             {0,1,2,1,0,3},
                             {0,1,2,0,1,2}};
-    unsigned tab2[12][5] = { {0,0,1,2,3},
+    unsigned int tab2[12][5] = { {0,0,1,2,3},
                              {2,1,0,1,3},
                              {1,0,1,0,3},
                              {1,0,1,2,0},
@@ -1706,7 +1706,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
                              {1,0,1,3,2},
                              {3,1,0,0,2},
                              {0,0,1,1,2}}; 
-    unsigned tab1[12][3] = { {2,3,1},
+    unsigned int tab1[12][3] = { {2,3,1},
                              {3,2,0},
                              {3,0,1},
                              {0,3,2},
@@ -1721,7 +1721,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
       
     vtkCellArray *cellarray = vtkCellArray::New();
     vtkIdType newCellId = cellarray->InsertNextCell(4,iid);
-    unsigned planes;
+    unsigned int planes;
 
     // Test Cell intersection with each plane of box
     for (planes = 0; planes < 6; planes++) 
@@ -1751,15 +1751,15 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
       // The plane is always parallel to unitary cube. 
       value = this->BoundBoxClip[ind[0]][planes%2];
         
-      unsigned totalnewcells = cellarray->GetNumberOfCells();
+      unsigned int totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
       int edgeNum;
         
       for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
         {
-        unsigned num_inter = 0;
-        unsigned edges_inter = 0;
-        unsigned i0,i1;
+        unsigned int num_inter = 0;
+        unsigned int edges_inter = 0;
+        unsigned int i0,i1;
         vtkIdType p_id[4];
         cellarray->GetNextCell(npts,v_id);
         
@@ -1819,7 +1819,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
 
         if (num_inter == 0) 
           {           
-          unsigned outside = 0;
+          unsigned int outside = 0;
           for(i=0; i<4; i++)
             {
             if (((v_tetra[i][ind[0]] < value) && ((planes % 2) == 0)) || 
@@ -2028,7 +2028,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
       cellarray = newcellArray;
       } //for all planes
 
-      unsigned totalnewcells = cellarray->GetNumberOfCells();
+      unsigned int totalnewcells = cellarray->GetNumberOfCells();
 
       for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
         {
@@ -2072,8 +2072,8 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
   vtkIdType     ptstetra = 4;
 
   vtkIdType i,j;
-  unsigned allInside, k;
-  unsigned planes;
+  unsigned int allInside, k;
+  unsigned int planes;
 
   vtkIdType edges[6][2] = { {0,1}, {1,2}, {2,0}, 
                             {0,3}, {1,3}, {2,3} };  /* Edges Tetrahedron */
@@ -2091,15 +2091,15 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
    
   this->CellGrid(cellType,npts,cellptId,arraytetra);  // Convert all volume cells to tetrahedra
 
-  unsigned totalnewtetra = arraytetra->GetNumberOfCells();
-  unsigned idtetranew;
+  unsigned int totalnewtetra = arraytetra->GetNumberOfCells();
+  unsigned int idtetranew;
 
   for (idtetranew = 0 ; idtetranew < totalnewtetra; idtetranew++) 
     {
     arraytetra->GetNextCell(ptstetra,v_id);
 
     // Test Outside
-    unsigned test[6] = {1,1,1,1,1,1};
+    unsigned int test[6] = {1,1,1,1,1,1};
     for (i=0; i<4; i++)
       {
       cellPts->GetPoint(v_id[i],v);
@@ -2170,17 +2170,17 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
 
     double *pedg1,*pedg2;
 
-    unsigned tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
+    unsigned int tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
                             {2,0,0,3,2,1},
                             {3,3,2,0,2,1},
                             {1,0,2,0,1,3},
                             {0,0,1,2,3,3},
                             {0,1,2,1,2,3}};
-    unsigned tab3[4][6] = { {0,2,1,1,3,2},
+    unsigned int tab3[4][6] = { {0,2,1,1,3,2},
                             {0,2,1,0,3,2},
                             {0,1,2,1,0,3},
                             {0,1,2,0,1,2}};
-    unsigned tab2[12][5] = { {0,0,1,2,3},
+    unsigned int tab2[12][5] = { {0,0,1,2,3},
                              {2,1,0,1,3},
                              {1,0,1,0,3},
                              {1,0,1,2,0},
@@ -2192,7 +2192,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
                              {1,0,1,3,2},
                              {3,1,0,0,2},
                              {0,0,1,1,2}}; 
-    unsigned tab1[12][3] = { {2,3,1},
+    unsigned int tab1[12][3] = { {2,3,1},
                              {3,2,0},
                              {3,0,1},
                              {0,3,2},
@@ -2216,9 +2216,9 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
       
       for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
         {
-        unsigned i0,i1;
-        unsigned num_inter = 0;
-        unsigned edges_inter = 0;
+        unsigned int i0,i1;
+        unsigned int num_inter = 0;
+        unsigned int edges_inter = 0;
         vtkIdType p_id[4];
 
         cellarray->GetNextCell(npts,v_id);
@@ -2297,7 +2297,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
           }//for all edges
         if (num_inter == 0) 
           {  
-          unsigned outside = 0;
+          unsigned int outside = 0;
           for(i=0;i<4;i++)
             {
             if (p[i] > 0)
@@ -2549,9 +2549,9 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
   int allInside;
   int ind[3];
 
-  unsigned planes;
-  unsigned idcellnew;
-  unsigned idtetranew;
+  unsigned int planes;
+  unsigned int idcellnew;
+  unsigned int idtetranew;
 
   vtkIdType edges[6][2] = { {0,1}, {1,2}, {2,0}, 
                             {0,3}, {1,3}, {2,3} };  /* Edges Tetrahedron */
@@ -2568,14 +2568,14 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
 
   // Convert all volume cells to tetrahedra       
   this->CellGrid(cellType,npts,cellptId,arraytetra);   
-  unsigned totalnewtetra = arraytetra->GetNumberOfCells();
+  unsigned int totalnewtetra = arraytetra->GetNumberOfCells();
 
   for (idtetranew = 0 ; idtetranew < totalnewtetra; idtetranew++) 
     {
     arraytetra->GetNextCell(ptstetra,v_id);
 
     // Test Outside: see(1)
-    unsigned test[6] = {1,1,1,1,1,1};
+    unsigned int test[6] = {1,1,1,1,1,1};
     for (i=0; i<4; i++)
       {       
       ptIdout[i] = cellIds->GetId(v_id[i]);
@@ -2657,17 +2657,17 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
 
     // tab4: tetrahedron intersection in 4 edges.see (2)
 
-    unsigned tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
+    unsigned int tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
                             {2,0,0,3,2,1},
                             {3,3,2,0,2,1},
                             {1,0,2,0,1,3},
                             {0,0,1,2,3,3},
                             {0,1,2,1,2,3}};
-    unsigned tab3[4][6] = { {0,2,1,1,3,2},
+    unsigned int tab3[4][6] = { {0,2,1,1,3,2},
                             {0,2,1,0,3,2},
                             {0,1,2,1,0,3},
                             {0,1,2,0,1,2}};
-    unsigned tab2[12][5] = { {0,0,1,2,3},
+    unsigned int tab2[12][5] = { {0,0,1,2,3},
                              {2,1,0,1,3},
                              {1,0,1,0,3},
                              {1,0,1,2,0},
@@ -2679,7 +2679,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
                              {1,0,1,3,2},
                              {3,1,0,0,2},
                              {0,0,1,1,2}}; 
-    unsigned tab1[12][3] = { {2,3,1},
+    unsigned int tab1[12][3] = { {2,3,1},
                              {3,2,0},
                              {3,0,1},
                              {0,3,2},
@@ -2723,14 +2723,14 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
       
       value = this->BoundBoxClip[ind[0]][planes%2];   // The plane is always parallel to unitary cube. 
       
-      unsigned totalnewcells = cellarray->GetNumberOfCells();
+      unsigned int totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
       
       for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
         {
-        unsigned num_inter = 0;
-        unsigned edges_inter = 0;
-        unsigned i0,i1;
+        unsigned int num_inter = 0;
+        unsigned int edges_inter = 0;
+        unsigned int i0,i1;
         vtkIdType p_id[4];
         cellarray->GetNextCell(npts,v_id);
         
@@ -2794,7 +2794,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
 
         if (num_inter == 0) 
           {           
-          unsigned outside = 0;
+          unsigned int outside = 0;
           for(i=0; i<4; i++)
             {
             if (((v_tetra[i][ind[0]] < value) && ((planes % 2) == 0)) || 
@@ -3056,7 +3056,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
       cellarray = newcellArray;
       } //for all planes
 
-    unsigned totalnewcells = cellarray->GetNumberOfCells();   // Inside
+    unsigned int totalnewcells = cellarray->GetNumberOfCells();   // Inside
     for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
       {
       cellarray->GetNextCell(npts,v_id);
@@ -3120,9 +3120,9 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
   double v[3], x[3];
   double *p1, *p2;
 
-  unsigned idtetranew;
-  unsigned idcellnew;
-  unsigned planes;
+  unsigned int idtetranew;
+  unsigned int idcellnew;
+  unsigned int planes;
 
   for (i=0; i<npts; i++)
     {
@@ -3131,13 +3131,13 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
    
   this->CellGrid(cellType,npts,cellptId,arraytetra);  // Convert all volume cells to tetrahedra
 
-  unsigned totalnewtetra = arraytetra->GetNumberOfCells();
+  unsigned int totalnewtetra = arraytetra->GetNumberOfCells();
   for (idtetranew = 0 ; idtetranew < totalnewtetra; idtetranew++) 
     {
     arraytetra->GetNextCell(ptstetra,v_id);
 
     // Test Outside
-    unsigned test[6] = {1,1,1,1,1,1};
+    unsigned int test[6] = {1,1,1,1,1,1};
     for (i=0; i<4; i++)
       { 
       ptIdout[i] = cellIds->GetId(v_id[i]);
@@ -3221,17 +3221,17 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
     //float *pc1  , *pc2;
     double *pedg1,*pedg2;
 
-    unsigned tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
+    unsigned int tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
                             {2,0,0,3,2,1},
                             {3,3,2,0,2,1},
                             {1,0,2,0,1,3},
                             {0,0,1,2,3,3},
                             {0,1,2,1,2,3}};
-    unsigned tab3[4][6] = { {0,2,1,1,3,2},
+    unsigned int tab3[4][6] = { {0,2,1,1,3,2},
                             {0,2,1,0,3,2},
                             {0,1,2,1,0,3},
                             {0,1,2,0,1,2}};
-    unsigned tab2[12][5] = { {0,0,1,2,3},
+    unsigned int tab2[12][5] = { {0,0,1,2,3},
                              {2,1,0,1,3},
                              {1,0,1,0,3},
                              {1,0,1,2,0},
@@ -3243,7 +3243,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
                              {1,0,1,3,2},
                              {3,1,0,0,2},
                              {0,0,1,1,2}}; 
-    unsigned tab1[12][3] = { {2,3,1},
+    unsigned int tab1[12][3] = { {2,3,1},
                              {3,2,0},
                              {3,0,1},
                              {0,3,2},
@@ -3264,14 +3264,14 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
     // FIXME: there is no difference in the for loop (planes has no influence!)
     for (planes = 0; planes < 6; planes++) 
       {
-      unsigned totalnewcells = cellarray->GetNumberOfCells();
+      unsigned int totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
       
       for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
         {
-        unsigned i0,i1;
-        unsigned num_inter = 0;
-        unsigned edges_inter = 0;
+        unsigned int i0,i1;
+        unsigned int num_inter = 0;
+        unsigned int edges_inter = 0;
         vtkIdType p_id[4];
 
         cellarray->GetNextCell(npts,v_id);
@@ -3348,7 +3348,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
 
         if (num_inter == 0) 
           {  
-          unsigned outside = 0;
+          unsigned int outside = 0;
           for(i=0;i<4;i++)
             {
             if (p[i] > 0) 
@@ -3606,7 +3606,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
       cellarray = newcellArray;
       } //for all planes
 
-    unsigned totalnewcells = cellarray->GetNumberOfCells();    // Inside 
+    unsigned int totalnewcells = cellarray->GetNumberOfCells();    // Inside 
 
     for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
       {
@@ -3656,9 +3656,9 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
   vtkIdType     ptstriangle = 3;
   
   int i,j;
-  unsigned allInside;
-  unsigned planes;
-  unsigned ind[3];
+  unsigned int allInside;
+  unsigned int planes;
+  unsigned int ind[3];
   
   vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0}};  /* Edges Triangle*/
   double value,deltaScalar; 
@@ -3674,15 +3674,15 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
   // Convert all 2d cells to triangle       
   this->CellGrid(cellType,npts,cellptId,arraytriangle);  
   
-  unsigned totalnewtriangle= arraytriangle->GetNumberOfCells();
-  unsigned idtrianglenew;
+  unsigned int totalnewtriangle= arraytriangle->GetNumberOfCells();
+  unsigned int idtrianglenew;
   
   for (idtrianglenew = 0 ; idtrianglenew < totalnewtriangle; idtrianglenew++)
     {
     arraytriangle->GetNextCell(ptstriangle,v_id);
     
     // Test Outside: 
-    unsigned test[6] = {1,1,1,1,1,1};
+    unsigned int test[6] = {1,1,1,1,1,1};
     for (i=0; i<3; i++)
       {       
       cellPts->GetPoint(v_id[i],v);
@@ -3755,16 +3755,16 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
     
     // Triangle intersection cases
     
-    unsigned tab2[3][4] = { {1,2,1,0},
+    unsigned int tab2[3][4] = { {1,2,1,0},
                             {2,0,0,1},
                             {0,1,0,1}}; 
-    unsigned tab1[3][2] = { {2,1},
+    unsigned int tab1[3][2] = { {2,1},
                             {0,2},
                             {1,0}}; 
 
     vtkCellArray *cellarray = vtkCellArray::New();
     int newCellId = cellarray->InsertNextCell(3,iid);
-    unsigned idcellnew;
+    unsigned int idcellnew;
     
     // Test triangle intersection with each plane of box
     for (planes = 0; planes < 6; planes++) 
@@ -3794,14 +3794,14 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
       // The plane is always parallel to unitary cube. 
       value = this->BoundBoxClip[ind[0]][planes%2];   
 
-      unsigned totalnewcells = cellarray->GetNumberOfCells();
+      unsigned int totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
 
       for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++)
         {
-        unsigned num_inter = 0;
-        unsigned edges_inter = 0;
-        unsigned i0;
+        unsigned int num_inter = 0;
+        unsigned int edges_inter = 0;
+        unsigned int i0;
         vtkIdType p_id[3];
         cellarray->GetNextCell(npts,v_id);
 
@@ -3859,7 +3859,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
 
         if (num_inter == 0) 
           {           
-          unsigned outside = 0;
+          unsigned int outside = 0;
           for(i=0; i<3; i++)
             {
             if (((v_triangle[i][ind[0]] < value) && ((planes % 2) == 0)) || 
@@ -3960,7 +3960,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
       cellarray = newcellArray;
       } //for all planes
 
-    unsigned totalnewcells = cellarray->GetNumberOfCells();
+    unsigned int totalnewcells = cellarray->GetNumberOfCells();
 
     for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
       {
@@ -3999,10 +3999,10 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
   vtkIdType     ptstriangle = 3;
 
   int i,j;
-  unsigned allInside;
-  unsigned ind[3];
-  unsigned planes;
-  unsigned idcellnew;
+  unsigned int allInside;
+  unsigned int ind[3];
+  unsigned int planes;
+  unsigned int idcellnew;
 
   vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0}};  /* Edges Triangle */
   double value,deltaScalar;
@@ -4017,15 +4017,15 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
 
   // Convert all 2D cells to triangle
   this->CellGrid(cellType,npts,cellptId,arraytriangle);   
-  unsigned totalnewtriangle = arraytriangle->GetNumberOfCells();
-  unsigned idtrianglenew;
+  unsigned int totalnewtriangle = arraytriangle->GetNumberOfCells();
+  unsigned int idtrianglenew;
 
   for (idtrianglenew = 0 ; idtrianglenew < totalnewtriangle; idtrianglenew++) 
     {
     arraytriangle->GetNextCell(ptstriangle,v_id);
 
     // Test Outside: see(1)
-    unsigned test[6] = {1,1,1,1,1,1};
+    unsigned int test[6] = {1,1,1,1,1,1};
     for (i=0; i<3; i++)
       {       
       ptIdout[i] = cellIds->GetId(v_id[i]);
@@ -4109,10 +4109,10 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
 
     // Triangle intersection cases
 
-    unsigned tab2[3][4] = { {1,2,1,0},
+    unsigned int tab2[3][4] = { {1,2,1,0},
                             {2,0,0,1},
                             {0,1,0,1}}; 
-    unsigned tab1[3][2] = { {2,1},
+    unsigned int tab1[3][2] = { {2,1},
                             {0,2},
                             {1,0}}; 
     
@@ -4148,14 +4148,14 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
       // The plane is always parallel to unitary cube. 
       value = this->BoundBoxClip[ind[0]][planes%2];   
       
-      unsigned totalnewcells = cellarray->GetNumberOfCells();
+      unsigned int totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
       
       for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
         {
-        unsigned num_inter = 0;
-        unsigned edges_inter = 0;
-        unsigned i0;
+        unsigned int num_inter = 0;
+        unsigned int edges_inter = 0;
+        unsigned int i0;
         vtkIdType p_id[3];
         cellarray->GetNextCell(npts,v_id);
         
@@ -4217,7 +4217,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
 
         if (num_inter == 0) 
           {           
-          unsigned outside = 0;
+          unsigned int outside = 0;
           for(i=0; i<3; i++)
             {
             if (((v_triangle[i][ind[0]] < value) && ((planes % 2) == 0)) || 
@@ -4349,7 +4349,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
       cellarray = newcellArray;
       } //for all planes
 
-    unsigned totalnewcells = cellarray->GetNumberOfCells();   // Inside
+    unsigned int totalnewcells = cellarray->GetNumberOfCells();   // Inside
 
     for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
       {
@@ -4398,10 +4398,10 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
   vtkIdType     ptstriangle = 3;
 
   int i,j,k;
-  unsigned allInside;
-  unsigned idtrianglenew;
-  unsigned idcellnew;
-  unsigned planes;
+  unsigned int allInside;
+  unsigned int idtrianglenew;
+  unsigned int idcellnew;
+  unsigned int planes;
 
   vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0}};
   double deltaScalar;
@@ -4417,13 +4417,13 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
    
   this->CellGrid(cellType,npts,cellptId,arraytriangle);  // Convert all volume cells to triangle
 
-  unsigned totalnewtriangle = arraytriangle->GetNumberOfCells();
+  unsigned int totalnewtriangle = arraytriangle->GetNumberOfCells();
   for (idtrianglenew = 0 ; idtrianglenew < totalnewtriangle; idtrianglenew++) 
     {
     arraytriangle->GetNextCell(ptstriangle,v_id);
 
     // Test Outside
-    unsigned test[6] = {1,1,1,1,1,1};
+    unsigned int test[6] = {1,1,1,1,1,1};
     for (i=0; i<3; i++)
       {
       cellPts->GetPoint(v_id[i],v);
@@ -4494,10 +4494,10 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
       //float *pc1  , *pc2;
       double *pedg1,*pedg2;
 
-      unsigned tab2[3][4] = { {1,2,1,0},
+      unsigned int tab2[3][4] = { {1,2,1,0},
                               {2,0,0,1},
                               {0,1,0,1}};
-      unsigned tab1[3][2] = { {2,1},
+      unsigned int tab1[3][2] = { {2,1},
                               {0,2},
                               {1,0}};
  
@@ -4507,14 +4507,14 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
       // Test Cell intersection with each plane of box
       for (planes = 0; planes < 6; planes++) 
         {
-        unsigned totalnewcells = cellarray->GetNumberOfCells();
+        unsigned int totalnewcells = cellarray->GetNumberOfCells();
         vtkCellArray *newcellArray = vtkCellArray::New();
         
         for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
           {
-          unsigned i0;
-          unsigned num_inter = 0;
-          unsigned edges_inter = 0;
+          unsigned int i0;
+          unsigned int num_inter = 0;
+          unsigned int edges_inter = 0;
           vtkIdType p_id[3];
 
           cellarray->GetNextCell(npts,v_id);
@@ -4586,7 +4586,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
 
           if (num_inter == 0) 
             { 
-            unsigned outside = 0;
+            unsigned int outside = 0;
             for(i=0;i<3;i++)
               {
               if (p[i] > 0)  // If only one vertex is ouside, so the triangle is outside 
@@ -4685,7 +4685,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
         cellarray = newcellArray;
         } //for all planes
 
-      unsigned totalnewcells = cellarray->GetNumberOfCells();
+      unsigned int totalnewcells = cellarray->GetNumberOfCells();
 
       for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
         {
@@ -4725,10 +4725,10 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
   vtkIdType     ptstriangle = 3;
 
   int i,j, k;
-  unsigned allInside;
-  unsigned idtrianglenew;
-  unsigned idcellnew;
-  unsigned planes;
+  unsigned int allInside;
+  unsigned int idtrianglenew;
+  unsigned int idcellnew;
+  unsigned int planes;
 
   vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0}}; /* Edges Triangle */
   double deltaScalar;
@@ -4744,13 +4744,13 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
    
   this->CellGrid(cellType,npts,cellptId,arraytriangle);  // Convert all volume cells to trianglehedra
 
-  unsigned totalnewtriangle = arraytriangle->GetNumberOfCells();
+  unsigned int totalnewtriangle = arraytriangle->GetNumberOfCells();
   for (idtrianglenew = 0 ; idtrianglenew < totalnewtriangle; idtrianglenew++) 
     {
     arraytriangle->GetNextCell(ptstriangle,v_id);
 
     // Test Outside
-    unsigned test[6] = {1,1,1,1,1,1};
+    unsigned int test[6] = {1,1,1,1,1,1};
     for (i=0; i<3; i++)
       {
       ptIdout[i] = cellIds->GetId(v_id[i]);
@@ -4831,10 +4831,10 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
 
     double *pedg1,*pedg2;
 
-    unsigned tab2[3][4] = { {1, 2, 1, 0},
+    unsigned int tab2[3][4] = { {1, 2, 1, 0},
                             {2, 0, 0, 1},
                             {0, 1, 0, 1} };
-    unsigned tab1[3][2] = { {2, 1},
+    unsigned int tab1[3][2] = { {2, 1},
                             {0, 2},
                             {1, 0} }; 
 
@@ -4845,14 +4845,14 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
     // Test Cell intersection with each plane of box
     for (planes = 0; planes < 6; planes++) 
       {
-      unsigned totalnewcells = cellarray->GetNumberOfCells();
+      unsigned int totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
       
       for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
         {
-        unsigned i0;
-        unsigned num_inter = 0;
-        unsigned edges_inter = 0;
+        unsigned int i0;
+        unsigned int num_inter = 0;
+        unsigned int edges_inter = 0;
         vtkIdType p_id[3];
 
         cellarray->GetNextCell(npts,v_id);
@@ -4924,7 +4924,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
 
           if (num_inter == 0) 
             { 
-            unsigned outside = 0;
+            unsigned int outside = 0;
             for(i=0;i<3;i++)
               {
               if (p[i] > 0)   // If only one vertex is ouside, so the trianglehedron is outside 
@@ -5052,7 +5052,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
         cellarray = newcellArray;
       } //for all planes
 
-    unsigned totalnewcells = cellarray->GetNumberOfCells();    // Inside
+    unsigned int totalnewcells = cellarray->GetNumberOfCells();    // Inside
 
     for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
       {
