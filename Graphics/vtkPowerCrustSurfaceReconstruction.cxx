@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPowerCrustSurfaceReconstruction, "1.3");
+vtkCxxRevisionMacro(vtkPowerCrustSurfaceReconstruction, "1.4");
 vtkStandardNewMacro(vtkPowerCrustSurfaceReconstruction);
 
 vtkPowerCrustSurfaceReconstruction::vtkPowerCrustSurfaceReconstruction()
@@ -1258,11 +1258,11 @@ void make_shuffle(void){
         shufmat = (long*)malloc(mat_size*sizeof(long));
     }
     for (i=0;i<=num_sites;i++) {
-        shufmat[i] = (double)i;  // TJH added this cast
+        shufmat[i] = i;
     }
     for (i=0;i<num_sites;i++){
         t = shufmat[i];
-        j = i + (num_sites-i)*double_rand();
+        j = i + (long)((num_sites-i)*double_rand()); // cast to long added by TJH
         shufmat[i] = shufmat[j];
         shufmat[j] = t;
     }
@@ -3472,9 +3472,9 @@ double sc(basis_s *v,simplex *s, int k, int j) {
         EDEBS           
             return 0;                   
     } else {
-        lscale = logb(2*Sb/(v->sqb + v->sqa*b_err_min))/2;  
+        lscale = (int)(logb(2*Sb/(v->sqb + v->sqa*b_err_min))/2);  // cast to int added by TJH
         if (lscale > max_scale) {
-            lscale = max_scale;
+            lscale = (int)max_scale; // cast added by TJH (is lscale really meant to be int, not double?)
         } else if (lscale<0) lscale = 0;
         v->lscale += lscale;
         return two_to(lscale);
@@ -4017,7 +4017,7 @@ simplex *build_convex_hull(gsitef *get_s, site_n *site_numm, short dim, short vd
     pdim = dim;
     vd = vdd;
 
-    exact_bits = DBL_MANT_DIG*log(FLT_RADIX)/log(2);
+    exact_bits = (int)(DBL_MANT_DIG*log(FLT_RADIX)/log(2)); // cast to int added by TJH
     b_err_min = DBL_EPSILON*MAXDIM*(1<<MAXDIM)*MAXDIM*3.01;
     b_err_min_sq = b_err_min * b_err_min;
 
