@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // is 2D. Thus the triangulation is constructed in the x-y plane, and
 // the z coordinate is ignored (although carried through on
 // output). (If you desire to triangulate in a different plane, you'll
-// have to use the vtkTranformFilter to transform the points into and
+// have to use the vtkTransformFilter to transform the points into and
 // out of the x-y plane.)
 
 // .SECTION Caveats
@@ -89,7 +89,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // and the more likely you are to see numerical problems.
  
 // .SECTION See Also
-// vtkDelaunay3D vtkTranformFilter vtkGaussianSplatter
+// vtkDelaunay3D vtkTransformFilter vtkGaussianSplatter
 
 #ifndef __vtkDelaunay2D_h
 #define __vtkDelaunay2D_h

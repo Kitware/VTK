@@ -54,7 +54,7 @@ class vtkStructuredPointsToPolyDataFilter : public vtkStructuredPointsFilter
 {
 public:
   vtkStructuredPointsToPolyDataFilter();
-  char *GetClassName() {return "vtkStrucuredPointsToPolyDataFilter";};
+  char *GetClassName() {return "vtkStructuredPointsToPolyDataFilter";};
 
   // Description:
   // Get the output of this filter.

@@ -108,7 +108,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The contraction factor is by default a positive value, while the expansion
 // factor is a negative value. This is counter-intuitive for many people.
 // .SECTION See Also
-// vtkSmoothFilter vtkDecimate
+// vtkDecimate
 
 #ifndef __vtkSmoothPolyFilter_h
 #define __vtkSmoothPolyFilter_h
