@@ -82,6 +82,13 @@ public:
   void TerminateApp(void) { exit(0); }
 
   // Description:
+  // The BreakLoopFlag is checked in the Start() method.
+  // Setting it to anything other than zero will cause
+  // the interactor loop to terminate and return to the
+  // calling function.
+  vtkSetMacro(BreakLoopFlag, int);
+
+  // Description:
   // X timer methods
   int CreateTimer(int timertype);
   int DestroyTimer(void);
@@ -188,10 +195,13 @@ protected:
   int PositionBeforeStereo[2];
   Widget TopLevelShell;
 
+  int BreakLoopFlag;
   XtIntervalId AddTimeOut(XtAppContext app_context, unsigned long interval,
 			  XtTimerCallbackProc proc, XtPointer client_data) ;
   void Timer(XtPointer client_data, XtIntervalId *id); 
   void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd);
+
+
 };
 
 #endif
