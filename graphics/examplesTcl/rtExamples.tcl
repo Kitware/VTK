@@ -217,13 +217,13 @@ foreach afile $files {
 	set imageStatus "Passed"
     } else {
 	set imageStatus "Failed"
-	vtkTIFFWriter rtpnmw
+	vtkPNMWriter rtpnmw
 	rtpnmw SetInput [imgDiff GetOutput]
-	rtpnmw SetFileName "${VTK_RESULTS_PATH}$afile.error.tif"
+	rtpnmw SetFileName "${VTK_RESULTS_PATH}$afile.error.ppm"
 	rtpnmw Write
-	vtkTIFFWriter rtpnmw2
+	vtkPNMWriter rtpnmw2
 	rtpnmw2 SetInput [w2if GetOutput]
-	rtpnmw2 SetFileName "${VTK_RESULTS_PATH}$afile.test.tif"
+	rtpnmw2 SetFileName "${VTK_RESULTS_PATH}$afile.test.ppm"
 	rtpnmw2 Write
     }
 
