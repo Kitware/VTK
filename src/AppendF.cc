@@ -176,3 +176,13 @@ void vlAppendFilter::PrintSelf(ostream& os, vlIndent indent)
   this->InputList.PrintSelf(os,indent.GetNextIndent());
 }
 
+int vlAppendFilter::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlAppendFilter::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
+}
+

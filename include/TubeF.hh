@@ -23,6 +23,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // the variation of the tube radius is such that it preserves mass flux in
 // incompressible flow. The number of sides for the tube can also be 
 // specified.
+// .SECTION Caveats
+// The number of tube sides must be greater than 3. If you wish to use fewer
+// sides (i.e., a ribbon), use vlRibbonFilter.
+//    The input line must not have duplicate points, or normals at points that
+// are parallel to the incoming/outgoing line segments. (Duplicate points
+// can be removed with vlCleanPolyData).
 
 #ifndef __vlTubeFilter_h
 #define __vlTubeFilter_h
@@ -38,7 +44,7 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   // Description:
-  // Set the maximum tube radius (maximum because the tube radius may vary).
+  // Set the minimum tube radius (minimum because the tube radius may vary).
   vlSetClampMacro(Radius,float,0.0,LARGE_FLOAT);
   vlGetMacro(Radius,float);
 
@@ -49,16 +55,14 @@ public:
   vlBooleanMacro(VaryRadius,int);
 
   // Description:
-  // Set the number of sides for the tube. If n=0, line is generated. If
-  // n=1, ribbon is generated. For n=2, two ribbons in cross configuration
-  // are generated.
-  vlSetClampMacro(NumberOfSides,int,0,LARGE_INTEGER);
+  // Set the number of sides for the tube. At a minimum, number of sides is 3.
+  vlSetClampMacro(NumberOfSides,int,3,LARGE_INTEGER);
   vlGetMacro(NumberOfSides,int);
 
   // Description:
-  // Specify an initial offset rotation.
-  vlSetMacro(Rotation,float);
-  vlGetMacro(Rotation,float);
+  // Set the maximum tube radius in terms of a multiple of the minimum radius.
+  vlSetMacro(RadiusFactor,float);
+  vlGetMacro(RadiusFactor,float);
 
 protected:
   // Usual data generation method
@@ -67,7 +71,7 @@ protected:
   float Radius; //minimum radius of tube
   int VaryRadius; //controls whether radius varies with scalar data
   int NumberOfSides; //number of sides to create tube
-  float Rotation; //rotation of initial side of tube
+  float RadiusFactor; //maxium allowablew radius
 };
 
 #endif

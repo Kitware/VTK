@@ -68,6 +68,11 @@ public:
 protected:
   // Usual data generation method
   void Execute();
+
+  // Filter interface
+  int GetDataReleased();
+  void SetDataReleased(int flag);
+
   void InitializeBoolean();
 
   // list of data sets to append together

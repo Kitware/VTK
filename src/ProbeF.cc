@@ -49,11 +49,10 @@ void vlProbeFilter::Execute()
   for (ptId=0; ptId < this->Source->GetNumberOfPoints(); ptId++)
     {
     x = this->Source->GetPoint(ptId);
-    cellId = this->Input->FindCell(x,NULL,tol2,subId,pcoords);
+    cellId = this->Input->FindCell(x,NULL,tol2,subId,pcoords,weights);
     if ( cellId >= 0 )
       {
       cell = this->Input->GetCell(cellId);
-      cell->EvaluateLocation(subId,pcoords,x,weights);
       this->PointData.InterpolatePoint(pd,ptId,&(cell->PointIds),weights);
       }
     else
@@ -61,6 +60,8 @@ void vlProbeFilter::Execute()
       this->PointData.NullPoint(ptId);
       }
     }
+
+  this->Modified(); //since we aren't setting anything to modify data
 }
 
 void vlProbeFilter::Initialize()

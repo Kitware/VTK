@@ -15,18 +15,23 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 // .NAME vlContourFilter - generate iso-surfaces/iso-lines from scalar values
 // .SECTION Description
-// vlContourFilter is a filter that takes as input any data set and 
+// vlContourFilter is a filter that takes as input any dataset and 
 // generates on output iso-surfaces and/or iso-lines. The exact form 
 // of the output depends upon the dimensionality of the input data. 
 // Data consisting of 3D cells will generate iso-surfaces, data 
 // consisting of 2D cells will generate iso-lines, and data with 1D 
 // or 0D cells will generate iso-points. Combinations of output type 
 // is possible if the input dimension is mixed.
+//    If the input type is volume (e.g., 3D structured point dataset), 
+// you may wish to use vlMarchingCubes. This class is specifically tailored
+// for volumes and is therefore much faster.
 // .SECTION Caveats
 // vlContourFilter uses variations of marching cubes to generate output
 // primitives. The output primitives are disjoint - that is, points may
 // be generated that are coincident but distinct. You may want to use
-// vlCleanPolyData to remove the coincident points.
+// vlCleanPolyData to remove the coincident points. Also, the iso-surface
+// is not generated with surface normals. Use vlPolyNormals to create them,
+// if desired.
 
 #ifndef __vlContourFilter_h
 #define __vlContourFilter_h

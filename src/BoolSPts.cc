@@ -256,15 +256,6 @@ void vlBooleanStructuredPoints::Append(vlStructuredPoints *sp)
     }
 }
 
-void vlBooleanStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
-{
-  vlStructuredPoints::PrintSelf(os,indent);
-  vlFilter::_PrintSelf(os,indent);
-
-  os << indent << "Input DataSets:\n";
-  this->InputList.PrintSelf(os,indent.GetNextIndent());
-}
-
 // Description:
 // Set the i-j-k dimensions on which to perform boolean operation.
 void vlBooleanStructuredPoints::SetSampleDimensions(int i, int j, int k)
@@ -331,5 +322,25 @@ void vlBooleanStructuredPoints::SetModelBounds(float xmin, float xmax, float ymi
     this->AspectRatio[1] = (ymax - ymin) / length;
     this->AspectRatio[2] = (zmax - zmin) / length;
     }
+}
+
+
+int vlBooleanStructuredPoints::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlBooleanStructuredPoints::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
+}
+
+void vlBooleanStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlStructuredPoints::PrintSelf(os,indent);
+  vlFilter::_PrintSelf(os,indent);
+
+  os << indent << "Input DataSets:\n";
+  this->InputList.PrintSelf(os,indent.GetNextIndent());
 }
 

@@ -51,6 +51,9 @@ protected:
   void Execute();
   // list of data sets to append together
   vlDataSetCollection InputList;
+  //Filter interface
+  int GetDataReleased();
+  void SetDataReleased(int flag);
 };
 
 #endif

@@ -214,6 +214,16 @@ void vlAppendPolyData::Execute()
 
 }
 
+int vlAppendPolyData::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlAppendPolyData::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
+}
+
 void vlAppendPolyData::PrintSelf(ostream& os, vlIndent indent)
 {
   vlPolyData::PrintSelf(os,indent);

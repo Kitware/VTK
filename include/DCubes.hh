@@ -40,19 +40,42 @@ public:
   vlGetMacro(Value,float);
 
   // Description:
-  // Specify separation distance between points.
+  // Specifysub-voxel size at which to generate point..
   vlSetClampMacro(Distance,float,1.0e-06,LARGE_FLOAT);
   vlGetMacro(Distance,float);
 
+  // Description:
+  // Every "Increment" point is added to the list of points. This parameter, if
+  // set to a large value, can be used to limit the number of points while
+  // retaining good accuracy.
+  vlSetClampMacro(Increment,int,1,LARGE_INTEGER);
+  vlGetMacro(Increment,int);
+
 protected:
   void Execute();
-  void SubDivide(float pMin[3], float pMax[3], float values[8], 
-                 float distance2, vlCell& cell);
-  void AddPoint(float pcoords[3], vlCell& cell);
+  void SubDivide(float origin[3], float h[3], vlFloatScalars &values);
+  void AddPoint(float x[3]);
 
   float Value;
   float Distance;
+  int Increment;
+
+  // wworking variables
+  int Count;
+  vlFloatPoints *NewPts;
+  vlCellArray *NewVerts;
 };
+
+
+inline void vlDividingCubes::AddPoint(float x[3])
+{
+  if ( ! (this->Count++ % this->Increment) )
+    {
+    int pts[1];
+    pts[0] = this->NewPts->InsertNextPoint(x);
+    this->NewVerts->InsertNextCell(1,pts);
+    }
+}
 
 #endif
 

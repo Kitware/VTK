@@ -43,11 +43,11 @@ unsigned long vlExtractGeometry::GetMTime()
 
 void vlExtractGeometry::Execute()
 {
-  int ptId, numPts, i, cellId;
-  vlIdList *cellPts, *pointMap;
+  int ptId, numPts, numCells, i, cellId;
+  vlIdList *cellPts;
   vlCell *cell;
   vlMath math;
-  int numCellPts, newId;
+  int numCellPts, newId, *pointMap;
   vlPointData *pd;
   float *x;
   float multiplier;
@@ -70,9 +70,11 @@ void vlExtractGeometry::Execute()
 // they are.
 //
   numPts = this->Input->GetNumberOfPoints();
-  pointMap = new vlIdList(numPts); // maps old point ids into new
-  for (i=0; i < numPts; i++) pointMap->SetId(i,-1);
+  numCells = this->Input->GetNumberOfCells();
+  pointMap = new int[numPts]; // maps old point ids into new
+  for (i=0; i < numPts; i++) pointMap[i] = -1;
 
+  this->Allocate(numCells/4);
   newPts = new vlFloatPoints(numPts/4,numPts);
   pd = this->Input->GetPointData();
   this->PointData.CopyAllocate(pd);
@@ -80,10 +82,10 @@ void vlExtractGeometry::Execute()
   for ( ptId=0; ptId < numPts; ptId++ )
     {
     x = this->Input->GetPoint(ptId);
-    if ( (this->ImplicitFunction->Evaluate(x[0],x[1],x[2])*multiplier) > 0.0 )
+    if ( (this->ImplicitFunction->Evaluate(x[0],x[1],x[2])*multiplier) < 0.0 )
       {
       newId = newPts->InsertNextPoint(x);
-      pointMap->SetId(ptId,newId);
+      pointMap[ptId] = newId;
       this->PointData.CopyData(pd,ptId,newId);
       }
     }
@@ -100,8 +102,8 @@ void vlExtractGeometry::Execute()
     for ( i=0; i < numCellPts; i++)
       {
       ptId = cellPts->GetId(i);
-      if ( (newId=pointMap->GetId(ptId)) < 0 ) break;
-      newCellPts.SetId(i,newId);
+      if ( pointMap[ptId] < 0 ) break;
+      newCellPts.SetId(i,pointMap[ptId]);
       }
 
     if ( i >= numCellPts )
@@ -112,7 +114,7 @@ void vlExtractGeometry::Execute()
 //
 // Update ourselves
 //
-  delete pointMap;
+  delete [] pointMap;
 
   this->SetPoints(newPts);
   this->Squeeze();

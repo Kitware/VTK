@@ -52,6 +52,10 @@ protected:
 
   // list of data sets to append together
   vlPolyDataCollection InputList;
+
+  //Filter interface
+  int GetDataReleased();
+  void SetDataReleased(int flag);
 };
 
 #endif
