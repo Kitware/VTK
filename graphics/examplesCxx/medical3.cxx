@@ -143,7 +143,7 @@ void main( int argc, char *argv[] )
   vtkTexture *coronalTexture = vtkTexture::New();
     coronalTexture->SetInput(coronalSection->GetOutput());
     coronalTexture->InterpolateOn();
-    coronalTexture->SetLookupTable (hueLut);
+    coronalTexture->SetLookupTable (satLut);
     coronalTexture->MapColorScalarsThroughLookupTableOn();
   vtkPlaneSource *coronalPlane = vtkPlaneSource::New();
     coronalPlane->SetXResolution(1);
