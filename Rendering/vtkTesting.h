@@ -15,6 +15,46 @@
 // .NAME vtkTesting - a unified VTK regression testing framework
 // .SECTION Description
 //
+//  This is a VTK regression testing framework. Looks like this:
+// 
+//  vtkTesting* t = vtkTesting::New();
+//
+//  Two options for setting arguments
+//  
+//  Option 1:
+//  for ( cc = 1; cc < argc; cc ++ )
+//    {
+//    t->AddArgument(argv[cc]);
+//    }
+//
+//  Option 2:
+//  t->AddArgument("-D");
+//  t->AddArgument(my_data_dir);
+//  t->AddArgument("-V");
+//  t->AddArgument(my_valid_image);
+//
+//  ...
+//  
+//  Two options of doing testing:
+//  
+//  Option 1:
+//  t->SetRenderWindow(renWin);
+//  int res = t->RegressionTest(threshold);
+//
+//  Option 2:
+//  int res = t->RegressionTest(test_image, threshold);
+//  
+//  ...
+//
+//  if ( res == vtkTesting::PASSED )
+//    {
+//    Test passed
+//    }
+//  else
+//    {
+//    Test failed
+//    }
+//
 
 #ifndef __vtkTesting_h
 #define __vtkTesting_h
