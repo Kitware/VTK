@@ -112,6 +112,37 @@ using namespace NamespaceTest;
 
 //----------------------------------------------------------------------------
 
+/* Test nested classes defined outside.  */
+
+class NestedTestOuter
+{
+public:
+  NestedTestOuter();
+  ~NestedTestOuter();
+private:
+  class NestedTestInner;
+  NestedTestInner* Inner;
+};
+
+class NestedTestOuter::NestedTestInner
+{
+public:
+  NestedTestInner() {}
+  ~NestedTestInner() {}
+};
+
+NestedTestOuter::NestedTestOuter()
+{
+  this->Inner = new NestedTestInner;
+}
+
+NestedTestOuter::~NestedTestOuter()
+{
+  delete this->Inner;
+}
+
+//----------------------------------------------------------------------------
+
 /* Test inclusion of some stl headers.  */
 #ifdef _MSC_VER
 #pragma warning (push, 2)
