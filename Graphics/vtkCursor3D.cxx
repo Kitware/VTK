@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCursor3D, "1.36");
+vtkCxxRevisionMacro(vtkCursor3D, "1.37");
 vtkStandardNewMacro(vtkCursor3D);
 
 // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
@@ -71,7 +71,7 @@ void vtkCursor3D::Execute()
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<<"Generating cursor");
-  //
+
   // Check bounding box and origin
   //
   if ( this->Wrap ) 
@@ -97,9 +97,9 @@ void vtkCursor3D::Execute()
         }
       }
     }
-//
-// Allocate storage
-//
+
+  // Allocate storage
+  //
   if (this->Axes) 
     {
     numPts += 6;
@@ -141,7 +141,7 @@ void vtkCursor3D::Execute()
     {
     return;
     }
-  //
+
   // Create axes
   //
   if ( this->Axes ) 
@@ -179,9 +179,9 @@ void vtkCursor3D::Execute()
     ptIds[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,ptIds);
     }
-//
-// Create outline
-//
+
+  // Create outline
+  //
   if ( this->Outline ) 
     {
     // First triad
@@ -250,7 +250,6 @@ void vtkCursor3D::Execute()
     ptIds[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,ptIds);
 
-
     x[0] = this->ModelBounds[0]; 
     x[1] = this->ModelBounds[3]; 
     x[2] = this->ModelBounds[4];
@@ -286,9 +285,9 @@ void vtkCursor3D::Execute()
     ptIds[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,ptIds);
     }
-//
-// Create x-shadows
-//
+
+  // Create x-shadows
+  //
   if ( this->XShadows ) 
     {
     for (i=0; i<2; i++) 
@@ -316,9 +315,9 @@ void vtkCursor3D::Execute()
       newLines->InsertNextCell(2,ptIds);
       }
     }
-//
-//  Create y-shadows
-//
+
+  //  Create y-shadows
+  //
   if ( this->YShadows ) 
     {
     for (i=0; i<2; i++) 
@@ -346,9 +345,9 @@ void vtkCursor3D::Execute()
       newLines->InsertNextCell(2,ptIds);
       }
     }
-//
-//  Create z-shadows
-//
+
+  //  Create z-shadows
+  //
   if ( this->ZShadows ) 
     {
     for (i=0; i<2; i++) 
@@ -376,9 +375,9 @@ void vtkCursor3D::Execute()
       newLines->InsertNextCell(2,ptIds);
       }
     }
-//
-// Update ourselves and release memory
-//
+
+  // Update ourselves and release memory
+  //
   this->Focus->GetPoints()->SetPoint(0,this->FocalPoint);
 
   output->SetPoints(newPts);
