@@ -122,7 +122,7 @@ vtkVolumeProMapper::vtkVolumeProMapper()
 // volume if necessary
 vtkVolumeProMapper::~vtkVolumeProMapper()
 {
- 
+  this->VolumeBuildTime->Delete();
 }
 
 // Simplified version - just assume the mapper type
