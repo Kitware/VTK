@@ -11,180 +11,166 @@
 // External integer array provided; responsibility of user 
 // to manage memory
 //
-IntArray::Initialize(const int sz, const int ext)
+vlIntArray::Initialize(const int sz, const int ext)
 {
-  if ( array != 0 ) delete [] array;
+  if ( this->Array != 0 ) delete [] this->Array;
 
-  size = ( sz > 0 ? sz : 1);
-  if ( (array = new int[sz]) == 0 ) return 0;
-  extend = ( ext > 0 ? ext : 1);
-  max_id = -1;
+  this->Size = ( sz > 0 ? sz : 1);
+  if ( (this->Array = new int[sz]) == 0 ) return 0;
+  this->Extend = ( ext > 0 ? ext : 1);
+  this->MaxId = -1;
 
   return 1;
 }
 
-IntArray::IntArray(const int sz, const int ext)
+vlIntArray::vlIntArray(const int sz, const int ext)
 {
-  size = ( sz > 0 ? sz : 1);
-  array = new int[sz];
-  extend = ( ext > 0 ? ext : 1);
-  max_id = -1;
+  this->Size = ( sz > 0 ? sz : 1);
+  this->Array = new int[sz];
+  this->Extend = ( ext > 0 ? ext : 1);
+  this->MaxId = -1;
 }
 
-IntArray::~IntArray()
+vlIntArray::~vlIntArray()
 {
-#ifdef DEBUG
-  cout << "Destructor\n";
-#endif
+  if ( this->Debug ) cerr << "Destructor\n";
 
-  delete [] array;
+  delete [] this->Array;
 }
 
-IntArray::IntArray(const IntArray& ia)
+vlIntArray::vlIntArray(const vlIntArray& ia)
 {
   int i;
-#ifdef DEBUG
-  cout << "Copy constructor\n";
-#endif
+  if ( this->Debug ) cerr << "Copy constructor\n";
 
-  max_id = ia.max_id;
-  size = ia.size;
-  extend = ia.extend;
+  this->MaxId = ia.MaxId;
+  this->Size = ia.Size;
+  this->Extend = ia.Extend;
 
-  array = new int[size];
-  for (i=0; i<max_id; i++)
-    array[i] = ia.array[i];
+  this->Array = new int[this->Size];
+  for (i=0; i<this->MaxId; i++)
+    this->Array[i] = ia.Array[i];
 
 }
 
-IntArray& IntArray::operator=(IntArray& ia)
+vlIntArray& vlIntArray::operator=(vlIntArray& ia)
 {
   int i;
 
-#ifdef DEBUG
-  cout << "Assignment\n";
-#endif
+  if ( this->Debug ) cerr << "Assignment\n";
 
   if ( this != &ia )
-  {
-    delete [] array;
+    {
+    delete [] this->Array;
 
-    max_id = ia.max_id;
-    size = ia.size;
-    extend = ia.extend;
+    this->MaxId = ia.MaxId;
+    this->Size = ia.Size;
+    this->Extend = ia.Extend;
 
-    array = new int[size];
-    for (i=0; i<=max_id; i++)
-      array[i] = ia.array[i];
-    
-  }
+    this->Array = new int[this->Size];
+    for (i=0; i<=this->MaxId; i++)
+      this->Array[i] = ia.Array[i];
+    }
   return *this;
 }
 
 //
 // Copy on write if used by more than one object
 //
-void IntArray::operator+=(IntArray& ia)
+void vlIntArray::operator+=(vlIntArray& ia)
 {
-  IntArray *instance=this;
   int i, sz;
 
-#ifdef DEBUG
-  cout << "Add method\n";
-#endif
+  if ( this->Debug ) cerr << "Add method\n";
 
-  if ( size <= (sz = max_id + ia.max_id + 2) ) resize(sz);
+  if ( this->Size <= (sz = this->MaxId + ia.MaxId + 2) ) this->Resize(sz);
 
-  for (i=0; i<=ia.max_id; i++)
-  {
-    instance->array[max_id+1+i] = ia.array[i];
-  }
-  max_id += ia.max_id + 1;
+  for (i=0; i<=ia.MaxId; i++)
+    {
+    this->Array[this->MaxId+1+i] = ia.Array[i];
+    }
+  this->MaxId += ia.MaxId + 1;
 
 }
 
 //
 // Copy on write if used by more than one object
 //
-IntArray& IntArray::insertValue(const int id, const int i)
+vlIntArray& vlIntArray::InsertValue(const int id, const int i)
 {
-  IntArray *instance=this;
 
-#ifdef DEBUG
-  cout << "insert value\n";
-#endif
+  if ( this->Debug ) cerr << "insert value\n";
 
-  if ( id >= size ) resize(id);
+  if ( id >= this->Size ) this->Resize(id);
 
-  array[id] = i;
-  if ( id > max_id ) max_id = id;
+  this->Array[id] = i;
+  if ( id > this->MaxId ) this->MaxId = id;
 
   return *this;
 }
 
-int IntArray::insertNextValue(const int i)
+int vlIntArray::InsertNextValue(const int i)
 {
-  insertValue (++max_id,i);
-  return max_id;
+  this->InsertValue (++this->MaxId,i);
+  return this->MaxId;
 }
 
-void IntArray::squeeze()
+void vlIntArray::Squeeze()
 {
-  resize (max_id+1);
+  this->Resize (this->MaxId+1);
 }
 
-int IntArray::getSize()
+int vlIntArray::GetSize()
 {
-  return size;    
+  return this->Size;    
 }
 
-int IntArray::getMaxId()
+int vlIntArray::GetMaxId()
 {
-  return max_id;
+  return this->MaxId;
 }
 
-void IntArray::setMaxId(int id)
+void vlIntArray::SetMaxId(int id)
 {
-  max_id = (id < size ? id : size-1);
+  this->MaxId = (id < this->Size ? id : this->Size-1);
 }
 
-int *IntArray::getArray()
+int *vlIntArray::GetArray()
 {
-  return array;
+  return this->Array;
 }
 
-void IntArray::reset()
+void vlIntArray::Reset()
 {
-  max_id = -1;
+  this->MaxId = -1;
 }
 //
 // Private function does "reallocate"
 //
-int *IntArray::resize(const int sz)
+int *vlIntArray::Resize(const int sz)
 {
   int i;
-  int *new_array;
-  int new_size;
+  int *newArray;
+  int newSize;
 
-#ifdef DEBUG
-  cout << "resize\n";
-#endif
+  if ( this->Debug ) cerr << "Resize\n";
 
-  if ( sz >= size )   new_size = size + extend*(((sz-size)/extend)+1);
-  else new_size = sz;
+  if ( sz >= this->Size ) newSize = this->Size + 
+    this->Extend*(((sz-this->Size)/this->Extend)+1);
+  else newSize = sz;
 
-  if ( (new_array = new int[new_size]) == 0 )
-  {
-    cout << "Cannot allocate memory\n";
+  if ( (newArray = new int[newSize]) == 0 )
+    {
+    cerr << "Cannot allocate memory\n";
     return 0;
-  }
+    }
 
-  for (i=0; i<sz && i<size; i++)
-      new_array[i] = array[i];
+  for (i=0; i<sz && i<this->Size; i++)
+      newArray[i] = this->Array[i];
 
-  size = new_size;
-  delete [] array;
-  array = new_array;
+  this->Size = newSize;
+  delete [] this->Array;
+  this->Array = newArray;
 
-  return array;
+  return this->Array;
 }

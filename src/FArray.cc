@@ -7,94 +7,85 @@
 //
 #include "FArray.h"
 
-int FloatArray::Initialize(const int sz, const int ext)
+int vlFloatArray::Initialize(const int sz, const int ext)
 {
-  if ( array != 0 ) delete [] array;
+  if ( this->Array ) delete [] this->Array;
 
-  size = ( sz > 0 ? sz : 1);
-  if ( (array = new float[sz]) == 0 ) return 0;
-  extend = ( ext > 0 ? ext : 1);
-  max_id = -1;
+  this->Size = ( sz > 0 ? sz : 1);
+  if ( (this->Array = new float[sz]) == 0 ) return 0;
+  this->Extend = ( ext > 0 ? ext : 1);
+  this->MaxId = -1;
 
   return 1;
 }
 
-FloatArray::FloatArray(const int sz, const int ext)
+vlFloatArray::vlFloatArray(const int sz, const int ext)
 {
-  size = ( sz > 0 ? sz : 1);
-  array = new float[sz];
-  extend = ( ext > 0 ? ext : 1);
-  max_id = -1;
+  this->Size = ( sz > 0 ? sz : 1);
+  this->Array = new float[sz];
+  this->Extend = ( ext > 0 ? ext : 1);
+  this->MaxId = -1;
 }
 
-FloatArray::~FloatArray()
+vlFloatArray::~vlFloatArray()
 {
-#ifdef DEBUG
-  cout << "Destructor\n";
-#endif
+  if ( this->Debug ) cerr << "Destructor\n";
 
-  delete [] array;
+  delete [] this->Array;
 }
 
-FloatArray::FloatArray(const FloatArray& fa)
+vlFloatArray::vlFloatArray(const vlFloatArray& fa)
 {
   int i;
-#ifdef DEBUG
-  cout << "Copy constructor\n";
-#endif
+  if ( this->Debug ) cerr << "Copy constructor\n";
 
-  max_id = fa.max_id;
-  size = fa.size;
-  extend = fa.extend;
+  this->MaxId = fa.MaxId;
+  this->Size = fa.Size;
+  this->Extend = fa.Extend;
 
-  array = new float[size];
-  for (i=0; i<max_id; i++)
-    array[i] = fa.array[i];
+  this->Array = new float[this->Size];
+  for (i=0; i<this->MaxId; i++)
+    this->Array[i] = fa.Array[i];
 
 }
 
-FloatArray& FloatArray::operator=(const FloatArray& fa)
+vlFloatArray& vlFloatArray::operator=(const vlFloatArray& fa)
 {
   int i;
 
-#ifdef DEBUG
-  cout << "Assignment\n";
-#endif
+  if ( this->Debug ) cerr << "Assignment\n";
 
   if ( this != &fa )
-  {
-    delete [] array;
+    {
+    delete [] this->Array;
 
-    max_id = fa.max_id;
-    size = fa.size;
-    extend = fa.extend;
+    this->MaxId = fa.MaxId;
+    this->Size = fa.Size;
+    this->Extend = fa.Extend;
 
-    array = new float[size];
-    for (i=0; i<=max_id; i++)
-      array[i] = fa.array[i];
-    
-  }
+    this->Array = new float[this->Size];
+    for (i=0; i<=this->MaxId; i++)
+      this->Array[i] = fa.Array[i];
+    }
   return *this;
 }
 
 //
 // Copy on write if used by more than one object
 //
-FloatArray& FloatArray::operator+=(const FloatArray& fa)
+vlFloatArray& vlFloatArray::operator+=(const vlFloatArray& fa)
 {
   int i, sz;
 
-#ifdef DEBUG
-  cout << "Add method\n";
-#endif
+  if ( this->Debug ) cerr << "Add method\n";
 
-  if ( size <= (sz = max_id + fa.max_id + 2) ) resize(sz);
+  if ( this->Size <= (sz = this->MaxId + fa.MaxId + 2) ) this->Resize(sz);
 
-  for (i=0; i<=fa.max_id; i++)
-  {
-    array[max_id+1+i] = fa.array[i];
-  }
-  max_id += fa.max_id + 1;
+  for (i=0; i<=fa.MaxId; i++)
+    {
+    this->Array[this->MaxId+1+i] = fa.Array[i];
+    }
+  this->MaxId += fa.MaxId + 1;
 
   return *this;
 }
@@ -102,85 +93,80 @@ FloatArray& FloatArray::operator+=(const FloatArray& fa)
 //
 // Copy on write if used by more than one object
 //
-FloatArray& FloatArray::insertValue(const int id, const float f)
+vlFloatArray& vlFloatArray::InsertValue(const int id, const float f)
 {
-  FloatArray *instance=this;
+  if ( this->Debug ) cerr << "insert value\n";
 
-#ifdef DEBUG
-  cout << "insert value\n";
-#endif
+  if ( id >= this->Size ) this->Resize(id);
 
-  if ( id >= size ) resize(id);
-
-  array[id] = f;
-  if ( id > max_id ) max_id = id;
+  this->Array[id] = f;
+  if ( id > this->MaxId ) this->MaxId = id;
 
   return *this;
 }
 
-int FloatArray::insertNextValue(const float f)
+int vlFloatArray::InsertNextValue(const float f)
 {
-  insertValue (++max_id,f);
-  return max_id;
+  this->InsertValue (++this->MaxId,f);
+  return this->MaxId;
 }
 
-void FloatArray::squeeze()
+void vlFloatArray::Squeeze()
 {
-  resize (max_id+1);
+  this->Resize (this->MaxId+1);
 }
 
-int FloatArray::getSize()
+int vlFloatArray::GetSize()
 {
-  return size;    
+  return this->Size;    
 }
 
-int FloatArray::getMaxId()
+int vlFloatArray::GetMaxId()
 {
-  return max_id;
+  return this->MaxId;
 }
 
-void FloatArray::setMaxId(int id)
+void vlFloatArray::SetMaxId(int id)
 {
-  max_id = (id < size ? id : size-1);
+  this->MaxId = (id < this->Size ? id : this->Size-1);
 }
 
-float *FloatArray::getArray()
+float *vlFloatArray::GetArray()
 {
-  return array;
+  return this->Array;
 }
 
-void FloatArray::reset()
+void vlFloatArray::Reset()
 {
-  max_id = -1;
+  this->MaxId = -1;
 }
 //
 // Private function does "reallocate"
 //
-float *FloatArray::resize(const int sz)
+float *vlFloatArray::Resize(const int sz)
 {
   int i;
-  float *new_array;
-  int new_size;
+  float *newArray;
+  int newSize;
 
-#ifdef DEBUG
-  cout << "resize\n";
-#endif
+  if ( this->Debug ) cerr << "Resize\n";
 
-  if ( sz >= size )   new_size = size + extend*(((sz-size)/extend)+1);
-  else new_size = sz;
+  if (sz >= this->Size) newSize = this->Size + 
+    this->Extend*(((sz-this->Size)/this->Extend)+1);
+  else newSize = sz;
 
-  if ( (new_array = new float[new_size]) == 0 )
-  {
-    cout << "Cannot allocate memory\n";
+  if ( (newArray = new float[newSize]) == 0 )
+    { 
+    cerr << "Cannot allocate memory\n";
     return 0;
-  }
+    }
 
-  for (i=0; i<sz && i<size; i++)
-      new_array[i] = array[i];
+  for (i=0; i<sz && i<this->Size; i++)
+      newArray[i] = this->Array[i];
 
-  size = new_size;
-  delete [] array;
-  array = new_array;
+  this->Size = newSize;
+  delete [] this->Array;
+  this->Array = newArray;
 
-  return array;
+  return this->Array;
 }

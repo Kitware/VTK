@@ -1,21 +1,22 @@
 //
-// Classes that need to keep track of their modified time use this
-// class as a superclass.
+// Classes that need to keep track of mdofication / execution time use
+// this class.
 //
-#ifndef TimeStamp_h
-#define TimeStamp_h
+#ifndef __vlTimeStamp_h
+#define __vlTimeStamp_h
 
-class TimeStamp {
+class vlTimeStamp {
 public:
-  void modified() {mtime= ++time;};
-  virtual unsigned long getMtime() {return mtime;};
-  TimeStamp() : mtime(0) {};
-  int operator>(TimeStamp& ts) {return (mtime > ts.mtime);};
-  int operator<(TimeStamp& ts) {return (mtime < ts.mtime);};
-protected:
-  unsigned long mtime;
+  vlTimeStamp() {this->ModifiedTime = ++vlTime;};
+  void Modified() {this->ModifiedTime= ++vlTime;};
+  int operator>(vlTimeStamp& ts) 
+    {return (this->ModifiedTime > ts.ModifiedTime);};
+  int operator<(vlTimeStamp& ts) 
+    {return (this->ModifiedTime < ts.ModifiedTime);};
+
 private:
-  static unsigned long time;
+  unsigned long ModifiedTime;
+  static unsigned long vlTime;
 };
 
 #endif
