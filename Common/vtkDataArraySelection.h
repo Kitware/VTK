@@ -96,9 +96,12 @@ public:
   // don't already have an entry, they are assigned the given default
   // status.  If no default status is given, it is assumed to be on.
   // There will be no more entries than the names given.  This method
-  // should be called only by the filter owning this object.
+  // should be called only by the filter owning this object.  The
+  // signature with the default must have a different name due to a
+  // bug in the Borland C++ 5.5 compiler.
   void SetArrays(const char* const* names, int numArrays);
-  void SetArrays(const char* const* names, int numArrays, int defaultStatus);  
+  void SetArraysWithDefault(const char* const* names, int numArrays,
+                            int defaultStatus);
   //ETX
   
   // Description:
