@@ -137,7 +137,7 @@ int vtkPriorityQueue::Pop(float &priority, int location)
   this->ItemLocation->SetValue(id,-1);
 
   // percolate into the tree
-  for ( i=location; i <= (this->MaxId-1)/2; i=j )
+  for ( j=0, i=location; i <= (this->MaxId-1)/2; i=j )
     {
     idx = 2*i + 1;
 
