@@ -29,12 +29,14 @@
 #ifndef __vtkInteractorStyleSwitch_h
 #define __vtkInteractorStyleSwitch_h
 
-#define VTKIS_JOYSTICK 0
-#define VTKIS_TRACKBALL 1
-#define VTKIS_CAMERA 0
-#define VTKIS_ACTOR 1
-
 #include "vtkInteractorStyle.h"
+
+#define VTKIS_JOYSTICK  0
+#define VTKIS_TRACKBALL 1
+
+#define VTKIS_CAMERA    0
+#define VTKIS_ACTOR     1
+
 class vtkInteractorStyleJoystickActor;
 class vtkInteractorStyleJoystickCamera;
 class vtkInteractorStyleTrackballActor;
@@ -46,10 +48,11 @@ public:
   static vtkInteractorStyleSwitch *New();
   vtkTypeRevisionMacro(vtkInteractorStyleSwitch, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Only care about the char event, which is used to switch between
   // different styles.
-  void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
+  virtual void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
   
   // Description:
   // The sub styles need the interactor too.
@@ -79,8 +82,10 @@ protected:
   vtkInteractorStyleTrackballActor *TrackballActor;
   vtkInteractorStyleTrackballCamera *TrackballCamera;
   vtkInteractorStyle* CurrentStyle;
+
   int JoystickOrTrackball;
   int CameraOrActor;
+
 private:
   vtkInteractorStyleSwitch(const vtkInteractorStyleSwitch&);  // Not implemented.
   void operator=(const vtkInteractorStyleSwitch&);  // Not implemented.
