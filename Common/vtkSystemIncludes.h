@@ -55,6 +55,7 @@ using std::istrstream;
 using std::strstream;
 using std::ofstream;
 using std::ifstream;
+using std::fstream;
 
 // otherwise, non-ANSI -----------------------------------------------------
 #else
