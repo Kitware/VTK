@@ -85,6 +85,7 @@ public:
 
   int GetCellType(vtkIdType cellId);
   vtkUnsignedCharArray* GetCellTypesArray() { return this->Types; }
+  vtkIntArray* GetCellLocationsArray() { return this->Locations; }
   void Squeeze();
   void Initialize();
   int GetMaxCellSize();
