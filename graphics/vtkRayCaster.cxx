@@ -703,7 +703,11 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
   vtkMatrix4x4          *matrix;
   float                 aspect;
   float                 ren_aspect[2];
+  float                 cameraPosition[3], *volumePosition;
 
+  // Get the position of the camera for use in determining the
+  // distance to the center of each volume
+  ren->GetActiveCamera()->GetPosition( cameraPosition );
 
   // Create a pointer to each volume for speedy access
   this->RayCastVolumes = new vtkVolume *[this->RayCastVolumeCount];
@@ -728,6 +732,14 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
 	{
 	this->RayCastVolumes[i] = aVolume;
 	this->VolumeInfo[i].Volume = aVolume;
+        volumePosition = aVolume->GetCenter();
+	this->VolumeInfo[i].CenterDistance = sqrt( (double) 
+	       ( ( cameraPosition[0] - volumePosition[0] ) *   
+		 ( cameraPosition[0] - volumePosition[0] ) +
+		 ( cameraPosition[1] - volumePosition[1] ) *
+		 ( cameraPosition[1] - volumePosition[1] ) +
+		 ( cameraPosition[2] - volumePosition[2] ) *
+		 ( cameraPosition[2] - volumePosition[2] ) ) );
 	((vtkVolumeRayCastMapper *)
 	 (aVolume->GetVolumeMapper()))->InitializeRender(ren, aVolume,
 							 &this->VolumeInfo[i]);
