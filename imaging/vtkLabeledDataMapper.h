@@ -114,9 +114,9 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
-  // Set/Get the font family for the annotation text. Three font types 
-  // are available: Arial (VTK_ARIAL), Courier (VTK_COURIER), and 
-  // Times (VTK_TIMES).
+  // Specify which data to plot: scalars, vectors, normals, texture coords,
+  // tensors, or field data. If the data has more than one component, use
+  // the method SetLabeledComponent to control which components to plot.
   vtkSetMacro(LabelMode, int);
   vtkGetMacro(LabelMode, int);
   void SetLabelModeToLabelIds() {this->SetLabelMode(VTK_LABEL_IDS);};
