@@ -1,0 +1,93 @@
+PROJECT (VTKFTGL)
+
+INCLUDE_REGULAR_EXPRESSION("^FT.*$")
+
+INCLUDE_DIRECTORIES (
+  ${VTKFTGL_SOURCE_DIR}/src
+  ${VTK_SOURCE_DIR}/Utilities/freetype/include
+)
+
+SOURCE_FILES (FTGL_SRCS
+  src/FTBitmapGlyph.cpp
+  src/FTCharmap.cpp
+  src/FTExtrdGlyph.cpp
+  src/FTFace.cpp
+  src/FTFont.cpp
+  src/FTGLBitmapFont.cpp
+  src/FTGLExtrdFont.cpp
+  src/FTGLOutlineFont.cpp
+  src/FTGLPixmapFont.cpp
+  src/FTGLPolygonFont.cpp
+  src/FTGLTextureFont.cpp
+  src/FTGlyph.cpp
+  src/FTGlyphContainer.cpp
+  src/FTLibrary.cpp
+  src/FTOutlineGlyph.cpp
+  src/FTPixmapGlyph.cpp
+  src/FTPolyGlyph.cpp
+  src/FTSize.cpp
+  src/FTTextureGlyph.cpp
+  src/FTVectoriser.cpp
+)
+
+IF (WIN32)
+  ADD_DEFINITIONS(-DWIN32)
+  IF (BUILD_SHARED_LIBS)
+    ADD_DEFINITIONS(-DFTGL_LIBRARY)
+  ELSE (BUILD_SHARED_LIBS)
+    ADD_DEFINITIONS(-DFTGL_LIBRARY_STATIC)
+  ENDIF (BUILD_SHARED_LIBS)
+ENDIF (WIN32)
+
+INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
+IF (OPENGL_INCLUDE_PATH)
+  INCLUDE_DIRECTORIES (${OPENGL_INCLUDE_PATH})
+ENDIF (OPENGL_INCLUDE_PATH)
+LINK_LIBRARIES (${OPENGL_LIBRARY})
+
+INCLUDE (${CMAKE_ROOT}/Modules/FindGLU.cmake)
+IF (GLU_INCLUDE_PATH)
+  INCLUDE_DIRECTORIES (${GLU_INCLUDE_PATH})
+ENDIF (GLU_INCLUDE_PATH)
+LINK_LIBRARIES (${GLU_LIBRARY})
+
+ADD_LIBRARY (vtkftgl FTGL_SRCS)
+TARGET_LINK_LIBRARIES(vtkftgl
+  vtkfreetype
+)
+
+CONFIGURE_FILE (${VTKFTGL_SOURCE_DIR}/.NoDartCoverage
+                ${VTKFTGL_BINARY_DIR}/.NoDartCoverage)
+
+INSTALL_TARGETS (/lib/vtk vtkftgl)
+
+IF (BUILD_EXAMPLES)
+
+  INCLUDE (${CMAKE_ROOT}/Modules/FindGLUT.cmake)
+
+  IF (GLUT_LIBRARY)
+    IF (GLUT_INCLUDE_PATH)
+      INCLUDE_DIRECTORIES (${GLUT_INCLUDE_PATH})
+    ENDIF (GLUT_INCLUDE_PATH)
+    LINK_LIBRARIES (${GLUT_LIBRARY})
+
+    SOURCE_FILES (FTGL_DEMO_SRCS
+      demo/tb.c
+      demo/trackball.c
+      demo/FTGLDemo.cpp
+    )
+
+    # The following is sort-of a hack to avoid the bug in glut.h
+    # Ambiguity between 'std::exit(int)' and 'std::exit(int)' in function...
+    IF (BORLAND)
+      ADD_DEFINITIONS(-DGLUT_BUILDING_LIB)
+    ENDIF (BORLAND)
+
+    ADD_EXECUTABLE (ftgl_demo FTGL_DEMO_SRCS)
+    TARGET_LINK_LIBRARIES(ftgl_demo 
+      vtkftgl
+      vtkfreetype
+    )
+  ENDIF (GLUT_LIBRARY)
+
+ENDIF (BUILD_EXAMPLES)
