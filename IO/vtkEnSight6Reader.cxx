@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.49");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.50");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -937,7 +937,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(char* fileName, char* description,
       {
       for (i = 0; i < numLines; i++)
         {
-        lineRead = this->ReadNextDataLine(line);
+        this->ReadNextDataLine(line);
         vtkEnSight6ReaderRead3(line, " %12e %12e %12e %12e %12e %12e", &values[0], &values[1],
                &values[2], &values[3], &values[4], &values[5]);
         for (j = 0; j < 6; j++)

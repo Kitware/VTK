@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.211");
+vtkCxxRevisionMacro(vtkRenderer, "1.212");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -888,8 +888,7 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
     this->NearClippingPlaneTolerance = 0.01;
     if (this->RenderWindow)
       {
-      int ZBufferDepth = 16;
-      ZBufferDepth = this->RenderWindow->GetDepthBufferSize();
+      int ZBufferDepth = this->RenderWindow->GetDepthBufferSize();
       if ( ZBufferDepth > 16 )
         {
         this->NearClippingPlaneTolerance = 0.001;

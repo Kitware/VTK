@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.54");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.55");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -531,7 +531,7 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
       int *numNodesPerElement;
       int numNodes = 0;
       
-      cellType = vtkEnSightReader::NSIDED;
+      //cellType = vtkEnSightReader::NSIDED;
       this->ReadInt(&numElements);
       if (numElements < 0 || numElements*(int)sizeof(int) > this->FileSize ||
           numElements > this->FileSize)

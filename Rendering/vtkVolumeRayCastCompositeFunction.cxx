@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastCompositeFunction, "1.38");
+vtkCxxRevisionMacro(vtkVolumeRayCastCompositeFunction, "1.39");
 vtkStandardNewMacro(vtkVolumeRayCastCompositeFunction);
 
 #define VTK_REMAINING_OPACITY           0.02
@@ -1969,7 +1969,7 @@ void vtkCastRay_TrilinVertices_Shaded( T *data_ptr, vtkVolumeRayCastDynamicInfo 
         offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
         dptr   = data_ptr + offset;
         nptr   = encoded_normals + offset;
-        goptr  = grad_mag_ptr + offset;
+        //goptr  = grad_mag_ptr + offset;
         
         A = SOTF[(*(dptr))];
         B = SOTF[(*(dptr + Binc))];

@@ -45,7 +45,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.99");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.100");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -427,7 +427,7 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
 
 #define vtkDrawPointsMacro(ptype,ntype,glVertFuncs,glInitFuncs) \
 { \
-  vtkIdType nPts = 0; unsigned short count = 0; \
+  vtkIdType nPts; unsigned short count = 0; \
   ptype *points = (ptype *)voidPoints; \
   glInitFuncs \
   glBegin(GL_POINTS); \
@@ -459,7 +459,7 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
 
 #define vtkDrawPrimsMacro(ptype,ntype,prim,glVertFuncs,glInitFuncs) \
 { \
-  vtkIdType nPts = 0; unsigned short count = 0; \
+  vtkIdType nPts; unsigned short count = 0; \
   ptype *points = (ptype *)voidPoints; \
   glInitFuncs \
   while (ptIds < endPtIds) \
@@ -491,7 +491,7 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
 
 #define vtkDrawPolysMacro(ptype,ntype,ttype,prim,glVertFuncs,glCellFuncs,glInitFuncs) \
 { \
-  vtkIdType nPts = 0; unsigned short count = 0; \
+  vtkIdType nPts; unsigned short count = 0; \
   ptype *points = (ptype *)voidPoints; \
   GLenum previousGlFunction=GL_INVALID_VALUE; \
   glInitFuncs \
@@ -536,7 +536,7 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
 
 #define vtkDrawStripLinesMacro(ptype,ntype,ttype,prim,glVertFuncs,glCellFuncs,glInitFuncs) \
 { \
-  vtkIdType nPts = 0; \
+  vtkIdType nPts; \
   ptype *points = (ptype *)voidPoints; \
   vtkIdType *savedPtIds = ptIds; \
   glInitFuncs \

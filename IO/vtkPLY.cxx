@@ -577,7 +577,7 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
         elem_data = (char *)elem_ptr;
       if (prop->is_list) {
         item = elem_data + prop->count_offset;
-        item_size = ply_type_size[prop->count_internal];
+        //item_size = ply_type_size[prop->count_internal];
         get_stored_item ((void *) item, prop->count_internal,
                          &int_val, &uint_val, &double_val);
         write_binary_item (plyfile, int_val, uint_val, double_val,

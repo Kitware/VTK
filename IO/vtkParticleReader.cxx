@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkParticleReader, "1.19");
+vtkCxxRevisionMacro(vtkParticleReader, "1.20");
 vtkStandardNewMacro(vtkParticleReader);
 
 // These are copied right from vtkImageReader.
@@ -220,7 +220,6 @@ void vtkParticleReader::Execute()
       }
     }
   delete [] data;
-  ptr = NULL;
 
   output->SetPoints(points);
   points->Delete();

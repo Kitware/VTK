@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.43");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.44");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -880,7 +880,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
 {
   char line[80];
   int partId, numPts, numParts, i;
-  vtkFloatArray *scalars = NULL;
+  vtkFloatArray *scalars;
   float* scalarsRead;
   long pos;
   vtkDataSet *output;

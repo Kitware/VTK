@@ -87,7 +87,7 @@ void vtkExtractImageData ( unsigned char* buffer, T *inPtr, double shift, double
   float pixel;
   
   BufferPtr = buffer;
-  ImagePtr = inPtr;
+  //ImagePtr = inPtr;
   
   for ( j = 0; j < height; j++ )
     {
@@ -829,7 +829,7 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   TkWindow *winPtr = (TkWindow *) self->TkWin;
   Tcl_HashEntry *hPtr;
   int new_flag;
-  vtkWin32OpenGLRenderWindow *renderWindow = 0;
+  vtkWin32OpenGLRenderWindow *renderWindow;
   TkWinDrawable *twdPtr;
   HWND parentWin;
 
