@@ -843,6 +843,17 @@ macro:
    currentFunction->ArgCounts[0] = 0;
    currentFunction->ReturnType = 4;
    output_function();
+
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
+   sprintf(currentFunction->Signature, "%s *NewInstance ();",
+	   $<str>3);
+   sprintf(temps,"NewInstance"); 
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 0;
+   currentFunction->ReturnType = 309;
+   currentFunction->ReturnClass = vtkstrdup($<str>3);
+   output_function();
    }
 ;
 

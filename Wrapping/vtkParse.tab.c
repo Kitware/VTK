@@ -1939,6 +1939,17 @@ case 131:
    currentFunction->ArgCounts[0] = 0;
    currentFunction->ReturnType = 4;
    output_function();
+
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
+   sprintf(currentFunction->Signature, "%s *NewInstance ();",
+	   yyvsp[-3].str);
+   sprintf(temps,"NewInstance"); 
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 0;
+   currentFunction->ReturnType = 309;
+   currentFunction->ReturnClass = vtkstrdup(yyvsp[-3].str);
+   output_function();
    }
 break;
 #line 1940 "vtkParse.tab.c"

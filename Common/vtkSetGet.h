@@ -627,7 +627,18 @@ virtual float *Get##name() \
       return static_cast<thisClass *>(o); \
       } \
     return NULL;\
+  } \
+  protected: \
+  virtual vtkObject *NewInstanceInternal() const \
+  { \
+    return thisClass::New(); \
+  } \
+  public: \
+  thisClass *NewInstance() const \
+  { \
+    return thisClass::SafeDownCast(this->NewInstanceInternal()); \
   }
+
 
 // Version of vtkTypeMacro that adds the CollectRevisions method.
 #define vtkTypeRevisionMacro(thisClass,superclass) \
