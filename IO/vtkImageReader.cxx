@@ -108,6 +108,10 @@ vtkImageReader::vtkImageReader()
   this->Transform = NULL;
   this->FileLowerLeft = 0;
   this->FileDimensionality = 2;
+
+  this->FileNameSliceOffset = 0;
+  this->FileNameSliceSpacing = 1;
+
 }
 
 //----------------------------------------------------------------------------
@@ -169,12 +173,15 @@ void vtkImageReader::ComputeInternalFileName(int slice)
     }
   else 
     {
+    int slicenum = slice*FileNameSliceSpacing + FileNameSliceOffset;
+
     if (this->FilePrefix)
       {
       this->InternalFileName = new char [strlen(this->FilePrefix) +
                                         strlen(this->FilePattern) + 10];
-      sprintf (this->InternalFileName, this->FilePattern, 
-               this->FilePrefix, slice);
+
+      sprintf (this->InternalFileName, this->FilePattern,
+               this->FilePrefix, slicenum);
       }
     else
       {

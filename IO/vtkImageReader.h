@@ -82,6 +82,19 @@ public:
   vtkGetStringMacro(FilePattern);
 
   // Description:
+  // When reading files which start at an unusual index, this can be added
+  // to the slice number when generating the file name (default = 0)
+  vtkSetMacro(FileNameSliceOffset,int);
+  vtkGetMacro(FileNameSliceOffset,int);
+
+  // Description:
+  // When reading files which have regular, but non contiguous slices
+  // (eg filename.1,filename.3,filename.5)
+  // a spacing can be specified to skip missing files (default = 1)
+  vtkSetMacro(FileNameSliceSpacing,int);
+  vtkGetMacro(FileNameSliceSpacing,int);
+
+  // Description:
   // Set the data type of pixels in the file.  
   // As a convenience, the OutputScalarType is set to the same value.
   // If you want the output scalar type to have a different value, set it
@@ -219,6 +232,8 @@ protected:
   char *FilePattern;
   int NumberOfScalarComponents;
   int FileLowerLeft;
+  int FileNameSliceOffset;
+  int FileNameSliceSpacing;
 
   ifstream *File;
   unsigned long DataIncrements[4];
