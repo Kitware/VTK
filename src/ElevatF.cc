@@ -48,7 +48,9 @@ void vlElevationFilter::Execute()
 //
 // Initialize
 //
+  vlDebugMacro(<<"Generating elevation scalars!");
   this->Initialize();
+
   if ( ((numPts=this->Input->GetNumberOfPoints()) < 1) )
     {
     vlErrorMacro(<< "No input!\n");
