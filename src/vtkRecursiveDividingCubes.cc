@@ -62,15 +62,15 @@ void vtkRecursiveDividingCubes::Execute()
   int i, j, k, idx, ii;
   vtkScalars *inScalars;
   vtkIdList voxelPts(8);
-  vtkFloatScalars voxelScalars(8);
   float origin[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum;
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
-  vtkMath math;
+  vtkFloatScalars voxelScalars(8);
+  voxelScalars.ReferenceCountingOff();
 
-  vtkDebugMacro(<< "Executing dividing cubes...");
+  vtkDebugMacro(<< "Executing recursive dividing cubes...");
 //
 // Initialize self; check input; create output objects
 //
@@ -97,6 +97,7 @@ void vtkRecursiveDividingCubes::Execute()
   NewPts = new vtkFloatPoints(500000,1000000);
   NewNormals = new vtkFloatNormals(500000,1000000);
   NewVerts = new vtkCellArray(500000,1000000);
+  NewVerts->InsertNextCell(0); //temporary cell count
 //
 // Loop over all cells checking to see which straddle the specified value. Since
 // we know that we are working with a volume, can create appropriate data directly.
@@ -148,7 +149,6 @@ void vtkRecursiveDividingCubes::Execute()
             input->GetPointGradient(i+1,j,k+1, inScalars, Normals[5]);
             input->GetPointGradient(i,j+1,k+1, inScalars, Normals[6]);
             input->GetPointGradient(i+1,j+1,k+1, inScalars, Normals[7]);
-	    for (ii=0; ii<8; ii++) math.Normalize(Normals[ii]);
 
             this->SubDivide(X, Ar, voxelScalars.GetPtr(0));
             }
@@ -156,7 +156,9 @@ void vtkRecursiveDividingCubes::Execute()
         }
       }
     }
-  vtkDebugMacro(<< "Created " << NewPts->GetNumberOfPoints() << "points");
+
+  NewVerts->UpdateCellCount(NewPts->GetNumberOfPoints());
+  vtkDebugMacro(<< "Created " << NewPts->GetNumberOfPoints() << " points");
 //
 // Update ourselves and release memory
 //
@@ -181,27 +183,31 @@ static int ScalarInterp[8][8] = {{0,8,12,24,16,22,20,26},
                                  {20,26,18,23,14,25,6,11},
                                  {26,21,23,19,25,15,11,7}};
 
-void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3], float values[8])
+#define POINTS_PER_POLY_VERTEX 10000
+
+void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3], 
+                                          float values[8])
 {
   int i;
   float hNew[3];
+  static vtkVoxel voxel;
+  static vtkMath math;
 
   for (i=0; i<3; i++) hNew[i] = h[i] / 2.0;
 
   // if subdivided far enough, create point and end termination
   if ( h[0] < this->Distance && h[1] < this->Distance && h[2] < this->Distance )
     {
-    int i, pts[1];
+    int id;
     float x[3], n[3];
     float p[3], w[8];
-    static vtkVoxel voxel;
 
     for (i=0; i <3; i++) x[i] = origin[i] + hNew[i];
 
     if ( ! (this->Count++ % this->Increment) ) //add a point
       {
-      pts[0] = NewPts->InsertNextPoint(x);
-      NewVerts->InsertNextCell(1,pts);
+      id = NewPts->InsertNextPoint(x);
+      NewVerts->InsertCellPoint(id);
       for (i=0; i<3; i++) p[i] = (x[i] - X[i]) / Ar[i];
       voxel.InterpolationFunctions(p,w);
       for (n[0]=n[1]=n[2]=0.0, i=0; i<8; i++)
@@ -210,7 +216,13 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3], float val
 	n[1] += Normals[i][1]*w[i];
 	n[2] += Normals[i][2]*w[i];
 	}
-      NewNormals->InsertNormal(pts[0],n);
+      math.Normalize(n);
+      NewNormals->InsertNormal(id,n);
+
+      if ( !(NewPts->GetNumberOfPoints() % POINTS_PER_POLY_VERTEX) )
+        {
+        vtkDebugMacro(<<"point# "<<NewPts->GetNumberOfPoints());
+        }
       }
     
     return;
