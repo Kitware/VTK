@@ -5,7 +5,6 @@ vtkApproximatingSubdivisionFilter
 vtkArrayCalculator
 vtkAttributeDataToFieldDataFilter
 vtkAxes
-vtkBooleanTexture
 vtkBrownianPoints
 vtkButterflySubdivisionFilter
 vtkCardinalSpline
@@ -37,7 +36,6 @@ vtkExtractGrid
 vtkExtractPolyDataGeometry
 vtkExtractTensorComponents
 vtkExtractUnstructuredGrid
-vtkExtractVOI
 vtkExtractVectorComponents
 vtkFeatureEdges
 vtkGaussianSplatter
@@ -68,7 +66,6 @@ vtkOutlineFilter
 vtkOutlineSource
 vtkPlaneSource
 vtkPointDataToCellData
-vtkPointLoad
 vtkPointSource
 vtkPolyDataConnectivityFilter
 vtkPolyDataNormals
@@ -88,7 +85,6 @@ vtkReverseSense
 vtkRibbonFilter
 vtkRotationalExtrusionFilter
 vtkRuledSurfaceFilter
-vtkSampleFunction
 vtkScalarTree
 vtkSelectPolyData
 vtkShepardMethod
@@ -119,7 +115,6 @@ vtkTransformPolyDataFilter
 vtkTransformTextureCoords
 vtkTriangleFilter
 vtkTriangularTCoords
-vtkTriangularTexture
 vtkTubeFilter
 vtkVectorDot
 vtkVectorNorm

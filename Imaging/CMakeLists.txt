@@ -1,4 +1,6 @@
 SOURCE_FILES( Imaging_SRCS
+vtkBooleanTexture
+vtkExtractVOI
 vtkGlyphSource2D
 vtkImageAccumulate
 vtkImageAnisotropicDiffusion2D
@@ -85,6 +87,9 @@ vtkImageThreshold
 vtkImageTranslateExtent
 vtkImageVariance3D
 vtkImageWrapPad
+vtkPointLoad
+vtkSampleFunction
+vtkTriangularTexture
 )
 
 ABSTRACT_FILES(
