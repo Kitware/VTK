@@ -29,7 +29,6 @@ fft ReleaseDataFlagOff
 
 vtkImageViewer viewer
 viewer SetInput [fft GetOutput]
-viewer SetZSlice 15
 viewer SetColorWindow 10000
 viewer SetColorLevel 4000
 
