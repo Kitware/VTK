@@ -94,10 +94,9 @@ void vtkHull::RemoveAllPlanes()
 // away from the center of the hull.
 int vtkHull::AddPlane( float A, float B, float C )
 {
-  float     *tmpPointer;
+  double     *tmpPointer;
   int       i;
-  float     norm;
-  float     dotproduct;
+  double     norm, dotproduct;
 
   // Normalize the direction,
   // and make sure the vector has a length.
@@ -123,7 +122,7 @@ int vtkHull::AddPlane( float A, float B, float C )
 
     //If planes are parallel, we already have the plane.
     //Indicate this with the appropriate return value.
-    if ( dotproduct > 0.9999 && dotproduct < 1.0001 )
+    if ( dotproduct > 0.99999 && dotproduct < 1.00001 )
       {
       return -(i+1);
       }
@@ -145,7 +144,7 @@ int vtkHull::AddPlane( float A, float B, float C )
       {
       this->PlanesStorageSize *= 2;
       }
-    this->Planes = new float [this->PlanesStorageSize * 4];
+    this->Planes = new double [this->PlanesStorageSize * 4];
 
     if ( !this->Planes )
       {
@@ -172,7 +171,7 @@ int vtkHull::AddPlane( float A, float B, float C )
   this->Planes[i*4 + 0] = A;
   this->Planes[i*4 + 1] = B;
   this->Planes[i*4 + 2] = C;
-  this->Planes[i*4 + 3] = 0;
+  this->Planes[i*4 + 3] = 0.0;
   this->NumberOfPlanes++;
 
   this->Modified();
@@ -193,7 +192,7 @@ int vtkHull::AddPlane( float plane[3] )
 // with this method.
 void vtkHull::SetPlane( int i, float A, float B, float C )
 {
-  float norm;
+  double norm;
 
   // Make sure this is a plane that was already added
   if ( i < 0 || i >= this->NumberOfPlanes )
@@ -202,7 +201,7 @@ void vtkHull::SetPlane( int i, float A, float B, float C )
     return;
     }
 
-  float *plane = this->Planes + i*4;
+  double *plane = this->Planes + i*4;
   if ( A == plane[0] && B == plane[1] && C != plane[2] )
     {
     return; //no modified
@@ -266,7 +265,7 @@ void vtkHull::SetPlane( int i, float A, float B, float C, float D )
 {
   if ( i >= 0 && i < this->NumberOfPlanes )
     {
-    float *plane = this->Planes + 4*i;
+    double *plane = this->Planes + 4*i;
     if ( plane[0] != A || plane[1] != B || plane[2] != C ||
          plane[3] != D )
       {
@@ -308,7 +307,7 @@ void  vtkHull::SetPlanes( vtkPlanes *planes )
         else if ( idx >= -this->NumberOfPlanes )
           { //planes are parallel, take the one that minimizes the convex set
           idx = -4*(idx+1);
-          float D = -(this->Planes[idx]*point[0] +
+          double D = -(this->Planes[idx]*point[0] +
                       this->Planes[idx+1]*point[1] +
                       this->Planes[idx+2]*point[2]);
           this->Planes[idx + 3] = (D > this->Planes[idx + 3] ? 
@@ -564,7 +563,8 @@ void vtkHull::ComputePlaneDistances()
 {
   vtkPolyData    *input       = this->GetInput();
   int            i, j;
-  float          coord[3], v;
+  float          coord[3];
+  double         v;
 
   // Initialize all planes to the first vertex value
   input->GetPoint( 0, coord );
@@ -591,7 +591,6 @@ void vtkHull::ComputePlaneDistances()
         }
       }
     }
-  
 }
 
 // Given the set of planes, create a large polygon for each, then use all the
@@ -601,14 +600,14 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
                                       float *bounds)
 {
   int            i, j, k, q;
-  float          previousD, d, crosspoint;
-  float          *verts, *newVerts, *tmpVerts;
+  double         previousD, d, crosspoint;
+  double         *verts, *newVerts, *tmpVerts;
   int            vertCount, newVertCount;
   int            *pnts;
 
   // Use two arrays to store the vertices of the polygon
-  verts = new float[3*(this->NumberOfPlanes+1)];
-  newVerts = new float[3*(this->NumberOfPlanes+1)];
+  verts = new double[3*(this->NumberOfPlanes+1)];
+  newVerts = new double[3*(this->NumberOfPlanes+1)];
 
   // We need an array to store the indices for the polygon
   pnts = new int[this->NumberOfPlanes-1];
@@ -659,7 +658,7 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
             this->Planes[j*4 + 2] * verts[k*3 + 2] +
             this->Planes[j*4 + 3];
 
-          if ( (previousD < 0) != (d < 0) )
+          if ( (previousD < 0.0) != (d < 0.0) )
             {
             if ( k > 0 ) 
               {
@@ -680,7 +679,7 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
             newVertCount++;
             }
 
-          if ( d < 0 )
+          if ( d < 0.0 )
             {
             newVerts[newVertCount*3 + 0] = verts[k*3 + 0];
             newVerts[newVertCount*3 + 1] = verts[k*3 + 1];
@@ -712,11 +711,11 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
   delete [] pnts;
 }
 
-void vtkHull::CreateInitialPolygon( float *verts, int i, float *bounds)
+void vtkHull::CreateInitialPolygon( double *verts, int i, float *bounds)
 {
   vtkPolyData    *input       = this->GetInput();
-  float          center[3], d, planeCenter[3];
-  float          v1[3], v2[3], norm, dotProduct;
+  double         center[3], d, planeCenter[3];
+  double         v1[3], v2[3], norm, dotProduct;
   int            j;
 
   center[0] = ( bounds[0] + bounds[1] ) * 0.5;
@@ -735,7 +734,7 @@ void vtkHull::CreateInitialPolygon( float *verts, int i, float *bounds)
 
   dotProduct = 1.0;
   j = i;
-  while (dotProduct > 0.9 || dotProduct < -0.9)
+  while (dotProduct > 0.99999 || dotProduct < -0.99999)
     {
     j++;
     if ( j >= this->NumberOfPlanes )
@@ -758,7 +757,7 @@ void vtkHull::CreateInitialPolygon( float *verts, int i, float *bounds)
     this->Planes[j*4 + 0] * this->Planes[i*4 + 1] -
     this->Planes[j*4 + 1] * this->Planes[i*4 + 0];
 
-  norm = sqrt( (double) (v1[0]*v1[0] + v1[1]*v1[1] + v1[2]*v1[2]) );
+  norm = sqrt( (v1[0]*v1[0] + v1[1]*v1[1] + v1[2]*v1[2]) );
   v1[0] /= norm;
   v1[1] /= norm;
   v1[2] /= norm;

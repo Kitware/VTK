@@ -168,8 +168,8 @@ protected:
   vtkHull(const vtkHull&) {};
   void operator=(const vtkHull&) {};
 
-  // The planes - 4 floats per plane for A, B, C, D
-  float     *Planes;
+  // The planes - 4 doubles per plane for A, B, C, D
+  double     *Planes;
 
   // This indicates the current size (in planes - 4*sizeof(float)) of 
   // the this->Planes array. Planes are allocated in chunks so that the
@@ -190,7 +190,7 @@ protected:
   // Internal method used to create the initial "big" polygon from the
   // plane equation. This polygon is clipped by all other planes to form
   // the final polygon (or it may be clipped entirely)
-  void      CreateInitialPolygon( float *, int, float * );
+  void      CreateInitialPolygon( double *, int, float * );
 
   // The method that does it all...
   void      Execute();
