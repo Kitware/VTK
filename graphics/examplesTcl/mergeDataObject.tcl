@@ -6,11 +6,10 @@ source ../../examplesTcl/vtkInt.tcl
 # create readers
 vtkUnstructuredGridReader readGeom
     readGeom SetFileName "../../../vtkdata/blowGeom.vtk"
-    readGeom DebugOn
+
 vtkDataObjectReader readAttr
     readAttr SetFileName "../../../vtkdata/blowAttr.vtk"
     readAttr SetFieldDataName "time9"
-    readAttr DebugOn
 
 # combine data and build scalars and vectors
 vtkMergeDataObjectFilter merge
@@ -89,7 +88,7 @@ renWin SetSize 750 400
 iren Initialize
 iren SetUserMethod {wm deiconify .vtkInteract}
 
-#renWin SetFileName "blow.tcl.ppm"
+renWin SetFileName "mergeDataObject.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
