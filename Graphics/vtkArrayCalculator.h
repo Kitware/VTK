@@ -21,6 +21,37 @@
 // The resulting array will be stored as a field data array.  The result
 // array can either be stored in a new array or it can overwrite an existing
 // array.
+//
+// The functions that this array calculator understands is:
+// <pre>
+// standard operations: + - * / ^ .
+// access vector components: iHat, jHat, kHat
+// abs
+// acos
+// asin
+// atan
+// ceil
+// cos
+// cosh
+// exp
+// floor
+// log
+// mag
+// min
+// max
+// norm
+// sign
+// sin
+// sinh
+// sqrt
+// tan
+// tanh
+// </pre>
+// Note that some of these operations work on scalars, some on vectors, and some on
+// both (e.g., you can multiply a scalar times a vector). The operations are performed
+// tuple-wise (i.e., tuple-by-tuple). The user must specify which arrays to use as
+// vectors and/or scalars, and the name of the output data array.
+//
 // .SECTION See Also
 // vtkFunctionParser
 
