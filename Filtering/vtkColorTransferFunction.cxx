@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.50");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.51");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 // Construct a new vtkColorTransferFunction with default values
@@ -887,6 +887,7 @@ vtkColorTransferFunctionMapData(vtkColorTransferFunction *self,
   double          rgb[3];
   unsigned char  *optr = output;
   T              *iptr = input;
+  unsigned char   alpha = (unsigned char)(self->GetAlpha()*255.0);
   
   if(self->GetSize() == 0)
     {
@@ -912,7 +913,7 @@ vtkColorTransferFunctionMapData(vtkColorTransferFunction *self,
     
     if (outFormat == VTK_RGBA || outFormat == VTK_LUMINANCE_ALPHA)
       {
-      *(optr++) = 255;
+      *(optr++) = alpha;
       }
     iptr += inIncr;
     }
