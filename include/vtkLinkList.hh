@@ -75,6 +75,7 @@ public:
 
   void DeletePoint(int ptId);
   void RemoveCellReference(int cellId, int ptId);
+  void AddCellReference(int cellId, int ptId);
   void ResizeCellList(int ptId, int size);
 
   void Squeeze();
@@ -160,8 +161,17 @@ inline void vtkLinkList::RemoveCellReference(int cellId, int ptId)
 }
 
 // Description:
-// Increase the length of the list of cells using a point by the size 
-// specified. 
+// Add the reference to the cell (cellId) from the point (ptId). This
+// adds a reference to the cellId from the cell list, but does not resize
+// the list (extend memory with ResizeCellList(), if necessary).
+inline void vtkLinkList::AddCellReference(int cellId, int ptId)
+{
+  this->Array[ptId].cells[this->Array[ptId].ncells++] = cellId;
+}
+
+// Description:
+// Change the length of a point's link list (i.e., list of cells using a point)
+// by the size specified. 
 inline void vtkLinkList::ResizeCellList(int ptId, int size)
 {
   int *cells, newSize;

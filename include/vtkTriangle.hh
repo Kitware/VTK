@@ -84,6 +84,7 @@ public:
   // triangle specific
   void TriangleCenter(float p1[3], float p2[3], float p3[3], float center[3]);
   float TriangleArea(float p1[3], float p2[3], float p3[3]);
+  float Circumcircle(float  p1[2], float p2[2], float p3[2], float center[2]);
 };
 
 // Description:
@@ -100,7 +101,7 @@ inline void vtkTriangle::TriangleCenter(float p1[3], float p2[3], float p3[3],
 // Compute the area of a triangle in 3D.
 inline float vtkTriangle::TriangleArea(float p1[3], float p2[3], float p3[3])
 {
-  vtkMath math;
+  static vtkMath math;
   float a,b,c;
   a = math.Distance2BetweenPoints(p1,p2);
   b = math.Distance2BetweenPoints(p2,p3);

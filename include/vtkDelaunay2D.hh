@@ -44,9 +44,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // from a list of input points. These points may be represented by any 
 // dataset of type vtkPointSet and subclasses. The output of the filter is
 // a polygonal dataset. Usually the output is a triangle mesh, but if a
-// non-zero alpha distance value is specified, then only triangles and edges
-// lying within the alpha radius are output. In either words, non-zero 
-// alpha values may result in mixtures of triangles, lines, and vertices.
+// non-zero alpha distance value is specified (called the "alpha" value),
+// then only triangles, edges, and vertices lying within the alpha radius
+// are output. In other words, non-zero alpha values may result in arbitrary
+// combinations of triangles, lines, and vertices. (The notion of alpha 
+// value is derived from Edelsbrunner's work on "alpha shapes".)
 //
 // The 2D Delaunay triangulation is defined as the triangulation that 
 // satisfies the Delaunay criterion for n-dimensional simplexes (in this case
@@ -56,34 +58,44 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // dimensions, this translates into an optimal triangulation. That is, the
 // maximum interior angle of any triangle is less than or equal to that of
 // any possible triangulation.
-//
-// Delaunay triangulations are used to build topological structures from 
-// unorganized (or unstructured) points. The input to this filter is a list
-// of points specified in 3D, even though the triangulation is 2D. To handle
-// this, you must specify two out of three coordinates to use as the 2D 
-// coordinate values. (Use the Plane instance variable.)
+// 
+// Delaunay triangulations are used to build topological structures
+// from unorganized (or unstructured) points. The input to this filter
+// is a list of points specified in 3D, even though the triangulation
+// is 2D. Thus the triangulation is constructed in the x-y plane, and
+// the z coordinate is ignored (although carried through on
+// output). (If you desire to triangulate in a different plane, you'll
+// have to use the vtkTranformFilter to transform the points into and
+// out of the x-y plane.)
+
 // .SECTION Caveats
 // Points arranged on a regular lattice (termed degenerate cases) can be 
 // triangulated in more than one way (at least according to the Delaunay 
 // criterion). The choice of triangulation (as implemented by 
 // this algorithm) depends on the order of the input points. The first three
-// points will form a triangle; others degenerate points will not break
+// points will form a triangle; other degenerate points will not break
 // this triangle.
 //
 // Points that are coincident (or nearly so) may be discarded by the algorithm.
-// This is because the Delaunay triangulation requires  unique input points.
+// This is because the Delaunay triangulation requires unique input points.
+// You can control the definition of coincidence with the "Tolerance" instance
+// variable.
 //
 // The output of the Delaunay triangulation is supposedly a convex hull. In 
-// certain cases this implementation may not generate the convex hull.
+// certain cases this implementation may not generate the convex hull. This
+// behavior can be controlled by the Offset instance variable. Offset is a
+// multiplier used to control the size of the initial triangulation. The 
+// larger the offset value, the more likely you will generate a convex hull;
+// and the more likely you are to see numerical problems.
+ 
 // .SECTION See Also
-// vtkDelaunay3D vtkGaussianSplatter
+// vtkDelaunay3D vtkTranformFilter vtkGaussianSplatter
 
 #ifndef __vtkDelaunay2D_h
 #define __vtkDelaunay2D_h
 
 #include "vtkPointSetFilter.hh"
 #include "vtkPolyData.hh"
-#include "vtkStructuredData.hh"
 
 class vtkDelaunay2D : public vtkPointSetFilter
 {
@@ -101,10 +113,26 @@ public:
   vtkGetMacro(Alpha,float);
 
   // Description:
-  // Specify the plane in which to perform the triangulation. Can be either
-  // VTK_XY_PLANE, VTK_YZ_PLANE, or VTK_XZ_PLANE.
-  vtkSetClampMacro(Plane,int,VTK_XY_PLANE,VTK_XZ_PLANE);
-  vtkGetMacro(Plane,int);
+  // Specify a tolerance to control discarding of closely spaced points.
+  // This tolerance is specified as a fraction of the diagonal length of
+  // the bounding box of the points.
+  vtkSetClampMacro(Tolerance,float,0.0,1.0);
+  vtkGetMacro(Tolerance,float);
+
+  // Description:
+  // Specify a multiplier to control the size of the initial, bounding
+  // Delaunay triangulation.
+  vtkSetClampMacro(Offset,float,0.75,VTK_LARGE_FLOAT);
+  vtkGetMacro(Offset,float);
+
+  // Description:
+  // Boolean controls whether bounding triangulation points (and associated
+  // triangles) are included in the output. (These are introduced as an
+  // initial triangulation to begin the triangulation process. This feature
+  // is nice for debugging output.)
+  vtkSetMacro(BoundingTriangulation,int);
+  vtkGetMacro(BoundingTriangulation,int);
+  vtkBooleanMacro(BoundingTriangulation,int);
 
   // Description:
   // Get the output of this filter.
@@ -114,7 +142,10 @@ protected:
   void Execute();
 
   float Alpha;
-  int Plane;
+  float Tolerance;
+  int BoundingTriangulation;
+  float Offset;
+
 };
 
 #endif
