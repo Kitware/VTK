@@ -28,7 +28,7 @@
 #include "rtOtherTestBase.h"
 
 void SelectorCommand(ostream& strm) {
-  strm << "sed -e s/0x0/0/ | sed -e s/-0/0/ | grep -v 0x | grep -v Modified ";
+  strm << "sed -e s/0x0/0/ | sed -e s/-0/0/ | grep -v \\(1\\) | grep -v 0x | grep -v Modified ";
 }
 
 void ComparatorCommand(ostream& strm) {
@@ -213,35 +213,35 @@ void Test(ostream& strm)
   // Test GetCell
   i = 10; j = 15; k = 7;
   vtkCell *cell3D = sg3D->GetCell(k * (19 * 19) + j * 19 + i);
-  cerr << "cell3D: " << *cell3D ;
+  strm << "cell3D: " << *cell3D ;
 
   i = 10; j = 15; k = 7;
   vtkCell *cell2D = sg2Dxy->GetCell(j * 19 + i);
-  cerr << "cell2D: " << *cell2D ;
+  strm << "cell2D: " << *cell2D ;
 
   i = 10; j = 15; k = 7;
   cell2D = sg2Dxz->GetCell(j * 19 + i);
-  cerr << "cell2D: " << *cell2D ;
+  strm << "cell2D: " << *cell2D ;
 
   i = 10; j = 15; k = 7;
   cell2D = sg2Dyz->GetCell(j * 19 + i);
-  cerr << "cell2D: " << *cell2D ;
+  strm << "cell2D: " << *cell2D ;
 
   i = 10;
   vtkCell *cell1D = sg1Dx->GetCell(i);
-  cerr << "cell1D: " << *cell1D;
+  strm << "cell1D: " << *cell1D;
 
   i = 10;
   cell1D = sg1Dy->GetCell(i);
-  cerr << "cell1D: " << *cell1D;
+  strm << "cell1D: " << *cell1D;
 
   i = 10;
   cell1D = sg1Dz->GetCell(i);
-  cerr << "cell1D: " << *cell1D;
+  strm << "cell1D: " << *cell1D;
 
   i = 10;
   vtkCell *cell0D = sg0D->GetCell(0);
-  cerr << "cell0D: " << *cell0D;
+  strm << "cell0D: " << *cell0D;
 
   // Test Thread Safe GetCell
   vtkGenericCell *gcell3D = vtkGenericCell::New();
@@ -250,35 +250,35 @@ void Test(ostream& strm)
   vtkGenericCell *gcell0D = vtkGenericCell::New();
   i = 10; j = 15; k = 7;
   sg3D->GetCell(k * (19 * 19) + j * 19 + i, gcell3D);
-  cerr << "gcell3D: " << *gcell3D ;
+  strm << "gcell3D: " << *gcell3D ;
 
   i = 10; j = 15; k = 7;
   sg2Dxy->GetCell(j * 19 + i,gcell2D);
-  cerr << "gcell2D: " << *gcell2D ;
+  strm << "gcell2D: " << *gcell2D ;
 
   i = 10; j = 15; k = 7;
   sg2Dxz->GetCell(j * 19 + i,gcell2D);
-  cerr << "gcell2D: " << *gcell2D ;
+  strm << "gcell2D: " << *gcell2D ;
 
   i = 10; j = 15; k = 7;
   sg2Dyz->GetCell(j * 19 + i,gcell2D);
-  cerr << "gcell2D: " << *gcell2D ;
+  strm << "gcell2D: " << *gcell2D ;
 
   i = 10;
   sg1Dx->GetCell(i,gcell1D);
-  cerr << "gcell1D: " << *gcell1D;
+  strm << "gcell1D: " << *gcell1D;
 
   i = 10;
   sg1Dy->GetCell(i,gcell1D);
-  cerr << "gcell1D: " << *gcell1D;
+  strm << "gcell1D: " << *gcell1D;
 
   i = 10;
   sg1Dz->GetCell(i,gcell1D);
-  cerr << "gcell1D: " << *gcell1D;
+  strm << "gcell1D: " << *gcell1D;
 
   i = 10;
   sg0D->GetCell(0,gcell0D);
-  cerr << "gcell0D: " << *gcell0D;
+  strm << "gcell0D: " << *gcell0D;
 
   // Test GetCellBounds
   
@@ -362,7 +362,7 @@ void Test(ostream& strm)
   strm << "GetPoint(sg1Dz): "
        << point[0] << ", " << point[1] << ", " << point[2] << endl;
     
-  sg0D->GetPoint(i, point);
+  sg0D->GetPoint(0, point);
   strm << "GetPoint(sg0D): "
        << point[0] << ", " << point[1] << ", " << point[2] << endl;
 
