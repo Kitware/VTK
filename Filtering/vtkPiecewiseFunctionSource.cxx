@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkPiecewiseFunctionSource.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunctionSource, "1.2");
+#include "vtkObjectFactory.h"
+#include "vtkPiecewiseFunction.h"
+
+vtkCxxRevisionMacro(vtkPiecewiseFunctionSource, "1.3");
 
 //----------------------------------------------------------------------------
 vtkPiecewiseFunctionSource::vtkPiecewiseFunctionSource()
@@ -42,7 +44,19 @@ vtkPiecewiseFunction *vtkPiecewiseFunctionSource::GetOutput()
 }
 
 //----------------------------------------------------------------------------
+vtkPiecewiseFunction *vtkPiecewiseFunctionSource::GetOutput(int idx)
+{
+  return (vtkPiecewiseFunction *) this->vtkSource::GetOutput(idx); 
+};
+
+//----------------------------------------------------------------------------
 void vtkPiecewiseFunctionSource::SetOutput(vtkPiecewiseFunction *output)
 {
   this->vtkSource::SetNthOutput(0, output);
+}
+
+//----------------------------------------------------------------------------
+void vtkPiecewiseFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

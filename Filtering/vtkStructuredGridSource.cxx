@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridSource, "1.26");
+vtkCxxRevisionMacro(vtkStructuredGridSource, "1.27");
 
 //----------------------------------------------------------------------------
 vtkStructuredGridSource::vtkStructuredGridSource()
@@ -55,4 +55,8 @@ void vtkStructuredGridSource::SetOutput(vtkStructuredGrid *output)
   this->vtkSource::SetNthOutput(0, output);
 }
 
-
+//----------------------------------------------------------------------------
+void vtkStructuredGridSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

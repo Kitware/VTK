@@ -32,6 +32,7 @@ class VTK_FILTERING_EXPORT vtkDataSetToStructuredGridFilter : public vtkStructur
 {
 public:
   vtkTypeRevisionMacro(vtkDataSetToStructuredGridFilter,vtkStructuredGridSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / get the input data or filter.

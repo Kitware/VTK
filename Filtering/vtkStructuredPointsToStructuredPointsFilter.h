@@ -36,6 +36,7 @@ class VTK_FILTERING_EXPORT vtkStructuredPointsToStructuredPointsFilter : public 
 {
 public:
   vtkTypeRevisionMacro(vtkStructuredPointsToStructuredPointsFilter,vtkStructuredPointsSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / get the input data or filter.

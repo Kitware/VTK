@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkImplicitBoolean.h"
+
+#include "vtkImplicitFunctionCollection.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitBoolean, "1.30");
+vtkCxxRevisionMacro(vtkImplicitBoolean, "1.31");
 vtkStandardNewMacro(vtkImplicitBoolean);
 
 // Construct with union operation.

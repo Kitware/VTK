@@ -24,7 +24,8 @@
 #define __vtkPiecewiseFunctionShiftScale_h
 
 #include "vtkPiecewiseFunctionToPiecewiseFunctionFilter.h"
-#include "vtkPiecewiseFunction.h"
+
+class vtkPiecewiseFunction;
 
 class VTK_FILTERING_EXPORT vtkPiecewiseFunctionShiftScale : public vtkPiecewiseFunctionToPiecewiseFunctionFilter
 {

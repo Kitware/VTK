@@ -36,7 +36,8 @@
 #define __vtkImplicitBoolean_h
 
 #include "vtkImplicitFunction.h"
-#include "vtkImplicitFunctionCollection.h"
+ 
+class vtkImplicitFunctionCollection;
 
 #define VTK_UNION 0
 #define VTK_INTERSECTION 1

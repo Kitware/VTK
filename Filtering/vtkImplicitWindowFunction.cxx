@@ -18,8 +18,9 @@
 #include "vtkImplicitWindowFunction.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImplicitWindowFunction, "1.14");
+vtkCxxRevisionMacro(vtkImplicitWindowFunction, "1.15");
 vtkStandardNewMacro(vtkImplicitWindowFunction);
+vtkCxxSetObjectMacro(vtkImplicitWindowFunction,ImplicitFunction,vtkImplicitFunction);
 
 // Construct object with window range (0,1) and window values (0,1).
 vtkImplicitWindowFunction::vtkImplicitWindowFunction()

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageInPlaceFilter.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.35");
+vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.36");
 
 //----------------------------------------------------------------------------
 
@@ -91,4 +93,10 @@ void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
     outPtr += outIncZ;
     inPtr += inIncZ;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageInPlaceFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridSource, "1.25");
+vtkCxxRevisionMacro(vtkUnstructuredGridSource, "1.26");
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGridSource::vtkUnstructuredGridSource()
@@ -78,4 +78,10 @@ void vtkUnstructuredGridSource::ComputeInputUpdateExtents(vtkDataObject *data)
 vtkUnstructuredGrid *vtkUnstructuredGridSource::GetOutput(int idx)
 {
   return static_cast<vtkUnstructuredGrid *>( this->vtkSource::GetOutput(idx) ); 
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGridSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

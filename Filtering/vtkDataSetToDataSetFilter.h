@@ -42,19 +42,20 @@
 #define __vtkDataSetToDataSetFilter_h
 
 #include "vtkDataSetSource.h"
-#include "vtkDataSet.h"
 
+class vtkDataSet;
 class vtkPolyData;
-class vtkStructuredPoints;
-class vtkStructuredGrid;
-class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
+class vtkStructuredGrid;
+class vtkStructuredPoints;
+class vtkUnstructuredGrid;
 
 class VTK_FILTERING_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetSource
 {
 
 public:
   vtkTypeRevisionMacro(vtkDataSetToDataSetFilter,vtkDataSetSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the input data or filter.
@@ -64,8 +65,7 @@ public:
   // Get the output of this filter. If output is NULL then input
   // hasn't been set which is necessary for abstract objects.
   vtkDataSet *GetOutput();
-  vtkDataSet *GetOutput(int idx)
-    {return (vtkDataSet *) this->vtkDataSetSource::GetOutput(idx); };
+  vtkDataSet *GetOutput(int idx);
 
   // Description:
   // Get the output as vtkPolyData.

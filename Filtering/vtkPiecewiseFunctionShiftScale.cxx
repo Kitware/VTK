@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkPiecewiseFunctionShiftScale.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunctionShiftScale, "1.1");
+#include "vtkObjectFactory.h"
+#include "vtkPiecewiseFunction.h"
+
+vtkCxxRevisionMacro(vtkPiecewiseFunctionShiftScale, "1.2");
 vtkStandardNewMacro(vtkPiecewiseFunctionShiftScale);
 
 vtkPiecewiseFunctionShiftScale::vtkPiecewiseFunctionShiftScale()

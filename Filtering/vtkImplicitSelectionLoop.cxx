@@ -16,13 +16,18 @@
 
 =========================================================================*/
 #include "vtkImplicitSelectionLoop.h"
-#include "vtkMath.h"
-#include "vtkPlane.h"
-#include "vtkFloatArray.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImplicitSelectionLoop, "1.14");
+#include "vtkFloatArray.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPoints.h"
+#include "vtkPolygon.h"
+
+vtkCxxRevisionMacro(vtkImplicitSelectionLoop, "1.15");
 vtkStandardNewMacro(vtkImplicitSelectionLoop);
+vtkCxxSetObjectMacro(vtkImplicitSelectionLoop, Loop,vtkPoints);
 
 // Instantiate object with no initial loop.
 vtkImplicitSelectionLoop::vtkImplicitSelectionLoop()

@@ -36,6 +36,7 @@ class VTK_FILTERING_EXPORT vtkStructuredPointsToPolyDataFilter : public vtkPolyD
 {
 public:
   vtkTypeRevisionMacro(vtkStructuredPointsToPolyDataFilter,vtkPolyDataSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / get the input data or filter.

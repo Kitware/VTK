@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataSource, "1.6");
+vtkCxxRevisionMacro(vtkPolyDataSource, "1.7");
 
 //----------------------------------------------------------------------------
 vtkPolyDataSource::vtkPolyDataSource()
@@ -94,12 +94,8 @@ void vtkPolyDataSource::ComputeInputUpdateExtents(vtkDataObject *data)
   this->ExecuteGhostLevel = ghostLevel;
 }
 
-  
-
-
-
-
-
-
-
-
+//----------------------------------------------------------------------------
+void vtkPolyDataSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

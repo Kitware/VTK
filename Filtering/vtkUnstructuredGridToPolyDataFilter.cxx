@@ -19,7 +19,7 @@
 
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridToPolyDataFilter, "1.5");
+vtkCxxRevisionMacro(vtkUnstructuredGridToPolyDataFilter, "1.6");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -52,4 +52,10 @@ void vtkUnstructuredGridToPolyDataFilter::ComputeInputUpdateExtents(vtkDataObjec
     this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
     input->RequestExactExtentOn();
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGridToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

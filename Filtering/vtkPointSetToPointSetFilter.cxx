@@ -20,7 +20,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPointSetToPointSetFilter, "1.57");
+vtkCxxRevisionMacro(vtkPointSetToPointSetFilter, "1.58");
 
 //----------------------------------------------------------------------------
 // Construct object.
@@ -148,17 +148,8 @@ void vtkPointSetToPointSetFilter::ComputeInputUpdateExtents(vtkDataObject *outpu
   input->RequestExactExtentOn();  
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//----------------------------------------------------------------------------
+void vtkPointSetToPointSetFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

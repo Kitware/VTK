@@ -23,18 +23,19 @@
 #define __vtkPointDataSource_h
 
 #include "vtkSource.h"
-#include "vtkPointSet.h"
+
+class vtkPointSet;
 
 class VTK_FILTERING_EXPORT vtkPointSetSource : public vtkSource
 {
 public:
   vtkTypeRevisionMacro(vtkPointSetSource,vtkSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the output of this source.
   vtkPointSet *GetOutput();
-  vtkPointSet *GetOutput(int idx)
-    {return (vtkPointSet *) this->vtkSource::GetOutput(idx); };
+  vtkPointSet *GetOutput(int idx);
   void SetOutput(vtkPointSet *output);
   
 protected:

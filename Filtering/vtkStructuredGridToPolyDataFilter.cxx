@@ -19,7 +19,7 @@
 
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridToPolyDataFilter, "1.12");
+vtkCxxRevisionMacro(vtkStructuredGridToPolyDataFilter, "1.13");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -40,5 +40,8 @@ vtkStructuredGrid *vtkStructuredGridToPolyDataFilter::GetInput()
   return (vtkStructuredGrid *)(this->Inputs[0]);
 }
 
-
-
+//----------------------------------------------------------------------------
+void vtkStructuredGridToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

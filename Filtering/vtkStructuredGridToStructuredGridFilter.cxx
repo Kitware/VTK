@@ -19,7 +19,7 @@
 
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridToStructuredGridFilter, "1.17");
+vtkCxxRevisionMacro(vtkStructuredGridToStructuredGridFilter, "1.18");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -40,3 +40,9 @@ vtkStructuredGrid *vtkStructuredGridToStructuredGridFilter::GetInput()
   return (vtkStructuredGrid *)(this->Inputs[0]);
 }
 
+
+//----------------------------------------------------------------------------
+void vtkStructuredGridToStructuredGridFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

@@ -18,5 +18,11 @@
 #include "vtkPolyDataCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPolyDataCollection, "1.6");
+vtkCxxRevisionMacro(vtkPolyDataCollection, "1.7");
 vtkStandardNewMacro(vtkPolyDataCollection);
+
+//----------------------------------------------------------------------------
+void vtkPolyDataCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

@@ -23,7 +23,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCastToConcrete, "1.27");
+vtkCxxRevisionMacro(vtkCastToConcrete, "1.28");
 vtkStandardNewMacro(vtkCastToConcrete);
 
 void vtkCastToConcrete::Execute()
@@ -45,4 +45,8 @@ void vtkCastToConcrete::ExecuteInformation()
   output->CopyInformation(input);
 }
 
-
+//----------------------------------------------------------------------------
+void vtkCastToConcrete::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

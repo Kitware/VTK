@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.50");
+vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.51");
 vtkStandardNewMacro(vtkImageToStructuredPoints);
 
 //----------------------------------------------------------------------------
@@ -285,6 +285,12 @@ void vtkImageToStructuredPoints::ExecuteInformation()
   // How about xyx arrays in RectilinearGrid of Points in StructuredGrid?
   output->SetOrigin(origin);
   output->SetSpacing(spacing);
+}
+
+//----------------------------------------------------------------------------
+vtkStructuredPoints *vtkImageToStructuredPoints::GetOutput(int idx)
+{
+  return (vtkStructuredPoints *) this->vtkSource::GetOutput(idx); 
 }
 
 //----------------------------------------------------------------------------

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageMultipleInputOutputFilter.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMultipleInputOutputFilter, "1.8");
+vtkCxxRevisionMacro(vtkImageMultipleInputOutputFilter, "1.9");
 
 //----------------------------------------------------------------------------
 vtkImageMultipleInputOutputFilter::vtkImageMultipleInputOutputFilter()

@@ -19,7 +19,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsToPolyDataFilter, "1.25");
+vtkCxxRevisionMacro(vtkStructuredPointsToPolyDataFilter, "1.26");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -52,4 +52,10 @@ void vtkStructuredPointsToPolyDataFilter::ComputeInputUpdateExtents(
     }
   // assume that we cannot handle more than the requested extent.
   this->GetInput()->RequestExactExtentOn();
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredPointsToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

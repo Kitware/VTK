@@ -27,13 +27,15 @@
 #define __vtkPolyDataCollection_h
 
 #include "vtkCollection.h"
-#include "vtkPolyData.h"
+
+#include "vtkPolyData.h" // Needed for static cast
 
 class VTK_FILTERING_EXPORT vtkPolyDataCollection : public vtkCollection
 {
 public:
   static vtkPolyDataCollection *New();
   vtkTypeRevisionMacro(vtkPolyDataCollection,vtkCollection);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add a poly data to the list.

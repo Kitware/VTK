@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsToUnstructuredGridFilter, "1.13");
+vtkCxxRevisionMacro(vtkStructuredPointsToUnstructuredGridFilter, "1.14");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -52,4 +52,10 @@ void vtkStructuredPointsToUnstructuredGridFilter::ComputeInputUpdateExtents(
     {
     this->GetInput()->RequestExactExtentOn();
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredPointsToUnstructuredGridFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

@@ -19,7 +19,7 @@
 
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridToPolyDataFilter, "1.12");
+vtkCxxRevisionMacro(vtkRectilinearGridToPolyDataFilter, "1.13");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -40,3 +40,8 @@ vtkRectilinearGrid *vtkRectilinearGridToPolyDataFilter::GetInput()
   return (vtkRectilinearGrid *)(this->Inputs[0]);
 }
 
+//----------------------------------------------------------------------------
+void vtkRectilinearGridToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

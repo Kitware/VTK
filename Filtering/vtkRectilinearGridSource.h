@@ -34,6 +34,7 @@ class VTK_FILTERING_EXPORT vtkRectilinearGridSource : public vtkSource
 {
 public:
   vtkTypeRevisionMacro(vtkRectilinearGridSource,vtkSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the output of this source.

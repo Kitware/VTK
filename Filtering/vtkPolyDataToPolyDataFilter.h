@@ -38,6 +38,7 @@ class VTK_FILTERING_EXPORT vtkPolyDataToPolyDataFilter : public vtkPolyDataSourc
 {
 public:
   vtkTypeRevisionMacro(vtkPolyDataToPolyDataFilter,vtkPolyDataSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / get the input data or filter.

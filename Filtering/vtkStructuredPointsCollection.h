@@ -32,6 +32,7 @@ class VTK_FILTERING_EXPORT vtkStructuredPointsCollection : public vtkCollection
 public:
   static vtkStructuredPointsCollection *New();
   vtkTypeRevisionMacro(vtkStructuredPointsCollection,vtkCollection);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add a pointer to a vtkStructuredPoints to the list.

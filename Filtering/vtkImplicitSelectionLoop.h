@@ -49,7 +49,9 @@
 #define __vtkImplicitSelectionLoop_h
 
 #include "vtkImplicitFunction.h"
-#include "vtkPolygon.h"
+
+class vtkPoints;
+class vtkPolygon;
 
 class VTK_FILTERING_EXPORT vtkImplicitSelectionLoop : public vtkImplicitFunction
 {
@@ -74,7 +76,7 @@ public:
   // Description:
   // Set/Get the array of point coordinates defining the loop. There must
   // be at least three points used to define a loop.
-  vtkSetObjectMacro(Loop,vtkPoints);
+  virtual void SetLoop(vtkPoints*);
   vtkGetObjectMacro(Loop,vtkPoints);
 
   // Description:

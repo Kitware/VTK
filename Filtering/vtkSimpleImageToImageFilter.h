@@ -45,8 +45,8 @@
 class VTK_FILTERING_EXPORT vtkSimpleImageToImageFilter : public vtkImageSource
 {
 public:
-
   vtkTypeRevisionMacro(vtkSimpleImageToImageFilter,vtkImageSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the Input of a filter. 

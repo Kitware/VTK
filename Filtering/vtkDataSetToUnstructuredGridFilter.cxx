@@ -19,7 +19,7 @@
 
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetToUnstructuredGridFilter, "1.23");
+vtkCxxRevisionMacro(vtkDataSetToUnstructuredGridFilter, "1.24");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -40,3 +40,9 @@ vtkDataSet *vtkDataSetToUnstructuredGridFilter::GetInput()
   return (vtkDataSet *)(this->Inputs[0]);
 }
 
+
+//----------------------------------------------------------------------------
+void vtkDataSetToUnstructuredGridFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtkImplicitDataSet.h"
+
+#include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImplicitDataSet, "1.19");
+vtkCxxRevisionMacro(vtkImplicitDataSet, "1.20");
 vtkStandardNewMacro(vtkImplicitDataSet);
+vtkCxxSetObjectMacro(vtkImplicitDataSet,DataSet,vtkDataSet);
 
 // Construct an vtkImplicitDataSet with no initial dataset; the OutValue
 // set to a large negative number; and the OutGradient set to (0,0,1).

@@ -50,6 +50,7 @@ class VTK_FILTERING_EXPORT vtkPointSetToPointSetFilter : public vtkPointSetSourc
 {
 public:
   vtkTypeRevisionMacro(vtkPointSetToPointSetFilter,vtkPointSetSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Specify the input data or filter.

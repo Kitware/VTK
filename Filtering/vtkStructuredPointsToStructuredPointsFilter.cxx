@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsToStructuredPointsFilter, "1.27");
+vtkCxxRevisionMacro(vtkStructuredPointsToStructuredPointsFilter, "1.28");
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -69,4 +69,10 @@ void vtkStructuredPointsToStructuredPointsFilter::ComputeInputUpdateExtents(
 
   // assume that we cannot handle more than the requested extent.
   this->GetInput()->RequestExactExtentOn();
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredPointsToStructuredPointsFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

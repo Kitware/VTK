@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsSource, "1.33");
+vtkCxxRevisionMacro(vtkStructuredPointsSource, "1.34");
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsSource::vtkStructuredPointsSource()
@@ -75,5 +75,8 @@ void vtkStructuredPointsSource::ExecuteInformation()
   output->SetWholeExtent(output->GetExtent());
 }
 
-
-
+//----------------------------------------------------------------------------
+void vtkStructuredPointsSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

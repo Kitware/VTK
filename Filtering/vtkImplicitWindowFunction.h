@@ -33,7 +33,6 @@
 #ifndef __vtkImplicitWindowFunction_h
 #define __vtkImplicitWindowFunction_h
 
-#include <math.h>
 #include "vtkImplicitFunction.h"
 
 class VTK_FILTERING_EXPORT vtkImplicitWindowFunction : public vtkImplicitFunction
@@ -58,7 +57,7 @@ public:
 
   // Description:
   // Specify an implicit function to operate on.
-  vtkSetObjectMacro(ImplicitFunction,vtkImplicitFunction);
+  virtual void SetImplicitFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
 
   // Description:

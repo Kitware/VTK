@@ -41,7 +41,9 @@
 #define __vtkImplicitVolume_h
 
 #include "vtkImplicitFunction.h"
-#include "vtkImageData.h"
+
+class vtkIdList;
+class vtkImageData;
 
 class VTK_FILTERING_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 {
@@ -73,7 +75,7 @@ public:
 
   // Description:
   // Specify the volume for the implicit function.
-  vtkSetObjectMacro(Volume,vtkImageData);
+  virtual void SetVolume(vtkImageData*);
   vtkGetObjectMacro(Volume,vtkImageData);
 
   // Description:
@@ -95,6 +97,7 @@ protected:
   float OutGradient[3];
   // to replace a static
   vtkIdList *PointIds;
+
 private:
   vtkImplicitVolume(const vtkImplicitVolume&);  // Not implemented.
   void operator=(const vtkImplicitVolume&);  // Not implemented.

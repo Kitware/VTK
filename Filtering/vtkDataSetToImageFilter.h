@@ -28,10 +28,13 @@
 
 #include "vtkImageSource.h"
 
+class vtkDataSet;
+
 class VTK_FILTERING_EXPORT vtkDataSetToImageFilter : public vtkImageSource
 {
 public:
   vtkTypeRevisionMacro(vtkDataSetToImageFilter,vtkImageSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / get the input data or filter.

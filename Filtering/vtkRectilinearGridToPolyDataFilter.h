@@ -34,6 +34,7 @@ class VTK_FILTERING_EXPORT vtkRectilinearGridToPolyDataFilter : public vtkPolyDa
 {
 public:
   vtkTypeRevisionMacro(vtkRectilinearGridToPolyDataFilter,vtkPolyDataSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / get the input Grid or filter.

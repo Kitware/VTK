@@ -30,12 +30,14 @@
 #define __vtkDataSetToPolyDataFilter_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkPolyData.h"
+ 
+class vtkDataSet;
 
 class VTK_FILTERING_EXPORT vtkDataSetToPolyDataFilter : public vtkPolyDataSource
 {
 public:
   vtkTypeRevisionMacro(vtkDataSetToPolyDataFilter,vtkPolyDataSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / get the input data or filter.

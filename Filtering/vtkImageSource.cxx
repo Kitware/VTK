@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkImageSource.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageSource, "1.55");
+vtkCxxRevisionMacro(vtkImageSource, "1.56");
 
 //----------------------------------------------------------------------------
 vtkImageSource::vtkImageSource()
@@ -93,4 +95,16 @@ vtkImageData *vtkImageSource::AllocateOutputData(vtkDataObject *out)
   res->AllocateScalars();
 
   return res;
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageSource::GetOutput(int idx)
+{
+  return (vtkImageData *) this->vtkSource::GetOutput(idx);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

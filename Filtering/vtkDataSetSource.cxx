@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkDataSetSource, "1.11");
+vtkCxxRevisionMacro(vtkDataSetSource, "1.12");
 
 vtkDataSetSource::vtkDataSetSource()
 {
@@ -47,4 +47,10 @@ void vtkDataSetSource::SetOutput(vtkDataSet *output)
 vtkDataSet *vtkDataSetSource::GetOutput(int idx)
 {
   return static_cast<vtkDataSet *>( this->vtkSource::GetOutput(idx) ); 
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSetSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

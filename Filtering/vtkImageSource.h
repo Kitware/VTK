@@ -28,20 +28,21 @@
 #ifndef __vtkImageSource_h
 #define __vtkImageSource_h
 
-#include "vtkImageData.h"
 #include "vtkSource.h"
+
+class vtkImageData;
 
 class VTK_FILTERING_EXPORT vtkImageSource : public vtkSource
 {
 public:
   vtkTypeRevisionMacro(vtkImageSource,vtkSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the output of this source.
   void SetOutput(vtkImageData *output);
   vtkImageData *GetOutput();
-  vtkImageData *GetOutput(int idx)
-    {return (vtkImageData *) this->vtkSource::GetOutput(idx);}
+  vtkImageData *GetOutput(int idx);
   
 protected:
   vtkImageSource();

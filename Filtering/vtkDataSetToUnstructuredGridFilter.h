@@ -36,6 +36,7 @@ class VTK_FILTERING_EXPORT vtkDataSetToUnstructuredGridFilter : public vtkUnstru
 {
 public:
   vtkTypeRevisionMacro(vtkDataSetToUnstructuredGridFilter,vtkUnstructuredGridSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / get the input data or filter.
@@ -44,8 +45,7 @@ public:
   
 protected:
   vtkDataSetToUnstructuredGridFilter() {this->NumberOfRequiredInputs = 1;};
-  ~vtkDataSetToUnstructuredGridFilter() {};
-  
+  ~vtkDataSetToUnstructuredGridFilter() {};  
 
 private:
   vtkDataSetToUnstructuredGridFilter(const vtkDataSetToUnstructuredGridFilter&);  // Not implemented.

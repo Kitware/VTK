@@ -33,6 +33,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridToStructuredGridFilter : public vtkS
 {
 public:
   vtkTypeRevisionMacro(vtkStructuredGridToStructuredGridFilter,vtkStructuredGridSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / get the input Grid or filter.

@@ -24,18 +24,19 @@
 #define __vtkPiecewiseFunctionSource_h
 
 #include "vtkSource.h"
-#include "vtkPiecewiseFunction.h"
+
+class vtkPiecewiseFunction;
 
 class VTK_FILTERING_EXPORT vtkPiecewiseFunctionSource : public vtkSource
 {
 public:
   vtkTypeRevisionMacro(vtkPiecewiseFunctionSource,vtkSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the output of this source.
   vtkPiecewiseFunction *GetOutput();
-  vtkPiecewiseFunction *GetOutput(int idx)
-    {return (vtkPiecewiseFunction *) this->vtkSource::GetOutput(idx); };
+  vtkPiecewiseFunction *GetOutput(int idx);
   void SetOutput(vtkPiecewiseFunction *output);
 
 protected:

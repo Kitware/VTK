@@ -18,5 +18,11 @@
 #include "vtkStructuredPointsCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsCollection, "1.6");
+vtkCxxRevisionMacro(vtkStructuredPointsCollection, "1.7");
 vtkStandardNewMacro(vtkStructuredPointsCollection);
+
+//----------------------------------------------------------------------------
+void vtkStructuredPointsCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

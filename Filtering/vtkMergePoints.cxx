@@ -19,7 +19,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMergePoints, "1.35");
+vtkCxxRevisionMacro(vtkMergePoints, "1.36");
 vtkStandardNewMacro(vtkMergePoints);
 
 // Determine whether point given by x[3] has been inserted into points list.
@@ -154,4 +154,10 @@ vtkMergePoints::InsertUniquePoint(const float x[3], vtkIdType &id)
   id = this->InsertionPointId++;
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkMergePoints::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

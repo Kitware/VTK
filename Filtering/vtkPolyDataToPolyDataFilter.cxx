@@ -19,7 +19,7 @@
 
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataToPolyDataFilter, "1.14");
+vtkCxxRevisionMacro(vtkPolyDataToPolyDataFilter, "1.15");
 
 //----------------------------------------------------------------------------
 vtkPolyDataToPolyDataFilter::vtkPolyDataToPolyDataFilter() 
@@ -46,5 +46,8 @@ vtkPolyData *vtkPolyDataToPolyDataFilter::GetInput()
   return (vtkPolyData *)(this->Inputs[0]);
 }
 
-
-
+//----------------------------------------------------------------------------
+void vtkPolyDataToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

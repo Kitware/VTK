@@ -18,7 +18,7 @@
 #include "vtkDataObjectSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataObjectSource, "1.12");
+vtkCxxRevisionMacro(vtkDataObjectSource, "1.13");
 
 vtkDataObjectSource::vtkDataObjectSource()
 {
@@ -47,3 +47,9 @@ void vtkDataObjectSource::SetOutput(vtkDataObject *output)
   this->vtkSource::SetNthOutput(0, output);
 }
 
+
+//----------------------------------------------------------------------------
+void vtkDataObjectSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

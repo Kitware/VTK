@@ -35,6 +35,7 @@ class VTK_FILTERING_EXPORT vtkUnstructuredGridToPolyDataFilter : public vtkPolyD
 {
 public:
   vtkTypeRevisionMacro(vtkUnstructuredGridToPolyDataFilter,vtkPolyDataSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / get the input data or filter.

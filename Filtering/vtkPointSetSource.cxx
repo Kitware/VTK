@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkPointSetSource.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointSetSource, "1.9");
+#include "vtkObjectFactory.h"
+#include "vtkPointSet.h"
+
+vtkCxxRevisionMacro(vtkPointSetSource, "1.10");
 
 //----------------------------------------------------------------------------
 vtkPointSetSource::vtkPointSetSource()
@@ -39,10 +41,19 @@ vtkPointSet *vtkPointSetSource::GetOutput()
 
 
 //----------------------------------------------------------------------------
+vtkPointSet *vtkPointSetSource::GetOutput(int idx)
+{
+  return (vtkPointSet *) this->vtkSource::GetOutput(idx); 
+}
+
+//----------------------------------------------------------------------------
 void vtkPointSetSource::SetOutput(vtkPointSet *output)
 {
   this->vtkSource::SetNthOutput(0, output);
 }
 
-
-
+//----------------------------------------------------------------------------
+void vtkPointSetSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

@@ -41,7 +41,8 @@
 #define __vtkImplicitDataSet_h
 
 #include "vtkImplicitFunction.h"
-#include "vtkDataSet.h"
+
+class vtkDataSet;
 
 class VTK_FILTERING_EXPORT vtkImplicitDataSet : public vtkImplicitFunction
 {
@@ -71,7 +72,7 @@ public:
 
   // Description:
   // Set / get the dataset used for the implicit function evaluation.
-  vtkSetObjectMacro(DataSet,vtkDataSet);
+  virtual void SetDataSet(vtkDataSet*);
   vtkGetObjectMacro(DataSet,vtkDataSet);
 
   // Description:

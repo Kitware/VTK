@@ -34,6 +34,7 @@ class VTK_FILTERING_EXPORT vtkMergePoints2D : public vtkPointLocator2D
 public:
   static vtkMergePoints2D *New();
   vtkTypeRevisionMacro(vtkMergePoints2D,vtkPointLocator2D);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Determine whether point given by x[] has been inserted into points list.

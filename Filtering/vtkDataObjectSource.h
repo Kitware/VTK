@@ -63,6 +63,7 @@ class VTK_FILTERING_EXPORT vtkDataObjectSource : public vtkSource
 {
 public:
   vtkTypeRevisionMacro(vtkDataObjectSource,vtkSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the output field of this source.

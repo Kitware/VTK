@@ -25,12 +25,14 @@
 #define __vtkPiecewiseFunctionToPiecewiseFunctionFilter_h
 
 #include "vtkPiecewiseFunctionSource.h"
-#include "vtkPiecewiseFunction.h"
+ 
+class vtkPiecewiseFunction;
 
 class VTK_FILTERING_EXPORT vtkPiecewiseFunctionToPiecewiseFunctionFilter : public vtkPiecewiseFunctionSource
 {
 public:
   vtkTypeRevisionMacro(vtkPiecewiseFunctionToPiecewiseFunctionFilter,vtkPiecewiseFunctionSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / get the input data or filter.

@@ -34,6 +34,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridSource : public vtkSource
 {
 public:
   vtkTypeRevisionMacro(vtkStructuredGridSource,vtkSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the output of this source.

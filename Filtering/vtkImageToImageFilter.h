@@ -28,9 +28,9 @@
 #ifndef __vtkImageToImageFilter_h
 #define __vtkImageToImageFilter_h
 
-
 #include "vtkImageSource.h"
-#include "vtkMultiThreader.h"
+
+#include "vtkMultiThreader.h" // Needed for VTK_MAX_THREADS
 
 class VTK_FILTERING_EXPORT vtkImageToImageFilter : public vtkImageSource
 {
