@@ -28,7 +28,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.2");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.3");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -41,6 +41,12 @@ vtkBoxWidget::vtkBoxWidget()
 
   //Build the representation of the widget
   int i;
+
+  // Control orientation of normals
+  this->InsideOut = 0;
+  this->OutlineFaceWires = 0;
+  this->OutlineCursorWires = 1;
+
   // Construct the poly data representing the hex
   this->HexPolyData = vtkPolyData::New();
   this->HexMapper = vtkPolyDataMapper::New();
@@ -153,11 +159,6 @@ vtkBoxWidget::vtkBoxWidget()
   this->OutlineProperty = NULL;
   this->SelectedOutlineProperty = NULL;
   this->CreateDefaultProperties();
-
-  // Control orientation of normals
-  this->InsideOut = 0;
-  this->OutlineFaceWires = 0;
-  this->OutlineCursorWires = 1;
 }
 
 vtkBoxWidget::~vtkBoxWidget()
@@ -166,6 +167,15 @@ vtkBoxWidget::~vtkBoxWidget()
   this->HexMapper->Delete();
   this->HexPolyData->Delete();
   this->Points->Delete();
+
+  this->HexFace->Delete();
+  this->HexFaceMapper->Delete();
+  this->HexFacePolyData->Delete();
+
+  this->HexOutline->Delete();
+  this->OutlineMapper->Delete();
+  this->OutlinePolyData->Delete();
+  
   for (int i=0; i<7; i++)
     {
     this->HandleGeometry[i]->Delete();
