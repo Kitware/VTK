@@ -13,6 +13,12 @@ IF (HAVE_PNG)
       -V Baseline/Filtering/CSpline.png
       -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 
+    ADD_TEST(KSpline-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/KSpline.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Filtering/KSpline.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   #
   # If we do not have the data, still run the tests that we can
   #
@@ -21,6 +27,11 @@ IF (HAVE_PNG)
     ADD_TEST(CSpline-image ${VTK_EXECUTABLE}
       ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
       ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/CSpline.tcl
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(KSpline-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/KSpline.tcl
       -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 
   ENDIF (VTK_DATA_ROOT)

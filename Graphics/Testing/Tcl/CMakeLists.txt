@@ -5,6 +5,20 @@ IF (HAVE_PNG)
   # Add tests, with the data
   #
   IF (VTK_DATA_ROOT)
+    ADD_TEST(Canny-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/Canny.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/Canny.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(volTestClipRegions-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/volTestClipRegions.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/volTestClipRegions.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
     ADD_TEST(PolyDataMapperAllPolygons-image ${VTK_EXECUTABLE}
       ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
       ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/PolyDataMapperAllPolygons.tcl
