@@ -391,9 +391,9 @@ void vtkTransform::GetOrientation(double orientation[3])
     }
   if (vtkMath::Determinant3x3(ortho) < 0)
     {
-    ortho[0][i] = -ortho[0][i];
-    ortho[1][i] = -ortho[1][i];
-    ortho[2][i] = -ortho[2][i];
+    ortho[0][2] = -ortho[0][2];
+    ortho[1][2] = -ortho[1][2];
+    ortho[2][2] = -ortho[2][2];
     }
 
   vtkMath::Orthogonalize3x3(ortho, ortho);
