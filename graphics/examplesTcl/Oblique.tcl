@@ -9,6 +9,8 @@ source $VTK_TCL/vtkInt.tcl
 vtkRenderer ren1
 vtkRenderWindow renWin
     renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
 
 # set camera for a parallel, oblique projection
 vtkCamera camera
@@ -34,6 +36,9 @@ vtkActor cubeActor
 
 # assign our actor to the renderer
 ren1 AddActor cubeActor
+
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
 
 renWin Render
 
