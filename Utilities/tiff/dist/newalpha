@@ -1,0 +1,8 @@
+#! /bin/sh
+#	Header
+if test -r tiff.alpha; then
+    ALPHA=`cat tiff.alpha`; rm -f tiff.alpha
+    echo "$ALPHA" | awk '{ printf "define ALPHA %1d\n", $3+1}' > tiff.alpha
+else
+    echo "define ALPHA 001" >tiff.alpha
+fi
