@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.101");
+vtkCxxRevisionMacro(vtkImageReader, "1.102");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -332,17 +332,28 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
       // move to the next row in the file and data
       filePos = self->GetFile()->tellg();
 
-#if defined(VTK_USE_ANSI_STDLIB ) && defined(__sgi) && !defined(__GNUC__)
+/* Unfortunately this doesn't work as a fix, but I'll leave it here for a bit
+   to provoke ideas.
+      if (filePos == -1)
+        {
+        self->GetFile()->clear(self->GetFile()->rdstate() & ~ios::eofbit);
+        self->GetFile()->clear(self->GetFile()->rdstate() & ~ios::failbit);
+        filePos = self->GetFile()->tellg();
+        }
+*/
+#if defined(VTK_USE_ANSI_STDLIB ) && ((defined(__sgi) && !defined(__GNUC__)) \
+    || (__BORLANDC__==0x0560))
       // this check is required for SGI's when vtk is build with VTK_USE_ANSI_STDLIB
       // seems that after a read that just reaches EOF, tellg reports a -1.
       // clear() does not work, so we have to reopen the file.
+      // NB: Also Borland CBuilder 6 suffers from same trouble
       if (filePos == -1)
         {
         self->OpenFile();
         self->GetFile()->seekg(0,ios::end);
         filePos = self->GetFile()->tellg();
         }
-#endif 
+#endif
       // watch for case where we might rewind too much
       // if that happens, store the value in correction and apply later
       if (filePos + streamSkip0 >= 0)
