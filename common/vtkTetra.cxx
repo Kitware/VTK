@@ -91,9 +91,9 @@ int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
   weights[2] = pcoords[1];
   weights[3] = pcoords[2];
 
-  if ( pcoords[0] >= 0.0 && pcoords[1] <= 1.0 &&
-  pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
-  pcoords[2] >= 0.0 && pcoords[2] <= 1.0 && p4 >= 0.0 && p4 <= 1.0 )
+  if ( pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
+  pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
+  pcoords[2] >= -0.001 && pcoords[2] <= 1.001 && p4 >= -0.001 && p4 <= 1.001 )
     {
     closestPoint[0] = x[0]; 
     closestPoint[1] = x[1]; 
