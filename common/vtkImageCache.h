@@ -62,6 +62,7 @@ class vtkImageCache : public vtkImageSource
 {
 public:
   vtkImageCache();
+  ~vtkImageCache();
   char *GetClassName() {return "vtkImageCache";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

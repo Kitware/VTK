@@ -423,7 +423,7 @@ int vtkImageData::Allocate()
 // increments are calculate as a side action of this call.
 void vtkImageData::SetScalars(vtkScalars *scalars)
 {
-  int idx, inc, num;
+  int idx, inc=1, num;
 
   // Set the proper type.
   if (strcmp(scalars->GetDataType(), "float") == 0)
