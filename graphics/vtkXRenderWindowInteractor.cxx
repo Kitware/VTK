@@ -189,6 +189,8 @@ void vtkXRenderWindowInteractor::Initialize()
   ren->SetDisplayId(this->DisplayId);
 
   size    = ren->GetSize();
+  size[0] = ((size[0] > 0) ? size[0] : 300);
+  size[1] = ((size[1] > 0) ? size[1] : 300);
   if (!this->top)
     {
     depth   = ren->GetDesiredDepth();
