@@ -129,7 +129,7 @@ proc check_header_file { filename } {
     while { [gets $fileid data] >= 0 && $protected_not_found } {
 
       # Search for the printSelf string
-      if { [string match "*PrintSelf*(*)*" $data] == 1 } {
+      if { [string match "*PrintSelf*(*" $data] == 1 } {
 
         set printself_found 1
 
