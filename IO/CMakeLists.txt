@@ -1,4 +1,5 @@
 SOURCE_FILES( IO_SRCS
+vtk3DSImporter
 vtkBMPReader
 vtkBMPWriter
 vtkBYUReader
