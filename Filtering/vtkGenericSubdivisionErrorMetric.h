@@ -14,6 +14,7 @@
 =========================================================================*/
 // .NAME vtkGenericSubdivisionErrorMetric - Objects that compute
 // error during cell tessellation.
+//
 // .SECTION Description
 // Objects of that class answer the following question during the cell
 // subdivision: "does the edge need to be subdivided?" through
@@ -28,7 +29,7 @@
 // into simplices so that they can be processed with conventional
 // visualization algorithms.
 
-// See Also
+// .SECTION See Also
 // vtkGenericCellTessellator
 
 #ifndef __vtkGenericSubdivisionErrorMetric_h
