@@ -37,8 +37,6 @@
 class vtkLine;
 class vtkPolygon;
 class vtkQuad;
-class vtkWedge;
-class vtkDoubleArray;
 
 class VTK_COMMON_EXPORT vtkPentagonalPrism : public vtkCell3D
 {
@@ -97,12 +95,6 @@ protected:
   vtkLine          *Line;
   vtkQuad          *Quad;
   vtkPolygon       *Polygon;
-  vtkWedge         *Wedge;
-  vtkPointData     *PointData;
-  vtkCellData      *CellData;
-  vtkDoubleArray   *Scalars; //used to avoid New/Delete in contouring/clipping
-
-  void Subdivide(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId);
 
 private:
   vtkPentagonalPrism(const vtkPentagonalPrism&);  // Not implemented.
@@ -111,7 +103,7 @@ private:
 
 inline int vtkPentagonalPrism::GetParametricCenter(double pcoords[3])
 {
-  pcoords[0] = pcoords[1] = 0.333333;
+  pcoords[0] = pcoords[1] = 0.5;
   pcoords[2] = 0.5;
 
   return 0;

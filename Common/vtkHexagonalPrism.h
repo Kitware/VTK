@@ -38,8 +38,6 @@
 class vtkLine;
 class vtkPolygon;
 class vtkQuad;
-class vtkHexahedron;
-class vtkDoubleArray;
 
 class VTK_COMMON_EXPORT vtkHexagonalPrism : public vtkCell3D
 {
@@ -98,10 +96,6 @@ protected:
   vtkLine          *Line;
   vtkQuad          *Quad;
   vtkPolygon       *Polygon;
-  vtkHexahedron    *Hexahedron;
-  vtkPointData     *PointData;
-  vtkCellData      *CellData;
-  vtkDoubleArray   *Scalars; //used to avoid New/Delete in contouring/clipping
 
 private:
   vtkHexagonalPrism(const vtkHexagonalPrism&);  // Not implemented.
@@ -110,7 +104,7 @@ private:
 
 inline int vtkHexagonalPrism::GetParametricCenter(double pcoords[3])
 {
-  pcoords[0] = pcoords[1] = 0.333333;
+  pcoords[0] = pcoords[1] = 0.5;
   pcoords[2] = 0.5;
   return 0;
 }

@@ -22,20 +22,14 @@
 
 #include "vtkHexagonalPrism.h"
 
-#include "vtkHexahedron.h"
+#include "vtkObjectFactory.h"
 #include "vtkLine.h"
 #include "vtkQuad.h"
-#include "vtkMath.h"
-#include "vtkObjectFactory.h"
 #include "vtkPolygon.h"
-#include "vtkCellArray.h"
-#include "vtkPointLocator.h"
-#include "vtkDoubleArray.h"
-#include "vtkCellData.h"
+#include "vtkMath.h"
 #include "vtkPoints.h"
-#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.12");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.13");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -44,13 +38,10 @@ static const double VTK_DIVERGED = 1.e6;
 // Construct the prism with twelve points.
 vtkHexagonalPrism::vtkHexagonalPrism()
 {
-  int i;
-  
-  this->Points->SetNumberOfPoints(12+2);
-  this->PointIds->SetNumberOfIds(12+2);
+  this->Points->SetNumberOfPoints(12);
+  this->PointIds->SetNumberOfIds(12);
 
-  // allocate enough room for the extra 2 points we insert on the hexagons
-  for (i = 0; i < 12+2; i++)
+  for (int i = 0; i < 12; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
@@ -60,15 +51,9 @@ vtkHexagonalPrism::vtkHexagonalPrism()
 
   this->Line = vtkLine::New();
   this->Quad = vtkQuad::New();
-  this->Hexahedron = vtkHexahedron::New();
   this->Polygon = vtkPolygon::New();
   this->Polygon->PointIds->SetNumberOfIds(6);
   this->Polygon->Points->SetNumberOfPoints(6);
-
-  this->PointData = vtkPointData::New();
-  this->CellData = vtkCellData::New();
-  this->Scalars = vtkDoubleArray::New();
-  this->Scalars->SetNumberOfTuples(8);  //num of vertices
 }
 
 //----------------------------------------------------------------------------
@@ -77,11 +62,6 @@ vtkHexagonalPrism::~vtkHexagonalPrism()
   this->Line->Delete();
   this->Quad->Delete();
   this->Polygon->Delete();
-  this->Hexahedron->Delete();
-
-  this->PointData->Delete();
-  this->CellData->Delete();
-  this->Scalars->Delete();
 }
 
 //  Method to calculate parametric coordinates in an eight noded
@@ -503,8 +483,8 @@ vtkCell *vtkHexagonalPrism::GetFace(int faceId)
 // Intersect prism faces against line. Each prism face is a quadrilateral.
 //
 int vtkHexagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol,
-                                    double &t, double x[3], double pcoords[3],
-                                    int& subId)
+                                         double &t, double x[3], double pcoords[3],
+                                         int& subId)
 {
   int intersection=0;
   double pt1[3], pt2[3], pt3[3], pt4[3];

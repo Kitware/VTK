@@ -22,20 +22,14 @@
 
 #include "vtkPentagonalPrism.h"
 
-#include "vtkWedge.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkLine.h"
 #include "vtkQuad.h"
 #include "vtkPolygon.h"
-#include "vtkCellArray.h"
-#include "vtkPointLocator.h"
-#include "vtkDoubleArray.h"
-#include "vtkCellData.h"
+#include "vtkMath.h"
 #include "vtkPoints.h"
-#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.8");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.9");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -44,13 +38,10 @@ static const double VTK_DIVERGED = 1.e6;
 // Construct the prism with ten points.
 vtkPentagonalPrism::vtkPentagonalPrism()
 {
-  int i;
-  this->DebugOff();
-  this->Points->SetNumberOfPoints(10+2);
-  this->PointIds->SetNumberOfIds(10+2);
+  this->Points->SetNumberOfPoints(10);
+  this->PointIds->SetNumberOfIds(10);
 
-// allocate enough room for the extra 2 points we insert on the pentagons
-  for (i = 0; i < 10+2; i++)
+  for (int i = 0; i < 10; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
@@ -60,15 +51,9 @@ vtkPentagonalPrism::vtkPentagonalPrism()
 
   this->Line = vtkLine::New();
   this->Quad = vtkQuad::New();
-  this->Wedge = vtkWedge::New();
   this->Polygon = vtkPolygon::New();
   this->Polygon->PointIds->SetNumberOfIds(5);
   this->Polygon->Points->SetNumberOfPoints(5);
-
-  this->PointData = vtkPointData::New();
-  this->CellData = vtkCellData::New();
-  this->Scalars = vtkDoubleArray::New();
-  this->Scalars->SetNumberOfTuples(6);  //num of vertices
 }
 
 //----------------------------------------------------------------------------
@@ -77,11 +62,6 @@ vtkPentagonalPrism::~vtkPentagonalPrism()
   this->Line->Delete();
   this->Quad->Delete();
   this->Polygon->Delete();
-  this->Wedge->Delete();
-
-  this->PointData->Delete();
-  this->CellData->Delete();
-  this->Scalars->Delete();
 }
 
 //
