@@ -136,6 +136,9 @@ OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library", OFF)
 # Look for the PNG and zlib libraries and header files
 #
 # on windows we have it checked in
+
+OPTION(VTK_USE_PNGLIB "Link the PNG library", OFF)
+
 IF (WIN32)
   FIND_LIBRARY(PNG_LIBRARY libpng "${VTK_SOURCE_DIR}/IO/PNG")
   FIND_PATH(PNG_INCLUDE_PATH png.h "${VTK_SOURCE_DIR}/IO/PNG")
@@ -194,4 +197,3 @@ ENDIF (EXECUTABLE_OUTPUT_PATH)
 # try to find the data files for VTKData
 #
 FIND_PATH(VTK_DATA_ROOT VTKData.readme ${VTK_SOURCE_DIR}/../VTKData)
-

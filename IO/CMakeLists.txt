@@ -56,19 +56,21 @@ vtkWriter
 # 
 # if we found the PNG libraries then add those classes
 #
-IF (HAVE_PNG)
-  SOURCE_FILES( IO_SRCS vtkPNGReader vtkPNGWriter )
-  LINK_LIBRARIES(${PNG_LIBRARY})
-  IF (ZLIB_LIBRARY)
-    LINK_LIBRARIES(${ZLIB_LIBRARY})
-  ENDIF (ZLIB_LIBRARY)
-ENDIF (HAVE_PNG)
+IF (VTK_USE_PNGLIB)
+  IF (HAVE_PNG)
+    SOURCE_FILES( IO_SRCS vtkPNGReader vtkPNGWriter )
+    LINK_LIBRARIES(${PNG_LIBRARY})
+    IF (ZLIB_LIBRARY)
+      LINK_LIBRARIES(${ZLIB_LIBRARY})
+    ENDIF (ZLIB_LIBRARY)
+  ENDIF (HAVE_PNG)
+ENDIF (VTK_USE_PNGLIB)
   
 ADD_LIBRARY(vtkIO IO_SRCS)
 
 # Allow the user to customize their build with some local options
 #
-INCLUDE (LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_SOURCE_DIR}/IO/LocalUserOptions.cmake OPTIONAL) 
 
 # if we are wrapping into Tcl then add the library and extra 
 # source files
