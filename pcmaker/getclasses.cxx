@@ -169,6 +169,7 @@ void removeUNIXOnlyFiles(CPcmakerDlg *vals)
     {
     if (!(strcmp(concrete[i],"vtkXRenderWindow") &&
           strcmp(concrete[i],"vtkXRenderWindowInteractor") &&
+          strcmp(concrete[i],"vtkXRenderWindowTclInteractor") &&
           strcmp(concrete[i], "vtkXImageMapper") &&
 	  strcmp(concrete[i], "vtkXImageWindow") &&
 	  strcmp(concrete[i], "vtkXTextMapper") &&
@@ -198,10 +199,11 @@ void removeUNIXOnlyFiles(CPcmakerDlg *vals)
     {
     if (!(strcmp(abstract[i],"vtkXRenderWindow") &&
           strcmp(abstract[i],"vtkXRenderWindowInteractor") &&
-          strcmp(concrete[i], "vtkXImageMapper") &&
-	  strcmp(concrete[i], "vtkXImageWindow") &&
-	  strcmp(concrete[i], "vtkXTextMapper") &&
-	  strcmp(concrete[i], "vtkXPolyMapper2D") &&
+          strcmp(abstract[i],"vtkXRenderWindowTclInteractor") &&
+          strcmp(abstract[i], "vtkXImageMapper") &&
+	  strcmp(abstract[i], "vtkXImageWindow") &&
+	  strcmp(abstract[i], "vtkXTextMapper") &&
+	  strcmp(abstract[i], "vtkXPolyMapper2D") &&
           strncmp(abstract[i],"vtkDFA",6) && 
           strncmp(abstract[i],"vtkTcl",6) && 
           strncmp(abstract[i],"vtkTk",5) ))
