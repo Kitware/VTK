@@ -6,6 +6,7 @@ vtkCompositeManager.cxx
 vtkCompositer.cxx
 vtkCompressCompositer.cxx
 vtkCutMaterial.cxx
+vtkDummyController.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
 vtkInputPort.cxx
