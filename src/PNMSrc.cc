@@ -81,7 +81,6 @@ void vtkPNMSource::Execute()
 vtkColorScalars *vtkPNMSource::ReadImage(int dim[3])
 {
   char magic[80];
-  int max;
   vtkPixmap *pixmap;
   vtkGraymap *graymap;
   vtkBitmap *bitmap;
