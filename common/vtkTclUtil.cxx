@@ -489,7 +489,6 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
   // Make sure we are not clobbering a built in command
   if (Tcl_GetCommandInfo(interp,argv[1],&cinf))
     {
-    Tcl_SetResult(interp, argv[1], TCL_VOLATILE);
     vtkGenericWarningMacro(<< argv[1] << ": a tcl/tk command with that name already exists.");
     }
 
