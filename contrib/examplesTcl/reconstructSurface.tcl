@@ -70,6 +70,7 @@ ren1 ResetCamera
 [ren1 GetActiveCamera] Azimuth 20
 [ren1 GetActiveCamera] Elevation 30
 [ren1 GetActiveCamera] Dolly 1.2
+ren1 ResetCameraClippingRange
 
 # render the image
 #
