@@ -45,14 +45,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct a new vtkMutexFunctionLock
 vtkMutexFunctionLock::vtkMutexFunctionLock(void )
 {
-  this->mutex_var = vtkMutexLock::New();
+  this->MutexVar = vtkMutexLock::New();
 }
 
 // Description:
 // Destruct the vtkMutexFunctionLock
 vtkMutexFunctionLock::~vtkMutexFunctionLock(void )
 {
-  delete this->mutex_var;
+  delete this->MutexVar;
 }
 
 // Description:
@@ -60,22 +60,22 @@ vtkMutexFunctionLock::~vtkMutexFunctionLock(void )
 void vtkMutexFunctionLock::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
-  this->mutex_var->PrintSelf(os,indent);
+  this->MutexVar->PrintSelf(os,indent);
 }
 
 // Description:
 // Lock method for vtkMutexFunctionLock
 void vtkMutexFunctionLock::StartLock(void )
 {
-  if (this->mutex_var != NULL)
-    this->mutex_var->Lock();
+  if (this->MutexVar != NULL)
+    this->MutexVar->Lock();
 }
 
 // Description:
 // Unlock method for vtkMutexFunctionLock
 void vtkMutexFunctionLock::EndLock(void )
 {
-  if (this->mutex_var != NULL)
-    this->mutex_var->Unlock();
+  if (this->MutexVar != NULL)
+    this->MutexVar->Unlock();
 }
 
