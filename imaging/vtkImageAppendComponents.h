@@ -51,13 +51,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageAppendComponents_h
 
 
-#include "vtkImageTwoInputFilter.h"
+#include "vtkImageMultipleInputFilter.h"
 
-class VTK_EXPORT vtkImageAppendComponents : public vtkImageTwoInputFilter
+class VTK_EXPORT vtkImageAppendComponents : public vtkImageMultipleInputFilter
 {
 public:
   static vtkImageAppendComponents *New(){return new vtkImageAppendComponents;};
   const char *GetClassName() {return "vtkImageAppendComponents";};
+
+  // Description:
+  // Do not use these: They are for legacy compatability back when this was a
+  // two input filter.
+  virtual void SetInput1(vtkImageCache *input){this->SetInput(0, input);}
+  void SetInput1(vtkStructuredPoints *spts)
+    {this->SetInput1(spts->GetStructuredPointsToImage()->GetOutput());}
+  virtual void SetInput2(vtkImageCache *input){this->SetInput(1, input);}
+  void SetInput2(vtkStructuredPoints *spts)
+    {this->SetInput2(spts->GetStructuredPointsToImage()->GetOutput());}
 
 protected:
   
