@@ -27,7 +27,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.55");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.56");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -42,6 +42,7 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->NumberOfBinsUsed = 0;
   this->AbortExecute = 0;
 
+  this->AutoAdjustNumberOfDivisions = 1;
   this->ComputeNumberOfDivisions = 0;
   this->DivisionOrigin[0] = 0.0;
   this->DivisionOrigin[1] = 0.0;
@@ -126,7 +127,7 @@ void vtkQuadricClustering::Execute()
   int target = this->GetInput()->GetNumberOfPoints();
   int numDiv = (this->NumberOfXDivisions * this->NumberOfYDivisions
                   * this->NumberOfZDivisions) / 2;
-  if (target > 0 && numDiv > target) 
+  if (this->AutoAdjustNumberOfDivisions && target > 0 && numDiv > target) 
     {
     double factor = pow(((double)numDiv/(double)target),0.33333);
     this->NumberOfDivisions[0] = 
@@ -144,6 +145,7 @@ void vtkQuadricClustering::Execute()
     }
 
   this->StartAppend(input->GetBounds());
+  this->SliceSize = this->NumberOfDivisions[0]*this->NumberOfDivisions[1];
 
   this->Append(input);
   if (this->UseFeatureEdges)
@@ -260,7 +262,7 @@ void vtkQuadricClustering::StartAppend(float *bounds)
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::Append(vtkPolyData *pd)
 {
-  vtkCellArray *inputTris, *inputStrips, *inputLines, *inputVerts;
+  vtkCellArray *inputPolys, *inputStrips, *inputLines, *inputVerts;
   vtkPoints *inputPoints = pd->GetPoints();
   
   // Check for mis-use of the Append methods.
@@ -282,10 +284,10 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
     this->AddEdges(inputLines, inputPoints, 1);
     }
 
-  inputTris = pd->GetPolys();
-  if (inputTris)
+  inputPolys = pd->GetPolys();
+  if (inputPolys)
     {
-    this->AddTriangles(inputTris, inputPoints, 1);
+    this->AddPolygons(inputPolys, inputPoints, 1);
     }
 
   inputStrips = pd->GetStrips();
@@ -296,24 +298,24 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricClustering::AddTriangles(vtkCellArray *tris, vtkPoints *points,
+void vtkQuadricClustering::AddPolygons(vtkCellArray *polys, vtkPoints *points,
                                        int geometryFlag)
 {
   int j;
   vtkIdType *ptIds = 0;
   vtkIdType numPts = 0;
-  float *pts0, *pts1, *pts2;
+  float pts0[3], pts1[3], pts2[3];
   vtkIdType binIds[3];
 
-  for ( tris->InitTraversal(); tris->GetNextCell(numPts, ptIds); )
+  for ( polys->InitTraversal(); polys->GetNextCell(numPts, ptIds); )
     {
-    pts0 = points->GetPoint(ptIds[0]);
+    points->GetPoint(ptIds[0],pts0);
     binIds[0] = this->HashPoint(pts0);
-    for (j = 0; j < numPts-2; j++)
+    for (j=0; j < numPts-2; j++)//creates triangles; assumes poly is convex
       {
-      pts1 = points->GetPoint(ptIds[j+1]);
+      points->GetPoint(ptIds[j+1],pts1);
       binIds[1] = this->HashPoint(pts1);
-      pts2 = points->GetPoint(ptIds[j+2]);
+      points->GetPoint(ptIds[j+2],pts2);
       binIds[2] = this->HashPoint(pts2);
       this->AddTriangle(binIds, pts0, pts1, pts2, geometryFlag);
       }
@@ -374,7 +376,7 @@ inline void vtkQuadricClustering::InitializeQuadric(float quadric[9])
 // and the constant coefficient.
 // If geomertyFlag is 1 then the triangle is added to the output.  Otherwise,
 // only the quadric is affected.
-void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, float *pt0, float *pt1, 
+void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, float *pt0, float *pt1,
                                        float *pt2, int geometryFlag)
 {
   int i;
@@ -729,8 +731,9 @@ vtkIdType vtkQuadricClustering::HashPoint(float point[3])
     zBinCoord = this->NumberOfDivisions[2] - 1;
     }
 
-  binId = xBinCoord*this->NumberOfDivisions[1]*this->NumberOfDivisions[2] + 
-    yBinCoord*this->NumberOfDivisions[2] + zBinCoord;
+  // vary x fastest, then y, then z
+  binId = xBinCoord + yBinCoord*this->NumberOfDivisions[1] + 
+    zBinCoord*this->SliceSize;
 
   return binId;
 }
@@ -830,10 +833,9 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[9],
   quadric4x4[2][3] = quadric4x4[3][2] = quadric[8];
   quadric4x4[3][3] = 1;  // arbitrary value
   
-  x = binId / (this->NumberOfYDivisions * this->NumberOfZDivisions);
-  y = (binId - x * this->NumberOfYDivisions * this->NumberOfZDivisions) /
-    this->NumberOfZDivisions;
-  z = binId - this->NumberOfZDivisions * (x * this->NumberOfYDivisions + y);
+  x = binId % this->NumberOfDivisions[0];
+  y = (binId / this->NumberOfDivisions[0]) % this->NumberOfDivisions[1];
+  z = binId / this->SliceSize;
 
   cellBounds[0] = this->Bounds[0] + x * this->XBinSize;
   cellBounds[1] = this->Bounds[0] + (x+1) * this->XBinSize;
@@ -906,18 +908,38 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[9],
   // not, then clamp the point to the center of the bin. Currently "vicinity"
   // is defined as BinSize around the center of the bin. It may be desirable
   // to increase this to a larger multiple of the bin size.
-  for (i = 0; i < 3; i++)
+  point[0] = cellCenter[0] + tempVector[0];
+  point[1] = cellCenter[1] + tempVector[1];
+  point[2] = cellCenter[2] + tempVector[2];
+
+  if (0)
     {
-    point[i] = cellCenter[i] + tempVector[i];
-    if ( point[i] < (cellCenter[i] - this->XBinSize) )
-      {
-      point[i] = cellCenter[i];
-      }
-    else if ( point[i] > (cellCenter[i] + this->XBinSize) )
-      {
-      point[i] = cellCenter[i];
-      }
+  if ( point[0] < (cellCenter[0] - this->XBinSize) )
+    {
+    point[0] = cellCenter[0];
     }
+  else if ( point[0] > (cellCenter[0] + this->XBinSize) )
+    {
+    point[0] = cellCenter[0];
+    }
+  if ( point[1] < (cellCenter[1] - this->YBinSize) )
+    {
+    point[1] = cellCenter[1];
+    }
+  else if ( point[1] > (cellCenter[1] + this->YBinSize) )
+    {
+    point[1] = cellCenter[1];
+    }
+  if ( point[2] < (cellCenter[2] - this->ZBinSize) )
+    {
+    point[2] = cellCenter[2];
+    }
+  else if ( point[2] > (cellCenter[2] + this->ZBinSize) )
+    {
+    point[2] = cellCenter[2];
+    }
+    }
+  
 }
 
 //----------------------------------------------------------------------------
@@ -1367,6 +1389,9 @@ void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "Number of Z Divisions: " << this->NumberOfZDivisions
      << "\n";
+
+  os << indent << "Auto Adjust Number Of Divisions: "
+     << (this->AutoAdjustNumberOfDivisions ? "On\n" : "Off\n");
 
   os << indent << "Use Internal Triangles: " 
      << (this->UseInternalTriangles ? "On\n" : "Off\n");

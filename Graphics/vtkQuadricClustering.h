@@ -94,7 +94,8 @@ public:
   // Set/Get the number of divisions along each axis for the spatial bins.
   // The number of spatial bins is NumberOfXDivisions*NumberOfYDivisions*
   // NumberOfZDivisions.  The filter may choose to ignore large numbers of
-  // divisions if the input has few points.
+  // divisions if the input has few points and AutoAdjustNumberOfDivisions
+  // is enabled.
   void SetNumberOfXDivisions(int num);
   void SetNumberOfYDivisions(int num);
   void SetNumberOfZDivisions(int num);
@@ -104,6 +105,13 @@ public:
   void SetNumberOfDivisions(int div[3]);
   int *GetNumberOfDivisions();
   void GetNumberOfDivisions(int div[3]);
+
+  // Description:
+  // Enable automatic adjustment of number of divisions. If off, the number
+  // of divisions specified by the user is always used (as long as it is valid).
+  vtkSetMacro(AutoAdjustNumberOfDivisions,int);
+  vtkGetMacro(AutoAdjustNumberOfDivisions,int);
+  vtkBooleanMacro(AutoAdjustNumberOfDivisions,int);
 
   // Description:
   // This is an alternative way to set up the bins.  If you are trying to match
@@ -204,8 +212,8 @@ protected:
   // Description:
   // Add triangles to the quadric array.  If geometry flag is on then
   // triangles are added to the output.
+  void AddPolygons(vtkCellArray *polys, vtkPoints *points, int geometryFlag);
   void AddStrips(vtkCellArray *strips, vtkPoints *points, int geometryFlag);
-  void AddTriangles(vtkCellArray *tris, vtkPoints *points, int geometryFlag);
   void AddTriangle(vtkIdType *binIds, float *pt0, float *pt1, float *pt2,
                    int geometeryFlag);
 
@@ -269,11 +277,13 @@ protected:
 
   float DivisionOrigin[3];
   float DivisionSpacing[3];
+  int   AutoAdjustNumberOfDivisions;
 
   float Bounds[6];
   float XBinSize;
   float YBinSize;
   float ZBinSize;
+  vtkIdType SliceSize; //eliminate one multiplication
 
   //BTX
   struct PointQuadric 
@@ -288,8 +298,8 @@ protected:
     float Quadric[9];
   };
   //ETX
-  PointQuadric* QuadricArray;
 
+  PointQuadric* QuadricArray;
   vtkIdType NumberOfBinsUsed;
 
   // Have to make these instance variables if we are going to allow
@@ -304,6 +314,7 @@ protected:
   int CopyCellData;
   int InCellCount;
   int OutCellCount;
+
 private:
   vtkQuadricClustering(const vtkQuadricClustering&);  // Not implemented.
   void operator=(const vtkQuadricClustering&);  // Not implemented.
