@@ -57,6 +57,9 @@ void vlWarpScalar::Execute()
 //
 // Update ourselves
 //
+  this->PointData.CopyNormalsOff(); // distorted geometry - normals are bad
+  this->PointData.PassData(this->Input->GetPointData());
+
   this->SetPoints(newPts);
 }
 

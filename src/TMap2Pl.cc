@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -20,6 +18,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlMath.hh"
 #include "FTCoords.hh"
 
+// Description:
+// Construct with s,t range=(0,1) and automatic plane generation turned on.
 vlTextureMapToPlane::vlTextureMapToPlane()
 {
   this->Normal[0] = 0.0;
@@ -64,9 +64,8 @@ void vlTextureMapToPlane::Execute()
   float proj, minProj, axis[3], sAxis[3], tAxis[3];
   int dir;
   float s, t, sSf, tSf, *p;
-//
-// get the data from display data
-//
+
+  vlDebugMacro(<<"Generating texture coordinates!");
   this->Initialize();
   if ( numPts < 3 )
     {
@@ -141,6 +140,9 @@ void vlTextureMapToPlane::Execute()
 //
 // Update ourselves
 //
+  this->PointData.CopyTCoordsOff();
+  this->PointData.PassData(this->Input->GetPointData());
+
   this->PointData.SetTCoords(newTCoords);
 }
 

@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,13 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Class generates scalar data from position of points along some ray
-//
+// .NAME vlTextureMapToPlane - generate texture coordinates by mapping points to plane
+// .SECTION Description
+// vlTextureMapToPlane is a filter that generates 2D texture coordinates
+// by mapping input dataset points onto a plane. The plane can either be
+// user specified or generated automatically. (A least squares method is
+// used to generate the plane).
+
 #ifndef __vlTextureMapToPlane_h
 #define __vlTextureMapToPlane_h
 
@@ -30,15 +32,23 @@ public:
   char *GetClassName() {return "vlTextureMapToPlane";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Specify plane normal.
   vlSetVector3Macro(Normal,float);
   vlGetVectorMacro(Normal,float);
 
+  // Description:
+  // Specify s-coordinate range for texture s-t coordinate pair.
   vlSetVector2Macro(SRange,float);
   vlGetVectorMacro(SRange,float);
 
+  // Description:
+  // Specify t-coordinate range for texture s-t coordinate pair.
   vlSetVector2Macro(TRange,float);
   vlGetVectorMacro(TRange,float);
 
+  // Description:
+  // Turn on/off automatic plane generation.
   vlSetMacro(AutomaticNormalGeneration,int);
   vlGetMacro(AutomaticNormalGeneration,int);
   vlBooleanMacro(AutomaticNormalGeneration,int);

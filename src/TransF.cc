@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -34,11 +32,7 @@ void vlTransformFilter::Execute()
   vlTransform trans;
 
   vlDebugMacro(<<"Executing transformation");
-//
-// Initialize
-//
   this->Initialize();
-
 //
 // Check input
 //
@@ -82,6 +76,10 @@ void vlTransformFilter::Execute()
 //
 // Update ourselves
 //
+  this->PointData.CopyVectorsOff();
+  this->PointData.CopyNormalsOff();
+  this->PointData.PassData(this->Input->GetPointData());
+
   this->SetPoints(newPts);
   this->PointData.SetNormals(newNormals);
   this->PointData.SetVectors(newVectors);
