@@ -474,7 +474,7 @@ void vtkRenderWindow::DoAARender()
 	acam = aren->GetActiveCamera();
 
 	// calculate the amount to jitter
-	memcpy(origfocus,acam->GetFocalPoint(),12);
+	acam->GetFocalPoint(origfocus);
 	aren->SetWorldPoint(origfocus);
 	aren->WorldToDisplay();
 	dpoint = aren->GetDisplayPoint();
@@ -508,7 +508,7 @@ void vtkRenderWindow::DoAARender()
 	acam = aren->GetActiveCamera();
 
 	// calculate the amount to jitter
-	memcpy(origfocus,acam->GetFocalPoint(),12);
+	acam->GetFocalPoint(origfocus);
 	aren->SetWorldPoint(origfocus);
 	aren->WorldToDisplay();
 	dpoint = aren->GetDisplayPoint();
@@ -612,7 +612,7 @@ void vtkRenderWindow::DoFDRender()
 	acam = aren->GetActiveCamera();
 	focalDisk = acam->GetFocalDisk()*offsets[0];
 
-	memcpy(viewUp,acam->GetViewUp(),sizeof(double)*3);
+	acam->GetViewUp(viewUp);
 	vpn = acam->GetViewPlaneNormal();
 	aTrans->Identity();
 	aTrans->Scale(focalDisk,focalDisk,focalDisk);
@@ -622,7 +622,7 @@ void vtkRenderWindow::DoFDRender()
 	dpoint = acam->GetPosition();
 
 	// store the position for later
-	memcpy(orig + j*3,dpoint,12);
+	memcpy(orig + j*3,dpoint,3 * sizeof (double));
 	j++;
 
 	acam->SetPosition(dpoint[0]+vpn[0],
