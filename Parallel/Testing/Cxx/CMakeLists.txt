@@ -58,15 +58,15 @@ IF (VTK_DATA_ROOT)
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/TestPStream.cxx.png
                  ${VTK_MPI_POSTFLAGS})
-        IF (MPI_MAX_NUMPROCS)
-          IF (MPI_MAX_NUMPROCS MATCHES "[1-9]*(0|[4-9])$")
-           ADD_TEST(MPIGroups-image ${VTK_MPIRUN_EXE} -np ${MPI_MAX_NUMPROCS}
+        IF (VTK_MPI_MAX_NUMPROCS)
+          IF (VTK_MPI_MAX_NUMPROCS MATCHES "[1-9]*(0|[4-9])$")
+           ADD_TEST(MPIGroups-image ${VTK_MPIRUN_EXE} -np ${VTK_MPI_MAX_NUMPROCS}
                    ${CXX_TEST_PATH}/MPIGroups
                    -D ${VTK_DATA_ROOT}
                    -V Baseline/Parallel/MPIGroups.cxx.png
                    ${VTK_MPI_POSTFLAGS})
-          ENDIF (MPI_MAX_NUMPROCS MATCHES "[1-9]*(0|[4-9])$")
-        ENDIF (MPI_MAX_NUMPROCS)
+          ENDIF (VTK_MPI_MAX_NUMPROCS MATCHES "[1-9]*(0|[4-9])$")
+        ENDIF (VTK_MPI_MAX_NUMPROCS)
       ENDIF(VTK_MPIRUN_EXE)
      ENDIF (UNIX)
     ELSE (VTK_USE_MPI)
