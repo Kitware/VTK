@@ -1,0 +1,7 @@
+#ifndef _tiffDllConfig_h
+#define _tiffDllConfig_h
+
+#cmakedefine TIFFDLL
+#cmakedefine TIFFSTATIC
+
+#endif

@@ -1,6 +1,9 @@
 PROJECT(VTKTIFF)
 INCLUDE_REGULAR_EXPRESSION("^(tif|fax|port|uv|vtk|tconf|t4|mk).*$")
 
+INCLUDE_DIRECTORIES(${VTKTIFF_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${VTKTIFF_BINARY_DIR})
+
 # library object files common to compression and decompression
 SOURCE_FILES(common_SRCS 
 tif_aux.c tif_close.c 
@@ -14,15 +17,11 @@ tif_write.c tif_zip.c)
 
 ADD_DEFINITIONS( -DJPEG_SUPPORT -DZIP_SUPPORT -D_HPUX_SOURCE)
 
-CONFIGURE_FILE(
-${VTKTIFF_SOURCE_DIR}/.NoDartCoverage 
-${VTKTIFF_BINARY_DIR}/.NoDartCoverage)
-
 IF(WIN32)
   IF(BUILD_SHARED_LIBS)
-    ADD_DEFINITIONS(-DTIFFDLL -DZLIB_DLL -DJPEGDLL -DUSE_WINDOWS_MESSAGEBOX)
+    SET(TIFFDLL 1)
   ELSE(BUILD_SHARED_LIBS)
-    ADD_DEFINITIONS(-DTIFFSTATIC -DJPEGSTATIC -DUSE_WINDOWS_MESSAGEBOX )
+    SET(TIFFSTATIC 1)
   ENDIF(BUILD_SHARED_LIBS)
 ENDIF(WIN32)
 
@@ -60,6 +59,11 @@ ELSE (WINDOWS)
       MESSAGE("The new TIFF reader requires CMake 1.2 or newer. Please get the new version of CMake from www.cmake.org.")
   ENDIF(TIFF_RIGHT_VERSION)
 ENDIF (WINDOWS)
+
+CONFIGURE_FILE(${VTKTIFF_SOURCE_DIR}/.NoDartCoverage 
+               ${VTKTIFF_BINARY_DIR}/.NoDartCoverage)
+CONFIGURE_FILE(${VTKTIFF_SOURCE_DIR}/tiffDllConfig.h.in 
+               ${VTKTIFF_BINARY_DIR}/tiffDllConfig.h)
 
 TARGET_LINK_LIBRARIES( vtktiff vtkzlib vtkjpeg )
 

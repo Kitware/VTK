@@ -466,26 +466,4 @@ typedef enum {
 #define     SGILOGENCODE_NODITHER       0     /* do not dither encoded values*/
 #define     SGILOGENCODE_RANDITHER      1     /* randomly dither encd values */
 
-/* a function referenced thru EXTERNs: */
-#if defined( _WIN32 ) && defined (JPEGDLL)
-#define GLOBAL(type)            __declspec(dllexport) type
-#else
-#define GLOBAL(type)            type
-#endif
-
-/* a reference to a GLOBAL function: */
-#if defined(_WIN32) && !defined(JPEGSTATIC)
-#ifdef JPEGDLL
-/* Win32, building a dll */
-#define EXTERN(type)            __declspec(dllexport) type
-#else
-/* Win32, not building a dll but using the dll */
-#define EXTERN(type)            __declspec(dllimport) type
-#endif
-#else
-/* not a Win32 system or building a static Win32 lib */
-#define EXTERN(type)            extern type
-#endif
-
-
 #endif /* _TIFF_ */

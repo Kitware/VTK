@@ -298,6 +298,8 @@
 
 #ifndef PNG_VERSION_INFO_ONLY
 
+#include "pngDllConfig.h"
+
 /* include the compression library's header */
 #include "zlib.h"
 

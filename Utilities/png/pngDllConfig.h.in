@@ -1,0 +1,8 @@
+#ifndef _pngDllConfig_h
+#define _pngDllConfig_h
+
+#cmakedefine PNG_BUILD_DLL
+#cmakedefine PNG_NO_MODULEDEF
+#cmakedefine PNG_BUILD_STATIC
+
+#endif

@@ -1,5 +1,10 @@
 PROJECT(VTKJPEG)
 
+INCLUDE_REGULAR_EXPRESSION("^(jchuff|jconfig|jdct|jdhuff|jerror|jinclude|jmemsys|jmorecfg|jpegint|jpeglib|jversion|jpeg).*$")
+
+INCLUDE_DIRECTORIES(${VTKJPEG_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${VTKJPEG_BINARY_DIR})
+
 # memmgr back ends: compile only one of these into a working library
 # (For now, let's use the mode that requires the image fit into memory.
 # This is the recommended mode for Win32 anyway.)
@@ -27,18 +32,22 @@ jdsample.c jdcolor.c jquant1.c jquant2.c jdmerge.c
 )
 
 
-CONFIGURE_FILE(
-${VTK_SOURCE_DIR}/Utilities/jpeg/.NoDartCoverage 
-${VTK_BINARY_DIR}/Utilities/jpeg/.NoDartCoverage)
-
 IF (WIN32)
+   SET(USE_WINDOWS_MESSAGEBOX 1)
    IF (BUILD_SHARED_LIBS)
-      ADD_DEFINITIONS( -DJPEGDLL -DUSE_WINDOWS_MESSAGEBOX )
+      SET(JPEGDLL 1)
    ELSE (BUILD_SHARED_LIBS)
-      ADD_DEFINITIONS( -DJPEGSTATIC -DUSE_WINDOWS_MESSAGEBOX )
+      SET(JPEGSTATIC 1)
    ENDIF (BUILD_SHARED_LIBS)
 ENDIF (WIN32)
+
+
+CONFIGURE_FILE(${VTKJPEG_SOURCE_DIR}/.NoDartCoverage 
+               ${VTKJPEG_BINARY_DIR}/.NoDartCoverage)
+CONFIGURE_FILE(${VTKJPEG_SOURCE_DIR}/jpegDllConfig.h.in 
+               ${VTKJPEG_BINARY_DIR}/jpegDllConfig.h)
 
 ADD_LIBRARY(vtkjpeg systemdependent_SRCS common_SRCS compression_SRCS decompression_SRCS)
 
 INSTALL_TARGETS(/lib/vtk vtkjpeg)
+
