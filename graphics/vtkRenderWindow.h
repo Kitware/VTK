@@ -59,6 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWindow.h"
 #include "vtkRendererCollection.h"
 #include <stdio.h>
+#include "vtkGraphicsFactory.h"
 
 class vtkRenderWindowInteractor;
 
@@ -88,6 +89,11 @@ public:
   // Description:
   // Remove a renderer from the list of renderers.
   void RemoveRenderer(vtkRenderer *);
+
+  // Description:
+  // What rendering library has the user requested
+  static const char *GetRenderLibrary() {
+    return vtkGraphicsFactory::GetRenderLibrary();};
 
   // Description:
   // Return the colleciton of renderers inthe render window.
