@@ -60,6 +60,7 @@ void vtkTextureMapToSphere::Execute()
   int ptId;
   float *x, rho, r, tc[2], phi, thetaX, thetaY;
   vtkMath math;
+  double diff, PiOverTwo=math.Pi()/2.0;
 
   vtkDebugMacro(<<"Generating Spherical Texture Coordinates");
 
@@ -87,18 +88,61 @@ void vtkTextureMapToSphere::Execute()
                   << this->Center[1] <<", " << this->Center[2] <<")");
     }
 
-  //loop over all points computing spherical coordinates
+  //loop over all points computing spherical coordinates. Only tricky part
+  //is keeping track of singularities/numerical problems.
   newTCoords = new vtkFloatTCoords(numPts,2);
   for ( ptId=0; ptId < numPts; ptId++ )
     {
     x = input->GetPoint(ptId);
     rho = sqrt((double)math.Distance2BetweenPoints(x,this->Center));
-    phi = acos((double)((x[2]-this->Center[2])/rho));
-    tc[1] = phi / math.Pi();
+    if ( rho != 0.0 )
+      {
+      // watch for truncation problems
+      if ( fabs((diff=x[2]-this->Center[2])) > rho )
+        {
+        if ( diff > 0.0 ) tc[1] = 0.0;
+        else tc[1] = 1.0;
+        }
+      else
+        {
+        phi = acos((double)(diff/rho));
+        tc[1] = phi / math.Pi();
+        }
+      }
+    else
+      {
+      tc[1] = 0.0;
+      }
+
 
     r = rho * sin((double)phi);
-    thetaX = acos ((double)(x[0]-this->Center[0])/r);
-    thetaY = asin ((double)(x[1]-this->Center[1])/r);
+    if ( r != 0.0 )
+      {
+      // watch for truncation problems
+      if ( fabs((diff=x[0]-this->Center[0])) > r )
+        {
+        if ( diff > 0.0 ) thetaX = 0.0;
+        else thetaX = math.Pi();
+        }
+      else
+        {
+        thetaX = acos ((double)diff/r);
+        }
+
+      if ( fabs((diff=x[1]-this->Center[1])) > r )
+        {
+        if ( diff > 0.0 ) thetaY = PiOverTwo;
+        else thetaY = -PiOverTwo;
+        }
+      else
+        {
+        thetaY = asin ((double)diff/r);
+        }
+      }
+    else
+      {
+      thetaX = thetaY = 0.0;
+      }
 
     if ( this->PreventSeam )
       {

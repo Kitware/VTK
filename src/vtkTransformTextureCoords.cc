@@ -42,7 +42,8 @@ MODIFICATIONS.
 #include "vtkTransform.hh"
 
 // Description:
-// 
+// Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale
+// set to (1,1,1). Rotation of the texture coordinates is turned off.
 vtkTransformTextureCoords::vtkTransformTextureCoords()
 {
   this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.5;
@@ -52,6 +53,25 @@ vtkTransformTextureCoords::vtkTransformTextureCoords()
   this->FlipR = 0;
   this->FlipS = 0;
   this->FlipT = 0;
+}
+
+// Description:
+// Incrementally change the position of the texture map (i.e., does a
+// translate or shift of the texture coordinates).
+void vtkTransformTextureCoords::AddPosition (float dPX, float dPY, float dPZ)
+{
+  float position[3];
+
+  position[0] = this->Position[0] + dPX;
+  position[1] = this->Position[1] + dPY;
+  position[2] = this->Position[2] + dPZ;
+  
+  this->SetPosition(position);
+}
+
+void vtkTransformTextureCoords::AddPosition(float deltaPosition[3])
+{ 
+  this->AddPosition (deltaPosition[0], deltaPosition[1], deltaPosition[2]);
 }
 
 void vtkTransformTextureCoords::Execute()
