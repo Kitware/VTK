@@ -149,6 +149,7 @@ vtkIdFilter \
 vtkImplicitBoolean \
 vtkImplicitDataSet \
 vtkImplicitModeller \
+vtkImplicitSelectionLoop \
 vtkImplicitTextureCoords \
 vtkImplicitVolume \
 vtkImplicitWindowFunction \
