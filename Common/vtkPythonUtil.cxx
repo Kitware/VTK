@@ -15,6 +15,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// This include allows VTK to build on some platforms with broken Python
+// // header files.
+#include "vtkSystemIncludes.h"
 #include "vtkPythonUtil.h"
 
 #include "vtkObject.h"
