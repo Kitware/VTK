@@ -29,10 +29,7 @@ planeActor SetTexture atext
 
 vtkImageViewer view
 view SetInput [pnmReader GetOutput]
-view SetColorWindow 255
-view SetColorLevel 127.5
-
-view Render
+view Render;
 
 # Add the actors to the renderer, set the background and size
 ren1 AddActor planeActor

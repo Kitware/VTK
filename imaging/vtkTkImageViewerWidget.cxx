@@ -484,21 +484,9 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
     }
   else
     {
-    ImageViewer = (vtkImageViewer *)
-      vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp,
-				 new_flag);
-    if (ImageViewer != self->ImageViewer)
-      {
-      if (self->ImageViewer != NULL)
-	{
-	self->ImageViewer->UnRegister(NULL);
-	}
-      self->ImageViewer = (vtkImageViewer *)(ImageViewer);
-      if (self->ImageViewer != NULL)
-	{
-	self->ImageViewer->Register(NULL);
-	}
-      }
+    self->ImageViewer = (vtkImageViewer *)
+      vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp, new_flag);
+    ImageViewer = (vtkImageViewer *)(self->ImageViewer);
     }
   
   // Set the size
@@ -648,20 +636,8 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   else
     {
     ImageViewer = (vtkImageViewer *)
-      vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp,
-				 new_flag);
-    if (ImageViewer != self->ImageViewer)
-      {
-      if (self->ImageViewer != NULL)
-	{
-	self->ImageViewer->UnRegister(NULL);
-	}
-      self->ImageViewer = (vtkImageViewer *)(ImageViewer);
-      if (self->ImageViewer != NULL)
-	{
-	self->ImageViewer->Register(NULL);
-	}
-      }
+      vtkTclGetPointerFromObject(self->IV,"vtkImageViewer",self->Interp, new_flag);
+    self->ImageViewer = ImageViewer;
     }
   
   // Set the size

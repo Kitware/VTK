@@ -35,8 +35,7 @@ public class Regression {
 	} 
       else 
         {
-        System.out.println("<FONT COLOR=#DC143C>Java regression test error!</font><br>"); 
+        System.out.println("Java regression test error!<br>"); 
 	}	
     } 
 }
-
