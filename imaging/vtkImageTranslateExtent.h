@@ -73,6 +73,7 @@ protected:
 
   int Translation[3];
   
+  void ComputeRequiredInputUpdateExtent(int extent[6], int wholeExtent[6]);
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
 };
