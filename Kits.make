@@ -16,7 +16,8 @@ CC_FLAGS = ${CPPFLAGS} ${USER_CFLAGS} ${CFLAGS} ${USE_TOOLKIT_FLAGS} \
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${USE_TOOLKIT_FLAGS} \
 	${GRAPHICS_API_FLAGS} ${CONTROLLER_API_FLAGS} \
-	 -I${srcdir}/../common ${TK_INCLUDE} ${TCL_INCLUDE} \
+	 -I${srcdir}/../common -I../common \
+	${TK_INCLUDE} ${TCL_INCLUDE} \
 	${JAVA_INCLUDES} ${PYTHON_INCLUDES}
 
 all: ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA} ${BUILD_PYTHON}
@@ -31,11 +32,11 @@ all: ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA} ${BUILD_PYTHON}
 	cd ..; ${MAKE} targets
 
 depend: ../targets
-	../targets ${srcdir}/.. extra ${srcdir} ${KIT_EXTRA_DEPENDS} concrete $(CONCRETE) abstract $(ABSTRACT) concrete_h $(CONCRETE_H) abstract_h $(ABSTRACT_H)
+	../targets ${srcdir}/.. extra  ${srcdir} ../common ${KIT_EXTRA_DEPENDS} concrete $(CONCRETE) abstract $(ABSTRACT) concrete_h $(CONCRETE_H) abstract_h $(ABSTRACT_H)
 
 
 targets.make: ../targets Makefile
-	../targets ${srcdir}/.. extra ${srcdir} ${KIT_EXTRA_DEPENDS} concrete $(CONCRETE) abstract $(ABSTRACT) concrete_h $(CONCRETE_H) abstract_h $(ABSTRACT_H)
+	../targets ${srcdir}/.. extra  ${srcdir} ../common ${KIT_EXTRA_DEPENDS} concrete $(CONCRETE) abstract $(ABSTRACT) concrete_h $(CONCRETE_H) abstract_h $(ABSTRACT_H)
 
 #------------------------------------------------------------------------------
 # rules for the normal library
