@@ -24,7 +24,7 @@
 
 #include "vtkSystemIncludes.h"
 
-struct VTK_COMMON_EXPORT vtkTestUtilities
+struct vtkTestUtilities
 {
   // Description:
   // Function necessary for accessing the root directory for VTK data. Try the
