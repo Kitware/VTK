@@ -502,6 +502,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkFloatScalars& cellScalars,
   delete [] tetraUse;
   
   this->Mesh->Delete();
+  this->Mesh = NULL;
   this->MeshLocator->Initialize();
 }
 
