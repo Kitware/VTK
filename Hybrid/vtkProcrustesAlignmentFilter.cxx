@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.12");
+vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.13");
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //----------------------------------------------------------------------------
@@ -204,19 +204,22 @@ void vtkProcrustesAlignmentFilter::Execute()
   const int MAX_ITERATIONS=5;
   float difference; 
   float point[3],p[3],p2[3];
+  float outPoint[3];
   do { // (while not converged)
 
     // align each pointset with the mean
-    for(i=0;i<N_SETS;i++) {
+    for(i=0;i<N_SETS;i++)
+      {
       this->LandmarkTransform->SetSourceLandmarks(this->GetOutput(i)->GetPoints());
       this->LandmarkTransform->SetTargetLandmarks(MeanPoints);
       this->LandmarkTransform->Update();
-      for(v=0;v<N_POINTS;v++) {
+      for(v=0;v<N_POINTS;v++)
+        {
         this->LandmarkTransform->InternalTransformPoint(
-            this->GetOutput(i)->GetPoint(v),
-            this->GetOutput(i)->GetPoint(v));
+          this->GetOutput(i)->GetPoint(v), outPoint);
+        this->GetOutput(i)->GetPoints()->SetPoint(v, outPoint);
         }
-      } 
+      }
 
     // compute the new mean (just average the point locations)
     for(v=0;v<N_POINTS;v++)
@@ -226,15 +229,15 @@ void vtkProcrustesAlignmentFilter::Execute()
       point[2]=0.0F;
       for(i=0;i<N_SETS;i++)
         {
-         this->GetOutput(i)->GetPoint(v, p);
+        this->GetOutput(i)->GetPoint(v, p);
         point[0]+=p[0];
         point[1]+=p[1];
         point[2]+=p[2];
         }
-      new_mean->GetPoint(v, p);
       p[0] = point[0]/(float)N_SETS;
       p[1] = point[1]/(float)N_SETS;
       p[2] = point[2]/(float)N_SETS;
+      new_mean->SetPoint(v, p);
       }
 
     // align the new mean with the fixed mean if the transform
@@ -244,10 +247,12 @@ void vtkProcrustesAlignmentFilter::Execute()
       this->LandmarkTransform->SetSourceLandmarks(new_mean);
       this->LandmarkTransform->SetTargetLandmarks(first_mean);
       this->LandmarkTransform->Update();
-      for(v=0;v<N_POINTS;v++) {
+      for(v=0;v<N_POINTS;v++)
+        {
         this->LandmarkTransform->InternalTransformPoint(
-          new_mean->GetPoint(v),new_mean->GetPoint(v));
-      }
+          new_mean->GetPoint(v), outPoint);
+        new_mean->SetPoint(v, outPoint);
+        }
     }
 
     // If the similarity transform is used, the mean shape must be normalised

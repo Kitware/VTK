@@ -30,7 +30,7 @@
 #include "vtkTriangle.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkPolygon, "1.101");
+vtkCxxRevisionMacro(vtkPolygon, "1.102");
 vtkStandardNewMacro(vtkPolygon);
 
 // Instantiate polygon.
@@ -117,22 +117,22 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
 void vtkPolygon::ComputeNormal(vtkPoints *p, float *n)
 {
   int i, numPts;
-  float *v0, *v1, *v2;
+  float v0[3], v1[3], v2[3];
   float ax, ay, az, bx, by, bz;
 
   // Polygon is assumed non-convex -> need to accumulate cross products to 
   // find correct normal.
   //
   numPts = p->GetNumberOfPoints();
-  v1 = p->GetPoint(0); //set things up for loop
-  v2 = p->GetPoint(1);
+  p->GetPoint(0, v1); //set things up for loop
+  p->GetPoint(1, v2);
   n[0] = n[1] = n[2] = 0.0;
 
   for (i=0; i < numPts; i++) 
     {
-    v0 = v1;
-    v1 = v2;
-    v2 = p->GetPoint((i+2)%numPts);
+    memcpy(v0, v1, sizeof(v0));
+    memcpy(v1, v2, sizeof(v1));
+    p->GetPoint((i+2)%numPts, v2);
 
     // order is important!!! to maintain consistency with polygon vertex order 
     ax = v2[0] - v1[0]; ay = v2[1] - v1[1]; az = v2[2] - v1[2];
@@ -232,15 +232,16 @@ int vtkPolygon::EvaluatePosition(float x[3], float* closestPoint,
     float t, dist2;
     int numPts;
     float closest[3];
+    float pt1[3], pt2[3];
 
     if (closestPoint)
       {
       numPts = this->Points->GetNumberOfPoints();
       for (minDist2=VTK_LARGE_FLOAT,i=0; i<numPts; i++)
         {
-        dist2 = vtkLine::DistanceToLine(x,this->Points->GetPoint(i),
-                                        this->Points->GetPoint((i+1)%numPts),
-                                        t, closest);
+        this->Points->GetPoint(i, pt1);
+        this->Points->GetPoint((i+1)%numPts, pt2);
+        dist2 = vtkLine::DistanceToLine(x, pt1, pt2, t, closest);
         if ( dist2 < minDist2 )
           {
           closestPoint[0] = closest[0]; 

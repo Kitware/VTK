@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkIterativeClosestPointTransform, "1.11");
+vtkCxxRevisionMacro(vtkIterativeClosestPointTransform, "1.12");
 vtkStandardNewMacro(vtkIterativeClosestPointTransform);
 
 //----------------------------------------------------------------------------
@@ -358,8 +358,10 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
 
     for (i = 0, j = 0; i < nb_points; i++, j += step)
       {
-      accumulate->InternalTransformPoint(this->Source->GetPoint(j), 
-                                         points1->GetPoint(i));
+      float outPoint[3];
+      accumulate->InternalTransformPoint(this->Source->GetPoint(j),
+                                         outPoint);
+      points1->SetPoint(i, outPoint);
       }
     }
   else 
@@ -375,6 +377,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
   vtkIdType cell_id;
   int sub_id;
   float dist2, totaldist = 0;
+  float outPoint[3];
 
   vtkPoints *temp, *a = points1, *b = points2;
 
@@ -387,10 +390,11 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
     for(i = 0; i < nb_points; i++)
       {
       this->Locator->FindClosestPoint(a->GetPoint(i),
-                                      closestp->GetPoint(i),
+                                      outPoint,
                                       cell_id,
                                       sub_id,
                                       dist2);
+      closestp->SetPoint(i, outPoint);
       }
     
     // Build the landmark transform

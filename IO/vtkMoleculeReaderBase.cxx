@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.10");
+vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.11");
 
 static float vtkMoleculeReaderBaseCovRadius[103] = {
 0.32 , 1.6 , 0.68 , 0.352 , 0.832 , 0.72 ,
@@ -300,7 +300,7 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
   register int nbonds_this_atom;     // this is not used for the moment
   register float dx, dy, dz;
   float max, dist;
-  float *X, *Y;
+  float X[3], Y[3];
   vtkIdType bond[2];
 
   nbonds = 0;
@@ -308,7 +308,7 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
     {
     nbonds_this_atom = 0;
     bond[0] = i;
-    X = newPts->GetPoint(i);
+    newPts->GetPoint(i, X);
     for(j = i - 1; j >= 0 ; j--) 
       {
       /*
@@ -338,7 +338,7 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
         max *= BScale;
         }
 
-      Y = newPts->GetPoint(j);
+      newPts->GetPoint(j, Y);
       dx = X[0] - Y[0];
       dist = dx * dx;
 

@@ -56,7 +56,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.29");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.30");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 
@@ -1171,6 +1171,7 @@ const double *x)
 {
   unsigned short ncells, i;
   vtkIdType npts, *pts,  ptId, *cells;
+  float pt1[3], pt2[3], pt3[3];
 
   this->Mesh->GetPointCells(pt0Id, ncells, cells);
   for (i = 0; i < ncells; i++) {
@@ -1180,12 +1181,15 @@ const double *x)
     {
     for (ptId = 0; ptId < 3; ptId++) 
       {
-      if (pts[ptId] == pt0Id &&
-          ! this->TrianglePlaneCheck(this->Mesh->GetPoint(pts[ptId]), 
-                                     this->Mesh->GetPoint(pts[(ptId+1)%3]), 
-                                     this->Mesh->GetPoint(pts[(ptId+2)%3]), x))
+      if (pts[ptId] == pt0Id)
         {
-        return 0;
+        this->Mesh->GetPoint(pts[ptId], pt1);
+        this->Mesh->GetPoint(pts[(ptId+1)%3], pt2);
+        this->Mesh->GetPoint(pts[(ptId+2)%3], pt3);
+        if(!this->TrianglePlaneCheck(pt1, pt2, pt3, x))
+          {
+          return 0;
+          }
         }
       }
     }
@@ -1200,12 +1204,15 @@ const double *x)
       {
       for (ptId = 0; ptId < 3; ptId++) 
         {
-        if (pts[ptId] == pt1Id &&
-          ! this->TrianglePlaneCheck(this->Mesh->GetPoint(pts[ptId]), 
-                                     this->Mesh->GetPoint(pts[(ptId+1)%3]), 
-                                     this->Mesh->GetPoint(pts[(ptId+2)%3]), x))
+        if (pts[ptId] == pt1Id)
           {
-          return 0;
+          this->Mesh->GetPoint(pts[ptId], pt1);
+          this->Mesh->GetPoint(pts[(ptId+1)%3], pt2);
+          this->Mesh->GetPoint(pts[(ptId+2)%3], pt3);
+          if(!this->TrianglePlaneCheck(pt1, pt2, pt3, x))
+            {
+            return 0;
+            }
           }
         }
       }
