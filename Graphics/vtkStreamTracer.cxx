@@ -35,7 +35,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.21");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.22");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 
@@ -498,6 +498,10 @@ void vtkStreamTracer::InitializeSeeds(vtkDataArray*& seeds,
     seeds->SetNumberOfComponents(3);
     seeds->InsertNextTuple(this->StartPosition);
     seedIds->InsertNextId(0);
+    if (this->IntegrationDirection == BOTH)
+      {
+      seedIds->InsertNextId(0);
+      }
     }
 
   if (seeds)
