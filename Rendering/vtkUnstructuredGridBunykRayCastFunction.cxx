@@ -34,7 +34,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.12");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.13");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -637,6 +637,9 @@ void  vtkUnstructuredGridBunykRayCastFunction::ComputeViewDependentInfo()
       P2[0] = T[0];
       P2[1] = T[1];
       P2[2] = T[2];
+      int tmpIndex = triPtr->PointIndex[1];
+      triPtr->PointIndex[1] = triPtr->PointIndex[2];
+      triPtr->PointIndex[2] = tmpIndex;
       }
       
     triPtr->P1X = P1[0];
@@ -1054,6 +1057,9 @@ void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars,
                                                      double bounds[2],
                                                      float color[4] )
 {
+  int imageViewportSize[2];
+  self->GetImageViewportSize( imageViewportSize );
+  
   int origin[2];
   self->GetImageOrigin( origin );
   float fx = x - origin[0];
@@ -1078,7 +1084,7 @@ void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars,
   double  *colorTableShift = self->GetColorTableShift();
   double  *colorTableScale = self->GetColorTableScale();
 
-  while ( intersectionPtr )
+  while ( intersectionPtr && color[3] < 1.0 )
     {
     currentTriangle = intersectionPtr->TriPtr;
     currentTetra    = intersectionPtr->TriPtr->ReferredByTetra[0];
@@ -1113,10 +1119,11 @@ void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars,
            currentTriangle->D) / currentTriangle->C;
       
       double tmpP[4], p1[4], p2[4];
-      tmpP[0] = fx;
-      tmpP[1] = fy;
+      tmpP[0] = ((float)x / (float)(imageViewportSize[0]-1)) * 2.0 - 1.0;
+      tmpP[1] = ((float)y / (float)(imageViewportSize[1]-1)) * 2.0 - 1.0;
       tmpP[2] = testZ;
       tmpP[3] = 1.0;
+      
       viewToWorld->MultiplyPoint( tmpP, p1 );
       p1[0] /= p1[3];
       p1[1] /= p1[3];
@@ -1154,13 +1161,12 @@ void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars,
       
         tmpP[2] = minZ;
         viewToWorld->MultiplyPoint( tmpP, p2 );
-        p2[0] /= p1[3];
-        p2[1] /= p1[3];
-        p2[2] /= p1[3];
+        p2[0] /= p2[3];
+        p2[1] /= p2[3];
+        p2[2] /= p2[3];
         double dist = sqrt( (p1[0]-p2[0])*(p1[0]-p2[0]) + 
                             (p1[1]-p2[1])*(p1[1]-p2[1]) + 
                             (p1[2]-p2[2])*(p1[2]-p2[2]) );
-      
       
         // Compute scalar of triangle 1
         double A, B, C;
@@ -1201,32 +1207,37 @@ void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars,
           colorTable[0] +
           4 * (unsigned short)((v2+colorTableShift[0])*colorTableScale[0]); 
 
+        double opacity1 = *(tmpptr1+3) * 0.5 * dist;
+        double opacity2 = *(tmpptr2+3) * 0.5 * dist;
+        
+        opacity1 = (opacity1 > 1.0)?(1.0):(opacity1);
+        opacity2 = (opacity2 > 1.0)?(1.0):(opacity2);
+
         color1[3] = *(tmpptr1+3);
-        color1[0] = *(tmpptr1)   * color1[3];
-        color1[1] = *(tmpptr1+1) * color1[3];
-        color1[2] = *(tmpptr1+2) * color1[3];
+        color1[0] = *(tmpptr1)   * opacity1;
+        color1[1] = *(tmpptr1+1) * opacity1;
+        color1[2] = *(tmpptr1+2) * opacity1;
 
         color2[3] = *(tmpptr2+3);
-        color2[0] = *(tmpptr2)   * color2[3];
-        color2[1] = *(tmpptr2+1) * color2[3];
-        color2[2] = *(tmpptr2+2) * color2[3];
+        color2[0] = *(tmpptr2)   * opacity2;
+        color2[1] = *(tmpptr2+1) * opacity2;
+        color2[2] = *(tmpptr2+2) * opacity2;
 
-        color[0] = color[0] + 
-          0.5*(color1[0]+color2[0])*(1.0 - color[3])*dist -
-            (3*color1[0]*color1[3] + 5*color2[0]*color1[3] + 
-             color1[0]*color2[3] + 3*color2[0]*color2[3]) * dist * dist / 24.0;
+        double newOpacity = color[3] + (1-color[3])*opacity1;
         
-        color[1] = color[1] + 
-          0.5*(color1[1]+color2[1])*(1.0 - color[3])*dist -
-            (3*color1[1]*color1[3] + 5*color2[1]*color1[3] + 
-             color1[1]*color2[3] + 3*color2[1]*color2[3]) * dist * dist / 24.0;
+        color[0] += 
+          color1[0] * (1.0 - color[3]) +
+          color2[0] * (1.0 - newOpacity);
         
-        color[2] = color[2] + 
-          0.5*(color1[2]+color2[2])*(1.0 - color[3])*dist -
-            (3*color1[2]*color1[3] + 5*color2[2]*color1[3] + 
-             color1[2]*color2[3] + 3*color2[2]*color2[3]) * dist * dist / 24.0;
-
-        color[3] = color[3] + (1-color[3])*0.5*(color1[3]+color2[3])*dist;
+        color[1] += 
+          color1[1] * (1.0 - color[3]) +
+          color2[1] * (1.0 - newOpacity);
+        
+        color[2] += 
+          color1[2] * (1.0 - color[3]) +
+          color2[2] * (1.0 - newOpacity);
+        
+        color[3] = newOpacity + (1.0 - newOpacity)*opacity2;
         
         // The far triangle has one or two tetras in its referred list.
         // If one, return -1 for next tetra and NULL for next triangle 
@@ -1253,7 +1264,7 @@ void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars,
       currentTriangle = nextTriangle;
       currentTetra    = nextTetra;
       
-      } while (currentTriangle);
+      } while (currentTriangle && color[3] < 1.0 );
     
     intersectionPtr = intersectionPtr->Next;
     }

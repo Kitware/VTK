@@ -139,6 +139,10 @@ public:
 
   // Description:
   // Access to an internal structure for the templated method.
+  vtkGetVectorMacro( ImageViewportSize, int, 2 );
+
+  // Description:
+  // Access to an internal structure for the templated method.
   Triangle **GetTetraTriangles () {return this->TetraTriangles;}
   
   // Description:
