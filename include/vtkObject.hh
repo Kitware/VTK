@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkObject - abstract base class for most of vtk
+// .NAME vtkObject - abstract base class for most of the vtk objects
 // .SECTION Description
 // vtkObject is the base class for many objects in the visualization 
 // toolkit. vtkObject provides methods for tracking modification times, 
