@@ -30,7 +30,7 @@
 #include "vtkBridgeCell.h"
 #include "vtkCell.h"
 
-vtkCxxRevisionMacro(vtkBridgePointIteratorOnCell, "1.1");
+vtkCxxRevisionMacro(vtkBridgePointIteratorOnCell, "1.2");
 vtkStandardNewMacro(vtkBridgePointIteratorOnCell);
 
 //-----------------------------------------------------------------------------
@@ -40,7 +40,6 @@ vtkBridgePointIteratorOnCell::vtkBridgePointIteratorOnCell()
 {
   this->DataSet=0;
   this->Cursor=0;
-  this->Id=0;
   this->PtIds=0;
 }
 
@@ -66,7 +65,6 @@ void vtkBridgePointIteratorOnCell::Begin()
   if(this->PtIds!=0)
     {
     this->Cursor=0;
-    this->Id=this->PtIds->GetId(this->Cursor);
     }
 }
 
@@ -86,7 +84,6 @@ void vtkBridgePointIteratorOnCell::Next()
 {
   assert("pre: not_off" && !IsAtEnd());
   this->Cursor++;
-  this->Id=this->PtIds->GetId(this->Cursor);
 }
  
 //-----------------------------------------------------------------------------
@@ -98,7 +95,7 @@ double *vtkBridgePointIteratorOnCell::GetPosition()
 {
   assert("pre: not_off" && !IsAtEnd());
   
-  double *result=this->DataSet->Implementation->GetPoint(this->Id);
+  double *result=this->DataSet->Implementation->GetPoint(this->PtIds->GetId(this->Cursor));
   
   assert("post: result_exists" && result!=0);
   return result;
@@ -113,7 +110,7 @@ void vtkBridgePointIteratorOnCell::GetPosition(double x[3])
 {
   assert("pre: not_off" && !IsAtEnd());
   assert("pre: x_exists" && x!=0);
-  this->DataSet->Implementation->GetPoint(this->Id,x);
+  this->DataSet->Implementation->GetPoint(this->PtIds->GetId(this->Cursor),x);
 }
   
 //-----------------------------------------------------------------------------
@@ -124,7 +121,7 @@ vtkIdType vtkBridgePointIteratorOnCell::GetId()
 {
   assert("pre: not_off" && !IsAtEnd());
   
-  return this->Id;
+  return this->PtIds->GetId(this->Cursor);
 }
 
 //-----------------------------------------------------------------------------

@@ -82,8 +82,7 @@ protected:
   
   vtkBridgeDataSet *DataSet; // the structure on which the objet iterates.
   vtkIdType Cursor; // current position
-  vtkIdType Id; // the id at current position.
-  
+ 
   vtkIdList *PtIds; // list of points of the cell
   
 private:
