@@ -23,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.17");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.18");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -168,6 +168,7 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
     cam->SetClippingRange(cams[i]->GetClippingRange());
     cam->SetParallelProjection(cams[i]->GetParallelProjection());
     cam->SetFocalDisk(cams[i]->GetFocalDisk());
+    cam->SetUserTransform(cams[i]->GetUserTransform());
     aren->SetActiveCamera(cam);
     }
   
