@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAbstractList.h
+  Module:    vtkAbstractMap.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,105 +39,82 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkAbstractList - a dynamic list data structure
+// .NAME vtkAbstractMap - a dynamic map data structure
 // .SECTION Description
-// vtkAbstractList is a an abstract templated superclass of all
-// containers that implement list data structure.
+// vtkAbstractMap is a an abstract templated superclass of all
+// containers that implement map data structure.
 //
-// List data structure is a one dimensional sequence of elements
-// with strict ordering. Every element has an index and each 
-// element except the first and the last one, have unique 
-// predecessor and successor. Examples of list data structure
-// are dynamic array (vector) and linked list.
+// Map data structure is a one dimensional sequence of pairs
+// of key and data. On the higher level, it implements mapping
+// from key values to data elements. It can be implemented using
+// array of pairs, hash table, or different trees.
 
 // .SECTION See also
 // vtkContainer
 
 #include "vtkContainer.h"
 
-#ifndef __vtkAbstractList_h
-#define __vtkAbstractList_h
+#ifndef __vtkAbstractMap_h
+#define __vtkAbstractMap_h
 
-#define vtkAbstractListCompareFunction(DType, CompareFunction) \
-    int (*CompareFunction)(DType item1, DType item2)
-
-template<class DType>
-class vtkAbstractList : public vtkContainer
+template<class KeyType, class DataType>
+class vtkAbstractMap : public vtkContainer
 {
 public:
-  vtkContainerTypeMacro(vtkAbstractList<DType>, vtkContainer);
+  // Cannot use this macro because of the comma in the type name.
+  // The CPP splits that in two and we ae in trouble.
+  //vtkContainerTypeMacro((vtkAbstractMap<KeyType,DataType>), vtkContainer);
 
-  // Description:
-  // This is a prototype for a compare function. It has to
-  // return 0 if objects are the same, <0 if item1 is smaller than
-  // item2 and >0 if item1 is greater than item2.
-  typedef vtkAbstractListCompareFunction(DType, CompareFunction);
+  typedef vtkContainer Superclass; 
+  virtual const char *GetClassName() 
+    {return "vtkAbstractMap<KeyType,DataType>";} 
+  static int IsTypeOf(const char *type) 
+  { 
+    if ( !strcmp("vtkAbstractMap<KeyType,DataType>",type) ) 
+      { 
+      return 1;
+      }
+    return superclass::IsTypeOf(type);
+  }
+  virtual int IsA(const char *type)
+  {
+    return this->thisClass::IsTypeOf(type);
+  }
+  static vtkAbstractMap<KeyType,DataType>* SafeDownCast(vtkObject *o)
+  {
+    if ( o && o->IsA("vtkAbstractMap<KeyType,DataType>") )
+      {
+      return (vtkAbstractMap<KeyType,DataType> *)o;
+      }
+    return NULL;
+  }
 
-  // Description:
-  // Append an Item to the end of the list.
-  // It returns VTK_OK if successfull.
-  virtual int AppendItem(DType a) = 0;
-  
-  // Description:
-  // Insert an Item to the front of the list.
-  // It returns VTK_OK if successfull.
-  virtual int PrependItem(DType a) = 0;
-  
-  // Description:
-  // Insert an Item to the specific location in the list.
-  // It returns VTK_OK if successfull.
-  virtual int InsertItem(vtkIdType loc, DType a) = 0;
-  
   // Description:
   // Sets the Item at the specific location in the list to a new value.
   // It also checks if the item can be set.
   // It returns VTK_OK if successfull.
-  virtual int SetItem(vtkIdType loc, DType a) = 0;
+  virtual int SetItem(KeyType key, DataType data) = 0;
   
   // Description:
   // Sets the Item at the specific location in the list to a new value.
   // This method does not perform any error checking.
-  virtual void SetItemNoCheck(vtkIdType loc, DType a) = 0;
+  virtual void SetItemNoCheck(KeyType key, DataType data) = 0;
 
   // Description:
   // Remove an Item from the list
   // It returns VTK_OK if successfull.
-  virtual int RemoveItem(vtkIdType id) = 0;
+  virtual int RemoveItem(KeyType key) = 0;
   
   // Description:
   // Return an item that was previously added to this list. 
   // It returns VTK_OK if successfull.
-  virtual int GetItem(vtkIdType id, DType& ret) = 0;
-      
-  // Description:
-  // Find an item in the list. Return one if it was found, zero if it was
-  // not found. The location of the item is returned in res.
-  // It returns VTK_OK if successfull.
-  virtual int FindItem(DType a, vtkIdType &res) = 0;
-
-  // Description:
-  // Find an item in the list using a comparison routine. 
-  // Return one if it was found, zero if it was
-  // not found. The location of the item is returned in res.
-  // It returns VTK_OK if successfull.
-  virtual int FindItem(DType a, CompareFunction compare, 
-                       vtkIdType &res) = 0;
-
-  // Description:
-  // Set the capacity of the list.
-  // It returns VTK_OK if successfull.
-  virtual int SetSize(vtkIdType size) = 0;
+  virtual int GetItem(KeyType key, DataType& data) = 0;
   
   // Description:
   // Return the number of items currently held in this container. This
   // different from GetSize which is provided for some containers. GetSize
   // will return how many items the container can currently hold.
   virtual vtkIdType GetNumberOfItems() = 0;
-  
-  // Description:
-  // Returns the number of items the container can currently hold.
-  // This is the capacity of the container.
-  virtual vtkIdType GetSize() = 0;
 };
 
 #endif

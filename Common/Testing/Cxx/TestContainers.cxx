@@ -18,6 +18,7 @@
 
 #include "vtkObject.h"
 #include "vtkAbstractList.h"
+#include "vtkAbstractMap.h"
 
 int main(int vtkNotUsed(argc), char** vtkNotUsed(argv))
 {
@@ -25,10 +26,11 @@ int main(int vtkNotUsed(argc), char** vtkNotUsed(argv))
   // it can parse through the header file.
   vtkContainer *cnt = 0;
   vtkAbstractList<int> *alist = 0;
+  vtkAbstractMap<char*, char*> *amap= 0;
 
   // This is here so that it does not complain about 
   // pointers not being used
-  if ( cnt && alist )
+  if ( cnt && alist && amap )
     {
     return 1;
     }
