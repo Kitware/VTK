@@ -1,6 +1,7 @@
 catch {load vtktcl}
 
 source vtkImageInclude.tcl
+source TkImageViewerInteractor.tcl
 
 
 vtkPNMReader reader
@@ -48,4 +49,8 @@ pack .top.f1.r1 .top.f1.r2 \
   -side top -padx 3 -pady 3 -expand t
 pack .top.f1 -fill both -expand t
 pack .top.btn -fill x
+
+BindTkImageViewer .top.f1.r1 
+BindTkImageViewer .top.f1.r2
+
 

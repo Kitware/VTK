@@ -1,6 +1,8 @@
 catch {load vtktcl}
 
 source vtkImageInclude.tcl
+source TkImageViewerInteractor.tcl
+
 
 vtkImageReader reader
 reader ReleaseDataFlagOff
@@ -93,6 +95,11 @@ pack .top.f2.r3 .top.f2.r4 \
 pack .top.f1 .top.f2  -fill both -expand t
 pack .top.btn -fill x
 
+
+BindTkImageViewer .top.f1.r1 
+BindTkImageViewer .top.f1.r2
+BindTkImageViewer .top.f2.r3 
+BindTkImageViewer .top.f2.r4 
 
 
 

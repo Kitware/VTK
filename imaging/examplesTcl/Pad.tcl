@@ -3,6 +3,8 @@ catch {load vtktcl}
 
 
 source vtkImageInclude.tcl
+source TkImageViewerInteractor.tcl
+
 
 
 # Image pipeline
@@ -28,12 +30,14 @@ viewer1 SetInput [pad1 GetOutput]
 viewer1 SetZSlice 22
 viewer1 SetColorWindow 2000
 viewer1 SetColorLevel 1000
+[viewer1 GetActor2D] SetDisplayPosition 127 127
 
 vtkImageViewer viewer2
 viewer2 SetInput [pad2 GetOutput]
 viewer2 SetZSlice 22
 viewer2 SetColorWindow 2000
 viewer2 SetColorLevel 1000
+[viewer2 GetActor2D] SetDisplayPosition 127 127
 
 
 # Create the GUI
@@ -51,6 +55,11 @@ pack .top.f1.r1 .top.f1.r2 \
   -side left -padx 3 -pady 3 -expand t
 pack .top.f1  -fill both -expand t
 pack .top.btn -fill x
+
+
+BindTkImageViewer .top.f1.r1 
+BindTkImageViewer .top.f1.r2
+
 
 
 

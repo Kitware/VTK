@@ -3,6 +3,7 @@ catch {load vtktcl}
 
 
 source vtkImageInclude.tcl
+source TkImageViewerInteractor.tcl
 
 # Image pipeline
 
@@ -66,7 +67,9 @@ pack .top.f1.r1 .top.f1.r2 .top.f1.r3 \
 pack .top.f1 -fill both -expand t
 pack .top.btn -fill x
 
-
+BindTkImageViewer .top.f1.r1 
+BindTkImageViewer .top.f1.r2
+BindTkImageViewer .top.f1.r3 
 
 
 

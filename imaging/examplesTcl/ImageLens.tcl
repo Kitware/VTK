@@ -71,6 +71,9 @@ vtkTkImageViewerWidget .top.f1.r1 -width 512 -height 256 -iv viewer
 
 bind .top.f1.r1 <Button-1> {moveLens %x %y}
 bind .top.f1.r1 <B1-Motion> {moveLens %x %y}
+bind .top.f1.r1 <Expose> {%W Render}
+
+
 
 button .top.btn  -text Quit -command exit
 

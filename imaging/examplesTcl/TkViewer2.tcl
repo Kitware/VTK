@@ -1,6 +1,9 @@
 catch {load vtktcl}
 
 source vtkImageInclude.tcl
+source TkImageViewerInteractor.tcl
+
+
 
 # This script uses a vtkTkRenderWidget to create a
 # Tk widget that is associated with a vtkRenderWindow.
@@ -31,5 +34,9 @@ set viewer [.top.f1.r1 GetImageViewer]
 $viewer SetInput [reader GetOutput]
 $viewer SetColorWindow 256
 $viewer SetColorLevel 128
+
+
+BindTkImageViewer .top.f1.r1 
+
 
 

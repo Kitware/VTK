@@ -4,6 +4,8 @@ catch {load vtktcl}
 # Values below 2000 are set to 0.
 
 source vtkImageInclude.tcl
+source TkImageViewerInteractor.tcl
+
 
 # Image pipeline
 
@@ -136,6 +138,9 @@ pack .top.f1.r1 .top.f1.r2 \
 pack .top.f1  -fill both -expand t
 pack .top.btn -fill x
 
+
+BindTkImageViewer .top.f1.r1 
+BindTkImageViewer .top.f1.r2
 
 
 
