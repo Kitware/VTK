@@ -162,7 +162,9 @@ void vtkRIBExporter::WriteData()
   // Write all lights
   //
   lc = ren->GetLights();
-  int lightCount = 1;
+  // Create an ambient light
+  this->WriteAmbientLight (1);
+  int lightCount = 2;
   for (lc->InitTraversal(); (aLight = lc->GetNextItem()); )
     {
     if (aLight->GetSwitch ()) this->WriteLight(aLight, lightCount++);
@@ -369,6 +371,11 @@ void vtkRIBExporter::WriteLight (vtkLight *aLight, int count)
     {
     }
 
+}
+
+void vtkRIBExporter::WriteAmbientLight (int count)
+{
+  fprintf (this->FilePtr, "LightSource \"ambientlight\" %d\n", count);
 }
 
 void vtkRIBExporter::WriteViewport (vtkRenderer *ren, int size[2])

@@ -142,6 +142,7 @@ protected:
   void WriteViewport (vtkRenderer *aRenderer, int size[2]);
   void WriteCamera (vtkCamera *aCamera);
   void WriteLight (vtkLight *aLight, int count);
+  void WriteAmbientLight (int count);
   void WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture);
   void WritePolygons (vtkPolyData *pd, vtkColorScalars *colors, vtkProperty *aProperty);
   void WriteStrips (vtkPolyData *pd, vtkColorScalars *colors, vtkProperty *aProperty);
