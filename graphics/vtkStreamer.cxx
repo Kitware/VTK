@@ -255,7 +255,7 @@ static void copy_streampoint(const vtkStreamPoint& source, vtkStreamPoint& targe
   target.d = source.d;
 }
 
-#define VTK_EPSILON 1E-12
+static const float VTK_EPSILON=1E-12;
 
 static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
 {
@@ -327,15 +327,12 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
 	{
         continue;
 	}
-      func->SetLastCellId(sPtr->cellId);
 
       dir = streamer->Direction;
 
       copy_streampoint(*sPtr, pt1);
+      copy_streampoint(*sPtr, pt2);
       tOffset = pt1.t;
-      idxNext = streamer->InsertNextStreamPoint();
-      sNext = streamer->GetStreamPoint(idxNext);
-      copy_streampoint(pt1, *sNext);
 
       //integrate until time has been exceeded
       while ( pt1.cellId >= 0 && pt1.speed > self->GetTerminalSpeed() &&
@@ -413,7 +410,7 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
 	
 	if (tOffset >= pt1.t && tOffset <= pt2.t)
 	  {
-	  if ( sNext->x[0] != pt1.x[0] || sNext->x[1] != pt1.x[1]
+	  if ( !sNext || sNext->x[0] != pt1.x[0] || sNext->x[1] != pt1.x[1]
 	       || sNext->x[2] != pt1.x[2] )
 	    {
 	    idxNext = streamer->InsertNextStreamPoint();
@@ -522,6 +519,7 @@ void vtkStreamer::Integrate()
     {
     idx = this->Streamers[0].InsertNextStreamPoint();
     sPtr = this->Streamers[0].GetStreamPoint(idx);
+    sPtr->subId = 0;
     for (i=0; i<3; i++)
       {
       sPtr->x[i] = this->StartPosition[i];
@@ -534,6 +532,7 @@ void vtkStreamer::Integrate()
     {
     idx = this->Streamers[0].InsertNextStreamPoint();
     sPtr = this->Streamers[0].GetStreamPoint(idx);
+    sPtr->subId = 0;
     cell =  input->GetCell(sPtr->cellId);
     cell->EvaluateLocation(sPtr->subId, sPtr->p, sPtr->x, w);
     }
@@ -544,6 +543,7 @@ void vtkStreamer::Integrate()
       {
       idx = this->Streamers[offset*ptId].InsertNextStreamPoint();
       sPtr = this->Streamers[offset*ptId].GetStreamPoint(idx);
+      sPtr->subId = 0;
       source->GetPoint(ptId,sPtr->x);
       sPtr->cellId = input->FindCell(sPtr->x, NULL, -1, tol2,
                                      sPtr->subId, sPtr->p, w);
@@ -558,6 +558,13 @@ void vtkStreamer::Integrate()
     sPtr = this->Streamers[offset*ptId].GetStreamPoint(idx);
     sPtr->d = 0.0;
     sPtr->t = 0.0;
+    sPtr->s = 0.0;
+    for (j=0; j<3; j++)
+      {
+      sPtr->w[j] = 0.0;
+      sPtr->n[j] = 0.0;
+      }
+    
     if ( sPtr->cellId >= 0 ) //starting point in dataset
       {
       cell = input->GetCell(sPtr->cellId);
@@ -583,20 +590,30 @@ void vtkStreamer::Integrate()
           sPtr->s += cellScalars->GetScalar(i) * w[i];
 	  }
         }
+      if ( this->IntegrationDirection == VTK_INTEGRATE_BOTH_DIRECTIONS )
+	{
+	this->Streamers[offset*ptId+1].Direction = -1.0;
+	idxNext = this->Streamers[offset*ptId+1].InsertNextStreamPoint();
+	sNext = this->Streamers[offset*ptId+1].GetStreamPoint(idxNext);
+	sPtr = this->Streamers[offset*ptId].GetStreamPoint(idx);
+	*sNext = *sPtr;
+	}
+      else if ( this->IntegrationDirection == VTK_INTEGRATE_BACKWARD )
+	{
+	this->Streamers[offset*ptId].Direction = -1.0;
+	}
+      }
+    else
+      {
+      for (j=0; j<3; j++)
+	{
+	sPtr->p[j] = 0.0;
+	sPtr->v[j] = 0.0;
+	}
+      sPtr->speed = 0;
       }
 
-    if ( this->IntegrationDirection == VTK_INTEGRATE_BOTH_DIRECTIONS )
-      {
-      this->Streamers[offset*ptId+1].Direction = -1.0;
-      idxNext = this->Streamers[offset*ptId+1].InsertNextStreamPoint();
-      sNext = this->Streamers[offset*ptId+1].GetStreamPoint(idxNext);
-      sPtr = this->Streamers[offset*ptId].GetStreamPoint(idx);
-      *sNext = *sPtr;
-      }
-    else if ( this->IntegrationDirection == VTK_INTEGRATE_BACKWARD )
-      {
-      this->Streamers[offset*ptId].Direction = -1.0;
-      }
+
     } //for each streamer
 
   // Some data access methods must be called once from a single thread before they
