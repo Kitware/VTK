@@ -1,4 +1,4 @@
-Microsoft Developer Studio Workspace File, Format Version 5.00
+Microsoft Developer Studio Workspace File, Format Version 6.00
 # WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
 
 ###############################################################################
@@ -15,7 +15,31 @@ Package=<4>
 
 ###############################################################################
 
+Project: "vtkHTML"=.\vtkHTML.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "vtkParseJava"=.\vtkParseJava.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "vtkPrint"=.\vtkPrint.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
