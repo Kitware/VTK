@@ -1,8 +1,8 @@
 /*
- * This work was produced under a grant from the Department of Energy to Brown 
- * University.  Neither Brown University nor the authors assert any copyright 
- * with respect to this work and it may be used, reproduced, and distributed 
- * without permission.
+ * This work (vtkInteractorStyleUnicam.h) was produced under a grant from
+ * the Department of Energy to Brown University.  Neither Brown University
+ * nor the authors assert any copyright with respect to this work and it may
+ * be used, reproduced, and distributed without permission.  
  */
 
 // .NAME vtkInteractorStyleUnicam - provides Unicam navigation style
