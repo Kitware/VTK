@@ -127,9 +127,7 @@ vtkXYZMolReader.cxx
 vtkZLibDataCompressor.cxx
 )
 
-IF(VTK_USE_ANSI_STDLIB)
-  SET(Kit_SRCS ${Kit_SRCS} vtkDICOMImageReader.cxx)
-ENDIF(VTK_USE_ANSI_STDLIB)
+SET(Kit_SRCS ${Kit_SRCS} vtkDICOMImageReader.cxx)
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkDataCompressor
