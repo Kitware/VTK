@@ -28,9 +28,9 @@ int vlTriangle::EvaluatePosition(float x[3], float closestPoint[3],
 {
   int i, j;
   vlPolygon poly;
-  float *pt1, *pt2, *pt3, n[3], xProj[3];
+  float *pt1, *pt2, *pt3, n[3];
   float rhs[2], c1[2], c2[2];
-  float closestPoint[3], det;
+  float det;
   vlPlane plane;
   vlMath math;
   float maxComponent;
@@ -49,7 +49,7 @@ int vlTriangle::EvaluatePosition(float x[3], float closestPoint[3],
 //
 // Project point to plane
 //
-  plane.ProjectPoint(x,pt1,n,xProj);
+  plane.ProjectPoint(x,pt1,n,closestPoint);
 //
 // Construct matrices.  Since we have over determined system, need to find
 // which 2 out of 3 equations to use to develop equations. (Any 2 should 
@@ -70,7 +70,7 @@ int vlTriangle::EvaluatePosition(float x[3], float closestPoint[3],
   
   for (i=0; i<2; i++)
     {  
-    rhs[i] = xProj[indices[i]] - pt3[indices[i]];
+    rhs[i] = closestPoint[indices[i]] - pt3[indices[i]];
     c1[i] = pt1[indices[i]] - pt3[indices[i]];
     c2[i] = pt2[indices[i]] - pt3[indices[i]];
     }
@@ -88,7 +88,7 @@ int vlTriangle::EvaluatePosition(float x[3], float closestPoint[3],
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
-    dist2 = math.Distance2BetweenPoints(xProj,x); //projection distance
+    dist2 = math.Distance2BetweenPoints(closestPoint,x); //projection distance
     weights[0] = pcoords[2];
     weights[1] = pcoords[0];
     weights[2] = pcoords[1];
