@@ -17,7 +17,7 @@
 #include "vtkDataSet.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkDicer, "1.32");
+vtkCxxRevisionMacro(vtkDicer, "1.33");
 
 // Instantiate object.
 vtkDicer::vtkDicer()
@@ -32,9 +32,8 @@ vtkDicer::vtkDicer()
 
 // This method unifies the measures used to define piece size. Call this
 // in the subclass Execute() method.
-void vtkDicer::UpdatePieceMeasures()
+void vtkDicer::UpdatePieceMeasures(vtkDataSet *input)
 {
-  vtkDataSet *input = this->GetInput();
   int numPts = input->GetNumberOfPoints();
   unsigned long memSize = input->GetActualMemorySize();
 

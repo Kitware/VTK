@@ -17,6 +17,8 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkOBBTree.h"
 #include "vtkObjectFactory.h"
@@ -24,15 +26,15 @@
 #include "vtkPoints.h"
 #include "vtkShortArray.h"
 
-vtkCxxRevisionMacro(vtkOBBDicer, "1.21");
+vtkCxxRevisionMacro(vtkOBBDicer, "1.22");
 vtkStandardNewMacro(vtkOBBDicer);
 
-void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
+void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr,
+                            vtkDataSet *input)
 {
   vtkIdType i, numPts=ptIds->GetNumberOfIds();
   vtkIdType ptId;
   vtkOBBTree *OBB = vtkOBBTree::New();
-  vtkDataSet *input= this->GetInput();
 
   double size[3];
 
@@ -101,8 +103,8 @@ void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
       }//for all points
 
     ptIds->Delete(); //don't need to keep anymore
-    this->BuildTree(LHlist, LHnode);
-    this->BuildTree(RHlist, RHnode);
+    this->BuildTree(LHlist, LHnode, input);
+    this->BuildTree(RHlist, RHnode, input);
     }//if should build tree
 
   else //terminate recursion
@@ -113,14 +115,22 @@ void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
 }
 
 // Current implementation uses an OBBTree to split up the dataset.
-void vtkOBBDicer::Execute()
+int vtkOBBDicer::RequestData(
+  vtkInformation *,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   vtkIdType ptId, numPts;
   vtkIdList *ptIds;
   vtkShortArray *groupIds;
   vtkOBBNode *root;
-  vtkDataSet *input= this->GetInput();
-  vtkDataSet *output= this->GetOutput();
+  vtkDataSet *input= vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output= vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDebugMacro(<<"Dicing object");
 
@@ -130,11 +140,11 @@ void vtkOBBDicer::Execute()
   if ( (numPts = input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"No data to dice!");
-    return;
+    return 1;
     }
 
   // The superclass computes piece size limits based on filter ivars
-  this->UpdatePieceMeasures();
+  this->UpdatePieceMeasures(input);
 
   // Create list of points
   //
@@ -148,7 +158,7 @@ void vtkOBBDicer::Execute()
     }
 
   root = new vtkOBBNode;
-  this->BuildTree(ptIds,root);
+  this->BuildTree(ptIds,root, input);
 
   // Generate scalar values
   //
@@ -183,6 +193,8 @@ void vtkOBBDicer::Execute()
   output->GetCellData()->PassData(input->GetCellData());
 
   groupIds->Delete();
+
+  return 1;
 }
 
 void vtkOBBDicer::MarkPoints(vtkOBBNode *OBBptr, vtkShortArray *groupIds)

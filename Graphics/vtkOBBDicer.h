@@ -50,10 +50,10 @@ protected:
   ~vtkOBBDicer() {};
 
   // Usual data generation method
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   //implementation ivars and methods
-  void BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr);
+  void BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr, vtkDataSet *input);
   void MarkPoints(vtkOBBNode *OBBptr, vtkShortArray *groupIds);
   void DeleteTree(vtkOBBNode *OBBptr);
   vtkPoints *PointsList;

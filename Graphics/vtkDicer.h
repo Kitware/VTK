@@ -41,16 +41,16 @@
 #ifndef __vtkDicer_h
 #define __vtkDicer_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 #define VTK_DICE_MODE_NUMBER_OF_POINTS 0
 #define VTK_DICE_MODE_SPECIFIED_NUMBER 1
 #define VTK_DICE_MODE_MEMORY_LIMIT 2
 
-class VTK_GRAPHICS_EXPORT vtkDicer : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkDicer : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkDicer,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkDicer,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -110,7 +110,7 @@ protected:
   vtkDicer();
   ~vtkDicer() {};
 
-  virtual void UpdatePieceMeasures();
+  virtual void UpdatePieceMeasures(vtkDataSet *input);
 
   int           NumberOfPointsPerPiece;
   int           NumberOfPieces;
