@@ -25,6 +25,9 @@ vtkMCubesReader
 vtkMCubesWriter
 vtkOBJReader
 vtkPLOT3DReader
+vtkPLY
+vtkPLYReader
+vtkPLYWriter
 vtkPNGReader
 vtkPNGWriter
 vtkPNMReader
@@ -51,14 +54,6 @@ vtkVolumeReader
 vtkWriter
 )
 
-# Optional Stanford University PLY file format
-IF(PLY_LIBRARY)
-  IF(PLY_PATH)
-    SOURCE_FILES( IO_SRCS vtkPLYReader vtkPLYWriter )
-    INCLUDE_DIRECTORIES( ${PLY_PATH} )
-  ENDIF(PLY_PATH)
-ENDIF(PLY_LIBRARY)
-
 ABSTRACT_FILES(
 vtkEnSightReader
 vtkVolumeReader
@@ -76,6 +71,8 @@ INCLUDE (${VTK_SOURCE_DIR}/IO/LocalUserOptions.cmake OPTIONAL)
 # if we are wrapping into Tcl then add the library and extra 
 # source files
 #
+WRAP_EXCLUDE_FILES(vtkPLY)
+
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkIOTCL IOTCL_SRCS IO_SRCS)
   ADD_LIBRARY(vtkIOTCL IOTCL_SRCS)
@@ -130,6 +127,7 @@ IF(WIN32)
     ENDIF(NOT BUILD_SHARED_LIBS)
   ENDIF(UNIX)
 ENDIF(WIN32)
+
 
 IF(WIN32)
   IF(NOT BUILD_SHARED_LIBS)

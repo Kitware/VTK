@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkPLYWriter.h"
-#include "ply.h"
+#include "vtkPLY.h"
 #include "vtkObjectFactory.h"
 
 //--------------------------------------------------------------------------
@@ -74,12 +74,13 @@ vtkPLYWriter::vtkPLYWriter()
 }
 
 typedef struct _plyVertex {
-  float x[3];             /* the usual 3-space position of a vertex */
+  float x[3];             // the usual 3-space position of a vertex
 } plyVertex;
 
 typedef struct _plyFace {
-  unsigned char nverts;    /* number of vertex indices in list */
-  int *verts;              /* vertex index list */
+  unsigned char intensity; // this user attaches intensity to faces
+  unsigned char nverts;    // number of vertex indices in list
+  int *verts;              // vertex index list
 } plyFace;
 
 void vtkPLYWriter::WriteData()
@@ -97,6 +98,7 @@ void vtkPLYWriter::WriteData()
     {"z", PLY_FLOAT, PLY_FLOAT, offsetof(plyVertex,x[2]), 0, 0, 0, 0},
   };
   static PlyProperty faceProps[] = { // property information for a face
+    {"intensity", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,intensity), 0, 0, 0, 0},
     {"vertex_indices", PLY_INT, PLY_INT, offsetof(plyFace,verts),
      1, PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,nverts)},
   };
@@ -121,18 +123,18 @@ void vtkPLYWriter::WriteData()
     {
     if ( this->DataByteOrder == VTK_LITTLE_ENDIAN )
       {
-      ply = ply_open_for_writing(this->FileName, 2, elemNames, 
+      ply = vtkPLY::ply_open_for_writing(this->FileName, 2, elemNames, 
                                  PLY_BINARY_LE, &version);
       }
     else
       {
-      ply = ply_open_for_writing(this->FileName, 2, elemNames, 
+      ply = vtkPLY::ply_open_for_writing(this->FileName, 2, elemNames, 
                                  PLY_BINARY_BE, &version);
       }
     }
   else
     {
-    ply = ply_open_for_writing(this->FileName, 2, elemNames, 
+    ply = vtkPLY::ply_open_for_writing(this->FileName, 2, elemNames, 
                                PLY_ASCII, &version);
     }
 
@@ -144,36 +146,38 @@ void vtkPLYWriter::WriteData()
   
   // describe what properties go into the vertex and face elements
   int numPts = inPts->GetNumberOfPoints();
-  ply_element_count (ply, "vertex", numPts);
-  ply_describe_property (ply, "vertex", &vertProps[0]);
-  ply_describe_property (ply, "vertex", &vertProps[1]);
-  ply_describe_property (ply, "vertex", &vertProps[2]);
+  vtkPLY::ply_element_count (ply, "vertex", numPts);
+  vtkPLY::ply_describe_property (ply, "vertex", &vertProps[0]);
+  vtkPLY::ply_describe_property (ply, "vertex", &vertProps[1]);
+  vtkPLY::ply_describe_property (ply, "vertex", &vertProps[2]);
 
   int numPolys = polys->GetNumberOfCells();
-  ply_element_count (ply, "face", numPolys);
-  ply_describe_property (ply, "face", &faceProps[0]);
+  vtkPLY::ply_element_count (ply, "face", numPolys);
+  vtkPLY::ply_describe_property (ply, "face", &faceProps[0]);
+  vtkPLY::ply_describe_property (ply, "face", &faceProps[1]);
 
   // write a comment and an object information field
-  ply_put_comment (ply, "VTK generated PLY File");
-  ply_put_obj_info (ply, "vtkPolyData points and polygons: vtk4.0");
+  vtkPLY::ply_put_comment (ply, "VTK generated PLY File");
+  vtkPLY::ply_put_obj_info (ply, "vtkPolyData points and polygons: vtk4.0");
 
   // complete the header
-  ply_header_complete (ply);
+  vtkPLY::ply_header_complete (ply);
 
-  /* set up and write the vertex elements */
+  // set up and write the vertex elements
   plyVertex vert;
-  ply_put_element_setup (ply, "vertex");
+  vtkPLY::ply_put_element_setup (ply, "vertex");
   for (i = 0; i < numPts; i++)
     {
     inPts->GetPoint(i,vert.x);
-    ply_put_element (ply, (void *) &vert);
+    vtkPLY::ply_put_element (ply, (void *) &vert);
     }
 
-  /* set up and write the face elements */
+  // set up and write the face elements
   plyFace face;
   int verts[256];
+  face.intensity = 0;
   face.verts = verts;
-  ply_put_element_setup (ply, "face");
+  vtkPLY::ply_put_element_setup (ply, "face");
   vtkIdType npts, *pts;
   for (i = 0; i < numPolys; i++)
     {
@@ -189,12 +193,12 @@ void vtkPLYWriter::WriteData()
         face.nverts = npts;
         verts[j] = (int)pts[j];
         }
-      ply_put_element (ply, (void *) &face);
+      vtkPLY::ply_put_element (ply, (void *) &face);
       }
     }//for all polygons
 
-  /* close the PLY file */
-  ply_close (ply);
+  // close the PLY file
+  vtkPLY::ply_close (ply);
   
   }
   
