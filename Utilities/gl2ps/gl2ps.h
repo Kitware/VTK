@@ -70,7 +70,7 @@
 /* Support for compressed PDF */
 
 #if defined(HAVE_ZLIB) || defined(HAVE_LIBZ) || defined(GL2PS_HAVE_ZLIB)
-#  include <zlib.h>
+#  include "vtk_zlib.h"
 #  ifndef GL2PS_HAVE_ZLIB
 #    define GL2PS_HAVE_ZLIB
 #  endif
