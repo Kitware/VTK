@@ -84,6 +84,7 @@ void vtkSelectVisiblePoints::Execute()
   vtkIdType ptId, id;
   int visible;
   vtkPoints *outPts;
+  vtkCellArray *outputVertices;
   vtkDataSet *input= this->GetInput();
   vtkPolyData *output=this->GetOutput();
   vtkPointData *inPD=input->GetPointData();
@@ -106,6 +107,10 @@ void vtkSelectVisiblePoints::Execute()
   outPts = vtkPoints::New();
   outPts->Allocate(numPts/2+1);
   outPD->CopyAllocate(inPD);
+
+  outputVertices = vtkCellArray::New();
+  output->SetVerts(outputVertices);
+  outputVertices->Delete();
 
   int *size = this->Renderer->GetRenderWindow()->GetSize();
 
@@ -197,6 +202,7 @@ void vtkSelectVisiblePoints::Execute()
          (!visible && this->SelectInvisible) )
       {
       id = outPts->InsertNextPoint(x);
+      output->InsertNextCell(VTK_VERTEX, 1, &id);
       outPD->CopyData(inPD,ptId,id);
       }
     }//for all points
