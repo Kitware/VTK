@@ -95,6 +95,19 @@ public:
   vtkSetMacro(RadiusFactor,float);
   vtkGetMacro(RadiusFactor,float);
 
+  // Description:
+  // Set the default normal to use if no normals are supplied, and the
+  // DefaultNormalOn is set.
+  vtkSetVector3Macro(DefaultNormal,float);
+  vtkGetVector3Macro(DefaultNormal,float);
+
+  // Description:
+  // Set a boolean to control whether to use default normals.
+  // DefaultNormalOn is set.
+  vtkSetMacro(UseDefaultNormal,int);
+  vtkGetMacro(UseDefaultNormal,int);
+  vtkBooleanMacro(UseDefaultNormal,int);
+
 protected:
   // Usual data generation method
   void Execute();
@@ -103,7 +116,11 @@ protected:
   int VaryRadius; //controls radius variation
   int NumberOfSides; //number of sides to create tube
   float RadiusFactor; //maxium allowablew radius
+  float DefaultNormal[3];
+  int UseDefaultNormal;
+  
 };
+
 
 #endif
 
