@@ -23,7 +23,7 @@
 // parameters.
 
 // .SECTION see also
-// vtkVolumeMapper vtkVolumeProperty vtkProp3D
+// vtkAbstractVolumeMapper vtkVolumeProperty vtkProp3D
 
 #ifndef __vtkVolume_h
 #define __vtkVolume_h
@@ -35,7 +35,7 @@ class vtkPropCollection;
 class vtkVolumeCollection;
 class vtkWindow;
 class vtkVolumeProperty;
-class vtkVolumeMapper;
+class vtkAbstractVolumeMapper;
 
 class VTK_RENDERING_EXPORT vtkVolume : public vtkProp3D
 {
@@ -51,8 +51,8 @@ public:
 
   // Description:
   // Set/Get the volume mapper.
-  void SetMapper(vtkVolumeMapper *mapper);
-  vtkGetObjectMacro(Mapper, vtkVolumeMapper);
+  void SetMapper(vtkAbstractVolumeMapper *mapper);
+  vtkGetObjectMacro(Mapper, vtkAbstractVolumeMapper);
 
   // Description:
   // Set/Get the volume property.
@@ -173,7 +173,7 @@ protected:
   vtkVolume();
   ~vtkVolume();
 
-  vtkVolumeMapper              *Mapper;
+  vtkAbstractVolumeMapper      *Mapper;
   vtkVolumeProperty            *Property;
 
   // The rgb transfer function array - for unsigned char data this

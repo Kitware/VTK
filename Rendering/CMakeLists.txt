@@ -20,6 +20,7 @@ SET(KIT_LIBS vtkGraphics vtkImaging
 
 SET( Kit_SRCS
 vtkAbstractMapper3D.cxx
+vtkAbstractVolumeMapper.cxx
 vtkAbstractPicker.cxx
 vtkAbstractPropPicker.cxx
 vtkActor.cxx
@@ -81,6 +82,7 @@ vtkProp3D.cxx
 vtkProp3DCollection.cxx
 vtkPropPicker.cxx
 vtkProperty.cxx
+vtkRayCastImageDisplayHelper.cxx
 vtkRecursiveSphereDirectionEncoder.cxx
 vtkRenderWindow.cxx
 vtkRenderWindowCollection.cxx
@@ -95,6 +97,10 @@ vtkTextActor.cxx
 vtkTextMapper.cxx
 vtkTextProperty.cxx
 vtkTexture.cxx
+vtkUnstructuredGridBunykRayCastFunction.cxx
+vtkUnstructuredGridVolumeMapper.cxx
+vtkUnstructuredGridVolumeRayCastFunction.cxx
+vtkUnstructuredGridVolumeRayCastMapper.cxx
 vtkVRMLExporter.cxx
 vtkVolume.cxx
 vtkVolumeCollection.cxx
@@ -140,6 +146,7 @@ SET( KitOpenGL_SRCS
   vtkOpenGLPolyDataMapper.cxx
   vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
+  vtkOpenGLRayCastImageDisplayHelper.cxx
   vtkOpenGLRenderWindow.cxx
   vtkOpenGLRenderer.cxx
   vtkOpenGLTexture.cxx
@@ -149,6 +156,7 @@ SET( KitOpenGL_SRCS
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractMapper3D
+vtkAbstractVolumeMapper
 vtkAbstractPicker
 vtkAbstractPropPicker
 vtkCuller
@@ -160,6 +168,9 @@ vtkInteractorObserver
 vtkMapper
 vtkOpenGLRenderWindow
 vtkProp3D
+vtkRayCastImageDisplayHelper
+vtkUnstructuredGridVolumeMapper
+vtkUnstructuredGridVolumeRayCastFunction
 vtkVolumeMapper
 vtkVolumeRayCastFunction
 vtkVolumeTextureMapper

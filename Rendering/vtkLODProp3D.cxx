@@ -21,12 +21,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkPropCollection.h"
 #include "vtkVolume.h"
-#include "vtkVolumeMapper.h"
+#include "vtkAbstractVolumeMapper.h"
 #include "vtkLinearTransform.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.40");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.41");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1
@@ -377,13 +377,13 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
 
 // Convenience method to set a volume LOD without a property.
 // Needed from tcl (for example) where null pointers are not possible
-int vtkLODProp3D::AddLOD( vtkVolumeMapper *m, float time )
+int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, float time )
 {
   return this->AddLOD( m, (vtkVolumeProperty *)NULL, time );
 }
 
 // The real method for adding a volume LOD.
-int vtkLODProp3D::AddLOD( vtkVolumeMapper *m, vtkVolumeProperty *p, 
+int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p, 
                           float time )
 {
   int           index;
@@ -460,7 +460,7 @@ void vtkLODProp3D::GetLODMapper( int id, vtkMapper **m )
 }
 
 // Set the mapper for an LOD that is a volume
-void vtkLODProp3D::SetLODMapper( int id, vtkVolumeMapper *m )
+void vtkLODProp3D::SetLODMapper( int id, vtkAbstractVolumeMapper *m )
 {
   int index = this->ConvertIDToIndex( id );
 
@@ -479,7 +479,7 @@ void vtkLODProp3D::SetLODMapper( int id, vtkVolumeMapper *m )
 }
 
 // Get the mapper for an LOD that is an actor
-void vtkLODProp3D::GetLODMapper( int id, vtkVolumeMapper **m )
+void vtkLODProp3D::GetLODMapper( int id, vtkAbstractVolumeMapper **m )
 {
   *m = NULL;
   

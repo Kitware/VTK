@@ -31,7 +31,7 @@
 
 class vtkRenderer;
 class vtkMapper;
-class vtkVolumeMapper;
+class vtkAbstractVolumeMapper;
 class vtkAbstractMapper3D;
 class vtkProperty;
 class vtkVolumeProperty;
@@ -77,8 +77,8 @@ public:
   int AddLOD( vtkMapper *m, vtkProperty *p, float time );
   int AddLOD( vtkMapper *m, vtkTexture *t, float time );
   int AddLOD( vtkMapper *m, float time );
-  int AddLOD( vtkVolumeMapper *m, vtkVolumeProperty *p, float time );
-  int AddLOD( vtkVolumeMapper *m, float time );
+  int AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p, float time );
+  int AddLOD( vtkAbstractVolumeMapper *m, float time );
 
   // Description:
   // Get the current number of LODs.
@@ -112,8 +112,8 @@ public:
   // or the mapper is of the wrong type for the corresponding Prop3D.
   void SetLODMapper( int id, vtkMapper  *m );
   void GetLODMapper( int id, vtkMapper  **m );
-  void SetLODMapper( int id, vtkVolumeMapper  *m );
-  void GetLODMapper( int id, vtkVolumeMapper  **m );
+  void SetLODMapper( int id, vtkAbstractVolumeMapper  *m );
+  void GetLODMapper( int id, vtkAbstractVolumeMapper  **m );
 
   // Description:
   // Get the LODMapper as an vtkAbstractMapper3D.  It is the user's respondibility

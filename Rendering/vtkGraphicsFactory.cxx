@@ -30,6 +30,7 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkOpenGLVolumeRayCastMapper.h"
+#include "vtkOpenGLRayCastImageDisplayHelper.h"
 #endif
 
 // Win32 specific stuff
@@ -82,7 +83,7 @@
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 int vtkGraphicsFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.33");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.34");
 vtkStandardNewMacro(vtkGraphicsFactory);
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
@@ -304,6 +305,16 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
         }
 #endif
       return vtkOpenGLVolumeRayCastMapper::New();
+      }
+    if(strcmp(vtkclassname, "vtkRayCastImageDisplayHelper") == 0)
+      {
+#if defined(VTK_USE_MANGLED_MESA)
+      if ( vtkGraphicsFactory::UseMesaClasses )
+        {
+        return vtkMesaRayCastImageDisplayHelper::New();
+        }
+#endif
+      return vtkOpenGLRayCastImageDisplayHelper::New();
       }
     }
 #endif

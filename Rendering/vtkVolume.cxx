@@ -26,11 +26,11 @@
 #include "vtkTransform.h"
 #include "vtkVolumeCollection.h"
 #include "vtkVolumeProperty.h"
-#include "vtkVolumeRayCastMapper.h"
+#include "vtkAbstractVolumeMapper.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.75");
+vtkCxxRevisionMacro(vtkVolume, "1.76");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -173,7 +173,7 @@ float *vtkVolume::GetRGBArray(int index)
   return this->RGBArray[index];
 }
 
-void vtkVolume::SetMapper(vtkVolumeMapper *mapper)
+void vtkVolume::SetMapper(vtkAbstractVolumeMapper *mapper)
 {
   if (this->Mapper != mapper)
     {
@@ -478,7 +478,9 @@ unsigned long int vtkVolume::GetRedrawMTime()
     
     int numComponents;
     
-    if ( this->Mapper && this->Mapper->GetInput() )
+    if ( this->Mapper && this->Mapper->GetInput() &&
+         this->Mapper->GetInput()->GetPointData() &&
+         this->Mapper->GetInput()->GetPointData()->GetScalars() )
       {
       numComponents = this->Mapper->GetInput()->GetPointData()->
         GetScalars()->GetNumberOfComponents();
@@ -524,13 +526,13 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
   vtkColorTransferFunction  *rgbtf;
   int                        colorChannels;
   
-  //int                        sotfNeedsUpdate = 0;
-  //int                        rgbtfNeedsUpdate = 0;
-  //int                        graytfNeedsUpdate = 0;
   int                        arraySize = 0;
   
   // Check that we have scalars
-  if ( this->Mapper->GetInput()->GetPointData()->GetScalars() == NULL )
+  if ( this->Mapper == NULL ||
+       this->Mapper->GetInput() == NULL ||
+       this->Mapper->GetInput()->GetPointData() == NULL ||
+       this->Mapper->GetInput()->GetPointData()->GetScalars() == NULL )
     {
     vtkErrorMacro(<<"Need scalar data to volume render");
     return;
@@ -724,6 +726,16 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *vtkNotUsed(ren),
   
   needsRecomputing = needsRecomputing || 
       this->CorrectedStepSize-ray_scale < -0.0001;
+
+  // Check that we have scalars
+  if ( this->Mapper == NULL ||
+       this->Mapper->GetInput() == NULL ||
+       this->Mapper->GetInput()->GetPointData() == NULL ||
+       this->Mapper->GetInput()->GetPointData()->GetScalars() == NULL )
+    {
+    vtkErrorMacro(<<"Need scalar data to volume render");
+    return;
+    }
 
   int numComponents = this->Mapper->GetInput()->GetPointData()->
     GetScalars()->GetNumberOfComponents();

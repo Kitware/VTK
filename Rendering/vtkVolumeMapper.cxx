@@ -16,8 +16,9 @@
 
 #include "vtkImageClip.h"
 #include "vtkImageData.h"
+#include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkVolumeMapper, "1.50");
+vtkCxxRevisionMacro(vtkVolumeMapper, "1.51");
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
@@ -32,9 +33,6 @@ vtkVolumeMapper::vtkVolumeMapper()
     this->VoxelCroppingRegionPlanes[2*i]     = 0;
     this->VoxelCroppingRegionPlanes[2*i + 1] = 1;    
     }
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
-  this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
   this->CroppingRegionFlags = VTK_CROP_SUBVOLUME;
 
   this->UseImageClipper = 1;
@@ -43,19 +41,8 @@ vtkVolumeMapper::vtkVolumeMapper()
 }
 
 vtkVolumeMapper::~vtkVolumeMapper()
-{
-  
+{  
   this->ImageClipper->Delete();
-}
-
-void vtkVolumeMapper::Update()
-{
-  if ( this->GetInput() )
-    {
-    this->GetInput()->UpdateInformation();
-    this->GetInput()->SetUpdateExtentToWholeExtent();
-    this->GetInput()->Update();
-    }
 }
 
 void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
@@ -83,26 +70,6 @@ void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
     }
 }
 
-// Get the bounds for the input of this mapper as 
-// (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-float *vtkVolumeMapper::GetBounds()
-{
-  static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-
-  if ( ! this->GetInput() ) 
-    {
-    return bounds;
-    }
-  else
-    {
-    this->GetInput()->UpdateInformation();
-    this->GetInput()->SetUpdateExtentToWholeExtent();
-    this->GetInput()->Update();
-    this->GetInput()->GetBounds(this->Bounds);
-    return this->Bounds;
-    }
-}
-
 void vtkVolumeMapper::SetUseImageClipper(int arg)
 {
   if (this->UseImageClipper == arg)
@@ -120,11 +87,26 @@ void vtkVolumeMapper::SetUseImageClipper(int arg)
     {
     input->Register(this);
     }
-  this->SetInput(NULL);
+  this->SetInput((vtkImageData *)NULL);
   if (input)
     {
     this->SetInput(input);
     input->UnRegister(this);
+    }
+}
+
+void vtkVolumeMapper::SetInput( vtkDataSet *genericInput )
+{
+  vtkImageData *input = 
+    vtkImageData::SafeDownCast( genericInput );
+  
+  if ( input )
+    {
+    this->SetInput( input );
+    }
+  else
+    {
+    vtkErrorMacro("The SetInput method of this mapper requires vtkImageData as input");
     }
 }
 
@@ -133,12 +115,6 @@ void vtkVolumeMapper::SetInput( vtkImageData *input )
   if (this->UseImageClipper)
     {
     this->ImageClipper->SetInput(input);
-    /*
-      if (input)
-      {
-      this->ImageClipper->ResetOutputWholeExtent();
-      }
-    */
     this->vtkProcessObject::SetNthInput(0, this->ImageClipper->GetOutput());
     }
   else
@@ -177,8 +153,6 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   // Don't print this->VoxelCroppingRegionPlanes
   
-  os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
-
   os << indent << "UseImageClipper: " 
      << (this->UseImageClipper ? "On\n" : "Off\n");
 }

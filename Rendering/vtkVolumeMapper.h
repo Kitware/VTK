@@ -15,18 +15,17 @@
 // .NAME vtkVolumeMapper - Abstract class for a volume mapper
 
 // .SECTION Description
-// vtkVolumeMapper is the abstract definition of a volume mapper.  Several
-// basic types of volume mappers are supported. There are ray casters, which
-// produce an image that must be merged with geometry, there are hardware
-// methods that blend with geometry, and some combinations of these.
+// vtkVolumeMapper is the abstract definition of a volume mapper for regular
+// rectilinear data (vtkImageData).  Several  basic types of volume mappers 
+// are supported. 
 
 // .SECTION see also
-// vtkVolumeRayCastMapper
+// vtkVolumeRayCastMapper vtkVolumeTextureMapper2D
 
 #ifndef __vtkVolumeMapper_h
 #define __vtkVolumeMapper_h
 
-#include "vtkAbstractMapper3D.h"
+#include "vtkAbstractVolumeMapper.h"
 
 class vtkRenderer;
 class vtkVolume;
@@ -41,19 +40,16 @@ class vtkImageData;
 class vtkWindow;
 class vtkImageClip;
 
-class VTK_RENDERING_EXPORT vtkVolumeMapper : public vtkAbstractMapper3D
+class VTK_RENDERING_EXPORT vtkVolumeMapper : public vtkAbstractVolumeMapper
 {
 public:
   vtkTypeRevisionMacro(vtkVolumeMapper,vtkAbstractMapper3D);
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
-  // Update the volume rendering pipeline by updating the scalar input
-  virtual void Update();
-
-  // Description:
   // Set/Get the input data
   virtual void SetInput( vtkImageData * );
+  virtual void SetInput( vtkDataSet * );
   vtkImageData *GetInput();
 
   // Description:
@@ -98,22 +94,7 @@ public:
   void SetCroppingRegionFlagsToInvertedCross() 
     {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_CROSS );};
 
-  // Description:
-  // Return bounding box (array of six floats) of data expressed as
-  // (xmin,xmax, ymin,ymax, zmin,zmax).
-  virtual float *GetBounds();
-  virtual void GetBounds(float bounds[6])
-    { this->vtkAbstractMapper3D::GetBounds(bounds); };
-
-
-//BTX
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  virtual float GetGradientMagnitudeScale() {return 1.0;};
-  virtual float GetGradientMagnitudeBias()  {return 0.0;};
-  virtual float GetGradientMagnitudeScale(int) {return 1.0;};
-  virtual float GetGradientMagnitudeBias(int)  {return 0.0;};
-  
+//BTX  
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -131,7 +112,7 @@ public:
 //ETX
 
   // Description:
-  // The default behaviour is to use a vtkImageClip on the input to ensure it is 
+  // The default behaviour is to use a vtkImageClip on input to ensure it is 
   // the right size. Allow the user to turn that behaviour off.
   virtual void SetUseImageClipper(int);
   vtkGetMacro(UseImageClipper, int );
@@ -149,8 +130,6 @@ protected:
   int                  CroppingRegionFlags;
   void ConvertCroppingRegionPlanesToVoxels();
   
-  vtkTimeStamp         BuildTime;
-
   // Clipper used on input to ensure it is the right size
   int UseImageClipper;
   vtkImageClip        *ImageClipper;
