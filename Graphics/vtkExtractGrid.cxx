@@ -71,45 +71,75 @@ void vtkExtractGrid::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(out))
 {
   vtkStructuredGrid *input = this->GetInput();
   vtkStructuredGrid *output = this->GetOutput();
-  int ext[6];
-  int *wholeExt;
+  int i, ext[6], voi[6];
+  int *inWholeExt, *outWholeExt, *updateExt;
   
-  output->GetUpdateExtent(ext);
-  ext[0] = ext[0] * this->SampleRate[0];
-  ext[1] = ext[1] * this->SampleRate[0];
-  ext[2] = ext[2] * this->SampleRate[1];
-  ext[3] = ext[3] * this->SampleRate[1];
-  ext[4] = ext[4] * this->SampleRate[2];
-  ext[5] = ext[5] * this->SampleRate[2];
-  
-  
-  wholeExt = input->GetWholeExtent();
-  
-  if (ext[0] < wholeExt[0])
+
+  inWholeExt = input->GetWholeExtent();
+  outWholeExt = output->GetWholeExtent();
+  updateExt = output->GetUpdateExtent();
+
+  // Once again, clip the VOI with the input whole extent.
+  for (i = 0; i < 3; ++i)
     {
-    ext[0] = wholeExt[0];
+    voi[i*2] = this->VOI[2*i];
+    if (voi[2*i] < inWholeExt[2*i])
+      {
+      voi[2*i] = inWholeExt[2*i];
+      }
+    voi[i*2+1] = this->VOI[2*i+1];
+    if (voi[2*i+1] > inWholeExt[2*i+1])
+      {
+      voi[2*i+1] = inWholeExt[2*i+1];
+      }
     }
-  if (ext[1] > wholeExt[1])
-    {
-    ext[1] = wholeExt[1];
+
+  ext[0] = voi[0] + (updateExt[0]-outWholeExt[0])*this->SampleRate[0];
+  ext[1] = voi[0] + (updateExt[1]-outWholeExt[0])*this->SampleRate[0];
+  if (ext[1] > voi[1])
+    { // This handles the IncludeBoundary condition.
+    ext[1] = voi[1];
+    }
+  ext[2] = voi[2] + (updateExt[2]-outWholeExt[2])*this->SampleRate[1];
+  ext[3] = voi[2] + (updateExt[3]-outWholeExt[2])*this->SampleRate[1];
+  if (ext[3] > voi[3])
+    { // This handles the IncludeBoundary condition.
+    ext[3] = voi[3];
+    }
+  ext[4] = voi[4] + (updateExt[4]-outWholeExt[4])*this->SampleRate[2];
+  ext[5] = voi[4] + (updateExt[5]-outWholeExt[4])*this->SampleRate[2];
+  if (ext[5] > voi[5])
+    { // This handles the IncludeBoundary condition.
+    ext[5] = voi[5];
     }
   
-  if (ext[2] < wholeExt[2])
+  
+  // I do not think we need this extra check, but it cannot hurt.
+  if (ext[0] < inWholeExt[0])
     {
-    ext[2] = wholeExt[2];
+    ext[0] = inWholeExt[0];
     }
-  if (ext[3] > wholeExt[3])
+  if (ext[1] > inWholeExt[1])
     {
-    ext[3] = wholeExt[3];
+    ext[1] = inWholeExt[1];
     }
   
-  if (ext[4] < wholeExt[4])
+  if (ext[2] < inWholeExt[2])
     {
-    ext[4] = wholeExt[4];
+    ext[2] = inWholeExt[2];
     }
-  if (ext[5] > wholeExt[5])
+  if (ext[3] > inWholeExt[3])
     {
-    ext[5] = wholeExt[5];
+    ext[3] = inWholeExt[3];
+    }
+  
+  if (ext[4] < inWholeExt[4])
+    {
+    ext[4] = inWholeExt[4];
+    }
+  if (ext[5] > inWholeExt[5])
+    {
+    ext[5] = inWholeExt[5];
     }  
   
   input->SetUpdateExtent(ext);
@@ -123,6 +153,7 @@ void vtkExtractGrid::ExecuteInformation()
   vtkStructuredGrid *input= this->GetInput();
   vtkStructuredGrid *output= this->GetOutput();
   int i, dims[3], outDims[3], voi[6], wholeExtent[6];
+  int mins[3];
   int rate[3];
 
   if (this->GetInput() == NULL)
@@ -145,22 +176,30 @@ void vtkExtractGrid::ExecuteInformation()
 
   for ( i=0; i < 3; i++ )
     {
-    if ( voi[2*i+1] >= dims[i] )
+    // Empty request.
+    if (voi[2*i+1] < voi[2*i] || voi[2*i+1] < wholeExtent[2*i] || 
+        voi[2*i] > wholeExtent[2*i+1])
       {
-      voi[2*i+1] = dims[i] - 1;
-      }
-    else if ( voi[2*i+1] < 0 )
-      {
-      voi[2*i+1] = 0;
+      output->SetWholeExtent(0,-1,0,-1,0,-1);
+      return;
       }
 
-    if ( voi[2*i] > voi[2*i+1] )
+    // Make sure VOI is in the whole extent.
+    if ( voi[2*i+1] > wholeExtent[2*i+1] )
       {
-      voi[2*i] = voi[2*i+1];
+      voi[2*i+1] = wholeExtent[2*i+1];
       }
-    else if ( voi[2*i] < 0 )
+    else if ( voi[2*i+1] < wholeExtent[2*i] )
       {
-      voi[2*i] = 0;
+      voi[2*i+1] = wholeExtent[2*i];
+      }
+    if ( voi[2*i] > wholeExtent[2*i+1] )
+      {
+      voi[2*i] = wholeExtent[2*i+1];
+      }
+    else if ( voi[2*i] < wholeExtent[2*i] )
+      {
+      voi[2*i] = wholeExtent[2*i];
       }
 
     if ( (rate[i] = this->SampleRate[i]) < 1 )
@@ -173,6 +212,7 @@ void vtkExtractGrid::ExecuteInformation()
       {
       outDims[i] = 1;
       }
+    mins[i] = voi[2*i] / rate[i];
     }
 
   // Adjust the output dimensions if the boundaries are to be
@@ -192,12 +232,12 @@ void vtkExtractGrid::ExecuteInformation()
     }
 
   // Set the whole extent of the output
-  wholeExtent[0] = 0;
-  wholeExtent[1] = outDims[0] - 1;
-  wholeExtent[2] = 0;
-  wholeExtent[3] = outDims[1] - 1;
-  wholeExtent[4] = 0;
-  wholeExtent[5] = outDims[2] - 1;
+  wholeExtent[0] = mins[0];
+  wholeExtent[1] = mins[0] + outDims[0] - 1;
+  wholeExtent[2] = mins[1];
+  wholeExtent[3] = mins[1] + outDims[1] - 1;
+  wholeExtent[4] = mins[2];
+  wholeExtent[5] = mins[2] + outDims[2] - 1;
 
   output->SetWholeExtent(wholeExtent);
 }
@@ -210,80 +250,50 @@ void vtkExtractGrid::Execute()
   vtkStructuredGrid *output= this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
-  int i, j, k, dims[3], outDims[3], voi[6], dim;
+  int i, j, k, dims[3], *uExt, voi[6];
+  int *inExt;
+  int iIn, jIn, kIn;
+  int outSize, jOffset, kOffset, *rate;
   vtkIdType idx, newIdx, newCellId;
-  int sliceSize, outSize, jOffset, kOffset, rate[3];
   vtkPoints *newPts, *inPts;
-  int includeBoundary[3], diff;
+  int inInc1, inInc2;
 
   vtkDebugMacro(<< "Extracting Grid");
 
   inPts = input->GetPoints();
-  input->GetDimensions(dims);
 
-  // Get the volume of interest.
-  // Make sure parameters are consistent.
-  for ( i=0; i < 6; i++ )
+  uExt = output->GetUpdateExtent();
+  dims[0] = uExt[1]-uExt[0]+1;
+  dims[1] = uExt[3]-uExt[2]+1;
+  dims[2] = uExt[5]-uExt[4]+1;
+  rate = this->SampleRate;
+  inExt = input->GetExtent();
+  inInc1 = (inExt[1]-inExt[0]+1);
+  inInc2 = inInc1*(inExt[3]-inExt[2]+1);
+
+  // Clip the VOI by thge input extent
+  for (i = 0; i < 3; ++i)
     {
-    voi[i] = this->VOI[i];
+    voi[i*2] = this->VOI[2*i];
+    if (voi[2*i] < inExt[2*i])
+      {
+      voi[2*i] = inExt[2*i];
+      }
+    voi[i*2+1] = this->VOI[2*i+1];
+    if (voi[2*i+1] > inExt[2*i+1])
+      {
+      voi[2*i+1] = inExt[2*i+1];
+      }
     }
 
-  includeBoundary[0] = includeBoundary[1] = includeBoundary[2] = 0;
-  for ( outSize=1, dim=0, i=0; i < 3; i++ )
-    {
-    if ( voi[2*i+1] >= dims[i] )
-      {
-      voi[2*i+1] = dims[i] - 1;
-      }
-    else if ( voi[2*i+1] < 0 )
-      {
-      voi[2*i+1] = 0;
-      }
-
-    if ( voi[2*i] > voi[2*i+1] )
-      {
-      voi[2*i] = voi[2*i+1];
-      }
-    else if ( voi[2*i] < 0 )
-      {
-      voi[2*i] = 0;
-      }
-
-    if ( (voi[2*i+1]-voi[2*i]) > 0 )
-      {
-      dim++;
-      }
-
-    if ( (rate[i] = this->SampleRate[i]) < 1 )
-      {
-      rate[i] = 1;
-      }
-
-    outDims[i] = (voi[2*i+1] - voi[2*i]) / rate[i] + 1;
-    if ( outDims[i] < 1 )
-      {
-      outDims[i] = 1;
-      }
-
-    if ( this->IncludeBoundary && rate[i] != 1 )
-      {
-      if ( ((diff=voi[2*i+1]-voi[2*i]) > 0) && ((diff % rate[i]) != 0) )
-        {
-        outDims[i]++;
-        includeBoundary[i] = 1;
-        }
-      }
-    
-    outSize *= outDims[i];
-    }
-
-  output->SetDimensions(outDims);
+  output->SetExtent(uExt);
 
   // If output same as input, just pass data through
-  //
-  if ( outDims[0] == dims[0] && outDims[1] == dims[1] && outDims[2] == dims[2] &&
-  rate[0] == 1 && rate[1] == 1 && rate[2] == 1 )
-    {
+  if ( voi[0] <= inExt[0] && voi[1] >= inExt[1] &&
+       voi[2] <= inExt[2] && voi[3] >= inExt[3] &&
+       voi[4] <= inExt[4] && voi[5] >= inExt[5] &&
+       rate[0] == 1 && rate[1] == 1 && rate[2] == 1)
+    { 
     output->SetPoints(inPts);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
@@ -293,83 +303,68 @@ void vtkExtractGrid::Execute()
 
   // Allocate necessary objects
   //
+  outSize = (uExt[1]-uExt[0]+1)*(uExt[3]-uExt[2]+1)*(uExt[5]-uExt[4]+1);
   newPts = (vtkPoints *) inPts->MakeObject(); 
   newPts->SetNumberOfPoints(outSize);
   outPD->CopyAllocate(pd,outSize,outSize);
   outCD->CopyAllocate(cd,outSize,outSize);
 
   // Traverse input data and copy point attributes to output
-  //
-  sliceSize = dims[0]*dims[1];
+  // iIn,jIn,kIn are in input grid coordinates.
   newIdx = 0;
-  for ( k=voi[4]; k <= voi[5]; )
+  for ( k=uExt[4]; k <= uExt[5]; ++k)
     {
-    kOffset = k * sliceSize;
-    for ( j=voi[2]; j <= voi[3]; )
+    kIn = k*rate[2];
+    if (kIn > voi[5])
+      { // This handles the IncludeBoundaryOn condition.
+      kIn = voi[5];
+      }
+    kOffset = (kIn-inExt[4]) * inInc2;
+    for ( j=uExt[2]; j <= uExt[3]; ++j)
       {
-      jOffset = j * dims[0];
-      for ( i=voi[0]; i <= voi[1]; )
+      jIn = j*rate[1];
+      if (jIn > voi[3])
+        { // This handles the IncludeBoundaryOn condition.
+        jIn = voi[3];
+        }
+      jOffset = (jIn-inExt[2]) * inInc1;
+      for ( i=uExt[0]; i <= uExt[1]; ++i)
         {
-        idx = i + jOffset + kOffset;
+        iIn = i*rate[0];
+        if (iIn > voi[1])
+          { // This handles the IncludeBoundaryOn condition.
+          iIn = voi[1];
+          }
+        idx = (iIn-inExt[0]) + jOffset + kOffset;
         newPts->SetPoint(newIdx,inPts->GetPoint(idx));
         outPD->CopyData(pd, idx, newIdx++);
 
-        i += rate[0]; //adjust for boundary
-        if ( includeBoundary[0] && i > voi[1] && (i-rate[0]) != voi[1] )
-          {
-          i = voi[1];
-          }
         }
-      j += rate[1]; //adjust for boundary
-      if ( includeBoundary[1] && j > voi[3] && (j-rate[1]) != voi[3] )
-        {
-        j = voi[3];
-        }
-      }
-    k += rate[2]; //adjust for boundary
-    if ( includeBoundary[2] && k > voi[5] && (k-rate[2]) != voi[5] )
-      {
-      k = voi[5];
       }
     }
 
   // Traverse input data and copy cell attributes to output
   //
   newCellId = 0;
-  sliceSize = (dims[0]-1)*(dims[1]-1);
-  for ( k=voi[4]; k < voi[5]; )
-    {
-    kOffset = k * sliceSize;
-    for ( j=voi[2]; j < voi[3]; )
+  inInc1 = (inExt[1]-inExt[0]);
+  inInc2 = inInc1*(inExt[3]-inExt[2]);
+  // No need to consider IncludeBoundary for cell data.
+  for ( k=uExt[4]; k < uExt[5]; ++k )
+    { 
+    kIn = k*rate[2];
+    kOffset = (kIn-inExt[4]) * inInc2;
+    for ( j=uExt[2]; j < uExt[3]; ++j )
       {
-      jOffset = j * (dims[0] - 1);
-      for ( i=voi[0]; i < voi[1]; )
+      jIn = j*rate[1];
+      jOffset = (jIn-inExt[2]) * inInc1;
+      for ( i=uExt[0]; i < uExt[1]; ++i )
         {
-        idx = i + jOffset + kOffset;
+        iIn = voi[0] + i*rate[0];
+        idx = (iIn-inExt[0]) + jOffset + kOffset;
         outCD->CopyData(cd, idx, newCellId++);
-
-        i += rate[0]; //adjust for boundary
-        if ( includeBoundary[0] && i >= voi[1] && (i-rate[0]) != (voi[1]-1) )
-          {
-          i = voi[1] - 1;
-          }
         }
-      j += rate[1]; //adjust for boundary
-      if ( includeBoundary[1] && j >= voi[3] && (j-rate[1]) != (voi[3]-1) )
-        {
-        j = voi[3] - 1;
-        }
-      }
-    k += rate[2]; //adjust for boundary
-    if ( includeBoundary[2] && k >= voi[5] && (k-rate[2]) != (voi[5]-1) )
-      {
-      k = voi[5] - 1;
       }
     }
-
-  vtkDebugMacro(<<"Extracted " << newIdx << " point attributes on "
-                << dim << "-D dataset\n\tDimensions are (" << outDims[0]
-                << "," << outDims[1] << "," << outDims[2] <<")");
 
   output->SetPoints(newPts);
   newPts->Delete();
