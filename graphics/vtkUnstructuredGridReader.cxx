@@ -361,7 +361,7 @@ void vtkUnstructuredGridReader::Execute()
         }
       }
       if ( ! output->GetPoints() ) vtkWarningMacro(<<"No points read!");
-      if ( ! (cells && types) )  vtkWarningMacro(<<"No topology read!");
+      //if ( ! (cells && types) )  vtkWarningMacro(<<"No topology read!");
     }
 
   else if ( !strncmp(line, "point_data", 10) )
