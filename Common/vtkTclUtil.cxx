@@ -657,6 +657,10 @@ void vtkTclCommand::Execute(vtkObject *, unsigned long, void *)
                              this->Interp->errorLine);
       }
     }
+  else if (res == -1)
+    {
+    this->AbortFlagOn();
+    } 
 }
 
 
