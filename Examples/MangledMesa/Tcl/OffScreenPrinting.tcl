@@ -23,14 +23,6 @@ rw AddRenderer ren
 # Mesa
 vtkMesaRenderer mren
 mrw AddRenderer mren
-# The light and the camera have to be created and set
-# because otherwise, during the first render, VTK will 
-# use the graphics factory to create them and end up
-# with OpenGL objects (instead of Mesa)
-vtkMesaLight mlight
-mren AddLight mlight
-vtkMesaCamera mcamera
-mren SetActiveCamera mcamera
 
 vtkConeSource cone
 
@@ -47,12 +39,6 @@ actor SetMapper map
 # Mesa
 vtkMesaActor mactor
 mactor SetMapper mmap
-# The property has to be created and set
-# because otherwise, during the first render, VTK will 
-# use the graphics factory to create it and end up
-# with vtkOpenGLProperty object (instead of Mesa)
-vtkMesaProperty mprop
-mactor SetProperty mprop
 
 # Add the actor to the renderer
 ren AddActor actor
