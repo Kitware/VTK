@@ -7,6 +7,7 @@ IF (VTK_USE_RENDERING)
     FOREACH ( tfile
       cells 
       ImageActor
+      pickCells
       rotations
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
