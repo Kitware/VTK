@@ -30,7 +30,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.52");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.53");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -150,6 +150,11 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep)
 
     this->ReadNextDataLine(line); // part description line
     char *name = strdup(line);
+    if (strncmp(line, "interface", 9) == 0)
+      {
+      return 1; // ignore it and move on
+      }
+
     this->ReadNextDataLine(line);
     
     if (strncmp(line, "block", 5) == 0)
@@ -1456,7 +1461,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           for (j = 0; j < numNodes; j++)
             {
             strcat(formatLine, " %d");
-            sscanf(line, formatLine, intIds[numNodes-j-1]);
+            sscanf(line, formatLine, &intIds[numNodes-j-1]);
             strcat(tempLine, " %*d");
             strcpy(formatLine, tempLine);
             intIds[numNodes-j-1]--;
@@ -1782,6 +1787,12 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       }
     else if (strncmp(line, "END TIME STEP", 13) == 0)
       {
+      return 1;
+      }
+    else if (this->IS->fail())
+      {
+      //May want consistency check here?
+      //vtkWarningMacro("EOF on geometry file");
       return 1;
       }
     else
