@@ -246,11 +246,14 @@ int main(int argc, char** argv)
     da2->Delete();
     return 1;
     }
-  if (da2->GetNumberOfTuples() == 0) {
-    cout << "recieve null data array successful" << endl;
-  } else {
-    cout << "recieve null data array failed" << endl;
-  }
+  if (da2->GetNumberOfTuples() == 0) 
+    {
+    cout << "receive null data array successful" << endl;
+    } 
+  else 
+    {
+    cout << "receive null data array failed" << endl;
+    }
   da2->Delete();
 
   contr->SetCommunicator(comm);
