@@ -23,7 +23,7 @@
 #include "vtkgluPickMatrix.h"
 #include "vtkString.h"
 
-vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.3");
+vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.4");
 vtkStandardNewMacro(vtkCarbonTextMapper);
 
 struct vtkFontStruct
@@ -112,6 +112,10 @@ void vtkCarbonTextMapper::GetSize(vtkViewport* viewport, int *size)
   TextFont(this->currentFontNum);
   TextFace(normal + (italic*this->Italic) + (bold*this->Bold) +
            (shadow*this->Shadow));
+  if (this->FontSize < 9)
+    {// adjust since smaller sizes disappear in aglUseFont
+    this->FontSize = 9;
+    }
   TextSize(this->FontSize);
 
   GetFontInfo(&(this->myFontInfo));
@@ -201,13 +205,14 @@ int vtkCarbonTextMapper::GetListBaseForFont(vtkViewport *vp)
   cache[numCached]->FontFamily = this->GetFontFamily();
   if (cache[numCached]->FontSize < 9)
     cache[numCached]->FontSize = 9; // minimum font size (or it goes blank!)
-  aglUseFont((AGLContext)win->GetGenericDisplayId(), cache[numCached]->FontFamily,
+  aglUseFont((AGLContext)win->GetGenericDisplayId(), this->currentFontNum,
              normal+(italic*this->Italic) + (bold*this->Bold) +
-             (shadow*this->Shadow), cache[numCached]->FontSize, 0, 255, cache[numCached]->ListBase);
+             (shadow*this->Shadow), cache[numCached]->FontSize, 0, 256, cache[numCached]->ListBase);
   GLenum err = aglGetError();
   if (AGL_NO_ERROR != err)
-    cout << "vtkCarbonMapper AGLError: "<<(char *)aglErrorString(err)<<"\n";
-  
+    {
+    vtkErrorMacro(<<"vtkCarbonMapper AGLError: "<<(char *)aglErrorString(err));
+    }
   // now resort the list
   vtkFontStruct *tmp = cache[numCached];
   for (i = numCached-1; i >= 0; i--)
