@@ -132,6 +132,54 @@ void vtkAssembly::ApplyProperties()
     }
 }
 
+vtkActorCollection* vtkAssembly::GetComposingParts()
+{
+  vtkActor *part;
+
+  this->ComposingParts.RemoveAllItems();
+  this->ComposingParts.AddItem(this);
+
+  for (this->Parts.InitTraversal(); part = this->Parts.GetNextItem(); )
+    {
+    part->AddComposingParts(this->ComposingParts);
+    }
+
+  return vtkActor::GetComposingParts();
+}
+
+void vtkAssembly::AddComposingParts(vtkActorCollection &parts)
+{
+  vtkActor *part;
+
+  this->ComposingParts.AddItem(this);
+
+  for (this->Parts.InitTraversal(); part = this->Parts.GetNextItem(); )
+    {
+    part->AddComposingParts(this->ComposingParts);
+    }
+}
+
+// Description:
+// Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax). Side
+// effect is to update part transformations and properties.
+float *vtkAssembly::GetBounds()
+{
+  if ( this->ApplyTransform && this->RenderTime < this->GetMTime() )
+    {
+    this->ApplyTransformation();
+    }
+
+  if ( this->ApplyProperty && this->RenderTime < this->Property->GetMTime() )
+    {
+    this->ApplyProperties();
+    }
+
+  this->RenderTime.Modified();
+
+  //insures things are up to date
+  return vtkActor::GetBounds();
+}
+
 void vtkAssembly::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkActor::PrintSelf(os,indent);

@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMatrix4x4.hh"
 #include "vtkLightCollection.hh"
 #include "vtkCamera.hh"
-#include "vtkActorCollection.hh"
+#include "vtkActor.hh"
 #include "vtkGeometryPrimitive.hh"
 
 class vtkRenderWindow;

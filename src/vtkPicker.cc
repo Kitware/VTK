@@ -108,8 +108,8 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
                    vtkRenderer *renderer)
 {
   int i;
-  vtkActorCollection *actors;
-  vtkActor *actor;
+  vtkActorCollection *actors, *parts;
+  vtkActor *actor, *part;
   vtkCamera *camera;
   vtkMapper *mapper;
   float p1World[4], p2World[4], p1Mapper[4], p2Mapper[4];
@@ -122,7 +122,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   float *displayCoords, *worldCoords;
   float *clipRange;
   float ray[3], rayLength;
-  float transparency;
+  float opacity;
   int visible, pickable;
   float windowLowerLeft[4], windowUpperRight[4];
   float *bounds, tol;
@@ -226,55 +226,60 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   actors = renderer->GetActors();
   for ( actors->InitTraversal(); actor=actors->GetNextItem(); )
     {
-    visible = actor->GetVisibility();
-    pickable = actor->GetPickable();
-    transparency = actor->GetProperty()->GetOpacity();
+    parts = actor->GetComposingParts();
+    for ( parts->InitTraversal(); part=parts->GetNextItem(); )
+      {
+      visible = part->GetVisibility();
+      pickable = part->GetPickable();
+      opacity = part->GetProperty()->GetOpacity();
 //
 //  If actor can be picked, get its composite matrix, invert it, and
 //  use the inverted matrix to transform the ray points into mapper
 //  coordinates. 
 //
-    if (visible && pickable && transparency != 0.0) 
-      {
-      this->Transform.SetMatrix(actor->GetMatrix());
-      this->Transform.Push();
-      this->Transform.Inverse();
-
-      this->Transform.SetPoint(p1World);
-      this->Transform.GetPoint(p1Mapper);
-
-      this->Transform.SetPoint(p2World);
-      this->Transform.GetPoint(p2Mapper);
-
-      for (i=0; i<3; i++) 
-	{
-	p1Mapper[i] /= p1Mapper[3];
-	p2Mapper[i] /= p2Mapper[3];
-	ray[i] = p2Mapper[i] - p1Mapper[i];
-	}
-      
-      this->Transform.Pop();
-//
-//  Have the ray endpoints in mapper space, now need to compare this
-//  with the mapper bounds to see whether intersection is possible.
-//
-      if ( (mapper = actor->GetMapper()) != NULL )
+      if ( visible && pickable && (opacity != 0.0) )
         {
-//
-//  Get the bounding box of the modeller.  Note that the tolerance is
-//  added to the bounding box to make sure things on the edge of the
-//  bounding box are picked correctly.
-//
-        bounds = mapper->GetBounds();
-        if ( cell.HitBBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
+        this->Transform.SetMatrix(part->GetMatrix());
+        this->Transform.Push();
+        this->Transform.Transpose();
+        this->Transform.Inverse();
+
+        this->Transform.SetPoint(p1World);
+        this->Transform.GetPoint(p1Mapper);
+
+        this->Transform.SetPoint(p2World);
+        this->Transform.GetPoint(p2Mapper);
+
+        for (i=0; i<3; i++) 
           {
-          picked = 1;
-          this->IntersectWithLine((float *)p1Mapper, (float *)p2Mapper,tol,actor,mapper);
-          this->Actors.AddItem(actor);
+          p1Mapper[i] /= p1Mapper[3];
+          p2Mapper[i] /= p2Mapper[3];
+          ray[i] = p2Mapper[i] - p1Mapper[i];
           }
-	}
-      }
-    }
+
+        this->Transform.Pop();
+  //
+  //  Have the ray endpoints in mapper space, now need to compare this
+  //  with the mapper bounds to see whether intersection is possible.
+  //
+        if ( (mapper = part->GetMapper()) != NULL )
+          {
+  //
+  //  Get the bounding box of the modeller.  Note that the tolerance is
+  //  added to the bounding box to make sure things on the edge of the
+  //  bounding box are picked correctly.
+  //
+          bounds = mapper->GetBounds();
+          if ( cell.HitBBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
+            {
+            picked = 1;
+            this->IntersectWithLine((float *)p1Mapper, (float *)p2Mapper,tol,part,mapper);
+            this->Actors.AddItem(part);
+            }
+          }
+        }//if visible and pickable
+      }//for all parts
+    }//for all actors
 
   return picked;
 }

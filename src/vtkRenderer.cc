@@ -226,7 +226,8 @@ void vtkRenderer::DoActors()
 void vtkRenderer::ResetCamera()
 {
   vtkVolume *aVolume;
-  vtkActor *anActor;
+  vtkActorCollection *pc;
+  vtkActor *anActor, *aPart;
   float *bounds;
   float allBounds[6];
   int nothingVisible=1;
@@ -234,22 +235,25 @@ void vtkRenderer::ResetCamera()
   allBounds[0] = allBounds[2] = allBounds[4] = VTK_LARGE_FLOAT;
   allBounds[1] = allBounds[3] = allBounds[5] = -VTK_LARGE_FLOAT;
   
-  // loop through actors 
-  for (this->Actors.InitTraversal(); 
-       (anActor = this->Actors.GetNextItem()); )
+  // loop through actors (and their parts)
+  for (this->Actors.InitTraversal(); (anActor = this->Actors.GetNextItem());)
     {
-    // if it's invisible, we can skip the rest 
-    if ( anActor->GetVisibility() )
+    pc = anActor->GetComposingParts();
+    for ( pc->InitTraversal(); (aPart = pc->GetNextItem()); )
       {
-      nothingVisible = 0;
-      bounds = anActor->GetBounds();
- 
-      if (bounds[0] < allBounds[0]) allBounds[0] = bounds[0]; 
-      if (bounds[1] > allBounds[1]) allBounds[1] = bounds[1]; 
-      if (bounds[2] < allBounds[2]) allBounds[2] = bounds[2]; 
-      if (bounds[3] > allBounds[3]) allBounds[3] = bounds[3]; 
-      if (bounds[4] < allBounds[4]) allBounds[4] = bounds[4]; 
-      if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
+      // if it's invisible, or has no geometry, we can skip the rest 
+      if ( aPart->GetVisibility() && aPart->GetMapper() != NULL )
+        {
+        nothingVisible = 0;
+        bounds = aPart->GetBounds();
+
+        if (bounds[0] < allBounds[0]) allBounds[0] = bounds[0]; 
+        if (bounds[1] > allBounds[1]) allBounds[1] = bounds[1]; 
+        if (bounds[2] < allBounds[2]) allBounds[2] = bounds[2]; 
+        if (bounds[3] > allBounds[3]) allBounds[3] = bounds[3]; 
+        if (bounds[4] < allBounds[4]) allBounds[4] = bounds[4]; 
+        if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
+        }
       }
     }
 

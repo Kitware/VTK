@@ -76,8 +76,14 @@ vtkActor::vtkActor()
   this->Pickable   = 1;
   this->Dragable   = 1;
   
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
+  this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
+
   this->SelfCreatedProperty = 0;
   this->Device = NULL;
+
+  this->ComposingParts.AddItem(this);
 }
 
 vtkActor::~vtkActor()
@@ -305,6 +311,14 @@ vtkMatrix4x4& vtkActor::GetMatrix()
 
 // Description:
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+void vtkActor::GetBounds(float bounds[6])
+{
+  this->GetBounds();
+  for (int i=0; i<6; i++) bounds[i] = this->Bounds[i];
+}
+
+// Description:
+// Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 float *vtkActor::GetBounds()
 {
   int i,n;
@@ -331,9 +345,9 @@ float *vtkActor::GetBounds()
   bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
   
   // save the old transform
+  this->GetMatrix(matrix);
   this->Transform.Push(); 
   this->Transform.Identity();
-  this->GetMatrix(matrix);
   this->Transform.Concatenate(matrix);
 
   // and transform into actors coordinates
@@ -353,8 +367,8 @@ float *vtkActor::GetBounds()
   this->Transform.Pop();  
   
   // now calc the new bounds
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = 1.0e30;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -1.0e30;
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_LARGE_FLOAT;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
   for (i = 0; i < 8; i++)
     {
     for (n = 0; n < 3; n++)
@@ -401,6 +415,11 @@ float *vtkActor::GetZRange()
 {
   this->GetBounds();
   return &(this->Bounds[4]);
+}
+
+void vtkActor::AddComposingParts(vtkActorCollection &parts)
+{
+  parts.AddItem(this);
 }
 
 void vtkActor::PrintSelf(ostream& os, vtkIndent indent)

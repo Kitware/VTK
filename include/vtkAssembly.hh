@@ -76,7 +76,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkAssembly_h
 
 #include "vtkActor.hh"
-#include "vtkActorCollection.hh"
 
 class vtkAssembly : public vtkActor
 {
@@ -113,12 +112,16 @@ public:
   virtual void ApplyTransformation();
   virtual void ApplyProperties();
 
+  vtkActorCollection *GetComposingParts();
+  float *GetBounds();
+
 protected:
   vtkActorCollection Parts;
   int ApplyTransform;
   int ApplyProperty;
   vtkTimeStamp RenderTime;
 
+  void AddComposingParts(vtkActorCollection &);
 };
 
 // Description:
