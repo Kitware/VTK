@@ -53,7 +53,8 @@ vtkAPixmap::vtkAPixmap(const vtkAPixmap& fs)
 
 vtkAPixmap::vtkAPixmap(const int sz, const int ext)
 {
-  this->S = new vtkUnsignedCharArray(4*sz,4*ext);
+  this->S = vtkUnsignedCharArray::New();
+  this->S->Allocate(4*sz,4*ext);
 }
 
 vtkAPixmap::~vtkAPixmap()
@@ -81,7 +82,7 @@ void vtkAPixmap::GetColor(int id, unsigned char rgba[4])
 {
   unsigned char *_rgba;
 
-  _rgba = this->S->GetPtr(4*id);
+  _rgba = this->S->GetPointer(4*id);
   rgba[0] = _rgba[0];
   rgba[1] = _rgba[1];
   rgba[2] = _rgba[2];
@@ -98,7 +99,7 @@ void vtkAPixmap::SetNumberOfColors(int number)
 void vtkAPixmap::SetColor(int id, unsigned char rgba[4])
 {
   id *= 4;
-  memcpy (this->S->GetPtr(id), rgba, 4);
+  memcpy (this->S->GetPointer(id), rgba, 4);
 }
 
 // Description:

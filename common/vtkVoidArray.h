@@ -68,8 +68,8 @@ public:
   void SetValue(const int id, void *value);
   vtkVoidArray &InsertValue(const int id, void* p);
   int InsertNextValue(void* v);
-  void** GetPtr(const int id);
-  void** WritePtr(const int id, const int number);
+  void** GetPointer(const int id);
+  void** WritePointer(const int id, const int number);
 
   // special operators
   vtkVoidArray &operator=(const vtkVoidArray& fa);
@@ -114,13 +114,13 @@ inline void vtkVoidArray::SetValue(const int id, void *value)
 
 // Description:
 // Get the address of a particular data index.
-inline void** vtkVoidArray::GetPtr(const int id) {return this->Array + id;};
+inline void** vtkVoidArray::GetPointer(const int id) {return this->Array + id;};
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
-inline void** vtkVoidArray::WritePtr(const int id, const int number) 
+inline void** vtkVoidArray::WritePointer(const int id, const int number) 
 {
   int newSize=id+number;
   if ( newSize > this->Size ) this->Resize(newSize);

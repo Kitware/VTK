@@ -53,7 +53,8 @@ vtkIntScalars::vtkIntScalars(const vtkIntScalars& ss)
 
 vtkIntScalars::vtkIntScalars(const int sz, const int ext)
 {
-  this->S = new vtkIntArray(sz,ext);
+  this->S = vtkIntArray::New();
+  this->S->Allocate(sz,ext);
 }
 
 vtkIntScalars::~vtkIntScalars()
@@ -84,8 +85,8 @@ void vtkIntScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
 
 void vtkIntScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
 {
-  float *fp=fs.GetPtr(0);
-  int *ip=this->S->GetPtr(p1);
+  float *fp=fs.GetPointer(0);
+  int *ip=this->S->GetPointer(p1);
   
   for (int id=p1; id <= p2; id++)
     {

@@ -79,9 +79,9 @@ public:
   void GetScalars(int p1, int p2, vtkFloatScalars& fs);
 
   // miscellaneous
-  unsigned short *GetPtr(const int id);
+  unsigned short *GetPointer(const int id);
   void *GetVoidPtr(const int id);
-  unsigned short *WritePtr(const int id, const int number);
+  unsigned short *WritePointer(const int id, const int number);
   vtkUnsignedShortScalars &operator=(const vtkUnsignedShortScalars& cs);
   void operator+=(const vtkUnsignedShortScalars& cs) {*(this->S) += *(cs.S);};
   void Reset() {this->S->Reset();};
@@ -97,16 +97,16 @@ inline void vtkUnsignedShortScalars::SetNumberOfScalars(int number)
 
 // Description:
 // Get pointer to array of data starting at data position "id".
-inline unsigned short *vtkUnsignedShortScalars::GetPtr(const int id)
+inline unsigned short *vtkUnsignedShortScalars::GetPointer(const int id)
 {
-  return this->S->GetPtr(id);
+  return this->S->GetPointer(id);
 }
 
 // Description:
 // Get a void pointer to array of data starting at data position "id".
 inline void *vtkUnsignedShortScalars::GetVoidPtr(const int id)
 {
-  return (void *)(this->S->GetPtr(id));
+  return (void *)(this->S->GetPointer(id));
 }
 
 // Description:
@@ -114,9 +114,9 @@ inline void *vtkUnsignedShortScalars::GetVoidPtr(const int id)
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
 // write. 
-inline unsigned short *vtkUnsignedShortScalars::WritePtr(const int id, const int number)
+inline unsigned short *vtkUnsignedShortScalars::WritePointer(const int id, const int number)
 {
-  return this->S->WritePtr(id,number);
+  return this->S->WritePointer(id,number);
 }
 
 #endif

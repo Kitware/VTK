@@ -53,7 +53,8 @@ vtkFloatNormals::vtkFloatNormals(const vtkFloatNormals& fn)
 
 vtkFloatNormals::vtkFloatNormals(const int sz, const int ext)
 {
-  this->N = new vtkFloatArray(3*sz,3*ext);
+  this->N = vtkFloatArray::New();
+  this->N->Allocate(3*sz,3*ext);
 }
 
 vtkFloatNormals::~vtkFloatNormals()

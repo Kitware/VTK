@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkWindowLevelLookupTable_h
 #define __vtkWindowLevelLookupTable_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 #include "vtkAPixmap.h"
 #include "vtkLookupTable.h"
 

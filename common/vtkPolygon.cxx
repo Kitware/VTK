@@ -214,7 +214,7 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
   (this->PointInPolygon(closestPoint, this->Points.GetNumberOfPoints(), 
-  this->Points.GetPtr(0), this->GetBounds(),n) == INSIDE) )
+  this->Points.GetPointer(0), this->GetBounds(),n) == INSIDE) )
     {
     minDist2 = vtkMath::Distance2BetweenPoints(x,closestPoint);
     return 1;
@@ -866,7 +866,7 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
   (this->PointInPolygon(closest, this->Points.GetNumberOfPoints(), 
-  this->Points.GetPtr(0), this->GetBounds(),n) == INSIDE) )
+  this->Points.GetPointer(0), this->GetBounds(),n) == INSIDE) )
     {
     return 1;
     }

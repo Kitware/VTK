@@ -59,7 +59,7 @@ vtkImageRegion::vtkImageRegion()
   
   this->SetExtent(0,0, 0,0, 0,0, 0,0, 0,0);
   this->SetImageExtent(0,0, 0,0, 0,0, 0,0, 0,0);
-  this->SetAspectRatio(1.0, 1.0, 1.0, 1.0, 0.0);
+  this->SetSpacing(1.0, 1.0, 1.0, 1.0, 0.0);
   this->SetOrigin(0.0, 0.0, 0.0, 0.0, 0.0);
 }
 
@@ -102,10 +102,10 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << ")\n";
   
-  os << indent << "AspectRatio: (" << this->AspectRatio[0];
+  os << indent << "Spacing: (" << this->Spacing[0];
   for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    os << ", " << this->AspectRatio[idx];
+    os << ", " << this->Spacing[idx];
     }
   os << ")\n";
   
@@ -213,7 +213,7 @@ void vtkImageRegion::MakeDataWritable()
     }
 
   // Check to make sure no one is referencing the data object.
-  if (this->Data->GetRefCount() > 1)
+  if (this->Data->GetReferenceCount() > 1)
     {
     vtkImageData *newData;
     vtkScalars *scalars = this->Data->GetPointData()->GetScalars();
@@ -265,8 +265,8 @@ void vtkImageRegion::UpdateImageInformation(vtkImageRegion *region)
   region->SetAxes(this->GetAxes());
   // Set the extent
   region->SetImageExtent(this->GetExtent());
-  // Set the aspect Ratio
-  region->SetAspectRatio(this->GetAspectRatio());
+  // Set the data spacing
+  region->SetSpacing(this->GetSpacing());
   // Set the origin
   region->SetOrigin(this->GetOrigin());
   // Restore coordinate system to the way it was.
@@ -494,8 +494,8 @@ void vtkImageRegion::SetAxes(int dim, int *axes)
   this->Modified();
   
   // Change the coordinate system of the ivars.
-  vtkImageRegionChangeVectorCoordinateSystem(this->AspectRatio, this->Axes,
-					     this->AspectRatio, allAxes);
+  vtkImageRegionChangeVectorCoordinateSystem(this->Spacing, this->Axes,
+					     this->Spacing, allAxes);
   vtkImageRegionChangeVectorCoordinateSystem(this->Origin, this->Axes,
 					     this->Origin, allAxes);
   vtkImageRegionChangeVectorCoordinateSystem(this->Increments, this->Axes,
@@ -589,25 +589,25 @@ void vtkImageRegion::GetImageExtent(int dim, int *boundary)
 
 
 //----------------------------------------------------------------------------
-void vtkImageRegion::SetAspectRatio(int dim, float *ratio)
+void vtkImageRegion::SetSpacing(int dim, float *ratio)
 {
   int idx;
   
   for (idx = 0; idx < dim; ++idx)
     {
-    this->AspectRatio[idx] = ratio[idx];
+    this->Spacing[idx] = ratio[idx];
     }
   
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageRegion::GetAspectRatio(int dim, float *ratio)
+void vtkImageRegion::GetSpacing(int dim, float *ratio)
 {
   int idx;
   
   for (idx = 0; idx < dim; ++idx)
     {
-    ratio[idx] = this->AspectRatio[idx];
+    ratio[idx] = this->Spacing[idx];
     }
 }
 
@@ -656,7 +656,7 @@ void vtkImageRegion::Translate(int dim, int *vector)
     }
 
   // Since the data might have multiple references, we can not just modify it.
-  if (this->Data && this->Data->GetRefCount() > 1)
+  if (this->Data && this->Data->GetReferenceCount() > 1)
     {
     newData = vtkImageData::New();
     newData->SetAxes(this->Data->GetAxes());

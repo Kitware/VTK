@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkRefCount.cxx
+  Module:    vtkReferenceCount.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,13 +38,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 
 // Description:
 // Construct with initial reference count = 1 and reference counting on.
-vtkRefCount::vtkRefCount()
+vtkReferenceCount::vtkReferenceCount()
 {
-  this->RefCount = 1;
+  this->ReferenceCount = 1;
   this->ReferenceCounting = 1;
 }
 
@@ -53,7 +53,7 @@ vtkRefCount::vtkRefCount()
 // Delete() method simply unregisters the use of the object. This may or
 // may not result in the destruction of the object, depending upon whether 
 // another object is referencing it.
-void vtkRefCount::Delete()
+void vtkReferenceCount::Delete()
 {
   this->UnRegister((vtkObject *)NULL);
 }
@@ -65,11 +65,11 @@ void vtkRefCount::Delete()
 // stack) are not encouraged. However, if you desire to do this, you will 
 // have to use the ReferenceCountingOff() method to avoid warning messages 
 // when the objects are automatically deleted upon scope termination.
-vtkRefCount::~vtkRefCount() 
+vtkReferenceCount::~vtkReferenceCount() 
 {
   // warn user if reference counting is on and the object is being referenced
   // by another object
-  if ( this->RefCount > 0 && this->ReferenceCounting )
+  if ( this->ReferenceCount > 0 && this->ReferenceCounting )
     {
     vtkErrorMacro(<< "Trying to delete object with non-zero reference count");
     }
@@ -77,19 +77,19 @@ vtkRefCount::~vtkRefCount()
 
 // Description:
 // Increase the reference count (mark as used by another object).
-void vtkRefCount::Register(vtkObject* o)
+void vtkReferenceCount::Register(vtkObject* o)
 {
   if ( this->ReferenceCounting == 0 )
     {
     vtkErrorMacro(<<"Attempting to Register an object which has reference counting turned off.");
     }
-  this->RefCount++;
+  this->ReferenceCount++;
   vtkDebugMacro(<< "Registered by " << o->GetClassName() << " (" << o << ")");
 }
 
 // Description:
 // Decrease the reference count (release by another object).
-void vtkRefCount::UnRegister(vtkObject* o)
+void vtkReferenceCount::UnRegister(vtkObject* o)
 {
   if ( this->ReferenceCounting == 0 )
     {
@@ -105,13 +105,13 @@ void vtkRefCount::UnRegister(vtkObject* o)
     vtkDebugMacro(<< "UnRegistered by NULL");
     }
 
-  if (--this->RefCount <= 0) delete this;
+  if (--this->ReferenceCount <= 0) delete this;
 }
 
-void vtkRefCount::PrintSelf(ostream& os, vtkIndent indent)
+void vtkReferenceCount::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
-  os << indent << "Reference Count: " << this->RefCount << "\n";
+  os << indent << "Reference Count: " << this->ReferenceCount << "\n";
   os << indent << "Reference Counting: "<< (this->ReferenceCounting ? "On\n" : "Off\n");
 }

@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDoubleArray_h
 #define __vtkDoubleArray_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 
-class VTK_EXPORT vtkDoubleArray : public vtkRefCount 
+class VTK_EXPORT vtkDoubleArray : public vtkReferenceCount 
 {
 public:
   vtkDoubleArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
@@ -68,8 +68,8 @@ public:
   void SetValue(const int id, const double value);
   vtkDoubleArray &InsertValue(const int id, const double f);
   int InsertNextValue(const double f);
-  double *GetPtr(const int id);
-  double *WritePtr(const int id, const int number);
+  double *GetPointer(const int id);
+  double *WritePointer(const int id, const int number);
 
   // special operators
   vtkDoubleArray &operator=(const vtkDoubleArray& fa);
@@ -114,13 +114,13 @@ inline void vtkDoubleArray::SetValue(const int id, const double value)
 
 // Description:
 // Get the address of a particular data index.
-inline double *vtkDoubleArray::GetPtr(const int id) {return this->Array + id;};
+inline double *vtkDoubleArray::GetPointer(const int id) {return this->Array + id;};
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
-inline double *vtkDoubleArray::WritePtr(const int id, const int number) 
+inline double *vtkDoubleArray::WritePointer(const int id, const int number) 
 {
   int newSize=id+number;
   if ( newSize > this->Size ) this->Resize(newSize);

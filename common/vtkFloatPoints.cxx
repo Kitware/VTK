@@ -54,7 +54,8 @@ vtkFloatPoints::vtkFloatPoints(const vtkFloatPoints& fp)
 
 vtkFloatPoints::vtkFloatPoints(const int sz, const int ext)
 {
-  this->P = new vtkFloatArray(3*sz,3*ext);
+  this->P = vtkFloatArray::New();
+  this->P->Allocate(3*sz,3*ext);
 }
 
 vtkFloatPoints::~vtkFloatPoints()
@@ -80,7 +81,7 @@ void vtkFloatPoints::GetPoints(vtkIdList& ptId, vtkFloatPoints& fp)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {
-    fp.InsertPoint(i,this->P->GetPtr(3*ptId.GetId(i)));
+    fp.InsertPoint(i,this->P->GetPointer(3*ptId.GetId(i)));
     }
 }
 

@@ -48,13 +48,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTensors_h
 #define __vtkTensors_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 #include "vtkTensor.h"
 
 class vtkIdList;
 class vtkFloatTensors;
 
-class VTK_EXPORT vtkTensors : public vtkRefCount 
+class VTK_EXPORT vtkTensors : public vtkReferenceCount 
 {
 public:
   vtkTensors(int dim=3);

@@ -53,7 +53,8 @@ vtkShortScalars::vtkShortScalars(const vtkShortScalars& ss)
 
 vtkShortScalars::vtkShortScalars(const int sz, const int ext)
 {
-  this->S = new vtkShortArray(sz,ext);
+  this->S = vtkShortArray::New();
+  this->S->Allocate(sz,ext);
 }
 
 vtkShortScalars::~vtkShortScalars()
@@ -79,7 +80,7 @@ vtkShortScalars& vtkShortScalars::operator=(const vtkShortScalars& ss)
 void vtkShortScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
 {
   int NumberOfIds = ptId.GetNumberOfIds();
-  float *value = fs.WritePtr (0, NumberOfIds);
+  float *value = fs.WritePointer (0, NumberOfIds);
 
   for (int i=0; i<NumberOfIds; i++)
     {
@@ -89,8 +90,8 @@ void vtkShortScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
 
 void vtkShortScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
 {
-  float *fp=fs.GetPtr(0);
-  short *sp=this->S->GetPtr(p1);
+  float *fp=fs.GetPointer(0);
+  short *sp=this->S->GetPointer(p1);
   
   for (int id=p1; id <= p2; id++)
     {

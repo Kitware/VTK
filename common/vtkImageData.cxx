@@ -148,7 +148,7 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
   vtkScalars *scalars;
   vtkIndent nextIndent = indent.GetNextIndent();
   
-  vtkRefCount::PrintSelf(os,indent);
+  vtkReferenceCount::PrintSelf(os,indent);
   os << indent << "Type: " << vtkImageScalarTypeNameMacro(this->ScalarType) 
      << "\n";
   
@@ -217,7 +217,7 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
 // The method should be called before the data object is allocated.
 void vtkImageData::SetScalarType(int type)
 {
-  if (this->GetRefCount() > 1)
+  if (this->GetReferenceCount() > 1)
     {
     vtkWarningMacro(<< "SetScalarType: " 
     << "This object has more than one reference!");
@@ -245,7 +245,7 @@ void vtkImageData::SetAxes(int num, int *axes)
   int usedAxes[VTK_IMAGE_DIMENSIONS];
     
   // Error checking
-  if (this->GetRefCount() > 1)
+  if (this->GetReferenceCount() > 1)
     {
     vtkWarningMacro(<< "SetAxes: This object has more than one reference!");
     }
@@ -338,7 +338,7 @@ void vtkImageData::SetExtent(int dim, int *extent)
   vtkDebugMacro(<< "SetExtent: ...");
 
   this->Modified();
-  if (this->GetRefCount() > 1)
+  if (this->GetReferenceCount() > 1)
     {
     vtkWarningMacro(<< "SetExtent: This object has more than one reference!");
     }
@@ -417,7 +417,7 @@ void vtkImageData::Translate(int vector[VTK_IMAGE_DIMENSIONS])
 {
   int idx;
   
-  if (this->GetRefCount() > 1)
+  if (this->GetReferenceCount() > 1)
     {
     vtkWarningMacro(<< "Translate: This object has more than one reference!");
     }
@@ -469,27 +469,27 @@ int vtkImageData::AllocateScalars()
     case VTK_FLOAT:
       scalars = vtkFloatScalars::New();
       this->ScalarsAllocated = scalars->Allocate(this->Volume);
-      ((vtkFloatScalars *)(scalars))->WritePtr(0,this->Volume);
+      ((vtkFloatScalars *)(scalars))->WritePointer(0,this->Volume);
       break;
     case VTK_INT:
       scalars = vtkIntScalars::New();
       this->ScalarsAllocated = scalars->Allocate(this->Volume);
-      ((vtkIntScalars *)(scalars))->WritePtr(0,this->Volume);
+      ((vtkIntScalars *)(scalars))->WritePointer(0,this->Volume);
       break;
     case VTK_SHORT:
       scalars = vtkShortScalars::New();
       this->ScalarsAllocated =  scalars->Allocate(this->Volume);
-      ((vtkShortScalars *)(scalars))->WritePtr(0,this->Volume);
+      ((vtkShortScalars *)(scalars))->WritePointer(0,this->Volume);
       break;
     case VTK_UNSIGNED_SHORT:
       scalars = vtkUnsignedShortScalars::New();
       this->ScalarsAllocated = scalars->Allocate(this->Volume);
-      ((vtkUnsignedShortScalars *)(scalars))->WritePtr(0,this->Volume);
+      ((vtkUnsignedShortScalars *)(scalars))->WritePointer(0,this->Volume);
       break;
     case VTK_UNSIGNED_CHAR:
       scalars = vtkUnsignedCharScalars::New();
       this->ScalarsAllocated = scalars->Allocate(this->Volume);
-      ((vtkUnsignedCharScalars *)(scalars))->WritePtr(0,this->Volume);
+      ((vtkUnsignedCharScalars *)(scalars))->WritePointer(0,this->Volume);
       break;
     }
   
@@ -531,31 +531,31 @@ void vtkImageData::MakeScalarsWritable()
   // ... switch ...
   
   // Make sure we have the only reference to the scalars.
-  if (scalars->GetRefCount() > 1)
+  if (scalars->GetReferenceCount() > 1)
     {
     vtkScalars *newScalars;
     // Scalars need to be copied (some one else is referencing them)
     switch (this->GetScalarType())
       {
       case VTK_FLOAT:
-	newScalars = new vtkFloatScalars();
+	newScalars = new vtkFloatScalars;
 	*((vtkFloatScalars *)newScalars) = *((vtkFloatScalars *)scalars);
 	break;
       case VTK_INT:
-	newScalars = new vtkIntScalars();
+	newScalars = new vtkIntScalars;
 	*((vtkIntScalars *)newScalars) = *((vtkIntScalars *)scalars);
 	break;
       case VTK_SHORT:
-	newScalars = new vtkShortScalars();
+	newScalars = new vtkShortScalars;
 	*((vtkShortScalars *)newScalars) = *((vtkShortScalars *)scalars);
 	break;
       case VTK_UNSIGNED_SHORT:
-	newScalars = new vtkUnsignedShortScalars();
+	newScalars = new vtkUnsignedShortScalars;
 	*((vtkUnsignedShortScalars *)newScalars) 
 	  = *((vtkUnsignedShortScalars *)scalars);
 	break;
       case VTK_UNSIGNED_CHAR:
-	newScalars = new vtkUnsignedCharScalars();
+	newScalars = new vtkUnsignedCharScalars;
 	*((vtkUnsignedCharScalars *)newScalars) 
 	  = *((vtkUnsignedCharScalars *)scalars);
 	break;

@@ -119,7 +119,7 @@ float vtkVectors::GetMaxNorm()
 
 void vtkVectors::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkRefCount::PrintSelf(os,indent);
+  vtkReferenceCount::PrintSelf(os,indent);
 
   os << indent << "Number Of Vectors: " << this->GetNumberOfVectors() << "\n";
   os << indent << "Maximum Euclidean Norm: " << this->GetMaxNorm() << "\n";

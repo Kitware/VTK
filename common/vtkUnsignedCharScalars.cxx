@@ -53,7 +53,8 @@ vtkUnsignedCharScalars::vtkUnsignedCharScalars(const vtkUnsignedCharScalars& cs)
 
 vtkUnsignedCharScalars::vtkUnsignedCharScalars(const int sz, const int ext)
 {
-  this->S = new vtkUnsignedCharArray(sz, ext);
+  this->S = vtkUnsignedCharArray::New();
+  this->S->Allocate(sz, ext);
 }
 
 vtkUnsignedCharScalars::~vtkUnsignedCharScalars()
@@ -87,8 +88,8 @@ void vtkUnsignedCharScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
 
 void vtkUnsignedCharScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
 {
-  float *fp=fs.GetPtr(0);
-  unsigned char *cp=this->S->GetPtr(p1);
+  float *fp=fs.GetPointer(0);
+  unsigned char *cp=this->S->GetPointer(p1);
   
   for (int id=p1; id <= p2; id++)
     {

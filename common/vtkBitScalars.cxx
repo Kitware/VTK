@@ -53,7 +53,8 @@ vtkBitScalars::vtkBitScalars(const vtkBitScalars& cs)
 
 vtkBitScalars::vtkBitScalars(const int sz, const int ext)
 {
-  this->S = new vtkBitArray(sz,ext);
+  this->S = vtkBitArray::New();
+  this->S->Allocate(sz,ext);
 }
 
 vtkBitScalars::~vtkBitScalars()

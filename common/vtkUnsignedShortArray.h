@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkUnsignedShortArray_h
 #define __vtkUnsignedShortArray_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 
-class VTK_EXPORT vtkUnsignedShortArray : public vtkRefCount 
+class VTK_EXPORT vtkUnsignedShortArray : public vtkReferenceCount 
 {
 public:
   vtkUnsignedShortArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
@@ -68,8 +68,8 @@ public:
   void SetValue(const int id, const unsigned short value);
   vtkUnsignedShortArray &InsertValue(const int id, const unsigned short i);
   int InsertNextValue(const unsigned short);
-  unsigned short *GetPtr(const int id);
-  unsigned short *WritePtr(const int id, const int number);
+  unsigned short *GetPointer(const int id);
+  unsigned short *WritePointer(const int id, const int number);
 
   // special operators
   vtkUnsignedShortArray &operator=(const vtkUnsignedShortArray& ia);
@@ -115,13 +115,13 @@ inline void vtkUnsignedShortArray::SetValue(const int id, const unsigned short v
 
 // Description:
 // Get the address of a particular data index.
-inline unsigned short *vtkUnsignedShortArray::GetPtr(const int id) {return this->Array + id;};
+inline unsigned short *vtkUnsignedShortArray::GetPointer(const int id) {return this->Array + id;};
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
-inline unsigned short *vtkUnsignedShortArray::WritePtr(const int id, const int number) 
+inline unsigned short *vtkUnsignedShortArray::WritePointer(const int id, const int number) 
 {
   int newSize=id+number;
   if ( newSize > this->Size ) this->Resize(newSize);

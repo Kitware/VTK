@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkIntArray_h
 #define __vtkIntArray_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 
-class VTK_EXPORT vtkIntArray : public vtkRefCount 
+class VTK_EXPORT vtkIntArray : public vtkReferenceCount 
 {
 public:
   vtkIntArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
@@ -68,8 +68,8 @@ public:
   void SetValue(const int id, const int value);
   vtkIntArray &InsertValue(const int id, const int i);
   int InsertNextValue(const int i);
-  int *GetPtr(const int id);
-  int *WritePtr(const int id, const int number);
+  int *GetPointer(const int id);
+  int *WritePointer(const int id, const int number);
 
   // special operators
   vtkIntArray &operator=(const vtkIntArray& ia);
@@ -114,13 +114,13 @@ inline void vtkIntArray::SetValue(const int id, const int value)
 
 // Description:
 // Get the address of a particular data index.
-inline int *vtkIntArray::GetPtr(const int id) {return this->Array + id;};
+inline int *vtkIntArray::GetPointer(const int id) {return this->Array + id;};
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
-inline int *vtkIntArray::WritePtr(const int id, const int number)
+inline int *vtkIntArray::WritePointer(const int id, const int number)
 {
   int newSize=id+number;
   if ( newSize > this->Size ) this->Resize(newSize);

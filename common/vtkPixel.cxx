@@ -387,21 +387,21 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
 {
   float functionDerivs[8], sum;
   int i, j, k, plane, idx[2], jj;
-  float *x0, *x1, *x2, ar[3];
+  float *x0, *x1, *x2, spacing[3];
 
   x0 = this->Points.GetPoint(0);
   x1 = this->Points.GetPoint(1);
   x2 = this->Points.GetPoint(2);
 
   //figure which plane this pixel is in
-  for (i=0; i < 3; i++) ar[i] = x2[i] - x0[i];
+  for (i=0; i < 3; i++) spacing[i] = x2[i] - x0[i];
 
-  if ( ar[0] > ar[2] && ar[1] > ar[2] ) // z-plane
+  if ( spacing[0] > spacing[2] && spacing[1] > spacing[2] ) // z-plane
     {
     plane = 2;
     idx[0] = 0; idx[1] = 1;
     }
-  else if ( ar[0] > ar[1] && ar[2] > ar[1] ) // y-plane
+  else if ( spacing[0] > spacing[1] && spacing[2] > spacing[1] ) // y-plane
     {
     plane = 1;
     idx[0] = 0; idx[1] = 2;
@@ -412,14 +412,14 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
     idx[0] = 1; idx[1] = 2;
     }
 
-  ar[0] = x1[idx[0]] - x0[idx[0]];
-  ar[1] = x2[idx[1]] - x0[idx[1]];
+  spacing[0] = x1[idx[0]] - x0[idx[0]];
+  spacing[1] = x2[idx[1]] - x0[idx[1]];
 
   // get derivatives in r-s directions
   this->InterpolationDerivs(pcoords, functionDerivs);
 
   // since two of the x-y-z axes are aligned with r-s axes, only need to scale
-  // the derivative values by aspect ratio (ar).
+  // the derivative values by the data spacing.
   for (k=0; k < dim; k++) //loop over values per vertex
     {
     for (jj=j=0; j < 3; j++, jj++) //loop over derivative directions
@@ -434,7 +434,7 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
           {
           sum += functionDerivs[4*idx[jj] + i] * values[dim*i + k];
           }
-        sum /= ar[idx[jj]];
+        sum /= spacing[idx[jj]];
         }
       derivs[3*k + j] = sum;
       }

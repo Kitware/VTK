@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCellList_h
 #define __vtkCellList_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 #include "vtkCellType.h"
 
 struct _vtkCell_s {
@@ -58,7 +58,7 @@ struct _vtkCell_s {
     int loc; //location in associated CellArray object
 };
 
-class VTK_EXPORT vtkCellList : public vtkRefCount 
+class VTK_EXPORT vtkCellList : public vtkReferenceCount 
 {
 public:
   vtkCellList() : Array(NULL),Size(0),MaxId(-1),Extend(1000) {};

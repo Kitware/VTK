@@ -99,7 +99,7 @@ void vtkTensors::GetTensors(vtkIdList& ptId, vtkFloatTensors& ft)
 
 void vtkTensors::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkRefCount::PrintSelf(os,indent);
+  vtkReferenceCount::PrintSelf(os,indent);
 
   os << indent << "Number Of Tensors: " << this->GetNumberOfTensors() << "\n";
 }

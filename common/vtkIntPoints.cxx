@@ -53,7 +53,8 @@ vtkIntPoints::vtkIntPoints(const vtkIntPoints& ss)
 
 vtkIntPoints::vtkIntPoints(const int sz, const int ext)
 {
-  this->P = new vtkIntArray(sz*3,ext*3);
+  this->P = vtkIntArray::New();
+  this->P->Allocate(sz*3,ext*3);
 }
 
 vtkIntPoints::~vtkIntPoints()
@@ -77,7 +78,7 @@ vtkIntPoints& vtkIntPoints::operator=(const vtkIntPoints& fp)
 float *vtkIntPoints::GetPoint(int i)
 {
   static float x[3];
-  int *iptr = this->P->GetPtr(3*i);
+  int *iptr = this->P->GetPointer(3*i);
   x[0] = (float)iptr[0]; x[1] = (float)iptr[1]; x[2] = (float)iptr[2];
   return x;
 };

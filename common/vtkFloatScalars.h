@@ -76,15 +76,15 @@ public:
   void GetScalars(int p1, int p2, vtkFloatScalars& fs);
 
   // miscellaneous
-  float *GetPtr(const int id);
+  float *GetPointer(const int id);
   void *GetVoidPtr(const int id);
-  float *WritePtr(const int id, const int number);
+  float *WritePointer(const int id, const int number);
   vtkFloatScalars &operator=(const vtkFloatScalars& fs);
   void operator+=(const vtkFloatScalars& fs) {*(this->S) += *(fs.S);};
   void Reset() {this->S->Reset();};
 
   // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
-  vtkSetRefCountedObjectMacro(S, vtkFloatArray);
+  vtkSetReferenceCountedObjectMacro(S, vtkFloatArray);
   vtkGetObjectMacro(S, vtkFloatArray);
 
 protected:
@@ -98,9 +98,9 @@ inline void vtkFloatScalars::SetNumberOfScalars(int number)
 
 // Description:
 // Get pointer to array of data starting at data position "id".
-inline float *vtkFloatScalars::GetPtr(const int id)
+inline float *vtkFloatScalars::GetPointer(const int id)
 {
-  return this->S->GetPtr(id);
+  return this->S->GetPointer(id);
 }
 
 // Description:
@@ -108,7 +108,7 @@ inline float *vtkFloatScalars::GetPtr(const int id)
 // a void pointer.
 inline void *vtkFloatScalars::GetVoidPtr(const int id)
 {
-  return (void *)(this->S->GetPtr(id));
+  return (void *)(this->S->GetPointer(id));
 }
 
 // Description:
@@ -116,9 +116,9 @@ inline void *vtkFloatScalars::GetVoidPtr(const int id)
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
 // write. 
-inline float *vtkFloatScalars::WritePtr(const int id, const int number)
+inline float *vtkFloatScalars::WritePointer(const int id, const int number)
 {
-  return this->S->WritePtr(id,number);
+  return this->S->WritePointer(id,number);
 }
 
 #endif

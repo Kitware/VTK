@@ -48,11 +48,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkUserDefined_h
 #define __vtkUserDefined_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 #include "vtkVoidArray.h"
 #include "vtkIdList.h"
 
-class VTK_EXPORT vtkUserDefined : public vtkRefCount 
+class VTK_EXPORT vtkUserDefined : public vtkReferenceCount 
 {
 public:
   vtkUserDefined() {};

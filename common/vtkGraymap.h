@@ -72,9 +72,9 @@ public:
   vtkGraymap &operator=(const vtkGraymap& fs);
   void operator+=(const vtkGraymap& fs) {*(this->S) += *(fs.S);};
   void Reset() {this->S->Reset();};
-  unsigned char *GetPtr(const int id);
+  unsigned char *GetPointer(const int id);
   void *GetVoidPtr(const int id);
-  unsigned char *WritePtr(const int id, const int number);
+  unsigned char *WritePointer(const int id, const int number);
 
   // vtkColorScalar interface.
   unsigned char *GetColor(int id);
@@ -91,7 +91,7 @@ public:
   int InsertNextGrayValue(unsigned char g);
 
   // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
-  vtkSetRefCountedObjectMacro(S, vtkUnsignedCharArray);
+  vtkSetReferenceCountedObjectMacro(S, vtkUnsignedCharArray);
   vtkGetObjectMacro(S, vtkUnsignedCharArray);
   
 protected:
@@ -100,9 +100,9 @@ protected:
 
 // Description:
 // Get pointer to array of data starting at data position "id".
-inline unsigned char *vtkGraymap::GetPtr(const int id)
+inline unsigned char *vtkGraymap::GetPointer(const int id)
 {
-  return this->S->GetPtr(id);
+  return this->S->GetPointer(id);
 }
 
 // Description:
@@ -110,7 +110,7 @@ inline unsigned char *vtkGraymap::GetPtr(const int id)
 // a void pointer.
 inline void *vtkGraymap::GetVoidPtr(const int id)
 {
-  return (void *)(this->S->GetPtr(id));
+  return (void *)(this->S->GetPointer(id));
 }
 
 // Description:
@@ -118,9 +118,9 @@ inline void *vtkGraymap::GetVoidPtr(const int id)
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
 // write. 
-inline unsigned char *vtkGraymap::WritePtr(const int id, const int number)
+inline unsigned char *vtkGraymap::WritePointer(const int id, const int number)
 {
-  return this->S->WritePtr(id,number);
+  return this->S->WritePointer(id,number);
 }
 
 #endif

@@ -51,8 +51,8 @@ vtkRectilinearGrid::vtkRectilinearGrid()
   this->Dimensions[2] = 1;
   this->DataDescription = VTK_SINGLE_POINT;
 
-  vtkFloatScalars *fs=new vtkFloatScalars(1);
-  fs->InsertScalar(0,0.0);
+  vtkFloatScalars *fs=vtkFloatScalars::New(); fs->Allocate(1);
+  fs->InsertScalar(0, 0.0);
   this->XCoordinates = fs; fs->Register(this);
   this->YCoordinates = fs; fs->Register(this);
   this->ZCoordinates = fs; fs->Register(this);

@@ -84,7 +84,7 @@ public:
 
   // Description:
   // Specify point array to define point coordinates.
-  vtkSetRefCountedObjectMacro(Points,vtkPoints);
+  vtkSetReferenceCountedObjectMacro(Points,vtkPoints);
   vtkGetObjectMacro(Points,vtkPoints);
 
 protected:

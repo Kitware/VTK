@@ -49,12 +49,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkNormals_h
 #define __vtkNormals_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 
 class vtkIdList;
 class vtkFloatNormals;
 
-class VTK_EXPORT vtkNormals : public vtkRefCount 
+class VTK_EXPORT vtkNormals : public vtkReferenceCount 
 {
 public:
   vtkNormals() {};

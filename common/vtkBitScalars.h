@@ -79,8 +79,8 @@ public:
   void GetScalars(vtkIdList& ptIds, vtkFloatScalars& fs);
 
   // miscellaneous
-  unsigned char *GetPtr(const int id);
-  unsigned char *WritePtr(const int id, const int number);
+  unsigned char *GetPointer(const int id);
+  unsigned char *WritePointer(const int id, const int number);
   vtkBitScalars &operator=(const vtkBitScalars& cs);
   void operator+=(const vtkBitScalars& cs) {*(this->S) += *(cs.S);};
   void Reset() {this->S->Reset();};
@@ -96,9 +96,9 @@ inline void vtkBitScalars::SetNumberOfScalars(int number)
 
 // Description:
 // Get pointer to array of data starting at data position "id".
-inline unsigned char *vtkBitScalars::GetPtr(const int id)
+inline unsigned char *vtkBitScalars::GetPointer(const int id)
 {
-  return this->S->GetPtr(id);
+  return this->S->GetPointer(id);
 }
 
 // Description:
@@ -106,9 +106,9 @@ inline unsigned char *vtkBitScalars::GetPtr(const int id)
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
 // write. 
-inline unsigned char *vtkBitScalars::WritePtr(const int id, const int number)
+inline unsigned char *vtkBitScalars::WritePointer(const int id, const int number)
 {
-  return this->S->WritePtr(id,number);
+  return this->S->WritePointer(id,number);
 }
 
 #endif

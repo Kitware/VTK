@@ -81,6 +81,7 @@ public:
   // changed.
   void SetAxes(int dim, int *axes);
   vtkImageSetMacro(Axes, int);
+
   // Description:
   // Different methods for getting the axes.
   void GetAxes(int dim, int *axes);  
@@ -92,6 +93,7 @@ public:
   // The 2d and 1d functions do not modify extent of the higher dimensions.
   void SetExtent(int dim, int *extent);
   vtkImageSetExtentMacro(Extent);
+
   // Description:
   // Different methods for getting the extent.
   void GetExtent(int dim, int *extent);
@@ -157,25 +159,30 @@ public:
   // requested from the pipeline.
   void SetImageExtent(int dim, int *extent);
   vtkImageSetExtentMacro(ImageExtent);
+
   // Description:
   // Different methods for getting the ImageExtent.
   void GetImageExtent(int dim, int *extent);
   vtkImageGetExtentMacro(ImageExtent);
+
   // Description:
-  // Different methods for setting the AspectRatio.
-  // The 2d and 1d functions do not modify aspect ratio of the higher
+  // Different methods for setting the data spacing.
+  // The 2d and 1d functions do not modify the data spacing of the higher
   // dimensions.
-  void SetAspectRatio(int dim, float *ratio);
-  vtkImageSetMacro(AspectRatio, float);
+  void SetSpacing(int dim, float *ratio);
+  vtkImageSetMacro(Spacing, float);
+
   // Description:
-  // Different methods for getting the Aspect Ratio.
-  void GetAspectRatio(int dim, float *ratio);
-  vtkImageGetMacro(AspectRatio, float);
-  float *GetAspectRatio() {return this->AspectRatio;};
+  // Different methods for getting the data spacing.
+  void GetSpacing(int dim, float *ratio);
+  vtkImageGetMacro(Spacing, float);
+  float *GetSpacing() {return this->Spacing;};
+
   // Description:
   // Different methods for setting the Origin.
   void SetOrigin(int dim, float *origin);
   vtkImageSetMacro(Origin, float);
+
   // Description:
   // Different methods for getting the Origin.
   void GetOrigin(int dim, float *origin);
@@ -245,7 +252,7 @@ protected:
 
   // Possibly make a new object to hold global information like ImageExtent.
   int ImageExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  float AspectRatio[VTK_IMAGE_DIMENSIONS];
+  float Spacing[VTK_IMAGE_DIMENSIONS];
   float Origin[VTK_IMAGE_DIMENSIONS];
 
   // Helper methods.

@@ -58,7 +58,8 @@ vtkPriorityQueue::vtkPriorityQueue()
 // queue (if reallocation required).
 vtkPriorityQueue::vtkPriorityQueue(const int sz, const int ext)
 {
-  this->ItemLocation = new vtkIntArray(sz,ext);
+  this->ItemLocation = vtkIntArray::New();
+  this->ItemLocation->Allocate(sz,ext);
   for (int i=0; i < sz; i++) this->ItemLocation->SetValue(i,-1);
 
   this->Size = ( sz > 0 ? sz : 1);

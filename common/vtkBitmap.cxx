@@ -53,7 +53,8 @@ vtkBitmap::vtkBitmap(const vtkBitmap& fs)
 
 vtkBitmap::vtkBitmap(const int sz, const int ext)
 {
-  this->S = new vtkBitArray(sz,ext);
+  this->S = vtkBitArray::New();
+  this->S->Allocate(sz,ext);
 }
 
 vtkBitmap::~vtkBitmap()

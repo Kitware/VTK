@@ -54,7 +54,8 @@ vtkUnsignedShortScalars::vtkUnsignedShortScalars(const vtkUnsignedShortScalars& 
 vtkUnsignedShortScalars::vtkUnsignedShortScalars(const int sz, 
 						 const int ext)
 {
-  this->S = new vtkUnsignedShortArray(sz, ext);
+  this->S = vtkUnsignedShortArray::New();
+  this->S->Allocate(sz, ext);
 }
 
 vtkUnsignedShortScalars::~vtkUnsignedShortScalars()
@@ -85,8 +86,8 @@ void vtkUnsignedShortScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
 
 void vtkUnsignedShortScalars::GetScalars(int p1, int p2, vtkFloatScalars& fs)
 {
-  float *fp=fs.GetPtr(0);
-  unsigned short *cp=this->S->GetPtr(p1);
+  float *fp=fs.GetPointer(0);
+  unsigned short *cp=this->S->GetPointer(p1);
   
   for (int id=p1; id <= p2; id++)
     {

@@ -67,7 +67,7 @@ public:
   char *GetDataType() {return "float";};
   int GetNumberOfNormals() {return (N->GetMaxId()+1)/3;};
   void Squeeze() {this->N->Squeeze();};
-  float *GetNormal(int i) {return this->N->GetPtr(3*i);};
+  float *GetNormal(int i) {return this->N->GetPointer(3*i);};
   void GetNormal(int i,float n[3]) {this->vtkNormals::GetNormal(i,n);};
   void SetNumberOfNormals(int number);
   void SetNormal(int id, float n[3]);
@@ -75,8 +75,8 @@ public:
   int InsertNextNormal(float n[3]);
 
   // miscellaneous
-  float *GetPtr(const int id);
-  float *WritePtr(const int id, const int number);
+  float *GetPointer(const int id);
+  float *WritePointer(const int id, const int number);
   vtkFloatNormals &operator=(const vtkFloatNormals& fn);
   void operator+=(const vtkFloatNormals& fn);
   void Reset() {this->N->Reset();};
@@ -87,9 +87,9 @@ protected:
 
 // Description:
 // Get pointer to array of data starting at data position "id".
-inline float *vtkFloatNormals::GetPtr(const int id)
+inline float *vtkFloatNormals::GetPointer(const int id)
 {
-  return this->N->GetPtr(id);
+  return this->N->GetPointer(id);
 }
 
 // Description:
@@ -97,9 +97,9 @@ inline float *vtkFloatNormals::GetPtr(const int id)
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of normals to 
 // write. 
-inline float *vtkFloatNormals::WritePtr(const int id, const int number)
+inline float *vtkFloatNormals::WritePointer(const int id, const int number)
 {
-  return this->N->WritePtr(id,3*number);
+  return this->N->WritePointer(id,3*number);
 }
 
 inline void vtkFloatNormals::SetNumberOfNormals(int number)
@@ -117,7 +117,7 @@ inline void vtkFloatNormals::SetNormal(int id, float n[3])
 
 inline void vtkFloatNormals::InsertNormal(int i, float n[3]) 
 {
-  float *ptr = this->N->WritePtr(i*3,3);
+  float *ptr = this->N->WritePointer(i*3,3);
 
   *ptr++ = n[0];
   *ptr++ = n[1];
@@ -127,7 +127,7 @@ inline void vtkFloatNormals::InsertNormal(int i, float n[3])
 inline int vtkFloatNormals::InsertNextNormal(float n[3]) 
 {
   int id = this->N->GetMaxId() + 1;
-  float *ptr = this->N->WritePtr(id,3);
+  float *ptr = this->N->WritePointer(id,3);
 
   *ptr++ = n[0];
   *ptr++ = n[1];

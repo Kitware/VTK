@@ -93,13 +93,13 @@ public:
   vtkGetVectorMacro(Dimensions,int,3);
 
   // Description:
-  // Set the aspect ratio of the cubical cells that compose the structured
-  // point set.
-  vtkSetVector3Macro(AspectRatio,float);
-  vtkGetVectorMacro(AspectRatio,float,3);
+  // Set the spacing (width,height,length) of the cubical cells that
+  // compose the structured point set.
+  vtkSetVector3Macro(Spacing,float);
+  vtkGetVectorMacro(Spacing,float,3);
 
   // Description:
-  // Set the origin of the data. The origin plus aspect ratio determine the
+  // Set the origin of the data. The origin plus spacing determine the
   // position in space of the structured points.
   vtkSetVector3Macro(Origin,float);
   vtkGetVectorMacro(Origin,float,3);
@@ -122,7 +122,7 @@ protected:
   int Dimensions[3];
   int DataDescription;
   float Origin[3];
-  float AspectRatio[3];
+  float Spacing[3];
   vtkStructuredPointsToImage *StructuredPointsToImage;
 };
 

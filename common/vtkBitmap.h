@@ -76,8 +76,8 @@ public:
   vtkBitmap &operator=(const vtkBitmap& fs);
   void operator+=(const vtkBitmap& fs) {*(this->S) += *(fs.S);};
   void Reset() {this->S->Reset();};
-  unsigned char *GetPtr(const int id);
-  unsigned char *WritePtr(const int id, const int number);
+  unsigned char *GetPointer(const int id);
+  unsigned char *WritePointer(const int id, const int number);
 
   // vtkColorScalar interface.
   unsigned char *GetColor(int id);
@@ -105,18 +105,18 @@ inline void vtkBitmap::SetNumberOfColors(int number)
 // Description:
 // Get pointer to byte containing bit in question. You will have to decompose
 // byte to obtain appropriate bit value.
-inline unsigned char *vtkBitmap::GetPtr(const int id)
+inline unsigned char *vtkBitmap::GetPointer(const int id)
 {
-  return this->S->GetPtr(id);
+  return this->S->GetPointer(id);
 }
 
 // Description:
 // Get pointer to data. Useful for direct writes into object. MaxId is bumped
 // by number (and memory allocated if necessary). Id is the location you 
 // wish to write into; number is the number of rgba colors to write.
-inline unsigned char *vtkBitmap::WritePtr(const int id, const int number)
+inline unsigned char *vtkBitmap::WritePointer(const int id, const int number)
 {
-  return this->S->WritePtr(id,number);
+  return this->S->WritePointer(id,number);
 }
 
 #endif

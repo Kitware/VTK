@@ -79,15 +79,15 @@ public:
   void GetScalars(int p1, int p2, vtkFloatScalars& fs);
 
   // miscellaneous
-  unsigned char *GetPtr(const int id);
+  unsigned char *GetPointer(const int id);
   void *GetVoidPtr(const int id);
-  unsigned char *WritePtr(const int id, const int number);
+  unsigned char *WritePointer(const int id, const int number);
   vtkUnsignedCharScalars &operator=(const vtkUnsignedCharScalars& cs);
   void operator+=(const vtkUnsignedCharScalars& cs) {*(this->S) += *(cs.S);};
   void Reset() {this->S->Reset();};
 
   // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
-  vtkSetRefCountedObjectMacro(S, vtkUnsignedCharArray);
+  vtkSetReferenceCountedObjectMacro(S, vtkUnsignedCharArray);
   vtkGetObjectMacro(S, vtkUnsignedCharArray);
   
 protected:
@@ -101,16 +101,16 @@ inline void vtkUnsignedCharScalars::SetNumberOfScalars(int number)
 
 // Description:
 // Get pointer to array of data starting at data position "id".
-inline unsigned char *vtkUnsignedCharScalars::GetPtr(const int id)
+inline unsigned char *vtkUnsignedCharScalars::GetPointer(const int id)
 {
-  return this->S->GetPtr(id);
+  return this->S->GetPointer(id);
 }
 
 // Description:
 // Get a void pointer to array of data starting at data position "id".
 inline void *vtkUnsignedCharScalars::GetVoidPtr(const int id)
 {
-  return (void *)(this->S->GetPtr(id));
+  return (void *)(this->S->GetPointer(id));
 }
 
 // Description:
@@ -118,9 +118,9 @@ inline void *vtkUnsignedCharScalars::GetVoidPtr(const int id)
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
 // write. 
-inline unsigned char *vtkUnsignedCharScalars::WritePtr(const int id, const int number)
+inline unsigned char *vtkUnsignedCharScalars::WritePointer(const int id, const int number)
 {
-  return this->S->WritePtr(id,number);
+  return this->S->WritePointer(id,number);
 }
 
 #endif

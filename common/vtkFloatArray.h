@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkFloatArray_h
 #define __vtkFloatArray_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 
-class VTK_EXPORT vtkFloatArray : public vtkRefCount 
+class VTK_EXPORT vtkFloatArray : public vtkReferenceCount 
 {
 public:
   vtkFloatArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
@@ -68,8 +68,8 @@ public:
   void SetValue(const int id, const float value);
   vtkFloatArray &InsertValue(const int id, const float f);
   int InsertNextValue(const float f);
-  float *GetPtr(const int id);
-  float *WritePtr(const int id, const int number);
+  float *GetPointer(const int id);
+  float *WritePointer(const int id, const int number);
 
   // special operators
   vtkFloatArray &operator=(const vtkFloatArray& fa);
@@ -114,13 +114,13 @@ inline void vtkFloatArray::SetValue(const int id, const float value)
 
 // Description:
 // Get the address of a particular data index.
-inline float *vtkFloatArray::GetPtr(const int id) {return this->Array + id;};
+inline float *vtkFloatArray::GetPointer(const int id) {return this->Array + id;};
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
-inline float *vtkFloatArray::WritePtr(const int id, const int number) 
+inline float *vtkFloatArray::WritePointer(const int id, const int number) 
 {
   int newSize=id+number;
   if ( newSize > this->Size ) this->Resize(newSize);

@@ -131,7 +131,7 @@ void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   float *bounds;
 
-  vtkRefCount::PrintSelf(os,indent);
+  vtkReferenceCount::PrintSelf(os,indent);
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
   bounds = this->GetBounds();

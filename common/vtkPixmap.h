@@ -73,8 +73,8 @@ public:
   vtkPixmap &operator=(const vtkPixmap& fs);
   void operator+=(const vtkPixmap& fs) {*(this->S) += *(fs.S);};
   void Reset() {this->S->Reset();};
-  unsigned char *GetPtr(const int id);
-  unsigned char *WritePtr(const int id, const int number);
+  unsigned char *GetPointer(const int id);
+  unsigned char *WritePointer(const int id, const int number);
 
   // vtkColorScalar interface.
   unsigned char *GetColor(int id);
@@ -85,7 +85,7 @@ public:
   int InsertNextColor(unsigned char rgba[4]);
 
   // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
-  vtkSetRefCountedObjectMacro(S, vtkUnsignedCharArray);
+  vtkSetReferenceCountedObjectMacro(S, vtkUnsignedCharArray);
   vtkGetObjectMacro(S, vtkUnsignedCharArray);
   
 protected:
@@ -99,7 +99,7 @@ protected:
 inline void vtkPixmap::SetColor(int i, unsigned char rgba[4]) 
 {
   i *= 3; 
-  memcpy (this->S->GetPtr(i), rgba, 3);
+  memcpy (this->S->GetPointer(i), rgba, 3);
 }
 
 // Description:
@@ -127,9 +127,9 @@ inline int vtkPixmap::InsertNextColor(unsigned char *rgba)
 
 // Description:
 // Get pointer to array of data starting at data position "id".
-inline unsigned char *vtkPixmap::GetPtr(const int id)
+inline unsigned char *vtkPixmap::GetPointer(const int id)
 {
-  return this->S->GetPtr(3*id);
+  return this->S->GetPointer(3*id);
 }
 
 // Description:
@@ -137,9 +137,9 @@ inline unsigned char *vtkPixmap::GetPtr(const int id)
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
 // write. 
-inline unsigned char *vtkPixmap::WritePtr(const int id, const int number)
+inline unsigned char *vtkPixmap::WritePointer(const int id, const int number)
 {
-  return this->S->WritePtr(3*id,3*number);
+  return this->S->WritePointer(3*id,3*number);
 }
 
 #endif

@@ -53,7 +53,8 @@ vtkPixmap::vtkPixmap(const vtkPixmap& fs)
 
 vtkPixmap::vtkPixmap(const int sz, const int ext)
 {
-  this->S = new vtkUnsignedCharArray(sz, ext);
+  this->S = vtkUnsignedCharArray::New();
+  this->S->Allocate(sz, ext);
 }
 
 vtkPixmap::~vtkPixmap()
@@ -82,7 +83,7 @@ unsigned char *vtkPixmap::GetColor(int i)
 {
   static unsigned char rgba[4];
   unsigned char *_rgb;
-  _rgb = this->S->GetPtr(3*i);
+  _rgb = this->S->GetPointer(3*i);
   rgba[0] = _rgb[0];
   rgba[1] = _rgb[1];
   rgba[2] = _rgb[2];
@@ -103,7 +104,7 @@ void vtkPixmap::GetColor(int id, unsigned char rgba[4])
 {
   unsigned char *_rgb;
 
-  _rgb = this->S->GetPtr(3*id);
+  _rgb = this->S->GetPointer(3*id);
   rgba[0] = _rgb[0];
   rgba[1] = _rgb[1];
   rgba[2] = _rgb[2];

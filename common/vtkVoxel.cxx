@@ -481,23 +481,23 @@ void vtkVoxel::Derivatives(int vtkNotUsed(subId), float pcoords[3],
 {
   float functionDerivs[24], sum;
   int i, j, k;
-  float *x0, *x1, *x2, *x4, ar[3];
+  float *x0, *x1, *x2, *x4, spacing[3];
 
   x0 = this->Points.GetPoint(0);
   x1 = this->Points.GetPoint(1);
-  ar[0] = x1[0] - x0[0];
+  spacing[0] = x1[0] - x0[0];
 
   x2 = this->Points.GetPoint(2);
-  ar[1] = x2[1] - x0[1];
+  spacing[1] = x2[1] - x0[1];
 
   x4 = this->Points.GetPoint(4);
-  ar[2] = x4[2] - x0[2];
+  spacing[2] = x4[2] - x0[2];
 
   // get derivatives in r-s-t directions
   this->InterpolationDerivs(pcoords, functionDerivs);
 
   // since the x-y-z axes are aligned with r-s-t axes, only need to scale
-  // the derivative values by aspect ratio (ar).
+  // the derivative values by the data spacing.
   for (k=0; k < dim; k++) //loop over values per vertex
     {
     for (j=0; j < 3; j++) //loop over derivative directions
@@ -506,7 +506,7 @@ void vtkVoxel::Derivatives(int vtkNotUsed(subId), float pcoords[3],
         {
         sum += functionDerivs[8*j + i] * values[dim*i + k];
         }
-      derivs[3*k + j] = sum / ar[j];
+      derivs[3*k + j] = sum / spacing[j];
       }
     }
 }

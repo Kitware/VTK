@@ -54,7 +54,8 @@ vtkFloatTCoords::vtkFloatTCoords(const vtkFloatTCoords& ftc)
 
 vtkFloatTCoords::vtkFloatTCoords(int sz, int d, int ext)
 {
-  this->TC = new vtkFloatArray(d*sz,d*ext);
+  this->TC = vtkFloatArray::New();
+  this->TC->Allocate(d*sz,d*ext);
   this->Dimension = d;
 }
 

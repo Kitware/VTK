@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkShortArray_h
 #define __vtkShortArray_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 
-class VTK_EXPORT vtkShortArray : public vtkRefCount 
+class VTK_EXPORT vtkShortArray : public vtkReferenceCount 
 {
 public:
   vtkShortArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
@@ -68,8 +68,8 @@ public:
   void SetValue(const int id, const short value);
   vtkShortArray &InsertValue(const int id, const short i);
   int InsertNextValue(const int short);
-  short *GetPtr(const int id);
-  short *WritePtr(const int id, const int number);
+  short *GetPointer(const int id);
+  short *WritePointer(const int id, const int number);
 
   // special operators
   vtkShortArray &operator=(const vtkShortArray& ia);
@@ -115,13 +115,13 @@ inline void vtkShortArray::SetValue(const int id, const short value)
 
 // Description:
 // Get the address of a particular data index.
-inline short *vtkShortArray::GetPtr(const int id) {return this->Array + id;};
+inline short *vtkShortArray::GetPointer(const int id) {return this->Array + id;};
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
-inline short *vtkShortArray::WritePtr(const int id, const int number) 
+inline short *vtkShortArray::WritePointer(const int id, const int number) 
 {
   int newSize=id+number;
   if ( newSize > this->Size ) this->Resize(newSize);

@@ -68,8 +68,8 @@ public:
   void SetValue(const int id, const char c);
   vtkCharArray &InsertValue(const int id, const char c);
   int InsertNextValue(const char c);
-  char *GetPtr(const int id);
-  char *WritePtr(const int id, const int number);
+  char *GetPointer(const int id);
+  char *WritePointer(const int id, const int number);
 
   // special operators
   vtkCharArray &operator=(const vtkCharArray& ia);
@@ -114,13 +114,13 @@ inline void vtkCharArray::SetValue(const int id, const char value)
 
 // Description:
 // Get the address of a particular data index.
-inline char *vtkCharArray::GetPtr(const int id) {return this->Array + id;};
+inline char *vtkCharArray::GetPointer(const int id) {return this->Array + id;};
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
-inline char *vtkCharArray::WritePtr(const int id, const int number) 
+inline char *vtkCharArray::WritePointer(const int id, const int number) 
 {
   int newSize=id+number;
   if ( newSize > this->Size ) this->Resize(newSize);

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageData_h
 
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 #include "vtkImageSetGet.h"
 #include "vtkPointData.h"
 
@@ -106,7 +106,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-class VTK_EXPORT vtkImageData : public vtkRefCount
+class VTK_EXPORT vtkImageData : public vtkReferenceCount
 {
 public:
   vtkImageData();

@@ -63,14 +63,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkScalars_h
 #define __vtkScalars_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 
 class vtkIdList;
 class vtkFloatScalars;
 class vtkShortScalars;
 class vtkLookupTable;
 
-class VTK_EXPORT vtkScalars : public vtkRefCount 
+class VTK_EXPORT vtkScalars : public vtkReferenceCount 
 {
 public:
   vtkScalars();

@@ -302,7 +302,7 @@ vtkStructuredPointsToImage::ComputeImageInformation(vtkImageRegion *region)
 {
   vtkStructuredPoints *input;
   int size[3];
-  float aspectRatio[3];
+  float Spacing[3];
   float origin[3];
   vtkScalars *scalars;
   
@@ -314,10 +314,10 @@ vtkStructuredPointsToImage::ComputeImageInformation(vtkImageRegion *region)
   
   input = this->Input;
   input->GetDimensions(size);
-  input->GetAspectRatio(aspectRatio);
+  input->GetSpacing(Spacing);
   input->GetOrigin(origin);
   
-  region->SetAspectRatio(3, aspectRatio);
+  region->SetSpacing(3, Spacing);
   region->SetOrigin(3, origin);
   if (region->GetScalarType() == VTK_VOID)
     {

@@ -78,8 +78,8 @@ public:
   void GetPoints(vtkIdList& ptId, vtkFloatPoints& fp);
 
   // miscellaneous
-  int *GetPtr(const int id);
-  int *WritePtr(const int id, const int number);
+  int *GetPointer(const int id);
+  int *WritePointer(const int id, const int number);
   vtkIntPoints &operator=(const vtkIntPoints& fp);
   void operator+=(const vtkIntPoints& fp) {*(this->P) += *(fp.P);};
   void Reset() {this->P->Reset();};
@@ -90,9 +90,9 @@ protected:
 
 // Description:
 // Get pointer to array of data starting at data position "id".
-inline int *vtkIntPoints::GetPtr(const int id)
+inline int *vtkIntPoints::GetPointer(const int id)
 {
-  return this->P->GetPtr(id);
+  return this->P->GetPointer(id);
 }
 
 // Description:
@@ -100,14 +100,14 @@ inline int *vtkIntPoints::GetPtr(const int id)
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of points to 
 // write. 
-inline int *vtkIntPoints::WritePtr(const int id, const int number)
+inline int *vtkIntPoints::WritePointer(const int id, const int number)
 {
-  return this->P->WritePtr(id,3*number);
+  return this->P->WritePointer(id,3*number);
 }
 
 inline void vtkIntPoints::GetPoint(int id, float x[3])
 {
-  int *p=this->P->GetPtr(3*id); 
+  int *p=this->P->GetPointer(3*id); 
   x[0] = (float)p[0]; x[1] = (float)p[1]; x[2] = (float)p[2];
 }
 
@@ -134,7 +134,7 @@ inline void vtkIntPoints::SetPoint(int id, int x[3])
 
 inline void vtkIntPoints::InsertPoint(int i, int x[3]) 
 {
-  int *ptr = this->P->WritePtr(i*3,3);
+  int *ptr = this->P->WritePointer(i*3,3);
 
   *ptr++ = x[0];
   *ptr++ = x[1];
@@ -143,7 +143,7 @@ inline void vtkIntPoints::InsertPoint(int i, int x[3])
 
 inline void vtkIntPoints::InsertPoint(int i, float x[3]) 
 {
-  int *ptr = this->P->WritePtr(i*3,3);
+  int *ptr = this->P->WritePointer(i*3,3);
 
   *ptr++ = (int) x[0];
   *ptr++ = (int) x[1];
@@ -153,7 +153,7 @@ inline void vtkIntPoints::InsertPoint(int i, float x[3])
 inline int vtkIntPoints::InsertNextPoint(int x[3]) 
 {
   int id = this->P->GetMaxId() + 1;
-  int *ptr = this->P->WritePtr(id,3);
+  int *ptr = this->P->WritePointer(id,3);
 
   *ptr++ = x[0];
   *ptr++ = x[1];
@@ -165,7 +165,7 @@ inline int vtkIntPoints::InsertNextPoint(int x[3])
 inline int vtkIntPoints::InsertNextPoint(float x[3]) 
 {
   int id = this->P->GetMaxId() + 1;
-  int *ptr = this->P->WritePtr(id,3);
+  int *ptr = this->P->WritePointer(id,3);
 
   *ptr++ = (int) x[0];
   *ptr++ = (int) x[1];

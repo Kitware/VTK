@@ -59,10 +59,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkLookupTable_h
 #define __vtkLookupTable_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 #include "vtkAPixmap.h"
 
-class VTK_EXPORT vtkLookupTable : public vtkRefCount
+class VTK_EXPORT vtkLookupTable : public vtkReferenceCount
 {
 public:
   vtkLookupTable(int sze=256, int ext=256);
@@ -116,8 +116,8 @@ public:
   float *GetTableValue (int id);
   void GetTableValue (int id, float rgba[4]);
 
-  unsigned char *GetPtr(const int id);
-  unsigned char *WritePtr(const int id, const int number);
+  unsigned char *GetPointer(const int id);
+  unsigned char *WritePointer(const int id, const int number);
 
 protected:
   int NumberOfColors;
@@ -134,17 +134,17 @@ protected:
 // Description:
 // Get pointer to color table data. Format is array of unsigned char
 // r-g-b-a-r-g-b-a...
-inline unsigned char *vtkLookupTable::GetPtr(const int id)
+inline unsigned char *vtkLookupTable::GetPointer(const int id)
 {
-  return this->Table.GetPtr(id);
+  return this->Table.GetPointer(id);
 }
 // Description:
 // Get pointer to data. Useful for direct writes into object. MaxId is bumped
 // by number (and memory allocated if necessary). Id is the location you 
 // wish to write into; number is the number of rgba values to write.
-inline unsigned char *vtkLookupTable::WritePtr(const int id, const int number)
+inline unsigned char *vtkLookupTable::WritePointer(const int id, const int number)
 {
-  return this->Table.WritePtr(id,number);
+  return this->Table.WritePointer(id,number);
 }
 
 #endif

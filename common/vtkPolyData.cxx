@@ -546,19 +546,23 @@ void vtkPolyData::Allocate(int numCells, int extSize)
 {
   vtkCellArray *cells;
 
-  cells = new vtkCellArray(numCells,extSize);
+  cells = vtkCellArray::New();
+  cells->Allocate(numCells,extSize);
   this->SetVerts(cells);
   cells->Delete();
 
-  cells = new vtkCellArray(numCells,extSize);
+  cells = vtkCellArray::New();
+  cells->Allocate(numCells,extSize);
   this->SetLines(cells);
   cells->Delete();
 
-  cells = new vtkCellArray(numCells,extSize);
+  cells = vtkCellArray::New();
+  cells->Allocate(numCells,extSize);
   this->SetPolys(cells);
   cells->Delete();
 
-  cells = new vtkCellArray(numCells,extSize);
+  cells = vtkCellArray::New();
+  cells->Allocate(numCells,extSize);
   this->SetStrips(cells);
   cells->Delete();
 }

@@ -54,7 +54,8 @@ vtkFloatTensors::vtkFloatTensors(const vtkFloatTensors& ft)
 
 vtkFloatTensors::vtkFloatTensors(int sz, int d, int ext)
 {
-  this->T = new vtkFloatArray(d*d*sz,d*d*ext);
+  this->T = vtkFloatArray::New();
+  this->T->Allocate(d*d*sz,d*d*ext);
   this->Dimension = d;
 }
 
@@ -72,7 +73,7 @@ vtkTensor *vtkFloatTensors::GetTensor(int i)
   static vtkTensor t;
   t.SetDimension(this->Dimension);
 
-  t.T = this->T->GetPtr(this->Dimension*this->Dimension*i);
+  t.T = this->T->GetPointer(this->Dimension*this->Dimension*i);
   return &t;
 }
 

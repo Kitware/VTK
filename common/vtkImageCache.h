@@ -120,7 +120,7 @@ protected:
 
   // Cache the ImageExtent, to avoid recomputing the ImageExtent on each pass.
   int ImageExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  float AspectRatio[VTK_IMAGE_DIMENSIONS];
+  float Spacing[VTK_IMAGE_DIMENSIONS];
   float Origin[VTK_IMAGE_DIMENSIONS];
   vtkTimeStamp ImageInformationTime;
 

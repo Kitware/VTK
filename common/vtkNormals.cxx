@@ -84,7 +84,7 @@ void vtkNormals::GetNormals(vtkIdList& ptId, vtkFloatNormals& fp)
 
 void vtkNormals::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkRefCount::PrintSelf(os,indent);
+  vtkReferenceCount::PrintSelf(os,indent);
 
   os << indent << "Number Of Normals: " << this->GetNumberOfNormals() << "\n";
 }

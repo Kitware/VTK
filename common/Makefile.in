@@ -84,7 +84,7 @@ vtkPolygon \
 vtkPriorityQueue \
 vtkQuad \
 vtkRectilinearGrid \
-vtkRefCount \
+vtkReferenceCount \
 vtkShortArray \
 vtkShortScalars \
 vtkSource \

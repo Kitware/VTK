@@ -67,7 +67,7 @@ public:
   char *GetDataType() {return "float";};
   int GetNumberOfVectors() {return (V->GetMaxId()+1)/3;};
   void Squeeze() {this->V->Squeeze();};
-  float *GetVector(int i) {return this->V->GetPtr(3*i);};
+  float *GetVector(int i) {return this->V->GetPointer(3*i);};
   void GetVector(int i,float v[3]) {this->vtkVectors::GetVector(i,v);};
   void SetNumberOfVectors(int number);
   void SetVector(int i, float v[3]);
@@ -75,8 +75,8 @@ public:
   int InsertNextVector(float v[3]);
 
   // miscellaneous
-  float *GetPtr(const int id);
-  float *WritePtr(const int id, const int number);
+  float *GetPointer(const int id);
+  float *WritePointer(const int id, const int number);
   vtkFloatVectors &operator=(const vtkFloatVectors& fv);
   void operator+=(const vtkFloatVectors& fv){*(this->V) += *(fv.V);};
   void Reset() {this->V->Reset();};
@@ -87,9 +87,9 @@ protected:
 
 // Description:
 // Get pointer to array of data starting at data position "id".
-inline float *vtkFloatVectors::GetPtr(const int id)
+inline float *vtkFloatVectors::GetPointer(const int id)
 {
-  return this->V->GetPtr(id);
+  return this->V->GetPointer(id);
 }
 
 // Description:
@@ -97,9 +97,9 @@ inline float *vtkFloatVectors::GetPtr(const int id)
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of vectors to 
 // write. 
-inline float *vtkFloatVectors::WritePtr(const int id, const int number)
+inline float *vtkFloatVectors::WritePointer(const int id, const int number)
 {
-  return this->V->WritePtr(id,3*number);
+  return this->V->WritePointer(id,3*number);
 }
 
 inline void vtkFloatVectors::SetNumberOfVectors(int number)
@@ -117,7 +117,7 @@ inline void vtkFloatVectors::SetVector(int id, float v[3])
 
 inline void vtkFloatVectors::InsertVector(int i, float v[3]) 
 {
-  float *ptr = this->V->WritePtr(i*3,3);
+  float *ptr = this->V->WritePointer(i*3,3);
 
   *ptr++ = v[0];
   *ptr++ = v[1];
@@ -127,7 +127,7 @@ inline void vtkFloatVectors::InsertVector(int i, float v[3])
 inline int vtkFloatVectors::InsertNextVector(float v[3]) 
 {
   int id = this->V->GetMaxId() + 1;
-  float *ptr = this->V->WritePtr(id,3);
+  float *ptr = this->V->WritePointer(id,3);
 
   *ptr++ = v[0];
   *ptr++ = v[1];

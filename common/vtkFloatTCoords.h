@@ -67,7 +67,7 @@ public:
   char *GetDataType() {return "float";};
   int GetNumberOfTCoords() {return (this->TC->GetMaxId()+1)/this->Dimension;};
   void Squeeze() {this->TC->Squeeze();};
-  float *GetTCoord(int i) {return this->TC->GetPtr(this->Dimension*i);};
+  float *GetTCoord(int i) {return this->TC->GetPointer(this->Dimension*i);};
   void GetTCoord(int i,float tc[3]) {this->vtkTCoords::GetTCoord(i,tc);};
   void SetNumberOfTCoords(int number);
   void SetTCoord(int i, float *tc);
@@ -75,8 +75,8 @@ public:
   int InsertNextTCoord(float *tc);
 
   // miscellaneous
-  float *GetPtr(const int id);
-  float *WritePtr(const int id, const int number);
+  float *GetPointer(const int id);
+  float *WritePointer(const int id, const int number);
   vtkFloatTCoords &operator=(const vtkFloatTCoords& ftc);
   void operator+=(const vtkFloatTCoords& ftc) {*(this->TC) += *(ftc.TC);};
   void Reset() {this->TC->Reset();};
@@ -88,9 +88,9 @@ protected:
 
 // Description:
 // Get pointer to array of data starting at data position "id".
-inline float *vtkFloatTCoords::GetPtr(const int id)
+inline float *vtkFloatTCoords::GetPointer(const int id)
 {
-  return this->TC->GetPtr(id);
+  return this->TC->GetPointer(id);
 }
 
 // Description:
@@ -99,9 +99,9 @@ inline float *vtkFloatTCoords::GetPtr(const int id)
 // location you wish to write into; number is the number of texture coordinates to 
 // write. Make sure the dimension of the texture coordinate is set prior to issuing 
 // this call.
-inline float *vtkFloatTCoords::WritePtr(const int id, const int number)
+inline float *vtkFloatTCoords::WritePointer(const int id, const int number)
 {
-  return this->TC->WritePtr(id,this->Dimension*number);
+  return this->TC->WritePointer(id,this->Dimension*number);
 }
 
 inline void vtkFloatTCoords::SetNumberOfTCoords(int number)

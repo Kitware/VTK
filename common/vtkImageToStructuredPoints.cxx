@@ -251,7 +251,7 @@ void vtkImageToStructuredPoints::Execute()
   vtkScalars *scalars = NULL;
   vtkVectors *vectors = NULL;
   int regionExtent[8], *extent, dim[3];
-  float aspectRatio[3] = {1.0, 1.0, 1.0};
+  float Spacing[3] = {1.0, 1.0, 1.0};
   float origin[3];
   vtkStructuredPoints *output = this->GetOutput();
   
@@ -310,16 +310,16 @@ void vtkImageToStructuredPoints::Execute()
   
   // setup the structured points
   extent = region->GetExtent();
-  region->GetAspectRatio(3, aspectRatio);
+  region->GetSpacing(3, Spacing);
   region->GetOrigin(3, origin);
-  origin[0] += (float)(extent[0]) * aspectRatio[0]; 
-  origin[1] += (float)(extent[2]) * aspectRatio[1]; 
-  origin[2] += (float)(extent[4]) * aspectRatio[2];
+  origin[0] += (float)(extent[0]) * Spacing[0]; 
+  origin[1] += (float)(extent[2]) * Spacing[1]; 
+  origin[2] += (float)(extent[4]) * Spacing[2];
   dim[0] = extent[1] - extent[0] + 1;
   dim[1] = extent[3] - extent[2] + 1;
   dim[2] = extent[5] - extent[4] + 1;
   output->SetDimensions(dim);
-  output->SetAspectRatio(aspectRatio);
+  output->SetSpacing(Spacing);
   output->SetOrigin(origin);
   output->GetPointData()->SetScalars(scalars);
   output->GetPointData()->SetVectors(vectors);
@@ -629,7 +629,7 @@ static void vtkImageToStructuredPointsCopyVectors(vtkImageToStructuredPoints *se
   remainder = 2 - (max3 - min3);
   
   // Loop and copy
-  outPtr = vectors->GetPtr(0);
+  outPtr = vectors->GetPointer(0);
   inPtr2 = inPtr;
   for (idx2 = min2; idx2 <= max2; ++idx2)
     {
@@ -691,7 +691,8 @@ vtkVectors *vtkImageToStructuredPoints::VectorExecute(vtkImageRegion *region)
   this->VectorInput->UpdateRegion(region);
 
   // Copy the scalars into  vectors
-  vectors = new vtkFloatVectors(volume);
+  vectors = vtkFloatVectors::New();
+  vectors->Allocate(volume);
   ptr = region->GetScalarPointer();
   switch (region->GetScalarType())
     {

@@ -51,12 +51,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPoints_h
 #define __vtkPoints_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 
 class vtkFloatPoints;
 class vtkIdList;
 
-class VTK_EXPORT vtkPoints : public vtkRefCount 
+class VTK_EXPORT vtkPoints : public vtkReferenceCount 
 {
 public:
   vtkPoints();

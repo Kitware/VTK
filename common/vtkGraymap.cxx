@@ -54,7 +54,8 @@ vtkGraymap::vtkGraymap(const vtkGraymap& fs)
 
 vtkGraymap::vtkGraymap(const int sz, const int ext)
 {
-  this->S = new vtkUnsignedCharArray(sz, ext);
+  this->S = vtkUnsignedCharArray::New();
+  this->S->Allocate(sz, ext);
 }
 
 vtkGraymap::~vtkGraymap()

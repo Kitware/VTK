@@ -50,12 +50,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTCoords_h
 #define __vtkTCoords_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 
 class vtkIdList;
 class vtkFloatTCoords;
 
-class VTK_EXPORT vtkTCoords : public vtkRefCount
+class VTK_EXPORT vtkTCoords : public vtkReferenceCount
 {
 public:
   vtkTCoords(int dim=2);

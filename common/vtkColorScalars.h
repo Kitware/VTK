@@ -82,7 +82,7 @@ public:
 
   // Description:
   // Get pointer to array of data starting at data position "id".
-  virtual unsigned char *GetPtr(const int id) = 0;
+  virtual unsigned char *GetPointer(const int id) = 0;
 
   // abstract interface for vtkColorScalars
   // Description:

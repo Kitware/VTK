@@ -48,12 +48,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkVectors_h
 #define __vtkVectors_h
 
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 
 class vtkIdList;
 class vtkFloatVectors;
 
-class VTK_EXPORT vtkVectors : public vtkRefCount 
+class VTK_EXPORT vtkVectors : public vtkReferenceCount 
 {
 public:
   vtkVectors();

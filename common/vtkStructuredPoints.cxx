@@ -52,9 +52,9 @@ vtkStructuredPoints::vtkStructuredPoints()
   this->Dimensions[2] = 1;
   this->DataDescription = VTK_SINGLE_POINT;
   
-  this->AspectRatio[0] = 1.0;
-  this->AspectRatio[1] = 1.0;
-  this->AspectRatio[2] = 1.0;
+  this->Spacing[0] = 1.0;
+  this->Spacing[1] = 1.0;
+  this->Spacing[2] = 1.0;
 
   this->Origin[0] = 0.0;
   this->Origin[1] = 0.0;
@@ -71,9 +71,9 @@ vtkDataSet(v)
   this->Dimensions[2] = v.Dimensions[2];
   this->DataDescription = v.DataDescription;
   
-  this->AspectRatio[0] = v.AspectRatio[0];
-  this->AspectRatio[1] = v.AspectRatio[1];
-  this->AspectRatio[2] = v.AspectRatio[2];
+  this->Spacing[0] = v.Spacing[0];
+  this->Spacing[1] = v.Spacing[1];
+  this->Spacing[2] = v.Spacing[2];
 
   this->Origin[0] = v.Origin[0];
   this->Origin[1] = v.Origin[1];
@@ -102,7 +102,7 @@ void vtkStructuredPoints::CopyStructure(vtkDataSet *ds)
     {
     this->Dimensions[i] = sPts->Dimensions[i];
     this->Origin[i] = sPts->Origin[i];
-    this->AspectRatio[i] = sPts->AspectRatio[i];
+    this->Spacing[i] = sPts->Spacing[i];
     }
  }
 
@@ -183,13 +183,13 @@ vtkCell *vtkStructuredPoints::GetCell(int cellId)
   // Extract point coordinates and point ids
   for (npts=0,loc[2]=kMin; loc[2]<=kMax; loc[2]++)
     {
-    x[2] = this->Origin[2] + loc[2] * this->AspectRatio[2]; 
+    x[2] = this->Origin[2] + loc[2] * this->Spacing[2]; 
     for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
       {
-      x[1] = this->Origin[1] + loc[1] * this->AspectRatio[1]; 
+      x[1] = this->Origin[1] + loc[1] * this->Spacing[1]; 
       for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
         {
-        x[0] = this->Origin[0] + loc[0] * this->AspectRatio[0]; 
+        x[0] = this->Origin[0] + loc[0] * this->Spacing[0]; 
 
         idx = loc[0] + loc[1]*this->Dimensions[0] + loc[2]*d01;
         cell->PointIds.SetId(npts,idx);
@@ -253,7 +253,7 @@ float *vtkStructuredPoints::GetPoint(int ptId)
     }
 
   for (i=0; i<3; i++)
-    x[i] = this->Origin[i] + loc[i] * this->AspectRatio[i];
+    x[i] = this->Origin[i] + loc[i] * this->Spacing[i];
 
   return x;
 }
@@ -268,13 +268,13 @@ int vtkStructuredPoints::FindPoint(float x[3])
   for (i=0; i<3; i++) 
     {
     d = x[i] - this->Origin[i];
-    if ( d < 0.0 || d > ((this->Dimensions[i]-1)*this->AspectRatio[i]) ) 
+    if ( d < 0.0 || d > ((this->Dimensions[i]-1)*this->Spacing[i]) ) 
       {
       return -1;
       } 
     else 
       {
-      loc[i] = (int) ((d / this->AspectRatio[i]) + 0.5);
+      loc[i] = (int) ((d / this->Spacing[i]) + 0.5);
       }
     }
 //
@@ -391,14 +391,14 @@ vtkCell *vtkStructuredPoints::FindAndGetCell(float x[3], vtkCell *vtkNotUsed(cel
 
   for (npts=0,k = loc[2]; k <= kMax; k++)
     {
-    xOut[2] = this->Origin[2] + k * this->AspectRatio[2]; 
+    xOut[2] = this->Origin[2] + k * this->Spacing[2]; 
     for (j = loc[1]; j <= jMax; j++)
       {
-      xOut[1] = this->Origin[1] + j * this->AspectRatio[1]; 
+      xOut[1] = this->Origin[1] + j * this->Spacing[1]; 
       idx = loc[0] + j*this->Dimensions[0] + k*d01;
       for (i = loc[0]; i <= iMax; i++, idx++)
         {
-        xOut[0] = this->Origin[0] + i * this->AspectRatio[0]; 
+        xOut[0] = this->Origin[0] + i * this->Spacing[0]; 
 
         cell->PointIds.SetId(npts,idx);
         cell->Points.SetPoint(npts++,xOut);
@@ -439,11 +439,11 @@ void vtkStructuredPoints::ComputeBounds()
   this->Bounds[4] = this->Origin[2];
 
   this->Bounds[1] = this->Origin[0] + 
-                    (this->Dimensions[0]-1) * this->AspectRatio[0];
+                    (this->Dimensions[0]-1) * this->Spacing[0];
   this->Bounds[3] = this->Origin[1] + 
-                    (this->Dimensions[1]-1) * this->AspectRatio[1];
+                    (this->Dimensions[1]-1) * this->Spacing[1];
   this->Bounds[5] = this->Origin[2] +
-                    (this->Dimensions[2]-1) * this->AspectRatio[2];
+                    (this->Dimensions[2]-1) * this->Spacing[2];
 }
 
 // Description:
@@ -482,7 +482,7 @@ void vtkStructuredPoints::GetPointGradient(int i,int j,int k, vtkScalars *s,
                                           float g[3])
 {
   int *dims=this->Dimensions;
-  float *ar=this->AspectRatio;
+  float *ar=this->Spacing;
   int ijsize=dims[0]*dims[1];
   float sp, sm;
 
@@ -604,19 +604,19 @@ int vtkStructuredPoints::ComputeStructuredCoordinates(float x[3], int ijk[3],
   for (i=0; i<3; i++) 
     {
     d = x[i] - this->Origin[i];
-    if ( d >= 0.0 && d < ((this->Dimensions[i]-1)*this->AspectRatio[i]) )
+    if ( d >= 0.0 && d < ((this->Dimensions[i]-1)*this->Spacing[i]) )
       {
-      floatLoc[i] = d / this->AspectRatio[i];
+      floatLoc[i] = d / this->Spacing[i];
       ijk[i] = (int) floatLoc[i];
       pcoords[i] = floatLoc[i] - (float)ijk[i];
       }
 
-    else if ( d < 0.0 || d > ((this->Dimensions[i]-1)*this->AspectRatio[i]) ) 
+    else if ( d < 0.0 || d > ((this->Dimensions[i]-1)*this->Spacing[i]) ) 
       {
       return 0;
       } 
 
-    else //if ( d == ((this->Dimensions[i]-1)*this->AspectRatio[i]) ) 
+    else //if ( d == ((this->Dimensions[i]-1)*this->Spacing[i]) ) 
       {
       if (this->Dimensions[i] == 1)
         {
@@ -656,13 +656,13 @@ void vtkStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
                                   << this->Dimensions[1] << ", "
                                   << this->Dimensions[2] << ")\n";
 
-  os << indent << "AspectRatio: (" << this->AspectRatio[0] << ", "
-                                  << this->AspectRatio[1] << ", "
-                                  << this->AspectRatio[2] << ")\n";
+  os << indent << "Spacing: (" << this->Spacing[0] << ", "
+                               << this->Spacing[1] << ", "
+                               << this->Spacing[2] << ")\n";
 
   os << indent << "Origin: (" << this->Origin[0] << ", "
-                                  << this->Origin[1] << ", "
-                                  << this->Origin[2] << ")\n";
+                              << this->Origin[1] << ", "
+                              << this->Origin[2] << ")\n";
 }
 
 

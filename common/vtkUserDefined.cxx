@@ -65,7 +65,7 @@ void vtkUserDefined::GetUserDefined(vtkIdList& ptId, vtkUserDefined& ud)
 
 void vtkUserDefined::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkRefCount::PrintSelf(os,indent);
+  vtkReferenceCount::PrintSelf(os,indent);
 
   os << indent << "Number Of User Defined: " << this->GetNumberOfUserDefined() << "\n";
 }

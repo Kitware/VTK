@@ -346,7 +346,7 @@ void vtkHexahedron::Contour(float value, vtkFloatScalars *cellScalars,
   int e1, e2;
   int pts[3];
   float t, x1[3], x2[3], x[3], deltaScalar;
-  float *hexaScalars = cellScalars->GetPtr (0);
+  float *hexaScalars = cellScalars->GetPointer (0);
 
   // Build the case table
   for ( i=0, index = 0; i < 8; i++)

@@ -69,8 +69,8 @@ public:
   void SetValue(const int id, const int value);
   vtkBitArray &InsertValue(const int id, const int i);
   int InsertNextValue(const int i);
-  unsigned char *GetPtr(const int id);
-  unsigned char *WritePtr(const int id, const int number);
+  unsigned char *GetPointer(const int id);
+  unsigned char *WritePointer(const int id, const int number);
 
   // special operators
   vtkBitArray &operator=(const vtkBitArray& ia);
@@ -93,7 +93,7 @@ private:
 
 // Description:
 // Get the address of a particular data index.
-inline unsigned char *vtkBitArray::GetPtr(const int id)
+inline unsigned char *vtkBitArray::GetPointer(const int id)
 {
   return this->Array + id/8;
 };
@@ -102,7 +102,7 @@ inline unsigned char *vtkBitArray::GetPtr(const int id)
 // Get the address of a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
-inline unsigned char *vtkBitArray::WritePtr(const int id, const int number)
+inline unsigned char *vtkBitArray::WritePointer(const int id, const int number)
 {
   int newSize=id+number;
   if ( newSize > this->Size ) this->Resize(newSize);

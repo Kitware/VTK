@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkRefCount.h
+  Module:    vtkReferenceCount.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkRefCount - subclasses of this object are reference counted
+// .NAME vtkReferenceCount - subclasses of this object are reference counted
 // .SECTION Description
-// vtkRefCount is the base class for objects that are reference counted. 
+// vtkReferenceCount is the base class for objects that are reference counted. 
 // Objects that are reference counted exist as long as another object
 // uses them. Once the last reference to a reference counted object is 
 // removed, the object will spontaneously destruct. Typically only data
@@ -58,28 +58,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkLookupTable vtkTCoords vtkCellList vtkLinkList vtkNormals vtkPoints
 // vtkScalars vtkTensors vtkUserDefined vtkVectors
 
-#ifndef __vtkRefCount_h
-#define __vtkRefCount_h
+#ifndef __vtkReferenceCount_h
+#define __vtkReferenceCount_h
 
 #include "vtkObject.h"
 
-class VTK_EXPORT vtkRefCount : public vtkObject
+class VTK_EXPORT vtkReferenceCount : public vtkObject
 {
 public:
-  vtkRefCount();
+  vtkReferenceCount();
   void Delete();
-  ~vtkRefCount();
+  ~vtkReferenceCount();
   void PrintSelf(ostream& os, vtkIndent indent);
-  static vtkRefCount *New() {return new vtkRefCount;};
-  char *GetClassName() {return "vtkRefCount";};
+  static vtkReferenceCount *New() {return new vtkReferenceCount;};
+  char *GetClassName() {return "vtkReferenceCount";};
 
   void Register(vtkObject* o);
   void UnRegister(vtkObject* o);
-  int  GetRefCount() {return this->RefCount;};
+  int  GetReferenceCount() {return this->ReferenceCount;};
   void ReferenceCountingOff();
 
 private:
-  int RefCount;      // Number of uses of this object by other objects
+  int ReferenceCount;      // Number of uses of this object by other objects
   int ReferenceCounting; // Turn on/off reference counting mechanism
 };
 
@@ -88,7 +88,7 @@ private:
 // automatic reference counted objects and avoid warning messages when scope
 // is existed. (Note: It is preferable to use the combination new/Delete() 
 // to create and delete vtk objects.)
-inline void vtkRefCount::ReferenceCountingOff()
+inline void vtkReferenceCount::ReferenceCountingOff()
 {
   this->ReferenceCounting = 0;
 }

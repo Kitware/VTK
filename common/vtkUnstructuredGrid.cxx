@@ -67,7 +67,8 @@ void vtkUnstructuredGrid::Allocate (int numCells, int extSize)
   if ( numCells < 1 ) numCells = 1000;
   if ( extSize < 1 ) extSize = 1000;
 
-  this->Connectivity = new vtkCellArray(numCells,4*extSize);
+  this->Connectivity = vtkCellArray::New();
+  this->Connectivity->Allocate(numCells,4*extSize);
   this->Connectivity->Register(this);
   this->Connectivity->Delete();
 

@@ -55,10 +55,12 @@ class VTK_EXPORT vtkIdList : public vtkObject
  public:
   vtkIdList(const int sz=512, const int ext=1000);
   ~vtkIdList();
+  Allocate(const int sz=512, const int ext=1000) {return this->Ia->Allocate(sz,ext);};
+  char *GetClassName() {return "vtkIdList";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkIdList &operator=(const vtkIdList& ids) {*(this->Ia) = *(ids.Ia); return *this;};
   static vtkIdList *New() {return new vtkIdList;};
-  char *GetClassName() {return "vtkIdList";};
   void Squeeze() {this->Ia->Squeeze();};
 
   int GetNumberOfIds();
@@ -68,8 +70,8 @@ class VTK_EXPORT vtkIdList : public vtkObject
   void InsertId(const int i, const int id);
   int InsertNextId(const int id);
   int InsertUniqueId(const int id);
-  int *GetPtr(const int id);
-  int *WritePtr(const int id, const int number);
+  int *GetPointer(const int id);
+  int *WritePointer(const int id, const int number);
   void Reset() {this->Ia->Reset();};
 
   // special set operations
@@ -141,15 +143,15 @@ inline int vtkIdList::InsertUniqueId(const int id)
 
 // Description:
 // Get a pointer to a particular data index.
-inline int *vtkIdList::GetPtr(const int i) {return this->Ia->GetPtr(i);};
+inline int *vtkIdList::GetPointer(const int i) {return this->Ia->GetPointer(i);};
 
 // Description:
 // Get a pointer to a particular data index. Make sure data is allocated
 // for the number of items requested. Set MaxId according to the number of
 // data values requested.
-inline int *vtkIdList::WritePtr(const int i, const int number)
+inline int *vtkIdList::WritePointer(const int i, const int number)
 {
-  return this->Ia->WritePtr(i,number);
+  return this->Ia->WritePointer(i,number);
 }
 
 // Description:

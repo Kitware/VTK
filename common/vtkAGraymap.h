@@ -81,8 +81,8 @@ public:
   vtkAGraymap &operator=(const vtkAGraymap& fs);
   void operator+=(const vtkAGraymap& fs) {*(this->S) += *(fs.S);};
   void Reset() {this->S->Reset();};
-  unsigned char *GetPtr(const int id);
-  unsigned char *WritePtr(const int id, const int number);
+  unsigned char *GetPointer(const int id);
+  unsigned char *WritePointer(const int id, const int number);
 
   // vtkColorScalar interface.
   unsigned char *GetColor(int id);
@@ -100,7 +100,7 @@ public:
   int InsertNextAGrayValue(unsigned char ga[2]);
 
   // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
-  vtkSetRefCountedObjectMacro(S, vtkUnsignedCharArray);
+  vtkSetReferenceCountedObjectMacro(S, vtkUnsignedCharArray);
   vtkGetObjectMacro(S, vtkUnsignedCharArray);
 
 protected:
@@ -151,9 +151,9 @@ inline int vtkAGraymap::InsertNextColor(unsigned char rgba[4])
 // Description:
 // Get pointer to array of data starting at data position "id". Form of
 // data is a list of repeated intensity/alpha pairs.
-inline unsigned char *vtkAGraymap::GetPtr(const int id)
+inline unsigned char *vtkAGraymap::GetPointer(const int id)
 {
-  return this->S->GetPtr(2*id);
+  return this->S->GetPointer(2*id);
 }
 
 // Description:
@@ -161,9 +161,9 @@ inline unsigned char *vtkAGraymap::GetPtr(const int id)
 // bumped by number (and memory allocated if necessary). Id is the 
 // location you wish to write into; number is the number of scalars to 
 // write. 
-inline unsigned char *vtkAGraymap::WritePtr(const int id, const int number)
+inline unsigned char *vtkAGraymap::WritePointer(const int id, const int number)
 {
-  return this->S->WritePtr(2*id,2*number);
+  return this->S->WritePointer(2*id,2*number);
 }
 
 #endif

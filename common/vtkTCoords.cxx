@@ -96,7 +96,7 @@ void vtkTCoords::GetTCoords(vtkIdList& ptId, vtkFloatTCoords& ftc)
 
 void vtkTCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkRefCount::PrintSelf(os,indent);
+  vtkReferenceCount::PrintSelf(os,indent);
 
   os << indent << "Number Of Texture Coordinates: " << this->GetNumberOfTCoords() << "\n";
   os << indent << "Texture Dimension: " << this->Dimension << "\n";

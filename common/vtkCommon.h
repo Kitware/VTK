@@ -95,7 +95,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyVertex.h"
 #include "vtkPolygon.h"
 #include "vtkQuad.h"
-#include "vtkRefCount.h"
+#include "vtkReferenceCount.h"
 #include "vtkScalars.h"
 #include "vtkShortArray.h"
 #include "vtkShortScalars.h"

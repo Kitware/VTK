@@ -53,7 +53,7 @@ vtkImageCache::vtkImageCache()
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     this->DataOrder[idx] = idx;
-    this->AspectRatio[idx] = 1.0;
+    this->Spacing[idx] = 1.0;
     this->Origin[idx] = 0.0;
     this->ImageExtent[idx*2] = this->ImageExtent[idx*2+1] = 0;
     }
@@ -168,7 +168,7 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
     // Choose some constant coordinate system.
     region->SetAxes(1, 2, 3, 4, 0);
     region->GetImageExtent(this->ImageExtent);
-    region->GetAspectRatio(this->AspectRatio);
+    region->GetSpacing(this->Spacing);
     region->GetOrigin(this->Origin);
     this->ImageInformationTime.Modified();
 
@@ -189,7 +189,7 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
   // Image extent Are saved in some constant coordinate system.
   region->SetAxes(1, 2, 3, 4, 0);
   region->SetImageExtent(this->ImageExtent);
-  region->SetAspectRatio(this->AspectRatio);
+  region->SetSpacing(this->Spacing);
   region->SetOrigin(this->Origin);
 
   // The cache will change the data type if it has to

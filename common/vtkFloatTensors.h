@@ -75,8 +75,8 @@ public:
   int InsertNextTensor(vtkTensor *t);
 
   // miscellaneous
-  float *GetPtr(const int id);
-  float *WritePtr(const int id, const int number);
+  float *GetPointer(const int id);
+  float *WritePointer(const int id, const int number);
   vtkFloatTensors &operator=(const vtkFloatTensors& ft);
   void operator+=(const vtkFloatTensors& ft) {*(this->T) += *(ft.T);};
   void Reset() {this->T->Reset();};
@@ -87,9 +87,9 @@ protected:
 
 // Description:
 // Get pointer to array of data starting at data position "id".
-inline float *vtkFloatTensors::GetPtr(const int id)
+inline float *vtkFloatTensors::GetPointer(const int id)
 {
-  return this->T->GetPtr(id);
+  return this->T->GetPointer(id);
 }
 
 // Description:
@@ -98,9 +98,9 @@ inline float *vtkFloatTensors::GetPtr(const int id)
 // location you wish to write into; number is the number of tensors to 
 // write. 
 // Make sure the dimension of the tensor is set prior to issuing this call.
-inline float *vtkFloatTensors::WritePtr(const int id, const int number)
+inline float *vtkFloatTensors::WritePointer(const int id, const int number)
 {
-  return this->T->WritePtr(id,this->Dimension*this->Dimension*number);
+  return this->T->WritePointer(id,this->Dimension*this->Dimension*number);
 }
 
 inline int vtkFloatTensors::Allocate(const int sz, const int dim,const int ext) 
