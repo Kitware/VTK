@@ -85,3 +85,8 @@ ENDIF (VTK_USE_RENDERING)
 ADD_TEST(PrintSelf-Hybrid ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  
          ${VTK_SOURCE_DIR}/Hybrid)
+
+ADD_TEST(TestSetObjectMacro-Hybrid ${TCL_TCLSH}
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
+	 "${VTK_SOURCE_DIR}/Hybrid/vtk\\\\*.h"
+	 "vtkSetObjectMacro")
