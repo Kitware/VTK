@@ -149,9 +149,12 @@ vtkMPICommunicator::vtkMPICommunicator()
 vtkMPICommunicator::~vtkMPICommunicator()
 {
   // Free the handle if required and asked for.
-  if (this->Handle && !this->KeepHandle)
+  if (this->Handle && !this->KeepHandle )
     {
-    MPI_Comm_free(this->Handle);
+    if (*(this->Handle) != MPI_COMM_NULL)
+      {
+      MPI_Comm_free(this->Handle);
+      }
     }
   delete this->Handle;
   this->SetGroup(0);
