@@ -49,6 +49,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSet.h"
 #include "vtkFilter.h"
+#include "vtkImageCache.h"
+#include "vtkImageToStructuredPoints.h"
 
 class vtkPolyData;
 class vtkStructuredPoints;
@@ -91,6 +93,9 @@ public:
   vtkSetObjectMacro(Scalars,vtkDataSet);
   vtkGetObjectMacro(Scalars,vtkDataSet);
   
+  void SetScalars(vtkImageCache *cache)
+    {this->SetScalars(cache->GetImageToStructuredPoints()->GetOutput());}
+
   // Description:
   // Specify object from which to extract vector information.
   vtkSetObjectMacro(Vectors,vtkDataSet);
