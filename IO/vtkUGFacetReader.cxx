@@ -124,7 +124,7 @@ void vtkUGFacetReader::Execute()
   int triEstimate;
 
   vtkDebugMacro(<<"Reading UG facet file...");
-  if ( this->FileName == NULL )
+  if ( this->FileName == NULL || strlen(this->FileName) == 0)
     {
     vtkErrorMacro(<<"No FileName specified...please specify one.");
     return;
@@ -306,7 +306,7 @@ int vtkUGFacetReader::GetNumberOfParts()
   FILE *fp;
   int numberOfParts;
 
-  if ( this->FileName == NULL )
+  if ( this->FileName == NULL || strlen(this->FileName) == 0)
     {
     vtkErrorMacro(<<"No FileName specified...please specify one.");
     return 0;
