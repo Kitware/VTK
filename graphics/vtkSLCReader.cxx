@@ -236,7 +236,7 @@ void vtkSLCReader::Execute()
     }
   }
 
-  delete scan_ptr;
+  delete [] scan_ptr;
 
   vtkDebugMacro(<< "Read " << volume_size << " points");
 
