@@ -32,8 +32,8 @@ vtkElevationFilter el
 
 vtkQuadricDecimation mesh
   mesh SetInput [el GetOutput]
-  mesh SetMaximumCost 6
-  mesh SetMaximumCollapsedEdges 1
+  mesh SetMaximumCost 850
+  mesh SetMaximumCollapsedEdges 5
 
 vtkPolyDataMapper mapper
   mapper SetInput [mesh GetOutput]
