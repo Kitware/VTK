@@ -181,16 +181,22 @@ void vtkOpenGLVolumeRayCastMapper::RenderTexture( vtkVolume *vol,
                 this->ImageMemorySize[0], this->ImageMemorySize[1], 
                 0, GL_RGBA, GL_UNSIGNED_BYTE, this->Image );
 #endif
-
+  float offsetX = .5 / static_cast<float>(this->ImageMemorySize[0]);
+  float offsetY = .5 / static_cast<float>(this->ImageMemorySize[1]);
+  
   float tcoords[8];
-  tcoords[0]  = 0.0;
-  tcoords[1]  = 0.0;
-  tcoords[2]  = (float)this->ImageInUseSize[0]/(float)this->ImageMemorySize[0];
-  tcoords[3]  = 0.0;
-  tcoords[4]  = (float)this->ImageInUseSize[0]/(float)this->ImageMemorySize[0];
-  tcoords[5]  = (float)this->ImageInUseSize[1]/(float)this->ImageMemorySize[1];
-  tcoords[6]  = 0.0;
-  tcoords[7]  = (float)this->ImageInUseSize[1]/(float)this->ImageMemorySize[1];
+  tcoords[0]  = 0.0 + offsetX;
+  tcoords[1]  = 0.0 + offsetY;
+  tcoords[2]  = 
+    (float)this->ImageInUseSize[0]/(float)this->ImageMemorySize[0] - offsetX;
+  tcoords[3]  = + offsetY;
+  tcoords[4]  = 
+    (float)this->ImageInUseSize[0]/(float)this->ImageMemorySize[0] - offsetX;
+  tcoords[5]  = 
+    (float)this->ImageInUseSize[1]/(float)this->ImageMemorySize[1] - offsetY;
+  tcoords[6]  = offsetX;
+  tcoords[7]  = 
+    (float)this->ImageInUseSize[1]/(float)this->ImageMemorySize[1] - offsetY;
   
   // Render the polygon
   glBegin( GL_POLYGON );
