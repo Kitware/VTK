@@ -61,8 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdList.h"
 
 typedef struct {
-  float GeometricQuadric[10];
-  float *AttributeQuadric;
+  float *Quadric;
 } VTK_ERROR_QUADRIC;
 
 class VTK_EXPORT vtkQuadricDecimation : public vtkPolyDataToPolyDataFilter
@@ -77,6 +76,11 @@ public:
   // Set/Get the maximum allowable cost of collapsing an edge.
   vtkSetMacro(MaximumCost, float);
   vtkGetMacro(MaximumCost, float);
+  
+  // Description:
+  // Set/Get the maximum number of edges to collapse.
+  vtkSetMacro(MaximumCollapsedEdges, int);
+  vtkGetMacro(MaximumCollapsedEdges, int);
   
 protected:
   vtkQuadricDecimation();
@@ -98,25 +102,34 @@ protected:
   // Description:
   // Compute cost for contracting this edge and the point that gives us this
   // cost.
-  float ComputeCost(int edgeId, float x[3]);
+  float ComputeCost(int edgeId, float x[3], vtkPointData *pd);
 
   // Description:
   // Find all edges that will have an endpoint change ids because of an edge
   // collapse.  p1Id and p2Id are the endpoints of the edge.  p2Id is the
   // pointId being removed.
-  void FindAffectedEdges(int p1Id, int p2Id, vtkIdList *edges,
-                         vtkPolyData *mesh);
+  void FindAffectedEdges(int p1Id, int p2Id, vtkIdList *edges);
   
   // Description:
   // Find a cell that uses this edge.
-  int GetEdgeCellId(int p1Id, int p2Id, vtkPolyData *mesh);
+  int GetEdgeCellId(int p1Id, int p2Id);
+  
+  // Description:
+  // Find out how many components there are for each attribute for this
+  // poly data.
+  void GetAttributeComponents();
   
   float MaximumCost;
+  int MaximumCollapsedEdges;
+  int NumberOfCollapsedEdges;
   vtkEdgeTable *Edges;
   vtkIdList *EndPoint1List;
   vtkIdList *EndPoint2List;
   vtkPriorityQueue *EdgeCosts;
   VTK_ERROR_QUADRIC *ErrorQuadrics;
+  int AttributeComponents[6];
+  int NumberOfComponents;
+  vtkPolyData *Mesh;
 };
 
 #endif
