@@ -158,7 +158,7 @@ void vtkExtractUnstructuredGridPiece::Execute()
   outPD->CopyAllocate(pd);
   outCD->CopyAllocate(cd);
 
-  if (this->CreateGhostCells)
+  if (ghostLevel > 0 && this->CreateGhostCells)
     {
     cellGhostLevels = vtkUnsignedCharArray::New();
     pointGhostLevels = vtkUnsignedCharArray::New();

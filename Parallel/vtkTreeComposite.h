@@ -217,7 +217,7 @@ protected:
   // the compositer's render window (not exactly true).
   void SetRenderWindowInteractor(vtkRenderWindowInteractor *iren);
 
-  void ComputeVisiblePropBounds(vtkRenderer *ren, float bounds[6]);
+  virtual void ComputeVisiblePropBounds(vtkRenderer *ren, float bounds[6]);
 
   // Arrays for compositing.
   float *PData;
