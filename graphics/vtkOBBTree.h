@@ -83,7 +83,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // Special class defines node for the OBB tree
 //
-//BTX - begin tcl exclude
+//BTX
 //
 class vtkOBBNode { //;prevent man page generation
 public:
@@ -98,7 +98,7 @@ public:
   void DebugPrintTree( int level, double *leaf_vol, int *minCells,
                        int *maxCells );
 };
-//ETX - end tcl exclude
+//ETX
 //
 
 class VTK_EXPORT vtkOBBTree : public vtkCellLocator
@@ -140,6 +140,7 @@ public:
   // Description:
   // Returns true if nodeB and nodeA are disjoint after optional
   // transformation of nodeB with matrix XformBtoA
+  //BTX
   int DisjointOBBNodes( vtkOBBNode *nodeA, vtkOBBNode *nodeB,
                         vtkMatrix4x4 *XformBtoA );
 
@@ -179,6 +180,7 @@ public:
   // the relative diameter of the OBB compared to the diameter (d).
   void GenerateRepresentation(int level, vtkPolyData *pd);
 
+  //BTX
 protected:
   // Compute an OBB from the list of cells given.  This used to be
   // public but should not have been.  A public call has been added
@@ -197,6 +199,7 @@ protected:
   void GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel, 
                         vtkPoints* pts, vtkCellArray *polys);
 
+  //ETX
 };
 
 #endif
