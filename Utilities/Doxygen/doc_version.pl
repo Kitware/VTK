@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-11-19 10:05:31 barre>
+# Time-stamp: <2002-07-29 11:09:58 barre>
 #
 # Extract VTK version and add it to documentation
 #
@@ -149,15 +149,15 @@ print DEST_FILE
   "  $revision\n",
   "  $date\n",
   "  \@par Useful links:\n",
-  "  \@li VTK Home: http://public.kitware.com/VTK\n",
+  "  \@li VTK Home: http://www.vtk.org\n",
   "  \@li VTK Mailing-list: http://public.kitware.com/mailman/listinfo/vtkusers\n",
   "  \@li VTK FAQ: http://public.kitware.com/cgi-bin/vtkfaq\n",
   "  \@li VTK Search: http://www.kitware.com/search.html\n",
-  "  \@li VTK Dashboard: http://public.kitware.com/VTK/Testing/Dashboard/MostRecentResults-Nightly/Dashboard.html",
+  "  \@li VTK Dashboard: http://www.vtk.org/Testing/Dashboard/MostRecentResults-Nightly/Dashboard.html",
   "  \@li VTK-Doxygen scripts (Sebastien Barre): http://www.barre.nom.fr/vtk/doc/README\n",
   "  \@li Kitware Home: http://www.kitware.com\n",
   "  \@li Sebastien's VTK Links: http://www.barre.nom.fr/vtk/links.html\n",
-  "  \@li Other Links: http://public.kitware.com/VTK/links.php\n",
+  "  \@li Other Links: http://www.vtk.org/links.php\n",
   " ",
   "*/\n\n";
 

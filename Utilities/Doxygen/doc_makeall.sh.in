@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2002-07-10 10:06:08 barre>
+# modified by S. Barre (Time-stamp: <2002-07-29 11:09:48 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -154,17 +154,17 @@ export RESULTING_HTML_TARZ_ARCHIVE_FILE="$DOXTEMP/vtk4-html.tar.gz"
 # using wget and stored in the destination dir. It will be automatically 
 # deleted at the end of this script.
 # Note: your doxyfile must be tailored to make use-of or create this tag file.
-#    (using TAGFILES = vtk4-nightly.tag=http://public.kitware.com/VTK/doc/nightly/html
+#    (using TAGFILES = vtk4-nightly.tag=http://www.vtk.org/doc/nightly/html
 #        or GENERATE_TAGFILE = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk4.tag")
 # Example: 
 #   DOWNLOAD_VTK_TAGFILE=OFF
 #   VTK_TAGFILE=vtk4-nightly.tag
-#   VTK_TAGFILE_REMOTE_DIR=http://public.kitware.com/VTK/doc/nightly/html
+#   VTK_TAGFILE_REMOTE_DIR=http://www.vtk.org/doc/nightly/html
 #   VTK_TAGFILE_DEST_DIR=$DOXTEMP
 #
 export DOWNLOAD_VTK_TAGFILE=OFF
 export VTK_TAGFILE=vtk4-nightly.tag
-export VTK_TAGFILE_REMOTE_DIR=http://public.kitware.com/VTK/doc/nightly
+export VTK_TAGFILE_REMOTE_DIR=http://www.vtk.org/doc/nightly
 export VTK_TAGFILE_DEST_DIR="$DOXTEMP"
 
 # ----------------------------------------------------------------------------

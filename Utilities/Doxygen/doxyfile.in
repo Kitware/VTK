@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # doxyfile for VTK
-# modified by S. Barre (Time-stamp: <2002-02-04 18:39:27 barre>
+# modified by S. Barre (Time-stamp: <2002-07-29 11:10:05 barre>
 # -------------------------------------------------------------------------
 
 PROJECT_NAME         = VTK
@@ -54,7 +54,7 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_events.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_index.dox"
 
-# TAGFILES           = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk4-nightly.tag"=http://public.kitware.com/VTK/doc/nightly/html
+# TAGFILES           = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk4-nightly.tag"=http://www.vtk.org/doc/nightly/html
 
 EXTRACT_ALL          = YES
 EXTRACT_PRIVATE      = NO
