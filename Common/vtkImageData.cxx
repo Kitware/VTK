@@ -120,6 +120,7 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
     this->Extent[i+3] = sPts->Extent[i+3];
     this->Dimensions[i] = sPts->Dimensions[i];
     this->Spacing[i] = sPts->Spacing[i];
+    this->Origin[i] = sPts->Origin[i];
     }
   this->NumberOfScalarComponents = sPts->NumberOfScalarComponents;
   this->ScalarType = sPts->ScalarType;
