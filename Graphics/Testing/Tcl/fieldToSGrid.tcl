@@ -51,10 +51,10 @@ vtkFieldDataToAttributeDataFilter fd2ad
     fd2ad SetInput [do2ds GetStructuredGridOutput]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
-    fd2ad SetVectorComponent 0 vectors 0 
-    fd2ad SetVectorComponent 1 vectors 1 
-    fd2ad SetVectorComponent 2 vectors 2 
-    fd2ad SetScalarComponent 0 scalars 0 
+    fd2ad SetVectorComponent 0 Momentum 0 
+    fd2ad SetVectorComponent 1 Momentum 1 
+    fd2ad SetVectorComponent 2 Momentum 2 
+    fd2ad SetScalarComponent 0 Density 0 
 
 # create pipeline
 #
