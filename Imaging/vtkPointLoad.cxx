@@ -20,15 +20,15 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointLoad, "1.40");
+vtkCxxRevisionMacro(vtkPointLoad, "1.41");
 vtkStandardNewMacro(vtkPointLoad);
 
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
 // and LoadValue = 1.
 vtkPointLoad::vtkPointLoad()
 {
- this->LoadValue = 1.0;
-
+  this->LoadValue = 1.0;
+  
   this->ModelBounds[0] = -1.0;
   this->ModelBounds[1] = 1.0;
   this->ModelBounds[2] = -1.0;
@@ -40,7 +40,6 @@ vtkPointLoad::vtkPointLoad()
   this->SampleDimensions[1] = 50;
   this->SampleDimensions[2] = 50;
 
-  this->ComputeEffectiveStress = 1;
   this->PoissonsRatio = 0.3;
 }
 
@@ -75,47 +74,66 @@ void vtkPointLoad::SetSampleDimensions(int dim[3])
     }
 }
 
+void vtkPointLoad::ExecuteInformation()
+{
+  vtkImageData *output = this->GetOutput();
+
+  // use model bounds
+  output->SetOrigin(this->ModelBounds[0],
+                    this->ModelBounds[2],
+                    this->ModelBounds[4]);
+
+  // Set volume origin and data spacing
+  int i;  
+  float spacing[3];
+  for (i=0; i<3; i++)
+    {
+    spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+      / (this->SampleDimensions[i] - 1);
+    if ( spacing[i] <= 0.0 )
+      {
+      spacing[i] = 1.0;
+      }
+    }
+  output->SetSpacing(spacing);
+  
+  output->SetWholeExtent(0, this->SampleDimensions[0] - 1, 
+                         0, this->SampleDimensions[1] - 1, 
+                         0, this->SampleDimensions[2] - 1);
+  output->SetScalarType(VTK_FLOAT);
+  output->SetNumberOfScalarComponents(1);
+}
+
 //
 // Generate tensors and scalars for point load on semi-infinite domain.
 //
-void vtkPointLoad::Execute()
+void vtkPointLoad::ExecuteData(vtkDataObject *outp)
 {
   int i, j, k;
   vtkFloatArray *newTensors;
   float tensor[9];
-  vtkFloatArray *newScalars = NULL;
   vtkIdType numPts;
   float P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
   float x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
-  float sx, sy, sz, seff, spacing[3], origin[3];
-  vtkStructuredPoints *output = this->GetOutput();
-
+  float sx, sy, sz, seff;
+  vtkImageData *output = this->AllocateOutputData(outp);
+  vtkFloatArray *newScalars = 
+    vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
+  float *spacing, *origin;
+  
   vtkDebugMacro(<< "Computing point load stress tensors");
+
   //
   // Initialize self; create output objects
   //
-
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
+  spacing = output->GetSpacing();
+  origin = output->GetOrigin();
   newTensors = vtkFloatArray::New();
   newTensors->SetNumberOfComponents(9);
   newTensors->Allocate(9*numPts);
-  if ( this->ComputeEffectiveStress ) 
-    {
-    newScalars = vtkFloatArray::New();
-    newScalars->Allocate(numPts);
-    }
 
-  // Compute origin and data spacing
-  output->SetDimensions(this->GetSampleDimensions());
-  for (i=0; i < 3; i++)
-    {
-    origin[i] = this->ModelBounds[2*i];
-    spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
-            / (this->SampleDimensions[i] - 1);
-    }
-  output->SetOrigin(origin);
-  output->SetSpacing(spacing);
   //
   // Compute the location of the load
   //
@@ -128,7 +146,7 @@ void vtkPointLoad::Execute()
   //
   twoPi = 2.0*vtkMath::Pi();
   P = -this->LoadValue;
-
+  int pointCount = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
     {
     z = xP[2] - (origin[2] + k*spacing[2]);
@@ -152,11 +170,9 @@ void vtkPointLoad::Execute()
           tensor[2] = 0.0; // Component(2,0);
           tensor[5] = 0.0; // Component(2,1);
           newTensors->InsertNextTuple(tensor);
-          if ( this->ComputeEffectiveStress )
-            {
-            float val = VTK_LARGE_FLOAT;
-            newScalars->InsertNextTuple(&val);
-            }
+          float val = VTK_LARGE_FLOAT;
+          newScalars->InsertTuple(pointCount,&val);
+          pointCount++;
           continue;
           }
 
@@ -196,12 +212,11 @@ void vtkPointLoad::Execute()
         tensor[5] = tyz; // Component(2,1);
         newTensors->InsertNextTuple(tensor);
 
-        if ( this->ComputeEffectiveStress )
-          {
-          seff = 0.333333* sqrt ((sx-sy)*(sx-sy) + (sy-sz)*(sy-sz) +
-                 (sz-sx)*(sz-sx) + 6.0*txy*txy + 6.0*tyz*tyz + 6.0*txz*txz);
-          newScalars->InsertNextTuple(&seff);
-          }
+        seff = 0.333333* sqrt ((sx-sy)*(sx-sy) + (sy-sz)*(sy-sz) +
+                               (sz-sx)*(sz-sx) + 6.0*txy*txy + 6.0*tyz*tyz + 
+                               6.0*txz*txz);
+        newScalars->InsertTuple(pointCount,&seff);
+        pointCount++;
         }
       }
     }
@@ -210,13 +225,6 @@ void vtkPointLoad::Execute()
   //
   output->GetPointData()->SetTensors(newTensors);
   newTensors->Delete();
-
-  if ( this->ComputeEffectiveStress)
-    {
-    output->GetPointData()->SetScalars(newScalars);
-    newScalars->Delete();
-    }
-  
 }
 
 
@@ -233,8 +241,5 @@ void vtkPointLoad::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
   os << indent << "Poisson's Ratio: " << this->PoissonsRatio << "\n";
-  os << indent << "Compute Effective Stress: " << 
-        (this->ComputeEffectiveStress ? "On\n" : "Off\n");
-  
 }
 
