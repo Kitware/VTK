@@ -140,7 +140,8 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     case 1: fprintf(fp, " *"); break; /* act " &" */
     case 2: fprintf(fp, "&&"); break;
     case 3: 
-      if ((i == MAX_ARGS)||(aType%10 == 9)||(aType == 303)||(aType == 302))
+      if ((i == MAX_ARGS)||(aType%10 == 9)||(aType%1000 == 303)
+	  ||(aType%1000 == 302))
 	{
 	fprintf(fp, " *"); 
 	}
@@ -154,7 +155,8 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
   
   /* handle arrays */
   if ((aType%1000/100 == 3)&&
-      (i != MAX_ARGS)&&(aType%10 != 9)&&(aType != 303)&&(aType != 302))
+      (i != MAX_ARGS)&&(aType%10 != 9)&&(aType%1000 != 303)
+      &&(aType%1000 != 302))
     {
     fprintf(fp,"[%i]",aCount);
     }
@@ -464,14 +466,14 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	      {
 	      fprintf(fp,",");
 	      }
-	    if (currentFunction->ArgTypes[i] == 109)
+	    if (currentFunction->ArgTypes[i]%1000 == 109)
 	      {
 	      fprintf(fp,"*(temp%i)",i);
 	      }
 	    else if (currentFunction->NumberOfArguments == 1 
 		     && currentFunction->ArgTypes[i] == 5000)
 	      {
-	      fprintf(fp,"((temp0 == Py_None) ? vtkPythonVoidFunc : NULL),(void *)temp%i",i);
+	      fprintf(fp,"((temp0 != Py_None) ? vtkPythonVoidFunc : NULL),(void *)temp%i",i);
 	      }
 	    else
 	      {
@@ -547,28 +549,28 @@ void outputFunction(FILE *fp, FileInfo *data)
   /* check to see if we can handle the args */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
-    if (currentFunction->ArgTypes[i] == 9) args_ok = 0;
+    if (currentFunction->ArgTypes[i]%1000 == 9) args_ok = 0;
     if ((currentFunction->ArgTypes[i]%10) == 8) args_ok = 0;
     if (((currentFunction->ArgTypes[i]%1000)/100 != 3)&&
 	(currentFunction->ArgTypes[i]%1000 != 109)&&
 	((currentFunction->ArgTypes[i]%1000)/100)) args_ok = 0;
-    if (currentFunction->ArgTypes[i] == 313) args_ok = 0;
-    if (currentFunction->ArgTypes[i] == 314) args_ok = 0;
-    if (currentFunction->ArgTypes[i] == 315) args_ok = 0;
-    if (currentFunction->ArgTypes[i] == 316) args_ok = 0;
+    if (currentFunction->ArgTypes[i]%1000 == 313) args_ok = 0;
+    if (currentFunction->ArgTypes[i]%1000 == 314) args_ok = 0;
+    if (currentFunction->ArgTypes[i]%1000 == 315) args_ok = 0;
+    if (currentFunction->ArgTypes[i]%1000 == 316) args_ok = 0;
     }
   if ((currentFunction->ReturnType%10) == 8) args_ok = 0;
-  if (currentFunction->ReturnType == 9) args_ok = 0;
+  if (currentFunction->ReturnType%1000 == 9) args_ok = 0;
   if (((currentFunction->ReturnType%1000)/100 != 3)&&
       (currentFunction->ReturnType%1000 != 109)&&
       ((currentFunction->ReturnType%1000)/100)) args_ok = 0;
 
 
   /* eliminate unsigned char * and unsigned short * */
-  if (currentFunction->ReturnType == 313) args_ok = 0;
-  if (currentFunction->ReturnType == 314) args_ok = 0;
-  if (currentFunction->ReturnType == 315) args_ok = 0;
-  if (currentFunction->ReturnType == 316) args_ok = 0;
+  if (currentFunction->ReturnType%1000 == 313) args_ok = 0;
+  if (currentFunction->ReturnType%1000 == 314) args_ok = 0;
+  if (currentFunction->ReturnType%1000 == 315) args_ok = 0;
+  if (currentFunction->ReturnType%1000 == 316) args_ok = 0;
 
   if (currentFunction->NumberOfArguments && 
       (currentFunction->ArgTypes[0] == 5000)
@@ -579,9 +581,9 @@ void outputFunction(FILE *fp, FileInfo *data)
     {
     if (((currentFunction->ArgTypes[i]%1000)/100 == 3)&&
 	(currentFunction->ArgCounts[i] <= 0)&&
-	(currentFunction->ArgTypes[i] != 309)&&
-	(currentFunction->ArgTypes[i] != 303)&&
-        (currentFunction->ArgTypes[i] != 302)) args_ok = 0;
+	(currentFunction->ArgTypes[i]%1000 != 309)&&
+	(currentFunction->ArgTypes[i]%1000 != 303)&&
+        (currentFunction->ArgTypes[i]%1000 != 302)) args_ok = 0;
     }
 
   /* if we need a return type hint make sure we have one */
