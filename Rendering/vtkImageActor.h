@@ -80,6 +80,7 @@ public:
   // In either case the boudns is expressed as a 6-vector 
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   double *GetBounds();
+  void GetBounds(double bounds[6]) { this->Superclass::GetBounds(bounds); };
 
   // Description:
   // Get the bounds of the data that is displayed by this image
