@@ -20,9 +20,7 @@ void Test(ostream& strm, vtkLookupTable *lut1)
 {
   // actual test
  
-  lut1->SetRange(0,1023);
-  lut1->SetScaleToLinear();
-  
+  lut1->SetRange(1,1024);
 
   lut1->Allocate (1024);
   lut1->SetRampToLinear();
@@ -118,6 +116,7 @@ int main(int argc, char* argv[])
   vtkLookupTable *lut1 = vtkLookupTable::New();
   cout << "Test vtkLookupTable Start" << endl;
   lut1->SetAlpha(1.0);
+  lut1->SetScaleToLinear();
   Test(cout, lut1);
   lut1->SetAlpha(.5);
   Test(cout, lut1);
@@ -127,6 +126,7 @@ int main(int argc, char* argv[])
   vtkLogLookupTable *lut2 = vtkLogLookupTable::New();
   cout << "Test vtkLogLookupTable Start" << endl;
   lut2->SetAlpha(1.0);
+  lut2->SetScaleToLog10();
   Test(cout, lut2);
   lut2->SetAlpha(.5);
   Test(cout, lut2);
