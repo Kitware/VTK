@@ -54,7 +54,7 @@ vtkVolume16Reader::vtkVolume16Reader()
   this->Transform = NULL;
 }
 
-void vtkVolume16Reader::SetFileByteOrderToBigEndian()
+void vtkVolume16Reader::SetDataByteOrderToBigEndian()
 {
 #ifndef VTK_WORDS_BIGENDIAN
   this->SwapBytesOn();
@@ -63,7 +63,7 @@ void vtkVolume16Reader::SetFileByteOrderToBigEndian()
 #endif
 }
 
-void vtkVolume16Reader::SetFileByteOrderToLittleEndian()
+void vtkVolume16Reader::SetDataByteOrderToLittleEndian()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   this->SwapBytesOn();
@@ -72,15 +72,15 @@ void vtkVolume16Reader::SetFileByteOrderToLittleEndian()
 #endif
 }
 
-void vtkVolume16Reader::SetFileByteOrder(int byteOrder)
+void vtkVolume16Reader::SetDataByteOrder(int byteOrder)
 {
   if ( byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN )
-    this->SetFileByteOrderToBigEndian();
+    this->SetDataByteOrderToBigEndian();
   else
-    this->SetFileByteOrderToLittleEndian();
+    this->SetDataByteOrderToLittleEndian();
 }
 
-int vtkVolume16Reader::GetFileByteOrder()
+int vtkVolume16Reader::GetDataByteOrder()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
@@ -95,7 +95,7 @@ int vtkVolume16Reader::GetFileByteOrder()
 #endif
 }
 
-char *vtkVolume16Reader::GetFileByteOrderAsString()
+char *vtkVolume16Reader::GetDataByteOrderAsString()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
@@ -235,8 +235,15 @@ vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
   int status;
   char filename[1024];
 
-  // build the file name
-  sprintf (filename, this->FilePattern, this->FilePrefix, sliceNumber);
+  // build the file name. if there is no prefix, just use the slice number
+  if (this->FilePattern)
+    {
+    sprintf (filename, this->FilePattern, this->FilePrefix, sliceNumber);
+    }
+  else
+    {
+    sprintf (filename, this->FilePattern, sliceNumber);
+    }
   if ( !(fp = fopen(filename,"rb")) )
     {
     vtkErrorMacro(<<"Can't open file: " << filename);
@@ -309,8 +316,15 @@ vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
   // build each file name and read the data from the file
   for (fileNumber = first; fileNumber <= last; fileNumber++) 
     {
-    // build the file name
-    sprintf (filename, this->FilePattern, this->FilePrefix, fileNumber);
+    // build the file name. if there is no prefix, just use the slice number
+    if (this->FilePattern)
+      {
+      sprintf (filename, this->FilePattern, this->FilePrefix, fileNumber);
+      }
+    else
+      {
+      sprintf (filename, this->FilePattern, fileNumber);
+      }
     if ( !(fp = fopen(filename,"rb")) )
       {
       vtkErrorMacro(<<"Can't find file: " << filename);
