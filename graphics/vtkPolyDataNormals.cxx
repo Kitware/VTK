@@ -81,6 +81,7 @@ void vtkPolyDataNormals::Execute()
   vtkPoints *newPts = NULL;
   vtkNormals *newNormals;
   vtkPointData *pd, *outPD;
+  vtkCellData *cd, *outCD;
   float n[3];
   vtkCellArray *newPolys;
   int ptId, oldId;
@@ -149,6 +150,9 @@ void vtkPolyDataNormals::Execute()
   
   pd = input->GetPointData();
   outPD = output->GetPointData();
+    
+  cd = input->GetCellData();
+  outCD = output->GetCellData();
     
   NewMesh = vtkPolyData::New();
   NewMesh->SetPoints(inPts);
@@ -364,6 +368,10 @@ void vtkPolyDataNormals::Execute()
     output->SetPoints(newPts);
     newPts->Delete();
     }
+
+  // Since celss are preserved (although the order of the ids could change)
+  // we can just pass the cell data from the input
+  outCD->PassData(cd);
 
   outPD->SetNormals(newNormals);
   newNormals->Delete();
