@@ -125,6 +125,10 @@ void vtkScalars::CreateDefaultLookupTable()
 {
   if ( this->LookupTable ) this->LookupTable->UnRegister(this);
   this->LookupTable = new vtkLookupTable;
+  // make sure it is built 
+  // otherwise problems with InsertScalar trying to map through 
+  // non built lut
+  this->LookupTable->Build();
   this->LookupTable->Register(this);
 }
 
