@@ -43,6 +43,8 @@ class vtkCollectionElement //;prevents pick-up by man page generator
 };
 //ETX end tcl exclude
 
+class vtkCollectionIterator;
+
 class VTK_COMMON_EXPORT vtkCollection : public vtkObject
 {
 public:
@@ -102,7 +104,11 @@ public:
   // Get the i'th item in the collection. NULL is returned if i is out
   // of range
   vtkObject *GetItemAsObject(int i);
-
+  
+  // Description:
+  // Get an iterator to traverse the objects in this collection.
+  vtkCollectionIterator* NewIterator();
+  
 protected:
   vtkCollection();
   ~vtkCollection();
@@ -113,6 +119,10 @@ protected:
   vtkCollectionElement *Bottom;
   vtkCollectionElement *Current;
 
+  //BTX
+  friend class vtkCollectionIterator;
+  //ETX
+  
 private:
   vtkCollection(const vtkCollection&);
   void operator=(const vtkCollection&);

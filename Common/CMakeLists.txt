@@ -17,6 +17,7 @@ vtkCellLinks.cxx
 vtkCellTypes.cxx
 vtkCharArray.cxx
 vtkCollection.cxx
+vtkCollectionIterator.cxx
 vtkCommand.cxx
 vtkContainer.cxx
 vtkContourValues.cxx
@@ -26,6 +27,7 @@ vtkCriticalSection.cxx
 vtkCylindricalTransform.cxx
 vtkDataArray.cxx
 vtkDataArrayCollection.cxx
+vtkDataArrayCollectionIterator.cxx
 vtkDataObject.cxx
 vtkDataObjectCollection.cxx
 vtkDataSet.cxx

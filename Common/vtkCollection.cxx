@@ -17,11 +17,12 @@
 =========================================================================*/
 #include "vtkCollection.h"
 #include "vtkObjectFactory.h"
+#include "vtkCollectionIterator.h"
 
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCollection, "1.41");
+vtkCxxRevisionMacro(vtkCollection, "1.42");
 vtkStandardNewMacro(vtkCollection);
 
 // Construct with empty list.
@@ -293,8 +294,9 @@ void vtkCollection::RemoveItem(int i)
   this->NumberOfItems--;
 }
 
-
-
-
-
-
+vtkCollectionIterator* vtkCollection::NewIterator()
+{
+  vtkCollectionIterator* it = vtkCollectionIterator::New();
+  it->SetCollection(this);
+  return it;
+}
