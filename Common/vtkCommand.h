@@ -151,6 +151,7 @@ public:
     CursorChangedEvent,
     ExecuteInformationEvent,
     RenderWindowMessageEvent,
+    WrongTagEvent,
     UserEvent = 1000
   };
 //ETX

@@ -71,6 +71,7 @@ static const char *vtkCommandEventStrings[] = {
   "CursorChangedEvent",
   "ExecuteInformationEvent",
   "RenderWindowMessageEvent",
+  "WrongTagEvent",
   NULL
 };
 
