@@ -270,7 +270,7 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
 	      if ( gradientMagnitudes )
 		{
-		*(tptr+3) = (float)(*tptr+3) * gradientOpacityArray[*gptr];
+		*(tptr+3) = (float)(*(tptr+3)) * gradientOpacityArray[*gptr];
 		gptr += size[0];
 		}
 	      }	  
@@ -293,7 +293,7 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 	    for ( j = 0; j < size[1]; j++ )
 	      {
 	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
-	      *(tptr+3) = (float)(*tptr+3) * gradientOpacityArray[*gptr];
+	      *(tptr+3) = (float)(*(tptr+3)) * gradientOpacityArray[*gptr];
 	      gptr += size[0];
 	      tptr += 4;
 	      dptr += size[0];
@@ -547,7 +547,7 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
 		gptr++;
 		}	      
 	      }
-	    tptr+=4;
+	    tptr += 4;
 	    dptr++;
 	    }
 	  }
@@ -560,7 +560,7 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
 	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
 	      *(tptr+3) = (float)(*(tptr+3)) * gradientOpacityArray[*gptr];
 	      gptr++;
-	      tptr+=4;
+	      tptr += 4;
 	      dptr++;
 	      }
 	    }
@@ -569,7 +569,7 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
 	    for ( i = 0; i < size[0]; i++ )
 	      {
 	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
-	      tptr+=4;
+	      tptr += 4;
 	      dptr++;
 	      }
 	    }
