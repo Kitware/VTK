@@ -42,7 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkActor2D is similar to vtkActor, but it is made to be used with two
 // dimensional images and annotation.  vtkActor2D has a position but does not
-// use a transformation matrix like vtkActor.  vtkActor2D has a reference to
+// use a transformation matrix like vtkActor (see the superclass vtkProp2D
+// for information on positioning vtkActor2D).  vtkActor2D has a reference to
 // a vtkMapper2D object which does the rendering.
 
 // .SECTION See Also
@@ -59,26 +60,23 @@ class vtkMapper2D;
 class VTK_EXPORT vtkActor2D : public vtkProp
 {
 public:
-  static vtkActor2D* New() {return new vtkActor2D;};
+  vtkActor2D();
+  ~vtkActor2D();
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkActor2D";};
-
-  // Description:
-  // Support the standard render methods.
-  virtual int RenderOverlay(vtkViewport *viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentGeometry(vtkViewport *viewport);
 
   // Description:
   // Creates an actor2D with the following defaults: 
   // position -1, -1 (view coordinates)
   // orientation 0, scale (1,1), layer 0, visibility on
-  vtkActor2D();
-
-  // Description:
-  // Destroy an actor2D.
-  ~vtkActor2D();
+  static vtkActor2D* New() {return new vtkActor2D;};
   
+  // Description:
+  // Support the standard render methods.
+  int RenderOverlay(vtkViewport *viewport);
+  int RenderOpaqueGeometry(vtkViewport *viewport);
+  int RenderTranslucentGeometry(vtkViewport *viewport);
+
   // Description:
   // Set/Get the vtkMapper2D which defines the data to be drawn.
   void SetMapper(vtkMapper2D *mapper);
