@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // to position and orient the view point and focal point. Convenience 
 // methods for moving about the focal point are also provided. More 
 // complex methods allow the manipulation of the computer graphics
-// graphics model including view up vector, clipping planes, and 
+// model including view up vector, clipping planes, and 
 // camera perspective.
 
 // .SECTION see also
@@ -110,7 +110,7 @@ class vtkCamera : public vtkObject
   vtkGetMacro(ViewAngle,float);
 
   // Description:
-  // Set/Get the seperation between eyes (in degrees). This is used to 
+  // Set/Get the separation between eyes (in degrees). This is used to 
   // when generating stereo images.
   vtkSetMacro(EyeAngle,float);
   vtkGetMacro(EyeAngle,float);
