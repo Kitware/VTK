@@ -38,7 +38,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.23");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.24");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 // A hash function for converting a string to a long
@@ -300,7 +300,6 @@ void vtkDebugLeaks::PrintCurrentLeaks()
   // print the table
   strstream leaks;
   vtkDebugLeaks::MemoryTable->PrintTable(leaks);
-  leaks << ends;
   
 #ifdef _WIN32
   int cancel=0;
