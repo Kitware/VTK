@@ -63,6 +63,9 @@ void vlActor::Render(vlRenderer *ren)
   /* render the property */
   this->Property->Render(ren);
 
+  /* render the texture */
+  if (this->Texture) this->Texture->Render(ren);
+
   /* send a render to the modeller */
   this->Mapper->Render(ren);
 

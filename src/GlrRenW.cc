@@ -18,6 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "GlrRenW.hh"
 #include "GlrRen.hh"
 #include "GlrProp.hh"
+#include "GlrText.hh"
 #include "GlrCam.hh"
 #include "GlrLgt.hh"
 #include "gl/glws.h"
@@ -166,6 +167,16 @@ vlProperty *vlGlrRenderWindow::MakeProperty()
 
   property = new vlGlrProperty;
   return (vlProperty *)property;
+}
+
+// Description:
+// Create a gl specific texture.
+vlTexture *vlGlrRenderWindow::MakeTexture()
+{
+  vlGlrTexture *texture;
+
+  texture = new vlGlrTexture;
+  return (vlTexture *)texture;
 }
 
 // Description:

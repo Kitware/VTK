@@ -29,6 +29,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "Object.hh"
 #include "Property.hh"
+#include "Texture.hh"
 #include "Mapper.hh"
 #include "Trans.hh"
 
@@ -50,6 +51,13 @@ class vlActor : public vlObject
   // Description:
   // Get the property object that controls rendering surface properties.
   vlGetObjectMacro(Property,vlProperty);
+
+  // Description:
+  // Specify the Texture object to control rendering texture.
+  vlSetObjectMacro(Texture,vlTexture);
+  // Description:
+  // Get the Texture object that controls rendering texture.
+  vlGetObjectMacro(Texture,vlTexture);
 
   // Description:
   // This is the method that is used to connect an actor to the end of a
@@ -152,6 +160,7 @@ class vlActor : public vlObject
 
 protected:
   vlProperty *Property; 
+  vlTexture *Texture; 
   vlMapper *Mapper;
   float Origin[3];
   float Position[3];
