@@ -21,7 +21,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
 
-vtkCxxRevisionMacro(vtkVolumeProperty, "1.37");
+vtkCxxRevisionMacro(vtkVolumeProperty, "1.38");
 vtkStandardNewMacro(vtkVolumeProperty);
 
 // Construct a new vtkVolumeProperty with default values
@@ -43,7 +43,7 @@ vtkVolumeProperty::vtkVolumeProperty()
     this->DefaultGradientOpacity[i]          = NULL;
     this->DisableGradientOpacity[i]          = 0;
     
-    this->ComponentWeight[i]                 = 0.0;
+    this->ComponentWeight[i]                 = 1.0;
 
     this->Shade[i]                           = 0;  
     this->Ambient[i]                         = 0.1;
@@ -51,8 +51,6 @@ vtkVolumeProperty::vtkVolumeProperty()
     this->Specular[i]                        = 0.2;
     this->SpecularPower[i]                   = 10.0;
     }
-
-  this->ComponentWeight[0]                   = 1.0;
 }
 
 // Destruct a vtkVolumeProperty
