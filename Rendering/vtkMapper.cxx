@@ -189,7 +189,8 @@ void vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(
 // then this object is modified as well.
 unsigned long vtkMapper::GetMTime()
 {
-  unsigned long mTime=this->MTime.GetMTime();
+  //unsigned long mTime=this->MTime.GetMTime();
+  unsigned long mTime=vtkAbstractMapper::GetMTime();
   unsigned long lutMTime;
 
   if ( this->LookupTable != NULL )
