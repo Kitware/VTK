@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkWin32RenderWindowInteractor* vtkWin32RenderWindowInteractor::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -86,6 +86,12 @@ vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
 vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor() 
 {
   vtkWin32OpenGLRenderWindow *tmp;
+
+  if (this->CursorHidden)
+    {
+    this->HideCursor();
+    }
+
   // we need to release any hold we have on a windows event loop
   if (this->WindowId && this->Enabled && this->InstallMessageProc) 
     {
@@ -153,6 +159,12 @@ void vtkWin32RenderWindowInteractor::Initialize()
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
+
+  if (this->CursorHidden)
+    {
+    this->CursorHidden = 0;
+    this->HideCursor();
+    }
 }
 
 void vtkWin32RenderWindowInteractor::Enable() 
@@ -245,6 +257,69 @@ int vtkWin32RenderWindowInteractor::DestroyTimer(void)
 {
   return KillTimer(this->WindowId,this->TimerId);
 }
+
+//-------------------------------------------------------------
+// Virtual Key Code to Unix KeySym Conversion
+//-------------------------------------------------------------
+
+// this ascii code to keysym table is meant to mimic Tk
+
+static char *AsciiToKeySymTable[] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+  "space", "exclam", "quotedbl", "numbersign", 
+         "dollar", "percent", "ampersand", "quoteright", 
+  "parenleft", "parenright", "asterisk", "plus", 
+         "comma", "minus", "period", "slash",
+  "0", "1", "2", "3", "4", "5", "6", "7", 
+  "8", "9", "colon", "semicolon", "less", "equal", "greater", "question",
+  "at", "A", "B", "C", "D", "E", "F", "G", 
+  "H", "I", "J", "K", "L", "M", "N", "O",
+  "P", "Q", "R", "S", "T", "U", "V", "W",
+  "X", "Y", "Z", "bracketleft", 
+         "backslash", "bracketright", "asciicircum", "underscore",
+  "quoteleft", "a", "b", "c", "d", "e", "f", "g",
+  "h", "i", "j", "k", "l", "m", "n", "o",
+  "p", "q", "r", "s", "t", "u", "v", "w",
+  "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete",
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  
+// this virtual key code to keysym table is meant to mimic Tk
+
+static char *VKeyCodeToKeySymTable[] = {
+  0, 0, 0, "Cancel", 0, 0, 0, 0,
+  "BackSpace", "Tab", 0, 0, "Clear", "Return", 0, 0,
+  "Shift_L", "Control_L", "Alt_L", "Pause", "Caps_Lock", 0,0,0, 
+  0, 0, 0, "Escape", 0, 0, 0, 0,
+  "space", "Prior", "Next", "End", "Home", "Left", "Up", "Right",
+  "Down", "Select", 0, "Execute", "Snapshot", "Insert", "Delete", "Help",
+  "0", "1", "2", "3", "4", "5", "6", "7", 
+  "8", "9", 0, 0, 0, 0, 0, 0,
+  0, "a", "b", "c", "d", "e", "f", "g",
+  "h", "i", "j", "k", "l", "m", "n", "o",
+  "p", "q", "r", "s", "t", "u", "v", "w",
+  "x", "y", "z", "Win_L", "Win_R", "App", 0, 0,
+  "KP_0", "KP_1", "KP_2", "KP_3", "KP_4", "KP_5", "KP_6", "KP_7",
+  "KP_8", "KP_9", "asterisk", "plus", "bar", "minus", "period", "slash",
+  "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8",
+  "F9", "F10", "F11", "F12", "F13", "F14", "F15", "F16", 
+  "F17", "F18", "F19", "F20", "F21", "F22", "F23", "F24",
+  0, 0, 0, 0, 0, 0, 0, 0,
+  "Num_Lock", "Scroll_Lock", 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 //-------------------------------------------------------------
 // Event loop handlers
@@ -351,7 +426,7 @@ void vtkWin32RenderWindowInteractor::OnTimer(HWND wnd,UINT nIDEvent)
   this->InteractorStyle->OnTimer();
 }
 
-void vtkWin32RenderWindowInteractor::OnKeyDown(HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags)
+void vtkWin32RenderWindowInteractor::OnKeyDown(HWND wnd, UINT vCode, UINT nRepCnt, UINT nFlags)
 {
   if (!this->Enabled)
     {
@@ -359,10 +434,30 @@ void vtkWin32RenderWindowInteractor::OnKeyDown(HWND wnd, UINT nChar, UINT nRepCn
     }
   int ctrl  = GetKeyState(VK_CONTROL) & (~1);
   int shift = GetKeyState(VK_SHIFT) & (~1);
+  WORD nChar = 0;
+  {
+    BYTE keyState[256];
+    GetKeyboardState(keyState);
+    if (ToAscii(vCode,nFlags & 0xff,keyState,&nChar,0) == 0)
+      {
+      nChar = 0;
+      }
+  } 
+  char *keysym = AsciiToKeySymTable[(unsigned char)nChar];
+  if (keysym == 0)
+    {
+    keysym = VKeyCodeToKeySymTable[(unsigned char)vCode];
+    }
+  if (keysym == 0)
+    {
+    keysym = "None";
+    }
   this->InteractorStyle->OnKeyDown(ctrl, shift, (char)nChar, nRepCnt);
+  this->InteractorStyle->OnKeyPress(ctrl, shift, (char)nChar, 
+				    keysym, nRepCnt);
 }
 
-void vtkWin32RenderWindowInteractor::OnKeyUp(HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags)
+void vtkWin32RenderWindowInteractor::OnKeyUp(HWND wnd, UINT vCode, UINT nRepCnt, UINT nFlags)
 {
   if (!this->Enabled)
     {
@@ -370,9 +465,28 @@ void vtkWin32RenderWindowInteractor::OnKeyUp(HWND wnd, UINT nChar, UINT nRepCnt,
     }
   int ctrl  = GetKeyState(VK_CONTROL) & (~1);
   int shift = GetKeyState(VK_SHIFT) & (~1);
+  WORD nChar = 0;
+  {
+    BYTE keyState[256];
+    GetKeyboardState(keyState);
+    if (ToAscii(vCode,nFlags & 0xff,keyState,&nChar,0) == 0)
+      {
+      nChar = 0;
+      }
+  }
+  char *keysym = AsciiToKeySymTable[(unsigned char)nChar];
+  if (keysym == 0)
+    {
+    keysym = VKeyCodeToKeySymTable[(unsigned char)vCode];
+    }
+  if (keysym == 0)
+    {
+    keysym = "None";
+    }
   this->InteractorStyle->OnKeyUp(ctrl, shift, (char)nChar, nRepCnt);
+  this->InteractorStyle->OnKeyRelease(ctrl, shift, (char)nChar, 
+				      keysym, nRepCnt);
 }
-
 
 void vtkWin32RenderWindowInteractor::OnChar(HWND wnd,UINT nChar,
                                             UINT nRepCnt, UINT nFlags)
@@ -489,7 +603,7 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
 
     case WM_TIMER:
       me->OnTimer(hWnd,wParam);
-      
+    
       break;
     default:
       if (me) 
@@ -557,3 +671,35 @@ void vtkWin32RenderWindowInteractor::ExitCallback()
     this->TerminateApp();
     }
 }
+
+//----------------------------------------------------------------------------
+void vtkWin32RenderWindowInteractor::HideCursor()
+{
+  if (this->CursorHidden)
+    {
+    return;
+    }
+  this->CursorHidden = 1;
+
+  if (this->Initialized)
+    {
+    ::ShowCursor(!this->CursorHidden);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkWin32RenderWindowInteractor::ShowCursor()
+{
+  if (!this->CursorHidden)
+    {
+    return;
+    }
+  this->CursorHidden = 0;
+
+  if (this->Initialized)
+    {
+    ::ShowCursor(!this->CursorHidden);
+    }
+}				   
+
+

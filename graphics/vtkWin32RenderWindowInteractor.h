@@ -65,7 +65,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Initialize the even handler
+  // Initialize the event handler
   virtual void Initialize();
 
   // Description:
@@ -84,6 +84,12 @@ public:
   // call this method it will loop processing events until the
   // application is exited.
   virtual void Start();
+
+  // Description:
+  // Hide or Show the mouse cursor, it is nice to be able to hide the
+  // default cursor if you want VTK to display a 3D cursor instead.
+  void HideCursor();
+  void ShowCursor();
 
   // Description:
   // By default the interactor installs a MessageProc callback which
@@ -162,5 +168,4 @@ protected:
 };
 
 #endif
-
 
