@@ -123,6 +123,12 @@ public:
   void SetLeaveMethodArgDelete(void (*f)(void *));
 
   // Description:
+  // Set a method that will be called continuously at a fairly rapid
+  // rate (fast enough to be used for interaction).
+  void SetTimerMethod(void (*f)(void *), void *arg);
+  void SetTimerMethodArgDelete(void (*f)(void *));
+
+  // Description:
   // Get the most recent mouse position during mouse motion.  
   // In your user interaction method, you must use this to track
   // the mouse movement.  Do not use GetEventPosition(), which records
@@ -213,6 +219,10 @@ protected:
   void (*ConfigureMethod)(void *);
   void (*ConfigureMethodArgDelete)(void *);
   void *ConfigureMethodArg;
+
+  void (*TimerMethod)(void *);
+  void (*TimerMethodArgDelete)(void *);
+  void *TimerMethodArg;
 };
 
 #endif
