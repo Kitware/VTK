@@ -1769,8 +1769,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   if (strlen(vals->adlg.m_WhereTcl) > 1)
     {
-    fprintf(fp," /I \"%s\" /I \"%s\\..\\xlib\" /I \"%s\\..\\generic\" /I \"%s\" /I \"%s\\..\\generic\" ",
-            vals->TkRoot, vals->TkRoot, vals->TkRoot, vals->TclRoot, vals->TclRoot);
+    fprintf(fp," /I \"%s\\win\" /I \"%s\\xlib\" /I \"%s\\generic\" /I \"%s\\win\" /I \"%s\\generic\" /I \"%s\\include\" ",
+            vals->TkRoot, vals->TkRoot, vals->TkRoot, vals->TclRoot, vals->TclRoot, vals->TclRoot);
     }
   else
     {

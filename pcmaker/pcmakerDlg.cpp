@@ -227,6 +227,41 @@ void CPcmakerDlg::DoOKStuff()
     fclose(fp);
     }
 
+  // Tcl/Tk development libs come in two flavors: sources or pre-built binaries
+  
+  // Sources =>
+  //      libs :          TCL_ROOT/win/Release/tcl**.lib
+  //                      TK_ROOT/win/Release/tk**.lib
+  //      includes dirs : TCL_ROOT/win
+  //                      TCL_ROOT/generic 
+  //                      TK_ROOT/win
+  //                      TK_ROOT/generic
+  //                      TK_ROOT/xlib
+  
+  // Pre-built binaries =>
+  //      libs :          TCLTK_ROOT/lib/tcl**.lib
+  //                      TCLTK_ROOT/lib/tcl**.lib
+  //      includes dirs : TCLTK_ROOT/include
+  //
+  // WARNING : as of tcl/tk 8.2, some include files are still missing :(
+  // Extract them from the source package, and put them in TCLTK_ROOT/include :
+  //       TK_ROOT/generic/tkInt.h
+  //       TK_ROOT/generic/tkIntDecls.h
+  //       TK_ROOT/generic/tkPlatDecls.h
+  //       TK_ROOT/generic/tkIntPlatDecls.h
+  //       TK_ROOT/win/tkWin.h
+  //       TK_ROOT/win/tkWinInt.h
+  //       TK_ROOT/win/tkPort.h
+  //       TCL_ROOT/generic/tclInt.h
+  //       TCL_ROOT/generic/tclIntDecls.h
+
+  // Let's update TclRoot and TkRoot so that they match TCL_ROOT / TK_ROOT or
+  // both TCLTK_ROOT.
+  // Then use them to add the following INCLUDE path :
+  //       /I TkRoot/win /I TkRoot/xblib /I TkRoot/generic 
+  //       /I TclRoot/win /I TclRoot/generic
+  //       /I TclRoot/include
+
   // make sure we can find tcl
   if (this->m_BuildTcl && strlen(this->adlg.m_WhereTcl) > 1)
     {
@@ -241,22 +276,24 @@ void CPcmakerDlg::DoOKStuff()
       }
     fclose(fp);
 
-    i = strlen(this->adlg.m_WhereTcl);
-    while (i >= 2)
-      {
-      if (_strnicmp((const char *)this->adlg.m_WhereTcl + i - 2,
-                    "win",3) == 0)
+    i = strlen(this->adlg.m_WhereTcl) - 4;
+    while (i)
+    {
+        if ((_strnicmp((const char *)this->adlg.m_WhereTcl + i,
+                       "win",3) == 0) ||
+            (_strnicmp((const char *)this->adlg.m_WhereTcl + i,
+                       "lib",3) == 0))
         {
-        int j;
-        for (j = 0; j <= i; j++)
-          {
-          this->TclRoot[j] = this->adlg.m_WhereTcl[j];
-          }
-        this->TclRoot[j] = '\0';
-        i = 0;
+            int j;
+            for (j = 0; j < i - 1; j++)
+            {
+                this->TclRoot[j] = this->adlg.m_WhereTcl[j];
+            }
+            this->TclRoot[j] = '\0';
+            break;
         }
-      i--;
-      }
+        i--;
+    }
     }
 
   // make sure we can find tk
@@ -273,22 +310,24 @@ void CPcmakerDlg::DoOKStuff()
       }
     fclose(fp);
 
-    i = strlen(this->adlg.m_WhereTk);
-    while (i >= 2)
-      {
-      if (_strnicmp((const char *)this->adlg.m_WhereTk + i - 2,
-                    "win",3) == 0)
+    i = strlen(this->adlg.m_WhereTk) - 4;
+    while (i)
+    {
+        if ((_strnicmp((const char *)this->adlg.m_WhereTk + i,
+                      "win",3) == 0) ||
+            (_strnicmp((const char *)this->adlg.m_WhereTk + i,
+                       "lib",3) == 0))
         {
-        int j;
-        for (j = 0; j <= i; j++)
-          {
-          this->TkRoot[j] = this->adlg.m_WhereTk[j];
-          }
-        this->TkRoot[j] = '\0';
-        i = 0;
+            int j;
+            for (j = 0; j < i - 1; j++)
+            {
+                this->TkRoot[j] = this->adlg.m_WhereTk[j];
+            }
+            this->TkRoot[j] = '\0';
+            break;
         }
-      i--;
-      }
+        i--;
+    }
     }
 
   // make sure only one compile is specified
