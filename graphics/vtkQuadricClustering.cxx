@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkTriangle.h"
 #include "vtkObjectFactory.h"
+#include "vtkTimerLog.h"
 
 //----------------------------------------------------------------------------
 vtkQuadricClustering* vtkQuadricClustering::New()
@@ -67,74 +68,94 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->NumberOfZDivisions = 50;
   this->QuadricArray = NULL;
   this->NumberOfBinsUsed = 0;
-  this->Log = vtkTimerLog::New();
-  this->BinSizeSet = 0;
-  this->OutputTriangles = vtkCellArray::New();
-  this->InputList = NULL;
-  this->NumberOfExpectedInputs = 1;
   this->AbortExecute = 0;
+
+  this->UseInputPoints = 0;
+
+  this->OutputTriangleArray = NULL;
+
+  // Overide superclass so that append can be called directly.
+  this->NumberOfRequiredInputs = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkQuadricClustering::~vtkQuadricClustering()
 {
-  this->Log->Delete();
-  this->OutputTriangles->Delete();
-  if (this->InputList)
-    {
-    this->InputList->Delete();
-    this->InputList = NULL;
-    }
 }
 
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::Execute()
 {
-  if (Debug)
-    {
-    this->Log->StartTimer();
-    }
+  vtkPolyData *input = this->GetInput();
+  vtkTimerLog *tlog = NULL;
 
-  if (this->GetInput() == NULL)
+  if (input == NULL)
     {
     // The user may be calling StartAppend, Append, and EndAppend explicitly.
     return;
     }
   
-  int numInputs = this->GetNumberOfInputs();
-  int i;
-  
-  this->NumberOfExpectedInputs = this->GetNumberOfInputs();
-
-  this->StartAppend();
-  for (i = 0; i < numInputs; i++)
+  if (Debug)
     {
-    this->Append(this->GetInput(i));
+    tlog = vtkTimerLog::New();
+    tlog->StartTimer();
     }
-  this->EndAppend();
+
+  this->StartAppend(input->GetBounds());
+  this->Append(input);
+  if (this->UseInputPoints)
+    {
+    this->EndAppendUsingPoints(input->GetPoints());
+    }
+  else
+    {
+    this->EndAppend();
+    }
+  
+  if ( Debug )
+    {
+    tlog->StopTimer();
+    vtkDebugMacro(<<"Execution took: "<<tlog->GetElapsedTime()<<" seconds.");
+    tlog->Delete();
+    tlog = NULL;
+    }  
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricClustering::UpdateData(vtkDataObject *output)
-{
-  if (this->GetInput() == NULL)
-    {
-    // we do not want to release the data because user might
-    // have called Append ...
-    return;
-    }
-
-  this->vtkPolyDataToPolyDataFilter::UpdateData( output );
-}
-
-//----------------------------------------------------------------------------
-void vtkQuadricClustering::StartAppend()
+void vtkQuadricClustering::StartAppend(float *bounds)
 {
   int i;
-  
+
+  // Check for conditions that can occur if the Append methods 
+  // are not called in the correct order.
+  if (this->OutputTriangleArray)
+    {
+    this->OutputTriangleArray->Delete();
+    this->OutputTriangleArray = NULL;
+    vtkWarningMacro("Array already created.  Did you call EndAppend?");
+    }
+
+  this->OutputTriangleArray = vtkCellArray::New();
+
+  // Copy over the bounds.
+  for (i = 0; i < 6; ++i)
+    {
+    this->Bounds[i]= bounds[i];
+    }
+
+  this->XBinSize = (this->Bounds[1]-this->Bounds[0])/this->NumberOfXDivisions;
+  this->YBinSize = (this->Bounds[3]-this->Bounds[2])/this->NumberOfYDivisions;
+  this->ZBinSize = (this->Bounds[5]-this->Bounds[4])/this->NumberOfZDivisions;   
+
+  this->NumberOfBinsUsed = 0;
   this->QuadricArray = new VTK_POINT_QUADRIC[this->NumberOfXDivisions *
                                             this->NumberOfYDivisions *
                                             this->NumberOfZDivisions];
+  if (this->QuadricArray == NULL)
+    {
+    vtkErrorMacro("Could not allocate quadric grid.");
+    return;
+    }
   for (i = 0; i < this->NumberOfXDivisions * 
          this->NumberOfYDivisions * this->NumberOfZDivisions; i++)
     {
@@ -151,35 +172,20 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
   int *cellPtIds;
   float triPts[3][3], quadric[9], quadric4x4[4][4];
   int i, j, numPts, binIds[3];
-  vtkIdList *triPtIds = vtkIdList::New();
+  int triPtIds[3];
   int vertexId;
   
-  if (numTris== 0)
+  // Check for mis use of the Append methods.
+  if (this->OutputTriangleArray == NULL)
     {
-    vtkErrorMacro("No triangles to decimate");
+    vtkErrorMacro("Missing Array:  Did you call StartAppend?");
     return;
     }
-  
-  if (this->Bounds[0] == 0 && this->Bounds[1] == 0 && this->Bounds[2] == 0 &&
-      this->Bounds[3] == 0 && this->Bounds[4] == 0 && this->Bounds[5] == 0)
+
+  if (numTris == 0)
     {
-    // Set the bounds from the input if they haven't been set already.  This is
-    // to allow the user to set the bounds larger than the bounds of the input.
-    // If the user sets the bounds smaller than those of the input, then all
-    // the points outside the bounds will fall in the outermost bins.
-    this->SetBounds(pd->GetBounds());
-    }
-    
-  if (!this->BinSizeSet)
-    {
-    this->SetXBinSize((this->Bounds[1] - this->Bounds[0]) /
-                      this->NumberOfXDivisions);
-    this->SetYBinSize((this->Bounds[3] - this->Bounds[2]) /
-                      this->NumberOfYDivisions);
-    this->SetZBinSize((this->Bounds[5] - this->Bounds[4]) /
-                      this->NumberOfZDivisions);
-    this->BinSizeSet = 1;
-    }
+    return;
+    }      
   
   inputTris->InitTraversal();
   
@@ -188,7 +194,7 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
     if ( ! (i % 10000) ) 
       {
       vtkDebugMacro(<<"Visiting polygon #" << i);
-      this->UpdateProgress(0.8/this->NumberOfExpectedInputs * i/numTris);
+      this->UpdateProgress(0.8 * i/numTris);
       if (this->GetAbortExecute())
         {
         this->AbortExecute = 1;
@@ -201,44 +207,39 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
       inputPoints->GetPoint(cellPtIds[j], triPts[j]);
       binIds[j] = this->HashPoint(triPts[j]);
       }
+    vtkTriangle::ComputeQuadric(triPts[0], triPts[1], triPts[2], quadric4x4);
+    for (j = 0; j < 3; j++)
+      {
+      if (this->QuadricArray[binIds[j]].VertexId == -1)
+        {
+        this->InitializeQuadric(this->QuadricArray[binIds[j]].Quadric);
+        vertexId = this->NumberOfBinsUsed;
+        this->QuadricArray[binIds[j]].VertexId = vertexId;
+        this->NumberOfBinsUsed++;
+        }
+      else
+        {
+        vertexId = this->QuadricArray[binIds[j]].VertexId;
+        }
+      triPtIds[j] = vertexId;
+      quadric[0] = quadric4x4[0][0];
+      quadric[1] = quadric4x4[0][1];
+      quadric[2] = quadric4x4[0][2];
+      quadric[3] = quadric4x4[0][3];
+      quadric[4] = quadric4x4[1][1];
+      quadric[5] = quadric4x4[1][2];
+      quadric[6] = quadric4x4[1][3];
+      quadric[7] = quadric4x4[2][2];
+      quadric[8] = quadric4x4[2][3];
+      this->AddQuadric(binIds[j], quadric);
+      }
     if (binIds[0] == binIds[1] || binIds[0] == binIds[2] ||
       	binIds[1] == binIds[2])
       {
-      continue;
       }
-    else
-      {
-      vtkTriangle::ComputeQuadric(triPts[0], triPts[1], triPts[2], quadric4x4);
-      for (j = 0; j < 3; j++)
-        {
-        if (this->QuadricArray[binIds[j]].VertexId == -1)
-          {
-          this->InitializeQuadric(this->QuadricArray[binIds[j]].Quadric);
-          vertexId = this->NumberOfBinsUsed;
-          this->QuadricArray[binIds[j]].VertexId = vertexId;
-          this->NumberOfBinsUsed++;
-          }
-        else
-          {
-          vertexId = this->QuadricArray[binIds[j]].VertexId;
-          }
-	triPtIds->InsertId(j, vertexId);
-        quadric[0] = quadric4x4[0][0];
-        quadric[1] = quadric4x4[0][1];
-        quadric[2] = quadric4x4[0][2];
-        quadric[3] = quadric4x4[0][3];
-        quadric[4] = quadric4x4[1][1];
-        quadric[5] = quadric4x4[1][2];
-        quadric[6] = quadric4x4[1][3];
-        quadric[7] = quadric4x4[2][2];
-        quadric[8] = quadric4x4[2][3];
-        this->AddQuadric(binIds[j], quadric);
-        }
-      this->OutputTriangles->InsertNextCell(triPtIds);
-      }
+      this->OutputTriangleArray->InsertNextCell(3, triPtIds);
     }
-  
-  triPtIds->Delete();
+
 }
 
 //----------------------------------------------------------------------------
@@ -249,6 +250,13 @@ void vtkQuadricClustering::EndAppend()
   float newPt[3];
   vtkPolyData *output = this->GetOutput();
   
+  // Check for mis use of the Append methods.
+  if (this->OutputTriangleArray == NULL)
+    {
+    vtkErrorMacro("Missing Array:  Did you call StartAppend?");
+    return;
+    }
+
   for (i = 0; i < this->NumberOfXDivisions *
          this->NumberOfYDivisions * this->NumberOfZDivisions &&
          !this->AbortExecute; i++)
@@ -273,62 +281,18 @@ void vtkQuadricClustering::EndAppend()
       }
     }
   
-  output->SetPolys(this->OutputTriangles);
+  output->SetPolys(this->OutputTriangleArray);
   output->SetPoints(outputPoints);
   outputPoints->Delete();
   delete [] this->QuadricArray;
+  this->QuadricArray = NULL;
 
-  if ( Debug )
-    {
-    this->Log->StopTimer();
-    vtkDebugMacro(<<"Execution took: "<<this->Log->GetElapsedTime()<<" seconds.");
-    }  
-}
+  this->OutputTriangleArray->Delete();
+  this->OutputTriangleArray = NULL;
 
-//----------------------------------------------------------------------------
-void vtkQuadricClustering::AddInput(vtkPolyData *input)
-{
-  this->vtkProcessObject::AddInput(input);
-}
-
-//----------------------------------------------------------------------------
-vtkPolyData *vtkQuadricClustering::GetInput(int idx)
-{
-  if (idx >= this->NumberOfInputs || idx < 0)
-    {
-    return NULL;
-    }
-  
-  return (vtkPolyData *)(this->Inputs[idx]);
-}
-
-//----------------------------------------------------------------------------
-// Remove a piece of a dataset from the list to decimate.
-void vtkQuadricClustering::RemoveInput(vtkPolyData *pd)
-{
-  this->vtkProcessObject::RemoveInput(pd);
-}
-
-//----------------------------------------------------------------------------
-vtkDataSetCollection *vtkQuadricClustering::GetInputList()
-{
-  int idx;
-  
-  if (this->InputList)
-    {
-    this->InputList->Delete();
-    }
-  this->InputList = vtkDataSetCollection::New();
-  
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    if (this->Inputs[idx] != NULL)
-      {
-      this->InputList->AddItem((vtkDataSet*)(this->Inputs[idx]));
-      }
-    }  
-  
-  return this->InputList;
+  // Tell the data is is up to date 
+  // (incase the user calls this method directly).
+  output->DataHasBeenGenerated();
 }
 
 //----------------------------------------------------------------------------
@@ -349,7 +313,7 @@ void vtkQuadricClustering::AddQuadric(int binId, float quadric[9])
   
   for (i = 0; i < 9; i++)
     {
-    this->QuadricArray[binId].Quadric[i] += quadric[i];
+    this->QuadricArray[binId].Quadric[i] += (quadric[i] * 100000000.0);
     }
 }
 
@@ -385,7 +349,7 @@ int vtkQuadricClustering::HashPoint(float point[3])
   
   binId = xBinCoord * this->NumberOfYDivisions * this->NumberOfZDivisions + 
     yBinCoord * this->NumberOfZDivisions + zBinCoord;
-  
+
   return binId;
 }
 
@@ -402,7 +366,7 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[9],
   float cellBounds[6];
   int x, y, z;
   float quadric4x4[4][4];
-  
+      
   quadric4x4[0][0] = quadric[0];
   quadric4x4[0][1] = quadric4x4[1][0] = quadric[1];
   quadric4x4[0][2] = quadric4x4[2][0] = quadric[2];
@@ -436,7 +400,7 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[9],
       }
     }
   
-#define VTK_SVTHRESHOLD 1E-3
+#define VTK_SVTHRESHOLD 1E-2
   float invsig, maxW = 0.0;
   vtkMath::SingularValueDecomposition3x3(A, U, w, VT);
   for (i = 0; i < 3; i++)
@@ -451,22 +415,22 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[9],
     for (j = 0; j < 3; j++)
       {
       if (i == j)
-	{
-	if ( (w[i] / maxW) > VTK_SVTHRESHOLD)
-	  {
-	  // If this is true, then w[i] != 0, so this division is ok.
-	  invsig = 1.0/w[i];
-	  W[i][j] = invsig;
-	  }
-	else
-	  {
-	  W[i][j] = 0;
-	  }
-	}
+        {
+        if ( (w[i] / maxW) > VTK_SVTHRESHOLD)
+          {
+          // If this is true, then w[i] != 0, so this division is ok.
+          invsig = 1.0/w[i];
+          W[i][j] = invsig;
+          }
+        else
+          {
+          W[i][j] = 0;
+          }
+        }
       else
-	{
-	W[i][j] = 0;
-	}
+        {
+        W[i][j] = 0;
+        }
       }
     }
   vtkMath::Transpose3x3(U, UT);
@@ -509,6 +473,76 @@ void vtkQuadricClustering::GetNumberOfDivisions(int div[3])
   div[2] = this->NumberOfZDivisions;
 }
 
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::EndAppendUsingPoints(vtkPoints *inputPoints)
+{
+  int         i;
+  vtkPoints   *outputPoints = vtkPoints::New();
+  vtkPolyData *output = this->GetOutput();
+  int         numPoints, numBins, binId;
+  float       *minError, e, pt[3];
+  float       *q;
+
+  
+  // Check for mis use of the Append methods.
+  if (this->OutputTriangleArray == NULL)
+    {
+    vtkErrorMacro("Missing Array:  Did you call StartAppend?");
+    return;
+    }
+
+  // Allocate and initialize an array to hold errors for each bin.
+  numBins = this->NumberOfXDivisions * this->NumberOfYDivisions 
+                  * this->NumberOfZDivisions;
+  minError = new float[numBins];
+  for (i = 0; i < numBins; ++i)
+    {
+    minError[i] = VTK_LARGE_FLOAT;
+    }
+
+  // Loop through the input points.
+  numPoints = inputPoints->GetNumberOfPoints();
+  for (i = 0; i < numPoints; ++i)
+    {
+    inputPoints->GetPoint(i, pt);
+    binId = this->HashPoint(pt);
+
+    // Sanity check.
+    if (this->QuadricArray[binId].VertexId == -1)
+      {
+      vtkErrorMacro("Point hash mismatch.");
+      continue;
+      }
+
+    // Compute the error for this point.  Note: the constant term is ignored.
+    // It will be the same for every point in this bin, and it
+    // is not stored in the quadric array anyway.
+    q = this->QuadricArray[binId].Quadric;
+    e = q[0]*pt[0]*pt[0] + 2.0*q[1]*pt[0]*pt[1] + 2.0*q[2]*pt[0]*pt[2] + 2.0*q[3]*pt[0]
+          + q[4]*pt[1]*pt[1] + 2.0*q[5]*pt[1]*pt[2] + 2.0*q[6]*pt[1]
+          + q[7]*pt[2]*pt[2] + 2.0*q[8]*pt[2];
+    if (e < minError[binId])
+      {
+      minError[binId] = e;
+      outputPoints->InsertPoint(this->QuadricArray[binId].VertexId, pt);
+      // We could copy point data here too.
+      }
+    }
+
+
+  output->SetPolys(this->OutputTriangleArray);
+  output->SetPoints(outputPoints);
+  outputPoints->Delete();
+  delete [] this->QuadricArray;
+  this->QuadricArray = NULL;
+
+  this->OutputTriangleArray->Delete();
+  this->OutputTriangleArray = NULL;
+
+  delete minError;
+}
+
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -517,12 +551,11 @@ void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Bounds: " << this->Bounds[0] << " " << this->Bounds[1]
      << " " << this->Bounds[2] << " " << this->Bounds[3] << " "
      << this->Bounds[4] << " " << this->Bounds[5] << "\n";
+  os << indent << "UseInputPoints " << this->UseInputPoints << "\n";
   os << indent << "Number of X Divisions: " << this->NumberOfXDivisions
      << "\n";
   os << indent << "Number of Y Divisions: " << this->NumberOfYDivisions
      << "\n";
   os << indent << "Number of Z Divisions: " << this->NumberOfZDivisions
      << "\n";
-  os << indent << "Number of Expected Inputs: "
-     << this->NumberOfExpectedInputs << "\n";
 }

@@ -95,7 +95,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkQuadricClustering_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkTimerLog.h"
 #include "vtkDataSetCollection.h"
 
 typedef struct {
@@ -108,7 +107,6 @@ class VTK_EXPORT vtkQuadricClustering : public vtkPolyDataToPolyDataFilter
 public:
   vtkTypeMacro(vtkQuadricClustering, vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
-
   static vtkQuadricClustering *New();
 
   // Description:
@@ -126,51 +124,27 @@ public:
   void GetNumberOfDivisions(int div[3]);
 
   // Description:
-  // Set the bounds for the input poly data.  This method is public to allow
-  // the user to specify bounds larger than those of the 1st input specified.
-  vtkSetVector6Macro(Bounds, float);
-  
-  // Description:
-  // Add another input to the list of those to be decimated.
-  void AddInput(vtkPolyData *input);
+  // Normally the point that minimizes the quadric error function 
+  // is used as the output of the bin.  When this flag is on,
+  // the bin point is forced to be one of the points from the input
+  // (the one with the smallest error). This option does not work when
+  // the append methods are being called directly.
+  vtkSetMacro(UseInputPoints, int);
+  vtkGetMacro(UseInputPoints, int);
+  vtkBooleanMacro(UseInputPoints, int);
 
   // Description:
-  // Get any input of this filter.
-  vtkPolyData *GetInput(int idx);
-  vtkPolyData *GetInput() { return (vtkPolyData*)this->GetInput( 0 ); };
-  
-  // Description:
-  // Remove a dataset from the list of data to append.
-  void RemoveInput(vtkPolyData *in);
-
-  // Description:
-  // Returns a copy of the input array.  Modifications to this list
-  // will not be reflected in the actual inputs.
-  vtkDataSetCollection *GetInputList();
-  
-  // Description:
-  // Keep superclass's UpdateData from being called if Input is NULL.
-  virtual void UpdateData(vtkDataObject *output);
-  
-  // Description:
-  // This method must be called before Append.  It initializes the data
-  // structure that holds the quadic for each bin.
-  void StartAppend();
-  
-  // Description:
-  // Process the triangles from this input poly data.
-  void Append(vtkPolyData *pd);
-  
-  // Description:
-  // Determine the representative point for each bin that has been visited.
-  // This method must be called after the last call to Append.
+  // These methods provide an alternative way of executing the filter.
+  // PolyData can be added to the result in pieces (append).
+  // In this mode, the user must specify the bounds of the entire model
+  // as an argument to the "StartAppend" method.
+  void StartAppend(float *bounds);
+  void StartAppend(float x0,float x1,float y0,float y1,float z0,float z1)
+    {float b[6]; b[0]=x0; b[1]=x1; b[2]=y0; b[3]=y1; b[4]=z0; b[5]=z1; 
+     this->StartAppend(b);}  
+  void Append(vtkPolyData *piece);
   void EndAppend();
-  
-  // Description:
-  // Set/Get the number of inputs.  (This is used for updating progress.)
-  vtkSetMacro(NumberOfExpectedInputs, int);
-  vtkGetMacro(NumberOfExpectedInputs, int);
-  
+    
 protected:
   vtkQuadricClustering();
   ~vtkQuadricClustering();
@@ -178,7 +152,7 @@ protected:
   void operator=(const vtkQuadricClustering&) {};
 
   void Execute();
-
+    
   // Description:
   // Given a point, determine what bin it falls into.
   int HashPoint(float point[3]);
@@ -189,18 +163,18 @@ protected:
 				  float point[3]);
 
   // Description:
-  // Set the bin sizes for each of the 3 dimensions.
-  vtkSetMacro(XBinSize, float);
-  vtkSetMacro(YBinSize, float);
-  vtkSetMacro(ZBinSize, float);
-
-  // Description:
   // Initialize the quadric matrix to 0's.
   void InitializeQuadric(float quadric[9]);
   
   // Description:
   // Add this quadric to the quadric already associated with this bin.
   void AddQuadric(int binId, float quadric[9]);
+
+  // Description:
+  // This method will rep[lace the quadric  generated points with the
+  // input points with the lowest error.
+  void EndAppendUsingPoints(vtkPoints *points);
+  int UseInputPoints;
 
   int NumberOfXDivisions;
   int NumberOfYDivisions;
@@ -212,19 +186,10 @@ protected:
   float ZBinSize;
   VTK_POINT_QUADRIC* QuadricArray;
   int NumberOfBinsUsed;
-  int BinSizeSet;
-  vtkCellArray *OutputTriangles;
-  vtkDataSetCollection *InputList;
-  vtkTimerLog* Log;
-  int NumberOfExpectedInputs;
-  int AbortExecute; // We need this ivar because if we abort execute during
-                    // Append, we don't want EndAppend to execute either.
- private:
-  // hide the superclass' AddInput() from the user and the compiler
-  void AddInput(vtkDataObject *)
-    { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
-  void RemoveInput(vtkDataObject *input)
-    { this->vtkProcessObject::RemoveInput(input); };
+
+  // Have to make these instance variables if we are going to allow
+  // the algorithm to be driven by the Append methods.
+  vtkCellArray *OutputTriangleArray;
 };
 
 #endif

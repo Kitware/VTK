@@ -36,11 +36,11 @@ vtkQuadricClustering mesh
   mesh SetNumberOfXDivisions 30
   mesh SetNumberOfYDivisions 30
   mesh SetNumberOfZDivisions 30
-  mesh SetBounds -.5 .5 -.5 .5 -.5 .5
-  mesh StartAppend
+  mesh StartAppend -.5 .5 -.5 .5 -.5 .5
   mesh Append [sphere GetOutput]
   mesh Append [sphere2 GetOutput]
   mesh EndAppend
+
 
 vtkPolyDataMapper mapper
   mapper SetInput [mesh GetOutput]
