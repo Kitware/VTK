@@ -227,7 +227,7 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
     if (this->OwnWindow && this->DisplayId && this->WindowId)
       {
       XDestroyWindow(this->DisplayId,this->WindowId);
-      this->WindowId = NULL;
+      this->WindowId = (Window)NULL;
       }
     }
 }
@@ -298,7 +298,7 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
 //
 void vtkOpenGLRenderWindow::SetStereoCapableWindow(int capable)
 {
-  if (this->WindowId == NULL)
+  if (!this->WindowId)
     {
     vtkRenderWindow::SetStereoCapableWindow(capable);
     }
