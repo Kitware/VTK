@@ -17,21 +17,17 @@
 // Please address all comments to Jean Favre (jfavre at cscs.ch)
 
 #include "vtkGAMBITReader.h"
-#include "vtkDataArraySelection.h"
+
+#include "vtkObjectFactory.h"
 #include "vtkErrorCode.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkObjectFactory.h"
-#include "vtkFieldData.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
-#include "vtkByteSwap.h"
-#include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
-#include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkGAMBITReader, "1.1");
+vtkCxxRevisionMacro(vtkGAMBITReader, "1.2");
 vtkStandardNewMacro(vtkGAMBITReader);
 
 vtkGAMBITReader::vtkGAMBITReader()
