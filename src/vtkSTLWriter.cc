@@ -53,17 +53,6 @@ vtkSTLWriter::~vtkSTLWriter()
   if ( this->Filename ) delete [] this->Filename;
 }
 
-// Description:
-// Specify the input data or filter.
-void vtkSTLWriter::SetInput(vtkPolyData *input)
-{
-  if ( this->Input != input )
-    {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    this->Input = (vtkDataSet *) input;
-    this->Modified();
-    }
-}
 
 void vtkSTLWriter::WriteData()
 {
