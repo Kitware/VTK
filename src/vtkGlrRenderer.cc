@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGlrCamera.hh"
 #include "vtkGlrLight.hh"
 #include "vtkVolumeRenderer.hh"
+#include "vtkNewVolumeRenderer.hh"
 
 #define MAX_LIGHTS 8
 
@@ -185,6 +186,11 @@ void vtkGlrRenderer::Render(void)
   if (this->VolumeRenderer)
     {
     this->VolumeRenderer->Render((vtkRenderer *)this);
+    }
+
+  if (this->NewVolumeRenderer)
+    {
+    this->NewVolumeRenderer->Render((vtkRenderer *)this);
     }
 
   if (this->EndRenderMethod) 
