@@ -97,12 +97,6 @@ VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(void *cd)
 
 // we do no error checking in this.  We assume that if we were called
 // then tcl must have been able to find the command function and object
-VTKTCL_EXPORT void vtkTclDeleteObjectFromHash2(void *cd)
-{
-}
-
-// we do no error checking in this.  We assume that if we were called
-// then tcl must have been able to find the command function and object
 VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
 {
   char temps[80];
@@ -119,7 +113,7 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
   // lookup the objects name
   sprintf(temps,"%p",(void *)cd);
   entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
-  temp = strdup((char *)(Tcl_GetHashValue(entry)));
+  temp = (char *)(Tcl_GetHashValue(entry));
   args[0] = temp;
   
   // first we clear the delete callback since we will
