@@ -47,6 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <GL/gl.h>
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkWin32OpenGLRenderWindow.h"
 
 vtkOpenGLVolumeProVP1000Mapper* vtkOpenGLVolumeProVP1000Mapper::New()
 {
@@ -82,7 +83,7 @@ void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,
     {
     textureSize[1] *= 2;
     }
-
+  
   textureData = new unsigned int[textureSize[0]*textureSize[1]];
   for (j = 0; j < textureSize[1]; j++)
     {
@@ -136,36 +137,41 @@ void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,
   ren->WorldToView();
   depthVal = ren->GetViewPoint()[2];
   
-  ren->SetViewPoint(-1, -1, depthVal);
+  float aspect[2];
+  ren->GetAspect(aspect);
+  
+  ren->SetViewPoint(-aspect[0], -aspect[1], depthVal);
   ren->ViewToWorld();
   ren->GetWorldPoint(planeCoords[0]);
   
-  ren->SetViewPoint(1, -1, depthVal);
+  ren->SetViewPoint(aspect[0], -aspect[1], depthVal);
   ren->ViewToWorld();
   ren->GetWorldPoint(planeCoords[1]);
   
-  ren->SetViewPoint(1, 1, depthVal);
+  ren->SetViewPoint(aspect[0], aspect[1], depthVal);
   ren->ViewToWorld();
   ren->GetWorldPoint(planeCoords[2]);
   
-  ren->SetViewPoint(-1, 1, depthVal);
+  ren->SetViewPoint(-aspect[0], aspect[1], depthVal);
   ren->ViewToWorld();
   ren->GetWorldPoint(planeCoords[3]);
   
   // OpenGL stuff
   glDisable( GL_LIGHTING );
-
+  
   glEnable( GL_TEXTURE_2D );
   glDepthMask( 0 );
   glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   
+  // Specify the texture
+  glColor3f(1.0,1.0,1.0);
 #ifdef GL_VERSION_1_1
-  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, 
+  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8,
                 textureSize[0], textureSize[1],
                 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData );
 #else
-  glTexImage2D( GL_TEXTURE_2D, 0, 4, 
+  glTexImage2D( GL_TEXTURE_2D, 0, 4,
                 textureSize[0], textureSize[1],
                 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData );
 #endif 
@@ -208,7 +214,7 @@ void vtkOpenGLVolumeProVP1000Mapper::GetDepthBufferValues(vtkRenderer *ren,
     vtkErrorMacro("could not get Z buffer data");
     return;
     }
-
+  
   length = size[0]*size[1];
   
   rescale = 16777215; // 2^24 - 1
@@ -216,7 +222,8 @@ void vtkOpenGLVolumeProVP1000Mapper::GetDepthBufferValues(vtkRenderer *ren,
   for (i = 0; i < length; i++)
     {
     outData[i] = (unsigned int)(zData[i] * rescale);
-   }
+    }
   
-  delete [] zData;
+  // The render window allocated this memory, so it should release it.
+  vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow())->ReleaseRGBAPixelData(zData);
 }

@@ -242,11 +242,13 @@ void vtkVolumeProVP1000Mapper::UpdateCamera( vtkRenderer *ren, vtkVolume * vtkNo
   status = this->Context->GetCamera().SetViewMatrix( viewMatrixVLI );
 
   double clippingRange[2], parallelScale;
+  float aspect[2];
   ren->GetActiveCamera()->GetClippingRange(clippingRange);
+  ren->GetAspect(aspect);
   parallelScale = ren->GetActiveCamera()->GetParallelScale();
 
-  VLIMatrix projectionMatrixVLI = VLIMatrix::Ortho(-parallelScale,
-                                                   parallelScale,
+  VLIMatrix projectionMatrixVLI = VLIMatrix::Ortho(-parallelScale*aspect[0],
+                                                   parallelScale*aspect[0],
                                                    -parallelScale,
                                                    parallelScale,
                                                    clippingRange[0],
@@ -382,8 +384,6 @@ void vtkVolumeProVP1000Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
     case VTK_VOLUME_16BIT:
       scale = 16.0;
       break;
-    case VTK_VOLUME_32BIT:
-      scale = 1048576.0;
     }
 
   soFunc = vol->GetProperty()->GetScalarOpacity();
@@ -451,11 +451,12 @@ void vtkVolumeProVP1000Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
       case VTK_VOLUME_8BIT:
         scale = sqrt(3.0)*256.0;
         break;
+      case VTK_VOLUME_12BIT_LOWER:
+        scale = sqrt(3.0)*4096;
+        break;
       case VTK_VOLUME_16BIT:
         scale = sqrt(3.0)*65536;
         break;
-      case VTK_VOLUME_32BIT:
-        scale = sqrt(3.0)*4294967296;
       }
 
     gradientTable = new double [this->GradientTableSize];
@@ -612,7 +613,6 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
   int                       dataType;
   unsigned char             *uc_data_ptr;
   unsigned short            *us_data_ptr;
-  unsigned int              *ui_data_ptr;
   void                      *data_ptr;
   vtkImageData              *input = this->GetInput();
   vtkTransform              *correctionTransform;
@@ -656,7 +656,8 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
         break;
         
       case VTK_UNSIGNED_SHORT:
-        if ( this->VolumeDataType == VTK_VOLUME_16BIT )
+        if ( this->VolumeDataType == VTK_VOLUME_16BIT ||
+             this->VolumeDataType == VTK_VOLUME_12BIT_LOWER)
           {
           us_data_ptr = (unsigned short *) data_ptr;
           this->Volume->Update(us_data_ptr, volumeRange);
@@ -664,19 +665,9 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
           }
         break;
         
-      case VTK_UNSIGNED_INT:
-        if ( this->VolumeDataType == VTK_VOLUME_32BIT )
-          {
-          ui_data_ptr = (unsigned int *) data_ptr;
-          this->Volume->Update(ui_data_ptr, volumeRange);
-          volumeUpdated = 1;
-          }
-        break;
-        
       default:
-        vtkErrorMacro( "You must convert your data to unsigned char, " <<
-                       "unsigned short, or unsigned int for a VolumePro " <<
-                       "mapper" );
+        vtkErrorMacro( "You must convert your data to unsigned char or " <<
+                       "unsigned short for a VolumePro mapper" );
         break;
       }
     
@@ -743,21 +734,9 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
         
         break;
         
-      case VTK_UNSIGNED_INT:
-        ui_data_ptr = (unsigned int *) data_ptr;
-        this->Volume = VLIVolume::Create( 32, dataSize[0], dataSize[1],
-                                          dataSize[2], 0, 0, ui_data_ptr );
-        this->Volume->SetFieldDescriptor(kVLIField0,
-                                         VLIFieldDescriptor(0, 32, kVLIUnsignedFraction));
-        
-        this->VolumeDataType = VTK_VOLUME_32BIT;
-        
-        break;
-        
       default:
-        vtkErrorMacro( << "You must convert your data to unsigned char, "
-                       << "unsigned short, or unsigned int for a VolumePro "
-                       << "mapper" );
+        vtkErrorMacro( << "You must convert your data to unsigned char or "
+                       << "unsigned short for a VolumePro mapper" );
         break;
       }
     }
@@ -929,6 +908,16 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
   
   status = this->Volume->LockVolume();
 
+  if ( this->ImageBuffer )
+    {
+    unsigned int width, height;
+    this->ImageBuffer->GetSize(width, height);
+    if ((int)width != windowSize[0] || (int)height != windowSize[1])
+      {
+      this->ImageBuffer->Release();
+      this->ImageBuffer = NULL;
+      }
+    }
   if ( ! this->ImageBuffer )
     {
     static VLIFieldDescriptor sImageBufferFields[4] =
@@ -954,6 +943,16 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
   else
     {
     VLIImageRange iRange = VLIImageRange(windowSize[0], windowSize[1]);
+    if ( this->DepthBuffer )
+      {
+      unsigned int width, height;
+      this->DepthBuffer->GetSize(width, height);
+      if ((int)width != windowSize[0] || (int)height != windowSize[1])
+        {
+        this->DepthBuffer->Release();
+        this->DepthBuffer = NULL;
+        }
+      }
     if ( ! this->DepthBuffer )
       {
       this->DepthBuffer = VLIDepthBuffer::Create(kVLIBoard0, windowSize[0],
