@@ -19,7 +19,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.3");
+vtkCxxRevisionMacro(vtk3DWidget, "1.4");
 
 vtk3DWidget::vtk3DWidget()
 {
@@ -49,6 +49,7 @@ vtk3DWidget::~vtk3DWidget()
     this->Input->Delete();
     this->Input = NULL;
     }
+  this->WidgetCallbackCommand->Delete();
 }
 
 void vtk3DWidget::PlaceWidget()
