@@ -67,6 +67,7 @@ vtkSpherePuzzle::vtkSpherePuzzle()
 {
   this->Transform = vtkTransform::New();
   this->Reset();
+  this->Active = 0;
 }
 
 //----------------------------------------------------------------------------
