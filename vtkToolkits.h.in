@@ -61,6 +61,9 @@
 #cmakedefine VTK_USE_SYSTEM_TIFF
 #cmakedefine VTK_USE_SYSTEM_EXPAT
 
+/* Whether the real python debug library has been provided.  */
+#cmakedefine VTK_WINDOWS_PYTHON_DEBUGGABLE
+
 /*--------------------------------------------------------------------------*/
 /* Setup VTK based on platform features and configuration.                  */
 

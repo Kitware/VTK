@@ -17,12 +17,19 @@
 
 #undef _POSIX_THREADS
 
-#ifdef _DEBUG
-# undef _DEBUG
+#include "vtkToolkits.h"
+
+/* Use the real python debugging library if it is provided.  */
+#if defined(VTK_WINDOWS_PYTHON_DEBUGGABLE)
 # include <Python.h>
-# define _DEBUG
 #else
-# include <Python.h>
+# ifdef _DEBUG
+#  undef _DEBUG
+#  include <Python.h>
+#  define _DEBUG
+# else
+#  include <Python.h>
+# endif
 #endif
 
 #endif
