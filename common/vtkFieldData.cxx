@@ -65,6 +65,17 @@ void vtkFieldData::Initialize()
 {
   int i;
 
+  if (this->ArrayNames)
+    {
+    for ( i=0; i<NumberOfArrays; i++ )
+      {
+      if (this->ArrayNames[i] != NULL) delete [] this->ArrayNames[i];
+      }
+
+    delete [] this->ArrayNames;
+    this->ArrayNames = NULL;
+    }
+
   if ( this->Data )
     {
     for ( i=0; i<this->NumberOfArrays; i++ )
@@ -77,19 +88,9 @@ void vtkFieldData::Initialize()
     
     delete [] this->Data;
     this->Data = NULL;
-    this->NumberOfArrays = 0;
     }
 
-  if (this->ArrayNames)
-    {
-    for ( i=0; i<NumberOfArrays; i++ )
-      {
-      if (this->ArrayNames[i] != NULL) delete [] this->ArrayNames[i];
-      }
-
-    delete [] this->ArrayNames;
-    this->ArrayNames = NULL;
-    }
+  this->NumberOfArrays = 0;
 }
 
 // Description:
@@ -151,11 +152,11 @@ void vtkFieldData::SetNumberOfArrays(int num)
 
   else if ( num < this->NumberOfArrays )
     {
-    this->NumberOfArrays = num;
     for ( i=num; i < this->NumberOfArrays; i++)
       {
       this->Data[i]->UnRegister(this);
       }
+    this->NumberOfArrays = num;
     }
 
   else //num > this->NumberOfArrays

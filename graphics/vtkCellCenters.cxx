@@ -65,6 +65,7 @@ void vtkCellCenters::Execute()
   if ( (numCells = input->GetNumberOfCells()) < 1 )
     {
     vtkErrorMacro(<<"No cells to generate center points for");
+    if (weights) delete [] weights;
     return;
     }
 
@@ -102,6 +103,7 @@ void vtkCellCenters::Execute()
   newPts->Delete();
 
   outPD->PassData(inCD); //because number of points = number of cells
+  if (weights) delete [] weights;
 }
 
 void vtkCellCenters::PrintSelf(ostream& os, vtkIndent indent)
