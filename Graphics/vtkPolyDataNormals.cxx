@@ -28,7 +28,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkPriorityQueue.h"
 
-vtkCxxRevisionMacro(vtkPolyDataNormals, "1.58");
+vtkCxxRevisionMacro(vtkPolyDataNormals, "1.59");
 vtkStandardNewMacro(vtkPolyDataNormals);
 
 // Construct with feature angle=30, splitting and consistency turned on, 
@@ -90,7 +90,6 @@ void vtkPolyDataNormals::Execute()
     return;
     }
 
-  vtkErrorMacro(<<"numPts is " << numPts);
 
   // If there is nothing to do, pass the data through
   if ( this->ComputePointNormals == 0 && this->ComputeCellNormals == 0) 
