@@ -68,6 +68,7 @@ EXAMPLES = VisQuad \
 	probe \
 	quadricCut \
 	singleSplat \
+	stCone \
 	tcutSph \
 	vtkLogo \
 	volProt
@@ -217,6 +218,9 @@ quadricCut: quadricCut.o ${VTKLIB}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 singleSplat: singleSplat.o ${VTKLIB}
 	${CXX} -o singleSplat ${CXX_FLAGS} singleSplat.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+stCone: stCone.o ${VTKLIB}
+	${CXX} -o stCone ${CXX_FLAGS} stCone.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 tcutSph: tcutSph.o ${VTKLIB}
 	${CXX} -o tcutSph ${CXX_FLAGS} tcutSph.o ${XLDFLAGS} ${LDLIBS} \
