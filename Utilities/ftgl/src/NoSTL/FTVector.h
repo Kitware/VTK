@@ -55,8 +55,8 @@ protected:
 
 private:
 
+  size_type Capacity;
   size_type Size;
-  size_type NumberOfItems;
   value_type* Items;
 };
 
@@ -64,7 +64,7 @@ private:
 inline 
 FT_VECTOR_CLASS_NAME::FT_VECTOR_CLASS_NAME()
 {
-  this->Size = this->NumberOfItems = 0;
+  this->Capacity = this->Size = 0;
   this->Items = 0;
 }
 
@@ -92,7 +92,7 @@ FT_VECTOR_CLASS_NAME& FT_VECTOR_CLASS_NAME::operator =(const FT_VECTOR_CLASS_NAM
     {
     *ptr++ = *vbegin++;
     }
-  this->NumberOfItems = v.size();
+  this->Size = v.size();
   return *this;
 }
 
@@ -100,14 +100,14 @@ FT_VECTOR_CLASS_NAME& FT_VECTOR_CLASS_NAME::operator =(const FT_VECTOR_CLASS_NAM
 inline 
 FT_VECTOR_CLASS_NAME::size_type FT_VECTOR_CLASS_NAME::size() const 
 { 
-  return this->NumberOfItems; 
+  return this->Size; 
 }
 
 
 inline 
 FT_VECTOR_CLASS_NAME::size_type FT_VECTOR_CLASS_NAME::capacity() const 
 { 
-  return this->Size; 
+  return this->Capacity; 
 }
 
 
@@ -149,6 +149,10 @@ bool FT_VECTOR_CLASS_NAME::empty() const
 inline 
 FT_VECTOR_CLASS_NAME::reference FT_VECTOR_CLASS_NAME::operator [](FT_VECTOR_CLASS_NAME::size_type pos) 
 { 
+#if FT_VECTOR_CLASS_DEBUG    
+  printf("FT_VECTOR_CLASS_NAME:        []() (%d / %d) pos: %d\n", 
+         this->size(), this->capacity(), pos);
+#endif
   return (*(begin() + pos)); 
 }
 
@@ -156,6 +160,10 @@ FT_VECTOR_CLASS_NAME::reference FT_VECTOR_CLASS_NAME::operator [](FT_VECTOR_CLAS
 inline 
 FT_VECTOR_CLASS_NAME::const_reference FT_VECTOR_CLASS_NAME::operator [](FT_VECTOR_CLASS_NAME::size_type pos) const 
 { 
+#if FT_VECTOR_CLASS_DEBUG    
+  printf("FT_VECTOR_CLASS_NAME:        []() (%d / %d) pos: %d\n", 
+         this->size(), this->capacity(), pos);
+#endif
   return (*(begin() + pos)); 
 }
 
@@ -163,44 +171,45 @@ FT_VECTOR_CLASS_NAME::const_reference FT_VECTOR_CLASS_NAME::operator [](FT_VECTO
 inline 
 void FT_VECTOR_CLASS_NAME::clear()
 {
-  if (this->Size)
+  if (this->Capacity)
     {
-#if FT_VECTOR_CLASS_DEBUG    
-    printf("FT_VECTOR_CLASS_NAME: clear() (%d / %d)\n", 
+#if FT_VECTOR_CLASS_DEBUG
+    printf("FT_VECTOR_CLASS_NAME:     clear() (%d / %d)\n", 
            this->size(), this->capacity());
 #endif
     delete [] this->Items;
-    this->Size = this->NumberOfItems = 0;
+    this->Capacity = this->Size = 0;
     this->Items = 0;
     }
 }
 
 
 inline 
-void FT_VECTOR_CLASS_NAME::expand(size_type size_hint)
+void FT_VECTOR_CLASS_NAME::expand(size_type capacity_hint)
 {
 #if FT_VECTOR_CLASS_DEBUG    
-  printf("FT_VECTOR_CLASS_NAME: expand() (%d / %d) hint: %d\n", 
-         this->size(), this->capacity(), size_hint);
+  printf("FT_VECTOR_CLASS_NAME:    expand() (%d / %d) hint: %d\n", 
+         this->size(), this->capacity(), capacity_hint);
 #endif
 
-  // Allocate new vector (size doubles)
+  // Allocate new vector (capacity doubles)
 
-  size_type new_size = (this->size() == 0) ? 256 : this->size() * 2;
-  if (size_hint)
+  size_type new_capacity = (this->capacity() == 0) ? 256 : this->capacity()* 2;
+  if (capacity_hint)
     {
-    while (new_size < size_hint)
+    while (new_capacity < capacity_hint)
       {
-      new_size *= 2;
+      new_capacity *= 2;
       }
     }
   
-  value_type *ptr = new value_type[new_size];
+  value_type *new_items = new value_type[new_capacity];
 
   // Copy values to new vector
 
   iterator begin = this->begin();
   iterator end = this->end();
+  value_type *ptr = new_items;
   while (begin != end)
     {
     *ptr++ = *begin++;
@@ -208,9 +217,12 @@ void FT_VECTOR_CLASS_NAME::expand(size_type size_hint)
 
   // Deallocate old vector and use new vector
 
-  delete [] this->Items;
-  this->Items = ptr;
-  this->Size = new_size;
+  if (this->Capacity)
+    {
+    delete [] this->Items;
+    }
+  this->Items = new_items;
+  this->Capacity = new_capacity;
 }
 
 
@@ -218,7 +230,7 @@ inline
 void FT_VECTOR_CLASS_NAME::reserve(size_type n)
 {
 #if FT_VECTOR_CLASS_DEBUG    
-  printf("FT_VECTOR_CLASS_NAME: reserve() (%d / %d) n: %d\n", 
+  printf("FT_VECTOR_CLASS_NAME:   reserve() (%d / %d) n: %d\n", 
          this->size(), this->capacity(), n);
 #endif
   if (this->capacity() < n)
@@ -240,7 +252,7 @@ void FT_VECTOR_CLASS_NAME::push_back(const value_type& x)
     this->expand();
     }
   (*this)[this->size()] = x;
-  this->NumberOfItems++;
+  this->Size++;
 }
 
 
@@ -248,14 +260,28 @@ inline
 void FT_VECTOR_CLASS_NAME::resize(size_type n, value_type x)
 {
 #if FT_VECTOR_CLASS_DEBUG    
-  printf("FT_VECTOR_CLASS_NAME: resize() (%d / %d) n: %d\n", 
+  printf("FT_VECTOR_CLASS_NAME:    resize() (%d / %d) n: %d\n", 
          this->size(), this->capacity(), n);
 #endif
-  this->reserve(n);
-  iterator end = this->end();
-  iterator end_capacity = this->begin() + this->capacity();
-  while (end != end_capacity)
+  if (n == this->size())
     {
-    *end++ = x;
+    return;
     }
+  this->reserve(n);
+  iterator begin, end;
+  if (n >= this->Size)
+    {
+    begin = this->end();
+    end = this->begin() + n;
+    }
+  else
+    {
+    begin = this->begin() + n;
+    end = this->end();
+    }
+  while (begin != end)
+    {
+    *begin++ = x;
+    }
+  this->Size = n;
 }
