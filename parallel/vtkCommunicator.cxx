@@ -61,7 +61,15 @@ vtkCommunicator::~vtkCommunicator()
 
 void vtkCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "Marshal string: " << this->MarshalString << endl;
+  os << indent << "Marshal string: ";
+  if ( this->MarshalString )
+    {
+    os << this->MarshalString << endl;
+    }
+  else
+    {
+    os << "(None)" << endl;
+    }
   os << indent << "Marshal string length: " << this->MarshalStringLength
      << endl;
   os << indent << "Marshal data length: " << this->MarshalDataLength

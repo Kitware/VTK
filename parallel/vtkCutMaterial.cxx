@@ -235,7 +235,15 @@ void vtkCutMaterial::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "ArrayName: " << this->ArrayName << endl;
+  os << indent << "ArrayName: ";
+  if ( this->ArrayName)
+    {
+    os << this->ArrayName << endl;
+    }
+  else
+    {
+    os << "(None)" << endl;
+    }
   os << indent << "MaterialArrayName: " << this->MaterialArrayName << endl;
   os << indent << "Material: " << this->Material << endl;
   
