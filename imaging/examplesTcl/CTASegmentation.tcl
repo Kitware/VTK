@@ -134,6 +134,7 @@ vtkImageToStructuredPoints image;
 
 vtkStructuredPointsWriter writer;
         writer SetInput [image GetOutput];
+	writer SetFileType 2;
         writer SetFilename "CTAStrucutredPoints.bin";
 
 
