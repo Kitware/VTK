@@ -68,6 +68,7 @@ vtkLookupTable \
 vtkMath \
 vtkMatrix4x4 \
 vtkMultiThreader \
+vtkNULLCell \
 vtkObject \
 vtkPixel \
 vtkPixmap \
