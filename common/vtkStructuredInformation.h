@@ -1,12 +1,13 @@
 /*=========================================================================
 
-
-  Module:    vtkStructuredPoints.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkStructuredInformation.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+
+Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -37,33 +38,53 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <math.h>
-#include "vtkStructuredPoints.h"
-#include "vtkImageToStructuredPoints.h"
-#include "vtkStructuredExtent.h"
+// .NAME vtkStructuredInformation - Information like WholeExtent.
+// .SECTION Description
+// Note:  This object is under development an might change in the future.
+// This class contains all the information specific to structured
+// data sets.  This does not contain all the information for
+// vtkImageData for legacy reasons.
 
-vtkStructuredPoints::vtkStructuredPoints()
+
+#ifndef __vtkStructuredInformation_h
+#define __vtkStructuredInformation_h
+
+#include "vtkDataInformation.h"
+
+
+class VTK_EXPORT vtkStructuredInformation : public vtkDataInformation
 {
-  this->SetScalarType(VTK_FLOAT);
-}
+public:
+  static vtkStructuredInformation *New() 
+    {return new vtkStructuredInformation;};
+  const char *GetClassName() {return "vtkStructuredInformation";}
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Set/Get the largest exetent that can be requested.
+  void SetWholeExtent(int extent[6]);
+  int *GetWholeExtent() {return this->WholeExtent;}
+  void GetWholeExtent(int extent[6]);
+  
+  // Description:
+  // Subclasses override this method, and try to be smart
+  // if the types are different.
+  void Copy(vtkDataInformation *in);
+
+  // Description:
+  // This method is passed a ClassName and returns 1 if the object is
+  // a subclass of the class arg.  It is an attempt at making a smarter copy.
+  int GetClassCheck(char *className);
+  
+protected:
+  
+  vtkStructuredInformation();
+  ~vtkStructuredInformation() {};
+
+  // The largest extent that can be requested.
+  int WholeExtent[6];
+  
+};
 
 
-int vtkStructuredPoints::ClipUpdateExtentWithWholeExtent()
-{
-  this->UpdateExtent->SetExtent(this->GetWholeExtent());
-  return 1;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#endif

@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPixel.h"
 #include "vtkVoxel.h"
 #include "vtkStructuredExtent.h"
+#include "vtkStructuredInformation.h"
 
 //----------------------------------------------------------------------------
 vtkRectilinearGrid::vtkRectilinearGrid()
@@ -70,15 +71,14 @@ vtkRectilinearGrid::vtkRectilinearGrid()
   this->PointReturn[2] = 0.0;
 
   // -----------
-  // I do not like this method of defaulting to the whole dimensions.
   this->UpdateExtent = vtkStructuredExtent::New();
 
   this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
   this->Extent[1] = this->Extent[3] = this->Extent[5] = 0;
 
-  this->WholeExtent[0] = this->WholeExtent[2] = this->WholeExtent[4] = 0;
-  this->WholeExtent[1] = this->WholeExtent[3] = this->WholeExtent[5] = 0;
-
+  // Delete the generic information object created by the superclass.
+  this->Information->Delete();
+  this->Information = vtkStructuredInformation::New();
 }
 
 //----------------------------------------------------------------------------
@@ -886,7 +886,7 @@ void vtkRectilinearGrid::GetUpdateExtent(int ext[6])
 void vtkRectilinearGrid::SetUpdateExtentToWholeExtent()
 {
   this->UpdateInformation();
-  this->SetUpdateExtent(this->WholeExtent);
+  this->SetUpdateExtent(this->GetStructuredInformation()->GetWholeExtent());
 }
 
 //----------------------------------------------------------------------------
@@ -922,57 +922,11 @@ void vtkRectilinearGrid::SetUpdateExtent(int piece, int numPieces)
 }
 
 //----------------------------------------------------------------------------
-void vtkRectilinearGrid::CopyGenericUpdateExtent(vtkExtent *arg)
-{
-  if (strcmp(arg->GetClassName(), "vtkStructuredExtent") != 0)
-    {
-    vtkErrorMacro("cannot copy " << arg->GetClassName());
-    return;
-    }
-  
-  this->UpdateExtent->Copy((vtkStructuredExtent *)(arg));
-}
-//----------------------------------------------------------------------------
-void vtkRectilinearGrid::CopyUpdateExtent(vtkDataObject *data)
-{
-  vtkRectilinearGrid *grid = (vtkRectilinearGrid*)(data);
-  int *ext;
-
-  if (data->GetDataObjectType() != VTK_RECTILINEAR_GRID)
-    {
-    vtkErrorMacro("CopyUpdateExtent: Expecting vtkRectilinearGrid, got " 
-                  << data->GetClassName());
-    return;
-    }
-
-  ext = grid->GetUpdateExtent();
-  this->SetUpdateExtent(ext);
-}
-
-//----------------------------------------------------------------------------
-void vtkRectilinearGrid::CopyInformation(vtkDataObject *data)
-{
-  vtkRectilinearGrid *grid = (vtkRectilinearGrid*)(data);
-
-  this->vtkDataSet::CopyInformation(data);
-  
-  if (data->GetDataObjectType() != VTK_RECTILINEAR_GRID)
-    {
-    //vtkErrorMacro("CopyInformation: Expecting vtkStructuredGrid, got " 
-    //              << data->GetClassName());
-    // We might be able to copy the generic information,
-    // or even information shared between structured data types.
-    return;
-    }
-
-  this->SetWholeExtent(grid->GetWholeExtent());
-}
-
-//----------------------------------------------------------------------------
 int vtkRectilinearGrid::ClipUpdateExtentWithWholeExtent()
 {
   int valid = 1;
   int idx, minIdx, maxIdx;
+  int *wExt = this->GetStructuredInformation()->GetWholeExtent();
   int uExt[6];
   
   this->UpdateExtent->GetExtent(uExt);
@@ -983,36 +937,34 @@ int vtkRectilinearGrid::ClipUpdateExtentWithWholeExtent()
     maxIdx = 2*idx + 1;
     
     // make sure there is overlap!
-    if (uExt[minIdx] > this->WholeExtent[maxIdx])
+    if (uExt[minIdx] > wExt[maxIdx])
       {
       valid = 0;
       vtkErrorMacro("UpdateExtent " << uExt[minIdx] 
 		      << " -> " << uExt[maxIdx]  
 		      << " does not overlap with WholeExtent "
-		      << this->WholeExtent[minIdx] << " -> "
-		      << this->WholeExtent[maxIdx]);
-      uExt[minIdx] = this->WholeExtent[maxIdx];
+		      << wExt[minIdx] << " -> " << wExt[maxIdx]);
+      uExt[minIdx] = wExt[maxIdx];
       }
-    if (uExt[maxIdx] < this->WholeExtent[minIdx])
+    if (uExt[maxIdx] < wExt[minIdx])
       {
       valid = 0;
       vtkErrorMacro("UpdateExtent " << uExt[minIdx] 
 		      << " -> " << uExt[maxIdx]  
 		      << " does not overlap with WholeExtent "
-		      << this->WholeExtent[minIdx] << " -> "
-		      << this->WholeExtent[maxIdx]);
-      uExt[maxIdx] = this->WholeExtent[minIdx];
+		      << wExt[minIdx] << " -> " << wExt[maxIdx]);
+      uExt[maxIdx] = wExt[minIdx];
       }
     
     // typical intersection shift min up to whole min
-    if (uExt[minIdx] < this->WholeExtent[minIdx])
+    if (uExt[minIdx] < wExt[minIdx])
       {
-      uExt[minIdx] = this->WholeExtent[minIdx];
+      uExt[minIdx] = wExt[minIdx];
       }
     // typical intersection shift max down to whole max
-    if (uExt[maxIdx] >= this->WholeExtent[maxIdx])
+    if (uExt[maxIdx] >= wExt[maxIdx])
       {
-      uExt[maxIdx] = this->WholeExtent[maxIdx];
+      uExt[maxIdx] = wExt[maxIdx];
       }
     }
   
@@ -1039,20 +991,7 @@ int vtkRectilinearGrid::ClipUpdateExtentWithWholeExtent()
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::SetWholeExtent(int extent[6])
 {
-  int idx, modified = 0;
-  
-  for (idx = 0; idx < 6; ++idx)
-    {
-    if (this->WholeExtent[idx] != extent[idx])
-      {
-      modified = 1;
-      this->WholeExtent[idx] = extent[idx];
-      }
-    }
-  if (modified)
-    {
-    this->Modified();
-    }
+  this->GetStructuredInformation()->SetWholeExtent(extent);
 }
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::SetWholeExtent(int xMin, int xMax,
@@ -1069,27 +1008,38 @@ void vtkRectilinearGrid::SetWholeExtent(int xMin, int xMax,
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::GetWholeExtent(int extent[6])
 {
+  int *ext = this->GetStructuredInformation()->GetWholeExtent();
   int idx;
   
   for (idx = 0; idx < 6; ++idx)
     {
-    extent[idx] = this->WholeExtent[idx];
+    extent[idx] = ext[idx];
     }
 }
+
+//----------------------------------------------------------------------------
+int *vtkRectilinearGrid::GetWholeExtent() 
+{
+  return this->GetStructuredInformation()->GetWholeExtent();
+}
+
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::GetWholeExtent(int &xMin, int &xMax, 
-				       int &yMin, int &yMax,
-				       int &zMin, int &zMax)
+					int &yMin, int &yMax,
+					int &zMin, int &zMax)
 {
-  xMin = this->WholeExtent[0]; xMax = this->WholeExtent[1];
-  yMin = this->WholeExtent[2]; yMax = this->WholeExtent[3];
-  zMin = this->WholeExtent[4]; zMax = this->WholeExtent[5];
+  int *ext = this->GetStructuredInformation()->GetWholeExtent();
+
+  xMin = ext[0]; xMax = ext[1];
+  yMin = ext[2]; yMax = ext[3];
+  zMin = ext[4]; zMax = ext[5];
 }
 
 
 //----------------------------------------------------------------------------
 unsigned long vtkRectilinearGrid::GetEstimatedUpdateMemorySize()
 {
+  int *wExt = this->GetStructuredInformation()->GetWholeExtent();
   int idx, *uExt = this->UpdateExtent->GetExtent();
   unsigned long wholeSize, updateSize;
   
@@ -1097,11 +1047,12 @@ unsigned long vtkRectilinearGrid::GetEstimatedUpdateMemorySize()
   wholeSize = updateSize = 1;
   for (idx = 0; idx < 3; ++idx)
     {
-    wholeSize *= (this->WholeExtent[idx*2+1] - this->WholeExtent[idx*2] + 1);
+    wholeSize *= (wExt[idx*2+1] - wExt[idx*2] + 1);
     updateSize *= (uExt[idx*2+1] - uExt[idx*2] +1);
     }
 
-  updateSize = updateSize * this->EstimatedWholeMemorySize / wholeSize;
+  updateSize = updateSize * this->Information->GetEstimatedWholeMemorySize()
+    / wholeSize;
   if (updateSize < 1)
     {
     return 1;
@@ -1141,17 +1092,8 @@ void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
      << this->Extent[3] << ", " << this->Extent[4] << ", "
      << this->Extent[5] << endl;
 
-  os << indent << "EstimatedWholeMemorySize: " 
-     << this->EstimatedWholeMemorySize << endl;
   os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
 
-  os << indent << "WholeExtent: (" << this->WholeExtent[0];
-  for (idx = 1; idx < 6; ++idx)
-    {
-    os << ", " << this->WholeExtent[idx];
-    }
-  os << ")\n";
-  
 }
 
 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStructuredExtent.cxx
+  Module:    vtkStructuredInformation.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,54 +38,96 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-
-#include "vtkStructuredExtent.h"
-#include "vtkUnstructuredExtent.h"
+#include "vtkStructuredInformation.h"
 
 //----------------------------------------------------------------------------
-// Construct a new vtkStructuredExtent 
-vtkStructuredExtent::vtkStructuredExtent()
+// Construct a new vtkStructuredInformation 
+vtkStructuredInformation::vtkStructuredInformation()
+{
+  this->WholeExtent[0] = this->WholeExtent[2] = this->WholeExtent[4] = 0;
+  this->WholeExtent[1] = this->WholeExtent[3] = this->WholeExtent[5] = 0;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkStructuredInformation::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkDataInformation::PrintSelf(os, indent);
+  int idx;
+  
+  os << indent << "WholeExtent: (" << this->WholeExtent[0];
+  for (idx = 1; idx < 6; ++idx)
+    {
+    os << ", " << this->WholeExtent[idx];
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredInformation::SetWholeExtent(int *ext)
+{
+  int idx, modified = 0;
+  
+  for (idx = 0; idx < 6; ++idx)
+    {
+    if (this->WholeExtent[idx] != ext[idx])
+      {
+      modified = 1;
+      }
+    this->WholeExtent[idx] = ext[idx];
+    }
+  
+  if (modified)
+    {
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredInformation::GetWholeExtent(int *ext)
 {
   int idx;
   
-  for (idx = 0; idx < 3; ++idx)
+  for (idx = 0; idx < 6; ++idx)
     {
-    this->Extent[idx*2] = -VTK_LARGE_INTEGER;
-    this->Extent[idx*2+1] = VTK_LARGE_INTEGER;
+    ext[idx] = this->WholeExtent[idx];
     }
 }
 
 
 
 //----------------------------------------------------------------------------
-void vtkStructuredExtent::PrintSelf(ostream& os, vtkIndent indent)
+int vtkStructuredInformation::GetClassCheck(char *className)
 {
-  vtkExtent::PrintSelf(os, indent);
-  os << indent << "Extent: " << this->Extent[0] << ", " << this->Extent[1] 
-     << ", " << this->Extent[2] << ", " << this->Extent[3] 
-     << ", " << this->Extent[4] << ", " << this->Extent[5] << endl;
+  if (strcmp(className, "vtkStructuredInformation") == 0)
+    {
+    return 1;
+    }
+  // check superclass
+  if (this->vtkDataInformation::GetClassCheck(className))
+    {
+    return 1;
+    }
+  
+  return 0;
 }
 
 
 //----------------------------------------------------------------------------
-void vtkStructuredExtent::Copy(vtkExtent *in)
+void vtkStructuredInformation::Copy(vtkDataInformation *in)
 {
-  // call the supperclasses copy
-  this->vtkExtent::Copy(in);
+  this->vtkDataInformation::Copy(in);
   
-  // WARNING!!!
-  // This logic only works because of the simple class hierachy.
-  // If you subclass off this extent, ClassName cannot be used.
-  if (strcmp(in->GetClassName(), "vtkStructuredExtent") == 0)
+  if (in->GetClassCheck("vtkStructuredInformation"))
     {
-    int idx;
-    vtkStructuredExtent *e = (vtkStructuredExtent*)(in);
-  
-    for (idx = 0; idx < 6; ++idx)
-      {
-      this->Extent[idx] = e->Extent[idx];
-      }
-    } 
+    vtkStructuredInformation *info = (vtkStructuredInformation*)(in);
+    this->SetWholeExtent(info->GetWholeExtent());
+    }
 }
+
+
+
+
+  
+
 
 

@@ -149,8 +149,6 @@ void vtkImageEllipsoidSource::UpdateInformation()
     }
   
   data->SetEstimatedWholeMemorySize(mem);
-  // Do not allow less than 1Kb per piece.
-  data->SetMaximumNumberOfPieces(mem);
 }
 
 

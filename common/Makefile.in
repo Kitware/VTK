@@ -53,6 +53,7 @@ vtkCharArray \
 vtkCollection \
 vtkContourValues \
 vtkCoordinate \
+vtkDataInformation \
 vtkDataObject \
 vtkDataSetAttributes \
 vtkDoubleArray \
@@ -64,6 +65,7 @@ vtkGenericCell \
 vtkHexahedron \
 vtkIdList \
 vtkImageData \
+vtkImageInformation \
 vtkImageSource \
 vtkImageToStructuredPoints \
 vtkIndent \
@@ -106,6 +108,7 @@ vtkStack \
 vtkStructuredData \
 vtkStructuredExtent \
 vtkStructuredGrid \
+vtkStructuredInformation \
 vtkStructuredPoints \
 vtkTCoords \
 vtkTensor \
@@ -121,6 +124,7 @@ vtkUnsignedIntArray \
 vtkUnsignedLongArray \
 vtkUnsignedShortArray \
 vtkUnstructuredExtent \
+vtkUnstructuredInformation \
 vtkUnstructuredGrid \
 vtkVectors \
 vtkVertex \

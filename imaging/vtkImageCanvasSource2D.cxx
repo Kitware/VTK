@@ -51,7 +51,7 @@ vtkImageCanvasSource2D::vtkImageCanvasSource2D()
     {
     this->DrawColor[idx] = 0.0;
     }
-  this->NumberOfScalarComponents = 1;
+  this->SetNumberOfScalarComponents(1);
   this->ImageData = this;
 }
 

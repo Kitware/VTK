@@ -41,34 +41,37 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkExtent.h"
 #include "vtkStructuredExtent.h"
 #include "vtkUnstructuredExtent.h"
+
+//----------------------------------------------------------------------------
 // Construct a new vtkExtent 
 vtkExtent::vtkExtent()
 {
+  this->SeriesIndex = 0;
 }
 
 
+//----------------------------------------------------------------------------
 void vtkExtent::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);
-}
-
-
-
-void vtkExtent::Copy(vtkStructuredExtent* vtkNotUsed(in))
-{
-  // I don't think the error macro will work because the subclass
-  // overrides one of these method, which hides the other.
-  vtkErrorMacro("I do not know how to copy that type of extent.");
-}
-
-void vtkExtent::Copy(vtkUnstructuredExtent* vtkNotUsed(in))
-{
-  // I don't think the error macro will work because the subclass
-  // overrides one of these method, which hides the other.
-  vtkErrorMacro("I do not know how to copy that type of extent.");
-}
-
   
+  os << indent << "SeriesIndex: " << this->SeriesIndex << endl;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkExtent::Copy(vtkExtent* in)
+{
+  this->SetSeriesIndex(in->GetSeriesIndex());
+}
+
+
+
+
+
+
+
+
 
 
 

@@ -53,6 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkCellTypes.h"
 #include "vtkCellLinks.h"
+class vtkUnstructuredInformation;
 class vtkExtent;
 class vtkUnstructuredExtent;
 class vtkVertex;
@@ -129,11 +130,15 @@ public:
   // to need these methods (which should eventually replace the 
   // CopyUpdateExtent method).
   vtkExtent *GetGenericUpdateExtent() {return (vtkExtent*)this->UpdateExtent;}
-  void CopyGenericUpdateExtent(vtkExtent *ext);  
   
   // Description:
   // Return the amount of memory for the update piece.
   unsigned long GetEstimatedUpdateMemorySize();
+
+  // Description:
+  // Returns the unstructured grid specific information object.
+  vtkUnstructuredInformation *GetUnstructuredInformation()
+    {return (vtkUnstructuredInformation*)(this->Information);}
 
 protected:
   vtkUnstructuredGrid();
@@ -166,8 +171,6 @@ protected:
   vtkUnstructuredExtent *Extent;
   vtkUnstructuredExtent *UpdateExtent;
   
-  void CopyUpdateExtent(vtkDataObject *grid);
-  void CopyInformation(vtkDataObject *grid);
   // Returns 0 if upstream filter cannot generate the UpdateExtent.
   // This also releases the data if a different piece is requested.
   int ClipUpdateExtentWithWholeExtent();

@@ -52,15 +52,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredExtent : public vtkExtent
 {
 public:
-  vtkStructuredExtent();
   static vtkStructuredExtent *New() {return new vtkStructuredExtent;};
   const char *GetClassName() {return "vtkStructuredExtent";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Copy information from one extent into a similar type event.
-  // Subclasses over ride the correct type.
-  void Copy(vtkStructuredExtent *in);
+  // Copy information from one extent into another.
+  // This tries to be smart if the types are different.
+  void Copy(vtkExtent *in);
 
   // Description:
   // Access to the extent.  Note: I do not like the name "Extent" for this ivar
@@ -69,7 +68,10 @@ public:
   vtkGetVector6Macro(Extent, int);
   
 protected:
-  
+
+  vtkStructuredExtent();
+  ~vtkStructuredExtent() {};
+
   // This is the way the extent was specified before these objects.
   int Extent[6];
 };

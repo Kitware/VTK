@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStructuredExtent.cxx
+  Module:    vtkImageInformation.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,54 +38,79 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-
-#include "vtkStructuredExtent.h"
-#include "vtkUnstructuredExtent.h"
+#include "vtkImageInformation.h"
 
 //----------------------------------------------------------------------------
-// Construct a new vtkStructuredExtent 
-vtkStructuredExtent::vtkStructuredExtent()
+// Construct a new vtkImageInformation 
+vtkImageInformation::vtkImageInformation()
 {
-  int idx;
+  this->Spacing[0] = 1.0;
+  this->Spacing[1] = 1.0;
+  this->Spacing[2] = 1.0;
+
+  this->Origin[0] = 0.0;
+  this->Origin[1] = 0.0;
+  this->Origin[2] = 0.0;
   
-  for (idx = 0; idx < 3; ++idx)
+  this->ScalarType = VTK_VOID;
+  this->NumberOfScalarComponents = 1;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageInformation::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkStructuredInformation::PrintSelf(os, indent);
+  
+  os << indent << "NumberOfScalarComponents: " << 
+    this->NumberOfScalarComponents << endl;
+  os << indent << "ScalarType: " << this->ScalarType << endl;
+
+  os << indent << "Spacing: (" << this->Spacing[0] << ", "
+                               << this->Spacing[1] << ", "
+                               << this->Spacing[2] << ")\n";
+
+  os << indent << "Origin: (" << this->Origin[0] << ", "
+                              << this->Origin[1] << ", "
+                              << this->Origin[2] << ")\n";
+}
+
+
+//----------------------------------------------------------------------------
+int vtkImageInformation::GetClassCheck(char *className)
+{
+  if (strcmp(className, "vtkImageInformation") == 0)
     {
-    this->Extent[idx*2] = -VTK_LARGE_INTEGER;
-    this->Extent[idx*2+1] = VTK_LARGE_INTEGER;
+    return 1;
+    }
+  // check superclass
+  if (this->vtkStructuredInformation::GetClassCheck(className))
+    {
+    return 1;
+    }
+  
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageInformation::Copy(vtkDataInformation *in)
+{
+  this->vtkStructuredInformation::Copy(in);
+  
+  if (in->GetClassCheck("vtkImageInformation"))
+    {
+    vtkImageInformation *info = (vtkImageInformation*)(in);
+    this->SetOrigin(info->GetOrigin());
+    this->SetSpacing(info->GetSpacing());
+    this->SetScalarType(info->GetScalarType());
+    this->SetNumberOfScalarComponents(info->GetNumberOfScalarComponents());
     }
 }
 
 
 
-//----------------------------------------------------------------------------
-void vtkStructuredExtent::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkExtent::PrintSelf(os, indent);
-  os << indent << "Extent: " << this->Extent[0] << ", " << this->Extent[1] 
-     << ", " << this->Extent[2] << ", " << this->Extent[3] 
-     << ", " << this->Extent[4] << ", " << this->Extent[5] << endl;
-}
 
+  
 
-//----------------------------------------------------------------------------
-void vtkStructuredExtent::Copy(vtkExtent *in)
-{
-  // call the supperclasses copy
-  this->vtkExtent::Copy(in);
-  
-  // WARNING!!!
-  // This logic only works because of the simple class hierachy.
-  // If you subclass off this extent, ClassName cannot be used.
-  if (strcmp(in->GetClassName(), "vtkStructuredExtent") == 0)
-    {
-    int idx;
-    vtkStructuredExtent *e = (vtkStructuredExtent*)(in);
-  
-    for (idx = 0; idx < 6; ++idx)
-      {
-      this->Extent[idx] = e->Extent[idx];
-      }
-    } 
-}
 
 

@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVoxel.h"
 #include "vtkImageToStructuredPoints.h"
 #include "vtkStructuredExtent.h"
+#include "vtkImageInformation.h"
 
 //----------------------------------------------------------------------------
 vtkImageData::vtkImageData()
@@ -60,36 +61,31 @@ vtkImageData::vtkImageData()
   this->Dimensions[2] = 1;
   this->DataDescription = VTK_SINGLE_POINT;
   
-  this->Spacing[0] = 1.0;
-  this->Spacing[1] = 1.0;
-  this->Spacing[2] = 1.0;
-
-  this->Origin[0] = 0.0;
-  this->Origin[1] = 0.0;
-  this->Origin[2] = 0.0;
-
   this->UpdateExtent = vtkStructuredExtent::New();
   
   for (idx = 0; idx < 3; ++idx)
     {
     this->Extent[idx*2] = 0;
     this->Extent[idx*2+1] = 0;    
-    this->WholeExtent[idx*2] = 0;
-    this->WholeExtent[idx*2+1] = 0;    
     this->Increments[idx] = 0;
     }
   
-  this->ScalarType = VTK_VOID;
-  this->NumberOfScalarComponents = 1; 
-
   // for automatic conversion
   this->ImageToStructuredPoints = NULL;
+
+  // Delete the generic information object created by the superclass.
+  this->Information->Delete();
+  this->Information = vtkImageInformation::New();
 }
 
 //----------------------------------------------------------------------------
 vtkImageData::vtkImageData(const vtkImageData& v) :
 vtkDataSet(v)
 {
+  vtkImageInformation *vInfo;
+  
+  vInfo = (vtkImageInformation *)(v.Information);
+  
   this->Dimensions[0] = v.Dimensions[0];
   this->Dimensions[1] = v.Dimensions[1];
   this->Dimensions[2] = v.Dimensions[2];
@@ -103,13 +99,8 @@ vtkDataSet(v)
 
   this->DataDescription = v.DataDescription;
   
-  this->Spacing[0] = v.Spacing[0];
-  this->Spacing[1] = v.Spacing[1];
-  this->Spacing[2] = v.Spacing[2];
-
-  this->Origin[0] = v.Origin[0];
-  this->Origin[1] = v.Origin[1];
-  this->Origin[2] = v.Origin[2];
+  this->SetSpacing(vInfo->GetSpacing());
+  this->SetOrigin(vInfo->GetOrigin());
 }
 
 //----------------------------------------------------------------------------
@@ -137,36 +128,9 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
     this->Extent[i] = sPts->Extent[i];
     this->Extent[i+3] = sPts->Extent[i+3];
     this->Dimensions[i] = sPts->Dimensions[i];
-    this->Origin[i] = sPts->Origin[i];
-    this->Spacing[i] = sPts->Spacing[i];
     }
   this->DataDescription = sPts->DataDescription;
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::CopyInformation(vtkDataObject *data)
-{
-  vtkImageData *image = (vtkImageData *)data;
-  
-  // Copy information in superclass.
-  this->vtkDataSet::CopyInformation(data);
-  
-  // Treat vtkImageData and vtkStructuredPoints the same.
-  if (data->GetDataObjectType() != VTK_STRUCTURED_POINTS &&
-      data->GetDataObjectType() != VTK_IMAGE_DATA)
-    {
-    //vtkErrorMacro("CopyInformation: Expecting vtkUnstructuredGrid or vtkImageData, got " 
-    //              << data->GetClassName());
-    // We might be able to copy the generic information,
-    // or even information shared between structured data types.
-    return;
-    }
-
-  this->SetWholeExtent(image->GetWholeExtent());
-  this->SetSpacing(image->GetSpacing());
-  this->SetOrigin(image->GetOrigin());
-  this->SetScalarType(image->GetScalarType());
-  this->SetNumberOfScalarComponents(image->GetNumberOfScalarComponents());
+  this->CopyInformation(sPts);
 }
 
 
@@ -178,6 +142,8 @@ vtkCell *vtkImageData::GetCell(int cellId)
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
   float x[3];
+  float *origin = this->GetOrigin();
+  float *spacing = this->GetSpacing();
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
   
@@ -245,13 +211,13 @@ vtkCell *vtkImageData::GetCell(int cellId)
   npts = 0;
   for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
     {
-    x[2] = this->Origin[2] + (loc[2]+this->Extent[4]) * this->Spacing[2]; 
+    x[2] = origin[2] + (loc[2]+this->Extent[4]) * spacing[2]; 
     for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
       {
-      x[1] = this->Origin[1] + (loc[1]+this->Extent[2]) * this->Spacing[1]; 
+      x[1] = origin[1] + (loc[1]+this->Extent[2]) * spacing[1]; 
       for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
         {
-        x[0] = this->Origin[0] + (loc[0]+this->Extent[0]) * this->Spacing[0]; 
+        x[0] = origin[0] + (loc[0]+this->Extent[0]) * spacing[0]; 
 
         idx = loc[0] + loc[1]*this->Dimensions[0] + loc[2]*d01;
         cell->PointIds->SetId(npts,idx);
@@ -265,23 +231,6 @@ vtkCell *vtkImageData::GetCell(int cellId)
 
 
 
-//----------------------------------------------------------------------------
-void vtkImageData::CopyGenericUpdateExtent(vtkExtent *arg)
-{
-  if (strcmp(arg->GetClassName(), "vtkStructuredExtent") != 0)
-    {
-    vtkErrorMacro("vtkImageData cannot copy " << arg->GetClassName());
-    return;
-    }
-  
-  this->UpdateExtent->Copy((vtkStructuredExtent *)(arg));
-}
-void vtkImageData::CopyUpdateExtent(vtkDataObject *obj)
-{
-  this->CopyGenericUpdateExtent(obj->GetGenericUpdateExtent());
-}
-
-
 
 
 //----------------------------------------------------------------------------
@@ -290,6 +239,7 @@ int vtkImageData::ClipUpdateExtentWithWholeExtent()
   int valid = 1;
   int idx, minIdx, maxIdx;
   int uExt[6];
+  int *wExt = this->GetImageInformation()->GetWholeExtent();
   
   this->UpdateExtent->GetExtent(uExt);
   
@@ -299,36 +249,34 @@ int vtkImageData::ClipUpdateExtentWithWholeExtent()
     maxIdx = 2*idx + 1;
     
     // make sure there is overlap!
-    if (uExt[minIdx] > this->WholeExtent[maxIdx])
+    if (uExt[minIdx] > wExt[maxIdx])
       {
       valid = 0;
       vtkErrorMacro("UpdateExtent " << uExt[minIdx] 
 		      << " -> " << uExt[maxIdx]  
 		      << " does not overlap with WholeExtent "
-		      << this->WholeExtent[minIdx] << " -> "
-		      << this->WholeExtent[maxIdx]);
-      uExt[minIdx] = this->WholeExtent[maxIdx];
+		      << wExt[minIdx] << " -> " << wExt[maxIdx]);
+      uExt[minIdx] = wExt[maxIdx];
       }
-    if (uExt[maxIdx] < this->WholeExtent[minIdx])
+    if (uExt[maxIdx] < wExt[minIdx])
       {
       valid = 0;
       vtkErrorMacro("UpdateExtent " << uExt[minIdx] 
 		      << " -> " << uExt[maxIdx]  
 		      << " does not overlap with WholeExtent "
-		      << this->WholeExtent[minIdx] << " -> "
-		      << this->WholeExtent[maxIdx]);
-      uExt[maxIdx] = this->WholeExtent[minIdx];
+		      << wExt[minIdx] << " -> " << wExt[maxIdx]);
+      uExt[maxIdx] = wExt[minIdx];
       }
     
     // typical intersection shift min up to whole min
-    if (uExt[minIdx] < this->WholeExtent[minIdx])
+    if (uExt[minIdx] < wExt[minIdx])
       {
-      uExt[minIdx] = this->WholeExtent[minIdx];
+      uExt[minIdx] = wExt[minIdx];
       }
     // typical intersection shift max down to whole max
-    if (uExt[maxIdx] >= this->WholeExtent[maxIdx])
+    if (uExt[maxIdx] >= wExt[maxIdx])
       {
-      uExt[maxIdx] = this->WholeExtent[maxIdx];
+      uExt[maxIdx] = wExt[maxIdx];
       }
     }
   
@@ -357,6 +305,8 @@ void vtkImageData::GetCell(int cellId, vtkGenericCell *cell)
   int npts, loc[3], idx;
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
+  float *origin = this->GetOrigin();
+  float *spacing = this->GetSpacing();
   float x[3];
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
@@ -423,13 +373,13 @@ void vtkImageData::GetCell(int cellId, vtkGenericCell *cell)
   // Extract point coordinates and point ids
   for (npts=0,loc[2]=kMin; loc[2]<=kMax; loc[2]++)
     {
-    x[2] = this->Origin[2] + (loc[2]+this->Extent[4]) * this->Spacing[2]; 
+    x[2] = origin[2] + (loc[2]+this->Extent[4]) * spacing[2]; 
     for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
       {
-      x[1] = this->Origin[1] + (loc[1]+this->Extent[2]) * this->Spacing[1]; 
+      x[1] = origin[1] + (loc[1]+this->Extent[2]) * spacing[1]; 
       for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
         {
-        x[0] = this->Origin[0] + (loc[0]+this->Extent[0]) * this->Spacing[0]; 
+        x[0] = origin[0] + (loc[0]+this->Extent[0]) * spacing[0]; 
 
         idx = loc[0] + loc[1]*this->Dimensions[0] + loc[2]*d01;
         cell->PointIds->SetId(npts,idx);
@@ -447,6 +397,8 @@ void vtkImageData::GetCellBounds(int cellId, float bounds[6])
 {
   int loc[3], iMin, iMax, jMin, jMax, kMin, kMax;
   float x[3];
+  float *origin = this->GetOrigin();
+  float *spacing = this->GetSpacing();
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
   
@@ -508,19 +460,19 @@ void vtkImageData::GetCellBounds(int cellId, float bounds[6])
   // Extract point coordinates
   for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
     {
-    x[2] = this->Origin[2] + (loc[2]+this->Extent[4]) * this->Spacing[2]; 
+    x[2] = origin[2] + (loc[2]+this->Extent[4]) * spacing[2]; 
     bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
     bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
     }
   for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
     {
-    x[1] = this->Origin[1] + (loc[1]+this->Extent[2]) * this->Spacing[1]; 
+    x[1] = origin[1] + (loc[1]+this->Extent[2]) * spacing[1]; 
     bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
     bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
     }
   for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
     {
-    x[0] = this->Origin[0] + (loc[0]+this->Extent[0]) * this->Spacing[0]; 
+    x[0] = origin[0] + (loc[0]+this->Extent[0]) * spacing[0]; 
     bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
     bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
     }
@@ -531,6 +483,8 @@ float *vtkImageData::GetPoint(int ptId)
 {
   static float x[3];
   int i, loc[3];
+  float *origin = this->GetOrigin();
+  float *spacing = this->GetSpacing();
   
   switch (this->DataDescription)
     {
@@ -580,7 +534,7 @@ float *vtkImageData::GetPoint(int ptId)
 
   for (i=0; i<3; i++)
     {
-    x[i] = this->Origin[i] + (loc[i]+this->Extent[i*2]) * this->Spacing[i];
+    x[i] = origin[i] + (loc[i]+this->Extent[i*2]) * spacing[i];
     }
 
   return x;
@@ -591,14 +545,16 @@ int vtkImageData::FindPoint(float x[3])
 {
   int i, loc[3];
   float d;
+  float *origin = this->GetOrigin();
+  float *spacing = this->GetSpacing();
 
   //
   //  Compute the ijk location
   //
   for (i=0; i<3; i++) 
     {
-    d = x[i] - this->Origin[i];
-    loc[i] = (int) ((d / this->Spacing[i]) + 0.5);
+    d = x[i] - origin[i];
+    loc[i] = (int) ((d / spacing[i]) + 0.5);
     if ( loc[i] < this->Extent[i*2] || loc[i] > this->Extent[i*2+1] )
       {
       return -1;
@@ -660,6 +616,8 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
   float xOut[3];
   int iMax, jMax, kMax;
   vtkCell *cell = NULL;
+  float *origin = this->GetOrigin();
+  float *spacing = this->GetSpacing();
 
   if ( this->ComputeStructuredCoordinates(x, loc, pcoords) == 0 )
     {
@@ -733,14 +691,14 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
   npts = 0;
   for (k = loc[2]; k <= kMax; k++)
     {
-    xOut[2] = this->Origin[2] + (k+this->Extent[4]) * this->Spacing[2]; 
+    xOut[2] = origin[2] + (k+this->Extent[4]) * spacing[2]; 
     for (j = loc[1]; j <= jMax; j++)
       {
-      xOut[1] = this->Origin[1] + (j+this->Extent[2]) * this->Spacing[1]; 
+      xOut[1] = origin[1] + (j+this->Extent[2]) * spacing[1]; 
       idx = loc[0] + j*this->Dimensions[0] + k*d01;
       for (i = loc[0]; i <= iMax; i++, idx++)
         {
-        xOut[0] = this->Origin[0] + (i+this->Extent[0]) * this->Spacing[0]; 
+        xOut[0] = origin[0] + (i+this->Extent[0]) * spacing[0]; 
 
         cell->PointIds->SetId(npts,idx);
         cell->Points->SetPoint(npts++,xOut);
@@ -779,13 +737,16 @@ int vtkImageData::GetCellType(int vtkNotUsed(cellId))
 //----------------------------------------------------------------------------
 void vtkImageData::ComputeBounds()
 {
-  this->Bounds[0] = this->Origin[0] + (this->Extent[0] * this->Spacing[0]);
-  this->Bounds[2] = this->Origin[1] + (this->Extent[2] * this->Spacing[1]);
-  this->Bounds[4] = this->Origin[2] + (this->Extent[4] * this->Spacing[2]);
+  float *origin = this->GetOrigin();
+  float *spacing = this->GetSpacing();
+  
+  this->Bounds[0] = origin[0] + (this->Extent[0] * spacing[0]);
+  this->Bounds[2] = origin[1] + (this->Extent[2] * spacing[1]);
+  this->Bounds[4] = origin[2] + (this->Extent[4] * spacing[2]);
 
-  this->Bounds[1] = this->Origin[0] + (this->Extent[1] * this->Spacing[0]);
-  this->Bounds[3] = this->Origin[1] + (this->Extent[3] * this->Spacing[1]);
-  this->Bounds[5] = this->Origin[2] + (this->Extent[5] * this->Spacing[2]);
+  this->Bounds[1] = origin[0] + (this->Extent[1] * spacing[0]);
+  this->Bounds[3] = origin[1] + (this->Extent[3] * spacing[1]);
+  this->Bounds[5] = origin[2] + (this->Extent[5] * spacing[2]);
 }
 
 //----------------------------------------------------------------------------
@@ -824,7 +785,7 @@ void vtkImageData::GetPointGradient(int i,int j,int k, vtkScalars *s,
                                           float g[3])
 {
   int *dims=this->Dimensions;
-  float *ar=this->Spacing;
+  float *ar=this->GetSpacing();
   int ijsize=dims[0]*dims[1];
   float sp, sm;
 
@@ -927,14 +888,16 @@ int vtkImageData::ComputeStructuredCoordinates(float x[3], int ijk[3],
 {
   int i;
   float d, floatLoc;
-
+  float *origin = this->GetOrigin();
+  float *spacing = this->GetSpacing();
+  
   //
   //  Compute the ijk location
   //
   for (i=0; i<3; i++) 
     {
-    d = x[i] - this->Origin[i];
-    floatLoc = d / this->Spacing[i];
+    d = x[i] - origin[i];
+    floatLoc = d / spacing[i];
     ijk[i] = (int) floatLoc;
     if ( ijk[i] >= this->Extent[i*2] && ijk[i] < this->Extent[i*2 + 1] )
       {
@@ -984,24 +947,12 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << ")\n";
 
-  os << indent << "NumberOfScalarComponents: " << 
-    this->NumberOfScalarComponents << endl;
-  os << indent << "ScalarType: " << this->ScalarType << endl;
-
   os << indent << "Extent: (" << this->Extent[0];
   for (idx = 1; idx < 6; ++idx)
     {
     os << ", " << this->Extent[idx];
     }
   os << ")\n";
-
-  os << indent << "Spacing: (" << this->Spacing[0] << ", "
-                               << this->Spacing[1] << ", "
-                               << this->Spacing[2] << ")\n";
-
-  os << indent << "Origin: (" << this->Origin[0] << ", "
-                              << this->Origin[1] << ", "
-                              << this->Origin[2] << ")\n";
 
   if (this->UpdateExtent)
     {
@@ -1012,36 +963,60 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "UpdateExtent: NULL\n";
     }
-
-  os << indent << "WholeExtent: (" << this->WholeExtent[0];
-  for (idx = 1; idx < 6; ++idx)
-    {
-    os << ", " << this->WholeExtent[idx];
-    }
-  os << ")\n";
 }
+
+//----------------------------------------------------------------------------
+void vtkImageData::SetSpacing(float spacing[3])
+{
+  this->GetImageInformation()->SetSpacing(spacing);
+}
+//----------------------------------------------------------------------------
+void vtkImageData::SetSpacing(float x, float y, float z)
+{
+  this->GetImageInformation()->SetSpacing(x, y, z);
+}
+//----------------------------------------------------------------------------
+float *vtkImageData::GetSpacing()
+{
+  return this->GetImageInformation()->GetSpacing();
+}
+//----------------------------------------------------------------------------
+void vtkImageData::GetSpacing(float spacing[3])
+{
+  this->GetImageInformation()->GetSpacing(spacing);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::SetOrigin(float origin[3])
+{
+  this->GetImageInformation()->SetOrigin(origin);
+}
+//----------------------------------------------------------------------------
+void vtkImageData::SetOrigin(float x, float y, float z)
+{
+  this->GetImageInformation()->SetOrigin(x, y, z);
+}
+//----------------------------------------------------------------------------
+float *vtkImageData::GetOrigin()
+{
+  return this->GetImageInformation()->GetOrigin();
+}
+//----------------------------------------------------------------------------
+void vtkImageData::GetOrigin(float origin[3])
+{
+  this->GetImageInformation()->GetOrigin(origin);
+}
+
+
 
 //----------------------------------------------------------------------------
 void vtkImageData::SetWholeExtent(int extent[6])
 {
-  int idx, modified = 0;
-  
-  for (idx = 0; idx < 6; ++idx)
-    {
-    if (this->WholeExtent[idx] != extent[idx])
-      {
-      modified = 1;
-      this->WholeExtent[idx] = extent[idx];
-      }
-    }
-  if (modified)
-    {
-    this->Modified();
-    }
+  this->GetImageInformation()->SetWholeExtent(extent);
 }
 //----------------------------------------------------------------------------
 void vtkImageData::SetWholeExtent(int xMin, int xMax,
-				   int yMin, int yMax, int zMin, int zMax)
+				  int yMin, int yMax, int zMin, int zMax)
 {
   int extent[6];
 
@@ -1052,22 +1027,27 @@ void vtkImageData::SetWholeExtent(int xMin, int xMax,
 }
 
 //----------------------------------------------------------------------------
+int *vtkImageData::GetWholeExtent()
+{
+  return this->GetImageInformation()->GetWholeExtent();
+}
+//----------------------------------------------------------------------------
 void vtkImageData::GetWholeExtent(int extent[6])
 {
-  int idx;
-  
-  for (idx = 0; idx < 6; ++idx)
-    {
-    extent[idx] = this->WholeExtent[idx];
-    }
+  this->GetImageInformation()->GetWholeExtent(extent);
 }
 //----------------------------------------------------------------------------
 void vtkImageData::GetWholeExtent(int &xMin, int &xMax, int &yMin, int &yMax,
-				   int &zMin, int &zMax)
+				  int &zMin, int &zMax)
 {
-  xMin = this->WholeExtent[0]; xMax = this->WholeExtent[1];
-  yMin = this->WholeExtent[2]; yMax = this->WholeExtent[3];
-  zMin = this->WholeExtent[4]; zMax = this->WholeExtent[5];
+  int *ext = this->GetImageInformation()->GetWholeExtent();
+  
+  xMin = ext[0];
+  xMax = ext[1];
+  yMin = ext[2];
+  yMax = ext[3];
+  zMin = ext[4];
+  zMax = ext[5];
 }
 
 //----------------------------------------------------------------------------
@@ -1146,7 +1126,7 @@ void vtkImageData::GetUpdateExtent(int ext[6])
 void vtkImageData::SetUpdateExtentToWholeExtent()
 {
   this->UpdateInformation();
-  this->SetUpdateExtent(this->WholeExtent);
+  this->SetUpdateExtent(this->GetWholeExtent());
 }
 
 //----------------------------------------------------------------------------
@@ -1220,15 +1200,16 @@ void vtkImageData::SetExtent(int *extent)
 //----------------------------------------------------------------------------
 void vtkImageData::SetNumberOfScalarComponents(int num)
 {
-  if (this->NumberOfScalarComponents == num)
-    {
-    return;
-    }
-  
   // What should we do if the number of scalar components do not match ...
-  this->NumberOfScalarComponents = num;
-  this->Modified();
+  this->GetImageInformation()->SetNumberOfScalarComponents(num);
   this->ComputeIncrements();
+}
+
+
+//----------------------------------------------------------------------------
+int vtkImageData::GetNumberOfScalarComponents()
+{
+  return this->GetImageInformation()->GetNumberOfScalarComponents();
 }
 
 
@@ -1271,7 +1252,7 @@ void vtkImageData::GetContinuousIncrements(int extent[6], int &incX,
 void vtkImageData::ComputeIncrements()
 {
   int idx;
-  int inc = this->NumberOfScalarComponents;
+  int inc = this->GetNumberOfScalarComponents();
 
   for (idx = 0; idx < 3; ++idx)
     {
@@ -1288,7 +1269,7 @@ float vtkImageData::GetScalarComponentAsFloat(int x, int y, int z, int comp)
 {
   void *ptr;
   
-  if (comp >= this->NumberOfScalarComponents || comp < 0)
+  if (comp >= this->GetNumberOfScalarComponents() || comp < 0)
     {
     vtkErrorMacro("Bad component index " << comp);
     return 0.0;
@@ -1302,7 +1283,7 @@ float vtkImageData::GetScalarComponentAsFloat(int x, int y, int z, int comp)
     return 0.0;
     }
   
-  switch (this->ScalarType)
+  switch (this->GetScalarType())
     {
     case VTK_FLOAT:
       return *(((float *)ptr) + comp);
@@ -1417,16 +1398,18 @@ void *vtkImageData::GetScalarPointer()
 int vtkImageData::GetScalarType()
 {
   vtkScalars *tmp;
+  int type = this->GetImageInformation()->GetScalarType();
   
   // if we have scalars make sure the type matches our ivar
   tmp = this->GetPointData()->GetScalars();
-  if (tmp && tmp->GetDataType() != this->ScalarType)
+  if (tmp && tmp->GetDataType() != type)
     {
     // this happens when filters are being bypassed.  Don't error...
-    //vtkErrorMacro("ScalarType " << tmp->GetDataType() << " does not match current scalars of type " << this->ScalarType);
+    //vtkErrorMacro("ScalarType " << tmp->GetDataType() 
+    //                 << " does not match current scalars of type " << type);
     }
   
-  return this->ScalarType;
+  return type;
 }
 
 //----------------------------------------------------------------------------
@@ -1442,12 +1425,7 @@ void vtkImageData::SetScalarType(int t)
     //vtkWarningMacro("Setting ScalarType: Existing scalars do not match.");
     }
   
-  if (t != this->ScalarType)
-    {
-    this->Modified();
-    this->ScalarType = t;
-    vtkDebugMacro("Setting ScalarType to " << t << " !");
-    }
+  this->GetImageInformation()->SetScalarType(t);
 }
 
 
@@ -1457,7 +1435,7 @@ void vtkImageData::AllocateScalars()
   vtkScalars *scalars;
   
   // if the scalar type has not been set then we have a problem
-  if (this->ScalarType == VTK_VOID)
+  if (this->GetScalarType() == VTK_VOID)
     {
     vtkErrorMacro("Attempt to allocate scalars before scalar type was set!.");
     return;
@@ -1465,9 +1443,9 @@ void vtkImageData::AllocateScalars()
 
   // if we currently have scalars then just adjust the size
   scalars = this->PointData->GetScalars();
-  if (scalars && scalars->GetDataType() == this->ScalarType) 
+  if (scalars && scalars->GetDataType() == this->GetScalarType()) 
     {
-    scalars->SetNumberOfComponents(this->NumberOfScalarComponents);
+    scalars->SetNumberOfComponents(this->GetNumberOfScalarComponents());
     scalars->SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
 				(this->Extent[3] - this->Extent[2] + 1)*
 				(this->Extent[5] - this->Extent[4] + 1));
@@ -1479,8 +1457,8 @@ void vtkImageData::AllocateScalars()
   
   // allocate the new scalars
   scalars = vtkScalars::New();
-  scalars->SetDataType(this->ScalarType);
-  scalars->SetNumberOfComponents(this->NumberOfScalarComponents);
+  scalars->SetDataType(this->GetScalarType());
+  scalars->SetNumberOfComponents(this->GetNumberOfScalarComponents());
   this->PointData->SetScalars(scalars);
   scalars->Delete();
   
@@ -1496,7 +1474,7 @@ void vtkImageData::AllocateScalars()
 int vtkImageData::GetScalarSize()
 {
   // allocate the new scalars
-  switch (this->ScalarType)
+  switch (this->GetScalarType())
     {
     case VTK_FLOAT:
       return sizeof(float);
@@ -1708,7 +1686,7 @@ double vtkImageData::GetScalarTypeMin()
     case VTK_UNSIGNED_CHAR:
       return (double)(0.0);
     default:
-      vtkErrorMacro("Cannot handle scalar type " << this->ScalarType);
+      vtkErrorMacro("Cannot handle scalar type " << this->GetScalarType());
       return 0.0;
     }
 }
@@ -1740,7 +1718,7 @@ double vtkImageData::GetScalarTypeMax()
     case VTK_UNSIGNED_CHAR:
       return (double)(VTK_UNSIGNED_CHAR_MAX);
     default:
-      vtkErrorMacro("Cannot handle scalar type " << this->ScalarType);
+      vtkErrorMacro("Cannot handle scalar type " << this->GetScalarType());
       return 0.0;
     }
 }
@@ -1799,6 +1777,7 @@ void vtkImageData::UpdateInformation()
   if (this->Source)
     {
     this->Source->UpdateInformation();
+    // It is important the this not change our modify time.
     this->ComputeEstimatedWholeMemorySize();
     }
 }
@@ -1808,8 +1787,9 @@ void vtkImageData::UpdateInformation()
 // It is computed automatically (superclass) during UpdateInformation.
 void vtkImageData::ComputeEstimatedWholeMemorySize()
 {
-  double size = (float)this->NumberOfScalarComponents;
+  double size = (float)(this->GetNumberOfScalarComponents());
   int idx;
+  int *wExt = this->GetWholeExtent();
   
   switch (this->GetScalarType())
     {
@@ -1854,7 +1834,7 @@ void vtkImageData::ComputeEstimatedWholeMemorySize()
   // Compute the number of scalars.
   for (idx = 0; idx < 3; ++idx)
     {
-    size = size*(this->WholeExtent[idx*2+1] - this->WholeExtent[idx*2] + 1);
+    size = size*(wExt[idx*2+1] - wExt[idx*2] + 1);
     }
 
   // In case the extent is set improperly
@@ -1862,29 +1842,31 @@ void vtkImageData::ComputeEstimatedWholeMemorySize()
   // (multiple input filters) so do not give an error.
   if (size < 0)
     {
-    this->EstimatedWholeMemorySize = 0;
+    this->Information->SetEstimatedWholeMemorySize((unsigned long)(0));
     }
 
   long lsize = (long)(size / 1000.0);
   
-  this->EstimatedWholeMemorySize = lsize;
+  this->Information->SetEstimatedWholeMemorySize(lsize);
 }
 
 //----------------------------------------------------------------------------
 unsigned long vtkImageData::GetEstimatedUpdateMemorySize()
 {
   int idx, *uExt = this->UpdateExtent->GetExtent();
+  int *wExt = this->GetWholeExtent();
   unsigned long wholeSize, updateSize;
   
   // Compute the sizes
   wholeSize = updateSize = 1;
   for (idx = 0; idx < 3; ++idx)
     {
-    wholeSize *= (this->WholeExtent[idx*2+1] - this->WholeExtent[idx*2] + 1);
+    wholeSize *= (wExt[idx*2+1] - wExt[idx*2] + 1);
     updateSize *= (uExt[idx*2+1] - uExt[idx*2] +1);
     }
 
-  updateSize = updateSize * this->EstimatedWholeMemorySize / wholeSize;
+  updateSize = updateSize * this->Information->GetEstimatedWholeMemorySize() 
+    / wholeSize;
   if (updateSize < 1)
     {
     return 1;

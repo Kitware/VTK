@@ -1,12 +1,13 @@
 /*=========================================================================
 
-
-  Module:    vtkStructuredPoints.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkDataInformation.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+
+Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -37,28 +38,62 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <math.h>
-#include "vtkStructuredPoints.h"
-#include "vtkImageToStructuredPoints.h"
-#include "vtkStructuredExtent.h"
+#include "vtkDataInformation.h"
 
-vtkStructuredPoints::vtkStructuredPoints()
+//----------------------------------------------------------------------------
+// Construct a new vtkDataInformation 
+vtkDataInformation::vtkDataInformation()
 {
-  this->SetScalarType(VTK_FLOAT);
+  this->EstimatedWholeMemorySize = 0;
+  this->PipelineMTime = 0;
+  this->Locality = 0;
+  this->SeriesLength = 1;
 }
 
 
-int vtkStructuredPoints::ClipUpdateExtentWithWholeExtent()
+//----------------------------------------------------------------------------
+void vtkDataInformation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->UpdateExtent->SetExtent(this->GetWholeExtent());
-  return 1;
+  //vtkObject::PrintSelf(os, indent);
+  os << indent << "EstimatedWholeMemorySize: " 
+     << this->EstimatedWholeMemorySize << endl;
+  os << indent << "PipelineMTime: " << this->PipelineMTime << endl;
+  os << indent << "Locality: " << this->Locality << endl; 
+  os << indent << "SeriesLength: " << this->SeriesLength << endl; 
 }
 
 
 
 
+//----------------------------------------------------------------------------
+int vtkDataInformation::GetClassCheck(char *className)
+{
+  if (strcmp(className, "vtkDataInformation") == 0)
+    {
+    return 1;
+    }
+  
+  return 0;
+}
 
 
+  
+
+//----------------------------------------------------------------------------
+void vtkDataInformation::Copy(vtkDataInformation *info)
+{
+  this->SetEstimatedWholeMemorySize(info->GetEstimatedWholeMemorySize());
+
+  // Should I copy PipelineMTime ?
+  // since this is done befor ExecuteInformation and PipelineMTime has
+  // already been computed, no.
+  // this->SetPipelineMTime(info->GetPipelineMTime());
+
+  // Should we compute the next locality here?
+  this->SetLocality(this->GetLocality());
+
+  this->SetSeriesLength(this->GetSeriesLength());
+}
 
 
 

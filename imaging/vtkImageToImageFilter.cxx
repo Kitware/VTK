@@ -268,7 +268,7 @@ void vtkImageToImageFilter::Execute()
       {
       vtkErrorMacro("No Input.");
       return;
-      }    
+      }
     this->GetOutput()->GetPointData()->PassData(inData->GetPointData());
     this->GetOutput()->SetExtent( this->GetInput()->GetExtent() );
     }

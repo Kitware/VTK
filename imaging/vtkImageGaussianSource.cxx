@@ -121,8 +121,6 @@ void vtkImageGaussianSource::UpdateInformation()
     }
   
   output->SetEstimatedWholeMemorySize(mem);
-  // Do not allow less than 1Kb per piece.
-  output->SetMaximumNumberOfPieces(mem);
 }
 
 void vtkImageGaussianSource::Execute(vtkImageData *data)

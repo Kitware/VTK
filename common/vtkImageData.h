@@ -57,6 +57,7 @@ class vtkVoxel;
 class vtkImageToStructuredPoints;
 class vtkExtent;
 class vtkStructuredExtent;
+class vtkImageInformation;
 
 
 class VTK_EXPORT vtkImageData : public vtkDataSet
@@ -77,8 +78,10 @@ public:
   void CopyStructure(vtkDataSet *ds);
 
   // Description:
-  // Copy the information of an input imageData object.
-  void CopyInformation(vtkDataObject *data);
+  // Returns the image specific information object.
+  // We should be able to eventually get rid of CopyInformation method.
+  vtkImageInformation *GetImageInformation()
+    {return (vtkImageInformation*)(this->Information);}
 
   // Description:
   // Return what type of dataset this is.
@@ -125,14 +128,18 @@ public:
   // Description:
   // Set the spacing (width,height,length) of the cubical cells that
   // compose the structured point set.
-  vtkSetVector3Macro(Spacing,float);
-  vtkGetVectorMacro(Spacing,float,3);
+  void SetSpacing(float origin[3]);
+  void SetSpacing(float x, float y, float z);
+  float *GetSpacing();
+  void GetSpacing(float origin[3]);
 
   // Description:
   // Set the origin of the data. The origin plus spacing determine the
   // position in space of the structured points.
-  vtkSetVector3Macro(Origin,float);
-  vtkGetVectorMacro(Origin,float,3);
+  void SetOrigin(float origin[3]);
+  void SetOrigin(float x, float y, float z);
+  float *GetOrigin();
+  void GetOrigin(float origin[3]);
 
   // Description:
   // Convenience function computes the structured coordinates for a point x[3].
@@ -187,7 +194,7 @@ public:
   void SetWholeExtent(int xMin, int xMax,
 		      int yMin, int yMax, int zMin, int zMax);
   void GetWholeExtent(int extent[6]);
-  int *GetWholeExtent() {return this->WholeExtent;}
+  int *GetWholeExtent();
   void GetWholeExtent(int &xMin, int &xMax,
 		      int &yMin, int &yMax, int &zMin, int &zMax);
   
@@ -216,8 +223,6 @@ public:
   // to need these methods (which should eventually replace the 
   // CopyUpdateExtent method).
   vtkExtent *GetGenericUpdateExtent() {return (vtkExtent*)this->UpdateExtent;}
-  void CopyGenericUpdateExtent(vtkExtent *ext);
-  void CopyUpdateExtent(vtkDataObject *data);  
   
   // Description:
   // Required for the lowest common denominator for setting the UpdateExtent
@@ -236,7 +241,7 @@ public:
 
   // Description:
   // Set/Get the data scalar type of the regions created by this cache.
-  void SetScalarType(int);
+  void SetScalarType(int type);
   int GetScalarType();
 
   // Description:
@@ -279,7 +284,7 @@ public:
   // Description:
   // Set/Get the number of scalar components
   void SetNumberOfScalarComponents(int num);
-  vtkGetMacro(NumberOfScalarComponents,int);
+  int GetNumberOfScalarComponents();
   
   // Description:
   // This method is passed a input and output region, and executes the filter
@@ -338,17 +343,10 @@ protected:
 
   // The extent of what is currently in the structured grid.
   int Extent[6];
+  int Dimensions[3];
   int DataDescription;
   int Increments[3];
 
-  // information specific to image data
-  int WholeExtent[6];
-  int Dimensions[3];
-  float Origin[3];
-  float Spacing[3];
-  int ScalarType;
-  int NumberOfScalarComponents;
-  
   void ComputeIncrements();
 
   // Computes the estimated memory size from the Update extent,

@@ -459,13 +459,6 @@ void vtkSource::UpdateInformation()
 	locality = l2;
 	}
       
-      // Should probably not be general infomation (specific to unstructured)
-      l2 = pd->GetMaximumNumberOfPieces();
-      if (maxPieces < l2)
-	{
-	maxPieces = l2;
-	}
-      
       // Pipeline MTime stuff
       t2 = pd->GetPipelineMTime();
       if (t2 > t1)
@@ -510,8 +503,6 @@ void vtkSource::UpdateInformation()
 	output->SetPipelineMTime(t1);
 	output->SetLocality(locality + 1);
 	output->SetEstimatedWholeMemorySize(size);
-	// This should really be specific for unstructured data sets.
-	output->SetMaximumNumberOfPieces(maxPieces);
 	// By default, copy information from first input.
 	if (pd)
 	  {

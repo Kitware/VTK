@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStructuredExtent.cxx
+  Module:    vtkImageInformation.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,54 +38,71 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+// .NAME vtkImageInformation - Image specific info (like spacing).
+// .SECTION Description
+// Note:  This object is under development an might change in the future.
 
-#include "vtkStructuredExtent.h"
-#include "vtkUnstructuredExtent.h"
 
-//----------------------------------------------------------------------------
-// Construct a new vtkStructuredExtent 
-vtkStructuredExtent::vtkStructuredExtent()
+#ifndef __vtkImageInformation_h
+#define __vtkImageInformation_h
+
+#include "vtkStructuredInformation.h"
+
+
+class VTK_EXPORT vtkImageInformation : public vtkStructuredInformation
 {
-  int idx;
+public:
+  static vtkImageInformation *New() 
+    {return new vtkImageInformation;};
+  const char *GetClassName() {return "vtkImageInformation";}
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Subclasses override this method, and try to be smart
+  // if the types are different.
+  void Copy(vtkDataInformation *in);
   
-  for (idx = 0; idx < 3; ++idx)
-    {
-    this->Extent[idx*2] = -VTK_LARGE_INTEGER;
-    this->Extent[idx*2+1] = VTK_LARGE_INTEGER;
-    }
-}
-
-
-
-//----------------------------------------------------------------------------
-void vtkStructuredExtent::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkExtent::PrintSelf(os, indent);
-  os << indent << "Extent: " << this->Extent[0] << ", " << this->Extent[1] 
-     << ", " << this->Extent[2] << ", " << this->Extent[3] 
-     << ", " << this->Extent[4] << ", " << this->Extent[5] << endl;
-}
-
-
-//----------------------------------------------------------------------------
-void vtkStructuredExtent::Copy(vtkExtent *in)
-{
-  // call the supperclasses copy
-  this->vtkExtent::Copy(in);
+  // Description:
+  // Set the spacing (width,height,length) of the cubical cells that
+  // compose the data set.
+  vtkSetVector3Macro(Spacing,float);
+  vtkGetVectorMacro(Spacing,float,3);
   
-  // WARNING!!!
-  // This logic only works because of the simple class hierachy.
-  // If you subclass off this extent, ClassName cannot be used.
-  if (strcmp(in->GetClassName(), "vtkStructuredExtent") == 0)
-    {
-    int idx;
-    vtkStructuredExtent *e = (vtkStructuredExtent*)(in);
+  // Description:
+  // Set the origin of the data. The origin plus spacing determine the
+  // position in space of the points.
+  vtkSetVector3Macro(Origin,float);
+  vtkGetVectorMacro(Origin,float,3);
   
-    for (idx = 0; idx < 6; ++idx)
-      {
-      this->Extent[idx] = e->Extent[idx];
-      }
-    } 
-}
+  // Description:
+  // Set/Get the data scalar type (i.e VTK_FLOAT).
+  vtkSetMacro(ScalarType, int);
+  vtkGetMacro(ScalarType, int);
+
+  // Description:
+  // Set/Get the number of scalar components for points.
+  vtkSetMacro(NumberOfScalarComponents,int);
+  vtkGetMacro(NumberOfScalarComponents,int);
+  
+  // Description:
+  // This method is passed a ClassName and returns 1 if the object is
+  // a subclass of the class arg.  It is an attempt at making a smarter copy.
+  int GetClassCheck(char *className);
+  
+protected:
+  
+  vtkImageInformation();
+  ~vtkImageInformation() {};
+
+  float Origin[3];
+  float Spacing[3];
+  int ScalarType;
+  int NumberOfScalarComponents;
+};
+
+
+#endif
+
+
 
 

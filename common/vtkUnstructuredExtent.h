@@ -54,15 +54,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUnstructuredExtent : public vtkExtent
 {
 public:
-  vtkUnstructuredExtent();
   static vtkUnstructuredExtent *New() {return new vtkUnstructuredExtent;};
   const char *GetClassName() {return "vtkUnstructuredExtent";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Copy information from one extent into a similar type event.
-  // Subclasses over ride the correct type.
-  void Copy(vtkUnstructuredExtent *in);
+  // Copy information from one extent into another.
+  // This tries to be smart if the types are different.
+  void Copy(vtkExtent *in);
 
   // Description:
   // Access to the extent.  ext[0] is piece x, ext[1] is Number of pieces.
@@ -75,6 +74,9 @@ public:
   
 protected:
   
+  vtkUnstructuredExtent();
+  ~vtkUnstructuredExtent() {};
+
   // This is the way the extent was specified before these objects.
   int Extent[2];
 };

@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkUnstructuredInformation.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtent.h"
 #include "vtkUnstructuredExtent.h"
@@ -80,6 +81,10 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
 
   this->Extent = vtkUnstructuredExtent::New();
   this->UpdateExtent = vtkUnstructuredExtent::New();
+
+  // delete the default information created by the superclass.
+  this->Information->Delete();
+  this->Information = vtkUnstructuredInformation::New();
 }
 
 // Allocate memory space for data insertion. Execute this method before
@@ -570,12 +575,14 @@ int vtkUnstructuredGrid::ClipUpdateExtentWithWholeExtent()
   int valid = 1;
   int piece = this->UpdateExtent->GetPiece();
   int numPieces = this->UpdateExtent->GetNumberOfPieces();
+  int maxPieces;
   
   // Check to see if upstream filters can break up the data into the
   // requested number of pieces.
-  if (numPieces > this->MaximumNumberOfPieces)
+  maxPieces = this->GetUnstructuredInformation()->GetMaximumNumberOfPieces();
+  if (numPieces > maxPieces)
     {
-    numPieces = this->MaximumNumberOfPieces;
+    numPieces = maxPieces;
     }
   
   if (numPieces <= 0 || piece < 0 || piece >= numPieces)
@@ -601,19 +608,6 @@ int vtkUnstructuredGrid::ClipUpdateExtentWithWholeExtent()
   this->Extent->Copy(this->UpdateExtent);
   
   return valid;
-}
-
-
-//----------------------------------------------------------------------------
-void vtkUnstructuredGrid::CopyGenericUpdateExtent(vtkExtent *arg)
-{
-  if (strcmp(arg->GetClassName(), "vtkUnstructuredExtent") != 0)
-    {
-    vtkErrorMacro("vtkPolyData cannot copy " << arg->GetClassName());
-    return;
-    }
-  
-  this->UpdateExtent->Copy((vtkUnstructuredExtent *)(arg));
 }
 
 //----------------------------------------------------------------------------
@@ -643,57 +637,20 @@ void vtkUnstructuredGrid::GetUpdateExtent(int &piece, int &numPieces)
   numPieces = this->UpdateExtent->GetNumberOfPieces();
 }
 
-
-//----------------------------------------------------------------------------
-void vtkUnstructuredGrid::CopyUpdateExtent(vtkDataObject *data)
-{
-  int piece, numPieces;
-  vtkUnstructuredGrid *grid = (vtkUnstructuredGrid*)(data);
-
-  // this should be a safe typecast.
-  if (data->GetDataObjectType() != VTK_UNSTRUCTURED_GRID)
-    {
-    vtkErrorMacro("CopyUpdateExtent: Expecting unstructured grid");
-    return;
-    }
-
-  grid->GetUpdateExtent(piece, numPieces);
-  this->SetUpdateExtent(piece, numPieces);
-}
-
-//----------------------------------------------------------------------------
-void vtkUnstructuredGrid::CopyInformation(vtkDataObject *data)
-{
-  // Copy information in superclass.
-  this->vtkPointSet::CopyInformation(data);
-  
-  // Stuff specific to this data type.  Do nothing if data types don't match?
-  if (data->GetDataObjectType() != VTK_UNSTRUCTURED_GRID)
-    {
-    //vtkErrorMacro("CopyInformation: Expecting vtkUnstructuredGrid, got " 
-    //              << data->GetClassName());
-    // We might be able to copy the generic information,
-    // or even information shared between unstructured data.
-    return;
-    }
-  // no information I can think of yet.
-}
-
-
 //----------------------------------------------------------------------------
 unsigned long vtkUnstructuredGrid::GetEstimatedUpdateMemorySize()
 {
   unsigned long size;
   
+  size = this->Information->GetEstimatedWholeMemorySize();
+
   if (this->UpdateExtent->GetNumberOfPieces() <= 0)
     {
     // should not happen (trying to make this robust)
-    return this->EstimatedWholeMemorySize;
+    return size;
     }
   
-  size = this->EstimatedWholeMemorySize;
-  size = size * this->UpdateExtent->GetPiece() 
-    / this->UpdateExtent->GetNumberOfPieces();
+  size = size / this->UpdateExtent->GetNumberOfPieces();
   
   if (size < 1)
     {

@@ -77,6 +77,7 @@ class vtkTriangleStrip;
 class vtkEmptyCell;
 class vtkExtent;
 class vtkUnstructuredExtent;
+class vtkUnstructuredInformation;
 
 
 
@@ -347,18 +348,18 @@ public:
   int GetUpdatePiece();
 
   // Description:
-  // Warning: This is still in develoment.  DataSetToDataSetFilters use
-  // CopyUpdateExtent to pass the update extents up the pipeline.
-  // In order to pass a generic update extent through a port we are going 
-  // to need these methods (which should eventually replace the 
-  // CopyUpdateExtent method).
+  // We should changed this to be more like DataInformation.
   vtkExtent *GetGenericUpdateExtent() {return (vtkExtent*)this->UpdateExtent;}
-  void CopyGenericUpdateExtent(vtkExtent *ext);  
   
   // Description:
   // Return the amount of memory for the update piece.
   unsigned long GetEstimatedUpdateMemorySize();
 
+  // Description:
+  // Returns the poly data specific information object.
+  vtkUnstructuredInformation *GetUnstructuredInformation()
+    {return (vtkUnstructuredInformation*)(this->Information);}
+  
 protected:
   vtkPolyData();
   vtkPolyData(const vtkPolyData& pd);
@@ -394,12 +395,9 @@ protected:
   vtkUnstructuredExtent *Extent;
   vtkUnstructuredExtent *UpdateExtent;
 
-  void CopyUpdateExtent(vtkDataObject *polyData);
-  void CopyInformation(vtkDataObject *polyData);
   // Returns 0 if upstream filter cannot generate the UpdateExtent.
   // This also releases the data if a different piece is requested.
   int ClipUpdateExtentWithWholeExtent();
-  
 };
 
 inline void vtkPolyData::GetPointCells(int ptId, unsigned short& ncells, 

@@ -63,6 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkSource;
 class vtkExtent;
+class vtkDataInformation;
 
 class VTK_EXPORT vtkDataObject : public vtkObject
 {
@@ -84,6 +85,7 @@ public:
   
   // Description:
   // Data objects are composite objects and need to check each part for MTime.
+  // The information object also needs to be considered.
   unsigned long int GetMTime();
 
   // Rescription:
@@ -171,11 +173,9 @@ public:
   // Description:
   // One of the variables set when UpdateInformation is called.
   // the estimated size of the data (in kilobytes) after the whole
-  // extent is updated.  Setting the value does not alter MTime.
-  void SetEstimatedWholeMemorySize(unsigned long v) 
-    {this->EstimatedWholeMemorySize = v;}
-  virtual unsigned long GetEstimatedWholeMemorySize() 
-    {return this->EstimatedWholeMemorySize;}
+  // extent is updated.
+  void SetEstimatedWholeMemorySize(unsigned long v);
+  virtual unsigned long GetEstimatedWholeMemorySize();
   
   // Description:
   // Convience method: Uses the EstimatedWholeMemorySize to compute
@@ -190,16 +190,14 @@ public:
   // It does not include mtimes of the data objects.
   // UpdateInformation must be called for the PipelineMTime to be correct.
   // Only the source should set the PipelineMTime.
-  void SetPipelineMTime(long t) {this->PipelineMTime = t;}
-  long GetPipelineMTime() {return this->PipelineMTime;}
+  void SetPipelineMTime(long t);
+  long GetPipelineMTime();
   
   // Description:
-  // Implement in the concrete data types.
   // Copies the UpdateExtent from another dataset of the same type.
   // Used by a filter during UpdateInformation to copy requested 
   // piece from output to input.  
-  // This method should be pure virtual (in the future).
-  virtual void CopyUpdateExtent(vtkDataObject *data); 
+  void CopyUpdateExtent(vtkDataObject *data); 
 
   // Description:
   // Warning: This is still in develoment.  DataSetToDataSetFilters use
@@ -213,25 +211,20 @@ public:
     {vtkErrorMacro("Subclass did not implent CopyGenericUpdateExtent");}  
   
   // Description:
-  // Implement in the concrete data types.
+  // Warning: This is still in develoment.  
+  // Eventually we should be able to eliminate the CopyInformationMethod
+  vtkDataInformation *GetDataInformation() {return this->Information;}
+  
+  // Description:
   // Copies "Information" (ie WholeDimensions) from another dataset 
   // of the same type.  Used by a filter during UpdateInformation. 
-  // This method should be pure virtual (in the future).
-  virtual void CopyInformation(vtkDataObject *data); 
+  void CopyInformation(vtkDataObject *data); 
 
   // Description:
   // Part of data's "Information".
   // Are upstream filters local to the process?
-  // If there is a MTime issue, it should be resolved!
-  void SetLocality(int val) {this->Locality = val;}
-  vtkGetMacro(Locality, int);
-  
-  // Description:
-  // Part of data's "Information".
-  // If there is a MTime issue, it should be resolved!
-  void SetMaximumNumberOfPieces(unsigned long val) 
-    {this->MaximumNumberOfPieces = val;}
-  vtkGetMacro(MaximumNumberOfPieces, unsigned long);
+  void SetLocality(int val);
+  int GetLocality();
   
   // Description:
   // Return class name of data type. This is one of VTK_STRUCTURED_GRID, 
@@ -258,9 +251,7 @@ protected:
   // It also has the task of releasing the current data if it will not
   // satisfy the UpdateExtent request.  This should really be somewhere
   // else...
-  virtual int ClipUpdateExtentWithWholeExtent() {return 1;}
-  
-  
+  virtual int ClipUpdateExtentWithWholeExtent() {return 1;}  
   
   
   vtkFieldData *FieldData; //General field data associated with data object  
@@ -274,23 +265,8 @@ protected:
   // Not all filters will respect this limit.
   unsigned long MemoryLimit;
 
-  // ---------------------------------
-  // Information every data object has.
-  
-  // A guess at how much memory would be consumed by the data object
-  // if the WholeExtent were updated.
-  unsigned long EstimatedWholeMemorySize;
-  // The Maximum MTime of all upstreamg filters and data objects.
-  // This does not include the MTime of this data object.
-  unsigned long PipelineMTime;
-  // This tells down stream filters the smallest resolution available 
-  // for streaming/spliting.  Now this is sort of a whole extent
-  // for unstructured data, and should not be part 
-  // of the information of vtkDataObject...
-  unsigned long MaximumNumberOfPieces;
-  // How many upstream filters are local to the process.
-  // This will have to change to a float for Kens definition of locality.
-  int Locality;
+  // All the information is containted in this object now.
+  vtkDataInformation *Information;
 };
 
 #endif

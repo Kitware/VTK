@@ -67,6 +67,7 @@ class vtkPixel;
 class vtkVoxel;
 class vtkExtent;
 class vtkStructuredExtent;
+class vtkStructuredInformation;
 
 class VTK_EXPORT vtkRectilinearGrid : public vtkDataSet
 {
@@ -187,7 +188,7 @@ public:
   void SetWholeExtent(int xMin, int xMax,
 		      int yMin, int yMax, int zMin, int zMax);
   void GetWholeExtent(int extent[6]);
-  int *GetWholeExtent() {return this->WholeExtent;}
+  int *GetWholeExtent();
   void GetWholeExtent(int &xMin, int &xMax,
 		      int &yMin, int &yMax, int &zMin, int &zMax);
 
@@ -218,18 +219,19 @@ public:
   // to need these methods (which should eventually replace the 
   // CopyUpdateExtent method).
   vtkExtent *GetGenericUpdateExtent() {return (vtkExtent*)this->UpdateExtent;}
-  void CopyGenericUpdateExtent(vtkExtent *ext);
-  void CopyUpdateExtent(vtkDataObject *data);  
 
   // Description:
-  // Just copies the WholeExtent from another structured grid.
-  void CopyInformation(vtkDataObject *structuredGrid);
+  // Returns the structured grid specific information object.
+  // We should be able to eventually get rid of CopyInformation method.
+  vtkStructuredInformation *GetStructuredInformation()
+    {return (vtkStructuredInformation*)(this->Information);}
 
   // Description:
   // Return the amount of memory for the update piece.
   unsigned long GetEstimatedUpdateMemorySize();
   
 protected:
+
   vtkRectilinearGrid();
   vtkRectilinearGrid(const vtkRectilinearGrid& v);
   ~vtkRectilinearGrid();
@@ -252,8 +254,6 @@ protected:
 
   // -------- stuff for streaming ------------
 
-  // The dimensions if the whole structured grid were update.
-  int WholeExtent[6];
   // The extent of what is currently in the structured grid.
   int Extent[6];
   // What will be generated on the next call to Update.

@@ -39,7 +39,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDataObject.h"
+#include "vtkDataInformation.h"
 #include "vtkSource.h"
+#include "vtkExtent.h"
+#include "vtkDataInformation.h"
 
 // Initialize static member that controls global data release after use by filter
 static int vtkDataObjectGlobalReleaseDataFlag = 0;
@@ -52,17 +55,17 @@ vtkDataObject::vtkDataObject()
   this->ReleaseDataFlag = 0;
   this->FieldData = vtkFieldData::New();
   // --- streaming stuff ---
-  this->PipelineMTime = 0;
   this->MemoryLimit = VTK_LARGE_INTEGER;
-  this->EstimatedWholeMemorySize = 0;
-  this->MaximumNumberOfPieces = 1;
-  this->Locality = 0;
+  // subclasses will delete this and set a more specific information object.
+  this->Information = vtkDataInformation::New();
 }
 
 //----------------------------------------------------------------------------
 vtkDataObject::~vtkDataObject()
 {
   this->FieldData->Delete();
+  this->Information->Delete();
+  this->Information = NULL;
 }
 
 
@@ -70,7 +73,7 @@ vtkDataObject::~vtkDataObject()
 // Determine the modified time of this object
 unsigned long int vtkDataObject::GetMTime()
 {
-  unsigned long result;
+  unsigned long result, t2;
 
   result = vtkObject::GetMTime();
   if ( this->FieldData )
@@ -78,6 +81,13 @@ unsigned long int vtkDataObject::GetMTime()
     unsigned long mtime = this->FieldData->GetMTime();
     result = ( mtime > result ? mtime : result);
     }
+  
+  t2 = this->Information->GetMTime();  
+  if (t2 > result)
+    {
+    result = t2;
+    }
+  
   return result;
 }
 
@@ -148,7 +158,7 @@ void vtkDataObject::UpdateInformation()
 void vtkDataObject::InternalUpdate()
 {
   vtkDebugMacro("InternalUpdate: VT: " << this->UpdateTime << ", PMT: "  
-		<< this->PipelineMTime);
+		<< this->Information->GetPipelineMTime());
   
   // Clip has to be before the Update check because:  If the update extent
   // after clipping is larger than current extent, then data is released ...
@@ -159,7 +169,8 @@ void vtkDataObject::InternalUpdate()
     return;
     }
   
-  if (this->UpdateTime >= this->PipelineMTime && ! this->DataReleased)
+  if (this->UpdateTime >= this->Information->GetPipelineMTime() 
+      && ! this->DataReleased)
     {
     return;
     }
@@ -175,17 +186,13 @@ void vtkDataObject::InternalUpdate()
 //----------------------------------------------------------------------------
 void vtkDataObject::CopyUpdateExtent(vtkDataObject *data)
 {
-  vtkErrorMacro("Concrete subclass did not implement CopyUpdateExtent");
+  this->GetGenericUpdateExtent()->Copy(data->GetGenericUpdateExtent());
 }
 
 //----------------------------------------------------------------------------
 void vtkDataObject::CopyInformation(vtkDataObject *data)
 {
-  // PipelineMTime is different than other information.
-  
-  this->EstimatedWholeMemorySize = data->EstimatedWholeMemorySize;
-  this->MaximumNumberOfPieces = data->MaximumNumberOfPieces;
-  this->Locality = data->Locality;
+  this->GetDataInformation()->Copy(data->GetDataInformation());
 }
 
 //----------------------------------------------------------------------------
@@ -209,14 +216,10 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
      << (vtkDataObjectGlobalReleaseDataFlag ? "On\n" : "Off\n");
 
   os << indent << "UpdateTime: " << this->UpdateTime << endl;
-  os << indent << "PipelineMTime: " << this->PipelineMTime << endl;
-  os << indent << "EstimatedWholeMemorySize: " 
-     << this->EstimatedWholeMemorySize << endl;
   os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
-  os << indent << "MaximumNumberOfPieces: " << this->MaximumNumberOfPieces 
-     << endl;
-  os << indent << "Locality: " << this->Locality << endl;
-
+  os << indent << "Information:\n";
+  this->Information->PrintSelf(os, indent.GetNextIndent());  
+  
   os << indent << "Field Data:\n";
   this->FieldData->PrintSelf(os,indent.GetNextIndent());
 }
@@ -256,7 +259,6 @@ void vtkDataObject::UnRegister(vtkObject *o)
   this->vtkObject::UnRegister(o);
 }
 
-
 //----------------------------------------------------------------------------
 unsigned long vtkDataObject::GetUpdateTime()
 {
@@ -264,6 +266,42 @@ unsigned long vtkDataObject::GetUpdateTime()
 }
 
 
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetEstimatedWholeMemorySize(unsigned long v)
+{
+  this->Information->SetEstimatedWholeMemorySize(v);
+}
+
+//----------------------------------------------------------------------------
+unsigned long vtkDataObject::GetEstimatedWholeMemorySize()  
+{
+  return this->Information->GetEstimatedWholeMemorySize();
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetPipelineMTime(long t) 
+{
+  this->Information->SetPipelineMTime(t);
+}
+
+//----------------------------------------------------------------------------
+long vtkDataObject::GetPipelineMTime() 
+{
+  return this->Information->GetPipelineMTime();
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetLocality(int locality) 
+{
+  this->Information->SetLocality(locality);
+}
+
+//----------------------------------------------------------------------------
+int vtkDataObject::GetLocality()
+{
+  return this->Information->GetLocality();
+}
 
 
 

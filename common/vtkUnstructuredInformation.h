@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStructuredExtent.cxx
+  Module:    vtkUnstructuredInformation.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,54 +38,57 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+// .NAME vtkUnstructuredInformation - Only MaximumNumberOfPieces for now..
+// .SECTION Description
+// Note:  This object is under development an might change in the future.
+// This class contains all the information specific to unstructured
+// data sets.  The only thing it contians now is the
+// mamximum number of pieces streaming can request.
 
-#include "vtkStructuredExtent.h"
-#include "vtkUnstructuredExtent.h"
 
-//----------------------------------------------------------------------------
-// Construct a new vtkStructuredExtent 
-vtkStructuredExtent::vtkStructuredExtent()
+#ifndef __vtkUnstructuredInformation_h
+#define __vtkUnstructuredInformation_h
+
+#include "vtkDataInformation.h"
+
+
+class VTK_EXPORT vtkUnstructuredInformation : public vtkDataInformation
 {
-  int idx;
+public:
+  static vtkUnstructuredInformation *New() 
+    {return new vtkUnstructuredInformation;};
+  const char *GetClassName() {return "vtkUnstructuredInformation";}
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Subclasses override this method, and try to be smart
+  // if the types are different.
+  void Copy(vtkDataInformation *in);
+
+  // Description:
+  // This is the maximum number of pieces that can be requested.
+  // Requesting more than this value will give you no data.
+  // This variable is going to be moved into vtkUnstructuredInformation.
+  vtkSetMacro(MaximumNumberOfPieces, unsigned long);
+  vtkGetMacro(MaximumNumberOfPieces, unsigned long);
   
-  for (idx = 0; idx < 3; ++idx)
-    {
-    this->Extent[idx*2] = -VTK_LARGE_INTEGER;
-    this->Extent[idx*2+1] = VTK_LARGE_INTEGER;
-    }
-}
-
-
-
-//----------------------------------------------------------------------------
-void vtkStructuredExtent::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkExtent::PrintSelf(os, indent);
-  os << indent << "Extent: " << this->Extent[0] << ", " << this->Extent[1] 
-     << ", " << this->Extent[2] << ", " << this->Extent[3] 
-     << ", " << this->Extent[4] << ", " << this->Extent[5] << endl;
-}
-
-
-//----------------------------------------------------------------------------
-void vtkStructuredExtent::Copy(vtkExtent *in)
-{
-  // call the supperclasses copy
-  this->vtkExtent::Copy(in);
+  // Description:
+  // This method is passed a ClassName and returns 1 if the object is
+  // a subclass of the class arg.  It is an attempt at making a smarter copy.
+  int GetClassCheck(char *className);
   
-  // WARNING!!!
-  // This logic only works because of the simple class hierachy.
-  // If you subclass off this extent, ClassName cannot be used.
-  if (strcmp(in->GetClassName(), "vtkStructuredExtent") == 0)
-    {
-    int idx;
-    vtkStructuredExtent *e = (vtkStructuredExtent*)(in);
+protected:
   
-    for (idx = 0; idx < 6; ++idx)
-      {
-      this->Extent[idx] = e->Extent[idx];
-      }
-    } 
-}
+  vtkUnstructuredInformation();
+  ~vtkUnstructuredInformation() {};
+
+  // This tells down stream filters the smallest resolution available 
+  // for streaming/spliting.  Now this is sort of a whole extent
+  // for unstructured data, and should not be part 
+  // of the information of vtkDataObject...
+  unsigned long MaximumNumberOfPieces;
+
+};
 
 
+#endif

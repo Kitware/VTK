@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolygon.h"
 #include "vtkEmptyCell.h"
 #include "vtkUnstructuredExtent.h"
+#include "vtkUnstructuredInformation.h"
 
 //----------------------------------------------------------------------------
 // Initialize static member.  This member is used to simplify traversal
@@ -91,6 +92,10 @@ vtkPolyData::vtkPolyData ()
 
   this->Extent = vtkUnstructuredExtent::New();
   this->UpdateExtent = vtkUnstructuredExtent::New();
+
+  // delete the default information created by the superclass.
+  this->Information->Delete();
+  this->Information = vtkUnstructuredInformation::New();
 }
 
 //----------------------------------------------------------------------------
@@ -1320,12 +1325,14 @@ int vtkPolyData::ClipUpdateExtentWithWholeExtent()
   int valid = 1;
   int piece = this->UpdateExtent->GetPiece();
   int numPieces = this->UpdateExtent->GetNumberOfPieces();
+  int maxPieces;  
   
   // Check to see if upstream filters can break up the data into the
   // requested number of pieces.
-  if (numPieces > this->MaximumNumberOfPieces)
+  maxPieces = this->GetUnstructuredInformation()->GetMaximumNumberOfPieces();
+  if (numPieces > maxPieces)
     {
-    numPieces = this->MaximumNumberOfPieces;
+    numPieces = maxPieces;
     }
   
   if (numPieces <= 0 || piece < 0 || piece >= numPieces)
@@ -1380,52 +1387,18 @@ int vtkPolyData::GetUpdateNumberOfPieces()
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyData::CopyGenericUpdateExtent(vtkExtent *arg)
-{
-  if (strcmp(arg->GetClassName(), "vtkUnstructuredExtent") != 0)
-    {
-    vtkErrorMacro("vtkPolyData cannot copy " << arg->GetClassName());
-    return;
-    }
-  
-  this->UpdateExtent->Copy((vtkUnstructuredExtent *)(arg));
-}
-
-void vtkPolyData::CopyUpdateExtent(vtkDataObject *obj)
-{
-  this->CopyGenericUpdateExtent(obj->GetGenericUpdateExtent());
-}
-
-
-//----------------------------------------------------------------------------
-void vtkPolyData::CopyInformation(vtkDataObject *data)
-{
-  this->vtkPointSet::CopyInformation(data);
-  
-  // Stuff specific to this data type.  Do nothing if data types don't match?
-  if (data->GetDataObjectType() != VTK_POLY_DATA)
-    {
-    //vtkErrorMacro("CopyInformation: Expecting vtkPolyData, got " 
-    //              << data->GetClassName());
-    // We might be able to copy the generic information,
-    // or even information shared between unstructured data.
-    return;    
-    }
-  // There is no information specific to poly data (yet).
-}
-
-//----------------------------------------------------------------------------
 unsigned long vtkPolyData::GetEstimatedUpdateMemorySize()
 {
   unsigned long size;
   
+  size = this->Information->GetEstimatedWholeMemorySize();
+
   if (this->UpdateExtent->GetNumberOfPieces() <= 0)
     {
     // should not happen (trying to make this robust)
-    return this->EstimatedWholeMemorySize;
+    return size;
     }
   
-  size = this->EstimatedWholeMemorySize;
   size = size / this->UpdateExtent->GetNumberOfPieces();
   
   if (size < 1)

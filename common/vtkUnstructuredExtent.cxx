@@ -56,14 +56,27 @@ void vtkUnstructuredExtent::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-void vtkUnstructuredExtent::Copy(vtkUnstructuredExtent *in)
+//----------------------------------------------------------------------------
+void vtkUnstructuredExtent::Copy(vtkExtent *in)
 {
-  int idx;
+  // call the supperclasses copy
+  this->vtkExtent::Copy(in);
   
-  for (idx = 0; idx < 2; ++idx)
+  // WARNING!!!
+  // This logic only works because of the simple class hierachy.
+  // If you subclass off this extent, ClassName cannot be used.
+  if (strcmp(in->GetClassName(), "vtkUnstructuredExtent") == 0)
     {
-    this->Extent[idx] = in->Extent[idx];
-    }
+    int idx;
+    vtkUnstructuredExtent *e = (vtkUnstructuredExtent*)(in);
+  
+    for (idx = 0; idx < 2; ++idx)
+      {
+      this->Extent[idx] = e->Extent[idx];
+      }
+    } 
 }
+
+
 
 

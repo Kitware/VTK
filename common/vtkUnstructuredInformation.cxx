@@ -1,12 +1,13 @@
 /*=========================================================================
 
-
-  Module:    vtkStructuredPoints.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkUnstructuredInformation.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+
+Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -37,33 +38,60 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <math.h>
-#include "vtkStructuredPoints.h"
-#include "vtkImageToStructuredPoints.h"
-#include "vtkStructuredExtent.h"
+#include "vtkUnstructuredInformation.h"
 
-vtkStructuredPoints::vtkStructuredPoints()
+//----------------------------------------------------------------------------
+// Construct a new vtkUnstructuredInformation 
+vtkUnstructuredInformation::vtkUnstructuredInformation()
 {
-  this->SetScalarType(VTK_FLOAT);
+  this->MaximumNumberOfPieces = 1;
 }
 
 
-int vtkStructuredPoints::ClipUpdateExtentWithWholeExtent()
+//----------------------------------------------------------------------------
+void vtkUnstructuredInformation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->UpdateExtent->SetExtent(this->GetWholeExtent());
-  return 1;
+  vtkDataInformation::PrintSelf(os, indent);
+
+  os << indent << "MaximumNumberOfPieces: " 
+     << this->MaximumNumberOfPieces << endl;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkUnstructuredInformation::GetClassCheck(char *className)
+{
+  if (strcmp(className, "vtkUnstructuredInformation") == 0)
+    {
+    return 1;
+    }
+  // check superclass
+  if (this->vtkDataInformation::GetClassCheck(className))
+    {
+    return 1;
+    }
+  
+  return 0;
+}
+
+
+  
+//----------------------------------------------------------------------------
+void vtkUnstructuredInformation::Copy(vtkDataInformation *in)
+{
+  this->vtkDataInformation::Copy(in);
+  
+  if (in->GetClassCheck("vtkUnstructuredInformation"))
+    {
+    vtkUnstructuredInformation *info = (vtkUnstructuredInformation*)(in);
+    this->SetMaximumNumberOfPieces(info->GetMaximumNumberOfPieces());
+    }
 }
 
 
 
 
-
-
-
-
-
-
-
+  
 
 
 

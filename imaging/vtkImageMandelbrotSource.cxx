@@ -208,8 +208,6 @@ void vtkImageMandelbrotSource::ExecuteInformation()
     }
   
   output->SetEstimatedWholeMemorySize(mem);
-  // Do not allow less than 1Kb per piece.
-  output->SetMaximumNumberOfPieces(mem);  
 }
 
 //----------------------------------------------------------------------------

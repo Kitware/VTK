@@ -57,19 +57,27 @@ class vtkUnstructuredExtent;
 class VTK_EXPORT vtkExtent : public vtkObject
 {
 public:
-  vtkExtent();
   static vtkExtent *New() {return new vtkExtent;};
   const char *GetClassName() {return "vtkExtent";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Copy information from one extent into a similar type event.
-  // Subclasses over ride the correct type.
-  virtual void Copy(vtkStructuredExtent *in);
-  virtual void Copy(vtkUnstructuredExtent *in);
+  // Copy information from one extent into another.
+  // Subclasses override this method, and try to be smart
+  // if the types are different.
+  virtual void Copy(vtkExtent *in);
 
-protected:
+  // Description:
+  // We can use streaming to processes series of data sets one at a time.
+  vtkSetMacro(SeriesIndex, int);
+  vtkGetMacro(SeriesIndex, int);
   
+protected:
+
+  vtkExtent();
+  ~vtkExtent() {};
+  
+  int SeriesIndex;
 };
 
 
