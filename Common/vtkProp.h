@@ -238,6 +238,17 @@ public:
   // Used to construct assembly paths and perform part traversal.
   virtual void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
 
+  // Description:
+  // Get the number of consumers
+  vtkGetMacro(NumberOfConsumers,int);
+  
+  // Description:
+  // Add or remove or get or check a consumer, 
+  void AddConsumer(vtkObject *c);
+  void RemoveConsumer(vtkObject *c);
+  vtkObject *GetConsumer(int i);
+  int IsConsumer(vtkObject *c);
+
 //ETX
 
 protected:
@@ -253,6 +264,10 @@ protected:
   float EstimatedRenderTime;
   float SavedEstimatedRenderTime;
   float RenderTimeMultiplier;
+
+  // how many consumers does this object have
+  int NumberOfConsumers;
+  vtkObject **Consumers;
 
   // support multi-part props and access to paths of prop
   // stuff that follows is used to build the assembly hierarchy

@@ -20,7 +20,7 @@
 #include "vtkAssemblyPaths.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkProp, "1.21");
+vtkCxxRevisionMacro(vtkProp, "1.22");
 vtkStandardNewMacro(vtkProp);
 
 // Creates an Prop with the following defaults: visibility on.
@@ -37,6 +37,9 @@ vtkProp::vtkProp()
   this->RenderTimeMultiplier = 1.0;
 
   this->Paths = NULL;
+
+  this->NumberOfConsumers = 0;
+  this->Consumers = 0;
 }
 
 vtkProp::~vtkProp()
@@ -44,6 +47,10 @@ vtkProp::~vtkProp()
   if ( this->Paths )
     {
     this->Paths->Delete();
+    }
+  if (this->Consumers)
+    {
+    delete [] this->Consumers;
     }
 }
 
@@ -139,11 +146,76 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
      << this->AllocatedRenderTime << endl;
   os << indent << "EstimatedRenderTime: " 
      << this->EstimatedRenderTime << endl;
+  os << indent << "NumberOfConsumers: " << this->NumberOfConsumers << endl;
   os << indent << "RenderTimeMultiplier: " 
      << this->RenderTimeMultiplier << endl;
   os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
 }
 
 
+void vtkProp::AddConsumer(vtkObject *c)
+{
+  // make sure it isn't already there
+  if (this->IsConsumer(c))
+    {
+    return;
+    }
+  // add it to the list, reallocate memory
+  vtkObject **tmp = this->Consumers;
+  this->NumberOfConsumers++;
+  this->Consumers = new vtkObject* [this->NumberOfConsumers];
+  for (int i = 0; i < (this->NumberOfConsumers-1); i++)
+    {
+    this->Consumers[i] = tmp[i];
+    }
+  this->Consumers[this->NumberOfConsumers-1] = c;
+  // free old memory
+  delete [] tmp;
+}
 
+void vtkProp::RemoveConsumer(vtkObject *c)
+{
+  // make sure it is already there
+  if (!this->IsConsumer(c))
+    {
+    return;
+    }
+  // remove it from the list, reallocate memory
+  vtkObject **tmp = this->Consumers;
+  this->NumberOfConsumers--;
+  this->Consumers = new vtkObject* [this->NumberOfConsumers];
+  int cnt = 0;
+  int i;
+  for (i = 0; i <= this->NumberOfConsumers; i++)
+    {
+    if (tmp[i] != c)
+      {
+      this->Consumers[cnt] = tmp[i];
+      cnt++;
+      }
+    }
+  // free old memory
+  delete [] tmp;
+}
 
+int vtkProp::IsConsumer(vtkObject *c)
+{
+  int i;
+  for (i = 0; i < this->NumberOfConsumers; i++)
+    {
+    if (this->Consumers[i] == c)
+      {
+      return 1;
+      }
+    }
+  return 0;
+}
+
+vtkObject *vtkProp::GetConsumer(int i)
+{
+  if (i >= this->NumberOfConsumers)
+    {
+    return 0;
+    }
+  return this->Consumers[i];
+}

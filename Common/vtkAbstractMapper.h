@@ -97,6 +97,17 @@ public:
   static vtkDataArray *GetScalars(vtkDataSet *input, int scalarMode,
                                   int arrayAccessMode, int arrayId, 
                                   const char *arrayName, int& component);
+  // Description:
+  // Get the number of consumers
+  vtkGetMacro(NumberOfConsumers,int);
+  
+  // Description:
+  // Add or remove or get or check a consumer, 
+  void AddConsumer(vtkObject *c);
+  void RemoveConsumer(vtkObject *c);
+  vtkObject *GetConsumer(int i);
+  int IsConsumer(vtkObject *c);
+
 protected:
   vtkAbstractMapper();
   ~vtkAbstractMapper();
@@ -105,6 +116,10 @@ protected:
   float TimeToDraw;
   vtkWindow *LastWindow;   // Window used for the previous render
   vtkPlaneCollection *ClippingPlanes;
+
+  // how many consumers does this object have
+  int NumberOfConsumers;
+  vtkObject **Consumers;
 
 private:
   vtkAbstractMapper(const vtkAbstractMapper&);  // Not implemented.
