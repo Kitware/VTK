@@ -46,7 +46,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkVoxelContoursToSurfaceFilter::vtkVoxelContoursToSurfaceFilter()
 {
   this->MemoryLimitInBytes = 10000000;
-
+  this->Spacing[0]         = 1.0;
+  this->Spacing[1]         = 1.0;
+  this->Spacing[2]         = 1.0;
   this->LineList           = new float[4*1000];
   this->LineListLength     = 0;
   this->LineListSize       = 1000;
@@ -494,7 +496,6 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
   vtkPolyData          *input  = this->GetInput();
   vtkCellArray         *inputPolys = input->GetPolys();
   int                  gridSize[3];
-  float                gridSpacing[3];
   float                gridOrigin[3];
   float                contourBounds[6];
   int                  chunkSize, firstChunk = 1;
@@ -516,7 +517,7 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
   // Get the bounds of the input contours
   input->GetBounds( contourBounds );
 
-  // From the bounds, compute the grid size, spacing, and origin
+  // From the bounds, compute the grid size, and origin
   
   // The origin of the grid should be (-0.5, -0.5, 0.0) away from the 
   // lower bounds of the contours. This is because we want the grid
@@ -537,12 +538,6 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
   gridSize[1] = contourBounds[3] - contourBounds[2] + 2;
   gridSize[2] = contourBounds[5] - contourBounds[4] + 3;
 
-  // For now, spacing is 1x1x1 - fix this to include an aspect 
-  // supplied by user
-  gridSpacing[0] = 1.0;
-  gridSpacing[1] = 1.0;
-  gridSpacing[2] = 1.0;
-
   // How many slices in a chunk? This will later be decremented 
   // by one to account for the fact that the last slice in the 
   // previous chuck is copied to the first slice in the next chunk. 
@@ -562,6 +557,7 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
 
   volume = vtkStructuredPoints::New();
   volume->SetDimensions( gridSize[0], gridSize[1], chunkSize );
+  volume->SetSpacing( this->Spacing );
   volume->SetScalarType( VTK_FLOAT );
   volume->AllocateScalars();
   volumePtr = 
@@ -584,7 +580,8 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
     // place so that the appended polydata all matches up
     // nicely.
     volume->SetOrigin( gridOrigin[0], gridOrigin[1],
-		       gridOrigin[2] + currentSlice - (currentSlice!=0) );
+		       gridOrigin[2] + 
+		       this->Spacing[2] * (currentSlice - (currentSlice!=0)) );
 
     for ( i = currentIndex; i < chunkSize; i++ )
       {

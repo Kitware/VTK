@@ -82,13 +82,18 @@ public:
   // in as many pieces as necessary.
   vtkSetMacro( MemoryLimitInBytes, int );
   vtkGetMacro( MemoryLimitInBytes, int );
-   
+
+  vtkSetVector3Macro( Spacing, float );
+  vtkGetVectorMacro( Spacing, float, 3 );
+
 protected:
   vtkVoxelContoursToSurfaceFilter();
   ~vtkVoxelContoursToSurfaceFilter();
   void    Execute();
 
   int     MemoryLimitInBytes;
+
+  float   Spacing[3];
 
   float   *LineList;
   int     LineListLength;
