@@ -108,7 +108,7 @@ public:
   virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
   virtual void *GetGenericContext()   {return (void *)this->DeviceContext;};
   virtual void *GetGenericDrawable()  {return (void *)this->WindowId;};
-  virtual void SetDisplayId(void *) {};
+  virtual void SetDisplayId(void *);
 
   // Description:
   // Get the window id.
@@ -142,12 +142,6 @@ public:
   // Description:
   // Make this windows OpenGL context the current context.
   void MakeCurrent();
-
-  // Description:
-  // If called, allow MakeCurrent() to skip cache-check when called.
-  // MakeCurrent() reverts to original behavior of cache-checking
-  // on the next render.
-  void SetForceMakeCurrent();
 
   // Description:
   // Check to see if a mouse button has been pressed.
