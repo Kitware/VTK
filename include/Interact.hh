@@ -53,15 +53,6 @@ public:
   vlSetObjectMacro(RenderWindow,vlRenderWindow);
   vlGetObjectMacro(RenderWindow,vlRenderWindow);
 
-  // Description:
-  // Specify the camera being controlled by this object.
-  vlSetObjectMacro(Camera,vlCamera);
-  vlGetObjectMacro(Camera,vlCamera);
-
-  // Description:
-  // Specify the light being controlled by this object.
-  vlSetObjectMacro(Light,vlLight);
-  vlGetObjectMacro(Light,vlLight);
 
   // Description:
   // Turn on/off the automatic repositioning of lights as the camera moves.
@@ -69,11 +60,21 @@ public:
   vlGetMacro(LightFollowCamera,int);
   vlBooleanMacro(LightFollowCamera,int);
 
+  void FindPokedCamera(int,int);
+  void FindPokedRenderer(int,int);
+
 protected:
   vlRenderWindow *RenderWindow;
-  vlCamera   *Camera;
-  vlLight    *Light;
+  vlCamera   *CurrentCamera;
+  vlLight    *CurrentLight;
+  vlRenderer *CurrentRenderer;
   int LightFollowCamera;
+  float Center[2];
+  float DeltaAzimuth;
+  float DeltaElevation;
+  int Size[2];
+  int   State;
+  float FocalDepth;
 };
 
 #endif
