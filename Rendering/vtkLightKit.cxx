@@ -19,14 +19,14 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkLightKit, "1.18");
+vtkCxxRevisionMacro(vtkLightKit, "1.19");
 vtkStandardNewMacro(vtkLightKit);
 
 static const char *vtkLightKitTypeStrings[] = {
-  "Key Light",
-  "Fill Light",
-  "Back Light",
-  "Head Light",
+  "KeyLight",
+  "FillLight",
+  "BackLight",
+  "HeadLight",
   NULL
 };
 
