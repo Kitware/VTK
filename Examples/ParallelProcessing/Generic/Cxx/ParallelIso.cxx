@@ -24,6 +24,7 @@
 #include "vtkWindowToImageFilter.h"
 #include "vtkTIFFWriter.h"
 #include "vtkMultiProcessController.h"
+#include "vtkGetDataRoot.h"
 
 static const float ISO_START=4250.0;
 static const float ISO_STEP=-1250.0;
@@ -54,7 +55,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   int myid, numProcs;
   float val;
   int numTris;
-  char *save_filename = (char*)arg;
+  char* fname = reinterpret_cast<char*>(arg);
   
   // Obtain the id of the running process and the total
   // number of processes
@@ -65,9 +66,9 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   // to be changed depending on where the data files are.
   reader = vtkImageReader::New();
   reader->SetDataByteOrderToLittleEndian();
-  reader->SetDataExtent(0, 127, 0, 127, 1, 93);
-  reader->SetFilePrefix("../../../../vtkdata/headsq/half");
-  reader->SetDataSpacing(1.6, 1.6, 1.5);
+  reader->SetDataExtent(0, 63, 0, 63, 1, 93);
+  reader->SetFilePrefix(fname);
+  reader->SetDataSpacing(3.2, 3.2, 1.5);
 
   // Iso-surface.
   iso = vtkContourFilter::New();
@@ -202,21 +203,6 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
       renWindow->Render();
       }
 
-    if (save_filename[0] != '\0')
-      {
-      // Save an image if we need to for regression test.
-      vtkWindowToImageFilter *w2if = vtkWindowToImageFilter::New();
-      vtkTIFFWriter *rttiffw = vtkTIFFWriter::New();
-      w2if->SetInput(renWindow);
-      rttiffw->SetInput(w2if->GetOutput());
-      rttiffw->SetFileName(save_filename); 
-      rttiffw->Write(); 
-      }
-    else
-      {
-      //  Begin mouse interaction
-      iren->Start();
-      }
 
     // Tell the other processors to stop processing RMIs.
     for (i = 1; i < numProcs; ++i)
@@ -231,6 +217,8 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     iren->Delete();
     mapper->Delete();
     actor->Delete();
+    cam->Delete();
+    timer->Delete();
     }
   
   // clean up objects in all processes.
@@ -240,17 +228,9 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 }
 
 
-int main( int argc, char *argv[] )
+int main( int argc, char* argv[] )
 {
   vtkMultiProcessController *controller;
-  char save_filename[100];
-
-  save_filename[0] = '\0';
-  
-  if( (argc >= 2) && (strcmp("-S", argv[argc-1]) == 0) )
-    {
-    sprintf( save_filename, "%s.cxx.tif", argv[0] );
-    }
 
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
@@ -258,7 +238,10 @@ int main( int argc, char *argv[] )
 
   controller->Initialize(&argc, &argv);
 
-  controller->SetSingleMethod(MyMain, save_filename);
+  // Use this method to get the place of the data directory.
+  char* fname = vtkExpandDataFileName(argc, argv, "Data/headsq/quarter");
+
+  controller->SetSingleMethod(MyMain, reinterpret_cast<void*>(fname));
 
   // When using MPI, the number of processes is determined
   // by the external program which launches this application.
@@ -269,9 +252,12 @@ int main( int argc, char *argv[] )
     controller->SetNumberOfProcesses(2);
     } 
   controller->SingleMethodExecute();
-  
+
+  delete[] fname;
+
   controller->Finalize();
   controller->Delete();
+
   return 0;
 }
 
