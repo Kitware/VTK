@@ -53,6 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // bounding box; 3) choosing the eight vertex planes of the input's
 // bounding box; 4) choosing the twelve edge planes of the input's
 // bounding box; and/or 5) using a recursively subdivided octahedron.
+// Note that when specifying planes, the plane normals should point
+// outside of the convex region.
 //
 // The output of this filter can be used in combination with vtkLODActor 
 // to represent a levels-of-detail in the LOD hierarchy. Another use of
@@ -83,14 +85,17 @@ public:
   // end of the list, and an index that can later be used to set this
   // plane's normal will be returned. The values A, B, C are from the
   // plane equation Ax + By + Cz + D = 0. This vector does not have to
-  // have unit length (but it must have a non-zero length!). If a -1 is
-  // returned, then an error occurred while adding the plane.
+  // have unit length (but it must have a non-zero length!). If a value
+  // 0 > i >= -NumberOfPlanes is returned, then the plane is parallel
+  // with a previously inserted plane, and |-i-1| is the index of the
+  // plane that was previously inserted. If a value i < -NumberOfPlanes
+  // is returned, then the plane normal is zero length.
   int  AddPlane( float A, float B, float C );
   int  AddPlane( float plane[3] );
 
   // Description:
   // Set the normal values for plane i. This is a plane that was already
-  // added to the current set of planes with AddPlane, and is now being
+  // added to the current set of planes with AddPlane(), and is now being
   // modified. The values A, B, C are from the plane equation 
   // Ax + By + Cz + D = 0. This vector does not have to have unit length.
   // Note that D is set to zero, except in the case of the method taking
@@ -99,7 +104,7 @@ public:
   void SetPlane( int i, float plane[3] );
 
   // Description:
-  // Variations of AddPlane/SetPlane that allow D to be set. These 
+  // Variations of AddPlane()/SetPlane() that allow D to be set. These 
   // methods are used when GenerateHull() is used.
   int AddPlane( float A, float B, float C, float D );
   int AddPlane( float plane[3], float D );

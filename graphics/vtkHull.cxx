@@ -90,8 +90,8 @@ void vtkHull::RemoveAllPlanes()
 }
 
 // Add a plane. The vector (A,B,C) is the plane normal and is from the
-// plane equation Ax + By + Cz + D = 0. The normal should point inward
-// towards the center of the hull.
+// plane equation Ax + By + Cz + D = 0. The normal should point outwards
+// away from the center of the hull.
 int vtkHull::AddPlane( float A, float B, float C )
 {
   float     *tmpPointer;
@@ -105,7 +105,7 @@ int vtkHull::AddPlane( float A, float B, float C )
   if ( norm == 0.0 )
     {
     vtkErrorMacro( << "Zero length vector not allowed for plane normal!" );
-    return -1;
+    return -VTK_LARGE_INTEGER;
     }
   A /= norm;
   B /= norm;
@@ -121,9 +121,11 @@ int vtkHull::AddPlane( float A, float B, float C )
       B * this->Planes[i*4 + 1] +
       C * this->Planes[i*4 + 2];
 
+    //If planes are parallel, we already have the plane.
+    //Indicate this with the appropriate return value.
     if ( dotproduct > 0.9999 && dotproduct < 1.0001 )
       {
-      return -1;
+      return -(i+1);
       }
     }
 
@@ -149,7 +151,7 @@ int vtkHull::AddPlane( float A, float B, float C )
       {
       vtkErrorMacro( << "Unable to allocate space for planes" );
       this->Planes = tmpPointer;
-      return -1;
+      return -VTK_LARGE_INTEGER;
       }
 
     // Copy the planes and delete the old storage space
@@ -236,6 +238,11 @@ int vtkHull::AddPlane( float A, float B, float C, float D )
     {
     this->Planes[4*i + 3] = D;
     }
+  else if ( i >= -this->NumberOfPlanes )
+    {//pick the D that minimizes the convex set
+    this->Planes[4*i + 3] = (D > this->Planes[4*i + 3] ? 
+                             D : this->Planes[4*i + 3]);
+    }
   return i;
 }
 
@@ -246,6 +253,11 @@ int vtkHull::AddPlane( float plane[3], float D )
   if ( (i=this->AddPlane(plane[0],plane[1],plane[2])) >= 0 )
     {
     this->Planes[4*i + 3] = D;
+    }
+  else if ( i >= -this->NumberOfPlanes )
+    {//pick the D that minimizes the convex set
+    this->Planes[4*i + 3] = (D > this->Planes[4*i + 3] ? 
+                             D : this->Planes[4*i + 3]);
     }
   return i;
 }
@@ -277,29 +289,35 @@ void  vtkHull::SetPlanes( vtkPlanes *planes )
   // Add the planes to the hull
   if ( planes )
     {
+    int i, idx;
     vtkPoints *points = planes->GetPoints();
     vtkNormals *normals = planes->GetNormals();
-    int j = 0;
-    for (int i=0; i<planes->GetNumberOfPlanes(); i++)
+    if ( points && normals )
       {
-      if ( normals )
+      for (i=0; i<planes->GetNumberOfPlanes(); i++)
         {
-        if (this->AddPlane(normals->GetNormal(i)) == -1)
-	  {
-	  continue;
-	  }
-        }
-      if ( points )
-        {
-        int idx = 4*j;
         float *point = points->GetPoint(i);
-        this->Planes[idx + 3] = -(this->Planes[idx]*point[0] +
-                                        this->Planes[idx+1]*point[1] +
-                                        this->Planes[idx+2]*point[2]);
-        }
-      j++;
-      }//for all planes
-    }
+        if ( (idx=this->AddPlane(normals->GetNormal(i))) >= 0)
+          { 
+          idx *= 4;
+          this->Planes[idx + 3] = -(this->Planes[idx]*point[0] +
+                                    this->Planes[idx+1]*point[1] +
+                                    this->Planes[idx+2]*point[2]);
+          }
+
+        else if ( idx >= -this->NumberOfPlanes )
+          { //planes are parallel, take the one that minimizes the convex set
+          idx = -4*(idx+1);
+          float D = -(this->Planes[idx]*point[0] +
+                      this->Planes[idx+1]*point[1] +
+                      this->Planes[idx+2]*point[2]);
+          this->Planes[idx + 3] = (D > this->Planes[idx + 3] ? 
+                                   D : this->Planes[idx + 3]);
+
+          }//special parallel planes case
+        }//for all planes
+      }//if points and normals
+    }//if planes defined
 
   return;
 }
@@ -347,12 +365,13 @@ void vtkHull::AddCubeVertexPlanes()
   this->AddPlane( -1.0, -1.0, -1.0 );
 }
 
-// Add the planes that represent the normals of the vertices of a polygonal
-// sphere formed by recursively subdividing the triangles in an octahedron.
-// Each triangle is subdivided by connecting the midpoints of the edges thus
-// forming 4 smaller triangles. The level indicates how many subdivisions to do
-// with a level of 0 used to add the 6 planes from the original octahedron, level
-// 1 will add 18 planes, and so on.
+// Add the planes that represent the normals of the vertices of a
+// polygonal sphere formed by recursively subdividing the triangles in
+// an octahedron.  Each triangle is subdivided by connecting the
+// midpoints of the edges thus forming 4 smaller triangles. The level
+// indicates how many subdivisions to do with a level of 0 used to add
+// the 6 planes from the original octahedron, level 1 will add 18
+// planes, and so on.
 void vtkHull::AddRecursiveSpherePlanes( int level )
 {
   int   numTriangles;
