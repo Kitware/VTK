@@ -32,8 +32,8 @@ void vlSTLReader::Execute()
 
   if ((fp = fopen(this->Filename, "r")) == NULL)
     {
-    fprintf(stderr, "%s: file %s not found\n", this->GetClassName(), this->Filename);
-      return;
+    vlErrorMacro(<< "File " << this->Filename << " not found\n");
+    return;
     }
 
   newPts = new vlFloatPoints(5000,10000);
@@ -83,13 +83,16 @@ int vlSTLReader::ReadBinarySTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *new
   fread (header, 1, 80, fp);
   fread (&ulint, 1, 4, fp);
   swap.Swap4 (&ulint);
+//
+// Many .stl files contain bogus count.  Hence we will ignore and read 
+//   until end of file.
+//
   if ( (numTris = (int) ulint) <= 0 )
     {
-    vlErrorMacro(<< "Bad binary STL file\n");
-    return 1;
+    vlDebugMacro(<< "Bad binary count (" << numTris << ")\n");
     }
 
-  for (i=0; fread(&facet,48,1,fp) && i<numTris; i++)
+  while ( fread(&facet,48,1,fp) > 0 )
     {
     fread(&ibuff2,2,1,fp); /* read extra junk */
 
