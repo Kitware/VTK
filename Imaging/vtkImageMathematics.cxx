@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.40");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.41");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -67,10 +67,22 @@ void vtkImageMathematics::ExecuteInformation(vtkImageData **inDatas,
   outData->SetWholeExtent(ext);
 }
 
-
-
-
-
+template <class TValue, class TIvar>
+static void vtkImageMathematicsClamp(TValue &value, TIvar ivar, vtkImageData *data)
+{
+  if (ivar < (TIvar) data->GetScalarTypeMin())
+    {
+    value = (TValue) data->GetScalarTypeMin();
+    }
+  else if (ivar > (TIvar) data->GetScalarTypeMax())
+    {
+    value = (TValue) data->GetScalarTypeMax();
+    }
+  else
+    {
+    value = (TValue) ivar;
+    }
+}
 
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
@@ -89,14 +101,13 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
   unsigned long count = 0;
   unsigned long target;
   int op = self->GetOperation();
-
   
   // find the region to loop over
   rowLength = (outExt[1] - outExt[0]+1)*in1Data->GetNumberOfScalarComponents();
   // What a pain.  Maybe I should just make another filter.
   if (op == VTK_CONJUGATE)
     {
-    rowLength = (outExt[1] - outExt[0]+1);
+    rowLength = (outExt[1] - outExt[0] + 1);
     }
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
@@ -108,9 +119,14 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   int DivideByZeroToC = self->GetDivideByZeroToC();
-  double constantk = self->GetConstantK();
-  double constantc = self->GetConstantC();
-  // Loop through ouput pixels
+  double doubleConstantk = self->GetConstantK();
+
+  // Avoid casts by making constants the same type as input/output
+  // Of course they must be clamped to a valid range for the scalar type
+  T constantk; vtkImageMathematicsClamp(constantk, self->GetConstantK(), in1Data);
+  T constantc; vtkImageMathematicsClamp(constantc, self->GetConstantC(), in1Data);
+
+  // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     for (idxY = 0; idxY <= maxY; idxY++)
@@ -137,7 +153,7 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
               {
               if ( DivideByZeroToC )
                 {
-                *outPtr = (T)constantc;
+                *outPtr = constantc;
                 }
               else
                 {
@@ -170,18 +186,18 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
             *outPtr = (T)(atan((double)*in1Ptr));
             break;
           case VTK_MULTIPLYBYK:
-            *outPtr = (T)(constantk*(double)*in1Ptr);
+            *outPtr = (T)(doubleConstantk * (double) *in1Ptr);
             break;
           case VTK_ADDC:
-            *outPtr = (T)((T)constantc + *in1Ptr);
+            *outPtr = constantc + *in1Ptr;
             break;
           case VTK_REPLACECBYK:
-            *outPtr = (*in1Ptr == (T)constantc)?((T)constantk):(*in1Ptr);
+            *outPtr = (*in1Ptr == constantc) ? constantk : *in1Ptr;
             break;
           case VTK_CONJUGATE:
             outPtr[0] = in1Ptr[0];
             outPtr[1] = (T)(-1.0*(double)(in1Ptr[1]));
-            // Why bother trtying to figure out the continuous increments.
+            // Why bother trying to figure out the continuous increments.
             outPtr++;
             in1Ptr++;
             break;
