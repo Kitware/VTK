@@ -34,6 +34,6 @@ viewer Render
 viewer Render
 
 vtkWindowToImageFilter windowToimage
-  windowToimage SetInput [viewer GetImageWindow]
+  windowToimage SetInput [viewer GetRenderWindow]
 
 
