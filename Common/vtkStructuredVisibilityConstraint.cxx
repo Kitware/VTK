@@ -18,7 +18,7 @@
 #include "vtkUnsignedCharArray.h"
 
 vtkCxxRevisionMacro(vtkStructuredVisibilityConstraint, 
-                    "1.3");
+                    "1.4");
 vtkStandardNewMacro(vtkStructuredVisibilityConstraint);
 
 vtkCxxSetObjectMacro(vtkStructuredVisibilityConstraint,
@@ -50,14 +50,17 @@ vtkStructuredVisibilityConstraint::~vtkStructuredVisibilityConstraint()
 void vtkStructuredVisibilityConstraint::DeepCopy(
   vtkStructuredVisibilityConstraint* src)
 {
-  memcpy(this->Dimensions, src->Dimensions, 3*sizeof(float));
+  memcpy(this->Dimensions, src->Dimensions, 3*sizeof(int));
   this->NumberOfIds = 
     this->Dimensions[0]*this->Dimensions[1]*this->Dimensions[2];
-  if (!this->VisibilityById)
+  if(src->VisibilityById)
     {
-    this->VisibilityById = vtkUnsignedCharArray::New();
+    if (!this->VisibilityById)
+      {
+      this->VisibilityById = vtkUnsignedCharArray::New();
+      }
+    this->VisibilityById->DeepCopy(src->VisibilityById);
     }
-  this->VisibilityById->DeepCopy(src->VisibilityById);
   this->Initialized = src->Initialized;
 }
 
@@ -65,7 +68,7 @@ void vtkStructuredVisibilityConstraint::DeepCopy(
 void vtkStructuredVisibilityConstraint::ShallowCopy(
   vtkStructuredVisibilityConstraint* src)
 {
-  memcpy(this->Dimensions, src->Dimensions, 3*sizeof(float));
+  memcpy(this->Dimensions, src->Dimensions, 3*sizeof(int));
   this->NumberOfIds = 
     this->Dimensions[0]*this->Dimensions[1]*this->Dimensions[2];
   this->SetVisibilityById(src->VisibilityById);
