@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.44");
+vtkCxxRevisionMacro(vtkClipVolume, "1.45");
 vtkStandardNewMacro(vtkClipVolume);
 
 // Construct with user-specified implicit function; InsideOut turned off; value
@@ -425,9 +425,8 @@ void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars,
                               vtkCellData *vtkNotUsed(clippedCD))
 {
   float x[3], *xPtr, s1, s2, t, voxelOrigin[3];
-  int itmp, jtmp, ktmp;
   float bounds[6], p1[3], p2[3];
-  int i, edgeNum, numPts, sortId;
+  int i, edgeNum, numPts;
   vtkIdType id, ptId;
   vtkUnstructuredGrid *output=this->GetOutput();
   vtkUnstructuredGrid *clippedOutput=this->GetClippedOutput();
