@@ -70,8 +70,8 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
 
 
-renWin SetFileName "valid/volSubRegionNormals.ppm"
-renWin SaveImageAsPPM
+#renWin SetFileName "valid/volSubRegionNormals.tcl.ppm"
+#renWin SaveImageAsPPM
 
 wm withdraw .
 
