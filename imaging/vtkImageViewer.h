@@ -75,7 +75,7 @@ public:
 
   // Description:
   // Render the resulting image.
-  void Render(void);
+  virtual void Render(void);
   
   // Description:
   // Set/Get the input to the viewer.
