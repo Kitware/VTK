@@ -77,15 +77,14 @@ void vtkCellCenters::Execute()
   vtkPoints *newPts;
   vtkCell *cell;
   float x[3], pcoords[3];
-  float *weights = new float [input->GetMaxCellSize()];
-  
-  vtkDebugMacro(<<"Generating cell center points");
-
   if (input == NULL)
     {
     vtkErrorMacro(<<"Input is NULL");
     return;
     }
+  float *weights = new float [input->GetMaxCellSize()];
+
+  vtkDebugMacro(<<"Generating cell center points");
 
   inCD=input->GetCellData();
   outPD=output->GetPointData();
