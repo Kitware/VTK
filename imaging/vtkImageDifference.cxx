@@ -65,31 +65,35 @@ vtkImageDifference::vtkImageDifference()
   ar1 = (int)(c1)[0]; \
   ag1 = (int)(c1)[1]; \
   ab1 = (int)(c1)[2]; \
-  ar2 = (int)(c2)[0] + (c2 - in2Inc0)[0] + (c2 + in2Inc0)[0] + \
-        (c2-in2Inc1)[0] + (c2-in2Inc1-in2Inc0)[0] + (c2-in2Inc1+in2Inc0)[0] + \
-        (c2+in2Inc1)[0] + (c2+in2Inc1-in2Inc0)[0] + (c2+in2Inc1+in2Inc0)[0]; \
-  ag2 = (int)(c2)[1] + (c2 - in2Inc0)[1] + (c2 + in2Inc0)[1] + \
-        (c2-in2Inc1)[1] + (c2-in2Inc1-in2Inc0)[1] + (c2-in2Inc1+in2Inc0)[1] + \
-        (c2+in2Inc1)[1] + (c2+in2Inc1-in2Inc0)[1] + (c2+in2Inc1+in2Inc0)[1]; \
-  ab2 = (int)(c2)[2] + (c2 - in2Inc0)[2] + (c2 + in2Inc0)[2] + \
-        (c2-in2Inc1)[2] + (c2-in2Inc1-in2Inc0)[2] + (c2-in2Inc1+in2Inc0)[2] + \
-        (c2+in2Inc1)[2] + (c2+in2Inc1-in2Inc0)[2] + (c2+in2Inc1+in2Inc0)[2]; \
+  ar2 = (int)(c2)[0] + (int)(c2 - in2Inc0)[0] + (int)(c2 + in2Inc0)[0] + \
+        (int)(c2-in2Inc1)[0] + (int)(c2-in2Inc1-in2Inc0)[0] + (int)(c2-in2Inc1+in2Inc0)[0] + \
+        (int)(c2+in2Inc1)[0] + (int)(c2+in2Inc1-in2Inc0)[0] + (int)(c2+in2Inc1+in2Inc0)[0]; \
+  ag2 = (int)(c2)[1] + (int)(c2 - in2Inc0)[1] + (int)(c2 + in2Inc0)[1] + \
+        (int)(c2-in2Inc1)[1] + (int)(c2-in2Inc1-in2Inc0)[1] + (int)(c2-in2Inc1+in2Inc0)[1] + \
+        (int)(c2+in2Inc1)[1] + (int)(c2+in2Inc1-in2Inc0)[1] + (int)(c2+in2Inc1+in2Inc0)[1]; \
+  ab2 = (int)(c2)[2] + (int)(c2 - in2Inc0)[2] + (int)(c2 + in2Inc0)[2] + \
+        (int)(c2-in2Inc1)[2] + (int)(c2-in2Inc1-in2Inc0)[2] + (int)(c2-in2Inc1+in2Inc0)[2] + \
+        (int)(c2+in2Inc1)[2] + (int)(c2+in2Inc1-in2Inc0)[2] + (int)(c2+in2Inc1+in2Inc0)[2]; \
   r1 = abs(ar1 - ar2/9); \
   g1 = abs(ag1 - ag2/9); \
   b1 = abs(ab1 - ab2/9); \
   if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
+  ar1 = (int)(c1)[0] + (int)(c1 - in1Inc0)[0] + (int)(c1 + in1Inc0)[0] + \
+        (int)(c1-in1Inc1)[0] + (int)(c1-in1Inc1-in1Inc0)[0] + (int)(c1-in1Inc1+in1Inc0)[0] + \
+        (int)(c1+in1Inc1)[0] + (int)(c1+in1Inc1-in1Inc0)[0] + (int)(c1+in1Inc1+in1Inc0)[0]; \
+  ag1 = (int)(int)(c1)[1] + (int)(c1 - in1Inc0)[1] + (int)(c1 + in1Inc0)[1] + \
+        (int)(c1-in1Inc1)[1] + (int)(c1-in1Inc1-in1Inc0)[1] + (int)(c1-in1Inc1+in1Inc0)[1] + \
+        (int)(c1+in1Inc1)[1] + (int)(c1+in1Inc1-in1Inc0)[1] + (int)(c1+in1Inc1+in1Inc0)[1]; \
+  ab1 = (int)(int)(c1)[2] + (int)(c1 - in1Inc0)[2] + (int)(c1 + in1Inc0)[2] + \
+        (int)(c1-in1Inc1)[2] + (int)(c1-in1Inc1-in1Inc0)[2] + (int)(c1-in1Inc1+in1Inc0)[2] + \
+        (int)(c1+in1Inc1)[2] + (int)(c1+in1Inc1-in1Inc0)[2] + (int)(c1+in1Inc1+in1Inc0)[2]; \
+  r1 = abs(ar1/9 - ar2/9); \
+  g1 = abs(ag1/9 - ag2/9); \
+  b1 = abs(ab1/9 - ab2/9); \
+  if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
   ar2 = (int)(c2)[0]; \
   ag2 = (int)(c2)[1]; \
   ab2 = (int)(c2)[2]; \
-  ar1 = (int)(c1)[0] + (c1 - in1Inc0)[0] + (c1 + in1Inc0)[0] + \
-        (c1-in1Inc1)[0] + (c1-in1Inc1-in1Inc0)[0] + (c1-in1Inc1+in1Inc0)[0] + \
-        (c1+in1Inc1)[0] + (c1+in1Inc1-in1Inc0)[0] + (c1+in1Inc1+in1Inc0)[0]; \
-  ag1 = (int)(c1)[1] + (c1 - in1Inc0)[1] + (c1 + in1Inc0)[1] + \
-        (c1-in1Inc1)[1] + (c1-in1Inc1-in1Inc0)[1] + (c1-in1Inc1+in1Inc0)[1] + \
-        (c1+in1Inc1)[1] + (c1+in1Inc1-in1Inc0)[1] + (c1+in1Inc1+in1Inc0)[1]; \
-  ab1 = (int)(c1)[2] + (c1 - in1Inc0)[2] + (c1 + in1Inc0)[2] + \
-        (c1-in1Inc1)[2] + (c1-in1Inc1-in1Inc0)[2] + (c1-in1Inc1+in1Inc0)[2] + \
-        (c1+in1Inc1)[2] + (c1+in1Inc1-in1Inc0)[2] + (c1+in1Inc1+in1Inc0)[2]; \
   r1 = abs(ar1/9 - ar2); \
   g1 = abs(ag1/9 - ag2); \
   b1 = abs(ab1/9 - ab2); \
