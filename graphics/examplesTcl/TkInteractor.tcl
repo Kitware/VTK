@@ -304,11 +304,15 @@ proc PickActor {widget x y} {
 
     if { $PickedAssembly != "" && $PrePickedProperty != "" } {
         $PickedAssembly SetProperty $PrePickedProperty
+        # release hold on the property
+        $PrePickedProperty UnRegister $PrePickedProperty
     }
 
     if { $assembly != "" } {
         set PickedAssembly $assembly
         set PrePickedProperty [$PickedAssembly GetProperty]
+        # hold onto the property
+        $PrePickedProperty Register $PrePickedProperty
         $PickedAssembly SetProperty PickedProperty
     }
 
