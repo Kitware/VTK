@@ -75,8 +75,8 @@ vtkInputPort::vtkInputPort()
   this->Tag = 0;
   
   // Controller keeps a reference to this object as well.
-  this->Controller = 
-    vtkMultiProcessController::GetGlobalController();
+  this->Controller = NULL;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 
   // State variables.
   this->TransferNeeded = 0;

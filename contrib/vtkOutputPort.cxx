@@ -66,8 +66,8 @@ vtkOutputPort::vtkOutputPort()
   this->Tag = -1;
   
   // Controller keeps a reference to this object as well.
-  this->Controller = 
-    vtkMultiProcessController::GetGlobalController();
+  this->Controller = NULL;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
   
   this->PipelineFlag = 0;
   this->ParameterMethod = NULL;
