@@ -802,7 +802,7 @@ PyObject *PyVTKClass_New(vtknewfunc constructor,
 {
   static PyObject *modulestr[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; 
   static int nmodulestr = 10;
-  PyObject *moduleobj;
+  PyObject *moduleobj = 0;
   PyVTKClass *self = NULL;
   int i;
 
@@ -870,7 +870,7 @@ PyObject *PyVTKClass_New(vtknewfunc constructor,
 }
 
 //--------------------------------------------------------------------
-static PyObject *PyVTKClass_NewSubclass(PyObject *self, PyObject *args,
+static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
                                         PyObject *kw)
 {
   static char *kwlist[] = {"name", "bases", "dict", NULL};
