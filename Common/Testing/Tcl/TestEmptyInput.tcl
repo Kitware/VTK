@@ -55,8 +55,10 @@ proc rtTestEmptyInputTest { fileid } {
    foreach a $all {
       if {[lsearch $classExceptions $a] == -1} {
          # test some set get methods
-         puts  "Testing -- $a" 
+         puts  -nonewline "Testing -- $a - " 
+         flush stdout
          TestOne $a
+         puts "done"
       }
    }
    puts "All Passed"
