@@ -16,7 +16,15 @@
 
 =========================================================================*/
 //
-// This example shows how to add an observer to a C++ program
+// This example shows how to add an observer to a C++ program. It extends
+// the Step1/Cxx/Cone.cxx C++ example (see that example for information on
+// the basic setup). 
+//
+// VTK uses a command/observer design pattern. That is, observers watch for
+// particular events that any vtkObject (or subclass) may invoke on
+// itself. For example, the vtkRenderer invokes a "StartEvent" as it begins
+// to render. Here we add an observer that invokes a command when this event
+// is observed.
 //
 
 // first include the required header files for the vtk classes we are using
@@ -75,7 +83,7 @@ int main( int argc, char *argv[] )
   mo1->Delete();
   
   //
-  // now we loop over 360 degreeees and render the cone each time
+  // now we loop over 360 degrees and render the cone each time
   //
   int i;
   for (i = 0; i < 360; ++i)

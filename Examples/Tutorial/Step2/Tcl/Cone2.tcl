@@ -1,8 +1,15 @@
 #
-# This example demonstrates how to add observers to an application. It
-# extends the Step1/Tcl/Cone.tcl example by adding an oberver. See Step1 for
-# more information on the basics of the pipeline
+# This example shows how to add an observer to a Tcl program. It extends
+# the Step1/Tcl/Cone.tcl Tcl example (see that example for information on
+# the basic setup). 
 #
+# VTK uses a command/observer design pattern. That is, observers watch for
+# particular events that any vtkObject (or subclass) may invoke on
+# itself. For example, the vtkRenderer invokes a "StartEvent" as it begins
+# to render. Here we add an observer that invokes a command when this event
+# is observed.
+#
+
 #
 # First we include the VTK Tcl packages which will make available 
 # all of the vtk commands to Tcl
