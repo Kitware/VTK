@@ -54,7 +54,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.19")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.20")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -448,14 +448,24 @@ void vtkDistributedDataFilter::SetDivideBoundaryCells(int val)
 // Execute
 //-------------------------------------------------------------------------
 
-void vtkDistributedDataFilter::ComputeInputUpdateExtents( vtkDataObject *o)
+void vtkDistributedDataFilter::ComputeInputUpdateExtents( vtkDataObject *output)
 {
-  vtkDataSetToUnstructuredGridFilter::ComputeInputUpdateExtents(o);
+  int piece, numPieces, ghostLevels;
+  vtkDataSet *input = this->GetInput();
 
-  // Since this filter redistibutes data, ghost cells computed upstream
-  // will not be valid.
+  // We require preceding filters to refrain from creating ghost cells.
 
-  this->GetInput()->SetUpdateGhostLevel( 0);
+  if (this->GetInput() == NULL)
+    {
+    return;
+    }
+  piece = output->GetUpdatePiece();
+  numPieces = output->GetUpdateNumberOfPieces();
+  ghostLevels = 0;
+
+  input->SetUpdateExtent(piece, numPieces, ghostLevels);
+
+  input->RequestExactExtentOn();
 }
 
 void vtkDistributedDataFilter::ExecuteInformation()
