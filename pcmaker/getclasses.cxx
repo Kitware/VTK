@@ -398,7 +398,7 @@ void MakeInit(char *fname, char *argv1, CPcmakerDlg *vals)
   /* we have to make sure that the name is the correct case */
   kitName = strdup(argv1);
   if (kitName[0] > 90) kitName[0] -= 32;
-  for (i = 1; i < strlen(kitName); i++)
+  for (i = 1; i < (int)strlen(kitName); i++)
     {
     if ((kitName[i] > 64)&&(kitName[i] < 91))
       {
@@ -900,23 +900,29 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   if (debugFlag)
     {
-    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /D \"_DEBUG\" /MDd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /I \"%s\\working\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /D \"_DEBUG\" /MDd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
       vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MD /GX /Ox /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\working\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MD /GX /Ox /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
       vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
-  if (vals->m_Patented)
-    {
-    fprintf(fp," \"_WINDOWS\" /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
-      vals->m_WhereVTK);
-    }
-  else
-    {
-    fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
-    }
+  if (vals->m_Working) fprintf(fp," /D \"VTK_USE_WORKING\" /I \"%s\\working\" \\\n",
+    vals->m_WhereVTK);
+  if (vals->m_Patented) fprintf(fp," /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" \\\n",
+    vals->m_WhereVTK);
+  if (vals->m_GEMSVOLUME) fprintf(fp," /D \"VTK_USE_GEMSVOLUME\" /I \"%s\\gemsvolume\" \\\n",
+    vals->m_WhereVTK);
+  if (vals->m_GEAE) fprintf(fp," /D \"VTK_USE_GEAE\" /I \"%s\\geae\" \\\n",
+    vals->m_WhereVTK);
+  if (vals->m_Contrib) fprintf(fp," /D \"VTK_USE_CONTRIB\" /I \"%s\\contrib\" \\\n",
+    vals->m_WhereVTK);
+  if (vals->m_GEMSIP) fprintf(fp," /D \"VTK_USE_GEMSIP\" /I \"%s\\gemsip\" /D \"VTK_USE_GEMSIO\" /I \"%s\\gemsio\" \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK);
+
+  fprintf(fp," /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
+
   if (!debugFlag && vals->m_Lean)
     {
     fprintf(fp,"/W2 /D \"VTK_LEAN_AND_MEAN\"  /Fo$(OBJDIR)\\ /c\n");
@@ -941,7 +947,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"ALL_FLAGS= /dll /incremental:no /machine:I386\\\n");
   fprintf(fp," /out:vtkdll.dll /implib:vtkdll.lib \n\n");
 
-  fprintf(fp,"COMMON_FLAGS= /dll /incremental:yes /machine:I386\\\n");
+  fprintf(fp,"COMMON_FLAGS= %s /dll /incremental:yes /machine:I386\\\n",vals->adlg.m_LINKF_Common);
   fprintf(fp," /out:\"$(LIBDIR)/vtkCommon.dll\" /implib:\"$(LIBDIR)/vtkCommon.lib\" \n");
 
   fprintf(fp,"COMMON_OBJS= \\\n");
@@ -1264,14 +1270,6 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"\"$(OBJDIR)\\vtkPCForceGraphics.obj\" : src\\vtkPCForceGraphics.cxx $(DEPENDS) \n");
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceGraphics.cxx\n\n");
     }
-  else if ( vals->m_Patented )
-    {
-    sprintf(file,"%s\\vtkPCForcePatented.cxx",temp);
-    OutputDepends(file,fp,vals->m_WhereVTK);
-    vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"$(OBJDIR)\\vtkPCForcePatented.obj\" : src\\vtkPCForcePatented.cxx $(DEPENDS) \n");
-    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForcePatented.cxx\n\n");
-    }
   if ( vals->m_Imaging )
     {
     sprintf(file,"%s\\vtkPCForceImaging.cxx",temp);
@@ -1535,13 +1533,13 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 
   if (debugFlag)
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
 
   if (strlen(vals->m_WhereTcl) > 1)
@@ -1554,17 +1552,21 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
     fprintf(fp," /I \"%s\\pcmaker\\xlib\" ",vals->m_WhereVTK);
     }
 
-  if (vals->m_Patented)
-    {
-    fprintf(fp," /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_MBCS\" \\\n",
-      vals->m_WhereVTK);
-    }
-  else
-    {
-    fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" \\\n");
-    }
-  if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\geae\" \\\n",
-    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+  if (vals->m_Working) fprintf(fp," /D \"VTK_USE_WORKING\" /I \"%s\\working\" \\\n",
+    vals->m_WhereVTK);
+  if (vals->m_Patented) fprintf(fp," /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" \\\n",
+    vals->m_WhereVTK);
+  if (vals->m_GEMSVOLUME) fprintf(fp," /D \"VTK_USE_GEMSVOLUME\" /I \"%s\\gemsvolume\" \\\n",
+    vals->m_WhereVTK);
+  if (vals->m_GEAE) fprintf(fp," /D \"VTK_USE_GEAE\" /I \"%s\\geae\" \\\n",
+    vals->m_WhereVTK);
+  if (vals->m_Contrib) fprintf(fp," /D \"VTK_USE_CONTRIB\" /I \"%s\\contrib\" \\\n",
+    vals->m_WhereVTK);
+  if (vals->m_GEMSIP) fprintf(fp," /D \"VTK_USE_GEMSIP\" /I \"%s\\gemsip\" /D \"VTK_USE_GEMSIO\" /I \"%s\\gemsio\" \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK);
+
+  fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" \\\n");
+
   if (!debugFlag && vals->m_Lean)
     {
     fprintf(fp," /D \"VTK_LEAN_AND_MEAN\" /Fo$(OUTDIR)\\ /c \n");
@@ -1574,43 +1576,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
     fprintf(fp," /Fo$(OUTDIR)\\ /c \n");
     }
 
-  if (debugFlag)
-    {
-    fprintf(fp,"CPP_PROJ2=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
-    }
-  else
-    {
-    fprintf(fp,"CPP_PROJ2=/D \"STRICT\" /nologo /MD /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
-      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
-    }
-  if (strlen(vals->m_WhereTcl) > 1)
-    {
-    fprintf(fp," /I \"%s\" ",vals->TkRoot);
-    }
-  else
-    {
-    fprintf(fp," /I \"%s\\pcmaker\\xlib\" ",vals->m_WhereVTK);
-    }
-  if (vals->m_Patented)
-    {
-    fprintf(fp," /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
-      vals->m_WhereVTK);
-    }
-  else
-    {
-    fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
-    }
-  if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\geae\" \\\n",
-    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
-  if (!debugFlag && vals->m_Lean)
-    {
-    fprintf(fp," /D \"VTK_LEAN_AND_MEAN\" /Fo\"$(OUTDIR)/\" /c \n");
-    }
-  else
-    {
-    fprintf(fp," /Fo\"$(OUTDIR)/\" /c \n");
-    }
+  //fprintf(fp,"CPP_PROJ2=$(CPP_PROJ) /D \"VTKDLL\"\n");
+  fprintf(fp,"CPP_PROJ2=$(CPP_PROJ) \n");
   
 	fprintf(fp,"LINK32=link.exe\n");
   if (debugFlag)
