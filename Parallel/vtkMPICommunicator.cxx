@@ -23,7 +23,7 @@
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.14");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.15");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 // Return the world communicator (i.e. MPI_COMM_WORLD).
@@ -35,9 +35,12 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
   if (vtkMPICommunicator::WorldCommunicator == 0)
     {
     vtkMPICommunicator* comm = vtkMPICommunicator::New();
+    vtkMPIGroup* group = vtkMPIGroup::New();
     comm->Handle = new MPI_Comm;
     *(comm->Handle) = MPI_COMM_WORLD;
-    comm->Group = vtkMPIGroup::New();
+    comm->SetGroup(group);
+    group->Delete();
+    group = NULL;
     if ( (err = MPI_Comm_size(MPI_COMM_WORLD, &size)) != MPI_SUCCESS  )
       {
       char *msg = vtkMPIController::ErrorString(err);
@@ -241,7 +244,10 @@ void vtkMPICommunicator::InitializeCopy(vtkMPICommunicator* source)
     }
 
   this->SetGroup(0);
-  this->Group = vtkMPIGroup::New();
+  vtkMPIGroup* group = vtkMPIGroup::New();
+  this->SetGroup(group);
+  group->Delete();
+  group = 0;
   this->Group->CopyFrom(source->Group);
 
   if (this->Handle && !this->KeepHandle)

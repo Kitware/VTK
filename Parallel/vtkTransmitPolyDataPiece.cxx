@@ -19,7 +19,7 @@
 #include "vtkExtractPolyDataPiece.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.5");
+vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.6");
 vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
 //----------------------------------------------------------------------------
@@ -42,6 +42,7 @@ vtkTransmitPolyDataPiece::~vtkTransmitPolyDataPiece()
 {
   this->Buffer->Delete();
   this->Buffer = NULL;
+  this->SetController(NULL);
 }
 
 //----------------------------------------------------------------------------

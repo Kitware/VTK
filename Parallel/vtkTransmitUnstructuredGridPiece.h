@@ -51,7 +51,7 @@ public:
   
 protected:
   vtkTransmitUnstructuredGridPiece();
-  ~vtkTransmitUnstructuredGridPiece() {};
+  ~vtkTransmitUnstructuredGridPiece();
   vtkTransmitUnstructuredGridPiece(const vtkTransmitUnstructuredGridPiece&);
   void operator=(const vtkTransmitUnstructuredGridPiece&);
 

@@ -19,7 +19,7 @@
 #include "vtkExtractUnstructuredGridPiece.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.5");
+vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.6");
 vtkStandardNewMacro(vtkTransmitUnstructuredGridPiece);
 
 //----------------------------------------------------------------------------
@@ -30,6 +30,12 @@ vtkTransmitUnstructuredGridPiece::vtkTransmitUnstructuredGridPiece()
   // Controller keeps a reference to this object as well.
   this->Controller = NULL;
   this->SetController(vtkMultiProcessController::GetGlobalController());  
+}
+
+//----------------------------------------------------------------------------
+vtkTransmitUnstructuredGridPiece::~vtkTransmitUnstructuredGridPiece()
+{
+  this->SetController(NULL);
 }
 
 //----------------------------------------------------------------------------

@@ -65,9 +65,9 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.11");
+vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.12");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.11");
+vtkCxxRevisionMacro(vtkMPIController, "1.12");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------
@@ -170,7 +170,8 @@ void vtkMPIController::Initialize(int* argc, char*** argv)
   vtkMPIController::WorldRMICommunicator = vtkMPICommunicator::New();
   vtkMPIController::WorldRMICommunicator->Duplicate((vtkMPICommunicator*)this->Communicator);
   this->RMICommunicator = vtkMPIController::WorldRMICommunicator;
-  this->RMICommunicator->Register(this);
+  // Since we use Delete to get rid of the reference, we should use NULL to register.
+  this->RMICommunicator->Register(NULL);
 
   this->Modified();
 }
