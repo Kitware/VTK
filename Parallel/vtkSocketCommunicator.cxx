@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.42");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.43");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -296,7 +296,11 @@ int vtkSocketCommunicator::WaitForConnection(int port)
   server.sin_port = htons(port);
   // Allow the socket to be bound to an address that is already in use
   int opt=1;
+#ifdef _WIN32
+  setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*) &opt, sizeof(int));
+#else
   setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (void *) &opt, sizeof(int));
+#endif
 
   if ( bind(sock, (sockaddr *)&server, sizeof(server)) )
     {
