@@ -29,7 +29,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.70");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.71");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -1221,11 +1221,12 @@ vtkIdType vtkOrderedTriangulator::GetTetras(int classification,
 {
   // Create the points
   //
+  int i;
   vtkIdType numTetras=0;
   PointListIterator p;
   vtkPoints *points = vtkPoints::New();
-  points->SetNumberOfPoints(this->MaximumNumberOfPoints+6);
-  for ( p=this->Mesh->Points.begin(); p != this->Mesh->Points.end(); ++p)
+  points->SetNumberOfPoints(this->NumberOfPoints);
+  for ( i=0, p=this->Mesh->Points.begin(); i<this->NumberOfPoints; ++i, ++p)
     {
     points->SetPoint(p->InsertionId,p->X);
     }
@@ -1245,10 +1246,10 @@ vtkIdType vtkOrderedTriangulator::GetTetras(int classification,
     if ( tetra->Type == classification || classification == OTTetra::All)
       {
       numTetras++;
-      pts[0] = tetra->Points[0]->InsertionId;
-      pts[1] = tetra->Points[1]->InsertionId;
-      pts[2] = tetra->Points[2]->InsertionId;
-      pts[3] = tetra->Points[3]->InsertionId;
+      pts[0] = tetra->Points[0]->Id;
+      pts[1] = tetra->Points[1]->Id;
+      pts[2] = tetra->Points[2]->Id;
+      pts[3] = tetra->Points[3]->Id;
       ugrid->InsertNextCell(VTK_TETRA,4,pts);
       }
     }//for all tetras
