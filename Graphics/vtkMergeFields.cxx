@@ -130,7 +130,7 @@ void vtkMergeFields::SetOutputField(const char* name, const char* fieldLoc)
     return;
     }
 
-  this->SetOutputField(name, fieldLoc);
+  this->SetOutputField(name, loc);
 
 }
 
@@ -204,9 +204,12 @@ void vtkMergeFields::Execute()
 
   // Check if the data types of the input fields are the same
   // Otherwise warn the user.
+  // Check if the number of tuples are the same for all arrays.
   vtkDataArray* inputArray = 0;
   int dataType=-1;
   int sameDataType=1;
+  int numTuples=-1;
+  int sameNumTuples=1;
   do
     {
     before = cur;
@@ -227,12 +230,27 @@ void vtkMergeFields::Execute()
 	if ( inputArray->GetDataType() != dataType )
 	  {
 	  sameDataType = 0;
-	  break;
+	  }
+	}
+      if (numTuples == -1)
+	{
+	numTuples = inputArray->GetNumberOfTuples();
+	}
+      else
+	{
+	if ( inputArray->GetNumberOfTuples() != numTuples )
+	  {
+	  sameNumTuples = 0;
 	  }
 	}
       }
     } 
   while (cur);
+  if (!sameNumTuples)
+    {
+    vtkErrorMacro("The number of tuples in the input arrays do not match.");
+    return;
+    }
   if ( dataType == -1 )
     {
     vtkErrorMacro("No input array(s) were found.");
@@ -257,6 +275,8 @@ void vtkMergeFields::Execute()
     }
 
   outputArray->SetNumberOfComponents(this->NumberOfComponents);
+  outputArray->SetNumberOfTuples(numTuples);
+  outputArray->SetName(this->FieldName);
 
   // Merge
   cur = this->GetFirst();
@@ -267,8 +287,13 @@ void vtkMergeFields::Execute()
     inputArray = fd->GetArray(before->FieldName);
     if (inputArray)
       {
-      this->MergeArray(inputArray, outputArray, 
-		       before->SourceIndex, before->Index);
+      if (!this->MergeArray(inputArray, outputArray, 
+			    before->SourceIndex, before->Index))
+	{
+	outputArray->Delete();
+	outputArray = 0;
+	return;
+	}
       }
     else
       {
@@ -281,6 +306,7 @@ void vtkMergeFields::Execute()
       }
     } 
   while (cur);
+  outputFD->AddArray(outputArray);
 }
 
 // fast pointer copy
@@ -307,12 +333,6 @@ int vtkMergeFields::MergeArray(vtkDataArray* in, vtkDataArray* out,
 
   int numTuples = in->GetNumberOfTuples();
   int i;
-
-  if ( numTuples != out->GetNumberOfTuples() )
-    {
-    vtkErrorMacro("Number of tuples do not match. Can not merge.");
-    return 0;
-    }
 
   if ( numTuples > 0 )
     {
