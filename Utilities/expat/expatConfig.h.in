@@ -38,3 +38,5 @@
 #endif
 
 #define VERSION "1.95.2"
+
+#define vtkExpatUnused(x) (void)x
