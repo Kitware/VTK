@@ -405,7 +405,7 @@ static void PyVTKObject_PyDelete(PyVTKObject *self)
 static PyTypeObject PyVTKObjectType = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  "vtkobject",                           // tp_name
+  (char*)"vtkobject",                    // tp_name
   sizeof(PyVTKObject),                   // tp_basicsize
   0,                                     // tp_itemsize
   (destructor)PyVTKObject_PyDelete,      // tp_dealloc
@@ -424,7 +424,7 @@ static PyTypeObject PyVTKObjectType = {
   (setattrofunc)PyVTKObject_PySetAttr,   // tp_setattro
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
-  "A VTK object.  Special attributes are:  __class__ (the class that this object belongs to), __dict__ (user-controlled attributes), __doc__ (the docstring for the class), __methods__ (a list of all methods for this object), and __this__ (a string that contains the hexidecimal address of the underlying VTK object)",  // tp_doc
+  (char*)"A VTK object.  Special attributes are:  __class__ (the class that this object belongs to), __dict__ (user-controlled attributes), __doc__ (the docstring for the class), __methods__ (a list of all methods for this object), and __this__ (a string that contains the hexidecimal address of the underlying VTK object)",  // tp_doc
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
@@ -448,7 +448,7 @@ PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObjectBase *ptr)
   else
     {
     PyErr_SetString(PyExc_TypeError,
-                    "this is an abstract class and cannot be instantiated");
+                    (char*)"this is an abstract class and cannot be instantiated");
     return 0;
     }
 #if (PY_MAJOR_VERSION >= 2)
@@ -760,7 +760,7 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *self, PyObject *args,
 PyTypeObject PyVTKClassMetaType = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,                        /* Number of items for varobject */
-  "vtkclass type",          /* Name of this type */
+  (char*)"vtkclass type",   /* Name of this type */
   sizeof(PyTypeObject),     /* Basic object size */
   0,                        /* Item size for varobject */
   0,                        /*tp_dealloc*/
@@ -779,7 +779,7 @@ PyTypeObject PyVTKClassMetaType = {
   0,                        /*tp_xxx2*/
   0,                        /*tp_xxx3*/
   0,                        /*tp_xxx4*/
-  "Define the behavior of a particular type of object.",
+  (char*)"Define the behavior of a particular type of object.",
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
@@ -787,7 +787,7 @@ PyTypeObject PyVTKClassMetaType = {
 static PyTypeObject PyVTKClassType = {
   PyObject_HEAD_INIT(&PyVTKClassMetaType)
   0,
-  "vtkclass",                            // tp_name
+  (char*)"vtkclass",                     // tp_name
   sizeof(PyVTKClass),                    // tp_basicsize
   0,                                     // tp_itemsize
   (destructor)PyVTKClass_PyDelete,       // tp_dealloc
@@ -806,7 +806,7 @@ static PyTypeObject PyVTKClassType = {
   (setattrofunc)0,                       // tp_setattro
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
-  "A generator for VTK objects.  Special attributes are: __bases__ (a tuple of base classes), __dict__ (user-defined methods and attributes), __doc__ (the docstring for the class), __name__ (the name of class), __methods__ (methods for this class, not including inherited methods or user-defined methods), and __module__ (module that the class is defined in).", // tp_doc
+  (char*)"A generator for VTK objects.  Special attributes are: __bases__ (a tuple of base classes), __dict__ (user-defined methods and attributes), __doc__ (the docstring for the class), __name__ (the name of class), __methods__ (methods for this class, not including inherited methods or user-defined methods), and __module__ (module that the class is defined in).", // tp_doc
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
@@ -945,7 +945,7 @@ PyObject *PyVTKClass_New(vtknewfunc constructor,
 static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
                                         PyObject *kw)
 {
-  static char *kwlist[] = {"name", "bases", "dict", NULL};
+  static const char *kwlist[] = {"name", "bases", "dict", NULL};
 
   PyVTKClass *newclass;
   char *classname;
@@ -954,7 +954,7 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
   PyVTKClass *base;
   PyObject *attributes;
 
-  if ((PyArg_ParseTupleAndKeywords(args, kw, "sOO", kwlist, 
+  if ((PyArg_ParseTupleAndKeywords(args, kw, "sOO", (char**)kwlist, 
                                    &classname, &bases, &attributes)))
     {
     if (!PyTuple_Check(bases) || PyTuple_Size(bases) != 1)
@@ -1155,7 +1155,7 @@ static void PyVTKSpecialObject_PyDelete(PyVTKSpecialObject *self)
 static PyTypeObject PyVTKSpecialObjectType = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  "vtkspecialobject",                    // tp_name
+  (char*)"vtkspecialobject",             // tp_name
   sizeof(PyVTKSpecialObject),            // tp_basicsize
   0,                                     // tp_itemsize
   (destructor)PyVTKSpecialObject_PyDelete, // tp_dealloc
@@ -1174,7 +1174,7 @@ static PyTypeObject PyVTKSpecialObjectType = {
   (setattrofunc)0,                       // tp_setattro
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
-  "vtkspecialobject - a vtk object not derived from vtkObjectBase.", // tp_doc
+  (char*)"vtkspecialobject - a vtk object not derived from vtkObjectBase.", // tp_doc
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 

@@ -624,12 +624,12 @@ void outputFunction2(FILE *fp, FileInfo *data)
             }
           if (is_static || !is_vtkobject)
             {
-            fprintf(fp,"  if ((PyArg_ParseTuple(args, \"%s\"",
+            fprintf(fp,"  if ((PyArg_ParseTuple(args, (char*)\"%s\"",
                     get_format_string());
             }
           else
             {
-            fprintf(fp,"  if ((op = (%s *)PyArg_VTKParseTuple(self, args, \"%s\"",
+            fprintf(fp,"  if ((op = (%s *)PyArg_VTKParseTuple(self, args, (char*)\"%s\"",
                     data->ClassName,get_format_string());
             }
           for (i = 0; i < currentFunction->NumberOfArguments; i++)
@@ -666,7 +666,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
             if ((currentFunction->ArgTypes[i]%1000 == 309)||
                 (currentFunction->ArgTypes[i]%1000 == 109))
               {
-              fprintf(fp,"    temp%d = (%s *)vtkPythonGetPointerFromObject(tempH%d,\"%s\");\n",
+              fprintf(fp,"    temp%d = (%s *)vtkPythonGetPointerFromObject(tempH%d,(char*)\"%s\");\n",
                       i, currentFunction->ArgClasses[i], i, 
                       currentFunction->ArgClasses[i]);
               fprintf(fp,"    if (!temp%d && tempH%d != Py_None) goto break%d;\n",i,i,occ);
@@ -690,7 +690,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
             {
             if (currentFunction->ArgTypes[i]%1000 == 302)
               {
-              fprintf(fp,"    temp%i = vtkPythonUnmanglePointer((char *)temp%i,&size%i,\"%s\");\n",i,i,i,"void_p");
+              fprintf(fp,"    temp%i = vtkPythonUnmanglePointer((char *)temp%i,&size%i,(char*)\"%s\");\n",i,i,i,"void_p");
               fprintf(fp,"    if (size%i == -1) {\n      PyErr_SetString(PyExc_ValueError,\"mangled pointer to %s in %s was of incorrect type.\");\n",
                       i,currentFunction->Name,data->ClassName);
               fprintf(fp,"      return NULL;\n      }\n");
@@ -825,7 +825,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
     {
     if (wrappedFunctions[fnum]->Name)
       {
-      fprintf(fp,"  {\"%s\",                (PyCFunction)Py%s_%s, 1,\n   \"%s\\n\\n%s\"},\n",
+      fprintf(fp,"  {(char*)\"%s\",                (PyCFunction)Py%s_%s, 1,\n   (char*)\"%s\\n\\n%s\"},\n",
               wrappedFunctions[fnum]->Name, data->ClassName, 
               wrappedFunctions[fnum]->Name, wrappedFunctions[fnum]->Signature,
               quote_string(wrappedFunctions[fnum]->Comment,1000));
@@ -834,12 +834,12 @@ void outputFunction2(FILE *fp, FileInfo *data)
   
   if (!strcmp("vtkObject",data->ClassName))
     {
-    fprintf(fp,"  {\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n   \"V.AddObserver(int, function) -> int\\n\\n Add an event callback function(vtkObject, int) for an event type.\\n Returns a handle that can be used with RemoveEvent(int).\"},\n", data->ClassName);
+    fprintf(fp,"  {(char*)\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n   (char*)\"V.AddObserver(int, function) -> int\\n\\n Add an event callback function(vtkObject, int) for an event type.\\n Returns a handle that can be used with RemoveEvent(int).\"},\n", data->ClassName);
     }
   else if (!strcmp("vtkObjectBase",data->ClassName))
     {
-    fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   \"V.GetAddressAsString(string) -> string\\n\\n Get address of C++ object in format 'Addr=%%p' after casting to\\n the specified type.  You can get the same information from V.__this__.\"},\n", data->ClassName);
-    fprintf(fp,"  {\"PrintRevisions\",  (PyCFunction)Py%s_PrintRevisions, 1,\n   \"V.PrintRevisions() -> string\\n\\n Prints the .cxx file CVS revisions of the classes in the\\n object's inheritance chain.\"},\n", data->ClassName);
+    fprintf(fp,"  {(char*)\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   (char*)\"V.GetAddressAsString(string) -> string\\n\\n Get address of C++ object in format 'Addr=%%p' after casting to\\n the specified type.  You can get the same information from V.__this__.\"},\n", data->ClassName);
+    fprintf(fp,"  {(char*)\"PrintRevisions\",  (PyCFunction)Py%s_PrintRevisions, 1,\n   (char*)\"V.PrintRevisions() -> string\\n\\n Prints the .cxx file CVS revisions of the classes in the\\n object's inheritance chain.\"},\n", data->ClassName);
     }
   
   fprintf(fp,"  {NULL,                       NULL, 0, NULL}\n};\n\n");
@@ -949,11 +949,11 @@ static void create_class_doc(FILE *fp, FileInfo *data)
       {
       text++;
       }
-    fprintf(fp,"  \"%s\\n\\n\",\n",quote_string(text,500));
+    fprintf(fp,"  (char*)\"%s\\n\\n\",\n",quote_string(text,500));
     }
   else
     {
-    fprintf(fp,"  \"%s - no description provided.\\n\\n\",\n",
+    fprintf(fp,"  (char*)\"%s - no description provided.\\n\\n\",\n",
             quote_string(data->ClassName,500));
     }
 
@@ -972,17 +972,17 @@ static void create_class_doc(FILE *fp, FileInfo *data)
       temp[400] = '\0';
       if (i < n-1)
         {
-        fprintf(fp,"  \"%s\",\n",quote_string(temp,500));
+        fprintf(fp,"  (char*)\"%s\",\n",quote_string(temp,500));
         }
       else
         { /* just for the last time */
-        fprintf(fp,"  \"%s\\n\",\n",quote_string(temp,500));
+        fprintf(fp,"  (char*)\"%s\\n\",\n",quote_string(temp,500));
         }
       }
     }
   else
     {
-    fprintf(fp,"  \"%s\\n\",\n", "None provided.\\n");
+    fprintf(fp,"  (char*)\"%s\\n\",\n", "None provided.\\n");
     }
 
   if (data->Caveats)
@@ -1114,7 +1114,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   /* the docstring for the class */
   if (data->NumberOfSuperClasses || !data->IsAbstract)
     {
-    fprintf(fp,"static char *%sDoc[] = {\n",data->ClassName); 
+    fprintf(fp,"static const char *%sDoc[] = {\n",data->ClassName); 
     create_class_doc(fp,data);
     fprintf(fp,"};\n\n");
     }
@@ -1137,8 +1137,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       fprintf(fp,"  return PyVTKClass_New(NULL,\n");
       }      
     fprintf(fp,"                        Py%sMethods,\n",data->ClassName);
-    fprintf(fp,"                        \"%s\",modulename,\n",data->ClassName);
-    fprintf(fp,"                        %sDoc,0);\n}\n\n",data->ClassName);
+    fprintf(fp,"                        (char*)\"%s\",modulename,\n",data->ClassName);
+    fprintf(fp,"                        (char**)%sDoc,0);\n}\n\n",data->ClassName);
     }
   else if (data->NumberOfSuperClasses)
     { /* wrapping of descendants of vtkObjectBase */
@@ -1157,8 +1157,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       fprintf(fp,"  return PyVTKClass_New(NULL,\n");
       }      
     fprintf(fp,"                        Py%sMethods,\n",data->ClassName);
-    fprintf(fp,"                        \"%s\",modulename,\n",data->ClassName);
-    fprintf(fp,"                        %sDoc,\n",data->ClassName);
+    fprintf(fp,"                        (char*)\"%s\",modulename,\n",data->ClassName);
+    fprintf(fp,"                        (char**)%sDoc,\n",data->ClassName);
     fprintf(fp,"                        PyVTKClass_%sNew(modulename));\n}\n\n",
             data->SuperClasses[0]);
     }
@@ -1168,13 +1168,13 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  if (!(PyArg_ParseTuple(args, \"\")))\n    {\n");
     fprintf(fp,"    return NULL;\n    }\n\n");
     fprintf(fp,"  %s *obj = new %s;\n",data->ClassName,data->ClassName);
-    fprintf(fp,"  return PyVTKSpecialObject_New(obj, Py%sMethods, \"%s\",%sDoc);\n",data->ClassName,data->ClassName,data->ClassName);
+    fprintf(fp,"  return PyVTKSpecialObject_New(obj, Py%sMethods, (char*)\"%s\",(char**)%sDoc);\n",data->ClassName,data->ClassName,data->ClassName);
     fprintf(fp,"}\n\n");
 
     fprintf(fp,"static PyMethodDef Py%sNewMethod = \\\n",data->ClassName);
-    fprintf(fp,"{ \"%s\",  (PyCFunction)PyVTKObject_%sNew, 1,\n",
+    fprintf(fp,"{ (char*)\"%s\",  (PyCFunction)PyVTKObject_%sNew, 1,\n",
             data->ClassName,data->ClassName);
-    fprintf(fp,"  %sDoc[0] };\n\n",data->ClassName);
+    fprintf(fp,"  (char*)%sDoc[0] };\n\n",data->ClassName);
 
     fprintf(fp,"PyObject *PyVTKClass_%sNew(char *)\n{\n",data->ClassName);
     fprintf(fp,"  return PyCFunction_New(&Py%sNewMethod,Py_None);\n}\n\n",
