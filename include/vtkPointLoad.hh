@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkPointLoad - compute stress tensors given point load on semi-inifinite domain
+// .NAME vtkPointLoad - compute stress tensors given point load on semi-infinite domain
 // .SECTION Description
 // vtkPointLoad is a source object that computes stress tensors on a volume. 
 // The tensors are computed from the application of a point load on a 
