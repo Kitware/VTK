@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.24");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.25");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -839,9 +839,7 @@ void vtkFunctionParser::SetScalarVariableValue(const char* inVariableName,
     tempNames[i] = NULL;
     }
   delete [] tempValues;
-  tempValues = NULL;
   delete [] tempNames;
-  tempNames = NULL;
   
   this->ScalarVariableValues[i] = value;
   this->ScalarVariableNames[i] = new char [strlen(variableName) + 1];
@@ -970,9 +968,7 @@ void vtkFunctionParser::SetVectorVariableValue(const char* inVariableName,
     tempValues[i] = NULL;
     }
   delete [] tempValues;
-  tempValues = NULL;
   delete [] tempNames;
-  tempNames = NULL;
   
   this->VectorVariableValues[i] = new double[3];
   this->VectorVariableValues[i][0] = xValue;

@@ -22,7 +22,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.32");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.33");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;
@@ -65,7 +65,7 @@ static int tmp_count=0;
 // Evaluate u,v,w at x,y,z,t
 int vtkInterpolatedVelocityField::FunctionValues(double* x, double* f)
 {
-  vtkDataSet* ds=0;
+  vtkDataSet* ds;
   if(!this->LastDataSet && !this->DataSets->empty())
     {
     ds = (*this->DataSets)[0];

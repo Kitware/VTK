@@ -38,7 +38,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.147");
+vtkCxxRevisionMacro(vtkImageData, "1.148");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1199,7 +1199,6 @@ void vtkImageData::UpdateData()
     levels->SetName("vtkGhostLevels");
     this->PointData->AddArray(levels);
     levels->Delete();
-    levels = NULL;
   
     // Only generate ghost call levels if zero levels are requested.
     // (Although we still need ghost points.)
@@ -1285,7 +1284,6 @@ void vtkImageData::UpdateData()
     levels->SetName("vtkGhostLevels");
     this->CellData->AddArray(levels);
     levels->Delete();
-    levels = NULL;
     }
 
 }
