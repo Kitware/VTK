@@ -112,6 +112,11 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
     this->Threads[idx] = NULL;
     }
   this->InputScalarsSelection = NULL;
+
+  this->Normals = NULL;
+  this->Gradients = NULL;
+  this->Scalars = NULL;
+
 }
 
 //----------------------------------------------------------------------------
@@ -288,9 +293,9 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
 
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
-  newScalars = output->GetPointData()->GetScalars();
-  newNormals = output->GetPointData()->GetNormals();
-  newGradients = output->GetPointData()->GetVectors();  
+  newScalars = self->Scalars;
+  newNormals = self->Normals;
+  newGradients = self->Gradients;  
   
   // this is an exploded execute extent.
   xMin = exExt[0];
@@ -638,9 +643,6 @@ void vtkSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
 {
   vtkPoints *newPts;
   vtkCellArray *newPolys;
-  vtkFloatArray *newScalars = NULL;
-  vtkFloatArray *newNormals = NULL;
-  vtkFloatArray *newGradients = NULL;
   long estimatedSize;  
   
   estimatedSize = (int) pow ((double) 
@@ -655,30 +657,30 @@ void vtkSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
   newPolys->Allocate(newPolys->EstimateSize(estimatedSize,3));
 
   o->GetPointData()->CopyAllOn();
+  // It is more efficient to just create the scalar array 
+  // rather than redundantly interpolate the scalars.
+  o->GetPointData()->CopyScalarsOff();
   if (this->ComputeNormals)
     {
-    newNormals = vtkFloatArray::New();
-    newNormals->SetNumberOfComponents(3);
-    newNormals->Allocate(3*estimatedSize,3*estimatedSize/2);
-    newNormals->SetName("Normals");
+    this->Normals = vtkFloatArray::New();
+    this->Normals->SetNumberOfComponents(3);
+    this->Normals->Allocate(3*estimatedSize,3*estimatedSize/2);
+    this->Normals->SetName("Normals");
     o->GetPointData()->CopyNormalsOff();
     }
   if (this->ComputeGradients)
     {
-    newGradients = vtkFloatArray::New();
-    newGradients->SetNumberOfComponents(3);
-    newGradients->Allocate(3*estimatedSize,3*estimatedSize/2);
-    newGradients->SetName("Gradients");
+    this->Gradients = vtkFloatArray::New();
+    this->Gradients->SetNumberOfComponents(3);
+    this->Gradients->Allocate(3*estimatedSize,3*estimatedSize/2);
+    this->Gradients->SetName("Gradients");
     o->GetPointData()->CopyVectorsOff();
     }
-  // It is more efficient to just create the scalar array 
-  // rather than redundantly interpolate the scalars.
-  o->GetPointData()->CopyScalarsOff();
   if (this->ComputeScalars)
     {
-    newScalars = vtkFloatArray::New();
-    newScalars->Allocate(estimatedSize,estimatedSize/2);
-    newScalars->SetName("Scalars");
+    this->Scalars = vtkFloatArray::New();
+    this->Scalars->Allocate(estimatedSize,estimatedSize/2);
+    this->Scalars->SetName("Scalars");
     }
   
   o->GetPointData()->InterpolateAllocate(this->GetInput()->GetPointData(),
@@ -692,21 +694,6 @@ void vtkSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
   o->SetPolys(newPolys);
   newPolys->Delete();
 
-  if (newScalars)
-    {
-    o->GetPointData()->SetScalars(newScalars);
-    newScalars->Delete();
-    }
-  if (newGradients)
-    {
-    o->GetPointData()->SetVectors(newGradients);
-    newGradients->Delete();
-    }
-  if (newNormals)
-    {
-    o->GetPointData()->SetNormals(newNormals);
-    newNormals->Delete();
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -902,6 +889,26 @@ void vtkSynchronizedTemplates3D::Execute()
     newPolys->Delete();
     newPts->Delete();
     }
+
+  if (this->Scalars)
+    {
+    output->GetPointData()->SetScalars(this->Scalars);
+    this->Scalars->Delete();
+    this->Scalars = NULL;
+    }
+  if (this->Gradients)
+    {
+    output->GetPointData()->SetVectors(this->Gradients);
+    this->Gradients->Delete();
+    this->Gradients = NULL;
+    }
+  if (this->Normals)
+    {
+    output->GetPointData()->SetNormals(this->Normals);
+    this->Normals->Delete();
+    this->Normals = NULL;
+    }
+
   output->Squeeze();
 }
 

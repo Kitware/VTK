@@ -184,6 +184,11 @@ public:
   vtkGetStringMacro(InputScalarsSelection);
   void SelectInputScalars(const char *fieldName) 
     {this->SetInputScalarsSelection(fieldName);}
+
+  // Access necessary for templeted function.
+  vtkFloatArray *Normals;
+  vtkFloatArray *Gradients;
+  vtkFloatArray *Scalars;
   
 protected:
   vtkSynchronizedTemplates3D();

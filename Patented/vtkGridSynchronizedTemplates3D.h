@@ -70,6 +70,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkContourValues.h"
 #include "vtkMultiThreader.h"
 #include "vtkKitwareContourFilter.h"
+#include "vtkFloatArray.h"
+
 
 class VTK_PATENTED_EXPORT vtkGridSynchronizedTemplates3D : public vtkStructuredGridToPolyDataFilter
 {
@@ -174,20 +176,25 @@ public:
   vtkGetStringMacro(InputScalarsSelection);
   void SelectInputScalars(const char *fieldName) 
     {this->SetInputScalarsSelection(fieldName);}
+
+  // Access necessary for templeted function.
+  vtkFloatArray *Normals;
+  vtkFloatArray *Gradients;
+  vtkFloatArray *Scalars;
   
 protected:
   vtkGridSynchronizedTemplates3D();
   ~vtkGridSynchronizedTemplates3D();
 
-  int ComputeNormals;
-  int ComputeGradients;
-  int ComputeScalars;
-  vtkContourValues *ContourValues;
-
   void Execute();
   void ExecuteInformation();
 
   void ComputeInputUpdateExtents( vtkDataObject *output );
+
+  int ComputeNormals;
+  int ComputeGradients;
+  int ComputeScalars;
+  vtkContourValues *ContourValues;
 
   int NumberOfThreads;
   vtkMultiThreader *Threader;

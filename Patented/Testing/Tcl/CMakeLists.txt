@@ -17,6 +17,7 @@ IF (VTK_USE_RENDERING)
       nc
       sweepAuto
       sweptVtk
+      sync3dAll
       TestGridSynchronizedTemplates3D
       TestImageMarchingCubes
       TestMarchingSquares
