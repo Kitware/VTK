@@ -55,6 +55,7 @@ class vtkImageMIPFilter : public vtkImageFilter
 public:
   vtkImageMIPFilter();
   char *GetClassName() {return "vtkImageMIPFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the range of slices for MIPs
@@ -66,9 +67,30 @@ public:
      vtkSetMacro(MinMaxIP,int);
      vtkGetMacro(MinMaxIP,int);
 
+  // Description:
+  // Select MIP parallel to x-y plane.
+  vtkSetMacro(MIPZ,int);
+  vtkGetMacro(MIPZ,int);
+  vtkBooleanMacro(MIPZ,int);
+
+  // Description:
+  // Select MIP parallel to x-z plane.
+  vtkSetMacro(MIPY,int);
+  vtkGetMacro(MIPY,int);
+  vtkBooleanMacro(MIPY,int);
+
+  // Description:
+  // Select MIP parallel to y-z plane.
+  vtkSetMacro(MIPX,int);
+  vtkGetMacro(MIPX,int);
+  vtkBooleanMacro(MIPX,int);
+
 protected:
   int ProjectionRange[2];
   int MinMaxIP;
+  int MIPX;
+  int MIPY;
+  int MIPZ;
 
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
