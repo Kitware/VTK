@@ -13,16 +13,16 @@ class vlPolyMapper : public vlMapper
 public:
   vlPolyMapper();
   ~vlPolyMapper();
-  void Render(Renderer *ren);
+  void Render(vlRenderer *ren);
   virtual void SetInput(vlPolyData *in);
   virtual vlPolyData* GetInput();
 
 protected:
   vlPolyData *Input;
-  GeometryPrimitive *Verts;
-  GeometryPrimitive *Lines;
-  GeometryPrimitive *Polys;
-  GeometryPrimitive *Strips;
+  vlGeometryPrimitive *Verts;
+  vlGeometryPrimitive *Lines;
+  vlGeometryPrimitive *Polys;
+  vlGeometryPrimitive *Strips;
 
 };
 

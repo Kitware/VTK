@@ -37,7 +37,7 @@ vlPolyData* vlPolyMapper::GetInput()
 //
 // Receives from Actor -> maps data to primitives
 //
-void vlPolyMapper::Render(Renderer *ren)
+void vlPolyMapper::Render(vlRenderer *ren)
 {
   vlPointData *pd;
   vlRGBArray *colors;
