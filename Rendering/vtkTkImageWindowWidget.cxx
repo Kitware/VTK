@@ -9,7 +9,11 @@
 #ifdef _WIN32
 #pragma warning ( disable : 4273 )
 #else
+#ifdef __APPLE__
+#include "vtkQuartzImageWindow.h"
+#else
 #include "vtkXImageWindow.h"
+#endif
 #endif
 
 #define VTK_ALL_EVENTS_MASK \
@@ -589,6 +593,112 @@ static int vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget 
   return TCL_OK;
 }
 
+
+
+// now the APPLE version
+#else
+#ifdef __APPLE__
+//----------------------------------------------------------------------------
+// Creates a ImageWindow window and forces Tk to use the window.
+static int
+vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget *self) 
+{
+  Display *dpy;
+  vtkQuartzImageWindow *ImageWindow;
+  
+  if (self->ImageWindow)
+    {
+    return TCL_OK;
+    }
+  
+  dpy = Tk_Display(self->TkWin);
+  
+  if (Tk_WindowId(self->TkWin) != None) 
+    {
+    //XDestroyWindow(dpy, Tk_WindowId(self->TkWin));
+    }
+
+  if (self->IW[0] == '\0')
+    {
+    // Make the ImageWindow window.
+    self->ImageWindow = vtkImageWindow::New();
+    ImageWindow = (vtkQuartzImageWindow *)(self->ImageWindow);
+#ifndef VTK_PYTHON_BUILD
+    vtkTclGetObjectFromPointer(self->Interp, self->ImageWindow,
+                               vtkImageWindowCommand);
+#endif
+    self->IW = strdup(self->Interp->result);
+    self->Interp->result[0] = '\0';
+    }
+  else
+    {
+    // is IW an address ? big ole python hack here
+    if (self->IW[0] == 'A' && self->IW[1] == 'd' && 
+        self->IW[2] == 'd' && self->IW[3] == 'r')
+      {
+      void *tmp;
+      sscanf(self->IW+5,"%p",&tmp);
+      ImageWindow = (vtkQuartzImageWindow *)tmp;
+      }
+    else
+      {
+#ifndef VTK_PYTHON_BUILD
+                        int new_flag;
+      ImageWindow = (vtkQuartzImageWindow *)
+        vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp,
+                                   new_flag);
+#endif
+      }
+    if (ImageWindow != self->ImageWindow)
+      {
+      if (self->ImageWindow != NULL)
+        {
+        self->ImageWindow->UnRegister(NULL);
+        }
+      self->ImageWindow = (vtkImageWindow *)(ImageWindow);
+      if (self->ImageWindow != NULL)
+        {
+        self->ImageWindow->Register(NULL);
+        }
+      }
+    }
+  
+  // If the imageviewer has already created it's window, throw up our hands and quit...
+  if ( ImageWindow->GetWindowId() != (Window)NULL )
+    {
+    return TCL_ERROR;
+    }
+        
+  // Use the same display
+  ImageWindow->SetDisplayId(dpy);
+  // The visual MUST BE SET BEFORE the window is created.
+ //Tk_SetWindowVisual(self->TkWin, ImageWindow->GetDesiredVisual(), 
+   //                  ImageWindow->GetDesiredDepth(), 
+     //                ImageWindow->GetDesiredColormap());
+
+  // Make this window exist, then use that information to make the vtkImageViewer in sync
+  Tk_MakeWindowExist ( self->TkWin );
+  ImageWindow->SetWindowId ( (void*)Tk_WindowId ( self->TkWin ) );
+
+  // Set the size
+  self->ImageWindow->SetSize(self->Width, self->Height);
+  
+  // Set the parent correctly
+  // Possibly X dependent
+  if ((Tk_Parent(self->TkWin) == NULL) || (Tk_IsTopLevel(self->TkWin))) 
+    {
+    //ImageWindow->SetParentId(XRootWindow(Tk_Display(self->TkWin), Tk_ScreenNumber(self->TkWin)));
+    }
+  else 
+    {
+    ImageWindow->SetParentId((void *)Tk_WindowId(Tk_Parent(self->TkWin) ));
+    }
+
+  self->ImageWindow->Render();  
+  return TCL_OK;
+}
+
+
 // now the Xwindows version
 #else
 
@@ -691,4 +801,5 @@ vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget *self)
   self->ImageWindow->Render();  
   return TCL_OK;
 }
+#endif
 #endif

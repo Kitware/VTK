@@ -49,8 +49,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
 #else
+#ifdef __APPLE__
+#include "vtkQuartzRenderWindow.h"
+#else
 #include "vtkXOpenGLRenderWindow.h"
 #endif
+#endif 
 
 #define VTK_ALL_EVENTS_MASK \
     KeyPressMask|KeyReleaseMask|ButtonPressMask|ButtonReleaseMask|      \
@@ -663,6 +667,111 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 
   return TCL_OK;
 }
+#else
+
+// the quartz version
+#ifdef __APPLE__
+//----------------------------------------------------------------------------
+// Creates a render window and forces Tk to use the window.
+static int
+vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self) 
+{
+  Display *dpy;
+  vtkQuartzRenderWindow *renderWindow;
+  
+  if (self->RenderWindow)
+    {
+    return TCL_OK;
+    }
+  
+  dpy = Tk_Display(self->TkWin);
+  
+  if (Tk_WindowId(self->TkWin) != None) 
+    {
+//    XDestroyWindow(dpy, Tk_WindowId(self->TkWin));
+    }
+
+  if (self->RW[0] == '\0')
+    {
+    // Make the Render window.
+    self->RenderWindow = vtkRenderWindow::New();
+    self->RenderWindow->Register(NULL);
+    self->RenderWindow->Delete();
+    renderWindow = (vtkQuartzRenderWindow *)(self->RenderWindow);
+#ifndef VTK_PYTHON_BUILD
+    vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
+                               vtkRenderWindowCommand);
+#endif
+    self->RW = strdup(self->Interp->result);
+    self->Interp->result[0] = '\0';
+    }
+  else
+    {
+    // is RW an address ? big ole python hack here
+    if (self->RW[0] == 'A' && self->RW[1] == 'd' && 
+        self->RW[2] == 'd' && self->RW[3] == 'r')
+      {
+      void *tmp;
+      sscanf(self->RW+5,"%p",&tmp);
+      renderWindow = (vtkQuartzRenderWindow *)tmp;
+      }
+    else
+      {
+#ifndef VTK_PYTHON_BUILD
+      int new_flag;
+      renderWindow = (vtkQuartzRenderWindow *)
+        vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
+                                   new_flag);
+#endif
+      }
+    if (renderWindow != self->RenderWindow)
+      {
+      if (self->RenderWindow != NULL) {self->RenderWindow->UnRegister(NULL);}
+      self->RenderWindow = (vtkRenderWindow *)(renderWindow);
+      if (self->RenderWindow != NULL) {self->RenderWindow->Register(NULL);}
+      }
+    }
+                
+  // If the imageviewer has already created it's window, throw up our hands and quit...
+  if ( renderWindow->GetWindowId() != (Window)NULL )
+    {
+    return TCL_ERROR;
+    }
+        
+  // Use the same display
+  renderWindow->SetDisplayId(dpy);
+  
+  /* Make sure Tk knows to switch to the new colormap when the cursor
+   * is over this window when running in color index mode.
+   */
+  // The visual MUST BE SET BEFORE the window is created.
+  //Tk_SetWindowVisual(self->TkWin, renderWindow->GetDesiredVisual(), 
+   //                  renderWindow->GetDesiredDepth(), 
+     //                renderWindow->GetDesiredColormap());
+  
+  // Make this window exist, then use that information to make the vtkImageViewer in sync
+  Tk_MakeWindowExist ( self->TkWin );
+  renderWindow->SetWindowId ( (void*)Tk_WindowId ( self->TkWin ) );
+  
+  // Set the size
+  self->RenderWindow->SetSize(self->Width, self->Height);
+  
+  // Set the parent correctly
+  // Possibly X dependent
+  if ((Tk_Parent(self->TkWin) == NULL) || (Tk_IsTopLevel(self->TkWin))) 
+    {
+//    renderWindow->SetParentId(XRootWindow(Tk_Display(self->TkWin), Tk_ScreenNumber((void *)self->TkWin)));
+    }
+  else 
+    {
+    renderWindow->SetParentId((void *)Tk_WindowId(Tk_Parent(self->TkWin)));
+    }
+
+  self->RenderWindow->Render();  
+//  XSelectInput(dpy, Tk_WindowId(self->TkWin), VTK_ALL_EVENTS_MASK);
+  
+  return TCL_OK;
+}
 
 // now the Xwindows version
 #else
@@ -769,4 +878,4 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   return TCL_OK;
 }
 #endif
-
+#endif

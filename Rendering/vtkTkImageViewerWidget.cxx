@@ -46,7 +46,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef _WIN32
 #pragma warning ( disable : 4273 )
 #else
+#ifdef __APPLE__
+#include "vtkQuartzRenderWindow.h"
+#else
 #include "vtkXOpenGLRenderWindow.h"
+#endif
 #endif
 
 #define VTK_ALL_EVENTS_MASK \
@@ -634,6 +638,117 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   return TCL_OK;
 }
 
+
+
+
+// now the APPLE version
+#else
+#ifdef __APPLE__
+//----------------------------------------------------------------------------
+// Creates a ImageViewer window and forces Tk to use the window.
+static int
+vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self) 
+{
+  Display *dpy;
+  vtkImageViewer *ImageViewer;
+  vtkQuartzRenderWindow *ImageWindow;
+  
+  if (self->ImageViewer)
+    {
+    return TCL_OK;
+    }
+
+  dpy = Tk_Display(self->TkWin);
+  
+  if (Tk_WindowId(self->TkWin) != None) 
+    {
+    //XDestroyWindow(dpy, Tk_WindowId(self->TkWin) );
+    }
+
+  if (self->IV[0] == '\0')
+    {
+    // Make the ImageViewer window.
+    self->ImageViewer = vtkImageViewer::New();
+    ImageViewer = self->ImageViewer;
+#ifndef VTK_PYTHON_BUILD
+    vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer,
+                               vtkImageViewerCommand);
+#endif
+    self->IV = strdup(self->Interp->result);
+    self->Interp->result[0] = '\0';
+    }
+  else
+    {
+    // is IV an address ? big ole python hack here
+    if (self->IV[0] == 'A' && self->IV[1] == 'd' && 
+        self->IV[2] == 'd' && self->IV[3] == 'r')
+      {
+      void *tmp;
+      sscanf(self->IV+5,"%p",&tmp);
+      ImageViewer = (vtkImageViewer *)tmp;
+      }
+    else
+      {
+#ifndef VTK_PYTHON_BUILD
+      int new_flag;
+      ImageViewer = (vtkImageViewer *)
+        vtkTclGetPointerFromObject(self->IV, "vtkImageViewer", self->Interp,
+                                   new_flag);
+#endif
+      }
+    if (ImageViewer != self->ImageViewer)
+      {
+      if (self->ImageViewer != NULL)
+        {
+        self->ImageViewer->UnRegister(NULL);
+        }
+      self->ImageViewer = (vtkImageViewer *)(ImageViewer);
+      if (self->ImageViewer != NULL)
+        {
+        self->ImageViewer->Register(NULL);
+        }
+      }
+    }
+  
+        
+  // get the window
+  ImageWindow = static_cast<vtkQuartzRenderWindow *>(ImageViewer->GetRenderWindow());
+  // If the imageviewer has already created it's window, throw up our hands and quit...
+  if ( ImageWindow->GetWindowId() != (Window)NULL )
+    {
+    return TCL_ERROR;
+    }
+        
+  // Use the same display
+  ImageWindow->SetDisplayId(dpy);
+  // The visual MUST BE SET BEFORE the window is created.
+  //Tk_SetWindowVisual(self->TkWin, ImageWindow->GetDesiredVisual(), 
+    //                 ImageWindow->GetDesiredDepth(), 
+      //               ImageWindow->GetDesiredColormap());
+
+  // Make this window exist, then use that information to make the vtkImageViewer in sync
+  Tk_MakeWindowExist ( self->TkWin );
+  ImageViewer->SetWindowId ( (void*)Tk_WindowId ( self->TkWin ) );
+
+  // Set the size
+  self->ImageViewer->SetSize(self->Width, self->Height);
+
+  // Set the parent correctly
+  // Possibly X dependent
+  if ((Tk_Parent(self->TkWin) == NULL) || (Tk_IsTopLevel(self->TkWin))) 
+    {
+    //ImageWindow->SetParentId(XRootWindow(Tk_Display(self->TkWin), Tk_ScreenNumber(self->TkWin)));
+    }
+  else 
+    {
+    ImageWindow->SetParentId((void *)Tk_WindowId(Tk_Parent(self->TkWin) ));
+    }
+
+  self->ImageViewer->Render();          
+  return TCL_OK;
+}
+
+
 // now the Xwindows version
 #else
 
@@ -644,7 +759,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
 {
   Display *dpy;
   vtkImageViewer *ImageViewer;
-  vtkXOpenGLRenderWindow *ImageWindow;
+  vtkQuartzRenderWindow *ImageWindow;
   
   if (self->ImageViewer)
     {
@@ -705,7 +820,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   
         
   // get the window
-  ImageWindow = static_cast<vtkXOpenGLRenderWindow *>(ImageViewer->GetRenderWindow());
+  ImageWindow = static_cast<vtkQuartzRenderWindow *>(ImageViewer->GetRenderWindow());
   // If the imageviewer has already created it's window, throw up our hands and quit...
   if ( ImageWindow->GetWindowId() != (Window)NULL )
     {
@@ -740,4 +855,5 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   self->ImageViewer->Render();          
   return TCL_OK;
 }
+#endif
 #endif
