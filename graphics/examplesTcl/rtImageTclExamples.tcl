@@ -1,5 +1,3 @@
-package require Tk
-
 catch {load vtktcl}
 #
 # This is a regression test script for VTK.
@@ -17,6 +15,7 @@ catch {load vtktcl}
 #    VTK_PLATFORM -         the OS of the computer, defaults to ""
 #    VTK_VALID_IMAGE_PATH - where the valid images are, defaults to ./valid
 #    VTK_REGRESSION_LOG -   where to send log messages, defaults to stdout
+#    VTK_REGRESSION_XML -   where to put xml output, defaults to rtLog.xml
 #    VTK_ROOT -             vtk root directory, defaults to ../../../
 
 set returnStatus 3
@@ -55,6 +54,11 @@ if { [catch {set logFileName $env(VTK_REGRESSION_LOG) }] != 0} {
     set logFile stdout
 } else {
     set logFile [open $logFileName "a+"]
+}
+
+# set up the xml file descriptor
+if { [catch {set xmlFileName $env(VTK_REGRESSION_XML) }] != 0} {
+    set xmlFileName rtLog.xml
 }
 
 # first find all the examples. they can be defined on command line or in
@@ -124,41 +128,6 @@ if { [catch {set VTK_ROOT $env(VTK_ROOT)}] != 0} { set VTK_ROOT "../../../" }
 source $VTK_ROOT/vtk/graphics/examplesTcl/rtProcessCPUTimes.tcl
 ReadCPUTimeTable
 
-vtkXMLFileOutputWindow rtxLog
-  rtxLog SetFileName rtLog.xml
-  rtxLog AppendOff
-  rtxLog FlushOn
-  rtxLog SetInstance rtxLog
-#  rtxLog DisplayTag {<!DOCTYPE Frost SYSTEM "Frost.dtd">}
-  rtxLog DisplayTag {<Frost Database="vtk" Server="icehouse.crd.ge.com" Username="vtkuser" Password="sixsigma">}
-  rtxLog DisplayTag {<Schema>}
-  rtxLog DisplayTag {<Gauge Name="WallTime" Type="numeric/double" />}
-  rtxLog DisplayTag {<Gauge Name="CPUTime" Type="numeric/double" />}
-  rtxLog DisplayTag {<Gauge Name="ImageDiff" Type="numeric/double" />}
-  rtxLog DisplayTag {<Gauge Name="Image" Type="image/tiff" />}
-
-foreach afile $files {
-    rtxLog DisplayTag "<Test Name=\"$afile\">"
-    rtxLog DisplayTag {<Gauge Name="WallTime"/>}
-    rtxLog DisplayTag {<Gauge Name="CPUTime"/>}
-    rtxLog DisplayTag {<Gauge Name="ImageDiff"/>}
-    rtxLog DisplayTag {<Gauge Name="Image"/>}
-    rtxLog DisplayTag "</Test>"
-}
-  rtxLog DisplayTag "<TestGroup Name=\"$kitName\">"
-  rtxLog DisplayTag "<Description>$argv0 $argv</Description>"
-foreach afile $files {
-    rtxLog DisplayTag "<Test Name=\"$afile\"/>"
-}
-  rtxLog DisplayTag "</TestGroup>"
-  if {$tcl_platform(platform) == "unix"} {
-      set hostname [exec hostname]
-      rtxLog DisplayTag "<Machine Name=\"$hostname\" Architecture=\"$tcl_platform(os)\"/>"
-  }
-  rtxLog DisplayTag {</Schema>}
-  rtxLog DisplayTag "<TestGroupRun Name=\"$kitName\">"
-  rtxLog Delete
-
 # now do the tests
 foreach afile $files {
     #
@@ -183,7 +152,7 @@ foreach afile $files {
 
     # Capture warnings and errors
     vtkXMLFileOutputWindow rtLog
-      rtLog SetFileName rtLog.xml
+      rtLog SetFileName $xmlFileName
       rtLog AppendOn
       rtLog FlushOn
       rtLog SetInstance rtLog
@@ -331,14 +300,5 @@ foreach afile $files {
     catch {destroy .top}
     catch {destroy .geo}
 }
-
-vtkXMLFileOutputWindow rtxLog
-  rtxLog SetFileName rtLog.xml
-  rtxLog AppendOn
-  rtxLog FlushOn
-  rtxLog SetInstance rtxLog
-  rtxLog DisplayTag </TestGroupRun>
-  rtxLog DisplayTag </Frost>
-
 
 exit $returnStatus
