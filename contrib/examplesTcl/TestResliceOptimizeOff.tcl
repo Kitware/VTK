@@ -28,6 +28,7 @@ vtkImageReslice reslice
   reslice InterpolateOn
   reslice OptimizationOff
   reslice SetBackgroundLevel 1023
+  reslice AutoCropOutputOn
 
 vtkImageViewer viewer
   viewer SetInput [reslice GetOutput]

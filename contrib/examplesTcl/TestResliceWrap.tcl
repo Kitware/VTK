@@ -17,7 +17,6 @@ vtkPNMReader reader
 
 vtkTransform transform
   transform RotateZ 45
-  transform Translate 0 0 0
   transform Scale 1.414 1.414 1.414
 
 vtkImageReslice reslice
@@ -26,6 +25,7 @@ vtkImageReslice reslice
   reslice InterpolateOn
   reslice SetInterpolationModeToCubic
   reslice WrapOn
+  reslice AutoCropOutputOn
 
 vtkImageViewer viewer
   viewer SetInput [reslice GetOutput]

@@ -4,7 +4,6 @@
   Module:    vtkImageReslice.cxx
   Language:  C++
   Date:      $Date$
-
   Version:   $Revision$
   Thanks:    Thanks to David G Gobbi who developed this class.
 
@@ -64,40 +63,67 @@ vtkImageReslice* vtkImageReslice::New()
 //----------------------------------------------------------------------------
 vtkImageReslice::vtkImageReslice()
 {
-  this->OutputSpacing[0] = 1;
-  this->OutputSpacing[1] = 1;
-  this->OutputSpacing[2] = 1;
+  // if NULL, the main Input is used
+  this->InformationInput = NULL;
+  this->TransformInputSampling = 1;
+  this->AutoCropOutput = 0;
+  this->OutputDimensionality = 3;
 
-  // flag to set defaults later
+  // flag to use default Spacing
+  this->OutputSpacing[0] = FLT_MAX;
+  this->OutputSpacing[1] = FLT_MAX;
+  this->OutputSpacing[2] = FLT_MAX;
+
+  // ditto
   this->OutputOrigin[0] = FLT_MAX;
   this->OutputOrigin[1] = FLT_MAX;
   this->OutputOrigin[2] = FLT_MAX;
 
   // ditto
-  this->OutputExtent[0] = this->OutputExtent[1] = INT_MAX;
-  this->OutputExtent[2] = this->OutputExtent[3] = INT_MAX;
-  this->OutputExtent[4] = this->OutputExtent[5] = INT_MAX;
+  this->OutputExtent[0] = INT_MIN;
+  this->OutputExtent[2] = INT_MIN;
+  this->OutputExtent[4] = INT_MIN;
 
-  this->OutputAlwaysCenteredOnInput = 0;
-  
+  this->OutputExtent[1] = INT_MAX;
+  this->OutputExtent[3] = INT_MAX;
+  this->OutputExtent[5] = INT_MAX;
+
   this->Wrap = 0; // don't wrap
   this->Mirror = 0; // don't mirror
   this->InterpolationMode = VTK_RESLICE_NEAREST; // no interpolation
-  this->Optimization = 1; // optimizations seem to finally be stable...
+  this->Optimization = 1; // turn off when you're paranoid 
 
+  // default black background
   this->BackgroundColor[0] = 0;
   this->BackgroundColor[1] = 0;
   this->BackgroundColor[2] = 0;
   this->BackgroundColor[3] = 0;
 
+  // default reslice axes are x, y, z
+  this->ResliceAxesDirectionCosines[0] = 1.0;
+  this->ResliceAxesDirectionCosines[1] = 0.0;
+  this->ResliceAxesDirectionCosines[2] = 0.0;
+  this->ResliceAxesDirectionCosines[3] = 0.0;
+  this->ResliceAxesDirectionCosines[4] = 1.0;
+  this->ResliceAxesDirectionCosines[5] = 0.0;
+  this->ResliceAxesDirectionCosines[6] = 0.0;
+  this->ResliceAxesDirectionCosines[7] = 0.0;
+  this->ResliceAxesDirectionCosines[8] = 1.0;
+
+  // default (0,0,0) axes origin
+  this->ResliceAxesOrigin[0] = 0.0;
+  this->ResliceAxesOrigin[1] = 0.0;
+  this->ResliceAxesOrigin[2] = 0.0;
+
+  // axes and transform are identity if set to NULL
   this->ResliceAxes = NULL;
   this->ResliceTransform = NULL;
+
+  // cache a matrix that converts output voxel indices -> input voxel indices
   this->IndexMatrix = NULL;
 }
 
-
 //----------------------------------------------------------------------------
-
 vtkImageReslice::~vtkImageReslice()
 {
   this->SetResliceTransform(NULL);
@@ -118,11 +144,34 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->ResliceAxes->PrintSelf(os,indent.GetNextIndent());
     }
+  this->GetResliceAxesDirectionCosines(this->ResliceAxesDirectionCosines);
+  os << indent << "ResliceAxesDirectionCosines: " << 
+    this->ResliceAxesDirectionCosines[0] << " " <<
+    this->ResliceAxesDirectionCosines[1] << " " <<
+    this->ResliceAxesDirectionCosines[2] << "\n";
+  os << indent << "                             " <<
+    this->ResliceAxesDirectionCosines[3] << " " <<
+    this->ResliceAxesDirectionCosines[4] << " " <<
+    this->ResliceAxesDirectionCosines[5] << "\n";
+  os << indent << "                             " <<
+    this->ResliceAxesDirectionCosines[6] << " " <<
+    this->ResliceAxesDirectionCosines[7] << " " <<
+    this->ResliceAxesDirectionCosines[8] << "\n";
+  this->GetResliceAxesOrigin(this->ResliceAxesOrigin);
+  os << indent << "ResliceAxesOrigin: " << 
+    this->ResliceAxesOrigin[0] << " " <<
+    this->ResliceAxesOrigin[0] << " " <<
+    this->ResliceAxesOrigin[0] << "\n";
   os << indent << "ResliceTransform: " << this->ResliceTransform << "\n";
   if (this->ResliceTransform)
     {
     this->ResliceTransform->PrintSelf(os,indent.GetNextIndent());
     }
+  os << indent << "InformationInput: " << this->InformationInput << "\n";
+  os << indent << "TransformInputSampling: " << 
+    (this->TransformInputSampling ? "On\n":"Off\n");
+  os << indent << "AutoCropOutput: " << 
+    (this->AutoCropOutput ? "On\n":"Off\n");
   os << indent << "OutputSpacing: " << this->OutputSpacing[0] << " " <<
     this->OutputSpacing[1] << " " << this->OutputSpacing[2] << "\n";
   os << indent << "OutputOrigin: " << this->OutputOrigin[0] << " " <<
@@ -131,22 +180,99 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
     this->OutputExtent[1] << " " << this->OutputExtent[2] << " " <<
     this->OutputExtent[3] << " " << this->OutputExtent[4] << " " <<
     this->OutputExtent[5] << "\n";
-  os << indent << "OutputAlwaysCenteredOnInput: " << 
-    (this->OutputAlwaysCenteredOnInput ? "On\n":"Off\n");
+  os << indent << "OutputDimensionality: " << 
+    this->OutputDimensionality << "\n";
   os << indent << "Wrap: " << (this->Wrap ? "On\n":"Off\n");
   os << indent << "Mirror: " << (this->Mirror ? "On\n":"Off\n");
   os << indent << "InterpolationMode: " 
      << this->GetInterpolationModeAsString() << "\n";
   os << indent << "Optimization: " << (this->Optimization ? "On\n":"Off\n");
-  os << indent << "BackgroundColor: " << this->BackgroundColor[0] << " " <<
-    this->BackgroundColor[1] << " " << this->BackgroundColor[2] << " " <<
-    this->BackgroundColor[3] << "\n";
+  os << indent << "BackgroundColor: " <<
+    this->BackgroundColor[0] << " " << this->BackgroundColor[1] << " " <<
+    this->BackgroundColor[2] << " " << this->BackgroundColor[3] << "\n";
+  os << indent << "BackgroundLevel: " << this->BackgroundColor[0] << "\n";
 }
 
 //----------------------------------------------------------------------------
-// Account for the MTime of the transform and its matrix when determinging
-// the MTime of the filter
+void vtkImageReslice::SetResliceAxesDirectionCosines(double x0, double x1, 
+						     double x2, double y0,
+						     double y1, double y2,
+						     double z0, double z1,
+						     double z2)
+{
+  if (!this->ResliceAxes)
+    {
+    this->ResliceAxes = vtkMatrix4x4::New();
+    this->Modified();
+    }
+  this->ResliceAxes->SetElement(0,0,x0);
+  this->ResliceAxes->SetElement(1,0,x1);
+  this->ResliceAxes->SetElement(2,0,x2);
+  this->ResliceAxes->SetElement(3,0,0);
+  this->ResliceAxes->SetElement(0,1,y0);
+  this->ResliceAxes->SetElement(1,1,y1);
+  this->ResliceAxes->SetElement(2,1,y2);
+  this->ResliceAxes->SetElement(3,1,0);
+  this->ResliceAxes->SetElement(0,2,z0);
+  this->ResliceAxes->SetElement(1,2,z1);
+  this->ResliceAxes->SetElement(2,2,z2);
+  this->ResliceAxes->SetElement(3,2,0);
+}
 
+//----------------------------------------------------------------------------
+void vtkImageReslice::GetResliceAxesDirectionCosines(double xdircos[3],
+						     double ydircos[3],
+						     double zdircos[3])
+{
+  if (!this->ResliceAxes)
+    {
+    xdircos[0] = ydircos[1] = zdircos[2] = 1;
+    xdircos[1] = ydircos[2] = zdircos[0] = 0;
+    xdircos[2] = ydircos[0] = zdircos[1] = 0;
+    return;
+    }
+
+  for (int i = 0; i < 3; i++) 
+    {
+    xdircos[i] = this->ResliceAxes->GetElement(i,0);
+    ydircos[i] = this->ResliceAxes->GetElement(i,1);
+    zdircos[i] = this->ResliceAxes->GetElement(i,2);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::SetResliceAxesOrigin(double x, double y, double z)
+{
+  if (!this->ResliceAxes)
+    {
+    this->ResliceAxes = vtkMatrix4x4::New();
+    this->Modified();
+    }
+
+  this->ResliceAxes->SetElement(0,3,x);
+  this->ResliceAxes->SetElement(1,3,y);
+  this->ResliceAxes->SetElement(2,3,z);
+  this->ResliceAxes->SetElement(3,3,1);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::GetResliceAxesOrigin(double origin[3])
+{
+  if (!this->ResliceAxes)
+    {
+    origin[0] = origin[1] = origin[2] = 0;
+    return;
+    }
+
+  for (int i = 0; i < 3; i++)
+    {
+    origin[i] = this->ResliceAxes->GetElement(i,3);
+    }
+}
+
+//----------------------------------------------------------------------------
+// Account for the MTime of the transform and its matrix when determining
+// the MTime of the filter
 unsigned long int vtkImageReslice::GetMTime()
 {
   unsigned long mTime=this->vtkObject::GetMTime();
@@ -157,7 +283,7 @@ unsigned long int vtkImageReslice::GetMTime()
     time = this->ResliceTransform->GetMTime();
     mTime = ( time > mTime ? time : mTime );
     if (this->ResliceTransform->IsA("vtkHomogeneousTransform"))
-      {
+      { // this is for people who directly modify the transform matrix
       time = ((vtkHomogeneousTransform *)this->ResliceTransform)
 	->GetMatrix()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
@@ -210,8 +336,7 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
     {
     this->ResliceTransform->Update();
     if (!this->ResliceTransform->IsA("vtkHomogeneousTransform"))
-      { // set the input to the whole extent if the transform
-	// is nonlinear
+      { // update the whole input extent if the transform is nonlinear
       this->GetInput()->GetWholeExtent(inExt);
       return;
       }
@@ -227,12 +352,12 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
   float point[4],f;
   float *inSpacing,*inOrigin,*outSpacing,*outOrigin,inInvSpacing[3];
 
-  int wrap = (this->GetWrap() || this->GetInterpolationMode() != VTK_RESLICE_NEAREST);
+  int wrap = (this->Wrap || this->InterpolationMode != VTK_RESLICE_NEAREST);
   
   inOrigin = this->GetInput()->GetOrigin();
   inSpacing = this->GetInput()->GetSpacing();
-  outOrigin = this->GetOutputOrigin();
-  outSpacing = this->GetOutputSpacing();
+  outOrigin = this->GetOutput()->GetOrigin();
+  outSpacing = this->GetOutput()->GetSpacing();
 
   // save effor later: invert inSpacing
   inInvSpacing[0] = 1.0f/inSpacing[0];
@@ -349,154 +474,204 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
 }
 
 //----------------------------------------------------------------------------
+void vtkImageReslice::GetAutoCroppedOutputBounds(vtkImageData *input,
+						 float bounds[6])
+{
+  int i, j;
+  float inSpacing[3], inOrigin[3];
+  int inWholeExt[6];
+  double f;
+  double point[4];
+
+  input->GetWholeExtent(inWholeExt);
+  input->GetSpacing(inSpacing);
+  input->GetOrigin(inOrigin);
+
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  if (this->ResliceAxes)
+    {
+    vtkMatrix4x4::Invert(this->ResliceAxes, matrix);
+    }
+  vtkAbstractTransform* transform = NULL;
+  if (this->ResliceTransform)
+    {
+    transform = this->ResliceTransform->GetInverse();
+    }
+  
+  for (i = 0; i < 3; i++)
+    {
+    bounds[2*i] = FLT_MAX;
+    bounds[2*i+1] = -FLT_MAX;
+    }
+    
+  for (i = 0; i < 8; i++)
+    {
+    point[0] = inOrigin[0] + inWholeExt[i%2]*inSpacing[0];
+    point[1] = inOrigin[1] + inWholeExt[2+(i/2)%2]*inSpacing[1];
+    point[2] = inOrigin[2] + inWholeExt[4+(i/4)%2]*inSpacing[2];
+    point[3] = 1.0f;
+
+    if (this->ResliceTransform)
+      {
+      transform->TransformPoint(point,point);
+      }
+    matrix->MultiplyPoint(point,point);
+      
+    f = 1.0f/point[3];
+    point[0] *= f; 
+    point[1] *= f; 
+    point[2] *= f;
+
+    for (j = 0; j < 3; j++) 
+      {
+      if (point[j] > bounds[2*j+1])
+	{
+	bounds[2*j+1] = point[j];
+	}
+      if (point[j] < bounds[2*j])
+	{
+        bounds[2*j] = point[j];
+	}
+      }
+    }
+
+  matrix->Delete();
+}
+
+//----------------------------------------------------------------------------
 void vtkImageReslice::ExecuteInformation(vtkImageData *input, 
 					 vtkImageData *output) 
 {
   int i,j;
-  float inPoint[4], outPoint[4];
-  float inOrigin[3],maxOut[3],minOut[3],f;
-  float *inSpacing;
+  float inSpacing[3], inOrigin[3];
+  int inWholeExt[6];
+  float outSpacing[3], outOrigin[3];
+  int outWholeExt[6];
+  float maxBounds[6];
 
-  int *inWholeExt;
+  vtkImageData *information = this->InformationInput;
+  if (!information)
+    {
+    information = input;
+    }
+  if (information != input)
+    {
+    information->UpdateInformation();
+    }
 
-  input->UpdateInformation();
-  inWholeExt = input->GetWholeExtent();
-  inSpacing = input->GetSpacing();
-  input->GetOrigin(inOrigin);
+  information->GetWholeExtent(inWholeExt);
+  information->GetSpacing(inSpacing);
+  information->GetOrigin(inOrigin);
   
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-
+  // reslice axes matrix is identity by default
+  double matrix[4][4];
+  for (i = 0; i < 4; i++)
+    {
+    matrix[i][0] = matrix[i][1] = matrix[i][2] = matrix[i][3] = 0;
+    matrix[i][i] = 1;
+    }
   if (this->ResliceAxes)
     {
-    matrix->DeepCopy(this->ResliceAxes);
+    vtkMatrix4x4::DeepCopy(*matrix, this->ResliceAxes);
     }
-  if (this->ResliceTransform && 
-      this->ResliceTransform->IsA("vtkHomogeneousTransform"))
+
+  if (this->AutoCropOutput)
     {
-    vtkMatrix4x4 *transformMatrix = 
-      ((vtkHomogeneousTransform *)this->ResliceTransform)->GetMatrix();
-    this->ResliceTransform->Update();
-    vtkMatrix4x4::Multiply4x4(transformMatrix,matrix,matrix);
+    this->GetAutoCroppedOutputBounds(input, maxBounds);
     }
+
+  // the default spacing, extent and origin are the input spacing, extent
+  // and origin,  transformed by the direction cosines of the ResliceAxes
+  // if requested (note that the transformed output spacing will always
+  // be positive)
+  for (i = 0; i < 3; i++)
+    {
+    double s = 0;  // default output spacing 
+    double d = 0;  // default linear dimension
+    double e = 0;  // default extent start
+
+    if (this->TransformInputSampling)
+      {
+      double r = 0.0;
+      for (j = 0; j < 3; j++)
+	{
+	double tmp = fabs(matrix[j][i]);
+	s += tmp*fabs(inSpacing[j]);
+	d += tmp*(inWholeExt[2*j+1] - inWholeExt[2*j])*fabs(inSpacing[j]);
+	e += tmp*inWholeExt[2*j];
+	r += tmp*tmp;
+	}
+      s /= r;
+      d /= r;
+      e /= sqrt(r);
+      }
+    else
+      {
+      s = inSpacing[i];
+      d = (inWholeExt[2*i+1] - e)*s;
+      e = inWholeExt[2*i];
+      }
+
+    if (this->OutputSpacing[i] == FLT_MAX)
+      {
+      outSpacing[i] = s;
+      }
+    else
+      {
+      outSpacing[i] = this->OutputSpacing[i];
+      }
+
+    if (i >= this->OutputDimensionality)
+      {
+      outWholeExt[2*i] = 0;
+      outWholeExt[2*i+1] = 0;
+      }
+    else if (this->OutputExtent[2*i] == INT_MIN ||
+	     this->OutputExtent[2*i+1] == INT_MAX)
+      {
+      if (this->AutoCropOutput)
+	{
+	d = maxBounds[2*i+1] - maxBounds[2*i];
+	}
+      outWholeExt[2*i] = int(floor(e + 0.5));
+      outWholeExt[2*i+1] = int(floor(outWholeExt[2*i] + 
+				     fabs(d/outSpacing[i]) + 0.5));
+      }
+    else
+      {
+      outWholeExt[2*i] = this->OutputExtent[2*i];
+      outWholeExt[2*i+1] = this->OutputExtent[2*i+1];
+      }
+
+    if (i >= this->OutputDimensionality)
+      {
+      outOrigin[i] = 0;
+      }
+    else if (this->OutputOrigin[i] == FLT_MAX)
+      {
+      if (this->AutoCropOutput)
+	{ // set origin so edge of extent is edge of bounds
+	outOrigin[i] = maxBounds[2*i] - outWholeExt[2*i]*outSpacing[i];
+	}
+      else
+	{ // center new bounds over center of input bounds
+	double c = inOrigin[i] - matrix[i][3] + \
+	  0.5*(inWholeExt[2*i] + inWholeExt[2*i+1])*inSpacing[i];
+	outOrigin[i] = c - \
+	  0.5*(outWholeExt[2*i] + outWholeExt[2*i+1])*outSpacing[i];
+	}
+      }
+    else
+      {
+      outOrigin[i] = this->OutputOrigin[i];
+      }
+    }  
   
-  // because vtkMatrix4x4::Inverse() doesn't cut it,
-  // use vtkMath::InvertMatrix()
-  double mat1data[4][4];
-  double mat2data[4][4];
-  double *mat1[4];
-  double *mat2[4];
-    
-  int tmpIntSpace[4];
-  double tmpDoubleSpace[4];
-
-  for (i = 0; i < 4; i++)
-    {
-    mat1[i] = mat1data[i];
-    mat2[i] = mat2data[i];
-    for (j = 0; j < 4; j++)
-      { 
-      mat1[i][j] = matrix->GetElement(i,j);
-      }
-    }
- 
-  if (vtkMath::InvertMatrix(mat1,mat2,4,tmpIntSpace,tmpDoubleSpace) == 0)
-    {
-    vtkErrorMacro(<< "ExecuteInformation: reslicing transform not \
-invertible");
-    }
-
-  for (i = 0; i < 4; i++)
-    {
-    for (j = 0; j < 4; j++)
-      {
-      matrix->SetElement(i,j,mat2[i][j]);
-      }
-    }
-
-  // default extent covers entire input extent
-  if ( this->OutputAlwaysCenteredOnInput || this->OutputExtent[0] == INT_MAX)
-    {
-    for (i = 0; i < 3; i++)
-      {
-      minOut[i] = FLT_MAX;
-      maxOut[i] = -FLT_MAX;
-      }
-    
-    for (i = 0; i < 8; i++)
-      {
-      inPoint[0] = inOrigin[0] + inWholeExt[i%2]*inSpacing[0];
-      inPoint[1] = inOrigin[1] + inWholeExt[2+(i/2)%2]*inSpacing[1];
-      inPoint[2] = inOrigin[2] + inWholeExt[4+(i/4)%2]*inSpacing[2];
-      inPoint[3] = 1.0f;
-      
-      matrix->MultiplyPoint(inPoint,outPoint);
-      
-      f = 1.0f/outPoint[3];
-      outPoint[0] *= f; 
-      outPoint[1] *= f; 
-      outPoint[2] *= f;
-
-      for (j = 0; j < 3; j++) 
-	{
-	if (outPoint[j] > maxOut[j])
-	  {
-	  maxOut[j] = outPoint[j];
-	  }
-	if (outPoint[j] < minOut[j])
-	  {
-	  minOut[j] = outPoint[j];
-	  }
-	}
-      }
-    
-    for (i = 0; i < 3; i++)
-      {
-      float spacing = this->OutputSpacing[i];
-      if (spacing < 0)
-	{
-	float tmp = maxOut[i];
-	maxOut[i] = minOut[i];
-	minOut[i] = tmp;
-	}
-      this->OutputExtent[2*i] = inWholeExt[2*i];
-      this->OutputExtent[2*i+1] = inWholeExt[2*i]+
-	vtkResliceCeil((maxOut[i]-minOut[i])/spacing);
-
-      if (this->OutputAlwaysCenteredOnInput || this->OutputOrigin[i] == FLT_MAX )
-	{
-	this->OutputOrigin[i] = minOut[i]-this->OutputExtent[2*i]*spacing;
-	}
-      }    
-    }
-
-  // default origin places centre of output over centre of input
-  if (this->OutputOrigin[0] == FLT_MAX )
-    {
-    for (i = 0; i < 3; i++)
-      {
-      inPoint[i] = inOrigin[i] + 
-	inSpacing[i]*(inWholeExt[2*i]+inWholeExt[2*i+1])*0.5f;
-      }
-    inPoint[3] = 1.0f;
-
-    matrix->MultiplyPoint(inPoint,outPoint);
-
-    f = 1.0f/outPoint[3];
-    for (i = 0; i < 3; i++)
-      {
-      outPoint[i] *= f;
-      this->OutputOrigin[i] = outPoint[i] - this->OutputSpacing[i]
-	*(this->OutputExtent[2*i]+this->OutputExtent[2*i+1])*0.5f;
-      }
-    }
-  
-  output->SetWholeExtent(this->OutputExtent);
-  output->SetSpacing(this->OutputSpacing);
-  output->SetOrigin(this->OutputOrigin);
+  output->SetWholeExtent(outWholeExt);
+  output->SetSpacing(outSpacing);
+  output->SetOrigin(outOrigin);
   output->SetScalarType(input->GetScalarType());
   output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
-
-  matrix->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -508,6 +683,11 @@ invertible");
 // (because we don't want to round if the result is a float!)
 
 // in the case of a tie between integers, the larger integer wins.
+
+static inline void vtkResliceRound(float val, char& rnd)
+{
+  rnd = (char)((int)(val+256.5f)-256);
+}
 
 static inline void vtkResliceRound(float val, unsigned char& rnd)
 {
@@ -529,13 +709,46 @@ static inline void vtkResliceRound(float val, int& rnd)
   rnd = (int)(floor(val+0.5f));
 }
 
+static inline void vtkResliceRound(float val, unsigned int& rnd)
+{
+  rnd = (unsigned int)(floor(val+0.5f));
+}
+
+static inline void vtkResliceRound(float val, long& rnd)
+{
+  rnd = (long)(floor(val+0.5f));
+}
+
+static inline void vtkResliceRound(float val, unsigned long& rnd)
+{
+  rnd = (unsigned long)(floor(val+0.5f));
+}
+
 static inline void vtkResliceRound(float val, float& rnd)
 {
   rnd = (float)(val);
 }
 
+static inline void vtkResliceRound(float val, double& rnd)
+{
+  rnd = (double)(val);
+}
+
 //----------------------------------------------------------------------------
 // clamping functions for each type
+
+static inline void vtkResliceClamp(float val, char& clamp)
+{
+  if (val < VTK_CHAR_MIN)
+    { 
+    val = VTK_CHAR_MIN;
+    }
+  if (val > VTK_CHAR_MAX)
+    { 
+    val = VTK_CHAR_MAX;
+    }
+  vtkResliceRound(val,clamp);
+}
 
 static inline void vtkResliceClamp(float val, unsigned char& clamp)
 {
@@ -589,7 +802,59 @@ static inline void vtkResliceClamp(float val, int& clamp)
   vtkResliceRound(val,clamp);
 }
 
+static inline void vtkResliceClamp(float val, unsigned int& clamp)
+{
+  if (val < VTK_UNSIGNED_INT_MIN)
+    { 
+    val = VTK_UNSIGNED_INT_MIN;
+    }
+  if (val > VTK_UNSIGNED_INT_MAX)
+    { 
+    val = VTK_UNSIGNED_INT_MAX;
+    }
+  vtkResliceRound(val,clamp);
+}
+
+static inline void vtkResliceClamp(float val, long& clamp)
+{
+  if (val < VTK_LONG_MIN) 
+    {
+    val = VTK_LONG_MIN;
+    }
+  if (val > VTK_LONG_MAX) 
+    {
+    val = VTK_LONG_MAX;
+    }
+  vtkResliceRound(val,clamp);
+}
+
+static inline void vtkResliceClamp(float val, unsigned long& clamp)
+{
+  if (val < VTK_UNSIGNED_LONG_MIN)
+    { 
+    val = VTK_UNSIGNED_LONG_MIN;
+    }
+  if (val > VTK_UNSIGNED_LONG_MAX)
+    { 
+    val = VTK_UNSIGNED_LONG_MAX;
+    }
+  vtkResliceRound(val,clamp);
+}
+
 static inline void vtkResliceClamp(float val, float& clamp)
+{
+  if (val < VTK_FLOAT_MIN)
+    { 
+    val = VTK_FLOAT_MIN;
+    }
+  if (val > VTK_FLOAT_MAX) 
+    {
+    val = VTK_FLOAT_MAX;
+    }
+  vtkResliceRound(val,clamp);
+}
+
+static inline void vtkResliceClamp(float val, double& clamp)
 {
   if (val < VTK_FLOAT_MIN)
     { 
@@ -1228,8 +1493,8 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
 
   inOrigin = inData->GetOrigin();
   inSpacing = inData->GetSpacing();
-  outOrigin = self->GetOutputOrigin();
-  outSpacing = self->GetOutputSpacing();
+  outOrigin = outData->GetOrigin();
+  outSpacing = outData->GetSpacing();
 
   // save effor later: invert inSpacing
   inInvSpacing[0] = 1.0f/inSpacing[0];
@@ -1338,26 +1603,8 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
 
   switch (inData->GetScalarType())
     {
-    case VTK_FLOAT:
-      vtkImageResliceExecute(this, inData, (float *)(inPtr), 
-		             outData, (float *)(outPtr),outExt, id);
-      break;
-    case VTK_INT:
-      vtkImageResliceExecute(this, inData, (int *)(inPtr), 
-			     outData, (int *)(outPtr),outExt, id);
-      break;
-    case VTK_SHORT:
-      vtkImageResliceExecute(this, inData, (short *)(inPtr), 
-			     outData, (short *)(outPtr),outExt, id);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageResliceExecute(this, inData, (unsigned short *)(inPtr), 
-			     outData, (unsigned short *)(outPtr),outExt,id);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageResliceExecute(this, inData, (unsigned char *)(inPtr), 
-			     outData, (unsigned char *)(outPtr),outExt, id);
-      break;
+    vtkTemplateMacro7(vtkImageResliceExecute, this, inData, (VTK_TT *)(inPtr),
+		      outData, (VTK_TT *)(outPtr), outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
     }
@@ -1377,7 +1624,7 @@ void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6],
   float xAxis[4], yAxis[4], zAxis[4], origin[4];
   float point[4],f;
 
-  int wrap = (this->GetWrap() || this->GetInterpolationMode() != VTK_RESLICE_NEAREST);
+  int wrap = (this->Wrap || this->InterpolationMode != VTK_RESLICE_NEAREST);
 
   // convert matrix from world coordinates to pixel indices
   vtkMatrix4x4 *matrix = this->GetIndexMatrix();
@@ -3116,31 +3363,9 @@ void vtkImageReslice::OptimizedThreadedExecute(vtkImageData *inData,
     {
     switch (inData->GetScalarType())
       {
-      case VTK_FLOAT:
-	vtkOptimizedPermuteExecute(this, inData, (float *)(inPtr), 
-			    outData, (float *)(outPtr),outExt, id,
-			    matrix);
-	break;
-      case VTK_INT:
-	vtkOptimizedPermuteExecute(this, inData, (int *)(inPtr), 
-			    outData, (int *)(outPtr),outExt, id,
-			    matrix);
-	break;
-      case VTK_SHORT:
-	vtkOptimizedPermuteExecute(this, inData, (short *)(inPtr), 
-			    outData, (short *)(outPtr),outExt, id,
-			    matrix);
-	break;
-      case VTK_UNSIGNED_SHORT:
-	vtkOptimizedPermuteExecute(this, inData, (unsigned short *)(inPtr), 
-			    outData, (unsigned short *)(outPtr),outExt,id,
-			    matrix);
-	break;
-      case VTK_UNSIGNED_CHAR:
-	vtkOptimizedPermuteExecute(this, inData, (unsigned char *)(inPtr), 
-			    outData, (unsigned char *)(outPtr),outExt, id,
-			    matrix);
-	break;
+      vtkTemplateMacro8(vtkOptimizedPermuteExecute, this,
+			inData, (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr),
+			outExt, id, matrix);
       default:
 	vtkErrorMacro(<< "Execute: Unknown input ScalarType");
 	return;
@@ -3150,31 +3375,8 @@ void vtkImageReslice::OptimizedThreadedExecute(vtkImageData *inData,
     {
     switch (inData->GetScalarType())
       {
-      case VTK_FLOAT:
-	vtkOptimizedExecute(this, inData, (float *)(inPtr), 
-			    outData, (float *)(outPtr),outExt, id,
-			    matrix);
-	break;
-      case VTK_INT:
-	vtkOptimizedExecute(this, inData, (int *)(inPtr), 
-			    outData, (int *)(outPtr),outExt, id,
-			    matrix);
-	break;
-      case VTK_SHORT:
-	vtkOptimizedExecute(this, inData, (short *)(inPtr), 
-			    outData, (short *)(outPtr),outExt, id,
-			    matrix);
-	break;
-      case VTK_UNSIGNED_SHORT:
-	vtkOptimizedExecute(this, inData, (unsigned short *)(inPtr), 
-			    outData, (unsigned short *)(outPtr),outExt,id,
-			    matrix);
-	break;
-      case VTK_UNSIGNED_CHAR:
-	vtkOptimizedExecute(this, inData, (unsigned char *)(inPtr), 
-			    outData, (unsigned char *)(outPtr),outExt, id,
-			    matrix);
-	break;
+      vtkTemplateMacro8(vtkOptimizedExecute, this, inData, (VTK_TT *)(inPtr),
+			outData, (VTK_TT *)(outPtr), outExt, id, matrix);
       default:
 	vtkErrorMacro(<< "Execute: Unknown input ScalarType");
 	return;

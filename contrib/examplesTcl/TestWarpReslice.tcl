@@ -49,6 +49,7 @@ vtkImageReslice reslice
   reslice SetInput [reader GetOutput]
   reslice SetResliceTransform transform
   reslice SetInterpolationModeToLinear
+  reslice SetOutputSpacing 1 1 1
 
 vtkImageCacheFilter cac
   cac SetInput [reslice GetOutput]

@@ -61,6 +61,7 @@ vtkImageReslice reslice
   reslice SetInput [reader GetOutput]
   reslice SetResliceTransform gridTransform
   reslice SetInterpolationModeToLinear
+  reslice SetOutputSpacing 1 1 1
 
 vtkImageViewer viewer
   viewer SetInput [reslice GetOutput]
