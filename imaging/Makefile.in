@@ -34,6 +34,7 @@ vtkImageTwoInputFilter \
 vtkImageFourierFilter 
 
 CONCRETE = \
+vtkAxisActor2D \
 vtkBMPReader \
 vtkBMPWriter \
 vtkImageAccumulate \
@@ -120,7 +121,12 @@ vtkTIFFWriter \
 vtkXImageMapper \
 vtkXImageWindow \
 vtkXPolyDataMapper2D \
+<<<<<<< Makefile.in
+vtkXTextMapper \
+vtkXYPlotActor
+=======
 vtkXTextMapper  ${GRAPHICS_API_OBJ}
+>>>>>>> 1.142
 
 
 
