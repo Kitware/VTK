@@ -99,9 +99,9 @@ void vtkExtractPolyDataGeometry::Execute()
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkPoints *inPts=input->GetPoints();
-  vtkIdType numPts, i, cellId, newId;
+  vtkIdType numPts, i, cellId = -1, newId;
   float multiplier;
-  vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
+  vtkCellArray *inVerts=NULL, *inLines=NULL, *inPolys=NULL, *inStrips=NULL;
   vtkCellArray *newVerts=NULL, *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
 
   vtkDebugMacro(<< "Extracting poly data geometry");

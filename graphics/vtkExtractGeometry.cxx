@@ -145,7 +145,7 @@ void vtkExtractGeometry::Execute()
   newPts->Allocate(numPts/4,numPts);
   outputPD->CopyAllocate(pd);
   outputCD->CopyAllocate(cd);
-  vtkFloatArray *newScalars;
+  vtkFloatArray *newScalars = NULL;
   
   if ( ! this->ExtractBoundaryCells )
     {
