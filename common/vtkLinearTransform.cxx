@@ -91,6 +91,8 @@ static inline void vtkLinearTransformNormal(const T in[3], T out[3],
   out[0] = matrix[0][0]*x + matrix[0][1]*y + matrix[0][2]*z;
   out[1] = matrix[1][0]*x + matrix[1][1]*y + matrix[1][2]*z;
   out[2] = matrix[2][0]*x + matrix[2][1]*y + matrix[2][2]*z;
+
+  vtkMath::Normalize(out);
 }
 
 //------------------------------------------------------------------------
