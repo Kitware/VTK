@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # doxyfile for VTK
-# modified by S. Barre (Time-stamp: <2002-01-29 17:08:29 barre>
+# modified by S. Barre (Time-stamp: <2002-02-04 18:39:27 barre>
 # -------------------------------------------------------------------------
 
 PROJECT_NAME         = VTK
@@ -32,7 +32,7 @@ GRAPHICAL_HIERARCHY  = NO        # would be too large for vtkObject
 
 ALLEXTERNALS         = NO
 
-IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen"
+IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" "@VTK_BINARY_DIR@/Utilities/Doxygen/contrib"
 
 OUTPUT_DIRECTORY     = "@VTK_BINARY_DIR@/Utilities/Doxygen/doc"
 
