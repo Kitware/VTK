@@ -64,7 +64,7 @@ void vtkOglrActor::Render(vtkActor *actor, vtkRenderer *ren,
   glMultMatrixf(matrix[0]);
 
   // send a render to the mapper; update pipeline
-  mapper->Render(ren);
+  mapper->Render(ren,actor);
 
   // pop transformation matrix
   glPopMatrix();

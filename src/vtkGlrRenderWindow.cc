@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGlrCamera.hh"
 #include "vtkGlrLight.hh"
 #include "vtkGlrActor.hh"
+#include "vtkGlrPolyMapper.hh"
 #include "gl/glws.h"
 #include "gl/get.h"
 
@@ -219,6 +220,16 @@ vtkTextureDevice *vtkGlrRenderWindow::MakeTexture()
 
   texture = new vtkGlrTexture;
   return (vtkTextureDevice *)texture;
+}
+
+// Description:
+// Create a XGL specific PolyMapper.
+vtkPolyMapperDevice *vtkGlrRenderWindow::MakePolyMapper()
+{
+  vtkGlrPolyMapper *polyMapper;
+
+  polyMapper = new vtkGlrPolyMapper;
+  return (vtkPolyMapperDevice *)polyMapper;
 }
 
 // Description:

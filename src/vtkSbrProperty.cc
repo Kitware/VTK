@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkSbrProperty.hh"
 #include "vtkSbrRenderer.hh"
-#include "vtkSbrPrimitive.hh"
 #include "starbase.c.h"
 
 // Description:
@@ -92,9 +91,6 @@ void vtkSbrProperty::Render(vtkProperty *prop, vtkSbrRenderer *ren)
 
   bf_fill_color(fd, DiffuseColor[0], DiffuseColor[1], DiffuseColor[2]);
   bf_perimeter_color(fd, EdgeColor[0], EdgeColor[1], EdgeColor[2]);
-
-  // Tell the geometry primitives about the default properties 
-  vtkSbrPrimitive::SetProperty(prop);
 
   switch (prop->GetRepresentation()) 
     {

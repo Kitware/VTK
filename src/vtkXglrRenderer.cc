@@ -45,10 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXglrLight.hh"
 #include "vtkXglrRenderWindow.hh"
 #include "vtkXglrRenderer.hh"
-#include "vtkXglrPolygons.hh"
-#include "vtkXglrTriangleMesh.hh"
-#include "vtkXglrLines.hh"
-#include "vtkXglrPoints.hh"
 #include "vtkVolumeRenderer.hh"
 
 
@@ -184,37 +180,6 @@ void vtkXglrRenderer::Render(void)
     {
     (*this->EndRenderMethod)(this->EndRenderMethodArg);
     }
-}
-
-// Description:
-// Create particular type of starbase geometry primitive.
-vtkGeometryPrimitive *vtkXglrRenderer::GetPrimitive(char *type)
-{
-  vtkGeometryPrimitive *prim;
-
-  if (!strcmp(type,"polygons"))
-      {
-      prim = new vtkXglrPolygons;
-      return (vtkGeometryPrimitive *)prim;
-      }
-
-  if (!strcmp(type,"triangle_strips"))
-      {
-      prim = new vtkXglrTriangleMesh;
-      return (vtkGeometryPrimitive *)prim;
-      }
-  if (!strcmp(type,"lines"))
-      {
-      prim = new vtkXglrLines;
-      return (vtkGeometryPrimitive *)prim;
-      }
-  if (!strcmp(type,"points"))
-      {
-      prim = new vtkXglrPoints;
-      return (vtkGeometryPrimitive *)prim;
-      }
-
-  return((vtkGeometryPrimitive *)NULL);
 }
 
 void vtkXglrRenderer::PrintSelf(ostream& os, vtkIndent indent)

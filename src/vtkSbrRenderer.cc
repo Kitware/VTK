@@ -45,10 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSbrLight.hh"
 #include "vtkSbrRenderWindow.hh"
 #include "vtkSbrRenderer.hh"
-#include "vtkSbrPolygons.hh"
-#include "vtkSbrTriangleMesh.hh"
-#include "vtkSbrLines.hh"
-#include "vtkSbrPoints.hh"
 #include "vtkVolumeRenderer.hh"
 
 #define MAX_LIGHTS 16
@@ -179,38 +175,6 @@ void vtkSbrRenderer::Render(void)
     (*this->EndRenderMethod)(this->EndRenderMethodArg);
     }
 }
-
-// Description:
-// Create particular type of starbase geometry primitive.
-vtkGeometryPrimitive *vtkSbrRenderer::GetPrimitive(char *type)
-{
-  vtkGeometryPrimitive *prim;
-
-  if (!strcmp(type,"polygons"))
-      {
-      prim = new vtkSbrPolygons;
-      return (vtkGeometryPrimitive *)prim;
-      }
-
-  if (!strcmp(type,"triangle_strips"))
-      {
-      prim = new vtkSbrTriangleMesh;
-      return (vtkGeometryPrimitive *)prim;
-      }
-  if (!strcmp(type,"lines"))
-      {
-      prim = new vtkSbrLines;
-      return (vtkGeometryPrimitive *)prim;
-      }
-  if (!strcmp(type,"points"))
-      {
-      prim = new vtkSbrPoints;
-      return (vtkGeometryPrimitive *)prim;
-      }
-
-  return((vtkGeometryPrimitive *)NULL);
-}
-
 
 // Description:
 // Return center of renderer in display coordinates.

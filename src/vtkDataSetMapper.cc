@@ -81,7 +81,7 @@ float *vtkDataSetMapper::GetBounds()
 //
 // Receives from Actor -> maps data to primitives
 //
-void vtkDataSetMapper::Render(vtkRenderer *ren)
+void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
 //
 // make sure that we've been properly initialized
@@ -115,7 +115,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren)
   this->PolyMapper->SetScalarRange(this->GetScalarRange());
 
   this->GeometryExtractor->SetInput(this->Input);
-  this->PolyMapper->Render(ren);
+  this->PolyMapper->Render(ren,act);
 }
 
 void vtkDataSetMapper::PrintSelf(ostream& os, vtkIndent indent)

@@ -59,6 +59,6 @@ void vtkXglrActor::Render(vtkActor *actor, vtkRenderer *ren, vtkMapper *mapper)
   xgl_transform_write(model_trans,(float (*)[4])(matrix[0]));
 
   // send a render to the mapper; update pipeline
-  mapper->Render(ren);
+  mapper->Render(ren,actor);
 }
 

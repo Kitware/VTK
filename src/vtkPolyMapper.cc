@@ -39,16 +39,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPolyMapper.hh"
+#include "vtkPolyMapperDevice.hh"
+#include "vtkRenderWindow.hh"
 
 // Description:
 // Construct mapper with vertices, lines, polygons, and triangle strips
 // turned on.
 vtkPolyMapper::vtkPolyMapper()
 {
-  this->Verts = NULL;
-  this->Lines = NULL;
-  this->Polys = NULL;
-  this->Strips = NULL;
+  this->Device = NULL;
   this->Colors = NULL;
 
   this->VertsVisibility = 1;
@@ -60,10 +59,7 @@ vtkPolyMapper::vtkPolyMapper()
 vtkPolyMapper::~vtkPolyMapper()
 {
   //delete internally created objects
-  if ( this->Verts != NULL ) this->Verts->Delete();
-  if ( this->Lines != NULL ) this->Lines->Delete();
-  if ( this->Polys != NULL ) this->Polys->Delete();
-  if ( this->Strips != NULL ) this->Strips->Delete();
+  if ( this->Device != NULL ) this->Device->Delete();
   if ( this->Colors != NULL ) this->Colors->Delete();
 }
 
@@ -96,7 +92,7 @@ float *vtkPolyMapper::GetBounds()
 //
 // Receives from Actor -> maps data to primitives
 //
-void vtkPolyMapper::Render(vtkRenderer *ren)
+void vtkPolyMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
   vtkPointData *pd;
   vtkScalars *scalars;
@@ -162,48 +158,17 @@ void vtkPolyMapper::Render(vtkRenderer *ren)
       this->Colors = colors = NULL;
       }
 
-    if (this->VertsVisibility && input->GetNumberOfVerts())
+    if (!this->Device) 
       {
-      if (!this->Verts) this->Verts = ren->GetPrimitive("points");
-      this->Verts->Build(input,colors);
+      this->Device = ren->GetRenderWindow()->MakePolyMapper();
       }
-    if ( this->LinesVisibility && input->GetNumberOfLines())
-      {
-      if (!this->Lines) this->Lines = ren->GetPrimitive("lines");
-      this->Lines->Build(input,colors);
-      }
-    if ( this->PolysVisibility && input->GetNumberOfPolys())
-      {
-      if (!this->Polys) this->Polys = ren->GetPrimitive("polygons");
-      this->Polys->Build(input,colors);
-      }
-    if ( this->StripsVisibility && input->GetNumberOfStrips())
-      {
-      if (!this->Strips) this->Strips = ren->GetPrimitive("triangle_strips");
-      this->Strips->Build(input,colors);
-      }
+    this->Device->Build(input,colors);
 
     this->BuildTime.Modified();
     }
 
   // draw the primitives
-  if (this->VertsVisibility && input->GetNumberOfVerts())
-    {
-    this->Verts->Draw(ren);
-    }
-  if ( this->LinesVisibility && input->GetNumberOfLines())
-    {
-    this->Lines->Draw(ren);
-    }
-  if ( this->PolysVisibility && input->GetNumberOfPolys())
-    {
-    this->Polys->Draw(ren);
-    }
-  if ( this->StripsVisibility && input->GetNumberOfStrips())
-    {
-    this->Strips->Draw(ren);
-    }
-
+  this->Device->Draw(ren,act);
 }
 
 void vtkPolyMapper::PrintSelf(ostream& os, vtkIndent indent)

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSbrActor.cc
+  Module:    vtkPolyMapperDevice.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,28 +38,40 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <math.h>
-#include "vtkSbrRenderer.hh"
-#include "vtkSbrActor.hh"
-#include "vtkActor.hh"
+#include <stdlib.h>
+#include "vtkPolyMapperDevice.hh"
+#include "vtkPolyData.hh"
+#include "vtkColorScalars.hh"
 
 // Description:
-// Implement base class method.
-void vtkSbrActor::Render(vtkActor *actor, vtkRenderer *ren, vtkMapper *mapper)
+// Construct empty geometry primitive.
+vtkPolyMapperDevice::vtkPolyMapperDevice ()
 {
-  static vtkMatrix4x4 matrix;
-  int Fd=((vtkSbrRenderer *)ren)->GetFd();
+  this->Data = NULL;
+  this->Colors = NULL;
+}
 
-  // build transformation 
-  actor->GetMatrix(matrix);
-  matrix.Transpose();
+void vtkPolyMapperDevice::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkObject::PrintSelf(os,indent);
 
-  // insert model transformation 
-  concat_transformation3d(Fd,(float (*)[4])(matrix[0]), PRE, PUSH);
+  if ( this->Colors )
+    {
+    os << indent << "Colors:\n";
+    this->Colors->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Colors: (none)\n";
+    }
 
-  // send a render to the mapper; update pipeline
-  mapper->Render(ren,actor);
-
-  pop_matrix(Fd);
-  pop_matrix(Fd);
+  if ( this->Data )
+    {
+    os << indent << "Data:\n";
+    this->Data->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Data: (none)\n";
+    }
 }

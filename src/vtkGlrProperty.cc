@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkGlrRenderer.hh"
 #include "vtkGlrProperty.hh"
-#include "vtkGlrPrimitive.hh"
 
 // temporary material structure
 static float mat[] = {
@@ -96,9 +95,6 @@ void vtkGlrProperty::Render(vtkProperty *prop, vtkGlrRenderer *ren)
   lmdef(DEFMATERIAL, 1, 0, mat);
   lmbind(MATERIAL, 1);
   lmbind (BACKMATERIAL, 0);  
-
-  // Tell the geometry primitives about the default properties 
-  vtkGlrPrimitive::SetProperty(prop);
 
   // set interpolation 
   switch (prop->GetInterpolation()) 

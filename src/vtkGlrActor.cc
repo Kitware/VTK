@@ -58,7 +58,7 @@ void vtkGlrActor::Render(vtkActor *actor, vtkRenderer *ren, vtkMapper *mapper)
   multmatrix((float (*)[4])(matrix[0]));
 
   // send a render to the mapper; update pipeline
-  mapper->Render(ren);
+  mapper->Render(ren,actor);
 
   // pop transformation matrix
   popmatrix();

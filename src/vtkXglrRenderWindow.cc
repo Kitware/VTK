@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXglrCamera.hh"
 #include "vtkXglrLight.hh"
 #include "vtkXglrActor.hh"
+#include "vtkXglrPolyMapper.hh"
 
 // some globals left over from some Sun code
 Xgl_sys_state xglr_sys_state = 0;  // XGLR System State object 
@@ -157,6 +158,16 @@ vtkTextureDevice *vtkXglrRenderWindow::MakeTexture()
 
   texture = new vtkXglrTexture;
   return (vtkTextureDevice *)texture;
+}
+
+// Description:
+// Create a XGL specific PolyMapper.
+vtkPolyMapperDevice *vtkXglrRenderWindow::MakePolyMapper()
+{
+  vtkXglrPolyMapper *polyMapper;
+
+  polyMapper = new vtkXglrPolyMapper;
+  return (vtkPolyMapperDevice *)polyMapper;
 }
 
 // Description:

@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSbrCamera.hh"
 #include "vtkSbrLight.hh"
 #include "vtkSbrActor.hh"
+#include "vtkSbrPolyMapper.hh"
 
 #define MAX_LIGHTS 16
 
@@ -139,6 +140,16 @@ vtkTextureDevice *vtkSbrRenderWindow::MakeTexture()
 
   texture = new vtkSbrTexture;
   return (vtkTextureDevice *)texture;
+}
+
+// Description:
+// Create a XGL specific PolyMapper.
+vtkPolyMapperDevice *vtkSbrRenderWindow::MakePolyMapper()
+{
+  vtkSbrPolyMapper *polyMapper;
+
+  polyMapper = new vtkSbrPolyMapper;
+  return (vtkPolyMapperDevice *)polyMapper;
 }
 
 // Description:

@@ -39,9 +39,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkOglrPrimitive.hh"
 #include "vtkOglrRenderer.hh"
 #include "vtkOglrProperty.hh"
+#ifdef _WIN32
+#include <windows.h>
+#endif
+#include <GL/gl.h>
 
 // Description:
 // Implement base class method.
@@ -120,9 +123,6 @@ void vtkOglrProperty::Render(vtkProperty *prop, vtkOglrRenderer *ren)
 
   Info[0] = prop->GetSpecularPower();
   glMaterialfv( Face, GL_SHININESS, Info );
-
-  // Tell the geometry primitives about the default properties 
-  vtkOglrPrimitive::SetProperty(prop);
 
   // set interpolation 
   switch (prop->GetInterpolation()) 

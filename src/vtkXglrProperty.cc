@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXglrRenderWindow.hh"
 #include "vtkXglrRenderer.hh"
 #include "vtkXglrProperty.hh"
-#include "vtkXglrPrimitive.hh"
 
 // Description:
 // Implement base class method.
@@ -196,7 +195,4 @@ void vtkXglrProperty::Render(vtkProperty *prop, vtkXglrRenderer *ren)
 		 XGL_3D_CTX_SURF_BACK_ILLUMINATION, method,
 		 XGL_3D_CTX_LINE_COLOR_INTERP, line_method,
 		 NULL);
-  
-  // Tell the geometry primitives about the default properties 
-  vtkXglrPrimitive::SetProperty(prop);
 }

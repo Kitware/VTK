@@ -223,7 +223,7 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
     if (txt->GetInterpolate())
       {
       this->TDesc.texture_info.mipmap.interp_info.filter1 = 
-	XGL_TEXTURE_INTERP_MIPMAP_TRILINEAR;
+	XGL_TEXTURE_INTERP_BILINEAR;
       this->TDesc.texture_info.mipmap.interp_info.filter2 = 
 	XGL_TEXTURE_INTERP_BILINEAR;
       }

@@ -49,10 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOglrProperty.hh"
 #include "vtkOglrCamera.hh"
 #include "vtkOglrLight.hh"
-#include "vtkOglrPolygons.hh"
-#include "vtkOglrTriangleMesh.hh"
-#include "vtkOglrLines.hh"
-#include "vtkOglrPoints.hh"
 #include "vtkVolumeRenderer.hh"
 
 #define MAX_LIGHTS 8
@@ -199,36 +195,6 @@ void vtkOglrRenderer::Render(void)
     {
     (*this->EndRenderMethod)(this->EndRenderMethodArg);
     }
-}
-
-// Description:
-// Create particular type of gl geometry primitive.
-vtkGeometryPrimitive *vtkOglrRenderer::GetPrimitive(char *type)
-{
-  vtkGeometryPrimitive *prim;
-
-  if (!strcmp(type,"polygons"))
-      {
-      prim = new vtkOglrPolygons;
-      return (vtkGeometryPrimitive *)prim;
-      }
-  if (!strcmp(type,"triangle_strips"))
-      {
-      prim = new vtkOglrTriangleMesh;
-      return (vtkGeometryPrimitive *)prim;
-      }
-  if (!strcmp(type,"lines"))
-      {
-      prim = new vtkOglrLines;
-      return (vtkGeometryPrimitive *)prim;
-      }
-  if (!strcmp(type,"points"))
-      {
-      prim = new vtkOglrPoints;
-      return (vtkGeometryPrimitive *)prim;
-      }
-
-  return((vtkGeometryPrimitive *)NULL);
 }
 
 void vtkOglrRenderer::PrintSelf(ostream& os, vtkIndent indent)

@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOglrCamera.hh"
 #include "vtkOglrLight.hh"
 #include "vtkOglrActor.hh"
+#include "vtkOglrPolyMapper.hh"
 #include "GL/gl.h"
 #include "GL/glu.h"
 
@@ -283,6 +284,16 @@ vtkTextureDevice *vtkOglrRenderWindow::MakeTexture()
 
   texture = new vtkOglrTexture;
   return (vtkTextureDevice *)texture;
+}
+
+// Description:
+// Create a OpenGL specific PolyMapper.
+vtkPolyMapperDevice *vtkOglrRenderWindow::MakePolyMapper()
+{
+  vtkOglrPolyMapper *polyMapper;
+
+  polyMapper = new vtkOglrPolyMapper;
+  return (vtkPolyMapperDevice *)polyMapper;
 }
 
 // Description:
