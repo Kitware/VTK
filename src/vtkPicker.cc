@@ -228,7 +228,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
     {
     visible = actor->GetVisibility();
     pickable = actor->GetPickable();
-    transparency = actor->GetProperty()->GetTransparency();
+    transparency = actor->GetProperty()->GetOpacity();
 //
 //  If actor can be picked, get its composite matrix, invert it, and
 //  use the inverted matrix to transform the ray points into mapper

@@ -98,8 +98,8 @@ void vtkXglrProperty::Render(vtkProperty *prop, vtkXglrRenderer *ren)
 		   prop->GetSpecularPower(),
 		   XGL_3D_CTX_SURF_BACK_SPECULAR_COLOR, &specularColor,
 		   XGL_3D_CTX_SURF_BACK_COLOR, &diffuseColor,
-		   XGL_3D_CTX_SURF_FRONT_TRANSP, 1.0-prop->GetTransparency(),
-		   XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-prop->GetTransparency(),
+		   XGL_3D_CTX_SURF_FRONT_TRANSP, 1.0-prop->GetOpacity(),
+		   XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-prop->GetOpacity(),
 		   NULL);
     }
   else 
@@ -111,7 +111,7 @@ void vtkXglrProperty::Render(vtkProperty *prop, vtkXglrRenderer *ren)
 		 XGL_3D_CTX_SURF_BACK_SPECULAR_POWER, prop->GetSpecularPower(),
 		 XGL_3D_CTX_SURF_BACK_SPECULAR_COLOR, &specularColor,
 		 XGL_3D_CTX_SURF_BACK_COLOR, &diffuseColor,
-		 XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-prop->GetTransparency(),
+		 XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-prop->GetOpacity(),
 		 NULL);
     return;
     }		 

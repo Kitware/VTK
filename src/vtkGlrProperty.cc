@@ -72,7 +72,7 @@ void vtkGlrProperty::Render(vtkProperty *prop, vtkGlrRenderer *ren)
   texbind(TX_TEXTURE_0,0);
 
   lmcolor (LMC_NULL);
-  mat[1] = prop->GetTransparency();
+  mat[1] = prop->GetOpacity();
   mat[15] = prop->GetSpecularPower();
 
   Ambient = prop->GetAmbient();

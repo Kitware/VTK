@@ -66,7 +66,7 @@ void vtkOglrProperty::Render(vtkProperty *prop, vtkOglrRenderer *ren)
   glDisable(GL_COLOR_MATERIAL);
   Face = GL_FRONT_AND_BACK;
 
-  Info[3] = prop->GetTransparency();
+  Info[3] = prop->GetOpacity();
 
   Ambient = prop->GetAmbient();
   Diffuse = prop->GetDiffuse();

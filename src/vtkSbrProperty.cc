@@ -119,7 +119,7 @@ void vtkSbrProperty::Render(vtkProperty *prop, vtkSbrRenderer *ren)
 		   SpecularColor[0], SpecularColor[1],
 		   SpecularColor[2]);
 
-  trans_level = (int)(16.0*(1.0 - prop->GetTransparency()));
+  trans_level = (int)(16.0*(1.0 - prop->GetOpacity()));
   esc_arg1.i[0] = 0x0000;
   for (l = 0; l < trans_level; l++)
     esc_arg1.i[0] |= (0x0001 << pattern[l]);
