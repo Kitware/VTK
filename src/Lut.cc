@@ -33,7 +33,7 @@ void vlLookupTable::Build()
 {
   int i, hueCase, indx, numColors;
   float hue, sat, val, lx, ly, lz, frac, hinc, sinc, vinc;
-  vlRGBColor rgb;
+  float rgb[3];
 
   if ( this->Table.NumColors() < 1 )
     {
@@ -63,75 +63,75 @@ void vlLookupTable::Build()
       /* 0<hue<1/6 */
     case 0:
     case 6:
-      rgb.X[0] = val;
-      rgb.X[1] = lz;
-      rgb.X[2] = lx;
+      rgb[0] = val;
+      rgb[1] = lz;
+      rgb[2] = lx;
       break;
       /* 1/6<hue<2/6 */
     case 1:
-      rgb.X[0] = ly;
-      rgb.X[1] = val;
-      rgb.X[2] = lx;
+      rgb[0] = ly;
+      rgb[1] = val;
+      rgb[2] = lx;
       break;
       /* 2/6<hue<3/6 */
     case 2:
-      rgb.X[0] = lx;
-      rgb.X[1] = val;
-      rgb.X[2] = lz;
+      rgb[0] = lx;
+      rgb[1] = val;
+      rgb[2] = lz;
       break;
       /* 3/6<hue/4/6 */
     case 3:
-      rgb.X[0] = lx;
-      rgb.X[1] = ly;
-      rgb.X[2] = val;
+      rgb[0] = lx;
+      rgb[1] = ly;
+      rgb[2] = val;
       break;
       /* 4/6<hue<5/6 */
     case 4:
-      rgb.X[0] = lz;
-      rgb.X[1] = lx;
-      rgb.X[2] = val;
+      rgb[0] = lz;
+      rgb[1] = lx;
+      rgb[2] = val;
       break;
       /* 5/6<hue<1 */
     case 5:
-      rgb.X[0] = val;
-      rgb.X[1] = lx;
-      rgb.X[2] = ly;
+      rgb[0] = val;
+      rgb[1] = lx;
+      rgb[2] = ly;
       break;
     }
     
-    rgb.X[0] = (1.0+(float)cos((1.0-(double)rgb.X[0])*3.141593))/2.0;
-    rgb.X[1] = (1.0+(float)cos((1.0-(double)rgb.X[1])*3.141593))/2.0;
-    rgb.X[2] = (1.0+(float)cos((1.0-(double)rgb.X[2])*3.141593))/2.0;
+    rgb[0] = (1.0+(float)cos((1.0-(double)rgb[0])*3.141593))/2.0;
+    rgb[1] = (1.0+(float)cos((1.0-(double)rgb[1])*3.141593))/2.0;
+    rgb[2] = (1.0+(float)cos((1.0-(double)rgb[2])*3.141593))/2.0;
 
-    this->Table[i] = rgb;
+    this->Table.SetColor(i,rgb);
   }
   this->Modified();
 }
 
-vlRGBColor &vlLookupTable::MapValue(float v)
+float *vlLookupTable::MapValue(float v)
 {
   int indx, numColors=this->Table.NumColors();
 
   indx = (int) (v-this->TableRange[0])/(this->TableRange[1]-this->TableRange[0]) * numColors;
   indx = (indx < 0 ? 0 : (indx >= numColors ? numColors-1 : indx));
 
-  return this->Table[indx];
+  return this->Table.GetColor(indx);
 }
 
-void vlLookupTable::SetTableValue (int indx, vlRGBColor &rgb_c)
+void vlLookupTable::SetTableValue (int indx, float rgb[3])
 {
   int numColors=this->Table.NumColors();
 
   indx = (indx < 0 ? 0 : (indx >= numColors ? numColors-1 : indx));
-  this->Table[indx] = rgb_c;
+  this->Table.SetColor(indx,rgb);
 }
 
-vlRGBColor &vlLookupTable::GetTableValue (int indx)
+float *vlLookupTable::GetTableValue (int indx)
 {
   int numColors=this->Table.NumColors();
 
   indx = (indx < 0 ? 0 : (indx >= numColors ? numColors-1 : indx));
-  return this->Table[indx];
+  return this->Table.GetColor(indx);
   
 }
 
