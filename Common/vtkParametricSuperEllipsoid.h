@@ -84,23 +84,23 @@ public:
   // Description:
   // The parametric equations for a superellipsoid are:
   // <pre>
-  // - x = rx*cos(u)^n1*cos(v)^n2
-  // - y = ry*cos(u)^n1*sin(v)^n2
-  // - z = rz*sin(u)^n1
+  // - x = rx*sin(v)^n1*cos(u)^n2
+  // - y = ry*sin(v)^n1*sin(u)^n2
+  // - z = rz*sin(v)^n1
   // 
   // where:
-  // - -pi/2 <= u < pi/2, -pi <= v < pi
+  // - 0 <= u < 2*pi, 0 <= v < pi
   // - 0 <= n1,n2 < infinity
   // - rx, ry, rx are scaling factors 
   // ( 0 < rx, ry, rz < infinity )
   // 
   // Derivatives:
-  // - dx/du = -rx*cos(u)^n1*n1*sin(u)/cos(u)*cos(v)^n2;
-  // - dy/du = -ry*cos(u)^n1*n1*sin(u)/cos(u)*sin(v)^n2;
-  // - dz/du = rz*sin(u)^n1*n1*cos(u)/sin(u);
-  // - dx/dv = -rx*cos(u)^n1*cos(v)^n2*n2*sin(v)/cos(v);
-  // - dy/dv = ry*cos(u)^n1*sin(v)^n2*n2*cos(v)/sin(v);
-  // - dz/dv = 0;
+  // - dx/du = -rx*sin(v)^n1*cos(u)^n2*n2*sin(u)/cos(u);
+  // - dy/du = ry*sin(v)^n1*sin(u)^n2*n2*cos(u)/sin(u);
+  // - dz/du = 0;
+  // - dx/dv = rx*sin(v)^n1*n1*cos(v)/sin(v)*cos(u)^n2;
+  // - dy/dv = ry*sin(v)^n1*n1*cos(v)/sin(v)*sin(u)^n2;
+  // - dz/dv = rz*sin(v)^n1*n1*cos(v)/sin(v);
   // </pre>
   // Let Du = (dx/du, dy/du, dz/du). Let Dv = (dx/dv, dy/dv, dz/dv). Then the normal n = Du X Dv.
   // 
@@ -109,92 +109,9 @@ public:
   // of dimension 2rx, 2ry, 2rz. The power n1 acts as the "squareness"
   // parameter in the z axis and n2 the "squareness" in the x-y plane.
   // 
-  // In practise, the absolute values of the trigonometric functions
-  // are used when raising to a power. This removes any complex values
-  // but can introduce unusual representations of the surface e.g. in 
-  // the case of a sphere, the poles can be joined internally.
-  //
   // Note that there are are some numerical issues with both very 
   // small or very large values of of n1 and n2.
   //
-  // Here is a table showing some interesting special cases 
-  // for parameters n1 and n2:
-  // 
-  // <div align="center">
-  // <center>
-  // <table border="0" cellspacing="1" style="border-collapse: collapse" bordercolor="#111111" id="AutoNumber1">
-  //   <tr>
-  //   <td><b>n1</b></td>
-  //   <td><b>n2</b></td>
-  //   <td><b>rx,ry,rz</b></td>
-  //   <td><b>Description</b></td>
-  //   </tr>
-  //   <tr>
-  //   <td align="center">0</td>
-  //   <td align="center">0</td>
-  //   <td align="center">&nbsp;</td>
-  //   <td align="center">&nbsp;</td>
-  //   </tr>
-  //   <tr>
-  //   <td align="center">0</td>
-  //   <td align="center">0</td>
-  //   <td align="center">rx=ry=rz</td>
-  //   <td align="center">cube</td>
-  //   </tr>
-  //   <tr>
-  //   <td align="center">&lt;1</td>
-  //   <td align="center">&lt;1</td>
-  //   <td align="center">&nbsp;</td>
-  //   <td align="center">cuboid</td>
-  //   </tr>
-  //   <tr>
-  //   <td align="center">&lt;1</td>
-  //   <td align="center">1</td>
-  //   <td align="center">&nbsp;</td>
-  //   <td align="center">pillow shaped</td>
-  //   </tr>
-  //   <tr>
-  //   <td align="center">1</td>
-  //   <td align="center">&lt;1</td>
-  //   <td align="center">&nbsp;</td>
-  //   <td align="center">cylindical</td>
-  //   </tr>
-  //   <tr>
-  //   <td align="center">1</td>
-  //   <td align="center">1</td>
-  //   <td align="center">&nbsp;</td>
-  //   <td align="center">ellipsoid</td>
-  //   </tr>
-  //   <tr>
-  //   <td align="center">1</td>
-  //   <td align="center">1</td>
-  //   <td align="center">rx=ry=rz</td>
-  //   <td align="center">sphere</td>
-  //   </tr>
-  //   <tr>
-  //   <td align="center">2</td>
-  //   <td align="center">2</td>
-  //   <td align="center">rx=ry=rz</td>
-  //   <td align="center">octahedron</td>
-  //   </tr>
-  //   <tr>
-  //   <td align="center" colspan="2">n1 or n2 &gt; 2</td>
-  //   <td align="center">&nbsp;</td>
-  //   <td align="center">pinched</td>
-  //   </tr>
-  //   <tr>
-  //   <td align="center" colspan="2">n1 or n2 = 2</td>
-  //   <td align="center">&nbsp;</td>
-  //   <td align="center">bevelled</td>
-  //   </tr>
-  //   <tr>
-  //   <td align="center">&#8734;</td>
-  //   <td align="center">&#8734;</td>
-  //   <td align="center">&nbsp;</td>
-  //   <td align="center">3D plus</td>
-  //   </tr>
-  // </table>
-  // </center>
   // For more information see: http://astronomy.swin.edu.au/~pbourke/surfaces/.
   //
   // This function performs the mapping fn(u,v)->(x,y,x), returning it

@@ -17,7 +17,7 @@
 #include "vtkMath.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkParametricSuperEllipsoid, "1.3");
+vtkCxxRevisionMacro(vtkParametricSuperEllipsoid, "1.4");
 vtkStandardNewMacro(vtkParametricSuperEllipsoid);
 
 vtkParametricSuperEllipsoid::vtkParametricSuperEllipsoid() :
@@ -27,11 +27,10 @@ vtkParametricSuperEllipsoid::vtkParametricSuperEllipsoid() :
   , N1(1)
   , N2(1)
 {
-  // Preset triangulation parameters
-  this->MinimumV = -vtkMath::Pi()/2.0;
-  this->MinimumU = -vtkMath::Pi();
-  this->MaximumV = vtkMath::Pi()/2.0;
-  this->MaximumU = vtkMath::Pi();
+  this->MinimumU = 0;
+  this->MinimumV = 0;
+  this->MaximumV = vtkMath::Pi();
+  this->MaximumU = 2.0*vtkMath::Pi();
 
   this->JoinU = 1;
   this->JoinV = 0;
@@ -62,16 +61,12 @@ void vtkParametricSuperEllipsoid::Evaluate(double uvw[3], double Pt[3], double D
   double cv = cos(v);
   double sv = sin(v);
 
-  double tmp  = this->Power(cv,N1);
+  double tmp  = this->Power(sv,N1);
 
-   // - x = rx*cos(u)^n1*cos(v)^n2
-  // - y = ry*cos(u)^n1*sin(v)^n2
-  // - z = rz*sin(u)^n1
-  // 
- // The point
+  // The point
   Pt[0] = this->XRadius * tmp * this->Power(cu,this->N2);
   Pt[1] = this->YRadius * tmp * this->Power(su,this->N2);
-  Pt[2] = this->ZRadius * this->Power(sv,this->N1);
+  Pt[2] = this->ZRadius * this->Power(cv,this->N1);
 }
 
 double vtkParametricSuperEllipsoid::EvaluateScalar(double*, double*, double*)
