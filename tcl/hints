@@ -40,6 +40,7 @@ vtkProp			GetYRange	301 2
 vtkProp			GetZRange	301 2
 vtkProp			GetOrientation	301 3
 vtkProp			GetOrientationWXYZ	301 4
+vtkProperty		GetColor	301 3
 vtkViewport		GetCenter	301 3
 vtkViewport		GetSize		304 2
 vtkViewport		GetOrigin	304 2 	
