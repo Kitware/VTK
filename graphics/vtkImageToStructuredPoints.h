@@ -57,6 +57,7 @@ class vtkImageToStructuredPoints : public vtkStructuredPointsSource
 {
 public:
   vtkImageToStructuredPoints();
+  ~vtkImageToStructuredPoints();
   char *GetClassName() {return "vtkImageToStructurePoints";};
 
   // Description:
