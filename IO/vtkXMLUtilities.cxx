@@ -30,7 +30,7 @@
 typedef vtkstd::vector<vtkXMLDataElement*> vtkXMLUtilitiesDataElementContainer;
 
 vtkStandardNewMacro(vtkXMLUtilities);
-vtkCxxRevisionMacro(vtkXMLUtilities, "1.2");
+vtkCxxRevisionMacro(vtkXMLUtilities, "1.3");
 
 #define  VTK_XML_UTILITIES_FACTORED_POOL_NAME "FactoredPool"
 #define  VTK_XML_UTILITIES_FACTORED_NAME      "Factored"
@@ -70,20 +70,25 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
                                    ostream &output, int output_encoding,
                                    int special_entities)
 {
-  // No string, or wrong encoding
+  // No string
 
-  if (!input || 
-      (input_encoding <= VTK_ENCODING_NONE ||
-       input_encoding >= VTK_ENCODING_UNKNOWN) ||
-      (output_encoding <= VTK_ENCODING_NONE ||
-       output_encoding >= VTK_ENCODING_UNKNOWN))
+  if (!input)
     {
     return;
     }
 
-  // Nothing to do ?
+  // If either the input or output encoding is not specified, 
+  // or they are the same, dump as is (if no entites had to be converted)
 
-  if (input_encoding == output_encoding && !special_entities)
+  int no_input_encoding = (input_encoding <= VTK_ENCODING_NONE ||
+                           input_encoding >= VTK_ENCODING_UNKNOWN);
+
+  int no_output_encoding = (output_encoding <= VTK_ENCODING_NONE ||
+                            output_encoding >= VTK_ENCODING_UNKNOWN);
+
+  if (!special_entities && 
+      (no_input_encoding || no_output_encoding || 
+       input_encoding == output_encoding))
     {
     output << input;
     return;
@@ -92,14 +97,29 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
   // Convert
 
   const unsigned char *str = (const unsigned char*)input;
-  
+
+  // If either the input or output encoding is not specified, just process
+  // the entities
+
+  if (no_input_encoding || no_output_encoding)
+    {
+    while (*str)
+      {
+      if (!vtkXMLUtilitiesEncodeEntities(*str, output))
+        {
+        output << *str;
+        }
+      str++;
+      }
+    return;
+    }
+
   // To VTK_UTF_8...
 
   if (output_encoding == VTK_ENCODING_UTF_8)
     {
-    int from_iso_8859 =
-      (input_encoding >= VTK_ENCODING_ISO_8859_1 && 
-       input_encoding <= VTK_ENCODING_ISO_8859_16);
+    int from_iso_8859 = (input_encoding >= VTK_ENCODING_ISO_8859_1 && 
+                         input_encoding <= VTK_ENCODING_ISO_8859_16);
 
     // From ISO-8859 or US-ASCII
 
@@ -166,9 +186,8 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
 
   else if (input_encoding == VTK_ENCODING_UTF_8)
     {
-    int to_iso_8859 = 
-      (output_encoding >= VTK_ENCODING_ISO_8859_1 && 
-       output_encoding <=VTK_ENCODING_ISO_8859_16);
+    int to_iso_8859 = (output_encoding >= VTK_ENCODING_ISO_8859_1 && 
+                       output_encoding <=VTK_ENCODING_ISO_8859_16);
     
     // To US-ASCII or ISO 8859
 
