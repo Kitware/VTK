@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // buffering turned on.
 vtkWindow::vtkWindow()
 {
-  this->Size[0] = this->Size[1] = 300;
+  this->Size[0] = this->Size[1] = 0;
   this->Position[0] = this->Position[1] = 0;
   this->Mapped = 0;
   this->WindowName = new char[strlen("Visualization Toolkit")+1];
