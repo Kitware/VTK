@@ -315,3 +315,71 @@ vtkRectilinearGrid *vtkCastToConcrete::GetRectilinearGridOutput()
   return this->RectilinearGrid;
 }
 
+void vtkCastToConcrete::UnRegister(vtkObject *o)
+{
+  // detect the circular loop source <-> data
+  // If we have two references and one of them is my data
+  // and I am not being unregistered by my data, break the loop.
+  if (this->ReferenceCount == 6 &&
+      this->PolyData->GetNetReferenceCount() == 1 &&
+      this->StructuredGrid->GetNetReferenceCount() == 1 &&
+      this->UnstructuredGrid->GetNetReferenceCount() == 1 &&
+      this->StructuredPoints->GetNetReferenceCount() == 1 &&
+      this->RectilinearGrid->GetNetReferenceCount() == 1)
+    {
+    this->PolyData->SetSource(NULL);
+    this->StructuredGrid->SetSource(NULL);
+    this->UnstructuredGrid->SetSource(NULL);
+    this->StructuredPoints->SetSource(NULL);
+    this->RectilinearGrid->SetSource(NULL);
+    }
+  
+  this->vtkObject::UnRegister(o);
+}
+
+int vtkCastToConcrete::InRegisterLoop(vtkObject *o)
+{
+  int num = 0;
+  int cnum = 0;
+  
+  if (this->StructuredPoints->GetSource() == this)
+    {
+    num++;
+    cnum += this->StructuredPoints->GetNetReferenceCount();
+    }
+  if (this->RectilinearGrid->GetSource() == this)
+    {
+    num++;
+    cnum += this->RectilinearGrid->GetNetReferenceCount();
+    }
+  if (this->PolyData->GetSource() == this)
+    {
+    num++;
+    cnum += this->PolyData->GetNetReferenceCount();
+    }
+  if (this->StructuredGrid->GetSource() == this)
+    {
+    num++;
+    cnum += this->StructuredGrid->GetNetReferenceCount();
+    }
+  if (this->UnstructuredGrid->GetSource() == this)
+    {
+    num++;
+    cnum += this->UnstructuredGrid->GetNetReferenceCount();
+    }
+  
+  // if no one outside is using us
+  // and our data objects are down to one net reference
+  // and we are being asked by one of our data objects
+  if (this->ReferenceCount == num &&
+      cnum == (num + 1) &&
+      (this->PolyData == o ||
+       this->StructuredPoints == o ||
+       this->RectilinearGrid == o ||
+       this->StructuredGrid == o ||
+       this->UnstructuredGrid == o))
+    {
+    return 1;
+    }
+  return 0;
+}
