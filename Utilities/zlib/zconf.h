@@ -164,7 +164,7 @@
 
 /* Compile with -DZLIB_DLL for Windows DLL support */
 #if defined(ZLIB_DLL)
-#  if defined(_WINDOWS) || defined(WINDOWS)
+#  if defined(NOTUSED_WINDOWS) || defined(NOTUSEDWINDOWS)
 #    ifdef FAR
 #      undef FAR
 #    endif
