@@ -310,7 +310,7 @@ void vtkImageData::AllocateScalars()
   // if the scalar type has not been set then we have a problem
   if (this->ScalarType == VTK_VOID)
     {
-    vtkWarningMacro("Attempt to allcoate scalars before scalar type was set!.");
+    vtkWarningMacro("Attempt to allocate scalars before scalar type was set!.");
     return;
     }
   
