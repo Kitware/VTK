@@ -25,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPyramid, "1.1");
+vtkCxxRevisionMacro(vtkPyramid, "1.2");
 vtkStandardNewMacro(vtkPyramid);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -626,7 +626,7 @@ void vtkPyramid::Derivatives(int vtkNotUsed(subId), double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-// Compute iso-parametrix interpolation functions for pyramid
+// Compute iso-parametric interpolation functions for pyramid
 //
 void vtkPyramid::InterpolationFunctions(double pcoords[3], double sf[5])
 {

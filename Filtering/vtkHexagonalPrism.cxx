@@ -29,10 +29,19 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.2");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.3");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
+
+// You can recompute the value by doing:
+// const double a = sqrt(3.0)/4.0 + 0.5;
+#define EXPRA 0.933012701892219298
+
+// You can recompute the value by doing:
+// const double b = 0.5 - sqrt(3.0)/4.0;
+// Thus EXPRA + EXPRB = 1.0
+#define EXPRB 0.066987298107780702
 
 //----------------------------------------------------------------------------
 // Construct the prism with twelve points.
@@ -206,7 +215,7 @@ int vtkHexagonalPrism::EvaluatePosition(double x[3], double* closestPoint,
 
 //----------------------------------------------------------------------------
 //
-// Compute iso-parametrix interpolation functions
+// Compute iso-parametric interpolation functions
 //
 void vtkHexagonalPrism::InterpolationFunctions(double pcoords[3], double sf[12])
 {
@@ -214,9 +223,8 @@ void vtkHexagonalPrism::InterpolationFunctions(double pcoords[3], double sf[12])
   r = pcoords[0];
   s = pcoords[1];
   t = pcoords[2];
-  double a,b;
-  a = 0.933012701892219298;
-  b = 0.066987298107780702;
+  const double a = EXPRA;
+  const double b = EXPRB;
 
   //First hexagon
   sf[0]  = -16./3.*(r - a  )*(r - b)*(s - 1.0 )*(t - 1.0);
@@ -242,9 +250,8 @@ void vtkHexagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[36]
   r = pcoords[0];
   s = pcoords[1];
   t = pcoords[2];
-  double a,b;
-  a = 0.933012701892219298;
-  b = 0.066987298107780702;
+  const double a = EXPRA;
+  const double b = EXPRB;
   //note: a+b=1.0
 
   // r-derivatives
@@ -703,18 +710,18 @@ void vtkHexagonalPrism::GetFacePoints(int faceId, int* &pts)
 }
 
 static double vtkHexagonalPrismCellPCoords[36] = {
-0.5, 0.0, 0.0,
-0.933012701892219298, 0.25, 0.0,
-0.933012701892219298, 0.75, 0.0,
-0.5, 1.0, 0.0,
-0.066987298107780702, 0.75, 0.0,
-0.066987298107780702, 0.25, 0.0,
-0.5, 0.0, 1.0,
-0.933012701892219298, 0.25, 1.0,
-0.933012701892219298, 0.75, 1.0,
-0.5, 1.0, 1.0,
-0.066987298107780702, 0.75, 1.0,
-0.066987298107780702, 0.25, 1.0,
+  0.5,   0.0 , 0.0,
+  EXPRA, 0.25, 0.0,
+  EXPRA, 0.75, 0.0,
+  0.5,   1.0 , 0.0,
+  EXPRB, 0.75, 0.0,
+  EXPRB, 0.25, 0.0,
+  0.5,   0.0 , 1.0,
+  EXPRA, 0.25, 1.0,
+  EXPRA, 0.75, 1.0,
+  0.5,   1.0 , 1.0,
+  EXPRB, 0.75, 1.0,
+  EXPRB, 0.25, 1.0,
 };
 
 //----------------------------------------------------------------------------

@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.2");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.3");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -207,25 +207,52 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
 
 //----------------------------------------------------------------------------
 //
-// Compute iso-parametrix interpolation functions
+// Compute iso-parametric interpolation functions
 //
+
+// These values are precomputed using:
+// A:
+// ( sqrt(10.0) - sqrt( 5 + sqrt(5.0) ) + sqrt( 5.0 - sqrt( 5 ) ) ) / 8.0
+// B:
+// ( sqrt(10.0) - sqrt( 5 - sqrt(5.0) ) + sqrt( 5.0 + sqrt( 5 ) ) ) / 8.0
+// C:
+// sqrt(10.0)*(sqrt(10+2*sqrt(5.0)))+(sqrt(2.0)+8.0)*(sqrt(10-2*sqrt(5.0)))
+// D:
+// sqrt( 5 - sqrt(5.0)) / 4.0
+// E:
+// sqrt( 5 - sqrt(5.0))(sqrt(10.0)+sqrt(2.0)+8.0)/32
+// F:
+// (2*sqrt(sqrt(5.0) + 5) + sqrt(2.0)*(sqrt(5.0)-5))/16
+// G:
+// (2*sqrt(sqrt(5.0) + 5) - sqrt(2.0)*(sqrt(5.0)-5))/16
+// H:
+// (2 - sqrt(2.0))*sqrt(sqrt(5.0) + 5 ) / 16
+#define EXPRA 0.26684892042779546;
+#define EXPRB 0.52372049461429937;
+#define EXPRC 0.36619991616704034;
+#define EXPRD 0.41562693777745341;
+#define EXPRE 0.65339106685124182;
+#define EXPRF 0.091949871500910163;
+#define EXPRG 0.58054864046304711;
+#define EXPRH 0.098485126908190265;
+#define EXPRN 9.2621670111997307;
+
 void vtkPentagonalPrism::InterpolationFunctions(double pcoords[3], double sf[10])
 {
   double r, s, t;
   r = pcoords[0];
   s = pcoords[1];
   t = pcoords[2];
-  //some constants, it should be possible to express them in function of sqrt(5).
-  double a,b,c,d,e,f,g,h,n; 
-  a = 0.26684892042779546;
-  b = 0.52372049461429937;
-  c = 0.36619991616704034;
-  d = 0.41562693777745341;
-  e = 0.65339106685124182;
-  f = 0.091949871500910163;
-  g = 0.58054864046304711;
-  h = 0.098485126908190265;
-  n = 9.2621670111997307;
+
+  const double a = EXPRA;
+  const double b = EXPRB;
+  const double c = EXPRC;
+  const double d = EXPRD;
+  const double e = EXPRE;
+  const double f = EXPRF;
+  const double g = EXPRG;
+  const double h = EXPRH;
+  const double n = EXPRN;
 
   //First pentagon
   sf[0] = -n*(-a*s + b*r - c)*( b*s - a*r - c)*(t - 1.0);
@@ -233,6 +260,7 @@ void vtkPentagonalPrism::InterpolationFunctions(double pcoords[3], double sf[10]
   sf[2] = -n*( b*s - a*r - c)*(-g*s - f*r + h)*(t - 1.0);
   sf[3] =  n*(-a*s + b*r - c)*( f*s + g*r - h)*(t - 1.0);
   sf[4] = -n*(-g*s - f*r + h)*( d*s + d*r - e)*(t - 1.0);
+
   //Second pentagon
   sf[5] =  n*(-a*s + b*r - c)*( b*s - a*r - c)*(t - 0.0);
   sf[6] = -n*( d*s + d*r - e)*( f*s + g*r - h)*(t - 0.0);
@@ -243,7 +271,7 @@ void vtkPentagonalPrism::InterpolationFunctions(double pcoords[3], double sf[10]
 
 //----------------------------------------------------------------------------
 //
-// Compute iso-parametrix interpolation derivatives
+// Compute iso-parametric interpolation derivatives
 //
 void vtkPentagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[30])
 {
@@ -251,17 +279,16 @@ void vtkPentagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[30
   r = pcoords[0];
   s = pcoords[1];
   t = pcoords[2];
-  //some constants, it should be possible to express them in function of sqrt(5).
-  double a,b,c,d,e,f,g,h,n; 
-  a = 0.26684892042779546;
-  b = 0.52372049461429937;
-  c = 0.36619991616704034;
-  d = 0.41562693777745341;
-  e = 0.65339106685124182;
-  f = 0.091949871500910163;
-  g = 0.58054864046304711;
-  h = 0.098485126908190265;
-  n = 9.2621670111997307;
+
+  const double a = EXPRA;
+  const double b = EXPRB;
+  const double c = EXPRC;
+  const double d = EXPRD;
+  const double e = EXPRE;
+  const double f = EXPRF;
+  const double g = EXPRG;
+  const double h = EXPRH;
+  const double n = EXPRN;
 
   // r-derivatives
   //First pentagon

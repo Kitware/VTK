@@ -24,7 +24,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.1");
+vtkCxxRevisionMacro(vtkTetra, "1.2");
 vtkStandardNewMacro(vtkTetra);
 
 //----------------------------------------------------------------------------
@@ -692,7 +692,7 @@ int vtkTetra::BarycentricCoords(double x[3], double  x1[3], double x2[3],
 
 //----------------------------------------------------------------------------
 //
-// Compute iso-parametrix interpolation functions
+// Compute iso-parametric interpolation functions
 //
 void vtkTetra::InterpolationFunctions(double pcoords[3], double sf[4])
 {

@@ -25,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkWedge, "1.1");
+vtkCxxRevisionMacro(vtkWedge, "1.2");
 vtkStandardNewMacro(vtkWedge);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -654,7 +654,7 @@ void vtkWedge::Derivatives(int vtkNotUsed(subId), double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-// Compute iso-parametrix interpolation functions
+// Compute iso-parametric interpolation functions
 //
 void vtkWedge::InterpolationFunctions(double pcoords[3], double sf[6])
 {

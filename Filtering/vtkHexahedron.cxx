@@ -24,7 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.1");
+vtkCxxRevisionMacro(vtkHexahedron, "1.2");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -193,7 +193,7 @@ int vtkHexahedron::EvaluatePosition(double x[3], double* closestPoint,
 }
 
 //----------------------------------------------------------------------------
-// Compute iso-parametrix interpolation functions
+// Compute iso-parametric interpolation functions
 //
 void vtkHexahedron::InterpolationFunctions(double pcoords[3], double sf[8])
 {

@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.1");
+vtkCxxRevisionMacro(vtkTriangle, "1.2");
 vtkStandardNewMacro(vtkTriangle);
 
 //----------------------------------------------------------------------------
@@ -274,7 +274,7 @@ void vtkTriangle::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-// Compute iso-parametrix interpolation functions
+// Compute iso-parametric interpolation functions
 //
 void vtkTriangle::InterpolationFunctions(double pcoords[3], double sf[3])
 {

@@ -26,7 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuad, "1.1");
+vtkCxxRevisionMacro(vtkQuad, "1.2");
 vtkStandardNewMacro(vtkQuad);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -293,7 +293,7 @@ void vtkQuad::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-// Compute iso-parametrix interpolation functions
+// Compute iso-parametric interpolation functions
 //
 void vtkQuad::InterpolationFunctions(double pcoords[3], double sf[4])
 {
