@@ -73,8 +73,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCubeSource.h"
 #include "vtkConeSource.h"
 #include "vtkCylinderSource.h"
-#include "vtkFloatPoints.h"
-#include "vtkFloatNormals.h"
+#include "vtkPoints.h"
+#include "vtkNormals.h"
 #include "vtkSystemIncludes.h"
 
 // Used later to get the current VRMLImporter
@@ -469,7 +469,7 @@ typedef union {
    */
   
   float           sffloat;
-  vtkFloatPoints  *vec3f;
+  vtkPoints       *vec3f;
   vtkIntArray     *mfint32;
   int             sfint;
 } YYSTYPE;
@@ -4424,7 +4424,7 @@ YY_DECL
 	    YY_USER_ACTION
 	  { if (parsing_mf) yyerror("Double [");
 	  parsing_mf = 1;
-	  yylval.vec3f = vtkFloatPoints::New();
+	  yylval.vec3f = vtkPoints::New();
 	  }
         YY_BREAK
 	  case 20:
@@ -4491,7 +4491,7 @@ YY_DECL
 	YY_USER_ACTION
 	  {   BEGIN NODE; expectToken = 0;
 	  float num[3];
-	  yylval.vec3f = vtkFloatPoints::New();
+	  yylval.vec3f = vtkPoints::New();
 	  num[0] = atof(strtok(yytext, " "));
 	  num[1] = atof(strtok(NULL, " "));
 	  num[2] = atof(strtok(NULL, " "));
@@ -4530,7 +4530,7 @@ YY_DECL
 	    YY_USER_ACTION
 	  { BEGIN NODE; expectToken = 0;
 	  float num[3];
-	  yylval.vec3f = vtkFloatPoints::New();
+	  yylval.vec3f = vtkPoints::New();
 	  num[0] = atof(strtok(yytext, " "));
 	  num[1] = atof(strtok(NULL, " "));
 	  num[2] = atof(strtok(NULL, " "));
@@ -5987,7 +5987,7 @@ vtkVRMLImporter::exitField()
       {
       this->CurrentNormals->Delete();
       }
-    this->CurrentNormals = vtkFloatNormals::New();
+    this->CurrentNormals = vtkNormals::New();
     this->CurrentNormals->SetNumberOfNormals(yylval.vec3f->GetNumberOfPoints());
     for (int i=0;i < yylval.vec3f->GetNumberOfPoints();i++) 
       {
@@ -6054,14 +6054,14 @@ vtkVRMLImporter::useNode(const char *name) {
       this->CurrentActor = _act;
       this->Renderer->AddActor(_act);
       }
-    else if (strcmp(useO->GetClassName(), "vtkFloatPoints") == 0) 
+    else if (strcmp(useO->GetClassName(), "vtkPoints") == 0) 
       {
-      yylval.vec3f = (vtkFloatPoints *) useO;
+      yylval.vec3f = (vtkPoints *) useO;
       if (this->CurrentPoints)
 	{
 	this->CurrentPoints->Delete();
 	}
-      this->CurrentPoints = (vtkFloatPoints *) useO;
+      this->CurrentPoints = (vtkPoints *) useO;
       }
     else if (strcmp(useO->GetClassName(), "vtkLookupTable") == 0) 
       {

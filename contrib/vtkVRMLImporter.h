@@ -97,8 +97,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImporter.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkFloatNormals.h"
-#include "vtkFloatPoints.h"
+#include "vtkNormals.h"
+#include "vtkPoints.h"
 
 class VTK_EXPORT vtkVRMLImporter : public vtkImporter
 {
@@ -144,8 +144,8 @@ private:
   vtkLight             *CurrentLight;
   vtkTransform         *CurrentTransform;
   vtkSource            *CurrentSource;
-  vtkFloatPoints       *CurrentPoints;
-  vtkFloatNormals      *CurrentNormals;
+  vtkPoints            *CurrentPoints;
+  vtkNormals           *CurrentNormals;
   vtkLookupTable       *CurrentLut;
   vtkScalars           *CurrentScalars;
   vtkPolyDataMapper    *CurrentMapper;
