@@ -313,6 +313,13 @@ public:
   // the will have different increments.
   void GetArrayIncrements(vtkDataArray *array, int increments[3]);
 
+  // Description:
+  // Given how many pixel are required on a side for bounrary conditions (in
+  // bnds), the target extent to traverse, compute the internal extent (the
+  // extent for this ImageData that does nto suffer from any boundary
+  // conditions) and place it in intExt
+  void ComputeInternalExtent(int *intExt, int *tgtExt, int *bnds);
+  
 protected:
   vtkImageData();
   ~vtkImageData();
