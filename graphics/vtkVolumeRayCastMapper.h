@@ -115,9 +115,10 @@ public:
   // Description:
   // Initialize rendering for this volume.
   void Render( vtkRenderer *ren, vtkVolume *vol ) {};
+//BTX
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol,
 			 struct VolumeRayCastVolumeInfoStruct *volumeInfo );
-
+//ETX
   // Description:
   // Return the scalar value below which all opacities are zero
   float GetZeroOpacityThreshold( vtkVolume *vol );
@@ -139,8 +140,10 @@ public:
   vtkGetObjectMacro( GradientShader, vtkEncodedGradientShader );
 
 
+//BTX
   void CastViewRay( struct VolumeRayCastRayInfoStruct *rayInfo,
 		    struct VolumeRayCastVolumeInfoStruct *volumeInfo );
+//ETX
 
 protected:
 
@@ -160,8 +163,9 @@ protected:
   void                         *ScalarDataPointer;
   float                        *DepthRangeBufferPointer;
 
+//BTX
   int                          ClipRayAgainstVolume( struct VolumeRayCastRayInfoStruct *rayInfo );
-
+//ETX
   void                         GeneralImageInitialization( vtkRenderer *ren, 
 							   vtkVolume *vol );
 

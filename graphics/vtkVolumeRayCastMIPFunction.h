@@ -89,20 +89,22 @@ public:
     {this->SetMaximizeMethod(VTK_MAXIMIZE_OPACITY);}
   char *GetMaximizeMethodAsString(void);
 
-// BTX
+//BTX
   void CastRay( struct VolumeRayCastRayInfoStruct *rayInfo,
 		struct VolumeRayCastVolumeInfoStruct *volumeInfo );
-// ETX
+//ETX
 
 
 protected:
   int MaximizeMethod;
 
+//BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
 				   vtkVolume   *vol,
 				   struct VolumeRayCastVolumeInfoStruct *volumeInfo,
 				   vtkVolumeRayCastMapper *mapper );
 
+//ETX
 };
 
 

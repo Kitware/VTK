@@ -125,6 +125,7 @@ public:
   // info from the volume property and normal encoder. This initialize
   // routine is called once per render. It also calls the 
   // SpecificFunctionInitialize of the subclass function.
+//BTX
   void FunctionInitialize( vtkRenderer *ren,
 			   vtkVolume   *vol,
 			   struct VolumeRayCastVolumeInfoStruct *volumeInfo,
@@ -132,6 +133,7 @@ public:
 
   virtual void CastRay( struct VolumeRayCastRayInfoStruct *rayInfo,
 			struct VolumeRayCastVolumeInfoStruct *volumeInfo )=0;
+//ETX
 
   // Description:
   // Get the value below which all scalar values are considered to
@@ -148,10 +150,12 @@ protected:
   // Description:
   // This method gives the subclass a chance to do any special
   // initialization that it may need to do
+//BTX
   virtual void SpecificFunctionInitialize( vtkRenderer *ren,
 					   vtkVolume   *vol,
 					   struct VolumeRayCastVolumeInfoStruct *volumeInfo,
 					   vtkVolumeRayCastMapper *mapper )=0;
+//ETX
 };
 
 #endif

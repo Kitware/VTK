@@ -230,8 +230,9 @@ protected:
   // Hang on to a pointer to each volume with a ray cast mapper.
   // We'll also need some information for each of these volumes
   vtkVolume     **RayCastVolumes;
+  //BTX
   struct VolumeRayCastVolumeInfoStruct *VolumeInfo;
-
+  //ETX
   int           RayCastVolumeCount;
   int           SoftwareBufferVolumeCount;
   vtkTransform  *ViewToWorldTransform;

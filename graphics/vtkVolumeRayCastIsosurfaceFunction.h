@@ -89,16 +89,18 @@ public:
   // These variables are filled in by SpecificFunctionInitialize
   float       Color[3];
 
-// BTX
+//BTX
   void CastRay(	struct VolumeRayCastRayInfoStruct *rayInfo,
 		struct VolumeRayCastVolumeInfoStruct *volumeInfo);
-// ETX
+//ETX
 
 protected:
 
+//BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
 				   vtkVolume   *vol,
 				   struct VolumeRayCastVolumeInfoStruct *volumeInfo,
 				   vtkVolumeRayCastMapper *mapper );
+//ETX
 };
 #endif
