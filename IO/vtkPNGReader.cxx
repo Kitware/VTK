@@ -350,7 +350,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
     }
   unsigned char header[8];
   fread(header, 1, 8, fp);
-  bool is_png = !png_sig_cmp(header, 0, 8);
+  int is_png = !png_sig_cmp(header, 0, 8);
   if(!is_png)
     {
     fclose(fp);

@@ -199,7 +199,7 @@ public:
   // Should be implemented by all sub-classes of vtkImageReader2.
   virtual int CanReadFile(const char* fname)
     {
-      return false;
+      return 0;
     }
 
 protected:
