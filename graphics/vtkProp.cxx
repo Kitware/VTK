@@ -312,6 +312,23 @@ float *vtkProp::GetCenter()
 }
 
 // Description:
+// Get the length of the diagonal of the bounding box.
+float vtkProp::GetLength()
+{
+  double diff, l=0.0;
+  int i;
+
+  this->GetBounds();
+  for (i=0; i<3; i++)
+    {
+    diff = this->Bounds[2*i+1] - this->Bounds[2*i];
+    l += diff * diff;
+    }
+ 
+  return (float)sqrt(l);
+}
+
+// Description:
 // Get the prop's x range in world coordinates.
 float *vtkProp::GetXRange()
 {
@@ -370,12 +387,6 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Dragable: " << (this->Dragable ? "On\n" : "Off\n");
 
-  os << indent << "Orientation: (" << this->Orientation[0] << ", " 
-     << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
-
-  os << indent << "Origin: (" << this->Origin[0] << ", " 
-     << this->Origin[1] << ", " << this->Origin[2] << ")\n";
-
   os << indent << "Pickable: " << (this->Pickable ? "On\n" : "Off\n");
 
   if ( this->PickMethod ) os << indent << "Pick Method defined\n";
@@ -383,6 +394,12 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Position: (" << this->Position[0] << ", " 
      << this->Position[1] << ", " << this->Position[2] << ")\n";
+
+  os << indent << "Orientation: (" << this->Orientation[0] << ", " 
+     << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
+
+  os << indent << "Origin: (" << this->Origin[0] << ", " 
+     << this->Origin[1] << ", " << this->Origin[2] << ")\n";
 
   os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
 }

@@ -139,6 +139,7 @@ class VTK_EXPORT vtkProp : public vtkObject
   float *GetXRange();
   float *GetYRange();
   float *GetZRange();
+  float GetLength();
 
   // rotation around axis and arbitrary vector
   void RotateX(float);
@@ -155,7 +156,7 @@ class VTK_EXPORT vtkProp : public vtkObject
   void AddOrientation(float a[3]);
 
   // Method invokes PickMethod() if one defined
-  void Pick() {if (this->PickMethod) (*this->PickMethod)(this->PickMethodArg);}
+  virtual void Pick() {if (this->PickMethod) (*this->PickMethod)(this->PickMethodArg);}
 
 protected:
   vtkMatrix4x4 *UserMatrix;
