@@ -2,6 +2,7 @@
 <header>
 <title>vtk README</title>
 <!-- Created by: will schroeder,  July-1997 -->
+<!-- Changed by: kenneth m martin, 11-Aug-1997 -->
 
 </header>
 <body>
@@ -213,15 +214,15 @@ architecture you wish to build.<p>
        where you've placed your vtk source code, and where to build
        the object code and dll's (we'll call it "vtkbin").
 
-    3. When pcmaker completes, change directories to
-       vtkbin\vtkdll. Then run "nmake" (Microsft compiler) or ""
-       (Borland compiler). This will compile for a LONG time. When
-       it's done, you'll have a vtkdll.dll file in
-       vtkbin\vtkdll\obj. You can then move this file into the
-       appropriate system directory (on Win95: Windows\System; on 
-       NT: WinNT\system). 
+    3. When pcmaker completes, start up a MS-DOS shell window
+       and change directories to vtkbin\vtkdll. Then run 
+       "nmake" (Microsft compiler) or "" (Borland compiler). 
+       This will compile for a LONG time. When it's done, you'll 
+       have a vtkdll.dll file in vtkbin\vtkdll\obj. 
+       You can then move this file into the appropriate system 
+       directory (on Win95: Windows\System; on NT: WinNT\system). 
 
-    4. If you want to use Tcl/Tk on your PC, repeat step 4 above
+    4. If you want to use Tcl/Tk on your PC, repeat step 3 above
        except work in directory vtkbin\vtktcl to create
        vtkbin\vtktcl\vtktcl.dll. Remember to move this file into your
        system area. (You'll also have to have Tcl (e.g., Wish)
