@@ -25,6 +25,13 @@ IF (BUILD_DOC)
 
   FIND_PROGRAM(BASH bash)
 
+ENDIF (BUILD_DOC)
+
+#
+# This part can be duplicated in all branches that need to be documented
+#
+
+IF (BUILD_DOC)
   IF (BASH)
     IF (DOXYGEN)
       IF (MV)
@@ -51,6 +58,5 @@ IF (BUILD_DOC)
       ENDIF (MV)
     ENDIF (DOXYGEN)
   ENDIF (BASH)
-
 ENDIF (BUILD_DOC)
 
