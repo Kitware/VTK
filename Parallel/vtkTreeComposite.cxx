@@ -45,8 +45,10 @@
 #include "vtkTreeComposite.h"
 #include "vtkObjectFactory.h"
 #include "vtkToolkits.h"
+#include "vtkFloatArray.h"
+#include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkTreeComposite, "1.25");
+vtkCxxRevisionMacro(vtkTreeComposite, "1.26");
 vtkStandardNewMacro(vtkTreeComposite);
 
 //-------------------------------------------------------------------------
@@ -67,13 +69,20 @@ vtkTreeComposite::~vtkTreeComposite()
 // Jim's composite stuff
 //-------------------------------------------------------------------------
 // Results are put in the local data.
-void vtkCompositeImagePair(float *localZdata, float *localPdata, 
-                           float *remoteZdata, float *remotePdata, 
+void vtkCompositeImagePair(vtkFloatArray *localZ, 
+			   vtkDataArray *localP, 
+                           vtkFloatArray *remoteZ, 
+			   vtkDataArray *remoteP, 
                            int total_pixels, int useCharFlag) 
 {
   int i,j;
   int pixel_data_size;
   float *pEnd;
+
+  float* remoteZdata = remoteZ->GetPointer(0);
+  float* remotePdata = reinterpret_cast<float*>(remoteP->GetVoidPointer(0));
+  float* localZdata = localZ->GetPointer(0);
+  float* localPdata = reinterpret_cast<float*>(localP->GetVoidPointer(0));
 
   if (useCharFlag) 
     {
@@ -131,8 +140,10 @@ static inline int vtkTCLog2(int j, int& exact)
 }
 
 void vtkTreeComposite::CompositeBuffer(int width, int height, int useCharFlag,
-                                      void *pBuf, float *zBuf,
-                                      void *pTmp, float *zTmp)
+				       vtkDataArray *pBuf, 
+				       vtkFloatArray *zBuf,
+				       vtkDataArray *pTmp, 
+				       vtkFloatArray *zTmp)
 {
   int myId = this->Controller->GetLocalProcessId();
   int numProcs = this->Controller->GetNumberOfProcesses();
@@ -151,14 +162,7 @@ void vtkTreeComposite::CompositeBuffer(int width, int height, int useCharFlag,
 
   totalPixels = width*height;
   zSize = totalPixels;
-  if (this->UseChar) 
-    { 
-    pSize = totalPixels;
-    } 
-  else 
-    {
-    pSize = 4*totalPixels;
-    }
+  pSize = 4*totalPixels;
 
 
   for (i = 0; i < logProcs; i++) 
@@ -174,11 +178,22 @@ void vtkTreeComposite::CompositeBuffer(int width, int height, int useCharFlag,
         // (handles non-power of 2 cases)
         if (id < numProcs) 
           {
-          this->Controller->Receive(zTmp, zSize, id, 99);
-          this->Controller->Receive((float*)pTmp, pSize, id, 99);
+          this->Controller->Receive(zTmp->GetPointer(0), zSize, id, 99);
+	  if (this->UseChar)
+	    {
+	    this->Controller->Receive(reinterpret_cast<unsigned char*>
+				      (pTmp->GetVoidPointer(0)), 
+				      pSize, id, 99);
+	    }
+	  else
+	    {
+	    this->Controller->Receive(reinterpret_cast<float*>
+				      (pTmp->GetVoidPointer(0)), 
+				      pSize, id, 99);
+	    }
           
           // notice the result is stored as the local data
-          vtkCompositeImagePair(zBuf, (float*)pBuf, zTmp, (float*)pTmp, 
+          vtkCompositeImagePair(zBuf, pBuf, zTmp, pTmp, 
                                 totalPixels, useCharFlag);
           }
         }
@@ -187,8 +202,19 @@ void vtkTreeComposite::CompositeBuffer(int width, int height, int useCharFlag,
         id = myId-vtkTCPow2(i);
         if (id < numProcs) 
           {
-          this->Controller->Send(zBuf, zSize, id, 99);
-          this->Controller->Send((float*)pBuf, pSize, id, 99);
+          this->Controller->Send(zBuf->GetPointer(0), zSize, id, 99);
+	  if (this->UseChar)
+	    {
+	    this->Controller->Send(reinterpret_cast<unsigned char*>
+				   (pBuf->GetVoidPointer(0)), 
+				   pSize, id, 99);
+	    }
+	  else
+	    {
+	    this->Controller->Send(reinterpret_cast<float*>
+				   (pBuf->GetVoidPointer(0)), 
+				   pSize, id, 99);
+	    }
           }
         }
       }

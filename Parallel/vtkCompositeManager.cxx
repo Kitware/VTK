@@ -20,6 +20,8 @@
 #include "vtkCallbackCommand.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkToolkits.h"
+#include "vtkFloatArray.h"
+#include "vtkUnsignedCharArray.h"
 
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
@@ -27,7 +29,7 @@
 #include "vtkMesaRenderWindow.h"
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.18");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.19");
 
 // Structures to communicate render info.
 struct vtkCompositeRenderWindowInfo 
@@ -64,6 +66,7 @@ vtkCompositeManager::vtkCompositeManager()
   this->EndInteractorTag = 0;
 
   this->PData = this->ZData = NULL;
+  this->LocalPData = this->LocalZData = NULL;
   
   this->Lock = 0;
   this->UseChar = 0;
@@ -95,6 +98,30 @@ vtkCompositeManager::~vtkCompositeManager()
   if (this->Lock)
     {
     vtkErrorMacro("Destructing while locked!");
+    }
+
+  if (this->PData)
+    {
+    vtkCompositeManager::DeleteArray(this->PData);
+    this->PData = NULL;
+    }
+  
+  if (this->ZData)
+    {
+    vtkCompositeManager::DeleteArray(this->ZData);
+    this->ZData = NULL;
+    }
+
+  if (this->LocalPData)
+    {
+    vtkCompositeManager::DeleteArray(this->LocalPData);
+    this->LocalPData = NULL;
+    }
+  
+  if (this->LocalZData)
+    {
+    vtkCompositeManager::DeleteArray(this->LocalZData);
+    this->LocalZData = NULL;
     }
 }
 
@@ -291,9 +318,10 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
         // This is here for some reason?
         // ren = ren; 
 #ifdef _WIN32
-        // I had a problem with some graphics cards getting front and back buffers
-        // mixed up, so I made the remote render windows single buffered. One nice
-        // feature of this is being able to see the render in these helper windows.
+        // I had a problem with some graphics cards getting front and back
+        // buffers mixed up, so I made the remote render windows single
+        // buffered. One nice feature of this is being able to see the
+        // render in these helper windows.
         vtkWin32OpenGLRenderWindow *renWin;
   
         renWin = vtkWin32OpenGLRenderWindow::SafeDownCast(this->RenderWindow);
@@ -778,6 +806,69 @@ void vtkCompositeManager::InitializeOffScreen()
 }
 
 //-------------------------------------------------------------------------
+
+void vtkCompositeManager::ResizeFloatArray(vtkFloatArray* fa, int numComp,
+					   int size)
+{
+  fa->SetNumberOfComponents(numComp);
+  fa->SetNumberOfTuples(size);
+}
+
+void vtkCompositeManager::ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, 
+						  int numComp, int size)
+{
+  uca->SetNumberOfComponents(numComp);
+  uca->SetNumberOfTuples(size);
+}
+
+void vtkCompositeManager::DeleteArray(vtkDataArray* da)
+{
+  da->Delete();
+}
+
+void vtkCompositeManager::SetUseChar(int useChar)
+{
+  if (useChar != this->UseChar)
+    {
+    this->UseChar = useChar;
+    if (this->PData)
+      {
+      if (useChar && !vtkUnsignedCharArray::SafeDownCast(this->PData))
+	{
+	int size = this->PData->GetNumberOfTuples();
+	this->PData->Delete();
+	this->PData = vtkUnsignedCharArray::New();
+	vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->PData), 4, size);
+	}
+      else if (!useChar && !vtkFloatArray::SafeDownCast(this->PData))
+	{
+	int size = this->PData->GetNumberOfTuples();
+	this->PData->Delete();
+	this->PData = vtkFloatArray::New();
+	vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->PData), 4, size);
+	}
+      }
+    if (this->LocalPData)
+      {
+      if (useChar && !vtkUnsignedCharArray::SafeDownCast(this->LocalPData))
+	{
+	int size = this->LocalPData->GetNumberOfTuples();
+	this->LocalPData->Delete();
+	this->LocalPData = vtkUnsignedCharArray::New();
+	vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->LocalPData), 4, size);
+	}
+      else if (!useChar && !vtkFloatArray::SafeDownCast(this->LocalPData))
+	{
+	int size = this->LocalPData->GetNumberOfTuples();
+	this->LocalPData->Delete();
+	this->LocalPData = vtkFloatArray::New();
+	vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->LocalPData), 4, size);
+	}
+      }
+    this->Modified();
+    }
+}
+
 void vtkCompositeManager::SetRendererSize(int x, int y)
 {
   if (this->RendererSize[0] == x && this->RendererSize[1] == y)
@@ -785,24 +876,75 @@ void vtkCompositeManager::SetRendererSize(int x, int y)
     return;
     }
   
-  if (this->PData)
-    {
-    delete this->PData;
-    this->PData = NULL;
-    }
-  
-  if (this->ZData)
-    {
-    delete this->ZData;
-    this->ZData = NULL;
-    }
   
   int numPixels = x * y;
   if (numPixels > 0)
     {
-    this->PData = new float[4*numPixels];
-    this->ZData = new float[numPixels];
+    if (this->UseChar)
+      {
+      if (!this->PData)
+	{
+	this->PData = vtkUnsignedCharArray::New();
+	}
+      vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->PData), 4, numPixels);
+      if (!this->LocalPData)
+	{
+	this->LocalPData = vtkUnsignedCharArray::New();
+	}
+      vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->LocalPData), 4, numPixels);
+      }
+    else
+      {
+      if (!this->PData)
+	{
+	this->PData = vtkFloatArray::New();
+	}
+      vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->PData), 4, numPixels);
+      if (!this->LocalPData)
+	{
+	this->LocalPData = vtkFloatArray::New();
+	}
+      vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->LocalPData), 4, numPixels);
+      }
+
+    if (!this->ZData)
+      {
+      this->ZData = vtkFloatArray::New();
+      }
+    vtkCompositeManager::ResizeFloatArray(this->ZData, 1, numPixels);
+    if (!this->LocalZData)
+      {
+      this->LocalZData = vtkFloatArray::New();
+      }
+    vtkCompositeManager::ResizeFloatArray(this->LocalZData, 1, numPixels);
     }
+  else
+    {
+    if (this->PData)
+      {
+      vtkCompositeManager::DeleteArray(this->PData);
+      this->PData = NULL;
+      }
+    
+    if (this->ZData)
+      {
+      vtkCompositeManager::DeleteArray(this->ZData);
+      this->ZData = NULL;
+      }
+
+    if (this->LocalPData)
+      {
+      vtkCompositeManager::DeleteArray(this->LocalPData);
+      this->LocalPData = NULL;
+      }
+    
+    if (this->LocalZData)
+      {
+      vtkCompositeManager::DeleteArray(this->LocalZData);
+      this->LocalZData = NULL;
+      }
+    }
+
   this->RendererSize[0] = x;
   this->RendererSize[1] = y;
 }
@@ -816,16 +958,14 @@ float vtkCompositeManager::GetZ(int x, int y)
   if (this->Controller == NULL || this->Controller->GetNumberOfProcesses() == 1)
     {
     int *size = this->RenderWindow->GetSize();
-    float *Zdata;
     
     // Make sure we have default values.
     this->ReductionFactor = 1;
     this->SetRendererSize(size[0], size[1]);
     
     // Get the z buffer.
-    Zdata = this->RenderWindow->GetZbufferData(0,0,size[0]-1, size[1]-1);
-    memcpy(this->ZData, Zdata, size[0]*size[1]*sizeof(float));
-    delete [] Zdata;
+    this->RenderWindow->GetZbufferData(0,0,size[0]-1, size[1]-1, 
+				       this->LocalZData);
     }
   
   if (x < 0 || x >= this->RendererSize[0] || 
@@ -844,14 +984,12 @@ float vtkCompositeManager::GetZ(int x, int y)
     idx = (x + (y * this->RendererSize[0]));
     }
 
-  return this->ZData[idx];
+  return this->LocalZData->GetValue(idx);
 }
 
 //----------------------------------------------------------------------------
 void vtkCompositeManager::Composite()
 {
-  float *localZdata = NULL;
-  float *localPdata = NULL;
   int myId;
   int front;
   
@@ -865,8 +1003,10 @@ void vtkCompositeManager::Composite()
 
   // Get the z buffer.
   timer->StartTimer();
-  localZdata = this->RenderWindow->GetZbufferData(0,0,
-                          this->RendererSize[0]-1, this->RendererSize[1]-1);  
+  this->RenderWindow->GetZbufferData(0,0,
+				     this->RendererSize[0]-1, 
+				     this->RendererSize[1]-1,
+				     this->LocalZData);  
 
   // If we are process 0 and using double buffering, then we want 
   // to get the back buffer, otherwise we need to get the front.
@@ -882,14 +1022,19 @@ void vtkCompositeManager::Composite()
   // Get the pixel data.
   if (this->UseChar) 
     { 
-    localPdata = (float*)this->RenderWindow->GetRGBACharPixelData(0,0,
-                                                  this->RendererSize[0]-1,
-                                                  this->RendererSize[1]-1, front);
+    this->RenderWindow->GetRGBACharPixelData(0,0,
+					     this->RendererSize[0]-1,
+					     this->RendererSize[1]-1, 
+					     front,
+					     static_cast<vtkUnsignedCharArray*>(this->LocalPData));
     } 
   else 
     {
-    localPdata = this->RenderWindow->GetRGBAPixelData(0,0,
-                          this->RendererSize[0]-1, this->RendererSize[1]-1, front);
+    this->RenderWindow->GetRGBAPixelData(0,0,
+					 this->RendererSize[0]-1, 
+					 this->RendererSize[1]-1, 
+					 front,
+					 static_cast<vtkFloatArray*>(this->LocalPData));
     }
   
   timer->StopTimer();
@@ -901,7 +1046,7 @@ void vtkCompositeManager::Composite()
   // collect the results into "localPData" on process 0.
   this->CompositeBuffer(this->RendererSize[0], this->RendererSize[1], 
                         this->UseChar,
-                        localPdata, localZdata,
+                        this->LocalPData, this->LocalZData,
                         this->PData, this->ZData);
     
   timer->StopTimer();
@@ -914,11 +1059,22 @@ void vtkCompositeManager::Composite()
     windowSize[0] = this->RendererSize[0];
     windowSize[1] = this->RendererSize[1];
 
+    vtkDataArray* magPdata = 0;
+    
     if (this->ReductionFactor > 1)
       {
       // localPdata gets freed (new memory is allocated and returned.
       // windowSize get modified.
-      localPdata = this->MagnifyBuffer(localPdata, windowSize);
+      if (this->UseChar)
+	{
+	magPdata = vtkUnsignedCharArray::New();
+	}
+      else
+	{
+	magPdata = vtkFloatArray::New();
+	}
+      magPdata->SetNumberOfComponents(4);
+      this->MagnifyBuffer(this->LocalPData, magPdata, windowSize);
       
       vtkRenderer* renderer =
         ((vtkRenderer*)this->RenderWindow->GetRenderers()->GetItemAsObject(0));
@@ -926,38 +1082,49 @@ void vtkCompositeManager::Composite()
       renderer->GetActiveCamera()->UpdateViewport(renderer);
       }
 
-    // Save the ZData for picking.
-    memcpy(this->ZData, localZdata, 
-           this->RendererSize[0]*this->RendererSize[1]*sizeof(float));
-  
-
     
     timer->StartTimer();
     if (this->UseChar) 
       {
-      this->RenderWindow->SetRGBACharPixelData(0, 0, windowSize[0]-1, 
-                                               windowSize[1]-1,
-                                               (unsigned char*)localPdata, 0);
+      if (magPdata)
+	{
+	this->RenderWindow->SetRGBACharPixelData(0, 0, windowSize[0]-1, 
+						 windowSize[1]-1,
+						 static_cast<vtkUnsignedCharArray*>(magPdata), 0);
+	}
+      else
+	{
+	this->RenderWindow->SetRGBACharPixelData(0, 0, windowSize[0]-1, 
+						 windowSize[1]-1,
+						 static_cast<vtkUnsignedCharArray*>(this->LocalPData), 0);
+	}
       } 
     else 
       {
-      this->RenderWindow->SetRGBAPixelData(0, 0, windowSize[0]-1, 
-                                           windowSize[1]-1,
-                                           localPdata, 0);
+      if (magPdata)
+	{
+	this->RenderWindow->SetRGBAPixelData(0, 0, windowSize[0]-1, 
+					     windowSize[1]-1,
+					     static_cast<vtkFloatArray*>(magPdata), 
+					     0);
+	}
+      else
+	{
+	this->RenderWindow->SetRGBAPixelData(0, 0, windowSize[0]-1, 
+					     windowSize[1]-1,
+					     static_cast<vtkFloatArray*>(this->LocalPData), 
+					     0);
+	}
       }
     timer->StopTimer();
     this->SetBuffersTime = timer->GetElapsedTime();
+
+    if (magPdata)
+      {
+      magPdata->Delete();
+      }
     }
   
-  if (localPdata)
-    {
-    delete [] localPdata;
-    }  
-  if (localZdata)
-    {
-    delete [] localZdata;
-    }
-   
   timer->Delete();
   timer = NULL;
 }
@@ -966,7 +1133,9 @@ void vtkCompositeManager::Composite()
 
 //----------------------------------------------------------------------------
 // We have do do this backward so we can keep it inplace.     
-float* vtkCompositeManager::MagnifyBuffer(float *localPdata, int windowSize[2])
+void vtkCompositeManager::MagnifyBuffer(vtkDataArray* localP, 
+					vtkDataArray* magP,
+					int windowSize[2])
 {
   float *rowp, *subp;
   float *pp1;
@@ -976,19 +1145,23 @@ float* vtkCompositeManager::MagnifyBuffer(float *localPdata, int windowSize[2])
   int   xOutDim, yOutDim;
   // Local increments for input.
   int   pInIncY; 
-  float *newLocalPdata;
+  float *newLocalPData;
   
   xInDim = this->RendererSize[0];
   yInDim = this->RendererSize[1];
   xOutDim = windowSize[0] = this->ReductionFactor * this->RendererSize[0];
   yOutDim = windowSize[1] = this->ReductionFactor * this->RendererSize[1];
   
+  magP->SetNumberOfComponents(4);
+  magP->SetNumberOfTuples(xOutDim*yOutDim);
+  newLocalPData = reinterpret_cast<float*>(magP->GetVoidPointer(0));
+  float* localPdata = reinterpret_cast<float*>(localP->GetVoidPointer(0));
+
   if (this->UseChar)
     {
-    newLocalPdata = new float[xOutDim*yOutDim];
     // Get the last pixel.
     rowp = localPdata;
-    pp2 = newLocalPdata;
+    pp2 = newLocalPData;
     for (y = 0; y < yInDim; y++)
       {
       // Duplicate the row rowp N times.
@@ -1010,11 +1183,10 @@ float* vtkCompositeManager::MagnifyBuffer(float *localPdata, int windowSize[2])
     }
   else
     {
-    newLocalPdata = new float[xOutDim*yOutDim*4];
     // Get the last pixel.
     pInIncY = 4 * xInDim;
     rowp = localPdata;
-    pp2 = newLocalPdata;
+    pp2 = newLocalPData;
     for (y = 0; y < yInDim; y++)
       {
       // Duplicate the row rowp N times.
@@ -1039,8 +1211,6 @@ float* vtkCompositeManager::MagnifyBuffer(float *localPdata, int windowSize[2])
       }
     }
   
-  delete [] localPdata;
-  return newLocalPdata;
 }
   
 

@@ -71,8 +71,8 @@ protected:
   void operator=(const vtkTreeComposite&);
   
   virtual void CompositeBuffer(int width, int height, int useCharFlag,
-                               void *pBuf, float *zBuf,
-                               void *pTmp, float *zTmp);
+                               vtkDataArray *pBuf, vtkFloatArray *zBuf,
+                               vtkDataArray *pTmp, vtkFloatArray *zTmp);
 
 };
 

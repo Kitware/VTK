@@ -61,7 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkQuartzRenderWindow, "1.11");
+vtkCxxRevisionMacro(vtkQuartzRenderWindow, "1.12");
 vtkStandardNewMacro(vtkQuartzRenderWindow);
 
 
@@ -651,7 +651,7 @@ int vtkQuartzRenderWindow::GetPixelData(int x1, int y1,
   int height = abs(y_hi - y_low) + 1;
   int size = 3*width*height;
 
-  if ( data->GetSize() != size)
+  if ( data->GetMaxId()+1 != size)
     {
     data->SetNumberOfComponents(3);
     data->SetNumberOfValues(size);
@@ -759,7 +759,7 @@ int vtkQuartzRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   int height = abs(y_hi - y_low) + 1;
   int size = 3*width*height;
 
-  if ( data->GetSize() != size)
+  if ( data->GetMaxId()+1 != size)
     {
     vtkErrorMacro("Buffer is of wrong size.");
     return VTK_ERROR;
@@ -958,7 +958,7 @@ int vtkQuartzRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 
   int size = 4*width*height;
   
-  if ( data->GetSize() != size)
+  if ( data->GetMaxId()+1 != size)
     {
     data->SetNumberOfComponents(4);
     data->SetNumberOfValues(size);
@@ -1072,7 +1072,7 @@ int vtkQuartzRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   height = abs(y_hi-y_low) + 1;
 
   int size = 4*width*height;
-  if ( data->GetSize() != size )
+  if ( data->GetMaxId()+1 != size )
     {
     vtkErrorMacro("Buffer is of wrong size.");
     return VTK_ERROR;
@@ -1243,7 +1243,7 @@ int vtkQuartzRenderWindow::GetRGBACharPixelData(int x1, int y1,
   int height = abs(y_hi - y_low) + 1;
   int size = 4*width*height;
 
-  if ( data->GetSize() != size)
+  if ( data->GetMaxId()+1 != size)
     {
     data->SetNumberOfComponents(4);
     data->SetNumberOfValues(size);
@@ -1355,7 +1355,7 @@ int vtkQuartzRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2,
   height = abs(y_hi-y_low) + 1;
 
   int size = 4*width*height;
-  if ( data->GetSize() != size )
+  if ( data->GetMaxId()+1 != size )
     {
     vtkErrorMacro("Buffer is of wrong size.");
     return VTK_ERROR;
@@ -1539,7 +1539,7 @@ int vtkQuartzRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
   width =  abs(x2 - x1)+1;
   height = abs(y2 - y1)+1;
   int size = width*height;
-  if ( buffer->GetSize() != size)
+  if ( buffer->GetMaxId()+1 != size)
     {
     buffer->SetNumberOfComponents(1);
     buffer->SetNumberOfValues(size);
@@ -1554,7 +1554,7 @@ int vtkQuartzRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   width =  abs(x2 - x1)+1;
   height = abs(y2 - y1)+1;
   int size = width*height;
-  if ( buffer->GetSize() != size )
+  if ( buffer->GetMaxId()+1 != size )
     {
     vtkErrorMacro("Buffer is of wrong size.");
     return VTK_ERROR;
