@@ -1,7 +1,7 @@
 catch {load vtktcl}
 
 # include get the vtk interactor ui
-source ../../../vtk/examplesTcl/vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 # Generate texture coordinates on a "random" sphere.
 
 # create some random points in a sphere

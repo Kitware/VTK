@@ -1,6 +1,6 @@
 catch {load vtktcl}
 
-source ../../../vtk/examplesTcl/vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 vtkSphereSource sphere
     sphere SetPhiResolution 11

@@ -1,7 +1,7 @@
 catch {load vtktcl}
 
 # include get the vtk interactor ui
-source ../../../vtk/examplesTcl/vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 vtkPoints points
   points InsertNextPoint 2 4 0
