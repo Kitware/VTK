@@ -53,7 +53,7 @@ void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkDirectory::Open(const char* name)
 {
-  char* buf;
+  char* buf=0;
   int n = strlen(name);
   if (name[n - 1] == '/') 
     {
@@ -73,6 +73,7 @@ int vtkDirectory::Open(const char* name)
     {
     this->NumberOfFiles = 0;
     _findclose(srchHandle);
+    delete[] buf;
     return 0;
     }
   

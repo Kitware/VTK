@@ -82,7 +82,20 @@ vtkPDataSetReader::vtkPDataSetReader()
 //----------------------------------------------------------------------------
 vtkPDataSetReader::~vtkPDataSetReader()
 {
+  delete[] this->FileName;
   this->SetNumberOfPieces(0);
+
+  if (this->PieceFileNames[i])
+    {
+    for (i = 0; i < this->NumberOfPieces; ++i)
+      {
+      if (this->PieceFileNames[i])
+	{
+	delete [] this->PieceFileNames[i];
+	this->PieceFileNames[i] = NULL;
+	}
+      }
+    }
 }
 
 
