@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.51");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.52");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 //----------------------------------------------------------------------------
@@ -72,19 +72,19 @@ void vtkRectilinearGrid::Initialize()
 
   if ( this->XCoordinates ) 
     {
-    this->XCoordinates->Delete();
+    this->XCoordinates->UnRegister(this);
     this->XCoordinates = NULL;
     }
 
   if ( this->YCoordinates ) 
     {
-    this->YCoordinates->Delete();
+    this->YCoordinates->UnRegister(this);
     this->YCoordinates = NULL;
     }
 
   if ( this->ZCoordinates ) 
     {
-    this->ZCoordinates->Delete();
+    this->ZCoordinates->UnRegister(this);
     this->ZCoordinates = NULL;
     }
 }

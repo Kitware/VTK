@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.61");
+vtkCxxRevisionMacro(vtkSTLReader, "1.62");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
@@ -401,6 +401,8 @@ void vtkSTLReader::CreateDefaultLocator()
   if ( this->Locator == NULL )
     {
     this->Locator = vtkMergePoints::New();
+    this->Locator->Register(this);
+    this->Locator->Delete();
     }
 }
 
