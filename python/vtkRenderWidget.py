@@ -127,7 +127,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
             vx = float(x)/windowX
             vy = (windowY-float(x))/windowY
             (vpxmin,vpymin,vpxmax,vpymax) = renderer.GetViewport()
-            if (vx >= vpxmin and vy <= vpxmax and
+            if (vx >= vpxmin and vx <= vpxmax and
                 vy >= vpymin and vy <= vpymax):
                 self.__RendererFound = 1
                 self.__CurrentRenderer = renderer
