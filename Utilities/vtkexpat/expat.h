@@ -9,7 +9,7 @@ See the file COPYING for copying permission.
 
 #include <stdlib.h>
 
-#include "expatDllConfig.h"
+#include <vtkexpat/expatDllConfig.h>
 
 #if defined(_WIN32) && !defined(VTK_EXPAT_STATIC)
 #  if defined(vtkexpat_EXPORTS)

@@ -48,8 +48,8 @@
 #undef FAR
 #endif
 
-#include "jpeglib.h"
-#include "jerror.h"
+#define VTK_JPEG_INCLUDE_JERROR
+#include "vtk_jpeg.h"
 
 /*
  * On some machines it may be worthwhile to use _setjmp or sigsetjmp

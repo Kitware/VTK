@@ -11,7 +11,7 @@ const char* vtk_expat_GetXMLRole_RCSId()
   return RCSId;
 }
 
-#include "expatConfig.h"
+#include <vtkexpat/expatConfig.h>
 
 #include "xmlrole.h"
 #include "ascii.h"

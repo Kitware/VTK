@@ -18,15 +18,9 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkToolkits.h" // for VTK_USE_SYSTEM_PNG
+#include "vtk_png.h"
 
-#ifdef VTK_USE_SYSTEM_PNG
-# include <png.h>
-#else
-# include "vtk_png.h"
-#endif
-
-vtkCxxRevisionMacro(vtkPNGWriter, "1.26");
+vtkCxxRevisionMacro(vtkPNGWriter, "1.27");
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkCxxSetObjectMacro(vtkPNGWriter,Result,vtkUnsignedCharArray);

@@ -21,15 +21,11 @@
 #include "vtkUnsignedCharArray.h"
 
 extern "C" {
-#ifdef VTK_USE_SYSTEM_JPEG
-# include <jpeglib.h>
-#else
-# include "vtk_jpeg.h"
-#endif
+#include "vtk_jpeg.h"
 #include <setjmp.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.25");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.26");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);

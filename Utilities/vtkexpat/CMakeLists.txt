@@ -8,7 +8,6 @@ SET(expat_SRCS
 )
 
 INCLUDE_DIRECTORIES(${VTKEXPAT_SOURCE_DIR})
-INCLUDE_DIRECTORIES(${VTKEXPAT_BINARY_DIR})
 
 IF(WIN32)
   IF(NOT BUILD_SHARED_LIBS)
@@ -26,4 +25,4 @@ CONFIGURE_FILE(${VTKEXPAT_SOURCE_DIR}/.NoDartCoverage
 ADD_LIBRARY(vtkexpat ${expat_SRCS})
 
 INSTALL_TARGETS(/lib/vtk vtkexpat)
-INSTALL_FILES(/include/vtk .h expat expatDllConfig)
+INSTALL_FILES(/include/vtk/vtkexpat .h expat expatDllConfig vtk_expat_mangle)

@@ -161,7 +161,7 @@
 #  endif
 #endif
 
-#include "zlibDllConfig.h"
+#include <vtkzlib/zlibDllConfig.h>
 
 /* Compile with -DZLIB_DLL for Windows DLL support */
 #if defined(ZLIB_DLL)

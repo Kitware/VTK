@@ -2,7 +2,6 @@ PROJECT(VTKTIFF)
 INCLUDE_REGULAR_EXPRESSION("^(tif|fax|port|uv|vtk|tconf|t4|mk|z).*$")
 
 INCLUDE_DIRECTORIES(${VTKTIFF_SOURCE_DIR})
-INCLUDE_DIRECTORIES(${VTKTIFF_BINARY_DIR})
 
 # library object files common to compression and decompression
 SET(common_SRCS
@@ -67,4 +66,5 @@ ADD_LIBRARY(vtktiff ${common_SRCS})
 TARGET_LINK_LIBRARIES( vtktiff ${VTK_ZLIB_LIBRARIES} ${VTK_JPEG_LIBRARIES} )
 
 INSTALL_TARGETS(/lib/vtk vtktiff)
-INSTALL_FILES(/include/vtk .h tiffDllConfig tiffvers tiff tiffio tconf)
+INSTALL_FILES(/include/vtk/vtktiff .h tiffDllConfig tiffvers tiff tiffio tconf
+                                      vtk_tiff_mangle)

@@ -95,6 +95,7 @@ SET(VTK_INCLUDE_DIRS_SOURCE_TREE ${VTK_INCLUDE_DIRS_SOURCE_TREE}
   ${VTK_SOURCE_DIR}/Graphics
   ${VTK_SOURCE_DIR}/Filtering
   ${VTK_SOURCE_DIR}/Common
+  ${VTK_SOURCE_DIR}/Utilities
 )
 
 
@@ -106,7 +107,7 @@ SET(VTK_INCLUDE_DIRS_SOURCE_TREE ${VTK_INCLUDE_DIRS_SOURCE_TREE}
 
 #-----------------------------------------------------------------------------
 # Include directories from the build tree.
-SET(VTK_INCLUDE_DIRS_BUILD_TREE ${VTK_BINARY_DIR})
+SET(VTK_INCLUDE_DIRS_BUILD_TREE ${VTK_BINARY_DIR} ${VTK_BINARY_DIR}/Utilities)
 
 #-----------------------------------------------------------------------------
 # Include directories needed for .cxx files in VTK.  These include
@@ -132,11 +133,11 @@ ENDIF (VTK_USE_MATROX_IMAGING)
 
 #-----------------------------------------------------------------------------
 # Include directories for 3rd-party utilities provided by VTK.
-VTK_THIRD_PARTY_INCLUDE(ZLIB zlib)
-VTK_THIRD_PARTY_INCLUDE(JPEG jpeg)
-VTK_THIRD_PARTY_INCLUDE(PNG  png)
-VTK_THIRD_PARTY_INCLUDE(TIFF tiff)
-VTK_THIRD_PARTY_INCLUDE(EXPAT expat)
+VTK_THIRD_PARTY_INCLUDE2(ZLIB)
+VTK_THIRD_PARTY_INCLUDE2(JPEG)
+VTK_THIRD_PARTY_INCLUDE2(PNG)
+VTK_THIRD_PARTY_INCLUDE2(TIFF)
+VTK_THIRD_PARTY_INCLUDE2(EXPAT)
 VTK_THIRD_PARTY_INCLUDE(DICOMParser DICOMParser)
 
 # GL2PS include directory.

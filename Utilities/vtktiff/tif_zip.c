@@ -25,7 +25,7 @@
  */
 
 #ifdef ZIP_SUPPORT
-#include "zlib.h"
+#include "vtk_zlib.h"
 #endif
 
 #include "tiffiop.h"

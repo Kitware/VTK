@@ -3,7 +3,6 @@ PROJECT(VTKJPEG)
 INCLUDE_REGULAR_EXPRESSION("^(jchuff|jconfig|jdct|jdhuff|jerror|jinclude|jmemsys|jmorecfg|jpegint|jpeglib|jversion|jpeg|vtk).*$")
 
 INCLUDE_DIRECTORIES(${VTKJPEG_SOURCE_DIR})
-INCLUDE_DIRECTORIES(${VTKJPEG_BINARY_DIR})
 
 # memmgr back ends: compile only one of these into a working library
 # (For now, let's use the mode that requires the image fit into memory.
@@ -49,4 +48,5 @@ CONFIGURE_FILE(${VTKJPEG_SOURCE_DIR}/jpegDllConfig.h.in
 ADD_LIBRARY(vtkjpeg ${systemdependent_SRCS} ${common_SRCS} ${compression_SRCS} ${decompression_SRCS})
 
 INSTALL_TARGETS(/lib/vtk vtkjpeg)
-
+INSTALL_FILES(/include/vtk/vtkjpeg .h
+  jpegDllConfig jpeglib vtk_jpeg_mangle jconfig jmorecfg jerror)

@@ -37,6 +37,14 @@ MACRO(VTK_THIRD_PARTY_INCLUDE upper lower)
   ENDIF(VTK_USE_SYSTEM_${upper})
 ENDMACRO(VTK_THIRD_PARTY_INCLUDE)
 
+MACRO(VTK_THIRD_PARTY_INCLUDE2 upper)
+  IF(VTK_USE_SYSTEM_${upper})
+    IF(${upper}_INCLUDE_DIR)
+      SET(VTK_INCLUDE_DIRS_SYSTEM ${VTK_INCLUDE_DIRS_SYSTEM} ${${upper}_INCLUDE_DIR})
+    ENDIF(${upper}_INCLUDE_DIR)
+  ENDIF(VTK_USE_SYSTEM_${upper})
+ENDMACRO(VTK_THIRD_PARTY_INCLUDE2)
+
 #-----------------------------------------------------------------------------
 MACRO(VTK_THIRD_PARTY_SUBDIR upper lower)
   IF(NOT VTK_USE_SYSTEM_${upper})

@@ -1,10 +1,10 @@
 # Build third-party utilities.
 
-VTK_THIRD_PARTY_SUBDIR(ZLIB zlib)
-VTK_THIRD_PARTY_SUBDIR(JPEG jpeg)
-VTK_THIRD_PARTY_SUBDIR(PNG  png)
-VTK_THIRD_PARTY_SUBDIR(TIFF tiff)
-VTK_THIRD_PARTY_SUBDIR(EXPAT expat)
+VTK_THIRD_PARTY_SUBDIR(ZLIB vtkzlib)
+VTK_THIRD_PARTY_SUBDIR(JPEG vtkjpeg)
+VTK_THIRD_PARTY_SUBDIR(PNG  vtkpng)
+VTK_THIRD_PARTY_SUBDIR(TIFF vtktiff)
+VTK_THIRD_PARTY_SUBDIR(EXPAT vtkexpat)
 VTK_THIRD_PARTY_SUBDIR(DICOMParser DICOMParser)
 
 SUBDIRS(Doxygen)
@@ -19,3 +19,4 @@ ENDIF(VTK_USE_RENDERING)
 # This is the installed VTKConfig.cmake file configured at the top
 # level.
 INSTALL_FILES(/lib/vtk .cmake VTKConfig)
+INSTALL_FILES(/include/vtk .h vtk_expat vtk_jpeg vtk_png vtk_zlib vtk_tiff)
