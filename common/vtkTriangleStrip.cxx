@@ -285,9 +285,9 @@ void vtkTriangleStrip::DecomposeStrips(vtkCellArray *strips, vtkCellArray *polys
     {
     p1 = pts[0];
     p2 = pts[1];
-    p3 = pts[2];
     for (i=0; i<(npts-2); i++)
       {
+      p3 = pts[i+2];
       polys->InsertNextCell(3);
       if ( (i % 2) ) // flip ordering to preserve consistency
         {
@@ -303,7 +303,6 @@ void vtkTriangleStrip::DecomposeStrips(vtkCellArray *strips, vtkCellArray *polys
         }
       p1 = p2;
       p2 = p3;
-      p3 = pts[3+i];
       }
     }
 }
