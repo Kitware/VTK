@@ -26,7 +26,9 @@ vtkCursor3D
 vtkCutter
 vtkCylinderSource
 vtkDashedStreamLine
+vtkDataObjectToDataSetFilter
 vtkDataSetSurfaceFilter
+vtkDataSetToDataObjectFilter
 vtkDataSetTriangleFilter
 vtkDecimatePro
 vtkDelaunay2D

@@ -6,9 +6,7 @@ vtkColorTransferFunction
 vtkCone
 vtkCylinder
 vtkDataObjectSource
-vtkDataObjectToDataSetFilter
 vtkDataSetSource
-vtkDataSetToDataObjectFilter
 vtkDataSetToDataSetFilter
 vtkDataSetToPolyDataFilter
 vtkDataSetToStructuredGridFilter

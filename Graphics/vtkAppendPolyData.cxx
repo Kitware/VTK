@@ -293,6 +293,7 @@ void vtkAppendPolyData::Execute()
   pPolys = newPolys->WritePointer(numPolys, sizePolys);
 
   // These are created manually for faster execution
+  // Uses the properties of the last input
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::SCALARS) > -1 )
     {
     outputPD->CopyScalarsOff();
@@ -304,24 +305,28 @@ void vtkAppendPolyData::Execute()
     {
     outputPD->CopyVectorsOff();
     newPtVectors = inPD->GetActiveVectors()->MakeObject();
+    newPtVectors->SetName(inPD->GetActiveVectors()->GetName());
     newPtVectors->SetNumberOfTuples(numPts);
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::TENSORS) > -1 )
     {
     outputPD->CopyTensorsOff();
     newPtTensors = inPD->GetActiveTensors()->MakeObject();
+    newPtTensors->SetName(inPD->GetActiveTensors()->GetName());
     newPtTensors->SetNumberOfTuples(numPts);
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::NORMALS) > -1 )
     {
     outputPD->CopyNormalsOff();
     newPtNormals = inPD->GetActiveNormals()->MakeObject();
+    newPtNormals->SetName(inPD->GetActiveNormals()->GetName());
     newPtNormals->SetNumberOfTuples(numPts);
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::TCOORDS) > -1 )
     {
     outputPD->CopyTCoordsOff();
     newPtTCoords = inPD->GetActiveTCoords()->MakeObject();
+    newPtTCoords->SetName(inPD->GetActiveTCoords()->GetName());
     newPtTCoords->SetNumberOfTuples(numPts);
     }
 
