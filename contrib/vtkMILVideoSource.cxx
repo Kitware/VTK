@@ -120,6 +120,8 @@ void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
   
   vtkVideoSource::PrintSelf(os,indent);
   
+  os << indent << "VideoChannel: " << this->VideoChannel << "\n";
+
   os << indent << "ContrastLevel: " << this->ContrastLevel << "\n";
 
   os << indent << "BrightnessLevel: " << this->BrightnessLevel << "\n";
@@ -669,6 +671,7 @@ void vtkMILVideoSource::SetMILErrorMessages(int yesno)
     }
 
   this->MILErrorMessages = yesno;
+  this->Modified();
 
   if (this->Initialized)
     {

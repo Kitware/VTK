@@ -41,17 +41,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkVideoSource - Superclass of video digitizers
 // .SECTION Description
 // vtkVideoSource is a superclass for video input interfaces for VTK.  
-// The most important methods are Grab() (grab a single frame)
-// and Play() (grab frames continuously).
+// The most important methods are Grab() (grab a single frame), 
+// Play() (grab frames continuously), and Stop() (stop grabbing 
+// continuously)
 
 // .SECTION See Also
-// vtkWin32VideoSource
+// vtkWin32VideoSource vtkMILVideoSource
 
 #ifndef __vtkVideoSource_h
 #define __vtkVideoSource_h
 
 #include "vtkTimerLog.h"
-#include "vtkDoubleArray.h"
 #include "vtkMutexLock.h"
 #include "vtkMultiThreader.h"
 #include "vtkImageSource.h"
@@ -66,7 +66,7 @@ public:
 
   // Description:
   // Initialize the hardware.  This is called automatically
-  // on the first Update or Grab)
+  // on the first Update or Grab.
   virtual void Initialize();
 
   // Description:
@@ -75,16 +75,17 @@ public:
   virtual void ReleaseSystemResources();
 
   // Description:
-  // Grab a single frame or multiple frames
+  // Grab a single frame or multiple frames.
   virtual void Grab(int n);
   void Grab() { this->Grab(1); }
 
   // Description:
-  // Go into continuous grab mode
+  // Go into continuous grab mode.  The video source will be
+  // automatically Modified() every time a new frame arrives.
   virtual void Play();
 
   // Description:
-  // End continuous grab mode
+  // End continuous grab mode.
   virtual void Stop();
 
   // Description:
@@ -92,14 +93,16 @@ public:
   vtkGetMacro(Playing,int);
 
   // Description:
-  // Set the frame rate for 'Play' mode.  The default is zero, which forces
-  // one synchronous grab per Update 
+  // Set the frame rate for 'Play' mode.  The default is 30 frames/s 
+  // for most video digitizers.
   vtkSetMacro(FrameRate,float);
   vtkGetMacro(FrameRate,float);
 
   // Description:
-  // Set the full-frame size (must be an allowed size for the device)
-  // Default is usually 320x240x1, but can be device specific.  
+  // Set the full-frame size.  This must be an allowed size for the device,
+  // the device may either refuse a request for an illegal frame size or
+  // automatically choose a new frame size.
+  // The default is usually 320x240x1, but can be device specific.  
   // The 'depth' should always be 1 (unless you have a device that
   // can handle 3D acquisition).
   virtual void SetFrameSize(int dim[3]) { 
@@ -108,8 +111,8 @@ public:
   vtkGetVector3Macro(FrameSize,int);
 
   // Description:
-  // Set the output format (must be appropriate for device,
-  // usually only VTK_LUMINANCE, VTK_RGB, VTK_RGBA) are supported.
+  // Set the output format.  This must be appropriate for device,
+  // usually only VTK_LUMINANCE, VTK_RGB, and VTK_RGBA are supported.
   virtual void SetOutputFormat(int format);
   void SetOutputFormatToLuminance() { this->SetOutputFormat(VTK_LUMINANCE); };
   void SetOutputFormatToRGB() { this->SetOutputFormat(VTK_RGB); };
@@ -117,8 +120,8 @@ public:
   vtkGetMacro(OutputFormat,int);
 
   // Description:
-  // Set size of circular buffer, i.e. the number of frames to store. 
-  // Default is 1.
+  // Set size of the frame buffer, i.e. the number of frames to
+  // store. 
   virtual void SetFrameBufferSize(int FrameBufferSize);
   vtkGetMacro(FrameBufferSize,int);
 
@@ -131,29 +134,27 @@ public:
   vtkGetMacro(NumberOfOutputFrames,int);
 
   // Description:
-  // Set whether to automatically advance the buffer before each grab.
+  // Set whether to automatically advance the buffer before each grab. 
   // Default: on
   vtkBooleanMacro(AutoAdvance,int);
   vtkSetMacro(AutoAdvance,int)
   vtkGetMacro(AutoAdvance,int);
 
   // Description:
-  // Advance the buffer by one frame
+  // Advance the buffer by one frame or n frames. 
   virtual void Advance(int n); 
   virtual void Advance() { this->Advance(-1); };
 
   // Description:
-  // Circulate the buffer to bring the previous image to the top.
-  // If n is negative, then this circulates the buffer in the opposite 
-  // direction.
+  // Rewind the buffer by one frame or n frames.
   virtual void Rewind(int n) { this->Advance(-n); };
   virtual void Rewind() { this->Advance(-1); };
 
   // Description:
   // Set the clip rectangle for the frames.  The video will be clipped 
-  // before it is copied into the framebuffer.  You will not
-  // see the effect until the next Grab.  The default ClipRegion is 
-  // (0,VTK_INT_MAX,0,VTK_INT_MAX,0,VTK_INT_MAX).
+  // before it is copied into the framebuffer.  Changing the ClipRegion
+  // will destroy the current contents of the framebuffer.
+  // The default ClipRegion is (0,VTK_INT_MAX,0,VTK_INT_MAX,0,VTK_INT_MAX).
   virtual void SetClipRegion(int r[6]) { 
     this->SetClipRegion(r[0],r[1],r[2],r[3],r[4],r[5]); };
   virtual void SetClipRegion(int x0, int x1, int y0, int y1, int z0, int z1);
@@ -161,8 +162,9 @@ public:
 
   // Description:
   // Get/Set the WholeExtent of the output.  This can be used to either
-  // clip or pad the video frame.  The clipping/padding is done when
-  // the frame is copied to the output.  It is useful e.g. for expanding 
+  // clip or pad the video frame.  This clipping/padding is done when
+  // the frame is copied to the output, and does not change the contents
+  // of the framebuffer.  This is useful e.g. for expanding 
   // the output size to a power of two for texture mapping.  The
   // default is (0,-1,0,-1,0,-1) which causes the entire frame to be
   // copied to the output.
@@ -176,38 +178,41 @@ public:
   vtkGetVector3Macro(DataSpacing,float);
   
   // Description:
-  // Set/Get the coordinates of the lower,left corner of the frame. 
+  // Set/Get the coordinates of the lower, left corner of the frame. 
   // Default: (0.0,0.0,0.0)
   vtkSetVector3Macro(DataOrigin,float);
   vtkGetVector3Macro(DataOrigin,float);
 
   // Description:
-  // For RGBA output only (4 scalar components), set the opacity.  You will
-  // not see the effect until the next Grab.
+  // For RGBA output only (4 scalar components), set the opacity.  This
+  // will not modify the contents of the framebuffer, only subsequently
+  // grabbed frames.
   vtkSetMacro(Opacity,float);
   vtkGetMacro(Opacity,float);  
 
   // Description:
-  // Enable a video preview window if supported by driver
+  // Enable a video preview window if supported by driver.
   vtkSetMacro(Preview,int);
   vtkBooleanMacro(Preview,int);
   vtkGetMacro(Preview,int);
 
   // Description:
   // Get a time stamp in seconds (resolution of milliseconds) for
-  // a video frame.  Time began on Jan 1, 1970.
+  // a video frame.   Time began on Jan 1, 1970.
   virtual double GetFrameTimeStamp(int frame);
   virtual double GetFrameTimeStamp() { return this->GetFrameTimeStamp(0); };
 
   // Description:
-  // Set this flag to automatically do a grab on each Update
+  // Set this flag to automatically do a grab on each Update.  This might
+  // be less CPU-intensive than Play() for doing screen animations. 
   virtual void SetGrabOnUpdate(int yesno);
   vtkBooleanMacro(GrabOnUpdate,int);
   vtkGetMacro(GrabOnUpdate,int);
 
   // Description:
-  // Internal function which actually does the grab.  You will
-  // definitely want to override this.
+  // The internal function which actually does the grab.  You will
+  // definitely want to override this if you develop a vtkVideoSource
+  // subclass.
   virtual void InternalGrab();
 
   // Description:
