@@ -115,8 +115,6 @@ vtkOpenGLTexture
 vtkOpenGLVolumeTextureMapper2D
 )
 
-INCLUDE (${CMAKE_SOURCE_DIR}/CMake/Modules/FindOpenGL.cmake)
-
 IF (WIN32)
   SOURCE_FILES(RenderingOpenGL_SRCS 
      vtkWin32OpenGLRenderWindow 

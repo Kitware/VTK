@@ -1,1 +1,17 @@
-/* what toolkits to be built */
+
+/* what toolkits was VTK built with */
+#cmakedefine VTK_USE_HYBRID
+#cmakedefine VTK_USE_PARALLEL
+#cmakedefine VTK_USE_PATENTED
+
+/* what rendering libraries to use */
+#cmakedefine OPENGL_LIBRARY
+#ifdef OPENGL_LIBRARY
+  #define VTK_USE_OGLR 
+#endif
+
+#cmakedefine VTK_USE_MESA 
+#cmakedefine VTK_USE_QUARTZ
+
+/* use MPI */
+#cmakedefine VTK_USE_MPI

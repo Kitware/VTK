@@ -24,10 +24,7 @@ vtkRemoveGhostCells
 
 ABSTRACT_FILES( vtkCommunicator )
 
-OPTION (USE_MPI 
-"use MPI (Message Passing Interface) library for parallel support")
-
-IF (USE_MPI)
+IF (VTK_USE_MPI)
   INCLUDE (${CMAKE_SOURCE_DIR}/CMake/Modules/FindMPI.cmake)
   IF (MPI_LIB_PATH)
     SOURCE_FILES ( Parallel_SRCS
@@ -38,7 +35,7 @@ IF (USE_MPI)
   LINK_DIRECTORIES (${MPI_LIB_PATH})
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
   ENDIF (MPI_LIB_PATH)
-ENDIF (USE_MPI)
+ENDIF (VTK_USE_MPI)
 
 ADD_LIBRARY(vtkParallel Parallel_SRCS)
 
