@@ -114,7 +114,7 @@ public:
 
 //BTX
 
-  friend vtkMPICommunicator;
+  friend class vtkMPICommunicator;
 
 //ETX
 

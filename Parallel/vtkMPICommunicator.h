@@ -177,7 +177,7 @@ public:
 
 //BTX
 
-  friend vtkMPIController;
+  friend class vtkMPIController;
 
 //ETX
 

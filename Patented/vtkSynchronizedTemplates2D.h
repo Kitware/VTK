@@ -153,7 +153,7 @@ protected:
 
 private:
   //BTX
-  friend VTK_EXPORT vtkKitwareContourFilter;
+  friend class VTK_EXPORT vtkKitwareContourFilter;
   //ETX
 };
 
