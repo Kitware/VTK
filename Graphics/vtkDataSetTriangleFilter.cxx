@@ -22,7 +22,7 @@
 #include "vtkOrderedTriangulator.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.12");
+vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.13");
 vtkStandardNewMacro(vtkDataSetTriangleFilter);
 
 vtkDataSetTriangleFilter::~vtkDataSetTriangleFilter()
@@ -37,6 +37,10 @@ vtkDataSetTriangleFilter::~vtkDataSetTriangleFilter()
 void vtkDataSetTriangleFilter::Execute()
 {
   vtkDataSet *input = this->GetInput();
+  if (!input)
+    {
+    return;
+    }
   if (input->IsA("vtkStructuredPoints") ||
       input->IsA("vtkStructuredGrid") || 
       input->IsA("vtkImageData"))
