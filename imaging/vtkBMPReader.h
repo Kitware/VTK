@@ -56,6 +56,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The default behavior is to read a single file. In this case, the form
 // of the file is simply "FileName" (e.g., foo.bar, foo.ppm, foo.BMP). 
 
+// .SECTION See Also
+// vtkBMPWriter
+
 #ifndef __vtkBMPReader_h
 #define __vtkBMPReader_h
 
@@ -71,7 +74,9 @@ public:
   const char *GetClassName() {return "vtkBMPReader";};
 
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
+  // Description:
+  // Returns the depth of the BMP, either 8 or 24.
   vtkGetMacro(Depth,int);
 
   unsigned char *Colors;

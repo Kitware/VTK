@@ -55,7 +55,6 @@ public:
   vtkImageGaussianSource();
   static vtkImageGaussianSource *New() {return new vtkImageGaussianSource;};
   const char *GetClassName() {return "vtkImageGaussianSource";};
-  
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -68,9 +67,13 @@ public:
   vtkSetVector3Macro(Center, float);
   vtkGetVector3Macro(Center, float);
 
+  // Description:
+  // Set/Get the Maximum value of the gaussian
   vtkSetMacro(Maximum, float);
   vtkGetMacro(Maximum, float);
 
+  // Description:
+  // Set/Get the standard deviation of the gaussian
   vtkSetMacro(StandardDeviation, float);
   vtkGetMacro(StandardDeviation, float);
 

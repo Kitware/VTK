@@ -58,8 +58,12 @@ public:
   static vtkWin32PolyDataMapper2D *New() 
     {return new vtkWin32PolyDataMapper2D;};
 
+  // Description:
+  // Get the win32 compositing mode for a given actor2d.
   int GetCompositingMode(vtkActor2D* actor);
 
+  // Description:
+  // Actually draw the poly data.
   void Render(vtkViewport* viewport, vtkActor2D* actor);
 
 protected:

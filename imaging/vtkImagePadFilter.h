@@ -55,14 +55,9 @@ class vtkImageCache;
 class VTK_EXPORT vtkImagePadFilter : public vtkImageFilter
 {
 public:
-
-// Description:
-// Constructor sets default values
   vtkImagePadFilter();
-
   static vtkImagePadFilter *New() {return new vtkImagePadFilter;};
   const char *GetClassName() {return "vtkImagePadFilter";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -73,7 +68,8 @@ public:
   void GetOutputWholeExtent(int extent[6]);
   int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
 
-  // Pad the scalar components as well.
+  // Description:
+  // Set/Get the number of output scalar components.
   vtkSetMacro(OutputNumberOfScalarComponents, int);
   vtkGetMacro(OutputNumberOfScalarComponents, int);
   

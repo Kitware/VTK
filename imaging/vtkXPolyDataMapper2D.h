@@ -55,12 +55,15 @@ class VTK_EXPORT vtkXPolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
   const char *GetClassName() {return "vtkXPolyDataMapper2D";};
-
   static vtkXPolyDataMapper2D *New() 
     {return new vtkXPolyDataMapper2D;};
 
+  // Description:
+  // Return the appropriate X compositing mode for an actor.
   int GetCompositingMode(vtkActor2D* actor);
 
+  // Description:
+  // Actually draw the poly data.
   void Render(vtkViewport* viewport, vtkActor2D* actor);
 
 protected:

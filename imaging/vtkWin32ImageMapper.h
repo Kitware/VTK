@@ -57,17 +57,15 @@ class vtkImageActor2D;
 class VTK_EXPORT vtkWin32ImageMapper : public vtkImageMapper
 {
 public:
-
   vtkWin32ImageMapper();
   ~vtkWin32ImageMapper();
-
   static vtkWin32ImageMapper *New() {return new vtkWin32ImageMapper;};
   
   // Description:
   // Called by the Render function in vtkImageMapper.  Actually draws
   // the image to the screen.
   void RenderData(vtkViewport* viewport, vtkImageData* data, 
-		    vtkActor2D* actor);
+		  vtkActor2D* actor);
 
   unsigned char *DataOut;	// the data in the DIBSection
   HBITMAP HBitmap;			// our handle to the DIBSection

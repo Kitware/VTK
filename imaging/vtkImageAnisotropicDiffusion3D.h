@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkImageAnisotropicDiffusion3D - edge preserving smoothing.
+//
 // .SECTION Description
 // vtkImageAnisotropicDiffusion3D  diffuses an volume iteratively.
 // The neighborhood of the diffusion is determined by the instance
@@ -56,8 +57,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // neighbor independantly.  The gradient between the voxel and the neighbor
 // must be below the "DiffusionThreshold" for diffusion to occur with
 // THAT neighbor.
-//  Input and output can be any indpendent data type.
 
+// .SECTION See Also
+// vtkImageAnisotropicDiffusion2D
 
 #ifndef __vtkImageAnisotropicDiffusion3D_h
 #define __vtkImageAnisotropicDiffusion3D_h
@@ -68,21 +70,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageAnisotropicDiffusion3D : public vtkImageSpatialFilter
 {
 public:
-
-// Description:
-// Construct an instance of vtkImageAnisotropicDiffusion3D fitler.
   vtkImageAnisotropicDiffusion3D();
-
   static vtkImageAnisotropicDiffusion3D *New() {return new vtkImageAnisotropicDiffusion3D;};
   const char *GetClassName() {return "vtkImageAnisotropicDiffusion3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
-
-// Description:
-// This method sets the number of inputs which also affects the
-// input neighborhood needed to compute one output pixel.
+  
+  
+  // Description:
+  // This method sets the number of inputs which also affects the
+  // input neighborhood needed to compute one output pixel.
   void SetNumberOfIterations(int num);
-
+  
   // Description:
   // Get the number of iterations.
   vtkGetMacro(NumberOfIterations,int);
@@ -108,12 +106,12 @@ public:
   vtkSetMacro(Corners,int);
   vtkGetMacro(Corners,int);
   vtkBooleanMacro(Corners,int);
+
   // Description:
   // Switch between gradient magnitude threshold and pixel gradient threshold.
   vtkSetMacro(GradientMagnitudeThreshold,int);
   vtkGetMacro(GradientMagnitudeThreshold,int);
   vtkBooleanMacro(GradientMagnitudeThreshold,int);
-  
   
 protected:
   int NumberOfIterations;

@@ -38,11 +38,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageExtractComponents - Outputs a sinlge component
+// .NAME vtkImageExtractComponents - Outputs a single component
 // .SECTION Description
 // vtkImageExtractComponents takes an input with any number of components
 // and outputs some of them.  It does involve a copy of the data.
 
+// .SECTION See Also
+// vtkImageAppendComponents
 
 #ifndef __vtkImageExtractComponents_h
 #define __vtkImageExtractComponents_h
@@ -57,7 +59,6 @@ public:
   static vtkImageExtractComponents *New()
     {return new vtkImageExtractComponents;};
   const char *GetClassName() {return "vtkImageExtractComponents";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

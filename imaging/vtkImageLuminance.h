@@ -5,7 +5,6 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -38,9 +37,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageLuminance - Outputs a sinlge component
+// .NAME vtkImageLuminance - Computes the luminace of the input
 // .SECTION Description
-// vtkImageLuminance calculates luminance from rgb.n
+// vtkImageLuminance calculates luminance from an rgb input.
 
 #ifndef __vtkImageLuminance_h
 #define __vtkImageLuminance_h
@@ -56,7 +55,6 @@ public:
   const char *GetClassName() {return "vtkImageLuminance";};
 
 protected:
-  
   void ExecuteImageInformation();
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);

@@ -57,11 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSobel3D : public vtkImageSpatialFilter
 {
 public:
-
-// Description:
-// Construct an instance of vtkImageSobel3D fitler.
   vtkImageSobel3D();
-
   static vtkImageSobel3D *New() {return new vtkImageSobel3D;};
   const char *GetClassName() {return "vtkImageSobel3D";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -57,7 +57,6 @@ public:
   vtkImagePermute();
   static vtkImagePermute *New() {return new vtkImagePermute;};
   const char *GetClassName() {return "vtkImagePermute";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

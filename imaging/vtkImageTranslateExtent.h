@@ -57,15 +57,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Delt to change "WholeExtent". -1 changes 0->10 to -1->9.
+  // Delta to change "WholeExtent". -1 changes 0->10 to -1->9.
   vtkSetVector3Macro(Translation, int);
   vtkGetVector3Macro(Translation, int);
 
 
-// Description:
-// This method simply copies by reference the input data to the output.
+  // Description:
+  // This method simply copies by reference the input data to the output.
   void InternalUpdate(vtkImageData *outData);
-
 
 protected:
   int Translation[3];

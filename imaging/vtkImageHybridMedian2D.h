@@ -41,14 +41,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageHybridMedian2D - Median filter that preseverse lines and 
 // corners.
 // .SECTION Description
-// vtkImageHybridMedian2D is a median filter that preserves thin lines and 
-// corners.
-// It operates on a 5x5 pixel neighborhood. 
-// It computes two values initially: the median
-// of the + neighbors and the median of the x neighbors.  
-// It the computes the median of these
-// two values plus the center pixel.  
-// This result of this second median is the output pixel value.
+// vtkImageHybridMedian2D is a median filter that preserves thin lines and
+// corners.  It operates on a 5x5 pixel neighborhood.  It computes two values
+// initially: the median of the + neighbors and the median of the x
+// neighbors.  It the computes the median of these two values plus the center
+// pixel.  This result of this second median is the output pixel value.
 
 
 

@@ -58,8 +58,12 @@ public:
   const char *GetClassName() {return "vtkWin32TextMapper";};
   static vtkWin32TextMapper *New() {return new vtkWin32TextMapper;};
 
+  // Description:
+  // Return the Win32 compositing value for an actor.
   int GetCompositingMode(vtkActor2D* actor);
 
+  // Description:
+  // Actally draw the text.
   void Render(vtkViewport* viewport, vtkActor2D* actor);
 
 

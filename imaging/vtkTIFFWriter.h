@@ -41,8 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkTIFFWriter - write out structured points as a TIFF file
 // .SECTION Description
 // vtkTIFFWriter writes structured points as a non-compressed TIFF data file.
-// The orientation of the image is with origin at lower left to correspond
-// with vtk conventions. This can be changed with the SetOrientation method.
 
 #ifndef __vtkTIFFWriter_h
 #define __vtkTIFFWriter_h

@@ -40,11 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageDotProduct - Dot product of two vector images.
 // .SECTION Description
-// vtkImageDotProduct interpretes one axis of the input images as
-// vectors and takes the dot product vector by vector.  The first axis
-// is the vector axis and defaults to VTK_IMAGE_COMPONENT_AXIS.
-// The output collapses the vector axis to the extent (0,0).
-
+// vtkImageDotProduct interpretes the scalar components of two images
+// as vectors and takes the dot product vector by vector (pixel by pixel).
 
 #ifndef __vtkImageDotProduct_h
 #define __vtkImageDotProduct_h

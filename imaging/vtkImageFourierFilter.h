@@ -120,17 +120,17 @@ public:
   // public for templated functions of this object
   //BTX
 
-// Description:
-// This function calculates the whole fft of an array.
-// The contents of the input array are changed.
-// (It is engineered for no decimation)
+  // Description:
+  // This function calculates the whole fft of an array.
+  // The contents of the input array are changed.
+  // (It is engineered for no decimation)
   void ExecuteFft(vtkImageComplex *in, vtkImageComplex *out, int N);
 
 
-// Description:
-// This function calculates the whole fft of an array.
-// The contents of the input array are changed.
-// (It is engineered for no decimation)
+  // Description:
+  // This function calculates the whole fft of an array.
+  // The contents of the input array are changed.
+  // (It is engineered for no decimation)
   void ExecuteRfft(vtkImageComplex *in, vtkImageComplex *out, int N);
 
   //ETX

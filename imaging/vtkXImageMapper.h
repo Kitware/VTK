@@ -66,9 +66,7 @@ class VTK_EXPORT vtkXImageMapper : public vtkImageMapper
 public:
   vtkXImageMapper();
   ~vtkXImageMapper();
-
   static vtkXImageMapper *New() {return new vtkXImageMapper;};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

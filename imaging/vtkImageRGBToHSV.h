@@ -58,14 +58,13 @@ public:
   static vtkImageRGBToHSV *New() 
     {return new vtkImageRGBToHSV;};
   const char *GetClassName() {return "vtkImageRGBToHSV";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Hue is an angle. Maximum specifies when it maps back to 0.
-  // HueMaximum defaults to 255 instead of 2PI, because unsigned char
-  // is expected as input.
-  // Maximum also specifies the maximum of the Saturation.
+
+  // Hue is an angle. Maximum specifies when it maps back to 0.  HueMaximum
+  // defaults to 255 instead of 2PI, because unsigned char is expected as
+  // input.  Maximum also specifies the maximum of the Saturation.
   vtkSetMacro(Maximum,float);
   vtkGetMacro(Maximum,float);
   

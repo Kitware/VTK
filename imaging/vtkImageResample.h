@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageResample - Resamples an image using linear interpolation.
 // .SECTION Description
-// vtkImageResample 
+// vtkImageResample resamples the input image 
 
 
 #ifndef __vtkImageResample_h
@@ -64,7 +64,7 @@ public:
   // Set desired spacing.  
   // Zero is a reserved value indicating spacing has not been set.
   void SetAxisOutputSpacing(int axis, float spacing);
-
+  
   // Description:
   // Set/Get Magnification factors.
   // Zero is a reserved value indicating values have not been computed.

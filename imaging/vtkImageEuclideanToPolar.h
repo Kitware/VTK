@@ -61,8 +61,7 @@ public:
   // Description:
   // Theta is an angle. Maximum specifies when it maps back to 0.
   // ThetaMaximum defaults to 255 instead of 2PI, because unsigned char
-  // is expected as input.
-  // Output type must be the same as input type.
+  // is expected as input. The output type must be the same as input type.
   vtkSetMacro(ThetaMaximum,float);
   vtkGetMacro(ThetaMaximum,float);
   

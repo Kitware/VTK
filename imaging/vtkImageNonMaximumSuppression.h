@@ -38,13 +38,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageNonMaximumSuppression - Thins Gradient images.
+// .NAME vtkImageNonMaximumSuppression - Performs non-maximum suppression
 // .SECTION Description
-// vtkImageNonMaximumSuppression Sets to zero any gradient
-// that is not a peak.  If a pixel has a neighbor along the gradient
-// that has larger magnitude, the smaller pixel is set to zero.
-// The filter takes two inputs: a gradient magnitude and a gradient vector.
-// Output is magnitude information and is always in floats.
+// vtkImageNonMaximumSuppression Sets to zero any pixel that is not a peak.
+// If a pixel has a neighbor along the vector that has larger magnitude, the
+// smaller pixel is set to zero.  The filter takes two inputs: a magnitude
+// and a vector.  Output is magnitude information and is always in floats.
+// Typically this filter is used with vtkImageGradient and
+// vtkImageGradientMagnitude as inputs.
 
 
 #ifndef __vtkImageNonMaximumSuppression_h
@@ -58,18 +59,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
 {
 public:
-
-// Description:
-// Construct an instance of vtkImageNonMaximumSuppression fitler.
   vtkImageNonMaximumSuppression();
-
   static vtkImageNonMaximumSuppression *New() {return new vtkImageNonMaximumSuppression;};
   const char *GetClassName() {return "vtkImageNonMaximumSuppression";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Rename the inputs.
+  // Set the magnitude and vector inputs.
   void SetMagnitudeInput(vtkImageCache *input) {this->SetInput1(input);};
   void SetMagnitudeInput(vtkStructuredPoints *input) {this->SetInput1(input);};
   void SetVectorInput(vtkImageCache *input) {this->SetInput2(input);};
@@ -83,7 +79,7 @@ public:
   vtkBooleanMacro(HandleBoundaries, int);
 
   // Description:
-  // Determines how the input is interpreted (set of 2d slices ...)
+  // Determines how the input is interpreted (set of 2d slices or a 3D volume)
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
   

@@ -45,6 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // already has the correct type.  To specify the "CastTo" type,
 // use "SetOutputScalarType" method.
 
+// .SECTION See Also
+// vtkImageThreshold vtkImageShiftScale
 
 #ifndef __vtkImageCast_h
 #define __vtkImageCast_h
@@ -60,6 +62,10 @@ public:
   const char *GetClassName() {return "vtkImageCast";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Set the desired output scalar type to cast to
+  vtkSetMacro(OutputScalarType,int);
+  vtkGetMacro(OutputScalarType,int);
   void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);}
   void SetOutputScalarTypeToInt(){this->SetOutputScalarType(VTK_INT);}
   void SetOutputScalarTypeToShort(){this->SetOutputScalarType(VTK_SHORT);}
@@ -67,11 +73,6 @@ public:
     {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
-
-  // Description:
-  // Set the desired output scalar type to cast to
-  vtkSetMacro(OutputScalarType,int);
-  vtkGetMacro(OutputScalarType,int);
 
   // Description:
   // When the ClampOverflow flag is on, the data is thresholded so that

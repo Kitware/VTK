@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageMapper - 2D image display
 // .SECTION Description
 // vtkImageMapper provides 2D image display support for vtk.
-// It is a Mapper2D that can be associated with an Actor2D
+// It is a Mapper2D subclass that can be associated with an Actor2D
 // and placed withint a RenderWindow or ImageWindow.
 
 // .SECTION See Also
@@ -65,7 +65,6 @@ class VTK_EXPORT vtkImageMapper : public vtkMapper2D
 public:
   vtkImageMapper();
   ~vtkImageMapper();
-
   const char *GetClassName() {return "vtkImageMapper";};
   static vtkImageMapper *New();
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -81,9 +80,8 @@ public:
   vtkGetMacro(ColorLevel, float);
 
   // Description:
-  // Set/Get the input for the image mapper.  The 
-  // input can be either a vtkImageCache or a 
-  // vtkStructuredPoints data set.
+  // Set/Get the input for the image mapper.  The input can be either a
+  // vtkImageCache or a vtkStructuredPoints data set.
   vtkSetReferenceCountedObjectMacro(Input, vtkImageCache);
   vtkGetObjectMacro(Input,vtkImageCache);
   void SetInput(vtkStructuredPoints *spts)
@@ -107,10 +105,11 @@ public:
   void Render(vtkViewport* viewport, vtkActor2D* actor);
 
   // Description:
-  // Function called by Render to actually draw the image to
-  // to the screen
+  // Function called by Render to actually draw the image to to the screen
   virtual void RenderData(vtkViewport* , vtkImageData *, vtkActor2D* )=0; 
 
+  // Description:
+  // Methods used internally for performing the Window/Level mapping.
   float GetColorShift();
   float GetColorScale();
 

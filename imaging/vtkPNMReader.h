@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkPNMReader - read pnm (i.e., portable anymap) files
+
 // .SECTION Description
 // vtkPNMReader is a source object that reads pnm (portable anymap) files.
 // This includes .pbm (bitmap), .pgm (grayscale), and .ppm (pixmap) files.
@@ -49,15 +50,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // results in a 2D image, while reading more than one file results in a 
 // 3D volume.
 //
-// To read a volume, files must be of the form "FileName.<number>"
-// (e.g., foo.ppm.0, foo.ppm.1, ...). You must also specify the image 
-// range. This range specifies the beginning and ending files to read (range
-// can be any pair of non-negative numbers). 
-//
-// The default behavior is to read a single file. In this case, the form
-// of the file is simply "FileName" (e.g., foo.bar, foo.ppm, foo.pnm). To 
-// differentiate between reading images and volumes, the image range is set
-// to  (-1,-1) to read a single image file.
+// To read a volume, files must be of the form "FileName.<number>" (e.g.,
+// foo.ppm.0, foo.ppm.1, ...). You must also specify the DataExtent.  The
+// fifth and sixth values of the DataExtent specify the beginning and ending
+// files to read.
+
 
 #ifndef __vtkPNMReader_h
 #define __vtkPNMReader_h

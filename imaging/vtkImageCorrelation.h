@@ -61,12 +61,12 @@ public:
   static vtkImageCorrelation *New() {return new vtkImageCorrelation;};
   const char *GetClassName() {return "vtkImageCorrelation";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
-    // Description:
+  
+  // Description:
   // Determines how the input is interpreted (set of 2d slices ...)
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
-
+  
 protected:
   int Dimensionality;
   void ExecuteImageInformation();

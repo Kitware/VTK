@@ -40,7 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkTIFFReader - read TIFF files
 // .SECTION Description
-// vtkTIFFReader is a source object that reads TIFF files.
+// vtkTIFFReader is a source object that reads TIFF files. This object
+// only supports reading a subset of the TIFF formats. Specifically,
+// it will not read LZ compressed TIFFs.
 //
 // TIFFReader creates structured point datasets. The dimension of the 
 // dataset depends upon the number of files read. Reading a single file 
@@ -49,11 +51,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // To read a volume, files must be of the form "FileName.<number>"
 // (e.g., foo.tiff.0, foo.tiff.1, ...). You must also specify the image 
-// range. This range specifies the beginning and ending files to read (range
-// can be any pair of non-negative numbers). 
-//
-// The default behavior is to read a single file. In this case, the form
-// of the file is simply "FileName" (e.g., foo.bar, foo.ppm, foo.TIFF). 
+// range. This range specifies the beginning and ending files to read.
+// The range is specified by setting fifth and sixth values of the 
+// DataExtent.
 
 #ifndef __vtkTIFFReader_h
 #define __vtkTIFFReader_h

@@ -38,14 +38,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageWindow - 2D display window
+// .NAME vtkImageWindow - a 2D display window
 // .SECTION Description
-// vtkImageWindow contains 2D rendering in vtk. 
-// Typically a vtkImageWindow has some vtkImagers within it.
-// The imagers in turn display images, Text etc.
+// vtkImageWindow contains 2D rendering in vtk. Typically a vtkImageWindow
+// has some vtkImagers within it.  The imagers in turn display images, Text
+// etc. The concept is very similar to that of a RenderWindow for 3d.
 
 // .SECTION See Also
-// vtkImager vtkWindow
+// vtkImager vtkWindow vtkRenderWindow
 
 #ifndef __vtkImageWindow_h
 #define __vtkImageWindow_h
@@ -63,11 +63,10 @@ class VTK_EXPORT vtkImageWindow : public vtkWindow
 {
 public:
 
-// Description:
-// Creates a vtkImageWindow with 
-// background erasing disabled and gray scale hint off
+  // Description:
+  // Creates a vtkImageWindow with 
+  // background erasing disabled and gray scale hint off
   vtkImageWindow();
-
   ~vtkImageWindow();
 
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -112,10 +111,14 @@ public:
   // double buffering, invoke DoubleBufferOn
   virtual void SwapBuffers() = 0;
 
+  // Description:
   // useful for scripting languages
   virtual void SetWindowInfo(char *) 
       { vtkErrorMacro(<<"vtkImageWindow::SetWindowInfo - Not implemented"); };
 
+  // Description:
+  // By default this is a color viewer.  GrayScaleHintOn will improve the
+  // appearance of gray scale images on some systems.
   vtkSetMacro(GrayScaleHint, int);
   vtkGetMacro(GrayScaleHint, int);
   vtkBooleanMacro(GrayScaleHint, int);
@@ -142,17 +145,10 @@ public:
   virtual void SaveImageAsPPM();
 
   // Description:
-  // Open a PPM file
+  // Open/Write/Close a PPM file
   virtual  int OpenPPMImageFile();
-
-  // Description:
-  // Write a PPM file
   virtual void WritePPMImageFile();
-
-  // Description:
-  // Close the PPM file
   virtual void ClosePPMImageFile();
-
 
   // Description:
   // Set/Get the FileName used for saving images. See the SaveImageAsPPM 

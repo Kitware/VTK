@@ -55,16 +55,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageLogarithmicScale : public vtkImageFilter
 {
 public:
-
-// Description:
-// Constructor sets default values
   vtkImageLogarithmicScale();
-
   static vtkImageLogarithmicScale *New() {return new vtkImageLogarithmicScale;};
   const char *GetClassName() {return "vtkImageLogarithmicScale";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Set/Get the scale factor for the logarithmic funciton.
   vtkSetMacro(Constant,float);
   vtkGetMacro(Constant,float);
   

@@ -40,12 +40,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageSpatialFilter - Filters that operate on pixel neighborhoods.
 // .SECTION Description
-// vtkImageSpatialFilter is a super class for filters that operate on
-// an input neighborhood for each output pixel.  It is setup to for
-// any dimensionality.  It handels even sized neighborhoods, but their can be
-// a half pixel shift associated with processing.  This superclass has some
-// logic for handling boundaries.  It can split regions into boundary and 
-// non-boundary pieces and call different execute methods.
+// vtkImageSpatialFilter is a super class for filters that operate on an
+// input neighborhood for each output pixel. It handels even sized
+// neighborhoods, but their can be a half pixel shift associated with
+// processing.  This superclass has some logic for handling boundaries.  It
+// can split regions into boundary and non-boundary pieces and call different
+// execute methods.
 
 
 #ifndef __vtkImageSpatialFilter_h
@@ -57,15 +57,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSpatialFilter : public vtkImageFilter
 {
 public:
-
-// Description:
-// Construct an instance of vtkImageSpatialFilter fitler.
   vtkImageSpatialFilter();
-
   static vtkImageSpatialFilter *New() {return new vtkImageSpatialFilter;};
   const char *GetClassName() {return "vtkImageSpatialFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Get the Kernel size.
   int *GetKernelSize() {return this->KernelSize;}
   
   // users shouldn't access these directly but templated functions need to

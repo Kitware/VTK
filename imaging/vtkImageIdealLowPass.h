@@ -40,10 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageIdealLowPass - Simple frequency domain band pass.
 // .SECTION Description
-// vtkImageIdealLowPass just sets a portion of the image to zero.
-// The result is an image with a lot of ringing.
-// Input and Output must be floats.  Dimensionality is set when the
-// axes are set.  Defaults to 2D on X and Y axes.
+// vtkImageIdealLowPass just sets a portion of the image to zero.  The result
+// is an image with a lot of ringing.  Input and Output must be floats.
+// Dimensionality is set when the axes are set.  Defaults to 2D on X and Y
+// axes.
 
 
 
@@ -60,7 +60,6 @@ public:
   static vtkImageIdealLowPass *New() 
     {return new vtkImageIdealLowPass;};
   const char *GetClassName() {return "vtkImageIdealLowPass";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -54,10 +54,7 @@ class VTK_EXPORT vtkImageDifference : public vtkImageTwoInputFilter
 {
 public:
 
-// Description:
-// Construct object to extract all of the input data.
   vtkImageDifference();
-
   static vtkImageDifference *New() {return new vtkImageDifference;};
   const char *GetClassName() {return "vtkImageDifference";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -75,11 +72,13 @@ public:
   vtkImageCache *GetInput() {return this->GetInput1();}
 
   // Description:
-  // Return the error in comparing the two images.
+  // Return the total error in comparing the two images.
   vtkGetMacro(Error,float);
   
   // Description:
-  // Return the thresholded error in comparing the two images.
+  // Return the total thresholded error in comparing the two images.
+  // The thresholded error is the error for a given pixel minus the
+  // threshold and clamped at a minimum of zero. 
   vtkGetMacro(ThresholdedError,float);
 
   // Description:

@@ -53,14 +53,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMagnify : public vtkImageFilter
 {
 public:
-
-// Description:
-// Constructor: Sets default filter to be identity.
   vtkImageMagnify();
-
   static vtkImageMagnify *New() {return new vtkImageMagnify;};
   const char *GetClassName() {return "vtkImageMagnify";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -69,7 +64,7 @@ public:
   vtkGetVector3Macro(MagnificationFactors,int);
   
   // Description:
-  // Turn interpolation on and off (pixel replication)
+  // Turn interpolation on and off (pixel replication used when off)
   vtkSetMacro(Interpolate,int);
   vtkGetMacro(Interpolate,int);
   vtkBooleanMacro(Interpolate,int);

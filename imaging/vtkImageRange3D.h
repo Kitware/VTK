@@ -56,25 +56,17 @@ class vtkImageEllipsoidSource;
 class VTK_EXPORT vtkImageRange3D : public vtkImageSpatialFilter
 {
 public:
-
-// Description:
-// Construct an instance of vtkImageRange3D fitler.
-// By default zero values are dilated.
   vtkImageRange3D();
-
   ~vtkImageRange3D();
   static vtkImageRange3D *New() 
     {return new vtkImageRange3D;};
   const char *GetClassName() {return "vtkImageRange3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  // Set/Get the size of the neighood.
-
-// Description:
-// This method sets the size of the neighborhood.  It also sets the 
-// default middle of the neighborhood and computes the eliptical foot print.
+  // Description:
+  // This method sets the size of the neighborhood.  It also sets the 
+  // default middle of the neighborhood and computes the eliptical foot print.
   void SetKernelSize(int size0, int size1, int size2);
-
   
 protected:
   vtkImageEllipsoidSource *Ellipse;

@@ -40,11 +40,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageHSVToRGB - Converts HSV components to RGB.
 // .SECTION Description
-// For each pixel with hue, saturation and value compnents this
-// filter output the color coded as red, green, blue.
-// Output type must be the same as input type.
+// For each pixel with hue, saturation and value components this filter
+// outputs the color coded as red, green, blue.  Output type must be the same
+// as input type.
 
-
+// .SECTION See Also
+// vtkImageRGBToHSV
 
 #ifndef __vtkImageHSVToRGB_h
 #define __vtkImageHSVToRGB_h

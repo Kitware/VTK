@@ -42,6 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkImageReader provides methods needed to read a region from a file.
 
+// .SECTION See Also
+// vtkBMPReader vtkPNMReader vtkTIFFReader
 
 #ifndef __vtkImageReader_h
 #define __vtkImageReader_h
@@ -82,6 +84,12 @@ public:
   void SetFilePattern(char *);
   vtkGetStringMacro(FilePattern);
 
+  // Description:
+  // Set the data type of pixles in the file.  
+  // As a convienience, the OutputScalarType is set to the same value.
+  // If you want the output scalar type to have a different value, set it
+  // after this method is called.
+  void SetDataScalarType(int type);
   void SetDataScalarTypeToFloat(){this->SetDataScalarType(VTK_FLOAT);}
   void SetDataScalarTypeToInt(){this->SetDataScalarType(VTK_INT);}
   void SetDataScalarTypeToShort(){this->SetDataScalarType(VTK_SHORT);}
@@ -89,13 +97,6 @@ public:
     {this->SetDataScalarType(VTK_UNSIGNED_SHORT);}
   void SetDataScalarTypeToUnsignedChar()
     {this->SetDataScalarType(VTK_UNSIGNED_CHAR);}
-
-// Description:
-// Set the data type of pixles in the file.  
-// As a convienience, the OutputScalarType is set to the same value.
-// If you want the output scalar type to have a different value, set it
-// after this method is called.
-  void SetDataScalarType(int type);
 
   // Description:
   // Get the file format.  Pixels are this type in the file.
@@ -133,13 +134,13 @@ public:
   vtkGetVector3Macro(DataOrigin,float);
 
 
-// Description:
-// Returns the cache.
+  // Description:
+  // Returns the cache.
   vtkImageCache *GetOutput();
 
 
-// Description:
-// This method returns the largest data that can be generated.
+  // Description:
+  // This method returns the largest data that can be generated.
   void UpdateImageInformation();
 
   

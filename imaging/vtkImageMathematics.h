@@ -38,12 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMathematics - Add, subtract, multiply, divide, invert,
-// sin, cos, exp, log.
+// .NAME vtkImageMathematics - Add, subtract, multiply, divide, invert, sin, cos, exp, log.
 // .SECTION Description
-// vtkImageMathematics implents basic mathematic operations 
-// SetOperation is used to select the filteres behavior.
-// The filter can take two or one input.
+// vtkImageMathematics implents basic mathematic operations SetOperation is
+// used to select the filteres behavior.  The filter can take two or one
+// input.
 
 
 #ifndef __vtkImageMathematics_h
@@ -75,7 +74,6 @@ public:
   vtkImageMathematics();
   static vtkImageMathematics *New() {return new vtkImageMathematics;};
   const char *GetClassName() {return "vtkImageMathematics";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -97,11 +97,10 @@ public:
   vtkGetMacro(UnconnectedValue, unsigned char);
 
 
-// Description:
-// Input a data of 0's and "UnconnectedValue"s. Seeds of this object are 
-// used to find connected pixels.
-// All pixels connected to seeds are set to ConnectedValue.  
-// The data has to be unsigned char.
+  // Description:
+  // Input a data of 0's and "UnconnectedValue"s. Seeds of this object are
+  // used to find connected pixels.  All pixels connected to seeds are set to
+  // ConnectedValue.  The data has to be unsigned char.
   void MarkData(vtkImageData *data, int dimensionality, int ext[6]);
 
 

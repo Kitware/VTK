@@ -61,76 +61,58 @@ public:
   HWND      WindowId;
   HWND      ParentId;
 
-  // ###
+  // Description:
+  // Swap the front and back buffers. Normally not called by the user.
   void SwapBuffers();
 
   vtkWin32ImageWindow();
   ~vtkWin32ImageWindow();
   static vtkWin32ImageWindow *New() {return new vtkWin32ImageWindow;};
   const char *GetClassName() {return "vtkWin32ImageWindow";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // output to the viewer.
   vtkWin32ImageWindow *GetOutput(){return this;};
   
   //BTX
-  void SetDisplayId(void *foo) {vtkDebugMacro(<<"SetDisplayID not implemented");};
 
-// Description:
-// Get the window id.
+  // Description:
+  // Set/Get the window id and parent window id.
   HWND GetWindowId(); 
-
   void SetWindowId(void* id) {this->WindowId = (HWND) id;};
   void SetParentId(void* id) {this->ParentId = (HWND) id;};
-  void SetDeviceContext(void* dc) {this->DeviceContext = (HDC) dc;};
-
-// Description:
-// Set the window id to a pre-existing window.
   void SetWindowId(HWND);
-
-
-// Description:
-// Set the window id to a pre-existing window.
   void SetParentId(HWND);
 
+  void SetDeviceContext(void* dc) {this->DeviceContext = (HDC) dc;};
   void SetDeviceContext(HDC);
+  void SetDisplayId(void *foo) {vtkDebugMacro(<<"SetDisplayID not implemented");};
 
   void *GetGenericDisplayId() 
         {vtkDebugMacro(<<"Display ID not implemented in Win32."); return (void*) NULL;};
   void *GetGenericWindowId() {return (void*) this->WindowId;};
   void *GetGenericParentId() {return (void*) this->ParentId;};
   void *GetGenericContext() {return (void*) this->DeviceContext;};
- 
-
   //ETX
 
+  // Description:
+  // Set/Get the current size of the window.
   void   SetSize(int,int);
-
-// Description:
-// Get the current size of the window.
   int   *GetSize();
 
-
-// Description:
-// Get the position in screen coordinates of the window.
+  // Description:
+  // Set/Get the position in screen coordinates of the window.
   int   *GetPosition();
-
   void   SetPosition(int,int);
-  void PenLineTo(int x,int y);
-  void PenMoveTo(int x,int y);
-  void SetPenColor(float r,float g,float b);
 
-  // Pen for 2D graphics line drawing
-  HPEN Pen;
-
+  // Description:
+  // Set the desired background color for the window.
   void SetBackgroundColor(float r, float g, float b);
+
+  // Description:
+  // Erase the window. Normally nor called by the user.
   void EraseWindow();
 
-  // Pen color for the graphics;
-  COLORREF PenColor;
-
-  // ###
   unsigned char *GetDIBPtr();
   unsigned char *GetPixelData(int x1, int y1, int x2, int y2, int);
 

@@ -38,12 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageGaussianSmooth - Performs a 1 dimensional convilution.
+// .NAME vtkImageGaussianSmooth - Performs a gaussian convolution.
 // .SECTION Description
-// vtkImageGaussianSmooth implements a 1d convolution along any axis.  
-// It is used in higher level filter which decompose their convolution 
-// (i.e. 2d Gaussian smoothing)
-
+// vtkImageGaussianSmooth implements a convolution of the input image
+// with a gaussian. Supports from one to three dimensional convolutions.
 
 #ifndef __vtkImageGaussianSmooth_h
 #define __vtkImageGaussianSmooth_h
@@ -54,29 +52,47 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageGaussianSmooth : public vtkImageFilter
 {
 public:
+  // Description:
+  // Creates an instance of vtkImageGaussianSmmoth with the following
+  // defaults: Dimensioonality 3, StandardDeviations( 2, 2, 2), 
+  // Radius Factors ( 1.5, 1.5, 1.5)
   vtkImageGaussianSmooth();
+
   ~vtkImageGaussianSmooth();
   static vtkImageGaussianSmooth *New() {return new vtkImageGaussianSmooth;};
   const char *GetClassName() {return "vtkImageGaussianSmooth";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
+  
+  // Description:
+  // Sets/Gets the Standard deviation of the gaussian in pixel units.
   vtkSetVector3Macro(StandardDeviations, float);
   void SetStandardDeviation(float std)
         {this->SetStandardDeviations(std,std,std);}
   void SetStandardDeviations(float a,float b)
         {this->SetStandardDeviations(a,b,0.0);}
   vtkGetVector3Macro(StandardDeviations, float);
-  // for compatability with old scripts
+
+  // Description:
+  // Sets/Gets the Standard deviation of the gaussian in pixel units.
+  // These methods are provided for compatability with old scripts
   void SetStandardDeviation(float a,float b)
         {this->SetStandardDeviations(a,b,0.0);}
   void SetStandardDeviation(float a,float b,float c) 
         {this->SetStandardDeviations(a,b,c);}
 
+  // Description:
+  // Sets/Gets the Radius Factors of the gaussian in pixel units.
+  // The radius factors determine how far out the gaussian kernel will 
+  // go before being clamped to zero.
   vtkSetVector3Macro(RadiusFactors, float);
   void SetRadiusFactors(float f, float f2) {this->SetRadiusFactors(f,f2,1.5);}
   void SetRadiusFactor(float f) {this->SetRadiusFactors(f, f, f);}
   vtkGetVector3Macro(RadiusFactors, float);
 
+  // Description:
+  // Set/Get the dimensionality of this filter. This determines whether
+  // a one, two, or three dimensional gaussian is performed.
   vtkSetMacro(Dimensionality, int);
   vtkGetMacro(Dimensionality, int);
 

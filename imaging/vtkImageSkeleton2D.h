@@ -43,12 +43,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImageSkeleton2D should leave only single pixel width lines
 // of non-zero-valued pixels (values of 1 are not allowed).  
 // It works by errosion on a 3x3 neighborhood with special rules.
-// Number of iterations determines how far the filter can errode.
+// The number of iterations determines how far the filter can errode.
 // There are three pruning levels:  
 //  prune == 0 will leave traces on all angles...
 //  prune == 1 will not leave traces on 135 degree angles, but will on 90.
 //  prune == 2 does not leave traces on any angles leaving only closed loops.
-// Output scalar type is the same as input.
+// Prune defaults to zero. The output scalar type is the same as the input.
 
 
 
@@ -60,14 +60,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSkeleton2D : public vtkImageIterateFilter
 {
 public:
-
-// Description:
-// Construct an instance of vtkImageSkeleton2D fitler.
   vtkImageSkeleton2D();
-
   static vtkImageSkeleton2D *New() {return new vtkImageSkeleton2D;};
   const char *GetClassName() {return "vtkImageSkeleton2D";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

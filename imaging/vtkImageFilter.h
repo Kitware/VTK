@@ -40,16 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageFilter - Generic filter that has one input..
 // .SECTION Description
-// vtkImageFilter is a filter class that hides some of the pipeline 
-// complexity.  This super class will loop over extra dimensions so the
-// subclass can deal with simple low dimensional regions.
-// "ComputeRequiredInputUpdateExtent(vtkImageCache *out, *in)" must set the
-// extent of in required to compute out. 
-// The advantage of using the execute method is that this super class
-// will automatically break the execution into pieces if the 
-// InputMemoryLimit is violated.
-// This creates streaming where the pipeline processes images
-// in dynamically sized pieces.
+// vtkImageFilter is a filter superclass that hides much of the pipeline 
+// complexity. It handles breaking the pipeline execution into smaller
+// extents so that the vtkImageCache memory limits are observed. It 
+// also provides support for multithreading.
 
 
 
@@ -73,34 +67,32 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
 
-// Description:
-// Set the Input of a filter. 
+  // Description:
+  // Set the Input of a filter. 
   virtual void SetInput(vtkImageCache *input);
-
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
 
-// Description:
-// This method is called by the cache.  It eventually calls the
-// Execute(vtkImageData *, vtkImageData *) method.
-// ImageInformation has already been updated by this point, 
-// and outRegion is in local coordinates.
-// This method will stream to get the input, and loops over extra axes.
-// Only the UpdateExtent from output will get updated.
+  // Description:
+  // This method is called by the cache.  It eventually calls the
+  // Execute(vtkImageData *, vtkImageData *) method.
+  // ImageInformation has already been updated by this point, 
+  // and outRegion is in local coordinates.
+  // This method will stream to get the input, and loops over extra axes.
+  // Only the UpdateExtent from output will get updated.
   virtual void InternalUpdate(vtkImageData *outData);
-
-
-// Description:
-// This method sets the WholeExtent, Spacing and Origin of the output.
+  
+  // Description:
+  // This method sets the WholeExtent, Spacing and Origin of the output.
   virtual void UpdateImageInformation();
 
 
-// Description:
-// This Method returns the MTime of the pipeline upto and including this filter
-// Note: current implementation may create a cascade of GetPipelineMTime calls.
-// Each GetPipelineMTime call propagates the call all the way to the original
-// source.  
+  // Description:
+  // This Method returns the MTime of the pipeline up to and including this
+  // filter Note: current implementation may create a cascade of
+  // GetPipelineMTime calls.  Each GetPipelineMTime call propagates the call
+  // all the way to the original source.
   unsigned long int GetPipelineMTime();
 
   

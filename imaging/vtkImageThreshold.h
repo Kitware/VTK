@@ -40,10 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageThreshold -  Flexible threshold
 // .SECTION Description
-// vtkImageThreshold Can do binary or continous thresholding
-// for lower, upper or a range of data.
-//  The output data type may be different than the output, but defaults
-// to the same type.
+// vtkImageThreshold Can do binary or continous thresholding for lower, upper
+// or a range of data.  The output data type may be different than the
+// output, but defaults to the same type.
 
 
 #ifndef __vtkImageThreshold_h
@@ -55,38 +54,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageThreshold : public vtkImageFilter
 {
 public:
-
-// Description:
-// Constructor sets default values
   vtkImageThreshold();
-
   static vtkImageThreshold *New() {return new vtkImageThreshold;};
   const char *GetClassName() {return "vtkImageThreshold";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// The values greater than or equal to the value match.
+  // Description:
+  // The values greater than or equal to the value match.
   void ThresholdByUpper(float thresh);
-
-
-// Description:
-// The values less than or equal to the value match.
+  
+  // Description:
+  // The values less than or equal to the value match.
   void ThresholdByLower(float thresh);
-
-
-// Description:
-// The values in a range (inclusive) match
+  
+  // Description:
+  // The values in a range (inclusive) match
   void ThresholdBetween(float lower, float upper);
-
-
+  
   // Description:
   // Determines whether to replace the pixel in range with InValue
   vtkSetMacro(ReplaceIn, int);
   vtkGetMacro(ReplaceIn, int);
   vtkBooleanMacro(ReplaceIn, int);
-
+  
   // Description:
   // Replace the in range pixels with this value.
   void SetInValue(float val);
@@ -103,10 +93,13 @@ public:
   void SetOutValue(float val);
   vtkGetMacro(OutValue, float);
   
-  // for the templated function (too many to make friends)
+  // Description:
+  // Get the Upper and Lower thresholds.
   vtkGetMacro(UpperThreshold, float);
   vtkGetMacro(LowerThreshold, float);
   
+  // Description:
+  // Set the desired output scalar type to cast to
   vtkSetMacro(OutputScalarType, int);
   vtkGetMacro(OutputScalarType, int);
   void SetOutputScalarTypeToFloat() {this->SetOutputScalarType(VTK_FLOAT);}

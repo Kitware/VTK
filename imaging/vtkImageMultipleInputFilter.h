@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageMultipleInputFilter - Generic filter that has N inputs.
 // .SECTION Description
 // vtkImageMultipleInputFilter is a super class for filters that 
-// any number of inputs.  Steaming is not available in this class yet.
+// have any number of inputs. Steaming is not available in this class yet.
 
 // .SECTION See Also
 // vtkImageFilter vtImageInPlaceFilter vtkImageTwoInputFilter
@@ -70,45 +70,35 @@ public:
   const char *GetClassName() {return "vtkImageMultipleInputFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Set an Input of this filter. 
+  // Description:
+  // Set an Input of this filter. 
   virtual void SetInput(int num, vtkImageCache *input);
-
   void SetInput(int num, vtkStructuredPoints *spts)
     {this->SetInput(num, spts->GetStructuredPointsToImage()->GetOutput());}
 
-// Description:
-// Adds an input to the first null position in the input list.
-// Expands the list memory if necessary
+  // Description:
+  // Adds an input to the first null position in the input list.
+  // Expands the list memory if necessary
   virtual void AddInput(vtkImageCache *input);
-
   void AddInput(vtkStructuredPoints *spts)
     {this->AddInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
-
-// Description:
-// Called by cache
+  // Description:
+  // Called by the cache
   void InternalUpdate(vtkImageData *outData);
 
-
-// Description:
-// This method gets the boundary of the inputs then computes and returns 
-// the boundary of the largest region that can be generated. 
+  // Description:
+  // This method gets the boundary of the inputs then computes and returns 
+  // the boundary of the largest region that can be generated. 
   void UpdateImageInformation();
 
-
-// Description:
-// This Method returns the MTime of the pipeline upto and including this filter
-// Note: current implementation may create a cascade of GetPipelineMTime calls.
-// Each GetPipelineMTime call propagates the call all the way to the original
-// source.  This works, but is not elegant.
-// An Executor would probably be the best solution if this is a problem.
-// (The pipeline could vote before it starts processing, but one object
-// has to initiate the voting.)
+  // Description:
+  // This Method returns the MTime of the pipeline up to and including this
+  // filter Note: current implementation may create a cascade of
+  // GetPipelineMTime calls.  Each GetPipelineMTime call propagates the call
+  // all the way to the original source.  This works, but is not elegant. 
   unsigned long int GetPipelineMTime();
 
-  
   // Description:
   // Get one input to this filter.
   vtkImageCache *GetInput(int num) {return this->Inputs[num];};
@@ -118,9 +108,9 @@ public:
   vtkGetMacro(NumberOfInputs, int);
   
   // Description:
-  // Turning bypass on will causse the filter to turn off and
+  // Turning bypass on will cause the filter to turn off and
   // simply pass the data from the first input (input0) through.  
-  // It is implemented for consitancy with vtkImageFilter.
+  // It is implemented for consistancy with vtkImageFilter.
   vtkSetMacro(Bypass,int);
   vtkGetMacro(Bypass,int);
   vtkBooleanMacro(Bypass,int);
@@ -130,10 +120,8 @@ public:
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
   vtkGetMacro( NumberOfThreads, int );
 
-  // subclasses should define this function
-
-// Description:
-// The execute method created by the subclass.
+  // Description:
+  // The execute method created by the subclass.
   virtual void ThreadedExecute(vtkImageData **inDatas, 
 			       vtkImageData *outData,
 			       int extent[6], int threadId);

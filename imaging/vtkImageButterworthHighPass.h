@@ -45,7 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // (complex numbers).
 // out(i, j) = 1 / (1 + pow(CutOff/Freq(i,j), 2*Order));
 
-
+// .SECTION See Also
+// vtkImageButterworthLowPass
 
 #ifndef __vtkImageButterworthHighPass_h
 #define __vtkImageButterworthHighPass_h
@@ -60,7 +61,6 @@ public:
   static vtkImageButterworthHighPass *New() 
     {return new vtkImageButterworthHighPass;};
   const char *GetClassName() {return "vtkImageButterworthHighPass";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -81,7 +81,6 @@ public:
   // The order determines sharpness of the cutoff curve.
   vtkSetMacro(Order, int);
   vtkGetMacro(Order, int);
-  
   
 protected:
   int Order;

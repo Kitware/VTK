@@ -41,12 +41,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageViewer - Display a 2d image.
 // .SECTION Description
-// vtkImageViewer is a concinience class for displaying a 2d image.
-// It packages up the functionality found in vtkImageWindow,
-// vtkImager and vtkImageMapper into a single easy to use class.
-// Behind the scenes these three classes are actually used to 
-// to provide the required funcitonality. vtkImageViewer is
-// simply a wrapper around them.
+// vtkImageViewer is a convinience class for displaying a 2d image.  It
+// packages up the functionality found in vtkImageWindow, vtkImager,
+// vtkActor2D and vtkImageMapper into a single easy to use class.  Behind the
+// scenes these four classes are actually used to to provide the required
+// functionality. vtkImageViewer is simply a wrapper around them.
+
+// .SECTION See Also
+// vtkImageWindow vtkImager vtkImageMapper vtkActor2D
 
 #ifndef __vtkImageViewer_h
 #define __vtkImageViewer_h
@@ -77,6 +79,8 @@ public:
   // Get name of rendering window
   char *GetWindowName() {return this->ImageWindow->GetWindowName();};
 
+  // Description:
+  // Render the resulting image.
   void Render(void);
   
   // Description:
@@ -86,9 +90,12 @@ public:
   void SetInput(vtkStructuredPoints *spts) {this->ImageMapper->SetInput(spts);};
   
   // Description:
-  // This is for a tcl interface
+  // What is the possible Min/ Max z slices available.
   int GetWholeZMin() {return this->ImageMapper->GetWholeZMin();};
   int GetWholeZMax() {return this->ImageMapper->GetWholeZMax();};
+  
+  // Description:
+  // Set/Get the current Z Slice to display
   int GetZSlice() {return this->ImageMapper->GetZSlice();};
   void SetZSlice(int s) {this->ImageMapper->SetZSlice(s);};
   
@@ -106,9 +113,8 @@ public:
   void SetParentId(void *a) {this->ImageWindow->SetParentId(a);};
   
   // Description:
-  // By default this is a color viewer. 
-  // GrayScaleHintOn will improve the appearance
-  // of gray scale images on some systems.
+  // By default this is a color viewer.  GrayScaleHintOn will improve the
+  // appearance of gray scale images on some systems.
   int GetGrayScaleHint() {return this->ImageWindow->GetGrayScaleHint();};
   void SetGrayScaleHint(int a) {this->ImageWindow->SetGrayScaleHint(a);};
   void GrayScaleHintOn() {this->ImageWindow->GrayScaleHintOn();};

@@ -61,7 +61,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The image extent of the output has to be set explicitely.
+  // The whole extent of the output has to be set explicitely.
   void SetOutputWholeExtent(int extent[6]);
   void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, 
 			    int minZ, int maxZ);

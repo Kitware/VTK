@@ -45,7 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // (complex numbers).
 // out(i, j) = (1 + pow(CutOff/Freq(i,j), 2*Order));
 
-
+// .SECTION See Also
+// vtkImageButterworthHighPass
 
 #ifndef __vtkImageButterworthLowPass_h
 #define __vtkImageButterworthLowPass_h
@@ -60,7 +61,6 @@ public:
   static vtkImageButterworthLowPass *New() 
     {return new vtkImageButterworthLowPass;};
   const char *GetClassName() {return "vtkImageButterworthLowPass";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

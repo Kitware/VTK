@@ -5,7 +5,6 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
 
 
 Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -44,6 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkBMPWriter writes BMP files. The data type
 // of the file is unsigned char regardless of the input type.
 
+// .SECTION See Also
+// vtkBMPReader
 
 #ifndef __vtkBMPWriter_h
 #define __vtkBMPWriter_h

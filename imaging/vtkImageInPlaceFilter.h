@@ -61,14 +61,12 @@ public:
   static vtkImageInPlaceFilter *New() {return new vtkImageInPlaceFilter;};
   const char *GetClassName() {return "vtkImageInPlaceFilter";};
 
-
-// Description:
-// This method is called by the cache.  It eventually calls the
-// Execute(vtkImageData *, vtkImageData *) method.
-// ImageInformation has already been updated by this point, 
-// and outRegion is in local coordinates.
-// This method will stream to get the input, and loops over extra axes.
-// Only the UpdateExtent from output will get updated.
+  // Description:
+  // This method is called by the cache.  It eventually calls the
+  // Execute(vtkImageData *, vtkImageData *) method.  ImageInformation has
+  // already been updated by this point, and outRegion is in local
+  // coordinates.  This method will stream to get the input. Only the
+  // UpdateExtent from output will get updated.
   virtual void InternalUpdate(vtkImageData *outData);
 
 protected:

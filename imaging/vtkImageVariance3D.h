@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageVariance3D - Variance in a neighborhood..
+// .NAME vtkImageVariance3D - Variance in a neighborhood.
 // .SECTION Description
 // vtkImageVariance3D replaces each pixel with a measurement of 
 // pixel variance in a eliptical neighborhood centered on that pixel.
@@ -66,13 +66,10 @@ public:
   const char *GetClassName() {return "vtkImageVariance3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  // Set/Get the size of the neighood.
-
-// Description:
-// This method sets the size of the neighborhood.  It also sets the 
-// default middle of the neighborhood and computes the Elliptical foot print.
+  // Description:
+  // This method sets the size of the neighborhood.  It also sets the default
+  // middle of the neighborhood and computes the Elliptical foot print.
   void SetKernelSize(int size0, int size1, int size2);
-
   
 protected:
   vtkImageEllipsoidSource *Ellipse;

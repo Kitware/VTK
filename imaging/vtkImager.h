@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImager - Renders into part of a ImageWindow
 // .SECTION Description
 // vtkImager is the 2D counterpart to vtkRenderer. An Imager renders
-// 2D actors into a viewport of a window. 
+// 2D actors into a viewport of an image window. 
 
 // .SECTION See Also
 //  vtkImageWindow vtkViewport
@@ -61,10 +61,8 @@ class vtkImageWindow;
 class VTK_EXPORT vtkImager : public vtkViewport
 { 
 public:
-
-
-// Description:
-// Create an imager with viewport (0, 0, 1, 1)
+  // Description:
+  // Create an imager with viewport (0, 0, 1, 1)
   vtkImager();
 
   static vtkImager *New() {return new vtkImager;};

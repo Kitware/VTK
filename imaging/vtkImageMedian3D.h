@@ -56,21 +56,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMedian3D : public vtkImageSpatialFilter
 {
 public:
-
-// Description:
-// Construct an instance of vtkImageMedian3D fitler.
   vtkImageMedian3D();
 
   static vtkImageMedian3D *New() {return new vtkImageMedian3D;};
   const char *GetClassName() {return "vtkImageMedian3D";};
 
-  // Set the size of the neighood.
-
-// Description:
-// This method sets the size of the neighborhood.  It also sets the 
-// default middle of the neighborhood 
+  // Description:
+  // This method sets the size of the neighborhood.  It also sets the 
+  // default middle of the neighborhood 
   void SetKernelSize(int size0, int size1, int size2);
-
 
   // used in median calc
   int NumberOfElements;

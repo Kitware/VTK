@@ -40,12 +40,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageGradient - Computes the gradient vector.
 // .SECTION Description
-// vtkImageGradient computes the gradient
-// vector of an image.  The vector results are placed along the
-// component axis.  Setting the FilteredAxes determines whether the gradient
-// computed on 1D lines, 2D images, 3D volumes or higher dimensional 
-// images.  The default is two dimensional XY images.  OutputScalarType
-// is always float.  Gradient is computed using central differences.
+// vtkImageGradient computes the gradient vector of an image.  The vector
+// results are stored as scalar components. The Dimensionality determines
+// whether to perform a 2d or 3d gradient. The default is two dimensional 
+// XY gradient.  OutputScalarType is always float. Gradient is computed using
+// central differences.
 
 
 
@@ -58,11 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageGradient : public vtkImageFilter
 {
 public:
-
-// Description:
-// Construct an instance of vtkImageGradient fitler.
   vtkImageGradient();
-
   static vtkImageGradient *New() {return new vtkImageGradient;};
   const char *GetClassName() {return "vtkImageGradient";};
   void PrintSelf(ostream& os, vtkIndent indent);

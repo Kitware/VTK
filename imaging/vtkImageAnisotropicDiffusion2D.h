@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkImageAnisotropicDiffusion2D - edge preserving smoothing.
+//
 // .SECTION Description
 // vtkImageAnisotropicDiffusion2D  diffuses a 2d image iteratively.
 // The neighborhood of the diffusion is determined by the instance
@@ -55,8 +56,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // neighbor independantly.  The gradient between the voxel and the neighbor
 // must be below the "DiffusionThreshold" for diffusion to occur with
 // THAT neighbor.
-//  Input and output can be any indpendent data type.
 
+// .SECTION See Also
+// vtkImageAnisotropicDiffusion3D
 
 #ifndef __vtkImageAnisotropicDiffusion2D_h
 #define __vtkImageAnisotropicDiffusion2D_h
@@ -66,19 +68,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageAnisotropicDiffusion2D : public vtkImageSpatialFilter
 {
 public:
-
-// Description:
-// Construct an instance of vtkImageAnisotropicDiffusion2D fitler.
   vtkImageAnisotropicDiffusion2D();
-
   static vtkImageAnisotropicDiffusion2D *New() {return new vtkImageAnisotropicDiffusion2D;};
   const char *GetClassName() {return "vtkImageAnisotropicDiffusion2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// This method sets the number of inputs which also affects the
-// input neighborhood needed to compute one output pixel.
+  // Description:
+  // This method sets the number of inputs which also affects the
+  // input neighborhood needed to compute one output pixel.
   void SetNumberOfIterations(int num);
 
   // Description:
@@ -106,12 +103,12 @@ public:
   vtkSetMacro(Corners,int);
   vtkGetMacro(Corners,int);
   vtkBooleanMacro(Corners,int);
+
   // Description:
   // Switch between gradient magnitude threshold and pixel gradient threshold.
   vtkSetMacro(GradientMagnitudeThreshold,int);
   vtkGetMacro(GradientMagnitudeThreshold,int);
   vtkBooleanMacro(GradientMagnitudeThreshold,int);
-  
   
 protected:
   int NumberOfIterations;

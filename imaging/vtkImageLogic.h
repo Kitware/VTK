@@ -41,9 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageLogic - And, or, xor, nand, nor, not.
 // .SECTION Description
 // vtkImageLogic implents basic logic operations.
-// SetOperation is used to select the filteres behavior.
-// The filter can take two or one input.  Output is always unsigned char,
-// Inputs must have the same type.
+// SetOperation is used to select the filter's behavior.
+// The filter can take two or one input. Inputs must have the same type.
 
 
 #ifndef __vtkImageLogic_h
@@ -69,7 +68,6 @@ public:
   vtkImageLogic();
   static vtkImageLogic *New() {return new vtkImageLogic;};
   const char *GetClassName() {return "vtkImageLogic";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -40,9 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkTextMapper - 2D text annotation
 // .SECTION Description
-// vtkTextMapper provides 2D text annotation support for vtk.
-// It is a vtkMapper2D that can be associated with a vtkActor2D
-// and placed into a vtkRenderer or vtkImager.
+// vtkTextMapper provides 2D text annotation support for vtk.  It is a
+// vtkMapper2D that can be associated with a vtkActor2D and placed into a
+// vtkRenderer or vtkImager.
 //
 // To use vtkTextMapper, specify an input text string, a font size,
 // a font name, and whether to turn on bold or shadows (shadows make the
@@ -69,10 +69,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
-
-// Description:
-// Creates a new text mapper with Font size 12, bold off, italic off,
-// and Arial font
+  // Description:
+  // Creates a new text mapper with Font size 12, bold off, italic off,
+  // and Arial font
   vtkTextMapper();
 
   virtual ~vtkTextMapper();
@@ -82,7 +81,7 @@ public:
   
   // Description:
   // Draw the text to the screen.  This function is implemented in
-  // the subclasses.
+  // the device dependent subclasses.
   virtual void Render(vtkViewport*, vtkActor2D*) {};
 
   // Description:
@@ -105,16 +104,14 @@ public:
 
   // Description:
   // Enable/disable text bolding.
-  void SetBold(int val) 
-    {if (val == this->Bold) { return; }
+  void SetBold(int val) {if (val == this->Bold) { return; }
     this->Bold = val; this->FontChanged = 1; this->Modified();};
   vtkGetMacro(Bold, int);
   vtkBooleanMacro(Bold, int);
 
   // Description:
   // Enable/disable text italic.
-  void SetItalic(int val) 
-    {if (val == this->Italic) { return; }
+  void SetItalic(int val) {if (val == this->Italic) { return; }
     this->Italic = val; this->FontChanged = 1; this->Modified();};
   vtkGetMacro(Italic, int);
   vtkBooleanMacro(Italic, int);
@@ -128,8 +125,7 @@ public:
   // Description:
   // Set/Get the font family.  Three font types are allowed: Arial (VTK_ARIAL),
   // Courier (VTK_COURIER), and Times (VTK_TIMES).
-  void SetFontFamily(int val) 
-    {if (val == this->FontFamily) { return; }
+  void SetFontFamily(int val) {if (val == this->FontFamily) { return; }
     this->FontFamily = val; this->FontChanged = 1; this->Modified();};
   vtkGetMacro(FontFamily, int);
   void SetFontFamilyToArial() {this->SetFontFamily(VTK_ARIAL);};

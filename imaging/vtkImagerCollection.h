@@ -58,6 +58,8 @@ class VTK_EXPORT vtkImagerCollection : public vtkCollection
   static vtkImagerCollection *New() {return new vtkImagerCollection;};
   const char *GetClassName() {return "vtkImagerCollection";};
 
+  // Description:
+  // Standard methods for manipulating the collection.
   void AddItem(vtkImager *a);
   void RemoveItem(vtkImager *a);
   int IsItemPresent(vtkImager *a);
@@ -65,8 +67,6 @@ class VTK_EXPORT vtkImagerCollection : public vtkCollection
   vtkImager *GetLastItem();
 };
 
-// Description:
-// Add an imager to the list.
 inline void vtkImagerCollection::AddItem(vtkImager *a) 
 {
   this->vtkCollection::AddItem((vtkObject *)a);
@@ -74,8 +74,6 @@ inline void vtkImagerCollection::AddItem(vtkImager *a)
   // a->Register(this);
 }
 
-// Description:
-// Remove an imager from the list.
 inline void vtkImagerCollection::RemoveItem(vtkImager *a) 
 {
   this->vtkCollection::RemoveItem((vtkObject *)a);
@@ -83,23 +81,16 @@ inline void vtkImagerCollection::RemoveItem(vtkImager *a)
   // a->UnRegister(this);
 }
 
-// Description:
-// Determine whether a particular imager is present. Returns its position
-// in the list.
 inline int vtkImagerCollection::IsItemPresent(vtkImager *a) 
 {
   return this->vtkCollection::IsItemPresent((vtkObject *)a);
 }
 
-// Description:
-// Get the next imager in the list.
 inline vtkImager *vtkImagerCollection::GetNextItem() 
 { 
   return (vtkImager *)(this->GetNextItemAsObject());
 }
 
-// Description:
-// Get the last imager in the list.
 inline vtkImager *vtkImagerCollection::GetLastItem() 
 { 
   if ( this->Bottom == NULL )

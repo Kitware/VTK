@@ -55,7 +55,6 @@ public:
   vtkImageSinusoidSource();
   static vtkImageSinusoidSource *New() {return new vtkImageSinusoidSource;};
   const char *GetClassName() {return "vtkImageSinusoidSource";};
-  
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -80,6 +79,8 @@ public:
   vtkSetMacro(Phase, float);
   vtkGetMacro(Phase, float);
 
+  // Description:
+  // Set/Get the magnitude of the sinusiod.
   vtkSetMacro(Amplitude, float);
   vtkGetMacro(Amplitude, float);
 

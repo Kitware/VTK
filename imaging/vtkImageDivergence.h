@@ -56,7 +56,6 @@ public:
   vtkImageDivergence();
   static vtkImageDivergence *New() {return new vtkImageDivergence;};
   const char *GetClassName() {return "vtkImageDivergence";};
-  
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

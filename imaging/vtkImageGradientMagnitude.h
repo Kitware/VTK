@@ -39,14 +39,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkImageGradientMagnitude - Computes magnitude of the gradient.
+
 // .SECTION Description
-// vtkImageGradientMagnitude computes the gradient magnitude 
-// of an image.  Setting the axes determines whether the gradient
-// computed on 1D lines, 2D images, 3D volumes or higher dimensional 
-// images.  The default is two dimensional XY images.  OutputScalarType
-// is always float.
+// vtkImageGradientMagnitude computes the gradient magnitude of an image.
+// Setting the dimensionality determines whether the gradient is computed on
+// 2D images, or 3D volumes.  The default is two dimensional XY images.
+// OutputScalarType is always float.
 
-
+// .SECTION See Also
+// vtkImageGradient vtkImageMagnitude
 
 #ifndef __vtkImageGradientMagnitude_h
 #define __vtkImageGradientMagnitude_h
@@ -57,11 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageGradientMagnitude : public vtkImageFilter
 {
 public:
-
-// Description:
-// Construct an instance of vtkImageGradientMagnitude fitler.
   vtkImageGradientMagnitude();
-
   static vtkImageGradientMagnitude *New() 
     {return new vtkImageGradientMagnitude;};
   const char *GetClassName() {return "vtkImageGradientMagnitude";};

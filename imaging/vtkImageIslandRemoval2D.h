@@ -67,8 +67,8 @@ class VTK_EXPORT vtkImageIslandRemoval2D : public vtkImageFilter
 {
 public:
 
-// Description:
-// Constructor: Sets default filter to be identity.
+  // Description:
+  // Constructor: Sets default filter to be identity.
   vtkImageIslandRemoval2D();
 
   static vtkImageIslandRemoval2D *New() {return new vtkImageIslandRemoval2D;};
@@ -97,9 +97,9 @@ public:
   vtkGetMacro(ReplaceValue, float);
   
 
-// Description:
-// Intercepts the caches Update to make the region larger than requested.
-// The whole image is generated when any region is requested.
+  // Description:
+  // Intercepts the caches Update to make the region larger than requested.
+  // The whole image is generated when any region is requested.
   void InterceptCacheUpdate();
 
   

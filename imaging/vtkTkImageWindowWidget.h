@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkTkImageWindowWidget is a Tk widget that you can render into. It has a 
 // GetImageWindow method that returns a vtkImageWindow. You can also 
 // specify a vtkImageWindow to be used when creating the widget by using
-// the -iv option. It also takes -width and -height options.
+// the -iw option. It also takes -width and -height options.
 // Events can be bound on this widget just like any other Tk widget.
 
 // .SECTION See Also

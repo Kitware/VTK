@@ -62,6 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // than points, use the filter vtkCellCenters to generate points at the
 // center of the cells. Also, you can use the class vtkIdFilter to
 // generate ids as scalars or field data, which can then be labeled.
+
 // .SECTION See Also
 // vtkMapper2D vtkActor2D vtkTextMapper vtkSelectVisiblePoints 
 // vtkIdFilter vtkCellCenters
@@ -86,12 +87,12 @@ class VTK_EXPORT vtkLabeledDataMapper : public vtkMapper2D
 {
 public:
 
-// Description:
-// Instantiate object with font size 12 of font Arial (bolding,
-// italic, shadows on) and %%-#6.3g label format. By default, point ids
-// are labeled.
+  // Description:
+  // Instantiate object with font size 12 of font Arial (bolding,
+  // italic, shadows on) and %%-#6.3g label format. By default, point ids
+  // are labeled.
   vtkLabeledDataMapper();
-
+  
   ~vtkLabeledDataMapper();
   const char *GetClassName() {return "vtkLabeledDataMapper";};
   static vtkLabeledDataMapper *New() {return new vtkLabeledDataMapper;};

@@ -64,7 +64,6 @@ public:
   ~vtkImageMask();
   static vtkImageMask *New() {return new vtkImageMask;};
   const char *GetClassName() {return "vtkImageMask";};
-
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -78,13 +77,18 @@ public:
   float *GetMaskedOutputValue() {return this->MaskedOutputValue;}
   int GetMaskedOutputValueLength() {return this->MaskedOutputValueLength;}
 
+  // Description:
+  // Set the input to be masked.
   void SetImageInput(vtkImageCache *in) {this->SetInput1(in);}
   void SetImageInput(vtkStructuredPoints *in) {this->SetInput1(in);}
+
+  // Description:
+  // Set the mask to be used.
   void SetMaskInput(vtkImageCache *in) {this->SetInput2(in);}
   void SetMaskInput(vtkStructuredPoints *in) {this->SetInput2(in);}
   
   // Description:
-  // When Nopt Mask is on, the mask is passed through a boolean not
+  // When Not Mask is on, the mask is passed through a boolean not
   // before it is used to mask the image.  The effect is to pass the
   // pixels where the input mask is zero, and replace the pixels
   // where the input value is non zero.
