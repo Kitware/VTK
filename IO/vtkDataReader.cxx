@@ -38,7 +38,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDataReader, "1.129");
+vtkCxxRevisionMacro(vtkDataReader, "1.130");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -90,6 +90,14 @@ vtkDataReader::vtkDataReader()
   this->NumberOfFieldDataInFile = 0;
   this->FieldDataNameInFile = NULL;
   this->FieldDataNameAllocSize = 0;
+
+  this->ReadAllScalars = 0;
+  this->ReadAllVectors = 0;
+  this->ReadAllNormals = 0;
+  this->ReadAllTensors = 0;
+  this->ReadAllColorScalars = 0;
+  this->ReadAllTCoords = 0;
+  this->ReadAllFields = 0;
 }  
 
 vtkDataReader::~vtkDataReader()
@@ -1205,7 +1213,10 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
       {
       a->SetScalars(data);
       }
-    data->Delete();
+    else if ( this->ReadAllScalars ) 
+      {
+      a->AddArray(data);
+      }    data->Delete();
     }
   else
     {
@@ -1249,6 +1260,10 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, int numPts)
     if ( ! skipVector )
       {
       a->SetVectors(data);
+      }
+    else if ( this->ReadAllVectors )
+      {
+      a->AddArray(data);
       }
     data->Delete();
     }
@@ -1295,6 +1310,10 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
       {
       a->SetNormals(data);
       }
+    else if ( this->ReadAllNormals )
+      {
+      a->AddArray(data);
+      }
     data->Delete();
     }
   else
@@ -1338,6 +1357,10 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
     if ( ! skipTensor )
       {
       a->SetTensors(data);
+      }
+    else if ( this->ReadAllTensors )
+      {
+      a->AddArray(data);
       }
     data->Delete();
     }
@@ -1386,12 +1409,15 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
 
     if ( data != NULL )
       {
+      data->SetName(name);
       if ( ! skipScalar ) 
         {
-        data->SetName(name);
         a->SetScalars(data);
         }
-      data->Delete();
+      else if ( this->ReadAllColorScalars )
+        {
+        a->AddArray(data);
+        }      data->Delete();
       }
     else
       {
@@ -1406,7 +1432,7 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
     
     if ( data != NULL )
       {
-      if ( ! skipScalar ) 
+      if ( ! skipScalar || this->ReadAllColorScalars ) 
         {
         vtkUnsignedCharArray *scalars=vtkUnsignedCharArray::New();
         scalars->SetNumberOfComponents(numComp);
@@ -1420,8 +1446,14 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
             scalars->SetValue(idx,(unsigned char)(255.0*data->GetValue(idx)));
             }
           }
-        a->SetScalars(scalars);
-        scalars->Delete();
+        if ( ! skipScalar )
+          {
+          a->SetScalars(scalars);
+          }
+        else if ( this->ReadAllColorScalars )
+          {
+          a->AddArray(scalars);
+          }        scalars->Delete();
         }
       data->Delete();
       }
@@ -1478,6 +1510,10 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
     if ( ! skipTCoord )
       {
       a->SetTCoords(data);
+      }
+    else if ( this->ReadAllTCoords )
+      {
+      a->AddArray(data);
       }
     data->Delete();
     }
@@ -1743,7 +1779,7 @@ vtkFieldData *vtkDataReader::ReadFieldData()
     if ( data != NULL )
       {
       data->SetName(name);
-      if ( ! skipField )
+      if ( ! skipField  || this->ReadAllFields )
         {
         f->AddArray(data);
         }
@@ -1756,7 +1792,7 @@ vtkFieldData *vtkDataReader::ReadFieldData()
       }
     }
 
-  if ( skipField ) 
+  if ( skipField && ! this->ReadAllFields ) 
     {
     f->Delete();
     return NULL;
@@ -2087,6 +2123,8 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Scalars Name: (None)\n";
     }
+  os << indent << "ReadAllScalars: " 
+     << (this->ReadAllScalars ? "On" : "Off") << "\n";
 
   if ( this->VectorsName )
     {
@@ -2096,6 +2134,8 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Vectors Name: (None)\n";
     }
+  os << indent << "ReadAllVectors: " 
+     << (this->ReadAllVectors ? "On" : "Off") << "\n";
 
   if ( this->NormalsName )
     {
@@ -2105,6 +2145,8 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Normals Name: (None)\n";
     }
+  os << indent << "ReadAllNormals: " 
+     << (this->ReadAllNormals ? "On" : "Off") << "\n";
 
   if ( this->TensorsName )
     {
@@ -2114,6 +2156,8 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Tensors Name: (None)\n";
     }
+  os << indent << "ReadAllTensors: " 
+     << (this->ReadAllTensors ? "On" : "Off") << "\n";
 
   if ( this->TCoordsName )
     {
@@ -2123,6 +2167,8 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Texture Coordinates Name: (None)\n";
     }
+  os << indent << "ReadAllTCoords: " 
+     << (this->ReadAllTCoords ? "On" : "Off") << "\n";
 
   if ( this->LookupTableName )
     {
@@ -2132,6 +2178,8 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Lookup Table Name: (None)\n";
     }
+  os << indent << "ReadAllColorScalars: " 
+     << (this->ReadAllColorScalars ? "On" : "Off") << "\n";
 
   if ( this->FieldDataName )
     {
@@ -2141,6 +2189,8 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Field Data Name: (None)\n";
     }
+  os << indent << "ReadAllFields: " 
+     << (this->ReadAllFields ? "On" : "Off") << "\n";
   
   os << indent << "InputStringLength: " << this->InputStringLength << endl;
 }

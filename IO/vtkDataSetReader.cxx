@@ -26,7 +26,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkDataSetReader, "1.63");
+vtkCxxRevisionMacro(vtkDataSetReader, "1.64");
 vtkStandardNewMacro(vtkDataSetReader);
 
 vtkDataSetReader::vtkDataSetReader()
@@ -90,6 +90,13 @@ void vtkDataSetReader::Execute()
       preader->SetTCoordsName(this->GetTCoordsName());
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
+      preader->SetReadAllScalars(this->GetReadAllScalars());
+      preader->SetReadAllVectors(this->GetReadAllVectors());
+      preader->SetReadAllNormals(this->GetReadAllNormals());
+      preader->SetReadAllTensors(this->GetReadAllTensors());
+      preader->SetReadAllColorScalars(this->GetReadAllColorScalars());
+      preader->SetReadAllTCoords(this->GetReadAllTCoords());
+      preader->SetReadAllFields(this->GetReadAllFields());
       preader->Update();
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;
@@ -123,6 +130,13 @@ void vtkDataSetReader::Execute()
       preader->SetTCoordsName(this->GetTCoordsName());
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
+      preader->SetReadAllScalars(this->GetReadAllScalars());
+      preader->SetReadAllVectors(this->GetReadAllVectors());
+      preader->SetReadAllNormals(this->GetReadAllNormals());
+      preader->SetReadAllTensors(this->GetReadAllTensors());
+      preader->SetReadAllColorScalars(this->GetReadAllColorScalars());
+      preader->SetReadAllTCoords(this->GetReadAllTCoords());
+      preader->SetReadAllFields(this->GetReadAllFields());
       preader->Update();
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;
@@ -156,6 +170,13 @@ void vtkDataSetReader::Execute()
       preader->SetTCoordsName(this->GetTCoordsName());
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
+      preader->SetReadAllScalars(this->GetReadAllScalars());
+      preader->SetReadAllVectors(this->GetReadAllVectors());
+      preader->SetReadAllNormals(this->GetReadAllNormals());
+      preader->SetReadAllTensors(this->GetReadAllTensors());
+      preader->SetReadAllColorScalars(this->GetReadAllColorScalars());
+      preader->SetReadAllTCoords(this->GetReadAllTCoords());
+      preader->SetReadAllFields(this->GetReadAllFields());
       preader->Update();
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;
@@ -189,6 +210,13 @@ void vtkDataSetReader::Execute()
       preader->SetTCoordsName(this->GetTCoordsName());
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
+      preader->SetReadAllScalars(this->GetReadAllScalars());
+      preader->SetReadAllVectors(this->GetReadAllVectors());
+      preader->SetReadAllNormals(this->GetReadAllNormals());
+      preader->SetReadAllTensors(this->GetReadAllTensors());
+      preader->SetReadAllColorScalars(this->GetReadAllColorScalars());
+      preader->SetReadAllTCoords(this->GetReadAllTCoords());
+      preader->SetReadAllFields(this->GetReadAllFields());
       preader->Update();
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;
@@ -222,6 +250,13 @@ void vtkDataSetReader::Execute()
       preader->SetTCoordsName(this->GetTCoordsName());
       preader->SetLookupTableName(this->GetLookupTableName());
       preader->SetFieldDataName(this->GetFieldDataName());
+      preader->SetReadAllScalars(this->GetReadAllScalars());
+      preader->SetReadAllVectors(this->GetReadAllVectors());
+      preader->SetReadAllNormals(this->GetReadAllNormals());
+      preader->SetReadAllTensors(this->GetReadAllTensors());
+      preader->SetReadAllColorScalars(this->GetReadAllColorScalars());
+      preader->SetReadAllTCoords(this->GetReadAllTCoords());
+      preader->SetReadAllFields(this->GetReadAllFields());
       preader->Update();
       // Can we use the old output?
       output = this->Outputs ? this->Outputs[0] : NULL;

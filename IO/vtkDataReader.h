@@ -176,6 +176,48 @@ public:
   vtkGetStringMacro(FieldDataName);
 
   // Description:
+  // Enable reading all scalars. 
+  vtkSetMacro(ReadAllScalars,int);
+  vtkGetMacro(ReadAllScalars,int);
+  vtkBooleanMacro(ReadAllScalars,int);
+
+  // Description:
+  // Enable reading all vectors. 
+  vtkSetMacro(ReadAllVectors,int);
+  vtkGetMacro(ReadAllVectors,int);
+  vtkBooleanMacro(ReadAllVectors,int);
+
+  // Description:
+  // Enable reading all normals. 
+  vtkSetMacro(ReadAllNormals,int);
+  vtkGetMacro(ReadAllNormals,int);
+  vtkBooleanMacro(ReadAllNormals,int);
+
+  // Description:
+  // Enable reading all tensors. 
+  vtkSetMacro(ReadAllTensors,int);
+  vtkGetMacro(ReadAllTensors,int);
+  vtkBooleanMacro(ReadAllTensors,int);
+
+  // Description:
+  // Enable reading all color scalars. 
+  vtkSetMacro(ReadAllColorScalars,int);
+  vtkGetMacro(ReadAllColorScalars,int);
+  vtkBooleanMacro(ReadAllColorScalars,int);
+
+  // Description:
+  // Enable reading all tcoords. 
+  vtkSetMacro(ReadAllTCoords,int);
+  vtkGetMacro(ReadAllTCoords,int);
+  vtkBooleanMacro(ReadAllTCoords,int);
+
+  // Description:
+  // Enable reading all fields. 
+  vtkSetMacro(ReadAllFields,int);
+  vtkGetMacro(ReadAllFields,int);
+  vtkBooleanMacro(ReadAllFields,int);
+
+  // Description:
   // Open a vtk data file. Returns zero if error.
   int OpenVTKFile();
 
@@ -312,6 +354,14 @@ protected:
   char **FieldDataNameInFile;
   int FieldDataNameAllocSize;
   vtkTimeStamp CharacteristicsTime;
+ 
+  int ReadAllScalars;
+  int ReadAllVectors;
+  int ReadAllNormals;
+  int ReadAllTensors;
+  int ReadAllColorScalars;
+  int ReadAllTCoords;
+  int ReadAllFields;
 
   void InitializeCharacteristics();
   int CharacterizeFile(); //read entire file, storing important characteristics
