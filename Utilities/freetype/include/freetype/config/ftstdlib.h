@@ -118,7 +118,20 @@
   /**********************************************************************/
 
 
+#if defined(__sgi) && defined(_COMPILER_VERSION) && _COMPILER_VERSION >= 730
+# define FT_SGI_SETJMP_WARNING
+#endif
+
+/* Disable unknown_control_flow warning from MipsPRO.  */
+#ifdef FT_SGI_SETJMP_WARNING
+# pragma set woff 3505
+#endif
+
 #include <setjmp.h>
+
+#ifdef FT_SGI_SETJMP_WARNING
+# pragma reset woff 3505
+#endif
 
 #define ft_jmp_buf  jmp_buf   /* note: this cannot be a typedef since */
                               /*       jmp_buf is defined as a macro  */
