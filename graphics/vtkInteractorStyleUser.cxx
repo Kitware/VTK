@@ -93,7 +93,6 @@ vtkInteractorStyleUser::vtkInteractorStyleUser()
 
   this->LastPos[0] = this->LastPos[1] = 0;
   this->OldPos[0] = this->OldPos[1] = 0;
-  this->UserInteractionPos[0] = this->UserInteractionPos[1] = 0;
   this->Char = '\0';
   this->KeySym = "";
   this->Button = 0;
@@ -460,13 +459,11 @@ void vtkInteractorStyleUser::OnTimer(void)
 
   if (this->State == VTKIS_USERINTERACTION)
     {
-    if (this->UserInteractionMethod && 
-	(this->UserInteractionPos[0] != this->LastPos[0] ||
-	 this->UserInteractionPos[1] != this->LastPos[1]))
+    if (this->UserInteractionMethod)
       {
-      this->UserInteractionPos[0] = this->LastPos[0];
-      this->UserInteractionPos[1] = this->LastPos[1];
       (*this->UserInteractionMethod)(this->UserInteractionMethodArg);
+      this->OldPos[0] = this->LastPos[0];
+      this->OldPos[1] = this->LastPos[1];
       this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
       }
     }
@@ -551,6 +548,9 @@ void vtkInteractorStyleUser::OnRightButtonDown(int ctrl, int shift, int x, int y
     this->Interactor->SetEventPosition(x, y);
 
     (*this->RightButtonPressMethod)(this->RightButtonPressMethodArg);
+
+    this->OldPos[0] = x;
+    this->OldPos[1] = y;
     }
   else 
     {
@@ -570,6 +570,9 @@ void vtkInteractorStyleUser::OnRightButtonUp(int ctrl, int shift, int x, int y)
     this->Interactor->SetEventPosition(x, y);
 
     (*this->RightButtonReleaseMethod)(this->RightButtonReleaseMethodArg);
+
+    this->OldPos[0] = x;
+    this->OldPos[1] = y;
     }
   else 
     {
@@ -597,6 +600,9 @@ void vtkInteractorStyleUser::OnMiddleButtonDown(int ctrl,int shift,int x,int y)
     this->Interactor->SetEventPosition(x, y);
 
     (*this->MiddleButtonPressMethod)(this->MiddleButtonPressMethodArg);
+
+    this->OldPos[0] = x;
+    this->OldPos[1] = y;
     }
   else 
     {
@@ -616,6 +622,9 @@ void vtkInteractorStyleUser::OnMiddleButtonUp(int ctrl,int shift,int x,int y)
     this->Interactor->SetEventPosition(x, y);
 
     (*this->MiddleButtonReleaseMethod)(this->MiddleButtonReleaseMethodArg);
+
+    this->OldPos[0] = x;
+    this->OldPos[1] = y;
     }
   else 
     {
@@ -643,6 +652,9 @@ void vtkInteractorStyleUser::OnLeftButtonDown(int ctrl,int shift,int x,int y)
     this->Interactor->SetEventPosition(x, y);
 
     (*this->LeftButtonPressMethod)(this->LeftButtonPressMethodArg);
+
+    this->OldPos[0] = x;
+    this->OldPos[1] = y;
     }
   else 
     {
@@ -662,6 +674,9 @@ void vtkInteractorStyleUser::OnLeftButtonUp(int ctrl, int shift, int x, int y)
     this->Interactor->SetEventPosition(x, y);
 
     (*this->LeftButtonReleaseMethod)(this->LeftButtonReleaseMethodArg);
+
+    this->OldPos[0] = x;
+    this->OldPos[1] = y;
     }
   else 
     {
@@ -679,13 +694,14 @@ void vtkInteractorStyleUser::OnMouseMove(int ctrl, int shift, int x, int y)
 {
   this->vtkInteractorStyleSwitch::OnMouseMove(ctrl,shift,x,y);
 
+  
+  this->LastPos[0] = x;
+  this->LastPos[1] = y;
+  this->ShiftKey = shift;
+  this->CtrlKey = ctrl;
+
   if (this->MouseMoveMethod) 
     {
-    this->ShiftKey = shift;
-    this->CtrlKey = ctrl;
-    this->LastPos[0] = x;
-    this->LastPos[1] = y;
-
     (*this->MouseMoveMethod)(this->MouseMoveMethodArg);
 
     this->OldPos[0] = x;
