@@ -102,6 +102,7 @@ void vtkImageSimpleCache::AllocateData()
   this->CachedData->SetScalarType(this->ScalarType);
   this->CachedData->
     SetNumberOfScalarComponents(this->NumberOfScalarComponents);
+  this->CachedData->AllocateScalars();
 }
 
 vtkImageData *vtkImageSimpleCache::UpdateAndReturnData()
