@@ -3,6 +3,7 @@
 #include <string.h>
 #include <fstream.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 static char depends[400][256];
 static char names[400][256];
@@ -212,11 +213,19 @@ extern void OutputDepends(char *file, FILE *fp, const char *vtkHome)
 extern void OutputUNIXDepends(char *file, FILE *fp, const char *vtkHome)
 {
   int i;
+  struct stat statBuff;
 
   num = 0;
 
+  // does the file exist ?
+  if (stat(file,&statBuff))
+    {
+    fprintf(stderr,"Bad Error!!! Could not find file %s to generate depends on.!!!!\nConsider checking the Makefile and Makefile.in for a bad file name.\n",file);
+    exit(-1);
+    }
+  
   GetDepends(file,vtkHome);
-
+  
   // now output the results
   for (i = 0; i < num; i++)
   {
