@@ -21,7 +21,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
 
-vtkCxxRevisionMacro(vtkVolumeProperty, "1.34");
+vtkCxxRevisionMacro(vtkVolumeProperty, "1.35");
 vtkStandardNewMacro(vtkVolumeProperty);
 
 // Construct a new vtkVolumeProperty with default values
@@ -392,38 +392,13 @@ void vtkVolumeProperty::SetComponentWeight(int index, float value)
     return;
     }
 
-  int i;
-
-  // Compute the weight sum
-
-  float sum = 0.0;
-  for (i = 0; i < VTK_MAX_VRCOMP; i++)
+  if (this->ComponentWeight[index] == value)
     {
-    sum += (i == index ? value : this->ComponentWeight[i]);
-    }
-
-  if (sum == 0 || value < 0)
-    {
-    vtkErrorMacro("Invalid weight");
     return;
     }
 
-  // Check if update is needed
-
-  for (i = 0; i < VTK_MAX_VRCOMP; i++)
-    {
-    if (this->ComponentWeight[i] != 
-        ((i == index ? value : this->ComponentWeight[i]) / sum))
-      {
-      for (i = 0; i < VTK_MAX_VRCOMP; i++)
-        {
-        this->ComponentWeight[i] = 
-          (i == index ? value : this->ComponentWeight[i]) / sum;
-        }
-      this->Modified();
-      break;
-      }
-    }
+  this->ComponentWeight[index] = value;
+  this->Modified();
 }
 
 float vtkVolumeProperty::GetComponentWeight(int index)
