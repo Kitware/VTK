@@ -127,8 +127,8 @@ IF (VTK_USE_FREETYPE)
     face_times_italic
   )
   LINK_LIBRARIES(
-    vtkfreetype
     vtkftgl
+    vtkfreetype
   )
 ENDIF (VTK_USE_FREETYPE)
 

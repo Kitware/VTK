@@ -67,6 +67,13 @@ IF (VTK_USE_RENDERING)
     ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
   ENDIF (VTK_USE_X)
 
+  # add in freetype
+  IF (VTK_USE_FREETYPE)
+    LINK_LIBRARIES(
+      vtkftgl
+      vtkfreetype
+    )
+
   LINK_LIBRARIES(vtkRenderingTCL vtkRendering)
 ENDIF (VTK_USE_RENDERING)
 
@@ -137,4 +144,7 @@ ENDIF (VTK_USE_RENDERING)
 #
 INCLUDE (${VTK_BINARY_DIR}/Wrapping/Tcl/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Wrapping/Tcl/LocalUserOptions.cmake OPTIONAL)
+
+
+
 
