@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.81");
+vtkCxxRevisionMacro(vtkDataObject, "1.82");
 vtkStandardNewMacro(vtkDataObject);
 
 // Initialize static member that controls global data release 
@@ -126,7 +126,7 @@ void vtkDataObject::Initialize()
   this->GhostLevel = 0;
 }
 
-void vtkDataObject::AddConsumer(vtkProcessObject *c)
+void vtkDataObject::AddConsumer(vtkObject *c)
 {
   // make sure it isn't already there
   if (this->IsConsumer(c))
@@ -134,9 +134,9 @@ void vtkDataObject::AddConsumer(vtkProcessObject *c)
     return;
     }
   // add it to the list, reallocate memory
-  vtkProcessObject **tmp = this->Consumers;
+  vtkObject **tmp = this->Consumers;
   this->NumberOfConsumers++;
-  this->Consumers = new vtkProcessObject* [this->NumberOfConsumers];
+  this->Consumers = new vtkObject* [this->NumberOfConsumers];
   for (int i = 0; i < (this->NumberOfConsumers-1); i++)
     {
     this->Consumers[i] = tmp[i];
@@ -146,7 +146,7 @@ void vtkDataObject::AddConsumer(vtkProcessObject *c)
   delete [] tmp;
 }
 
-void vtkDataObject::RemoveConsumer(vtkProcessObject *c)
+void vtkDataObject::RemoveConsumer(vtkObject *c)
 {
   // make sure it is already there
   if (!this->IsConsumer(c))
@@ -154,9 +154,9 @@ void vtkDataObject::RemoveConsumer(vtkProcessObject *c)
     return;
     }
   // remove it from the list, reallocate memory
-  vtkProcessObject **tmp = this->Consumers;
+  vtkObject **tmp = this->Consumers;
   this->NumberOfConsumers--;
-  this->Consumers = new vtkProcessObject* [this->NumberOfConsumers];
+  this->Consumers = new vtkObject* [this->NumberOfConsumers];
   int cnt = 0;
   int i;
   for (i = 0; i <= this->NumberOfConsumers; i++)
@@ -171,7 +171,7 @@ void vtkDataObject::RemoveConsumer(vtkProcessObject *c)
   delete [] tmp;
 }
 
-int vtkDataObject::IsConsumer(vtkProcessObject *c)
+int vtkDataObject::IsConsumer(vtkObject *c)
 {
   int i;
   for (i = 0; i < this->NumberOfConsumers; i++)
@@ -184,7 +184,7 @@ int vtkDataObject::IsConsumer(vtkProcessObject *c)
   return 0;
 }
 
-vtkProcessObject *vtkDataObject::GetConsumer(int i)
+vtkObject *vtkDataObject::GetConsumer(int i)
 {
   if (i >= this->NumberOfConsumers)
     {
