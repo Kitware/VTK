@@ -23,7 +23,14 @@ class vlRenderWindow : public vlObject
 {
 public:
   vlRendererCollection Renderers;
-  char name[80];
+  char Name[80];
+  int   Size[2];
+  int   Position[2];
+  int   Borders;
+  int   FullScreen;
+  int   OldScreen[5];
+  int   Mapped;
+  int   DoubleBuffer;
 
 public:
   vlRenderWindow();
@@ -36,6 +43,26 @@ public:
   virtual vlActor     *MakeActor() = 0;
   virtual vlLight     *MakeLight() = 0;
   virtual vlCamera    *MakeCamera() = 0;
+  virtual int *GetPosition() = 0;
+  virtual int *GetSize() = 0;
+  virtual void SetSize(int,int) = 0;
+  virtual void SetSize(int a[2]);
+
+  virtual void SetFullScreen(int) = 0;
+  vlGetMacro(FullScreen,int);
+  vlBooleanMacro(FullScreen,int);
+
+  vlSetMacro(Borders,int);
+  vlGetMacro(Borders,int);
+  vlBooleanMacro(Borders,int);
+
+  vlSetMacro(Mapped,int);
+  vlGetMacro(Mapped,int);
+  vlBooleanMacro(Mapped,int);
+
+  vlSetMacro(DoubleBuffer,int);
+  vlGetMacro(DoubleBuffer,int);
+  vlBooleanMacro(DoubleBuffer,int);
 };
 
 #endif
