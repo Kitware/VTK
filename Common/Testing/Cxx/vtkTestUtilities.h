@@ -1,9 +1,23 @@
-#ifndef __vtkGetDataRoot_h
-#define __vtkGetDataRoot_h
+#ifndef __vtkTestUtilities_h
+#define __vtkTestUtilities_h
 
-// Function necessary for accessing the root directory for VTK data.
-// The returned string has to be deleted (with delete[]) by the user.
-char* vtkGetDataRoot(int argc, char* argv[])
+struct vtkTestUtilities
+{
+  // Description:
+  // Function necessary for accessing the root directory for VTK data.
+  // The returned string has to be deleted (with delete[]) by the user.
+  static char* GetDataRoot(int argc, char* argv[]);
+
+  // Description:
+  // Given a file name, this function returns a new string which
+  // is (in theory) the full path. This path is constructed by
+  // prepending the file name with a command line argument 
+  // (-D path) or VTK_DATA_ROOT env. variable.
+  static char* ExpandDataFileName(int argc, char* argv[], 
+				  const char* fname);
+};
+
+char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])
 {
   int dataIndex=-1;
 
@@ -43,14 +57,11 @@ char* vtkGetDataRoot(int argc, char* argv[])
 
 } 
 
-// Given a file name, this function returns a new string which
-// is (in theory) the full path. This path is constructed by
-// prepending the file name with a command line argument 
-// (-D path) or VTK_DATA_ROOT env. variable.
-char* vtkExpandDataFileName(int argc, char* argv[], const char* fname)
+char* vtkTestUtilities::ExpandDataFileName(int argc, char* argv[], 
+					   const char* fname)
 {
   char* fullName=0;
-  char* dataRoot=vtkGetDataRoot(argc, argv);
+  char* dataRoot=GetDataRoot(argc, argv);
   if (dataRoot)
     {
     fullName = new char[strlen(dataRoot)+strlen(fname)+2];
@@ -60,7 +71,7 @@ char* vtkExpandDataFileName(int argc, char* argv[], const char* fname)
     fullName[len] = '/';
     fullName[len+1] = 0;
     strcat(fullName, fname);
-    }
+	}
   else
     {
     fullName = new char[strlen(fname)+1];
@@ -70,4 +81,4 @@ char* vtkExpandDataFileName(int argc, char* argv[], const char* fname)
   return fullName;
 }
 
-#endif // __vtkGetDataRoot_h
+#endif // __vtkTestUtilities_h
