@@ -30,7 +30,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.95");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.96");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
@@ -892,7 +892,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
             cell->Triangulate(0,ipts,coords);
             for (i=0; i < ipts->GetNumberOfIds(); i+=3)
               {
-              inewCellId = Lines->InsertNextCell(2);
+              inewCellId = Polys->InsertNextCell(3);
               Polys->InsertCellPoint(ipts->GetId(i));
               Polys->InsertCellPoint(ipts->GetId(i+1));
               Polys->InsertCellPoint(ipts->GetId(i+2));
@@ -911,7 +911,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
                 face->Triangulate(0,ipts,coords);
                 for (i=0; i < ipts->GetNumberOfIds(); i+=3)
                   {
-                  inewCellId = Lines->InsertNextCell(2);
+                  inewCellId = Polys->InsertNextCell(3);
                   Polys->InsertCellPoint(ipts->GetId(i));
                   Polys->InsertCellPoint(ipts->GetId(i+1));
                   Polys->InsertCellPoint(ipts->GetId(i+2));
