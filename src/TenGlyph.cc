@@ -30,7 +30,8 @@ vtkTensorGlyph::vtkTensorGlyph()
   this->ScaleFactor = 1.0;
   this->ExtractEigenvalues = 1;
   this->ColorGlyphs = 1;
-  this->LogScaling = 1;
+  this->ClampScaling = 0;
+  this->MaxScaleFactor = 100;
 }
 
 vtkTensorGlyph::~vtkTensorGlyph()
@@ -59,14 +60,16 @@ void vtkTensorGlyph::Execute()
   int ptIncr, cellId;
   vtkMath math;
   vtkMatrix4x4 matrix;
-  double *m[3], w[3], *e[3];
-  double m0[3], m1[3], m2[3];
-  double e0[3], e1[3], e2[3];
+  float *m[3], w[3], *v[3];
+  float m0[3], m1[3], m2[3];
+  float v0[3], v1[3], v2[3];
   float xv[3], yv[3], zv[3];
+  float maxScale;
+  int nrot;
 
   // set up working matrices
   m[0] = m0; m[1] = m1; m[2] = m2; 
-  e[0] = e0; e[1] = e1; e[2] = e2; 
+  v[0] = v0; v[1] = v1; v[2] = v2; 
 
   vtkDebugMacro(<<"Generating tensor glyphs");
   this->Initialize();
@@ -159,12 +162,13 @@ void vtkTensorGlyph::Execute()
         for (i=0; i<3; i++)
           m[i][j] = tensor->GetComponent(i,j);
 
-      math.SingularValueDecomposition(m,3,3,w,e);
+      math.Jacobi(m, 3, w, v, &nrot);
+      math.Eigsrt(w, v, 3);
 
       //copy eigenvectors
-      xv[0] = e[0][0]; xv[1] = e[1][0]; xv[2] = e[2][0];
-      yv[0] = e[0][1]; yv[1] = e[1][1]; yv[2] = e[2][1];
-      zv[0] = e[0][2]; zv[1] = e[1][2]; zv[2] = e[2][2];
+      xv[0] = v[0][0]; xv[1] = v[1][0]; xv[2] = v[2][0];
+      yv[0] = v[0][1]; yv[1] = v[1][1]; yv[2] = v[2][1];
+      zv[0] = v[0][2]; zv[1] = v[1][2]; zv[2] = v[2][2];
       }
     else //use tensor columns as eigenvectors
       {
@@ -178,28 +182,41 @@ void vtkTensorGlyph::Execute()
       }
 
     // normalize eigenvectors / compute scale factors
-    w[0] = fabs(w[0] * math.Normalize(xv) * this->ScaleFactor);
-    w[1] = fabs(w[1] * math.Normalize(yv) * this->ScaleFactor);
-    w[2] = fabs(w[2] * math.Normalize(zv) * this->ScaleFactor);
+    w[0] *= math.Normalize(xv) * this->ScaleFactor;
+    w[1] *= math.Normalize(yv) * this->ScaleFactor;
+    w[2] *= math.Normalize(zv) * this->ScaleFactor;
     
-    if ( this->LogScaling )
+    if ( this->ClampScaling )
       {
-      for (i=0; i<3; i++)
-        if ( w[i] != 0.0 ) 
-          if ( (w[i]=log10(w[i])) < 0.0 ) w[i] = -1.0/w[i];
+      for (maxScale=0.0, i=0; i<3; i++)
+        if ( maxScale < fabs(w[i]) ) maxScale = fabs(w[i]);
+
+      if ( maxScale > this->MaxScaleFactor )
+        {
+        maxScale = this->MaxScaleFactor / maxScale;
+        for (i=0; i<3; i++)
+          w[i] *= maxScale; //preserve overall shape of glyph
+        }
       }
 
     // normalized eigenvectors rotate object
     matrix.Element[0][0] = xv[0];
-    matrix.Element[0][1] = yv[0];
-    matrix.Element[0][2] = zv[0];
+    matrix.Element[0][1] = -yv[0];
+    matrix.Element[0][2] = -zv[0];
     matrix.Element[1][0] = xv[1];
-    matrix.Element[1][1] = yv[1];
-    matrix.Element[1][2] = zv[1];
+    matrix.Element[1][1] = -yv[1];
+    matrix.Element[1][2] = -zv[1];
     matrix.Element[2][0] = xv[2];
-    matrix.Element[2][1] = yv[2];
-    matrix.Element[2][2] = zv[2];
+    matrix.Element[2][1] = -yv[2];
+    matrix.Element[2][2] = -zv[2];
     trans.Concatenate(matrix);
+
+    // make sure scale is okay (non-zero) and scale data
+    for (maxScale=0.0, i=0; i<3; i++)
+      if ( w[i] > maxScale ) maxScale = w[i];
+    if ( maxScale == 0.0 ) maxScale = 1.0;
+    for (i=0; i<3; i++)
+      if ( w[i] == 0.0 ) w[i] = maxScale * 1.0e-06;
     trans.Scale(w[0], w[1], w[2]);
 
     // multiply points (and normals if available) by resulting matrix
@@ -220,6 +237,7 @@ void vtkTensorGlyph::Execute()
         this->PointData.CopyData(pd,i,ptIncr+i);
       }
     }
+  vtkDebugMacro(<<"Generated " << numPts <<" tensor glyphs");
 //
 // Update ourselves
 //
@@ -273,6 +291,7 @@ void vtkTensorGlyph::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
   os << indent << "Extract Eigenvalues: " << (this->ExtractEigenvalues ? "On\n" : "Off\n");
   os << indent << "Color Glyphs: " << (this->ColorGlyphs ? "On\n" : "Off\n");
-  os << indent << "Log Scaling: " << (this->LogScaling ? "On\n" : "Off\n");
+  os << indent << "Clamp Scaling: " << (this->ClampScaling ? "On\n" : "Off\n");
+  os << indent << "Max Scale Factor: " << this->MaxScaleFactor << "\n";
 }
 
