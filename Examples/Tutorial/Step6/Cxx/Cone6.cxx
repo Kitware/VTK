@@ -52,6 +52,7 @@ public:
       vtkBoxWidget *widget = reinterpret_cast<vtkBoxWidget*>(caller);
       widget->GetTransform(t);
       widget->GetProp3D()->SetUserTransform(t);
+      t->Delete();
     }
 };
 
