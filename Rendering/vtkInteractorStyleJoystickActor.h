@@ -74,29 +74,21 @@ protected:
 
   void FindPickedActor(int x, int y);
 
-  void Prop3DTransform(vtkProp3D *prop3D, double *boxCenter,
-                       int numRotation, double **rotate,
+  void Prop3DTransform(vtkProp3D *prop3D, 
+                       double *boxCenter,
+                       int numRotation, 
+                       double **rotate,
                        double *scale);
 
-  void Prop3DTransform(vtkProp3D *prop3D,float *boxCenter,
-                       int NumRotation,double **rotate,
+  void Prop3DTransform(vtkProp3D *prop3D,
+                       float *boxCenter,
+                       int NumRotation,
+                       double **rotate,
                        double *scale);
   
   float MotionFactor;
-  float RadianToDegree;                 // constant: for conv from deg to rad
-  vtkProp3D *InteractionProp;
-  double ViewUp[3];
-  double ViewLook[3];
-  double ViewRight[3];
-  float ObjCenter[3];
-  float DispObjCenter[3];
-  float Radius;
-  float NewPickPoint[4];
-  float OldPickPoint[4];
-  float MotionVector[3];
-  double ViewPoint[3];
-  double ViewFocus[3];
 
+  vtkProp3D *InteractionProp;
   vtkCellPicker *InteractionPicker;
 
 private:

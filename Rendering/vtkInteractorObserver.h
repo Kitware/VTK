@@ -113,17 +113,23 @@ protected:
   ~vtkInteractorObserver();
 
   //handles the char widget activation event. Also handles the delete event.
-  static void ProcessEvents(vtkObject* object, unsigned long event,
-                            void* clientdata, void* calldata);
+  static void ProcessEvents(vtkObject* object, 
+                            unsigned long event,
+                            void* clientdata, 
+                            void* calldata);
 
   // Sets up the keypress-i event. 
   void OnChar(int ctrl, int shift, char keycode, int repeatcount);
   
   // helper method for subclasses
-  void ComputeDisplayToWorld(double x, double y, double z, double worldPt[4]);
-  void ComputeDisplayToWorld(double x, double y, double z, float worldPt[4]);
-  void ComputeWorldToDisplay(double x, double y, double z, double displayPt[3]);
-  void ComputeWorldToDisplay(double x, double y, double z, float displayPt[3]);
+  void ComputeDisplayToWorld(double x, double y, double z, 
+                             double worldPt[4]);
+  void ComputeDisplayToWorld(double x, double y, double z, 
+                             float worldPt[4]);
+  void ComputeWorldToDisplay(double x, double y, double z, 
+                             double displayPt[3]);
+  void ComputeWorldToDisplay(double x, double y, double z, 
+                             float displayPt[3]);
     
   // The state of the widget, whether on or off (observing events or not)
   int Enabled;
@@ -144,7 +150,6 @@ protected:
   
   // Internal ivars for processing events
   vtkRenderer *CurrentRenderer;
-  vtkCamera *CurrentCamera;
 
 private:
   vtkInteractorObserver(const vtkInteractorObserver&);  // Not implemented.

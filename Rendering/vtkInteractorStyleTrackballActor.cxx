@@ -20,36 +20,14 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.22");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.23");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleTrackballActor::vtkInteractorStyleTrackballActor() 
 {
   this->MotionFactor    = 10.0;
-  this->RadianToDegree  = 180.0 / vtkMath::Pi();
   this->InteractionProp = NULL;
-
-  int i;
-  for (i = 0; i < 3; i++)
-    {
-    this->ViewUp[i]        = 0.0;
-    this->ViewLook[i]      = 0.0;
-    this->ViewRight[i]     = 0.0;
-    this->ObjCenter[i]      = 0.0;
-    this->DispObjCenter[i] = 0.0;
-    this->NewPickPoint[i]  = 0.0;
-    this->OldPickPoint[i]  = 0.0;
-    this->MotionVector[i]  = 0.0;
-    this->ViewPoint[i]     = 0.0;
-    this->ViewFocus[i]     = 0.0;
-    }
-
-  this->NewPickPoint[3] = 1.0;
-  this->OldPickPoint[3] = 1.0;
-  
-  this->Radius = 0.0;
-  
   this->InteractionPicker = vtkCellPicker::New();
 
   // This prevent vtkInteractorStyle::StartState to fire the timer
@@ -73,27 +51,27 @@ void vtkInteractorStyleTrackballActor::OnMouseMove(int vtkNotUsed(ctrl),
   switch (this->State) 
     {
     case VTKIS_ROTATE:
-      this->FindPokedCamera(x, y);
+      this->FindPokedRenderer(x, y);
       this->Rotate();
       break;
 
     case VTKIS_PAN:
-      this->FindPokedCamera(x, y);
+      this->FindPokedRenderer(x, y);
       this->Pan();
       break;
 
     case VTKIS_DOLLY:
-      this->FindPokedCamera(x, y);
+      this->FindPokedRenderer(x, y);
       this->Dolly();
       break;
 
     case VTKIS_SPIN:
-      this->FindPokedCamera(x, y);
+      this->FindPokedRenderer(x, y);
       this->Spin();
       break;
 
     case VTKIS_USCALE:
-      this->FindPokedCamera(x, y);
+      this->FindPokedRenderer(x, y);
       this->UniformScale();
       break;
     }
@@ -170,6 +148,7 @@ void vtkInteractorStyleTrackballActor::OnMiddleButtonDown(int ctrl,
     this->StartPan();
     }
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::OnMiddleButtonUp(int vtkNotUsed(ctrl),
                                                         int vtkNotUsed(shift), 
@@ -227,85 +206,92 @@ void vtkInteractorStyleTrackballActor::Rotate()
     }
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
-
-  int x = rwi->GetEventPosition()[0];
-  int y = rwi->GetEventPosition()[1];
-
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
 
-  // first get the origin of the assembly
+  // First get the origin of the assembly
+
   float *obj_center = this->InteractionProp->GetCenter();
-  this->ObjCenter[0] = obj_center[0];
-  this->ObjCenter[1] = obj_center[1];
-  this->ObjCenter[2] = obj_center[2];
   
   // GetLength gets the length of the diagonal of the bounding box
+
   double boundRadius = this->InteractionProp->GetLength() * 0.5;
 
-  // get the view up and view right vectors
+  // Get the view up and view right vectors
+
+  double view_up[3], view_look[3], view_right[3];
+
   cam->OrthogonalizeViewUp();
   cam->ComputeViewPlaneNormal();
-  cam->GetViewUp(this->ViewUp);
-  vtkMath::Normalize(this->ViewUp);
-  cam->GetViewPlaneNormal(this->ViewLook);
-  vtkMath::Cross(this->ViewUp, this->ViewLook, this->ViewRight);
-  vtkMath::Normalize(this->ViewRight);
+  cam->GetViewUp(view_up);
+  vtkMath::Normalize(view_up);
+  cam->GetViewPlaneNormal(view_look);
+  vtkMath::Cross(view_up, view_look, view_right);
+  vtkMath::Normalize(view_right);
   
-  // get the furtherest point from object position+origin
-  double outsidept[3];
-  outsidept[0] = this->ObjCenter[0] + this->ViewRight[0] * boundRadius;
-  outsidept[1] = this->ObjCenter[1] + this->ViewRight[1] * boundRadius;
-  outsidept[2] = this->ObjCenter[2] + this->ViewRight[2] * boundRadius;
-  
-  // convert them to display coord
-  this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
-                              this->ObjCenter[2], this->DispObjCenter);
+  // Get the furtherest point from object position+origin
 
-  this->ComputeWorldToDisplay(outsidept[0], outsidept[1],
-                              outsidept[2], outsidept);
+  float outsidept[3];
+
+  outsidept[0] = obj_center[0] + view_right[0] * boundRadius;
+  outsidept[1] = obj_center[1] + view_right[1] * boundRadius;
+  outsidept[2] = obj_center[2] + view_right[2] * boundRadius;
   
-  // get the radius in display coord
-  double ftmp[3];
-  ftmp[0] = this->DispObjCenter[0];
-  ftmp[1] = this->DispObjCenter[1];
-  ftmp[2] = this->DispObjCenter[2];
+  // Convert them to display coord
+
+  float disp_obj_center[3];
+
+  this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2], 
+                              disp_obj_center);
+
+  this->ComputeWorldToDisplay(outsidept[0], outsidept[1], outsidept[2], 
+                              outsidept);
   
-  this->Radius = sqrt(vtkMath::Distance2BetweenPoints(ftmp, outsidept));
-  this->HighlightProp3D(NULL);
-  
-  double nxf = ((double)(x) - (double)(this->DispObjCenter[0])) / (double)(this->Radius);
-  double nyf = ((double)(y) - (double)(this->DispObjCenter[1])) / (double)(this->Radius);
-  double oxf = ((double)(rwi->GetLastEventPosition()[0]) - (double)(this->DispObjCenter[0])) / (double)(this->Radius);
-  double oyf = ((double)(rwi->GetLastEventPosition()[1]) - (double)(this->DispObjCenter[1])) / (double)(this->Radius);
+  double radius = sqrt(vtkMath::Distance2BetweenPoints(disp_obj_center,
+                                                       outsidept));
+  double nxf = 
+    ((double)rwi->GetEventPosition()[0] - (double)disp_obj_center[0]) / radius;
+
+  double nyf = 
+    ((double)rwi->GetEventPosition()[1] - (double)disp_obj_center[1]) / radius;
+
+  double oxf = 
+    ((double)rwi->GetLastEventPosition()[0] - (double)disp_obj_center[0]) / radius;
+
+  double oyf = 
+    ((double)rwi->GetLastEventPosition()[1] - (double)disp_obj_center[1]) / radius;
 
   if (((nxf * nxf + nyf * nyf) <= 1.0) &&
       ((oxf * oxf + oyf * oyf) <= 1.0))
     {
-    double newXAngle = asin(nxf) * this->RadianToDegree;
-    double newYAngle = asin(nyf) * this->RadianToDegree;
-    double oldXAngle = asin(oxf) * this->RadianToDegree;
-    double oldYAngle = asin(oyf) * this->RadianToDegree;
+    double newXAngle = asin(nxf) * vtkMath::RadiansToDegrees();
+    double newYAngle = asin(nyf) * vtkMath::RadiansToDegrees();
+    double oldXAngle = asin(oxf) * vtkMath::RadiansToDegrees();
+    double oldYAngle = asin(oyf) * vtkMath::RadiansToDegrees();
     
     double scale[3];
     scale[0] = scale[1] = scale[2] = 1.0;
+
     double **rotate = new double*[2];
+
     rotate[0] = new double[4];
     rotate[1] = new double[4];
     
     rotate[0][0] = newXAngle - oldXAngle;
-    rotate[0][1] = this->ViewUp[0];
-    rotate[0][2] = this->ViewUp[1];
-    rotate[0][3] = this->ViewUp[2];
+    rotate[0][1] = view_up[0];
+    rotate[0][2] = view_up[1];
+    rotate[0][3] = view_up[2];
     
     rotate[1][0] = oldYAngle - newYAngle;
-    rotate[1][1] = this->ViewRight[0];
-    rotate[1][2] = this->ViewRight[1];
-    rotate[1][3] = this->ViewRight[2];
+    rotate[1][1] = view_right[0];
+    rotate[1][2] = view_right[1];
+    rotate[1][3] = view_right[2];
     
     
     this->Prop3DTransform(this->InteractionProp,
-                          this->ObjCenter,
-                          2, rotate, scale);
+                          obj_center,
+                          2, 
+                          rotate, 
+                          scale);
     
     delete [] rotate[0];
     delete [] rotate[1];
@@ -325,60 +311,63 @@ void vtkInteractorStyleTrackballActor::Spin()
     }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
-
-  int x = rwi->GetEventPosition()[0];
-  int y = rwi->GetEventPosition()[1];
- 
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   
-  // get the position plus origin of the object
+  // Get the axis to rotate around = vector from eye to origin
+
   float *obj_center = this->InteractionProp->GetCenter();
-  this->ObjCenter[0] = obj_center[0];
-  this->ObjCenter[1] = obj_center[1];
-  this->ObjCenter[2] = obj_center[2];
-  
-  // get the axis to rotate around = vector from eye to origin
+
+  float motion_vector[3];
+  double view_point[3];
+
   if (cam->GetParallelProjection())
     {
+    // If parallel projection, want to get the view plane normal...
     cam->ComputeViewPlaneNormal();
-    cam->GetViewPlaneNormal(this->MotionVector);
+    cam->GetViewPlaneNormal(motion_vector);
     }
   else
     {   
-    cam->GetPosition(this->ViewPoint);
-    this->MotionVector[0] = this->ViewPoint[0] - this->ObjCenter[0];
-    this->MotionVector[1] = this->ViewPoint[1] - this->ObjCenter[1];
-    this->MotionVector[2] = this->ViewPoint[2] - this->ObjCenter[2];
-    vtkMath::Normalize(this->MotionVector);
+    // Perspective projection, get vector from eye to center of actor
+    cam->GetPosition(view_point);
+    motion_vector[0] = view_point[0] - obj_center[0];
+    motion_vector[1] = view_point[1] - obj_center[1];
+    motion_vector[2] = view_point[2] - obj_center[2];
+    vtkMath::Normalize(motion_vector);
     }
   
-  this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
-                              this->ObjCenter[2], this->DispObjCenter);
+  float disp_obj_center[3];
   
-  this->HighlightProp3D(NULL);
+  this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2], 
+                              disp_obj_center);
   
-  // this has to be in the loop
-  double newAngle = atan2((double)(y) - this->DispObjCenter[1],
-                          (double)(x) - this->DispObjCenter[0]);
-  double oldAngle = atan2((double)(rwi->GetLastEventPosition()[1]) - this->DispObjCenter[1],
-                          (double)(rwi->GetLastEventPosition()[0]) - this->DispObjCenter[0]);
+  double newAngle = 
+    atan2((double)rwi->GetEventPosition()[1] - (double)disp_obj_center[1],
+          (double)rwi->GetEventPosition()[0] - (double)disp_obj_center[0]);
+
+  double oldAngle = 
+    atan2((double)rwi->GetLastEventPosition()[1] - (double)disp_obj_center[1],
+          (double)rwi->GetLastEventPosition()[0] - (double)disp_obj_center[0]);
   
-  newAngle *= this->RadianToDegree;
-  oldAngle *= this->RadianToDegree;
+  newAngle *= vtkMath::RadiansToDegrees();
+  oldAngle *= vtkMath::RadiansToDegrees();
   
   double scale[3];
   scale[0] = scale[1] = scale[2] = 1.0;
+
   double **rotate = new double*[1];
   rotate[0] = new double[4];
   
   rotate[0][0] = newAngle - oldAngle;
-  rotate[0][1] = this->MotionVector[0];
-  rotate[0][2] = this->MotionVector[1];
-  rotate[0][3] = this->MotionVector[2];
+  rotate[0][1] = motion_vector[0];
+  rotate[0][2] = motion_vector[1];
+  rotate[0][3] = motion_vector[2];
   
   this->Prop3DTransform(this->InteractionProp,
-                        this->ObjCenter,
-                        1, rotate, scale);
+                        obj_center,
+                        1, 
+                        rotate, 
+                        scale);
   
   delete [] rotate[0];
   delete [] rotate;
@@ -397,46 +386,44 @@ void vtkInteractorStyleTrackballActor::Pan()
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
   
-  int x = rwi->GetEventPosition()[0];
-  int y = rwi->GetEventPosition()[1];
- 
-  // use initial center as the origin from which to pan
+  // Use initial center as the origin from which to pan
+
   float *obj_center = this->InteractionProp->GetCenter();
-  this->ObjCenter[0] = obj_center[0];
-  this->ObjCenter[1] = obj_center[1];
-  this->ObjCenter[2] = obj_center[2];
-  this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
-                              this->ObjCenter[2], this->DispObjCenter);
-  this->HighlightProp3D(NULL);
+
+  float disp_obj_center[3], new_pick_point[4], old_pick_point[4], motion_vector[3];
   
-  this->ComputeDisplayToWorld(double(x), double(y), 
-                              this->DispObjCenter[2],
-                              this->NewPickPoint);
+  this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2], 
+                              disp_obj_center);
+
+  this->ComputeDisplayToWorld((double)rwi->GetEventPosition()[0], 
+                              (double)rwi->GetEventPosition()[1], 
+                              disp_obj_center[2],
+                              new_pick_point);
   
   this->ComputeDisplayToWorld(double(rwi->GetLastEventPosition()[0]), 
                               double(rwi->GetLastEventPosition()[1]), 
-                              this->DispObjCenter[2],
-                              this->OldPickPoint);
+                              disp_obj_center[2],
+                              old_pick_point);
   
-  this->MotionVector[0] = this->NewPickPoint[0] - this->OldPickPoint[0];
-  this->MotionVector[1] = this->NewPickPoint[1] - this->OldPickPoint[1];
-  this->MotionVector[2] = this->NewPickPoint[2] - this->OldPickPoint[2];
+  motion_vector[0] = new_pick_point[0] - old_pick_point[0];
+  motion_vector[1] = new_pick_point[1] - old_pick_point[1];
+  motion_vector[2] = new_pick_point[2] - old_pick_point[2];
   
   if (this->InteractionProp->GetUserMatrix() != NULL)
     {
     vtkTransform *t = vtkTransform::New();
     t->PostMultiply();
     t->SetMatrix(this->InteractionProp->GetUserMatrix());
-    t->Translate(this->MotionVector[0], this->MotionVector[1], 
-                 this->MotionVector[2]);
+    t->Translate(motion_vector[0], motion_vector[1], motion_vector[2]);
     this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
     t->Delete();
     }
   else
     {
-    this->InteractionProp->AddPosition(this->MotionVector);
+    this->InteractionProp->AddPosition(motion_vector);
     }
   
+  this->ResetCameraClippingRange();
   rwi->Render();
 }
 
@@ -449,44 +436,41 @@ void vtkInteractorStyleTrackballActor::Dolly()
     }
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
-
-  int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
- 
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
 
-  cam->GetPosition(this->ViewPoint);
-  cam->GetFocalPoint(this->ViewFocus);
-  
-  this->HighlightProp3D(NULL);
+  double view_point[3], view_focus[3];
+  float motion_vector[3];
+
+  cam->GetPosition(view_point);
+  cam->GetFocalPoint(view_focus);
   
   float *center = this->CurrentRenderer->GetCenter();
 
-  double yf = (double)(dy) / (double)(center[1]) * this->MotionFactor;
+  int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
+  double yf = (double)dy / (double)center[1] * this->MotionFactor;
   double dollyFactor = pow((double)1.1, yf);
   
   dollyFactor -= 1.0;
-  this->MotionVector[0] = (this->ViewPoint[0] -
-                           this->ViewFocus[0]) * dollyFactor;
-  this->MotionVector[1] = (this->ViewPoint[1] -
-                           this->ViewFocus[1]) * dollyFactor;
-  this->MotionVector[2] = (this->ViewPoint[2] -
-                           this->ViewFocus[2]) * dollyFactor;
+  motion_vector[0] = (view_point[0] - view_focus[0]) * dollyFactor;
+  motion_vector[1] = (view_point[1] - view_focus[1]) * dollyFactor;
+  motion_vector[2] = (view_point[2] - view_focus[2]) * dollyFactor;
   
   if (this->InteractionProp->GetUserMatrix() != NULL)
     {
     vtkTransform *t = vtkTransform::New();
     t->PostMultiply();
     t->SetMatrix(this->InteractionProp->GetUserMatrix());
-    t->Translate(this->MotionVector[0], this->MotionVector[1], 
-                 this->MotionVector[2]);
+    t->Translate(motion_vector[0], motion_vector[1], 
+                 motion_vector[2]);
     this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
     t->Delete();
     }
   else
     {
-    this->InteractionProp->AddPosition(this->MotionVector);
+    this->InteractionProp->AddPosition(motion_vector);
     }
   
+  this->ResetCameraClippingRange();
   rwi->Render();
 }
 
@@ -503,15 +487,9 @@ void vtkInteractorStyleTrackballActor::UniformScale()
   int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
  
   float *obj_center = this->InteractionProp->GetCenter();
-  this->ObjCenter[0] = obj_center[0];
-  this->ObjCenter[1] = obj_center[1];
-  this->ObjCenter[2] = obj_center[2];
-  
-  this->HighlightProp3D(NULL);
-      
   float *center = this->CurrentRenderer->GetCenter();
 
-  double yf = (double)(dy) / (double)(center[1]) * this->MotionFactor;
+  double yf = (double)dy / (double)center[1] * this->MotionFactor;
   double scaleFactor = pow((double)1.1, yf);
   
   double **rotate = NULL;
@@ -520,8 +498,10 @@ void vtkInteractorStyleTrackballActor::UniformScale()
   scale[0] = scale[1] = scale[2] = scaleFactor;
   
   this->Prop3DTransform(this->InteractionProp,
-                        this->ObjCenter,
-                        0, rotate, scale);
+                        obj_center,
+                        0, 
+                        rotate, 
+                        scale);
   
   this->ResetCameraClippingRange();
   rwi->Render();
@@ -546,12 +526,6 @@ void vtkInteractorStyleTrackballActor::FindPickedActor(int x, int y)
     {
     this->InteractionProp = NULL;
     }
-  
-  // refine the answer to whether an actor was picked.  CellPicker()
-  // returns true from Pick() if the bounding box was picked,
-  // but we only want something to be picked if a cell was actually
-  // selected
-  this->PropPicked = (this->InteractionProp != NULL);
 }
 
 //----------------------------------------------------------------------------

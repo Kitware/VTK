@@ -68,7 +68,6 @@ protected:
   virtual void Dolly();
   
   float MotionFactor;
-  float RadianToDegree;                 // constant: for conv from deg to rad
 
 private:
   vtkInteractorStyleTrackballCamera(const vtkInteractorStyleTrackballCamera&);  // Not implemented.

@@ -84,19 +84,8 @@ protected:
                        double *scale);
   
   float MotionFactor;
-  float RadianToDegree;                 // constant: for conv from deg to rad
+
   vtkProp3D *InteractionProp;
-  double ViewUp[3];
-  double ViewLook[3];
-  double ViewRight[3];
-  float ObjCenter[3];
-  float DispObjCenter[3];
-  float Radius;
-  float NewPickPoint[4];
-  float OldPickPoint[4];
-  float MotionVector[3];
-  double ViewPoint[3];
-  double ViewFocus[3];
   vtkCellPicker *InteractionPicker;
 
 private:

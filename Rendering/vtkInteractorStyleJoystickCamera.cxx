@@ -18,8 +18,9 @@
 #include "vtkInteractorStyleJoystickCamera.h"
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.20");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.21");
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
@@ -43,19 +44,19 @@ void vtkInteractorStyleJoystickCamera::OnMouseMove(int vtkNotUsed(ctrl),
   switch (this->State) 
     {
     case VTKIS_ROTATE:
-      this->FindPokedCamera(x, y);
+      this->FindPokedRenderer(x, y);
       break;
 
     case VTKIS_PAN:
-      this->FindPokedCamera(x, y);
+      this->FindPokedRenderer(x, y);
       break;
 
     case VTKIS_DOLLY:
-      this->FindPokedCamera(x, y);
+      this->FindPokedRenderer(x, y);
       break;
 
     case VTKIS_SPIN:
-      this->FindPokedCamera(x, y);
+      this->FindPokedRenderer(x, y);
       break;
     }
 }
@@ -190,29 +191,35 @@ void vtkInteractorStyleJoystickCamera::Rotate()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  float *vp = this->CurrentRenderer->GetViewport();
   float *center = this->CurrentRenderer->GetCenter();
 
+  float dx = (float)rwi->GetLastEventPosition()[0] - center[0];
+  float dy = (float)rwi->GetLastEventPosition()[1] - center[1];
+  
+  float *vp = this->CurrentRenderer->GetViewport();
   int *size = rwi->GetSize();
 
   float delta_elevation = -20.0/((vp[3] - vp[1])*size[1]);
   float delta_azimuth = -20.0/((vp[2] - vp[0])*size[0]);
   
-  double rxf = ((double)rwi->GetLastEventPosition()[0] - (double)center[0]) 
-    * delta_azimuth;
-  double ryf =  ((double)rwi->GetLastEventPosition()[1] - (double)center[1]) 
-    * delta_elevation;
+  double rxf = (double)dx * delta_azimuth;
+  double ryf = (double)dy * delta_elevation;
 
-  this->CurrentCamera->Azimuth(rxf);
-  this->CurrentCamera->Elevation(ryf);
-  this->CurrentCamera->OrthogonalizeViewUp();
+  vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
+  camera->Azimuth(rxf);
+  camera->Elevation(ryf);
+  camera->OrthogonalizeViewUp();
 
   this->ResetCameraClippingRange();
 
   if (rwi->GetLightFollowCamera())
     {
-    this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
-    this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
+    vtkLight* light = this->CurrentRenderer->GetFirstLight();
+      if (light != NULL) 
+        {
+        light->SetPosition(camera->GetPosition());
+        light->SetFocalPoint(camera->GetFocalPoint());
+        }
     }
 
   rwi->Render();
@@ -230,7 +237,8 @@ void vtkInteractorStyleJoystickCamera::Spin()
 
   float *center = this->CurrentRenderer->GetCenter();
 
-  // spin is based on y value
+  // Spin is based on y value
+
   double yf = ((double)rwi->GetLastEventPosition()[1] - (double)center[1]) 
     / (double)(center[1]);
 
@@ -243,10 +251,11 @@ void vtkInteractorStyleJoystickCamera::Spin()
     yf = -1;
     }
 
-  double newAngle = asin(yf) * 180.0 / 3.1415926;
+  double newAngle = asin(yf) * vtkMath::RadiansToDegrees();
 
-  this->CurrentCamera->Roll(newAngle);
-  this->CurrentCamera->OrthogonalizeViewUp();
+  vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
+  camera->Roll(newAngle);
+  camera->OrthogonalizeViewUp();
 
   rwi->Render();
 }
@@ -262,43 +271,50 @@ void vtkInteractorStyleJoystickCamera::Pan()
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
   double ViewFocus[4];
+  double NewPickPoint[4];
   
-  // calculate the focal depth since we'll be using it a lot
-  this->CurrentCamera->GetFocalPoint(ViewFocus);
-  this->ComputeWorldToDisplay(ViewFocus[0], ViewFocus[1],
-                              ViewFocus[2], ViewFocus);
+  // Calculate the focal depth since we'll be using it a lot
+
+  vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
+  camera->GetFocalPoint(ViewFocus);
+  this->ComputeWorldToDisplay(ViewFocus[0], ViewFocus[1], ViewFocus[2], 
+                              ViewFocus);
   double focalDepth = ViewFocus[2];
 
-  double NewPickPoint[4];
   this->ComputeDisplayToWorld((float)rwi->GetLastEventPosition()[0], 
                               (float)rwi->GetLastEventPosition()[1],
-                              focalDepth, NewPickPoint);
+                              focalDepth, 
+                              NewPickPoint);
 
-  // get the current focal point and position
-  this->CurrentCamera->GetFocalPoint(ViewFocus);
-  double *ViewPoint = this->CurrentCamera->GetPosition();
+  // Get the current focal point and position
 
-  /*
-   * Compute a translation vector, moving everything 1/10
-   * the distance to the cursor. (Arbitrary scale factor)
-   */
+  camera->GetFocalPoint(ViewFocus);
+  double *ViewPoint = camera->GetPosition();
+
+  // Compute a translation vector, moving everything 1/10
+  // the distance to the cursor. (Arbitrary scale factor)
+
   double MotionVector[3];
-  MotionVector[0] = 0.1*(ViewFocus[0] - NewPickPoint[0]);
-  MotionVector[1] = 0.1*(ViewFocus[1] - NewPickPoint[1]);
-  MotionVector[2] = 0.1*(ViewFocus[2] - NewPickPoint[2]);
+  MotionVector[0] = 0.1 * (ViewFocus[0] - NewPickPoint[0]);
+  MotionVector[1] = 0.1 * (ViewFocus[1] - NewPickPoint[1]);
+  MotionVector[2] = 0.1 * (ViewFocus[2] - NewPickPoint[2]);
 
-  this->CurrentCamera->SetFocalPoint(MotionVector[0] + ViewFocus[0],
-                                     MotionVector[1] + ViewFocus[1],
-                                     MotionVector[2] + ViewFocus[2]);
+  camera->SetFocalPoint(MotionVector[0] + ViewFocus[0],
+                        MotionVector[1] + ViewFocus[1],
+                        MotionVector[2] + ViewFocus[2]);
 
-  this->CurrentCamera->SetPosition(MotionVector[0] + ViewPoint[0],
-                                   MotionVector[1] + ViewPoint[1],
-                                   MotionVector[2] + ViewPoint[2]);
+  camera->SetPosition(MotionVector[0] + ViewPoint[0],
+                      MotionVector[1] + ViewPoint[1],
+                      MotionVector[2] + ViewPoint[2]);
 
   if (rwi->GetLightFollowCamera())
     {
-    this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
-    this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
+    vtkLight* light = this->CurrentRenderer->GetFirstLight();
+    if (light != NULL) 
+      {
+      light->SetPosition(camera->GetPosition());
+      light->SetFocalPoint(camera->GetFocalPoint());
+      }
     }
 
   rwi->Render();
@@ -316,31 +332,34 @@ void vtkInteractorStyleJoystickCamera::Dolly()
 
   float *center = this->CurrentRenderer->GetCenter();
 
-  double dyf = 0.5 * 
-    ((double)rwi->GetLastEventPosition()[1] - (double)center[1]) 
-    / (double)(center[1]);
-
+  double dy = (double)rwi->GetLastEventPosition()[1] - (double)center[1];
+  double dyf = 0.5 * dy / (double)center[1];
   double zoomFactor = pow((double)1.1, dyf);
+
   if (zoomFactor < 0.5 || zoomFactor > 1.5)
     {
     vtkErrorMacro("Bad zoom factor encountered");
     }
   
-  if (this->CurrentCamera->GetParallelProjection())
+  vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
+  if (camera->GetParallelProjection())
     {
-    this->CurrentCamera->
-      SetParallelScale(this->CurrentCamera->GetParallelScale()/zoomFactor);
+    camera->SetParallelScale(camera->GetParallelScale() / zoomFactor);
     }
   else
     {
-    this->CurrentCamera->Dolly(zoomFactor);
+    camera->Dolly(zoomFactor);
     this->ResetCameraClippingRange();
     }
 
   if (rwi->GetLightFollowCamera())
     {
-    this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
-    this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
+    vtkLight* light = this->CurrentRenderer->GetFirstLight();
+    if (light != NULL) 
+      {
+      light->SetPosition(camera->GetPosition());
+      light->SetFocalPoint(camera->GetFocalPoint());
+      }
     }
 
   rwi->Render();

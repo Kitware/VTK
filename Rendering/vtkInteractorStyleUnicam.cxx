@@ -32,7 +32,7 @@
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.21");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.22");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 vtkInteractorStyleUnicam::vtkInteractorStyleUnicam()
@@ -227,8 +227,9 @@ void vtkInteractorStyleUnicam::OnLeftButtonUp(int vtkNotUsed(ctrl),
       this->FocusSphere->SetPosition(this->DownPt);
 
       float from[3];
-      this->FindPokedCamera(X, Y);
-      this->CurrentCamera->GetPosition(from);
+      this->FindPokedRenderer(X, Y);
+      vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
+      camera->GetPosition(from);
 
       float vec[3];
       vec[0] = this->DownPt[0] - from[0];
@@ -236,7 +237,7 @@ void vtkInteractorStyleUnicam::OnLeftButtonUp(int vtkNotUsed(ctrl),
       vec[2] = this->DownPt[2] - from[2];
 
       float at_v[4];
-      this->CurrentCamera->GetDirectionOfProjection(at_v);
+      camera->GetDirectionOfProjection(at_v);
       vtkMath::Normalize(at_v);
 
       // calculate scale so focus sphere always is the same size on the screen
@@ -383,7 +384,7 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
 
   if (fabs(dot) > 0.0001) 
     {
-    this->FindPokedCamera(X, Y);
+    this->FindPokedRenderer(X, Y);
 
     double angle = -2*acos(clamp(dot,-1.,1.)) * Sign(te[0]-tp[0]);
 
@@ -399,7 +400,8 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
 
     float dvec[3];
     float from[3];
-    this->CurrentCamera->GetPosition(from);
+    vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
+    camera->GetPosition(from);
     for(int i=0; i<3; i++)
       {
       dvec[i] = from[i] - center[i];
@@ -409,8 +411,8 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
     vtkMath::Normalize(dvec);
 
     float atV[4], upV[4], rightV[4];
-    this->CurrentCamera->GetViewPlaneNormal(atV);
-    this->CurrentCamera->GetViewUp(upV);
+    camera->GetViewPlaneNormal(atV);
+    camera->GetViewUp(upV);
     vtkMath::Cross(upV, atV, rightV);
     vtkMath::Normalize(rightV);
 
@@ -439,7 +441,7 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
                    rightV[0], rightV[1], rightV[2],
                    rdist);
 
-    this->CurrentCamera->SetViewUp(UPvec[0], UPvec[1], UPvec[2]);
+    camera->SetViewUp(UPvec[0], UPvec[1], UPvec[2]);
     }
 }
 
@@ -461,8 +463,9 @@ void vtkInteractorStyleUnicam::DollyXY( int X, int Y )
   // 1. handle dollying
   // XXX - assume perspective projection for now.
   float from[3];
-  this->FindPokedCamera(X, Y);
-  this->CurrentCamera->GetPosition(from);
+  this->FindPokedRenderer(X, Y);
+  vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
+  camera->GetPosition(from);
   
   float movec[3];
   for(i=0; i<3; i++)
@@ -481,7 +484,7 @@ void vtkInteractorStyleUnicam::DollyXY( int X, int Y )
 
   // 2. now handle side-to-side panning
   float rightV[3], upV[3];
-  this->GetRightVandUpV(this->DownPt, this->CurrentCamera,
+  this->GetRightVandUpV(this->DownPt, camera,
                         rightV, upV);
 
   float offset2[3];
@@ -514,10 +517,11 @@ void vtkInteractorStyleUnicam::PanXY( int X, int Y )
 
   // XXX - assume perspective projection for now
 
-  this->FindPokedCamera(X, Y);
+  this->FindPokedRenderer(X, Y);
 
   float rightV[3], upV[3];
-  this->GetRightVandUpV(this->DownPt, this->CurrentCamera,
+  vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
+  this->GetRightVandUpV(this->DownPt, camera,
                         rightV, upV);
 
   float offset[3];
@@ -594,9 +598,10 @@ void vtkInteractorStyleUnicam::MyRotateCamera(float cx, float cy, float cz,
   angle *= 180.0 / vtkMath::Pi();   // vtk uses degrees, not radians
 
   float p[4], f[4], u[4];
-  this->CurrentCamera->GetPosition  (p);
-  this->CurrentCamera->GetFocalPoint(f);
-  this->CurrentCamera->GetViewUp    (u);
+  vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
+  camera->GetPosition  (p);
+  camera->GetFocalPoint(f);
+  camera->GetViewUp    (u);
   p[3] = f[3] = 1.0; // (points)
   u[3] = 0.0;        // (a vector)
 
@@ -616,13 +621,13 @@ void vtkInteractorStyleUnicam::MyRotateCamera(float cx, float cy, float cz,
   t->RotateWXYZ(angle, ax, ay, az);
   t->MultiplyPoint(u, new_u);
 
-  this->CurrentCamera->SetPosition  (new_p[0], new_p[1], new_p[2]);
-  this->CurrentCamera->SetFocalPoint(new_f[0], new_f[1], new_f[2]);
-  this->CurrentCamera->SetViewUp    (new_u[0], new_u[1], new_u[2]);
+  camera->SetPosition  (new_p[0], new_p[1], new_p[2]);
+  camera->SetFocalPoint(new_f[0], new_f[1], new_f[2]);
+  camera->SetViewUp    (new_u[0], new_u[1], new_u[2]);
 
   // IMPORTANT!  If you don't re-compute view plane normal, the camera
   // view gets all messed up.
-  this->CurrentCamera->ComputeViewPlaneNormal();
+  camera->ComputeViewPlaneNormal();
 
   t->Delete();
 }
@@ -633,8 +638,9 @@ void vtkInteractorStyleUnicam::MyRotateCamera(float cx, float cy, float cz,
 void vtkInteractorStyleUnicam::MyTranslateCamera(float v[3])
 {
   float p[3], f[3];
-  this->CurrentCamera->GetPosition  (p);
-  this->CurrentCamera->GetFocalPoint(f);
+  vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
+  camera->GetPosition  (p);
+  camera->GetFocalPoint(f);
 
   float newP[3], newF[3];
   for(int i=0;i<3;i++) 
@@ -643,8 +649,8 @@ void vtkInteractorStyleUnicam::MyTranslateCamera(float v[3])
     newF[i] = f[i] + v[i];
     }
 
-  this->CurrentCamera->SetPosition  (newP);
-  this->CurrentCamera->SetFocalPoint(newF);
+  camera->SetPosition  (newP);
+  camera->SetFocalPoint(newF);
 
   this->ResetCameraClippingRange();
 }
