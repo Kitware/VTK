@@ -193,7 +193,7 @@ void vtkCutter::Execute()
   for ( i=0; i < numPts; i++ )
     {
     s = this->CutFunction->FunctionValue(input->GetPoint(i));
-    cutScalars->SetComponent(i,s);
+    cutScalars->SetComponent(i,0,s);
     }
 
   // Compute some information for progress methods
@@ -230,7 +230,7 @@ void vtkCutter::Execute()
         cellScalars->SetNumberOfScalars(numCellPts);
         for (i=0; i < numCellPts; i++)
           {
-          s = cutScalars->GetComponent(cellIds->GetId(i));
+          s = cutScalars->GetComponent(cellIds->GetId(i),0);
           cellScalars->SetScalar(i,s);
           }
 
@@ -258,7 +258,7 @@ void vtkCutter::Execute()
       cellScalars->SetNumberOfScalars(numCellPts);
       for (i=0; i < numCellPts; i++)
         {
-        s = cutScalars->GetComponent(cellIds->GetId(i));
+        s = cutScalars->GetComponent(cellIds->GetId(i),0);
         cellScalars->SetScalar(i,s);
         }
 

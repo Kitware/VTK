@@ -219,6 +219,19 @@ void vtkIdentityTransform::TransformNormals(vtkNormals *inNms,
     }
 }
 
+void vtkIdentityTransform::TransformNormals(vtkDataArray *inNms, 
+					    vtkDataArray *outNms)
+{
+  int n = inNms->GetNumberOfTuples();
+  double normal[3];
+  
+  for (int i = 0; i < n; i++)
+    {
+    inNms->GetTuple(i,normal);
+    outNms->InsertNextTuple(normal);
+    }
+}
+
 //----------------------------------------------------------------------------
 void vtkIdentityTransform::TransformVectors(vtkVectors *inNms, 
 					    vtkVectors *outNms)

@@ -97,6 +97,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_ACCUMULATION_MODE_MAX 1
 #define VTK_ACCUMULATION_MODE_SUM 2
 
+class vtkFloatAray;
+
 class VTK_EXPORT vtkGaussianSplatter : public vtkDataSetToStructuredPointsFilter 
 {
 public:
@@ -216,7 +218,7 @@ protected:
   void operator=(const vtkGaussianSplatter&) {};
 
   void Execute();
-  void Cap(vtkScalars *s);
+  void Cap(vtkFloatArray *s);
 
   int SampleDimensions[3]; // dimensions of volume to splat into
   float Radius; // maximum distance splat propagates (as fraction 0->1)
@@ -240,7 +242,7 @@ protected:
 
 //BTX
 private:
-  vtkScalars *NewScalars;
+  vtkFloatArray *NewScalars;
   float Radius2;
   float (vtkGaussianSplatter::*Sample)(float x[3]);
   float (vtkGaussianSplatter::*SampleFactor)(float s);

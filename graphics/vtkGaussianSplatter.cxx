@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include <math.h>
 #include "vtkGaussianSplatter.h"
-#include "vtkScalars.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------
@@ -96,7 +96,7 @@ void vtkGaussianSplatter::Execute()
   int min[3], max[3];
   vtkPointData *pd;
   vtkNormals *inNormals=NULL;
-  vtkScalars *inScalars=NULL;
+  vtkDataArray *inScalars=NULL;
   float loc[3], dist2, cx[3];
   vtkStructuredPoints *output = this->GetOutput();
   vtkDataSet *input= this->GetInput();
@@ -120,11 +120,11 @@ void vtkGaussianSplatter::Execute()
 
   numNewPts = this->SampleDimensions[0] * this->SampleDimensions[1] *
               this->SampleDimensions[2];
-  this->NewScalars = vtkScalars::New(); 
-  this->NewScalars->SetNumberOfScalars(numNewPts);
+  this->NewScalars = vtkFloatArray::New(); 
+  this->NewScalars->SetNumberOfTuples(numNewPts);
   for (i=0; i<numNewPts; i++)
     {
-    this->NewScalars->SetScalar(i,this->NullValue);
+    this->NewScalars->SetTuple(i,&this->NullValue);
     }
   this->Visited = new char[numNewPts];
   for (i=0; i < numNewPts; i++)
@@ -147,7 +147,7 @@ void vtkGaussianSplatter::Execute()
     this->Sample = &vtkGaussianSplatter::Gaussian;
     }
 
-  if ( this->ScalarWarping && (inScalars=pd->GetScalars()) != NULL )
+  if ( this->ScalarWarping && (inScalars=pd->GetActiveScalars()) != NULL )
     {
     this->SampleFactor = &vtkGaussianSplatter::ScalarSampling;
     }
@@ -180,7 +180,7 @@ void vtkGaussianSplatter::Execute()
       }
     if ( inScalars != NULL )
       {
-      this->S = inScalars->GetScalar(ptId);
+      this->S = inScalars->GetComponent(ptId,0);
       }
 
     // Determine the voxel that the point is in
@@ -360,7 +360,7 @@ void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
     }
 }
 
-void vtkGaussianSplatter::Cap(vtkScalars *s)
+void vtkGaussianSplatter::Cap(vtkFloatArray *s)
 {
   int i,j,k;
   int idx;
@@ -372,7 +372,7 @@ void vtkGaussianSplatter::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(i+j*this->SampleDimensions[0], this->CapValue);
+      s->SetTuple(i+j*this->SampleDimensions[0], &this->CapValue);
       }
     }
   k = this->SampleDimensions[2] - 1;
@@ -381,7 +381,7 @@ void vtkGaussianSplatter::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(idx+i+j*this->SampleDimensions[0], this->CapValue);
+      s->SetTuple(idx+i+j*this->SampleDimensions[0], &this->CapValue);
       }
     }
   // j-k planes
@@ -390,7 +390,7 @@ void vtkGaussianSplatter::Cap(vtkScalars *s)
     {
     for (j=0; j<this->SampleDimensions[1]; j++)
       {
-      s->SetScalar(j*this->SampleDimensions[0]+k*d01, this->CapValue);
+      s->SetTuple(j*this->SampleDimensions[0]+k*d01, &this->CapValue);
       }
     }
   i = this->SampleDimensions[0] - 1;
@@ -398,7 +398,7 @@ void vtkGaussianSplatter::Cap(vtkScalars *s)
     {
     for (j=0; j<this->SampleDimensions[1]; j++)
       {
-      s->SetScalar(i+j*this->SampleDimensions[0]+k*d01, this->CapValue);
+      s->SetTuple(i+j*this->SampleDimensions[0]+k*d01, &this->CapValue);
       }
     }
   // i-k planes
@@ -407,7 +407,7 @@ void vtkGaussianSplatter::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(i+k*d01, this->CapValue);
+      s->SetTuple(i+k*d01, &this->CapValue);
       }
     }
   j = this->SampleDimensions[1] - 1;
@@ -416,7 +416,7 @@ void vtkGaussianSplatter::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(idx+i+k*d01, this->CapValue);
+      s->SetTuple(idx+i+k*d01, &this->CapValue);
       }
     }
 }
@@ -473,22 +473,22 @@ void vtkGaussianSplatter::SetScalar(int idx, float dist2)
   if ( ! this->Visited[idx] )
     {
     this->Visited[idx] = 1;
-    this->NewScalars->SetScalar(idx,v);
+    this->NewScalars->SetTuple(idx,&v);
     }
   else
     {
-    float s = this->NewScalars->GetScalar(idx);
+    float s = this->NewScalars->GetValue(idx);
     switch (this->AccumulationMode)
       {
       case VTK_ACCUMULATION_MODE_MIN:
-        this->NewScalars->SetScalar(idx,(s < v ? s : v));
+        this->NewScalars->SetTuple(idx,(s < v ? &s : &v));
         break;
       case VTK_ACCUMULATION_MODE_MAX:
-        this->NewScalars->SetScalar(idx,(s > v ? s : v));
+        this->NewScalars->SetTuple(idx,(s > v ? &s : &v));
         break;
       case VTK_ACCUMULATION_MODE_SUM:
         s += v;
-        this->NewScalars->SetScalar(idx,s);
+        this->NewScalars->SetTuple(idx,&s);
         break;
       }
     }//not first visit

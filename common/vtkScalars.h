@@ -131,8 +131,8 @@ public:
   // Set/Get the active scalar component. This ivar specifies which
   // value (or component) to use with multivalued scalars. Currently,
   // a scalar can have at most four components (assumed RGBA).
-  void SetActiveComponent(int i);
-  int GetActiveComponent();
+  vtkSetMacro(ActiveComponent, int);
+  vtkGetMacro(ActiveComponent, int);
 
   // Special computational methods.
 
@@ -221,6 +221,7 @@ protected:
   unsigned char *Luminance(int id);  
   vtkUnsignedCharArray *Colors;
   unsigned char RGBA[4];
+  int ActiveComponent;
   //ETX
 };
 

@@ -111,23 +111,11 @@ public:
   float GetComponent(const int i, const int j);
 
   // Description:
-  // Return the active data component at the ith tuple location
-  // by calling GetComponent(i, this->ActiveComponent).
-  virtual float GetComponent(const int i) 
-    { return this->vtkDataArray::GetComponent(i); }
-
-  // Description:
   // Set the data component at the ith tuple and jth component location.
   // Note that i is less than NumberOfTuples and j is less than 
   // NumberOfComponents. Make sure enough memory has been allocated (use 
   // SetNumberOfTuples() and SetNumberOfComponents()).
   void SetComponent(const int i, const int j, const float c);
-
-  // Description:
-  // Set the active data component at the ith tuple location
-  // by calling SetComponent(i, this->ActiveComponent, c)
-  virtual void SetComponent(const int i, const float c)
-    { this->vtkDataArray::SetComponent(i, c); }
 
   // Description:
   // Insert the data component at ith tuple and jth component location. 

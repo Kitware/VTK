@@ -320,7 +320,7 @@ public:
   };
 
   enum AttributeLimitTypes {
-    MAX, EXACT
+    MAX, EXACT, NOLIMIT
   };
 
   // This public class is used to perform set operations, other misc. 

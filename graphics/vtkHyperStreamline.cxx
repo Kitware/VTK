@@ -394,9 +394,9 @@ void vtkHyperStreamline::Execute()
 {
   vtkDataSet *input = this->GetInput();
   vtkPointData *pd=input->GetPointData();
-  vtkScalars *inScalars;
-  vtkTensors *inTensors;
-  vtkTensor *tensor;
+  vtkDataArray *inScalars;
+  vtkDataArray *inTensors;
+  float *tensor;
   vtkHyperPoint *sNext, *sPtr;
   int i, j, k, ptId, subId, iv, ix, iy;
   vtkCell *cell;
@@ -407,8 +407,8 @@ void vtkHyperStreamline::Execute()
   float *m[3], *v[3];
   float m0[3], m1[3], m2[3];
   float v0[3], v1[3], v2[3];
-  vtkTensors *cellTensors;
-  vtkScalars *cellScalars;
+  vtkDataArray *cellTensors;
+  vtkDataArray *cellScalars;
   // set up working matrices
   v[0] = v0; v[1] = v1; v[2] = v2; 
   m[0] = m0; m[1] = m1; m[2] = m2; 
@@ -416,19 +416,32 @@ void vtkHyperStreamline::Execute()
   vtkDebugMacro(<<"Generating hyperstreamline(s)");
   this->NumberOfStreamers = 0;
 
-  if ( ! (inTensors=pd->GetTensors()) )
+  if ( ! (inTensors=pd->GetActiveTensors()) )
     {
     vtkErrorMacro(<<"No tensor data defined!");
     return;
     }
 
-  cellTensors = vtkTensors::New();
-  cellScalars = vtkScalars::New();
-  cellTensors->Allocate(VTK_CELL_SIZE);
-  cellScalars->Allocate(VTK_CELL_SIZE);
+
+  inScalars = pd->GetActiveScalars();
+
+  cellTensors = vtkDataArray::CreateDataArray(inTensors->GetDataType());
+  cellScalars = vtkDataArray::CreateDataArray(inScalars->GetDataType());
+  int numComp;
+  if (inTensors)
+    {
+    numComp = inTensors->GetNumberOfComponents();
+    cellTensors->SetNumberOfComponents(numComp);
+    cellTensors->SetNumberOfTuples(VTK_CELL_SIZE);
+    }
+  if (inScalars)
+    {
+    numComp = inScalars->GetNumberOfComponents();
+    cellScalars->SetNumberOfComponents(numComp);
+    cellScalars->SetNumberOfTuples(VTK_CELL_SIZE);
+    }
   
   
-  inScalars = pd->GetScalars();
   tol2 = input->GetLength() / 1000.0;
   tol2 = tol2 * tol2;
   iv = this->IntegrationEigenvector;
@@ -474,7 +487,7 @@ void vtkHyperStreamline::Execute()
     cell = input->GetCell(sPtr->CellId);
     cell->EvaluateLocation(sPtr->SubId, sPtr->P, xNext, w);
 
-    inTensors->GetTensors(cell->PointIds, cellTensors);
+    inTensors->GetTuples(cell->PointIds, cellTensors);
 
     // interpolate tensor, compute eigenfunctions
     for (j=0; j<3; j++)
@@ -486,12 +499,12 @@ void vtkHyperStreamline::Execute()
       }
     for (k=0; k < cell->GetNumberOfPoints(); k++)
       {
-      tensor = cellTensors->GetTensor(k);
+      tensor = cellTensors->GetTuple(k);
       for (j=0; j<3; j++) 
         {
         for (i=0; i<3; i++) 
           {
-          m[i][j] += tensor->GetComponent(i,j) * w[k];
+          m[i][j] += tensor[i+3*j] * w[k];
           }
         }
       }
@@ -501,10 +514,10 @@ void vtkHyperStreamline::Execute()
 
     if ( inScalars ) 
       {
-      inScalars->GetScalars(cell->PointIds, cellScalars);
+      inScalars->GetTuples(cell->PointIds, cellScalars);
       for (sPtr->S=0, i=0; i < cell->GetNumberOfPoints(); i++)
 	{
-        sPtr->S += cellScalars->GetScalar(i) * w[i];
+        sPtr->S += cellScalars->GetTuple(i)[0] * w[i];
 	}
       }
 
@@ -535,8 +548,8 @@ void vtkHyperStreamline::Execute()
     cell = input->GetCell(sPtr->CellId);
     cell->EvaluateLocation(sPtr->SubId, sPtr->P, xNext, w);
     step = this->IntegrationStepLength * sqrt((double)cell->GetLength2());
-    inTensors->GetTensors(cell->PointIds, cellTensors);
-    if ( inScalars ) {inScalars->GetScalars(cell->PointIds, cellScalars);}
+    inTensors->GetTuples(cell->PointIds, cellTensors);
+    if ( inScalars ) {inScalars->GetTuples(cell->PointIds, cellScalars);}
 
     //integrate until distance has been exceeded
     while ( sPtr->CellId >= 0 && fabs(sPtr->W[0]) > this->TerminalEigenvalue &&
@@ -562,12 +575,12 @@ void vtkHyperStreamline::Execute()
 	}
       for (k=0; k < cell->GetNumberOfPoints(); k++)
         {
-        tensor = cellTensors->GetTensor(k);
+        tensor = cellTensors->GetTuple(k);
         for (j=0; j<3; j++) 
           {
           for (i=0; i<3; i++) 
             {
-            m[i][j] += tensor->GetComponent(i,j) * w[k];
+            m[i][j] += tensor[i+3*j] * w[k];
             }
           }
         }
@@ -604,8 +617,8 @@ void vtkHyperStreamline::Execute()
 	    sNext->X[i] = xNext[i];
 	    }
           cell = input->GetCell(sNext->CellId);
-          inTensors->GetTensors(cell->PointIds, cellTensors);
-          if (inScalars){inScalars->GetScalars(cell->PointIds, cellScalars);}
+          inTensors->GetTuples(cell->PointIds, cellTensors);
+          if (inScalars){inScalars->GetTuples(cell->PointIds, cellScalars);}
           step = this->IntegrationStepLength * sqrt((double)cell->GetLength2());
           }
         }
@@ -622,12 +635,12 @@ void vtkHyperStreamline::Execute()
 	  }
         for (k=0; k < cell->GetNumberOfPoints(); k++)
           {
-          tensor = cellTensors->GetTensor(k);
+          tensor = cellTensors->GetTuple(k);
           for (j=0; j<3; j++) 
             {
             for (i=0; i<3; i++) 
               {
-              m[i][j] += tensor->GetComponent(i,j) * w[k];
+              m[i][j] += tensor[i+3*j] * w[k];
               }
             }
           }
@@ -639,7 +652,7 @@ void vtkHyperStreamline::Execute()
 	  {
           for (sNext->S=0.0, i=0; i < cell->GetNumberOfPoints(); i++)
 	    {
-            sNext->S += cellScalars->GetScalar(i) * w[i];
+            sNext->S += cellScalars->GetTuple(i)[0] * w[i];
 	    }
 	  }
         d = sqrt((double)vtkMath::Distance2BetweenPoints(sPtr->X,sNext->X));

@@ -53,6 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDoubleArray.h"
 #include "vtkLookupTable.h"
 #include "vtkCriticalSection.h"
+#include "vtkIdList.h"
 
 unsigned long vtkDataArray::ArrayNamePostfix = 0;
 
@@ -64,7 +65,6 @@ vtkDataArray::vtkDataArray(int numComp)
   this->Size = 0;
   this->MaxId = -1;
   this->LookupTable = NULL;
-  this->ActiveComponent = 0;
 
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
   this->Name = 0;
@@ -133,27 +133,6 @@ float vtkDataArray::GetComponent(const int i, const int j)
   return c;
 }
 
-float vtkDataArray::GetComponent(const int i)
-{
-  return this->GetComponent(i, this->ActiveComponent);
-}
-
-void vtkDataArray::SetActiveComponent(int i)
-{
-  if (i == this->ActiveComponent)
-    {
-    return;
-    }
-
-  if (i >= this->NumberOfComponents)
-    {
-    vtkWarningMacro("Active component has to be < " << this->NumberOfComponents);
-    return;
-    }
-
-  this->ActiveComponent = i;
-  this->Modified();
-}
 
 void vtkDataArray::SetComponent(const int i, const int j, const float c)
 {
@@ -175,11 +154,6 @@ void vtkDataArray::SetComponent(const int i, const int j, const float c)
   this->SetTuple(i,tuple);
 
   delete [] tuple;
-}
-
-void vtkDataArray::SetComponent(const int i, const float c)
-{
-  this->SetComponent(i, this->ActiveComponent, c);
 }
 
 void vtkDataArray::InsertComponent(const int i, const int j, const float c)
@@ -419,6 +393,54 @@ vtkDataArray* vtkDataArray::CreateDataArray(int dataType)
     }
 }
 
+template <class IT, class OT>
+static void CopyTuples(IT* input, OT* output, int nComp, vtkIdList* ptIds )
+{
+  int i, j;
+  int num=ptIds->GetNumberOfIds();
+  for (i=0; i<num; i++)
+    {
+    for (j=0; j<nComp; j++)
+      {
+      output[i*nComp+j] = static_cast<OT>(input[ptIds->GetId(i)*nComp+j]);
+      }
+    }
+}
+
+template <class IT>
+static void CopyTuples1(IT* input, vtkDataArray* output, vtkIdList* ptIds)
+{
+  switch (output->GetDataType())
+    {
+    vtkTemplateMacro4(CopyTuples, input, (VTK_TT *)output->GetVoidPointer(0), 
+		      output->GetNumberOfComponents(), ptIds );
+
+    default:
+      vtkGenericWarningMacro(<<"Sanity check failed: Unsupported data type.");
+      return;
+    }
+}
+
+void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkDataArray *da)
+{
+
+  if ((da->GetNumberOfComponents() != this->GetNumberOfComponents()))
+    {
+    vtkWarningMacro("Number of components for input and output do not match");
+    return;
+    }
+
+  switch (this->GetDataType())
+    {
+    vtkTemplateMacro3(CopyTuples1, (VTK_TT *)this->GetVoidPointer(0), da,
+		      ptIds );
+
+    default:
+      vtkErrorMacro(<<"Sanity check failed: Unsupported data type.");
+      return;
+    }
+}
+
 void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
@@ -437,5 +459,4 @@ void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "LookupTable: (none)\n";
     }
-  os << indent << "Active Component: " << this->ActiveComponent << "\n";
 }

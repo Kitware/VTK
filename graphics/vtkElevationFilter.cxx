@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkElevationFilter.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ vtkElevationFilter::vtkElevationFilter()
 void vtkElevationFilter::Execute()
 {
   int i, j, numPts;
-  vtkScalars *newScalars;
+  vtkFloatArray *newScalars;
   float l, *x, s, v[3];
   float diffVector[3], diffScalar;
   vtkDataSet *input = this->GetInput();
@@ -104,8 +104,8 @@ void vtkElevationFilter::Execute()
 
   // Allocate
   //
-  newScalars = vtkScalars::New();
-  newScalars->SetNumberOfScalars(numPts);
+  newScalars = vtkFloatArray::New();
+  newScalars->SetNumberOfTuples(numPts);
 
   // Set up 1D parametric system
   //
@@ -141,7 +141,7 @@ void vtkElevationFilter::Execute()
       }
     s = vtkMath::Dot(v,diffVector) / l;
     s = (s < 0.0 ? 0.0 : s > 1.0 ? 1.0 : s);
-    newScalars->SetScalar(i,this->ScalarRange[0]+s*diffScalar);
+    newScalars->SetValue(i,this->ScalarRange[0]+s*diffScalar);
     }
 
   // Update self
@@ -151,7 +151,7 @@ void vtkElevationFilter::Execute()
 
   this->GetOutput()->GetCellData()->PassData(input->GetCellData());
 
-  newScalars->GetData()->SetName("Elevation");
+  newScalars->SetName("Elevation");
   this->GetOutput()->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 }

@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkPointLoad.h"
 #include "vtkMath.h"
-#include "vtkTensors.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
 
@@ -120,9 +120,9 @@ void vtkPointLoad::SetSampleDimensions(int dim[3])
 void vtkPointLoad::Execute()
 {
   int i, j, k;
-  vtkTensors *newTensors;
-  vtkTensor *tensor = vtkTensor::New();
-  vtkScalars *newScalars = NULL;
+  vtkFloatArray *newTensors;
+  float tensor[9];
+  vtkFloatArray *newScalars = NULL;
   int numPts;
   float P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
   float x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
@@ -136,11 +136,12 @@ void vtkPointLoad::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  newTensors = vtkTensors::New();
-  newTensors->Allocate(numPts);
+  newTensors = vtkFloatArray::New();
+  newTensors->SetNumberOfComponents(9);
+  newTensors->Allocate(9*numPts);
   if ( this->ComputeEffectiveStress ) 
     {
-    newScalars = vtkScalars::New();
+    newScalars = vtkFloatArray::New();
     newScalars->Allocate(numPts);
     }
 
@@ -180,19 +181,20 @@ void vtkPointLoad::Execute()
         if ( rho < 1.0e-10 )
           {
           vtkWarningMacro(<<"Attempting to set singularity, resetting");
-          tensor->SetComponent(0,0,VTK_LARGE_FLOAT);
-          tensor->SetComponent(1,1,VTK_LARGE_FLOAT);
-          tensor->SetComponent(2,2,VTK_LARGE_FLOAT);
-          tensor->SetComponent(0,1,0.0);
-          tensor->SetComponent(0,2,0.0);
-          tensor->SetComponent(1,0,0.0);
-          tensor->SetComponent(1,2,0.0);
-          tensor->SetComponent(2,0,0.0);
-          tensor->SetComponent(2,1,0.0);
-          newTensors->InsertNextTensor(tensor);
+          tensor[0] = VTK_LARGE_FLOAT; // Component(0,0)
+	  tensor[4] = VTK_LARGE_FLOAT; // Component(1,1);
+          tensor[8] = VTK_LARGE_FLOAT; // Component(2,2);
+          tensor[3] = 0.0; // Component(0,1);
+          tensor[6] = 0.0; // Component(0,2);
+          tensor[1] = 0.0; // Component(1,0);
+          tensor[7] = 0.0; // Component(1,2);
+          tensor[2] = 0.0; // Component(2,0);
+          tensor[5] = 0.0; // Component(2,1);
+          newTensors->InsertNextTuple(tensor);
           if ( this->ComputeEffectiveStress )
 	    {
-            newScalars->InsertNextScalar(VTK_LARGE_FLOAT);
+	    float val = VTK_LARGE_FLOAT;
+            newScalars->InsertNextTuple(&val);
 	    }
           continue;
           }
@@ -222,22 +224,22 @@ void vtkPointLoad::Execute()
         txz = -(3.0*P*x*z2/(twoPi*rho5));
         tyz = 3.0*P*y*z2/(twoPi*rho5);
 
-        tensor->SetComponent(0,0, sx);
-        tensor->SetComponent(1,1, sy);
-        tensor->SetComponent(2,2, sz);
-        tensor->SetComponent(0,1, txy); // real symmetric matrix
-        tensor->SetComponent(1,0, txy);
-        tensor->SetComponent(0,2, txz);
-        tensor->SetComponent(2,0, txz);
-        tensor->SetComponent(1,2, tyz);
-        tensor->SetComponent(2,1, tyz);
-        newTensors->InsertNextTensor(tensor);
+        tensor[0] = sx;  // Component(0,0);
+        tensor[4] = sy;  // Component(1,1);
+        tensor[8] = sz;  // Component(2,2);
+        tensor[3] = txy; // Component(0,1);  real symmetric matrix
+	tensor[1] = txy; // Component(1,0);
+        tensor[6] = txz; // Component(0,2);
+        tensor[2] = txz; // Component(2,0);
+        tensor[7] = tyz; // Component(1,2);
+        tensor[5] = tyz; // Component(2,1);
+        newTensors->InsertNextTuple(tensor);
 
         if ( this->ComputeEffectiveStress )
           {
           seff = 0.333333* sqrt ((sx-sy)*(sx-sy) + (sy-sz)*(sy-sz) +
                  (sz-sx)*(sz-sx) + 6.0*txy*txy + 6.0*tyz*tyz + 6.0*txz*txz);
-          newScalars->InsertNextScalar(seff);
+          newScalars->InsertNextTuple(&seff);
           }
         }
       }
@@ -254,7 +256,6 @@ void vtkPointLoad::Execute()
     newScalars->Delete();
     }
   
-  tensor->Delete();
 }
 
 
