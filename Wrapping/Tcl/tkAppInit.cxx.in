@@ -186,7 +186,11 @@ proc package {args} {\n\
         if {[lindex $args 0] == \"require\"} {\n\
             set expecting \"can't find package vtk\";\n\
             if {![string compare -length [string length $expecting] $catch_res $expecting]} {\n\
-                set errorInfo \"The Tcl interpreter was probably not able to find the VTK packages. Please check that your TCLLIBPATH environment variable includes either the {VTK_SOURCE_DIR}/Wrapping/Tcl or the {CMAKE_INSTALL_PREFIX}/lib/vtk/tcl directory (current value is: $env(TCLLIBPATH)). More informations can be found in the {VTK_SOURCE_DIR}/Wrapping/Tcl/README file (also available online at http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK/Wrapping/Tcl/README).\n$errorInfo\";\n\
+                set msg \"The Tcl interpreter was probably not able to find the VTK packages. Please check that your TCLLIBPATH environment variable includes either the {VTK_SOURCE_DIR}/Wrapping/Tcl or the {CMAKE_INSTALL_PREFIX}/lib/vtk/tcl directory\";\n\
+                if {[info exists env(TCLLIBPATH)]} {\n\
+                  append msg \" (current value is: $env(TCLLIBPATH))\";\n\
+                } \n\
+                set errorInfo \"$msg. More informations can be found in the {VTK_SOURCE_DIR}/Wrapping/Tcl/README file (also available online at http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK/Wrapping/Tcl/README).\n$errorInfo\";\n\
             }\n\
         }\n\
         error $catch_res $errorInfo;\n\
