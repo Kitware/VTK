@@ -16,7 +16,7 @@ if {[catch {
 }
 
 if {![info exists __tk_error] && \
-        ([info commands vtkRenderWindow] != "" || \
+        ([info commands vtkAxisActor2D] != "" || \
         [::vtk::load_component vtkRenderingTCL] == "")} {
 
     # Set the default exit method of vtkWin32RenderWindowInteractor to
