@@ -263,7 +263,6 @@ vtkVRMLExporter \
 vtkVectorDot \
 vtkVectorNorm \
 vtkVectorText \
-vtkVectorTopology \
 vtkViewRays \
 vtkVolume \
 vtkVolumeProperty \
