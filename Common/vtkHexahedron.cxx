@@ -609,7 +609,7 @@ int vtkHexahedron::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
       pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
-    p[0] = 1; p[1] = 4; p[2] = 7; p[3] = 5;
+    p[0] = 1; p[1] = 4; p[2] = 6; p[3] = 5;
     for ( i=0; i < 4; i++ )
       {
       ptIds->InsertNextId(this->PointIds->GetId(p[i]));
@@ -630,7 +630,7 @@ int vtkHexahedron::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
       pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
-    p[0] = 3; p[1] = 6; p[2] = 1; p[3] = 4;
+    p[0] = 3; p[1] = 6; p[2] = 7; p[3] = 4;
     for ( i=0; i < 4; i++ )
       {
       ptIds->InsertNextId(this->PointIds->GetId(p[i]));
