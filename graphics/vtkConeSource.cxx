@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 #include <math.h>
 #include "vtkConeSource.h"
+#include "vtkMath.h"
 
 // Description:
 // Construct with default resolution 6, height 1.0, radius 0.5, and capping
@@ -178,6 +179,16 @@ void vtkConeSource::Execute()
     output->SetLines(newLines);
     newLines->Delete();
     }
+}
+
+void vtkConeSource::SetAngle(float angle)
+{
+  this->SetRadius (this->Height * tan ((double) angle*vtkMath::DegreesToRadians()));
+}
+
+float vtkConeSource::GetAngle()
+{
+  return atan2 (this->Radius, this->Height) / vtkMath::DegreesToRadians();
 }
 
 void vtkConeSource::PrintSelf(ostream& os, vtkIndent indent)

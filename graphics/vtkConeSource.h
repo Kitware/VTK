@@ -77,6 +77,11 @@ public:
   vtkGetMacro(Resolution,int);
 
   // Description:
+  // Set the angle of the cone. As a side effect, this method sets radius.
+  void SetAngle (float angle);
+  float GetAngle ();
+
+  // Description:
   // Turn on/off whether to cap the cone with a polygon.
   vtkSetMacro(Capping,int);
   vtkGetMacro(Capping,int);
