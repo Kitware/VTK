@@ -74,12 +74,10 @@ set cam1 [$ren1 GetActiveCamera];
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
-$renWin Render;
-
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
-$iren Start;
-
+#$renWin SetFilename bottle.tcl.ppm;
+#$renWin SaveImageAsPPM;
 
 

@@ -18,7 +18,6 @@ vtkPLOT3DReader pl3d;
     pl3d SetQFilename "../../data/bluntfinq.bin"
     pl3d SetScalarFunctionNumber 100;
     pl3d SetVectorFunctionNumber 202;
-    pl3d DebugOn;
     pl3d Update;
 
 # wall
@@ -106,15 +105,11 @@ $ren1 AddActors plane1Actor;
 $ren1 AddActors plane2Actor;
 $ren1 AddActors plane3Actor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 
-#vtkCamera cam1;
-#  cam1 SetClippingRange 17.4043 870.216
-#  cam1 SetFocalPoint 136.71 104.025 23
-#  cam1 SetPosition 204.747 258.939 63.7925
-#  cam1 CalcViewPlaneNormal;
-#  cam1 SetViewUp -0.102647 -0.210897 0.972104
-#$ren1 SetActiveCamera cam1;
+set cam1 [$ren1 GetActiveCamera];
+$cam1 Azimuth -40;
+$cam1 Zoom 1.4;
 
 $iren Initialize;
 $renWin Render;
@@ -123,8 +118,8 @@ $renWin Render;
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
-$renWin Render;
-
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
+
+#$renWin SetFilename bluntF.tcl.ppm;
+#$renWin SaveImageAsPPM;

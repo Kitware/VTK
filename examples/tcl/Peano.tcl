@@ -108,15 +108,16 @@ $ren1 SetBackground 1 1 1;
 
 $renWin SetSize 500 500;
 $renWin Render;
-
+[$ren1 GetActiveCamera] Zoom 1.4;
+$renWin Render;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
 $renWin Render;
+#$renWin SetFilename Peano.tcl.ppm;
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-$iren Start;

@@ -21,12 +21,10 @@ set iren [$renWin MakeRenderWindowInteractor];
     extract SetInput [sample GetOutput];
     extract SetVOI 0 29 0 29 15 15;
     extract SetSampleRate 1 2 3;
-    extract DebugOn;
 
   vtkMarchingSquares contours;
     contours SetInput [extract GetOutput];
     contours GenerateValues 13 0.0 1.2;
-    contours DebugOn;
 
   vtkPolyMapper contMapper;
     contMapper SetInput [contours GetOutput];
@@ -50,6 +48,10 @@ set iren [$renWin MakeRenderWindowInteractor];
   $ren1 AddActors contActor;
   $ren1 AddActors outlineActor;
 
+[$ren1 GetActiveCamera] Zoom 1.5;
 $iren Initialize;;
+
+#$renWin SetFilename MSquares.tcl.ppm;
+#$renWin SaveImageAsPPM;
 
 wm withdraw .;

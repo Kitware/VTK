@@ -15,7 +15,6 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkStructuredPointsReader reader;
     reader SetFilename "../../data/carotid.vtk"
-    reader DebugOn;
 vtkThresholdPoints threshold;
     threshold SetInput [reader GetOutput];
     threshold ThresholdByUpper 200;
@@ -37,7 +36,6 @@ vtkActor vectorActor;
 # 8 texture maps
 vtkStructuredPointsReader tmap1;
   tmap1 SetFilename "../../data/vecTex/vecAnim1.vtk";
-  tmap1 DebugOn;
 vtkTexture texture1;
   texture1 SetInput [tmap1 GetOutput];
   texture1 InterpolateOff;
@@ -45,7 +43,6 @@ vtkTexture texture1;
 
 vtkStructuredPointsReader tmap2;
   tmap2 SetFilename "../../data/vecTex/vecAnim2.vtk";
-  tmap2 DebugOn;
 vtkTexture texture2;
   texture2 SetInput [tmap2 GetOutput];
   texture2 InterpolateOff;
@@ -53,7 +50,6 @@ vtkTexture texture2;
 
 vtkStructuredPointsReader tmap3;
   tmap3 SetFilename "../../data/vecTex/vecAnim3.vtk";
-  tmap3 DebugOn;
 vtkTexture texture3;
   texture3 SetInput [tmap3 GetOutput];
   texture3 InterpolateOff;
@@ -61,7 +57,6 @@ vtkTexture texture3;
 
 vtkStructuredPointsReader tmap4;
   tmap4 SetFilename "../../data/vecTex/vecAnim4.vtk";
-  tmap4 DebugOn;
 vtkTexture texture4;
   texture4 SetInput [tmap4 GetOutput];
   texture4 InterpolateOff;
@@ -69,7 +64,6 @@ vtkTexture texture4;
 
 vtkStructuredPointsReader tmap5;
   tmap5 SetFilename "../../data/vecTex/vecAnim5.vtk";
-  tmap5 DebugOn;
 vtkTexture texture5;
   texture5 SetInput [tmap5 GetOutput];
   texture5 InterpolateOff;
@@ -77,7 +71,6 @@ vtkTexture texture5;
 
 vtkStructuredPointsReader tmap6;
   tmap6 SetFilename "../../data/vecTex/vecAnim6.vtk";
-  tmap6 DebugOn;
 vtkTexture texture6;
   texture6 SetInput [tmap6 GetOutput];
   texture6 InterpolateOff;
@@ -85,7 +78,6 @@ vtkTexture texture6;
 
 vtkStructuredPointsReader tmap7;
   tmap7 SetFilename "../../data/vecTex/vecAnim7.vtk";
-  tmap7 DebugOn;
 vtkTexture texture7;
   texture7 SetInput [tmap7 GetOutput];
   texture7 InterpolateOff;
@@ -93,7 +85,6 @@ vtkTexture texture7;
 
 vtkStructuredPointsReader tmap8;
   tmap8 SetFilename "../../data/vecTex/vecAnim8.vtk";
-  tmap8 DebugOn;
 vtkTexture texture8;
   texture8 SetInput [tmap8 GetOutput];
   texture8 InterpolateOff;
@@ -105,15 +96,14 @@ vectorActor SetTexture texture1;
 #
 $ren1 AddActors vectorActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 
 $iren Initialize;
-$renWin Render;
 
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
-
+[$ren1 GetActiveCamera] Zoom 1.5;
 $renWin Render;
 
 # prevent the tk window from showing up then start the event loop
@@ -121,7 +111,7 @@ wm withdraw .
 
 # go into loop
 
-for {set i 0} {$i<100} {incr i} {
+for {set i 0} {$i<5} {incr i} {
     vectorActor SetTexture texture1; $renWin Render;
     vectorActor SetTexture texture2; $renWin Render;
     vectorActor SetTexture texture3; $renWin Render;
@@ -139,3 +129,6 @@ for {set i 0} {$i<100} {incr i} {
     vectorActor SetTexture texture7; $renWin Render;
     vectorActor SetTexture texture8; $renWin Render;
 } 
+
+#$renWin SetFilename animVectors.tcl.ppm;
+#$renWin SaveImageAsPPM;

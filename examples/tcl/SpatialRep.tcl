@@ -10,17 +10,16 @@ vtkLineSource line2;
   line2 SetPoint1 0 0 0;
   line2 SetPoint2 1 1 1;
   line2 SetResolution 1000;
-#vtkAppendPolyData source;
-#  source AddInput [line1 GetOutput];
-#  source AddInput [line2 GetOutput];
+#vtkAppendPolyData asource;
+#  asource AddInput [line1 GetOutput];
+#  asource AddInput [line2 GetOutput];
 
-vtkSTLReader source;
-  source SetFilename ../../data/42400-IDGH.stl;
-#vtkCyberReader source;
-#  source SetFilename ../../data/fran_cut
-  source DebugOn;
+vtkSTLReader asource;
+  asource SetFilename ../../data/42400-IDGH.stl;
+#vtkCyberReader asource;
+#  asource SetFilename ../../data/fran_cut
 vtkPolyMapper dataMapper;
-  dataMapper SetInput [source GetOutput];
+  dataMapper SetInput [asource GetOutput];
 vtkActor model;
   model SetMapper dataMapper;
   [model GetProperty] SetColor 1 0 0;
@@ -31,14 +30,12 @@ vtkActor model;
 vtkCellLocator locator;
   locator SetMaxLevel 4;
   locator AutomaticOff;
-  locator DebugOn;
 vtkSpatialRepFilter boxes;
-  boxes SetInput [source GetOutput];
+  boxes SetInput [asource GetOutput];
   boxes SetSpatialRep locator;
 vtkPolyMapper boxMapper;
   boxMapper SetInput [boxes GetOutput];
 #  boxMapper SetInput [boxes GetOutput 2];
-  boxMapper DebugOn;
 vtkActor boxActor;
   boxActor SetMapper boxMapper;
   [boxActor GetProperty] SetWireframe;
@@ -59,7 +56,11 @@ $renWin Render;
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
+[$ren1 GetActiveCamera] Zoom 1.4;
 $iren Initialize;
+
+#$renWin SetFilename SpatialRep.tcl.ppm;
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -107,9 +107,10 @@ $renWin SetSize 450 450;
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
-$renWin Render;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
+$renWin SetFilename assembly2.tcl.ppm;
+$renWin SaveImageAsPPM;
 

@@ -10,7 +10,7 @@ vtkRenderMaster rm;
 # Now create the RenderWindow, Renderer and interactive renderer
 #
 set renWin [rm MakeRenderWindow];
-set aren [$renWin MakeRenderer];
+set ren1 [$renWin MakeRenderer];
 set iren [$renWin MakeRenderWindowInteractor];
 
 #
@@ -34,7 +34,6 @@ vtkHyperStreamline s1;
     s1 SetRadius 0.25;
     s1 SetNumberOfSides 18;
     s1 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS;
-    s1 DebugOn;
     s1 Update;
 # Map hyperstreamlines
 vtkLogLookupTable lut;
@@ -57,7 +56,6 @@ vtkHyperStreamline s2;
     s2 SetRadius 0.25;
     s2 SetNumberOfSides 18;
     s2 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS;
-    s2 DebugOn;
     s2 Update;
 vtkPolyMapper s2Mapper;
     s2Mapper SetInput [s2 GetOutput];
@@ -77,7 +75,6 @@ vtkHyperStreamline s3;
     s3 SetRadius 0.25;
     s3 SetNumberOfSides 18;
     s3 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS;
-    s3 DebugOn;
     s3 Update;
 vtkPolyMapper s3Mapper;
     s3Mapper SetInput [s3 GetOutput];
@@ -97,7 +94,6 @@ vtkHyperStreamline s4;
     s4 SetRadius 0.25;
     s4 SetNumberOfSides 18;
     s4 SetIntegrationDirection $VTK_INTEGRATE_BOTH_DIRECTIONS;
-    s4 DebugOn;
     s4 Update;
 vtkPolyMapper s4Mapper;
     s4Mapper SetInput [s4 GetOutput];
@@ -151,19 +147,22 @@ vtkCamera camera;
     camera SetViewAngle 24.4617;
     camera SetViewUp 0.17138 0.331163 0.927879;
 
-$aren AddActors s1Actor;
-$aren AddActors s2Actor;
-$aren AddActors s3Actor;
-$aren AddActors s4Actor;
-$aren AddActors outlineActor;
-$aren AddActors coneActor;
-$aren AddActors ga;
-$aren SetBackground 1.0 1.0 1.0;
-$aren SetActiveCamera camera;
+$ren1 AddActors s1Actor;
+$ren1 AddActors s2Actor;
+$ren1 AddActors s3Actor;
+$ren1 AddActors s4Actor;
+$ren1 AddActors outlineActor;
+$ren1 AddActors coneActor;
+$ren1 AddActors ga;
+$ren1 SetBackground 1.0 1.0 1.0;
+$ren1 SetActiveCamera camera;
 
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 $renWin Render;
 $iren SetUserMethod {wm deiconify .vtkInteract};
+
+#$renWin SetFilename Hyper.tcl.ppm;
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

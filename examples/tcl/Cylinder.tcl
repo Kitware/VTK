@@ -32,10 +32,14 @@ $renWin SetSize 450 450;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 $renWin Render;
+
+#$renWin SetFilename Cylinder.tcl.ppm;
+#$renWin SaveImageAsPPM;
+
 set coneProp [coneActor GetProperty];
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
+
 
 

@@ -41,7 +41,6 @@ vtkActor coneActor;
     [coneActor GetProperty] SetColor 0 1 0;
 
 vtkCylinderSource cylinder;#top part
-    cylinder DebugOn;
 vtkPolyMapper cylinderMapper;
     cylinderMapper SetInput [cylinder GetOutput];
 vtkAssembly cylinderActor;
@@ -66,6 +65,9 @@ $renWin SetSize 450 450;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 $renWin Render;
+
+#$renWin SetFilename assembly.tcl.ppm;
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -7,7 +7,7 @@ vtkRenderMaster rm;
 # Now create the RenderWindow, Renderer and interactive renderer
 #
 set renWin [rm MakeRenderWindow];
-set aren [$renWin MakeRenderer];
+set ren1 [$renWin MakeRenderer];
 set iren [$renWin MakeRenderWindowInteractor];
 
 #
@@ -37,7 +37,6 @@ vtkTensorGlyph ellipsoids;
     ellipsoids SetSource [axes GetOutput];
     ellipsoids SetScaleFactor 10;
     ellipsoids ClampScalingOn;
-    ellipsoids DebugOn;
   
 # Map contour
 vtkLogLookupTable lut;
@@ -84,19 +83,22 @@ vtkCamera camera;
     camera SetViewAngle 24.4617;
     camera SetViewUp 0.17138 0.331163 0.927879;
 
-$aren AddActors ellipActor;
-$aren AddActors outlineActor;
-$aren AddActors coneActor;
-$aren SetBackground 1.0 1.0 1.0;
-$aren SetActiveCamera camera;
+$ren1 AddActors ellipActor;
+$ren1 AddActors outlineActor;
+$ren1 AddActors coneActor;
+$ren1 SetBackground 1.0 1.0 1.0;
+$ren1 SetActiveCamera camera;
 
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 $renWin Render;
+
+#$renWin SetFilename TenAxes.tcl.ppm;
+#$renWin SaveImageAsPPM;
+
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
 
 
 

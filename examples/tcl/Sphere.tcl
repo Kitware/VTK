@@ -33,10 +33,12 @@ $ren1 SetBackground 1 1 1;# Background color white
 # Render an image; since no lights/cameras specified, created automatically
 $renWin Render;
 
+#$renWin SetFilename Sphere.tcl.ppm;
+#$renWin SaveImageAsPPM;
+
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
 # Begin mouse interaction
 $iren LightFollowCameraOff;
-$iren Start;
 

@@ -25,7 +25,6 @@ set iren [$renWin MakeRenderWindowInteractor];
   vtkContourFilter contours;
     contours SetInput [sample GetOutput];
     contours GenerateValues 5 0.0 1.2;
-    contours DebugOn;
 
   vtkPolyMapper contMapper;
     contMapper SetInput [contours GetOutput];
@@ -51,5 +50,8 @@ set iren [$renWin MakeRenderWindowInteractor];
 
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
+
+#$renWin SetFilename VisQuad.tcl.ppm;
+#$renWin SaveImageAsPPM;
 
 wm withdraw .;

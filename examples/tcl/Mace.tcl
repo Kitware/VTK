@@ -66,6 +66,5 @@ for {set i 0} {$i < 360} {incr i; incr i} {
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
 
 

@@ -3,7 +3,6 @@ source vtkInt.tcl
 
 vtkSTLReader reader;
   reader SetFilename ../../data/42400-IDGH.stl;
-  reader DebugOn;
 vtkPolyMapper dataMapper;
   dataMapper SetInput [reader GetOutput];
 vtkActor model;
@@ -13,13 +12,11 @@ vtkActor model;
 vtkOBBTree obb;
   obb SetMaxLevel 4;
   obb SetNumberOfCellsPerBucket 4;
-  obb DebugOn;
 vtkSpatialRepFilter boxes;
   boxes SetInput [reader GetOutput];
   boxes SetSpatialRep obb;
 vtkPolyMapper boxMapper;
   boxMapper SetInput [boxes GetOutput];
-  boxMapper DebugOn;
 vtkActor boxActor;
   boxActor SetMapper boxMapper;
   [boxActor GetProperty] SetWireframe;

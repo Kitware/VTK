@@ -28,7 +28,6 @@ vtkDelaunay2D del
     del BoundingTriangulationOn;
     del SetTolerance 0.001;
     del SetAlpha 0.0;
-    del DebugOn;
     del Update;
     
 vtkShrinkPolyData shrink;
@@ -49,6 +48,7 @@ $renWin SetSize 500 500;
 $renWin Render;
 
 set cam1 [$ren1 GetActiveCamera];
+$cam1 Zoom 1.5;
 
 # render the image
 #
@@ -56,10 +56,10 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 
 $renWin Render;
 
+#$renWin SetFilename Delaunay2D.tcl.ppm;
+#$renWin SaveImageAsPPM;
+
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-$iren Start;
-
 
 

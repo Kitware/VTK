@@ -16,9 +16,9 @@ planeActor SetMapper planeMapper;
 # load in the texture map
 #
 vtkTexture atext;
-vtkPNMReader pnm;
-pnm SetFilename "../../data/masonry.ppm";
-atext SetInput [pnm GetOutput];
+vtkPNMReader pnmReader;
+pnmReader SetFilename "../../data/masonry.ppm";
+atext SetInput [pnmReader GetOutput];
 atext InterpolateOn;
 planeActor SetTexture atext;
 
@@ -34,10 +34,9 @@ $cam1 Elevation -30;
 $cam1 Roll -20;
 $renWin Render;
 
-$renWin SetFilename "color4.ppm";
+#$renWin SetFilename "TPlane.tcl.ppm";
 #$renWin SaveImageAsPPM;
-puts "Done";
-#exit
+
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 

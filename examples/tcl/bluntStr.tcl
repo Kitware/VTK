@@ -19,7 +19,6 @@ vtkPLOT3DReader pl3d;
     pl3d SetQFilename "../../data/bluntfinq.bin"
     pl3d SetScalarFunctionNumber 100;
     pl3d SetVectorFunctionNumber 202;
-    pl3d DebugOn;
     pl3d Update;
 
 #streamers
@@ -82,7 +81,7 @@ $ren1 AddActors streamersActor;
 $ren1 AddActors wallActor;
 $ren1 AddActors finActor;
 $ren1 SetBackground 0 0 0;
-$renWin SetSize 1050 750;
+$renWin SetSize 700 500;
 
 vtkCamera cam1;
   cam1 SetFocalPoint 2.87956 4.24691 2.73135;
@@ -103,3 +102,6 @@ $renWin Render;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
+
+#$renWin SetFilename bluntStr.tcl.ppm;
+#$renWin SaveImageAsPPM;
