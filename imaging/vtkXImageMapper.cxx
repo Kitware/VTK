@@ -205,8 +205,6 @@ int vtkXImageMapper::GetXWindowVisualClass(vtkWindow* window)
   int visClass = visuals->c_class;
   XFree(visuals);
   return visClass;
-
-  // return visuals->c_class;
 }
 
 void vtkXImageMapper::GetXWindowColorMasks(vtkWindow *window, unsigned long *rmask,
@@ -327,7 +325,8 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
     }
 
   unsigned long* ulOutPtr = (unsigned long*) outPtr;
-
+  unsigned short* usOutPtr = (unsigned short*) outPtr;
+  
   vtkXImageMapperClamps( data, mapper->GetColorWindow(),
 			 mapper->GetColorLevel(), 
 			 lower, upper, lower_val, upper_val);
@@ -354,7 +353,7 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
     {
     inPtr0 = inPtr1;
     endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
-    if (visualClass == TrueColor)
+    if (visualClass == TrueColor && visualDepth >= 24)
       {
       while (inPtr0 != endPtr)
 	{
@@ -380,6 +379,36 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
 	  *ulOutPtr = *ulOutPtr | ((gmask & (colorIdx << 24)) >> gshift);
 	  *ulOutPtr = *ulOutPtr | ((bmask & (colorIdx << 24)) >> bshift);
           ulOutPtr++;
+	  }
+	inPtr0 += inInc0;
+	}
+      }
+    else if (visualClass == TrueColor && visualDepth < 24)
+      {
+      while (inPtr0 != endPtr)
+	{
+	*usOutPtr = 0;
+	if (*inPtr0 <= lower)	  
+	  {
+	  *usOutPtr = *usOutPtr | ((rmask & (lowerPixel << 24)) >> rshift);
+	  *usOutPtr = *usOutPtr | ((gmask & (lowerPixel << 24)) >> gshift);
+	  *usOutPtr = *usOutPtr | ((bmask & (lowerPixel << 24)) >> bshift);
+          usOutPtr++;
+	  }
+	else if (*inPtr0 >= upper)
+	  {
+	  *usOutPtr = *usOutPtr | ((rmask & (upperPixel << 24)) >> rshift);
+	  *usOutPtr = *usOutPtr | ((gmask & (upperPixel << 24)) >> gshift);
+	  *usOutPtr = *usOutPtr | ((bmask & (upperPixel << 24)) >> bshift);
+          usOutPtr++;
+	  }
+	else
+	  {
+	  colorIdx = (int)((*inPtr0 + shift) * scale);
+	  *usOutPtr = *usOutPtr | ((rmask & (colorIdx << 24)) >> rshift);
+	  *usOutPtr = *usOutPtr | ((gmask & (colorIdx << 24)) >> gshift);
+	  *usOutPtr = *usOutPtr | ((bmask & (colorIdx << 24)) >> bshift);
+          usOutPtr++;
 	  }
 	inPtr0 += inInc0;
 	}
@@ -463,12 +492,13 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
   int colors[256];
   unsigned char lowerPixel, upperPixel;
   int colorIdx;
-  int visualClass;
+  int visualDepth, visualClass;
 
   mapper->GetXColors(colors);
   
   vtkWindow*  window = viewport->GetVTKWindow();
   visualClass = mapper->GetXWindowVisualClass(window);
+  visualDepth = mapper->GetXWindowDepth(window);
     
   shift = mapper->GetColorShift();
   scale = mapper->GetColorScale();
@@ -518,6 +548,7 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
     }
 
   unsigned long* ulOutPtr = (unsigned long*) outPtr;
+  unsigned short* usOutPtr = (unsigned short*) outPtr;
 
   vtkXImageMapperClamps ( data, mapper->GetColorWindow(),
 			  mapper->GetColorLevel(), 
@@ -542,7 +573,7 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
     greenPtr0 = greenPtr1;
     bluePtr0 = bluePtr1;
 
-    if (visualClass == TrueColor)
+    if (visualClass == TrueColor && visualDepth >= 24)
       {
     for (idx0 = inMin0; idx0 <= inMax0; idx0++)
       {
@@ -558,11 +589,36 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
       else if (*bluePtr0 >= upper) blue = upper_val;
       else blue = (unsigned char)(((float)(*bluePtr0) + shift) * scale);
 
-      *ulOutPtr = 0;
-      *ulOutPtr = *ulOutPtr | ((rmask & (red << 24)) >> rshift);
+      *ulOutPtr = ((rmask & (red << 24)) >> rshift);
       *ulOutPtr = *ulOutPtr | ((gmask & (green << 24)) >> gshift);
       *ulOutPtr = *ulOutPtr | ((bmask & (blue << 24)) >> bshift);
       ulOutPtr++;
+
+      redPtr0 += inInc0;
+      greenPtr0 += inInc0;
+      bluePtr0 += inInc0;
+      }
+      }
+    else if (visualClass == TrueColor && visualDepth < 24)
+      {
+    for (idx0 = inMin0; idx0 <= inMax0; idx0++)
+      {
+      if (*redPtr0 <= lower) red = lower_val;
+      else if (*redPtr0 >= upper) red = upper_val;
+      else red = (unsigned char)(((float)(*redPtr0) + shift) * scale);
+
+      if (*greenPtr0 <= lower) green = lower_val;
+      else if (*greenPtr0 >= upper) green = upper_val;
+      else green = (unsigned char)(((float)(*greenPtr0) + shift) * scale);
+  
+      if (*bluePtr0 <= lower) blue = lower_val;
+      else if (*bluePtr0 >= upper) blue = upper_val;
+      else blue = (unsigned char)(((float)(*bluePtr0) + shift) * scale);
+
+      *usOutPtr = ((rmask & (red << 24)) >> rshift);
+      *usOutPtr = *usOutPtr | ((gmask & (green << 24)) >> gshift);
+      *usOutPtr = *usOutPtr | ((bmask & (blue << 24)) >> bshift);
+      usOutPtr++;
 
       redPtr0 += inInc0;
       greenPtr0 += inInc0;
@@ -633,7 +689,11 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
     {
     size *= 4;
     }
-
+  else if (visualDepth > 8)
+    {
+    size *= 2;
+    }
+  
   // Only reallocate DataOut if the size is different than before
   if (size != this->DataOutSize)
     {
