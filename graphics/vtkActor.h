@@ -92,7 +92,7 @@ class VTK_EXPORT vtkActor : public vtkProp3D
   // This causes the actor to be rendered. It in turn will render the actor's
   // property, texture map and then mapper. If a property hasn't been
   // assigned, then the actor will create one automatically. Note that a side
-  // effect of this method is that the
+  // effect of this method is that the pipeline will be updated.
   virtual void Render(vtkRenderer *, vtkMapper *) {};
 
   // Description:
