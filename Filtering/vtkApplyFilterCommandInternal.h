@@ -20,14 +20,15 @@
 #define __vtkApplyFilterCommandInternal_h
 
 #include <vtkstd/map>
-#include <vtkstd/string>
 #include <vtkstd/vector>
+
+#include "vtkStdString.h"
 
 class vtkApplyFilterCommandInternal
 {
 public:
-  typedef vtkstd::vector<vtkstd::string> FilterTypesVector;
-  typedef vtkstd::map<vtkstd::string, FilterTypesVector> FilterTypesMap;
+  typedef vtkstd::vector<vtkStdString> FilterTypesVector;
+  typedef vtkstd::map<vtkStdString, FilterTypesVector> FilterTypesMap;
 
   FilterTypesMap FilterTypes;
 };
