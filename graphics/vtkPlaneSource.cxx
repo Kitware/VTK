@@ -387,8 +387,7 @@ void vtkPlaneSource::Push(float distance)
   // set the new center
   for ( i=0; i < 3; i++ )
     {
-    this->Center[i] = this->Point1[i] + this->Point2[i] - 
-      2.0*this->Origin[i];
+    this->Center[i] = 0.5*(this->Point1[i] + this->Point2[i]);
     }
 
   this->Modified();
