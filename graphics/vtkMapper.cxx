@@ -107,6 +107,24 @@ vtkColorScalars *vtkMapper::GetColors()
   int i, numPts;
   vtkColorScalars *colors;
   
+  // get point data and scalars
+  pd=this->Input->GetPointData();
+  scalars=pd->GetScalars();
+
+  // do we have any scalars ?
+  if (scalars &&  this->ScalarVisibility)
+    {
+    // if the scalars have a lookup table use it instead
+    this->SetLookupTable(scalars->GetLookupTable());
+    }
+  else
+    {
+    // if there are no scalars or if they arn't visible, return
+    if ( this->Colors ) this->Colors->Delete();
+    this->Colors = colors = NULL;
+    return colors;
+    }
+    
   // make sure we have a lookup table
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
   this->LookupTable->Build();
@@ -115,41 +133,32 @@ vtkColorScalars *vtkMapper::GetColors()
   // create colors
   //
   numPts = this->Input->GetNumberOfPoints();
-  if ( this->ScalarVisibility && (pd=this->Input->GetPointData()) && 
-       (scalars=pd->GetScalars()) )
+  if ( strcmp(scalars->GetScalarType(),"ColorScalar") )
     {
-    if ( strcmp(scalars->GetScalarType(),"ColorScalar") )
+    if ( this->Colors == NULL ) 
       {
-      if ( this->Colors == NULL ) 
-	{
-	this->Colors = vtkAPixmap::New();
-	this->Colors->Allocate(numPts);
-	}
-      else
-	{
-	int numColors=this->Colors->GetNumberOfColors();
-	if ( numColors < numPts ) this->Colors->Allocate(numPts);
-	}
-      
-      this->LookupTable->SetTableRange(this->ScalarRange);
-      this->Colors->SetNumberOfColors(numPts);
-      for (i=0; i < numPts; i++)
-	{
-	this->Colors->SetColor(i,this->LookupTable->
-			       MapValue(scalars->GetScalar(i)));
-	}
-      
-      colors = this->Colors;
+      this->Colors = vtkAPixmap::New();
+      this->Colors->Allocate(numPts);
       }
-    else //color scalar
+    else
       {
-      colors = (vtkColorScalars *)scalars;
+      int numColors=this->Colors->GetNumberOfColors();
+      if ( numColors < numPts ) this->Colors->Allocate(numPts);
       }
+    
+    this->LookupTable->SetTableRange(this->ScalarRange);
+    this->Colors->SetNumberOfColors(numPts);
+    for (i=0; i < numPts; i++)
+      {
+      this->Colors->SetColor(i,this->LookupTable->
+			     MapValue(scalars->GetScalar(i)));
+      }
+    
+    colors = this->Colors;
     }
-  else
+  else //color scalar
     {
-    if ( this->Colors ) this->Colors->Delete();
-    this->Colors = colors = NULL;
+    colors = (vtkColorScalars *)scalars;
     }
   
   return colors;
