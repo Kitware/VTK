@@ -227,11 +227,11 @@ IF (VTK_WRAP_PYTHON)
         vtkTkRenderWidgetPython
         vtkTkImageViewerWidgetPython
         vtkTkImageWindowWidgetPython)
-     ADD_LIBRARY(vtkRenderingPythonTkWidgets RenderingPythonTkWidgets_SRCS)
+     ADD_LIBRARY(vtkPythonTkWidgets RenderingPythonTkWidgets_SRCS)
      TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets 
                             ${TCL_LIBRARY}
                             ${TK_LIBRARY})
-     INSTALL_TARGETS(/lib vtkRenderingPythonTkWidgets)
+     INSTALL_TARGETS(/lib vtkPythonTkWidgets)
   ENDIF (TK_LIBRARY)
 ENDIF (VTK_WRAP_PYTHON)
 
