@@ -41,9 +41,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkCell3D.h"
 
-void Clip(float, vtkScalars*, vtkPointLocator*, vtkCellArray*,
-          vtkPointData*, vtkPointData*, vtkCellData*, int, vtkCellData*, 
-          int)
+void vtkCell3D::Clip(float, vtkScalars*, vtkPointLocator*, vtkCellArray*,
+                     vtkPointData*, vtkPointData*, vtkCellData*, int, 
+                     vtkCellData*, int)
 {
 }
 
