@@ -38,17 +38,17 @@ public class AxesActor extends vtkAssembly {
     yactor.GetPositionCoordinate().SetValue(0.0, axisLength, 0.0);
     zactor.GetPositionCoordinate().SetValue(0.0, 0.0, axisLength);
 
-    xactor.GetTextProperty().SetColor(0.0, 0.0, 0.0);
+    xactor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
     xactor.GetTextProperty().ShadowOn();
     xactor.GetTextProperty().ItalicOn();
     xactor.GetTextProperty().BoldOff();
 
-    yactor.GetTextProperty().SetColor(0.0, 0.0, 0.0);
+    yactor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
     yactor.GetTextProperty().ShadowOn();
     yactor.GetTextProperty().ItalicOn();
     yactor.GetTextProperty().BoldOff();
 
-    zactor.GetTextProperty().SetColor(0.0, 0.0, 0.0);
+    zactor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
     zactor.GetTextProperty().ShadowOn();
     zactor.GetTextProperty().ItalicOn();
     zactor.GetTextProperty().BoldOff();

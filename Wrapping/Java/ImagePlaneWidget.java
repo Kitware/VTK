@@ -5,17 +5,17 @@ import java.io.*;
 import java.util.*;
 import vtk.*;
 
-// Example of complex 3D widget in use.  Note that widgets must belong
-// to the vtkCanvas object in order for mutex locking to work properly.
+// Example of complex 3D widget in use.
 public class ImagePlaneWidget extends JPanel {
 
   private int width = 512;
   private int height = 512;
+  private vtkCanvas renWin = null;
 
   public ImagePlaneWidget(String path) {
     setLayout(new BorderLayout());
 
-    final ImageCanvas renWin = new ImageCanvas();
+    renWin = new vtkCanvas();
 
     // attach observer to set the render window size after
     // the render window is created...
@@ -36,7 +36,7 @@ public class ImagePlaneWidget extends JPanel {
     v16.SetDataSpacing(3.2, 3.2, 1.5);
     v16.Update();
 
-    renWin.setImageData(v16.GetOutput());
+    setImageData(v16.GetOutput());
 
     JFrame frame = new JFrame("ImagePlaneWidget Test");
     frame.setBounds(10, 10, width, height);
@@ -49,78 +49,70 @@ public class ImagePlaneWidget extends JPanel {
       });
   }
 
-  private class ImageCanvas extends vtkCanvas {
-        
-    public ImageCanvas() {
-      super();
-    }
+  public void setImageData(vtkImageData id) {
 
-    public void setImageData(vtkImageData id) {
+    //The shared picker enables us to use 3 planes at one time
+    //and gets the picking order right
+    vtkCellPicker picker = new vtkCellPicker();
+    picker.SetTolerance(0.005);
 
-      //The shared picker enables us to use 3 planes at one time
-      //and gets the picking order right
-      vtkCellPicker picker = new vtkCellPicker();
-      picker.SetTolerance(0.005);
+    //The 3 image plane widgets are used to probe the dataset.
+    vtkImagePlaneWidget planeWidgetX = new vtkImagePlaneWidget();
+    planeWidgetX.DisplayTextOn();
+    planeWidgetX.SetInput(id);
+    planeWidgetX.SetInteractor(renWin.getIren());
+    planeWidgetX.SetPlaneOrientationToXAxes();
+    planeWidgetX.SetSliceIndex(32);
+    planeWidgetX.SetPicker(picker);
+    planeWidgetX.SetKeyPressActivationValue('x');
+    planeWidgetX.GetPlaneProperty().SetColor(1, 0, 0);
+    planeWidgetX.On();
 
-      //The 3 image plane widgets are used to probe the dataset.
-      vtkImagePlaneWidget planeWidgetX = new vtkImagePlaneWidget();
-      planeWidgetX.DisplayTextOn();
-      planeWidgetX.SetInput(id);
-      planeWidgetX.SetInteractor(iren);
-      planeWidgetX.SetPlaneOrientationToXAxes();
-      planeWidgetX.SetSliceIndex(32);
-      planeWidgetX.SetPicker(picker);
-      planeWidgetX.SetKeyPressActivationValue('x');
-      planeWidgetX.GetPlaneProperty().SetColor(1, 0, 0);
-      planeWidgetX.On();
-
-      vtkImagePlaneWidget planeWidgetY = new vtkImagePlaneWidget();
-      planeWidgetY.DisplayTextOn();
-      planeWidgetY.SetInput(id);
-      planeWidgetY.SetInteractor(iren);
-      planeWidgetY.SetPlaneOrientationToYAxes();
-      planeWidgetY.SetSliceIndex(32);
-      planeWidgetY.SetPicker(picker);
-      planeWidgetY.SetKeyPressActivationValue('y');
-      planeWidgetY.GetPlaneProperty().SetColor(1, 1, 0);
-      planeWidgetY.SetLookupTable(planeWidgetX.GetLookupTable());
-      planeWidgetY.On();
+    vtkImagePlaneWidget planeWidgetY = new vtkImagePlaneWidget();
+    planeWidgetY.DisplayTextOn();
+    planeWidgetY.SetInput(id);
+    planeWidgetY.SetInteractor(renWin.getIren());
+    planeWidgetY.SetPlaneOrientationToYAxes();
+    planeWidgetY.SetSliceIndex(32);
+    planeWidgetY.SetPicker(picker);
+    planeWidgetY.SetKeyPressActivationValue('y');
+    planeWidgetY.GetPlaneProperty().SetColor(1, 1, 0);
+    planeWidgetY.SetLookupTable(planeWidgetX.GetLookupTable());
+    planeWidgetY.On();
      
-     //for the z-slice, turn off texture interpolation:
-     //interpolation is now nearest neighbour, to demonstrate
-     //cross-hair cursor snapping to pixel centers
-      vtkImagePlaneWidget planeWidgetZ = new vtkImagePlaneWidget();
-      planeWidgetZ.DisplayTextOn();
-      planeWidgetZ.SetInput(id);
-      planeWidgetZ.TextureInterpolateOff();
-      planeWidgetZ.SetInteractor(iren);
-      planeWidgetZ.SetPlaneOrientationToZAxes();
-      planeWidgetZ.SetSliceIndex(46);
-      planeWidgetZ.SetPicker(picker);
-      planeWidgetZ.SetKeyPressActivationValue('z');
-      planeWidgetZ.GetPlaneProperty().SetColor (0, 0, 1);
-      planeWidgetZ.SetLookupTable(planeWidgetX.GetLookupTable());
-      planeWidgetZ.On();
+    //for the z-slice, turn off texture interpolation:
+    //interpolation is now nearest neighbour, to demonstrate
+    //cross-hair cursor snapping to pixel centers
+    vtkImagePlaneWidget planeWidgetZ = new vtkImagePlaneWidget();
+    planeWidgetZ.DisplayTextOn();
+    planeWidgetZ.SetInput(id);
+    planeWidgetZ.TextureInterpolateOff();
+    planeWidgetZ.SetInteractor(renWin.getIren());
+    planeWidgetZ.SetPlaneOrientationToZAxes();
+    planeWidgetZ.SetSliceIndex(46);
+    planeWidgetZ.SetPicker(picker);
+    planeWidgetZ.SetKeyPressActivationValue('z');
+    planeWidgetZ.GetPlaneProperty().SetColor (0, 0, 1);
+    planeWidgetZ.SetLookupTable(planeWidgetX.GetLookupTable());
+    planeWidgetZ.On();
 
-      //An outline is shown for context.
-      vtkOutlineFilter outline = new vtkOutlineFilter();
-      outline.SetInput (id);
+    //An outline is shown for context.
+    vtkOutlineFilter outline = new vtkOutlineFilter();
+    outline.SetInput (id);
       
-      vtkPolyDataMapper outlineMapper = new vtkPolyDataMapper();
-      outlineMapper.SetInput ( outline.GetOutput()  );
+    vtkPolyDataMapper outlineMapper = new vtkPolyDataMapper();
+    outlineMapper.SetInput ( outline.GetOutput()  );
       
-      vtkActor outlineActor = new vtkActor();
-      outlineActor.SetMapper(outlineMapper);
+    vtkActor outlineActor = new vtkActor();
+    outlineActor.SetMapper(outlineMapper);
       
-      ren.AddActor(outlineActor);
+    renWin.GetRenderer().AddActor(outlineActor);
       
-      //Add the outline actor to the renderer, set the background and size
-      ren.GetCullers().RemoveAllItems();
+    //Add the outline actor to the renderer, set the background and size
+    renWin.GetRenderer().GetCullers().RemoveAllItems();
       
-      ren.SetBackground(0.1, 0.1, 0.2);
+    renWin.GetRenderer().SetBackground(0.1, 0.1, 0.2);
       
-    }
-    
   }
 
   static public void printUsage(String err) {

@@ -61,6 +61,10 @@ public class vtkCanvas extends vtkPanel implements MouseListener, MouseMotionLis
       timer.stop();
   }
 
+  public vtkGenericRenderWindowInteractor getIren() {
+    return this.iren;
+  }
+
   public void setInteractorStyle(vtkInteractorStyle style) {
     iren.SetInteractorStyle(style);
   }
