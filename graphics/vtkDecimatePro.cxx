@@ -447,6 +447,32 @@ void vtkDecimatePro::Execute()
   // Generate output at the given reduction level.
   delete VertexQueue;
 
+  int newCellPts[3], numNewPts,*map;
+  vtkPointData *outputPD = output->GetPointData(), *pd = input->GetPointData();
+
+  // Figure out which points are still used
+  numPts = Mesh->GetNumberOfPoints();
+  map = new int[numPts];
+  for (i=0; i<numPts; i++) map[i] = -1;
+  numNewPts = 0;
+  for (ptId=0; ptId < numPts; ptId++)
+    {
+    Mesh->GetPointCells(ptId,ncells,cells);
+    if ( ncells > 0 ) map[ptId] = numNewPts++;
+    }
+
+  // Copy points to output
+  outputPD->CopyAllocate(pd,numNewPts);
+  newPts = new vtkFloatPoints(numNewPts);
+  for (ptId=0; ptId < numPts; ptId++)
+    {
+    if ( map[ptId] > -1 )
+      {
+      newPts->SetPoint(map[ptId],Mesh->GetPoint(ptId));
+      outputPD->CopyData(pd,ptId,map[ptId]);
+      }
+    }
+
   // Now grab the cells that are left
   newPolys = new vtkCellArray;
   newPolys->Allocate(newPolys->EstimateSize(3,numTris-totalEliminated));
@@ -456,13 +482,16 @@ void vtkDecimatePro::Execute()
     if ( Mesh->GetCellType(cellId) == VTK_TRIANGLE ) // non-null element
       {
       Mesh->GetCellPoints(cellId, npts, pts);
-      newPolys->InsertNextCell(npts,pts);
+      for (i=0; i<npts; i++) newCellPts[i] = map[pts[i]];
+      newPolys->InsertNextCell(npts,newCellPts);
       }
     }
 
-  output->SetPoints(Mesh->GetPoints());
+  output->SetPoints(newPts);
   output->SetPolys(newPolys);
 
+  newPts->Delete();
+  newPolys->Delete();
   Mesh->Delete();
 }
 
