@@ -79,7 +79,16 @@ protected:
   ~vtkMesaRenderer() {};
   vtkMesaRenderer(const vtkMesaRenderer&) {};
   void operator=(const vtkMesaRenderer&) {};
-  
+  //BTX
+  // Picking functions to be implemented by sub-classes
+  // Stubs for now, until this gets fixed right
+  virtual void DevicePickRender(){};
+  virtual void StartPick(unsigned int pickFromSize){};
+  virtual void SetPickId(unsigned int pickID){};
+  virtual void DonePick(){};
+  virtual unsigned int GetPickedID(){};
+  virtual float GetPickedZ(){};
+  //ETX
 
 };
 
