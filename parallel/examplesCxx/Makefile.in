@@ -52,7 +52,7 @@ LDLIBS =-L../../common -L../../graphics -L../../parallel -L../../imaging \
 all: ${EXAMPLES}
 
 DataParallelism: DataParallelism.o composite.o
-	${CXX} -o TestMPI ${CXX_FLAGS} DataParallelism.o composite.o \
+	${CXX} -o DataParallelism ${CXX_FLAGS} DataParallelism.o composite.o \
 	${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 

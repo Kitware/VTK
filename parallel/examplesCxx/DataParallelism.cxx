@@ -574,7 +574,20 @@ int main( int argc, char* argv[] )
     NO_REQUESTED_PIECES = atoi(argv[1]);
     controller->SingleMethodExecute();
     }
-
+  else
+    {
+    if (controller->GetLocalProcessId() == 0)
+      {
+      cerr << "\nNo pieces requested. \n"
+	   << "Usage:  mpirun -np NUM_PROCS DataParallelism NUM_PIECES\n"
+	   << "  NUM_PROCS is the number of processesor to assign.\n"
+	   << "  NUM_PIECES is the number of pieces to process on this run.\n\n"
+	   << "If the simulation is not finished after NUM_PIECES has been processed,\n"
+	   << "the final state is saved in files and used to start the next run.\n\n";
+      }
+    }
+  
+  
   controller->Finalize();
   controller->Delete();
   return 1;
