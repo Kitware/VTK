@@ -87,15 +87,8 @@ vtkClipPolyData aCutter
   aCutter SetClipFunction aPlane
   aCutter SetInput [skinReader GetOutput]
 
-vtkStripper stripper
-  stripper SetInput [aCutter GetOutput]
-
-vtkPolyDataNormals normals
-  normals SetInput [stripper GetOutput]
-  eval normals SetFeatureAngle 60
-
 vtkPolyDataMapper skinMapper
-  skinMapper SetInput [normals GetOutput]
+  skinMapper SetInput [aCutter GetOutput]
   skinMapper ScalarVisibilityOff
 
 vtkActor skin
