@@ -40,6 +40,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSource.hh"
 
 
+//----------------------------------------------------------------------------
+vtkImageSource::vtkImageSource()
+{
+  this->SplitFactor = 2;
+}
+
+
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Destructor: Deleting a vtkImageRegion automatically deletes the associated
+// vtkImageData.  However, since the data is reference counted, it may not 
+// actually be deleted.
+void vtkImageSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkObject::PrintSelf(os,indent);
+  os << indent << "SplitFactor: " << this->SplitFactor << "\n";
+}
+  
 
 //----------------------------------------------------------------------------
 // Description:

@@ -70,6 +70,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_IMAGE_UNSIGNED_SHORT  4
 #define VTK_IMAGE_UNSIGNED_CHAR   5
 
+// A macro to get the name of a type
+#define vtkImageDataTypeNameMacro(type) \
+(((type) == VTK_IMAGE_VOID) ? "void" : \
+(((type) == VTK_IMAGE_FLOAT) ? "float" : \
+(((type) == VTK_IMAGE_INT) ? "int" : \
+(((type) == VTK_IMAGE_SHORT) ? "short" : \
+(((type) == VTK_IMAGE_UNSIGNED_SHORT) ? "unsigned short" : \
+(((type) == VTK_IMAGE_UNSIGNED_CHAR) ? "unsigned char" : \
+"Undefined"))))))
+
 
 
 class vtkImageData : public vtkRefCount
@@ -78,6 +88,7 @@ public:
   vtkImageData();
   ~vtkImageData();
   char *GetClassName() {return "vtkImageData";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   int GetReferenceCount();
 

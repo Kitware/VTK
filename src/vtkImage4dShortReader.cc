@@ -57,7 +57,30 @@ vtkImage4dShortReader::vtkImage4dShortReader()
   this->SetSize(256, 256, 1, 2);
   this->PixelMax = -9e99;
   this->PixelMin = +9e99;
+  this->SetAspectRatio(1.0, 1.0, 1.0, 1.0);
+  
+  this->FileRoot[0] = '\0';
+  this->HeaderSize = 0;
 }
+
+
+//----------------------------------------------------------------------------
+void vtkImage4dShortReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkObject::PrintSelf(os,indent);
+  
+  os << indent << "FileRoot: " << this->FileRoot << "\n";
+  os << indent << "HeaderSize: " << this->HeaderSize << "\n";
+  os << indent << "Signed: " << this->Signed << "\n";
+  os << indent << "SwapBytes: " << this->SwapBytes << "\n";
+  os << indent << "Size: (" << this->Size[0] << ", " << this->Size[1] << ", "
+     << this->Size[2] << ", " << this->Size[3] << ")\n";
+  os << indent << "AspectRatio: (" << this->AspectRatio[0] << ", " 
+     << this->AspectRatio[1] << ", " << this->AspectRatio[2] << ", "
+     << this->AspectRatio[3] << ")\n";
+}
+
+
 
 //----------------------------------------------------------------------------
 // Description:
@@ -94,6 +117,7 @@ void vtkImage4dShortReader::UpdateImageInformation(vtkImageRegion *region)
 			   0, this->Size[1]-1, 
 			   0, this->Size[2]-1,
 			   0, this->Size[3]-1);
+  region->SetAspectRatio4d(this->AspectRatio);
 }
 
 
@@ -146,11 +170,112 @@ void vtkImage4dShortReader::SetFileRoot(char *fileRoot)
 
 //----------------------------------------------------------------------------
 // Description:
-// This function reads in one slice of the region.
+// This function reads a whole image.
+// This is a special cass that should speed reads.
+template <class T>
+void vtkImage4dShortReaderGenerateImage2d(vtkImage4dShortReader *self,
+					  vtkImageRegion *region, T *ptr)
+{
+  int min0, max0,  min1, max1;
+  int inc0, inc1;
+  T *pf0, *pf1;
+  T pixelMin, pixelMax;
+  long headerSize;
+  long imageSize;
+  unsigned char *buf, *pbuf;
+  unsigned char swap[2];
+  unsigned short *pshort;
+  int idx0, idx1;
+
+  // Hack try to set initial values for min and max
+  pixelMax = 0;
+  pixelMin = (T)(65000);
+  if (255 > pixelMin)
+    pixelMin = 255;
+  if (-pixelMin < 1)
+    pixelMax = -pixelMin;
+  
+  // get the information needed to find a location in the file
+  region->GetBounds2d(min0, max0,  min1, max1);
+  region->GetIncrements2d(inc0, inc1);
+  imageSize = (max0-min0+1)*(max1-min1+1)*2;  // the number of bytes in image
+  headerSize = self->GetHeaderSize();
+  
+  // skip over header
+  self->File->seekg(headerSize, ios::beg);
+  if (self->File->fail())
+    {
+    cerr << "File operation failed.";
+    return;
+    }
+  
+  // create a buffer to hold a row of the region
+  buf = new unsigned char[imageSize]; 
+  
+  // read the image all at once
+  if ( ! self->File->read(buf, imageSize))
+    {
+    cerr << "File operation failed.";
+    return;
+    }
+  /*    
+  // copy the bytes into the typed region
+    // handle byte swapping
+    if (self->SwapBytes)
+      {
+      *swap = pbuf[1];
+      swap[1] = *pbuf;
+      }
+    else
+      {
+      *swap = *pbuf;
+      swap[1] = pbuf[1];
+      }
+    
+    // mask the data
+    pshort = (unsigned short *)(swap);
+    *pshort = *pshort & self->PixelMask;
+    
+    // Convert to data type T
+    if (self->Signed)
+      *pf0 = (T)(*((short int *)swap));
+    else
+      *pf0 = (T)(*((unsigned short int *)swap));
+    
+    // Keep track of min and max
+    if (*pf0 < pixelMin)
+      {
+      pixelMin = *pf0;
+      }
+    if (*pf0 > pixelMax)
+      {
+      pixelMax = *pf0;
+      }
+      */
+  
+  // Save global pixel min and max.
+  /*
+  if (self->PixelMin > (double)(pixelMin))
+    {
+    self->PixelMin = (double)(pixelMin);
+    }
+  if (self->PixelMax < (double)(pixelMax))
+    {
+    self->PixelMax = (double)(pixelMax);
+    }
+    */
+  // delete the temporary buffer
+  delete [] buf;
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This function reads in one region of one slice.
 // templated to handle different data types.
 template <class T>
-void vtkImage4dShortReaderGenerateData2d(vtkImage4dShortReader *self,
-					 vtkImageRegion *region, T *ptr)
+void vtkImage4dShortReaderGenerateRegion2d(vtkImage4dShortReader *self,
+					   vtkImageRegion *region, T *ptr)
 {
   int min0, max0,  min1, max1;
   int inc0, inc1;
@@ -311,21 +436,21 @@ void vtkImage4dShortReader::UpdateRegion2d(vtkImageRegion *region)
   switch (region->GetDataType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImage4dShortReaderGenerateData2d(this, region, (float *)(ptr));
+      vtkImage4dShortReaderGenerateRegion2d(this, region, (float *)(ptr));
       break;
     case VTK_IMAGE_INT:
-      vtkImage4dShortReaderGenerateData2d(this, region, (int *)(ptr));
+      vtkImage4dShortReaderGenerateRegion2d(this, region, (int *)(ptr));
       break;
     case VTK_IMAGE_SHORT:
-      vtkImage4dShortReaderGenerateData2d(this, region, (short *)(ptr));
+      vtkImage4dShortReaderGenerateRegion2d(this, region, (short *)(ptr));
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImage4dShortReaderGenerateData2d(this, region, 
-					  (unsigned short *)(ptr));
+      vtkImage4dShortReaderGenerateRegion2d(this, region, 
+					    (unsigned short *)(ptr));
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImage4dShortReaderGenerateData2d(this, region, 
-					  (unsigned char *)(ptr));
+      vtkImage4dShortReaderGenerateRegion2d(this, region, 
+					    (unsigned char *)(ptr));
       break;
     }   
   

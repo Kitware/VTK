@@ -64,91 +64,99 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_IMAGE_TIME_AXIS 3
 #define VTK_IMAGE_COMPONENT_AXIS 4
 
+// A macro to get the name of an axis
+#define vtkImageRegionAxisNameMacro(axis) \
+(((axis) == VTK_IMAGE_X_AXIS) ? "X" : \
+(((axis) == VTK_IMAGE_Y_AXIS) ? "Y" : \
+(((axis) == VTK_IMAGE_Z_AXIS) ? "Z" : \
+(((axis) == VTK_IMAGE_TIME_AXIS) ? "Time" : \
+(((axis) == VTK_IMAGE_COMPONENT_AXIS) ? "Component" : \
+"Undefined")))))
 
 
 // These macro are for creating the many convenience functions used 
 // for accessing instance variables.  They could simplify this class.
-#define vtkImageRegionSetMacro(name) \
-void Set##name (int *_tmp) { this->Set##name (_tmp, 5);} \
-void Set##name##5d(int *_tmp) { this->Set##name (_tmp, 5);} \
-void Set##name##4d(int *_tmp) { this->Set##name (_tmp, 4);} \
-void Set##name##3d(int *_tmp) { this->Set##name (_tmp, 3);} \
-void Set##name##2d(int *_tmp) { this->Set##name (_tmp, 2);} \
-void Set##name##1d(int *_tmp) { this->Set##name (_tmp, 1);} \
-void Set##name##5d(int _name0,int _name1,int _name2, int _name3,int _name4) \
+#define vtkImageRegionSetMacro(name,type) \
+void Set##name (type *_tmp) { this->Set##name (_tmp, 5);} \
+void Set##name##5d(type *_tmp) { this->Set##name (_tmp, 5);} \
+void Set##name##4d(type *_tmp) { this->Set##name (_tmp, 4);} \
+void Set##name##3d(type *_tmp) { this->Set##name (_tmp, 3);} \
+void Set##name##2d(type *_tmp) { this->Set##name (_tmp, 2);} \
+void Set##name##1d(type *_tmp) { this->Set##name (_tmp, 1);} \
+void Set##name##5d(type _name0,type _name1,type _name2, type _name3,type _name4) \
 { \
-  int _tmp[5]; \
+  type _tmp[5]; \
   _tmp[0] = _name0; _tmp[1] = _name1; _tmp[2] = _name2; \
   _tmp[3] = _name3; _tmp[4] = _name4; \
   this->Set##name (_tmp,5); \
 } \
-void Set##name##4d(int _name0,int _name1,int _name2, int _name3) \
+void Set##name##4d(type _name0,type _name1,type _name2, type _name3) \
 { \
-  int _tmp[4]; \
+  type _tmp[4]; \
   _tmp[0] = _name0; _tmp[1] = _name1; \
   _tmp[2] = _name2; _tmp[3] = _name3; \
   this->Set##name (_tmp,4); \
 } \
-void Set##name##3d(int _name0,int _name1,int _name2) \
+void Set##name##3d(type _name0,type _name1,type _name2) \
 { \
-  int _tmp[3]; \
+  type _tmp[3]; \
   _tmp[0] = _name0; _tmp[1] = _name1; _tmp[2] = _name2; \
   this->Set##name (_tmp,3); \
 } \
-void Set##name##2d(int _name0,int _name1) \
+void Set##name##2d(type _name0,type _name1) \
 { \
-  int _tmp[2]; \
+  type _tmp[2]; \
   _tmp[0] = _name0; _tmp[1] = _name1; \
   this->Set##name (_tmp,2); \
 } \
-void Set##name##1d(int _name0) \
+void Set##name##1d(type _name0) \
 { \
-  int _tmp[1]; \
+  type _tmp[1]; \
   _tmp[0] = _name0; \
   this->Set##name (_tmp,1); \
 } 
-#define vtkImageRegionGetMacro(name) \
-int *Get##name () { return this->##name ;}  \
-int *Get##name##5d() { return this->##name ;} \
-int *Get##name##4d() { return this->##name ;} \
-int *Get##name##3d() { return this->##name ;} \
-int *Get##name##2d() { return this->##name ;} \
-int *Get##name##1d() { return this->##name ;} \
-void Get##name (int *_tmp) { this->Get##name (_tmp, 5);} \
-void Get##name##5d(int *_tmp) { this->Get##name (_tmp, 5);} \
-void Get##name##4d(int *_tmp) { this->Get##name (_tmp, 4);} \
-void Get##name##3d(int *_tmp) { this->Get##name (_tmp, 3);} \
-void Get##name##2d(int *_tmp) { this->Get##name (_tmp, 2);} \
-void Get##name##1d(int *_tmp) { this->Get##name (_tmp, 1);} \
-void Get##name##5d(int &_name0,int &_name1,int &_name2, \
-		   int &_name3,int &_name4) \
+#define vtkImageRegionGetMacro(name,type) \
+type *Get##name () { return this->##name ;}  \
+type *Get##name##5d() { return this->##name ;} \
+type *Get##name##4d() { return this->##name ;} \
+type *Get##name##3d() { return this->##name ;} \
+type *Get##name##2d() { return this->##name ;} \
+type *Get##name##1d() { return this->##name ;} \
+void Get##name (type *_tmp) { this->Get##name (_tmp, 5);} \
+void Get##name##5d(type *_tmp) { this->Get##name (_tmp, 5);} \
+void Get##name##4d(type *_tmp) { this->Get##name (_tmp, 4);} \
+void Get##name##3d(type *_tmp) { this->Get##name (_tmp, 3);} \
+void Get##name##2d(type *_tmp) { this->Get##name (_tmp, 2);} \
+void Get##name##1d(type *_tmp) { this->Get##name (_tmp, 1);} \
+void Get##name##5d(type &_name0,type &_name1,type &_name2, \
+		   type &_name3,type &_name4) \
 { \
-  int _tmp[5]; \
+  type _tmp[5]; \
   this->Get##name (_tmp,5); \
   _name0 = _tmp[0]; _name1 = _tmp[1]; _name2 = _tmp[2]; \
   _name3 = _tmp[3]; _name4 = _tmp[4]; \
 } \
-void Get##name##4d(int &_name0,int &_name1,int &_name2,int &_name3) \
+void Get##name##4d(type &_name0,type &_name1,type &_name2,type &_name3) \
 { \
-  int _tmp[4]; \
+  type _tmp[4]; \
   this->Get##name (_tmp,4); \
   _name0 = _tmp[0]; _name1 = _tmp[1]; _name2 = _tmp[2]; _name3 = _tmp[3]; \
 } \
-void Get##name##3d(int &_name0,int &_name1,int &_name2) \
+void Get##name##3d(type &_name0,type &_name1,type &_name2) \
 { \
-  int _tmp[3]; \
+  type _tmp[3]; \
   this->Get##name (_tmp,3); \
   _name0 = _tmp[0]; _name1 = _tmp[1]; _name2 = _tmp[2]; \
 } \
-void Get##name##2d(int &_name0,int &_name1) \
+void Get##name##2d(type &_name0,type &_name1) \
 { \
-  int _tmp[2]; \
+  type _tmp[2]; \
   this->Get##name (_tmp,2); \
   _name0 = _tmp[0]; _name1 = _tmp[1]; \
 } \
-void Get##name##1d(int &_name0) \
+void Get##name##1d(type &_name0) \
 { \
-  int _tmp[1]; \
+  type _tmp[1]; \
   this->Get##name (_tmp,1); \
   _name0 = _tmp[0]; \
 } 
@@ -268,6 +276,7 @@ public:
   vtkImageRegion();
   ~vtkImageRegion();
   char *GetClassName() {return "vtkImageRegion";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   int GetReferenceCount();
   void CopyRegionData(vtkImageRegion *region);
@@ -291,7 +300,7 @@ public:
   // Increments do not include size of data type, so should be used after
   // pointers have been converted to their actual type.
   void GetIncrements(int *increments, int dim);
-  vtkImageRegionGetMacro(Increments);
+  vtkImageRegionGetMacro(Increments, int);
   
   // Description:
   // Set the current volume, image or line.  Used to disambiguate the
@@ -356,16 +365,29 @@ public:
   // Different methods for getting the ImageBounds.
   void GetImageBounds(int *bounds, int dim);
   vtkImageRegionGetBoundsMacro(ImageBounds);
+
   
+  // Description:
+  // Different methods for setting the AspectRatio.
+  // The 2d and 1d functions do not modify aspect ratio of the higher
+  // dimensions.
+  void SetAspectRatio(float *ratio, int dim);
+  vtkImageRegionSetMacro(AspectRatio, float);
+  // Description:
+  // Different methods for getting the Aspect Ratio.
+  void GetAspectRatio(float *ratio, int dim);
+  vtkImageRegionGetMacro(AspectRatio, float);
+  
+
   // Description:
   // Different methods for setting the axes.
   void SetAxes(int *axes, int dim);
-  vtkImageRegionSetMacro(Axes);
+  vtkImageRegionSetMacro(Axes, int);
 
   // Description:
   // Different methods for getting the axes.
   void GetAxes(int *axes, int dim);  
-  vtkImageRegionGetMacro(Axes);
+  vtkImageRegionGetMacro(Axes, int);
 
   // Description:
   // This method returns the number of pixels enclosed in this bounding box.
@@ -426,11 +448,13 @@ protected:
   // Possibly make a new object to hold global information like ImageBounds.
   int ImageBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
   int AbsoluteImageBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  float AspectRatio[VTK_IMAGE_DIMENSIONS];
+  float AbsoluteAspectRatio[VTK_IMAGE_DIMENSIONS];
   
 
   // Helper methods.
-  void ShuffleRelativeToAbsolute(int *relative, int *absolute);
-  void ShuffleAbsoluteToRelative(int *absolute, int *relative);
+  //void ShuffleRelativeToAbsolute(int *relative, int *absolute);
+  //void ShuffleAbsoluteToRelative(int *absolute, int *relative);
   void ShuffleBoundsRelativeToAbsolute(int *relative, int *absolute);
   void ShuffleBoundsAbsoluteToRelative(int *absolute, int *relative);
 };

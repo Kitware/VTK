@@ -58,7 +58,7 @@ vtkImageCache::vtkImageCache()
   // default is to save data,
   // (But caches automatically created by sources set ReleaseDataFlag to 1)
   this->ReleaseDataFlag = 0;
-  this->MemoryLimit = 25000000;  // 5000 x 5000 image
+  this->MemoryLimit = 50000000;  // 512x512x178
 }
 
 
@@ -189,6 +189,19 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   region->GetAxes(saveAxes);
   region->SetAxes(this->Source->GetAxes());
 
+  // Set default data type.
+  if (region->GetDataType() == VTK_IMAGE_VOID)
+    {
+    region->SetDataType(this->GetDataType());
+    }
+  else
+    {
+    if (region->GetDataType() != this->GetDataType())
+      {
+      vtkErrorMacro(<< "UpdateRegion: DataType does not match.");
+      }
+    }
+  
   // Allow the source to modify the bounds of the region  
   this->Source->InterceptCacheUpdate(region);
   

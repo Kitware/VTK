@@ -59,7 +59,9 @@ class vtkImageRegion;
 class vtkImageSource : public vtkObject 
 {
 public:
+  vtkImageSource();
   char *GetClassName() {return "vtkImageSource";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // This method should the allocate and generate the Region's data, or

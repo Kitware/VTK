@@ -60,7 +60,30 @@ vtkImageVolumeShortReader::vtkImageVolumeShortReader()
   this->Increments[0] = 1;
   this->Increments[1] = 512;
   this->Increments[2] = 512 * 512;
+
+  this->SetAspectRatio(1.0, 1.0, 1.0);
+  
+  this->FileRoot[0] = '\0';
+  this->HeaderSize = 0;
+  this->PixelMask = 65535;
 }
+
+
+//----------------------------------------------------------------------------
+void vtkImageVolumeShortReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkObject::PrintSelf(os,indent);
+  
+  os << indent << "FileRoot: " << this->FileRoot << "\n";
+  os << indent << "HeaderSize: " << this->HeaderSize << "\n";
+  os << indent << "Signed: " << this->Signed << "\n";
+  os << indent << "SwapBytes: " << this->SwapBytes << "\n";
+  os << indent << "Size: (" << this->Size[0] << ", " 
+     << this->Size[1] << ", " << this->Size[2] << ")\n";
+  os << indent << "AspectRatio: (" << this->AspectRatio[0] << ", " 
+     << this->AspectRatio[1] << ", " << this->AspectRatio[2] << ")\n";
+}
+
 
 //----------------------------------------------------------------------------
 // Description:
@@ -94,6 +117,7 @@ void vtkImageVolumeShortReader::UpdateImageInformation(vtkImageRegion *region)
   region->SetImageBounds3d(0, this->Size[0]-1, 
 			   0, this->Size[1]-1, 
 			   0, this->Size[2]-1);
+  region->SetAspectRatio3d(this->AspectRatio);
 }
 
 

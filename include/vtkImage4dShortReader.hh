@@ -59,9 +59,15 @@ class vtkImage4dShortReader : public vtkImageCachedSource
 public:
   vtkImage4dShortReader();
   char *GetClassName() {return "vtkImage4dShortReader";};
-
+  void PrintSelf(ostream& os, vtkIndent indent);   
+  
   void SetSize(int size0, int size1, int size2, int size3);
   void SetSize(int *size);
+  
+  // Description:
+  // Set And get the aspect ratio of the data.
+  vtkSetVector4Macro(AspectRatio, float);
+  vtkGetVector4Macro(AspectRatio, float);
   
   void SetFileRoot(char *fileRoot);
   void UpdateImageInformation(vtkImageRegion *region);
@@ -88,23 +94,26 @@ public:
   vtkGetMacro(SwapBytes,int);
   vtkBooleanMacro(SwapBytes,int);
 
+  // Description:
+  // Get the size of the header computed by this object.
+  vtkGetMacro(HeaderSize, int);
+  
   // Templated function that reads into different data types.
-  friend void vtkImage4dShortReaderGenerateData2d(
+  friend void vtkImage4dShortReaderGenerateRegion2d(
 			     vtkImage4dShortReader *self,
 			     vtkImageRegion *region, float *ptr);
-  friend void vtkImage4dShortReaderGenerateData2d(
+  friend void vtkImage4dShortReaderGenerateRegion2d(
 			     vtkImage4dShortReader *self,
 			     vtkImageRegion *region, int *ptr);
-  friend void vtkImage4dShortReaderGenerateData2d(
+  friend void vtkImage4dShortReaderGenerateRegion2d(
 			     vtkImage4dShortReader *self,
 			     vtkImageRegion *region, short *ptr);
-  friend void vtkImage4dShortReaderGenerateData2d(
+  friend void vtkImage4dShortReaderGenerateRegion2d(
 			     vtkImage4dShortReader *self,
 			     vtkImageRegion *region, unsigned short *ptr);
-  friend void vtkImage4dShortReaderGenerateData2d(
+  friend void vtkImage4dShortReaderGenerateRegion2d(
 			     vtkImage4dShortReader *self,
 			     vtkImageRegion *region, unsigned char *ptr);
-  
   
 protected:
   char FileRoot[100];
@@ -115,6 +124,8 @@ protected:
   int Signed;
   int SwapBytes;
   int Size[4];
+  float AspectRatio[4];
+  
   // For seeking to the correct location in the files.
   int Increments[4];
   // The first image has this number

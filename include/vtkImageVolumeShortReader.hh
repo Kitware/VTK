@@ -59,7 +59,8 @@ class vtkImageVolumeShortReader : public vtkImageCachedSource
 public:
   vtkImageVolumeShortReader();
   char *GetClassName() {return "vtkImageVolumeShortReader";};
-
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
   void SetSize(int size0, int size1, int size2);
   void SetSize(int *size);
   
@@ -88,6 +89,11 @@ public:
   vtkGetMacro(SwapBytes,int);
   vtkBooleanMacro(SwapBytes,int);
 
+  // Description:
+  // Set/Get Aspect Ratio
+  vtkSetVector3Macro(AspectRatio, float);
+  vtkGetVector3Macro(AspectRatio, float);
+  
   // Templated function that reads into different data types.
   friend void vtkImageVolumeShortReaderGenerateData2d(
 			     vtkImageVolumeShortReader *self,
@@ -115,6 +121,7 @@ protected:
   int Signed;
   int SwapBytes;
   int Size[3];
+  float AspectRatio[3];
   int Increments[3];
   // The first image has this number
   int First;

@@ -99,17 +99,23 @@ void vtkImage2dMagnifyFilter::ComputeOutputImageInformation(
 {
   int idx;
   int imageBounds[4];
+  float aspectRatio[2];
 
   inRegion->GetImageBounds2d(imageBounds);
-  // Scale the output bounds
+  inRegion->GetAspectRatio2d(aspectRatio);
+
   for (idx = 0; idx < 2; ++idx)
     {
+    // Scale the output bounds
     imageBounds[2*idx] *= this->MagnificationFactors[idx];
     imageBounds[2*idx+1]
       = (imageBounds[2*idx+1]+1) * this->MagnificationFactors[idx] - 1;
+    // Change the aspect ratio.
+    aspectRatio[idx] *= (float)(this->MagnificationFactors[idx]);
     }
 
   outRegion->SetImageBounds2d(imageBounds);
+  outRegion->SetAspectRatio2d(aspectRatio);
 }
 
 

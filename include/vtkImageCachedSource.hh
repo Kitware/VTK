@@ -70,7 +70,8 @@ public:
 
   void SetReleaseDataFlag(int value);
   int  GetReleaseDataFlag();
-
+  vtkBooleanMacro(ReleaseDataFlag, int);
+  
   void SetOutputDataType(int type);
   int  GetOutputDataType();
   
