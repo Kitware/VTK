@@ -121,6 +121,7 @@ int vtkPropPicker::PickProp(float selectionX, float selectionY,
   if ( this->Path )
     {
     this->WorldPointPicker->Pick(selectionX, selectionY, 0, renderer);
+    this->WorldPointPicker->GetPickPosition(this->PickPosition);
     this->Path->GetLastNode()->GetProp()->Pick();
     if ( this->PickMethod )
       {
