@@ -83,20 +83,6 @@ int Vtktcl_Init(Tcl_Interp *interp)
     {
     return TCL_ERROR;
     }
-#ifdef VTK_USE_TKWIDGET
-  if (Vtktkrenderwidget_Init(interp) == TCL_ERROR) 
-    {
-    return TCL_ERROR;
-    }
-  if (Vtktkimagewindowwidget_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-  if (Vtktkimageviewerwidget_Init(interp) == TCL_ERROR) 
-    {
-    return TCL_ERROR;
-    }
-#endif
 #endif
 
 #ifdef VTK_USE_HYBRID
