@@ -51,10 +51,14 @@ vtkImageMandelbrotSource::vtkImageMandelbrotSource()
   this->WholeExtent[4] = 0;
   this->WholeExtent[5] = 0;
   this->Spacing = 0.005;
-  this->Origin[0] = -3.2;
-  this->Origin[1] = -2.5;
-  this->Origin[2] = 0.0;
-  this->JuliaSet = 0;
+  this->OriginCX[0] = -3.2;
+  this->OriginCX[1] = -2.5;
+  this->OriginCX[2] = 0.0;
+  this->OriginCX[3] = 0.0;
+
+  this->ProjectionAxes[0] = 0;
+  this->ProjectionAxes[1] = 1;
+  this->ProjectionAxes[2] = 2;
 }
 
 //----------------------------------------------------------------------------
@@ -67,8 +71,10 @@ void vtkImageMandelbrotSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);
 
-  os << indent << "Origin: (" << this->Origin[0] << ", "
-     << this->Origin[1] << ", " << this->Origin[2] << ")\n";
+  os << indent << "OriginC: (" << this->OriginCX[0] << ", "
+     << this->OriginCX[1] << ")\n";
+  os << indent << "OriginX: (" << this->OriginCX[2] << ", "
+     << this->OriginCX[3] << ")\n";
   os << indent << "Spacing: " << this->Spacing << "\n";
 
   os << indent << "WholeExtent: (" << this->WholeExtent[0] << ", "
@@ -76,9 +82,46 @@ void vtkImageMandelbrotSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", " 
      << this->WholeExtent[5] << ")\n";
   os << "MaximumNumberOfIterations: " << this->MaximumNumberOfIterations << endl;
-  os << "JuliaSet: " << this->JuliaSet << endl;
+
+  os << indent << "ProjectionAxes: (" << this->ProjectionAxes[0] << ", "
+     << this->ProjectionAxes[1] << this->ProjectionAxes[3] << ")\n";
+
 }
 
+//----------------------------------------------------------------------------
+/*
+void vtkImageMandelbrotSource::SetOriginCX(double cReal, double cImag, 
+                                           double xReal, double xImag)
+{
+  int modified = 0;
+
+  if (cReal != this->OriginCX[0])
+    {
+    this->OriginCX[0]  = cReal;
+    modified = 1;
+    }
+  if (cImag != this->OriginCX[1])
+    {
+    this->OriginCX[1]  = cImag;
+    modified = 1;
+    }
+  if (xReal != this->OriginCX[2])
+    {
+    this->OriginCX[2]  = xReal;
+    modified = 1;
+    }
+  if (xImag != this->OriginCX[3])
+    {
+    this->OriginCX[3]  = xImag;
+    modified = 1;
+    }
+
+  if (modified)
+    {
+    this->Modified();
+    }
+}
+*/
 //----------------------------------------------------------------------------
 void vtkImageMandelbrotSource::SetWholeExtent(int extent[6])
 {
@@ -127,13 +170,29 @@ void vtkImageMandelbrotSource::GetWholeExtent(int extent[6])
 //----------------------------------------------------------------------------
 void vtkImageMandelbrotSource::ExecuteInformation()
 {
+  int idx, axis, *ext = this->WholeExtent;
+  float origin[3];
   vtkImageData *output = this->GetOutput();
 
   output->SetSpacing(this->Spacing, this->Spacing, this->Spacing);
   output->SetWholeExtent(this->WholeExtent);
-  output->SetOrigin(this->Origin[0], this->Origin[1], this->Origin[2]);
+  for (idx = 0; idx < 3; ++idx)
+    {
+    axis = this->ProjectionAxes[idx];
+    if (axis >= 0 && axis < 4)
+      {
+      origin[idx] = this->OriginCX[axis];
+      }
+    else
+      {
+      vtkErrorMacro("Bad projection axis.");
+      origin[idx] = 0.0;
+      }
+    }
+
+  output->SetOrigin(origin);
   output->SetNumberOfScalarComponents(1);
-  output->SetScalarType(VTK_UNSIGNED_SHORT);
+  output->SetScalarType(VTK_FLOAT);
 }
 
 //----------------------------------------------------------------------------
@@ -150,40 +209,65 @@ void vtkImageMandelbrotSource::Zoom(double factor)
 //----------------------------------------------------------------------------
 void vtkImageMandelbrotSource::Pan(double x, double y, double z)
 {
+  int idx, axis;
+  double pan[3];
+
   if (x == 0.0 && y == 0.0 && z == 0.0)
     {
     return;
     }
+
   this->Modified();
-  this->Origin[0] += this->Spacing * x;
-  this->Origin[1] += this->Spacing * y;
-  this->Origin[2] += this->Spacing * z;
+  pan[0]=x;    pan[1]=y;    pan[2]=z;
+  for (idx = 0; idx < 3; ++idx)
+    {
+    axis = this->ProjectionAxes[idx];
+    if (axis >= 0 && axis < 4)
+      {
+      this->OriginCX[axis] += this->Spacing * pan[idx];
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
+void vtkImageMandelbrotSource::CopyOriginAndSpacing(
+                                            vtkImageMandelbrotSource *source)
+{
+  int idx;
+
+  for (idx = 0; idx < 4; ++idx)
+    {
+    this->OriginCX[idx] = source->OriginCX[idx];
+    }
+
+  this->Spacing = source->Spacing;
+  this->Modified();
+}
+//----------------------------------------------------------------------------
 void vtkImageMandelbrotSource::Execute(vtkImageData *data)
 {
-  int *ext;
-  unsigned short *ptr;
+  int *ext, a0, a1, a2;
+  float *ptr;
   int min0, max0;
   int idx0, idx1, idx2;
   int inc0, inc1, inc2;
-  float *origin;
-  double x, y, z;
+  double *origin;
+  double p[4];
   unsigned long count = 0;
   unsigned long target;
   
+  // Copy origin into pixel
+  for (idx0 = 0; idx0 < 4; ++idx0)
+    {
+    p[idx0] = this->OriginCX[idx0];
+    }
+
   ext = data->GetUpdateExtent();
-  ptr = (unsigned short *)(data->GetScalarPointerForExtent(ext));
-  origin = data->GetOrigin();
+  ptr = (float *)(data->GetScalarPointerForExtent(ext));
 
   vtkDebugMacro("Generating Extent: " << ext[0] << " -> " << ext[1] << ", "
           << ext[2] << " -> " << ext[3]);
 
-  vtkDebugMacro("Generating bounds: " << origin[0] + ext[0]*this->Spacing << " -> "
-          << origin[0] + ext[1]*this->Spacing << ", "
-          << origin[1] + ext[2]*this->Spacing << " -> "
-          << origin[1] + ext[3]*this->Spacing);
   // Get min and max of axis 0 because it is the innermost loop.
   min0 = ext[0];
   max0 = ext[1];
@@ -192,9 +276,19 @@ void vtkImageMandelbrotSource::Execute(vtkImageData *data)
   target = (unsigned long)((ext[5]-ext[4]+1)*(ext[3]-ext[2]+1)/50.0);
   target++;
 
+  a0 = this->ProjectionAxes[0];
+  a1 = this->ProjectionAxes[1];
+  a2 = this->ProjectionAxes[2];
+  origin = this->OriginCX;
+
+  if (a0<0 || a1<0 || a2<0 || a0>3 || a1>3 || a2>3)
+    {
+    vtkErrorMacro("Bad projection axis");
+    return;
+    }
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
     {
-    z = (double)(origin[2]) + (double)(idx2)*(this->Spacing);
+    p[a2] = (double)(origin[a2]) + (double)(idx2)*(this->Spacing);
     for (idx1 = ext[2]; !this->AbortExecute && idx1 <= ext[3]; ++idx1)
       {
       if (!(count%target))
@@ -202,12 +296,12 @@ void vtkImageMandelbrotSource::Execute(vtkImageData *data)
         this->UpdateProgress(count/(50.0*target));
         }
       count++;
-      y = (double)(origin[1]) + (double)(idx1)*(this->Spacing);
+      p[a1] = (double)(origin[a1]) + (double)(idx1)*(this->Spacing);
       for (idx0 = min0; idx0 <= max0; ++idx0)
 	{
-        x = (double)(origin[0]) + (double)(idx0)*this->Spacing;
+        p[a0] = (double)(origin[a0]) + (double)(idx0)*this->Spacing;
 
-        *ptr = this->EvaluateSet(x, y, z);
+        *ptr = (float)(this->EvaluateSet(p));
 
 	++ptr;
 	// inc0 is 0
@@ -218,30 +312,58 @@ void vtkImageMandelbrotSource::Execute(vtkImageData *data)
     }
 }
 
+//----------------------------------------------------------------------------
+// This method selectively supersamples pixels closet to the mandelbrot set.
+/*
+void vtkImageMandelbrotSource::SuperSample(vtkImageData *data)
+{
+  int *ext;
+  float *ptr0, *ptr1, *ptr2;
+  int min0, max0;
+  int idx0, idx1, idx2;
+  int inc0, inc1, inc2;
+
+  // Get min and max of axis 0 because it is the innermost loop.
+  ext = data->GetUpdateExtent();
+  min0 = ext[0];
+  max0 = ext[1];
+  data->GetIncrements(inc0, inc1, inc2);
+
+  // loop through pixels ignoring the borders.
+  ptr2 = (float *)(data->GetScalarPointer(min0+1, ext[2]+1, ext[4]+1));
+
+  for (idx2 = ext[4]+1; idx2 < ext[5]; ++idx2)
+    {
+    ptr1 = ptr2;
+    for (idx1 = ext[2]+1; idx1 < ext[3]; ++idx1)
+      {
+      ptr0 = ptr1;
+      for (idx0 = min0+1; idx0 < max0; ++idx0)
+	{
+        *ptr0 = (float*)(this->EvaluateSet(p));
+
+	++ptr0;
+	// inc0 is 1
+	}
+      ptr1 += inc1;
+      }
+    ptr2 += inc2;
+    }
+}
+*/
 
 
 //----------------------------------------------------------------------------
-unsigned short vtkImageMandelbrotSource::EvaluateSet(double x, double y, 
-                                                     double z)
+unsigned short vtkImageMandelbrotSource::EvaluateSet(double p[4])
 {
   unsigned short count = 0;
   double cReal, cImag, zReal, zImag;
   double zReal2, zImag2;
 
-  if (this->JuliaSet)
-    {
-    zReal = x;
-    zImag = y;
-    cReal = -0.75;
-    cImag = z;
-    }
-  else
-    {
-    zReal = z;
-    zImag = 0.0;
-    cReal = x;
-    cImag = y;
-  }
+  cReal = p[0];
+  cImag = p[1];
+  zReal = p[2];
+  zImag = p[3];
 
   zReal2 = zReal * zReal;
   zImag2 = zImag * zImag;

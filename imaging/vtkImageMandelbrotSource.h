@@ -65,13 +65,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);   
   
   // Description:
-  // Mandelbrot mode vs Julia set mode.
-  vtkSetMacro(JuliaSet, int);
-  vtkGetMacro(JuliaSet, int);
-  vtkBooleanMacro(JuliaSet, int);
-
-  // Description:
-  // Set/Get the extent of the whole output image.
+  // Set/Get the extent of the whole output Volume.
   void SetWholeExtent(int extent[6]);
   void SetWholeExtent(int minX, int maxX, int minY, int maxY, 
 			    int minZ, int maxZ);
@@ -79,10 +73,19 @@ public:
   int *GetWholeExtent() {return this->WholeExtent;}
   
   // Description:
-  // Position of pixel 0, 0 ,0
-  vtkSetVector3Macro(Origin, double);
-  vtkGetVector3Macro(Origin, double);
-   
+  // Set the projection from  the 4D space (4 paramters / 2 imaginary numbers)
+  // to the axes of the 3D Volume. 
+  // 0=C_Real, 1=C_Imaginary, 2=X_Real, 4=X_Imaginary
+  vtkSetVector3Macro(ProjectionAxes, int);
+  vtkGetVector3Macro(ProjectionAxes, int);
+
+  // Description:
+  // Imaginary and real value for C (contant in equation) 
+  // and X (initial value).
+  vtkSetVector4Macro(OriginCX, double);
+  //void SetOriginCX(double cReal, double cImag, double xReal, double xImag);
+  vtkGetVector4Macro(OriginCX, double);
+
   // Description:
   // Set/Get the spacing used to specify the scale of the image.
   vtkSetMacro(Spacing, double);
@@ -94,24 +97,31 @@ public:
   vtkGetMacro(MaximumNumberOfIterations, unsigned short);
 
   // Description:
-  // Convienence for Viewer.  Pan relative to spacing.
+  // Convienence for Viewer.  Pan 3D volume relative to spacing. 
   // Zoom constant factor.
   void Zoom(double factor);
   void Pan(double x, double y, double z);
 
+  // Description:
+  // Convienence for Viewer.  Copy the OriginCX and the spacing.
+  void CopyOriginAndSpacing(vtkImageMandelbrotSource *source); 
+
 
 protected:
+  int ProjectionAxes[3];
+
+  // WholeExtent in 3 space (after projection).
   int WholeExtent[6];
-  double Origin[3];
+
+  // Complex constant/initial-value at origin.
+  double OriginCX[4];
+  // Initial complex value at origin.
   double Spacing;
   unsigned short MaximumNumberOfIterations;
 
-  // flag to change to julia set
-  int JuliaSet;
-  
   void Execute(vtkImageData *outData);
   void ExecuteInformation();
-  unsigned short EvaluateSet(double x, double y, double z);
+  unsigned short EvaluateSet(double p[4]);
 };
 
 
