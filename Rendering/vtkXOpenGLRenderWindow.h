@@ -133,10 +133,6 @@ public:
   virtual void *GetGenericDrawable()  {return (void *)this->WindowId;};
   
   // Description:
-  // Get the current size of the window in pixels.
-  virtual int     *GetSize();
-
-  // Description:
   // Get the size of the screen in pixels
   virtual int     *GetScreenSize();
 

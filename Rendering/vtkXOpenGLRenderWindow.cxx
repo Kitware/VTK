@@ -210,7 +210,7 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->NextWindowId = (Window)NULL;
   this->ColorMap = (Colormap)0;
   this->OwnWindow = 0;
-
+  
   // OpenGL specific
 #ifdef VTK_OPENGL_HAS_OSMESA
   this->OffScreenContextId = NULL;
@@ -919,12 +919,6 @@ int *vtkXOpenGLRenderWindow::GetScreenSize()
     DisplayHeight(this->DisplayId, DefaultScreen(this->DisplayId));
 
   return this->ScreenSize;
-}
-
-// Get the current size of the window in pixels.
-int *vtkXOpenGLRenderWindow::GetSize(void)
-{  
-  return this->Size;
 }
 
 // Get the position in screen coordinates (pixels) of the window.
