@@ -206,7 +206,7 @@ void vtkStarbasePolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   t = input->GetPointData()->GetTCoords();
   if ( t ) 
     {
-    if (t->GetDimension() != 2)
+    if (t->GetNumberOfComponents() != 2)
       {
       vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
       t = NULL;
