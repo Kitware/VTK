@@ -23,8 +23,11 @@ if { $argc < 2 } {
 # Parse command line arguments
 set FileExpression [ lindex $argv 0 ]
 set SearchMessage  [ lindex $argv 1 ]
-set IgnoreFileList [ lrange $argv 2 end ]
-
+set IgnoreFileListIn [ lrange $argv 2 end ]
+set IgnoreFileList {}
+foreach { file } $IgnoreFileListIn {
+   set IgnoreFileList "$IgnoreFileList [ glob $file ]"
+}
 #puts "Searching for $SearchMessage in $FileExpression"
 #puts "Ignore list: $IgnoreFileList"
 
@@ -67,8 +70,9 @@ if { [ llength $files ] < 1 } {
 
 set count 0
 foreach { a } $files {
-    if { [ lsearch $IgnoreFileList $a ] >= 0 } {
-	puts "Ignoring: $a"
+   regsub -all {\\} $a {/} b 
+   if { [ lsearch $IgnoreFileList $b ] >= 0 } {
+	puts "Ignoring: $b"
     } else {
 	set count [ expr $count + [ FindString $a $SearchMessage ] ]
     }
