@@ -603,7 +603,7 @@ void vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
   if (this->File->fail())
     {
     vtkWarningMacro("File operation failed.");
-      return;
+    return;
     }
 	
 }
@@ -825,6 +825,7 @@ void vtkImageReader::Execute(vtkImageData *data)
   int *ext;
   
   ext = data->GetExtent();
+
   vtkDebugMacro("Reading extent: " << ext[0] << ", " << ext[1] << ", " 
 	<< ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5]);
   

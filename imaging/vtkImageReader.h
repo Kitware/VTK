@@ -89,6 +89,7 @@ public:
   // after this method is called.
   void SetDataScalarType(int type);
   void SetDataScalarTypeToFloat(){this->SetDataScalarType(VTK_FLOAT);}
+  void SetDataScalarTypeToDouble(){this->SetDataScalarType(VTK_DOUBLE);}
   void SetDataScalarTypeToInt(){this->SetDataScalarType(VTK_INT);}
   void SetDataScalarTypeToShort(){this->SetDataScalarType(VTK_SHORT);}
   void SetDataScalarTypeToUnsignedShort()
