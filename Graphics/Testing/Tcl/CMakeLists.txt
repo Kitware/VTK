@@ -36,6 +36,7 @@ IF (VTK_USE_RENDERING)
       contoursToSurface
       contour2DAll
       contour3DAll
+      cowHair
       createBFont
       cylMap
       dataSetSurfaceFilter
