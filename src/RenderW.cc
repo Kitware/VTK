@@ -92,7 +92,6 @@ vtkRenderWindow::~vtkRenderWindow()
 // Ask each renderer to render an image. Synchronize this process.
 void vtkRenderWindow::Render()
 {
-  int i;
   int *size;
   int x,y;
   float *p1;
@@ -712,4 +711,5 @@ int vtkRenderWindow::GetRemapWindow(void)
     case VTK_STEREO_RED_BLUE: return 0;
     case VTK_STEREO_CRYSTAL_EYES: return 1;
     }
+  return 0;
 }
