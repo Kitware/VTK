@@ -10,7 +10,7 @@
 - (void)close {
     [super close];
     [NSApp stop:self];
-//    VBDestroyWindow(myVTKRenderWindow);
+    ((vtkQuartzRenderWindow *)myVTKRenderWindow)->Clean();
 }
 
 
@@ -44,14 +44,16 @@
 }
 
 - (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)proposedFrameSize {
-    VBResizeWindow(myVTKRenderWindow, (int)proposedFrameSize.width, (int)proposedFrameSize.height,
-                    (int)[self frame].origin.x, (int)[self frame].origin.y);
+    ((vtkQuartzRenderWindow *)myVTKRenderWindow)->
+        UpdateSizeAndPosition( (int)proposedFrameSize.width, (int)proposedFrameSize.height,
+                               (int)[self frame].origin.x, (int)[self frame].origin.y);
     return proposedFrameSize;
 }
 
 - (BOOL)windowShouldZoom:(NSWindow *)sender toFrame:(NSRect)newFrame {
-    VBResizeWindow(myVTKRenderWindow, (int)newFrame.size.width, (int)newFrame.size.height,
-                    (int)newFrame.origin.x, (int)newFrame.origin.y);
+    ((vtkQuartzRenderWindow *)myVTKRenderWindow)->
+        UpdateSizeAndPosition((int)newFrame.size.width, (int)newFrame.size.height,
+                              (int)newFrame.origin.x, (int)newFrame.origin.y);
     [myvtkQuartzGLView setNeedsDisplay:YES];
     return YES;
 }

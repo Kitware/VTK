@@ -59,32 +59,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
-/*------------------------------------------------------------------------------
-VB = VTK-Bridge
-
-Routines that can be called from Objective C using C conventions. These are the
-C++ side of the ObjC-C++ bridge.
-------------------------------------------------------------------------------*/
-
-void VBDestroyWindow(void *vtkClass)
-{
-    if (vtkClass) {
-        ((vtkQuartzRenderWindow *)vtkClass)->Clean();}
-}
-
-void VBResizeWindow(void *vtkClass, int xPos, int yPos, int xSize, int ySize)
-{
-    if (vtkClass) {
-        ((vtkQuartzRenderWindow *)vtkClass)->UpdateSizeAndPosition(xPos, yPos, xSize, ySize);
-    }
-}
-
-void VBRedrawWindow(void *vtkClass)
-{
-    if (vtkClass) {
-        ((vtkQuartzRenderWindow *)vtkClass)->Render();}
-}
-
 
 
 //------------------------------------------------------------------------------
@@ -266,11 +240,13 @@ void vtkQuartzRenderWindow::SetPosition(int x, int y)
     }
 }
 
-static void vtkQuartzSwapBuffers(void *hdc)
-{
+//static void vtkQuartzSwapBuffers(void *hdc)
+//{
   //modify this to deal only with the particular context!
   //  glutSwapBuffers(); - getting called in drawrect
-}
+//  [[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] display];
+//    cout << "vtkQuartzSwapBuffers\n";
+//}
 
 // End the rendering process and display the image.
 void vtkQuartzRenderWindow::Frame(void)
@@ -279,7 +255,7 @@ void vtkQuartzRenderWindow::Frame(void)
   [[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] display];
   if (!this->AbortRender && this->DoubleBuffer)
     {
-    vtkQuartzSwapBuffers(this->DeviceContext);
+    //vtkQuartzSwapBuffers(this->DeviceContext);
     vtkDebugMacro(<< " SwapBuffers\n");
     }
 }
@@ -417,7 +393,9 @@ void vtkQuartzRenderWindow::WindowInitialize (void)
         glRect = NSMakeRect(0,0,400,400);
         /* create window */
         
-	this->WindowId = (void *)[[[vtkQuartzWindow alloc] initWithContentRect:ctRect styleMask:NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask backing:NSBackingStoreBuffered defer:NO] retain];
+	this->WindowId = (void *)[[[vtkQuartzWindow alloc] initWithContentRect:ctRect 									styleMask:NSTitledWindowMask|NSClosableWindowMask|
+                NSMiniaturizableWindowMask|NSResizableWindowMask 
+                backing:NSBackingStoreBuffered defer:NO] retain];
         if (!this->WindowId)
         {
             vtkErrorMacro("Could not create window, serious error!");

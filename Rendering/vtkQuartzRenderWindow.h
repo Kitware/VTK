@@ -54,26 +54,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <OpenGL/gl.h>
 #endif
 
-
-
-//------------------------------------------------------------------------------
-// A bunch of routines that can be called using C conventions which make up the
-// C++ side of the ObjC-C++ bridge. (called from MyNSWindow.m)
-//------------------------------------------------------------------------------
-#ifdef __cplusplus
-  extern "C" {
-#endif
-
-void VBDestroyWindow(void *vtkClass);
-void VBResizeWindow(void *vtkClass, int xPos, int yPos, int xSize, int ySize);
-void VBRedrawWindow(void *vtkClass);
-#ifdef __cplusplus
-  };
-#endif
-
-
-
-
 class vtkIdList;
 
 class VTK_RENDERING_EXPORT vtkQuartzRenderWindow : public vtkRenderWindow

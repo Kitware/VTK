@@ -45,87 +45,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkQuartzRenderWindow.h"
 #include "vtkQuartzRenderWindowInteractor.h"
-#import "vtkQuartzWindowController.h"
+#include "vtkQuartzWindow.h"
 #include "vtkInteractorStyle.h"
 #include "vtkActor.h"
 #include <OpenGL/gl.h>
 #include "vtkObjectFactory.h"
+#include "vtkQuartzGLView.h"
 
 #import <Cocoa/Cocoa.h>
 
 #define id Id
 
-void VBTimerEvent(void *vtkClass)
-{
-    if (vtkClass) {
-    ((vtkQuartzRenderWindowInteractor *)vtkClass)->GetInteractorStyle()->OnTimer();}
-}
-
-void DoMouseDragged(void *vtkClass, int shiftDown, int controlDown, int altDown, int commandDown, float xLoc, float yLoc)
-{
-    if (vtkClass) {
-    ((vtkQuartzRenderWindowInteractor *)vtkClass)->GetInteractorStyle()->OnMouseMove(controlDown, shiftDown, xLoc, yLoc);}
-}
-
-void DoMouseMoved(void *vtkClass, int shiftDown, int controlDown, int altDown, int commandDown, float xLoc, float yLoc)
-{
-    if (vtkClass) {
-    ((vtkQuartzRenderWindowInteractor *)vtkClass)->GetInteractorStyle()->OnMouseMove(controlDown, shiftDown, xLoc, yLoc);}
-}
-
-void DoMouseUp(void *vtkClass, int shiftDown, int controlDown, int altDown, int commandDown, float xLoc, float yLoc)
-{
-    if (vtkClass) {
-        switch (((vtkQuartzRenderWindowInteractor *)vtkClass)->GetButtonDown())
-        {
-        case 1:
-            ((vtkQuartzRenderWindowInteractor *)vtkClass)->GetInteractorStyle()->\
-                OnLeftButtonUp(controlDown, shiftDown, xLoc, yLoc);
-            break;
-        case 2:
-            ((vtkQuartzRenderWindowInteractor *)vtkClass)->GetInteractorStyle()->\
-                OnMiddleButtonUp(controlDown, shiftDown, xLoc, yLoc);
-            break;
-        case 3:
-            ((vtkQuartzRenderWindowInteractor *)vtkClass)->GetInteractorStyle()->\
-                OnRightButtonUp(controlDown, shiftDown, xLoc, yLoc);
-            break;
-        default:
-            break;
-        }
-         ((vtkQuartzRenderWindowInteractor *)vtkClass)->SetButtonDown(0);
-    }
-}
-
-void DoMouseDown(void *vtkClass, int shiftDown, int controlDown, int altDown, int commandDown, float xLoc, float yLoc)
-{
-    int button=1;
-    if (vtkClass){
-        if (altDown) {button=2;}
-        if (commandDown) {button=3;}
-        ((vtkQuartzRenderWindowInteractor *)vtkClass)->SetButtonDown(button);
-        switch (button)
-        {
-        case 1:
-            ((vtkQuartzRenderWindowInteractor *)vtkClass)->GetInteractorStyle()->\
-                OnLeftButtonDown(controlDown, shiftDown, xLoc, yLoc);
-            break;
-        case 2:
-            ((vtkQuartzRenderWindowInteractor *)vtkClass)->GetInteractorStyle()->\
-                OnMiddleButtonDown(controlDown, shiftDown, xLoc, yLoc);
-            break;
-        case 3:
-            ((vtkQuartzRenderWindowInteractor *)vtkClass)->GetInteractorStyle()->\
-                OnRightButtonDown(controlDown, shiftDown, xLoc, yLoc);
-            break;
-        default:
-            break;
-        }
-    }
-}
-
-
-
+// These allow us to emulate a three button mouse using the ctrl-opt-cmd keys
 int vtkQuartzRenderWindowInteractor::GetButtonDown()
 {
     return this->whichButtonDown;
@@ -211,7 +142,8 @@ void vtkQuartzRenderWindowInteractor::Initialize()
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
-  [(vtkQuartzWindowController *)this->WindowId setVTKRenderWindowInteractor:this];
+  [(vtkQuartzWindow *)this->WindowId setVTKRenderWindowInteractor:this];
+  [[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] setVTKRenderWindowInteractor:this];
   ren->Render();
 }
 
@@ -244,7 +176,7 @@ void vtkQuartzRenderWindowInteractor::Disable()
 
 void vtkQuartzRenderWindowInteractor::TerminateApp(void) 
 {
-  [NSApp terminate:(vtkQuartzWindowController *)this->WindowId];
+  [NSApp terminate:(vtkQuartzWindow *)this->WindowId];
 }
 
 int vtkQuartzRenderWindowInteractor::CreateTimer(int notUsed) 
