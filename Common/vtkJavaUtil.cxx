@@ -369,8 +369,8 @@ JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *resu
     return NULL;
     }
   
-  void* res;
-  if (res= command(ptr,result_type))
+  void* res= command(ptr,result_type);
+  if (res)
     {
 #ifdef VTKJAVADEBUG
     vtkGenericWarningMacro("GetPointerFromObject: Got id= " << id << " ptr= " << ptr << " " << result_type);
