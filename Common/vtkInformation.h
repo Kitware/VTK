@@ -139,10 +139,13 @@ public:
   static vtkInformationInformationVectorKey* OUTPUT_PROVIDED_FIELDS();
   static vtkInformationDataObjectKey* DATA_OBJECT();
   static vtkInformationDataObjectVectorKey* DATA_OBJECTS();
-  static vtkInformationStringKey* FIELD_NAME();
+  static vtkInformationIntegerKey* FIELD_ARRAY_TYPE();
   static vtkInformationIntegerKey* FIELD_ASSOCIATION();
   static vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();
+  static vtkInformationIntegerKey* FIELD_NUMBER_OF_COMPONENTS();
+  static vtkInformationIntegerKey* FIELD_NUMBER_OF_TUPLES();
   static vtkInformationIntegerKey* FIELD_OPERATION();
+  static vtkInformationStringKey* FIELD_NAME();
   static vtkInformationIntegerVectorKey* DATA_EXTENT();
   static vtkInformationIntegerVectorKey* UPDATE_EXTENT();
   static vtkInformationKeyVectorKey* SUPPORTED_UPSTREAM_REQUESTS();
