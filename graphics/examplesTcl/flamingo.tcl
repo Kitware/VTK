@@ -4,7 +4,9 @@ catch {load vtktcl}
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
 
+vtkRenderer ren1
 vtkRenderWindow renWin
+  renWin AddRenderer ren1
 
 vtk3DSImporter importer
   importer SetRenderWindow renWin
