@@ -355,7 +355,7 @@ void vtkOglrRenderer::DisplayToView()
 // Convert view coordinates to display coordinates.
 void vtkOglrRenderer::ViewToDisplay()
 {
-  int dx,dy;
+  float dx,dy;
   int sizex,sizey;
   int *size;
   
@@ -371,34 +371,34 @@ void vtkOglrRenderer::ViewToDisplay()
       {
       case VTK_STEREO_CRYSTAL_EYES:
 	{
-	dx = (int)((this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
-		   (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
-		   sizex*this->Viewport[0]);
-	dy = (int)((this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
-		   (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
-		   sizey*this->Viewport[1]);
-	dy = (int)(dy*(491.0/1024.0));
+	dx = (this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
+	  (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
+	  sizex*this->Viewport[0];
+	dy = (this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
+	  (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
+	  sizey*this->Viewport[1];
+	dy = dy*(491.0/1024.0);
 	}
 	break;
       default:
 	{
-	dx = (int)((this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
-		   (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
-		   sizex*this->Viewport[0]);
-	dy = (int)((this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
-		   (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
-		   sizey*this->Viewport[1]);
+	dx = (this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
+	  (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
+	  sizex*this->Viewport[0];
+	dy = (this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
+	  (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
+	  sizey*this->Viewport[1];
 	}
       }
     }
   else
     {
-    dx = (int)((this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
-	       (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
-	       sizex*this->Viewport[0]);
-    dy = (int)((this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
-	       (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
-	       sizey*this->Viewport[1]);
+    dx = (this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
+      (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
+      sizex*this->Viewport[0];
+    dy = (this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
+      (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
+      sizey*this->Viewport[1];
     }
 
   this->SetDisplayPoint(dx,dy,this->ViewPoint[2]);
