@@ -97,7 +97,8 @@ void vtkImageDistance1D::Execute(vtkImageRegion *inRegion,
   int inInc, outInc;
   int min, max;
   int idx;
-  short dist;
+  short distP, distN;
+  short big = 2000;
 
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
@@ -118,19 +119,38 @@ void vtkImageDistance1D::Execute(vtkImageRegion *inRegion,
   inRegion->GetIncrements(inInc);
   
   // Forward pass
-  dist = 255;
+  distP = big;
+  distN = -big;
   inPtr = (short *)(inRegion->GetScalarPointer());
   outPtr = (short *)(outRegion->GetScalarPointer());
   for (idx = min; idx <= max; ++idx)
     {
-    if (dist > *inPtr)
+    if (*inPtr >= 0)
       {
-      dist = *inPtr;
+      distN = 0;
+      if (distP > *inPtr)
+	{
+	distP = *inPtr;
+	}
+      *outPtr = distP;
       }
-    *outPtr = dist;
-    if (dist < 255)
+    if (*inPtr <= 0)
       {
-      ++dist;
+      distP = 0;
+      if (distN < *inPtr)
+	{
+	distN = *inPtr;
+	}
+      *outPtr = distN;
+      }
+    
+    if (distP < big)
+      {
+      ++distP;
+      }
+    if (distN > -big)
+      {
+      --distN;
       }
     
     inPtr += inInc;
@@ -138,21 +158,35 @@ void vtkImageDistance1D::Execute(vtkImageRegion *inRegion,
     }
 
   // backward pass
-  dist = 255;
+  distP = big;
+  distN = -big;
   outPtr -= outInc;  // Undo the last increment to put us at the last pixel
   for (idx = max; idx >= min; --idx)
     {
-    if (dist > *outPtr)
+    if (*outPtr >= 0)
       {
-      dist = *outPtr;
+      if (distP > *outPtr)
+	{
+	distP = *outPtr;
+	}
+      *outPtr = distP;
       }
-    else
+    if (*outPtr <= 0)
       {
-      *outPtr = dist;
+      if (distN < *outPtr)
+	{
+	distN = *outPtr;
+	}
+      *outPtr = distN;
       }
-    if (dist < 255)
+    
+    if (distP < big)
       {
-      ++dist;
+      ++distP;
+      }
+    if (distN > -big)
+      {
+      --distN;
       }
     
     outPtr -= outInc;
