@@ -40,7 +40,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.40");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.41");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1084,10 +1084,13 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
 
   if( ! this->ImageData )
     {
-    vtkErrorMacro(<<"Must call SetInput() with vtkImageData*!");
+  // If NULL is passed, remove any reference that Reslice had
+  // on the old ImageData
+  //
+    this->Reslice->SetInput(NULL);
     return;
     }
-    
+
   float range[2];
   this->ImageData->GetScalarRange(range);
 
@@ -1988,6 +1991,11 @@ void vtkImagePlaneWidget::SetTextProperty(vtkTextProperty* tprop)
 vtkTextProperty* vtkImagePlaneWidget::GetTextProperty()
 {
   return this->TextActor->GetTextProperty();
+}
+
+vtkTexture *vtkImagePlaneWidget::GetTexture()
+{
+  return this->Texture;
 }
 
 void vtkImagePlaneWidget::GetVector1(float v1[3])
