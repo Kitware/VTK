@@ -497,7 +497,7 @@ void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
       rowLength = sizeof(unsigned char); 
       break;
     default:
-      cerr << "Execute: Unknown output ScalarType";
+      vtkErrorMacro(<< "Execute: Unknown output ScalarType");
       return; 
     }
   rowLength *= data->GetNumberOfScalarComponents();
