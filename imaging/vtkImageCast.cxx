@@ -47,8 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor sets default values
 vtkImageCast::vtkImageCast()
 {
-
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->Dimensionality = 1;
+  this->ExecuteDimensionality = 2;
 }
 
 
@@ -66,6 +67,8 @@ void vtkImageCastExecute(vtkImageCast *self,
   int outInc0, outInc1;
   IT  *inPtr0, *inPtr1;
   OT  *outPtr0, *outPtr1;
+
+  self = self;
   
   // Get information to march through data 
   inRegion->GetIncrements(inInc0, inInc1);
@@ -93,8 +96,8 @@ void vtkImageCastExecute(vtkImageCast *self,
 //----------------------------------------------------------------------------
 template <class T>
 void vtkImageCastExecute(vtkImageCast *self,
-			      vtkImageRegion *inRegion, T *inPtr,
-			      vtkImageRegion *outRegion)
+			 vtkImageRegion *inRegion, T *inPtr,
+			 vtkImageRegion *outRegion)
 {
   void *outPtr = outRegion->GetScalarPointer();
   switch (outRegion->GetScalarType())

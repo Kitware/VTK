@@ -73,7 +73,7 @@ void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
   int outInc0, outInc1;
   T *inPtr0, *inPtr1;
   T *outPtr0, *outPtr1;
-  T shift = (T)(self->GetShift());
+  float shift = self->GetShift();
   float scale = self->GetScale();
   
   // Get information to march through data 
@@ -92,7 +92,7 @@ void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
       {
       
       // Pixel operation
-      *outPtr0 = (T)((float)(*inPtr0 + shift) * scale);
+      *outPtr0 = (T)(((float)(*inPtr0) + shift) * scale);
       
       outPtr0 += outInc0;
       inPtr0 += inInc0;
@@ -100,6 +100,7 @@ void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
     outPtr1 += outInc1;
     inPtr1 += inInc1;
     }
+  
 }
 
 
