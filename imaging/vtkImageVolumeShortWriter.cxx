@@ -183,7 +183,7 @@ void vtkImageVolumeShortWriter::Write(int *extent)
 //----------------------------------------------------------------------------
 // This function writes a slice into a file.
 template <class T>
-void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
+void vtkImageVolumeShortWriterWrite2D(vtkImageVolumeShortWriter *self,
 				      vtkImageRegion *region, T *ptr)
 {
   ofstream *file;
@@ -207,7 +207,7 @@ void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
   file = new ofstream(self->FileName, ios::out);
   if (! file)
     {
-    cerr << "vtkImageVolumeShortWriterWrite2d: ERROR: "
+    cerr << "vtkImageVolumeShortWriterWrite2D: ERROR: "
 	 << "Could not open file " << self->FileName;
     return;
     }
@@ -274,19 +274,19 @@ void vtkImageVolumeShortWriter::Write2d(vtkImageRegion *region)
   switch (region->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageVolumeShortWriterWrite2d(this, region, (float *)(ptr));
+      vtkImageVolumeShortWriterWrite2D(this, region, (float *)(ptr));
       break;
     case VTK_INT:
-      vtkImageVolumeShortWriterWrite2d(this, region, (int *)(ptr));
+      vtkImageVolumeShortWriterWrite2D(this, region, (int *)(ptr));
       break;
     case VTK_SHORT:
-      vtkImageVolumeShortWriterWrite2d(this, region, (short *)(ptr));
+      vtkImageVolumeShortWriterWrite2D(this, region, (short *)(ptr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageVolumeShortWriterWrite2d(this, region, (unsigned short *)(ptr));
+      vtkImageVolumeShortWriterWrite2D(this, region, (unsigned short *)(ptr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageVolumeShortWriterWrite2d(this, region, (unsigned char *)(ptr));
+      vtkImageVolumeShortWriterWrite2D(this, region, (unsigned char *)(ptr));
       break;
     default:
       vtkErrorMacro(<< "Write2d: Cannot handle data type.");

@@ -1,13 +1,12 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageVolumeShortWriter.h
+  Module:    vtkImagePGMWriter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
   Thanks:    Thanks to C. Charles Law who developed this class.
-  Thanks:    Thanks to C. Charles Law who developed and contributed this class.
-	     
+
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
@@ -39,79 +38,45 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageVolumeShortWriter - Generic Writer.
+// .NAME vtkImagePGMWriter - Generic Writer Class.
 // .SECTION Description
-// vtkImageVolumeShortWriter will request a region slice by slice, and
-// write it in a format which can be read by vtkImageVolumeShortReader.
-// It does not put any header in the image files.
+// vtkImagePGMWriter will write an image to a pgm file.
 
 
-#ifndef __vtkImageVolumeShortWriter_h
-#define __vtkImageVolumeShortWriter_h
+#ifndef __vtkImagePGMWriter_h
+#define __vtkImagePGMWriter_h
 
 #include <iostream.h>
 #include <fstream.h>
-#include "vtkImageCachedSource.h"
+#include "vtkObject.h"
+#include "vtkImageSource.h"
 
-class vtkImageVolumeShortWriter : public vtkObject
+class vtkImagePGMWriter : public vtkObject 
 {
 public:
-  vtkImageVolumeShortWriter();
-  ~vtkImageVolumeShortWriter();
-  char *GetClassName() {return "vtkImageVolumeShortWriter";};
-  
-  void SetFileRoot(char *fileRoot);
-  void Write();
-  void Write(int *extent);
-  void Write(int min0, int max0, int min1, int max1, int min2, int max2);
-  
-  // Description:
-  // Set/Get the number of the first image
-  vtkSetMacro(First,int);
-  vtkGetMacro(First,int);
+  vtkImagePGMWriter();
+  char *GetClassName() {return "vtkImagePGMWriter";};
 
   // Description:
-  // Set/Get the Signed flag
-  vtkSetMacro(Signed,int);
-  vtkGetMacro(Signed,int);
-  vtkBooleanMacro(Signed,int);
-
-  // Description:
-  // Set/Get the byte swapping
-  vtkSetMacro(SwapBytes,int);
-  vtkGetMacro(SwapBytes,int);
-  vtkBooleanMacro(SwapBytes,int);
-  
-  // Description:
-  // Set/Get the input object from the image pipline.
+  // Set/Get input to this Writer.
   vtkSetObjectMacro(Input,vtkImageSource);
   vtkGetObjectMacro(Input,vtkImageSource);
-  
+
+  void WriteImage(char *fileName, int slice);
+  void WriteImage(char *fileName);
+  void Write(char *fileName, int *offset, int *size);
+  void Write(char *fileName, 
+	     int offset0, int offset1, int offset2, 
+	     int size0, int size1, int size2);
+  void WriteRegion(vtkImageRegion *tile, int slice, char *fileName);
+
 protected:
-  // Get you input from this source
-  vtkImageSource *Input;
-  // Enumeration of image files start with this value (i.e. 0 or 1)
-  int First;
-  
-  friend void vtkImageVolumeShortWriterWrite2D(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, float *ptr);
-  friend void vtkImageVolumeShortWriterWrite2D(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, int *ptr);
-  friend void vtkImageVolumeShortWriterWrite2D(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, short *ptr);
-  friend void vtkImageVolumeShortWriterWrite2D(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, unsigned short *ptr);
-  friend void vtkImageVolumeShortWriterWrite2D(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, unsigned char *ptr);
-  
-  
-protected:
-  char *FileRoot;
-  char *FileName;
-  int Signed;
-  int SwapBytes;
-  
-  void Write2d(vtkImageRegion *region);  
+  vtkImageSource *Input;  // the input to the Writer 
+
+  float Min;             // Keep track of the input range
+  float Max;
+
+  void WriteTiled(ofstream *fp, int *offset, int *size);
 };
 
 #endif
