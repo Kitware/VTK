@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPolyDataConnectivityFilter.h"
+#include "vtkMath.h"
 
 // Construct with default extraction mode to extract largest regions.
 vtkPolyDataConnectivityFilter::vtkPolyDataConnectivityFilter()
@@ -51,6 +52,8 @@ vtkPolyDataConnectivityFilter::vtkPolyDataConnectivityFilter()
   this->ScalarConnectivity = 0;
   this->ScalarRange[0] = 0.0;
   this->ScalarRange[1] = 1.0;
+
+  this->ClosestPoint[0] = this->ClosestPoint[1] = this->ClosestPoint[2] = 0.0;
 
   this->CellScalars = vtkScalars::New(); 
   this->CellScalars->Allocate(8);
@@ -65,17 +68,6 @@ vtkPolyDataConnectivityFilter::~vtkPolyDataConnectivityFilter()
   this->CellScalars->Delete();
   this->NeighborCellPointIds->Delete();
 }
-
-
-static int NumExceededMaxDepth;
-static int *Visited, *PointMap;
-static vtkScalars *NewScalars;
-static int RecursionDepth;
-static int RegionNumber, PointNumber;    
-static int NumCellsInRegion;
-static vtkIdList *RecursionSeeds;
-static vtkScalars *InScalars;
-static vtkPolyData *Mesh;
 
 void vtkPolyDataConnectivityFilter::Execute()
 {
@@ -109,9 +101,9 @@ void vtkPolyDataConnectivityFilter::Execute()
   //
   // See whether to consider scalar connectivity
   //
-  InScalars = input->GetPointData()->GetScalars();
+  this->InScalars = input->GetPointData()->GetScalars();
   if ( !this->ScalarConnectivity ) 
-    InScalars = NULL;
+    this->InScalars = NULL;
   else
     {
     if ( this->ScalarRange[1] < this->ScalarRange[0] ) 
@@ -120,22 +112,22 @@ void vtkPolyDataConnectivityFilter::Execute()
   //
   // Build cell structure
   //
-  Mesh = vtkPolyData::New();
-  Mesh->CopyStructure(input);
-  Mesh->BuildLinks();
+  this->Mesh = vtkPolyData::New();
+  this->Mesh->CopyStructure(input);
+  this->Mesh->BuildLinks();
   this->UpdateProgress(0.10);
 
   //
   // Initialize.  Keep track of points and cells visited.
   //
   this->RegionSizes->Reset();
-  Visited = new int[numCells];
-  for ( i=0; i < numCells; i++ ) Visited[i] = -1;
-  PointMap = new int[numPts];  
-  for ( i=0; i < numPts; i++ ) PointMap[i] = -1;
+  this->Visited = new int[numCells];
+  for ( i=0; i < numCells; i++ ) this->Visited[i] = -1;
+  this->PointMap = new int[numPts];  
+  for ( i=0; i < numPts; i++ ) this->PointMap[i] = -1;
 
-  NewScalars = vtkScalars::New();
-  NewScalars->SetNumberOfScalars(numPts);
+  this->NewScalars = vtkScalars::New();
+  this->NewScalars->SetNumberOfScalars(numPts);
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   //
@@ -143,16 +135,17 @@ void vtkPolyDataConnectivityFilter::Execute()
   // starts a new connected region.  Note: have to truncate recursion
   // and keep track of seeds to start up again.
   //
-  RecursionSeeds = vtkIdList::New();
-  RecursionSeeds->Allocate(1000,10000);
+  this->RecursionSeeds = vtkIdList::New();
+  this->RecursionSeeds->Allocate(1000,10000);
 
-  NumExceededMaxDepth = 0;
-  PointNumber = 0;
-  RegionNumber = 0;
+  this->NumExceededMaxDepth = 0;
+  this->PointNumber = 0;
+  this->RegionNumber = 0;
   maxCellsInRegion = 0;
 
   if ( this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_REGIONS && 
-  this->ExtractionMode != VTK_EXTRACT_CELL_SEEDED_REGIONS ) 
+  this->ExtractionMode != VTK_EXTRACT_CELL_SEEDED_REGIONS &&
+  this->ExtractionMode != VTK_EXTRACT_CLOSEST_POINT_REGION ) 
     { //visit all cells marking with region number
     for (cellId=0; cellId < numCells; cellId++)
       {
@@ -162,32 +155,32 @@ void vtkPolyDataConnectivityFilter::Execute()
 	this->UpdateProgress (0.1 + 0.8*cellId/numCells);
 	}
 
-      if ( Visited[cellId] < 0 ) 
+      if ( this->Visited[cellId] < 0 ) 
         {
-        NumCellsInRegion = 0;
-        RecursionDepth = 0;
+        this->NumCellsInRegion = 0;
+        this->RecursionDepth = 0;
         this->TraverseAndMark (cellId);
 
-        for (i=0; i < RecursionSeeds->GetNumberOfIds(); i++) 
+        for (i=0; i < this->RecursionSeeds->GetNumberOfIds(); i++) 
           {
-          RecursionDepth = 0;
-          this->TraverseAndMark (RecursionSeeds->GetId(i));
+          this->RecursionDepth = 0;
+          this->TraverseAndMark (this->RecursionSeeds->GetId(i));
           }
 
-        if ( NumCellsInRegion > maxCellsInRegion )
+        if ( this->NumCellsInRegion > maxCellsInRegion )
           {
-          maxCellsInRegion = NumCellsInRegion;
-          largestRegionId = RegionNumber;
+          maxCellsInRegion = this->NumCellsInRegion;
+          largestRegionId = this->RegionNumber;
           }
 
-        this->RegionSizes->InsertValue(RegionNumber++,NumCellsInRegion);
-        RecursionSeeds->Reset();
+        this->RegionSizes->InsertValue(this->RegionNumber++,this->NumCellsInRegion);
+        this->RecursionSeeds->Reset();
         }
       }
     }
   else // regions have been seeded, everything considered in same region
     {
-    NumCellsInRegion = 0;
+    this->NumCellsInRegion = 0;
 
     if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS )
       {
@@ -196,9 +189,9 @@ void vtkPolyDataConnectivityFilter::Execute()
         pt = this->Seeds.GetId(i);
         if ( pt >= 0 ) 
           {
-          Mesh->GetPointCells(pt,ncells,cells);
+          this->Mesh->GetPointCells(pt,ncells,cells);
           for (j=0; j < ncells; j++) 
-            RecursionSeeds->InsertNextId(cells[j]);
+            this->RecursionSeeds->InsertNextId(cells[j]);
           }
         }
       }
@@ -207,27 +200,45 @@ void vtkPolyDataConnectivityFilter::Execute()
       for (i=0; i < this->Seeds.GetNumberOfIds(); i++) 
         {
         cellId = this->Seeds.GetId(i);
-        if ( cellId >= 0 ) RecursionSeeds->InsertNextId(cellId);
+        if ( cellId >= 0 ) this->RecursionSeeds->InsertNextId(cellId);
         }
+      }
+    else if ( this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION )
+      {//loop over points, find closest one
+      float minDist2, dist2, x[3];
+      int minId;
+      for (minDist2=VTK_LARGE_FLOAT, i=0; i<numPts; i++)
+	{
+        inPts->GetPoint(i,x);
+        dist2 = vtkMath::Distance2BetweenPoints(x,this->ClosestPoint);
+        if ( dist2 < minDist2 )
+	  {
+	  minId = i;
+          minDist2 = dist2;
+	  }
+        this->Mesh->GetPointCells(minId,ncells,cells);
+        for (j=0; j < ncells; j++) 
+          this->RecursionSeeds->InsertNextId(cells[j]);
+	}
       }
     this->UpdateProgress (0.5);
 
     //mark all seeded regions
-    for (i=0; i < RecursionSeeds->GetNumberOfIds(); i++) 
+    for (i=0; i < this->RecursionSeeds->GetNumberOfIds(); i++) 
       {
-      RecursionDepth = 0;
-      this->TraverseAndMark (RecursionSeeds->GetId(i));
+      this->RecursionDepth = 0;
+      this->TraverseAndMark (this->RecursionSeeds->GetId(i));
       }
-    this->RegionSizes->InsertValue(RegionNumber,NumCellsInRegion);
+    this->RegionSizes->InsertValue(this->RegionNumber,this->NumCellsInRegion);
     this->UpdateProgress (0.9);
 
     }//else extracted seeded cells
 
-  vtkDebugMacro (<<"Extracted " << RegionNumber << " region(s)");
-  vtkDebugMacro (<<"Exceeded recursion depth " << NumExceededMaxDepth 
+  vtkDebugMacro (<<"Extracted " << this->RegionNumber << " region(s)");
+  vtkDebugMacro (<<"Exceeded recursion depth " << this->NumExceededMaxDepth 
                  << " times");
 
-  RecursionSeeds->Delete();
+  this->RecursionSeeds->Delete();
 //
 // Now that points and cells have been marked, traverse these lists pulling
 // everything that has been visited.
@@ -240,16 +251,16 @@ void vtkPolyDataConnectivityFilter::Execute()
 
   for (i=0; i < numPts; i++)
     {
-    if ( PointMap[i] > -1 )
+    if ( this->PointMap[i] > -1 )
       {
-      newPts->InsertPoint(PointMap[i],inPts->GetPoint(i));
-      outputPD->CopyData(pd,i,PointMap[i]);
+      newPts->InsertPoint(this->PointMap[i],inPts->GetPoint(i));
+      outputPD->CopyData(pd,i,this->PointMap[i]);
       }
     }
 
   // if coloring regions; send down new scalar data
-  if ( this->ColorRegions ) outputPD->SetScalars(NewScalars);
-  NewScalars->Delete();
+  if ( this->ColorRegions ) outputPD->SetScalars(this->NewScalars);
+  this->NewScalars->Delete();
 
   output->SetPoints(newPts);
   newPts->Delete();
@@ -287,20 +298,21 @@ void vtkPolyDataConnectivityFilter::Execute()
   
   if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ||
   this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS ||
+  this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION ||
   this->ExtractionMode == VTK_EXTRACT_ALL_REGIONS)
     { // extract any cell that's been visited
     for (cellId=0; cellId < numCells; cellId++)
       {
-      if ( Visited[cellId] >= 0 )
+      if ( this->Visited[cellId] >= 0 )
         {
-        Mesh->GetCellPoints(cellId, npts, pts);
+        this->Mesh->GetCellPoints(cellId, npts, pts);
         ptIds.Reset ();
         for (i=0; i < npts; i++)
           {
-          id = PointMap[pts[i]];
+          id = this->PointMap[pts[i]];
           ptIds.InsertId(i,id);
           }
-        newCellId = output->InsertNextCell(Mesh->GetCellType(cellId),ptIds);
+        newCellId = output->InsertNextCell(this->Mesh->GetCellType(cellId),ptIds);
 	outputCD->CopyData(cd,cellId,newCellId);
         }
       }
@@ -310,7 +322,7 @@ void vtkPolyDataConnectivityFilter::Execute()
     for (cellId=0; cellId < numCells; cellId++)
       {
       int inReg, regionId;
-      if ( (regionId=Visited[cellId]) >= 0 )
+      if ( (regionId=this->Visited[cellId]) >= 0 )
         {
         for (inReg=0,i=0; i<this->SpecifiedRegionIds.GetNumberOfIds(); i++)
           {
@@ -322,14 +334,14 @@ void vtkPolyDataConnectivityFilter::Execute()
           }
         if ( inReg )
           {
-          Mesh->GetCellPoints(cellId, npts, pts);
+          this->Mesh->GetCellPoints(cellId, npts, pts);
           ptIds.Reset ();
           for (i=0; i < npts; i++)
             {
-            id = PointMap[pts[i]];
+            id = this->PointMap[pts[i]];
             ptIds.InsertId(i,id);
             }
-          newCellId = output->InsertNextCell(Mesh->GetCellType(cellId),ptIds);
+          newCellId = output->InsertNextCell(this->Mesh->GetCellType(cellId),ptIds);
 	  outputCD->CopyData(cd,cellId,newCellId);
           }
         }
@@ -339,24 +351,24 @@ void vtkPolyDataConnectivityFilter::Execute()
     {
     for (cellId=0; cellId < numCells; cellId++)
       {
-      if ( Visited[cellId] == largestRegionId )
+      if ( this->Visited[cellId] == largestRegionId )
         {
-        Mesh->GetCellPoints(cellId, npts, pts);
+        this->Mesh->GetCellPoints(cellId, npts, pts);
         ptIds.Reset ();
         for (i=0; i < npts; i++)
           {
-          id = PointMap[pts[i]];
+          id = this->PointMap[pts[i]];
           ptIds.InsertId(i,id);
           }
-        newCellId = output->InsertNextCell(Mesh->GetCellType(cellId),ptIds);
+        newCellId = output->InsertNextCell(this->Mesh->GetCellType(cellId),ptIds);
 	outputCD->CopyData(cd,cellId,newCellId);
         }
       }
    }
 
-  delete [] Visited;
-  delete [] PointMap;
-  Mesh->Delete();
+  delete [] this->Visited;
+  delete [] this->PointMap;
+  this->Mesh->Delete();
   output->Squeeze();
 
   int num = this->GetNumberOfExtractedRegions();
@@ -381,41 +393,41 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark (int cellId)
   int j, k, ptId, npts, *pts, *cells;
   unsigned short ncells;
 
-  Visited[cellId] = RegionNumber;
-  if ( RecursionDepth++ > this->MaxRecursionDepth ) 
+  this->Visited[cellId] = this->RegionNumber;
+  if ( this->RecursionDepth++ > this->MaxRecursionDepth ) 
     {
-    RecursionSeeds->InsertNextId(cellId);
-    NumExceededMaxDepth++;
+    this->RecursionSeeds->InsertNextId(cellId);
+    this->NumExceededMaxDepth++;
     return;
     }
 
-  NumCellsInRegion++;
+  this->NumCellsInRegion++;
 
-  Mesh->GetCellPoints(cellId, npts, pts);
+  this->Mesh->GetCellPoints(cellId, npts, pts);
 
   for (j=0; j < npts; j++) 
     {
-    if ( PointMap[ptId=pts[j]] < 0 )
+    if ( this->PointMap[ptId=pts[j]] < 0 )
       {
-      PointMap[ptId] = PointNumber++;
-      NewScalars->SetScalar(PointMap[ptId], RegionNumber);
+      this->PointMap[ptId] = this->PointNumber++;
+      this->NewScalars->SetScalar(this->PointMap[ptId], this->RegionNumber);
       }
      
-    Mesh->GetPointCells(ptId,ncells,cells);
+    this->Mesh->GetPointCells(ptId,ncells,cells);
 
     // check connectivity criterion (geometric + scalar)
     for (k=0; k < ncells; k++)
       {
       cellId = cells[k];
-      if ( Visited[cellId] < 0 )
+      if ( this->Visited[cellId] < 0 )
         {
-        if ( InScalars )
+        if ( this->InScalars )
           {
           int numScalars, ii;
           float s, range[2];
 
-          Mesh->GetCellPoints(cellId,*this->NeighborCellPointIds);
-          InScalars->GetScalars(*this->NeighborCellPointIds,*this->CellScalars);
+          this->Mesh->GetCellPoints(cellId,*this->NeighborCellPointIds);
+          this->InScalars->GetScalars(*this->NeighborCellPointIds,*this->CellScalars);
           numScalars = this->CellScalars->GetNumberOfScalars();
           range[0] = VTK_LARGE_FLOAT; range[1] = -VTK_LARGE_FLOAT;
           for (ii=0; ii < numScalars;  ii++)
@@ -438,7 +450,7 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark (int cellId)
       }
     } // for all cells of this element
 
-  RecursionDepth--;
+  this->RecursionDepth--;
   return;
 }
 
@@ -495,21 +507,10 @@ void vtkPolyDataConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Extraction Mode: ";
-  switch (this->ExtractionMode)
-    {
-    case VTK_EXTRACT_POINT_SEEDED_REGIONS:
-      os << "(Extract point seeded regions)\n";
-      break;
-    case VTK_EXTRACT_CELL_SEEDED_REGIONS:
-      os << "(Extract cell seeded regions)\n";
-      break;
-    case VTK_EXTRACT_SPECIFIED_REGIONS:
-      os << "(Extract specified regions)\n";
-      break;
-    case VTK_EXTRACT_LARGEST_REGION:
-      os << "(Extract largest region)\n";
-      break;
-    }
+  os << this->GetExtractionModeAsString() << "\n";
+
+  os << indent << "Closest Point: (" << this->ClosestPoint[0] << ", " 
+     << this->ClosestPoint[1] << ", " << this->ClosestPoint[2] << ")\n";
 
   os << indent << "Color Regions: " << (this->ColorRegions ? "On\n" : "Off\n");
   os << indent << "Maximum Recursion Depth: " << this->MaxRecursionDepth << "\n";

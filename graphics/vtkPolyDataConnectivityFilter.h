@@ -40,11 +40,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkPolyDataConnectivityFilter - extract polygonal data based on geometric connectivity
 // .SECTION Description
-// vtkPolyDataConnectivityFilter is a filter that extracts cells that share common 
-// points. The filter works in one of four ways: 1) extract the largest
-// connected region in the dataset; 2) extract specified region numbers;
-// 3) extract all regions sharing specified point ids; or 4) extract
-// all regions sharing specified cell ids.
+// vtkPolyDataConnectivityFilter is a filter that extracts cells that
+// share common points and/or satisfy a scalar threshold
+// criterion. (Such a group of cells is called a region.) The filter
+// works in one of six ways: 1) extract the largest connected region
+// in the dataset; 2) extract specified region numbers; 3) extract all
+// regions sharing specified point ids; 4) extract all regions sharing
+// specified cell ids; 5) extract the region closest to the specified
+// point; or 6) extract all regions (used to color regions).
 //
 // This filter is specialized for polygonal data. This means it runs a bit 
 // faster and is easier to construct visualization networks that process
@@ -53,13 +56,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The behavior of vtkPolyDataConnectivityFilter can be modified by turning on the 
 // boolean ivar ScalarConnectivity. If this flag is on, the connectivity
 // algorithm is modified so that cells are considered connected only if 1) they 
-// are geometrically connected (share a vertex) and 2) the scalar values of one
+// are geometrically connected (share a point) and 2) the scalar values of one
 // of the cell's points falls in the scalar range specified. This use of
-// ScalarConnectivity is particularly useful for volume datasets: it can be used
-// as a simple "connected segmentation" algorithm. For example, by using a seed
-// voxel (i.e., cell) on a known anatomical structure, connectivity will pull
-// out all voxels "containing" the anatomical structure. These voxels can then
-// be contoured or processed by other visualization filters.
+// ScalarConnectivity is particularly useful for selecting cells for later 
+// processing.
 
 // .SECTION See Also
 // vtkConnectivityFilter
@@ -74,13 +74,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_EXTRACT_SPECIFIED_REGIONS 3
 #define VTK_EXTRACT_LARGEST_REGION 4
 #define VTK_EXTRACT_ALL_REGIONS 5
+#define VTK_EXTRACT_CLOSEST_POINT_REGION 6
 
 class VTK_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
 
-// Description:
-// Construct with default extraction mode to extract largest regions.
+  // Description:
+  // Construct with default extraction mode to extract largest regions.
   vtkPolyDataConnectivityFilter();
 
   ~vtkPolyDataConnectivityFilter();
@@ -104,7 +105,7 @@ public:
   // Description:
   // Control the extraction of connected surfaces.
   vtkSetClampMacro(ExtractionMode,int,
-                  VTK_EXTRACT_POINT_SEEDED_REGIONS,VTK_EXTRACT_ALL_REGIONS);
+             VTK_EXTRACT_POINT_SEEDED_REGIONS,VTK_EXTRACT_CLOSEST_POINT_REGION);
   vtkGetMacro(ExtractionMode,int);
   void SetExtractionModeToPointSeededRegions()
     {this->SetExtractionMode(VTK_EXTRACT_POINT_SEEDED_REGIONS);};
@@ -114,49 +115,49 @@ public:
     {this->SetExtractionMode(VTK_EXTRACT_LARGEST_REGION);};
   void SetExtractionModeToSpecifiedRegions()
     {this->SetExtractionMode(VTK_EXTRACT_SPECIFIED_REGIONS);};
+  void SetExtractionModeToClosestPointRegion()
+    {this->SetExtractionMode(VTK_EXTRACT_CLOSEST_POINT_REGION);};
   void SetExtractionModeToAllRegions()
     {this->SetExtractionMode(VTK_EXTRACT_ALL_REGIONS);};
   char *GetExtractionModeAsString();
 
   // Use with point or cell seeded extraction methods
 
-// Description:
-// Initialize list of point ids/cell ids used to seed regions.
+  // Description:
+  // Initialize list of point ids/cell ids used to seed regions.
   void InitializeSeedList();
 
-
-// Description:
-// Add a seed id (point or cell id). Note: ids are 0-offset.
+  // Description:
+  // Add a seed id (point or cell id). Note: ids are 0-offset.
   void AddSeed(int id);
 
-
-// Description:
-// Delete a seed id (point or cell id). Note: ids are 0-offset.
+  // Description:
+  // Delete a seed id (point or cell id). Note: ids are 0-offset.
   void DeleteSeed(int id);
-
 
   // Use with extract specified regions 
 
-// Description:
-// Initialize list of region ids to extract.
+  // Description:
+  // Initialize list of region ids to extract.
   void InitializeSpecifiedRegionList();
 
-
-// Description:
-// Add a region id to extract. Note: ids are 0-offset.
+  // Description:
+  // Add a region id to extract. Note: ids are 0-offset.
   void AddSpecifiedRegion(int id);
 
-
-// Description:
-// Delete a region id to extract. Note: ids are 0-offset.
+  // Description:
+  // Delete a region id to extract. Note: ids are 0-offset.
   void DeleteSpecifiedRegion(int id);
 
+  // Description:
+  // Use to specify x-y-z point coordinates when extracting the region 
+  // closest to a specified point.
+  vtkSetVector3Macro(ClosestPoint,float);
+  vtkGetVectorMacro(ClosestPoint,float,3);
 
-
-// Description:
-// Obtain the number of connected regions.
+  // Description:
+  // Obtain the number of connected regions.
   int GetNumberOfExtractedRegions();
-
 
   // Description:
   // The connectivity extraction algorithm works recursively. In some systems 
@@ -182,15 +183,28 @@ protected:
   vtkIdList SpecifiedRegionIds; //regions specified for extraction
   vtkIntArray *RegionSizes; //size (in cells) of each region extracted
 
+  float ClosestPoint[3];
+
   int ScalarConnectivity;
   float ScalarRange[2];
 
   void TraverseAndMark(int cellId);
 
 private:
+  // used to support algorithm execution
   vtkScalars *CellScalars;
   vtkIdList *NeighborCellPointIds;
-
+  int NumExceededMaxDepth;
+  int *Visited;
+  int *PointMap;
+  vtkScalars *NewScalars;
+  int RecursionDepth;
+  int RegionNumber;
+  int PointNumber;    
+  int NumCellsInRegion;
+  vtkIdList *RecursionSeeds;
+  vtkScalars *InScalars;
+  vtkPolyData *Mesh;
 };
 
 // Description:
@@ -212,6 +226,10 @@ inline char *vtkPolyDataConnectivityFilter::GetExtractionModeAsString(void)
   else if ( this->ExtractionMode == VTK_EXTRACT_ALL_REGIONS ) 
     {
     return "ExtractAllRegions";
+    }
+  else if ( this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION ) 
+    {
+    return "ExtractClosestPointRegion";
     }
   else 
     {
