@@ -76,9 +76,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->CurrentSubFrame = 0;
   this->DesiredUpdateRate = 0.0001;
   this->ResultFrame = NULL;
-  this->FileName = NULL;
   this->SwapBuffers = 1;
-  this->PPMImageFilePtr = NULL;
   this->AbortRender = 0;
   this->InAbortCheck = 0;
   this->InRender = 0;
@@ -94,10 +92,6 @@ vtkRenderWindow::~vtkRenderWindow()
 {
   this->SetInteractor(NULL);
   
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    } 
   if (this->AccumulationBuffer) 
     {
     delete [] this->AccumulationBuffer;
@@ -749,9 +743,6 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Stereo Type: " << this->GetStereoTypeAsString() << "\n";
   os << indent << "Number of Layers: " << this->NumLayers << "\n";
   os << indent << "AccumulationBuffer Size " << this->AccumulationBufferSize << "\n";
-  os << indent << "File Name: " 
-     << (this->FileName ? this->FileName : "(none)") << "\n";
-
   if ( this->AbortCheckMethod )
     {
     os << indent << "AbortCheck method defined.\n";
@@ -761,69 +752,6 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "No AbortCheck method.\n";
     }
 }
-
-
-void vtkRenderWindow::SaveImageAsPPM()
-{
-  if( this->OpenPPMImageFile() )
-    {
-    this->WritePPMImageFile();
-    this->ClosePPMImageFile();
-    }
-}
-
-
-int vtkRenderWindow::OpenPPMImageFile()
-{
-  //  open the ppm file and write header 
-  if ( this->FileName != NULL && *this->FileName != '\0')
-    {
-    this->PPMImageFilePtr = fopen(this->FileName,"wb");
-    if (!this->PPMImageFilePtr)
-      {
-      vtkErrorMacro(<< "RenderWindow unable to open image file for writing\n");
-      return 0;
-      }
-  }
-  return 1;
-}
-
-void vtkRenderWindow::ClosePPMImageFile()
-{
-  fclose(this->PPMImageFilePtr);
-  this->PPMImageFilePtr = NULL;
-}
-
-
-void vtkRenderWindow::WritePPMImageFile()
-{
-  int    *size;
-  unsigned char *buffer;
-  int i;
-
-  // get the size
-  size = this->GetSize();
-  // get the data
-  buffer = this->GetPixelData(0,0,size[0]-1,size[1]-1,1);
-
-  if(!this->PPMImageFilePtr)
-    {
-    vtkErrorMacro(<< "RenderWindow: no image file for writing\n");
-    return;
-    }
- 
-  // write out the header info 
-  fprintf(this->PPMImageFilePtr,"P6\n%i %i\n255\n",size[0],size[1]);
- 
-  // now write the binary info 
-  for (i = size[1]-1; i >= 0; i--)
-    {
-    fwrite(buffer + i*size[0]*3,1,size[0]*3,this->PPMImageFilePtr);
-    }
-
-  delete [] buffer;
-}
-
 
 
 // Update the system, if needed, due to stereo rendering. For some stereo 
