@@ -213,7 +213,7 @@ void vlUnstructuredGridReader::Execute()
           }
         else //ascii
           {
-          for (int i=0; i<size; i++)
+          for (int i=0; i<ncells; i++)
             {
             if ((retStat=fscanf(fp,"%d",types+i)) == EOF || retStat < 1) 
               {
