@@ -16,6 +16,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkSocketController.h"
+#include "vtkCommand.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 #include <sys/types.h>
@@ -35,7 +36,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.45");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.46");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -479,6 +480,13 @@ int vtkSocketCommunicator::SendTagged(void* data, int wordSize,
     {
     vtkErrorMacro("Could not send tag.");
     return 0;
+    }
+  int length = wordSize * numWords;
+  if(!this->SendInternal(this->Socket, &length, 
+      static_cast<int>(sizeof(int))))
+    {
+    vtkErrorMacro("Could not send length.");
+    return 0;
     }  
   if(!this->SendInternal(this->Socket, data, wordSize*numWords))
     {
@@ -497,23 +505,71 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
                                          int numWords, int tag,
                                          const char* logName)
 {
-  int recvTag = -1;
-  if(!this->ReceiveInternal(this->Socket, &recvTag,
-                            static_cast<int>(sizeof(int))))
+  int success = 0;
+  int length = -1;
+  while ( !success )
     {
-    vtkErrorMacro("Could not receive tag.");
+    int recvTag = -1;
+    length = -1;
+    if(!this->ReceiveInternal(this->Socket, &recvTag,
+        static_cast<int>(sizeof(int))))
+      {
+      vtkErrorMacro("Could not receive tag.");
+      return 0;
+      }
+    if(this->SwapBytesInReceivedData)
+      {
+      vtkSwap4(reinterpret_cast<char*>(&recvTag));
+      }
+    if(!this->ReceiveInternal(this->Socket, &length,
+        static_cast<int>(sizeof(int))))
+      {
+      vtkErrorMacro("Could not receive length.");
+      return 0;
+      }
+    if(this->SwapBytesInReceivedData)
+      {
+      vtkSwap4(reinterpret_cast<char*>(&length));
+      }
+    if(recvTag != tag)
+      {
+      char* idata = new char[length + sizeof(recvTag) + sizeof(length)];
+      char* ptr = idata;
+      memcpy(ptr, (void*)&recvTag, sizeof(recvTag));
+      ptr += sizeof(recvTag);
+      memcpy(ptr, (void*)&length, sizeof(length));
+      ptr += sizeof(length);
+      this->ReceivePartialTagged(ptr, 1, length, tag, "Wrong tag");
+      int res = this->InvokeEvent(vtkCommand::WrongTagEvent, idata);
+      delete [] idata;
+      if ( res )
+        {
+        continue;
+        }
+
+      vtkErrorMacro("Tag mismatch: got " << recvTag << ", expecting " << tag
+        << ".");
+      return 0;
+      }
+    else
+      {
+      success = 1;
+      }
+    }
+  if ( (wordSize * numWords) != length )
+    {
+    vtkErrorMacro("Requested size (" << (wordSize * numWords) 
+      << ") is different than the size that was sent (" << length << ")");
     return 0;
     }
-  if(this->SwapBytesInReceivedData)
-    {
-    vtkSwap4(reinterpret_cast<char*>(&recvTag));
-    }
-  if(recvTag != tag)
-    {
-    vtkErrorMacro("Tag mismatch: got " << recvTag << ", expecting " << tag
-                  << ".");
-    return 0;
-    }
+  return this->ReceivePartialTagged(data, wordSize, numWords, tag, logName);
+}
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::ReceivePartialTagged(void* data, int wordSize,
+                                         int numWords, int tag,
+                                         const char* logName)
+{
   if(!this->ReceiveInternal(this->Socket, data, wordSize*numWords))
     {
     vtkErrorMacro("Could not receive message.");

@@ -157,6 +157,8 @@ protected:
                  const char* logName);
   int ReceiveTagged(void* data, int wordSize, int numWords, int tag,
                     const char* logName);
+  int ReceivePartialTagged(void* data, int wordSize, int numWords, int tag,
+                    const char* logName);
   
   // Internal utility methods.
   void LogTagged(const char* name, void* data, int wordSize, int numWords,
