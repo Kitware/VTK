@@ -1904,4 +1904,10 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Field Data Name: (None)\n";
     }
+  
+  os << indent << "InputStringLength: " << this->InputStringLength << endl;
 }
+
+
+
+
