@@ -128,6 +128,13 @@ void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
     case 1: os << "Centered  (1)" << endl; break;
     case 2: os << "Right  (2)" << endl; break;
     }
+  os << indent << "VerticalJustification: ";
+  switch (this->VerticalJustification)
+    {
+    case VTK_TEXT_TOP: os << "Top" << endl; break;
+    case VTK_TEXT_CENTERED: os << "Centered" << endl; break;
+    case VTK_TEXT_BOTTOM: os << "Bottom" << endl; break;
+    }
   
   vtkMapper2D::PrintSelf(os,indent);
 }
