@@ -2010,7 +2010,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp," /MD /W3 /O2");
     }
 
-  fprintf(fp," /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"NDEBUG\" /D \"WIN32\" /Fo$(OBJDIR)\\ /c \\\n");
+  fprintf(fp," /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"NDEBUG\" /D \"WIN32\" /Fo$(OUTDIR)\\ /c \\\n");
 
   if(vals->m_AnsiCpp)
     {
@@ -2655,7 +2655,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp," /MD /W3 /O2");
     }
 
-  fprintf(fp," /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"NDEBUG\" /D \"WIN32\" /Fo$(OBJDIR)\\ /c \\\n");
+  fprintf(fp," /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"NDEBUG\" /D \"WIN32\" /Fo$(OUTDIR)\\ /c \\\n");
 
   if(vals->m_AnsiCpp)
     {
