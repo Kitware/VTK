@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.54");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.55");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -169,6 +169,12 @@ void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData,
     wholeExtent[2*idx+1] = (int)(floor(
      (float)(wholeExtent[2*idx+1]-this->Shift[idx]-this->ShrinkFactors[idx]+1)
          / (float)(this->ShrinkFactors[idx])));
+     // make sure WholeExtent is valid when the ShrinkFactors are set on an
+     // axis with no Extent beforehand
+     if (wholeExtent[2*idx+1]<wholeExtent[2*idx])
+       {
+       wholeExtent[2*idx+1] = wholeExtent[2*idx];
+       }
     // Change the data spacing
     spacing[idx] *= (float)(this->ShrinkFactors[idx]);
     }
@@ -240,8 +246,13 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 #endif
 
   self->GetShrinkFactors(factor0, factor1, factor2);
-  
-  // Get information to march through data 
+  // make sure we don't have a 3D shrinkfactor for a 2D image
+  if (factor2>1 && inData->GetWholeExtent()[5]==0)
+    {
+    factor2=1;
+    }
+
+  // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2);
   tmpInc0 = inInc0 * factor0;
   tmpInc1 = inInc1 * factor1;
