@@ -17,17 +17,17 @@
 #include "vtkMath.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkParametricSuperToroid, "1.1");
+vtkCxxRevisionMacro(vtkParametricSuperToroid, "1.2");
 vtkStandardNewMacro(vtkParametricSuperToroid);
 
 vtkParametricSuperToroid::vtkParametricSuperToroid() :
   RingRadius(1)
   , CrossSectionRadius(0.5)
-  , N1(1)
-  , N2(1)
   , XRadius(1)
   , YRadius(1)
   , ZRadius(1)
+  , N1(1)
+  , N2(1)
 {
   // Preset triangulation parameters
   this->MinimumU = 0;
@@ -42,6 +42,11 @@ vtkParametricSuperToroid::vtkParametricSuperToroid() :
   this->ClockwiseOrdering = 1;
   this->DerivativesAvailable = 0;
 }
+
+vtkParametricSuperToroid::~vtkParametricSuperToroid()
+{
+}
+
 
 void vtkParametricSuperToroid::Evaluate(double U[3], double Pt[3], double Duv[9])
 {
