@@ -4,8 +4,21 @@ source ../../examplesTcl/vtkInt.tcl
 
 # pipeline
 
+vtkTextSource text0Source
+    text0Source SetText "Text Source with Scalars (default)"
+
+vtkPolyDataMapper text0Mapper
+    text0Mapper SetInput [text0Source GetOutput]
+
+vtkActor text0Actor
+    text0Actor SetMapper text0Mapper
+    text0Actor SetScale .1 .1 .1
+    text0Actor AddPosition 0 2 0
+
 vtkTextSource text1Source
     text1Source SetText "Text Source with Scalars"
+    text1Source SetForegroundColor 1 0 0 1
+    text1Source SetBackgroundColor 1 1 1 1
 
 vtkPolyDataMapper text1Mapper
     text1Mapper SetInput [text1Source GetOutput]
@@ -49,6 +62,7 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
+ren1 AddActor text0Actor
 ren1 AddActor text1Actor
 ren1 AddActor text2Actor
 ren1 AddActor text3Actor
