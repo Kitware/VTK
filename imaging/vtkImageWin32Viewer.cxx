@@ -48,7 +48,9 @@ vtkImageWin32Viewer::vtkImageWin32Viewer()
   this->ParentId = 0;
   this->DeviceContext = (HDC)0;
   this->OwnWindow = 0;
-  
+  this->HBitmap = (HBITMAP)0;
+  this->DataOut = NULL;
+
   if ( this->WindowName )
     delete [] this->WindowName;
   this->WindowName = strdup("Visualization Toolkit - ImageWin32");
@@ -58,6 +60,11 @@ vtkImageWin32Viewer::vtkImageWin32Viewer()
 //----------------------------------------------------------------------------
 vtkImageWin32Viewer::~vtkImageWin32Viewer()
 {
+  if (this->HBitmap)
+    {
+    DeleteObject(this->HBitmap);
+    this->HBitmap = (HBITMAP)0;
+    }
 }
 
 
@@ -110,17 +117,24 @@ void vtkImageWin32Viewer::SetPosition(int x, int y)
 // Description:
 // A templated function that handles gray scale images.
 template <class T>
-static void vtkImageWin32ViewerRenderGray(vtkImageWin32Viewer *self, 
+static void vtkImageWin32ViewerRenderShortGray(vtkImageWin32Viewer *self, 
 					  vtkImageRegion *region,
 					  T *inPtr, unsigned char *outPtr,
 					  float shift, float scale)
 {
-  int colorIdx;
-  T *inPtr0, *inPtr1;
+  unsigned char colorIdx;
+  T *inPtr0, *inPtr1, *endPtr;
   int inMin0, inMax0, inMin1, inMax1;
   int inInc0, inInc1;
-  int idx0, idx1;
-  
+  int idx1;
+  T   lower, upper;
+  int sscale;
+  int rowAdder;
+
+  lower = -shift;
+  upper = lower + 255.0/scale;
+  sscale = scale*4096.0;
+
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
   
@@ -131,31 +145,104 @@ static void vtkImageWin32ViewerRenderGray(vtkImageWin32Viewer *self,
     }  
   
   // Loop through in regions pixels
+  rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
   inPtr1 = inPtr;
   for (idx1 = inMin1; idx1 <= inMax1; idx1++)
     {
     inPtr0 = inPtr1;
-    for (idx0 = inMin0; idx0 <= inMax0; idx0++)
+    endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
+    while (inPtr0 != endPtr)
       {
-
-      colorIdx = (int)(((float)(*inPtr0) + shift) * scale);
-      if (colorIdx < 0)
-	      {
-	      colorIdx = 0;
-	      }
-      if (colorIdx > 255)
-	      {
-	      colorIdx = 255;
-	      }
-
-      *outPtr++ = (unsigned char)(colorIdx);
-      *outPtr++ = (unsigned char)(colorIdx);
-      *outPtr++ = (unsigned char)(colorIdx);
+      if (*inPtr0 <= lower) 
+        {
+        *outPtr++ = 0;
+        *outPtr++ = 0;
+        *outPtr++ = 0;
+        }
+      else if (*inPtr0 >= upper)
+        {
+        *outPtr++ = 255;
+        *outPtr++ = 255;
+        *outPtr++ = 255;
+        }
+      else
+        {
+        colorIdx = ((*inPtr0 - lower) * sscale) >> 12;
+        *outPtr++ = colorIdx;
+        *outPtr++ = colorIdx;
+        *outPtr++ = colorIdx;
+        }
       inPtr0 += inInc0;
       }
     // rows must be a multiple of four bytes
     // so pad it if neccessary
-    outPtr = outPtr + (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
+    outPtr += rowAdder;
+    inPtr1 += inInc1;
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// A templated function that handles gray scale images.
+template <class T>
+static void vtkImageWin32ViewerRenderGray(vtkImageWin32Viewer *self, 
+					  vtkImageRegion *region,
+					  T *inPtr, unsigned char *outPtr,
+					  float shift, float scale)
+{
+  unsigned char colorIdx;
+  T *inPtr0, *inPtr1, *endPtr;
+  int inMin0, inMax0, inMin1, inMax1;
+  int inInc0, inInc1;
+  int idx1;
+  T   lower, upper;
+  int rowAdder;
+
+  lower = -shift;
+  upper = lower + 255.0/scale;
+
+  region->GetExtent(inMin0, inMax0, inMin1, inMax1);
+  region->GetIncrements(inInc0, inInc1);
+  
+  if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
+    {
+    inInc1 = -inInc1;
+    inPtr = (T *)(region->GetScalarPointer(inMin0, inMax1));
+    }  
+  
+  // Loop through in regions pixels
+  rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
+  inPtr1 = inPtr;
+  for (idx1 = inMin1; idx1 <= inMax1; idx1++)
+    {
+    inPtr0 = inPtr1;
+    endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
+    while (inPtr0 != endPtr)
+      {
+      if (*inPtr0 <= lower) 
+        {
+        *outPtr++ = 0;
+        *outPtr++ = 0;
+        *outPtr++ = 0;
+        }
+      else if (*inPtr0 >= upper)
+        {
+        *outPtr++ = 255;
+        *outPtr++ = 255;
+        *outPtr++ = 255;
+        }
+      else
+        {
+        colorIdx = ((*inPtr0 - lower) * scale);
+        *outPtr++ = colorIdx;
+        *outPtr++ = colorIdx;
+        *outPtr++ = colorIdx;
+        }
+      inPtr0 += inInc0;
+      }
+    // rows must be a multiple of four bytes
+    // so pad it if neccessary
+    outPtr += rowAdder;
     inPtr1 += inInc1;
     }
 }
@@ -171,17 +258,22 @@ static void vtkImageWin32ViewerRenderColor(vtkImageWin32Viewer *self,
 					   unsigned char *outPtr,
 					   float shift, float scale)
 {
-  int red, green, blue;
+  unsigned char red, green, blue;
   T *redPtr0, *redPtr1;
   T *bluePtr0, *bluePtr1;
   T *greenPtr0, *greenPtr1;
   int inMin0, inMax0, inMin1, inMax1;
   int inInc0, inInc1;
   int idx0, idx1;
+  T   lower, upper;
+  int rowAdder;
   
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
   
+  lower = -shift;
+  upper = lower + 255.0/scale;
+
   if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
     {
     inInc1 = -inInc1;
@@ -191,6 +283,7 @@ static void vtkImageWin32ViewerRenderColor(vtkImageWin32Viewer *self,
   redPtr1 = redPtr;
   greenPtr1 = greenPtr;
   bluePtr1 = bluePtr;
+  rowAdder = (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
   for (idx1 = inMin1; idx1 <= inMax1; idx1++)
     {
     redPtr0 = redPtr1;
@@ -198,20 +291,20 @@ static void vtkImageWin32ViewerRenderColor(vtkImageWin32Viewer *self,
     bluePtr0 = bluePtr1;
     for (idx0 = inMin0; idx0 <= inMax0; idx0++)
       {
+      if (*redPtr0 <= lower) red = 0;
+      else if (*redPtr0 >= upper) red = 255;
+      else red = (unsigned char)(((float)(*redPtr0) + shift) * scale);
 
-      red = (int)(((float)(*redPtr0) + shift) * scale);
-      if (red < 0) red = 0;
-      if (red > 255) red = 255;
-      green = (int)(((float)(*greenPtr0) + shift) * scale);
-      if (green < 0) green = 0;
-      if (green > 255) green = 255;
-      blue = (int)(((float)(*bluePtr0) + shift) * scale);
-      if (blue < 0) blue = 0;
-      if (blue > 255) blue = 255;
-
-      *outPtr++ = (unsigned char)(blue);
-      *outPtr++ = (unsigned char)(green);
-      *outPtr++ = (unsigned char)(red);
+      if (*greenPtr0 <= lower) green = 0;
+      else if (*greenPtr0 >= upper) green = 255;
+      else green = (unsigned char)(((float)(*greenPtr0) + shift) * scale);
+  
+      if (*bluePtr0 <= lower) blue = 0;
+      else if (*bluePtr0 >= upper) blue = 255;
+      else blue = (unsigned char)(((float)(*bluePtr0) + shift) * scale);
+      *outPtr++ = blue;
+      *outPtr++ = green;
+      *outPtr++ = red;
 
       redPtr0 += inInc0;
       greenPtr0 += inInc0;
@@ -219,7 +312,7 @@ static void vtkImageWin32ViewerRenderColor(vtkImageWin32Viewer *self,
       }
     // rows must be a multiple of four bytes
     // so pad it if neccessary
-    outPtr = outPtr + (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
+    outPtr += rowAdder;
 
     redPtr1 += inInc1;
     greenPtr1 += inInc1;
@@ -240,12 +333,40 @@ void vtkImageWin32Viewer::SetSize(int x, int y)
       {
       if (!resizing)
         {
+        BITMAPINFO dataHeader;
         resizing = 1;
 
-        SetWindowPos(this->WindowId,HWND_TOP,0,0,
-          x+2*GetSystemMetrics(SM_CXFRAME),
-          y+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
-          SWP_NOMOVE | SWP_NOZORDER);
+        if (this->ParentId)
+          {
+          SetWindowPos(this->WindowId,HWND_TOP,0,0,
+            x, y, SWP_NOMOVE | SWP_NOZORDER);
+          }
+        else
+          {
+          SetWindowPos(this->WindowId,HWND_TOP,0,0,
+            x+2*GetSystemMetrics(SM_CXFRAME),
+            y+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
+            SWP_NOMOVE | SWP_NOZORDER);
+          }
+
+        // free and then realloc the DIB
+        if (this->HBitmap)
+          {
+          DeleteObject(this->HBitmap);
+          }
+        dataHeader.bmiHeader.biSize = 40;
+        dataHeader.bmiHeader.biWidth = x;
+        dataHeader.bmiHeader.biHeight = y;
+        dataHeader.bmiHeader.biPlanes = 1;
+        dataHeader.bmiHeader.biBitCount = 24;
+        dataHeader.bmiHeader.biCompression = BI_RGB;
+        dataHeader.bmiHeader.biSizeImage = ((x*3+3)/4)*4*y;
+        dataHeader.bmiHeader.biClrUsed = 0;
+        dataHeader.bmiHeader.biClrImportant = 0;  
+
+        // try using a DIBsection
+        this->HBitmap = CreateDIBSection(this->DeviceContext, &dataHeader, 
+                             DIB_RGB_COLORS, (void **)(&(this->DataOut)), NULL, 0);
         resizing = 0;
         }
       }
@@ -280,13 +401,12 @@ void vtkImageWin32Viewer::Render(void)
   int extent[8];
   int *imageExtent;
   int dataWidth, width, height;
-  int size;
-  unsigned char *dataOut;
   vtkImageRegion *region;
   void *ptr0, *ptr1, *ptr2;
   float shift, scale;
-  BITMAPINFO dataHeader;
-  
+  HDC compatDC;
+  HBITMAP hOldBitmap;
+
   if ( ! this->Input)
     {
     // open the window anyhow if one has not been set.
@@ -385,13 +505,28 @@ void vtkImageWin32Viewer::Render(void)
     this->MakeDefaultWindow();
     }
   
-  // Allocate output data
   dataWidth = ((width*3+3)/4)*4;
-  size = dataWidth * height;
-  dataOut = new unsigned char[size];
-
   shift = this->ColorWindow / 2.0 - this->ColorLevel;
   scale = 255.0 / this->ColorWindow;
+
+  // create the DIBSection if not done already
+  if (!this->HBitmap)
+    {
+    BITMAPINFO dataHeader;
+    dataHeader.bmiHeader.biSize = 40;
+    dataHeader.bmiHeader.biWidth = width;
+    dataHeader.bmiHeader.biHeight = height;
+    dataHeader.bmiHeader.biPlanes = 1;
+    dataHeader.bmiHeader.biBitCount = 24;
+    dataHeader.bmiHeader.biCompression = BI_RGB;
+    dataHeader.bmiHeader.biSizeImage = dataWidth*height;
+    dataHeader.bmiHeader.biClrUsed = 0;
+    dataHeader.bmiHeader.biClrImportant = 0;  
+
+    // try using a DIBsection
+    this->HBitmap = CreateDIBSection(this->DeviceContext, &dataHeader, 
+                             DIB_RGB_COLORS, (void **)(&(this->DataOut)), NULL, 0);
+    }
 
   if (this->ColorFlag)
     {
@@ -413,6 +548,7 @@ void vtkImageWin32Viewer::Render(void)
       vtkErrorMacro("Render: Could not get date. Check that RGB are in range");
       return;
       }
+  
 
     // Call the appropriate templated function
     switch (region->GetScalarType())
@@ -420,27 +556,27 @@ void vtkImageWin32Viewer::Render(void)
       case VTK_FLOAT:
 	vtkImageWin32ViewerRenderColor(this, region, 
 			   (float *)(ptr0),(float *)(ptr1),(float *)(ptr2), 
-			   dataOut, shift, scale);
+			   this->DataOut, shift, scale);
 	break;
       case VTK_INT:
 	vtkImageWin32ViewerRenderColor(this, region, 
 			   (int *)(ptr0), (int *)(ptr1), (int *)(ptr2), 
-			   dataOut, shift, scale);
+			   this->DataOut, shift, scale);
 	break;
       case VTK_SHORT:
 	vtkImageWin32ViewerRenderColor(this, region, 
 			   (short *)(ptr0),(short *)(ptr1),(short *)(ptr2), 
-			   dataOut, shift, scale);
+			   this->DataOut, shift, scale);
 	break;
       case VTK_UNSIGNED_SHORT:
 	vtkImageWin32ViewerRenderColor(this, region, (unsigned short *)(ptr0),
 			   (unsigned short *)(ptr1),(unsigned short *)(ptr2), 
-			    dataOut, shift, scale);
+			    this->DataOut, shift, scale);
 	break;
       case VTK_UNSIGNED_CHAR:
 	vtkImageWin32ViewerRenderColor(this, region, (unsigned char *)(ptr0), 
 			   (unsigned char *)(ptr1),(unsigned char *)(ptr2), 
-			    dataOut, shift, scale);
+			    this->DataOut, shift, scale);
 	break;
       }
     }
@@ -452,44 +588,34 @@ void vtkImageWin32Viewer::Render(void)
     switch (region->GetScalarType())
       {
       case VTK_FLOAT:
-	vtkImageWin32ViewerRenderGray(this, region, (float *)(ptr0), dataOut,
-				      shift, scale);
-	break;
+ 	      vtkImageWin32ViewerRenderGray(this, region, (float *)(ptr0), this->DataOut,
+				                              shift, scale);
+	      break;
       case VTK_INT:
-	vtkImageWin32ViewerRenderGray(this, region, (int *)(ptr0), dataOut,
-				      shift, scale);
-	break;
+	      vtkImageWin32ViewerRenderGray(this, region, (int *)(ptr0), this->DataOut,
+				                              shift, scale);
+	      break;
       case VTK_SHORT:
-	vtkImageWin32ViewerRenderGray(this, region, (short *)(ptr0), dataOut,
-				      shift, scale);
-	break;
+	      vtkImageWin32ViewerRenderShortGray(this, region, (short *)(ptr0), this->DataOut,
+				                                   shift, scale);
+	      break;
       case VTK_UNSIGNED_SHORT:
-	vtkImageWin32ViewerRenderGray(this, region, (unsigned short *)(ptr0), 
-				      dataOut, shift, scale);
-	break;
+	      vtkImageWin32ViewerRenderShortGray(this, region, (unsigned short *)(ptr0), 
+				                                   this->DataOut, shift, scale);
+	      break;
       case VTK_UNSIGNED_CHAR:
-	vtkImageWin32ViewerRenderGray(this, region, (unsigned char *)(ptr0), 
-				      dataOut, shift, scale);
-	break;
+	      vtkImageWin32ViewerRenderGray(this, region, (unsigned char *)(ptr0), 
+				      this->DataOut, shift, scale);
+	      break;
       }   
     }
   
-  // Display the image.
-  //dataHeader.bmiColors[0] = NULL;
-  dataHeader.bmiHeader.biSize = 40;
-  dataHeader.bmiHeader.biWidth = width;
-  dataHeader.bmiHeader.biHeight = height;
-  dataHeader.bmiHeader.biPlanes = 1;
-  dataHeader.bmiHeader.biBitCount = 24;
-  dataHeader.bmiHeader.biCompression = BI_RGB;
-  dataHeader.bmiHeader.biSizeImage = size;
-  dataHeader.bmiHeader.biClrUsed = 0;
-  dataHeader.bmiHeader.biClrImportant = 0;
-  
-  SetDIBitsToDevice(this->DeviceContext,0,0,width,height,0,0,0,height,
-		    dataOut,&dataHeader,DIB_RGB_COLORS);
-  
-  delete dataOut;	 
+  compatDC = CreateCompatibleDC(this->DeviceContext);  
+  hOldBitmap = (HBITMAP)SelectObject(compatDC,this->HBitmap);
+  BitBlt(this->DeviceContext,0,0,width,height,compatDC,0,0,SRCCOPY);
+  SelectObject(compatDC, hOldBitmap);
+  DeleteDC(compatDC);
+    
   region->Delete();
 }
 

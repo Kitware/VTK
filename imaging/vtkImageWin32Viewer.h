@@ -86,6 +86,8 @@ public:
 protected:
   int OwnWindow; // do we create this window ?
   void MakeDefaultWindow();  
+  HBITMAP HBitmap; // our handle to the DIBSection
+  unsigned char *DataOut; // the data in the DIBSection
 };
 
 #endif
