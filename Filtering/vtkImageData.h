@@ -248,7 +248,11 @@ public:
   vtkGetVector3Macro(Origin,double);
   
   // Description:
-  // Set/Get the data scalar type (i.e VTK_DOUBLE).
+  // Set/Get the data scalar type (i.e VTK_DOUBLE). Note that these methods
+  // are setting and getting the pipeline scalar type. i.e. they are setting
+  // the type that the image data will be once it has executed. Until the
+  // REQUEST_DATA pass the actual scalars may be of some other type. This is
+  // for backwards compatibility
   void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);};
   void SetScalarTypeToDouble(){this->SetScalarType(VTK_DOUBLE);};
   void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);};
@@ -269,7 +273,8 @@ public:
   const char* GetScalarTypeAsString() { return vtkImageScalarTypeNameMacro ( this->GetScalarType() ); };
 
   // Description:
-  // Set/Get the number of scalar components for points.
+  // Set/Get the number of scalar components for points. As with the
+  // SetScalarType method this is setting pipeline info.
   void SetNumberOfScalarComponents( int n );
   int GetNumberOfScalarComponents();
 
