@@ -23,6 +23,7 @@ IF (VTK_USE_RENDERING)
       CellDataToPointData
       clipArt
       clipVolume
+      clipVolume2
       combColorIso
       combIso
       combStreamers
