@@ -38,7 +38,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.24");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.25");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty,vtkProperty);
@@ -484,7 +484,6 @@ void vtkImagePlaneWidget::OnMiddleButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->EndInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,0);
   this->Interactor->Render();
 }
@@ -1087,51 +1086,57 @@ void vtkImagePlaneWidget::SetResliceInterpolate(int i)
 
 void vtkImagePlaneWidget::SetPicker(vtkCellPicker* picker)
 {
-  if( this->PlanePicker )
+  if ( this->UserPickerEnabled )
     {
-    this->PlanePicker->Delete();
-    }
-  else if ( this->PlanePicker == picker )
-    {
-    return;
-    }
-
-  if ( picker == 0 )
-    {
-    this->PlanePicker = vtkCellPicker::New();
-    this->PlanePicker->SetTolerance(0.005); //need some fluff
-    this->UserPickerEnabled = 0;
+    this->PlanePicker = picker;
+    if (picker == 0 ) //reset and allocate an internal picker
+      {
+      this->PlanePicker = vtkCellPicker::New();
+      this->UserPickerEnabled = 0;
+      }
     }
   else
     {
-    this->PlanePicker = picker;
-    this->UserPickerEnabled = 1;
+    if (picker != 0 )
+      {
+      this->PlanePicker->Delete();
+      this->PlanePicker = picker;
+      this->UserPickerEnabled = 1;
+      }
+    else
+      {
+      return;
+      }
     }
 
+  this->PlanePicker->SetTolerance(0.005); //need some fluff
   this->PlanePicker->AddPickList(this->PlaneActor);
   this->PlanePicker->PickFromListOn();
 }
 
 void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
 {
-  if( this->LookupTable )
+  if ( this->UserLookupTableEnabled )
     {
-    this->LookupTable->Delete();
-    }
-  else if ( this->LookupTable == table )
-    {
-    return;
-    }
-
-  if ( table == 0 )
-    {
-    this->LookupTable = vtkLookupTable::New();
-    this->UserLookupTableEnabled = 0;
+    this->LookupTable = table;
+    if ( table == 0 ) //reset and allocate an internal lut
+      {
+      this->LookupTable = vtkLookupTable::New();
+      this->UserLookupTableEnabled = 0;
+      }
     }
   else
     {
-    this->LookupTable = table;
-    this->UserLookupTableEnabled = 1;
+    if ( table != 0 )
+      {
+      this->LookupTable->Delete();
+      this->LookupTable = table;
+      this->UserLookupTableEnabled = 1;
+      }
+    else
+      {
+      return;
+      }
     }
 
   this->LookupTable->SetNumberOfColors( 256);
