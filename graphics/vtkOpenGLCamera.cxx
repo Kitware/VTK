@@ -45,7 +45,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLCamera.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
+#ifdef VTK_USE_QUARTZ
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #endif
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"

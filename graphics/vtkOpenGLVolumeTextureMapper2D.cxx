@@ -43,7 +43,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMatrix4x4.h"
 #include "vtkVolume.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
+#ifdef VTK_USE_QUARTZ
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #endif
 #include "vtkObjectFactory.h"
 

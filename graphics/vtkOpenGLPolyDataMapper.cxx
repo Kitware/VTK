@@ -45,10 +45,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkOpenGLPolyDataMapper.h"
 
+#ifdef VTK_USE_QUARTZ
+#include "vtkQuartzRenderWindow.h"
+#else
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
 #else
 #include "vtkOpenGLRenderWindow.h"
+#endif
 #endif
 #include "vtkOpenGLRenderer.h"
 #include "vtkPolyData.h"

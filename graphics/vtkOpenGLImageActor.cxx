@@ -43,15 +43,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 
 #include "vtkRenderWindow.h"
+#ifdef VTK_USE_QUARTZ
+#include "vtkQuartzRenderWindow.h"
+#else
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
 #else
 #include "vtkOpenGLRenderWindow.h"
 #endif
+#endif
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLImageActor.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
+#ifdef VTK_USE_QUARTZ
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #endif
 #include "vtkObjectFactory.h"
 
