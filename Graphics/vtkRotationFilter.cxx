@@ -22,7 +22,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkRotationFilter, "1.1");
+vtkCxxRevisionMacro(vtkRotationFilter, "1.2");
 vtkStandardNewMacro(vtkRotationFilter);
 
 //---------------------------------------------------------------------------
@@ -67,7 +67,6 @@ void vtkRotationFilter::Execute()
 
   outPoints = vtkPoints::New();
 
-  int counter = 0;
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
 
