@@ -58,6 +58,7 @@ renWin SetSize 300 300
 # now we loop over 360 degreeees and render the cone each time
 #
 for {set i 0} {$i < 360} {incr i} {
+   after 10
    # render the image
    renWin Render
    # rotate the active camera by one degree
