@@ -25,10 +25,12 @@
 //
 // First include the required header files for the vtk classes we are using
 //
+#include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkConeSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
-#include "vtkCamera.h"
+#include "vtkRenderer.h"
 
 int main(int argc, char *argv[])
 {
