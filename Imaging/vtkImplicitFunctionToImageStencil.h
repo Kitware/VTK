@@ -54,8 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageStencilSource.h"
 #include "vtkImplicitFunction.h"
 
-class VTK_IMAGING_EXPORT vtkImplicitFunctionToImageStencil 
-  : public vtkImageStencilSource
+class VTK_IMAGING_EXPORT vtkImplicitFunctionToImageStencil : public vtkImageStencilSource
 {
 public:
   static vtkImplicitFunctionToImageStencil *New();
