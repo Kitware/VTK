@@ -79,6 +79,7 @@ IF (UNIX)
   SET (FREETYPE_SRCS ${FREETYPE_SRCS} builds/unix/ftsystem.c)
   INCLUDE (${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
   CHECK_INCLUDE_FILE_CXX("fcntl.h" HAVE_FCNTL_H)
+  CHECK_INCLUDE_FILE_CXX("unistd.h" HAVE_UNISTD_H)
   CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/builds/unix/ftconfig.h.in
                   ${VTKFREETYPE_BINARY_DIR}/builds/unix/ftconfig.h)
   INCLUDE_DIRECTORIES (
