@@ -21,12 +21,16 @@ AC_ARG_WITH(bsdmake,
 AC_SUBST(MAKEINCLUDE)
 AC_SUBST(MAKEQUOTE)
 
+AC_ARG_WITH(shared,
+         [  --with-shared               create shared libraries],
+         [vtk_shared_ok=$withval], [vtk_shared_ok=no])
+
 AC_ARG_WITH(patented,
          [  --with-patented           include the patented classes],
-	 if test "$withval" = yes; then
-         USE_PATENTED_GRAPHICS_PYTHON_TARGET="libVTKPatentedPython$(SHLIB_SUFFIX) : ../graphics/libVTKGraphics$(VTK_LIB_EXT)"
-         USE_PATENTED_GRAPHICS_TCL_TARGET="libVTKPatentedTcl$(SHLIB_SUFFIX) : ../graphics/libVTKGraphics$(VTK_LIB_EXT)"
-         USE_PATENTED_GRAPHICS_LIBS="../graphics/libVTKGraphics$(VTK_LIB_EXT)"
+	 if test "$withval" = yes -a "$vtk_shared_ok" != no; then
+         USE_PATENTED_GRAPHICS_PYTHON_TARGET="libVTKPatentedPython${SHLIB_SUFFIX} : ../graphics/libVTKGraphics${SHLIB_SUFFIX}"
+         USE_PATENTED_GRAPHICS_TCL_TARGET="libVTKPatentedTcl${SHLIB_SUFFIX} : ../graphics/libVTKGraphics${SHLIB_SUFFIX}"
+         USE_PATENTED_GRAPHICS_LIBS="-L\${VTK_OBJ}/graphics -lVTKGraphics"
          fi,)
 
 AC_SUBST(USE_PATENTED_GRAPHICS_PYTHON_TARGET)

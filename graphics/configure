@@ -14,6 +14,8 @@ ac_default_prefix=/usr/local
 ac_help="$ac_help
   --with-tkwidget           build the vtkTkRenderWidget class"
 ac_help="$ac_help
+  --with-shared               create shared libraries"
+ac_help="$ac_help
   --with-patented           include the patented classes"
 ac_help="$ac_help
   --with-bsdmake            uses bsd style makefile includes"
@@ -536,13 +538,22 @@ fi
 
 
 
+# Check whether --with-shared or --without-shared was given.
+if test "${with_shared+set}" = set; then
+  withval="$with_shared"
+  vtk_shared_ok=$withval
+else
+  vtk_shared_ok=no
+fi
+
+
 # Check whether --with-patented or --without-patented was given.
 if test "${with_patented+set}" = set; then
   withval="$with_patented"
-  if test "$withval" = yes; then
-         USE_GRAPHICS_PATENTED_PYTHON_TARGET="libVTKGraphicsPython$(SHLIB_SUFFIX) : ../patented/libVTKPatented$(VTK_LIB_EXT)"
-         USE_GRAPHICS_PATENTED_TCL_TARGET="libVTKGraphicsTcl$(SHLIB_SUFFIX) : ../patented/libVTKPatented$(VTK_LIB_EXT)"
-         USE_GRAPHICS_PATENTED_LIBS="../patented/libVTKPatented$(VTK_LIB_EXT)"
+  if test "$withval" = yes -a "$vtk_shared_ok" != no; then
+         USE_GRAPHICS_PATENTED_PYTHON_TARGET="libVTKGraphicsPython${SHLIB_SUFFIX} : ../patented/libVTKPatented${SHLIB_SUFFIX}"
+         USE_GRAPHICS_PATENTED_TCL_TARGET="libVTKGraphicsTcl${SHLIB_SUFFIX} : ../patented/libVTKPatented${SHLIB_SUFFIX}"
+         USE_GRAPHICS_PATENTED_LIBS="-L\${VTK_OBJ}/patented -lVTKPatented"
          fi
 fi
 
