@@ -671,8 +671,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"{\n  %s *op;\n",data->ClassName);
     fprintf(fp,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,(char *) \"%s\");\n",
 	    data->ClassName,data->ClassName);
+    fprintf(fp,"  vtkJavaDeleteObject(env,obj);\n");
     fprintf(fp,"  op->Delete();\n");
-    
     fprintf(fp,"}\n");
     }
   if (data->IsConcrete)
