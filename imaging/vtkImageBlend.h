@@ -5,7 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to David G. Gobbi who developed this class.
+  Thanks:    Thanks to David G. Gobbi and Sebastien Barre who developed this class.
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
@@ -43,16 +43,53 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkImageBlend takes L, LA, RGB, or RGBA images as input and blends them 
 // according to the alpha values and/or the opacity setting for each input.
-// The blending rules are very similar to those for VTK texture maps.   
+// Different blending modes are available:
+//
+// \em Normal (default) : 
+// The blending rules are very similar to those for VTK texture maps.
 // The alpha value of the first input, if present, is copied to the alpha 
 // value of the output.  The output always has the same number of components
-// and the same extent as the first input.  
+// and the same extent as the first input.
+//
+// \code
+// output <- input[0]
+// foreach input i {
+//   foreach pixel px {
+//     r <- input[i](px)(alpha) * opacity[i]
+//     f <- (255 - r)
+//     output(px) <- output(px) * f + input(px) * r
+//   }
+// }
+// \endcode
+//
+// \em Compound : 
+// Images are compounded together and each component is scaled by the sum of
+// the alpha/opacity values.
+// The alpha value of the first input, if present, is NOT copied to the alpha 
+// value of the output.  The output always has the same number of components
+// and the same extent as the first input.
+//
+// \code
+// output <- 0
+// foreach pixel px {
+//   sum <- 0
+//   foreach input i {
+//     r <- input[i](px)(alpha) * opacity(i)
+//     sum <- sum + r
+//     output(px) <- output(px) + input(px) * r
+//   }
+//   output(px) <- output(px) / sum
+// }
+// \endcode
 
 #ifndef __vtkImageBlend_h
 #define __vtkImageBlend_h
 
 
 #include "vtkImageMultipleInputFilter.h"
+
+#define VTK_IMAGE_BLEND_MODE_NORMAL    0
+#define VTK_IMAGE_BLEND_MODE_COMPOUND 1
 
 class VTK_EXPORT vtkImageBlend : public vtkImageMultipleInputFilter
 {
@@ -67,6 +104,18 @@ public:
   void SetOpacity(int idx, double opacity);
   double GetOpacity(int idx);
 
+  // Description:
+  // Set the blend mode
+  vtkSetClampMacro(BlendMode,int,
+                   VTK_IMAGE_BLEND_MODE_NORMAL, 
+                   VTK_IMAGE_BLEND_MODE_COMPOUND );
+  vtkGetMacro(BlendMode,int);
+  void SetBlendModeToNormal() 
+	{this->SetBlendMode(VTK_IMAGE_BLEND_MODE_NORMAL);};
+  void SetBlendModeToCompound() 
+	{this->SetBlendMode(VTK_IMAGE_BLEND_MODE_COMPOUND);};
+  const char *GetBlendModeAsString(void);
+
   virtual void UpdateData(vtkDataObject *output);
   
 protected:
@@ -77,13 +126,32 @@ protected:
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
 				int whichInput);
-  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-		       int extent[6], int id);
 
+  void ThreadedExecute(vtkImageData **inDatas, 
+                       vtkImageData *outData,
+		       int extent[6], 
+                       int id);
 
   double *Opacity;
   int OpacityArrayLength;
+  int BlendMode;
 };
+
+// Description:
+// Get the blending mode as a descriptive string
+inline const char *vtkImageBlend::GetBlendModeAsString()
+{
+  switch (this->BlendMode)
+    {
+    case VTK_IMAGE_BLEND_MODE_NORMAL:
+      return "Normal";
+    case VTK_IMAGE_BLEND_MODE_COMPOUND:
+      return "Compound";
+    default:
+      return "Unknown Blend Mode";
+    }
+}
+
 
 #endif
 
