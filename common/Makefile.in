@@ -123,6 +123,7 @@ vtkWindowLevelLookupTable
 # add in any extra libraies here
 KIT_LIBS = vtkTclUtil.o 
 JAVA_O_ADD = vtkJavaUtil.o
+PYTHON_O_ADD = vtkPythonUtil.o
 
 # standard stuff here
 KIT_OBJ = ${SRC_OBJ}

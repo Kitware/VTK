@@ -26,21 +26,21 @@ CLEAN_TOOLKITS    = @CLEAN_TOOLKITS@
 
 #------------------------------------------------------------------------------
 
-all: targets ${BUILD_TCL} ${BUILD_JAVA} build_common ${BUILD_TOOLKITS} \
-    ${BUILD_TCL}${BUILD_TCL} ${BUILD_JAVA}${BUILD_JAVA}
+all: targets ${BUILD_TCL} ${BUILD_JAVA} ${BUILD_PYTHON} build_common ${BUILD_TOOLKITS} \
+    ${BUILD_TCL}${BUILD_TCL} ${BUILD_JAVA}${BUILD_JAVA} ${BUILD_PYTHON}${BUILD_PYTHON}
 
 targets: ${srcdir}/targets.cxx ${srcdir}/makedepend.cxx
 	${CXX} -o targets ${srcdir}/targets.cxx ${srcdir}/makedepend.cxx
 
-build_common: targets ${BUILD_TCL} ${BUILD_JAVA}
+build_common: targets ${BUILD_TCL} ${BUILD_JAVA} ${BUILD_PYTHON}
 	cd common;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd common;     ${MAKE} -${MAKEFLAGS} all
 
-build_graphics: targets ${BUILD_TCL} ${BUILD_JAVA}
+build_graphics: targets ${BUILD_TCL} ${BUILD_JAVA} ${BUILD_PYTHON}
 	cd graphics;   ${MAKE} -${MAKEFLAGS} targets.make
 	cd graphics;   ${MAKE} -${MAKEFLAGS} all
 
-build_imaging: targets ${BUILD_TCL} ${BUILD_JAVA}
+build_imaging: targets ${BUILD_TCL} ${BUILD_JAVA} ${BUILD_PYTHON}
 	cd imaging;    ${MAKE} -${MAKEFLAGS} targets.make
 	cd imaging;    ${MAKE} -${MAKEFLAGS} all
 
@@ -58,6 +58,9 @@ build_tcl: targets
 build_java: targets
 	cd java;       ${MAKE} -${MAKEFLAGS} all
 
+build_python: targets
+	cd python;     ${MAKE} -${MAKEFLAGS} all
+
 build_gemsio: targets ${BUILD_TCL} ${BUILD_JAVA}
 	cd gemsio;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd gemsio;     ${MAKE} -${MAKEFLAGS} all
@@ -74,7 +77,7 @@ build_geae: targets ${BUILD_TCL} ${BUILD_JAVA}
 	cd geae;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd geae;     ${MAKE} -${MAKEFLAGS} all
 
-build_contrib: targets ${BUILD_TCL} ${BUILD_JAVA}
+build_contrib: targets ${BUILD_TCL} ${BUILD_JAVA} ${BUILD_PYTHON}
 	cd contrib;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd contrib;     ${MAKE} -${MAKEFLAGS} all
 
@@ -87,6 +90,11 @@ build_tclbuild_tcl: ${BUILD_TCL} ${BUILD_JAVA} build_common \
 build_javabuild_java: ${BUILD_TCL} ${BUILD_JAVA} build_common \
 	${BUILD_TOOLKITS}
 	cd java;       ${MAKE} -${MAKEFLAGS} vtk
+
+# python part2
+# build_pythonbuild_python: ${BUILD_PYTHON} build_common \
+#	${BUILD_TOOLKITS}
+#	cd python;       ${MAKE} -${MAKEFLAGS} vtk
 
 #------------------------------------------------------------------------------
 # generate dpend.make files
@@ -126,7 +134,7 @@ depend_gemsvolume:
 
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
-clean: ${CLEAN_TCL} ${CLEAN_JAVA} ${CLEAN_TOOLKITS} 
+clean: ${CLEAN_TCL} ${CLEAN_JAVA} ${CLEAN_TOOLKITS} ${CLEAN_PYTHON}
 	cd common;    ${MAKE} -${MAKEFLAGS} clean
 	rm -f config.cache
 
@@ -135,6 +143,9 @@ clean_tcl:
 
 clean_java:
 	cd java;      ${MAKE} -${MAKEFLAGS} clean
+
+clean_python:
+	cd python;    ${MAKE} -${MAKEFLAGS} clean
 
 clean_graphics:
 	cd graphics;  ${MAKE} -${MAKEFLAGS} clean

@@ -10,14 +10,14 @@ SHELL = /bin/sh
 #------------------------------------------------------------------------------
 
 CC_FLAGS = ${CPPFLAGS} ${USER_CFLAGS} ${CFLAGS} ${USE_TOOLKIT_FLAGS} \
-	   ${GRAPHICS_API_FLAGS} ${JAVA_INCLUDES}
+	   ${GRAPHICS_API_FLAGS} ${JAVA_INCLUDES} ${PYTHON_INCLUDES}
 
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${USE_TOOLKIT_FLAGS} ${GRAPHICS_API_FLAGS} \
 	 -I${srcdir}/../common ${TK_INCLUDE} ${TCL_INCLUDE} \
-	${JAVA_INCLUDES}
+	${JAVA_INCLUDES} ${PYTHON_INCLUDES}
 
-all: ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA}
+all: ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA} ${BUILD_PYTHON}
 
 .c.o:
 	${CC} ${CC_FLAGS} -c $< -o $@
@@ -73,10 +73,26 @@ build_java: ${JAVA_CLASSES} ${JAVA_CODE} ${JAVA_CODE_ADD} ${JAVA_O_ADD} ${JAVA_W
 
 libVTK$(ME)Java$(SHLIB_SUFFIX): ${KIT_OBJ} ${JAVA_O_ADD} ${JAVA_WRAP}
 	rm -f libVTK$(ME)Java$(SHLIB_SUFFIX)
-	$(CXX) ${CSS_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} \
+	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} \
 	-o libVTK$(ME)Java$(SHLIB_SUFFIX) \
 	  ${KIT_OBJ} ${JAVA_O_ADD} ${JAVA_WRAP}
 
+#------------------------------------------------------------------------------
+# rules for the python library
+#
+build_python: ${PYTHON_O_ADD} ${PYTHON_WRAP} libVTK${ME}Python${SHLIB_SUFFIX}
+
+python/${ME}Init.cxx: ../python/kit_init ${KIT_NEWS} Makefile
+	../python/kit_init libVTK${ME}Python ${KIT_NEWS} > python/${ME}Init.cxx
+
+libVTK$(ME)Python$(SHLIB_SUFFIX): python/${ME}Init.o ${KIT_OBJ} \
+	${PYTHON_O_ADD} ${PYTHON_WRAP}
+	rm -f libVTK$(ME)Python$(SHLIB_SUFFIX)
+	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} \
+	-o libVTK$(ME)Python$(SHLIB_SUFFIX) python/${ME}Init.o \
+	  ${KIT_OBJ} ${PYTHON_O_ADD} ${PYTHON_WRAP} \
+	-L. ${XLDFLAGS} ${PYTHON_LIBS} \
+	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} 
 
 #------------------------------------------------------------------------------
 clean: ${CLEAN_TCL} $(CLEAN_JAVA)

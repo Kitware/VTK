@@ -4,7 +4,7 @@
 AC_INIT(vtkObject.cxx)
 
 
-AC_CONFIG_SUBDIRS(tcl java)
+AC_CONFIG_SUBDIRS(tcl java python)
 
 if test ! -r targets.make
 then

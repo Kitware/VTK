@@ -216,18 +216,6 @@ int main (int argc, char *argv[])
     }
   fprintf(fp,"\n\n");
 
-  /* create JAVA_O */
-  fprintf(fp,"JAVA_O = ");
-  for (i = 2; i < argc; i++)
-    {
-    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
-	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
-      {
-      fprintf(fp,"\\\njava/vtk_%s.o ",argv[i]);
-      }
-    }
-  fprintf(fp,"\n\n");
-
   /* create JAVA_WRAP */
   fprintf(fp,"JAVA_WRAP = ");
   for (i = 2; i < argc; i++)
@@ -248,6 +236,28 @@ int main (int argc, char *argv[])
       fprintf(fp,"../java/vtk/%s.java: %s.h ../java/java_parse ../tcl/hints\n\trm -f ../java/vtk/%s.java; ../java/java_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints > ../java/vtk/%s.java\n",
 	      argv[i],argv[i],argv[i], argv[i], argv[i]);
       fprintf(fp,"java/%sJava.cxx: %s.h ../java/java_wrap ../tcl/hints\n\trm -f java/%sJava.cxx; ../java/java_wrap ${srcdir}/%s.h ${srcdir}/../tcl/hints > java/%sJava.cxx\n",
+	      argv[i],argv[i],argv[i], argv[i], argv[i]);
+      }
+    }
+
+  /* create PYTHON_WRAP */
+  fprintf(fp,"PYTHON_WRAP = ");
+  for (i = 2; i < argc; i++)
+    {
+    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
+	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
+      {
+      fprintf(fp,"\\\npython/%sPython.o ",argv[i]);
+      }
+    }
+  fprintf(fp,"\n\n");
+
+  for (i = 2; i < argc; i++)
+    {
+    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
+	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
+      {
+      fprintf(fp,"python/%sPython.cxx: %s.h ../python/python_wrap ../tcl/hints\n\trm -f python/%sPython.cxx; ../python/python_wrap ${srcdir}/%s.h ${srcdir}/../tcl/hints > python/%sPython.cxx\n",
 	      argv[i],argv[i],argv[i], argv[i], argv[i]);
       }
     }

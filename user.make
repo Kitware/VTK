@@ -11,6 +11,9 @@ TK_LIB=/common/software/tk4.2/sun4/5.4/lib/libtk4.2.a
 MESA_INCLUDE=-I/home/martink/storage/Mesa-1.2.6/include
 MESA_LIB=/home/martink/storage/Mesa-1.2.6/lib-sun4-solaris/libMesaGL.a
 
+# for python you must set this 
+PYTHON_INCLUDES=-I/home/schroede/montnaro/Python-1.4/Include
+
 # Add additional CFLAGS and CXXFLAGS for compilation
 # uncomment the following two lines to set your own flags
 #USER_CFLAGS =  
