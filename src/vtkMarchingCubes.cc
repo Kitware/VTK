@@ -370,7 +370,7 @@ void vtkMarchingCubes::Execute()
   inScalars->GetNumberOfValuesPerScalar() == 1 )
     {
     unsigned char *scalars = ((vtkUnsignedCharScalars *)inScalars)->GetPtr(0);
-    newScalars = (vtkUnsignedCharScalars *) new vtkUnsignedCharScalars(10000,50000);
+    newScalars = new vtkUnsignedCharScalars(10000,50000);
     ContourVolume(scalars,dims,origin,aspectRatio,newScalars,newGradients,
                   newNormals,newPts,newPolys,this->Values,this->NumberOfContours);
     }
@@ -378,7 +378,7 @@ void vtkMarchingCubes::Execute()
   else if ( !strcmp(type,"short") )
     {
     short *scalars = ((vtkShortScalars *)inScalars)->GetPtr(0);
-    newScalars = (vtkShortScalars *) new vtkShortScalars(10000,50000);
+    newScalars = new vtkShortScalars(10000,50000);
     ContourVolume(scalars,dims,origin,aspectRatio,newScalars,newGradients,
                   newNormals,newPts,newPolys,this->Values,this->NumberOfContours);
     }
@@ -386,7 +386,7 @@ void vtkMarchingCubes::Execute()
   else if ( !strcmp(type,"float") )
     {
     float *scalars = ((vtkFloatScalars *)inScalars)->GetPtr(0);
-    newScalars = (vtkFloatScalars *) new vtkFloatScalars(10000,50000);
+    newScalars = new vtkFloatScalars(10000,50000);
     ContourVolume(scalars,dims,origin,aspectRatio,newScalars,newGradients,
                   newNormals,newPts,newPolys,this->Values,this->NumberOfContours);
     }
@@ -394,7 +394,7 @@ void vtkMarchingCubes::Execute()
   else if ( !strcmp(type,"int") )
     {
     int *scalars = ((vtkIntScalars *)inScalars)->GetPtr(0);
-    newScalars = (vtkIntScalars *) new vtkFloatScalars(10000,50000);
+    newScalars = new vtkIntScalars(10000,50000);
     ContourVolume(scalars,dims,origin,aspectRatio,newScalars,newGradients,
                   newNormals,newPts,newPolys,this->Values,this->NumberOfContours);
     }
@@ -404,7 +404,7 @@ void vtkMarchingCubes::Execute()
     int dataSize = dims[0] * dims[1] * dims[2];
     vtkFloatScalars *image = new vtkFloatScalars(dataSize);
     inScalars->GetScalars(0,dataSize,*image);
-    newScalars = (vtkFloatScalars *) new vtkFloatScalars(10000,50000);
+    newScalars = new vtkFloatScalars(10000,50000);
 
     float *scalars = image->GetPtr(0);
     ContourVolume(scalars,dims,origin,aspectRatio,newScalars,newGradients,
