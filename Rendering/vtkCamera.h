@@ -152,6 +152,17 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   vtkBooleanMacro(ParallelProjection,int);
 
   // Description:
+  // Set/Get the value of the UseHorizontalViewAngle instance variable. If set,
+  // the camera's view angle represents a horizontal view angle, rather than 
+  // the default vertical view angle. This is useful if the application uses
+  // a display device which whose specs indicate a particular horizontal view angle,
+  // or if the application varies the window height but wants to keep the
+  // perspective transform unchanges.
+  void SetUseHorizontalViewAngle(int flag);
+  vtkGetMacro(UseHorizontalViewAngle, int);
+  vtkBooleanMacro(UseHorizontalViewAngle, int);
+
+  // Description:
   // Set/Get the camera view angle, which is the angular height of the
   // camera view measured in degrees.  The default angle is 30 degrees.  
   // This method has no effect in parallel projection mode.
@@ -386,6 +397,7 @@ protected:
   double DirectionOfProjection[3];
   double ViewPlaneNormal[3];
   double ViewShear[3];
+  int    UseHorizontalViewAngle;
 
   vtkTransform *ViewTransform;
   vtkPerspectiveTransform *PerspectiveTransform;

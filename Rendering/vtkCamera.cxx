@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.100");
+vtkCxxRevisionMacro(vtkCamera, "1.101");
 
 //----------------------------------------------------------------------------
 // Construct camera instance with its focal point at the origin, 
@@ -47,6 +47,7 @@ vtkCamera::vtkCamera()
   this->DirectionOfProjection[2] = 0.0;
 
   this->ViewAngle = 30.0;
+  this->UseHorizontalViewAngle = 0;
 
   this->ClippingRange[0] = 0.01;
   this->ClippingRange[1] = 1000.01;
@@ -519,6 +520,18 @@ void vtkCamera::SetViewAngle(double angle)
 }
 
 //----------------------------------------------------------------------------
+void vtkCamera::SetUseHorizontalViewAngle(int flag)
+{
+  if (flag == this->UseHorizontalViewAngle)
+    {
+    return;
+    }
+  this->UseHorizontalViewAngle = flag;
+  this->Modified();
+  this->ViewingRaysModified();
+}
+
+//----------------------------------------------------------------------------
 void vtkCamera::SetParallelScale(double scale)
 {
   if ( this->ParallelScale != scale )
@@ -714,8 +727,18 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
     // set up a perspective frustum
 
     double tmp = tan(this->ViewAngle*vtkMath::DoubleDegreesToRadians()/2);
-    double width = this->ClippingRange[0]*tmp*aspect;
-    double height = this->ClippingRange[0]*tmp;
+    double width;
+    double height;
+    if (this->UseHorizontalViewAngle)
+      {
+      width = this->ClippingRange[0]*tmp;
+      height = this->ClippingRange[0]*tmp/aspect;
+      }
+    else
+      {
+      width = this->ClippingRange[0]*tmp*aspect;
+      height = this->ClippingRange[0]*tmp;
+      }
 
     double xmin = (this->WindowCenter[0]-1.0)*width;
     double xmax = (this->WindowCenter[0]+1.0)*width;
@@ -906,6 +929,7 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Stereo: " << (this->Stereo ? "On\n" : "Off\n");
   os << indent << "Thickness: " << this->Thickness << "\n";
   os << indent << "ViewAngle: " << this->ViewAngle << "\n";
+  os << indent << "UseHorizontalViewAngle: " << this->UseHorizontalViewAngle << "\n";
   os << indent << "ViewPlaneNormal: (" << this->ViewPlaneNormal[0]
      << ", " << this->ViewPlaneNormal[1] 
      << ", " << this->ViewPlaneNormal[2] << ")\n";
