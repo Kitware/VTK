@@ -59,11 +59,11 @@ void vlDecimate::Execute()
   unsigned short int ncells;
   int *cells;
   int numFEdges;
-  VertexPtr fedges[2];
+  vlLocalVertexPtr fedges[2];
   int vtype;
   int npts, *pts;
-  VertexPtr verts[MAX_TRIS_PER_VERTEX];
-  VertexPtr l1[MAX_TRIS_PER_VERTEX], l2[MAX_TRIS_PER_VERTEX];
+  vlLocalVertexPtr verts[MAX_TRIS_PER_VERTEX];
+  vlLocalVertexPtr l1[MAX_TRIS_PER_VERTEX], l2[MAX_TRIS_PER_VERTEX];
   int n1, n2, cellId;
   float ar, criterion;
   int totalEliminated=0;
@@ -327,8 +327,8 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   int numVerts;
   int numNei;
   static vlIdList nei(MAX_TRIS_PER_VERTEX);
-  Tri t;
-  Vertex sn;
+  vlLocalTri t;
+  vlLocalVertex sn;
   int i, j, *verts;
   int startVertex, nextVertex;
 //
@@ -536,7 +536,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //  loop.  Determine if there are any feature edges across the loop.
 //
 void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges, 
-                               VertexPtr fedges[])
+                               vlLocalVertexPtr fedges[])
 {
   int i, j, numNormals;
   float *x1, *x2, *nx, *normal, den, loopArea;
@@ -661,9 +661,10 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
 //
 //  Determine whether the loop can be split / build loops
 //
-int vlDecimate::CanSplitLoop (VertexPtr fedges[2], int numVerts, 
-                              VertexPtr verts[], int& n1, VertexPtr l1[], 
-                              int& n2, VertexPtr l2[], float& ar)
+int vlDecimate::CanSplitLoop (vlLocalVertexPtr fedges[2], int numVerts, 
+                              vlLocalVertexPtr verts[], int& n1, 
+                              vlLocalVertexPtr l1[], int& n2, 
+                              vlLocalVertexPtr l2[], float& ar)
 {
   int i, sign;
   float *x, val, absVal, sPt[3], v21[3], sN[3];
@@ -738,11 +739,12 @@ int vlDecimate::CanSplitLoop (VertexPtr fedges[2], int numVerts,
 //
 //  Creates two loops from splitting plane provided
 //
-void vlDecimate::SplitLoop(VertexPtr fedges[2], int numVerts, VertexPtr *verts,
-                           int& n1, VertexPtr *l1, int& n2, VertexPtr *l2)
+void vlDecimate::SplitLoop(vlLocalVertexPtr fedges[2], int numVerts, 
+                           vlLocalVertexPtr *verts, int& n1, 
+                           vlLocalVertexPtr *l1, int& n2, vlLocalVertexPtr *l2)
 {
   int i;
-  VertexPtr *loop;
+  vlLocalVertexPtr *loop;
   int *count;
 
   n1 = n2 = 0;
@@ -766,12 +768,12 @@ void vlDecimate::SplitLoop(VertexPtr fedges[2], int numVerts, VertexPtr *verts,
 //  into triangles.  Ignore feature angles since we can preserve these 
 //  using the angle preserving capabilities of the algorithm.
 //
-void vlDecimate::Triangulate(int numVerts, VertexPtr verts[])
+void vlDecimate::Triangulate(int numVerts, vlLocalVertexPtr verts[])
 {
   int i,j;
   int n1, n2;
-  VertexPtr l1[MAX_TRIS_PER_VERTEX], l2[MAX_TRIS_PER_VERTEX];
-  VertexPtr fedges[2];
+  vlLocalVertexPtr l1[MAX_TRIS_PER_VERTEX], l2[MAX_TRIS_PER_VERTEX];
+  vlLocalVertexPtr fedges[2];
   float max, ar;
   int maxI, maxJ;
 
