@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.57");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.58");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -173,6 +173,7 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
     i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, this->EventCallbackCommand);
     i->AddObserver(vtkCommand::RightButtonPressEvent, this->EventCallbackCommand);
     i->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::ExposeEvent, this->EventCallbackCommand);
     i->AddObserver(vtkCommand::ConfigureEvent, this->EventCallbackCommand);
     i->AddObserver(vtkCommand::TimerEvent, this->EventCallbackCommand);
     i->AddObserver(vtkCommand::KeyPressEvent, this->EventCallbackCommand);
@@ -890,6 +891,14 @@ void vtkInteractorStyle::OnChar(int ctrl, int shift,
 // be taken when the window size is modified, or when the mouse
 // enters or leaves the window.
 //----------------------------------------------------------------------------
+void vtkInteractorStyle::OnExpose(int vtkNotUsed(x), 
+                                  int vtkNotUsed(y),
+                                  int vtkNotUsed(width), 
+                                  int vtkNotUsed(height))
+{
+}
+
+//----------------------------------------------------------------------------
 void vtkInteractorStyle::OnConfigure(int vtkNotUsed(width), 
                                      int vtkNotUsed(height))
 {
@@ -957,7 +966,7 @@ void vtkInteractorStyle::OnTimer(void)
       break;
       //-----
     case VTKIS_TIMER:
-                rwi->Render();
+      rwi->Render();
       rwi->CreateTimer(VTKI_TIMER_UPDATE);
       break;
       //-----
@@ -1396,6 +1405,17 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object, unsigned long event,
         self->OnRightButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
         }
       break;
+    case vtkCommand::ExposeEvent:
+      if (self->HandleObservers && self->HasObserver(vtkCommand::ExposeEvent)) 
+        {
+        self->InvokeEvent(vtkCommand::ExposeEvent,NULL);
+        }
+      else 
+        {
+        int* event_size = rwi->GetEventSize();
+        self->OnExpose(XY[0], XY[1], event_size[0], event_size[1]);
+        break;
+        }
     case vtkCommand::ConfigureEvent:
       if (self->HandleObservers && self->HasObserver(vtkCommand::ConfigureEvent)) 
         {
@@ -1431,9 +1451,9 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object, unsigned long event,
         }
       break;
     case vtkCommand::KeyReleaseEvent: 
-      if (self->HandleObservers && self->HasObserver(vtkCommand::KeyPressEvent)) 
+      if (self->HandleObservers && self->HasObserver(vtkCommand::KeyReleaseEvent)) 
         {
-        self->InvokeEvent(vtkCommand::KeyPressEvent,NULL);
+        self->InvokeEvent(vtkCommand::KeyReleaseEvent,NULL);
         }
       else 
         {
@@ -1444,9 +1464,9 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object, unsigned long event,
         }
       break;
     case vtkCommand::CharEvent:  
-      if (self->HandleObservers && self->HasObserver(vtkCommand::KeyPressEvent)) 
+      if (self->HandleObservers && self->HasObserver(vtkCommand::CharEvent)) 
         {
-        self->InvokeEvent(vtkCommand::KeyPressEvent,NULL);
+        self->InvokeEvent(vtkCommand::CharEvent,NULL);
         }
       else 
         {
