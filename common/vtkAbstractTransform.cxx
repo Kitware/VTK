@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkAbstractTransform.h"
-#include "vtkHomogenousTransform.h"
+#include "vtkHomogeneousTransform.h"
 #include "vtkMath.h"
 #ifdef VTK_DEBUG_LEAKS
 #include "vtkDebugLeaks.h"
@@ -312,13 +312,11 @@ void vtkAbstractTransform::UnRegister(vtkObject *o)
 
 //----------------------------------------------------------------------------
 // A very, very minimal transformation
-class VTK_EXPORT vtkSimpleTransform : public vtkHomogenousTransform
+class VTK_EXPORT vtkSimpleTransform : public vtkHomogeneousTransform
 {
 public:
-  vtkTypeMacro(vtkSimpleTransform,vtkHomogenousTransform);
+  vtkTypeMacro(vtkSimpleTransform,vtkHomogeneousTransform);
   static vtkSimpleTransform *New() {
-    // for performance reasons this class does not use the factory,
-    // so add it to the vtkDebugLeaks 
 #ifdef VTK_DEBUG_LEAKS
     vtkDebugLeaks::ConstructClass("vtkSimpleTransform");
 #endif    
