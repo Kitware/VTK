@@ -15,33 +15,37 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImagePlaneWidget - 3D widget for reslicing image data
+// .NAME vtkImagePlaneWidget4 - 3D widget for reslicing image data
 // .SECTION Description
 // This 3D widget defines a plane that can be interactively placed in an
 // image volume. A nice feature of the object is that the
-// vtkImagePlaneWidget, like any 3D widget, will work with the current
-// interactor style. That is, if vtkImagePlaneWidget does not handle an
+// vtkImagePlaneWidget4, like any 3D widget, will work with the current
+// interactor style. That is, if vtkImagePlaneWidget4 does not handle an
 // event, then all other registered observers (including the interactor
 // style) have an opportunity to process the event. Otherwise, the
-// vtkImagePlaneWidget will terminate the processing of the event that it
+// vtkImagePlaneWidget4 will terminate the processing of the event that it
 // handles.
 //
 // To use this object, just invoke SetInteractor() with the argument of the
 // method a vtkRenderWindowInteractor.  You may also wish to invoke
 // "PlaceWidget()" to initially position the widget. If the "i" key (for
-// "interactor") is pressed, the vtkImagePlaneWidget will appear. (See
+// "interactor") is pressed, the vtkImagePlaneWidget4 will appear. (See
 // superclass documentation for information about changing this behavior.)
-// Selecting any part of the widget with the left or middle mouse button
-// enables translation of the plane along its normal. (Once selected using
-// middle mouse, moving "up" in the middle moves the plane in the direction
-// of the normal; moving "down" moves it in the opposite direction.)
-// Window-level is achieved by using the right mouse button.  Events that
-// occur outside of the widget (i.e., no part of the widget is picked) are
-// propagated to any other registered obsevers (such as the interaction
-// style).  Turn off the widget by pressing the "i" key again (or invoke the
+// Selecting any part of the widget with the left mouse button enables
+// translation of the plane along its normal. (Once selected using left
+// mouse, moving "up" in the middle moves the plane in the direction of the
+// normal; moving "down" moves it in the opposite direction.)
+// Window-level is achieved by using the right mouse button.
+// The middle mouse button can be used to query the underlying image data
+// with a cross-hair cursor.  Text display of window-level and image
+// coordinates/data values are provided by a text actor/mapper pair.
+// Events that occur outside of the widget (i.e., no part of the widget is
+// picked) are propagated to any other registered obsevers (such as the
+// interaction style).
+// Turn off the widget by pressing the "i" key again (or invoke the
 // Off() method).
 //
-// The vtkImagePlaneWidget has several methods that can be used in
+// The vtkImagePlaneWidget4 has several methods that can be used in
 // conjunction with other VTK objects. The GetPolyData() method can be used
 // to get the polygonal representation and can be used for things like
 // seeding stream lines. Typical usage of the widget is to make use of the
@@ -51,9 +55,11 @@
 // button).
 //
 // Some additional features of this class include the ability to control the
-// properties of the widget. You can set the properties of the selected and
-// unselected representations of the plane's outline. In addition there are methods
-// to constrain the plane so that it is aligned along the x-y-z axes.
+// properties of the widget. You can set the properties of: the selected and
+// unselected representations of the plane's outline; the text properties of
+// the text actor via a text mapper; the cross-hair cursor. In addition there
+// are methods to constrain the plane so that it is aligned along the x-y-z
+// axes.
 
 // .SECTION Thanks
 // Thanks to Dean Inglis for developing and contributing this class.
@@ -64,7 +70,9 @@
 // actors.  This is an intended feature and not a bug.
 
 // .SECTION See Also
-// vtk3DWidget vtkBoxWidget vtkLineWidget  vtkPlaneWidget
+// vtk3DWidget vtkBoxWidget vtkLineWidget  vtkPlaneWidget vtkPointWidget
+// vtkPolyDataSourceWidget vtkSphereWidget
+
 
 #ifndef __vtkImagePlaneWidget_h
 #define __vtkImagePlaneWidget_h
@@ -84,8 +92,10 @@ class vtkPoints;
 class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkProperty;
-class vtkTextureMapToPlane;
+class vtkTextActor;
+class vtkTextProperty;
 class vtkTexture;
+class vtkTextureMapToPlane;
 class vtkTransform;
 
 #define VTK_NEAREST_RESLICE 0
@@ -122,7 +132,7 @@ public:
   void SetOrigin(float x[3]);
   float* GetOrigin();
   void GetOrigin(float xyz[3]);
-  
+
   // Description:
   // Set/Get the position of the point defining the first axis of the plane.
   void SetPoint1(float x, float y, float z);
@@ -168,11 +178,11 @@ public:
   void SetResliceInterpolate(int);
   vtkGetMacro(ResliceInterpolate,int);
   void SetResliceInterpolateToNearestNeighbour()
-    { this->SetResliceInterpolate(0); }
+    { this->SetResliceInterpolate(VTK_NEAREST_RESLICE); }
   void SetResliceInterpolateToLinear()
-    { this->SetResliceInterpolate(1); }
+    { this->SetResliceInterpolate(VTK_LINEAR_RESLICE); }
   void SetResliceInterpolateToCubic()
-    { this->SetResliceInterpolate(2); }
+    { this->SetResliceInterpolate(VTK_CUBIC_RESLICE); }
 
   // Description:
   // Convenience method to get the vtkImageReslice output.
@@ -237,6 +247,34 @@ public:
   virtual void SetLookupTable(vtkLookupTable*);
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
+  // Description:
+  // Enable/disable text display of window-level, image coords and values in a
+  // render window.
+  vtkSetMacro(DisplayText,int);
+  vtkGetMacro(DisplayText,int);
+  vtkBooleanMacro(DisplayText,int);
+
+  // Description:
+  // Set the text property associated with the text actor/mapper for
+  // displaying window-level and cursor data.
+  virtual void SetTextProperty(vtkTextProperty*);
+  vtkGetObjectMacro(TextProperty,vtkTextProperty);
+
+  // Description:
+  // Set the properties of the cross-hair cursor.
+  virtual void SetCursorProperty(vtkProperty*);
+  vtkGetObjectMacro(CursorProperty,vtkProperty);
+
+  // Description:
+  // Get the current window and level values.
+  void GetWindowLevel(float wl[2]);
+
+  // Description:
+  // Get the image coordinate position and voxel value.  Currently only
+  // supports single component image data.
+  int GetCursorData(float xyzv[4]);    
+
+
 protected:
   vtkImagePlaneWidget();
   ~vtkImagePlaneWidget();
@@ -248,6 +286,7 @@ protected:
     Start=0,
     WindowLevelling,
     Pushing,
+    Cursoring,
     Outside
   };
 //ETX
@@ -272,10 +311,13 @@ protected:
   int   RestrictPlaneToVolume;
   float OriginalWindow;
   float OriginalLevel;
+  float CurrentWindow;
+  float CurrentLevel;
   int   ResliceInterpolate;
   int   TextureInterpolate;
   int   UserPickerEnabled;
   int   UserLookupTableEnabled;
+  int   DisplayText;
 
   // the plane
   vtkActor          *PlaneActor;
@@ -289,7 +331,7 @@ protected:
   // Do the picking
   vtkCellPicker *PlanePicker;
 
-  // Methods to manipulate the hexahedron.
+  // Methods to manipulate the plane.
   void WindowLevel(int X, int Y);
   void Push(double *p1, double *p2);
 
@@ -309,14 +351,38 @@ protected:
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
-  vtkProperty *PlaneProperty;
-  vtkProperty *SelectedPlaneProperty;
-  void CreateDefaultProperties();
+  vtkProperty   *PlaneProperty;
+  vtkProperty   *SelectedPlaneProperty;
+  vtkTextProperty *TextProperty;
+  vtkProperty   *CursorProperty;
+  void           CreateDefaultProperties();
 
   void UpdateNormal();
   void UpdateOrigin();
   void GenerateTexturePlane();
   void SetRepresentation();
+
+  // The cross-hair cursor
+  vtkPoints          *CursorPoints;
+  vtkPolyData        *CursorPolyData;
+  vtkPolyDataMapper  *CursorMapper;
+  vtkActor           *CursorActor;
+
+  // The text to display W/L, image data
+  vtkTextActor    *TextActor;
+  char       TextBuff[128];
+
+  void  UpdateCursor(int,int);
+  void  ActivateCursor(int);
+  void  ActivateText(int);
+  void  ManageTextDisplay();
+  void  GenerateCursor();
+  void  GenerateText();
+  void  ComputeImageToWorldCoords(float* in, float* out);
+  void  ComputeWorldToImageCoords(float* in, int* out, float* out2);
+  int   CurrentCursorPosition[3];
+  float CurrentImageValue;  // Set to VTK_FLOAT_MAX when invalid
+
 
 private:
   vtkImagePlaneWidget(const vtkImagePlaneWidget&);  //Not implemented
