@@ -105,7 +105,10 @@ protected:
   // Build a shading table for a light with the specified direction,
   // and color for an object of the specified material properties.
   // material[0] = ambient, material[1] = diffuse, material[2] = specular
-  // and material[3] = specular exponent.  If the update flag is 0,
+  // and material[3] = specular exponent.  If the ambient flag is 1, 
+  // then ambient illumination is added. If not, then this means we 
+  // are calculating the "other side" of two sided lighting, so no 
+  // ambient intensity is added in. If the update flag is 0,
   // the shading table is overwritten with these new shading values.
   // If the update_flag is 1, then the computed light contribution is
   // added to the current shading table values. There is one shading
@@ -118,6 +121,7 @@ protected:
 			   float view_direction[3],
 			   float material[4],
 			   vtkEncodedGradientEstimator *gradest,
+			   int ambient_flag,
 			   int update_flag );
   
   // The six shading tables (r diffuse ,g diffuse ,b diffuse, 

@@ -345,7 +345,7 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
     // Build / Add to the shading table
     this->BuildShadingTable( index, light_direction, light_color, 
 			     light_intensity, view_direction,
-			     material, gradest, update_flag );
+			     material, gradest, 1, update_flag );
       
     update_flag = 1;
 
@@ -357,7 +357,7 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
 
       this->BuildShadingTable( index, light_direction, light_color, 
 			       light_intensity, view_direction,
-			       material, gradest, update_flag );
+			       material, gradest, 0, update_flag );
       }
     }
 
@@ -369,7 +369,10 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
 // Build a shading table for a light with the given direction and
 // color, for a material of the given type. material[0] = ambient,
 // material[1] = diffuse, material[2] = specular, material[3] = 
-// specular exponent.  If update_flag is 0, the table is overwritten
+// specular exponent.  If the ambient flag is 1, then ambient
+// illumination is added. If not, then this means we are calculating
+// the "other side" of two sided lighting, so no ambient intensity
+// is added in. If update_flag is 0, the table is overwritten
 // with the new values.  If update_flag is 1, the new intensity values
 // are added into the table.  This way multiple light sources can
 // be handled. There is one shading table per volume, and the index
@@ -381,6 +384,7 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
 						  float view_direction[3],
 						  float material[4],
 						  vtkEncodedGradientEstimator *gradest,
+						  int   ambient_flag,
 						  int   update_flag )
 {
   float    lx, ly, lz; 
@@ -468,23 +472,30 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
 	*(ssb_ptr) = 0.0;
 	}
 
-      // Now add in ambient
-      *(sdr_ptr) += Ka * light_color[0];
-      *(sdg_ptr) += Ka * light_color[1];
-      *(sdb_ptr) += Ka * light_color[2];
+      // Only add some intensity if this is the first side of the
+      // two sided lighting calculation. We don't want to add it all
+      // twice
+      if ( ambient_flag )
+	{
+	// Now add in ambient
+	*(sdr_ptr) += Ka * light_color[0];
+	*(sdg_ptr) += Ka * light_color[1];
+	*(sdb_ptr) += Ka * light_color[2];
 
-      // Add in diffuse
-      *(sdr_ptr) += 
-	(Kd_intensity * this->ZeroNormalDiffuseIntensity * light_color[0]);
-      *(sdg_ptr) += 
-	(Kd_intensity * this->ZeroNormalDiffuseIntensity * light_color[1]);
-      *(sdb_ptr) += 
-	(Kd_intensity * this->ZeroNormalDiffuseIntensity * light_color[2]);
+	// Add in diffuse
+	*(sdr_ptr) += 
+	  (Kd_intensity * this->ZeroNormalDiffuseIntensity * light_color[0]);
+	*(sdg_ptr) += 
+	  (Kd_intensity * this->ZeroNormalDiffuseIntensity * light_color[1]);
+	*(sdb_ptr) += 
+	  (Kd_intensity * this->ZeroNormalDiffuseIntensity * light_color[2]);
+	
+	// Add in specular
+	*(ssr_ptr) += this->ZeroNormalSpecularIntensity * light_color[0];
+	*(ssg_ptr) += this->ZeroNormalSpecularIntensity * light_color[1];
+	*(ssb_ptr) += this->ZeroNormalSpecularIntensity * light_color[2];
+	}
 
-      // Add in specular
-      *(ssr_ptr) += this->ZeroNormalSpecularIntensity * light_color[0];
-      *(ssg_ptr) += this->ZeroNormalSpecularIntensity * light_color[1];
-      *(ssb_ptr) += this->ZeroNormalSpecularIntensity * light_color[2];
       }
     else
       {
@@ -494,16 +505,28 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
       // If we are updating, then begin by adding in ambient
       if ( update_flag )
 	{
-	*(sdr_ptr) += Ka * light_color[0];
-	*(sdg_ptr) += Ka * light_color[1];
-	*(sdb_ptr) += Ka * light_color[2];
+	if ( ambient_flag )
+	  {
+	  *(sdr_ptr) += Ka * light_color[0];
+	  *(sdg_ptr) += Ka * light_color[1];
+	  *(sdb_ptr) += Ka * light_color[2];
+	  }
 	}
       // Otherwise begin by setting the value to the ambient contribution
       else
 	{
-	*(sdr_ptr) = Ka * light_color[0];
-	*(sdg_ptr) = Ka * light_color[1];
-	*(sdb_ptr) = Ka * light_color[2];
+	if ( ambient_flag )
+	  {
+	  *(sdr_ptr) = Ka * light_color[0];
+	  *(sdg_ptr) = Ka * light_color[1];
+	  *(sdb_ptr) = Ka * light_color[2];
+	  }
+	else
+	  {
+	  *(sdr_ptr) = 0.0;
+	  *(sdg_ptr) = 0.0;
+	  *(sdb_ptr) = 0.0;
+	  }
 	*(ssr_ptr) = 0.0;
 	*(ssg_ptr) = 0.0;
 	*(ssb_ptr) = 0.0;
