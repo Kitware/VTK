@@ -56,7 +56,6 @@ vtkUnstructuredGridToUnstructuredGridFilter
 )
 
 ABSTRACT_FILES(
-vtkDataObjectToDataSetFilter
 vtkDataSetToDataSetFilter
 vtkDataSetToPolyDataFilter
 vtkDataSetToStructuredGridFilter
