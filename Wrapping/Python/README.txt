@@ -8,8 +8,11 @@ Every effort has been taken to keep the changes backwards compatible
 so your old code should work without any problems.  However, we
 recommend that you use the new package structure.
 
+
 Contents:
 ^^^^^^^^^
+
+  Installation
 
   Structure/Usage
  
@@ -17,27 +20,82 @@ Contents:
 
   Backwards compatibility
 
-  Information for Packagers
+  Information for packagers
 
   Reporting Bugs
 
+
+Installation:
+^^^^^^^^^^^^^
+
+  There are primarily two ways of using the VTK-Python wrappers and
+  modules.  
+
+    (1) Using the package from the source build without installing it
+    system wide.  This is most useful when you build VTK off a CVS
+    checkout and do not want to install it system wide.  This is also
+    useful if you are not the administrator of the machine you are
+    using/building VTK on.
+
+     *nix:
+
+      Under Unix the way to do this is to export LD_LIBRARY_PATH (or
+      equivalent) to the directory that contains the libvtk*.so
+      libraries.  You must also export your PYTHONPATH to _both_ the
+      directory that contains all the libvtk*Python.so files _and_ the
+      Wrapping/Python directory.  Under bash/sh something like so
+      needs to be done:
+    
+      $ export LD_LIBRARY_PATH=$VTK_ROOT/lib
+      $ export PYTHONPATH=$VTK_ROOT/Wrapping/Python:$VTK_ROOT/lib
+
+      where VTK_ROOT is the directory where your VTK sources are the
+      VTK_ROOT/lib directory is where the libraries are built.  Change
+      this to suit your configuration.
+
+     Win32:
+
+      Similar to the Unix approach, set your PATH to point to the
+      directory that contains the VTK DLL's and the PYTHONPATH to the
+      directory that contains the Wrapping/Python directory and the
+      DLL's.
+
+
+    (2) Installation via distutils to a directory different from the
+    build directory.  The file VTK_ROOT/Wrapping/Python/setup.py is a
+    distutils script that should install VTK-Python correctly.  It
+    should work under *nix, Win32 and possibly other platforms.
+
+    Under *nix please note that you must first run 'make install' to
+    install the libraries to system wide directories.  To install the
+    VTK-Python wrappers just do the following:
+
+       # cd VTK_ROOT/Wrapping/Python
+       # python setup.py install
+    
+    The usual options for distutils installers are all available.  So
+    it is possible to make a non system wide install by using the
+    --prefix option.
+
+    If you have trouble with this script or find bugs please mail us
+    at <vtk-developers@public.kitware.com> or at
+    <vtkusers@public.kitware.com>.
 
 
 Structure/Usage:
 ^^^^^^^^^^^^^^^^
 
-  To use the package you need to put the contents of this directory
-  and all its sub-directories in your PYTHONPATH.  That is, the
-  vtk_src_root/Wrapping/Python should be in your PYTHONPATH.
-
-  Once the package is visible to Python, normal users will just do
+  Once the Python packages are installed properly (either system wide
+  or by using environment variables) to use the new package structure
+  users will just do
 
     import vtk
     # or
     from vtk import *
 
-  and all the available 'kits' will be loaded - just like with
-  vtkpython.  The name of the kits is available in the kits variable.
+  and all the available 'kits' will be loaded - just like with the
+  older vtkpython.  The name of the kits is available in the kits
+  variable.
 
     import vtk
     print vtk.kits
@@ -87,7 +145,7 @@ http://public.kitware.com/pipermail/vtk-developers/2001-October/000828.html
 
     If you don't have a particular optional kit then Python will not
     raise an exception when importing vtk, but if you try loading it
-    directlly like so:
+    directly like so:
 
         import vtk.parallel
 
@@ -128,6 +186,9 @@ Other VTK related modules:
   different things.  Again, look at the directory to see what is
   available.
 
+  There is also a test module that allows one to create unit tests for
+  VTK-Python.
+
 
 Backwards compatibility:
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -146,11 +207,13 @@ Backwards compatibility:
   modified to use the new structure.
 
 
-Information for Packagers:
+Information for packagers:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  If you wish to install the VTK Python wrappers and modules there are
-  a few things to keep in mind.
+
+  Sometimes while building RPMS or debs the provided distutils
+  setup.py script might not do.  Here is some information for such
+  people who are unable to use the setup.py script.
 
     (1) The entire contents of this directory and its sub-directories
     could be placed in a system wide directory called 'vtkpython' (or
@@ -169,6 +232,8 @@ Information for Packagers:
     (3) Under GNU/Linux both (1) and (2) are achievable if you do
     something like so:
 
+     Method 1:
+
       (a) Put all the Python modules in /usr/lib/vtk/python.
 
       (b) Put libvtk*Python.so also in /usr/lib/vtk/python.
@@ -178,6 +243,26 @@ Information for Packagers:
       (d) Create a vtkpython.pth in /usr/lib/pythonX.Y/site-packages/
       with the single entry '/usr/lib/vtk/python' (without the
       quotes).
+
+    Alternatively, the following approach might be preffered (this is
+    infact exactly what the setup.py script does):
+
+     Method 2:
+
+      (a) Put all the Python modules in 
+        /usr/lib/pythonX.Y/site-packages/vtk_python/.
+
+      (b) Put libvtk*Python.so also in /usr/lib/.
+
+      (c) Create a vtkpython.pth in /usr/lib/pythonX.Y/site-packages/
+      with the single entry 'vtk_python' (without the quotes).
+
+      (d) Make symbolic links from
+      /usr/lib/pythonX.Y/site-packages/vtk_python/ to
+      /usr/lib/libvtk*Python.so  i.e.
+
+      # ln -s /usr/lib/libvtk*Python.so /usr/lib/pythonX.Y/site-packages/vtk_python/
+   
 
   This should give you a working VTK-Python setup.
 
