@@ -7,7 +7,7 @@
   Version:   $Revision$
   Thanks:    Thanks to David G. Gobbi who developed this class.
 
-Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -60,7 +60,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include "vtkImageToImageFilter.h"
-#include "vtkTransform.h"
+#include "vtkGeneralTransform.h"
+#include "vtkMatrix4x4.h"
 
 class vtkMatrix4x4;
 
@@ -94,8 +95,8 @@ public:
   // This is often used to obtain oblique slices from the original data,
   // or to regrid one data set to match another given a linear
   // registration transformation.
-  vtkSetObjectMacro(ResliceTransform,vtkTransform);
-  vtkGetObjectMacro(ResliceTransform,vtkTransform);
+  vtkSetObjectMacro(ResliceTransform,vtkGeneralTransform);
+  vtkGetObjectMacro(ResliceTransform,vtkGeneralTransform);
 
   // Description:
   // Turn on wrap-pad feature (default: off). 
@@ -180,7 +181,7 @@ protected:
   void operator=(const vtkImageReslice&) {};
 
   vtkMatrix4x4 *ResliceAxes;
-  vtkTransform *ResliceTransform;
+  vtkGeneralTransform *ResliceTransform;
   vtkMatrix4x4 *IndexMatrix;
   int Wrap;
   int Mirror;

@@ -8,7 +8,7 @@
   Version:   $Revision$
   Thanks:    Thanks to David G Gobbi who developed this class.
 
-Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkImageReslice.h"
 #include "vtkMath.h"
+#include "vtkTransform.h"
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
@@ -141,8 +142,11 @@ unsigned long int vtkImageReslice::GetMTime()
     {
     time = this->ResliceTransform->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    time = this->ResliceTransform->GetMatrixPointer()->GetMTime();
-    mTime = ( time > mTime ? time : mTime );    
+    if (strcmp(this->ResliceTransform->GetClassName(),"vtkTransform") == 0)
+      {
+      time = ((vtkTransform *)this->ResliceTransform)->GetMatrixPointer()->GetMTime();
+      mTime = ( time > mTime ? time : mTime );
+      }    
     }
   if ( this->ResliceAxes != NULL)
     {
@@ -193,10 +197,12 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
     {
     transform->SetMatrix(*this->GetResliceAxes());
     }
-  if (this->GetResliceTransform())
+  if (this->GetResliceTransform() && 
+      strcmp(this->GetResliceTransform()->GetClassName(),"vtkTransform") == 0)
     {
     transform->PostMultiply();
-    transform->Concatenate(this->GetResliceTransform()->GetMatrixPointer());
+    transform->Concatenate(((vtkTransform *)this->GetResliceTransform())->\
+			   GetMatrixPointer());
     }
   
   // the outMatrix takes OutputData indices to OutputData coordinates,
@@ -227,6 +233,13 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
 void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6], 
 					       int outExt[6])
 {
+  if (this->ResliceTransform && 
+      strcmp(this->ResliceTransform->GetClassName(),"vtkTransform") != 0)
+    { // check for a nonlinear transform
+    this->GetInput()->GetWholeExtent(inExt);
+    return;
+    }
+
   if (this->GetOptimization())
     {
     this->OptimizedComputeInputUpdateExtent(inExt,outExt);
@@ -359,10 +372,12 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
     {
     transform->SetMatrix(*this->GetResliceAxes());
     }
-  if (this->GetResliceTransform())
+  if (this->GetResliceTransform() && 
+      strcmp(this->GetResliceTransform()->GetClassName(),"vtkTransform") == 0)
     {
     transform->PostMultiply();
-    transform->Concatenate(this->GetResliceTransform()->GetMatrixPointer());
+    transform->Concatenate(((vtkTransform *)this->GetResliceTransform())->\
+			   GetMatrixPointer());
     }
   
   vtkMatrix4x4 *matrix = transform->GetMatrixPointer();
@@ -1241,11 +1256,27 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   unsigned long count = 0;
   unsigned long target;
   float inPoint[4],outPoint[4];
+  float *inSpacing,*inOrigin,*outSpacing,*outOrigin;
   T *background;
   int (*interpolate)(float *point, T *inPtr, T *outPtr,
                      T *background, int numscalars,
                      int inExt[6], int inInc[3]);
+  vtkGeneralTransform *transform;
+
+  transform = self->GetResliceTransform();
+
+  // if the transform is a vtkTransform, we will simply concatenate
+  // it with the ResliceMatrix
+  if (transform && strcmp(transform->GetClassName(),"vtkTransform") == 0)
+    {
+    transform = 0;
+    }
   
+  inOrigin = inData->GetOrigin();
+  inSpacing = inData->GetSpacing();
+  outOrigin = self->GetOutputOrigin();
+  outSpacing = self->GetOutputSpacing();
+
   // find maximum input range
   inData->GetExtent(inExt);
   
@@ -1264,7 +1295,7 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   // Set interpolation method
   vtkGetResliceInterpFunc(self,&interpolate);
 
-  // Loop through ouput pixels
+  // Loop through output pixels
   for (idZ = outExt[4]; idZ <= outExt[5]; idZ++)
     {
     for (idY = outExt[2]; idY <= outExt[3]; idY++)
@@ -1290,8 +1321,21 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
 	inPoint[0] /= inPoint[3]; // deal with w if the transform
 	inPoint[1] /= inPoint[3]; //   was a perspective transform
 	inPoint[2] /= inPoint[3];
-	inPoint[3] = 1;
-	
+	inPoint[3] = 1;	  
+
+	if (transform)
+	  {
+	  outPoint[0] = inPoint[0]*outSpacing[0] + outOrigin[0];
+	  outPoint[1] = inPoint[1]*outSpacing[1] + outOrigin[1];
+	  outPoint[2] = inPoint[2]*outSpacing[2] + outOrigin[2];
+
+	  transform->TransformPoint(outPoint,inPoint);
+	  
+	  inPoint[0] = (inPoint[0] - inOrigin[0])/inSpacing[0];
+	  inPoint[1] = (inPoint[1] - inOrigin[1])/inSpacing[1];
+	  inPoint[2] = (inPoint[2] - inOrigin[2])/inSpacing[2];
+	  }
+
 	interpolate(inPoint, inPtr, outPtr, background, 
 		    numscalars, inExt, inInc);
 
@@ -1314,7 +1358,9 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
 				      vtkImageData *outData,
 				      int outExt[6], int id)
 {
-  if (this->GetOptimization())
+  if (this->GetOptimization() && 
+      !(this->ResliceTransform && 
+	strcmp(this->ResliceTransform->GetClassName(),"vtkTransform") != 0))
     {
     this->OptimizedThreadedExecute(inData,outData,outExt,id);
     return;
@@ -1367,7 +1413,6 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
-      return;
     }
 }
 
