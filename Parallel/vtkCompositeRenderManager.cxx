@@ -23,15 +23,15 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.5");
+vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.6");
 vtkStandardNewMacro(vtkCompositeRenderManager);
 
 vtkCxxSetObjectMacro(vtkCompositeRenderManager, Compositer, vtkCompositer);
 
+//----------------------------------------------------------------------------
 vtkCompositeRenderManager::vtkCompositeRenderManager()
 {
-  this->Compositer = vtkCompressCompositer::New();
-  this->Compositer->Register(this);
+  this->SetCompositer( vtkCompressCompositer::New() );
   this->Compositer->Delete();
 
   this->DepthData = vtkFloatArray::New();
@@ -43,6 +43,7 @@ vtkCompositeRenderManager::vtkCompositeRenderManager()
   this->TmpDepthData->SetNumberOfComponents(1);
 }
 
+//----------------------------------------------------------------------------
 vtkCompositeRenderManager::~vtkCompositeRenderManager()
 {
   this->SetCompositer(NULL);
@@ -51,6 +52,7 @@ vtkCompositeRenderManager::~vtkCompositeRenderManager()
   this->TmpDepthData->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeRenderManager::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -60,10 +62,12 @@ void vtkCompositeRenderManager::PrintSelf(ostream &os, vtkIndent indent)
   this->Compositer->PrintSelf(os, indent.GetNextIndent());
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeRenderManager::PreRenderProcessing()
 {
 }
 
+//----------------------------------------------------------------------------
 void vtkCompositeRenderManager::PostRenderProcessing()
 {
   if (this->Controller->GetNumberOfProcesses() > 1)

@@ -16,8 +16,8 @@
 //
 // .SECTION Description:
 // vtkCompositeRenderManager is a subclass of vtkParallelRenderManager that
-// uses compositing to do parallel rendering.  This class is intended to
-// replace vtkCompositeManager.
+// uses compositing to do parallel rendering.  This class has
+// replaced vtkCompositeManager.
 //
 
 
