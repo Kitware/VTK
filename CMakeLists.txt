@@ -40,6 +40,7 @@ INCLUDE (${CMAKE_ROOT}/Modules/Dart.cmake)
 # add some testing dependencies
 IF(BUILD_TESTING)
   IF (DART_ROOT)
+    SUBDIRS(Common/Testing )
     SUBDIRS(Graphics/Testing )
     IF (VTK_USE_PARALLEL)
       SUBDIRS(Parallel/Testing )
