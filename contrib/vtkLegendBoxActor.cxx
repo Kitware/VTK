@@ -334,7 +334,19 @@ float* vtkLegendBoxActor::GetEntryColor(int i)
 // resources to release.
 void vtkLegendBoxActor::ReleaseGraphicsResources(vtkWindow *win)
 {
-  this->vtkActor2D::ReleaseGraphicsResources(win);
+  if ( this->BorderActor )
+    {
+    this->BorderActor->ReleaseGraphicsResources(win);
+    }
+  
+  if (this->TextMapper != NULL )
+    {
+    for (int i=0; i < this->NumberOfEntries; i++)
+      {
+      this->TextActor[i]->ReleaseGraphicsResources(win);
+      this->SymbolActor[i]->ReleaseGraphicsResources(win);
+      }
+    }
 }
 
 void vtkLegendBoxActor::SetWidth(float w)
