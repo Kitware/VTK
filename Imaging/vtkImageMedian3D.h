@@ -63,6 +63,8 @@ protected:
                        int extent[6], int id);
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  // Called by the superclass
+  void ExecuteInformation() { this->Superclass::ExecuteInformation(); }
 
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
