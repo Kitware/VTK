@@ -44,7 +44,7 @@ vtkInterpolateDataSetAttributes interpolate
   interpolate SetT 0.0
 
 # extract an iso surface
-vtkMarchingContourFilter blobbyIso
+vtkContourFilter blobbyIso
   blobbyIso SetInput [interpolate GetOutput]
   blobbyIso SetValue 0 0.1
 
