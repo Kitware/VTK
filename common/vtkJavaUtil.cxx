@@ -206,7 +206,7 @@ void vtkHashTable::DeleteHashEntry(void *key)
     }
 }
 
-int vtkJavaGetId(JNIEnv *env,jobject obj)
+JNIEXPORT int vtkJavaGetId(JNIEnv *env,jobject obj)
 {
   jfieldID id;
   int result;
@@ -217,7 +217,7 @@ int vtkJavaGetId(JNIEnv *env,jobject obj)
   return result;
 }
 
-void vtkJavaSetId(JNIEnv *env,jobject obj, int newVal)
+JNIEXPORT void vtkJavaSetId(JNIEnv *env,jobject obj, int newVal)
 {
   jfieldID id;
   jint jNewVal = (jint)newVal;
@@ -228,7 +228,7 @@ void vtkJavaSetId(JNIEnv *env,jobject obj, int newVal)
 }
 
 // add an object to the hash table
-void vtkJavaAddObjectToHash(JNIEnv *env, jobject obj, void *ptr,
+JNIEXPORT void vtkJavaAddObjectToHash(JNIEnv *env, jobject obj, void *ptr,
 			    void *tcFunc,int deleteMe)
 { 
   if (!vtkInstanceLookup)
@@ -281,7 +281,7 @@ VTK_GET_MUTEX();
 }
 
 // should we delete this object
-int vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj)
+JNIEXPORT int vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj)
 {
   int id = vtkJavaGetId(env,obj);
   
@@ -308,7 +308,7 @@ int vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj)
 // delete an object from the hash
 // doesn't need a mutex because it is only called from within
 // the above func which does have a mutex
-void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
+JNIEXPORT void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
 {
   void *ptr;
   void *vptr;
@@ -329,7 +329,7 @@ void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
   vtkDeleteLookup->DeleteHashEntry((void *)id);
 }
 
-jobject vtkJavaGetObjectFromPointer(void *ptr)
+JNIEXPORT jobject vtkJavaGetObjectFromPointer(void *ptr)
 {
   jobject obj;
 
@@ -343,7 +343,7 @@ jobject vtkJavaGetObjectFromPointer(void *ptr)
   return obj;
 }
 
-void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *result_type)
+JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *result_type)
 {
   void *ptr;
   void *(*command)(void *,char *);
@@ -378,7 +378,7 @@ void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *result_type)
     }
 }
 
-jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, double *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, double *ptr, int size)
 {
   jdoubleArray ret;
   int i;
@@ -403,7 +403,7 @@ jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, double *ptr, int size)
   return ret;
 }
 
-jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env, float *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env, float *ptr, int size)
 {
   jdoubleArray ret;
   int i;
@@ -428,7 +428,7 @@ jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env, float *ptr, int size)
   return ret;
 }
 
-jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *ptr, int size)
 {
   jintArray ret;
   int i;
@@ -453,7 +453,7 @@ jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *ptr, int size)
   return ret;
 }
 
-char *vtkJavaUTFToChar(JNIEnv *env,jstring in)
+JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env,jstring in)
 {
   char *result;
   const char *inBytes;
@@ -483,7 +483,7 @@ char *vtkJavaUTFToChar(JNIEnv *env,jstring in)
   return result;
 }
 
-jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in)
+JNIEXPORT jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in)
 {
   jstring result;
   char *utf;
@@ -519,7 +519,7 @@ jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in)
 //since the callback must be a method of a class. We make the rash assumption
 //that the <this> pointer will anchor any required other elements for the
 //called functions. - edited by km
-void vtkJavaVoidFunc(void* f) 
+JNIEXPORT void vtkJavaVoidFunc(void* f) 
 {  
   vtkJavaVoidFuncArg *iprm = (vtkJavaVoidFuncArg *)f;
   // make sure we have a valid method ID
@@ -529,7 +529,7 @@ void vtkJavaVoidFunc(void* f)
     }
 }
 
-void vtkJavaVoidFuncArgDelete(void* arg) 
+JNIEXPORT void vtkJavaVoidFuncArgDelete(void* arg) 
 {
   vtkJavaVoidFuncArg *arg2;
   
