@@ -8,8 +8,8 @@ source ../../examplesTcl/vtkInt.tcl
 #
 # create sphere to color
 vtkSphereSource sphere
-    sphere SetThetaResolution 20
-    sphere SetPhiResolution 40
+    sphere SetThetaResolution 2
+    sphere SetPhiResolution 2
 
 # Compute random scalars (colors) for each cell
 vtkProgrammableAttributeDataFilter randomColors
@@ -25,7 +25,13 @@ proc colorCells {} {
 	colors SetNumberOfScalars $numCells
 
     for {set i 0} {$i < $numCells} {incr i} {
-	colors SetScalar $i [randomColorGenerator Random 0 1]
+#	colors SetScalar $i [randomColorGenerator Random 0 1]
+	if { $i < [expr $numCells/2] } {
+	    colors SetScalar $i 0
+	} else {
+	    colors SetScalar $i 1
+	}
+	
     }
 
     [$output GetCellData] CopyScalarsOff
@@ -39,6 +45,7 @@ proc colorCells {} {
 vtkCellDataToPointData pointScalars
     pointScalars SetInput [randomColors GetOutput]
     pointScalars PassCellDataOn
+
 
 # create two spheres which render cell scalars and point scalars
 vtkPolyDataMapper mapper
