@@ -18,9 +18,9 @@
 
 
 
-#define ISO_START 1500.0
-#define ISO_STEP  500.0
-#define ISO_NUM   7
+#define ISO_START 3500.0
+#define ISO_STEP  -500.0
+#define ISO_NUM   6
 
 
 
@@ -55,7 +55,6 @@ void set_iso_val_rmi(void *arg, int id)
 void exit_callback(void *arg, int id)
 { 
   // clean up controller ?
-  MPI_Finalize();
   exit(0);
 }
 
