@@ -213,19 +213,24 @@ void vtkImageToIsoSurface::Execute()
     estimatedSize = 1024;
     }
   vtkDebugMacro(<< "Estimated number of points/triangles: " << estimatedSize);
-  this->Points = new vtkFloatPoints(estimatedSize,estimatedSize/2);
-  this->Triangles = new vtkCellArray(estimatedSize,estimatedSize/2);
+  this->Points = vtkFloatPoints::New();
+  this->Points->Allocate(estimatedSize,estimatedSize/2);
+  this->Triangles = vtkCellArray::New();
+  this->Triangles->Allocate(estimatedSize,estimatedSize/2);
   if (this->ComputeScalars)
     {
-    this->Scalars = new vtkFloatScalars(estimatedSize,estimatedSize/2);
+    this->Scalars = vtkFloatScalars::New();
+    this->Scalars->Allocate(estimatedSize,estimatedSize/2);
     }
   if (this->ComputeNormals)
     {
-    this->Normals = new vtkFloatNormals(estimatedSize,estimatedSize/2);
+    this->Normals = vtkFloatNormals::New();
+    this->Normals->Allocate(estimatedSize,estimatedSize/2);
     }
   if (this->ComputeGradients)
     {
-    this->Gradients = new vtkFloatVectors(estimatedSize,estimatedSize/2);
+    this->Gradients = vtkFloatVectors::New();
+    this->Gradients->Allocate(estimatedSize,estimatedSize/2);
     }
 
   // Initialize the internal point locator (edge table for oen image of cubes).
@@ -301,7 +306,7 @@ void vtkImageToIsoSurface::Execute()
 //----------------------------------------------------------------------------
 // This method uses central differences to compute the gradient
 // of a point. Note: This method assumes that max > min for all 3 axes!
-// It does not consider aspect ratio.
+// It does not consider the dataset spacing.
 // b0 (b1, b2) indicates the boundary conditions for the three axes.: 
 // b0 = -1 => pixel is on x axis minimum of region.
 // b0 = 0 => no boundary conditions
@@ -360,7 +365,7 @@ static int vtkImageToIsoSurfaceMakeNewPoint(vtkImageToIsoSurface *self,
 					    int inc0, int inc1, int inc2,
 					    T *ptr, int edge, 
 					    int *imageExtent,
-					    float *aspectRatio, float *origin,
+					    float *spacing, float *origin,
 					    float value)
 {
   int edgeAxis;
@@ -445,19 +450,19 @@ static int vtkImageToIsoSurfaceMakeNewPoint(vtkImageToIsoSurface *self,
   switch (edgeAxis)
     {
     case 0:
-      pt[0] = origin[0] + aspectRatio[0] * ((float)idx0 + temp);
-      pt[1] = origin[1] + aspectRatio[1] * ((float)idx1);
-      pt[2] = origin[2] + aspectRatio[2] * ((float)idx2);
+      pt[0] = origin[0] + spacing[0] * ((float)idx0 + temp);
+      pt[1] = origin[1] + spacing[1] * ((float)idx1);
+      pt[2] = origin[2] + spacing[2] * ((float)idx2);
       break;
     case 1:
-      pt[0] = origin[0] + aspectRatio[0] * ((float)idx0);
-      pt[1] = origin[1] + aspectRatio[1] * ((float)idx1 + temp);
-      pt[2] = origin[2] + aspectRatio[2] * ((float)idx2);
+      pt[0] = origin[0] + spacing[0] * ((float)idx0);
+      pt[1] = origin[1] + spacing[1] * ((float)idx1 + temp);
+      pt[2] = origin[2] + spacing[2] * ((float)idx2);
       break;
     case 2:
-      pt[0] = origin[0] + aspectRatio[0] * ((float)idx0);
-      pt[1] = origin[1] + aspectRatio[1] * ((float)idx1);
-      pt[2] = origin[2] + aspectRatio[2] * ((float)idx2 + temp);
+      pt[0] = origin[0] + spacing[0] * ((float)idx0);
+      pt[1] = origin[1] + spacing[1] * ((float)idx1);
+      pt[2] = origin[2] + spacing[2] * ((float)idx2 + temp);
       break;
     }
   
@@ -500,9 +505,9 @@ static int vtkImageToIsoSurfaceMakeNewPoint(vtkImageToIsoSurface *self,
     vtkImageToIsoSurfaceComputePointGradient(ptrB, gB, inc0, inc1, inc2, 
 					     b0, b1, b2);
     // Interpolate Gradient
-    g[0] = (g[0] + temp * (gB[0] - g[0])) / aspectRatio[0];
-    g[1] = (g[1] + temp * (gB[1] - g[1])) / aspectRatio[1];
-    g[2] = (g[2] + temp * (gB[2] - g[2])) / aspectRatio[2];
+    g[0] = (g[0] + temp * (gB[0] - g[0])) / spacing[0];
+    g[1] = (g[1] + temp * (gB[1] - g[1])) / spacing[1];
+    g[2] = (g[2] + temp * (gB[2] - g[2])) / spacing[2];
     if (self->ComputeGradients)
       {
       self->Gradients->InsertNextVector(g);
@@ -565,7 +570,7 @@ static void vtkImageToIsoSurfaceHandleCube(vtkImageToIsoSurface *self,
 	  // If the point has not been created yet
 	  if (pointIds[ii] == -1)
 	    {
-	    float *aspectRatio = inRegion->GetAspectRatio();
+	    float *spacing = inRegion->GetSpacing();
 	    float *origin = inRegion->GetOrigin();
 	    int *extent = inRegion->GetImageExtent();
 	    
@@ -573,7 +578,7 @@ static void vtkImageToIsoSurfaceHandleCube(vtkImageToIsoSurface *self,
 					      cellX, cellY, cellZ,
 					      inc0, inc1, inc2,
 					      ptr, *edge, extent,
-					      aspectRatio, origin, value);
+					      spacing, origin, value);
 	    self->AddLocatorPoint(cellX, cellY, *edge, pointIds[ii]);
 	    }
 	  }
