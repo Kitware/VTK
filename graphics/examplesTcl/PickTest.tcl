@@ -124,7 +124,7 @@ if { $path != "" } {
 # method by hand, we have to make sure that some internal varables
 # are set (e.g., CurrentRenderer). We use the FindPokedRenderer method.
 [iren GetPicker] Pick 327 58 0 ren1
-[iren GetInteractorStyle] FindPokedRenderer 350 100
+[iren GetInteractorStyle] FindPokedRenderer 327 58
 set path [[iren GetPicker] GetPath]
 if { $path != "" } {
     [iren GetInteractorStyle] HighlightProp [[$path GetFirstNode] GetProp]
