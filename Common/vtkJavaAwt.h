@@ -15,7 +15,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// only do this when JAWT is to be used
+// for use with JAWT
 #include "jawt_md.h"
 
 extern "C" JNIEXPORT void  JNICALL 
@@ -91,132 +91,21 @@ extern "C" JNIEXPORT void  JNICALL
   awt.FreeDrawingSurface(ds);
 }
 
+
+// Lock must be called prior to render or anything which might
+// cause vtkRenderWindow to make an XLib call or to call Render(). 
+// The Lock() and UnLock() functions are necessary for drawing in
+// JAWT, but they also provide a form of mutex locking so that multiple
+// java threads are prevented from accessing X at the same time.  The only
+// requirement JAWT has is that all operations on a JAWT_DrawingSurface 
+// MUST be performed from the same thread as the call to GetDrawingSurface.
 extern "C" JNIEXPORT void  JNICALL 
-    Java_vtkPanel_RenderInternal(JNIEnv *env, jobject canvas, jobject id0)
+    Java_vtkPanel_Lock(JNIEnv *env, 
+                       jobject canvas)
 {
   JAWT awt;
   JAWT_DrawingSurface* ds;
   jint lock;
-
-  // get the render window pointer
-  vtkRenderWindow *temp0;
-  temp0 = (vtkRenderWindow *)(vtkJavaGetPointerFromObject(env,id0,(char *) "vtkRenderWindow"));
-  
-  /* Get the AWT */
-  awt.version = JAWT_VERSION_1_3;
-  if (JAWT_GetAWT(env, &awt) == JNI_FALSE) 
-    {
-    printf("AWT Not found\n");
-    return;
-    }
-  
-  /* Get the drawing surface */
-  ds = awt.GetDrawingSurface(env, canvas);
-  if (ds == NULL) 
-    {
-    printf("NULL drawing surface\n");
-    return;
-    }
-  
-  /* Lock the drawing surface */
-  lock = ds->Lock(ds);
-  if((lock & JAWT_LOCK_ERROR) != 0) 
-    {
-    printf("Error locking surface\n");
-    awt.FreeDrawingSurface(ds);
-    return;
-    }
-
-  temp0->Render();
-  
-  /* Unlock the drawing surface */
-  ds->Unlock(ds);
-  
-  /* Free the drawing surface */
-  awt.FreeDrawingSurface(ds);
-}
-
-extern "C" JNIEXPORT void  JNICALL 
-    Java_vtkPanel_SetSizeInternal(JNIEnv *env, 
-                                  jobject canvas,
-                                  jobject id0, jint id1,jint id2)
-{
-  JAWT awt;
-  JAWT_DrawingSurface* ds;
-  jint lock;
-
-  // get the render window pointer
-  vtkRenderWindow *temp0;
-  temp0 = (vtkRenderWindow *)(vtkJavaGetPointerFromObject(env,id0,(char *) "vtkRenderWindow"));
-  
-  /* Get the AWT */
-  awt.version = JAWT_VERSION_1_3;
-  if (JAWT_GetAWT(env, &awt) == JNI_FALSE) 
-      {
-          printf("AWT Not found\n");
-          return;
-      }
-  
-  /* Get the drawing surface */
-  ds = awt.GetDrawingSurface(env, canvas);
-  if (ds == NULL) 
-      {
-          printf("NULL drawing surface\n");
-          return;
-      }
-  
-  /* Lock the drawing surface */
-  lock = ds->Lock(ds);
-  if((lock & JAWT_LOCK_ERROR) != 0) 
-    {
-    printf("Error locking surface\n");
-    awt.FreeDrawingSurface(ds);
-    return;
-    }
-
-  int      temp1;
-  int      temp2;
-  temp1 = id1;
-  temp2 = id2;
-
-  temp0->SetSize(temp1,temp2);
-  
-  /* Unlock the drawing surface */
-  ds->Unlock(ds);
-  
-  /* Free the drawing surface */
-  awt.FreeDrawingSurface(ds);
-}
-
-
-// This function is provided to lock the render window and execute the
-// method represented by methodString of the object represented by anObject.
-// This is necessary to wrap any vtk filter which might call Render in
-// its Execute method (for example vtkRenderLargeImage).  The method passed
-// in must be void and zero-argument (this could be extended later to handle
-// more generic methods).
-extern "C" JNIEXPORT void  JNICALL 
-    Java_vtkPanel_LockAndExecuteVoidMethod(JNIEnv *env, 
-                                           jobject canvas,
-                                           jobject renderWindow, 
-                                           jobject anObject,
-                                           jstring methodString)
-{
-  JAWT awt;
-  JAWT_DrawingSurface* ds;
-  jint lock;
-
-  jclass clazz;
-  jmethodID mid;
-  jboolean isCopy;
-
-  // get the render window pointer
-  vtkRenderWindow *temp0;
-  temp0 = (vtkRenderWindow *)(vtkJavaGetPointerFromObject(env,renderWindow,(char *) "vtkRenderWindow"));
-
-
-  // convert jstring to const char*
-  const char* utf_string = env->GetStringUTFChars(methodString, &isCopy);
 
   /* Get the AWT */
   awt.version = JAWT_VERSION_1_3;
@@ -243,22 +132,32 @@ extern "C" JNIEXPORT void  JNICALL
     return;
     }
 
-  // get object class containing method
-  clazz = env->GetObjectClass(anObject);
+}
 
-  // get void method id 
-  mid = env->GetMethodID(clazz, utf_string, "()V");
-  if (mid == 0)
-    {
-      printf("Can't get void methodID %s for object\n", utf_string);
-      ds->Unlock(ds);
-      awt.FreeDrawingSurface(ds);
-      return;
-    }
+// UnLock() must be called after a Lock() and execution of a
+// function which might change the drawing surface.  See Lock().
+extern "C" JNIEXPORT void  JNICALL 
+    Java_vtkPanel_UnLock(JNIEnv *env, 
+                         jobject canvas)
+{
+  JAWT awt;
+  JAWT_DrawingSurface* ds;
 
-  env->CallVoidMethod(anObject, mid);
-
-  temp0->Render();
+  /* Get the AWT */
+  awt.version = JAWT_VERSION_1_3;
+  if (JAWT_GetAWT(env, &awt) == JNI_FALSE) 
+      {
+          printf("AWT Not found\n");
+          return;
+      }
+  
+  /* Get the drawing surface */
+  ds = awt.GetDrawingSurface(env, canvas);
+  if (ds == NULL) 
+      {
+          printf("NULL drawing surface\n");
+          return;
+      }
   
   /* Unlock the drawing surface */
   ds->Unlock(ds);
@@ -266,5 +165,4 @@ extern "C" JNIEXPORT void  JNICALL
   /* Free the drawing surface */
   awt.FreeDrawingSurface(ds);
 }
-
 

@@ -48,13 +48,15 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     }
 
   private native void RenderCreate(vtkRenderWindow id0);
-  private native void RenderInternal(vtkRenderWindow id0);
-  private native void SetSizeInternal(vtkRenderWindow id0, int x, int y);
+  private native void Lock();
+  private native void UnLock();
   
   public void setSize(int x, int y)
     {
       super.setSize(x,y);
-      SetSizeInternal(rw,x,y);
+      Lock();
+      rw.SetSizeInternal(x,y);
+      UnLock();
     }
   
   public synchronized void Render() 
@@ -75,7 +77,9 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
             RenderCreate(rw);
             windowset = 1;
             }
-          RenderInternal(rw);
+          Lock();
+          rw.Render();
+          UnLock();
           rendering = false;
           }
         }
@@ -116,6 +120,18 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
       lgt.SetPosition(cam.GetPosition());
       lgt.SetFocalPoint(cam.GetFocalPoint());
     }
+
+  public void resetCameraClippingRange() {
+    Lock();
+    ren.ResetCameraClippingRange();
+    UnLock();
+  }
+
+  public void resetCamera() {
+    Lock();
+    ren.ResetCamera();
+    UnLock();
+  }
   
   public void mouseClicked(MouseEvent e) {
     
@@ -173,7 +189,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
         cam.Azimuth(lastX - x);
         cam.Elevation(y - lastY);
         cam.OrthogonalizeViewUp();
-        ren.ResetCameraClippingRange();
+        resetCameraClippingRange();
         if (this.LightFollowCamera == 1)
           {
           lgt.SetPosition(cam.GetPosition());
@@ -223,7 +239,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
           (FPoint[0]-RPoint[0])/2.0 + PPoint[0],
           (FPoint[1]-RPoint[1])/2.0 + PPoint[1],
           (FPoint[2]-RPoint[2])/2.0 + PPoint[2]);
-        ren.ResetCameraClippingRange();
+        resetCameraClippingRange();
         }
       // zoom
       if (this.InteractionMode == 3)
@@ -239,7 +255,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
         else
           {
           cam.Dolly(zoomFactor);
-          ren.ResetCameraClippingRange();
+          resetCameraClippingRange();
           }
         }
       lastX = x;
@@ -256,7 +272,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
       
       if ('r' == keyChar)
         {
-        ren.ResetCamera();
+        resetCamera();
         this.Render();
         }
       if ('u' == keyChar)
@@ -308,6 +324,24 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
         this.Render();
         }
     }
+
+  public void HardCopy(String filename, int mag) { 
+
+    Lock();
+
+    vtkWindowToImageFilter w2if = new vtkWindowToImageFilter();
+    w2if.SetInput(rw);
+
+    w2if.SetMagnification(mag);
+    w2if.Update();
+
+    vtkTIFFWriter writer = new vtkTIFFWriter();
+    writer.SetInput(w2if.GetOutput());
+    writer.SetFileName(filename);
+    writer.Write();
+
+    UnLock();
+  }
   
   public void addPropertyChangeListener(PropertyChangeListener l)
     {
