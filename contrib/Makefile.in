@@ -51,6 +51,7 @@ vtkVideoSource \
 vtkVolumeProMapper \
 vtkInputPort \
 vtkOutputPort \
+vtkVRMLImporter \
 ${CONTROLLER_API_OBJ}
 
 #vtkPolyDataCollector \
