@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.13");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.14");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -46,8 +46,6 @@ vtkHexagonalPrism::vtkHexagonalPrism()
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
     }
-  this->Points->SetNumberOfPoints(12);
-  this->PointIds->SetNumberOfIds(12);
 
   this->Line = vtkLine::New();
   this->Quad = vtkQuad::New();
@@ -311,89 +309,7 @@ void vtkHexagonalPrism::EvaluateLocation(int& vtkNotUsed(subId),
       }
     }
 }
-
 //----------------------------------------------------------------------------
-// Returns the closest face to the point specified. Closeness is measured
-// parametrically.
-int vtkHexagonalPrism::CellBoundary(int vtkNotUsed(subId), double pcoords[3], 
-                                    vtkIdList *pts)
-{
-  int i;
-
-  // define 9 planes that separate regions
-  static double normals[9][3] = { 
-    {0.0,0.83205,-0.5547}, {-0.639602,-0.639602,-0.426401}, {0.83205,0.0,-0.5547},
-    {0.0,0.83205,0.5547}, {-0.639602,-0.639602,0.426401}, {0.83205,0.0,0.5547},
-    {-0.707107,0.707107,0.0}, {0.447214,0.894427,0.0}, {0.894427,0.447214,0.0} };
-  static double point[3] = {0.333333,0.333333,0.5};
-  double vals[9];
-
-  // evaluate 9 plane equations
-  for (i=0; i<9; i++)
-    {
-    vals[i] = normals[i][0]*(pcoords[0]-point[0]) + 
-      normals[i][1]*(pcoords[1]-point[1]) + normals[i][2]*(pcoords[2]-point[2]);
-    }
-
-  // compare against nine planes in parametric space that divide element
-  // into five pieces (each corresponding to a face).
-  if ( vals[0] >= 0.0 && vals[1] >= 0.0 && vals[2] >= 0.0 )
-    {
-    pts->SetNumberOfIds(3); //triangle face
-    pts->SetId(0,this->PointIds->GetId(0));
-    pts->SetId(1,this->PointIds->GetId(1));
-    pts->SetId(2,this->PointIds->GetId(2));
-    }
-
-  else if ( vals[3] >= 0.0 && vals[4] >= 0.0 && vals[5] >= 0.0 )
-    {
-    pts->SetNumberOfIds(3); //triangle face
-    pts->SetId(0,this->PointIds->GetId(3));
-    pts->SetId(1,this->PointIds->GetId(4));
-    pts->SetId(2,this->PointIds->GetId(5));
-    }
-
-  else if ( vals[0] <= 0.0 && vals[3] <= 0.0 && 
-            vals[6] <= 0.0 && vals[7] <= 0.0 )
-    {
-    pts->SetNumberOfIds(4); //quad face
-    pts->SetId(0,this->PointIds->GetId(0));
-    pts->SetId(1,this->PointIds->GetId(1));
-    pts->SetId(2,this->PointIds->GetId(4));
-    pts->SetId(3,this->PointIds->GetId(3));
-    }
-
-  else if ( vals[1] <= 0.0 && vals[4] <= 0.0 && 
-            vals[7] >= 0.0 && vals[8] >= 0.0 )
-    {
-    pts->SetNumberOfIds(4); //quad face
-    pts->SetId(0,this->PointIds->GetId(1));
-    pts->SetId(1,this->PointIds->GetId(2));
-    pts->SetId(2,this->PointIds->GetId(5));
-    pts->SetId(3,this->PointIds->GetId(4));
-    }
-
-  else //vals[2] <= 0.0 && vals[5] <= 0.0 && vals[8] <= 0.0 && vals[6] >= 0.0
-    {
-    pts->SetNumberOfIds(4); //quad face
-    pts->SetId(0,this->PointIds->GetId(2));
-    pts->SetId(1,this->PointIds->GetId(0));
-    pts->SetId(2,this->PointIds->GetId(3));
-    pts->SetId(3,this->PointIds->GetId(5));
-    }
-
-  if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
-       pcoords[1] < 0.0 || pcoords[1] > 1.0 || 
-       pcoords[2] < 0.0 || pcoords[2] > 1.0 )
-    {
-    return 0;
-    }
-  else
-    {
-    return 1;
-    }
-}
-
 static int edges[18][2] = {  {0,1}, {1, 2}, {2, 3}, 
                              {3,4}, {4, 5}, {5, 0}, 
                              {6,7}, {7, 8}, {8, 9},
@@ -406,6 +322,112 @@ static int faces[8][6] = { {0,5,4,3,2,1}, {6,7,8,9,10,11},
                            {2,3,9,8,-1,-1}, {3,4,10,9,-1,-1}, 
                            {4,5,11,10,-1,-1}, {5,0,6,11,-1,-1} };
 
+#define VTK_MAX(a,b)    (((a)>(b))?(a):(b))
+#define VTK_MIN(a,b)    (((a)<(b))?(a):(b))
+
+//----------------------------------------------------------------------------
+// Returns the closest face to the point specified. Closeness is measured
+// parametrically.
+int vtkHexagonalPrism::CellBoundary(int subId, double pcoords[3], 
+                                    vtkIdList *pts)
+{
+  // load coordinates
+  double *points = this->GetParametricCoords();
+  for(int i=0;i<6;i++)
+    {
+    this->Polygon->PointIds->SetId(i, i);
+    this->Polygon->Points->SetPoint(i, &points[3*i]);
+    }
+
+  this->Polygon->CellBoundary( subId, pcoords, pts);
+
+  int min = VTK_MIN(pts->GetId( 0 ), pts->GetId( 1 ));
+  int max = VTK_MAX(pts->GetId( 0 ), pts->GetId( 1 ));
+
+  //Base on the edge find the quad that correspond:
+  int index;
+  if( (index = (max - min)) > 1)
+    {
+    index = 7;
+    }
+  else
+    {
+    index += min + 1;
+    }
+
+  double a[3], b[3], u[3], v[3];
+  this->Polygon->Points->GetPoint(pts->GetId( 0 ), a);
+  this->Polygon->Points->GetPoint(pts->GetId( 1 ), b);
+  u[0] = b[0] - a[0];
+  u[1] = b[1] - a[1];
+  v[0] = pcoords[0] - a[0];
+  v[1] = pcoords[1] - a[1];
+  
+  double dot = vtkMath::Dot2D(v, u);
+  dot /= vtkMath::Norm2D( u );
+  dot = (v[0]*v[0] + v[1]*v[1]) - dot*dot;
+  dot = sqrt( dot );
+  int *verts;
+
+  if(pcoords[2] < 0.5)
+    {
+    //could be closer to face 1
+    //compare that distance to the distance to the quad.
+
+    if(dot < pcoords[2])
+      {
+      //We are closer to the quad face
+      verts = faces[index];
+      for(int i=0; i<4; i++)
+        {
+        pts->InsertId(i, verts[i]);
+        }
+      }
+    else
+      {
+      //we are closer to the hexa face 1
+      for(int i=0; i<6; i++)
+        {
+        pts->InsertId(i, faces[0][i]);
+        }
+      }
+    }
+  else
+    {
+    //could be closer to face 2
+    //compare that distance to the distance to the quad.
+
+    if(dot < (1. - pcoords[2]) )
+      {
+      //We are closer to the quad face
+      verts = faces[index];
+      for(int i=0; i<4; i++)
+        {
+        pts->InsertId(i, verts[i]);
+        }
+      }
+    else
+      {
+      //we are closer to the hexa face 2
+      for(int i=0; i<6; i++)
+        {
+        pts->InsertId(i, faces[1][i]);
+        }
+      }
+    }
+
+  // determine whether point is inside of hexagon
+  if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
+       pcoords[1] < 0.0 || pcoords[1] > 1.0 || 
+       pcoords[2] < 0.0 || pcoords[2] > 1.0 )
+    {
+    return 0;
+    }
+  else
+    {
+    return 1;
+    }
+}
 //----------------------------------------------------------------------------
 int *vtkHexagonalPrism::GetEdgeArray(int edgeId)
 {
@@ -487,13 +509,54 @@ int vtkHexagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol,
                                          int& subId)
 {
   int intersection=0;
-  double pt1[3], pt2[3], pt3[3], pt4[3];
+  double pt1[3], pt2[3], pt3[3], pt4[3], pt5[3], pt6[3];
   double tTemp;
-  double pc[3], xTemp[3];
+  double pc[3], xTemp[3], dist2, weights[12];
   int faceNum;
 
   t = VTK_DOUBLE_MAX;
-  for (faceNum=0; faceNum<6; faceNum++)
+
+  //first intersect the penta faces
+  for (faceNum=0; faceNum<2; faceNum++)
+    {
+    this->Points->GetPoint(faces[faceNum][0], pt1);
+    this->Points->GetPoint(faces[faceNum][1], pt2);
+    this->Points->GetPoint(faces[faceNum][2], pt3);
+    this->Points->GetPoint(faces[faceNum][3], pt4);
+    this->Points->GetPoint(faces[faceNum][4], pt5);
+    this->Points->GetPoint(faces[faceNum][5], pt6);
+
+    this->Polygon->Points->SetPoint(0,pt1);
+    this->Polygon->Points->SetPoint(1,pt2);
+    this->Polygon->Points->SetPoint(2,pt3);
+    this->Polygon->Points->SetPoint(3,pt4);
+    this->Polygon->Points->SetPoint(4,pt5);
+    this->Polygon->Points->SetPoint(5,pt6);
+
+    if ( this->Polygon->IntersectWithLine(p1, p2, tol, tTemp, xTemp, 
+                                          pc, subId) )
+      {
+      intersection = 1;
+      if ( tTemp < t )
+        {
+        t = tTemp;
+        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+        switch (faceNum)
+          {
+          case 0:
+            pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = 0.0;
+            break;
+
+          case 1:
+            pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = 1.0;
+            break;
+          }
+        }
+      }
+    }
+
+  //now intersect the quad faces
+  for (faceNum=2; faceNum<6; faceNum++)
     {
     this->Points->GetPoint(faces[faceNum][0], pt1);
     this->Points->GetPoint(faces[faceNum][1], pt2);
@@ -512,35 +575,11 @@ int vtkHexagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol,
         {
         t = tTemp;
         x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
-        switch (faceNum)
-          {
-          case 0:
-            pcoords[0] = 0.0; pcoords[0] = pc[0]; pcoords[1] = 0.0;
-            break;
-
-          case 1:
-            pcoords[0] = 1.0; pcoords[0] = pc[0]; pcoords[1] = 0.0;
-            break;
-
-          case 2:
-            pcoords[0] = pc[0]; pcoords[1] = 0.0; pcoords[2] = pc[1];
-            break;
-
-          case 3:
-            pcoords[0] = pc[0]; pcoords[1] = 1.0; pcoords[2] = pc[1];
-            break;
-
-          case 4:
-            pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = 0.0;
-            break;
-
-          case 5:
-            pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = 1.0;
-            break;
-          }
+        this->EvaluatePosition(x, xTemp, subId, pcoords, dist2, weights);
         }
       }
     }
+
   return intersection;
 }
 //----------------------------------------------------------------------------

@@ -445,18 +445,18 @@ int TestOCB(ostream& strm)
   hexa->GetPointIds()->SetId(10,12);
   hexa->GetPointIds()->SetId(11,11);
 
-  hexaCoords[0][0] = 0.0 ; hexaCoords[0][1] = 0.0; hexaCoords[0][2] = 0.0;
-  hexaCoords[1][0] = 0.5 ; hexaCoords[1][1] = 0.0; hexaCoords[1][2] = 0.0;
-  hexaCoords[2][0] = 1.0 ; hexaCoords[2][1] = 0.5; hexaCoords[2][2] = 0.0;
-  hexaCoords[3][0] = 1.0 ; hexaCoords[3][1] = 1.0; hexaCoords[3][2] = 0.0;
-  hexaCoords[4][0] = 0.5 ; hexaCoords[4][1] = 1.0; hexaCoords[4][2] = 0.0;
-  hexaCoords[5][0] = 0.0 ; hexaCoords[5][1] = 0.5; hexaCoords[5][2] = 0.0;
-  hexaCoords[6][0] = 0.0 ; hexaCoords[6][1] = 0.0; hexaCoords[6][2] = 1.0;
-  hexaCoords[7][0] = 0.5 ; hexaCoords[7][1] = 0.0; hexaCoords[7][2] = 1.0;
-  hexaCoords[8][0] = 1.0 ; hexaCoords[8][1] = 0.5; hexaCoords[8][2] = 1.0;
-  hexaCoords[9][0] = 1.0 ; hexaCoords[9][1] = 1.0; hexaCoords[9][2] = 1.0;
-  hexaCoords[10][0] = 0.5 ; hexaCoords[10][1] = 1.0; hexaCoords[10][2] = 1.0;
-  hexaCoords[11][0] = 0.0 ; hexaCoords[11][1] = 0.5; hexaCoords[11][2] = 1.0;
+  hexaCoords[0][0] = 0.5 ; hexaCoords[0][1] = 0.0; hexaCoords[0][2] = 0.3;
+  hexaCoords[1][0] = 0.93 ; hexaCoords[1][1] = 0.25; hexaCoords[1][2] = 0.3;
+  hexaCoords[2][0] = 0.93 ; hexaCoords[2][1] = 0.75; hexaCoords[2][2] = 0.3;
+  hexaCoords[3][0] = 0.716 ; hexaCoords[3][1] = 0.875; hexaCoords[3][2] = 0.4;
+  hexaCoords[4][0] = 0.55 ; hexaCoords[4][1] = 0.95; hexaCoords[4][2] = 0.3;
+  hexaCoords[5][0] = 0.067 ; hexaCoords[5][1] = 0.6; hexaCoords[5][2] = 0.1;
+  hexaCoords[6][0] = 0.05 ; hexaCoords[6][1] = 0.4; hexaCoords[6][2] = 0.7;
+  hexaCoords[7][0] = 0.5 ; hexaCoords[7][1] = 0.6; hexaCoords[7][2] = 0.7;
+  hexaCoords[8][0] = 0.93 ; hexaCoords[8][1] = 0.4; hexaCoords[8][2] = 0.7;
+  hexaCoords[9][0] = 0.93 ; hexaCoords[9][1] = 0.9; hexaCoords[9][2] = 0.7;
+  hexaCoords[10][0] = 0.06 ; hexaCoords[10][1] = 0.7; hexaCoords[10][2] = 0.7;
+  hexaCoords[11][0] = 0.07 ; hexaCoords[11][1] = 0.3; hexaCoords[11][2] = 0.7;
 
   for (j = 0; j < 12; j++)
     {
