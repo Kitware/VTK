@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-01-15 11:10:15 barre>
+# Time-stamp: <2004-06-04 09:32:18 barre>
 #
 # Build cross-references between classes and examples
 #
@@ -582,7 +582,7 @@ sub word_section_doc {
             if (exists $args{"link"}) {
                 push @temp, 
                 '    - @htmlonly <TT><A href="' . $args{"link"} .  
-                  $shorter_filename{$file} . $args{"linksuffix"} . '">@endhtmlonly ' . $shorter_filename{$file} . 
+                  $shorter_filename{$file} . $args{"linksuffix"} . ';content-type=text/plain">@endhtmlonly ' . $shorter_filename{$file} . 
                     '@htmlonly</A></TT> @endhtmlonly ' . 
                       $has_data . $has_baseline_picture;
             } else {
