@@ -44,6 +44,10 @@ public:
   vtkTypeRevisionMacro(vtkInteractorStyleTrackballActor,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+protected:
+  vtkInteractorStyleTrackballActor();
+  ~vtkInteractorStyleTrackballActor();
+
   // Description:
   // Event bindings controlling the effects of pressing mouse buttons
   // or moving the mouse.
@@ -54,10 +58,6 @@ public:
   virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
   virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
   virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
-
-protected:
-  vtkInteractorStyleTrackballActor();
-  ~vtkInteractorStyleTrackballActor();
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
@@ -71,12 +71,16 @@ protected:
 
   void FindPickedActor(int x, int y);
 
-  void Prop3DTransform(vtkProp3D *prop3D, double *boxCenter,
-                       int numRotation, double **rotate,
+  void Prop3DTransform(vtkProp3D *prop3D, 
+                       double *boxCenter,
+                       int numRotation, 
+                       double **rotate,
                        double *scale);
 
-  void Prop3DTransform(vtkProp3D *prop3D,float *boxCenter,
-                       int NumRotation,double **rotate,
+  void Prop3DTransform(vtkProp3D *prop3D,
+                       float *boxCenter,
+                       int NumRotation,
+                       double **rotate,
                        double *scale);
   
   float MotionFactor;

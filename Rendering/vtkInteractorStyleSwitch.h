@@ -50,11 +50,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Only care about the char event, which is used to switch between
-  // different styles.
-  virtual void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
-  
-  // Description:
   // The sub styles need the interactor too.
   void SetInteractor(vtkRenderWindowInteractor *iren);
   
@@ -74,6 +69,11 @@ public:
 protected:
   vtkInteractorStyleSwitch();
   ~vtkInteractorStyleSwitch();
+  
+  // Description:
+  // Only care about the char event, which is used to switch between
+  // different styles.
+  virtual void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
   
   void SetCurrentStyle();
   

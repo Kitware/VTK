@@ -130,6 +130,15 @@ public:
   vtkTypeRevisionMacro(vtkInteractorStyleUnicam,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
   
+  void SetWorldUpVector(double a[3]) {this->SetWorldUpVector(a[0],a[1],a[2]);}
+  void SetWorldUpVector(float  a[3]) {this->SetWorldUpVector(a[0],a[1],a[2]);}
+  void SetWorldUpVector(float x, float y, float z);
+  vtkGetVectorMacro(WorldUpVector, float, 3);
+
+protected:
+  vtkInteractorStyleUnicam();
+  virtual ~vtkInteractorStyleUnicam();
+
   // Description:
   // Concrete implementation of event bindings
   virtual   void OnLeftButtonDown(int ctrl, int shift, int X, int Y);
@@ -144,15 +153,6 @@ public:
   // OnTimer calls RotateCamera, RotateActor etc which should be overridden by
   // style subclasses.
   virtual void OnTimer(void);
-
-  void SetWorldUpVector(double a[3]) {this->SetWorldUpVector(a[0],a[1],a[2]);}
-  void SetWorldUpVector(float  a[3]) {this->SetWorldUpVector(a[0],a[1],a[2]);}
-  void SetWorldUpVector(float x, float y, float z);
-  vtkGetVectorMacro(WorldUpVector, float, 3);
-
-protected:
-  vtkInteractorStyleUnicam();
-  virtual ~vtkInteractorStyleUnicam();
 
   vtkWorldPointPicker *InteractionPicker;
   

@@ -56,6 +56,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Some useful information for handling window level
+  vtkGetVector2Macro(WindowLevelStartPosition,int);
+  vtkGetVector2Macro(WindowLevelCurrentPosition,int);
+  
+protected:
+  vtkInteractorStyleImage();
+  ~vtkInteractorStyleImage();
+
+  // Description:
   // Event bindings controlling the effects of pressing mouse buttons
   // or moving the mouse.
   virtual void OnMouseMove       (int ctrl, int shift, int x, int y);
@@ -67,15 +76,6 @@ public:
   // Description:
   // Override the "fly-to" (f keypress) for images.
   virtual void OnChar   (int ctrl, int shift, char keycode, int repeatcount);
-
-  // Description:
-  // Some useful information for handling window level
-  vtkGetVector2Macro(WindowLevelStartPosition,int);
-  vtkGetVector2Macro(WindowLevelCurrentPosition,int);
-  
-protected:
-  vtkInteractorStyleImage();
-  ~vtkInteractorStyleImage();
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since

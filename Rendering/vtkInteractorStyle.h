@@ -166,40 +166,6 @@ public:
   vtkGetVectorMacro(PickColor, float, 3);
 
   // Description:
-  // Generic event bindings must be overridden in subclasses
-  virtual void OnMouseMove       (int ctrl, int shift, int x, int y);
-  virtual void OnLeftButtonDown  (int ctrl, int shift, int x, int y);
-  virtual void OnLeftButtonUp    (int ctrl, int shift, int x, int y);
-  virtual void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
-  virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
-  virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
-  virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
-
-  // Description:
-  // OnChar implements keyboard functions, but subclasses can override this 
-  // behavior
-  virtual void OnChar    (int ctrl, int shift, char keycode, int repeatcount);
-  virtual void OnKeyDown (int ctrl, int shift, char keycode, int repeatcount);
-  virtual void OnKeyUp   (int ctrl, int shift, char keycode, int repeatcount);
-
-  virtual void OnKeyPress  (int ctrl, int shift, char keycode, char *keysym, 
-                            int repeatcount);
-  virtual void OnKeyRelease(int ctrl, int shift, char keycode, char *keysym,
-                            int repeatcount);
-
-  // Description:
-  // These are more esoteric events, but are useful in some cases.
-  virtual void OnExpose   (int x, int y, int width, int height);
-  virtual void OnConfigure(int width, int height);
-  virtual void OnEnter    (int x, int y);
-  virtual void OnLeave    (int x, int y);
-
-  // Description:
-  // OnTimer calls Rotate, Rotate etc which should be overridden by
-  // style subclasses.
-  virtual void OnTimer();
-
-  // Description:
   // Callbacks so that the application can override the default behaviour.
   void SetLeftButtonPressMethod(void (*f)(void *), void *arg);
   void SetLeftButtonPressMethodArgDelete(void (*f)(void *));
@@ -233,6 +199,40 @@ public:
 protected:
   vtkInteractorStyle();
   ~vtkInteractorStyle();
+
+  // Description:
+  // Generic event bindings must be overridden in subclasses
+  virtual void OnMouseMove       (int ctrl, int shift, int x, int y);
+  virtual void OnLeftButtonDown  (int ctrl, int shift, int x, int y);
+  virtual void OnLeftButtonUp    (int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
+  virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
+  virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
+
+  // Description:
+  // OnChar implements keyboard functions, but subclasses can override this 
+  // behavior
+  virtual void OnChar    (int ctrl, int shift, char keycode, int repeatcount);
+  virtual void OnKeyDown (int ctrl, int shift, char keycode, int repeatcount);
+  virtual void OnKeyUp   (int ctrl, int shift, char keycode, int repeatcount);
+
+  virtual void OnKeyPress  (int ctrl, int shift, char keycode, char *keysym, 
+                            int repeatcount);
+  virtual void OnKeyRelease(int ctrl, int shift, char keycode, char *keysym,
+                            int repeatcount);
+
+  // Description:
+  // These are more esoteric events, but are useful in some cases.
+  virtual void OnExpose   (int x, int y, int width, int height);
+  virtual void OnConfigure(int width, int height);
+  virtual void OnEnter    (int x, int y);
+  virtual void OnLeave    (int x, int y);
+
+  // Description:
+  // OnTimer calls Rotate, Rotate etc which should be overridden by
+  // style subclasses.
+  virtual void OnTimer();
 
   // Will the clipping range be automatically adjust before each render?
   int AutoAdjustCameraClippingRange;
@@ -273,8 +273,10 @@ protected:
   virtual void StartTimer();
   virtual void EndTimer();
 
-  static void ProcessEvents(vtkObject* object, unsigned long event,
-                            void* clientdata, void* calldata);
+  static void ProcessEvents(vtkObject* object, 
+                            unsigned long event,
+                            void* clientdata, 
+                            void* calldata);
   
   // Keep track of current state
 

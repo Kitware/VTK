@@ -177,6 +177,8 @@ public:
   void StartUserInteraction();
   void EndUserInteraction();
 
+protected:
+
   // Description:
   // Generic event bindings
   virtual void OnMouseMove       (int ctrl, int shift, int x, int y);
@@ -207,8 +209,6 @@ public:
 
   virtual void OnTimer(void);
 
-
-protected:
   vtkInteractorStyleUser();
   ~vtkInteractorStyleUser();
 

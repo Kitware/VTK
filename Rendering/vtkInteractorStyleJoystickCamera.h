@@ -45,6 +45,10 @@ public:
   vtkTypeRevisionMacro(vtkInteractorStyleJoystickCamera,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+protected:
+  vtkInteractorStyleJoystickCamera();
+  ~vtkInteractorStyleJoystickCamera();
+
   // Description:
   // Event bindings controlling the effects of pressing mouse buttons
   // or moving the mouse.
@@ -55,10 +59,6 @@ public:
   virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
   virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
   virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
-
-protected:
-  vtkInteractorStyleJoystickCamera();
-  ~vtkInteractorStyleJoystickCamera();
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
