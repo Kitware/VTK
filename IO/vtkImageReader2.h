@@ -202,6 +202,21 @@ public:
       return 0;
     }
 
+  // Description:
+  // Get the file extensions for this format.
+  // Returns a string with a space separated list of extensions in 
+  // the format .extension
+  virtual const char* GetFileExensions()
+    {
+      return 0;
+    }
+
+  // Description: 
+  // Return a descriptive name for the file format that might be useful in a GUI.
+  virtual const char* GetDescriptiveName()
+    {
+      return 0;
+    }
 protected:
   vtkImageReader2();
   ~vtkImageReader2();

@@ -79,7 +79,12 @@ public:
   // open the image file, it is the callers responsibility to call
   // Delete on the returned object.   If no reader is found, null
   // is returned.
-  static vtkImageReader2* CreateImageReader2(const char* path);
+  static vtkImageReader2* CreateImageReader2(const char* path); 
+
+  // Description: get a list of the currently registered readers.
+  // The caller must allocate the vtkImageReader2Collection and pass in the
+  // pointer to this method.
+  static void GetRegisteredReaders(vtkImageReader2Collection* );
 protected:
   vtkImageReader2Factory();
   ~vtkImageReader2Factory();
