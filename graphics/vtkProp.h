@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkProp - represents an object for placement in a rendered scene 
 // .SECTION Description
 // vtkProp is an abstract class used to represent an entity in a rendering scene.
-//  It handles functions related to the position, orientation and
+// It handles functions related to the position, orientation and
 // scaling. It combines these instance variables into one 4x4
 // transformation matrix as follows: [x y z 1] = [x y z 1]
 // Translate(-origin) Scale(scale) Rot(y) Rot(x) Rot (z) Trans(origin)
