@@ -460,8 +460,7 @@ ENDIF(BUILD_TESTING)
 IF(BUILD_EXAMPLES)
   # The examples tree now requires CMake 2.0 or higher.
   IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
-    # Temporarily disable examples until they are all working.
-    # SUBDIRS(Examples)
+    SUBDIRS(Examples)
   ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
     MESSAGE(
       "Warning: The BUILD_EXAMPLES option now requires CMake 2.0 or higher "
