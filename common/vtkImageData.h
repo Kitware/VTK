@@ -72,9 +72,13 @@ public:
   vtkDataObject *MakeObject() {return new vtkImageData;};
 
   // Description:
-  // Copy the geometric and topological structure of an input rectilinear grid
+  // Copy the geometric and topological structure of an input image data
   // object.
   void CopyStructure(vtkDataSet *ds);
+
+  // Description:
+  // Copy the information of an input imageData object.
+  void CopyInformation(vtkDataObject *data);
 
   // Description:
   // Return what type of dataset this is.
@@ -213,6 +217,7 @@ public:
   // CopyUpdateExtent method).
   vtkExtent *GetGenericUpdateExtent() {return (vtkExtent*)this->UpdateExtent;}
   void CopyGenericUpdateExtent(vtkExtent *ext);
+  void CopyUpdateExtent(vtkDataObject *data);  
   
   // Description:
   // Required for the lowest common denominator for setting the UpdateExtent
@@ -283,18 +288,6 @@ public:
   // the regions data types.
   void CopyAndCastFrom(vtkImageData *inData, int extent[6]);
 
-  // Description:
-  // Called by superclass to limit UpdateExtent to be less than or equal
-  // to the WholeExtent.  It assumes that UpdateInformation has been 
-  // called.
-  void ClipUpdateExtentWithWholeExtent();
-
-  // Description:
-  // Copies the UpdateExtent from another vtkImageData.
-  // Used by some filter superclasses during UpdateInformation to 
-  // copy requested piece from output to input.  
-  void CopyUpdateExtent(vtkDataObject *data); 
-  
   // Description:  
   // This method is used translparently by the "SetInput(vtkImageCache *)"
   // method to connect the image pipeline to the visualization pipeline.
@@ -343,14 +336,16 @@ protected:
   // What will be generated on the next call to Update.
   vtkStructuredExtent *UpdateExtent;
 
-  int WholeExtent[6];
   // The extent of what is currently in the structured grid.
   int Extent[6];
-  int Dimensions[3];
   int DataDescription;
+  int Increments[3];
+
+  // information specific to image data
+  int WholeExtent[6];
+  int Dimensions[3];
   float Origin[3];
   float Spacing[3];
-  int Increments[3];
   int ScalarType;
   int NumberOfScalarComponents;
   
@@ -359,6 +354,13 @@ protected:
   // Computes the estimated memory size from the Update extent,
   // ScalarType, and NumberOfComponents
   void ComputeEstimatedWholeMemorySize();
+
+  // Description:
+  // Called by superclass to limit UpdateExtent to be less than or equal
+  // to the WholeExtent.  It assumes that UpdateInformation has been 
+  // called.
+  int ClipUpdateExtentWithWholeExtent();
+
 };
 
 inline void vtkImageData::GetPoint(int id, float x[3])

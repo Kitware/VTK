@@ -69,7 +69,6 @@ vtkImageData::vtkImageData()
   this->Origin[2] = 0.0;
 
   this->UpdateExtent = vtkStructuredExtent::New();
-  this->UpdateExtent->SetExtentTypeToPoints();
   
   for (idx = 0; idx < 3; ++idx)
     {
@@ -81,7 +80,7 @@ vtkImageData::vtkImageData()
     }
   
   this->ScalarType = VTK_VOID;
-  this->NumberOfScalarComponents = 0; 
+  this->NumberOfScalarComponents = 1; 
 
   // for automatic conversion
   this->ImageToStructuredPoints = NULL;
@@ -122,6 +121,7 @@ vtkImageData::~vtkImageData()
   this->Voxel->Delete();
   
   this->UpdateExtent->Delete();
+  this->UpdateExtent = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -141,7 +141,34 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
     this->Spacing[i] = sPts->Spacing[i];
     }
   this->DataDescription = sPts->DataDescription;
- }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::CopyInformation(vtkDataObject *data)
+{
+  vtkImageData *image = (vtkImageData *)data;
+  
+  // Copy information in superclass.
+  this->vtkDataSet::CopyInformation(data);
+  
+  // Treat vtkImageData and vtkStructuredPoints the same.
+  if (data->GetDataObjectType() != VTK_STRUCTURED_POINTS &&
+      data->GetDataObjectType() != VTK_IMAGE_DATA)
+    {
+    //vtkErrorMacro("CopyInformation: Expecting vtkUnstructuredGrid or vtkImageData, got " 
+    //              << data->GetClassName());
+    // We might be able to copy the generic information,
+    // or even information shared between structured data types.
+    return;
+    }
+
+  this->SetWholeExtent(image->GetWholeExtent());
+  this->SetSpacing(image->GetSpacing());
+  this->SetOrigin(image->GetOrigin());
+  this->SetScalarType(image->GetScalarType());
+  this->SetNumberOfScalarComponents(image->GetNumberOfScalarComponents());
+}
+
 
 //----------------------------------------------------------------------------
 vtkCell *vtkImageData::GetCell(int cellId)
@@ -258,8 +285,9 @@ void vtkImageData::CopyUpdateExtent(vtkDataObject *obj)
 
 
 //----------------------------------------------------------------------------
-void vtkImageData::ClipUpdateExtentWithWholeExtent()
+int vtkImageData::ClipUpdateExtentWithWholeExtent()
 {
+  int valid = 1;
   int idx, minIdx, maxIdx;
   int uExt[6];
   
@@ -273,6 +301,7 @@ void vtkImageData::ClipUpdateExtentWithWholeExtent()
     // make sure there is overlap!
     if (uExt[minIdx] > this->WholeExtent[maxIdx])
       {
+      valid = 0;
       vtkErrorMacro("UpdateExtent " << uExt[minIdx] 
 		      << " -> " << uExt[maxIdx]  
 		      << " does not overlap with WholeExtent "
@@ -282,6 +311,7 @@ void vtkImageData::ClipUpdateExtentWithWholeExtent()
       }
     if (uExt[maxIdx] < this->WholeExtent[minIdx])
       {
+      valid = 0;
       vtkErrorMacro("UpdateExtent " << uExt[minIdx] 
 		      << " -> " << uExt[maxIdx]  
 		      << " does not overlap with WholeExtent "
@@ -317,6 +347,8 @@ void vtkImageData::ClipUpdateExtentWithWholeExtent()
     }
   
   this->UpdateExtent->SetExtent(uExt);
+  
+  return valid;
 }
 
 //----------------------------------------------------------------------------
@@ -1809,6 +1841,9 @@ void vtkImageData::ComputeEstimatedWholeMemorySize()
       break;
     case VTK_CHAR:
       size *= sizeof(char);
+      break;
+    case VTK_BIT:
+      size = size / 8;
       break;
     default:
       vtkWarningMacro(<< "GetExtentMemorySize: "

@@ -55,6 +55,7 @@ vtkDataObject::vtkDataObject()
   this->PipelineMTime = 0;
   this->MemoryLimit = VTK_LARGE_INTEGER;
   this->EstimatedWholeMemorySize = 0;
+  this->MaximumNumberOfPieces = 1;
   this->Locality = 0;
 }
 
@@ -152,7 +153,12 @@ void vtkDataObject::InternalUpdate()
   // Clip has to be before the Update check because:  If the update extent
   // after clipping is larger than current extent, then data is released ...
   // We might need another method here, but for now, this works.
-  this->ClipUpdateExtentWithWholeExtent();
+  if ( ! this->ClipUpdateExtentWithWholeExtent())
+    {
+    // invalid update piece
+    return;
+    }
+  
   if (this->UpdateTime >= this->PipelineMTime && ! this->DataReleased)
     {
     return;
@@ -175,7 +181,11 @@ void vtkDataObject::CopyUpdateExtent(vtkDataObject *data)
 //----------------------------------------------------------------------------
 void vtkDataObject::CopyInformation(vtkDataObject *data)
 {
-  vtkErrorMacro("Concrete subclass did not implement CopyInformation");
+  // PipelineMTime is different than other information.
+  
+  this->EstimatedWholeMemorySize = data->EstimatedWholeMemorySize;
+  this->MaximumNumberOfPieces = data->MaximumNumberOfPieces;
+  this->Locality = data->Locality;
 }
 
 //----------------------------------------------------------------------------
@@ -203,6 +213,8 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EstimatedWholeMemorySize: " 
      << this->EstimatedWholeMemorySize << endl;
   os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
+  os << indent << "MaximumNumberOfPieces: " << this->MaximumNumberOfPieces 
+     << endl;
   os << indent << "Locality: " << this->Locality << endl;
 
   os << indent << "Field Data:\n";

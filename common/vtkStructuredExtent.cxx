@@ -68,7 +68,6 @@ void vtkStructuredExtent::Copy(vtkStructuredExtent *in)
 {
   int idx;
   
-  this->ExtentType = in->ExtentType;
   for (idx = 0; idx < 6; ++idx)
     {
     this->Extent[idx] = in->Extent[idx];

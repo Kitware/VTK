@@ -66,18 +66,20 @@ public:
   vtkDataObject *MakeObject() {return new vtkStructuredPoints;}
 
   // Description:
-  // Return what type of dataset this is.
+  // To simplify filter superclasses,
   int GetDataObjectType() {return VTK_STRUCTURED_POINTS;}
 
+protected:
+
   // Description:
-  // Since vtkStructuredPointsToImage, put some translation
-  // features in here.  UpdateInformation updates the source
-  // and the sets WholeExtent and ScalarType variables.
-  void UpdateInformation();
-  
+  // This is an experiment.  When a structured points UpdateExtent
+  // gets clipped, then the UpdateExtent is set to the WholeExtent.
+  // structured points source will always produce all of their output!.
+  int ClipUpdateExtentWithWholeExtent();
   
 protected:
   vtkStructuredPoints();
+
 };
 
 #endif

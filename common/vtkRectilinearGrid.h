@@ -65,6 +65,8 @@ class vtkVertex;
 class vtkLine;
 class vtkPixel;
 class vtkVoxel;
+class vtkExtent;
+class vtkStructuredExtent;
 
 class VTK_EXPORT vtkRectilinearGrid : public vtkDataSet
 {
@@ -210,14 +212,14 @@ public:
   void SetUpdateExtent(int idx, int numPieces);
 
   // Description:
-  // Called by superclass to limit UpdateExtent to be less than or equal
-  // to the WholeExtent.  It assumes that UpdateInformation has been 
-  // called.
-  void ClipUpdateExtentWithWholeExtent();
-
-  // Description:g
-  // Just copies the UpdateExtent from another rectilinear grid.
-  void CopyUpdateExtent(vtkDataObject *rectilinearGrid);
+  // Warning: This is still in develoment.  DataSetToDataSetFilters use
+  // CopyUpdateExtent to pass the update extents up the pipeline.
+  // In order to pass a generic update extent through a port we are going 
+  // to need these methods (which should eventually replace the 
+  // CopyUpdateExtent method).
+  vtkExtent *GetGenericUpdateExtent() {return (vtkExtent*)this->UpdateExtent;}
+  void CopyGenericUpdateExtent(vtkExtent *ext);
+  void CopyUpdateExtent(vtkDataObject *data);  
 
   // Description:
   // Just copies the WholeExtent from another structured grid.
@@ -255,8 +257,13 @@ protected:
   // The extent of what is currently in the structured grid.
   int Extent[6];
   // What will be generated on the next call to Update.
-  int UpdateExtent[6];
+  vtkStructuredExtent *UpdateExtent;
 
+
+  // Called by superclass to limit UpdateExtent to be less than or equal
+  // to the WholeExtent.  It assumes that UpdateInformation has been 
+  // called.
+  int ClipUpdateExtentWithWholeExtent();
 };
 
 

@@ -1315,13 +1315,33 @@ void vtkPolyData::GetCellEdgeNeighbors(int cellId, int p1, int p2,
 
 
 //----------------------------------------------------------------------------
-void vtkPolyData::ClipUpdateExtentWithWholeExtent()
+int vtkPolyData::ClipUpdateExtentWithWholeExtent()
 {
+  int valid = 1;
+  int piece = this->UpdateExtent->GetPiece();
+  int numPieces = this->UpdateExtent->GetNumberOfPieces();
+  
+  // Check to see if upstream filters can break up the data into the
+  // requested number of pieces.
+  if (numPieces > this->MaximumNumberOfPieces)
+    {
+    numPieces = this->MaximumNumberOfPieces;
+    }
+  
+  if (numPieces <= 0 || piece < 0 || piece >= numPieces)
+    {
+    // Well what should we set the UpdateExtent/Extent to?
+    piece = numPieces = 0;
+    valid = 0;
+    }
+  
+  this->UpdateExtent->SetExtent(piece, numPieces);
+  
   // This check has nothing to do with whole extent, 
-  // but is here by convenience.
-  if (this->UpdateExtent->GetPiece() != this->Extent->GetPiece() ||
-      this->UpdateExtent->GetNumberOfPieces() != this->Extent->GetNumberOfPieces() ||
-      this->UpdateExtent->GetExtentType() != this->Extent->GetExtentType())
+  // but is here by convenience.  Release the data if the UpdateExtent
+  // request cannot be filled by current extent.
+  if (piece != this->Extent->GetPiece() ||
+      numPieces != this->Extent->GetNumberOfPieces())
     {
     this->ReleaseData();
     }
@@ -1329,6 +1349,8 @@ void vtkPolyData::ClipUpdateExtentWithWholeExtent()
   // We might as well set the Extent here.
   // To Be worked out later.
   this->Extent->Copy(this->UpdateExtent);
+  
+  return valid;
 }
 
 
@@ -1378,11 +1400,18 @@ void vtkPolyData::CopyUpdateExtent(vtkDataObject *obj)
 //----------------------------------------------------------------------------
 void vtkPolyData::CopyInformation(vtkDataObject *data)
 {
+  this->vtkPointSet::CopyInformation(data);
+  
   // Stuff specific to this data type.  Do nothing if data types don't match?
-  if (strcmp(data->GetClassName(), "vtkPolyData") == 0)
+  if (data->GetDataObjectType() != VTK_POLY_DATA)
     {
-    // no information I can think of yet.
+    //vtkErrorMacro("CopyInformation: Expecting vtkPolyData, got " 
+    //              << data->GetClassName());
+    // We might be able to copy the generic information,
+    // or even information shared between unstructured data.
+    return;    
     }
+  // There is no information specific to poly data (yet).
 }
 
 //----------------------------------------------------------------------------
@@ -1397,8 +1426,7 @@ unsigned long vtkPolyData::GetEstimatedUpdateMemorySize()
     }
   
   size = this->EstimatedWholeMemorySize;
-  size = size * this->UpdateExtent->GetPiece() 
-    / this->UpdateExtent->GetNumberOfPieces();
+  size = size / this->UpdateExtent->GetNumberOfPieces();
   
   if (size < 1)
     {

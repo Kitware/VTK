@@ -60,7 +60,6 @@ void vtkUnstructuredExtent::Copy(vtkUnstructuredExtent *in)
 {
   int idx;
   
-  this->ExtentType = in->ExtentType;
   for (idx = 0; idx < 2; ++idx)
     {
     this->Extent[idx] = in->Extent[idx];

@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLine.h"
 #include "vtkPixel.h"
 #include "vtkVoxel.h"
+#include "vtkStructuredExtent.h"
 
 //----------------------------------------------------------------------------
 vtkRectilinearGrid::vtkRectilinearGrid()
@@ -70,10 +71,7 @@ vtkRectilinearGrid::vtkRectilinearGrid()
 
   // -----------
   // I do not like this method of defaulting to the whole dimensions.
-  this->UpdateExtent[0] = this->UpdateExtent[2] 
-    = this->UpdateExtent[4] = -VTK_LARGE_INTEGER;
-  this->UpdateExtent[1] = this->UpdateExtent[3] 
-    = this->UpdateExtent[5] = VTK_LARGE_INTEGER;
+  this->UpdateExtent = vtkStructuredExtent::New();
 
   this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
   this->Extent[1] = this->Extent[3] = this->Extent[5] = 0;
@@ -91,6 +89,8 @@ vtkRectilinearGrid::~vtkRectilinearGrid()
   this->Line->Delete();
   this->Pixel->Delete();
   this->Voxel->Delete();
+
+  this->UpdateExtent->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -846,15 +846,7 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(float x[3], int ijk[3],
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::SetUpdateExtent(int extent[6])
 {
-  int idx;
-  
-  for (idx = 0; idx < 6; ++idx)
-    {
-    if (this->UpdateExtent[idx] != extent[idx])
-      {
-      this->UpdateExtent[idx] = extent[idx];
-      }
-    }
+  this->UpdateExtent->SetExtent(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -874,18 +866,20 @@ void vtkRectilinearGrid::SetUpdateExtent(int xMin, int xMax,
 //----------------------------------------------------------------------------
 int *vtkRectilinearGrid::GetUpdateExtent()
 {
-  return this->UpdateExtent;
+  return this->UpdateExtent->GetExtent();
 }
 
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::GetUpdateExtent(int ext[6])
 {
-  ext[0] = this->UpdateExtent[0];
-  ext[1] = this->UpdateExtent[1];
-  ext[2] = this->UpdateExtent[2];
-  ext[3] = this->UpdateExtent[3];
-  ext[4] = this->UpdateExtent[4];
-  ext[5] = this->UpdateExtent[5];
+  int *tmp = this->UpdateExtent->GetExtent();
+  
+  ext[0] = tmp[0];
+  ext[1] = tmp[1];
+  ext[2] = tmp[2];
+  ext[3] = tmp[3];
+  ext[4] = tmp[4];
+  ext[5] = tmp[5];
 }
 
 //----------------------------------------------------------------------------
@@ -895,6 +889,49 @@ void vtkRectilinearGrid::SetUpdateExtentToWholeExtent()
   this->SetUpdateExtent(this->WholeExtent);
 }
 
+//----------------------------------------------------------------------------
+// Should we split up cells, or just points.  It does not matter for now.
+// Extent of structured data assumes points.
+void vtkRectilinearGrid::SetUpdateExtent(int piece, int numPieces)
+{
+  int ext[6], zdim, min, max;
+  
+  // Lets just divide up the z axis.
+  this->GetWholeExtent(ext);
+  zdim = ext[5] - ext[4] + 1;
+  
+  if (piece >= zdim)
+    {
+    // empty
+    this->SetUpdateExtent(0, -1, 0, -1, 0, -1);
+    return;
+    }
+  
+  if (numPieces > zdim)
+    {
+    numPieces = zdim;
+    }
+  
+  min = ext[4] + piece * zdim / numPieces;
+  max = ext[4] + (piece+1) * zdim / numPieces - 1;
+  
+  ext[4] = min;
+  ext[5] = max;
+
+  this->SetUpdateExtent(ext);
+}
+
+//----------------------------------------------------------------------------
+void vtkRectilinearGrid::CopyGenericUpdateExtent(vtkExtent *arg)
+{
+  if (strcmp(arg->GetClassName(), "vtkStructuredExtent") != 0)
+    {
+    vtkErrorMacro("cannot copy " << arg->GetClassName());
+    return;
+    }
+  
+  this->UpdateExtent->Copy((vtkStructuredExtent *)(arg));
+}
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::CopyUpdateExtent(vtkDataObject *data)
 {
@@ -917,10 +954,14 @@ void vtkRectilinearGrid::CopyInformation(vtkDataObject *data)
 {
   vtkRectilinearGrid *grid = (vtkRectilinearGrid*)(data);
 
+  this->vtkDataSet::CopyInformation(data);
+  
   if (data->GetDataObjectType() != VTK_RECTILINEAR_GRID)
     {
-    vtkErrorMacro("CopyInformation: Expecting vtkStructuredGrid, got " 
-                  << data->GetClassName());
+    //vtkErrorMacro("CopyInformation: Expecting vtkStructuredGrid, got " 
+    //              << data->GetClassName());
+    // We might be able to copy the generic information,
+    // or even information shared between structured data types.
     return;
     }
 
@@ -928,133 +969,72 @@ void vtkRectilinearGrid::CopyInformation(vtkDataObject *data)
 }
 
 //----------------------------------------------------------------------------
-void vtkRectilinearGrid::ClipUpdateExtentWithWholeExtent()
+int vtkRectilinearGrid::ClipUpdateExtentWithWholeExtent()
 {
-  if (this->UpdateExtent[0] < this->WholeExtent[0])
+  int valid = 1;
+  int idx, minIdx, maxIdx;
+  int uExt[6];
+  
+  this->UpdateExtent->GetExtent(uExt);
+  
+  for (idx = 0; idx < 3; ++idx)
     {
-    this->UpdateExtent[0] = this->WholeExtent[0];
+    minIdx = 2*idx;
+    maxIdx = 2*idx + 1;
+    
+    // make sure there is overlap!
+    if (uExt[minIdx] > this->WholeExtent[maxIdx])
+      {
+      valid = 0;
+      vtkErrorMacro("UpdateExtent " << uExt[minIdx] 
+		      << " -> " << uExt[maxIdx]  
+		      << " does not overlap with WholeExtent "
+		      << this->WholeExtent[minIdx] << " -> "
+		      << this->WholeExtent[maxIdx]);
+      uExt[minIdx] = this->WholeExtent[maxIdx];
+      }
+    if (uExt[maxIdx] < this->WholeExtent[minIdx])
+      {
+      valid = 0;
+      vtkErrorMacro("UpdateExtent " << uExt[minIdx] 
+		      << " -> " << uExt[maxIdx]  
+		      << " does not overlap with WholeExtent "
+		      << this->WholeExtent[minIdx] << " -> "
+		      << this->WholeExtent[maxIdx]);
+      uExt[maxIdx] = this->WholeExtent[minIdx];
+      }
+    
+    // typical intersection shift min up to whole min
+    if (uExt[minIdx] < this->WholeExtent[minIdx])
+      {
+      uExt[minIdx] = this->WholeExtent[minIdx];
+      }
+    // typical intersection shift max down to whole max
+    if (uExt[maxIdx] >= this->WholeExtent[maxIdx])
+      {
+      uExt[maxIdx] = this->WholeExtent[maxIdx];
+      }
     }
-  if (this->UpdateExtent[2] < this->WholeExtent[2])
-    {
-    this->UpdateExtent[2] =  this->WholeExtent[2];
-    }
-  if (this->UpdateExtent[4] < this->WholeExtent[4])
-    {
-    this->UpdateExtent[4] =  this->WholeExtent[4];
-    }
-  if (this->UpdateExtent[1] >= this->WholeExtent[1])
-    {
-    this->UpdateExtent[1] = this->WholeExtent[1];
-    }
-  if (this->UpdateExtent[3] >= this->WholeExtent[3])
-    {
-    this->UpdateExtent[3] = this->WholeExtent[3];
-    }
-  if (this->UpdateExtent[5] >= this->WholeExtent[5])
-    {
-    this->UpdateExtent[5] = this->WholeExtent[5];
-    }
-
+  
+  // Now check to see if the UpdateExtent is in the current Extent.
+  
   // If the requested extent is not completely in the data structure already,
-  // modify the data structure to cause the source to execute.
-  if (this->Extent[0] > this->UpdateExtent[0] || 
-	  this->Extent[1] < this->UpdateExtent[1] || 
-      this->Extent[2] > this->UpdateExtent[2] || 
-	  this->Extent[3] < this->UpdateExtent[3] ||
-      this->Extent[4] > this->UpdateExtent[4] || 
-	  this->Extent[5] < this->UpdateExtent[5])
+  // release the data to cause the source to execute.
+  if (this->Extent[0] > uExt[0] || 
+      this->Extent[1] < uExt[1] || 
+      this->Extent[2] > uExt[2] || 
+      this->Extent[3] < uExt[3] ||
+      this->Extent[4] > uExt[4] ||
+      this->Extent[5] < uExt[5])
     {
     this->ReleaseData();
     }
+  
+  this->UpdateExtent->SetExtent(uExt);
+  
+  return valid;
 }
 
-//----------------------------------------------------------------------------
-void vtkRectilinearGrid::SetUpdateExtent(int piece, int numPieces)
-{
-  int numPiecesInFirstHalf;
-  int size[3], mid, splitAxis;
-  int ext[6];
-
-  this->UpdateInformation();
-
-  // Start with the whole grid.
-  this->GetWholeExtent(ext);  
-
-  // keep splitting until we have only one piece.
-  // piece and numPieces will always be relative to the current ext. 
-  while (numPieces > 1)
-    {
-    size[0] = ext[1]-ext[0];
-    size[1] = ext[3]-ext[2];
-    size[2] = ext[5]-ext[4];
-    if (size[0] > size[1] && size[0] > size[2])
-      {
-      splitAxis = 0;
-      }
-    else if (size[1] > size[2])
-      {
-      splitAxis = 1;
-      }
-    else if (size[2] > 1)
-      {
-      splitAxis = 2;
-      }
-    else
-      {
-      // signal no more splits possible
-      splitAxis = -1;
-      }
-
-    if (splitAxis == -1)
-      {
-      // can not split any more.
-      if (piece == 0)
-        {
-        // just return the remaining piece
-        numPieces = 1;
-        }
-      else
-        {
-        // the rest must be empty how do we handle this?
-        numPieces = 1;
-        ext[0] = ext[2] = ext[4] = 0;
-        ext[1] = ext[3] = ext[5] = -1;
-        }
-      }
-    else
-      {
-      // split the chosen axis into two pieces.
-      mid = (size[splitAxis] / 2) + ext[splitAxis*2];
-      numPiecesInFirstHalf = (numPieces / 2);
-      if (piece < numPiecesInFirstHalf)
-        {
-        // piece is in the first half
-        // set extent to the first half of the previous value.
-        ext[splitAxis*2+1] = mid;
-        // piece must adjust.
-        numPieces = numPiecesInFirstHalf;
-        }
-      else
-        {
-        // piece is in the second half.
-        // set the extent to be the second half. (two halves share points)
-        ext[splitAxis*2] = mid;
-        // piece must adjust
-        numPieces = numPieces - numPiecesInFirstHalf;
-        piece -= numPiecesInFirstHalf;
-        }
-      }
-    } // end of while
-
-
-  // now transfer to UpdateExtent.
-  this->UpdateExtent[0] = ext[0];
-  this->UpdateExtent[1] = ext[1];
-  this->UpdateExtent[2] = ext[2];
-  this->UpdateExtent[3] = ext[3];
-  this->UpdateExtent[4] = ext[4];
-  this->UpdateExtent[5] = ext[5];
-}
 
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::SetWholeExtent(int extent[6])
@@ -1110,7 +1090,7 @@ void vtkRectilinearGrid::GetWholeExtent(int &xMin, int &xMax,
 //----------------------------------------------------------------------------
 unsigned long vtkRectilinearGrid::GetEstimatedUpdateMemorySize()
 {
-  int idx;
+  int idx, *uExt = this->UpdateExtent->GetExtent();
   unsigned long wholeSize, updateSize;
   
   // Compute the sizes
@@ -1118,7 +1098,7 @@ unsigned long vtkRectilinearGrid::GetEstimatedUpdateMemorySize()
   for (idx = 0; idx < 3; ++idx)
     {
     wholeSize *= (this->WholeExtent[idx*2+1] - this->WholeExtent[idx*2] + 1);
-    updateSize *= (this->UpdateExtent[idx*2+1] - this->UpdateExtent[idx*2] +1);
+    updateSize *= (uExt[idx*2+1] - uExt[idx*2] +1);
     }
 
   updateSize = updateSize * this->EstimatedWholeMemorySize / wholeSize;
@@ -1146,10 +1126,15 @@ void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Y Coordinates: " << this->YCoordinates << "\n";
   os << indent << "Z Coordinates: " << this->ZCoordinates << "\n";
 
-  os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "
-     << this->UpdateExtent[1] << ", " << this->UpdateExtent[2] << ", "
-     << this->UpdateExtent[3] << ", " << this->UpdateExtent[4] << ", "
-     << this->UpdateExtent[5] << endl;
+  if (this->UpdateExtent)
+    {
+    os << indent << "UpdateExtent: \n";
+    this->UpdateExtent->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "UpdateExtent: NULL\n";
+    }
 
   os << indent << "Extent: " << this->Extent[0] << ", "
      << this->Extent[1] << ", " << this->Extent[2] << ", "

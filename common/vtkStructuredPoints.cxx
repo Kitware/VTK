@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkStructuredPoints.h"
 #include "vtkImageToStructuredPoints.h"
+#include "vtkStructuredExtent.h"
 
 vtkStructuredPoints::vtkStructuredPoints()
 {
@@ -47,41 +48,13 @@ vtkStructuredPoints::vtkStructuredPoints()
 }
 
 
-void vtkStructuredPoints::UpdateInformation()
+int vtkStructuredPoints::ClipUpdateExtentWithWholeExtent()
 {
-  vtkScalars *scalars;
-  int idx;
-  
-  this->vtkDataObject::UpdateInformation();
-  
-  if (this->UpdateTime >= this->PipelineMTime && ! this->DataReleased)
-    {
-    return;
-    }
-  
-  if (this->Source)
-    {
-    this->ClipUpdateExtentWithWholeExtent();
-    this->Source->InternalUpdate(this);
-    this->DataReleased = 0;
-    this->UpdateTime.Modified();
-    }
-
-  scalars = this->GetPointData()->GetScalars();
-
-  if (scalars)
-    {
-    this->ScalarType = scalars->GetDataType();
-    this->NumberOfScalarComponents = scalars->GetNumberOfComponents();
-    }
-
-  for (idx = 0; idx < 6; ++idx)
-    {
-    this->WholeExtent[idx] = this->Extent[idx];
-    }
-  this->ComputeIncrements();
-
+  this->UpdateExtent->SetExtent(this->WholeExtent);
+  return 1;
 }
+
+
 
 
 

@@ -53,6 +53,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkCellTypes.h"
 #include "vtkCellLinks.h"
+class vtkExtent;
+class vtkUnstructuredExtent;
 class vtkVertex;
 class vtkPolyVertex;
 class vtkLine;
@@ -117,9 +119,18 @@ public:
   // The source of this poly data has to return exactly this piece.
   void SetUpdateExtent(int piece, int numPieces);
   void GetUpdateExtent(int &piece, int &numPieces);
-  int GetUpdateNumberOfPieces() {return this->UpdateNumberOfPieces;}
-  int GetUpdatePiece() {return this->UpdatePiece;}
+  int GetUpdateNumberOfPieces();
+  int GetUpdatePiece();
 
+  // Description:
+  // Warning: This is still in develoment.  DataSetToDataSetFilters use
+  // CopyUpdateExtent to pass the update extents up the pipeline.
+  // In order to pass a generic update extent through a port we are going 
+  // to need these methods (which should eventually replace the 
+  // CopyUpdateExtent method).
+  vtkExtent *GetGenericUpdateExtent() {return (vtkExtent*)this->UpdateExtent;}
+  void CopyGenericUpdateExtent(vtkExtent *ext);  
+  
   // Description:
   // Return the amount of memory for the update piece.
   unsigned long GetEstimatedUpdateMemorySize();
@@ -152,13 +163,14 @@ protected:
   vtkCellLinks *Links;
 
   // ----- streaming stuff -----------
+  vtkUnstructuredExtent *Extent;
+  vtkUnstructuredExtent *UpdateExtent;
+  
   void CopyUpdateExtent(vtkDataObject *grid);
   void CopyInformation(vtkDataObject *grid);
-
-  // First attempt at a generic update extent.
-  // Cannot specify a range, but pieces can be large or small.
-  int UpdatePiece;
-  int UpdateNumberOfPieces;  
+  // Returns 0 if upstream filter cannot generate the UpdateExtent.
+  // This also releases the data if a different piece is requested.
+  int ClipUpdateExtentWithWholeExtent();
 };
 
 #endif

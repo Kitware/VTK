@@ -391,13 +391,15 @@ protected:
   vtkCellLinks *Links;
 
   // ----- streaming stuff -----------
-  void CopyUpdateExtent(vtkDataObject *polyData);
-  void CopyInformation(vtkDataObject *polyData);
-  // For releasing data. We need another method.
-  void ClipUpdateExtentWithWholeExtent();
-  
   vtkUnstructuredExtent *Extent;
   vtkUnstructuredExtent *UpdateExtent;
+
+  void CopyUpdateExtent(vtkDataObject *polyData);
+  void CopyInformation(vtkDataObject *polyData);
+  // Returns 0 if upstream filter cannot generate the UpdateExtent.
+  // This also releases the data if a different piece is requested.
+  int ClipUpdateExtentWithWholeExtent();
+  
 };
 
 inline void vtkPolyData::GetPointCells(int ptId, unsigned short& ncells, 

@@ -384,10 +384,14 @@ void vtkSource::StreamExecuteStart()
 int vtkSource::ComputeDivisionExtents(vtkDataObject *output,
 				      int idx, int numDivisions)
 {
+  // If only one division is requested (filter is no initiating streaming),
+  // then call the non-streaming convenience method.
   if (idx == 0 && numDivisions == 1)
     {
     return this->ComputeInputUpdateExtents(output);
     }
+  
+  
   if (this->NumberOfInputs > 0)
     {
     vtkErrorMacro("Source did not implement ComputeDivisionExtents");
@@ -415,7 +419,9 @@ void vtkSource::UpdateInformation()
 {
   unsigned long t1, t2, size;
   int locality, l2, idx;
+  int maxPieces = 1;
   vtkDataObject *pd;
+  vtkDataObject *output;
 
   if (this->Outputs[0] == NULL)
     {
@@ -453,6 +459,13 @@ void vtkSource::UpdateInformation()
 	locality = l2;
 	}
       
+      // Should probably not be general infomation (specific to unstructured)
+      l2 = pd->GetMaximumNumberOfPieces();
+      if (maxPieces < l2)
+	{
+	maxPieces = l2;
+	}
+      
       // Pipeline MTime stuff
       t2 = pd->GetPipelineMTime();
       if (t2 > t1)
@@ -471,21 +484,42 @@ void vtkSource::UpdateInformation()
       size += pd->GetEstimatedWholeMemorySize();
       }
     }
- 
-  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+
+  // for copying information
+  if (this->Inputs && this->Inputs[0])
     {
-    if (this->GetOutput(idx))
-      {
-      this->GetOutput(idx)->SetLocality(locality + 1);
-      this->GetOutput(idx)->SetEstimatedWholeMemorySize(size);
-      this->GetOutput(idx)->SetPipelineMTime(t1);
-      }  
+    pd = this->Inputs[0];
+    }
+  else
+    {
+    pd = NULL;
     }
   
   // Call ExecuteInformation for subclass specific information.
   // Some sources (readers) have an expensive ExecuteInformation method.
   if (t1 > this->InformationTime.GetMTime())
     {
+    // Here is where we set up defaults.
+    // I feel funny about setting the PipelineMTime inside the conditional,
+    // but it should work.
+    for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+      {
+      output = this->GetOutput(idx);
+      if (output)
+	{
+	output->SetPipelineMTime(t1);
+	output->SetLocality(locality + 1);
+	output->SetEstimatedWholeMemorySize(size);
+	// This should really be specific for unstructured data sets.
+	output->SetMaximumNumberOfPieces(maxPieces);
+	// By default, copy information from first input.
+	if (pd)
+	  {
+	  output->CopyInformation(pd);
+	  }
+	}  
+      }
+    
     this->ExecuteInformation();
     // This call to modify is almost useless.  Update invalidates this time.
     // InformationTime is modified at the end of InternalUpdate too.

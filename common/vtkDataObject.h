@@ -186,11 +186,6 @@ public:
     return 0;}
   
   // Description:
-  // Method implemented in the subclasses to make sure the update extent
-  // is not bigger than the whole extent.  Should be pure virtual.
-  virtual void ClipUpdateExtentWithWholeExtent() {}
-
-  // Description:
   // PipelineMTime is the maximum of all the upstream source object mtimes.
   // It does not include mtimes of the data objects.
   // UpdateInformation must be called for the PipelineMTime to be correct.
@@ -227,8 +222,16 @@ public:
   // Description:
   // Part of data's "Information".
   // Are upstream filters local to the process?
+  // If there is a MTime issue, it should be resolved!
   void SetLocality(int val) {this->Locality = val;}
   vtkGetMacro(Locality, int);
+  
+  // Description:
+  // Part of data's "Information".
+  // If there is a MTime issue, it should be resolved!
+  void SetMaximumNumberOfPieces(unsigned long val) 
+    {this->MaximumNumberOfPieces = val;}
+  vtkGetMacro(MaximumNumberOfPieces, unsigned long);
   
   // Description:
   // Return class name of data type. This is one of VTK_STRUCTURED_GRID, 
@@ -243,23 +246,48 @@ public:
   unsigned long GetUpdateTime();
   
 protected:
+
   vtkDataObject();
   ~vtkDataObject();
 
-  vtkSource *Source;
+  // Description:
+  // Method implemented in the subclasses to make sure the update extent
+  // is not bigger than the whole extent.  Should be pure virtual.
+  // If the UpdateExtent does not overlap with the WholeExtent, then
+  // the method returns 0, otherwise it returns 1.
+  // It also has the task of releasing the current data if it will not
+  // satisfy the UpdateExtent request.  This should really be somewhere
+  // else...
+  virtual int ClipUpdateExtentWithWholeExtent() {return 1;}
+  
+  
+  
+  
   vtkFieldData *FieldData; //General field data associated with data object  
+  vtkSource *Source;
 
   int DataReleased; //keep track of data release during network execution
   int ReleaseDataFlag; //data will release after use by a filter
-
-  // ----- streaming stuff -----------
-
-  unsigned long MemoryLimit;
-  unsigned long EstimatedWholeMemorySize;
-  unsigned long PipelineMTime;
   vtkTimeStamp UpdateTime;
   
-  // Part of the "Information".  
+  // The input of a filter holds the memory limit that triggers streamining.
+  // Not all filters will respect this limit.
+  unsigned long MemoryLimit;
+
+  // ---------------------------------
+  // Information every data object has.
+  
+  // A guess at how much memory would be consumed by the data object
+  // if the WholeExtent were updated.
+  unsigned long EstimatedWholeMemorySize;
+  // The Maximum MTime of all upstreamg filters and data objects.
+  // This does not include the MTime of this data object.
+  unsigned long PipelineMTime;
+  // This tells down stream filters the smallest resolution available 
+  // for streaming/spliting.  Now this is sort of a whole extent
+  // for unstructured data, and should not be part 
+  // of the information of vtkDataObject...
+  unsigned long MaximumNumberOfPieces;
   // How many upstream filters are local to the process.
   // This will have to change to a float for Kens definition of locality.
   int Locality;

@@ -54,10 +54,6 @@ class vtkStructuredExtent;
 class vtkUnstructuredExtent;
 
 
-#define VTK_EXTENT_CELLS 0
-#define VTK_EXTENT_POINTS 1
-
-
 class VTK_EXPORT vtkExtent : public vtkObject
 {
 public:
@@ -67,15 +63,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Extent type specifies whether the extent is defined by cells
-  // or points.  If the ExtentType is set to cells, then pieces
-  // will have duplicate points on their boundaries.
-  vtkSetMacro(ExtentType, int);
-  vtkGetMacro(ExtentType, int);
-  void SetExtentTypeToCells() {this->SetExtentType(VTK_EXTENT_CELLS);}
-  void SetExtentTypeToPoints() {this->SetExtentType(VTK_EXTENT_POINTS);}
-  
-  // Description:
   // Copy information from one extent into a similar type event.
   // Subclasses over ride the correct type.
   virtual void Copy(vtkStructuredExtent *in);
@@ -83,7 +70,6 @@ public:
 
 protected:
   
-  int ExtentType;
 };
 
 
