@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.19");
+vtkCxxRevisionMacro(vtkDataObject, "1.20");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -429,6 +429,46 @@ vtkInformation *vtkDataObject::GetActiveFieldInformation(vtkInformation *info,
     fieldDataInfo = fieldDataInfoVector->GetInformationObject(i);
     if ( fieldDataInfo->Has(FIELD_ACTIVE_ATTRIBUTE()) &&
       (fieldDataInfo->Get(FIELD_ACTIVE_ATTRIBUTE()) & (1 << attributeType )) )
+      {
+      return fieldDataInfo;
+      }
+    }
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+vtkInformation *vtkDataObject::GetNamedFieldInformation(vtkInformation *info, 
+                                                        int fieldAssociation, 
+                                                        const char *name)
+{
+  int i;
+  vtkInformation *fieldDataInfo;
+  vtkInformationVector *fieldDataInfoVector;
+  
+  if (fieldAssociation == FIELD_ASSOCIATION_POINTS)
+    {
+    fieldDataInfoVector = info->Get(POINT_DATA_VECTOR());
+    }
+  else if (fieldAssociation == FIELD_ASSOCIATION_CELLS)
+    {
+    fieldDataInfoVector = info->Get(CELL_DATA_VECTOR());
+    }
+  else
+    {
+    vtkGenericWarningMacro("Unrecognized field association!");
+    return NULL;
+    }
+  
+  if (!fieldDataInfoVector)
+    {
+    return NULL;
+    }
+  
+  for (i = 0; i < fieldDataInfoVector->GetNumberOfInformationObjects(); i++)
+    {
+    fieldDataInfo = fieldDataInfoVector->GetInformationObject(i);
+    if ( fieldDataInfo->Has(FIELD_NAME()) &&
+         !strcmp(fieldDataInfo->Get(FIELD_NAME()),name))
       {
       return fieldDataInfo;
       }

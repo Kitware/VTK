@@ -325,6 +325,13 @@ public:
     int fieldAssociation, int attributeType);
 
   // Description:
+  // Return the information object within the input information object's
+  // field data corresponding to the specified association 
+  // (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS) and name.
+  static vtkInformation *GetNamedFieldInformation(vtkInformation *info, 
+    int fieldAssociation, const char *name);
+  
+  // Description:
   // Set the named array to be the active field for the specified type
   // (SCALARS, VECTORS, NORMALS, TCOORDS, or TENSORS) and association
   // (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS).  Returns the 
