@@ -18,12 +18,13 @@
 #include "vtkExtentTranslator.h"
 #include "vtkFieldData.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 #include "vtkTrivialProducer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.101");
+vtkCxxRevisionMacro(vtkDataObject, "1.102");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -255,10 +256,17 @@ void vtkDataObject::Update()
 #ifdef VTK_USE_EXECUTIVES
   this->SetupProducer();
   vtkAlgorithm* producer = this->ProducerPort->GetProducer();
+  int index = this->ProducerPort->GetIndex();
   if(vtkStreamingDemandDrivenPipeline* sddp =
      vtkStreamingDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
     {
-    sddp->Update(producer);
+    // Since update has been called on the data object, the update
+    // extent was probably set as well.
+    sddp->GetOutputInformation(index)
+      ->Set(vtkInformation::UPDATE_EXTENT(), this->UpdateExtent, 6);
+
+    // Update this output.
+    sddp->Update(producer, index);
     }
   else
     {
@@ -320,9 +328,16 @@ void vtkDataObject::PropagateUpdateExtent()
 #ifdef VTK_USE_EXECUTIVES
   this->SetupProducer();
   vtkAlgorithm* producer = this->ProducerPort->GetProducer();
+  int index = this->ProducerPort->GetIndex();
   if(vtkStreamingDemandDrivenPipeline* sddp =
      vtkStreamingDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
     {
+    // Since update has been called on the data object, the update
+    // extent was probably set as well.
+    sddp->GetOutputInformation(index)
+      ->Set(vtkInformation::UPDATE_EXTENT(), this->UpdateExtent, 6);
+
+    // Propagate the extent.
     sddp->PropagateUpdateExtent(this->ProducerPort->GetIndex());
     }
   else
