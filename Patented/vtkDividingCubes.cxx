@@ -33,13 +33,15 @@
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkDividingCubes, "1.52");
+vtkCxxRevisionMacro(vtkDividingCubes, "1.53");
 vtkStandardNewMacro(vtkDividingCubes);
 
 // Description:
@@ -75,8 +77,21 @@ static vtkDoubleArray *SubNormals; //sub-volume normals
 static vtkDoubleArray *SubScalars; //sub-volume scalars
 static int SubSliceSize;
 
-void vtkDividingCubes::Execute()
+int vtkDividingCubes::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int i, j, k, idx;
   vtkDataArray *inScalars;
   vtkIdList *voxelPts;
@@ -84,16 +99,8 @@ void vtkDividingCubes::Execute()
   double origin[3], x[3], ar[3], h[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum, n[3];
-  vtkImageData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<< "Executing dividing cubes...");
-
-  if (input == NULL)
-    {
-    vtkErrorMacro(<<"Input is NULL");
-    return;
-    }
 
   //
   // Initialize self; check input; create output objects
@@ -104,19 +111,18 @@ void vtkDividingCubes::Execute()
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to contour");
-    return;
+    return 1;
     }
 
   // just deal with volumes
   if ( input->GetDataDimension() != 3 )
     {
     vtkErrorMacro("Bad input: only treats 3D structured point datasets");
-    return;
+    return 1;
     }
   input->GetDimensions(dim);
   input->GetSpacing(ar);
   input->GetOrigin(origin);
-
   
   // creating points
   NewPts = vtkPoints::New(); 
@@ -147,7 +153,6 @@ void vtkDividingCubes::Execute()
   SubScalars->SetNumberOfTuples(SubSliceSize*n[2]);
   voxelPts = vtkIdList::New(); voxelPts->SetNumberOfIds(8);
   voxelScalars = vtkDoubleArray::New(); voxelScalars->SetNumberOfTuples(8);
-  
 
   for ( k=0; k < (dim[2]-1); k++)
     {
@@ -227,6 +232,8 @@ void vtkDividingCubes::Execute()
   NewNormals->Delete();
 
   output->Squeeze();
+
+  return 1;
 }
 
 #define VTK_POINTS_PER_POLY_VERTEX 10000
@@ -339,6 +346,12 @@ void vtkDividingCubes::SubDivide(double origin[3], int dim[3], double h[3],
     }
 }
 
+int vtkDividingCubes::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
+}
+
 void vtkDividingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -347,5 +360,3 @@ void vtkDividingCubes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Distance: " << this->Distance << "\n";
   os << indent << "Increment: " << this->Increment << "\n";
 }
-
-
