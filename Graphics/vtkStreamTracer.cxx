@@ -32,7 +32,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.27");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.28");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 
@@ -672,12 +672,14 @@ void vtkStreamTracer::Integrate(vtkPolyData* output,
     angularVel = vtkDoubleArray::New();
     angularVel->SetName("AngularVelocity");
     }
-
+  
   // We will interpolate all point attributes of the input on
   // each point of the output (unless they are turned off)
   // Note that we are using only the first input, if there are more
   // than one, the attributes have to match.
   outputPD->InterpolateAllocate(this->GetInput()->GetPointData());
+  // Note:  It is an overestimation to have the estimate the same number of
+  // output points and input points.  We sill have to squeeze at end.
 
   vtkIdType numPtsTotal=0;
   double velocity[3];
@@ -1009,6 +1011,8 @@ void vtkStreamTracer::Integrate(vtkPolyData* output,
   cell->Delete();
 
   delete[] weights;
+  
+  output->Squeeze();
   return;
 }
 
