@@ -326,6 +326,8 @@ INSTALL_FILES(/include/vtk .h ${Common_SRCS}
   vtkArrayMapIterator
   vtkHashMap
   vtkHashMapIterator
+  vtkIOStream
+  vtkIOStreamFwd
   vtkLinkedList
   vtkLinkedListIterator
   vtkVector
