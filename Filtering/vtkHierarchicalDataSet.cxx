@@ -22,7 +22,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.2");
+vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.3");
 vtkStandardNewMacro(vtkHierarchicalDataSet);
 
 vtkCxxSetObjectMacro(vtkHierarchicalDataSet,HierarchicalDataInformation,vtkHierarchicalDataInformation);
@@ -316,5 +316,16 @@ void vtkHierarchicalDataSet::DeepCopy(vtkDataObject *src)
 void vtkHierarchicalDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "HierarchicalDataInformation: ";
+  if (this->HierarchicalDataInformation)
+    {
+    os << endl;
+    this->HierarchicalDataInformation->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }
 
