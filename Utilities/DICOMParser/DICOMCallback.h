@@ -11,6 +11,7 @@
 #pragma warning ( push, 3 )
 #endif 
 
+#include "DICOMConfig.h"
 #include "DICOMParser.h"
 
 //
@@ -24,7 +25,7 @@
 // the group, element, type, data, and data length.
 //
 
-class DICOMCallback
+class DICOM_EXPORT DICOMCallback
 {
  public:
   virtual void Execute(DICOMParser *parser,
