@@ -25,12 +25,12 @@ pad2 SetInput [reader GetOutput]
 pad2 SetOutputWholeExtent -127 383 -127 383 0 93
 pad2 SetConstant 800
 
-vtkImageViewer viewer1
-viewer1 SetInput [pad1 GetOutput]
-viewer1 SetZSlice 22
-viewer1 SetColorWindow 2000
-viewer1 SetColorLevel 1000
-[viewer1 GetActor2D] SetDisplayPosition 127 127
+vtkImageViewer viewer
+viewer SetInput [pad1 GetOutput]
+viewer SetZSlice 22
+viewer SetColorWindow 2000
+viewer SetColorLevel 1000
+[viewer GetActor2D] SetDisplayPosition 127 127
 
 vtkImageViewer viewer2
 viewer2 SetInput [pad2 GetOutput]
@@ -46,7 +46,7 @@ toplevel .top
 
 frame .top.f1 
 
-vtkTkImageViewerWidget .top.f1.r1 -width 512 -height 512 -iv viewer1
+vtkTkImageViewerWidget .top.f1.r1 -width 512 -height 512 -iv viewer
 vtkTkImageViewerWidget .top.f1.r2 -width 512 -height 512 -iv viewer2
 
 button .top.btn  -text Quit -command exit
