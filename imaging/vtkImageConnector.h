@@ -82,9 +82,11 @@ public:
   static vtkImageConnector *New() {return new vtkImageConnector;};
   const char *GetClassName() {return "vtkImageConnector";};
   
+  //BTX
   vtkImageConnectorSeed *NewSeed(int index[3], void *ptr);
   void AddSeed(vtkImageConnectorSeed *seed);
   void AddSeedToEnd(vtkImageConnectorSeed *seed);
+  //ETX
   void RemoveAllSeeds();
 
   // Description:
