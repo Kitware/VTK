@@ -52,6 +52,7 @@ vtkMCubesReader.cxx
 vtkMCubesWriter.cxx
 vtkMedicalImageReader2.cxx
 vtkMetaImageReader.cxx
+vtkMetaImageWriter.cxx
 vtkMoleculeReaderBase.cxx
 vtkOBJReader.cxx
 vtkOutputStream.cxx
