@@ -301,6 +301,7 @@ TCL_LIB_FILE  = libVTK${ME}Tcl${VTK_LIB_EXT}
 
 # add in any extra libraies here
 KIT_LIBS = @TKWIDGET@
+PYTHON_EXTRAS = @TKPYTHONWIDGET@
 
 #JAVA_O_ADD = vtkJavaPanel.o 
 JAVA_CODE_ADD = ../java/vtk/vtkPanel${JAVA_BEANS}.class
@@ -327,6 +328,11 @@ PYTHON_LIBS = @USE_GRAPHICS_PATENTED_LIBS@ -L../common -lVTKCommonPython ${XLIBS
 # setting changes this needs to be recompiled
 vtkContourFilter.o : Makefile
 
+vtkTkRenderWidget: vtkTkRenderWidget.o libVTKGraphicsPython${SHLIB_SUFFIX}
+	rm -f vtkTkRenderWidget ; \
+	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} \
+	-D VTK_PYTHON_BUILD vtkTkRenderWidget.cxx -o vtkTkRenderWidget \
+	-L. -lVTKGraphicsPython ${XLDFLAGS} ${PYTHON_LIBS} ${TCL_LIB} ${TK_LIB}
 
 @USE_GRAPHICS_PATENTED_PYTHON_TARGET@
 @USE_GRAPHICS_PATENTED_TCL_TARGET@

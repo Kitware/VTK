@@ -528,13 +528,16 @@ fi
 
 
 TKWIDGET=""
+TKPYTHONWIDGET=""
 # Check whether --with-tkwidget or --without-tkwidget was given.
 if test "${with_tkwidget+set}" = set; then
   withval="$with_tkwidget"
   if test "$withval" = yes; then
 	 TKWIDGET=vtkTkRenderWidget.o
+	 TKPYTHONWIDGET=vtkTkRenderWidget
          fi
 fi
+
 
 
 
@@ -750,6 +753,7 @@ s%@oldincludedir@%$oldincludedir%g
 s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
 s%@TKWIDGET@%$TKWIDGET%g
+s%@TKPYTHONWIDGET@%$TKPYTHONWIDGET%g
 s%@USE_GRAPHICS_PATENTED_PYTHON_TARGET@%$USE_GRAPHICS_PATENTED_PYTHON_TARGET%g
 s%@USE_GRAPHICS_PATENTED_TCL_TARGET@%$USE_GRAPHICS_PATENTED_TCL_TARGET%g
 s%@USE_GRAPHICS_PATENTED_LIBS@%$USE_GRAPHICS_PATENTED_LIBS%g

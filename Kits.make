@@ -84,7 +84,8 @@ libVTK$(ME)Java$(SHLIB_SUFFIX): ${JAVA_O_ADD} ${JAVA_WRAP}
 #------------------------------------------------------------------------------
 # rules for the python library
 #
-build_python: ${PYTHON_O_ADD} ${PYTHON_WRAP} libVTK${ME}Python${SHLIB_SUFFIX}
+build_python: ${PYTHON_O_ADD} ${PYTHON_WRAP} libVTK${ME}Python${SHLIB_SUFFIX} \
+	${PYTHON_EXTRAS}
 
 python/${ME}Init.cxx: ../wrap/vtkWrapPythonInit ${KIT_NEWS} Makefile
 	../wrap/vtkWrapPythonInit libVTK${ME}Python ${KIT_NEWS} > python/${ME}Init.cxx

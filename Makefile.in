@@ -27,7 +27,7 @@ CLEAN_TOOLKITS    = @CLEAN_TOOLKITS@
 #------------------------------------------------------------------------------
 
 all: targets build_wrap build_common ${BUILD_TOOLKITS} \
-    ${BUILD_TCL} ${BUILD_JAVA}
+    ${BUILD_TCL} ${BUILD_PYTHON} ${BUILD_JAVA}
 
 targets: ${srcdir}/targets.cxx ${srcdir}/makedepend.cxx
 	${CXX} -o targets ${srcdir}/targets.cxx ${srcdir}/makedepend.cxx
@@ -62,6 +62,9 @@ build_local: targets build_wrap
 build_tcl: build_common ${BUILD_TOOLKITS} 
 	cd tcl;        ${MAKE} -${MAKEFLAGS} vtk
 
+build_python: build_common ${BUILD_TOOLKITS}
+	cd python;     ${MAKE} -${MAKEFLAGS} vtkpython
+
 build_java: build_common ${BUILD_TOOLKITS}
 	cd java;       ${MAKE} -${MAKEFLAGS} vtk
 
@@ -91,13 +94,16 @@ depend_local:
 
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
-clean: ${CLEAN_TCL} ${CLEAN_JAVA} ${CLEAN_TOOLKITS}
+clean: ${CLEAN_TCL} ${CLEAN_PYTHON} ${CLEAN_JAVA} ${CLEAN_TOOLKITS}
 	cd common;    ${MAKE} -${MAKEFLAGS} clean
 	cd wrap;    ${MAKE} -${MAKEFLAGS} clean
 	rm -f config.cache
 
 clean_tcl:
 	cd tcl;       ${MAKE} -${MAKEFLAGS} clean
+
+clean_python:
+	cd python;    ${MAKE} -${MAKEFLAGS} clean
 
 clean_java:
 	cd java;      ${MAKE} -${MAKEFLAGS} clean

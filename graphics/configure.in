@@ -4,12 +4,15 @@
 AC_INIT(vtkActor.cxx)
 
 TKWIDGET=""
+TKPYTHONWIDGET=""
 AC_ARG_WITH(tkwidget,
          [  --with-tkwidget           build the vtkTkRenderWidget class],
 	 if test "$withval" = yes; then
 	 TKWIDGET=vtkTkRenderWidget.o
-         fi)
+	 TKPYTHONWIDGET=vtkTkRenderWidget
+         fi,)
 AC_SUBST(TKWIDGET)
+AC_SUBST(TKPYTHONWIDGET)
 
 AC_ARG_WITH(shared,
          [  --with-shared               create shared libraries],
