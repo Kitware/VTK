@@ -116,19 +116,6 @@ public:
   vtkGetMacro(ColorLevel, float);
 
   // Description:
-  // Turn color interpretation on/off.
-
-
-  // Description:
-  // Which components should be used for RGB.
-  vtkSetMacro(RedComponent, int);
-  vtkGetMacro(RedComponent, int);
-  vtkSetMacro(GreenComponent, int);
-  vtkGetMacro(GreenComponent, int);
-  vtkSetMacro(BlueComponent, int);
-  vtkGetMacro(BlueComponent, int);
-  
-  // Description:
   // These are here for using a tk window.
   virtual void SetDisplayId(void *) {};
   virtual void SetWindowId(void *) {};
@@ -180,10 +167,6 @@ protected:
   float ColorWindow;
   float ColorLevel;
   
-
-  int RedComponent;
-  int GreenComponent;
-  int BlueComponent;
   char *WindowName;
   int Size[2];
   int Position[2];

@@ -71,10 +71,6 @@ vtkImageViewer::vtkImageViewer()
   
   this->ColorWindow = 255.0;
   this->ColorLevel = 127.0;
-  this->RedComponent = 0;
-  this->GreenComponent = 1;
-  this->BlueComponent = 2;
-
   this->GrayScaleHint = 0;
 }
 

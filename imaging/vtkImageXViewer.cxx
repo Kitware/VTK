@@ -418,14 +418,11 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
 
   if (dim > 1)
     { 
-    ptr0 = region->GetScalarPointer(extent[0], extent[3], 
-				    this->RedComponent);
-    ptr1 = region->GetScalarPointer(extent[0], extent[3], 
-				    this->GreenComponent);
+    ptr0 = region->GetScalarPointer(extent[0], extent[3],0);
+    ptr1 = region->GetScalarPointer(extent[0], extent[3],1);
     if (dim > 2)
       {
-      ptr2 = region->GetScalarPointer(extent[0], extent[3], 
-				      this->BlueComponent);
+      ptr2 = region->GetScalarPointer(extent[0], extent[3],2);
       }
     else
       {
