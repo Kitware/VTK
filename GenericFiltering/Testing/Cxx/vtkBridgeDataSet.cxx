@@ -38,7 +38,7 @@
 #include "vtkGenericEdgeTable.h"
 #include "vtkSimpleCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkBridgeDataSet, "1.3");
+vtkCxxRevisionMacro(vtkBridgeDataSet, "1.4");
 vtkStandardNewMacro(vtkBridgeDataSet);
 
 //----------------------------------------------------------------------------
@@ -385,11 +385,13 @@ vtkIdType vtkBridgeDataSet::GetEstimatedSize()
 // \pre not_empty: GetNumberOfCells()>0
 // \pre cell_exists: cell!=0
 // \pre positive_tolerance: tol2>0
-vtkIdType vtkBridgeDataSet::FindCell(double x[3],
-                                     vtkGenericCellIterator* &cell,
-                                     double tol2,
-                                     int &subId,
-                                     double pcoords[3])
+// \post clamped_pcoords: result implies (0<=pcoords[0]<=1 && )
+
+int vtkBridgeDataSet::FindCell(double x[3],
+                               vtkGenericCellIterator* &cell,
+                               double tol2,
+                               int &subId,
+                               double pcoords[3])
 {
   assert("pre: not_empty" && GetNumberOfCells()>0);
   assert("pre: cell_exists" && cell!=0);
@@ -416,8 +418,36 @@ vtkIdType vtkBridgeDataSet::FindCell(double x[3],
                                           ignoredWeights);
     }
   delete [] ignoredWeights;
-  it->InitWithOneCell(this,cellid);
-  return cellid; // bool
+  if(cellid>=0)
+    {
+    it->InitWithOneCell(this,cellid); // at end
+    it->Begin();
+    // clamp:
+    int i=0;
+    while(i<3)
+      {
+      if(pcoords[i]<0)
+        {
+        pcoords[i]=0;
+        }
+      else if(pcoords[i]>1)
+        {
+        pcoords[i]=1;
+        }
+      ++i;
+      }
+    }
+  
+  // A=>B: !A || B
+  // result => clamped pcoords
+  assert("post: clamped_pcoords" && ((cellid<0)||(pcoords[0]>=0
+                                                 && pcoords[0]<=1
+                                                 && pcoords[1]>=0
+                                                 && pcoords[1]<=1
+                                                 && pcoords[2]>=0
+                                                 && pcoords[2]<=1)));
+  
+  return cellid>=0; // bool
 }
   
 //----------------------------------------------------------------------------
