@@ -24,7 +24,7 @@
 #define __vtkImageProgressIterator_h
 
 #include "vtkImageIterator.h"
-class vtkProcessObject;
+class vtkAlgorithm;
 
 template<class DType>
 class vtkImageProgressIterator : public vtkImageIterator<DType> 
@@ -36,15 +36,15 @@ public:
   // and extent to iterate over. The passes progress object will
   // receive any UpdateProgress calls if the thread id is zero
   vtkImageProgressIterator(vtkImageData *imgd, int *ext, 
-                           vtkProcessObject *po, int id);
+                           vtkAlgorithm *po, int id);
 
   // Description:
   // Move the iterator to the next span, may call UpdateProgress on the
-  // filter (vtkProcessObject)
+  // filter (vtkAlgorithm)
   void NextSpan();
   
 protected:
-  vtkProcessObject *ProcessObject;
+  vtkAlgorithm     *Algorithm;
   unsigned long     Count;
   unsigned long     Count2;
   unsigned long     Target;

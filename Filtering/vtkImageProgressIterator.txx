@@ -19,12 +19,12 @@
 
 #include "vtkImageProgressIterator.h"
 #include "vtkImageData.h"
-#include "vtkProcessObject.h"
+#include "vtkAlgorithm.h"
 
 template <class DType>
 vtkImageProgressIterator<DType>::vtkImageProgressIterator(vtkImageData *imgd, 
                                                        int *ext, 
-                                                       vtkProcessObject *po, 
+                                                       vtkAlgorithm *po, 
                                                        int id) : 
   vtkImageIterator<DType>(imgd,ext)
 {
@@ -33,7 +33,7 @@ vtkImageProgressIterator<DType>::vtkImageProgressIterator(vtkImageData *imgd,
   this->Target++;
   this->Count = 0;
   this->Count2 = 0;
-  this->ProcessObject = po;
+  this->Algorithm = po;
   this->ID = id;
 }
 
@@ -53,7 +53,7 @@ void vtkImageProgressIterator<DType>::NextSpan()
     if (this->Count2 == this->Target)
       {
       this->Count += this->Count2;
-      this->ProcessObject->UpdateProgress(this->Count/(50.0*this->Target));
+      this->Algorithm->UpdateProgress(this->Count/(50.0*this->Target));
       this->Count2 = 0;
       }
     this->Count2++;
