@@ -39,17 +39,22 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkExtractPolyDataGeometry - extract poly data that lies either entirely inside or outside of a specified implicit function
+// .NAME vtkExtractPolyDataGeometry - extract vtkPolyData cells that lies either entirely inside or outside of a specified implicit function
 
 // .SECTION Description
 // vtkExtractPolyDataGeometry extracts from its input vtkPolyData all cells
 // that are either completely inside or outside of a specified implicit
-// function. Any type of dataset can be input to this filter. On output the
-// filter generates an unstructured grid.
+// function. This filter is specialized to vtkPolyData. On output the 
+// filter generates vtkPolyData.
 //
-// To use this filter you must specify an implicit function. You can also
-// choose to extract the inside or outside data. (The inside of an implicit
-// function is the negative values region.)
+// To use this filter you must specify an implicit function. You must also
+// specify whethter to extract cells lying inside or outside of the implicit 
+// function. (The inside of an implicit function is the negative values 
+// region.) An option exists to extract cells that are neither inside or
+// outside (i.e., boundary).
+//
+// A more general version of this filter is available for arbitrary
+// vtkDataSet input (see vtkExtractGeometry).
 
 // .SECTION See Also
 // vtkExtractGeometry vtkClipPolyData
@@ -87,6 +92,13 @@ public:
   vtkGetMacro(ExtractInside,int);
   vtkBooleanMacro(ExtractInside,int);
 
+  // Description:
+  // Boolean controls whether to extract cells that are partially inside.
+  // By default, ExtractBoundaryCells is off.
+  vtkSetMacro(ExtractBoundaryCells,int);
+  vtkGetMacro(ExtractBoundaryCells,int);
+  vtkBooleanMacro(ExtractBoundaryCells,int);
+
 protected:
   vtkExtractPolyDataGeometry(vtkImplicitFunction *f=NULL);
   ~vtkExtractPolyDataGeometry();
@@ -98,6 +110,7 @@ protected:
 
   vtkImplicitFunction *ImplicitFunction;
   int ExtractInside;
+  int ExtractBoundaryCells;
 };
 
 #endif
