@@ -17,6 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlRenderer_hh
 
 #include "Object.hh"
+#include "Mat4x4.hh"
 #include "LightC.hh"
 #include "Camera.hh"
 #include "ActorC.hh"
@@ -36,6 +37,7 @@ protected:
   vlRenderWindow *RenderWindow;
   float DisplayPoint[3];
   float ViewPoint[3];
+  float WorldPoint[4];
   float Viewport[4];
   int   Erase;
   float Aspect[2];
@@ -88,11 +90,18 @@ public:
   vlSetVector3Macro(ViewPoint,float);
   vlGetVectorMacro(ViewPoint,float);
 
+  vlSetVector4Macro(WorldPoint,float);
+  vlGetVectorMacro(WorldPoint,float);
+
   vlSetVector4Macro(Viewport,float);
   vlGetVectorMacro(Viewport,float);
 
   void DisplayToView();
   void ViewToDisplay();
+  void WorldToView();
+  void ViewToWorld();
+  void DisplayToWorld() {DisplayToView(); ViewToWorld();};
+  void WorldToDisplay() {WorldToView(); ViewToDisplay();};
 };
 
 #endif
