@@ -537,7 +537,7 @@ else
     SHLIB_LD_LIBS=""
     VTK_SHLIB_CFLAGS=""
     VTK_LD_SEARCH_FLAGS=""
-    TOOLKIT_DEPENDS="../common/libVTKCommonTcl.a"
+    TOOLKIT_DEPENDS="\${VTK_OBJ}/common/libVTKCommonTcl.a"
     if test "X$graphicsdir" != "X"; then
        TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} \${VTK_OBJ}/graphics/libVTKGraphicsTcl.a"
     fi
