@@ -43,14 +43,13 @@
 #define __vtkMergeCells_h
 
 #include "vtkObject.h"
-
 #include "vtkDataSetAttributes.h" // Needed for FieldList
-#include <vtkstd/map> // Needed for GlobalIdMap
 
 class vtkDataSet;
 class vtkUnstructuredGrid;
 class vtkPointData;
 class vtkCellData;
+class vtkMergeCellsSTLCloak;
 
 class VTK_PARALLEL_EXPORT vtkMergeCells : public vtkObject
 { 
@@ -190,11 +189,10 @@ private:
   char InputIsUGrid;
   char InputIsPointSet;
 
+  vtkMergeCellsSTLCloak *GlobalIdMap;
+  vtkMergeCellsSTLCloak *GlobalCellIdMap;
+
 //BTX
-  vtkstd::map<vtkIdType, vtkIdType> GlobalIdMap;
-
-  vtkstd::map<vtkIdType, vtkIdType> GlobalCellIdMap;
-
   vtkDataSetAttributes::FieldList *ptList;
   vtkDataSetAttributes::FieldList *cellList;
 //ETX

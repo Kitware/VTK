@@ -37,12 +37,19 @@
 #include "vtkMergePoints.h"
 #include "vtkKdTree.h"
 #include <stdlib.h>
-#include <algorithm>
+#include <vtkstd/map>
+#include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkMergeCells, "1.2");
+vtkCxxRevisionMacro(vtkMergeCells, "1.3");
 vtkStandardNewMacro(vtkMergeCells);
 
 vtkCxxSetObjectMacro(vtkMergeCells, UnstructuredGrid, vtkUnstructuredGrid);
+
+class vtkMergeCellsSTLCloak
+{
+public:
+  vtkstd::map<vtkIdType, vtkIdType> IdTypeMap;
+};
 
 vtkMergeCells::vtkMergeCells()
 {
@@ -65,6 +72,9 @@ vtkMergeCells::vtkMergeCells()
   this->cellList = NULL;
 
   this->UnstructuredGrid = NULL;
+
+  this->GlobalIdMap = NULL;
+  this->GlobalCellIdMap = NULL;
 
   this->nextGrid = 0;
 }
@@ -89,8 +99,17 @@ void vtkMergeCells::FreeLists()
     this->GlobalCellIdArrayName = NULL;
     }
 
-  this->GlobalIdMap.clear();
-  this->GlobalCellIdMap.clear();
+  if (this->GlobalIdMap)
+    {
+    delete this->GlobalIdMap;
+    this->GlobalIdMap = NULL;
+    }
+
+  if (this->GlobalCellIdMap)
+    {
+    delete this->GlobalCellIdMap;
+    this->GlobalCellIdMap = NULL;
+    }
 
   if (this->ptList)
     {
@@ -242,13 +261,18 @@ vtkIdType vtkMergeCells::AddNewCellsDataSet(vtkDataSet *set, vtkIdType *idMap)
 
   int duplicateCellTest = 0;
 
+  if (this->GlobalCellIdMap == NULL)
+    {
+    this->GlobalCellIdMap = new vtkMergeCellsSTLCloak;
+    }
+
   if (this->GlobalCellIdArrayName)
     {
     int success = this->GlobalCellIdAccessStart(set);
 
     if (success)
       {
-      nextCellId = this->GlobalCellIdMap.size();
+      nextCellId = this->GlobalCellIdMap->IdTypeMap.size();
       duplicateCellTest = 1;
       }
     }
@@ -261,7 +285,7 @@ vtkIdType vtkMergeCells::AddNewCellsDataSet(vtkDataSet *set, vtkIdType *idMap)
 
       vtkstd::pair<vtkstd::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
 
-        this->GlobalCellIdMap.insert(
+        this->GlobalCellIdMap->IdTypeMap.insert(
            vtkstd::pair<vtkIdType,vtkIdType>(globalId, nextCellId));
 
       if (inserted.second)
@@ -331,13 +355,18 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
   int numDuplicateCells = 0;
   int numDuplicateConnections = 0;
 
+  if (this->GlobalCellIdMap == NULL)
+    {
+    this->GlobalCellIdMap = new vtkMergeCellsSTLCloak;
+    }
+
   if (this->GlobalCellIdArrayName)
     {
     int success = this->GlobalCellIdAccessStart(set);
 
     if (success)
       {
-      vtkIdType nextLocalId = this->GlobalCellIdMap.size();
+      vtkIdType nextLocalId = this->GlobalCellIdMap->IdTypeMap.size();
 
       duplicateCellIds = vtkIdList::New();
 
@@ -347,7 +376,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
 
         vtkstd::pair<vtkstd::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
 
-        this->GlobalCellIdMap.insert(
+        this->GlobalCellIdMap->IdTypeMap.insert(
             vtkstd::pair<vtkIdType,vtkIdType>(globalId, nextLocalId));
 
         if (inserted.second)
@@ -591,7 +620,12 @@ vtkIdType *vtkMergeCells::MapPointsToIdsUsingGlobalIds(vtkDataSet *set)
 
   vtkIdType *idMap = new vtkIdType [npoints];
 
-  vtkIdType nextNewLocalId = this->GlobalIdMap.size();
+  if (this->GlobalIdMap == NULL)
+    {
+    this->GlobalIdMap = new vtkMergeCellsSTLCloak;
+    }
+
+  vtkIdType nextNewLocalId = this->GlobalIdMap->IdTypeMap.size();
 
   // map global point Ids to Ids in the new data set
 
@@ -601,7 +635,7 @@ vtkIdType *vtkMergeCells::MapPointsToIdsUsingGlobalIds(vtkDataSet *set)
 
     vtkstd::pair<vtkstd::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
 
-      this->GlobalIdMap.insert(
+      this->GlobalIdMap->IdTypeMap.insert(
          vtkstd::pair<vtkIdType,vtkIdType>(globalId, nextNewLocalId));
 
     if (inserted.second)
@@ -975,7 +1009,10 @@ void vtkMergeCells::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "GlobalCellIdArrayName: " << this->GlobalCellIdArrayName << endl;
     }
 
-  os << indent << "GlobalIdMap size: " << this->GlobalIdMap.size() << endl;
+  if (this->GlobalIdMap)
+    {
+    os << indent << "GlobalIdMap: " << this->GlobalIdMap->IdTypeMap.size() << endl;
+    }
 
   os << indent << "PointMergeTolerance: " << this->PointMergeTolerance << endl;
   os << indent << "MergeDuplicatePoints: " << this->MergeDuplicatePoints << endl;
