@@ -40,8 +40,6 @@ vtkActor2D textActor
 [textActor GetPositionCoordinate] SetCoordinateSystemToViewport
 [textActor GetPositionCoordinate] SetValue -100 -20
 
-textActor SetScale 20 20 
-
 vtkImager imager1
   imager1 AddActor2D textActor
 
