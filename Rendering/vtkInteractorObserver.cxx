@@ -19,7 +19,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.12");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.13");
 
 vtkInteractorObserver::vtkInteractorObserver()
 {
@@ -85,8 +85,6 @@ void vtkInteractorObserver::ProcessEvents(vtkObject* object,
 {
   vtkInteractorObserver* self 
     = reinterpret_cast<vtkInteractorObserver *>( clientdata );
-  vtkRenderWindowInteractor* rwi 
-    = static_cast<vtkRenderWindowInteractor *>( object );
 
   //look for char and delete events
   switch(event)

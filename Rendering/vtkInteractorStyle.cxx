@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.67");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.68");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -1062,9 +1062,6 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* object,
 {
   vtkInteractorStyle* self 
     = reinterpret_cast<vtkInteractorStyle *>( clientdata );
-
-  vtkRenderWindowInteractor* rwi 
-    = static_cast<vtkRenderWindowInteractor *>( object );
 
   switch(event)
     {
