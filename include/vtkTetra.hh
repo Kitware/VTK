@@ -85,6 +85,10 @@ public:
   int BarycentricCoords(float x[3], float  x1[3], float x2[3], float x3[3], 
                         float x4[3], float bcoords[4]);
   
+  void InterpolationFunctions(float pcoords[3], float weights[4]);
+  void InterpolationDerivs(float derivs[12]);
+  void JacobianInverse(double **inverse, float derivs[12]);
+
 };
 
 #endif
