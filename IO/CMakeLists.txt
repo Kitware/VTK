@@ -136,7 +136,8 @@ IF (VTK_WRAP_JAVA)
   ADD_LIBRARY(vtkIOJava SHARED ${IOJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkIOJava
                          vtkCommonJava
-                         vtkFilteringJava)
+                         vtkFilteringJava
+			 vtkIO)
   INSTALL_TARGETS(/lib/vtk vtkIOJava)
 ENDIF (VTK_WRAP_JAVA)
 

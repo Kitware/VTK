@@ -494,7 +494,8 @@ IF (VTK_WRAP_JAVA)
   ADD_LIBRARY(vtkRenderingJava SHARED ${RenderingJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkRenderingJava
                          vtkImagingJava
-                         vtkGraphicsJava)
+                         vtkGraphicsJava
+			 vtkRendering)
   IF (JAVA_AWT_LIBRARY)
     TARGET_LINK_LIBRARIES (vtkRenderingJava ${JAVA_AWT_LIBRARY})
   ENDIF (JAVA_AWT_LIBRARY)

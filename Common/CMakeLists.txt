@@ -282,6 +282,7 @@ IF (VTK_WRAP_JAVA)
                        ${LIBRARY_OUTPUT_PATH}/libvtk${CURRENT_KIT}Java.jnilib
                        TARGET vtkCommonJava)
   ENDIF(APPLE)
+  TARGET_LINK_LIBRARIES(vtkCommonJava vtkCommon)
   INSTALL_TARGETS(/lib/vtk vtkCommonJava)
   INSTALL_FILES(/include/vtk .h
     vtkJavaUtil

@@ -179,7 +179,8 @@ IF (VTK_WRAP_JAVA)
   ADD_LIBRARY(vtkImagingJava SHARED ${ImagingJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkImagingJava
                          vtkCommonJava
-                         vtkFilteringJava)
+                         vtkFilteringJava
+			 vtkImaging)
   INSTALL_TARGETS(/lib/vtk vtkImagingJava)
 ENDIF (VTK_WRAP_JAVA)
 
