@@ -21,21 +21,23 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkSubdivideTetra, "1.26");
+vtkCxxRevisionMacro(vtkSubdivideTetra, "1.27");
 vtkStandardNewMacro(vtkSubdivideTetra);
 
+//----------------------------------------------------------------------------
 // Description:
 // Construct with all types of clipping turned off.
 vtkSubdivideTetra::vtkSubdivideTetra()
 {
 }
 
+//----------------------------------------------------------------------------
 void vtkSubdivideTetra::Execute()
 {
-  vtkUnstructuredGrid *input=(vtkUnstructuredGrid *)this->GetInput();
+  vtkUnstructuredGrid *input = this->GetInput();
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
-  vtkPoints *inPts=input->GetPoints();
+  vtkPoints *inPts = input->GetPoints();
   vtkIdType cellId, i;
   vtkIdType pts[4];
   vtkGenericCell *cell;
@@ -224,8 +226,8 @@ void vtkSubdivideTetra::Execute()
   output->Squeeze();
 }
 
+//----------------------------------------------------------------------------
 void vtkSubdivideTetra::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
-
