@@ -130,7 +130,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
   return TCL_ERROR;
   }
 #endif
-  
+
   /* init the core vtk stuff */
   if (Vtkcommontcl_Init(interp) == TCL_ERROR) 
     {
@@ -221,7 +221,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
    * then no user-specific startup file will be run under any conditions.
    */
   
-#if (((TK_MAJOR_VERSION == 4)&&(TK_MINOR_VERSION >= 1))||((TK_MAJOR_VERSION == 8)&&(TK_MINOR_VERSION == 0)))
+#if (((TK_MAJOR_VERSION == 4)&&(TK_MINOR_VERSION >= 1))||((TK_MAJOR_VERSION == 8)&&(TK_MINOR_VERSION >= 0)))
     Tcl_SetVar(interp, "tcl_rcFileName", "~/.wishrc", TCL_GLOBAL_ONLY);
 #else
     tcl_RcFileName = "~/.wishrc";
