@@ -134,6 +134,7 @@ void vtkViewport::AddProp(vtkProp *p)
 }
 void vtkViewport::RemoveProp(vtkProp *p)
 {
+  p->ReleaseGraphicsResources(this->VTKWindow);
   this->Props->RemoveItem(p);
 }
 
@@ -206,7 +207,7 @@ void vtkViewport::ViewToDisplay()
 void vtkViewport::ViewToWorld()
 {   
   this->SetWorldPoint(this->ViewPoint[0], this->ViewPoint[1],
-		      this->ViewPoint[2], 1);
+                      this->ViewPoint[2], 1);
 }
 
 // Convert world point coordinates to view coordinates.
@@ -214,7 +215,7 @@ void vtkViewport::WorldToView()
 {
 
   this->SetViewPoint(this->WorldPoint[0], this->WorldPoint[1],
-		     this->WorldPoint[2]);
+                     this->WorldPoint[2]);
 
 }
 
