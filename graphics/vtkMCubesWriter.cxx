@@ -49,7 +49,10 @@ vtkMCubesWriter::vtkMCubesWriter()
 
 vtkMCubesWriter::~vtkMCubesWriter()
 {
-  if ( this->LimitsFileName ) delete [] this->LimitsFileName;
+  if ( this->LimitsFileName )
+    {
+    delete [] this->LimitsFileName;
+    }
 }
 static void WriteMCubes(FILE *fp, vtkPoints *pts, vtkNormals *normals, vtkCellArray *polys);
 static void WriteLimits(FILE *fp, float *bounds);

@@ -63,7 +63,10 @@ unsigned long int vtkImplicitBoolean::GetMTime()
        (f=this->FunctionList->GetNextItem()); )
     {
     fMtime = f->GetMTime();
-    if ( fMtime > mtime ) mtime = fMtime;
+    if ( fMtime > mtime )
+      {
+      mtime = fMtime;
+      }
     }
   return mtime;
 }
@@ -100,7 +103,10 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
     for (value = VTK_LARGE_FLOAT, this->FunctionList->InitTraversal(); 
     (f=this->FunctionList->GetNextItem()); )
       {
-      if ( (v=f->FunctionValue(x)) < value ) value = v;
+      if ( (v=f->FunctionValue(x)) < value )
+	{
+	value = v;
+	}
       }
     }
 
@@ -109,7 +115,10 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
     for (value=-VTK_LARGE_FLOAT, this->FunctionList->InitTraversal(); 
     (f=this->FunctionList->GetNextItem()); )
       {
-      if ( (v=f->FunctionValue(x)) > value ) value = v;
+      if ( (v=f->FunctionValue(x)) > value )
+	{
+	value = v;
+	}
       }
     }
 
@@ -118,7 +127,10 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
     for (value = VTK_LARGE_FLOAT, this->FunctionList->InitTraversal(); 
     (f=this->FunctionList->GetNextItem()); )
       {
-      if ( (v=fabs(f->FunctionValue(x))) < value ) value = v;
+      if ( (v=fabs(f->FunctionValue(x))) < value )
+	{
+	value = v;
+	}
       }
     }
 
@@ -127,14 +139,19 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
     vtkImplicitFunction *firstF;
     this->FunctionList->InitTraversal();
     if ( (firstF = this->FunctionList->GetNextItem()) != NULL )
+      {
       value = firstF->FunctionValue(x);
+      }
 
     for (this->FunctionList->InitTraversal(); 
     (f=this->FunctionList->GetNextItem()); )
       {
       if ( f != firstF )
         {
-        if ( (v=(-1.0)*f->FunctionValue(x)) > value ) value = v;
+        if ( (v=(-1.0)*f->FunctionValue(x)) > value )
+	  {
+	  value = v;
+	  }
         }
       }
     }//else
@@ -224,7 +241,16 @@ void vtkImplicitBoolean::PrintSelf(ostream& os, vtkIndent indent)
   this->FunctionList->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "Operator Type: ";
-  if ( this->OperationType == VTK_INTERSECTION ) os << "VTK_INTERSECTION\n";
-  else if ( this->OperationType == VTK_UNION ) os << "VTK_UNION\n";
-  else os << "VTK_INTERSECTION\n";
+  if ( this->OperationType == VTK_INTERSECTION )
+    {
+    os << "VTK_INTERSECTION\n";
+    }
+  else if ( this->OperationType == VTK_UNION )
+    {
+    os << "VTK_UNION\n";
+    }
+  else
+    {
+    os << "VTK_INTERSECTION\n";
+    }
 }

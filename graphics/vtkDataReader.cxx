@@ -454,7 +454,9 @@ int vtkDataReader::IsFileValid(const char *dstype)
     }
   
   if (!this->OpenVTKFile() || !this->ReadHeader())
-      return 0;
+    {
+    return 0;
+    }
 
   if (!this->ReadString(line))
     {

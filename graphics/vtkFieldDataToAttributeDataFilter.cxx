@@ -330,7 +330,10 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
     }
   for (i=0; i<numComp; i++)
     {
-    if ( arrays[i] == NULL ) return;
+    if ( arrays[i] == NULL )
+      {
+      return;
+      }
     }
   
   for ( i=0; i < numComp; i++ )

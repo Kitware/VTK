@@ -249,7 +249,10 @@ void vtkInterpolateDataSetAttributes::Execute()
 
   highDS = lowDS + 1;
   t = this->T - (float)lowDS;
-  if (t > 1.0) t =1.0;
+  if (t > 1.0)
+    {
+    t =1.0;
+    }
   
   ds = this->InputList->GetItem(lowDS);
   ds2 = this->InputList->GetItem(highDS);
@@ -331,7 +334,10 @@ void vtkInterpolateDataSetAttributes::Execute()
     if ( ! (i % 10000) ) 
       {
       this->UpdateProgress ((float)i/numPts * 0.50);
-      if (this->GetAbortExecute()) break;
+      if (this->GetAbortExecute())
+	{
+	break;
+	}
       }
 
     outputPD->InterpolateTime(inputPD, input2PD, i, t);
@@ -343,7 +349,10 @@ void vtkInterpolateDataSetAttributes::Execute()
     if ( ! (i % 10000) ) 
       {
       this->UpdateProgress (0.5 + (float)i/numCells * 0.50);
-      if (this->GetAbortExecute()) break;
+      if (this->GetAbortExecute())
+	{
+	break;
+	}
       }
 
     outputCD->InterpolateTime(inputCD, input2CD, i, t);

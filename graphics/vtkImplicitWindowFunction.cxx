@@ -76,7 +76,10 @@ float vtkImplicitWindowFunction::EvaluateFunction(float x[3])
   diff2 = value - this->WindowRange[1];
 
   scaledRange = (this->WindowValues[1] - this->WindowValues[0]) / 2.0;
-  if ( scaledRange == 0.0 ) scaledRange = 1.0;
+  if ( scaledRange == 0.0 )
+    {
+    scaledRange = 1.0;
+    }
 
   if ( diff1 >= 0.0 && diff2 <= 0.0 ) //within window
     {
@@ -120,7 +123,10 @@ unsigned long int vtkImplicitWindowFunction::GetMTime()
   if ( this->ImplicitFunction )
   {
     fMtime = this->ImplicitFunction->GetMTime();
-    if ( fMtime > mtime ) mtime = fMtime;
+    if ( fMtime > mtime )
+      {
+      mtime = fMtime;
+      }
   }
   return mtime;
 }

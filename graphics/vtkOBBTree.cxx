@@ -119,15 +119,24 @@ void vtkOBBTree::ComputeOBB(vtkPoints *pts, float corner[3], float max[3],
   for (pointId=0; pointId < numPts; pointId++ )
     {
     x = pts->GetPoint(pointId);
-    for (i=0; i < 3; i++) mean[i] += x[i];
+    for (i=0; i < 3; i++)
+      {
+      mean[i] += x[i];
+      }
     }
-  for (i=0; i < 3; i++) mean[i] /= numPts;
+  for (i=0; i < 3; i++)
+    {
+    mean[i] /= numPts;
+    }
 
   //
   // Compute covariance matrix
   //
   a[0] = a0; a[1] = a1; a[2] = a2; 
-  for (i=0; i < 3; i++) a0[i] = a1[i] = a2[i] = 0.0;
+  for (i=0; i < 3; i++)
+    {
+    a0[i] = a1[i] = a2[i] = 0.0;
+    }
 
   for (pointId=0; pointId < numPts; pointId++ )
     {
@@ -176,8 +185,14 @@ void vtkOBBTree::ComputeOBB(vtkPoints *pts, float corner[3], float max[3],
     for (i=0; i < 3; i++)
       {
       vtkLine::DistanceToLine(x, mean, a[i], t, closest);
-      if ( t < tMin[i] ) tMin[i] = t;
-      if ( t > tMax[i] ) tMax[i] = t;
+      if ( t < tMin[i] )
+	{
+	tMin[i] = t;
+	}
+      if ( t > tMax[i] )
+	{
+	tMax[i] = t;
+	}
       }
     }//for all points
 
@@ -215,7 +230,10 @@ void vtkOBBTree::BuildLocator()
   vtkIdList *cellList;
 
   vtkDebugMacro(<<"Building OBB tree");
-  if ( this->Tree != NULL && this->BuildTime > this->MTime ) return;
+  if ( this->Tree != NULL && this->BuildTime > this->MTime )
+    {
+    return;
+    }
 
   numPts = this->DataSet->GetNumberOfPoints();
   numCells = this->DataSet->GetNumberOfCells();
@@ -227,7 +245,10 @@ void vtkOBBTree::BuildLocator()
 
   this->OBBCount = 0;
   this->InsertedPoints = new int[numPts];
-  for (i=0; i < numPts; i++) this->InsertedPoints[i] = 0;
+  for (i=0; i < numPts; i++)
+    {
+    this->InsertedPoints[i] = 0;
+    }
   this->PointsList = vtkPoints::New();
   this->PointsList->Allocate(numPts);
 
@@ -247,7 +268,7 @@ void vtkOBBTree::BuildLocator()
   this->Level = this->DeepestLevel;
 
   vtkDebugMacro(<<"Deepest tree level: " << this->DeepestLevel
-                <<", Created: " << OBBCount << " OBB nodes");
+                <<", Created: " << this->OBBCount << " OBB nodes");
 
   //
   // Clean up
@@ -267,7 +288,10 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
   vtkIdList *cellPts = vtkIdList::New();;
   float size[3];
 
-  if ( level > this->DeepestLevel ) this->DeepestLevel = level;
+  if ( level > this->DeepestLevel )
+    {
+    this->DeepestLevel = level;
+    }
   this->PointsList->Reset();
   //
   // Gather all the cell's point coordinates into a single list
@@ -321,7 +345,10 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
     for (splitPlane=0,splitAcceptable=0; !splitAcceptable && splitPlane < 3; )
       {
       // compute split normal
-      for (i=0 ; i < 3; i++) n[i] = OBBptr->Axes[splitPlane][i];
+      for (i=0 ; i < 3; i++)
+	{
+	n[i] = OBBptr->Axes[splitPlane][i];
+	}
       vtkMath::Normalize(n);
 
       //traverse cells, assigning to appropriate child list as necessary
@@ -334,14 +361,29 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
           ptId = cellPts->GetId(j);
           x = this->DataSet->GetPoint(ptId);
           val = n[0]*(x[0]-p[0]) + n[1]*(x[1]-p[1]) + n[2]*(x[2]-p[2]);
-          if ( val < 0.0 ) negative = 1;
-          else positive = 1;
+          if ( val < 0.0 )
+	    {
+	    negative = 1;
+	    }
+          else
+	    {
+	    positive = 1;
+	    }
           }
 
-        if ( negative ) LHlist->InsertNextId(cellId);
-        else RHlist->InsertNextId(cellId);
+        if ( negative )
+	  {
+	  LHlist->InsertNextId(cellId);
+	  }
+        else
+	  {
+	  RHlist->InsertNextId(cellId);
+	  }
 
-        if ( negative && positive ) numStraddles++;
+        if ( negative && positive )
+	  {
+	  numStraddles++;
+	  }
 
         }//for all cells
 
@@ -364,7 +406,10 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
         }
       else if ( foundBestSplit ) //force termination of this loop
         {
-        if ( ratio < 100.0 ) splitAcceptable = 1;
+        if ( ratio < 100.0 )
+	  {
+	  splitAcceptable = 1;
+	  }
         splitPlane = 10;
         }
       else //not a great split try another

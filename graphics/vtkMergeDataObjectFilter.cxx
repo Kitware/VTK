@@ -77,7 +77,10 @@ void vtkMergeDataObjectFilter::Update()
 
   this->Updating = 1;
   this->Input->Update();
-  if ( this->DataObject ) this->DataObject->Update();
+  if ( this->DataObject )
+    {
+    this->DataObject->Update();
+    }
   this->Updating = 0;
 
   if ( this->Input->GetMTime() > this->ExecuteTime ||
@@ -166,9 +169,13 @@ void vtkMergeDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   if ( this->DataObject )
+    {
     os << indent << "Data Object: (" << this->DataObject << ")\n";
+    }
   else
+    {
     os << indent << "Data Object: (none)\n";
+    }
 
   os << indent << "Output Field: ";
   if ( this->OutputField == VTK_DATA_OBJECT_FIELD )

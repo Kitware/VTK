@@ -81,7 +81,10 @@ int vtkMergePoints::IsInsertedPoint(float x[3])
       {
       ptId = bucket->GetId(i);
       pt = this->Points->GetPoint(ptId);
-      if ( x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2] ) return ptId;
+      if ( x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2] )
+	{
+	return ptId;
+	}
       }
     }
 

@@ -191,7 +191,10 @@ void vtkLODActor::Render(vtkRenderer *ren)
   
   
   /* render the texture */
-  if (this->Texture) this->Texture->Render(ren);
+  if (this->Texture)
+    {
+    this->Texture->Render(ren);
+    }
   
   // make sure the device has the same matrix
   matrix = this->Device->GetUserMatrix();

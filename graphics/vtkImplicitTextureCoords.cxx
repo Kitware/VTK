@@ -121,13 +121,25 @@ void vtkImplicitTextureCoords::Execute()
     {
     x = input->GetPoint(ptId);
     tCoord[0] = this->RFunction->FunctionValue(x);
-    if ( this->SFunction ) tCoord[1] = this->SFunction->FunctionValue(x);
-    if ( this->TFunction ) tCoord[2] = this->TFunction->FunctionValue(x);
+    if ( this->SFunction )
+      {
+      tCoord[1] = this->SFunction->FunctionValue(x);
+      }
+    if ( this->TFunction )
+      {
+      tCoord[2] = this->TFunction->FunctionValue(x);
+      }
 
     for (i=0; i<tcoordDim; i++)
       {
-      if (tCoord[i] < min[i]) min[i] = tCoord[i];
-      if (tCoord[i] > max[i]) max[i] = tCoord[i];
+      if (tCoord[i] < min[i])
+	{
+	min[i] = tCoord[i];
+	}
+      if (tCoord[i] > max[i])
+	{
+	max[i] = tCoord[i];
+	}
       }
 
     newTCoords->InsertTCoord(ptId,tCoord);
@@ -141,8 +153,14 @@ void vtkImplicitTextureCoords::Execute()
     scale[i] = 1.0;
     if ( max[i] > 0.0 && min[i] < 0.0 ) //have positive & negative numbers
       {
-      if ( max[i] > (-min[i]) ) scale[i] = 0.499 / max[i]; //scale into 0.5->1
-      else scale[i] = -0.499 / min[i]; //scale into 0->0.5
+      if ( max[i] > (-min[i]) )
+	{
+	scale[i] = 0.499 / max[i]; //scale into 0.5->1
+	}
+      else
+	{
+	scale[i] = -0.499 / min[i]; //scale into 0->0.5
+	}
       }
     else if ( max[i] > 0.0 ) //have positive numbers only
       {
@@ -154,11 +172,20 @@ void vtkImplicitTextureCoords::Execute()
       }
     }
 
-  if ( this->FlipTexture ) for (i=0; i<tcoordDim; i++) scale[i] *= (-1.0);
+  if ( this->FlipTexture )
+    {
+    for (i=0; i<tcoordDim; i++)
+      {
+      scale[i] *= (-1.0);
+      }
+    }
   for (ptId=0; ptId<numPts; ptId++)
     {
     tc = newTCoords->GetTCoord(ptId);
-    for (i=0; i<tcoordDim; i++) tCoord[i] = 0.5 + scale[i] * tc[i];
+    for (i=0; i<tcoordDim; i++)
+      {
+      tCoord[i] = 0.5 + scale[i] * tc[i];
+      }
     newTCoords->InsertTCoord(ptId,tCoord);
     }
 //
@@ -219,7 +246,10 @@ void vtkImplicitTextureCoords::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   this->Updating = 1;
   this->Input->Update();
@@ -250,18 +280,30 @@ void vtkImplicitTextureCoords::Update()
       this->Input->ForceUpdate();
       }
 
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     // copy topological/geometric structure from input
     this->AbortExecute = 0;
     this->Progress = 0.0;
     ((vtkDataSet *)this->Output)->CopyStructure((vtkDataSet *)this->Input);
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
 }
 

@@ -76,17 +76,27 @@ float vtkKochanekSpline::Evaluate (float t)
   intervals = this->Intervals;
   coefficients = this->Coefficients;
 
-  if ( this->Closed ) size = size + 1;
+  if ( this->Closed )
+    {
+    size = size + 1;
+    }
 
   // clamp the function at both ends
-  if (t < intervals[0]) t = intervals[0];
-  if (t > intervals[size - 1]) t = intervals[size - 1];
+  if (t < intervals[0])
+    {
+    t = intervals[0];
+    }
+  if (t > intervals[size - 1])
+    {
+    t = intervals[size - 1];
+    }
 
   // find pointer to cubic spline coefficient
   for (i = 1; i < size; i++)
     {
     index = i - 1;
-    if (t < intervals[i]) break;
+    if (t < intervals[i])
+xe      break;
     }
 
   // calculate offset within interval
@@ -114,7 +124,10 @@ void vtkKochanekSpline::Compute ()
   if ( !this->Closed )
     {
     // copy the independent variables
-    if (this->Intervals) delete [] this->Intervals;
+    if (this->Intervals)
+      {
+      delete [] this->Intervals;
+      }
     this->Intervals = new float[size];
     ts = this->PiecewiseFunction->GetDataPointer ();  
     for (i = 0; i < size; i++)
@@ -123,7 +136,10 @@ void vtkKochanekSpline::Compute ()
       }
 
     // allocate memory for coefficients
-    if (this->Coefficients) delete [] this->Coefficients;
+    if (this->Coefficients)
+      {
+      delete [] this->Coefficients;
+      }
     this->Coefficients = new float [4 * size];
 
     // allocate memory for dependent variables
@@ -143,17 +159,23 @@ void vtkKochanekSpline::Compute ()
     {
     size = size + 1;
     // copy the independent variables
-    if (this->Intervals) delete [] this->Intervals;
+    if (this->Intervals)
+      {
+      delete [] this->Intervals;
+      }
     this->Intervals = new float[size];
     ts = this->PiecewiseFunction->GetDataPointer ();  
     for (i = 0; i < size-1; i++)
       {
       this->Intervals[i] = *(ts + 2 * i);    
       }
-     this->Intervals[size-1] = this->Intervals[size-2] + 1.0;
+    this->Intervals[size-1] = this->Intervals[size-2] + 1.0;
 
     // allocate memory for coefficients
-    if (this->Coefficients) delete [] this->Coefficients;
+    if (this->Coefficients)
+      {
+      delete [] this->Coefficients;
+      }
     this->Coefficients = new float [4 * size];
 
     // allocate memory for dependent variables
@@ -186,7 +208,7 @@ void vtkKochanekSpline::Compute ()
   this->ComputeTime = this->GetMTime();
 }
 
-#define EPSILON .0001
+#define VTK_EPSILON .0001
 
 // Compute the coefficients for a 1D spline
 void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
@@ -286,8 +308,8 @@ void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
       case 3:
 	// desired secord derivative at leftmost point is leftValue
 	// times secod derivative at first interior point
-	if ((leftValue > (-2.0 + EPSILON)) || 
-	    (leftValue < (-2.0 - EPSILON)))
+	if ((leftValue > (-2.0 + VTK_EPSILON)) || 
+	    (leftValue < (-2.0 - VTK_EPSILON)))
 	  {
 	  coefficients[0][1] = (3*(1 + leftValue)*(y[1] - y[0]) -
 				    (1 + 2*leftValue)*coefficients[1][2])
@@ -316,8 +338,8 @@ void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
       case 3:
 	// desired secord derivative at rightmost point is rightValue
 	// times secord derivative at last interior point
-	if ((rightValue > (-2.0 + EPSILON)) ||
-	    (rightValue < (-2.0 - EPSILON)))
+	if ((rightValue > (-2.0 + VTK_EPSILON)) ||
+	    (rightValue < (-2.0 - VTK_EPSILON)))
 	  {
 	  coefficients[N][2] = (3*(1 + rightValue)*(y[N] - y[N-1]) -
 				  (1 + 2*rightValue)*coefficients[N-1][1])

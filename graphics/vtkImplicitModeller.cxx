@@ -87,7 +87,10 @@ void vtkImplicitModeller::StartAppend()
   newScalars = vtkScalars::New(); 
   newScalars->SetNumberOfScalars(numPts);
   maxDistance = this->CapValue * this->CapValue;//sqrt taken later
-  for (i=0; i<numPts; i++) newScalars->SetScalar(i,maxDistance);
+  for (i=0; i<numPts; i++)
+    {
+    newScalars->SetScalar(i,maxDistance);
+    }
 
   this->GetOutput()->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
@@ -145,8 +148,14 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
                       Spacing[i]);
       max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / 
                       Spacing[i]);
-      if (min[i] < 0) min[i] = 0;
-      if (max[i] >= this->SampleDimensions[i]) max[i] = this->SampleDimensions[i] - 1;
+      if (min[i] < 0)
+	{
+	min[i] = 0;
+	}
+      if (max[i] >= this->SampleDimensions[i])
+	{
+	max[i] = this->SampleDimensions[i] - 1;
+	}
       }
 
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
@@ -164,8 +173,10 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
           // union combination of distances
           if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords, 
-          distance2, weights) != -1 && distance2 < prevDistance2 )
+                  distance2, weights) != -1 && distance2 < prevDistance2 )
+	    {
             newScalars->SetScalar(idx,distance2);
+	    }
           }
         }
       }
@@ -226,7 +237,10 @@ void vtkImplicitModeller::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   if ( this->Input )
     {
@@ -237,26 +251,38 @@ void vtkImplicitModeller::Update()
     this->Updating = 0;
 
     if (this->Input->GetMTime() > this->ExecuteTime ||
-    this->GetMTime() > this->ExecuteTime )
+	this->GetMTime() > this->ExecuteTime )
       {
       if ( this->Input->GetDataReleased() )
         {
         this->Input->ForceUpdate();
         }
 
-      if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+      if ( this->StartMethod )
+	{
+	(*this->StartMethod)(this->StartMethodArg);
+	}
       this->Output->Initialize(); //clear output
       // reset AbortExecute flag and Progress
       this->AbortExecute = 0;
       this->Progress = 0.0;
       this->Execute();
       this->ExecuteTime.Modified();
-      if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+      if ( !this->AbortExecute )
+	{
+	this->UpdateProgress(1.0);
+	}
       this->SetDataReleased(0);
-      if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+      if ( this->EndMethod )
+	{
+	(*this->EndMethod)(this->EndMethodArg);
+	}
       }
 
-    if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+    if ( this->Input->ShouldIReleaseData() )
+      {
+      this->Input->ReleaseData();
+      }
     }
 }
 
@@ -270,8 +296,8 @@ float vtkImplicitModeller::ComputeModelBounds()
   
   // compute model bounds if not set previously
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
-  this->ModelBounds[2] >= this->ModelBounds[3] ||
-  this->ModelBounds[4] >= this->ModelBounds[5] )
+       this->ModelBounds[2] >= this->ModelBounds[3] ||
+       this->ModelBounds[4] >= this->ModelBounds[5] )
     {
     bounds = ((vtkDataSet *)this->Input)->GetBounds();
     }
@@ -281,8 +307,12 @@ float vtkImplicitModeller::ComputeModelBounds()
     }
 
   for (maxDist=0.0, i=0; i<3; i++)
+    {
     if ( (bounds[2*i+1] - bounds[2*i]) > maxDist )
+      {
       maxDist = bounds[2*i+1] - bounds[2*i];
+      }
+    }
 
   // adjust bounds so model fits strictly inside (only if not set previously)
   if ( this->AdjustBounds )
@@ -328,8 +358,9 @@ void vtkImplicitModeller::SetSampleDimensions(int dim[3])
 
   vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
-  if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
-  dim[2] != SampleDimensions[2] )
+  if ( dim[0] != this->SampleDimensions[0] ||
+       dim[1] != this->SampleDimensions[1] ||
+       dim[2] != this->SampleDimensions[2] )
     {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
       {
@@ -337,7 +368,13 @@ void vtkImplicitModeller::SetSampleDimensions(int dim[3])
       return;
       }
 
-    for (dataDim=0, i=0; i<3 ; i++) if (dim[i] > 1) dataDim++;
+    for (dataDim=0, i=0; i<3 ; i++)
+      {
+      if (dim[i] > 1)
+	{
+	dataDim++;
+	}
+      }
 
     if ( dataDim  < 3 )
       {
@@ -345,7 +382,10 @@ void vtkImplicitModeller::SetSampleDimensions(int dim[3])
       return;
       }
 
-    for ( i=0; i<3; i++) this->SampleDimensions[i] = dim[i];
+    for ( i=0; i<3; i++)
+      {
+      this->SampleDimensions[i] = dim[i];
+      }
 
     this->Modified();
     }
@@ -360,38 +400,56 @@ void vtkImplicitModeller::Cap(vtkScalars *s)
 // i-j planes
   k = 0;
   for (j=0; j<this->SampleDimensions[1]; j++)
+    {
     for (i=0; i<this->SampleDimensions[0]; i++)
+      {
       s->SetScalar(i+j*this->SampleDimensions[0], this->CapValue);
-
+      }
+    }
   k = this->SampleDimensions[2] - 1;
   idx = k*d01;
   for (j=0; j<this->SampleDimensions[1]; j++)
+    {
     for (i=0; i<this->SampleDimensions[0]; i++)
+      {
       s->SetScalar(idx+i+j*this->SampleDimensions[0], this->CapValue);
-
+      }
+    }
 // j-k planes
   i = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
+    {
     for (j=0; j<this->SampleDimensions[1]; j++)
+      {
       s->SetScalar(j*this->SampleDimensions[0]+k*d01, this->CapValue);
-
+      }
+    }
   i = this->SampleDimensions[0] - 1;
   for (k=0; k<this->SampleDimensions[2]; k++)
+    {
     for (j=0; j<this->SampleDimensions[1]; j++)
+      {
       s->SetScalar(i+j*this->SampleDimensions[0]+k*d01, this->CapValue);
-
+      }
+    }
 // i-k planes
   j = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
+    {
     for (i=0; i<this->SampleDimensions[0]; i++)
+      {
       s->SetScalar(i+k*d01, this->CapValue);
-
+      }
+    }
   j = this->SampleDimensions[1] - 1;
   idx = j*this->SampleDimensions[0];
   for (k=0; k<this->SampleDimensions[2]; k++)
+    {
     for (i=0; i<this->SampleDimensions[0]; i++)
+      {
       s->SetScalar(idx+i+k*d01, this->CapValue);
-
+      }
+    }
 }
 
 void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)

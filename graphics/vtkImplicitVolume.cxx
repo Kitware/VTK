@@ -152,7 +152,10 @@ void vtkImplicitVolume::EvaluateGradient(float x[3], float n[3])
 
   else
     { // use outside value
-    for ( i=0; i < 3; i++ ) n[i] = this->OutGradient[i];
+    for ( i=0; i < 3; i++ )
+      {
+      n[i] = this->OutGradient[i];
+      }
     }
   gradient->Delete();
 }

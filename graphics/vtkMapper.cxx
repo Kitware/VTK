@@ -72,7 +72,10 @@ vtkMapper::~vtkMapper()
     {
     this->LookupTable->UnRegister(this);
     }
-  if ( this->Colors != NULL ) this->Colors->Delete();
+  if ( this->Colors != NULL )
+    {
+    this->Colors->Delete();
+    }
   if (this->Input)
     {
     this->Input->UnRegister(this);
@@ -82,7 +85,10 @@ vtkMapper::~vtkMapper()
 
 void vtkMapper::SetGlobalImmediateModeRendering(int val)
 {
-  if (val == vtkMapperGlobalImmediateModeRendering) return;
+  if (val == vtkMapperGlobalImmediateModeRendering)
+    {
+    return;
+    }
   vtkMapperGlobalImmediateModeRendering = val;
 }
 
@@ -122,13 +128,19 @@ vtkScalars *vtkMapper::GetColors()
   vtkScalars *scalars;
   
   // make sure we have an input
-  if (!this->Input) return NULL;
+  if (!this->Input)
+    {
+    return NULL;
+    }
     
   // get and scalar data according to scalar mode
   if ( this->ScalarMode == VTK_SCALAR_MODE_DEFAULT )
     {
     scalars = this->Input->GetPointData()->GetScalars();
-    if (!scalars) scalars = this->Input->GetCellData()->GetScalars();
+    if (!scalars)
+      {
+      scalars = this->Input->GetCellData()->GetScalars();
+      }
     }
   else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_DATA )
     {
@@ -150,13 +162,19 @@ vtkScalars *vtkMapper::GetColors()
     else
       {
       // make sure we have a lookup table
-      if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
+      if ( this->LookupTable == NULL )
+	{
+	this->CreateDefaultLookupTable();
+	}
       this->LookupTable->Build();
       }
 
     // Setup mapper/scalar object for color generation
     this->LookupTable->SetTableRange(this->ScalarRange);
-    if (this->Colors) this->Colors->Delete();
+    if (this->Colors)
+      {
+      this->Colors->Delete();
+      }
     this->Colors = scalars;
     this->Colors->Register(this);
     this->Colors->InitColorTraversal(1.0, this->LookupTable, this->ColorMode);
@@ -164,7 +182,10 @@ vtkScalars *vtkMapper::GetColors()
 
   else //scalars not visible
     {
-    if ( this->Colors ) this->Colors->Delete();
+    if ( this->Colors )
+      {
+      this->Colors->Delete();
+      }
     this->Colors = NULL;
     }
   
@@ -191,7 +212,10 @@ void vtkMapper::SetLookupTable(vtkLookupTable *lut)
 
 vtkLookupTable *vtkMapper::GetLookupTable()
 {
-  if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
+  if ( this->LookupTable == NULL )
+    {
+    this->CreateDefaultLookupTable();
+    }
   return this->LookupTable;
 }
 
@@ -208,7 +232,10 @@ void vtkMapper::CreateDefaultLookupTable()
 void vtkMapper::GetBounds(float bounds[6])
 {
   this->GetBounds();
-  for (int i=0; i<6; i++) bounds[i] = this->Bounds[i];
+  for (int i=0; i<6; i++)
+    {
+    bounds[i] = this->Bounds[i];
+    }
 }
 
 float *vtkMapper::GetCenter()

@@ -90,16 +90,28 @@ vtkLight *vtkLight::New()
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
 #ifdef VTK_USE_SBR
-  if (!strcmp("Starbase",temp)) return vtkStarbaseLight::New();
+  if (!strcmp("Starbase",temp))
+    {
+    return vtkStarbaseLight::New();
+    }
 #endif
 #ifdef VTK_USE_OGLR
-  if (!strcmp("OpenGL",temp)) return vtkOpenGLLight::New();
+  if (!strcmp("OpenGL",temp))
+    {
+    return vtkOpenGLLight::New();
+    }
 #endif
 #ifdef _WIN32
-  if (!strcmp("Win32OpenGL",temp)) return vtkOpenGLLight::New();
+  if (!strcmp("Win32OpenGL",temp))
+    {
+    return vtkOpenGLLight::New();
+    }
 #endif
 #ifdef VTK_USE_XGLR
-  if (!strcmp("XGL",temp)) return vtkXGLLight::New();
+  if (!strcmp("XGL",temp))
+    {
+    return vtkXGLLight::New();
+    }
 #endif
   
   return new vtkLight;

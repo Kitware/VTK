@@ -88,8 +88,14 @@ class VTK_EXPORT vtkMapperCollection : public vtkCollection
 
 inline vtkMapper *vtkMapperCollection::GetLastItem() 
 { 
-  if ( this->Bottom == NULL ) return NULL;
-  else return (vtkMapper *)(this->Bottom->Item);
+  if ( this->Bottom == NULL )
+    {
+    return NULL;
+    }
+  else
+    {
+    return (vtkMapper *)(this->Bottom->Item);
+    }
 }
 
 #endif
