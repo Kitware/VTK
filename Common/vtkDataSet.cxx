@@ -59,6 +59,8 @@ vtkDataSet::vtkDataSet ()
 
   this->PointData = vtkPointData::New();
   this->CellData = vtkCellData::New();
+  this->ScalarRange[0] = 0.0;
+  this->ScalarRange[1] = 1.0;
 }
 
 //----------------------------------------------------------------------------
