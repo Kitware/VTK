@@ -58,7 +58,6 @@ void vtkDataSetWriter::SetInput(vtkDataSet *input)
 
 void vtkDataSetWriter::WriteData()
 {
-  FILE *fp;
   char *type;
   vtkPolyWriter pwriter;
   vtkStructuredPointsWriter spwriter;

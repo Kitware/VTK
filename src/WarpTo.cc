@@ -48,7 +48,6 @@ void vtkWarpTo::Execute()
   int i, ptId;
   float *x, newX[3];
   vtkPointSet *input=(vtkPointSet *)this->Input;
-  float dist;
 
   vtkDebugMacro(<<"Warping data to a point");
   this->Initialize();
