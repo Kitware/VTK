@@ -101,14 +101,14 @@ public:
   
   // Description:
   // Get/Set the extent of the data on disk.  
-  vtkSetVectorMacro(DataExtent,int,6);
-  vtkGetVectorMacro(DataExtent,int,6);
+  vtkSetVector6Macro(DataExtent,int);
+  vtkGetVector6Macro(DataExtent,int);
   
   // Description:
   // Set/get the data VOI. You can limit the reader to only
   // read a subset of the data. 
-  vtkSetVectorMacro(DataVOI,int,6);
-  vtkGetVectorMacro(DataVOI,int,6);
+  vtkSetVector6Macro(DataVOI,int);
+  vtkGetVector6Macro(DataVOI,int);
   
   // Description:
   // The number of dimensions stored in a file. This defaults to two.
