@@ -7,11 +7,13 @@ INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j).*$")
 IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
    IF (COMMAND VTK_MAKE_INSTANTIATOR2)
    ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
+      MESSAGE(STATUS "Compiling VTK loaded commands")
       TRY_COMPILE(COMPILE_OK 
          ${VTK_BINARY_DIR}/CMake 
          ${VTK_SOURCE_DIR}/CMake 
          VTK_LOADED_COMMANDS)
       IF (COMPILE_OK)
+         MESSAGE(STATUS "Compiling VTK loaded commands - done")
          # load the four extra CMake commands 
          LOAD_COMMAND(VTK_WRAP_TCL2 
             ${VTK_BINARY_DIR}/CMake ${VTK_BINARY_DIR}/CMake/Debug)
@@ -22,6 +24,7 @@ IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
          LOAD_COMMAND(VTK_MAKE_INSTANTIATOR2 
             ${VTK_BINARY_DIR}/CMake ${VTK_BINARY_DIR}/CMake/Debug)
       ELSE (COMPILE_OK)
+         MESSAGE(STATUS "Compiling VTK loaded commands - failed")
          MESSAGE("failed to compile VTK extensions to CMake")
       ENDIF (COMPILE_OK)
    ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
