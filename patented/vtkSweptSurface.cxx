@@ -118,7 +118,7 @@ void vtkSweptSurface::Execute()
   int inDim[3];
   int numSteps, stepNum;
   int numTransforms, transNum;
-  vtkActor a; //use the actor to do position/orientation stuff
+  vtkActor *a; //use the actor to do position/orientation stuff
   vtkTransform *transform1, *transform2, *t = vtkTransform::New();
   float time;
   // position2 is [4] for GetPoint() call
@@ -166,11 +166,12 @@ void vtkSweptSurface::Execute()
 
   // Get/Set the origin for the actor... for handling case when the input
   // is not centered at 0,0,0
+  a = vtkActor::New();
   float *bounds = input->GetBounds();
-  a.SetOrigin( (bounds[0]+bounds[1])/2.0,  
+  a->SetOrigin( (bounds[0]+bounds[1])/2.0,  
 	       (bounds[2]+bounds[3])/2.0,
 	       (bounds[4]+bounds[5])/2.0 );
-  float *actorOrigin = a.GetOrigin();
+  float *actorOrigin = a->GetOrigin();
 
 
   input->GetDimensions(inDim);
@@ -247,17 +248,17 @@ void vtkSweptSurface::Execute()
         orient[i] = orient1[i] + time*(orient2[i] - orient1[i]);
         }
 
-      a.SetPosition(position);
-      a.SetOrientation(orient);
-      this->SampleInput(a.vtkProp::GetMatrix(), inDim, inOrigin, inSpacing,
+      a->SetPosition(position);
+      a->SetOrientation(orient);
+      this->SampleInput(a->vtkProp::GetMatrix(), inDim, inOrigin, inSpacing,
                         inScalars, newScalars);
       }
     }
 
   //finish off last step
-  a.SetPosition(position2);
-  a.SetOrientation(orient2);
-  this->SampleInput(a.vtkProp::GetMatrix(), inDim, inOrigin, inSpacing,
+  a->SetPosition(position2);
+  a->SetOrientation(orient2);
+  this->SampleInput(a->vtkProp::GetMatrix(), inDim, inOrigin, inSpacing,
                     inScalars, newScalars);
 
   // Cap if requested
@@ -270,6 +271,7 @@ void vtkSweptSurface::Execute()
   outPD->SetScalars(newScalars);
   newScalars->Delete();
   t->Delete();
+  a->Delete();
 }
 
 void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3], 

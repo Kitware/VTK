@@ -139,6 +139,7 @@ void vtkMassProperties::Execute()
   int cellId, numCells, numPts, numIds;
   float *p;
   
+  ptIds.ReferenceCountingOff();
   numCells=input->GetNumberOfCells();
   numPts = input->GetNumberOfPoints();
   if (numCells < 1 || numPts < 1)
@@ -146,9 +147,9 @@ void vtkMassProperties::Execute()
       vtkErrorMacro(<<"No data to measure...!");
       return;
     }
-//
-// Traverse all cells, obtaining node coordinates.
-//
+  //
+  // Traverse all cells, obtaining node coordinates.
+  //
   double   vol[3],kxyz[3];
   double   munc[3],wxyz,wxy,wxz,wyz;
   double   area,surfacearea;
@@ -159,9 +160,9 @@ void vtkMassProperties::Execute()
   float    xavg,yavg,zavg;
   int      idx;
 
-//
-// Initialize variables ...
-//
+  //
+  // Initialize variables ...
+  //
   surfacearea = 0.0;
   wxyz = 0; wxy = 0.0; wxz = 0.0; wyz = 0.0;
   for ( idx =0; idx < 3 ; idx++ ) 
