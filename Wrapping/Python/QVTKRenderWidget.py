@@ -1,0 +1,363 @@
+"""
+A simple VTK input file for PyQt, the qt bindings for python.
+See http://www.trolltech.com for qt documentation, and
+http://www.thekompany.com for the qt python bindings.
+
+Created by David Gobbi, December 2001
+Based on vtkTkRenderWindget.py
+"""
+
+import math, os, sys
+from vtkpython import *
+from qt import *
+
+class QVTKRenderWidget(QWidget):
+    """
+    A QVTKRenderWidget for Python and Qt.
+    Use GetRenderWindow() to get the vtkRenderWindow.
+    Create with the keyword stereo=1 in order to
+    generate a stereo-capable window.
+    """
+    def __init__(self, parent=None, name=None, **kw):
+
+        # private attributes
+        self.__oldFocus = None
+        self.__connected = 0  # is QT->VTK connection done?
+
+        # create qt-level widget
+        QWidget.__init__(self,parent,None)
+
+        try: # check to see if a render window was specified
+            self._RenderWindow = kw['rw']
+        except KeyError:
+            self._RenderWindow = vtkRenderWindow()
+
+        try:  # was a stereo rendering context requested?
+            if kw['stereo']:
+	       self._RenderWindow.StereoCapableWindowOn()
+               self._RenderWindow.SetStereoTypeToCrystalEyes()
+               del kw['stereo']
+	except KeyError:
+            pass
+ 
+        # do all the necessary qt setup
+        self.setBackgroundMode(2) # NoBackground
+        self.setMouseTracking(1) # get all mouse events
+        self.setFocusPolicy(2) # ClickFocus
+        if parent == None:
+            self.show()
+        
+        if self.isVisible():
+            if self.__connected == 0:
+                size = self.size()
+                self._RenderWindow.SetSize(size.width(),size.height())
+                self._RenderWindow.SetWindowInfo(str(self.winId()))
+                self.__connected = 1
+
+        self._CurrentRenderer = None
+        self._CurrentCamera = None
+        self._CurrentZoom = 1.0
+        self._CurrentLight = None
+
+        self._ViewportCenterX = 0
+        self._ViewportCenterY = 0
+        
+        self._Picker = vtkCellPicker()
+        self._PickedAssembly = None
+        self._PickedProperty = vtkProperty()
+        self._PickedProperty.SetColor(1,0,0)
+        self._PrePickedProperty = None
+        
+        # these record the previous mouse position
+        self._LastX = 0
+        self._LastY = 0
+        self._LastState = 0
+
+    def paintEvent(self,ev):
+        if self.isVisible():
+            if self.__connected == 0:
+                size = self.size()
+                self._RenderWindow.SetSize(size.width(),size.height())
+                self._RenderWindow.SetWindowInfo(str(self.winId()))
+                self.__connected = 1
+        if self.__connected:
+            self.Render()
+
+    def resizeEvent(self,ev):
+        self.repaint()
+
+    def enterEvent(self,ev):
+        if not self.hasFocus():
+            self.__oldFocus = self.focusWidget()
+            self.setFocus()
+
+    def leaveEvent(self,ev):
+        if (self._LastState & 0x7) == 0 and self.__oldFocus:
+            self.__oldFocus.setFocus()
+            self.__oldFocus = None
+
+    def mousePressEvent(self,ev):
+        self.UpdateRenderer(ev.x(),ev.y())
+
+    def mouseReleaseEvent(self,ev):
+        if self._CurrentRenderer:
+            self.Render()
+
+    def mouseMoveEvent(self,ev):
+        self._LastState = ev.state()
+        if (ev.state() & 1) != 0:
+            self.Rotate(ev.x(),ev.y())
+        elif (ev.state() & 4) != 0 or (ev.state() & 12) == 12:
+            self.Pan(ev.x(),ev.y())
+        elif (ev.state() & 2) != 0:
+            self.Zoom(ev.x(),ev.y())
+
+    def keyPressEvent(self,ev):
+        if chr(ev.key()) == 'R':
+            self.Reset(self._LastX,self._LastY)
+        if chr(ev.key()) == 'W':
+            self.Wireframe()
+        if chr(ev.key()) == 'S':
+            self.Surface()
+        if chr(ev.key()) == 'P':
+            self.PickActor(self._LastX,self._LastY)
+
+    def GetZoomFactor(self):
+        return self._CurrentZoom
+
+    def GetRenderWindow(self):
+        return self._RenderWindow
+
+    def GetPicker(self):
+        return self._Picker
+
+    def Render(self):
+        if (self._CurrentLight):
+            light = self._CurrentLight
+            light.SetPosition(self._CurrentCamera.GetPosition())
+            light.SetFocalPoint(self._CurrentCamera.GetFocalPoint())
+
+        self._RenderWindow.Render()
+
+    def UpdateRenderer(self,x,y):
+        """
+        UpdateRenderer will identify the renderer under the mouse and set
+        up _CurrentRenderer, _CurrentCamera, and _CurrentLight.
+        """
+        windowX = self.width()
+        windowY = self.height()
+
+        renderers = self._RenderWindow.GetRenderers()
+        numRenderers = renderers.GetNumberOfItems()
+
+        self._CurrentRenderer = None
+        renderers.InitTraversal()
+        for i in range(0,numRenderers):
+            renderer = renderers.GetNextItem()
+            vx,vy = (0,0)
+            if (windowX > 1):
+                vx = float(x)/(windowX-1)
+            if (windowY > 1):
+                vy = (windowY-float(y)-1)/(windowY-1)
+            (vpxmin,vpymin,vpxmax,vpymax) = renderer.GetViewport()
+            
+            if (vx >= vpxmin and vx <= vpxmax and
+                vy >= vpymin and vy <= vpymax):
+                self._CurrentRenderer = renderer
+                self._ViewportCenterX = float(windowX)*(vpxmax-vpxmin)/2.0\
+                                        +vpxmin
+                self._ViewportCenterY = float(windowY)*(vpymax-vpymin)/2.0\
+                                        +vpymin
+                self._CurrentCamera = self._CurrentRenderer.GetActiveCamera()
+                lights = self._CurrentRenderer.GetLights()
+                lights.InitTraversal()
+                self._CurrentLight = lights.GetNextItem()
+                break
+
+        self._LastX = x
+        self._LastY = y
+
+    def GetCurrentRenderer(self):
+        return self._CurrentRenderer
+                
+    def Rotate(self,x,y):
+        if self._CurrentRenderer:
+            
+            self._CurrentCamera.Azimuth(self._LastX - x)
+            self._CurrentCamera.Elevation(y - self._LastY)
+            self._CurrentCamera.OrthogonalizeViewUp()
+            
+            self._LastX = x
+            self._LastY = y
+            
+            self._CurrentRenderer.ResetCameraClippingRange()
+            self.Render()
+
+    def Pan(self,x,y):
+        if self._CurrentRenderer:
+            
+            renderer = self._CurrentRenderer
+            camera = self._CurrentCamera
+            (pPoint0,pPoint1,pPoint2) = camera.GetPosition()
+            (fPoint0,fPoint1,fPoint2) = camera.GetFocalPoint()
+
+            if (camera.GetParallelProjection()):
+                renderer.SetWorldPoint(fPoint0,fPoint1,fPoint2,1.0)
+                renderer.WorldToDisplay()
+                fx,fy,fz = renderer.GetDisplayPoint()
+                renderer.SetDisplayPoint(fx-x+self._LastX,
+                                         fy+y-self._LastY,
+                                         fz)
+                renderer.DisplayToWorld()
+                fx,fy,fz,fw = renderer.GetWorldPoint()
+                camera.SetFocalPoint(fx,fy,fz)
+
+                renderer.SetWorldPoint(pPoint0,pPoint1,pPoint2,1.0)
+                renderer.WorldToDisplay()
+                fx,fy,fz = renderer.GetDisplayPoint()
+                renderer.SetDisplayPoint(fx-x+self._LastX,
+                                         fy+y-self._LastY,
+                                         fz)
+                renderer.DisplayToWorld()
+                fx,fy,fz,fw = renderer.GetWorldPoint()
+                camera.SetPosition(fx,fy,fz)
+                
+            else:
+                (fPoint0,fPoint1,fPoint2) = camera.GetFocalPoint()
+                # Specify a point location in world coordinates
+                renderer.SetWorldPoint(fPoint0,fPoint1,fPoint2,1.0)
+                renderer.WorldToDisplay()
+                # Convert world point coordinates to display coordinates
+                dPoint = renderer.GetDisplayPoint()
+                focalDepth = dPoint[2]
+                
+                aPoint0 = self._ViewportCenterX + (x - self._LastX)
+                aPoint1 = self._ViewportCenterY - (y - self._LastY)
+                
+                renderer.SetDisplayPoint(aPoint0,aPoint1,focalDepth)
+                renderer.DisplayToWorld()
+                
+                (rPoint0,rPoint1,rPoint2,rPoint3) = renderer.GetWorldPoint()
+                if (rPoint3 != 0.0):
+                    rPoint0 = rPoint0/rPoint3
+                    rPoint1 = rPoint1/rPoint3
+                    rPoint2 = rPoint2/rPoint3
+
+                camera.SetFocalPoint((fPoint0 - rPoint0) + fPoint0, 
+                                     (fPoint1 - rPoint1) + fPoint1,
+                                     (fPoint2 - rPoint2) + fPoint2) 
+                
+                camera.SetPosition((fPoint0 - rPoint0) + pPoint0, 
+                                   (fPoint1 - rPoint1) + pPoint1,
+                                   (fPoint2 - rPoint2) + pPoint2)
+
+            self._LastX = x
+            self._LastY = y
+
+            self.Render()
+
+    def Zoom(self,x,y):
+        if self._CurrentRenderer:
+
+            renderer = self._CurrentRenderer
+            camera = self._CurrentCamera
+
+            zoomFactor = math.pow(1.02,(0.5*(self._LastY - y)))
+            self._CurrentZoom = self._CurrentZoom * zoomFactor
+
+            if camera.GetParallelProjection():
+                parallelScale = camera.GetParallelScale()/zoomFactor
+                camera.SetParallelScale(parallelScale)
+            else:
+                camera.Dolly(zoomFactor)
+                renderer.ResetCameraClippingRange()
+
+            self._LastX = x
+            self._LastY = y
+
+            self.Render()
+
+    def Reset(self,x,y):
+        if self._CurrentRenderer:
+            self._CurrentRenderer.ResetCamera()
+            
+        self.Render()
+
+    def Wireframe(self):
+        actors = self._CurrentRenderer.GetActors()
+        numActors = actors.GetNumberOfItems()
+        actors.InitTraversal()
+        for i in range(0,numActors):
+            actor = actors.GetNextItem()
+            actor.GetProperty().SetRepresentationToWireframe()
+
+        self.Render()
+        
+    def Surface(self):
+        actors = self._CurrentRenderer.GetActors()
+        numActors = actors.GetNumberOfItems()
+        actors.InitTraversal()
+        for i in range(0,numActors):
+            actor = actors.GetNextItem()
+            actor.GetProperty().SetRepresentationToSurface()
+
+        self.Render()
+
+    def PickActor(self,x,y):
+        if self._CurrentRenderer:
+
+            renderer = self._CurrentRenderer
+            picker = self._Picker
+            
+            windowY = self.height()
+            picker.Pick(x,(windowY - y - 1),0.0,renderer)
+            assembly = picker.GetAssembly()
+
+            if (self._PickedAssembly != None and
+                self._PrePickedProperty != None):
+                self._PickedAssembly.SetProperty(self._PrePickedProperty)
+                # release hold of the property
+                self._PrePickedProperty.UnRegister(self._PrePickedProperty)
+                self._PrePickedProperty = None
+
+            if (assembly != None):
+                self._PickedAssembly = assembly
+                self._PrePickedProperty = self._PickedAssembly.GetProperty()
+                # hold onto the property
+                self._PrePickedProperty.Register(self._PrePickedProperty)
+                self._PickedAssembly.SetProperty(self._PickedProperty)
+
+            self.Render()
+
+#----------------------------------------------------------------------------  
+def QVTKRenderWidgetConeExample():
+    """Like it says, just a simple example
+    """
+    # create root window
+    app = QApplication(['QVTKRenderWidget'])
+
+    # create vtkTkRenderWidget
+    widget = QVTKRenderWidget()
+
+    ren = vtkRenderer()
+    widget.GetRenderWindow().AddRenderer(ren)
+
+    cone = vtkConeSource()
+    cone.SetResolution(8)
+    
+    coneMapper = vtkPolyDataMapper()
+    coneMapper.SetInput(cone.GetOutput())
+    
+    coneActor = vtkActor()
+    coneActor.SetMapper(coneMapper)
+
+    ren.AddActor(coneActor)
+
+    # start the tk mainloop
+    widget.show()
+    qApp.setMainWidget(widget)
+    app.exec_loop()
+    
+if __name__ == "__main__":
+    QVTKRenderWidgetConeExample()
+
