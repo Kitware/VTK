@@ -35,7 +35,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define vlSetMacro(name,type) \
 void Set##name (type _arg) \
   { \
-  if (Debug) cerr << GetClassName() << " " << this << ", setting " << #name " to " << _arg << "\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg << "\n\n"; \
   if (name != _arg) \
     { \
     name = _arg; \
@@ -48,7 +48,7 @@ void Set##name (type _arg) \
 //
 #define vlGetMacro(name,type) \
 type Get##name () { \
-  if (Debug) cerr << GetClassName() << " " << this << ", returning " << #name " of " << name << "\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " of " << name << "\n\n"; \
   return name; \
   } 
 
@@ -59,7 +59,7 @@ type Get##name () { \
 #define vlSetStringMacro(name) \
 void Set##name (char* _arg) \
   { \
-  if (Debug) cerr << GetClassName() << " " << this << ", setting " << #name " to " << _arg << "\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg << "\n\n"; \
   if ( name && _arg ) \
     if ( !strcmp(name,_arg) ) return; \
   if (name) delete [] name; \
@@ -81,7 +81,7 @@ void Set##name (char* _arg) \
 //
 #define vlGetStringMacro(name) \
 char* Get##name () { \
-  if (Debug) cerr << GetClassName() << " " << this << ", returning " << #name " of " << name << "\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " of " << name << "\n\n"; \
   return name; \
   } 
 
@@ -95,7 +95,7 @@ char* Get##name () { \
 #define vlSetClampMacro(name,type,min,max) \
 void Set##name (type _arg) \
   { \
-  if (Debug) cerr << GetClassName() << " " << this << ", setting " << #name " to " << _arg << "\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg << "\n\n"; \
   if (name != _arg) \
     { \
     name = (_arg<min?min:(_arg>max?max:_arg)); \
@@ -110,7 +110,7 @@ void Set##name (type _arg) \
 #define vlSetObjectMacro(name,type) \
 void Set##name (type* _arg) \
   { \
-  if (Debug) cerr << GetClassName() << " " << this << ", setting " << #name " to " << &_arg << "\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to " << &_arg << "\n\n"; \
   if (name != _arg) \
     { \
     if (name != 0) name->UnRegister((void *)this); \
@@ -126,7 +126,7 @@ void Set##name (type* _arg) \
 #define vlGetObjectMacro(name,type) \
 type *Get##name () \
   { \
-  if (Debug) cerr << GetClassName() << " " << this << ", returning " << #name " address " << name << "\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " address " << name << "\n\n"; \
   return name; \
   } 
 
@@ -147,7 +147,7 @@ void name##Off () { Set##name((type)0);}
 #define vlSetVector2Macro(name,type) \
 void Set##name (type _arg1, type _arg2) \
   { \
-  if (Debug) cerr << GetClassName() << " " << this << ", setting " << #name " to (" << _arg1 << "," << _arg2 << ")\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << ")\n\n"; \
   if ((name[0] != _arg1)||(name[1] != _arg2)) \
     { \
     Modified(); \
@@ -157,7 +157,7 @@ void Set##name (type _arg1, type _arg2) \
   }; \
 void Set##name (type _arg[2]) \
   { \
-  if (Debug) cerr << GetClassName() << " " << this << ", setting " << #name " to (" << _arg[0] << "," << _arg[1] << ")\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg[0] << "," << _arg[1] << ")\n\n"; \
   if ((name[0] != _arg[0])||(name[1] != _arg[1])) \
     { \
     Modified(); \
@@ -169,7 +169,7 @@ void Set##name (type _arg[2]) \
 #define vlSetVector3Macro(name,type) \
 void Set##name (type _arg1, type _arg2, type _arg3) \
   { \
-  if (Debug) cerr << GetClassName() << " " << this << ", setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << ")\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << ")\n\n"; \
   if ((name[0] != _arg1)||(name[1] != _arg2)||(name[2] != _arg3)) \
     { \
     Modified(); \
@@ -180,7 +180,7 @@ void Set##name (type _arg1, type _arg2, type _arg3) \
   }; \
 void Set##name (type _arg[3]) \
   { \
-  if (Debug) cerr << GetClassName() << " " << this << ", setting " << #name " to (" << _arg[0] << "," << _arg[1] << "," << _arg[2] << ")\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg[0] << "," << _arg[1] << "," << _arg[2] << ")\n\n"; \
   if ((name[0] != _arg[0])||(name[1] != _arg[1])||(name[2] != _arg[2])) \
     { \
     Modified(); \
@@ -193,7 +193,7 @@ void Set##name (type _arg[3]) \
 #define vlSetVector4Macro(name,type) \
 void Set##name (type _arg1, type _arg2, type _arg3, type _arg4) \
   { \
-  if (Debug) cerr << GetClassName() << " " << this << ", setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")\n\n"; \
   if ((name[0] != _arg1)||(name[1] != _arg2)||(name[2] != _arg3)||(name[3] != _arg4)) \
     { \
     Modified(); \
@@ -205,7 +205,7 @@ void Set##name (type _arg1, type _arg2, type _arg3, type _arg4) \
   }; \
 void Set##name (type _arg[4]) \
   { \
-  if (Debug) cerr << GetClassName() << " " << this << ", setting " << #name " to (" << _arg[0] << "," << _arg[1] << "," << _arg[2] << "," << _arg[3] << ")\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg[0] << "," << _arg[1] << "," << _arg[2] << "," << _arg[3] << ")\n\n"; \
   if ((name[0] != _arg[0])||(name[1] != _arg[1])||(name[2] != _arg[2])||(name[3] != _arg[3])) \
     { \
     Modified(); \
@@ -222,22 +222,22 @@ void Set##name (type _arg[4]) \
 //
 #define vlGetVectorMacro(name,type) \
 type *Get##name () { \
-  if (Debug) cerr << GetClassName() << " " << this << ", returning " << #name " pointer " << name << "\n"; \
+  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name << "\n\n"; \
   return name; \
 } 
 
 //
 // This macro is used for  debug statements in instance methods
-// vlDebugMacro(<< "this is debug info" << this->SomeVariable << "\n");
+// vlDebugMacro(<< "this is debug info" << this->SomeVariable);
 //
 #define vlDebugMacro(x) \
-  if (Debug) cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << ": " x
+  if (Debug) cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
 
 //
 // This macro is used to print out errors
-// vlErrorMacro(<< "Error message" << variable << "\n");
+// vlErrorMacro(<< "Error message" << variable);
 //
 #define vlErrorMacro(x) \
-  cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << ": " x
+  cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
 
 #endif

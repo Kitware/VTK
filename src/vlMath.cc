@@ -20,10 +20,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 long vlMath::Seed = 1177; // One authors home address
 
-vlMath::vlMath()
-{
-}
-
 //
 // Generate random numbers between 0.0 and 1.0
 // This is used to provide portability across different systems.
@@ -56,7 +52,6 @@ float vlMath::Random()
     Seed += K_M;
   return ((float) this->Seed / K_M);
 }
-
 //
 // initialize seed value
 //   NOTE: Random() has the bad property that the first random
