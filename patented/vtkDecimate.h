@@ -288,6 +288,8 @@ protected:
   int MaximumNumberOfSquawks; //control number of error messages
   int PreserveTopology; //control whether mesh topology is preserved
   vtkIdList *Neighbors; // to replace static
+  vtkVertexArray *V; //to replace static
+  vtkTriArray *T; //to replace static
   
   void CreateOutput(int numPts, int numTris, int numEliminated, 
                     vtkPointData *pd, vtkPoints *inPts);

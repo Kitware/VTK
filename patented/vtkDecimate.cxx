@@ -86,9 +86,6 @@ static int Squawks; // Control output
 static float X[3]; //coordinates of current point
 static float *VertexError, Error, MinEdgeError; //support error omputation
 
-static vtkVertexArray *V; //cycle of vertices around point
-static vtkTriArray *T; //cycle of triangles around point
-
 
 // Description:
 // Create object with target reduction of 90%, feature angle of 30 degrees, 
@@ -121,11 +118,15 @@ vtkDecimate::vtkDecimate()
   this->PreserveTopology = 1;
   
   this->Neighbors = new vtkIdList(VTK_MAX_TRIS_PER_VERTEX);
+  this->V = new vtkVertexArray(VTK_MAX_TRIS_PER_VERTEX + 1);
+  this->T = new vtkTriArray(VTK_MAX_TRIS_PER_VERTEX + 1);
 }
 
 vtkDecimate::~vtkDecimate()
 {
   this->Neighbors->Delete();
+  delete this->V;
+  delete this->T;
 }
 
 //
@@ -159,14 +160,8 @@ void vtkDecimate::Execute()
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
-  // do it this way because some compilers can't handle construction of
-  // static objects in file scope.
-  static vtkVertexArray VertexArray(VTK_MAX_TRIS_PER_VERTEX+1);
-  static vtkTriArray TriangleArray(VTK_MAX_TRIS_PER_VERTEX+1);
 
   vtkDebugMacro(<<"Decimating mesh...");
-  V = &VertexArray;
-  T = &TriangleArray;
   //
   // Check input
   //
@@ -293,10 +288,10 @@ void vtkDecimate::Execute()
           if ( vtype != VTK_COMPLEX_VERTEX ) 
             {
             ContinueTriangulating = 1;
-            numVerts = V->GetNumberOfVertices();
+            numVerts = this->V->GetNumberOfVertices();
             for (i=0; i < numVerts; i++)
               {
-              verts[i] = V->Array + i;
+              verts[i] = this->V->Array + i;
               }
             }
 	  //
@@ -357,27 +352,27 @@ void vtkDecimate::Execute()
 
               // Update the data structure to reflect deletion of vertex
               Mesh->DeletePoint(ptId);
-              for (i=0; i < V->GetNumberOfVertices(); i++)
+              for (i=0; i < this->V->GetNumberOfVertices(); i++)
 		{
-                if ( (size=V->Array[i].newRefs-V->Array[i].deRefs) > 0 )
+                if ( (size=this->V->Array[i].newRefs-this->V->Array[i].deRefs) > 0 )
 		  {
-                  Mesh->ResizeCellList(V->Array[i].id,size);
+                  Mesh->ResizeCellList(this->V->Array[i].id,size);
 		  }
 		}
-              for (i=0; i < T->GetNumberOfTriangles(); i++)
+              for (i=0; i < this->T->GetNumberOfTriangles(); i++)
 		{
-                Mesh->RemoveCellReference(T->Array[i].id);
+                Mesh->RemoveCellReference(this->T->Array[i].id);
 		}
 
-              for (i=0; i < T->GetNumberOfTriangles(); i++)
+              for (i=0; i < this->T->GetNumberOfTriangles(); i++)
 		{
-                if ( T->Array[i].verts[0] != -1 ) //replaced with new triangle
+                if ( this->T->Array[i].verts[0] != -1 ) //replaced with new triangle
 		  {
-                  Mesh->ReplaceLinkedCell(T->Array[i].id, 3, T->Array[i].verts);
+                  Mesh->ReplaceLinkedCell(this->T->Array[i].id, 3, this->T->Array[i].verts);
 		  }
                 else
 		  {
-                  Mesh->DeleteCell(T->Array[i].id);
+                  Mesh->DeleteCell(this->T->Array[i].id);
 		  }
 		}
               }
@@ -560,8 +555,8 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   //  vertex. Traverse this structure, gathering all the surrounding vertices
   //  into an ordered list.
   //
-  V->Reset();
-  T->Reset();
+  this->V->Reset();
+  this->T->Reset();
 
   sn.FAngle = 0.0;
   sn.deRefs =  2;  // keep track of triangle references to the verts 
@@ -586,7 +581,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   sn.id = startVertex = verts[(i+1)%3];
   Mesh->GetPoint(sn.id, sn.x); //grab coordinates here to save GetPoint() calls
 
-  V->InsertNextVertex(sn);
+  this->V->InsertNextVertex(sn);
 
   nextVertex = -1; // initialize
   this->Neighbors->Reset();
@@ -597,10 +592,10 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   //  completed.  Also have to keep track of orientation of faces for
   //  computing normals.
   //
-  while ( T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
+  while ( this->T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
     {
     t.id = this->Neighbors->GetId(0);
-    T->InsertNextTriangle(t);
+    this->T->InsertNextTriangle(t);
 
     Mesh->GetCellPoints(t.id,numVerts,verts);
         
@@ -614,7 +609,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
       }
     sn.id = nextVertex;
     Mesh->GetPoint(sn.id, sn.x);
-    V->InsertNextVertex(sn);
+    this->V->InsertNextVertex(sn);
 
     Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, this->Neighbors);
     numNei = this->Neighbors->GetNumberOfIds();
@@ -625,7 +620,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   //
   if ( nextVertex == startVertex && numNei == 1 ) 
     {
-    if ( T->GetNumberOfTriangles() != numTris ) //touching non-manifold
+    if ( this->T->GetNumberOfTriangles() != numTris ) //touching non-manifold
       {
       this->Stats[VTK_FAILED_NON_MANIFOLD]++;
       this->Stats[VTK_COMPLEX_VERTEX]++;
@@ -633,7 +628,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
       } 
     else  //remove last vertex addition
       {
-      V->MaxId -= 1;
+      this->V->MaxId -= 1;
       this->Stats[VTK_SIMPLE_VERTEX]++;
       return VTK_SIMPLE_VERTEX;
       }
@@ -641,7 +636,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   //
   //  Check for non-manifold cases
   //
-  else if ( numNei > 1 || T->GetNumberOfTriangles() > numTris ) 
+  else if ( numNei > 1 || this->T->GetNumberOfTriangles() > numTris ) 
     {
     if ( Squawks++ < this->MaximumNumberOfSquawks ) 
       vtkWarningMacro(<<"Non-manifold geometry encountered");
@@ -652,12 +647,12 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   //
   //  Boundary loop - but (luckily) completed semi-cycle
   //
-  else if ( numNei == 0 && T->GetNumberOfTriangles() == numTris ) 
+  else if ( numNei == 0 && this->T->GetNumberOfTriangles() == numTris ) 
     {
-    V->Array[0].FAngle = -1.0; // using cosine of -180 degrees
-    V->Array[V->MaxId].FAngle = -1.0;
-    V->Array[0].deRefs = 1;
-    V->Array[V->MaxId].deRefs = 1;
+    this->V->Array[0].FAngle = -1.0; // using cosine of -180 degrees
+    this->V->Array[this->V->MaxId].FAngle = -1.0;
+    this->V->Array[0].deRefs = 1;
+    this->V->Array[this->V->MaxId].deRefs = 1;
 
     this->Stats[VTK_BOUNDARY_VERTEX]++;
     return VTK_BOUNDARY_VERTEX;
@@ -669,14 +664,14 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   //
   else 
     {
-    t = T->GetTriangle(T->MaxId);
+    t = this->T->GetTriangle(this->T->MaxId);
 
-    V->Reset();
-    T->Reset();
+    this->V->Reset();
+    this->T->Reset();
 
     startVertex = sn.id = nextVertex;
     Mesh->GetPoint(sn.id, sn.x);
-    V->InsertNextVertex(sn);
+    this->V->InsertNextVertex(sn);
 
     nextVertex = -1;
     this->Neighbors->Reset();
@@ -685,10 +680,10 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     //
     //  Now move from boundary edge around the other way.
     //
-    while ( T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
+    while ( this->T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
       {
       t.id = this->Neighbors->GetId(0);
-      T->InsertNextTriangle(t);
+      this->T->InsertNextTriangle(t);
 
       Mesh->GetCellPoints(t.id,numVerts,verts);
   
@@ -703,7 +698,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 
       sn.id = nextVertex;
       Mesh->GetPoint(sn.id, sn.x);
-      V->InsertNextVertex(sn);
+      this->V->InsertNextVertex(sn);
 
       Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, this->Neighbors);
       numNei = this->Neighbors->GetNumberOfIds();
@@ -711,39 +706,39 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     //
     //  Make sure that there are only two boundaries (i.e., not non-manifold)
     //
-    if ( T->GetNumberOfTriangles() == numTris ) 
+    if ( this->T->GetNumberOfTriangles() == numTris ) 
       {
       //
       //  Because we've reversed order of loop, need to rearrange the order
       //  of the vertices and polygons to preserve consistent polygons
       //  ordering / normal orientation.
       //
-      numVerts = V->GetNumberOfVertices();
+      numVerts = this->V->GetNumberOfVertices();
       for (i=0; i<(numVerts/2); i++) 
         {
-        sn.id = V->Array[i].id;
-        V->Array[i].id = V->Array[numVerts-i-1].id;
-        V->Array[numVerts-i-1].id = sn.id;
+        sn.id = this->V->Array[i].id;
+        this->V->Array[i].id = this->V->Array[numVerts-i-1].id;
+        this->V->Array[numVerts-i-1].id = sn.id;
         for (j=0; j<3; j++)
           {
-          sn.x[j] = V->Array[i].x[j];
-          V->Array[i].x[j] = V->Array[numVerts-i-1].x[j];
-          V->Array[numVerts-i-1].x[j] = sn.x[j];
+          sn.x[j] = this->V->Array[i].x[j];
+          this->V->Array[i].x[j] = this->V->Array[numVerts-i-1].x[j];
+          this->V->Array[numVerts-i-1].x[j] = sn.x[j];
           }
         }
 
-      numTris = T->GetNumberOfTriangles();
+      numTris = this->T->GetNumberOfTriangles();
       for (i=0; i<(numTris/2); i++) 
         {
-        t.id = T->Array[i].id;
-        T->Array[i].id = T->Array[numTris-i-1].id;
-        T->Array[numTris-i-1].id = t.id;
+        t.id = this->T->Array[i].id;
+        this->T->Array[i].id = this->T->Array[numTris-i-1].id;
+        this->T->Array[numTris-i-1].id = t.id;
         }
 
-      V->Array[0].FAngle = -1.0;
-      V->Array[V->MaxId].FAngle = -1.0;
-      V->Array[0].deRefs = 1;
-      V->Array[V->MaxId].deRefs = 1;
+      this->V->Array[0].FAngle = -1.0;
+      this->V->Array[this->V->MaxId].FAngle = -1.0;
+      this->V->Array[0].deRefs = 1;
+      this->V->Array[this->V->MaxId].deRefs = 1;
 
       this->Stats[VTK_BOUNDARY_VERTEX]++;
       return VTK_BOUNDARY_VERTEX;
@@ -759,7 +754,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     }
 }
 
-#define VTK_FEATURE_ANGLE(tri1,tri2) vtkMath::Dot(T->Array[tri1].n, T->Array[tri2].n)
+#define VTK_FEATURE_ANGLE(tri1,tri2) vtkMath::Dot(this->T->Array[tri1].n, this->T->Array[tri2].n)
 
 //
 //  Compute the polygon normals and edge feature angles around the
@@ -774,7 +769,7 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
   //
   //  Traverse all polygons and generate normals and areas
   //
-  x2 =  V->Array[0].x;
+  x2 =  this->V->Array[0].x;
   for (i=0; i<3; i++)
     {
     v2[i] = x2[i] - X[i];
@@ -785,11 +780,11 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
   Pt[0] = Pt[1] = Pt[2] = 0.0;
   numNormals=0;
 
-  for (i=0; i < T->GetNumberOfTriangles(); i++) 
+  for (i=0; i < this->T->GetNumberOfTriangles(); i++) 
     {
-    normal = T->Array[i].n;
+    normal = this->T->Array[i].n;
     x1 = x2;
-    x2 = V->Array[i+1].x;
+    x2 = this->V->Array[i+1].x;
 
     for (j=0; j<3; j++) 
       {
@@ -797,9 +792,9 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
       v2[j] = x2[j] - X[j];
       }
 
-    T->Array[i].area = vtkTriangle::TriangleArea (X, x1, x2);
+    this->T->Array[i].area = vtkTriangle::TriangleArea (X, x1, x2);
     vtkTriangle::TriangleCenter (X, x1, x2, center);
-    loopArea += T->Array[i].area;
+    loopArea += this->T->Array[i].area;
 
     vtkMath::Cross (v1, v2, normal);
     //
@@ -811,8 +806,8 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
       numNormals++;
       for (j=0; j<3; j++) 
         {
-        Normal[j] += T->Array[i].area * normal[j];
-        Pt[j] += T->Array[i].area * center[j];
+        Normal[j] += this->T->Array[i].area * normal[j];
+        Pt[j] += this->T->Array[i].area * center[j];
         }
       }
     }
@@ -847,8 +842,8 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
   if ( vtype == VTK_BOUNDARY_VERTEX ) 
     {
     numFEdges = 2;
-    fedges[0] = V->Array;
-    fedges[1] = V->Array + V->MaxId;
+    fedges[0] = this->V->Array;
+    fedges[1] = this->V->Array + this->V->MaxId;
     } 
   else
     {
@@ -859,14 +854,14 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
   //
   if ( vtype == VTK_SIMPLE_VERTEX ) // first edge 
     {
-    if ( (V->Array[0].FAngle = VTK_FEATURE_ANGLE(0,T->MaxId)) <= CosAngle )
+    if ( (this->V->Array[0].FAngle = VTK_FEATURE_ANGLE(0,this->T->MaxId)) <= CosAngle )
       {
-      fedges[numFEdges++] = V->Array;
+      fedges[numFEdges++] = this->V->Array;
       }
     }
-  for (i=0; i < T->MaxId; i++) 
+  for (i=0; i < this->T->MaxId; i++) 
     {
-    if ( (V->Array[i+1].FAngle = VTK_FEATURE_ANGLE(i,i+1)) <= CosAngle ) 
+    if ( (this->V->Array[i+1].FAngle = VTK_FEATURE_ANGLE(i,i+1)) <= CosAngle ) 
       {
       if ( numFEdges >= 2 ) 
 	{
@@ -874,7 +869,7 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
 	}
       else 
 	{
-        fedges[numFEdges++] = V->Array + (i+1);
+        fedges[numFEdges++] = this->V->Array + (i+1);
 	}
       }
     }
@@ -1058,16 +1053,16 @@ void vtkDecimate::Triangulate(int numVerts, vtkLocalVertexPtr verts[])
       //
       //  Okay: can create triangle, find a spot to put the triangle.
       //
-      for (i=0; i < T->MaxId; i++)
+      for (i=0; i < this->T->MaxId; i++)
 	{
-        if ( T->Array[i].verts[0] == -1 )
+        if ( this->T->Array[i].verts[0] == -1 )
 	  {
           break;
 	  }
 	}
       for (j=0; j<3; j++) 
         {
-        T->Array[i].verts[j] = verts[j]->id;
+        this->T->Array[i].verts[j] = verts[j]->id;
         verts[j]->newRefs++;
         }
       
@@ -1140,15 +1135,15 @@ int vtkDecimate::CheckError ()
   //  Loop through triangles computing distance to plane (looking for minimum
   //  perpendicular distance)
   //
-  for (planeError=VTK_LARGE_FLOAT, i=0; i < T->GetNumberOfTriangles(); i++) 
+  for (planeError=VTK_LARGE_FLOAT, i=0; i < this->T->GetNumberOfTriangles(); i++) 
     {
-    if ( T->Array[i].verts[0] == -1 )
+    if ( this->T->Array[i].verts[0] == -1 )
       {
       break;
       }
-    x1 = Mesh->GetPoint(T->Array[i].verts[0]);
-    x2 = Mesh->GetPoint(T->Array[i].verts[1]);
-    x3 = Mesh->GetPoint(T->Array[i].verts[2]);
+    x1 = Mesh->GetPoint(this->T->Array[i].verts[0]);
+    x2 = Mesh->GetPoint(this->T->Array[i].verts[1]);
+    x3 = Mesh->GetPoint(this->T->Array[i].verts[2]);
 
     for (j=0; j<3; j++) 
       {
@@ -1189,9 +1184,9 @@ int vtkDecimate::CheckError ()
   //
   // Can distribute errors to surrounding nodes
   //
-  for (i=0; i < V->GetNumberOfVertices(); i++)
+  for (i=0; i < this->V->GetNumberOfVertices(); i++)
     {
-    VertexError[V->Array[i].id] += error;
+    VertexError[this->V->Array[i].id] += error;
     }
   return 1; // okay to delete; error computed and distributed
 }

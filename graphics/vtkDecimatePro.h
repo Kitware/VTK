@@ -337,6 +337,8 @@ private:
   vtkPriorityQueue *Queue;
   vtkFloatArray *VertexError;
 
+  vtkVertexArray *V;
+  vtkTriArray *T;
 };
 
 #endif
