@@ -119,7 +119,6 @@ vlCell *vlStructuredGrid::GetCell(int cellId)
       kMin = cellId / ((this->Dimensions[0] - 1) * (this->Dimensions[1] - 1));
       kMax = kMin + 1;
       cell = &hexa;
-      }
       break;
     }
 
