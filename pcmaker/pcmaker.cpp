@@ -277,7 +277,19 @@ BOOL CPcmakerApp::InitInstance()
     dlg.adlg.m_WhereTcl = "";
     dlg.adlg.m_WhereTk  = "";
     }
-   if (strncmp(m_lpCmdLine, "qualityNT", 9) == 0)  // skip any trailing characters
+   if (strncmp(m_lpCmdLine, "nightly", 7) == 0)  // skip any trailing characters
+    {
+    // use the quality testing effort defaults
+    dlg.m_WhereVTK = "d:\\nightly\\vtk";
+    dlg.m_WhereBuild = "d:\\nightly\\vtkbin";
+    dlg.m_WhereJDK = "c:\\jdk1.2.1";
+    dlg.m_WherePy = "d:\\Python";
+    dlg.adlg.m_WhereTcl = "";
+    dlg.adlg.m_WhereTk  = "";
+    dlg.Create(IDD_PCMAKER_DIALOG,NULL);
+    dlg.DoOKStuff();
+    }
+   else if (strncmp(m_lpCmdLine, "qualityNT", 9) == 0)  // skip any trailing characters
     {
     // use the quality testing effort defaults
     dlg.m_WhereVTK = "d:\\production\\vtk";
