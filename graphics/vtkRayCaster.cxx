@@ -751,7 +751,7 @@ void vtkRayCaster::ComputeRowBounds( vtkRenderer *ren,
     {
     if ( volumeInfo->RowBounds )
       {
-      delete volumeInfo->RowBounds;
+      delete [] volumeInfo->RowBounds;
       }
     volumeInfo->RowBounds = new int [this->ImageSize[1]*2];
     volumeInfo->RowBoundsSize = this->ImageSize[1];
@@ -1253,12 +1253,12 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
     } // End of for each row loop
 
   // Delete the temporary stuff we created
-  delete mapper;
-  delete red;
-  delete green;
-  delete blue;
-  delete alpha;
-  delete depth;
+  delete [] mapper;
+  delete [] red;
+  delete [] green;
+  delete [] blue;
+  delete [] alpha;
+  delete [] depth;
 
   raycaster->NumberOfSamplesTaken[thread_id] = numSamples;
 
@@ -1337,12 +1337,12 @@ void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount,
       {
       if ( this->VolumeInfo[i].RowBounds )
 	{
-	delete this->VolumeInfo[i].RowBounds;
+	delete [] this->VolumeInfo[i].RowBounds;
 	}
       }
 
-    delete this->RayCastVolumes;
-    delete this->VolumeInfo;
+    delete [] this->RayCastVolumes;
+    delete [] this->VolumeInfo;
     }
 
   // If we have any volumes with software buffer mappers, render them
@@ -1356,8 +1356,8 @@ void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount,
       // the ones we created, and we don't want to delete this other one
       // later
       deleteDisabled = 1;
-      delete this->RGBAImage;
-      delete this->ZImage;
+      delete [] this->RGBAImage;
+      delete [] this->ZImage;
 
       // Find that first software buffer volume
       volumes = ren->GetVolumes();
@@ -1474,8 +1474,8 @@ void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount,
   // these buffers in the first place
   if ( !deleteDisabled )
     {
-    delete this->RGBAImage;
-    delete this->ZImage;
+    delete [] this->RGBAImage;
+    delete [] this->ZImage;
     }
 
   // Stop the timer and record the results

@@ -385,7 +385,7 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
     }
   
   // get rid of temporary kernel
-  delete kernel;
+  delete [] kernel;
 }
   
 //----------------------------------------------------------------------------

@@ -170,8 +170,8 @@ static void vtkImageFFTExecute(vtkImageFFT *self,
     outPtr2 += outInc2;
     }
     
-  delete inComplex;
-  delete outComplex;
+  delete [] inComplex;
+  delete [] outComplex;
 }
 
 

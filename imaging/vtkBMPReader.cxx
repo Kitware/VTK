@@ -55,7 +55,7 @@ vtkBMPReader::~vtkBMPReader()
   // free any old memory
   if (this->Colors) 
     {
-    delete this->Colors;
+    delete [] this->Colors;
     this->Colors = NULL;
     }
 }
@@ -71,7 +71,7 @@ void vtkBMPReader::UpdateImageInformation()
   // free any old memory
   if (this->Colors) 
     {
-    delete this->Colors;
+    delete [] this->Colors;
     this->Colors = NULL;
     }
       

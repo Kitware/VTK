@@ -181,7 +181,7 @@ static void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
     outPtr += outInc2;
     }
   
-  delete maskedValue;
+  delete [] maskedValue;
 }
 
 

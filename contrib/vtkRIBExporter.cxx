@@ -239,7 +239,7 @@ void vtkRIBExporter::WriteHeader (vtkRenderer *aRen)
 		this->PixelSamples[0],
 		this->PixelSamples[1]);
 	
-  delete imageFileName;
+  delete [] imageFileName;
 
 }
 

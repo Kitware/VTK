@@ -90,6 +90,11 @@ vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
     {
     this->DirectionEncoder->UnRegister( this );
     }
+
+  if ( this->CircleLimits )
+    {
+    delete [] this->CircleLimits;
+    }
 }
 
 void 
@@ -245,7 +250,7 @@ void vtkEncodedGradientEstimator::ComputeCircleLimits( int size )
     {
     if ( this->CircleLimits )
       {
-      delete this->CircleLimits;
+      delete [] this->CircleLimits;
       }
     this->CircleLimits = new int[2*size];
     this->CircleLimitsSize = size;

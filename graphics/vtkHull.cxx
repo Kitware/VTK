@@ -376,9 +376,9 @@ void vtkHull::AddRecursiveSpherePlanes( int level )
       }
     }
 
-  delete points;
-  delete triangles;
-  delete validPoint;
+  delete [] points;
+  delete [] triangles;
+  delete [] validPoint;
 
 }
 

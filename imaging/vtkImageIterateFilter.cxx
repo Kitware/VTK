@@ -270,7 +270,7 @@ void vtkImageIterateFilter::SetNumberOfIterations(int num)
       this->IterationCaches[idx]->UnRegister(this);
       this->IterationCaches[idx] = NULL;
       }
-    delete this->IterationCaches;
+    delete [] this->IterationCaches;
     this->IterationCaches = NULL;
     }
 

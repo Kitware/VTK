@@ -169,7 +169,7 @@ void vtkSLCReader::Execute()
   fread( icon_ptr, 1, (icon_width*icon_height), fp );
   fread( icon_ptr, 1, (icon_width*icon_height), fp );
 
-  delete icon_ptr;
+  delete [] icon_ptr;
 
   voxel_count = 0;
 
@@ -200,7 +200,7 @@ void vtkSLCReader::Execute()
 
         if( scan_ptr )
 	  {
-          delete scan_ptr;
+          delete [] scan_ptr;
 	  }
 
         fscanf( fp, "%d X", &compressed_size );
@@ -218,7 +218,7 @@ void vtkSLCReader::Execute()
 
 	scan_ptr = this->Decode8BitData( compressed_ptr, plane_size );
 
-	delete compressed_ptr;
+	delete [] compressed_ptr;
 
         break;
       default:

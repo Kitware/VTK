@@ -776,7 +776,7 @@ void vtkImageMarchingCubes::InitializeLocator(int min0, int max0,
   // Free old memory
   if (this->LocatorPointIds)
     {
-    delete this->LocatorPointIds;
+    delete [] this->LocatorPointIds;
     }
   // Extra row and column
   this->LocatorDimX = (max0 - min0 + 2);
@@ -800,7 +800,7 @@ void vtkImageMarchingCubes::DeleteLocator()
   // Free old memory
   if (this->LocatorPointIds)
     {
-    delete this->LocatorPointIds;
+    delete [] this->LocatorPointIds;
     this->LocatorPointIds = NULL;
     }
 }
