@@ -34,6 +34,7 @@ vlLookupTable::vlLookupTable(int sze, int ext)
 
   this->ValueRange[0] = 1.0;
   this->ValueRange[1] = 1.0;
+
 };
 
 // Description:
@@ -73,14 +74,16 @@ void  vlLookupTable::SetTableRange(float min, float max)
 }
 
 // Description:
-// Generate lookup table from hue, saturation, and value min/max values.
+// Generate lookup table from hue, saturation, value, alpha min/max values. 
+// Table is built from linear ramp of each value.
 void vlLookupTable::Build()
 {
   int i, hueCase;
   float hue, sat, val, lx, ly, lz, frac, hinc, sinc, vinc;
   float rgb[3];
+  unsigned char c_rgb[3];
 
-  if ( this->Table.NumberOfColors() < 1 ||
+  if ( this->Table.GetNumberOfColors() < 1 ||
   (this->GetMTime() > this->BuildTime && this->InsertTime < this->BuildTime) )
     {
     hinc = (this->HueRange[1] - this->HueRange[0])/(this->NumberOfColors-1);
@@ -141,19 +144,22 @@ void vlLookupTable::Build()
         break;
       }
 
-      rgb[0] = (1.0+(float)cos((1.0-(double)rgb[0])*3.141593))/2.0;
-      rgb[1] = (1.0+(float)cos((1.0-(double)rgb[1])*3.141593))/2.0;
-      rgb[2] = (1.0+(float)cos((1.0-(double)rgb[2])*3.141593))/2.0;
+      c_rgb[0] = (unsigned char) 
+        ((float)127.5*(1.0+(float)cos((1.0-(double)rgb[0])*3.141593)));
+      c_rgb[1] = (unsigned char)
+        ((float)127.5*(1.0+(float)cos((1.0-(double)rgb[1])*3.141593)));
+      c_rgb[2] = (unsigned char)
+        ((float)127.5*(1.0+(float)cos((1.0-(double)rgb[2])*3.141593)));
 
-      this->Table.InsertColor(i,rgb);
+      this->Table.InsertColor(i,c_rgb);
     }
   }
   this->BuildTime.Modified();
 }
 
 // Description:
-// Given a scalar value v, return an r-g-b color value from lookup table.
-float *vlLookupTable::MapValue(float v)
+// Given a scalar value v, return an rgb color value from lookup table.
+unsigned char *vlLookupTable::MapValue(float v)
 {
   int indx;
 
@@ -165,7 +171,7 @@ float *vlLookupTable::MapValue(float v)
 
 // Description:
 // Directly load color into lookup table
-void vlLookupTable::SetTableValue (int indx, float rgb[3])
+void vlLookupTable::SetTableValue (int indx, unsigned char rgb[3])
 {
   indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));
   this->Table.SetColor(indx,rgb);
@@ -175,16 +181,17 @@ void vlLookupTable::SetTableValue (int indx, float rgb[3])
 
 // Description:
 // Directly load color into lookup table
-void vlLookupTable::SetTableValue (int indx, float r, float g, float b)
+void vlLookupTable::SetTableValue (int indx, unsigned char r, unsigned char g,
+                                   unsigned char b)
 {
-  float rgb[3];
+  unsigned char rgb[3];
   rgb[0] = r; rgb[1] = g; rgb[2] = b;
-  vlLookupTable::SetTableValue(indx,rgb);
+  this->SetTableValue(indx,rgb);
 }
 
 // Description:
-// Return a r-g-b color value for the given index into the lookup table.
-float *vlLookupTable::GetTableValue (int indx)
+// Return a rgb color value for the given index into the lookup table.
+unsigned char *vlLookupTable::GetTableValue (int indx)
 {
   indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));
   return this->Table.GetColor(indx);

@@ -13,20 +13,24 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlLookupTable - map scalar values into colors; generate color tables
+// .NAME vlLookupTable - map scalar values into colors or colors to scalars; generate color table
 // .SECTION Description
 // vlLookupTable is an object that is used by mapper objects to map scalar 
-// values into RGB color specification. The color table can be created by 
-// direct insertion of color values, or by specifying  hue, saturation, and 
-// value range and generating a table.
+// values into rgb color specification, or rgb into scalar values. The 
+// color table can be created by direct insertion of color values, or by 
+// specifying  hue, saturation, and value range and generating a table.
+// .SECTION Caveats
+//    vlLookupTable is a reference counted object. Therefore you should 
+// always use operator "new" to construct new objects. This procedure will
+// avoid memory problems (see text).
 
 #ifndef __vlLookupTable_h
 #define __vlLookupTable_h
 
-#include "Object.hh"
-#include "RGBArray.hh"
+#include "RefCount.hh"
+#include "Pixmap.hh"
 
-class vlLookupTable : public vlObject 
+class vlLookupTable : public vlRefCount
 {
 public:
   vlLookupTable(int sze=256, int ext=256);
@@ -59,14 +63,15 @@ public:
   vlSetVector2Macro(ValueRange,float);
   vlGetVectorMacro(ValueRange,float,2);
 
-  float *MapValue(float v);
-  void SetTableValue (int indx, float rgb[3]);
-  void SetTableValue (int indx, float r, float g, float b);
-  float *GetTableValue (int);
+  unsigned char *MapValue(float v);
+  void SetTableValue (int indx, unsigned char rgb[3]);
+  void SetTableValue (int indx, unsigned char r, unsigned char g, unsigned char b);
+  unsigned char *GetTableValue (int id);
+  void GetTableValue (int id, unsigned char rgb[3]);
 
 protected:
   int NumberOfColors;
-  vlRGBArray Table;  
+  vlPixmap Table;  
   float TableRange[2];
   float HueRange[2];
   float SaturationRange[2];
