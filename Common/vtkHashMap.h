@@ -151,6 +151,15 @@ private:
 };
 
 static inline vtkIdType vtkHashMapHashMethod(int x) { return x; }
+static inline vtkIdType vtkHashMapHashMethod(const char* s)
+{
+  vtkIdType h = 0;
+  for(;*s;++s)
+    {
+    h = 5*h + *s;
+    }
+  return h;
+}
 
 #ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #include "vtkHashMap.txx"
