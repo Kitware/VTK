@@ -195,7 +195,6 @@ USE_TOOLKIT_FLAGS=""
 AC_ARG_WITH(java,
          [  --with-java             build vtk with java support],
 	 if test "$withval" = yes; then
-         javadir=java
          INSTALL_TARGET="${INSTALL_TARGET}_java"
          BUILD_JAVA=build_java
          CLEAN_JAVA=clean_java
@@ -207,7 +206,6 @@ AC_SUBST(CLEAN_JAVA)
 AC_ARG_WITH(python,
          [  --with-python             build vtk with python support],
 	 if test "$withval" = yes; then
-         pythondir=python
          INSTALL_TARGET="${INSTALL_TARGET}_python"
          BUILD_PYTHON=build_python
          CLEAN_PYTHON=clean_python
@@ -799,7 +797,7 @@ if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
   SHLIB_CFLAGS="-fPIC"
 fi
 
-AC_CONFIG_SUBDIRS(common wrap $pythondir $tcldir $graphicsdir $imagingdir $patenteddir $workingdir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir)
+AC_CONFIG_SUBDIRS(common wrap $tcldir $graphicsdir $imagingdir $patenteddir $workingdir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir)
 
 AC_OUTPUT(Makefile system.make)
 

@@ -119,7 +119,7 @@ depend_gemsvolume:
 
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
-clean: ${CLEAN_TCL} ${CLEAN_JAVA} ${CLEAN_TOOLKITS} ${CLEAN_PYTHON}
+clean: ${CLEAN_TCL} ${CLEAN_JAVA} ${CLEAN_TOOLKITS}
 	cd common;    ${MAKE} -${MAKEFLAGS} clean
 	cd wrap;    ${MAKE} -${MAKEFLAGS} clean
 	rm -f config.cache
@@ -129,9 +129,6 @@ clean_tcl:
 
 clean_java:
 	cd java;      ${MAKE} -${MAKEFLAGS} clean
-
-clean_python:
-	cd python;    ${MAKE} -${MAKEFLAGS} clean
 
 clean_graphics:
 	cd graphics;  ${MAKE} -${MAKEFLAGS} clean
