@@ -106,7 +106,7 @@ void main( int argc, char *argv[] )
     saggitalPlane->SetYResolution(1);
     saggitalPlane->SetOrigin(3.2*32.0, 0.0, 0.0);
     saggitalPlane->SetPoint1(3.2*32.0, 3.2*63.0, 0.0);
-    saggitalPlane->SetPoint2(3.2*32.0, 0.0, 1.5*93.0);
+    saggitalPlane->SetPoint2(3.2*32.0, 0.0, 1.5*92.0);
   vtkPolyDataMapper *saggitalMapper = vtkPolyDataMapper::New();
     saggitalMapper->SetInput(saggitalPlane->GetOutput());
     saggitalMapper->ImmediateModeRenderingOn();
@@ -184,7 +184,7 @@ void main( int argc, char *argv[] )
   aCamera->Dolly(1.5);
   aRenderer->SetBackground(1,1,1);
   aRenderer->ResetCameraClippingRange();
-  
+
   // interact with data
   renWin->SetSize(300, 300);
   renWin->Render();
