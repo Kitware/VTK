@@ -72,6 +72,9 @@ public:
   vtkSetMacro(ExtractBoundaryCells,int);
   vtkGetMacro(ExtractBoundaryCells,int);
   vtkBooleanMacro(ExtractBoundaryCells,int);
+  vtkSetMacro(ExtractOnlyBoundaryCells,int);
+  vtkGetMacro(ExtractOnlyBoundaryCells,int);
+  vtkBooleanMacro(ExtractOnlyBoundaryCells,int);
 
 protected:
   vtkExtractGeometry(vtkImplicitFunction *f=NULL);
@@ -83,6 +86,7 @@ protected:
   vtkImplicitFunction *ImplicitFunction;
   int ExtractInside;
   int ExtractBoundaryCells;
+  int ExtractOnlyBoundaryCells;
   
 private:
   vtkExtractGeometry(const vtkExtractGeometry&);  // Not implemented.

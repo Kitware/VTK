@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGeometry, "1.53");
+vtkCxxRevisionMacro(vtkExtractGeometry, "1.54");
 vtkStandardNewMacro(vtkExtractGeometry);
 vtkCxxSetObjectMacro(vtkExtractGeometry,ImplicitFunction,vtkImplicitFunction);
 
@@ -38,6 +38,7 @@ vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)
     
   this->ExtractInside = 1;
   this->ExtractBoundaryCells = 0;
+  this->ExtractOnlyBoundaryCells = 0;
 }
 
 vtkExtractGeometry::~vtkExtractGeometry()
@@ -133,23 +134,20 @@ void vtkExtractGeometry::Execute()
   else
     {
     // To extract boundary cells, we have to create supplemental information
-    if ( this->ExtractBoundaryCells )
-      {
-      double val;
-      newScalars = vtkFloatArray::New();
-      newScalars->SetNumberOfValues(numPts);
+    double val;
+    newScalars = vtkFloatArray::New();
+    newScalars->SetNumberOfValues(numPts);
 
-      for (ptId=0; ptId < numPts; ptId++ )
+    for (ptId=0; ptId < numPts; ptId++ )
+      {
+      input->GetPoint(ptId, x);
+      val = this->ImplicitFunction->FunctionValue(x) * multiplier;
+      newScalars->SetValue(ptId, val);
+      if ( val < 0.0 )
         {
-        input->GetPoint(ptId, x);
-        val = this->ImplicitFunction->FunctionValue(x) * multiplier;
-        newScalars->SetValue(ptId, val);
-        if ( val < 0.0 )
-          {
-          newId = newPts->InsertNextPoint(x);
-          pointMap[ptId] = newId;
-          outputPD->CopyData(pd,ptId,newId);
-          }
+        newId = newPts->InsertNextPoint(x);
+        pointMap[ptId] = newId;
+        outputPD->CopyData(pd,ptId,newId);
         }
       }
     }
@@ -190,7 +188,22 @@ void vtkExtractGeometry::Execute()
           npts++;
           }
         }
-      if ( npts > 0 )
+      bool extraction_condition = false;
+      if ( this->ExtractOnlyBoundaryCells )
+        {
+        if ( ( npts > 0 ) && ( npts != numCellPts ) )
+          {
+          extraction_condition = true;
+          }
+        }
+      else
+        {
+        if ( npts > 0 )
+          {
+          extraction_condition = true;
+          }
+        }
+      if ( extraction_condition ) 
         {
         for ( i=0; i < numCellPts; i++ )
           {
@@ -207,7 +220,22 @@ void vtkExtractGeometry::Execute()
         }//a boundary or interior cell
       }//if mapping boundary cells
       
-    if ( npts >= numCellPts || (this->ExtractBoundaryCells && npts > 0) )
+    bool extraction_condition = false;
+    if ( this->ExtractOnlyBoundaryCells )
+      {
+      if ( npts != numCellPts && (this->ExtractBoundaryCells && npts > 0) )
+        {
+        extraction_condition = true;
+        }
+      }
+    else
+      {
+      if ( npts >= numCellPts || (this->ExtractBoundaryCells && npts > 0) )
+        {
+        extraction_condition = true;
+        }
+      }
+    if ( extraction_condition )
       {
       newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
       outputCD->CopyData(cd,cellId,newCellId);
