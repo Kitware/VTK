@@ -21,6 +21,11 @@
 // edge is defined by the pair of point id's (p1,p2). Methods are available
 // to insert edges, check if edges exist, and traverse the list of edges.
 // Also, it's possible to associate attribute information with each edge.
+// The attribute information may take the form of vtkIdType id's, void*
+// pointers, or points. To store attributes, make sure that
+// InitEdgeInsertion() is invoked with the storeAttributes flag set properly.
+// If points are inserted, use the methods InitPointInsertion() and 
+// InsertUniquePoint().
 
 #ifndef __vtkEdgeTable_h
 #define __vtkEdgeTable_h
@@ -29,6 +34,7 @@
 
 class vtkIdList;
 class vtkPoints;
+class vtkVoidArray;
 
 class VTK_COMMON_EXPORT vtkEdgeTable : public vtkObject
 {
@@ -41,18 +47,21 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Free memory and return to instantiated state.
+  // Free memory and return to the initially instantiated state.
   void Initialize();
 
   // Description:
-  // Initialize the edge insertion process. Provide an estimate of the
-  // number of points in a dataset (the maximum range value of p1 or
-  // p2).  The storeAttributes variable controls whether attributes
-  // are to be stored with the edge. If on, additional memory will be
-  // required by the data structure to store an integer id per each
-  // edge.  This method is used in conjunction with one of the two
+  // Initialize the edge insertion process. Provide an estimate of the number
+  // of points in a dataset (the maximum range value of p1 or p2).  The
+  // storeAttributes variable controls whether attributes are to be stored
+  // with the edge, and what type of attributes. If storeAttributes==1, then
+  // attributes of vtkIdType can be stored. If storeAttributes==2, then
+  // attributes of type void* can be stored. In either case, additional
+  // memory will be required by the data structure to store attribute data
+  // per each edge.  This method is used in conjunction with one of the three
   // InsertEdge() methods described below (don't mix the InsertEdge()
-  // methods). 
+  // methods---make sure that the one used is consistent with the
+  // storeAttributes flag set in InitEdgeInsertion()).
   int InitEdgeInsertion(vtkIdType numPoints, int storeAttributes=0);
 
   // Description:
@@ -71,17 +80,33 @@ public:
   // attributeId is ignored if the storeAttributes variable was set to
   // 0 in the InitEdgeInsertion() method. It is the user's
   // responsibility to check if the edge has already been inserted
-  // (use IsEdge()). Do not mix this method with the previous
-  // InsertEdge() method.
+  // (use IsEdge()). Do not mix this method with the other two
+  // InsertEdge() methods.
   void InsertEdge(vtkIdType p1, vtkIdType p2, int attributeId);
 
+  // Description:
+  // Insert the edge (p1,p2) into the table with the attribute id
+  // specified (make sure the attributeId >= 0). Note that the
+  // attributeId is ignored if the storeAttributes variable was set to
+  // 0 in the InitEdgeInsertion() method. It is the user's
+  // responsibility to check if the edge has already been inserted
+  // (use IsEdge()). Do not mix this method with the other two
+  // InsertEdge() methods.
+  void InsertEdge(vtkIdType p1, vtkIdType p2, void* ptr);
+
   // Description: 
-  // Return an integer id for the edge, or an attributeId of the edge
+  // Return an integer id for the edge, or an attribute id of the edge
   // (p1,p2) if the edge has been previously defined (it depends upon
   // which version of InsertEdge() is being used); otherwise -1. The
   // unique integer id can be used to set and retrieve attributes to
   // the edge.
-  int IsEdge(vtkIdType p1, vtkIdType p2);
+  vtkIdType IsEdge(vtkIdType p1, vtkIdType p2);
+
+  // Description: 
+  // Similar to above, but returns a void* pointer is InitEdgeInsertion()
+  // has been called with storeAttributes==2. A NULL pointer value
+  // is returned if the edge does not exist.
+  void IsEdge(vtkIdType p1, vtkIdType p2, void* &ptr);
 
   // Description:
   // Initialize the point insertion process. The newPts is an object
@@ -108,7 +133,7 @@ public:
   // Traverse list of edges in table. Return the edge as (p1,p2), where p1
   // and p2 are point id's. Method return value is zero if list is exhausted;
   // non-zero otherwise. The value of p1 is guaranteed to be <= p2.
-  int GetNextEdge(vtkIdType &p1, vtkIdType &p2);
+  vtkIdType GetNextEdge(vtkIdType &p1, vtkIdType &p2);
 
   // Description:
   // Reset the object and prepare for reinsertion of edges. Does not delete
@@ -120,8 +145,6 @@ protected:
   ~vtkEdgeTable();
 
   vtkIdList **Table;
-  vtkIdList **Attributes;
-  int StoreAttributes;
   vtkIdType TableMaxId; //maximum point id inserted
   vtkIdType TableSize;  //allocated size of table
   int Position[2];
@@ -129,7 +152,12 @@ protected:
   vtkIdType NumberOfEdges;
   vtkPoints *Points; //support point insertion
 
+  int StoreAttributes; //==0:no attributes stored;==1:vtkIdType;==2:void*
+  vtkIdList **Attributes; //used to store IdTypes attributes
+  vtkVoidArray **PointerAttributes; //used to store void* pointers
+
   vtkIdList **Resize(vtkIdType size);
+
 private:
   vtkEdgeTable(const vtkEdgeTable&);  // Not implemented.
   void operator=(const vtkEdgeTable&);  // Not implemented.
