@@ -46,6 +46,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkOutputWindow* vtkOutputWindow::Instance = 0;
 
+void vtkOutputWindowDisplayText(const char* message)
+{
+  vtkOutputWindow::GetInstance()->DisplayText(message);
+}
 
 void vtkOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
