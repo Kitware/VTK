@@ -1442,7 +1442,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
             intIds[j] = this->UnstructuredNodeIds->IsId(intIds[j]);
             }
           }
-        for (j = 0; j < 2; i++)
+        for (j = 0; j < 2; j++)
           {
           nodeIds[j] = intIds[j];
           }
