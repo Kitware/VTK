@@ -356,7 +356,7 @@ void vtkVideoSource::SetClipRegion(int x0, int x1, int y0, int y1,
     this->ClipRegion[0] = x0; this->ClipRegion[1] = x1;
     this->ClipRegion[2] = y0; this->ClipRegion[3] = y1;
     this->ClipRegion[4] = z0; this->ClipRegion[5] = z1;
-
+    this->Modified();
     if (this->Initialized) 
       { // modify the FrameBufferExtent
       this->FrameBufferMutex->Lock();
