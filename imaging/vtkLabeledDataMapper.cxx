@@ -156,7 +156,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     }
   vtkPointData *pd=input->GetPointData();
   vtkDataArray *data;
-  float *tuple;
+  float *tuple=NULL;
   vtkFieldData *fd;
 
   input->Update();
