@@ -2,8 +2,14 @@
 
 #include "mpi.h"
 #include "vtkImageReader.h"
+#include "vtkImageSobel3D.h"
+#include "vtkImageGaussianSmooth.h"
+#include "vtkImageNormalize.h"
+#include "vtkImageShrink3D.h"
+#include "vtkImageMagnitude.h"
 #include "vtkSynchronizedTemplates3D.h"
 #include "vtkAppendPolyData.h"
+#include "vtkMultiProcessController.h"
 #include "vtkUpStreamPort.h"
 #include "vtkDownStreamPort.h"
 #include "vtkRenderer.h"
@@ -22,7 +28,7 @@
 vtkTimerLog *TIMER = NULL;
 
 // global times used to collect times.
-float TIME_ARRAY[7];
+float TIME_ARRAY[10] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 // start and end methods to compute times.
 void start_method(void *arg)
@@ -52,16 +58,23 @@ void get_times_rmi(void *arg, int id)
 void set_iso_val_rmi(void *arg, int id)
 { 
   float val;
-  vtkMultiProcessController *controller;
   vtkSynchronizedTemplates3D *iso = (vtkSynchronizedTemplates3D*)(arg);
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
   // receive the iso surface value from the main thread.
   val = iso->GetValue(0);
-  //iso->SetValue(0, val+0.1);
-  iso->SetValue(0, val+200.0);
+  iso->SetValue(0, val+0.05);
   
-  controller->UnRegister(NULL);
+}
+
+// call back to set the correlation neighborhood.
+void set_smooth_std_rmi(void *arg, int id)
+{ 
+  float val, *std;
+  vtkImageGaussianSmooth *smooth = (vtkImageGaussianSmooth*)(arg);
+  
+  std = smooth->GetStandardDeviations();
+  val = std[0] + 1.0;
+  smooth->SetStandardDeviations(val, val, val);
 }
 
 // call back to exit program
@@ -78,12 +91,16 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
 {
   vtkMultiProcessController *controller;
   vtkImageReader *reader;
+  vtkImageSobel3D *sobel;
+  vtkImageNormalize *norm;
+  vtkImageGaussianSmooth *smooth;
+  vtkImageShrink3D *shrink;
+  vtkImageMagnitude *mag;
   vtkSynchronizedTemplates3D *iso;
   vtkTimerLog *timer = vtkTimerLog::New();
   int myid, numProcs;
-  int idxs[7] = {0, 1, 2, 3, 4, 5, 6};
-  float tmp[7];
-  float val;
+  int idxs[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  float tmp[10];
   
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
   myid = controller->GetLocalProcessId();
@@ -95,27 +112,60 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
   reader->SetFilePrefix("../../../vtkdata/headsq/half");
   reader->SetDataSpacing(1.6, 1.6, 1.5);
   reader->SetStartMethod(start_method, NULL);
-  reader->SetEndMethod(end_method, idxs+0);  
+  reader->SetEndMethod(end_method, idxs+0); 
+  reader->GetOutput()->ReleaseDataFlagOn();
+
+  // create a vector field
+  sobel = vtkImageSobel3D::New();
+  sobel->SetInput(reader->GetOutput());
+  sobel->SetNumberOfThreads(1);
+  sobel->SetStartMethod(start_method, NULL);
+  sobel->SetEndMethod(end_method, idxs+1); 
+  sobel->GetOutput()->ReleaseDataFlagOn();
+  
+  norm = vtkImageNormalize::New();
+  norm->SetInput(sobel->GetOutput());
+  norm->SetNumberOfThreads(1);
+  norm->SetStartMethod(start_method, NULL);
+  norm->SetEndMethod(end_method, idxs+2); 
+  norm->GetOutput()->ReleaseDataFlagOn();
+  
+  smooth = vtkImageGaussianSmooth::New();
+  smooth->SetInput(norm->GetOutput());
+  smooth->SetDimensionality(3);
+  smooth->SetStandardDeviations(2.0, 2.0, 2.0);
+  smooth->SetRadiusFactors(1, 1, 1);
+  smooth->SetNumberOfThreads(1);
+  smooth->SetStartMethod(start_method, NULL);
+  smooth->SetEndMethod(end_method, idxs+3); 
+  smooth->GetOutput()->ReleaseDataFlagOn();
+  
+  shrink = vtkImageShrink3D::New();
+  shrink->SetInput(smooth->GetOutput());
+  shrink->SetShrinkFactors(2, 2, 2);
+  shrink->SetNumberOfThreads(1);
+  shrink->SetStartMethod(start_method, NULL);
+  shrink->SetEndMethod(end_method, idxs+4); 
+  shrink->GetOutput()->ReleaseDataFlagOn();
+  
+  mag = vtkImageMagnitude::New();
+  mag->SetInput(shrink->GetOutput());
+  mag->SetNumberOfThreads(1);
+  mag->SetStartMethod(start_method, NULL);
+  mag->SetEndMethod(end_method, idxs+5); 
+  mag->GetOutput()->ReleaseDataFlagOff();
   
   iso = vtkSynchronizedTemplates3D::New();
-  iso->SetInput(reader->GetOutput());
-  iso->SetValue(0, 500);
+  iso->SetInput(mag->GetOutput());
+  iso->SetValue(0, 0.6);
   iso->ComputeScalarsOn();
   iso->ComputeNormalsOn();
   // This should be automatically determined by controller.
   iso->SetNumberOfThreads(1);
   iso->SetStartMethod(start_method, NULL);
-  iso->SetEndMethod(end_method, idxs+1);
+  iso->SetEndMethod(end_method, idxs+6);
+  iso->GetOutput()->ReleaseDataFlagOn();
   
-  // Compute a different color for each process.
-  if (numProcs == 1) 
-    {
-    val = 0.0;
-    } 
-  else 
-    {
-    val = (float)(myid) / (float)(numProcs-1);
-    }
 
   //====================================================================
   if (myid != 0)
@@ -123,14 +173,18 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     // Remote process! Send data throug port.
     vtkUpStreamPort *upPort = vtkUpStreamPort::New();
     
-    // last, set up a RMI call back to change the iso surface value.
+    // set up a RMI call back to change the neighborhood
+    controller->AddRMI(set_smooth_std_rmi, (void *)smooth, 299);
+    // set up a RMI call back to change the iso surface value.
     controller->AddRMI(set_iso_val_rmi, (void *)iso, 300);
+    // rmi to get times from other process
     controller->AddRMI(get_times_rmi, NULL, 301);
+    // rmi to exit
     controller->AddRMI(exit_rmi, (void *)iso, 302);
   
     upPort->SetInput(iso->GetOutput());
     upPort->SetStartMethod(start_method, NULL);
-    upPort->SetEndMethod(end_method, idxs+2);
+    upPort->SetEndMethod(end_method, idxs+7);
 
   // the different process ids differentiate between sources.
     upPort->SetTag(999);
@@ -168,7 +222,8 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
       downPort->SetUpStreamProcessId(i);
       downPort->SetTag(999);
       downPort->SetStartMethod(start_method, NULL);
-      downPort->SetEndMethod(end_method, idxs+3);
+      downPort->SetEndMethod(end_method, idxs+8);
+      downPort->GetPolyDataOutput()->ReleaseDataFlagOn();
       
       app->AddInput(downPort->GetPolyDataOutput());
       // referenced by app ...
@@ -176,7 +231,7 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
       downPort = NULL;
       }
     app->SetStartMethod(start_method, NULL);
-    app->SetEndMethod(end_method, idxs+4);
+    app->SetEndMethod(end_method, idxs+9);
     
     putenv("DISPLAY=:0.0");
     
@@ -186,13 +241,14 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     renWindow->SetSize( 400, 400);
   
     mapper->SetInput(app->GetOutput());
+    mapper->ImmediateModeRenderingOn();
     actor->SetMapper(mapper);
   
     // assign our actor to the renderer
     ren->AddActor(actor);
   
     cam->SetFocalPoint(100, 100, 65);
-    cam->SetPosition(100, 450, 65);
+    cam->SetPosition(100, 650, 65);
     cam->SetViewUp(0, 0, -1);
     cam->SetViewAngle(30);
     cam->ComputeViewPlaneNormal();
@@ -209,11 +265,13 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     for (j = 0; j < 5; ++j)
       {
       // set the local value
-      set_iso_val_rmi(iso, 0);
+      //set_iso_val_rmi(iso, 0);
+      set_smooth_std_rmi(smooth, 0);
       for (i = 1; i < numProcs; ++i)
 	{
 	// trigger the RMI to change the iso surface value.
-	controller->TriggerRMI(i, 300);      
+	//controller->TriggerRMI(i, 300);      
+	controller->TriggerRMI(i, 299);      
 	}
       
       timer->StartTimer();
@@ -227,8 +285,8 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
 	controller->TriggerRMI(i, 301);
 	controller->Receive(tmp, 7, i, 1234567);
 	
-	// take maximums (only the first three are across all processes).
-	for (k = 0; k < 3; ++k)
+	// take maximums (only the first eight are across all processes).
+	for (k = 0; k < 8; ++k)
 	  {
 	  if (TIME_ARRAY[k] < tmp[k])
 	    {
@@ -241,18 +299,25 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
       if (j == 0)
 	{ // reader is only valid for the first update.
 	cerr << "  reader max:     \t" << TIME_ARRAY[0] << " seconds\n";
+	cerr << "  grad max:    \t" << TIME_ARRAY[1] << " seconds\n";
+	cerr << "  norm max:    \t" << TIME_ARRAY[2] << " seconds\n";
 	}
-      cerr << "  iso max:     \t" << TIME_ARRAY[1] << " seconds\n";
-      cerr << "  up port max: \t" << TIME_ARRAY[2] << " seconds\n";
-      cerr << "  down port:   \t" << TIME_ARRAY[3] << " seconds\n";
-      cerr << "  append:      \t" << TIME_ARRAY[4] << " seconds\n";
+      // Take these out of conditional if you change deviation each iter. 
+      cerr << "  smooth max:  \t" << TIME_ARRAY[3] << " seconds\n";
+      cerr << "  shrink max:  \t" << TIME_ARRAY[4] << " seconds\n";
+      cerr << "  mag max:     \t" << TIME_ARRAY[5] << " seconds\n";
+      // ---
+      cerr << "  iso max:     \t" << TIME_ARRAY[6] << " seconds\n";
+      cerr << "  up port max: \t" << TIME_ARRAY[7] << " seconds\n";
+      cerr << "  down port:   \t" << TIME_ARRAY[8] << " seconds\n";
+      cerr << "  append:      \t" << TIME_ARRAY[9] << " seconds\n";
+      
       
       // now render the results
       renWindow->Render();
-      sprintf(filename, "iso%d.ppm", (int)(val));
+      sprintf(filename, "flow_%d.ppm", j + 1000);
       renWindow->SetFileName(filename);
       renWindow->SaveImageAsPPM();
-      val += 400.0;
       }
     
     // just exit

@@ -98,13 +98,14 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
   reader->SetDataSpacing(1.6, 1.6, 1.5);
   reader->SetStartMethod(start_method, NULL);
   reader->SetEndMethod(end_method, idxs+0);  
+  reader->GetOutput()->ReleaseDataFlagOff();
   
   iso = vtkSynchronizedTemplates3D::New();
   iso->SetInput(reader->GetOutput());
   iso->SetValue(0, 500);
   iso->ComputeScalarsOn();
   iso->ComputeNormalsOn();
-  // This should be automatically determined by controller.
+  iso->GetOutput()->ReleaseDataFlagOn();
   iso->SetNumberOfThreads(1);
   iso->SetStartMethod(start_method, NULL);
   iso->SetEndMethod(end_method, idxs+1);
@@ -162,6 +163,7 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
       downPort = vtkDownStreamPort::New();
       downPort->SetUpStreamProcessId(i);
       downPort->SetTag(999);
+      downPort->GetPolyDataOutput()->ReleaseDataFlagOn();
       downPort->SetStartMethod(start_method, NULL);
       downPort->SetEndMethod(end_method, idxs+3);
       
