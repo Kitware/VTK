@@ -323,7 +323,11 @@ void vtkMPICommunicator::Duplicate(vtkMPICommunicator* source)
 }
 
 // overloaded functions for vtkIdType
+#ifdef _WIN32
+static MPI_Datatype getMPIType(__int64 *data)
+#else
 static MPI_Datatype getMPIType(long long *data)
+#endif
 {
   return MPI_LONG_LONG;
 }
