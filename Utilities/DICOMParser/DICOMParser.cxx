@@ -516,14 +516,14 @@ void DICOMParser::InitTypeMap()
     group = dicom_tags[i].group;
     element = dicom_tags[i].element;
     datatype = (VRTypes) dicom_tags[i].datatype;
-    Implementation->TypeMap.insert(dicom_stl::pair<DICOMMapKey, DICOMTypeValue>(DICOMMapKey(group, element), datatype));
+    Implementation->TypeMap.insert(dicom_stl::pair<const DICOMMapKey, DICOMTypeValue>(DICOMMapKey(group, element), datatype));
     }
 
 }
 
 void DICOMParser::SetDICOMTagCallbacks(doublebyte group, doublebyte element, VRTypes datatype, dicom_stl::vector<DICOMCallback*>* cbVector)
 {
-  Implementation->Map.insert(dicom_stl::pair<DICOMMapKey, DICOMMapValue>(DICOMMapKey(group, element), DICOMMapValue((int)datatype, cbVector)));
+  Implementation->Map.insert(dicom_stl::pair<const DICOMMapKey, DICOMMapValue>(DICOMMapKey(group, element), DICOMMapValue((int)datatype, cbVector)));
 }
 
 
