@@ -23,7 +23,9 @@ vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname)
     {
     vtkObject* newobject = factory->CreateObject(vtkclassname);
     if(newobject)
+      {
       return newobject;
+      }
     }
   return 0;
 }
