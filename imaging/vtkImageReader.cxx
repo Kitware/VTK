@@ -94,6 +94,24 @@ vtkImageReader::~vtkImageReader()
     }
 }
 
+void vtkImageReader::SetFileTypeBigEndian()
+{
+#ifndef WORDS_BIGENDIAN
+  this->SwapBytesOn();
+#else
+  this->SwapBytesOff();
+#endif
+}
+
+void vtkImageReader::SetFileTypeLittleEndian()
+{
+#ifdef WORDS_BIGENDIAN
+  this->SwapBytesOn();
+#else
+  this->SwapBytesOff();
+#endif
+}
+
 //----------------------------------------------------------------------------
 void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -316,7 +334,11 @@ void vtkImageReader::Initialize()
   
   // Open the new file
   vtkDebugMacro(<< "SetFileName: opening file " << this->FileName);
+#ifdef _WIN32
+  this->File = new ifstream(this->FileName, ios::in | ios::binary);
+#else
   this->File = new ifstream(this->FileName, ios::in);
+#endif
   if (! this->File || this->File->fail())
     {
     vtkErrorMacro(<< "Initialize: Could not open file " << this->FileName);

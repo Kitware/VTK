@@ -215,27 +215,31 @@ void vtkImageSeriesReader::UpdatePointData(vtkImageRegion *region)
     
       // compute the file number (I do not like this. Too messy)
       fileNumber = this->First + (idx2 - this->DataExtent[4])
-	+ fileInc3 * (idx3 - this->DataExtent[6]);
+	                   + fileInc3 * (idx3 - this->DataExtent[6]);
       
       // Compute the file name.
       sprintf(this->FileName, this->FilePattern, this->FilePrefix, fileNumber);
       
       // Close file from any previous image
       if (this->File)
-	{
-	this->File->close();
-	delete this->File;
-	this->File = NULL;
-	}
+	      {
+	      this->File->close();
+	      delete this->File;
+	      this->File = NULL;
+	      }
       
       // Open the new file.
       vtkDebugMacro(<< "SetFileName: opening Short file " << this->FileName);
+#ifdef _WIN32
+      this->File = new ifstream(this->FileName, ios::in | ios::binary);
+#else
       this->File = new ifstream(this->FileName, ios::in);
+#endif
       if (! this->File || this->File->fail())
-	{
-	vtkErrorMacro(<< "Could not open file " << this->FileName);
-	return;
-	}      
+	      {
+	      vtkErrorMacro(<< "Could not open file " << this->FileName);
+	      return;
+	      }      
       
       // Get the data from this file.
       this->UpdateFromFile(region);
