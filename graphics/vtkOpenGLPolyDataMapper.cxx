@@ -298,6 +298,7 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   if (this->ImmediateModeRendering ||
       this->GetGlobalImmediateModeRendering())
     {
+    this->GetColors();
     // Time the actual drawing
     timer->StartTimer();
     this->Draw(ren,act);
