@@ -127,27 +127,9 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
 	    (upperRight[1]-lowerLeft[1]+1));
     
   /* for stereo we have to fiddle with aspect */
-  if (this->Stereo)
-    {
-    switch ((ren->GetRenderWindow())->GetStereoType())
-      {
-      case VTK_STEREO_CRYSTAL_EYES:
-	aspect[0] = (float)(upperRight[0]-lowerLeft[0]+1)/
-	  (float)(upperRight[1]-lowerLeft[1]+1);
-	aspect[1] = 1.0;
-	break;
-      default:
-	aspect[0] = (float)(upperRight[0]-lowerLeft[0]+1)/
-	  (float)(upperRight[1]-lowerLeft[1]+1);
-	aspect[1] = 1.0;
-      }
-    }
-  else
-    {
-    aspect[0] = (float)(upperRight[0]-lowerLeft[0]+1)/
-      (float)(upperRight[1]-lowerLeft[1]+1);
-    aspect[1] = 1.0;
-    }
+  aspect[0] = (float)(upperRight[0]-lowerLeft[0]+1)/
+    (float)(upperRight[1]-lowerLeft[1]+1);
+  aspect[1] = 1.0;
   
   ren->SetAspect(aspect);
 
