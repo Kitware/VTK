@@ -248,7 +248,7 @@ void vtkStructuredPointsReader::Execute()
           return;
           }
 
-        this->Reader.ReadPointData(fp, (vtkDataSet *)this, npts);
+        this->Reader.ReadPointData(fp, output, npts);
         break; //out of this loop
         }
 
@@ -272,7 +272,7 @@ void vtkStructuredPointsReader::Execute()
       vtkErrorMacro(<<"Cannot read point data!");
       return;
       }
-    this->Reader.ReadPointData(fp, (vtkDataSet *)this, numPts);
+    this->Reader.ReadPointData(fp, output, numPts);
     }
 
   else 
