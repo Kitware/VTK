@@ -26,17 +26,18 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	m_WhereBuild = _T("");
 	m_WhereJDK = _T("");
 	m_BorlandComp = FALSE;
-	m_MSComp = FALSE;
+	m_MSComp = TRUE;
 	m_Contrib = TRUE;
 	m_Graphics = TRUE;
 	m_Imaging = TRUE;
 	m_WhereCompiler = _T("");
-	m_Debug = FALSE;
 	m_GEMSIP = FALSE;
 	m_GEMSVOLUME = FALSE;
 	m_Patented = FALSE;
 	m_Lean = FALSE;
 	m_Working = FALSE;
+	m_GEAE = FALSE;
+	m_DFA = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -60,12 +61,13 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_Imaging, m_Imaging);
 	DDX_Text(pDX, IDC_WHERECOMPILER, m_WhereCompiler);
 	DDV_MaxChars(pDX, m_WhereCompiler, 512);
-	DDX_Check(pDX, IDC_Debug, m_Debug);
 	DDX_Check(pDX, IDC_GEMSIP, m_GEMSIP);
 	DDX_Check(pDX, IDC_GEMSVOLUME, m_GEMSVOLUME);
 	DDX_Check(pDX, IDC_PATENTED, m_Patented);
 	DDX_Check(pDX, IDC_LEAN, m_Lean);
 	DDX_Check(pDX, IDC_WORKING, m_Working);
+	DDX_Check(pDX, IDC_GEAE, m_GEAE);
+	DDX_Check(pDX, IDC_DFA, m_DFA);
 	//}}AFX_DATA_MAP
 }
 
@@ -130,7 +132,7 @@ HCURSOR CPcmakerDlg::OnQueryDragIcon()
 	return (HCURSOR) m_hIcon;
 }
 
-extern void makeMakefile(CPcmakerDlg *vals);
+extern void makeMakefiles(CPcmakerDlg *vals);
 
 void CPcmakerDlg::OnOK() 
 {
@@ -140,7 +142,7 @@ void CPcmakerDlg::OnOK()
 void CPcmakerDlg::DoOKStuff()
 {
   FILE *fp;
-  char fname[128];
+  char fname[128], where[128];
   char msg[256];
   struct stat statBuff;
 
@@ -228,20 +230,38 @@ void CPcmakerDlg::DoOKStuff()
     }
 
   // make the subdirectories if they don't exist
-  sprintf(fname,"%s\\vtkdll",this->m_WhereBuild);
-  if (stat(fname,&statBuff) == -1) mkdir(fname);
-  sprintf(fname,"%s\\vtktcl",this->m_WhereBuild);
-  if (stat(fname,&statBuff) == -1) mkdir(fname);
-  sprintf(fname,"%s\\vtktcl\\src",this->m_WhereBuild);
-  if (stat(fname,&statBuff) == -1) mkdir(fname);
-  sprintf(fname,"%s\\vtkjava",this->m_WhereBuild);
-  if (stat(fname,&statBuff) == -1) mkdir(fname);
-  sprintf(fname,"%s\\vtkjava\\src",this->m_WhereBuild);
-  if (stat(fname,&statBuff) == -1) mkdir(fname);
-  sprintf(fname,"%s\\vtkjava\\vtk",this->m_WhereBuild);
-  if (stat(fname,&statBuff) == -1) mkdir(fname);
 
-  makeMakefile(this);
+  for (int i = 0; i < 2; i++)
+    {
+    if (i == 0)   // Debug subDirecteries
+      {
+      sprintf(where,"%s\\Debug",this->m_WhereBuild);
+  	  if (stat(where,&statBuff) == -1) mkdir(where);
+      }
+    else
+      sprintf(where,"%s",this->m_WhereBuild);
+
+  	sprintf(fname,"%s\\vtkdll",where);
+	  if (stat(fname,&statBuff) == -1) mkdir(fname);
+  	sprintf(fname,"%s\\vtkdll\\obj",where);
+	  if (stat(fname,&statBuff) == -1) mkdir(fname);
+  	sprintf(fname,"%s\\vtkdll\\src",where);
+	  if (stat(fname,&statBuff) == -1) mkdir(fname);
+	  sprintf(fname,"%s\\vtktcl",where);
+	  if (stat(fname,&statBuff) == -1) mkdir(fname);
+	  sprintf(fname,"%s\\vtktcl\\src",where);
+	  if (stat(fname,&statBuff) == -1) mkdir(fname);
+	  sprintf(fname,"%s\\vtkjava",where);
+	  if (stat(fname,&statBuff) == -1) mkdir(fname);
+	  sprintf(fname,"%s\\vtkjava\\src",where);
+	  if (stat(fname,&statBuff) == -1) mkdir(fname);
+	  sprintf(fname,"%s\\vtkjava\\vtk",where);
+	  if (stat(fname,&statBuff) == -1) mkdir(fname);
+	  sprintf(fname,"%s\\lib",where);
+	  if (stat(fname,&statBuff) == -1) mkdir(fname);
+		}
+
+  makeMakefiles(this);
   CDialog::OnOK();
 }
 

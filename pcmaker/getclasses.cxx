@@ -5,6 +5,39 @@
 #include <fstream.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+// where to split the graphics library: A-O and P-Z
+#define LIB_SPLIT_STRING "vtkp" 
+
+// LT_COMMON must be last in this list
+enum LibraryTypes {LT_GRAPHICS, LT_IMAGING, LT_PATENTED, LT_GEMSIP, LT_GEMSVOLUME, 
+	LT_GEAE, LT_WORKING, LT_CONTRIB, LT_COMMON};
+
+// messy... but gets the job done 
+int concreteStart[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int abstractStart[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int concreteHStart[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int abstractHStart[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int concreteEnd[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int abstractEnd[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int concreteHEnd[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int abstractHEnd[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+extern void AddToDepends(char *file);
+extern void BuildDepends(CPcmakerDlg *vals);
+void SetupDepends(CPcmakerDlg *vals, int debugFlag);
+void makeIncrementalMakefiles(CPcmakerDlg *vals, int doAddedValue, int debugFlag);
+void makeNonIncrementalMakefile(CPcmakerDlg *vals, int doAddedValue, int debugFlag);
+
+// classes that should only be built with tcl
+char *abstractTcl[100];
+char *concreteTcl[100];
+const char *abstractTcl_lib[100];
+const char *concreteTcl_lib[100];
+int num_abstractTcl = 0;
+int num_concreteTcl = 0;
 
 char *abstract_h[2048];
 char *concrete_h[2048];
@@ -92,34 +125,80 @@ void readInMakefile(char *fname,const char *libname)
 }
 
 
-void removeUNIXOnlyFiles()
+
+// order of the files is important for doing the incremental build
+void removeUNIXOnlyFiles(CPcmakerDlg *vals)
 {
-  int i;
+  int i, j;
 
   for (i = 0; i < num_concrete; i++)
-  {
+    {
     if (!(strcmp(concrete[i],"vtkXRenderWindow") &&
           strcmp(concrete[i],"vtkXRenderWindowInteractor") &&
-          strcmp(concrete[i],"vtkImageXViewer")))
-    {
-      concrete[i] = concrete[num_concrete - 1];
-      concrete_lib[i] = concrete_lib[num_concrete-1];
+          strcmp(concrete[i],"vtkImageXViewer") &&
+          strncmp(concrete[i],"vtkDFA",6) && 
+          strncmp(concrete[i],"vtkTcl",6) && 
+          strncmp(concrete[i],"vtkTk",5) ))
+      {
+      if (vals->m_DFA && !( strncmp(concrete[i],"vtkDFA",6) && 
+						                strncmp(concrete[i],"vtkTcl",6) && 
+						                strncmp(concrete[i],"vtkTk",5) ))
+				{
+				concreteTcl[num_concreteTcl] = concrete[i];
+				concreteTcl_lib[num_concreteTcl++] = concrete_lib[i];
+				}
+
+      if (i < num_concrete - 1)
+        {
+        memmove((void *)(concrete + i), (void *)(concrete + i + 1), sizeof(char*)*(num_concrete - i - 1) );
+        memmove((void *)(concrete_lib + i), (void *)(concrete_lib + i + 1), sizeof(char*)*(num_concrete - i - 1) );
+        }
+      
+      for ( j = 0; j <= LT_COMMON; j++)
+        {
+        if (concreteStart[j] > i )
+          concreteStart[j]--;
+        if (concreteEnd[j] > i )
+          concreteEnd[j]--;
+        }
       num_concrete--;
       i--;
+      }
     }
-  }
   for (i = 0; i < num_abstract; i++)
-  {
+    {
     if (!(strcmp(abstract[i],"vtkXRenderWindow") &&
           strcmp(abstract[i],"vtkXRenderWindowInteractor") &&
-          strcmp(abstract[i],"vtkImageXViewer")))
-    {
-      abstract[i] = abstract[num_abstract - 1];
-      abstract_lib[i] = abstract_lib[num_abstract - 1];
+          strcmp(abstract[i],"vtkImageXViewer") &&
+          strncmp(abstract[i],"vtkDFA",6) && 
+          strncmp(abstract[i],"vtkTcl",6) && 
+          strncmp(abstract[i],"vtkTk",5) ))
+      {
+      if (vals->m_DFA && !( strncmp(abstract[i],"vtkDFA",6) && 
+						                strncmp(abstract[i],"vtkTcl",6) && 
+						                strncmp(abstract[i],"vtkTk",5) ))
+				{
+				abstractTcl[num_abstractTcl] = abstract[i];
+				abstractTcl_lib[num_abstractTcl++] = abstract_lib[i];
+				}
+
+      if (i < num_abstract - 1)
+        {
+        memmove((void *)(abstract + i), (void *)(abstract + i + 1), sizeof(char*)*(num_abstract - i - 1) );
+        memmove((void *)(abstract_lib + i), (void *)(abstract_lib + i + 1), sizeof(char*)*(num_abstract - i - 1) );
+        }
+
+      for ( j = 0; j <= LT_COMMON; j++)
+        {
+        if (abstractStart[j] > i )
+          abstractStart[j]--;
+        if (abstractEnd[j] > i )
+          abstractEnd[j]--;
+        }
       num_abstract--;
       i--;
+      }
     }
-  }
 }
 
 // warning this code is also in kit_init.cxx under tcl
@@ -247,7 +326,7 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
   /* prototype for tkRenderWidget */
   if (vals->m_Graphics) fprintf(fp,"extern \"C\" {int Vtktkrenderwidget_Init(Tcl_Interp *interp);}\n\n");
   if (vals->m_Imaging) fprintf(fp,"extern \"C\" {int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}\n\n");
-  
+
   fprintf(fp,"\n\nint %s_Init(Tcl_Interp *interp)\n{\n",kitName);
   if (!strcmp(kitName,"Vtktcl"))
     {
@@ -295,15 +374,19 @@ void MakeInit(char *fname, char *argv1, CPcmakerDlg *vals)
     }
   
   /* fill in the correct arrays */
+	anindex = 0;
   for (i = 0; i < num_concrete; i++)
   {
-    names[i] = concrete[i];
+    names[anindex++] = concrete[i];
   }
   for (i = 0; i < num_concrete_h; i++)
   {
-	names[i+num_concrete] = concrete_h[i];
+	names[anindex++] = concrete_h[i];
   }
-  anindex = num_concrete + num_concrete_h;
+  for (i = 0; i < num_concreteTcl; i++)
+  {
+    names[anindex++] = concreteTcl[i];
+  }
   
   fp = fopen(fname,"w");
   if (fp)
@@ -315,107 +398,117 @@ void MakeInit(char *fname, char *argv1, CPcmakerDlg *vals)
   }
 }
 
-void MakeForce(char *fname)
+// writes for a specific library... only writes if there is a change
+void MakeForce(char *fname, LibraryTypes whichLibrary)
 {
   int i;
   FILE *fp;
+  struct stat statBuff;
+  ifstream *IS;
+  char line[256];
+
+  char outline[200][256];  // up to 200 lines
+  int checkIndex, outIndex = 0;
+
+  sprintf(outline[outIndex++],"#ifndef RW_STD_IOSTREAM");
+  sprintf(outline[outIndex++],"#define RW_STD_IOSTREAM");
+  sprintf(outline[outIndex++],"#include <string.h>");
+  sprintf(outline[outIndex++],"#undef RW_STD_IOSTREAM");
+  sprintf(outline[outIndex++],"#else");
+  sprintf(outline[outIndex++],"#include <string.h>");
+  sprintf(outline[outIndex++],"#endif");
+  for (i = abstractHStart[whichLibrary]; i < abstractHEnd[whichLibrary]; i++)
+		sprintf(outline[outIndex++],"#include \"%s.h\"",abstract_h[i]);
+ 	for (i = concreteHStart[whichLibrary]; i < concreteHEnd[whichLibrary]; i++)
+		sprintf(outline[outIndex++],"#include \"%s.h\"",concrete_h[i]);
+
+	if (stat(fname,&statBuff) != -1) // maybe what we would write is the same as what is there
+    {
+    IS = new ifstream(fname);
+    checkIndex = 0;
+    while (!IS->eof() && checkIndex < outIndex)
+      {
+      IS->getline(line,255);
+
+      if (strcmp(outline[checkIndex++],line))
+        break;
+      }
+    if ( IS->eof() && checkIndex==outIndex ) // they match
+      {
+      IS->close();
+      delete IS;  
+      return;
+      }
+    IS->close();
+    delete IS;  
+    }
 
   fp = fopen(fname,"w");
   if (fp)
-  {
-     fprintf(fp,"#ifndef RW_STD_IOSTREAM\n");
-     fprintf(fp,"#define RW_STD_IOSTREAM\n");
-     fprintf(fp,"#include <string.h>\n");
-     fprintf(fp,"#undef RW_STD_IOSTREAM\n");
-     fprintf(fp,"#else\n");
-     fprintf(fp,"#include <string.h>\n");
-     fprintf(fp,"#endif\n");
- 	  for (i = 0; i < num_abstract_h; i++)
-	  {
-		fprintf(fp,"#include \"%s.h\"\n",abstract_h[i]);
+    {
+    for (i = 0; i < outIndex; i++)
+      {
+      fprintf(fp,"%s",outline[i]);
+      if (i < outIndex - 1)
+        fprintf(fp,"\n");
+      }
     }
- 	  for (i = 0; i < num_concrete_h; i++)
-	  {
-		fprintf(fp,"#include \"%s.h\"\n",concrete_h[i]);
-    }  
   fclose(fp);
-  }
 }
 
-void doMSCHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
-void doBorHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
-void doMSCTclHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
-void doBorTclHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
-void doMSCJavaHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
-void doBorJavaHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
+
+
+void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag);
+void doBorHeader(FILE *fp, CPcmakerDlg *vals, int doAdded, int debugFlag);
+void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag);
+void doBorTclHeader(FILE *fp, CPcmakerDlg *vals, int doAdded, int debugFlag);
+void doMSCJavaHeader(FILE *fp, CPcmakerDlg *vals, int doAdded, int debugFlag);
+void doBorJavaHeader(FILE *fp, CPcmakerDlg *vals, int doAdded, int debugFlag);
+
+// fn added by RB to handle incremental builds
+void doSplitLib(FILE *fp,CPcmakerDlg *vals, LibraryTypes whichLibrary, int debugFlag);
 
 // generate depend info for a .cxx file
 // outputs the result as DEPEND
-extern void OutputDepends(char *file, FILE *fp, const char *vtkHome);
+extern void OutputDepends(char *file, FILE *fp);
 
-void makeMakefile(CPcmakerDlg *vals)
+
+void UpdateStart(LibraryTypes whichLib)
+  {
+  concreteStart[whichLib] = num_concrete;
+  abstractStart[whichLib] = num_abstract;
+  concreteHStart[whichLib] = num_concrete_h;
+  abstractHStart[whichLib] = num_abstract_h;
+  }
+
+
+void UpdateEnd(LibraryTypes whichLib)
+  {
+  concreteEnd[whichLib] = num_concrete;
+  abstractEnd[whichLib] = num_abstract;
+  concreteHEnd[whichLib] = num_concrete_h;
+  abstractHEnd[whichLib] = num_abstract_h;
+  }
+
+
+// returns doAddedValue
+int ReadMakefiles(CPcmakerDlg *vals)
 {
   char fname[256];
-  FILE *ofp;
   int doAddedValue = 0;
-  int total;
-  
+
+  UpdateStart(LT_COMMON);
   sprintf(fname,"%s\\common\\Makefile.in",vals->m_WhereVTK);
   readInMakefile(fname,strdup("common"));
-  if (vals->m_Graphics)
-  {
+  UpdateEnd(LT_COMMON);
+
+  if (vals->m_Graphics) // also include patented if selected
+    {
+    UpdateStart(LT_GRAPHICS);
     sprintf(fname,"%s\\graphics\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("graphics"));
-  }
-  if (vals->m_Imaging)
-  {
-    sprintf(fname,"%s\\imaging\\Makefile.in",vals->m_WhereVTK);
-    readInMakefile(fname,strdup("imaging"));
-  }
-  if (vals->m_Contrib)
-  {
-    sprintf(fname,"%s\\contrib\\Makefile.in",vals->m_WhereVTK);
-    readInMakefile(fname,strdup("contrib"));
-  }
-  if (vals->m_Patented)
-  {
-    sprintf(fname,"%s\\patented\\Makefile.in",vals->m_WhereVTK);
-    readInMakefile(fname,strdup("patented"));
-  }
-  if (vals->m_Working)
-  {
-    sprintf(fname,"%s\\working\\Makefile.in",vals->m_WhereVTK);
-    readInMakefile(fname,strdup("working"));
-  }
-  if (vals->m_GEMSIP)
-  {
-    doAddedValue = 1;
-    sprintf(fname,"%s\\gemsio\\Makefile.in",vals->m_WhereVTK);
-    readInMakefile(fname,strdup("gemsio"));
-    doAddedValue = 1;
-    sprintf(fname,"%s\\gemsip\\Makefile.in",vals->m_WhereVTK);
-    readInMakefile(fname,strdup("gemsip"));
-  }
-  if (vals->m_GEMSVOLUME)
-  {
-    doAddedValue = 1;
-    sprintf(fname,"%s\\gemsvolume\\Makefile.in",vals->m_WhereVTK);
-    readInMakefile(fname,strdup("gemsvolume"));
-  }
 
-  //remove any UNIX only stuff
-  removeUNIXOnlyFiles();
-
-  if (vals->m_Imaging)
-    {
-	  concrete[num_concrete] = strdup("vtkImageWin32Viewer");
-    concrete_lib[num_concrete] = strdup("imaging");
-    num_concrete++;
-    }
-  // add in the OpenGL stuff etc that we need
-  if (vals->m_Graphics)
-    {
-	  concrete[num_concrete] = strdup("vtkOpenGLRenderer");
+    concrete[num_concrete] = strdup("vtkOpenGLRenderer");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
     concrete[num_concrete] = strdup("vtkOpenGLTexture");
@@ -448,75 +541,412 @@ void makeMakefile(CPcmakerDlg *vals)
     concrete[num_concrete] = strdup("vtkWin32MappedInteractor");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
+
+    if (vals->m_Patented)
+      {
+      sprintf(fname,"%s\\patented\\Makefile.in",vals->m_WhereVTK);
+      readInMakefile(fname,strdup("patented"));
+      }
+    
+    UpdateEnd(LT_GRAPHICS);
+    }
+  else if (vals->m_Patented)
+    {
+    UpdateStart(LT_PATENTED);
+    sprintf(fname,"%s\\patented\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("patented"));
+    UpdateEnd(LT_PATENTED);
+    }
+
+  if (vals->m_Imaging)
+    {
+    UpdateStart(LT_IMAGING);
+    sprintf(fname,"%s\\imaging\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("imaging"));
+	  concrete[num_concrete] = strdup("vtkImageWin32Viewer");
+    concrete_lib[num_concrete] = strdup("imaging");
+    num_concrete++;
+    UpdateEnd(LT_IMAGING);
+    }
+  if (vals->m_Contrib)
+    {
+    UpdateStart(LT_CONTRIB);
+    sprintf(fname,"%s\\contrib\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("contrib"));
+    UpdateEnd(LT_CONTRIB);
+    }
+  if (vals->m_Working)
+    {
+    UpdateStart(LT_WORKING);
+    sprintf(fname,"%s\\working\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("working"));
+    UpdateEnd(LT_WORKING);
+    }
+  if (vals->m_GEMSIP)
+    {
+    UpdateStart(LT_GEMSIP);
+    doAddedValue = 1;
+    sprintf(fname,"%s\\gemsio\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("gemsio"));
+    doAddedValue = 1;
+    sprintf(fname,"%s\\gemsip\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("gemsip"));
+    UpdateEnd(LT_GEMSIP);
+    }
+  if (vals->m_GEAE)
+    {
+    UpdateStart(LT_GEAE);
+    doAddedValue = 1;
+    sprintf(fname,"%s\\geae\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("geae"));
+    UpdateEnd(LT_GEAE);
+    }
+  if (vals->m_GEMSVOLUME)
+    {
+    UpdateStart(LT_GEMSVOLUME);
+    doAddedValue = 1;
+    sprintf(fname,"%s\\gemsvolume\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("gemsvolume"));
+    UpdateEnd(LT_GEMSVOLUME);
+    }
+
+  return doAddedValue;
+}
+
+
+
+void CreateRequiredFiles(CPcmakerDlg *vals)
+  {
+  char fname[256];
+
+  // we must create vtkPCForce.cxx
+  sprintf(fname,"%s\\Debug\\vtkdll\\src\\vtkPCForceCommon.cxx",vals->m_WhereBuild);
+  MakeForce(fname,LT_COMMON);
+  sprintf(fname,"%s\\vtkdll\\src\\vtkPCForceCommon.cxx",vals->m_WhereBuild);
+  MakeForce(fname,LT_COMMON);
+
+  if (vals->m_Graphics)
+    {
+	  sprintf(fname,"%s\\Debug\\vtkdll\\src\\vtkPCForceGraphics.cxx",vals->m_WhereBuild);
+	  MakeForce(fname,LT_GRAPHICS);
+    sprintf(fname,"%s\\vtkdll\\src\\vtkPCForceGraphics.cxx",vals->m_WhereBuild);
+	  MakeForce(fname,LT_GRAPHICS);
+    }
+  else if (vals->m_Patented)
+    {
+		sprintf(fname,"%s\\Debug\\vtkdll\\src\\vtkPCForcePatented.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_PATENTED);
+		sprintf(fname,"%s\\vtkdll\\src\\vtkPCForcePatented.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_PATENTED);
+    }
+  if (vals->m_Imaging)
+    {
+		sprintf(fname,"%s\\Debug\\vtkdll\\src\\vtkPCForceImaging.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_IMAGING);
+		sprintf(fname,"%s\\vtkdll\\src\\vtkPCForceImaging.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_IMAGING);
+    }
+  if (vals->m_Contrib)
+    {
+		sprintf(fname,"%s\\Debug\\vtkdll\\src\\vtkPCForceContrib.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_CONTRIB);
+		sprintf(fname,"%s\\vtkdll\\src\\vtkPCForceContrib.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_CONTRIB);
+    }
+  if (vals->m_Working)
+    {
+		sprintf(fname,"%s\\Debug\\vtkdll\\src\\vtkPCForceWorking.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_WORKING);
+		sprintf(fname,"%s\\vtkdll\\src\\vtkPCForceWorking.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_WORKING);
+    }
+  if (vals->m_GEMSIP)
+    {
+		sprintf(fname,"%s\\Debug\\vtkdll\\src\\vtkPCForceGemsip.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_GEMSIP);
+		sprintf(fname,"%s\\vtkdll\\src\\vtkPCForceGemsip.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_GEMSIP);
+    }
+  if (vals->m_GEAE)
+    {
+		sprintf(fname,"%s\\Debug\\vtkdll\\src\\vtkPCForceGeae.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_GEAE);
+		sprintf(fname,"%s\\vtkdll\\src\\vtkPCForceGeae.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_GEAE);
+    }
+  if (vals->m_GEMSVOLUME)
+    {
+		sprintf(fname,"%s\\Debug\\vtkdll\\src\\vtkPCForceGemsVolume.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_GEMSVOLUME);
+		sprintf(fname,"%s\\vtkdll\\src\\vtkPCForceGemsVolume.cxx",vals->m_WhereBuild);
+    MakeForce(fname,LT_GEMSVOLUME);
     }
 
   // we must create CommonInit.cxx etc
+  sprintf(fname,"%s\\Debug\\vtktcl\\src\\vtktcl.cxx",vals->m_WhereBuild);
+  MakeInit(fname,"Vtktcl",vals);
   sprintf(fname,"%s\\vtktcl\\src\\vtktcl.cxx",vals->m_WhereBuild);
   MakeInit(fname,"Vtktcl",vals);
+  }
 
-  // we must create vtkPCForce.cxx
-  sprintf(fname,"%s\\vtkdll\\vtkPCForce.cxx",vals->m_WhereBuild);
-  MakeForce(fname);
 
-  // set up the progress indicator
-  total = 1 + 2*num_concrete + 2*num_abstract + num_abstract_h + num_concrete_h;
+// only call if m_MSComp
+void makeMakefiles(CPcmakerDlg *vals)
+{
+  int doAddedValue;
+  int total;
+
+  doAddedValue = ReadMakefiles(vals);
+  removeUNIXOnlyFiles(vals);
+
+  CreateRequiredFiles(vals);
+
+  // set up the progress indicator... total is approximate
+  // 1st for computing depends....
+  total = 10 * (1 + vals->m_Graphics + vals->m_Imaging + vals->m_Working + vals->m_Contrib + 
+                    vals->m_GEMSIP + vals->m_GEMSVOLUME + vals->m_GEAE +
+                    2*num_concrete + 2*num_abstract + num_abstract_h + num_concrete_h +
+										2*num_concreteTcl + 2*num_abstractTcl);
+
+  total += 2 * total / 10;
   if (strlen(vals->m_WhereJDK) > 1)
     {
-    total = total + num_concrete + num_abstract + num_abstract_h + num_concrete_h;
+    total += 2 * (num_concrete + num_abstract + num_abstract_h + num_concrete_h);
     } 
   vals->m_Progress.SetRange(0,total);
   vals->m_Progress.SetPos(0);
 
-  // spit out a Makefile
-  sprintf(fname,"%s\\vtkdll\\makefile",vals->m_WhereBuild);
-  ofp = fopen(fname,"w");
-  if (vals->m_MSComp) doMSCHeader(ofp, vals, doAddedValue);
-  if (vals->m_BorlandComp) doBorHeader(ofp, vals, doAddedValue);
-  fclose(ofp);
+  SetupDepends(vals, 2); // 2 does both Debug and not for now...
 
-  sprintf(fname,"%s\\vtktcl\\makefile",vals->m_WhereBuild);
+  // tcl and/or jave makefile made (called form) makeNonIncrementalMakefile()
+  if (vals->m_MSComp)
+    {
+    makeIncrementalMakefiles(vals,doAddedValue,0);  // non-debug
+    makeIncrementalMakefiles(vals,doAddedValue,1);  // debug
+    }
+  makeNonIncrementalMakefile(vals,doAddedValue,0);  // non-debug
+  makeNonIncrementalMakefile(vals,doAddedValue,1);  // non-debug
+  }
+
+
+void makeNonIncrementalMakefile(CPcmakerDlg *vals, int doAddedValue, int debugFlag)
+{
+  char fname[256];
+  FILE *ofp;
+
+  // spit out a Makefile... did at same time as incremental if MCSomp
+  if (vals->m_BorlandComp)
+    {
+  	if ( debugFlag )
+	    sprintf(fname,"%s\\Debug\\vtkdll\\makefile",vals->m_WhereBuild);
+	  else
+	    sprintf(fname,"%s\\vtkdll\\makefile",vals->m_WhereBuild);
+    ofp = fopen(fname,"w");
+    doBorHeader(ofp, vals, doAddedValue, debugFlag);
+    fclose(ofp);
+    }
+
+	if ( debugFlag )
+		sprintf(fname,"%s\\Debug\\vtktcl\\makefile",vals->m_WhereBuild);
+	else
+		sprintf(fname,"%s\\vtktcl\\makefile",vals->m_WhereBuild);
   ofp = fopen(fname,"w");
-  if (vals->m_MSComp) doMSCTclHeader(ofp, vals, doAddedValue);
-  if (vals->m_BorlandComp) doBorTclHeader(ofp, vals, doAddedValue);
+  if (vals->m_MSComp) doMSCTclHeader(ofp, vals, doAddedValue, debugFlag);
+  if (vals->m_BorlandComp) doBorTclHeader(ofp, vals, doAddedValue, debugFlag);
   fclose(ofp);
 
   // generate the java makefiles if requested
   if (strlen(vals->m_WhereJDK) > 1)
     {
-    sprintf(fname,"%s\\vtkjava\\makefile",vals->m_WhereBuild);
-    ofp = fopen(fname,"w");
-    if (vals->m_MSComp ) doMSCJavaHeader(ofp, vals, doAddedValue);
-    if (vals->m_BorlandComp) doBorJavaHeader(ofp, vals, doAddedValue);
+		if ( debugFlag )
+			sprintf(fname,"%s\\Debug\\vtkjava\\makefile",vals->m_WhereBuild);
+		else
+			sprintf(fname,"%s\\vtkjava\\makefile",vals->m_WhereBuild);
+		ofp = fopen(fname,"w");
+    if (vals->m_MSComp ) doMSCJavaHeader(ofp, vals, doAddedValue, debugFlag);
+    if (vals->m_BorlandComp) doBorJavaHeader(ofp, vals, doAddedValue, debugFlag);
     fclose(ofp);
     }
 }
 
 
 
+// build off vtkdll directory...obj and lib directories
+void makeIncrementalMakefiles(CPcmakerDlg *vals, int doAddedValue, int debugFlag)
+{
+  char fname[256];
+  FILE *fp;
+  
+  // spit out a Makefile.... calls and make other makefiles
+	if ( debugFlag )
+		sprintf(fname,"%s\\Debug\\makefile",vals->m_WhereBuild);
+	else
+		sprintf(fname,"%s\\makefile",vals->m_WhereBuild);
+  fp = fopen(fname,"w");
+
+  // write the stuff at the top that we only write once
+  fprintf(fp,"# VTK Parent makefile\n");
+
+  // define ALL... and make sure directories exist
+  // always has common
+  fprintf(fp,"ALL : vtkLibs ");
+
+  // Java?
+  if (strlen(vals->m_WhereJDK) > 1)
+    fprintf(fp,"vtkJaveLib ");
+
+  // always TCL.. but last
+  fprintf(fp,"vtkTclLib\n\n");
+
+  fprintf(fp,"vtkLibs :\n");
+  fprintf(fp,"   cd vtkdll\n");
+  fprintf(fp,"   nmake OBJS\n");
+  fprintf(fp,"   nmake LIBRARIES\n");
+  fprintf(fp,"   cd ../\n\n");
+
+  if (strlen(vals->m_WhereJDK) > 1)
+    {
+    fprintf(fp,"vtkJavaLib :\n");
+	  fprintf(fp,"   cd vtkjava\n");
+    fprintf(fp,"   nmake ..\\lib\\vtkjava.dll\n");
+    fprintf(fp,"   nmake ..\\lib\\vtkjava.dll\n");
+    fprintf(fp,"   cd ../\n\n");
+    fclose(fp);
+    }
+
+  // tcl
+  fprintf(fp,"vtkTclLib :\n");
+  fprintf(fp,"   cd vtktcl\n");
+  fprintf(fp,"   nmake ..\\lib\\vtktcl.dll\n");
+  fprintf(fp,"   nmake ..\\lib\\vtktcl.dll\n");
+  fprintf(fp,"   cd ../\n\n");
+  fclose(fp);
+
+
+  if ( debugFlag )
+		sprintf(fname,"%s\\Debug\\vtkdll\\makefile",vals->m_WhereBuild);
+	else
+		sprintf(fname,"%s\\vtkdll\\makefile",vals->m_WhereBuild);
+  fp = fopen(fname,"w");
+  doMSCHeader(fp,vals,debugFlag);
+  fclose(fp);
+}
+
+
+
+// Not currently splitting the lib... but keep the function for now
+void doSplitLib(FILE *fp,CPcmakerDlg *vals, LibraryTypes whichLibrary, int debugFlag)
+  {
+  int i;
+
+  fprintf(fp,"# VTK Generic makefile\n");
+  fprintf(fp,"LIBDIR=..\\lib\n\n");
+
+  switch (whichLibrary)
+    {
+    case LT_GRAPHICS:
+      fprintf(fp,"!MESSAGE making the vtkGraphics libraries.......\n\n");
+      fprintf(fp,"ALL : \"$(LIBDIR)/vtkGraphics1.exp\" \"$(LIBDIR)/vtkGraphics2.dll\" \"$(LIBDIR)/vtkGraphics1.dll\" \n\n");
+      break;
+    }
+
+
+  fprintf(fp,"\"$(LIBDIR)\" :\n");
+  fprintf(fp,"    if not exist \"$(LIBDIR)/$(NULL)\" mkdir \"$(LIBDIR)\"\n");
+  fprintf(fp,"\n");
+  fprintf(fp,"LINK32=link.exe\n");
+  fprintf(fp,"LIB=lib.exe\n\n");
+
+  fprintf(fp,"LIB_LIBRARIES=\"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" \n",
+    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
+  fprintf(fp,"LIB_FLAGS=/nologo /machine:I386 /out:\"$(LIBDIR)/vtkGraphics1.lib\" \n");
+  fprintf(fp,"EXTRA_LIBS1=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkGraphics1.exp\" \"$(LIBDIR)/vtkGraphics2.lib\" \n");
+  fprintf(fp,"EXTRA_LIBS2=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkGraphics1.lib\" \n");
+
+  if (debugFlag)
+    fprintf(fp,"LINK32_FLAGS=/debug /libpath:\"%s\\lib\" /nologo /version:1.3 /subsystem:windows\\\n",
+      vals->m_WhereCompiler);
+  else
+    fprintf(fp,"LINK32_FLAGS=/libpath:\"%s\\lib\" /nologo /version:1.3 /subsystem:windows\\\n",
+      vals->m_WhereCompiler);
+
+  fprintf(fp," /dll /incremental:yes /machine:I386\n");
+
+  fprintf(fp,"OUT_NAMES1=/out:\"$(LIBDIR)/vtkGraphics1.dll\"\n");
+  fprintf(fp,"OUT_NAMES2=/out:\"$(LIBDIR)/vtkGraphics2.dll\" /implib:\"$(LIBDIR)/vtkGraphics2.lib\" \n");
+
+
+  fprintf(fp,"LINK32_OBJS1= \\\n");
+  for (i = abstractStart[whichLibrary]; i < abstractEnd[whichLibrary]; i++)
+    {
+    if ( _stricmp(abstract[i],LIB_SPLIT_STRING) < 0 )
+      fprintf(fp,"    %s.obj \\\n",abstract[i]);
+    }
+  for (i = concreteStart[whichLibrary]; i < concreteEnd[whichLibrary]; i++)
+    {
+    if ( _stricmp(concrete[i],LIB_SPLIT_STRING) < 0 )
+      fprintf(fp,"    %s.obj \\\n",concrete[i]);
+    }
+  fprintf(fp,"\n");
+
+
+  fprintf(fp,"LINK32_OBJS2= \\\n");
+  fprintf(fp,"    vtkPCForce.obj \\\n");
+  for (i = abstractStart[whichLibrary]; i < abstractEnd[whichLibrary]; i++)
+    {
+    if ( !(_stricmp(abstract[i],LIB_SPLIT_STRING) < 0) )
+      fprintf(fp,"    %s.obj \\\n",abstract[i]);
+    }
+  for (i = concreteStart[whichLibrary]; i < concreteEnd[whichLibrary]; i++)
+    {
+    if ( !(_stricmp(concrete[i],LIB_SPLIT_STRING) < 0) )
+      fprintf(fp,"    %s.obj \\\n",concrete[i]);
+    }
+  fprintf(fp,"\n");
+
+
+  fprintf(fp,"\"$(LIBDIR)/vtkGraphics1.exp\" : \"$(LIBDIR)\" $(DEF_FILE) $(LINK32_OBJS1) $(LIB_LIBRARIES)\n");
+  fprintf(fp,"   $(LIB) @<<\n");
+  fprintf(fp,"     $(LIB_FLAGS) $(LINK32_OBJS1) $(LIB_LIBRARIES)\n<<\n\n");
+  
+  fprintf(fp,"\"$(LIBDIR)/vtkGraphics2.dll\" : \"$(LIBDIR)\" $(DEF_FILE) $(LINK32_OBJS2) $(EXTRA_LIBS2)\n");
+  fprintf(fp,"   $(LINK32) @<<\n");
+  fprintf(fp,"     $(OUT_NAMES2) $(LINK32_FLAGS) $(LINK32_OBJS2) $(LIB_LIBRARIES) $(EXTRA_LIBS2)\n<<\n\n");
+
+  fprintf(fp,"\"$(LIBDIR)/vtkGraphics1.dll\" : \"$(LIBDIR)\" $(DEF_FILE) $(LINK32_OBJS1) $(EXTRA_LIBS1)\n");
+  fprintf(fp,"   $(LINK32) @<<\n");
+  fprintf(fp,"     $(OUT_NAMES1) $(LINK32_FLAGS) $(LINK32_OBJS1) $(LIB_LIBRARIES) $(EXTRA_LIBS1)\n<<\n\n");
+  }
+
+
+
 /******************************************************************************
   Here are the different makefile methods
 *******************************************************************************/
-
-void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
+void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 {
   int i;
-  char file[256];
+  char file[256], temp[256];
 
   fprintf(fp,"# VTK Generic makefile\n");
   fprintf(fp,"CPP=cl.exe\n\n");
-  fprintf(fp,"OUTDIR=obj\n\n");
-  fprintf(fp,"ALL : \"$(OUTDIR)\\vtkdll.dll\"\n\n");
 
-  fprintf(fp,"\"$(OUTDIR)\" :\n");
-  fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
-  fprintf(fp,"\n");
-  if (vals->m_Debug)
+	fprintf(fp,"OBJDIR=obj\n");
+	fprintf(fp,"LIBDIR=..\\lib\n\n");
+
+  fprintf(fp,"NONINCREMENTAL : vtkdll.dll\n\n");
+
+  if (debugFlag)
     {
+//    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /D \"_DEBUG\" /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /I \"%s\\working\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+//      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /D \"_DEBUG\" /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /I \"%s\\working\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
       vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
+//    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MT /G5 /Ox /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\working\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+//      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MT /G5 /Ox /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\working\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
       vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
@@ -531,41 +961,257 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     }
   if (vals->m_Lean)
     {
-    fprintf(fp,"/W2 /D \"VTK_LEAN_AND_MEAN\" /Fo\"$(OUTDIR)/\" /c \n");
+    fprintf(fp,"/W2 /D \"VTK_LEAN_AND_MEAN\"  /Fo$(OBJDIR)\\ /c\n");
     }
   else
     {
-    fprintf(fp,"/W2 /Fo\"$(OUTDIR)/\" /c \n");
+    fprintf(fp,"/W2  /Fo$(OBJDIR)\\ /c\n");
     }
-  fprintf(fp,"LINK32=link.exe\n");
-  if (vals->m_Debug)
+
+	fprintf(fp,"LINK32=link.exe\n");
+  if (debugFlag)
     {
-    fprintf(fp,"LINK32_FLAGS=/debug /libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\\\n",
-    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
+    fprintf(fp,"LINK32_FLAGS=/debug /libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
+		  vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
   else
     {
-    fprintf(fp,"LINK32_FLAGS=/libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\\\n",
+    fprintf(fp,"LINK32_FLAGS=/libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
     vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
-  fprintf(fp," /dll /incremental:no /machine:I386\\\n");
-  fprintf(fp," /out:\"$(OUTDIR)/vtkdll.dll\" /implib:\"$(OUTDIR)/vtkdll.lib\" \n");
-  fprintf(fp,"LINK32_OBJS= \\\n");
-  fprintf(fp,"    \"$(OUTDIR)\\vtkPCForce.obj\" \\\n");
-  for (i = 0; i < num_abstract; i++)
-  {
-    fprintf(fp,"    \"$(OUTDIR)\\%s.obj\" \\\n",abstract[i]);
-  }
-  for (i = 0; i < num_concrete; i++)
-  {
-    fprintf(fp,"    \"$(OUTDIR)\\%s.obj\" \\\n",concrete[i]);
-  }
+
+  fprintf(fp,"ALL_FLAGS= /dll /incremental:no /machine:I386\\\n");
+  fprintf(fp," /out:vtkdll.dll /implib:vtkdll.lib \n\n");
+
+  fprintf(fp,"COMMON_FLAGS= /dll /incremental:yes /machine:I386\\\n");
+  fprintf(fp," /out:\"$(LIBDIR)/vtkCommon.dll\" /implib:\"$(LIBDIR)/vtkCommon.lib\" \n");
+
+  fprintf(fp,"COMMON_OBJS= \\\n");
+  fprintf(fp,"    \"$(OBJDIR)\\vtkPCForceCommon.obj\" \\\n");
+  for (i = abstractStart[LT_COMMON]; i < abstractEnd[LT_COMMON]; i++)
+    fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",abstract[i]);
+  for (i = concreteStart[LT_COMMON]; i < concreteEnd[LT_COMMON]; i++)
+    fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",concrete[i]);
   fprintf(fp,"\n");
-  fprintf(fp,"\"$(OUTDIR)\\vtkdll.dll\" : \"$(OUTDIR)\" $(DEF_FILE) $(LINK32_OBJS)\n");
-  fprintf(fp,"    $(LINK32) @<<\n");
-  fprintf(fp,"  $(LINK32_FLAGS) $(LINK32_OBJS)\n");
+
+
+  if ( vals->m_Graphics )
+    {
+    fprintf(fp,"GRAPHICS_FLAGS= /dll /incremental:no /machine:I386\\\n");
+    fprintf(fp," /out:\"$(LIBDIR)/vtkGraphics.dll\" /implib:\"$(LIBDIR)/vtkGraphics.lib\" \n");
+    fprintf(fp,"GRAPHICS_LIBS=\"$(LIBDIR)/vtkCommon.lib\"\n");
+
+    fprintf(fp,"GRAPHICS_OBJS= \\\n");
+    fprintf(fp,"    \"$(OBJDIR)\\vtkPCForceGraphics.obj\" \\\n");
+    for (i = abstractStart[LT_GRAPHICS]; i < abstractEnd[LT_GRAPHICS]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",abstract[i]);
+    for (i = concreteStart[LT_GRAPHICS]; i < concreteEnd[LT_GRAPHICS]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",concrete[i]);
+    fprintf(fp,"\n");
+    }
+  else if ( vals->m_Patented )
+    {
+    fprintf(fp,"PATENTED_FLAGS= /dll /incremental:yes /machine:I386\\\n");
+    fprintf(fp," /out:\"$(LIBDIR)/vtkPatented.dll\" /implib:\"$(LIBDIR)/vtkPatented.lib\" \n");
+    fprintf(fp,"PATENTED_LIBS=\"$(LIBDIR)/vtkCommon.lib\"\n");
+
+    fprintf(fp,"PATENTED_OBJS= \\\n");
+    fprintf(fp,"    \"$(OBJDIR)\\vtkPCForcePatented.obj\" \\\n");
+    for (i = abstractStart[LT_PATENTED]; i < abstractEnd[LT_PATENTED]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",abstract[i]);
+    for (i = concreteStart[LT_PATENTED]; i < concreteEnd[LT_PATENTED]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",concrete[i]);
+    fprintf(fp,"\n");
+    }
+  if ( vals->m_Imaging )
+    {
+    fprintf(fp,"IMAGING_FLAGS= /dll /incremental:yes /machine:I386\\\n");
+    fprintf(fp," /out:\"$(LIBDIR)/vtkImaging.dll\" /implib:\"$(LIBDIR)/vtkImaging.lib\" \n");
+    fprintf(fp,"IMAGING_LIBS=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkGraphics.lib\"\n");
+
+    fprintf(fp,"IMAGING_OBJS= \\\n");
+    fprintf(fp,"    \"$(OBJDIR)\\vtkPCForceImaging.obj\" \\\n");
+    for (i = abstractStart[LT_IMAGING]; i < abstractEnd[LT_IMAGING]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",abstract[i]);
+    for (i = concreteStart[LT_IMAGING]; i < concreteEnd[LT_IMAGING]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",concrete[i]);
+    fprintf(fp,"\n");
+    }
+  if ( vals->m_Working )
+    {
+    fprintf(fp,"WORKING_FLAGS= /dll /incremental:yes /machine:I386\\\n");
+    fprintf(fp," /out:\"$(LIBDIR)/vtkWorking.dll\" /implib:\"$(LIBDIR)/vtkWorking.lib\" \n");
+    fprintf(fp,"WORKING_LIBS=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkImaging.lib\" \"$(LIBDIR)/vtkGraphics.lib\" \n");
+
+    fprintf(fp,"WORKING_OBJS= \\\n");
+    fprintf(fp,"    \"$(OBJDIR)\\vtkPCForceWorking.obj\" \\\n");
+    for (i = abstractStart[LT_WORKING]; i < abstractEnd[LT_WORKING]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",abstract[i]);
+    for (i = concreteStart[LT_WORKING]; i < concreteEnd[LT_WORKING]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",concrete[i]);
+    fprintf(fp,"\n");
+    }
+  if ( vals->m_Contrib )
+    {
+    fprintf(fp,"CONTRIB_FLAGS= /dll /incremental:yes /machine:I386\\\n");
+    fprintf(fp," /out:\"$(LIBDIR)/vtkContrib.dll\" /implib:\"$(LIBDIR)/vtkContrib.lib\" \n");
+    fprintf(fp,"CONTRIB_LIBS=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkImaging.lib\" \"$(LIBDIR)/vtkGraphics.lib\" \n");
+
+    fprintf(fp,"CONTRIB_OBJS= \\\n");
+    fprintf(fp,"    \"$(OBJDIR)\\vtkPCForceContrib.obj\" \\\n");
+    for (i = abstractStart[LT_CONTRIB]; i < abstractEnd[LT_CONTRIB]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",abstract[i]);
+    for (i = concreteStart[LT_CONTRIB]; i < concreteEnd[LT_CONTRIB]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",concrete[i]);
+    fprintf(fp,"\n");
+    }
+  if ( vals->m_GEMSIP )
+    {
+    fprintf(fp,"GEMSIP_FLAGS= /dll /incremental:yes /machine:I386\\\n");
+    fprintf(fp," /out:\"$(LIBDIR)/vtkGemsip.dll\" /implib:\"$(LIBDIR)/vtkGemsip.lib\" \n");
+    fprintf(fp,"GEMSIP_LIBS=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkImaging.lib\" \"$(LIBDIR)/vtkGraphics.lib\" \n");
+
+    fprintf(fp,"GEMSIP_OBJS= \\\n");
+    fprintf(fp,"    \"$(OBJDIR)\\vtkPCForceGemsip.obj\" \\\n");
+    for (i = abstractStart[LT_GEMSIP]; i < abstractEnd[LT_GEMSIP]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",abstract[i]);
+    for (i = concreteStart[LT_GEMSIP]; i < concreteEnd[LT_GEMSIP]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",concrete[i]);
+    fprintf(fp,"\n");
+    }
+  if ( vals->m_GEMSVOLUME )
+    {
+    fprintf(fp,"GEMSVOLUME_FLAGS= /dll /incremental:yes /machine:I386\\\n");
+    fprintf(fp," /out:\"$(LIBDIR)/vtkGemsVolume.dll\" /implib:\"$(LIBDIR)/vtkGemsVolume.lib\" \n");
+    fprintf(fp,"GEMSVOLUME_LIBS=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkImaging.lib\" \"$(LIBDIR)/vtkGraphics.lib\" \n");
+
+    fprintf(fp,"GEMSVOLUME_OBJS= \\\n");
+    fprintf(fp,"    \"$(OBJDIR)\\vtkPCForceGemsVolume.obj\" \\\n");
+    for (i = abstractStart[LT_GEMSVOLUME]; i < abstractEnd[LT_GEMSVOLUME]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",abstract[i]);
+    for (i = concreteStart[LT_GEMSVOLUME]; i < concreteEnd[LT_GEMSVOLUME]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",concrete[i]);
+    fprintf(fp,"\n");
+    }
+  if ( vals->m_GEAE )
+    {
+    fprintf(fp,"GEAE_FLAGS= /dll /incremental:yes /machine:I386\\\n");
+    fprintf(fp," /out:\"$(LIBDIR)/vtkGeae.dll\" /implib:\"$(LIBDIR)/vtkGeae.lib\" \n");
+    fprintf(fp,"GEAE_LIBS=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkImaging.lib\" \"$(LIBDIR)/vtkGraphics.lib\" \n");
+
+    fprintf(fp,"GEAE_OBJS= \\\n");
+    fprintf(fp,"    \"$(OBJDIR)\\vtkPCForceGeae.obj\" \\\n");
+    for (i = abstractStart[LT_GEAE]; i < abstractEnd[LT_GEAE]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",abstract[i]);
+    for (i = concreteStart[LT_GEAE]; i < concreteEnd[LT_GEAE]; i++)
+      fprintf(fp,"    \"$(OBJDIR)\\%s.obj\" \\\n",concrete[i]);
+    fprintf(fp,"\n");
+    }
+
+  fprintf(fp,"OBJS : $(COMMON_OBJS) $(GRAPHICS_OBJS) $(PATENTED_OBJS) $(IMAGING_OBJS)\\\n");
+  fprintf(fp,"       $(WORKING_OBJS) $(CONTRIB_OBJS) $(GEMSIP_OBJS) $(GEMSVOLUME_OBJS) $(GEAE_OBJS)\n\n");
+
+  fprintf(fp,"LIBRARIES : \"$(LIBDIR)\\vtkCommon.dll\"\\\n ");
+  if ( vals->m_Graphics )
+    fprintf(fp,"          \"$(LIBDIR)\\vtkGraphics.dll\"\\\n ");
+  else if ( vals->m_Patented )
+    fprintf(fp,"          \"$(LIBDIR)\\vtkPatented.dll\"\\\n ");
+  if ( vals->m_Imaging )
+    fprintf(fp,"          \"$(LIBDIR)\\vtkImaging.dll\"\\\n ");
+  if ( vals->m_Working )
+    fprintf(fp,"          \"$(LIBDIR)\\vtkWorking.dll\"\\\n ");
+  if ( vals->m_Contrib )
+    fprintf(fp,"          \"$(LIBDIR)\\vtkContrib.dll\"\\\n ");
+  if ( vals->m_GEMSIP )
+    fprintf(fp,"          \"$(LIBDIR)\\vtkGemsip.dll\"\\\n ");
+  if ( vals->m_GEMSVOLUME )
+    fprintf(fp,"          \"$(LIBDIR)\\vtkGemsVolume.dll\"\\\n ");
+  if ( vals->m_GEAE )
+    fprintf(fp,"          \"$(LIBDIR)\\vtkGeae.dll\"\\\n ");
+  fprintf(fp,"\n");
+
+
+  fprintf(fp,"vtkdll.dll : $(DEF_FILE) $(COMMON_OBJS) $(GRAPHICS_OBJS) $(PATENTED_OBJS) ");
+  fprintf(fp," $(IMAGING_OBJS) $(WORKING_OBJS) $(CONTRIB_OBJS) ");
+  fprintf(fp," $(GEMSIP_OBJS) $(GEMSVOLUME_OBJS) $(GEAE_OBJS)\n");
+	fprintf(fp,"    $(LINK32) @<<\n");
+  fprintf(fp,"  $(LINK32_FLAGS) $(ALL_FLAGS) $(COMMON_OBJS) $(GRAPHICS_OBJS) $(PATENTED_OBJS) ");
+  fprintf(fp," $(IMAGING_OBJS) $(WORKING_OBJS) $(CONTRIB_OBJS) ");
+  fprintf(fp," $(GEMSIP_OBJS) $(GEMSVOLUME_OBJS) $(GEAE_OBJS)\n");
   fprintf(fp,"<<\n");
   fprintf(fp,"\n");
+
+  fprintf(fp,"\"$(LIBDIR)\\vtkCommon.dll\" : $(DEF_FILE) $(COMMON_OBJS) \n");
+	fprintf(fp,"    $(LINK32) @<<\n");
+  fprintf(fp,"  $(LINK32_FLAGS) $(COMMON_FLAGS) $(COMMON_OBJS)\n");
+  fprintf(fp,"<<\n");
+  fprintf(fp,"\n");
+
+  if ( vals->m_Graphics )
+    {
+    fprintf(fp,"\"$(LIBDIR)\\vtkGraphics.dll\" : $(DEF_FILE) $(GRAPHICS_OBJS) \n");
+	  fprintf(fp,"    $(LINK32) @<<\n");
+    fprintf(fp,"  $(LINK32_FLAGS) $(GRAPHICS_FLAGS) $(GRAPHICS_OBJS) $(GRAPHICS_LIBS)\n");
+    fprintf(fp,"<<\n");
+    fprintf(fp,"\n");
+    }
+  else if ( vals->m_Patented )
+    {
+    fprintf(fp,"\"$(LIBDIR)\\vtkPatented.dll\" : $(DEF_FILE) $(PATENTED_OBJS) \n");
+	  fprintf(fp,"    $(LINK32) @<<\n");
+    fprintf(fp,"  $(LINK32_FLAGS) $(PATENTED_FLAGS) $(PATENTED_OBJS) $(PATENTED_LIBS)\n");
+    fprintf(fp,"<<\n");
+    fprintf(fp,"\n");
+    }
+  if ( vals->m_Imaging )
+    {
+    fprintf(fp,"\"$(LIBDIR)\\vtkImaging.dll\" : $(DEF_FILE) $(IMAGING_OBJS) \n");
+	  fprintf(fp,"    $(LINK32) @<<\n");
+    fprintf(fp,"  $(LINK32_FLAGS) $(IMAGING_FLAGS) $(IMAGING_OBJS) $(IMAGING_LIBS)\n");
+    fprintf(fp,"<<\n");
+    fprintf(fp,"\n");
+    }
+  if ( vals->m_Working )
+    {
+    fprintf(fp,"\"$(LIBDIR)\\vtkWorking.dll\" : $(DEF_FILE) $(WORKING_OBJS) \n");
+	  fprintf(fp,"    $(LINK32) @<<\n");
+    fprintf(fp,"  $(LINK32_FLAGS) $(WORKING_FLAGS) $(WORKING_OBJS) $(WORKING_LIBS)\n");
+    fprintf(fp,"<<\n");
+    fprintf(fp,"\n");
+    }
+  if ( vals->m_Contrib )
+    {
+    fprintf(fp,"\"$(LIBDIR)\\vtkContrib.dll\" : $(DEF_FILE) $(CONTRIB_OBJS) \n");
+	  fprintf(fp,"    $(LINK32) @<<\n");
+    fprintf(fp,"  $(LINK32_FLAGS) $(CONTRIB_FLAGS) $(CONTRIB_OBJS) $(CONTRIB_LIBS)\n");
+    fprintf(fp,"<<\n");
+    fprintf(fp,"\n");
+    }
+  if ( vals->m_GEMSIP )
+    {
+    fprintf(fp,"\"$(LIBDIR)\\vtkGemsip.dll\" : $(DEF_FILE) $(GEMSIP_OBJS) \n");
+	  fprintf(fp,"    $(LINK32) @<<\n");
+    fprintf(fp,"  $(LINK32_FLAGS) $(GEMSIP_FLAGS) $(GEMSIP_OBJS) $(GEMSIP_LIBS)\n");
+    fprintf(fp,"<<\n");
+    fprintf(fp,"\n");
+    }
+  if ( vals->m_GEMSVOLUME )
+    {
+    fprintf(fp,"\"$(LIBDIR)\\vtkGemsVolume.dll\" : $(DEF_FILE) $(GEMSVOLUME_OBJS) \n");
+	  fprintf(fp,"    $(LINK32) @<<\n");
+    fprintf(fp,"  $(LINK32_FLAGS) $(GEMSVOLUME_FLAGS) $(GEMSVOLUME_OBJS) $(GEMSVOLUME_LIBS)\n");
+    fprintf(fp,"<<\n");
+    fprintf(fp,"\n");
+    }
+  if ( vals->m_GEAE )
+    {
+    fprintf(fp,"\"$(LIBDIR)\\vtkGeae.dll\" : $(DEF_FILE) $(GEAE_OBJS) \n");
+	  fprintf(fp,"    $(LINK32) @<<\n");
+    fprintf(fp,"  $(LINK32_FLAGS) $(GEAE_FLAGS) $(GEAE_OBJS) $(GEAE_LIBS)\n");
+    fprintf(fp,"<<\n");
+    fprintf(fp,"\n");
+    }
+
   fprintf(fp,".c{$(CPP_OBJS)}.obj:\n");
   fprintf(fp,"   $(CPP) $(CPP_PROJ) $<  \n");
   fprintf(fp,"\n");
@@ -586,36 +1232,110 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"\n");
   fprintf(fp,"################################################################################\n");
   fprintf(fp,"\n");
-  sprintf(file,"%s\\vtkdll\\vtkPCForce.cxx",vals->m_WhereBuild);
-  OutputDepends(file,fp,vals->m_WhereVTK);
+
+  if ( debugFlag )
+    sprintf(temp,"%s\\Debug\\vtkdll\\src",vals->m_WhereBuild);
+  else
+    sprintf(temp,"%s\\vtkdll\\src",vals->m_WhereBuild);
+
+
+  sprintf(file,"%s\\vtkPCForceCommon.cxx",temp);
+  OutputDepends(file,fp);
   vals->m_Progress.OffsetPos(1);
-  fprintf(fp,"\"$(OUTDIR)\\vtkPCForce.obj\" : vtkPCForce.cxx $(DEPENDS) \"$(OUTDIR)\"\n");
-  fprintf(fp,"  $(CPP) $(CPP_PROJ) vtkPCForce.cxx\n\n");
+  fprintf(fp,"\"$(OBJDIR)\\vtkPCForceCommon.obj\" : src\\vtkPCForceCommon.cxx $(DEPENDS) \n");
+  fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceCommon.cxx\n\n");
+
+  if ( vals->m_Graphics )
+    {
+    sprintf(file,"%s\\vtkPCForceGraphics.cxx",temp);
+    OutputDepends(file,fp);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OBJDIR)\\vtkPCForceGraphics.obj\" : src\\vtkPCForceGraphics.cxx $(DEPENDS) \n");
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceGraphics.cxx\n\n");
+    }
+  else if ( vals->m_Patented )
+    {
+    sprintf(file,"%s\\vtkPCForcePatented.cxx",temp);
+    OutputDepends(file,fp);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OBJDIR)\\vtkPCForcePatented.obj\" : src\\vtkPCForcePatented.cxx $(DEPENDS) \n");
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForcePatented.cxx\n\n");
+    }
+  if ( vals->m_Imaging )
+    {
+    sprintf(file,"%s\\vtkPCForceImaging.cxx",temp);
+    OutputDepends(file,fp);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OBJDIR)\\vtkPCForceImaging.obj\" : src\\vtkPCForceImaging.cxx $(DEPENDS) \n");
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceImaging.cxx\n\n");
+    }
+  if ( vals->m_Working )
+    {
+    sprintf(file,"%s\\vtkPCForceWorking.cxx",temp);
+    OutputDepends(file,fp);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OBJDIR)\\vtkPCForceWorking.obj\" : src\\vtkPCForceWorking.cxx $(DEPENDS) \n");
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceWorking.cxx\n\n");
+    }
+  if ( vals->m_Contrib )
+    {
+    sprintf(file,"%s\\vtkPCForceContrib.cxx",temp);
+    OutputDepends(file,fp);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OBJDIR)\\vtkPCForceContrib.obj\" : src\\vtkPCForceContrib.cxx $(DEPENDS) \n");
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceContrib.cxx\n\n");
+    }
+  if ( vals->m_GEMSIP )
+    {
+    sprintf(file,"%s\\vtkPCForceGemsip.cxx",temp);
+    OutputDepends(file,fp);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OBJDIR)\\vtkPCForceGemsip.obj\" : src\\vtkPCForceGemsip.cxx $(DEPENDS) \n");
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceGemsip.cxx\n\n");
+    }
+  if ( vals->m_GEMSVOLUME )
+    {
+    sprintf(file,"%s\\vtkPCForceGemsVolume.cxx",temp);
+    OutputDepends(file,fp);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OBJDIR)\\vtkPCForceGemsVolume.obj\" : src\\vtkPCForceGemsVolume.cxx $(DEPENDS) \n");
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceGemsVolume.cxx\n\n");
+    }
+  if ( vals->m_GEAE )
+    {
+    sprintf(file,"%s\\vtkPCForceGeae.cxx",temp);
+    OutputDepends(file,fp);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OBJDIR)\\vtkPCForceGeae.obj\" : src\\vtkPCForceGeae.cxx $(DEPENDS) \n");
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceGeae.cxx\n\n");
+    }
 
   for (i = 0; i < num_abstract; i++)
   {
     sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
-	    abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
-    fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\%s\\%s.cxx\"\n\n",
-		vals->m_WhereVTK,abstract_lib[i],abstract[i]);
+    fprintf(fp,"\"$(OBJDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \n",
+	        abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\%s\\%s.cxx\" \n\n",
+		      vals->m_WhereVTK,abstract_lib[i],abstract[i]);
   }
   for (i = 0; i < num_concrete; i++)
   {
     sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
-	    concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
+    fprintf(fp,"\"$(OBJDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \n",
+  	      concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\%s\\%s.cxx\"\n\n",
-	    vals->m_WhereVTK,concrete_lib[i],concrete[i]);
+	        vals->m_WhereVTK,concrete_lib[i],concrete[i]);
   }
   fprintf(fp,"################################################################################\n");
 }
 
-void doBorHeader(FILE *fp, CPcmakerDlg *vals, int doAddedValue)
+
+
+void doBorHeader(FILE *fp, CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 {
   int i;
 
@@ -630,7 +1350,7 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"  echo Make Config\n");
     fprintf(fp,"    Copy &&| \n");
 
-  if (vals->m_Debug)
+  if (debugFlag)
     {
 
     fprintf(fp,"-D_DEBUG -v -R \n");
@@ -656,7 +1376,7 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals, int doAddedValue)
 
   fprintf(fp,"LINK32_FLAGS=-L%s\\lib \\\n",
   vals->m_WhereCompiler);
-  if (vals->m_Debug)
+  if (debugFlag)
     {
     fprintf(fp,"  -v \\\n");
     }
@@ -777,24 +1497,32 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"################################################################################\n");
 }
 
-void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
+
+// links in ALL the vtk libraries (now that they are split up)... also writes output to ../lib directory
+// may only want to write the dll to that directory????
+// makefile handles both incremental and non-incremental linking
+void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 {
   int i;
   char file [256];
 
   fprintf(fp,"# VTK Generic makefile\n");
+  fprintf(fp,"!MESSAGE making tcl library...\n");
   fprintf(fp,"CPP=cl.exe\n");
   fprintf(fp,"PATH=$(PATH);\"%s\\pcmaker\\cpp_parse\\Debug\"\n",
 		vals->m_WhereVTK);
   fprintf(fp,"CPP_PARSE=cpp_parse.exe\n");
   fprintf(fp,"OUTDIR=obj\n\n");
-  fprintf(fp,"ALL : \"$(OUTDIR)\\vtktcl.dll\"\n\n");
+
+	fprintf(fp,"LIBDIR=..\\lib\n\n");
+
+  fprintf(fp,"ALL : vtktcl.dll\n\n");
 
   fprintf(fp,"\"$(OUTDIR)\" :\n");
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
   fprintf(fp,"\n");
 
-  if (vals->m_Debug)
+  if (debugFlag)
     {
     fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
       vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
@@ -813,8 +1541,38 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
     }
-  if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" \\\n",
-    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+  if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\geae\" \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+  if (vals->m_Lean)
+    {
+    fprintf(fp," /D \"VTK_LEAN_AND_MEAN\" /Fo$(OUTDIR)\\ /c \n");
+    }
+  else
+    {
+    fprintf(fp," /Fo$(OUTDIR)\\ /c \n");
+    }
+
+  if (debugFlag)
+    {
+    fprintf(fp,"CPP_PROJ2=/D \"STRICT\" /D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    }
+  else
+    {
+    fprintf(fp,"CPP_PROJ2=/D \"STRICT\" /nologo /MT /GX /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+      vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    }
+  if (vals->m_Patented)
+    {
+    fprintf(fp," \"_WINDOWS\" /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
+      vals->m_WhereVTK);
+    }
+  else
+    {
+    fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
+    }
+  if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\geae\" \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   if (vals->m_Lean)
     {
     fprintf(fp," /D \"VTK_LEAN_AND_MEAN\" /Fo\"$(OUTDIR)/\" /c \n");
@@ -823,26 +1581,70 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     {
     fprintf(fp," /Fo\"$(OUTDIR)/\" /c \n");
     }
-  fprintf(fp,"LINK32=link.exe\n");
-  if (vals->m_Debug)
+  
+	fprintf(fp,"LINK32=link.exe\n");
+  if (debugFlag)
     {
-    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtktcl.obj\" \"$(OUTDIR)\\vtktclobjs.lib\" /debug /libpath:\"%s\\lib\" ..\\vtkdll\\obj\\vtkdll.lib \"%s\\pcmaker\\tk42.lib\" \"%s\\pcmaker\\tcl76.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\\\n",
+    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtktcl.obj\" /debug /libpath:\"%s\\lib\" \"%s\\pcmaker\\tk42.lib\" \"%s\\pcmaker\\tcl76.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
 	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
   else
     {
-    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtktcl.obj\" \"$(OUTDIR)\\vtktclobjs.lib\" /libpath:\"%s\\lib\" ..\\vtkdll\\obj\\vtkdll.lib \"%s\\pcmaker\\tk42.lib\" \"%s\\pcmaker\\tcl76.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\\\n",
+    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtktcl.obj\" /libpath:\"%s\\lib\" \"%s\\pcmaker\\tk42.lib\" \"%s\\pcmaker\\tcl76.lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
 	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
-  fprintf(fp," /dll /incremental:no /pdb:\"$(OUTDIR)/vtktcl.pdb\" /machine:I386\\\n");
-  fprintf(fp," /out:\"$(OUTDIR)/vtktcl.dll\" /implib:\"$(OUTDIR)/vtktcl.lib\" \n"); 
-  fprintf(fp,"LIB_FLAGS=/out:\"$(OUTDIR)/vtktclobjs.lib\" /machine:I386\n\n"); 
+
+  if (vals->m_DFA)
+    fprintf(fp,"FORCE_MULTIPLE=/FORCE:MULTIPLE /WARN:0\n\n");
+  fprintf(fp,"MORE_FLAGS1=/dll /incremental:yes /pdb:\"$(LIBDIR)/vtktcl.pdb\" /machine:I386\\\n");
+  fprintf(fp," /out:\"$(LIBDIR)/vtktcl.dll\" /implib:\"$(LIBDIR)/vtktcl.lib\" \n\n"); 
+  fprintf(fp,"MORE_FLAGS2=/dll /incremental:no /pdb:vtktcl.pdb /machine:I386\\\n");
+  fprintf(fp," /out:vtktcl.dll /implib:vtktcl.lib \n\n"); 
+  fprintf(fp,"LIB_FLAGS=/out:vtktclobjs.lib /machine:I386\n\n"); 
+
+  fprintf(fp,"VTKDLL_LIB=..\\vtkdll\\vtkdll.lib \n\n");
+
+  fprintf(fp,"VTK_LIBRARIES=..\\lib\\vtkCommon.lib ");
+  if (vals->m_Graphics) 
+    fprintf(fp,"..\\lib\\vtkGraphics.lib ");
+  else if (vals->m_Patented)
+    fprintf(fp,"..\\lib\\vtkPatented.lib ");
+  if (vals->m_Imaging) 
+    fprintf(fp,"..\\lib\\vtkImaging.lib ");
+  if (vals->m_Contrib)
+    fprintf(fp,"..\\lib\\vtkContrib.lib ");
+  if (vals->m_Working)
+    fprintf(fp,"..\\lib\\vtkWorking.lib ");
+  if (vals->m_GEMSIP)
+    fprintf(fp,"..\\lib\\vtkGemsip.lib ");
+  if (vals->m_GEAE)
+    fprintf(fp,"..\\lib\\vtkGeae.lib ");
+  if (vals->m_GEMSVOLUME)
+    fprintf(fp,"..\\lib\\vtkGemsVolume.lib ");
+     
+    fprintf(fp,"\n\n");
 
   
   fprintf(fp,"LINK32_OBJS= \\\n");
   fprintf(fp,"    \"$(OUTDIR)\\vtkTclUtil.obj\" \\\n");
   if (vals->m_Graphics) fprintf(fp,"    \"$(OUTDIR)\\vtkTkRenderWidget.obj\" \\\n");
   if (vals->m_Imaging)  fprintf(fp,"    \"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" \\\n");
+  for (i = 0; i < num_abstractTcl; i++)
+  {
+    fprintf(fp,"    \"$(OUTDIR)\\%s.obj\" \\\n",abstractTcl[i]);
+  }
+  for (i = 0; i < num_concreteTcl; i++)
+  {
+    fprintf(fp,"    \"$(OUTDIR)\\%s.obj\" \\\n",concreteTcl[i]);
+  }
+  for (i = 0; i < num_abstractTcl; i++)
+  {
+    fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",abstractTcl[i]);
+  }
+  for (i = 0; i < num_concreteTcl; i++)
+  {
+    fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",concreteTcl[i]);
+  }
   for (i = 0; i < num_abstract; i++)
   {
     fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",abstract[i]);
@@ -860,14 +1662,24 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",concrete_h[i]);
   }
   fprintf(fp,"\n");
-  fprintf(fp,"\"$(OUTDIR)\\vtktcl.dll\" : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtktcl.obj\" \"$(OUTDIR)\\vtktclobjs.lib\" \n");
+
+
+  
+  fprintf(fp,"vtktcl.dll : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtktcl.obj\" $(LINK32_OBJS)\n");
   fprintf(fp,"    $(LINK32) @<<\n");
-  fprintf(fp,"  $(LINK32_FLAGS)\n");
+  fprintf(fp,"  $(LINK32_FLAGS) $(FORCE_MULTIPLE) $(MORE_FLAGS2) $(LINK32_OBJS) $(VTKDLL_LIB)\n");
   fprintf(fp,"<<\n\n");
-  fprintf(fp,"\"$(OUTDIR)\\vtktclobjs.lib\" : \"$(OUTDIR)\" $(DEF_FILE) $(LINK32_OBJS) \n");
+
+  fprintf(fp,"\"$(LIBDIR)\\vtktcl.dll\" : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtktcl.obj\" $(LINK32_OBJS)\n");
+  fprintf(fp,"    $(LINK32) @<<\n");
+  fprintf(fp,"  $(LINK32_FLAGS) $(FORCE_MULTIPLE) $(MORE_FLAGS1) $(LINK32_OBJS) $(VTK_LIBRARIES)\n");
+  fprintf(fp,"<<\n\n");
+
+  fprintf(fp,"vtktclobjs.lib : \"$(OUTDIR)\" $(DEF_FILE) $(LINK32_OBJS) \n");
   fprintf(fp,"    lib.exe @<<\n");
   fprintf(fp,"  $(LIB_FLAGS) $(LINK32_OBJS)\n");
   fprintf(fp,"<<\n");
+
   fprintf(fp,"\n");
   fprintf(fp,".c{$(CPP_OBJS)}.obj:\n");
   fprintf(fp,"   $(CPP) $(CPP_PROJ) $<  \n");
@@ -895,7 +1707,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   if (vals->m_Graphics)
     {
     sprintf(file,"%s\\graphics\\vtkTkRenderWidget.cxx",vals->m_WhereVTK);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputDepends(file,fp);
     fprintf(fp,"\"$(OUTDIR)\\vtkTkRenderWidget.obj\" : \"%s\\graphics\\vtkTkRenderWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
 	    vals->m_WhereVTK);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\graphics\\vtkTkRenderWidget.cxx\"\n\n",vals->m_WhereVTK);
@@ -903,18 +1715,66 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   if (vals->m_Imaging)
     {
     sprintf(file,"%s\\imaging\\vtkTkImageViewerWidget.cxx",vals->m_WhereVTK);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputDepends(file,fp);
     fprintf(fp,"\"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" : \"%s\\imaging\\vtkTkImageViewerWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
 	    vals->m_WhereVTK);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\imaging\\vtkTkImageViewerWidget.cxx\"\n\n",vals->m_WhereVTK);
     }
+  for (i = 0; i < num_abstractTcl; i++)
+  {
+    sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
+    OutputDepends(file,fp);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \n",
+  	      abstractTcl[i],vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ2) \"%s\\%s\\%s.cxx\"\n\n",
+	        vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
+
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
+    OutputDepends(file,fp);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
+		abstractTcl[i],vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i],vals->m_WhereVTK,vals->m_WhereVTK);
+    fprintf(fp," $(CPP_PARSE)  \"%s\\%s\\%s.h\"\\\n",
+		vals->m_WhereVTK, abstractTcl_lib[i], abstractTcl[i]);
+    fprintf(fp,"  \"%s\\tcl\\hints\" 0 > src\\%sTcl.cxx\n\n",
+		vals->m_WhereVTK, abstractTcl[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
+		abstractTcl[i],abstractTcl[i]);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sTcl.cxx\n\n",abstractTcl[i]);
+
+  }
+  for (i = 0; i < num_concreteTcl; i++)
+  {
+    sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
+    OutputDepends(file,fp);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \n",
+  	      concreteTcl[i],vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ2) \"%s\\%s\\%s.cxx\"\n\n",
+	        vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
+
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
+    OutputDepends(file,fp);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
+		concreteTcl[i],vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i],vals->m_WhereVTK,vals->m_WhereVTK);
+    fprintf(fp," $(CPP_PARSE) \"%s\\%s\\%s.h\"\\\n",
+		vals->m_WhereVTK, concreteTcl_lib[i], concreteTcl[i]);
+    fprintf(fp,"  \"%s\\tcl\\hints\" 1 > src\\%sTcl.cxx\n\n",
+		vals->m_WhereVTK, concreteTcl[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
+		concreteTcl[i],concreteTcl[i]);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sTcl.cxx\n\n",concreteTcl[i]);
+  }
+
   fprintf(fp,"\"$(OUTDIR)\\vtktcl.obj\" : src\\vtktcl.cxx \"$(OUTDIR)\"\n");
   fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtktcl.cxx\n\n");
 
   for (i = 0; i < num_abstract; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
 		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i],vals->m_WhereVTK,vals->m_WhereVTK);
@@ -930,7 +1790,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   for (i = 0; i < num_concrete; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
 		concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i],vals->m_WhereVTK,vals->m_WhereVTK);
@@ -946,7 +1806,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   for (i = 0; i < num_abstract_h; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
 		abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i],vals->m_WhereVTK,vals->m_WhereVTK);
@@ -962,7 +1822,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   for (i = 0; i < num_concrete_h; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"$(OUTDIR)\"\n",
 		concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i],vals->m_WhereVTK,vals->m_WhereVTK);
@@ -978,7 +1838,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"################################################################################\n");
 }
 
-void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
+
+void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 {
   int i;
   fprintf(fp,"# VTK Borland makefile\n");
@@ -992,7 +1853,7 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"  echo Make Config\n");
     fprintf(fp,"    Copy &&| \n");
 
-  if (vals->m_Debug)
+  if (debugFlag)
     {
 
     fprintf(fp,"-D_DEBUG -v -R \n");
@@ -1013,7 +1874,7 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
  fprintf(fp," -I%s\\pcmaker\\xlib \n",vals->m_WhereVTK);
  fprintf(fp," -I%s\\imaging \n",vals->m_WhereVTK);
  fprintf(fp," -I%s\\contrib \n",vals->m_WhereVTK);
-  if (doAddedValue) fprintf(fp," -I%s\\gemsio -I%s\\gemsip -I%s\\gemsvolume \\\n",
+  if (doAddedValue) fprintf(fp," -I%s\\gemsio -I%s\\gemsip -I%s\\gemsvolume -I%s\\geae \\\n",
     vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"-P -c -w-hid -w-inl \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n"); 
@@ -1021,7 +1882,7 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 
   fprintf(fp,"LINK32_FLAGS=-L%s\\lib;..\\vtkdll\\obj\\vtkdll.lib;%s\\pcmaker\\tk42.lib;%s\\pcmaker\\tcl76.lib \\\n",
   vals->m_WhereCompiler,vals->m_WhereCompiler,vals->m_WhereCompiler);
-  if (vals->m_Debug)
+  if (debugFlag)
     {
     fprintf(fp,"  -v \\\n");
     }
@@ -1180,7 +2041,9 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"################################################################################\n");
 }
 
-void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
+
+// links it ALL the vtk libraries (now that they are split up)... also writes output to ../lib directory
+void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 {
   int i;
   char file[256];
@@ -1188,13 +2051,16 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"# VTK Generic makefile\n");
   fprintf(fp,"CPP=cl.exe\n\n");
   fprintf(fp,"OUTDIR=obj\n\n");
-  fprintf(fp,"ALL : \"$(OUTDIR)\\vtkjava.dll\"\n\n");
+
+	fprintf(fp,"LIBDIR=..\\lib\n\n");
+
+  fprintf(fp,"ALL : vtkjava.dll\n\n");
 
   fprintf(fp,"\"$(OUTDIR)\" :\n");
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
   fprintf(fp,"\n");
 
-  if (vals->m_Debug)
+  if (debugFlag)
     {
     fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
       vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
@@ -1213,23 +2079,49 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
     }
-  if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" \\\n",
-    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+  if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\geae\" \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"/I \"%s\\include\" /I \"%s\\include\\win32\" /Fo\"$(OUTDIR)/\" /c \n",
     vals->m_WhereJDK, vals->m_WhereJDK);
   fprintf(fp,"LINK32=link.exe\n");
-  if (vals->m_Debug)
+  if (debugFlag)
     {
-    fprintf(fp,"LINK32_FLAGS=/debug /libpath:\"%s\\lib\" ..\\vtkdll\\obj\\vtkdll.lib \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\\\n",
+    fprintf(fp,"LINK32_FLAGS=/debug /libpath:\"%s\\lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
 	    vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
   else
     {
-    fprintf(fp,"LINK32_FLAGS=/libpath:\"%s\\lib\" ..\\vtkdll\\obj\\vtkdll.lib \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\\\n",
+    fprintf(fp,"LINK32_FLAGS=/libpath:\"%s\\lib\"  \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows\n",
 	    vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
-  fprintf(fp," /dll /incremental:no /pdb:\"$(OUTDIR)/vtkjava.pdb\" /machine:I386\\\n");
-  fprintf(fp," /out:\"$(OUTDIR)/vtkjava.dll\" /implib:\"$(OUTDIR)/vtkjava.lib\" \n");
+
+  fprintf(fp,"MORE_FLAGS1=/dll /incremental:yes /pdb:\"$(LIBDIR)/vtkjava.pdb\" /machine:I386\\\n");
+  fprintf(fp," /out:\"$(LIBDIR)/vtkjava.dll\" /implib:\"$(LIBDIR)/vtkjava.lib\" \n"); 
+  fprintf(fp,"MORE_FLAGS2=/dll /incremental:no /pdb:vtktcl.pdb /machine:I386\\\n");
+  fprintf(fp," /out:vtkjava.dll /implib:vtkjava.lib \n"); 
+
+  fprintf(fp,"VTKDLL_LIB=..\\vtkdll\\vtkdll.lib \n");
+
+  fprintf(fp,"VTK_LIBRARIES=..\\lib\\vtkCommon.lib ");
+  if (vals->m_Graphics) 
+    fprintf(fp,"..\\lib\\vtkGraphics.lib ");
+  else if (vals->m_Patented)
+    fprintf(fp,"..\\lib\\vtkPatented.lib ");
+  if (vals->m_Imaging) 
+    fprintf(fp,"..\\lib\\vtkImaging.lib ");
+  if (vals->m_Contrib)
+    fprintf(fp,"..\\lib\\vtkContrib.lib ");
+  if (vals->m_Working)
+    fprintf(fp,"..\\lib\\vtkWorking.lib ");
+  if (vals->m_GEMSIP)
+    fprintf(fp,"..\\lib\\vtkGemsip.lib ");
+  if (vals->m_GEAE)
+    fprintf(fp,"..\\lib\\vtkGeae.lib ");
+  if (vals->m_GEMSVOLUME)
+    fprintf(fp,"..\\lib\\vtkGemsVolume.lib ");
+     
+    fprintf(fp,"\n\n");
+
   fprintf(fp,"LINK32_OBJS= \\\n");
   fprintf(fp,"    \"$(OUTDIR)\\vtkJavaUtil.obj\" \\\n");
   for (i = 0; i < num_abstract; i++)
@@ -1248,10 +2140,16 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   {
     fprintf(fp,"    \"$(OUTDIR)\\%sJava.obj\" \\\n",concrete_h[i]);
   }
+
   fprintf(fp,"\n");
-  fprintf(fp,"\"$(OUTDIR)\\vtkjava.dll\" : \"$(OUTDIR)\" $(DEF_FILE) $(LINK32_OBJS)\n");
+  fprintf(fp,"vtkjava.dll : $(DEF_FILE) $(LINK32_OBJS)\n");
   fprintf(fp,"    $(LINK32) @<<\n");
-  fprintf(fp,"  $(LINK32_FLAGS) $(LINK32_OBJS)\n");
+  fprintf(fp,"  $(LINK32_FLAGS) $(MORE_FLAGS2) $(LINK32_OBJS) $(VTKDLL_LIB)\n");
+  fprintf(fp,"<<\n");
+  fprintf(fp,"\n");
+  fprintf(fp,"\"$(LIBDIR)\\vtkjava.dll\" : $(DEF_FILE) $(LINK32_OBJS)\n");
+  fprintf(fp,"    $(LINK32) @<<\n");
+  fprintf(fp,"  $(LINK32_FLAGS) $(MORE_FLAGS1) $(LINK32_OBJS) $(VTK_LIBRARIES)\n");
   fprintf(fp,"<<\n");
   fprintf(fp,"\n");
   fprintf(fp,".c{$(CPP_OBJS)}.obj:\n");
@@ -1281,7 +2179,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   for (i = 0; i < num_abstract; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sJava.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
 		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
@@ -1301,7 +2199,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   for (i = 0; i < num_concrete; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sJava.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
 		concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
@@ -1321,7 +2219,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   for (i = 0; i < num_abstract_h; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sJava.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
 		abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
@@ -1341,7 +2239,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   for (i = 0; i < num_concrete_h; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputDepends(file,fp);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sJava.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
 		concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
@@ -1361,7 +2259,8 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"################################################################################\n");
 }
 
-void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
+
+void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 {
   int i;
 
@@ -1376,7 +2275,7 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"  echo Make Config\n");
     fprintf(fp,"    Copy &&| \n");
 
-  if (vals->m_Debug)
+  if (debugFlag)
     {
 
     fprintf(fp,"-D_DEBUG -v -R \n");
@@ -1398,15 +2297,15 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
  fprintf(fp," -I%s\\include\\win32 \n",vals->m_WhereJDK);
  fprintf(fp," -I%s\\imaging \n",vals->m_WhereVTK);
  fprintf(fp," -I%s\\contrib \n",vals->m_WhereVTK);
-  if (doAddedValue) fprintf(fp," -I%s\\gemsio -I%s\\gemsip -I%s\\gemsvolume \\\n",
-    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+  if (doAddedValue) fprintf(fp," -I%s\\gemsio -I%s\\gemsip -I%s\\gemsvolume -I%s\\geae \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"-P -c -w-hid -w-inl \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n");
   fprintf(fp,"LINK32=tlink32.exe\n\n");
 
   fprintf(fp,"LINK32_FLAGS=-L%s\\lib \\\n",
   vals->m_WhereCompiler);
-  if (vals->m_Debug)
+  if (debugFlag)
     {
     fprintf(fp,"  -v \\\n");
     }
@@ -1578,3 +2477,123 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"################################################################################\n");
 }
 
+
+
+// all files which will have OutputDepends called for should be "setup" first in thsi function
+void SetupDepends(CPcmakerDlg *vals, int debugFlag)
+{
+  char temp[256], file[256];
+  int i;
+
+
+  for (i = 0; i < 2; i++)
+    {
+    if ( i == 0 )
+      {
+      if (debugFlag==0 || debugFlag==2)
+        sprintf(temp,"%s\\vtkdll\\src",vals->m_WhereBuild);
+      else 
+        continue;
+      }
+    else if (debugFlag > 0)
+      sprintf(temp,"%s\\Debug\\vtkdll\\src",vals->m_WhereBuild);
+    else 
+      continue;
+
+    sprintf(file,"%s\\vtkPCForceCommon.cxx",temp);
+    AddToDepends(file);
+
+    if (vals->m_Graphics)
+      {
+      sprintf(file,"%s\\vtkPCForceGraphics.cxx",temp);
+      AddToDepends(file);
+      }
+    else if (vals->m_Patented)
+      {
+      sprintf(file,"%s\\vtkPCForcePatented.cxx",temp);
+      AddToDepends(file);
+      }
+    if (vals->m_Imaging)
+      {
+      sprintf(file,"%s\\vtkPCForceImaging.cxx",temp);
+      AddToDepends(file);
+      }
+    if (vals->m_GEMSIP)
+      {
+      sprintf(file,"%s\\vtkPCForceGemsip.cxx",temp);
+      AddToDepends(file);
+      }
+    if (vals->m_GEAE)
+      {
+      sprintf(file,"%s\\vtkPCForceGeae.cxx",temp);
+      AddToDepends(file);
+      }
+    if (vals->m_GEMSVOLUME)
+      {
+      sprintf(file,"%s\\vtkPCForceGemsVolume.cxx",temp);
+      AddToDepends(file);
+      }
+    if (vals->m_Working)
+      {
+      sprintf(file,"%s\\vtkPCForceWorking.cxx",temp);
+      AddToDepends(file);
+      }
+    if (vals->m_Contrib)
+      {
+      sprintf(file,"%s\\vtkPCForceContrib.cxx",temp);
+      AddToDepends(file);
+      }
+    }
+
+  for (i = 0; i < num_abstract; i++)
+    {
+    sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
+    AddToDepends(file);
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
+    AddToDepends(file);
+    }
+  for (i = 0; i < num_concrete; i++)
+    {
+    sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
+    AddToDepends(file);
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
+    AddToDepends(file);
+    }
+  for (i = 0; i < num_abstractTcl; i++)
+    {
+    sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
+    AddToDepends(file);
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
+    AddToDepends(file);
+    }
+  for (i = 0; i < num_concreteTcl; i++)
+    {
+    sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
+    AddToDepends(file);
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
+    AddToDepends(file);
+    }
+  for (i = 0; i < num_abstract_h; i++)
+    {
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
+    AddToDepends(file);
+    }
+  for (i = 0; i < num_concrete_h; i++)
+    {
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
+    AddToDepends(file);
+    }
+
+  if (vals->m_Graphics)
+    {
+    sprintf(file,"%s\\graphics\\vtkTkRenderWidget.cxx",vals->m_WhereVTK);
+    AddToDepends(file);
+    }
+  if (vals->m_Imaging)
+    {
+    sprintf(file,"%s\\imaging\\vtkTkImageViewerWidget.cxx",vals->m_WhereVTK);
+    AddToDepends(file);
+    }
+
+  BuildDepends(vals);
+}
