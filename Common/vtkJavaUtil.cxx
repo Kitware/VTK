@@ -24,6 +24,7 @@
 #define _INTEGRAL_MAX_BITS 64
 
 #include "vtkObject.h"
+#include "vtkDebugLeaks.h"
 #include "vtkWindows.h"
 
 #ifdef _WIN32
@@ -247,7 +248,11 @@ JNIEXPORT int vtkJavaRegisterNewObject(JNIEnv *env, jobject obj, void *ptr)
     vtkInstanceLookup = new vtkHashTable();
     vtkPointerLookup = new vtkHashTable();
     vtkTypecastLookup = new vtkHashTable();
-    
+
+    // Java does not guarantee object destruction.  Do not produce an
+    // error when leaks are detected.
+    vtkDebugLeaks::SetExitError(0);
+
 #ifdef _WIN32
     vtkGlobalMutex = CreateMutex(NULL, FALSE, NULL);
 #endif
