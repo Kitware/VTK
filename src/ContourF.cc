@@ -34,7 +34,8 @@ vlContourFilter::~vlContourFilter()
 }
 
 // Description:
-// Set a particular contour value at contour number i.
+// Set a particular contour value at contour number i. The index i ranges 
+// between 0<=i<NumberOfContours.
 void vlContourFilter::SetValue(int i, float value)
 {
   i = (i >= MAX_CONTOURS ? MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
@@ -42,7 +43,7 @@ void vlContourFilter::SetValue(int i, float value)
     {
     this->Modified();
     this->Values[i] = value;
-    if ( i > NumberOfContours ) this->NumberOfContours = i;
+    if ( i >= this->NumberOfContours ) this->NumberOfContours = i + 1;
     if ( value < this->Range[0] ) this->Range[0] = value;
     if ( value > this->Range[1] ) this->Range[1] = value;
     }
@@ -50,21 +51,19 @@ void vlContourFilter::SetValue(int i, float value)
 
 // Description:
 // Generate numContours equally spaced contour values between specified
-// range.
+// range. Contour values will include min/max range values.
 void vlContourFilter::GenerateValues(int numContours, float range[2])
 {
   float val, incr;
   int i;
 
-  numContours = (numContours >= MAX_CONTOURS ? MAX_CONTOURS-1 : 
-                 (numContours < 0 ? 0 : numContours) );
+  numContours = (numContours > MAX_CONTOURS ? MAX_CONTOURS : 
+                 (numContours > 1 ? numContours : 2) );
 
-  if ( numContours < 1 ) numContours = 1;
-
-  incr = (range[1] - range[0]) / numContours;
+  incr = (range[1] - range[0]) / (numContours-1);
   for (i=0, val=range[0]; i < numContours; i++, val+=incr)
     {
-    this->SetValue(i,val); // don't modify object unless absolutely nec.
+    this->SetValue(i,val);
     }
 }
 
