@@ -164,6 +164,11 @@ void vtkSource::UpdateInformation()
   // Watch out for loops in the pipeline
   if ( this->Updating )
     {
+    // Since we are in a loop, we will want to update. But if
+    // we don't modify this filter, then we will not execute
+    // because our InformationTime will be more recent than
+    // the MTime of our output.
+    this->Modified();
     return;
     }
 
@@ -186,6 +191,7 @@ void vtkSource::UpdateInformation()
       // What is the PipelineMTime of this input? Compare this against
       // our current computation to find the largest one.
       t2 = input->GetPipelineMTime();
+
       if (t2 > t1)
         {
         t1 = t2;
@@ -201,7 +207,6 @@ void vtkSource::UpdateInformation()
       }
     }
 
-  
   // Call ExecuteInformation for subclass specific information.
   // Since UpdateInformation propagates all the way up the pipeline,
   // we need to be careful here to call ExecuteInformation only if necessary.
@@ -409,8 +414,6 @@ void vtkSource::ComputeEstimatedPipelineMemorySize( vtkDataObject *output,
   unsigned long *inputSize = NULL;
   int idx;
 
-  vtkErrorMacro( << "Computing the size of this source" );
-
   // We need some space to store the input sizes if there are any inputs
   if ( this->NumberOfInputs > 0 )
     {
@@ -452,8 +455,6 @@ void vtkSource::ComputeEstimatedPipelineMemorySize( vtkDataObject *output,
 
       // During execution this filter will need all the input data 
       mySize += inputPipelineSize[0];
-
-      vtkErrorMacro( << "Adding " << inputPipelineSize[0] << " due to input" );
       }
 
     // The input was null, so it has no size
@@ -472,7 +473,6 @@ void vtkSource::ComputeEstimatedPipelineMemorySize( vtkDataObject *output,
   // released (if it is the non-requested output)
   mySize += outputSize[1];
   goingDownstreamSize += outputSize[1];
-  vtkErrorMacro( << "Adding " << outputSize[1] << " due to output" );
 
   // Is the state of the pipeline during this filter's execution the
   // largest that it has been so far?
