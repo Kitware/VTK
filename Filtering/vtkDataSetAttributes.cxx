@@ -29,7 +29,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.2");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.3");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -1382,14 +1382,7 @@ vtkDataArray* vtkDataSetAttributes::GetScalars(const char* name)
     {
     return this->GetScalars();
     }
-  vtkDataArray *array = this->GetArray(name);
-  if (array)
-    {
-    return array;
-    }
-  // In parallel, empty data object may not have arrays.
-  //vtkWarningMacro("Could not find array with name " << name);
-  return this->GetScalars();
+  return this->GetArray(name);
 }
 
 vtkDataArray* vtkDataSetAttributes::GetVectors(const char* name)
@@ -1398,14 +1391,7 @@ vtkDataArray* vtkDataSetAttributes::GetVectors(const char* name)
     {
     return this->GetVectors();
     }
-  vtkDataArray *array = this->GetArray(name);
-  if (array)
-    {
-    return array;
-    }
-  // In parallel, empty data object may not have arrays.
-  //vtkWarningMacro("Could not find array with name " << name);
-  return this->GetVectors();
+  return this->GetArray(name);
 }
 
 vtkDataArray* vtkDataSetAttributes::GetNormals(const char* name)
@@ -1414,14 +1400,7 @@ vtkDataArray* vtkDataSetAttributes::GetNormals(const char* name)
     {
     return this->GetNormals();
     }
-  vtkDataArray *array = this->GetArray(name);
-  if (array)
-    {
-    return array;
-    }
-  // In parallel, empty data object may not have arrays.
-  //vtkWarningMacro("Could not find array with name " << name);
-  return this->GetNormals();
+  return this->GetArray(name);
 }
 
 vtkDataArray* vtkDataSetAttributes::GetTCoords(const char* name)
@@ -1430,14 +1409,7 @@ vtkDataArray* vtkDataSetAttributes::GetTCoords(const char* name)
     {
     return this->GetTCoords();
     }
-  vtkDataArray *array = this->GetArray(name);
-  if (array)
-    {
-    return array;
-    }
-  // In parallel, empty data object may not have arrays.
-  //vtkWarningMacro("Could not find array with name " << name);
-  return this->GetTCoords();
+  return this->GetArray(name);
 }
 
 vtkDataArray* vtkDataSetAttributes::GetTensors(const char* name)
@@ -1446,14 +1418,7 @@ vtkDataArray* vtkDataSetAttributes::GetTensors(const char* name)
     {
     return this->GetTensors();
     }
-  vtkDataArray *array = this->GetArray(name);
-  if (array)
-    {
-    return array;
-    }
-  // In parallel, empty data object may not have arrays.
-  //vtkWarningMacro("Could not find array with name " << name);
-  return this->GetTensors();
+  return this->GetArray(name);
 }
 
 int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
