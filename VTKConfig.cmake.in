@@ -29,12 +29,12 @@
 # testing configuration.  These settings provide the scripts used by
 # VTK for these purposes:
 #
-# VTK_DOXYGEN_HOME      - Location of VTK doxygen helper perl scripts.
-# VTK_HEADER_TESTING_PY - Location of HeaderTesting.py.
-# VTK_FIND_STRING_TCL   - Location of FindString.tcl.
-# VTK_PRINT_SELF_CHECK  - Location of PrintSelfCheck.tcl.
-# VTK_RT_IMAGE_TEST     - Location of rtImageTest.tcl.
-# VTK_PRT_IMAGE_TEST    - Location of prtImageTest.tcl.
+# VTK_DOXYGEN_HOME         - Location of VTK doxygen helper perl scripts.
+# VTK_HEADER_TESTING_PY    - Location of HeaderTesting.py.
+# VTK_FIND_STRING_TCL      - Location of FindString.tcl.
+# VTK_PRINT_SELF_CHECK_TCL - Location of PrintSelfCheck.tcl.
+# VTK_RT_IMAGE_TEST_TCL    - Location of rtImageTest.tcl.
+# VTK_PRT_IMAGE_TEST_TCL   - Location of prtImageTest.tcl.
 #
 # There are many configuration settings controlling how VTK is built.
 # These settings are available through the following settings:
@@ -235,9 +235,9 @@ SET(VTK_DOXYGEN_HOME "@VTK_DOXYGEN_HOME_CONFIG@")
 # The VTK test script locations.
 SET(VTK_HEADER_TESTING_PY "@VTK_HEADER_TESTING_PY_CONFIG@")
 SET(VTK_FIND_STRING_TCL "@VTK_FIND_STRING_TCL_CONFIG@")
-SET(VTK_PRINT_SELF_CHECK "@VTK_PRINT_SELF_CHECK_CONFIG@")
-SET(VTK_RT_IMAGE_TEST "@VTK_RT_IMAGE_TEST_CONFIG@")
-SET(VTK_PRT_IMAGE_TEST "@VTK_PRT_IMAGE_TEST_CONFIG@")
+SET(VTK_PRINT_SELF_CHECK_TCL "@VTK_PRINT_SELF_CHECK_TCL_CONFIG@")
+SET(VTK_RT_IMAGE_TEST_TCL "@VTK_RT_IMAGE_TEST_TCL_CONFIG@")
+SET(VTK_PRT_IMAGE_TEST_TCL "@VTK_PRT_IMAGE_TEST_TCL_CONFIG@")
 
 # The list of library dependencies used by CMake for automatic
 # chainging of dependent libraries.
