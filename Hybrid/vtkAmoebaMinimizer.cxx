@@ -18,7 +18,7 @@
 #include "vtkAmoebaMinimizer.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAmoebaMinimizer, "1.1");
+vtkCxxRevisionMacro(vtkAmoebaMinimizer, "1.2");
 vtkStandardNewMacro(vtkAmoebaMinimizer);
 
 //----------------------------------------------------------------------------
@@ -90,10 +90,47 @@ vtkAmoebaMinimizer::~vtkAmoebaMinimizer()
 void vtkAmoebaMinimizer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os, indent);
-  os << indent << "Result: " << this->Result << "\n";
-  os << indent << "MaxIterations: " << this->MaxIterations << "\n";
-  os << indent << "Iterations: " << this->Iterations << "\n";
-  os << indent << "Tolerance: " << this->Tolerance << "\n";
+  os << indent << "NumberOfParameters: " << this->GetNumberOfParameters() << "\n";
+  if (this->NumberOfParameters > 0)
+    {
+    int i;
+
+    os << indent << "ParameterBrackets: \n";
+    for (i = 0; i < this->NumberOfParameters; i++)
+      {
+      const char *name = this->GetParameterName(i);
+      os << indent << "  ";
+      if (name)
+        {
+        os << name << ": ";
+        }
+      else
+        {
+        os << i << ": ";
+        }
+      os << this->GetParameterBracket(i)[0] << " " <<
+           this->GetParameterBracket(i)[1] <<"\n";
+      }
+    os << indent << "ParameterValues: \n";
+    for (i = 0; i < this->NumberOfParameters; i++)
+      {
+      const char *name = this->GetParameterName(i);
+      os << indent << "  ";
+      if (name)
+        {
+        os << name << ": ";
+        }
+      else
+        {
+        os << i << ": ";
+        }
+      os << this->GetParameterValue(i) << "\n";
+      }
+    }
+  os << indent << "Result: " << this->GetResult() << "\n";
+  os << indent << "MaxIterations: " << this->GetMaxIterations() << "\n";
+  os << indent << "Iterations: " << this->GetIterations() << "\n";
+  os << indent << "Tolerance: " << this->GetTolerance() << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -201,11 +238,13 @@ void vtkAmoebaMinimizer::SetParameterBracket(int i,
   for (int j = 0; j < this->NumberOfParameters; j++)
     {
     newParameterNames[j] = this->ParameterNames[j];
+    newParameters[j] = this->Parameters[j];
     newParameterBrackets[j][0] = this->ParameterBrackets[j][0];
     newParameterBrackets[j][1] = this->ParameterBrackets[j][1];
     }
 
   newParameterNames[n-1] = 0;
+  newParameters[n-1] = bmin;
   newParameterBrackets[n-1][0] = bmin;
   newParameterBrackets[n-1][1] = bmax;
 

@@ -50,7 +50,13 @@ int main(int argc, char** vtkNotUsed(argv))
 
   double r = minimizer->GetResult();
 
+  int iterations = minimizer->GetIterations();
+
+  int maxiterations = minimizer->GetMaxIterations();
+
   int noconvergence = minimizer->Iterate();
+
+  minimizer->Delete();
 
   // check parameters to make sure that they converged to the
   // correct values
@@ -59,7 +65,7 @@ int main(int argc, char** vtkNotUsed(argv))
       fabs(y + 2.0) > 1e-4 ||
       fabs(z - 0.0) > 1e-4 ||
       r > 1e-4 ||
-      minimizer->GetIterations() >= minimizer->GetMaxIterations() ||
+      iterations >= maxiterations ||
       noconvergence)
     {
     return 1;

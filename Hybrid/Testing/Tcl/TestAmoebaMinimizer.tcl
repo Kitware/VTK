@@ -42,4 +42,10 @@ puts [m GetResult]
 puts -nonewline "iterations = "
 puts [m GetIterations]
 
+puts "To improve coverage and catch errors, do a PrintSelf with parameters set:"
+
+puts [m Print]
+
+m Delete
+
 exit
