@@ -154,8 +154,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   float *displayCoords, *worldCoords;
   float *clipRange;
   float ray[3], rayLength;
-  float opacity;
-  int visible, pickable;
+  int pickable;
   float windowLowerLeft[4], windowUpperRight[4];
   float *bounds, tol;
   float tF, tB;
@@ -163,7 +162,10 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   float cameraDOP[3];
   
   // Invoke start pick method if defined
-  if ( this->StartPickMethod ) (*this->StartPickMethod)(this->StartPickMethodArg);
+  if ( this->StartPickMethod ) 
+    {
+    (*this->StartPickMethod)(this->StartPickMethodArg);
+    }
 
   //  Initialize picking process
   this->Renderer = renderer;
@@ -203,8 +205,10 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
     return 0;
     }
   for (i=0; i < 3; i++) 
+    {
     this->PickPosition[i] = worldCoords[i] / worldCoords[3];
-
+    }
+  
   //  Compute the ray endpoints.  The ray is along the line running from
   //  the camera position to the selection point, starting where this line
   //  intersects the front clipping plane, and terminating where this
@@ -250,31 +254,36 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   renderer->GetWorldPoint(windowUpperRight);
 
   for (tol=0.0,i=0; i<3; i++) 
+    {
     tol += (windowUpperRight[i] - windowLowerLeft[i])*(windowUpperRight[i] - windowLowerLeft[i]);
-
+    }
+  
   tol = sqrt (tol) * this->Tolerance;
 
   //  Loop over all actors.  Transform ray (defined from position of
   //  camera to selection point) into coordinates of mapper (not
   //  transformed to actors coordinates!  Reduces overall computation!!!).
   //
-  if ( this->PickFromList ) actors = this->GetPickList();
-  else actors = renderer->GetActors();
+  if ( this->PickFromList ) 
+    {
+    actors = this->GetPickList();
+    }
+  else 
+    {
+    actors = renderer->GetActors();
+    }
   
   this->Transform.PostMultiply();
   for ( actors->InitTraversal(); (actor=actors->GetNextItem()); )
     {
     for ( actor->InitPartTraversal(); (part=actor->GetNextPart()); )
       {
-      visible = part->GetVisibility();
       pickable = part->GetPickable();
-      opacity = part->GetProperty()->GetOpacity();
 
       //  If actor can be picked, get its composite matrix, invert it, and
       //  use the inverted matrix to transform the ray points into mapper
       //  coordinates. 
-      if ( visible && pickable && (opacity != 0.0) &&
-      (mapper = part->GetMapper()) != NULL )
+      if (pickable && (mapper = part->GetMapper()) != NULL )
         {
         this->Transform.SetMatrix(part->vtkProp::GetMatrix());
         this->Transform.Push();
@@ -305,7 +314,8 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
         if ( vtkCell::HitBBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
           {
           picked = 1;
-          this->IntersectWithLine((float *)p1Mapper, (float *)p2Mapper,tol,actor,part,mapper);
+          this->IntersectWithLine((float *)p1Mapper, 
+				  (float *)p2Mapper,tol,actor,part,mapper);
           this->Actors.AddItem(part);
           }
 
