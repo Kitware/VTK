@@ -231,7 +231,8 @@ void vtkOBBTree::BuildLocator()
   vtkIdList *cellList;
 
   vtkDebugMacro(<<"Building OBB tree");
-  if ( this->Tree != NULL && this->BuildTime > this->MTime )
+  if ( (this->Tree != NULL) && (this->BuildTime > this->MTime)
+       && (this->BuildTime > this->DataSet->GetMTime()) )
     {
     return;
     }

@@ -988,7 +988,8 @@ void vtkCellLocator::BuildLocator()
   typedef vtkIdList *vtkIdListPtr;
   int prod, numOctants;
 
-  if ( this->Tree != NULL && this->BuildTime > this->MTime )
+  if ( (this->Tree != NULL) && (this->BuildTime > this->MTime)
+       && (this->BuildTime > this->DataSet->GetMTime()) )
     {
     return;
     }
