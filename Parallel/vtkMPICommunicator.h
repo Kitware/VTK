@@ -110,6 +110,8 @@ public:
   {
   public:
     int Test();
+    void Cancel();
+    void Wait();
     MPI_Request Req;
   };
 
