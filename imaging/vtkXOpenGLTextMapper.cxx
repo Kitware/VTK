@@ -239,7 +239,7 @@ void vtkXOpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
     shadowRed = shadowBlue = shadowGreen = 255;
     }
 
-  int pos[2], posXYZ[3];
+  int pos[2];
   pos[0] = actorPos[0];
   pos[1] = (int)(actorPos[1] - this->LineOffset);
 
