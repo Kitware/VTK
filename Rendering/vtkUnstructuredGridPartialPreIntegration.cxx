@@ -104,7 +104,7 @@ void vtkPartialPreIntegrationTransferFunction::GetTransferFunction(
       hue2 = hsv[0];
 
       // Are we crossing the 0/1 boundary?
-      if (   (color->GetColorSpace() == VTK_CTF_HSV)
+      if (   (color->GetColorSpace() == VTK_CTF_HSV && color->GetHSVWrap() )
           && ((hue1 - hue2 > 0.5) || (hue2 - hue1 > 0.5)) )
         {
         // Yes, we are crossing the boundary.
@@ -272,7 +272,7 @@ inline void vtkPartialPreIntegrationTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.11");
+vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.12");
 vtkStandardNewMacro(vtkUnstructuredGridPartialPreIntegration);
 
 float vtkUnstructuredGridPartialPreIntegration::PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];

@@ -115,7 +115,7 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
       hue2 = hsv[0];
 
       // Are we crossing the 0/1 boundary?
-      if (   (color->GetColorSpace() == VTK_CTF_HSV)
+      if (   (color->GetColorSpace() == VTK_CTF_HSV && color->GetHSVWrap() )
           && ((hue1 - hue2 > 0.5) || (hue2 - hue1 > 0.5)) )
         {
         // Yes, we are crossing the boundary.
@@ -283,7 +283,7 @@ inline void vtkLinearRayIntegratorTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.14");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.15");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
