@@ -45,6 +45,7 @@ vtkImageAppend \
 vtkImageAppendComponents \
 vtkImageButterworthHighPass \
 vtkImageButterworthLowPass \
+vtkImageCacheFilter \
 vtkImageCanvasSource2D \
 vtkImageCast \
 vtkImageCityBlockDistance \
