@@ -49,8 +49,9 @@
 #define __vtkLabeledDataMapper_h
 
 #include "vtkMapper2D.h"
-#include "vtkTextMapper.h"
-#include "vtkDataSet.h"
+
+class vtkDataSet;
+class vtkTextMapper;
 
 #define VTK_LABEL_IDS        0
 #define VTK_LABEL_SCALARS    1
@@ -79,7 +80,7 @@ public:
 
   // Description:
   // Set the input dataset to the mapper.  
-  vtkSetObjectMacro(Input, vtkDataSet);
+  virtual void SetInput(vtkDataSet*);
   vtkGetObjectMacro(Input, vtkDataSet);
 
   // Description:
