@@ -672,7 +672,6 @@ static int
 vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self) 
 {
   Display *dpy;
-  int new_flag;
   vtkXRenderWindow *renderWindow;
   
   if (self->RenderWindow)
@@ -714,6 +713,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     else
       {
 #ifndef VTK_PYTHON_BUILD
+      int new_flag;
       renderWindow = (vtkXRenderWindow *)
 	vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
 				   new_flag);
