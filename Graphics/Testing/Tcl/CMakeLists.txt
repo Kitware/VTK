@@ -11,6 +11,55 @@ IF (HAVE_PNG)
       -D ${VTK_DATA_ROOT}
       -V Baseline/Graphics/Delaunay2D.png
       -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(ugFacet-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/ugFacet.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/ugFacet.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(cylMap-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/cylMap.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/cylMap.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(dicer-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/dicer.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/dicer.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(OBBTree-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/OBBTree.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/OBBTree.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(probeComb-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/probeComb.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/probeComb.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(teapotHulls-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/teapotHulls.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/teapotHulls.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(extractUGrid-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/extractUGrid.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/extractUGrid.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   #
   # If we do not have the data, still run the tests that we can
   #
