@@ -311,6 +311,14 @@ public:
   vtkObject *GetConsumer(int i);
   int IsConsumer(vtkObject *c);
 
+  // Description:
+  // The ExtentType will be left as VTK_PIECES_EXTENT for data objects 
+  // such as vtkPolyData and vtkUnstructuredGrid. The ExtentType will be 
+  // changed to VTK_3D_EXTENT for data objects with 3D structure such as 
+  // vtkImageData (and its subclass vtkStructuredPoints), vtkRectilinearGrid,
+  // and vtkStructuredGrid. The default is the have an extent in pieces,
+  // with only one piece (no streaming possible).
+  virtual int GetExtentType() { return VTK_PIECES_EXTENT; };
   
 protected:
 
@@ -333,14 +341,7 @@ protected:
   // Description:
   // Return non zero if the UpdateExtent is outside of the Extent
   int UpdateExtentIsOutsideOfTheExtent();
-  
-  // Description:
-  // This detects when the UpdateExtent will generate no data, and
-  // UpdateData on the source is not necessary.  This condition is satisfied
-  // when the UpdateExtent has zero volume (0,-1,...) 
-  // of the UpdateNumberOfPieces is 0.
-  int UpdateExtentIsEmpty();
-  
+    
   // Description:
   // Default behavior is to make sure that the update extent lies within
   // the whole extent. If it does not, an error condition occurs and this
@@ -349,14 +350,6 @@ protected:
   // there should not be errors. If a data object subclass wants to try to 
   // take care of errors silently, then this method should be overridden.
   virtual int VerifyUpdateExtent();
-
-  // The ExtentType will be left as VTK_PIECES_EXTENT for data objects 
-  // such as vtkPolyData and vtkUnstructuredGrid. The ExtentType will be 
-  // changed to VTK_3D_EXTENT for data objects with 3D structure such as 
-  // vtkImageData (and its subclass vtkStructuredPoints), vtkRectilinearGrid,
-  // and vtkStructuredGrid. The default is the have an extent in pieces,
-  // with only one piece (no streaming possible).
-  virtual int GetExtentType() { return VTK_PIECES_EXTENT; };
 
   // If the ExtentType is VTK_3D_EXTENT, then these three extent variables
   // represent the whole extent, the extent currently in memory, and the
