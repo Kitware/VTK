@@ -27,7 +27,7 @@ vlDataSetFilter::~vlDataSetFilter()
 {
   if ( this->Input != 0 )
     {
-    this->Input->UnRegister((void *)this);
+    this->Input->UnRegister(this);
     }
 }
 

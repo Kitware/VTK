@@ -26,16 +26,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 vlPointData::vlPointData (const vlPointData& pd)
 {
   this->Scalars = pd.Scalars;
-  if (this->Scalars) this->Scalars->Register((void *)this);
+  if (this->Scalars) this->Scalars->Register(this);
 
   this->Vectors = pd.Vectors;
-  if (this->Vectors) this->Vectors->Register((void *)this);
+  if (this->Vectors) this->Vectors->Register(this);
 
   this->Normals = pd.Normals;
-  if (this->Normals) this->Normals->Register((void *)this);
+  if (this->Normals) this->Normals->Register(this);
 
   this->TCoords = pd.TCoords;
-  if(this->TCoords) this->TCoords->Register((void *)this);
+  if(this->TCoords) this->TCoords->Register(this);
 
   this->CopyScalars = 1;
   this->CopyVectors = 1;
@@ -121,25 +121,25 @@ void vlPointData::Initialize()
 //
   if ( this->Scalars )
     {
-    this->Scalars->UnRegister((void *)this);
+    this->Scalars->UnRegister(this);
     this->Scalars = 0;
     }
 
   if ( this->Vectors )
     {
-    this->Vectors->UnRegister((void *)this);
+    this->Vectors->UnRegister(this);
     this->Vectors = 0;
     }
 
   if ( this->Normals )
     {
-    this->Normals->UnRegister((void *)this);
+    this->Normals->UnRegister(this);
     this->Normals = 0;
     }
 
   if ( this->TCoords )
     {
-    this->TCoords->UnRegister((void *)this);
+    this->TCoords->UnRegister(this);
     this->TCoords = 0;
     }
 };

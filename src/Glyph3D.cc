@@ -31,7 +31,7 @@ vlGlyph3D::~vlGlyph3D()
 {
   if (this->Source)
     {
-    this->Source->UnRegister((void *)this);
+    this->Source->UnRegister(this);
     }
 }
 

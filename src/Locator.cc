@@ -62,7 +62,7 @@ vlLocator::~vlLocator()
 
 void vlLocator::Initialize()
 {
-  if (this->Points) this->Points->UnRegister((void *)this);
+  if (this->Points) this->Points->UnRegister(this);
   this->Points = 0;
 
   // free up hash table

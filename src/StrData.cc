@@ -169,7 +169,7 @@ void vlStructuredDataSet::Initialize()
 
   if ( this->PointVisibility )
     {
-    this->PointVisibility->UnRegister((void *)this);
+    this->PointVisibility->UnRegister(this);
     this->PointVisibility = 0;
     }
 }

@@ -28,12 +28,12 @@ vlDataSetMapper::~vlDataSetMapper()
 {
   if ( this->Input )
     {
-    this->Input->UnRegister((void *)this);
+    this->Input->UnRegister(this);
     }
 
   if ( this->Mapper )
     {
-    this->Mapper->UnRegister((void *)this);
+    this->Mapper->UnRegister(this);
     }
 }
 
@@ -42,7 +42,7 @@ void vlDataSetMapper::SetInput(vlDataSet *in)
   if (in != this->Input )
     {
     this->Input = in;
-    this->Input->Register((void *)this);
+    this->Input->Register(this);
     this->Modified();
     }
 }
@@ -101,9 +101,9 @@ int vlDataSetMapper::CreateMapper()
   if ( mapper != this->Mapper ) 
     {
     *mapper = *this; // Update lookup table, etc.
-    if (this->Mapper) this->Mapper->UnRegister((void *)this);
+    if (this->Mapper) this->Mapper->UnRegister(this);
     this->Mapper = mapper;
-    this->Mapper->Register((void *)this);
+    this->Mapper->Register(this);
     }
   return 1;
 } 

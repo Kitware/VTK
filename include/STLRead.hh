@@ -28,6 +28,7 @@ class vlSTLReader : public vlPolySource
 {
 public:
   vlSTLReader():Filename(0) {};
+  ~vlSTLReader() {if (this->Filename) delete [] this->Filename;};
   char *GetClassName() {return "vlSTLReader";};
   void PrintSelf(ostream& os, vlIndent indent);
 

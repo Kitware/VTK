@@ -42,7 +42,7 @@ public:
 protected:
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
-  vlCharArray *Blanking;
+  // blanking information inherited
 };
 
 #endif

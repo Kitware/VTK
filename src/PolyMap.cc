@@ -35,7 +35,7 @@ vlPolyMapper::~vlPolyMapper()
 {
   if ( this->Input != 0 )
     {
-    this->Input->UnRegister((void *)this);
+    this->Input->UnRegister(this);
     }
 }
 
@@ -44,7 +44,7 @@ void vlPolyMapper::SetInput(vlPolyData *in)
   if (in != this->Input )
     {
     this->Input = in;
-    this->Input->Register((void *)this);
+    this->Input->Register(this);
     this->Modified();
     }
 }

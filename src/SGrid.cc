@@ -23,7 +23,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlStructuredGrid::vlStructuredGrid()
 {
-  this->Blanking = 0;
 }
 
 vlStructuredGrid::~vlStructuredGrid()
@@ -33,8 +32,6 @@ vlStructuredGrid::~vlStructuredGrid()
 
 void vlStructuredGrid::Initialize()
 {
-  if ( this->Blanking ) this->Blanking->UnRegister((void *)this);
-
   vlPointSet::Initialize(); 
   vlStructuredDataSet::Initialize();
 }

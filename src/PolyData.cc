@@ -56,16 +56,16 @@ vlPolyData::vlPolyData ()
 vlPolyData::vlPolyData(const vlPolyData& pd)
 {
   this->Verts = pd.Verts;
-  if (this->Verts) this->Verts->Register((void *)this);
+  if (this->Verts) this->Verts->Register(this);
 
   this->Lines = pd.Lines;
-  if (this->Lines) this->Lines->Register((void *)this);
+  if (this->Lines) this->Lines->Register(this);
 
   this->Polys = pd.Polys;
-  if (this->Polys) this->Polys->Register((void *)this);
+  if (this->Polys) this->Polys->Register(this);
 
   this->Strips = pd.Strips;
-  if (this->Strips) this->Strips->Register((void *)this);
+  if (this->Strips) this->Strips->Register(this);
  
   this->LoadVerts = pd.LoadVerts;
   this->LoadLines = pd.LoadLines;
@@ -76,10 +76,10 @@ vlPolyData::vlPolyData(const vlPolyData& pd)
   this->Writable = pd.Writable;
 
   this->Cells = pd.Cells;
-  if (this->Cells) this->Cells->Register((void *)this);
+  if (this->Cells) this->Cells->Register(this);
 
   this->Links = pd.Links;
-  if (this->Links) this->Links->Register((void *)this);
+  if (this->Links) this->Links->Register(this);
 }
 
 vlPolyData::~vlPolyData()
@@ -162,9 +162,9 @@ void vlPolyData::SetVerts (vlCellArray* v)
 {
   if ( v != this->Verts && v != this->Dummy )
     {
-    if (this->Verts) this->Verts->UnRegister((void *)this);
+    if (this->Verts) this->Verts->UnRegister(this);
     this->Verts = v;
-    if (this->Verts) this->Verts->Register((void *)this);
+    if (this->Verts) this->Verts->Register(this);
     this->Modified();
     }
 }
@@ -178,9 +178,9 @@ void vlPolyData::SetLines (vlCellArray* l)
 {
   if ( l != this->Lines && l != this->Dummy )
     {
-    if (this->Lines) this->Lines->UnRegister((void *)this);
+    if (this->Lines) this->Lines->UnRegister(this);
     this->Lines = l;
-    if (this->Lines) this->Lines->Register((void *)this);
+    if (this->Lines) this->Lines->Register(this);
     this->Modified();
     }
 }
@@ -194,9 +194,9 @@ void vlPolyData::SetPolys (vlCellArray* p)
 {
   if ( p != this->Polys && p != this->Dummy )
     {
-    if (this->Polys) this->Polys->UnRegister((void *)this);
+    if (this->Polys) this->Polys->UnRegister(this);
     this->Polys = p;
-    if (this->Polys) this->Polys->Register((void *)this);
+    if (this->Polys) this->Polys->Register(this);
     this->Modified();
     }
 }
@@ -210,9 +210,9 @@ void vlPolyData::SetStrips (vlCellArray* s)
 {
   if ( s != this->Strips && s != this->Dummy )
     {
-    if (this->Strips) this->Strips->UnRegister((void *)this);
+    if (this->Strips) this->Strips->UnRegister(this);
     this->Strips = s;
-    if (this->Strips) this->Strips->Register((void *)this);
+    if (this->Strips) this->Strips->Register(this);
     this->Modified();
     }
 }
@@ -228,37 +228,37 @@ void vlPolyData::Initialize()
 
   if ( this->Verts ) 
   {
-    this->Verts->UnRegister((void *)this);
+    this->Verts->UnRegister(this);
     this->Verts = 0;
   }
 
   if ( this->Lines ) 
   {
-    this->Lines->UnRegister((void *)this);
+    this->Lines->UnRegister(this);
     this->Lines = 0;
   }
 
   if ( this->Polys ) 
   {
-    this->Polys->UnRegister((void *)this);
+    this->Polys->UnRegister(this);
     this->Polys = 0;
   }
 
   if ( this->Strips ) 
   {
-    this->Strips->UnRegister((void *)this);
+    this->Strips->UnRegister(this);
     this->Strips = 0;
   }
 
   if ( this->Cells )
   {
-    this->Cells->UnRegister((void *)this);
+    this->Cells->UnRegister(this);
     this->Cells = 0;
   }
 
   if ( this->Links )
   {
-    this->Links->UnRegister((void *)this);
+    this->Links->UnRegister(this);
     this->Links = 0;
   }
 
@@ -297,7 +297,7 @@ vlMapper *vlPolyData::MakeMapper()
   if ( ! this->Mapper )
     {
     this->Mapper = mapper = new vlPolyMapper;
-    this->Mapper->Register((void *)this);
+    this->Mapper->Register(this);
     mapper->SetInput(this);
     }
   return this->Mapper;
@@ -365,7 +365,7 @@ void vlPolyData::BuildCells()
   else
     {
     this->Cells = cells = new vlCellList(numCells,3*numCells);
-    this->Cells->Register((void *)this);
+    this->Cells->Register(this);
     }
 //
 // If we are just reading the data structure, can use the input data
@@ -512,7 +512,7 @@ void vlPolyData::BuildLinks()
 {
   if ( ! this->Cells ) this->BuildCells();
   this->Links = new vlLinkList(this->GetNumberOfPoints());
-  this->Links->Register((void *)this);
+  this->Links->Register(this);
 
   this->Links->BuildLinks(this);
 }

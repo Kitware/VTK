@@ -39,13 +39,13 @@ vlUnstructuredGrid::vlUnstructuredGrid ()
 vlUnstructuredGrid::vlUnstructuredGrid(const vlUnstructuredGrid& pd)
 {
   this->Connectivity = pd.Connectivity;
-  if (this->Connectivity) this->Connectivity->Register((void *)this);
+  if (this->Connectivity) this->Connectivity->Register(this);
 
   this->Cells = pd.Cells;
-  if (this->Cells) this->Cells->Register((void *)this);
+  if (this->Cells) this->Cells->Register(this);
 
   this->Links = pd.Links;
-  if (this->Links) this->Links->Register((void *)this);
+  if (this->Links) this->Links->Register(this);
 }
 
 vlUnstructuredGrid::~vlUnstructuredGrid()
@@ -59,19 +59,19 @@ void vlUnstructuredGrid::Initialize()
 
   if ( this->Connectivity )
   {
-    this->Connectivity->UnRegister((void *)this);
+    this->Connectivity->UnRegister(this);
     this->Connectivity = 0;
   }
 
   if ( this->Cells )
   {
-    this->Cells->UnRegister((void *)this);
+    this->Cells->UnRegister(this);
     this->Cells = 0;
   }
 
   if ( this->Links )
   {
-    this->Links->UnRegister((void *)this);
+    this->Links->UnRegister(this);
     this->Links = 0;
   }
 };

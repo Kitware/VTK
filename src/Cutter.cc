@@ -20,12 +20,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 vlCutter::vlCutter(vlImplicitFunction *cf)
 {
   this->CutFunction = cf;
-  if ( cf ) this->CutFunction->Register((void *) this);
+  if ( cf ) this->CutFunction->Register(this);
 }
 
 vlCutter::~vlCutter()
 {
-  if ( this->CutFunction ) this->CutFunction->UnRegister((void *) this);
+  if ( this->CutFunction ) this->CutFunction->UnRegister(this);
 }
 
 //
