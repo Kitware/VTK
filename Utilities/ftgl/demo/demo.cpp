@@ -1,7 +1,7 @@
 // source changed by mrn@paus.ch/ max rheiner
 // original source: henryj@paradise.net.nz
 
-#include <iostream.h>
+#include <stdio.h>
 #include <stdlib.h> // exit()
 
 #ifdef __APPLE_CC__
@@ -60,13 +60,14 @@ my_init( const char* font_filename )
     if (i == 2) continue;
 #endif
         if (!fonts[i]->Open(font_filename)) {
-            cerr << "ERROR: Unable to open file " << font_filename << "\n";
+			printf("Reading font %d from %s\n", i, font_filename);
+			fprintf(stderr, "ERROR: Unable to open file %s\n", font_filename);
         }
         else {
-			cout << "Reading font " << i << " from " << font_filename << endl;
+			printf("Reading font %d from %s\n", i, font_filename);
 
             if (!fonts[i]->FaceSize(point_size)) {
-                cerr << "ERROR: Unable to set font face size " << point_size << "\n";
+            fprintf(stderr, "ERROR: Unable to set font face size %d\n", point_size);
             }
 
             // Try to load AFM font metrics
@@ -78,7 +79,7 @@ my_init( const char* font_filename )
             strcpy(metrics + (ext - font_filename), ".afm");
             if (file_exists(metrics))
               {
-              cout << "Attaching font metrics from " << metrics << endl;
+              printf("Attaching font metrics from %s\n", metrics);;
               fonts[i]->Attach(metrics);
               }
             }
@@ -295,7 +296,7 @@ file_exists( const char * filename )
 void
 usage( const char * program )
 {
-	cerr << "Usage: " << program << " <filename.ttf>\n" << endl;
+  fprintf(stderr, "Usage %s <filename> <point_size>\n", program);
 }
 
 int
@@ -315,7 +316,7 @@ main(int argc, char **argv)
 		if ( !file_exists( argv[ 1 ] ))
 		{
 			usage( argv[ 0 ]);
-			cerr << "Couldn't open file '" << argv[ 1 ] << "'" << endl;
+            fprintf(stderr, "Couldn't open file '%s'\n", argv[1]);
 			exit( -1 );
 		}
 		filename = argv[ 1 ];
@@ -333,7 +334,7 @@ main(int argc, char **argv)
 		if ( !file_exists( filename ))
 		{
 			usage( argv[ 0 ]);
-			cerr << "Couldn't open default file '" << filename << "'" << endl;
+            fprintf(stderr, "Couldn't open default file '%s'\n", filename);
 			exit( -1 );
 		}
 	}
