@@ -99,9 +99,11 @@ void vtkImageDecomposeFilter::SetDimensionality(int dim)
   this->Modified();
 }
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 //----------------------------------------------------------------------------
 void vtkImageDecomposeFilter::SetFilteredAxes(int axis)
 {
+  VTK_LEGACY_METHOD(SetFilteredAxes,"3.2");
   if (axis != 0)
     {
     vtkErrorMacro("If only one axis is specified, it must be X");
@@ -113,6 +115,7 @@ void vtkImageDecomposeFilter::SetFilteredAxes(int axis)
 //----------------------------------------------------------------------------
 void vtkImageDecomposeFilter::SetFilteredAxes(int axis0, int axis1)
 {
+  VTK_LEGACY_METHOD(SetFilteredAxes,"3.2");
   if (axis0 != 0 || axis1 != 1)
     {
     vtkErrorMacro("If only two axes are specified, they must be X, Y");
@@ -125,6 +128,7 @@ void vtkImageDecomposeFilter::SetFilteredAxes(int axis0, int axis1)
 //----------------------------------------------------------------------------
 void vtkImageDecomposeFilter::SetFilteredAxes(int axis0, int axis1, int axis2)
 {
+  VTK_LEGACY_METHOD(SetFilteredAxes,"3.2");
   if (axis0 != 0 || axis1 != 1 || axis2 != 2)
     {
     vtkErrorMacro("Axes must be order X, Y, Z");
@@ -132,6 +136,7 @@ void vtkImageDecomposeFilter::SetFilteredAxes(int axis0, int axis1, int axis2)
     }
   this->SetDimensionality(3);
 }
+#endif
 
 
 

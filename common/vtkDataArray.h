@@ -101,7 +101,8 @@ public:
 
   // Description:
   // Get the number of tuples (a component group) in the array.
-  int GetNumberOfTuples() {return (this->MaxId + 1)/this->NumberOfComponents;};
+  int GetNumberOfTuples() 
+    {return (this->MaxId + 1)/this->NumberOfComponents;}
 
   // Description:
   // Get the data tuple at ith location. Return it as a pointer to an array.
@@ -180,24 +181,24 @@ public:
   
   // Description:
   // Reset to an empty state, without freeing any memory.
-  void Reset() {this->MaxId = -1;}
+  void Reset() 
+    {this->MaxId = -1;}
 
   // Description:
   // Return the size of the data.
-  int GetSize() {return this->Size;}
+  int GetSize() 
+    {return this->Size;}
   
   // Description:
   // What is the maximum id currently in the array.
-  int GetMaxId() {return this->MaxId;}
+  int GetMaxId() 
+    {return this->MaxId;}
 
   // Description:
   // By how many elements should the array increase when more memory is 
   // required.
-  int GetExtend() {return this->Extend;}
-
-  // Description:
-  // For legacy compatibility. Do not use.
-  void DeepCopy(vtkDataArray &da) {this->DeepCopy(&da);}
+  int GetExtend() 
+    {return this->Extend;}
 
   // Description:
   // This method lets the user specify data to be held by the array.  The 
@@ -217,6 +218,13 @@ public:
   // information returned is valid only after the pipeline has 
   // been updated.
   unsigned long GetActualMemorySize();
+  
+#ifndef VTK_REMOVE_LEGACY_CODE
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkDataArray &da) 
+    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&da);}
+#endif
   
 protected:
   // Construct object with default tuple dimension (number of components) of 1.

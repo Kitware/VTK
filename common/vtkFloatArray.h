@@ -71,7 +71,8 @@ public:
 
   // Description:
   // Get the data type.
-  int GetDataType() {return VTK_FLOAT;};
+  int GetDataType() 
+    {return VTK_FLOAT;}
 
   // Description:
   // Set the number of n-tuples in the array.
@@ -126,12 +127,14 @@ public:
 
   // Description:
   // Get the data at a particular index.
-  float GetValue(const int id) {return this->Array[id];};
+  float GetValue(const int id) 
+    {return this->Array[id];}
 
   // Description:
   // Set the data at a particular index. Does not do range checking. Make sure
   // you use the method SetNumberOfValues() before inserting data.
-  void SetValue(const int id, const float value) { this->Array[id] = value;};
+  void SetValue(const int id, const float value) 
+    {this->Array[id] = value;}
 
   // Description:
   // Specify the number of values for this object to hold. Does an
@@ -156,8 +159,10 @@ public:
   // Description:
   // Get the address of a particular data index. Performs no checks
   // to verify that the memory has been allocated etc.
-  void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
-  float *GetPointer(const int id) {return this->Array + id;}
+  void *GetVoidPointer(const int id) 
+    {return (void *)this->GetPointer(id);}
+  float *GetPointer(const int id) 
+    {return this->Array + id;}
 
   // Description:
   // Deep copy of another float array.
@@ -172,11 +177,14 @@ public:
   // from the suppled array.
   void SetArray(float* array, int size, int save);
   void SetVoidArray(void *array,int size, int save) 
-    {this->SetArray((float*)array, size, save);};
+    {this->SetArray((float*)array, size, save);}
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
-  void DeepCopy(vtkDataArray &fa) {this->DeepCopy(&fa);}
+  void DeepCopy(vtkDataArray &fa) 
+    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&fa);}
+#endif
   
   
 protected:

@@ -74,15 +74,17 @@ public:
   // Description:
   // Allocate memory and set the size to extend by.
   int Allocate(const int sz, const int ext=1000) 
-    {return this->Ia->Allocate(sz,ext);};
+    {return this->Ia->Allocate(sz,ext);}
 
   // Description:
   // Free any memory and reset to an empty state.
-  void Initialize() {this->Ia->Initialize();};
+  void Initialize() 
+    {this->Ia->Initialize();}
 
   // Description:
   // Get the number of cells in the array.
-  int GetNumberOfCells() {return this->NumberOfCells;};
+  int GetNumberOfCells() 
+    {return this->NumberOfCells;}
 
   // Description:
   // Utility routines help manage memory of cell array. EstimateSize()
@@ -92,7 +94,7 @@ public:
   // memory estimate is guaranteed exact. (If not exact, use Squeeze() to
   // reclaim any extra memory.)
   int EstimateSize(int numCells, int maxPtsPerCell)
-  {return numCells*(1+maxPtsPerCell);};
+    {return numCells*(1+maxPtsPerCell);}
 
   // Description:
   // A cell traversal methods that is more efficient than vtkDataSet traversal
@@ -107,13 +109,15 @@ public:
 
   // Description:
   // Get the size of the allocated connectivity array.
-  int GetSize() {return this->Ia->GetSize();};
+  int GetSize() 
+    {return this->Ia->GetSize();}
   
   // Description:
   // Get the total number of entries (i.e., data values) in the connectivity 
   // array. This may be much less than the allocated size (i.e., return value 
   // from GetSize().)
-  int GetNumberOfConnectivityEntries() {return this->Ia->GetMaxId()+1;};
+  int GetNumberOfConnectivityEntries() 
+    {return this->Ia->GetMaxId()+1;}
 
   // Description:
   // Internal method used to retrieve a cell given an offset into
@@ -158,13 +162,16 @@ public:
   
   // Description:
   // Get/Set the current traversal location.
-  int GetTraversalLocation() {return this->TraversalLocation;};
-  void SetTraversalLocation(int loc) {this->TraversalLocation = loc;};
+  int GetTraversalLocation() 
+    {return this->TraversalLocation;}
+  void SetTraversalLocation(int loc) 
+    {this->TraversalLocation = loc;}
   
   // Description:
   // Computes the current traversal location within the internal array. Used 
   // in conjunction with GetCell(int loc,...).
-  int GetTraversalLocation(int npts) {return(this->TraversalLocation-npts-1);};
+  int GetTraversalLocation(int npts) 
+    {return(this->TraversalLocation-npts-1);}
   
   // Description:
   // Special method inverts ordering of current cell. Must be called
@@ -182,7 +189,8 @@ public:
 
   // Description:
   // Get pointer to array of cell data.
-  int *GetPointer() { return this->Ia->GetPointer(0);};
+  int *GetPointer() 
+    {return this->Ia->GetPointer(0);}
 
   // Description:
   // Get pointer to data array for purpose of direct writes of data. Size is the
@@ -206,7 +214,8 @@ public:
 
   // Description:
   // Return the underlying data as a data array.
-  vtkDataArray *GetData() {return this->Ia;};
+  vtkDataArray *GetData() 
+    {return this->Ia;}
 
   // Description:
   // Reuse list. Reset to initial condition.
@@ -214,7 +223,8 @@ public:
 
   // Description:
   // Reclaim any extra memory.
-  void Squeeze() {this->Ia->Squeeze();}
+  void Squeeze() 
+    {this->Ia->Squeeze();}
 
   // Description:
   // Return the memory in kilobytes consumed by this cell array. Used to
@@ -225,9 +235,12 @@ public:
   // been updated.
   unsigned long GetActualMemorySize();
   
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
-  int InsertNextCell(vtkIdList &pts);
+  int InsertNextCell(vtkIdList &pts)
+    {VTK_LEGACY_METHOD(InsertNextCell,"3.2"); return this->InsertNextCell(&pts);}
+#endif
   
 protected:
   vtkCellArray();

@@ -107,11 +107,6 @@ int vtkCellArray::GetMaxCellSize()
   return maxSize;
 }
 
-int vtkCellArray::InsertNextCell(vtkIdList &pts)
-{
-  return this->InsertNextCell(&pts);
-}
-
 // Specify a group of cells.
 void vtkCellArray::SetCells(int ncells, vtkIntArray *cells)
 {

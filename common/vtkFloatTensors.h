@@ -50,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTensors.h"
 #include "vtkFloatArray.h"
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 class VTK_EXPORT vtkFloatTensors : public vtkTensors
 {
 public:
@@ -116,5 +117,6 @@ inline void vtkFloatTensors::SetDataType(int type)
 
   vtkTensors::SetDataType(type);
 }
+#endif
 
 #endif

@@ -158,10 +158,13 @@ public:
   void SetVoidArray(void *array,int size, int save) 
     {this->SetArray((double*)array, size, save);};
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
-  void DeepCopy(vtkDataArray &da) {this->DeepCopy(&da);}
-
+  void DeepCopy(vtkDataArray &da) 
+    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&da);}
+#endif
+  
 protected:
   vtkDoubleArray(int numComp=1);
   ~vtkDoubleArray();

@@ -99,23 +99,23 @@ public:
 			  int num, int total);
   
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Legacy !!!!!!!!!!!!!!! ---------------------------------
   
   // Description:
   // Legacy method.  May go away at any time. It should be called 
   // UpdateInformation.
   virtual void UpdateImageInformation() 
-    {vtkWarningMacro("Use UpdateInformation instead of UpdateImageInformation");  
-    this->UpdateInformation();
-    }
+    {VTK_LEGACY_METHOD(UpdateInformation,"3.2"); this->UpdateInformation();}
   
   // Description:
   // Legacy method.  May go away at any time. You should call ExecuteInformation
   // which should call vtkImageToImageFilter::ExecuteInformation to set up defaults,
   // and the change what needs to be changed.
-  virtual void ExecuteImageInformation() {this->LegacyHack = 0;}
+  virtual void ExecuteImageInformation() 
+    {VTK_LEGACY_METHOD(LegacyHack,"3.2"); this->LegacyHack = 0;}
   int LegacyHack;
-  
+#endif
   
 protected:
   vtkImageToImageFilter();

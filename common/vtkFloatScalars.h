@@ -50,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkScalars.h"
 #include "vtkFloatArray.h"
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 class VTK_EXPORT vtkFloatScalars : public vtkScalars
 {
 public:
@@ -119,6 +120,7 @@ inline void vtkFloatScalars::SetDataType(int type)
 
   vtkScalars::SetDataType(type);
 }
+#endif
 
 #endif
 

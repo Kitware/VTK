@@ -291,11 +291,15 @@ public:
   vtkPoints *Points;
   vtkIdList *PointIds;
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
-  void DeepCopy(vtkCell &c) {this->DeepCopy(&c);}
-  void ShallowCopy(vtkCell &c) {this->ShallowCopy(&c);}
-
+  void DeepCopy(vtkCell &c) 
+    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&c);}
+  void ShallowCopy(vtkCell &c) 
+    {VTK_LEGACY_METHOD(ShallowCopy,"3.2"); this->ShallowCopy(&c);}
+#endif
+  
 protected:
   vtkCell();
   ~vtkCell();

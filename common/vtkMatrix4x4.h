@@ -64,7 +64,7 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   // temporary heap allocation within vtkTransform and vtkActor methods,
   // which is inefficient.
 
- public:
+public:
   double Element[4][4];
 
   // Description:
@@ -77,29 +77,31 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   // Description:
   // Set the elements of the matrix to the same values as the elements
   // of the source Matrix.
-  void DeepCopy(vtkMatrix4x4 *source) { 
-    vtkMatrix4x4::DeepCopy(*this->Element,source); this->Modified(); };
+  void DeepCopy(vtkMatrix4x4 *source) 
+    {vtkMatrix4x4::DeepCopy(*this->Element,source); this->Modified(); }
 //BTX
-  static void DeepCopy(double Elements[16], vtkMatrix4x4 *source) {
-    vtkMatrix4x4::DeepCopy(Elements,*source->Element); };
+  static void DeepCopy(double Elements[16], vtkMatrix4x4 *source) 
+    {vtkMatrix4x4::DeepCopy(Elements,*source->Element); }
   static void DeepCopy(double Elements[16], const double newElements[16]);
 //ETX
 
   // Description:
   // Non-static member function. Assigns *from* elements array
-  void DeepCopy(const double Elements[16]) { 
-    this->DeepCopy(*this->Element,Elements); this->Modified(); };
+  void DeepCopy(const double Elements[16]) 
+    { this->DeepCopy(*this->Element,Elements); this->Modified(); }
 
   // Description:
   // Set all of the elements to zero.
-  void Zero() { vtkMatrix4x4::Zero(*this->Element); this->Modified(); };
+  void Zero() 
+    { vtkMatrix4x4::Zero(*this->Element); this->Modified(); }
 //BTX
   static void Zero(double Elements[16]);
 //ETX  
 
   // Description:
   // Set equal to Identity matrix
-  void Identity() { vtkMatrix4x4::Identity(*this->Element); this->Modified();};
+  void Identity() 
+    { vtkMatrix4x4::Identity(*this->Element); this->Modified();}
 //BTX
   static void Identity(double Elements[16]);
 //ETX  
@@ -107,9 +109,10 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   // Description:
   // Matrix Inversion (adapted from Richard Carling in "Graphics Gems," 
   // Academic Press, 1990).
-  static void Invert(vtkMatrix4x4 *in, vtkMatrix4x4 *out) {
-    vtkMatrix4x4::Invert(*in->Element,*out->Element); out->Modified(); };
-  void Invert() { vtkMatrix4x4::Invert(this,this); };
+  static void Invert(vtkMatrix4x4 *in, vtkMatrix4x4 *out) 
+    {vtkMatrix4x4::Invert(*in->Element,*out->Element); out->Modified(); }
+  void Invert() 
+    { vtkMatrix4x4::Invert(this,this); }
 //BTX
   static void Invert(const double inElements[16], double outElements[16]);
 //ETX
@@ -117,9 +120,10 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 
   // Description:
   // Transpose the matrix and put it into out. 
-  static void Transpose(vtkMatrix4x4 *in, vtkMatrix4x4 *out) {
-    vtkMatrix4x4::Transpose(*in->Element,*out->Element); out->Modified(); };
-  void Transpose() { vtkMatrix4x4::Transpose(this,this); };
+  static void Transpose(vtkMatrix4x4 *in, vtkMatrix4x4 *out) 
+    {vtkMatrix4x4::Transpose(*in->Element,*out->Element); out->Modified(); }
+  void Transpose() 
+    { vtkMatrix4x4::Transpose(this,this); }
 //BTX
   static void Transpose(const double inElements[16], double outElements[16]);
 //ETX
@@ -127,10 +131,10 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   // Description:
   // Multiply a homogeneous coordinate by this matrix, i.e. out = A*in.
   // The in[4] and out[4] can be the same array.
-  void MultiplyPoint(const float in[4], float out[4]) {
-    vtkMatrix4x4::MultiplyPoint(*this->Element,in,out); };
-  void MultiplyPoint(const double in[4], double out[4]) {
-    vtkMatrix4x4::MultiplyPoint(*this->Element,in,out); };
+  void MultiplyPoint(const float in[4], float out[4]) 
+    {vtkMatrix4x4::MultiplyPoint(*this->Element,in,out); }
+  void MultiplyPoint(const double in[4], double out[4]) 
+    {vtkMatrix4x4::MultiplyPoint(*this->Element,in,out); }
 
 //BTX
   static void MultiplyPoint(const double Elements[16], 
@@ -142,12 +146,12 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   // Description:
   // For use in Java, Python or Tcl.  The default MultiplyPoint() uses
   // a single-precision point.
-  float *MultiplyPoint(const float in[4]) {
-    return this->MultiplyFloatPoint(in); };
-  float *MultiplyFloatPoint(const float in[4]) {
-    this->MultiplyPoint(in,this->FloatPoint); return this->FloatPoint; } 
-  double *MultiplyDoublePoint(const double in[4]) {
-    this->MultiplyPoint(in,this->DoublePoint); return this->DoublePoint; } 
+  float *MultiplyPoint(const float in[4]) 
+    {return this->MultiplyFloatPoint(in); }
+  float *MultiplyFloatPoint(const float in[4]) 
+    {this->MultiplyPoint(in,this->FloatPoint); return this->FloatPoint; } 
+  double *MultiplyDoublePoint(const double in[4]) 
+    {this->MultiplyPoint(in,this->DoublePoint); return this->DoublePoint; } 
 
   // Description:
   // Multiplies matrices a and b and stores the result in c.
@@ -160,15 +164,15 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 
   // Description:
   // Compute adjoint of the matrix and put it into out.
-  void Adjoint(vtkMatrix4x4 *in, vtkMatrix4x4 *out) {
-    vtkMatrix4x4::Adjoint(*in->Element,*out->Element); };
+  void Adjoint(vtkMatrix4x4 *in, vtkMatrix4x4 *out) 
+    {vtkMatrix4x4::Adjoint(*in->Element,*out->Element);}
 //BTX
   static void Adjoint(const double inElements[16], double outElements[16]);
 //ETX
 
   // Description:
   // Compute the determinant of the matrix and return it.
-  double Determinant() { return vtkMatrix4x4::Determinant(*this->Element); };
+  double Determinant() {return vtkMatrix4x4::Determinant(*this->Element);}
 //BTX
   static double Determinant(const double Elements[16]);
 //ETX
@@ -179,21 +183,25 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 
   // Description:
   // Returns the element i,j from the matrix.
-  double GetElement(int i, int j) const {return this->Element[i][j];};
+  double GetElement(int i, int j) const 
+    {return this->Element[i][j];}
 
   // Description: 
   // For legacy compatibility. Do not use.
   void PointMultiply(const float in[4], float out[4]);
   void PointMultiply(const double in[4], double out[4]);
 //BTX
-  double *operator[](const unsigned int i) {return &(this->Element[i][0]);};
+  double *operator[](const unsigned int i) 
+    {return &(this->Element[i][0]);}
   const double *operator[](unsigned int i) const
     { return &(this->Element[i][0]); }  
   void operator= (double element);
-  void Adjoint(vtkMatrix4x4 &in,vtkMatrix4x4 &out){this->Adjoint(&in,&out);}
-  double Determinant(vtkMatrix4x4 &in) {return this->Determinant(&in);}
-  double Determinant(vtkMatrix4x4 *in) {
-    return vtkMatrix4x4::Determinant(*in->Element); };
+  void Adjoint(vtkMatrix4x4 &in,vtkMatrix4x4 &out)
+    {this->Adjoint(&in,&out);}
+  double Determinant(vtkMatrix4x4 &in) 
+    {return this->Determinant(&in);}
+  double Determinant(vtkMatrix4x4 *in) 
+    {return vtkMatrix4x4::Determinant(*in->Element);}
   void Invert(vtkMatrix4x4 &in,vtkMatrix4x4 &out)
     {this->Invert(&in,&out);}
   void Transpose(vtkMatrix4x4 &in,vtkMatrix4x4 &out)

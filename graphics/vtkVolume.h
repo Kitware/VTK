@@ -125,28 +125,6 @@ public:
   // Shallow copy of this vtkVolume. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
-  // Description:
-  // For legacy compatibility. Do not use.
-  // This method will disappear after vtk 3.0.
-  void SetVolumeProperty(vtkVolumeProperty *property) 
-    {vtkErrorMacro(<<"Obsolete method. Change SetVolumeProperty to SetProperty");this->SetProperty (property);};
-  vtkVolumeProperty *GetVolumeProperty() 
-    {vtkErrorMacro(<<"Obsolete method. Change GetVolumeProperty to GetProperty "); return this->GetProperty();};
-
-  // Description:
-  // For legacy compatibility. Do not use.
-  // This method will disappear after vtk 3.0.
-  vtkVolumeMapper *GetVolumeMapper()
-    {vtkErrorMacro(<<"Obsolete method. Change GetVolumeMapper to GetMapper."); return this->GetMapper();};
-  void SetVolumeMapper(vtkVolumeMapper *mapper) 
-    {vtkErrorMacro(<<"Obsolete method. Change SetVolumeMapper to SetMapper.");this->SetMapper (mapper);};
-
-  // Description:
-  // For legacy compatibility. Do not use.
-  // This method will disappear after vtk 3.0.
-  void SetVolumeProperty(vtkVolumeProperty& property) 
-    {this->SetProperty(&property);}
-
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

@@ -50,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNormals.h"
 #include "vtkFloatArray.h"
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 class VTK_EXPORT vtkFloatNormals : public vtkNormals
 {
 public:
@@ -116,6 +117,7 @@ inline void vtkFloatNormals::SetDataType(int type)
 
   vtkNormals::SetDataType(type);
 }
+#endif
 
 #endif
 

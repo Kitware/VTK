@@ -74,14 +74,18 @@ public:
   
   void OnTimer();
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatability
   void SetTrackballModeToTrackball()
-    { this->JoystickOrTrackball = VTKIS_TRACKBALL; };
+    {VTK_LEGACY_METHOD(JoystickOrTrackball,"3.2");  this->JoystickOrTrackball = VTKIS_TRACKBALL; }
   void SetTrackballModeToJoystick()
-    { this->JoystickOrTrackball = VTKIS_JOYSTICK; };
-  void SetActorModeToCamera() { this->CameraOrActor = VTKIS_CAMERA; };
-  void SetActorModeToActor() { this->CameraOrActor = VTKIS_ACTOR; };
+    {VTK_LEGACY_METHOD(JoystickOrTrackball,"3.2");  this->JoystickOrTrackball = VTKIS_JOYSTICK; }
+  void SetActorModeToCamera() 
+    {VTK_LEGACY_METHOD(CameraOrActor,"3.2");  this->CameraOrActor = VTKIS_CAMERA; }
+  void SetActorModeToActor() 
+    {VTK_LEGACY_METHOD(CameraOrActor,"3.2");  this->CameraOrActor = VTKIS_ACTOR; }
+#endif
   
   
 protected:

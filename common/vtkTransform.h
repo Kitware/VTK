@@ -279,30 +279,32 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   void MultiplyPoint(const double in[4], double out[4]) {      
     this->GetMatrix()->MultiplyPoint(in,out);};
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // These methods are obsolete.  Use TransformPoints, TransformVectors,
   // or TransformNormals instead.
-  void MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts) {
-    this->TransformPoints(inPts,outPts); };
-  void MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors) {
-    this->TransformVectors(inVectors,outVectors); };
-  void MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals) {
-    this->TransformNormals(inNormals,outNormals); };
-
+  void MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts) 
+    {VTK_LEGACY_METHOD(TransformPoints,"3.2"); this->TransformPoints(inPts,outPts);}
+  void MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors) 
+    {VTK_LEGACY_METHOD(TransformVectors,"3.2"); this->TransformVectors(inVectors,outVectors);}
+  void MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals) 
+    {VTK_LEGACY_METHOD(TransformNormals,"3.2"); this->TransformNormals(inNormals,outNormals);}
+#endif
+  
   // Description:
   // This method is deprecated because 1) it can turn a linear transformation
   // matrix into a perspective transform matrix and 2) there is no way
   // for the transformation pipeline to properly handle it. 
   // If the transformation is a pure rotation, then use GetInverse(), 
   // otherwise try to work around this method by using GetTranspose().
-  void Transpose() {
-    vtkWarningMacro("Transpose: This method is deprecated, use GetTranspose(vtkMatrix4x4 *) instead.");
+  void Transpose() 
+    {VTK_LEGACY_METHOD(Transpose,"3.2"); 
     double matrix[16];
     vtkMatrix4x4::DeepCopy(matrix,this->GetMatrix());
     vtkMatrix4x4::Transpose(matrix,matrix);
     this->Identity();
     this->SetInput(NULL);
-    this->Concatenate(matrix); };    
+    this->Concatenate(matrix); }    
 
   // Description:
   // Do not use these functions -- they are here only to provide
@@ -320,32 +322,39 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
 
   // Description:
   // For legacy compatibility. Do not use.
-  void Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, vtkMatrix4x4 *c) {
-    vtkMatrix4x4::Multiply4x4(a,b,c); }; 
-  void Multiply4x4(const double a[16], const double b[16], double c[16]) {
-    vtkMatrix4x4::Multiply4x4(a,b,c); }; 
-  void Multiply4x4(vtkMatrix4x4 &a, vtkMatrix4x4 &b, vtkMatrix4x4 &c) {
-    vtkMatrix4x4::Multiply4x4(&a,&b,&c); }; 
-  void Concatenate(vtkMatrix4x4 &matrix){this->Concatenate(&matrix);};
-  void SetMatrix(vtkMatrix4x4 &m){this->SetMatrix(&m);};
-  void GetTranspose (vtkMatrix4x4 &transpose){this->GetTranspose(&transpose);};
-  void GetInverse(vtkMatrix4x4& inverse){this->GetInverse(&inverse);};
+  void Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, vtkMatrix4x4 *c) 
+    {VTK_LEGACY_METHOD(Multiply4x4,"3.2"); vtkMatrix4x4::Multiply4x4(a,b,c);}
+  void Multiply4x4(const double a[16], const double b[16], double c[16]) 
+    {VTK_LEGACY_METHOD(Multiply4x4,"3.2"); vtkMatrix4x4::Multiply4x4(a,b,c);} 
+  void Multiply4x4(vtkMatrix4x4 &a, vtkMatrix4x4 &b, vtkMatrix4x4 &c) 
+    {VTK_LEGACY_METHOD(Multiply4x4,"3.2"); vtkMatrix4x4::Multiply4x4(&a,&b,&c); } 
+  void Concatenate(vtkMatrix4x4 &matrix)
+    {VTK_LEGACY_METHOD(Concatenate,"3.2"); this->Concatenate(&matrix);}
+  void SetMatrix(vtkMatrix4x4 &m)
+    {VTK_LEGACY_METHOD(SetMatrix,"3.2"); this->SetMatrix(&m);}
+  void GetTranspose (vtkMatrix4x4 &transpose)
+    {VTK_LEGACY_METHOD(GetTranspose,"3.2"); this->GetTranspose(&transpose);}
+  void GetInverse(vtkMatrix4x4& inverse)
+    {VTK_LEGACY_METHOD(GetInverse,"3.2"); this->GetInverse(&inverse);};
 //BTX
-  void GetOrientation(float *prx, float *pry, float *prz) {
+  void GetOrientation(float *prx, float *pry, float *prz) 
+    {VTK_LEGACY_METHOD(GetOrientation,"3.2"); 
     double temp[3]; this->GetOrientation(temp); 
     *prx = temp[0]; *pry = temp[1]; *prz = temp[2]; };    
   void GetOrientation(float& rx, float& ry, float& rz)
-    {this->GetOrientation(&rx,&ry,&rz);}
-  void GetPosition(float *px, float *py, float *pz) {
+    {VTK_LEGACY_METHOD(GetOrientation,"3.2"); this->GetOrientation(&rx,&ry,&rz);}
+  void GetPosition(float *px, float *py, float *pz) 
+    {VTK_LEGACY_METHOD(GetPosition,"3.2"); 
     double temp[3]; this->GetPosition(temp); 
     *px = temp[0]; *py = temp[1]; *pz = temp[2]; };
   void GetPosition(float& x, float& y, float& z)
-    {this->GetPosition(&x, &y, &z);}
-  void GetScale(float *psx, float *psy, float *psz) {
+    {VTK_LEGACY_METHOD(GetPosition,"3.2"); this->GetPosition(&x, &y, &z);}
+  void GetScale(float *psx, float *psy, float *psz) 
+    {VTK_LEGACY_METHOD(GetScale,"3.2"); 
     double temp[3]; this->GetScale(temp); 
     *psx = temp[0]; *psy = temp[1]; *psz = temp[2]; };
   void GetScale(float& x, float& y, float& z)
-    {this->GetScale(&x, &y, &z);}
+    {VTK_LEGACY_METHOD(GetScale,"3.2"); this->GetScale(&x, &y, &z);}
 //ETX
 
 protected:

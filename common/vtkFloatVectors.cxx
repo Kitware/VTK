@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
+#ifndef VTK_REMOVE_LEGACY_CODE
 //------------------------------------------------------------------------------
 vtkFloatVectors* vtkFloatVectors::New()
 {
@@ -59,6 +59,9 @@ vtkFloatVectors* vtkFloatVectors::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkFloatVectors;
 }
+#else
+  Remove this obsoleted class from Makefile.in
+#endif
 
 
 

@@ -73,47 +73,50 @@ public:
   // Description:
   // Set a particular contour value at contour number i. The index i ranges 
   // between 0<=i<NumberOfContours.
-  void SetValue(int i, float value) {this->ContourValues->SetValue(i,value);};
+  void SetValue(int i, float value) 
+    {this->ContourValues->SetValue(i,value);}
   
   // Description:
   // Get the ith contour value.
-  float GetValue(int i) { return this->ContourValues->GetValue(i);};
+  float GetValue(int i) 
+    {return this->ContourValues->GetValue(i);}
 
   // Description:
   // Get a pointer to an array of contour values. There will be
   // GetNumberOfContours() values in the list.
-  float *GetValues() {return this->ContourValues->GetValues();};
+  float *GetValues() 
+    {return this->ContourValues->GetValues();}
 
   // Description:
   // Fill a supplied list with contour values. There will be
   // GetNumberOfContours() values in the list. Make sure you allocate
   // enough memory to hold the list.
-  void GetValues(float *contourValues){
-    this->ContourValues->GetValues(contourValues);};
+  void GetValues(float *contourValues)
+    {this->ContourValues->GetValues(contourValues);}
   
   // Description:
   // Set the number of contours to place into the list. You only really
   // need to use this method to reduce list size. The method SetValue()
   // will automatically increase list size as needed.
-  void SetNumberOfContours(int number) {
-    this->ContourValues->SetNumberOfContours(number);};
+  void SetNumberOfContours(int number) 
+    {this->ContourValues->SetNumberOfContours(number);}
 
   // Description:
   // Get the number of contours in the list of contour values.
-  int GetNumberOfContours() {
-    return this->ContourValues->GetNumberOfContours();};
+  int GetNumberOfContours() 
+    {return this->ContourValues->GetNumberOfContours();}
 
   // Description:
   // Generate numContours equally spaced contour values between specified
   // range. Contour values will include min/max range values.
-  void GenerateValues(int numContours, float range[2]) {
-    this->ContourValues->GenerateValues(numContours, range);};
+  void GenerateValues(int numContours, float range[2]) 
+    {this->ContourValues->GenerateValues(numContours, range);}
 
   // Description:
   // Generate numContours equally spaced contour values between specified
   // range. Contour values will include min/max range values.
-  void GenerateValues(int numContours, float rangeStart, float rangeEnd) {
-    this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);};
+  void GenerateValues(int numContours, float rangeStart, float rangeEnd) 
+    {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
   // Description:
   // New GetMTime because we delegate to vtkContourValues & refer to
@@ -160,9 +163,12 @@ public:
   // locator is used to merge coincident points.
   void CreateDefaultLocator();
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
-  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
+  void SetLocator(vtkPointLocator& locator) 
+    {VTK_LEGACY_METHOD(SetLocator,"3.2"); this->SetLocator(&locator);}
+#endif
 
 protected:
   vtkCutter(vtkImplicitFunction *cf=NULL);

@@ -44,8 +44,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkImageFilter is a legacy class and should not be used.
 // use vtk ImageToImageFilter instead.
 
-
-
 #ifndef __vtkImageFilter_h
 #define __vtkImageFilter_h
 

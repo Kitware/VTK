@@ -510,21 +510,6 @@ void vtkConnectivityFilter::DeleteSpecifiedRegion(int id)
   this->SpecifiedRegionIds->DeleteId(id);
 }
 
-// For legacy compatibility
-void vtkConnectivityFilter::SetMaxRecursionDepth(int)
-{
-  vtkWarningMacro(<<"Recursion depth is no longer pertinent," 
-                  <<"the ivar will be eliminated in a future version.");
-}
-
-// For legacy compatibility
-int vtkConnectivityFilter::GetMaxRecursionDepth()
-{
-  vtkWarningMacro(<<"Recursion depth is no longer pertinent," 
-                  <<"the ivar will be eliminated in a future version.");
-  return 0;
-}
-
 void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);

@@ -72,7 +72,8 @@ public:
   // Description:
   // Get any input of this filter.
   vtkDataSet *GetInput(int idx);
-  vtkDataSet *GetInput() { return this->GetInput( 0 ); };
+  vtkDataSet *GetInput() 
+    {return this->GetInput( 0 );}
   
   // Description:
   // Remove a dataset from the list of data to append.
@@ -83,10 +84,14 @@ public:
   // will not be reflected in the actual inputs.
   vtkDataSetCollection *GetInputList();
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
-  void AddInput(vtkDataSet& in) {this->AddInput(&in);}
-  void RemoveInput(vtkDataSet& in) {this->RemoveInput(&in);}
+  void AddInput(vtkDataSet& in) 
+    {VTK_LEGACY_METHOD(AddInput,"3.2"); this->AddInput(&in);}
+  void RemoveInput(vtkDataSet& in) 
+    {VTK_LEGACY_METHOD(RemoveInput,"3.2"); this->RemoveInput(&in);}
+#endif
   
 protected:
   vtkAppendFilter();

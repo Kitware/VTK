@@ -90,16 +90,18 @@ public:
                    int dim, float *derivs);
 
   // Description:
-  // voxel specific
+  // Voxel specific methods for interpolation and derivatives.
   static void InterpolationFunctions(float pcoords[3], float weights[8]);
   static void InterpolationDerivs(float pcoords[3], float derivs[24]);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
   int CellBoundary(int subId, float pcoords[3], vtkIdList &pts)
-    {return this->CellBoundary(subId, pcoords, &pts);}
+    {VTK_LEGACY_METHOD(CellBoundary,"3.2"); return this->CellBoundary(subId, pcoords, &pts);}
   int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
-    {return this->Triangulate(index, &ptIds, &pts);}
+    {VTK_LEGACY_METHOD(Triangulate,"3.2"); return this->Triangulate(index, &ptIds, &pts);}
+#endif
   
 
 protected:

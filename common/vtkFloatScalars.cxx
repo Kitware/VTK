@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatScalars.h"
 #include "vtkObjectFactory.h"
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 //---------------------------------------------------------------------------
 vtkFloatScalars* vtkFloatScalars::New()
 {
@@ -57,6 +58,7 @@ vtkFloatScalars* vtkFloatScalars::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkFloatScalars;
 }
+#endif
 
 
 

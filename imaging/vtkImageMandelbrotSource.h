@@ -92,10 +92,6 @@ public:
   vtkGetVector4Macro(SampleCX, double);
 
   // Description:
-  // Convienence/Legacy - set all the spacing values the same.
-  void SetSample(double v) {this->SetSampleCX(v, v, v, v);}
-
-  // Description:
   // The maximum number of cycles run to see if the value goes over 2
   vtkSetClampMacro(MaximumNumberOfIterations, unsigned short, 1, 5000);
   vtkGetMacro(MaximumNumberOfIterations, unsigned short);
@@ -111,7 +107,13 @@ public:
   // What about other parameters ???
   void CopyOriginAndSample(vtkImageMandelbrotSource *source); 
 
-
+#ifndef VTK_REMOVE_LEGACY_CODE
+  // Description:
+  // Convienence/Legacy - set all the spacing values the same.
+  void SetSample(double v) 
+    {VTK_LEGACY_METHOD(SetSampleCX,"3.2"); this->SetSampleCX(v, v, v, v);}
+#endif
+  
 protected:
   vtkImageMandelbrotSource();
   ~vtkImageMandelbrotSource();

@@ -50,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPoints.h"
 #include "vtkFloatArray.h"
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 class VTK_EXPORT vtkFloatPoints : public vtkPoints
 {
 public:
@@ -116,5 +117,6 @@ inline void vtkFloatPoints::SetDataType(int type)
 
   vtkPoints::SetDataType(type);
 }
+#endif
 
 #endif

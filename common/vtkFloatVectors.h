@@ -50,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVectors.h"
 #include "vtkFloatArray.h"
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 class VTK_EXPORT vtkFloatVectors : public vtkVectors
 {
 public:
@@ -115,6 +116,7 @@ inline void vtkFloatVectors::SetDataType(int type)
 
   vtkVectors::SetDataType(type);
 }
+#endif
 
 
 #endif

@@ -110,12 +110,15 @@ public:
   // Given a list of pt ids, return an array of tensors.
   void GetTensors(vtkIdList *ptId, vtkTensors *fv);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
   void GetTensors(vtkIdList& ptId, vtkTensors& fv)
-    {this->GetTensors(&ptId, &fv);}
-  void GetTensor(int id, vtkTensor& t) {this->GetTensor(id, &t);}
-
+    {VTK_LEGACY_METHOD(GetTensors,"3.2"); this->GetTensors(&ptId, &fv);}
+  void GetTensor(int id, vtkTensor& t) 
+    {VTK_LEGACY_METHOD(GetTensor,"3.2"); this->GetTensor(id, &t);}
+#endif
+  
 protected:
   vtkTensors();
   ~vtkTensors();

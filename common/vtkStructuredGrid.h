@@ -121,13 +121,6 @@ public:
   int IsPointVisible(int ptId);
 
   // Description:
-  // For legacy compatibility. Do not use.
-  void GetCellPoints(int cellId, vtkIdList &ptIds)
-    {this->GetCellPoints(cellId, &ptIds);}
-  void GetPointCells(int ptId, vtkIdList &cellIds)
-    {this->GetPointCells(ptId, &cellIds);}
-
-  // Description:
   // Required for the lowest common denominator for setting the UpdateExtent
   // (i.e. vtkDataSetToStructuredPointsFilter).  This assumes that WholeExtent
   // is valid (UpdateInformation has been called).
@@ -164,6 +157,15 @@ public:
   void ShallowCopy(vtkDataObject *src);  
   void DeepCopy(vtkDataObject *src);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
+  // Description:
+  // For legacy compatibility. Do not use.
+  void GetCellPoints(int cellId, vtkIdList &ptIds)
+    {VTK_LEGACY_METHOD(GetCellPoints,"3.2"); this->GetCellPoints(cellId, &ptIds);}
+  void GetPointCells(int ptId, vtkIdList &cellIds)
+    {VTK_LEGACY_METHOD(GetPointCells,"3.2"); this->GetPointCells(ptId, &cellIds);}
+#endif
+  
 protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid();

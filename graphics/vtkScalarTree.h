@@ -125,15 +125,13 @@ public:
   vtkCell *GetNextCell(int &cellId, vtkIdList* &ptIds,
                        vtkScalars *cellScalars);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
-  vtkCell *GetNextCell(int& cellId, vtkIdList* &ptIds,
-                       vtkScalars& cellScalars) 
-    {return this->GetNextCell(cellId, ptIds, &cellScalars);}
+  vtkCell *GetNextCell(int& cellId, vtkIdList* &ptIds, vtkScalars& cellScalars) 
+    {VTK_LEGACY_METHOD(GetNextCell,"3.2"); return this->GetNextCell(cellId, ptIds, &cellScalars);}
+#endif
   
-  
-    
-
 protected:
   vtkScalarTree();
   ~vtkScalarTree();

@@ -256,10 +256,14 @@ public:
   // been updated.
   unsigned long GetActualMemorySize();
   
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
-  void DeepCopy(vtkDataSetAttributes &pd) {this->DeepCopy(&pd);}
-  void ShallowCopy(vtkDataSetAttributes &pd) {this->ShallowCopy(&pd);}
+  void DeepCopy(vtkDataSetAttributes &pd) 
+    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&pd);}
+  void ShallowCopy(vtkDataSetAttributes &pd) 
+    {VTK_LEGACY_METHOD(ShalowCopy,"3.2"); this->ShallowCopy(&pd);}
+#endif
   
 protected:
   vtkDataSetAttributes();

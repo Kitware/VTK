@@ -70,10 +70,6 @@ public:
     this->SetInput(tmp->GetOutput()); tmp->Delete();}
   vtkStructuredPoints *GetInput() {return (vtkStructuredPoints *)this->Input;};
 
-  // Description:
-  // For legacy compatibiltiy. Do not use.
-  //void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};
-  
 protected:  
   vtkStructuredPointsFilter() {};
   ~vtkStructuredPointsFilter() {};

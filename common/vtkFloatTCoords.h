@@ -50,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTCoords.h"
 #include "vtkFloatArray.h"
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 class VTK_EXPORT vtkFloatTCoords : public vtkTCoords
 {
 public:
@@ -119,6 +120,7 @@ inline void vtkFloatTCoords::SetDataType(int type)
 
   vtkTCoords::SetDataType(type);
 }
+#endif
 
 #endif
 

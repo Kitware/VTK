@@ -84,7 +84,8 @@ public:
 
   // Description:
   // For legacy compatibility. Do not use.
-  void SetInput(vtkDataObject &input) {this->SetInput(&input);};
+  void SetInput(vtkDataObject &input) 
+    {this->SetInput(&input);}
 
 protected:
   vtkDataObjectWriter();

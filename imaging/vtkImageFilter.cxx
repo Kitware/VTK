@@ -44,9 +44,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 //----------------------------------------------------------------------------
 vtkImageFilter* vtkImageFilter::New()
 {
+  //VTK_LEGACY_METHOD(New,"3.2");
+  vtkGenericWarningMacro(<<"Obsolete class; use vtkImageToImageFilter");
+
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageFilter");
   if(ret)
@@ -56,4 +60,7 @@ vtkImageFilter* vtkImageFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkImageFilter;
 }
+#else
+  Remove this obsoleted class from Makefile.in
+#endif
 

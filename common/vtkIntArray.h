@@ -72,11 +72,13 @@ public:
 
   // Description:
   // Get the data type.
-  int GetDataType() {return VTK_INT;};
+  int GetDataType() 
+    {return VTK_INT;}
 
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
-  void Squeeze() {this->Resize (this->MaxId+1);};
+  void Squeeze() 
+    {this->Resize (this->MaxId+1);}
 
   // Description:
   // Set the number of n-tuples in the array.
@@ -110,12 +112,14 @@ public:
 
   // Description:
   // Get the data at a particular index.
-  int GetValue(const int id) {return this->Array[id];};
+  int GetValue(const int id) 
+    {return this->Array[id];}
 
   // Description:
   // Set the data at a particular index. Does not do range checking. Make sure
   // you use the method SetNumberOfValues() before inserting data.
-  void SetValue(const int id, const int value) {this->Array[id] = value;};
+  void SetValue(const int id, const int value) 
+    {this->Array[id] = value;}
 
   // Description:
   // Specify the number of values for this object to hold. Does an
@@ -134,8 +138,10 @@ public:
   // Description:
   // Get the address of a particular data index. Performs no checks
   // to verify that the memory has been allocated etc.
-  int *GetPointer(const int id) {return this->Array + id;}
-  void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
+  int *GetPointer(const int id) 
+    {return this->Array + id;}
+  void *GetVoidPointer(const int id) 
+    {return (void *)this->GetPointer(id);}
 
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
@@ -158,11 +164,13 @@ public:
   void SetVoidArray(void *array,int size, int save) 
     {this->SetArray((int*)array, size, save);};
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
-  void DeepCopy(vtkDataArray &ia) {this->DeepCopy(&ia);}
+  void DeepCopy(vtkDataArray &ia) 
+    {VTK_LEGACY_METHOD(DeepCopy,"3.2");this->DeepCopy(&ia);}
+#endif
   
-
 protected:
   vtkIntArray(int numComp=1);
   ~vtkIntArray();

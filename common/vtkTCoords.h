@@ -102,7 +102,8 @@ public:
   // Description:
   // Insert TCoord into object. Range checking performed and memory
   // allocated as necessary.
-  void InsertTCoord(int id, float tc[3]) {this->Data->InsertTuple(id,tc);};
+  void InsertTCoord(int id, float tc[3]) 
+    {this->Data->InsertTuple(id,tc);};
 
   // Description:
   // Insert TCoord into position indicated.
@@ -110,22 +111,27 @@ public:
 
   // Description:
   // Insert TCoord at end of array and return its location (id) in the array.
-  int InsertNextTCoord(float tc[3]) {return this->Data->InsertNextTuple(tc);};
+  int InsertNextTCoord(float tc[3]) 
+    {return this->Data->InsertNextTuple(tc);}
   int InsertNextTCoord(float tx, float ty, float tz);
 
   // Description:
   // Set/Get the number of components in texture. Should be 1<=n<=3.
   void SetNumberOfComponents(int num);
-  int GetNumberOfComponents() {return this->Data->GetNumberOfComponents();}
+  int GetNumberOfComponents() 
+    {return this->Data->GetNumberOfComponents();}
 
   // Description:
   // Get a list of texture coordinates
   void GetTCoords(vtkIdList *ptId, vtkTCoords *fv);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
-  void GetTCoords(vtkIdList& ptId, vtkTCoords& fv) {this->GetTCoords(&ptId, &fv);}
-
+  void GetTCoords(vtkIdList& ptId, vtkTCoords& fv) 
+    {VTK_LEGACY_METHOD(GetTCoords,"3.2"); this->GetTCoords(&ptId, &fv);}
+#endif
+  
 protected:
   vtkTCoords();
   ~vtkTCoords() {};

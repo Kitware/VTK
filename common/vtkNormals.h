@@ -64,41 +64,52 @@ public:
 
   // Description:
   // Create a copy of this object.
-  vtkAttributeData *MakeObject(){return vtkNormals::New(this->GetDataType());};
+  vtkAttributeData *MakeObject()
+    {return vtkNormals::New(this->GetDataType());}
   
   // Description:
   // Return number of normals in array.
-  int GetNumberOfNormals() {return this->Data->GetNumberOfTuples();};
+  int GetNumberOfNormals() 
+    {return this->Data->GetNumberOfTuples();}
 
   // Description:
   // Return a pointer to a float normal n[3] for a specific id.
-  float *GetNormal(int id) {return this->Data->GetTuple(id);};
+  float *GetNormal(int id) 
+    {return this->Data->GetTuple(id);}
   
   // Description:
   // Copy normal components into user provided array n[3] for specified
   // id.
-  void GetNormal(int id, float n[3]) {this->Data->GetTuple(id,n);};
-  void GetNormal(int id, double n[3]) {this->Data->GetTuple(id,n);};
+  void GetNormal(int id, float n[3]) 
+    {this->Data->GetTuple(id,n);}
+  void GetNormal(int id, double n[3]) 
+    {this->Data->GetTuple(id,n);}
   
   // Description:
   // Insert normal into object. No range checking performed (fast!).
   // Make sure you use SetNumberOfNormals() to allocate memory prior
   // to using SetNormal().
-  void SetNormal(int id, float n[3]) {this->Data->SetTuple(id,n);};
-  void SetNormal(int id, double n[3]) {this->Data->SetTuple(id,n);};
+  void SetNormal(int id, float n[3]) 
+    {this->Data->SetTuple(id,n);}
+  void SetNormal(int id, double n[3]) 
+    {this->Data->SetTuple(id,n);}
   void SetNormal(int id, double nx, double ny, double nz);
 
   // Description:
   // Insert normal into object. Range checking performed and memory
   // allocated as necessary.
-  void InsertNormal(int id, double n[3]) {this->Data->InsertTuple(id,n);};
-  void InsertNormal(int id, float n[3]) {this->Data->InsertTuple(id,n);};
+  void InsertNormal(int id, double n[3]) 
+    {this->Data->InsertTuple(id,n);}
+  void InsertNormal(int id, float n[3]) 
+    {this->Data->InsertTuple(id,n);}
   void InsertNormal(int id, double nx, double ny, double nz);
 
   // Description:
   // Insert normal into next available slot. Returns id of slot.
-  int InsertNextNormal(float n[3]) {return this->Data->InsertNextTuple(n);};
-  int InsertNextNormal(double n[3]) {return this->Data->InsertNextTuple(n);};
+  int InsertNextNormal(float n[3]) 
+    {return this->Data->InsertNextTuple(n);}
+  int InsertNextNormal(double n[3]) 
+    {return this->Data->InsertNextTuple(n);}
   int InsertNextNormal(double nx, double ny, double nz);
 
   // Description:
@@ -111,9 +122,12 @@ public:
   // Given a list of pt ids, return an array of normals.
   void GetNormals(vtkIdList *ptId, vtkNormals *fn);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
-  // For legacy compatibility. 
-  void GetNormals(vtkIdList& ptId, vtkNormals& fn) {this->GetNormals(&ptId, &fn);}
+  // For legacy compatibility. Do not use.
+  void GetNormals(vtkIdList& ptId, vtkNormals& fn) 
+    {VTK_LEGACY_METHOD(GetNormals,"3.2"); this->GetNormals(&ptId, &fn);}
+#endif
   
 protected:
   vtkNormals();

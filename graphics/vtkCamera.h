@@ -346,21 +346,17 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // focal point at (0, 0, 0), with up being (0, 1, 0).
   vtkMatrix4x4 *GetCameraLightTransformMatrix();  
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
-  vtkMatrix4x4 &GetViewTransform(){
-    vtkWarningMacro("GetViewTransform: This method is deprecated, use GetViewTransformMatrix instead");
-    return *this->GetViewTransformMatrix();}
-  vtkMatrix4x4 &GetPerspectiveTransform(double aspect,double nearz,
-					double farz) {
-    vtkWarningMacro("GetPerspectiveTransform: This method is deprecated, use GetPerspectiveTransformMatrix instead");
-    return *this->GetPerspectiveTransformMatrix(aspect, nearz, farz);}
-  vtkMatrix4x4 &GetCompositePerspectiveTransform(double aspect, 
-						 double nearz, 
-  						 double farz) {
-    vtkWarningMacro("GetCompositePerspectiveTransform: This method is deprecated, use GetPerspectiveTransformMatrix instead");
-    return *this->GetCompositePerspectiveTransformMatrix(aspect,nearz,farz);}
-
+  vtkMatrix4x4 &GetViewTransform()
+    {VTK_LEGACY_METHOD(GetViewTransformMatrix,"3.2"); return *this->GetViewTransformMatrix();}
+  vtkMatrix4x4 &GetPerspectiveTransform(double aspect,double nearz,double farz) 
+    {VTK_LEGACY_METHOD(GetPerspectiveTransformMatrix,"3.2"); return *this->GetPerspectiveTransformMatrix(aspect, nearz, farz);}
+  vtkMatrix4x4 &GetCompositePerspectiveTransform(double aspect, double nearz, double farz) 
+    {VTK_LEGACY_METHOD(GetCompositePerspectiveTransformMatrix,"3.2"); return *this->GetCompositePerspectiveTransformMatrix(aspect,nearz,farz);}
+#endif
+  
 protected:
   vtkCamera();
   ~vtkCamera();

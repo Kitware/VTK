@@ -118,6 +118,7 @@ void vtkMatrix4x4::MultiplyPoint(const double Elements[16],
   vtkMatrixMultiplyPoint(Elements,in,result);
 }
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 //----------------------------------------------------------------------------
 // Multiply a point (in homogeneous coordinates) by the transpose
 // of the matrix.  These methods have been deprecated because they
@@ -125,8 +126,9 @@ void vtkMatrix4x4::MultiplyPoint(const double Elements[16],
 void vtkMatrix4x4::PointMultiply(const float in[4],float result[4])
 {
   vtkMatrix4x4::PointMultiply(&this->Element[0][0], in, result);
-  vtkWarningMacro("PointMultiply: this method is deprecated");
+  VTK_LEGACY_METHOD(PointMultiply,"3.2");
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkMatrix4x4::PointMultiply(const double Elements[16], 
@@ -141,7 +143,7 @@ void vtkMatrix4x4::PointMultiply(const double Elements[16],
 void vtkMatrix4x4::PointMultiply(const double in[4],double result[4])
 {
   vtkMatrix4x4::PointMultiply(&this->Element[0][0], in, result);
-  vtkWarningMacro("PointMultiply: this method is deprecated");
+  VTK_LEGACY_METHOD(PointMultiply,"3.2");
 }
 
 //----------------------------------------------------------------------------

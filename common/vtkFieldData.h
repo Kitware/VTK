@@ -231,17 +231,22 @@ public:
   void GetField(vtkIdList *ptId, vtkFieldData *f);
 
   // Description:
-  // For legacy compatibility. Do not use.
-  void DeepCopy(vtkFieldData &da) {this->DeepCopy(&da);}
-  void ShallowCopy(vtkFieldData &da) {this->ShallowCopy(&da);}
-  void GetField(vtkIdList& ptId, vtkFieldData& f) {this->GetField(&ptId, &f);}
-  
-  // Description:
   // Return the memory in kilobytes consumed by this field data. Used to
   // support streaming and reading/writing data. The value returned is
   // guaranteed to be greater than or equal to the memory required to
   // actually represent the data represented by this object.
   virtual unsigned long GetActualMemorySize();
+  
+#ifndef VTK_REMOVE_LEGACY_CODE
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkFieldData &da) 
+    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&da);}
+  void ShallowCopy(vtkFieldData &da) 
+    {VTK_LEGACY_METHOD(ShallowCopy,"3.2"); this->ShallowCopy(&da);}
+  void GetField(vtkIdList& ptId, vtkFieldData& f) 
+    {VTK_LEGACY_METHOD(GetField,"3.2"); this->GetField(&ptId, &f);}
+#endif
   
 protected:
   vtkFieldData();

@@ -559,21 +559,6 @@ void vtkPolyDataConnectivityFilter::DeleteSpecifiedRegion(int id)
   this->SpecifiedRegionIds->DeleteId(id);
 }
 
-// For legacy compatibility
-void vtkPolyDataConnectivityFilter::SetMaxRecursionDepth(int)
-{
-  vtkWarningMacro(<<"Recursion depth is no longer pertinent," 
-                  <<"the ivar will be eliminated in a future version.");
-}
-
-// For legacy compatibility
-int vtkPolyDataConnectivityFilter::GetMaxRecursionDepth()
-{
-  vtkWarningMacro(<<"Recursion depth is no longer pertinent," 
-                  <<"the ivar will be eliminated in a future version.");
-  return 0;
-}
-
 void vtkPolyDataConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);

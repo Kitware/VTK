@@ -104,27 +104,31 @@ public:
   // you set the cell type, you are resetting a pointer to an internal
   // cell which is then used for computation.
   void SetCellType(int cellType);
-  void SetCellTypeToEmptyCell() {this->SetCellType(VTK_EMPTY_CELL);};
-  void SetCellTypeToVertex() {this->SetCellType(VTK_VERTEX);};
-  void SetCellTypeToPolyVertex() {this->SetCellType(VTK_POLY_VERTEX);};
-  void SetCellTypeToLine() {this->SetCellType(VTK_LINE);};
-  void SetCellTypeToPolyLine() {this->SetCellType(VTK_POLY_LINE);};
-  void SetCellTypeToTriangle() {this->SetCellType(VTK_TRIANGLE);};
-  void SetCellTypeToTriangleStrip() {this->SetCellType(VTK_TRIANGLE_STRIP);};
-  void SetCellTypeToPolygon() {this->SetCellType(VTK_POLYGON);};
-  void SetCellTypeToPixel() {this->SetCellType(VTK_PIXEL);};
-  void SetCellTypeToQuad() {this->SetCellType(VTK_QUAD);};
-  void SetCellTypeToTetra() {this->SetCellType(VTK_TETRA);};
-  void SetCellTypeToVoxel() {this->SetCellType(VTK_VOXEL);};
-  void SetCellTypeToHexahedron() {this->SetCellType(VTK_HEXAHEDRON);};
-  void SetCellTypeToWedge() {this->SetCellType(VTK_WEDGE);};
-  void SetCellTypeToPyramid() {this->SetCellType(VTK_PYRAMID);};
+  void SetCellTypeToEmptyCell() {this->SetCellType(VTK_EMPTY_CELL);}
+  void SetCellTypeToVertex() {this->SetCellType(VTK_VERTEX);}
+  void SetCellTypeToPolyVertex() {this->SetCellType(VTK_POLY_VERTEX);}
+  void SetCellTypeToLine() {this->SetCellType(VTK_LINE);}
+  void SetCellTypeToPolyLine() {this->SetCellType(VTK_POLY_LINE);}
+  void SetCellTypeToTriangle() {this->SetCellType(VTK_TRIANGLE);}
+  void SetCellTypeToTriangleStrip() {this->SetCellType(VTK_TRIANGLE_STRIP);}
+  void SetCellTypeToPolygon() {this->SetCellType(VTK_POLYGON);}
+  void SetCellTypeToPixel() {this->SetCellType(VTK_PIXEL);}
+  void SetCellTypeToQuad() {this->SetCellType(VTK_QUAD);}
+  void SetCellTypeToTetra() {this->SetCellType(VTK_TETRA);}
+  void SetCellTypeToVoxel() {this->SetCellType(VTK_VOXEL);}
+  void SetCellTypeToHexahedron() {this->SetCellType(VTK_HEXAHEDRON);}
+  void SetCellTypeToWedge() {this->SetCellType(VTK_WEDGE);}
+  void SetCellTypeToPyramid() {this->SetCellType(VTK_PYRAMID);}
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
-  void DeepCopy(vtkCell &c) {this->DeepCopy(&c);}
-  void ShallowCopy(vtkCell &c) {this->ShallowCopy(&c);}
-
+  void DeepCopy(vtkCell &c) 
+    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&c);}
+  void ShallowCopy(vtkCell &c) 
+    {VTK_LEGACY_METHOD(ShallowCopy,"3.2"); this->ShallowCopy(&c);}
+#endif
+  
  protected:
   vtkGenericCell();
   ~vtkGenericCell();

@@ -163,15 +163,6 @@ public:
     return vtkStructuredData::ComputeCellId(this->GetDimensions(),ijk);};
 
   // Description:
-  // For legacy compatibility. Do not use.
-  void GetCellPoints(int cellId, vtkIdList &ptIds)
-    {this->GetCellPoints(cellId, &ptIds);}
-  void GetPointCells(int ptId, vtkIdList &cellIds)
-    {this->GetPointCells(ptId, &cellIds);}
-  void GetVoxelGradient(int i,int j,int k, vtkScalars *s, vtkVectors &g)
-    {this->GetVoxelGradient(i, j, k, s, &g);}
-
-  // Description:
   // Set / Get the extent on just one axis
   void SetAxisUpdateExtent(int axis, int min, int max);
   void GetAxisUpdateExtent(int axis, int &min, int &max);
@@ -269,15 +260,6 @@ public:
   unsigned long GetActualMemorySize();
   
   // Description:
-  // Legacy.  With no cache, this method is no longer needed.
-  vtkImageData *UpdateAndReturnData() 
-    {
-      vtkWarningMacro("UpdateAndReturnData will no longer be supported.  Just Update, and use the data.");
-      this->Update();
-      return this;
-    }
-
-  // Description:
   // Set the spacing (width,height,length) of the cubical cells that
   // compose the data set.
   vtkSetVector3Macro(Spacing,float);
@@ -308,16 +290,29 @@ public:
   // data in case the memory can be reused.
   virtual void PrepareForNewData();
 
-  void SetMemoryLimit( int vtkNotUsed(x) ) 
-    { vtkErrorMacro( << "vtkImageData::SetMemoryLimit no longer supported - use the class vtkImageDataStreamer instead" ); };
-
-  int GetMemoryLimit() { return 0; };
+  int GetMemoryLimit() 
+    {return 0;}
 
   // Description:
   // Shallow and Deep copy.
   void ShallowCopy(vtkDataObject *src);  
   void DeepCopy(vtkDataObject *src);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
+  // Description:
+  // For legacy compatibility. Do not use.
+  void GetCellPoints(int cellId, vtkIdList &ptIds)
+    {VTK_LEGACY_METHOD(GetCellPoints,"3.2");this->GetCellPoints(cellId, &ptIds);}
+  void GetPointCells(int ptId, vtkIdList &cellIds)
+    {VTK_LEGACY_METHOD(GetPointCells,"3.2");this->GetPointCells(ptId, &cellIds);}
+  void GetVoxelGradient(int i,int j,int k, vtkScalars *s, vtkVectors &g)
+    {VTK_LEGACY_METHOD(GetVoxelGradient,"3.2");this->GetVoxelGradient(i, j, k, s, &g);}
+  void SetMemoryLimit( int vtkNotUsed(x) ) 
+    {VTK_LEGACY_METHOD(SetMemoryLimit,"3.2");}
+  vtkImageData *UpdateAndReturnData() 
+    {VTK_LEGACY_METHOD(UpdateAndReturnData,"3.2");this->Update();return this;}
+#endif
+  
 protected:
   vtkImageData();
   ~vtkImageData();

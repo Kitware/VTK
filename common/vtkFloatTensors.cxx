@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 //------------------------------------------------------------------------------
 vtkFloatTensors* vtkFloatTensors::New()
 {
@@ -59,6 +60,7 @@ vtkFloatTensors* vtkFloatTensors::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkFloatTensors;
 }
+#endif
 
 
 

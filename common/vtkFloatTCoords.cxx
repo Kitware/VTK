@@ -42,8 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatTCoords.h"
 #include "vtkObjectFactory.h"
 
-
-
+#ifndef VTK_REMOVE_LEGACY_CODE
 //------------------------------------------------------------------------------
 vtkFloatTCoords* vtkFloatTCoords::New()
 {
@@ -59,6 +58,7 @@ vtkFloatTCoords* vtkFloatTCoords::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkFloatTCoords;
 }
+#endif
 
 
 
