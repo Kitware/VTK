@@ -348,10 +348,10 @@ void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
 // of 8-bit chunks
 template<class T>
 static void 
-vtkColorTransferFunctionMapDataToRGBA(vtkColorTransferFunction *self, 
-                                      T *input, 
-                                      unsigned char *output, 
-                                      int length, int incr)
+vtkColorTransferFunctionMapDataToRGBAClamp(vtkColorTransferFunction *self, 
+                                           T *input, 
+                                           unsigned char *output, 
+                                           int length, int incr)
 {
   float findx;
   int i = length;
@@ -359,15 +359,345 @@ vtkColorTransferFunctionMapDataToRGBA(vtkColorTransferFunction *self,
   R = self->GetRedFunction();
   G = self->GetGreenFunction();
   B = self->GetBlueFunction();
+  float *RRange = R->GetRange();
+  float *GRange = G->GetRange();
+  float *BRange = B->GetRange();
+  float *RFunc = R->GetDataPointer();
+  float *GFunc = G->GetDataPointer();
+  float *BFunc = B->GetDataPointer();
+  int RSize = R->GetSize();
+  int GSize = G->GetSize();
+  int BSize = B->GetSize();
   
+  int   i1, i2;
+  float x1, y1;	// Point before x
+  float x2, y2;	// Point after x
+
+  float slope;
+  float value;
+
+  R->Update();
+  G->Update();
+  B->Update();
+
+  if(RSize == 0  || GSize == 0 || BSize == 0)
+    {
+    vtkGenericWarningMacro("Transfer Function Has No Points!");
+    return;
+    }
+
   while (--i >= 0) 
     {
     findx = *input;
-    *output++ = 255*R->GetValue(findx);
-    *output++ = 255*G->GetValue(findx);
-    *output++ = 255*B->GetValue(findx);
+
+    // do red
+    if( findx < RRange[0] ) 
+      {
+      *output = 255*RFunc[0];
+      }
+    else if( findx > RRange[1] )
+      {
+      *output = 255*RFunc[(RSize-1)*2];
+      }
+    else
+      {
+      i2 = 0;
+      x2 = RFunc[0];
+      y2 = RFunc[1];
+      
+      while( (x2 < findx) && (i2 < RSize) )
+        {
+        i2 += 1;
+        x2 = RFunc[(i2*2)];
+        y2 = RFunc[(i2*2+1)];
+        }
+      
+      // Check if we have found the exact point
+      if( x2 == findx )
+        {
+        *output++ = 255*RFunc[(i2*2 + 1)];
+        }
+      else
+        {
+        i1 = i2 - 1;
+        x1 = RFunc[(i1*2)];
+        y1 = RFunc[(i1*2 +1)];
+        slope = (y2-y1)/(x2-x1);
+        value = y1 + slope*(findx-x1);
+        
+        *output++ = 255*value;
+        }
+      }
+    
+    // do green
+    if( findx < GRange[0] ) 
+      {
+      *output = 255*GFunc[0];
+      }
+    else if( findx > GRange[1] )
+      {
+      *output = 255*GFunc[(GSize-1)*2];
+      }
+    else
+      {
+      i2 = 0;
+      x2 = GFunc[0];
+      y2 = GFunc[1];
+      
+      while( (x2 < findx) && (i2 < GSize) )
+        {
+        i2 += 1;
+        x2 = GFunc[(i2*2)];
+        y2 = GFunc[(i2*2+1)];
+        }
+      
+      // Check if we have found the exact point
+      if( x2 == findx )
+        {
+        *output++ = 255*GFunc[(i2*2 + 1)];
+        }
+      else
+        {
+        i1 = i2 - 1;
+        x1 = GFunc[(i1*2)];
+        y1 = GFunc[(i1*2 +1)];
+        slope = (y2-y1)/(x2-x1);
+        value = y1 + slope*(findx-x1);
+        
+        *output++ = 255*value;
+        }
+      }
+    
+    // do blue
+    if( findx < BRange[0] ) 
+      {
+      *output = 255*BFunc[0];
+      }
+    else if( findx > BRange[1] )
+      {
+      *output = 255*BFunc[(BSize-1)*2];
+      }
+    else
+      {
+      i2 = 0;
+      x2 = BFunc[0];
+      y2 = BFunc[1];
+      
+      while( (x2 < findx) && (i2 < BSize) )
+        {
+        i2 += 1;
+        x2 = BFunc[(i2*2)];
+        y2 = BFunc[(i2*2+1)];
+        }
+      
+      // Check if we have found the exact point
+      if( x2 == findx )
+        {
+        *output++ = 255*BFunc[(i2*2 + 1)];
+        }
+      else
+        {
+        i1 = i2 - 1;
+        x1 = BFunc[(i1*2)];
+        y1 = BFunc[(i1*2 +1)];
+        slope = (y2-y1)/(x2-x1);
+        value = y1 + slope*(findx-x1);
+        
+        *output++ = 255*value;
+        }
+      }
+    
     *output++ = 255;
     input += incr;
+    }
+}
+
+// accelerate the mapping by copying the data in 32-bit chunks instead
+// of 8-bit chunks
+template<class T>
+static void 
+vtkColorTransferFunctionMapDataToRGBANoClamp(vtkColorTransferFunction *self, 
+                                             T *input, 
+                                             unsigned char *output, 
+                                             int length, int incr)
+{
+  float findx;
+  int i = length;
+  vtkPiecewiseFunction *R, *G, *B;
+  R = self->GetRedFunction();
+  G = self->GetGreenFunction();
+  B = self->GetBlueFunction();
+  float *RRange = R->GetRange();
+  float *GRange = G->GetRange();
+  float *BRange = B->GetRange();
+  float *RFunc = R->GetDataPointer();
+  float *GFunc = G->GetDataPointer();
+  float *BFunc = B->GetDataPointer();
+  int RSize = R->GetSize();
+  int GSize = G->GetSize();
+  int BSize = B->GetSize();
+    
+  int   i1, i2;
+  float x1, y1;	// Point before x
+  float x2, y2;	// Point after x
+
+  float slope;
+  float value;
+
+  R->Update();
+  G->Update();
+  B->Update();
+
+  if(RSize == 0  || GSize == 0 || BSize == 0)
+    {
+    vtkGenericWarningMacro("Transfer Function Has No Points!");
+    return;
+    }
+
+  while (--i >= 0) 
+    {
+    findx = *input;
+
+    // do red
+    if( findx < RRange[0] ) 
+      {
+      *output = 0;
+      }
+    else if( findx > RRange[1] )
+      {
+      *output = 0;
+      }
+    else
+      {
+      i2 = 0;
+      x2 = RFunc[0];
+      y2 = RFunc[1];
+      
+      while( (x2 < findx) && (i2 < RSize) )
+        {
+        i2 += 1;
+        x2 = RFunc[(i2*2)];
+        y2 = RFunc[(i2*2+1)];
+        }
+      
+      // Check if we have found the exact point
+      if( x2 == findx )
+        {
+        *output++ = 255*RFunc[(i2*2 + 1)];
+        }
+      else
+        {
+        i1 = i2 - 1;
+        x1 = RFunc[(i1*2)];
+        y1 = RFunc[(i1*2 +1)];
+        slope = (y2-y1)/(x2-x1);
+        value = y1 + slope*(findx-x1);
+        
+        *output++ = 255*value;
+        }
+      }
+    
+    // do green
+    if( findx < GRange[0] ) 
+      {
+      *output = 0;
+      }
+    else if( findx > GRange[1] )
+      {
+      *output = 0;
+      }
+    else
+      {
+      i2 = 0;
+      x2 = GFunc[0];
+      y2 = GFunc[1];
+      
+      while( (x2 < findx) && (i2 < GSize) )
+        {
+        i2 += 1;
+        x2 = GFunc[(i2*2)];
+        y2 = GFunc[(i2*2+1)];
+        }
+      
+      // Check if we have found the exact point
+      if( x2 == findx )
+        {
+        *output++ = 255*GFunc[(i2*2 + 1)];
+        }
+      else
+        {
+        i1 = i2 - 1;
+        x1 = GFunc[(i1*2)];
+        y1 = GFunc[(i1*2 +1)];
+        slope = (y2-y1)/(x2-x1);
+        value = y1 + slope*(findx-x1);
+        
+        *output++ = 255*value;
+        }
+      }
+    
+    // do blue
+    if( findx < BRange[0] ) 
+      {
+      *output = 0;
+      }
+    else if( findx > BRange[1] )
+      {
+      *output = 0;
+      }
+    else
+      {
+      i2 = 0;
+      x2 = BFunc[0];
+      y2 = BFunc[1];
+      
+      while( (x2 < findx) && (i2 < BSize) )
+        {
+        i2 += 1;
+        x2 = BFunc[(i2*2)];
+        y2 = BFunc[(i2*2+1)];
+        }
+      
+      // Check if we have found the exact point
+      if( x2 == findx )
+        {
+        *output++ = 255*BFunc[(i2*2 + 1)];
+        }
+      else
+        {
+        i1 = i2 - 1;
+        x1 = BFunc[(i1*2)];
+        y1 = BFunc[(i1*2 +1)];
+        slope = (y2-y1)/(x2-x1);
+        value = y1 + slope*(findx-x1);
+        
+        *output++ = 255*value;
+        }
+      }
+
+    *output++ = 255;
+    input += incr;
+    }
+}
+
+// accelerate the mapping by copying the data in 32-bit chunks instead
+// of 8-bit chunks
+template<class T>
+static void 
+vtkColorTransferFunctionMapDataToRGBA(vtkColorTransferFunction *self, 
+                                      T *input, 
+                                      unsigned char *output, 
+                                      int length, int incr)
+{
+  if (self->GetClamping())
+    {
+    vtkColorTransferFunctionMapDataToRGBAClamp(self,input,output,
+                                               length,incr);
+    }
+  else
+    {
+    vtkColorTransferFunctionMapDataToRGBANoClamp(self,input,output,
+                                                 length,incr);
     }
 }
 
