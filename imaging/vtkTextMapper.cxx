@@ -319,6 +319,7 @@ void vtkTextMapper::RenderMultipleLines(vtkViewport *viewport,
     this->TextLines[lineNum]->SetJustification(this->Justification);
     this->TextLines[lineNum]->SetLineOffset((float)lineNum+offset);
     this->TextLines[lineNum]->SetLineSpacing(this->LineSpacing);
+    this->TextLines[lineNum]->RenderOverlay(viewport,actor);
     this->TextLines[lineNum]->RenderOpaqueGeometry(viewport,actor);
     }
 }
