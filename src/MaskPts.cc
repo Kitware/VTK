@@ -26,6 +26,7 @@ void vlMaskPoints::Execute()
 //
 // Check input
 //
+  vlDebugMacro(<<"Masking points");
   this->Initialize();
 
   if ( numPts < 1 )
@@ -54,6 +55,8 @@ void vlMaskPoints::Execute()
 // Update ourselves
 //
   this->SetPoints(newPts);
+
+  vlDebugMacro(<<"Masked " << numPts << " original points to " << id+1 << " points");
 }
 
 void vlMaskPoints::PrintSelf(ostream& os, vlIndent indent)
