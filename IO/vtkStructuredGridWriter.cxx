@@ -25,7 +25,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkStructuredGridWriter, "1.39");
+vtkCxxRevisionMacro(vtkStructuredGridWriter, "1.40");
 vtkStandardNewMacro(vtkStructuredGridWriter);
 
 void vtkStructuredGridWriter::WriteData()
@@ -117,6 +117,16 @@ int vtkStructuredGridWriter::FillInputPortInformation(int,
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;
+}
+
+vtkStructuredGrid* vtkStructuredGridWriter::GetInput()
+{
+  return vtkStructuredGrid::SafeDownCast(this->Superclass::GetInput());
+}
+
+vtkStructuredGrid* vtkStructuredGridWriter::GetInput(int port)
+{
+  return vtkStructuredGrid::SafeDownCast(this->Superclass::GetInput(port));
 }
 
 void vtkStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)

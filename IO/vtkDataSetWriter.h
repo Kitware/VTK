@@ -30,6 +30,11 @@ public:
   vtkTypeRevisionMacro(vtkDataSetWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Get the input to this writer.
+  vtkDataSet* GetInput();
+  vtkDataSet* GetInput(int port);
+
 protected:
   vtkDataSetWriter() {};
   ~vtkDataSetWriter() {};

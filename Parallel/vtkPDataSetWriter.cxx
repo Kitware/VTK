@@ -22,7 +22,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkPDataSetWriter, "1.15");
+vtkCxxRevisionMacro(vtkPDataSetWriter, "1.16");
 vtkStandardNewMacro(vtkPDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -70,7 +70,7 @@ int vtkPDataSetWriter::Write()
   char *fileName;
 
   ostream *fptr;
-  vtkDataSet *input = vtkDataSet::SafeDownCast(this->GetInput());
+  vtkDataSet *input = this->GetInput();
 
   if (this->FileName == NULL)
     {

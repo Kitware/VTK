@@ -34,6 +34,11 @@ public:
   vtkTypeRevisionMacro(vtkRectilinearGridWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
                                
+  // Description:
+  // Get the input to this writer.
+  vtkRectilinearGrid* GetInput();
+  vtkRectilinearGrid* GetInput(int port);
+
 protected:
   vtkRectilinearGridWriter() {};
   ~vtkRectilinearGridWriter() {};

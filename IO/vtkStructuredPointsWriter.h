@@ -33,6 +33,11 @@ public:
   vtkTypeRevisionMacro(vtkStructuredPointsWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Get the input to this writer.
+  vtkImageData* GetInput();
+  vtkImageData* GetInput(int port);
+
 protected:
   vtkStructuredPointsWriter() {};
   ~vtkStructuredPointsWriter() {};

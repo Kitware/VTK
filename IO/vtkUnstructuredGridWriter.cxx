@@ -26,7 +26,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkUnstructuredGridWriter, "1.42");
+vtkCxxRevisionMacro(vtkUnstructuredGridWriter, "1.43");
 vtkStandardNewMacro(vtkUnstructuredGridWriter);
 
 void vtkUnstructuredGridWriter::WriteData()
@@ -130,6 +130,16 @@ int vtkUnstructuredGridWriter::FillInputPortInformation(int,
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   return 1;
+}
+
+vtkUnstructuredGrid* vtkUnstructuredGridWriter::GetInput()
+{
+  return vtkUnstructuredGrid::SafeDownCast(this->Superclass::GetInput());
+}
+
+vtkUnstructuredGrid* vtkUnstructuredGridWriter::GetInput(int port)
+{
+  return vtkUnstructuredGrid::SafeDownCast(this->Superclass::GetInput(port));
 }
 
 void vtkUnstructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)

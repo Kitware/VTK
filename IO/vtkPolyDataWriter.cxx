@@ -24,13 +24,13 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkPolyDataWriter, "1.25");
+vtkCxxRevisionMacro(vtkPolyDataWriter, "1.26");
 vtkStandardNewMacro(vtkPolyDataWriter);
 
 void vtkPolyDataWriter::WriteData()
 {
   ostream *fp;
-  vtkPolyData *input = vtkPolyData::SafeDownCast(this->GetInput());
+  vtkPolyData *input = this->GetInput();
 
   vtkDebugMacro(<<"Writing vtk polygonal data...");
 
@@ -130,6 +130,16 @@ int vtkPolyDataWriter::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
+}
+
+vtkPolyData* vtkPolyDataWriter::GetInput()
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput());
+}
+
+vtkPolyData* vtkPolyDataWriter::GetInput(int port)
+{
+  return vtkPolyData::SafeDownCast(this->Superclass::GetInput(port));
 }
 
 void vtkPolyDataWriter::PrintSelf(ostream& os, vtkIndent indent)

@@ -32,6 +32,11 @@ public:
   vtkTypeRevisionMacro(vtkUnstructuredGridWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Get the input to this writer.
+  vtkUnstructuredGrid* GetInput();
+  vtkUnstructuredGrid* GetInput(int port);
+
 protected:
   vtkUnstructuredGridWriter() {};
   ~vtkUnstructuredGridWriter() {};

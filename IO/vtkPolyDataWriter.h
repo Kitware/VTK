@@ -33,6 +33,11 @@ public:
   vtkTypeRevisionMacro(vtkPolyDataWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Get the input to this writer.
+  vtkPolyData* GetInput();
+  vtkPolyData* GetInput(int port);
+
 protected:
   vtkPolyDataWriter() {};
   ~vtkPolyDataWriter() {};

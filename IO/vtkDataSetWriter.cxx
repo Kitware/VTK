@@ -29,7 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkDataSetWriter, "1.39");
+vtkCxxRevisionMacro(vtkDataSetWriter, "1.40");
 vtkStandardNewMacro(vtkDataSetWriter);
 
 void vtkDataSetWriter::WriteData()
@@ -117,6 +117,16 @@ int vtkDataSetWriter::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
+}
+
+vtkDataSet* vtkDataSetWriter::GetInput()
+{
+  return vtkDataSet::SafeDownCast(this->Superclass::GetInput());
+}
+
+vtkDataSet* vtkDataSetWriter::GetInput(int port)
+{
+  return vtkDataSet::SafeDownCast(this->Superclass::GetInput(port));
 }
 
 void vtkDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)

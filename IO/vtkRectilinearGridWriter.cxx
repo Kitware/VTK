@@ -24,7 +24,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkRectilinearGridWriter, "1.25");
+vtkCxxRevisionMacro(vtkRectilinearGridWriter, "1.26");
 vtkStandardNewMacro(vtkRectilinearGridWriter);
 
 void vtkRectilinearGridWriter::WriteData()
@@ -109,6 +109,16 @@ int vtkRectilinearGridWriter::FillInputPortInformation(int,
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
   return 1;
+}
+
+vtkRectilinearGrid* vtkRectilinearGridWriter::GetInput()
+{
+  return vtkRectilinearGrid::SafeDownCast(this->Superclass::GetInput());
+}
+
+vtkRectilinearGrid* vtkRectilinearGridWriter::GetInput(int port)
+{
+  return vtkRectilinearGrid::SafeDownCast(this->Superclass::GetInput(port));
 }
 
 void vtkRectilinearGridWriter::PrintSelf(ostream& os, vtkIndent indent)

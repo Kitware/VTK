@@ -25,7 +25,7 @@
 #endif
 
 
-vtkCxxRevisionMacro(vtkStructuredPointsWriter, "1.41");
+vtkCxxRevisionMacro(vtkStructuredPointsWriter, "1.42");
 vtkStandardNewMacro(vtkStructuredPointsWriter);
 
 void vtkStructuredPointsWriter::WriteData()
@@ -101,6 +101,16 @@ int vtkStructuredPointsWriter::FillInputPortInformation(int,
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
+}
+
+vtkImageData* vtkStructuredPointsWriter::GetInput()
+{
+  return vtkImageData::SafeDownCast(this->Superclass::GetInput());
+}
+
+vtkImageData* vtkStructuredPointsWriter::GetInput(int port)
+{
+  return vtkImageData::SafeDownCast(this->Superclass::GetInput(port));
 }
 
 void vtkStructuredPointsWriter::PrintSelf(ostream& os, vtkIndent indent)
