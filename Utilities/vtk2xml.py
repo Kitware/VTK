@@ -118,7 +118,8 @@ options:
                      XML specification but makes reading and writing fast
                      and files smaller.
 
-  -d, --output-dir   Output directory where the files should be generated.
+  -d, --output-dir <directory>
+                     Output directory where the files should be generated.
                      Defaults to the same directory as the input file.
 """
     return msg
