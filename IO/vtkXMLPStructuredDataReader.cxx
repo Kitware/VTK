@@ -24,7 +24,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.9.2.1");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.9.2.2");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
@@ -389,7 +389,11 @@ int vtkXMLPStructuredDataReader::ComputePieceSubExtents()
     {
     if(this->CanReadPiece(i))
       {
-      this->ExtentSplitter->AddExtentSource(i, 0, this->PieceExtents + i*6);
+      // Add the exact extent provided by the piece to the splitter.
+      int extent[6];
+      this->PieceReaders[i]->UpdateInformation();
+      this->PieceReaders[i]->GetOutputAsDataSet()->GetWholeExtent(extent);
+      this->ExtentSplitter->AddExtentSource(i, 0, extent);
       }
     }
   
