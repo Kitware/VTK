@@ -149,8 +149,12 @@ void vtkAppendPolyData::Update()
 // Append data sets into single unstructured grid
 void vtkAppendPolyData::Execute()
 {
-  int scalarsPresent, vectorsPresent, normalsPresent, tcoordsPresent;
-  int tensorsPresent, fieldPresent;
+  int scalarsPresentInPD, vectorsPresentInPD;
+  int normalsPresentInPD, tcoordsPresentInPD;
+  int tensorsPresentInPD, fieldPresentInPD;
+  int scalarsPresentInCD, vectorsPresentInCD;
+  int normalsPresentInCD, tcoordsPresentInCD;
+  int tensorsPresentInCD, fieldPresentInCD;
   vtkPolyData *ds;
   vtkPoints  *inPts;
   vtkPoints *newPts;
@@ -158,88 +162,152 @@ void vtkAppendPolyData::Execute()
   vtkCellArray *inLines, *newLines;
   vtkCellArray *inPolys, *newPolys;
   vtkCellArray *inStrips, *newStrips;
-  int i, ptId, ptOffset;
+  int i, ptId, ptOffset, cellId, cellOffset;
   int numPts, numCells;
   vtkPointData *pd = NULL;
+  vtkCellData *cd = NULL;
   int npts, *pts;
   vtkPolyData *output = (vtkPolyData *)this->Output;
   vtkPointData *outputPD = output->GetPointData();
+  vtkCellData *outputCD = output->GetCellData();
   
   vtkDebugMacro(<<"Appending data together");
 
   // loop over all data sets, checking to see what point data is available.
   numPts = 0;
   numCells = 0;
-  scalarsPresent = 1;
-  vectorsPresent = 1;
-  normalsPresent = 1;
-  tcoordsPresent = 1;
-  tensorsPresent = 1;
-  fieldPresent = 1;
+  scalarsPresentInPD = 1;
+  vectorsPresentInPD = 1;
+  normalsPresentInPD = 1;
+  tcoordsPresentInPD = 1;
+  tensorsPresentInPD = 1;
+  fieldPresentInPD = 1;
+  scalarsPresentInCD = 1;
+  vectorsPresentInCD = 1;
+  normalsPresentInCD = 1;
+  tcoordsPresentInCD = 1;
+  tensorsPresentInCD = 1;
+  fieldPresentInCD = 1;
 
   for (this->InputList->InitTraversal(); (ds = this->InputList->GetNextItem()); )
     {
     numPts += ds->GetNumberOfPoints();
     numCells += ds->GetNumberOfCells();
     pd = ds->GetPointData();
-    if ( pd->GetScalars() == NULL )
+
+    if ( pd && pd->GetScalars() == NULL )
       {
-      scalarsPresent &= 0;
+      scalarsPresentInPD &= 0;
       }
-    if ( pd->GetVectors() == NULL )
+    if ( pd && pd->GetVectors() == NULL )
       {
-      vectorsPresent &= 0;
+      vectorsPresentInPD &= 0;
       }
-    if ( pd->GetNormals() == NULL )
+    if ( pd && pd->GetNormals() == NULL )
       {
-      normalsPresent &= 0;
+      normalsPresentInPD &= 0;
       }
-    if ( pd->GetTCoords() == NULL )
+    if ( pd && pd->GetTCoords() == NULL )
       {
-      tcoordsPresent &= 0;
+      tcoordsPresentInPD &= 0;
       }
-    if ( pd->GetTensors() == NULL )
+    if ( pd && pd->GetTensors() == NULL )
       {
-      tensorsPresent &= 0;
+      tensorsPresentInPD &= 0;
       }
-    if ( pd->GetFieldData() == NULL )
+    if ( pd && pd->GetFieldData() == NULL )
       {
-      fieldPresent &= 0;
+      fieldPresentInPD &= 0;
       }
+
+    cd = ds->GetCellData();
+    if ( cd && cd->GetScalars() == NULL )
+      {
+      scalarsPresentInCD &= 0;
+      }
+    if ( cd && cd->GetVectors() == NULL )
+      {
+      vectorsPresentInCD &= 0;
+      }
+    if ( cd && cd->GetNormals() == NULL )
+      {
+      normalsPresentInCD &= 0;
+      }
+    if ( cd && cd->GetTCoords() == NULL )
+      {
+      tcoordsPresentInCD &= 0;
+      }
+    if ( cd && cd->GetTensors() == NULL )
+      {
+      tensorsPresentInCD &= 0;
+      }
+    if ( cd && cd->GetFieldData() == NULL )
+      {
+      fieldPresentInCD &= 0;
+      }
+
     }
 
-  if ( numPts < 1 )
+  if ( numPts < 1 || numCells < 1 )
     {
     vtkErrorMacro(<<"No data to append!");
     return;
     }
 
   // Now can allocate memory
-  if ( !scalarsPresent )
+  output->Allocate(numCells); //allocate storage for geometry/topology
+  if ( !scalarsPresentInPD )
     {
     outputPD->CopyScalarsOff();
     }
-  if ( !vectorsPresent )
+  if ( !vectorsPresentInPD )
     {
     outputPD->CopyVectorsOff();
     }
-  if ( !normalsPresent )
+  if ( !normalsPresentInPD )
     {
     outputPD->CopyNormalsOff();
     }
-  if ( !tcoordsPresent )
+  if ( !tcoordsPresentInPD )
     {
     outputPD->CopyTCoordsOff();
     }
-  if ( !tensorsPresent )
+  if ( !tensorsPresentInPD )
     {
     outputPD->CopyTensorsOff();
     }
-  if ( !fieldPresent )
+  if ( !fieldPresentInPD )
     {
     outputPD->CopyFieldDataOff();
     }
   outputPD->CopyAllocate(pd,numPts);
+
+  // now do cell data
+  if ( !scalarsPresentInCD )
+    {
+    outputCD->CopyScalarsOff();
+    }
+  if ( !vectorsPresentInCD )
+    {
+    outputCD->CopyVectorsOff();
+    }
+  if ( !normalsPresentInCD )
+    {
+    outputCD->CopyNormalsOff();
+    }
+  if ( !tcoordsPresentInCD )
+    {
+    outputCD->CopyTCoordsOff();
+    }
+  if ( !tensorsPresentInCD )
+    {
+    outputCD->CopyTensorsOff();
+    }
+  if ( !fieldPresentInCD )
+    {
+    outputCD->CopyFieldDataOff();
+    }
+  outputCD->CopyAllocate(cd,numCells);
 
   newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
@@ -257,12 +325,15 @@ void vtkAppendPolyData::Execute()
   newStrips->Allocate(numCells*4);
 
   // loop over all input sets
-  for (ptOffset=0, this->InputList->InitTraversal(); 
-       (ds = this->InputList->GetNextItem()); ptOffset+=numPts)
+  for (ptOffset=0, cellOffset = 0, this->InputList->InitTraversal(); 
+       (ds = this->InputList->GetNextItem());
+       ptOffset+=numPts, cellOffset+=numCells)
     {
-    pd = ds->GetPointData();
-
     numPts = ds->GetNumberOfPoints();
+    numCells = ds->GetNumberOfCells();
+    pd = ds->GetPointData();
+    cd = ds->GetCellData();
+    
     inPts = ds->GetPoints();
     inVerts = ds->GetVerts();
     inLines = ds->GetLines();
@@ -276,6 +347,13 @@ void vtkAppendPolyData::Execute()
       outputPD->CopyData(pd,ptId,ptId+ptOffset);
       }
 
+    // copy cell data
+    for (cellId=0; cellId < numCells; cellId++)
+      {
+      outputCD->CopyData(cd,cellId,cellId+cellOffset);
+      }
+
+    // copy the cells
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
       {
       newVerts->InsertNextCell(npts);
