@@ -54,33 +54,33 @@ void vtkProbeFilter::Execute()
   
   int numPts, subId;
   float pcoords[3], weights[MAX_CELL_SIZE];
-  vtkDataSet *input=this->Input, *source=this->Source;
+  vtkDataSet *source=this->Source, *input=this->Input;
   vtkDataSet *output=this->Output;
 
   vtkDebugMacro(<<"Probing data");
 
-  pd = input->GetPointData();
-  numPts = source->GetNumberOfPoints();
+  pd = source->GetPointData();
+  numPts = input->GetNumberOfPoints();
 //
 // Allocate storage for output PointData
 //
   outPD = output->GetPointData();
   outPD->InterpolateAllocate(pd);
 //
-// Use tolerance as a function of size of input data
+// Use tolerance as a function of size of source data
 //
-  tol2 = input->GetLength();
+  tol2 = source->GetLength();
   tol2 = tol2*tol2 / 1000.0;
 //
-// Loop over all source points, interpolating input data
+// Loop over all input points, interpolating source data
 //
   for (ptId=0; ptId < numPts; ptId++)
     {
-    x = source->GetPoint(ptId);
-    cellId = input->FindCell(x,NULL,tol2,subId,pcoords,weights);
+    x = input->GetPoint(ptId);
+    cellId = source->FindCell(x,NULL,tol2,subId,pcoords,weights);
     if ( cellId >= 0 )
       {
-      cell = input->GetCell(cellId);
+      cell = source->GetCell(cellId);
       outPD->InterpolatePoint(pd,ptId,&(cell->PointIds),weights);
       }
     else
@@ -103,7 +103,7 @@ void vtkProbeFilter::Update()
     }
 
   // make sure input is available
-  if ( this->Input == NULL || this->Source == NULL )
+  if ( this->Source == NULL || this->Input == NULL )
     {
     vtkErrorMacro(<< "No input...can't execute!");
     return;
@@ -113,12 +113,12 @@ void vtkProbeFilter::Update()
   if (this->Updating) return;
 
   this->Updating = 1;
-  this->Input->Update();
   this->Source->Update();
+  this->Input->Update();
   this->Updating = 0;
 
-  if (this->Input->GetMTime() > this->ExecuteTime || 
-  this->Source->GetMTime() > this->ExecuteTime || 
+  if (this->Source->GetMTime() > this->ExecuteTime || 
+  this->Input->GetMTime() > this->ExecuteTime || 
   this->GetMTime() > this->ExecuteTime || this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
@@ -129,8 +129,8 @@ void vtkProbeFilter::Update()
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
 
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
   if ( this->Source->ShouldIReleaseData() ) this->Source->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
 }
 
 void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
