@@ -289,10 +289,23 @@ void vtkLandmarkTransform::Update()
       }
     }
 
-  // the translation is given by the difference in the centroids
-  this->Matrix->Element[0][3] = target_centroid[0]-source_centroid[0];
-  this->Matrix->Element[1][3] = target_centroid[1]-source_centroid[1];
-  this->Matrix->Element[2][3] = target_centroid[2]-source_centroid[2];
+  // the translation is given by the difference in the transformed source
+  // centroid and the target centroid
+  double sx, sy, sz;
+
+  sx = this->Matrix->Element[0][0] * source_centroid[0] +
+       this->Matrix->Element[0][1] * source_centroid[1] +
+       this->Matrix->Element[0][2] * source_centroid[2];
+  sy = this->Matrix->Element[1][0] * source_centroid[0] +
+       this->Matrix->Element[1][1] * source_centroid[1] +
+       this->Matrix->Element[1][2] * source_centroid[2];
+  sz = this->Matrix->Element[2][0] * source_centroid[0] +
+       this->Matrix->Element[2][1] * source_centroid[1] +
+       this->Matrix->Element[2][2] * source_centroid[2];
+
+  this->Matrix->Element[0][3] = target_centroid[0] - sx;
+  this->Matrix->Element[1][3] = target_centroid[1] - sy;
+  this->Matrix->Element[2][3] = target_centroid[2] - sz;
 
   // fill the bottom row of the 4x4 matrix
   this->Matrix->Element[3][0] = 0.0;
