@@ -35,7 +35,7 @@
 #include "vtkPointWidget.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.30");
+vtkCxxRevisionMacro(vtkLineWidget, "1.31");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget
@@ -47,7 +47,7 @@ class vtkPWCallback : public vtkCommand
 public:
   static vtkPWCallback *New() 
     { return new vtkPWCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
     {
       float x[3], p1[3], p2[3], v[3];
       this->LineWidget->GetPoint1(p1);
@@ -75,7 +75,7 @@ class vtkPW1Callback : public vtkCommand
 public:
   static vtkPW1Callback *New() 
     { return new vtkPW1Callback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
     {
       this->LineWidget->SetPoint1(this->PointWidget->GetPosition());
     }
@@ -91,7 +91,7 @@ class vtkPW2Callback : public vtkCommand
 public:
   static vtkPW2Callback *New() 
     { return new vtkPW2Callback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
     {
       this->LineWidget->SetPoint2(this->PointWidget->GetPosition());
     }
