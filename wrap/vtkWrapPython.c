@@ -523,9 +523,12 @@ static const char *quote_string(const char *comment, int maxlen)
 
 void outputFunction2(FILE *fp, FileInfo *data)
 {
-  int i, j, k, is_static, fnum, occ, backnum, goto_used;
+  int i, j, k, is_static, is_vtkobject, fnum, occ, backnum, goto_used;
   FunctionInfo *theFunc;
   FunctionInfo *backFunc;
+
+  is_vtkobject = ((strcmp(data->ClassName,"vtkObject") == 0) || 
+		  (data->NumberOfSuperClasses != 0));
 
   /* create a python-type signature for each method (for use in docstring) */
   for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
@@ -595,7 +598,14 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	  /* declare the variables */
 	  if (!is_static)
 	    {
-	    fprintf(fp,"  %s *op;\n\n",data->ClassName);
+	    if (is_vtkobject)
+	      {
+	      fprintf(fp,"  %s *op;\n\n",data->ClassName);
+	      }
+	    else 
+	      {
+	      fprintf(fp,"  %s *op = (%s *)((PyVTKSpecialObject *)self)->vtk_ptr;\n\n",data->ClassName,data->ClassName);
+	      }
 	    }
 
 	  currentFunction = wrappedFunctions[occ];
@@ -613,7 +623,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	    {
 	    fprintf(fp,"  PyErr_Clear();\n");
 	    }
-	  if (is_static)
+	  if (is_static || !is_vtkobject)
 	    {
             fprintf(fp,"  if ((PyArg_ParseTuple(args, \"%s\"",
 		    get_format_string());
@@ -691,7 +701,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	      }
 	    }
 
-	  for (k = 0; k < (2 - is_static); k++)
+	  for (k = 0; k < (2 - (is_static || !is_vtkobject)); k++)
 	    {
 	    char methodname[256]; 
 	    if (k == 0)
@@ -701,6 +711,11 @@ void outputFunction2(FILE *fp, FileInfo *data)
 		fprintf(fp,"      {\n");
 		sprintf(methodname,"%s::%s",
 			data->ClassName,currentFunction->Name);
+		}
+	      else if (!is_vtkobject)
+		{
+		fprintf(fp,"      {\n");
+		sprintf(methodname,"op->%s",currentFunction->Name);
 		}
 	      else
 		{
@@ -1020,6 +1035,11 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   outputFunction2(fp, data);
   
+  /* the docstring for the class */
+  fprintf(fp,"static char %sDoc[] = \"",data->ClassName); 
+  create_class_doc(fp,data);
+  fprintf(fp,"\";\n\n");
+
   /* output the class initilization function */
   if (data->NumberOfSuperClasses)
     { 
@@ -1039,9 +1059,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       }      
     fprintf(fp,"                        Py%sMethods,\n",data->ClassName);
     fprintf(fp,"                        \"%s\",modulename,\n",data->ClassName);
-    fprintf(fp,"                        \"");
-    create_class_doc(fp,data);
-    fprintf(fp,"\",\n");
+    fprintf(fp,"                        %sDoc,\n",data->ClassName);
     fprintf(fp,"                        PyVTKClass_%sNew(modulename));\n}\n\n",
 	    data->SuperClasses[0]);
     }
@@ -1065,6 +1083,24 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             data->ClassName);
     fprintf(fp,"                        \"%s\",modulename,\"\",0);\n}\n\n",
             data->ClassName);
+    }
+  else if (!data->IsAbstract)
+    {
+    fprintf(fp,"PyObject *PyVTKObject_%sNew(PyObject *vtkNotUsed(self), PyObject *args)\n{\n",data->ClassName);
+    fprintf(fp,"  if (!(PyArg_ParseTuple(args, \"\")))\n    {\n");
+    fprintf(fp,"    return NULL;\n    }\n\n");
+    fprintf(fp,"  %s *obj = new %s;\n",data->ClassName,data->ClassName);
+    fprintf(fp,"  return PyVTKSpecialObject_New(obj, Py%sMethods, \"%s\",%sDoc);\n",data->ClassName,data->ClassName,data->ClassName);
+    fprintf(fp,"}\n\n");
+
+    fprintf(fp,"static PyMethodDef Py%sNewMethod = \\\n",data->ClassName);
+    fprintf(fp,"{ \"%s\",  (PyCFunction)PyVTKObject_%sNew, 1,\n",
+	    data->ClassName,data->ClassName);
+    fprintf(fp,"  %sDoc };\n\n",data->ClassName);
+
+    fprintf(fp,"PyObject *PyVTKClass_%sNew(char *vtkNotUsed(modulename))\n{\n",data->ClassName);
+    fprintf(fp,"  return PyCFunction_New(&Py%sNewMethod,Py_None);\n}\n\n",
+	    data->ClassName);
     }
   else
     {

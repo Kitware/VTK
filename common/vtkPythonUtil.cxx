@@ -520,6 +520,147 @@ PyObject *PyVTKClass_New(vtknewfunc constructor,
 }
   
 //--------------------------------------------------------------------
+static int PyVTKSpecialObject_PyPrint(PyObject *self, FILE *fp, int)
+{
+  fprintf(fp,"%s",((PyVTKSpecialObject *)self)->vtk_name);
+  return 0;
+}
+
+//--------------------------------------------------------------------
+static PyObject *PyVTKSpecialObject_PyString(PyObject *self)
+{
+  char buf[255];
+  sprintf(buf,"%s",((PyVTKSpecialObject *)self)->vtk_name);
+
+  return PyString_FromString(buf);
+}
+
+//--------------------------------------------------------------------
+static PyObject *PyVTKSpecialObject_PyRepr(PyObject *self)
+{
+  char buf[255];
+  sprintf(buf,"<%s %s at %p>", self->ob_type->tp_name, 
+	                       ((PyVTKSpecialObject *)self)->vtk_name,
+	                       self);
+  return PyString_FromString(buf);
+}
+
+//--------------------------------------------------------------------
+static PyObject *PyVTKSpecialObject_PyGetAttr(PyObject *self, char *name)
+{
+  PyVTKSpecialObject *pyobject = (PyVTKSpecialObject *)self;
+  PyMethodDef *meth;
+
+  if (name[0] == '_')
+    {
+      if (strcmp(name,"__name__") == 0)
+	{
+	  return PyString_FromString(pyobject->vtk_name);
+	}
+      if (strcmp(name,"__doc__") == 0)
+	{
+	  return PyString_FromString(pyobject->vtk_doc);
+	}
+      if (strcmp(name,"__methods__") == 0)
+	{
+	  PyMethodDef *meth = pyobject->vtk_methods;
+	  PyObject *lst;
+	  int i, n;
+	  
+	  for (n = 0; meth[n].ml_name; n++);
+	  
+	  if ((lst = PyList_New(n)) != NULL)
+	    {
+	      meth = pyobject->vtk_methods;
+	      for (i = 0; i < n; i++)
+		{
+		  PyList_SetItem(lst, i, PyString_FromString(meth[i].ml_name));
+		}
+	      PyList_Sort(lst);
+	    }
+	  return lst;
+	}
+      
+      if (strcmp(name,"__members__") == 0)
+	{
+	  PyObject *lst;
+	  if ((lst = PyList_New(4)) != NULL)
+	    {
+	      PyList_SetItem(lst,0,PyString_FromString("__doc__"));
+	      PyList_SetItem(lst,1,PyString_FromString("__members__"));
+	      PyList_SetItem(lst,2,PyString_FromString("__methods__"));
+	      PyList_SetItem(lst,3,PyString_FromString("__name__"));
+	    }
+	  return lst;
+	}
+    }  
+
+  for (meth = pyobject->vtk_methods; meth->ml_name; meth++)
+    {
+      if (name[0] == meth->ml_name[0] && strcmp(name+1, meth->ml_name+1) == 0)
+	{
+	  return PyCFunction_New(meth, self);
+	}
+    } 
+  
+  PyErr_SetString(PyExc_AttributeError, name);
+  return NULL;
+}
+
+//--------------------------------------------------------------------
+static void PyVTKSpecialObject_PyDelete(PyObject *self)
+{
+  delete ((PyVTKSpecialObject *)self)->vtk_ptr;
+  ((PyVTKSpecialObject *)self)->vtk_ptr = NULL;
+
+  PyMem_DEL(self);
+}
+
+//--------------------------------------------------------------------
+static PyTypeObject PyVTKSpecialObjectType = {
+  PyObject_HEAD_INIT(&PyType_Type)
+  0,
+  "vtkspecialobject",                    // tp_name
+  sizeof(PyVTKSpecialObject),            // tp_basicsize
+  0,                                     // tp_itemsize
+  (destructor)PyVTKSpecialObject_PyDelete, // tp_dealloc
+  (printfunc)PyVTKSpecialObject_PyPrint, // tp_print
+  (getattrfunc)PyVTKSpecialObject_PyGetAttr, // tp_getattr
+  (setattrfunc)0,                        // tp_setattr
+  (cmpfunc)0,                            // tp_compare
+  (reprfunc)PyVTKSpecialObject_PyRepr,   // tp_repr
+  0,                                     // tp_as_number 
+  0,                                     // tp_as_sequence
+  0,                                     // tp_as_mapping
+  (hashfunc)0,                           // tp_hash
+  (ternaryfunc)0,                        // tp_call
+  (reprfunc)PyVTKSpecialObject_PyString, // tp_string
+  (getattrofunc)0,                       // tp_getattro
+  (setattrofunc)0,                       // tp_setattro
+  0,                                     // tp_as_buffer
+  0,                                     // tp_flags
+  "vtkspecialobject - a vtk object not derived from vtkObject." // tp_doc
+};
+
+int PyVTKSpecialObject_Check(PyObject *obj)
+{
+  return (obj->ob_type == &PyVTKSpecialObjectType);
+}
+
+PyObject *PyVTKSpecialObject_New(void *ptr, PyMethodDef *methods,
+				 char *classname, char *docstring)
+{
+  PyVTKSpecialObject *self = PyObject_NEW(PyVTKSpecialObject, 
+					  &PyVTKSpecialObjectType);
+  self->vtk_ptr = ptr;
+  self->vtk_methods = methods;
+  self->vtk_name = classname;
+  self->vtk_doc = docstring;
+  
+  return (PyObject *)self;
+}
+
+//--------------------------------------------------------------------
 vtkObject *PyArg_VTKParseTuple(PyObject *self, PyObject *args, 
 			       char *format, ...)
 {
