@@ -194,16 +194,19 @@ vtkXYPlotActor::~vtkXYPlotActor()
 {
   // Get rid of the list of array names.
   int num = this->InputList->GetNumberOfItems();
-  for (int i = 0; i < num; ++i)
+  if (this->SelectedInputScalars)
     {
-    if (this->SelectedInputScalars)
+    for (int i = 0; i < num; ++i)
       {
-      delete [] this->SelectedInputScalars;
-      this->SelectedInputScalars = NULL;
+      if (this->SelectedInputScalars[i])
+        {
+        delete [] this->SelectedInputScalars[i];
+        this->SelectedInputScalars[i] = NULL;
+        }
       }
+    delete [] this->SelectedInputScalars;
+    this->SelectedInputScalars = NULL;  
     }
-  delete [] this->SelectedInputScalars;
-  this->SelectedInputScalars = NULL;  
   this->SelectedInputScalarsComponent->Delete();
   this->SelectedInputScalarsComponent = NULL;
 
