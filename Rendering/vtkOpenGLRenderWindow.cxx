@@ -26,7 +26,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.67");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.68");
 #endif
 
 #define MAX_LIGHTS 8
@@ -954,6 +954,11 @@ int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
   height = abs(y_hi - y_low) + 1;
 
   glDisable( GL_SCISSOR_TEST );
+  
+  // Turn of texturing in case it is on - some drivers have a problem
+  // getting / setting pixels with texturing enabled.
+  glDisable( GL_TEXTURE_2D );
+
   glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
                 data);
 
@@ -1087,6 +1092,11 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
 
 
   glDisable( GL_SCISSOR_TEST );
+  
+  // Turn of texturing in case it is on - some drivers have a problem
+  // getting / setting pixels with texturing enabled.
+  glDisable( GL_TEXTURE_2D );
+
   if (!blend)
     {
     glDisable(GL_BLEND);
