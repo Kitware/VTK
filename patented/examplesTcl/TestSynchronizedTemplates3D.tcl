@@ -50,6 +50,7 @@ renWin SetSize 500 500
 eval ren1 SetBackground $slate_grey
 [ren1 GetActiveCamera] Zoom 1.5
 [ren1 GetActiveCamera] Elevation 90
+[ren1 GetActiveCamera] OrthogonalizeViewUp
 
 # render the image
 #
