@@ -45,6 +45,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
+#ifdef VTK_USE_ANSI_STDLIB
+#include <new>
+#include <iostream>
+#else
+#include <new.h>
+#include <iostream.h>
+#endif
+
+
 // TO DO:
 // + In place new to avoid new/delete
 // + Delete tetra's directly rather than traversing the entire list
@@ -53,6 +62,94 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Begin be defining a class for managing a linked list ---------------------
 //
+
+struct vtkMemoryBlock
+{
+  char* End;
+  char* Data;
+  vtkMemoryBlock* Next;
+};
+
+class vtkMemoryPool
+{
+public:
+  vtkMemoryPool(int cellSize, int blockSize);
+  ~vtkMemoryPool();
+  void* GetNextPointer();
+  void* CreateNextBlock();
+  void Reset()
+    {
+      this->CurrentBlock = this->FirstBlock;
+      this->Position = this->FirstBlock->Data;
+    }
+
+private:
+  int CellSize, BlockSize;
+  vtkMemoryBlock* FirstBlock;
+  vtkMemoryBlock* CurrentBlock;
+  char* Position;
+};
+
+vtkMemoryPool::vtkMemoryPool(int cellSize, int blockSize) : 
+  CellSize(cellSize), BlockSize(blockSize)
+{
+  this->FirstBlock = new vtkMemoryBlock;
+  this->FirstBlock->Data = new char[cellSize*blockSize];
+  this->FirstBlock->End = this->FirstBlock->Data + cellSize*blockSize;
+  this->FirstBlock->Next = 0;
+
+  this->CurrentBlock = this->FirstBlock;
+
+  this->Position = this->CurrentBlock->Data;
+}
+
+vtkMemoryPool::~vtkMemoryPool()
+{
+  vtkMemoryBlock* mb = this->FirstBlock;
+  vtkMemoryBlock* tmp;
+
+  while (mb)
+    {
+    tmp = mb;
+    mb = mb->Next;
+    delete[] tmp->Data;
+    delete tmp;
+    }
+}
+
+inline void* vtkMemoryPool::CreateNextBlock()
+{
+  if (this->CurrentBlock->Next)
+    {
+    this->CurrentBlock = this->CurrentBlock->Next;
+    }
+  else
+    {
+    vtkMemoryBlock* mb = new vtkMemoryBlock;
+    mb->Data = new char[this->CellSize*this->BlockSize];
+    mb->End = mb->Data + this->CellSize*this->BlockSize;
+    mb->Next = 0;
+    
+    this->CurrentBlock->Next = mb;
+    this->CurrentBlock = mb;
+    }
+
+  this->Position = this->CurrentBlock->Data;
+  return static_cast<void *>(this->Position);
+}
+
+inline void* vtkMemoryPool::GetNextPointer()
+{
+  if (this->Position == this->CurrentBlock->End)
+    {
+    this->CreateNextBlock();
+    }
+
+  void* retVal = static_cast<void *>(this->Position);
+  this->Position += this->CellSize;
+
+  return retVal;
+}
 
 // A vector of type T to support operations.
 template <class T>
@@ -122,7 +219,7 @@ public:
     {
       return this->Array + i;
     }
-  unsigned int GetNumberOfValues()
+  int GetNumberOfValues()
     {
       return this->MaxId + 1;
     }
@@ -147,8 +244,8 @@ public:
   class ListContainer //the container for the data
   {
   public:
-    ListContainer(T* x):Data(x),Next(0),Previous(0) {}
-    T* Data;
+    ListContainer(const T& x) : Data(x),Next(0),Previous(0) {}
+    T Data;
     ListContainer* Next;
     ListContainer* Previous;
   };//end class ListContainer
@@ -164,9 +261,9 @@ public:
     Iterator& operator=(ListContainer *c) 
       {this->Container=c; return *this;}
     T& operator*()
-      {return *(this->Container->Data);}
-    T* GetPointer() 
       {return this->Container->Data;}
+    T* GetPointer() 
+      {return &(this->Container->Data);}
     Iterator& operator++() 
       {this->Container = this->Container->Next; return *this;}
     int operator!=(const Iterator& it) const
@@ -188,19 +285,19 @@ public:
   //Methods for linked list
   vtkOTLinkedList()
     {
-      ListContainer *tail = new ListContainer(0);//create dummy container
+      ListContainer *tail = new ListContainer(T(0));//create dummy container
       this->Head = this->Tail = tail;            //marks end of list
     }
   ~vtkOTLinkedList()
     {
       this->Reset();
+      delete this->Tail.Container;
     }
   Iterator& Begin() {return this->Head;}
   Iterator& End() {return this->Tail;}
   void Insert(const T& item) //constructs T and adds to top of list
     {
-      T *x = new T(item);
-      ListContainer *container = new ListContainer(x);
+      ListContainer *container = new ListContainer(item);
       if ( this->Head.Container->Next )
         {
         container->Next = this->Head.Container;
@@ -238,9 +335,8 @@ public:
 };
 
 // Classes are used to represent points, faces, and tetras-------------------
-class vtkOTPoint
+struct vtkOTPoint
 {
-public:
   vtkOTPoint() : Id(0), InternalId(0), Type(Inside) 
     {this->X[0] = this->X[1] = this->X[2] = 0.0;}
   enum PointClassification 
@@ -338,12 +434,16 @@ vtkOrderedTriangulator::vtkOrderedTriangulator()
   this->Mesh = new vtkOTMesh;
   this->NumberOfPoints = 0;
   this->PreSorted = 0;
+  // Create a memory pool, using a block size of 80
+  this->Pool = new vtkMemoryPool(sizeof(vtkOTTetra), 80);
 }
 
 //------------------------------------------------------------------------
 vtkOrderedTriangulator::~vtkOrderedTriangulator()
 {
   delete this->Mesh;
+
+  delete this->Pool;
 }
 
 //------------------------------------------------------------------------
@@ -359,6 +459,7 @@ void vtkOrderedTriangulator::InitTriangulation(float bounds[6], int numPts)
   this->MaximumNumberOfPoints = numPts;
   this->Mesh->Reset();
   this->Mesh->Points.SetNumberOfValues(numPts+6);
+  this->Pool->Reset();
   
   // Create the initial Delaunay triangulation which is a
   // bounding octahedron: 6 points & 4 tetra.
@@ -418,7 +519,7 @@ void vtkOrderedTriangulator::InitTriangulation(float bounds[6], int numPts)
   vtkOTTetra *tetras[4];
   for (int i=0; i<4; i++)
     {
-    tetras[i] = new vtkOTTetra;
+    tetras[i] = new(this->Pool->GetNextPointer()) vtkOTTetra;
     this->Mesh->Tetras.Insert(tetras[i]);
     tetras[i]->Center[0] = center[0];
     tetras[i]->Center[1] = center[1];
@@ -466,7 +567,8 @@ void vtkOrderedTriangulator::InitTriangulation(float bounds[6], int numPts)
 
 
 //------------------------------------------------------------------------
-int vtkOrderedTriangulator::InsertPoint(int id, float x[3], int type)
+int vtkOrderedTriangulator::InsertPoint(int id, float x[3],
+                                              int type)
 {
   int idx = this->NumberOfPoints++;
   if ( idx > this->MaximumNumberOfPoints )
@@ -642,9 +744,10 @@ static void AssignNeighbors(vtkOTTetra* t1, vtkOTTetra* t2)
     }
 }
 
-static vtkOTTetra *CreateTetra(vtkOTPoint& p, vtkOTFace& face)
+static vtkOTTetra *CreateTetra(vtkOTPoint& p, vtkOTFace& face, 
+			       vtkMemoryPool& pool)
 {
-  vtkOTTetra *tetra = new vtkOTTetra;
+  vtkOTTetra *tetra = new(pool.GetNextPointer()) vtkOTTetra;
   tetra->Radius2 = vtkTetra::Circumsphere(p.X,
                                           face.Points[0]->X,
                                           face.Points[1]->X,
@@ -754,8 +857,9 @@ void vtkOrderedTriangulator::Triangulate()
 {
   vtkOTLinkedList<vtkOTTetra*>::Iterator tptr;
   vtkOTPoint *p;
-  int ptId, i;
-
+  int i;
+  int ptId;
+  
   // Sort the points according to id. The last six points are left
   // where they are (at the end of the list).
   if ( ! this->PreSorted )
@@ -814,7 +918,8 @@ void vtkOrderedTriangulator::Triangulate()
          fptr != this->Mesh->CavityFaces.End(); ++fptr)
       {
       //create a tetra
-      tetra = CreateTetra(*p,*fptr);
+
+      tetra = CreateTetra(*p,*fptr,*this->Pool);
       this->Mesh->TetraQueue.InsertNextValue(tetra);
       tetraId = this->Mesh->TetraQueue.GetMaxId();
 
@@ -846,7 +951,7 @@ void vtkOrderedTriangulator::Triangulate()
 
 
 int vtkOrderedTriangulator::GetTetras(int classification, 
-                                       vtkUnstructuredGrid *ugrid)
+                                            vtkUnstructuredGrid *ugrid)
 {
   // Create the points
   //
@@ -888,7 +993,7 @@ int vtkOrderedTriangulator::GetTetras(int classification,
 
 //------------------------------------------------------------------------
 int vtkOrderedTriangulator::AddTetras(int classification, 
-                                       vtkCellArray *outConnectivity)
+                                            vtkCellArray *outConnectivity)
 {
   vtkOTLinkedList<vtkOTTetra*>::Iterator tptr;
   vtkOTTetra::TetraClassification type; //inside, outside
@@ -915,7 +1020,7 @@ int vtkOrderedTriangulator::AddTetras(int classification,
 }
 
 int vtkOrderedTriangulator::AddTetras(int classification, 
-                                      vtkUnstructuredGrid *ugrid)
+                                            vtkUnstructuredGrid *ugrid)
 {
   int numTetras=0;
   vtkOTLinkedList<vtkOTTetra*>::Iterator tptr;

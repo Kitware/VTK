@@ -95,6 +95,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkUnstructuredGrid;
 class vtkOTMesh;
 class vtkCellArray;
+class vtkMemoryPool;
 
 class VTK_EXPORT vtkOrderedTriangulator : public vtkObject
 {
@@ -188,6 +189,7 @@ private:
   int NumberOfPoints; //number of points inserted
   int MaximumNumberOfPoints; //maximum possible number of points to be inserted
   int PreSorted;
+  vtkMemoryPool* Pool;
   
 };
 
