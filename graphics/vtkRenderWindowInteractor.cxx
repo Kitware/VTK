@@ -78,6 +78,9 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->UserMethod = NULL;
   this->UserMethodArgDelete = NULL;
   this->UserMethodArg = NULL;
+  this->ExitMethod = NULL;
+  this->ExitMethodArgDelete = NULL;
+  this->ExitMethodArg = NULL;
 }
 
 vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
@@ -255,6 +258,34 @@ void vtkRenderWindowInteractor::SetUserMethodArgDelete(void (*f)(void *))
   if ( f != this->UserMethodArgDelete)
     {
     this->UserMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set the exit method. This method is invoked on a <e> keypress.
+void vtkRenderWindowInteractor::SetExitMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->ExitMethod || arg != this->ExitMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->ExitMethodArg)&&(this->ExitMethodArgDelete))
+      {
+      (*this->ExitMethodArgDelete)(this->ExitMethodArg);
+      }
+    this->ExitMethod = f;
+    this->ExitMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkRenderWindowInteractor::SetExitMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->ExitMethodArgDelete)
+    {
+    this->ExitMethodArgDelete = f;
     this->Modified();
     }
 }

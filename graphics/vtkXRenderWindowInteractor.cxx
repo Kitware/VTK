@@ -407,7 +407,10 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       XLookupString((XKeyEvent *)event,buffer,20,&ks,NULL);
       switch (ks)
 	{
-	case XK_e : exit(1); break;
+	case XK_e : 
+	  if (me->ExitMethod) (*me->ExitMethod)(me->ExitMethodArg);
+	  else exit(1);
+	  break;
 	case XK_u :
 	  if (me->UserMethod) (*me->UserMethod)(me->UserMethodArg);
 	  break;

@@ -137,6 +137,9 @@ public:
   void SetUserMethod(void (*f)(void *), void *arg);
   void SetUserMethodArgDelete(void (*f)(void *));
 
+  void SetExitMethod(void (*f)(void *), void *arg);
+  void SetExitMethodArgDelete(void (*f)(void *));
+
 protected:
   vtkRenderWindow *RenderWindow;
   vtkCamera   *CurrentCamera;
@@ -172,6 +175,9 @@ protected:
   void (*UserMethod)(void *);
   void (*UserMethodArgDelete)(void *);
   void *UserMethodArg;
+  void (*ExitMethod)(void *);
+  void (*ExitMethodArgDelete)(void *);
+  void *ExitMethodArg;
 
 };
 

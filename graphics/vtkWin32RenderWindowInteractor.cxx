@@ -286,91 +286,87 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	    
     case WM_CHAR:
       switch (wParam)
+	{
+	case 'e': 
+	  if (me->ExitMethod) (*me->ExitMethod)(me->ExitMethodArg);
+	  else PostQuitMessage(0);
+	  break;
+	case 'u':
+	  if (me->UserMethod) (*me->UserMethod)(me->UserMethodArg);
+	  break;
+	case 'r':
+	  me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
+	  me->CurrentRenderer->ResetCamera();
+	  me->RenderWindow->Render();
+	  break;
+	case 'w':
+	  {
+	  vtkActorCollection *ac;
+	  vtkActor *anActor, *aPart;
+	  
+	  me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
+	  ac = me->CurrentRenderer->GetActors();
+	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
+	    {
+	    for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
 	      {
-	      case 'e': 
-          {
-          // do a cleaner exit from windows
-          // first free up the windows resources
-          // me->RenderWindow->Delete();
-          PostQuitMessage(0); 
-          }
-        break;
-	    case 'u':
-	      if (me->UserMethod) (*me->UserMethod)(me->UserMethodArg);
-	      break;
-	    case 'r':
-	      me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
-	      me->CurrentRenderer->ResetCamera();
-	      me->RenderWindow->Render();
-	      break;
-	    case 'w':
-	      {
-	      vtkActorCollection *ac;
-	      vtkActor *anActor, *aPart;
-		
-	      me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
-	      ac = me->CurrentRenderer->GetActors();
-	      for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
-	        {
-	        for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
-	          {
-	          aPart->GetProperty()->SetRepresentationToWireframe();
-	          }
-	        }
-		
-	      me->RenderWindow->Render();
+	      aPart->GetProperty()->SetRepresentationToWireframe();
 	      }
-	      break;
-	    case 's':
-	      {
-	      vtkActorCollection *ac;
-	      vtkActor *anActor, *aPart;
-		
-	      me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
-	      ac = me->CurrentRenderer->GetActors();
-	      for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
-	        {
-	        for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
-	          {
-	          aPart->GetProperty()->SetRepresentationToSurface();
-	         }
-	       }
-		
-	      me->RenderWindow->Render();
-	      }
-	      break;
-	    case '3':
-	      {
-	      if (me->RenderWindow->GetStereoRender())
-	        {
-	        me->RenderWindow->StereoRenderOff();
-	        }
-	      else
-	        {
-	        me->RenderWindow->StereoRenderOn();
-	        }
-	      me->RenderWindow->Render();
-	      }
-	      break;
-	    case 'p':
-	      {
-	      me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
-	      if (me->StartPickMethod)
-	        {
-	        (*me->StartPickMethod)(me->StartPickMethodArg);
-	        }
-	      me->Picker->Pick(LOWORD(lastPos), me->Size[1]-HIWORD(lastPos),
-			      0.0, me->CurrentRenderer);
-	      me->HighlightActor(me->Picker->GetAssembly());
-	      if (me->EndPickMethod)
-	        {
-	        (*me->EndPickMethod)(me->EndPickMethodArg);
-	        }
-	      }
-	      break;
 	    }
+	  
+	  me->RenderWindow->Render();
+	  }
+	  break;
+	case 's':
+	  {
+	  vtkActorCollection *ac;
+	  vtkActor *anActor, *aPart;
+	  
+	  me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
+	  ac = me->CurrentRenderer->GetActors();
+	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
+	    {
+	    for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
+	      {
+	      aPart->GetProperty()->SetRepresentationToSurface();
+	      }
+	    }
+	  
+	  me->RenderWindow->Render();
+	  }
+	  break;
+	case '3':
+	  {
+	  if (me->RenderWindow->GetStereoRender())
+	    {
+	    me->RenderWindow->StereoRenderOff();
+	    }
+	  else
+	    {
+	    me->RenderWindow->StereoRenderOn();
+	    }
+	  me->RenderWindow->Render();
+	  }
+	  break;
+	case 'p':
+	  {
+	  me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
+	  if (me->StartPickMethod)
+	    {
+	    (*me->StartPickMethod)(me->StartPickMethodArg);
+	    }
+	  me->Picker->Pick(LOWORD(lastPos), me->Size[1]-HIWORD(lastPos),
+			   0.0, me->CurrentRenderer);
+	  me->HighlightActor(me->Picker->GetAssembly());
+	  if (me->EndPickMethod)
+	    {
+	    (*me->EndPickMethod)(me->EndPickMethodArg);
+	    }
+	  }
+	  break;
+	}
       break;
-
+      
     case WM_TIMER:
       switch (me->State)
 	{
