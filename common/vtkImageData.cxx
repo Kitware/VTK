@@ -1108,7 +1108,7 @@ void vtkImageData::UpdateData()
      this->NumberOfPieces != this->UpdateNumberOfPieces ||
      this->GhostLevel != this->UpdateGhostLevel ||
      this->PointData->GetFieldData() == NULL ||
-     this->PointData->GetFieldData()->GetArray("vtkGhostLevels"))
+     !this->PointData->GetFieldData()->GetArray("vtkGhostLevels"))
     { // Create ghost levels for cells and points.
     vtkUnsignedCharArray *levels;
     int zeroExt[6], extent[6];
