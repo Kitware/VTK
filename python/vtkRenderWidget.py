@@ -67,9 +67,9 @@ class vtkTkRenderWidget(Tkinter.Widget):
         self.BindTkRenderWidget()
 
     def BindTkRenderWidget(self):
-        self.bind("<Any-ButtonPress>",
+        self.bind("<ButtonPress>",
                   lambda e,s=self: s.StartMotion(e.x,e.y))
-        self.bind("<Any-ButtonRelease>",
+        self.bind("<ButtonRelease>",
                   lambda e,s=self: s.EndMotion(e.x,e.y))
         self.bind("<B1-Motion>",
                   lambda e,s=self: s.Rotate(e.x,e.y))
@@ -98,6 +98,9 @@ class vtkTkRenderWidget(Tkinter.Widget):
 
     def GetRenderWindow(self):
         return self.__RenderWindow
+
+    def GetPicker(self):
+        return self.__ActorPicker
 
     def Expose(self):
         if (self.__InExpose == 0):
@@ -141,6 +144,9 @@ class vtkTkRenderWidget(Tkinter.Widget):
 
         self.__LastX = x
         self.__LastY = y
+
+    def GetCurrentRenderer(self):
+        return self.__CurrentRenderer
                 
     def Enter(self,x,y):
         self.__OldFocus=self.focus_get()
