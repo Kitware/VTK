@@ -72,6 +72,7 @@ class VTK_COMMON_EXPORT vtkScalarsToColors : public vtkObject
 {
 public:
   vtkTypeMacro(vtkScalarsToColors,vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Perform any processing required (if any) before processing 

@@ -217,3 +217,13 @@ vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
 }
 
 
+void vtkScalarsToColors::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->vtkObject::PrintSelf(os,indent);
+
+  os << indent << "EstimatedRenderTime: " 
+     << this->EstimatedRenderTime << endl;
+  os << indent << "RenderTimeMultiplier: " 
+     << this->RenderTimeMultiplier << endl;
+  os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
+}
