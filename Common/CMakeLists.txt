@@ -98,6 +98,7 @@ vtkParametricBoy.cxx
 vtkParametricConicSpiral.cxx
 vtkParametricCrossCap.cxx
 vtkParametricDini.cxx
+vtkParametricEllipsoid.cxx
 vtkParametricEnneper.cxx
 vtkParametricFigure8Klein.cxx
 vtkParametricFunction.cxx
