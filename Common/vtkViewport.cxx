@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActor2DCollection.h"
 #include "vtkPropCollection.h"
 #include "vtkProp.h"
-#include "vtkCommand.h"
+#include "vtkOldStyleCallbackCommand.h"
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -321,11 +321,12 @@ int vtkViewport::IsInViewport(int x,int y)
 // Function will be called with argument provided.
 void vtkViewport::SetStartRenderMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->StartTag);
   this->StartTag = this->AddObserver(vtkCommand::StartEvent,cbc);
+  cbc->Delete();
 }
 
 // Set the arg delete method. This is used to free user memory.
@@ -354,11 +355,12 @@ void vtkViewport::SetEndRenderMethodArgDelete(void (*f)(void *))
 // Function will be called with argument provided.
 void vtkViewport::SetEndRenderMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->EndTag);
   this->EndTag = this->AddObserver(vtkCommand::EndEvent,cbc);
+  cbc->Delete();
 }
 
 void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)

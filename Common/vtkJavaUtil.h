@@ -86,8 +86,6 @@ extern JNIEXPORT void vtkJavaVoidFuncArgDelete(void *);
 class vtkJavaCommand : public vtkCommand
 {
 public:
-  vtkJavaCommand();
-  ~vtkJavaCommand();
   static vtkJavaCommand *New() { return new vtkJavaCommand; };
 
   void SetGlobalRef(jobject obj) { this->uobj = obj; };
@@ -99,6 +97,9 @@ public:
   JavaVM *vm;
   jobject  uobj;
   jmethodID mid;
+protected:
+  vtkJavaCommand();
+  ~vtkJavaCommand();
 };
 
 #endif

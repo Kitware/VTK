@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCellPicker.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
-#include "vtkCommand.h"
+#include "vtkOldStyleCallbackCommand.h"
 
 
 //----------------------------------------------------------------------------
@@ -104,11 +104,12 @@ void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent)
 void vtkInteractorStyleUser::vtkSetOldCallback(unsigned long &tag, unsigned long event, 
                                                void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(tag);
   tag = this->AddObserver(event,cbc);
+  cbc->Delete();
 }
 
 void vtkInteractorStyleUser::vtkSetOldDelete(unsigned long tag, void (*f)(void *))

@@ -119,6 +119,9 @@ void vtkImageViewer2::SetPosition(int a[2])
 class vtkImageViewer2Callback : public vtkCommand
 {
 public:
+  static vtkImageViewer2Callback *New() {
+    return new vtkImageViewer2Callback; }
+  
   void Execute(vtkObject *caller, unsigned long event, void *callData)
     {
       if (callData)
@@ -205,9 +208,10 @@ void vtkImageViewer2::SetupInteractor(vtkRenderWindowInteractor *rwi)
   if (!this->InteractorStyle)
     {
     this->InteractorStyle = vtkInteractorStyleImage::New();
-    vtkImageViewer2Callback *cbk = new vtkImageViewer2Callback;
+    vtkImageViewer2Callback *cbk = vtkImageViewer2Callback::New();
     cbk->IV = this;
     this->InteractorStyle->AddObserver(vtkCommand::WindowLevelEvent,cbk);
+    cbk->Delete();
     }
   
   if (!this->Interactor)

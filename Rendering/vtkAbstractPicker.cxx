@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkAbstractPicker.h"
 #include "vtkObjectFactory.h"
-#include "vtkCommand.h"
+#include "vtkOldStyleCallbackCommand.h"
 
 // Construct object with initial tolerance of 1/40th of window. There are no
 // pick methods and picking is performed from the renderer's actors.
@@ -86,32 +86,35 @@ void vtkAbstractPicker::Initialize()
 // Specify function to be called as picking operation begins.
 void vtkAbstractPicker::SetStartPickMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->StartPickTag);
   this->StartPickTag = this->AddObserver(vtkCommand::StartPickEvent,cbc);
+  cbc->Delete();
 }
 
 // Specify function to be called when something is picked.
 void vtkAbstractPicker::SetPickMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->StartPickTag);
   this->StartPickTag = this->AddObserver(vtkCommand::PickEvent,cbc);
+  cbc->Delete();
 }
 
 // Specify function to be called after all picking operations have been
 // performed.
 void vtkAbstractPicker::SetEndPickMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->StartPickTag);
   this->StartPickTag = this->AddObserver(vtkCommand::EndPickEvent,cbc);
+  cbc->Delete();
 }
 
 

@@ -87,8 +87,6 @@ void vtkTclCreateNew(Tcl_Interp *interp, const char *cname,
 class vtkTclCommand : public vtkCommand
 {
 public:
-  vtkTclCommand();
-  ~vtkTclCommand(); 
   static vtkTclCommand *New() { return new vtkTclCommand; };
 
   void SetStringCommand(const char *arg);
@@ -98,6 +96,9 @@ public:
 
   char *StringCommand;
   Tcl_Interp *Interp;
+protected:
+  vtkTclCommand();
+  ~vtkTclCommand(); 
 };
 
 typedef struct _vtkTclVoidFuncArg 

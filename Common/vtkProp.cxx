@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProp.h"
 #include "vtkObjectFactory.h"
 #include "vtkAssemblyPaths.h"
-#include "vtkCommand.h"
+#include "vtkOldStyleCallbackCommand.h"
 
 
 //----------------------------------------------------------------------------
@@ -85,11 +85,12 @@ vtkProp::~vtkProp()
 // e.g., vtkActor) is picked by vtkPicker.
 void vtkProp::SetPickMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->PickTag);
   this->PickTag = this->AddObserver(vtkCommand::PickEvent,cbc);
+  cbc->Delete();
 }
 
 // Set a method to delete user arguments for PickMethod.

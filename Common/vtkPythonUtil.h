@@ -143,14 +143,15 @@ extern VTK_PYTHON_EXPORT void vtkPythonVoidFuncArgDelete(void *);
 class vtkPythonCommand : public vtkCommand
 {
 public:
-  vtkPythonCommand();
-  ~vtkPythonCommand(); 
   static vtkPythonCommand *New() { return new vtkPythonCommand; };
 
   void SetObject(PyObject *o);
   void Execute(vtkObject *ptr, unsigned long eventtype, void *);
  
   PyObject *obj;
+protected:
+  vtkPythonCommand();
+  ~vtkPythonCommand(); 
 };
 
 

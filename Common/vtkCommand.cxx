@@ -76,13 +76,22 @@ static const char *vtkCommandEventStrings[] = {
   "ModifiedEvent",
   "WindowLevelEvent",
   "NextDataEvent",
+  "PushDataStartEvent",
   NULL
 };
 
 //----------------------------------------------------------------
-vtkCommand *vtkCommand::New()
-{ 
-  return new vtkCallbackCommand; 
+void vtkCommand::Register()
+{
+  this->ReferenceCount++;
+}
+
+void vtkCommand::UnRegister()
+{
+  if (--this->ReferenceCount <= 0)
+    {
+    delete this;
+    }
 }
 
 const char *vtkCommand::GetStringFromEventId(unsigned long event)
@@ -130,54 +139,7 @@ unsigned long vtkCommand::GetEventIdFromString(const char *event)
   return vtkCommand::NoEvent;
 }
 
-//----------------------------------------------------------------
-vtkCallbackCommand::vtkCallbackCommand() 
-{ 
-  this->ClientData = NULL;
-  this->Callback = NULL; 
-  this->ClientDataDeleteCallback = NULL;
-}
-
-vtkCallbackCommand::~vtkCallbackCommand() 
-{ 
-  if (this->ClientDataDeleteCallback)
-    {
-    this->ClientDataDeleteCallback(this->ClientData);
-    }
-}
   
-void vtkCallbackCommand::Execute(vtkObject *caller, unsigned long event, 
-                                 void *callData)
-{
-  if (this->Callback)
-    {
-    this->Callback(caller, event, this->ClientData, callData);
-    }
-}
-  
-//----------------------------------------------------------------
-vtkOldStyleCallbackCommand::vtkOldStyleCallbackCommand() 
-{ 
-  this->ClientData = NULL;
-  this->Callback = NULL; 
-  this->ClientDataDeleteCallback = NULL;
-}
-  
-vtkOldStyleCallbackCommand::~vtkOldStyleCallbackCommand() 
-{ 
-  if (this->ClientDataDeleteCallback)
-    {
-    this->ClientDataDeleteCallback(this->ClientData);
-    }
-}
- 
-void vtkOldStyleCallbackCommand::Execute(vtkObject *,unsigned long, void *)
-{
-  if (this->Callback)
-    {
-    this->Callback(this->ClientData);
-    }
-}
 
 
 

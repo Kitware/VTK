@@ -63,20 +63,20 @@ void use_hints(FILE *fp)
       fprintf(fp,"    return Py_BuildValue(\"");
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"f");
       fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++) 
-	{
-	fprintf(fp,",temp%i[%d]",MAX_ARGS,i);
-	}
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp,",temp%i[%d]",MAX_ARGS,i);
+        }
       fprintf(fp,");\n");
       break;
     case 307:  
       fprintf(fp,"    return Py_BuildValue(\"");
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"d");
       fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++) 
-	{
-	fprintf(fp,",temp%i[%d]",MAX_ARGS,i);
-	}
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp,",temp%i[%d]",MAX_ARGS,i);
+        }
       fprintf(fp,");\n");
       break;
     case 304: 
@@ -84,9 +84,9 @@ void use_hints(FILE *fp)
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"i");
       fprintf(fp,"\"");
       for (i = 0; i < currentFunction->HintSize; i++) 
-	{
-	fprintf(fp,",temp%i[%d]",MAX_ARGS,i);
-	}
+        {
+        fprintf(fp,",temp%i[%d]",MAX_ARGS,i);
+        }
       fprintf(fp,");\n");
       break;
     case 305: case 306: case 313: case 314: case 315: case 316:
@@ -145,10 +145,10 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     case 2: fprintf(fp, "&&"); break;
     case 3: 
       if ((i == MAX_ARGS)||(aType%10 == 9)||(aType%1000 == 303)
-	  ||(aType%1000 == 302))
-	{
-	fprintf(fp, " *"); 
-	}
+          ||(aType%1000 == 302))
+        {
+        fprintf(fp, " *"); 
+        }
       break;
     case 4: fprintf(fp, "&*"); break;
     case 5: fprintf(fp, "*&"); break;
@@ -200,7 +200,7 @@ void do_return(FILE *fp)
     case 309:  
       {
       fprintf(fp,"    return vtkPythonGetObjectFromPointer((vtkObject *)temp%i);\n",
-	      MAX_ARGS);
+              MAX_ARGS);
       break;
       }
       
@@ -217,14 +217,14 @@ void do_return(FILE *fp)
       fprintf(fp,"      return Py_None;\n        }\n");
       fprintf(fp,"    else\n        {\n");
       fprintf(fp,"      return PyString_FromString(vtkPythonManglePointer(temp%i,\"void_p\"));\n        }\n",
-	      MAX_ARGS);
+              MAX_ARGS);
       break;
       }
     case 1:
     case 7:
       {
       fprintf(fp,"    return PyFloat_FromDouble(temp%i);\n",
-		      MAX_ARGS);
+                      MAX_ARGS);
       break;
       }
     case 13:
@@ -240,13 +240,13 @@ void do_return(FILE *fp)
     case 16:   
       {
       fprintf(fp,"    return PyInt_FromLong((long)temp%i);\n",
-	      MAX_ARGS); 
+              MAX_ARGS); 
       break;
       }
     case 3:   
       {
       fprintf(fp,"    return PyString_FromStringAndSize((char *)&temp%i,1);\n",
-	      MAX_ARGS);
+              MAX_ARGS);
       break;
       }
     }
@@ -273,29 +273,29 @@ char *get_format_string()
     switch (argtype)
       {
       case 301:
-	result[currPos] = '('; currPos++;
-	for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
-	  {
-	  result[currPos] = 'f'; currPos++;
-	  }
-	result[currPos] = ')'; currPos++;
-	break;
+        result[currPos] = '('; currPos++;
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+          {
+          result[currPos] = 'f'; currPos++;
+          }
+        result[currPos] = ')'; currPos++;
+        break;
       case 307:  
-	result[currPos] = '('; currPos++;
-	for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
-	  {
-	  result[currPos] = 'd'; currPos++;
-	  }
-	result[currPos] = ')'; currPos++;
-	break;
+        result[currPos] = '('; currPos++;
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+          {
+          result[currPos] = 'd'; currPos++;
+          }
+        result[currPos] = ')'; currPos++;
+        break;
       case 304: 
-	result[currPos] = '('; currPos++;
-	for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
-	  {
-	  result[currPos] = 'i'; currPos++;
-	  }
-	result[currPos] = ')'; currPos++;
-	break;
+        result[currPos] = '('; currPos++;
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+          {
+          result[currPos] = 'i'; currPos++;
+          }
+        result[currPos] = ')'; currPos++;
+        break;
       case 109:
       case 309: result[currPos] = 'O'; currPos++; break;
       case 303: result[currPos] = 'z'; currPos++; break;
@@ -356,29 +356,29 @@ void get_python_signature()
       {
       case 301:
       case 307:
-	add_to_sig(result,"(",&currPos);
-	for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
-	  {
-	  if (j != 0)
-	    {
-	    add_to_sig(result,", ",&currPos);
-	    }
-	  add_to_sig(result,"float",&currPos);
-	  }
-	add_to_sig(result,")",&currPos);
-	break;
+        add_to_sig(result,"(",&currPos);
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+          {
+          if (j != 0)
+            {
+            add_to_sig(result,", ",&currPos);
+            }
+          add_to_sig(result,"float",&currPos);
+          }
+        add_to_sig(result,")",&currPos);
+        break;
       case 304: 
-	add_to_sig(result,"(",&currPos);
-	for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
-	  {
-	  if (j != 0)
-	    {
-	    add_to_sig(result,", ",&currPos);
-	    }
-	  add_to_sig(result,"int",&currPos);
-	  }
-	add_to_sig(result,")",&currPos);
-	break;
+        add_to_sig(result,"(",&currPos);
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+          {
+          if (j != 0)
+            {
+            add_to_sig(result,", ",&currPos);
+            }
+          add_to_sig(result,"int",&currPos);
+          }
+        add_to_sig(result,")",&currPos);
+        break;
       case 109:
       case 309: add_to_sig(result,currentFunction->ArgClasses[i],&currPos); break;
       case 302:
@@ -413,29 +413,29 @@ void get_python_signature()
       case 309: add_to_sig(result,currentFunction->ReturnClass,&currPos); break;
       case 301:
       case 307:
-	add_to_sig(result,"(",&currPos);
-	for (j = 0; j < currentFunction->HintSize; j++) 
-	  {
-	  if (j != 0)
-	    {
-	    add_to_sig(result,", ",&currPos);
-	    }
-	  add_to_sig(result,"float",&currPos);
-	  }
-	add_to_sig(result,")",&currPos);
-	break;
+        add_to_sig(result,"(",&currPos);
+        for (j = 0; j < currentFunction->HintSize; j++) 
+          {
+          if (j != 0)
+            {
+            add_to_sig(result,", ",&currPos);
+            }
+          add_to_sig(result,"float",&currPos);
+          }
+        add_to_sig(result,")",&currPos);
+        break;
       case 304: 
-	add_to_sig(result,"(",&currPos);
-	for (j = 0; j < currentFunction->HintSize; j++) 
-	  {
-	  if (j != 0)
-	    {
-	    add_to_sig(result,", ",&currPos);
-	    }
-	  add_to_sig(result,"int",&currPos);
-	  }
-	add_to_sig(result,")",&currPos);
-	break;
+        add_to_sig(result,"(",&currPos);
+        for (j = 0; j < currentFunction->HintSize; j++) 
+          {
+          if (j != 0)
+            {
+            add_to_sig(result,", ",&currPos);
+            }
+          add_to_sig(result,"int",&currPos);
+          }
+        add_to_sig(result,")",&currPos);
+        break;
       case 1:
       case 7: add_to_sig(result,"float",&currPos); break;
       case 13:
@@ -528,7 +528,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
   FunctionInfo *backFunc;
 
   is_vtkobject = ((strcmp(data->ClassName,"vtkObject") == 0) || 
-		  (data->NumberOfSuperClasses != 0));
+                  (data->NumberOfSuperClasses != 0));
 
   /* create a python-type signature for each method (for use in docstring) */
   for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
@@ -547,19 +547,19 @@ void outputFunction2(FILE *fp, FileInfo *data)
 
     /* check for object return types */
     if ((theFunc->ReturnType%1000 == 309)||
-	(theFunc->ReturnType%1000 == 109))
+        (theFunc->ReturnType%1000 == 109))
       {
       /* check that we haven't done this type (no duplicate declarations) */
       for (backnum = fnum-1; backnum >= 0; backnum--) 
-	{
+        {
         backFunc = wrappedFunctions[backnum];
-	if (((backFunc->ReturnType%1000 == 309)||
-	     (backFunc->ReturnType%1000 == 109)) &&
-	    (strcmp(theFunc->ReturnClass,backFunc->ReturnClass) == 0))
-	  {
-	  break;
-	  }
-	}
+        if (((backFunc->ReturnType%1000 == 309)||
+             (backFunc->ReturnType%1000 == 109)) &&
+            (strcmp(theFunc->ReturnClass,backFunc->ReturnClass) == 0))
+          {
+          break;
+          }
+        }
       }
     }
 
@@ -575,231 +575,231 @@ void outputFunction2(FILE *fp, FileInfo *data)
       fprintf(fp,"\n");
       
       fprintf(fp,"static PyObject *Py%s_%s(PyObject *self, PyObject *args)\n",
-	      data->ClassName,currentFunction->Name);
+              data->ClassName,currentFunction->Name);
       fprintf(fp,"{\n");
       
       /* find all occurances of this method */
       for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
-	{
-	goto_used = 0;
-	is_static = 0;
+        {
+        goto_used = 0;
+        is_static = 0;
 
-	/* is it the same name */
-	if (wrappedFunctions[occ]->Name && 
-	    !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
-	  {
-	  /* check for static methods */
-	  if (((wrappedFunctions[occ]->ReturnType/1000) & 2) == 2)
-	    {
-	    is_static = 1;
-	    }
+        /* is it the same name */
+        if (wrappedFunctions[occ]->Name && 
+            !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
+          {
+          /* check for static methods */
+          if (((wrappedFunctions[occ]->ReturnType/1000) & 2) == 2)
+            {
+            is_static = 1;
+            }
 
-	  fprintf(fp,"  /* handle an occurrence */\n  {\n");
-	  /* declare the variables */
-	  if (!is_static)
-	    {
-	    if (is_vtkobject)
-	      {
-	      fprintf(fp,"  %s *op;\n\n",data->ClassName);
-	      }
-	    else 
-	      {
-	      fprintf(fp,"  %s *op = (%s *)((PyVTKSpecialObject *)self)->vtk_ptr;\n\n",data->ClassName,data->ClassName);
-	      }
-	    }
+          fprintf(fp,"  /* handle an occurrence */\n  {\n");
+          /* declare the variables */
+          if (!is_static)
+            {
+            if (is_vtkobject)
+              {
+              fprintf(fp,"  %s *op;\n\n",data->ClassName);
+              }
+            else 
+              {
+              fprintf(fp,"  %s *op = (%s *)((PyVTKSpecialObject *)self)->vtk_ptr;\n\n",data->ClassName,data->ClassName);
+              }
+            }
 
-	  currentFunction = wrappedFunctions[occ];
-	  /* process the args */
-	  for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	    {
-	    output_temp(fp, i, currentFunction->ArgTypes[i],
-			currentFunction->ArgClasses[i],
-			currentFunction->ArgCounts[i]);
-	    }
-	  output_temp(fp, MAX_ARGS,currentFunction->ReturnType,
-		      currentFunction->ReturnClass,0);
-	  /* don't clear error first time around */
-	  if (occ != fnum)
-	    {
-	    fprintf(fp,"  PyErr_Clear();\n");
-	    }
-	  if (is_static || !is_vtkobject)
-	    {
+          currentFunction = wrappedFunctions[occ];
+          /* process the args */
+          for (i = 0; i < currentFunction->NumberOfArguments; i++)
+            {
+            output_temp(fp, i, currentFunction->ArgTypes[i],
+                        currentFunction->ArgClasses[i],
+                        currentFunction->ArgCounts[i]);
+            }
+          output_temp(fp, MAX_ARGS,currentFunction->ReturnType,
+                      currentFunction->ReturnClass,0);
+          /* don't clear error first time around */
+          if (occ != fnum)
+            {
+            fprintf(fp,"  PyErr_Clear();\n");
+            }
+          if (is_static || !is_vtkobject)
+            {
             fprintf(fp,"  if ((PyArg_ParseTuple(args, \"%s\"",
-		    get_format_string());
-	    }
-	  else
-	    {
+                    get_format_string());
+            }
+          else
+            {
             fprintf(fp,"  if ((op = (%s *)PyArg_VTKParseTuple(self, args, \"%s\"",
-		    data->ClassName,get_format_string());
-	    }
-	  for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	    {
-	    if ((currentFunction->ArgTypes[i]%1000 == 309)||
-		(currentFunction->ArgTypes[i]%1000 == 109))
-	      {
-	      fprintf(fp,", &tempH%d",i);
-	      }
+                    data->ClassName,get_format_string());
+            }
+          for (i = 0; i < currentFunction->NumberOfArguments; i++)
+            {
+            if ((currentFunction->ArgTypes[i]%1000 == 309)||
+                (currentFunction->ArgTypes[i]%1000 == 109))
+              {
+              fprintf(fp,", &tempH%d",i);
+              }
             else if (currentFunction->ArgTypes[i]%1000 == 302)
               {
               fprintf(fp,", &temp%d, &size%d",i,i);
               }
-	    else
-	      {
-	      if (currentFunction->ArgCounts[i])
-		{
-		for (j = 0; j < currentFunction->ArgCounts[i]; j++)
-		  {
-		  fprintf(fp,", temp%d + %d",i,j);
-		  }
-		}
-	      else
-		{
-		fprintf(fp,", &temp%d",i);
-		}
-	      }
-	    }
-	  fprintf(fp,")))\n    {\n");
+            else
+              {
+              if (currentFunction->ArgCounts[i])
+                {
+                for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+                  {
+                  fprintf(fp,", temp%d + %d",i,j);
+                  }
+                }
+              else
+                {
+                fprintf(fp,", &temp%d",i);
+                }
+              }
+            }
+          fprintf(fp,")))\n    {\n");
 
-	  /* lookup and required objects */
-	  for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	    {
-	    if ((currentFunction->ArgTypes[i]%1000 == 309)||
-		(currentFunction->ArgTypes[i]%1000 == 109))
-	      {
-	      fprintf(fp,"    temp%d = (%s *)vtkPythonGetPointerFromObject(tempH%d,\"%s\");\n",
-		      i, currentFunction->ArgClasses[i], i, 
-		      currentFunction->ArgClasses[i]);
-	      fprintf(fp,"    if (!temp%d && tempH%d != Py_None) goto break%d;\n",i,i,occ);
-	      goto_used = 1;
-	      }
-	    }
-	  
-	  /* make sure passed method is callable  for VAR functions */
-	  if (currentFunction->NumberOfArguments == 1 &&
-	      currentFunction->ArgTypes[0] == 5000)
-	    {
-	    fprintf(fp,"    if (!PyCallable_Check(temp0) && temp0 != Py_None)\n");
-	    fprintf(fp,"      {\n      PyErr_SetString(PyExc_ValueError,\"vtk callback method passed to %s in %s was not callable.\");\n",
-		    currentFunction->Name,data->ClassName);
-	    fprintf(fp,"      return NULL;\n      }\n");
-	    fprintf(fp,"    Py_INCREF(temp0);\n");
-	    }
-	  
-	  /* check for void pointers and pass appropriate info*/
-	  for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	    {
-	    if (currentFunction->ArgTypes[i]%1000 == 302)
-	      {
-	      fprintf(fp,"    temp%i = vtkPythonUnmanglePointer((char *)temp%i,&size%i,\"%s\");\n",i,i,i,"void_p");
-	      fprintf(fp,"    if (size%i == -1) {\n      PyErr_SetString(PyExc_ValueError,\"mangled pointer to %s in %s was of incorrect type.\");\n",
+          /* lookup and required objects */
+          for (i = 0; i < currentFunction->NumberOfArguments; i++)
+            {
+            if ((currentFunction->ArgTypes[i]%1000 == 309)||
+                (currentFunction->ArgTypes[i]%1000 == 109))
+              {
+              fprintf(fp,"    temp%d = (%s *)vtkPythonGetPointerFromObject(tempH%d,\"%s\");\n",
+                      i, currentFunction->ArgClasses[i], i, 
+                      currentFunction->ArgClasses[i]);
+              fprintf(fp,"    if (!temp%d && tempH%d != Py_None) goto break%d;\n",i,i,occ);
+              goto_used = 1;
+              }
+            }
+          
+          /* make sure passed method is callable  for VAR functions */
+          if (currentFunction->NumberOfArguments == 1 &&
+              currentFunction->ArgTypes[0] == 5000)
+            {
+            fprintf(fp,"    if (!PyCallable_Check(temp0) && temp0 != Py_None)\n");
+            fprintf(fp,"      {\n      PyErr_SetString(PyExc_ValueError,\"vtk callback method passed to %s in %s was not callable.\");\n",
+                    currentFunction->Name,data->ClassName);
+            fprintf(fp,"      return NULL;\n      }\n");
+            fprintf(fp,"    Py_INCREF(temp0);\n");
+            }
+          
+          /* check for void pointers and pass appropriate info*/
+          for (i = 0; i < currentFunction->NumberOfArguments; i++)
+            {
+            if (currentFunction->ArgTypes[i]%1000 == 302)
+              {
+              fprintf(fp,"    temp%i = vtkPythonUnmanglePointer((char *)temp%i,&size%i,\"%s\");\n",i,i,i,"void_p");
+              fprintf(fp,"    if (size%i == -1) {\n      PyErr_SetString(PyExc_ValueError,\"mangled pointer to %s in %s was of incorrect type.\");\n",
                       i,currentFunction->Name,data->ClassName);
-	      fprintf(fp,"      return NULL;\n      }\n");
+              fprintf(fp,"      return NULL;\n      }\n");
               fprintf(fp,"    else if (size%i == -2) {\n      PyErr_SetString(PyExc_ValueError,\"mangled pointer to %s in %s was poorly formed.\");\n",
-		      i,currentFunction->Name,data->ClassName);
-	      fprintf(fp,"      return NULL;\n      }\n"); 
-	      }
-	    }
+                      i,currentFunction->Name,data->ClassName);
+              fprintf(fp,"      return NULL;\n      }\n"); 
+              }
+            }
 
-	  for (k = 0; k < (2 - (is_static || !is_vtkobject)); k++)
-	    {
-	    char methodname[256]; 
-	    if (k == 0)
-	      {
-	      if (is_static)
-		{
-		fprintf(fp,"      {\n");
-		sprintf(methodname,"%s::%s",
-			data->ClassName,currentFunction->Name);
-		}
-	      else if (!is_vtkobject)
-		{
-		fprintf(fp,"      {\n");
-		sprintf(methodname,"op->%s",currentFunction->Name);
-		}
-	      else
-		{
-		fprintf(fp,"    if (PyVTKClass_Check(self)) {\n");
-		sprintf(methodname,"op->%s::%s",
-			data->ClassName,currentFunction->Name);
-		}
-	      }
-	    else
-	      {
-	      fprintf(fp,"    else {\n");
-	      sprintf(methodname,"op->%s",currentFunction->Name);
-	      }
-		
-	    switch (currentFunction->ReturnType%1000)
-	      {
-	      case 2:
-		fprintf(fp,"      %s(",methodname);
-		break;
-	      case 109:
-		fprintf(fp,"      temp%i = &%s(",MAX_ARGS,methodname);
-		break;
-	      default:
-		fprintf(fp,"      temp%i = %s(",MAX_ARGS,methodname);
-	      }
+          for (k = 0; k < (2 - (is_static || !is_vtkobject)); k++)
+            {
+            char methodname[256]; 
+            if (k == 0)
+              {
+              if (is_static)
+                {
+                fprintf(fp,"      {\n");
+                sprintf(methodname,"%s::%s",
+                        data->ClassName,currentFunction->Name);
+                }
+              else if (!is_vtkobject)
+                {
+                fprintf(fp,"      {\n");
+                sprintf(methodname,"op->%s",currentFunction->Name);
+                }
+              else
+                {
+                fprintf(fp,"    if (PyVTKClass_Check(self)) {\n");
+                sprintf(methodname,"op->%s::%s",
+                        data->ClassName,currentFunction->Name);
+                }
+              }
+            else
+              {
+              fprintf(fp,"    else {\n");
+              sprintf(methodname,"op->%s",currentFunction->Name);
+              }
+                
+            switch (currentFunction->ReturnType%1000)
+              {
+              case 2:
+                fprintf(fp,"      %s(",methodname);
+                break;
+              case 109:
+                fprintf(fp,"      temp%i = &%s(",MAX_ARGS,methodname);
+                break;
+              default:
+                fprintf(fp,"      temp%i = %s(",MAX_ARGS,methodname);
+              }
 
-	    for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	      {
-	      if (i)
-		{
-	        fprintf(fp,",");
-		}
-	      if (currentFunction->ArgTypes[i]%1000 == 109)
-		{
-	        fprintf(fp,"*(temp%i)",i);
-		}
-	      else if (currentFunction->NumberOfArguments == 1 
-		       && currentFunction->ArgTypes[i] == 5000)
-		{
-	        fprintf(fp,"((temp0 != Py_None) ? vtkPythonVoidFunc : NULL),(void *)temp%i",i);
-		}
-	      else
-		{
-	        fprintf(fp,"temp%i",i);
-		}
-	      }
-	    fprintf(fp,");\n");
-	  
-	    if (currentFunction->NumberOfArguments == 1 
-		&& currentFunction->ArgTypes[0] == 5000)
-	      {
-	      fprintf(fp,"      %sArgDelete(vtkPythonVoidFuncArgDelete);\n",
-		      methodname);
-	      }
-	    fprintf(fp,"      }\n");
-	    }
-	  do_return(fp);
-	  fprintf(fp,"    }\n  }\n");
-	  if (goto_used) 
-	    {
-	    fprintf(fp," break%d:\n",occ);
-	    }
-	  }
-	}
+            for (i = 0; i < currentFunction->NumberOfArguments; i++)
+              {
+              if (i)
+                {
+                fprintf(fp,",");
+                }
+              if (currentFunction->ArgTypes[i]%1000 == 109)
+                {
+                fprintf(fp,"*(temp%i)",i);
+                }
+              else if (currentFunction->NumberOfArguments == 1 
+                       && currentFunction->ArgTypes[i] == 5000)
+                {
+                fprintf(fp,"((temp0 != Py_None) ? vtkPythonVoidFunc : NULL),(void *)temp%i",i);
+                }
+              else
+                {
+                fprintf(fp,"temp%i",i);
+                }
+              }
+            fprintf(fp,");\n");
+          
+            if (currentFunction->NumberOfArguments == 1 
+                && currentFunction->ArgTypes[0] == 5000)
+              {
+              fprintf(fp,"      %sArgDelete(vtkPythonVoidFuncArgDelete);\n",
+                      methodname);
+              }
+            fprintf(fp,"      }\n");
+            }
+          do_return(fp);
+          fprintf(fp,"    }\n  }\n");
+          if (goto_used) 
+            {
+            fprintf(fp," break%d:\n",occ);
+            }
+          }
+        }
       fprintf(fp,"  return NULL;\n}\n\n");
 
       /* clear all occurances of this method from further consideration */
       for (occ = fnum + 1; occ < numberOfWrappedFunctions; occ++)
-	{
-	/* is it the same name */
-	if (wrappedFunctions[occ]->Name && 
-	    !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
-	  {
-	  int siglen = strlen(wrappedFunctions[fnum]->Signature);
-	  /* memory leak here but ... */
-	  wrappedFunctions[occ]->Name = NULL;
-	  wrappedFunctions[fnum]->Signature = (char *)
-	    realloc(wrappedFunctions[fnum]->Signature,siglen+3+
-		    strlen(wrappedFunctions[occ]->Signature));
-	  strcpy(&wrappedFunctions[fnum]->Signature[siglen],"\\n");
-	  strcpy(&wrappedFunctions[fnum]->Signature[siglen+2],
-		 wrappedFunctions[occ]->Signature);
-	  }
-	}
+        {
+        /* is it the same name */
+        if (wrappedFunctions[occ]->Name && 
+            !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
+          {
+          int siglen = strlen(wrappedFunctions[fnum]->Signature);
+          /* memory leak here but ... */
+          wrappedFunctions[occ]->Name = NULL;
+          wrappedFunctions[fnum]->Signature = (char *)
+            realloc(wrappedFunctions[fnum]->Signature,siglen+3+
+                    strlen(wrappedFunctions[occ]->Signature));
+          strcpy(&wrappedFunctions[fnum]->Signature[siglen],"\\n");
+          strcpy(&wrappedFunctions[fnum]->Signature[siglen+2],
+                 wrappedFunctions[occ]->Signature);
+          }
+        }
       } /* is this method non NULL */
     } /* loop over all methods */
   
@@ -811,7 +811,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
     {
     if (wrappedFunctions[fnum]->Name)
       {
-      fprintf(fp,"  {\"%s\",		(PyCFunction)Py%s_%s, 1,\n   \"%s\\n\\n%s\"},\n",
+      fprintf(fp,"  {\"%s\",                (PyCFunction)Py%s_%s, 1,\n   \"%s\\n\\n%s\"},\n",
               wrappedFunctions[fnum]->Name, data->ClassName, 
               wrappedFunctions[fnum]->Name, wrappedFunctions[fnum]->Signature,
               quote_string(wrappedFunctions[fnum]->Comment,1000));
@@ -824,7 +824,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
     fprintf(fp,"  {\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n   \"V.AddObserver(int, function) -> int\\n\\n Add an event callback function(vtkObject, int) for an event type.\\n Returns a handle that can be used with RemoveEvent(int).\"},\n", data->ClassName);
     }
   
-  fprintf(fp,"  {NULL,	       	NULL}\n};\n\n");
+  fprintf(fp,"  {NULL,                       NULL}\n};\n\n");
 }
 
 
@@ -852,8 +852,8 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (currentFunction->ArgTypes[i]%1000 == 9) args_ok = 0;
     if ((currentFunction->ArgTypes[i]%10) == 8) args_ok = 0;
     if (((currentFunction->ArgTypes[i]%1000)/100 != 3)&&
-	(currentFunction->ArgTypes[i]%1000 != 109)&&
-	((currentFunction->ArgTypes[i]%1000)/100)) args_ok = 0;
+        (currentFunction->ArgTypes[i]%1000 != 109)&&
+        ((currentFunction->ArgTypes[i]%1000)/100)) args_ok = 0;
     if (currentFunction->ArgTypes[i]%1000 == 313) args_ok = 0;
     if (currentFunction->ArgTypes[i]%1000 == 314) args_ok = 0;
     if (currentFunction->ArgTypes[i]%1000 == 315) args_ok = 0;
@@ -880,9 +880,9 @@ void outputFunction(FILE *fp, FileInfo *data)
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
     if (((currentFunction->ArgTypes[i]%1000)/100 == 3)&&
-	(currentFunction->ArgCounts[i] <= 0)&&
-	(currentFunction->ArgTypes[i]%1000 != 309)&&
-	(currentFunction->ArgTypes[i]%1000 != 303)&&
+        (currentFunction->ArgCounts[i] <= 0)&&
+        (currentFunction->ArgTypes[i]%1000 != 309)&&
+        (currentFunction->ArgTypes[i]%1000 != 303)&&
         (currentFunction->ArgTypes[i]%1000 != 302)) args_ok = 0;
     }
 
@@ -901,7 +901,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     {
     args_ok = 0;
     if (!strcmp("New",currentFunction->Name) &&
-	currentFunction->NumberOfArguments == 0)
+        currentFunction->NumberOfArguments == 0)
       {
       class_has_new = 1;
       }
@@ -932,19 +932,19 @@ static void create_class_doc(FILE *fp, FileInfo *data)
   else
     {
     fprintf(fp,"%s - no description provided.\\n\\n",
-	    quote_string(data->ClassName,120));
+            quote_string(data->ClassName,120));
     }
 
   if (data->NumberOfSuperClasses > 0)
     {
     fprintf(fp,"Super Class:\\n\\n %s\\n\\n",
-	    quote_string(data->SuperClasses[0],120));
+            quote_string(data->SuperClasses[0],120));
     }
 
   fprintf(fp,"Description:\\n\\n");
   fprintf(fp,"%s\\n",  
-	  data->Description ? quote_string(data->Description,1000) : 
-	                      "None provided.\\n");
+          data->Description ? quote_string(data->Description,1000) : 
+                              "None provided.\\n");
 
   if (data->Caveats)
     {
@@ -981,15 +981,15 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   
   fprintf(fp,"#if defined(WIN32)\n");
   fprintf(fp,"extern \"C\" { __declspec( dllexport ) PyObject *PyVTKClass_%sNew(char *); }\n",
-	  data->ClassName);
+          data->ClassName);
   fprintf(fp,"#else\n");
   fprintf(fp,"extern \"C\" { PyObject *PyVTKClass_%sNew(char *); }\n",
-	  data->ClassName);
+          data->ClassName);
   fprintf(fp,"#endif\n\n");
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
     fprintf(fp,"extern \"C\" { PyObject *PyVTKClass_%sNew(char *); }\n",
-	    data->SuperClasses[i]);
+            data->SuperClasses[i]);
     }
   
   if (!strcmp("vtkObject",data->ClassName))
@@ -1008,9 +1008,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"      return NULL;\n");
     fprintf(fp,"      }\n");
     fprintf(fp,"    Py_INCREF(temp1);\n");
-    fprintf(fp,"    vtkPythonCommand *cbc = new vtkPythonCommand;\n");
+    fprintf(fp,"    vtkPythonCommand *cbc = vtkPythonCommand::New();\n");
     fprintf(fp,"    cbc->SetObject(temp1);\n");
     fprintf(fp,"    temp20 = op->AddObserver(temp0,cbc);\n");
+    fprintf(fp,"    cbc->Delete();\n");
     fprintf(fp,"    return PyInt_FromLong((long)temp20);\n");
     fprintf(fp,"    }\n");
     fprintf(fp,"  return NULL;\n");
@@ -1073,7 +1074,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"                        \"%s\",modulename,\n",data->ClassName);
     fprintf(fp,"                        %sDoc,\n",data->ClassName);
     fprintf(fp,"                        PyVTKClass_%sNew(modulename));\n}\n\n",
-	    data->SuperClasses[0]);
+            data->SuperClasses[0]);
     }
   else if (strcmp(data->ClassName,"vtkObject") == 0)
     {
@@ -1107,12 +1108,12 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
     fprintf(fp,"static PyMethodDef Py%sNewMethod = \\\n",data->ClassName);
     fprintf(fp,"{ \"%s\",  (PyCFunction)PyVTKObject_%sNew, 1,\n",
-	    data->ClassName,data->ClassName);
+            data->ClassName,data->ClassName);
     fprintf(fp,"  %sDoc };\n\n",data->ClassName);
 
     fprintf(fp,"PyObject *PyVTKClass_%sNew(char *vtkNotUsed(modulename))\n{\n",data->ClassName);
     fprintf(fp,"  return PyCFunction_New(&Py%sNewMethod,Py_None);\n}\n\n",
-	    data->ClassName);
+            data->ClassName);
     }
   else
     {

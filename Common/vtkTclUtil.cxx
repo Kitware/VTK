@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkTclUtil.h"
 #include "vtkSetGet.h"
-
+#include "vtkCallbackCommand.h"
 
 vtkTclInterpStruct *vtkGetInterpStruct(Tcl_Interp *interp)
 {
@@ -292,10 +292,11 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
   Tcl_SetHashValue(entry,(ClientData)command);
   
   // setup the delete callback
-  vtkCallbackCommand *cbc = new vtkCallbackCommand;
+  vtkCallbackCommand *cbc = vtkCallbackCommand::New();
   cbc->SetCallback(vtkTclDeleteObjectFromHash);
   cbc->SetClientData((void *)as);
   as->Tag = temp->AddObserver(vtkCommand::DeleteEvent, cbc);
+  cbc->Delete();
   
   Tcl_SetResult(interp, (char *)name, TCL_VOLATILE);
 }
@@ -545,10 +546,11 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
   Tcl_SetHashValue(entry,(ClientData)(cs->CommandFunction));
   
   // setup the delete callback
-  vtkCallbackCommand *cbc = new vtkCallbackCommand;
+  vtkCallbackCommand *cbc = vtkCallbackCommand::New();
   cbc->SetCallback(vtkTclDeleteObjectFromHash);
   cbc->SetClientData((void *)as);
   as->Tag = ((vtkObject *)temp)->AddObserver(vtkCommand::DeleteEvent, cbc);
+  cbc->Delete();
 
   Tcl_SetResult(interp, argv[1], TCL_VOLATILE);
   return TCL_OK;

@@ -56,11 +56,23 @@ class vtkObject;
 class VTK_COMMON_EXPORT vtkCommand
 {
 public:
-  vtkCommand() {};
-  virtual ~vtkCommand() {};
-  static vtkCommand *New();
-  void Delete() {delete this;};
+  void Delete() {
+    this->UnRegister(); }
 
+  // Description:
+  // Increase the reference count (mark as used by another object).
+  void Register();
+  void Register(vtkObject *) {
+    this->Register(); }
+  
+  // Description:
+  // Decrease the reference count (release by another object). This has
+  // the same effect as invoking Delete() (i.e., it reduces the reference
+  // count by 1).
+  void UnRegister();
+  void UnRegister(vtkObject *) {
+    this->UnRegister(); }
+  
   virtual void Execute(vtkObject *caller, unsigned long, void *callData) = 0;
   static const char *GetStringFromEventId(unsigned long event);
   static unsigned long GetEventIdFromString(const char *event);
@@ -102,64 +114,15 @@ public:
     ModifiedEvent,
     WindowLevelEvent,
     NextDataEvent,
+    PushDataStartEvent,
     UserEvent = 1000
   };
 //ETX
+protected:
+  int ReferenceCount;      // Number of uses of this object by other objects
+  vtkCommand() { this->ReferenceCount = 1;};
+  virtual ~vtkCommand() {};
 };
-
-//BTX - begin tcl exclude
-
-// a good command to use for generic function callbacks
-// the function should have the format 
-// void func(vtkObject *,void *clientdata, void *calldata)
-class VTK_COMMON_EXPORT vtkCallbackCommand : public vtkCommand
-{
-public:
-  vtkCallbackCommand();
-  ~vtkCallbackCommand();
-  static vtkCallbackCommand *New() 
-    {return new vtkCallbackCommand;};
-
-  void SetClientData(void *cd) 
-    {this->ClientData = cd;};
-  void SetCallback(void (*f)(vtkObject *, unsigned long, void *, void *)) 
-    {this->Callback = f;};
-  void SetClientDataDeleteCallback(void (*f)(void *))
-    {this->ClientDataDeleteCallback = f;};
-  
-  void Execute(vtkObject *caller, unsigned long event, void *callData);
-
-  void *ClientData;
-  void (*Callback)(vtkObject *, unsigned long, void *, void *);
-  void (*ClientDataDeleteCallback)(void *);
-};
-
-
-// the old style void fund(void *) callbacks
-class VTK_COMMON_EXPORT vtkOldStyleCallbackCommand : public vtkCommand
-{
-public:
-  vtkOldStyleCallbackCommand();
-  ~vtkOldStyleCallbackCommand();
-  static vtkOldStyleCallbackCommand *New() 
-    {return new vtkOldStyleCallbackCommand;};
-
-  void SetClientData(void *cd) 
-    {this->ClientData = cd;};
-  void SetCallback(void (*f)(void *)) 
-    {this->Callback = f;};
-  void SetClientDataDeleteCallback(void (*f)(void *))
-    {this->ClientDataDeleteCallback = f;};
-  
-  void Execute(vtkObject *,unsigned long, void *);
-
-  void *ClientData;
-  void (*Callback)(void *);
-  void (*ClientDataDeleteCallback)(void *);
-};
-
-
-//ETX end tcl exclude
 
 #endif /* __vtkCommand_h */
  

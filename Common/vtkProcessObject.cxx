@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkProcessObject.h"
 #include "vtkObjectFactory.h"
-#include "vtkCommand.h"
+#include "vtkOldStyleCallbackCommand.h"
 
 //-------------------------------------------------------------------------
 vtkProcessObject* vtkProcessObject::New()
@@ -303,31 +303,34 @@ void vtkProcessObject::UpdateProgress(float amount)
 // Specify function to be called before object executes.
 void vtkProcessObject::SetStartMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->StartTag);
   this->StartTag = this->AddObserver(vtkCommand::StartEvent,cbc);
+  cbc->Delete();
 }
 
 // Specify function to be called to show progress of filter
 void vtkProcessObject::SetProgressMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->ProgressTag);
   this->ProgressTag = this->AddObserver(vtkCommand::ProgressEvent,cbc);
+  cbc->Delete();
 }
 
 // Specify function to be called after object executes.
 void vtkProcessObject::SetEndMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->EndTag);
   this->EndTag = this->AddObserver(vtkCommand::EndEvent,cbc);
+  cbc->Delete();
 }
 
 

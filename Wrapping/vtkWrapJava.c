@@ -114,7 +114,7 @@ void use_hints(FILE *fp)
           strcmp(CurrentData->ClassName,"vtkDataWriter"))
         { 
         fprintf(fp,"    return vtkJavaMakeJArrayOfByteFromUnsignedChar(env,temp%i,%i);\n",
-	        MAX_ARGS, currentFunction->HintSize);
+                MAX_ARGS, currentFunction->HintSize);
         }
       else
         {
@@ -123,17 +123,17 @@ void use_hints(FILE *fp)
       break;
     case 301:
       fprintf(fp,"    return vtkJavaMakeJArrayOfDoubleFromFloat(env,temp%i,%i);\n",
-	      MAX_ARGS, currentFunction->HintSize);
+              MAX_ARGS, currentFunction->HintSize);
       break;
       
     case 307:  
       fprintf(fp,"    return vtkJavaMakeJArrayOfDoubleFromDouble(env,temp%i,%i);\n",
-	      MAX_ARGS, currentFunction->HintSize);
+              MAX_ARGS, currentFunction->HintSize);
       break;
       
     case 304: 
       fprintf(fp,"    return vtkJavaMakeJArrayOfIntFromInt(env,temp%i,%i);\n",
-	      MAX_ARGS, currentFunction->HintSize);
+              MAX_ARGS, currentFunction->HintSize);
       break;
       
     case 305: case 306: case 314: case 315: case 316:
@@ -214,9 +214,9 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     case 2: fprintf(fp, "&&"); break;
     case 3: 
       if ((i == MAX_ARGS)||(aType%10 == 9)||(aType%1000 == 303)) 
-	{
-	fprintf(fp, " *"); 
-	}
+        {
+        fprintf(fp, " *"); 
+        }
       break;
     case 4: fprintf(fp, "&*"); break;
     case 5: fprintf(fp, "*&"); break;
@@ -276,18 +276,18 @@ void get_args(FILE *fp, int i)
     case 307:
       fprintf(fp,"  tempArray%i = (void *)(env->GetDoubleArrayElements(id%i,NULL));\n",i,i);
       for (j = 0; j < currentFunction->ArgCounts[i]; j++)
-	{
-	fprintf(fp,"  temp%i[%i] = ((jdouble *)tempArray%i)[%i];\n",i,j,i,j);
-	}
+        {
+        fprintf(fp,"  temp%i[%i] = ((jdouble *)tempArray%i)[%i];\n",i,j,i,j);
+        }
       fprintf(fp,"  env->ReleaseDoubleArrayElements(id%i,(jdouble *)tempArray%i,0);\n",i,i);      
       break;
     case 304:
     case 306:
       fprintf(fp,"  tempArray%i = (void *)(env->GetIntArrayElements(id%i,NULL));\n",i,i);
       for (j = 0; j < currentFunction->ArgCounts[i]; j++)
-	{
-	fprintf(fp,"  temp%i[%i] = ((jint *)tempArray%i)[%i];\n",i,j,i,j);
-	}
+        {
+        fprintf(fp,"  temp%i[%i] = ((jint *)tempArray%i)[%i];\n",i,j,i,j);
+        }
       fprintf(fp,"  env->ReleaseIntArrayElements(id%i,(jint *)tempArray%i,0);\n",i,i);      
       break;
     case 2:    
@@ -325,7 +325,7 @@ void do_return(FILE *fp)
       fprintf(fp,"      env->ExceptionClear();\n");
       fprintf(fp,"      // no java stub for this class exists? Use function return type\n");
       fprintf(fp,"      tempH = vtkJavaCreateNewJavaStub(env, \"vtk/%s\", (void *)temp%i);\n",
-		  currentFunction->ReturnClass, MAX_ARGS);
+                  currentFunction->ReturnClass, MAX_ARGS);
       fprintf(fp,"      }\n");
       fprintf(fp,"    }\n");      
       fprintf(fp,"  return tempH;\n");
@@ -353,81 +353,81 @@ int DoneOne()
     {
     fi = wrappedFunctions[i];
     if ((!strcmp(fi->Name,currentFunction->Name))
-	&&(fi->NumberOfArguments == currentFunction->NumberOfArguments))
+        &&(fi->NumberOfArguments == currentFunction->NumberOfArguments))
       {
       match = 1;
       for (j = 0; j < fi->NumberOfArguments; j++)
-	{
-	if ((fi->ArgTypes[j] != currentFunction->ArgTypes[j]) &&
-	    !(((fi->ArgTypes[j]%1000 == 309)&&
-	       (currentFunction->ArgTypes[j]%1000 == 109)) ||
-	      ((fi->ArgTypes[j]%1000 == 109)&&
-	       (currentFunction->ArgTypes[j]%1000 == 309)) ||
-	      ((fi->ArgTypes[j]%1000 == 301)&&
-	       (currentFunction->ArgTypes[j]%1000 == 307)) ||
-	      ((fi->ArgTypes[j]%1000 == 307)&&
-	       (currentFunction->ArgTypes[j]%1000 == 301)) ||
-	      ((fi->ArgTypes[j]%1000 == 304)&&
-	       (currentFunction->ArgTypes[j]%1000 == 306)) ||
-	      ((fi->ArgTypes[j]%1000 == 306)&&
-	       (currentFunction->ArgTypes[j]%1000 == 304)) ||
-	      ((fi->ArgTypes[j]%1000 == 1)&&
-	       (currentFunction->ArgTypes[j]%1000 == 7)) ||
-	      ((fi->ArgTypes[j]%1000 == 7)&&
-	       (currentFunction->ArgTypes[j]%1000 == 1)) ||
-	      ((fi->ArgTypes[j]%1000 == 4)&&
-	       (currentFunction->ArgTypes[j]%1000 == 6)) ||
-	      ((fi->ArgTypes[j]%1000 == 6)&&
-	       (currentFunction->ArgTypes[j]%1000 == 4))))
-	  {
-	  match = 0;
-	  }
-	else
-	  {
-	  if (fi->ArgTypes[j]%1000 == 309 || fi->ArgTypes[j]%1000 == 109)
-	    {
-	    if (strcmp(fi->ArgClasses[j],currentFunction->ArgClasses[j]))
-	      {
-	      match = 0;
-	      }
-	    }
-	  }
-	}
+        {
+        if ((fi->ArgTypes[j] != currentFunction->ArgTypes[j]) &&
+            !(((fi->ArgTypes[j]%1000 == 309)&&
+               (currentFunction->ArgTypes[j]%1000 == 109)) ||
+              ((fi->ArgTypes[j]%1000 == 109)&&
+               (currentFunction->ArgTypes[j]%1000 == 309)) ||
+              ((fi->ArgTypes[j]%1000 == 301)&&
+               (currentFunction->ArgTypes[j]%1000 == 307)) ||
+              ((fi->ArgTypes[j]%1000 == 307)&&
+               (currentFunction->ArgTypes[j]%1000 == 301)) ||
+              ((fi->ArgTypes[j]%1000 == 304)&&
+               (currentFunction->ArgTypes[j]%1000 == 306)) ||
+              ((fi->ArgTypes[j]%1000 == 306)&&
+               (currentFunction->ArgTypes[j]%1000 == 304)) ||
+              ((fi->ArgTypes[j]%1000 == 1)&&
+               (currentFunction->ArgTypes[j]%1000 == 7)) ||
+              ((fi->ArgTypes[j]%1000 == 7)&&
+               (currentFunction->ArgTypes[j]%1000 == 1)) ||
+              ((fi->ArgTypes[j]%1000 == 4)&&
+               (currentFunction->ArgTypes[j]%1000 == 6)) ||
+              ((fi->ArgTypes[j]%1000 == 6)&&
+               (currentFunction->ArgTypes[j]%1000 == 4))))
+          {
+          match = 0;
+          }
+        else
+          {
+          if (fi->ArgTypes[j]%1000 == 309 || fi->ArgTypes[j]%1000 == 109)
+            {
+            if (strcmp(fi->ArgClasses[j],currentFunction->ArgClasses[j]))
+              {
+              match = 0;
+              }
+            }
+          }
+        }
       if ((fi->ReturnType != currentFunction->ReturnType) &&
-	  !(((fi->ReturnType%1000 == 309)&&
-	     (currentFunction->ReturnType%1000 == 109)) ||
-	    ((fi->ReturnType%1000 == 109)&&
-	     (currentFunction->ReturnType%1000 == 309)) ||
-	    ((fi->ReturnType%1000 == 301)&&
-	     (currentFunction->ReturnType%1000 == 307)) ||
-	    ((fi->ReturnType%1000 == 307)&&
-	     (currentFunction->ReturnType%1000 == 301)) ||
-	    ((fi->ReturnType%1000 == 304)&&
-	     (currentFunction->ReturnType%1000 == 306)) ||
-	    ((fi->ReturnType%1000 == 306)&&
-	     (currentFunction->ReturnType%1000 == 304)) ||
-	    ((fi->ReturnType%1000 == 1)&&
-	     (currentFunction->ReturnType%1000 == 7)) ||
-	    ((fi->ReturnType%1000 == 7)&&
-	     (currentFunction->ReturnType%1000 == 1)) ||
-	    ((fi->ReturnType%1000 == 4)&&
-	     (currentFunction->ReturnType%1000 == 6)) ||
-	    ((fi->ReturnType%1000 == 6)&&
-	     (currentFunction->ReturnType%1000 == 4))))
-	
-	{
-	match = 0;
-	}
+          !(((fi->ReturnType%1000 == 309)&&
+             (currentFunction->ReturnType%1000 == 109)) ||
+            ((fi->ReturnType%1000 == 109)&&
+             (currentFunction->ReturnType%1000 == 309)) ||
+            ((fi->ReturnType%1000 == 301)&&
+             (currentFunction->ReturnType%1000 == 307)) ||
+            ((fi->ReturnType%1000 == 307)&&
+             (currentFunction->ReturnType%1000 == 301)) ||
+            ((fi->ReturnType%1000 == 304)&&
+             (currentFunction->ReturnType%1000 == 306)) ||
+            ((fi->ReturnType%1000 == 306)&&
+             (currentFunction->ReturnType%1000 == 304)) ||
+            ((fi->ReturnType%1000 == 1)&&
+             (currentFunction->ReturnType%1000 == 7)) ||
+            ((fi->ReturnType%1000 == 7)&&
+             (currentFunction->ReturnType%1000 == 1)) ||
+            ((fi->ReturnType%1000 == 4)&&
+             (currentFunction->ReturnType%1000 == 6)) ||
+            ((fi->ReturnType%1000 == 6)&&
+             (currentFunction->ReturnType%1000 == 4))))
+        
+        {
+        match = 0;
+        }
       else
-	{
-	if (fi->ReturnType%1000 == 309 || fi->ReturnType%1000 == 109)
-	  {
-	  if (strcmp(fi->ReturnClass,currentFunction->ReturnClass))
-	    {
-	    match = 0;
-	    }
-	  }
-	}
+        {
+        if (fi->ReturnType%1000 == 309 || fi->ReturnType%1000 == 109)
+          {
+          if (strcmp(fi->ReturnClass,currentFunction->ReturnClass))
+            {
+            match = 0;
+            }
+          }
+        }
       if (match) return 1;
       }
     }
@@ -473,8 +473,8 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (currentFunction->ArgTypes[i]%1000 == 9) args_ok = 0;
     if ((currentFunction->ArgTypes[i]%10) == 8) args_ok = 0;
     if (((currentFunction->ArgTypes[i]%1000)/100 != 3)&&
-	(currentFunction->ArgTypes[i]%1000 != 109)&&
-	((currentFunction->ArgTypes[i]%1000)/100)) args_ok = 0;
+        (currentFunction->ArgTypes[i]%1000 != 109)&&
+        ((currentFunction->ArgTypes[i]%1000)/100)) args_ok = 0;
     if (currentFunction->ArgTypes[i]%1000 == 313) args_ok = 0;
     if (currentFunction->ArgTypes[i]%1000 == 314) args_ok = 0;
     if (currentFunction->ArgTypes[i]%1000 == 315) args_ok = 0;
@@ -500,9 +500,9 @@ void outputFunction(FILE *fp, FileInfo *data)
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
     if (((currentFunction->ArgTypes[i]%1000)/100 == 3)&&
-	(currentFunction->ArgCounts[i] <= 0)&&
-	(currentFunction->ArgTypes[i]%1000 != 309)&&
-	(currentFunction->ArgTypes[i]%1000 != 303)) args_ok = 0;
+        (currentFunction->ArgCounts[i] <= 0)&&
+        (currentFunction->ArgTypes[i]%1000 != 309)&&
+        (currentFunction->ArgTypes[i]%1000 != 303)) args_ok = 0;
     }
 
   /* if we need a return type hint make sure we have one */
@@ -548,73 +548,73 @@ void outputFunction(FILE *fp, FileInfo *data)
       fprintf(fp,"extern \"C\" JNIEXPORT ");
       return_result(fp);
       fprintf(fp," JNICALL Java_vtk_%s_%s_1%i(JNIEnv *env, jobject obj",
-	      data->ClassName,currentFunction->Name, numberOfWrappedFunctions);
+              data->ClassName,currentFunction->Name, numberOfWrappedFunctions);
       
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	  {
-	    fprintf(fp,",");
-	    output_proto_vars(fp, i);
-	  }
+          {
+            fprintf(fp,",");
+            output_proto_vars(fp, i);
+          }
       fprintf(fp,")\n{\n");
       
       /* get the object pointer */
       fprintf(fp,"  %s *op;\n",data->ClassName);
       /* process the args */
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	  {
-	    output_temp(fp, i, currentFunction->ArgTypes[i],
-		    currentFunction->ArgClasses[i],
-		    currentFunction->ArgCounts[i]);
-	  }
+          {
+            output_temp(fp, i, currentFunction->ArgTypes[i],
+                    currentFunction->ArgClasses[i],
+                    currentFunction->ArgCounts[i]);
+          }
       output_temp(fp, MAX_ARGS,currentFunction->ReturnType,
-		  currentFunction->ReturnClass,0);
+                  currentFunction->ReturnClass,0);
       
       /* now get the required args from the stack */
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	  {
-	    get_args(fp, i);
-	  }
+          {
+            get_args(fp, i);
+          }
       
       fprintf(fp,"\n  op = (%s *)vtkJavaGetPointerFromObject(env,obj,(char *) \"%s\");\n",
-	      data->ClassName,data->ClassName);
+              data->ClassName,data->ClassName);
       
       
       switch (currentFunction->ReturnType%1000)
-	  {
-	    case 2:
-	    fprintf(fp,"  op->%s(",currentFunction->Name);
-	  break;
-	    case 109:
-	    fprintf(fp,"  temp%i = &(op)->%s(",MAX_ARGS, currentFunction->Name);
-	  break;
-	  default:
-	     fprintf(fp,"  temp%i = (op)->%s(",MAX_ARGS, currentFunction->Name);
-	  }
+          {
+            case 2:
+            fprintf(fp,"  op->%s(",currentFunction->Name);
+          break;
+            case 109:
+            fprintf(fp,"  temp%i = &(op)->%s(",MAX_ARGS, currentFunction->Name);
+          break;
+          default:
+             fprintf(fp,"  temp%i = (op)->%s(",MAX_ARGS, currentFunction->Name);
+          }
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	  {
-	    if (i)
-		{
-	      fprintf(fp,",");
-		}
-	    if (currentFunction->ArgTypes[i]%1000 == 109)
-		{
-	      fprintf(fp,"*(temp%i)",i);
-		}
-	    else if (currentFunction->ArgTypes[i] == 5000)
-		{
-	      fprintf(fp,"vtkJavaVoidFunc,(void *)temp%i",i);
-		}
-	    else
-		{
-	      fprintf(fp,"temp%i",i);
-		}
-	  } /* for */
+          {
+            if (i)
+                {
+              fprintf(fp,",");
+                }
+            if (currentFunction->ArgTypes[i]%1000 == 109)
+                {
+              fprintf(fp,"*(temp%i)",i);
+                }
+            else if (currentFunction->ArgTypes[i] == 5000)
+                {
+              fprintf(fp,"vtkJavaVoidFunc,(void *)temp%i",i);
+                }
+            else
+                {
+              fprintf(fp,"temp%i",i);
+                }
+          } /* for */
       fprintf(fp,");\n");
       if (currentFunction->NumberOfArguments == 1 && currentFunction->ArgTypes[0] == 5000)
-	  {
-	    fprintf(fp,"  op->%sArgDelete(vtkJavaVoidFuncArgDelete);\n",
-		  currentFunction->Name);
-	  }
+          {
+            fprintf(fp,"  op->%sArgDelete(vtkJavaVoidFuncArgDelete);\n",
+                  currentFunction->Name);
+          }
       
       do_return(fp);
       fprintf(fp,"}\n");
@@ -638,7 +638,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
     fprintf(fp,"extern \"C\" JNIEXPORT void* %s_Typecast(void *op,char *dType);\n",
-	    data->SuperClasses[i]);
+            data->SuperClasses[i]);
     }
   
   fprintf(fp,"\nextern \"C\" JNIEXPORT void* %s_Typecast(void *me,char *dType)\n{\n",data->ClassName);
@@ -651,7 +651,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
     fprintf(fp,"  if ((res= %s_Typecast(me,dType)) != NULL)",
-	    data->SuperClasses[i]);
+            data->SuperClasses[i]);
     fprintf(fp," { return res; }\n");
     }
   fprintf(fp,"  return NULL;\n");
@@ -667,10 +667,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   if ((!data->NumberOfSuperClasses)&&(data->HasDelete))
     {
     fprintf(fp,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKDelete(JNIEnv *env,jobject obj)\n",
-	    data->ClassName);
+            data->ClassName);
     fprintf(fp,"{\n  %s *op;\n",data->ClassName);
     fprintf(fp,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,(char *) \"%s\");\n",
-	    data->ClassName,data->ClassName);
+            data->ClassName,data->ClassName);
     fprintf(fp,"  vtkJavaDeleteObject(env,obj);\n");
     fprintf(fp,"  op->Delete();\n");
     fprintf(fp,"}\n");
@@ -678,7 +678,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   if (data->IsConcrete)
     {
     fprintf(fp,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKInit(JNIEnv *env, jobject obj)",
-	    data->ClassName);
+            data->ClassName);
     fprintf(fp,"\n{");
     fprintf(fp,"\n  %s *aNewOne = %s::New();",data->ClassName, data->ClassName);
     fprintf(fp,"\n  int id= vtkJavaRegisterNewObject(env,obj,(void *)aNewOne);");
@@ -687,11 +687,11 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     } 
 
   fprintf(fp,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKCastInit(JNIEnv *env, jobject obj)",
-		data->ClassName);
+                data->ClassName);
   fprintf(fp,"\n{");
   fprintf(fp,"\n  int id= vtkJavaGetId(env,obj);");
   fprintf(fp,"\n  vtkJavaRegisterCastFunction(env,obj,id,(void *)%s_Typecast);", 
-	    data->ClassName);
+            data->ClassName);
   fprintf(fp,"\n}\n");
 
   /* for vtkRenderWindow we want to add a special method to support */
@@ -711,7 +711,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  ostrstream buf;\n");
     fprintf(fp,"  op->Print(buf);\n");
     fprintf(fp,"  buf.put('\\0');\n");  
-	fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,buf.str());\n");
+        fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,buf.str());\n");
     fprintf(fp,"  delete buf.str();\n");
 
     fprintf(fp,"  return tmp;\n");
@@ -720,7 +720,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"\nextern \"C\" JNIEXPORT jint JNICALL Java_vtk_vtkObject_AddObserver(JNIEnv *env,jobject obj, jstring id0, jobject id1, jstring id2)\n");
     fprintf(fp,"{\n  vtkObject *op;\n");
 
-    fprintf(fp,"  vtkJavaCommand *cbc = new vtkJavaCommand;\n");
+    fprintf(fp,"  vtkJavaCommand *cbc = vtkJavaCommand::New();\n");
     fprintf(fp,"  cbc->AssignJavaVM(env);\n");
     fprintf(fp,"  cbc->SetGlobalRef(env->NewGlobalRef(id1));\n");
     fprintf(fp,"  cbc->SetMethodID(env->GetMethodID(env->GetObjectClass(id1),vtkJavaUTFToChar(env,id2),\"()V\"));\n");
@@ -729,6 +729,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj,(char *) \"vtkObject\");\n");
     fprintf(fp,"  unsigned long     temp20;\n");
     fprintf(fp,"  temp20 = op->AddObserver(temp0,cbc);\n");
+    fprintf(fp,"  cbc->Delete();\n");
     fprintf(fp,"  return temp20;\n}\n");
    }
 }

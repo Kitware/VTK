@@ -1,6 +1,7 @@
 SOURCE_FILES( Common_SRCS
 vtkAbstractMapper 
 vtkAbstractTransform 
+vtkCallbackCommand 
 vtkCell 
 vtkCell3D
 vtkCommand 
@@ -77,6 +78,7 @@ vtkMatrixToLinearTransform
 vtkMultiThreader 
 vtkMutexLock 
 vtkObject 
+vtkOldStyleCallbackCommand 
 vtkOrderedTriangulator
 vtkOutputWindow 
 vtkPerspectiveTransform 
@@ -136,6 +138,7 @@ ABSTRACT_FILES(
 vtkAbstractMapper 
 vtkAbstractTransform 
 vtkAttributeData 
+vtkCallbackCommand 
 vtkCell 
 vtkCell3D
 vtkCommand 
@@ -146,6 +149,7 @@ vtkLinearTransform
 vtkImplicitFunction 
 vtkLocator 
 vtkObjectFactory 
+vtkOldStyleCallbackCommand 
 vtkOverrideInformation 
 vtkOverrideInformationCollection 
 vtkPointSet 
@@ -162,7 +166,12 @@ ADD_LIBRARY(vtkCommon Common_SRCS)
 IF (WIN32)
   SOURCE_FILES(Common_SRCS vtkWin32OutputWindow)
 ENDIF (WIN32)
-WRAP_EXCLUDE_FILES(vtkLargeInteger)
+WRAP_EXCLUDE_FILES(
+  vtkLargeInteger 
+  vtkCommand 
+  vtkCallbackCommand 
+  vtkOldStyleCallbackCommand
+)
 
 # Allow the user to customize their build with some local options
 #

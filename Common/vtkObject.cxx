@@ -307,7 +307,7 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
 
 vtkObserver::~vtkObserver()
 {
-  delete this->Command;
+  this->Command->UnRegister();
 }
 
 vtkSubjectHelper::~vtkSubjectHelper()
@@ -344,6 +344,7 @@ AddObserver(unsigned long event, vtkCommand *cmd)
 
   elem->Event = event;
   elem->Command = cmd;
+  cmd->Register();
   elem->Next = NULL;
   elem->Tag = this->Count;
   this->Count++;

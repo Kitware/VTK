@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h" 
 #include "vtkCellPicker.h"
 #include "vtkAssemblyNode.h"
-#include "vtkCommand.h"
+#include "vtkOldStyleCallbackCommand.h"
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -118,11 +118,12 @@ vtkInteractorStyle::~vtkInteractorStyle()
 // Set the left button pressed method. This method is invoked on a left mouse button press.
 void vtkInteractorStyle::SetLeftButtonPressMethod(void (*f)(void *), void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->LeftButtonPressTag);
   this->LeftButtonPressTag = this->AddObserver(vtkCommand::LeftButtonPressEvent,cbc);
+  cbc->Delete();
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
@@ -140,11 +141,12 @@ void vtkInteractorStyle::SetLeftButtonPressMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyle::SetLeftButtonReleaseMethod(void (*f)(void *), 
                                                     void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->LeftButtonReleaseTag);
   this->LeftButtonReleaseTag = this->AddObserver(vtkCommand::LeftButtonReleaseEvent,cbc);
+  cbc->Delete();
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
@@ -162,11 +164,12 @@ void vtkInteractorStyle::SetLeftButtonReleaseMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyle::SetMiddleButtonPressMethod(void (*f)(void *), 
                                                     void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->MiddleButtonPressTag);
   this->MiddleButtonPressTag = this->AddObserver(vtkCommand::MiddleButtonPressEvent,cbc);
+  cbc->Delete();
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
@@ -184,11 +187,12 @@ void vtkInteractorStyle::SetMiddleButtonPressMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyle::SetMiddleButtonReleaseMethod(void (*f)(void *), 
                                                       void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->MiddleButtonReleaseTag);
   this->MiddleButtonPressTag = this->AddObserver(vtkCommand::MiddleButtonReleaseEvent,cbc);
+  cbc->Delete();
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
@@ -206,11 +210,12 @@ void vtkInteractorStyle::SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *)
 void vtkInteractorStyle::SetRightButtonPressMethod(void (*f)(void *), 
                                                    void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->RightButtonPressTag);
   this->RightButtonPressTag = this->AddObserver(vtkCommand::RightButtonPressEvent,cbc);
+  cbc->Delete();
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
@@ -228,11 +233,12 @@ void vtkInteractorStyle::SetRightButtonPressMethodArgDelete(void (*f)(void *))
 void vtkInteractorStyle::SetRightButtonReleaseMethod(void (*f)(void *), 
                                                      void *arg)
 {
-  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
   cbc->Callback = f;
   cbc->ClientData = arg;
   this->RemoveObserver(this->RightButtonReleaseTag);
   this->RightButtonReleaseTag = this->AddObserver(vtkCommand::RightButtonReleaseEvent,cbc);
+  cbc->Delete();
 }
 
 // Called when a void* argument is being discarded.  Lets the user free it.
