@@ -57,13 +57,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-// This is used to try to avoid extra make current calls.
-// Make current calls are expensive on Win32.
-// There is a better way... see how unix does it.
-vtkRenderWindow *vtkWin32OpenGLRenderWindow::CurrentRenderWindow = NULL;
-
-
-
 //------------------------------------------------------------------------------
 vtkWin32OpenGLRenderWindow* vtkWin32OpenGLRenderWindow::New()
 {
@@ -212,13 +205,10 @@ void vtkWin32OpenGLRenderWindow::Start(void)
 void vtkWin32OpenGLRenderWindow::MakeCurrent()
 {
   // Try to avoid doing anything (for performance).
-  if (this->CurrentRenderWindow == this)
+  if (this->ContextId && (this->ContextId != wglGetCurrentContext()))
     {
-    return;
+    wglMakeCurrent(this->DeviceContext, this->ContextId);
     }
-  this->CurrentRenderWindow = this;
-
-  wglMakeCurrent(this->DeviceContext, this->ContextId);
 }
 
 void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
