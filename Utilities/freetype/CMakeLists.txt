@@ -17,7 +17,7 @@ INCLUDE_DIRECTORIES (
 #
 # Source files
 #
-SOURCE_FILES (FREETYPE_SRCS
+SET (FREETYPE_SRCS
   src/base/ftinit.c
   src/base/ftbase.c
   src/base/ftglyph.c
@@ -55,7 +55,7 @@ ENDIF (BUILD_SHARED_LIBS)
 # Win32 flags and specific drivers
 #
 IF (WIN32)
-  SOURCE_FILES (FREETYPE_SRCS builds/win32/ftdebug.c)
+  SET (FREETYPE_SRCS ${FREETYPE_SRCS} builds/win32/ftdebug.c)
   INCLUDE_DIRECTORIES (
     BEFORE
     ${VTKFREETYPE_SOURCE_DIR}/builds/win32
@@ -64,7 +64,7 @@ IF (WIN32)
     SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w-8004")
   ENDIF (BORLAND)
 ELSE (WIN32)
-  SOURCE_FILES (FREETYPE_SRCS src/base/ftdebug.c)
+  SET( FREETYPE_SRCS ${FREETYPE_SRCS} src/base/ftdebug.c)
 ENDIF (WIN32)
 
 #
@@ -74,7 +74,7 @@ IF (UNIX)
   # IF(CMAKE_SYSTEM MATCHES "HP-UX.*")
   SET (VTKFREETYPE_HPUX_SOURCE 1)
   # ENDIF(CMAKE_SYSTEM MATCHES "HP-UX.*")
-  SOURCE_FILES (FREETYPE_SRCS builds/unix/ftsystem.c)
+  SET( FREETYPE_SRCS ${FREETYPE_SRCS} builds/unix/ftsystem.c)
   CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/builds/unix/ftconfig.h.in
                   ${VTKFREETYPE_BINARY_DIR}/builds/unix/ftconfig.h)
   INCLUDE_DIRECTORIES (
@@ -82,7 +82,7 @@ IF (UNIX)
     ${VTKFREETYPE_BINARY_DIR}/builds/unix
   )
 ELSE (UNIX)
-  SOURCE_FILES (FREETYPE_SRCS src/base/ftsystem.c)
+  SET( FREETYPE_SRCS ${FREETYPE_SRCS} src/base/ftsystem.c)
 ENDIF (UNIX)
 
 #
@@ -93,13 +93,13 @@ IF (APPLE)
   SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -fpascal-strings")
   SET (CMAKE_SHLIB_LINK_FLAGS 
    "${CMAKE_SHLIB_LINK_FLAGS} -multiply_defined suppress -framework Carbon")
-  SOURCE_FILES (FREETYPE_SRCS src/base/ftmac.c)
+  SET( FREETYPE_SRCS ${FREETYPE_SRCS} src/base/ftmac.c)
 ENDIF (APPLE)
 
 #
 # Define the library (and install it)
 #
-ADD_LIBRARY (vtkfreetype FREETYPE_SRCS)
+ADD_LIBRARY (vtkfreetype ${FREETYPE_SRCS})
 INSTALL_TARGETS (/lib/vtk vtkfreetype)
 
 #

@@ -1,7 +1,4 @@
-LINK_LIBRARIES (
-vtkCommon 
-vtkFiltering
-)
+LINK_LIBRARIES ( vtkFiltering )
 
 #
 # Add all the executables 

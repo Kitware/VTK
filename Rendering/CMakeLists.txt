@@ -1,4 +1,4 @@
-SOURCE_FILES ( Rendering_SRCS
+SET( Rendering_SRCS
 vtkAbstractMapper3D.cxx
 vtkAbstractPicker.cxx
 vtkAbstractPropPicker.cxx
@@ -97,7 +97,7 @@ IF (VTK_USE_FREETYPE)
     ${VTKFTGL_SOURCE_DIR}/src
     ${VTKFTGL_BINARY_DIR}
   )
-  SOURCE_FILES(Rendering_SRCS
+  SET(Rendering_SRCS ${Rendering_SRCS}
     vtkOpenGLFreeTypeTextMapper.cxx
     fonts/face_arial.cxx
     fonts/face_arial_bold.cxx
@@ -112,57 +112,54 @@ IF (VTK_USE_FREETYPE)
     fonts/face_times_bold_italic.cxx
     fonts/face_times_italic.cxx
   )
-  WRAP_EXCLUDE_FILES(
-    face_arial
-    face_arial_bold
-    face_arial_bold_italic
-    face_arial_italic
-    face_courier
-    face_courier_bold
-    face_courier_bold_italic
-    face_courier_italic
-    face_times
-    face_times_bold
-    face_times_bold_italic
-    face_times_italic
-  )
-  LINK_LIBRARIES(
-    vtkftgl
-    vtkfreetype
+  SET_SOURCE_FILES_PROPERTIES(
+    fonts/face_arial.cxx
+    fonts/face_arial_bold.cxx
+    fonts/face_arial_bold_italic.cxx
+    fonts/face_arial_italic.cxx
+    fonts/face_courier.cxx
+    fonts/face_courier_bold.cxx
+    fonts/face_courier_bold_italic.cxx
+    fonts/face_courier_italic.cxx
+    fonts/face_times.cxx
+    fonts/face_times_bold.cxx
+    fonts/face_times_bold_italic.cxx
+    fonts/face_times_italic.cxx
+    WRAP_EXCLUDE
   )
 ENDIF (VTK_USE_FREETYPE)
 
 IF (VTK_HAVE_VG500)
-  SOURCE_FILES ( Rendering_SRCS
+  SET( Rendering_SRCS ${Rendering_SRCS}
     vtkVolumeProVG500Mapper.cxx
     vtkOpenGLVolumeProVG500Mapper.cxx
     )
 ENDIF (VTK_HAVE_VG500)
 IF (VTK_HAVE_VP1000)
-  SOURCE_FILES ( Rendering_SRCS
+  SET( Rendering_SRCS ${Rendering_SRCS}
     vtkVolumeProVP1000Mapper.cxx
     vtkOpenGLVolumeProVP1000Mapper.cxx
     )
 ENDIF (VTK_HAVE_VP1000)
 
 
-SOURCE_FILES ( RenderingOpenGL_SRCS
-               vtkOpenGLActor.cxx
-               vtkOpenGLCamera.cxx
-               vtkOpenGLImageActor.cxx
-               vtkOpenGLImageMapper.cxx
-               vtkOpenGLLight.cxx
-               vtkOpenGLPolyDataMapper.cxx
-               vtkOpenGLPolyDataMapper2D.cxx
-               vtkOpenGLProperty.cxx
-               vtkOpenGLRenderer.cxx
-               vtkOpenGLRenderWindow.cxx
-               vtkOpenGLTexture.cxx
-               vtkOpenGLVolumeRayCastMapper.cxx
-               vtkOpenGLVolumeTextureMapper2D.cxx
-              )
+SET( RenderingOpenGL_SRCS
+  vtkOpenGLActor.cxx
+  vtkOpenGLCamera.cxx
+  vtkOpenGLImageActor.cxx
+  vtkOpenGLImageMapper.cxx
+  vtkOpenGLLight.cxx
+  vtkOpenGLPolyDataMapper.cxx
+  vtkOpenGLPolyDataMapper2D.cxx
+  vtkOpenGLProperty.cxx
+  vtkOpenGLRenderer.cxx
+  vtkOpenGLRenderWindow.cxx
+  vtkOpenGLTexture.cxx
+  vtkOpenGLVolumeRayCastMapper.cxx
+  vtkOpenGLVolumeTextureMapper2D.cxx
+  )
 
-ABSTRACT_FILES(
+SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractMapper3D
 vtkAbstractPicker
 vtkAbstractPropPicker
@@ -178,18 +175,19 @@ vtkProp3D
 vtkVolumeMapper
 vtkVolumeRayCastFunction
 vtkVolumeTextureMapper
+ABSTRACT
 )
 
 
 IF(VTK_USE_X)
-  SOURCE_FILES ( Rendering_SRCS
-               vtkXRenderWindowInteractor.cxx
-               vtkXTextMapper.cxx)
+  SET( Rendering_SRCS ${Rendering_SRCS}
+    vtkXRenderWindowInteractor.cxx
+    vtkXTextMapper.cxx)
 ENDIF(VTK_USE_X)
 
 IF (WIN32)
   SET(HAVE_OPENGL_SRCS ON)
-  SOURCE_FILES(RenderingOpenGL_SRCS
+  SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
                vtkWin32OpenGLRenderWindow.cxx
                vtkWin32RenderWindowInteractor.cxx
                vtkWin32OpenGLTextMapper.cxx
@@ -199,19 +197,18 @@ ELSE (WIN32)
   IF (APPLE)
     IF(VTK_USE_COCOA)
       SET(HAVE_OPENGL_SRCS ON)
-      SOURCE_FILES(RenderingOpenGL_SRCS
+      SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
                    vtkCocoaTextMapper.cxx
                    vtkCocoaRenderWindowInteractor.mm
                    vtkCocoaRenderWindow.mm
                    vtkCocoaWindow.mm
                    vtkCocoaGLView.mm)
-      WRAP_EXCLUDE_FILES(vtkCocoaGLView
-                         vtkCocoaWindow)
+      SET_SOURCE_FILES_PROPERTIES(vtkCocoaGLView vtkCocoaWindow WRAP_EXCLUDE)
       LINK_LIBRARIES (${OPENGL_LIBRARY} )
     ENDIF(VTK_USE_COCOA)
     IF(VTK_USE_CARBON)
       SET(HAVE_OPENGL_SRCS ON)
-      SOURCE_FILES(RenderingOpenGL_SRCS
+      SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
                    vtkCarbonTextMapper.cxx
                    vtkCarbonRenderWindowInteractor.cxx
                    vtkCarbonRenderWindow.cxx)
@@ -220,22 +217,20 @@ ELSE (WIN32)
     IF(VTK_USE_X)
       IF (OPENGL_LIBRARY)
         SET(HAVE_OPENGL_SRCS ON)
-        SOURCE_FILES(RenderingOpenGL_SRCS
+        SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
                      vtkXOpenGLRenderWindow.cxx
                      vtkXOpenGLTextMapper.cxx)
-        ABSTRACT_FILES(
-                       vtkXTextMapper)
+        SET_SOURCE_FILES_PROPERTIES(vtkXTextMapper ABSTRACT)
         LINK_LIBRARIES (${OPENGL_LIBRARY} )
       ENDIF (OPENGL_LIBRARY)
     ENDIF(VTK_USE_X)
   ELSE (APPLE)
     IF (OPENGL_LIBRARY)
       SET(HAVE_OPENGL_SRCS ON)
-      SOURCE_FILES(RenderingOpenGL_SRCS
+      SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
                    vtkXOpenGLRenderWindow.cxx
                    vtkXOpenGLTextMapper.cxx)
-      ABSTRACT_FILES(
-                     vtkXTextMapper)
+      SET_SOURCE_FILES_PROPERTIES( vtkXTextMapper ABSTRACT )
       LINK_LIBRARIES (${OPENGL_LIBRARY} )
     ENDIF (OPENGL_LIBRARY)
   ENDIF (APPLE)
@@ -244,7 +239,7 @@ ENDIF (WIN32)
 IF (VTK_MANGLE_MESA)
   IF (MESA_LIBRARY)
     SET(HAVE_OPENGL_SRCS ON)
-    SOURCE_FILES ( RenderingOpenGL_SRCS
+    SET ( RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
                  vtkMesaActor.cxx
                  vtkMesaCamera.cxx
                  vtkMesaImageActor.cxx
@@ -261,7 +256,7 @@ IF (VTK_MANGLE_MESA)
                  vtkXMesaRenderWindow.cxx
                  vtkXMesaTextMapper.cxx
                 )
-    ABSTRACT_FILES(vtkMesaRenderWindow)
+    SET_SOURCE_FILES_PROPERTIES(vtkMesaRenderWindow ABSTRACT)
     LINK_LIBRARIES (${MESA_LIBRARY})
     IF(MESA_OS_LIBRARY)
       LINK_LIBRARIES( ${MESA_OS_LIBRARY} )
@@ -280,25 +275,25 @@ IF(VTK_MAKE_INSTANTIATOR)
   IF(HAVE_OPENGL_SRCS)
     # Setup vtkInstantiator registration for this library's classes.
     VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator RenderingInstantiator_SRCS
-                          Rendering_SRCS RenderingOpenGL_SRCS
+                          ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
                           EXPORT_MACRO VTK_RENDERING_EXPORT
                           HEADER_LOCATION ${VTK_BINARY_DIR})
-    ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingOpenGL_SRCS
-                             RenderingInstantiator_SRCS)
+    ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
+                             ${RenderingInstantiator_SRCS})
   ELSE(HAVE_OPENGL_SRCS)
     # Setup vtkInstantiator registration for this library's classes.
     VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator RenderingInstantiator_SRCS
-                          Rendering_SRCS
+                          ${Rendering_SRCS}
                           EXPORT_MACRO VTK_RENDERING_EXPORT
                           HEADER_LOCATION ${VTK_BINARY_DIR})
-    ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingInstantiator_SRCS)
+    ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${RenderingInstantiator_SRCS})
   ENDIF(HAVE_OPENGL_SRCS)
   INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkRenderingInstantiator)
 ELSE(VTK_MAKE_INSTANTIATOR)
   IF (HAVE_OPENGL_SRCS)
-    ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingOpenGL_SRCS)
+    ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${RenderingOpenGL_SRCS})
   ELSE (HAVE_OPENGL_SRCS)
-    ADD_LIBRARY(vtkRendering Rendering_SRCS)
+    ADD_LIBRARY(vtkRendering ${Rendering_SRCS})
   ENDIF (HAVE_OPENGL_SRCS)
 ENDIF(VTK_MAKE_INSTANTIATOR)
 
@@ -307,8 +302,16 @@ ENDIF(VTK_MAKE_INSTANTIATOR)
 INCLUDE (${VTK_BINARY_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
 
+TARGET_LINK_LIBRARIES (vtkRendering vtkIO vtkGraphics vtkImaging)
+IF (VTK_USE_FREETYPE)
+  TARGET_LINK_LIBRARIES(vtkRendering
+    vtkftgl
+    vtkfreetype
+  )
+ENDIF (VTK_USE_FREETYPE)
+
 IF (VTK_WRAP_TCL)
-  SOURCE_FILES(RenderingTCL_SRCS
+  SET(RenderingTCL_SRCS
      vtkTkRenderWidget.cxx
      vtkTkImageViewerWidget.cxx)
 
@@ -348,7 +351,8 @@ IF (VTK_WRAP_TCL)
     IF (APPLE)
       INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Rendering/tkOSXInternals)
     ELSE (APPLE)
-      SOURCE_FILES(RenderingTCL_SRCS vtkXRenderWindowTclInteractor.cxx)
+      SET(RenderingTCL_SRCS ${RenderingTCL_SRCS} 
+        vtkXRenderWindowTclInteractor.cxx)
     ENDIF (APPLE)
   ENDIF (WIN32) 
 
@@ -357,8 +361,8 @@ IF (VTK_WRAP_TCL)
       VTK_WRAP_TCL(vtkRenderingTCL
                  SOURCES
                  RenderingTCL_SRCS
-                 Rendering_SRCS
-                 RenderingOpenGL_SRCS
+                 ${Rendering_SRCS}
+                 ${RenderingOpenGL_SRCS}
                  COMMANDS
                  vtkTkRenderWidget
                  vtkTkImageViewerWidget
@@ -367,8 +371,8 @@ IF (VTK_WRAP_TCL)
       VTK_WRAP_TCL(vtkRenderingTCL
                  SOURCES
                  RenderingTCL_SRCS
-                 Rendering_SRCS
-                 RenderingOpenGL_SRCS
+                 ${Rendering_SRCS}
+                 ${RenderingOpenGL_SRCS}
                  )
     ENDIF (NOT VTK_DISABLE_TK_INIT)
   ELSE (HAVE_OPENGL_SRCS)
@@ -376,7 +380,7 @@ IF (VTK_WRAP_TCL)
       VTK_WRAP_TCL(vtkRenderingTCL
                  SOURCES
                  RenderingTCL_SRCS
-                 Rendering_SRCS
+                 ${Rendering_SRCS}
                  COMMANDS
                  vtkTkRenderWidget
                  vtkTkImageViewerWidget
@@ -385,21 +389,20 @@ IF (VTK_WRAP_TCL)
       VTK_WRAP_TCL(vtkRenderingTCL
                  SOURCES
                  RenderingTCL_SRCS
-                 Rendering_SRCS
+                 ${Rendering_SRCS}
                  )
     ENDIF (NOT VTK_DISABLE_TK_INIT)
   ENDIF (HAVE_OPENGL_SRCS)
 
   IF (APPLE)
-    ADD_LIBRARY(vtkRenderingTCL SHARED RenderingTCL_SRCS)
+    ADD_LIBRARY(vtkRenderingTCL SHARED ${RenderingTCL_SRCS})
   ELSE (APPLE)
-    ADD_LIBRARY(vtkRenderingTCL RenderingTCL_SRCS)
+    ADD_LIBRARY(vtkRenderingTCL ${RenderingTCL_SRCS})
   ENDIF (APPLE)
   TARGET_LINK_LIBRARIES (vtkRenderingTCL
                          vtkGraphicsTCL
                          vtkImagingTCL
-                         vtkFilteringTCL
-                         vtkCommonTCL
+                         vtkRendering
                          ${TCL_LIBRARY})
 
   IF (TK_LIBRARY)
@@ -510,13 +513,6 @@ IF (VTK_WRAP_JAVA)
   INSTALL_TARGETS(/lib/vtk vtkRenderingJava)
 ENDIF (VTK_WRAP_JAVA)
 
-LINK_LIBRARIES (
-vtkCommon
-vtkFiltering
-vtkImaging
-vtkGraphics
-vtkRendering
-)
 
 IF(VTK_USE_X)
 LINK_LIBRARIES(-lXt)
@@ -525,9 +521,9 @@ ADD_DEFINITIONS(${CMAKE_X_CFLAGS})
 ENDIF(VTK_USE_X)
 
 INSTALL_TARGETS(/lib/vtk vtkRendering)
-INSTALL_FILES(/include/vtk .h Rendering_SRCS vtkRender)
+INSTALL_FILES(/include/vtk .h ${Rendering_SRCS} vtkRender)
 IF (HAVE_OPENGL_SRCS)
-  INSTALL_FILES(/include/vtk .h RenderingOpenGL_SRCS)
+  INSTALL_FILES(/include/vtk .h ${RenderingOpenGL_SRCS})
 ENDIF (HAVE_OPENGL_SRCS)
 
 CONFIGURE_FILE(

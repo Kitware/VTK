@@ -5,7 +5,7 @@ INCLUDE_DIRECTORIES(${VTKPNG_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${VTKPNG_BINARY_DIR})
 
 # source files for png
-SOURCE_FILES(PNG_SRCS
+SET(PNG_SRCS
 pngget.c    pngrio.c    pngwrite.c
 png.c       pngmem.c    pngrtran.c  pngtrans.c  pngwtran.c
 pngerror.c  pngpread.c  pngrutil.c  pngvcrd.c   pngwutil.c
@@ -26,7 +26,7 @@ CONFIGURE_FILE(${VTKPNG_SOURCE_DIR}/.NoDartCoverage
 CONFIGURE_FILE(${VTKPNG_SOURCE_DIR}/pngDllConfig.h.in
                ${VTKPNG_BINARY_DIR}/pngDllConfig.h)
 
-ADD_LIBRARY(vtkpng PNG_SRCS)
+ADD_LIBRARY(vtkpng ${PNG_SRCS})
 TARGET_LINK_LIBRARIES(vtkpng vtkzlib)
 
 INSTALL_TARGETS(/lib/vtk vtkpng)

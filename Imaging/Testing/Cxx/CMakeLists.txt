@@ -1,3 +1,11 @@
+LINK_LIBRARIES (
+vtkIO
+vtkImaging
+vtkGraphics
+)
+
+LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff )
+
 IF (VTK_USE_RENDERING)
   LINK_LIBRARIES (vtkRendering)
   LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
@@ -36,15 +44,4 @@ IF (VTK_USE_RENDERING)
 
 ENDIF (VTK_USE_RENDERING)
 
-
-
-LINK_LIBRARIES (
-vtkIO
-vtkImaging
-vtkGraphics
-vtkFiltering 
-vtkCommon 
-)
-
-LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff)
 

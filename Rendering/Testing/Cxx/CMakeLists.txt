@@ -1,17 +1,4 @@
-LINK_LIBRARIES (
-vtkCommon 
-vtkFiltering 
-vtkImaging
-vtkGraphics
-vtkIO
-vtkRendering
-)
-
-LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff)
-
-IF (VTK_USE_FREETYPE)
-  LINK_LIBRARIES(vtkftgl vtkfreetype)
-ENDIF (VTK_USE_FREETYPE)
+LINK_LIBRARIES (vtkIO vtkRendering)
 
 LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
 IF (VTK_MANGLE_MESA)

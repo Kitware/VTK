@@ -1,4 +1,4 @@
-SOURCE_FILES( IO_SRCS
+SET( IO_SRCS
 vtkBMPReader.cxx
 vtkBMPWriter.cxx
 vtkBYUReader.cxx
@@ -62,45 +62,25 @@ vtkWriter.cxx
 vtkXMLParser.cxx
 )
 
-# for cmake version 1.1 and later
-SET(WINDOWS 0)
-IF (WIN32)
-   IF (NOT UNIX)
-   SET(WINDOWS 1)
-   ENDIF (NOT UNIX)
-ENDIF (WIN32)
-IF(NOT WINDOWS)
-  IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
-    IF (CMAKE_MINOR_VERSION MATCHES [2-9][0-9]*)
-      SET(TIFF_RIGHT_VERSION 1)
-    ENDIF (CMAKE_MINOR_VERSION MATCHES [2-9][0-9]*)
-  ENDIF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
-
-  IF(NOT TIFF_RIGHT_VERSION)
-    MESSAGE("The new TIFF reader requires CMake 1.2 or newer. Please get the new version of CMake from www.cmake.org.")
-  ENDIF(NOT TIFF_RIGHT_VERSION)
-ENDIF(NOT WINDOWS)
-
-ABSTRACT_FILES(
+SET_SOURCE_FILES_PROPERTIES(
 vtkEnSightReader
 vtkVolumeReader
 vtkWriter
+ABSTRACT
 )
-
-LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff vtkexpat )
 
 # if we are wrapping into Tcl then add the library and extra
 # source files
 #
-WRAP_EXCLUDE_FILES(vtkPLY)
+SET_SOURCE_FILES_PROPERTIES(vtkPLY WRAP_EXCLUDE)
 
 IF(VTK_MAKE_INSTANTIATOR)
   # Setup vtkInstantiator registration for this library's classes.
   VTK_MAKE_INSTANTIATOR(vtkIOInstantiator IOInstantiator_SRCS
-                        IO_SRCS
+                        ${IO_SRCS}
                         EXPORT_MACRO VTK_IO_EXPORT
                         HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkIO IO_SRCS IOInstantiator_SRCS)
+  ADD_LIBRARY(vtkIO ${IO_SRCS} ${IOInstantiator_SRCS})
   INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkIOInstantiator)
 ELSE(VTK_MAKE_INSTANTIATOR)
   ADD_LIBRARY(vtkIO IO_SRCS)
@@ -111,16 +91,19 @@ ENDIF(VTK_MAKE_INSTANTIATOR)
 INCLUDE (${VTK_BINARY_DIR}/IO/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/IO/LocalUserOptions.cmake OPTIONAL)
 
+TARGET_LINK_LIBRARIES (vtkIO vtkFiltering 
+  vtkpng vtkzlib vtkjpeg vtktiff vtkexpat)
+
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkIOTCL IOTCL_SRCS IO_SRCS)
+  VTK_WRAP_TCL(vtkIOTCL IOTCL_SRCS ${IO_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkIOTCL SHARED IOTCL_SRCS)
+    ADD_LIBRARY(vtkIOTCL SHARED ${IOTCL_SRCS})
   ELSE (APPLE)
-    ADD_LIBRARY(vtkIOTCL IOTCL_SRCS)
+    ADD_LIBRARY(vtkIOTCL ${IOTCL_SRCS})
   ENDIF (APPLE)
   TARGET_LINK_LIBRARIES (vtkIOTCL
                          vtkFilteringTCL
-                         vtkCommonTCL 
+                         vtkIO
                          ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib/vtk vtkIOTCL)
 ENDIF (VTK_WRAP_TCL)
@@ -160,11 +143,6 @@ IF (VTK_WRAP_JAVA)
   INSTALL_TARGETS(/lib/vtk vtkIOJava)
 ENDIF (VTK_WRAP_JAVA)
 
-LINK_LIBRARIES (
-vtkCommon
-vtkFiltering
-vtkIO
-)
 
 INSTALL_TARGETS(/lib/vtk vtkIO)
-INSTALL_FILES(/include/vtk .h IO_SRCS)
+INSTALL_FILES(/include/vtk .h ${IO_SRCS})

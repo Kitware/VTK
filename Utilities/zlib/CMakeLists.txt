@@ -5,7 +5,7 @@ INCLUDE_DIRECTORIES(${VTKZLIB_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${VTKZLIB_BINARY_DIR})
 
 # source files for zlib
-SOURCE_FILES(ZLIB_SRCS
+SET(ZLIB_SRCS
 adler32.c   gzio.c      inftrees.c  uncompr.c
 compress.c  infblock.c  infutil.c   zutil.c
 crc32.c     infcodes.c 
@@ -20,7 +20,7 @@ IF(WIN32)
   ENDIF(BUILD_SHARED_LIBS)
   IF(NOT UNIX)
     IF(NOT BORLAND)
-       SOURCE_FILES(ZLIB_SRCS zlib.def zlib.rc  )
+       SET(ZLIB_SRCS ${ZLIB_SRCS} zlib.def zlib.rc  )
     ENDIF(NOT BORLAND) 
   ENDIF(NOT UNIX)   
 ENDIF(WIN32)
@@ -31,6 +31,6 @@ CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/zlibDllConfig.h.in
                ${VTKZLIB_BINARY_DIR}/zlibDllConfig.h)
 
 
-ADD_LIBRARY(vtkzlib ZLIB_SRCS)
+ADD_LIBRARY(vtkzlib ${ZLIB_SRCS})
 
 INSTALL_TARGETS(/lib/vtk vtkzlib)

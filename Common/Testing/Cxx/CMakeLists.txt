@@ -1,52 +1,33 @@
-LINK_LIBRARIES (
-vtkCommon 
-)
+LINK_LIBRARIES (vtkCommon)
 
 #
 # Add all the executables 
 #
-ADD_EXECUTABLE(ObjectFactory ObjectFactory.cxx)
-ADD_EXECUTABLE(otherArrays otherArrays.cxx)
-ADD_EXECUTABLE(otherEmptyCell otherEmptyCell.cxx)
-ADD_EXECUTABLE(otherRectilinearGrid otherRectilinearGrid.cxx)
-ADD_EXECUTABLE(otherCellBoundaries otherCellBoundaries.cxx)
-ADD_EXECUTABLE(otherCellDerivatives otherCellDerivatives.cxx)
-ADD_EXECUTABLE(otherCellPosition otherCellPosition.cxx)
-ADD_EXECUTABLE(otherStructuredGrid otherStructuredGrid.cxx)
-ADD_EXECUTABLE(otherTimerLog otherTimerLog.cxx)
-ADD_EXECUTABLE(otherLookupTable otherLookupTable.cxx)
-ADD_EXECUTABLE(otherByteSwap otherByteSwap.cxx)
-ADD_EXECUTABLE(otherCellArray otherCellArray.cxx)
-ADD_EXECUTABLE(otherCellTypes otherCellTypes.cxx)
-ADD_EXECUTABLE(otherFieldData otherFieldData.cxx)
-ADD_EXECUTABLE(quadraticEvaluation quadraticEvaluation.cxx)
-ADD_EXECUTABLE(TestImageIterator TestImageIterator.cxx)
-ADD_EXECUTABLE(TestContainers TestContainers.cxx)
-ADD_EXECUTABLE(TestCxxFeatures TestCxxFeatures.cxx)
-ADD_EXECUTABLE(TestReferenceCountedList TestReferenceCountedList.cxx)
-ADD_EXECUTABLE(TestList TestList.cxx)
-ADD_EXECUTABLE(TestMap TestMap.cxx)
-ADD_EXECUTABLE(TestString TestString.cxx)
+FOREACH (test 
+  ObjectFactory
+  otherArrays
+  otherEmptyCell
+  otherRectilinearGrid
+  otherCellBoundaries
+  otherCellDerivatives
+  otherCellPosition
+  otherStructuredGrid
+  otherTimerLog
+  otherLookupTable
+  otherByteSwap
+  otherCellArray
+  otherCellTypes
+  otherFieldData
+  quadraticEvaluation
+  TestImageIterator
+  TestContainers
+  TestCxxFeatures
+  TestReferenceCountedList
+  TestList
+  TestMap
+  TestString
+  )
 
-ADD_TEST(ObjectFactory ${CXX_TEST_PATH}/ObjectFactory)
-ADD_TEST(otherArrays ${CXX_TEST_PATH}/otherArrays)
-ADD_TEST(otherEmptyCell ${CXX_TEST_PATH}/otherEmptyCell)
-ADD_TEST(otherRectilinearGrid ${CXX_TEST_PATH}/otherRectilinearGrid)
-ADD_TEST(otherCellBoundaries ${CXX_TEST_PATH}/otherCellBoundaries)
-ADD_TEST(otherCellDerivatives ${CXX_TEST_PATH}/otherCellDerivatives)
-ADD_TEST(otherCellPosition ${CXX_TEST_PATH}/otherCellPosition)
-ADD_TEST(otherStructuredGrid ${CXX_TEST_PATH}/otherStructuredGrid)
-ADD_TEST(otherTimerLog ${CXX_TEST_PATH}/otherTimerLog)
-ADD_TEST(otherLookupTable ${CXX_TEST_PATH}/otherLookupTable)
-ADD_TEST(otherByteSwap ${CXX_TEST_PATH}/otherByteSwap)
-ADD_TEST(otherCellArray ${CXX_TEST_PATH}/otherCellArray)
-ADD_TEST(otherCellTypes ${CXX_TEST_PATH}/otherCellTypes)
-ADD_TEST(otherFieldData ${CXX_TEST_PATH}/otherFieldData)
-ADD_TEST(quadraticEvaluation ${CXX_TEST_PATH}/quadraticEvaluation)
-ADD_TEST(TestImageIterator ${CXX_TEST_PATH}/TestImageIterator)
-ADD_TEST(TestContainers ${CXX_TEST_PATH}/TestContainers)
-ADD_TEST(TestCxxFeatures ${CXX_TEST_PATH}/TestCxxFeatures)
-ADD_TEST(TestString ${CXX_TEST_PATH}/TestString)
-ADD_TEST(TestList ${CXX_TEST_PATH}/TestList)
-ADD_TEST(TestMap ${CXX_TEST_PATH}/TestMap)
-ADD_TEST(TestReferenceCountedList ${CXX_TEST_PATH}/TestReferenceCountedList)
+  ADD_EXECUTABLE(${test} ${test}.cxx)
+  ADD_TEST(${test} ${CXX_TEST_PATH}/${test})
+ENDFOREACH (test) 

@@ -1,4 +1,4 @@
-SOURCE_FILES( Filtering_SRCS
+SET( Filtering_SRCS
 vtkCardinalSpline.cxx
 vtkCastToConcrete.cxx
 vtkCellLocator.cxx
@@ -59,7 +59,7 @@ vtkUnstructuredGridToPolyDataFilter.cxx
 vtkUnstructuredGridToUnstructuredGridFilter.cxx
 )
 
-ABSTRACT_FILES(
+SET_SOURCE_FILES_PROPERTIES(
 vtkDataObjectSource
 vtkDataSetSource
 vtkDataSetToDataSetFilter
@@ -95,19 +95,22 @@ vtkStructuredPointsToUnstructuredGridFilter
 vtkUnstructuredGridSource
 vtkUnstructuredGridToPolyDataFilter
 vtkUnstructuredGridToUnstructuredGridFilter
+ABSTRACT
 )
 
 IF(VTK_MAKE_INSTANTIATOR)
   # Setup vtkInstantiator registration for this library's classes.
   VTK_MAKE_INSTANTIATOR(vtkFilteringInstantiator FilteringInstantiator_SRCS
-                        Filtering_SRCS
+                        ${Filtering_SRCS}
                         EXPORT_MACRO VTK_FILTERING_EXPORT
                         HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkFiltering Filtering_SRCS FilteringInstantiator_SRCS)
+  ADD_LIBRARY(vtkFiltering ${Filtering_SRCS} ${FilteringInstantiator_SRCS})
   INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkFilteringInstantiator)
 ELSE(VTK_MAKE_INSTANTIATOR)
-  ADD_LIBRARY(vtkFiltering Filtering_SRCS)
+  ADD_LIBRARY(vtkFiltering ${Filtering_SRCS})
 ENDIF(VTK_MAKE_INSTANTIATOR)
+
+TARGET_LINK_LIBRARIES (vtkFiltering vtkCommon)
 
 # Allow the user to customize their build with some local options
 #
@@ -118,13 +121,13 @@ INCLUDE (${VTK_SOURCE_DIR}/Filtering/LocalUserOptions.cmake OPTIONAL)
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkFilteringTCL FilteringTCL_SRCS Filtering_SRCS)
+  VTK_WRAP_TCL(vtkFilteringTCL FilteringTCL_SRCS ${Filtering_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkFilteringTCL SHARED FilteringTCL_SRCS)
+    ADD_LIBRARY(vtkFilteringTCL SHARED ${FilteringTCL_SRCS})
   ELSE (APPLE)
-    ADD_LIBRARY(vtkFilteringTCL FilteringTCL_SRCS)
+    ADD_LIBRARY(vtkFilteringTCL ${FilteringTCL_SRCS})
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkFilteringTCL vtkCommonTCL ${TCL_LIBRARY})
+  TARGET_LINK_LIBRARIES (vtkFilteringTCL vtkCommonTCL vtkFiltering ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib/vtk vtkFilteringTCL)
 ENDIF (VTK_WRAP_TCL)
 
@@ -159,10 +162,6 @@ IF (VTK_WRAP_JAVA)
   INSTALL_TARGETS(/lib/vtk vtkFilteringJava)
 ENDIF (VTK_WRAP_JAVA)
 
-LINK_LIBRARIES (
-vtkCommon
-vtkFiltering
-)
 
 INSTALL_TARGETS(/lib/vtk vtkFiltering)
-INSTALL_FILES(/include/vtk .h Filtering_SRCS)
+INSTALL_FILES(/include/vtk .h ${Filtering_SRCS})

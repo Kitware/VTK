@@ -2,20 +2,7 @@
 CONFIGURE_FILE(
   ${VTK_SOURCE_DIR}/Wrapping/Tcl/tkAppInit.cxx.in 
   ${VTK_BINARY_DIR}/Wrapping/Tcl/tkAppInit.cxx)
-ADD_EXECUTABLE(vtk ${VTK_BINARY_DIR}/Wrapping/Tcl/tkAppInit.cxx)
 
-LINK_LIBRARIES (
-  vtkImagingTCL
-  vtkGraphicsTCL
-  vtkIOTCL
-  vtkFilteringTCL 
-  vtkCommonTCL  
-  vtkIO
-  vtkGraphics
-  vtkImaging
-  vtkFiltering 
-  vtkCommon 
-)
 
 IF (TCL_LIBRARY)
   LINK_LIBRARIES (${TCL_LIBRARY})
@@ -115,7 +102,16 @@ ENDIF (VTK_USE_PARALLEL)
 #
 # link in the PNG library if it was found
 #
-TARGET_LINK_LIBRARIES(vtk vtkpng vtkzlib vtkjpeg vtktiff vtkexpat)
+ADD_EXECUTABLE(vtk ${VTK_BINARY_DIR}/Wrapping/Tcl/tkAppInit.cxx)
+
+TARGET_LINK_LIBRARIES (vtk
+  vtkImagingTCL
+  vtkGraphicsTCL
+  vtkIOTCL
+  vtkIO
+  vtkGraphics
+  vtkImaging
+)
 
 INSTALL_TARGETS(/bin vtk)
 

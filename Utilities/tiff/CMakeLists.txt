@@ -5,7 +5,7 @@ INCLUDE_DIRECTORIES(${VTKTIFF_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${VTKTIFF_BINARY_DIR})
 
 # library object files common to compression and decompression
-SOURCE_FILES(common_SRCS
+SET(common_SRCS
 tif_aux.c tif_close.c
 tif_codec.c tif_compress.c tif_dir.c tif_dirinfo.c tif_dirread.c
 tif_dirwrite.c tif_dumpmode.c tif_error.c tif_fax3.c tif_flush.c
@@ -25,7 +25,6 @@ IF(WIN32)
   ENDIF(BUILD_SHARED_LIBS)
 ENDIF(WIN32)
 
-ADD_LIBRARY(vtktiff common_SRCS)
 SET(WINDOWS 0)
 IF (WIN32)
   IF (NOT UNIX)
@@ -35,9 +34,9 @@ ENDIF (WIN32)
 
 IF(WINDOWS)
   ADD_DEFINITIONS( -DTIF_PLATFORM_CONSOLE )
-  SOURCE_FILES(common_SRCS tif_win32.c fax3sm_winnt.c)
+  SET(common_SRCS ${common_SRCS} tif_win32.c fax3sm_winnt.c)
   IF (NOT BORLAND)
-    SOURCE_FILES(common_SRCS vtktiff.def)
+    SET(common_SRCS ${common_SRCS} vtktiff.def)
   ENDIF(NOT BORLAND)
 ELSE (WINDOWS)
   IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
@@ -47,7 +46,8 @@ ELSE (WINDOWS)
   ENDIF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
 
   IF(TIFF_RIGHT_VERSION)
-    SOURCE_FILES(common_SRCS tif_unix.c GENERATED tif_fax3sm.c)
+    SET(common_SRCS ${common_SRCS} tif_unix.c tif_fax3sm.c)
+    SET_SOURCE_FILE_PROPERTIES(tif_fax3sm.c GENERATED)
     ADD_EXECUTABLE(mkg3states mkg3states.c)    
     ADD_CUSTOM_COMMAND(
       SOURCE ${EXECUTABLE_OUTPUT_PATH}/mkg3states
@@ -65,6 +65,7 @@ CONFIGURE_FILE(${VTKTIFF_SOURCE_DIR}/.NoDartCoverage
 CONFIGURE_FILE(${VTKTIFF_SOURCE_DIR}/tiffDllConfig.h.in
                ${VTKTIFF_BINARY_DIR}/tiffDllConfig.h)
 
+ADD_LIBRARY(vtktiff ${common_SRCS})
 TARGET_LINK_LIBRARIES( vtktiff vtkzlib vtkjpeg )
 
 INSTALL_TARGETS(/lib/vtk vtktiff)

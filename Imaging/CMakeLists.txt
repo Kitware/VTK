@@ -1,4 +1,4 @@
-SOURCE_FILES( Imaging_SRCS
+SET( Imaging_SRCS
 vtkBooleanTexture.cxx
 vtkExtractVOI.cxx
 vtkGaussianSplatter.cxx
@@ -105,24 +105,25 @@ vtkTriangularTexture.cxx
 vtkVoxelModeller.cxx
 )
 
-ABSTRACT_FILES(
+SET_SOURCE_FILES_PROPERTIES(
 vtkImageDecomposeFilter
 vtkImageIterateFilter
 vtkImagePadFilter
 vtkImageSpatialFilter
 vtkImageFourierFilter
+ABSTRACT
 )
 
 IF(VTK_MAKE_INSTANTIATOR)
   # Setup vtkInstantiator registration for this library's classes.
   VTK_MAKE_INSTANTIATOR(vtkImagingInstantiator ImagingInstantiator_SRCS
-                        Imaging_SRCS
+                        ${Imaging_SRCS}
                         EXPORT_MACRO VTK_IMAGING_EXPORT
                         HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkImaging Imaging_SRCS ImagingInstantiator_SRCS)
+  ADD_LIBRARY(vtkImaging ${Imaging_SRCS} ${ImagingInstantiator_SRCS})
   INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkImagingInstantiator)
 ELSE(VTK_MAKE_INSTANTIATOR)
-  ADD_LIBRARY(vtkImaging Imaging_SRCS)
+  ADD_LIBRARY(vtkImaging ${Imaging_SRCS})
 ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # Allow the user to customize their build with some local options
@@ -130,19 +131,21 @@ ENDIF(VTK_MAKE_INSTANTIATOR)
 INCLUDE (${VTK_BINARY_DIR}/Imaging/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Imaging/LocalUserOptions.cmake OPTIONAL)
 
+TARGET_LINK_LIBRARIES (vtkImaging vtkFiltering)
+
 # if we are wrapping into Tcl then add the library and extra
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkImagingTCL ImagingTCL_SRCS Imaging_SRCS)
+  VTK_WRAP_TCL(vtkImagingTCL ImagingTCL_SRCS ${Imaging_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkImagingTCL SHARED ImagingTCL_SRCS)
+    ADD_LIBRARY(vtkImagingTCL SHARED ${ImagingTCL_SRCS})
   ELSE (APPLE)
-    ADD_LIBRARY(vtkImagingTCL ImagingTCL_SRCS)
+    ADD_LIBRARY(vtkImagingTCL ${ImagingTCL_SRCS})
   ENDIF (APPLE)
   TARGET_LINK_LIBRARIES (vtkImagingTCL
                          vtkFilteringTCL
-                         vtkCommonTCL
+                         vtkImaging
                          ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib/vtk vtkImagingTCL)
 ENDIF (VTK_WRAP_TCL)
@@ -184,11 +187,5 @@ IF (VTK_WRAP_JAVA)
   INSTALL_TARGETS(/lib/vtk vtkImagingJava)
 ENDIF (VTK_WRAP_JAVA)
 
-LINK_LIBRARIES (
-vtkCommon
-vtkFiltering
-vtkImaging
-)
-
 INSTALL_TARGETS(/lib/vtk vtkImaging)
-INSTALL_FILES(/include/vtk .h Imaging_SRCS)
+INSTALL_FILES(/include/vtk .h ${Imaging_SRCS})

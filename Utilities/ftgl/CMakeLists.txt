@@ -23,7 +23,7 @@ SET (VTKFTGL_DO_NOT_USE_STL 1)
 #
 # Source files
 #
-SOURCE_FILES (FTGL_SRCS
+SET (FTGL_SRCS
   src/FTBitmapGlyph.cpp
   src/FTCharmap.cpp
   src/FTFace.cpp
@@ -54,7 +54,7 @@ ENDIF (NOT VTKFTGL_DO_NOT_USE_TEXTURE_FONT)
 #
 SET (VTKFTGL_DO_NOT_USE_VECTORISER 1)
 IF (NOT VTKFTGL_DO_NOT_USE_VECTORISER)
-  SOURCE_FILES (FTGL_SRCS
+  SET (FTGL_SRCS ${FTGL_SRCS}
     src/FTExtrdGlyph.cpp
     src/FTGLExtrdFont.cpp
     src/FTGLOutlineFont.cpp
@@ -117,7 +117,7 @@ LINK_LIBRARIES (${OPENGL_LIBRARY})
 #
 # Define the library (and install it)
 #
-ADD_LIBRARY (vtkftgl FTGL_SRCS)
+ADD_LIBRARY (vtkftgl ${FTGL_SRCS})
 TARGET_LINK_LIBRARIES(vtkftgl
   vtkfreetype
 )
@@ -212,12 +212,12 @@ IF (FTGL_BUILD_EXAMPLES)
     #
     # Example 1
     #
-    SOURCE_FILES (FTGL_DEMO_SRCS
+    SET(FTGL_DEMO_SRCS
       demo/tb.c
       demo/trackball.c
       demo/FTGLDemo.cpp
     )
-    ADD_EXECUTABLE (ftgl_demo FTGL_DEMO_SRCS)
+    ADD_EXECUTABLE (ftgl_demo ${FTGL_DEMO_SRCS})
 
     #
     # Example 2

@@ -1,5 +1,5 @@
 
-SOURCE_FILES( Graphics_SRCS
+SET( Graphics_SRCS
 vtkAppendFilter.cxx
 vtkAppendPolyData.cxx
 vtkApproximatingSubdivisionFilter.cxx
@@ -152,23 +152,24 @@ vtkWarpVector.cxx
 vtkWindowedSincPolyDataFilter.cxx
 )
 
-ABSTRACT_FILES(
+SET_SOURCE_FILES_PROPERTIES(
 vtkApproximatingSubdivisionFilter
 vtkDicer
 vtkInterpolatingSubdivisionFilter
 vtkStreamer
+ABSTRACT
 )
 
 IF(VTK_MAKE_INSTANTIATOR)
   # Setup vtkInstantiator registration for this library's classes.
   VTK_MAKE_INSTANTIATOR(vtkGraphicsInstantiator GraphicsInstantiator_SRCS
-                        Graphics_SRCS
+                        ${Graphics_SRCS}
                         EXPORT_MACRO VTK_GRAPHICS_EXPORT
                         HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkGraphics Graphics_SRCS GraphicsInstantiator_SRCS)
+  ADD_LIBRARY(vtkGraphics ${Graphics_SRCS} ${GraphicsInstantiator_SRCS})
   INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkGraphicsInstantiator)
 ELSE(VTK_MAKE_INSTANTIATOR)
-  ADD_LIBRARY(vtkGraphics Graphics_SRCS)
+  ADD_LIBRARY(vtkGraphics ${Graphics_SRCS})
 ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # Allow the user to customize their build with some local options
@@ -176,17 +177,19 @@ ENDIF(VTK_MAKE_INSTANTIATOR)
 INCLUDE (${VTK_BINARY_DIR}/Graphics/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Graphics/LocalUserOptions.cmake OPTIONAL)
 
+TARGET_LINK_LIBRARIES (vtkGraphics vtkFiltering)
+
 # if we are wrapping into Tcl then add the library and extra
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkGraphicsTCL GraphicsTCL_SRCS Graphics_SRCS)
+  VTK_WRAP_TCL(vtkGraphicsTCL GraphicsTCL_SRCS ${Graphics_SRCS})
   IF (APPLE)
-   ADD_LIBRARY(vtkGraphicsTCL SHARED GraphicsTCL_SRCS)
+   ADD_LIBRARY(vtkGraphicsTCL SHARED ${GraphicsTCL_SRCS})
   ELSE (APPLE)
-    ADD_LIBRARY(vtkGraphicsTCL GraphicsTCL_SRCS)
+    ADD_LIBRARY(vtkGraphicsTCL ${GraphicsTCL_SRCS})
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkGraphicsTCL vtkFilteringTCL vtkCommonTCL
+  TARGET_LINK_LIBRARIES (vtkGraphicsTCL vtkFilteringTCL vtkGraphics
                          ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib/vtk vtkGraphicsTCL)
 ENDIF (VTK_WRAP_TCL)
@@ -222,13 +225,7 @@ IF (VTK_WRAP_JAVA)
   INSTALL_TARGETS(/lib/vtk vtkGraphicsJava)
 ENDIF (VTK_WRAP_JAVA)
 
-LINK_LIBRARIES (
-vtkCommon
-vtkFiltering
-vtkGraphics
-)
-
 
 INSTALL_TARGETS(/lib/vtk vtkGraphics)
-INSTALL_FILES(/include/vtk .h Graphics_SRCS)
+INSTALL_FILES(/include/vtk .h ${Graphics_SRCS})
 

@@ -1,4 +1,4 @@
-SOURCE_FILES( Common_SRCS
+SET( Common_SRCS
 vtkAbstractMapper.cxx
 vtkAbstractTransform.cxx
 vtkActor2D.cxx
@@ -159,7 +159,7 @@ vtkXMLFileOutputWindow.cxx
 
 
 # vtkObjectBase is marked ABSTRACT so that instantiators are happy.
-ABSTRACT_FILES(
+SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractMapper
 vtkAbstractTransform
 vtkCallbackCommand
@@ -192,13 +192,14 @@ vtkStructuredData
 vtkViewport
 vtkWarpTransform
 vtkWindow
+ABSTRACT
 )
 
 IF (WIN32)
-  SOURCE_FILES(Common_SRCS vtkWin32OutputWindow.cxx)
+  SET(Common_SRCS ${Common_SRCS} vtkWin32OutputWindow.cxx)
 ENDIF (WIN32)
 
-WRAP_EXCLUDE_FILES(
+SET_SOURCE_FILES_PROPERTIES(
   vtkCallbackCommand
   vtkCommand
   vtkContainer
@@ -209,18 +210,19 @@ WRAP_EXCLUDE_FILES(
   vtkLargeInteger
   vtkOldStyleCallbackCommand
   vtkString
+  WRAP_EXCLUDE
 )
 
 IF(VTK_MAKE_INSTANTIATOR)
   # Setup vtkInstantiator registration for this library's classes.
   VTK_MAKE_INSTANTIATOR(vtkCommonInstantiator CommonInstantiator_SRCS
-                        Common_SRCS
+                        ${Common_SRCS}
                         EXPORT_MACRO VTK_COMMON_EXPORT
                         HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkCommon Common_SRCS CommonInstantiator_SRCS)
+  ADD_LIBRARY(vtkCommon ${Common_SRCS} ${CommonInstantiator_SRCS})
   INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkCommonInstantiator)
 ELSE(VTK_MAKE_INSTANTIATOR)
-  ADD_LIBRARY(vtkCommon Common_SRCS)
+  ADD_LIBRARY(vtkCommon ${Common_SRCS})
 ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # Allow the user to customize their build with some local options
@@ -232,13 +234,13 @@ INCLUDE (${VTK_SOURCE_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkCommonTCL CommonTCL_SRCS Common_SRCS)
+  VTK_WRAP_TCL(vtkCommonTCL CommonTCL_SRCS ${Common_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkCommonTCL SHARED CommonTCL_SRCS vtkTclUtil)
+    ADD_LIBRARY(vtkCommonTCL SHARED ${CommonTCL_SRCS} vtkTclUtil.cxx)
   ELSE (APPLE)
-    ADD_LIBRARY(vtkCommonTCL CommonTCL_SRCS vtkTclUtil)
+    ADD_LIBRARY(vtkCommonTCL ${CommonTCL_SRCS} vtkTclUtil.cxx)
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkCommonTCL ${TCL_LIBRARY})
+  TARGET_LINK_LIBRARIES (vtkCommonTCL ${TCL_LIBRARY} vtkCommon)
   INSTALL_TARGETS(/lib/vtk vtkCommonTCL)
   INSTALL_FILES(/include/vtk .h
     vtkTclUtil
@@ -280,10 +282,8 @@ IF (VTK_WRAP_JAVA)
   )
 ENDIF (VTK_WRAP_JAVA)
 
-LINK_LIBRARIES (vtkCommon )
-
 INSTALL_TARGETS(/lib/vtk vtkCommon)
-INSTALL_FILES(/include/vtk .h Common_SRCS
+INSTALL_FILES(/include/vtk .h ${Common_SRCS}
   vtkCellType
   vtkSetGet
   vtkSystemIncludes
