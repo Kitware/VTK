@@ -41,16 +41,26 @@ vtkBridgeCellIteratorOnCellList.cxx
   WRAP_EXCLUDE
 )
 
-#
-# Create a test lists
-CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
-  otherCreation.cxx
+# add tests that do not require data
+SET(MyTests
+ otherCreation.cxx
+)
+
+# add tests that require data
+IF (VTK_DATA_ROOT)
+ SET(MyTests ${MyTests}
   TestGenericDataSetTessellator.cxx
   TestGenericGeometryFilter.cxx
   TestGenericGlyph3DFilter.cxx
   TestGenericContourFilter.cxx
   TestGenericClip.cxx
   TestGenericCutter.cxx
+ )
+ENDIF (VTK_DATA_ROOT)
+
+#
+# Create a test lists
+CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests} ${Kit_SRCS} )
