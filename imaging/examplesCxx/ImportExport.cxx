@@ -28,6 +28,10 @@ void main( int argc, char *argv[] )
  int *dimensions = exporter->GetDataDimensions();
  short *data = new short[memsize/sizeof(short)];
 
+ // this is just to improve the regression testing,
+ // don't use it in a 'real' program
+ exporter->GetInput()->SetMemoryLimit(512);
+
  // export the data into the array
  exporter->Export(data);
 
