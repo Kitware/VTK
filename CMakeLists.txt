@@ -2,6 +2,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 1.6)
 PROJECT(VTK)
 INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j).*$")
 
+# Don't build anything unless the version of CMake is high enough.
+# The matching ELSE/ENDIF should be the last lines in the file.
+IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.5)
+
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 4)
@@ -638,3 +642,11 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VTK_REQUIRED_CXX_FLAGS}")
 # Allow local additions to this file without CVS conflicts.
 INCLUDE (${VTK_BINARY_DIR}/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
+
+# If the version of CMake was too old, complain and build nothing.
+# These should be the last lines in this file.
+ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.5)
+  MESSAGE(SEND_ERROR
+          "This version of CMake is too old to build VTK.  "
+          "Please upgrade to CMake 1.6.")
+ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.5)
