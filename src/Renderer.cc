@@ -123,7 +123,7 @@ void vlRenderer::ResetCamera()
   all_bounds[1] = all_bounds[3] = all_bounds[5] = -LARGE_FLOAT;
   
   // loop through actors 
-  for (num = 0; num < this->Actors.GetNumberOfMembers(); num++)
+  for (num = 1; num <= this->Actors.GetNumberOfMembers(); num++)
     {
     anActor = this->Actors.GetMember(num);
  
