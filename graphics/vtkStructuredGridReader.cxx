@@ -231,7 +231,7 @@ void vtkStructuredGridReader::Execute()
 
       else if ( ! strncmp(line, "cell_data", 9) )
         {
-        if (!this->Reader->Read(&nCells))
+        if (!this->Reader->Read(&ncells))
           {
           vtkErrorMacro(<<"Cannot read cell data!");
           this->Reader->CloseVTKFile ();
