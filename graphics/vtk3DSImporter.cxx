@@ -44,6 +44,36 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyDataNormals.h"
 #include "vtkStripper.h"
 
+static Colour Black = {0.0, 0.0, 0.0};
+static char   obj_name[80] = "";
+static Colour fog_colour = {0.0, 0.0, 0.0};
+static Colour col        = {0.0, 0.0, 0.0};
+static Colour global_amb = {0.1, 0.1, 0.1};
+static Vector pos        = {0.0, 0.0, 0.0};
+static Vector target     = {0.0, 0.0, 0.0};
+static float  fog_distance = 0.0;
+static float  hotspot = -1;
+static float  falloff = -1;
+/* Default material property */
+static MatProp DefaultMaterial =
+  { "Default", NULL,
+    {1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}, {1.0, 1.0, 1.0},
+    70.0, // shininess
+    0.0,  // transparency
+    0.0,  // reflection
+    0,// self illumination
+    "",   // tex_map
+    0.0,  // tex_strength
+    "",   // bump_map
+    0.0,  // bump_strength
+    NULL};// vtkProperty
+
+static void cleanup_name (char *);
+static void list_insert (List **root, List *new_node);
+static void *list_find (List **root, char *name);
+static void list_kill (List **root);
+static MatProp *create_mprop (void);
+static Mesh *create_mesh (char *name, int vertices, int faces);
 static int parse_3ds_file (vtk3DSImporter *importer);
 static void parse_3ds (vtk3DSImporter *importer, Chunk *mainchunk);
 static void parse_mdata (vtk3DSImporter *importer, Chunk *mainchunk);
@@ -362,7 +392,7 @@ static MatProp *create_mprop()
     new_mprop->shininess = 0.0;
     new_mprop->transparency = 0.0;
     new_mprop->reflection = 0.0;
-    new_mprop->self_illum = FALSE;
+    new_mprop->self_illum = 0;
 
     strcpy (new_mprop->tex_map, "");
     new_mprop->tex_strength = 0.0;
@@ -402,8 +432,8 @@ static Mesh *create_mesh (char *name, int vertices, int faces)
 	new_mesh->mtl = (Material **) malloc (faces * sizeof(*new_mesh->mtl));
     }
 
-    new_mesh->hidden = FALSE;
-    new_mesh->shadow = TRUE;
+    new_mesh->hidden = 0;
+    new_mesh->shadow = 1;
 
     return new_mesh;
 }
@@ -537,7 +567,7 @@ static void parse_mat_entry (vtk3DSImporter *importer, Chunk *mainchunk)
 		case 0xA050: mprop->transparency = parse_percentage(importer);
 			     break;
 
-		case 0xA080: mprop->self_illum = TRUE;
+		case 0xA080: mprop->self_illum = 1;
 			     break;
 
 		case 0xA220: mprop->reflection = parse_percentage(importer);
@@ -607,9 +637,9 @@ static void parse_named_object (vtk3DSImporter *importer, Chunk *mainchunk)
 			     break;
 		case 0x4700: parse_n_camera(importer);
 			     break;
-		case 0x4010: if (mesh != NULL) mesh->hidden = TRUE;
+		case 0x4010: if (mesh != NULL) mesh->hidden = 1;
 			     break;
-		case 0x4012: if (mesh != NULL) mesh->shadow = FALSE;
+		case 0x4012: if (mesh != NULL) mesh->shadow = 0;
 			     break;
 	    }
 	}
@@ -732,8 +762,8 @@ static void parse_n_direct_light (vtk3DSImporter *importer, Chunk *mainchunk)
     Chunk chunk;
     SpotLight *s;
     OmniLight *o;
-    int light_off = FALSE;
-    int spot_flag = FALSE;
+    int light_off = 0;
+    int spot_flag = 0;
 
     read_point (importer, pos);
     parse_colour (importer, &col);
@@ -743,10 +773,10 @@ static void parse_n_direct_light (vtk3DSImporter *importer, Chunk *mainchunk)
 
 	if (chunk.end <= mainchunk->end) {
 	    switch (chunk.tag) {
-		case 0x4620: light_off = TRUE;
+		case 0x4620: light_off = 1;
 			     break;
 		case 0x4610: parse_dl_spotlight(importer);
-			     spot_flag = TRUE;
+			     spot_flag = 1;
 			     break;
 	    }
 	}

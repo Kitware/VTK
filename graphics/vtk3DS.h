@@ -39,9 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
-#ifndef __VECT_H
-#define __VECT_H
-
 #include <ctype.h>
 
 typedef float Vector[3];
@@ -49,29 +46,6 @@ typedef float Vector[3];
 #define X 0
 #define Y 1
 #define Z 2
-
-#endif
-/* Internal bounding modes */
-#define FALSE 0
-#define TRUE 1
-#define OFF  0
-#define ON   1
-#define AUTO 2
-
-#define MAX_LIB  10
-#define ASPECT   1.333
-
-
-#define DEG(x) ((180.0/M_PI)*(x))
-#define RAD(x) ((M_PI/180.0)*(x))
-
-#ifndef M_PI
-#define	M_PI		3.14159265358979323846
-#endif
-
-#ifndef MAXFLOAT
-#define MAXFLOAT (1e37)
-#endif
 
 /* A generic list type */
 #define LIST_INSERT(root, node) list_insert ((List **)&root, (List *)node)
@@ -204,36 +178,4 @@ typedef struct {
 } Colour_24;
 
 
-/* Default material property */
-static MatProp DefaultMaterial =
-  { "Default", NULL,
-    {1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}, {1.0, 1.0, 1.0},
-    70.0, // shininess
-    0.0,  // transparency
-    0.0,  // reflection
-    FALSE,// self illumination
-    "",   // tex_map
-    0.0,  // tex_strength
-    "",   // bump_map
-    0.0,  // bump_strength
-    NULL};// vtkProperty
-
-static Colour Black = {0.0, 0.0, 0.0};
-
-static char   obj_name[80] = "";
-static Colour fog_colour = {0.0, 0.0, 0.0};
-static Colour col        = {0.0, 0.0, 0.0};
-static Colour global_amb = {0.1, 0.1, 0.1};
-static Vector pos        = {0.0, 0.0, 0.0};
-static Vector target     = {0.0, 0.0, 0.0};
-static float  fog_distance = 0.0;
-static float  hotspot = -1;
-static float  falloff = -1;
-
-static void cleanup_name (char *);
-static void list_insert (List **root, List *new_node);
-static void *list_find (List **root, char *name);
-static void list_kill (List **root);
-static MatProp *create_mprop (void);
-static Mesh *create_mesh (char *name, int vertices, int faces);
 
