@@ -63,8 +63,8 @@
 #define __vtkSliceCubes_h
 
 #include "vtkObject.h"
-#include "vtkVolumeReader.h"
-#include "vtkMCubesReader.h"
+
+class vtkVolumeReader;
 
 class VTK_PATENTED_EXPORT vtkSliceCubes : public vtkObject
 {
@@ -79,7 +79,7 @@ public:
 
   // Description:
   // Set/get object to read slices.
-  vtkSetObjectMacro(Reader,vtkVolumeReader);
+  virtual void SetReader(vtkVolumeReader*);
   vtkGetObjectMacro(Reader,vtkVolumeReader);
 
   // Description:
@@ -108,6 +108,7 @@ protected:
   char *FileName;  
   float Value;
   char *LimitsFileName;
+
 private:
   vtkSliceCubes(const vtkSliceCubes&);  // Not implemented.
   void operator=(const vtkSliceCubes&);  // Not implemented.

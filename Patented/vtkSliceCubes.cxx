@@ -47,8 +47,10 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSliceCubes, "1.53");
+vtkCxxRevisionMacro(vtkSliceCubes, "1.54");
 vtkStandardNewMacro(vtkSliceCubes);
+
+vtkCxxSetObjectMacro(vtkSliceCubes,Reader,vtkVolumeReader);
 
 // Description:
 // Construct with NULL reader, output FileName specification, and limits 
