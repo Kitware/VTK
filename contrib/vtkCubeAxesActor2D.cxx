@@ -5,8 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to Kitware & RPI/SCOREC who supported the development
-             of this class.
+  Thanks:    Thorsten Dowe who modified and improved this class.
 
 Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -75,6 +74,10 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   this->FontFactor = 1.0;
   this->CornerOffset = 0.05;
 
+  this->XAxisVisibility = 1;
+  this->YAxisVisibility = 1;
+  this->ZAxisVisibility = 1;
+
   this->XLabel = new char[2];
   sprintf(this->XLabel,"%s","X");
   this->YLabel = new char[2];
@@ -137,9 +140,18 @@ int vtkCubeAxesActor2D::RenderOverlay(vtkViewport *viewport)
     }
   
   //Render the axes
-  renderedSomething += this->XAxis->RenderOverlay(viewport);
-  renderedSomething += this->YAxis->RenderOverlay(viewport);
-  renderedSomething += this->ZAxis->RenderOverlay(viewport);
+  if ( this->XAxisVisibility )
+    {
+    renderedSomething += this->XAxis->RenderOverlay(viewport);
+    }
+  if ( this->YAxisVisibility )
+    {
+    renderedSomething += this->YAxis->RenderOverlay(viewport);
+    }
+  if ( this->ZAxisVisibility )
+    {
+    renderedSomething += this->ZAxis->RenderOverlay(viewport);
+    }
 
   return renderedSomething;
 }
@@ -330,9 +342,18 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->ZAxis->SetProperty(this->GetProperty());
 
   //Render the axes
-  renderedSomething += this->XAxis->RenderOpaqueGeometry(viewport);
-  renderedSomething += this->YAxis->RenderOpaqueGeometry(viewport);
-  renderedSomething += this->ZAxis->RenderOpaqueGeometry(viewport);
+  if ( this->XAxisVisibility )
+    {
+    renderedSomething += this->XAxis->RenderOpaqueGeometry(viewport);
+    }
+  if ( this->YAxisVisibility )
+    {
+    renderedSomething += this->YAxis->RenderOpaqueGeometry(viewport);
+    }
+  if ( this->ZAxisVisibility )
+    {
+    renderedSomething += this->ZAxis->RenderOpaqueGeometry(viewport);
+    }
 
   return renderedSomething;
 }
@@ -491,6 +512,10 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Y Label: " << this->YLabel << "\n";
   os << indent << "Z Label: " << this->ZLabel << "\n";
   
+  os << indent << "X Axis Visibility: " << (this->XAxisVisibility ? "On\n" : "Off\n");
+  os << indent << "Y Axis Visibility: " << (this->YAxisVisibility ? "On\n" : "Off\n");
+  os << indent << "Z Axis Visibility: " << (this->ZAxisVisibility ? "On\n" : "Off\n");
+
   os << indent << "Font Family: ";
   if ( this->FontFamily == VTK_ARIAL )
     {

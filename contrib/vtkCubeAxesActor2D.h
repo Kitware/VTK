@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thorsten Dowe who modified and improved this class.
 
 Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -175,6 +176,18 @@ public:
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
 
+  // Description:
+  // Turn on and off the visibility of each axis.
+  vtkSetMacro(XAxisVisibility,int);
+  vtkGetMacro(XAxisVisibility,int);
+  vtkBooleanMacro(XAxisVisibility,int);
+  vtkSetMacro(YAxisVisibility,int);
+  vtkGetMacro(YAxisVisibility,int);
+  vtkBooleanMacro(YAxisVisibility,int);
+  vtkSetMacro(ZAxisVisibility,int);
+  vtkGetMacro(ZAxisVisibility,int);
+  vtkBooleanMacro(ZAxisVisibility,int);
+
 protected:
   vtkDataSet *Input;
   vtkCamera *Camera;
@@ -189,6 +202,10 @@ protected:
   char *YLabel;
   char *ZLabel;
   char *Labels[3];
+
+  int XAxisVisibility;
+  int YAxisVisibility;
+  int ZAxisVisibility;
 
   int   Bold;
   int   Italic;
