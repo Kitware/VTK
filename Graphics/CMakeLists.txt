@@ -94,7 +94,6 @@ vtkReverseSense
 vtkRibbonFilter
 vtkRotationalExtrusionFilter
 vtkRuledSurfaceFilter
-vtkScalarTree
 vtkSelectPolyData
 vtkShepardMethod
 vtkShrinkFilter

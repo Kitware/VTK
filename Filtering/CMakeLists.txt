@@ -35,6 +35,7 @@ vtkPolyDataSource
 vtkPolyDataToPolyDataFilter
 vtkRectilinearGridSource
 vtkRectilinearGridToPolyDataFilter
+vtkScalarTree
 vtkSphere
 vtkSphereSource
 vtkSpline
