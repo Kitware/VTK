@@ -105,7 +105,7 @@ inline void vtkActorCollection::AddItem(vtkActor *a)
 
 inline vtkActor *vtkActorCollection::GetNextActor() 
 { 
-  return vtkActor::SafeDownCast(this->GetNextItemAsObject());
+  return static_cast<vtkActor *>(this->GetNextItemAsObject());
 }
 
 inline vtkActor *vtkActorCollection::GetLastActor() 
@@ -116,7 +116,7 @@ inline vtkActor *vtkActorCollection::GetLastActor()
     }
   else
     {
-    return vtkActor::SafeDownCast(this->Bottom->Item);
+    return static_cast<vtkActor *>(this->Bottom->Item);
     }
 }
 

@@ -99,7 +99,7 @@ inline void vtkPropCollection::AddItem(vtkProp *a)
 
 inline vtkProp *vtkPropCollection::GetNextProp() 
 { 
-  return vtkProp::SafeDownCast(this->GetNextItemAsObject());
+  return static_cast<vtkProp *>(this->GetNextItemAsObject());
 }
 
 inline vtkProp *vtkPropCollection::GetLastProp() 
@@ -110,7 +110,7 @@ inline vtkProp *vtkPropCollection::GetLastProp()
     }
   else
     {
-    return vtkProp::SafeDownCast(this->Bottom->Item);
+    return static_cast<vtkProp *>(this->Bottom->Item);
     }
 }
 
