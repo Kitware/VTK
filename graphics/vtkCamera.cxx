@@ -65,6 +65,10 @@ vtkCamera::vtkCamera()
   this->ViewUp[1] = 1.0;
   this->ViewUp[2] = 0.0;
 
+  this->DirectionOfProjection[0] = 0.0;
+  this->DirectionOfProjection[1] = 0.0;
+  this->DirectionOfProjection[2] = 0.0;
+
   this->ViewAngle = 30.0;
 
   this->ClippingRange[0] = 0.01;
