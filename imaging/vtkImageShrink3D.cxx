@@ -200,8 +200,16 @@ void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData,
 template <class T>
 static int compare(const T *y1,const T *y2)
 {
-  if ( *y1 <  *y2) return -1; 
-  if ( *y1 == *y2) return  0;
+  if ( *y1 <  *y2) 
+    {
+    return -1; 
+    }
+  
+  if ( *y1 == *y2) 
+    {
+    return  0;
+    }
+  
   return  1;
 }
 
