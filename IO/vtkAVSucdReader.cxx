@@ -36,7 +36,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.18");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.19");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -49,7 +49,7 @@ vtkAVSucdReader::vtkAVSucdReader()
   this->NumberOfFields = 0;
   this->NumberOfNodeComponents = 0;
   this->NumberOfCellComponents = 0;
-  this->fs = NULL;
+  this->FileStream = NULL;
   this->DecrementNodeIds = 0;
   this->NumberOfNodes = 0;
   this->NumberOfCells = 0;
@@ -109,7 +109,7 @@ void vtkAVSucdReader::Execute()
 
   // If ExecuteInformation() failed the fs will be NULL and
   // ExecuteInformation() will have spit out an error.
-  if ( this->fs == NULL )
+  if ( this->FileStream == NULL )
     {
     return;
     }
@@ -158,15 +158,15 @@ void vtkAVSucdReader::ReadFile()
     this->ReadCellData(); 
     }
 
-  delete this->fs;
-  this->fs = NULL;
+  delete this->FileStream;
+  this->FileStream = NULL;
 }
 
 
 void vtkAVSucdReader::ExecuteInformation()
 {
   char magic_number='\0';
-  long TrueFileLength, CalculatedFileLength;
+  long trueFileLength, calculatedFileLength;
   int i, k, *ncomp_list;
 
   // first open file in binary mode to check the first byte.
@@ -182,40 +182,40 @@ void vtkAVSucdReader::ExecuteInformation()
     }
   
 #ifdef _WIN32
-    this->fs = new ifstream(this->FileName, ios::in | ios::binary);
+    this->FileStream = new ifstream(this->FileName, ios::in | ios::binary);
 #else
-    this->fs = new ifstream(this->FileName, ios::in);
+    this->FileStream = new ifstream(this->FileName, ios::in);
 #endif
-  if (this->fs->fail())
+  if (this->FileStream->fail())
     {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
-    delete this->fs;
-    this->fs = NULL;
+    delete this->FileStream;
+    this->FileStream = NULL;
     vtkErrorMacro("Specified filename not found");
     return;
     }
 
-  this->fs->get(magic_number);
-  this->fs->putback(magic_number);
+  this->FileStream->get(magic_number);
+  this->FileStream->putback(magic_number);
   if(magic_number != 7)
     { // most likely an ASCII file
     this->BinaryFile = 0;
-    delete this->fs; // close file to reopen it later
-    this->fs = NULL;
+    delete this->FileStream; // close file to reopen it later
+    this->FileStream = NULL;
 
-    this->fs = new ifstream(this->FileName, ios::in);
+    this->FileStream = new ifstream(this->FileName, ios::in);
     char c='\0', buf[100];
-    while(this->fs->get(c) && c == '#')
+    while(this->FileStream->get(c) && c == '#')
       {
-      this->fs->get(buf, 100, '\n'); this->fs->get(c);
+      this->FileStream->get(buf, 100, '\n'); this->FileStream->get(c);
       }
-    this->fs->putback(c);
+    this->FileStream->putback(c);
 
-    *(this->fs) >> this->NumberOfNodes;
-    *(this->fs) >> this->NumberOfCells;
-    *(this->fs) >> this->NumberOfNodeFields;
-    *(this->fs) >> this->NumberOfCellFields;
-    *(this->fs) >> this->NumberOfFields;
+    *(this->FileStream) >> this->NumberOfNodes;
+    *(this->FileStream) >> this->NumberOfCells;
+    *(this->FileStream) >> this->NumberOfNodeFields;
+    *(this->FileStream) >> this->NumberOfCellFields;
+    *(this->FileStream) >> this->NumberOfFields;
     }
   else
     {
@@ -223,17 +223,17 @@ void vtkAVSucdReader::ExecuteInformation()
 
     // Here we first need to check if the file is little-endian or big-endian
     // We will read the variable once, with the given endian-ness set up in
-    // the class constructor. If TrueFileLength does not match
-    // CalculatedFileLength, then we will toggle the endian-ness and re-swap
+    // the class constructor. If trueFileLength does not match
+    // calculatedFileLength, then we will toggle the endian-ness and re-swap
     // the variables
-    this->fs->seekg(0L, ios::end);
-    TrueFileLength = this->fs->tellg();
-    CalculatedFileLength = 0; // unknown yet
+    this->FileStream->seekg(0L, ios::end);
+    trueFileLength = this->FileStream->tellg();
+    calculatedFileLength = 0; // unknown yet
 
-    while(abs(static_cast<int>(TrueFileLength - CalculatedFileLength))/
-          TrueFileLength > 0.01)
+    while(abs(static_cast<int>(trueFileLength - calculatedFileLength))/
+          trueFileLength > 0.01)
       {
-      if(TrueFileLength != CalculatedFileLength)
+      if(trueFileLength != calculatedFileLength)
         {
         // switch to opposite of what previously set in constructor
         if(this->ByteOrder == FILE_LITTLE_ENDIAN)
@@ -246,9 +246,9 @@ void vtkAVSucdReader::ExecuteInformation()
           }
         }
       // restart at beginning of file
-      this->fs->seekg(0L, ios::beg);
+      this->FileStream->seekg(0L, ios::beg);
 
-      this->fs->read(&magic_number, 1);
+      this->FileStream->read(&magic_number, 1);
 
       this->ReadIntBlock(1, &this->NumberOfNodes);
       this->ReadIntBlock(1, &this->NumberOfCells);
@@ -264,30 +264,30 @@ void vtkAVSucdReader::ExecuteInformation()
                      << this->NumberOfFields << " "
                      << this->nlist_nodes << endl);
 
-      CalculatedFileLength  = 1 + 6*4;
-      CalculatedFileLength += 16 * this->NumberOfCells + 4 * this->nlist_nodes;
-      CalculatedFileLength += 3*4 * this->NumberOfNodes;
+      calculatedFileLength  = 1 + 6*4;
+      calculatedFileLength += 16 * this->NumberOfCells + 4 * this->nlist_nodes;
+      calculatedFileLength += 3*4 * this->NumberOfNodes;
       if(this->NumberOfNodeFields)
         {
-        CalculatedFileLength += 2052 +
+        calculatedFileLength += 2052 +
           this->NumberOfNodeFields*(12 + 4 * this->NumberOfNodes + 4);
         }
       
       if(this->NumberOfCellFields)
         {
-        CalculatedFileLength += 2052 + 
+        calculatedFileLength += 2052 + 
           this->NumberOfCellFields*(12 + 4 * this->NumberOfCells + 4);
         }
       
       if(this->NumberOfFields)
         {
-        CalculatedFileLength += 2052 + this->NumberOfFields*(4 * 5);
+        calculatedFileLength += 2052 + this->NumberOfFields*(4 * 5);
         }
       
-      vtkDebugMacro( << "TFL = " << TrueFileLength 
-                     << "\tCFL = " << CalculatedFileLength << endl);
+      vtkDebugMacro( << "TFL = " << trueFileLength 
+                     << "\tCFL = " << calculatedFileLength << endl);
 
-      //TrueFileLength = CalculatedFileLength;
+      //trueFileLength = calculatedFileLength;
       } // end of while loop
 
     const long base_offset = 1 + 6*4;
@@ -298,9 +298,9 @@ void vtkAVSucdReader::ExecuteInformation()
 
     if(this->NumberOfNodeFields)
       {
-      this->fs->seekg(offset,ios::beg);
-      this->fs->read(BUFFER1, sizeof(BUFFER1));
-      this->fs->read(BUFFER2, sizeof(BUFFER2)); // read 2nd array of 1024 bytes
+      this->FileStream->seekg(offset,ios::beg);
+      this->FileStream->read(BUFFER1, sizeof(BUFFER1));
+      this->FileStream->read(BUFFER2, sizeof(BUFFER2)); // read 2nd array of 1024 bytes
       this->ReadIntBlock(1, &this->NumberOfNodeComponents);
 
       ncomp_list = new int[this->NumberOfNodeFields];
@@ -321,7 +321,7 @@ void vtkAVSucdReader::ExecuteInformation()
       k = 0;
       for(i=0; i < this->NumberOfNodeComponents; i++)
         {
-        this->get_label(BUFFER1, i, label);
+        this->GetLabel(BUFFER1, i, label);
         vtkDebugMacro( << i+1 << " :found ND label = " << label 
                        << " [" << ncomp_list[i] << "]" <<endl);
         this->PointDataArraySelection->AddArray(label);
@@ -336,10 +336,10 @@ void vtkAVSucdReader::ExecuteInformation()
       {
       offset += 4 * this->NumberOfNodes * this->NumberOfNodeFields + 
         4 * this->NumberOfNodeFields;
-      this->fs->seekg(offset,ios::beg);
-      this->fs->read(BUFFER1, sizeof(BUFFER1));
+      this->FileStream->seekg(offset,ios::beg);
+      this->FileStream->read(BUFFER1, sizeof(BUFFER1));
 
-      this->fs->read(BUFFER2, sizeof(BUFFER2)); // read 2nd array of 1024 bytes
+      this->FileStream->read(BUFFER2, sizeof(BUFFER2)); // read 2nd array of 1024 bytes
       this->ReadIntBlock(1, &this->NumberOfCellComponents);
 
       ncomp_list = new int[this->NumberOfCellFields];
@@ -351,7 +351,7 @@ void vtkAVSucdReader::ExecuteInformation()
       k = 0;
       for(i=0; i < this->NumberOfCellComponents; i++)
         {
-        this->get_label(BUFFER1, i, label);
+        this->GetLabel(BUFFER1, i, label);
         vtkDebugMacro( << i+1 << " :found CD label = " << label << " [" 
                        << ncomp_list[i] << "]" << endl);
         this->CellDataArraySelection->AddArray(label);
@@ -366,15 +366,15 @@ void vtkAVSucdReader::ExecuteInformation()
       {
       offset += 4 * this->NumberOfCells * this->NumberOfCellFields + 
         4 * this->NumberOfCellFields;
-      this->fs->seekg(offset,ios::beg);
-      this->fs->read(BUFFER1, sizeof(BUFFER1));
+      this->FileStream->seekg(offset,ios::beg);
+      this->FileStream->read(BUFFER1, sizeof(BUFFER1));
       vtkDebugMacro(<< BUFFER1 << endl);
 
       offset += 1024 + 1024 + 4 + 3 * 4 * this->NumberOfFields;
 
       for(i=0; i < this->NumberOfFields; i++)
         {
-        this->get_label(BUFFER1, i, label);
+        this->GetLabel(BUFFER1, i, label);
         vtkDebugMacro( << "found MD label = " << label << endl);
         }
       }
@@ -469,14 +469,14 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
   int i, j, k2=0;
   int *mat = materials->GetPointer(0);
   vtkIdType *list = listcells->GetPointer(0);
-  int *Ctype = new int[4 * this->NumberOfCells];
-  if(Ctype == NULL)
+  int *ctype = new int[4 * this->NumberOfCells];
+  if(ctype == NULL)
     {
     vtkErrorMacro(<< "Error allocating Ctype memory");
     }
 
-  this->fs->seekg(6*4 + 1,ios::beg);
-  this->ReadIntBlock(4 * this->NumberOfCells, Ctype);
+  this->FileStream->seekg(6*4 + 1,ios::beg);
+  this->ReadIntBlock(4 * this->NumberOfCells, ctype);
   
   int *topology_list = new int[this->nlist_nodes];
   if(topology_list == NULL)
@@ -489,9 +489,7 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
 
   for(i=0; i < this->NumberOfCells; i++)
     {
-    //listcells->SetValue(k1++, Ctype[4*i+2]);
-    *list++ = Ctype[4*i+2];
-
+    *list++ = ctype[4*i+2];
     if(Ctype[4*i+3] == vtkAVSucdReader::PYR)
       { //UCD ordering is 0,1,2,3,4 => VTK ordering is 1,2,3,4,0
       *list++ = topology_list[++k2] - 1;
@@ -501,12 +499,12 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
       *list++ = topology_list[k2-4] - 1;
       k2++;
       }
-    else
+     else
       {
-      for(j=0; j < Ctype[4*i+2]; j++)
-        {
-        *list++ = topology_list[k2++] - 1;
-        }
+       for(j=0; j < Ctype[4*i+2]; j++)
+         {
+         *list++ = topology_list[k2++] - 1;
+         }
       }
     }
 
@@ -514,8 +512,8 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
 
   for(i=0; i < this->NumberOfCells; i++)
     {
-    *mat++ = Ctype[4*i+1];
-    switch(Ctype[4*i+3])
+    *mat++ = ctype[4*i+1];
+    switch(ctype[4*i+3])
       {
       case vtkAVSucdReader::PT:    types[i] = VTK_VERTEX;     break;
       case vtkAVSucdReader::LINE:  types[i] = VTK_LINE;       break;
@@ -526,12 +524,12 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
       case vtkAVSucdReader::PRISM: types[i] = VTK_WEDGE;      break;
       case vtkAVSucdReader::HEX:   types[i] = VTK_HEXAHEDRON; break;
       default:
-        vtkErrorMacro( << "cell type: " << Ctype[4*i+3] << "not supported\n");
-        delete [] Ctype;
+        vtkErrorMacro( << "cell type: " << ctype[4*i+3] << "not supported\n");
+        delete [] ctype;
         return;
       }
     }
-  delete [] Ctype;
+  delete [] ctype;
 }
 
 
@@ -547,15 +545,15 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
   for(i=0; i < this->NumberOfCells; i++)
     {
     int id;  // no check is done to see that they are monotonously increasing
-    *(this->fs) >> id;
-    *(this->fs) >> mat[i];
-    *(this->fs) >> ctype;
+    *(this->FileStream) >> id;
+    *(this->FileStream) >> mat[i];
+    *(this->FileStream) >> ctype;
     //cerr << mat[i] << ", " << ctype << endl;
     if(!strcmp(ctype, "pt"))
       {
       for(k=0; k < 1; k++)
         {
-        *(this->fs) >> list[k];
+        *(this->FileStream) >> list[k];
         if(this->DecrementNodeIds)
           {
           list[k]--;
@@ -567,7 +565,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 2; k++)
         {
-        *(this->fs) >> list[k];
+        *(this->FileStream) >> list[k];
         if(this->DecrementNodeIds)
           {
           list[k]--;
@@ -579,7 +577,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 3; k++)
         {
-        *(this->fs) >> list[k];
+        *(this->FileStream) >> list[k];
         if(this->DecrementNodeIds)
           {
           list[k]--;
@@ -591,7 +589,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 4; k++)
         {
-        *(this->fs) >> list[k];
+        *(this->FileStream) >> list[k];
         if(this->DecrementNodeIds)
           {
           list[k]--;
@@ -603,7 +601,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 4; k++)
         {
-        *(this->fs) >> list[k];
+        *(this->FileStream) >> list[k];
         if(this->DecrementNodeIds)
           {
           list[k]--;
@@ -615,7 +613,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 5; k++)
         {
-        *(this->fs) >> list[k];
+        *(this->FileStream) >> list[k];
         if(this->DecrementNodeIds)
           {
           list[k]--;
@@ -631,7 +629,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 6; k++)
         {
-        *(this->fs) >> list[k];
+        *(this->FileStream) >> list[k];
         if(this->DecrementNodeIds)
           {
           list[k]--;
@@ -643,7 +641,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 8; k++)
         {
-        *(this->fs) >> list[k];
+        *(this->FileStream) >> list[k];
         if(this->DecrementNodeIds)
           {
           list[k]--;
@@ -696,9 +694,9 @@ void vtkAVSucdReader::ReadXYZCoords(vtkFloatArray *coords)
     int id;  // no check is done to see that they are monotonously increasing
     // read here the first node anc check if its id number is 0
 
-    *(this->fs) >> id;
+    *(this->FileStream) >> id;
     i=0;
-    *(this->fs) >> ptr[3*i] >> ptr[3*i+1] >> ptr[3*i+2];
+    *(this->FileStream) >> ptr[3*i] >> ptr[3*i+1] >> ptr[3*i+2];
     if(id)
       {
       this->DecrementNodeIds = 1;
@@ -706,8 +704,8 @@ void vtkAVSucdReader::ReadXYZCoords(vtkFloatArray *coords)
 
     for(i=1; i < this->NumberOfNodes; i++)
       {
-      *(this->fs) >> id;
-      *(this->fs) >> ptr[3*i] >> ptr[3*i+1] >> ptr[3*i+2];
+      *(this->FileStream) >> id;
+      *(this->FileStream) >> ptr[3*i] >> ptr[3*i+1] >> ptr[3*i+2];
       }
     } // end of ASCII read
 }
@@ -728,7 +726,7 @@ void vtkAVSucdReader::ReadNodeData()
         scalars->SetNumberOfComponents(this->NodeDataInfo[i].veclen);
         scalars->SetNumberOfTuples(this->NumberOfNodes);
         scalars->SetName(PointDataArraySelection->GetArrayName(i));
-        this->fs->seekg(this->NodeDataInfo[i].foffset, ios::beg);
+        this->FileStream->seekg(this->NodeDataInfo[i].foffset, ios::beg);
         if(1) // this->NodeDataInfo[i].veclen == 1)
           {
           ptr = scalars->GetPointer(0);
@@ -771,25 +769,25 @@ void vtkAVSucdReader::ReadNodeData()
     char buf1[128], c='\0', buf2[128];
 
     this->NodeDataInfo = new DataInfo[this->NumberOfNodeFields];
-    *(this->fs) >> this->NumberOfNodeComponents;
+    *(this->FileStream) >> this->NumberOfNodeComponents;
     for(i=0; i < this->NumberOfNodeComponents; i++)
       {
-      *(this->fs) >> this->NodeDataInfo[i].veclen;
+      *(this->FileStream) >> this->NodeDataInfo[i].veclen;
       }
-    this->fs->get(c); // one more newline to catch
+    this->FileStream->get(c); // one more newline to catch
 
     vtkFloatArray **scalars = new 
       vtkFloatArray * [this->NumberOfNodeComponents];
     for(i=0; i < this->NumberOfNodeComponents; i++)
       {
       j=0;
-      while(this->fs->get(c) && c != ',')
+      while(this->FileStream->get(c) && c != ',')
         {
         buf1[j++] = c;
         }
       buf1[j] = '\0';
       // finish here to read the line
-      this->fs->get(buf2, 128, '\n'); this->fs->get(c);
+      this->FileStream->get(buf2, 128, '\n'); this->FileStream->get(c);
 
       scalars[i] = vtkFloatArray::New();
       scalars[i]->SetNumberOfComponents(this->NodeDataInfo[i].veclen);
@@ -798,12 +796,12 @@ void vtkAVSucdReader::ReadNodeData()
       }
     for(n=0; n < this->NumberOfNodes; n++)
       {
-      *(this->fs) >> id;
+      *(this->FileStream) >> id;
       for(i=0; i < this->NumberOfNodeComponents; i++)
         {
         for(j=0; j < this->NodeDataInfo[i].veclen; j++)
           {
-          *(this->fs) >> value;
+          *(this->FileStream) >> value;
           scalars[i]->SetComponent(n, j, value);
           }
         }
@@ -838,7 +836,7 @@ void vtkAVSucdReader::ReadCellData()
         scalars->SetNumberOfComponents(this->CellDataInfo[i].veclen);
         scalars->SetNumberOfTuples(this->NumberOfCells);
         scalars->SetName(CellDataArraySelection->GetArrayName(i));
-        this->fs->seekg(this->CellDataInfo[i].foffset, ios::beg);
+        this->FileStream->seekg(this->CellDataInfo[i].foffset, ios::beg);
         if(1) // this->CellDataInfo[i].veclen == 1)
           {
           ptr = scalars->GetPointer(0);
@@ -850,7 +848,7 @@ void vtkAVSucdReader::ReadCellData()
           ptr = new float[this->NumberOfCells];
           for(j=0; j < this->CellDataInfo[i].veclen; j++)
             {
-            this->fs->seekg(this->CellDataInfo[i].foffset + 
+            this->FileStream->seekg(this->CellDataInfo[i].foffset + 
                             j*this->NumberOfCells,
                             ios::beg);
             this->ReadFloatBlock(this->NumberOfCells, ptr);
@@ -879,25 +877,25 @@ void vtkAVSucdReader::ReadCellData()
     char buf1[128], c='\0', buf2[128];
 
     this->CellDataInfo = new DataInfo[this->NumberOfCellFields];
-    *(this->fs) >> this->NumberOfCellComponents;
+    *(this->FileStream) >> this->NumberOfCellComponents;
     for(i=0; i < this->NumberOfCellComponents; i++)
       {
-      *(this->fs) >> this->CellDataInfo[i].veclen;
+      *(this->FileStream) >> this->CellDataInfo[i].veclen;
       }
-    this->fs->get(c); // one more newline to catch
+    this->FileStream->get(c); // one more newline to catch
 
     vtkFloatArray **scalars = new 
       vtkFloatArray * [this->NumberOfCellComponents];
     for(i=0; i < this->NumberOfCellComponents; i++)
       {
       j=0;
-      while(this->fs->get(c) && c != ',')
+      while(this->FileStream->get(c) && c != ',')
         {
         buf1[j++] = c;
         }
       buf1[j] = '\0';
       // finish here to read the line
-      this->fs->get(buf2, 128, '\n'); this->fs->get(c);
+      this->FileStream->get(buf2, 128, '\n'); this->FileStream->get(c);
 
       scalars[i] = vtkFloatArray::New();
       scalars[i]->SetNumberOfComponents(this->CellDataInfo[i].veclen);
@@ -906,12 +904,12 @@ void vtkAVSucdReader::ReadCellData()
       }
     for(n=0; n < this->NumberOfCells; n++)
       {
-      *(this->fs) >> id;
+      *(this->FileStream) >> id;
       for(i=0; i < this->NumberOfCellComponents; i++)
         {
         for(j=0; j < this->CellDataInfo[i].veclen; j++)
           {
-          *(this->fs) >> value;
+          *(this->FileStream) >> value;
           scalars[i]->SetComponent(n, j, value);
           }
         }
@@ -985,7 +983,7 @@ int vtkAVSucdReader::GetNumberOfPointArrays()
   return this->PointDataArraySelection->GetNumberOfArrays();
 }
 
-int vtkAVSucdReader::get_label(char *string, int number, char *label)
+int vtkAVSucdReader::GetLabel(char *string, int number, char *label)
 {
   int   i, j, k, len;
   char  current;
@@ -1033,8 +1031,8 @@ int vtkAVSucdReader::ReadIntBlock(int n, int *block)
 {
   if (this->BinaryFile)
     {
-    this->fs->read((char *)block, n * sizeof(int));
-    int retVal = this->fs->gcount() / sizeof(int);
+    this->FileStream->read((char *)block, n * sizeof(int));
+    int retVal = this->FileStream->gcount() / sizeof(int);
 
     if (this->ByteOrder == FILE_LITTLE_ENDIAN)
       {
@@ -1051,7 +1049,7 @@ int vtkAVSucdReader::ReadIntBlock(int n, int *block)
     int count = 0;
     for(int i=0; i<n; i++)
       {
-      if (*(this->fs) >> block[i])
+      if (*(this->FileStream) >> block[i])
         {
         count++;
         }
@@ -1068,8 +1066,8 @@ int vtkAVSucdReader::ReadFloatBlock(int n, float* block)
 {
   if (this->BinaryFile)
     {
-    this->fs->read((char *)block, n * sizeof(float));
-    int retVal = this->fs->gcount() / sizeof(int);
+    this->FileStream->read((char *)block, n * sizeof(float));
+    int retVal = this->FileStream->gcount() / sizeof(int);
     if (this->ByteOrder == FILE_LITTLE_ENDIAN)
       {
       vtkByteSwap::Swap4LERange(block, n);
@@ -1085,7 +1083,7 @@ int vtkAVSucdReader::ReadFloatBlock(int n, float* block)
     int count = 0;
     for(int i=0; i<n; i++)
       {
-      if (*(this->fs) >> block[i])
+      if (*(this->FileStream) >> block[i])
         {
         count++;
         }

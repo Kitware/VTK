@@ -46,7 +46,7 @@ struct DataInfo {
 class VTK_IO_EXPORT vtkAVSucdReader : public vtkUnstructuredGridSource
 {
 public:
-  static  vtkAVSucdReader *New();
+  static vtkAVSucdReader *New();
   vtkTypeRevisionMacro(vtkAVSucdReader,vtkUnstructuredGridSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -127,7 +127,7 @@ protected:
   int NumberOfFields;
   int nlist_nodes;
 
-  ifstream *fs;
+  ifstream *FileStream;
 
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
@@ -137,7 +137,7 @@ protected:
 
   int DecrementNodeIds;
   int ByteOrder;
-  int get_label(char *string, int number, char *label);
+  int GetLabel(char *string, int number, char *label);
   //BTX
   enum
   {
@@ -157,7 +157,7 @@ protected:
   };
   //ETX
 
- private:
+private:
   void ReadFile();
   void ReadGeometry();
   void ReadNodeData();
