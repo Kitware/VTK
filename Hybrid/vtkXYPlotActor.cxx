@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.55");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.56");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -793,7 +793,7 @@ const char *vtkXYPlotActor::GetXValuesAsString()
 //----------------------------------------------------------------------------
 const char *vtkXYPlotActor::GetDataObjectPlotModeAsString()
 {
-  if ( this->XValues == VTK_XYPLOT_ROW ) 
+  if ( this->DataObjectPlotMode == VTK_XYPLOT_ROW ) 
     {
     return "Plot Rows";
     }
