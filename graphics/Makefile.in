@@ -624,7 +624,7 @@ BUILD_TCL         = @BUILD_TCL@
 CLEAN_TCL         = @CLEAN_TCL@
 
 # add in any extra libraies here
-KIT_LIBS = 
+KIT_LIBS = tcl/vtkXTclRenderWindowInteractor.o
 
 # standard stuff here
 KIT_OBJ = ${SRC_OBJ} ${SBR_OBJ} ${OGLR_OBJ} ${XGLR_OBJ} ${GLR_OBJ}
@@ -661,6 +661,9 @@ KIT_FLAGS = ${SBR_FLAGS} ${XGLR_FLAGS} ${GLR_FLAGS} ${OGLR_FLAGS}
 #
 # concrete classes will pass the last argument of 1 abstract will be 0.
 #
+tcl/vtkXTclRenderWindowInteractor.o: vtkXTclRenderWindowInteractor.cxx
+	${CXX} ${CXX_FLAGS} -c $< -o $@
+
 tcl/vtkActorTcl.cxx: vtkActor.h ../tcl/cpp_parse 
 	rm -f tcl/vtkActorTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkActor.h $(srcdir)/../tcl/hints 1 > tcl/vtkActorTcl.cxx
 
@@ -886,7 +889,7 @@ tcl/vtkHyperStreamlineTcl.cxx: vtkHyperStreamline.h ../tcl/cpp_parse
 tcl/vtkImageDifferenceTcl.cxx: vtkImageDifference.h ../tcl/cpp_parse 
 	rm -f tcl/vtkImageDifferenceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImageDifference.h $(srcdir)/../tcl/hints 1 > tcl/vtkImageDifferenceTcl.cxx
 
-tcl/vtkImageToStructuredPoints.cxx: vtkImageToStructuredPoints.h ../tcl/cpp_parse
+tcl/vtkImageToStructuredPointsTcl.cxx: vtkImageToStructuredPoints.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageToStructuredPointsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageToStructuredPoints.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageToStructuredPointsTcl.cxx
 
 tcl/vtkImplicitBooleanTcl.cxx: vtkImplicitBoolean.h ../tcl/cpp_parse 
