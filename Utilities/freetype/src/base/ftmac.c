@@ -63,7 +63,7 @@
 #include FT_FREETYPE_H
 #include FT_INTERNAL_STREAM_H
 
-#ifdef __GNUC__
+#if defined( __GNUC__ ) || defined( __IBMC__ )
 #include "../truetype/ttobjs.h"
 #include "../type1/t1objs.h"
   /* This is for Mac OS X.  Without redefinition, OS_INLINE */
