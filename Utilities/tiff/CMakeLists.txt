@@ -53,7 +53,7 @@ ELSE (WINDOWS)
       SOURCE ${EXECUTABLE_OUTPUT_PATH}/mkg3states
       COMMAND ${EXECUTABLE_OUTPUT_PATH}/mkg3states
       ARGS -c const ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c
-      TARGET vtktiff
+      TARGET mkg3states
       OUTPUTS ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c)
   ELSE(TIFF_RIGHT_VERSION)
       MESSAGE("The new TIFF reader requires CMake 1.2 or newer. Please get the new version of CMake from www.cmake.org.")
