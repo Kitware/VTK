@@ -18,23 +18,32 @@
 =========================================================================*/
 // .NAME vtkContainer - a base class for templated containers
 // .SECTION Description
-// vtkContainer is a superclass for all container classes. 
-// Since it does not provide any actuall data access methods, it
-// is not templated, but it provides a set of method that can 
-// be used on all containers. It also provide a simple reference 
-// counting scheme.
+// vtkContainer is a superclass for all container classes.  Since it
+// does not provide any actuall data access methods, it is not
+// templated, but it provides a set of method that can be used on all
+// containers. It also provide a simple reference counting scheme.
 
 // .SECTION Caveates
-// Since vtkContainer and vtkAbstractList provide some pure 
-// virtual methods, each object of type container will have
-// v-tabe.
+// Since vtkContainer and vtkAbstractList provide some pure virtual
+// methods, each object of type container will have v-tabe.
 //
-// For container of strings, use <const char*> as a template 
-// argument. This way you will be able to use string literals
-// as keys or values
+// For container of strings, use <const char*> as a template
+// argument. This way you will be able to use string literals as keys
+// or values. Key and Value types must be default constructable.
 //
-// Key and Value types must be default constructable.
-
+// Each container subclass have to understand the following methods:
+// 
+// vtkIdType GetNumberOfItems();
+//
+// Return the number of items currently held in this container. This
+// different from GetSize which is provided for some
+// containers. GetSize will return how many items the container can
+// currently hold.
+//
+// void RemoveAllItems();
+//
+// Removes all items from the container.
+  
 // .SECTION See Also
 // vtkAbstractIterator, vtkAbstractList, vtkAbstractMap
 
@@ -50,33 +59,6 @@ public:
   // Return the class name as a string.
   virtual const char* GetClassName() const { return "vtkContainer"; }
 
-  // Description:
-  // Return the number of items currently held in this container. This
-  // different from GetSize which is provided for some containers. GetSize
-  // will return how many items the container can currently hold.
-  //virtual vtkIdType GetNumberOfItems() = 0;
-  
-  // Description:
-  // Removes all items from the container.
-  //virtual void RemoveAllItems() = 0;
-  
-  // Description:
-  // The counterpart to New(), Delete simply calls UnRegister to lower the
-  // reference count by one. It is no different than calling UnRegister.
-  //void Delete() { this->UnRegister(); }
-  
-  // Description:
-  // Increase the reference count of this container.
-  //void Register();
-  //void Register(vtkObject *) { this->Register(); }
-  
-  // Description:
-  // Decrease the reference count (release by another object). This has
-  // the same effect as invoking Delete() (i.e., it reduces the reference
-  // count by 1).
-  //void UnRegister();
-  //void UnRegister(vtkObject *) { this->UnRegister(); }
-
 protected:
   //vtkIdType ReferenceCount;   
   vtkContainer();
@@ -87,6 +69,23 @@ private:
   void operator=(const vtkContainer&); // Not implemented
 };
 
+
+// Description:
+// The following methods provide all the necessary operations that are
+// done.
+//
+// vtkContainerCompareMethod - compares two items in container and
+// returns 0 if they are the same, -1 if first one comes before the
+// second one, and 1 if the second one commes before the first one.
+//
+// vtkContainerCreateMethod - tells container what to do with the
+// item in order to store it in the container. For strings it makes 
+// a copy of it. For vtkObjectBase subclasses it registers it.
+//
+// vtkContainerDeleteMethod - tells container what to do with the item
+// when the item is being removed from the container. Strings are
+// deleted and vtkObjectBase subclasses are unregistered.
+//
 template<class DType>
 int vtkContainerDefaultCompare(DType& k1, DType& k2)
 {
