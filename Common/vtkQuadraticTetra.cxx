@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.11");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.12");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 // Construct the line with two points.
@@ -63,9 +63,9 @@ static int TetraFace[4][6] = { {0,1,3,4,8,7}, {1,2,3,5,9,8},
                                {2,0,3,6,7,9}, {0,2,1,6,5,4} };
 
 //clip each of the four vertices; the remaining octahedron is
-//divided into two tetrahedron.
-static int Tetras[6][4] = { {0,4,6,7}, {4,1,5,8}, {6,5,2,9}, 
-                            {7,8,9,3}, {6,4,5,8}, {6,9,7,8} };
+//divided into four tetrahedron.
+static int Tetras[8][4] = { {0,4,6,7}, {4,1,5,8}, {6,5,2,9}, {7,8,9,3}, 
+                            {6,4,5,8}, {6,5,9,8}, {6,9,7,8}, {6,7,4,8} };
 
 vtkCell *vtkQuadraticTetra::GetEdge(int edgeId)
 {
@@ -267,7 +267,7 @@ void vtkQuadraticTetra::Contour(float value, vtkDataArray* cellScalars,
                                 vtkCellData* inCd, vtkIdType cellId, 
                                 vtkCellData* outCd)
 {
-  for ( int i=0; i < 6; i++) //for each subdivided tetra
+  for ( int i=0; i < 8; i++) //for each subdivided tetra
     {
     for ( int j=0; j<4; j++) //for each of the four vertices of the tetra
       {
@@ -338,7 +338,7 @@ int vtkQuadraticTetra::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   pts->Reset();
   ptIds->Reset();
 
-  for ( int i=0; i < 6; i++)
+  for ( int i=0; i < 8; i++)
     {
     for ( int j=0; j < 4; j++)
       {
@@ -426,7 +426,7 @@ void vtkQuadraticTetra::Clip(float value, vtkDataArray* cellScalars,
                             vtkCellData* inCd, vtkIdType cellId, 
                             vtkCellData* outCd, int insideOut)
 {
-  for ( int i=0; i < 6; i++) //for each subdivided tetra
+  for ( int i=0; i < 8; i++) //for each subdivided tetra
     {
     for ( int j=0; j<4; j++) //for each of the four vertices of the tetra
       {
