@@ -336,3 +336,16 @@ INSTALL_FILES(/include/vtk .txx
   vtkVector
   vtkVectorIterator
 )
+
+IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+  SET(ITK_TCL_PKGINDEX_FOR_INSTALL "${ITK_BINARY_DIR}/Wrapping/Tcl/Install/Hide/pkgIndex.tcl")
+  INSTALL_FILES(/lib/vtk/testing FILES
+                ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
+                ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
+                ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl
+                ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl)
+  IF(VTK_USE_PARALLEL)
+    INSTALL_FILES(/lib/vtk/testing FILES
+                  ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl)
+  ENDIF(VTK_USE_PARALLEL)
+ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
