@@ -440,7 +440,8 @@ void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
   if ( c )
     {
     c->InitColorTraversal(1.0, this->LookupTable, this->ColorMode);
-    if (!data->GetPointData()->GetScalars())
+    if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA ||
+    !data->GetPointData()->GetScalars() )	 
       {
       cellScalars = 1;
       }

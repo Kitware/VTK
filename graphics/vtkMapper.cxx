@@ -59,6 +59,7 @@ vtkMapper::vtkMapper()
   this->ImmediateModeRendering = 0;
 
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
+  this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
 }
 
 vtkMapper::~vtkMapper()
@@ -113,10 +114,17 @@ vtkScalars *vtkMapper::GetColors()
   // make sure we have an input
   if (!this->Input) return NULL;
     
-  // get point data and scalars
-  scalars = this->Input->GetPointData()->GetScalars();
-  // if we don;t have point data scalars, try cell data
-  if (!scalars)
+  // get and scalar data according to scalar mode
+  if ( this->ScalarMode == VTK_SCALAR_MODE_DEFAULT )
+    {
+    scalars = this->Input->GetPointData()->GetScalars();
+    if (!scalars) scalars = this->Input->GetCellData()->GetScalars();
+    }
+  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_DATA )
+    {
+    scalars = this->Input->GetPointData()->GetScalars();
+    }
+  else
     {
     scalars = this->Input->GetCellData()->GetScalars();
     }
@@ -189,6 +197,22 @@ float *vtkMapper::GetCenter()
   return center;
 }
 
+float vtkMapper::GetLength()
+{
+  double diff, l=0.0;
+  int i;
+  float *bounds;
+
+  bounds = this->GetBounds();
+  for (i=0; i<3; i++)
+    {
+    diff = bounds[2*i+1] - bounds[2*i];
+    l += diff * diff;
+    }
+ 
+  return (float)sqrt(l);
+}
+
 // Description:
 // Update the network connected to this mapper.
 void vtkMapper::Update()
@@ -210,6 +234,24 @@ char *vtkMapper::GetColorModeAsString(void)
   else if ( this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS ) 
     {
     return "MapScalars";
+    }
+  else 
+    {
+    return "Default";
+    }
+}
+
+// Description:
+// Return the method for obtaining scalar data.
+char *vtkMapper::GetScalarModeAsString(void)
+{
+  if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
+    {
+    return "UseCellData";
+    }
+  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_DATA ) 
+    {
+    return "UsePointData";
     }
   else 
     {
@@ -250,5 +292,7 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
   
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
+
+  os << indent << "Scalar Mode: " << this->GetScalarModeAsString() << endl;
 
 }

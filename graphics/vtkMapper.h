@@ -46,6 +46,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // interface to the graphics library. The mapping can be controlled by 
 // supplying a lookup table and specifying a scalar range to map data
 // through.
+//
+// There are several important control mechanisms affecting the behavior of
+// this object. The ScalarVisibility flag controls whether scalar data (if
+// any) controls the color of the associated actor(s) that refer to the
+// mapper. The ScalarMode ivar is used to determine whether scalar point data
+// or cell data is used to color the object. By default, point data scalars
+// are used unless there are none, in which cell scalars are used. Or you can
+// explicitly control whether to use point or cell scalar data. Finally, the
+// mapping of scalars through the lookup table varies depending on the
+// setting of the ColorMode flag. See the documentation for the appropriate
+// methods for an explanation.
+//
+// Another important feature of this class is whether to use immediate mode
+// rendering (ImmediateModeRenderingOn) or display list rendering
+// (ImmediateModeRenderingOff). If display lists are used, a data structure
+// is constructed (generally in the rendering library) which can then be
+// rapidly traversed and rendered by the rendering library. The disadvantage
+// of display lists is that they require additionally memory which may affect
+// the perfomance of the system.
 
 // .SECTION See Also
 // vtkDataSetMapper vtkPolyDataMapper
@@ -56,6 +75,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkProcessObject.h"
 #include "vtkLookupTable.h"
 #include "vtkDataSet.h"
+
+#define VTK_SCALAR_MODE_DEFAULT 0
+#define VTK_SCALAR_MODE_USE_POINT_DATA 1
+#define VTK_SCALAR_MODE_USE_CELL_DATA 2
 
 class vtkRenderer;
 class vtkActor;
@@ -149,6 +172,7 @@ public:
   virtual float *GetBounds() = 0;
 
   float *GetCenter();
+  float GetLength();
 
   // Description:
   // Update the network connected to this mapper.
@@ -162,6 +186,22 @@ public:
   // method may return NULL if no color information is available.
   vtkScalars *GetColors();
   
+  // Description:
+  // Control how the filter works with scalar point data and cell attribute data.
+  // By default (ScalarModeToDefault), the filter will use point data, and 
+  // if no point data is available, then cell data is used. Alternatively you
+  // can explicitly set the filter to use point data (ScalarModeToUsePointData)
+  // or cell data (ScalarModeToUseCellData).
+  vtkSetMacro(ScalarMode,int);
+  vtkGetMacro(ScalarMode,int);
+  void SetScalarModeToDefault() 
+    {this->SetScalarMode(VTK_SCALAR_MODE_DEFAULT);};
+  void SetScalarModeToUsePointData() 
+    {this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA);};
+  void SetScalarModeToUseCellData() 
+    {this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA);};
+  char *GetScalarModeAsString();
+
 protected:
   vtkDataSet *Input;
   vtkScalars *Colors;
@@ -173,6 +213,7 @@ protected:
   int SelfCreatedLookupTable;
   int ImmediateModeRendering;
   int ColorMode;
+  int ScalarMode;
   
 };
 
