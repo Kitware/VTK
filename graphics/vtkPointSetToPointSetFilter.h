@@ -106,6 +106,10 @@ public:
   // Get the output as vtkUnstructuredGrid. Performs run-time checking.
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
 
+  // Description:
+  // Handle the source/data loop.
+  void UnRegister(vtkObject *o);
+
 protected:
   // objects used to support the retrieval of output
   vtkPolyData *PolyData;

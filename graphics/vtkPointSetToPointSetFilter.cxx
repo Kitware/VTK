@@ -197,3 +197,20 @@ vtkUnstructuredGrid *vtkPointSetToPointSetFilter::GetUnstructuredGridOutput()
   return this->UnstructuredGrid;
 }
 
+void vtkPointSetToPointSetFilter::UnRegister(vtkObject *o)
+{
+  // detect the circular loop source <-> data
+  // If we have two references and one of them is my data
+  // and I am not being unregistered by my data, break the loop.
+  if (this->ReferenceCount == 4 &&
+      this->PolyData->GetReferenceCount() == 1 &&
+      this->StructuredGrid->GetReferenceCount() == 1 &&
+      this->UnstructuredGrid->GetReferenceCount() == 1)
+    {
+    this->PolyData->SetSource(NULL);
+    this->StructuredGrid->SetSource(NULL);
+    this->UnstructuredGrid->SetSource(NULL);
+    }
+  
+  this->vtkObject::UnRegister(o);
+}

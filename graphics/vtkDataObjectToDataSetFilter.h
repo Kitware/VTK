@@ -270,6 +270,10 @@ public:
   void SetOriginComponent(char *arrayName, int arrayComp)
     {this->SetOriginComponent(arrayName, arrayComp, -1, -1);};
   
+  // Description:
+  // Handle the source/data loop.
+  void UnRegister(vtkObject *o);
+
 protected:
   void Execute(); //generate output data
 
