@@ -392,8 +392,6 @@ protected:
 
   double FocalDisk;
 
-  int LegacyFlag;
-
   // ViewingRaysMtime keeps track of camera modifications which will 
   // change the calculation of viewing rays for the camera before it is 
   // transformed to the camera's location and orientation. 

@@ -94,9 +94,6 @@ vtkCamera::vtkCamera()
   this->ViewTransform = vtkTransform::New();
   this->PerspectiveTransform = vtkProjectionTransform::New();
 
-  // LegacyFlag is set if an internal-only method is being called externally.
-  this->LegacyFlag = 1;
-
   // initialize the ViewTransform
   this->ComputeViewTransform();
   this->ComputeDistance();
@@ -295,7 +292,6 @@ void vtkCamera::ComputeDistance()
   this->DirectionOfProjection[1] = dy/this->Distance;
   this->DirectionOfProjection[2] = dz/this->Distance;
 
-  this->LegacyFlag = 0;
   this->ComputeViewPlaneNormal();
 } 
 
@@ -619,7 +615,6 @@ void vtkCamera::SetObliqueAngles(double alpha, double beta)
     this->ObliqueAngles[0] = alpha;
     this->ObliqueAngles[1] = beta;
 
-    this->LegacyFlag = 0;
     this->ComputeViewPlaneNormal();
     }
 }
@@ -756,12 +751,6 @@ void vtkCamera::ComputeViewPlaneNormal()
     this->ViewPlaneNormal[1] = -this->DirectionOfProjection[1];
     this->ViewPlaneNormal[2] = -this->DirectionOfProjection[2];
     }
-
-  if (this->LegacyFlag)
-    {
-    vtkWarningMacro(<< "ComputeViewPlaneNormal:  This method is deprecated, the view plan normal is calculated automatically.");
-    }
-  this->LegacyFlag = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -769,7 +758,7 @@ void vtkCamera::SetViewPlaneNormal(double vtkNotUsed(x),
                                    double vtkNotUsed(y),
                                    double vtkNotUsed(z))
 {
-  vtkWarningMacro(<< "SetViewPlaneNormal:  This method is deprecated the view plane normal is calculated automatically.");
+  vtkWarningMacro(<< "SetViewPlaneNormal:  This method is deprecated, the view plane normal is calculated automatically.");
 }
 
 //----------------------------------------------------------------------------
