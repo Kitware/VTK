@@ -108,7 +108,6 @@ vtkVolumeRayCastMIPFunction.cxx
 vtkVolumeRayCastMapper.cxx
 vtkVolumeTextureMapper.cxx
 vtkVolumeTextureMapper2D.cxx
-vtkVolumeTextureMapper3D.cxx
 vtkWindowToImageFilter.cxx
 vtkWorldPointPicker.cxx
 )
@@ -144,10 +143,8 @@ SET( KitOpenGL_SRCS
   vtkOpenGLRenderWindow.cxx
   vtkOpenGLRenderer.cxx
   vtkOpenGLTexture.cxx
-  vtkOpenGLTexture3D.cxx
   vtkOpenGLVolumeRayCastMapper.cxx
   vtkOpenGLVolumeTextureMapper2D.cxx
-  vtkOpenGLVolumeTextureMapper3D.cxx
   )
 
 SET_SOURCE_FILES_PROPERTIES(
