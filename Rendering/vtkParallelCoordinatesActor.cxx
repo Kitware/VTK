@@ -18,6 +18,8 @@
 #include "vtkParallelCoordinatesActor.h"
 
 #include "vtkAxisActor2D.h"
+#include "vtkCellArray.h"
+#include "vtkFieldData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -25,8 +27,9 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
+#include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.27");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.28");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);

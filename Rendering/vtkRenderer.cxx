@@ -18,6 +18,7 @@
 #include "vtkRenderer.h"
 
 #include "vtkAssemblyNode.h"
+#include "vtkAssemblyPath.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkCuller.h"
@@ -27,6 +28,7 @@
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkOutputWindow.h"
 #include "vtkPicker.h"
 #include "vtkProp3DCollection.h"
@@ -34,7 +36,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.189");
+vtkCxxRevisionMacro(vtkRenderer, "1.190");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

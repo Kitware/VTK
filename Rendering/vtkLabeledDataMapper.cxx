@@ -18,12 +18,14 @@
 #include "vtkLabeledDataMapper.h"
 
 #include "vtkActor2D.h"
+#include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.33");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.34");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,Input, vtkDataSet);

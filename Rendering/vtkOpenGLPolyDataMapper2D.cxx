@@ -18,21 +18,24 @@
 #include "vtkOpenGLPolyDataMapper2D.h"
 
 #include "vtkActor2D.h"
+#include "vtkCellArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPlaneCollection.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty2D.h"
 #include "vtkScalarsToColors.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
+#include "vtkWindow.h"
 #include "vtkgluPickMatrix.h"
-#include "vtkPlaneCollection.h"
-#include "vtkPlane.h"
 
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.42");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.43");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 

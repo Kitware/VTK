@@ -19,6 +19,7 @@
 
 #include "vtkActor.h"
 #include "vtkAssemblyNode.h"
+#include "vtkAssemblyPath.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkImageData.h"
@@ -26,6 +27,7 @@
 #include "vtkMapper.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkProp3DCollection.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
@@ -35,7 +37,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.77");
+vtkCxxRevisionMacro(vtkPicker, "1.78");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no

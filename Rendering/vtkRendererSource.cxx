@@ -21,11 +21,12 @@
 #include "vtkImageData.h"
 #include "vtkMapper.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkRendererSource, "1.48");
+vtkCxxRevisionMacro(vtkRendererSource, "1.49");
 vtkStandardNewMacro(vtkRendererSource);
 
 vtkCxxSetObjectMacro(vtkRendererSource,Input,vtkRenderer);

@@ -24,6 +24,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkPointData.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 #include "vtkVolumeCollection.h"
@@ -32,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.73");
+vtkCxxRevisionMacro(vtkVolume, "1.74");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 

@@ -17,6 +17,8 @@
 =========================================================================*/
 #include "vtkScalarBarActor.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
@@ -26,7 +28,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.46");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.47");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);

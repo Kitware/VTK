@@ -22,6 +22,7 @@
 #include "vtkImageData.h"
 #include "vtkLargeInteger.h"
 #include "vtkMatrix4x4.h"
+#include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
@@ -468,7 +469,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.51");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.52");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

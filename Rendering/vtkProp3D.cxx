@@ -18,6 +18,7 @@
 #include "vtkProp3D.h"
 
 #include "vtkActor.h"
+#include "vtkAssemblyPaths.h"
 #include "vtkMatrixToLinearTransform.h"
 #include "vtkTransform.h"
 
@@ -25,7 +26,7 @@
 
 typedef double (*SqMatPtr)[4];
 
-vtkCxxRevisionMacro(vtkProp3D, "1.28");
+vtkCxxRevisionMacro(vtkProp3D, "1.29");
 
 // Construct with the following defaults: origin(0,0,0) 
 // position=(0,0,0) and orientation=(0,0,0). No user defined 

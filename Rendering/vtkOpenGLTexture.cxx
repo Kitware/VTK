@@ -21,6 +21,7 @@
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 
 #ifdef VTK_USE_CARBON
@@ -48,7 +49,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.50");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.51");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 

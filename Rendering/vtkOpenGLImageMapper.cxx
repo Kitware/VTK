@@ -15,12 +15,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkOpenGLImageMapper.h"
 
 #include "vtkActor2D.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkProperty2D.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
@@ -34,7 +34,7 @@
 #include <limits.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.53");
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.54");
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 #endif
 

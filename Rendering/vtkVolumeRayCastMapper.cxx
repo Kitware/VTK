@@ -27,6 +27,7 @@
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlaneCollection.h"
+#include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkTimerLog.h"
@@ -36,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.95");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.96");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

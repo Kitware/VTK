@@ -19,6 +19,7 @@
 
 #include "vtkActorCollection.h"
 #include "vtkAssemblyNode.h"
+#include "vtkAssemblyPath.h"
 #include "vtkCellArray.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
@@ -32,7 +33,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkOBJExporter, "1.48");
+vtkCxxRevisionMacro(vtkOBJExporter, "1.49");
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
