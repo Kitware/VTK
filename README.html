@@ -2,7 +2,7 @@
 <header>
 <title>vtk README</title>
 <!-- Created by: will schroeder,  July-1997 -->
-<!-- Changed by: kenneth m martin, 11-Aug-1997 -->
+<!-- Changed by: kenneth m martin, 10-Feb-1998 -->
 
 </header>
 <body>
@@ -167,7 +167,7 @@ The command:<pre>
 gives some brief help for the command line arguments. If you are using gmake 
 then you might want to consider the --srcdir option.<p>
 
-The next step is to modify the Config.mk file.  If you are using tcl/tk you
+The next step is to modify the user.make file.  If you are using tcl/tk you
 must specify the full path to find the include files and libraries.  If you
 are using mesa you must do the same. You might also want to specify the
 compiler flags.  We recommend compiling without debug information and with
@@ -175,7 +175,7 @@ optimizations. The debug information can quadruple the executable size.  If
 you are going to be working with the C++ library you might want to look into
 using shared libraries. We use them in our development I just didn't figure
 out a good way to use them with the GNU autoconfigure stuff. So you might
-want to look into modifying the generated Makefiles and Config.mk to generate
+want to look into modifying the generated Makefiles and user.make to generate
 shared libraries. On most machines these days it's not too difficult.<p>
 
 Once this is done you can type make (or gmake if you have it) and it should
