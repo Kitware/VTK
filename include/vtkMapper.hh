@@ -47,6 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // supplying a lookup table and specifying a scalar range to map data
 // through.
 
+// .SECTION See Also
+// vtkDataSetMapper vtkPolyMapper
+
 #ifndef __vtkMapper_hh
 #define __vtkMapper_hh
 

@@ -43,6 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkPolyFilter is a filter that takes a single vtkPolyData data object
 // as input.
 
+// .SECTION See Also
+// vtkPolyToPolyFilter
+
 #ifndef __vtkPolyFilter_h
 #define __vtkPolyFilter_h
 

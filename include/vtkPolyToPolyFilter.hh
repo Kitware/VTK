@@ -43,6 +43,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkPolyToPolyFilter is an abstract filter class whose subclasses take
 // as input polygonal data and generate polygonal data on output.
 
+// .SECTION See Also
+// vtkCleanPolyData vtkDecimate vtkFeatureEdges vtkFeatureVertices vtkMaskPolyData
+// vtkPolyNormals vtkSmoothPolyFilter vtkStripper vtkTransformPolyFilter vtkTriangleFilter
+// vtkTubeFilter vtkLinearExtrusionFilter vtkRibbonFilter vtkRotationalExtrusionFilter
+// vtkShrinkPolyData
+
 #ifndef __vtkPolyToPolyFilter_h
 #define __vtkPolyToPolyFilter_h
 

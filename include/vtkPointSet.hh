@@ -46,6 +46,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // to specify point position, while vtkStructuredPoints generates point
 // positions implicitly.
 
+// .SECTION See Also
+// vtkPolyData vtkStructuredGrid vtkUnstructuredGrid
+
 #ifndef __vtkPointSet_h
 #define __vtkPointSet_h
 

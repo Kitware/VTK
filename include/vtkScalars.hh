@@ -56,6 +56,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // to map scalars into colors, rather than the lookup table that the vtkMapper
 // objects are associated with.
 
+// .SECTION See Also
+// vtkBitScalars vtkColorScalars vtkFloatScalars vtkIntScalars
+// vtkShortScalars vtkUnsignedCharScalars
+
 #ifndef __vtkScalars_h
 #define __vtkScalars_h
 

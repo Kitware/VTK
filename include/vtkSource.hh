@@ -69,6 +69,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // output data once the downstream process object finishes processing the
 // data (please see text).
 
+// .SECTION See Also
+// vtkDataSetReader vtkFilter vtkPolySource vtkStructuredGridSource
+// vtkStructuredPointsSource vtkUnstructuredGridSource
+
 #ifndef __vtkSource_h
 #define __vtkSource_h
 

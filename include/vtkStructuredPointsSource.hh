@@ -43,6 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkStructuredPointsSource is an abstract class whose subclasses
 // generate vtkStructuredPoints data.
 
+// .SECTION See Also
+// vtkBooleanTexture vtkPointLoad vtkRendererSource vtkSampleFunction
+// vtkStructuredPointsReader vtkVolumeReader vtkVoxelReader
+
 #ifndef __vtkStructuredPointsSource_h
 #define __vtkStructuredPointsSource_h
 

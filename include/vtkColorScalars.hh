@@ -54,6 +54,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // response to "GetColor()" methods. However, when setting colors, the rgba
 // data is converted to internal form. For example, a vtkAGraymap converts
 // rgba into a luminance value and stores that.
+// .SECTION See Also
+// vtkAGraymap vtkAPixmap vtkBitmap vtkGraymap vtkPixmap 
 
 #ifndef __vtkColorScalars_h
 #define __vtkColorScalars_h

@@ -43,6 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkStructuredPointsFilter is a filter that takes a single vtkStructuredPoints 
 // data object as input.
 
+// .SECTION See Also
+// vtkStructuredPointsToPolyDataFilter vtkStructuredPointsToStructuredPointsFilter
+
 #ifndef __vtkStructuredPointsFilter_hh
 #define __vtkStructuredPointsFilter_hh
 

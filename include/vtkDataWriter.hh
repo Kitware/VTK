@@ -44,6 +44,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // point data (e.g., scalars, vectors, normals, etc.) from a vtk data file. 
 // See text for various formats.
 
+// .SECTION See Also
+// vtkDataSetWriter vtkPolyWriter vtkStructuredGridWriter
+// vtkStructuredPointsWriter vtkUnstructuredGridWriter
+
 #ifndef __vtkDataWriter_hh
 #define __vtkDataWriter_hh
 

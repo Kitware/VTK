@@ -42,6 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkPolySource is an abstract class whose subclasses generate polygonal data.
 
+// .SECTION See Also
+// vtkPolyReader vtkAxes vtkBYUReader vtkConeSource vtkCubeSource
+// vtkCursor3D vtkCyberReader vtkCylinderSource vtkDiskSource vtkLineSource
+// vtkMCubesReader vtkOutlineSource vtkPlaneSource vtkPointSource vtkSTLReader
+// vtkSphereSource vtkTextSource vtkUGFacetReader vtkVectorText
+
 #ifndef __vtkPolySource_h
 #define __vtkPolySource_h
 

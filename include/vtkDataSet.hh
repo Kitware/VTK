@@ -45,6 +45,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // also provides methods to provide informations about the data, such
 // as center, bounding box, and representative length.
 
+// .SECTION See Also
+// vtkPointSet vtkStructuredPoints
+
 #ifndef __vtkDataSet_h
 #define __vtkDataSet_h
 

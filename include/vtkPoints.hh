@@ -45,6 +45,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The subclasses of vtkPoints are concrete data types (float, int, etc.) 
 // that implement the interface of vtkPoints. 
 
+// .SECTION See Also
+// vtkFloatPoints vtkIntPoints
+
 #ifndef __vtkPoints_h
 #define __vtkPoints_h
 

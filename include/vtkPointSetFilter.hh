@@ -43,6 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkPointSetFilter is a filter that takes a single vtkPointSet data object
 // as input.
 
+// .SECTION See Also
+// vtkDelaunay2D vtkDelaunay3D vtkPointSetToPointSetFilter
+
 #ifndef __vtkPointSetFilter_h
 #define __vtkPointSetFilter_h
 

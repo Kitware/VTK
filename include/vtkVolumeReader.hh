@@ -60,8 +60,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // you to select this data. Other important ivars include HeaderSize, which
 // allows you to skip over initial info, and SwapBytes, which turns on/off
 // byte swapping.
+
 // .SECTION See Also
 // vtkSliceCubes vtkMarchingCubes
+// vtkPNMReader vtkVolume16Reader
 
 #ifndef __vtkVolumeReader_h
 #define __vtkVolumeReader_h

@@ -43,6 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkStructuredGridToPolyFilter is a filter whose subclasses take as input
 // structured grid datasets and generate polygonal data on output. 
 
+// .SECTION See Also
+// vtkStructuredGridGeometryFilter vtkStructuredGridOutlineFilter
+
 #ifndef __vtkStructuredGridToPolyFilter_h
 #define __vtkStructuredGridToPolyFilter_h
 

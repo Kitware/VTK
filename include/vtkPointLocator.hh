@@ -56,6 +56,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // octrees and kd-trees. These are often more efficient for the 
 // operations described here.
 
+// .SECTION See Also
+// vtkCellPicker vtkPointPicker
+
 #ifndef __vtkPointLocator_h
 #define __vtkPointLocator_h
 

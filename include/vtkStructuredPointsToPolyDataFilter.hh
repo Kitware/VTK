@@ -44,6 +44,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // subclasses take on input structured points and generate polygonal 
 // data on output.
 
+// .SECTION See Also
+// vtkDividingCubes vtkMarchingCubes vtkMarchingSquares
+// vtkRecursiveDividingCubes vtkStructuredPointsGeometryFilter
+
 #ifndef __vtkStructuredPointsToPolyDataFilter_h
 #define __vtkStructuredPointsToPolyDataFilter_h
 

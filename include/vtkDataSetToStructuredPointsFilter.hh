@@ -44,6 +44,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // subclasses take as input any dataset and generate structured points 
 // data on output.
 
+// .SECTION See Also
+// vtkGaussianSplatter vtkImplicitModeller vtkShepardMethod vtkVoxelModeller
+
 #ifndef __vtkDataSetToStructuredPointsFilter_h
 #define __vtkDataSetToStructuredPointsFilter_h
 

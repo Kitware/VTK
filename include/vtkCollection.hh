@@ -45,6 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkCollection also serves as a base class for lists of specific types 
 // of objects.
 
+// .SECTION See Also
+// vtkActorCollection vtkAssemblyPaths vtkDataSetCollection vtkImplicitFunctionCollection
+// vtkLightCollection vtkPolyDataCollection vtkRenderWindowCollection vtkRendererCollection
+// vtkStructuredPointsCollection vtkTransformCollection vtkVolumeCollection
+
 #ifndef __vtkCollection_hh
 #define __vtkCollection_hh
 

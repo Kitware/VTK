@@ -43,6 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkUnstructuredGridSource is an abstract class whose subclasses generate 
 // unstructured grid data.
 
+// .SECTION See Also
+// vtkUnstructuredGridReader
+
 #ifndef __vtkUnstructuredGridSource_h
 #define __vtkUnstructuredGridSource_h
 

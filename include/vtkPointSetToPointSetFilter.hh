@@ -46,6 +46,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // modify their point coordinates. They never modify their topological 
 // form, however.
 
+// .SECTION See Also
+// vtkTransformFilter vtkWarpScalar vtkWarpTo vtkWarpVector
+
 #ifndef __vtkPointSetToPointSetFilter_h
 #define __vtkPointSetToPointSetFilter_h
 

@@ -54,6 +54,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // occur. You can avoid this by turing reference counting off (i.e., use
 // the method ReferenceCountingOff()).
 
+// .SECTION See Also
+// vtkLookupTable vtkTCoords vtkCellList vtkLinkList vtkNormals vtkPoints
+// vtkScalars vtkTensors vtkUserDefined vtkVectors
+
 #ifndef __vtkRefCount_hh
 #define __vtkRefCount_hh
 

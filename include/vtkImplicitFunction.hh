@@ -55,8 +55,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // function (i.e., the model space). Typically we want to transpose the 
 // implicit model into world coordinates. In this case the inverse of the 
 // transform is required.
+
 // .SECTION See Also
 // vtkTransform
+// vtkCylinder vtkImplicitBoolean vtkPlane vtkPlanes
+// vtkQuadric vtkSphere
 
 #ifndef __vtkImplicitFunction_h
 #define __vtkImplicitFunction_h

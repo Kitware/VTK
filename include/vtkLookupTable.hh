@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // always use operator "new" to construct new objects. This procedure will
 // avoid memory problems (see text).
 // .SECTION See Also
-// vtkLogLookupTable
+// vtkLogLookupTable vtkWindowLevelLookupTable
 
 #ifndef __vtkLookupTable_h
 #define __vtkLookupTable_h

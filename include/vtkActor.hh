@@ -50,8 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // possibly a texture map.
 
 // .SECTION See Also
-// vtkProperty vtkTexture vtkMapper vtkActorDevice vtkFollower vtkLODActor
-// vtkAssembly
+// vtkProperty vtkTexture vtkMapper vtkActorDevice
+// vtkAssembly vtkFollower vtkLODActor
 
 #ifndef __vtkActor_hh
 #define __vtkActor_hh

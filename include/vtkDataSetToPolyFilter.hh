@@ -43,6 +43,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkDataSetToPolyFilter is an abstract filter class whose subclasses 
 // take as input any dataset and generate polygonal data on output.
 
+// .SECTION See Also
+// vtkContourFilter vtkCutter vtkEdgePoints vtkExtractEdges
+// vtkGeometryFilter vtkGlyph3D vtkHedgeHog vtkHyperStreamline
+// vtkMaskPoints vtkOutlineFilter vtkStreamer vtkTensorGlyph
+// vtkThresholdPoints vtkVectorTopology
+
 #ifndef __vtkDataSetToPolyFilter_h
 #define __vtkDataSetToPolyFilter_h
 

@@ -44,6 +44,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // subclasses take as input any dataset and generate an unstructured
 // grid on output.
 
+// .SECTION See Also
+// vtkAppendFilter vtkConnectivityFilter vtkExtractGeometry
+// vtkShrinkFilter vtkThreshold
+
 #ifndef __vtkDataSetToUnstructuredGridFilter_h
 #define __vtkDataSetToUnstructuredGridFilter_h
 

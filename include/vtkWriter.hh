@@ -51,6 +51,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Every subclass of vtkWriter must implement a WriteData() method. Most likely
 // will have to create SetInput() method as well.
 
+// .SECTION See Also
+// vtkBYUWriter vtkDataWriter vtkSTLWriter vtkVoxelWriter
+
 #ifndef __vtkWriter_hh
 #define __vtkWriter_hh
 

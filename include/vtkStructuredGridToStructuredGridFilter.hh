@@ -44,6 +44,9 @@ MODIFICATIONS.
 // whose subclasses take on input a structured grid  and generate a
 // structured grid on output.
 
+// .SECTION See Also
+// vtkExtractGrid
+
 #ifndef __vtkStructuredGridToStructuredGridFilter_h
 #define __vtkStructuredGridToStructuredGridFilter_h
 

@@ -44,6 +44,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // whose subclasses take on input structured points and generate
 // structured points on output.
 
+// .SECTION See Also
+// vtkExtractVOI vtkImageDifference vtkSweptSurface vtkTransformStructuredPoints
+
 #ifndef __vtkStructuredPointsToStructuredPointsFilter_h
 #define __vtkStructuredPointsToStructuredPointsFilter_h
 

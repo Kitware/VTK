@@ -45,6 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // as output. The form of the input geometry is not changed in these 
 // filters, only the point attributes (e.g. scalars, vectors, etc.).
 
+// .SECTION See Also
+// vtkBrownianPoints vtkProbeFilter vtkThresholdTextureCoords vtkDicer
+// vtkElevationFilter vtkImplicitTextureCoords vtkTextureMapToBox vtkTextureMapToPlane
+// vtkVectorDot vtkVectorNorm
+
 #ifndef __vtkDataSetToDataSetFilter_h
 #define __vtkDataSetToDataSetFilter_h
 

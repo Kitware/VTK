@@ -42,6 +42,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkStructuredGridSource is an abstract class whose subclasses generate structured grid data.
 
+// .SECTION See Also
+// vtkStructuredGridReader vtkPLOT3DReader
+
 #ifndef __vtkStructuredGridSource_h
 #define __vtkStructuredGridSource_h
 
