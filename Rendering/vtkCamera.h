@@ -288,7 +288,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Return the matrix of the view transform.
-  vtkMatrix4x4 *GetViewTransformMatrix();
+  virtual vtkMatrix4x4 *GetViewTransformMatrix();
   
   // Description:
   // Return the perspective transform matrix, which converts from camera
@@ -296,7 +296,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // width/height for the viewport, and the nearz and farz are the
   // Z-buffer values that map to the near and far clipping planes.
   // The viewport coordinates are in the range ([-1,+1],[-1,+1],[nearz,farz]).
-  vtkMatrix4x4 *GetPerspectiveTransformMatrix(double aspect,
+  virtual vtkMatrix4x4 *GetPerspectiveTransformMatrix(double aspect,
                                               double nearz, 
                                               double farz);
 
@@ -307,7 +307,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // width/height for the viewport, and the nearz and farz are the
   // Z-buffer values that map to the near and far clipping planes.
   // The viewport coordinates are in the range ([-1,+1],[-1,+1],[nearz,farz]).
-  vtkMatrix4x4 *GetCompositePerspectiveTransformMatrix(double aspect, 
+  virtual vtkMatrix4x4 *GetCompositePerspectiveTransformMatrix(double aspect, 
                                                        double nearz, 
                                                        double farz);
 
@@ -339,7 +339,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // plane equations of the form (Ax+By+Cz+D=0), the first four
   // values are (A,B,C,D) which repeats for each of the planes.
   // The aspect of the viewport is needed to correctly compute the planes
-  void GetFrustumPlanes(float aspect, float planes[24]);
+  virtual void GetFrustumPlanes(float aspect, float planes[24]);
 
   // Description:
   // Get the orientation of the camera.
@@ -371,7 +371,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Update the viewport
   virtual void UpdateViewport(vtkRenderer *vtkNotUsed(ren)) {}
   
-  vtkTransform *GetViewTransformObject() {return this->ViewTransform;};
+  virtual vtkTransform *GetViewTransformObject() {return this->ViewTransform;};
   
 protected:
   vtkCamera();
