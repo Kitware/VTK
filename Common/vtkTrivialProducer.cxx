@@ -20,11 +20,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.8");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.9");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -131,34 +128,21 @@ vtkTrivialProducer::ProcessDownstreamRequest(vtkInformation* request,
      this->Output)
     {
     vtkInformation* outputInfo = outputVector->GetInformationObject(0);
-
-    // The whole extent is just the extent because the output has no
-    // real source to change its data.
-    if(vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(this->Output))
+    vtkInformation* dataInfo = this->Output->GetInformation();
+    if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
       {
+      // There is no real source to  change the output data, so we can
+      // produce exactly one piece.
+      outputInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), 1);
+      }
+    else if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+      {
+      // The whole extent is just the extent because the output has no
+      // real source to change its data.
       int extent[6];
-      sg->GetExtent(extent);
+      dataInfo->Get(vtkDataObject::DATA_EXTENT(), extent);
       outputInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                       extent, 6);
-      }
-    else if(vtkImageData* id = vtkImageData::SafeDownCast(this->Output))
-      {
-      int extent[6];
-      id->GetExtent(extent);
-      outputInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                      extent, 6);
-      }
-    else if(vtkRectilinearGrid* rg = vtkRectilinearGrid::SafeDownCast(this->Output))
-      {
-      int extent[6];
-      rg->GetExtent(extent);
-      outputInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                      extent, 6);
-      }
-    else if(this->Output->GetExtentType() == VTK_PIECES_EXTENT)
-      {
-      outputInfo->Set(
-        vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), 1);
       }
     }
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()) && this->Output)
