@@ -85,6 +85,59 @@ extern "C" JNIEXPORT void  JNICALL Java_vtk_vtkPanel_RenderCreate(JNIEnv *vtkNot
 }
 #endif
 
+#ifdef VTK_USE_JAWT
+extern "C" JNIEXPORT void  JNICALL Java_vtk_vtkPanel_RenderInternal(JNIEnv *env, 
+								    jobject canvas,
+								    jobject id0)
+{
+  JAWT awt;
+  JAWT_DrawingSurface* ds;
+  jint lock;
+
+  // get the render window pointer
+  vtkRenderWindow *temp0;
+  temp0 = (vtkRenderWindow *)(vtkJavaGetPointerFromObject(env,id0,(char *) "vtkRenderWindow"));
+  
+  /* Get the AWT */
+  awt.version = JAWT_VERSION_1_3;
+  if (JAWT_GetAWT(env, &awt) == JNI_FALSE) 
+    {
+    printf("AWT Not found\n");
+    return;
+    }
+  
+  /* Get the drawing surface */
+  ds = awt.GetDrawingSurface(env, canvas);
+  if (ds == NULL) 
+    {
+    printf("NULL drawing surface\n");
+    return;
+    }
+  
+  /* Lock the drawing surface */
+  lock = ds->Lock(ds);
+  if((lock & JAWT_LOCK_ERROR) != 0) 
+    {
+    printf("Error locking surface\n");
+    awt.FreeDrawingSurface(ds);
+    return;
+    }
+
+  temp0->Render();
+  
+  /* Unlock the drawing surface */
+  ds->Unlock(ds);
+  
+  /* Free the drawing surface */
+  awt.FreeDrawingSurface(ds);
+}
+#else
+extern "C" JNIEXPORT void  JNICALL Java_vtk_vtkPanel_RenderInternal(JNIEnv *vtkNotUsed(env), 
+							    jobject vtkNotUsed(canvas),
+							    jobject vtkNotUsed(id0))
+{
+}
+#endif
 
 
 
