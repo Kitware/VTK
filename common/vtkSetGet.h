@@ -154,7 +154,7 @@ char* Get##name () { \
 void Set##name (type _arg) \
   { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
-  if (name != _arg) \
+  if (name != (_arg<min?min:(_arg>max?max:_arg))) \
     { \
     name = (_arg<min?min:(_arg>max?max:_arg)); \
     this->Modified(); \
@@ -244,9 +244,9 @@ type *Get##name () \
 } \
 void Get##name (type &_arg1, type &_arg2) \
   { \
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << ")"); \
     _arg1 = name[0]; \
     _arg2 = name[1]; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << ")"); \
   }; \
 void Get##name (type _arg[2]) \
   { \
@@ -278,10 +278,10 @@ type *Get##name () \
 } \
 void Get##name (type &_arg1, type &_arg2, type &_arg3) \
   { \
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << ")"); \
     _arg1 = name[0]; \
     _arg2 = name[1]; \
     _arg3 = name[2]; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << ")"); \
   }; \
 void Get##name (type _arg[3]) \
   { \
@@ -314,11 +314,11 @@ type *Get##name () \
 } \
 void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4) \
   { \
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")"); \
     _arg1 = name[0]; \
     _arg2 = name[1]; \
     _arg3 = name[2]; \
     _arg4 = name[3]; \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")"); \
   }; \
 void Get##name (type _arg[4]) \
   { \
