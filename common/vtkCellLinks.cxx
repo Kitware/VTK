@@ -41,11 +41,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellLinks.h"
 #include "vtkDataSet.h"
 #include "vtkCellArray.h"
+#include "vtkPolyData.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkCellLinks* vtkCellLinks::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +56,6 @@ vtkCellLinks* vtkCellLinks::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkCellLinks;
 }
-
-
-
 
 void vtkCellLinks::Allocate(int sz, int ext)
 {
@@ -161,43 +157,74 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
 {
   int numPts = data->GetNumberOfPoints();
   int numCells = data->GetNumberOfCells();
-  int numberOfPoints;
-  int i, j, ptId, cellId;
-  vtkCell *cell;
+  int i, j, cellId;
   unsigned short *linkLoc;
 
-  // traverse data to determine number of uses of each point
-  for (cellId=0; cellId < numCells; cellId++)
-    {
-    cell = data->GetCell(cellId);
-    numberOfPoints = cell->GetNumberOfPoints();
-    for (j=0; j < numberOfPoints; j++)
-      {
-      this->IncrementLinkCount(cell->PointIds->GetId(j));      
-      }      
-    }
-
-  // now allocate storage for the links
-  this->AllocateLinks(numPts);
-  this->MaxId = numPts - 1;
-
-  // fill out lists with references to cells
+  // fill out lists with number of references to cells
   linkLoc = new unsigned short[numPts];
-  for (i=0; i < numPts; i++)
+  memset(linkLoc, 0, numPts*sizeof(unsigned short));
+
+  // Use fast path if polydata
+  if ( data->GetDataObjectType() == VTK_POLY_DATA )
     {
-    linkLoc[i] = 0;
+    int npts, *pts;
+    vtkPolyData *pdata = (vtkPolyData *)data;
+    // traverse data to determine number of uses of each point
+    for (cellId=0; cellId < numCells; cellId++)
+      {
+      pdata->GetCellPoints(cellId, npts, pts);
+      for (j=0; j < npts; j++)
+        {
+        this->IncrementLinkCount(pts[j]);      
+        }      
+      }
+
+    // now allocate storage for the links
+    this->AllocateLinks(numPts);
+    this->MaxId = numPts - 1;
+
+    for (cellId=0; cellId < numCells; cellId++)
+      {
+      pdata->GetCellPoints(cellId, npts, pts);
+      for (j=0; j < npts; j++)
+        {
+        this->InsertCellReference(pts[j], (linkLoc[pts[j]])++, cellId);      
+        }      
+      }
     }
 
-  for (cellId=0; cellId < numCells; cellId++)
+  else //any other type of dataset
     {
-    cell = data->GetCell(cellId);
-    numberOfPoints = cell->GetNumberOfPoints();
-    for (j=0; j < numberOfPoints; j++)
+    int numberOfPoints, ptId;
+    vtkGenericCell *cell=vtkGenericCell::New();
+
+    // traverse data to determine number of uses of each point
+    for (cellId=0; cellId < numCells; cellId++)
       {
-      ptId = cell->PointIds->GetId(j);
-      this->InsertCellReference(ptId, (linkLoc[ptId])++, cellId);      
-      }      
-    }
+      data->GetCell(cellId,cell);
+      numberOfPoints = cell->GetNumberOfPoints();
+      for (j=0; j < numberOfPoints; j++)
+        {
+        this->IncrementLinkCount(cell->PointIds->GetId(j));      
+        }      
+      }
+
+    // now allocate storage for the links
+    this->AllocateLinks(numPts);
+    this->MaxId = numPts - 1;
+
+    for (cellId=0; cellId < numCells; cellId++)
+      {
+      data->GetCell(cellId,cell);
+      numberOfPoints = cell->GetNumberOfPoints();
+      for (j=0; j < numberOfPoints; j++)
+        {
+        ptId = cell->PointIds->GetId(j);
+        this->InsertCellReference(ptId, (linkLoc[ptId])++, cellId);      
+        }      
+      }
+    cell->Delete();
+    }//end else
 
   delete [] linkLoc;
 }
