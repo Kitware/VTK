@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkTensor.h"
 
-vtkCxxRevisionMacro(vtkCurvatures, "1.5");
+vtkCxxRevisionMacro(vtkCurvatures, "1.6");
 vtkStandardNewMacro(vtkCurvatures);
 
 //------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ void vtkCurvatures::GetMeanCurvature()
     // Get the array so we can write to it directly
     double *meanCurvatureData = meanCurvature->GetPointer(0);
     //     data
-    int v, v_l, v_r, v_o,  f, F, V, n, nv;// n short for neighbor
+    int v, v_l, v_r, v_o,  f, F, n, nv;// n short for neighbor
     
     //     create-allocate
     float n_f[3]; // normal of facet (could be stored for later?)
@@ -103,11 +103,10 @@ void vtkCurvatures::GetMeanCurvature()
     //data init
     f = 0;
     F = mesh->GetNumberOfCells();
-    V = mesh->GetNumberOfPoints();
     Hf = 0.0;
     // init, preallocate the mean curvature
-    int* num_neighb = new int[V];
-    for (v = 0; v < V; v++)
+    int* num_neighb = new int[numPts];
+    for (v = 0; v < numPts; v++)
       {
       meanCurvatureData[v] = 0.0;
       num_neighb[v] = 0;
@@ -183,7 +182,7 @@ void vtkCurvatures::GetMeanCurvature()
       }
 
     // put curvature in vtkArray
-    for (v = 0; v < V; v++)
+    for (v = 0; v < numPts; v++)
       {
         if (num_neighb[v]>0)
           {
