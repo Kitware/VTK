@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
 
-vtkCxxRevisionMacro(vtkTexture, "1.51");
+vtkCxxRevisionMacro(vtkTexture, "1.52");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -52,8 +52,6 @@ vtkTexture::~vtkTexture()
     {
     this->LookupTable->UnRegister(this);
     }
-
-  this->SetInput(NULL);
 }
 
 // return the correct type of Texture 
