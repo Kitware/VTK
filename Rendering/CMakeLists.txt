@@ -108,6 +108,7 @@ vtkVolumeRayCastMIPFunction.cxx
 vtkVolumeRayCastMapper.cxx
 vtkVolumeTextureMapper.cxx
 vtkVolumeTextureMapper2D.cxx
+vtkVolumeTextureMapper3D.cxx
 vtkWindowToImageFilter.cxx
 vtkWorldPointPicker.cxx
 )
@@ -143,8 +144,10 @@ SET( KitOpenGL_SRCS
   vtkOpenGLRenderWindow.cxx
   vtkOpenGLRenderer.cxx
   vtkOpenGLTexture.cxx
+  vtkOpenGLTexture3D.cxx
   vtkOpenGLVolumeRayCastMapper.cxx
   vtkOpenGLVolumeTextureMapper2D.cxx
+  vtkOpenGLVolumeTextureMapper3D.cxx
   )
 
 SET_SOURCE_FILES_PROPERTIES(
@@ -247,7 +250,7 @@ ELSE (WIN32)
       IF (OPENGL_LIBRARY)
         SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
                      vtkXOpenGLRenderWindow.cxx)
-        SET (KIT_LIBS ${KIT_LIBS} ${OPENGL_LIBRARY} )
+        SET (KIT_LIBS ${KIT_LIBS} ${OPENGL_LIBRARY})
       ENDIF (OPENGL_LIBRARY)
     ENDIF(VTK_USE_X)
   ELSE (APPLE)
@@ -369,6 +372,7 @@ IF (VTK_WRAP_PYTHON)
     ADD_LIBRARY(vtk${KIT}Python MODULE vtk${KIT}PythonInit.cxx)
     TARGET_LINK_LIBRARIES(vtk${KIT}PythonD vtk${KIT} ${KIT_PYTHON_LIBS} ${PYTHON_LIBRARY})
     TARGET_LINK_LIBRARIES(vtk${KIT}Python vtk${KIT}PythonD)
+    INSTALL_TARGETS(/lib/vtk vtk${KIT}PythonD)
   ELSE (APPLE)
     ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS} ${Kit_PYTHON_EXTRA_SRCS})
     TARGET_LINK_LIBRARIES (vtk${KIT}Python vtk${KIT} ${KIT_PYTHON_LIBS})
