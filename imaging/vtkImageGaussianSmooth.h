@@ -81,11 +81,8 @@ protected:
   int Dimensionality;
   float StandardDeviations[3];
   float RadiusFactors[3];
-  int Radius;
-  float *Kernel;
-  float *TempKernel;
   
-  void ComputeKernel(float std, float factor);
+  void ComputeKernel(float *kernel, int min, int max, float std);
   void ExecuteImageInformation();
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteAxis(int axis, vtkImageData *inData, int inExt[6],

@@ -44,8 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageGaussianSmooth::vtkImageGaussianSmooth()
 {
-  this->Radius = -1;
-  this->Kernel = this->TempKernel = NULL;
   this->Dimensionality = 1; // note: this overrides Standard deviation.
   this->StandardDeviations[0] = 2.0;
   this->StandardDeviations[1] = 2.0;
@@ -58,13 +56,6 @@ vtkImageGaussianSmooth::vtkImageGaussianSmooth()
 //----------------------------------------------------------------------------
 vtkImageGaussianSmooth::~vtkImageGaussianSmooth()
 {
-  if (this->Kernel)
-    {
-    delete [] this->Kernel;
-    this->Kernel = NULL;
-    delete [] this->TempKernel;
-    this->TempKernel = NULL;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -77,44 +68,32 @@ void vtkImageGaussianSmooth::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageGaussianSmooth::ComputeKernel(float std, float factor)
+void vtkImageGaussianSmooth::ComputeKernel(float *kernel, int min, int max,
+					   float std)
 {
-  int idx, size;
-  float sum, x;
-  
-  this->Radius = (int)(std * factor);
-  if (this->Kernel)
-    {
-    delete [] this->Kernel;
-    delete [] this->TempKernel;
-    }
-
-  // allocate space for kernels 
-  size = 2 * this->Radius + 1;
-  this->Kernel = new float[size];
-  this->TempKernel = new float[size];
+  int x;
+  float sum;
   
   // handle special case
   if (std == 0.0)
     {
-    this->Kernel[0] = 1.0;
+    kernel[0] = 1.0;
     return;
     }
   
   // fill in kernel
   sum = 0.0;
-  for (idx = 0; idx < size; ++idx)
+  for (x = min; x <= max; ++x)
     {
-    x = idx - this->Radius;
-    sum += this->Kernel[idx] = 
-      exp(- (x*x) / (2.0 * std * std));
+    sum += kernel[x-min] = 
+      exp(- ((float)(x*x)) / (2.0 * std * std));
     }
 
   // normalize
   sum = 1.0 / sum;
-  for (idx = 0; idx < size; ++idx)
+  for (x = min; x <= max; ++x)
     {
-    this->Kernel[idx] *= sum;
+    kernel[x-min] *= sum;
     }
 }
   
@@ -244,18 +223,18 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
 					 vtkImageData *inData, int inExt[6],
 					 vtkImageData *outData, int outExt[6])
 {
-  int idxA, idx, max;
+  int idxA, max;
   int *wholeExtent, wholeMax, wholeMin;
-  float *kernel, sum;
-  int kernelSize, kernelLeftClip, kernelRightClip;
+  float *kernel;
+  // kernelNotClipped rembers that the previous was not clipped
+  // keeps from recomputing kernels for center pixels.
+  int kernelSize = 0;
+  int kernelLeftClip, kernelRightClip, kernelClipped = 1;
+  int radius, size;
   void *inPtr;
   void *outPtr;
   int coords[3], *outIncs, outIncA;
 
-  // Compute the correct kernel for this axis (also set Radius)
-  this->ComputeKernel(this->StandardDeviations[axis], 
-		      this->RadiusFactors[axis]);
-  
   // Get the correct starting pointer of the output
   outPtr = outData->GetScalarPointerForExtent(outExt);
   outIncs = outData->GetIncrements();
@@ -294,12 +273,17 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   wholeMin = wholeExtent[axis*2];
   wholeMax = wholeExtent[axis*2+1];  
 
+  // allocate memory for the kernel
+  radius = (int)(this->StandardDeviations[axis] * this->RadiusFactors[axis]);
+  size = 2*radius + 1;
+  kernel = new float[size];
+  
   // loop over the convolution axis
   max = outExt[axis*2+1];
   for (idxA = outExt[axis*2]; idxA <= max; ++idxA)
     {
     // left boundary condition
-    coords[axis] = idxA - this->Radius;
+    coords[axis] = idxA - radius;
     kernelLeftClip = wholeMin - coords[axis];
     if (kernelLeftClip > 0)
       { // front of kernel is cut off ("kernelStart" samples)
@@ -310,34 +294,23 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
       kernelLeftClip = 0;
       }
     // Right boundary condition
-    kernelRightClip = (idxA + this->Radius) - wholeMax;
+    kernelRightClip = (idxA + radius) - wholeMax;
     if (kernelRightClip < 0)
       {
       kernelRightClip = 0;
       }
     
     // compute the clipped Kernel.
-    if (kernelLeftClip == 0 && kernelRightClip == 0)
-      { // kernel not clipped
-      kernel = this->Kernel;
-      kernelSize = 2 * this->Radius + 1;
-      }
-    else
-      {
-      // copy clipped kernel
-      sum = 0.0;
-      kernelSize = 2 * this->Radius + 1 - kernelRightClip - kernelLeftClip;
-      for (idx = 0; idx < kernelSize; ++idx)
-	{
-	sum += this->TempKernel[idx] = this->Kernel[idx + kernelLeftClip];
-	}
-      // normalize
-      sum = 1.0 / sum;
-      for (idx = 0; idx < kernelSize; ++idx)
-	{
-	this->TempKernel[idx] *= sum;
-	}
-      kernel = this->TempKernel;
+    if (kernelClipped || kernelLeftClip || kernelRightClip)
+      { 
+      // We can only use previous kernel if it is not clipped and new
+      // kernel is also not clipped.
+      this->ComputeKernel(kernel, -radius+kernelLeftClip, 
+			  radius-kernelLeftClip,
+			  this->StandardDeviations[axis]);
+      // we might be able to avoid recomputing kernel next time
+      kernelClipped = ( ! kernelLeftClip && ! kernelRightClip);
+      kernelSize = size - kernelLeftClip - kernelRightClip;
       }
     
     /* now do the convolution on the rest of the axes */
@@ -375,10 +348,10 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
       }
     outPtr = (void *)((unsigned char *)outPtr + outIncA);
     }
+  
+  // get rid of temporary kernel
+  delete kernel;
 }
-
-
-
   
 //----------------------------------------------------------------------------
 // Description:
