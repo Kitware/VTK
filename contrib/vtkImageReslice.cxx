@@ -1131,7 +1131,7 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   int i, numscalars;
   int idX, idY, idZ;
   int outIncX, outIncY, outIncZ;
-  int inExt[6], inWholeExt[6], inInc[3];
+  int inExt[6], inWholeExt[6], inInc[3], inDim[3];
   unsigned long count = 0;
   unsigned long target;
   float inPoint[4],outPoint[4];
@@ -1145,6 +1145,11 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   inData->GetExtent(inExt);
   inData->GetWholeExtent(inWholeExt);
   
+  for (i = 0; i < 3; i++)
+    {
+    inDim[i] = inWholeExt[2*i+1]-inWholeExt[2*i]+1;
+    }
+
   target = (unsigned long)
     ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
   target++;
@@ -1162,14 +1167,14 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   background = new T[numscalars];
   for (i = 0; i < numscalars; i++)
     {
-      if (i < 4)
-	{
-	vtkResliceClamp(self->GetBackgroundColor()[i],background[i]);
-	}
-      else
-	{
-	background[i] = 0;
-	}
+    if (i < 4)
+      {
+      vtkResliceClamp(self->GetBackgroundColor()[i],background[i]);
+      }
+    else
+      {
+      background[i] = 0;
+      }
     }
 
   // Set interpolation method
@@ -1235,7 +1240,7 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
 	inPoint[3] = 1;
 	
 	interpolate(inPoint, inPtr, outPtr, background, 
-		    numscalars, inExt, inWholeExt, inInc);
+		    numscalars, inExt, inDim, inInc);
 
 	outPtr += numscalars; 
 	}
