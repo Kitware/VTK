@@ -77,6 +77,7 @@ int vtkDataObjectReader::GetFileType()
 void vtkDataObjectReader::Execute()
 {
   char line[256];
+  vtkFieldData *field=NULL;
 
   vtkDebugMacro(<<"Reading vtk field data...");
 
@@ -85,33 +86,37 @@ void vtkDataObjectReader::Execute()
 
   if ( !(this->Reader->OpenVTKFile()) || !this->Reader->ReadHeader())
       return;
+
+  // Read field data until end-of-file
   //
-  // Read field specific stuff
-  //
-  if (!this->Reader->ReadString(line))
+  while (this->Reader->ReadString(line) && !field )
     {
-    vtkErrorMacro(<<"Data file ends prematurely!");
-    this->Reader->CloseVTKFile ();
-    return;
-    }
+    if ( !strncmp(this->Reader->LowerCase(line),"field",(unsigned long)5) )
+      {
+      field = this->Reader->ReadFieldData(); //reads named field (or first found)
+      if ( field != NULL )
+	{
+	this->Output->SetFieldData(field);
+	field->Delete();
+	}
+      }
 
-  if ( !strncmp(this->Reader->LowerCase(line),"field",(unsigned long)5) )
-    {
-    vtkFieldData *f = this->Reader->ReadFieldData();
-    this->Output->GetFieldData()->ShallowCopy(f);
-    f->Delete();
-    }
+    else if ( !strncmp(this->Reader->LowerCase(line),"dataset",(unsigned long)7) )
+      {
+      vtkErrorMacro(<<"Field reader cannot read datasets");
+      this->Reader->CloseVTKFile();
+      return;
+      }
 
-  else if ( !strncmp(this->Reader->LowerCase(line),"dataset",(unsigned long)7) )
-    {
-    vtkErrorMacro(<<"Field reader cannot read datasets");
+    else 
+      {
+      vtkErrorMacro(<< "Unrecognized keyword: " << line);
+      this->Reader->CloseVTKFile();
+      return;
+      }
     }
+  //while field not read
 
-  else 
-    {
-    vtkErrorMacro(<< "Unrecognized keyword: " << line);
-    }
-  
   this->Reader->CloseVTKFile();
 }
 
