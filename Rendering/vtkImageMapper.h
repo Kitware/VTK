@@ -123,6 +123,8 @@ protected:
   int UseCustomExtents;
   int CustomDisplayExtents[4];
   int RenderToRectangle;
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   vtkImageMapper(const vtkImageMapper&);  // Not implemented.
   void operator=(const vtkImageMapper&);  // Not implemented.

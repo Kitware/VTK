@@ -20,8 +20,9 @@
 #include "vtkWindow.h"
 #include "vtkImageData.h"
 #include "vtkImagingFactory.h"
+#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkImageMapper, "1.48");
+vtkCxxRevisionMacro(vtkImageMapper, "1.49");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -36,6 +37,7 @@ vtkImageMapper::vtkImageMapper()
   vtkDebugMacro(<< "vtkImageMapper::vtkImageMapper" );
 
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 
   this->ColorWindow = 2000;
   this->ColorLevel  = 1000;
@@ -264,3 +266,13 @@ int vtkImageMapper::GetWholeZMax()
   return extent[5];
 }
 
+//----------------------------------------------------------------------------
+int vtkImageMapper::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
+}
