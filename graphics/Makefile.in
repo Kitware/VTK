@@ -128,6 +128,7 @@ vtkElevationFilter \
 vtkExtractEdges \
 vtkExtractGeometry \
 vtkExtractGrid \
+vtkExtractTensorComponents \
 vtkExtractVOI \
 vtkExtractVectorComponents \
 vtkFeatureEdges \
