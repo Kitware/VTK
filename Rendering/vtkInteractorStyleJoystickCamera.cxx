@@ -20,7 +20,7 @@
 #include "vtkCommand.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.22");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.23");
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
@@ -178,8 +178,8 @@ void vtkInteractorStyleJoystickCamera::Rotate()
 
   float *center = this->CurrentRenderer->GetCenter();
 
-  float dx = (float)rwi->GetLastEventPosition()[0] - center[0];
-  float dy = (float)rwi->GetLastEventPosition()[1] - center[1];
+  float dx = (float)rwi->GetEventPosition()[0] - center[0];
+  float dy = (float)rwi->GetEventPosition()[1] - center[1];
   
   float *vp = this->CurrentRenderer->GetViewport();
   int *size = rwi->GetSize();
@@ -224,7 +224,7 @@ void vtkInteractorStyleJoystickCamera::Spin()
 
   // Spin is based on y value
 
-  double yf = ((double)rwi->GetLastEventPosition()[1] - (double)center[1]) 
+  double yf = ((double)rwi->GetEventPosition()[1] - (double)center[1]) 
     / (double)(center[1]);
 
   if (yf > 1)
@@ -266,8 +266,8 @@ void vtkInteractorStyleJoystickCamera::Pan()
                               ViewFocus);
   double focalDepth = ViewFocus[2];
 
-  this->ComputeDisplayToWorld((float)rwi->GetLastEventPosition()[0], 
-                              (float)rwi->GetLastEventPosition()[1],
+  this->ComputeDisplayToWorld((float)rwi->GetEventPosition()[0], 
+                              (float)rwi->GetEventPosition()[1],
                               focalDepth, 
                               NewPickPoint);
 
@@ -317,7 +317,7 @@ void vtkInteractorStyleJoystickCamera::Dolly()
 
   float *center = this->CurrentRenderer->GetCenter();
 
-  double dy = (double)rwi->GetLastEventPosition()[1] - (double)center[1];
+  double dy = (double)rwi->GetEventPosition()[1] - (double)center[1];
   double dyf = 0.5 * dy / (double)center[1];
   double zoomFactor = pow((double)1.1, dyf);
 
