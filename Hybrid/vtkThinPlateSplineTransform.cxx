@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkThinPlateSplineTransform, "1.29");
+vtkCxxRevisionMacro(vtkThinPlateSplineTransform, "1.30");
 vtkStandardNewMacro(vtkThinPlateSplineTransform);
 
 //------------------------------------------------------------------------
@@ -219,7 +219,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
   const int D = 3; // dimensions
 
   // the output weights matrix
-  double **W = NewMatrix(N+D+1,D); 
+  double **W = vtkNewMatrix(N+D+1,D); 
   double **A = &W[N+1];  // the linear rotation + scale matrix 
   double *C = W[N];      // the linear translation 
 
@@ -232,8 +232,8 @@ void vtkThinPlateSplineTransform::InternalUpdate()
     // and online work published by Tim Cootes (http://www.wiau.man.ac.uk/~bim)
         
     // the input matrices
-    double **L = NewMatrix(N+D+1,N+D+1);
-    double **X = NewMatrix(N+D+1,D);
+    double **L = vtkNewMatrix(N+D+1,N+D+1);
+    double **X = vtkNewMatrix(N+D+1,D);
 
     // build L
     // will leave the bottom-right corner with zeros
@@ -280,11 +280,11 @@ void vtkThinPlateSplineTransform::InternalUpdate()
     // W = V*Inverse(w)*U*X  
     
     double *values = new double[N+D+1];
-    double **V = NewMatrix(N+D+1,N+D+1);
-    double **w = NewMatrix(N+D+1,N+D+1);
+    double **V = vtkNewMatrix(N+D+1,N+D+1);
+    double **w = vtkNewMatrix(N+D+1,N+D+1);
     double **U = L;  // reuse the space
     vtkMath::JacobiN(L,N+D+1,values,V);
-    MatrixTranspose(V,U,N+D+1,N+D+1);
+    vtkMatrixTranspose(V,U,N+D+1,N+D+1);
 
     vtkIdType i, j;
     double maxValue = 0.0; // maximum eigenvalue
@@ -759,12 +759,12 @@ void vtkThinPlateSplineTransform::SetBasis(int basis)
     case VTK_RBF_CUSTOM:
       break;
     case VTK_RBF_R:
-      this->BasisFunction = &RBFr;
-      this->BasisDerivative = &RBFDRr;
+      this->BasisFunction = &vtkRBFr;
+      this->BasisDerivative = &vtkRBFDRr;
       break;
     case VTK_RBF_R2LOGR:
-      this->BasisFunction = &RBFr2logr;
-      this->BasisDerivative = &RBFDRr2logr;
+      this->BasisFunction = &vtkRBFr2logr;
+      this->BasisDerivative = &vtkRBFDRr2logr;
       break;
     default:
       vtkErrorMacro(<< "SetBasisFunction: Unrecognized basis function");
