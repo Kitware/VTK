@@ -34,7 +34,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.47");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.48");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -571,7 +571,7 @@ void vtkBoxWidget::OnLeftButtonDown()
     {
     this->State = vtkBoxWidget::Moving;
     this->HighlightFace(
-      this->HighlightHandle(path->GetFirstNode()->GetProp()));
+      this->HighlightHandle(path->GetFirstNode()->GetViewProp()));
     this->HandlePicker->GetPickPosition(this->LastPickPosition);
     this->ValidPick = 1;
     }

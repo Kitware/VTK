@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkAssembly, "1.56");
+vtkCxxRevisionMacro(vtkAssembly, "1.57");
 vtkStandardNewMacro(vtkAssembly);
 
 // Construct object with no children.
@@ -99,7 +99,7 @@ int vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
+    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
     if ( prop3D->GetVisibility() )
       {
       prop3D->SetAllocatedRenderTime(fraction, ren);
@@ -138,7 +138,7 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
+    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
     if ( prop3D->GetVisibility() )
       {
       prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
@@ -175,7 +175,7 @@ void vtkAssembly::GetActors(vtkPropCollection *ac)
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
+    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
     if ( (actor = vtkActor::SafeDownCast(prop3D)) != NULL )
       {
       ac->AddItem(actor);
@@ -193,7 +193,7 @@ void vtkAssembly::GetVolumes(vtkPropCollection *ac)
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
+    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
     if ( (volume = vtkVolume::SafeDownCast(prop3D)) != NULL )
       {
       ac->AddItem(volume);
@@ -308,7 +308,7 @@ double *vtkAssembly::GetBounds()
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
+    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
     if ( prop3D->GetVisibility() )
       {
       propVisible = 1;

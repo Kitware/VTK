@@ -17,7 +17,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataArrayCollection.h"
 
-vtkCxxRevisionMacro(vtkDataArrayCollectionIterator, "1.2");
+vtkCxxRevisionMacro(vtkDataArrayCollectionIterator, "1.3");
 vtkStandardNewMacro(vtkDataArrayCollectionIterator);
 
 //----------------------------------------------------------------------------
@@ -63,5 +63,5 @@ void vtkDataArrayCollectionIterator::SetCollection(vtkDataArrayCollection* c)
 //----------------------------------------------------------------------------
 vtkDataArray* vtkDataArrayCollectionIterator::GetDataArray()
 {
-  return static_cast<vtkDataArray*>(this->GetObject());
+  return static_cast<vtkDataArray*>(this->GetCurrentObject());
 }

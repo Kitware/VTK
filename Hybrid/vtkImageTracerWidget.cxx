@@ -37,7 +37,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageTracerWidget, "1.13");
+vtkCxxRevisionMacro(vtkImageTracerWidget, "1.14");
 vtkStandardNewMacro(vtkImageTracerWidget);
 
 vtkCxxSetObjectMacro(vtkImageTracerWidget, HandleProperty, vtkProperty);
@@ -51,7 +51,7 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   this->EventCallbackCommand->SetCallback(vtkImageTracerWidget::ProcessEvents);
 
   this->Interaction = 1;
-  this->Prop = NULL;
+  this->ViewProp = NULL;
   this->PickCount = 0;
   this->SnapToImage = 0;
   this->AutoClose = 0;
@@ -176,9 +176,9 @@ vtkImageTracerWidget::~vtkImageTracerWidget()
     {
     this->SelectedLineProperty->Delete();
     }
-  if ( this->Prop )
+  if ( this->ViewProp )
     {
-    this->Prop->UnRegister(this);
+    this->ViewProp->UnRegister(this);
     }
 
   this->LinePoints->Delete();
@@ -200,40 +200,22 @@ vtkImageTracerWidget::~vtkImageTracerWidget()
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef SetProp
-// Define possible mangled names.
-void vtkImageTracerWidget::SetPropA(vtkProp* prop)
+void vtkImageTracerWidget::SetViewProp(vtkProp* prop)
 {
-  this->SetPropInternal(prop);
-}
-void vtkImageTracerWidget::SetPropW(vtkProp* prop)
-{
-  this->SetPropInternal(prop);
-}
-#endif
-void vtkImageTracerWidget::SetProp(vtkProp* prop)
-{
-  this->SetPropInternal(prop);
-}
-
-//----------------------------------------------------------------------------
-void vtkImageTracerWidget::SetPropInternal(vtkProp* prop)
-{
-  if ( this->Prop != prop )
+  if ( this->ViewProp != prop )
     {
     // Avoid destructor recursion
-    vtkProp *temp = this->Prop;
-    this->Prop = prop;
+    vtkProp *temp = this->ViewProp;
+    this->ViewProp = prop;
     if ( temp )
       {
       temp->UnRegister(this);
       }
-    if ( this->Prop )
+    if ( this->ViewProp )
       {
-      this->Prop->Register(this);
+      this->ViewProp->Register(this);
       this->PropPicker->InitializePickList();
-      this->PropPicker->AddPickList(this->Prop);
+      this->PropPicker->AddPickList(this->ViewProp);
       }
     }
 }
@@ -246,7 +228,7 @@ void vtkImageTracerWidget::SetEnabled(int enabling)
     return;
     }
 
-  if ( !this->Prop )
+  if ( !this->ViewProp )
     {
     vtkErrorMacro(<<"The external prop must be set prior to enabling/disabling widget");
     return;
@@ -279,14 +261,14 @@ void vtkImageTracerWidget::SetEnabled(int enabling)
     // Turn on the handles
     for ( int i = 0; i < this->NumberOfHandles; ++i )
       {
-      this->CurrentRenderer->AddProp(this->Handle[i]);
+      this->CurrentRenderer->AddViewProp(this->Handle[i]);
       this->Handle[i]->SetProperty(this->HandleProperty);
       this->Handle[i]->PickableOff();
       }
 
     this->SizeHandles();
 
-    this->CurrentRenderer->AddProp(this->LineActor);
+    this->CurrentRenderer->AddViewProp(this->LineActor);
     this->LineActor->SetProperty(this->LineProperty);
     this->LineActor->PickableOff();
 
@@ -310,10 +292,10 @@ void vtkImageTracerWidget::SetEnabled(int enabling)
     // Turn off the handles
     for ( int i = 0; i < this->NumberOfHandles; ++i )
      {
-     this->CurrentRenderer->RemoveProp(this->Handle[i]);
+     this->CurrentRenderer->RemoveViewProp(this->Handle[i]);
      }
 
-    this->CurrentRenderer->RemoveProp(this->LineActor);
+    this->CurrentRenderer->RemoveViewProp(this->LineActor);
 
     this->CurrentHandle = NULL;
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
@@ -445,13 +427,13 @@ void vtkImageTracerWidget::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Line Property: (none)\n";
     }
 
-  if ( this->Prop )
+  if ( this->ViewProp )
     {
-    os << indent << "Prop: " << this->Prop << "\n";
+    os << indent << "ViewProp: " << this->ViewProp << "\n";
     }
   else
     {
-    os << indent << "Prop: (none)\n";
+    os << indent << "ViewProp: (none)\n";
     }
 
   os << indent << "Interaction: "
@@ -592,7 +574,7 @@ void vtkImageTracerWidget::OnLeftButtonDown()
   int found = 0;
   if ( this->PropPicker->PickProp(X,Y,this->CurrentRenderer) )
     {
-    if ( this->Prop == this->PropPicker->GetProp() )
+    if ( this->ViewProp == this->PropPicker->GetViewProp() )
       {
       found = 1;
       this->State = vtkImageTracerWidget::Tracing;
@@ -679,7 +661,7 @@ void vtkImageTracerWidget::OnMiddleButtonDown()
   int found = 0;
   if ( this->PropPicker->PickProp(X,Y,this->CurrentRenderer) )
     {
-    if ( this->Prop == this->PropPicker->GetProp() )
+    if ( this->ViewProp == this->PropPicker->GetViewProp() )
       {
       found = 1;
       this->State = vtkImageTracerWidget::Snapping; // do snap tracing
@@ -808,9 +790,9 @@ void vtkImageTracerWidget::OnRightButtonDown()
     this->CurrentPicker = this->HandlePicker;
     }
 
-  if ( this->Prop )  // don't pick the prop
+  if ( this->ViewProp )  // don't pick the prop
     {
-    this->Prop->PickableOff();
+    this->ViewProp->PickableOff();
     }
 
   int found = 0;
@@ -825,7 +807,7 @@ void vtkImageTracerWidget::OnRightButtonDown()
            this->State == vtkImageTracerWidget::Moving  ||
            this->State == vtkImageTracerWidget::Translating )
         {
-        this->CurrentHandleIndex = this->HighlightHandle(path->GetFirstNode()->GetProp());
+        this->CurrentHandleIndex = this->HighlightHandle(path->GetFirstNode()->GetViewProp());
         if ( this->CurrentHandleIndex == -1 )
           {
           found = 0;  // we didn't hit a handle
@@ -837,7 +819,7 @@ void vtkImageTracerWidget::OnRightButtonDown()
         }
       else if ( this->State == vtkImageTracerWidget::Inserting )
         {
-        if ( (vtkActor*)path->GetFirstNode()->GetProp() == this->LineActor )
+        if ( (vtkActor*)path->GetFirstNode()->GetViewProp() == this->LineActor )
           {
           this->HighlightLine(1);
           }
@@ -853,9 +835,9 @@ void vtkImageTracerWidget::OnRightButtonDown()
   if ( !found )
     {
     this->State = vtkImageTracerWidget::Outside;
-    if ( this->Prop )
+    if ( this->ViewProp )
       {
-      this->Prop->PickableOn();
+      this->ViewProp->PickableOn();
       }
     this->CurrentPicker = NULL;
     return;
@@ -920,9 +902,9 @@ void vtkImageTracerWidget::OnRightButtonUp()
 
   this->SizeHandles();
 
-  if ( this->Prop )
+  if ( this->ViewProp )
     {
-    this->Prop->PickableOn();
+    this->ViewProp->PickableOn();
     }
 
   this->EventCallbackCommand->SetAbortFlag(1);
@@ -992,7 +974,7 @@ void vtkImageTracerWidget::OnMouseMove()
 void vtkImageTracerWidget::Trace(int X, int Y)
 {
   if ( !this->PropPicker->PickProp(X,Y,this->CurrentRenderer) ){ return; }
-  if ( this->Prop !=  this->PropPicker->GetProp() ){ return; }
+  if ( this->ViewProp !=  this->PropPicker->GetViewProp() ){ return; }
 
   double pos[3];
   this->PropPicker->GetPickPosition(pos);
@@ -1127,7 +1109,7 @@ void vtkImageTracerWidget::ResetHandles(void)
     {
     for (i = 0; i < this->NumberOfHandles; ++i )
       {
-      this->CurrentRenderer->RemoveProp(this->Handle[i]);
+      this->CurrentRenderer->RemoveViewProp(this->Handle[i]);
       }
     }
 
@@ -1187,7 +1169,7 @@ void vtkImageTracerWidget::AllocateHandles(const int& nhandles)
     {
     for ( i = 0; i < this->NumberOfHandles; ++i )
       {
-      this->CurrentRenderer->AddProp(this->Handle[i]);
+      this->CurrentRenderer->AddViewProp(this->Handle[i]);
       }
     }
 }
@@ -1512,4 +1494,27 @@ void vtkImageTracerWidget::SizeHandles()
   return;
 }
 
-
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+#  undef SetProp
+void vtkImageTracerWidget::SetPropA(vtkProp* prop)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkImageTracerWidget::SetProp, "5.0",
+                           vtkImageTracerWidget::SetViewProp);
+  this->SetViewProp(prop);
+}
+void vtkImageTracerWidget::SetPropW(vtkProp* prop)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkImageTracerWidget::SetProp, "5.0",
+                           vtkImageTracerWidget::SetViewProp);
+  this->SetViewProp(prop);
+}
+# endif
+void vtkImageTracerWidget::SetProp(vtkProp* prop)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkImageTracerWidget::SetProp, "5.0",
+                           vtkImageTracerWidget::SetViewProp);
+  this->SetViewProp(prop);
+}
+#endif

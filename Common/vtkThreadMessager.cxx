@@ -20,7 +20,7 @@
 # include "vtkWindows.h"
 #endif
 
-vtkCxxRevisionMacro(vtkThreadMessager, "1.2");
+vtkCxxRevisionMacro(vtkThreadMessager, "1.3");
 vtkStandardNewMacro(vtkThreadMessager);
 
 vtkThreadMessager::vtkThreadMessager()
@@ -55,25 +55,7 @@ void vtkThreadMessager::WaitForMessage()
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef SendMessage
-// Define possible mangled names.
-void vtkThreadMessager::SendMessageA()
-{
-  this->SendMessageInternal();
-}
-void vtkThreadMessager::SendMessageW()
-{
-  this->SendMessageInternal();
-}
-#endif
-void vtkThreadMessager::SendMessage()
-{
-  this->SendMessageInternal();
-}
-
-//----------------------------------------------------------------------------
-void vtkThreadMessager::SendMessageInternal()
+void vtkThreadMessager::SendWakeMessage()
 {
 #ifdef VTK_USE_WIN32_THREADS
   SetEvent( this->WSignal );
@@ -107,3 +89,28 @@ void vtkThreadMessager::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent); 
 }
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+#  undef SendMessage
+void vtkThreadMessager::SendMessageA()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkThreadMessager::SendMessage, "5.0",
+                           vtkThreadMessager::SendWakeMessage);
+  this->SendWakeMessage();
+}
+void vtkThreadMessager::SendMessageW()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkThreadMessager::SendMessage, "5.0",
+                           vtkThreadMessager::SendWakeMessage);
+  this->SendWakeMessage();
+}
+# endif
+void vtkThreadMessager::SendMessage()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkThreadMessager::SendMessage, "5.0",
+                           vtkThreadMessager::SendWakeMessage);
+  this->SendWakeMessage();
+}
+#endif

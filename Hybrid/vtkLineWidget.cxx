@@ -35,7 +35,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.47");
+vtkCxxRevisionMacro(vtkLineWidget, "1.48");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget
@@ -606,7 +606,7 @@ void vtkLineWidget::OnLeftButtonDown()
     this->StartInteraction();
     this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
     this->State = vtkLineWidget::MovingHandle;
-    this->HighlightHandle(path->GetFirstNode()->GetProp());
+    this->HighlightHandle(path->GetFirstNode()->GetViewProp());
     this->EnablePointWidget();
     forward = this->ForwardEvent(vtkCommand::LeftButtonPressEvent);
     }

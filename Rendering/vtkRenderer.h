@@ -58,7 +58,7 @@ public:
 
   // Description:
   // Add/Remove different types of props to the renderer.
-  // These methods are all synonyms to AddProp and RemoveProp.
+  // These methods are all synonyms to AddViewProp and RemoveViewProp.
   // They are here for convenience and backwards compatibility.
   void AddActor(vtkProp *p);
   void AddVolume(vtkProp *p);

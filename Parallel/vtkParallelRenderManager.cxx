@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.45");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.46");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -448,32 +448,14 @@ void vtkParallelRenderManager::StartInteractor()
     }
   else
     {
-    this->StartService();
+    this->StartServices();
     }
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef StartService
-// Define possible mangled names.
-void vtkParallelRenderManager::StartServiceA()
+void vtkParallelRenderManager::StartServices()
 {
-  this->StartServiceInternal();
-}
-void vtkParallelRenderManager::StartServiceW()
-{
-  this->StartServiceInternal();
-}
-#endif
-void vtkParallelRenderManager::StartService()
-{
-  this->StartServiceInternal();
-}
-
-//----------------------------------------------------------------------------
-void vtkParallelRenderManager::StartServiceInternal()
-{
-  vtkDebugMacro("StartService");
+  vtkDebugMacro("StartServices");
   
   if (!this->Controller)
     {
@@ -1908,3 +1890,28 @@ void vtkParallelRenderManager::TileWindows(int xsize, int ysize, int ncolumn)
 
   this->RenderWindow->SetPosition(xsize*column, ysize*row);
 }
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+#  undef StartService
+void const vtkParallelRenderManager::StartServiceA()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkParallelRenderManager::StartService, "5.0",
+                           vtkParallelRenderManager::StartServices);
+  this->StartServices();
+}
+void const vtkParallelRenderManager::StartServiceW()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkParallelRenderManager::StartService, "5.0",
+                           vtkParallelRenderManager::StartServices);
+  this->StartServices();
+}
+# endif
+void const vtkParallelRenderManager::StartService()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkParallelRenderManager::StartService, "5.0",
+                           vtkParallelRenderManager::StartServices);
+  this->StartServices();
+}
+#endif

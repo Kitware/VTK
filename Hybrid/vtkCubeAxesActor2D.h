@@ -78,33 +78,12 @@ public:
   virtual void SetInput(vtkDataSet*);
   vtkGetObjectMacro(Input, vtkDataSet);
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-  // Avoid windows name mangling.
-# define SetPropA SetProp
-# define SetPropW SetProp
-# define GetPropA GetProp
-# define GetPropW GetProp
-#endif
-
   // Description:
-  // Use the bounding box of this prop to draw the cube axes. The Prop is used
-  // to determine the bounds only if the Input is not defined.
-  void SetProp(vtkProp* prop);
-  vtkProp* GetProp();
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef SetPropW
-# undef SetPropA
-# undef GetPropW
-# undef GetPropA
-  //BTX
-  // Define possible mangled names.
-  void SetPropA(vtkProp* prop);
-  void SetPropW(vtkProp* prop);
-  vtkProp* GetPropA();
-  vtkProp* GetPropW();
-  //ETX
-#endif
+  // Use the bounding box of this prop to draw the cube axes. The
+  // ViewProp is used to determine the bounds only if the Input is not
+  // defined.
+  void SetViewProp(vtkProp* prop);
+  vtkGetObjectMacro(ViewProp, vtkProp);
 
   // Description:
   // Explicitly specify the region in space around which to draw the bounds.
@@ -247,12 +226,57 @@ public:
   // Shallow copy of a CubeAxesActor2D.
   void ShallowCopy(vtkCubeAxesActor2D *actor);
 
+// Disable warnings about qualifiers on return types.
+#if defined(_COMPILER_VERSION)
+# pragma set woff 3303
+#endif
+#if defined(__INTEL_COMPILER)
+# pragma warning (push)
+# pragma warning (disable:858)
+#endif
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# define SetPropA SetProp
+# define SetPropW SetProp
+# define GetPropA GetProp
+# define GetPropW GetProp
+#endif
+
+  // Description:
+  // @deprecated Replaced by vtkCubeAxesActor2D::SetViewProp() as of VTK 5.0.
+  VTK_LEGACY(virtual void const SetProp(vtkProp* prop));
+
+  // Description:
+  // @deprecated Replaced by vtkCubeAxesActor2D::GetViewProp() as of VTK 5.0.
+  VTK_LEGACY(virtual vtkProp* const GetProp());
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef SetPropW
+# undef SetPropA
+# undef GetPropW
+# undef GetPropA
+  //BTX
+  VTK_LEGACY(virtual void const SetPropA(vtkProp* prop));
+  VTK_LEGACY(virtual void const SetPropW(vtkProp* prop));
+  VTK_LEGACY(virtual vtkProp* const GetPropA());
+  VTK_LEGACY(virtual vtkProp* const GetPropW());
+  //ETX
+#endif
+
+// Reset disabled warning about qualifiers on return types.
+#if defined(__INTEL_COMPILER)
+# pragma warning (pop)
+#endif
+#if defined(_COMPILER_VERSION)
+# pragma reset woff 3303
+#endif
+
 protected:
   vtkCubeAxesActor2D();
   ~vtkCubeAxesActor2D();
 
   vtkDataSet *Input;    //Define bounds from input data, or
-  vtkProp    *Prop;     //Define bounds from actor/assembly, or
+  vtkProp    *ViewProp;     //Define bounds from actor/assembly, or
   double      Bounds[6]; //Define bounds explicitly
   double      Ranges[6]; //Define ranges explicitly
   int        UseRanges; //Flag to use ranges or not
@@ -301,8 +325,6 @@ protected:
                   double xCoords[4], double yCoords[4], double zCoords[4],
                   double xRange[2], double yRange[2], double zRange[2]);
 
-  virtual void SetPropInternal(vtkProp* prop);
-  virtual vtkProp* GetPropInternal();
 private:
   // hide the superclass' ShallowCopy() from the user and the compiler.
   void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };

@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 
 vtkStandardNewMacro(vtkOrientationMarkerWidget);
-vtkCxxRevisionMacro(vtkOrientationMarkerWidget, "1.6");
+vtkCxxRevisionMacro(vtkOrientationMarkerWidget, "1.7");
 
 vtkCxxSetObjectMacro(vtkOrientationMarkerWidget, OrientationMarker, vtkProp);
 
@@ -152,9 +152,9 @@ void vtkOrientationMarkerWidget::SetEnabled(int enabling)
       renwin->SetNumberOfLayers( 2 );
       }
 
-    this->Renderer->AddProp( this->OutlineActor );
+    this->Renderer->AddViewProp( this->OutlineActor );
     this->OutlineActor->VisibilityOff();
-    this->Renderer->AddProp( this->OrientationMarker );
+    this->Renderer->AddViewProp( this->OrientationMarker );
     this->OrientationMarker->VisibilityOn();
 
     if (this->Interactive)
@@ -195,9 +195,9 @@ void vtkOrientationMarkerWidget::SetEnabled(int enabling)
     this->Interactor->RemoveObserver( this->EventCallbackCommand );
 
     this->OrientationMarker->VisibilityOff();
-    this->Renderer->RemoveProp( this->OrientationMarker );
+    this->Renderer->RemoveViewProp( this->OrientationMarker );
     this->OutlineActor->VisibilityOff();
-    this->Renderer->RemoveProp( this->OutlineActor );
+    this->Renderer->RemoveViewProp( this->OutlineActor );
 
     // if the render window is still around, remove our renderer from it
     if (this->CurrentRenderer->GetRenderWindow())

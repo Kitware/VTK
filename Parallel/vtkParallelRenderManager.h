@@ -105,26 +105,10 @@ public:
   // processors.
   virtual void StartInteractor();
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-  // Avoid windows name mangling.
-# define StartServiceA StartService
-# define StartServiceW StartService
-#endif
-
   // Description:
   // If on node other than root, starts serving RMI requests for parallel
   // renders.
-  void StartService();
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef StartServiceW
-# undef StartServiceA
-  //BTX
-  // Define possible mangled names.
-  void StartServiceA();
-  void StartServiceW();
-  //ETX
-#endif
+  virtual void StartServices();
 
   // Description:
   // If on root node, stops the RMI processing on all service nodes.
@@ -303,6 +287,42 @@ public:
   virtual int CheckForAbortComposite() {return 0;}  
 //ETX
 
+// Disable warnings about qualifiers on return types.
+#if defined(_COMPILER_VERSION)
+# pragma set woff 3303
+#endif
+#if defined(__INTEL_COMPILER)
+# pragma warning (push)
+# pragma warning (disable:858)
+#endif
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# define StartServiceA StartService
+# define StartServiceW StartService
+#endif
+
+  // Description:
+  // @deprecated Replaced by vtkParallelRenderManager::StartServices()
+  // as of VTK 5.0.
+  VTK_LEGACY(virtual void const StartService());
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef StartServiceW
+# undef StartServiceA
+  //BTX
+  VTK_LEGACY(virtual void const StartServiceA());
+  VTK_LEGACY(virtual void const StartServiceW());
+  //ETX
+#endif
+
+// Reset disabled warning about qualifiers on return types.
+#if defined(__INTEL_COMPILER)
+# pragma warning (pop)
+#endif
+#if defined(_COMPILER_VERSION)
+# pragma reset woff 3303
+#endif
+
 protected:
   vtkParallelRenderManager();
   ~vtkParallelRenderManager();
@@ -363,10 +383,6 @@ protected:
   // Used by SetImageReductionFactorForUpdateRate to smooth transitions
   // transitions between image reduction factors.
   double AverageTimePerPixel;
-
-  // Description:
-  // Real implementation of StartService.
-  virtual void StartServiceInternal();
 
   // Description:
   // Used to synchronize rendering information per frame.

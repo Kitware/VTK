@@ -60,24 +60,26 @@ public:
   // Get the current working directory.
   static const char* GetCurrentWorkingDirectory(char* buf, unsigned int len);
 
+  // Description:
+  // Create directory. Needs rework to do all the testing and to work
+  // on all platforms.
+  static int MakeDirectory(const char* dir);
+
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-  // Avoid windows name mangling.
 # define CreateDirectoryA CreateDirectory
 # define CreateDirectoryW CreateDirectory
 #endif
 
   // Description:
-  // Create directory. Needs rework to do all the testing and to work
-  // on all platforms.
-  static int CreateDirectory(const char* dir);
+  // @deprecated Replaced by vtkDirectory::MakeDirectory() as of VTK 5.0.
+  VTK_LEGACY(static int CreateDirectory(const char* dir));
 
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 # undef CreateDirectoryW
 # undef CreateDirectoryA
   //BTX
-  // Define possible mangled names.
-  static int CreateDirectoryA(const char* dir);
-  static int CreateDirectoryW(const char* dir);
+  VTK_LEGACY(static int CreateDirectoryA(const char* dir));
+  VTK_LEGACY(static int CreateDirectoryW(const char* dir));
   //ETX
 #endif
 

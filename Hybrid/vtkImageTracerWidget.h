@@ -110,25 +110,9 @@ public:
   virtual void SetSelectedLineProperty(vtkProperty*);
   vtkGetObjectMacro(SelectedLineProperty, vtkProperty);
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-  // Avoid windows name mangling.
-# define SetPropA SetProp
-# define SetPropW SetProp
-#endif
-
   // Description:
   // Set the prop, usually a vtkImageActor, to trace over.
-  void SetProp(vtkProp* prop);
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef SetPropA
-# undef SetPropW
-  //BTX
-  // Define possible mangled names.
-  void SetPropA(vtkProp*);
-  void SetPropW(vtkProp*);
-  //ETX
-#endif
+  void SetViewProp(vtkProp* prop);
 
   // Description:
   // Force handles to be on a specific ortho plane.
@@ -223,6 +207,24 @@ public:
   // Is the path closed or open?
   int IsClosed();
 
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# define SetPropA SetProp
+# define SetPropW SetProp
+#endif
+
+  // Description:
+  // @deprecated Replaced by vtkImageTracerWidget::SetViewProp() as of VTK 5.0.
+  VTK_LEGACY(void SetProp(vtkProp* prop));
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef SetPropA
+# undef SetPropW
+  //BTX
+  VTK_LEGACY(void SetPropA(vtkProp*));
+  VTK_LEGACY(void SetPropW(vtkProp*));
+  //ETX
+#endif
+
 protected:
   vtkImageTracerWidget();
   ~vtkImageTracerWidget();
@@ -289,8 +291,6 @@ protected:
   vtkTransform               *Transform;
   vtkFloatArray              *TemporaryHandlePoints;
 
-  void SetPropInternal(vtkProp* prop);
-
   void AppendHandles(double*);
   void ResetHandles();
   void AllocateHandles(const int& );
@@ -304,7 +304,7 @@ protected:
   vtkActor *CurrentHandle;
   int CurrentHandleIndex;
 
-  vtkProp       *Prop;        // the prop we want to pick on
+  vtkProp       *ViewProp;    // the prop we want to pick on
   vtkPropPicker *PropPicker;  // the prop's picker
 
   // Representation of the line

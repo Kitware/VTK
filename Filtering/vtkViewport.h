@@ -46,7 +46,11 @@ public:
   // Description:
   // Add a prop to the list of props. Prop is the superclass of all 
   // actors, volumes, 2D actors, composite props etc.
-  void AddProp(vtkProp *);
+  void AddViewProp(vtkProp *);
+
+  // Description:
+  // @deprecated Replaced by vtkViewport::AddViewProp() as of VTK 5.0.
+  VTK_LEGACY(void AddProp(vtkProp *));
 
   // Description:
   // Return any props in this viewport.
@@ -56,25 +60,9 @@ public:
   // Query if a prop is in the list of props.
   int HasProp(vtkProp *);
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-  // Avoid windows name mangling.
-# define RemovePropA RemoveProp
-# define RemovePropW RemoveProp
-#endif
-
   // Description:
   // Remove an actor from the list of actors.
-  void RemoveProp(vtkProp *);
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef RemovePropA
-# undef RemovePropW
-  //BTX
-  // Define possible mangled names.
-  void RemovePropA(vtkProp*);
-  void RemovePropW(vtkProp*);
-  //ETX
-#endif
+  void RemoveViewProp(vtkProp *);
 
   // Description:
   // Remove all actors from the list of actors.
@@ -82,9 +70,9 @@ public:
 
   // Description:
   // Add/Remove different types of props to the renderer.
-  // These methods are all synonyms to AddProp and RemoveProp.
+  // These methods are all synonyms to AddViewProp and RemoveViewProp.
   // They are here for convenience and backwards compatibility.
-  void AddActor2D(vtkProp* p) {this->AddProp(p);};
+  void AddActor2D(vtkProp* p);
   void RemoveActor2D(vtkProp* p);
   vtkActor2DCollection *GetActors2D();
 
@@ -227,7 +215,25 @@ public:
   // Description: 
   // Return the Z value for the last picked Prop.
   virtual double GetPickedZ() = 0;
-  
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# define RemovePropA RemoveProp
+# define RemovePropW RemoveProp
+#endif
+
+  // Description:
+  // @deprecated Replaced by vtkViewport::RemoveViewProp() as of VTK 5.0.
+  VTK_LEGACY(void RemoveProp(vtkProp*));
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef RemovePropA
+# undef RemovePropW
+  //BTX
+  VTK_LEGACY(void RemovePropA(vtkProp*));
+  VTK_LEGACY(void RemovePropW(vtkProp*));
+  //ETX
+#endif
+
 protected:
   // Create a vtkViewport with a black background, a white ambient light, 
   // two-sided lighting turned on, a viewport of (0,0,1,1), and back face 
@@ -248,8 +254,6 @@ protected:
   // Return the id of the picked object, only valid after a call to DonePick
   virtual unsigned int GetPickedId() = 0;
   //ETX
-
-  void RemovePropInternal(vtkProp *);
 
   // Ivars for picking
   // Store a picked Prop (contained in an assembly path)

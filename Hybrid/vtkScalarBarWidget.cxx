@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkScalarBarWidget, "1.12");
+vtkCxxRevisionMacro(vtkScalarBarWidget, "1.13");
 vtkStandardNewMacro(vtkScalarBarWidget);
 vtkCxxSetObjectMacro(vtkScalarBarWidget, ScalarBarActor, vtkScalarBarActor);
 
@@ -83,7 +83,7 @@ void vtkScalarBarWidget::SetEnabled(int enabling)
                    this->EventCallbackCommand, this->Priority);
 
     // Add the scalar bar
-    this->CurrentRenderer->AddProp(this->ScalarBarActor);
+    this->CurrentRenderer->AddViewProp(this->ScalarBarActor);
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
   else //disabling------------------------------------------

@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.213");
+vtkCxxRevisionMacro(vtkRenderer, "1.214");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -136,7 +136,7 @@ void vtkRenderer::Render(void)
   vtkProp  *aProp;
   int *size;
 
-  t1 = vtkTimerLog::GetCurrentTime();
+  t1 = vtkTimerLog::GetUniversalTime();
 
   this->InvokeEvent(vtkCommand::StartEvent,NULL);
 
@@ -289,7 +289,7 @@ void vtkRenderer::Render(void)
   if ( ! this->RenderWindow->GetAbortRender() )
     {
     // Measure the actual RenderTime
-    t2 = vtkTimerLog::GetCurrentTime();
+    t2 = vtkTimerLog::GetUniversalTime();
     this->LastRenderTimeInSeconds = (double) (t2 - t1);
 
     if (this->LastRenderTimeInSeconds == 0.0)
@@ -541,27 +541,27 @@ vtkCamera *vtkRenderer::GetActiveCamera()
 //----------------------------------------------------------------------------
 void vtkRenderer::AddActor(vtkProp* p)
 {
-  this->AddProp(p);
+  this->AddViewProp(p);
 }
 
 //----------------------------------------------------------------------------
 void vtkRenderer::AddVolume(vtkProp* p)
 {
-  this->AddProp(p);
+  this->AddViewProp(p);
 }
 
 //----------------------------------------------------------------------------
 void vtkRenderer::RemoveActor(vtkProp* p)
 {
   this->Actors->RemoveItem(p);
-  this->RemoveProp(p);
+  this->RemoveViewProp(p);
 }
 
 //----------------------------------------------------------------------------
 void vtkRenderer::RemoveVolume(vtkProp* p)
 {
   this->Volumes->RemoveItem(p);
-  this->RemoveProp(p);
+  this->RemoveViewProp(p);
 }
 
 // Add a light to the list of lights.
@@ -1359,7 +1359,7 @@ void vtkRenderer::PickGeometry()
   for ( i = 0; i < this->PathArrayCount; i++ )
     {
     this->UpdatePickId();
-    prop = this->PathArray[i]->GetLastNode()->GetProp();
+    prop = this->PathArray[i]->GetLastNode()->GetViewProp();
     matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
     prop->PokeMatrix(matrix);
     this->NumberOfPropsRendered += prop->RenderOpaqueGeometry(this);
@@ -1371,7 +1371,7 @@ void vtkRenderer::PickGeometry()
   for ( i = 0; i < this->PathArrayCount; i++ )
     {
     this->UpdatePickId();
-    prop = this->PathArray[i]->GetLastNode()->GetProp();
+    prop = this->PathArray[i]->GetLastNode()->GetViewProp();
     matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
     prop->PokeMatrix(matrix);
     this->NumberOfPropsRendered += 
@@ -1382,7 +1382,7 @@ void vtkRenderer::PickGeometry()
   for ( i = 0; i < this->PathArrayCount; i++ )
     {
     this->UpdatePickId();
-    prop = this->PathArray[i]->GetLastNode()->GetProp();
+    prop = this->PathArray[i]->GetLastNode()->GetViewProp();
     matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
     prop->PokeMatrix(matrix);
     this->NumberOfPropsRendered += 

@@ -39,26 +39,10 @@ public:
   // message.
   void WaitForMessage();
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-  // Avoid windows name mangling.
-# define SendMessageA SendMessage
-# define SendMessageW SendMessage
-#endif
-
   // Description:
   // Send a message to all threads who are waiting via
   // WaitForMessage().
-  void SendMessage();
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef SendMessageW
-# undef SendMessageA
-  //BTX
-  // Define possible mangled names.
-  void SendMessageA();
-  void SendMessageW();
-  //ETX
-#endif
+  void SendWakeMessage();
 
   // Description:
   // pthreads only. If the wait is enabled, the thread who
@@ -78,11 +62,28 @@ public:
   // to receive a message.
   void WaitForReceiver();
 
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# define SendMessageA SendMessage
+# define SendMessageW SendMessage
+#endif
+
+  // Description:
+  // @deprecated Replaced by vtkThreadMessager::SendWakeMessage() as of
+  // VTK 5.0.
+  VTK_LEGACY(void SendMessage());
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef SendMessageW
+# undef SendMessageA
+  //BTX
+  VTK_LEGACY(void SendMessageA());
+  VTK_LEGACY(void SendMessageW());
+  //ETX
+#endif
+
 protected:
   vtkThreadMessager();
   ~vtkThreadMessager();
-
-  void SendMessageInternal();
 
 #ifdef VTK_USE_PTHREADS
   pthread_mutex_t Mutex;

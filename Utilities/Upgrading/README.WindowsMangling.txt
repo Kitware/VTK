@@ -66,8 +66,12 @@ Now consider what happens in each of these cases:
 
 The solution to this problem is to start by NOT including windows.h
 everywhere.  This avoids all the problems listed in case 1 above.  In
-order to avoid the problems listed in case 2, we now export all three
-possible names from the library.  In the case of GetClassName, the
+order to avoid the problems listed in case 2, we rename all affected
+methods to have names that do not get mangled.  For example,
+GetClassName becomes GetNameOfClass.  In order to maintain
+compatibility with application code, the old names of the methods must
+still be provided.  We now export all three possible names of the
+original method from the library.  In the case of GetClassName, the
 names "GetClassName", "GetClassNameA", and "GetClassNameW" are all
 provided as methods in the class and exported from the library.  This
 way when user code calls the method it does not matter which name it
@@ -106,20 +110,36 @@ not be mangled by windows.h.
 Now that all three names are provided we can address the fact that
 GetClassName is supposed to be a virtual function.  When a subclass
 wants to override a method with a mangled name it has to use this same
-trick to override all three names.  The alternative is to rename the
-original method to a name such as GetClassNameInternal that is NOT
-mangled and make it protected.  The original name is preserved for
-user code by providing the three non-virtual methods that just call
-the virtual one internally.  Now subclasses can override just the
-internal method.  This approach is used by vtkTypeMacro to make
-GetClassName work.
+trick to override all three names.  Existing user code that tries to
+override the function will only replace one of the three names, and it
+will not implement the new unmangled name at all.  It is not possible
+to get this code to work out-of-the-box, but we can at least produce a
+compiler error to get the user's attention.  We change the signature
+of the three possible mangled names to:
+
+  virtual const char* const GetClassName() const;
+  virtual const char* const GetClassNameA() const;
+  virtual const char* const GetClassNameW() const;
+
+and provide the new name with the original signature:
+
+  virtual const char* GetNameOfClass() const;
+
+When existing code tries to override the original method it will get a
+compiler error that the return type does not match due to the extra
+"const" qualifier.  This qualifier is otherwise meaningless and does
+not affect calls to the method.  When the user encounters the error
+and reads the source with the new signature, it will be clear that the
+method is deprecated and that the replacement is called
+GetNameOfClass.  The user code can then be modified to override the
+new method name.
 
 Users can detect places in their own code that may need modification
 by using this cmake script:
 
   VTK/Utilities/Upgrading/FindWindowsMangledMethods.cmake
 
-There are two backward-compatibility issues:
+There are three backward-compatibility issues:
 
 1.) User code that used the windows API without including windows.h
     that worked before because VTK included it will now break until
@@ -128,20 +148,16 @@ There are two backward-compatibility issues:
     quick-fix, users can define VTK_INCLUDE_WINDOWS_H in their
     application and VTK will include windows.h as it did before.
 
-2.) Virtual functions that fall victim to mangling were renamed to
-    names that are not mangled and made protected.  The original names
-    of the functions were preserved for application code by creating
-    non-virtual replacements with the original name and the mangled
-    versions of the name.  For example RemoveProp is renamed to
-    RemovePropInternal and replaced by RemoveProp, RemovePropA, and
-    RemovePropW.  User code calling these methods will not be
-    affected.  User code wishing to override such virtual methods will
-    have to rename to the internal non-mangled version of the name.
-    Such user methods will be exposed by the above mentioned CMake
-    script.  The most common such method is GetClassName, which has
-    been renamed to GetClassNameInternal.  Since user code is supposed
-    to define this method by using vtkTypeMacro or
-    vtkTypeRevisionMacro, this should not be a problem.
+2.) The virtual methods that have been renamed and replaced as
+    described above must be renamed in user code.
+
+3.) All functions that fall victim to mangling have been deprecated.
+    User code will work (with warnings) but should be modified to call
+    the new non-mangled versions of the methods.  VTK 5.0 includes
+    support for the original names but it will be removed in a future
+    version.  Use the VTK_LEGACY_REMOVE setting when building VTK to
+    help make sure your application can build without using deprecated
+    code.
 
 Frequently Proposed Alternatives:
 

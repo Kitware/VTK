@@ -25,7 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.32");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.33");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------
@@ -532,7 +532,7 @@ void vtkInteractorStyleTrackballActor::PrintSelf(ostream& os, vtkIndent indent)
 void vtkInteractorStyleTrackballActor::FindPickedActor(int x, int y)
 {
   this->InteractionPicker->Pick(x, y, 0.0, this->CurrentRenderer);
-  vtkProp *prop = this->InteractionPicker->GetProp();
+  vtkProp *prop = this->InteractionPicker->GetViewProp();
   if (prop != NULL)
     {
     this->InteractionProp = vtkProp3D::SafeDownCast(prop);

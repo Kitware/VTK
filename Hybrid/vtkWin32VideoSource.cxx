@@ -49,7 +49,7 @@ public:
 // VFW compressed formats are listed at http://www.webartz.com/fourcc/
 #define VTK_BI_UYVY 0x59565955
 
-vtkCxxRevisionMacro(vtkWin32VideoSource, "1.26");
+vtkCxxRevisionMacro(vtkWin32VideoSource, "1.27");
 vtkStandardNewMacro(vtkWin32VideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
@@ -147,7 +147,7 @@ LRESULT PASCAL vtkWin32VideoSourceCapControlProc(HWND hwndC, int nState)
   if (nState == CONTROLCALLBACK_PREROLL)
     {
     //cerr << "controlcallback preroll\n";
-    self->SetStartTimeStamp(vtkTimerLog::GetCurrentTime());      
+    self->SetStartTimeStamp(vtkTimerLog::GetUniversalTime());      
     }
   else if (nState == CONTROLCALLBACK_CAPTURING)
     {
@@ -578,7 +578,7 @@ void vtkWin32VideoSource::Grab()
     }
 
   // just do the grab, the callback does the rest
-  this->SetStartTimeStamp(vtkTimerLog::GetCurrentTime());
+  this->SetStartTimeStamp(vtkTimerLog::GetUniversalTime());
   capGrabFrameNoStop(this->Internal->CapWnd);
 }
 

@@ -40,7 +40,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.62");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.63");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef double RtColor[3];
@@ -199,11 +199,11 @@ void vtkRIBExporter::WriteData()
     for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
       {
       node = apath->GetLastNode();
-      if ( node->GetProp()->GetVisibility () )
+      if ( node->GetViewProp()->GetVisibility () )
         {
-        if ( node->GetProp()->IsA("vtkActor") )
+        if ( node->GetViewProp()->IsA("vtkActor") )
           {
-          this->WriteActor((vtkActor *)(node->GetProp()));
+          this->WriteActor((vtkActor *)(node->GetViewProp()));
           }
         }
       }

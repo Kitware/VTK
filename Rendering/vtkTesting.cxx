@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.21");
+vtkCxxRevisionMacro(vtkTesting, "1.22");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 vtkTesting::vtkTesting()
@@ -46,7 +46,7 @@ vtkTesting::vtkTesting()
   
   // on construction we start the timer
   this->StartCPUTime = vtkTimerLog::GetCPUTime();
-  this->StartWallTime = vtkTimerLog::GetCurrentTime();
+  this->StartWallTime = vtkTimerLog::GetUniversalTime();
 }  
 
 vtkTesting::~vtkTesting()
@@ -259,7 +259,7 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh)
   int result = this->RegressionTest(image, thresh, cout);
 
   cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
-  cout << vtkTimerLog::GetCurrentTime() - this->StartWallTime;
+  cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
   cout << "</DartMeasurement>\n";
   cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
   cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
@@ -273,7 +273,7 @@ int vtkTesting::RegressionTest(double thresh)
   int result = this->RegressionTest(thresh, cout);
 
   cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
-  cout << vtkTimerLog::GetCurrentTime() - this->StartWallTime;
+  cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
   cout << "</DartMeasurement>\n";
   cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
   cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;

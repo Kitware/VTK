@@ -20,7 +20,7 @@
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.2");
+vtkCxxRevisionMacro(vtkViewport, "1.3");
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -95,10 +95,15 @@ vtkViewport::~vtkViewport()
     }
 }
 
+void vtkViewport::AddActor2D(vtkProp* p)
+{
+  this->AddViewProp(p);
+}
+
 void vtkViewport::RemoveActor2D(vtkProp* p)
 {
   this->Actors2D->RemoveItem(p);
-  this->RemoveProp(p);
+  this->RemoveViewProp(p);
 }
 
 int vtkViewport::HasProp(vtkProp *p)
@@ -106,7 +111,8 @@ int vtkViewport::HasProp(vtkProp *p)
   return (p && this->Props->IsItemPresent(p));
 }
 
-void vtkViewport::AddProp(vtkProp *p)
+//----------------------------------------------------------------------------
+void vtkViewport::AddViewProp(vtkProp *p)
 {
   if (p && !this->HasProp(p))
     {
@@ -116,25 +122,7 @@ void vtkViewport::AddProp(vtkProp *p)
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef RemoveProp
-// Define possible mangled names.
-void vtkViewport::RemovePropA(vtkProp* p)
-{
-  this->RemovePropInternal(p);
-}
-void vtkViewport::RemovePropW(vtkProp* p)
-{
-  this->RemovePropInternal(p);
-}
-#endif
-void vtkViewport::RemoveProp(vtkProp* p)
-{
-  this->RemovePropInternal(p);
-}
-
-//----------------------------------------------------------------------------
-void vtkViewport::RemovePropInternal(vtkProp *p)
+void vtkViewport::RemoveViewProp(vtkProp *p)
 {
   if (p && this->HasProp(p))
     {
@@ -714,3 +702,34 @@ void vtkViewport::GetTiledSizeAndOrigin(int *usize, int *vsize,
     *vsize = 0;
     }
 }
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+#  undef RemoveProp
+void vtkViewport::RemovePropA(vtkProp* p)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkViewport::RemoveProp, "5.0",
+                           vtkViewport::RemoveViewProp);
+  this->RemoveViewProp(p);
+}
+void vtkViewport::RemovePropW(vtkProp* p)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkViewport::RemoveProp, "5.0",
+                           vtkViewport::RemoveViewProp);
+  this->RemoveViewProp(p);
+}
+# endif
+void vtkViewport::RemoveProp(vtkProp* p)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkViewport::RemoveProp, "5.0",
+                           vtkViewport::RemoveViewProp);
+  this->RemoveViewProp(p);
+}
+void vtkViewport::AddProp(vtkProp* p)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkViewport::AddProp, "5.0",
+                           vtkViewport::AddViewProp);
+  this->AddViewProp(p);
+}
+#endif

@@ -23,7 +23,7 @@
 #include "vtkPropAssembly.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkAbstractPropPicker, "1.8");
+vtkCxxRevisionMacro(vtkAbstractPropPicker, "1.9");
 
 vtkCxxSetObjectMacro(vtkAbstractPropPicker,Path,vtkAssemblyPath);
 
@@ -52,29 +52,11 @@ void vtkAbstractPropPicker::Initialize()
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef GetProp
-// Define possible mangled names.
-vtkProp* vtkAbstractPropPicker::GetPropA()
-{
-  return this->GetPropInternal();
-}
-vtkProp* vtkAbstractPropPicker::GetPropW()
-{
-  return this->GetPropInternal();
-}
-#endif
-vtkProp* vtkAbstractPropPicker::GetProp()
-{
-  return this->GetPropInternal();
-}
-
-//----------------------------------------------------------------------------
-vtkProp* vtkAbstractPropPicker::GetPropInternal()
+vtkProp* vtkAbstractPropPicker::GetViewProp()
 {
   if ( this->Path != NULL )
     {
-    return this->Path->GetFirstNode()->GetProp();
+    return this->Path->GetFirstNode()->GetViewProp();
     }
   else
     {
@@ -86,7 +68,7 @@ vtkProp3D *vtkAbstractPropPicker::GetProp3D()
 {
   if ( this->Path != NULL )
     {
-    vtkProp *prop = this->Path->GetFirstNode()->GetProp();
+    vtkProp *prop = this->Path->GetFirstNode()->GetViewProp();
     return vtkProp3D::SafeDownCast(prop);
     }
   else
@@ -99,7 +81,7 @@ vtkActor *vtkAbstractPropPicker::GetActor()
 {
   if ( this->Path != NULL )
     {
-    vtkProp *prop = this->Path->GetFirstNode()->GetProp();
+    vtkProp *prop = this->Path->GetFirstNode()->GetViewProp();
     return vtkActor::SafeDownCast(prop);
     }
   else
@@ -112,7 +94,7 @@ vtkActor2D *vtkAbstractPropPicker::GetActor2D()
 {
   if ( this->Path != NULL )
     {
-    vtkProp *prop = this->Path->GetFirstNode()->GetProp();
+    vtkProp *prop = this->Path->GetFirstNode()->GetViewProp();
     return vtkActor2D::SafeDownCast(prop);
     }
   else
@@ -125,7 +107,7 @@ vtkVolume *vtkAbstractPropPicker::GetVolume()
 {
   if ( this->Path != NULL )
     {
-    vtkProp *prop = this->Path->GetFirstNode()->GetProp();
+    vtkProp *prop = this->Path->GetFirstNode()->GetViewProp();
     return vtkVolume::SafeDownCast(prop);
     }
   else
@@ -138,7 +120,7 @@ vtkAssembly *vtkAbstractPropPicker::GetAssembly()
 {
   if ( this->Path != NULL )
     {
-    vtkProp *prop = this->Path->GetFirstNode()->GetProp();
+    vtkProp *prop = this->Path->GetFirstNode()->GetViewProp();
     return vtkAssembly::SafeDownCast(prop);
     }
   else
@@ -151,7 +133,7 @@ vtkPropAssembly *vtkAbstractPropPicker::GetPropAssembly()
 {
   if ( this->Path != NULL )
     {
-    vtkProp *prop = this->Path->GetFirstNode()->GetProp();
+    vtkProp *prop = this->Path->GetFirstNode()->GetViewProp();
     return vtkPropAssembly::SafeDownCast(prop);
     }
   else
@@ -173,3 +155,28 @@ void vtkAbstractPropPicker::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Path: (none)" << endl;
     }
 }
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+#  undef GetProp
+vtkProp* const vtkAbstractPropPicker::GetPropA()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkAbstractPropPicker::GetProp, "5.0",
+                           vtkAbstractPropPicker::GetViewProp);
+  return this->GetViewProp();
+}
+vtkProp* const vtkAbstractPropPicker::GetPropW()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkAbstractPropPicker::GetProp, "5.0",
+                           vtkAbstractPropPicker::GetViewProp);
+  return this->GetViewProp();
+}
+# endif
+vtkProp* const vtkAbstractPropPicker::GetProp()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkAbstractPropPicker::GetProp, "5.0",
+                           vtkAbstractPropPicker::GetViewProp);
+  return this->GetViewProp();
+}
+#endif

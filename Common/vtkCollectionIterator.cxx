@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCollection.h"
 
-vtkCxxRevisionMacro(vtkCollectionIterator, "1.3");
+vtkCxxRevisionMacro(vtkCollectionIterator, "1.4");
 vtkStandardNewMacro(vtkCollectionIterator);
 
 //----------------------------------------------------------------------------
@@ -82,25 +82,7 @@ int vtkCollectionIterator::IsDoneWithTraversal()
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef GetObject
-// Define possible mangled names.
-vtkObject* vtkCollectionIterator::GetObjectA()
-{
-  return this->GetObjectInternal();
-}
-vtkObject* vtkCollectionIterator::GetObjectW()
-{
-  return this->GetObjectInternal();
-}
-#endif
-vtkObject* vtkCollectionIterator::GetObject()
-{
-  return this->GetObjectInternal();
-}
-
-//----------------------------------------------------------------------------
-vtkObject* vtkCollectionIterator::GetObjectInternal()
+vtkObject* vtkCollectionIterator::GetCurrentObject()
 {
   if(this->Element)
     {
@@ -108,3 +90,28 @@ vtkObject* vtkCollectionIterator::GetObjectInternal()
     }
   return 0;
 }
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+#  undef GetObject
+vtkObject* vtkCollectionIterator::GetObjectA()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkCollectionIterator::GetObject, "5.0",
+                           vtkCollectionIterator::GetCurrentObject);
+  return this->GetCurrentObject();
+}
+vtkObject* vtkCollectionIterator::GetObjectW()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkCollectionIterator::GetObject, "5.0",
+                           vtkCollectionIterator::GetCurrentObject);
+  return this->GetCurrentObject();
+}
+# endif
+vtkObject* vtkCollectionIterator::GetObject()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkCollectionIterator::GetObject, "5.0",
+                           vtkCollectionIterator::GetCurrentObject);
+  return this->GetCurrentObject();
+}
+#endif

@@ -69,7 +69,7 @@
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
-vtkCxxRevisionMacro(vtkVideoSource, "1.40");
+vtkCxxRevisionMacro(vtkVideoSource, "1.41");
 vtkStandardNewMacro(vtkVideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
@@ -451,7 +451,7 @@ void vtkVideoSource::InternalGrab()
     }
   randsave = randNum;
 
-  this->FrameBufferTimeStamps[index] = vtkTimerLog::GetCurrentTime();
+  this->FrameBufferTimeStamps[index] = vtkTimerLog::GetUniversalTime();
 
   if (this->FrameCount++ == 0)
     {
@@ -487,7 +487,7 @@ static int vtkThreadSleep(vtkMultiThreader::ThreadInfo *data, double time)
 {
   for (int i = 0;; i++)
     {
-    double remaining = time - vtkTimerLog::GetCurrentTime();
+    double remaining = time - vtkTimerLog::GetUniversalTime();
 
     // check to see if we have reached the specified time
     if (remaining <= 0)
@@ -524,7 +524,7 @@ static void *vtkVideoSourceRecordThread(vtkMultiThreader::ThreadInfo *data)
 {
   vtkVideoSource *self = (vtkVideoSource *)(data->UserData);
   
-  double startTime = vtkTimerLog::GetCurrentTime();
+  double startTime = vtkTimerLog::GetUniversalTime();
   double rate = self->GetFrameRate();
   int frame = 0;
 
@@ -568,7 +568,7 @@ static void *vtkVideoSourcePlayThread(vtkMultiThreader::ThreadInfo *data)
 {
   vtkVideoSource *self = (vtkVideoSource *)(data->UserData);
  
-  double startTime = vtkTimerLog::GetCurrentTime();
+  double startTime = vtkTimerLog::GetUniversalTime();
   double rate = self->GetFrameRate();
   int frame = 0;
 

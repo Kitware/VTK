@@ -38,7 +38,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.44");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.45");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -564,7 +564,7 @@ void vtkPlaneWidget::OnLeftButtonDown()
   if ( path != NULL )
     {
     this->State = vtkPlaneWidget::Moving;
-    this->HighlightHandle(path->GetFirstNode()->GetProp());
+    this->HighlightHandle(path->GetFirstNode()->GetViewProp());
     }
   else
     {
@@ -572,7 +572,7 @@ void vtkPlaneWidget::OnLeftButtonDown()
     path = this->PlanePicker->GetPath();
     if ( path != NULL )
       {
-      vtkProp *prop = path->GetFirstNode()->GetProp();
+      vtkProp *prop = path->GetFirstNode()->GetViewProp();
       if ( prop == this->ConeActor || prop == this->LineActor ||
            prop == this->ConeActor2 || prop == this->LineActor2 )
         {
@@ -646,7 +646,7 @@ void vtkPlaneWidget::OnMiddleButtonDown()
     this->State = vtkPlaneWidget::Pushing;
     this->HighlightPlane(1);
     this->HighlightNormal(1);
-    this->HighlightHandle(path->GetFirstNode()->GetProp());
+    this->HighlightHandle(path->GetFirstNode()->GetViewProp());
     }
   else
     {
@@ -712,7 +712,7 @@ void vtkPlaneWidget::OnRightButtonDown()
     {
     this->State = vtkPlaneWidget::Scaling;
     this->HighlightPlane(1);
-    this->HighlightHandle(path->GetFirstNode()->GetProp());
+    this->HighlightHandle(path->GetFirstNode()->GetViewProp());
     }
   else //see if we picked the plane or a normal
     {

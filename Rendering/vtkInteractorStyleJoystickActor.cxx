@@ -25,7 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.30");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.31");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -537,7 +537,7 @@ void vtkInteractorStyleJoystickActor::PrintSelf(ostream& os, vtkIndent indent)
 void vtkInteractorStyleJoystickActor::FindPickedActor(int x, int y)
 {
   this->InteractionPicker->Pick(x, y, 0.0, this->CurrentRenderer);
-  vtkProp *prop = this->InteractionPicker->GetProp();
+  vtkProp *prop = this->InteractionPicker->GetViewProp();
   if (prop != NULL)
     {
     this->InteractionProp = vtkProp3D::SafeDownCast(prop);

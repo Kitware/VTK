@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.27");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.28");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -513,7 +513,7 @@ void vtkImplicitPlaneWidget::OnLeftButtonDown()
     return;
     }
 
-  vtkProp *prop = path->GetFirstNode()->GetProp();
+  vtkProp *prop = path->GetFirstNode()->GetViewProp();
   this->ValidPick = 1;
   this->Picker->GetPickPosition(this->LastPickPosition);
   if ( prop == this->ConeActor || prop == this->LineActor ||

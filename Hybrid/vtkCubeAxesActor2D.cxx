@@ -22,11 +22,12 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.45");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.46");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Camera,vtkCamera);
+vtkCxxSetObjectMacro(vtkCubeAxesActor2D,ViewProp,vtkProp);
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,AxisLabelTextProperty,vtkTextProperty);
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,AxisTitleTextProperty,vtkTextProperty);
 
@@ -35,7 +36,7 @@ vtkCxxSetObjectMacro(vtkCubeAxesActor2D,AxisTitleTextProperty,vtkTextProperty);
 vtkCubeAxesActor2D::vtkCubeAxesActor2D()
 {
   this->Input = NULL;
-  this->Prop = NULL;
+  this->ViewProp = NULL;
   this->Bounds[0] = -1.0; this->Bounds[1] = 1.0;
   this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
   this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
@@ -110,7 +111,7 @@ void vtkCubeAxesActor2D::ShallowCopy(vtkCubeAxesActor2D *actor)
   this->SetZLabel(actor->GetZLabel());
   this->SetFlyMode(actor->GetFlyMode());
   this->SetInput(actor->GetInput());
-  this->SetProp(actor->GetProp());
+  this->SetViewProp(actor->GetViewProp());
   this->SetCamera(actor->GetCamera());
 }
 
@@ -122,9 +123,9 @@ vtkCubeAxesActor2D::~vtkCubeAxesActor2D()
     this->Input->Delete();
     }
 
-  if ( this->Prop )
+  if ( this->ViewProp )
     {
-    this->Prop->Delete();
+    this->ViewProp->Delete();
     }
 
   if ( this->Camera )
@@ -637,8 +638,8 @@ void vtkCubeAxesActor2D::GetBounds(double bounds[6])
       this->Bounds[i] = bounds[i];
       }
     }
-  else if ( this->Prop && 
-            ((propBounds = this->Prop->GetBounds()) && propBounds != NULL) )
+  else if ( this->ViewProp && 
+            ((propBounds = this->ViewProp->GetBounds()) && propBounds != NULL) )
     {
     for (i=0; i< 6; i++)
       {
@@ -692,13 +693,13 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Input: (none)\n";
     }
 
-  if ( this->Prop )
+  if ( this->ViewProp )
     {
-    os << indent << "Prop: (" << (void *)this->Prop << ")\n";
+    os << indent << "ViewProp: (" << (void *)this->ViewProp << ")\n";
     }
   else
     {
-    os << indent << "Prop: (none)\n";
+    os << indent << "ViewProp: (none)\n";
     }
 
   os << indent << "Bounds: \n";
@@ -1002,66 +1003,45 @@ static int IsInBounds(double x[3], double bounds[6])
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef SetProp
-// Define possible mangled names.
-void vtkCubeAxesActor2D::SetPropA(vtkProp* prop)
+#ifndef VTK_LEGACY_REMOVE
+# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+#  undef SetProp
+#  undef GetProp
+void const vtkCubeAxesActor2D::SetPropA(vtkProp* prop)
 {
-  this->SetPropInternal(prop);
+  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "5.0",
+                           vtkCubeAxesActor2D::SetViewProp);
+  this->SetViewProp(prop);
 }
-void vtkCubeAxesActor2D::SetPropW(vtkProp* prop)
+void const vtkCubeAxesActor2D::SetPropW(vtkProp* prop)
 {
-  this->SetPropInternal(prop);
+  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "5.0",
+                           vtkCubeAxesActor2D::SetViewProp);
+  this->SetViewProp(prop);
 }
-#endif
-void vtkCubeAxesActor2D::SetProp(vtkProp* prop)
+vtkProp* const vtkCubeAxesActor2D::GetPropA()
 {
-  this->SetPropInternal(prop);
+  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "5.0",
+                           vtkCubeAxesActor2D::GetViewProp);
+  return this->GetViewProp();
 }
-
-//----------------------------------------------------------------------------
-void vtkCubeAxesActor2D::SetPropInternal(vtkProp* newProp)
+vtkProp* const vtkCubeAxesActor2D::GetPropW()
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this
-                << "): setting Prop to " << newProp );
-  vtkProp* oldProp = this->Prop;
-  if(newProp != oldProp)
-    {
-    if(newProp)
-      {
-      newProp->Register(this);
-      }
-    this->Prop = newProp;
-    if(oldProp)
-      {
-      oldProp->UnRegister(this);
-      }
-    this->Modified();
-    }
+  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "5.0",
+                           vtkCubeAxesActor2D::GetViewProp);
+  return this->GetViewProp();
 }
-
-//----------------------------------------------------------------------------
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef GetProp
-// Define possible mangled names.
-vtkProp* vtkCubeAxesActor2D::GetPropA()
+# endif
+void const vtkCubeAxesActor2D::SetProp(vtkProp* prop)
 {
-  return this->GetPropInternal();
+  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "5.0",
+                           vtkCubeAxesActor2D::SetViewProp);
+  this->SetViewProp(prop);
 }
-vtkProp* vtkCubeAxesActor2D::GetPropW()
+vtkProp* const vtkCubeAxesActor2D::GetProp()
 {
-  return this->GetPropInternal();
+  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "5.0",
+                           vtkCubeAxesActor2D::GetViewProp);
+  return this->GetViewProp();
 }
 #endif
-vtkProp* vtkCubeAxesActor2D::GetProp()
-{
-  return this->GetPropInternal();
-}
-
-//----------------------------------------------------------------------------
-vtkProp* vtkCubeAxesActor2D::GetPropInternal()
-{
-  vtkDebugMacro(<< this->GetClassName() << " (" << this
-                << "): returning Prop address " << this->Prop );
-  return this->Prop;
-}

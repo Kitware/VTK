@@ -23,7 +23,7 @@
 #include "vtkPropCollection.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkPropAssembly, "1.1");
+vtkCxxRevisionMacro(vtkPropAssembly, "1.2");
 vtkStandardNewMacro(vtkPropAssembly);
 
 // Construct object with no children.
@@ -80,7 +80,7 @@ int vtkPropAssembly::RenderTranslucentGeometry(vtkViewport *ren)
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop = path->GetLastNode()->GetProp();
+    prop = path->GetLastNode()->GetViewProp();
     if ( prop->GetVisibility() )
       {
       prop->SetAllocatedRenderTime(fraction, ren);
@@ -111,7 +111,7 @@ int vtkPropAssembly::RenderOpaqueGeometry(vtkViewport *ren)
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop = path->GetLastNode()->GetProp();
+    prop = path->GetLastNode()->GetViewProp();
     if ( prop->GetVisibility() )
       {
       prop->SetAllocatedRenderTime(fraction, ren);
@@ -141,7 +141,7 @@ int vtkPropAssembly::RenderOverlay(vtkViewport *ren)
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop = path->GetLastNode()->GetProp();
+    prop = path->GetLastNode()->GetViewProp();
     if ( prop->GetVisibility() )
       {
       prop->SetAllocatedRenderTime(fraction, ren);

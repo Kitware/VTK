@@ -31,7 +31,7 @@
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.32");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.33");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -401,12 +401,12 @@ void vtkSphereWidget::OnLeftButtonDown()
     this->State = vtkSphereWidget::Outside;
     return;
     }
-  else if (path->GetFirstNode()->GetProp() == this->SphereActor )
+  else if (path->GetFirstNode()->GetViewProp() == this->SphereActor )
     {
     this->State = vtkSphereWidget::Moving;
     this->HighlightSphere(1);
     }
-  else if (path->GetFirstNode()->GetProp() == this->HandleActor )
+  else if (path->GetFirstNode()->GetViewProp() == this->HandleActor )
     {
     this->State = vtkSphereWidget::Positioning;
     this->HighlightHandle(1);

@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.97");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.98");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
@@ -733,7 +733,7 @@ void vtkInteractorStyle::OnChar()
         {
         for (anActor->InitPathTraversal(); (path=anActor->GetNextPath()); ) 
           {
-          aPart=(vtkActor *)path->GetLastNode()->GetProp();
+          aPart=(vtkActor *)path->GetLastNode()->GetViewProp();
           aPart->GetProperty()->SetRepresentationToWireframe();
           }
         }
@@ -755,7 +755,7 @@ void vtkInteractorStyle::OnChar()
         {
         for (anActor->InitPathTraversal(); (path=anActor->GetNextPath()); ) 
           {
-          aPart=(vtkActor *)path->GetLastNode()->GetProp();
+          aPart=(vtkActor *)path->GetLastNode()->GetViewProp();
           aPart->GetProperty()->SetRepresentationToSurface();
           }
         }
@@ -799,7 +799,7 @@ void vtkInteractorStyle::OnChar()
           }
         else
           {
-          this->HighlightProp(path->GetFirstNode()->GetProp());
+          this->HighlightProp(path->GetFirstNode()->GetViewProp());
           this->PropPicked = 1;
           }
         rwi->EndPickCallback();

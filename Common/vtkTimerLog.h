@@ -138,23 +138,10 @@ public:
   // Remove timer log.
   static void CleanupLog();
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-  // Avoid windows name mangling.
-# define GetTickCount GetCurrentTime
-#endif
-
   // Description:
   // Returns the elapsed number of seconds since January 1, 1970. This
   // is also called Universal Coordinated Time.
-  static double GetCurrentTime();
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef GetTickCount
-  //BTX
-  // Define possible mangled names.
-  static double GetTickCount();
-  //ETX
-#endif
+  static double GetUniversalTime();
 
   // Description:
   // Returns the CPU time for this process
@@ -173,6 +160,21 @@ public:
   // Returns the difference between StartTime and EndTime as 
   // a doubleing point value indicating the elapsed time in seconds.
   double GetElapsedTime();
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# define GetTickCount GetCurrentTime
+#endif
+
+  // Description:
+  // @deprecated Replaced by vtkTimerLog::GetUniversalTime() as of VTK 5.0.
+  VTK_LEGACY(static double GetCurrentTime());
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef GetTickCount
+  //BTX
+  VTK_LEGACY(static double GetTickCount());
+  //ETX
+#endif
 
 protected:
   vtkTimerLog() {this->StartTime=0; this->EndTime = 0;}; //insure constructor/destructor protected

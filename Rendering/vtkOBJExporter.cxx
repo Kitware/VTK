@@ -30,7 +30,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkOBJExporter, "1.56");
+vtkCxxRevisionMacro(vtkOBJExporter, "1.57");
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
@@ -108,7 +108,7 @@ void vtkOBJExporter::WriteData()
     {
     for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
       {
-      aPart=(vtkActor *)apath->GetLastNode()->GetProp();
+      aPart=(vtkActor *)apath->GetLastNode()->GetViewProp();
       this->WriteAnActor(aPart, fpObj, fpMtl, idStart);
       }
     }

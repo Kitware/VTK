@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkXYPlotWidget, "1.7");
+vtkCxxRevisionMacro(vtkXYPlotWidget, "1.8");
 vtkStandardNewMacro(vtkXYPlotWidget);
 vtkCxxSetObjectMacro(vtkXYPlotWidget, XYPlotActor, vtkXYPlotActor);
 
@@ -80,7 +80,7 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
                    this->EventCallbackCommand, this->Priority);
 
     // Add the xy plot
-    this->CurrentRenderer->AddProp(this->XYPlotActor);
+    this->CurrentRenderer->AddViewProp(this->XYPlotActor);
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
   else //disabling------------------------------------------

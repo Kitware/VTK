@@ -91,26 +91,10 @@ public:
   // the functionality of these methods can also be obtained by using the
   // returned vtkAssemblyPath and using the IsA() to determine type.
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-  // Avoid windows name mangling.
-# define GetPropA GetProp
-# define GetPropW GetProp
-#endif
-
   // Description:
   // Return the vtkProp that has been picked. If NULL, nothing was picked.
   // If anything at all was picked, this method will return something.
-  vtkProp* GetProp();
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef GetPropW
-# undef GetPropA
-  //BTX
-  // Define possible mangled names.
-  vtkProp* GetPropA();
-  vtkProp* GetPropW();
-  //ETX
-#endif
+  virtual vtkProp* GetViewProp();
 
   // Description:
   // Return the vtkProp that has been picked. If NULL, no vtkProp3D was picked.
@@ -143,7 +127,42 @@ public:
   // assembly and the prop are the same, assuming that the first node is a
   // vtkPropAssembly.)
   virtual vtkPropAssembly *GetPropAssembly();
-  
+
+// Disable warnings about qualifiers on return types.
+#if defined(_COMPILER_VERSION)
+# pragma set woff 3303
+#endif
+#if defined(__INTEL_COMPILER)
+# pragma warning (push)
+# pragma warning (disable:858)
+#endif
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# define GetPropA GetProp
+# define GetPropW GetProp
+#endif
+
+  // Description:
+  // @deprecated Replaced by vtkAbstractPicker::GetViewProp() as of VTK 5.0.
+  VTK_LEGACY(virtual vtkProp* const GetProp());
+
+#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+# undef GetPropW
+# undef GetPropA
+  //BTX
+  VTK_LEGACY(virtual vtkProp* const GetPropA());
+  VTK_LEGACY(virtual vtkProp* const GetPropW());
+  //ETX
+#endif
+
+// Reset disabled warning about qualifiers on return types.
+#if defined(__INTEL_COMPILER)
+# pragma warning (pop)
+#endif
+#if defined(_COMPILER_VERSION)
+# pragma reset woff 3303
+#endif
+
 protected:
   vtkAbstractPropPicker();
   ~vtkAbstractPropPicker();
@@ -151,8 +170,6 @@ protected:
   void Initialize();
   
   vtkAssemblyPath *Path; //this is what is picked, and includes the prop
-
-  virtual vtkProp *GetPropInternal();
 private:
   vtkAbstractPropPicker(const vtkAbstractPropPicker&);  // Not implemented.
   void operator=(const vtkAbstractPropPicker&);  // Not implemented.

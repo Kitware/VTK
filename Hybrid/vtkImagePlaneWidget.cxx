@@ -41,7 +41,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.89");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.90");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -250,11 +250,11 @@ void vtkImagePlaneWidget::SetTextureVisibility(int vis)
     {
     if (this->TextureVisibility)
       {
-      this->CurrentRenderer->AddProp(this->TexturePlaneActor);
+      this->CurrentRenderer->AddViewProp(this->TexturePlaneActor);
       }
     else
       {
-      this->CurrentRenderer->RemoveProp(this->TexturePlaneActor);
+      this->CurrentRenderer->RemoveViewProp(this->TexturePlaneActor);
       }
     }
   
@@ -301,26 +301,26 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
     }
 
     // Add the plane
-    this->CurrentRenderer->AddProp(this->PlaneOutlineActor);
+    this->CurrentRenderer->AddViewProp(this->PlaneOutlineActor);
     this->PlaneOutlineActor->SetProperty(this->PlaneProperty);
 
     //add the TexturePlaneActor
     if (this->TextureVisibility)
       {
-      this->CurrentRenderer->AddProp(this->TexturePlaneActor);
+      this->CurrentRenderer->AddViewProp(this->TexturePlaneActor);
       }
     this->TexturePlaneActor->SetProperty(this->TexturePlaneProperty);
     
     // Add the cross-hair cursor
-    this->CurrentRenderer->AddProp(this->CursorActor);
+    this->CurrentRenderer->AddViewProp(this->CursorActor);
     this->CursorActor->SetProperty(this->CursorProperty);
 
     // Add the margins
-    this->CurrentRenderer->AddProp(this->MarginActor);
+    this->CurrentRenderer->AddViewProp(this->MarginActor);
     this->MarginActor->SetProperty(this->MarginProperty);
 
     // Add the image data annotation
-    this->CurrentRenderer->AddProp(this->TextActor);
+    this->CurrentRenderer->AddViewProp(this->TextActor);
 
     if ( this->PlanePicker )
       {
@@ -346,19 +346,19 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
     this->Interactor->RemoveObserver(this->EventCallbackCommand);
 
     // turn off the plane
-    this->CurrentRenderer->RemoveProp(this->PlaneOutlineActor);
+    this->CurrentRenderer->RemoveViewProp(this->PlaneOutlineActor);
 
     //turn off the texture plane
-    this->CurrentRenderer->RemoveProp(this->TexturePlaneActor);
+    this->CurrentRenderer->RemoveViewProp(this->TexturePlaneActor);
 
     //turn off the cursor
-    this->CurrentRenderer->RemoveProp(this->CursorActor);
+    this->CurrentRenderer->RemoveViewProp(this->CursorActor);
 
     //turn off the margins
-    this->CurrentRenderer->RemoveProp(this->MarginActor);    
+    this->CurrentRenderer->RemoveViewProp(this->MarginActor);    
 
     //turn off the image data annotation
-    this->CurrentRenderer->RemoveProp(this->TextActor);
+    this->CurrentRenderer->RemoveViewProp(this->TextActor);
 
     if ( this->PlanePicker )
       {
@@ -737,7 +737,7 @@ void vtkImagePlaneWidget::StartCursor()
     for ( i = 0; i < path->GetNumberOfItems() && !found ; i++ )
       {
       node = path->GetNextNode(sit);
-      if ( node->GetProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
+      if ( node->GetViewProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
         {
         found = 1;
         }
@@ -816,7 +816,7 @@ void vtkImagePlaneWidget::StartSliceMotion()
     for(i = 0; i< path->GetNumberOfItems() && !found ;i++)
       {
       node = path->GetNextNode(sit);
-      if(node->GetProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
+      if(node->GetViewProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
         {
         found = 1;
         }
@@ -892,7 +892,7 @@ void vtkImagePlaneWidget::StartWindowLevel()
     for ( i = 0; i < path->GetNumberOfItems() && !found ; i++ )
       {
       node = path->GetNextNode(sit);
-      if ( node->GetProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
+      if ( node->GetViewProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
         {
         found = 1;
         }
@@ -1933,7 +1933,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
     for ( i = 0; i< path->GetNumberOfItems() && !found ; i++ )
       {
       node = path->GetNextNode(sit);
-      if ( node->GetProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
+      if ( node->GetViewProp() == vtkProp::SafeDownCast(this->TexturePlaneActor) )
         {
         found = 1;
         }

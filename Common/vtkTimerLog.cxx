@@ -38,7 +38,7 @@
 #endif
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTimerLog, "1.40");
+vtkCxxRevisionMacro(vtkTimerLog, "1.41");
 vtkStandardNewMacro(vtkTimerLog);
 
 // initialze the class variables
@@ -511,19 +511,9 @@ void vtkTimerLog::PrintSelf(ostream& os, vtkIndent indent)
 // timer table logging.
 
 //----------------------------------------------------------------------------
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef GetCurrentTime
-// Define possible mangled names.
-double vtkTimerLog::GetTickCount()
-{
-  return vtkTimerLog::GetCurrentTime();
-}
-#endif
-
-//----------------------------------------------------------------------------
 // Returns the elapsed number of seconds since January 1, 1970. This
 // is also called Universal Coordinated Time.
-double vtkTimerLog::GetCurrentTime()
+double vtkTimerLog::GetUniversalTime()
 {
   double currentTimeInSeconds;
 
@@ -566,14 +556,14 @@ double vtkTimerLog::GetCPUTime()
 // Set the StartTime to the current time. Used with GetElapsedTime().
 void vtkTimerLog::StartTimer()
 {
-  this->StartTime = vtkTimerLog::GetCurrentTime();
+  this->StartTime = vtkTimerLog::GetUniversalTime();
 }
 
 //----------------------------------------------------------------------------
 // Sets EndTime to the current time. Used with GetElapsedTime().
 void vtkTimerLog::StopTimer()
 {
-  this->EndTime = vtkTimerLog::GetCurrentTime();
+  this->EndTime = vtkTimerLog::GetUniversalTime();
 }
 
 //----------------------------------------------------------------------------
@@ -653,3 +643,21 @@ int vtkTimerLog::GetMaxEntries()
   return vtkTimerLog::MaxEntries;
 }
 
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+#  undef GetCurrentTime
+double vtkTimerLog::GetTickCount()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkTimerLog::GetCurrentTime, "5.0",
+                           vtkTimerLog::GetUniversalTime);
+  return vtkTimerLog::GetUniversalTime();
+}
+# endif
+double vtkTimerLog::GetCurrentTime()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkTimerLog::GetCurrentTime, "5.0",
+                           vtkTimerLog::GetUniversalTime);
+  return vtkTimerLog::GetUniversalTime();
+}
+#endif

@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkProp.h"
 
-vtkCxxRevisionMacro(vtkAssemblyPath, "1.7");
+vtkCxxRevisionMacro(vtkAssemblyPath, "1.8");
 vtkStandardNewMacro(vtkAssemblyPath);
 
 vtkAssemblyPath::vtkAssemblyPath()
@@ -41,7 +41,7 @@ vtkAssemblyPath::~vtkAssemblyPath()
 void vtkAssemblyPath::AddNode(vtkProp *p, vtkMatrix4x4 *m)
 {
   vtkAssemblyNode *n = vtkAssemblyNode::New();
-  n->SetProp(p);
+  n->SetViewProp(p);
   n->SetMatrix(m); //really a copy because we're gonna compute with it
   this->AddNode(n);
   n->Delete(); //ok reference counted

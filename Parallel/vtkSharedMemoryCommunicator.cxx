@@ -35,7 +35,7 @@ public:
   vtkSharedMemoryCommunicatorMessage* Previous;
 };
 
-vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.19");
+vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.20");
 vtkStandardNewMacro(vtkSharedMemoryCommunicator);
 
 void vtkSharedMemoryCommunicator::PrintSelf(ostream& os, vtkIndent indent)
@@ -624,5 +624,5 @@ void vtkSharedMemoryCommunicator::WaitForNewMessage()
 void vtkSharedMemoryCommunicator::SignalNewMessage(
   vtkSharedMemoryCommunicator* receiveCommunicator)
 {
-  receiveCommunicator->Messager->SendMessage();
+  receiveCommunicator->Messager->SendWakeMessage();
 }

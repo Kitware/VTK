@@ -34,7 +34,7 @@
 #include "vtkSpline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.23");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.24");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkCxxSetObjectMacro(vtkSplineWidget, HandleProperty, vtkProperty);
@@ -741,7 +741,7 @@ void vtkSplineWidget::OnLeftButtonDown()
   path = this->HandlePicker->GetPath();
   if ( path != NULL )
     {
-    this->CurrentHandleIndex = this->HighlightHandle(path->GetFirstNode()->GetProp());
+    this->CurrentHandleIndex = this->HighlightHandle(path->GetFirstNode()->GetViewProp());
     }
   else
     {
@@ -1322,7 +1322,7 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
       {
       for (i=0; i<this->NumberOfHandles; i++)
         {
-        this->CurrentRenderer->AddProp(this->Handle[i]);
+        this->CurrentRenderer->AddViewProp(this->Handle[i]);
         }
       }
       this->Interactor->Render();
@@ -1344,7 +1344,7 @@ void vtkSplineWidget::Initialize(void)
       {
       for (i=0; i<this->NumberOfHandles; i++)
         {
-        this->CurrentRenderer->RemoveProp(this->Handle[i]);
+        this->CurrentRenderer->RemoveViewProp(this->Handle[i]);
         }
       }
     }

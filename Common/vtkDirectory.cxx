@@ -18,7 +18,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDirectory, "1.24");
+vtkCxxRevisionMacro(vtkDirectory, "1.25");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -214,25 +214,7 @@ const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf,
 #endif
 
 //----------------------------------------------------------------------------
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef CreateDirectory
-// Define possible mangled names.
-int vtkDirectory::CreateDirectoryA(const char* dir)
-{
-  return vtkDirectory::CreateDirectoryInternal(dir);
-}
-int vtkDirectory::CreateDirectoryW(const char* dir)
-{
-  return vtkDirectory::CreateDirectoryInternal(dir);
-}
-#endif
-int vtkDirectory::CreateDirectory(const char* dir)
-{
-  return vtkDirectory::CreateDirectoryInternal(dir);
-}
-
-//----------------------------------------------------------------------------
-int vtkDirectory::CreateDirectoryInternal(const char* dir)
+int vtkDirectory::MakeDirectory(const char* dir)
 {
 #if defined(_WIN32) && (defined(_MSC_VER) || defined(__BORLANDC__) \
                         || defined(__MINGW32__))
@@ -253,3 +235,28 @@ const char* vtkDirectory::GetFile(int index)
   
   return this->Files[index];
 }
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+#  undef CreateDirectory
+int vtkDirectory::CreateDirectoryA(const char* dir)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkDirectory::CreateDirectory, "5.0",
+                           vtkDirectory::MakeDirectory);
+  return vtkDirectory::MakeDirectory(dir);
+}
+int vtkDirectory::CreateDirectoryW(const char* dir)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkDirectory::CreateDirectory, "5.0",
+                           vtkDirectory::MakeDirectory);
+  return vtkDirectory::MakeDirectory(dir);
+}
+# endif
+int vtkDirectory::CreateDirectory(const char* dir)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkDirectory::CreateDirectory, "5.0",
+                           vtkDirectory::MakeDirectory);
+  return vtkDirectory::MakeDirectory(dir);
+}
+#endif

@@ -34,7 +34,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkIVExporter, "1.61");
+vtkCxxRevisionMacro(vtkIVExporter, "1.62");
 vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()
@@ -172,7 +172,7 @@ void vtkIVExporter::WriteData()
     {
     for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
       {
-      aPart=(vtkActor *)apath->GetLastNode()->GetProp();
+      aPart=(vtkActor *)apath->GetLastNode()->GetViewProp();
       this->WriteAnActor(aPart, fp);
       }
     }

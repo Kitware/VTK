@@ -201,7 +201,7 @@ int volProt( int argc, char *argv[] )
       {
       volume[index] = vtkVolume::New();
       volume[index]->AddPosition( i*70, j*70, 0 );
-      ren->AddProp(volume[index]);
+      ren->AddViewProp(volume[index]);
       index++;
       }
     }

@@ -427,7 +427,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
     imageTracerWidget->ProjectToPlaneOn();
     imageTracerWidget->SetProjectionNormalToXAxes();
     imageTracerWidget->SetProjectionPosition(imageActor1->GetBounds()[0]);
-    imageTracerWidget->SetProp(imageActor1);
+    imageTracerWidget->SetViewProp(imageActor1);
     imageTracerWidget->SetInput(shifter->GetOutput());
     imageTracerWidget->SetInteractor(iren);
     imageTracerWidget->PlaceWidget();
@@ -492,10 +492,10 @@ int TestImageTracerWidget( int argc, char *argv[] )
 
   ren1->SetBackground(0.4, 0.4, 0.5);
   ren1->SetViewport(0, 0, 0.5, 1);
-  ren1->AddProp(imageActor1);
+  ren1->AddViewProp(imageActor1);
   ren2->SetBackground(0.5, 0.4, 0.4);
   ren2->SetViewport(0.5, 0, 1, 1);
-  ren2->AddProp(imageActor2);
+  ren2->AddViewProp(imageActor2);
 
   renWin->SetSize(480, 240);
 

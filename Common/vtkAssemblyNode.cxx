@@ -17,21 +17,17 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAssemblyNode, "1.7");
+vtkCxxRevisionMacro(vtkAssemblyNode, "1.8");
 vtkStandardNewMacro(vtkAssemblyNode);
 
 vtkAssemblyNode::vtkAssemblyNode()
 {
-  this->Prop = NULL;
+  this->ViewProp = NULL;
   this->Matrix = NULL;
 }
 
 vtkAssemblyNode::~vtkAssemblyNode()
 {
-//  if ( this->Prop )
-//    {
-//    this->Prop->Delete();
-//    }
   if ( this->Matrix )
     {
     this->Matrix->Delete();
@@ -39,28 +35,10 @@ vtkAssemblyNode::~vtkAssemblyNode()
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef SetProp
-// Define possible mangled names.
-void vtkAssemblyNode::SetPropA(vtkProp* prop)
-{
-  this->SetPropInternal(prop);
-}
-void vtkAssemblyNode::SetPropW(vtkProp* prop)
-{
-  this->SetPropInternal(prop);
-}
-#endif
-void vtkAssemblyNode::SetProp(vtkProp* prop)
-{
-  this->SetPropInternal(prop);
-}
-
-//----------------------------------------------------------------------------
 // Don't do reference counting
-void vtkAssemblyNode::SetPropInternal(vtkProp *prop)
+void vtkAssemblyNode::SetViewProp(vtkProp *prop)
 {
-  this->Prop = prop;
+  this->ViewProp = prop;
 }
 
 
@@ -89,9 +67,9 @@ unsigned long vtkAssemblyNode::GetMTime()
   unsigned long propMTime=0;
   unsigned long matrixMTime=0;
   
-  if ( this->Prop != NULL )
+  if ( this->ViewProp != NULL )
     {
-    propMTime = this->Prop->GetMTime();
+    propMTime = this->ViewProp->GetMTime();
     }
   if ( this->Matrix != NULL )
     {
@@ -101,43 +79,17 @@ unsigned long vtkAssemblyNode::GetMTime()
   return (propMTime > matrixMTime ? propMTime : matrixMTime);
 }
 
-//----------------------------------------------------------------------------
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef GetProp
-// Define possible mangled names.
-vtkProp* vtkAssemblyNode::GetPropA()
-{
-  return this->GetPropInternal();
-}
-vtkProp* vtkAssemblyNode::GetPropW()
-{
-  return this->GetPropInternal();
-}
-#endif
-vtkProp* vtkAssemblyNode::GetProp()
-{
-  return this->GetPropInternal();
-}
-
-//----------------------------------------------------------------------------
-vtkProp* vtkAssemblyNode::GetPropInternal()
-{
-  vtkDebugMacro(<< this->GetClassName() << " (" << this
-                << "): returning Prop address " << this->Prop );
-  return this->Prop;
-}
-
 void vtkAssemblyNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if ( this->Prop )
+  if ( this->ViewProp )
     {
-    os << indent << "Prop: " << this->Prop << "\n";
+    os << indent << "ViewProp: " << this->ViewProp << "\n";
     }
   else
     {
-    os << indent << "Prop: (none)\n";
+    os << indent << "ViewProp: (none)\n";
     }
 
   if ( this->Matrix )
@@ -150,4 +102,46 @@ void vtkAssemblyNode::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
+#  undef SetProp
+#  undef GetProp
+void const vtkAssemblyNode::SetPropA(vtkProp* prop)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetProp, "5.0",
+                           vtkAssemblyNode::SetViewProp);
+  this->SetViewProp(prop);
+}
+void const vtkAssemblyNode::SetPropW(vtkProp* prop)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetProp, "5.0",
+                           vtkAssemblyNode::SetViewProp);
+  this->SetViewProp(prop);
+}
+vtkProp* const vtkAssemblyNode::GetPropA()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::GetProp, "5.0",
+                           vtkAssemblyNode::GetViewProp);
+  return this->GetViewProp();
+}
+vtkProp* const vtkAssemblyNode::GetPropW()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::GetProp, "5.0",
+                           vtkAssemblyNode::GetViewProp);
+  return this->GetViewProp();
+}
+# endif
+void const vtkAssemblyNode::SetProp(vtkProp* prop)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetProp, "5.0",
+                           vtkAssemblyNode::SetViewProp);
+  this->SetViewProp(prop);
+}
+vtkProp* const vtkAssemblyNode::GetProp()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::GetProp, "5.0",
+                           vtkAssemblyNode::GetViewProp);
+  return this->GetViewProp();
+}
+#endif

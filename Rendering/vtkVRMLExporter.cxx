@@ -33,7 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.79");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.80");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()
@@ -169,7 +169,7 @@ void vtkVRMLExporter::WriteData()
     {
     for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
       {
-      aPart=(vtkActor *)apath->GetLastNode()->GetProp();
+      aPart=(vtkActor *)apath->GetLastNode()->GetViewProp();
       this->WriteAnActor(aPart, fp);
       }
     }

@@ -437,7 +437,7 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
   vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow( renWin );
 
-  renderer->AddProp( axes );
+  renderer->AddViewProp( axes );
 
   // set up an interesting view
   //
