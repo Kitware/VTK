@@ -48,7 +48,10 @@ DICOMFile::DICOMFile(const DICOMFile& in)
     {
     PlatformEndian = "BigEndian";
     }
-  InputStream = in.InputStream;
+  //
+  // Some compilers can't handle. Comment out for now.
+  //
+  // InputStream = in.InputStream;
 }
 
 void DICOMFile::operator=(const DICOMFile& in)
@@ -61,7 +64,10 @@ void DICOMFile::operator=(const DICOMFile& in)
     {
     PlatformEndian = "BigEndian";
     }
-  InputStream = in.InputStream;
+  //
+  // Some compilers can't handle. Comment out for now.
+  //
+  // InputStream = in.InputStream;
 }
 
 bool DICOMFile::Open(const std::string& filename)
