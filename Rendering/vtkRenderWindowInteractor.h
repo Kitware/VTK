@@ -202,7 +202,7 @@ public:
   // Description:
   // Render the scene. Just pass the render call on to the 
   // associated vtkRenderWindow.
-  void Render();
+  virtual void Render();
 
   // Description:
   // Given a position x, move the current camera's focal point to x.
