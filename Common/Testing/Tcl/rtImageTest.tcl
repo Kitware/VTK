@@ -206,7 +206,7 @@ if {$validImageFound != 0} {
 	   puts -nonewline "$imageError"
 	   puts "</DartMeasurement>"
 	   
-	   puts -nonewline "<DartMeasurementFile name=\"Difference Image\" type=\"image/png\">"
+	   puts -nonewline "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">"
 	   puts -nonewline "$validImage.diff.small.png"
 	   puts "</DartMeasurementFile>"
 	   
