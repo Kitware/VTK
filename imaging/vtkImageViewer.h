@@ -160,9 +160,9 @@ public:
   // Description:
   // By default this is a color viewer. GreyScaleOn will improve the appearance
   // of grey scale images on some systems.
-  vtkSetMacro(GreyScale,int);
-  vtkGetMacro(GreyScale,int);
-  vtkBooleanMacro(GreyScale,int);
+  vtkSetMacro(GrayScale,int);
+  vtkGetMacro(GrayScale,int);
+  vtkBooleanMacro(GrayScale,int);
 
   // Description:
   // Set/Get the position in screen coordinates of the rendering window.
@@ -198,7 +198,7 @@ protected:
   char *WindowName;
   int Size[2];
   int Position[2];
-  int GreyScale;
+  int GrayScale;
 };
 
 #endif

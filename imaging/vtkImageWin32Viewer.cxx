@@ -110,7 +110,7 @@ void vtkImageWin32Viewer::SetPosition(int x, int y)
 // Description:
 // A templated function that handles gray scale images.
 template <class T>
-static void vtkImageWin32ViewerRenderGrey(vtkImageWin32Viewer *self, 
+static void vtkImageWin32ViewerRenderGray(vtkImageWin32Viewer *self, 
 					  vtkImageRegion *region,
 					  T *inPtr, unsigned char *outPtr,
 					  float shift, float scale)
@@ -419,29 +419,29 @@ void vtkImageWin32Viewer::Render(void)
     }
   else
     {
-    // GreyScale images.
+    // GrayScale images.
     ptr0 = region->GetScalarPointer();
     // Call the appropriate templated function
     switch (region->GetScalarType())
       {
       case VTK_FLOAT:
-	vtkImageWin32ViewerRenderGrey(this, region, (float *)(ptr0), dataOut,
+	vtkImageWin32ViewerRenderGray(this, region, (float *)(ptr0), dataOut,
 				      shift, scale);
 	break;
       case VTK_INT:
-	vtkImageWin32ViewerRenderGrey(this, region, (int *)(ptr0), dataOut,
+	vtkImageWin32ViewerRenderGray(this, region, (int *)(ptr0), dataOut,
 				      shift, scale);
 	break;
       case VTK_SHORT:
-	vtkImageWin32ViewerRenderGrey(this, region, (short *)(ptr0), dataOut,
+	vtkImageWin32ViewerRenderGray(this, region, (short *)(ptr0), dataOut,
 				      shift, scale);
 	break;
       case VTK_UNSIGNED_SHORT:
-	vtkImageWin32ViewerRenderGrey(this, region, (unsigned short *)(ptr0), 
+	vtkImageWin32ViewerRenderGray(this, region, (unsigned short *)(ptr0), 
 				      dataOut, shift, scale);
 	break;
       case VTK_UNSIGNED_CHAR:
-	vtkImageWin32ViewerRenderGrey(this, region, (unsigned char *)(ptr0), 
+	vtkImageWin32ViewerRenderGray(this, region, (unsigned char *)(ptr0), 
 				      dataOut, shift, scale);
 	break;
       }   
@@ -502,7 +502,7 @@ void vtkImageWin32ViewerSetupRGBPixelFormat(HDC hDC)
     }
 }
 
-void vtkImageWin32ViewerSetupGreyPixelFormat(HDC hDC)
+void vtkImageWin32ViewerSetupGrayPixelFormat(HDC hDC)
 {
     PIXELFORMATDESCRIPTOR pfd = {
         sizeof(PIXELFORMATDESCRIPTOR),  /* size */
@@ -538,15 +538,9 @@ void vtkImageWin32ViewerSetupGreyPixelFormat(HDC hDC)
     }
 }
 
-struct vtkImageWin32ViewerCreateInfo
-  {
-  HDC DeviceContext;
-  HPALETTE Palette;
-  };
-
 // creates and applies a RGB palette
 void vtkImageWin32ViewerSetupRGBPalette(HDC hDC, 
-				     vtkImageWin32ViewerCreateInfo *me)
+				     vtkImageWin32Viewer *me)
 {
   int pixelFormat = GetPixelFormat(hDC);
   PIXELFORMATDESCRIPTOR pfd;
@@ -599,8 +593,8 @@ void vtkImageWin32ViewerSetupRGBPalette(HDC hDC,
 
 }
 
-void vtkImageWin32ViewerSetupGreyPalette(HDC hDC, 
-				     vtkImageWin32ViewerCreateInfo *me)
+void vtkImageWin32ViewerSetupGrayPalette(HDC hDC, 
+				     vtkImageWin32Viewer *me)
 {
   int pixelFormat = GetPixelFormat(hDC);
   PIXELFORMATDESCRIPTOR pfd;
@@ -654,35 +648,30 @@ void vtkImageWin32ViewerSetupGreyPalette(HDC hDC,
 // seem to be another way. Could be a problem for multithreaded
 // apps but this is unlikely since this doesn't get called very
 // often at all.
-static int vtkImageWin32DoGrey;
+vtkImageWin32Viewer *vtkImageWin32ViewerPtr = NULL;
 
 LRESULT APIENTRY vtkImageWin32ViewerWndProc(HWND hWnd, UINT message, 
 					    WPARAM wParam, LPARAM lParam)
 {
-  vtkImageWin32Viewer *me = 
+  vtkImageWin32Viewer *me =   
     (vtkImageWin32Viewer *)GetWindowLong(hWnd,GWL_USERDATA);
 
   switch (message) 
     {
     case WM_CREATE:
       {
-        // this code is going to create some stuff that we want to
-        // associate with the this pointer. But since there isn't an
-        // easy way to tget the this pointer during the create call
-        // we'll pass the created info back out
-        vtkImageWin32ViewerCreateInfo *info = 
-	         new vtkImageWin32ViewerCreateInfo;
-        SetWindowLong(hWnd,GWL_USERDATA,(LONG)info);
-        info->DeviceContext = GetDC(hWnd);
-        if (vtkImageWin32DoGrey)
+        me = vtkImageWin32ViewerPtr;
+        SetWindowLong(hWnd,GWL_USERDATA,(LONG)me);
+        me->DeviceContext = GetDC(hWnd);
+        if (me->GetGrayScale())
           {
-          vtkImageWin32ViewerSetupGreyPixelFormat(info->DeviceContext);
-          vtkImageWin32ViewerSetupGreyPalette(info->DeviceContext,info);
+          vtkImageWin32ViewerSetupGrayPixelFormat(me->DeviceContext);
+          vtkImageWin32ViewerSetupGrayPalette(me->DeviceContext,me);
           }
         else
           {
-          vtkImageWin32ViewerSetupRGBPixelFormat(info->DeviceContext);
-          vtkImageWin32ViewerSetupRGBPalette(info->DeviceContext,info);
+          vtkImageWin32ViewerSetupRGBPixelFormat(me->DeviceContext);
+          vtkImageWin32ViewerSetupRGBPalette(me->DeviceContext,me);
           }
         return 0;
       }
@@ -767,7 +756,6 @@ void vtkImageWin32Viewer::MakeDefaultWindow()
   if (!this->WindowId)
     {
     WNDCLASS wndClass;
-    vtkImageWin32ViewerCreateInfo *info;
     
     if(this->WindowName) delete [] this->WindowName;
     int len = strlen( "Visualization Toolkit - ImageWin32 #") 
@@ -792,7 +780,12 @@ void vtkImageWin32Viewer::MakeDefaultWindow()
         }
     
     /* create window */
-    vtkImageWin32DoGrey = this->GreyScale;
+    // use poor mans mutex
+    if (vtkImageWin32ViewerPtr)
+      {
+      vtkErrorMacro("Two windows being created at the same time");
+      }
+    vtkImageWin32ViewerPtr = this;
     if (this->ParentId)
       {
       this->WindowId = 
@@ -811,18 +804,12 @@ void vtkImageWin32Viewer::MakeDefaultWindow()
          GetSystemMetrics(SM_CYCAPTION),
 		     NULL, NULL, this->ApplicationInstance, NULL);
       }
+    vtkImageWin32ViewerPtr = NULL;
     if (!this->WindowId)
       {
       vtkErrorMacro("Could not create window, error:  " << GetLastError());
       return;
       }
-    // extract the create info
-    info = (vtkImageWin32ViewerCreateInfo *)
-      GetWindowLong(this->WindowId,GWL_USERDATA);
-    this->DeviceContext = info->DeviceContext;
-    this->Palette = info->Palette;
-    delete info;
-    SetWindowLong(this->WindowId,GWL_USERDATA,(LONG)this);
     
     /* display window */
     ShowWindow(this->WindowId, SW_SHOW);
