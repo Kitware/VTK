@@ -406,6 +406,8 @@ int vtkMultiProcessController::ReadObject(vtkObject *data)
   
   vtkErrorMacro("Cannot marshal object of type "
 		<< data->GetClassName());
+
+  return 1;
 }
 
 
@@ -413,25 +415,38 @@ int vtkMultiProcessController::ReadObject(vtkObject *data)
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::WritePolyData(vtkPolyData *data)
 {
+  int numPts, numCells;
   unsigned long size;
   char *str;
   vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
+  vtkPointData *pd;
   
   writer->SetFileTypeToBinary();
   writer->WriteToOutputStringOn();
-  writer->SetInput(data);
+  writer->SetInput(data);  
   
-  // Guess the size from information.
-  size = data->GetEstimatedUpdateMemorySize();
-  // In case it was not set, use default.
-  if (size <= 0)
+  // Compute the size
+  pd = data->GetPointData();
+  numPts = data->GetNumberOfPoints();
+  numCells = data->GetNumberOfCells();
+  // points
+  size = 1+ numPts * 3 * sizeof(float);
+  // Cells (assume quads)
+  size += numCells * 5 * sizeof(int);
+  // point data
+  if (pd->GetScalars())
     {
-    // 5 kilo bytes
-    size = 5;
+    size += pd->GetScalars()->GetNumberOfScalars() * sizeof(float);
     }
-  // convert to bytes
-  size = size * 1000;
-  
+  if (pd->GetVectors())
+    {
+    size += pd->GetVectors()->GetNumberOfVectors() * 3 * sizeof(float);
+    }
+  if (pd->GetNormals())
+    {
+    size += pd->GetNormals()->GetNumberOfNormals() * 3 * sizeof(float);
+    }
+
   
   // use the previous string if it is long enough.
   if (this->MarshalStringLength < size)
