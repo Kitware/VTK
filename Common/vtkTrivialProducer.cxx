@@ -24,7 +24,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.6");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.7");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -124,8 +124,16 @@ vtkTrivialProducer::ProcessDownstreamRequest(vtkInformation* request,
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()) ||
      request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
-    vtkInformation* outputInfo = outputVector->GetInformationObject(0);
-    outputInfo->Set(vtkInformation::DATA_OBJECT(), this->Output);
+    vtkInformation* info = outputVector->GetInformationObject(0);
+    info->Set(vtkInformation::DATA_OBJECT(), this->Output);
+    if(this->Output)
+      {
+      info->Set(vtkInformation::EXTENT_TYPE(), this->Output->GetExtentType());
+      }
+    else
+      {
+      info->Remove(vtkInformation::EXTENT_TYPE());
+      }
     }
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()) &&
      this->Output)
