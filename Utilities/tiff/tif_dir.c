@@ -866,7 +866,7 @@ _TIFFVGetField(TIFF* tif, ttag_t tag, va_list ap)
  * internal directory structure.
  */
 int
-TIFFGetField(TIFF* tif, ttag_t tag, ...)
+TEXPORT TIFFGetField(TIFF* tif, ttag_t tag, ...)
 {
         int status;
         va_list ap;
