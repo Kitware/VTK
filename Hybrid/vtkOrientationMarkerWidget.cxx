@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 
 vtkStandardNewMacro(vtkOrientationMarkerWidget);
-vtkCxxRevisionMacro(vtkOrientationMarkerWidget, "1.3");
+vtkCxxRevisionMacro(vtkOrientationMarkerWidget, "1.4");
 
 vtkCxxSetObjectMacro(vtkOrientationMarkerWidget, OrientationMarker, vtkProp);
 
@@ -387,7 +387,7 @@ void vtkOrientationMarkerWidget::OnLeftButtonUp()
 
   // stop adjusting
   this->State = vtkOrientationMarkerWidget::Outside;
-  this->EventCallbackCommand->SetAbortFlag( 1 );
+  
   this->Interactor->GetRenderWindow()->SetCurrentCursor( VTK_CURSOR_DEFAULT );
   this->EndInteraction();
   this->InvokeEvent( vtkCommand::EndInteractionEvent, NULL );
