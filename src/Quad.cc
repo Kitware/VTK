@@ -110,15 +110,15 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
 
     for (j=0; j<2; j++) fcol[j] -= x[indices[j]];
 //
-//  compute determinates and generate improvements
+//  compute determinants and generate improvements
 //
-    if ( (det=math.Determinate2x2(rcol,scol)) == 0.0 )
+    if ( (det=math.Determinant2x2(rcol,scol)) == 0.0 )
       {
       return 0;
       }
 
-    pcoords[0] = params[0] - math.Determinate2x2 (fcol,scol) / det;
-    pcoords[1] = params[1] - math.Determinate2x2 (rcol,fcol) / det;
+    pcoords[0] = params[0] - math.Determinant2x2 (fcol,scol) / det;
+    pcoords[1] = params[1] - math.Determinant2x2 (rcol,fcol) / det;
 //
 //  check for convergence
 //

@@ -86,17 +86,17 @@ int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
 
     for (i=0; i<3; i++) fcol[i] -= x[i];
 //
-//  compute determinates and generate improvements
+//  compute determinants and generate improvements
 //
-    if ( (d=math.Determinate3x3(rcol,scol,tcol)) == 0.0 )
+    if ( (d=math.Determinant3x3(rcol,scol,tcol)) == 0.0 )
       {
       dist2 = LARGE_FLOAT;
       return 0;
       }
 
-    pcoords[0] = params[0] - math.Determinate3x3 (fcol,scol,tcol) / d;
-    pcoords[1] = params[1] - math.Determinate3x3 (rcol,fcol,tcol) / d;
-    pcoords[2] = params[2] - math.Determinate3x3 (rcol,scol,fcol) / d;
+    pcoords[0] = params[0] - math.Determinant3x3 (fcol,scol,tcol) / d;
+    pcoords[1] = params[1] - math.Determinant3x3 (rcol,fcol,tcol) / d;
+    pcoords[2] = params[2] - math.Determinant3x3 (rcol,scol,fcol) / d;
 //
 //  check for convergence
 //

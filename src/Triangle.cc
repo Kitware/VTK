@@ -81,11 +81,11 @@ int vlTriangle::EvaluatePosition(float x[3], float closestPoint[3],
     c2[i] = pt2[indices[i]] - pt3[indices[i]];
     }
 
-  if ( (det = math.Determinate2x2(c1,c2)) == 0.0 )
+  if ( (det = math.Determinant2x2(c1,c2)) == 0.0 )
     return 0;
 
-  pcoords[0] = math.Determinate2x2 (rhs,c2) / det;
-  pcoords[1] = math.Determinate2x2 (c1,rhs) / det;
+  pcoords[0] = math.Determinant2x2 (rhs,c2) / det;
+  pcoords[1] = math.Determinant2x2 (c1,rhs) / det;
   pcoords[2] = 1.0 - pcoords[0] - pcoords[1];
 //
 // Okay, now find closest point to element
