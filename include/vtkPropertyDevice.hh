@@ -54,6 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.hh"
 class vtkRenderer;
 class vtkProperty;
+class vtkActor;
 
 class vtkPropertyDevice : public vtkObject
 {
@@ -63,6 +64,12 @@ public:
   // Description:
   // This is the only method that the subclasses must supply.
   virtual void Render(vtkProperty *prp, vtkRenderer *ren) = 0;
+
+  // Description:
+  // Subclasses that need to know the actor can supply this method.
+  virtual void Render(vtkProperty *prp, vtkActor *anActor, vtkRenderer *ren) {
+    Render (prp, ren);
+  }
 
 };
 
