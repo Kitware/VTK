@@ -1829,7 +1829,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           nodeIds[j] = intIds[j];
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
-          InsertNextCell(VTK_WEDGE, 5, nodeIds);
+          InsertNextCell(VTK_WEDGE, 6, nodeIds);
         this->CellIds[idx][cellType]->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
