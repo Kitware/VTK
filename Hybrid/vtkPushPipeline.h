@@ -83,9 +83,9 @@ protected:
   ~vtkPushPipeline();
   
   //BTX
-  friend vtkPushPipelineProcessInfo;
-  friend vtkPushPipelineDataInfo;
-  friend vtkPushPipelineConsumeCommand;
+  friend class vtkPushPipelineProcessInfo;
+  friend class vtkPushPipelineDataInfo;
+  friend class vtkPushPipelineConsumeCommand;
   
   vtkVector<vtkRenderWindow *> *Windows;
   vtkArrayMap<vtkProcessObject *, vtkPushPipelineProcessInfo *> *ProcessMap;
