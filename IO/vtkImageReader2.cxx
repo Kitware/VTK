@@ -23,7 +23,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.11");
+vtkCxxRevisionMacro(vtkImageReader2, "1.12");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -456,11 +456,23 @@ void vtkImageReader2::ComputeDataIncrements()
     case VTK_INT:
       fileDataLength = sizeof(int);
       break;
+    case VTK_UNSIGNED_INT:
+      fileDataLength = sizeof(unsigned int);
+      break;
+    case VTK_LONG:
+      fileDataLength = sizeof(long);
+      break;
+    case VTK_UNSIGNED_LONG:
+      fileDataLength = sizeof(unsigned long);
+      break;
     case VTK_SHORT:
       fileDataLength = sizeof(short);
       break;
     case VTK_UNSIGNED_SHORT:
       fileDataLength = sizeof(unsigned short);
+      break;
+    case VTK_CHAR:
+      fileDataLength = sizeof(char);
       break;
     case VTK_UNSIGNED_CHAR:
       fileDataLength = sizeof(unsigned char);
