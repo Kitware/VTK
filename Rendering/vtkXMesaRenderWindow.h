@@ -56,6 +56,10 @@ public:
   virtual void Initialize(void);
 
   // Description:
+  // Deinitialize the rendering window.
+  virtual void Deinitialize(void);
+
+  // Description:
   // Change the window to fill the entire screen.
   virtual void SetFullScreen(int);
 
