@@ -25,7 +25,7 @@ SET (CVS_WEB_URL "http://${DROP_SITE}/cgi-bin/cvsweb.cgi/VTK/")
 SET (CVS_WEB_CVSROOT "VTK")
 SET (USE_DOXYGEN "On")
 SET (DOXYGEN_URL "http://www.vtk.org/doc/nightly/html/" )
-SET (GNATS_WEB_URL "http://public.kitware.com/Bug/bug.php")
+SET (GNATS_WEB_URL "http://public.kitware.com/Bug/index.php")
 SET (USE_GNATS "On")
 
 # copy over the testing logo
