@@ -41,8 +41,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkPolyDataToPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkPolyDataToPolyDataFilter, "1.11");
+vtkCxxRevisionMacro(vtkPolyDataToPolyDataFilter, "1.12");
 
+//----------------------------------------------------------------------------
+vtkPolyDataToPolyDataFilter::vtkPolyDataToPolyDataFilter() 
+{
+  this->vtkProcessObject::SetNumberOfInputs(1);
+  this->NumberOfRequiredInputs = 1;
+}
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkPolyDataToPolyDataFilter::SetInput(vtkPolyData *input)
