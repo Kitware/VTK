@@ -463,7 +463,7 @@ VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.42");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.43");
 
 vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
 {
@@ -844,8 +844,11 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren,
       }
     
     this->MajorDirection = savedDirection;
-    this->RenderSavedTexture();
-    this->TextureMTime.Modified();
+    if ( !ren->GetRenderWindow()->GetAbortRender() ) 
+      {
+      this->RenderSavedTexture();
+      this->TextureMTime.Modified();
+      }
     }
   else
     {
