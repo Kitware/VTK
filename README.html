@@ -261,14 +261,17 @@ or
   6) make
 </pre>
 
-For Tcl/Tk support, you have to install the cygwin sources for Tcl/Tk, then
-set the following options:
+For Tcl/Tk support, you have to install the cygwin sources for Tcl/Tk, then set
+the TK_*_PATH variables to apropriate locations. For example if the TCL/TK
+cygwin version you have is 20030214-1, then set the following options:
+
 <pre>
-TK_INCLUDE_PATH /usr/src/tcltk-20001125-1/tk/generic/
-TK_INTERNAL_PATH /usr/src/tcltk-20001125-1/tk/win/
-TK_XLIB_PATH /usr/src/tcltk-20001125-1/tk/xlib
+TK_INCLUDE_PATH /usr/src/tcltk-20030214-1/tk/generic/;/usr/src/tcltk-20030214-1/tcl/generic/
+TK_INTERNAL_PATH /usr/src/tcltk-20030214-1/tk/win/
+TK_XLIB_PATH /usr/src/tcltk-20030214-1/tk/xlib
 </pre>
 
+Also, if you have several versions of TCL installed on the computer, where some of them are regular Windows binaries, and some are Cygwin, make sure to set the TCL_TCLSH to point to the right one.
 
 <h3><A NAME="PC">PC Installation</h3><p>
     The PC build process uses the CMake GUI CMakeSetup. Then you use the 
