@@ -24,7 +24,7 @@
 // rendering features such as two-sided lighting can also be controlled.
 
 // .SECTION See Also
-// vtkWindow vtkImager vtkRenderer
+// vtkWindow vtkRenderer
 
 #ifndef __vtkViewport_h
 #define __vtkViewport_h

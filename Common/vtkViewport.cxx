@@ -20,7 +20,7 @@
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.58");
+vtkCxxRevisionMacro(vtkViewport, "1.58.2.1");
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -637,12 +637,24 @@ void vtkViewport::GetTiledSize(int *usize, int *vsize)
 void vtkViewport::GetTiledSizeAndOrigin(int *usize, int *vsize,
                                         int *lowerLeftU, int *lowerLeftV)
 {
-
   double *vport;
 
   // find out if we should stereo render
   vport = this->GetViewport();
-  double *tileViewPort = this->GetVTKWindow()->GetTileViewport();
+
+  // if there is no window assume 0 1
+  double tileViewPort[4];
+  if (this->GetVTKWindow())
+    {
+    this->GetVTKWindow()->GetTileViewport(tileViewPort);
+    }
+  else
+    {
+    tileViewPort[0] = 0;
+    tileViewPort[1] = 0;
+    tileViewPort[2] = 1;
+    tileViewPort[3] = 1;
+    }
   
   double vpu, vpv;
   // find the lower left corner of the viewport, taking into account the
