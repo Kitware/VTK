@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.5");
+vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.6");
 vtkStandardNewMacro(vtkXMLStructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -64,6 +64,13 @@ vtkStructuredGrid* vtkXMLStructuredGridReader::GetOutput()
     }
   return static_cast<vtkStructuredGrid*>(this->Outputs[0]);
 }
+
+//----------------------------------------------------------------------------
+vtkStructuredGrid* vtkXMLStructuredGridReader::GetOutput(int idx)
+{
+  return static_cast<vtkStructuredGrid*>(this->Superclass::GetOutput(idx));
+}
+  
 
 //----------------------------------------------------------------------------
 const char* vtkXMLStructuredGridReader::GetDataSetName()

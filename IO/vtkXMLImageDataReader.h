@@ -44,6 +44,7 @@ public:
   // Get/Set the reader's output.
   void SetOutput(vtkImageData *output);
   vtkImageData *GetOutput();
+  vtkImageData *GetOutput(int idx);
   
 protected:
   vtkXMLImageDataReader();

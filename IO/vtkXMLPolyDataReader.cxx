@@ -23,7 +23,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkXMLPolyDataReader, "1.1");
+vtkCxxRevisionMacro(vtkXMLPolyDataReader, "1.2");
 vtkStandardNewMacro(vtkXMLPolyDataReader);
 
 //----------------------------------------------------------------------------
@@ -72,6 +72,12 @@ vtkPolyData* vtkXMLPolyDataReader::GetOutput()
     return 0;
     }
   return static_cast<vtkPolyData*>(this->Outputs[0]);
+}
+
+//----------------------------------------------------------------------------
+vtkPolyData* vtkXMLPolyDataReader::GetOutput(int idx)
+{
+  return static_cast<vtkPolyData*>(this->Superclass::GetOutput(idx));
 }
 
 //----------------------------------------------------------------------------

@@ -23,7 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.6");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.7");
 vtkStandardNewMacro(vtkXMLRectilinearGridReader);
 
 //----------------------------------------------------------------------------
@@ -64,6 +64,12 @@ vtkRectilinearGrid* vtkXMLRectilinearGridReader::GetOutput()
     return 0;
     }
   return static_cast<vtkRectilinearGrid*>(this->Outputs[0]);
+}
+
+//----------------------------------------------------------------------------
+vtkRectilinearGrid* vtkXMLRectilinearGridReader::GetOutput(int idx)
+{
+  return static_cast<vtkRectilinearGrid*>(this->Superclass::GetOutput(idx));
 }
 
 //----------------------------------------------------------------------------

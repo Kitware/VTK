@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.3");
 vtkStandardNewMacro(vtkXMLImageDataReader);
 
 //----------------------------------------------------------------------------
@@ -63,6 +63,13 @@ vtkImageData* vtkXMLImageDataReader::GetOutput()
     }
   return static_cast<vtkImageData*>(this->Outputs[0]);
 }
+
+//----------------------------------------------------------------------------
+vtkImageData* vtkXMLImageDataReader::GetOutput(int idx)
+{
+  return static_cast<vtkImageData*>(this->Superclass::GetOutput(idx));
+}
+
 
 //----------------------------------------------------------------------------
 const char* vtkXMLImageDataReader::GetDataSetName()
