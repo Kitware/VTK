@@ -229,7 +229,7 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
 
   // Convert from double bytes to unsigned long kilobytes
   size = size >> 10;
-  lsize = size.to_unsigned_long();
+  lsize = size.CastToUnsignedLong();
   return lsize;
 }
 

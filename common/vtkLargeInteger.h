@@ -53,21 +53,21 @@ public:
   vtkLargeInteger(const vtkLargeInteger& n);
   ~vtkLargeInteger(void);
   
-  char to_char(void) const;
-  short to_short(void) const;
-  int to_int(void) const;
-  long to_long(void) const;
-  unsigned long to_unsigned_long(void) const;
+  char CastToChar(void) const;
+  short CastToShort(void) const;
+  int CastToInt(void) const;
+  long CastToLong(void) const;
+  unsigned long CastToUnsignedLong(void) const;
   
-  int even(void) const;
-  int odd(void) const;
-  int length(void) const; // in bits
-  int bit(unsigned int p) const; // p'th bit (from zero)
-  int zero() const; // is zero
-  int sign(void) const; // is negative
+  int IsEven(void) const;
+  int IsOdd(void) const;
+  int GetLength(void) const; // in bits
+  int GetBit(unsigned int p) const; // p'th bit (from zero)
+  int IsZero() const; // is zero
+  int GetSign(void) const; // is negative
   
-  void truncate(unsigned int n); // reduce to lower n bits
-  void complement(void); // * -1
+  void Truncate(unsigned int n); // reduce to lower n bits
+  void Complement(void); // * -1
   
   int operator==(const vtkLargeInteger& n) const;
   int operator!=(const vtkLargeInteger& n) const;
@@ -109,18 +109,18 @@ public:
   friend istream& operator>>(istream& s, vtkLargeInteger& n);
   
 private:
-  char* number;
-  int negative;
-  unsigned int sig;
-  unsigned int max;
+  char* Number;
+  int Negative;
+  unsigned int Sig;
+  unsigned int Max;
   
   // unsigned operators
-  int smaller(const vtkLargeInteger& n) const; // unsigned
-  int greater(const vtkLargeInteger& n) const; // unsigned
-  void expand(unsigned int n); // ensure n'th bit exits
-  void contract(); // remove leading 0s
-  void plus(const vtkLargeInteger& n); // unsigned
-  void minus(const vtkLargeInteger& n); // unsigned
+  int IsSmaller(const vtkLargeInteger& n) const; // unsigned
+  int IsGreater(const vtkLargeInteger& n) const; // unsigned
+  void Expand(unsigned int n); // ensure n'th bit exits
+  void Contract(); // remove leading 0s
+  void Plus(const vtkLargeInteger& n); // unsigned
+  void Minus(const vtkLargeInteger& n); // unsigned
 };
 
 #endif

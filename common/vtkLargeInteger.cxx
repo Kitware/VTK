@@ -51,114 +51,121 @@ const unsigned int BIT_INCREMENT = 32;
 
 int maximum(int a, int b)
 {
-    return a > b ? a : b;
+  return a > b ? a : b;
 }
 
 int minimum(int a, int b)
 {
-    return a < b ? a : b;
+  return a < b ? a : b;
 }
 
 long vtkpow(long a, long b)
 {
-    long a1 = a;
-    long b1 = b;
-    long c = 1;
-    
-    while (b1 >= 1)
-        {
-        while (b & 1 == 0)
-            {
-            b1 = b1 / 2;
-            a1 = a1 * a1;
-            }
-        b1 = b1 - 1;
-        c = c * a1;
-        }
-    return c;
+  long a1 = a;
+  long b1 = b;
+  long c = 1;
+  
+  while (b1 >= 1)
+    {
+    while (b & 1 == 0)
+      {
+      b1 = b1 / 2;
+      a1 = a1 * a1;
+      }
+    b1 = b1 - 1;
+    c = c * a1;
+    }
+  return c;
 }
 
-void vtkLargeInteger::contract()
+void vtkLargeInteger::Contract()
 {
-    while (number[sig] == 0 && sig > 0)
-        sig--;
+  while (this->Number[this->Sig] == 0 && this->Sig > 0)
+    {
+    this->Sig--;
+    }
 }
+
 
 vtkLargeInteger::vtkLargeInteger(void)
 {
-    number = new char[BIT_INCREMENT];
-    number[0] = 0;
-    negative = 0;
-    max = BIT_INCREMENT - 1;
-    sig = 0;
+    this->Number = new char[BIT_INCREMENT];
+    this->Number[0] = 0;
+    this->Negative = 0;
+    this->Max = BIT_INCREMENT - 1;
+    this->Sig = 0;
 }
 
 vtkLargeInteger::vtkLargeInteger(long n)
 {
-    negative = n < 0 ? 1 : 0;
-    n = n < 0 ? -n : n; // strip of sign
-    number = new char[BIT_INCREMENT];
-    for (int i = 0; i < BIT_INCREMENT; i++)
-        {
-        number[i] = n & 1;
-        n >>= 1;
-        }
-    max = BIT_INCREMENT - 1;
-    sig = BIT_INCREMENT - 1;
-    contract(); // remove leading 0s
+  this->Negative = n < 0 ? 1 : 0;
+  n = n < 0 ? -n : n; // strip of sign
+  this->Number = new char[BIT_INCREMENT];
+  for (int i = 0; i < BIT_INCREMENT; i++)
+    {
+    this->Number[i] = n & 1;
+    n >>= 1;
+    }
+  this->Max = BIT_INCREMENT - 1;
+  this->Sig = BIT_INCREMENT - 1;
+  this->Contract(); // remove leading 0s
 }
 
 vtkLargeInteger::vtkLargeInteger(const vtkLargeInteger& n)
 {
-    number = new char[n.max + 1];
-    negative = n.negative;
-    max = n.max;
-    sig = n.sig;
-    for (int i = sig; i >= 0; i--)
-        number[i] = n.number[i];
+  this->Number = new char[n.Max + 1];
+  this->Negative = n.Negative;
+  this->Max = n.Max;
+  this->Sig = n.Sig;
+  for (int i = this->Sig; i >= 0; i--)
+    {
+    this->Number[i] = n.Number[i];
+    }
 }
 
 vtkLargeInteger::~vtkLargeInteger(void)
 {
-    delete number;
+  delete this->Number;
 }
 
-char vtkLargeInteger::to_char(void) const
+char vtkLargeInteger::CastToChar(void) const
 {
-    return to_long();
+  return this->CastToLong();
 }
 
-short vtkLargeInteger::to_short(void) const
+short vtkLargeInteger::CastToShort(void) const
 {
-    return to_long();
+  return this->CastToLong();
 }
 
-int vtkLargeInteger::to_int(void) const
+int vtkLargeInteger::CastToInt(void) const
 {
-    return to_long();
+  return this->CastToLong();
 }
 
-long vtkLargeInteger::to_long(void) const
+long vtkLargeInteger::CastToLong(void) const
 {
   long n = 0;
-
-    for (int i = sig; i >= 0; i--)
-        {
-        n <<= 1;
-        n |= number[i];
-        }
-    if (negative)
-        return -n;
-    else
-        return n;
+  
+  for (int i = this->Sig; i >= 0; i--)
+    {
+    n <<= 1;
+    n |= this->Number[i];
+    }
+  if (this->Negative)
+    {
+    return -n;
+    }
+  
+  return n;
 }
 
 // convert to an unsigned long, return max if bigger than unsigned long
-unsigned long vtkLargeInteger::to_unsigned_long(void) const
+unsigned long vtkLargeInteger::CastToUnsignedLong(void) const
 {
   unsigned long n = 0;
 
-  if (sig >= (8*sizeof(unsigned long)))
+  if (this->Sig >= (8*sizeof(unsigned long)))
     {
     for (int i = (8*sizeof(unsigned long)); i > 0; i--)
       {
@@ -168,253 +175,315 @@ unsigned long vtkLargeInteger::to_unsigned_long(void) const
     }
   else
     {
-    for (int i = sig; i >= 0; i--)
+    for (int i = this->Sig; i >= 0; i--)
       {
       n <<= 1;
-      n |= number[i];
+      n |= this->Number[i];
       }
     }
   
   return n;
 }
 
-int vtkLargeInteger::even(void) const
+int vtkLargeInteger::IsEven(void) const
 {
-    return number[0] == 0;
+  return this->Number[0] == 0;
 }
 
-int vtkLargeInteger::odd(void) const
+int vtkLargeInteger::IsOdd(void) const
 {
-    return number[0] == 1;
+  return this->Number[0] == 1;
 }
 
-int vtkLargeInteger::length(void) const
+int vtkLargeInteger::GetLength(void) const
 {
-    return sig + 1;
+  return this->Sig + 1;
 }
 
-int vtkLargeInteger::bit(unsigned int p) const
+int vtkLargeInteger::GetBit(unsigned int p) const
 {
-    if (p <= sig) // check if within current size
-        return number[p];
-    else
-        return 0;
+  if (p <= this->Sig) // check if within current size
+    {
+    return this->Number[p];
+    }
+  
+  return 0;
 }
 
-int vtkLargeInteger::zero(void) const
+int vtkLargeInteger::IsZero(void) const
 {
-    return (sig == 0 && number[0] == 0);
+  return (this->Sig == 0 && this->Number[0] == 0);
 }
 
-int vtkLargeInteger::sign(void) const
+int vtkLargeInteger::GetSign(void) const
 {
-    return negative;
+  return this->Negative;
 }
 
-void vtkLargeInteger::truncate(unsigned int n)
+void vtkLargeInteger::Truncate(unsigned int n)
 {
-    if (n < 1) // either set to zero
-        {
-        sig = 0;
-        number[0] = 0;
-        negative = 0;
-        }
-    else if (sig > n - 1) // or chop down
-        {
-        sig = n - 1;
-        contract(); // may have revealed leading zeros
-        }
+  if (n < 1) // either set to zero
+    {
+    this->Sig = 0;
+    this->Number[0] = 0;
+    this->Negative = 0;
+    }
+  else if (this->Sig > n - 1) // or chop down
+    {
+    this->Sig = n - 1;
+    this->Contract(); // may have revealed leading zeros
+    }
 }
 
-void vtkLargeInteger::complement(void)
+void vtkLargeInteger::Complement(void)
 {
-    if (!zero()) // can't have negative zeros
-        negative = !negative;
+  if (!this->IsZero()) // can't have negative zeros
+    {
+    this->Negative = !this->Negative;
+    }
 }
 
 int vtkLargeInteger::operator==(const vtkLargeInteger& n) const
 {
-    if (sig != n.sig) // check size
-        return 0;
-    if (negative != n.negative) // check sign
-        return 0;
-    for (int i = sig; i >= 0; i--)
-        if (number[i] != n.number[i]) // check bits
-            return 0;
-    return 1;
+  if (this->Sig != n.Sig) // check size
+    {
+    return 0;
+    }
+  
+  if (this->Negative != n.Negative) // check sign
+    {
+    return 0;
+    }
+  
+  for (int i = this->Sig; i >= 0; i--)
+    {
+    if (this->Number[i] != n.Number[i]) // check bits
+      {
+      return 0;
+      }
+    }
+  
+  return 1;
 }
 
 int vtkLargeInteger::operator!=(const vtkLargeInteger& n) const
 {
-    return !(*this == n);
+  return !(*this == n);
 }
 
-int vtkLargeInteger::smaller(const vtkLargeInteger& n) const
+int vtkLargeInteger::IsSmaller(const vtkLargeInteger& n) const
 {
-    if (sig < n.sig) // check size
-        return 1;
-    else if (sig > n.sig) // check sign
-        return 0;
-    for (int i = sig; i >= 0; i--)
-        if (number[i] < n.number[i]) // check bits
-            return 1;
-        else if (number[i] > n.number[i])
-            return 0;
+  if (this->Sig < n.Sig) // check size
+    {
+    return 1;
+    }
+  if (this->Sig > n.Sig) // check size
+    {
     return 0;
+    }
+  
+  for (int i = this->Sig; i >= 0; i--)
+    {
+    if (this->Number[i] < n.Number[i]) // check bits
+      {
+      return 1;
+      }
+    if (this->Number[i] > n.Number[i])
+      {
+      return 0;
+      }
+    }
+  
+  return 0;
 }
 
-int vtkLargeInteger::greater(const vtkLargeInteger& n) const
+int vtkLargeInteger::IsGreater(const vtkLargeInteger& n) const
 {
-    if (sig > n.sig) // check size
-        return 1;
-    else if (sig < n.sig) // check sign
-        return 0;
-    for (int i = sig; i >= 0; i--)
-        if (number[i] > n.number[i]) // check bits
-            return 1;
-        else if (number[i] < n.number[i])
-            return 0;
+  if (this->Sig > n.Sig) // check size
+    {
+    return 1;
+    }
+  if (this->Sig < n.Sig) // check sign
+    {
     return 0;
+    }
+  
+  for (int i = this->Sig; i >= 0; i--)
+    {
+    if (this->Number[i] > n.Number[i]) // check bits
+      {
+      return 1;
+      }
+    if (this->Number[i] < n.Number[i])
+      {
+      return 0;
+      }
+    }
+  
+  return 0;
 }
 
 int vtkLargeInteger::operator<(const vtkLargeInteger& n) const
 {
-    if (negative & !n.negative) // try to make judgement using signs
+    if (this->Negative & !n.Negative) // try to make judgement using signs
         return 1;
-    else if (!negative & n.negative)
+    else if (!this->Negative & n.Negative)
         return 0;
-    else if (negative)
-        return !smaller(n);
+    else if (this->Negative)
+        return !this->IsSmaller(n);
     else
-        return smaller(n);
+        return this->IsSmaller(n);
 }
 
 int vtkLargeInteger::operator<=(const vtkLargeInteger& n) const
 {
-    return *this < n || *this == n;
+  return *this < n || *this == n;
 }
 
 int vtkLargeInteger::operator>(const vtkLargeInteger& n) const
 {
-    return !(*this <= n);
+  return !(*this <= n);
 }
 
 int vtkLargeInteger::operator>=(const vtkLargeInteger& n) const
 {
-    return !(*this < n);
+  return !(*this < n);
 }
     
-void vtkLargeInteger::expand(unsigned int n)
+void vtkLargeInteger::Expand(unsigned int n)
 {
-    if (n < sig) // don't need to expand
-        return;
-    if (max < n) // need to make a larger array
-        {
-        char* new_number = new char[n + 1];
-        for (int i = sig; i >= 0; i--)
-            new_number[i] = number[i];
-        delete number;
-        number = new_number;
-        max = n;
-        }
-    for (unsigned int i = sig + 1; i <= max; i++) // zero top of array
-      number[i] = 0;
-    sig = n;
+  if (n < this->Sig) // don't need to expand
+    {
+    return;
+    }
+  if (this->Max < n) // need to make a larger array
+    {
+    char* new_number = new char[n + 1];
+    for (int i = this->Sig; i >= 0; i--)
+      {
+      new_number[i] = this->Number[i];
+      }
+    delete this->Number;
+    this->Number = new_number;
+    this->Max = n;
+    }
+  // zero top of array
+  for (unsigned int i = this->Sig + 1; i <= this->Max; i++) 
+    {
+    this->Number[i] = 0;
+    }
+  this->Sig = n;
 }
 
 vtkLargeInteger& vtkLargeInteger::operator=(const vtkLargeInteger& n)
 {
-    if (this == &n) // same object
-        return *this;
-    expand(n.sig); // make equal sizes
-    sig = n.sig; // might have been larger
-    for (int i = sig; i >= 0; i--)
-        number[i] = n.number[i];
-    negative = n.negative;
+  if (this == &n) // same object
+    {
     return *this;
+    }
+  this->Expand(n.Sig); // make equal sizes
+  this->Sig = n.Sig; // might have been larger
+  for (int i = this->Sig; i >= 0; i--)
+    {
+    this->Number[i] = n.Number[i];
+    }
+  this->Negative = n.Negative;
+  return *this;
 }
 
-void vtkLargeInteger::plus(const vtkLargeInteger& n)
+void vtkLargeInteger::Plus(const vtkLargeInteger& n)
 {
-    int m = maximum(sig + 1, n.sig + 1);
-    expand(m); // allow for overflow
-    unsigned int i = 0;
-    int carry = 0;
-    for (; i <= n.sig; i++) // add overlap
-        {
-        carry += number[i] + n.number[i];
-        number[i] = carry & 1;
-        carry /= 2;
-        }
-    for (; carry != 0; i++) // continue with carry
-        {
-        carry += number[i];
-        number[i] = carry & 1;
-        carry /= 2;
-        }
-    contract();
+  int m = maximum(this->Sig + 1, n.Sig + 1);
+  this->Expand(m); // allow for overflow
+  unsigned int i = 0;
+  int carry = 0;
+  for (; i <= n.Sig; i++) // add overlap
+    {
+    carry += this->Number[i] + n.Number[i];
+    this->Number[i] = carry & 1;
+    carry /= 2;
+    }
+  for (; carry != 0; i++) // continue with carry
+    {
+    carry += this->Number[i];
+    this->Number[i] = carry & 1;
+    carry /= 2;
+    }
+  this->Contract();
 }
 
-void vtkLargeInteger::minus(const vtkLargeInteger& n)
+void vtkLargeInteger::Minus(const vtkLargeInteger& n)
 {
-    int m = maximum(sig, n.sig);
-    expand(m);
-    unsigned int i = 0;
-    int carry = 0;
-    for (; i <= n.sig; i++) // subtract overflow
-        {
-        carry += number[i] - n.number[i];
-        number[i] = (carry + 2) & 1;
-        carry = carry < 0 ? -1 : 0;
-        }
-    for (; carry != 0; i++) // continue with carry
-        {
-        carry += number[i];
-        number[i] = (carry + 2) & 1;
-        carry = carry < 0 ? -1 : 0;
-        }
-    contract();
+  int m = maximum(this->Sig, n.Sig);
+  this->Expand(m);
+  unsigned int i = 0;
+  int carry = 0;
+  for (; i <= n.Sig; i++) // subtract overflow
+    {
+    carry += this->Number[i] - n.Number[i];
+    this->Number[i] = (carry + 2) & 1;
+    carry = carry < 0 ? -1 : 0;
+    }
+  for (; carry != 0; i++) // continue with carry
+    {
+    carry += this->Number[i];
+    this->Number[i] = (carry + 2) & 1;
+    carry = carry < 0 ? -1 : 0;
+    }
+  this->Contract();
 }
 
 vtkLargeInteger& vtkLargeInteger::operator+=(const vtkLargeInteger& n)
 {
-    if ((negative ^ n.negative) == 0) // cope with negatives
-        this->plus(n);
+  if ((this->Negative ^ n.Negative) == 0) // cope with negatives
+    {
+    this->Plus(n);
+    }
+  else
+    {
+    if (this->IsSmaller(n))
+      {
+      vtkLargeInteger m(*this);
+      *this = n;
+      this->Minus(m);
+      }
     else
-        {
-        if (smaller(n))
-            {
-            vtkLargeInteger m(*this);
-            *this = n;
-            minus(m);
-            }
-        else
-            this->minus(n);
-        if (zero())
-            negative = 0;
-        }
-    return *this;
+      {
+      this->Minus(n);
+      }
+    if (this->IsZero())
+      {
+      this->Negative = 0;
+      }
+    }
+  return *this;
 }
 
 vtkLargeInteger& vtkLargeInteger::operator-=(const vtkLargeInteger& n)
 {
-    if ((negative ^ n.negative) == 1) // cope with negatives
-        this->plus(n);
+  if ((this->Negative ^ n.Negative) == 1) // cope with negatives
+    {
+    this->Plus(n);
+    }
+  else
+    {
+    if (this->IsSmaller(n))
+      {
+      vtkLargeInteger m(*this);
+      *this = n;
+      this->Minus(m);
+      this->Complement();
+      }
     else
-        {
-        if (smaller(n))
-            {
-            vtkLargeInteger m(*this);
-            *this = n;
-            minus(m);
-            complement();
-            }
-        else
-            this->minus(n);
-        if (zero())
-            negative = 0;
-        }
-    return *this;
+      {
+      this->Minus(n);
+      }
+    if (this->IsZero())
+      {
+      this->Negative = 0;
+      }
+    }
+  return *this;
 }
 
 vtkLargeInteger& vtkLargeInteger::operator<<=(int n)
@@ -426,294 +495,329 @@ vtkLargeInteger& vtkLargeInteger::operator<<=(int n)
     *this >>= -n;
     return *this;
     }
-  expand(sig + n);
-  for (i = sig; i >= n; i--) // copy
-    number[i] = number[i - n];
+  this->Expand(this->Sig + n);
+  for (i = this->Sig; i >= n; i--) // copy
+    {
+    this->Number[i] = this->Number[i - n];
+    }
   for (i = n - 1; i >= 0; i--) // then fill with 0s
-    number[i] = 0;
-  contract();
+    {
+    this->Number[i] = 0;
+    }
+  this->Contract();
   return *this;
 }
 
 vtkLargeInteger& vtkLargeInteger::operator>>=(int n)
 {
-    if (n < 0) // avoid negatives
-        {
-        *this <<= -n;
-        return *this;
-        }
-    // why can't I use - for (int i = 0; i <= sig - n; i++)
-    for (unsigned int i = 0; i <= sig; i++) // copy
-        number[i] = number[i + n];
-    sig = sig - n; // shorten
-    if (sig < 0)
-        {
-        sig = 0;
-        number[0] = 0;
-        }
-    if (zero())
-        negative = 0;
+  if (n < 0) // avoid negatives
+    {
+    *this <<= -n;
     return *this;
+    }
+  // why can't I use - for (int i = 0; i <= sig - n; i++)
+  for (unsigned int i = 0; i <= this->Sig; i++) // copy
+    {
+    this->Number[i] = this->Number[i + n];
+    }
+  this->Sig = this->Sig - n; // shorten
+  if (this->Sig < 0)
+    {
+    this->Sig = 0;
+    this->Number[0] = 0;
+    }
+  if (this->IsZero())
+    {
+    this->Negative = 0;
+    }
+  return *this;
 }
 
 vtkLargeInteger& vtkLargeInteger::operator++(void)
 {
-    return (*this += 1);
+  return (*this += 1);
 }
 
 vtkLargeInteger& vtkLargeInteger::operator--(void)
 {
-    return (*this -= 1);
+  return (*this -= 1);
 }
 
 vtkLargeInteger vtkLargeInteger::operator++(int)
 {
-    vtkLargeInteger c = *this;
-    *this += 1;
-    return c;
+  vtkLargeInteger c = *this;
+  *this += 1;
+  return c;
 }
 
 vtkLargeInteger vtkLargeInteger::operator--(int)
 {
-    vtkLargeInteger c = *this;
-    *this -= 1;
-    return c;
+  vtkLargeInteger c = *this;
+  *this -= 1;
+  return c;
 }
 
 vtkLargeInteger& vtkLargeInteger::operator*=(const vtkLargeInteger& n)
 {
-    vtkLargeInteger c;
-    int m = sig + n.sig;
-    expand(m);
-    if (n.smaller(*this)) // loop through the smaller number
+  vtkLargeInteger c;
+  int m = this->Sig + n.Sig;
+  this->Expand(m);
+  if (n.IsSmaller(*this)) // loop through the smaller number
+    {
+    for (unsigned int i = 0; i <= n.Sig; i++)
+      {
+      if (n.Number[i] == 1)
         {
-        for (unsigned int i = 0; i <= n.sig; i++)
-            {
-            if (n.number[i] == 1)
-                c.plus(*this); // add on multiples of two
-            *this <<= 1;
-            }
+        c.Plus(*this); // add on multiples of two
         }
-    else
+      *this <<= 1;
+      }
+    }
+  else
+    {
+    vtkLargeInteger m = n;
+    for (unsigned int i = 0; i <= this->Sig; i++)
+      {
+      if (this->Number[i] == 1)
         {
-        vtkLargeInteger m = n;
-        for (unsigned int i = 0; i <= sig; i++)
-            {
-            if (number[i] == 1)
-                c.plus(m); // add on multiples of two
-            m <<= 1;
-            }
+        c.Plus(m); // add on multiples of two
         }
-    if (c.zero()) // check negatives
-        c.negative = 0;
-    else
-        c.negative = negative ^ n.negative;
-    *this = c;
-    contract();
-    return *this;
+      m <<= 1;
+      }
+    }
+  if (c.IsZero()) // check negatives
+    {
+    c.Negative = 0;
+    }
+  else
+    {
+    c.Negative = this->Negative ^ n.Negative;
+    }
+  
+  *this = c;
+  this->Contract();
+  return *this;
 }
 
 vtkLargeInteger& vtkLargeInteger::operator/=(const vtkLargeInteger& n)
 {
-    if (n.zero()) // no divide by zero
-      {
-      vtkGenericWarningMacro("Divide by zero!");
-      return *this;
-      }
-      
-    vtkLargeInteger c;
-    vtkLargeInteger m = n;
-    m <<= maximum(sig - n.sig, 0); // vtkpower of two multiple of n
-    for (int i = vtkpow(2, sig - n.sig); i > 0; i /= 2)
-        {
-        if (!m.greater(*this))
-            {
-            minus(m); // subtract of large chunk at time
-            c += i;
-            }
-        m >>= 1; // shrink chunk down
-        }
-    if (c.zero()) // check negatives
-        c.negative = 0;
-    else
-        c.negative = negative ^ n.negative;
-    *this = c;
+  if (n.IsZero()) // no divide by zero
+    {
+    vtkGenericWarningMacro("Divide by zero!");
     return *this;
+    }
+      
+  vtkLargeInteger c;
+  vtkLargeInteger m = n;
+  m <<= maximum(this->Sig - n.Sig, 0); // vtkpower of two multiple of n
+  for (int i = vtkpow(2, this->Sig - n.Sig); i > 0; i /= 2)
+    {
+    if (!m.IsGreater(*this))
+      {
+      this->Minus(m); // subtract of large chunk at time
+      c += i;
+      }
+    m >>= 1; // shrink chunk down
+    }
+  if (c.IsZero()) // check negatives
+    {
+    c.Negative = 0;
+    }
+  else
+    {
+    c.Negative = this->Negative ^ n.Negative;
+    }
+  *this = c;
+  return *this;
 }
 
 vtkLargeInteger& vtkLargeInteger::operator%=(const vtkLargeInteger& n)
 {
-    if (n.zero()) // no divide by zero
-      {
-      vtkGenericWarningMacro("Divide by zero!");
-      return *this;
-      }
-
-    vtkLargeInteger m = n;
-    m <<= maximum(sig - n.sig, 0); // power of two multiple of n
-    for (int i = sig - n.sig; i >= 0; i--)
-        {
-        if (!m.greater(*this))
-            minus(m); // subtract of large chunk at time
-        m >>= 1; // shrink chunk down
-        }
-    if (zero())
-        negative = 0;
+  if (n.IsZero()) // no divide by zero
+    {
+    vtkGenericWarningMacro("Divide by zero!");
     return *this;
+    }
+
+  vtkLargeInteger m = n;
+  m <<= maximum(this->Sig - n.Sig, 0); // power of two multiple of n
+  for (int i = this->Sig - n.Sig; i >= 0; i--)
+    {
+    if (!m.IsGreater(*this))
+      {
+      this->Minus(m); // subtract of large chunk at time
+      }
+    m >>= 1; // shrink chunk down
+    }
+  if (this->IsZero())
+    {
+    this->Negative = 0;
+    }
+  return *this;
 }
 
 vtkLargeInteger& vtkLargeInteger::operator&=(const vtkLargeInteger& n)
 {
-    int m = maximum(sig, n.sig);
-    expand(m); // match sizes
-    for (int i = minimum(sig, n.sig); i >= 0; i--)
-        number[i] &= n.number[i];
-    contract();
-    return *this;
+  int m = maximum(this->Sig, n.Sig);
+  this->Expand(m); // match sizes
+  for (int i = minimum(this->Sig, n.Sig); i >= 0; i--)
+    {
+    this->Number[i] &= n.Number[i];
+    }
+  this->Contract();
+  return *this;
 }
 
 vtkLargeInteger& vtkLargeInteger::operator|=(const vtkLargeInteger& n)
 {
-    int m = maximum(sig, n.sig);
-    expand(m); // match sizes
-    for (int i = minimum(sig, n.sig); i >= 0; i--)
-        number[i] |= n.number[i];
-    contract();
-    return *this;
+  int m = maximum(this->Sig, n.Sig);
+  this->Expand(m); // match sizes
+  for (int i = minimum(this->Sig, n.Sig); i >= 0; i--)
+    {
+    this->Number[i] |= n.Number[i];
+    }
+  this->Contract();
+  return *this;
 }
 
 vtkLargeInteger& vtkLargeInteger::operator^=(const vtkLargeInteger& n)
 {
-    int m = maximum(sig, n.sig);
-    expand(m); // match sizes
-    for (int i = minimum(sig, n.sig); i >= 0; i--)
-        number[i] ^= n.number[i];
-    contract();
-    return *this;
+  int m = maximum(this->Sig, n.Sig);
+  this->Expand(m); // match sizes
+  for (int i = minimum(this->Sig, n.Sig); i >= 0; i--)
+    {
+    this->Number[i] ^= n.Number[i];
+    }
+  this->Contract();
+  return *this;
 }
 
 vtkLargeInteger vtkLargeInteger::operator+(const vtkLargeInteger& n) const
 {
-    vtkLargeInteger c = *this;
-    c += n;
-    return c;
+  vtkLargeInteger c = *this;
+  c += n;
+  return c;
 }
 
 vtkLargeInteger vtkLargeInteger::operator-(const vtkLargeInteger& n) const
 {
-    vtkLargeInteger c = *this;
-    c -= n;
-    return c;
+  vtkLargeInteger c = *this;
+  c -= n;
+  return c;
 }
 
 vtkLargeInteger vtkLargeInteger::operator*(const vtkLargeInteger& n) const
 {
-    vtkLargeInteger c = *this;
-    c *= n;
-    return c;
+  vtkLargeInteger c = *this;
+  c *= n;
+  return c;
 }
 
 vtkLargeInteger vtkLargeInteger::operator/(const vtkLargeInteger& n) const
 {
-    vtkLargeInteger c = *this;
-    c /= n;
-    return c;
+  vtkLargeInteger c = *this;
+  c /= n;
+  return c;
 }
 
 vtkLargeInteger vtkLargeInteger::operator%(const vtkLargeInteger& n) const
 {
-    vtkLargeInteger c = *this;
-    c %= n;
-    return c;
+  vtkLargeInteger c = *this;
+  c %= n;
+  return c;
 }
 
 vtkLargeInteger vtkLargeInteger::operator&(const vtkLargeInteger& n) const
 {
-    vtkLargeInteger c = *this;
-    c &= n;
-    return c;
+  vtkLargeInteger c = *this;
+  c &= n;
+  return c;
 }
 
 vtkLargeInteger vtkLargeInteger::operator|(const vtkLargeInteger& n) const
 {
-    vtkLargeInteger c = *this;
-    c |= n;
-    return c;
+  vtkLargeInteger c = *this;
+  c |= n;
+  return c;
 }
 
 vtkLargeInteger vtkLargeInteger::operator^(const vtkLargeInteger& n) const
 {
-    vtkLargeInteger c = *this;
-    c ^= n;
-    return c;
+  vtkLargeInteger c = *this;
+  c ^= n;
+  return c;
 }
 
 vtkLargeInteger vtkLargeInteger::operator<<(int n) const
 {
-    vtkLargeInteger c = *this;
-    c <<= n;
-    return c;
+  vtkLargeInteger c = *this;
+  c <<= n;
+  return c;
 }
 
 vtkLargeInteger vtkLargeInteger::operator>>(int n) const
 {
-    vtkLargeInteger c = *this;
-    c >>= n;
-    return c;
+  vtkLargeInteger c = *this;
+  c >>= n;
+  return c;
 }
 
 ostream& operator<<(ostream& s, const vtkLargeInteger& n)
 {
-    if (n.negative)
-        s << '-';
-    for (int i = n.sig; i >= 0; i--)
-        s << char(n.number[i] + '0');
-    return s;
+  if (n.Negative)
+    {
+    s << '-';
+    }
+  for (int i = n.Sig; i >= 0; i--)
+    {
+    s << char(n.Number[i] + '0');
+    }
+  return s;
 }
 
 istream& operator>>(istream& s, vtkLargeInteger& n)
 {
-    char c;
-    while (s.get(c)) // strip any leading spaces
-        if (c != ' ' && c != '\n' && c != '\r')
-            {
-            s.putback(c);
-            break;
-            }
-    n = 0;
-    while (s.get(c)) // check for negative
-        {
-        if (c != '-' && c != '+')
-            {
-            s.putback(c);
-            break;
-            }
-        if (c == '-')
-            n.negative = !n.negative;
-        }
-    while (s.get(c)) // build digits in reverse
-        {
-        if (c != '0' && c != '1')
-            {
-            s.putback(c);
-            break;
-            }
-        if (n.sig > n.max) {
-            n.expand(n.sig + BIT_INCREMENT);
-            n.sig -= BIT_INCREMENT;
-            }
-        n.number[n.sig++] = c - '0';
-        }
-    if (n.sig > 0) // put digits right way round
-        {
-        n.sig--;
-        for (unsigned int j = n.sig; j > n.sig / 2; j--)
-            {
-            c = n.number[j];
-            n.number[j] = n.number[n.sig - j];
-            n.number[n.sig - j] = c;
-            }
-        n.contract();
-        }
-    return s;
+  char c;
+  while (s.get(c)) // strip any leading spaces
+    if (c != ' ' && c != '\n' && c != '\r')
+      {
+      s.putback(c);
+      break;
+      }
+  n = 0;
+  while (s.get(c)) // check for this->Negative
+    {
+    if (c != '-' && c != '+')
+      {
+      s.putback(c);
+      break;
+      }
+    if (c == '-')
+      n.Negative = !n.Negative;
+    }
+  while (s.get(c)) // build digits in reverse
+    {
+    if (c != '0' && c != '1')
+      {
+      s.putback(c);
+      break;
+      }
+    if (n.Sig > n.Max) {
+    n.Expand(n.Sig + BIT_INCREMENT);
+    n.Sig -= BIT_INCREMENT;
+    }
+    n.Number[n.Sig++] = c - '0';
+    }
+  if (n.Sig > 0) // put digits right way round
+    {
+    n.Sig--;
+    for (unsigned int j = n.Sig; j > n.Sig / 2; j--)
+      {
+      c = n.Number[j];
+      n.Number[j] = n.Number[n.Sig - j];
+      n.Number[n.Sig - j] = c;
+      }
+    n.Contract();
+    }
+  return s;
 }
