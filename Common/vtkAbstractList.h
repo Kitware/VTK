@@ -59,6 +59,8 @@ template<class DType>
 class vtkAbstractList : public vtkContainer
 {
 public:
+  vtkContainerTypeMacro(vtkAbstractList<DType>, vtkContainer);
+
   // Description:
   // This is a prototype for a compare function. It has to
   // return true if objects are the same and false if not.
