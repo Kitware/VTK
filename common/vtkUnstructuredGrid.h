@@ -127,6 +127,8 @@ public:
   // For streaming.  User/next filter specifies which piece the want updated.
   // The source of this poly data has to return exactly this piece.
   void SetUpdateExtent(int piece, int numPieces, int ghostLevel);
+  void SetUpdateExtent(int piece, int numPieces)
+    {this->SetUpdateExtent(piece, numPieces, 0);}
   void GetUpdateExtent(int &piece, int &numPieces, int &ghostLevel);
 
   // Description:

@@ -214,7 +214,9 @@ public:
   // no data is requested, and the source will not execute.
   virtual void SetUpdateExtent(int vtkNotUsed(piece),int vtkNotUsed(numPieces),
 			       int vtkNotUsed(ghostLevel))
-    { vtkErrorMacro("Subclass did not implement 'SetUpdateExtent'");}
+    {vtkErrorMacro("Subclass did not implement 'SetUpdateExtent'");}
+  void SetUpdateExtent(int piece, int numPieces)
+    {this->SetUpdateExtent(piece, numPieces, 0);}
 
   // Description:
   // Set the update extent for data objects that use 3D extents. Using this

@@ -178,6 +178,8 @@ public:
   // (i.e. vtkDataSetToStructuredPointsFilter).  This assumes that WholeExtent
   // is valid (UpdateInformation has been called).
   void SetUpdateExtent(int piece, int numPieces, int ghostLevel);
+  void SetUpdateExtent(int piece, int numPieces)
+    {this->SetUpdateExtent(piece, numPieces, 0);}
   
   // Description:
   // Call superclass method to avoid hiding
