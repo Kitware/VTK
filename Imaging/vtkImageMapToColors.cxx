@@ -22,7 +22,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMapToColors, "1.21");
+vtkCxxRevisionMacro(vtkImageMapToColors, "1.22");
 vtkStandardNewMacro(vtkImageMapToColors);
 vtkCxxSetObjectMacro(vtkImageMapToColors,LookupTable,vtkScalarsToColors);
 
@@ -82,6 +82,8 @@ void vtkImageMapToColors::ExecuteData(vtkDataObject *output)
     }
   else // normal behaviour
     {
+    this->LookupTable->Build(); //make sure table is built
+
     if (this->DataWasPassed)
       {
       outData->GetPointData()->SetScalars(NULL);
