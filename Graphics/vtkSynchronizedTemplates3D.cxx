@@ -51,7 +51,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.2");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.3");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -466,11 +466,13 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
           v0 = v1;
           // this flag keeps up from computing gradient for grid point 0 twice.
           g0 = 0;
+          *isect2Ptr = -1;
+          *(isect2Ptr + 1) = -1;
+          *(isect2Ptr + 2) = -1;
           if (i < xMax)
             {
             s1 = (inPtrX + xInc);
             v1 = (*s1 < value ? 0 : 1);
-            *isect2Ptr = -1;
             if (v0 ^ v1)
               {
               // watch for degenerate points
@@ -516,7 +518,6 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
             {
             s2 = (inPtrX + yInc);
             v2 = (*s2 < value ? 0 : 1);
-            *(isect2Ptr + 1) = -1;
             if (v0 ^ v2)
               {
               if (*s0 == value)
@@ -558,7 +559,6 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
             {
             s3 = (inPtrX + zInc);
             v3 = (*s3 < value ? 0 : 1);
-            *(isect2Ptr + 2) = -1;
             if (v0 ^ v3)
               {
               if (*s0 == value)

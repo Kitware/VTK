@@ -48,7 +48,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.1");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.2");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -260,6 +260,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
         v1 = (s1 < value ? 0 : 1);
         // if we have an intersection
         *isect2Ptr = -1;
+        *(isect2Ptr + 1) = -1;
         if (v0 ^ v1)
           {
           // watch for degenerate points
@@ -295,7 +296,6 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
           {
           s2 = *(inPtr + inc1);
           v2 = (s2 < value ? 0 : 1);
-          *(isect2Ptr + 1) = -1;
           if (v0 ^ v2)
             {
             if (s0 == value)
