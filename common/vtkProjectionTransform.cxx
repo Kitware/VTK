@@ -183,22 +183,6 @@ void vtkProjectionTransform::PreMultiply()
 }
 
 //----------------------------------------------------------------------------
-// Utility for adjusting the min/max range of the Z buffer.  Usually
-// the oldZMin, oldZMax are [-1,+1] as per Ortho and Frustum, and
-// you are mapping the Z buffer to a new range.
-void vtkProjectionTransform::AdjustZBuffer(double oldZMin, double oldZMax,
-					   double newZMin, double newZMax)
-{
-  double matrix[4][4];
-  vtkMatrix4x4::Identity(*matrix);
-
-  matrix[2][2] = (newZMax - newZMin)/(oldZMax - oldZMin);
-  matrix[2][3] = (newZMin*oldZMax - newZMax*oldZMin)/(oldZMax - oldZMin);
-
-  this->Concatenate(*matrix);
-}
-
-//----------------------------------------------------------------------------
 // Utility for adjusting the window range to a new one.  Usually the
 // previous range was ([-1,+1],[-1,+1]) as per Ortho and Frustum, and you
 // are mapping them to display coordinates.
@@ -218,6 +202,22 @@ void vtkProjectionTransform::AdjustViewport(double oldXMin, double oldXMax,
 
   this->Concatenate(*matrix);
 }  
+
+//----------------------------------------------------------------------------
+// Utility for adjusting the min/max range of the Z buffer.  Usually
+// the oldZMin, oldZMax are [-1,+1] as per Ortho and Frustum, and
+// you are mapping the Z buffer to a new range.
+void vtkProjectionTransform::AdjustZBuffer(double oldZMin, double oldZMax,
+					   double newZMin, double newZMax)
+{
+  double matrix[4][4];
+  vtkMatrix4x4::Identity(*matrix);
+
+  matrix[2][2] = (newZMax - newZMin)/(oldZMax - oldZMin);
+  matrix[2][3] = (newZMin*oldZMax - newZMax*oldZMin)/(oldZMax - oldZMin);
+
+  this->Concatenate(*matrix);
+}
 
 //----------------------------------------------------------------------------
 // The orthographic projection maps [xmin,xmax], [ymin,ymax], [-znear,-zfar]
@@ -289,6 +289,24 @@ void vtkProjectionTransform::Perspective(double angle, double aspect,
 }
 
 //----------------------------------------------------------------------------
+void vtkProjectionTransform::Stereo(double angle, double focaldistance)
+{
+  double shear = tan(angle*vtkMath::DoubleDegreesToRadians());
+
+  double matrix[4][4];
+  vtkMatrix4x4::Identity(*matrix);
+  
+  // create a shear in Z
+  matrix[0][2] = -shear;
+  
+  // shift by the separation between the eyes
+  matrix[0][3] = -shear*focaldistance;
+
+  // concatenate with the current matrix
+  this->Concatenate(*matrix);
+}
+
+//----------------------------------------------------------------------------
 void vtkProjectionTransform::SetupCamera(const double position[3],
 					 const double focalPoint[3],
 					 const double viewUp[3])
@@ -309,7 +327,7 @@ void vtkProjectionTransform::SetupCamera(const double position[3],
   vtkMath::Normalize(viewPlaneNormal);
 
   // orthogonalize viewUp and compute viewSideways
-  vtkMath::Cross((double *)viewUp,viewPlaneNormal,viewSideways);
+  vtkMath::Cross(viewUp,viewPlaneNormal,viewSideways);
   vtkMath::Normalize(viewSideways);
   vtkMath::Cross(viewPlaneNormal,viewSideways,orthoViewUp);
 

@@ -88,15 +88,6 @@ class VTK_EXPORT vtkProjectionTransform : public vtkPerspectiveTransform
   void Inverse();
 
   // Description:
-  // Perform an adjustment to the Z-Buffer range that the near and far
-  // clipping planes map to.  By default Ortho, Frustum, and Perspective
-  // map the near clipping plane to -1 and the far clipping plane to +1.
-  // In PreMultiply mode, you call this method before calling Ortho, Frustum,
-  // or Perspective.  In PostMultiply mode you can call it after.
-  void AdjustZBuffer(double oldNearZ, double oldFarZ,
-		     double newNearZ, double newFarZ);
-
-  // Description:
   // Perform an adjustment to the viewport coordinates.  By default Ortho,
   // Frustum, and Perspective provide a window of ([-1,+1],[-1,+1]).
   // In PreMultiply mode, you call this method before calling Ortho, Frustum,
@@ -107,6 +98,15 @@ class VTK_EXPORT vtkProjectionTransform : public vtkPerspectiveTransform
 		      double oldYMin, double oldYMax,
 		      double newXMin, double newXMax, 
 		      double newYMin, double newYMax);
+
+  // Description:
+  // Perform an adjustment to the Z-Buffer range that the near and far
+  // clipping planes map to.  By default Ortho, Frustum, and Perspective
+  // map the near clipping plane to -1 and the far clipping plane to +1.
+  // In PreMultiply mode, you call this method before calling Ortho, Frustum,
+  // or Perspective.  In PostMultiply mode you can call it after.
+  void AdjustZBuffer(double oldNearZ, double oldFarZ,
+		     double newNearZ, double newFarZ);
 
   // Description:
   // Create an orthogonal projection matrix and multiply it by the
@@ -129,6 +129,16 @@ class VTK_EXPORT vtkProjectionTransform : public vtkPerspectiveTransform
   // and far clipping range.  The projection matrix is concatenated 
   // with the current matrix.  This method works via Frustum.
   void Perspective(double angle, double aspect, double znear, double zfar);
+
+  // Description:
+  // Create a stereo shear matrix and concatenate it with the current
+  // matrix.  This can be applied in conjunction with either a 
+  // perspective transformation (via Frustum or Projection) or an
+  // orthographic projection.  You must specify the distance from
+  // the camera plane to the focal plane, and the angle between
+  // the distance vector and the eye.  The angle should be negative
+  // for the left eye, and positive for the right.
+  void Stereo(double angle, double focaldistance);
 
   // Description:
   // Set a view transformation matrix for the camera (this matrix does
