@@ -228,6 +228,12 @@ public:
                                  float zmin, float zmax);
 
   // Description:
+  // Specify tolerance for near clipping plane distance to the camera
+  // as a percentage of the far clipping plane distance.
+  vtkSetMacro(NearClippingPlaneTolerance,float);
+  vtkGetMacro(NearClippingPlaneTolerance,float);
+
+  // Description:
   // Automatically set up the camera based on the visible actors.
   // The camera will reposition itself to view the center point of the actors,
   // and move along its initial view plane normal (i.e., vector defined from 
@@ -382,6 +388,14 @@ protected:
 
   // Holds the result of ComputeVisiblePropBounds so that it is visible from wrapped languages
   float              ComputedVisiblePropBounds[6];
+
+  // Description:
+  // Specifies the minimum distance of the near clipping
+  // plane as a percentage of the far clipping plane distance.  Values below
+  // this threshold are clipped to NearClippingPlaneTolerance*range[1].
+  // Note that values which are too small may cause problems on systems
+  // with low z-buffer resolution.
+  float              NearClippingPlaneTolerance;
 
   // Description:
   // Ask all props to update and draw any opaque and translucent

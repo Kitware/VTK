@@ -36,7 +36,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.192");
+vtkCxxRevisionMacro(vtkRenderer, "1.193");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -83,6 +83,7 @@ vtkRenderer::vtkRenderer()
   vtkFrustumCoverageCuller *cull = vtkFrustumCoverageCuller::New();
   this->Cullers->AddItem(cull);
   cull->Delete();  
+  this->NearClippingPlaneTolerance = 0.01;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -874,15 +875,15 @@ void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
   //
   if ( ZBufferDepth <= 16 )
     {
-    range[0] = (range[0] < 0.01*range[1])?(0.01*range[1]):(range[0]);
+    range[0] = (range[0] < this->NearClippingPlaneTolerance*range[1])?(this->NearClippingPlaneTolerance*range[1]):(range[0]);
     }
   else if ( ZBufferDepth <= 24 )
     {
-    range[0] = (range[0] < 0.01*range[1])?(0.01*range[1]):(range[0]);
+    range[0] = (range[0] < this->NearClippingPlaneTolerance*range[1])?(this->NearClippingPlaneTolerance*range[1]):(range[0]);
     }
   else
     {
-    range[0] = (range[0] < 0.01*range[1])?(0.01*range[1]):(range[0]);
+    range[0] = (range[0] < this->NearClippingPlaneTolerance*range[1])?(this->NearClippingPlaneTolerance*range[1]):(range[0]);
     }
 
   this->ActiveCamera->SetClippingRange( range );
