@@ -115,6 +115,8 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 				   int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
+  int inIdxX, inIdxY, inIdxZ;
+  int inMinX, inMinY, inMinZ, inMaxX, inMaxY, inMaxZ;
   int maxC, maxX, maxY, maxZ;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
@@ -129,9 +131,6 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
   T dataP, dataPX, dataPY, dataPZ;
   T dataPXY, dataPXZ, dataPYZ, dataPXYZ;
   int interpSetup;
-  int *wExtent;
-  T *minInPtr; 
-  int inDimensions[3];
   
   interpolate = self->GetInterpolate();
   magX = self->GetMagnificationFactors()[0];
@@ -151,22 +150,22 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
   inData->GetIncrements(inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  // where do we have to stop interpolations due to boundaries
-  wExtent = inData->GetExtent();
-  minInPtr = (T*)inData->GetScalarPointer(wExtent[0],wExtent[2],wExtent[4]);
-  inDimensions[0] = wExtent[1] - wExtent[0] + 1;
-  inDimensions[1] = wExtent[3] - wExtent[2] + 1;
-  inDimensions[2] = wExtent[5] - wExtent[4] + 1;
+  // Now I am putting in my own boundary check because of ABRs and FMRs
+  // And I do not understand (nor do I care to figure out) what
+  // Ken is doing with his checks. (Charles)
+  inData->GetExtent(inMinX, inMaxX, inMinY, inMaxY, inMinZ, inMaxZ);
   
   // Loop through ouput pixels
   for (idxC = 0; idxC < maxC; idxC++)
     {
     inPtrZ = inPtr + idxC;
+    inIdxZ = inMinZ;
     outPtrC = outPtr + idxC;
     magZIdx = magZ - outExt[4]%magZ - 1;
     for (idxZ = 0; idxZ <= maxZ; idxZ++, magZIdx--)
       {
       inPtrY = inPtrZ;
+      inIdxY = inMinY;
       magYIdx = magY - outExt[2]%magY - 1;
       for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++, magYIdx--)
 	{
@@ -190,6 +189,7 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 	
 	magXIdx = magX - outExt[0]%magX - 1;
 	inPtrX = inPtrY;
+	inIdxX = inMinX;
 	interpSetup = 0;
 	for (idxX = 0; idxX <= maxX; idxX++, magXIdx--)
 	  {
@@ -205,11 +205,14 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 	    if (!interpSetup) 
 	      {
 	      int tiX, tiY, tiZ;
-	      int numPixels = inPtrX - minInPtr;
 	      
 	      dataP = *inPtrX;
 
-	      if ((numPixels+1)%inDimensions[0]) 
+	      // Now I am putting in my own boundary check because of 
+	      // ABRs and FMRs
+	      // And I do not understand (nor do I care to figure out) what
+	      // Ken was doing with his checks. (Charles)
+	      if (inIdxX < inMaxX) 
 		{
 		tiX = inIncX;
 		}
@@ -217,7 +220,7 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 		{
 		tiX = 0;
 		}
-	      if ((numPixels/inDimensions[0] + 1)%inDimensions[1]) 
+	      if (inIdxY < inMaxY) 
 		{
 		tiY = inIncY;
 		}
@@ -225,22 +228,21 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 		{
 		tiY = 0;
 		}
-	      if (((numPixels/inDimensions[0])/inDimensions[1] + 1) >= 
-		  inDimensions[2]) 
-		{
-		tiZ = 0;
-		}
-	      else
+	      if (inIdxZ < inMaxZ)
 		{
 		tiZ = inIncZ;
 		}
-	      dataPX = *(inPtrX + tiX);
-	      dataPY = *(inPtrX + tiY);
+	      else
+		{
+		tiZ = 0;
+		}
+	      dataPX = *(inPtrX + tiX); 
+	      dataPY = *(inPtrX + tiY); 
 	      dataPZ = *(inPtrX + tiZ);
-	      dataPXY = *(inPtrX + tiX + tiY);
-	      dataPXZ = *(inPtrX + tiX + tiZ);
-	      dataPYZ = *(inPtrX + tiY + tiZ);
-	      dataPXYZ = *(inPtrX + tiX + tiY + tiZ);
+	      dataPXY = *(inPtrX + tiX + tiY); 
+	      dataPXZ = *(inPtrX + tiX + tiZ); 
+	      dataPYZ = *(inPtrX + tiY + tiZ); 
+	      dataPXYZ = *(inPtrX + tiX + tiY + tiZ); 
 	      interpSetup = 1;
 	      }
 	    *outPtrC = (T)
@@ -257,6 +259,7 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 	  if (!magXIdx) 
 	    {
 	    inPtrX += inIncX;
+	    ++inIdxX;
 	    magXIdx = magX;
 	    interpSetup = 0;
 	    }
@@ -265,6 +268,7 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 	if (!magYIdx) 
 	  {
 	  inPtrY += inIncY;
+	  ++inIdxY;
 	  magYIdx = magY;
 	  }
 	}
@@ -272,6 +276,7 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
       if (!magZIdx) 
 	{
 	inPtrZ += inIncZ;
+	++inIdxZ;
 	magZIdx = magZ;
 	}
       }
