@@ -40,7 +40,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkMergeFilter.h"
 #include "vtkPolyData.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredPoints.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkRectilinearGrid.h"
 
+// Description:
+// Create object with no input or output.
 vtkMergeFilter::vtkMergeFilter()
 {
   this->Geometry = NULL;
@@ -50,6 +56,32 @@ vtkMergeFilter::vtkMergeFilter()
   this->TCoords = NULL;
   this->Tensors = NULL;
   this->FieldData = NULL;
+
+  this->Output = NULL;
+
+  this->PolyData = vtkPolyData::New();
+  this->PolyData->SetSource(this);
+  
+  this->StructuredPoints = vtkStructuredPoints::New();
+  this->StructuredPoints->SetSource(this);
+  
+  this->StructuredGrid = vtkStructuredGrid::New();
+  this->StructuredGrid->SetSource(this);
+  
+  this->UnstructuredGrid = vtkUnstructuredGrid::New();
+  this->UnstructuredGrid->SetSource(this);
+  
+  this->RectilinearGrid = vtkRectilinearGrid::New();
+  this->RectilinearGrid->SetSource(this);
+}
+
+vtkMergeFilter::~vtkMergeFilter()
+{
+  this->PolyData->Delete();
+  this->StructuredPoints->Delete();
+  this->StructuredGrid->Delete();
+  this->UnstructuredGrid->Delete();
+  this->RectilinearGrid->Delete();
 }
 
 void vtkMergeFilter::SetGeometry(vtkDataSet *input)
@@ -60,22 +92,37 @@ void vtkMergeFilter::SetGeometry(vtkDataSet *input)
     this->Geometry = input;
     this->Modified();
     
-    if (!this->Output)
+    if ( input->GetDataSetType() == VTK_POLY_DATA )
       {
-      this->Output = this->Geometry->MakeObject();
-      this->Output->SetSource(this);
+      this->Output = this->PolyData;
       }
+
+    else if ( input->GetDataSetType() == VTK_STRUCTURED_POINTS )
+      {
+      this->Output = this->StructuredPoints;
+      }
+
+    else if ( input->GetDataSetType() == VTK_STRUCTURED_GRID )
+      {
+      this->Output = this->StructuredGrid;
+      }
+
+    else if ( input->GetDataSetType() == VTK_UNSTRUCTURED_GRID )
+      {
+      this->Output = this->UnstructuredGrid;
+      }
+
+    else if ( input->GetDataSetType() == VTK_RECTILINEAR_GRID )
+      {
+      this->Output = this->RectilinearGrid;
+      }
+
     else
       {
-      // since the input has changed we might need to create a new output
-      if (strcmp(this->Output->GetClassName(),this->Geometry->GetClassName()))
-	{
-	this->Output->Delete();
-	this->Output = this->Geometry->MakeObject();
-	this->Output->SetSource(this);
-	vtkWarningMacro(<<" a new output had to be created since the input type changed.");
-	}
+      vtkErrorMacro(<<"Mismatch in data type");
       }
+
+    this->Modified();
     }
 }
 
@@ -266,6 +313,41 @@ void vtkMergeFilter::Execute()
 
   if ( numPts == numTuples )
     outputPD->SetFieldData(f);
+}
+
+// Description:
+// Get the output as vtkPolyData.
+vtkPolyData *vtkMergeFilter::GetPolyDataOutput() 
+{
+  return this->PolyData;
+}
+
+// Description:
+// Get the output as vtkStructuredPoints.
+vtkStructuredPoints *vtkMergeFilter::GetStructuredPointsOutput() 
+{
+  return this->StructuredPoints;
+}
+
+// Description:
+// Get the output as vtkStructuredGrid.
+vtkStructuredGrid *vtkMergeFilter::GetStructuredGridOutput()
+{
+  return this->StructuredGrid;
+}
+
+// Description:
+// Get the output as vtkUnstructuredGrid.
+vtkUnstructuredGrid *vtkMergeFilter::GetUnstructuredGridOutput()
+{
+  return this->UnstructuredGrid;
+}
+
+// Description:
+// Get the output as vtkRectilinearGrid. 
+vtkRectilinearGrid *vtkMergeFilter::GetRectilinearGridOutput()
+{
+  return this->RectilinearGrid;
 }
 
 void vtkMergeFilter::PrintSelf(ostream& os, vtkIndent indent)

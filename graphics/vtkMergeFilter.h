@@ -50,10 +50,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSet.h"
 #include "vtkFilter.h"
 
+class vtkPolyData;
+class vtkStructuredPoints;
+class vtkStructuredGrid;
+class vtkUnstructuredGrid;
+class vtkRectilinearGrid;
+
 class VTK_EXPORT vtkMergeFilter : public vtkFilter
 {
 public:
   vtkMergeFilter();
+  ~vtkMergeFilter();
   static vtkMergeFilter *New() {return new vtkMergeFilter;};
   const char *GetClassName() {return "vtkMergeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -68,8 +75,16 @@ public:
   vtkDataSet *GetGeometry() {return (vtkDataSet *)this->Input;};
 
   // Description:
-  // Get the output of this source.
+  // Get the output of this source. Different methods are available
+  // for a specific concrete type. In other words, you can get the
+  // output as the same type as the input (run-time error chacking is
+  // performed to enforce this).
   vtkDataSet *GetOutput() {return (vtkDataSet *)this->Output;};
+  vtkPolyData *GetPolyDataOutput();
+  vtkStructuredPoints *GetStructuredPointsOutput();
+  vtkStructuredGrid *GetStructuredGridOutput();
+  vtkUnstructuredGrid *GetUnstructuredGridOutput();
+  vtkRectilinearGrid *GetRectilinearGridOutput();
 
   // Description:
   // Specify object from which to extract scalar information.
@@ -112,6 +127,14 @@ protected:
   vtkDataSet *TCoords;  // texture coords
   vtkDataSet *Tensors;  // tensors
   vtkDataSet *FieldData;    // field data
+
+  // objects used to support the retrieval of output
+  vtkPolyData *PolyData;
+  vtkStructuredPoints *StructuredPoints;
+  vtkStructuredGrid *StructuredGrid;
+  vtkUnstructuredGrid *UnstructuredGrid;
+  vtkRectilinearGrid *RectilinearGrid;
+
 };
 
 #endif
