@@ -82,7 +82,7 @@ void vtkTubeFilter::Execute()
   vtkPoints *inPts;
   vtkCellArray *inLines = NULL;
   vtkNormals *inNormals;
-  vtkScalars *inScalars=NULL;
+  vtkDataArray *inScalars=NULL;
   vtkVectors *inVectors=NULL;
   vtkIdType numPts = 0;
   vtkIdType numNewPts;
@@ -157,9 +157,9 @@ void vtkTubeFilter::Execute()
   // If varying width, get appropriate info.
   //
   if ( this->VaryRadius == VTK_VARY_RADIUS_BY_SCALAR && 
-  (inScalars=pd->GetScalars()) )
+  (inScalars=pd->GetActiveScalars()) )
     {
-    inScalars->GetRange(range);
+    inScalars->GetRange(range,0);
     }
   else if ( this->VaryRadius == VTK_VARY_RADIUS_BY_VECTOR && 
   (inVectors=pd->GetVectors()) )
@@ -328,7 +328,8 @@ void vtkTubeFilter::Execute()
       if ( inScalars ) // varying by scalar values
         {
         sFactor = 1.0 + ((this->RadiusFactor - 1.0) * 
-                  (inScalars->GetScalar(pts[j]) - range[0]) / (range[1]-range[0]));
+                  (inScalars->GetComponent(pts[j],0) - range[0]) 
+			 / (range[1]-range[0]));
         if ((range[1] - range[0]) == 0.0)
           {
           vtkErrorMacro(<< "Dividing by zero");

@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkVectorNorm.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //-------------------------------------------------------------------------
 vtkVectorNorm* vtkVectorNorm::New()
@@ -67,7 +68,7 @@ void vtkVectorNorm::Execute()
 {
   vtkIdType numVectors, i;
   int computePtScalars=1, computeCellScalars=1;
-  vtkScalars *newScalars;
+  vtkFloatArray *newScalars;
   float *v, s, maxScalar;
   vtkVectors *ptVectors, *cellVectors;
   vtkDataSet *input = this->GetInput();
@@ -105,8 +106,8 @@ void vtkVectorNorm::Execute()
   if ( computePtScalars )
     {
     numVectors = ptVectors->GetNumberOfVectors();
-    newScalars = vtkScalars::New();
-    newScalars->SetNumberOfScalars(numVectors);
+    newScalars = vtkFloatArray::New();
+    newScalars->SetNumberOfTuples(numVectors);
 
     progressInterval=numVectors/10+1;
     for (maxScalar=0.0, i=0; i < numVectors && !abort; i++)
@@ -117,7 +118,7 @@ void vtkVectorNorm::Execute()
 	{
 	maxScalar = s;
 	}
-      newScalars->SetScalar(i,s);
+      newScalars->SetComponent(i,0,s);
 
       if ( ! (i % progressInterval) ) 
         {
@@ -131,9 +132,9 @@ void vtkVectorNorm::Execute()
       {
       for (i=0; i < numVectors; i++)
         {
-        s = newScalars->GetScalar(i);
+        s = newScalars->GetComponent(i,0);
         s /= maxScalar;
-        newScalars->SetScalar(i,s);
+        newScalars->SetComponent(i,0,s);
         }
       }
 
@@ -146,8 +147,8 @@ void vtkVectorNorm::Execute()
   if ( computeCellScalars )
     {
     numVectors = cellVectors->GetNumberOfVectors();
-    newScalars = vtkScalars::New();
-    newScalars->SetNumberOfScalars(numVectors);
+    newScalars = vtkFloatArray::New();
+    newScalars->SetNumberOfTuples(numVectors);
 
     progressInterval=numVectors/10+1;
     for (maxScalar=0.0, i=0; i < numVectors && !abort; i++)
@@ -158,7 +159,7 @@ void vtkVectorNorm::Execute()
 	{
 	maxScalar = s;
 	}
-      newScalars->SetScalar(i,s);
+      newScalars->SetComponent(i,0,s);
       if ( ! (i % progressInterval) ) 
         {
         vtkDebugMacro(<<"Computing cell vector norm #" << i);
@@ -171,9 +172,9 @@ void vtkVectorNorm::Execute()
       {
       for (i=0; i < numVectors; i++)
         {
-        s = newScalars->GetScalar(i);
+        s = newScalars->GetComponent(i,0);
         s /= maxScalar;
-        newScalars->SetScalar(i,s);
+        newScalars->SetComponent(i,0,s);
         }
       }
 

@@ -46,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCharArray.h"
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //----------------------------------------------------------------------------
 vtkSelectPolyData* vtkSelectPolyData::New()
@@ -461,8 +462,8 @@ void vtkSelectPolyData::Execute()
     }
   else //modify scalars to generate selection scalars
     {
-    vtkScalars *selectionScalars=vtkScalars::New();
-    selectionScalars->SetNumberOfScalars(numPts);
+    vtkFloatArray *selectionScalars=vtkFloatArray::New();
+    selectionScalars->SetNumberOfTuples(numPts);
     
     // compute distance to lines. Really this should be computed based on
     // the connected fill distance.
@@ -482,7 +483,8 @@ void vtkSelectPolyData::Execute()
             }
           }//for all loop edges
           closestDist2 = sqrt((double)closestDist2);
-          selectionScalars->SetScalar(j,closestDist2*pointMarks->GetValue(j));
+          selectionScalars->SetComponent(j,0,
+					 closestDist2*pointMarks->GetValue(j));
         }
       }
 
@@ -514,10 +516,10 @@ void vtkSelectPolyData::Execute()
         neiId = neighbors->GetId(i);
         if ( pointMarks->GetValue(neiId) != 0 ) //find the furthest away
           {
-          if ( fabs(selectionScalars->GetScalar(neiId)) > dist2 )
+          if ( fabs(selectionScalars->GetComponent(neiId,0)) > dist2 )
             {
             currentId = neiId;
-            dist2 = fabs(selectionScalars->GetScalar(neiId));
+            dist2 = fabs(selectionScalars->GetComponent(neiId,0));
             }
           }
         }
@@ -533,7 +535,7 @@ void vtkSelectPolyData::Execute()
         closestDist2 = -closestDist2 * pointMarks->GetValue(currentId);
         }
 
-      selectionScalars->SetScalar(id, closestDist2);
+      selectionScalars->SetComponent(id,0,closestDist2);
       }//for all boundary points
 
     output->CopyStructure(this->Mesh); //pass geometry/topology unchanged

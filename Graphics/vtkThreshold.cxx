@@ -121,7 +121,8 @@ void vtkThreshold::Execute()
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  vtkScalars *pointScalars=pd->GetScalars(), *cellScalars=cd->GetScalars();
+  vtkDataArray *pointScalars=pd->GetActiveScalars();
+  vtkDataArray *cellScalars=cd->GetActiveScalars();
   int keepCell, usePointScalars;
   
   vtkDebugMacro(<< "Executing threshold filter");
@@ -196,7 +197,7 @@ void vtkThreshold::Execute()
 	  {
 	  ptId = cellPts->GetId(i);
 	  keepCell = 
-	    (this->*(this->ThresholdFunction))(pointScalars->GetScalar(ptId));
+	    (this->*(this->ThresholdFunction))(pointScalars->GetComponent(ptId,0));
 	  }
 	}
       else
@@ -206,13 +207,13 @@ void vtkThreshold::Execute()
 	  {
 	  ptId = cellPts->GetId(i);
 	  keepCell = 
-	    (this->*(this->ThresholdFunction))(pointScalars->GetScalar(ptId));
+	    (this->*(this->ThresholdFunction))(pointScalars->GetComponent(ptId,0));
 	  }
 	}
       }
     else //use cell scalars
       {
-      keepCell = (this->*(this->ThresholdFunction))(cellScalars->GetScalar(cellId));
+      keepCell = (this->*(this->ThresholdFunction))(cellScalars->GetComponent(cellId,0));
       }
     
     if ( keepCell ) // satisfied thresholding

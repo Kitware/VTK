@@ -42,9 +42,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkRibbonFilter.h"
 #include "vtkPoints.h"
-#include "vtkNormals.h"
 #include "vtkPolyLine.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //--------------------------------------------------------------------------
 vtkRibbonFilter* vtkRibbonFilter::New()
@@ -79,14 +79,14 @@ void vtkRibbonFilter::Execute()
   vtkIdType i;
   int j;
   vtkPoints *inPts;
-  vtkNormals *inNormals;
+  vtkDataArray *inNormals;
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
   vtkCellArray *inLines;
   vtkIdType numPts = 0;
   vtkIdType numNewPts = 0;
   vtkPoints *newPts;
-  vtkNormals *newNormals;
+  vtkFloatArray *newNormals;
   vtkCellArray *newStrips;
   vtkIdType npts;
   vtkIdType *pts;
@@ -98,7 +98,7 @@ void vtkRibbonFilter::Execute()
   vtkIdType ptId;
   vtkPolyData *input= this->GetInput();
   vtkPolyData *output= this->GetOutput();
-  vtkScalars *inScalars=NULL;
+  vtkDataArray *inScalars=NULL;
   float sFactor=1.0, range[2];
   vtkIdType ptOffset=0;
 
@@ -131,22 +131,24 @@ void vtkRibbonFilter::Execute()
   outCD->CopyAllocate(cd, inLines->GetNumberOfCells());
   int inCellId, outCellId;
 
-  if ( !(inNormals=pd->GetNormals()) || this->UseDefaultNormal )
+  if ( !(inNormals=pd->GetActiveNormals()) || this->UseDefaultNormal )
     {
     vtkPolyLine *lineNormalGenerator = vtkPolyLine::New();
     deleteNormals = 1;
-    inNormals = vtkNormals::New();
-    ((vtkNormals *)inNormals)->Allocate(numPts);
+    inNormals = vtkFloatArray::New();
+    inNormals->SetNumberOfComponents(3);
+    inNormals->Allocate(3*numPts);
     if ( this->UseDefaultNormal )
       {
       for ( i=0; i < numPts; i++)
         {
-        inNormals->SetNormal(i,this->DefaultNormal);
+        inNormals->SetTuple(i,this->DefaultNormal);
         }
       }
     else
       {
-      if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,inLines,(vtkNormals*)inNormals) )
+      if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,inLines,
+							inNormals) )
         {
         vtkErrorMacro(<< "No normals for line!\n");
         inNormals->Delete();
@@ -159,16 +161,17 @@ void vtkRibbonFilter::Execute()
 
   // If varying width, get appropriate info.
   //
-  if ( this->VaryWidth && (inScalars=pd->GetScalars()) )
+  if ( this->VaryWidth && (inScalars=pd->GetActiveScalars()) )
     {
-    inScalars->GetRange(range);
+    inScalars->GetRange(range,0);
     }
 
   newPts = vtkPoints::New();
   newPts->Allocate(numNewPts);
-  newNormals = vtkNormals::New();
-  newNormals->Allocate(numNewPts);
-  newNormals->GetData()->SetName("Normals");
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
+  newNormals->Allocate(3*numNewPts);
+  newNormals->SetName("Normals");
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
 
@@ -224,7 +227,7 @@ void vtkRibbonFilter::Execute()
           }
         }
 
-      n = inNormals->GetNormal(pts[j]);
+      n = inNormals->GetTuple(pts[j]);
 
       if ( vtkMath::Normalize(sNext) == 0.0 )
         {
@@ -264,14 +267,15 @@ void vtkRibbonFilter::Execute()
       if ( inScalars )
         {
         sFactor = 1.0 + ((this->WidthFactor - 1.0) * 
-              (inScalars->GetScalar(pts[j]) - range[0]) / (range[1]-range[0]));
+              (inScalars->GetComponent(pts[j],0) - range[0]) / 
+			 (range[1]-range[0]));
         }
       for (i=0; i<3; i++)
         {
         s[i] = p[i] + w[i] * BevelAngle * sFactor;
         }
       ptId = newPts->InsertNextPoint(s);
-      newNormals->InsertNormal(ptId,n);
+      newNormals->InsertTuple(ptId,n);
       outPD->CopyData(pd,pts[j],ptId);
 
       for (i=0; i<3; i++)
@@ -279,7 +283,7 @@ void vtkRibbonFilter::Execute()
         s[i] = p[i] - w[i] * BevelAngle * sFactor;
         }
       ptId = newPts->InsertNextPoint(s);
-      newNormals->InsertNormal(ptId,n);
+      newNormals->InsertTuple(ptId,n);
       outPD->CopyData(pd,pts[j],ptId);
       }
 
