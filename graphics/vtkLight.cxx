@@ -82,7 +82,7 @@ vtkLight *vtkLight::New()
 
 void vtkLight::GetTransformedPosition(float a[3]) 
 {
-  float f[3];
+  float f[4];
 
   f[0] = this->Position[0];
   f[1] = this->Position[1];
