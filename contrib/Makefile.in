@@ -34,12 +34,7 @@ vtkSuperquadricSource \
 vtkSubdivideTetra \
 vtkCellDerivatives \
 vtkCubeAxesActor2D \
-vtkSurfaceReconstructionFilter \
-vtkVolumeProMapper \
-vtkVolumeProVG500Mapper \
-vtkOpenGLVolumeProVG500Mapper \
-vtkCGMWriter \
-vtkImageToPolyDataFilter
+vtkSurfaceReconstructionFilter
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make
