@@ -84,7 +84,7 @@ vtkMultiThreader::vtkMultiThreader()
     this->MultipleMethod[i]                     = NULL;
     this->SpawnedThreadActiveFlag[i]            = 0;
     this->SpawnedThreadActiveFlagLock[i]        = NULL;
-    this->SpawnedThreadInfoArray[i].ThreadID    = 0;
+    this->SpawnedThreadInfoArray[i].ThreadID    = i;
     }
 
   this->SingleMethod = NULL;
@@ -534,8 +534,10 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
     return -1;
     }
 
-  this->SpawnedThreadActiveFlagLock[id] = vtkMutexFunctionLock::New();
-  vtkMutexLockFuncMacro(this->SpawnedThreadActiveFlagLock[id],this->SpawnedThreadActiveFlag[id]=1);
+  this->SpawnedThreadActiveFlagLock[id] = vtkMutexLock::New();
+  this->SpawnedThreadActiveFlagLock[id]->Lock();
+  this->SpawnedThreadActiveFlag[id]=1;
+  this->SpawnedThreadActiveFlagLock[id]->Unlock();
 
   this->SpawnedThreadInfoArray[id].UserData        = UserData;
   this->SpawnedThreadInfoArray[id].NumberOfThreads = 1;
@@ -613,8 +615,9 @@ void vtkMultiThreader::TerminateThread( int ThreadID )
     return;
   }
 
-  vtkMutexLockFuncMacro(this->SpawnedThreadActiveFlagLock[ThreadID],this->SpawnedThreadActiveFlag[ThreadID]=0);
-
+  this->SpawnedThreadActiveFlagLock[ThreadID]->Lock();
+  this->SpawnedThreadActiveFlag[ThreadID] = 0;
+  this->SpawnedThreadActiveFlagLock[ThreadID]->Unlock();
 
 #ifdef _WIN32
   WaitForSingleObject(this->SpawnedThreadProcessID[ThreadID], INFINITE);

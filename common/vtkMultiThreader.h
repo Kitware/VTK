@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkMultiThreader_h
 
 #include "vtkObject.h"
-#include "vtkMutexFunctionLock.h"
+#include "vtkMutexLock.h"
 
 #ifdef VTK_USE_SPROC
 #include <sys/types.h>
@@ -121,20 +121,23 @@ typedef int vtkThreadProcessIDType;
 //ETX
 
 // Description:
-// This is the structure that is passed to the SingleMethod or
-// MultipleMethod that is called during SingleMethodExecute or
-// MultipleMethodExecute. It is passed in as a void *, and it is
+// This is the structure that is passed to the thread that is
+// created from the SingleMethodExecute, MultipleMethodExecute or
+// the SpawnThread method. It is passed in as a void *, and it is
 // up to the method to cast correctly and extract the information.
 // The ThreadID is a number between 0 and NumberOfThreads-1 that indicates
-// the id of this thread. The NumberOfThreads is this->NumberOfThreads.
-// The UserData is obtained from the SetSingleMethod or SetMultipleMethod
-// call.
+// the id of this thread. The NumberOfThreads is this->NumberOfThreads for
+// threads created from SingleMethodExecute or MultipleMethodExecute,
+// and it is 1 for threads created from SpawnThread.
+// The UserData is the (void *)arg passed into the SetSingleMethod,
+// SetMultipleMethod, or SpawnThread method.
+
 struct ThreadInfoStruct
 {
   int                 ThreadID;
   int                 NumberOfThreads;
   int                 *ActiveFlag;
-  vtkMutexFunctionLock *ActiveFlagLock;
+  vtkMutexLock        *ActiveFlagLock;
   void                *UserData;
 };
 
@@ -217,7 +220,7 @@ protected:
   // Storage of MutexFunctions and ints used to control spawned 
   // threads and the spawned thread ids
   int                        SpawnedThreadActiveFlag[VTK_MAX_THREADS];
-  vtkMutexFunctionLock       *SpawnedThreadActiveFlagLock[VTK_MAX_THREADS];
+  vtkMutexLock               *SpawnedThreadActiveFlagLock[VTK_MAX_THREADS];
   vtkThreadProcessIDType     SpawnedThreadProcessID[VTK_MAX_THREADS];
   ThreadInfoStruct           SpawnedThreadInfoArray[VTK_MAX_THREADS];
 
