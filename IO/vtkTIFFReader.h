@@ -42,15 +42,15 @@ public:
 
   // Description:
   // Get the file extensions for this format.
-  // Returns a string with a space separated list of extensions in 
+  // Returns a string with a space separated list of extensions in
   // the format .extension
   virtual const char* GetFileExtensions()
     {
     return ".tif .tiff";
     }
 
-  // Description: 
-  // Return a descriptive name for the file format that might be useful 
+  // Description:
+  // Return a descriptive name for the file format that might be useful
   // in a GUI.
   virtual const char* GetDescriptiveName()
     {
@@ -64,27 +64,26 @@ public:
 //BTX
   enum { NOFORMAT, RGB, GRAYSCALE, PALETTE_RGB, PALETTE_GRAYSCALE, OTHER };
 
-  void ReadImageInternal( void *, void *outPtr,  
+  void ReadImageInternal( void *, void *outPtr,
                           int *outExt, unsigned int size );
-  
+
 
   // Description:
   // Method to access internal image. Not to be used outside the class.
-  vtkTIFFReaderInternal *GetInternalImage()
-    { return this->InternalImage; }
+  vtkTIFFReaderInternal *GetInternalImage() { return this->InternalImage; }
 //ETX
 
 protected:
   vtkTIFFReader();
   ~vtkTIFFReader();
 
-  void GetColor( int index, 
+  void GetColor( int index,
                  unsigned short *r, unsigned short *g, unsigned short *b );
   unsigned int  GetFormat();
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *out);
 
-  void ReadGenericImage( void *out, 
+  void ReadGenericImage( void *out,
                          unsigned int width, unsigned int height,
                          unsigned int size );
   
