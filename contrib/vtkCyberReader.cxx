@@ -55,6 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <errno.h>
 #include <math.h>
 
+#include "vtkObjectFactory.h"
   
 vtkCyberReader::vtkCyberReader()
 {
@@ -67,6 +68,19 @@ vtkCyberReader::~vtkCyberReader()
     {
     delete [] this->FileName;
     }
+}
+
+//------------------------------------------------------------------------------
+vtkCyberReader* vtkCyberReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCyberReader");
+  if(ret)
+    {
+    return (vtkCyberReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCyberReader;
 }
 
 //
@@ -463,25 +477,6 @@ char *STR112;
  * Use these functions as follows:
  *
  *	#include "cyfile.h"
-#include "vtkObjectFactory.h"
-
-
-
-//------------------------------------------------------------------------------
-vtkCyberReader* vtkCyberReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCyberReader");
-  if(ret)
-    {
-    return (vtkCyberReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCyberReader;
-}
-
-
-
  *	GSPEC *cyread(int fd);
  *	int cywrite(GSPEC *gs, int fd);
  *	int cyfree(GSPEC *gs);
