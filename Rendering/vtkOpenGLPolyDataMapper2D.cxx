@@ -35,12 +35,13 @@
 
 #ifdef VTK_USE_GL2PS
 #include "gl2ps.h"
+#include "vtkGL2PSExporter.h"
 #endif // VTK_USE_GL2PS
 
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.44");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.45");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -268,8 +269,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   // Set pointsize and linewidth for GL2PS output.
 #ifdef VTK_USE_GL2PS
-  gl2psPointSize(actor->GetProperty()->GetPointSize());
-  gl2psLineWidth(actor->GetProperty()->GetLineWidth());
+  gl2psPointSize(actor->GetProperty()->GetPointSize()*
+                 vtkGL2PSExporter::GetGlobalPointSizeFactor());
+  gl2psLineWidth(actor->GetProperty()->GetLineWidth()*
+                 vtkGL2PSExporter::GetGlobalLineWidthFactor());
 #endif // VTK_USE_GL2PS
 
   // Set the LineWidth
