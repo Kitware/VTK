@@ -13,8 +13,8 @@ vtkRenderWindowInteractor iren
 
 # create a cyberware source
 #
-vtkCyberReader cyber
-    cyber SetFileName "../../../vtkdata/fran_cut"
+vtkPolyDataReader cyber
+    cyber SetFileName "../../../vtkdata/fran_cut.vtk"
 vtkPolyDataNormals normals
     normals SetInput [cyber GetOutput]
 vtkPolyDataMapper cyberMapper

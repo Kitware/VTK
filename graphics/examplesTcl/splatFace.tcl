@@ -13,8 +13,8 @@ vtkRenderWindowInteractor iren
 
 # read cyberware file
 #
-vtkCyberReader cyber
-    cyber SetFileName "../../../vtkdata/fran_cut"
+vtkPolyDataReader cyber
+    cyber SetFileName "../../../vtkdata/fran_cut.vtk"
 vtkPolyDataNormals normals
     normals SetInput [cyber GetOutput]
 vtkMaskPoints mask

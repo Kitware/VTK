@@ -13,8 +13,8 @@ vtkRenderWindowInteractor iren
 
 # create a cyberware source
 #
-vtkCyberReader cyber
-    cyber SetFileName "../../../vtkdata/fran_cut"
+vtkPolyDataReader cyber
+    cyber SetFileName "../../../vtkdata/fran_cut.vtk"
 vtkDecimate deci
     deci SetInput [cyber GetOutput]
     deci SetTargetReduction 0.90
