@@ -186,6 +186,8 @@ public:
   void InvokeEvent(const char *event, void *callData);
   void RemoveObserver(vtkCommand*);
   //ETX
+  void InvokeEvent(unsigned long event) { this->InvokeEvent(event, NULL); };
+  void InvokeEvent(const char *event) { this->InvokeEvent(event, NULL); };
   void RemoveObserver(unsigned long tag);
   int HasObserver(unsigned long event);
   int HasObserver(const char *event);
