@@ -237,7 +237,7 @@ JNIEXPORT void vtkJavaRegisterCastFunction(JNIEnv *vtkNotUsed(env),
     vtkGenericWarningMacro("RegisterCastFunction: Try to add a CastFuction to a unregistered function");
   }
 #endif 
-  vtkTypecastLookup->AddHashEntry((void *)id,tcFunc);
+  vtkTypecastLookup->AddHashEntry((void *)(size_t)id,tcFunc);
   VTK_RELEASE_MUTEX();
 }
 
@@ -281,7 +281,7 @@ VTK_GET_MUTEX();
     if (vtkJavaIdCount > 268435456) vtkJavaIdCount = 1;
     }
   id = vtkJavaIdCount;
-  vtkInstanceLookup->AddHashEntry((void *)vtkJavaIdCount,ptr);
+  vtkInstanceLookup->AddHashEntry((void *)(size_t)vtkJavaIdCount,ptr);
 
 #ifdef JNI_VERSION_1_2
   vtkPointerLookup->AddHashEntry(ptr,(void *)env->NewWeakGlobalRef(obj));
@@ -314,8 +314,8 @@ JNIEXPORT void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
 #endif  
     return;
     }
-  vtkInstanceLookup->DeleteHashEntry((void *)id);
-  vtkTypecastLookup->DeleteHashEntry((void *)id);
+  vtkInstanceLookup->DeleteHashEntry((void *)(size_t)id);
+  vtkTypecastLookup->DeleteHashEntry((void *)(size_t)id);
   vptr = vtkPointerLookup->GetHashTableValue(ptr);
 #ifdef JNI_VERSION_1_2
   env->DeleteWeakGlobalRef((jweak)vptr);
