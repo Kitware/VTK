@@ -57,6 +57,7 @@ class vtkWindow;
 class vtkViewport;
 class vtkActor2D;
 #include "vtkImageData.h"
+#include "vtkLookupTable.h"
 
 class VTK_EXPORT vtkImageMapper : public vtkMapper2D
 {
@@ -64,6 +65,10 @@ public:
   vtkTypeMacro(vtkImageMapper,vtkMapper2D);
   static vtkImageMapper *New();
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Override Modifiedtime as we have added a lookuptable
+  unsigned long int GetMTime();
 
   // Description:
   // Set/Get the window value for window/level
@@ -78,7 +83,7 @@ public:
   // Description:
   // Set/Get the input for the image mapper.  
   vtkSetObjectMacro(Input, vtkImageData);
-  vtkGetObjectMacro(Input,vtkImageData);
+  vtkGetObjectMacro(Input, vtkImageData);
 
   // Description:
   // Set/Get the current slice number. The axis Z in ZSlice does not
@@ -99,15 +104,51 @@ public:
 
   // Description:
   // Function called by Render to actually draw the image to to the screen
-  virtual void RenderData(vtkViewport* , vtkImageData *, vtkActor2D* )=0; 
+  virtual void RenderData(vtkViewport* , vtkImageData *, vtkActor2D* )=0;
 
   // Description:
   // Methods used internally for performing the Window/Level mapping.
   float GetColorShift();
   float GetColorScale();
 
-  // Public for templated functions.
+  // Public for templated functions. * *  Should remove this * *
   int DisplayExtent[6];
+
+  // Description:
+  // If RenderToRectangle is set (by default not), then the imagemapper
+  // will render the image into the rectangle supplied by the Actor2D's
+  // PositionCoordinate and Position2Coordinate
+  vtkSetMacro(RenderToRectangle,int);
+  vtkGetMacro(RenderToRectangle,int);
+  vtkBooleanMacro(RenderToRectangle,int);
+
+  // Description:
+  // Usually, the entire image is displayed, if UseCustomExtents
+  // is set (by default not), then the region supplied in the
+  // CustomDisplayExtents is used in preference.
+  // Note that the Custom extents are x,y only and the zslice is still
+  // applied
+  vtkSetMacro(UseCustomExtents,int);
+  vtkGetMacro(UseCustomExtents,int);
+  vtkBooleanMacro(UseCustomExtents,int);
+
+  // Description:
+  // The image extents which should be displayed with UseCustomExtents
+  // Note that the Custom extents are x,y only and the zslice is still
+  // applied
+  vtkSetVectorMacro(CustomDisplayExtents,int,4);
+  vtkGetVectorMacro(CustomDisplayExtents,int,4);
+
+  // Description:
+  // The ImageMappers convert ImageData into a greyscale image when a single
+  // scalar component is present.
+  // If a lookuptable is supplied, values are mapped through the lookuptable
+  // to generate a colour image. If the number of scalar components is greater
+  // then one, the lookuptable is ignored. If the lookuptable is NULL, a default
+  // greyscale image is generated. Users should ensure that the range of the
+  // lookuptable is {0,255} for full colour effects
+  vtkSetObjectMacro(LookupTable, vtkLookupTable);
+  vtkGetObjectMacro(LookupTable, vtkLookupTable);
 
 protected:
   vtkImageMapper();
@@ -118,9 +159,14 @@ protected:
   vtkImageData* Input;
   float ColorWindow;
   float ColorLevel;
- 
+
+  vtkLookupTable *LookupTable;
+
   int PositionAdjustment[2];
   int ZSlice;
+  int UseCustomExtents;
+  int CustomDisplayExtents[4];
+  int RenderToRectangle;
 };
 
 

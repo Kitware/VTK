@@ -22,7 +22,6 @@ vtkWin32ImageMapper::vtkWin32ImageMapper()
 {
   this->HBitmap = (HBITMAP)0;
   this->DataOut = NULL;
-  this->LookupTable = NULL;
 }
 
 vtkWin32ImageMapper::~vtkWin32ImageMapper()
@@ -31,10 +30,6 @@ vtkWin32ImageMapper::~vtkWin32ImageMapper()
     {
     DeleteObject(this->HBitmap);
     this->HBitmap = (HBITMAP)0;
-    }
-  if (this->LookupTable)
-    {
-    this->LookupTable->Delete();
     }
 }
 
@@ -708,23 +703,28 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
 
   hOldBitmap = (HBITMAP)SelectObject(compatDC,this->HBitmap);
 
-  //  float* actorScale = actor->GetScale();
-  float actorScale[2]; actorScale[0] = actorScale[1] = 1.0;
-
-  int xSize= (int) (actorScale[0] * (float) width);
-  int ySize = (int) (actorScale[1] * (float) height);
-
   // Get the position of the text actor
-  int* actorPos = 
+  int* actorPos =
     actor->GetPositionCoordinate()->GetComputedLocalDisplayValue(viewport);
   // negative positions will already be clipped to viewport
   actorPos[0] += this->PositionAdjustment[0];
   actorPos[1] -= this->PositionAdjustment[1];
-
+  //
   actorPos[1] = actorPos[1] - height + 1;
-
-  StretchBlt(windowDC,actorPos[0],actorPos[1],xSize,ySize,compatDC,0,
-	     0,width,height,SRCCOPY);
+  //
+  if (!this->RenderToRectangle)
+    {
+    StretchBlt(windowDC,actorPos[0],actorPos[1],width, height, compatDC, 0,
+      0,width,height,SRCCOPY);
+    }
+  else
+    {
+    int *topright = actor->GetPosition2Coordinate()->GetComputedLocalDisplayValue(viewport);
+    int rectwidth  = topright[0] - actorPos[0];
+    int rectheight = topright[1] - actorPos[1];
+    StretchBlt(windowDC,actorPos[0],actorPos[1],rectwidth, rectheight, compatDC, 0,
+      0,width,height,SRCCOPY);
+    }
 
   SelectObject(compatDC, hOldBitmap);
   DeleteDC(compatDC);

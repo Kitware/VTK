@@ -72,6 +72,8 @@ public:
 		  vtkActor2D* actor);
 
 protected:
+  //
+  //
   vtkOpenGLImageMapper();
   ~vtkOpenGLImageMapper();
   vtkOpenGLImageMapper(const vtkOpenGLImageMapper&) {};

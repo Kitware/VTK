@@ -42,7 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageMapper.h"
 
-
 #include "vtkActor2D.h"
 #include "vtkImager.h"
 #include "vtkViewport.h"
@@ -58,16 +57,20 @@ vtkImageMapper::vtkImageMapper()
 
   this->Input = NULL;
 
-  //this->ColorWindow = 255.0;
-  //this->ColorLevel = 127.0;
-
   this->ColorWindow = 2000;
-  this->ColorLevel = 1000;
+  this->ColorLevel  = 1000;
 
   this->DisplayExtent[0] = this->DisplayExtent[1] = 0;
   this->DisplayExtent[2] = this->DisplayExtent[3] = 0;
   this->DisplayExtent[4] = this->DisplayExtent[5] = 0;
   this->ZSlice = 0;
+
+  this->RenderToRectangle = 0;
+  this->UseCustomExtents  = 0;
+  this->CustomDisplayExtents[0] = this->CustomDisplayExtents[1] = 0;
+  this->CustomDisplayExtents[2] = this->CustomDisplayExtents[3] = 0;
+
+  this->LookupTable = NULL;
 }
 
 vtkImageMapper::~vtkImageMapper()
@@ -77,6 +80,24 @@ vtkImageMapper::~vtkImageMapper()
     this->GetInput()->UnRegister(this);
     this->Input = NULL;
     }
+  if (this->LookupTable)
+    {
+    this->LookupTable->Delete();
+    }
+}
+
+unsigned long int vtkImageMapper::GetMTime()
+{
+  unsigned long mTime=this->vtkMapper2D::GetMTime();
+  unsigned long time;
+
+  if ( this->LookupTable != NULL )
+    {
+    time = this->LookupTable->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  return mTime;
 }
 
 void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
@@ -87,6 +108,23 @@ void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Color Window: " << this->ColorWindow << "\n";
   os << indent << "Color Level: " << this->ColorLevel << "\n";
   os << indent << "ZSlice: " << this->ZSlice << "\n";
+  os << indent << "RenderToRectangle: " << this->RenderToRectangle << "\n";
+  os << indent << "UseCustomExtents: " << this->UseCustomExtents << "\n";
+  os << indent << "CustomDisplayExtents: " <<
+    this->CustomDisplayExtents[0] << " " <<
+    this->CustomDisplayExtents[1] << " " <<
+    this->CustomDisplayExtents[2] << " " <<
+    this->CustomDisplayExtents[3] << "\n";
+  //
+  if ( this->LookupTable )
+    {
+    os << indent << "Lookup Table:\n";
+    this->LookupTable->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Lookup Table: (none)\n";
+    }
 }
 
 vtkImageMapper* vtkImageMapper::New()
@@ -111,7 +149,6 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
   vtkDebugMacro(<< "vtkImageMapper::RenderOverlay");
 
   vtkImageData *data;
-  int wholeExtent[6];
 
   if (!viewport)
     {
@@ -133,72 +170,89 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     }
 
   this->GetInput()->UpdateInformation();
-  // start with the wholeExtent
-  memcpy(wholeExtent,this->GetInput()->GetWholeExtent(),6*sizeof(int));
-  memcpy(this->DisplayExtent,this->GetInput()->GetWholeExtent(),6*sizeof(int));
 
-  // Set The z values to the zslice
-  this->DisplayExtent[4] = this->ZSlice;
-  this->DisplayExtent[5] = this->ZSlice;
-
-  // scale currently not handled
-  //float *scale = actor->GetScale();
-
-  // get the position
-  int *pos = actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
-  
-  // Get the viewport coordinates
-  float vCoords[4];
-  vCoords[0] = 0.0;
-  vCoords[1] = 0.0;
-  vCoords[2] = 1.0;
-  vCoords[3] = 1.0;
-  viewport->NormalizedViewportToViewport(vCoords[0],vCoords[1]);
-  viewport->NormalizedViewportToViewport(vCoords[2],vCoords[3]);
-  int *vSize = viewport->GetSize();
-  
-  // the basic formula is that the draw pos equals
-  // the pos + extentPos + clippedAmount
-  // The concrete subclass will get the pos in display
-  // coordinates so we need to provide the extentPos plus
-  // clippedAmount in the PositionAdjustment variable
-
-  
-  // Now clip to imager extents
-  if (pos[0] + wholeExtent[0] < 0) 
+  if (!this->UseCustomExtents)
     {
-    this->DisplayExtent[0] = -pos[0];
-    }
-  if ((pos[0]+wholeExtent[1]) > vSize[0]) 
-    {
-    this->DisplayExtent[1] = vSize[0] - pos[0];
-    }
-  if (pos[1] + wholeExtent[2] < 0) 
-    {
-    this->DisplayExtent[2] = -pos[1];
-    }
-  if ((pos[1]+wholeExtent[3]) > vSize[1])
-    {
-    this->DisplayExtent[3] = vSize[1] - pos[1];
-    }
+    // start with the wholeExtent
+    int wholeExtent[6];
+    memcpy(wholeExtent,this->GetInput()->GetWholeExtent(),6*sizeof(int));
+    memcpy(this->DisplayExtent,this->GetInput()->GetWholeExtent(),6*sizeof(int));
+    // Set The z values to the zslice
+    this->DisplayExtent[4] = this->ZSlice;
+    this->DisplayExtent[5] = this->ZSlice;
 
-  // check for the condition where no pixels are visible.
-  if (this->DisplayExtent[0] > wholeExtent[1] || 
+    // scale currently not handled
+    //float *scale = actor->GetScale();
+
+    // get the position
+    int *pos = actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
+
+    // Get the viewport coordinates
+    float vCoords[4];
+    vCoords[0] = 0.0;
+    vCoords[1] = 0.0;
+    vCoords[2] = 1.0;
+    vCoords[3] = 1.0;
+    viewport->NormalizedViewportToViewport(vCoords[0],vCoords[1]);
+    viewport->NormalizedViewportToViewport(vCoords[2],vCoords[3]);
+    int *vSize = viewport->GetSize();
+
+    // the basic formula is that the draw pos equals
+    // the pos + extentPos + clippedAmount
+    // The concrete subclass will get the pos in display
+    // coordinates so we need to provide the extentPos plus
+    // clippedAmount in the PositionAdjustment variable
+
+    // Now clip to imager extents
+    if (pos[0] + wholeExtent[0] < 0)
+      {
+      this->DisplayExtent[0] = -pos[0];
+      }
+    if ((pos[0]+wholeExtent[1]) > vSize[0])
+      {
+      this->DisplayExtent[1] = vSize[0] - pos[0];
+      }
+    if (pos[1] + wholeExtent[2] < 0)
+      {
+      this->DisplayExtent[2] = -pos[1];
+      }
+    if ((pos[1]+wholeExtent[3]) > vSize[1])
+      {
+      this->DisplayExtent[3] = vSize[1] - pos[1];
+      }
+
+    // check for the condition where no pixels are visible.
+    if (this->DisplayExtent[0] > wholeExtent[1] ||
       this->DisplayExtent[1] < wholeExtent[0] ||
-      this->DisplayExtent[2] > wholeExtent[3] || 
+      this->DisplayExtent[2] > wholeExtent[3] ||
       this->DisplayExtent[3] < wholeExtent[2] ||
-      this->DisplayExtent[4] > wholeExtent[5] || 
+      this->DisplayExtent[4] > wholeExtent[5] ||
       this->DisplayExtent[5] < wholeExtent[4])
-    {
-    return;
-    }
-  
-  this->GetInput()->SetUpdateExtent(this->DisplayExtent);
+      {
+      return;
+      }
 
-  // set the position adjustment
-  this->PositionAdjustment[0] = this->DisplayExtent[0];
-  this->PositionAdjustment[1] = this->DisplayExtent[2];
-    
+    this->GetInput()->SetUpdateExtent(this->DisplayExtent);
+
+    // set the position adjustment
+    this->PositionAdjustment[0] = this->DisplayExtent[0];
+    this->PositionAdjustment[1] = this->DisplayExtent[2];
+    }
+  else // UseCustomExtents
+    {
+    this->DisplayExtent[0] = this->CustomDisplayExtents[0];
+    this->DisplayExtent[1] = this->CustomDisplayExtents[1];
+    this->DisplayExtent[2] = this->CustomDisplayExtents[2];
+    this->DisplayExtent[3] = this->CustomDisplayExtents[3];
+    this->DisplayExtent[4] = this->ZSlice;
+    this->DisplayExtent[5] = this->ZSlice;
+    //
+    this->GetInput()->SetUpdateExtent(this->DisplayExtent);
+    // clear the position adjustment
+    this->PositionAdjustment[0] = 0;
+    this->PositionAdjustment[1] = 0;
+    }
+
   // Get the region from the input
   this->GetInput()->Update();
   data = this->GetInput();
