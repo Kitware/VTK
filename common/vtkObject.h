@@ -72,7 +72,7 @@ public:
   void SetDebug(unsigned char debugFlag);
 
   // modified time
-  virtual unsigned long int GetMTime();
+  virtual unsigned long GetMTime();
   virtual void Modified();
 
   // printing

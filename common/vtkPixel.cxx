@@ -441,10 +441,14 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
     }
 }
 
-void vtkPixel::Clip(float value, vtkFloatScalars *cellScalars, 
-                    vtkPointLocator *locator, vtkCellArray *tris,
-                    vtkPointData *inPd, vtkPointData *outPd,
-                    int insideOut)
+void vtkPixel::Clip(float vtkNotUsed(value), 
+		    vtkFloatScalars *vtkNotUsed(cellScalars), 
+		    vtkPointLocator *vtkNotUsed(locator), 
+		    vtkCellArray *vtkNotUsed(tetras),
+		    vtkPointData *vtkNotUsed(inPd), 
+		    vtkPointData *vtkNotUsed(outPd),
+		    int insideOut)
 {
 
 }
+

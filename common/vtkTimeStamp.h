@@ -75,7 +75,7 @@ public:
 
   int operator>(vtkTimeStamp& ts) {return (this->ModifiedTime > ts.ModifiedTime);};
   int operator<(vtkTimeStamp& ts) {return (this->ModifiedTime < ts.ModifiedTime);};
-  operator unsigned long int() {return this->ModifiedTime;};
+  operator unsigned long() {return this->ModifiedTime;};
 
 private:
   unsigned long ModifiedTime;

@@ -511,10 +511,14 @@ void vtkVoxel::Derivatives(int vtkNotUsed(subId), float pcoords[3],
     }
 }
 
-void vtkVoxel::Clip(float value, vtkFloatScalars *cellScalars, 
-                    vtkPointLocator *locator, vtkCellArray *tetras,
-                    vtkPointData *inPd, vtkPointData *outPd,
-                    int insideOut)
+void vtkVoxel::Clip(float vtkNotUsed(value), 
+			 vtkFloatScalars *vtkNotUsed(cellScalars), 
+                         vtkPointLocator *vtkNotUsed(locator), 
+			 vtkCellArray *vtkNotUsed(tetras),
+                         vtkPointData *vtkNotUsed(inPd), 
+			 vtkPointData *vtkNotUsed(outPd),
+                         int insideOut)
 {
 
 }
+

@@ -43,9 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Swap four byte word.
+#ifdef VTK_WORDS_BIGENDIAN
+void vtkByteSwap::Swap4BE(char *){}
+#else
 void vtkByteSwap::Swap4BE(char *mem_ptr1)
 {
-#ifndef VTK_WORDS_BIGENDIAN
   char one_byte;
 
   one_byte    = mem_ptr1[0];
@@ -55,14 +57,16 @@ void vtkByteSwap::Swap4BE(char *mem_ptr1)
   one_byte    = mem_ptr1[1];
   mem_ptr1[1] = mem_ptr1[2];
   mem_ptr1[2] = one_byte;
-#endif
 }
+#endif
 
 // Description:
 // Swap bunch of bytes. Num is the number of four byte words to swap.
+#ifdef VTK_WORDS_BIGENDIAN
+void vtkByteSwap::Swap4BERange(char *,int){}
+#else
 void vtkByteSwap::Swap4BERange(char *mem_ptr1,int num)
 {
-#ifndef VTK_WORDS_BIGENDIAN
   char one_byte;
   char *pos;
   int i;
@@ -81,8 +85,8 @@ void vtkByteSwap::Swap4BERange(char *mem_ptr1,int num)
     pos = pos + 4;
     }
   
-#endif
 }
+#endif
 
 // Description:
 // Swap bunch of bytes. Num is the number of four byte words to swap.
@@ -117,25 +121,28 @@ void vtkByteSwap::SwapWrite4BERange(char *mem_ptr1,int num, FILE *fp)
   fwrite(mem_ptr1,4,num,fp);
 #endif
 }
+
 // Description:
 // Swap 2 byte word.
+#ifdef VTK_WORDS_BIGENDIAN
 void vtkByteSwap::Swap2LE(short *mem_ptr)
 {
-#ifdef VTK_WORDS_BIGENDIAN
   unsigned short h1,h2;
 
   h1 = (unsigned short) *mem_ptr << 8;
   h2 = (unsigned short) *mem_ptr >> 8;
   *mem_ptr = (short) h1 | h2;
 
-#endif
 }
+#else
+void vtkByteSwap::Swap2LE(short *) {}
+#endif
 
 // Description:
 // Swap four byte word.
+#ifdef VTK_WORDS_BIGENDIAN
 void vtkByteSwap::Swap4LE(char *mem_ptr1)
 {
-#ifdef VTK_WORDS_BIGENDIAN
   char one_byte;
 
   one_byte    = mem_ptr1[0];
@@ -145,14 +152,16 @@ void vtkByteSwap::Swap4LE(char *mem_ptr1)
   one_byte    = mem_ptr1[1];
   mem_ptr1[1] = mem_ptr1[2];
   mem_ptr1[2] = one_byte;
-#endif
 }
+#else
+void vtkByteSwap::Swap4LE(char *){}
+#endif
 
 // Description:
 // Swap bunch of bytes. Num is the number of four byte words to swap.
+#ifdef VTK_WORDS_BIGENDIAN
 void vtkByteSwap::Swap4LERange(char *mem_ptr1,int num)
 {
-#ifdef VTK_WORDS_BIGENDIAN
   char one_byte;
   char *pos;
   int i;
@@ -171,49 +180,34 @@ void vtkByteSwap::Swap4LERange(char *mem_ptr1,int num)
     pos = pos + 4;
     }
   
-#endif
 }
+#else
+void vtkByteSwap::Swap4LERange(char *,int) {}
+#endif
 
 // Description:
 // Swap 2 byte word.
+#ifdef VTK_WORDS_BIGENDIAN
+void vtkByteSwap::Swap2BE(short *) {}
+#else
 void vtkByteSwap::Swap2BE(short *mem_ptr)
 {
-#ifndef VTK_WORDS_BIGENDIAN
   unsigned h1,h2;
 
   h1 = *mem_ptr << 8;
   h2 = *mem_ptr >> 8;
   *mem_ptr = (short) h1 | h2;
 
-#endif
 }
-// Description:
-// Swap bunch of bytes. Num is the number of two byte words to swap.
-void vtkByteSwap::Swap2BERange(char *mem_ptr1,int num)
-{
-#ifndef VTK_WORDS_BIGENDIAN
-  char one_byte;
-  char *pos;
-  int i;
-  
-  pos = mem_ptr1;
-  
-  for (i = 0; i < num; i++)
-    {
-    one_byte = pos[0];
-    pos[0] = pos[1];
-    pos[1] = one_byte;
-    pos = pos + 2;
-    }
-  
 #endif
-}
 
 // Description:
 // Swap bunch of bytes. Num is the number of two byte words to swap.
-void vtkByteSwap::Swap2LERange(char *mem_ptr1,int num)
-{
 #ifdef VTK_WORDS_BIGENDIAN
+void vtkByteSwap::Swap2BERange(char *,int) {}
+#else
+void vtkByteSwap::Swap2BERange(char *mem_ptr1,int num)
+{
   char one_byte;
   char *pos;
   int i;
@@ -228,8 +222,32 @@ void vtkByteSwap::Swap2LERange(char *mem_ptr1,int num)
     pos = pos + 2;
     }
   
-#endif
 }
+#endif
+
+// Description:
+// Swap bunch of bytes. Num is the number of two byte words to swap.
+#ifdef VTK_WORDS_BIGENDIAN
+void vtkByteSwap::Swap2LERange(char *mem_ptr1,int num)
+{
+  char one_byte;
+  char *pos;
+  int i;
+  
+  pos = mem_ptr1;
+  
+  for (i = 0; i < num; i++)
+    {
+    one_byte = pos[0];
+    pos[0] = pos[1];
+    pos[1] = one_byte;
+    pos = pos + 2;
+    }
+  
+}
+#else
+void vtkByteSwap::Swap2LERange(char *mem_ptr1,int num)
+#endif
 
 // Description:
 // Swap bunch of bytes. Num is the number of four byte words to swap.

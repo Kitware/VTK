@@ -150,7 +150,7 @@ public:
   // data.
   virtual void GenerateRepresentation(int level, vtkPolyData *pd) = 0;
 
-  vtkGetMacro(BuildTime, int);
+  vtkGetMacro(BuildTime, unsigned long);
 
 protected:
   vtkDataSet *DataSet;
