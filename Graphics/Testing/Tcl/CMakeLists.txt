@@ -28,6 +28,7 @@ IF (VTK_USE_RENDERING)
       createBFont
       cylMap
       dataSetSurfaceFilter
+      deciFranFace
       Delaunay2D
       Delaunay2DTransform
       dicer
