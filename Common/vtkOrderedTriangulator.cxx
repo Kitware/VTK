@@ -21,7 +21,7 @@
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.34");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.35");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -627,21 +627,24 @@ void vtkOrderedTriangulator::UpdatePointType(vtkIdType internalId, int type)
 //------------------------------------------------------------------------
 void vtkOTTetra::GetFacePoints(int i, vtkOTFace *face)
 {
+  // the order is carefully choosen to produce a tetrahedron
+  // that is not inside out; i.e., the ordering produces a positive 
+  // jacobian (normal computed from first three points points to fourth).
   switch (i)
     {
     case 0:
       face->Points[0] = this->Points[0];
-      face->Points[1] = this->Points[1];
-      face->Points[2] = this->Points[3];
+      face->Points[1] = this->Points[3];
+      face->Points[2] = this->Points[1];
       break;
     case 1:
       face->Points[0] = this->Points[1];
-      face->Points[1] = this->Points[2];
-      face->Points[2] = this->Points[3];
+      face->Points[1] = this->Points[3];
+      face->Points[2] = this->Points[2];
       break;
     case 2:
-      face->Points[0] = this->Points[2];
-      face->Points[1] = this->Points[0];
+      face->Points[0] = this->Points[0];
+      face->Points[1] = this->Points[2];
       face->Points[2] = this->Points[3];
       break;
     case 3:
@@ -820,10 +823,14 @@ static vtkOTTetra *CreateTetra(vtkOTPoint& p, vtkOTFace& face,
                                           face.Points[1]->X,
                                           face.Points[2]->X,
                                           tetra->Center);
-  tetra->Points[0] = &p;
-  tetra->Points[1] = face.Points[0];
-  tetra->Points[2] = face.Points[1];
-  tetra->Points[3] = face.Points[2];
+
+  // the order is carefully choosen to produce a tetrahedron
+  // that is not inside out; i.e., the ordering produces a positive 
+  // jacobian (normal computed from first three points points to fourth).
+  tetra->Points[0] = face.Points[0];
+  tetra->Points[1] = face.Points[1];
+  tetra->Points[2] = face.Points[2];
+  tetra->Points[3] = &p;
   
   if ( face.Neighbor )
     {
@@ -993,7 +1000,6 @@ void vtkOrderedTriangulator::Triangulate()
          fptr != this->Mesh->CavityFaces.End(); ++fptr)
       {
       //create a tetra
-
       tetra = CreateTetra(*p,*fptr,*this->Pool);
       this->Mesh->TetraQueue.InsertNextValue(tetra);
       tetraId = this->Mesh->TetraQueue.GetMaxId();
