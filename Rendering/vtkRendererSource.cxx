@@ -24,7 +24,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkRendererSource, "1.44");
+vtkCxxRevisionMacro(vtkRendererSource, "1.45");
 vtkStandardNewMacro(vtkRendererSource);
 
 vtkCxxSetObjectMacro(vtkRendererSource,Input,vtkRenderer);
@@ -47,14 +47,15 @@ vtkRendererSource::~vtkRendererSource()
     }
 }
 
-void vtkRendererSource::Execute()
+void vtkRendererSource::ExecuteData(vtkDataObject *outp)
 {
   int numOutPts;
-  vtkUnsignedCharArray *outScalars;
   float x1,y1,x2,y2;
   unsigned char *pixels, *ptr;
   int dims[3];
-  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *output = this->AllocateOutputData(outp);
+  vtkUnsignedCharArray *outScalars = 
+    vtkUnsignedCharArray::SafeDownCast(output->GetPointData()->GetScalars());
   vtkRenderWindow *renWin;
   
 
@@ -103,8 +104,6 @@ void vtkRendererSource::Execute()
 
   // Allocate data.  Scalar type is FloatScalars.
   numOutPts = dims[0] * dims[1];
-  outScalars = vtkUnsignedCharArray::New();
-  outScalars->SetNumberOfComponents(3);
 
   pixels = (this->Input->GetRenderWindow())->GetPixelData((int)x1,(int)y1,
                                                           (int)x2,(int)y2,1);
@@ -132,9 +131,6 @@ void vtkRendererSource::Execute()
     delete [] zBuf;
     }
   
-  // Update ourselves
-  output->GetPointData()->SetScalars(outScalars);
-  outScalars->Delete();
   delete [] pixels;
 }
 
@@ -179,7 +175,7 @@ unsigned long vtkRendererSource::GetMTime()
 void vtkRendererSource::UpdateInformation()
 {
   unsigned long t1, t2;
-  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *output = this->GetOutput();
   vtkRenderer *ren = this->GetInput();
   vtkActorCollection *actors;
   vtkActor *actor;
@@ -255,3 +251,5 @@ void vtkRendererSource::UpdateInformation()
   output->SetPipelineMTime(t1);
   this->InformationTime.Modified();
 }
+
+

@@ -34,15 +34,15 @@
 #ifndef __vtkRendererSource_h
 #define __vtkRendererSource_h
 
-#include "vtkStructuredPointsSource.h"
+#include "vtkImageSource.h"
 
 class vtkRenderer;
 
-class VTK_RENDERING_EXPORT vtkRendererSource : public vtkStructuredPointsSource
+class VTK_RENDERING_EXPORT vtkRendererSource : public vtkImageSource
 {
 public:
   static vtkRendererSource *New();
-  vtkTypeRevisionMacro(vtkRendererSource,vtkStructuredPointsSource);
+  vtkTypeRevisionMacro(vtkRendererSource,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -82,7 +82,7 @@ protected:
   vtkRendererSource();
   ~vtkRendererSource();
 
-  void Execute();
+  virtual void ExecuteData(vtkDataObject *data);
   
   void UpdateInformation();
   
