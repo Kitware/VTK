@@ -6,37 +6,13 @@
   Date:      $Date$
   Version:   $Revision$
 
+  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
- * Redistributions of source code must retain the above copyright notice,
-   this list of conditions and the following disclaimer.
-
- * Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
- * Neither name of Ken Martin, Will Schroeder, or Bill Lorensen nor the names
-   of any contributors may be used to endorse or promote products derived
-   from this software without specific prior written permission.
-
- * Modified source versions must be plainly marked as such, and must not be
-   misrepresented as being the original software.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     This software is distributed WITHOUT ANY WARRANTY; without even 
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
@@ -133,80 +109,80 @@ int DoneOne()
     {
     fi = wrappedFunctions[i];
     if ((!strcmp(fi->Name,currentFunction->Name))
-	&&(fi->NumberOfArguments == currentFunction->NumberOfArguments))
+        &&(fi->NumberOfArguments == currentFunction->NumberOfArguments))
       {
       match = 1;
       for (j = 0; j < fi->NumberOfArguments; j++)
-	{
-	if ((fi->ArgTypes[j] != currentFunction->ArgTypes[j]) &&
-	    !(((fi->ArgTypes[j]%1000 == 309)&&
-	       (currentFunction->ArgTypes[j]%1000 == 109)) ||
-	      ((fi->ArgTypes[j]%1000 == 109)&&
-	       (currentFunction->ArgTypes[j]%1000 == 309)) ||
-	      ((fi->ArgTypes[j]%1000 == 301)&&
-	       (currentFunction->ArgTypes[j]%1000 == 307)) ||
-	      ((fi->ArgTypes[j]%1000 == 307)&&
-	       (currentFunction->ArgTypes[j]%1000 == 301)) ||
-	      ((fi->ArgTypes[j]%1000 == 304)&&
-	       (currentFunction->ArgTypes[j]%1000 == 306)) ||
-	      ((fi->ArgTypes[j]%1000 == 306)&&
-	       (currentFunction->ArgTypes[j]%1000 == 304)) ||
-	      ((fi->ArgTypes[j]%1000 == 1)&&
-	       (currentFunction->ArgTypes[j]%1000 == 7)) ||
-	      ((fi->ArgTypes[j]%1000 == 7)&&
-	       (currentFunction->ArgTypes[j]%1000 == 1)) ||
-	      ((fi->ArgTypes[j]%1000 == 4)&&
-	       (currentFunction->ArgTypes[j]%1000 == 6)) ||
-	      ((fi->ArgTypes[j]%1000 == 6)&&
-	       (currentFunction->ArgTypes[j]%1000 == 4))))
-	  {
-	  match = 0;
-	  }
-	else
-	  {
-	  if (fi->ArgTypes[j]%1000 == 309 || fi->ArgTypes[j]%1000 == 109)
-	    {
-	    if (strcmp(fi->ArgClasses[j],currentFunction->ArgClasses[j]))
-	      {
-	      match = 0;
-	      }
-	    }
-	  }
-	}
+        {
+        if ((fi->ArgTypes[j] != currentFunction->ArgTypes[j]) &&
+            !(((fi->ArgTypes[j]%1000 == 309)&&
+               (currentFunction->ArgTypes[j]%1000 == 109)) ||
+              ((fi->ArgTypes[j]%1000 == 109)&&
+               (currentFunction->ArgTypes[j]%1000 == 309)) ||
+              ((fi->ArgTypes[j]%1000 == 301)&&
+               (currentFunction->ArgTypes[j]%1000 == 307)) ||
+              ((fi->ArgTypes[j]%1000 == 307)&&
+               (currentFunction->ArgTypes[j]%1000 == 301)) ||
+              ((fi->ArgTypes[j]%1000 == 304)&&
+               (currentFunction->ArgTypes[j]%1000 == 306)) ||
+              ((fi->ArgTypes[j]%1000 == 306)&&
+               (currentFunction->ArgTypes[j]%1000 == 304)) ||
+              ((fi->ArgTypes[j]%1000 == 1)&&
+               (currentFunction->ArgTypes[j]%1000 == 7)) ||
+              ((fi->ArgTypes[j]%1000 == 7)&&
+               (currentFunction->ArgTypes[j]%1000 == 1)) ||
+              ((fi->ArgTypes[j]%1000 == 4)&&
+               (currentFunction->ArgTypes[j]%1000 == 6)) ||
+              ((fi->ArgTypes[j]%1000 == 6)&&
+               (currentFunction->ArgTypes[j]%1000 == 4))))
+          {
+          match = 0;
+          }
+        else
+          {
+          if (fi->ArgTypes[j]%1000 == 309 || fi->ArgTypes[j]%1000 == 109)
+            {
+            if (strcmp(fi->ArgClasses[j],currentFunction->ArgClasses[j]))
+              {
+              match = 0;
+              }
+            }
+          }
+        }
       if ((fi->ReturnType != currentFunction->ReturnType) &&
-	  !(((fi->ReturnType%1000 == 309)&&
-	     (currentFunction->ReturnType%1000 == 109)) ||
-	    ((fi->ReturnType%1000 == 109)&&
-	     (currentFunction->ReturnType%1000 == 309)) ||
-	    ((fi->ReturnType%1000 == 301)&&
-	     (currentFunction->ReturnType%1000 == 307)) ||
-	    ((fi->ReturnType%1000 == 307)&&
-	     (currentFunction->ReturnType%1000 == 301)) ||
-	    ((fi->ReturnType%1000 == 304)&&
-	     (currentFunction->ReturnType%1000 == 306)) ||
-	    ((fi->ReturnType%1000 == 306)&&
-	     (currentFunction->ReturnType%1000 == 304)) ||
-	    ((fi->ReturnType%1000 == 1)&&
-	     (currentFunction->ReturnType%1000 == 7)) ||
-	    ((fi->ReturnType%1000 == 7)&&
-	     (currentFunction->ReturnType%1000 == 1)) ||
-	    ((fi->ReturnType%1000 == 4)&&
-	     (currentFunction->ReturnType%1000 == 6)) ||
-	    ((fi->ReturnType%1000 == 6)&&
-	     (currentFunction->ReturnType%1000 == 4))))
-	{
-	match = 0;
-	}
+          !(((fi->ReturnType%1000 == 309)&&
+             (currentFunction->ReturnType%1000 == 109)) ||
+            ((fi->ReturnType%1000 == 109)&&
+             (currentFunction->ReturnType%1000 == 309)) ||
+            ((fi->ReturnType%1000 == 301)&&
+             (currentFunction->ReturnType%1000 == 307)) ||
+            ((fi->ReturnType%1000 == 307)&&
+             (currentFunction->ReturnType%1000 == 301)) ||
+            ((fi->ReturnType%1000 == 304)&&
+             (currentFunction->ReturnType%1000 == 306)) ||
+            ((fi->ReturnType%1000 == 306)&&
+             (currentFunction->ReturnType%1000 == 304)) ||
+            ((fi->ReturnType%1000 == 1)&&
+             (currentFunction->ReturnType%1000 == 7)) ||
+            ((fi->ReturnType%1000 == 7)&&
+             (currentFunction->ReturnType%1000 == 1)) ||
+            ((fi->ReturnType%1000 == 4)&&
+             (currentFunction->ReturnType%1000 == 6)) ||
+            ((fi->ReturnType%1000 == 6)&&
+             (currentFunction->ReturnType%1000 == 4))))
+        {
+        match = 0;
+        }
       else
-	{
-	if (fi->ReturnType%1000 == 309 || fi->ReturnType%1000 == 109)
-	  {
-	  if (strcmp(fi->ReturnClass,currentFunction->ReturnClass))
-	    {
-	    match = 0;
-	    }
-	  }
-	}
+        {
+        if (fi->ReturnType%1000 == 309 || fi->ReturnType%1000 == 109)
+          {
+          if (strcmp(fi->ReturnClass,currentFunction->ReturnClass))
+            {
+            match = 0;
+            }
+          }
+        }
       if (match) return 1;
       }
     }
@@ -244,8 +220,8 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (currentFunction->ArgTypes[i]%1000 == 9) args_ok = 0;
     if ((currentFunction->ArgTypes[i]%10) == 8) args_ok = 0;
     if (((currentFunction->ArgTypes[i]%1000)/100 != 3)&&
-	(currentFunction->ArgTypes[i]%1000 != 109)&&
-	((currentFunction->ArgTypes[i]%1000)/100)) args_ok = 0;
+        (currentFunction->ArgTypes[i]%1000 != 109)&&
+        ((currentFunction->ArgTypes[i]%1000)/100)) args_ok = 0;
     if (currentFunction->ArgTypes[i]%1000 == 313) args_ok = 0;
     if (currentFunction->ArgTypes[i]%1000 == 314) args_ok = 0;
     if (currentFunction->ArgTypes[i]%1000 == 315) args_ok = 0;
@@ -318,47 +294,47 @@ void outputFunction(FILE *fp, FileInfo *data)
       fprintf(fp,"%s_%i(",currentFunction->Name,numberOfWrappedFunctions);
       
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	{
-	if (i)
-	  {
-	  fprintf(fp,",");
-	  }
-	output_temp(fp,i);
-	}
+        {
+        if (i)
+          {
+          fprintf(fp,",");
+          }
+        output_temp(fp,i);
+        }
       fprintf(fp,");\n");
       fprintf(fp,"  public ");
       return_result(fp);
       fprintf(fp,"%s(",currentFunction->Name);
       
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	{
-	if (i)
-	  {
-	  fprintf(fp,",");
-	  }
-	output_temp(fp,i);
-	}
+        {
+        if (i)
+          {
+          fprintf(fp,",");
+          }
+        output_temp(fp,i);
+        }
       /* if not void then need return otherwise none */
       if (currentFunction->ReturnType%1000 == 2)
-	{
-	fprintf(fp,")\n    { %s_%i(",currentFunction->Name,
-		numberOfWrappedFunctions);
-	}
+        {
+        fprintf(fp,")\n    { %s_%i(",currentFunction->Name,
+                numberOfWrappedFunctions);
+        }
       else
-	{
-	fprintf(fp,")\n    { return %s_%i(",currentFunction->Name,
-		numberOfWrappedFunctions);
-	}
+        {
+        fprintf(fp,")\n    { return %s_%i(",currentFunction->Name,
+                numberOfWrappedFunctions);
+        }
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-	{
-	if (i)
-	  {
-	  fprintf(fp,",");
-	  }
-	fprintf(fp,"id%i",i);
-	}
+        {
+        if (i)
+          {
+          fprintf(fp,",");
+          }
+        fprintf(fp,"id%i",i);
+        }
       if ((currentFunction->NumberOfArguments == 1) && 
-	  (currentFunction->ArgTypes[0] == 5000)) fprintf(fp,",id1");
+          (currentFunction->ArgTypes[0] == 5000)) fprintf(fp,",id1");
       fprintf(fp,"); }\n");
       
       wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
