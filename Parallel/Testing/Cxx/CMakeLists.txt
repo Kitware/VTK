@@ -98,5 +98,24 @@ ELSE (VTK_DATA_ROOT)
   ENDIF (VTK_USE_HYBRID)
 ENDIF (VTK_DATA_ROOT)
 
+IF (EXECUTABLE_OUTPUT_PATH)
+  SET (PARALLEL_EXEC_PATH ${EXECUTABLE_OUTPUT_PATH})
+ELSE (EXECUTABLE_OUTPUT_PATH)
+  SET (PARALLEL_EXEC_PATH ${VTK_BINARY_DIR}/Parallel/Testing/Cxx/${CMAKE_CFG_INTDIR})
+ENDIF (EXECUTABLE_OUTPUT_PATH)
 
+# For now this test is only available on Unix because
+# on Windows, python does not support forking/killing processes
+IF (UNIX)
+ IF (PYTHON_EXECUTABLE)
+  IF (VTK_DATA_ROOT)
+    ADD_TEST(Sockets-image ${PYTHON_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Parallel/Testing/Cxx/TestSockets.py 
+      ${PARALLEL_EXEC_PATH}/SocketServer
+      ${PARALLEL_EXEC_PATH}/SocketClient
+      ${VTK_DATA_ROOT}
+      Baseline/Parallel/SocketClient.cxx.png)
+  ENDIF (VTK_DATA_ROOT)
+ ENDIF (PYTHON_EXECUTABLE)
+ENDIF (UNIX)
 
