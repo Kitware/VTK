@@ -4259,7 +4259,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.61");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.62");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
@@ -5502,9 +5502,6 @@ void vtkVRMLImporter::ImportEnd ()
   delete VrmlNodeType::typeList;
   VrmlNodeType::typeList = 0;
 
-  delete VrmlNodeType::useList;
-  VrmlNodeType::useList = 0;
-
   delete VrmlNodeType::currentField;
   VrmlNodeType::currentField = 0;
 
@@ -5583,6 +5580,16 @@ vtkVRMLImporter::~vtkVRMLImporter()
       }
     }
   delete this->Internal;
+
+  // According to Tom Citriniti the useList must not be deleted until the
+  // instance is destroyed. The importer was crashing when users asked for a
+  // DEF node from within the VRML file. This DEF mechanism allows you to
+  // name a node inside the VRML file and refer to it from other nodes or
+  // from scripts that can be associated with the VRML file. A vector of
+  // these is created in the importer and has to live until the class is
+  // deleted.
+  delete VrmlNodeType::useList;
+  VrmlNodeType::useList = 0;
 }
 
 void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)
