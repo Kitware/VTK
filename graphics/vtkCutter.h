@@ -45,6 +45,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkImplicitFunction. That is, a polygonal surface is created
 // corresponding to the implicit function F(x,y,z) = value(s), where
 // you can specify one or more values used to cut with.
+//
+// In VTK, cutting means reducing a cell of dimension N to a cut surface
+// of dimension N-1. For example, a tetrahedron when cut by a plane (i.e.,
+// vtkPlane implicit function) will generate triangles. (Clipping takes
+// a N dimensional cell and creates N dimension primitives.)
+//
+// vtkCutter is generally used to "slice-through" a dataset, generating
+// a surface that can be visualized. It is also possible to use vtkCutter
+// to do a form of volume rendering. vtkCutter does this by generating
+// multiple cut surfaces (usually planes) which are ordered (and rendered)
+// from back-to-front. The surfaces are set translucent to give a 
+// volumetric rendering effect.
+
 // .SECTION See Also
 // vtkImplicitFunction vtkClipPolyData
 
@@ -57,7 +70,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define VTK_SORT_BY_VALUE 0
 #define VTK_SORT_BY_CELL 1
-
 
 class VTK_EXPORT vtkCutter : public vtkDataSetToPolyDataFilter
 {
@@ -119,8 +131,8 @@ public:
     {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
   // Description:
-  // New GetMTime because we delegate to vtkContourValues & refer to
-  // vtkImplicitFunction
+  // Override GetMTime because we delegate to vtkContourValues and refer to
+  // vtkImplicitFunction.
   unsigned long GetMTime();
 
   // Description
@@ -154,8 +166,10 @@ public:
   // For most applications, the default order is fine (and faster).
   vtkSetClampMacro(SortBy,int,VTK_SORT_BY_VALUE,VTK_SORT_BY_CELL);
   vtkGetMacro(SortBy,int);
-  void SetSortByToSortByValue() {this->SetSortBy(VTK_SORT_BY_VALUE);};
-  void SetSortByToSortByCell() {this->SetSortBy(VTK_SORT_BY_CELL);};
+  void SetSortByToSortByValue() 
+    {this->SetSortBy(VTK_SORT_BY_VALUE);}
+  void SetSortByToSortByCell() 
+    {this->SetSortBy(VTK_SORT_BY_CELL);}
   const char *GetSortByAsString();
 
   // Description:
