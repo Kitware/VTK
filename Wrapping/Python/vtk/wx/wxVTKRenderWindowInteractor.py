@@ -35,6 +35,17 @@ import math, os, sys
 from wxPython.wx import *
 import vtk
 
+# wxPython 2.4.0.4 and newer prefers the use of True and False, standard
+# booleans in Python 2.2 but not earlier.  Here we define these values if
+# they don't exist so that we can use True and False in the rest of the
+# code.  At the time of this writing, that happens exactly ONCE in
+# CreateTimer()
+try:
+    True
+except NameError:
+    True = 1
+    False = 0
+
 # a few configuration items, see what works best on your system
 
 # Use wxGLCanvas as base class instead of wxWindow.
@@ -85,7 +96,7 @@ class wxVTKRenderWindowInteractor(baseClass):
     def __init__(self, parent, ID, *args, **kw):
 
         # private attributes
-        self.__OldFocus = None
+        self.__RenderWhenDisabled = 0
 
         self.__RenderWhenDisabled = 0
 
@@ -139,26 +150,20 @@ class wxVTKRenderWindowInteractor(baseClass):
         baseClass.__init__(self, parent, ID, position, size, style)
 
         # create the RenderWindow and initialize it
-        self._RenderWindow = vtk.vtkRenderWindow()
-        try:
-            self._RenderWindow.SetSize(size.width, size.height)
-        except AttributeError:
-            self._RenderWindow.SetSize(size[0], size[1])
-        if stereo:
-            self._RenderWindow.StereoCapableWindowOn()
-            self._RenderWindow.SetStereoTypeToCrystalEyes()
-
-        self.__Created = 0
-        # Tell the RenderWindow to render inside the wxWindow.
-        if self.GetHandle():
-            self.__Created = 1
-            self._RenderWindow.SetWindowInfo(str(self.GetHandle()))
-
         self._Iren = vtk.vtkGenericRenderWindowInteractor()
-        self._Iren.SetRenderWindow(self._RenderWindow)
+        self._Iren.SetRenderWindow( vtk.vtkRenderWindow() )
         self._Iren.AddObserver('CreateTimerEvent', self.CreateTimer)
         self._Iren.AddObserver('DestroyTimerEvent', self.DestroyTimer)
 
+        try:
+            self._Iren.GetRenderWindow().SetSize(size.width, size.height)
+        except AttributeError:
+            self._Iren.GetRenderWindow().SetSize(size[0], size[1])
+        if stereo:
+            self._Iren.GetRenderWindow().StereoCapableWindowOn()
+            self._Iren.GetRenderWindow().SetStereoTypeToCrystalEyes()
+
+        self.__handle = None
         self._ActiveButton = 0
 
         self.BindEvents()
@@ -181,13 +186,13 @@ class wxVTKRenderWindowInteractor(baseClass):
         EVT_ENTER_WINDOW(self, self.OnEnter)
         EVT_LEAVE_WINDOW(self, self.OnLeave)
 
-        EVT_KEY_DOWN(self, self.OnKeyDown)
+        # If we use EVT_KEY_DOWN instead of EVT_CHAR, capital versions
+        # of all characters are always returned.  EVT_CHAR also performs
+        # other necessary keyboard-dependent translations.
+        EVT_CHAR(self, self.OnKeyDown)
         EVT_KEY_UP(self, self.OnKeyUp)
         
         EVT_SIZE(self, self.OnSize)
-        
-        EVT_SET_FOCUS(self, self.OnSetFocus)
-        EVT_KILL_FOCUS(self, self.OnKillFocus)
 
     def __getattr__(self, attr):        
         """Makes the object behave like a
@@ -202,7 +207,7 @@ class wxVTKRenderWindowInteractor(baseClass):
 
     def CreateTimer(self, obj, evt):
         t = EventTimer(self)
-        t.Start(10, TRUE)
+        t.Start(10, True)
 
     def DestroyTimer(self, obj, evt):
         """The timer is a one shot timer so will expire automatically."""
@@ -210,6 +215,10 @@ class wxVTKRenderWindowInteractor(baseClass):
 
     def OnPaint(self,event):
         dc = wxPaintDC(self)
+        # Tell the RenderWindow to render inside the wxWindow.
+        if not self.__handle:
+            self.__handle = self.GetHandle()
+            self._Iren.GetRenderWindow().SetWindowInfo(str(self.__handle))
         self.Render()
 
     def OnSize(self,event):
@@ -220,7 +229,7 @@ class wxVTKRenderWindowInteractor(baseClass):
             height = event.GetSize().height
         self._Iren.SetSize(width, height)
         self._Iren.ConfigureEvent()
-        # this will check for __Created
+        # this will check for __handle
         self.Render()
 
     def OnMotion(self, event):
@@ -231,9 +240,6 @@ class wxVTKRenderWindowInteractor(baseClass):
         self._Iren.MouseMoveEvent()
 
     def OnEnter(self,event):
-        if self.__OldFocus == None:
-            self.__OldFocus = wxWindow_FindFocus()
-            self.SetFocus()
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             event.ControlDown(), 
 					    event.ShiftDown(), 
@@ -241,9 +247,6 @@ class wxVTKRenderWindowInteractor(baseClass):
         self._Iren.EnterEvent()
         
     def OnLeave(self,event):
-        if self.__OldFocus:
-            self.__OldFocus.SetFocus()
-            self.__OldFocus = None
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             event.ControlDown(), 
 					    event.ShiftDown(), 
@@ -292,7 +295,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         key = chr(0)
         if keycode < 256:
             key = chr(keycode)
-        
+
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             ctrl, shift, key, 0,
                                             keysym)
@@ -311,14 +314,8 @@ class wxVTKRenderWindowInteractor(baseClass):
                                             keysym)
         self._Iren.KeyReleaseEvent()
 
-    def OnSetFocus(self,event):
-        pass
-
-    def OnKillFocus(self,event):
-        pass
-
     def GetRenderWindow(self):
-        return self._RenderWindow
+        return self._Iren.GetRenderWindow()
 
     def Render(self):
         RenderAllowed = 1
@@ -332,8 +329,38 @@ class wxVTKRenderWindowInteractor(baseClass):
                 # if it's not enabeld, RenderAllowed will be false
                 RenderAllowed = topParent.IsEnabled()
             
-        if self.__Created and RenderAllowed:
-            self._RenderWindow.Render()
+        if RenderAllowed:
+            if self.__handle and self.__handle == self.GetHandle():
+                self._Iren.GetRenderWindow().Render()
+
+            elif self.GetHandle():
+                # this means the user has reparented us; let's adapt to the
+                # new situation by doing the WindowRemap dance
+                self._Iren.GetRenderWindow().SetNextWindowInfo(str(self.GetHandle()))
+                self._Iren.GetRenderWindow().WindowRemap()
+                # store the new situation
+                self.__handle = self.GetHandle()
+                self._Iren.GetRenderWindow().Render()
+
+    def SetRenderWhenDisabled(self, newValue):
+        """Change value of __RenderWhenDisabled ivar.
+
+        If __RenderWhenDisabled is false (the default), this widget will not
+        call Render() on the RenderWindow if the top level frame (i.e. the
+        containing frame) has been disabled.
+
+        This prevents recursive rendering during wxSafeYield() calls.
+        wxSafeYield() can be called during the ProgressMethod() callback of
+        a VTK object to have progress bars and other GUI elements updated -
+        it does this by disabling all windows (disallowing user-input to
+        prevent re-entrancy of code) and then handling all outstanding
+        GUI events.
+        
+        However, this often triggers an OnPaint() method for wxVTKRWIs,
+        resulting in a Render(), resulting in Update() being called whilst
+        still in progress.
+        """
+        self.__RenderWhenDisabled = bool(newValue)
 
     def SetRenderWhenDisabled(self, newValue):
         """Change value of __RenderWhenDisabled ivar.
