@@ -18,7 +18,6 @@
 
 #include "vtkOpenGLFreeTypeTextMapper.h"
 #include "vtkObjectFactory.h"
-#include "vtkgluPickMatrix.h"
 #include "vtkProperty2D.h"
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
@@ -28,6 +27,8 @@
 #include "vtkftglConfig.h"
 #include "FTFont.h"
 
+#include "vtkgluPickMatrix.h"
+
 //----------------------------------------------------------------------------
 // Print debug info
 
@@ -35,8 +36,10 @@
 #define VTK_FTTM_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.23");
+#ifndef VTK_IMPLEMENT_MESA_CXX
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.24");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
+#endif
 
 //----------------------------------------------------------------------------
 vtkOpenGLFreeTypeTextMapper::vtkOpenGLFreeTypeTextMapper()
@@ -330,6 +333,18 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     return;
     }
 
+  struct FTGLRenderContext *ftgl_context = 0;
+
+#ifdef VTK_IMPLEMENT_MESA_CXX
+  // If we support Mangle Mesa, VTK_IMPLEMENT_MESA_CXX will be defined to
+  // compile this unit as a Mesa text mapper. In that case, provide a
+  // context to FTGL to switch dynamically to Mangle Mesa rendering.
+  printf("RenderOverlay: Mangle\n");
+  struct FTGLRenderContext ftgl_context_mesa;
+  ftgl_context_mesa.UseMangleMesa = 1;
+  ftgl_context = &ftgl_context_mesa;
+#endif
+
   // Set up the shadow color
 
   int antialiasing_requested = 
@@ -375,7 +390,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     // Draw the shadow text
     
 #if VTK_FTFC_CACHE_BY_RGBA
-    shadow_font->render(this->Input);  
+    shadow_font->render(this->Input, ftgl_context);
 
     // Get the font again, Duh, since it may have been freed from the 
     // cache by the shadow font
@@ -391,7 +406,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
         }
       }
 #else
-    font->render(this->Input);  
+    font->render(this->Input, ftgl_context);
 #endif
     }
   
@@ -407,7 +422,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 
   // Display a string
 
-  font->render(this->Input);  
+  font->render(this->Input, ftgl_context);
 
   glFlush();
 

@@ -91,37 +91,6 @@ vtkWindowToImageFilter.cxx
 vtkWorldPointPicker.cxx
 )
 
-IF (VTK_USE_FREETYPE)
-  INCLUDE_DIRECTORIES(
-    ${VTKFREETYPE_SOURCE_DIR}/include
-    ${VTKFREETYPE_BINARY_DIR}
-    ${VTKFTGL_SOURCE_DIR}/src
-    ${VTKFTGL_BINARY_DIR}
-  )
-  SET(Rendering_SRCS ${Rendering_SRCS}
-    vtkFreeTypeFontCache.cxx
-    vtkOpenGLFreeTypeTextMapper.cxx
-  )
-  SET_SOURCE_FILES_PROPERTIES(
-	vtkFreeTypeFontCache
-    WRAP_EXCLUDE
-  )
-  SET(Rendering_FT_SRCS 
-    fonts/face_arial.cxx
-    fonts/face_arial_bold.cxx
-    fonts/face_arial_bold_italic.cxx
-    fonts/face_arial_italic.cxx
-    fonts/face_courier.cxx
-    fonts/face_courier_bold.cxx
-    fonts/face_courier_bold_italic.cxx
-    fonts/face_courier_italic.cxx
-    fonts/face_times.cxx
-    fonts/face_times_bold.cxx
-    fonts/face_times_bold_italic.cxx
-    fonts/face_times_italic.cxx
-  )
-ENDIF (VTK_USE_FREETYPE)
-
 IF (VTK_HAVE_VG500)
   SET( Rendering_SRCS ${Rendering_SRCS}
     vtkVolumeProVG500Mapper.cxx
@@ -134,7 +103,6 @@ IF (VTK_HAVE_VP1000)
     vtkOpenGLVolumeProVP1000Mapper.cxx
     )
 ENDIF (VTK_HAVE_VP1000)
-
 
 SET( RenderingOpenGL_SRCS
   vtkOpenGLActor.cxx
@@ -170,6 +138,39 @@ vtkVolumeRayCastFunction
 vtkVolumeTextureMapper
 ABSTRACT
 )
+
+IF (VTK_USE_FREETYPE)
+  INCLUDE_DIRECTORIES(
+    ${VTKFREETYPE_SOURCE_DIR}/include
+    ${VTKFREETYPE_BINARY_DIR}
+    ${VTKFTGL_SOURCE_DIR}/src
+    ${VTKFTGL_BINARY_DIR}
+  )
+  SET(Rendering_SRCS ${Rendering_SRCS}
+    vtkFreeTypeFontCache.cxx
+  )
+  SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
+    vtkOpenGLFreeTypeTextMapper.cxx
+  )
+  SET_SOURCE_FILES_PROPERTIES(
+	vtkFreeTypeFontCache
+    WRAP_EXCLUDE
+  )
+  SET(Rendering_FT_SRCS 
+    fonts/face_arial.cxx
+    fonts/face_arial_bold.cxx
+    fonts/face_arial_bold_italic.cxx
+    fonts/face_arial_italic.cxx
+    fonts/face_courier.cxx
+    fonts/face_courier_bold.cxx
+    fonts/face_courier_bold_italic.cxx
+    fonts/face_courier_italic.cxx
+    fonts/face_times.cxx
+    fonts/face_times_bold.cxx
+    fonts/face_times_bold_italic.cxx
+    fonts/face_times_italic.cxx
+  )
+ENDIF (VTK_USE_FREETYPE)
 
 IF(VTK_USE_X)
   SET( Rendering_SRCS ${Rendering_SRCS}
@@ -245,6 +246,11 @@ IF (VTK_MANGLE_MESA)
                  vtkXMesaRenderWindow.cxx
                  vtkXMesaTextMapper.cxx
                 )
+    IF (VTK_USE_FREETYPE)
+      SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
+        vtkMesaFreeTypeTextMapper.cxx
+      )
+    ENDIF (VTK_USE_FREETYPE)
     SET_SOURCE_FILES_PROPERTIES(vtkMesaRenderWindow ABSTRACT)
     SET (Rendering_LIBS ${Rendering_LIBS} ${MESA_LIBRARY})
     IF(MESA_OS_LIBRARY)
@@ -265,7 +271,9 @@ VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator RenderingInstantiator_SRCS
     ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
     EXPORT_MACRO VTK_RENDERING_EXPORT
     HEADER_LOCATION ${VTK_BINARY_DIR})
-ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${Rendering_FT_SRCS} 
+ADD_LIBRARY(vtkRendering 
+    ${Rendering_SRCS} 
+    ${Rendering_FT_SRCS} 
     ${RenderingOpenGL_SRCS}
     ${RenderingInstantiator_SRCS})
 
