@@ -69,7 +69,7 @@ int vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3],
   
   for (i=0; i<2; i++)
     {  
-    rhs[i] = x[indices[i]] - pt3[indices[i]];
+    rhs[i] = xProj[indices[i]] - pt3[indices[i]];
     c1[i] = pt1[indices[i]] - pt3[indices[i]];
     c2[i] = pt2[indices[i]] - pt3[indices[i]];
     }
