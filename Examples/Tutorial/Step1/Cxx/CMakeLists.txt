@@ -9,7 +9,6 @@ LINK_LIBRARIES(
   vtkRendering
   vtkGraphics
   vtkImaging
-  vtkIO
   vtkFiltering
   vtkCommon
 )
