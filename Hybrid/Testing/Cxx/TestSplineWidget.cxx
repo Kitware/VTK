@@ -313,14 +313,14 @@ int TestSplineWidget( int argc, char *argv[] )
   ren1->ResetCameraClippingRange();
 
   // Position the actors
-  renWin->Render();
-  iren->SetEventPosition(200,200);
-  iren->SetKeyCode('r');
-  iren->InvokeEvent(vtkCommand::CharEvent,NULL);
-  ren1->ResetCameraClippingRange();
-  renWin->Render();
-  iren->SetKeyCode('t');
-  iren->InvokeEvent(vtkCommand::CharEvent,NULL);
+//  renWin->Render();
+//  iren->SetEventPosition(200,200);
+//  iren->SetKeyCode('r');
+//  iren->InvokeEvent(vtkCommand::CharEvent,NULL);
+//  ren1->ResetCameraClippingRange();
+//  renWin->Render();
+//  iren->SetKeyCode('t');
+//  iren->InvokeEvent(vtkCommand::CharEvent,NULL);
 
   // Playback recorded events
   vtkInteractorEventRecorder *recorder = vtkInteractorEventRecorder::New();
@@ -350,6 +350,7 @@ int TestSplineWidget( int argc, char *argv[] )
   // Render the image
   iren->Initialize();
   renWin->Render();
+  ren1->ResetCamera();
   recorder->Play();
 
   int retVal = vtkRegressionTestImage( renWin );
