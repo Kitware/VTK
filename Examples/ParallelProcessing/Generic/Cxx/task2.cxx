@@ -1,11 +1,15 @@
 #include "TaskParallelism.h"
 
+// Task 2 for TaskParallelism.
+// See TaskParallelism.cxx for more information.
 vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
 			 vtkCamera* cam)
 {  
   double extent = data;
   
-//  source
+  // The pipeline
+
+  // Synthetic image source.
   vtkRTAnalyticSource* source1 = vtkRTAnalyticSource::New();
   source1->SetWholeExtent (-1*extent, extent, -1*extent, extent, 
 	  -1*extent ,extent );
@@ -20,7 +24,7 @@ vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
   source1->SetZMag( 5 );
   source1->GetOutput()->SetSpacing(2.0/extent,2.0/extent,2.0/extent);
 
-// Gradient vector
+  // Gradient vector.
   vtkImageGradient* grad = vtkImageGradient::New();
   grad->SetDimensionality( 3 );
   grad->SetInput(source1->GetOutput());
@@ -29,11 +33,8 @@ vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
   mask->SetInput(grad->GetOutput());
   mask->SetShrinkFactors(5, 5, 5);
 
-// vtkImageGradient puts it's output into the scalar attribute.
-// We need to move it to the vector attribute to be able to
-// glyph it. The next two steps cause a vector swap.
 
-// Label the scalar field as the active vectors.
+  // Label the scalar field as the active vectors.
   vtkAssignAttribute* aa = vtkAssignAttribute::New();
   aa->SetInput(mask->GetOutput());
   aa->Assign(vtkDataSetAttributes::SCALARS, vtkDataSetAttributes::VECTORS,
@@ -44,7 +45,7 @@ vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
   arrow->SetScale(0.2);
   arrow->FilledOff();
 
-// Glyph the gradient vector
+  // Glyph the gradient vector (with arrows)
   vtkGlyph3D* glyph = vtkGlyph3D::New();
   glyph->SetInput(aa->GetOutput());
   glyph->SetSource(arrow->GetOutput());
@@ -53,6 +54,7 @@ vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
   glyph->SetVectorModeToUseVector();
   glyph->SetColorModeToColorByVector();
 
+  // Rendering objects.
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInput(glyph->GetOutput());
   mapper->SetScalarRange(50, 180);
@@ -67,6 +69,7 @@ vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
   ren->AddActor(actor);
   ren->SetActiveCamera( cam );
 
+  // Cleanup
   source1->Delete();
   grad->Delete();
   aa->Delete();
