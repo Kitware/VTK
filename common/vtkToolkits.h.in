@@ -4,6 +4,7 @@
 #undef VTK_USE_PATENTED
 #undef VTK_USE_CONTRIB
 #undef VTK_USE_LOCAL
+#undef VTK_USE_PARALLEL
 
 /* using the TkWidget classes ? */
 #undef VTK_USE_TKWIDGET

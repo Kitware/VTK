@@ -59,6 +59,10 @@ build_local: build_graphics build_imaging
 	cd local;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd local;     ${MAKE} -${MAKEFLAGS} all
 
+build_parallel: build_graphics build_imaging
+	cd parallel;     ${MAKE} -${MAKEFLAGS} targets.make
+	cd parallel;     ${MAKE} -${MAKEFLAGS} all
+
 build_tcl: build_common ${BUILD_TOOLKITS} 
 	cd tcl;        ${MAKE} -${MAKEFLAGS} vtk
 
@@ -92,6 +96,9 @@ depend_contrib:
 depend_local:
 	cd local; ${MAKE} -${MAKEFLAGS} depend
 
+depend_parallel:
+	cd parallel; ${MAKE} -${MAKEFLAGS} depend
+
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
 clean: ${CLEAN_TCL} ${CLEAN_PYTHON} ${CLEAN_JAVA} ${CLEAN_TOOLKITS}
@@ -124,6 +131,9 @@ clean_contrib:
 clean_local:
 	cd local;   ${MAKE} -${MAKEFLAGS} clean
 
+clean_parallel:
+	cd parallel;   ${MAKE} -${MAKEFLAGS} clean
+
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
 install: install-dirs install-libs @INSTALL_TARGET@
@@ -145,6 +155,9 @@ install_contrib:
 
 install_local:
 	cd local;     ${MAKE} -${MAKEFLAGS} install @INSTALL_TARGET@
+
+install_parallel:
+	cd parallel;     ${MAKE} -${MAKEFLAGS} install @INSTALL_TARGET@
 
 do_install_tcl_java: do_install_tcl
 
