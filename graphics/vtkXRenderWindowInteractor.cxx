@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <X11/X.h>
 #include <X11/keysym.h>
 #include "vtkXRenderWindowInteractor.h"
+#include "vtkInteractorStyle.h"
 #include "vtkXRenderWindow.h"
 #include "vtkActor.h"
 #include <X11/Shell.h>
@@ -74,7 +75,6 @@ XrmOptionDescRec Desc[] =
 // Construct an instance so that the light follows the camera motion.
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
-  this->State = VTKXI_START;
   this->App = 0;
   this->top = 0;
   this->TopLevelShell = NULL;
@@ -329,185 +329,52 @@ void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-<<<<<<< vtkXRenderWindowInteractor.cxx
-=======
-
-void vtkXRenderWindowInteractor::UpdateSize(int x,int y)
-{
-  // if the size changed send this on to the RenderWindow
-  if ((x != this->Size[0])||(y != this->Size[1]))
-    {
-    this->Size[0] = x;
-    this->Size[1] = y;
-    this->RenderWindow->SetSize(x,y);
-    }
-
-}
+//void vtkXRenderWindowInteractor::UpdateSize(int x,int y)
+//{
+//  // if the size changed send this on to the RenderWindow
+//  if ((x != this->Size[0])||(y != this->Size[1]))
+//    {
+//    this->Size[0] = x;
+//    this->Size[1] = y;
+//    this->RenderWindow->SetSize(x,y);
+//    }
+//
+//}
  
-void vtkXRenderWindowInteractor::StartRotate()
+void vtkXRenderWindowInteractorTimer(XtPointer client_data,
+				     XtIntervalId *vtkNotUsed(id))
 {
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  this->Preprocess = 1;
-  this->State = VTKXI_ROTATE;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  this->ExtAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
-}
-void vtkXRenderWindowInteractor::EndRotate()
-{
-  if (this->State != VTKXI_ROTATE)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  this->RenderWindow->Render();
+  vtkXRenderWindowInteractor *me;
+  me = (vtkXRenderWindowInteractor *)client_data;
+
+  Window root,child;
+  int root_x,root_y;
+  int x,y;
+  float xf,yf;
+  unsigned int keys;
+
+  // get the pointer position
+  XQueryPointer(me->DisplayId,me->WindowId,
+		&root,&child,&root_x,&root_y,&x,&y,&keys);
+  if (!me->Enabled) return;
+  me->InteractorStyle->OnMouseMove(0,0,x,me->Size[1] - y);
+  me->InteractorStyle->OnTimer();
 }
 
-void vtkXRenderWindowInteractor::StartZoom()
+bool vtkXRenderWindowInteractor::CreateTimer(int timertype) 
 {
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  this->Preprocess = 1;
-  this->State = VTKXI_ZOOM;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  this->ExtAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
-}
-void vtkXRenderWindowInteractor::EndZoom()
-{
-  if (this->State != VTKXI_ZOOM)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  this->RenderWindow->Render();
+  this->AddTimeOut(this->App, 10,
+		   vtkXRenderWindowInteractorTimer,
+		   (XtPointer)this);
+  return true;
 }
 
-void vtkXRenderWindowInteractor::StartPan()
+bool vtkXRenderWindowInteractor::DestroyTimer(void) 
 {
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  
-  // calculation of focal depth has been moved to panning function.
-
-  this->Preprocess = 1;
-  this->State = VTKXI_PAN;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  this->ExtAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
+  // timers automatically expire in X windows
+  return true;
 }
 
-void vtkXRenderWindowInteractor::EndPan()
-{
-  if (this->State != VTKXI_PAN)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  this->RenderWindow->Render();
-}
-
-void vtkXRenderWindowInteractor::StartSpin()
-{
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  this->Preprocess = 1;
-  this->State = VTKXI_SPIN;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  this->ExtAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
-}
-
-void vtkXRenderWindowInteractor::EndSpin()
-{
-  if (this->State != VTKXI_SPIN)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  this->RenderWindow->Render();
-}
-
-void vtkXRenderWindowInteractor::StartDolly()
-{
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  this->Preprocess = 1;
-  this->State = VTKXI_DOLLY;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  this->ExtAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
-}
-
-void vtkXRenderWindowInteractor::EndDolly()
-{
-  if (this->State != VTKXI_DOLLY)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  this->RenderWindow->Render();
-}
-
-void vtkXRenderWindowInteractor::StartUniformScale()
-{
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  this->Preprocess = 1;
-  this->State = VTKXI_USCALE;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  this->ExtAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
-}
-
-void vtkXRenderWindowInteractor::EndUniformScale()
-{
-  if (this->State != VTKXI_USCALE)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  this->RenderWindow->Render();
-}
-
-void vtkXRenderWindowInteractor::StartTimer()
-{
-  if (this->State != VTKXI_START)
-    {
-    return;
-    }
-  this->Preprocess = 1;
-  this->State = VTKXI_TIMER;
-  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  this->ExtAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
-}
-
-void vtkXRenderWindowInteractor::EndTimer()
-{
-  if (this->State != VTKXI_TIMER)
-    {
-    return;
-    }
-  this->State = VTKXI_START;
-  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  this->RenderWindow->Render();
-}
-
-  
->>>>>>> 1.65
 void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 					XtPointer client_data,
 					XEvent *event,
@@ -516,232 +383,171 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
   vtkXRenderWindowInteractor *me;
 
   me = (vtkXRenderWindowInteractor *)client_data;
-
-  // Huge piece of code deleted...
-  // call
-  //InteractionStyle->OnChar(...)
-  //InteractionStyle->OnLButtonDown(...)
-  //etc etc
-  //and get shift and ctrl state
-
-}
-
-void vtkXRenderWindowInteractorTimer(XtPointer client_data,
-				     XtIntervalId *vtkNotUsed(id))
-{
-  vtkXRenderWindowInteractor *me;
-  Window root,child;
-  int root_x,root_y;
-  int x,y;
-  unsigned int keys;
-
-  me = (vtkXRenderWindowInteractor *)client_data;
-
-  // get the pointer position
-  me->GetMousePosition(&x, &y);
-
-  if (me->TimerMethod)
-    {
-    me->SetEventPosition(x,me->Size[1] - y - 1);
-    (*me->TimerMethod)(me->TimerMethodArg);
-    };
-<<<<<<< vtkXRenderWindowInteractor.cxx
-=======
+  int xp,yp;
   
-  switch (me->State)
+  switch (event->type) 
     {
-    case VTKXI_ROTATE:
-      if (me->ActorMode && me->ActorPicked)
-        {
-        if (me->TrackballMode)
-          {
-          me->TrackballRotateActor(x, y);
-          }
-        else
-          {
-          me->JoystickRotateActor(x, y);
-          }
-        me->ExtAddTimeOut(me->App,10,
-                        vtkXRenderWindowInteractorTimer,client_data);
-        }
-      else if (!(me->ActorMode))
-        {
-        if (me->TrackballMode)
-          {
-          me->TrackballRotateCamera(x, y);
-          }
-        else
-          {
-          me->JoystickRotateCamera(x, y);
-          }
-        me->ExtAddTimeOut(me->App,10,
-                        vtkXRenderWindowInteractorTimer,client_data);
->>>>>>> 1.65
-
-<<<<<<< vtkXRenderWindowInteractor.cxx
-    // just call
-    this->InteractorStyle->OnTimer();
-    // not sure you need the guff above but I'll leave it there.
-    // Mouse pos should be set by last mouse move or equiv message?
-}
-=======
-        }
-      break;
-    
-    case VTKXI_PAN:
-      if (me->ActorMode && me->ActorPicked)
-        {
-        if (me->TrackballMode)
-          {
-          me->TrackballPanActor(x, y);
-          }
-        else
-          {
-          me->JoystickPanActor(x, y);
-          }
-        me->ExtAddTimeOut(me->App,10,
-                        vtkXRenderWindowInteractorTimer,client_data);
-        }
-      else if (!(me->ActorMode))
-        {
-        if (me->TrackballMode)
-          {
-          me->TrackballPanCamera(x, y);
-          }
-        else
-          {
-          me->JoystickPanCamera(x, y);
-          }
-        me->ExtAddTimeOut(me->App,10,
-                        vtkXRenderWindowInteractorTimer,client_data);
-        }
+    case Expose:
+      {
+      XEvent result;
+      while (XCheckTypedWindowEvent(me->DisplayId, me->WindowId,
+				    Expose, &result))
+	{
+	// just getting the expose configure event
+	event = &result;
+	}
+      // only render if we are currently accepting events
+      if (me->GetEnabled())
+	{
+	me->GetRenderWindow()->Render();
+	}
+      }
       break;
 
-    case VTKXI_ZOOM:
-      if (!(me->ActorMode))
-        {
-        if (me->TrackballMode)
-          {
-          me->TrackballDollyCamera(x, y);
-          }
-        else
-          {
-          me->JoystickDollyCamera(x, y);
-          }
-        me->ExtAddTimeOut(me->App,10,
-                        vtkXRenderWindowInteractorTimer,client_data);
-        }
+    case ConfigureNotify: 
+      {
+      XEvent result;
+      while (XCheckTypedWindowEvent(me->DisplayId, me->WindowId,
+				    ConfigureNotify, &result))
+	{
+	// just getting the last configure event
+	event = &result;
+	}
+      if ((((XConfigureEvent *)event)->width != me->Size[0]) ||
+	  (((XConfigureEvent *)event)->height != me->Size[1]))
+	{
+	me->UpdateSize(((XConfigureEvent *)event)->width,
+		       ((XConfigureEvent *)event)->height); 
+	
+	// only render if we are currently accepting events
+	if (me->GetEnabled())
+	  {
+	  me->GetRenderWindow()->Render();
+	  }
+	}
+      }
       break;
-    
-    case VTKXI_SPIN:
-      if (me->ActorMode && me->ActorPicked)
+      
+    case ButtonPress: 
+      {
+      if (!me->Enabled) return;
+      int ctrl = 0;
+      if (((XButtonEvent *)event)->state & ControlMask)
         {
-	if (me->TrackballMode)
-          { 
-          me->TrackballSpinActor(x, y);
-          }
-        else
-          {
-          me->JoystickSpinActor(x, y);
-          }
-        me->ExtAddTimeOut(me->App,10,
-                        vtkXRenderWindowInteractorTimer,client_data);
+	ctrl = 1;
         }
-      else if (!(me->ActorMode))
+      int shift = 0;
+      if (((XButtonEvent *)event)->state & ShiftMask)
         {
-        if (me->TrackballMode)
-          {
-          me->TrackballSpinCamera(x, y);
-          }
-        else
-          {
-          me->JoystickSpinCamera(x, y);
-          }
-        me->ExtAddTimeOut(me->App,10,
-                        vtkXRenderWindowInteractorTimer,client_data);
+	shift = 1;
         }
+      xp = ((XButtonEvent*)event)->x;
+      yp = me->Size[1] - ((XButtonEvent*)event)->y - 1;
+      switch (((XButtonEvent *)event)->button)
+	{
+	case Button1: 
+	  me->InteractorStyle->OnLeftButtonDown(ctrl, shift, xp, yp);
+	  break;
+	case Button2: 
+	  me->InteractorStyle->OnMiddleButtonDown(ctrl, shift, xp, yp);
+	  break;
+	case Button3: 
+	  me->InteractorStyle->OnRightButtonDown(ctrl, shift, xp, yp);
+	  break;
+	}
+      }
       break;
-    
-    case VTKXI_DOLLY: 
-      if (me->ActorMode && me->ActorPicked)
+      
+    case ButtonRelease: 
+      {
+      if (!me->Enabled) return;
+      int ctrl = 0;
+      if (((XButtonEvent *)event)->state & ControlMask)
         {
-        if (me->TrackballMode)
-          {
-          me->TrackballDollyActor(x, y);
-          }
-        else
-          {
-          me->JoystickDollyActor(x, y);
-          }
-        me->ExtAddTimeOut(me->App,10,
-                        vtkXRenderWindowInteractorTimer,client_data);
+	ctrl = 1;
         }
-      break;
-    
-    case VTKXI_USCALE:
-      if (me->ActorMode && me->ActorPicked)
+      int shift = 0;
+      if (((XButtonEvent *)event)->state & ShiftMask)
         {
-        if (me->TrackballMode)
-          {
-          me->TrackballScaleActor(x, y);
-          }
-        else
-          {
-          me->JoystickScaleActor(x, y);
-          }
-        me->ExtAddTimeOut(me->App,10,
-                        vtkXRenderWindowInteractorTimer,client_data);
+	shift = 1;
         }
+      xp = ((XButtonEvent*)event)->x;
+      yp = me->Size[1] - ((XButtonEvent*)event)->y - 1;
+      switch (((XButtonEvent *)event)->button)
+	{
+	case Button1: 
+	  me->InteractorStyle->OnLeftButtonUp(ctrl, shift, xp, yp);
+	  break;
+	case Button2: 
+	  me->InteractorStyle->OnMiddleButtonUp(ctrl, shift, xp, yp);
+	  break;
+	case Button3: 
+	  me->InteractorStyle->OnRightButtonUp(ctrl, shift, xp, yp);
+	  break;
+	}
+      }
       break;
-    
-    case VTKXI_TIMER:
-      me->ExtAddTimeOut(me->App,10,
-                     vtkXRenderWindowInteractorTimer,client_data);
+
+    case EnterNotify:
+      {
+      // Force the keyboard focus to be this render window
+      if (me->TopLevelShell != NULL)
+        {
+        XtSetKeyboardFocus(me->TopLevelShell, me->top);
+        }
+      }
       break;
- 
+
+    case KeyPress:
+      {
+      int ctrl = 0;
+      if (((XKeyEvent *)event)->state & ControlMask)
+        {
+	ctrl = 1;
+        }
+      int shift = 0;
+      if (((XKeyEvent *)event)->state & ShiftMask)
+        {
+	shift = 1;
+        }
+      KeySym ks;
+      static char buffer[20];
+      buffer[0] = '\0';
+      XLookupString((XKeyEvent *)event,buffer,20,&ks,NULL);
+      xp = ((XKeyEvent*)event)->x;
+      yp = me->Size[1] - ((XKeyEvent*)event)->y - 1;
+      if (!me->Enabled) return;
+      me->InteractorStyle->OnMouseMove(0,0,xp,yp);
+      me->InteractorStyle->OnChar(ctrl, shift, buffer[0], 1);
+      }
+      break;      
+      
+    case MotionNotify: 
+      {
+      if (!me->Enabled) return;
+      int ctrl = 0;
+      if (((XMotionEvent *)event)->state & ControlMask)
+        {
+	ctrl = 1;
+        }
+      int shift = 0;
+      if (((XMotionEvent *)event)->state & ShiftMask)
+        {
+	shift = 1;
+        }
+      xp = ((XMotionEvent*)event)->x;
+      yp = me->Size[1] - ((XMotionEvent*)event)->y - 1;
+      me->InteractorStyle->OnMouseMove(ctrl, shift, xp, yp);
+      }
+      break;
     }
-}  
->>>>>>> 1.65
-
-<<<<<<< vtkXRenderWindowInteractor.cxx
-bool vtkXRenderWindowInteractor::CreateTimer(int timertype) {
-    // Fix this
-    this->AddTimeOut(this->App,10, vtkXRenderWindowInteractorTimer,client_data);
-    return true;
 }
 
-bool vtkXRenderWindowInteractor::DestroyTimer(void) {
-    return true;
-}
-=======
-// Finish setting up a new window after the WindowRemap.
-void vtkXRenderWindowInteractor::FinishSettingUpNewWindow()
-{
-  int *size;
 
-  // free the previous widget
-  XtDestroyWidget(this->oldTop);
-  XSync(this->DisplayId,False);
-
-  XtAddEventHandler(this->top,
-		    KeyPressMask | ButtonPressMask | ExposureMask |
-		    StructureNotifyMask | ButtonReleaseMask,
-		    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
-
-  size = this->RenderWindow->GetSize();
-  this->Size[0] = size[0];
-  this->Size[1] = size[1];
-}
->>>>>>> 1.65
-
-<<<<<<< vtkXRenderWindowInteractor.cxx
 XtIntervalId vtkXRenderWindowInteractor::AddTimeOut(XtAppContext app_context,
-=======
-XtIntervalId vtkXRenderWindowInteractor::ExtAddTimeOut(XtAppContext app_context, 
->>>>>>> 1.65
-			      unsigned long interval,
-			      XtTimerCallbackProc proc,
-			      XtPointer client_data)
+						    unsigned long interval,
+						    XtTimerCallbackProc proc,
+						    XtPointer client_data)
 {
   return XtAppAddTimeOut(app_context, interval, proc, client_data);
 }
@@ -763,45 +569,10 @@ void vtkXRenderWindowInteractor::Timer(XtPointer client_data,
 }
 
 void vtkXRenderWindowInteractor::Callback(Widget w,
-<<<<<<< vtkXRenderWindowInteractor.cxx
-				   XtPointer client_data,
-				   XEvent *event,
-				   Boolean *ctd) 
+					  XtPointer client_data,
+					  XEvent *event,
+					  Boolean *ctd) 
 {
   vtkXRenderWindowInteractorCallback(w, client_data, event, ctd);
 }
 
-=======
-				   XtPointer client_data, 
-				   XEvent *event, 
-				   Boolean *ctd) {
- vtkXRenderWindowInteractorCallback(w, client_data, event, ctd);
-}
-
-
-void vtkXRenderWindowInteractor::ExtXRenderWindowInteractorTimer(XtPointer client_data,
-				   XtIntervalId *id) {
-  vtkXRenderWindowInteractorTimer(client_data, id);
-}
-
-void vtkXRenderWindowInteractor::ExtXRenderWindowInteractorCallback(Widget w,
-				   XtPointer client_data, 
-				   XEvent *event, 
-				   Boolean *ctd) {
- vtkXRenderWindowInteractorCallback(w, client_data, event, ctd);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> 1.65

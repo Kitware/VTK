@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Call exit on 'q','e' keypress. Want more ???
-  void TerminateApp(void) { exit(); }
+  void TerminateApp(void) { exit(0); }
 
   // Description:
   // X timer methods
@@ -128,11 +128,6 @@ public:
   // about that widget. It's X and it's not terribly easy, but it looks cool.
   virtual void SetWidget(Widget);
   Widget GetWidget() {return this->top;};
-
-  // Description:
-  // Finish setting up a new window after the WindowRemap.
-  virtual void FinishSettingUpNewWindow();  
-  
   
   // Description
   // This method will store the top level shell widget for the interactor.
@@ -180,17 +175,11 @@ protected:
   int PositionBeforeStereo[2];
   Widget TopLevelShell;
 
-  virtual XtIntervalId ExtAddTimeOut(XtAppContext app_context, 
-				  unsigned long interval,
-				  XtTimerCallbackProc proc, 
-				  XtPointer client_data) ;
+  XtIntervalId AddTimeOut(XtAppContext app_context, unsigned long interval,
+			  XtTimerCallbackProc proc, XtPointer client_data) ;
   void GetMousePosition(int *x, int *y); 
   void Timer(XtPointer client_data, XtIntervalId *id); 
-  void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd); 
-
-  void ExtXRenderWindowInteractorTimer(XtPointer,XtIntervalId *); 
-  void ExtXRenderWindowInteractorCallback(Widget,XtPointer,
-					  XEvent *,Boolean *);
+  void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd);
 };
 
 #endif

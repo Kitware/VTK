@@ -241,16 +241,18 @@ void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags,
 {
   if (!this->Enabled) return;
   SetCapture(wnd);
-  InteractorStyle->OnLeftButtonDown(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
-                                 X, this->Size[1] - Y - 1);
+  this->InteractorStyle->OnLeftButtonDown(nFlags & MK_CONTROL, 
+					  nFlags & MK_SHIFT, 
+					  X, this->Size[1] - Y - 1);
 }
 
 void vtkWin32RenderWindowInteractor::OnLButtonUp(HWND wnd,UINT nFlags, 
                                                  int X, int Y) 
 {
   if (!this->Enabled) return;
-  InteractorStyle->OnLeftButtonUp(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
-                               X, this->Size[1] - Y - 1);
+  this->InteractorStyle->OnLeftButtonUp(nFlags & MK_CONTROL, 
+					nFlags & MK_SHIFT, 
+					X, this->Size[1] - Y - 1);
   ReleaseCapture( );
 }
 
@@ -259,17 +261,18 @@ void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags,
 {
   if (!this->Enabled) return;
   SetCapture(wnd);
-  InteractorStyle->OnMiddleButtonDown(nFlags & MK_CONTROL, 
-                                      nFlags & MK_SHIFT, 
-                                      X, this->Size[1] - Y - 1);
+  this->InteractorStyle->OnMiddleButtonDown(nFlags & MK_CONTROL, 
+					    nFlags & MK_SHIFT, 
+					    X, this->Size[1] - Y - 1);
 }
 
 void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND wnd,UINT nFlags, 
                                                  int X, int Y) 
 {
   if (!this->Enabled) return;
-  InteractorStyle->OnMiddleButtonUp(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
-                                    X, this->Size[1] - Y - 1);
+  this->InteractorStyle->OnMiddleButtonUp(nFlags & MK_CONTROL, n
+					  Flags & MK_SHIFT, 
+					  X, this->Size[1] - Y - 1);
   ReleaseCapture( );
 }
 
@@ -278,16 +281,18 @@ void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags,
 {
   if (!this->Enabled) return;
   SetCapture(wnd );
-  InteractorStyle->OnRightButtonDown(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
-                                     X, this->Size[1] - Y - 1);
+  this->InteractorStyle->OnRightButtonDown(nFlags & MK_CONTROL, 
+					   nFlags & MK_SHIFT, 
+					   X, this->Size[1] - Y - 1);
 }
 
 void vtkWin32RenderWindowInteractor::OnRButtonUp(HWND wnd,UINT nFlags, 
                                                  int X, int Y) 
 {
   if (!this->Enabled) return;
-  InteractorStyle->OnRightButtonUp(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
-                                   X, this->Size[1] - Y - 1);
+  this->InteractorStyle->OnRightButtonUp(nFlags & MK_CONTROL, 
+					 nFlags & MK_SHIFT, 
+					 X, this->Size[1] - Y - 1);
   ReleaseCapture( );
 }
 
@@ -298,7 +303,7 @@ void vtkWin32RenderWindowInteractor::OnSize(HWND wnd,UINT nType, int X, int Y) {
 void vtkWin32RenderWindowInteractor::OnTimer(HWND wnd,UINT nIDEvent) 
 {
   if (!this->Enabled) return;
-  InteractorStyle->OnTimer();
+  this->InteractorStyle->OnTimer();
 }
 
 void vtkWin32RenderWindowInteractor::OnChar(HWND wnd,UINT nChar, 
@@ -307,7 +312,7 @@ void vtkWin32RenderWindowInteractor::OnChar(HWND wnd,UINT nChar,
   if (!this->Enabled) return;
   bool ctrl  = GetKeyState(VK_CONTROL);
   bool shift = GetKeyState(VK_SHIFT);
-  InteractorStyle->OnChar(ctrl, shift, (char)nChar, nRepCnt);
+  this->InteractorStyle->OnChar(ctrl, shift, (char)nChar, nRepCnt);
 }
 
 // This is only called when InstallMessageProc is true

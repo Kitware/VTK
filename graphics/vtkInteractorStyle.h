@@ -120,7 +120,7 @@ public:
   // Description:
   // OnTimer calls RotateCamera, RotateActor etc which should be overridden by
   // style subclasses.
-  virtual void OnTimer(void);
+  virtual void OnTimer();
 
   // Description:
   // Callbacks so that the applicaiton can override the default behaviour.
