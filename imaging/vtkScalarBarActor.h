@@ -190,6 +190,10 @@ public:
   vtkSetStringMacro(Title);
   vtkGetStringMacro(Title);
 
+  // Description:
+  // Shallow copy of this class.
+  void ShallowCopy(vtkScalarBarActor *actor);
+
 protected:
   vtkScalarBarActor();
   ~vtkScalarBarActor();

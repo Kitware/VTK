@@ -219,6 +219,10 @@ public:
   vtkGetMacro(ZAxisVisibility,int);
   vtkBooleanMacro(ZAxisVisibility,int);
 
+  // Description:
+  // Shallow copy of a CubeAxesActor2D.
+  void ShallowCopy(vtkCubeAxesActor2D *actor);
+
 protected:
   vtkCubeAxesActor2D();
   ~vtkCubeAxesActor2D();
