@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRayCaster.h"
 #include "vtkVolumeRayCastFunction.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
+#include "vtkPlaneCollection.h"
 
 #define vtkRayCastMatrixMultiplyPointMacro( A, B, M ) \
   B[0] = A[0]*M[0]  + A[1]*M[1]  + A[2]*M[2]  + M[3]; \
@@ -151,10 +152,13 @@ void vtkVolumeRayCastMapper::InitializeRender( vtkRenderer *ren, vtkVolume *vol,
 
   this->GeneralImageInitialization( ren, vol );
 
-  this->VolumeRayCastFunction->FunctionInitialize( ren, vol, volumeInfo, this );
+  this->VolumeRayCastFunction->FunctionInitialize( ren, vol, 
+						   volumeInfo, this );
 
-  memcpy( volumeInfo->WorldToVolumeMatrix, this->WorldToVolumeMatrix, 16*sizeof(float) );
-  memcpy( volumeInfo->ViewToVolumeMatrix, this->ViewToVolumeMatrix, 16*sizeof(float) );
+  memcpy( volumeInfo->WorldToVolumeMatrix, 
+	  this->WorldToVolumeMatrix, 16*sizeof(float) );
+  memcpy( volumeInfo->ViewToVolumeMatrix, 
+	  this->ViewToVolumeMatrix, 16*sizeof(float) );
 
   volumeInfo->ScalarDataType = this->ScalarDataType;
   volumeInfo->ScalarDataPointer = this->ScalarDataPointer;    
@@ -238,15 +242,18 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
   oneStep[0]  = rayStart[0] + rayDirection[0] * this->WorldSampleDistance;
   oneStep[1]  = rayStart[1] + rayDirection[1] * this->WorldSampleDistance;
   oneStep[2]  = rayStart[2] + rayDirection[2] * this->WorldSampleDistance;
-  
+
   // Transform the ray start from view to volume coordinates
-  vtkRayCastMatrixMultiplyPointMacro( rayStart, volumeRayStart, viewToVolumeMatrix );
+  vtkRayCastMatrixMultiplyPointMacro( rayStart, volumeRayStart, 
+				      viewToVolumeMatrix );
 
   // Transform the ray end from view to volume coordinates
-  vtkRayCastMatrixMultiplyPointMacro( rayEnd, volumeRayEnd, viewToVolumeMatrix );
+  vtkRayCastMatrixMultiplyPointMacro( rayEnd, volumeRayEnd, 
+				      viewToVolumeMatrix );
 
   // Transform a point one step from the rayStart
-  vtkRayCastMatrixMultiplyPointMacro( oneStep, volumeOneStep, viewToVolumeMatrix );
+  vtkRayCastMatrixMultiplyPointMacro( oneStep, volumeOneStep, 
+				      viewToVolumeMatrix );
 
   // Compute the ray direction
   volumeRayIncrement[0] = 
@@ -256,9 +263,18 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
   volumeRayIncrement[2] = 
     volumeOneStep[2] - volumeRayStart[2];
 
-  incrementLength = sqrt( (double) (volumeRayIncrement[0]*volumeRayIncrement[0] +
-				    volumeRayIncrement[1]*volumeRayIncrement[1] +
-				    volumeRayIncrement[2]*volumeRayIncrement[2]) );
+  incrementLength = 
+    sqrt( (double) (volumeRayIncrement[0]*volumeRayIncrement[0] +
+		    volumeRayIncrement[1]*volumeRayIncrement[1] +
+		    volumeRayIncrement[2]*volumeRayIncrement[2]) );
+
+  if ( !( !this->ClippingPlanes ||
+	  this->ClipRayAgainstClippingPlanes( rayInfo, volumeInfo,
+					      this->ClippingPlanes ) ) )
+    {
+    return;
+    }
+  
 
   volumeRayDirection[0] = volumeRayEnd[0] - volumeRayStart[0];
   volumeRayDirection[1] = volumeRayEnd[1] - volumeRayStart[1];
@@ -280,7 +296,7 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
   if ( incrementLength && rayLength && 
        (!this->Cropping || this->CroppingRegionFlags == 0x2000) )
     {
-    if ( this->ClipRayAgainstVolume( rayInfo, volumeInfo, this->VolumeBounds ) )
+    if ( this->ClipRayAgainstVolume(rayInfo, volumeInfo, this->VolumeBounds) )
       {
       // Recompute the ray length since the start and end may have been
       // modified by ClipRayAgainstVolume() 
@@ -288,35 +304,38 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
       volumeRayDirection[1] = volumeRayEnd[1] - volumeRayStart[1];
       volumeRayDirection[2] = volumeRayEnd[2] - volumeRayStart[2];
       
-      rayLength = sqrt( (double) (volumeRayDirection[0]*volumeRayDirection[0] +
-				  volumeRayDirection[1]*volumeRayDirection[1] +
-				  volumeRayDirection[2]*volumeRayDirection[2]) );
+      rayLength = 
+	sqrt((double)(volumeRayDirection[0]*volumeRayDirection[0] +
+		      volumeRayDirection[1]*volumeRayDirection[1] +
+		      volumeRayDirection[2]*volumeRayDirection[2]) );
       if ( rayLength )
 	{
 	volumeRayDirection[0] /= rayLength;
 	volumeRayDirection[1] /= rayLength;
 	volumeRayDirection[2] /= rayLength;
 	}
-
+      
       volumeRayIncrement[0] = incrementLength * volumeRayDirection[0];
       volumeRayIncrement[1] = incrementLength * volumeRayDirection[1];
       volumeRayIncrement[2] = incrementLength * volumeRayDirection[2];
-
+      
       rayInfo->NumberOfStepsToTake = (rayLength / incrementLength) + 1;
       
       for ( i = 0; i < 3; i++ )
 	{
-	if ( ( volumeRayIncrement[i] > 0.0 && 
-	       ( volumeRayStart[i] + 
-		 (float)(rayInfo->NumberOfStepsToTake-1) * volumeRayIncrement[i]) >
-	       volumeRayEnd[i] ) ||
-	     ( volumeRayIncrement[i] < 0.0 && 
-	       ( volumeRayStart[i] + 
-		 (float)(rayInfo->NumberOfStepsToTake-1) * volumeRayIncrement[i]) <
-	       volumeRayEnd[i] ) )
-	  {
-	  rayInfo->NumberOfStepsToTake--;
-	  }
+	  if ( ( volumeRayIncrement[i] > 0.0 && 
+		 ( volumeRayStart[i] + 
+		   (float)(rayInfo->NumberOfStepsToTake-1) * 
+		   volumeRayIncrement[i]) >
+		 volumeRayEnd[i] ) ||
+	       ( volumeRayIncrement[i] < 0.0 && 
+		 ( volumeRayStart[i] + 
+		   (float)(rayInfo->NumberOfStepsToTake-1) * 
+		   volumeRayIncrement[i]) <
+		 volumeRayEnd[i] ) )
+	    {
+	      rayInfo->NumberOfStepsToTake--;
+	    }
 	}
 
       if ( rayInfo->NumberOfStepsToTake > 0 )
@@ -413,9 +432,11 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 	  volumeRayDirection[1] = volumeRayEnd[1] - volumeRayStart[1];
 	  volumeRayDirection[2] = volumeRayEnd[2] - volumeRayStart[2];
       
-	  rayLength = sqrt( (double) (volumeRayDirection[0]*volumeRayDirection[0] +
-				      volumeRayDirection[1]*volumeRayDirection[1] +
-				      volumeRayDirection[2]*volumeRayDirection[2]) );
+	  rayLength = 
+	    sqrt((double)(volumeRayDirection[0]*volumeRayDirection[0] +
+			  volumeRayDirection[1]*volumeRayDirection[1] +
+			  volumeRayDirection[2]*volumeRayDirection[2]) );
+
 	  if ( rayLength > 0.01 )
 	    {
 	    volumeRayDirection[0] /= rayLength;
@@ -431,10 +452,14 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 	    for ( i = 0; i < 3; i++ )
 	      {
 	      if ( ( volumeRayIncrement[i] > 0.0 && 
-		     ( volumeRayStart[i] + (float)(rayInfo->NumberOfStepsToTake-1) * volumeRayIncrement[i]) >
+		     ( volumeRayStart[i] + 
+		       (float)(rayInfo->NumberOfStepsToTake-1) * 
+		       volumeRayIncrement[i]) >
 		     volumeRayEnd[i] ) ||
 		   ( volumeRayIncrement[i] < 0.0 && 
-		     ( volumeRayStart[i] + (float)(rayInfo->NumberOfStepsToTake-1) * volumeRayIncrement[i]) <
+		     ( volumeRayStart[i] + 
+		       (float)(rayInfo->NumberOfStepsToTake-1) * 
+		       volumeRayIncrement[i]) <
 		     volumeRayEnd[i] ) )
 		{
 		rayInfo->NumberOfStepsToTake--;
@@ -455,19 +480,24 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 	      if ( volumeRayDirection[i] >= volumeRayDirection[(i+1)%3] && 
 		   volumeRayDirection[i] >= volumeRayDirection[(i+2)%3] )
 		{
-		distanceArray[arrayCount] = (volumeRayStart[i] - savedRayStart[i]) / volumeRayDirection[i];
+		distanceArray[arrayCount] = 
+		  (volumeRayStart[i] - 
+		   savedRayStart[i]) / volumeRayDirection[i];
 		break;
 		}
 	      }
-	    memcpy( (rgbaArray + 4*arrayCount), rayInfo->Color, 4*sizeof(float) );
-	    for ( i = arrayCount; i > 0 && distanceArray[i] > distanceArray[i-1]; i-- )
+	    memcpy( (rgbaArray + 4*arrayCount), 
+		    rayInfo->Color, 4*sizeof(float) );
+	    for ( i = arrayCount; 
+		  i > 0 && distanceArray[i] > distanceArray[i-1]; i-- )
 	      {
 	      tmp = distanceArray[i];
 	      distanceArray[i] = distanceArray[i-1];
 	      distanceArray[i-1] = tmp;
 
 	      memcpy( tmpArray, (rgbaArray + 4*i), 4*sizeof(float) );
-	      memcpy( (rgbaArray + 4*i), (rgbaArray + 4*(i-1)), 4*sizeof(float) );
+	      memcpy( (rgbaArray + 4*i), 
+		      (rgbaArray + 4*(i-1)), 4*sizeof(float) );
 	      memcpy( (rgbaArray + 4*(i-1)), tmpArray, 4*sizeof(float) );
 	      }
 	    
@@ -484,9 +514,12 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 
     for ( i = 0; i < arrayCount; i++ )
       {
-      rayInfo->Color[0] = rayInfo->Color[0] * (1.0 - rgbaArray[i*4 + 3]) + rgbaArray[i*4 + 0];
-      rayInfo->Color[1] = rayInfo->Color[1] * (1.0 - rgbaArray[i*4 + 3]) + rgbaArray[i*4 + 1];
-      rayInfo->Color[2] = rayInfo->Color[2] * (1.0 - rgbaArray[i*4 + 3]) + rgbaArray[i*4 + 2];
+      rayInfo->Color[0] = rayInfo->Color[0] * 
+	(1.0 - rgbaArray[i*4 + 3]) + rgbaArray[i*4 + 0];
+      rayInfo->Color[1] = rayInfo->Color[1] * 
+	(1.0 - rgbaArray[i*4 + 3]) + rgbaArray[i*4 + 1];
+      rayInfo->Color[2] = rayInfo->Color[2] * 
+	(1.0 - rgbaArray[i*4 + 3]) + rgbaArray[i*4 + 2];
       rayInfo->Color[3] *= 1.0 - rgbaArray[i*4 + 3];
       }
     rayInfo->Color[3] = 1.0 - rayInfo->Color[3];
@@ -494,9 +527,121 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
     }
 }
 
-int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo, 
-						  VTKRayCastVolumeInfo *volumeInfo,
-						  float bounds[6] )
+int vtkVolumeRayCastMapper::ClipRayAgainstClippingPlanes( 
+					   VTKRayCastRayInfo *rayInfo, 
+					   VTKRayCastVolumeInfo *volumeInfo,
+					   vtkPlaneCollection *planes )
+{
+  vtkPlane *onePlane;
+  float    d;
+  float    worldNormal[3], worldOrigin[3];
+  float    volumeNormal[4], volumeOrigin[4];
+  int      i;
+  float    rayDir[3];
+  float    t, point[3], dp;
+  float    *worldToVolumeMatrix;
+  float    worldZero[3], volumeZero[4];
+  float    *rayStart, *rayEnd;
+
+  rayStart = rayInfo->TransformedStart;
+  rayEnd = rayInfo->TransformedEnd;
+
+  worldToVolumeMatrix = volumeInfo->WorldToVolumeMatrix;
+
+  worldZero[0] = 0.0;
+  worldZero[1] = 0.0;
+  worldZero[2] = 0.0;
+  vtkRayCastMatrixMultiplyPointMacro( worldZero, volumeZero,
+				      worldToVolumeMatrix );
+
+  rayDir[0] = rayEnd[0] - rayStart[0];
+  rayDir[1] = rayEnd[1] - rayStart[1];
+  rayDir[2] = rayEnd[2] - rayStart[2];
+
+  // loop through all the clipping planes
+  for ( i = 0; i < planes->GetNumberOfItems(); i++ )
+    {
+    onePlane = (vtkPlane *)planes->GetItemAsObject(i);
+    onePlane->GetNormal(worldNormal);
+    onePlane->GetOrigin(worldOrigin);
+    vtkRayCastMatrixMultiplyPointMacro( worldNormal, volumeNormal,
+					worldToVolumeMatrix );
+    vtkRayCastMatrixMultiplyPointMacro( worldOrigin, volumeOrigin,
+					worldToVolumeMatrix );
+    volumeNormal[0] -= volumeZero[0];
+    volumeNormal[1] -= volumeZero[1];
+    volumeNormal[2] -= volumeZero[2];
+
+    t = sqrt( volumeNormal[0]*volumeNormal[0] +
+	      volumeNormal[1]*volumeNormal[1] +
+	      volumeNormal[2]*volumeNormal[2] );
+    if ( t )
+      {
+      volumeNormal[0] /= t;
+      volumeNormal[1] /= t;
+      volumeNormal[2] /= t;
+      }
+
+    d = -(volumeNormal[0]*volumeOrigin[0] + 
+	  volumeNormal[1]*volumeOrigin[1] + 
+	  volumeNormal[2]*volumeOrigin[2]);
+
+    dp = 
+      volumeNormal[0]*rayDir[0] + 
+      volumeNormal[1]*rayDir[1] + 
+      volumeNormal[2]*rayDir[2];
+
+    if ( dp != 0.0 )
+      {
+      t = 
+	-( volumeNormal[0]*rayStart[0] + 
+	   volumeNormal[1]*rayStart[1] + 
+	   volumeNormal[2]*rayStart[2] + d) / dp; 
+
+      if ( t > 0.0 && t < 1.0 )
+	{
+	point[0] = rayStart[0] + t*rayDir[0];
+	point[1] = rayStart[1] + t*rayDir[1];
+	point[2] = rayStart[2] + t*rayDir[2];
+	
+	if ( dp > 0.0 )
+	  {
+	  memcpy( rayStart, point, 3*sizeof(float) );
+	  }
+	else
+	  {
+	  memcpy( rayEnd, point, 3*sizeof(float) );
+	  }
+
+	rayDir[0] = rayEnd[0] - rayStart[0];
+	rayDir[1] = rayEnd[1] - rayStart[1];
+	rayDir[2] = rayEnd[2] - rayStart[2];
+
+	}
+      // If the clipping plane is outside the ray segment, then
+      // figure out it that means the ray segment goes to zero (if so
+      // return 0) or doesn't affect it (if so do nothing)
+      else
+	{
+	if ( dp >= 0.0 && t >= 1.0 )
+	  {
+	  return 0;
+	  }
+	if ( dp <= 0.0 && t <= 0.0 )
+	  {
+	  return 0;
+	  }
+	}
+      }
+    }
+
+  return 1;
+}
+
+int vtkVolumeRayCastMapper::ClipRayAgainstVolume( 
+					   VTKRayCastRayInfo *rayInfo, 
+					   VTKRayCastVolumeInfo *volumeInfo,
+					   float bounds[6] )
 {
   int    loop;
   float  diff;
