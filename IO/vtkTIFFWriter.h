@@ -31,13 +31,39 @@ public:
   vtkTypeRevisionMacro(vtkTIFFWriter,vtkImageWriter);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
+//BTX
+  enum { // Compression types
+    NoCompression,
+    PackBits,
+    JPEG,
+    Deflate,
+    LZW
+  };
+//ETX
+
+  // Description:
+  // Set compression type. Sinze LZW compression is patented outside US, the
+  // additional work steps have to be taken in order to use that compression.
+  vtkSetClampMacro(Compression, int, NoCompression, LZW);
+  void SetCompressionToNoCompression() { this->SetCompression(NoCompression); }
+  void SetCompressionToPackBits()      { this->SetCompression(PackBits); }
+  void SetCompressionToJPEG()          { this->SetCompression(JPEG); }
+  void SetCompressionToDeflate()       { this->SetCompression(Deflate); }
+  void SetCompressionToLZW()           { this->SetCompression(LZW); }
+
 protected:
-  vtkTIFFWriter() {};
+  vtkTIFFWriter();
   ~vtkTIFFWriter() {};
 
   virtual void WriteFile(ofstream *file, vtkImageData *data, 
                          int ext[6]);
   virtual void WriteFileHeader(ofstream *, vtkImageData *);
+  virtual void WriteFileTrailer(ofstream *, vtkImageData *);
+
+  void* TIFFPtr;
+
+  int Compression;
+
 private:
   vtkTIFFWriter(const vtkTIFFWriter&);  // Not implemented.
   void operator=(const vtkTIFFWriter&);  // Not implemented.
