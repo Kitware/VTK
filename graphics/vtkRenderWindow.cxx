@@ -57,6 +57,9 @@ vtkRenderWindow::vtkRenderWindow()
   this->OldScreen[2] = this->OldScreen[3] = 300;
   this->OldScreen[4] = 1;
   this->DoubleBuffer = 1;
+  this->PointSmoothing = 0;
+  this->LineSmoothing = 0;
+  this->PolygonSmoothing = 0;
   this->StereoRender = 0;
   this->StereoType = VTK_STEREO_RED_BLUE;
   this->StereoStatus = 0;
@@ -790,6 +793,12 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Stereo Render: " 
      << (this->StereoRender ? "On\n":"Off\n");
 
+  os << indent << "Point Smoothing: " 
+     << (this->PointSmoothing ? "On\n":"Off\n");
+  os << indent << "Line Smoothing: " 
+     << (this->LineSmoothing ? "On\n":"Off\n");
+  os << indent << "Polygon Smoothing: " 
+     << (this->PolygonSmoothing ? "On\n":"Off\n");
   os << indent << "Anti Aliased Frames: " << this->AAFrames << "\n";
   os << indent << "Abort Render: " << this->AbortRender << "\n";
   os << indent << "Desired Update Rate: " << this->DesiredUpdateRate << "\n";

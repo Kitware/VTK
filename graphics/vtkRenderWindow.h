@@ -158,6 +158,27 @@ public:
   vtkBooleanMacro(StereoRender,int);
 
   // Description:
+  // Turn on/off point smoothing. Default is off.
+  // This must be applied before the first Render.
+  vtkSetMacro(PointSmoothing,int);
+  vtkGetMacro(PointSmoothing,int);
+  vtkBooleanMacro(PointSmoothing,int);
+
+  // Description:
+  // Turn on/off line smoothing. Default is off.
+  // This must be applied before the first Render.
+  vtkSetMacro(LineSmoothing,int);
+  vtkGetMacro(LineSmoothing,int);
+  vtkBooleanMacro(LineSmoothing,int);
+
+  // Description:
+  // Turn on/off polygon smoothing. Default is off.
+  // This must be applied before the first Render.
+  vtkSetMacro(PolygonSmoothing,int);
+  vtkGetMacro(PolygonSmoothing,int);
+  vtkBooleanMacro(PolygonSmoothing,int);
+
+  // Description:
   // Set/Get what type of stereo rendering to use.
   vtkGetMacro(StereoType,int);
   vtkSetMacro(StereoType,int);
@@ -329,6 +350,9 @@ protected:
   int Borders;
   int FullScreen;
   int OldScreen[5];
+  int PointSmoothing;
+  int LineSmoothing;
+  int PolygonSmoothing;
   int StereoRender;
   int StereoType;
   int StereoStatus; // used for keeping track of what's going on
