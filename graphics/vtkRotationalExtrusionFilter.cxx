@@ -58,7 +58,7 @@ vtkRotationalExtrusionFilter::vtkRotationalExtrusionFilter()
 void vtkRotationalExtrusionFilter::Execute()
 {
   int numPts, numCells;
-  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *input= this->GetInput();
   vtkPointData *pd=input->GetPointData();
   vtkPolyData mesh;
   vtkPoints *inPts;
@@ -72,11 +72,13 @@ void vtkRotationalExtrusionFilter::Execute()
   vtkCell *cell, *edge;
   vtkIdList cellIds(VTK_CELL_SIZE), *cellPts;
   int i, j, k, p1, p2;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *output= this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
-//
-// Initialize / check input
-//
+  double tempd;
+
+  //
+  // Initialize / check input
+  //
   vtkDebugMacro(<<"Rotationally extruding data");
 
   numPts = input->GetNumberOfPoints();
@@ -86,9 +88,9 @@ void vtkRotationalExtrusionFilter::Execute()
     vtkErrorMacro(<<"No data to extrude!");
     return;
     }
-//
-// Build cell data structure.
-//
+  //
+  // Build cell data structure.
+  //
   inPts = input->GetPoints();
   inVerts = input->GetVerts();
   inLines = input->GetLines();
@@ -137,19 +139,33 @@ void vtkRotationalExtrusionFilter::Execute()
       x = inPts->GetPoint(ptId);
       //convert to cylindrical
       radius = sqrt(x[0]*x[0] + x[1]*x[1]);
-      theta = acos((double)x[0]/radius);
-      if ( (psi=asin((double)x[1]/radius)) < 0.0 ) 
+      if (radius > 0.0)
         {
-        if ( theta < (vtkMath::Pi()/2.0) ) theta = 2.0*vtkMath::Pi() + psi;
-        else theta = vtkMath::Pi() - psi;
+        tempd = (double)x[0]/radius;
+        if (tempd < -1.0) tempd = -1.0;
+        if (tempd > 1.0) tempd = 1.0;
+        theta = acos(tempd);
+        tempd = (double)x[1]/radius;
+        if (tempd < -1.0) tempd = -1.0;
+        if (tempd > 1.0) tempd = 1.0;
+        if ( (psi=asin(tempd)) < 0.0 ) 
+          {
+          if ( theta < (vtkMath::Pi()/2.0) ) theta = 2.0*vtkMath::Pi() + psi;
+          else theta = vtkMath::Pi() - psi;
+          }
+
+        //increment angle
+        radius += i*radIncr;
+        newX[0] = radius * cos (i*angleIncr + theta);
+        newX[1] = radius * sin (i*angleIncr + theta);
+        newX[2] = x[2] + i * transIncr;
         }
-
-      //increment angle
-      radius += i*radIncr;
-      newX[0] = radius * cos (i*angleIncr + theta);
-      newX[1] = radius * sin (i*angleIncr + theta);
-      newX[2] = x[2] + i * transIncr;
-
+      else // radius is zero
+        {
+        newX[0] = 0.0;
+        newX[1] = 0.0;
+        newX[2] = x[2] + i * transIncr;
+        }
       newPts->InsertPoint(ptId+i*numPts,newX);
       outPD->CopyData(pd,ptId,ptId+i*numPts);
       }
