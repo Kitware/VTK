@@ -26,7 +26,7 @@ class vlMatrix4x4 : public vlObject
   vlMatrix4x4 ();
   void operator= (float element);
   void operator= (vlMatrix4x4& source);
-  float *operator[](const unsigned int i) const {return &(Element[i][0]);};
+  float *operator[](const unsigned int i) {return &(Element[i][0]);};
 
   //  Calculate the inverse of in and
   //  return it in out.
