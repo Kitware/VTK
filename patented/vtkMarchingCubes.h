@@ -144,7 +144,7 @@ inline float *vtkMarchingCubes::GetValues()
 
 // Description:
 // Fill a supplied list with contour values. There will be
-// GetNumberOfContours() values in the list.Make sure you allocate
+// GetNumberOfContours() values in the list. Make sure you allocate
 // enough memory to hold the list.
 inline void vtkMarchingCubes::GetValues(float *contourValues)
 {this->ContourValues->GetValues(contourValues);};
@@ -159,7 +159,7 @@ inline void vtkMarchingCubes::SetNumberOfContours(int number)
 // Description:
 // Get the number of contours in the list of contour values.
 inline int vtkMarchingCubes::GetNumberOfContours()
-{return this->GetNumberOfContours();};
+{return this->ContourValues->GetNumberOfContours();};
 
 // Description:
 // Generate numContours equally spaced contour values between specified
