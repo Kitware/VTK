@@ -17,8 +17,8 @@ vtkFloatTCoords		GetTCoord	301 3
 vtkFloatVectors		GetVector	301 3
 vtkGeometryFilter	GetExtent	301 6
 vtkGraymap		GetColor	313 4
-vtkImageCache           GetUpdateExtent 304 8
-vtkImageCache           GetWholeExtent  304 8
+vtkImageCache           GetUpdateExtent 304 6
+vtkImageCache           GetWholeExtent  304 6
 vtkImageSpatialFilter   GetKernelSize   304 4
 vtkIntPoints		GetPoint	301 3
 vtkLookupTable		GetTableValue	301 4

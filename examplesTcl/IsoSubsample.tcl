@@ -22,23 +22,17 @@ reader SetFilePrefix "../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 reader SetDataSpacing 0.8 0.8 1.5
 
-vtkImageSubsample3D subsample
-subsample SetInput [reader GetOutput]
-subsample SetShrinkFactors 4 4 1
+vtkImageClip clip
+clip SetInput [reader GetOutput]
+clip SetOutputWholeExtent 100 125 100 125 10 30
 
-vtkImageGaussianSmooth smooth
-smooth SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
-smooth SetInput [reader GetOutput]
-smooth SetStandardDeviations 1.75 1.75
-smooth SetRadiusFactor 2
-smooth SetStrides 4 4
 
 vtkImageMarchingCubes iso
-iso SetInput [subsample GetOutput]
+iso SetInput [clip GetOutput]
 # this is the anti aliased input
 #iso SetInput [smooth GetOutput] 
 iso SetValue 0 1150
-iso SetInputMemoryLimit 140
+#iso SetInputMemoryLimit 140
 
 vtkPolyDataMapper isoMapper
 isoMapper SetInput [iso GetOutput]
