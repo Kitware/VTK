@@ -13,3 +13,6 @@ ADD_TEST(TestSetGet ${VTK_EXECUTABLE}
 ADD_TEST(TestArrays ${VTK_EXECUTABLE}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestArrays.tcl 
          -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+ADD_TEST(PrintSelf-Common ${TCLSHCOMMAND}
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  
+         ${VTK_SOURCE_DIR}/Common)
