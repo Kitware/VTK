@@ -103,7 +103,8 @@ protected:
   UINT TimerId;
   WNDPROC OldProc;
   LPARAM LastPosition;
-
+  
+  //BTX
   // Description:
   // Class variables so an exit method can be defined for this class
   // (used to set different exit methods for various language bindings,
@@ -111,6 +112,7 @@ protected:
   static void (*ClassExitMethod)(void *);
   static void (*ClassExitMethodArgDelete)(void *);
   static void *ClassExitMethodArg;
+  //ETX
 };
 
 #endif
