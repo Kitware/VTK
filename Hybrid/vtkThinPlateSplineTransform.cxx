@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkThinPlateSplineTransform, "1.30");
+vtkCxxRevisionMacro(vtkThinPlateSplineTransform, "1.31");
 vtkStandardNewMacro(vtkThinPlateSplineTransform);
 
 //------------------------------------------------------------------------
@@ -237,7 +237,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
 
     // build L
     // will leave the bottom-right corner with zeros
-    ZeroMatrix(L,N+D+1,N+D+1);
+    vtkZeroMatrix(L,N+D+1,N+D+1);
 
     int q,c;
     double p[3],p2[3];
@@ -264,7 +264,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
       }
     
     // build X
-    ZeroMatrix(X,N+D+1,D);
+    vtkZeroMatrix(X,N+D+1,D);
     for (q = 0; q < N; q++)
       {
       this->TargetLandmarks->GetPoint(q,p);
