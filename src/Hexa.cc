@@ -127,11 +127,13 @@ int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
     }
   else
     {
-    if ( pcoords[0] >= -1.0 && pcoords[1] <= 1.0 &&
-    pcoords[1] >= -1.0 && pcoords[1] <= 1.0 &&
-    pcoords[2] >= -1.0 && pcoords[2] <= 1.0 )
+    // shift to (0,1)
+    for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0);
+
+    if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
+    pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
+    pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
       {
-      for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
       closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
       dist2 = 0.0; // inside hexahedron
       return 1;
@@ -140,11 +142,10 @@ int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
       {
       for (i=0; i<3; i++)
         {
-        if (pcoords[i] < -1.0) pcoords[i] = -1.0;
+        if (pcoords[i] < 0.0) pcoords[i] = 0.0;
         if (pcoords[i] > 1.0) pcoords[i] = 1.0;
         }
       this->EvaluateLocation(subId, pcoords, closestPoint, weights);
-      for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
       dist2 = math.Distance2BetweenPoints(closestPoint,x);
       return 0;
       }
