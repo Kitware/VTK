@@ -19,10 +19,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 #include "IntArray.hh"
 
-//
-// External integer array provided; responsibility of user 
-// to manage memory
-//
 vlIntArray::Initialize(const int sz, const int ext)
 {
   if ( this->Array != 0 ) delete [] this->Array;
