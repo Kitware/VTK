@@ -269,6 +269,7 @@ ENDIF(VTK_MANGLE_MESA)
 # Setup vtkInstantiator registration for this library's classes.
 VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator RenderingInstantiator_SRCS
     ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
+    ${VTK_USE_INSTANTIATOR_NEW}
     EXPORT_MACRO VTK_RENDERING_EXPORT
     HEADER_LOCATION ${VTK_BINARY_DIR})
 ADD_LIBRARY(vtkRendering 

@@ -20,6 +20,7 @@ ENDIF(CMAKE_BUILD_TOOL MATCHES devenv)
 # Setup vtkInstantiator registration for this library's classes.
 VTK_MAKE_INSTANTIATOR(vtkPatentedInstantiator PatentedInstantiator_SRCS
                       ${Patented_SRCS}
+                      ${VTK_USE_INSTANTIATOR_NEW}
                       EXPORT_MACRO VTK_PATENTED_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ADD_LIBRARY(vtkPatented ${Patented_SRCS} ${PatentedInstantiator_SRCS})

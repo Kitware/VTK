@@ -163,6 +163,7 @@ ABSTRACT
 # Setup vtkInstantiator registration for this library's classes.
 VTK_MAKE_INSTANTIATOR(vtkGraphicsInstantiator GraphicsInstantiator_SRCS
                       ${Graphics_SRCS}
+                      ${VTK_USE_INSTANTIATOR_NEW}
                       EXPORT_MACRO VTK_GRAPHICS_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ADD_LIBRARY(vtkGraphics ${Graphics_SRCS} ${GraphicsInstantiator_SRCS})

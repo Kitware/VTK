@@ -117,6 +117,7 @@ ABSTRACT
 # Setup vtkInstantiator registration for this library's classes.
 VTK_MAKE_INSTANTIATOR(vtkImagingInstantiator ImagingInstantiator_SRCS
                       ${Imaging_SRCS}
+                      ${VTK_USE_INSTANTIATOR_NEW}
                       EXPORT_MACRO VTK_IMAGING_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ADD_LIBRARY(vtkImaging ${Imaging_SRCS} ${ImagingInstantiator_SRCS})
