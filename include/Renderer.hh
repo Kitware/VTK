@@ -51,6 +51,7 @@ public:
   void AddLights(vlLight *);
   void AddActors(vlActor *);
   void SetActiveCamera(vlCamera *);
+  vlCamera *GetActiveCamera();
 
   vlSetVector3Macro(Background,float);
   vlGetVectorMacro(Background,float);
@@ -81,6 +82,7 @@ public:
   void DoCameras();
   void DoLights();
   void DoActors();
+  void ResetCamera();
 
   void SetRenderWindow(vlRenderWindow *);
   
