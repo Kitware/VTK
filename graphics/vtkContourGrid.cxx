@@ -49,8 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 
-
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkContourGrid* vtkContourGrid::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -62,9 +61,6 @@ vtkContourGrid* vtkContourGrid::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkContourGrid;
 }
-
-
-
 
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
@@ -96,7 +92,7 @@ vtkContourGrid::~vtkContourGrid()
 // then this object is modified as well.
 unsigned long vtkContourGrid::GetMTime()
 {
-  unsigned long mTime=this->vtkDataSetToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->vtkUnstructuredGridToPolyDataFilter::GetMTime();
   unsigned long time;
 
   if (this->ContourValues)
@@ -297,47 +293,47 @@ static void vtkContourGridExecute(vtkContourGrid *self,
 }
 
 //
-// General contouring filter.  Handles arbitrary input.
+// Contouring filter for unstructured grids.
 //
 void vtkContourGrid::Execute()
 {
-        vtkScalars *inScalars;
+  vtkScalars *inScalars;
   vtkDataSet *input=this->GetInput();
-        void *scalarArrayPtr;
-        int numCells;
-        int numContours = this->ContourValues->GetNumberOfContours();
-        float *values = this->ContourValues->GetValues();
-        int computeScalars = this->ComputeScalars;
-        int useScalarTree = this->UseScalarTree;
-        vtkScalarTree *scalarTree = this->ScalarTree;
+  void *scalarArrayPtr;
+  int numCells;
+  int numContours = this->ContourValues->GetNumberOfContours();
+  float *values = this->ContourValues->GetValues();
+  int computeScalars = this->ComputeScalars;
+  int useScalarTree = this->UseScalarTree;
+  vtkScalarTree *scalarTree = this->ScalarTree;
 
   vtkDebugMacro(<< "Executing contour filter");
 
   if ( this->Locator == NULL )
-                {
+    {
     this->CreateDefaultLocator();
     }
 
   numCells = input->GetNumberOfCells();
-        inScalars = input->GetPointData()->GetScalars();
+  inScalars = input->GetPointData()->GetScalars();
   if ( ! inScalars || numCells < 1 )
     {
     vtkErrorMacro(<<"No data to contour");
     return;
     }
 
-        scalarArrayPtr = inScalars->GetVoidPointer(0);
+  scalarArrayPtr = inScalars->GetVoidPointer(0);
         
-        switch (inScalars->GetDataType())
-                {
-                vtkTemplateMacro10(vtkContourGridExecute,
-                      this, input, inScalars,
-                                                                                        (VTK_TT *)(scalarArrayPtr), numContours, values,
-                                                                                        this->Locator, computeScalars, useScalarTree, scalarTree);
+  switch (inScalars->GetDataType())
+    {
+    vtkTemplateMacro10(vtkContourGridExecute, this, input, inScalars,
+                       (VTK_TT *)(scalarArrayPtr), numContours, values,
+                       this->Locator, computeScalars, useScalarTree, 
+                       scalarTree);
     default:
-                        vtkErrorMacro(<< "Execute: Unknown ScalarType");
-                return;
-                }       
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
+      return;
+    }       
 }
 
 // Specify a spatial locator for merging points. By default, 
@@ -371,12 +367,16 @@ void vtkContourGrid::CreateDefaultLocator()
 
 void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
+  vtkUnstructuredGridToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
-  os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
-  os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
-  os << indent << "Use Scalar Tree: " << (this->UseScalarTree ? "On\n" : "Off\n");
+  os << indent << "Compute Gradients: " 
+     << (this->ComputeGradients ? "On\n" : "Off\n");
+  os << indent << "Compute Normals: " 
+     << (this->ComputeNormals ? "On\n" : "Off\n");
+  os << indent << "Compute Scalars: " 
+     << (this->ComputeScalars ? "On\n" : "Off\n");
+  os << indent << "Use Scalar Tree: " 
+     << (this->UseScalarTree ? "On\n" : "Off\n");
 
   this->ContourValues->PrintSelf(os,indent);
 

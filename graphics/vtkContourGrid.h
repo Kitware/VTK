@@ -39,15 +39,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkContourGrid - generate isosurfaces/isolines from scalar values
+// .NAME vtkContourGrid - generate isosurfaces/isolines from scalar values (specialized for unstructured grids)
 // .SECTION Description
-// vtkContourGrid is a filter that takes as input any dataset and 
-// generates on output isosurfaces and/or isolines. The exact form 
-// of the output depends upon the dimensionality of the input data. 
-// Data consisting of 3D cells will generate isosurfaces, data 
-// consisting of 2D cells will generate isolines, and data with 1D 
-// or 0D cells will generate isopoints. Combinations of output type 
-// are possible if the input dimension is mixed.
+// vtkContourGrid is a filter that takes as input datasets of type
+// vtkUnstructuredGrid and generates on output isosurfaces and/or
+// isolines. The exact form of the output depends upon the dimensionality of
+// the input data.  Data consisting of 3D cells will generate isosurfaces,
+// data consisting of 2D cells will generate isolines, and data with 1D or 0D
+// cells will generate isopoints. Combinations of output type are possible if
+// the input dimension is mixed.
 //
 // To use this filter you must specify one or more contour values.
 // You can either use the method SetValue() to specify each contour
@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // contain a contour surface. This is especially effective if multiple
 // contours are being extracted. If you want to use a scalar tree,
 // invoke the method UseScalarTreeOn().
-//<P>
+//
 // If the input data is structured, consider using a filter that is
 // optimized for structured data. These can be found in the patented
 // classes of vtk.
@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Caveats
 // For unstructured data or structured grids, normals and gradients
 // are not computed. Use vtkPolyDataNormals to compute the surface
-// normals.
+// normals of the resulting isosurface.
 
 // .SECTION See Also
 // vtkMarchingContourFilter vtkKitwareContourFilter
@@ -76,16 +76,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkContourGrid_h
 #define __vtkContourGrid_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkUnstructuredGridToPolyDataFilter.h"
 #include "vtkContourValues.h"
 
 class vtkScalarTree;
 class vtkEdgeTable;
 
-class VTK_EXPORT vtkContourGrid : public vtkDataSetToPolyDataFilter
+class VTK_EXPORT vtkContourGrid : public vtkUnstructuredGridToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkContourGrid,vtkDataSetToPolyDataFilter);
+  vtkTypeMacro(vtkContourGrid,vtkUnstructuredGridToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -173,7 +173,7 @@ protected:
   vtkPointLocator *Locator;
   int UseScalarTree;
   vtkScalarTree *ScalarTree;
-	vtkEdgeTable *EdgeTable;
+  vtkEdgeTable *EdgeTable;
   
 };
 
