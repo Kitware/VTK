@@ -108,7 +108,6 @@ vtkImageSpatialFilter
 vtkImageToImageFilter 
 vtkImageTwoInputFilter 
 vtkImageFourierFilter 
-vtkSimpleImageToImageFilter 
 )
 
 ADD_LIBRARY(vtkImaging Imaging_SRCS)
