@@ -62,8 +62,13 @@ vtkMultiThreader::vtkMultiThreader()
 
   for ( i = 0; i < VTK_MAX_THREADS; i++ )
     {
-    this->ThreadInfoArray[i].ThreadID = i;
-    this->MultipleMethod[i] = NULL;
+    this->ThreadInfoArray[i].ThreadID           = i;
+    this->ThreadInfoArray[i].ActiveFlag         = NULL;
+    this->ThreadInfoArray[i].ActiveFlagLock     = NULL;
+    this->MultipleMethod[i]                     = NULL;
+    this->SpawnedThreadActiveFlag[i]            = 0;
+    this->SpawnedThreadActiveFlagLock[i]        = NULL;
+    this->SpawnedThreadInfoArray[i].ThreadID    = 0;
     }
 
   this->SingleMethod = NULL;
@@ -473,6 +478,140 @@ void vtkMultiThreader::MultipleMethodExecute()
 #endif
 #endif
 #endif
+}
+
+int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
+{
+  int id;
+
+#ifdef _WIN32
+  DWORD              threadId;
+#endif
+
+  id = 0;
+
+  while ( id < VTK_MAX_THREADS )
+    {
+    if ( this->SpawnedThreadActiveFlagLock[id] == NULL ) break;
+    id++;
+    }
+
+  if ( id >= VTK_MAX_THREADS )
+    {
+    vtkErrorMacro( << "You have too many active threads!" );
+    return -1;
+    }
+
+  this->SpawnedThreadActiveFlagLock[id] = vtkMutexFunctionLock::New();
+  vtkMutexLockFuncMacro(this->SpawnedThreadActiveFlagLock[id],this->SpawnedThreadActiveFlag[id]=1);
+
+  this->SpawnedThreadInfoArray[id].UserData        = UserData;
+  this->SpawnedThreadInfoArray[id].NumberOfThreads = 1;
+  this->SpawnedThreadInfoArray[id].ActiveFlag = 
+    &this->SpawnedThreadActiveFlag[id];
+  this->SpawnedThreadInfoArray[id].ActiveFlagLock = 
+    this->SpawnedThreadActiveFlagLock[id];
+
+  // We are using sproc (on SGIs), pthreads(on Suns or HPs), 
+  // CreateThread (on win32), or generating an error  
+
+#ifdef _WIN32
+  // Using CreateThread on a PC
+  //
+  this->SpawnedThreadProcessID[id] = 
+      CreateThread(NULL, 0, f, 
+	     ((void *)(&this->SpawnedThreadInfoArray[id])), 0, &threadId);
+  if (this->SpawnedThreadProcessID[id] == NULL)
+    {
+    vtkErrorMacro("Error in thread creation !!!");
+    } 
+#endif
+
+#ifdef VTK_USE_SPROC
+  // Using sproc() on an SGI
+  //
+  this->SpawnedThreadProcessID[id] = 
+    sproc( f, PR_SADDR, ( (void *)(&this->SpawnedThreadInfoArray[id]) ) );
+
+#endif
+
+#ifdef VTK_USE_PTHREADS
+  // Using POSIX threads
+  //
+  pthread_attr_t attr;
+
+#ifdef VTK_HP_PTHREADS
+  pthread_attr_create( &attr );
+#else  
+  pthread_attr_init(&attr);
+  pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
+#endif
+  
+#ifdef VTK_HP_PTHREADS
+  pthread_create( &(this->SpawnedThreadProcessID[id]),
+		  attr, f,  
+		  ( (void *)(&this->SpawnedThreadInfoArray[id]) ) );
+#else
+  pthread_create( &(this->SpawnedThreadProcessID[id]),
+		  &attr, f,  
+		  ( (void *)(&this->SpawnedThreadInfoArray[id]) ) );
+#endif
+
+#endif
+
+#ifndef _WIN32
+#ifndef VTK_USE_SPROC
+#ifndef VTK_USE_PTHREADS
+  // There is no multi threading, so there is only one thread.
+  // This won't work - so give an error message.
+  vtkErrorMacro( << "Cannot spawn thread in a single threaded environment!" );
+  this->SpawnedThreadActiveFlagLock[id]->Delete();
+  id = -1;
+#endif
+#endif
+#endif
+
+  return id;
+}
+
+void vtkMultiThreader::TerminateThread( int ThreadID )
+{
+
+  if ( !this->SpawnedThreadActiveFlag[ThreadID] ) {
+    return;
+  }
+
+  vtkMutexLockFuncMacro(this->SpawnedThreadActiveFlagLock[ThreadID],this->SpawnedThreadActiveFlag[ThreadID]=0);
+
+
+#ifdef _WIN32
+  WaitForSingleObject(this->SpawnedThreadProcessID[ThreadID], INFINITE);
+  CloseHandle(this->SpawnedThreadProcessID[ThreadID]);
+#endif
+
+#ifdef VTK_USE_SPROC
+  siginfo_t info_ptr;
+
+  waitid( P_PID, (id_t) this->SpawnedThreadProcessID[ThreadID], 
+	  &info_ptr, WEXITED );
+#endif
+
+#ifdef VTK_USE_PTHREADS
+  pthread_join( this->SpawnedThreadProcessID[ThreadID], NULL );
+#endif
+
+#ifndef _WIN32
+#ifndef VTK_USE_SPROC
+#ifndef VTK_USE_PTHREADS
+  // There is no multi threading, so there is only one thread.
+  // This won't work - so give an error message.
+  vtkErrorMacro(<< "Cannot terminate thread in single threaded environment!");
+#endif
+#endif
+#endif
+
+  this->SpawnedThreadActiveFlagLock[ThreadID]->Delete();
+
 }
 
 // Description:

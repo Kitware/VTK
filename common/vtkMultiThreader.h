@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkMultiThreader_h
 
 #include "vtkObject.h"
+#include "vtkMutexFunctionLock.h"
 
 #ifdef VTK_USE_SPROC
 #include <sys/types.h>
@@ -91,14 +92,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Otherwise the type is void which is correct for WIN32
 // and SPROC
 //BTX
+#ifdef VTK_USE_SPROC
+typedef int vtkThreadProcessIDType;
+#endif
+
 #ifdef VTK_USE_PTHREADS
 typedef void *(*vtkThreadFunctionType)(void *);
+typedef pthread_t vtkThreadProcessIDType;
 #define VTK_THREAD_RETURN_VALUE  NULL
 #define VTK_THREAD_RETURN_TYPE   void *
 #endif
 
 #ifdef _WIN32
 typedef LPTHREAD_START_ROUTINE vtkThreadFunctionType;
+typedef HANDLE vtkThreadProcessIDType;
 #define VTK_THREAD_RETURN_VALUE 0
 #define VTK_THREAD_RETURN_TYPE DWORD __stdcall
 #endif
@@ -106,6 +113,7 @@ typedef LPTHREAD_START_ROUTINE vtkThreadFunctionType;
 #ifndef _WIN32
 #ifndef VTK_USE_PTHREADS
 typedef void (*vtkThreadFunctionType)(void *);
+typedef int vtkThreadProcessIDType;
 #define VTK_THREAD_RETURN_VALUE
 #define VTK_THREAD_RETURN_TYPE void
 #endif
@@ -125,6 +133,8 @@ struct ThreadInfoStruct
 {
   int                 ThreadID;
   int                 NumberOfThreads;
+  int                 *ActiveFlag;
+  vtkMutexFunctionLock *ActiveFlagLock;
   void                *UserData;
 };
 
@@ -176,6 +186,16 @@ public:
   void SetMultipleMethod( int index, vtkThreadFunctionType, 
 			  void *data ); 
 
+  // Description:
+  // Create a new thread for the given function. Return a thread id
+  // which is a number between 0 and VTK_MAX_THREADS - 1. This id should
+  // be used to kill the thread at a later time.
+  int SpawnThread( vtkThreadFunctionType, void *data );
+
+  // Description:
+  // Terminate the thread that was created with a SpawnThreadExecute()
+  void TerminateThread( int thread_id );
+
 protected:
   // The number of threads to use
   int                        NumberOfThreads;
@@ -188,11 +208,20 @@ protected:
   // The methods
   vtkThreadFunctionType      SingleMethod;
   vtkThreadFunctionType      MultipleMethod[VTK_MAX_THREADS];
+
+  // Storage of MutexFunctions and ints used to control spawned 
+  // threads and the spawned thread ids
+  int                        SpawnedThreadActiveFlag[VTK_MAX_THREADS];
+  vtkMutexFunctionLock       *SpawnedThreadActiveFlagLock[VTK_MAX_THREADS];
+  vtkThreadProcessIDType     SpawnedThreadProcessID[VTK_MAX_THREADS];
+  ThreadInfoStruct           SpawnedThreadInfoArray[VTK_MAX_THREADS];
+
 //ETX
 
   // Internal storage of the data
   void                       *SingleData;
   void                       *MultipleData[VTK_MAX_THREADS];
+
 };
 
 #endif
