@@ -190,7 +190,7 @@ void vtkImageConvolve::SetKernel(const float* kernel,
 
   for (int idx = 0; idx < kernelLength; idx++)
     {
-    if ( this->Kernel[idx] =! kernel[idx] )
+    if ( this->Kernel[idx] != kernel[idx] )
       {
       modified = 1;
       this->Kernel[idx] = kernel[idx];
