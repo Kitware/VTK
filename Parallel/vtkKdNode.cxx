@@ -26,12 +26,11 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkObjectFactory.h"
 
-#ifdef _MSC_VER
-#pragma warning ( disable : 4100 )
-#endif
-
-vtkCxxRevisionMacro(vtkKdNode, "1.3");
+vtkCxxRevisionMacro(vtkKdNode, "1.4");
 vtkStandardNewMacro(vtkKdNode);
+vtkCxxSetObjectMacro(vtkKdNode, Left, vtkKdNode);
+vtkCxxSetObjectMacro(vtkKdNode, Right, vtkKdNode);
+vtkCxxSetObjectMacro(vtkKdNode, Up, vtkKdNode);
 
 const char *vtkKdNode::LevelMarker[20]={
 "",

@@ -124,19 +124,19 @@ public:
   //   Set/Get a pointer to the left child of this node.
 
   vtkGetObjectMacro(Left, vtkKdNode);
-  vtkSetObjectMacro(Left, vtkKdNode);
+  void SetLeft(vtkKdNode* left);
 
   // Description:
   //   Set/Get a pointer to the right child of this node.
 
   vtkGetObjectMacro(Right, vtkKdNode);
-  vtkSetObjectMacro(Right, vtkKdNode);
+  void SetRight(vtkKdNode *right);
 
   // Description:
   //   Set/Get a pointer to the parent of this node.
 
   vtkGetObjectMacro(Up, vtkKdNode);
-  vtkSetObjectMacro(Up, vtkKdNode);
+  void SetUp(vtkKdNode* up);
 
   // Description:
   //   Return 1 if this spatial region intersects the axis-aligned box given
