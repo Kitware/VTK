@@ -169,7 +169,7 @@ protected:
 
 
 // template table.
-
+//BTX
 
 static int VTK_SYNCHONIZED_TEMPLATES_3D_TABLE_1[] = {
    0,    0,    0,    0,    0,    0,    0,    0,    0,    0, 
@@ -1222,7 +1222,7 @@ static int VTK_SYNCHONIZED_TEMPLATES_3D_TABLE_2[] = {
   3,   2,   1,   4,   2,   3,  -1,   0,   3,   4,  -1,   0, 
   2,   1,  -1 };
 
-
+//ETX
 
 #endif
 
