@@ -21,7 +21,7 @@ vtkPLOT3DReader pl3d
 vtkLineWidget lineWidget
 vtkPolyData seeds
 lineWidget SetInput [pl3d GetOutput]
-lineWidget AlignWithYAxisOn
+lineWidget SetAlignToYAxis
 lineWidget PlaceWidget
 lineWidget GetPolyData seeds
 
