@@ -377,12 +377,16 @@ int ImagePlaneWidget( int argc, char *argv[] )
   vtkCellPicker* picker = vtkCellPicker::New();
     picker->SetTolerance(0.005);
 
+  vtkProperty* ipwProp = vtkProperty::New();
+   //assign default props to the ipw's texture plane actor
+
   vtkImagePlaneWidget* planeWidgetX = vtkImagePlaneWidget::New();
     planeWidgetX->SetInteractor( iren);
     planeWidgetX->SetKeyPressActivationValue('x');
     planeWidgetX->SetPicker(picker);
     planeWidgetX->RestrictPlaneToVolumeOn();
     planeWidgetX->GetPlaneProperty()->SetColor(1,0,0);
+    planeWidgetX->SetTexturePlaneProperty(ipwProp);
     planeWidgetX->TextureInterpolateOff();
     planeWidgetX->SetResliceInterpolateToNearestNeighbour();
     planeWidgetX->SetInput(v16->GetOutput());
@@ -398,6 +402,7 @@ int ImagePlaneWidget( int argc, char *argv[] )
     planeWidgetY->SetKeyPressActivationValue('y');
     planeWidgetY->SetPicker(picker);
     planeWidgetY->GetPlaneProperty()->SetColor(1,1,0);
+    planeWidgetY->SetTexturePlaneProperty(ipwProp);
     planeWidgetY->TextureInterpolateOn();
     planeWidgetY->SetResliceInterpolateToLinear();
     planeWidgetY->SetInput(v16->GetOutput());
@@ -413,6 +418,7 @@ int ImagePlaneWidget( int argc, char *argv[] )
     planeWidgetZ->SetKeyPressActivationValue('z');
     planeWidgetZ->SetPicker(picker);
     planeWidgetZ->GetPlaneProperty()->SetColor(0,0,1);
+    planeWidgetZ->SetTexturePlaneProperty(ipwProp);
     planeWidgetZ->TextureInterpolateOn();
     planeWidgetZ->SetResliceInterpolateToCubic();
     planeWidgetZ->SetInput(v16->GetOutput());
@@ -502,6 +508,7 @@ int ImagePlaneWidget( int argc, char *argv[] )
   recorder->Off();
   recorder->Delete();
 
+  ipwProp->Delete();
   planeWidgetX->Delete();
   planeWidgetY->Delete();
   planeWidgetZ->Delete();
