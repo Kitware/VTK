@@ -141,6 +141,7 @@ int vtkDataObject::ShouldIReleaseData()
 void vtkDataObject::Update()
 {
   this->UpdateInformation();
+  this->PreUpdate();
   this->InternalUpdate();
 }
 

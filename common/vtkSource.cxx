@@ -312,6 +312,7 @@ void vtkSource::InternalUpdate(vtkDataObject *output)
     if (this->ComputeDivisionExtents(output, division, numDivisions))
       {
       // Preupdate: Needed for ports. (like a non-blocking  update)
+      // (Only need to be called for inputs with locality != 0.)
       this->Updating = 1;
       for (idx = 0; idx < this->NumberOfInputs; ++idx)
 	{
@@ -322,7 +323,7 @@ void vtkSource::InternalUpdate(vtkDataObject *output)
 	}
       this->Updating = 0;
       
-      // Update the inputs
+      // Update the inputs (these should be sorted by Locality)
       this->Updating = 1;
       for (idx = 0; idx < this->NumberOfInputs; ++idx)
 	{
