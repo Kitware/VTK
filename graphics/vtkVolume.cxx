@@ -69,6 +69,8 @@ vtkVolume::~vtkVolume()
 vtkVolume& vtkVolume::operator=(const vtkVolume& volume)
 {
 
+  this->UserMatrix = volume.UserMatrix;
+
   this->VolumeMapper = volume.VolumeMapper;
 
   *((vtkProp *)this) = volume;
@@ -84,38 +86,50 @@ vtkVolume& vtkVolume::operator=(const vtkVolume& volume)
 // Copy the volume's composite 4x4 matrix into the matrix provided.
 void vtkVolume::GetMatrix(vtkMatrix4x4& result)
 {
-  this->GetOrientation();
-  this->Transform.Push();  
-  this->Transform.Identity();  
-  this->Transform.PreMultiply();  
+  // check whether or not need to rebuild the matrix
+  if ( this->GetMTime() > this->MatrixMTime )
+    {
+    this->GetOrientation();
+    this->Transform.Push();  
+    this->Transform.Identity();  
+    this->Transform.PreMultiply();  
 
-  // first translate
-  this->Transform.Translate(this->Position[0],
-			    this->Position[1],
-			    this->Position[2]);
+    // apply user defined matrix last if there is one 
+    if (this->UserMatrix)
+      {
+	this->Transform.Concatenate(*this->UserMatrix);
+      }
+
+    // first translate
+    this->Transform.Translate(this->Position[0],
+			      this->Position[1],
+			      this->Position[2]);
    
-  // shift to origin
-  this->Transform.Translate(this->Origin[0],
-			    this->Origin[1],
-			    this->Origin[2]);
+    // shift to origin
+    this->Transform.Translate(this->Origin[0],
+			      this->Origin[1],
+			      this->Origin[2]);
    
-  // rotate
-  this->Transform.RotateZ(this->Orientation[2]);
-  this->Transform.RotateX(this->Orientation[0]);
-  this->Transform.RotateY(this->Orientation[1]);
+    // rotate
+    this->Transform.RotateZ(this->Orientation[2]);
+    this->Transform.RotateX(this->Orientation[0]);
+    this->Transform.RotateY(this->Orientation[1]);
 
-  // scale
-  this->Transform.Scale(this->Scale,
-			this->Scale,
-			this->Scale);
+    // scale
+    this->Transform.Scale(this->Scale,
+			  this->Scale,
+			  this->Scale);
 
-  // shift back from origin
-  this->Transform.Translate(-this->Origin[0],
-			    -this->Origin[1],
-			    -this->Origin[2]);
+    // shift back from origin
+    this->Transform.Translate(-this->Origin[0],
+			      -this->Origin[1],
+			      -this->Origin[2]);
 
-  result = this->Transform.GetMatrix();
-  this->Transform.Pop();  
+    Matrix = this->Transform.GetMatrix();
+    this->MatrixMTime.Modified();
+    this->Transform.Pop();  
+    }
+  result = this->Matrix;
 } 
 
 // Description:
@@ -280,6 +294,12 @@ unsigned long int vtkVolume::GetMTime()
   if ( this->VolumeProperty != NULL )
     {
     time = this->VolumeProperty->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  if ( this->UserMatrix != NULL )
+    {
+    time = this->UserMatrix->GetMTime();
     mTime = ( time > mTime ? time : mTime );
     }
 

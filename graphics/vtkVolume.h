@@ -116,8 +116,6 @@ class VTK_EXPORT vtkVolume : public vtkProp
 protected:
 
   float             Scale;
-  vtkMatrix4x4      Matrix;
-  vtkTimeStamp      MatrixMTime;
 
   vtkVolumeMapper   *VolumeMapper;
 
