@@ -56,7 +56,7 @@ vtkActor2D::~vtkActor2D()
   if (this->Mapper != NULL)
     {
     this->Mapper->UnRegister(this);
-    this->Mapper == NULL;
+    this->Mapper = NULL;
     }
 }
 
