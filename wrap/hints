@@ -47,6 +47,8 @@ vtkImageSpatialFilter	GetKernelSize   304 3
 vtkIntPoints		GetPoint	301 3
 vtkLODProp3D		GetBounds	301 6
 vtkLookupTable		GetTableValue	301 4
+vtkLight		GetTransformedFocalPoint 301 3
+vtkLight		GetTransformedPosition   301 3
 vtkAbstractMapper3D 	GetBounds	301 6
 vtkAbstractMapper3D	GetCenter	301 3
 vtkMath			SolveCubic	2307 4
