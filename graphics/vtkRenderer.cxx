@@ -657,8 +657,8 @@ void vtkRenderer::CreateLight(void)
 
   // set these values just to have a good default should LightFollowCamera
   // be turned off.
-  this->CreatedLight->SetPosition(this->ActiveCamera->GetPosition());
-  this->CreatedLight->SetFocalPoint(this->ActiveCamera->GetFocalPoint());
+  this->CreatedLight->SetPosition(this->GetActiveCamera()->GetPosition());
+  this->CreatedLight->SetFocalPoint(this->GetActiveCamera()->GetFocalPoint());
 }
 
 // Compute the bounds of the visible props
