@@ -76,6 +76,15 @@ public:
   // Set an input of this algorithm.
   void SetInput(vtkDataObject*);
   void SetInput(int, vtkDataObject*);
+  void SetInput(vtkDataSet*);
+  void SetInput(int, vtkDataSet*);
+
+  // Description:
+  // Add an input of this algorithm.
+  void AddInput(vtkDataObject *);
+  void AddInput(vtkDataSet*);
+  void AddInput(int, vtkDataSet*);
+  void AddInput(int, vtkDataObject*);
 
   // Description:
   // see vtkAlgorithm for details

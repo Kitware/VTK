@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.5");
+vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.6");
 vtkStandardNewMacro(vtkPolyDataAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -256,6 +256,18 @@ void vtkPolyDataAlgorithm::SetInput(int index, vtkDataObject* input)
 }
 
 //----------------------------------------------------------------------------
+void vtkPolyDataAlgorithm::SetInput(vtkDataSet* input)
+{
+  this->SetInput(0, static_cast<vtkDataObject*>(input));
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyDataAlgorithm::SetInput(int index, vtkDataSet* input)
+{
+  this->SetInput(index, static_cast<vtkDataObject*>(input));
+}
+
+//----------------------------------------------------------------------------
 void vtkPolyDataAlgorithm::AddInput(vtkDataObject* input)
 {
   this->AddInput(0, input);
@@ -268,4 +280,16 @@ void vtkPolyDataAlgorithm::AddInput(int index, vtkDataObject* input)
     {
     this->AddInputConnection(index, input->GetProducerPort());
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyDataAlgorithm::AddInput(vtkDataSet* input)
+{
+  this->AddInput(0, static_cast<vtkDataObject*>(input));
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyDataAlgorithm::AddInput(int index, vtkDataSet* input)
+{
+  this->AddInput(index, static_cast<vtkDataObject*>(input));
 }

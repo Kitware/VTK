@@ -27,7 +27,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.5");
+vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.6");
 vtkStandardNewMacro(vtkDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -103,6 +103,45 @@ void vtkDataSetAlgorithm::SetInput(int index, vtkDataObject* input)
     // Setting a NULL input removes the connection.
     this->SetInputConnection(index, 0);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSetAlgorithm::SetInput(vtkDataSet* input)
+{
+  this->SetInput(0, static_cast<vtkDataObject*>(input));
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSetAlgorithm::SetInput(int index, vtkDataSet* input)
+{
+  this->SetInput(index, static_cast<vtkDataObject*>(input));
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSetAlgorithm::AddInput(vtkDataObject* input)
+{
+  this->AddInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSetAlgorithm::AddInput(int index, vtkDataObject* input)
+{
+  if(input)
+    {
+    this->AddInputConnection(index, input->GetProducerPort());
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSetAlgorithm::AddInput(vtkDataSet* input)
+{
+  this->AddInput(0, static_cast<vtkDataObject*>(input));
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSetAlgorithm::AddInput(int index, vtkDataSet* input)
+{
+  this->AddInput(index, static_cast<vtkDataObject*>(input));
 }
 
 //----------------------------------------------------------------------------
