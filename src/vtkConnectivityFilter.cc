@@ -49,7 +49,7 @@ vtkConnectivityFilter::vtkConnectivityFilter()
   this->MaxRecursionDepth = 10000;
 }
 
-static NumExceededMaxDepth;
+static int NumExceededMaxDepth;
 static int *Visited, *PointMap;
 static vtkFloatScalars *NewScalars;
 static int RecursionDepth;
