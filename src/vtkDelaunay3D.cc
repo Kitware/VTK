@@ -126,9 +126,9 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
     if ( math.Normalize(vp) <= 1.0e-04 ) continue; //maybe on face
     math.Cross(v32,v12,n); math.Normalize(n);//face normal
 
-    //see whether point and triangle vertex are on same side of tetra face
+    //see whether point and tetra vertex are on same side of tetra face
     valp = math.Dot(n,vp);
-    if ( fabs(valx = math.Dot(n,vx)) <= 1.0e-04 ) continue; //maybe on face
+    if ( fabs(valx = math.Dot(n,vx)) <= 1.0e-04 ) return tetra;
 
     if ( (valx < 0.0 && valp > 0.0) || (valx > 0.0 && valp < 0.0)  )
       {
@@ -141,99 +141,39 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
         {
         return FindTetra(x,ptIds,p,neighbors.GetId(0),Mesh,points,tol);
         }
-      }//outside this edge
+      }//outside this face
 
-    }//for each edge
+    }//for each face
 
   //must be in this tetra if all faces test inside
   if ( !inside ) return -1;
   else return tetra;
 }
 
-// Recursive method checks whether face is Delaunay, and if not, swaps face.
-// Continues until all faces are Delaunay. Points p1,p2,p3 form the face in
-// question; x is the coordinates of the inserted point; tetra is the current
-// tetrahedron id; Mesh is a pointer to cell structure.
-static void CheckFace(int ptId, float x[3], int p1, int p2, int p3, int tetra, 
-                      vtkUnstructuredGrid *Mesh, vtkFloatPoints *points)
-{
-  int i, numNei, nei, npts, *pts, p4, newTetra;
-  float x1[3], x2[3], x3[3], x4[3];
-  vtkIdList neighbors(2), facePts(3);
-  int swapTetra[4];
-
-  points->GetPoint(p1,x1);
-  points->GetPoint(p2,x2);
-  points->GetPoint(p3,x3);
-
-  facePts.SetId(0,p1);
-  facePts.SetId(1,p2);
-  facePts.SetId(2,p3);
-
-  Mesh->GetCellNeighbors(tetra,facePts,neighbors);
-  numNei = neighbors.GetNumberOfIds();
-
-  if ( numNei > 0 ) //i.e., not a boundary face
-    {
-    // get neighbor info including opposite point
-    nei = neighbors.GetId(0);
-    Mesh->GetCellPoints(nei, npts, pts);
-    for (i=0; i<3; i++)
-      if ( pts[i] != p1 && pts[i] != p2 && pts[i] != p3 )
-        break;
-
-    p4 = pts[i];
-    points->GetPoint(p4,x3);
-
-    // see whether point is in circumsphere
-    if ( InSphere (x4, x, x1, x2, x3) )
-      {// swap diagonal
-      Mesh->RemoveReferenceToCell(p1,nei);
-      Mesh->RemoveReferenceToCell(p3,tetra);
-
-      Mesh->ResizeCellList(ptId,1);
-      Mesh->AddReferenceToCell(ptId,nei);
-      Mesh->ResizeCellList(p4,1);
-      Mesh->AddReferenceToCell(p4,tetra);
-
-      swapTetra[0] = ptId; swapTetra[1] = p4; 
-      swapTetra[2] = p1; swapTetra[3] = p2;
-      Mesh->ReplaceCell(tetra,4,swapTetra);
-
-      swapTetra[2] = p2; swapTetra[3] = p3;
-      Mesh->ReplaceCell(nei,4,swapTetra);
-
-      swapTetra[2] = p3; swapTetra[3] = p1; 
-      newTetra = Mesh->InsertNextLinkedCell(VTK_TETRA,4,swapTetra);
-
-      // three new faces become suspect
-      CheckFace(ptId, x, p1, p2, p4, tetra, Mesh, points);
-      CheckFace(ptId, x, p2, p3, p4, nei, Mesh, points);
-      CheckFace(ptId, x, p3, p1, p4, newTetra, Mesh, points);
-
-      }//in circle
-    }//interior edge
-}
-
-// Find all faces that enclose a point. Usually, a single tetra (and therefore
-// four faces) enclose a point. But, if the point is on a face or edge rwo or
-// more tetra "enclose" the point; thus six or more face enclose it. Enclosing
-// tetras are returned in the tetras list; the enclosing faces are returned in
-// the faces list.
+// Find all faces that enclose a point. (Enclosure means not satifying 
+// Delaunay criterion.) This method works in two distinct parts. First, the
+// tetrhedra containing the point are found (there may be more than one if 
+// the point falls on an edge or face). Next, face neighbors of these points
+// are visited to see whether they satisfy the Delaunay criterion. Face 
+// neighbors are visited repeatedly until no more tetrahedron are found.
+// Enclosing tetras are returned in the tetras list; the enclosing faces 
+// are returned in the faces list.
 static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
-                          vtkFloatPoints *points, float tol,
-                          vtkIdList &tetras, vtkIdList &faces)
+                              vtkFloatPoints *points, float tol,
+                              vtkIdList &tetras, vtkIdList &faces)
 {
   static vtkTetra cell;
   int ptIds[4];
-  float p[4][3], bcoords[4];
-  int tetraId, verts[4], onCount, i, j;
-  static vtkIdList boundaryPts(3);
-  int v1, v2, v3, v4, p1, p2, p3;
-  int npts, *tetraPts;
+  float bcoords[4], *x1, *x2, *x3, *x4;
+  float p[4][3];
+  int tetraId, verts[4], onCount, i, j, numTetras;
+  static vtkIdList boundaryPts(3), checkedTetras(25), neiTetras(2);
+  int p1, p2, p3, insertFace;
+  int npts, *tetraPts, nei, numNeiPts, *neiPts;
 
   tetras.Reset();
   faces.Reset();
+  boundaryPts.Reset();
   onCount = verts[0] = verts[1] = verts[2] = verts[3] = 0;
 
   if ( (tetraId = FindTetra(x,ptIds,p,tetra,Mesh,points,tol)) >= 0 )
@@ -254,12 +194,6 @@ static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
       if ( onCount == 0 ) //inside tetra
         {
         tetras.InsertNextId(tetraId);
-        for (i=0; i < 4; i++)
-          {
-          faces.InsertNextId(ptIds[i]);
-          faces.InsertNextId(ptIds[(i+1)%4]);
-          faces.InsertNextId(ptIds[(i+2)%4]);
-          }
         }
 
       else if ( onCount == 1 ) //on face
@@ -270,34 +204,7 @@ static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
 
         Mesh->GetCellNeighbors(tetraId, boundaryPts, tetras);
         tetras.InsertNextId(tetraId);
-
-        //now for the tricky part...find boundary faces. For a face neighbor, 
-        //boundary face is a face that uses just two of three points defining
-	//face
-        v1 = boundaryPts.GetId(0);
-        v2 = boundaryPts.GetId(1);
-        v3 = boundaryPts.GetId(2);
-
-        for (i=0; i < tetras.GetNumberOfIds(); i++)
-          {
-          Mesh->GetCellPoints(tetras.GetId(i),npts,tetraPts);
-          for (j=0; j<4; j++)
-            {
-            p1 = tetraPts[j];
-            p2 = tetraPts[(j+1)%4];
-            p3 = tetraPts[(j+2)%4];
-
-            if ( ! ((p1 == v1 || p2 == v1 || p3 == v1) &&
-            (p1 == v2 || p2 == v2 || p3 == v2) &&
-            (p1 == v3 || p2 == v3 || p3 == v3)) )
-              {
-              faces.InsertNextId(p1);
-              faces.InsertNextId(p2);
-              faces.InsertNextId(p3);
-              }
-            }//for each face
-          }//for each tetra
-        }//if on edge
+        }
 
       else if ( onCount == 2 ) //on edge
         {
@@ -307,32 +214,7 @@ static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
 
         Mesh->GetCellNeighbors(tetraId, boundaryPts, tetras);
         tetras.InsertNextId(tetraId);
-          
-        //now for the tricky part...find boundary faces. For an edge neighbor, 
-        //boundary face is a face that uses just one of two points defining
-	//edge.
-        v1 = boundaryPts.GetId(0);
-        v2 = boundaryPts.GetId(1);
-
-        for (i=0; i < tetras.GetNumberOfIds(); i++)
-          {
-          Mesh->GetCellPoints(tetras.GetId(i),npts,tetraPts);
-          for (j=0; j<4; j++)
-            {
-            p1 = tetraPts[j];
-            p2 = tetraPts[(j+1)%4];
-            p3 = tetraPts[(j+2)%4];
-
-            if ( ! ((p1 == v1 || p2 == v1 || p3 == v1) &&
-            (p1 == v2 || p2 == v2 || p3 == v2)) )
-              {
-              faces.InsertNextId(p1);
-              faces.InsertNextId(p2);
-              faces.InsertNextId(p3);
-              }
-            }//for each facce
-          }//for each tetra
-        }//if on edge
+        }
 
       else //on vertex - shouldn't happen, but hey, you never know!
         {
@@ -343,7 +225,72 @@ static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
       }//if non-degenerate tetra
     }//inside tetra
 
-  // Okay, let's delete the cell and prepare the data structure 
+  // Okay, check face neighbors for Delaunay criterion. Purpose is to find 
+  // list of enclosing faces and deleted tetras.
+  numTetras = tetras.GetNumberOfIds();
+  for (checkedTetras.Reset(), i=0; i < numTetras; i++) 
+    {
+    checkedTetras.InsertId(i,tetras.GetId(i));
+    }
+
+  for (i=0; i < numTetras; i++)
+    {
+    tetraId = tetras.GetId(i);
+    Mesh->GetCellPoints(tetraId,npts,tetraPts);
+    for (j=0; j < 4; j++)
+      {
+      boundaryPts.Reset(); neiTetras.Reset(); insertFace = 0;
+      boundaryPts.InsertNextId((p1=tetraPts[j]));
+      boundaryPts.InsertNextId((p2=tetraPts[(j+1)%4]));
+      boundaryPts.InsertNextId((p3=tetraPts[(j+2)%4]));
+      Mesh->GetCellNeighbors(tetraId, boundaryPts, neiTetras);
+
+      //if a boundary face or an enclosing face
+      if ( neiTetras.GetNumberOfIds() == 0 )
+        {
+        insertFace = 1;
+        }
+      else
+        {
+        nei = neiTetras.GetId(0);
+        if ( ! checkedTetras.IsId(nei) )
+          {
+          Mesh->GetCellPoints(nei,numNeiPts,neiPts);
+          x1 = points->GetPoint(neiPts[0]);
+          x2 = points->GetPoint(neiPts[1]);
+          x3 = points->GetPoint(neiPts[2]);
+          x4 = points->GetPoint(neiPts[3]);
+          if ( ! InSphere(x,x1,x2,x3,x4) ) //if point outside circumsphere
+            {
+            insertFace = 1;
+            }
+          else
+            {
+            numTetras++;
+            tetras.InsertNextId(nei); //delete this tetra
+            }
+          checkedTetras.InsertNextId(nei);
+          }
+        else
+          {
+          if ( ! tetras.IsId(nei) ) //if checked but not deleted
+            {
+            insertFace = 1;
+            }
+          }
+        }
+
+      if ( insertFace )
+        {
+        faces.InsertNextId(p1);
+        faces.InsertNextId(p2);
+        faces.InsertNextId(p3);
+        }
+
+      }//for each tetra face
+    }//for all deleted tetras
+
+  // Okay, let's delete the tetras and prepare the data structure 
   for (i=0; i < tetras.GetNumberOfIds(); i++)
     {
     tetraId = tetras.GetId(i);
@@ -456,22 +403,20 @@ void vtkDelaunay3D::Execute()
 
   pts[0] = numPoints + 4; pts[1] = numPoints + 5; 
   pts[2] = numPoints + 3; pts[3] = numPoints;
-  tetra[1] = Mesh->InsertNextCell(VTK_TETRA,4,pts);
+  tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
 
   Mesh->SetPoints(points);
   Mesh->BuildLinks();
 //
 // For each point; find faces containing point. (Faces are found by deleting
-// one or more tetrahedra "containing" point. More than one tetra may contain
-// a point if the point is on an edge or face.) For each face, create a
-// tetrahedron, and then check for "face swapping" to satisfy Delaunay
-// criterion.
-//
-//  for (ptId=0; ptId < numPoints; ptId++)
-  for (ptId=0; ptId < 1; ptId++)
+// one or more tetrahedra "containing" point. Tetrahedron contain point when 
+// they do not satisfy Delaunay criterion. (More than one tetra may contain
+// a point if the point is on or near an edge or face.) For each face, create 
+// a tetrahedron.
+  for (ptId=0; ptId < numPoints; ptId++)
     {
     points->GetPoint(ptId,x);
-    if ( (numFaces=FindEnclosingFaces(x,tetra[1],Mesh,
+    if ( (numFaces=FindEnclosingFaces(x,tetraId,Mesh,
     points,this->Tolerance,tetras,faces)) > 0 )
       {
       for (tetraNum=0; tetraNum < numFaces; tetraNum++)
@@ -497,10 +442,6 @@ void vtkDelaunay3D::Execute()
           {
           tetraId = Mesh->InsertNextLinkedCell(VTK_TETRA, 4, nodes);
           }
-
-        // Check face neighbors for Delaunay criterion. If not satisfied, 
-        // "swap" face. (This is done recursively.)
-//        CheckFace(ptId, x, nodes[1], nodes[2], nodes[3], tetraId, Mesh,points);
 
         }//for each face
       }//if enclosing faces found
@@ -570,6 +511,9 @@ void vtkDelaunay3D::Execute()
       output->InsertNextCell(VTK_TETRA,4,tetraPts);
       }
     }
+  vtkDebugMacro(<<"Generated " << output->GetNumberOfPoints() << " points and "
+                << output->GetNumberOfCells() << " tetrahedra");
+
   delete [] tetraUse;
 
   points->Delete();

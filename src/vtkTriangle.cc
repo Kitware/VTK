@@ -421,3 +421,47 @@ float vtkTriangle::Circumcircle(float  x1[2], float x2[2], float x3[2],
   return (float) (sum / 3.0);
 }
 #undef VTK_DOT
+
+// Description:
+// Given a 2D point x[2], determine the barycentric coordinates of the point.
+// Barycentric coordinates are a natural coordinate system for simplices that
+// express a position as a linear combination of the vertices. For a 
+// triangle, there are three barycentric coordinates (because there are
+// fourthree vertices), and the sum of the coordinates must equal 1. If a 
+// point x is inside a simplex, then all three coordinates will be strictly 
+// positive.  If two coordinates are zero (so the third =1), then the 
+// point x is on a vertex. If one coordinates are zero, the point x is on an 
+// edge. In this method, you must specify the vertex coordinates x1->x3. 
+// Returns 0 if triangle is degenerate.
+int vtkTriangle::BarycentricCoords(float x[2], float  x1[2], float x2[2], 
+                                   float x3[2], float bcoords[3])
+{
+  static vtkMath math;
+  double *A[3], p[3], a1[3], a2[3], a3[3];
+  int i;
+
+  //
+  // Homogenize the variables; load into arrays.
+  //
+  a1[0] = x1[0]; a1[1] = x2[0]; a1[2] = x3[0]; 
+  a2[0] = x1[1]; a2[1] = x2[1]; a2[2] = x3[1]; 
+  a3[0] = 1.0;   a3[1] = 1.0;   a3[2] = 1.0;   
+  p[0] = x[0]; p[1] = x[1]; p[2] = x[2];
+
+  //
+  //   Now solve system of equations for barycentric coordinates
+  //
+  A[0] = a1;
+  A[1] = a2;
+  A[2] = a3;
+
+  if ( math.SolveLinearSystem(A,p,3) )
+    {
+    for (i=0; i<3; i++) bcoords[i] = (float) p[i];
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
+}

@@ -410,7 +410,7 @@ int vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts, int *pts)
 
   id = this->InsertNextCell(type,npts,pts);
 
-  for (i=0; i<3; i++)
+  for (i=0; i<npts; i++)
     {
     this->Links->ResizeCellList(pts[i],1);
     this->Links->AddCellReference(id,pts[i]);  

@@ -211,28 +211,8 @@ unsigned long int vtkDataSet::GetMTime()
   else return result;
 }
 
-void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
-{
-  float *bounds;
-
-  vtkObject::PrintSelf(os,indent);
-
-  os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
-  os << indent << "Number Of Cells: " << this->GetNumberOfCells() << "\n";
-  os << indent << "Point Data:\n";
-  this->PointData.PrintSelf(os,indent.GetNextIndent());
-  bounds = this->GetBounds();
-  os << indent << "Bounds: \n";
-  os << indent << "  Xmin,Xmax: (" <<bounds[0] << ", " << bounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" <<bounds[2] << ", " << bounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" <<bounds[4] << ", " << bounds[5] << ")\n";
-  os << indent << "Compute Time: " <<this->ComputeTime.GetMTime() << "\n";
-  os << indent << "Release Data: " << (this->ReleaseDataFlag ? "On\n" : "Off\n");
-  os << indent << "Global Release Data: " << (this->GlobalReleaseDataFlag ? "On\n" : "Off\n");
-}
-
 void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList &ptIds,
-                                 vtkIdList &cellIds)
+                                  vtkIdList &cellIds)
 {
   int i;
   vtkIdList otherCells(VTK_CELL_SIZE);
@@ -256,3 +236,24 @@ void vtkDataSet::Squeeze()
 {
   this->PointData.Squeeze();
 }
+
+void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
+{
+  float *bounds;
+
+  vtkObject::PrintSelf(os,indent);
+
+  os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
+  os << indent << "Number Of Cells: " << this->GetNumberOfCells() << "\n";
+  os << indent << "Point Data:\n";
+  this->PointData.PrintSelf(os,indent.GetNextIndent());
+  bounds = this->GetBounds();
+  os << indent << "Bounds: \n";
+  os << indent << "  Xmin,Xmax: (" <<bounds[0] << ", " << bounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" <<bounds[2] << ", " << bounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" <<bounds[4] << ", " << bounds[5] << ")\n";
+  os << indent << "Compute Time: " <<this->ComputeTime.GetMTime() << "\n";
+  os << indent << "Release Data: " << (this->ReleaseDataFlag ? "On\n" : "Off\n");
+  os << indent << "Global Release Data: " << (this->GlobalReleaseDataFlag ? "On\n" : "Off\n");
+}
+
