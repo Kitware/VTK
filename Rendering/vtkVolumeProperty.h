@@ -170,7 +170,12 @@ public:
   vtkPiecewiseFunction *GetStoredGradientOpacity( int index );
   vtkPiecewiseFunction *GetStoredGradientOpacity()
     {return this->GetStoredGradientOpacity( 0 );}
-  
+
+  // Description:
+  // Set/Get the scalar component weights
+  virtual void SetComponentWeight(int index, float value);
+  virtual float GetComponentWeight(int index);
+
   // Description:
   // Set/Get the shading of a volume. If shading is turned off, then
   // the mapper for the volume will not perform shading calculations.
@@ -280,6 +285,8 @@ protected:
   vtkTimeStamp                  GradientOpacityMTime[VTK_MAX_VRCOMP];
   vtkPiecewiseFunction          *DefaultGradientOpacity[VTK_MAX_VRCOMP];
   int                           DisableGradientOpacity[VTK_MAX_VRCOMP];
+
+  float                         ComponentWeight[VTK_MAX_VRCOMP];
 
   int                           Shade[VTK_MAX_VRCOMP];
   float                         Ambient[VTK_MAX_VRCOMP];

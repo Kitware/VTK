@@ -21,7 +21,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
 
-vtkCxxRevisionMacro(vtkVolumeProperty, "1.33");
+vtkCxxRevisionMacro(vtkVolumeProperty, "1.34");
 vtkStandardNewMacro(vtkVolumeProperty);
 
 // Construct a new vtkVolumeProperty with default values
@@ -40,12 +40,16 @@ vtkVolumeProperty::vtkVolumeProperty()
     this->DefaultGradientOpacity[i]          = NULL;
     this->DisableGradientOpacity[i]          = 0;
     
+    this->ComponentWeight[i]                 = 0.0;
+
     this->Shade[i]                           = 0;  
     this->Ambient[i]                         = 0.1;
     this->Diffuse[i]                         = 0.7;
     this->Specular[i]                        = 0.2;
     this->SpecularPower[i]                   = 10.0;
     }
+
+  this->ComponentWeight[0]                   = 1.0;
 }
 
 // Destruct a vtkVolumeProperty
@@ -380,6 +384,59 @@ int vtkVolumeProperty::GetDisableGradientOpacity( int index )
   return this->DisableGradientOpacity[index];
 }
 
+void vtkVolumeProperty::SetComponentWeight(int index, float value)
+{
+  if (index < 0 || index >= VTK_MAX_VRCOMP)
+    {
+    vtkErrorMacro("Invalid index");
+    return;
+    }
+
+  int i;
+
+  // Compute the weight sum
+
+  float sum = 0.0;
+  for (i = 0; i < VTK_MAX_VRCOMP; i++)
+    {
+    sum += (i == index ? value : this->ComponentWeight[i]);
+    }
+
+  if (sum == 0 || value < 0)
+    {
+    vtkErrorMacro("Invalid weight");
+    return;
+    }
+
+  // Check if update is needed
+
+  for (i = 0; i < VTK_MAX_VRCOMP; i++)
+    {
+    if (this->ComponentWeight[i] != 
+        ((i == index ? value : this->ComponentWeight[i]) / sum))
+      {
+      for (i = 0; i < VTK_MAX_VRCOMP; i++)
+        {
+        this->ComponentWeight[i] = 
+          (i == index ? value : this->ComponentWeight[i]) / sum;
+        }
+      this->Modified();
+      break;
+      }
+    }
+}
+
+float vtkVolumeProperty::GetComponentWeight(int index)
+{
+  if (index < 0 || index >= VTK_MAX_VRCOMP)
+    {
+    vtkErrorMacro("Invalid index");
+    return 0.0;
+    }
+  
+  return this->ComponentWeight[index];
+}
+
 void vtkVolumeProperty::SetShade( int index, int value )
 {
   if ( value != 0 && value != 1 )
@@ -523,6 +580,9 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
        << (this->DisableGradientOpacity[i] ? "On" : "Off") << "\n";
 
     
+    os << indent << "ComponentWeight: " 
+       << this->ComponentWeight[i] << "\n";
+
     os << indent << "Shade: " << this->Shade[i] << "\n";
     os << indent << indent << "Ambient: " << this->Ambient[i] << "\n";
     os << indent << indent << "Diffuse: " << this->Diffuse[i] << "\n";
