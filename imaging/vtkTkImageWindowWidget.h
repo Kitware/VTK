@@ -29,7 +29,7 @@ struct vtkTkImageWindowWidget
   int Width;
   int Height;
   vtkImageWindow *ImageWindow;
-  char *IV;
+  char *IW;
 #ifdef _WIN32
   WNDPROC OldProc;
 #endif
