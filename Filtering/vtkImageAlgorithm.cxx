@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.1");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.2");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -229,6 +229,9 @@ void vtkImageAlgorithm::ExecuteData(
 
     int updateExtent[6];
     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent);
+
+    outData->SetScalarType( info->Get(vtkDataObject::SCALAR_TYPE()) );
+    outData->SetNumberOfScalarComponents( info->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()) );
 
     // for image filters as a convinience we usually allocate the output data
     // in the superclass
@@ -559,7 +562,6 @@ void vtkImageAlgorithm::AddInput(int index, vtkImageData* input)
     }
 }
 
-  
 int vtkImageAlgorithm::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

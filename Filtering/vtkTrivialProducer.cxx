@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkTrivialProducer.h"
 
-#include "vtkDataObject.h"
+#include "vtkImageData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.1.2.1");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.1.2.2");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -144,6 +144,15 @@ vtkTrivialProducer::ProcessDownstreamRequest(vtkInformation* request,
       dataInfo->Get(vtkDataObject::DATA_EXTENT(), extent);
       outputInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                       extent, 6);
+      // for now we only do this for image data, once these ivars are in the
+      // info object we can just do a has check
+      vtkImageData *id = vtkImageData::SafeDownCast(this->Output);
+      if (id)
+        {
+        outputInfo->Set(vtkDataObject::SCALAR_TYPE(),id->GetScalarType());
+        outputInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
+                        id->GetNumberOfScalarComponents());
+        }
       }
     }
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()) && this->Output)
