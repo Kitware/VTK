@@ -29,7 +29,7 @@
 #pragma warning(pop)
 #endif
 
-vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.6");
+vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.7");
 vtkStandardNewMacro(vtkEnSightMasterServerReader);
 
 static int vtkEnSightMasterServerReaderStartsWith(const char* str1, const char* str2)
@@ -100,8 +100,6 @@ void vtkEnSightMasterServerReader::ExecuteInformation()
 //----------------------------------------------------------------------------
 int vtkEnSightMasterServerReader::DetermineFileName(int piece)
 {
-  char line[1024];
-
   if (!this->CaseFileName)
     {
     vtkErrorMacro("A case file name must be specified.");
