@@ -116,10 +116,6 @@ public:
   vtkSetVector3Macro(OriginScale, float);
   vtkGetVector3Macro(OriginScale, float);
 
-  // Description:
-  // This method simply copies by reference the input data to the output.
-  void UpdateData(vtkDataObject *data);
-
 protected:
   vtkImageChangeInformation();
   ~vtkImageChangeInformation();
@@ -144,6 +140,7 @@ protected:
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation() {
     this->vtkImageToImageFilter::ExecuteInformation(); };
+  void ExecuteData(vtkDataObject *data);
 };
 
 
