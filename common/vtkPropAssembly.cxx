@@ -364,7 +364,9 @@ void vtkPropAssembly::UpdatePaths()
     {
     if ( this->Paths != NULL )
       {
-      this->Paths->Delete();
+      vtkAssemblyPaths *paths = this->Paths;
+      this->Paths = NULL; //avoid recursive deletes
+      paths->Delete();
       }
 
     // Create the list to hold all the paths
@@ -389,7 +391,7 @@ void vtkPropAssembly::UpdatePaths()
       // current path
       path->DeleteLastNode();
       }
-
+    
     path->Delete();
     this->PathTime.Modified();
     }

@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCollection.h"
 #include "vtkAssemblyPath.h"
 
-class vtkActor;
+class vtkProp;
 
 class VTK_EXPORT vtkAssemblyPaths : public vtkCollection
 {

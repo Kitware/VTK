@@ -86,6 +86,7 @@ class vtkAssemblyPaths;
 class vtkProp3DCollection;
 class vtkMapper;
 class vtkProperty;
+class vtkActor;
 
 class VTK_EXPORT vtkAssembly : public vtkProp3D
 {
