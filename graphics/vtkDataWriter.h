@@ -140,7 +140,7 @@ public:
   int WriteCells(FILE *fp, vtkCellArray *cells, char *label);
   int WriteCellData(FILE *fp, vtkDataSet *ds);
   int WritePointData(FILE *fp, vtkDataSet *ds);
-  int WriteFieldData(FILE *fp, vtkFieldData *f, int num);
+  int WriteFieldData(FILE *fp, vtkFieldData *f);
   void CloseVTKFile(FILE *fp);
 
 protected:

@@ -425,7 +425,7 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
     else if ( ! strncmp(line, "field", 5) )
       {
       vtkFieldData *f;
-      if ( ! (f=this->ReadFieldData(numCells)) ) return 0;
+      if ( ! (f=this->ReadFieldData()) ) return 0;
       a->SetFieldData(f);
       f->Delete();
       }
@@ -528,7 +528,7 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     else if ( ! strncmp(line, "field", 5) )
       {
       vtkFieldData *f;
-      if ( ! (f=this->ReadFieldData(numPts)) ) return 0;
+      if ( ! (f=this->ReadFieldData()) ) return 0;
       a->SetFieldData(f);
       f->Delete();
       }
@@ -1336,7 +1336,7 @@ int vtkDataReader::ReadCells(int size, int *data)
   return 1;
 }
 
-vtkFieldData *vtkDataReader::ReadFieldData(int vtkNotUsed(num))
+vtkFieldData *vtkDataReader::ReadFieldData()
 {
   int i, numArrays, skipField=0;
   vtkFieldData *f;

@@ -72,7 +72,7 @@ void vtkFieldDataWriter::WriteData()
   //
   // Write FieldData data specific stuff
   //
-  this->Writer.WriteFieldData(fp, f, numTuples);
+  this->Writer.WriteFieldData(fp, f);
   
   this->Writer.CloseVTKFile(fp);  
 }

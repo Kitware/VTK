@@ -72,10 +72,7 @@ int vtkFieldDataReader::GetFileType()
 
 void vtkFieldDataReader::Execute()
 {
-  int numPts=0;
   char line[256];
-  int npts, size, ncells;
-  vtkFieldData *output=(vtkFieldData *)this->Output;
 
   vtkDebugMacro(<<"Reading vtk field data...");
 
@@ -96,7 +93,7 @@ void vtkFieldDataReader::Execute()
 
   if ( !strncmp(this->Reader.LowerCase(line),"field",(unsigned long)5) )
     {
-    vtkFieldData *f = this->Reader.ReadFieldData(0);
+    vtkFieldData *f = this->Reader.ReadFieldData();
     this->Output->GetFieldData()->ShallowCopy(*f);
     f->Delete();
     }

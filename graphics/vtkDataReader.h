@@ -149,7 +149,7 @@ public:
   int ReadCells(int size, int *data);
   int ReadCoordinates(vtkRectilinearGrid *rg, int axes, int numCoords);
   vtkDataArray *ReadArray(char *dataType, int numTuples, int numComp);
-  vtkFieldData *ReadFieldData(int num);
+  vtkFieldData *ReadFieldData();
 
   int Read(char *);
   int Read(unsigned char *);
