@@ -41,8 +41,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkGeneralTransform - superclass for geometric transformations
 // .SECTION Description
-// vtkGeneralTransform provides a generic interface for linear, 
-// perspective, and nonlinear warp transformations.
+// vtkGeneralTransform is the superclass for all VTK geometric 
+// transformations.  The VTK transform heirarchy is split into two
+// major branches: warp transformations and perspective (including linear)
+// transformations.  The latter can be represented in terms of a 4x4
+// transformation matrix, the former cannot.  
+// <p>Transformations can be pipelined through two mechanisms:  
+// <p>1) GetInverse() returns the pipelined
+// inverse of a transformation i.e. if you modify the original transform,
+// any transform previously returned by the GetInverse() method will
+// automatically update itself according to the change.
+// <p>2) you can do pipelined concatenation of transformations through the
+// vtkGeneralTransformConcatenation class.
 // .SECTION see also
 // vtkWarpTransform vtkPerspectiveTransform vtkLinearTransform 
 // vtkIdentityTransform vtkGeneralTransformConcatenation 
@@ -68,11 +78,15 @@ public:
   // Apply the transformation to an (x,y,z) coordinate.
   // Use this if you are programming in python, tcl or Java.
   float *TransformFloatPoint(float x, float y, float z);
+  float *TransformFloatPoint(const float point[3]) {
+    return this->TransformFloatPoint(point[0],point[1],point[2]); };
 
   // Description:
   // Apply the transformation to a double-precision (x,y,z) coordinate.
   // Use this if you are programming in python, tcl or Java.
   double *TransformDoublePoint(double x, double y, double z);
+  double *TransformDoublePoint(const double point[3]) {
+    return this->TransformDoublePoint(point[0],point[1],point[2]); };
 
   // Description:
   // Apply the transformation to a coordinate.  You can use the same 
@@ -98,17 +112,19 @@ public:
 					     vtkNormals *outNms,
 					     vtkVectors *inVrs, 
 					     vtkVectors *outVrs);
-  // Description:
-  // Create an identity transformation.
-  virtual void Identity() = 0;
-
-  // Invert the transformation.
-  virtual void Inverse() = 0;
 
   // Description:
   // Get the inverse of this transform.  If you modify this transform,
   // the returned inverse transform will automatically update.
   vtkGeneralTransform *GetInverse();
+
+  // Description:
+  // Invert the transformation.
+  virtual void Inverse() = 0;
+
+  // Description:
+  // Make this transform into an identity transformation.
+  virtual void Identity() = 0;
 
   // Description:
   // Make another transform of the same type.
@@ -120,8 +136,9 @@ public:
 
   // Description:
   // Update the transform to account for any changes which
-  // have been made.  This is called automatically when
-  // TransformPoint etc. is called.
+  // have been made.  You do not have to call this method 
+  // yourself, it is called automatically whenever the
+  // transform needs an update.
   virtual void Update() {};
 
   // Description:
@@ -139,7 +156,7 @@ public:
   // Description:
   // Needs a special UnRegister() implementation to avoid
   // circular references.
-  void UnRegister(vtkObject * o);
+  void UnRegister(vtkObject *O);
 
 protected:
   vtkGeneralTransform() { this->MyInverse = NULL;
@@ -149,25 +166,47 @@ protected:
   vtkGeneralTransform(const vtkGeneralTransform&) {};
   void operator=(const vtkGeneralTransform&) {};
 
+  // Description:
+  // LU Factorization of a 3x3 matrix.  The diagonal elements are the
+  // multiplicative inverse of those in the standard LU factorization.
+  static void LUFactor3x3(float A[3][3], int index[3]);
+
+  // Description:
+  // LU backsubstitution for a 3x3 matrix.  The diagonal elements are the
+  // multiplicative inverse of those in the standard LU factorization.
+  static void LUSolve3x3(const float A[3][3], const int index[3], float x[3]);
+
+  // Description:
+  // Solve Ay = x for y and place the result in x.  The matrix A is
+  // destroyed in the process.
+  static void LinearSolve3x3(float A[3][3], float x[3]);
+
+  // Description:
+  // Multiply a vector by a 3x3 matrix.  The result is placed in x.
+  static void Multiply3x3(const float A[3][3], float x[3]);
+  
+  // Description:
+  // Mutliply one 3x3 matrix by another: B = AB.
+  static void Multiply3x3(const float A[3][3], float B[3][3]);
+
+  // Description:
+  // Transpose a 3x3 matrix.
+  static void Transpose3x3(float A[3][3]);
+
+  // Description:
+  // Invert a 3x3 matrix.
+  static void Invert3x3(float A[3][3]);
+
+  // Description:
+  // Set A to the identity matrix.
+  static void Identity3x3(float A[3][3]);
+
   vtkGeneralTransform *MyInverse;
 
   float InternalFloatPoint[3];
   double InternalDoublePoint[3];
   
   int InUnRegister;
-
-  // Description:
-  // Static methods which are useful for nonlinear transforms.
-  // Miscellaneous linear algebra on 3x3 matrices.  
-  // Caveat: LinearSolve3x3 destroys the original matrix.
-  static void LUFactor3x3(float A[3][3], int index[3]);
-  static void LUSolve3x3(const float A[3][3], const int index[3], float x[3]);
-  static void LinearSolve3x3(float A[3][3], float x[3]);
-  static void Multiply3x3(const float A[3][3], float x[3]);
-  static void Multiply3x3(const float A[3][3], float B[3][3]);
-  static void Transpose3x3(float A[3][3]);
-  static void Invert3x3(float A[3][3]);
-  static void Identity3x3(float A[3][3]);
 };
 
 #endif

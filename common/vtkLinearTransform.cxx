@@ -54,12 +54,12 @@ void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------
 template <class T>
-static inline void vtkLinearTransformPoint(T in[3], T out[3], 
+static inline void vtkLinearTransformPoint(const T in[3], T out[3], 
 					   double matrix[4][4])
 {
-  float x = in[0];
-  float y = in[1];
-  float z = in[2];
+  T x = in[0];
+  T y = in[1];
+  T z = in[2];
 
   out[0] = matrix[0][0]*x + matrix[0][1]*y + matrix[0][2]*z + matrix[0][3];
   out[1] = matrix[1][0]*x + matrix[1][1]*y + matrix[1][2]*z + matrix[1][3];
@@ -67,27 +67,143 @@ static inline void vtkLinearTransformPoint(T in[3], T out[3],
 }
 
 //------------------------------------------------------------------------
+template <class T>
+static inline void vtkLinearTransformNormal(const T in[3], T out[3], 
+					    double mat[4][4])
+{
+  // to transform the normal, multiply by the transposed inverse matrix
+  double matrix[4][4];
+  memcpy(matrix,mat,16*sizeof(double));
+  vtkMatrix4x4::Invert(*matrix,*matrix);
+  vtkMatrix4x4::Transpose(*matrix,*matrix);
+
+  T x = in[0];
+  T y = in[1];
+  T z = in[2];
+
+  out[0] = matrix[0][0]*x + matrix[0][1]*y + matrix[0][2]*z;
+  out[1] = matrix[1][0]*x + matrix[1][1]*y + matrix[1][2]*z;
+  out[2] = matrix[2][0]*x + matrix[2][1]*y + matrix[2][2]*z;
+}
+
+//------------------------------------------------------------------------
+template <class T>
+static inline void vtkLinearTransformVector(const T in[3], T out[3], 
+					    double matrix[4][4])
+{
+  T x = in[0];
+  T y = in[1];
+  T z = in[2];
+
+  out[0] = matrix[0][0]*x + matrix[0][1]*y + matrix[0][2]*z;
+  out[1] = matrix[1][0]*x + matrix[1][1]*y + matrix[1][2]*z;
+  out[2] = matrix[2][0]*x + matrix[2][1]*y + matrix[2][2]*z;
+}
+
+//------------------------------------------------------------------------
 void vtkLinearTransform::TransformPoint(const float in[3], float out[3])
 {
   this->Update();
 
-  vtkLinearTransformPoint((float *)in,out,this->Matrix->Element);
+  vtkLinearTransformPoint(in,out,this->Matrix->Element);
 }
 
 //------------------------------------------------------------------------
-
 void vtkLinearTransform::TransformPoint(const double in[3], double out[3])
 {
   this->Update();
 
-  vtkLinearTransformPoint((double *)in,out,this->Matrix->Element);
+  vtkLinearTransformPoint(in,out,this->Matrix->Element);
+}
+
+//------------------------------------------------------------------------
+void vtkLinearTransform::TransformNormal(const float in[3], float out[3])
+{
+  this->Update();
+
+  vtkLinearTransformNormal(in,out,this->Matrix->Element);
+}
+
+//------------------------------------------------------------------------
+void vtkLinearTransform::TransformNormal(const double in[3], double out[3])
+{
+  this->Update();
+
+  vtkLinearTransformNormal(in,out,this->Matrix->Element);
+}
+
+//------------------------------------------------------------------------
+void vtkLinearTransform::TransformVector(const float in[3], float out[3])
+{
+  this->Update();
+
+  vtkLinearTransformVector(in,out,this->Matrix->Element);
+}
+
+//------------------------------------------------------------------------
+
+void vtkLinearTransform::TransformVector(const double in[3], double out[3])
+{
+  this->Update();
+
+  vtkLinearTransformVector(in,out,this->Matrix->Element);
+}
+
+//----------------------------------------------------------------------------
+// These four functions are definitely not thread safe, and should
+// really only be called from python or tcl.
+float *vtkLinearTransform::TransformFloatNormal(float x, 
+						float y, 
+						float z)
+{
+  this->InternalFloatPoint[0] = x;
+  this->InternalFloatPoint[1] = y;
+  this->InternalFloatPoint[2] = z;
+  this->TransformNormal(this->InternalFloatPoint,this->InternalFloatPoint);
+  return this->InternalFloatPoint;
+}
+
+//----------------------------------------------------------------------------
+double *vtkLinearTransform::TransformDoubleNormal(double x,
+						 double y,
+						 double z)
+{
+  this->InternalDoublePoint[0] = x;
+  this->InternalDoublePoint[1] = y;
+  this->InternalDoublePoint[2] = z;
+  this->TransformNormal(this->InternalDoublePoint,this->InternalDoublePoint);
+  return this->InternalDoublePoint;
+}
+
+//----------------------------------------------------------------------------
+float *vtkLinearTransform::TransformFloatVector(float x, 
+						float y, 
+						float z)
+{
+  this->InternalFloatPoint[0] = x;
+  this->InternalFloatPoint[1] = y;
+  this->InternalFloatPoint[2] = z;
+  this->TransformVector(this->InternalFloatPoint,this->InternalFloatPoint);
+  return this->InternalFloatPoint;
+}
+
+//----------------------------------------------------------------------------
+double *vtkLinearTransform::TransformDoubleVector(double x,
+						  double y,
+						  double z)
+{
+  this->InternalDoublePoint[0] = x;
+  this->InternalDoublePoint[1] = y;
+  this->InternalDoublePoint[2] = z;
+  this->TransformVector(this->InternalDoublePoint,this->InternalDoublePoint);
+  return this->InternalDoublePoint;
 }
 
 //------------------------------------------------------------------------
 void vtkLinearTransform::InternalTransformPoint(const float in[3], 
 						float out[3])
 {
-  vtkLinearTransformPoint((float *)in,out,this->Matrix->Element);
+  vtkLinearTransformPoint(in,out,this->Matrix->Element);
 }
 
 //----------------------------------------------------------------------------
@@ -97,7 +213,7 @@ void vtkLinearTransform::InternalTransformDerivative(const float in[3],
 {
   double (*matrix)[4] = this->Matrix->Element;
 
-  vtkLinearTransformPoint((float *)in,out,matrix);
+  vtkLinearTransformPoint(in,out,matrix);
 
   for (int i = 0; i < 3; i++)
     {
@@ -146,7 +262,7 @@ void vtkLinearTransform::TransformPoints(vtkPoints *inPts,
     {
     inPts->GetPoint(i,point);
 
-    vtkLinearTransformPoint((float *)point,point,matrix);
+    vtkLinearTransformPoint(point,point,matrix);
 
     outPts->InsertNextPoint(point);
     }
@@ -157,25 +273,25 @@ void vtkLinearTransform::TransformNormals(vtkNormals *inNms,
 					  vtkNormals *outNms)
 {
   int n = inNms->GetNumberOfNormals();
-  float in[3],out[3];
+  float norm[3];
   double matrix[4][4];
   
   this->Update();
 
+  // to transform the normal, multiply by the transposed inverse matrix
   vtkMatrix4x4::DeepCopy(*matrix,this->Matrix);  
   vtkMatrix4x4::Invert(*matrix,*matrix);
   vtkMatrix4x4::Transpose(*matrix,*matrix);
 
   for (int i = 0; i < n; i++)
     {
-    inNms->GetNormal(i,in);
+    inNms->GetNormal(i,norm);
 
-    out[0] = matrix[0][0]*in[0] + matrix[0][1]*in[1] + matrix[0][2]*in[2];
-    out[1] = matrix[1][0]*in[0] + matrix[1][1]*in[1] + matrix[1][2]*in[2];
-    out[2] = matrix[2][0]*in[0] + matrix[2][1]*in[1] + matrix[2][2]*in[2];
-    vtkMath::Normalize(out);
+    // use TransformVector because matrix is already transposed & inverted
+    vtkLinearTransformVector(norm,norm,matrix);
+    vtkMath::Normalize(norm);
 
-    outNms->InsertNextNormal(out);
+    outNms->InsertNextNormal(norm);
     }
 }
 
@@ -184,7 +300,7 @@ void vtkLinearTransform::TransformVectors(vtkVectors *inNms,
 					  vtkVectors *outNms)
 {
   int n = inNms->GetNumberOfVectors();
-  float in[3],out[3];
+  float vec[3];
   
   this->Update();
 
@@ -192,13 +308,11 @@ void vtkLinearTransform::TransformVectors(vtkVectors *inNms,
 
   for (int i = 0; i < n; i++)
     {
-    inNms->GetVector(i,in);
+    inNms->GetVector(i,vec);
 
-    out[0] = matrix[0][0]*in[0] + matrix[0][1]*in[1] + matrix[0][2]*in[2];
-    out[1] = matrix[1][0]*in[0] + matrix[1][1]*in[1] + matrix[1][2]*in[2];
-    out[2] = matrix[2][0]*in[0] + matrix[2][1]*in[1] + matrix[2][2]*in[2];
+    vtkLinearTransformVector(vec,vec,matrix);
 
-    outNms->InsertNextVector(out);
+    outNms->InsertNextVector(vec);
     }
 }
 
