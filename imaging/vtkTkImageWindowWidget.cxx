@@ -246,6 +246,21 @@ int vtkTkImageWindowWidget_Height( const struct vtkTkImageWindowWidget *self)
    return self->Height;
 }
 
+static void vtkTkImageWindowWidget_Destroy(char *memPtr)
+{
+  struct vtkTkImageWindowWidget *self = (struct vtkTkImageWindowWidget *)memPtr;
+
+  if (self->ImageWindow)
+    {
+		// Squash the ImageWindow's WindowID
+	  self->ImageWindow->SetWindowId ( (void*)NULL );
+    self->ImageWindow->UnRegister(NULL);
+    self->ImageWindow = NULL;
+    ckfree (self->IW);
+    }
+  ckfree((char *) memPtr);
+}
+
 //----------------------------------------------------------------------------
 // This gets called to handle vtkTkImageWindowWidget wind configuration events
 // Possibly X dependent
@@ -282,8 +297,7 @@ static void vtkTkImageWindowWidget_EventProc(ClientData clientData,
     case MapNotify:
       break;
     case DestroyNotify:
-			self->ImageWindow->SetWindowId ( (void*) NULL );
-      // Tcl_EventuallyFree( (ClientData) self, vtkTkImageWindowWidget_Destroy );
+      Tcl_EventuallyFree( (ClientData) self, vtkTkImageWindowWidget_Destroy );
       break;
     default:
       // nothing
