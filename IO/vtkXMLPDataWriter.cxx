@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkXMLPDataWriter.h"
+
+#include "vtkCallbackCommand.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataWriter, "1.4");
+vtkCxxRevisionMacro(vtkXMLPDataWriter, "1.5");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataWriter::vtkXMLPDataWriter()
@@ -34,6 +36,11 @@ vtkXMLPDataWriter::vtkXMLPDataWriter()
   this->FileNameBase = 0;
   this->FileNameExtension = 0;
   this->PieceFileNameExtension = 0;
+
+  // Setup a callback for the internal writer to report progress.
+  this->ProgressObserver = vtkCallbackCommand::New();
+  this->ProgressObserver->SetCallback(&vtkXMLPDataWriter::ProgressCallbackFunction);
+  this->ProgressObserver->SetClientData(this);
 }
 
 //----------------------------------------------------------------------------
@@ -43,6 +50,7 @@ vtkXMLPDataWriter::~vtkXMLPDataWriter()
   if(this->FileNameBase) { delete [] this->FileNameBase; }
   if(this->FileNameExtension) { delete [] this->FileNameExtension; }
   if(this->PieceFileNameExtension) { delete [] this->PieceFileNameExtension; }
+  this->ProgressObserver->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -70,14 +78,8 @@ void vtkXMLPDataWriter::SetWriteSummaryFile(int flag)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPDataWriter::Write()
+int vtkXMLPDataWriter::WriteInternal()
 {
-  // Make sure there are enough settings to write (Input, FileName, etc).
-  if(!this->IsSafeToWrite())
-    {
-    return 0;
-    }  
-  
   // Prepare the file name.
   this->SplitFileName();
   
@@ -102,7 +104,7 @@ int vtkXMLPDataWriter::Write()
   // Write the summary file if requested.
   if(writeSummary)
     {
-    if(!this->Superclass::Write()) { return 0; }
+    if(!this->Superclass::WriteInternal()) { return 0; }
     }
   
   return 1;
@@ -237,10 +239,17 @@ char* vtkXMLPDataWriter::CreatePieceFileName(int index, const char* path)
 //----------------------------------------------------------------------------
 int vtkXMLPDataWriter::WritePieces()
 {
+  // Split progress range by piece.  Just assume all pieces are the
+  // same size.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  
   // Write each piece from StartPiece to EndPiece.
   int i;
   for(i=this->StartPiece; i <= this->EndPiece; ++i)
     {
+    this->SetProgressRange(progressRange, i-this->StartPiece,
+                           this->EndPiece-this->StartPiece+1);
     if(!this->WritePiece(i))
       {
       return 0;
@@ -255,6 +264,7 @@ int vtkXMLPDataWriter::WritePiece(int index)
   // Create the writer for the piece.  Its configuration should match
   // our own writer.
   vtkXMLWriter* pWriter = this->CreatePieceWriter(index);
+  pWriter->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
   
   // Set the file name.
   if(!this->PieceFileNameExtension)
@@ -278,7 +288,33 @@ int vtkXMLPDataWriter::WritePiece(int index)
   int result = pWriter->Write();
   
   // Cleanup.
+  pWriter->RemoveObserver(this->ProgressObserver);
   pWriter->Delete();
   
   return result;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPDataWriter::ProgressCallbackFunction(vtkObject* caller,
+                                                 unsigned long,
+                                                 void* clientdata, void*)
+{
+  vtkProcessObject* w = vtkProcessObject::SafeDownCast(caller);
+  if(w)
+    {
+    reinterpret_cast<vtkXMLPDataWriter*>(clientdata)->ProgressCallback(w);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPDataWriter::ProgressCallback(vtkProcessObject* w)
+{
+  float width = this->ProgressRange[1]-this->ProgressRange[0];
+  float internalProgress = w->GetProgress();
+  float progress = this->ProgressRange[0] + internalProgress*width;
+  this->UpdateProgressDiscrete(progress);
+  if(this->AbortExecute)
+    {
+    w->SetAbortExecute(1);
+    }
 }

@@ -16,18 +16,19 @@
 
 =========================================================================*/
 #include "vtkXMLWriter.h"
+
 #include "vtkBase64OutputStream.h"
 #include "vtkByteSwap.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
-#include "vtkZLibDataCompressor.h"
 #include "vtkDataSet.h"
 #include "vtkOutputStream.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkZLibDataCompressor.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.18");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.19");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -63,6 +64,8 @@ vtkXMLWriter::vtkXMLWriter()
   this->EncodeAppendedData = 1;
   this->AppendedDataPosition = 0;
   this->DataMode = vtkXMLWriter::Appended;
+  this->ProgressRange[0] = 0;
+  this->ProgressRange[1] = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -215,12 +218,41 @@ void vtkXMLWriter::SetBlockSize(unsigned int blockSize)
 //----------------------------------------------------------------------------
 int vtkXMLWriter::Write()
 {
-  // Make sure there are enough settings to write (Input, FileName, etc).
-  if(!this->IsSafeToWrite())
+  // Make sure we have input.
+  if(!this->Inputs || !this->Inputs[0])
     {
+    vtkErrorMacro("No input provided!");
     return 0;
     }
   
+  // Make sure we have a file to write.
+  if(!this->FileName)
+    {
+    vtkErrorMacro("Write() called with no FileName set.");
+    return 0;
+    }
+  
+  // We are just starting to write.  Do not call
+  // UpdateProgressDiscrete because we want a 0 progress callback the
+  // first time.
+  this->UpdateProgress(0);
+  
+  // Initialize progress range to entire 0..1 range.
+  float wholeProgressRange[2] = {0,1};
+  this->SetProgressRange(wholeProgressRange, 0, 1);
+  
+  // Call the real writing code.
+  int result = this->WriteInternal();
+  
+  // We have finished reading.
+  this->UpdateProgressDiscrete(1);
+  
+  return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLWriter::WriteInternal()
+{  
   // Try to open the output file for writing.
 #ifdef _WIN32
   ofstream outFile(this->FileName, ios::out | ios::binary);
@@ -536,16 +568,17 @@ int vtkXMLWriter::WriteBinaryDataInternal(void* data, int numWords,
   unsigned long wordsLeft = numWords;
   
   // Do the complete blocks.
+  this->SetProgressPartial(0);
   int result = 1;
   while(result && (wordsLeft >= blockWords))
     {
-    // 
     if(!this->WriteBinaryDataBlock(ptr, blockWords, wordType))
       {
       result = 0;
       }
     ptr += memBlockSize;
     wordsLeft -= blockWords;
+    this->SetProgressPartial(float(numWords-wordsLeft)/numWords);
     }
   
   // Do the last partial block if any.
@@ -556,6 +589,7 @@ int vtkXMLWriter::WriteBinaryDataInternal(void* data, int numWords,
       result = 0;
       }
     }
+  this->SetProgressPartial(1);
   
   // Free the byte swap buffer if it was allocated.
   if(this->ByteSwapBuffer && !this->Int32IdTypeBuffer)
@@ -1177,9 +1211,12 @@ void vtkXMLWriter::WritePointDataInline(vtkPointData* pd, vtkIndent indent)
   this->WriteAttributeIndices(pd, names);
   os << ">\n";
   
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);  
   int i;
   for(i=0; i < pd->GetNumberOfArrays(); ++i)
     {
+    this->SetProgressRange(progressRange, i, pd->GetNumberOfArrays());
     vtkDataArray* a = this->CreateArrayForPoints(pd->GetArray(i));
     this->WriteDataArrayInline(a, indent.GetNextIndent(), names[i]);
     a->Delete();
@@ -1199,10 +1236,13 @@ void vtkXMLWriter::WriteCellDataInline(vtkCellData* cd, vtkIndent indent)
   os << indent << "<CellData";
   this->WriteAttributeIndices(cd, names);
   os << ">\n";
-
+  
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);  
   int i;
   for(i=0; i < cd->GetNumberOfArrays(); ++i)
     {
+    this->SetProgressRange(progressRange, i, cd->GetNumberOfArrays());
     vtkDataArray* a = this->CreateArrayForCells(cd->GetArray(i));
     this->WriteDataArrayInline(a, indent.GetNextIndent(), names[i]);
     a->Delete();
@@ -1244,9 +1284,12 @@ unsigned long* vtkXMLWriter::WritePointDataAppended(vtkPointData* pd,
 void vtkXMLWriter::WritePointDataAppendedData(vtkPointData* pd,
                                               unsigned long* pdPositions)
 {
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
   int i;
   for(i=0; i < pd->GetNumberOfArrays(); ++i)
     {
+    this->SetProgressRange(progressRange, i, pd->GetNumberOfArrays());
     vtkDataArray* a = this->CreateArrayForPoints(pd->GetArray(i));
     this->WriteDataArrayAppendedData(a, pdPositions[i]);
     a->Delete();
@@ -1285,9 +1328,12 @@ unsigned long* vtkXMLWriter::WriteCellDataAppended(vtkCellData* cd,
 void vtkXMLWriter::WriteCellDataAppendedData(vtkCellData* cd,
                                              unsigned long* cdPositions)
 {
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);    
   int i;
   for(i=0; i < cd->GetNumberOfArrays(); ++i)
     {
+    this->SetProgressRange(progressRange, i, cd->GetNumberOfArrays());
     vtkDataArray* a = this->CreateArrayForCells(cd->GetArray(i));
     this->WriteDataArrayAppendedData(a, cdPositions[i]);
     a->Delete();
@@ -1383,8 +1429,27 @@ void vtkXMLWriter::WriteCoordinatesInline(vtkDataArray* xc, vtkDataArray* yc,
     vtkDataArray* oyc = this->CreateExactCoordinates(yc, 1);
     vtkDataArray* ozc = this->CreateExactCoordinates(zc, 2);
     
+    // Split progress over the three coordinates arrays.
+    vtkIdType total = (oxc->GetNumberOfTuples()+
+                       oyc->GetNumberOfTuples()+
+                       ozc->GetNumberOfTuples());
+    float fractions[4] =
+      {
+        0,
+        float(oxc->GetNumberOfTuples()) / total,
+        float(oxc->GetNumberOfTuples()+oyc->GetNumberOfTuples()) / total,
+        1
+      };
+    float progressRange[2] = {0,0};
+    this->GetProgressRange(progressRange);
+    
+    this->SetProgressRange(progressRange, 0, fractions);
     this->WriteDataArrayInline(oxc, indent.GetNextIndent());
+    
+    this->SetProgressRange(progressRange, 1, fractions);
     this->WriteDataArrayInline(oyc, indent.GetNextIndent());
+    
+    this->SetProgressRange(progressRange, 2, fractions);
     this->WriteDataArrayInline(ozc, indent.GetNextIndent());
     
     oxc->Delete();
@@ -1428,8 +1493,27 @@ void vtkXMLWriter::WriteCoordinatesAppendedData(vtkDataArray* xc,
     vtkDataArray* oyc = this->CreateExactCoordinates(yc, 1);
     vtkDataArray* ozc = this->CreateExactCoordinates(zc, 2);
     
+    // Split progress over the three coordinates arrays.
+    vtkIdType total = (oxc->GetNumberOfTuples()+
+                       oyc->GetNumberOfTuples()+
+                       ozc->GetNumberOfTuples());
+    float fractions[4] =
+      {
+        0,
+        float(oxc->GetNumberOfTuples()) / total,
+        float(oxc->GetNumberOfTuples()+oyc->GetNumberOfTuples()) / total,
+        1
+      };
+    float progressRange[2] = {0,0};
+    this->GetProgressRange(progressRange);
+    
+    this->SetProgressRange(progressRange, 0, fractions);
     this->WriteDataArrayAppendedData(oxc, cPositions[0]);
+    
+    this->SetProgressRange(progressRange, 1, fractions);
     this->WriteDataArrayAppendedData(oyc, cPositions[1]);
+    
+    this->SetProgressRange(progressRange, 2, fractions);
     this->WriteDataArrayAppendedData(ozc, cPositions[2]);
     
     oxc->Delete();
@@ -1598,20 +1682,48 @@ void vtkXMLWriter::DestroyStringArray(int numStrings, char** strings)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriter::IsSafeToWrite()
+void vtkXMLWriter::GetProgressRange(float* range)
 {
-  // Make sure we have input.
-  if(!this->Inputs || !this->Inputs[0])
+  range[0] = this->ProgressRange[0];
+  range[1] = this->ProgressRange[1];
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetProgressRange(float* range, int curStep, int numSteps)
+{
+  float stepSize = (range[1] - range[0])/numSteps;
+  this->ProgressRange[0] = range[0] + stepSize*curStep;
+  this->ProgressRange[1] = range[0] + stepSize*(curStep+1);
+  this->UpdateProgressDiscrete(this->ProgressRange[0]);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetProgressRange(float* range, int curStep,
+                                    float* fractions)
+{
+  float width = range[1] - range[0];
+  this->ProgressRange[0] = range[0] + fractions[curStep]*width;
+  this->ProgressRange[1] = range[0] + fractions[curStep+1]*width;
+  this->UpdateProgressDiscrete(this->ProgressRange[0]);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetProgressPartial(float fraction)
+{
+  float width = this->ProgressRange[1] - this->ProgressRange[0];
+  this->UpdateProgressDiscrete(this->ProgressRange[0] + fraction*width);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::UpdateProgressDiscrete(float progress)
+{
+  if(!this->AbortExecute)
     {
-    vtkErrorMacro("No input provided!");
-    return 0;
+    // Round progress to nearest 100th.
+    float rounded = float(int((progress*100)+0.5))/100;
+    if(this->GetProgress() != rounded)
+      {
+      this->UpdateProgress(rounded);
+      }
     }
-  
-  // Make sure we have a file to write.
-  if(!this->FileName)
-    {
-    vtkErrorMacro("Write() called with no FileName set.");
-    return 0;
-    }
-  return 1;
 }

@@ -82,6 +82,13 @@ protected:
                               unsigned long* positions);
   void ConvertCells(vtkCellArray* cells);
   
+  // Get the number of points/cells.  Valid after Update has been
+  // invoked on the input.
+  virtual vtkIdType GetNumberOfInputPoints();
+  virtual vtkIdType GetNumberOfInputCells()=0;
+  void CalculateDataFractions(float* fractions);
+  void CalculateCellFractions(float* fractions, vtkIdType typesSize);
+  
   // Number of pieces used for streaming.
   int NumberOfPieces;
   

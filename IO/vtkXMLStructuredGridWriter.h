@@ -59,6 +59,7 @@ protected:
   void WriteInlinePiece(int index, vtkIndent indent);
   void GetInputExtent(int* extent);
   const char* GetDataSetName();
+  void CalculateSuperclassFraction(float* fractions);
   
   // The position of the appended data offset attribute for the points
   // array.

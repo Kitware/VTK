@@ -16,17 +16,20 @@
 
 =========================================================================*/
 #include "vtkXMLUnstructuredDataWriter.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointSet.h"
-#include "vtkDataCompressor.h"
-#include "vtkCellArray.h"
-#include "vtkDataArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkPoints.h"
-#include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.2");
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
+#include "vtkDataCompressor.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkIdTypeArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
+#include "vtkUnsignedCharArray.h"
+
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.3");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -116,10 +119,16 @@ void vtkXMLUnstructuredDataWriter::WriteInlineMode(vtkIndent indent)
   
   if((this->WritePiece < 0) || (this->WritePiece >= this->NumberOfPieces))
     {
-    // Loop over each piece and write it.
+    // Loop over each piece and write it.  Unfortunately, there is no
+    // way to know the relative size of each piece ahead of time
+    // without executing twice for all pieces.  We just assume all the
+    // pieces are approximately the same size for reporting progress.
+    float progressRange[2] = {0,0};
+    this->GetProgressRange(progressRange);
     int i;
     for(i=0; i < this->NumberOfPieces; ++i)
       {
+      this->SetProgressRange(progressRange, i, this->NumberOfPieces);
       this->SetInputUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
       input->Update();
       
@@ -131,7 +140,7 @@ void vtkXMLUnstructuredDataWriter::WriteInlineMode(vtkIndent indent)
       this->WriteInlinePiece(nextIndent.GetNextIndent());
       
       // Close the piece's element.
-      os << nextIndent << "</Piece>\n";  
+      os << nextIndent << "</Piece>\n";
       }
     }
   else
@@ -149,11 +158,11 @@ void vtkXMLUnstructuredDataWriter::WriteInlineMode(vtkIndent indent)
     this->WriteInlinePiece(nextIndent.GetNextIndent());
     
     // Close the piece's element.
-    os << nextIndent << "</Piece>\n";  
+    os << nextIndent << "</Piece>\n";
     }
   
   // Close the primary element.
-  os << indent << "</" << this->GetDataSetName() << ">\n";  
+  os << indent << "</" << this->GetDataSetName() << ">\n";
 }
 
 //----------------------------------------------------------------------------
@@ -168,9 +177,30 @@ void vtkXMLUnstructuredDataWriter::WriteInlinePieceAttributes()
 void vtkXMLUnstructuredDataWriter::WriteInlinePiece(vtkIndent indent)
 {
   vtkPointSet* input = this->GetInputAsPointSet();
-  this->WritePointsInline(input->GetPoints(), indent);
+  
+  // Split progress among point data, cell data, and point arrays.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  float fractions[4];
+  this->CalculateDataFractions(fractions);
+  
+  // Set the range of progress for the point data arrays.
+  this->SetProgressRange(progressRange, 0, fractions);  
+  
+  // Write the point data arrays.
   this->WritePointDataInline(input->GetPointData(), indent);
+  
+  // Set the range of progress for the cell data arrays.
+  this->SetProgressRange(progressRange, 1, fractions);
+  
+  // Write the cell data arrays.
   this->WriteCellDataInline(input->GetCellData(), indent);
+  
+  // Set the range of progress for the point specification array.
+  this->SetProgressRange(progressRange, 2, fractions);
+  
+  // Write the point specification array.
+  this->WritePointsInline(input->GetPoints(), indent);
 }
 
 //----------------------------------------------------------------------------
@@ -222,20 +252,26 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedMode(vtkIndent indent)
     this->WriteAppendedPiece(this->WritePiece, nextIndent.GetNextIndent());
     
     // Close the piece's element.
-    os << nextIndent << "</Piece>\n";    
+    os << nextIndent << "</Piece>\n";
     }
   
   // Close the primary element.
-  os << indent << "</" << this->GetDataSetName() << ">\n";  
+  os << indent << "</" << this->GetDataSetName() << ">\n";
   
   this->StartAppendedData();
   
   if((this->WritePiece < 0) || (this->WritePiece >= this->NumberOfPieces))
     {
-    // Loop over each piece and write its data.
+    // Loop over each piece and write its data.  Unfortunately, there
+    // is no way to know the relative size of each piece ahead of time
+    // without executing twice for all pieces.  We just assume all the
+    // pieces are approximately the same size for reporting progress.
+    float progressRange[2] = {0,0};
+    this->GetProgressRange(progressRange);
     int i;
     for(i=0; i < this->NumberOfPieces; ++i)
       {
+      this->SetProgressRange(progressRange, i, this->NumberOfPieces);
       input->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
       input->Update();
       this->WriteAppendedPieceData(i);
@@ -269,7 +305,7 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPieceAttributes(int index)
 void vtkXMLUnstructuredDataWriter::WriteAppendedPiece(int index,
                                                       vtkIndent indent)
 {
-  vtkPointSet* input = this->GetInputAsPointSet();  
+  vtkPointSet* input = this->GetInputAsPointSet();
   
   this->PointDataPositions[index] =
     this->WritePointDataAppended(input->GetPointData(), indent);
@@ -294,12 +330,30 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPieceData(int index)
                              (points?points->GetNumberOfPoints():0));
   os.seekp(returnPosition);
   
-  this->WritePointDataAppendedData(input->GetPointData(),
-                               this->PointDataPositions[index]);
+  // Split progress among point data, cell data, and point arrays.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  float fractions[4];
+  this->CalculateDataFractions(fractions);
   
+  // Set the range of progress for the point data arrays.
+  this->SetProgressRange(progressRange, 0, fractions);
+  
+  // Write the point data arrays.
+  this->WritePointDataAppendedData(input->GetPointData(),
+                                   this->PointDataPositions[index]);
+  
+  // Set the range of progress for the cell data arrays.
+  this->SetProgressRange(progressRange, 1, fractions);
+  
+  // Write the cell data arrays.  
   this->WriteCellDataAppendedData(input->GetCellData(),
                                   this->CellDataPositions[index]);
   
+  // Set the range of progress for the point specification array.
+  this->SetProgressRange(progressRange, 2, fractions);
+  
+  // Write the point specification array.
   this->WritePointsAppendedData(input->GetPoints(),
                                 this->PointsPositions[index]);
 }
@@ -314,10 +368,30 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(const char* name,
   
   ostream& os = *(this->Stream);
   os << indent << "<" << name << ">\n";
+  
+  // Split progress by cell connectivity, offset, and type arrays.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  float fractions[4];
+  this->CalculateCellFractions(fractions, types?types->GetNumberOfTuples():0);
+  
+  // Set the range of progress for the connectivity array.
+  this->SetProgressRange(progressRange, 0, fractions);
+  
+  // Write the connectivity array.
   this->WriteDataArrayInline(this->CellPoints, indent.GetNextIndent());
+  
+  // Set the range of progress for the offsets array.
+  this->SetProgressRange(progressRange, 1, fractions);
+  
+  // Write the offsets array.
   this->WriteDataArrayInline(this->CellOffsets, indent.GetNextIndent());
   if(types)
     {
+    // Set the range of progress for the types array.
+    this->SetProgressRange(progressRange, 2, fractions);
+    
+    // Write the types array.
     this->WriteDataArrayInline(types, indent.GetNextIndent(), "types");
     }
   os << indent << "</" << name << ">\n";
@@ -352,10 +426,31 @@ vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(vtkCellArray* cells,
                                                      unsigned long* positions)
 {
   this->ConvertCells(cells);
+  
+  // Split progress by cell connectivity, offset, and type arrays.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  float fractions[4];
+  this->CalculateCellFractions(fractions, types?types->GetNumberOfTuples():0);
+  
+  // Set the range of progress for the connectivity array.
+  this->SetProgressRange(progressRange, 0, fractions);
+  
+  // Write the connectivity array.
   this->WriteDataArrayAppendedData(this->CellPoints, positions[0]);
+  
+  // Set the range of progress for the offsets array.
+  this->SetProgressRange(progressRange, 1, fractions);
+  
+  // Write the offsets array.
   this->WriteDataArrayAppendedData(this->CellOffsets, positions[1]);
+  
   if(types)
     {
+    // Set the range of progress for the types array.
+    this->SetProgressRange(progressRange, 2, fractions);
+    
+    // Write the types array.
     this->WriteDataArrayAppendedData(types, positions[2]);
     }
   delete [] positions;
@@ -385,4 +480,52 @@ void vtkXMLUnstructuredDataWriter::ConvertCells(vtkCellArray* cells)
     inCell += numberOfPoints;
     *outCellOffset++ = outCellPoints - outCellPointsBase;
     }
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkXMLUnstructuredDataWriter::GetNumberOfInputPoints()
+{
+  vtkPointSet* input = this->GetInputAsPointSet();
+  vtkPoints* points = input->GetPoints();
+  return points?points->GetNumberOfPoints():0;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLUnstructuredDataWriter::CalculateDataFractions(float* fractions)
+{
+  // Calculate the fraction of point/cell data and point
+  // specifications contributed by each component.
+  vtkPointSet* input = this->GetInputAsPointSet();
+  int pdArrays = input->GetPointData()->GetNumberOfArrays();
+  int cdArrays = input->GetCellData()->GetNumberOfArrays();
+  vtkIdType pdSize = pdArrays*this->GetNumberOfInputPoints();
+  vtkIdType cdSize = cdArrays*this->GetNumberOfInputCells();
+  int total = (pdSize+cdSize+this->GetNumberOfInputPoints());
+  if(total == 0)
+    {
+    total = 1;
+    }
+  fractions[0] = 0;
+  fractions[1] = float(pdSize)/total;
+  fractions[2] = float(pdSize+cdSize)/total;
+  fractions[3] = 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLUnstructuredDataWriter::CalculateCellFractions(float* fractions,
+                                                          vtkIdType typesSize)
+{
+  // Calculate the fraction of cell specification data contributed by
+  // each of the connectivity, offset, and type arrays.
+  vtkIdType connectSize = this->CellPoints->GetNumberOfTuples();
+  vtkIdType offsetSize = this->CellOffsets->GetNumberOfTuples();
+  vtkIdType total = connectSize+offsetSize+typesSize;
+  if(total == 0)
+    {
+    total = 1;
+    }
+  fractions[0] = 0;
+  fractions[1] = float(connectSize)/total;
+  fractions[2] = float(connectSize+offsetSize)/total;
+  fractions[3] = 1;
 }

@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkXMLPDataSetWriter.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkDataSet.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
@@ -30,7 +31,7 @@
 #include "vtkXMLPStructuredGridWriter.h"
 #include "vtkXMLPUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataSetWriter, "1.2");
+vtkCxxRevisionMacro(vtkXMLPDataSetWriter, "1.3");
 vtkStandardNewMacro(vtkXMLPDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -67,14 +68,8 @@ vtkDataSet* vtkXMLPDataSetWriter::GetInput()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPDataSetWriter::Write()
+int vtkXMLPDataSetWriter::WriteInternal()
 {
-  // Make sure there are enough settings to write (Input, FileName, etc).
-  if(!this->IsSafeToWrite())
-    {
-    return 0;
-    }
-  
   vtkDataSet* input = this->GetInput();
   vtkXMLPDataWriter* writer = 0;
   
@@ -134,6 +129,7 @@ int vtkXMLPDataSetWriter::Write()
   writer->SetGhostLevel(this->GetGhostLevel());
   writer->SetStartPiece(this->GetStartPiece());
   writer->SetEndPiece(this->GetEndPiece());
+  writer->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
   
   // Decide whether to write the summary file.
   int writeSummary = 0;
@@ -151,6 +147,7 @@ int vtkXMLPDataSetWriter::Write()
   int result = writer->Write();
   
   // Cleanup.
+  writer->RemoveObserver(this->ProgressObserver);
   writer->Delete();
   return result;
 }

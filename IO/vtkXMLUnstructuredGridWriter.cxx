@@ -17,11 +17,14 @@
 =========================================================================*/
 #include "vtkXMLUnstructuredGridWriter.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.2");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.3");
 vtkStandardNewMacro(vtkXMLUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -88,7 +91,24 @@ void vtkXMLUnstructuredGridWriter::WriteInlinePieceAttributes()
 void vtkXMLUnstructuredGridWriter::WriteInlinePiece(vtkIndent indent)
 {
   vtkUnstructuredGrid* input = this->GetInput();
+  
+  // Split progress range by the approximate fraction of data written
+  // by each step in this method.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  float fractions[3];
+  this->CalculateSuperclassFraction(fractions);
+  
+  // Set the range of progress for superclass.
+  this->SetProgressRange(progressRange, 0, fractions);
+  
+  // Let the superclass write its data.
   this->Superclass::WriteInlinePiece(indent);
+  
+  // Set range of progress for the cell specifications.
+  this->SetProgressRange(progressRange, 1, fractions);
+  
+  // Write the cell specifications.
   this->WriteCellsInline("Cells", input->GetCells(),
                          input->GetCellTypesArray(), indent);
 }
@@ -131,8 +151,56 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPieceData(int index)
   this->WriteScalarAttribute("NumberOfCells", input->GetNumberOfCells());
   os.seekp(returnPosition);
   
+  // Split progress range by the approximate fraction of data written
+  // by each step in this method.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  float fractions[3];
+  this->CalculateSuperclassFraction(fractions);
+  
+  // Set the range of progress for superclass.
+  this->SetProgressRange(progressRange, 0, fractions);
+  
+  // Let the superclass write its data.
   this->Superclass::WriteAppendedPieceData(index);
   
+  // Set range of progress for the cell specifications.
+  this->SetProgressRange(progressRange, 1, fractions);
+  
+  // Write the cell specifications.
   this->WriteCellsAppendedData(input->GetCells(), input->GetCellTypesArray(),
                                this->CellsPositions[index]);
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkXMLUnstructuredGridWriter::GetNumberOfInputCells()
+{
+  return this->GetInput()->GetNumberOfCells();
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLUnstructuredGridWriter::CalculateSuperclassFraction(float* fractions)
+{
+  vtkUnstructuredGrid* input = this->GetInput();
+  
+  // The superclass will write point/cell data and point specifications.
+  int pdArrays = input->GetPointData()->GetNumberOfArrays();
+  int cdArrays = input->GetCellData()->GetNumberOfArrays();
+  vtkIdType pdSize = pdArrays*this->GetNumberOfInputPoints();
+  vtkIdType cdSize = cdArrays*this->GetNumberOfInputCells();
+  vtkIdType pointsSize = this->GetNumberOfInputPoints();
+  
+  // This class will write cell specifications.
+  vtkIdType connectSize = (input->GetCells()->GetData()->GetNumberOfTuples() -
+                           input->GetNumberOfCells());
+  vtkIdType offsetSize = input->GetNumberOfCells();
+  vtkIdType typesSize = input->GetNumberOfCells();
+  int total = (pdSize+cdSize+pointsSize+connectSize+offsetSize+typesSize);
+  if(total == 0)
+    {
+    total = 1;
+    }
+  fractions[0] = 0;
+  fractions[1] = float(pdSize+cdSize+pointsSize)/total;
+  fractions[2] = 1;
 }

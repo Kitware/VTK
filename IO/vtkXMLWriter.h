@@ -126,7 +126,7 @@ public:
   
   // Description:
   // Invoke the writer.  Returns 1 for success, 0 for failure.
-  virtual int Write();
+  int Write();
   
 protected:
   vtkXMLWriter();
@@ -205,6 +205,9 @@ protected:
   // Allow subclasses to set the data stream.
   virtual void SetDataStream(vtkOutputStream*);
   vtkGetObjectMacro(DataStream, vtkOutputStream);  
+  
+  // Method to drive most of actual writing.
+  virtual int WriteInternal();
   
   // Method defined by subclasses to write data.  Return 1 for
   // success, 0 for failure.
@@ -330,7 +333,15 @@ protected:
   
   char** CreateStringArray(int numStrings);
   void DestroyStringArray(int numStrings, char** strings);
-  virtual int IsSafeToWrite();
+  
+  // The current range over which progress is moving.  This allows for
+  // incrementally fine-tuned progress updates.
+  virtual void GetProgressRange(float* range);
+  virtual void SetProgressRange(float* range, int curStep, int numSteps);
+  virtual void SetProgressRange(float* range, int curStep, float* fractions);
+  virtual void SetProgressPartial(float fraction);
+  virtual void UpdateProgressDiscrete(float progress);
+  float ProgressRange[2];
   
 private:
   vtkXMLWriter(const vtkXMLWriter&);  // Not implemented.

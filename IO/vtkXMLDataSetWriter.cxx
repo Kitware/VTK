@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkXMLDataSetWriter.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkDataSet.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
@@ -30,17 +31,22 @@
 #include "vtkXMLStructuredGridWriter.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkXMLDataSetWriter, "1.2");
+vtkCxxRevisionMacro(vtkXMLDataSetWriter, "1.3");
 vtkStandardNewMacro(vtkXMLDataSetWriter);
 
 //----------------------------------------------------------------------------
 vtkXMLDataSetWriter::vtkXMLDataSetWriter()
-{
+{  
+  // Setup a callback for the internal writer to report progress.
+  this->ProgressObserver = vtkCallbackCommand::New();
+  this->ProgressObserver->SetCallback(&vtkXMLDataSetWriter::ProgressCallbackFunction);
+  this->ProgressObserver->SetClientData(this);
 }
 
 //----------------------------------------------------------------------------
 vtkXMLDataSetWriter::~vtkXMLDataSetWriter()
 {
+  this->ProgressObserver->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -67,14 +73,8 @@ vtkDataSet* vtkXMLDataSetWriter::GetInput()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLDataSetWriter::Write()
-{
-  // Make sure there are enough settings to write (Input, FileName, etc).
-  if(!this->IsSafeToWrite())
-    {
-    return 0;
-    }
-  
+int vtkXMLDataSetWriter::WriteInternal()
+{  
   vtkDataSet* input = this->GetInput();
   vtkXMLWriter* writer = 0;
   
@@ -130,11 +130,13 @@ int vtkXMLDataSetWriter::Write()
   writer->SetBlockSize(this->GetBlockSize());
   writer->SetDataMode(this->GetDataMode());
   writer->SetEncodeAppendedData(this->GetEncodeAppendedData());
+  writer->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
   
   // Try to write.
   int result = writer->Write();
   
   // Cleanup.
+  writer->RemoveObserver(this->ProgressObserver);
   writer->Delete();
   return result;
 }
@@ -155,4 +157,29 @@ const char* vtkXMLDataSetWriter::GetDataSetName()
 const char* vtkXMLDataSetWriter::GetDefaultFileExtension()
 {
   return "vtk";
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataSetWriter::ProgressCallbackFunction(vtkObject* caller,
+                                                   unsigned long,
+                                                   void* clientdata, void*)
+{
+  vtkProcessObject* w = vtkProcessObject::SafeDownCast(caller);
+  if(w)
+    {
+    reinterpret_cast<vtkXMLDataSetWriter*>(clientdata)->ProgressCallback(w);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataSetWriter::ProgressCallback(vtkProcessObject* w)
+{
+  float width = this->ProgressRange[1]-this->ProgressRange[0];
+  float internalProgress = w->GetProgress();
+  float progress = this->ProgressRange[0] + internalProgress*width;
+  this->UpdateProgressDiscrete(progress);
+  if(this->AbortExecute)
+    {
+    w->SetAbortExecute(1);
+    }
 }

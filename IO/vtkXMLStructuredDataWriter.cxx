@@ -16,12 +16,15 @@
 
 =========================================================================*/
 #include "vtkXMLStructuredDataWriter.h"
-#include "vtkDataSet.h"
+
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataCompressor.h"
+#include "vtkDataSet.h"
 #include "vtkExtentTranslator.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.2");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -70,7 +73,7 @@ int vtkXMLStructuredDataWriter::WriteData()
   input->UpdateInformation();
   
   // Prepare the extent translator to create the set of pieces.
-  this->SetupExtentTranslator();  
+  this->SetupExtentTranslator();
   
   // Write the file.
   this->StartFile();
@@ -98,12 +101,12 @@ void vtkXMLStructuredDataWriter::WriteAppendedMode(vtkIndent indent)
   // Prepare storage for the point and cell data array appended data
   // offsets for each piece.
   this->PointDataOffsets = new unsigned long*[this->NumberOfPieces];
-  this->CellDataOffsets = new unsigned long*[this->NumberOfPieces];  
+  this->CellDataOffsets = new unsigned long*[this->NumberOfPieces];
   
   // Update the first piece to get form of data setup.
   vtkDataSet* input = this->GetInputAsDataSet();
   this->ExtentTranslator->SetPiece(0);
-  this->ExtentTranslator->PieceToExtent();  
+  this->ExtentTranslator->PieceToExtent();
   input->SetUpdateExtent(this->ExtentTranslator->GetExtent());
   input->Update();
   
@@ -130,25 +133,36 @@ void vtkXMLStructuredDataWriter::WriteAppendedMode(vtkIndent indent)
     }
   
   // Close the primary element.
-  os << indent << "</" << this->GetDataSetName() << ">\n";  
+  os << indent << "</" << this->GetDataSetName() << ">\n";
+  
+  // Split progress of the data write by the fraction contributed by
+  // each piece.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  float* fractions = new float[this->NumberOfPieces+1];
+  this->CalculatePieceFractions(fractions);
   
   // Write each piece's data.
   this->StartAppendedData();
   
   for(i=0;i < this->NumberOfPieces;++i)
     {
+    // Set the progress range for this piece.
+    this->SetProgressRange(progressRange, i, fractions);
+    
     // Update the piece's data.
     this->ExtentTranslator->SetPiece(i);
-    this->ExtentTranslator->PieceToExtent();    
+    this->ExtentTranslator->PieceToExtent();
     input->SetUpdateExtent(this->ExtentTranslator->GetExtent());
     input->Update();
     
     this->WriteAppendedPieceData(i);
     }
   
-  this->EndAppendedData();  
+  this->EndAppendedData();
   
   // Cleanup.
+  delete [] fractions;
   delete [] this->PointDataOffsets;
   delete [] this->CellDataOffsets;
 }
@@ -166,13 +180,23 @@ void vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
   this->WritePrimaryElementAttributes();
   os << ">\n";
   
+  // Split progress of the data write by the fraction contributed by
+  // each piece.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  float* fractions = new float[this->NumberOfPieces+1];
+  this->CalculatePieceFractions(fractions);
+  
   // Write each piece's XML and data.
   for(i=0; i < this->NumberOfPieces; ++i)
     { 
+    // Set the progress range for this piece.
+    this->SetProgressRange(progressRange, i, fractions);
+    
     // Update the piece's extent and data.
     this->ExtentTranslator->SetPiece(i);
     this->ExtentTranslator->PieceToExtent();
-    this->ExtentTranslator->GetExtent(extent);  
+    this->ExtentTranslator->GetExtent(extent);
     input->SetUpdateExtent(extent);
     input->Update();
     
@@ -186,7 +210,9 @@ void vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
     }
   
   // Close the primary element.
-  os << indent << "</" << this->GetDataSetName() << ">\n";  
+  os << indent << "</" << this->GetDataSetName() << ">\n";
+  
+  delete [] fractions;
 }
 
 //----------------------------------------------------------------------------
@@ -238,7 +264,7 @@ vtkXMLStructuredDataWriter
     }
 
   unsigned int tupleSize = (array->GetDataTypeSize() *
-                            array->GetNumberOfComponents());  
+                            array->GetNumberOfComponents());
   unsigned int rowTuples = outDimensions[0];
   unsigned int sliceTuples = rowTuples*outDimensions[1];
   unsigned int volumeTuples = sliceTuples*outDimensions[2];
@@ -251,9 +277,9 @@ vtkXMLStructuredDataWriter
   int outIncrements[3];
   outIncrements[0] = 1;
   outIncrements[1] = outDimensions[0]*outIncrements[0];
-  outIncrements[2] = outDimensions[1]*outIncrements[1];  
+  outIncrements[2] = outDimensions[1]*outIncrements[1];
   
-  vtkDataArray* newArray = array->NewInstance();  
+  vtkDataArray* newArray = array->NewInstance();
   newArray->SetName(array->GetName());
   newArray->SetNumberOfComponents(array->GetNumberOfComponents());
   newArray->SetNumberOfTuples(volumeTuples);
@@ -312,7 +338,7 @@ void vtkXMLStructuredDataWriter::WriteAppendedPiece(int index,
                                                     vtkIndent indent)
 {
   // Write the point data and cell data arrays.
-  vtkDataSet* input = this->GetInputAsDataSet();  
+  vtkDataSet* input = this->GetInputAsDataSet();
   this->PointDataOffsets[index] =
     this->WritePointDataAppended(input->GetPointData(), indent);
   this->CellDataOffsets[index] =
@@ -321,11 +347,30 @@ void vtkXMLStructuredDataWriter::WriteAppendedPiece(int index,
 
 //----------------------------------------------------------------------------
 void vtkXMLStructuredDataWriter::WriteAppendedPieceData(int index)
-{  
+{
   // Write the point data and cell data arrays.
-  vtkDataSet* input = this->GetInputAsDataSet();  
+  vtkDataSet* input = this->GetInputAsDataSet();
+  
+  // Split progress between point data and cell data arrays.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  int pdArrays = input->GetPointData()->GetNumberOfArrays();
+  int cdArrays = input->GetCellData()->GetNumberOfArrays();
+  int total = (pdArrays+cdArrays)? (pdArrays+cdArrays):1;
+  float fractions[3] =
+    {
+      0,
+      float(pdArrays)/total,
+      1
+    };
+  
+  // Set the range of progress for the point data arrays.
+  this->SetProgressRange(progressRange, 0, fractions);
   this->WritePointDataAppendedData(input->GetPointData(),
-                                   this->PointDataOffsets[index]);  
+                                   this->PointDataOffsets[index]);
+  
+  // Set the range of progress for the cell data arrays.
+  this->SetProgressRange(progressRange, 1, fractions);
   this->WriteCellDataAppendedData(input->GetCellData(),
                                   this->CellDataOffsets[index]);
 }
@@ -334,8 +379,27 @@ void vtkXMLStructuredDataWriter::WriteAppendedPieceData(int index)
 void vtkXMLStructuredDataWriter::WriteInlinePiece(int, vtkIndent indent)
 {
   // Write the point data and cell data arrays.
-  vtkDataSet* input = this->GetInputAsDataSet();  
+  vtkDataSet* input = this->GetInputAsDataSet();
+  
+  // Split progress between point data and cell data arrays.
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  int pdArrays = input->GetPointData()->GetNumberOfArrays();
+  int cdArrays = input->GetCellData()->GetNumberOfArrays();
+  int total = (pdArrays+cdArrays)? (pdArrays+cdArrays):1;
+  float fractions[3] =
+    {
+      0,
+      float(pdArrays)/total,
+      1
+    };
+  
+  // Set the range of progress for the point data arrays.
+  this->SetProgressRange(progressRange, 0, fractions);
   this->WritePointDataInline(input->GetPointData(), indent);
+  
+  // Set the range of progress for the cell data arrays.
+  this->SetProgressRange(progressRange, 1, fractions);
   this->WriteCellDataInline(input->GetCellData(), indent);
 }
 
@@ -369,4 +433,34 @@ vtkXMLStructuredDataWriter::CreateArrayForCells(vtkDataArray* inArray)
   this->GetInputExtent(inExtent);
   this->ExtentTranslator->GetExtent(outExtent);
   return this->CreateExactExtent(inArray, inExtent, outExtent, 0);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLStructuredDataWriter::CalculatePieceFractions(float* fractions)
+{
+  int i;
+  int extent[6];
+  
+  // Calculate the fraction of total data contributed by each piece.
+  fractions[0] = 0;
+  for(i=0;i < this->NumberOfPieces;++i)
+    {
+    // Update the piece's extent.
+    this->ExtentTranslator->SetPiece(i);
+    this->ExtentTranslator->PieceToExtent();
+    this->ExtentTranslator->GetExtent(extent);
+    
+    // Add this piece's size to the cumulative fractions array.
+    fractions[i+1] = fractions[i] + ((extent[1]-extent[0]+1)*
+                                     (extent[3]-extent[2]+1)*
+                                     (extent[5]-extent[4]+1));
+    }
+  if(fractions[this->NumberOfPieces] == 0)
+    {
+    fractions[this->NumberOfPieces] = 1;
+    }
+  for(i=0;i < this->NumberOfPieces;++i)
+    {
+    fractions[i+1] = fractions[i+1] / fractions[this->NumberOfPieces];
+    }
 }

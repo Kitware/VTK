@@ -65,6 +65,9 @@ protected:
   void WriteAppendedPiece(int index, vtkIndent indent);
   void WriteAppendedPieceData(int index);
 
+  virtual vtkIdType GetNumberOfInputCells();
+  void CalculateSuperclassFraction(float* fractions);
+
   // Positions of attributes for each piece.
   unsigned long* NumberOfVertsPositions;
   unsigned long* NumberOfLinesPositions;

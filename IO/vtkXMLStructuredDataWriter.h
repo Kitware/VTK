@@ -75,6 +75,7 @@ protected:
   virtual void WriteInlineMode(vtkIndent indent);
   unsigned int GetStartTuple(int* extent, int* increments,
                              int i, int j, int k);
+  void CalculatePieceFractions(float* fractions);
   
   // Define utility methods required by vtkXMLWriter.
   vtkDataArray* CreateArrayForPoints(vtkDataArray* inArray);

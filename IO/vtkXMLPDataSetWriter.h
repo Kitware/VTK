@@ -43,18 +43,17 @@ public:
   void SetInput(vtkDataSet* input);
   vtkDataSet* GetInput();
   
-  // Description:
-  // Invoke the writer.  Returns 1 for success, 0 for failure.
-  virtual int Write();
-  
 protected:
   vtkXMLPDataSetWriter();
   ~vtkXMLPDataSetWriter();
   
+  // Override writing method from superclass.
+  virtual int WriteInternal();
+  
   // Dummies to satisfy pure virtuals from superclass.
   const char* GetDataSetName();
   const char* GetDefaultFileExtension();
-  vtkXMLWriter* CreatePieceWriter(int index);
+  vtkXMLWriter* CreatePieceWriter(int index);  
   
 private:
   vtkXMLPDataSetWriter(const vtkXMLPDataSetWriter&);  // Not implemented.
