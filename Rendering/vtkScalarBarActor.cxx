@@ -29,7 +29,7 @@
 #include "vtkWindow.h"
 #include "vtkLogLookupTable.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.49");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.50");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -533,7 +533,7 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
       {
       float lval = log10(range[0]) + (float)i/(this->NumberOfLabels-1) *
         (log10(range[1])-log10(range[0]));
-      val = pow(10,lval);
+      val = pow(10.0f,lval);
       }
     else
       {
