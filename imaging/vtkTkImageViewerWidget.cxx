@@ -337,7 +337,9 @@ static void vtkTkImageViewerWidget_EventProc(ClientData clientData,
     case MapNotify:
       break;
     case DestroyNotify:
+#ifndef _WIN32
       Tcl_EventuallyFree( (ClientData) self, vtkTkImageViewerWidget_Destroy );
+#endif
       break;
     default:
       // nothing
