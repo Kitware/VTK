@@ -24,7 +24,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.61");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.62");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ void vtkQuadricClustering::Execute()
   vtkPolyData *input = this->GetInput();
   vtkTimerLog *tlog=NULL;
 
-  if (input == NULL)
+  if (input == NULL || (input->GetNumberOfPoints() == 0))
     {
     // The user may be calling StartAppend, Append, and EndAppend explicitly.
     return;
@@ -121,10 +121,10 @@ void vtkQuadricClustering::Execute()
 
   // Lets limit the number of divisions based on 
   // the number of points in the input.
-  int target = this->GetInput()->GetNumberOfPoints();
+  int target = input->GetNumberOfPoints();
   int numDiv = (this->NumberOfXDivisions * this->NumberOfYDivisions
                   * this->NumberOfZDivisions) / 2;
-  if (this->AutoAdjustNumberOfDivisions && target > 0 && numDiv > target) 
+  if (this->AutoAdjustNumberOfDivisions && numDiv > target) 
     {
     double factor = pow(((double)numDiv/(double)target),0.33333);
     this->NumberOfDivisions[0] = 
