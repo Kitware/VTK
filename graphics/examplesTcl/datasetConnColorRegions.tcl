@@ -21,7 +21,7 @@ vtkPolyDataNormals normals
   normals SetInput [cpd GetOutput]
 
 vtkConnectivityFilter conn
-  conn SetMaxRecursionDepth 1000
+  conn SetMaxRecursionDepth 500
   conn SetInput [normals GetOutput]
   conn ColorRegionsOn
   conn SetExtractionModeToAllRegions
