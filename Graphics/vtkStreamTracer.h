@@ -102,7 +102,7 @@ public:
   {
     TIME_UNIT,
     LENGTH_UNIT,
-    CELL_LENGTH_UNIT,
+    CELL_LENGTH_UNIT
   };
 
   enum Solvers
