@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.82");
+vtkCxxRevisionMacro(vtkDataObject, "1.83");
 vtkStandardNewMacro(vtkDataObject);
 
 // Initialize static member that controls global data release 
@@ -113,10 +113,6 @@ unsigned long int vtkDataObject::GetMTime()
 //----------------------------------------------------------------------------
 void vtkDataObject::Initialize()
 {
-  //
-  // We don't modify ourselves because the "ReleaseData" methods depend upon
-  // no modification when initialized.
-  //
   this->FieldData->Initialize();
 
   this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
@@ -124,6 +120,7 @@ void vtkDataObject::Initialize()
   this->Piece = -1;
   this->NumberOfPieces = 0;
   this->GhostLevel = 0;
+  this->Modified();
 }
 
 void vtkDataObject::AddConsumer(vtkObject *c)
