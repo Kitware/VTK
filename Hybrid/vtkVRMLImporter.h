@@ -48,7 +48,7 @@
  
    Importer based on BNF Yacc and Lex parser definition from:
 
-    **************************************************
+        **************************************************
         * VRML 2.0 Parser
         * Copyright (C) 1996 Silicon Graphics, Inc.
         *
@@ -80,6 +80,7 @@ class vtkPolyDataMapper;
 class vtkPoints;
 class vtkIdTypeArray;
 class vtkVRMLImporterInternal;
+class vtkCellArray;
 
 class VTK_HYBRID_EXPORT vtkVRMLImporter : public vtkImporter
 {
@@ -144,12 +145,15 @@ private:
   vtkTransform         *CurrentTransform;
   vtkSource            *CurrentSource;
   vtkPoints            *CurrentPoints;
-  vtkFloatArray         *CurrentNormals;
+  vtkFloatArray        *CurrentNormals;
+  vtkFloatArray        *CurrentTCoords;
+  vtkCellArray         *CurrentTCoordCells;
   vtkLookupTable       *CurrentLut;
   vtkFloatArray        *CurrentScalars;
   vtkPolyDataMapper    *CurrentMapper;
 
   vtkPoints* PointsNew();
+  vtkFloatArray* FloatArrayNew();
   vtkIdTypeArray* IdTypeArrayNew();
 
   void DeleteObject(vtkObject*);

@@ -19,7 +19,7 @@
  
    Importer based on BNF Yacc and Lex parser definition from:
 
-    **************************************************
+        **************************************************
         * VRML 2.0 Parser
         * Copyright (C) 1996 Silicon Graphics, Inc.
         *
@@ -544,7 +544,8 @@ typedef union {
   
   float           sffloat;
   vtkPoints       *vec3f;
-  vtkIdTypeArray     *mfint32;
+  vtkFloatArray   *vec2f;
+  vtkIdTypeArray  *mfint32;
   int             sfint;
 } YYSTYPE;
 
@@ -4258,7 +4259,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.58");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.59");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
@@ -4266,6 +4267,13 @@ vtkPoints* vtkVRMLImporter::PointsNew()
   vtkPoints* pts = vtkPoints::New();
   this->Internal->Heap.Push(pts);
   return pts;
+}
+
+vtkFloatArray* vtkVRMLImporter::FloatArrayNew()
+{
+  vtkFloatArray* array = vtkFloatArray::New();
+  this->Internal->Heap.Push(array);
+  return array;
 }
 
 vtkIdTypeArray* vtkVRMLImporter::IdTypeArrayNew()
@@ -4492,7 +4500,7 @@ int yylex ( vtkVRMLImporter* self )
           yyless(0);
           }
         YY_BREAK
-          case 16:
+      case 16:
             YY_USER_ACTION
           { BEGIN NODE;
           expectToken = 0;
@@ -4502,27 +4510,29 @@ int yylex ( vtkVRMLImporter* self )
           /* All MF field types other than MFNode are completely parsed here */
           /* in the lexer, and one token is returned to the parser.  They all */
           /* share the same rules for open and closing brackets: */
-          case 17:
+      case 17:
             YY_USER_ACTION
           { if (parsing_mf) yyerror("Double [");
           parsing_mf = 1;
+          yylval.vec2f = self->FloatArrayNew();
+          yylval.vec2f->SetNumberOfComponents(2);
           }
         YY_BREAK
-          case 18:
+      case 18:
             YY_USER_ACTION
           { if (parsing_mf) yyerror("Double [");
           parsing_mf = 1;
           yylval.mfint32 = self->IdTypeArrayNew();
           }
         YY_BREAK
-          case 19:
+      case 19:
             YY_USER_ACTION
           { if (parsing_mf) yyerror("Double [");
           parsing_mf = 1;
           yylval.vec3f = self->PointsNew();
           }
         YY_BREAK
-          case 20:
+      case 20:
             YY_USER_ACTION
           { if (!parsing_mf) yyerror("Unmatched ]");
           int fieldType = expectToken;
@@ -4576,13 +4586,24 @@ int yylex ( vtkVRMLImporter* self )
           { BEGIN NODE; expectToken = 0; return SFVEC2F; }
       case 28:
         YY_USER_ACTION
-          { if (parsing_mf) ; /* .. add to array... */
-          else {
-          BEGIN NODE; expectToken = 0; return MFVEC2F;
+        { 
+        if (parsing_mf) 
+          {
+          // .. add to array...
+          float num[2];
+          num[0] = atof(strtok(yytext, " "));
+          num[1] = atof(strtok(NULL, " "));
+          // equivalent to: sscanf(yytext, "%f %f", &num[0], &num[1]);
+          yylval.vec2f->InsertNextTuple(num);
           }
+        else 
+          {
+          BEGIN NODE; expectToken = 0; 
+          return MFVEC2F;
           }
-        YY_BREAK
-          case 29:
+        }
+         YY_BREAK
+      case 29:
             YY_USER_ACTION
           {   BEGIN NODE; expectToken = 0;
           float num[3];
@@ -4610,7 +4631,7 @@ int yylex ( vtkVRMLImporter* self )
           }
           }
         YY_BREAK
-          case 31:
+      case 31:
             YY_USER_ACTION
           { BEGIN NODE; expectToken = 0; return SFROTATION; }
       case 32:
@@ -4621,7 +4642,7 @@ int yylex ( vtkVRMLImporter* self )
           }
           }
         YY_BREAK
-          case 33:
+      case 33:
             YY_USER_ACTION
           { BEGIN NODE; expectToken = 0;
           float num[3];
@@ -4646,7 +4667,7 @@ int yylex ( vtkVRMLImporter* self )
           }
           }
         YY_BREAK
-          case 35:
+      case 35:
             YY_USER_ACTION
           { BEGIN NODE; expectToken = 0; return SFTIME; }
         /* SFString/MFString */
@@ -4659,7 +4680,7 @@ int yylex ( vtkVRMLImporter* self )
           { BEGIN IN_MFS; }
         YY_BREAK
           /* Anything besides open-quote (or whitespace) is an error: */
-          case 38:
+      case 38:
             YY_USER_ACTION
           { yyerror("String missing open-quote");
           BEGIN NODE; expectToken = 0; return SFSTRING;
@@ -4679,12 +4700,12 @@ int yylex ( vtkVRMLImporter* self )
           /* Newlines are legal in strings, but we exclude them here so */
           /* that line number are counted correctly by the catch-all newline */
           /* rule that applies to everything. */
-          case 41:
+      case 41:
             YY_USER_ACTION
           ;
         YY_BREAK
           /* Quote ends the string: */
-          case 42:
+      case 42:
             YY_USER_ACTION
           { BEGIN NODE; expectToken = 0; return SFSTRING; }
       case 43:
@@ -4696,7 +4717,7 @@ int yylex ( vtkVRMLImporter* self )
           }
         YY_BREAK
           /* SFImage: width height numComponents then width*height integers: */
-          case 44:
+      case 44:
             YY_USER_ACTION
           { int w, h;
           sscanf(yytext, "%d %d", &w, &h);
@@ -4705,7 +4726,7 @@ int yylex ( vtkVRMLImporter* self )
           BEGIN IN_SFIMG;
           }
         YY_BREAK
-          case 45:
+      case 45:
             YY_USER_ACTION
           { ++sfImageIntsParsed;
           if (sfImageIntsParsed == sfImageIntsExpected) {
@@ -4714,13 +4735,13 @@ int yylex ( vtkVRMLImporter* self )
           }
         YY_BREAK
           /* Whitespace and catch-all rules apply to all start states: */
-          case 46:
+      case 46:
             YY_USER_ACTION
           ;
         YY_BREAK
           /* This is also whitespace, but we'll keep track of line number */
           /* to report in errors: */
-          case 47:
+      case 47:
             YY_USER_ACTION
           { ++currentLineNumber; }
         YY_BREAK
@@ -4733,7 +4754,7 @@ int yylex ( vtkVRMLImporter* self )
         YY_USER_ACTION
           YY_FATAL_ERROR( "flex scanner jammed" );
         YY_BREAK
-          case YY_STATE_EOF(INITIAL):
+      case YY_STATE_EOF(INITIAL):
       case YY_STATE_EOF(NODE):
       case YY_STATE_EOF(SFB):
       case YY_STATE_EOF(SFC):
@@ -5378,6 +5399,8 @@ vtkVRMLImporter::vtkVRMLImporter ()
   this->CurrentPoints = NULL;
   this->CurrentScalars = NULL;
   this->CurrentNormals = NULL;
+  this->CurrentTCoords = NULL;
+  this->CurrentTCoordCells = NULL;
   this->CurrentMapper = NULL;
   this->CurrentLut = NULL;
   this->CurrentTransform = vtkTransform::New();
@@ -5525,6 +5548,14 @@ vtkVRMLImporter::~vtkVRMLImporter()
   if (this->CurrentNormals)
     {
     this->CurrentNormals->Delete();
+    }
+  if (this->CurrentTCoords)
+    {
+    this->CurrentTCoords->Delete();
+    }
+  if (this->CurrentTCoordCells)
+    {
+    this->CurrentTCoordCells->Delete();
     }
   if (this->CurrentScalars)
     {
@@ -5781,15 +5812,157 @@ vtkVRMLImporter::exitNode()
       strcmp(fr->nodeType->getName(), "IndexedLineSet") == 0 ||
       strcmp(fr->nodeType->getName(), "PointSet") == 0) 
     {
-    ((vtkPolyData *)this->CurrentMapper->GetInput())->SetPoints(this->CurrentPoints);
-    // We always create a scalar object in the enternode method.
-    ((vtkPolyData *)this->CurrentMapper->GetInput())->GetPointData()->SetScalars(CurrentScalars);
-    if (this->CurrentNormals) 
+    // if tcoords exactly correspond with vertices (or there aren't any)
+    // then can map straight through as usual
+    // if not then must rejig using face-correspondence
+    // (VRML supports per-face tcoords)
+    // a similar scheme is implemented in vtkOBJReader
+
+    int tcoords_correspond; // (boolean)
+    if (this->CurrentTCoords==NULL || this->CurrentTCoordCells==NULL) 
+        tcoords_correspond=1; // there aren't any, can proceed
+    else if (this->CurrentTCoords->GetNumberOfTuples()!=this->CurrentPoints->GetNumberOfPoints())
+        tcoords_correspond=0; // false, must rejig
+    else 
       {
-      ((vtkPolyData *)this->CurrentMapper->GetInput())->GetPointData()->SetNormals(CurrentNormals);
-      this->CurrentNormals->Delete();
-      this->CurrentNormals = NULL;
+      // the number of polygon faces and texture faces must be equal.
+      // if they are not then something is wrong
+      if (this->CurrentTCoordCells->GetNumberOfCells() !=
+          this->CurrentMapper->GetInput()->GetNumberOfCells())
+        {
+        vtkErrorMacro(<<"Number of faces does not match texture faces, output may not be correct")
+        tcoords_correspond=1; // don't rejig
+        }
+      else 
+        {
+        // count of tcoords and points is the same, must run through indices to see if they
+        // correspond by index point-for-point
+        tcoords_correspond=1; // assume true until found otherwise
+        int n_pts,*pts;
+        int n_tcoord_pts,*tcoord_pts;
+        this->CurrentMapper->GetInput()->GetPolys()->InitTraversal();
+        this->CurrentTCoordCells->InitTraversal();
+        int i,j;
+        for (i=0;i<this->CurrentTCoordCells->GetNumberOfCells();i++)
+          {
+          this->CurrentMapper->GetInput()->GetPolys()->GetNextCell(n_pts,pts);
+          this->CurrentTCoordCells->GetNextCell(n_tcoord_pts,tcoord_pts);
+          if (n_pts!=n_tcoord_pts) 
+            {
+            vtkErrorMacro(<<"Face size differs to texture face size, output may not be correct")
+            break;
+            }
+          for (j=0;j<n_pts;j++) 
+            {
+            if (pts[j]!=tcoord_pts[j]) 
+              {
+              tcoords_correspond=0; // have found an exception
+              break;
+              }
+            }
+          }
+        }
       }
+
+    if (tcoords_correspond) // no rejigging necessary
+      {
+      ((vtkPolyData *)this->CurrentMapper->GetInput())->SetPoints(this->CurrentPoints);
+      // We always create a scalar object in the enternode method.
+      ((vtkPolyData *)this->CurrentMapper->GetInput())->GetPointData()->SetScalars(CurrentScalars);
+      if (this->CurrentNormals) 
+        {
+        ((vtkPolyData *)this->CurrentMapper->GetInput())->GetPointData()->SetNormals(CurrentNormals);
+        this->CurrentNormals->Delete();
+        this->CurrentNormals = NULL;
+        }
+      if (this->CurrentTCoords) 
+        {
+        ((vtkPolyData *)this->CurrentMapper->GetInput())->GetPointData()->SetTCoords(CurrentTCoords);
+        this->CurrentTCoords->Delete();
+        this->CurrentTCoords = NULL;
+        }
+      }
+    else  // must rejig
+      {
+      
+      vtkDebugMacro(<<"Duplicating vertices so that tcoords and normals are correct");
+
+      vtkPoints *new_points = vtkPoints::New();
+      vtkFloatArray *new_scalars = vtkFloatArray::New();
+      if (this->CurrentScalars)
+        new_scalars->SetNumberOfComponents(this->CurrentScalars->GetNumberOfComponents());
+      vtkFloatArray *new_tcoords = vtkFloatArray::New();
+      new_tcoords->SetNumberOfComponents(2);
+      vtkFloatArray *new_normals = vtkFloatArray::New();
+      new_normals->SetNumberOfComponents(3);
+      vtkCellArray *new_polys = vtkCellArray::New();
+
+      // for each poly, copy its vertices into new_points (and point at them)
+      // also copy its tcoords into new_tcoords
+      // also copy its normals into new_normals
+      // also copy its scalar into new_scalars
+      this->CurrentMapper->GetInput()->GetPolys()->InitTraversal();
+      this->CurrentTCoordCells->InitTraversal();
+      int i,j;
+      int n_pts,*pts;
+      int n_tcoord_pts,*tcoord_pts;
+      for (i=0;i<this->CurrentMapper->GetInput()->GetPolys()->GetNumberOfCells();i++) 
+        {
+
+        this->CurrentMapper->GetInput()->GetPolys()->GetNextCell(n_pts,pts); 
+        this->CurrentTCoordCells->GetNextCell(n_tcoord_pts,tcoord_pts);
+
+        // If some vertices have tcoords and not others 
+        // then we must do something else VTK will complain. (crash on render attempt)
+        // Easiest solution is to delete polys that don't have complete tcoords (if there 
+        // are any tcoords in the dataset)
+
+        if (n_pts!=n_tcoord_pts && this->CurrentTCoords->GetNumberOfTuples()>0) 
+          {
+          // skip this poly
+          vtkDebugMacro(<<"Skipping poly "<<i+1<<" (1-based index)");
+          }
+        else 
+          {
+          // copy the corresponding points, tcoords and normals across
+          for (j=0;j<n_pts;j++) 
+            {
+            // copy the tcoord for this point across (if there is one)
+            if (this->CurrentTCoords && n_tcoord_pts>0)
+              new_tcoords->InsertNextTuple(this->CurrentTCoords->GetTuple(tcoord_pts[j]));
+            // copy the normal for this point across (if any)
+            if (this->CurrentNormals)
+              new_normals->InsertNextTuple(this->CurrentNormals->GetTuple(pts[j]));
+            // copy the scalar for this point across
+            if (this->CurrentScalars)
+              new_scalars->InsertNextTuple(this->CurrentScalars->GetTuple(pts[j]));
+            // copy the vertex into the new structure and update
+            // the vertex index in the polys structure (pts is a pointer into it)
+            pts[j] = new_points->InsertNextPoint(this->CurrentPoints->GetPoint(pts[j]));
+            }
+          // copy this poly (pointing at the new points) into the new polys list 
+          new_polys->InsertNextCell(n_pts,pts);
+          }
+        }
+
+      // use the new structures for the output
+      this->CurrentMapper->GetInput()->SetPoints(new_points);
+      this->CurrentMapper->GetInput()->SetPolys(new_polys);
+      if (this->CurrentTCoords)
+        this->CurrentMapper->GetInput()->GetPointData()->SetTCoords(new_tcoords);
+      if (this->CurrentNormals)
+        this->CurrentMapper->GetInput()->GetPointData()->SetNormals(new_normals);
+      if (this->CurrentScalars)
+        this->CurrentMapper->GetInput()->GetPointData()->SetScalars(new_scalars);
+      this->CurrentMapper->GetInput()->Squeeze();
+
+      new_points->Delete();
+      new_polys->Delete();
+      new_tcoords->Delete();
+      new_normals->Delete();
+      new_scalars->Delete();
+      }
+
     if (this->CurrentLut) 
       {
       this->CurrentScalars->InsertNextValue(this->CurrentLut->GetNumberOfColors());
@@ -6038,6 +6211,15 @@ vtkVRMLImporter::exitField()
         creatingDEF = 0;
         }
       }
+    else if (strcmp(fr->nodeType->getName(), "TextureCoordinate") == 0) // TJH
+      {
+      if(this->CurrentTCoords)
+        {
+        this->CurrentTCoords->Delete();
+        }
+      this->CurrentTCoords = yylval.vec2f;
+      this->CurrentTCoords->Register(this);
+      }
     }
   // Handle coord field, simply set the CurrentPoints
   else if (strcmp(fr->fieldName, "coord") == 0) 
@@ -6205,6 +6387,32 @@ vtkVRMLImporter::exitField()
   else if (strcmp(fr->fieldName, "center") == 0) 
     {
     yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
+    }
+  else if (strcmp(fr->fieldName, "texCoordIndex") == 0)
+    {
+    if (this->CurrentTCoordCells) {
+      this->CurrentTCoordCells->Delete();
+    }
+    this->CurrentTCoordCells = vtkCellArray::New();
+
+    // read the indices of the tcoords and assign accordingly
+    int index, i, cnt;
+    index = i = cnt = 0;
+    for (i = 0;i <= yylval.mfint32->GetMaxId();i++) 
+      {
+      if (yylval.mfint32->GetValue(i) == -1) 
+        {
+        this->CurrentTCoordCells->InsertNextCell(cnt,
+                              (vtkIdType*)yylval.mfint32->GetPointer(index));
+        index = i+1;
+        cnt = 0;
+        }
+      else 
+        {
+        cnt++;
+        }
+      }
+    yylval.mfint32->Reset();this->DeleteObject(yylval.mfint32);
     }
   else
     {
