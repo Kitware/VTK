@@ -31,7 +31,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.2");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.3");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -484,6 +484,8 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
     if(tetsScalars==0)
       {
       tetsScalars= vtkDoubleArray::New();
+      tetsScalars->SetName(attributes->GetAttribute( 
+                             attributes->GetActiveAttribute() )->GetName());
       pd->SetScalars(tetsScalars);
       tetsScalars->Delete();
       }
@@ -505,8 +507,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
     {
     assert("check: TODO: Tessellate only works with 2D and 3D cells" && 0);
     }
-}  
-
+}
 
 //----------------------------------------------------------------------------
 void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attributes,
@@ -534,6 +535,8 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
       {
       tetsScalars = vtkDoubleArray::New();
       pd->SetScalars(tetsScalars);
+      tetsScalars->SetName(attributes->GetAttribute( 
+                             attributes->GetActiveAttribute() )->GetName());
       tetsScalars->Delete();
       }
 
@@ -553,5 +556,4 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
     {
     vtkErrorMacro( << "This is not a 3D cell" );
     }
-}  
-
+}
