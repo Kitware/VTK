@@ -28,7 +28,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.2.2.6");
+vtkCxxRevisionMacro(vtkDataObject, "1.2.2.7");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -67,7 +67,6 @@ vtkDataObject::vtkDataObject()
   // then they will fill it with valid data.
   this->DataReleased = 0;
 
-  this->ReleaseDataFlag = 0;
   this->FieldData = NULL;
   vtkFieldData *fd = vtkFieldData::New();
   this->SetFieldData(fd);
@@ -119,8 +118,6 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Information: (none)\n";
     }
 
-  os << indent << "Release Data: "
-     << (this->ReleaseDataFlag ? "On\n" : "Off\n");
   os << indent << "Data Released: "
      << (this->DataReleased ? "True\n" : "False\n");
   os << indent << "Global Release Data: "
@@ -131,6 +128,8 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 
   if(vtkInformation* pInfo = this->GetPipelineInformation())
     {
+    os << indent << "Release Data: "
+       << (this->GetReleaseDataFlag() ? "On\n" : "Off\n");
     if(pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED()))
       {
       os << indent << "UpdateExtent: Initialized\n";
@@ -396,7 +395,7 @@ void vtkDataObject::ReleaseData()
 //----------------------------------------------------------------------------
 int vtkDataObject::ShouldIReleaseData()
 {
-  if ( vtkDataObjectGlobalReleaseDataFlag || this->ReleaseDataFlag )
+  if ( vtkDataObjectGlobalReleaseDataFlag || this->GetReleaseDataFlag() )
     {
     return 1;
     }
@@ -636,9 +635,9 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
       {
       thisPInfo->CopyEntry(thatPInfo, SDDP::WHOLE_EXTENT());
       thisPInfo->CopyEntry(thatPInfo, SDDP::MAXIMUM_NUMBER_OF_PIECES());
+      thisPInfo->CopyEntry(thatPInfo, vtkDemandDrivenPipeline::RELEASE_DATA());
       }
     }
-  this->ReleaseDataFlag = src->ReleaseDataFlag;
   // This also caused a pipeline problem.
   // An input pipelineMTime was copied to output.  Pipeline did not execute...
   // We do not copy MTime of object, so why should we copy these.
@@ -963,6 +962,28 @@ vtkExtentTranslator* vtkDataObject::GetExtentTranslator()
   if(SDDP* sddp = this->TrySDDP("GetExtentTranslator"))
     {
     return sddp->GetExtentTranslator(this->GetPortNumber());
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetReleaseDataFlag(int value)
+{
+  if(vtkInformation* info = this->GetPipelineInformation())
+    {
+    info->Set(vtkDemandDrivenPipeline::RELEASE_DATA(), value);
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkDataObject::GetReleaseDataFlag()
+{
+  if(vtkInformation* info = this->GetPipelineInformation())
+    {
+    if(info->Has(vtkDemandDrivenPipeline::RELEASE_DATA()))
+      {
+      return info->Get(vtkDemandDrivenPipeline::RELEASE_DATA());
+      }
     }
   return 0;
 }

@@ -107,8 +107,8 @@ public:
   // Description:
   // Turn on/off flag to control whether this object's data is released
   // after being used by a filter.
-  vtkSetMacro(ReleaseDataFlag,int);
-  vtkGetMacro(ReleaseDataFlag,int);
+  void SetReleaseDataFlag(int);
+  int GetReleaseDataFlag();
   vtkBooleanMacro(ReleaseDataFlag,int);
 
   // Description:
@@ -408,9 +408,6 @@ protected:
   // This method crops the data object (if necesary) so that the extent
   // matches the update extent.
   virtual void Crop();
-
-  // Data will release after use by a filter if this flag is set
-  int ReleaseDataFlag; 
 
   // When was this data last generated?
   vtkTimeStamp UpdateTime;  

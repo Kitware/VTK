@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.1.2.2");
+vtkCxxRevisionMacro(vtkDataSet, "1.1.2.3");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -644,6 +644,5 @@ void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Ymin,Ymax: (" <<bounds[2] << ", " << bounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" <<bounds[4] << ", " << bounds[5] << ")\n";
   os << indent << "Compute Time: " <<this->ComputeTime.GetMTime() << "\n";
-  os << indent << "Release Data: " << (this->ReleaseDataFlag ? "On\n" : "Off\n");
 }
 

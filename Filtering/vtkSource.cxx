@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.4.2.3");
+vtkCxxRevisionMacro(vtkSource, "1.4.2.4");
 
 #ifndef NULL
 #define NULL 0
@@ -722,15 +722,6 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
 
     // Mark the data as up-to-date.
     this->MarkGeneratedOutputs(output);
-
-    // Release any inputs if marked for release.
-    for(i=0; i < this->NumberOfInputs; ++i)
-      {
-      if(this->Inputs[i] && this->Inputs[i]->ShouldIReleaseData())
-        {
-        this->Inputs[i]->ReleaseData();
-        }
-      }
 
     // Cleanup the outputs.
     for(i=0; i < this->NumberOfOutputs; ++i)

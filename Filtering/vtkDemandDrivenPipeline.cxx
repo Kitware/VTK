@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.8");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.9");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
@@ -462,7 +462,8 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
           ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
           ->GetInformationObject(j);
         vtkDataObject* dataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
-        if(dataObject && inInfo->Get(RELEASE_DATA()))
+        if(dataObject && (dataObject->GetGlobalReleaseDataFlag() ||
+                          inInfo->Get(RELEASE_DATA())))
           {
           dataObject->ReleaseData();
           }
