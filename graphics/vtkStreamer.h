@@ -224,7 +224,9 @@ public:
   // Description:
   // Turn on/off the computation of vorticity. Vorticity is an indication of
   // the rotation of the flow. In combination with vtkStreamLine and 
-  // vtkTubeFilter can be used to create rotated tubes.
+  // vtkTubeFilter can be used to create rotated tubes. 
+  // If vorticity is turned on, in the output, the velocity vectors 
+  // are replaced by vorticity vectors.
   vtkSetMacro(Vorticity,int);
   vtkGetMacro(Vorticity,int);
   vtkBooleanMacro(Vorticity,int);
@@ -232,7 +234,6 @@ public:
   vtkSetMacro( NumberOfThreads, int );
   vtkGetMacro( NumberOfThreads, int );
 
-// berk
   vtkSetMacro( SavePointInterval, float );
   vtkGetMacro( SavePointInterval, float );
 
@@ -303,7 +304,6 @@ protected:
   // Prototype showing the integrator type to be set by the user.
   vtkInitialValueProblemSolver* Integrator;
 
-  // berk
   float SavePointInterval;
 
   void InitializeThreadedIntegrate();
