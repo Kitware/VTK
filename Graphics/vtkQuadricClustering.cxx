@@ -82,6 +82,7 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->UseFeatureEdges = 0;
   this->UseFeaturePoints = 0;
   this->FeaturePointsAngle = 30.0;
+  this->UseInternalTriangles = 1;
 
   this->UseInputPoints = 0;
 
@@ -366,6 +367,17 @@ void vtkQuadricClustering::AddTriangle(int *binIds, float *pt0, float *pt1,
   quadric[6] = quadric4x4[1][3];
   quadric[7] = quadric4x4[2][2];
   quadric[8] = quadric4x4[2][3];
+
+  // Special condition for fast execution.
+  // Only add triangles that traverse three bins to quadrics.
+  if (this->UseInternalTriangles == 0)
+    {
+    if (binIds[0] == binIds[1] || binIds[0] == binIds[2] ||
+        binIds[1] == binIds[2])
+      {
+      return;
+      }
+    }
 
   // Add the quadric to each of the three corner bins.
   for (i = 0; i < 3; ++i)
@@ -1231,6 +1243,8 @@ void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "Number of Z Divisions: " << this->NumberOfZDivisions
      << "\n";
+
+  os << indent << "UseInternalTriangles: " << this->UseInternalTriangles << endl;
 
   os << indent << "UseFeatureEdges: " << this->UseFeatureEdges << endl;
   os << indent << "FeatureEdges: (" << this->FeatureEdges << ")\n";
