@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
 
-vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.7");
+vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.8");
 vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitPolyDataPiece,Controller,
@@ -127,12 +127,12 @@ void vtkTransmitPolyDataPiece::Execute()
   if (procId == 0)
     {
     // It is important to synchronize these calls (all processes execute)
-    cerr << "Root Execute\n";
+    // cerr << "Root Execute\n";
     this->RootExecute();
     }
   else
     {
-    cerr << "Satellite Execute " << procId << endl;
+    // cerr << "Satellite Execute " << procId << endl;
     this->SatelliteExecute(procId);
     }
 
