@@ -317,10 +317,8 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   cf->Update();
   cf->Update();
 
-  vtkPolyData* pd = cf->GetOutput();
-  pd->SetSource(0);
-  pd->Register(0);
-  cf->SetOutput(0);
+  vtkPolyData* pd = vtkPolyData::New();
+  pd->ShallowCopy(cf->GetOutput());
   cf->Delete();
 
   vtkPolyDataMapper* pmapper = vtkPolyDataMapper::New();
