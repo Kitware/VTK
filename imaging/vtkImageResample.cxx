@@ -280,7 +280,7 @@ static void vtkImageResampleExecuteNI(vtkImageResample *self,
     zPos = zStart;
     for (idxZ = 0; idxZ <= maxZ; idxZ++)
       {
-      inPtrY = inPtrZ + idxC;
+      inPtrY = inPtrZ;
       yPos = yStart;
       for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
         {
