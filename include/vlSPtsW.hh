@@ -32,6 +32,13 @@ public:
   vlStructuredPointsWriter() {};
   ~vlStructuredPointsWriter() {};
   char *GetClassName() {return "vlStructuredPointsWriter";};
+  void PrintSelf(ostream& os, vlIndent indent);
+
+  // Multiple inheritance/Object interface
+  void Modified();
+  unsigned long int GetMTime();
+  void DebugOn();
+  void DebugOff();
 
 protected:
   void WriteData();

@@ -18,3 +18,34 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 void vlDataSetWriter::WriteData()
 {
 }
+
+void vlDataSetWriter::Modified()
+{
+  this->vlDataWriter::Modified();
+  this->vlDataSetFilter::_Modified();
+}
+
+unsigned long int vlDataSetWriter::GetMTime()
+{
+  unsigned long dtime = this->vlDataWriter::GetMTime();
+  unsigned long ftime = this->vlDataSetFilter::_GetMTime();
+  return (dtime > ftime ? dtime : ftime);
+}
+
+void vlDataSetWriter::DebugOn()
+{
+  vlDataWriter::DebugOn();
+  vlDataSetFilter::_DebugOn();
+}
+
+void vlDataSetWriter::DebugOff()
+{
+  vlDataWriter::DebugOff();
+  vlDataSetFilter::_DebugOff();
+}
+
+void vlDataSetWriter::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlDataWriter::PrintSelf(os,indent);
+  vlDataSetFilter::_PrintSelf(os,indent);
+}

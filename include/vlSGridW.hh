@@ -32,6 +32,13 @@ public:
   vlStructuredGridWriter() {};
   ~vlStructuredGridWriter() {};
   char *GetClassName() {return "vlStructuredGridWriter";};
+  void PrintSelf(ostream& os, vlIndent indent);
+
+  // Multiple inheritance/Object interface
+  void Modified();
+  unsigned long int GetMTime();
+  void DebugOn();
+  void DebugOff();
 
 protected:
   void WriteData();

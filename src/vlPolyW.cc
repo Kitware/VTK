@@ -19,3 +19,33 @@ void vlPolyWriter::WriteData()
 {
 }
 
+void vlPolyWriter::Modified()
+{
+  this->vlDataWriter::Modified();
+  this->vlPolyFilter::_Modified();
+}
+
+unsigned long int vlPolyWriter::GetMTime()
+{
+  unsigned long dtime = this->vlDataWriter::GetMTime();
+  unsigned long ftime = this->vlPolyFilter::_GetMTime();
+  return (dtime > ftime ? dtime : ftime);
+}
+
+void vlPolyWriter::DebugOn()
+{
+  vlDataWriter::DebugOn();
+  vlPolyFilter::_DebugOn();
+}
+
+void vlPolyWriter::DebugOff()
+{
+  vlDataWriter::DebugOff();
+  vlPolyFilter::_DebugOff();
+}
+
+void vlPolyWriter::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlDataWriter::PrintSelf(os,indent);
+  vlPolyFilter::_PrintSelf(os,indent);
+}

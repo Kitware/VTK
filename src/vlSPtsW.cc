@@ -18,3 +18,34 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 void vlStructuredPointsWriter::WriteData()
 {
 }
+
+void vlStructuredPointsWriter::Modified()
+{
+  this->vlDataWriter::Modified();
+  this->vlStructuredPointsFilter::_Modified();
+}
+
+unsigned long int vlStructuredPointsWriter::GetMTime()
+{
+  unsigned long dtime = this->vlDataWriter::GetMTime();
+  unsigned long ftime = this->vlStructuredPointsFilter::_GetMTime();
+  return (dtime > ftime ? dtime : ftime);
+}
+
+void vlStructuredPointsWriter::DebugOn()
+{
+  vlDataWriter::DebugOn();
+  vlStructuredPointsFilter::_DebugOn();
+}
+
+void vlStructuredPointsWriter::DebugOff()
+{
+  vlDataWriter::DebugOff();
+  vlStructuredPointsFilter::_DebugOff();
+}
+
+void vlStructuredPointsWriter::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlDataWriter::PrintSelf(os,indent);
+  vlStructuredPointsFilter::_PrintSelf(os,indent);
+}
