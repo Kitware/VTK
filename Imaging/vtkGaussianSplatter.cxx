@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGaussianSplatter, "1.49");
+vtkCxxRevisionMacro(vtkGaussianSplatter, "1.50");
 vtkStandardNewMacro(vtkGaussianSplatter);
 
 // Construct object with dimensions=(50,50,50); automatic computation of 
@@ -56,7 +56,41 @@ vtkGaussianSplatter::vtkGaussianSplatter()
   this->NullValue = 0.0;
 }
 
-void vtkGaussianSplatter::Execute()
+void vtkGaussianSplatter::ExecuteInformation()
+{
+  vtkImageData *output = this->GetOutput();
+
+  // use model bounds if set
+  if ( this->ModelBounds[0] < this->ModelBounds[1] &&
+       this->ModelBounds[2] < this->ModelBounds[3] &&
+       this->ModelBounds[4] < this->ModelBounds[5] )
+    {
+    output->SetOrigin(this->ModelBounds[0],this->ModelBounds[2],
+                      this->ModelBounds[4]);
+    }
+
+  // Set volume origin and data spacing
+  output->GetOrigin(this->Origin);
+  int i;  
+  for (i=0; i<3; i++)
+    {
+    this->Spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+      / (this->SampleDimensions[i] - 1);
+    if ( this->Spacing[i] <= 0.0 )
+      {
+      this->Spacing[i] = 1.0;
+      }
+    }
+  output->SetSpacing(this->Spacing);
+  
+  output->SetWholeExtent(0, this->SampleDimensions[0] - 1, 
+                         0, this->SampleDimensions[1] - 1, 
+                         0, this->SampleDimensions[2] - 1);
+  output->SetScalarType(VTK_FLOAT);
+  output->SetNumberOfScalarComponents(1);
+}
+
+void vtkGaussianSplatter::ExecuteData(vtkDataObject *outp)
 {
   vtkIdType numPts, numNewPts, ptId, idx, i;
   int j, k;
@@ -65,7 +99,9 @@ void vtkGaussianSplatter::Execute()
   vtkDataArray *inNormals=NULL;
   vtkDataArray *inScalars=NULL;
   float loc[3], dist2, cx[3];
-  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *output = this->AllocateOutputData(outp);
+  vtkFloatArray *newScalars = 
+    vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
   vtkDataSet *input= this->GetInput();
   int sliceSize=this->SampleDimensions[0]*this->SampleDimensions[1];
   
@@ -87,11 +123,9 @@ void vtkGaussianSplatter::Execute()
 
   numNewPts = this->SampleDimensions[0] * this->SampleDimensions[1] *
               this->SampleDimensions[2];
-  this->NewScalars = vtkFloatArray::New(); 
-  this->NewScalars->SetNumberOfTuples(numNewPts);
   for (i=0; i<numNewPts; i++)
     {
-    this->NewScalars->SetTuple(i,&this->NullValue);
+    newScalars->SetTuple(i,&this->NullValue);
     }
   this->Visited = new char[numNewPts];
   for (i=0; i < numNewPts; i++)
@@ -185,7 +219,7 @@ void vtkGaussianSplatter::Execute()
           if ( (dist2=(this->*Sample)(cx)) <= this->Radius2 ) 
             {
             idx = i + j*this->SampleDimensions[0] + k*sliceSize;
-            this->SetScalar(idx,dist2);
+            this->SetScalar(idx,dist2, newScalars);
             }//if within splat radius
           }
         }
@@ -197,7 +231,7 @@ void vtkGaussianSplatter::Execute()
   //
   if ( this->Capping )
     {
-    this->Cap(this->NewScalars);
+    this->Cap(newScalars);
     }
 
   vtkDebugMacro(<< "Splatted " << input->GetNumberOfPoints() << " points");
@@ -205,9 +239,6 @@ void vtkGaussianSplatter::Execute()
   // Update self and release memeory
   //
   delete [] this->Visited;
-
-  output->GetPointData()->SetScalars(this->NewScalars);
-  this->NewScalars->Delete();
 }
 
 // Compute the size of the sample bounding box automatically from the
@@ -216,7 +247,7 @@ void vtkGaussianSplatter::ComputeModelBounds()
 {
   float *bounds, maxDist;
   int i, adjustBounds=0;
-  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *output = this->GetOutput();
   vtkDataSet *input= this->GetInput();
   
   // compute model bounds if not set previously
@@ -432,7 +463,8 @@ float vtkGaussianSplatter::EccentricGaussian (float cx[3])
   return (rxy2/this->Eccentricity2 + z2);
 }
     
-void vtkGaussianSplatter::SetScalar(int idx, float dist2)
+void vtkGaussianSplatter::SetScalar(int idx, float dist2, 
+                                    vtkFloatArray *newScalars)
 {
   float v = (this->*SampleFactor)(this->S) * exp((double)
             (this->ExponentFactor*(dist2)/(this->Radius2)));
@@ -440,22 +472,22 @@ void vtkGaussianSplatter::SetScalar(int idx, float dist2)
   if ( ! this->Visited[idx] )
     {
     this->Visited[idx] = 1;
-    this->NewScalars->SetTuple(idx,&v);
+    newScalars->SetTuple(idx,&v);
     }
   else
     {
-    float s = this->NewScalars->GetValue(idx);
+    float s = newScalars->GetValue(idx);
     switch (this->AccumulationMode)
       {
       case VTK_ACCUMULATION_MODE_MIN:
-        this->NewScalars->SetTuple(idx,(s < v ? &s : &v));
+        newScalars->SetTuple(idx,(s < v ? &s : &v));
         break;
       case VTK_ACCUMULATION_MODE_MAX:
-        this->NewScalars->SetTuple(idx,(s > v ? &s : &v));
+        newScalars->SetTuple(idx,(s > v ? &s : &v));
         break;
       case VTK_ACCUMULATION_MODE_SUM:
         s += v;
-        this->NewScalars->SetTuple(idx,&s);
+        newScalars->SetTuple(idx,&s);
         break;
       }
     }//not first visit
