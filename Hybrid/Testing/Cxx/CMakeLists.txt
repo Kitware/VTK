@@ -20,9 +20,6 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests})
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkHybrid)
-IF (APPLE)
-  TARGET_LINK_LIBRARIES(${KIT}CxxTests "-framework Carbon")
-ENDIF (APPLE)
 SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx)
 

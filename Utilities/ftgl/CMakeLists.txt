@@ -125,8 +125,6 @@ ENDIF (UNIX)
 #
 IF (APPLE)
   SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -fpascal-strings")
-  SET (CMAKE_CXX_SHLIB_LINK_FLAGS 
-  "${CMAKE_CXX_SHLIB_LINK_FLAGS} -multiply_defined suppress -framework Carbon")
 ENDIF (APPLE)
 
 #
