@@ -457,7 +457,7 @@ void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
       os << " (unknown)\n";
       }
     os << indent << "GroundZone: " << this->GroundZone << "\n";
-    os << indent << "ProjectionParameters: all zero" << "\n";
+    os << indent << "ProjectionParameters: all zero" << "\n"; // this->ProjectionParameters
     os << indent << "PlaneUnitOfMeasure: " << this->PlaneUnitOfMeasure;
     if (this->PlaneUnitOfMeasure == 0)
       {
