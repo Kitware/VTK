@@ -100,7 +100,7 @@ vtkActor& vtkActor::operator=(const vtkActor& actor)
   this->SetBackfaceProperty(actor.BackfaceProperty);
   this->SetTexture(actor.Texture);
 
-  *((vtkProp *)this) = actor;
+  *((vtkProp3D *)this) = actor;
 
   for (i=0; i < 3; i++) 
     {
