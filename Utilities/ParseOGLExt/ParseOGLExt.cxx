@@ -33,11 +33,10 @@
 #endif
 
 #include <vtkConfigure.h>
+#include <vtkSystemIncludes.h>
 
 #include "Tokenizer.h"
 
-#include <iostream>
-#include <fstream>
 #include <vtkstd/list>
 #include <vtkstd/set>
 #include <vtkstd/map>
