@@ -210,7 +210,10 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkFloatPoints *newPts, vtkCellArray *
     newPolys->InsertNextCell(3,pts);
 
     if ( (i % 5000) == 0 && i != 0 )
+      {
       vtkDebugMacro(<< "triangle# " << i);
+      this->UpdateProgress((i%50000)/50000.0);
+      }
     }
 
   return 0;
@@ -245,7 +248,10 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkFloatPoints *newPts, vtkCellArray *n
     newPolys->InsertNextCell(3,pts);
 
     if ( (newPolys->GetNumberOfCells() % 5000) == 0 )
+      {
       vtkDebugMacro(<< "triangle# " << newPolys->GetNumberOfCells());
+      this->UpdateProgress((newPolys->GetNumberOfCells()%50000)/50000.0);
+      }
     }
 
   return 0;
