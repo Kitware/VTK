@@ -1215,7 +1215,14 @@ void DICOMAppHelper::PatientNameCallback(DICOMParser *,
     delete this->PatientName;
     }
 
-  this->PatientName = new dicom_stl::string((char*) val);
+  if (val)
+    {
+    this->PatientName = new dicom_stl::string((char*) val);
+    }
+  else
+    {
+    this->PatientName = new dicom_stl::string();
+    }
 }
 
 void DICOMAppHelper::StudyUIDCallback(DICOMParser *,
@@ -1246,9 +1253,17 @@ void DICOMAppHelper::StudyIDCallback(DICOMParser *,
     delete this->StudyID;
     }
 
-  this->StudyID = new dicom_stl::string((char*) val);
+  if (val)
+    {
+    this->StudyID = new dicom_stl::string((char*) val);
+    }
+  else
+    {
+    this->StudyID = new dicom_stl::string();
+    }
 
 }
+
 
 void DICOMAppHelper::GantryAngleCallback(DICOMParser * parser,
                            doublebyte,
