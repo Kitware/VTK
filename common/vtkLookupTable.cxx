@@ -327,7 +327,7 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
 	findx = maxIndex;
 	}
       cptr = &table[4*(int)findx];
-      *output++ = (cptr[0]*77 + cptr[1]*151 + cptr[2]*28) >> 8;
+      *output++ = (unsigned char)(cptr[0]*0.30+cptr[1]*0.59+cptr[2]*0.11+0.5);
       *output++ = cptr[3];
       input += inIncr;
       }
@@ -346,7 +346,7 @@ static void vtkLookupTableMapData(vtkLookupTable *self, T *input,
 	findx = maxIndex;
 	}
       cptr = &table[4*(int)findx];
-      *output++ = (cptr[0]*77 + cptr[1]*151 + cptr[2]*28) >> 8;
+      *output++ = (unsigned char)(cptr[0]*0.30+cptr[1]*0.59+cptr[2]*0.11+0.5);
       input += inIncr;
       }
     }
