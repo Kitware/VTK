@@ -15,7 +15,7 @@ vtkReflectionFilter reflect3
 reflect3 SetInput [reflect2 GetOutput]
 reflect3 SetPlaneToZMax
 
-vtkPolyDataMapper mapper
+vtkDataSetMapper mapper
 mapper SetInput [reflect3 GetOutput]
 
 vtkActor actor
