@@ -134,44 +134,44 @@ void vtkImageMapToColors::UpdateData(vtkDataObject *outObject)
 void vtkImageMapToColors::ExecuteInformation(vtkImageData *inData, 
 					     vtkImageData *outData)
 {
+  int numComponents = 4;
+
+  switch (this->OutputFormat)
+    {
+    case VTK_RGBA:
+      numComponents = 4;
+      break;
+    case VTK_RGB:
+      numComponents = 3;
+      break;
+    case VTK_LUMINANCE_ALPHA:
+      numComponents = 2;
+      break;
+    case VTK_LUMINANCE:
+      numComponents = 1;
+      break;
+    default:
+      vtkErrorMacro("ExecuteInformation: Unrecognized color format.");
+      break;
+    }
+
   if (this->LookupTable == NULL)
     {
     if (inData->GetScalarType() != VTK_UNSIGNED_CHAR)
       {
-      vtkErrorMacro("ExecuteInformation: No LookupTable was set and input data is not VTK_UNSIGNED_CHAR!");
+      vtkErrorMacro("ExecuteInformation: No LookupTable was set but input data is not VTK_UNSIGNED_CHAR, therefore input can't be passed through!");
+      return;
       }
-    else
+    else if (numComponents != inData->GetNumberOfScalarComponents())
       {
-      // no lookup table, pass the input if it was UNSIGNED_CHAR 
-      outData->SetScalarType(VTK_UNSIGNED_CHAR);
-      outData->SetNumberOfScalarComponents(
-			      inData->GetNumberOfScalarComponents());
+      vtkErrorMacro("ExecuteInformation: No LookupTable was set but number of components in input doesn't match OutputFormat, therefore input can't be passed through!");
+      return;
       }
     }
-  else  // the lookup table was set
-    {
-    int numComponents = 4;
-    outData->SetScalarType(VTK_UNSIGNED_CHAR);
-    switch (this->OutputFormat)
-      {
-      case VTK_RGBA:
-	numComponents = 4;
-	break;
-      case VTK_RGB:
-	numComponents = 3;
-	break;
-      case VTK_LUMINANCE_ALPHA:
-	numComponents = 2;
-	break;
-      case VTK_LUMINANCE:
-	numComponents = 1;
-	break;
-      default:
-	vtkErrorMacro("ExecuteInformation: Unrecognized color format.");
-	break;
-      }
-    outData->SetNumberOfScalarComponents(numComponents);
-    }
+  
+
+  outData->SetScalarType(VTK_UNSIGNED_CHAR);
+  outData->SetNumberOfScalarComponents(numComponents);
 }
 
 //----------------------------------------------------------------------------
@@ -236,7 +236,8 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
 					   dataType,extX,numberOfComponents,
 					   outputFormat);
       outPtr1 += outIncY + extX*numberOfOutputComponents;
-      inPtr1 = (void *) ((char *) inPtr1 + inIncY + rowLength);
+      inPtr1 = (void *) ((char *) inPtr1 + inIncY + \
+			 rowLength*numberOfComponents);
       }
     outPtr1 += outIncZ;
     inPtr1 = (void *) ((char *) inPtr1 + inIncZ);
