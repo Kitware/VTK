@@ -159,17 +159,17 @@ public:
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // Return the type of this mapper. This helps the volume
-  // determine which rendering methods the mapper will respont to.
-  virtual int GetMapperType()=0;
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // If this is a render into image mapper, then we need to be
   // able to get the image
   virtual float *GetRGBAPixelData() {return NULL;};
 
 //ETX
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Return the type of this mapper. This helps the volume
+  // determine which rendering methods the mapper will respont to.
+  virtual int GetMapperType()=0;
 
 
 protected:
