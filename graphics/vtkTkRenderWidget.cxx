@@ -475,7 +475,7 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
       {
       SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->RenderWindow);
       SetWindowLong(hWnd,GWL_WNDPROC,(LONG)self->OldProc);
-      self->OldProc(hWnd,message,wParam,lParam);
+      CallWindowProc(self->OldProc,hWnd,message,wParam,lParam);
       }
 
   // now reset to the original config
