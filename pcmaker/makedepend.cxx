@@ -182,6 +182,7 @@ void GetIncludes(DEPENDS_STRUCT *dependsEntry, const char *vtkHome )
   // search for includes
   while (!IS->eof())
     {
+	*IS >> ws;
     IS->getline(line,255);
     // do we have an include
     if (!strncmp(line,"#include",8))
