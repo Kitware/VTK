@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.1");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.2");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -72,7 +72,7 @@ void vtkPProbeFilter::Execute()
       }
     output->ReleaseData();
     }
-  else
+  else if ( numProcs > 1 )
     {
     vtkIdType numRemotePoints = 0;
     vtkIdTypeArray *validPoints = vtkIdTypeArray::New();
@@ -107,6 +107,8 @@ void vtkPProbeFilter::Execute()
           }
         }
       }
+    validPoints->Delete();
+    remoteProbeOutput->Delete();
     delete [] tuple;
     }
 }
@@ -116,6 +118,11 @@ void vtkPProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
 {
   vtkDataObject *input = this->GetInput();
   vtkDataObject *source = this->GetSource();
+
+  if ( !input || !source || !output )
+    {
+    return;
+    }
 
   input->SetUpdateExtent(0, 1, 0);
   source->SetUpdateExtent(output->GetUpdatePiece(),
@@ -127,4 +134,5 @@ void vtkPProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
 void vtkPProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Controller " << this->Controller << endl;
 }
