@@ -37,9 +37,9 @@
 // position. Scaling is achieved by using the right mouse button "up" the
 // render window (makes the widget bigger) or "down" the render window (makes
 // the widget smaller). To translate the cursor use the middle mouse button.
-// (Note: all of these interactions can be constrained to one of the x-y-z
-// axes by using the "shift" key.) The vtkPointWidget produces as output a
-// polydata with a single point and a vertex cell.
+// (Note: all of the translation interactions can be constrained to one of
+// the x-y-z axes by using the "shift" key.) The vtkPointWidget produces as
+// output a polydata with a single point and a vertex cell.
 //
 // Some additional features of this class include the ability to control the
 // rendered properties of the widget. You can set the properties of the
@@ -50,6 +50,16 @@
 // .SECTION Caveats
 // Note that widget can be picked even when it is "behind" other actors.
 // This is an intended feature and not a bug.
+//
+// The constrained translation/sliding action (i.e., when the "shift" key is
+// depressed) along the axes is based on a combination of a "hot" spot around
+// the cursor focus plus the initial mouse motion after selection. That is,
+// if the user selects an axis outside of the hot spot, then the motion is
+// constrained along that axis. If the user selects the point widget near the
+// focus (within the hot spot), the initial motion defines a vector which is
+// compared to the x-y-z axes. The motion is constrained to the axis that is
+// most parallel to the initial motion vector.
+// 
 
 // .SECTION See Also
 // vtk3DWidget vtkLineWidget vtkBoxWidget vtkPlaneWidget
@@ -187,6 +197,14 @@ public:
   vtkGetObjectMacro(Property,vtkProperty);
   vtkGetObjectMacro(SelectedProperty,vtkProperty);
   
+  // Description:
+  // Set the "hot spot" size; i.e., the region around the focus, in which the
+  // motion vector is used to control the constrained sliding action. Note the
+  // size is specified as a fraction of the length of the diagonal of the 
+  // point widget's bounding box.
+  vtkSetClampMacro(HotSpotSize,float,0.0,1.0);
+  vtkGetMacro(HotSpotSize,float);
+  
 protected:
   vtkPointWidget();
   ~vtkPointWidget();
@@ -245,6 +263,11 @@ protected:
   vtkProperty *Property;
   vtkProperty *SelectedProperty;
   void CreateDefaultProperties();
+  
+  // The size of the hot spot.
+  float HotSpotSize;
+  int DetermineConstraintAxis(int constraint, double *xPrev, double *x);
+  int WaitingForMotion;
   
   // Keep track of last pick position
   float LastPickPosition[3];

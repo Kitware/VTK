@@ -4,6 +4,7 @@ SET(MyTests
   BoxWidget.cxx
   AmoebaMinimizer.cxx  
   TestImplicitPlaneWidget.cxx
+  TestSphereWidget.cxx
   )
 IF (VTK_DATA_ROOT)
   # add tests that require data
