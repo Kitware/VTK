@@ -226,14 +226,16 @@ void vtkXTextMapper::DetermineSize(vtkViewport *viewport, int *size)
     {
     sprintf(fontname,"9x15");
     }
-  Font font = XLoadFont(displayId,  fontname );
-  int dir, as, des;
+  XFontStruct *fontStruct = XLoadQueryFont(displayId,  fontname );
+  int ascent, descent, direction;
   XCharStruct overall;
-  XQueryTextExtents(displayId, font, this->Input, strlen(this->Input),
-		    &dir, &as, &des, &overall);
-  size[1] = as + des;
+  // XTextExtents does not require a trip to the server
+  XTextExtents(fontStruct, this->Input, strlen(this->Input),
+		    &direction, &ascent, &descent, &overall);
+  size[1] = ascent + descent;
   size[0] = overall.width;
-  this->CurrentFont = font;
+  this->CurrentFont = fontStruct->fid;
+  XFreeFontInfo(NULL, fontStruct, 1);
 }
 
 void vtkXTextMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
