@@ -172,6 +172,7 @@ void vtkTransformPolyDataFilter::Execute()
   output->SetLines(input->GetLines());
   output->SetPolys(input->GetPolys());
   output->SetStrips(input->GetStrips());
+  output->SetFieldData(input->GetFieldData());
 
   if (newNormals)
     {
