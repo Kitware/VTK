@@ -18,13 +18,13 @@
 // A field name or an attribute to labeled can be specified. For example:
 // @verbatim
 // aa->Assign("foo", vtkDataSetAttributes::SCALARS, 
-//            vtkAttributeLocation::POINT_DATA);
+//            vtkAssignAttribute::POINT_DATA);
 // @endverbatim
 // tells vtkAssignAttribute to make the array in the point data called
 // "foo" the active scalars. On the other hand,
 // @verbatim
 // aa->Assign(vtkDataSetAttributes::VECTORS, vtkDataSetAttributes::SCALARS, 
-//            vtkAttributeLocation::POINT_DATA);
+//            vtkAssignAttribute::POINT_DATA);
 // @endverbatim
 // tells vtkAssignAttribute to make the active vectors also the active
 // scalars. The same can be done more easily from Tcl by using the Assign()
