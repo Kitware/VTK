@@ -424,9 +424,9 @@ int vtkLegendBoxActor::RenderOverlay(vtkViewport *viewport)
       {
       if ( this->Symbol[i] )
         {
-        renderedSomething += this->SymbolActor[i]->RenderOpaqueGeometry(viewport);
+        renderedSomething += this->SymbolActor[i]->RenderOverlay(viewport);
         }
-      renderedSomething += this->TextActor[i]->RenderOpaqueGeometry(viewport);
+      renderedSomething += this->TextActor[i]->RenderOverlay(viewport);
       }
     }
   
