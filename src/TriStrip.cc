@@ -22,9 +22,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Note: the ordering of the Points and PointIds is important.  See text.
 //
 
+//
+// eliminate constructor / destructor calls
+//
+static vlTriangle tri;
+
 float vlTriangleStrip::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 {
-  vlTriangle tri;
   vlFloatPoints pts(3);
   float pc[3], dist2, minDist2;
   int ignoreId, i;
@@ -60,6 +64,29 @@ void vlTriangleStrip::EvaluateLocation(int& subId, float pcoords[3], float x[3])
   for (i=0; i<3; i++)
     {
     x[i] = pt1[i]*pcoords[0] + pt2[i]*pcoords[1] + pt3[i]*u3;
+    }
+}
+
+void vlTriangleStrip::Contour(float value, vlFloatScalars *cellScalars, 
+                              vlFloatPoints *points, vlCellArray *verts, 
+                              vlCellArray *lines, vlCellArray *polys, 
+                              vlFloatScalars *scalars)
+{
+  int i;
+  vlFloatScalars triScalars(3);
+
+  for ( i=0; i<this->Points.NumberOfPoints()-2; i++)
+    {
+    tri.Points.SetPoint(0,this->Points.GetPoint(i));
+    tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
+    tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
+
+    triScalars.SetScalar(0,cellScalars->GetScalar(i));
+    triScalars.SetScalar(1,cellScalars->GetScalar(i+1));
+    triScalars.SetScalar(2,cellScalars->GetScalar(i+2));
+
+    tri.Contour(value, &triScalars, points, verts,
+                 lines, polys, scalars);
     }
 }
 

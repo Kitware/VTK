@@ -86,3 +86,71 @@ void vlTetra::EvaluateLocation(int& subId, float pcoords[3], float x[3])
            pt4[i]*u4;
     }
 }
+
+//
+// Marching (convex) quadrilaterals
+//
+typedef int EDGE_LIST;
+typedef struct {
+       EDGE_LIST edges[7];
+} TRIANGLE_CASES;
+
+static TRIANGLE_CASES triCases[] = { 
+  {-1, -1, -1, -1, -1, -1, -1},
+  { 0, 3, 2, -1, -1, -1, -1},
+  { 0, 1, 4, -1, -1, -1, -1},
+  { 3, 2, 4, 4, 2, 1, -1},
+  { 1, 2, 5, -1, -1, -1, -1},
+  { 3, 5, 1, 3, 1, 0, -1},
+  { 0, 2, 5, 0, 5, 4, -1},
+  { 3, 5, 4, -1, -1, -1, -1},
+  { 3, 4, 5, -1, -1, -1, -1},
+  { 0, 4, 5, 0, 5, 2, -1},
+  { 0, 5, 3, 0, 1, 5, -1},
+  { 5, 2, 1, -1, -1, -1, -1},
+  { 3, 4, 1, 3, 1, 2, -1},
+  { 0, 4, 1, -1, -1, -1, -1},
+  { 0, 2, 3, -1, -1, -1, -1},
+  {-1, -1, -1, -1, -1, -1, -1}
+};
+
+void vlTetra::Contour(float value, vlFloatScalars *cellScalars, 
+                      vlFloatPoints *points,
+                      vlCellArray *verts, vlCellArray *lines, 
+                      vlCellArray *polys, vlFloatScalars *scalars)
+{
+  static int CASE_MASK[4] = {1,2,4,8};
+  TRIANGLE_CASES *triCase;
+  EDGE_LIST  *edge;
+  int i, j, index, *vert;
+  static int edges[6][2] = { {0,1}, {1,2}, {2,0}, 
+                             {0,3}, {1,3}, {2,3} };
+  int pts[3];
+  float t, *x1, *x2, x[3];
+
+  // Build the case table
+  for ( i=0, index = 0; i < 4; i++)
+      if (cellScalars->GetScalar(i) >= value)
+          index |= CASE_MASK[i];
+
+  triCase = triCases + index;
+  edge = triCase->edges;
+
+  for ( ; edge[0] > -1; edge += 3 )
+    {
+    for (i=0; i<3; i++) // insert triangle
+      {
+      vert = edges[edge[i]];
+      t = (value - cellScalars->GetScalar(vert[0])) /
+          (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+      x1 = this->Points.GetPoint(vert[0]);
+      x2 = this->Points.GetPoint(vert[1]);
+      for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+      pts[i] = points->InsertNextPoint(x);
+      scalars->InsertNextScalar(value);
+      }
+    polys->InsertNextCell(3,pts);
+    }
+
+}
+

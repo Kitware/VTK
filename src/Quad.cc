@@ -20,6 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Polygon.hh"
 #include "Plane.hh"
 #include "vlMath.hh"
+#include "Rect.hh"
 
 //
 // Note: the ordering of the Points and PointIds is important.  See text.
@@ -217,3 +218,19 @@ void vlQuad::ShapeDerivs(float pcoords[3], float derivs[8])
   derivs[6] = 0.25*rp;
   derivs[7] = 0.25*rm;
 }
+
+void vlQuad::Contour(float value, vlFloatScalars *cellScalars,
+                     vlFloatPoints *points, vlCellArray *verts,
+                     vlCellArray *lines, vlCellArray *polys, 
+                     vlFloatScalars *scalars)
+{
+  int i;
+  static vlRectangle rect;
+
+  for (i=0; i<4; i++) rect.Points.SetPoint(i,this->Points.GetPoint(i));
+
+  rect.Contour(value, cellScalars, points, verts, lines,
+                   polys, scalars);
+
+}
+

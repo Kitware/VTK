@@ -20,7 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 float vlPolyPoints::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 {
-  int numPts;
+  int numPts=this->Points.NumberOfPoints();
   float *X;
   float dist2, minDist2;
   int i;
@@ -56,3 +56,22 @@ void vlPolyPoints::EvaluateLocation(int& subId, float pcoords[3], float x[3])
   x[1] = X[1];
   x[2] = X[2];
 }
+
+void vlPolyPoints::Contour(float value, vlFloatScalars *cellScalars, 
+                           vlFloatPoints *points, vlCellArray *verts,
+                           vlCellArray *lines, vlCellArray *polys, 
+                           vlFloatScalars *scalars)
+{
+  int i, pts[1];
+
+  for (i=0; i<this->Points.NumberOfPoints(); i++)
+    {
+    if ( value == cellScalars->GetScalar(i) )
+      {
+      scalars->InsertNextScalar(value);
+      pts[0] = points->InsertNextPoint(this->Points.GetPoint(0));
+      verts->InsertNextCell(1,pts);
+      }
+    }
+}
+

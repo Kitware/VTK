@@ -21,19 +21,25 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "DS2PolyF.hh"
 
+#define MAX_CONTOURS 256
+
 class vlContourFilter : public vlDataSetToPolyFilter
 {
 public:
-  vlContourFilter(float value=0.0) {this->Value = value;};
+  vlContourFilter();
   ~vlContourFilter() {};
   char *GetClassName() {return "vlContourFilter";};
 
-  vlSetMacro(Value,float);
-  vlGetMacro(Value,float);
+  void SetValue(int i, float value);
+  vlGetVectorMacro(Values,float);
+
+  void GenerateValues(int numContours, float range[2]);
 
 protected:
   void Execute();
-  float Value;
+  float Values[MAX_CONTOURS];
+  int NumberOfContours;
+  float Range[2];
 };
 
 #endif

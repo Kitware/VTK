@@ -85,9 +85,13 @@ int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormal
   return 1;
 }
 
+//
+// eliminate constructor / destructor calls
+//
+static vlLine line;
+
 float vlPolyLine::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 {
-  vlLine line;
   float pc[3], dist2, minDist2;
   int ignoreId, i;
 
@@ -120,3 +124,26 @@ void vlPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3])
     x[i] = a1[i] + pcoords[0]*(a2[i] - a1[i]);
     }
 }
+
+void vlPolyLine::Contour(float value, vlFloatScalars *cellScalars,
+                         vlFloatPoints *points, vlCellArray *verts, 
+                         vlCellArray *lines, vlCellArray *polys, 
+                         vlFloatScalars *scalars)
+{
+  int i;
+  vlFloatScalars lineScalars(2);
+
+  for ( i=0; i<this->Points.NumberOfPoints()-1; i++)
+    {
+    line.Points.SetPoint(0,this->Points.GetPoint(i));
+    line.Points.SetPoint(1,this->Points.GetPoint(i+1));
+
+    lineScalars.SetScalar(0,cellScalars->GetScalar(i));
+    lineScalars.SetScalar(1,cellScalars->GetScalar(i+1));
+
+    line.Contour(value, &lineScalars, points, verts,
+                 lines, polys, scalars);
+    }
+
+}
+

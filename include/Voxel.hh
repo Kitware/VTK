@@ -30,6 +30,9 @@ public:
   char *GetClassName() {return "vlBrick";};
 
   int CellDimension() {return 3;};
+  void Contour(float value, vlFloatScalars *cellScalars, 
+               vlFloatPoints *points, vlCellArray *verts, 
+               vlCellArray *lines, vlCellArray *polys, vlFloatScalars *s);
   float EvaluatePosition(float x[3], int& subId, float pcoords[3]);
   void EvaluateLocation(int& subId, float pcoords[3], float x[3]);
   void ShapeFunctions(float pcoords[3], float sf[8]);

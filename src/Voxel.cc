@@ -82,3 +82,50 @@ void vlBrick::EvaluateLocation(int& subId, float pcoords[3], float x[3])
     }
 
 }
+
+//
+// Marching cubes case table
+//
+#include "MC_Cases.h"
+
+void vlBrick::Contour(float value, vlFloatScalars *cellScalars, 
+                      vlFloatPoints *points,
+                      vlCellArray *verts, vlCellArray *lines, 
+                      vlCellArray *polys, vlFloatScalars *scalars)
+{
+  static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
+  TRIANGLE_CASES *triCase;
+  EDGE_LIST  *edge;
+  int i, j, index, *vert;
+  static int vertMap[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
+  static int edges[12][2] = { {0,1}, {1,3}, {3,2}, {2,0},
+                              {4,5}, {5,7}, {7,6}, {6,4},
+                              {0,4}, {1,5}, {2,6}, {3,7}};
+  int pts[3];
+  float t, *x1, *x2, x[3];
+
+  // Build the case table
+  for ( i=0, index = 0; i < 8; i++)
+      if (cellScalars->GetScalar(vertMap[i]) >= value)
+          index |= CASE_MASK[i];
+
+  triCase = triCases + index;
+  edge = triCase->edges;
+
+  for ( ; edge[0] > -1; edge += 3 )
+    {
+    for (i=0; i<3; i++) // insert triangle
+      {
+      vert = edges[edge[i]];
+      t = (value - cellScalars->GetScalar(vert[0])) /
+          (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+      x1 = this->Points.GetPoint(vert[0]);
+      x2 = this->Points.GetPoint(vert[1]);
+      for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+      pts[i] = points->InsertNextPoint(x);
+      scalars->InsertNextScalar(value);
+      }
+    polys->InsertNextCell(3,pts);
+    }
+}
+

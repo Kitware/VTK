@@ -143,3 +143,53 @@ int vlLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
     return NO_INTERSECTION;
     }
 }
+
+//
+// marching lines case table
+//
+typedef int VERT_LIST;
+
+typedef struct {
+  VERT_LIST verts[2];
+} LINE_CASES;
+
+static LINE_CASES lineCases[]= {
+  {-1,-1},
+  {1,0},
+  {0,1},
+  {-1,-1}};
+
+void vlLine::Contour(float value, vlFloatScalars *cellScalars, 
+                     vlFloatPoints *points,
+                     vlCellArray *verts, vlCellArray *lines, 
+                     vlCellArray *polys, vlFloatScalars *scalars)
+{
+  static int CASE_MASK[2] = {1,2};
+  int index, i;
+  LINE_CASES *lineCase;
+  VERT_LIST *vert;
+  float t, x[3], *x1, *x2;
+  int pts[1];
+//
+// Build the case table
+//
+  for ( i=0, index = 0; i < 2; i++)
+    if (cellScalars->GetScalar(i) >= value) 
+      index |= CASE_MASK[i];
+
+  lineCase = lineCases + index;
+  vert = lineCase->verts;
+
+  while ( vert[0] > -1 )
+    {
+    t = (value - cellScalars->GetScalar(vert[0])) /
+        (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+    x1 = this->Points.GetPoint(vert[0]);
+    x2 = this->Points.GetPoint(vert[1]);
+    for (i=0; i<3; i++) x[i] = x1[i] + t * (x2[i] - x1[i]);
+
+    pts[0] = points->InsertNextPoint(x);
+    verts->InsertNextCell(1,pts);
+    scalars->InsertNextScalar(value);
+    }
+}

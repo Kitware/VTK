@@ -21,6 +21,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Line.hh"
 #include "Plane.hh"
 #include "DataSet.hh"
+#include "Triangle.hh"
 
 #define FAILURE 0
 #define INTERSECTION 2
@@ -406,6 +407,11 @@ int vlPolygon::PointInPolygon (float bounds[6], float *x, float *n)
   else
     return INSIDE;
 }
+//
+// Following is used in a number of routines.  Made static to avoid 
+// constructor / destructor calls.
+//
+static vlIdList Tris((MAX_CELL_SIZE-2)*3);
 
 #define TOLERANCE 1.0e-06
 
@@ -414,9 +420,9 @@ static  int     SuccessfulTriangulation; // Stops recursive tri. if necessary
 static  float   Normal[3]; //polygon normal
 
 //
-//  Triangulate loop.  Use recursive divide and conquer based on plane 
-//  splitting  to reduce loop into triangles.  The cell is presumed 
-//  properly initialized (i.e., Points and PointIds).
+//  General triangulation entry point.  Tries to use the fast triangulation 
+//  technique first, and if that doesn't work, something more complex but
+//  guaranteed to work.
 //
 int vlPolygon::Triangulate(vlIdList &outTris)
 {
@@ -424,7 +430,6 @@ int vlPolygon::Triangulate(vlIdList &outTris)
   float *bounds, d;
   int verts[MAX_CELL_SIZE];
   int numVerts=this->PointIds.NumberOfIds();
-  static vlIdList Tris((MAX_CELL_SIZE-2)*3);
 
   bounds = this->GetBounds();
   
@@ -454,6 +459,11 @@ int vlPolygon::Triangulate(vlIdList &outTris)
     }
 }
 
+//
+//  Triangulate loop.  Use recursive divide and conquer based on plane 
+//  splitting  to reduce loop into triangles.  The cell is presumed 
+//  properly initialized (i.e., Points and PointIds).
+//
 int vlPolygon::FastTriangulate (int numVerts, int *verts, vlIdList& Tris)
 {
   int i,j;
@@ -635,3 +645,52 @@ void vlPolygon::SplitLoop (int fedges[2], int numVerts, int *verts,
 
   return;
 }
+
+void vlPolygon::Contour(float value, vlFloatScalars *cellScalars, 
+                        vlFloatPoints *points,
+                        vlCellArray *verts, vlCellArray *lines, 
+                        vlCellArray *polys, vlFloatScalars *scalars)
+{
+  int i, success;
+  int numVerts=this->Points.NumberOfPoints();
+  float *bounds, d;
+  int polyVerts[MAX_CELL_SIZE];
+  static vlTriangle tri;
+  static vlFloatScalars triScalars(3);
+
+  bounds = this->GetBounds();
+  
+  d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
+           (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
+           (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
+  Tolerance = TOLERANCE * d;
+  SuccessfulTriangulation = 1;
+  this->ComputeNormal(&this->Points, Normal);
+
+  for (i=0; i<numVerts; i++) polyVerts[i] = i;
+  Tris.Reset();
+
+  success = this->FastTriangulate(numVerts, polyVerts, Tris);
+
+  if ( !success ) // Just skip for now.
+    {
+    ;
+    }
+  else // Contour triangle
+    {
+    for (i=0; i<Tris.NumberOfIds(); i += 3)
+      {
+      tri.Points.SetPoint(0,this->Points.GetPoint(i));
+      tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
+      tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
+
+      triScalars.SetScalar(0,cellScalars->GetScalar(i));
+      triScalars.SetScalar(1,cellScalars->GetScalar(i+1));
+      triScalars.SetScalar(2,cellScalars->GetScalar(i+2));
+
+      tri.Contour(value, &triScalars, points, verts,
+                   lines, polys, scalars);
+      }
+    }
+}
+
