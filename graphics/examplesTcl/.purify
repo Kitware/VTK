@@ -119,7 +119,7 @@ suppress mlk _malloc; _calloc; calcObjSize; checkTexImage
 suppress mlk _malloc; operator new(unsigned int); __nw__FUi; filebuf::filebuf(int); Iostream_init::Iostream_init(void)
 suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); filebuf::filebuf(int); Iostream_init::Iostream_init(void)
 suppress mlk _malloc; Iostream_init::Iostream_init(void)
-
+suppress umr stdiobuf::overflow(int); streambuf::xsputn(const char*,int); ostream::operator<<(const char*)
 suppress umr __glSPDlalloc; __glsplc_Disable; __glce_common_listable
 suppress umr __glSPDlalloc; __glsplc_Enable; __glce_common_listable
 suppress umc memcpy; vtkWindowToImageFilter::Execute(vtkImageData*)
@@ -182,3 +182,4 @@ suppress mse strlen
 
 suppress zpr *
 suppress ipr *
+
