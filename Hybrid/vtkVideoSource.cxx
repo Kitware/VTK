@@ -64,14 +64,13 @@
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
-vtkCxxRevisionMacro(vtkVideoSource, "1.31");
+vtkCxxRevisionMacro(vtkVideoSource, "1.32");
 vtkStandardNewMacro(vtkVideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
 #pragma warning ( disable : 4311 )
 #pragma warning ( disable : 4312 )
 #endif 
-
 
 //----------------------------------------------------------------------------
 vtkVideoSource::vtkVideoSource()
@@ -100,6 +99,7 @@ vtkVideoSource::vtkVideoSource()
   this->FrameIndex = -1;
 
   this->StartTimeStamp = 0;
+  this->FrameTimeStamp = 0;
 
   this->OutputNeedsInitialization = 1;
 
@@ -141,7 +141,6 @@ vtkVideoSource::vtkVideoSource()
 
   this->FrameBufferBitsPerPixel = 8;
   this->FrameBufferRowAlignment = 1;
-
 }
 
 //----------------------------------------------------------------------------
@@ -479,13 +478,17 @@ static inline void vtkSleep(double duration)
 // If '0' is returned, then the thread was aborted before or during the wait.
 static int vtkThreadSleep(struct ThreadInfoStruct *data, double time)
 {
-  for (;;)
+  for (int i = 0;; i++)
     {
     double remaining = time - vtkTimerLog::GetCurrentTime();
 
     // check to see if we have reached the specified time
     if (remaining <= 0)
       {
+      if (i == 0)
+        {
+        vtkGenericWarningMacro("Dropped a video frame.");
+        }
       return 1;
       }
     // check the ActiveFlag at least every 0.1 seconds
@@ -1118,6 +1121,9 @@ void vtkVideoSource::ExecuteData(vtkDataObject *output)
   this->FrameBufferMutex->Lock();
 
   int index = this->FrameBufferIndex;
+  this->FrameTimeStamp = 
+    this->FrameBufferTimeStamps[index % this->FrameBufferSize];
+
   int frame;
   for (frame = firstFrame; frame <= finalFrame; frame++)
     {
