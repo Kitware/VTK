@@ -218,7 +218,7 @@ void vtkImageAnnotate::ComputeBounds()
 //----------------------------------------------------------------------------
 // Draw the bounds of a region
 template <class T>
-void vtkImageAnnotate(vtkImageAnnotate *self, T *ptr, int partIdx)
+void vtkImageAnnotateFunction(vtkImageAnnotate *self, T *ptr, int partIdx)
 {
   T *ptr0, *ptr1;
   int idx0, idx1;
@@ -400,19 +400,19 @@ void vtkImageAnnotate::Annotate(int partIdx)
   switch (this->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageAnnotate(this, (float *)(ptr), partIdx);
+      vtkImageAnnotateFunction(this, (float *)(ptr), partIdx);
       break;
     case VTK_INT:
-      vtkImageAnnotate(this, (int *)(ptr), partIdx);
+      vtkImageAnnotateFunction(this, (int *)(ptr), partIdx);
       break;
     case VTK_SHORT:
-      vtkImageAnnotate(this, (short *)(ptr), partIdx);
+      vtkImageAnnotateFunction(this, (short *)(ptr), partIdx);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageAnnotate(this, (unsigned short *)(ptr), partIdx);
+      vtkImageAnnotateFunction(this, (unsigned short *)(ptr), partIdx);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageAnnotate(this, (unsigned char *)(ptr), partIdx);
+      vtkImageAnnotateFunction(this, (unsigned char *)(ptr), partIdx);
       break;
     default:
       vtkErrorMacro(<< "Draw: Cannot handle ScalarType.");
