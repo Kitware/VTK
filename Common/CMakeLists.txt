@@ -36,6 +36,7 @@ vtkAssemblyPaths.cxx
 vtkBitArray.cxx
 vtkBox.cxx
 vtkByteSwap.cxx
+vtkCachedStreamingDemandDrivenPipeline.cxx
 vtkCallbackCommand.cxx
 vtkCell.cxx
 vtkCell3D.cxx
