@@ -94,6 +94,7 @@ class vtkTransform : public vtkObject
   void GetInverse(vtkMatrix4x4& inverse);
   float *GetOrientation();
   void GetOrientation(float& rx, float& ry, float& rz);
+  float *GetOrientationWXYZ();  
   float *GetPosition();
   void GetPosition (float& x, float& y, float& z);
   float *GetScale();
