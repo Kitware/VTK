@@ -25,7 +25,7 @@
 
 #include <GL/gl.h>
 
-vtkCxxRevisionMacro(vtkOpenGLVolumeProVP1000Mapper, "1.13");
+vtkCxxRevisionMacro(vtkOpenGLVolumeProVP1000Mapper, "1.14");
 vtkStandardNewMacro(vtkOpenGLVolumeProVP1000Mapper);
 
 void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,
@@ -34,12 +34,12 @@ void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,
                                                        unsigned int *outData)
 {
   float depthVal, nearestPt[3], testZ, minZ;
-  float planeCoords[4][4];
+  double planeCoords[4][4];
   float tCoords[4][2];
   int i, j, k;
   int textureSize[2];
   unsigned int *textureData;
-  float bounds[6];
+  double bounds[6];
   
   textureSize[0] = textureSize[1] = 32;
   while (textureSize[0] < size[0])
@@ -104,7 +104,7 @@ void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,
   ren->WorldToView();
   depthVal = ren->GetViewPoint()[2];
   
-  float aspect[2];
+  double aspect[2];
   ren->GetAspect(aspect);
   
   ren->SetViewPoint(-aspect[0], -aspect[1], depthVal);
@@ -156,7 +156,7 @@ void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,
   for (i = 0; i < 4; i++)
     {
     glTexCoord2fv(tCoords[i]);
-    glVertex3fv(planeCoords[i]);
+    glVertex3dv(planeCoords[i]);
     }
   glEnd();
   glDisable( GL_TEXTURE_2D);
@@ -203,7 +203,7 @@ void vtkOpenGLVolumeProVP1000Mapper::GetDepthBufferValues(vtkRenderer *ren,
 void vtkOpenGLVolumeProVP1000Mapper::RenderBoundingBox(vtkRenderer *ren,
                                                        vtkVolume *vol)
 {
-  float bounds[6], background[3], color[3];
+  double bounds[6], background[3], color[3];
   ren->GetBackground(background);
   if (background[0] > 0.5 && background[1] > 0.5 && background[2] > 0.5)
     {
@@ -218,30 +218,30 @@ void vtkOpenGLVolumeProVP1000Mapper::RenderBoundingBox(vtkRenderer *ren,
   
   vol->GetBounds(bounds);
 
-  glColor3fv(color);
+  glColor3dv(color);
   glDisable( GL_LIGHTING );
   
   glBegin( GL_LINE_LOOP );
-  glVertex3f(bounds[0], bounds[2], bounds[4]);
-  glVertex3f(bounds[1], bounds[2], bounds[4]);
-  glVertex3f(bounds[1], bounds[2], bounds[5]);
-  glVertex3f(bounds[0], bounds[2], bounds[5]);
+  glVertex3d(bounds[0], bounds[2], bounds[4]);
+  glVertex3d(bounds[1], bounds[2], bounds[4]);
+  glVertex3d(bounds[1], bounds[2], bounds[5]);
+  glVertex3d(bounds[0], bounds[2], bounds[5]);
   glEnd();
   glBegin( GL_LINE_LOOP );
-  glVertex3f(bounds[0], bounds[3], bounds[4]);
-  glVertex3f(bounds[1], bounds[3], bounds[4]);
-  glVertex3f(bounds[1], bounds[3], bounds[5]);
-  glVertex3f(bounds[0], bounds[3], bounds[5]);
+  glVertex3d(bounds[0], bounds[3], bounds[4]);
+  glVertex3d(bounds[1], bounds[3], bounds[4]);
+  glVertex3d(bounds[1], bounds[3], bounds[5]);
+  glVertex3d(bounds[0], bounds[3], bounds[5]);
   glEnd();
   glBegin( GL_LINES );
-  glVertex3f(bounds[0], bounds[2], bounds[4]);
-  glVertex3f(bounds[0], bounds[3], bounds[4]);
-  glVertex3f(bounds[1], bounds[2], bounds[4]);
-  glVertex3f(bounds[1], bounds[3], bounds[4]);
-  glVertex3f(bounds[1], bounds[2], bounds[5]);
-  glVertex3f(bounds[1], bounds[3], bounds[5]);
-  glVertex3f(bounds[0], bounds[2], bounds[5]);
-  glVertex3f(bounds[0], bounds[3], bounds[5]);
+  glVertex3d(bounds[0], bounds[2], bounds[4]);
+  glVertex3d(bounds[0], bounds[3], bounds[4]);
+  glVertex3d(bounds[1], bounds[2], bounds[4]);
+  glVertex3d(bounds[1], bounds[3], bounds[4]);
+  glVertex3d(bounds[1], bounds[2], bounds[5]);
+  glVertex3d(bounds[1], bounds[3], bounds[5]);
+  glVertex3d(bounds[0], bounds[2], bounds[5]);
+  glVertex3d(bounds[0], bounds[3], bounds[5]);
   glEnd();
   
   glEnable( GL_LIGHTING );

@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.25");
+vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.26");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -207,9 +207,9 @@ vtkVolumeProVP1000Mapper *vtkVolumeProVP1000Mapper::New()
 
 void vtkVolumeProVP1000Mapper::UpdateCamera( vtkRenderer *ren, vtkVolume * vtkNotUsed(vol) )
 {
-  float                     positionVTK[3];
-  float                     focalPointVTK[3];
-  float                     viewUpVTK[3];
+  double                    positionVTK[3];
+  double                    focalPointVTK[3];
+  double                    viewUpVTK[3];
   VLIStatus                 status;
 
   // Get the necessary information from the vtk camera
@@ -234,7 +234,7 @@ void vtkVolumeProVP1000Mapper::UpdateCamera( vtkRenderer *ren, vtkVolume * vtkNo
   status = this->Context->GetCamera().SetViewMatrix( viewMatrixVLI );
 
   double clippingRange[2], parallelScale;
-  float aspect[2];
+  double aspect[2];
   ren->GetActiveCamera()->GetClippingRange(clippingRange);
   ren->GetAspect(aspect);
   parallelScale = ren->GetActiveCamera()->GetParallelScale();
@@ -283,7 +283,7 @@ void vtkVolumeProVP1000Mapper::UpdateLights( vtkRenderer *ren, vtkVolume *vol )
   float        status;
   int          count;
   int          index;
-  float        position[3], focalPoint[3];
+  double       position[3], focalPoint[3];
   float        intensity;
   VLIVector3D  direction;
   int          i;
