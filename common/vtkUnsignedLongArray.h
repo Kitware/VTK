@@ -149,6 +149,8 @@ public:
   // The class uses the actual array provided; it does not copy the data 
   // from the suppled array.
   void SetArray(unsigned long* array, int size, int save);
+  void SetVoidArray(void *array,int size, int save) 
+    {this->SetArray((unsigned long*)array, size, save);};
 
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.

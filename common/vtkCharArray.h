@@ -170,6 +170,8 @@ public:
   // The class uses the actual array provided; it does not copy the data 
   // from the suppled array.
   void SetArray(char* array, int size, int save);
+  void SetVoidArray(void *array,int size, int save) 
+    {this->SetArray((char*)array, size, save);};
 
   // Description:
   // For legacy compatibility. Do not use.
