@@ -81,23 +81,27 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self);
 extern int vtkRenderWindowCommand(ClientData cd, Tcl_Interp *interp,
                                   int argc, char *argv[]);
 extern "C" {
+#define VTKIMAGEDATATOTKPHOTO_CORONAL 0
+#define VTKIMAGEDATATOTKPHOTO_SAGITTAL 1
+#define VTKIMAGEDATATOTKPHOTO_TRANSVERSE 2
 int vtkImageDataToTkPhoto_Cmd (ClientData clientData, Tcl_Interp *interp, 
                          int argc, char **argv)
 {
   int status = 0;
   vtkImageData* image = NULL;
   Tk_PhotoHandle photo;
-  int z = 0;
+  int slice = 0;
+  int orientation = VTKIMAGEDATATOTKPHOTO_TRANSVERSE;
     
-  // Usage: vtkImageDataToTkPhoto vtkImageData photo z
-  if ( argc != 4 )
+  // Usage: vtkImageDataToTkPhoto vtkImageData photo slice
+  if ( argc < 4 || argc > 5 )
     {
-    Tcl_SetResult ( interp, "wrong # args: should be \"vtkImageDataToTkPhoto vtkImageData photo z\"", NULL );
+    Tcl_SetResult ( interp, "wrong # args: should be \"vtkImageDataToTkPhoto vtkImageData photo slice [orientation]\"", NULL );
     return TCL_ERROR;
     }
 
-  // Start with z, it's fast, etc...
-  status = Tcl_GetInt ( interp, argv[3], &z );
+  // Start with slice, it's fast, etc...
+  status = Tcl_GetInt ( interp, argv[3], &slice );
   if ( status != TCL_OK )
     {
     return status;
@@ -105,12 +109,15 @@ int vtkImageDataToTkPhoto_Cmd (ClientData clientData, Tcl_Interp *interp,
 
   // Find the image
 #ifdef VTK_PYTHON_BUILD
-  int len = 1;
-  image = (vtkImageData*) vtkPythonUnmanglePointer ( argv[1], &len, "vtkImageData" );
-  char buffer[1024];
-  sprintf ( buffer, "Found: %d - %lx\n", len, (long)image );
-  Tcl_AppendResult ( interp, buffer, NULL );
-  if ( (void*)image == (void*)argv[1] ) { image = NULL; }
+  void *ptr;
+  char typeCheck[128];
+  int i = sscanf ( argv[1], "_%lx_%s", (long *)&ptr, typeCheck);
+  if ( strcmp ( "vtkImageData", typeCheck ) != 0 )
+    {
+    // bad type
+    ptr = NULL;
+    }
+  image = (vtkImageData*) ptr;
 #else
   image = (vtkImageData*) vtkTclGetPointerFromObject ( argv[1], "vtkImageData", interp, status );
 #endif
@@ -138,30 +145,95 @@ int vtkImageDataToTkPhoto_Cmd (ClientData clientData, Tcl_Interp *interp,
   int components = image->GetNumberOfScalarComponents();
   if ( components != 1 && components != 3 )
     {
-    Tcl_SetResult ( interp, "number of scalar components must be 1, 3, 4", NULL );
+    Tcl_SetResult ( interp, "number of scalar components must be 1, 3, 4", TCL_VOLATILE );
     return TCL_ERROR;
     }
-    
-  int extent[6];
-  image->GetWholeExtent ( extent );
-  if ( z < extent[4] || z > extent[5] )
-    {
-    Tcl_SetResult ( interp, "z is outside the image extent", NULL );
-    return TCL_ERROR;
-    }
-  extent[4] = extent[5] = z;
-  image->SetUpdateExtent ( extent );
-  image->Update();
 
+  // Determine the orientation
+  if ( argc == 5 )
+    {
+    if ( strcmp ( argv[4], "transverse" ) == 0 )
+      {
+      orientation = VTKIMAGEDATATOTKPHOTO_TRANSVERSE;
+      }
+    if ( strcmp ( argv[4], "coronal" ) == 0 )
+      {
+      orientation = VTKIMAGEDATATOTKPHOTO_CORONAL;
+      }
+    if ( strcmp ( argv[4], "sagittal" ) == 0 )
+      {
+      orientation = VTKIMAGEDATATOTKPHOTO_SAGITTAL;
+      }
+    }
+
+  // Change to do sagittal Y-Z plane
+  int extent[6];
+  // Pass the check?
+  int valid = 1;
+  image->Update();
+  image->GetWholeExtent ( extent );
   // Setup the photo data block
+  // For reference:
+  // pitch - address difference between two vertically adjacent pixels
+  // pixelSize - address  difference  between  two
+  //             horizontally  adjacent pixels
   Tk_PhotoImageBlock block;
-  block.pixelPtr = (unsigned char*) image->GetScalarPointerForExtent ( extent );
-  // Read upwards from the bottom of the image
-  block.pixelPtr = (unsigned char*) image->GetScalarPointer ( 0, extent[3], z );
-  block.width = extent[1] - extent[0] + 1;
-  block.height = extent[3] - extent[2] + 1;
-  block.pitch = -components * ( block.width );
-  block.pixelSize = components;
+  
+  switch ( orientation )
+    {
+    case VTKIMAGEDATATOTKPHOTO_TRANSVERSE:
+      {
+      valid = ( slice >= extent[4] && slice <= extent[5] );
+      if ( valid )
+        {
+        block.pixelPtr = (unsigned char*) image->GetScalarPointer ( 0, extent[3], slice );
+        block.width = extent[1] - extent[0] + 1;
+        block.height = extent[3] - extent[2] + 1;
+        block.pixelSize = components;
+        block.pitch = -components * ( block.width );
+        }      
+      break;
+      }
+    case VTKIMAGEDATATOTKPHOTO_SAGITTAL:
+      {
+      valid = ( slice >= extent[0] && slice <= extent[1] );
+      if ( valid )
+        {
+        block.pixelPtr = (unsigned char*) image->GetScalarPointer ( slice, extent[3], 0 );
+        block.width = extent[3] - extent[2] + 1;
+        block.height = extent[5] - extent[4] + 1;
+        block.pixelSize = -components * ( extent[1] - extent[0] + 1 );
+        block.pitch = components
+          * ( extent[1] - extent[0] + 1 )
+          * ( extent[3] - extent[2] + 1 );
+        }
+      break;
+      }
+    case VTKIMAGEDATATOTKPHOTO_CORONAL:
+      {
+      valid = ( slice >= extent[2] && slice <= extent[3] );
+      if ( valid )
+        {
+        block.pixelPtr = (unsigned char*) image->GetScalarPointer ( 0, slice, 0 );
+        block.width = extent[1] - extent[0] + 1;
+        block.height = extent[5] - extent[4] + 1;
+        block.pixelSize = components;
+        block.pitch = components
+          * ( extent[1] - extent[0] + 1 )
+          * ( extent[3] - extent[2] + 1 );
+        }
+      break;
+      }
+    }
+
+  if ( !valid )
+    {
+    Tcl_SetResult ( interp, "slice is outside the image extent", NULL );
+    return TCL_ERROR;
+    }
+  char mybuffer[1024];
+  sprintf ( mybuffer, "Width: %d Height: %d Pitch: %d PixelSize: %d", block.width, block.height, block.pitch, block.pixelSize );
+  Tcl_AppendResult ( interp, mybuffer, NULL );
   block.offset[0] = 0;
   block.offset[1] = 1;
   block.offset[2] = 2;

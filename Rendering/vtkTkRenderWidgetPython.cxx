@@ -17,5 +17,4 @@
 =========================================================================*/
 
 #define VTK_PYTHON_BUILD
-#include "vtkPythonUtil.h"
 #include "vtkTkRenderWidget.cxx"
