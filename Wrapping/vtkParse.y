@@ -990,7 +990,7 @@ int main(int argc,char *argv[])
   FILE *fin;
   int ret;
   
-  if (argc != 4)
+  if (argc < 4 || argc > 5)
     {
     fprintf(stderr,"Usage: %s input_file hint_file is_concrete\n",argv[0]);
     exit(1);
@@ -1029,7 +1029,22 @@ int main(int argc,char *argv[])
             argv[1]);
     return ret;
     }
-  vtkParseOutput(stdout,&data);
+
+  if (argc == 5)
+    {
+      FILE *fout;
+      if (!(fout = fopen(argv[4],"w")))
+	{
+	  fprintf(stderr,"Error opening output file %s\n",argv[4]);
+	  exit(1);
+	}
+      vtkParseOutput(fout,&data);
+      fclose (fout);
+    }
+  else
+    {
+      vtkParseOutput(stdout,&data);
+    }
   return 0;
 }
  
