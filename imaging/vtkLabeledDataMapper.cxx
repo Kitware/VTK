@@ -149,20 +149,17 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   char string[1024], format[1024];
   float val, x[3];
   vtkDataSet *input=this->GetInput();
-  vtkPointData *pd=input->GetPointData();
-  vtkDataArray *data;
-  float *tuple = NULL;
-  vtkFieldData *fd;
-
   if ( ! input )
     {
     vtkErrorMacro(<<"Need input data to render labels");
     return;
     }
-  else
-    {
-    input->Update();
-    }
+  vtkPointData *pd=input->GetPointData();
+  vtkDataArray *data;
+  float *tuple;
+  vtkFieldData *fd;
+
+  input->Update();
 
   // Check to see whether we have to rebuild everything
   if ( this->GetMTime() > this->BuildTime || 
