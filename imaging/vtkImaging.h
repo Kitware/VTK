@@ -57,7 +57,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageCast.h"
 #include "vtkImageCityBlockDistance.h"
 #include "vtkImageClip.h"
-#include "vtkImageComposite.h"
 #include "vtkImageConnector.h"
 #include "vtkImageConstantPad.h"
 #include "vtkImageContinuousDilate3D.h"
