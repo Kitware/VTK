@@ -64,7 +64,7 @@ static void CreateInitFile(const char *libName,
   
   if (!strcmp(kitName,"Vtkcommontcl"))
     {
-    fprintf(fout,"int vtkCommand(ClientData cd, Tcl_Interp *interp,\n"
+    fprintf(fout,"int vtkCreateCommand(ClientData cd, Tcl_Interp *interp,\n"
             "               int argc, char *argv[]);\n");
     fprintf(fout,"\nTcl_HashTable vtkInstanceLookup;\n");
     fprintf(fout,"Tcl_HashTable vtkPointerLookup;\n");
@@ -133,7 +133,7 @@ static void CreateInitFile(const char *libName,
     
     /* create special vtkCommand command */
     fprintf(fout,"  Tcl_CreateCommand(interp,(char *) \"vtkCommand\",\n"
-            "                    reinterpret_cast<vtkTclCommandType>(vtkCommand),\n"
+            "                    reinterpret_cast<vtkTclCommandType>(vtkCreateCommand),\n"
             "                    (ClientData *)NULL, NULL);\n\n");
     }
   
