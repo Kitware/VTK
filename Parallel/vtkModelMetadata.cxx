@@ -32,7 +32,7 @@
 #include <time.h>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.1");
+vtkCxxRevisionMacro(vtkModelMetadata, "1.2");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #undef FREE
@@ -4189,4 +4189,8 @@ void vtkModelMetadata::PrintSelf(ostream& os, vtkIndent indent)
                    this->NodeVariableNames << endl;
   os << indent << "ElementVariableTruthTable: " <<  \
                    this->ElementVariableTruthTable << endl;
+  os << indent << "TimeStepIndex: " <<  \
+                   this->TimeStepIndex << endl;
+  os << indent << "AllVariablesDefinedInAllBlocks: " <<  \
+                   this->AllVariablesDefinedInAllBlocks << endl;
 }
