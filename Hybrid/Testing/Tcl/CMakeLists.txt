@@ -55,7 +55,7 @@ IF (VTK_USE_RENDERING)
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDFOREACH( tfile )
     IF(NOT VTK_USE_COCOA)
-      ADD_TEST(cursor3D-image ${VTK_EXECUTABLE}
+      ADD_TEST(imageCursor3D-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/Hybrid/Testing/Tcl/cursor3D.tcl
         -D ${VTK_DATA_ROOT}
