@@ -66,7 +66,7 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 renWin Render
 
-set count 10
+set count 2
 reader Update
 vtkTimerLog tt
 tt StartTimer
