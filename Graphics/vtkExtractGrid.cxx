@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGrid, "1.39");
+vtkCxxRevisionMacro(vtkExtractGrid, "1.40");
 vtkStandardNewMacro(vtkExtractGrid);
 
 // Construct object to extract all of the input data.
@@ -304,7 +304,8 @@ void vtkExtractGrid::Execute()
   // Allocate necessary objects
   //
   outSize = (uExt[1]-uExt[0]+1)*(uExt[3]-uExt[2]+1)*(uExt[5]-uExt[4]+1);
-  newPts = (vtkPoints *) inPts->MakeObject(); 
+  newPts = inPts->NewInstance(); 
+  newPts->SetDataType(inPts->GetDataType());
   newPts->SetNumberOfPoints(outSize);
   outPD->CopyAllocate(pd,outSize,outSize);
   outCD->CopyAllocate(cd,outSize,outSize);

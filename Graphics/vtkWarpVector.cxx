@@ -21,7 +21,7 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpVector, "1.39");
+vtkCxxRevisionMacro(vtkWarpVector, "1.40");
 vtkStandardNewMacro(vtkWarpVector);
 
 vtkWarpVector::vtkWarpVector()
@@ -111,7 +111,8 @@ void vtkWarpVector::Execute()
 
   // SETUP AND ALLOCATE THE OUTPUT
   numPts = input->GetNumberOfPoints();
-  points = vtkPoints::SafeDownCast(input->GetPoints()->MakeObject());
+  points = input->GetPoints()->NewInstance();
+  points->SetDataType(input->GetPoints()->GetDataType());
   points->Allocate(numPts);
   points->SetNumberOfPoints(numPts);
   output->SetPoints(points);

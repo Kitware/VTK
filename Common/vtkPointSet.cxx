@@ -20,7 +20,7 @@
 #include "vtkSource.h"
 #include "vtkPointLocator.h"
 
-vtkCxxRevisionMacro(vtkPointSet, "1.75");
+vtkCxxRevisionMacro(vtkPointSet, "1.76");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
@@ -390,7 +390,8 @@ void vtkPointSet::DeepCopy(vtkDataObject *dataObject)
       {
       if ( pointSet->GetPoints() != NULL )
         {
-        this->Points = pointSet->GetPoints()->MakeObject();
+        this->Points = pointSet->GetPoints()->NewInstance();
+        this->Points->SetDataType(pointSet->GetPoints()->GetDataType());
         this->Points->Register(this);
         this->Points->Delete();
         }

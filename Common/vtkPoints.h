@@ -48,9 +48,11 @@ public:
   // Return object to instantiated state.
   virtual void Initialize();
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
-  // Creates object of same type as this object.
-  vtkPoints *MakeObject();
+  // For legacy compatibility.  Do not use.
+  vtkPoints* MakeObject();
+#endif
 
   // Description:
   // Set/Get the underlying data array. This function must be implemented

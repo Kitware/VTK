@@ -24,7 +24,7 @@
 #include "vtkExtentTranslator.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.91");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.92");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 #define vtkAdjustBoundsMacro( A, B ) \
@@ -1134,7 +1134,8 @@ void vtkStructuredGrid::Crop()
     //
     newGrid->SetExtent(uExt);
     outSize = (uExt[1]-uExt[0]+1)*(uExt[3]-uExt[2]+1)*(uExt[5]-uExt[4]+1);
-    newPts = (vtkPoints *) inPts->MakeObject(); 
+    newPts = inPts->NewInstance(); 
+    newPts->SetDataType(inPts->GetDataType());
     newPts->SetNumberOfPoints(outSize);
     outPD->CopyAllocate(inPD,outSize,outSize);
     outCD->CopyAllocate(inCD,outSize,outSize);
