@@ -35,7 +35,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.23");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.24");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -536,8 +536,14 @@ void vtkBoxWidget::OnLeftButtonDown()
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkBoxWidget::Outside;
+    return;
+    }
+  
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->HandlePicker->GetPath();
   if ( path != NULL )
@@ -608,8 +614,14 @@ void vtkBoxWidget::OnMiddleButtonDown()
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkBoxWidget::Outside;
+    return;
+    }
+  
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->HandlePicker->GetPath();
   if ( path != NULL )
@@ -672,8 +684,14 @@ void vtkBoxWidget::OnRightButtonDown()
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkBoxWidget::Outside;
+    return;
+    }
+  
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->HandlePicker->GetPath();
   if ( path != NULL )
