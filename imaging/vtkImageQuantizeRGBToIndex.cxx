@@ -253,9 +253,7 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   float                weight;
 
   timer = vtkTimerLog::New();
-
   timer->StartTimer();
-
   type = self->GetInputType();
 
   // need extent to get increments. 
@@ -267,12 +265,9 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   outData->GetContinuousIncrements(extent, outIncrement[0], 
 				  outIncrement[1], outIncrement[2]);
   
-
-
   timer->StopTimer();
 
   self->SetInitializeExecuteTime( timer->GetElapsedTime() );
-
   timer->StartTimer();
 
   // Build the tree  
@@ -293,7 +288,6 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
     (extent[1] - extent[0] + 1) *
     (extent[3] - extent[2] + 1) *
     (extent[5] - extent[4] + 1);
-
 
   // Loop until we've added enough leaf nodes or we can't add any more
   while ( numLeafNodes < self->GetNumberOfColors() && !cannotDivideFurther )
@@ -326,12 +320,12 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
       leafNodes[maxdevLeafNode] = leafNodes[maxdevLeafNode]->GetChild2();
       numLeafNodes++;      
       }
+    
+    self->UpdateProgress(0.6667*numLeafNodes/self->GetNumberOfColors());
     }
 
   timer->StopTimer();
-
   self->SetBuildTreeExecuteTime( timer->GetElapsedTime() );
-
   timer->StartTimer();
 
   root->StartColorAveraging();
@@ -391,6 +385,8 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
     indexPtr += outIncrement[2];
     }
 
+  self->UpdateProgress(0.90);
+
   // Fill in the lookup table
   lut = self->GetLookupTable();
   lut->SetNumberOfTableValues( numLeafNodes );
@@ -408,9 +404,7 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
 
 
   timer->StopTimer();
-
   self->SetLookupIndexExecuteTime( timer->GetElapsedTime() );
-
   timer->Delete();
 
   delete root;
@@ -577,6 +571,10 @@ vtkImageQuantizeRGBToIndex::vtkImageQuantizeRGBToIndex()
 {
   this->LookupTable = vtkLookupTable::New();
   this->NumberOfColors = 256;
+  
+  this->InitializeExecuteTime = 0.0;
+  this->BuildTreeExecuteTime = 0.0;
+  this->LookupIndexExecuteTime = 0.0;
 }
 
 // Destructor deletes used resources
@@ -587,7 +585,6 @@ vtkImageQuantizeRGBToIndex::~vtkImageQuantizeRGBToIndex()
     this->LookupTable->Delete();
     }
 }
-
 
 // This method is passed an input and output Data, and executes the filter
 // algorithm to fill the output from the input.
