@@ -81,6 +81,7 @@ vtkAssembly twoGroups3
     twoGroups3 AddPart cylinderActor
     twoGroups3 AddPart cylinderActor2
     twoGroups3 AddPosition 0 4 0
+    twoGroups3 VisibilityOff
 
 vtkAssembly threeGroups
     threeGroups AddPart twoGroups

@@ -74,7 +74,8 @@ protected:
   int PointId; //picked point
 
   float IntersectWithLine(float p1[3], float p2[3], float tol, 
-			  vtkActor *assem, vtkActor *a, vtkMapper *m);
+                          vtkAssemblyPath *path, vtkProp3D *p, 
+                          vtkAbstractMapper3D *m);
   void Initialize();
 
 };

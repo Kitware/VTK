@@ -242,6 +242,10 @@ public:
 			 int *size, float factor, 
 			 int &stringWidth, int &stringHeight);
 
+  // Description:
+  // Shallow copy of an axis actor. Overloads the virtual vtkProp method.
+  void ShallowCopy(vtkProp *prop);
+
 protected:
   vtkAxisActor2D();
   ~vtkAxisActor2D();

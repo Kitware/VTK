@@ -42,7 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkProp3D - represents an 3D object for placement in a rendered scene 
 // .SECTION Description
 // vtkProp3D is an abstract class used to represent an entity in a rendering
-// scene.  It handles functions related to the position, orientation and
+// scene (i.e., vtkProp3D is a vtkProp with an associated transformation
+// matrix).  It handles functions related to the position, orientation and
 // scaling. It combines these instance variables into one 4x4 transformation
 // matrix as follows: [x y z 1] = [x y z 1] Translate(-origin) Scale(scale)
 // Rot(y) Rot(x) Rot (z) Trans(origin) Trans(position). Both vtkActor and
@@ -69,7 +70,7 @@ public:
 
   // Description:
   // Shallow copy of this vtkProp3D.
-  void ShallowCopy(vtkProp3D *Prop3D);
+  void ShallowCopy(vtkProp *prop);
 
   // Description:
   // Set/Get/Add the position of the Prop3D in world coordinates.
@@ -223,6 +224,22 @@ public:
   void AddOrientation(float a[3]);
 
   // Description:
+  // This method modifies the vtkProp3D so that its transformation
+  // state is set to the matrix specified. The method does this by
+  // setting appropriate transformation-related ivars to initial
+  // values (i.e., not transformed), and placing the user-supplied
+  // matrix into the UserMatrix of this vtkProp3D. If the method is
+  // called again with a NULL matrix, then the original state of the
+  // vtkProp3D will be restored. This method is used to support
+  // picking and assembly structures.
+  void PokeMatrix(vtkMatrix4x4 *matrix);
+
+  // Description:
+  // Overload vtkProp's method for setting up assembly paths. See
+  // the documentation for vtkProp.
+  void InitPathTraversal();
+
+  // Description:
   // For legacy compatibility. Do not use.
   virtual vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());}
   virtual void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
@@ -244,10 +261,8 @@ protected:
   float         Center[3];
   vtkTransform  *Transform;
   float         Bounds[6];
-
- private:
-  // hide the superclass' ShallowCopy() from the user and the compiler.
-  void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
+  vtkProp3D     *CachedProp3D; //support the PokeMatrix() method
+  
 };
 
 #endif

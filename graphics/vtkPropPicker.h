@@ -54,27 +54,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkPropPicker_h
 #define __vtkPropPicker_h
 
-#include "vtkWorldPointPicker.h"
-class vtkProp;
+#include "vtkAbstractPropPicker.h"
 
-class VTK_EXPORT vtkPropPicker : public vtkWorldPointPicker
+class vtkProp;
+class vtkWorldPointPicker;
+
+class VTK_EXPORT vtkPropPicker : public vtkAbstractPropPicker
 {
 public:
   static vtkPropPicker *New();
 
-  vtkTypeMacro(vtkPropPicker,vtkWorldPointPicker);
+  vtkTypeMacro(vtkPropPicker,vtkAbstractPropPicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-
   // Perform the pick and set the PickedProp ivar. If something is picked, a
-  // 1 is returned, otherwise 0 is returned.  Use the GetPickedProp() method
+  // 1 is returned, otherwise 0 is returned.  Use the GetProp() method
   // to get the instance of vtkProp that was picked.  Props are picked from
   // the renderers list of pickable Props.
   int PickProp(float selectionX, float selectionY, vtkRenderer *renderer);  
 
   // Description:
-
   // Perform a pick from the user-provided list of vtkProps and not from the
   // list of vtkProps that the render maintains.
   int PickProp(float selectionX, float selectionY, vtkRenderer *renderer, 
@@ -88,19 +88,18 @@ public:
     { return this->Pick( selectionPt[0], 
 			 selectionPt[1], selectionPt[2], renderer); };  
 
-  // Return the vtkProp that has been picked. If NULL, nothing was picked.
-  vtkGetObjectMacro(Prop, vtkProp);
-
 protected:
   vtkPropPicker();
-  ~vtkPropPicker() {};
+  ~vtkPropPicker();
   vtkPropPicker(const vtkPropPicker&) {};
   void operator=(vtkPropPicker&) {};
 
   void Initialize();
   
-  vtkProp* Prop;
   vtkPropCollection* PickFromProps;
+  
+  // Used to get x-y-z pick position
+  vtkWorldPointPicker *WorldPointPicker;
 };
 
 #endif

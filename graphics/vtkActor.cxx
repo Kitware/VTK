@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActor.h"
 #include "vtkRenderWindow.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkAssemblyPaths.h"
 
 // Creates an actor with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
@@ -55,8 +56,6 @@ vtkActor::vtkActor()
   this->Property = NULL;
   this->BackfaceProperty = NULL;
   this->Texture = NULL;
-
-  this->TraversalLocation = 0;
   
   // The mapper bounds are cache to know when the bounds must be recomputed
   // from the mapper bounds.
@@ -88,16 +87,20 @@ vtkActor::~vtkActor()
 }
 
 // Shallow copy of an actor.
-void vtkActor::ShallowCopy(vtkActor *actor)
+void vtkActor::ShallowCopy(vtkProp *prop)
 {
-  this->vtkProp3D::ShallowCopy(actor);
+  vtkActor *a = vtkActor::SafeDownCast(prop);
+  if ( a != NULL )
+    {
+    this->SetMapper(a->GetMapper());
+    this->SetProperty(a->GetProperty());
+    this->SetBackfaceProperty(a->GetBackfaceProperty());
+    this->SetTexture(a->GetTexture());
+    }
 
-  this->SetMapper(actor->GetMapper());
-  this->SetProperty(actor->GetProperty());
-  this->SetBackfaceProperty(actor->GetBackfaceProperty());
-  this->SetTexture(actor->GetTexture());
+  // Now do superclass
+  this->vtkProp3D::ShallowCopy(prop);
 }
-
 
 // return the correct type of Actor 
 vtkActor *vtkActor::New()
@@ -376,18 +379,6 @@ float *vtkActor::GetBounds()
   return this->Bounds;
 }
 
-vtkActor *vtkActor::GetNextPart()
-{
-  if ( this->TraversalLocation++ == 0 )
-    {
-    return this;
-    }
-  else
-    {
-    return NULL;
-    }
-}
-
 unsigned long int vtkActor::GetMTime()
 {
   unsigned long mTime=this->vtkObject::GetMTime();
@@ -456,43 +447,9 @@ void vtkActor::Update()
     }
 }
 
-// This method is used in conjunction with the assembly object to build a copy
-// of the assembly hierarchy. This hierarchy can then be traversed for 
-// rendering or other operations.
-void vtkActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths), 
-                          vtkActorCollection *path)
-{
-  vtkActor *copy= vtkActor::New();
-  vtkActor *previous;
-
-  copy->ShallowCopy(this);
-  previous = path->GetLastActor();
-
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  matrix->DeepCopy(previous->vtkProp3D::GetMatrixPointer());
-  copy->SetUserMatrix(matrix);
-  matrix->Delete();
-
-  path->AddItem(copy);
-}
-
 void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProp3D::PrintSelf(os,indent);
-
-  // make sure our bounds are up to date
-  if ( this->Mapper )
-    {
-    this->GetBounds();
-    os << indent << "Bounds: \n";
-    os << indent << "  Xmin,Xmax: (" << this->Bounds[0] << ", " << this->Bounds[1] << ")\n";
-    os << indent << "  Ymin,Ymax: (" << this->Bounds[2] << ", " << this->Bounds[3] << ")\n";
-    os << indent << "  Zmin,Zmax: (" << this->Bounds[4] << ", " << this->Bounds[5] << ")\n";
-    }
-  else
-    {
-    os << indent << "Bounds: (not defined)\n";
-    }
 
   if ( this->Mapper )
     {

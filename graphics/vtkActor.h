@@ -60,7 +60,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProperty.h"
 #include "vtkTexture.h"
 #include "vtkMapper.h"
-#include "vtkAssemblyPaths.h"
 
 class vtkRenderer;
 class vtkPropCollection;
@@ -68,7 +67,7 @@ class vtkActorCollection;
 
 class VTK_EXPORT vtkActor : public vtkProp3D
 {
- public:
+public:
   vtkTypeMacro(vtkActor,vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -97,8 +96,8 @@ class VTK_EXPORT vtkActor : public vtkProp3D
   virtual void Render(vtkRenderer *, vtkMapper *) {};
 
   // Description:
-  // Shallow copy of an actor.
-  void ShallowCopy(vtkActor *actor);
+  // Shallow copy of an actor. Overloads the virtual vtkProp method.
+  void ShallowCopy(vtkProp *prop);
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -148,23 +147,6 @@ class VTK_EXPORT vtkActor : public vtkProp3D
   float *GetBounds();
 
   // Description:
-  // Subclasses of vtkActor can be composed of one or more parts. A part is an
-  // actor or subclass of actor (e.g., vtkAssembly). The methods 
-  // InitPartTraversal() and GetNextPart() allow you to get at the parts
-  // that compose the actor. To use these methods - first invoke 
-  // InitPartTraversal() followed by repeated calls to GetNextPart(). 
-  // GetNextPart() returns a NULL pointer when the list is exhausted. (These
-  // methods differ from the vtkAssembly::GetParts() method, which returns 
-  // a list of the parts that are first level children of the assembly.)
-  virtual void InitPartTraversal() {this->TraversalLocation = 0;};
-  virtual vtkActor *GetNextPart();
-  virtual int GetNumberOfParts() {return 1;};
-
-  // Description:
-  // Used to construct assembly paths and perform part traversal.
-  virtual void BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path);
-
-  // Description:
   // Apply the current properties to all parts that compose this actor.
   // This method is overloaded in vtkAssembly to apply the assemblies'
   // properties to all its parts in a recursive manner. Typically the
@@ -207,9 +189,6 @@ protected:
   vtkTexture *Texture; 
   vtkMapper *Mapper;
 
-  // this stuff supports multiple-part actors (e.g. assemblies)
-  int TraversalLocation;
-  
   // is this actor opaque
   int GetIsOpaque();
   
@@ -217,11 +196,6 @@ protected:
   // help know when the Bounds need to be recomputed.
   float        MapperBounds[6];
   vtkTimeStamp BoundsMTime;
-
-private:
-  // hide the superclass' ShallowCopy() from the user and the compiler.
-  void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
-  void ShallowCopy(vtkProp3D *prop) { this->vtkProp3D::ShallowCopy( prop ); };
 
 };
 

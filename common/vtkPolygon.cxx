@@ -618,21 +618,21 @@ int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
 
   if ( ! this->SuccessfulTriangulation )
     {
-    return 0;
+    return this->SuccessfulTriangulation;
     }
 
   switch (numVerts) 
     {
     case 0: case 1: case 2:
       //  In loops of less than 3 vertices no elements are created - shouldn't happen
-      return 1;
+      return this->SuccessfulTriangulation;
 
     case 3:
       //  A loop of three vertices makes one triangle!
       this->Tris->InsertNextId(verts[0]);
       this->Tris->InsertNextId(verts[1]);
       this->Tris->InsertNextId(verts[2]);
-      return 1;
+      return this->SuccessfulTriangulation;
 
     default:
       {
@@ -668,7 +668,8 @@ int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
           }
         }
 
-      // now see whether we can split loop using priority-ordered split candidates
+      // now see whether we can split loop using priority-ordered 
+      // split candidates
       while ( (id = EdgeLengths->Pop(dist2)) >= 0 )
         {
         fedges[0] = verts[id % numVerts];
@@ -682,7 +683,7 @@ int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
           delete [] l1;
           delete [] l2;
 	  EdgeLengths->Delete();
-          return 1;
+          return this->SuccessfulTriangulation;
           }
         }
       
@@ -691,7 +692,7 @@ int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
       EdgeLengths->Delete();
       delete [] l1;
       delete [] l2;
-      return 0;
+      return this->SuccessfulTriangulation;
       }
     }
 }
@@ -706,7 +707,7 @@ int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
 {
   int i, sign1, sign2, loop1Split=1, loop2Split=1;
   float *x, val, *sPt, *s2Pt, v21[3], sN[3];
-  float den, n[3];
+  float n[3], den;
 
   //  Create two loops from the one using the splitting vertices provided.
   this->SplitLoop (fedges, numVerts, verts, n1, l1, n2, l2);

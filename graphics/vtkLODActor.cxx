@@ -45,9 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTimerLog.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkLODActor* vtkLODActor::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -59,9 +57,6 @@ vtkLODActor* vtkLODActor::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkLODActor;
 }
-
-
-
 
 //----------------------------------------------------------------------------
 vtkLODActor::vtkLODActor()
@@ -365,30 +360,21 @@ void vtkLODActor::Modified()
   this->vtkActor::Modified();
 }
 
-// This method is used in conjunction with the assembly object to build a copy
-// of the assembly hierarchy. This hierarchy can then be traversed for 
-// rendering or other operations.
-void vtkLODActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths), 
-                          vtkActorCollection *path)
+void vtkLODActor::ShallowCopy(vtkProp *prop)
 {
-  vtkLODActor *copy= vtkLODActor::New();
-  vtkActor *previous;
-  vtkMapper *mapper;
-
-  // shallow copy
-  copy->ShallowCopy(this);
-  this->LODMappers->InitTraversal();
-  while ( (mapper = this->LODMappers->GetNextItem()) )
+  vtkLODActor *a = vtkLODActor::SafeDownCast(prop);
+  if ( a != NULL )
     {
-    copy->AddLODMapper(mapper);
+    this->SetNumberOfCloudPoints(a->GetNumberOfCloudPoints());
+    vtkMapperCollection *c = a->GetLODMappers();
+    vtkMapper *map;
+    for ( c->InitTraversal(); (map=c->GetNextItem()); )
+      {
+      this->AddLODMapper(map);
+      }
     }
-  
-  previous = path->GetLastActor();
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  matrix->DeepCopy(previous->vtkProp3D::GetMatrixPointer());
-  copy->SetUserMatrix(matrix);
-  matrix->Delete();
 
-  path->AddItem(copy);
+  // Now do superclass
+  this->vtkActor::ShallowCopy(prop);
 }
 

@@ -45,19 +45,21 @@ vtkActor coneActor
 vtkCylinderSource cylinder;#top part
 vtkPolyDataMapper cylinderMapper
     cylinderMapper SetInput [cylinder GetOutput]
-vtkAssembly cylinderActor
+vtkActor cylinderActor
     cylinderActor SetMapper cylinderMapper
-    cylinderActor AddPart sphereActor
-    cylinderActor AddPart cubeActor
-    cylinderActor AddPart coneActor
-    cylinderActor SetOrigin 5 10 15
-    cylinderActor AddPosition 5 0 0
-    cylinderActor RotateX 15
     [cylinderActor GetProperty] SetColor 1 0 0
+vtkAssembly assembly
+    assembly AddPart cylinderActor
+    assembly AddPart sphereActor
+    assembly AddPart cubeActor
+    assembly AddPart coneActor
+    assembly SetOrigin 5 10 15
+    assembly AddPosition 5 0 0
+    assembly RotateX 15
 
 # Add the actors to the renderer, set the background and size
 #
-ren1 AddActor cylinderActor
+ren1 AddActor assembly
 ren1 AddActor coneActor
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 450 450

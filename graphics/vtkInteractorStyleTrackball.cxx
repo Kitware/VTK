@@ -41,13 +41,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkInteractorStyleTrackball.h"
 #include "vtkMath.h"
-#include "vtkCellPicker.h"
+#include "vtkPropPicker.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 
 
-
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkInteractorStyleTrackball* vtkInteractorStyleTrackball::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -60,18 +59,13 @@ vtkInteractorStyleTrackball* vtkInteractorStyleTrackball::New()
   return new vtkInteractorStyleTrackball;
 }
 
-
-
-
 vtkInteractorStyleTrackball::vtkInteractorStyleTrackball()
 {
   // for actor interactions
   this->MotionFactor = 10.0;
-  this->InteractionPicker = vtkCellPicker::New();
-  // set a tight tolerance so picking will be precise.
-  this->InteractionPicker->SetTolerance(0.001);
-  this->ActorPicked = 0;
-  this->InteractionActor = NULL;
+  this->InteractionPicker = vtkPropPicker::New();
+  this->PropPicked = 0;
+  this->InteractionProp = NULL;
 
   // set to default modes
   this->TrackballMode = VTKIS_JOY;
@@ -153,7 +147,7 @@ void vtkInteractorStyleTrackball::TrackballRotateCamera(int x, int y)
       // get the first light
       this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
       this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-      }	
+      } 
     this->OldX = x;
     this->OldY = y;
     rwi->Render();
@@ -292,13 +286,13 @@ void vtkInteractorStyleTrackball::TrackballRotateActor(int x, int y)
 
     if (this->Preprocess)
       {
-      float *center = this->InteractionActor->GetCenter();
+      float *center = this->InteractionProp->GetCenter();
       this->ObjCenter[0] = center[0];
       this->ObjCenter[1] = center[1];
       this->ObjCenter[2] = center[2];
 
       // GetLength gets the length of the diagonal of the bounding box
-      double boundRadius = this->InteractionActor->GetLength() * 0.5;
+      double boundRadius = this->InteractionProp->GetLength() * 0.5;
 
       // get the view up and view right vectors
       this->CurrentCamera->OrthogonalizeViewUp();
@@ -327,10 +321,8 @@ void vtkInteractorStyleTrackball::TrackballRotateActor(int x, int y)
       ftmp[1] = this->DispObjCenter[1];
       ftmp[2] = this->DispObjCenter[2];
 
-      this->Radius =
-	sqrt(vtkMath::Distance2BetweenPoints(ftmp, outsidept));
-
-      this->HighlightActor(NULL);
+      this->Radius = sqrt(vtkMath::Distance2BetweenPoints(ftmp, outsidept));
+      this->HighlightProp3D(NULL);
       this->Preprocess = 0;
       }
 
@@ -342,7 +334,7 @@ void vtkInteractorStyleTrackball::TrackballRotateActor(int x, int y)
     if (((nxf * nxf + nyf * nyf) <= 1.0) &&
         ((oxf * oxf + oyf * oyf) <= 1.0))
       {
-	    
+            
       double newXAngle = asin(nxf) * this->RadianToDegree;
       double newYAngle = asin(nyf) * this->RadianToDegree;
       double oldXAngle = asin(oxf) * this->RadianToDegree;
@@ -365,7 +357,7 @@ void vtkInteractorStyleTrackball::TrackballRotateActor(int x, int y)
       rotate[1][3] = this->ViewRight[2];
       
       
-      this->ActorTransform(this->InteractionActor,
+      this->Prop3DTransform(this->InteractionProp,
                            this->ObjCenter,
                            2, rotate, scale);
 
@@ -391,7 +383,7 @@ void vtkInteractorStyleTrackball::TrackballSpinActor(int x, int y)
     if (this->Preprocess)
       {
       // get the position plus origin of the object
-      float *center = this->InteractionActor->GetCenter();
+      float *center = this->InteractionProp->GetCenter();
       this->ObjCenter[0] = center[0];
       this->ObjCenter[1] = center[1];
       this->ObjCenter[2] = center[2];
@@ -414,7 +406,7 @@ void vtkInteractorStyleTrackball::TrackballSpinActor(int x, int y)
       this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                   this->ObjCenter[2], this->DispObjCenter);
 
-      this->HighlightActor(NULL);
+      this->HighlightProp3D(NULL);
       this->Preprocess = 0;
       }
     
@@ -437,7 +429,7 @@ void vtkInteractorStyleTrackball::TrackballSpinActor(int x, int y)
     rotate[0][2] = this->MotionVector[1];
     rotate[0][3] = this->MotionVector[2];
   
-    this->ActorTransform(this->InteractionActor,
+    this->Prop3DTransform(this->InteractionProp,
                          this->ObjCenter,
                          1, rotate, scale);
 
@@ -461,7 +453,7 @@ void vtkInteractorStyleTrackball::TrackballPanActor(int x, int y)
     if (this->Preprocess)
       {
       // use initial center as the origin from which to pan
-      float *center = this->InteractionActor->GetCenter();
+      float *center = this->InteractionProp->GetCenter();
       this->ObjCenter[0] = center[0];
       this->ObjCenter[1] = center[1];
       this->ObjCenter[2] = center[2];
@@ -469,7 +461,7 @@ void vtkInteractorStyleTrackball::TrackballPanActor(int x, int y)
                                   this->ObjCenter[2], this->DispObjCenter);
       this->FocalDepth = this->DispObjCenter[2];
       
-      this->HighlightActor(NULL);
+      this->HighlightProp3D(NULL);
       this->Preprocess = 0;
       }
   
@@ -484,19 +476,19 @@ void vtkInteractorStyleTrackball::TrackballPanActor(int x, int y)
     this->MotionVector[1] = this->NewPickPoint[1] - this->OldPickPoint[1];
     this->MotionVector[2] = this->NewPickPoint[2] - this->OldPickPoint[2];
 
-    if (this->InteractionActor->GetUserMatrix() != NULL)
+    if (this->InteractionProp->GetUserMatrix() != NULL)
       {
       vtkTransform *t = vtkTransform::New();
       t->PostMultiply();
-      t->SetMatrix(*(this->InteractionActor->GetUserMatrix()));
+      t->SetMatrix(*(this->InteractionProp->GetUserMatrix()));
       t->Translate(this->MotionVector[0], this->MotionVector[1], 
-		   this->MotionVector[2]);
-      this->InteractionActor->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
+                   this->MotionVector[2]);
+      this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
       t->Delete();
       }
     else
       {
-      this->InteractionActor->AddPosition(this->MotionVector);
+      this->InteractionProp->AddPosition(this->MotionVector);
       }
       
     this->OldX = x;
@@ -518,7 +510,7 @@ void vtkInteractorStyleTrackball::TrackballDollyActor(int x, int y)
       this->CurrentCamera->GetPosition(this->ViewPoint);
       this->CurrentCamera->GetFocalPoint(this->ViewFocus);
 
-      this->HighlightActor(NULL);
+      this->HighlightProp3D(NULL);
       this->Preprocess = 0;
       }
     
@@ -534,19 +526,19 @@ void vtkInteractorStyleTrackball::TrackballDollyActor(int x, int y)
     this->MotionVector[2] = (this->ViewPoint[2] -
                              this->ViewFocus[2]) * dollyFactor;
     
-    if (this->InteractionActor->GetUserMatrix() != NULL)
+    if (this->InteractionProp->GetUserMatrix() != NULL)
       {
       vtkTransform *t = vtkTransform::New();
       t->PostMultiply();
-      t->SetMatrix(*(this->InteractionActor->GetUserMatrix()));
+      t->SetMatrix(*(this->InteractionProp->GetUserMatrix()));
       t->Translate(this->MotionVector[0], this->MotionVector[1], 
-		   this->MotionVector[2]);
-      this->InteractionActor->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
+                   this->MotionVector[2]);
+      this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
       t->Delete();
       }
     else
       {
-      this->InteractionActor->AddPosition(this->MotionVector);
+      this->InteractionProp->AddPosition(this->MotionVector);
       }
   
     this->OldX = x;
@@ -564,12 +556,12 @@ void vtkInteractorStyleTrackball::TrackballScaleActor(int x, int y)
     {
     if (this->Preprocess)
       {
-      float *center = this->InteractionActor->GetCenter();
+      float *center = this->InteractionProp->GetCenter();
       this->ObjCenter[0] = center[0];
       this->ObjCenter[1] = center[1];
       this->ObjCenter[2] = center[2];
 
-      this->HighlightActor(NULL);
+      this->HighlightProp3D(NULL);
       this->Preprocess = 0;
       }
     
@@ -582,7 +574,7 @@ void vtkInteractorStyleTrackball::TrackballScaleActor(int x, int y)
     double scale[3];
     scale[0] = scale[1] = scale[2] = scaleFactor;
 
-    this->ActorTransform(this->InteractionActor,
+    this->Prop3DTransform(this->InteractionProp,
                          this->ObjCenter,
                          0, rotate, scale);
 
@@ -597,12 +589,13 @@ void vtkInteractorStyleTrackball::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkInteractorStyle::PrintSelf(os,indent);
 
-  os << indent << "Interaction Picker: " << this->InteractionPicker;
+  os << indent << "Interaction Picker: " 
+     << this->InteractionPicker << endl;
   os << indent << "Actor Picked: " <<
-    (this->ActorPicked ? "Yes\n" : "No\n");
-  if ( this->InteractionActor )
+    (this->PropPicked ? "Yes\n" : "No\n");
+  if ( this->InteractionProp )
     {
-    os << indent << "Interacting Actor: " << this->InteractionActor << "\n";
+    os << indent << "Interacting Actor: " << this->InteractionProp << "\n";
     }
   else
     {
@@ -625,13 +618,13 @@ void vtkInteractorStyleTrackball::JoystickRotateActor(int x, int y)
   if (this->Preprocess)
     {
     // first get the origin of the assembly
-    float *center = this->InteractionActor->GetCenter();
+    float *center = this->InteractionProp->GetCenter();
     this->ObjCenter[0] = center[0];
     this->ObjCenter[1] = center[1];
     this->ObjCenter[2] = center[2];
 
     // GetLength gets the length of the diagonal of the bounding box
-    double boundRadius = this->InteractionActor->GetLength() * 0.5;
+    double boundRadius = this->InteractionProp->GetLength() * 0.5;
 
     // get the view up and view right vectors
     this->CurrentCamera->OrthogonalizeViewUp();
@@ -657,7 +650,7 @@ void vtkInteractorStyleTrackball::JoystickRotateActor(int x, int y)
     this->Radius = sqrt(vtkMath::Distance2BetweenPoints(this->DispObjCenter,
                                                         outsidept));
 
-    this->HighlightActor(NULL);
+    this->HighlightProp3D(NULL);
     this->Preprocess = 0;
     }
 
@@ -703,7 +696,7 @@ void vtkInteractorStyleTrackball::JoystickRotateActor(int x, int y)
   rotate[1][3] = this->ViewRight[2];
 
 
-  this->ActorTransform(this->InteractionActor,
+  this->Prop3DTransform(this->InteractionProp,
                        this->ObjCenter,
                        2, rotate, scale);
 
@@ -721,7 +714,7 @@ void vtkInteractorStyleTrackball::JoystickSpinActor(int vtkNotUsed(x), int y)
   if (this->Preprocess)
     {
 
-    float *center = this->InteractionActor->GetCenter();
+    float *center = this->InteractionProp->GetCenter();
     this->ObjCenter[0] = center[0];
     this->ObjCenter[1] = center[1];
     this->ObjCenter[2] = center[2];
@@ -745,7 +738,7 @@ void vtkInteractorStyleTrackball::JoystickSpinActor(int vtkNotUsed(x), int y)
     this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                 this->ObjCenter[2], this->DispObjCenter);
 
-    this->HighlightActor(NULL);
+    this->HighlightProp3D(NULL);
     this->Preprocess = 0;
     }
 
@@ -771,7 +764,7 @@ void vtkInteractorStyleTrackball::JoystickSpinActor(int vtkNotUsed(x), int y)
   rotate[0][2] = this->MotionVector[1];
   rotate[0][3] = this->MotionVector[2];
 
-  this->ActorTransform(this->InteractionActor,
+  this->Prop3DTransform(this->InteractionProp,
                        this->ObjCenter,
                        1, rotate, scale);
 
@@ -787,7 +780,7 @@ void vtkInteractorStyleTrackball::JoystickPanActor(int x, int y)
   if (this->Preprocess)
     {
     // use initial center as the origin from which to pan
-    float *center = this->InteractionActor->GetCenter();
+    float *center = this->InteractionProp->GetCenter();
     this->ObjCenter[0] = center[0];
     this->ObjCenter[1] = center[1];
     this->ObjCenter[2] = center[2];
@@ -796,7 +789,7 @@ void vtkInteractorStyleTrackball::JoystickPanActor(int x, int y)
                                 this->ObjCenter[2], this->DispObjCenter);
     this->FocalDepth = this->DispObjCenter[2];
 
-    this->HighlightActor(NULL);
+    this->HighlightProp3D(NULL);
     this->Preprocess = 0;
     }
 
@@ -815,19 +808,19 @@ void vtkInteractorStyleTrackball::JoystickPanActor(int x, int y)
   this->MotionVector[2] = (this->NewPickPoint[2] -
                            this->ObjCenter[2]) / this->MotionFactor;
 
-  if (this->InteractionActor->GetUserMatrix() != NULL)
+  if (this->InteractionProp->GetUserMatrix() != NULL)
     {
     vtkTransform *t = vtkTransform::New();
     t->PostMultiply();
-    t->SetMatrix(*(this->InteractionActor->GetUserMatrix()));
+    t->SetMatrix(*(this->InteractionProp->GetUserMatrix()));
     t->Translate(this->MotionVector[0], this->MotionVector[1],
-		 this->MotionVector[2]);
-    this->InteractionActor->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
+                 this->MotionVector[2]);
+    this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
     t->Delete();
     }
   else
     {
-    this->InteractionActor->AddPosition(this->MotionVector);
+    this->InteractionProp->AddPosition(this->MotionVector);
     }
 
   rwi->Render();
@@ -845,14 +838,14 @@ void vtkInteractorStyleTrackball::JoystickDollyActor(int vtkNotUsed(x), int y)
     this->CurrentCamera->GetFocalPoint(this->ViewFocus);
 
     // use initial center as the origin from which to pan
-    float *center = this->InteractionActor->GetCenter();
+    float *center = this->InteractionProp->GetCenter();
     this->ObjCenter[0] = center[0];
     this->ObjCenter[1] = center[1];
     this->ObjCenter[2] = center[2];
     this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                 this->ObjCenter[2], this->DispObjCenter);
 
-    this->HighlightActor(NULL);
+    this->HighlightProp3D(NULL);
     this->Preprocess = 0;
     }
 
@@ -868,19 +861,19 @@ void vtkInteractorStyleTrackball::JoystickDollyActor(int vtkNotUsed(x), int y)
   this->MotionVector[2] = (this->ViewPoint[2] -
                            this->ViewFocus[2]) * dollyFactor;
 
-  if (this->InteractionActor->GetUserMatrix() != NULL)
+  if (this->InteractionProp->GetUserMatrix() != NULL)
     {
     vtkTransform *t = vtkTransform::New();
     t->PostMultiply();
-    t->SetMatrix(*(this->InteractionActor->GetUserMatrix()));
+    t->SetMatrix(*(this->InteractionProp->GetUserMatrix()));
     t->Translate(this->MotionVector[0], this->MotionVector[1],
-		 this->MotionVector[2]);
-    this->InteractionActor->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
+                 this->MotionVector[2]);
+    this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrixPointer());
     t->Delete();
     }
   else
     {
-    this->InteractionActor->AddPosition(this->MotionVector);
+    this->InteractionProp->AddPosition(this->MotionVector);
     }
 
   rwi->Render();
@@ -895,7 +888,7 @@ void vtkInteractorStyleTrackball::JoystickScaleActor(int vtkNotUsed(x), int y)
   if (this->Preprocess)
     {
     // use bounding box center as the origin from which to pan
-    float *center = this->InteractionActor->GetCenter();
+    float *center = this->InteractionProp->GetCenter();
     this->ObjCenter[0] = center[0];
     this->ObjCenter[1] = center[1];
     this->ObjCenter[2] = center[2];
@@ -903,7 +896,7 @@ void vtkInteractorStyleTrackball::JoystickScaleActor(int vtkNotUsed(x), int y)
     this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                 this->ObjCenter[2], this->DispObjCenter);
 
-    this->HighlightActor(NULL);
+    this->HighlightProp3D(NULL);
     this->Preprocess = 0;
     }
 
@@ -916,7 +909,7 @@ void vtkInteractorStyleTrackball::JoystickScaleActor(int vtkNotUsed(x), int y)
   double scale[3];
   scale[0] = scale[1] = scale[2] = scaleFactor;
 
-  this->ActorTransform(this->InteractionActor,
+  this->Prop3DTransform(this->InteractionProp,
                        this->ObjCenter,
                        0, rotate, scale);
 
@@ -925,23 +918,23 @@ void vtkInteractorStyleTrackball::JoystickScaleActor(int vtkNotUsed(x), int y)
 
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::ActorTransform(vtkActor *actor,
+void vtkInteractorStyleTrackball::Prop3DTransform(vtkProp3D *prop3D,
                                                  double *boxCenter,
                                                  int numRotation,
                                                  double **rotate,
                                                  double *scale)
 {
   vtkMatrix4x4 *oldMatrix = vtkMatrix4x4::New();
-  actor->GetMatrix(oldMatrix);
+  prop3D->GetMatrix(oldMatrix);
   
   float orig[3];
-  actor->GetOrigin(orig);
+  prop3D->GetOrigin(orig);
   
   vtkTransform *newTransform = vtkTransform::New();
   newTransform->PostMultiply();
-  if (actor->GetUserMatrix() != NULL) 
+  if (prop3D->GetUserMatrix() != NULL) 
     {
-    newTransform->SetMatrix(*(actor->GetUserMatrix()));
+    newTransform->SetMatrix(*(prop3D->GetUserMatrix()));
     }
   else 
     {
@@ -968,15 +961,15 @@ void vtkInteractorStyleTrackball::ActorTransform(vtkActor *actor,
   newTransform->PreMultiply();
   newTransform->Translate(orig[0], orig[1], orig[2]);
   
-  if (actor->GetUserMatrix() != NULL) 
+  if (prop3D->GetUserMatrix() != NULL) 
     {
-    newTransform->GetMatrix(actor->GetUserMatrix());
+    newTransform->GetMatrix(prop3D->GetUserMatrix());
     }
   else 
     {
-    actor->SetPosition(newTransform->GetPosition());
-    actor->SetScale(newTransform->GetScale());
-    actor->SetOrientation(newTransform->GetOrientation());
+    prop3D->SetPosition(newTransform->GetPosition());
+    prop3D->SetScale(newTransform->GetScale());
+    prop3D->SetOrientation(newTransform->GetOrientation());
     }
   oldMatrix->Delete();
   newTransform->Delete();
@@ -1020,9 +1013,9 @@ void vtkInteractorStyleTrackball::OnChar(int ctrl, int shift,
         if (this->ActorMode != VTKIS_ACTOR)
           {
           // reset the actor picking variables
-          this->InteractionActor = NULL;
-          this->ActorPicked = 0;
-          this->HighlightActor(NULL);          
+          this->InteractionProp = NULL;
+          this->PropPicked = 0;
+          this->HighlightProp3D(NULL);          
           this->ActorMode = VTKIS_ACTOR;
           }
         }
@@ -1035,9 +1028,9 @@ void vtkInteractorStyleTrackball::OnChar(int ctrl, int shift,
         if (this->ActorMode != VTKIS_CAMERA)
           {
           // reset the actor picking variables
-          this->InteractionActor = NULL;
-          this->ActorPicked = 0;
-          this->HighlightActor(NULL);
+          this->InteractionProp = NULL;
+          this->PropPicked = 0;
+          this->HighlightProp3D(NULL);
           this->ActorMode = VTKIS_CAMERA;
           }
         }
@@ -1056,7 +1049,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
     {
     case VTKIS_START:
       if (this->AnimState == VTKIS_ANIM_ON)
-	{
+        {
         rwi->DestroyTimer();
         rwi->Render();
         rwi->CreateTimer(VTKI_TIMER_FIRST);
@@ -1064,7 +1057,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
       break;
       
     case VTKIS_ROTATE:  // rotate with respect to an axis perp to look
-      if (this->ActorMode && this->ActorPicked)
+      if (this->ActorMode && this->PropPicked)
         {
         if (this->TrackballMode)
           {
@@ -1093,7 +1086,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
       break;
       
     case VTKIS_PAN: // move perpendicular to camera's look vector
-      if (this->ActorMode && this->ActorPicked)
+      if (this->ActorMode && this->PropPicked)
         {
         if (this->TrackballMode)
           { 
@@ -1138,7 +1131,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
       break;
       
     case VTKIS_SPIN:
-      if (this->ActorMode && this->ActorPicked)
+      if (this->ActorMode && this->PropPicked)
         {
         if (this->TrackballMode)
           { 
@@ -1167,7 +1160,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
       break;
       
     case VTKIS_DOLLY:  // move along camera's view vector
-      if (this->ActorMode && this->ActorPicked)
+      if (this->ActorMode && this->PropPicked)
         {
         if (this->TrackballMode)
           { 
@@ -1184,7 +1177,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
       break;
       
     case VTKIS_USCALE:
-      if (this->ActorMode && this->ActorPicked)
+      if (this->ActorMode && this->PropPicked)
         {
         if (this->TrackballMode)
           {
@@ -1209,7 +1202,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
     }
 }
 
-void vtkInteractorStyleTrackball::ActorTransform(vtkActor *actor,
+void vtkInteractorStyleTrackball::Prop3DTransform(vtkProp3D *prop3D,
                                                 float *boxCenter,
                                                 int numRotation,
                                                 double **rotate,
@@ -1219,51 +1212,27 @@ void vtkInteractorStyleTrackball::ActorTransform(vtkActor *actor,
   boxCenter2[0] = boxCenter[0];
   boxCenter2[1] = boxCenter[1];
   boxCenter2[2] = boxCenter[2];
-  this->ActorTransform(actor,boxCenter2,numRotation,rotate,scale);
+  this->Prop3DTransform(prop3D,boxCenter2,numRotation,rotate,scale);
 }
 
 void vtkInteractorStyleTrackball::FindPickedActor(int X, int Y)
 {
   this->InteractionPicker->Pick(X,Y, 0.0, this->CurrentRenderer);
-  
-  // now go through the actor collection and decide which is closest
-  vtkActor *closestActor = NULL, *actor;
-  vtkActorCollection *actors = this->InteractionPicker->GetActors();
-  vtkPoints *pickPositions = this->InteractionPicker->GetPickedPositions();
-  int i = 0;
-  float *pickPoint, d;
-  float distToCamera = VTK_LARGE_FLOAT;
-  if (actors && actors->GetNumberOfItems() > 0)
+  vtkProp *prop = this->InteractionPicker->GetProp();
+  if ( prop != NULL )
     {
-    actors->InitTraversal();
-    this->CurrentCamera->GetPosition(this->ViewPoint);
-    while (i < pickPositions->GetNumberOfPoints())
+    vtkProp3D *prop3D = vtkProp3D::SafeDownCast(prop);
+    if ( prop3D != NULL )
       {
-      actor = actors->GetNextItem();
-      if (actor != NULL)
-        {
-        pickPoint = pickPositions->GetPoint(i);
-        double dtmp[3];
-        dtmp[0] = pickPoint[0];
-        dtmp[1] = pickPoint[1];
-        dtmp[2] = pickPoint[2];
-        d = vtkMath::Distance2BetweenPoints(dtmp, this->ViewPoint);
-        if (distToCamera > d)
-          {
-          distToCamera = d;
-          closestActor = actor;
-          }
-        }
-      i++;
+      this->InteractionProp = prop3D;
       }
     }
-  
-  this->InteractionActor = closestActor;
+
   // refine the answer to whether an actor was picked.  CellPicker()
   // returns true from Pick() if the bounding box was picked,
   // but we only want something to be picked if a cell was actually
   // selected
-  this->ActorPicked = (this->InteractionActor != NULL);
+  this->PropPicked = (this->InteractionProp != NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -1349,14 +1318,6 @@ void vtkInteractorStyleTrackball::OnLeftButtonUp(int ctrl, int shift, int X, int
     }
   this->OldX = 0.0;
   this->OldY = 0.0;
-  if (this->ActorMode && this->ActorPicked)
-    {
-    this->HighlightActor(this->InteractionActor);
-    }
-  else if (this->ActorMode)
-    {
-    this->HighlightActor(NULL);
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -1416,13 +1377,13 @@ void vtkInteractorStyleTrackball::OnMiddleButtonUp(int ctrl, int shift,
     }
   this->OldX = 0.0;
   this->OldY = 0.0;
-  if (this->ActorMode && this->ActorPicked)
+  if (this->ActorMode && this->PropPicked)
     {
-    this->HighlightActor(this->InteractionActor);
+    this->HighlightProp3D(this->InteractionProp);
     }
   else if (this->ActorMode)
     {
-    this->HighlightActor(NULL);
+    this->HighlightProp3D(NULL);
     }
 }
 
@@ -1477,13 +1438,13 @@ void vtkInteractorStyleTrackball::OnRightButtonUp(int ctrl, int shift,
     }
   this->OldX = 0.0;
   this->OldY = 0.0;
-  if (this->ActorMode && this->ActorPicked)
+  if (this->ActorMode && this->PropPicked)
     {
-    this->HighlightActor(this->InteractionActor);
+    this->HighlightProp3D(this->InteractionProp);
     }
   else if (this->ActorMode)
     {
-    this->HighlightActor(NULL);
+    this->HighlightProp3D(NULL);
     }
 }
 

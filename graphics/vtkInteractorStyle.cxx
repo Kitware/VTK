@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOutlineSource.h"
 #include "vtkMath.h" 
 #include "vtkCellPicker.h"
+#include "vtkAssemblyNode.h"
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -64,9 +65,11 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->OutlineMapper    = vtkPolyDataMapper::New();
   this->OutlineMapper->SetInput(this->Outline->GetOutput());
   this->PickedRenderer   = NULL;
-  this->CurrentActor     = NULL;
-  this->ActorPicked      = 0;
+  this->CurrentProp      = NULL;
+  this->PropPicked      = 0;
   this->Center[0] = this->Center[1] = 0.0;
+  this->PickColor[0] = 1.0; this->PickColor[1] = 0.0; this->PickColor[2] = 0.0;
+  this->PickedActor2D = NULL;
 
   this->State    = VTKIS_START;
   this->AnimState = VTKIS_ANIM_OFF; 
@@ -373,11 +376,36 @@ void  vtkInteractorStyle::FindPokedCamera(int x,int y)
   this->CurrentLight = lc->GetNextItem();
 }
 
+void vtkInteractorStyle::HighlightProp(vtkProp *prop) 
+{
+  this->CurrentProp = prop;
+
+  if ( prop != NULL )
+    {
+    vtkActor2D *actor2D;
+    vtkProp3D *prop3D;
+    if ( (prop3D=vtkProp3D::SafeDownCast(prop)) != NULL )
+      {
+      this->HighlightProp3D(prop3D);
+      }
+    else if ( (actor2D=vtkActor2D::SafeDownCast(prop)) != NULL )
+      {
+      this->HighlightActor2D(actor2D);
+      }
+    }
+  else
+    {//unhighlight everything, both 2D & 3D
+    this->HighlightProp3D(NULL);
+    this->HighlightActor2D(NULL);
+    }
+  this->Interactor->Render();
+}
+
 //----------------------------------------------------------------------------
-// When pick action successfully selects actor, this method highlights the
-// actor appropriately. Currently this is done by placing a bounding box
-// around the actor.
-void vtkInteractorStyle::HighlightActor(vtkActor *actor) 
+// When pick action successfully selects a vtkProp3Dactor, this method
+// highlights the vtkProp3D appropriately. Currently this is done by placing a
+// bounding box around the vtkProp3D.
+void vtkInteractorStyle::HighlightProp3D(vtkProp3D *prop3D) 
 {
   if ( ! this->OutlineActor ) 
     {
@@ -389,24 +417,63 @@ void vtkInteractorStyle::HighlightActor(vtkActor *actor)
     this->OutlineActor->GetProperty()->SetColor(1.0,1.0,1.0);
     this->OutlineActor->GetProperty()->SetAmbient(1.0);
     this->OutlineActor->GetProperty()->SetDiffuse(0.0);
-    }
-  if ( this->PickedRenderer ) 
-    {
-    this->PickedRenderer->RemoveActor(this->OutlineActor);
+    this->CurrentRenderer->AddActor(this->OutlineActor);
     }
   
-  if ( ! actor ) 
+  if ( ! prop3D ) 
     {
     this->PickedRenderer = NULL;
+    this->OutlineActor->VisibilityOff();
     }
   else 
     {
     this->PickedRenderer = this->CurrentRenderer;
-    this->CurrentRenderer->AddActor(this->OutlineActor);
-    this->Outline->SetBounds(actor->GetBounds());
-    this->CurrentActor = actor;
+    this->Outline->SetBounds(prop3D->GetBounds());
+    this->OutlineActor->VisibilityOn();
     }
-  this->Interactor->Render();
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyle::HighlightActor2D(vtkActor2D *actor2D) 
+{
+  // If nothing has changed, just return
+  if ( actor2D == this->PickedActor2D )
+    {
+    return;
+    }
+
+  if ( actor2D )
+    {
+    if ( this->PickedActor2D )
+      {
+      actor2D->GetProperty()->SetColor(
+        this->PickedActor2D->GetProperty()->GetColor());
+      this->PickedActor2D->GetProperty()->SetColor(this->PickColor);
+      }
+    else
+      {
+      float tmpColor[3];
+      actor2D->GetProperty()->GetColor(tmpColor);
+      actor2D->GetProperty()->SetColor(this->PickColor);
+      this->PickColor[0] = tmpColor[0];
+      this->PickColor[1] = tmpColor[1];
+      this->PickColor[2] = tmpColor[2];
+      }
+    }
+  else
+    {
+    if ( this->PickedActor2D )
+      {
+      float tmpColor[3];
+      this->PickedActor2D->GetProperty()->GetColor(tmpColor);
+      this->PickedActor2D->GetProperty()->SetColor(this->PickColor);
+      this->PickColor[0] = tmpColor[0];
+      this->PickColor[1] = tmpColor[1];
+      this->PickColor[2] = tmpColor[2];
+      }
+    }
+  
+  this->PickedActor2D = actor2D;
 }
 
 //----------------------------------------------------------------------------
@@ -441,14 +508,14 @@ void  vtkInteractorStyle::StopState()
   vtkRenderWindowInteractor *rwi = this->Interactor;
   this->State = VTKIS_START;
   if (this->AnimState == VTKIS_ANIM_OFF) 
-    {	
+    {   
     rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetStillUpdateRate());
     rwi->Render();
     if ( !rwi->DestroyTimer() ) 
       {
       vtkErrorMacro(<< "Timer stop failed");
       }
-    }	
+    }   
 }
 
 //----------------------------------------------------------------------------
@@ -456,17 +523,17 @@ void  vtkInteractorStyle::StopState()
 void  vtkInteractorStyle::StartAnimate() 
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
-	    vtkErrorMacro(<< "starting animation");
+            vtkErrorMacro(<< "starting animation");
   this->AnimState = VTKIS_ANIM_ON;
   if (this->State == VTKIS_START) 
-    {	
+    {   
     vtkErrorMacro(<< "Start state found");
     rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetDesiredUpdateRate());
     if ( !rwi->CreateTimer(VTKI_TIMER_FIRST) ) 
       {
       vtkErrorMacro(<< "Timer start failed");
       }
-    }	
+    }   
   rwi->Render();
 }
 //----------------------------------------------------------------------------
@@ -475,13 +542,13 @@ void  vtkInteractorStyle::StopAnimate()
   vtkRenderWindowInteractor *rwi = this->Interactor;
   this->AnimState = VTKIS_ANIM_OFF;
   if (this->State == VTKIS_START) 
-    {	
+    {   
     rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetStillUpdateRate());
     if ( !rwi->DestroyTimer() ) 
       {
       vtkErrorMacro(<< "Timer stop failed");
       }
-    }	
+    }   
 }
 
 // JCP Animation control
@@ -674,12 +741,14 @@ void vtkInteractorStyle::OnChar(int ctrl, int shift,
     {
     vtkActorCollection *ac;
     vtkActor *anActor, *aPart;
+    vtkAssemblyPath *path;
     this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
     ac = this->CurrentRenderer->GetActors();
     for (ac->InitTraversal(); anActor = ac->GetNextItem(); ) 
       {
-      for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); ) 
+      for (anActor->InitPathTraversal(); path=anActor->GetNextPath(); ) 
         {
+        aPart=(vtkActor *)path->GetLastNode()->GetProp();
         aPart->GetProperty()->SetRepresentationToWireframe();
         }
       }
@@ -692,12 +761,14 @@ void vtkInteractorStyle::OnChar(int ctrl, int shift,
     {
     vtkActorCollection *ac;
     vtkActor *anActor, *aPart;
+    vtkAssemblyPath *path;
     this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
     ac = this->CurrentRenderer->GetActors();
     for (ac->InitTraversal(); anActor = ac->GetNextItem(); ) 
       {
-      for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); ) 
+      for (anActor->InitPathTraversal(); path=anActor->GetNextPath(); ) 
         {
+        aPart=(vtkActor *)path->GetLastNode()->GetProp();
         aPart->GetProperty()->SetRepresentationToSurface();
         }
       }
@@ -721,12 +792,22 @@ void vtkInteractorStyle::OnChar(int ctrl, int shift,
     case 'P' :
       if (this->State == VTKIS_START) 
         {
+        vtkAssemblyPath *path;
         this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
         rwi->StartPickCallback();
         rwi->GetPicker()->Pick(this->LastPos[0],this->LastPos[1], 0.0, 
                                this->CurrentRenderer);
-        this->ActorPicked = 0;
-        this->HighlightActor(rwi->GetPicker()->GetAssembly());
+        path = rwi->GetPicker()->GetPath();
+        if ( path == NULL )
+          {
+          this->HighlightProp(NULL);
+          this->PropPicked = 0;
+          }
+        else
+          {
+          this->HighlightProp(path->GetFirstNode()->GetProp());
+          this->PropPicked = 1;
+          }
         rwi->EndPickCallback();
         }
       break;
@@ -746,11 +827,11 @@ void vtkInteractorStyle::OnTimer(void)
     case VTKIS_START:
       // JCP Animation control
       if (this->AnimState == VTKIS_ANIM_ON)
-	{
-		rwi->DestroyTimer();
-		rwi->Render();
-		rwi->CreateTimer(VTKI_TIMER_FIRST);
-	 }
+        {
+                rwi->DestroyTimer();
+                rwi->Render();
+                rwi->CreateTimer(VTKI_TIMER_FIRST);
+         }
       // JCP Animation control 
       break;
       //-----
@@ -781,7 +862,7 @@ void vtkInteractorStyle::OnTimer(void)
       break;
       //-----
     case VTKIS_TIMER:
-		rwi->Render();
+                rwi->Render();
       rwi->CreateTimer(VTKI_TIMER_UPDATE);
       break;
       //-----
@@ -795,7 +876,7 @@ void vtkInteractorStyle::OnTimer(void)
 // Mouse events are identical for trackball and joystick mode
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::OnMouseMove(int vtkNotUsed(ctrl), int vtkNotUsed(shift),
-				    int X, int Y) 
+                                    int X, int Y) 
 {
   this->LastPos[0] = X;
   this->LastPos[1] = Y;
@@ -1159,6 +1240,10 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
+  os << indent << "Pick Color: (" << this->PickColor[0] << ", "
+     << this->PickColor[1] << ", "
+     << this->PickColor[2] << ")\n";
+
   os << indent << "CurrentCamera:   " << this->CurrentCamera << "\n";
   os << indent << "CurrentLight:    " << this->CurrentLight << "\n";
   os << indent << "CurrentRenderer: " << this->CurrentRenderer << "\n";
@@ -1172,9 +1257,9 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Picked Renderer: (none)\n";
     }
-  if ( this->CurrentActor )
+  if ( this->CurrentProp )
     {
-    os << indent << "Current Actor: " << this->CurrentActor << "\n";
+    os << indent << "Current Prop: " << this->CurrentProp << "\n";
     }
   else
     {
@@ -1182,8 +1267,8 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Interactor: " << this->Interactor << "\n";
-  os << indent << "Actor Picked: " <<
-    (this->ActorPicked ? "Yes\n" : "No\n");
+  os << indent << "Prop Picked: " <<
+    (this->PropPicked ? "Yes\n" : "No\n");
 }
 
 

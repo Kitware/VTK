@@ -40,14 +40,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkPropPicker.h"
+#include "vtkWorldPointPicker.h"
+#include "vtkAssemblyNode.h"
 #include "vtkObjectFactory.h"
 
-
-vtkPropPicker::vtkPropPicker()
-{
-  this->PickFromProps = NULL;
-  this->Prop = NULL;
-}
 
 vtkPropPicker* vtkPropPicker::New()
 {
@@ -61,17 +57,26 @@ vtkPropPicker* vtkPropPicker::New()
   return new vtkPropPicker;
 }
 
+vtkPropPicker::vtkPropPicker()
+{
+  this->PickFromProps = NULL;
+  this->WorldPointPicker = vtkWorldPointPicker::New();
+}
+
+vtkPropPicker::~vtkPropPicker()
+{
+  this->WorldPointPicker->Delete();
+}
 
 // set up for a pick
 void vtkPropPicker::Initialize()
 {
-  this->Prop = 0;
-  this->vtkPicker::Initialize();
+  this->vtkAbstractPicker::Initialize();
 }
 
 // Pick from the given collection
-int vtkPropPicker::Pick(float selectionX, float selectionY, float vtkNotUsed(z),
-			vtkRenderer *renderer)
+int vtkPropPicker::Pick(float selectionX, float selectionY, 
+                        float vtkNotUsed(z), vtkRenderer *renderer)
 {
   return this->PickProp(selectionX, selectionY, renderer);
 }
@@ -94,67 +99,55 @@ int vtkPropPicker::PickProp(float selectionX, float selectionY,
 int vtkPropPicker::PickProp(float selectionX, float selectionY, 
                             vtkRenderer *renderer)
 {
+  //  Initialize picking process
+  this->Initialize();
+  this->Renderer = renderer;
+  this->SelectionPoint[0] = selectionX;
+  this->SelectionPoint[1] = selectionY;
+  this->SelectionPoint[2] = 0;
+
   // Invoke start pick method if defined
   if ( this->StartPickMethod ) 
     {
     (*this->StartPickMethod)(this->StartPickMethodArg);
     } 
 
-  //  Initialize picking process
-  this->Renderer = renderer;
-  this->SelectionPoint[0] = selectionX;
-  this->SelectionPoint[1] = selectionY;
-  this->SelectionPoint[2] = 0;
-  this->Initialize();
-
   // Have the renderer do the hardware pick
-  this->Prop = 
-    renderer->PickPropFrom(selectionX, selectionY, this->PickFromProps);
+  this->SetPath(
+    renderer->PickPropFrom(selectionX, selectionY, this->PickFromProps));
 
-  // If there was a pick then find the world x,y,z for the pick
-  if(this->Prop)
+  // If there was a pick then find the world x,y,z for the pick, and invoke
+  // its pick method.
+  if ( this->Path )
     {
-    // save the start and end methods, so that 
-    // vtkWorldPointPicker will not call them
-    void (*SaveStartPickMethod)(void *) = this->StartPickMethod;
-    void (*SaveEndPickMethod)(void *) = this->EndPickMethod;
-    this->StartPickMethod = 0;
-    this->EndPickMethod = 0;
-    vtkWorldPointPicker::Pick(selectionX, selectionY, 0, 
-			      renderer);
-    this->StartPickMethod = SaveStartPickMethod;
-    this->EndPickMethod = SaveEndPickMethod;
+    this->WorldPointPicker->Pick(selectionX, selectionY, 0, renderer);
+    this->Path->GetLastNode()->GetProp()->Pick();
+    if ( this->PickMethod )
+      {
+      (*this->PickMethod)(this->PickMethodArg);
+      }
     } 
 
-  if(this->EndPickMethod)
+  if ( this->EndPickMethod )
     {
     (*this->EndPickMethod)(this->EndPickMethodArg);
     }
 
   // Call Pick on the Prop that was picked, and return 1 for success
-  if(this->Prop)
+  if ( this->Path )
     {
-    this->Prop->Pick();
-    if ( this->PickMethod )
-      {
-      (*this->PickMethod)(this->PickMethodArg);
-      }
     return 1;
     }
-  return 0;
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkPropPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkWorldPointPicker::PrintSelf(os, indent);
-  if (this->Prop)
-    {
-    os << indent << "Prop:    " << this->Prop << endl;
-    }
-  else
-    {
-    os << indent << "Prop:    (none)" << endl;    
-    }
+  this->vtkAbstractPropPicker::PrintSelf(os, indent);
+
   if (this->PickFromProps)
     {
     os << indent << "PickFrom List: " << this->PickFromProps << endl;
@@ -163,4 +156,5 @@ void vtkPropPicker::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "PickFrom List: (none)" << endl;
     }
+
 }

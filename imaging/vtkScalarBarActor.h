@@ -192,8 +192,8 @@ public:
   vtkGetStringMacro(Title);
 
   // Description:
-  // Shallow copy of this class.
-  void ShallowCopy(vtkScalarBarActor *actor);
+  // Shallow copy of a scalar bar actor. Overloads the virtual vtkProp method.
+  void ShallowCopy(vtkProp *prop);
 
 protected:
   vtkScalarBarActor();
@@ -230,8 +230,6 @@ private:
   int LastSize[2];
   int LastOrigin[2];
 
-  // hide the superclass' ShallowCopy() from the user and the compiler.
-  void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
 };
 
 

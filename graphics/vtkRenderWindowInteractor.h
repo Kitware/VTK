@@ -56,14 +56,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObject.h"
 #include "vtkRenderWindow.h"
+#include "vtkAbstractPropPicker.h"
 
 // Timer flags for win32/X compatibility
 #define VTKI_TIMER_FIRST  0
 #define VTKI_TIMER_UPDATE 1
 
 class vtkInteractorStyle;
-class vtkPicker;
-class vtkCellPicker;
 
 class VTK_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
@@ -171,17 +170,16 @@ public:
   vtkGetMacro(Initialized,int);
 
   // Description:
-  // Set the object used to perform pick operations. You can use this to
-  // control what type of data is picked.
-  void SetPicker(vtkPicker *picker);
-
-  // Description:
-  // Get the object used to perform pick operations.
-  vtkGetObjectMacro(Picker,vtkPicker);
+  // Set/Get the object used to perform pick operations. It must be a 
+  // subclass of vtkAbstractPropPicker, meaning that it can identify
+  // a particular instance of vtkProp.
+  vtkSetObjectMacro(Picker,vtkAbstractPropPicker);
+  vtkGetObjectMacro(Picker,vtkAbstractPropPicker);
 
   // Description:
   // Create default picker. Used to create one when none is specified.
-  virtual vtkPicker *CreateDefaultPicker();
+  // Default is an instance of vtkPropPicker.
+  virtual vtkAbstractPropPicker *CreateDefaultPicker();
 
   // Description:
   // Specify a method to be executed prior to the pick operation.
@@ -238,7 +236,7 @@ protected:
   // used to track picked objects in actor mode
   // reason for existence: user may use any kind of picker.  Interactor
   //    need the high precision of cell picker at all time.
-  vtkPicker          *Picker;
+  vtkAbstractPropPicker          *Picker;
 
   //
   int   Initialized;

@@ -120,6 +120,10 @@ public:
   // are used in that process.
   virtual void GetActors2D(vtkPropCollection *pc);
 
+  // Description:
+  // Shallow copy of this vtkActor2D. Overloads the virtual vtkProp method.
+  void ShallowCopy(vtkProp *prop);
+
 protected:
   vtkActor2D();
   ~vtkActor2D();

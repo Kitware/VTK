@@ -116,12 +116,33 @@ public:
 
   // Description:
   // Shallow copy of this vtkPropAssembly.
-  void ShallowCopy(vtkPropAssembly *PropAssembly);
+  void ShallowCopy(vtkProp *Prop);
 
   // Description:
   // Override default GetMTime method to also consider all of the
   // prop assembly's parts.
   unsigned long int GetMTime();
+
+  // Description:
+  // Methods to traverse the paths (i.e., leaf nodes) of a prop
+  // assembly. These methods should be contrasted to those that traverse the
+  // list of parts using GetParts().  GetParts() returns a list of children
+  // of this assembly, not necessarily the leaf nodes of the assembly. To use
+  // the methods below - first invoke InitPathTraversal() followed by
+  // repeated calls to GetNextPath().  GetNextPath() returns a NULL pointer
+  // when the list is exhausted. (See the superclass vtkProp for more
+  // information about paths.)
+  void InitPathTraversal();
+  vtkAssemblyPath *GetNextPath();
+  int GetNumberOfPaths();
+
+//BTX
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Overload the superclass' vtkProp BuildPaths() method.
+  void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
+//ETX  
 
 protected:
   vtkPropAssembly();
@@ -132,9 +153,9 @@ protected:
   vtkPropCollection *Parts;
   float Bounds[6];
   
-private:
-  // hide the superclass' ShallowCopy() from the user and the compiler.
-  void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
+  // Support the BuildPaths() method,
+  vtkTimeStamp PathTime;
+  void UpdatePaths(); //apply transformations and properties recursively
 };
 
 #endif

@@ -41,10 +41,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkCellPicker.h"
 #include "vtkObjectFactory.h"
+#include "vtkVolumeMapper.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkCellPicker* vtkCellPicker::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +56,6 @@ vtkCellPicker* vtkCellPicker::New()
   return new vtkCellPicker;
 }
 
-
-
-
 vtkCellPicker::vtkCellPicker()
 {
   this->CellId = -1;
@@ -68,23 +64,45 @@ vtkCellPicker::vtkCellPicker()
     {
     this->PCoords[i] = 0.0;
     }
+  this->Cell = vtkGenericCell::New();
+}
+
+vtkCellPicker::~vtkCellPicker()
+{
+  this->Cell->Delete();
 }
 
 float vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
-				      vtkActor *assem, vtkActor *a, 
-				      vtkMapper *m)
+                                       vtkAssemblyPath *path, 
+                                       vtkProp3D *prop3D, 
+                                       vtkAbstractMapper3D *m)
 {
   int numCells;
   int cellId, i, minCellId, minSubId, subId;
   float x[3], tMin, t, pcoords[3], minXYZ[3], minPcoords[3];
-  vtkCell *cell;
-  vtkDataSet *input=m->GetInput();
+  vtkDataSet *input;
+  vtkMapper *mapper;
+  vtkVolumeMapper *volumeMapper;
+
+  // Get the underlying dataset
+  if ( (mapper=vtkMapper::SafeDownCast(m)) != NULL )
+    {
+    input = mapper->GetInput();
+    }
+  else if ( (volumeMapper=vtkVolumeMapper::SafeDownCast(m)) != NULL )
+    {
+    input = volumeMapper->GetInput();
+    }
+  else
+    {
+    return VTK_LARGE_FLOAT;
+    }
 
   if ( (numCells = input->GetNumberOfCells()) < 1 )
     {
     return 2.0;
     }
-  //
+
   //  Intersect each cell with ray.  Keep track of one closest to 
   //  the eye (and within the clipping range).
   //
@@ -92,9 +110,9 @@ float vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
   minSubId = -1;
   for (tMin=VTK_LARGE_FLOAT,cellId=0; cellId<numCells; cellId++) 
     {
-    cell = input->GetCell(cellId);
+    input->GetCell(cellId,this->Cell);
 
-    if ( cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId) 
+    if ( this->Cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId) 
     && t < tMin )
       {
       minCellId = cellId;
@@ -107,12 +125,12 @@ float vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
       tMin = t;
       }
     }
-//
-//  Now compare this against other actors.
-//
+  
+  //  Now compare this against other actors.
+  //
   if ( minCellId>(-1) && tMin < this->GlobalTMin ) 
     {
-    this->MarkPicked(assem, a, m, tMin, minXYZ);
+    this->MarkPicked(path, prop3D, m, tMin, minXYZ);
     this->CellId = minCellId;
     this->SubId = minSubId;
     for (i=0; i<3; i++)

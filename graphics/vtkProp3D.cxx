@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 
 #include "vtkProp3D.h"
+#include "vtkActor.h"
 
 typedef double (*SqMatPtr)[4];
 
@@ -76,6 +77,8 @@ vtkProp3D::vtkProp3D()
   this->UserTransform = NULL;
   this->Matrix = vtkMatrix4x4::New();
   this->Transform = vtkTransform::New();
+  
+  this->CachedProp3D = NULL;
 }
 
 vtkProp3D::~vtkProp3D()
@@ -87,37 +90,16 @@ vtkProp3D::~vtkProp3D()
     this->UserMatrix->UnRegister(this);
     this->UserMatrix = NULL;
     }
+  if (this->CachedProp3D)
+    {
+    this->CachedProp3D->Delete();
+    this->CachedProp3D = NULL;
+    }
   if (this->UserTransform)
     {
     this->UserTransform->UnRegister(this);
     this->UserTransform = NULL;
     }
-}
-
-// Shallow copy of an Prop3D.
-void vtkProp3D::ShallowCopy(vtkProp3D *Prop3D)
-{
-  int i;
-
-  this->vtkProp::ShallowCopy(Prop3D);
-
-  for (i=0; i < 3; i++) 
-    {
-    this->Origin[i] = Prop3D->Origin[i];
-    this->Position[i] = Prop3D->Position[i];
-    this->Orientation[i] = Prop3D->Orientation[i];
-    this->Center[i] = Prop3D->Center[i];
-    this->Scale[i] = Prop3D->Scale[i];
-    }
-  this->Transform->DeepCopy(Prop3D->Transform);
-  
-  for (i=0; i < 6; i++)
-    {
-    this->Bounds[i] = Prop3D->Bounds[i];
-    }
-
-  this->SetUserTransform(Prop3D->UserTransform);
-  this->SetUserMatrix(Prop3D->UserMatrix);
 }
 
 // Incrementally change the position of the Prop3D.
@@ -382,6 +364,105 @@ float *vtkProp3D::GetZRange()
   return &(this->Bounds[4]);
 }
 
+// Shallow copy of vtkProp3D.
+void vtkProp3D::ShallowCopy(vtkProp *prop)
+{
+  int i;
+  vtkProp3D *p = vtkProp3D::SafeDownCast(prop);
+
+  if ( p != NULL )
+    {
+    for (i=0; i < 3; i++) 
+      {
+      this->Origin[i] = p->Origin[i];
+      this->Position[i] = p->Position[i];
+      this->Orientation[i] = p->Orientation[i];
+      this->Center[i] = p->Center[i];
+      this->Scale[i] = p->Scale[i];
+      }
+    this->Transform->DeepCopy(p->Transform);
+
+    for (i=0; i < 6; i++)
+      {
+      this->Bounds[i] = p->Bounds[i];
+      }
+
+    this->SetUserMatrix(p->UserMatrix);
+    }
+
+  // Now do superclass
+  this->vtkProp::ShallowCopy(prop);
+}
+
+// Backdoor allows temporary replacement of matrix in vtkProp3D
+void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
+{
+  // If non-NULL matrix is provided, then we set ourselves up to
+  // have a state consistent with the provided matrix. (The idea
+  // is to make sure the GetMatrix() call works properly.)
+  if ( matrix != NULL ) //set a new transformation
+    {
+    if ( this->CachedProp3D == NULL )
+      {
+      this->CachedProp3D = vtkActor::New();
+      }
+    this->CachedProp3D->SetUserMatrix(this->UserMatrix);
+    if ( this->UserMatrix ) //the actual transformation is defined here
+      {
+      this->UserMatrix->Delete();
+      }
+    this->UserMatrix = matrix;
+    this->UserMatrix->Register(this);
+
+    //The cached Prop3D stores our current values
+    this->CachedProp3D->SetOrigin(this->Origin);
+    this->CachedProp3D->SetPosition(this->Position);
+    this->CachedProp3D->SetOrientation(this->Orientation);
+    this->CachedProp3D->SetScale(this->Scale);
+
+    //Set the current transformation variables to "non-transformed"
+    this->Origin[0] = 0.0; this->Origin[1] = 0.0; this->Origin[2] = 0.0;
+    this->Position[0] = 0.0; this->Position[1] = 0.0; this->Position[2] = 0.0;
+    this->Orientation[0] = 0.0; this->Orientation[1] = 0.0;
+    this->Orientation[2] = 0.0;
+    this->Scale[0] = 1.0; this->Scale[1] = 1.0; this->Scale[2] = 1.0;
+    }
+    
+  else //we restore our original state
+    {
+    if ( this->UserMatrix )
+      {
+      this->UserMatrix->Delete();
+      }
+    this->UserMatrix = this->CachedProp3D->GetUserMatrix();
+    if ( this->UserMatrix )
+      {
+      this->UserMatrix->Register(this);
+      }
+    float *f;
+    this->CachedProp3D->GetOrigin(this->Origin);
+    this->CachedProp3D->GetPosition(this->Position);
+    f = this->CachedProp3D->GetOrientation();
+    this->Orientation[0] = f[0]; this->Orientation[1] = f[1];
+    this->Orientation[2] = f[2];
+    this->CachedProp3D->GetScale(this->Scale);
+    this->Modified();
+    }
+}
+
+void vtkProp3D::InitPathTraversal()
+{
+  if ( this->Paths == NULL )
+    {
+    this->Paths = vtkAssemblyPaths::New();
+    vtkAssemblyPath *path = vtkAssemblyPath::New();
+    path->AddNode(this,this->GetMatrixPointer());
+    this->BuildPaths(this->Paths,path);
+    path->Delete();
+    }
+  this->Paths->InitTraversal();
+}
+
 void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProp::PrintSelf(os,indent);
@@ -397,6 +478,22 @@ void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Scale: (" << this->Scale[0] << ", " 
      << this->Scale[1] << ", " << this->Scale[2] << ")\n";
+  
+  float *bounds = this->GetBounds();
+  if ( bounds != NULL )
+    {
+    os << indent << "Bounds: \n";
+    os << indent << "  Xmin,Xmax: (" 
+       << this->Bounds[0] << ", " << this->Bounds[1] << ")\n";
+    os << indent << "  Ymin,Ymax: (" 
+       << this->Bounds[2] << ", " << this->Bounds[3] << ")\n";
+    os << indent << "  Zmin,Zmax: (" 
+       << this->Bounds[4] << ", " << this->Bounds[5] << ")\n";
+    }
+  else
+    {
+    os << indent << "Bounds: (not defined)\n";
+    }
 
   os << indent << "UserTransform: ";
   if (this->UserTransform)

@@ -616,4 +616,33 @@ float vtkAxisActor2D::ComputeStringOffset(float width, float height,
   return (1.2 * sqrt(f1*f1 + f2*f2));
 }
 
+void vtkAxisActor2D::ShallowCopy(vtkProp *prop)
+{
+  vtkAxisActor2D *a = vtkAxisActor2D::SafeDownCast(prop);
+  if ( a != NULL )
+    {
+    this->SetPoint1(a->GetPoint1());
+    this->SetPoint2(a->GetPoint2());
+    this->SetRange(a->GetRange());
+    this->SetNumberOfLabels(a->GetNumberOfLabels());
+    this->SetLabelFormat(a->GetLabelFormat());
+    this->SetAdjustLabels(a->GetAdjustLabels());
+    this->SetTitle(a->GetTitle());
+    this->SetBold(a->GetBold());
+    this->SetItalic(a->GetItalic());
+    this->SetShadow(a->GetShadow());
+    this->SetFontFamily(a->GetFontFamily());
+    this->SetTickLength(a->GetTickLength());
+    this->SetTickOffset(a->GetTickOffset());
+    this->SetAxisVisibility(a->GetAxisVisibility());
+    this->SetTickVisibility(a->GetTickVisibility());
+    this->SetLabelVisibility(a->GetLabelVisibility());
+    this->SetTitleVisibility(a->GetTitleVisibility());
+    this->SetFontFactor(a->GetFontFactor());
+    this->SetLabelFactor(a->GetLabelFactor());
+    }
+
+  // Now do superclass
+  this->vtkActor2D::ShallowCopy(prop);
+}
       

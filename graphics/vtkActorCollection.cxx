@@ -40,11 +40,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkActorCollection.h"
+#include "vtkActor.h"
 #include "vtkObjectFactory.h"
 
 
-
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkActorCollection* vtkActorCollection::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -55,6 +55,21 @@ vtkActorCollection* vtkActorCollection::New()
     }
   // If the factory was unable to create the object, then create it here.
   return new vtkActorCollection;
+}
+
+void vtkActorCollection::ApplyProperties(vtkProperty *p)
+{
+  vtkActor *actor;
+  
+  if ( p == NULL )
+    {
+    return;
+    }
+  
+  for ( this->InitTraversal(); (actor=this->GetNextActor()); )
+    {
+    actor->GetProperty()->DeepCopy(p);
+    }
 }
 
 

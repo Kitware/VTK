@@ -53,6 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPropCollection.h"
 class vtkActor;
+class vtkProperty;
 
 class VTK_EXPORT vtkActorCollection : public vtkPropCollection
 {
@@ -78,6 +79,10 @@ public:
   // where possible.
   vtkActor *GetNextItem();
   vtkActor *GetLastItem();
+
+  // Description:
+  // Apply properties to all actors in this collection.
+  void ApplyProperties(vtkProperty *p); 
 
 protected:
   vtkActorCollection() {};

@@ -182,8 +182,8 @@ void vtkImager::SetVTKWindow(vtkWindow* win)
     this->Modified();
     }
 }
-vtkProp* vtkImager::PickProp(float vtkNotUsed(selectionX), 
-			     float vtkNotUsed(selectionY))
+vtkAssemblyPath* vtkImager::PickProp(float vtkNotUsed(selectionX), 
+                                     float vtkNotUsed(selectionY))
 {
   return NULL;
 }
@@ -201,7 +201,7 @@ void vtkImager::StartPick(unsigned int vtkNotUsed(pickFromSize))
 {
 }
 
-void vtkImager::SetPickId(unsigned int vtkNotUsed(pickID))
+void vtkImager::UpdatePickId()
 {
 }
 
@@ -209,7 +209,7 @@ void vtkImager::DonePick()
 {
 }
 
-unsigned int vtkImager::GetPickedID()
+unsigned int vtkImager::GetPickedId()
 {
   return 0;
 }

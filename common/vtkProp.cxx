@@ -40,10 +40,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkProp.h"
 #include "vtkObjectFactory.h"
+#include "vtkAssemblyPaths.h"
 
 
-
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkProp* vtkProp::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -55,9 +55,6 @@ vtkProp* vtkProp::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkProp;
 }
-
-
-
 
 // Creates an Prop with the following defaults: visibility on.
 vtkProp::vtkProp()
@@ -73,6 +70,8 @@ vtkProp::vtkProp()
   this->AllocatedRenderTime = 10.0;
   this->EstimatedRenderTime = 0.0;
   this->RenderTimeMultiplier = 1.0;
+
+  this->Paths = NULL;
 }
 
 vtkProp::~vtkProp()
@@ -80,6 +79,10 @@ vtkProp::~vtkProp()
   if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
     {
     (*this->PickMethodArgDelete)(this->PickMethodArg);
+    }
+  if ( this->Paths )
+    {
+    this->Paths->Delete();
     }
 }
 
@@ -120,14 +123,47 @@ void vtkProp::Pick()
   }
 
 // Shallow copy of vtkProp.
-void vtkProp::ShallowCopy(vtkProp *Prop)
+void vtkProp::ShallowCopy(vtkProp *prop)
 {
-  this->Visibility = Prop->GetVisibility();
-  this->Pickable   = Prop->GetPickable();
-  this->Dragable   = Prop->GetDragable();
+  this->Visibility = prop->GetVisibility();
+  this->Pickable   = prop->GetPickable();
+  this->Dragable   = prop->GetDragable();
 
-  this->SetPickMethod(Prop->PickMethod, Prop->PickMethodArg);
-  this->SetPickMethodArgDelete(Prop->PickMethodArgDelete);
+  this->SetPickMethod(prop->PickMethod, prop->PickMethodArg);
+  this->SetPickMethodArgDelete(prop->PickMethodArgDelete);
+}
+
+void vtkProp::InitPathTraversal()
+{
+  if ( this->Paths == NULL )
+    {
+    this->Paths = vtkAssemblyPaths::New();
+    vtkAssemblyPath *path = vtkAssemblyPath::New();
+    path->AddNode(this,NULL);
+    this->BuildPaths(this->Paths,path);
+    path->Delete();
+    }
+  this->Paths->InitTraversal();
+}
+
+vtkAssemblyPath *vtkProp::GetNextPath()
+{
+  return this->Paths->GetNextItem();
+}
+
+// This method is used in conjunction with the assembly object to build a copy
+// of the assembly hierarchy. This hierarchy can then be traversed for 
+// rendering, picking or other operations.
+void vtkProp::BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path)
+{
+  // This is a leaf node in the assembly hierarchy so we
+  // copy the path in preparation to assingning it to paths.
+  vtkAssemblyPath *childPath = vtkAssemblyPath::New();
+  childPath->ShallowCopy(path);
+
+  // We can add this path to the list of paths
+  paths->AddItem(childPath);
+  childPath->Delete(); //okay, reference counting
 }
 
 void vtkProp::PrintSelf(ostream& os, vtkIndent indent)

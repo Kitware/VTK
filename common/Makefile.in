@@ -37,6 +37,9 @@ vtkWindow
 CONCRETE = \
 vtkActor2D \
 vtkActor2DCollection \
+vtkAssemblyNode \
+vtkAssemblyPath \
+vtkAssemblyPaths \
 vtkBitArray \
 vtkByteSwap \
 vtkCellArray \
@@ -57,6 +60,7 @@ vtkDoubleArray \
 vtkEdgeTable \
 vtkEmptyCell \
 vtkFieldData \
+vtkFileOutputWindow \
 vtkFloatArray \
 vtkFloatNormals \
 vtkFloatPoints \
@@ -146,8 +150,7 @@ vtkVoidArray \
 vtkVoxel \
 vtkWedge \
 vtkWindowLevelLookupTable \
-vtkWindowToImageFilter \
-vtkFileOutputWindow 
+vtkWindowToImageFilter
 
 WIN32_OBJ = \
 vtkWin32OutputWindow

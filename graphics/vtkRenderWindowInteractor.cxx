@@ -40,8 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkRenderWindowInteractor.h"
-#include "vtkPicker.h"
-#include "vtkCellPicker.h"
+#include "vtkPropPicker.h"
 #include "vtkInteractorStyleTrackball.h"
 #include "vtkGraphicsFactory.h"
 
@@ -254,28 +253,10 @@ void vtkRenderWindowInteractor::SetEndPickMethodArgDelete(void (*f)(void *))
     }
 }
 
-// Set the object used to perform pick operations. You can use this to 
-// control what type of data is picked.
-void vtkRenderWindowInteractor::SetPicker(vtkPicker *picker)
+// Creates an instance of vtkPropPicker by default
+vtkAbstractPropPicker *vtkRenderWindowInteractor::CreateDefaultPicker()
 {
-  if ( this->Picker != picker ) 
-    {
-    if ( this->Picker != NULL )
-      {
-      this->Picker->UnRegister(this);
-      }
-    this->Picker = picker;
-    if ( this->Picker != NULL )
-      {
-      this->Picker->Register(this);
-      }
-    this->Modified();
-    }
-}
-
-vtkPicker *vtkRenderWindowInteractor::CreateDefaultPicker()
-{
-  return vtkCellPicker::New();
+  return vtkPropPicker::New();
 }
 
 // Set the user method. This method is invoked on a <u> keypress.

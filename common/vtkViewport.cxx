@@ -92,11 +92,12 @@ vtkViewport::vtkViewport()
   this->Origin[0] = 0;
   this->Origin[1] = 0;
   
+  this->PickedProp = NULL;
+  this->PickFromProps = NULL;
   this->IsPicking = 0;
-  this->CurrentPickID = 0;
+  this->CurrentPickId = 0;
   this->PickX = -1;
   this->PickY = -1;
-  this->PickFromProps = NULL;
 
   this->Props = vtkPropCollection::New();
   this->Actors2D = vtkActor2DCollection::New();
@@ -125,6 +126,11 @@ vtkViewport::~vtkViewport()
     // loop is too hard to detect.
     // this->VTKWindow->UnRegister(this);
     this->VTKWindow = NULL;
+    }
+  
+  if ( this->PickedProp != NULL )
+    {
+    this->PickedProp->UnRegister(this);
     }
 }
 
@@ -496,7 +502,8 @@ void vtkViewport::ViewportToNormalizedViewport(float &u, float &v)
     }
 }
 
-void vtkViewport::NormalizedViewportToView(float &x, float &y, float &vtkNotUsed(z))
+void vtkViewport::NormalizedViewportToView(float &x, float &y, 
+                                           float &vtkNotUsed(z))
 {
   x = (2.0*x - 1.0)*this->Aspect[0];
   y = (2.0*y - 1.0)*this->Aspect[1];
@@ -555,7 +562,8 @@ void vtkViewport::NormalizedViewportToViewport(float &u, float &v)
     }
 }
 
-void vtkViewport::ViewToNormalizedViewport(float &x, float &y, float &vtkNotUsed(z))
+void vtkViewport::ViewToNormalizedViewport(float &x, float &y, 
+                                           float &vtkNotUsed(z))
 {
   x =  (x / this->Aspect[0] + 1.0) / 2.0;
   y =  (y / this->Aspect[1] + 1.0) / 2.0;
@@ -589,8 +597,8 @@ void vtkViewport::ComputeAspect()
     }
 }
 
-
-vtkProp* vtkViewport::PickPropFrom(float selectionX, float selectionY, vtkPropCollection* pickfrom)
+vtkAssemblyPath* vtkViewport::PickPropFrom(float selectionX, float selectionY, 
+                                          vtkPropCollection* pickfrom)
 {
   this->PickFromProps = pickfrom;
   return this->PickProp(selectionX, selectionY);

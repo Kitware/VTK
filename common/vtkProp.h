@@ -40,23 +40,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkProp - abstract superclass for all actors, volumes and annotations
 // .SECTION Description
-// vtkProp is an abstract superclass for actor type objects. Instances of
-// vtkProp may respond to RenderGeometry, RenderVolume, and RenderPostSwap
-// calls and may repond to more than one.
-//
-// vt
+// vtkProp is an abstract superclass for any objects that can exist in a
+// rendered scene (either 2D or 3D). Instances of vtkProp may respond to
+// various render methods (e.g., RenderOpaqueGeometry()). vtkProp also
+// defines the API for picking, LOD manipulation, and common instance 
+// variables that control visibility, picking, and dragging.
 // .SECTION See Also
-// vtkActor2D  vtkActor vtkVolume
+// vtkActor2D vtkActor vtkVolume vtkProp3D
 
 #ifndef __vtkProp_h
 #define __vtkProp_h
 
 #include "vtkObject.h"
 #include "vtkRayCastStructures.h"
+#include "vtkAssemblyPaths.h"
 
 class vtkViewport;
 class vtkPropCollection;
 class vtkWindow;
+class vtkMatrix4x4;
 
 class VTK_EXPORT vtkProp : public vtkObject
 {
@@ -125,7 +127,29 @@ public:
 
   // Description:
   // Shallow copy of this vtkProp.
-  void ShallowCopy(vtkProp *Prop);
+  virtual void ShallowCopy(vtkProp *prop);
+
+  // Description:
+  // vtkProp and its subclasses can be picked by subclasses of
+  // vtkAbstractPicker (e.g., vtkPropPicker). The following methods interface
+  // with the picking classes and return "pick paths". A pick path is a
+  // hierarchical, ordered list of props that form an assembly.  Most often,
+  // when a vtkProp is picked, its path consists of a single node (i.e., the
+  // prop). However, classes like vtkAssembly and vtkPropAssembly can return
+  // more than one path, each path being several layers deep. (See
+  // vtkAssemblyPath for more information.)  To use these methods - first
+  // invoke InitPathTraversal() followed by repeated calls to GetNextPath().
+  // GetNextPath() returns a NULL pointer when the list is exhausted.
+  virtual void InitPathTraversal();
+  virtual vtkAssemblyPath *GetNextPath();
+  virtual int GetNumberOfPaths() {return 1;};
+
+  // Description:
+  // These methods are used by subclasses to place a matrix (if any) in the
+  // prop prior to rendering. Generally used only for picking. See vtkProp3D
+  // for more information.
+  virtual void PokeMatrix(vtkMatrix4x4 *matrix) {};
+  virtual vtkMatrix4x4 *GetMatrixPointer() {return NULL;};
 
 //BTX  
   // Description:
@@ -242,6 +266,12 @@ public:
   void SetRenderTimeMultiplier( float t ) { this->RenderTimeMultiplier = t; };
   vtkGetMacro(RenderTimeMultiplier, float);
 
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Used to construct assembly paths and perform part traversal.
+  virtual void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
+
 //ETX
 
 protected:
@@ -260,6 +290,11 @@ protected:
   float AllocatedRenderTime;
   float EstimatedRenderTime;
   float RenderTimeMultiplier;
+
+  // support multi-part props and access to paths of prop
+  // stuff that follows is used to build the assembly hierarchy
+  vtkAssemblyPaths *Paths;
+  
 };
 
 #endif

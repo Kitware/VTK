@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActor.h"
 #include "vtkVolume.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkPropCollection.h"
 
 
 //------------------------------------------------------------------------------
@@ -994,5 +994,23 @@ void vtkLODProp3D::SetSelectedPickLODID(int id)
   this->Modified();
 }
 
+void vtkLODProp3D::ShallowCopy(vtkProp *prop)
+{
+  vtkLODProp3D *a = vtkLODProp3D::SafeDownCast(prop);
+
+  if ( a != NULL )
+    {
+    this->SetAutomaticLODSelection(a->GetAutomaticLODSelection());
+    this->SetAutomaticPickLODSelection(a->GetAutomaticPickLODSelection());
+    this->SetSelectedLODID(a->GetSelectedLODID());
+    this->NumberOfLODs = a->NumberOfLODs;
+    for(int i=0; i<this->NumberOfLODs; i++)
+      {
+      }
+    }
+
+  // Now do superclass
+  this->vtkProp3D::ShallowCopy(prop);
+}
 
 

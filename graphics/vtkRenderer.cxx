@@ -52,6 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFrustumCoverageCuller.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkOutputWindow.h"
+#include "vtkAssemblyNode.h"
 #include "vtkPicker.h"
 
 
@@ -221,6 +222,12 @@ void vtkRenderer::Render(void)
     this->RayCastPropArray         = new vtkProp *[this->Props->GetNumberOfItems()];
     this->RenderIntoImagePropArray = new vtkProp *[this->Props->GetNumberOfItems()];
     oldTimes                       = new   float  [this->Props->GetNumberOfItems()];
+    }
+  else
+    {
+    this->PropArray = NULL;
+    this->RayCastPropArray = NULL;
+    this->RenderIntoImagePropArray = NULL;
     }
 
   this->PropArrayCount = 0;
@@ -1116,47 +1123,18 @@ unsigned long int vtkRenderer::GetMTime()
 }
 
 
-vtkProp* vtkRenderer::PickProp(float selectionX, float selectionY)
+vtkAssemblyPath* vtkRenderer::PickProp(float selectionX, float selectionY)
 {
   // initialize picking information
-  this->CurrentPickID = 1; // start at 1, so 0 can be a no pick
-  this->PickedProp = NULL;
+  this->CurrentPickId = 1; // start at 1, so 0 can be a no pick
   this->PickX = selectionX;
   this->PickY = selectionY;
-  int numberPickFrom = this->Props->GetNumberOfItems() * 3;
-  this->StartPick(numberPickFrom);
-  this->IsPicking = 1; // turn on picking
-  this->PickRender();  // do the pick render
-  this->IsPicking = 0; // turn off picking
-  this->DonePick();
-  vtkDebugMacro(<< "z value for pick " << this->GetPickedZ() << "\n");
-  vtkDebugMacro(<< "pick time " <<  this->LastRenderTimeInSeconds << "\n");
-  // Get the pick id of the object that was picked
-  unsigned int pickedID = this->GetPickedID();
-  if(pickedID != 0)
-    {
-    pickedID--; // pick ids start at 1, so move back one
+  int numberPickFrom;
+  vtkPropCollection *props;
 
-    // wrap around, as there are twice as many pickid's as PropArrayCount,
-    // because each Prop has both RenderOpaqueGeometry and RenderTranslucentGeometry 
-    // called on it
-    pickedID = pickedID % this->PropArrayCount;
-    this->PickedProp = this->PropArray[pickedID];
-    }
-  // Clean up stuff from Render after we use it
-  delete [] this->PropArray;
-  // Return the pick!
-  return this->PickedProp;
-}
-
-// Do a render in pick mode.  This is normally done with rendering turned off.
-// Before each Prop is rendered the pick id is incremented
-void vtkRenderer::PickRender()
-{
-  double   t1, t2;
-  vtkProp  *aProp;
-  vtkPropCollection* props;
-  if(this->PickFromProps)
+  // Initialize the pick (we're picking a path, the path 
+  // includes info about nodes) 
+  if (this->PickFromProps)
     {
     props = this->PickFromProps;
     }
@@ -1164,8 +1142,55 @@ void vtkRenderer::PickRender()
     {
     props = this->Props;
     }
+  // number determined from number of rendering passes plus reserved "0" slot
+  numberPickFrom = props->GetNumberOfPaths()*3 + 1;
   
-  t1 = vtkTimerLog::GetCurrentTime();
+  this->IsPicking = 1; // turn on picking
+  this->StartPick(numberPickFrom);
+  this->PathArray = new vtkAssemblyPath *[numberPickFrom];
+  this->PathArrayCount = 0;
+
+  // Actually perform the pick
+  this->PickRender(props);  // do the pick render
+  this->IsPicking = 0; // turn off picking
+  this->DonePick();
+  vtkDebugMacro(<< "z value for pick " << this->GetPickedZ() << "\n");
+  vtkDebugMacro(<< "pick time " <<  this->LastRenderTimeInSeconds << "\n");
+
+  // Get the pick id of the object that was picked
+  if ( this->PickedProp != NULL )
+    {
+    this->PickedProp->UnRegister(this);
+    this->PickedProp = NULL;
+    }
+  unsigned int pickedId = this->GetPickedId();
+  if ( pickedId != 0 )
+    {
+    pickedId--; // pick ids start at 1, so move back one
+
+    // wrap around, as there are twice as many pickid's as PropArrayCount,
+    // because each Prop has both RenderOpaqueGeometry and 
+    // RenderTranslucentGeometry called on it
+    pickedId = pickedId % this->PathArrayCount;
+    this->PickedProp = this->PathArray[pickedId];
+    this->PickedProp->Register(this);
+    }
+
+  // Clean up stuff from picking after we use it
+  delete [] this->PathArray;
+  this->PathArray = NULL;
+
+  // Return the pick!
+  return this->PickedProp; //returns an assembly path
+}
+
+// Do a render in pick mode.  This is normally done with rendering turned off.
+// Before each Prop is rendered the pick id is incremented
+void vtkRenderer::PickRender(vtkPropCollection *props)
+{
+  double   t1, t2;
+  vtkProp  *aProp;
+  vtkAssemblyPath *path;
 
   if (this->StartRenderMethod) 
     {
@@ -1176,74 +1201,78 @@ void vtkRenderer::PickRender()
     return;
     }
   
-  this->PropArray                = new vtkProp *[props->GetNumberOfItems()];
-  this->PropArrayCount = 0;
-  // Create a place to store all Actors that we will cull
+  // Create a place to store all props that remain after culling
   vtkPropCollection* pickFrom = vtkPropCollection::New();
-  // Extract all the Actors out of the Props collection
-  // Things that are not Actors will get put into the PropArray
-  // directly
-  for (  props->InitTraversal(); 
-        (aProp = props->GetNextProp()); )
+
+  // Extract all the prop3D's out of the props collection.
+  // This collection will be further culled by using a bounding box
+  // pick later (vtkPicker). Things that are not vtkProp3D will get 
+  // put into the Paths list directly.
+  for (  props->InitTraversal(); (aProp = props->GetNextProp()); )
     {
-    if ( aProp->GetVisibility() && aProp->GetPickable() )
+    if ( aProp->GetPickable() && aProp->GetVisibility() )
       {
-      int count = pickFrom->GetNumberOfItems();
-      aProp->GetActors(pickFrom);
-      // If it did not change the pickFrom list then
-      // it did not get added to the list, and can not
-      // be culled, most likely this is an Actor2D, so 
-      // add it to the PropArray
-      if(count == pickFrom->GetNumberOfItems())
+      if ( aProp->IsA("vtkProp3D") )
         {
-        this->PropArray[this->PropArrayCount++] = aProp;
+        pickFrom->AddItem(aProp);
         }
-      }
-    }
+      else //must be some other type of prop (e.g., vtkActor2D)
+        {
+        for ( aProp->InitPathTraversal(); path=aProp->GetNextPath(); )
+          {
+          this->PathArray[this->PathArrayCount++] = path;
+          }
+        }
+      }//pickable & visible
+    }//for all props
+
   // For a first pass at the pick process, just use a vtkPicker to
   // intersect with bounding boxes of the objects.  This should greatly
   // reduce the number of polygons that the hardware has to pick from, and
-  // speeds things up substantially
-  
+  // speeds things up substantially.
+  //
   // Create a picker to do the culling process
   vtkPicker* cullPicker = vtkPicker::New();
-  vtkActor* anActor = 0;
   // Add each of the Actors from the pickFrom list into the picker
-  for ( pickFrom->InitTraversal(); 
-        (anActor = (vtkActor*)pickFrom->GetNextProp()); )
+  for ( pickFrom->InitTraversal(); (aProp = pickFrom->GetNextProp()); )
     {
-    cullPicker->AddPickList(anActor);
+    cullPicker->AddPickList(aProp);
     }
+
   // make sure this selects from the pickers list and not the renderers list
-  cullPicker->SetPickFromList(1);
+  cullPicker->PickFromListOn();
+
   // do the pick
   cullPicker->Pick(this->PickX, this->PickY, 0, this);
-  vtkActorCollection* cullPicked = cullPicker->GetActors();
+  vtkProp3DCollection* cullPicked = cullPicker->GetProp3Ds();
+
   // Put all the ones that were picked by the cull process
-  // into the PropArray to be picked from
-  for(cullPicked->InitTraversal();
-      (anActor = cullPicked->GetNextActor());)
+  // into the PathArray to be picked from
+  for (cullPicked->InitTraversal(); (aProp = cullPicked->GetNextProp3D());)
     {
-    if(anActor)
+    if ( aProp != NULL )
       {
-      this->PropArray[this->PropArrayCount++] = anActor;
+      for ( aProp->InitPathTraversal(); path=aProp->GetNextPath(); )
+        {
+        this->PathArray[this->PathArrayCount++] = path;
+        }
       }
     }
-  // Clean cull pick objects up
+
+  // Clean picking support objects up
   pickFrom->Delete();
   cullPicker->Delete();
   
-  if ( this->PropArrayCount == 0 )
+  if ( this->PathArrayCount == 0 )
     {
     vtkDebugMacro( << "There are no visible props!" );
     this->NumberOfPropsToRayCast = 0;
     this->NumberOfPropsToRenderIntoImage = 0;
     return;
     }
+
   // do the render library specific pick render
   this->DevicePickRender();
-  t2 = vtkTimerLog::GetCurrentTime();
-  this->LastRenderTimeInSeconds = (float) (t2 - t1);
 }
 
 void vtkRenderer::PickGeometry()
@@ -1252,7 +1281,7 @@ void vtkRenderer::PickGeometry()
   
   this->NumberOfPropsRenderedAsGeometry = 0;
 
-  if ( this->PropArrayCount == 0 ) 
+  if ( this->PathArrayCount == 0 ) 
     {
     return ;
     }
@@ -1265,25 +1294,30 @@ void vtkRenderer::PickGeometry()
   
   // loop through props and give them a change to 
   // render themselves as opaque geometry
-  for ( i = 0; i < this->PropArrayCount; i++ )
+  vtkProp *prop;
+  vtkMatrix4x4 *matrix;
+  for ( i = 0; i < this->PathArrayCount; i++ )
     {
-    this->SetPickId(this->CurrentPickID);
-    this->CurrentPickID++;
-    this->NumberOfPropsRenderedAsGeometry += 
-      this->PropArray[i]->RenderOpaqueGeometry(this);
+    this->UpdatePickId();
+    prop = this->PathArray[i]->GetLastNode()->GetProp();
+    matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
+    prop->PokeMatrix(matrix);
+    this->NumberOfPropsRenderedAsGeometry += prop->RenderOpaqueGeometry(this);
+    prop->PokeMatrix(NULL);
     }
  
-  
   // loop through props and give them a chance to 
   // render themselves as translucent geometry
-  for ( i = 0; i < this->PropArrayCount; i++ )
+  for ( i = 0; i < this->PathArrayCount; i++ )
     {
-    this->SetPickId(this->CurrentPickID);
-    this->CurrentPickID++;
+    this->UpdatePickId();
+    prop = this->PathArray[i]->GetLastNode()->GetProp();
+    matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
+    prop->PokeMatrix(matrix);
     this->NumberOfPropsRenderedAsGeometry += 
-      this->PropArray[i]->RenderTranslucentGeometry(this);
+      prop->RenderTranslucentGeometry(this);
+    prop->PokeMatrix(NULL);
     }
-
   
   vtkDebugMacro( << "Pick Rendered " << 
                     this->NumberOfPropsRenderedAsGeometry << " actors" );

@@ -128,12 +128,18 @@ void vtkVolume::GetVolumes(vtkPropCollection *vc)
 }
 
 // Shallow copy of an volume.
-void vtkVolume::ShallowCopy(vtkVolume *volume)
+void vtkVolume::ShallowCopy(vtkProp *prop)
 {
-  this->vtkProp3D::ShallowCopy(volume);
+  vtkVolume *v = vtkVolume::SafeDownCast(prop);
 
-  this->SetMapper(volume->GetMapper());
-  this->SetProperty(volume->GetProperty());
+  if ( v != NULL )
+    {
+    this->SetMapper(v->GetMapper());
+    this->SetProperty(v->GetProperty());
+    }
+
+  // Now do superclass
+  this->vtkProp3D::ShallowCopy(prop);
 }
 
 void vtkVolume::SetMapper(vtkVolumeMapper *mapper)

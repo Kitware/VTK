@@ -61,6 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActor2DCollection.h"
 
 class vtkWindow;
+class vtkAssemblyPath;
 
 class VTK_EXPORT vtkViewport : public vtkObject
 {
@@ -142,8 +143,7 @@ public:
       a[2] = this->WorldPoint[2];
       a[3] = this->WorldPoint[3];
     };
-  
-  
+   
   // Description:
   // Return the center of this viewport in display coordinates.
   virtual float *GetCenter();
@@ -217,22 +217,29 @@ public:
   virtual void ViewToNormalizedViewport(float &x, float &y, float &z);
   virtual void WorldToView(float &, float &, float &) {};
 
-  // These methods describe the public pick interface for picking Props in 
-  // a viewport
+  // Description:
+  // Get the size and origin of the viewport in display coordinates. Note:
+  // if the window has not yet been realized, GetSize() and GetOrigin() 
+  // return (0,0).
+  int *GetSize();
+  int *GetOrigin();
+
+  // The following methods describe the public pick interface for picking
+  // Props in a viewport.
 
   // Description:
-  // Return the Prop that has the highest z value at the given x, y position in
-  // the viewport.  Basically, the top most prop that renders the pixel
-  // at selectionX, selectionY will be returned.   If no Props are there
-  // NULL is returned.  This method selects from the Viewports Prop list.
-  virtual vtkProp* PickProp(float selectionX, float selectionY) = 0;
+  // Return the Prop that has the highest z value at the given x, y position
+  // in the viewport.  Basically, the top most prop that renders the pixel at
+  // selectionX, selectionY will be returned.  If no Props are there NULL is
+  // returned.  This method selects from the Viewports Prop list.
+  virtual vtkAssemblyPath* PickProp(float selectionX, float selectionY) = 0;
 
   // Description:
   // Same as PickProp with two arguments, but selects from the given
   // collection of Props instead of the Renderers props.  Make sure
   // the Props in the collection are in this renderer.
-  vtkProp* PickPropFrom(float selectionX, float selectionY, 
-                        vtkPropCollection*);
+  vtkAssemblyPath* PickPropFrom(float selectionX, float selectionY, 
+                                vtkPropCollection*);
   
   // Description:
   // Methods used to return the pick (x,y) in local display coordinates (i.e.,
@@ -241,16 +248,10 @@ public:
   vtkGetMacro(PickY, float);
   vtkGetMacro(IsPicking, int);
 
-  // Description: Return the Z value for the last picked Prop.
+  // Description: 
+  // Return the Z value for the last picked Prop.
   virtual float GetPickedZ() = 0;
   
-  // Description:
-  // Get the size and origin of the viewport in display coordinates. Note:
-  // if the window has not yet been realized, GetSize() and GetOrigin() 
-  // return (0,0).
-  int *GetSize();
-  int *GetOrigin();
-
 protected:
   // Create a vtkViewport with a black background, a white ambient light, 
   // two-sided lighting turned on, a viewport of (0,0,1,1), and backface 
@@ -266,20 +267,21 @@ protected:
   virtual void DevicePickRender() = 0;
   // Enter a pick mode
   virtual void StartPick(unsigned int pickFromSize) = 0;
-  // Set the pick id before drawing an object
-  virtual void SetPickId(unsigned int pickID) = 0;
+  // Set the pick id to the next id before drawing an object
+  virtual void UpdatePickId() = 0;
   // Exit Pick mode
   virtual void DonePick() = 0; 
   // Return the id of the picked object, only valid after a call to DonePick
-  virtual unsigned int GetPickedID() = 0;
+  virtual unsigned int GetPickedId() = 0;
   //ETX
-   // Ivars for picking
-  // Store a picked Prop
-  vtkProp* PickedProp;
+
+  // Ivars for picking
+  // Store a picked Prop (contained in an assembly path)
+  vtkAssemblyPath* PickedProp;
   vtkPropCollection* PickFromProps;
   // Boolean flag to determine if picking is enabled for this render
   int IsPicking;
-  unsigned int CurrentPickID;
+  unsigned int CurrentPickId;
   float PickX;
   float PickY;
   // End Ivars for picking

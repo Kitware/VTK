@@ -39,44 +39,50 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkAssemblyPaths - a list of lists of actors representing an assembly hierarchy
+// .NAME vtkAssemblyPaths - a list of lists of props representing an assembly hierarchy
 // .SECTION Description
-// vtkAssemblyPaths represents a hierarchy of assemblies as a sequence of
-// paths. Each path is a list of actors, starting from the root of the
-// assembly down to the leaf actors. Methods are also provided to manipulate
-// the path including propagating transformation matrices and actor properties.
+// vtkAssemblyPaths represents an assembly hierarchy as a list of 
+// vtkAssemblyPath. Each path represents the complete path from the
+// top level assembly (if any) down to the leaf prop.
 
 // .SECTION see also
-// vtkAssembly vtkActor
+// vtkAssemblyPath vtkAssemblyNode vtkPicker vtkAssembly vtkProp
 
 #ifndef __vtkAssemblyPaths_h
 #define __vtkAssemblyPaths_h
 
-#include "vtkActorCollection.h"
+#include "vtkCollection.h"
+#include "vtkAssemblyPath.h"
+
 class vtkActor;
 
 class VTK_EXPORT vtkAssemblyPaths : public vtkCollection
 {
 public:
   static vtkAssemblyPaths *New();
-  vtkTypeMacro(vtkAssemblyPaths,vtkCollection);
+  const char *GetClassName() {return "vtkAssemblyPaths";};
 
   // Description:
   // Add a path to the list.
-  void AddItem(vtkActorCollection *a);
+  void AddItem(vtkAssemblyPath *p);
 
   // Description:
   // Remove a path from the list.
-  void RemoveItem(vtkActorCollection *a);
+  void RemoveItem(vtkAssemblyPath *p);
 
   // Description:
   // Determine whether a particular path is present. Returns its position
   // in the list.
-  int IsItemPresent(vtkActorCollection *a);
+  int IsItemPresent(vtkAssemblyPath *p);
 
   // Description:
   // Get the next path in the list.
-  vtkActorCollection *GetNextItem();
+  vtkAssemblyPath *GetNextItem();
+
+  // Description:
+  // Override the standard GetMTime() to check for the modified times
+  // of the paths.
+  virtual unsigned long GetMTime();
 
 protected:
   vtkAssemblyPaths() {};
@@ -89,27 +95,28 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
   void RemoveItem(vtkObject *o) { this->vtkCollection::RemoveItem(o); };
   void RemoveItem(int i) { this->vtkCollection::RemoveItem(i); };
-  int  IsItemPresent(vtkObject *o) { return this->vtkCollection::IsItemPresent(o);};
+  int  IsItemPresent(vtkObject *o) 
+    { return this->vtkCollection::IsItemPresent(o);};
 };
 
-inline void vtkAssemblyPaths::AddItem(vtkActorCollection *a) 
+inline void vtkAssemblyPaths::AddItem(vtkAssemblyPath *p) 
 {
-  this->vtkCollection::AddItem((vtkObject *)a);
+  this->vtkCollection::AddItem((vtkObject *)p);
 }
 
-inline void vtkAssemblyPaths::RemoveItem(vtkActorCollection *a) 
+inline void vtkAssemblyPaths::RemoveItem(vtkAssemblyPath *p) 
 {
-  this->vtkCollection::RemoveItem((vtkObject *)a);
+  this->vtkCollection::RemoveItem((vtkObject *)p);
 }
 
-inline int vtkAssemblyPaths::IsItemPresent(vtkActorCollection *a) 
+inline int vtkAssemblyPaths::IsItemPresent(vtkAssemblyPath *p) 
 {
-  return this->vtkCollection::IsItemPresent((vtkObject *)a);
+  return this->vtkCollection::IsItemPresent((vtkObject *)p);
 }
 
-inline vtkActorCollection *vtkAssemblyPaths::GetNextItem() 
+inline vtkAssemblyPath *vtkAssemblyPaths::GetNextItem() 
 { 
-  return (vtkActorCollection *)(this->GetNextItemAsObject());
+  return (vtkAssemblyPath *)(this->GetNextItemAsObject());
 }
 
 #endif

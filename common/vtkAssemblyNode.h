@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMutexLock.h
+  Module:    vtkAssemblyNode.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,101 +39,73 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkMutexLock - mutual exclusion locking class
+// .NAME vtkAssemblyNode - represent a node in an assembly
 // .SECTION Description
-// vtkMutexLock allows the locking of variables which are accessed 
-// through different threads.  This header file also defines 
-// vtkSimpleMutexLock which is not a subclass of vtkObject.
+// vtkAssemblyNode represents a node in an assembly. It is used by
+// vtkAssemblyPath to create hierarchical assemblies of props. The
+// props can be either 2D or 3D.
+//
+// An assembly node refers to a vtkProp, and possibly a vtkMatrix4x4.
+// Nodes are used by vtkAssemblyPath to build fully evaluated path
+// (matrices are concatenated through the path) that is used by picking
+// and other operations involving assemblies.
 
-#ifndef __vtkMutexVariable_h
-#define __vtkMutexVariable_h
+// .SECTION Caveats
+// The assembly node is guaranteed to contain a reference to an instance
+// of vtkMatrix4x4 if the prop referred to by the node is of type
+// vtkProp3D (or subclass). The matrix is evaluated through the assembly
+// path, so the assembly node's matrix is a function of its location in 
+// the vtkAssemblyPath.
+
+// .SECTION see also
+// vtkAssemblyPath vtkProp vtkPicker vtkMatrix4x4
+
+#ifndef __vtkAssemblyNode_h
+#define __vtkAssemblyNode_h
 
 #include "vtkObject.h"
+#include "vtkProp.h"
+#include "vtkMatrix4x4.h"
 
-//BTX
-
-#ifdef VTK_USE_SPROC
-#include <abi_mutex.h>
-typedef abilock_t vtkMutexType;
-#endif
-
-#ifdef VTK_USE_PTHREADS
-#include <pthread.h>
-typedef pthread_mutex_t vtkMutexType;
-#endif
- 
-#ifdef _WIN32
-#include <winbase.h>
-typedef HANDLE vtkMutexType;
-#endif
-
-#ifndef VTK_USE_SPROC
-#ifndef VTK_USE_PTHREADS
-#ifndef _WIN32
-typedef int vtkMutexType;
-#endif
-#endif
-#endif
-
-// Mutex lock that is not a vtkObject.
-class VTK_EXPORT vtkSimpleMutexLock
+class VTK_EXPORT vtkAssemblyNode : public vtkObject
 {
 public:
-  // left public purposely
-  vtkSimpleMutexLock();
-  virtual ~vtkSimpleMutexLock();
-
-  static vtkSimpleMutexLock *New();
-
-  virtual const char *GetClassName() {return "vtkSimpleMutexLock";};
-  virtual int IsA(const char *name);
-  static vtkSimpleMutexLock *SafeDownCast(vtkSimpleMutexLock *o);
-
-  void Delete() {delete this;}
-  
   // Description:
-  // Lock the vtkMutexLock
-  void Lock( void );
+  // Create an assembly node.
+  static vtkAssemblyNode *New();
 
-  // Description:
-  // Unlock the vtkMutexLock
-  void Unlock( void );
-
-protected:
-  vtkMutexType   MutexLock;
-};
-
-//ETX
-
-class VTK_EXPORT vtkMutexLock : public vtkObject
-{
-public:
-  static vtkMutexLock *New();
-
-  vtkTypeMacro(vtkMutexLock,vtkObject);
+  vtkTypeMacro(vtkAssemblyNode,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Set/Get the prop that this assembly node refers to.
+  vtkSetObjectMacro(Prop, vtkProp);
+  vtkGetObjectMacro(Prop, vtkProp);
   
   // Description:
-  // Lock the vtkMutexLock
-  void Lock( void );
-
+  // Specify a transformation matrix associated with the prop.
+  // Note: if the prop is not a type of vtkProp3D, then the
+  // transformation matrix is ignored (and expected to be NULL).
+  // Also, internal to this object the matrix is copied because
+  // the matrix is used for computation by vtkAssemblyPath.
+  void SetMatrix(vtkMatrix4x4 *matrix);
+  vtkGetObjectMacro(Matrix, vtkMatrix4x4);
+  
   // Description:
-  // Unlock the vtkMutexLock
-  void Unlock( void );
+  // Override the standard GetMTime() to check for the modified times
+  // of the prop and matrix.
+  virtual unsigned long GetMTime();
 
 protected:
-  vtkSimpleMutexLock   SimpleMutexLock;
+  vtkAssemblyNode();
+  ~vtkAssemblyNode();
+  vtkAssemblyNode(const vtkAssemblyNode &) {};
+  void operator=(const vtkAssemblyNode &) {};
+
+private:
+  vtkProp *Prop; //reference to vtkProp
+  vtkMatrix4x4 *Matrix; //associated matrix
+  
 };
-
-
-inline void vtkMutexLock::Lock( void )
-{
-  this->SimpleMutexLock.Lock();
-}
-
-inline void vtkMutexLock::Unlock( void )
-{
-  this->SimpleMutexLock.Unlock();
-}
 
 #endif

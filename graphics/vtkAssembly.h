@@ -39,29 +39,24 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkAssembly - create hierarchies of actors
+// .NAME vtkAssembly - create hierarchies of vtkProp3Ds (transformable props)
 // .SECTION Description
-// vtkAssembly is an object that groups actors and other assemblies into
-// a tree-like hierarchy. The actors and assemblies can then be transformed
-// together by transforming just the root assembly of the hierarchy.
+// vtkAssembly is an object that groups vtkProp3Ds, its subclasses, and
+// other assemblies into a tree-like hierarchy. The vtkProp3Ds and
+// assemblies can then be transformed together by transforming just the root
+// assembly of the hierarchy.
 //
-// A vtkAssembly object can be used in place of an vtkActor since it is a 
-// subclass of vtkActor. The difference is that vtkAssembly maintains a list
-// of actor instances (its "parts") that form the assembly. Then, any 
-// operation that modifies the parent assembly will modify all its parts.
-// Note that this process is recursive: you can create groups consisting
-// of assemblies and/or actors to arbitrary depth.
+// A vtkAssembly object can be used in place of an vtkProp3D since it is a
+// subclass of vtkProp3D. The difference is that vtkAssembly maintains a list
+// of vtkProp3D instances (its "parts") that form the assembly. Then, any
+// operation that transforms (i.e., scales, rotates, translates) the parent
+// assembly will transform all its parts.  Note that this process is
+// recursive: you can create groups consisting of assemblies and/or
+// vtkProp3Ds to arbitrary depth.
 //
-// Actor's (or assemblies) that compose an assembly need not be added to 
-// a renderer's list of actors, as long as the parent assembly is in the
-// list of actors. This is because they are automatically renderered 
-// during the hierarchical traversal process.
-//
-// Since a vtkAssembly object is a derived class of vtkActor, it has
-// properties and possibly a mapper. During the rendering process, if a
-// mapper is associated with the assembly, it is rendered with these
-// properties. Otherwise, the properties have no effect (i.e., on the
-// children of the assembly).
+// To add an assembly to the renderer's list of props, you only need to
+// add the root of the assembly. During rendering, the parts of the
+// assembly are rendered during a hierarchical traversal process.
 
 // .SECTION Caveats
 // Collections of assemblies are slower to render than an equivalent list
@@ -73,36 +68,50 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // assembly used in one hierarchy is also used in other hierarchies. However, 
 // make that there are no cycles (e.g., parent->child->parent), this will
 // cause program failure.
+//
+// If you wish to create assemblies without any transormation (using the 
+// assembly strictly as a grouping mechanism), then you may wish to
+// consider using vtkPropAssembly.
  
 // .SECTION See Also
-// vtkActor vtkTransform vtkMapper vtkPolyDataMapper
+// vtkActor vtkTransform vtkMapper vtkPolyDataMapper vtkPropAssembly
 
 #ifndef __vtkAssembly_h
 #define __vtkAssembly_h
 
-#include "vtkActor.h"
+#include "vtkProp3D.h"
+#include "vtkAbstractMapper3D.h"
 
 class vtkAssemblyPaths;
+class vtkProp3DCollection;
+class vtkMapper;
 
-class VTK_EXPORT vtkAssembly : public vtkActor
+class VTK_EXPORT vtkAssembly : public vtkProp3D
 {
 public:
   static vtkAssembly *New();
 
-  vtkTypeMacro(vtkAssembly,vtkActor);
+  vtkTypeMacro(vtkAssembly,vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add a part to the list of parts.
-  void AddPart(vtkActor *);
+  void AddPart(vtkProp3D *);
 
   // Description:
   // Remove a part from the list of parts,
-  void RemovePart(vtkActor *);
+  void RemovePart(vtkProp3D *);
 
   // Description:
-  // Return the parts of this asembly.
-  vtkActorCollection *GetParts();
+  // Return the parts (direct descendants) of this assembly.
+  vtkProp3DCollection *GetParts();
+
+  // Description: 
+  // For some exporters and other other operations we must be
+  // able to collect all the actors or volumes. These methods
+  // are used in that process.
+  void GetActors(vtkPropCollection *);
+  void GetVolumes(vtkPropCollection *);
 
   // Description:
   // Render this assembly and all its parts. 
@@ -124,25 +133,16 @@ public:
   // Methods to traverse the parts of an assembly. Each part (starting from
   // the root) will appear properly transformed and with the correct
   // properties (depending upon the ApplyProperty and ApplyTransform ivars).
-  // Note that the part appears as an actor. These methods should be contrasted
-  // to those that traverse the list of parts using GetParts(). 
-  // GetParts() returns
-  // a list of children of this assembly, not necessarily with the correct
-  // transformation or properties. To use these methods - first invoke 
-  // InitPartTraversal() followed by repeated calls to GetNextPart(). 
-  // GetNextPart() returns a NULL pointer when the list is exhausted.
-  void InitPartTraversal();
-  vtkActor *GetNextPart();
-  int GetNumberOfParts();
-
-  // Description:
-  // Build assembly paths from this current assembly. Paths consist of
-  // an ordered sequence of actors, with transformations properly concatenated.
-  void BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path);
-
-  // Description:
-  // Recursively apply properties to parts.
-  void ApplyProperties(); 
+  // Note that the part appears as an instance of vtkProp. These methods
+  // should be contrasted to those that traverse the list of parts using
+  // GetParts().  GetParts() returns a list of children of this assembly, not
+  // necessarily with the correct transformation or properties. To use the
+  // methods below - first invoke InitPathTraversal() followed by repeated
+  // calls to GetNextPath().  GetNextPath() returns a NULL pointer when the
+  // list is exhausted.
+  void InitPathTraversal();
+  vtkAssemblyPath *GetNextPath();
+  int GetNumberOfPaths();
 
   // Description:
   // Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
@@ -155,8 +155,24 @@ public:
   unsigned long int GetMTime();
 
   // Description:
-  // Shallow copy of an assembly.
-  void ShallowCopy(vtkAssembly *assembly);
+  // Shallow copy of an assembly. Overloads the virtual vtkProp method.
+  void ShallowCopy(vtkProp *prop);
+
+//BTX
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE DO NOT USE THIS
+  // METHOD OUTSIDE OF THE RENDERING PROCESS Overload the superclass' vtkProp
+  // BuildPaths() method. Paths consist of an ordered sequence of actors,
+  // with transformations properly concatenated.
+  void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
+//ETX  
+
+  // Description:
+  // For legacy compatibility. Do not use. Mapper's can no longer be assigned
+  // to a vtkAssembly. Create a vtkActor instead, assign the actor to it, and
+  // then add the actor as a part in the assembly.
+  void SetMapper(vtkMapper *mapper);
+  vtkMapper *GetMapper() {return NULL;};
 
 protected:
   vtkAssembly();
@@ -164,25 +180,19 @@ protected:
   vtkAssembly(const vtkAssembly&) {};
   void operator=(const vtkAssembly&) {};
 
-  vtkActorCollection *Parts;
+  // Keep a list of direct descendants of the assembly hierarchy
+  vtkProp3DCollection *Parts;
 
-  // stuff that follows is used to build the assembly hierarchy
-  vtkAssemblyPaths *Paths;
+  // Support the BuildPaths() method. Caches last paths built for
+  // performance.
   vtkTimeStamp PathTime;
-
   void UpdatePaths(); //apply transformations and properties recursively
-  void DeletePaths(); //delete the paths
-
-private:
-  // hide the superclass' ShallowCopy() from the user and the compiler.
-  void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
-  void ShallowCopy(vtkProp3D *prop) { this->vtkProp3D::ShallowCopy( prop ); };
-  void ShallowCopy(vtkActor *prop) { this->vtkActor::ShallowCopy( prop ); };
+  
 };
 
 // Description:
 // Get the list of parts for this assembly.
-inline vtkActorCollection *vtkAssembly::GetParts() {return this->Parts;}
+inline vtkProp3DCollection *vtkAssembly::GetParts() {return this->Parts;}
 
 #endif
 

@@ -236,6 +236,21 @@ void vtkActor2D::GetActors2D(vtkPropCollection *ac)
   ac->AddItem(this);
 }
 
+void vtkActor2D::ShallowCopy(vtkProp *prop)
+{
+  vtkActor2D *a = vtkActor2D::SafeDownCast(prop);
+  if ( a != NULL )
+    {
+    this->SetMapper(a->GetMapper());
+    this->SetLayerNumber(a->GetLayerNumber());
+    this->SetProperty(a->GetProperty());
+    this->SetPosition(a->GetPosition());
+    }
+
+  // Now do superclass
+  this->vtkProp::ShallowCopy(prop);
+}
+
 void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkProp::PrintSelf(os,indent);

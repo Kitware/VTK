@@ -44,11 +44,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkMath.h"
+#include "vtkAssemblyNode.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkIVExporter* vtkIVExporter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -60,9 +59,6 @@ vtkIVExporter* vtkIVExporter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkIVExporter;
 }
-
-
-
 
 vtkIVExporter::vtkIVExporter()
 {
@@ -193,10 +189,12 @@ void vtkIVExporter::WriteData()
 
   // do the actors now
   ac = ren->GetActors();
+  vtkAssemblyPath *apath;
   for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
     {
-    for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
+    for (anActor->InitPathTraversal(); apath=anActor->GetNextPath(); )
       {
+      aPart=(vtkActor *)apath->GetLastNode()->GetProp();
       this->WriteAnActor(aPart, fp);
       }
     }

@@ -49,6 +49,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageConstantPad.h"
 #include "vtkImageExtractComponents.h"
 #include "vtkImageAppendComponents.h"
+#include "vtkAssemblyPath.h"
+#include "vtkAssemblyNode.h"
 #include "vtkObjectFactory.h"
 
 
@@ -101,7 +103,7 @@ void vtkRIBExporter::WriteData()
   vtkRenderer *ren;
   vtkActorCollection *ac;
   vtkLightCollection *lc;
-  vtkActor *anActor, *aPart;
+  vtkActor *anActor;
   vtkCollection *textures = vtkCollection::New();
   vtkLight *aLight;
   vtkTexture *aTexture;
@@ -143,7 +145,7 @@ void vtkRIBExporter::WriteData()
     }
 
   delete [] ribFileName;
-	
+        
   //
   //  Write Header
   //
@@ -163,12 +165,12 @@ void vtkRIBExporter::WriteData()
     // if it's invisible, don't make the texture
     if ( anActor->GetVisibility () )
       {
-	aTexture = anActor->GetTexture ();
-	if (aTexture &&
+        aTexture = anActor->GetTexture ();
+        if (aTexture &&
             textures->IsItemPresent (aTexture) == 0) {
-	  this->WriteTexture (aTexture);
+          this->WriteTexture (aTexture);
           textures->AddItem (aTexture);
-	}
+        }
       }
     }
 
@@ -214,20 +216,26 @@ void vtkRIBExporter::WriteData()
   //
   // Write all actors
   //
+  vtkAssemblyNode *node;
   ac = ren->GetActors();
+  vtkAssemblyPath *apath;
   for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
     {
-    for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
+    for (anActor->InitPathTraversal(); apath=anActor->GetNextPath(); )
       {
-      if ( anActor->GetVisibility () )
-	{
-	this->WriteActor(aPart);
-	}
+      node = apath->GetLastNode();
+      if ( node->GetProp()->GetVisibility () )
+        {
+        if ( node->GetProp()->IsA("vtkActor") )
+          {
+          this->WriteActor((vtkActor *)(node->GetProp()));
+          }
+        }
       }
     }
 
   //  RiWorldEnd ();
-    fprintf (this->FilePtr, "WorldEnd\n");
+  fprintf (this->FilePtr, "WorldEnd\n");
   //
   // Write trailer
   //
@@ -253,12 +261,12 @@ void vtkRIBExporter::WriteHeader (vtkRenderer *aRen)
   {
     float *color = aRen->GetBackground ();
     fprintf (this->FilePtr, "Imager \"background\" \"bgcolor\" [%f %f %f]\n",
-  	color[0], color[1], color[2]);
+        color[0], color[1], color[2]);
   }
   fprintf (this->FilePtr, "PixelSamples %d %d\n",
-		this->PixelSamples[0],
-		this->PixelSamples[1]);
-	
+                this->PixelSamples[0],
+                this->PixelSamples[1]);
+        
   delete [] imageFileName;
 
 }
@@ -283,12 +291,12 @@ void vtkRIBExporter::WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture
   opacity[1] = Opacity;
   opacity[2] = Opacity;
   fprintf (this->FilePtr, "Opacity [%f %f %f]\n",
-	opacity[0], opacity[1], opacity[2]);
+        opacity[0], opacity[1], opacity[2]);
 
   // set the color of the surface
   DiffuseColor = aProperty->GetDiffuseColor();
   fprintf (this->FilePtr, "Color [%f %f %f]\n",
-	DiffuseColor[0], DiffuseColor[1], DiffuseColor[2]);
+        DiffuseColor[0], DiffuseColor[1], DiffuseColor[2]);
 
   // set the shader parameters
   Ambient = aProperty->GetAmbient();
@@ -308,7 +316,7 @@ void vtkRIBExporter::WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture
     if (mapName)
         {
         fprintf (this->FilePtr, "Declare \"mapname\" \"uniform string\"\n");
-	}
+        }
     }
 //
 // Now we need to check to see if an RIBProperty has been specified
@@ -328,7 +336,7 @@ void vtkRIBExporter::WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture
       fprintf (this->FilePtr, "\"Ks\" [%f] ", Specular);
       fprintf (this->FilePtr, "\"roughness\" [%f] ", Roughness);
       fprintf (this->FilePtr, "\"specularcolor\" [%f %f %f]",
-  	SpecularColor[0], SpecularColor[1], SpecularColor[2]);
+        SpecularColor[0], SpecularColor[1], SpecularColor[2]);
       if (mapName)
        {
        fprintf (this->FilePtr, " \"mapname\" [\"%s\"]", mapName);
@@ -347,7 +355,7 @@ void vtkRIBExporter::WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture
       fprintf (this->FilePtr, "\"Ks\" [%f] ", Specular);
       fprintf (this->FilePtr, "\"roughness\" [%f] ", Roughness);
       fprintf (this->FilePtr, "\"specularcolor\" [%f %f %f]",
-  	SpecularColor[0], SpecularColor[1], SpecularColor[2]);
+        SpecularColor[0], SpecularColor[1], SpecularColor[2]);
       if (mapName)
        {
        fprintf (this->FilePtr, " \"mapname\" [\"%s\"]", mapName);
@@ -368,7 +376,7 @@ void vtkRIBExporter::WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture
     fprintf (this->FilePtr, "\"Ks\" [%f] ", Specular);
     fprintf (this->FilePtr, "\"roughness\" [%f] ", Roughness);
     fprintf (this->FilePtr, "\"specularcolor\" [%f %f %f] ",
-      	SpecularColor[0], SpecularColor[1], SpecularColor[2]);
+        SpecularColor[0], SpecularColor[1], SpecularColor[2]);
     if (mapName)
      {
      fprintf (this->FilePtr, " \"mapname\" [\"%s\"]", mapName);
@@ -380,7 +388,7 @@ void vtkRIBExporter::WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture
 
 void vtkRIBExporter::WriteLight (vtkLight *aLight, int count)
 {
-  float	color[4];
+  float color[4];
   float *Color, *Position, *FocalPoint;
   float Intensity;
 
@@ -412,11 +420,11 @@ void vtkRIBExporter::WriteLight (vtkLight *aLight, int count)
     fprintf (this->FilePtr, "LightSource \"distantlight\" %d ", count);
     fprintf (this->FilePtr, "\"intensity\" [%f] ", Intensity);
     fprintf (this->FilePtr, "\"lightcolor\" [%f %f %f] ",
-	color[0], color[1], color[2]);
+        color[0], color[1], color[2]);
     fprintf (this->FilePtr, "\"from\" [%f %f %f] ",
-	Position[0], Position[1], Position[2]);
+        Position[0], Position[1], Position[2]);
     fprintf (this->FilePtr, "\"to\" [%f %f %f]\n",
-	FocalPoint[0], FocalPoint[1], FocalPoint[2]);
+        FocalPoint[0], FocalPoint[1], FocalPoint[2]);
     }
   else
     {
@@ -425,11 +433,11 @@ void vtkRIBExporter::WriteLight (vtkLight *aLight, int count)
     fprintf (this->FilePtr, "LightSource \"spotlight\" %d ", count);
     fprintf (this->FilePtr, "\"intensity\" [%f] ", Intensity);
     fprintf (this->FilePtr, "\"lightcolor\" [%f %f %f] ",
-	color[0], color[1], color[2]);
+        color[0], color[1], color[2]);
     fprintf (this->FilePtr, "\"from\" [%f %f %f] ",
-	Position[0], Position[1], Position[2]);
+        Position[0], Position[1], Position[2]);
     fprintf (this->FilePtr, "\"to\" [%f %f %f]\n",
-	FocalPoint[0], FocalPoint[1], FocalPoint[2]);
+        FocalPoint[0], FocalPoint[1], FocalPoint[2]);
     fprintf (this->FilePtr, "\"coneangle\" [%f]\n", coneAngle);
     fprintf (this->FilePtr, "\"beamdistribution\" [%f]\n", exponent);
     fprintf (this->FilePtr, "\"conedeltaangle\" [%f]\n", 0.0);
@@ -467,12 +475,12 @@ void vtkRIBExporter::WriteViewport (vtkRenderer *ren, int size[2])
     fprintf (this->FilePtr, "Format %d %d 1\n", size[0], size[1]);
 
     fprintf (this->FilePtr, "CropWindow %f %f %f %f\n",
-	vport[0], vport[2], vport[1], vport[3]);	
+        vport[0], vport[2], vport[1], vport[3]);        
     
     aspect[0] = (float)(right-left+1)/(float)(top-bottom+1);
     aspect[1] = 1.0;
     fprintf (this->FilePtr, "ScreenWindow %f %f %f %f\n",
-	-aspect[0], aspect[0], -1.0, 1.0);
+        -aspect[0], aspect[0], -1.0, 1.0);
     }
 }
 
@@ -518,15 +526,15 @@ void PlaceCamera(FILE *filePtr, RtPoint position, RtPoint direction, float roll)
 {
   fprintf (filePtr, "Identity\n");    
   fprintf (filePtr, "Transform [%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ]\n",
-	cameraMatrix[0][0], cameraMatrix[0][1], cameraMatrix[0][2], cameraMatrix[0][3],
-	cameraMatrix[1][0], cameraMatrix[1][1], cameraMatrix[1][2], cameraMatrix[1][3],
-	cameraMatrix[2][0], cameraMatrix[2][1], cameraMatrix[2][2], cameraMatrix[2][3],
-	cameraMatrix[3][0], cameraMatrix[3][1], cameraMatrix[3][2], cameraMatrix[3][3]);
+        cameraMatrix[0][0], cameraMatrix[0][1], cameraMatrix[0][2], cameraMatrix[0][3],
+        cameraMatrix[1][0], cameraMatrix[1][1], cameraMatrix[1][2], cameraMatrix[1][3],
+        cameraMatrix[2][0], cameraMatrix[2][1], cameraMatrix[2][2], cameraMatrix[2][3],
+        cameraMatrix[3][0], cameraMatrix[3][1], cameraMatrix[3][2], cameraMatrix[3][3]);
 
   fprintf (filePtr, "Rotate %f %f %f %f\n", -roll, 0.0, 0.0, 1.0);
     AimZ(filePtr, direction);
   fprintf (filePtr, "Translate %f %f %f\n",
-	-position[0], -position[1], -position[2]);	
+        -position[0], -position[1], -position[2]);      
 }
 
 /* 
@@ -614,14 +622,14 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
 
   // insert model transformation 
   fprintf (this->FilePtr, "ConcatTransform [%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ]\n",
-	matrix->Element[0][0], matrix->Element[0][1], 
-	matrix->Element[0][2], matrix->Element[0][3],
-	matrix->Element[1][0], matrix->Element[1][1], 
-	matrix->Element[1][2], matrix->Element[1][3],
-	matrix->Element[2][0], matrix->Element[2][1], 
-	matrix->Element[2][2], matrix->Element[2][3],
-	matrix->Element[3][0], matrix->Element[3][1], 
-	matrix->Element[3][2], matrix->Element[3][3]);
+        matrix->Element[0][0], matrix->Element[0][1], 
+        matrix->Element[0][2], matrix->Element[0][3],
+        matrix->Element[1][0], matrix->Element[1][1], 
+        matrix->Element[1][2], matrix->Element[1][3],
+        matrix->Element[2][0], matrix->Element[2][1], 
+        matrix->Element[2][2], matrix->Element[2][3],
+        matrix->Element[3][0], matrix->Element[3][1], 
+        matrix->Element[3][2], matrix->Element[3][3]);
 
   // we really want polydata
   if ( aDataSet->GetDataObjectType() != VTK_POLY_DATA )
@@ -723,30 +731,30 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
       k = j;
       if (s) 
         {
-	colors = s->GetColor(pts[k]);
-	vertexColors[k][0] = colors[0] / 255.0;
-	vertexColors[k][1] = colors[1] / 255.0;
-	vertexColors[k][2] = colors[2] / 255.0;
+        colors = s->GetColor(pts[k]);
+        vertexColors[k][0] = colors[0] / 255.0;
+        vertexColors[k][1] = colors[1] / 255.0;
+        vertexColors[k][2] = colors[2] / 255.0;
         }
       if (t)
-	{
-	TCoords = t->GetTCoord (pts[k]);
-	vertexTCoords[k][0] = TCoords[0];
-	// Renderman Textures have origin at upper left
-	vertexTCoords[k][1] = 1.0 - TCoords[1];
-	}
+        {
+        TCoords = t->GetTCoord (pts[k]);
+        vertexTCoords[k][0] = TCoords[0];
+        // Renderman Textures have origin at upper left
+        vertexTCoords[k][1] = 1.0 - TCoords[1];
+        }
       if (n) 
         {
-	normals = n->GetNormal (pts[k]);
-	vertexNormals[k][0] = normals[0];
-	vertexNormals[k][1] = normals[1];
-	vertexNormals[k][2] = normals[2];
+        normals = n->GetNormal (pts[k]);
+        vertexNormals[k][0] = normals[0];
+        vertexNormals[k][1] = normals[1];
+        vertexNormals[k][2] = normals[2];
         }
       else 
         {
-	vertexNormals[k][0] = poly_norm[0];
-	vertexNormals[k][1] = poly_norm[1];
-	vertexNormals[k][2] = poly_norm[2];
+        vertexNormals[k][0] = poly_norm[0];
+        vertexNormals[k][1] = poly_norm[1];
+        vertexNormals[k][2] = poly_norm[2];
         }
       
       points = p->GetPoint(pts[k]);
@@ -759,7 +767,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
     for (kk = 0; kk < npts; kk++)
       {
       fprintf (this->FilePtr, "%f %f %f ",
-	       vertexPoints[kk][0], vertexPoints[kk][1], vertexPoints[kk][2]);
+               vertexPoints[kk][0], vertexPoints[kk][1], vertexPoints[kk][2]);
       }
     fprintf (this->FilePtr, "] ");
 
@@ -767,7 +775,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
     for (kk = 0; kk < npts; kk++)
       {
       fprintf (this->FilePtr, "%f %f %f ",
-	       vertexNormals[kk][0], vertexNormals[kk][1], vertexNormals[kk][2]);
+               vertexNormals[kk][0], vertexNormals[kk][1], vertexNormals[kk][2]);
       }
     fprintf (this->FilePtr, "] ");
 
@@ -776,20 +784,20 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
       {
       fprintf (this->FilePtr, "\"Cs\" [");
       for (kk = 0; kk < npts; kk++)
-	{
-	fprintf (this->FilePtr, "%f %f %f ",
-		 vertexColors[kk][0], vertexColors[kk][1], vertexColors[kk][2]);
-	}
+        {
+        fprintf (this->FilePtr, "%f %f %f ",
+                 vertexColors[kk][0], vertexColors[kk][1], vertexColors[kk][2]);
+        }
       fprintf (this->FilePtr, "] ");
       }
     if (t)
       {
       fprintf (this->FilePtr, "\"st\" [");
       for (kk = 0; kk < npts; kk++)
-	{
-	fprintf (this->FilePtr, "%f %f ",
-		 vertexTCoords[kk][0], vertexTCoords[kk][1]);
-	}
+        {
+        fprintf (this->FilePtr, "%f %f ",
+                 vertexTCoords[kk][0], vertexTCoords[kk][1]);
+        }
       fprintf (this->FilePtr, "] ");
       }
     fprintf (this->FilePtr, "\n");
@@ -868,104 +876,104 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
     for (j = 0; j < (npts-2); j++) 
       {
       if (j%2)
-	{
-	idx[0] = p2;
-	idx[1] = p1;
-	idx[2] = p3;
-	}
+        {
+        idx[0] = p2;
+        idx[1] = p1;
+        idx[2] = p3;
+        }
       else
-	{
-	idx[0] = p1;
-	idx[1] = p2;
-	idx[2] = p3;
-	}
+        {
+        idx[0] = p1;
+        idx[1] = p2;
+        idx[2] = p3;
+        }
 
       if (!n) 
-	{
-	polygon->ComputeNormal (p, 3, idx, poly_norm);
-	}
+        {
+        polygon->ComputeNormal (p, 3, idx, poly_norm);
+        }
 
       // build colors, texture coordinates and normals for the triangle
       for (k = 0; k < 3; k++)
-	{
-	if (s) 
-	  {
-	  colors = s->GetColor(idx[k]);
-	  vertexColors[k][0] = colors[0] / 255.0;
-	  vertexColors[k][1] = colors[1] / 255.0;
-	  vertexColors[k][2] = colors[2] / 255.0;
-	  }
-	if (t)
-	  {
-	  TCoords = t->GetTCoord (idx[k]);
-	  vertexTCoords[k][0] = TCoords[0];
-	  // Renderman Textures have origin at upper left
-	  vertexTCoords[k][1] = 1.0 - TCoords[1];
-	  }
-	if (n) 
-	  {
-	  normals = n->GetNormal (idx[k]);
-	  vertexNormals[k][0] = normals[0];
-	  vertexNormals[k][1] = normals[1];
+        {
+        if (s) 
+          {
+          colors = s->GetColor(idx[k]);
+          vertexColors[k][0] = colors[0] / 255.0;
+          vertexColors[k][1] = colors[1] / 255.0;
+          vertexColors[k][2] = colors[2] / 255.0;
+          }
+        if (t)
+          {
+          TCoords = t->GetTCoord (idx[k]);
+          vertexTCoords[k][0] = TCoords[0];
+          // Renderman Textures have origin at upper left
+          vertexTCoords[k][1] = 1.0 - TCoords[1];
+          }
+        if (n) 
+          {
+          normals = n->GetNormal (idx[k]);
+          vertexNormals[k][0] = normals[0];
+          vertexNormals[k][1] = normals[1];
 
-	  vertexNormals[k][2] = normals[2];
-	  }
-	else 
-	  {
-	  vertexNormals[k][0] = poly_norm[0];
-	  vertexNormals[k][1] = poly_norm[1];
-	  vertexNormals[k][2] = poly_norm[2];
-	  }
-	points = p->GetPoint(idx[k]);
-	vertexPoints[k][0] = points[0];
-	vertexPoints[k][1] = points[1]; 
-	vertexPoints[k][2] = points[2];
-	}
+          vertexNormals[k][2] = normals[2];
+          }
+        else 
+          {
+          vertexNormals[k][0] = poly_norm[0];
+          vertexNormals[k][1] = poly_norm[1];
+          vertexNormals[k][2] = poly_norm[2];
+          }
+        points = p->GetPoint(idx[k]);
+        vertexPoints[k][0] = points[0];
+        vertexPoints[k][1] = points[1]; 
+        vertexPoints[k][2] = points[2];
+        }
       fprintf (this->FilePtr, "Polygon ");
       fprintf (this->FilePtr, "\"P\" [");
       for (kk = 0; kk < 3; kk++)
-	{
-	fprintf (this->FilePtr, "%f %f %f ",
-		 vertexPoints[kk][0], vertexPoints[kk][1], vertexPoints[kk][2]);
-	}
+        {
+        fprintf (this->FilePtr, "%f %f %f ",
+                 vertexPoints[kk][0], vertexPoints[kk][1], vertexPoints[kk][2]);
+        }
       fprintf (this->FilePtr, "] ");
 
       fprintf (this->FilePtr, "\"N\" [");
       for (kk = 0; kk < 3; kk++)
-	{
-	fprintf (this->FilePtr, "%f %f %f ",
-		 vertexNormals[kk][0], vertexNormals[kk][1], vertexNormals[kk][2]);
-	}
+        {
+        fprintf (this->FilePtr, "%f %f %f ",
+                 vertexNormals[kk][0], vertexNormals[kk][1], vertexNormals[kk][2]);
+        }
       fprintf (this->FilePtr, "] ");
 
       if (s)
-	{
-	fprintf (this->FilePtr, "\"Cs\" [");
-	for (kk = 0; kk < 3; kk++)
-	  {
-	  fprintf (this->FilePtr, "%f %f %f ",
-		   vertexColors[kk][0], vertexColors[kk][1], vertexColors[kk][2]);
-	  }
-	fprintf (this->FilePtr, "] ");
-	}
+        {
+        fprintf (this->FilePtr, "\"Cs\" [");
+        for (kk = 0; kk < 3; kk++)
+          {
+          fprintf (this->FilePtr, "%f %f %f ",
+                   vertexColors[kk][0], vertexColors[kk][1], vertexColors[kk][2]);
+          }
+        fprintf (this->FilePtr, "] ");
+        }
       if (t)
-	{
-	fprintf (this->FilePtr, "\"st\" [");
-	for (kk = 0; kk < 3; kk++)
-	  {
-	  fprintf (this->FilePtr, "%f %f ",
-		   vertexTCoords[kk][0], vertexTCoords[kk][1]);
-	  }
-	fprintf (this->FilePtr, "] ");
-	}
+        {
+        fprintf (this->FilePtr, "\"st\" [");
+        for (kk = 0; kk < 3; kk++)
+          {
+          fprintf (this->FilePtr, "%f %f ",
+                   vertexTCoords[kk][0], vertexTCoords[kk][1]);
+          }
+        fprintf (this->FilePtr, "] ");
+        }
       fprintf (this->FilePtr, "\n");
       // Get ready for next triangle
       p1 = p2;
       p2 = p3;
       if (j+3 < npts)
-	{
-	p3 = pts[j+3];
-	}
+        {
+        p3 = pts[j+3];
+        }
       }
     }
   polygon->Delete();
@@ -1007,7 +1015,7 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
 
 //    RtToken wrap = aTexture->GetRepeat () ? RI_PERIODIC : RI_CLAMP;
 //    RiMakeTexture (this->GetTIFFName (aTexture),
-//		   this->GetTextureName (aTexture),
+//                 this->GetTextureName (aTexture),
 //                   wrap, wrap,
 //                   RiBoxFilter,
 //                   1, 1,
@@ -1064,10 +1072,10 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
       {
       ysize = size[1];
       if (size[2] != 1)
-	{
-	vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
-	return;
-	}
+        {
+        vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
+        return;
+        }
       }
     }
 

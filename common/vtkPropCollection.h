@@ -72,6 +72,13 @@ class VTK_EXPORT vtkPropCollection : public vtkCollection
   // Get the last Prop in the list.
   vtkProp *GetLastProp();
   
+  // Description:
+  // Get the number of paths contained in this list. (Recall that a
+  // vtkProp can consist of multiple parts.) Used in picking and other
+  // activities to get the parts of composite entities like vtkAssembly
+  // or vtkPropAssembly.
+  int GetNumberOfPaths();
+  
 protected:
   vtkPropCollection() {};
   ~vtkPropCollection() {};

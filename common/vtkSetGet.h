@@ -52,7 +52,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkSetGet_h
 #define __vtkSetGet_h
 
-#include "vtkWin32Header.h"
 #include "vtkSystemIncludes.h"
 #include <math.h>
 

@@ -30,7 +30,7 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -61,11 +61,11 @@ class vtkGLPickInfo
 {
 public:
   GLuint* PickBuffer;
-  GLuint PickedID;
+  GLuint PickedId;
 };
 
 
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkOpenGLRenderer* vtkOpenGLRenderer::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -78,10 +78,6 @@ vtkOpenGLRenderer* vtkOpenGLRenderer::New()
   return new vtkOpenGLRenderer;
 }
 
-
-
-
-
 #define VTK_MAX_LIGHTS 8
 
 vtkOpenGLRenderer::vtkOpenGLRenderer()
@@ -89,7 +85,7 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->PickInfo = new vtkGLPickInfo;
   this->NumberOfLightsBound = 0;
   this->PickInfo->PickBuffer = 0;
-  this->PickInfo->PickedID = 0;
+  this->PickInfo->PickedId = 0;
   this->PickedZ = 0;
 }
 
@@ -293,7 +289,7 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Lights Bound: " << 
     this->NumberOfLightsBound << "\n";
   os << indent << "PickBuffer " << this->PickInfo->PickBuffer << "\n";
-  os << indent << "PickedID " << this->PickInfo->PickedID << "\n";
+  os << indent << "PickedId" << this->PickInfo->PickedId<< "\n";
   os << indent << "PickedZ " << this->PickedZ << "\n";
 }
 
@@ -323,9 +319,9 @@ void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
 
 
 
-void vtkOpenGLRenderer::SetPickId(unsigned int pickID)
+void vtkOpenGLRenderer::UpdatePickId()
 {
-  glLoadName(pickID);
+  glLoadName(this->CurrentPickId++);
 }
 
 
@@ -351,7 +347,7 @@ void vtkOpenGLRenderer::DevicePickRender()
 	 this->NumberOfPropsToRenderIntoImage ) > 0 )
     {
     // Get the scale factor 
-    scaleFactor = this->RayCaster->GetViewportScaleFactor( (vtkRenderer *)this );
+    scaleFactor = this->RayCaster->GetViewportScaleFactor((vtkRenderer *)this);
     
     // If the volume renderer wants a different resolution than this
     // renderer was going to produce we need to set up the viewport
@@ -431,18 +427,20 @@ void vtkOpenGLRenderer::DonePick()
   GLuint hits = glRenderMode(GL_RENDER); 
   unsigned int depth = (unsigned int)-1;
   GLuint* ptr = this->PickInfo->PickBuffer;
-  this->PickInfo->PickedID = 0;
+  this->PickInfo->PickedId = 0;
   for(unsigned int k =0; k < hits; k++)
     {
     int num_names = *ptr;
     int save = 0;
     ptr++; // move to first depth value
-    if(*ptr <= depth)      {
+    if(*ptr <= depth)      
+      {
       depth = *ptr;
       save = 1;
       }
     ptr++; // move to next depth value
-    if(*ptr <= depth)      {
+    if(*ptr <= depth)      
+      {
       depth = *ptr;
       save = 1;
       }
@@ -450,13 +448,13 @@ void vtkOpenGLRenderer::DonePick()
     ptr++;
     if(save)
       {
-      this->PickInfo->PickedID = *ptr;
+      this->PickInfo->PickedId = *ptr;
       }
     // skip additonal names
     ptr += num_names;
     }
   // If there was a pick, then get the Z value
-  if(this->PickInfo->PickedID)
+  if(this->PickInfo->PickedId)
     {
     // convert from pick depth described as:
     // Returned depth values are mapped such that the largest unsigned 
@@ -473,16 +471,14 @@ void vtkOpenGLRenderer::DonePick()
   this->PickInfo->PickBuffer = 0;
 }
 
-
-
 float vtkOpenGLRenderer::GetPickedZ()
 {
   return this->PickedZ;
 }
 
-unsigned int vtkOpenGLRenderer::GetPickedID()
+unsigned int vtkOpenGLRenderer::GetPickedId()
 {
-  return (unsigned int)this->PickInfo->PickedID;
+  return (unsigned int)this->PickInfo->PickedId;
 }
 
 vtkOpenGLRenderer::~vtkOpenGLRenderer()

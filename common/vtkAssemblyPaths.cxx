@@ -1,10 +1,10 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkAssemblyPaths.cxx
-Language:  C++
-Date:      $Date$
-Version:   $Revision$
+  Program:   Visualization Toolkit
+  Module:    vtkAssemblyPaths.cxx
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
 
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAssemblyPaths.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkAssemblyPaths* vtkAssemblyPaths::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -55,6 +53,23 @@ vtkAssemblyPaths* vtkAssemblyPaths::New()
     }
   // If the factory was unable to create the object, then create it here.
   return new vtkAssemblyPaths;
+}
+
+unsigned long vtkAssemblyPaths::GetMTime()
+{
+  unsigned long mtime=this->vtkCollection::GetMTime();
+  unsigned long pathMTime;
+  vtkAssemblyPath *path;
+  
+  for ( this->InitTraversal(); (path = this->GetNextItem()); )
+    {
+    pathMTime = path->GetMTime();
+    if ( pathMTime > mtime )
+      {
+      mtime = pathMTime;
+      }
+    }
+  return mtime;
 }
 
 

@@ -41,11 +41,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkPointPicker.h"
 #include "vtkMath.h"
+#include "vtkVolumeMapper.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkPointPicker* vtkPointPicker::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -59,29 +58,44 @@ vtkPointPicker* vtkPointPicker::New()
 }
 
 
-
-
 vtkPointPicker::vtkPointPicker()
 {
   this->PointId = -1;
 }
 
 float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
-					vtkActor *assem, vtkActor *a, 
-					vtkMapper *m)
+                                        vtkAssemblyPath *path, vtkProp3D *p, 
+                                        vtkAbstractMapper3D *m)
 {
-  vtkDataSet *input=m->GetInput();
   int numPts;
   int ptId, i, minPtId;
-  float ray[3], rayFactor, tMin, *p, t, projXYZ[3], minXYZ[3];
+  float ray[3], rayFactor, tMin, x[3], t, projXYZ[3], minXYZ[3];
+  vtkDataSet *input;
+  vtkMapper *mapper;
+  vtkVolumeMapper *volumeMapper;
 
   if ( (numPts = input->GetNumberOfPoints()) < 1 )
     {
     return 2.0;
     }
-//
-//   Determine appropriate info
-//
+
+  // Get the underlying dataset
+  //
+  if ( (mapper=vtkMapper::SafeDownCast(m)) != NULL )
+    {
+    input = mapper->GetInput();
+    }
+  else if ( (volumeMapper=vtkVolumeMapper::SafeDownCast(m)) != NULL )
+    {
+    input = volumeMapper->GetInput();
+    }
+  else
+    {
+    return 2.0;
+    }
+
+  //   Determine appropriate info
+  //
   for (i=0; i<3; i++)
     {
     ray[i] = p2[i] - p1[i];
@@ -91,44 +105,44 @@ float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
     vtkErrorMacro("Cannot process points");
     return 2.0;
     }
-//
-//  Project each point onto ray.  Keep track of the one within the
-//  tolerance and closest to the eye (and within the clipping range).
-//
+
+  //  Project each point onto ray.  Keep track of the one within the
+  //  tolerance and closest to the eye (and within the clipping range).
+  //
   for (minPtId=(-1),tMin=VTK_LARGE_FLOAT,ptId=0; ptId<numPts; ptId++) 
     {
-    p = input->GetPoint(ptId);
+    input->GetPoint(ptId,x);
 
-    t = (ray[0]*(p[0]-p1[0]) + ray[1]*(p[1]-p1[1]) + ray[2]*(p[2]-p1[2])) 
+    t = (ray[0]*(x[0]-p1[0]) + ray[1]*(x[1]-p1[1]) + ray[2]*(x[2]-p1[2])) 
         / rayFactor;
-//
-//  If we find a point closer than we currently have, see whether it
-//  lies within the pick tolerance and clipping planes.
-//
+
+    //  If we find a point closer than we currently have, see whether it
+    //  lies within the pick tolerance and clipping planes.
+    //
     if ( t >= 0.0 && t <= 1.0 && t < tMin ) 
       {
       for(i=0; i<3; i++) 
         {
         projXYZ[i] = p1[i] + t*ray[i];
-        if ( fabs(p[i]-projXYZ[i]) > tol )
-	  {
-	  break;
-	  }
+        if ( fabs(x[i]-projXYZ[i]) > tol )
+          {
+          break;
+          }
         }
       if ( i > 2 ) // within tolerance
         {
         minPtId = ptId;
-        minXYZ[0]=p[0]; minXYZ[1]=p[1]; minXYZ[2]=p[2];
+        minXYZ[0]=x[0]; minXYZ[1]=x[1]; minXYZ[2]=x[2];
         tMin = t;
         }
       }
     }
-//
-//  Now compare this against other actors.
-//
+
+  //  Now compare this against other actors.
+  //
   if ( minPtId>(-1) && tMin < this->GlobalTMin ) 
     {
-    this->MarkPicked(assem, a, m, tMin, minXYZ);
+    this->MarkPicked(path, p, m, tMin, minXYZ);
     this->PointId = minPtId;
     vtkDebugMacro("Picked point id= " << minPtId);
     }

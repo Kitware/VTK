@@ -46,6 +46,8 @@ CONCRETE_H =
 
 ABSTRACT = \
 vtkAbstractMapper3D \
+vtkAbstractPicker \
+vtkAbstractPropPicker \
 vtkApproximatingSubdivisionFilter \
 vtkDataSetToDataSetFilter \
 vtkDataSetToPolyDataFilter \
@@ -86,7 +88,6 @@ vtkActorCollection \
 vtkAppendFilter \
 vtkAppendPolyData \
 vtkAssembly \
-vtkAssemblyPaths \
 vtkAttributeDataToFieldDataFilter \
 vtkAxes \
 vtkBYUReader \
@@ -216,6 +217,7 @@ vtkProgrammableSource \
 vtkProjectedPolyDataRayBounder \
 vtkProperty \
 vtkPropPicker \
+vtkProp3DCollection \
 vtkQuadric \
 vtkQuantizePolyDataPoints \
 vtkRayCaster \

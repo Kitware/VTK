@@ -283,11 +283,12 @@ public:
   vtkGetMacro( NumberOfPropsRenderedAsGeometry, int );
 
   // Description:
-  // Return the Prop that has the highest z value at the given x, y position in
-  // the viewport.  Basically, the top most prop that renders the pixel
-  // at selectionX, selectionY will be returned.   If no Props are there
-  // NULL is returned.  This method selects from the renderers Prop list.
-  vtkProp* PickProp(float selectionX, float selectionY);
+  // Return the prop (via a vtkAssemblyPath) that has the highest z value 
+  // at the given x, y position in the viewport.  Basically, the top most 
+  // prop that renders the pixel at selectionX, selectionY will be returned.
+  // If nothing was picked then NULL is returned.  This method selects from 
+  // the renderers Prop list.
+  vtkAssemblyPath* PickProp(float selectionX, float selectionY);
 
 protected:
   vtkRenderer();
@@ -296,7 +297,7 @@ protected:
   void operator=(const vtkRenderer&) {};
 
   // internal method for doing a render for picking purposes
-  virtual void PickRender();
+  virtual void PickRender(vtkPropCollection *props);
   virtual void PickGeometry();
   
   vtkRayCaster *RayCaster;
@@ -317,7 +318,6 @@ protected:
   int                BackingStore;
   unsigned char      *BackingImage;
   vtkTimeStamp       RenderTime;
-
 
   float              LastRenderTimeInSeconds;
 
@@ -340,6 +340,10 @@ protected:
 
   // A sublist of props that want to be rendered into an image
   vtkProp            **RenderIntoImagePropArray;
+
+  // A temporary list used for picking
+  vtkAssemblyPath    **PathArray;
+  int                PathArrayCount;
 
   // Description:
   // Ask all props to update and draw any opaque and translucent

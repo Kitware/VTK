@@ -41,11 +41,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkPropAssembly.h"
 #include "vtkViewport.h"
+#include "vtkAssemblyNode.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkPropAssembly* vtkPropAssembly::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +56,6 @@ vtkPropAssembly* vtkPropAssembly::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkPropAssembly;
 }
-
-
-
 
 // Construct object with no children.
 vtkPropAssembly::vtkPropAssembly()
@@ -102,7 +98,8 @@ vtkPropCollection *vtkPropAssembly::GetParts()
 // Render this assembly and all of its Parts. The rendering process is recursive.
 int vtkPropAssembly::RenderTranslucentGeometry(vtkViewport *ren)
 {
-  vtkProp *part;
+  vtkProp *prop;
+  vtkAssemblyPath *path;
   float fraction;
   int renderedSomething=0;
 
@@ -110,12 +107,15 @@ int vtkPropAssembly::RenderTranslucentGeometry(vtkViewport *ren)
              (float)this->Parts->GetNumberOfItems();
   
   // render the Paths
-  for ( this->Parts->InitTraversal(); (part=this->Parts->GetNextProp()); )
+  for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
-    if ( part->GetVisibility() )
+    prop = path->GetLastNode()->GetProp();
+    if ( prop->GetVisibility() )
       {
-      part->SetAllocatedRenderTime(fraction);
-      renderedSomething |= part->RenderTranslucentGeometry(ren);
+      prop->SetAllocatedRenderTime(fraction);
+      prop->PokeMatrix(path->GetLastNode()->GetMatrix());
+      renderedSomething += prop->RenderTranslucentGeometry(ren);
+      prop->PokeMatrix(NULL);
       }
     }
 
@@ -125,20 +125,27 @@ int vtkPropAssembly::RenderTranslucentGeometry(vtkViewport *ren)
 // Render this assembly and all its parts. The rendering process is recursive.
 int vtkPropAssembly::RenderOpaqueGeometry(vtkViewport *ren)
 {
-  vtkProp *part;
+  vtkProp *prop;
+  vtkAssemblyPath *path;
   float fraction;
   int   renderedSomething=0;
+
+  // Make sure the paths are up-to-date
+  this->UpdatePaths();
 
   fraction = this->AllocatedRenderTime / 
              (float)this->Parts->GetNumberOfItems();
   
   // render the Paths
-  for ( this->Parts->InitTraversal(); (part=this->Parts->GetNextProp()); )
+  for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
-    if ( part->GetVisibility() )
+    prop = path->GetLastNode()->GetProp();
+    if ( prop->GetVisibility() )
       {
-      part->SetAllocatedRenderTime(fraction);
-      renderedSomething |= part->RenderOpaqueGeometry(ren);
+      prop->SetAllocatedRenderTime(fraction);
+      prop->PokeMatrix(path->GetLastNode()->GetMatrix());
+      renderedSomething += prop->RenderOpaqueGeometry(ren);
+      prop->PokeMatrix(NULL);
       }
     }
 
@@ -148,20 +155,26 @@ int vtkPropAssembly::RenderOpaqueGeometry(vtkViewport *ren)
 // Render this assembly and all its parts. The rendering process is recursive.
 int vtkPropAssembly::RenderOverlay(vtkViewport *ren)
 {
-  vtkProp *part;
+  vtkProp *prop;
+  vtkAssemblyPath *path;
   float fraction;
   int   renderedSomething=0;
+
+  // Make sure the paths are up-to-date
+  this->UpdatePaths();
 
   fraction = this->AllocatedRenderTime / 
              (float)this->Parts->GetNumberOfItems();
   
-  // render the Paths
-  for ( this->Parts->InitTraversal(); (part=this->Parts->GetNextProp()); )
+  for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
-    if ( part->GetVisibility() )
+    prop = path->GetLastNode()->GetProp();
+    if ( prop->GetVisibility() )
       {
-      part->SetAllocatedRenderTime(fraction);
-      renderedSomething |= part->RenderOverlay(ren);
+      prop->SetAllocatedRenderTime(fraction);
+      prop->PokeMatrix(path->GetLastNode()->GetMatrix());
+      renderedSomething += prop->RenderOverlay(ren);
+      prop->PokeMatrix(NULL);
       }
     }
 
@@ -310,17 +323,97 @@ unsigned long int vtkPropAssembly::GetMTime()
 }
 
 // Shallow copy another vtkPropAssembly.
-void vtkPropAssembly::ShallowCopy(vtkPropAssembly *propAssembly)
+void vtkPropAssembly::ShallowCopy(vtkProp *prop)
 {
-  this->vtkProp::ShallowCopy(propAssembly);
-  
-  this->Parts->RemoveAllItems();
-  propAssembly->Parts->InitTraversal();
-  for (int i=0; i<0; i++)
+  vtkPropAssembly *propAssembly = vtkPropAssembly::SafeDownCast(prop);
+  if ( propAssembly != NULL )
     {
-    this->AddPart(propAssembly->Parts->GetNextProp());
+    this->Parts->RemoveAllItems();
+    propAssembly->Parts->InitTraversal();
+    for (int i=0; i<0; i++)
+      {
+      this->AddPart(propAssembly->Parts->GetNextProp());
+      }
+    }
+
+  this->vtkProp::ShallowCopy(prop);
+}
+
+void vtkPropAssembly::InitPathTraversal()
+{
+  this->UpdatePaths();
+  this->Paths->InitTraversal();
+}
+
+vtkAssemblyPath *vtkPropAssembly::GetNextPath()
+{
+  return this->Paths->GetNextItem();
+}
+
+int vtkPropAssembly::GetNumberOfPaths()
+{
+  this->UpdatePaths();
+  return this->Paths->GetNumberOfItems();
+}
+
+
+// Build the assembly paths if necessary.
+void vtkPropAssembly::UpdatePaths()
+{
+  if ( this->GetMTime() > this->PathTime )
+    {
+    if ( this->Paths != NULL )
+      {
+      this->Paths->Delete();
+      }
+
+    // Create the list to hold all the paths
+    this->Paths = vtkAssemblyPaths::New();
+    vtkAssemblyPath *path = vtkAssemblyPath::New();
+
+    //add ourselves to the path to start things off
+    path->AddNode(this,NULL);
+    
+    vtkProp *prop;
+    // Add nodes as we proceed down the hierarchy
+    for ( this->Parts->InitTraversal(); 
+          (prop = this->Parts->GetNextProp()); )
+      {
+      // add a matrix, if any
+      path->AddNode(prop,prop->GetMatrixPointer());
+
+      // dive into the hierarchy
+      prop->BuildPaths(this->Paths,path);
+      
+      // when returned, pop the last node off of the
+      // current path
+      path->DeleteLastNode();
+      }
+
+    this->PathTime.Modified();
     }
 }
+
+void vtkPropAssembly::BuildPaths(vtkAssemblyPaths *paths, 
+                                 vtkAssemblyPath *path)
+{
+  vtkProp *prop;
+  vtkAssemblyPath *childPath;
+
+  for ( this->Parts->InitTraversal(); 
+        (prop = this->Parts->GetNextProp()); )
+    {
+    path->AddNode(prop,NULL);
+
+    // dive into the hierarchy
+    prop->BuildPaths(paths,path);
+
+    // when returned, pop the last node off of the
+    // current path
+    path->DeleteLastNode();
+    }
+}
+
 
 void vtkPropAssembly::PrintSelf(ostream& os, vtkIndent indent)
 {

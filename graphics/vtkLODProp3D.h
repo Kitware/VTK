@@ -75,6 +75,8 @@ typedef struct
 class VTK_EXPORT vtkLODProp3D : public vtkProp3D
 {
 public:
+  // Description:
+  // Create an instance of this class.
   static vtkLODProp3D *New();
 
   vtkTypeMacro(vtkLODProp3D,vtkProp3D);
@@ -189,6 +191,10 @@ public:
   vtkSetClampMacro( AutomaticPickLODSelection, int, 0, 1 );
   vtkGetMacro( AutomaticPickLODSelection, int );
   vtkBooleanMacro( AutomaticPickLODSelection, int );
+
+  // Description:
+  // Shallow copy of this vtkLODProp3D.
+  void ShallowCopy(vtkProp *prop);
 
 //BTX
 

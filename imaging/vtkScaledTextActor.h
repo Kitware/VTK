@@ -111,6 +111,11 @@ public:
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
+  // Description:
+  // Shallow copy of this scaled text actor. Overloads the virtual 
+  // vtkProp method.
+  void ShallowCopy(vtkProp *prop);
+
 protected:
   vtkScaledTextActor();
   ~vtkScaledTextActor();

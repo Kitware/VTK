@@ -42,10 +42,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAssembly.h"
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
+#include "vtkAssemblyPaths.h"
+#include "vtkAssemblyNode.h"
+#include "vtkProp3DCollection.h"
+#include "vtkVolume.h"
 
-
-
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkAssembly* vtkAssembly::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,56 +60,54 @@ vtkAssembly* vtkAssembly::New()
   return new vtkAssembly;
 }
 
-
-
-
 // Construct object with no children.
 vtkAssembly::vtkAssembly()
 {
-  this->Paths = NULL;
-  this->Parts = vtkActorCollection::New();
+  this->Parts = vtkProp3DCollection::New();
 }
 
 vtkAssembly::~vtkAssembly()
 {
-  this->DeletePaths();
   this->Parts->Delete();
   this->Parts = NULL;
 }
 
 // Add a part to the list of Parts.
-void vtkAssembly::AddPart(vtkActor *actor)
+void vtkAssembly::AddPart(vtkProp3D *prop)
 {
-  if ( ! this->Parts->IsItemPresent(actor) )
+  if ( ! this->Parts->IsItemPresent(prop) )
     {
-    this->Parts->AddItem(actor);
+    this->Parts->AddItem(prop);
     this->Modified();
     } 
 }
 
 // Remove a part from the list of parts,
-void vtkAssembly::RemovePart(vtkActor *actor)
+void vtkAssembly::RemovePart(vtkProp3D *prop)
 {
-  if ( this->Parts->IsItemPresent(actor) )
+  if ( this->Parts->IsItemPresent(prop) )
     {
-    this->Parts->RemoveItem(actor);
+    this->Parts->RemoveItem(prop);
     this->Modified();
     } 
 }
 
 // Shallow copy another assembly.
-void vtkAssembly::ShallowCopy(vtkAssembly *assembly)
+void vtkAssembly::ShallowCopy(vtkProp *prop)
 {
-  this->vtkActor::ShallowCopy(assembly);
-  
-  this->Parts->RemoveAllItems();
-  assembly->Parts->InitTraversal();
-  for (int i=0; i<0; i++)
+  vtkAssembly *a = vtkAssembly::SafeDownCast(prop);
+  if ( a != NULL )
     {
-    this->Parts->AddItem(assembly->Parts->GetNextActor());
+    this->Parts->RemoveAllItems();
+    a->Parts->InitTraversal();
+    for (int i=0; i<0; i++)
+      {
+      this->Parts->AddItem(a->Parts->GetNextProp3D());
+      }
     }
-  
-  this->DeletePaths();
+
+  // Now do superclass
+  this->vtkProp3D::ShallowCopy(prop);
 }
 
 // Render this assembly and all its Parts. The rendering process is recursive.
@@ -117,10 +117,10 @@ void vtkAssembly::ShallowCopy(vtkAssembly *assembly)
 // its Parts.
 int vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
 {
-  vtkActor *actor;
-  vtkActorCollection *path;
+  vtkProp3D *prop3D;
+  vtkAssemblyPath *path;
   float fraction;
-  int   renderedSomething = 0;
+  int renderedSomething = 0;
 
   this->UpdatePaths();
 
@@ -132,11 +132,13 @@ int vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
   // render the Paths
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
-    actor = path->GetLastActor();
-    if ( actor->GetVisibility() )
+    prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
+    if ( prop3D->GetVisibility() )
       {
-      actor->SetAllocatedRenderTime(fraction);
-      renderedSomething += actor->RenderTranslucentGeometry(ren);
+      prop3D->SetAllocatedRenderTime(fraction);
+      prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
+      renderedSomething += prop3D->RenderTranslucentGeometry(ren);
+      prop3D->PokeMatrix(NULL);
       }
     }
 
@@ -153,10 +155,11 @@ int vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
 // its Parts.
 int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
 {
-  vtkActor *actor;
-  vtkActorCollection *path;
+  vtkProp3D *prop3D;
+  vtkAssemblyPath *path;
   float fraction;
   int   renderedSomething = 0;
+  vtkMatrix4x4 *oldMatrix;
 
   this->UpdatePaths();
 
@@ -168,11 +171,13 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
   // render the Paths
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
-    actor = path->GetLastActor();
-    if ( actor->GetVisibility() )
+    prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
+    if ( prop3D->GetVisibility() )
       {
-      actor->SetAllocatedRenderTime(fraction);
-      renderedSomething += actor->RenderOpaqueGeometry(ren);
+      prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
+      prop3D->SetAllocatedRenderTime(fraction);
+      renderedSomething += prop3D->RenderOpaqueGeometry(ren);
+      prop3D->PokeMatrix(NULL);
       }
     }
 
@@ -183,18 +188,46 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
 
 void vtkAssembly::ReleaseGraphicsResources(vtkWindow *renWin)
 {
+  vtkProp3D *prop3D;
+
+  this->vtkProp3D::ReleaseGraphicsResources(renWin);
+}
+
+void vtkAssembly::GetActors(vtkPropCollection *ac)
+{
+  vtkProp3D *prop3D;
   vtkActor *actor;
+  vtkAssemblyPath *path;
 
-  vtkActor::ReleaseGraphicsResources(renWin);
-
-  // broadcast the message down the Paths
-  for ( this->InitPartTraversal(); (actor  = this->GetNextPart()); )
+  this->UpdatePaths();
+  for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
-    actor->ReleaseGraphicsResources(renWin);
+    prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
+    if ( (actor = vtkActor::SafeDownCast(prop3D)) != NULL )
+      {
+      ac->AddItem(actor);
+      }
     }
 }
 
-void vtkAssembly::InitPartTraversal()
+void vtkAssembly::GetVolumes(vtkPropCollection *ac)
+{
+  vtkProp3D *prop3D;
+  vtkVolume *volume;
+  vtkAssemblyPath *path;
+
+  this->UpdatePaths();
+  for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
+    {
+    prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
+    if ( (volume = vtkVolume::SafeDownCast(prop3D)) != NULL )
+      {
+      ac->AddItem(volume);
+      }
+    }
+}
+
+void vtkAssembly::InitPathTraversal()
 {
   this->UpdatePaths();
   this->Paths->InitTraversal();
@@ -202,176 +235,102 @@ void vtkAssembly::InitPartTraversal()
 
 // Return the next part in the hierarchy of assembly Parts.  This method 
 // returns a properly transformed and updated actor.
-vtkActor *vtkAssembly::GetNextPart()
+vtkAssemblyPath *vtkAssembly::GetNextPath()
 {
-  vtkActorCollection *path;
-
-  if ( (path = this->Paths->GetNextItem()) == NULL ) 
-    {
-    return NULL;
-    }
-  else
-    {
-    return path->GetLastActor();
-    }
+  return this->Paths->GetNextItem();
 }
 
-int vtkAssembly::GetNumberOfParts()
+int vtkAssembly::GetNumberOfPaths()
 {
   this->UpdatePaths();
   return this->Paths->GetNumberOfItems();
 }
 
-// Build the assembly paths if necessary.
+// Build the assembly paths if necessary. UpdatePaths()
+// is only called when the assembly is at the root
+// of the hierarchy; otherwise UpdatePaths() is called.
 void vtkAssembly::UpdatePaths()
 {
-  if ( this->GetMTime() > this->PathTime )
+  if ( this->GetMTime() > this->PathTime ||
+    (this->Paths != NULL && this->Paths->GetMTime() > this->PathTime) )
     {
-    this->DeletePaths();
-    }
+    if ( this->Paths != NULL )
+      {
+      this->Paths->Delete();
+      }
 
-  if ( ! this->Paths )
-    {
+    // Create the list to hold all the paths
     this->Paths = vtkAssemblyPaths::New();
-    vtkActorCollection *path = vtkActorCollection::New();
-    this->Paths->AddItem(path);
+    vtkAssemblyPath *path = vtkAssemblyPath::New();
 
-    this->BuildPaths(this->Paths,path);
+    //add ourselves to the path to start things off
+    path->AddNode(this,this->GetMatrixPointer());
+    
+    // Add nodes as we proceed down the hierarchy
+    vtkProp3D *prop3D;
+    for ( this->Parts->InitTraversal(); 
+          (prop3D = this->Parts->GetNextProp3D()); )
+      {
+      path->AddNode(prop3D,prop3D->GetMatrixPointer());
+
+      // dive into the hierarchy
+      prop3D->BuildPaths(this->Paths,path);
+      
+      // when returned, pop the last node off of the
+      // current path
+      path->DeleteLastNode();
+      }
+
+    path->Delete();
     this->PathTime.Modified();
     }
 }
 
-// Build assembly paths from this current assembly. Paths consist of
-// an ordered sequence of actors, with transformations properly concatenated.
-void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path)
+// Build assembly paths from this current assembly. A path consists of
+// an ordered sequence of props, with transformations properly concatenated.
+void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path)
 {
-  vtkActor *part, *actor, *copy=vtkActor::New(), *previous;
-  vtkMatrix4x4 *matrix;
-  vtkActorCollection *childPath;
+  vtkProp3D *prop3D;
+  vtkAssemblyPath *childPath;
 
-  copy->ShallowCopy(this);
-
-  if ( path->GetNumberOfItems() < 1 ) //we're starting at the top of the hierarchy
+  for ( this->Parts->InitTraversal(); 
+        (prop3D = this->Parts->GetNextProp3D()); )
     {
-    if ( this->GetUserMatrix() )
-      {
-      matrix = vtkMatrix4x4::New();
-      matrix->DeepCopy(this->GetUserMatrix());
-      copy->SetUserMatrix(matrix);
-      matrix->Delete();
-      }
-    }
-  else //somewhere in the middle of the assembly hierarchy
-    {
-    previous = path->GetLastActor();
-    matrix = vtkMatrix4x4::New();
-    previous->GetMatrix(matrix);
-    copy->SetUserMatrix(matrix);
-    matrix->Delete();
-    }
+    path->AddNode(prop3D,prop3D->GetMatrixPointer());
 
-  path->AddItem(copy);
+    // dive into the hierarchy
+    prop3D->BuildPaths(paths,path);
 
-  // add our children to the path (if we're visible). 
-  if ( this->Visibility )
-    {
-    for ( this->Parts->InitTraversal(); (part = this->Parts->GetNextActor()); )
-      {
-      //a new path is created for each child
-      childPath = vtkActorCollection::New();
-      paths->AddItem(childPath);
-
-      // copy incoming path
-      for ( path->InitTraversal(); (actor = path->GetNextActor()); )
-        {
-        copy = vtkActor::New();
-        copy->ShallowCopy(actor);
-
-        if ( actor->GetUserMatrix() )
-          {
-          matrix = vtkMatrix4x4::New();
-          matrix->DeepCopy(actor->GetUserMatrix());
-          copy->SetUserMatrix(matrix);
-          matrix->Delete();
-          }
-
-        childPath->AddItem(copy);
-        }
-
-      // create new paths
-      part->BuildPaths(paths,childPath);
-      }
-    }//if visible
-}
-
-// Delete the paths asscoiated with this assembly hierarchy.
-void vtkAssembly::DeletePaths()
-{
-  if ( this->Paths )
-    {
-    vtkActor *actor;
-    vtkActorCollection *path;
-
-    for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
-      {
-      for ( path->InitTraversal(); (actor = path->GetNextActor()); )
-        {
-        actor->Delete();
-        }
-      path->Delete();
-      }
-    this->Paths->Delete();
-    this->Paths = NULL;
-    }
-}
-
-// Recursive application of properties to all parts composing assembly.
-void vtkAssembly::ApplyProperties()
-{
-  vtkActor *part;
-  vtkProperty *prop=this->GetProperty();
-  vtkProperty *actorProp;
-
-  for (this->Parts->InitTraversal(); (part = this->Parts->GetNextActor()); )
-    {
-    actorProp = part->GetProperty();
-    actorProp->DeepCopy(prop);
-    part->ApplyProperties();
+    // when returned, pop the last node off of the
+    // current path
+    path->DeleteLastNode();
     }
 }
 
 // Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 float *vtkAssembly::GetBounds()
 {
-  vtkActor *actor;
-  vtkMapper *mapper;
-  vtkActorCollection *path;
-  int i,n;
-  float *bounds, bbox[24], *fptr;
-  int actorVisible=0;
+  vtkProp3D *prop3D;
+  vtkAssemblyPath *path;
+  int i, n;
+  float *bounds, bbox[24];
+  int propVisible=0;
 
   this->UpdatePaths();
 
   // now calculate the new bounds
-  if ( this->Mapper ) 
-    {
-    vtkActor::GetBounds();
-    }    
-  else
-    {
-    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_LARGE_FLOAT;
-    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
-    }
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_LARGE_FLOAT;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
 
-  this->Transform->PostMultiply();  
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
-    actor = path->GetLastActor();
-
-    if ( actor->GetVisibility() && (mapper = actor->GetMapper()) )
+    prop3D = (vtkProp3D *)path->GetLastNode()->GetProp();
+    if ( prop3D->GetVisibility() )
       {
-      actorVisible = 1;
-      bounds = mapper->GetBounds();
+      propVisible = 1;
+      prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
+      bounds = prop3D->GetBounds();
+      prop3D->PokeMatrix(NULL);
 
       // fill out vertices of a bounding box
       bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
@@ -382,20 +341,6 @@ float *vtkAssembly::GetBounds()
       bbox[15] = bounds[1]; bbox[16] = bounds[2]; bbox[17] = bounds[4];
       bbox[18] = bounds[0]; bbox[19] = bounds[2]; bbox[20] = bounds[4];
       bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
-
-      // save the old transform
-      this->Transform->Push(); 
-      this->Transform->SetMatrix(actor->GetMatrixPointer());
-
-      // and transform into actors coordinates
-      fptr = bbox;
-      for (n = 0; n < 8; n++) 
-        {
-        this->Transform->TransformPoint(fptr,fptr);
-        fptr += 3;
-        }
-
-      this->Transform->Pop();  
 
       for (i = 0; i < 8; i++)
         {
@@ -409,12 +354,12 @@ float *vtkAssembly::GetBounds()
             {
             this->Bounds[n*2+1] = bbox[i*3+n];
             }
-          }
+          }//for each coordinate axis
         }//for each point of box
-      }//if mapper
+      }//if visible && prop3d
     }//for each path
 
-  if ( ! actorVisible )
+  if ( ! propVisible )
     {
     this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
     this->Bounds[1] = this->Bounds[3] = this->Bounds[5] =  1.0;
@@ -425,22 +370,29 @@ float *vtkAssembly::GetBounds()
 
 unsigned long int vtkAssembly::GetMTime()
 {
-  unsigned long mTime=this->vtkActor::GetMTime();
+  unsigned long mTime=this->vtkProp3D::GetMTime();
   unsigned long time;
-  vtkActor *part;
+  vtkProp3D *prop;
 
-  for (this->Parts->InitTraversal(); (part = this->Parts->GetNextActor()); )
+  for (this->Parts->InitTraversal(); (prop = this->Parts->GetNextProp3D()); )
     {
-    time = part->GetMTime();
+    time = prop->GetMTime();
     mTime = ( time > mTime ? time : mTime );
     }
 
   return mTime;
 }
 
+void vtkAssembly::SetMapper(vtkMapper *vtkNotUsed(mapper))
+{
+  vtkErrorMacro(<<"This method is obsolete, see the documentation\n"
+                <<"for vtkAssembly to use the correct alternative\n"
+                <<"(refer to SetMapper() documentation)\n");
+}
+
 void vtkAssembly::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkActor::PrintSelf(os,indent);
+  this->vtkProp3D::PrintSelf(os,indent);
 
   os << indent << "There are: " << this->Parts->GetNumberOfItems()
      << " parts in this assembly\n";

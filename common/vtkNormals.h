@@ -86,7 +86,7 @@ public:
   // to using SetNormal().
   void SetNormal(int id, float n[3]) {this->Data->SetTuple(id,n);};
   void SetNormal(int id, double n[3]) {this->Data->SetTuple(id,n);};
-  void SetNormal(int id, double x, double y, double z);
+  void SetNormal(int id, double nx, double ny, double nz);
 
   // Description:
   // Insert normal into object. Range checking performed and memory

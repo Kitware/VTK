@@ -44,11 +44,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkVertex.h"
 #include "vtkRenderWindow.h"
+#include "vtkAssemblyNode.h"
+#include "vtkVolume.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkPicker* vtkPicker::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -61,93 +61,74 @@ vtkPicker* vtkPicker::New()
   return new vtkPicker;
 }
 
-
-
-
-
 // Construct object with initial tolerance of 1/40th of window. There are no
 // pick methods and picking is performed from the renderer's actors.
 vtkPicker::vtkPicker()
 {
-  this->Renderer = NULL;
-
-  this->SelectionPoint[0] = 0.0;
-  this->SelectionPoint[1] = 0.0;
-  this->SelectionPoint[2] = 0.0;
-
   this->Tolerance = 0.025; // 1/40th of the renderer window
-
-  this->PickPosition[0] = 0.0;
-  this->PickPosition[1] = 0.0;
-  this->PickPosition[2] = 0.0;
 
   this->MapperPosition[0] = 0.0;
   this->MapperPosition[1] = 0.0;
   this->MapperPosition[2] = 0.0;
 
-  this->Assembly = NULL;
-  this->Actor = NULL;
   this->Mapper = NULL;
   this->DataSet = NULL;
   this->GlobalTMin = VTK_LARGE_FLOAT;
   this->Actors = vtkActorCollection::New();
+  this->Prop3Ds = vtkProp3DCollection::New();
   this->PickedPositions = vtkPoints::New();
   this->PickList = vtkActorCollection::New();
   this->Transform = vtkTransform::New();
-  
-  this->StartPickMethod = NULL;
-  this->StartPickMethodArgDelete = NULL;
-  this->StartPickMethodArg = NULL;
-  this->PickMethod = NULL;
-  this->PickMethodArgDelete = NULL;
-  this->PickMethodArg = NULL;
-  this->EndPickMethod = NULL;
-  this->EndPickMethodArgDelete = NULL;
-  this->EndPickMethodArg = NULL;
-
-  this->PickFromList = 0;
 }
 
 vtkPicker::~vtkPicker()
 {
-  if ((this->StartPickMethodArg)&&(this->StartPickMethodArgDelete))
-    {
-    (*this->StartPickMethodArgDelete)(this->StartPickMethodArg);
-    }
-  if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
-    {
-    (*this->PickMethodArgDelete)(this->PickMethodArg);
-    }
-  if ((this->EndPickMethodArg)&&(this->EndPickMethodArgDelete))
-    {
-    (*this->EndPickMethodArgDelete)(this->EndPickMethodArg);
-    }
   this->Actors->Delete();
+  this->Prop3Ds->Delete();
   this->PickedPositions->Delete();
   this->Transform->Delete();
-  this->PickList->Delete();
 }
 
-// Update state when actor is picked.
-void vtkPicker::MarkPicked(vtkActor *assem, vtkActor *actor, vtkMapper *mapper,
+// Update state when prop3D is picked.
+void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D, 
+                           vtkAbstractMapper3D *m,
                            float tMin, float mapperPos[3])
 {
-  this->Assembly = assem;
-  this->Actor = actor;
+  int i;
+  float mapperHPosition[4];
+  float *worldHPosition;
+  vtkMapper *mapper;
+  vtkVolumeMapper *volumeMapper;
+
+  this->SetPath(path);
   this->Mapper = mapper;
-  this->DataSet = mapper->GetInput();
   this->GlobalTMin = tMin;
 
-  this->MapperPosition[0] = mapperPos[0];
-  this->MapperPosition[1] = mapperPos[1];
-  this->MapperPosition[2] = mapperPos[2];
+  for (i=0; i < 3; i++) 
+    {
+    this->MapperPosition[i] = mapperPos[i];
+    mapperHPosition[i] = mapperPos[i];
+    }
+  mapperHPosition[3] = 1.0;
+  if ( (mapper=vtkMapper::SafeDownCast(m)) != NULL )
+    {
+    this->DataSet = mapper->GetInput();
+    }
+  else if ( (volumeMapper=vtkVolumeMapper::SafeDownCast(m)) != NULL )
+    {
+    this->DataSet = volumeMapper->GetInput();
+    }
+  else
+    {
+    this->DataSet = NULL;
+    }
 
   // The point has to be transformed back into world coordinates.
   // Note: it is assumed that the transform is in the correct state.
   this->Transform->TransformPoint(mapperPos,this->PickPosition);
   
   // Invoke pick method if one defined - actor goes first
-  actor->Pick();
+  prop3D->Pick();
   if ( this->PickMethod )
     {
     (*this->PickMethod)(this->PickMethodArg);
@@ -162,9 +143,9 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 {
   int i;
   vtkActorCollection *actors;
-  vtkActor *actor, *part;
+  vtkProp *prop;
   vtkCamera *camera;
-  vtkMapper *mapper;
+  vtkAbstractMapper3D *mapper;
   float p1World[4], p2World[4], p1Mapper[4], p2Mapper[4];
   int picked=0;
   int *winSize;
@@ -181,20 +162,18 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   float hitPosition[3];
   float cameraDOP[3];
   
+  //  Initialize picking process
+  this->Initialize();
+  this->Renderer = renderer;
+  this->SelectionPoint[0] = selectionX;
+  this->SelectionPoint[1] = selectionY;
+  this->SelectionPoint[2] = selectionZ;
+
   // Invoke start pick method if defined
   if ( this->StartPickMethod ) 
     {
     (*this->StartPickMethod)(this->StartPickMethodArg);
     }
-
-  //  Initialize picking process
-  this->Renderer = renderer;
-
-  this->SelectionPoint[0] = selectionX;
-  this->SelectionPoint[1] = selectionY;
-  this->SelectionPoint[2] = selectionZ;
-
-  this->Initialize();
 
   if ( renderer == NULL )
     {
@@ -301,36 +280,57 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   
   tol = sqrt (tol) * this->Tolerance;
 
-  //  Loop over all actors.  Transform ray (defined from position of
+  //  Loop over all props.  Transform ray (defined from position of
   //  camera to selection point) into coordinates of mapper (not
   //  transformed to actors coordinates!  Reduces overall computation!!!).
+  //  Note that only vtkProp3D's can be picked by vtkPicker.
   //
+  vtkPropCollection *props;
+  vtkProp *propCandidate;
   if ( this->PickFromList ) 
     {
-    actors = this->GetPickList();
+    props = this->GetPickList();
     }
   else 
     {
-    actors = renderer->GetActors();
+    props = renderer->GetProps();
     }
-  
-  this->Transform->PostMultiply();
-  for ( actors->InitTraversal(); (actor=actors->GetNextActor()); )
-    {
-    for ( actor->InitPartTraversal(); (part=actor->GetNextPart()); )
-      {
-      pickable = part->GetPickable() & part->GetVisibility();
-      if ( part->GetProperty()->GetOpacity() <= 0.0 )
-	{
-	pickable = 0;
-	}
 
+  vtkActor *actor;
+  vtkVolume *volume;
+  vtkAssemblyPath *path;
+  this->Transform->PostMultiply();
+  for ( props->InitTraversal(); (prop=props->GetNextProp()); )
+    {
+    for ( prop->InitPathTraversal(); (path=prop->GetNextPath()); )
+      {
+      propCandidate = path->GetLastNode()->GetProp();
+      if ( propCandidate->GetPickable() && propCandidate->GetVisibility() )
+        {
+		pickable = 1;
+        if ( (actor=vtkActor::SafeDownCast(propCandidate)) != NULL )
+          {
+          mapper = actor->GetMapper();
+          if ( actor->GetProperty()->GetOpacity() <= 0.0 )
+            {
+            pickable = 0;
+            }
+          }
+        else if ( (volume=vtkVolume::SafeDownCast(propCandidate)) != NULL )
+          {
+          mapper = volume->GetMapper();
+          }
+        else
+          {
+          pickable = 0; //only vtkProp3D's (actors and volumes) can be picked
+          }
+        }
       //  If actor can be picked, get its composite matrix, invert it, and
       //  use the inverted matrix to transform the ray points into mapper
       //  coordinates. 
-      if (pickable && (mapper = part->GetMapper()) != NULL )
+      if ( pickable  &&  mapper != NULL )
         {
-        this->Transform->SetMatrix(part->vtkProp3D::GetMatrixPointer());
+        this->Transform->SetMatrix(*(path->GetLastNode()->GetMatrix()));
         this->Transform->Push();
         this->Transform->Inverse();
 
@@ -357,11 +357,12 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
         if ( vtkCell::HitBBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
           {
           t = this->IntersectWithLine((float *)p1Mapper, 
-				      (float *)p2Mapper,tol,actor,part,mapper);
+                                      (float *)p2Mapper, tol, path, 
+                                      (vtkProp3D *)propCandidate, mapper);
           if ( t < VTK_LARGE_FLOAT )
             {
             picked = 1;
-            this->Actors->AddItem(part);
+            this->Prop3Ds->AddItem((vtkProp3D *)prop);
             this->PickedPositions->InsertNextPoint
               ((1.0 - t)*p1World[0] + t*p2World[0],
                (1.0 - t)*p1World[1] + t*p2World[1],
@@ -384,14 +385,15 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 
 // Intersect data with specified ray.
 float vtkPicker::IntersectWithLine(float p1[3], float p2[3], 
-                                  float vtkNotUsed(tol), vtkActor *assem, 
-                                  vtkActor *actor, vtkMapper *mapper)
+                                   float vtkNotUsed(tol), 
+                                   vtkAssemblyPath *path, 
+                                   vtkProp3D *prop3D, 
+                                   vtkAbstractMapper3D *mapper)
 {
   int i;
   float *center, t, ray[3], rayFactor;
 
-  //
-  // Get the data from the modeller
+  // Get the data from the modeler
   //
   center = mapper->GetCenter();
 
@@ -411,7 +413,7 @@ float vtkPicker::IntersectWithLine(float p1[3], float p2[3],
 
   if ( t >= 0.0 && t <= 1.0 && t < this->GlobalTMin ) 
     {
-    this->MarkPicked(assem, actor, mapper, t, center);
+    this->MarkPicked(path, prop3D, mapper, t, center);
     }
   return t;
 }
@@ -419,163 +421,22 @@ float vtkPicker::IntersectWithLine(float p1[3], float p2[3],
 // Initialize the picking process.
 void vtkPicker::Initialize()
 {
+  this->vtkAbstractPicker::Initialize();
+
   this->Actors->RemoveAllItems();
   this->PickedPositions->Reset();
   
-  this->PickPosition[0] = 0.0;
-  this->PickPosition[1] = 0.0;
-  this->PickPosition[2] = 0.0;
-
   this->MapperPosition[0] = 0.0;
   this->MapperPosition[1] = 0.0;
   this->MapperPosition[2] = 0.0;
 
-  this->Assembly = NULL;
-  this->Actor = NULL;
   this->Mapper = NULL;
   this->GlobalTMin = VTK_LARGE_FLOAT;
 }
 
-// Specify function to be called as picking operation begins.
-void vtkPicker::SetStartPickMethod(void (*f)(void *), void *arg)
-{
-  if ( f != this->StartPickMethod || arg != this->StartPickMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->StartPickMethodArg)&&(this->StartPickMethodArgDelete))
-      {
-      (*this->StartPickMethodArgDelete)(this->StartPickMethodArg);
-      }
-    this->StartPickMethod = f;
-    this->StartPickMethodArg = arg;
-    this->Modified();
-    }
-}
-
-// Specify function to be called when something is picked.
-void vtkPicker::SetPickMethod(void (*f)(void *), void *arg)
-{
-  if ( f != this->PickMethod || arg != this->PickMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
-      {
-      (*this->PickMethodArgDelete)(this->PickMethodArg);
-      }
-    this->PickMethod = f;
-    this->PickMethodArg = arg;
-    this->Modified();
-    }
-}
-
-// Specify function to be called after all picking operations have been
-// performed.
-void vtkPicker::SetEndPickMethod(void (*f)(void *), void *arg)
-{
-  if ( f != this->EndPickMethod || arg != this->EndPickMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->EndPickMethodArg)&&(this->EndPickMethodArgDelete))
-      {
-      (*this->EndPickMethodArgDelete)(this->EndPickMethodArg);
-      }
-    this->EndPickMethod = f;
-    this->EndPickMethodArg = arg;
-    this->Modified();
-    }
-}
-
-
-// Set a method to delete user arguments for StartPickMethod.
-void vtkPicker::SetStartPickMethodArgDelete(void (*f)(void *))
-{
-  if ( f != this->StartPickMethodArgDelete)
-    {
-    this->StartPickMethodArgDelete = f;
-    this->Modified();
-    }
-}
-
-// Set a method to delete user arguments for PickMethod.
-void vtkPicker::SetPickMethodArgDelete(void (*f)(void *))
-{
-  if ( f != this->PickMethodArgDelete)
-    {
-    this->PickMethodArgDelete = f;
-    this->Modified();
-    }
-}
-
-// Set a method to delete user arguments for EndPickMethod.
-void vtkPicker::SetEndPickMethodArgDelete(void (*f)(void *))
-{
-  if ( f != this->EndPickMethodArgDelete)
-    {
-    this->EndPickMethodArgDelete = f;
-    this->Modified();
-    }
-}
-
-// Initialize list of actors in pick list.
-void vtkPicker::InitializePickList()
-{
-  this->Modified();
-  this->PickList->RemoveAllItems();
-}
-
-// Add an actor to the pick list.
-void vtkPicker::AddPickList(vtkActor *a)
-{
-  this->Modified();
-  this->PickList->AddItem(a);
-}
-
-// Delete an actor from the pick list.
-void vtkPicker::DeletePickList(vtkActor *a)
-{
-  this->Modified();
-  this->PickList->RemoveItem(a);
-}
-
 void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkObject::PrintSelf(os,indent);
-
-  if ( this->PickFromList )
-    {
-    os << indent << "Picking from list\n";
-    }
-  else
-    {
-    os << indent << "Picking from renderer's actor list\n";
-    }
-
-  if ( this->StartPickMethod )
-    {
-    os << indent << "Start PickMethod defined\n";
-    }
-  else
-    {
-    os << indent <<"No Start PickMethod\n";
-    }
-
-  if ( this->PickMethod )
-    {
-    os << indent << " PickMethod defined\n";
-    }
-  else
-    {
-    os << indent << "No  PickMethod\n";
-    }
-
-  if ( this->EndPickMethod )
-    {
-    os << indent << "End PickMethod defined\n";
-    }
-  else
-    {
-    os << indent << "No End PickMethod\n";
-    }
+  this->vtkAbstractPropPicker::PrintSelf(os,indent);
 
   if ( this->DataSet )
     {
@@ -586,26 +447,11 @@ void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "DataSet: (none)";
     }
 
-  os << indent << "Renderer: " << this->Renderer << "\n";
-
-  os << indent << "Selection Point: (" <<  this->SelectionPoint[0] << ","
-     << this->SelectionPoint[1] << ","
-     << this->SelectionPoint[2] << ")\n";
+  os << indent << "Mapper: " << this->Mapper << "\n";
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
-
-  os << indent << "Pick Position: (" <<  this->PickPosition[0] << ","
-     << this->PickPosition[1] << ","
-     << this->PickPosition[2] << ")\n";
 
   os << indent << "Mapper Position: (" <<  this->MapperPosition[0] << ","
      << this->MapperPosition[1] << ","
      << this->MapperPosition[2] << ")\n";
-
-  os << indent << "Assembly: " << this->Assembly << "\n";
-
-  os << indent << "Actor: " << this->Actor << "\n";
-
-  os << indent << "Mapper: " << this->Mapper << "\n";
-
 }

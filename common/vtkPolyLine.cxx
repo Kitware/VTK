@@ -90,12 +90,11 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
   float p[3], pNext[3];
   float c[3], f1, f2;
   int i, j, largeRotation;
-  //
+
   //  Loop over all lines
   // 
   for (lines->InitTraversal(); lines->GetNextCell(npts,linePts); )
     {
-    //
     //  Determine initial starting normal
     // 
     if ( npts <= 0 )
@@ -112,7 +111,6 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
 
     else //more than one point
       {
-      //
       //  Compute first normal. All "new" normals try to point in the same 
       //  direction.
       //
@@ -184,9 +182,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
 
         else //inbetween points
           {
-//
-//  Generate normals for new point by projecting previous normal
-// 
+          //  Generate normals for new point by projecting previous normal
           for (i=0; i<3; i++)
             {
             p[i] = pNext[i];
@@ -208,20 +204,20 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
           //compute rotation vector
           vtkMath::Cross(sPrev,normal,w);
           if ( vtkMath::Normalize(w) == 0.0 ) 
-	    {
-	    vtkErrorMacro(<<"normal and sPrev coincident");
-	    return 0;
-	    }
+            {
+            vtkErrorMacro(<<"normal and sPrev coincident");
+            return 0;
+            }
 
           //see whether we rotate greater than 90 degrees.
           if ( vtkMath::Dot(sPrev,sNext) < 0.0 )
-	    {
-	    largeRotation = 1;
-	    }
+            {
+            largeRotation = 1;
+            }
           else
-	    {
-	    largeRotation = 0;
-	    }
+            {
+            largeRotation = 0;
+            }
 
           //compute rotation of line segment
           vtkMath::Cross (sNext, sPrev, q);
@@ -233,49 +229,48 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
           if ( largeRotation )
             {
             if ( theta > 0.0 )
-	      {
-	      theta = vtkMath::Pi() - theta;
-	      }
+              {
+              theta = vtkMath::Pi() - theta;
+              }
             else
-	      {
-	      theta = -vtkMath::Pi() - theta;
-	      }
+              {
+              theta = -vtkMath::Pi() - theta;
+              }
             }
 
-	  // new method
+          // new method
           for (i=0; i<3; i++)
-	    {
-	    c[i] = sNext[i] + sPrev[i];
-	    }
-	  vtkMath::Normalize(c);
-	  f1 = vtkMath::Dot(q,normal);
-	  f2 = 1.0 - f1*f1;
-	  if (f2 > 0.0)
-	    {
-	    f2 = sqrt(1.0 - f1*f1);
-	    }
-	  else
-	    {
-	    f2 = 0.0;
-	    }
-	  vtkMath::Cross(c,q,w);
-	  vtkMath::Cross(sPrev,q,c);
-	  if (vtkMath::Dot(normal,c)*vtkMath::Dot(w,c) < 0)
-	    {
-	    f2 = -1.0*f2;
-	    }
+            {
+            c[i] = sNext[i] + sPrev[i];
+            }
+          vtkMath::Normalize(c);
+          f1 = vtkMath::Dot(q,normal);
+          f2 = 1.0 - f1*f1;
+          if (f2 > 0.0)
+            {
+            f2 = sqrt(1.0 - f1*f1);
+            }
+          else
+            {
+            f2 = 0.0;
+            }
+          vtkMath::Cross(c,q,w);
+          vtkMath::Cross(sPrev,q,c);
+          if (vtkMath::Dot(normal,c)*vtkMath::Dot(w,c) < 0)
+            {
+            f2 = -1.0*f2;
+            }
           for (i=0; i<3; i++)
-	    {
-	    normal[i] = f1*q[i] + f2*w[i];
-	    }
-	  
+            {
+            normal[i] = f1*q[i] + f2*w[i];
+            }
+          
           normals->InsertNormal(linePts[j],normal);
           }//for this point
         }//else
       }//else if
     }//for this line
   return 1;
-
 }
 
 int vtkPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
@@ -295,11 +290,14 @@ int vtkPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
     {
     this->Line->Points->SetPoint(0,this->Points->GetPoint(i));
     this->Line->Points->SetPoint(1,this->Points->GetPoint(i+1));
-    status = this->Line->EvaluatePosition(x,closest,ignoreId,pc,dist2,lineWeights);
+    status = this->Line->EvaluatePosition(x,closest,ignoreId,pc,
+                                          dist2,lineWeights);
     if ( status != -1 && dist2 < minDist2 )
       {
       return_status = status;
-      closestPoint[0] = closest[0]; closestPoint[1] = closest[1]; closestPoint[2] = closest[2]; 
+      closestPoint[0] = closest[0]; 
+      closestPoint[1] = closest[1]; 
+      closestPoint[2] = closest[2]; 
       subId = i;
       pcoords[0] = pc[0];
       minDist2 = dist2;
@@ -386,12 +384,11 @@ void vtkPolyLine::Contour(float value, vtkScalars *cellScalars,
     lineScalars->SetScalar(1,cellScalars->GetScalar(i+1));
 
     this->Line->Contour(value, lineScalars, locator, verts,
-		       lines, polys, inPd, outPd, inCd, cellId, outCd);
+                       lines, polys, inPd, outPd, inCd, cellId, outCd);
     }
   lineScalars->Delete();
 }
 
-//
 // Intersect with sub-lines
 //
 int vtkPolyLine::IntersectWithLine(float p1[3], float p2[3],float tol,float& t,
@@ -465,7 +462,7 @@ void vtkPolyLine::Clip(float value, vtkScalars *cellScalars,
     lineScalars->SetScalar(1,cellScalars->GetScalar(i+1));
 
     this->Line->Clip(value, lineScalars, locator, lines, inPd, outPd, 
-		    inCd, cellId, outCd, insideOut);
+                    inCd, cellId, outCd, insideOut);
     }
   
   lineScalars->Delete();
