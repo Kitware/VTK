@@ -38,6 +38,7 @@ class vtkCollectionElement //;prevents pick-up by man page generator
   vtkObject *Item;
   vtkCollectionElement *Next;
 };
+typedef void * vtkCollectionSimpleIterator;
 //ETX end tcl exclude
 
 class vtkCollectionIterator;
@@ -94,9 +95,10 @@ public:
 
   //BTX
   // Description:
-  // Less bloated way to iterate through a collection. 
+  // A reentrant safe way to iterate through a collection. 
   // Just pass the same cookie value around each time
-  void InitTraversal(void *&cookie) {cookie = static_cast<void *>(this->Top);};
+  void InitTraversal(vtkCollectionSimpleIterator &cookie) {
+    cookie = static_cast<vtkCollectionSimpleIterator>(this->Top);};
   //ETX
 
   // Description:
@@ -111,9 +113,9 @@ public:
 
   //BTX
   // Description: 
-  // Less bloated way to get the next object as a collection. Just pass the
+  // A reentrant safe way to get the next object as a collection. Just pass the
   // same cookie back and forth. 
-  vtkObject *GetNextItemAsObject(void *&cookie);
+  vtkObject *GetNextItemAsObject(vtkCollectionSimpleIterator &cookie);
   //ETX
   
   // Description:
