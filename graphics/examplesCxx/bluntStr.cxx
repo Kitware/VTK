@@ -109,6 +109,7 @@ int main( int argc, char *argv[] )
   aren->GetActiveCamera()->Elevation(30.0);
   aren->GetActiveCamera()->Azimuth(30.0);
   aren->GetActiveCamera()->Zoom(2.0);
+  aren->GetActiveCamera()->SetClippingRange(1,1000);
 
   renWin->SetSize(300,150);
   renWin->Render();
