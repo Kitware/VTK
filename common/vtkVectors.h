@@ -123,13 +123,6 @@ public:
   // Given a list of pt ids, return an array of vectors.
   void GetVectors(vtkIdList *ptId, vtkVectors *fv);
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void GetVectors(vtkIdList& ptId, vtkVectors& fv)
-    {VTK_LEGACY_METHOD(GetVectors,"3.2"); this->GetVectors(&ptId, &fv);}
-#endif
-  
 
 protected:
   vtkVectors();
