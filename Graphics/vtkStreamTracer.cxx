@@ -32,7 +32,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.25");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.26");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 
@@ -109,7 +109,7 @@ void vtkStreamTracer::AddInput(vtkDataSet* input)
   if (this->NumberOfInputs == 1)
     {
     this->SetNumberOfInputs(3);
-    this->Inputs[2] = input;
+    this->SetNthInput(2, input);
     return;
     }
 
@@ -124,8 +124,7 @@ void vtkStreamTracer::AddInput(vtkDataSet* input)
       }
     }
   
-  this->SetNumberOfInputs(this->NumberOfInputs + 1);
-  this->Inputs[this->NumberOfInputs - 1] = input;
+  this->SetNthInput(this->NumberOfInputs, input);
 }
 
 int vtkStreamTracer::GetIntegratorType()
