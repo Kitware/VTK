@@ -100,9 +100,9 @@ public:
     {this->Cursor3D->SetFocalPoint(x,y,z);}
   void SetPosition(float x[3])
     {this->SetPosition(x[0],x[1],x[2]);}
-  float* GetCenter() 
+  float* GetPosition() 
     {return this->Cursor3D->GetFocalPoint();}
-  void GetCenter(float xyz[3]) 
+  void GetPosition(float xyz[3]) 
     {this->Cursor3D->SetFocalPoint(xyz);}
 
   // Description:
