@@ -1152,6 +1152,7 @@ yy_match:
 yy_find_action:
       yy_current_state = *--yy_state_ptr;
       yy_lp = yy_accept[yy_current_state];
+      goto find_rule;
 find_rule: /* we branch to this label when backing up */
       for ( ; ; ) /* until we find what rule we matched */
          {
