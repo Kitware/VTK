@@ -829,8 +829,10 @@ void vtkUnstructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
                                            vtkIdList *cellIds)
 {
   int i, j, k;
-  int numPts, minNumCells, *minCells, ptId, numCells, *cells, *pts;
-  int match, minPtId;
+  int numPts, minNumCells, ptId, numCells, *cells, *pts;
+  int *minCells = NULL;
+  int match;
+  int minPtId = 0;
   int npts, *cellPts;
   
   if ( ! this->Links )

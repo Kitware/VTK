@@ -311,8 +311,11 @@ void vtkDelaunay2D::CheckEdge(int ptId, double x[3], int p1, int p2, int tri)
 // 
 void vtkDelaunay2D::Execute()
 {
-  int numPoints, numTriangles, i;
-  int ptId, tri[4], nei[3], p1, p2;
+  int numPoints, i;
+  int numTriangles = 0;
+  int ptId, tri[4], nei[3];
+  int p1 = 0;
+  int p2 = 0;
   vtkPoints *inPoints;
   vtkPoints *points;
   vtkCellArray *triangles;

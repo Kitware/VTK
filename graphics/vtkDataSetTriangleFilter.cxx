@@ -146,6 +146,7 @@ void vtkDataSetTriangleFilter::StructuredExecute()
 	
 	numPts = cellPtIds->GetNumberOfIds();
 	numSimplices = numPts / dim;
+	type = 0;
 	switch (dim)
 	  {
 	  case 1:
@@ -217,6 +218,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
     
     numPts = cellPtIds->GetNumberOfIds();
     numSimplices = numPts / dim;
+    type = 0;
     switch (dim)
       {
       case 1:
