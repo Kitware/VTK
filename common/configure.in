@@ -20,15 +20,6 @@ AC_ISC_POSIX
 #
 AC_HEADER_STDC
 
-#
-# figure out what graphics we should compile in based on header files
-#
-AC_CHECK_HEADERS(starbase.c.h, sbr_obj=$srcdir/../Makefile.in.sbr)
-AC_SUBST_FILE(sbr_obj)
-
-AC_CHECK_HEADERS(gl/gl.h, glr_obj=$srcdir/../Makefile.in.glr)
-AC_SUBST_FILE(glr_obj)
-
 AC_ARG_WITH(tcl,
          [  --with-tcl              build vtk the tcl based interpreter],
          BUILD_TCL=build_tcl
@@ -36,31 +27,6 @@ AC_ARG_WITH(tcl,
 
 AC_SUBST(BUILD_TCL)
 AC_SUBST(CLEAN_TCL)
-
-#
-# use mesa
-#
-AC_ARG_WITH(mesa,
-         [  --with-mesa               use the mesa opengl package],
-    oglr_obj=$srcdir/../Makefile.in.Mesaoglr)
-
-AC_CHECK_HEADERS(GL/gl.h, oglr_obj=$srcdir/../Makefile.in.oglr)
-AC_SUBST_FILE(oglr_obj)
-
-#
-# has the user set up XGL_HOME
-#
-if test "X$XGL_HOME" = "X" ; then
-  XGL_HOME=/opt/SUNWits/Graphics-sw/xgl
-fi
-AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, xglr_obj=$srcdir/../Makefile.in.xglr)
-AC_SUBST_FILE(xglr_obj)
-AC_SUBST(XGL_HOME)
-
-ac_save_path="$PATH"
-PATH=/usr/gfx
-AC_CHECK_PROG(HAVE_SETMON, setmon, -DHAVE_SETMON)
-PATH="$ac_save_path"
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
