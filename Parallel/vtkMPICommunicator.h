@@ -85,7 +85,6 @@ public:
   virtual int Send(vtkIdType* data, int length, int remoteProcessId, 
                    int tag);
 #endif
-
   virtual int Send(vtkDataObject* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Send(data, remoteProcessId, tag); }
   virtual int Send(vtkDataArray* data, int remoteProcessId, int tag)
@@ -180,10 +179,16 @@ public:
 
   friend class vtkMPIController;
 
+  vtkMPICommunicatorOpaqueComm* GetMPIComm()
+    {
+      return this->Comm;
+    }
+
 //ETX
 
   static char* Allocate(size_t size);
   static void Free(char* ptr);
+
 
 protected:
   vtkMPICommunicator();

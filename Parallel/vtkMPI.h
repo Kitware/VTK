@@ -25,6 +25,13 @@ class vtkMPICommunicatorOpaqueComm
 {
 public:
   vtkMPICommunicatorOpaqueComm();
+
+  MPI_Comm* GetHandle();
+
+  friend class vtkMPICommunicator;
+  friend class vtkMPIController;
+
+protected:
   MPI_Comm* Handle;
 };
 

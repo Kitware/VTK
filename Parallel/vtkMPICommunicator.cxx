@@ -26,7 +26,7 @@
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.21");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.22");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -42,6 +42,11 @@ public:
 vtkMPICommunicatorOpaqueComm::vtkMPICommunicatorOpaqueComm()
 {
   this->Handle = 0;
+}
+
+MPI_Comm* vtkMPICommunicatorOpaqueComm::GetHandle()
+{
+  return this->Handle;
 }
 
 //----------------------------------------------------------------------------
