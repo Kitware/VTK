@@ -669,9 +669,17 @@ void outputFunction(FILE *fp, FileInfo *data)
        !strcmp("vtkStructuredPointsReader",data->ClassName) ||
        !strcmp("vtkPolyDataReader",data->ClassName)))
       {
-          HandleDataReader(fp,data);
-          wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
-          numberOfWrappedFunctions++;
+      if(currentFunction->IsLegacy)
+        {
+        fprintf(fp,"#if !defined(VTK_LEGACY_REMOVE)\n");
+        }
+      HandleDataReader(fp,data);
+      if(currentFunction->IsLegacy)
+        {
+        fprintf(fp,"#endif\n");
+        }
+      wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
+      numberOfWrappedFunctions++;
       }
   
 
@@ -684,6 +692,10 @@ void outputFunction(FILE *fp, FileInfo *data)
     {
       fprintf(fp,"\n");
       
+      if(currentFunction->IsLegacy)
+        {
+        fprintf(fp,"#if !defined(VTK_LEGACY_REMOVE)\n");
+        }
       fprintf(fp,"extern \"C\" JNIEXPORT ");
       return_result(fp);
       fprintf(fp," JNICALL Java_vtk_%s_%s_1%i(JNIEnv *env, jobject obj",
@@ -762,6 +774,10 @@ void outputFunction(FILE *fp, FileInfo *data)
         }
       do_return(fp);
       fprintf(fp,"}\n");
+      if(currentFunction->IsLegacy)
+        {
+        fprintf(fp,"#endif\n");
+        }
       
       wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
       numberOfWrappedFunctions++;

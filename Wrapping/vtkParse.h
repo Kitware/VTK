@@ -33,6 +33,7 @@
     char *ReturnClass;
     char *Comment;
     char *Signature;  
+    int   IsLegacy;
   } FunctionInfo;
   
   typedef struct _FileInfo

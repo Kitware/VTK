@@ -47,6 +47,12 @@ OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
 SET(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
 #-----------------------------------------------------------------------------
+# Provide compatibility options.
+OPTION(VTK_LEGACY_REMOVE "Remove all legacy code completely." OFF)
+OPTION(VTK_LEGACY_SILENT "Silence all legacy code messages." OFF)
+MARK_AS_ADVANCED(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
+
+#-----------------------------------------------------------------------------
 # Determine the set of VTK kits that should be built.
 OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying data." ON)
 OPTION(VTK_USE_PATENTED

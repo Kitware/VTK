@@ -569,6 +569,10 @@ void outputFunction2(FILE *fp, FileInfo *data)
           }
         }
         
+      if(currentFunction->IsLegacy)
+        {
+        fprintf(fp,"#if !defined(VTK_LEGACY_REMOVE)\n");
+        }
       fprintf(fp,"static PyObject *Py%s_%s(PyObject *%s, PyObject *args)\n",
               data->ClassName,currentFunction->Name,
               (is_static ? "" : "self"));
@@ -801,7 +805,12 @@ void outputFunction2(FILE *fp, FileInfo *data)
             }
           }
         }
-      fprintf(fp,"  return NULL;\n}\n\n");
+      fprintf(fp,"  return NULL;\n}\n");
+      if(currentFunction->IsLegacy)
+        {
+        fprintf(fp,"#endif\n");
+        }
+      fprintf(fp,"\n");
 
       /* clear all occurances of this method from further consideration */
       for (occ = fnum + 1; occ < numberOfWrappedFunctions; occ++)
@@ -830,12 +839,20 @@ void outputFunction2(FILE *fp, FileInfo *data)
   
   for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
     {
+    if(wrappedFunctions[fnum]->IsLegacy)
+      {
+      fprintf(fp,"#if !defined(VTK_LEGACY_REMOVE)\n");
+      }
     if (wrappedFunctions[fnum]->Name)
       {
       fprintf(fp,"  {(char*)\"%s\",                (PyCFunction)Py%s_%s, 1,\n   (char*)\"%s\\n\\n%s\"},\n",
               wrappedFunctions[fnum]->Name, data->ClassName, 
               wrappedFunctions[fnum]->Name, wrappedFunctions[fnum]->Signature,
               quote_string(wrappedFunctions[fnum]->Comment,1000));
+      }
+    if(wrappedFunctions[fnum]->IsLegacy)
+      {
+      fprintf(fp,"#endif\n");
       }
     }
   

@@ -100,6 +100,10 @@
 /* C++ compiler used.  */
 #define VTK_CXX_COMPILER "@CMAKE_CXX_COMPILER@"
 
+/* Compatibility settings.  */
+#cmakedefine VTK_LEGACY_REMOVE
+#cmakedefine VTK_LEGACY_SILENT
+
 /*--------------------------------------------------------------------------*/
 /* Setup VTK based on platform features and configuration.                  */
 

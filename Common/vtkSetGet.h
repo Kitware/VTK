@@ -664,10 +664,8 @@ virtual double *Get##name() \
 #define vtkTemplateMacro10(func,a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) \
           vtkTemplateMacro(func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10))
 
-// Use to mark methods legacy. Make sure the correct date is used to
-// keep track of when a method was made legacy, and so that it can be
-// eliminated at the right time.
-#ifndef VTK_LEAN_AND_MEAN
+// Old-style legacy code marker macro.
+#if !defined(VTK_LEGACY_REMOVE) && !defined(VTK_LEAN_AND_MEAN)
 #define VTK_LEGACY_METHOD(oldMethod,versionStringMadeLegacy) \
   vtkErrorMacro(<< #oldMethod \
                 << " was obsoleted for version " << #versionStringMadeLegacy \
@@ -676,6 +674,53 @@ virtual double *Get##name() \
 #define VTK_LEGACY_METHOD(oldMethod,versionStringMadeLegacy)
 #endif
 
+//----------------------------------------------------------------------------
+// Setup legacy code policy.
 
+// Define VTK_LEGACY macro to mark legacy methods where they are
+// declared in their class.  Example usage:
+//
+//   // @deprecated Replaced by MyOtherMethod() as of VTK 5.0.
+//   VTK_LEGACY(void MyMethod());
+#if defined(VTK_LEGACY_REMOVE)
+  // Remove legacy methods completely.
+# define VTK_LEGACY(method)
+#elif defined(VTK_LEGACY_SILENT)
+  // Provide legacy methods with no warnings.
+# define VTK_LEGACY(method) method
+#else
+  // Setup compile-time warnings for uses of deprecated methods if
+  // possible on this compiler.
+# if defined(__GNUC__) && !defined(__INTEL_COMPILER) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
+#  define VTK_LEGACY(method) __attribute__((deprecated)) method
+# elif defined(_MSC_VER) && _MSC_VER >= 1300
+#  define VTK_LEGACY(method) __declspec(deprecated) method
+# else
+#  define VTK_LEGACY(method) method
+# endif
 #endif
 
+// Macros to create runtime deprecation warning messages in function
+// bodies.  Example usage:
+//
+//   void vtkMyClass::MyOldMethod()
+//   {
+//     VTK_LEGACY_BODY(vtkMyClass::MyOldMethod, 5.0);
+//   }
+//
+//   void vtkMyClass::MyMethod()
+//   {
+//     VTK_LEGACY_REPLACED_BODY(vtkMyClass::MyMethod, 5.0,
+//                              vtkMyClass::MyOtherMethod);
+//   }
+#if defined(VTK_LEGACY_REMOVE) || defined(VTK_LEGACY_SILENT)
+# define VTK_LEGACY_BODY(method, version)
+# define VTK_LEGACY_REPLACED_BODY(method, version, replace)
+#else
+# define VTK_LEGACY_BODY(method, version) \
+  vtkGenericWarningMacro(#method " was deprecated for VTK " #version " and will be removed in a future version.")
+# define VTK_LEGACY_REPLACED_BODY(method, version, replace) \
+  vtkGenericWarningMacro(#method " was deprecated for VTK " #version " and will be removed in a future version.  Use " #replace " instead.")
+#endif
+
+#endif

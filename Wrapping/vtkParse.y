@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+%{
+
 /*
 
 This file must be translated to C and modified to build everywhere.
@@ -22,10 +24,9 @@ Run yacc like this:
 
 Modify vtkParse.tab.c:
   - remove TABs
+
 */
 
-
-%{
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -131,6 +132,10 @@ char *vtkstrdup(const char *in)
       currentFunction->Signature = NULL;
       }
     }
+  void legacySig(void)
+    {
+    currentFunction->IsLegacy = 1;
+    }
 %}
 
 %union{
@@ -163,6 +168,7 @@ char *vtkstrdup(const char *in)
 %token STATIC
 %token VAR_FUNCTION
 %token ARRAY_NUM
+%token VTK_LEGACY
 
 /* macro tokens */
 %token SetMacro
@@ -203,55 +209,88 @@ class_def : CLASS VTK_ID
 class_def_body: class_def_item | class_def_item class_def_body;
 
 class_def_item: scope_type ':' | var
-   | function | FRIEND function | macro ';' | macro;
+   | operator
+   | FRIEND operator
+   | function func_body { output_function(); }
+   | FRIEND function func_body { output_function(); }
+   | legacy_function func_body { legacySig(); output_function(); }
+   | macro ';'
+   | macro;
 
-function: '~' func { preSig("~"); output_function(); } 
-      | VIRTUAL '~' func { preSig("virtual ~"); output_function(); }
-      | func 
-         {
-         output_function();
-	 }
+legacy_function: VTK_LEGACY '(' function ')'
+
+function: '~' func { preSig("~"); } 
+      | VIRTUAL '~' func { preSig("virtual ~"); }
+      | func
       | type func 
          {
          currentFunction->ReturnType = $<integer>1;
-         output_function();
 	 } 
       | type CONST func 
          {
          currentFunction->ReturnType = $<integer>1;
-         output_function();
 	 } 
       | VIRTUAL type CONST func 
          {
          preSig("virtual ");
          currentFunction->ReturnType = $<integer>2;
-         output_function();
 	 }
       | VIRTUAL type func 
          {
          preSig("virtual ");
          currentFunction->ReturnType = $<integer>2;
-         output_function();
 	 }
       | VIRTUAL func
+         {
+         preSig("virtual ");
+	 };
+
+operator:
+        operator_sig
+         {
+         output_function();
+	 }
+      | type operator_sig
+         {
+         currentFunction->ReturnType = $<integer>1;
+         output_function();
+	 }
+      | type CONST operator_sig
+         {
+         currentFunction->ReturnType = $<integer>1;
+         output_function();
+	 }
+      | VIRTUAL type CONST operator_sig
+         {
+         preSig("virtual ");
+         currentFunction->ReturnType = $<integer>2;
+         output_function();
+	 }
+      | VIRTUAL type operator_sig
+         {
+         preSig("virtual ");
+         currentFunction->ReturnType = $<integer>2;
+         output_function();
+	 }
+      | VIRTUAL operator_sig
          {
          preSig("virtual ");
          output_function();
 	 };
 
-func: func_beg { postSig(")"); } maybe_const { postSig(";"); openSig = 0; } 
-      func_end
+operator_sig: OPERATOR maybe_other_no_semi ';'
+    {
+      currentFunction->IsOperator = 1;
+      fprintf(stderr,"   Converted operator\n");
+    }
+
+func: func_sig { postSig(")"); } maybe_const { postSig(";"); openSig = 0; } 
     {
       openSig = 1;
       currentFunction->Name = $<str>1; 
       fprintf(stderr,"   Parsed func %s\n",$<str>1); 
-    }  
-  | OPERATOR maybe_other_no_semi ';'
-    { 
-      currentFunction->IsOperator = 1; 
-      fprintf(stderr,"   Converted operator\n"); 
     }
-  | func_beg '=' NUM ';'
+  | func_sig '=' NUM
     { 
       postSig(") = 0;"); 
       currentFunction->Name = $<str>1; 
@@ -262,7 +301,7 @@ func: func_beg { postSig(")"); } maybe_const { postSig(";"); openSig = 0; }
 
 maybe_const: | CONST {postSig(" const");};
 
-func_beg: any_id '('  {postSig(" ("); } args_list ')';
+func_sig: any_id '('  {postSig(" ("); } args_list ')';
 
 const_mod: CONST {postSig("const ");};
 
@@ -270,7 +309,7 @@ static_mod: STATIC {postSig("static ");};
 
 any_id: VTK_ID {postSig($<str>1);} | ID {postSig($<str>1);};
 
-func_end: ';' 
+func_body: ';' 
     | '{' maybe_other '}' ';' 
     | '{' maybe_other '}'  
     | ':' maybe_other_no_semi ';';
@@ -894,6 +933,7 @@ macro:
      sprintf(currentFunction->Signature, "%s *SafeDownCast (vtkObject* o);",
              $<str>3);
      sprintf(temps,"SafeDownCast"); 
+     currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = 309;
      currentFunction->ArgCounts[0] = 1;
@@ -940,6 +980,7 @@ void InitFunction(FunctionInfo *func)
   func->ReturnClass = NULL;
   func->Comment = NULL;
   func->Signature = NULL;
+  func->IsLegacy = 0;
   sigAllocatedLength = 0;
   openSig = 1;
   invertSig = 0;

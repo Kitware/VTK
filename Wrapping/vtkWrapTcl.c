@@ -435,6 +435,10 @@ void outputFunction(FILE *fp, FileInfo *data)
         (currentFunction->ArgCounts[i] ? currentFunction->ArgCounts[i] : 1);
       }
     
+    if(currentFunction->IsLegacy)
+      {
+      fprintf(fp,"#if !defined(VTK_LEGACY_REMOVE)\n");
+      }
     fprintf(fp,"  if ((!strcmp(\"%s\",argv[1]))&&(argc == %i))\n    {\n",
             currentFunction->Name, required_args + 2);
     
@@ -507,6 +511,10 @@ void outputFunction(FILE *fp, FileInfo *data)
       }
     
     fprintf(fp,"    }\n");
+    if(currentFunction->IsLegacy)
+      {
+      fprintf(fp,"#endif\n");
+      }
     
     wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
     numberOfWrappedFunctions++;
@@ -632,6 +640,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     int numArgs = 0;
 
     currentFunction = wrappedFunctions[i];
+    if(currentFunction->IsLegacy)
+      {
+      fprintf(fp,"#if !defined(VTK_LEGACY_REMOVE)\n");
+      }
             
     /* calc the total required args */
     for (j = 0; j < currentFunction->NumberOfArguments; j++)
@@ -654,6 +666,11 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       {
       fprintf(fp,"    Tcl_AppendResult(interp,\"  %s\\n\",NULL);\n",
               currentFunction->Name);
+      }
+
+    if(currentFunction->IsLegacy)
+      {
+      fprintf(fp,"#endif\n");
       }
     }
   fprintf(fp,"    return TCL_OK;\n    }\n");

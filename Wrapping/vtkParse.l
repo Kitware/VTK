@@ -1,8 +1,29 @@
 %option yylineno
 %{
+
+/*
+
+This file must be translated to C and modified to build everywhere.
+
+Run flex like this:
+
+  flex vtkParse.l
+
+Modify lex.yy.c:
+  - remove yyunput function
+  - remove TABs
+
+*/
+
 /* We do not care of interactive mode */
 #define YY_NEVER_INTERACTIVE 1
 #define YY_NO_UNPUT 1
+
+/* Do not include unistd.h in generated source. */
+#define YY_NO_UNISTD_H
+
+/* Skip declaring this function.  It is a macro.  */
+#define YY_SKIP_YYWRAP
 
 #ifdef _WIN32
 #pragma warning ( disable : 4127 )
@@ -179,6 +200,7 @@
 "vtkWorldCoordinateMacro" return(WorldCoordinateMacro);
 "vtkTypeMacro"         return(TypeMacro);
 "vtkTypeRevisionMacro" return(TypeMacro);
+"VTK_LEGACY"           return(VTK_LEGACY);
 
 [0-9]+		{ sscanf(yytext,"%d",&yylval.integer); return(NUM);}
 
