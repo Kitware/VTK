@@ -57,15 +57,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // average of the ith and (i+1) contour value. Note that if the first and
 // last contour values are not the minimum/maximum contour range, then two
 // extra contour values are added corresponding to the minimum and maximum
-// range values.
+// range values. These extra contour bands can be prevented from being output
+// by turning clipping on.
+//
+// .SECTION See Also
+// vtkClipDataSet vtkClipPolyData vtkClipVolume vtkContourFilter
 //
 #ifndef __vtkBandedPolyDataContourFilter_h
 #define __vtkBandedPolyDataContourFilter_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
 #include "vtkContourValues.h"
-
-class vtkScalarTree;
 
 class VTK_GRAPHICS_EXPORT vtkBandedPolyDataContourFilter : public vtkPolyDataToPolyDataFilter
 {
@@ -74,8 +76,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct object with initial range (0,1) and single contour value
-  // of 0.5.
+  // Construct object with no contours defined.
   static vtkBandedPolyDataContourFilter *New();
 
   // Description:
@@ -93,6 +94,15 @@ public:
   void GenerateValues(int numContours, float rangeStart, float rangeEnd);
 
   // Description:
+  // Indicate whether to clip outside the range specified by the user.
+  // (The range is contour value[0] to contour value[numContours-1].
+  // Clipping means all cells outside of the range specified are not
+  // sent to the output.
+  vtkSetMacro(Clipping,int);
+  vtkGetMacro(Clipping,int);
+  vtkBooleanMacro(Clipping,int);
+
+  // Description:
   // Overload GetMTime because we delegate to vtkContourValues so its
   // modified time must be taken into account.
   unsigned long GetMTime();
@@ -102,13 +112,20 @@ protected:
   ~vtkBandedPolyDataContourFilter();
 
   void Execute();
+
   int ComputeLowerScalarIndex(float);
   int ComputeUpperScalarIndex(float);
+  int IsContourValue(float val);
   int ClipEdge(int v1, int v2, vtkPoints *pts, vtkDataArray *scalars,
                vtkPointData *inPD, vtkPointData *outPD);
 
+  // data members
   vtkContourValues *ContourValues;
   int   NumberOfClipValues;
+
+  int Clipping;
+
+  // internal structures to support the algorithm
   float *ClipValues;
   float *T;
   int *PtIds;
