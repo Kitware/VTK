@@ -445,7 +445,8 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
         this->WindowId = CreateWindow(
             "vtkOglr", this->WindowName,
             WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
-            x, y, width, height,
+            x,y, width+2*GetSystemMetrics(SM_CXFRAME),
+            height+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
             NULL, NULL, this->ApplicationInstance, NULL);
         }
       vtkWin32OglrRenderWindowPtr = NULL;
