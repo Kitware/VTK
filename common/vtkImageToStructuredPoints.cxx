@@ -195,6 +195,9 @@ void vtkImageToStructuredPoints::Update()
 void vtkImageToStructuredPoints::Execute()
 {
   int extent[6];
+  float origin[3];
+  float spacing[3];
+
   vtkStructuredPoints *output = (vtkStructuredPoints *)(this->Output);
   vtkImageData *data;
   vtkImageData *vData;
@@ -229,7 +232,16 @@ void vtkImageToStructuredPoints::Execute()
   // setup the structured points
   output->SetDimensions(data->GetDimensions());
   output->SetSpacing(data->GetSpacing());
-  output->SetOrigin(data->GetOrigin());
+
+  data->GetExtent(extent);
+  data->GetSpacing(spacing);
+  data->GetOrigin(origin);
+
+  origin[0] += (float)(extent[0]) * spacing[0]; 
+  origin[1] += (float)(extent[2]) * spacing[1]; 
+  origin[2] += (float)(extent[4]) * spacing[2];
+
+  output->SetOrigin(origin);
 
   output->GetPointData()->PassData(data->GetPointData());
   if (this->VectorInput)
