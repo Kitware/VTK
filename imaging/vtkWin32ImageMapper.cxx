@@ -72,8 +72,8 @@ int vtkWin32ImageMapper::GetCompositingMode(vtkActor2D* actor)
 template <class T>
 static void clamps ( vtkImageData *data, float w, float l, T& lower, T& upper, int& hit)
 {
-  float f_lower, f_upper;
-  float range[2];
+  double f_lower, f_upper;
+  double range[2];
 
   data->GetPointData()->GetScalars()->GetDataTypeRange( range );
 
