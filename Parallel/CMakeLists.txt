@@ -12,13 +12,13 @@ vtkParallelFactory
 vtkPieceScalars 
 vtkPipelineSize 
 vtkPImageWriter 
+vtkPLinearExtrusionFilter
 vtkPPolyDataNormals 
 vtkPSphereSource 
 vtkRTAnalyticSource 
 vtkSharedMemoryCommunicator 
 vtkThreadedController 
 vtkTreeComposite 
-vtkRemoveGhostCells 
 vtkSocketCommunicator
 vtkSocketController 
 )
