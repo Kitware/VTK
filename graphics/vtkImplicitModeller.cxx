@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellLocator.h"
 #include "vtkScalars.h"
 #include "vtkMultiThreader.h"
+#include "vtkMutexLock.h"
 #include "vtkClipPolyData.h"
 #include "vtkPlane.h"
 #include "vtkStructuredGrid.h"
@@ -55,6 +56,7 @@ struct vtkImplicitModellerAppendInfo
   vtkImplicitModeller *Modeller;
   vtkDataSet          **Input;
   float               MaximumDistance;
+  vtkMutexLock        *ProgressMutex;
 };
 
 //----------------------------------------------------------------------------
@@ -112,6 +114,7 @@ void vtkImplicitModeller::StartAppend()
   float maxDistance;
 
   vtkDebugMacro(<< "Initializing data");
+	this->UpdateProgress(0.0);
   this->DataAppended = 1;
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
@@ -153,11 +156,14 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   float *weights;
   float maxDistance2;
   int slabSize, slabMin, slabMax;
+  vtkMutexLock *mutex;
 
   thread_id = ((ThreadInfoStruct *)(arg))->ThreadID;
   thread_count = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
   userData = (vtkImplicitModellerAppendInfo *)
     (((ThreadInfoStruct *)(arg))->UserData);
+  mutex = userData->ProgressMutex;
+
 
   if (userData->Input[thread_id] == NULL)
     {
@@ -254,6 +260,12 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   locator->CacheCellBoundsOn();
   locator->BuildLocator();
   
+  // for pregress update, compute portion of final output for each sub-plane 
+  // completed
+  float progressUpdate = 
+    (float)(slabMax - slabMin + 1) / (float)sampleDimensions[2]  // if did whole slab
+    / (max[2] - min[2] + 1); // divided by portion of slab we actually do
+
   jkFactor = sampleDimensions[0]*sampleDimensions[1];
   for (k = min[2]; k <= max[2]; k++) 
     {
@@ -309,6 +321,16 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
           }
         }
       }
+    if (mutex)
+      {
+      mutex->Lock();
+      }
+    userData->Modeller->UpdateProgress(
+      userData->Modeller->GetProgress() + progressUpdate);
+    if (mutex)
+      {
+      mutex->Unlock();
+      }
     }
   locator->Delete();
   cell->Delete();
@@ -345,7 +367,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
   if (this->ProcessMode == VTK_CELL_MODE)
     {
-    int cellNum, i, j, k;
+    int cellNum, i, j, k, updateTime;
     float *bounds, adjBounds[6];
     float pcoords[3];
     vtkScalars *newScalars;
@@ -365,6 +387,11 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
     // Traverse all cells; computing distance function on volume points.
     //
     vtkCell *cell;
+    updateTime = input->GetNumberOfCells() / 50;  // update every 2%
+    if (updateTime < 1)
+      {
+      updateTime = 1;
+      }
     for (cellNum=0; cellNum < input->GetNumberOfCells(); cellNum++)
       {
       cell = input->GetCell(cellNum);
@@ -415,6 +442,11 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
             }
           }
         }
+
+      if (cellNum % updateTime == 0)
+        {
+        this->UpdateProgress(float(cellNum + 1) / input->GetNumberOfCells());
+        }
       }
     delete [] weights;
     }
@@ -441,6 +473,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
     if (this->NumberOfThreads == 1)
       {
       info.Input[0] = input;
+      info.ProgressMutex = NULL;
       }
     else
       {
@@ -554,7 +587,16 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
             }
           }
         }
+      if (this->ProgressMethod)
+        {
+        info.ProgressMutex = vtkMutexLock::New();
+        }
+      else
+        {
+        info.ProgressMutex = NULL;
+        }
       }
+
     this->Threader->SetSingleMethod( vtkImplicitModeller_ThreadedAppend, 
       (void *)&info);
     this->Threader->SingleMethodExecute();
@@ -562,6 +604,10 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
     // cleanup
     if (this->NumberOfThreads > 1)
       {
+      if (info.ProgressMutex)
+        {
+        info.ProgressMutex->Delete();
+        }
       if ( input->GetDataSetType() != VTK_POLY_DATA )
         {
         for (i = 0; i < this->NumberOfThreads; i++)
@@ -620,7 +666,7 @@ void vtkImplicitModeller::EndAppend()
     {
     this->Cap(newScalars);
     }
-
+	this->UpdateProgress(1.0);
 }
 
 

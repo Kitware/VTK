@@ -112,7 +112,7 @@ void vtkClipPolyData::Execute()
 {
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  int cellId, i;
+  int cellId, i, updateTime;
   vtkPoints *cellPts;
   vtkScalars *clipScalars;
   vtkScalars *cellScalars; 
@@ -146,6 +146,9 @@ void vtkClipPolyData::Execute()
     vtkErrorMacro(<<"Cannot generate clip scalars if no clip function defined");
     return;
     }
+
+  this->UpdateProgress(0.0f);
+
   //
   // Create objects to hold output of clip operation
   //
@@ -228,6 +231,12 @@ void vtkClipPolyData::Execute()
   cellScalars->Allocate(VTK_CELL_SIZE);
   
   // perform clipping on cells
+  updateTime = numCells / 50;  // update every 2%
+  if (updateTime < 1)
+    {
+    updateTime = 1;
+    }
+
   for (cellId=0; cellId < numCells; cellId++)
     {
     cell = input->GetCell(cellId);
@@ -271,6 +280,10 @@ void vtkClipPolyData::Execute()
                  inPD, outPD, inCD, cellId, outCD, !this->InsideOut);
       }
 
+    if (cellId % updateTime == 0)
+      {
+      this->UpdateProgress((float)cellId / numCells);
+      }
     } //for each cell
 
   vtkDebugMacro(<<"Created: " 
