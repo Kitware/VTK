@@ -565,6 +565,8 @@ int vtkPolygon::FastTriangulate (int numVerts, int *verts, vtkIdList& Tris)
         this->FastTriangulate (n1, l1, Tris);
         this->FastTriangulate (n2, l2, Tris);
 
+        delete [] l1;
+        delete [] l2;
         return 1;
 
         }
