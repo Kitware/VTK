@@ -52,6 +52,8 @@ vtkPolyDataNormals::vtkPolyDataNormals()
   this->Splitting = 1;
   this->Consistency = 1;
   this->FlipNormals = 0;
+  this->ComputePointNormals = 1;
+  this->ComputeCellNormals = 0;
   this->NonManifoldTraversal = 1;
   this->MaxRecursionDepth = 1000;
   // some internal data
@@ -81,6 +83,7 @@ void vtkPolyDataNormals::Execute()
   vtkPoints *newPts = NULL;
   vtkNormals *newNormals;
   vtkPointData *pd, *outPD;
+  vtkCellData *cd, *outCD;
   float n[3];
   vtkCellArray *newPolys;
   int ptId, oldId;
@@ -103,6 +106,16 @@ void vtkPolyDataNormals::Execute()
     vtkErrorMacro(<<"No data to generate normals for!");
     return;
     }
+
+  // If there is nothing to do, pass the data through
+  if ( this->ComputePointNormals == 0 && this->ComputeCellNormals == 0) 
+    { //don't do anything! pass data through
+    output->CopyStructure(input);
+    output->GetPointData()->PassData(input->GetPointData());
+    output->GetCellData()->PassData(input->GetCellData());
+    return;
+    }
+
 //
 // Load data into cell structure.  We need two copies: one is a 
 // non-writable mesh used to perform topological queries.  The other 
@@ -149,6 +162,9 @@ void vtkPolyDataNormals::Execute()
   
   pd = input->GetPointData();
   outPD = output->GetPointData();
+    
+  cd = input->GetCellData();
+  outCD = output->GetCellData();
     
   NewMesh = vtkPolyData::New();
   NewMesh->SetPoints(inPts);
@@ -318,36 +334,39 @@ void vtkPolyDataNormals::Execute()
     newNormals->SetNormal(i,n);
     }
 
-  for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
+  if (this->ComputePointNormals)
+    {
+    for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
   cellId++ )
-    {
-    polyNormal = PolyNormals->GetNormal(cellId);
-
-    for (i=0; i < npts; i++) 
       {
-      vertNormal = newNormals->GetNormal(pts[i]);
-      for (j=0; j < 3; j++)
-	{
-	n[j] = vertNormal[j] + polyNormal[j];
+      polyNormal = PolyNormals->GetNormal(cellId);
+
+      for (i=0; i < npts; i++) 
+        {
+        vertNormal = newNormals->GetNormal(pts[i]);
+        for (j=0; j < 3; j++)
+	  {
+	  n[j] = vertNormal[j] + polyNormal[j];
+	  }
+	newNormals->SetNormal(pts[i],n);
+        }
+      }
+
+    for (i=0; i < numNewPts; i++) 
+      {
+      vertNormal = newNormals->GetNormal(i);
+      length = vtkMath::Norm(vertNormal);
+      if (length != 0.0) 
+        {
+        for (j=0; j < 3; j++)
+	  {
+	  n[j] = vertNormal[j] / length * flipDirection;
+	  }
 	}
-      newNormals->SetNormal(pts[i],n);
+      newNormals->SetNormal(i,n);
       }
     }
 
-  for (i=0; i < numNewPts; i++) 
-    {
-    vertNormal = newNormals->GetNormal(i);
-    length = vtkMath::Norm(vertNormal);
-    if (length != 0.0) 
-      {
-      for (j=0; j < 3; j++)
-	{
-	n[j] = vertNormal[j] / length * flipDirection;
-	}
-      }
-    newNormals->SetNormal(i,n);
-    }
-  PolyNormals->Delete();
   //
   //  Update ourselves.  If no new nodes have been created (i.e., no
   //  splitting), can simply pass data through.
@@ -365,7 +384,16 @@ void vtkPolyDataNormals::Execute()
     newPts->Delete();
     }
 
-  outPD->SetNormals(newNormals);
+  if (this->ComputeCellNormals)
+    {
+    outCD->SetNormals(PolyNormals);
+    }
+  PolyNormals->Delete();
+
+  if (this->ComputePointNormals)
+    {
+    outPD->SetNormals(newNormals);
+    }
   newNormals->Delete();
 
   output->SetPolys(newPolys);
@@ -534,6 +562,8 @@ void vtkPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Splitting: " << (this->Splitting ? "On\n" : "Off\n");
   os << indent << "Consistency: " << (this->Consistency ? "On\n" : "Off\n"); 
   os << indent << "Flip Normals: " << (this->FlipNormals ? "On\n" : "Off\n");
+  os << indent << "Compute Point Normals: " << (this->ComputePointNormals ? "On\n" : "Off\n");
+  os << indent << "Compute Cell Normals: " << (this->ComputeCellNormals ? "On\n" : "Off\n");
   os << indent << "Maximum Recursion Depth: " << this->MaxRecursionDepth << "\n";
   os << indent << "Non-manifold Traversal: " << 
     (this->NonManifoldTraversal ? "On\n" : "Off\n");

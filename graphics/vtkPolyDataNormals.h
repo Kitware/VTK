@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // across polygon neighbors. Sharp edges can be split and points duplicated
 // with separate normals to give crisp (rendered) surface definition. It is
 // also possible to globally flip the normal orientation.
-//
+//<P>
 // The algorithm works by determining normals for each polygon and then
 // averaging them at shared points. When sharp edges are present, the edges
 // are split and new points generated to prevent blurry edges (due to 
@@ -72,6 +72,7 @@ public:
   // Description:
   // Construct with feature angle=30, splitting and consistency turned on, 
   // flipNormals turned off, and non-manifold traversal turned on.
+  // ComputePointNormals is on and ComputeCellNormals is off.
   static vtkPolyDataNormals *New() {return new vtkPolyDataNormals;};
 
   // Description:
@@ -92,6 +93,18 @@ public:
   vtkSetMacro(Consistency,int);
   vtkGetMacro(Consistency,int);
   vtkBooleanMacro(Consistency,int);
+
+  // Description:
+  // Turn on/off the computation of Point Normals.
+  vtkSetMacro(ComputePointNormals,int);
+  vtkGetMacro(ComputePointNormals,int);
+  vtkBooleanMacro(ComputePointNormals,int);
+
+  // Description:
+  // Turn on/off the computation of Cell Normals.
+  vtkSetMacro(ComputeCellNormals,int);
+  vtkGetMacro(ComputeCellNormals,int);
+  vtkBooleanMacro(ComputeCellNormals,int);
 
   // Description:
   // Turn on/off the global flipping of normal orientation. Flipping
@@ -131,6 +144,8 @@ protected:
   int FlipNormals;
   int MaxRecursionDepth;
   int NonManifoldTraversal;
+  int ComputePointNormals;
+  int ComputeCellNormals;
 
   int Mark;
   int NumFlips;
