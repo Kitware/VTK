@@ -14,9 +14,9 @@ source $VTK_TCL/colors.tcl
 
 # create a sphere source and actor
 #
-vtkSphereSource source
-    source SetThetaResolution 100
-    source SetPhiResolution 100
+vtkSphereSource original
+    original SetThetaResolution 100
+    original SetPhiResolution 100
 
 vtkPoints spoints
     spoints SetNumberOfPoints 6
@@ -37,7 +37,7 @@ spoints SetPoint 5 0.5 0.5 2
 tpoints SetPoint 5 0.5 0.5 -0.5
 
 vtkThinPlateSplineMeshWarp warp
-    warp SetInput [source GetOutput]
+    warp SetInput [original GetOutput]
     warp SetSourceLandmarks spoints
     warp SetTargetLandmarks tpoints
         
