@@ -19,7 +19,7 @@
 
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkAbstractVolumeMapper, "1.1");
+vtkCxxRevisionMacro(vtkAbstractVolumeMapper, "1.2");
 
 // Construct a vtkAbstractVolumeMapper 
 vtkAbstractVolumeMapper::vtkAbstractVolumeMapper()
@@ -35,11 +35,11 @@ vtkAbstractVolumeMapper::~vtkAbstractVolumeMapper()
 
 void vtkAbstractVolumeMapper::Update()
 {
-  if ( this->GetInput() )
+  if ( this->GetDataSetInput() )
     {
-    this->GetInput()->UpdateInformation();
-    this->GetInput()->SetUpdateExtentToWholeExtent();
-    this->GetInput()->Update();
+    this->GetDataSetInput()->UpdateInformation();
+    this->GetDataSetInput()->SetUpdateExtentToWholeExtent();
+    this->GetDataSetInput()->Update();
     }
 }
 
@@ -49,14 +49,14 @@ float *vtkAbstractVolumeMapper::GetBounds()
 {
   static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
 
-  if ( ! this->GetInput() ) 
+  if ( ! this->GetDataSetInput() ) 
     {
     return bounds;
     }
   else
     {
     this->Update();
-    this->GetInput()->GetBounds(this->Bounds);
+    this->GetDataSetInput()->GetBounds(this->Bounds);
     return this->Bounds;
     }
 }
@@ -67,7 +67,7 @@ void vtkAbstractVolumeMapper::SetInput( vtkDataSet *vtkNotUsed(input) )
                 " - must be set on a subclass" );
 }
 
-vtkDataSet *vtkAbstractVolumeMapper::GetInput()
+vtkDataSet *vtkAbstractVolumeMapper::GetDataSetInput()
 {
   if (this->NumberOfInputs < 1)
     {

@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.76");
+vtkCxxRevisionMacro(vtkVolume, "1.77");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -361,7 +361,7 @@ int vtkVolume::RenderTranslucentGeometry( vtkViewport *vp )
     }
 
   // If we don't have any input return silently
-  if ( !this->Mapper->GetInput() )
+  if ( !this->Mapper->GetDataSetInput() )
     {
     return 0;
     }
@@ -463,10 +463,10 @@ unsigned long int vtkVolume::GetRedrawMTime()
     {
     time = this->Mapper->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    if (this->GetMapper()->GetInput() != NULL)
+    if (this->GetMapper()->GetDataSetInput() != NULL)
       {
-      this->GetMapper()->GetInput()->Update();
-      time = this->Mapper->GetInput()->GetMTime();
+      this->GetMapper()->GetDataSetInput()->Update();
+      time = this->Mapper->GetDataSetInput()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
       }
     }
@@ -478,11 +478,11 @@ unsigned long int vtkVolume::GetRedrawMTime()
     
     int numComponents;
     
-    if ( this->Mapper && this->Mapper->GetInput() &&
-         this->Mapper->GetInput()->GetPointData() &&
-         this->Mapper->GetInput()->GetPointData()->GetScalars() )
+    if ( this->Mapper && this->Mapper->GetDataSetInput() &&
+         this->Mapper->GetDataSetInput()->GetPointData() &&
+         this->Mapper->GetDataSetInput()->GetPointData()->GetScalars() )
       {
-      numComponents = this->Mapper->GetInput()->GetPointData()->
+      numComponents = this->Mapper->GetDataSetInput()->GetPointData()->
         GetScalars()->GetNumberOfComponents();
       }
     else
@@ -530,16 +530,16 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
   
   // Check that we have scalars
   if ( this->Mapper == NULL ||
-       this->Mapper->GetInput() == NULL ||
-       this->Mapper->GetInput()->GetPointData() == NULL ||
-       this->Mapper->GetInput()->GetPointData()->GetScalars() == NULL )
+       this->Mapper->GetDataSetInput() == NULL ||
+       this->Mapper->GetDataSetInput()->GetPointData() == NULL ||
+       this->Mapper->GetDataSetInput()->GetPointData()->GetScalars() == NULL )
     {
     vtkErrorMacro(<<"Need scalar data to volume render");
     return;
     }
     
   // What is the type of the data?
-  dataType = this->Mapper->GetInput()->
+  dataType = this->Mapper->GetDataSetInput()->
     GetPointData()->GetScalars()->GetDataType();
   
   if (dataType == VTK_UNSIGNED_CHAR)
@@ -556,7 +556,7 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
     return;
     }
   
-  int numComponents = this->Mapper->GetInput()->GetPointData()->
+  int numComponents = this->Mapper->GetDataSetInput()->GetPointData()->
     GetScalars()->GetNumberOfComponents();
 
   for ( int c = 0; c < numComponents; c++ )
@@ -729,15 +729,15 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *vtkNotUsed(ren),
 
   // Check that we have scalars
   if ( this->Mapper == NULL ||
-       this->Mapper->GetInput() == NULL ||
-       this->Mapper->GetInput()->GetPointData() == NULL ||
-       this->Mapper->GetInput()->GetPointData()->GetScalars() == NULL )
+       this->Mapper->GetDataSetInput() == NULL ||
+       this->Mapper->GetDataSetInput()->GetPointData() == NULL ||
+       this->Mapper->GetDataSetInput()->GetPointData()->GetScalars() == NULL )
     {
     vtkErrorMacro(<<"Need scalar data to volume render");
     return;
     }
 
-  int numComponents = this->Mapper->GetInput()->GetPointData()->
+  int numComponents = this->Mapper->GetDataSetInput()->GetPointData()->
     GetScalars()->GetNumberOfComponents();
 
   if ( needsRecomputing )

@@ -47,7 +47,7 @@ public:
   // Description:
   // Set/Get the input data
   virtual void SetInput( vtkDataSet * );
-  vtkDataSet *GetInput();
+  vtkDataSet *GetDataSetInput();
 
   // Description:
   // Return bounding box (array of six floats) of data expressed as
