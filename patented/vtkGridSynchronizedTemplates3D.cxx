@@ -62,9 +62,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedLongArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
-#include "vtkSynchronizedTemplates3D.h"
 #include "vtkGridSynchronizedTemplates3D.h"
-#include "vtkUnstructuredInformation.h"
+#include "vtkSynchronizedTemplates3D.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
@@ -128,12 +127,9 @@ vtkGridSynchronizedTemplates3D::~vtkGridSynchronizedTemplates3D()
 //----------------------------------------------------------------------------
 void vtkGridSynchronizedTemplates3D::SetInputMemoryLimit(long limit)
 {
-  if ( this->GetInput() == NULL)
-    {
-    vtkErrorMacro("Input has not been set.");
-    return;
-    }
-  this->GetInput()->SetMemoryLimit(limit);
+  vtkErrorMacro( << "This filter no longer supports a memory limit." );
+  vtkErrorMacro( << "This filter no longer initiates streaming." );
+  vtkErrorMacro( << "Please use a .... after this filter to achieve similar functionality." );
 }
 
 
@@ -622,23 +618,6 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkGridSynchronizedTemplates3D::StreamExecuteStart()
-{
-  vtkPolyData *output = this->GetOutput();
-  vtkStructuredGrid *input = this->GetInput();
-  int ext[6];
-  int numPieces = output->GetUpdateNumberOfPieces();
-
-  input->GetWholeExtent(ext);
-
-  // hack here. Compute the typical input extent.
-  // just used for estimated size;
-  ext[1] = ((ext[1]-ext[0]+1) / numPieces)-1+ext[0];
-
-  this->InitializeOutput(ext, output);
-}
-
-//----------------------------------------------------------------------------
 void vtkGridSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
 {
   vtkPoints *newPts;
@@ -710,14 +689,6 @@ void vtkGridSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
     o->GetPointData()->SetNormals(newNormals);
     newNormals->Delete();
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkGridSynchronizedTemplates3D::StreamExecuteEnd()
-{
-  vtkPolyData *output = this->GetOutput();
-  // reclaim unused space.
-  output->Squeeze();
 }
 
 //----------------------------------------------------------------------------
@@ -869,56 +840,6 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
 }
 
 
-
-
-//----------------------------------------------------------------------------
-// Assumes UpdateInformation was called first.
-int vtkGridSynchronizedTemplates3D::GetNumberOfStreamDivisions()
-{
-  vtkStructuredGrid *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
-  int *wholeExt, numPieces;
-  long memSize, memLimit;
-  int num, max;
-  
-  // we should really take into consider effect of overlap on memory (later).
-
-  // Get the memory necessary to hold the whole input.
-  memSize = input->GetEstimatedWholeMemorySize();
-  // relative to what we are generating
-  memSize = memSize / output->GetUpdateNumberOfPieces();
-  memLimit = input->GetMemoryLimit();
-  // determine the number of divisions
-  num = (int)(ceil((float)(memSize) / (float)(memLimit)));
-
-  // Cannot divide up a cube/voxel.
-  wholeExt = input->GetWholeExtent();
-  max = (wholeExt[1]-wholeExt[0]+1) * (wholeExt[3]-wholeExt[2]+1)
-    * (wholeExt[5]-wholeExt[4]+1);
-  if (num > max)
-    {
-    // we can only split up k slices
-    num = max;
-    }
-
-  // if input is already splitting up the output, consider this
-  // There must be a better way of doing this.
-  numPieces = output->GetUpdateNumberOfPieces();
-  num = num / numPieces;
-
-  // At least 1 (truncation)
-  if (num == 0)
-    {
-    num = 1;
-    }
-
-  return num;
-}
-
-
-
-
-
 //----------------------------------------------------------------------------
 void vtkGridSynchronizedTemplates3D::ExecuteInformation()
 {
@@ -962,20 +883,19 @@ void vtkGridSynchronizedTemplates3D::ExecuteInformation()
     {
     numPts = 1;
     }
-  this->GetOutput()->SetEstimatedWholeMemorySize(
-    numTris*sizeTri + numPts*sizePt);
-  this->GetOutput()->GetUnstructuredInformation()->SetMaximumNumberOfPieces(100000);
+  //  this->GetOutput()->SetEstimatedWholeMemorySize(
+  //    numTris*sizeTri + numPts*sizePt);
+  this->GetOutput()->SetMaximumNumberOfPieces(100000);
     
 }
 
 //----------------------------------------------------------------------------
-// Assumes UpdateInformation was called first.
-// Also assumes numDivisions is less than wholeDim[2]-1.
-int vtkGridSynchronizedTemplates3D::ComputeDivisionExtents(vtkDataObject *out,
-						   int idx, int numDivisions)
+
+void vtkGridSynchronizedTemplates3D::ComputeInputUpdateExtents( vtkDataObject *out )
+
 {
   vtkStructuredGrid *input = this->GetInput();
-  vtkPolyData *output = (vtkPolyData*)(out);
+  vtkPolyData *output = (vtkPolyData *)out;
   int piece, numPieces;
   int *wholeExt = input->GetWholeExtent();
   int ext[6];
@@ -983,22 +903,17 @@ int vtkGridSynchronizedTemplates3D::ComputeDivisionExtents(vtkDataObject *out,
   // Get request from output
   output->GetUpdateExtent(piece, numPieces);
 
-  // Divide this up.
-  numPieces *= numDivisions;
-  piece = piece * numDivisions + idx;
-
   // Start with the whole grid.
   input->GetWholeExtent(ext);  
 
   // get the extent associated with the piece.
-  if (this->SplitExtent(piece, numPieces, ext) == 0)
-    {
-    // We reached the limit of our ability to split. Do no execute.
-    return 0;
-    }
+  this->SplitExtent(piece, numPieces, ext);
 
   // As a side product of this call, ExecuteExtent is set.
-  // (This may or may not be specific for this filter.)
+  // This is the region that we are really updating, although
+  // we may require a larger input region in order to generate
+  // it if normals / gradients are being computed
+
   this->ExecuteExtent[0] = ext[0];
   this->ExecuteExtent[1] = ext[1];
   this->ExecuteExtent[2] = ext[2];
@@ -1045,10 +960,10 @@ int vtkGridSynchronizedTemplates3D::ComputeDivisionExtents(vtkDataObject *out,
 
   // Set the update extent of the input.
   input->SetUpdateExtent(ext);
-  return 1;
 }
 
 //----------------------------------------------------------------------------
+
 // Assumes UpdateInformation was called first.
 int vtkGridSynchronizedTemplates3D::SplitExtent(int piece, int numPieces,
                                                 int *ext)
@@ -1184,69 +1099,83 @@ void vtkGridSynchronizedTemplates3D::Execute()
   vtkScalars *threadScalars;
   vtkVectors *threadGrads;
   vtkNormals *threadNormals;
+  vtkStructuredGrid *input = this->GetInput();
+  int ext[6];
+  int numPieces = output->GetUpdateNumberOfPieces();
+
+  input->GetWholeExtent(ext);
+
+  // hack here. Compute the typical input extent.
+  // just used for estimated size;
+  ext[1] = ((ext[1]-ext[0]+1) / numPieces)-1+ext[0];
+
+  this->InitializeOutput(ext, output);
 
   if (this->NumberOfThreads == 1)
     {
     // just call the threaded execute directly.
-    this->ThreadedExecute(this->ExecuteExtent, 0);
-    return;
+    this->ThreadedExecute(this->GetExecuteExtent(), 0);
     }
-
-  this->Threader->SetNumberOfThreads(this->NumberOfThreads);
-
-  // Setup threading and the invoke threadedExecute
-  this->Threader->SetSingleMethod(vtkGridSyncTempThreadedExecute, this);
-  this->Threader->SingleMethodExecute();
-
-  // Collect all the data into the output.  Now I cannot use append filter
-  // because this filter might be streaming.  (Maybe I could if thread
-  // 0 wrote to output, and I copied output to a temp polyData...)
-  for (idx = 1; idx < this->NumberOfThreads; ++idx)
+  else
     {
-    threadOut = this->Threads[idx];
-    if (threadOut != NULL)
+    this->Threader->SetNumberOfThreads(this->NumberOfThreads);
+
+    // Setup threading and the invoke threadedExecute
+    this->Threader->SetSingleMethod(vtkGridSyncTempThreadedExecute, this);
+    this->Threader->SingleMethodExecute();
+    
+    // Collect all the data into the output.  Now I cannot use append filter
+    // because this filter might be streaming.  (Maybe I could if thread
+    // 0 wrote to output, and I copied output to a temp polyData...)
+    for (idx = 1; idx < this->NumberOfThreads; ++idx)
       {
-      offset = output->GetNumberOfPoints();
-      threadPD = threadOut->GetPointData();
-      threadScalars = threadPD->GetScalars();
-      threadGrads = threadPD->GetVectors();
-      threadNormals = threadPD->GetNormals();
-      num = threadOut->GetNumberOfPoints();
-      for (ptIdx = 0; ptIdx < num; ++ptIdx)
-        {
-        newIdx = ptIdx + offset;
-        outPts->InsertPoint(newIdx, threadOut->GetPoint(ptIdx));
-        if (outScalars)
-          {
-          outScalars->InsertScalar(newIdx, threadScalars->GetScalar(ptIdx));
-          }
-        if (outGrads)
-          {
-          outGrads->InsertVector(newIdx, threadGrads->GetVector(ptIdx));
-          }
-        if (outNormals)
-          {
-          outNormals->InsertNormal(newIdx, threadNormals->GetNormal(ptIdx));
-          }
-        }
-      // copy the triangles.
-      threadTris = threadOut->GetPolys();
-      threadTris->InitTraversal();
-      while (threadTris->GetNextCell(numCellPts, cellPts))
-        {
-        // copy and translate
-        if (numCellPts == 3)
-          {
-          newCellPts[0] = cellPts[0] + offset;
-          newCellPts[1] = cellPts[1] + offset;
-          newCellPts[2] = cellPts[2] + offset;
-          outTris->InsertNextCell(3, newCellPts); 
-          }
-        }
-      threadOut->Delete();
-      threadOut = this->Threads[idx] = NULL;         
+      threadOut = this->Threads[idx];
+      if (threadOut != NULL)
+	{
+	offset = output->GetNumberOfPoints();
+	threadPD = threadOut->GetPointData();
+	threadScalars = threadPD->GetScalars();
+	threadGrads = threadPD->GetVectors();
+	threadNormals = threadPD->GetNormals();
+	num = threadOut->GetNumberOfPoints();
+	for (ptIdx = 0; ptIdx < num; ++ptIdx)
+	  {
+	  newIdx = ptIdx + offset;
+	  outPts->InsertPoint(newIdx, threadOut->GetPoint(ptIdx));
+	  if (outScalars)
+	    {
+	    outScalars->InsertScalar(newIdx, threadScalars->GetScalar(ptIdx));
+	    }
+	  if (outGrads)
+	    {
+	    outGrads->InsertVector(newIdx, threadGrads->GetVector(ptIdx));
+	    }
+	  if (outNormals)
+	    {
+	    outNormals->InsertNormal(newIdx, threadNormals->GetNormal(ptIdx));
+	    }
+	  }
+	// copy the triangles.
+	threadTris = threadOut->GetPolys();
+	threadTris->InitTraversal();
+	while (threadTris->GetNextCell(numCellPts, cellPts))
+	  {
+	  // copy and translate
+	  if (numCellPts == 3)
+	    {
+	    newCellPts[0] = cellPts[0] + offset;
+	    newCellPts[1] = cellPts[1] + offset;
+	    newCellPts[2] = cellPts[2] + offset;
+	    outTris->InsertNextCell(3, newCellPts); 
+	    }
+	  }
+	threadOut->Delete();
+	threadOut = this->Threads[idx] = NULL;         
+	}
       }
     }
+
+  output->Squeeze();
 }
 
 
