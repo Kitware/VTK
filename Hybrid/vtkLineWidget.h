@@ -208,7 +208,7 @@ protected:
   void OnMiddleButtonUp();
   void OnRightButtonDown();
   void OnRightButtonUp();
-  void OnMouseMove();
+  virtual void OnMouseMove();
 
   // controlling ivars
   int Align;
