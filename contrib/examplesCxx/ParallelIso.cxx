@@ -234,17 +234,9 @@ void main( int argc, char *argv[] )
 
   save_filename[0] = '\0';
   
-  cerr << "argc = " << argc << endl;
-  cerr << "argv[0] = " << argv[0] << endl;
-  cerr << "argv[1] = " << argv[1] << endl;
-
-  
-  
   if( (argc >= 2) && (strcmp("-S", argv[argc-1]) == 0) )
     {
     sprintf( save_filename, "%s.cxx.tif", argv[0] );
-    cerr << "FileName : " << save_filename << endl;
-    
     }
     
   controller = vtkMultiProcessController::New();
