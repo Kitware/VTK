@@ -489,9 +489,6 @@ vtkObject *PyArg_VTKParseTuple(PyObject *self, PyObject *args,
   va_list va;
   va_start(va, format);
 
-  /* clear in case set from the previous overload of this method */
-  PyErr_Clear();
-
   /* check if this was called as an unbound method */
   if (self->ob_type == &PyVTKClassType)
     {
@@ -595,6 +592,8 @@ void vtkPythonDeleteObjectFromHash(PyObject *obj)
 }
 
 //--------------------------------------------------------------------
+static PyObject *vtkFindNearestBase(vtkObject *ptr);
+
 PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr)
 {
   PyObject *obj = 0;
@@ -627,6 +626,16 @@ PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr)
     {
     PyObject *vtkclass = PyDict_GetItemString(vtkPythonHash->ClassDict,
 			     (char *)((vtkObject *)ptr)->GetClassName());
+
+    // if the class was not in the hash, then find the nearest base class
+    // that is and associate ptr->GetClassName() with that base class
+    if (vtkclass == NULL)
+      {
+      vtkclass = vtkFindNearestBase(ptr);
+      vtkPythonAddClassToHash(vtkclass, 
+			      (char *)((vtkObject *)ptr)->GetClassName());
+      }      
+
     obj = PyVTKObject_New(vtkclass,ptr);
     }
   else
@@ -635,6 +644,44 @@ PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr)
     }
 
   return obj;
+}
+
+// this is a helper function to find the nearest base class for an
+// object whose class is not in the ClassDict
+static PyObject *vtkFindNearestBase(vtkObject *ptr)
+{
+  PyObject *classes = PyDict_Values(vtkPythonHash->ClassDict);
+  PyObject *nearestbase = NULL;
+  int maxdepth = 0;
+  int n = PyList_Size(classes);
+  int i, depth;
+
+  for (i = 0; i < n; i++)
+    {
+    PyObject *pyclass = PyList_GetItem(classes,i);
+    // check to see if ptr is derived from this class
+    if (ptr->IsA(((PyVTKClass *)pyclass)->vtk_name))
+      { 
+      PyObject *cls = pyclass;
+      PyObject *bases = ((PyVTKClass *)pyclass)->vtk_bases;
+      // count the heirarchy depth for this class
+      for (depth = 0; PyTuple_Size(bases) != 0; depth++)
+	{
+	cls = PyTuple_GetItem(bases,0);
+	bases = ((PyVTKClass *)cls)->vtk_bases;
+	}
+      // we want the class that is furthest from vtkObject
+      if (depth > maxdepth)
+	{
+	maxdepth = depth;
+	nearestbase = pyclass;
+	}
+      }
+    }
+
+  Py_DECREF(classes);
+
+  return nearestbase;
 }
 
 //--------------------------------------------------------------------
