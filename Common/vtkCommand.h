@@ -125,9 +125,11 @@ public:
     EndOfDataEvent,
     ErrorEvent,
     WarningEvent,
-    StartInteractionEvent,
+    StartInteractionEvent, //mainly used by vtkInteractorObservers
     InteractionEvent,
     EndInteractionEvent,
+    EnableEvent,
+    DisableEvent,
     UserEvent = 1000
   };
 //ETX
