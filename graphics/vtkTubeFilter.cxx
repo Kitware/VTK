@@ -103,9 +103,11 @@ void vtkTubeFilter::Execute()
   outPD->CopyNormalsOff();
   outPD->CopyAllocate(pd,numNewPts);
 
+  int generate_normals = 0;
+  vtkPolyLine lineNormalGenerator;
+  
   if ( !(inNormals=pd->GetNormals()) || this->UseDefaultNormal )
     {
-    vtkPolyLine lineNormalGenerator;
     deleteNormals = 1;
     inNormals = vtkFloatNormals::New();
     inNormals->SetNumberOfNormals(numPts);
@@ -119,13 +121,12 @@ void vtkTubeFilter::Execute()
       }
     else
       {
-      if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vtkFloatNormals*)inNormals) )
-        {
-        vtkErrorMacro(<< "No normals for line!\n");
-        if (deleteNormals) inNormals->Delete();
-        return;
-        }
-      }
+      // Normal generation has been moved to lower in the function.
+      // This allows each different polylines to share vertices, but have
+      // their normals (and hence their tubes) calculated independently
+      generate_normals = 1;
+      
+      }      
     }
 //
 // If varying width, get appropriate info.
@@ -152,7 +153,21 @@ void vtkTubeFilter::Execute()
 //  triangle strip.
 //
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
-    {
+  {
+    // if necessary calculate normals, each polyline calculates it's
+    // normals independently, avoiding conflicts at shared vertices
+    vtkCellArray *single_polyline = vtkCellArray::New();
+    if (generate_normals) {
+      single_polyline->InsertNextCell( npts, pts );
+    
+      if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,single_polyline,
+					  (vtkFloatNormals*)inNormals) )
+      {
+        vtkErrorMacro(<< "No normals for line!\n");
+        if (deleteNormals) inNormals->Delete();
+        return;
+      }
+    }
 //
 // Use "averaged" segment to create beveled effect. Watch out for first and 
 // last points.
@@ -285,7 +300,8 @@ void vtkTubeFilter::Execute()
       } //for this line
 
     ptOffset += this->NumberOfSides*npts;
-    }
+    single_polyline->Delete();
+  }
 //
 // Update ourselves
 //
