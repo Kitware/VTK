@@ -105,9 +105,9 @@ protected:
   vtkColorScalars *ReadImage(int dim[3]);
   vtkColorScalars *ReadVolume(int dim[3]);
 
-  int ReadBinaryPBM(FILE *fp, vtkBitmap *s, int n, int xsize, int ysize);
-  int ReadBinaryPGM(FILE *fp, vtkGraymap *s, int n, int xsize, int ysize);
-  int ReadBinaryPPM(FILE *fp, vtkPixmap *s, int n, int xsize, int ysize);
+  int ReadBinaryPBM(FILE *fp, vtkBitmap *s, int xsize, int ysize);
+  int ReadBinaryPGM(FILE *fp, vtkGraymap *s, int xsize, int ysize);
+  int ReadBinaryPPM(FILE *fp, vtkPixmap *s, int xsize, int ysize);
 };
 
 #endif
