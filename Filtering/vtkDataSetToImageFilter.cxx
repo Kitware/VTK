@@ -17,7 +17,18 @@
 #include "vtkDataSet.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkDataSetToImageFilter, "1.3");
+vtkCxxRevisionMacro(vtkDataSetToImageFilter, "1.4");
+
+//----------------------------------------------------------------------------
+vtkDataSetToImageFilter::vtkDataSetToImageFilter()
+{
+  this->NumberOfRequiredInputs = 1;
+}
+
+//----------------------------------------------------------------------------
+vtkDataSetToImageFilter::~vtkDataSetToImageFilter()
+{
+}
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

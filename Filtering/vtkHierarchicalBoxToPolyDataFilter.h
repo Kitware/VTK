@@ -38,8 +38,8 @@ public:
   vtkHierarchicalBoxDataSet *GetInput();
   
 protected:
-  vtkHierarchicalBoxToPolyDataFilter(){this->NumberOfRequiredInputs = 1;};
-  ~vtkHierarchicalBoxToPolyDataFilter() {};
+  vtkHierarchicalBoxToPolyDataFilter();
+  ~vtkHierarchicalBoxToPolyDataFilter();
   
 private:
   vtkHierarchicalBoxToPolyDataFilter(const vtkHierarchicalBoxToPolyDataFilter&);  // Not implemented.

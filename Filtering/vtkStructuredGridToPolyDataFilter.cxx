@@ -16,7 +16,18 @@
 
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridToPolyDataFilter, "1.14");
+vtkCxxRevisionMacro(vtkStructuredGridToPolyDataFilter, "1.15");
+
+//----------------------------------------------------------------------------
+vtkStructuredGridToPolyDataFilter::vtkStructuredGridToPolyDataFilter()
+{
+  this->NumberOfRequiredInputs = 1;
+}
+
+//----------------------------------------------------------------------------
+vtkStructuredGridToPolyDataFilter::~vtkStructuredGridToPolyDataFilter()
+{
+}
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

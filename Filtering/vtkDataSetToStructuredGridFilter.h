@@ -37,9 +37,9 @@ public:
   vtkDataSet *GetInput();
 
 protected:
-  vtkDataSetToStructuredGridFilter() {};
-  ~vtkDataSetToStructuredGridFilter() {};
-  
+  vtkDataSetToStructuredGridFilter();
+  ~vtkDataSetToStructuredGridFilter();
+
 private:
   vtkDataSetToStructuredGridFilter(const vtkDataSetToStructuredGridFilter&);  // Not implemented.
   void operator=(const vtkDataSetToStructuredGridFilter&);  // Not implemented.

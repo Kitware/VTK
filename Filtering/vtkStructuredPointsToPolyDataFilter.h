@@ -41,8 +41,8 @@ public:
   vtkImageData *GetInput();
   
 protected:  
-  vtkStructuredPointsToPolyDataFilter() {this->NumberOfRequiredInputs = 1;};
-  ~vtkStructuredPointsToPolyDataFilter() {};
+  vtkStructuredPointsToPolyDataFilter();
+  ~vtkStructuredPointsToPolyDataFilter();
 
   void ComputeInputUpdateExtents(vtkDataObject *output);
 private:

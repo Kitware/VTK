@@ -39,8 +39,8 @@ public:
   vtkDataSet *GetInput();
   
 protected:
-  vtkDataSetToImageFilter() {this->NumberOfRequiredInputs = 1;};
-  ~vtkDataSetToImageFilter() {};
+  vtkDataSetToImageFilter();
+  ~vtkDataSetToImageFilter();
 
   // All the DataSetToImageFilters require all their input.
   void ComputeInputUpdateExtents(vtkDataObject *output);

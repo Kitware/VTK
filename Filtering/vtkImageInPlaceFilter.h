@@ -36,8 +36,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkImageInPlaceFilter() {};
-  ~vtkImageInPlaceFilter() {};
+  vtkImageInPlaceFilter();
+  ~vtkImageInPlaceFilter();
 
   virtual void ExecuteData(vtkDataObject *out);
   void CopyData(vtkImageData *in, vtkImageData *out);

@@ -41,8 +41,8 @@ public:
   vtkImageData *GetInput();
 
 protected:
-  vtkStructuredPointsToStructuredPointsFilter() {this->NumberOfRequiredInputs = 1;};
-  ~vtkStructuredPointsToStructuredPointsFilter() {};
+  vtkStructuredPointsToStructuredPointsFilter();
+  ~vtkStructuredPointsToStructuredPointsFilter();
 
   // Since input[0] and output are of same type, we can create this
   // method that defaults to just copying information.

@@ -38,8 +38,8 @@ public:
   vtkHierarchicalBoxDataSet *GetInput();
   
 protected:
-  vtkHierarchicalBoxToHierarchicalBoxFilter(){this->NumberOfRequiredInputs = 1;};
-  ~vtkHierarchicalBoxToHierarchicalBoxFilter() {};
+  vtkHierarchicalBoxToHierarchicalBoxFilter();
+  ~vtkHierarchicalBoxToHierarchicalBoxFilter();
   
 private:
   vtkHierarchicalBoxToHierarchicalBoxFilter(const vtkHierarchicalBoxToHierarchicalBoxFilter&);  // Not implemented.

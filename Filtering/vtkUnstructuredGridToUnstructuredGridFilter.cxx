@@ -16,7 +16,18 @@
 
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridToUnstructuredGridFilter, "1.12");
+vtkCxxRevisionMacro(vtkUnstructuredGridToUnstructuredGridFilter, "1.13");
+
+//----------------------------------------------------------------------------
+vtkUnstructuredGridToUnstructuredGridFilter::vtkUnstructuredGridToUnstructuredGridFilter()
+{
+  this->NumberOfRequiredInputs = 1;
+}
+
+//----------------------------------------------------------------------------
+vtkUnstructuredGridToUnstructuredGridFilter::~vtkUnstructuredGridToUnstructuredGridFilter()
+{
+}
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

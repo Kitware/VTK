@@ -16,7 +16,18 @@
 
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridToStructuredGridFilter, "1.19");
+vtkCxxRevisionMacro(vtkStructuredGridToStructuredGridFilter, "1.20");
+
+//----------------------------------------------------------------------------
+vtkStructuredGridToStructuredGridFilter::vtkStructuredGridToStructuredGridFilter()
+{
+  this->NumberOfRequiredInputs = 1;
+}
+
+//----------------------------------------------------------------------------
+vtkStructuredGridToStructuredGridFilter::~vtkStructuredGridToStructuredGridFilter()
+{
+}
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

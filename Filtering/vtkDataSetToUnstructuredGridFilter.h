@@ -41,8 +41,8 @@ public:
   vtkDataSet *GetInput();
   
 protected:
-  vtkDataSetToUnstructuredGridFilter() {this->NumberOfRequiredInputs = 1;};
-  ~vtkDataSetToUnstructuredGridFilter() {};  
+  vtkDataSetToUnstructuredGridFilter();
+  ~vtkDataSetToUnstructuredGridFilter();
 
 private:
   vtkDataSetToUnstructuredGridFilter(const vtkDataSetToUnstructuredGridFilter&);  // Not implemented.

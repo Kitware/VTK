@@ -40,8 +40,8 @@ public:
   vtkDataSet *GetInput();
   
 protected:
-  vtkDataSetToStructuredPointsFilter() {this->NumberOfRequiredInputs = 1;};
-  ~vtkDataSetToStructuredPointsFilter() {};
+  vtkDataSetToStructuredPointsFilter();
+  ~vtkDataSetToStructuredPointsFilter();
 
   // All the DataSetToStructuredPointsFilters require all their input.
   void ComputeInputUpdateExtents(vtkDataObject *output);

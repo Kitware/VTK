@@ -44,8 +44,8 @@ public:
   virtual void ComputeInputUpdateExtents( vtkDataObject *output );
 
 protected:
-  vtkUnstructuredGridToPolyDataFilter() {this->NumberOfRequiredInputs = 1;}
-  ~vtkUnstructuredGridToPolyDataFilter() {}
+  vtkUnstructuredGridToPolyDataFilter();
+  ~vtkUnstructuredGridToPolyDataFilter();
   
   
 private:

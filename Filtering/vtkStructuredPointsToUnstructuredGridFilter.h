@@ -40,8 +40,8 @@ public:
   vtkImageData *GetInput();
 
 protected:
-  vtkStructuredPointsToUnstructuredGridFilter() {this->NumberOfRequiredInputs = 1;};
-  ~vtkStructuredPointsToUnstructuredGridFilter() {};
+  vtkStructuredPointsToUnstructuredGridFilter();
+  ~vtkStructuredPointsToUnstructuredGridFilter();
 
   void ComputeInputUpdateExtents(vtkDataObject *output);
 

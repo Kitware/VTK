@@ -16,7 +16,18 @@
 
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkDataSetToPolyDataFilter, "1.15");
+vtkCxxRevisionMacro(vtkDataSetToPolyDataFilter, "1.16");
+
+//----------------------------------------------------------------------------
+vtkDataSetToPolyDataFilter::vtkDataSetToPolyDataFilter()
+{
+  this->NumberOfRequiredInputs = 1;
+}
+
+//----------------------------------------------------------------------------
+vtkDataSetToPolyDataFilter::~vtkDataSetToPolyDataFilter()
+{
+}
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
