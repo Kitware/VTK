@@ -64,6 +64,7 @@ void vtkPPolyDataNormals::Execute()
   int ghostLevel = this->GetInput()->GetUpdateGhostLevel();
 
   this->vtkPolyDataNormals::Execute();
+  output->GetPointData()->CopyNormalsOn();
 
   // Remove any ghost cells we inserted.
   if (ghostLevel > 0)
