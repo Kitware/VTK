@@ -102,6 +102,8 @@ namespace eval ::vtk {
 
     proc create_vtkw_bindings {vtkw renwin} {
     
+        global tcl_platform
+
         # Find the render window (which creates it if it was not set).
         # Find the interactor, create a generic one if needed.
 
@@ -149,8 +151,15 @@ namespace eval ::vtk {
         
         # Wheel motion
 
-        bind $vtkw <MouseWheel> \
-                "::vtk::cb_vtkw_wheel_motion_binding $vtkw $renwin %D"
+        if {$tcl_platform(platform) == "windows"} {
+            bind $vtkw <MouseWheel> \
+                    "::vtk::cb_vtkw_wheel_motion_binding $vtkw $renwin %D"
+        } else {
+            bind $vtkw <Button-4> \
+                    "::vtk::cb_vtkw_wheel_motion_binding $vtkw $renwin 1"
+            bind $vtkw <Button-5> \
+                    "::vtk::cb_vtkw_wheel_motion_binding $vtkw $renwin -1"
+        }
 
         # Expose/Configure
 
