@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 void rotate(int fd, float Cosine,float Sine, char axis)
 {
-  static float tform[4][4] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
+  static float tform[4][4] = {{1,0,0,0}, {0,1,0,0}, {0,0,1,0}, {0,0,0,1}};
   int i,j;
 
   for (i = 0; i < 3; i++)
@@ -87,7 +87,7 @@ void rotate(int fd, float Cosine,float Sine, char axis)
 
 void translate(int fd, float x, float y, float z)
 {
-  static float tform[4][4] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
+  static float tform[4][4] = {{1,0,0,0}, {0,1,0,0}, {0,0,1,0}, {0,0,0,1}};
 
   tform[3][0] = x;
   tform[3][1] = y;
@@ -99,7 +99,7 @@ void translate(int fd, float x, float y, float z)
 void kens_view_volume(int fd, float left, float right, float bottom, 
 		      float top, float nearz, float farz)
 {
-  static float tform[4][4] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
+  static float tform[4][4] = {{1,0,0,0}, {0,1,0,0}, {0,0,1,0}, {0,0,0,1}};
 
   tform[0][0] = 2.0*nearz/(right-left);
   tform[1][1] = 2.0*nearz/(top-bottom);
@@ -183,21 +183,14 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkRenderer *ren)
 void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
 {
   float aspect[3];
-  float vaspect[2];
   float viewport[4];
   float *background;
-  int	width,height;
-  long clr;
-  int left,right,bottom,top;
-  long xmax,ymax,zmax;
   float twist;
   int stereo;
   int fd;
   int *size;
   int *screen_size;
   vtkSbrRenderWindow *rw;
-  float trans[2];
-  float old;
   float view_size[2];
   float vdc_vals[6];
   float *Position, *FocalPoint, *ClippingRange;
