@@ -37,9 +37,11 @@ vtkDataSetMapper aEdgeMapper
 vtkActor aEdgeActor
   aEdgeActor SetMapper aEdgeMapper
   [aEdgeActor GetProperty] SetRepresentationToWireframe
+  [aEdgeActor GetProperty] SetAmbient 1.0
 vtkActor aEdgeContourActor
   aEdgeContourActor SetMapper aEdgeContourMapper
   [aEdgeContourActor GetProperty] BackfaceCullingOn
+  [aEdgeContourActor GetProperty] SetAmbient 1.0
 
 # Quadratic triangle
 vtkPoints triPoints
@@ -82,9 +84,11 @@ vtkDataSetMapper aTriMapper
 vtkActor aTriActor
   aTriActor SetMapper aTriMapper
   [aTriActor GetProperty] SetRepresentationToWireframe
+  [aTriActor GetProperty] SetAmbient 1.0
 vtkActor aTriContourActor
   aTriContourActor SetMapper aTriContourMapper
   [aTriContourActor GetProperty] BackfaceCullingOn
+  [aTriContourActor GetProperty] SetAmbient 1.0
 
 # Quadratic quadrilateral
 vtkPoints quadPoints
@@ -133,9 +137,11 @@ vtkDataSetMapper aQuadMapper
 vtkActor aQuadActor
   aQuadActor SetMapper aQuadMapper
   [aQuadActor GetProperty] SetRepresentationToWireframe
+  [aQuadActor GetProperty] SetAmbient 1.0
 vtkActor aQuadContourActor
   aQuadContourActor SetMapper aQuadContourMapper
   [aQuadContourActor GetProperty] BackfaceCullingOn
+  [aQuadContourActor GetProperty] SetAmbient 1.0
 
 # Quadratic tetrahedron
 vtkPoints tetPoints
@@ -190,8 +196,10 @@ vtkDataSetMapper aTetMapper
 vtkActor aTetActor
   aTetActor SetMapper aTetMapper
   [aTetActor GetProperty] SetRepresentationToWireframe
+  [aTetActor GetProperty] SetAmbient 1.0
 vtkActor aTetContourActor
   aTetContourActor SetMapper aTetContourMapper
+  [aTetContourActor GetProperty] SetAmbient 1.0
 
 # Quadratic hexahedron
 vtkPoints hexPoints
@@ -276,8 +284,10 @@ vtkDataSetMapper aHexMapper
 vtkActor aHexActor
   aHexActor SetMapper aHexMapper
   [aHexActor GetProperty] SetRepresentationToWireframe
+  [aHexActor GetProperty] SetAmbient 1.0
 vtkActor aHexContourActor
   aHexContourActor SetMapper aHexContourMapper
+  [aHexContourActor GetProperty] SetAmbient 1.0
 
 # Create the rendering related stuff.
 # Since some of our actors are a single vertex, we need to remove all
@@ -291,33 +301,23 @@ vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin
 
 ren1 SetBackground .1 .2 .3
-renWin SetSize 400 400
+renWin SetSize 400 200
 
 # specify properties
 ren1 AddActor aEdgeActor 
-[aEdgeActor GetProperty] SetDiffuseColor 1 0 0
 ren1 AddActor aEdgeContourActor
-[aEdgeContourActor GetProperty] SetDiffuseColor 1 0 0
 
 ren1 AddActor aTriActor 
-[aTriActor GetProperty] SetDiffuseColor 1 0 0
 ren1 AddActor aTriContourActor
-[aTriContourActor GetProperty] SetDiffuseColor 1 0 0
 
 ren1 AddActor aQuadActor 
-[aQuadActor GetProperty] SetDiffuseColor 1 0 0
 ren1 AddActor aQuadContourActor
-[aQuadContourActor GetProperty] SetDiffuseColor 1 0 0
 
 ren1 AddActor aTetActor 
-[aTetActor GetProperty] SetDiffuseColor 1 0 0
 ren1 AddActor aTetContourActor
-[aTetContourActor GetProperty] SetDiffuseColor 1 0 0
 
 ren1 AddActor aHexActor 
-[aHexActor GetProperty] SetDiffuseColor 1 0 0
 ren1 AddActor aHexContourActor
-[aHexContourActor GetProperty] SetDiffuseColor 1 0 0
 
 # places everyone!!
 aEdgeContourActor AddPosition 0 2 0
@@ -339,7 +339,7 @@ ren1 AddActor left
 ren1 AddActor back
 [back GetProperty] SetDiffuseColor .2 .2 .2
 
-[ren1 GetActiveCamera] Dolly 1.5
+[ren1 GetActiveCamera] Dolly 2.5
 ren1 ResetCameraClippingRange
 
 renWin Render
