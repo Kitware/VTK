@@ -153,7 +153,13 @@ public:
   // Description:
   // Is the interactive mode specified?
   int IsInteractiveModeSpecified();
-  
+
+  // Description:
+  // Number of pixels added as borders to avoid problems with
+  // window decorations added by some window managers.
+  vtkSetMacro(BorderOffset, int);
+  vtkGetMacro(BorderOffset, int);
+
 protected:
   vtkTesting();
   ~vtkTesting();
@@ -168,6 +174,7 @@ protected:
   char* ValidImageFileName;
   double ImageDifference;
   char *TempDirectory;
+  int BorderOffset;
   
 //BTX
   vtkstd::vector<vtkstd::string> Args;

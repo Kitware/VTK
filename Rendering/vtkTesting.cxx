@@ -26,11 +26,12 @@
 #include "vtkImageData.h"
 #include "vtkTimerLog.h"
 #include "vtkSmartPointer.h"
+#include "vtkImageClip.h"
 
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.15");
+vtkCxxRevisionMacro(vtkTesting, "1.16");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 // Function returning either a command line argument, an environment variable
@@ -145,6 +146,7 @@ vtkTesting::vtkTesting()
   this->ImageDifference = 0;
   this->DataRoot = 0;
   this->TempDirectory = 0;
+  this->BorderOffset = 0;
   
   // on construction we start the timer
   this->StartCPUTime = vtkTimerLog::GetCPUTime();
@@ -442,10 +444,40 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
 
   vtkSmartPointer<vtkPNGReader> rt_png = vtkSmartPointer<vtkPNGReader>::New();
   rt_png->SetFileName(this->ValidImageFileName); 
+  rt_png->Update();
+  image->Update();
+
   vtkSmartPointer<vtkImageDifference> rt_id =
     vtkSmartPointer<vtkImageDifference>::New();
-  rt_id->SetInput(image); 
-  rt_id->SetImage(rt_png->GetOutput()); 
+
+  vtkImageClip* ic1 = vtkImageClip::New();
+  ic1->SetClipData(1);
+  ic1->SetInput(image);
+
+  vtkImageClip* ic2 = vtkImageClip::New();
+  ic2->SetClipData(1);
+  ic2->SetInput(rt_png->GetOutput());
+
+  int* wExt1 = ic1->GetInput()->GetWholeExtent();
+  int* wExt2 = ic2->GetInput()->GetWholeExtent();
+  ic1->SetOutputWholeExtent(wExt1[0] + this->BorderOffset, 
+                            wExt1[1] - this->BorderOffset, 
+                            wExt1[2] + this->BorderOffset, 
+                            wExt1[3] - this->BorderOffset, 
+                            wExt1[4], 
+                            wExt1[5]);
+
+  ic2->SetOutputWholeExtent(wExt2[0] + this->BorderOffset, 
+                            wExt2[1] - this->BorderOffset, 
+                            wExt2[2] + this->BorderOffset, 
+                            wExt2[3] - this->BorderOffset, 
+                            wExt2[4], 
+                            wExt2[5]);
+
+  rt_id->SetInput(ic1->GetOutput()); 
+  ic1->Delete();
+  rt_id->SetImage(ic2->GetOutput()); 
+  ic2->Delete();
   rt_id->Update(); 
 
   double minError = rt_id->GetThresholdedError();
@@ -682,4 +714,5 @@ void vtkTesting::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ImageDifference: " << this->ImageDifference << endl;
   os << indent << "DataRoot: " << this->GetDataRoot() << endl;
   os << indent << "Temp Directory: " << this->GetTempDirectory() << endl;
+  os << indent << "BorderOffset: " << this->GetBorderOffset() << endl;
 }
