@@ -163,9 +163,10 @@ case 10:
 # line 77 "vtkParse.l"
   { int pos = 1;
 	           while (yytext[pos-1] != '/' || yytext[pos] != '/') pos++; 
-                   yylval.str = (char *)malloc(yyleng + 1 - pos - 1);
+                   yylval.str = (char *)malloc(yyleng + 1 - pos - 1 + 1);
                    memcpy(yylval.str,yytext+ pos + 1,yyleng - pos - 1);
-                   yylval.str[yyleng - pos - 1] = '\0';
+                   yylval.str[yyleng - pos - 1] = '\n';
+                   yylval.str[yyleng - pos] = '\0';
 	           switch (CommentState)
                      {
                      case 1: strcat(data.Description,yylval.str); break;
@@ -177,253 +178,253 @@ case 10:
 break;
 case 11:
 
-# line 91 "vtkParse.l"
+# line 92 "vtkParse.l"
 ;
 break;
 case 12:
 
-# line 93 "vtkParse.l"
+# line 94 "vtkParse.l"
 ;
 break;
 case 13:
 
-# line 95 "vtkParse.l"
+# line 96 "vtkParse.l"
 ;
 break;
 case 14:
 
-# line 97 "vtkParse.l"
+# line 98 "vtkParse.l"
  
   { sscanf(yytext+1,"%d",&yylval.integer); return(ARRAY_NUM);}
 break;
 case 15:
 
-# line 101 "vtkParse.l"
+# line 102 "vtkParse.l"
  return(CLASS_REF);
 break;
 case 16:
 
-# line 103 "vtkParse.l"
+# line 104 "vtkParse.l"
 return(VAR_FUNCTION);
 break;
 case 17:
 
-# line 105 "vtkParse.l"
+# line 106 "vtkParse.l"
 return(SHORT);
 break;
 case 18:
 
-# line 106 "vtkParse.l"
+# line 107 "vtkParse.l"
  return(LONG);
 break;
 case 19:
 
-# line 107 "vtkParse.l"
+# line 108 "vtkParse.l"
 return(SHORT);
 break;
 case 20:
 
-# line 108 "vtkParse.l"
+# line 109 "vtkParse.l"
  return(LONG);
 break;
 case 21:
 
-# line 110 "vtkParse.l"
+# line 111 "vtkParse.l"
 	return(CLASS);
 break;
 case 22:
 
-# line 111 "vtkParse.l"
+# line 112 "vtkParse.l"
  	return(PUBLIC);
 break;
 case 23:
 
-# line 112 "vtkParse.l"
+# line 113 "vtkParse.l"
  	return(PRIVATE);
 break;
 case 24:
 
-# line 113 "vtkParse.l"
+# line 114 "vtkParse.l"
 	return(PROTECTED);
 break;
 case 25:
 
-# line 114 "vtkParse.l"
+# line 115 "vtkParse.l"
 	        return(INT);
 break;
 case 26:
 
-# line 115 "vtkParse.l"
+# line 116 "vtkParse.l"
 	return(FLOAT);
 break;
 case 27:
 
-# line 116 "vtkParse.l"
+# line 117 "vtkParse.l"
 	return(SHORT);
 break;
 case 28:
 
-# line 117 "vtkParse.l"
+# line 118 "vtkParse.l"
  	return(LONG);
 break;
 case 29:
 
-# line 118 "vtkParse.l"
+# line 119 "vtkParse.l"
 	return(DOUBLE);
 break;
 case 30:
 
-# line 119 "vtkParse.l"
+# line 120 "vtkParse.l"
 	        return(VOID);
 break;
 case 31:
 
-# line 120 "vtkParse.l"
+# line 121 "vtkParse.l"
 	        return(CHAR);
 break;
 case 32:
 
-# line 121 "vtkParse.l"
+# line 122 "vtkParse.l"
       return(VIRTUAL);
 break;
 case 33:
 
-# line 122 "vtkParse.l"
+# line 123 "vtkParse.l"
         return(CONST);
 break;
 case 34:
 
-# line 123 "vtkParse.l"
+# line 124 "vtkParse.l"
      return(OPERATOR);
 break;
 case 35:
 
-# line 124 "vtkParse.l"
+# line 125 "vtkParse.l"
      return(UNSIGNED);
 break;
 case 36:
 
-# line 125 "vtkParse.l"
+# line 126 "vtkParse.l"
        return(FRIEND);
 break;
 case 37:
 
-# line 126 "vtkParse.l"
+# line 127 "vtkParse.l"
        return(STATIC);
 break;
 case 38:
 
-# line 128 "vtkParse.l"
+# line 129 "vtkParse.l"
          return(SetMacro);
 break;
 case 39:
 
-# line 129 "vtkParse.l"
+# line 130 "vtkParse.l"
          return(GetMacro);
 break;
 case 40:
 
-# line 130 "vtkParse.l"
+# line 131 "vtkParse.l"
    return(SetStringMacro);
 break;
 case 41:
 
-# line 131 "vtkParse.l"
+# line 132 "vtkParse.l"
    return(GetStringMacro);
 break;
 case 42:
 
-# line 132 "vtkParse.l"
+# line 133 "vtkParse.l"
     return(SetClampMacro);
 break;
 case 43:
 
-# line 133 "vtkParse.l"
+# line 134 "vtkParse.l"
    return(SetObjectMacro);
 break;
 case 44:
 
-# line 134 "vtkParse.l"
+# line 135 "vtkParse.l"
 return(SetReferenceCountedObjectMacro);
 break;
 case 45:
 
-# line 135 "vtkParse.l"
+# line 136 "vtkParse.l"
    return(GetObjectMacro);
 break;
 case 46:
 
-# line 136 "vtkParse.l"
+# line 137 "vtkParse.l"
      return(BooleanMacro);
 break;
 case 47:
 
-# line 137 "vtkParse.l"
+# line 138 "vtkParse.l"
   return(SetVector2Macro);
 break;
 case 48:
 
-# line 138 "vtkParse.l"
+# line 139 "vtkParse.l"
   return(SetVector3Macro);
 break;
 case 49:
 
-# line 139 "vtkParse.l"
+# line 140 "vtkParse.l"
   return(SetVector4Macro);
 break;
 case 50:
 
-# line 140 "vtkParse.l"
+# line 141 "vtkParse.l"
   return(SetVector6Macro);
 break;
 case 51:
 
-# line 141 "vtkParse.l"
+# line 142 "vtkParse.l"
   return(GetVector2Macro);
 break;
 case 52:
 
-# line 142 "vtkParse.l"
+# line 143 "vtkParse.l"
   return(GetVector3Macro);
 break;
 case 53:
 
-# line 143 "vtkParse.l"
+# line 144 "vtkParse.l"
   return(GetVector4Macro);
 break;
 case 54:
 
-# line 144 "vtkParse.l"
+# line 145 "vtkParse.l"
   return(GetVector6Macro);
 break;
 case 55:
 
-# line 145 "vtkParse.l"
+# line 146 "vtkParse.l"
    return(SetVectorMacro);
 break;
 case 56:
 
-# line 146 "vtkParse.l"
+# line 147 "vtkParse.l"
    return(GetVectorMacro);
 break;
 case 57:
 
-# line 147 "vtkParse.l"
+# line 148 "vtkParse.l"
     return(ViewportCoordinateMacro);
 break;
 case 58:
 
-# line 148 "vtkParse.l"
+# line 149 "vtkParse.l"
 return(WorldCoordinateMacro);
 break;
 case 59:
 
-# line 150 "vtkParse.l"
+# line 151 "vtkParse.l"
 	{ sscanf(yytext,"%d",&yylval.integer); return(NUM);}
 break;
 case 60:
 
-# line 152 "vtkParse.l"
+# line 153 "vtkParse.l"
 {
 		yylval.str =  strdup(yytext + 1);
 		yylval.str[strlen(yytext)-2] = '\0';
@@ -432,12 +433,12 @@ case 60:
 break;
 case 61:
 
-# line 158 "vtkParse.l"
+# line 159 "vtkParse.l"
     ;
 break;
 case 62:
 
-# line 161 "vtkParse.l"
+# line 162 "vtkParse.l"
  { yylval.str = (char *)malloc(yyleng + 1);
                      memcpy(yylval.str,yytext,yyleng);
                      yylval.str[yyleng] = '\0';
@@ -446,7 +447,7 @@ case 62:
 break;
 case 63:
 
-# line 167 "vtkParse.l"
+# line 168 "vtkParse.l"
  { yylval.str = (char *)malloc(yyleng + 1);
                           memcpy(yylval.str,yytext,yyleng);
                           yylval.str[yyleng] = '\0';
@@ -455,27 +456,27 @@ case 63:
 break;
 case 64:
 
-# line 173 "vtkParse.l"
+# line 174 "vtkParse.l"
 ;
 break;
 case 65:
 
-# line 176 "vtkParse.l"
+# line 177 "vtkParse.l"
 return(yytext[0]);
 break;
 case 66:
 
-# line 177 "vtkParse.l"
+# line 178 "vtkParse.l"
 return(yytext[0]);
 break;
 case 67:
 
-# line 180 "vtkParse.l"
+# line 181 "vtkParse.l"
 return(yytext[0]);
 break;
 case 68:
 
-# line 182 "vtkParse.l"
+# line 183 "vtkParse.l"
 	return(OTHER);
 break;
 case -1:
@@ -485,7 +486,7 @@ default:
 } return(0); }
 /* end of yylex */
 
-# line 184 "vtkParse.l"
+# line 185 "vtkParse.l"
 int yyvstop[] = {
 0,
 

@@ -76,9 +76,10 @@
 
 ^[\t ]*"//".*   { int pos = 1;
 	           while (yytext[pos-1] != '/' || yytext[pos] != '/') pos++; 
-                   yylval.str = (char *)malloc(yyleng + 1 - pos - 1);
+                   yylval.str = (char *)malloc(yyleng + 1 - pos - 1 + 1);
                    memcpy(yylval.str,yytext+ pos + 1,yyleng - pos - 1);
-                   yylval.str[yyleng - pos - 1] = '\0';
+                   yylval.str[yyleng - pos - 1] = '\n';
+                   yylval.str[yyleng - pos] = '\0';
 	           switch (CommentState)
                      {
                      case 1: strcat(data.Description,yylval.str); break;
