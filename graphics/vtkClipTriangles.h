@@ -38,13 +38,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkClipTriangles - Clip vtkDataSet with user-specified implicit function
+// .NAME vtkClipTriangles - clip triangles with user-specified implicit function
 // .SECTION Description
-// vtkClipTriangles is a filter to Clip through data using any subclass of 
-// vtkImplicitFunction. That is, a polygonal surface is created
-// corresponding to the implicit function F(x,y,z) = 0.
+// vtkClipTriangles is a filter that clips triangles to by a any subclass of 
+// vtkImplicitFunction.
 // .SECTION See Also
-// vtkImplicitFunction
+// vtkImplicitFunction vtkCutter
 
 #ifndef __vtkClipTriangles_h
 #define __vtkClipTriangles_h
@@ -62,7 +61,15 @@ public:
   unsigned long int GetMTime();
 
   // Description:
-  // Set/Get the InsideOut flag.
+  // Set the clipping value of the implicit function. Default is 0.0.
+  vtkSetMacro(Value,float);
+  vtkGetMacro(Value,float);
+  
+  // Description:
+  // Set/Get the InsideOut flag. When off, a vertex is considered inside
+  // the implicit function if the scalar value at the vertex is <=
+  // the iso value. If on, the vertex is inside if the scalar value is
+  // > the iso value. InsideOut is off by default.
   // 
   vtkSetMacro(InsideOut,int);
   vtkGetMacro(InsideOut,int);
@@ -90,15 +97,15 @@ protected:
   vtkPointLocator *Locator;
   int SelfCreatedLocator;
   int InsideOut;
-//BTX - begin tcl exclude
-  void vtkClipTriangles::Clip(vtkCell *aCell, float value, vtkFloatScalars *cellScalars, 
-			  vtkPointLocator *locator,
-			  vtkCellArray *verts, 
-			  vtkCellArray *lines,
-			  vtkCellArray *polys, 
-			  vtkFloatScalars *scalars,
-			  int InsideOut);
-//ETX
+  float Value;
+
+  void Clip(vtkCell *aCell, float value, vtkFloatScalars *cellScalars, 
+	    vtkPointLocator *locator,
+            vtkCellArray *verts, 
+	    vtkCellArray *lines,
+	    vtkCellArray *polys, 
+	    vtkFloatScalars *scalars,
+	    int InsideOut);
 };
 
 #endif

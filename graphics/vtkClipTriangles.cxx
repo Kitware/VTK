@@ -50,6 +50,7 @@ vtkClipTriangles::vtkClipTriangles(vtkImplicitFunction *cf)
   this->ClipFunction = cf;
   this->InsideOut = 0;
   this->Locator = NULL;
+  this->Value = 0.0;
   this->SelfCreatedLocator = 0;
 }
 
@@ -86,7 +87,7 @@ void vtkClipTriangles::Execute()
   vtkPolyData *output = this->GetOutput();
   int estimatedSize, numCells=this->Input->GetNumberOfCells();
   
-  vtkDebugMacro(<< "Executing Clipter");
+  vtkDebugMacro(<< "Executing Clipper");
   cellScalars.ReferenceCountingOff();
   
   //
@@ -100,7 +101,7 @@ void vtkClipTriangles::Execute()
 //
 // Create objects to hold output of contour operation
 //
-  estimatedSize = (int) pow ((double) numCells, .75);
+  estimatedSize = (int) (numCells);
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024) estimatedSize = 1024;
 
@@ -118,12 +119,13 @@ void vtkClipTriangles::Execute()
 // Loop over all cells creating scalar function determined by evaluating cell
 // points using Clip function.
 //
-  value = 0.0;
+  value = this->Value;
   for (cellId=0; cellId < numCells; cellId++)
     {
     cell = Input->GetCell(cellId);
     cellPts = cell->GetPoints();
-    for (i=0; i<cellPts->GetNumberOfPoints(); i++)
+    int numberOfPoints = cellPts->GetNumberOfPoints();
+    for (i=0; i<numberOfPoints; i++)
       {
       x = cellPts->GetPoint(i);
       s = this->ClipFunction->EvaluateFunction(x);
@@ -131,7 +133,7 @@ void vtkClipTriangles::Execute()
       }
 
       Clip (cell, value, &cellScalars, this->Locator, 
-                    newVerts, newLines, newPolys, newScalars, this->InsideOut);
+            newVerts, newLines, newPolys, newScalars, this->InsideOut);
     } // for all cells
 
 //
@@ -240,7 +242,8 @@ void vtkClipTriangles::Clip(vtkCell *aCell, float value,
           }
 
 	// linear interpolation
-        t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
+        if (deltaScalar == 0.0) t = 0.0;
+        else t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
 
         x1 = aCell->Points.GetPoint(e1);
         x2 = aCell->Points.GetPoint(e2);
@@ -253,6 +256,9 @@ void vtkClipTriangles::Clip(vtkCell *aCell, float value,
         scalars->InsertScalar(pts[i],value);
         }
       }
+    // check for degenerate tri's
+    if (pts[0] == pts[1] || pts[0] == pts[2] || pts[1] == pts[2]) continue;
+
     polys->InsertNextCell(3,pts);
     }
 }
@@ -283,7 +289,8 @@ void vtkClipTriangles::PrintSelf(ostream& os, vtkIndent indent)
   vtkDataSetToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Clip Function: " << this->ClipFunction << "\n";
-
+  os << indent << "InsideOut: " << (this->InsideOut ? "On\n" : "Off\n");
+  os << indent << "Value: " << this->Value << "\n";
   if ( this->Locator )
     {
     os << indent << "Locator: " << this->Locator << "\n";
