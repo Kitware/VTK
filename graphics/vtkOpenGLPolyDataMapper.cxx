@@ -2388,7 +2388,6 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   int cellNum = 0;
   int cellNormals = 0;
   int resolve=0, zResolve=0;
-  float  zbuff_min, zbuff_max;
   double zRes;
   
   // get the property 
@@ -2650,7 +2649,6 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
       {
       zResolve = 1;
       zRes = this->GetResolveCoincidentTopologyZShift();
-      aren->GetLayer(zbuff_min, zbuff_max);
       }
     else
       {
@@ -2680,7 +2678,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   // do lines
   if ( zResolve )
     {
-    glDepthRange(zRes + zbuff_min, zbuff_max);
+    glDepthRange(zRes, 1.);
     }
   aPrim = prims[1];
   aGlFunction = glFunction[1];
@@ -2703,7 +2701,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   // do tstrips
   if ( zResolve )
     {
-    glDepthRange(2*zRes + zbuff_min, zbuff_max);
+    glDepthRange(2*zRes, 1.);
     }
   aPrim = prims[2];
   aGlFunction = glFunction[2];
@@ -2728,7 +2726,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     {
     if ( zResolve )
       {
-      glDepthRange(zbuff_min, zbuff_max);
+      glDepthRange(0., 1.);
       }
     else
       {
