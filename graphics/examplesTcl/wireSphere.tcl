@@ -27,11 +27,8 @@ vtkLODActor sphereActor
 vtkRenderer ren1
 vtkRenderWindow renWin
     renWin AddRenderer ren1
-    renWin SetWindowName "vtk - Mace"
-vtkInteractorStyleUnicam uni
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
-#    iren SetInteractorStyle uni
 
 # Add the actors to the renderer, set the background and size
 #
