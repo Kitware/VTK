@@ -121,7 +121,8 @@ vtkPointData& vtkPointData::operator=(vtkPointData& pd)
 }
 
 // Description:
-// Copy the point data from one point to another.
+// Copy the point data from one point to another. Make sure CopyAllocate() has
+// been invoked before using this method.
 void vtkPointData::CopyData(vtkPointData* fromPd, int fromId, int toId)
 {
   if ( fromPd->Scalars && this->Scalars && this->CopyScalars )
@@ -163,7 +164,6 @@ void vtkPointData::CopyData(vtkPointData* fromPd, int fromId, int toId)
     this->UserDefined->InsertUserDefined(toId,fromPd->UserDefined->GetUserDefined(fromId));
     }
 }
-
 
 void vtkPointData::Initialize()
 {
@@ -305,7 +305,7 @@ static vtkUserDefined *cellUserDefined;
 static vtkAPixmap *cellColors;
 
 // Description:
-// Initialize point interpolation.
+// Initialize point interpolation method.
 void vtkPointData::InterpolateAllocate(vtkPointData* pd, int sze, int ext)
 {
   // statics avoid constructor/destructor calls
@@ -327,6 +327,7 @@ void vtkPointData::InterpolateAllocate(vtkPointData* pd, int sze, int ext)
     cellTensors_s.ReferenceCountingOff();
     cellUserDefined_s.ReferenceCountingOff();
     cellColors_s.ReferenceCountingOff();
+    initialized = 1;
     }
   
   cellScalars = &cellScalars_s;
@@ -351,7 +352,8 @@ void vtkPointData::InterpolateAllocate(vtkPointData* pd, int sze, int ext)
 }
 
 // Description:
-// Interpolate data from points and interpolation weights.
+// Interpolate data from points and interpolation weights. Make sure that the 
+// method InterpolateAllocate() has been invoked before using this method.
 void vtkPointData::InterpolatePoint(vtkPointData *fromPd, int toId, vtkIdList *ptIds, float *weights)
 {
   int i, j;
