@@ -468,9 +468,9 @@ void vtkLocator::GetBucketNeighbors(int ijk[3], int ndivs[3], int level)
 static float InsertionLevel;
 
 // Description:
-// Initialize the point insertion process. The newPts are an array of 
-// points that points will be inserted into, and bounds are the box
-// that the points lie in.
+// Initialize the point insertion process. The newPts is an object representing
+// point coordinates into which incremental insertion methods place their 
+// data. Bounds are the box that the points lie in.
 int vtkLocator::InitPointInsertion(vtkPoints *newPts, float bounds[6])
 {
   int i;

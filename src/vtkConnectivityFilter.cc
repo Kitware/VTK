@@ -340,7 +340,7 @@ void vtkConnectivityFilter::ExtractCellSeededRegions()
 
 // Description:
 // Set the extraction mode to extract regions of specified id. You may 
-// have to execute filter first to determine region ids.
+// have to execute filter first (with debug turned on) to determine region ids.
 void vtkConnectivityFilter::ExtractSpecifiedRegions()
 {
   if ( this->ExtractionMode != VTK_EXTRACT_SPECIFIED_REGIONS )

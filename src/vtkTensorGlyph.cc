@@ -85,7 +85,6 @@ void vtkTensorGlyph::Execute()
   float v0[3], v1[3], v2[3];
   float xv[3], yv[3], zv[3];
   float maxScale;
-  int nrot;
   vtkPointData *pd, *outPD;
   vtkPolyData *output=(vtkPolyData *)this->Output;
   
@@ -192,8 +191,7 @@ void vtkTensorGlyph::Execute()
         for (i=0; i<3; i++)
           m[i][j] = tensor->GetComponent(i,j);
 
-      math.Jacobi(m, 3, w, v, &nrot);
-      math.Eigsrt(w, v, 3);
+      math.Jacobi(m, w, v);
 
       //copy eigenvectors
       xv[0] = v[0][0]; xv[1] = v[1][0]; xv[2] = v[2][0];
@@ -204,17 +202,19 @@ void vtkTensorGlyph::Execute()
       {
       for (i=0; i<3; i++)
         {
-        w[i] = 1.0;
         xv[i] = tensor->GetComponent(i,0);
         yv[i] = tensor->GetComponent(i,1);
         zv[i] = tensor->GetComponent(i,2);
         }
+      w[0] = math.Normalize(xv);
+      w[1] = math.Normalize(yv);
+      w[2] = math.Normalize(zv);
       }
 
-    // normalize eigenvectors / compute scale factors
-    w[0] *= math.Normalize(xv) * this->ScaleFactor;
-    w[1] *= math.Normalize(yv) * this->ScaleFactor;
-    w[2] *= math.Normalize(zv) * this->ScaleFactor;
+    // compute scale factors
+    w[0] *= this->ScaleFactor;
+    w[1] *= this->ScaleFactor;
+    w[2] *= this->ScaleFactor;
     
     if ( this->ClampScaling )
       {
@@ -231,14 +231,14 @@ void vtkTensorGlyph::Execute()
 
     // normalized eigenvectors rotate object
     matrix.Element[0][0] = xv[0];
-    matrix.Element[0][1] = -yv[0];
-    matrix.Element[0][2] = -zv[0];
+    matrix.Element[0][1] = yv[0];
+    matrix.Element[0][2] = zv[0];
     matrix.Element[1][0] = xv[1];
-    matrix.Element[1][1] = -yv[1];
-    matrix.Element[1][2] = -zv[1];
+    matrix.Element[1][1] = yv[1];
+    matrix.Element[1][2] = zv[1];
     matrix.Element[2][0] = xv[2];
-    matrix.Element[2][1] = -yv[2];
-    matrix.Element[2][2] = -zv[2];
+    matrix.Element[2][1] = yv[2];
+    matrix.Element[2][2] = zv[2];
     trans.Concatenate(matrix);
 
     // make sure scale is okay (non-zero) and scale data

@@ -41,6 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVectorTopology.hh"
 #include "vtkMath.hh"
 
+// Description:
+// Construct object with distance 0.1.
 vtkVectorTopology::vtkVectorTopology()
 {
   this->Distance = 0.1;
@@ -48,12 +50,20 @@ vtkVectorTopology::vtkVectorTopology()
 
 void vtkVectorTopology::Execute()
 {
+  int cellId, i, j, ptId, npts;
+  int negative[3], positive[3], subId=0;
+  float x[3], pcoords[3], *v;
+  vtkIdList *cellPts;
+  vtkFloatVectors cellVectors(VTK_CELL_SIZE);
+  vtkCell *cell;
   vtkVectors *inVectors;
   vtkFloatPoints *newPts;
   vtkCellArray *newVerts;
   vtkDataSet *input=this->Input;
+  vtkPointData *pd=input->GetPointData();
   vtkPolyData *output=(vtkPolyData *)this->Output;
-
+  vtkPointData *outputPD=output->GetPointData();
+  float *weights=new float[input->GetMaxCellSize()];
 //
 // Initialize self; check input; create output objects
 //
@@ -62,11 +72,48 @@ void vtkVectorTopology::Execute()
   // make sure we have vector data
   if ( ! (inVectors = input->GetPointData()->GetVectors()) )
     {
-    vtkErrorMacro(<<"No vector data to contour");
+    vtkErrorMacro(<<"No vector data, can't create topology markers...");
     return;
     }
 
+  newPts = new vtkFloatPoints(100);
+  newVerts = new vtkCellArray;
+  newVerts->Allocate(newVerts->EstimateSize(1,100));
+  outputPD->CopyAllocate(pd);
+//
+// Find cells whose vector components all pass through zero
+//
+  pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
+  newVerts->InsertNextCell(100); //temporary count
+  for (cellId=0; cellId<Input->GetNumberOfCells(); cellId++)
+    {
+    cell = Input->GetCell(cellId);
+    cellPts = cell->GetPointIds();
+    inVectors->GetVectors(*cellPts,cellVectors);
+    npts = cell->GetNumberOfPoints();
+    for (i=0; i<3; i++) negative[i] = positive[i] = 0;
+    for (i=0; i < npts; i++)
+      {
+      ptId = cell->GetPointId(i);
+      v = inVectors->GetVector(ptId);
+      for (j=0; j<3; j++)
+        {
+        if ( v[j] < 0.0 ) negative[j] = 1;
+        else if ( v[j] >= 0.0 ) positive[j] = 1;
+        }
+      }
+    if ( negative[0] && positive[0] && negative[1] && positive[1] &&
+    negative[2] && positive[2] )
+      { // place point at center of cell
+      cell->EvaluateLocation(subId, pcoords, x, weights);
+      ptId = newPts->InsertNextPoint(x);
+      newVerts->InsertCellPoint(ptId);
+      }
+    }
+  newVerts->UpdateCellCount(newPts->GetNumberOfPoints());
+ 
   vtkDebugMacro(<< "Created " << newPts->GetNumberOfPoints() << "points");
+  delete [] weights;
 //
 // Update ourselves
 //

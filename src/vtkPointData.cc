@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPixmap.hh"
 
 // Description:
-// Construct with copying turned on for all data.
+// Construct object with copying turned on for all data.
 vtkPointData::vtkPointData()
 {
   this->Scalars = NULL;

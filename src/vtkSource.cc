@@ -113,7 +113,7 @@ void vtkSource::Update()
 }
 
 // Description:
-// Specify function to be called before source executes.
+// Specify function to be called before object executes.
 void vtkSource::SetStartMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->StartMethod || arg != this->StartMethodArg )
@@ -130,7 +130,7 @@ void vtkSource::SetStartMethod(void (*f)(void *), void *arg)
 }
 
 // Description:
-// Specify function to be called after source executes.
+// Specify function to be called after object executes.
 void vtkSource::SetEndMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->EndMethod || arg != this->EndMethodArg )

@@ -42,7 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLookupTable.hh"
 
 // Description:
-// Construct with range=(0,1); and hsv ranges set up for rainbow color table.
+// Construct with range=(0,1); and hsv ranges set up for rainbow color table 
+// (from red to blue).
 vtkLookupTable::vtkLookupTable(int sze, int ext)
 {
   this->NumberOfColors = sze;

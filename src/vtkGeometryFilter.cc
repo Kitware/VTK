@@ -62,6 +62,8 @@ vtkGeometryFilter::vtkGeometryFilter()
   this->ExtentClipping = 0;
 }
 
+// Description:
+// Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
 void vtkGeometryFilter::SetExtent(float xMin, float xMax, float yMin,
                                      float yMax, float zMin, float zMax)
 {

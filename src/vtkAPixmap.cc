@@ -55,8 +55,7 @@ vtkAPixmap& vtkAPixmap::operator=(const vtkAPixmap& fs)
 
 // Description:
 // Copy rgba components into user provided array rgba[4] for specified
-// point id. (Note: this interface varies from superclass vtkColorScalars.
-// Four values are returned: rgba.)
+// point id.
 void vtkAPixmap::GetColor(int id, unsigned char rgba[4])
 {
   unsigned char *_rgba;
@@ -70,8 +69,6 @@ void vtkAPixmap::GetColor(int id, unsigned char rgba[4])
 
 // Description:
 // Insert color into object. No range checking performed (fast!).
-// (Note: this interface varies from superclass vtkColorScalars.
-// Four values are inserted: rgba.)
 void vtkAPixmap::SetColor(int id, unsigned char rgba[4])
 {
   id *= 4;
@@ -81,8 +78,6 @@ void vtkAPixmap::SetColor(int id, unsigned char rgba[4])
 // Description:
 // Insert color into object. Range checking performed and memory
 // allocated as necessary.
-// (Note: this interface varies from superclass vtkColorScalars.
-// Four values are inserted: rgba.)
 void vtkAPixmap::InsertColor(int id, unsigned char rgba[4])
 {
   id *= 4;
@@ -91,8 +86,6 @@ void vtkAPixmap::InsertColor(int id, unsigned char rgba[4])
 
 // Description:
 // Insert color into next available slot. Returns point id of slot.
-// (Note: this interface varies from superclass vtkColorScalars.
-// Four values are inserted: rgba.)
 int vtkAPixmap::InsertNextColor(unsigned char rgba[4])
 {
   int id = this->S.InsertNextValue(rgba[0]);

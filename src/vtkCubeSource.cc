@@ -149,6 +149,8 @@ void vtkCubeSource::Execute()
   newPolys->Delete();
 }
 
+// Description:
+// Convenience method allows creation of cube by specifying bounding box.
 void vtkCubeSource::SetBounds(float bounds[6])
 {
   this->SetXLength(bounds[1]-bounds[0]);
@@ -159,8 +161,6 @@ void vtkCubeSource::SetBounds(float bounds[6])
                   (bounds[5]+bounds[4])/2.0);
 }
 
-// Description:
-// Convenience method allows creation of cube by specifying bounding box.
 void vtkCubeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolySource::PrintSelf(os,indent);

@@ -247,6 +247,8 @@ void vtkShepardMethod::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
+// Description:
+// Set the i-j-k dimensions on which to sample the distance function.
 void vtkShepardMethod::SetSampleDimensions(int dim[3])
 {
   int dataDim, i;

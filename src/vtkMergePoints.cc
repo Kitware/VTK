@@ -113,8 +113,8 @@ int *vtkMergePoints::MergePoints()
 // with pre-inserted point (if precisely coincident). If point is merged 
 // with pre-inserted point, pre-inserted point id is returned. Otherwise, 
 // new point id is returned. Before using this method you must make sure 
-// that newPts have been supplied, the bounds has been set properly, and
-// that divs are properly set. (See InitPointInsertion()).
+// that newPts have been supplied, the bounds has been set properly, and 
+// that divs are properly set (see InitPointInsertion() from superclass.)
 int vtkMergePoints::InsertPoint(float x[3])
 {
   int i, ijk[3];

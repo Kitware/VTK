@@ -651,7 +651,7 @@ int vtkDataWriter::WriteTensorData(FILE *fp, vtkTensors *tensors, int numPts)
 int vtkDataWriter::WriteCells(FILE *fp, vtkCellArray *cells, char *label)
 {
   int ncells=cells->GetNumberOfCells();
-  int size=cells->GetSize();
+  int size=cells->GetNumberOfConnectivityEntries();
 
   if ( ncells < 1 ) return 1;
 

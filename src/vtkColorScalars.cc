@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLookupTable.hh"
 
 // Description:
-// Use intensity to derive single scalar value from color
+// Convert internal color representation into scalar value.
 float vtkColorScalars::GetScalar(int i)
 {
   unsigned char *rgba;

@@ -68,7 +68,7 @@ vtkMapper::~vtkMapper()
 }
 
 // Description:
-// Overload standard modified time function. If cut functions is modified,
+// Overload standard modified time function. If lookup table is modified,
 // then we are modified as well.
 unsigned long vtkMapper::GetMTime()
 {

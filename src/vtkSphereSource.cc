@@ -45,7 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 
 // Description:
-// Construct sphere with radius=0.5.
+// Construct sphere with radius=0.5 and default resolution 8 in both Phi
+// and Theta directions.
 vtkSphereSource::vtkSphereSource(int res)
 {
   res = res < 4 ? 4 : res;

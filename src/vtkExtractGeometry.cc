@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 
 // Description:
-// Construct with ExtractInside turned on.
+// Construct object with ExtractInside turned on.
 vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)
 {
   this->ImplicitFunction = f;
@@ -50,7 +50,7 @@ vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)
 }
 
 // Description:
-// Overload standard modified time function. If cut functions is modified,
+// Overload standard modified time function. If implicit function is modified,
 // then we are modified as well.
 unsigned long vtkExtractGeometry::GetMTime()
 {
