@@ -50,8 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // -DVTK_DEBUG_LEAKS to the compile line, and rebuild vtkObject and
 // vtkObjectFactory.
 
-#ifndef _vtkDebugLeaks_h
-#define _vtkDebugLeaks_h
+#ifndef __vtkDebugLeaks_h
+#define __vtkDebugLeaks_h
 
 #include "vtkObject.h"
 
@@ -89,4 +89,4 @@ private:
   static vtkDebugLeaksHashTable* MemoryTable;
 };
 
-#endif // _vtkDebugLeaks_h
+#endif // __vtkDebugLeaks_h
