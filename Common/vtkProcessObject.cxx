@@ -21,7 +21,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkDataObject.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.29");
+vtkCxxRevisionMacro(vtkProcessObject, "1.29.2.1");
 
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()
@@ -48,6 +48,7 @@ vtkProcessObject::~vtkProcessObject()
     {
     if (this->Inputs[idx])
       {
+      this->Inputs[idx]->RemoveConsumer(this);
       this->Inputs[idx]->UnRegister(this);
       this->Inputs[idx] = NULL;
       this->SortedInputs[idx] = NULL;
