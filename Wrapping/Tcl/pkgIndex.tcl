@@ -1,6 +1,6 @@
 # Tcl package index file, version 1.0
 
-package ifneeded vtktcl 3.3 [list
+package ifneeded vtktcl 3.3 {
 
     # Windows: 'load' looks in the same dir as the Tcl/Tk app, the current dir,
     # c:\window\system[32], c:\windows and the dirs listed in the PATH env var.
@@ -87,7 +87,7 @@ package ifneeded vtktcl 3.3 [list
     if {$ok} {
         package provide vtktcl 3.3
     }
-]
+}
 
    
 package ifneeded vtktcl_interactor 1.0 [list
