@@ -75,4 +75,14 @@ void vlGlrProperty::Render(vlGlrRenderer *ren)
     }
   
   shademodel(method);
+
+  if ( this->Texture ) //load texture map
+    {
+    this->Texture->Update();
+    if ( this->Texture->GetMTime() > this->GetMTime() )
+      {
+      //ok Ken, load texture here
+
+      }
+    }
 }
