@@ -571,10 +571,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   fprintf(fp,"int VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",data->ClassName,data->ClassName);
   fprintf(fp,"\nint VTKTCL_EXPORT %sCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->ClassName);
-  fprintf(fp,"  if ((argc == 2)&&(!strcmp(\"Delete\",argv[1]))&& !vtkTclInDelete())\n    {\n");
+  fprintf(fp,"  if ((argc == 2)&&(!strcmp(\"Delete\",argv[1]))&& !vtkTclInDelete(interp))\n    {\n");
   fprintf(fp,"    Tcl_DeleteCommand(interp,argv[0]);\n");
   fprintf(fp,"    return TCL_OK;\n    }\n");
-  fprintf(fp,"   return %sCppCommand((%s *)cd,interp, argc, argv);\n}\n",data->ClassName,data->ClassName);
+  fprintf(fp,"   return %sCppCommand((%s *)(((vtkTclCommandArgStruct *)cd)->Pointer),interp, argc, argv);\n}\n",data->ClassName,data->ClassName);
   
   fprintf(fp,"\nint VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->ClassName,data->ClassName);
   fprintf(fp,"  int    tempi;\n");
@@ -686,6 +686,18 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    buf.put('\\0');\n");
     fprintf(fp,"    Tcl_SetResult(interp,buf.str(),TCL_VOLATILE);\n");
     fprintf(fp,"    delete buf.str();\n");
+    fprintf(fp,"    return TCL_OK;\n    }\n");
+
+    fprintf(fp,"  if ((!strcmp(\"AddObserver\",argv[1]))&&(argc == 4))\n    {\n");
+    fprintf(fp,"    vtkTclCommand *cbc = new vtkTclCommand;\n");
+    fprintf(fp,"    cbc->SetInterp(interp);\n");
+    fprintf(fp,"    cbc->SetStringCommand(strcpy(new char [strlen(argv[3])+1],argv[3]));\n");
+    
+    fprintf(fp,"    unsigned long      temp20;\n");
+    fprintf(fp,"    temp20 = op->AddObserver(argv[2],cbc);\n");
+    fprintf(fp,"    char tempResult[1024];\n");
+    fprintf(fp,"    sprintf(tempResult,\"%%i\",temp20);\n");
+    fprintf(fp,"    Tcl_SetResult(interp,tempResult,TCL_VOLATILE);\n");
     fprintf(fp,"    return TCL_OK;\n    }\n");
     }
   fprintf(fp,"\n  if ((argc >= 2)&&(!strstr(interp->result,\"Object named:\")))\n    {\n");

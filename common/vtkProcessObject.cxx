@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkProcessObject.h"
 #include "vtkObjectFactory.h"
+#include "vtkCommand.h"
 
 //-------------------------------------------------------------------------
 vtkProcessObject* vtkProcessObject::New()
@@ -58,15 +59,9 @@ vtkProcessObject* vtkProcessObject::New()
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()
 {
-  this->StartMethod = NULL;
-  this->StartMethodArgDelete = NULL;
-  this->StartMethodArg = NULL;
-  this->ProgressMethod = NULL;
-  this->ProgressMethodArgDelete = NULL;
-  this->ProgressMethodArg = NULL;
-  this->EndMethod = NULL;
-  this->EndMethodArgDelete = NULL;
-  this->EndMethodArg = NULL;
+  this->StartTag = 0;
+  this->ProgressTag = 0;
+  this->EndTag = 0;
   this->AbortExecute = 0;
   this->Progress = 0.0;
   this->ProgressText = NULL;
@@ -80,19 +75,6 @@ vtkProcessObject::vtkProcessObject()
 // Destructor for the vtkProcessObject class
 vtkProcessObject::~vtkProcessObject()
 {
-  if ((this->StartMethodArg)&&(this->StartMethodArgDelete))
-    {
-    (*this->StartMethodArgDelete)(this->StartMethodArg);
-    }
-  if ((this->ProgressMethodArg)&&(this->ProgressMethodArgDelete))
-    {
-    (*this->ProgressMethodArgDelete)(this->ProgressMethodArg);
-    }
-  if ((this->EndMethodArg)&&(this->EndMethodArgDelete))
-    {
-    (*this->EndMethodArgDelete)(this->EndMethodArg);
-    }
-
   int idx;
   
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
@@ -309,10 +291,7 @@ void vtkProcessObject::SetNthInput(int idx, vtkDataObject *input)
 void vtkProcessObject::UpdateProgress(float amount)
 {
   this->Progress = amount;
-  if ( this->ProgressMethod )
-    {
-    (*this->ProgressMethod)(this->ProgressMethodArg);
-    }
+  this->InvokeEvent(vtkCommand::StartEvent,(void *)&amount);
 }
 
 void vtkProcessObject::SetProgressText(char *text)
@@ -328,79 +307,64 @@ char *vtkProcessObject::GetProgressText(void)
 // Specify function to be called before object executes.
 void vtkProcessObject::SetStartMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->StartMethod || arg != this->StartMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->StartMethodArg)&&(this->StartMethodArgDelete))
-      {
-      (*this->StartMethodArgDelete)(this->StartMethodArg);
-      }
-    this->StartMethod = f;
-    this->StartMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->StartTag);
+  this->StartTag = this->AddObserver(vtkCommand::StartEvent,cbc);
 }
 
 // Specify function to be called to show progress of filter
 void vtkProcessObject::SetProgressMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->ProgressMethod || arg != this->ProgressMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->ProgressMethodArg)&&(this->ProgressMethodArgDelete))
-      {
-      (*this->ProgressMethodArgDelete)(this->ProgressMethodArg);
-      }
-    this->ProgressMethod = f;
-    this->ProgressMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->ProgressTag);
+  this->ProgressTag = this->AddObserver(vtkCommand::ProgressEvent,cbc);
 }
 
 // Specify function to be called after object executes.
 void vtkProcessObject::SetEndMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->EndMethod || arg != this->EndMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->EndMethodArg)&&(this->EndMethodArgDelete))
-      {
-      (*this->EndMethodArgDelete)(this->EndMethodArg);
-      }
-    this->EndMethod = f;
-    this->EndMethodArg = arg;
-    this->Modified();
-    }
+  vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
+  cbc->Callback = f;
+  cbc->ClientData = arg;
+  this->RemoveObserver(this->EndTag);
+  this->EndTag = this->AddObserver(vtkCommand::EndEvent,cbc);
 }
 
 
 // Set the arg delete method. This is used to free user memory.
 void vtkProcessObject::SetStartMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->StartMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->StartTag);
+  if (cmd)
     {
-    this->StartMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
 // Set the arg delete method. This is used to free user memory.
 void vtkProcessObject::SetProgressMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->ProgressMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->ProgressTag);
+  if (cmd)
     {
-    this->ProgressMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
 // Set the arg delete method. This is used to free user memory.
 void vtkProcessObject::SetEndMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->EndMethodArgDelete)
+  vtkOldStyleCallbackCommand *cmd = 
+    (vtkOldStyleCallbackCommand *)this->GetCommand(this->EndTag);
+  if (cmd)
     {
-    this->EndMethodArgDelete = f;
-    this->Modified();
+    cmd->SetClientDataDeleteCallback(f);
     }
 }
 
@@ -416,7 +380,6 @@ void vtkProcessObject::RemoveAllInputs()
         this->Inputs[idx] = NULL;
         }
       }
-
     delete [] this->Inputs;
     this->Inputs = NULL;
     this->NumberOfInputs = 0;
@@ -533,33 +496,6 @@ void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent <<"No Inputs\n";
-    }
-
-  if ( this->StartMethod )
-    {
-    os << indent << "Start Method defined\n";
-    }
-  else
-    {
-    os << indent <<"No Start Method\n";
-    }
-
-  if ( this->ProgressMethod )
-    {
-    os << indent << "Progress Method defined\n";
-    }
-  else
-    {
-    os << indent << "No Progress Method\n";
-    }
-
-  if ( this->EndMethod )
-    {
-    os << indent << "End Method defined\n";
-    }
-  else
-    {
-    os << indent << "No End Method\n";
     }
 
   os << indent << "AbortExecute: " << (this->AbortExecute ? "On\n" : "Off\n");

@@ -527,27 +527,14 @@ void stuffitTcl(FILE *fp, CPcmakerDlg *vals)
     {
     fprintf(fp,"int vtkCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[]);\n");
     // claw: I am adding this so c++ can evaluate strings.
-    fprintf(fp,"\nTcl_Interp *vtkGlobalTclInterp;\n");
-    fprintf(fp,"\n__declspec( dllexport) Tcl_HashTable vtkInstanceLookup;\n");
-    fprintf(fp,"__declspec( dllexport) Tcl_HashTable vtkPointerLookup;\n");
-    fprintf(fp,"__declspec( dllexport) Tcl_HashTable vtkCommandLookup;\n");
-    }
-  else
-    {
-    fprintf(fp,"\nextern Tcl_HashTable vtkInstanceLookup;\n");
-    fprintf(fp,"extern Tcl_HashTable vtkPointerLookup;\n");
-    fprintf(fp,"extern Tcl_HashTable vtkCommandLookup;\n");
+    // fprintf(fp,"\nTcl_Interp *vtkGlobalTclInterp;\n");
     }
   fprintf(fp,"extern void vtkTclListInstances(Tcl_Interp *interp, ClientData arg);\n");
-  fprintf(fp,"extern void vtkTclDeleteObjectFromHash(void *);\n");  
   fprintf(fp,"\n\nextern \"C\" {__declspec(dllexport) int %s_SafeInit(Tcl_Interp *interp);}\n\n",
 	  kitName);
   fprintf(fp,"\n\nextern \"C\" {__declspec(dllexport) int %s_Init(Tcl_Interp *interp);}\n\n",
 	  kitName);
 
-  /* create an extern ref to the generic delete function */
-  fprintf(fp,"\n\nextern void vtkTclGenericDeleteObject(ClientData cd);\n\n");
-  
   /* the main declaration */
   fprintf(fp,"\n\nint %s_SafeInit(Tcl_Interp *interp)\n{\n",kitName);
   fprintf(fp,"  return %s_Init(interp);\n}\n",kitName);
@@ -563,19 +550,28 @@ void stuffitTcl(FILE *fp, CPcmakerDlg *vals)
   fprintf(fp,"\n\nint %s_Init(Tcl_Interp *interp)\n{\n",kitName);
   if (!strcmp(kitName,"Vtktcl"))
     {
+    fprintf(fp,
+	    "  vtkTclInterpStruct *info = new vtkTclInterpStruct;\n");
+    fprintf(fp,
+            "  info->Number = 0; info->InDelete = 0; info->DebugOn = 0;\n");
+    fprintf(fp,
+            "\n");
+    fprintf(fp,
+            "\n");
     // claw: I am adding this to allow c++ to evaluate tcl commands.
+//    fprintf(fp,
+//	    "  vtkGlobalTclInterp = interp;\n");
     fprintf(fp,
-	    "  vtkGlobalTclInterp = interp;\n");
+	    "  Tcl_InitHashTable(&info->InstanceLookup, TCL_STRING_KEYS);\n");
     fprintf(fp,
-	    "  Tcl_InitHashTable(&vtkInstanceLookup, TCL_STRING_KEYS);\n");
+	    "  Tcl_InitHashTable(&info->PointerLookup, TCL_STRING_KEYS);\n");
     fprintf(fp,
-	    "  Tcl_InitHashTable(&vtkPointerLookup, TCL_STRING_KEYS);\n");
+	    "  Tcl_InitHashTable(&info->CommandLookup, TCL_STRING_KEYS);\n");
     fprintf(fp,
-	    "  Tcl_InitHashTable(&vtkCommandLookup, TCL_STRING_KEYS);\n");
-
+            "  Tcl_SetAssocData(interp,\"vtk\",NULL,(ClientData *)info);\n");
 
     /* create special vtkCommand command */
-    fprintf(fp,"  Tcl_CreateCommand(interp,\"vtkCommand\",vtkCommand,\n		    (ClientData *)NULL, NULL);\n\n");
+    fprintf(fp,"  Tcl_CreateCommand(interp,\"vtkCommand\",vtkCommand,\n		    (ClientData *)info, NULL);\n\n");
 
 
     /* add a class exit method to the vtkWin32RenderWindowInteractor to do the

@@ -165,15 +165,9 @@ protected:
   void operator=(const vtkProcessObject&) {};
 
   // Progress/Update handling
-  void (*StartMethod)(void *);
-  void (*StartMethodArgDelete)(void *);
-  void *StartMethodArg;
-  void (*ProgressMethod)(void *);
-  void *ProgressMethodArg;
-  void (*ProgressMethodArgDelete)(void *);
-  void (*EndMethod)(void *);
-  void (*EndMethodArgDelete)(void *);
-  void *EndMethodArg;
+  unsigned long StartTag;
+  unsigned long ProgressTag;
+  unsigned long EndTag;
   float Progress;
   char  *ProgressText;
 

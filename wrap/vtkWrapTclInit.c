@@ -50,15 +50,25 @@ void stuffit()
           kitName);
   if (!strcmp(kitName,"Vtkcommontcl"))
     {
-    /* claw: I am adding this to allow c++ to evaluate tcl commands. */
     fprintf(stdout,
-	    "  vtkGlobalTclInterp = interp;\n");
+	    "  vtkTclInterpStruct *info = new vtkTclInterpStruct;\n");
     fprintf(stdout,
-	    "  Tcl_InitHashTable(&vtkInstanceLookup, TCL_STRING_KEYS);\n");
+            "  info->Number = 0; info->InDelete = 0; info->DebugOn = 0;\n");
     fprintf(stdout,
-	    "  Tcl_InitHashTable(&vtkPointerLookup, TCL_STRING_KEYS);\n");
+            "\n");
     fprintf(stdout,
-	    "  Tcl_InitHashTable(&vtkCommandLookup, TCL_STRING_KEYS);\n");
+            "\n");
+    // claw: I am adding this to allow c++ to evaluate tcl commands.
+//    fprintf(fp,
+//	    "  vtkGlobalTclInterp = interp;\n");
+    fprintf(stdout,
+	    "  Tcl_InitHashTable(&info->InstanceLookup, TCL_STRING_KEYS);\n");
+    fprintf(stdout,
+	    "  Tcl_InitHashTable(&info->PointerLookup, TCL_STRING_KEYS);\n");
+    fprintf(stdout,
+	    "  Tcl_InitHashTable(&info->CommandLookup, TCL_STRING_KEYS);\n");
+    fprintf(stdout,
+            "  Tcl_SetAssocData(interp,\"vtk\",NULL,(ClientData *)info);\n");
 
     /* create special vtkCommand command */
     fprintf(stdout,"  Tcl_CreateCommand(interp,\"vtkCommand\",vtkCommand,\n		    (ClientData *)NULL, NULL);\n\n");
