@@ -1,9 +1,9 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-06-28 02:31:33 barre>
+# Time-stamp: <2001-06-28 15:54:08 barre>
 #
 # Extract VTK version and add it to documentation
 #
-# barre : Sebastien Barre <barre@sic.sp2mi.univ-poitiers.fr>
+# barre : Sebastien Barre <sebastien@barre.nom.fr>
 #
 # 0.16 (barre) :
 #   - change default --to to '../vtk-doxygen' to comply with Kitware's doxyfile.
@@ -35,7 +35,9 @@ use strict;
 
 my ($VERSION, $PROGNAME, $AUTHOR) = (0.16, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
+print "$PROGNAME $VERSION, by $AUTHOR\n";
 
+# -------------------------------------------------------------------------
 # Defaults (add options as you want : "v" => 1 for default verbose mode)
 
 my %default = 
@@ -45,6 +47,7 @@ my %default =
    header => "common/vtkVersion.h"
   );
 
+# -------------------------------------------------------------------------
 # Parse options
 
 my %args;
@@ -72,19 +75,18 @@ $args{"store"} = $default{"store"} if ! exists $args{"store"};
 $args{"to"} = $default{"to"} if ! exists $args{"to"};
 $args{"to"} =~ s/[\\\/]*$// if exists $args{"to"};
 
-print "$PROGNAME $VERSION, by $AUTHOR\n";
-
-my $start_time = time();
-
 my $os_is_win = ($^O =~ m/(MSWin32|Cygwin)/i);
 my $open_file_as_text = $os_is_win ? O_TEXT : 0;
+my $start_time = time();
     
+# -------------------------------------------------------------------------
 # Try to get VTK version from vtkVersion.h
 
 my ($version, $revision, $date) = (undef, undef, undef);
 
 sysopen(FILE, $args{"header"}, O_RDONLY|$open_file_as_text)
   or croak "$PROGNAME: unable to open $args{header}\n";
+
 while (<FILE>) {
     if ($_ =~ /define\s+VTK_VERSION\s+\"(.*)\"/) {
         $version = $1;
@@ -95,11 +97,13 @@ while (<FILE>) {
         last;
     }
 }
+
 close(FILE);
 
 croak "$PROGNAME: unable to find version/date in " . $args{"header"} . "\n"
   if (!defined $version || !defined $revision || !defined $date);
 
+# -------------------------------------------------------------------------
 # Build documentation
 
 my $destination_file = $args{"to"} . "/" . $args{"store"};
