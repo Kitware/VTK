@@ -43,12 +43,13 @@ institutions such as Los Alamos National Lab in the US or CINECA in Italy; and
 by many commercial firms who use VTK to build or extend products.<p>
 
 The origin of VTK is with the textbook "The Visualization Toolkit, an
-Object-Oriented Approach to 3D Graphics" published by Prentice Hall
-(ISBN 013199837-4). VTK has grown (since its initial release in 1994)
+Object-Oriented Approach to 3D Graphics" originally published by 
+Prentice Hall and now published by Kitware, Inc. (Third Edition 
+ISBN 1-930934-07-6). VTK has grown (since its initial release in 1994)
 to a world-wide user base in the commercial, academic, and research 
 communities.<p>
 
-This README is written for VTK version 4.0 and greater. For more information,
+This README is written for VTK version 4.2 and greater. For more information,
 additional resources, and the FAQ see the web page at 
 <A HREF="http://www.vtk.org">http://www.vtk.org</A><p>
 
@@ -62,7 +63,7 @@ commercial application, you will want to contact the patent holder (listed in
 the class header) for a license. The complete text of the copyright follows.
 
 <pre>
-Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+Copyright (c) 1993-2003 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -96,7 +97,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <HR>
 <h1><A NAME="Organization">Organization</h1>
-The VTK 4.0 source code repository is organized into four major sections.
+The VTK 4.2 source code repository is organized into four major sections.
   <ul>
   <li>The source code is found in the directories Common, Rendering,
          Filtering, Graphics, Imaging, Hybrid, Parallel, and Patented.<p>
@@ -133,19 +134,25 @@ undocumented tests but can be helpful in some cases.<p>
 <HR>
 <h1><A NAME="Documentation">Documentation</h1>
 
-The ideal way to learn about the software is from the book it is designed to
-support.  You should be able to get the book from any local bookstore or from
-our web page. The web page also contains some html reference pages for the
-objects in VTK as well as a FAQ.
+The ideal way to learn about the software is from two books: 
+<i>The Visualization Toolkit, An Object-Oriented Approach to 3D Graphics</i>
+and <i>The VTK User's Guide</i> both published by Kitware, Inc. (Note:
+<i>The Visualization Toolkit</i> was originally published by Prentice-Hall,
+the third edition is published by Kitware.)
+You may order the books from the following locations (Amazon.com also
+carries the books.)
 <pre>
-  The Visualization Toolkit, An Object-Oriented Approach to 3D Graphics
+  The Visualization Toolkit, An Object-Oriented Approach to 3D Graphics (Third Edition)
   by Will Schroeder, Ken Martin and Bill Lorensen.
-  Prentice Hall, Second Edition.
-  <A HREF="http://www.vtk.org/buy-books.php">http://www.vtk.org/buy-books.php</A>
+  Kitware, Inc.,
+  ISBN 1-930934-07-6
+  <A HREF="http://www.kitware.com/products/vtktextbook.html">http://www.kitware.com/products/vtktextbook.html</A>
 
+  The VTK User's Guide (VTK 4.2 Edition)
+  Kitware, Inc.,
+  ISBN 1-930934-08-4
+  <A HREF="http://www.kitware.com/products/vtkguide.html">http://www.kitware.com/products/vtkguide.html</A>
 </pre>
-You can also order the VTK User's Guide from Kitware,Inc. See the
-web page <A HREF="http://www.kitware.com/products/vtkguide.html">http://www.kitware.com/products/vtkguide.html</A><p>
 
 On-line Doxygen man pages are also available at
 <A href="http://www.vtk.org/doc/nightly/html/">
@@ -154,67 +161,70 @@ http://www.vtk.org/doc/nightly/html/</a><p>
 <HR>
 <h1><A NAME="Installation">Installation</h1>
 
-The Visualization Toolkit can be built on both Unix and PC 
-(Windows 95/98/NT/2000) systems.  VTK uses <A HREF="http://www.cmake.org">CMake</A>
-for its build process.  To build VTK for UNIX or Windows, you will first have to install CMake.
-You can download CMake from: <A HREF="http://www.cmake.org"</A>http://www.cmake.org</A>
+The Visualization Toolkit can be built on Unix, PC 
+(Windows 95/98/NT/2000/XP) and Mac OSX Jaguar (or greater) systems.  
+VTK uses <A HREF="http://www.cmake.org">CMake</A>
+for its build process.  To build VTK for UNIX or Windows, you will first 
+have to install CMake. You can download CMake from: 
+<A HREF="http://www.cmake.org"</A>http://www.cmake.org</A>
 The following instructions assume that cmake is already installed.
 <p>
 
 <h3><A NAME="Unix">Unix Installation</h3><p>
 The following instructions only apply to UNIX systems.  
 
-First we will give you the quick and dirty way to build VTK:
-<p>
+First we will give you the quick and dirty way to build VTK. Begin
+by telling Cmake what C and C++ compilers
+you will be using. This can avoid many build problems.
+On most systems you can pass this information to CMake in the 
+following way:
+<pre>
+  env CXX=/your/C++/compiler CC=/your/c/compiler cmake
+</pre>
+otherwise you must set the CXX and CC environment variables and then
+run ccmake (or cmake -i).<p>
 
 If you will be using C++ as your development language (no Tcl/Tk, Python or Java support):
 <pre>
   1) untar the src files
   2) untar the data files
   3) cd VTK
-  4) cmake -i (run cmake in wizard mode, where you have to answer questions about the build)
+  4) cmake -i (run cmake in wizard mode, where you have to answer 
+     questions about the build)
 or
-  4) ccmake (run the terminal based interface to cmake where you interactively change build options)
+  4) ccmake (run the terminal based interface to cmake where you interactively
+     change build options)
   5) if necessary change build options
   6) make
 </pre>
 
-It is a very good idea to tell cmake what C and C++ compilers
-you will be using. This can avoid many build problems.
-On most systems you can pass this information to configure in the 
-following way:
-<pre>
-env CXX=/your/C++/compiler CC=/your/c/compiler cmake
-</pre>
-otherwise you must set CXX and CC in your environment and then
-run ccmake (or cmake -i).<p>
+Note that this will create the binaries (i.e., object code, libraries, and
+executables) in the same directory as the source code. You can also build
+VTK out of source in a separate directory (this is particularly convenient
+when building VTK on multiple architectures). Instead of running CMake 
+from the VTK directory, create a new directory with enough disk space
+(not in the VTK tree) such as vtk-solaris. cd into this directory and 
+then run CMake similar to the following example:
 
-If you want to build the VTK interpreter then you will
-need to have Tcl and Tk (8.2 or newer). Look to <A href="http://www.scriptics.com">http://www.scriptics.com</A>
-for information about getting Tcl and Tk. To turn on Tcl wrapping,
-set VTK_WRAP_TCL to ON during the configuration process (as a post-build step, you might want to check the <A href="Wrapping/Tcl/README">Wrapping/Tcl/README</A> file). You will then have
-to set the values for Tcl/Tk include directories and libraries.
-
-If you are planning to build VTK for multiple architectures then you can
-either make a copy of the entire VTK tree for each architecture and then
-follow the instructions above. Or you can have one copy of
-the VTK tree and compile it in a different manner (out-of-source). Instead of
-running cmake from the VTK directory, create a new directory where you have some
-free disk space (not in the VTK tree), a possible name would be
-vtk-solaris. cd into this directory and then run cmake similar to the
-following example:
 <pre>
   ls /home/joe_user
       vtk vtk-solaris vtk-sgi
 
   cd vtk-solaris
   ccmake /home/joe_user/VTK
-  or
+or
   cmake -i /home/joe_user/VTK
 </pre>
+
 This will create makefiles in the vtk-solaris directory.  Then you can run
 make in vtk-solaris to compile VTK.  Repeate this process for each
 architecture you wish to build.<p>
+
+If you want to build the VTK interpreter then you will
+need to have Tcl and Tk (8.2 or newer). Look to <A href="http://www.scriptics.com">http://www.scriptics.com</A>
+for information about getting Tcl and Tk. To turn on Tcl wrapping,
+set VTK_WRAP_TCL to ON during the configuration process (as a post-build step, you might want to check the <A href="Wrapping/Tcl/README">Wrapping/Tcl/README</A> file). You will then have
+to set the values for Tcl/Tk include directories and libraries.
 
 <h3><A NAME="Cygwin">Cygwin Installation</h3><p>
 The build process for Cygwin is almost exactly the same as the UNIX build process
@@ -225,14 +235,16 @@ If you will be using C++ as your development language (no Tcl/Tk, Python or Java
   1) untar the src files
   2) untar the data files
   3) cd VTK
-  4) cmake -i (run cmake in wizard mode, where you have to answer questions about the build)
+  4) cmake -i (run cmake in wizard mode, where you have to answer questions 
+     about the build)
 or
-  4) ccmake (run the terminal based interface to cmake where you interactively change build options)
+  4) ccmake (run the terminal based interface to cmake where you interactively
+     change build options)
   5) if necessary change build options
   6) make
 </pre>
 
-For tcl/tk support, you have to install the cygwin sources for tcl/tk, then
+For Tcl/Tk support, you have to install the cygwin sources for Tcl/Tk, then
 set the following options:
 <pre>
 TK_INCLUDE_PATH /usr/src/tcltk-20001125-1/tk/generic/
@@ -245,14 +257,15 @@ TK_XLIB_PATH /usr/src/tcltk-20001125-1/tk/xlib
     The PC build process uses the CMake GUI CMakeSetup. Then you use the 
     compiler make utility to compile as follows.
   <pre>
-  1) Install vtk 4.0 distribution by unzipping into the appropriate directory.
+  1) Install the VTK 4.2 distribution by unzipping into the 
+     appropriate directory.
 
   2) Execute CMakeSetup. This will pop-up a little
      GUI that allows you to tailor the build. It then starts
-     building .dsw and .dsp files for microsoft, or makefiles for borland.
-      You'll have to tell CMakeSetup
-     where you've placed your VTK source code, and where to build
-     the object code and dll's (we'll call it "vtkbin").
+     building .dsw and .dsp files for Microsoft, or makefiles for Borland.
+     You'll have to tell CMakeSetup where you've placed your VTK source 
+     code, and where to build the object code and dll's 
+     (we'll call it "vtkbin").
 
   3) When CMakeSetup completes, start up msdev and load VTK.dsw.
      Select ALL_BUILD project, and build it.
