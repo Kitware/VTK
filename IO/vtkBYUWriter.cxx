@@ -23,7 +23,9 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkBYUWriter, "1.47");
+#include <stdio.h>
+
+vtkCxxRevisionMacro(vtkBYUWriter, "1.48");
 vtkStandardNewMacro(vtkBYUWriter);
 
 // Create object so that it writes displacement, scalar, and texture files

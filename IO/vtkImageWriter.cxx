@@ -22,7 +22,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.46");
+#include <stdio.h>
+
+vtkCxxRevisionMacro(vtkImageWriter, "1.47");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write
