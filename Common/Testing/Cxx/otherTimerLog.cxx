@@ -57,6 +57,7 @@ void otherTimerLogTest(ostream& strm)
   strm << "GetCPUTime: " << timer1->GetCPUTime() << endl;
   timer1->DumpLog( "timing" );
   timer1->ResetLog ();
+  timer1->CleanupLog();
   unlink("timing");
   timer1->Delete();
   strm << "Test vtkTimerLog End" << endl;
