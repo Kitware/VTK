@@ -138,6 +138,10 @@ public:
   virtual int CheckForAbortComposite() {return 0;}  
 //ETX
 
+  // Description:
+  // Calculate the bounds by gather information from all processes
+  virtual void ComputeVisiblePropBounds(vtkRenderer *ren, float bounds[6]);
+
 protected:
   vtkCompositeManager();
   ~vtkCompositeManager();
@@ -150,7 +154,6 @@ protected:
                                void *pTmp, float *zTmp) = 0;
 
   void Composite();
-  virtual void ComputeVisiblePropBounds(vtkRenderer *ren, float bounds[6]);
   void SetRendererSize(int x, int y);
   float* MagnifyBuffer(float *localPdata, int windowSize[2]);
 
