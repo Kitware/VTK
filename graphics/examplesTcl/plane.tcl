@@ -9,6 +9,7 @@ vtkPlaneSource plane
     plane SetPoint1 2 0 1
     plane SetPoint2 0 3 1
     plane SetCenter 3 2 1
+    plane SetNormal 0 0 1
     plane SetNormal 1 2 3
     plane Update
 vtkPolyDataMapper planeMapper
