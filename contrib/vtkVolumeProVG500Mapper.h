@@ -56,23 +56,35 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //   contrib box on PCMaker.
 //
 // 2. Edit the Makefile.in in contrib. Add the following three classes to
-//    the CONCRETE list of classes: vtkVolumeProMapper, 
-//    vtkVolumeProVG500Mapper, vtkOpenGLVolumeProVG500Mapper. Please be
+//    the CONCRETE list of classes:  vtkVolumeProVG500Mapper, 
+//    vtkOpenGLVolumeProVG500Mapper. Please be
 //    certain that there are no spaces after the "\" that separates lines.
 //
-// 3. Either edit vtkVolumeProMapper.h and specify the include path
-//    for vli.h, or copy the vli.h file to your contrib directory.
+// 3. Specify the include path for vli.h to the vtk make process.
+//    For Windows, add the option -I "/path/to/vli/" to the Advanced Options 
+//    Extra Compiler flags of pcmaker.  For example, the following works here:
+//    -I "c:\Program Files/VolumePro/inc" -DVTK_USE_VLI
+//    For UNIX, add the path to USER_CXXFLAGS as a -I option to the compiler.
+//    Or you can edit vtkVolumeProMapper.h and specify the include path
+//    for vli.h, or simply copy the vli.h file to your contrib directory.
 //
-// 4. On Windows - add the vli.lib file to the Extra Linker Flags under
-//    the Advanced Options. On Unix - add the vli shared object to the
+// 4. Add a -DVTK_USE_VLI to the compile options.  
+//    For Windows, add the flag in the Advanced Options Extra Compiler Flags
+//    of pcmaker.  
+//    For Unix, add the flag to USER_CXXFLAGS in user.make.
+//
+// 5. On Windows - add the vli.lib file to the Extra Linker Flags under
+//    the Advanced Options. For example the following works here:
+//    "c:\program files\volumepro\lib\vli.lib"
+//    On Unix - add the vli shared object to the
 //    KIT_LIBS in the Makefile.in in contrib.
 //  
-// 5. On Windows - make sure vli.dll is somewhere in your path before you
+// 6. On Windows - make sure vli.dll is somewhere in your path before you
 //    run vtk. You can put it in your vtkbin/lib or vtkbin/Debug/lib if
 //    you want. On Unix - make sure the vli shared object is in your
 //    shared library path before you run.
 //
-// 6. Reconfigure and rebuild vtk. You should now be able to create a
+// 7. Reconfigure and rebuild vtk. You should now be able to create a
 //    vtkVolumeProMapper which, if you have a VolumePRO board and the
 //    device driver is running, should connect to the hardware and render
 //    your volumes quickly.
@@ -93,19 +105,67 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkVolumeProVG500Mapper_h
 
 #include "vtkVolumeProMapper.h"
+#include "vli.h"
 
 class VTK_EXPORT vtkVolumeProVG500Mapper : public vtkVolumeProMapper
 {
 public:
   const char *GetClassName() {return "vtkVolumeProVG500Mapper";};
   static vtkVolumeProVG500Mapper *New();
-
+ // Description:
+  // Render the image using the hardware and place it in the frame buffer
+  virtual void Render( vtkRenderer *, vtkVolume * );
+  virtual int GetAvailableBoardMemory();
+  virtual void GetLockSizesForBoardMemory( unsigned int type,
+					   unsigned int *xSize,
+					   unsigned int *ySize,
+					   unsigned int *zSize );
 protected:
-  vtkVolumeProVG500Mapper() {};
-  ~vtkVolumeProVG500Mapper() {};
+  vtkVolumeProVG500Mapper();
+  ~vtkVolumeProVG500Mapper();
   vtkVolumeProVG500Mapper(const vtkVolumeProVG500Mapper&) {};
   void operator=(const vtkVolumeProVG500Mapper&) {};
+  
+  // Update the camera - set the camera matrix
+  void UpdateCamera( vtkRenderer *, vtkVolume * );
+
+  // Update the lights
+  void UpdateLights( vtkRenderer *, vtkVolume * );
+
+  // Update the properties of the volume including transfer functions
+  // and material properties
+  void UpdateProperties( vtkRenderer *, vtkVolume * );
+
+  // Update the volume - create it if necessary
+  // Set the volume matrix.
+  void UpdateVolume( vtkRenderer *, vtkVolume * );
+
+  // Set the crop box (as defined in the vtkVolumeMapper superclass)
+  void UpdateCropping( vtkRenderer *, vtkVolume * );
+
+  // Set the cursor
+  void UpdateCursor( vtkRenderer *, vtkVolume * );
+
+  // Update the cut plane
+  void UpdateCutPlane( vtkRenderer *, vtkVolume * );
+
+  // Render the hexagon to the screen
+  // Defined in the specific graphics implementation.
+  virtual void RenderHexagon( vtkRenderer  *ren, 
+			      vtkVolume    *vol,
+			      VLIPixel     *basePlane,
+			      int          size[2],
+			      VLIVector3D  hexagon[6], 
+			      VLIVector2D  textureCoords[6] ) {};
+
+  // Make the base plane size a power of 2 for OpenGL
+  void CorrectBasePlaneSize( VLIPixel *inBase, int inSize[2],
+			     VLIPixel **outBase, int outSize[2],
+			     VLIVector2D textureCoords[6] );
+
+  
 };
+
 
 
 #endif

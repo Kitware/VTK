@@ -49,35 +49,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // a vtkVolumeProMapper will automatically create the object of the right 
 // type.
 //
-// This class is not included in the contrib Makefile.in by default. If you
-// want to add this class to your vtk build, you need to have the vli header
-// and library files, and you will need to perform the following steps:
-//
-// 1. Make sure you are building with the contrib kit. On Unix add
-//    --with-contrib to your configure line, on Windows check the
-//   contrib box on PCMaker.
-//
-// 2. Edit the Makefile.in in contrib. Add the following three classes to
-//    the CONCRETE list of classes: vtkVolumeProMapper, 
-//    vtkVolumeProVG500Mapper, vtkOpenGLVolumeProVG500Mapper. Please be
-//    certain that there are no spaces after the "\" that separates lines.
-//
-// 3. Either edit vtkVolumeProMapper.h and specify the include path
-//    for vli.h, or copy the vli.h file to your contrib directory.
-//
-// 4. On Windows - add the vli.lib file to the Extra Linker Flags under
-//    the Advanced Options. On Unix - add the vli shared object to the
-//    KIT_LIBS in the Makefile.in in contrib.
-//  
-// 5. On Windows - make sure vli.dll is somewhere in your path before you
-//    run vtk. You can put it in your vtkbin/lib or vtkbin/Debug/lib if
-//    you want. On Unix - make sure the vli shared object is in your
-//    shared library path before you run.
-//
-// 6. Reconfigure and rebuild vtk. You should now be able to create a
-//    vtkVolumeProMapper which, if you have a VolumePRO board and the
-//    device driver is running, should connect to the hardware and render
-//    your volumes quickly.
+// If you do not have the VolumePRO libraries when building this object, then
+// the New method will create a default renderer that will not render.
+// You can check the NumberOfBoards ivar to see if it is a real rendering class.
+// To build with the VolumePRO board see vtkVolumeProVG500Mapper.h for instructions.
 //
 // For more information on the VolumePRO hardware, please see:
 //
@@ -96,8 +71,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkVolumeProMapper_h
 
 #include "vtkVolumeMapper.h"
-#include "vli.h"
- 
+
+//BTX
+class VLIContext;
+class VLIVolume;
+class VLILookupTable;
+class VLILight;
+class VLICutPlane;
+//ETX
+
 #define VTK_BLEND_MODE_COMPOSITE        0
 #define VTK_BLEND_MODE_MAX_INTENSITY    1
 #define VTK_BLEND_MODE_MIN_INTENSITY    2
@@ -121,8 +103,8 @@ public:
 
   // Description:
   // Render the image using the hardware and place it in the frame buffer
-  virtual void Render( vtkRenderer *, vtkVolume * );
-
+  virtual void Render( vtkRenderer *, vtkVolume * ) {}
+  
   // Description:
   // The Renderer and RayCaster rely on the information to compose
   // images from various volume renderers
@@ -230,57 +212,18 @@ public:
   vtkGetMacro( NumberOfBoards, int );
   vtkGetMacro( MajorBoardVersion, int );
   vtkGetMacro( MinorBoardVersion, int );
-  int GetAvailableBoardMemory();
-  void GetLockSizesForBoardMemory( unsigned int type,
-				   unsigned int *xSize,
-				   unsigned int *ySize,
-				   unsigned int *zSize );
+  virtual int GetAvailableBoardMemory() { return 0; }
+  virtual void GetLockSizesForBoardMemory( unsigned int type,
+					   unsigned int *xSize,
+					   unsigned int *ySize,
+					   unsigned int *zSize ) {};
  
 protected:
   vtkVolumeProMapper();
   ~vtkVolumeProMapper();
   vtkVolumeProMapper(const vtkVolumeProMapper&) {};
   void operator=(const vtkVolumeProMapper&) {};
-
-  // Update the camera - set the camera matrix
-  void UpdateCamera( vtkRenderer *, vtkVolume * );
-
-  // Update the lights
-  void UpdateLights( vtkRenderer *, vtkVolume * );
-
-  // Update the properties of the volume including transfer functions
-  // and material properties
-  void UpdateProperties( vtkRenderer *, vtkVolume * );
-
-  // Update the volume - create it if necessary
-  // Set the volume matrix.
-  void UpdateVolume( vtkRenderer *, vtkVolume * );
-
-  // Set the crop box (as defined in the vtkVolumeMapper superclass)
-  void UpdateCropping( vtkRenderer *, vtkVolume * );
-
-  // Set the cursor
-  void UpdateCursor( vtkRenderer *, vtkVolume * );
-
-  // Update the cut plane
-  void UpdateCutPlane( vtkRenderer *, vtkVolume * );
-
-  // Render the hexagon to the screen
-  // Defined in the specific graphics implementation.
-  virtual void RenderHexagon( vtkRenderer  *ren, 
-			      vtkVolume    *vol,
-			      VLIPixel     *basePlane,
-			      int          size[2],
-			      VLIVector3D  hexagon[6], 
-			      VLIVector2D  textureCoords[6] ) {};
-
-  // Make the base plane size a power of 2 for OpenGL
-  void CorrectBasePlaneSize( VLIPixel *inBase, int inSize[2],
-			     VLIPixel **outBase, int outSize[2],
-			     VLIVector2D textureCoords[6] );
-
-
-  // Make sure everything is OK for rendering
+ // Make sure everything is OK for rendering
   int StatusOK();
 
   // The volume context - create it once and keep it around

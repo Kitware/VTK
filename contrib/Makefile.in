@@ -33,6 +33,7 @@ vtkOBJReader \
 vtkOutputPort \
 vtkPolyDataCollector \
 vtkProjectedTexture \
+vtkPropPicker \
 vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
@@ -44,6 +45,7 @@ vtkThreadedController \
 vtkCellDerivatives \
 vtkCubeAxesActor2D \
 vtkSurfaceReconstructionFilter \
+vtkVolumeProMapper \
  ${CONTROLLER_API_OBJ}
 
 
