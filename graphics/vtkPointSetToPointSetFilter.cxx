@@ -164,8 +164,19 @@ void vtkPointSetToPointSetFilter::InternalUpdate(vtkDataObject *output)
       {
       (*this->EndMethod)(this->EndMethodArg);
       }
+    
+    // Tell the outputs they have valid data.
+    for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+      {
+      ds = (vtkDataSet*)(this->Outputs[idx]);
+      if (ds)
+	{
+	ds->DataHasBeenGenerated();
+	}  
+      }  
     }
 
+  
   // clean up (release data)
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {

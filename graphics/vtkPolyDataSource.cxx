@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkPolyDataSource* vtkPolyDataSource::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -63,6 +63,9 @@ vtkPolyDataSource* vtkPolyDataSource::New()
 vtkPolyDataSource::vtkPolyDataSource()
 {
   this->vtkSource::SetOutput(0, vtkPolyData::New());
+  // Releasing data for pipeline parallism.
+  // Filters will know it is empty. 
+  this->Outputs[0]->ReleaseData();
   this->Outputs[0]->Delete();
   this->ExecutePiece = this->ExecuteNumberOfPieces = 0;
 }

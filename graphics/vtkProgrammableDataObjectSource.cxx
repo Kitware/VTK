@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkProgrammableDataObjectSource* vtkProgrammableDataObjectSource::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -66,6 +66,9 @@ vtkProgrammableDataObjectSource::vtkProgrammableDataObjectSource()
   this->ExecuteMethodArg = NULL;
 
   this->vtkSource::SetOutput(0,vtkDataObject::New());
+  // Releasing data for pipeline parallism.
+  // Filters will know it is empty. 
+  this->Outputs[0]->ReleaseData();
   this->Outputs[0]->Delete();
 }
 

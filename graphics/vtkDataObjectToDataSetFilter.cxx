@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkDataObjectToDataSetFilter* vtkDataObjectToDataSetFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -75,6 +75,9 @@ vtkDataObjectToDataSetFilter::vtkDataObjectToDataSetFilter()
 
   this->DataSetType = VTK_POLY_DATA;
   this->vtkSource::SetOutput(0,vtkPolyData::New());
+  // Releasing data for pipeline parallism.
+  // Filters will know it is empty. 
+  this->Outputs[0]->ReleaseData();
   this->Outputs[0]->Delete();
   
   for (i=0; i < 3; i++)

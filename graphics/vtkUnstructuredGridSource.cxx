@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkUnstructuredGridSource* vtkUnstructuredGridSource::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -63,6 +63,9 @@ vtkUnstructuredGridSource* vtkUnstructuredGridSource::New()
 vtkUnstructuredGridSource::vtkUnstructuredGridSource()
 {
   this->vtkSource::SetOutput(0, vtkUnstructuredGrid::New());
+  // Releasing data for pipeline parallism.
+  // Filters will know it is empty. 
+  this->Outputs[0]->ReleaseData();
   this->Outputs[0]->Delete();
 }
 

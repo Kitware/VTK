@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkExtractVectorComponents* vtkExtractVectorComponents::New()
 {
   // First try to create the object from the vtkObjectFactory
