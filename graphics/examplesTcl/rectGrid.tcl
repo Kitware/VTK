@@ -11,7 +11,6 @@ source ../../examplesTcl/vtkInclude.tcl
 #
 vtkRectilinearGridReader reader
     reader SetFileName "../../../vtkdata/RectGrid.vtk"
-    reader DebugOn
     reader Update
 vtkRectilinearGridGeometryFilter plane
     plane SetInput [reader GetOutput]
