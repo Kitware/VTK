@@ -47,9 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkSurfaceReconstructionFilter* vtkSurfaceReconstructionFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -61,9 +59,6 @@ vtkSurfaceReconstructionFilter* vtkSurfaceReconstructionFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkSurfaceReconstructionFilter;
 }
-
-
-
 
 vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
 {
@@ -191,7 +186,7 @@ void vtkSurfaceReconstructionFilter::Execute()
     {
     SurfacePoint *p = &surfacePoints[i];
     CopyBToA(p->loc,input->GetPoint(i));
-	locator->FindClosestNPoints(this->NeighborhoodSize,p->loc,locals);
+        locator->FindClosestNPoints(this->NeighborhoodSize,p->loc,locals);
     int iNeighbor;
     for(j=0;j<locals->GetNumberOfIds();j++)
       {
@@ -352,7 +347,8 @@ void vtkSurfaceReconstructionFilter::Execute()
         }
       
       // correct the orientation of the point if necessary
-      if(vtkMath::Dot(surfacePoints[cheapestNearby].n,surfacePoints[connectedVisited].n)<0.0F)
+      if(vtkMath::Dot(surfacePoints[cheapestNearby].n,
+                      surfacePoints[connectedVisited].n)<0.0F)
         {
         // flip this normal
         MultiplyBy(surfacePoints[cheapestNearby].n,-1);
@@ -397,13 +393,14 @@ void vtkSurfaceReconstructionFilter::Execute()
 
   // estimate the spacing if required
   if(this->SampleSpacing<=0.0)
-	{
-	  // sample spacing guessed as cube root of (volume divided by number of points)
-	  this->SampleSpacing = pow((double)(bounds[1]-bounds[0])*(bounds[3]-bounds[2])*(bounds[5]-bounds[4]) / (float)COUNT,
-		  (double)(1.0/3.0));
+    {
+    // spacing guessed as cube root of (volume divided by number of points)
+    this->SampleSpacing = pow((double)(bounds[1]-bounds[0])*
+                              (bounds[3]-bounds[2])*(bounds[5]-bounds[4]) /
+                              (float)COUNT, (double)(1.0/3.0));
  
-	  vtkDebugMacro(<<"Estimated sample spacing as: " << this->SampleSpacing );
-	}
+    vtkDebugMacro(<<"Estimated sample spacing as: " << this->SampleSpacing );
+    }
 
   // allow a border around the volume to allow sampling around the extremes
   for(i=0;i<3;i++)
@@ -425,7 +422,8 @@ void vtkSurfaceReconstructionFilter::Execute()
 
   // initialise the output volume
   output->SetDimensions(dim[0],dim[1],dim[2]);
-  output->SetSpacing(this->SampleSpacing,this->SampleSpacing,this->SampleSpacing);
+  output->SetSpacing(this->SampleSpacing, this->SampleSpacing,
+                     this->SampleSpacing);
   output->SetOrigin(topleft);
   
   // initialise the point locator (have to use point insertion because we
@@ -508,7 +506,7 @@ static void AddOuterProduct(float **m,float *v)
 #define VTK_FREE_ARG char*
 
 // allocate a float vector with subscript range v[nl..nh]
-static float *SRVector(long nl, long nh)	
+static float *SRVector(long nl, long nh)        
 { 
   float *v;
 
@@ -524,7 +522,7 @@ static float *SRVector(long nl, long nh)
 
 // allocate a float matrix with subscript range m[nrl..nrh][ncl..nch]
 static float **Matrix(long nrl, long nrh, long ncl, long nch)
-	
+        
 {
   long i, nrow=nrh-nrl+1,ncol=nch-ncl+1;
   float **m;
@@ -567,8 +565,8 @@ static void FreeVector(float *v, long nl, long vtkNotUsed(nh))
 
 // free a float matrix allocated by Matrix()
 static void FreeMatrix(float **m, long nrl, long vtkNotUsed(nrh),
-		       long ncl, long vtkNotUsed(nch))
-	
+                       long ncl, long vtkNotUsed(nch))
+        
 {
   delete [] (m[nrl]+ncl-VTK_NR_END);
   delete [] (m+nrl-VTK_NR_END);
@@ -576,3 +574,6 @@ static void FreeMatrix(float **m, long nrl, long vtkNotUsed(nrh),
 
 #undef VTK_NR_END
 #undef VTK_FREE_ARG
+
+
+
