@@ -84,8 +84,8 @@ static void vtkXImageMapperClamps ( vtkImageData *data, float w,
     }
   else
     {
-    f_lower_val = 255.0 - 255.0*(lower - f_lower)/w;
-    f_upper_val = 255.0 - 255.0*(upper - f_lower)/w;
+    f_lower_val = 255.0 + 255.0*(lower - f_lower)/w;
+    f_upper_val = 255.0 + 255.0*(upper - f_lower)/w;
     }
   
   if (f_upper_val > 255) 
@@ -349,7 +349,6 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
     upperPixel = (unsigned char)(colors[upper_val].pixel);
     lowerPixel = (unsigned char)(colors[lower_val].pixel);
     }  
-
 
   inInc1 = -inInc1;
 
