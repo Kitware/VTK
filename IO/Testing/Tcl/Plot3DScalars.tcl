@@ -50,7 +50,9 @@ vtkActor2D text$scalarFunction
   text$scalarFunction SetPosition 2 3
   [text$scalarFunction GetProperty] SetColor 0 0 0
 
-ren$scalarFunction AddActor2D text$scalarFunction
+    if { [info command rtExMath] == ""} {
+	ren$scalarFunction AddActor2D text$scalarFunction
+    }
 incr i
 }
 #
