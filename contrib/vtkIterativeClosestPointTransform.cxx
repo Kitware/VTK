@@ -238,6 +238,15 @@ unsigned long vtkIterativeClosestPointTransform::GetMTime()
       }
     }
 
+  if (this->LandmarkTransform)
+    {
+    mtime = this->LandmarkTransform->GetMTime();
+    if (mtime > result)
+      {
+      result = mtime;
+      }
+    }
+
   return result;
 }
 
