@@ -262,7 +262,7 @@ void vtkTubeFilter::Execute()
       if ( vtkMath::Normalize(sNext) == 0.0 )
         {
         vtkErrorMacro(<<"Coincident points!");
-	if (this->DeleteNormals)
+	if (deleteNormals)
 	  {
 	  inNormals->Delete();
 	  }
