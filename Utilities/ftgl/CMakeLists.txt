@@ -222,11 +222,10 @@ IF (FTGL_BUILD_EXAMPLES)
     ENDIF (WIN32)
 
     #
-    # Apple flags
+    # Apple libraries.
     #
     IF (APPLE)
-      SET (CMAKE_CXX_SHLIB_LINK_FLAGS 
-      "${CMAKE_CXX_SHLIB_LINK_FLAGS} -framework Cocoa")
+      SET (VTKFTGL_EXAMPLES_LIBS "-framework Cocoa" ${VTKFTGL_EXAMPLES_LIBS})
     ENDIF (APPLE)
 
     #
