@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkSelectVisiblePoints.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 
 // Instantiate object with no renderer; window selection turned off; 
 // tolerance set to 0.01; and select invisible off.
@@ -68,12 +69,26 @@ void vtkSelectVisiblePoints::Execute()
   vtkPointData *outPD=output->GetPointData();
   int numPts=input->GetNumberOfPoints();
   float x[4], dx[3], z, diff;
+  int selection[4];
 
   if ( numPts < 1 ) return;
   
   outPts = vtkPoints::New();
   outPts->Allocate(numPts/2+1);
   outPD->CopyAllocate(inPD);
+
+  // specify a selection window to avoid querying 
+  if ( this->SelectionWindow )
+    {
+    for (int i=0; i<4; i++) selection[i] = this->Selection[i];
+    }
+  else
+    {
+    int *size = this->Renderer->GetRenderWindow()->GetSize();
+    selection[0] = selection[2] = 0;
+    selection[1] = size[0] - 1;
+    selection[3] = size[1] - 1;
+    }
 
   x[3] = 1.0;
   for (id=(-1), ptId=0; ptId < numPts; ptId++)
@@ -86,9 +101,8 @@ void vtkSelectVisiblePoints::Execute()
     visible = 0;
 
     // check whether visible and in selection window 
-    if ( !this->SelectionWindow ||
-    (dx[0] >= this->Selection[0] && dx[0] <= this->Selection[1] &&
-     dx[1] >= this->Selection[2] && dx[1] <= this->Selection[3]) )
+    if ( dx[0] >= selection[0] && dx[0] <= selection[1] &&
+    dx[1] >= selection[2] && dx[1] <= selection[3] )
       {
       z = this->Renderer->GetZ(dx[0], dx[1]);
       diff = fabs(z-dx[2]);
