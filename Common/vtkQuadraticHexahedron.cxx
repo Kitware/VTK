@@ -25,7 +25,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.22");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.23");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -218,9 +218,9 @@ int vtkQuadraticHexahedron::EvaluatePosition(double* x,
       return -1;
       }
 
-    pcoords[0] = params[0] - vtkMath::Determinant3x3 (fcol,scol,tcol) / d;
-    pcoords[1] = params[1] - vtkMath::Determinant3x3 (rcol,fcol,tcol) / d;
-    pcoords[2] = params[2] - vtkMath::Determinant3x3 (rcol,scol,fcol) / d;
+    pcoords[0] = params[0] - 0.5*vtkMath::Determinant3x3 (fcol,scol,tcol) / d;
+    pcoords[1] = params[1] - 0.5*vtkMath::Determinant3x3 (rcol,fcol,tcol) / d;
+    pcoords[2] = params[2] - 0.5*vtkMath::Determinant3x3 (rcol,scol,fcol) / d;
 
     //  check for convergence
     if ( ((fabs(pcoords[0]-params[0])) < VTK_HEX_CONVERGED) &&
