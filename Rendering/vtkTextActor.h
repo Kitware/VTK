@@ -94,9 +94,11 @@ public:
   // if zero (default), the text aligns itself to the bottom left corner
   // (which is defined by the PositionCoordinate)
   // otherwise the text aligns itself to corner/midpoint or centre
-  //      6   7   8    of the box defined by the position 1 & 2 coordinates
-  //      3   4   5    according to the diagram on the left.
-  //      0   1   2
+  // @verbatim
+  //      6   7   8    Otherwise the text aligns itself to corner/midpoint
+  //      3   4   5    or centre of the box defined by the position 1 & 2
+  //      0   1   2    coordinates according to the diagram on the left.
+  // @endverbatim
   vtkSetClampMacro(AlignmentPoint,int,0,8)
   vtkGetMacro(AlignmentPoint,int);
 
