@@ -95,8 +95,7 @@ void vtkGlyph3D::Execute()
   int npts;
   vtkIdList *pts;
   int haveVectors, haveNormals, ptIncr, cellId;
-  float scale = 1.0;
-  float den;
+  float scale, den;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkDataSet *input = (vtkDataSet *)this->Input;
@@ -232,7 +231,7 @@ void vtkGlyph3D::Execute()
   //
   for (ptIncr=0, inPtId=0; inPtId < numPts; inPtId++, ptIncr += numSourcePts)
     {
-
+    scale = 1.0;
     if ( ! (inPtId % 10000) ) 
       {
       this->UpdateProgress ((float)inPtId/numPts);
@@ -267,10 +266,6 @@ void vtkGlyph3D::Execute()
         {
         scale = vMag;
         }
-      }
-    else
-      {
-      scale = 1.0;
       }
 
     // Clamp data scale if enabled
