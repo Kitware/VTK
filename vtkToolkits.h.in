@@ -1,3 +1,5 @@
+#ifndef __vtkToolkits_h
+#define __vtkToolkits_h
 
 /* what toolkits was VTK built with */
 #cmakedefine VTK_USE_HYBRID
@@ -44,3 +46,5 @@
 #cmakedefine VTK_DEBUG_LEAKS
 
 #cmakedefine VTK_USE_FREETYPE
+
+#endif
