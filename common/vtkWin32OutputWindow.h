@@ -38,12 +38,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkWin32OutputWindow - base class for writting debug output to a console
+// .NAME vtkWin32OutputWindow - Win32 Specific output window class
 // .SECTION Description
-// This class is used to encapsulate all text ouput, so that it will work
-// with operating systems that have a stdout and stderr, and ones that
-// do not.  (i.e windows does not).  Sub-classes can be provided which can
-// redirect the output to a window.
+// This class is used for error and debug message output on the windows
+// platform.   It creates a read only EDIT control to display the
+// output.   This class should not be used directly.   It should
+// only be used through the interface of vtkOutputWindow.  This class
+// only handles one output window per process.  If the window is destroyed,
+// the vtkObject::GlobalWarningDisplayOff() function is called.  The
+// window is created the next time text is written to the window.
 
 #ifndef __vtkWin32OutputWindow_h
 #define __vtkWin32OutputWindow_h
@@ -55,6 +58,8 @@ class VTK_EXPORT vtkWin32OutputWindow : public vtkOutputWindow
 {
 public:
   static vtkWin32OutputWindow* New();
+  // Description:  Put the text into the display window.
+  // New lines are converted to carriage return new lines.
   virtual void DisplayText(const char*);
   //BTX
   static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, 
