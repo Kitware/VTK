@@ -26,7 +26,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.30");
+vtkCxxRevisionMacro(vtkImageReslice, "1.31");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 
@@ -741,15 +741,9 @@ inline int vtkResliceFloor(double x)
 #if defined mips || defined sparc
   return (int)((unsigned int)(x + 2147483648.0) - 2147483648U);
 #elif defined i386 || defined _M_IX86
-  double tempval;
-  // use 52-bit precision of IEEE double to round (x - 0.25) to 
-  // the nearest multiple of 0.5, according to prevailing rounding
-  // mode which is IEEE round-to-nearest,even
-  tempval = (x - 0.25) + 3377699720527872.0; // (2**51)*1.5
-  // extract mantissa, use shift to divide by 2 and hence get rid
-  // of the bit that gets messed up because the FPU uses
-  // round-to-nearest,even mode instead of round-to-nearest,+infinity
-  return ((int*)&tempval)[0] >> 1;
+  unsigned int hilo[2];
+  *((double *)hilo) = x + 103079215104.0;  // (2**(52-16))*1.5
+  return (int)((hilo[1]<<16)|(hilo[0]>>16));
 #else
   return int(floor(x));
 #endif
