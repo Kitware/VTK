@@ -242,14 +242,24 @@ float vtkImageData::GetScalarComponentAsFloat(int x, int y, int z, int comp)
     {
     case VTK_FLOAT:
       return *(((float *)ptr) + comp);
+    case VTK_DOUBLE:
+      return *(((double *)ptr) + comp);
     case VTK_INT:
       return (float)(*(((int *)ptr) + comp));
+    case VTK_UNSIGNED_INT:
+      return (float)(*(((unsigned int *)ptr) + comp));
+    case VTK_LONG:
+      return (float)(*(((long *)ptr) + comp));
+    case VTK_UNSIGNED_LONG:
+      return (float)(*(((unsigned long *)ptr) + comp));
     case VTK_SHORT:
       return (float)(*(((short *)ptr) + comp));
     case VTK_UNSIGNED_SHORT:
       return (float)(*(((unsigned short *)ptr) + comp));
     case VTK_UNSIGNED_CHAR:
       return (float)(*(((unsigned char *)ptr) + comp));
+    case VTK_CHAR:
+      return (float)(*(((char *)ptr) + comp));
     }
 
   vtkErrorMacro("Unknown Scalar type");
@@ -347,7 +357,7 @@ int vtkImageData::GetScalarType()
   tmp = this->GetPointData()->GetScalars();
   if (tmp && tmp->GetDataType() != this->ScalarType)
     {
-    vtkWarningMacro("ScalarType does not match current scalars!");
+      vtkWarningMacro("ScalarType " << tmp->GetDataType() << " does not match current scalars of type " << this->ScalarType);
     }
   
   return this->ScalarType;
@@ -425,12 +435,20 @@ int vtkImageData::GetScalarSize()
     {
     case VTK_FLOAT:
       return sizeof(float);
+    case VTK_DOUBLE:
+      return sizeof(double);
     case VTK_INT:
+    case VTK_UNSIGNED_INT:
       return sizeof(int);
+    case VTK_LONG:
+    case VTK_UNSIGNED_LONG:
+      return sizeof(long);
     case VTK_SHORT:
     case VTK_UNSIGNED_SHORT:
       return 2;
     case VTK_UNSIGNED_CHAR:
+      return 1;
+    case VTK_CHAR:
       return 1;
     }
   
@@ -496,9 +514,25 @@ static void vtkImageDataCastExecute(vtkImageData *inData, T *inPtr,
       vtkImageDataCastExecute(inData, (T *)(inPtr), 
 			      outData, (float *)(outPtr),outExt);
       break;
+    case VTK_DOUBLE:
+      vtkImageDataCastExecute(inData, (T *)(inPtr), 
+			      outData, (double *)(outPtr),outExt);
+      break;
     case VTK_INT:
       vtkImageDataCastExecute(inData, (T *)(inPtr), 
 			      outData, (int *)(outPtr),outExt); 
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageDataCastExecute(inData, (T *)(inPtr), 
+			      outData, (unsigned int *)(outPtr),outExt); 
+      break;
+    case VTK_LONG:
+      vtkImageDataCastExecute(inData, (T *)(inPtr), 
+			      outData, (long *)(outPtr),outExt); 
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageDataCastExecute(inData, (T *)(inPtr), 
+			      outData, (unsigned long *)(outPtr),outExt); 
       break;
     case VTK_SHORT:
       vtkImageDataCastExecute(inData, (T *)(inPtr), 
@@ -511,6 +545,9 @@ static void vtkImageDataCastExecute(vtkImageData *inData, T *inPtr,
     case VTK_UNSIGNED_CHAR:
       vtkImageDataCastExecute(inData, (T *)(inPtr), 
 			      outData, (unsigned char *)(outPtr),outExt); 
+    case VTK_CHAR:
+      vtkImageDataCastExecute(inData, (T *)(inPtr), 
+			      outData, (char *)(outPtr),outExt); 
       break;
     default:
       vtkGenericWarningMacro("Execute: Unknown output ScalarType");
@@ -536,8 +573,24 @@ void vtkImageData::CopyAndCastFrom(vtkImageData *inData, int extent[6])
       vtkImageDataCastExecute(inData, (float *)(inPtr), 
 			      this, extent);
       break;
+    case VTK_DOUBLE:
+      vtkImageDataCastExecute(inData, (double *)(inPtr), 
+			      this, extent);
+      break;
     case VTK_INT:
       vtkImageDataCastExecute(inData, (int *)(inPtr), 
+			      this, extent);
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageDataCastExecute(inData, (unsigned int *)(inPtr), 
+			      this, extent);
+      break;
+    case VTK_LONG:
+      vtkImageDataCastExecute(inData, (long *)(inPtr), 
+			      this, extent);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageDataCastExecute(inData, (unsigned long *)(inPtr), 
 			      this, extent);
       break;
     case VTK_SHORT:
@@ -550,6 +603,10 @@ void vtkImageData::CopyAndCastFrom(vtkImageData *inData, int extent[6])
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageDataCastExecute(inData, (unsigned char *)(inPtr), 
+			      this, extent);
+      break;
+    case VTK_CHAR:
+      vtkImageDataCastExecute(inData, (char *)(inPtr), 
 			      this, extent);
       break;
     default:
@@ -568,14 +625,24 @@ double vtkImageData::GetScalarTypeMin()
     {
     case VTK_FLOAT:
       return (double)(VTK_FLOAT_MIN);
+    case VTK_DOUBLE:
+      return (double)(VTK_DOUBLE_MIN);
     case VTK_INT:
       return (double)(VTK_INT_MIN);
+    case VTK_UNSIGNED_INT:
+      return (double)(VTK_UNSIGNED_INT_MIN);
+    case VTK_LONG:
+      return (double)(VTK_LONG);
+    case VTK_UNSIGNED_LONG:
+      return (double)(VTK_UNSIGNED_LONG);
     case VTK_SHORT:
       return (double)(VTK_SHORT_MIN);
     case VTK_UNSIGNED_SHORT:
       return (double)(0.0);
     case VTK_UNSIGNED_CHAR:
       return (double)(0.0);
+    case VTK_CHAR:
+      return (double)(VTK_CHAR_MIN);
     default:
       vtkErrorMacro("Cannot handle scalar type " << this->ScalarType);
       return 0.0;
@@ -590,14 +657,24 @@ double vtkImageData::GetScalarTypeMax()
     {
     case VTK_FLOAT:
       return (double)(VTK_FLOAT_MAX);
+    case VTK_DOUBLE:
+      return (double)(VTK_DOUBLE_MAX);
     case VTK_INT:
       return (double)(VTK_INT_MAX);
+    case VTK_UNSIGNED_INT:
+      return (double)(VTK_UNSIGNED_INT_MAX);
+    case VTK_LONG:
+      return (double)(VTK_LONG_MAX);
+    case VTK_UNSIGNED_LONG:
+      return (double)(VTK_UNSIGNED_LONG_MAX);
     case VTK_SHORT:
       return (double)(VTK_SHORT_MAX);
     case VTK_UNSIGNED_SHORT:
       return (double)(VTK_UNSIGNED_SHORT_MAX);
     case VTK_UNSIGNED_CHAR:
       return (double)(VTK_UNSIGNED_CHAR_MAX);
+    case VTK_CHAR:
+      return (double)(VTK_CHAR_MAX);
     default:
       vtkErrorMacro("Cannot handle scalar type " << this->ScalarType);
       return 0.0;

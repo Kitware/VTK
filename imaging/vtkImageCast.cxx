@@ -52,7 +52,7 @@ vtkImageCast::vtkImageCast()
 
 
 //----------------------------------------------------------------------------
-// Just change the Image extent.
+// Just change the Image type.
 void vtkImageCast::ExecuteImageInformation()
 {
   this->Output->SetScalarType(this->OutputScalarType);
@@ -187,10 +187,30 @@ static void vtkImageCastExecute(vtkImageCast *self,
 			  inData, (T *)(inPtr), 
 			  outData, (float *)(outPtr),outExt, id);
       break;
+    case VTK_DOUBLE:
+      vtkImageCastExecute(self, 
+			  inData, (T *)(inPtr), 
+			  outData, (double *)(outPtr),outExt, id);
+      break;
     case VTK_INT:
       vtkImageCastExecute(self, 
 			  inData, (T *)(inPtr), 
 			  outData, (int *)(outPtr),outExt, id); 
+      break;
+    case VTK_UNSIGNED_INT:
+      vtkImageCastExecute(self, 
+			  inData, (T *)(inPtr), 
+			  outData, (unsigned int *)(outPtr),outExt, id); 
+      break;
+    case VTK_LONG:
+      vtkImageCastExecute(self, 
+			  inData, (T *)(inPtr), 
+			  outData, (long *)(outPtr),outExt, id); 
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageCastExecute(self, 
+			  inData, (T *)(inPtr), 
+			  outData, (unsigned long *)(outPtr),outExt, id); 
       break;
     case VTK_SHORT:
       vtkImageCastExecute(self, 
@@ -206,6 +226,11 @@ static void vtkImageCastExecute(vtkImageCast *self,
       vtkImageCastExecute(self, 
 			  inData, (T *)(inPtr), 
 			  outData, (unsigned char *)(outPtr),outExt, id); 
+      break;
+    case VTK_CHAR:
+      vtkImageCastExecute(self, 
+			  inData, (T *)(inPtr), 
+			  outData, (char *)(outPtr),outExt, id); 
       break;
     default:
       vtkGenericWarningMacro("Execute: Unknown output ScalarType");
@@ -240,6 +265,18 @@ void vtkImageCast::ThreadedExecute(vtkImageData *inData,
       vtkImageCastExecute(this, inData, (int *)(inPtr), 
 			  outData, outExt, id);
       break;
+    case VTK_UNSIGNED_INT:
+      vtkImageCastExecute(this, inData, (unsigned int *)(inPtr), 
+			  outData, outExt, id);
+      break;
+    case VTK_LONG:
+      vtkImageCastExecute(this, inData, (long *)(inPtr), 
+			  outData, outExt, id);
+      break;
+    case VTK_UNSIGNED_LONG:
+      vtkImageCastExecute(this, inData, (unsigned long *)(inPtr), 
+			  outData, outExt, id);
+      break;
     case VTK_SHORT:
       vtkImageCastExecute(this, inData, (short *)(inPtr), 
 			  outData, outExt, id);
@@ -250,6 +287,10 @@ void vtkImageCast::ThreadedExecute(vtkImageData *inData,
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageCastExecute(this, inData, (unsigned char *)(inPtr), 
+			  outData, outExt, id);
+      break;
+    case VTK_CHAR:
+      vtkImageCastExecute(this, inData, (char *)(inPtr), 
 			  outData, outExt, id);
       break;
     default:
