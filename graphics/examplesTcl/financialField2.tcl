@@ -22,6 +22,7 @@ set scalar TIME_LATE
 vtkProgrammableDataObjectSource dos
     dos SetExecuteMethod parseFile
 proc parseFile {} {
+   global VTK_DATA
    set file [open "$VTK_DATA/financial.txt" r]
    set line [gets $file]
    scan $line "%*s %d" numPts

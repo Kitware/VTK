@@ -8,6 +8,7 @@ source $VTK_TCL/WidgetObject.tcl
 source TkInteractor.tcl
 
 proc CreateDataChoice { ww type } {
+    global VTK_DATA
     vtkSLCReader reader_$type
     reader_$type SetFileName $VTK_DATA/$type.slc
     

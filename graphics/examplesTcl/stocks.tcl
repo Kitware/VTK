@@ -27,6 +27,7 @@ set zpos 0
 
 # create the stocks
 proc AddStock {prefix name x y z} {
+    global VTK_DATA
     global zpos
 
     # create labels
