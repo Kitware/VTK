@@ -28,6 +28,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
 
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkMultiProcessController);
+
+//----------------------------------------------------------------------------
 
 // Helper class to contain the RMI information.  
 // A subclass of vtkObject so that I can keep them in a collection.
@@ -47,10 +52,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.12");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.13");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.12");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.13");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -123,7 +128,7 @@ vtkMultiProcessController::~vtkMultiProcessController()
   this->RMIs = NULL;
 }
 
-  
+ 
 //----------------------------------------------------------------------------
 vtkMultiProcessController *vtkMultiProcessController::New()
 {

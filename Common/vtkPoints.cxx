@@ -30,7 +30,11 @@
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkPoints, "1.44");
+vtkCxxRevisionMacro(vtkPoints, "1.45");
+
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkPoints);
 
 //----------------------------------------------------------------------------
 vtkPoints* vtkPoints::New(int dataType)

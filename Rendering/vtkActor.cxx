@@ -27,9 +27,13 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.116");
+vtkCxxRevisionMacro(vtkActor, "1.117");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
+
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkActor);
 
 
 // Creates an actor with the following defaults: origin(0,0,0) 

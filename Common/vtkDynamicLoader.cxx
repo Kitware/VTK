@@ -17,6 +17,8 @@
 =========================================================================*/
 #include "vtkDynamicLoader.h"
 
+#include "vtkDebugLeaks.h"
+
 // This file is actually 3 different implementations.
 // 1. HP machines which uses shl_load
 // 2. Apple OSX which uses NSLinkModule
@@ -25,7 +27,21 @@
 // Each part of the ifdef contains a complete implementation for
 // the static methods of vtkDynamicLoader.  
 
-vtkCxxRevisionMacro(vtkDynamicLoader, "1.9");
+vtkCxxRevisionMacro(vtkDynamicLoader, "1.10");
+
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkDynamicLoader);
+
+//----------------------------------------------------------------------------
+vtkDynamicLoader* vtkDynamicLoader::New()
+{
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructClass("vtkDynamicLoader");
+#endif    
+  return new vtkDynamicLoader;
+}
+
 
 // ---------------------------------------------------------------
 // 1. Implementation for HPUX  machines

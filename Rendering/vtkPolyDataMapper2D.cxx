@@ -22,7 +22,12 @@
 #include "vtkLookupTable.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.38");
+vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.39");
+
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkPolyDataMapper2D);
+//----------------------------------------------------------------------------
 
 vtkCxxSetObjectMacro(vtkPolyDataMapper2D,Input,vtkPolyData);
 vtkCxxSetObjectMacro(vtkPolyDataMapper2D,TransformCoordinate,vtkCoordinate);

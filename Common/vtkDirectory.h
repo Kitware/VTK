@@ -29,7 +29,6 @@
 #define __vtkDirectory_h
 
 #include "vtkObject.h"
-#include "vtkDebugLeaks.h"
 
 class VTK_COMMON_EXPORT vtkDirectory : public vtkObject
 {
@@ -40,11 +39,7 @@ public:
 
   // Description:
   // Create a new vtkDirectory object.
-  static vtkDirectory *New() {
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::ConstructClass("vtkDirectory");
-#endif    
-    return new vtkDirectory;};
+  static vtkDirectory *New();
 
   // Description:
   // Print directory to stream.

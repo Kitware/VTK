@@ -30,7 +30,6 @@
 #define VTK_PLUS_Z_MAJOR_DIRECTION  4
 #define VTK_MINUS_Z_MAJOR_DIRECTION 5
 
-
 template <class T>
 void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
                                               int size[3],
@@ -465,7 +464,12 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.48");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.49");
+
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkVolumeTextureMapper2D);
+//----------------------------------------------------------------------------
 
 vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
 {

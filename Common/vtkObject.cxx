@@ -98,6 +98,10 @@ protected:
 
 // ------------------------------------vtkObject----------------------
 
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkObject);
+
 vtkObject *vtkObject::New() 
 {
 #ifdef VTK_DEBUG_LEAKS
@@ -258,7 +262,7 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
 
 void vtkObject::CollectRevisions(ostream& os)
 {
-  os << "vtkObject 1.78\n";
+  os << "vtkObject 1.79\n";
 }
 
 //----------------------------------Command/Observer stuff-------------------

@@ -25,7 +25,11 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.102");
+vtkCxxRevisionMacro(vtkCamera, "1.103");
+
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkCamera);
 
 //----------------------------------------------------------------------------
 // Construct camera instance with its focal point at the origin, 

@@ -17,7 +17,11 @@
 =========================================================================*/
 #include "vtkObjectFactoryCollection.h"
 
-vtkCxxRevisionMacro(vtkObjectFactoryCollection, "1.2");
+vtkCxxRevisionMacro(vtkObjectFactoryCollection, "1.3");
+
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkObjectFactoryCollection);
 
 vtkObjectFactoryCollection* vtkObjectFactoryCollection::New() 
 {

@@ -590,6 +590,17 @@ virtual float *Get##name() \
       return static_cast<thisClass*>(ret); \
       } \
     return new thisClass; \
+  } \
+  vtkInstantiatorNewMacro(thisClass)
+
+// Macro to implement the instantiator's wrapper around the New()
+// method.  Use this macro if and only if vtkStandardNewMacro is not
+// used by the class.
+#define vtkInstantiatorNewMacro(thisClass) \
+  extern vtkObject* vtkInstantiator##thisClass##New(); \
+  vtkObject* vtkInstantiator##thisClass##New() \
+  { \
+    return thisClass::New(); \
   }
 
 // The following macros are all just there to centralize the template 

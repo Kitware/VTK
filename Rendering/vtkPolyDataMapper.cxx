@@ -19,7 +19,11 @@
 #include "vtkRenderWindow.h"
 #include "vtkGraphicsFactory.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.29");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.30");
+
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkPolyDataMapper);
 
 //----------------------------------------------------------------------------
 // return the correct type of PolyDataMapper 

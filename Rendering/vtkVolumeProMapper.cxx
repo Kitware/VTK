@@ -32,7 +32,12 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeProMapper, "1.30");
+vtkCxxRevisionMacro(vtkVolumeProMapper, "1.31");
+
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkVolumeProMapper);
+//----------------------------------------------------------------------------
 
 // Create the mapper. No context has been created, no volume has
 // been created yet.

@@ -22,7 +22,12 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkTexture, "1.46");
+vtkCxxRevisionMacro(vtkTexture, "1.47");
+
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkTexture);
+//----------------------------------------------------------------------------
 
 // Construct object and initialize.
 vtkTexture::vtkTexture()

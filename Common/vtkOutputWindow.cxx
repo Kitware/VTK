@@ -22,7 +22,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkOutputWindow, "1.27");
+vtkCxxRevisionMacro(vtkOutputWindow, "1.28");
+
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkOutputWindow);
+
+//----------------------------------------------------------------------------
 
 vtkOutputWindow* vtkOutputWindow::Instance = 0;
 vtkOutputWindowCleanup vtkOutputWindow::Cleanup;

@@ -17,7 +17,22 @@
 =========================================================================*/
 #include "vtkDirectory.h"
 
-vtkCxxRevisionMacro(vtkDirectory, "1.14");
+#include "vtkDebugLeaks.h"
+
+vtkCxxRevisionMacro(vtkDirectory, "1.15");
+
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkDirectory);
+
+//----------------------------------------------------------------------------
+vtkDirectory* vtkDirectory::New()
+{
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructClass("vtkDirectory");
+#endif    
+  return new vtkDirectory;
+}
 
 vtkDirectory::vtkDirectory() 
   : Path(0), Files(0), NumberOfFiles(0)
