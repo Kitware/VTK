@@ -21,6 +21,25 @@
 // widget has 2D glyphs for handles instead of 3D spheres as is done on other
 // sub-classes of vtk3DWidget. This widget is primarily designed for manually
 // tracing over image data.
+// The button actions and key modifiers are as follows for controlling the
+// widget:
+// 1) left button click over the image, hold and drag draws a free hand line.
+// 2) left button click and release erases the widget line,
+// if it exists, and repositions the first handle.
+// 3) middle button click starts a snap drawn line.  The line can be
+// terminated by clicking the middle button while depressing the ctrl key
+// 4) when tracing a continuous or snap drawn line, if the last cursor position
+// is within specified tolerance to the first handle, the widget line will form
+// a closed loop.
+// 5) right button clicking and holding on any handle that is part of a snap
+// drwan line allows handle dragging: existing line segments are updated
+// accordingly.  If the path is open and AutoClose is set to on, the path can
+// be closed by repositioning the first and/or last points over one another.
+// 6) ctrl key + right button down on any handle will erase it: existing
+// snap drawn line segments are updated accordingly.  If the line was formed by
+// continous tracing, the line is deleted leaving one handle.
+// 7) shift key + right button down on any snap drawn line segment will insert
+// a handle at the cursor position.  The line segment is split accordingly.
 
 // .SECTION Thanks
 // Thanks to Dean Inglis for developing and contributing this class.
@@ -31,7 +50,6 @@
 // .SECTION See Also
 // vtk3DWidget vtkBoxWidget vtkLineWidget vtkPointWidget vtkSphereWidget
 // vtkImagePlaneWidget vtkImplicitPlaneWidget vtkPlaneWidget
-
 
 #ifndef __vtkImageTracerWidget_h
 #define __vtkImageTracerWidget_h
@@ -72,11 +90,11 @@ public:
   // Description:
   // Methods that satisfy the superclass' API.
   virtual void SetEnabled(int);
-  virtual void PlaceWidget(float bounds[6]);
+  virtual void PlaceWidget(double bounds[6]);
   void PlaceWidget()
     {this->Superclass::PlaceWidget();}
-  void PlaceWidget(float xmin, float xmax, float ymin, float ymax,
-                   float zmin, float zmax)
+  void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
+                   double zmin, double zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
@@ -154,11 +172,11 @@ public:
   vtkGetMacro(CaptureRadius,double);
 
   // Description:
-  // Grab the the points that define the traced path. These point values
+  // Grab the points and lines that define the traced path. These point values
   // are guaranteed to be up-to-date when either the InteractionEvent or
   // EndInteraction events are invoked. The user provides the vtkPolyData and
-  // the points and polyline are added to it.
-  void GetPolyData(vtkPolyData *pd);
+  // the points and cells representing the line are added to it.
+  void GetPath(vtkPolyData *pd);
 
   // Description:
   // Get the handles' geometric representation via vtkGlyphSource2D.
@@ -192,6 +210,10 @@ public:
   // lines between them.  If AutoClose is on it will handle the
   // case wherein the first and last points are congruent.
   void InitializeHandles(vtkPoints*);
+
+  // Description:
+  // Is the path closed or open?
+  vtkGetMacro(IsClosed,int);
 
 protected:
   vtkImageTracerWidget();
@@ -235,8 +257,8 @@ protected:
   int    ProjectToPlane;
   int    ImageSnapType;
   int    SnapToImage;
-  double CaptureRadius; // how close begin and end points are for auto path close
-  double GlyphAngle;  // pre-rotation of a glyph eg., a cross can be pre-rotated 45 degrees
+  double CaptureRadius; // tolerance for auto path close
+  double GlyphAngle;  // pre-rotation of a glyph
   int    AutoClose;
 
   int   IsSnapping;
@@ -245,6 +267,7 @@ protected:
   void  Snap(double*);
   void  MovePoint(double *p1, double *p2);
   void  ClosePath();
+  int   IsClosed;
 
   // 2D glyphs representing hot spots (e.g., handles)
   vtkActor          **Handle;
@@ -270,7 +293,7 @@ protected:
   vtkActor *CurrentHandle;
   int CurrentHandleIndex;
 
-  vtkProp       *Prop;              // the prop we want to pick on
+  vtkProp       *Prop;        // the prop we want to pick on
   vtkPropPicker *PropPicker;  // the prop's picker
 
   // Representation of the line
