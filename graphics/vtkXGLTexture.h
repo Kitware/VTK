@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkXglrTexture - XGL texture map object
+// .NAME vtkXGLTexture - XGL texture map object
 // .SECTION Description
 // vtkXGLTexture is a concrete implementation of the abstract class vtkTexture.
 
