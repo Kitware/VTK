@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.38");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.39");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -204,7 +204,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(char* fileName, int timeStep)
     }
   
   this->ReadLine(line); // "coordinates"
-  this->ReadIntNumber(&this->NumberOfUnstructuredPoints); // number of points
+  this->ReadIntNumberAndDetermineEndianness(&this->NumberOfUnstructuredPoints); // number of points
   
   this->UnstructuredPoints->SetNumberOfPoints(
                                this->NumberOfUnstructuredPoints);
@@ -313,7 +313,7 @@ void vtkEnSight6BinaryReader::SkipTimeStep()
     }
   
   this->ReadLine(line); // "coordinates"
-  this->ReadIntNumber(&this->NumberOfUnstructuredPoints); // number of points
+  this->ReadIntNumberAndDetermineEndianness(&this->NumberOfUnstructuredPoints); // number of points
   
   if (pointIdsListed)
     { // skip point ids.
@@ -2588,34 +2588,30 @@ int vtkEnSight6BinaryReader::ReadLine(char result[80])
 // is smaller than the file.  Although this computation
 // assumes only one int array is in the file,
 // it should still work fine.
-int vtkEnSight6BinaryReader::ReadIntNumber(int *result)
+int vtkEnSight6BinaryReader::ReadIntNumberAndDetermineEndianness(int *result)
 {
-  if ( ! this->IFile->read((char*)result, sizeof(int)))
+  if (!this->ReadIntNumber(result))
     {
-    vtkErrorMacro("Read failed");
     return 0;
-    }
-  if (this->ByteOrder == FILE_LITTLE_ENDIAN)
-    {
-    vtkByteSwap::Swap4LE(result);
-    }
-  else
-    {
-    vtkByteSwap::Swap4BE(result);
     }
   
   // Experimental byte swap.
   int tmp = *result;
   vtkByteSwap::SwapVoidRange(&tmp, 1, sizeof(int));
+  vtkDebugMacro(<<"result= "<< *result << ", tmp= "<< tmp << ", sizeof(int)=" << sizeof(int) << ", FileSize = "<< this->FileSize);
   // Use negative value as an indication of bad number.
-  if ((tmp*(int)(sizeof(int))) > this->FileSize)
+  // Compare unmultiplied number to file size in case multiplying by
+  // sizeof(int) creates a number big enough that it does not fit in an int,
+  // and so becomes negative.
+  if ((tmp*(int)(sizeof(int))) > this->FileSize || tmp > this->FileSize)
     {
     tmp = -1;
     }
-  if ((*result*(int)(sizeof(int))) > this->FileSize)
+  if ((*result*(int)(sizeof(int))) > this->FileSize || *result > this->FileSize)
     {
     *result = -1;
     }
+  vtkDebugMacro(<<"(*result) * sizeof(int) = " << *result*(int)(sizeof(int)));
   // Just a sanity check. (0, 0 occurs often).
   // This condition would only occur for some really large files.
   if (*result > 0 && tmp > 0)
@@ -2645,6 +2641,27 @@ int vtkEnSight6BinaryReader::ReadIntNumber(int *result)
     return 0;
     }
 
+  return 1;
+}
+
+int vtkEnSight6BinaryReader::ReadIntNumber(int *result)
+{
+  if ( ! this->IFile->read((char*)result, sizeof(int)))
+    {
+    vtkErrorMacro("Read failed");
+    return 0;
+    }
+  if (this->ByteOrder == FILE_LITTLE_ENDIAN)
+    {
+    vtkByteSwap::Swap4LE(result);
+    vtkDebugMacro(<<"ByteOrder == FILE_LITTLE_ENDIAN"); 
+    }
+  else
+    {
+    vtkByteSwap::Swap4BE(result);
+    vtkDebugMacro(<<"ByteOrder == FILE_BIG_ENDIAN");
+    }
+  
   return 1;
 }
 

@@ -126,8 +126,12 @@ protected:
   // Description:
   // Internal function to read in a single integer.
   // Returns zero if there was an error.
-  // This also tries to determine the byte order of this file.
   int ReadIntNumber(int *result);
+
+  // Description:
+  // Calls ReadIntNumber and then tries to determine the byte order of this
+  // file.  This method is used for reading the number of points.
+  int ReadIntNumberAndDetermineEndianness(int *result);
 
   // Description:
   // Internal function to read in an integer array.
