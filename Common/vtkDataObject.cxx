@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.84");
+vtkCxxRevisionMacro(vtkDataObject, "1.85");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -732,6 +732,7 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
   this->UpdateGhostLevel = src->UpdateGhostLevel;
   this->ReleaseDataFlag = src->ReleaseDataFlag;
   this->PipelineMTime = src->PipelineMTime;
+  this->UpdateTime = src->UpdateTime;
   this->Locality = src->Locality;
 }
 
