@@ -161,11 +161,9 @@ void vtkMaskPolyData::Execute()
     }
   //
   // Update ourselves and release memory
-  //
-  // pass through points and point data -- done by ToPoly filter now
-  //output->SetPoints(input->GetPoints());
-  //pd = input->GetPointData();
-  //output->PointData = *pd;
+  output->SetPoints(input->GetPoints());
+  pd = input->GetPointData();
+  output->GetPointData()->PassData(pd);
 
   if (newVerts)
     {
