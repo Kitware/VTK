@@ -395,6 +395,10 @@ protected:
   // this image will crop itself.  This functionality used to be in 
   // ImageToStructuredPoints.
   int RequestExactExtent;
+
+  // This method cops the data object (if necesary) so that the extent
+  // matches the update extent.
+  virtual void Crop();
   
   int GhostLevel;
   int UpdateGhostLevel;

@@ -403,6 +403,12 @@ void vtkDataObject::UpdateData()
       this->GhostLevel = this->UpdateGhostLevel;
       } 
     } 
+
+  // Filters, that can't handle more data than they request, set this flag.
+  if (this->RequestExactExtent)
+    { // clip the data down to the UpdateExtent.
+    this->Crop();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -749,6 +755,11 @@ vtkExtentTranslator *vtkDataObject::GetExtentTranslator()
   return this->ExtentTranslator;
 }
 
+//----------------------------------------------------------------------------
+// This should be a pure virutal method.
+void vtkDataObject::Crop()
+{
+}
 
 //----------------------------------------------------------------------------
 void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)

@@ -1072,21 +1072,6 @@ void vtkImageData::UpdateData()
 
   // This stuff should really be ImageToStructuredPoints ....
 
-  // Filters, that can't handle more data than they request, set this flag.
-  if (this->RequestExactExtent)
-    { // clip the data down to the UpdateExtent.
-    if (this->Extent[0] == this->UpdateExtent[0]
-	&& this->Extent[1] == this->UpdateExtent[1]
-	&& this->Extent[2] == this->UpdateExtent[2]
-	&& this->Extent[3] == this->UpdateExtent[3]
-	&& this->Extent[4] == this->UpdateExtent[4]
-	&& this->Extent[5] == this->UpdateExtent[5])
-      {
-      return;
-      }
-    this->Crop();
-    }
-  
   if (this->UpdateNumberOfPieces == 1)
     {
     // Either the piece has not been used to set the update extent,
@@ -1694,6 +1679,17 @@ void vtkImageData::Crop()
   vtkScalars    *newScalars;
   unsigned char *inPtr, *inPtr1, *outPtr;
   
+  // If extents already match, then we need to do nothing.
+  if (this->Extent[0] == this->UpdateExtent[0]
+      && this->Extent[1] == this->UpdateExtent[1]
+      && this->Extent[2] == this->UpdateExtent[2]
+      && this->Extent[3] == this->UpdateExtent[3]
+      && this->Extent[4] == this->UpdateExtent[4]
+      && this->Extent[5] == this->UpdateExtent[5])
+    {
+    return;
+    }
+
   // if the scalar type has not been set then we have a problem
   if (this->ScalarType == VTK_VOID)
     {
