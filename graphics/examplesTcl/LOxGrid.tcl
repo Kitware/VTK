@@ -1,4 +1,4 @@
-catch {load 
+catch {load vtktcl}
 ## LOx post CFD case study
 
 # get helper scripts
