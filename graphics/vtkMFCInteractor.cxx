@@ -105,7 +105,7 @@ vtkMFCInteractor::~vtkMFCInteractor()
   if (this->OldBitmap != NULL) 
     {
     this->MemoryDC->SelectObject(this->OldBitmap);
-    this->OldBitmap == NULL;
+    this->OldBitmap = NULL;
     }
   if (this->MemoryDC != NULL) 
     {
@@ -256,7 +256,7 @@ void vtkMFCInteractor::MakeIndirectRenderer(int bitmap_width,int bitmap_height,i
     this->MemoryDC->SelectObject(this->OldBitmap);
     delete this->MemoryDC;
     this->MemoryDC = NULL;
-    this->OldBitmap == NULL;
+    this->OldBitmap = NULL;
     }
 	
   if (this->WindowBitmap != NULL) 
