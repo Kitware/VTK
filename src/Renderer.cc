@@ -59,6 +59,13 @@ vlRenderer::vlRenderer()
 
   this->Aspect[0] = this->Aspect[1] = 1.0;
   this->VolumeRenderer = NULL;
+
+  this->StartRenderMethod = NULL;
+  this->StartRenderMethodArgDelete = NULL;
+  this->StartRenderMethodArg = NULL;
+  this->EndRenderMethod = NULL;
+  this->EndRenderMethodArgDelete = NULL;
+  this->EndRenderMethodArg = NULL;
 }
 
 // Description:
@@ -413,6 +420,65 @@ int vlRenderer::IsInViewport(int x,int y)
   return 0;
 }
 
+
+// Description:
+// Specify a function to be called before rendering process begins.
+// Function will be called with argument provided.
+void vlRenderer::SetStartRenderMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->StartRenderMethod || arg != this->StartRenderMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->StartRenderMethodArg)&&(this->StartRenderMethodArgDelete))
+      {
+      (*this->StartRenderMethodArgDelete)(this->StartRenderMethodArg);
+      }
+    this->StartRenderMethod = f;
+    this->StartRenderMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
+void vlRenderer::SetStartRenderMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->StartRenderMethodArgDelete)
+    {
+    this->StartRenderMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
+void vlRenderer::SetEndRenderMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->EndRenderMethodArgDelete)
+    {
+    this->EndRenderMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Specify a function to be called when rendering process completes.
+// Function will be called with argument provided.
+void vlRenderer::SetEndRenderMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->EndRenderMethod || arg != EndRenderMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->EndRenderMethodArg)&&(this->EndRenderMethodArgDelete))
+      {
+      (*this->EndRenderMethodArgDelete)(this->EndRenderMethodArg);
+      }
+    this->EndRenderMethod = f;
+    this->EndRenderMethodArg = arg;
+    this->Modified();
+    }
+}
+
 void vlRenderer::PrintSelf(ostream& os, vlIndent indent)
 {
   this->vlObject::PrintSelf(os,indent);
@@ -438,5 +504,23 @@ void vlRenderer::PrintSelf(ostream& os, vlIndent indent)
   os << indent << "Viewport: (" << this->Viewport[0] << ", " 
     << this->Viewport[1] << ", " << this->Viewport[2] << ", " 
       << this->Viewport[3] << ")\n";
+
+  if ( this->StartRenderMethod )
+    {
+    os << indent << "Start Render method defined.\n";
+    }
+  else
+    {
+    os << indent << "No Start Render method.\n";
+    }
+
+  if ( this->EndRenderMethod )
+    {
+    os << indent << "End Render method defined.\n";
+    }
+  else
+    {
+    os << indent << "No End Render method.\n";
+    }
 }
 
