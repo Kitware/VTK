@@ -42,6 +42,8 @@ IF(PYTHON_EXECUTABLE)
            vtkPythonUtil.h
            vtkRayCastStructures.h
            vtkSetGet.h
+           vtkSmartPointer.h
+           vtkSmartPointerBase.h
            vtkSystemIncludes.h
            vtkTclUtil.h
            vtkTimeStamp.h
