@@ -60,7 +60,7 @@ public:
   void EndZoom();
   void StartPan();
   void EndPan();
-
+  void SetWidget(Widget);
   void SetupNewWindow(int Stereo = 0);
   void FinishSettingUpNewWindow();
   

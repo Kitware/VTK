@@ -59,12 +59,18 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
   this->State = VTKXI_START;
   this->App = 0;
+  this->top = 0;
 }
 
 vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 {
 }
 
+void  vtkXRenderWindowInteractor::SetWidget(Widget foo)
+{
+  this->top = foo;
+} 
+  
 void  vtkXRenderWindowInteractor::Start()
 {
   XtAppMainLoop(this->App);
@@ -125,30 +131,37 @@ void vtkXRenderWindowInteractor::Initialize()
     }
   else
     {
-    XtDisplayInitialize(this->App,this->DisplayId,
-			"VTK","vtk",NULL,0,&argc,NULL);
+    if (!this->top)
+      {
+      XtDisplayInitialize(this->App,this->DisplayId,
+			  "VTK","vtk",NULL,0,&argc,NULL);
+      }
     }
   
   // get the info we need from the RenderingWindow
   ren->SetDisplayId(this->DisplayId);
-  depth   = ren->GetDesiredDepth();
-  cmap    = ren->GetDesiredColormap();
-  vis     = ren->GetDesiredVisual();
-  size    = ren->GetSize();
-  position= ren->GetPosition();
 
-  this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vtk",
-				 applicationShellWidgetClass,
-				 this->DisplayId,
-				 XtNdepth, depth,
-				 XtNcolormap, cmap,
-				 XtNvisual, vis,
-				 XtNx, position[0],
-				 XtNy, position[1],
-				 XtNwidth, size[0],
-				 XtNheight, size[1],
-				 XtNmappedWhenManaged, 0,
-				 NULL);
+  size    = ren->GetSize();
+  if (!this->top)
+    {
+    depth   = ren->GetDesiredDepth();
+    cmap    = ren->GetDesiredColormap();
+    vis     = ren->GetDesiredVisual();
+    position= ren->GetPosition();
+
+    this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vtk",
+				   applicationShellWidgetClass,
+				   this->DisplayId,
+				   XtNdepth, depth,
+				   XtNcolormap, cmap,
+				   XtNvisual, vis,
+				   XtNx, position[0],
+				   XtNy, position[1],
+				   XtNwidth, size[0],
+				   XtNheight, size[1],
+				   XtNmappedWhenManaged, 0,
+				   NULL);
+    }
 
   XtRealizeWidget(this->top);
 
@@ -236,7 +249,6 @@ void  vtkXRenderWindowInteractor::EndPan()
 void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data, 
 				    XEvent *event, Boolean *ctd)
 {
-  int *size;
   vtkXRenderWindowInteractor *me;
 
   me = (vtkXRenderWindowInteractor *)client_data;
