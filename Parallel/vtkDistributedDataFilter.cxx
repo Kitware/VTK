@@ -59,7 +59,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.16")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.17")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -570,6 +570,7 @@ void vtkDistributedDataFilter::Execute()
     {
     this->Kdtree->Delete();
     this->Kdtree = NULL;
+
     vtkErrorMacro(<< "vtkDistributedDataFilter::Execute redistribute failure");
     return;
     }
@@ -668,7 +669,7 @@ int vtkDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set)
     }
 
   this->Kdtree->SetController(this->Controller);
-  this->Kdtree->SetNumRegionsOrMore(this->NumProcesses);
+  this->Kdtree->SetNumberOfRegionsOrMore(this->NumProcesses);
   this->Kdtree->SetMinCells(2);
 
   this->Kdtree->SetDataSet(set);
