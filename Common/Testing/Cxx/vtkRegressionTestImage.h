@@ -73,8 +73,8 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw,
     rt_w2if->Delete(); 
     rt_png->Delete(); 
 
-    float maxError = rt_id->GetThresholdedError();
-    if (maxError <= thresh) 
+    float minError = rt_id->GetThresholdedError();
+    if (minError <= thresh) 
       { 
       rt_id->Delete(); 
       delete[] fname;
@@ -84,7 +84,7 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw,
     // check if there are images of the form foo_N.png
     // (where N=1,2,3...) and compare against them.
     float error;
-    int count=0, errIndex=-1;
+    int count=1, errIndex=-1;
     char* newFileName;
     while (1)
       {
@@ -107,17 +107,17 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw,
 	}
       else
 	{
-	if (maxError < error)
+	if (error > minError)
 	  {
 	  errIndex = count;
-	  maxError = error;
+	  minError = error;
 	  }
 	}
       ++count;
       delete[] newFileName;
       }
     
-    cerr << "Failed Image Test : " << maxError << endl;
+    cerr << "Failed Image Test : " << minError << endl;
     char *rt_diffName = new char [strlen(fname) + 12];
     sprintf(rt_diffName,"%s.diff.png",fname);
     FILE *rt_dout = fopen(rt_diffName,"wb"); 
