@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkStructuredGrid.h"
+#include "vtkStructuredPoints.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkTetra.h"
 #include "vtkHexahedron.h"
@@ -130,7 +131,14 @@ void vtkDataSetSurfaceFilter::Execute()
       this->StructuredExecute(grid, ext);
       return;
       }
-    case VTK_IMAGE_DATA:      
+    case VTK_STRUCTURED_POINTS:      
+      {
+      vtkStructuredPoints *image = vtkStructuredPoints::SafeDownCast(input);
+      ext = image->GetExtent();      
+      this->StructuredExecute(image, ext);
+      return;
+      }
+     case VTK_IMAGE_DATA:      
       {
       vtkImageData *image = vtkImageData::SafeDownCast(input);
       ext = image->GetExtent();      
