@@ -28,7 +28,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.6");
+vtkCxxRevisionMacro(vtkLineWidget, "1.7");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -410,7 +410,8 @@ void vtkLineWidget::OnMouseMove (int vtkNotUsed(ctrl),
                                  int vtkNotUsed(shift), int X, int Y)
 {
   // See whether we're active
-  if ( this->State == vtkLineWidget::Outside || this->State == vtkLineWidget::Start )
+  if ( this->State == vtkLineWidget::Outside || 
+       this->State == vtkLineWidget::Start )
     {
     return;
     }
@@ -439,7 +440,8 @@ void vtkLineWidget::OnMouseMove (int vtkNotUsed(ctrl),
   if ( this->State == vtkLineWidget::Moving )
     {
     // Okay to process
-    if ( this->CurrentHandle )
+    if ( this->CurrentHandle && !this->AlignWithXAxis && 
+         !this->AlignWithYAxis && !this->AlignWithZAxis )
       {
       if ( this->CurrentHandle == this->Handle[0] )
         {
@@ -601,33 +603,11 @@ void vtkLineWidget::MovePoint1(double *p1, double *p2)
   
   //int res = this->LineSource->GetResolution();
   float *pt1 = this->LineSource->GetPoint1();
-  float *pt2 = this->LineSource->GetPoint2();
 
   float point1[3];
-  if ( this->AlignWithXAxis )
-    {
-    point1[0] = pt1[0] + v[0];//only x-motion is considered
-    point1[1] = pt2[1] + v[1];
-    point1[2] = pt2[2] + v[2];
-    }
-  else if ( this->AlignWithYAxis )
-    {
-    point1[0] = pt2[0] + v[0];
-    point1[1] = pt1[1] + v[1];//only y-motion is considered
-    point1[2] = pt2[2] + v[2];
-    }
-  else if ( this->AlignWithZAxis )
-    {
-    point1[0] = pt2[0] + v[0];
-    point1[1] = pt2[1] + v[1];
-    point1[2] = pt1[2] + v[2];//only z-motion is considered
-    }
-  else
-    {
-    point1[0] = pt1[0] + v[0];
-    point1[1] = pt1[1] + v[1];
-    point1[2] = pt1[2] + v[2];
-    }
+  point1[0] = pt1[0] + v[0];
+  point1[1] = pt1[1] + v[1];
+  point1[2] = pt1[2] + v[2];
   
   this->LineSource->SetPoint1(point1);
   this->LineSource->Update();
@@ -644,34 +624,12 @@ void vtkLineWidget::MovePoint2(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
   
   //int res = this->LineSource->GetResolution();
-  float *pt1 = this->LineSource->GetPoint1();
   float *pt2 = this->LineSource->GetPoint2();
 
   float point2[3];
-  if ( this->AlignWithXAxis )
-    {
-    point2[0] = pt2[0] + v[0];//only x-motion is considered
-    point2[1] = pt1[1] + v[1];
-    point2[2] = pt1[2] + v[2];
-    }
-  else if ( this->AlignWithYAxis )
-    {
-    point2[0] = pt1[0] + v[0];
-    point2[1] = pt2[1] + v[1];//only y-motion is considered
-    point2[2] = pt1[2] + v[2];
-    }
-  else if ( this->AlignWithZAxis )
-    {
-    point2[0] = pt1[0] + v[0];
-    point2[1] = pt1[1] + v[1];
-    point2[2] = pt2[2] + v[2];//only z-motion is considered
-    }
-  else
-    {
-    point2[0] = pt2[0] + v[0];
-    point2[1] = pt2[1] + v[1];
-    point2[2] = pt2[2] + v[2];
-    }
+  point2[0] = pt2[0] + v[0];
+  point2[1] = pt2[1] + v[1];
+  point2[2] = pt2[2] + v[2];
   
   this->LineSource->SetPoint2(point2);
   this->LineSource->Update();
