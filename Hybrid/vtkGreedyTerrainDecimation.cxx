@@ -28,7 +28,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.14");
+vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.15");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -291,10 +291,11 @@ vtkIdType vtkGreedyTerrainDecimation::FindTriangle(double x[3], vtkIdType ptIds[
     this->GetPoint(ptIds[i], p[i]);
     }
 
-  // Randomization (of find edge neighbora) avoids walking in 
+  // Randomization (of find edge neighbors) avoids walking in 
   // circles in certain weird cases
   srand(tri);
   ir = rand() % 3;
+  
   // evaluate in/out of each edge
   for (inside=1, minProj=VTK_DEL2D_TOLERANCE, ic=0; ic<3; ic++)
     {
