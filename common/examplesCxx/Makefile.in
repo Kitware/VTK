@@ -1,0 +1,58 @@
+#
+# examples/cc//Makefile.in  --
+#
+# Makefile for Visualization Toolkit C++ examples.
+# 
+#------------------------------------------------------------------------------
+#
+SHELL = /bin/sh
+.SUFFIXES: .cxx
+
+srcdir        = @srcdir@
+VPATH         = @srcdir@
+VTK_LIB_FILE  = @VTK_LIB_FILE@
+
+#------------------------------------------------------------------------------
+# Autoconfig defines that can be overridden in user.make
+
+@MAKEINCLUDE@ @MAKEQUOTE@../../system.make@MAKEQUOTE@
+
+#------------------------------------------------------------------------------
+# Include user-editable defines.
+
+@MAKEINCLUDE@ @MAKEQUOTE@../../user.make@MAKEQUOTE@
+
+#-----------------------------------------------------------------------------
+
+EXAMPLES = otherJacobi \
+	otherMath \
+	otherMatrix4x4
+  
+CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
+	${KIT_FLAGS} -I. \
+	 -I${srcdir}/../../common -I${srcdir}/..
+
+VTKLIB = ${VTK_LIB_FILE}
+
+LDLIBS = ${VTK_LIB_FILE} ${DL_LIBS} ${THREAD_LIBS}
+
+.cxx.o:
+	${CXX} ${CXX_FLAGS} -c $< -o $@
+
+#------------------------------------------------------------------------------
+#
+
+all: ${EXAMPLES}
+
+otherJacobi: otherJacobi.o ${VTKLIB}
+	${CXX} -o otherJacobi ${CXX_FLAGS} otherJacobi.o ${LDLIBS} -lm
+otherMath: otherMath.o ${VTKLIB}
+	${CXX} -o otherMath ${CXX_FLAGS} otherMath.o ${LDLIBS} -lm
+otherMatrix4x4: otherMatrix4x4.o ${VTKLIB}
+	${CXX} -o otherMatrix4x4 ${CXX_FLAGS} otherMatrix4x4.o ${LDLIBS} -lm
+# ${XLDFLAGS}
+#------------------------------------------------------------------------------
+
+clean:
+	-rm -f ${EXAMPLES} *.o 
+
