@@ -171,6 +171,24 @@ public:
   void CreateLight(void);
 
   // Description:
+  // Compute the bounding box of all the visibile props
+  // Used in ResetCamera() and ResetCameraClippingRange()
+  void ComputeVisiblePropBounds( float bounds[6] );
+
+  // Description:
+  // Reset the camera clipping range based on the bounds of the
+  // visible actors. This ensures that no props are cut off
+  void ResetCameraClippingRange();
+
+  // Description:
+  // Reset the camera clipping range based on a bounding box.
+  // This method is called from ResetCameraClippingRange()
+  void ResetCameraClippingRange( float bounds[6] );
+  void ResetCameraClippingRange( float xmin, float xmax, 
+				 float ymin, float ymax, 
+				 float zmin, float zmax);
+
+  // Description:
   // Automatically set up the camera based on the visible actors.
   // The camera will reposition itself to view the center point of the actors,
   // and move along its initial view plane normal (i.e., vector defined from 

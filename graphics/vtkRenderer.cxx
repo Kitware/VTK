@@ -530,15 +530,11 @@ void vtkRenderer::CreateLight(void)
   this->CreatedLight->SetFocalPoint(this->ActiveCamera->GetFocalPoint());
 }
 
-// Automatically set up the camera based on the visible actors.
-// The camera will reposition itself to view the center point of the actors,
-// and move along its initial view plane normal (i.e., vector defined from 
-// camera position to focal point) so that all of the actors can be seen.
-void vtkRenderer::ResetCamera()
+// Compute the bounds of the visibile props
+void vtkRenderer::ComputeVisiblePropBounds( float allBounds[6] )
 {
   vtkProp    *prop;
   float      *bounds;
-  float      allBounds[6];
   int        nothingVisible=1;
 
   allBounds[0] = allBounds[2] = allBounds[4] = VTK_LARGE_FLOAT;
@@ -589,12 +585,47 @@ void vtkRenderer::ResetCamera()
   
   if ( nothingVisible )
     {
-    vtkDebugMacro(<< "Can't reset camera, no actors or volumes are visible");
+    vtkDebugMacro(<< "Can't compute bounds, no 3D props are visible");
+    return;
+    }
+}
+
+// Automatically set up the camera based on the visible actors.
+// The camera will reposition itself to view the center point of the actors,
+// and move along its initial view plane normal (i.e., vector defined from 
+// camera position to focal point) so that all of the actors can be seen.
+void vtkRenderer::ResetCamera()
+{
+  float      allBounds[6];
+
+  this->ComputeVisiblePropBounds( allBounds );
+
+  if ( allBounds[0] == VTK_LARGE_FLOAT )
+    {
+    vtkErrorMacro( << "Cannot reset camera!" );
     return;
     }
 
   this->ResetCamera(allBounds);
 }
+
+// Automatically set the clipping range of the camera based on the
+// visible actors
+void vtkRenderer::ResetCameraClippingRange()
+{
+  float      allBounds[6];
+
+  this->ComputeVisiblePropBounds( allBounds );
+
+  if ( allBounds[0] == VTK_LARGE_FLOAT )
+    {
+    vtkErrorMacro( << "Cannot reset camera!" );
+    return;
+    }
+
+  this->ResetCameraClippingRange(allBounds);
+}
+
 
 // Automatically set up the camera based on a specified bounding box
 // (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
@@ -608,7 +639,7 @@ void vtkRenderer::ResetCamera(float bounds[6])
   float center[3];
   float distance;
   float width;
-  double vn[3], *vup;;
+  double vn[3], *vup;
   
   this->GetActiveCamera();
   if ( this->ActiveCamera != NULL )
@@ -647,7 +678,8 @@ void vtkRenderer::ResetCamera(float bounds[6])
   this->ActiveCamera->SetPosition(center[0]+distance*vn[0],
 				  center[1]+distance*vn[1],
 				  center[2]+distance*vn[2]);
-  this->ActiveCamera->SetClippingRange(distance/10.0,distance*5.0);
+
+  this->ResetCameraClippingRange( bounds );
 
   // setup default parallel scale
   this->ActiveCamera->SetParallelScale(width);
@@ -667,6 +699,64 @@ void vtkRenderer::ResetCamera(float xmin, float xmax, float ymin, float ymax,
   bounds[5] = zmax;
 
   this->ResetCamera(bounds);
+}
+
+// Reset the camera clipping range to include this entire bounding box
+void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
+{
+  double vn[3], position[3], a, b, c, d;
+  double centerdist, diagdist;
+  double range[2];
+
+  this->GetActiveCamera();
+  if ( this->ActiveCamera == NULL )
+    {
+    vtkErrorMacro(<< "Trying to reset clipping range of non-existant camera");
+    return;
+    }
+  
+  this->ActiveCamera->GetViewPlaneNormal(vn);
+  this->ActiveCamera->GetPosition(position);
+  a = -vn[0];
+  b = -vn[1];
+  c = -vn[2];
+  d = -(a*position[0] + b*position[1] + c*position[2]);
+
+  diagdist = 
+    sqrt( (bounds[0] - bounds[3]) * (bounds[0] - bounds[3]) +
+	  (bounds[1] - bounds[4]) * (bounds[1] - bounds[4]) +
+	  (bounds[2] - bounds[5]) * (bounds[2] - bounds[5]) );
+  
+  centerdist = 
+    a*(bounds[0]+bounds[3])/2.0 + 
+    b*(bounds[1]+bounds[4])/2.0 + 
+    c*(bounds[2]+bounds[5])/2.0 + 
+    d;
+
+  range[0] = centerdist - 0.5*diagdist;
+  range[1] = centerdist + 0.5*diagdist;
+
+  range[0] = (range[0] < 0.01)?(0.01):(range[0]);
+  range[1] = (range[1] < range[0])?(range[0] + 0.1):(range[1]);
+
+  this->ActiveCamera->SetClippingRange( range );
+}
+
+// Alternative version of ResetCameraClippingRange(bounds[6]);
+void vtkRenderer::ResetCameraClippingRange(float xmin, float xmax, 
+					   float ymin, float ymax, 
+					   float zmin, float zmax)
+{
+  float bounds[6];
+
+  bounds[0] = xmin;
+  bounds[1] = xmax;
+  bounds[2] = ymin;
+  bounds[3] = ymax;
+  bounds[4] = zmin;
+  bounds[5] = zmax;
+
+  this->ResetCameraClippingRange(bounds);
 }
 
 // Specify the rendering window in which to draw. This is automatically set
