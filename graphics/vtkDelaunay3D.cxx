@@ -414,7 +414,7 @@ int vtkDelaunay3D::FindTetra(vtkUnstructuredGrid *Mesh, double x[3],
   int nei;
   if ( GetTetraFaceNeighbor(Mesh, tetraId, p1, p2, p3, nei) )
     {
-    return FindTetra(Mesh, x, nei, ++depth);
+    return this->FindTetra(Mesh, x, nei, ++depth);
     }
   else
     {

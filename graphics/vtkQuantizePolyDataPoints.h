@@ -82,6 +82,7 @@ public:
   virtual void OperateOnBounds(float in[6], float out[6]);
 protected:
   vtkQuantizePolyDataPoints();
+  ~vtkQuantizePolyDataPoints() {};
   vtkQuantizePolyDataPoints(const vtkQuantizePolyDataPoints&) {};
   void operator=(const vtkQuantizePolyDataPoints&) {};
   //

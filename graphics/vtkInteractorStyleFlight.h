@@ -171,8 +171,8 @@ protected:
   int           FixUpVector;
   double        OldX;
   double        OldY;
-  double        x2;
-  double        y2;
+  double        X2;
+  double        Y2;
   double        DiagonalLength;
   double        MotionStepSize;
   double        MotionUserScale;

@@ -181,7 +181,7 @@ public:
   // Angles are given in degrees.  If the light is a
   // positional light, it is made directional instead.
   void SetDirectionAngle(float elevation, float azimuth);
-  void SetDirectionAngle(float ang[2]) { SetDirectionAngle(ang[0], ang[1]); };
+  void SetDirectionAngle(float ang[2]) { this->SetDirectionAngle(ang[0], ang[1]); };
 
   // Description:
   // Perform deep copy of this light.

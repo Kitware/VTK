@@ -470,7 +470,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
 
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
     {
-    if ( fread (&NumberOfGrids, sizeof(int), 1, fp) < 1 )
+    if ( fread (&this->NumberOfGrids, sizeof(int), 1, fp) < 1 )
       {
       return 1;
       }

@@ -854,7 +854,9 @@ void vtkGridTransform::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DisplacementShift: " << this->DisplacementShift << "\n";
   os << indent << "DisplacementGrid: " << this->DisplacementGrid << "\n";
   if(this->DisplacementGrid)
+    {
     this->DisplacementGrid->PrintSelf(os,indent.GetNextIndent());
+    }
 }
 
 //----------------------------------------------------------------------------

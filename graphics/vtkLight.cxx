@@ -77,10 +77,10 @@ vtkLight::vtkLight()
 
 vtkLight::~vtkLight()
 {
-  if(TransformMatrix != NULL)
+  if(this->TransformMatrix != NULL)
     {
-      TransformMatrix->UnRegister(this);
-      TransformMatrix = NULL;
+      this->TransformMatrix->UnRegister(this);
+      this->TransformMatrix = NULL;
     }
 }
 

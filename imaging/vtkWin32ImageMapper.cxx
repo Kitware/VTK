@@ -690,7 +690,7 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
   cwindow = this->GetColorWindow();
   clevel  = this->GetColorScale();
 
-  this->HBitmap = CreateBitmapObject(this->HBitmap, dataHeader, windowDC,
+  this->HBitmap = this->CreateBitmapObject(this->HBitmap, dataHeader, windowDC,
     this->DataOut, data, width, height);
 
   int dim = 0;
@@ -700,7 +700,7 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
             this->DisplayExtent[2],
             this->DisplayExtent[4]);
 
-  GenerateBitmapData(data, inptr, this->DataOut, dim,
+  this->GenerateBitmapData(data, inptr, this->DataOut, dim,
     this->DisplayExtent, cwindow, clevel, cshift, cscale, this->LookupTable);
 
 

@@ -106,8 +106,8 @@ void vtkInteractorStyleFlight::OnLeftButtonDown(int ctrl, int shift, int X, int 
   this->UpdateInternalState(ctrl, shift, X, Y);
   if (this->AzimuthScanning) return;
   if (!this->Reversing) {
-      this->OldX        = this->x2 = X;
-      this->OldY        = this->y2 = Y;
+      this->OldX        = this->X2 = X;
+      this->OldY        = this->Y2 = Y;
       this->YawAngle   = 0;
       this->PitchAngle = 0;
       this->DoTimerStart();
@@ -124,8 +124,8 @@ void vtkInteractorStyleFlight::OnRightButtonDown(int ctrl, int shift, int X, int
   this->UpdateInternalState(ctrl, shift, X, Y);
   if (this->AzimuthScanning) return;
   if (!this->Flying) {
-      this->OldX        = this->x2 = X;
-      this->OldY        = this->y2 = Y;
+      this->OldX        = this->X2 = X;
+      this->OldY        = this->Y2 = Y;
       this->YawAngle   = 0;
       this->PitchAngle = 0;
       this->DoTimerStart();
@@ -338,8 +338,8 @@ void vtkInteractorStyleFlight::UpdateMouseSteering(int x, int y) {
     double dy =   (y - this->OldY)*scalefactor;
     this->YawAngle   = dx*aspeed;
     this->PitchAngle = dy*aspeed;
-    this->x2 = x;
-    this->y2 = y;
+    this->X2 = x;
+    this->Y2 = y;
 }
 //---------------------------------------------------------------------------
 // useful utility functions
@@ -409,8 +409,8 @@ void vtkInteractorStyleFlight::FlyByMouse(void) {
         this->CurrentCamera->Yaw(this->YawAngle);
         this->CurrentCamera->Pitch(this->PitchAngle);
     }
-    this->OldX = x2;
-    this->OldY = y2;
+    this->OldX = this->X2;
+    this->OldY = this->Y2;
     this->YawAngle   = 0;
     this->PitchAngle = 0;
     //
@@ -456,7 +456,10 @@ void vtkInteractorStyleFlight::FlyByKey(void) {
     // forward and backward
     this->CurrentCamera->GetViewPlaneNormal(a_vector);
     if (KeysDown & 16) MotionAlongVector(a_vector, speed);
-    if (KeysDown & 32) MotionAlongVector(a_vector,-speed);
+    if (this->KeysDown & 32)
+      {
+      this->MotionAlongVector(a_vector,-speed);
+      }
 }
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::PrintSelf(ostream& os, vtkIndent indent) {

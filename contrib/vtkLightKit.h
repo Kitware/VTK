@@ -205,34 +205,34 @@ public:
     this->SetKeyLightAngle(angle[0], angle[1]); };
 
   void SetKeyLightElevation(float x) {
-    SetKeyLightAngle(x, this->KeyLightAngle[1]); };
+    this->SetKeyLightAngle(x, this->KeyLightAngle[1]); };
 
   void SetKeyLightAzimuth(float x) {
-    SetKeyLightAngle(this->KeyLightAngle[0], x); };
+    this->SetKeyLightAngle(this->KeyLightAngle[0], x); };
 
   vtkGetVectorMacro(KeyLightAngle, float, 2);
   float GetKeyLightElevation() {
-    float ang[2]; GetKeyLightAngle(ang); return ang[0]; };
+    float ang[2]; this->GetKeyLightAngle(ang); return ang[0]; };
 
   float GetKeyLightAzimuth() {
-    float ang[2]; GetKeyLightAngle(ang); return ang[1]; };
+    float ang[2]; this->GetKeyLightAngle(ang); return ang[1]; };
 
   void SetFillLightAngle(float elevation, float azimuth);
   void SetFillLightAngle(float angle[2]) { 
     this->SetFillLightAngle(angle[0], angle[1]); };
 
   void SetFillLightElevation(float x) {
-    SetFillLightAngle(x, this->FillLightAngle[1]); };
+    this->SetFillLightAngle(x, this->FillLightAngle[1]); };
 
   void SetFillLightAzimuth(float x) {
-    SetFillLightAngle(this->FillLightAngle[0], x); };
+    this->SetFillLightAngle(this->FillLightAngle[0], x); };
 
   vtkGetVectorMacro(FillLightAngle, float, 2);
   float GetFillLightElevation() {
-    float ang[2]; GetFillLightAngle(ang); return ang[0]; };
+    float ang[2]; this->GetFillLightAngle(ang); return ang[0]; };
 
   float GetFillLightAzimuth() {
-    float ang[2]; GetFillLightAngle(ang); return ang[1]; };
+    float ang[2]; this->GetFillLightAngle(ang); return ang[1]; };
 
   // Description:
   // Add lights to, or remove lights from, a renderer.  
