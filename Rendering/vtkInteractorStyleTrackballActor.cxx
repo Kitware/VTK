@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.15");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.16");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------
@@ -403,6 +403,7 @@ void vtkInteractorStyleTrackballActor::OnLeftButtonDown(int ctrl, int shift,
     this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
     return;
     }
+
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   
@@ -414,14 +415,17 @@ void vtkInteractorStyleTrackballActor::OnLeftButtonDown(int ctrl, int shift,
   this->UpdateInternalState(ctrl, shift, x, y);
   if (shift)
     {
+    this->StartPan();
     this->State = VTK_INTERACTOR_STYLE_ACTOR_PAN;
     }
   else if (this->CtrlKey)
     {
+    this->StartSpin();
     this->State = VTK_INTERACTOR_STYLE_ACTOR_SPIN;
     }
   else
     {
+    this->StartRotate();
     this->State = VTK_INTERACTOR_STYLE_ACTOR_ROTATE;
     }
 }
@@ -432,6 +436,19 @@ void vtkInteractorStyleTrackballActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
                                                       int vtkNotUsed(x),
                                                       int vtkNotUsed(y))
 {
+  if (this->State == VTK_INTERACTOR_STYLE_ACTOR_SPIN)
+    {
+    this->EndSpin();
+    }
+  else if (this->State == VTK_INTERACTOR_STYLE_ACTOR_PAN)
+    {
+    this->EndPan();
+    }
+  else
+    {
+    this->EndRotate();
+    }
+  
   this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
 }
 
@@ -455,10 +472,12 @@ void vtkInteractorStyleTrackballActor::OnMiddleButtonDown(int ctrl, int shift,
   this->UpdateInternalState(ctrl, shift, x, y);
   if (this->CtrlKey)
     {
+    this->StartDolly();
     this->State = VTK_INTERACTOR_STYLE_ACTOR_ZOOM;
     }
   else
     {
+    this->StartPan();
     this->State = VTK_INTERACTOR_STYLE_ACTOR_PAN;
     }
 }
@@ -468,6 +487,14 @@ void vtkInteractorStyleTrackballActor::OnMiddleButtonUp(int vtkNotUsed(ctrl),
                                                         int vtkNotUsed(x),
                                                         int vtkNotUsed(y))
 {
+  if (this->State == VTK_INTERACTOR_STYLE_ACTOR_ZOOM)
+    {
+    this->EndDolly();
+    }
+  else
+    {
+    this->EndPan();
+    }
   this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
 }
 
@@ -489,6 +516,7 @@ void vtkInteractorStyleTrackballActor::OnRightButtonDown(int vtkNotUsed(ctrl),
     return;
     }
   
+  this->StartUniformScale();
   this->State = VTK_INTERACTOR_STYLE_ACTOR_SCALE;
 }
 
@@ -498,6 +526,7 @@ void vtkInteractorStyleTrackballActor::OnRightButtonUp(int vtkNotUsed(ctrl),
                                                        int vtkNotUsed(x),
                                                        int vtkNotUsed(y))
 {
+  this->EndUniformScale();
   this->State = VTK_INTERACTOR_STYLE_ACTOR_NONE;
 }
 

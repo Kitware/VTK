@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.13");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.14");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
@@ -223,8 +223,10 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl, int shift,
     return;
     }
   this->FindPokedRenderer(x, y);
+
   if (this->CurrentRenderer == NULL)
     {
+    vtkErrorMacro("CurrentRenderer is NULL");
     return;
     }
 
@@ -234,10 +236,12 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl, int shift,
     {
     if (ctrl)
       {
+      this->StartDolly();
       this->State = VTK_INTERACTOR_STYLE_CAMERA_ZOOM;
       }
     else
       {
+      this->StartPan();
       this->State = VTK_INTERACTOR_STYLE_CAMERA_PAN;
       }
     }
@@ -245,10 +249,12 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl, int shift,
     {
     if (this->CtrlKey)
       {
+      this->StartSpin();
       this->State = VTK_INTERACTOR_STYLE_CAMERA_SPIN;
       }
     else
       {
+      this->StartRotate();
       this->State = VTK_INTERACTOR_STYLE_CAMERA_ROTATE;
       }
     }
@@ -260,6 +266,23 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonUp(int vtkNotUsed(ctrl),
                                                        int vtkNotUsed(x),
                                                        int vtkNotUsed(y))
 {
+  if (this->State == VTK_INTERACTOR_STYLE_CAMERA_ROTATE) 
+    {
+    this->EndRotate();
+    } 
+  else if (this->State == VTK_INTERACTOR_STYLE_CAMERA_PAN) 
+    {
+    this->EndPan();
+    } 
+  else if (this->State == VTK_INTERACTOR_STYLE_CAMERA_ZOOM) 
+    {
+    this->EndDolly();
+    } 
+  else 
+    {
+    this->EndSpin();
+    }
+
   this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
 }
 
@@ -279,6 +302,7 @@ void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
     return;
     }
   
+  this->StartPan();
   this->State = VTK_INTERACTOR_STYLE_CAMERA_PAN;
 }
 //----------------------------------------------------------------------------
@@ -287,6 +311,7 @@ void vtkInteractorStyleTrackballCamera::OnMiddleButtonUp(int vtkNotUsed(ctrl),
                                                          int vtkNotUsed(x),
                                                          int vtkNotUsed(y))
 {
+  this->EndPan();
   this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
 }
 
@@ -306,6 +331,7 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonDown(int vtkNotUsed(ctrl),
     return;
     }
   
+  this->StartZoom();
   this->State = VTK_INTERACTOR_STYLE_CAMERA_ZOOM;
 }
 
@@ -315,6 +341,7 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonUp(int vtkNotUsed(ctrl),
                                                         int vtkNotUsed(x),
                                                         int vtkNotUsed(y))
 {
+  this->EndZoom();
   this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
 }
 
