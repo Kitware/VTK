@@ -37,10 +37,6 @@ vlGlyph3D::vlGlyph3D()
 
 vlGlyph3D::~vlGlyph3D()
 {
-  if (this->Source)
-    {
-    this->Source->UnRegister(this);
-    }
 }
 
 void vlGlyph3D::PrintSelf(ostream& os, vlIndent indent)

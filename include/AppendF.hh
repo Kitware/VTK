@@ -37,8 +37,10 @@ public:
   char *GetClassName() {return "vlAppendFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  void AddInput(vlDataSet *);
-  void RemoveInput(vlDataSet *);
+  void AddInput(vlDataSet *in);
+  void AddInput(vlDataSet& in) {this->AddInput(&in);};
+  void RemoveInput(vlDataSet *in);
+  void RemoveInput(vlDataSet& in) {this->RemoveInput(&in);};
   vlDataSetCollection *GetInput() {return &(this->Input);};
 
   // filter interface

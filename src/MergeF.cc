@@ -22,17 +22,10 @@ vlMergeFilter::vlMergeFilter()
 {
   // prevents dangling reference to DataSet
   this->Geometry = new vlPolyData;
-  this->Geometry->Register(this);
 }
 
 vlMergeFilter::~vlMergeFilter()
 {
-  this->Geometry->UnRegister(this);
-
-  if ( this->Scalars ) this->Scalars->UnRegister(this);
-  if ( this->Vectors ) this->Vectors->UnRegister(this);
-  if ( this->Normals ) this->Normals->UnRegister(this);
-  if ( this->TCoords ) this->TCoords->UnRegister(this);
 }
 
 void vlMergeFilter::Update()
@@ -48,10 +41,9 @@ void vlMergeFilter::Initialize()
 {
   if ( this->Geometry )
     {
-    this->Geometry->UnRegister(this);
+    delete this->Geometry;
     // copies input geometry to internal data set
     this->Geometry = this->Geometry->MakeObject(); 
-    this->Geometry->Register(this);
     }
   else
     {

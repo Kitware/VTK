@@ -20,19 +20,17 @@ vlPointSetToPointSetFilter::vlPointSetToPointSetFilter()
 {
   // prevents dangling reference to PointSet
   this->PointSet = new vlPolyData;
-  this->PointSet->Register(this);
 }
 
 vlPointSetToPointSetFilter::~vlPointSetToPointSetFilter()
 {
-  this->PointSet->UnRegister(this);
+  delete this->PointSet;
 }
 
 vlDataSet* vlPointSetToPointSetFilter::MakeObject()
 {
   vlPointSetToPointSetFilter *o = new vlPointSetToPointSetFilter();
   o->PointSet = this->PointSet;
-  o->PointSet->Register(o);
   o->SetPoints(this->GetPoints());
   return o;
 }
@@ -47,10 +45,9 @@ void vlPointSetToPointSetFilter::Initialize()
   if ( this->Input != NULL )
     {
     vlDataSet *ds=this->Input->MakeObject();
-    this->PointSet->UnRegister(this);
+    delete this->PointSet;
     // copies input geometry to internal data set
     this->PointSet = ds;
-    this->PointSet->Register(this);
     }
   else
     {

@@ -37,13 +37,6 @@ vlBooleanStructuredPoints::vlBooleanStructuredPoints()
 
 vlBooleanStructuredPoints::~vlBooleanStructuredPoints()
 {
-  vlStructuredPoints *ds;
-
-  for ( int i=0; i < this->Input.GetNumberOfItems(); i++ )
-    {
-    ds = this->Input.GetItem(i+1);
-    ds->UnRegister(this);
-    }
 }
 
 // Description:
@@ -53,7 +46,6 @@ void vlBooleanStructuredPoints::AddInput(vlStructuredPoints *sp)
   if ( ! this->Input.IsItemPresent(sp) )
     {
     this->Modified();
-    sp->Register(this);
     this->Input.AddItem(sp);
     }
 }
@@ -65,7 +57,6 @@ void vlBooleanStructuredPoints::RemoveInput(vlStructuredPoints *sp)
   if ( this->Input.IsItemPresent(sp) )
     {
     this->Modified();
-    sp->UnRegister(this);
     this->Input.RemoveItem(sp);
     }
 }

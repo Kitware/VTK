@@ -38,7 +38,9 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   void AddInput(vlPolyData *);
+  void AddInput(vlPolyData& in) {this->AddInput(&in);};
   void RemoveInput(vlPolyData *);
+  void RemoveInput(vlPolyData& in) {this->RemoveInput(&in);};
   vlPolyDataCollection *GetInput() {return &(this->Input);};
 
   // filter interface

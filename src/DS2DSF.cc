@@ -20,12 +20,11 @@ vlDataSetToDataSetFilter::vlDataSetToDataSetFilter()
 {
   // prevents dangling reference to DataSet
   this->DataSet = new vlPolyData;
-  this->DataSet->Register(this);
 }
 
 vlDataSetToDataSetFilter::~vlDataSetToDataSetFilter()
 {
-  this->DataSet->UnRegister(this);
+  delete this->DataSet;
 }
 
 void vlDataSetToDataSetFilter::Update()
@@ -41,10 +40,9 @@ void vlDataSetToDataSetFilter::Initialize()
 {
   if ( this->Input )
     {
-    this->DataSet->UnRegister(this);
+    delete this->DataSet;
     // copies input geometry to internal data set
     this->DataSet = this->Input->MakeObject(); 
-    this->DataSet->Register(this);
     }
   else
     {

@@ -42,11 +42,13 @@ public:
   vlSetClampMacro(Tolerance,float,0.0,1.0);
   vlGetMacro(Tolerance,float);
 
-  // Description:
-  // Specify a spatial locator for speeding the search process. By
-  // default an instance of vlLocator is used.
-  vlSetObjectMacro(Locator,vlLocator);
+  void SetLocator(vlLocator *locator);
+  void SetLocator(vlLocator& locator) {this->SetLocator(&locator);};
   vlGetObjectMacro(Locator,vlLocator);
+
+  // Description:
+  // Create default locator. Used to create one when none is specified.
+  virtual void CreateDefaultLocator();
 
 protected:
   // Usual data generation method
@@ -54,6 +56,7 @@ protected:
 
   float Tolerance;
   vlLocator *Locator;
+  int SelfCreatedLocator;
 };
 
 #endif

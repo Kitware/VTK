@@ -21,11 +21,13 @@ vlCleanPolyData::vlCleanPolyData()
 {
   this->Tolerance = 0.0;
   this->Locator = NULL;
+  this->SelfCreatedLocator = 0;
 }
 
 vlCleanPolyData::~vlCleanPolyData()
 {
-  if ( this->Locator ) this->Locator->UnRegister(this);
+  if ( this->SelfCreatedLocator && this->Locator != NULL) 
+    delete this->Locator;
 }
 
 void vlCleanPolyData::Execute()
@@ -57,11 +59,7 @@ void vlCleanPolyData::Execute()
   pd = this->Input->GetPointData();
   this->PointData.CopyAllocate(pd);
 
-  if ( this->Locator == NULL )
-    {
-    this->Locator = new vlLocator;
-    this->Locator->Register(this);
-    }
+  if ( this->Locator == NULL ) this->CreateDefaultLocator();
 
   this->Locator->SetPoints(inPts);
 
@@ -184,6 +182,27 @@ void vlCleanPolyData::Execute()
   this->SetPolys(newPolys);
   this->SetStrips(newStrips);
 
+}
+
+// Description:
+// Specify a spatial locator for speeding the search process. By
+// default an instance of vlLocator is used.
+void vlCleanPolyData::SetLocator(vlLocator *locator)
+{
+  if ( this->Locator != locator ) 
+    {
+    if ( this->SelfCreatedLocator ) delete this->Locator;
+    this->SelfCreatedLocator = 0;
+    this->Locator = locator;
+    this->Modified();
+    }
+}
+
+void vlCleanPolyData::CreateDefaultLocator()
+{
+  if ( this->SelfCreatedLocator ) delete this->Locator;
+  this->Locator = new vlLocator;
+  this->SelfCreatedLocator = 1;
 }
 
 void vlCleanPolyData::PrintSelf(ostream& os, vlIndent indent)

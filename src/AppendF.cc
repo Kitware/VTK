@@ -22,13 +22,6 @@ vlAppendFilter::vlAppendFilter()
 
 vlAppendFilter::~vlAppendFilter()
 {
-  vlDataSet *ds;
-
-  for ( int i=0; i < this->Input.GetNumberOfItems(); i++ )
-    {
-    ds = this->Input.GetItem(i+1);
-    ds->UnRegister(this);
-    }
 }
 
 // Description:
@@ -38,7 +31,6 @@ void vlAppendFilter::AddInput(vlDataSet *ds)
   if ( ! this->Input.IsItemPresent(ds) )
     {
     this->Modified();
-    ds->Register(this);
     this->Input.AddItem(ds);
     }
 }
@@ -50,7 +42,6 @@ void vlAppendFilter::RemoveInput(vlDataSet *ds)
   if ( this->Input.IsItemPresent(ds) )
     {
     this->Modified();
-    ds->UnRegister(this);
     this->Input.RemoveItem(ds);
     }
 }

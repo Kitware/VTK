@@ -63,10 +63,9 @@ void vlProbeFilter::Initialize()
 {
   if ( this->Source )
     {
-    if (this->DataSet) this->DataSet->UnRegister(this);
+    if (this->DataSet) delete this->DataSet;
     // copies SOURCE geometry to internal data set
     this->DataSet = this->Source->MakeObject(); 
-    this->DataSet->Register(this);
     }
   else
     {

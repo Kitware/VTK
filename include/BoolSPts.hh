@@ -39,8 +39,10 @@ public:
   char *GetClassName() {return "vlBooleanStructuredPoints";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  void AddInput(vlStructuredPoints *);
-  void RemoveInput(vlStructuredPoints *);
+  void AddInput(vlStructuredPoints *in);
+  void AddInput(vlStructuredPoints &in) {this->AddInput(&in);};
+  void RemoveInput(vlStructuredPoints *in);
+  void RemoveInput(vlStructuredPoints &in) {this->RemoveInput(&in);};
   vlStructuredPointsCollection *GetInput() {return &(this->Input);};
 
   // filter interface
