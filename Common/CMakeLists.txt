@@ -24,6 +24,7 @@ vtkCoordinate.cxx
 vtkCriticalSection.cxx
 vtkCylindricalTransform.cxx
 vtkDataArray.cxx
+vtkDataArrayCollection.cxx
 vtkDataObject.cxx
 vtkDataObjectCollection.cxx
 vtkDataSet.cxx
@@ -49,6 +50,7 @@ vtkHeap.cxx
 vtkHexahedron.cxx
 vtkHomogeneousTransform.cxx
 vtkIdList.cxx
+vtkIdListCollection.cxx
 vtkIdTypeArray.cxx
 vtkIdentityTransform.cxx
 vtkImageData.cxx
