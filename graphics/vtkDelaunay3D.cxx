@@ -225,8 +225,7 @@ static int GetTetraFaceNeighbor(vtkUnstructuredGrid *Mesh, int tetraId,
 // Enclosing tetras are returned in the tetras list; the enclosing faces 
 // are returned in the faces list.
 int vtkDelaunay3D::FindEnclosingFaces(float x[3], vtkUnstructuredGrid *Mesh,
-                                      vtkPoints *points, vtkIdList *tetras, 
-                                      vtkIdList *faces,
+                                      vtkIdList *tetras, vtkIdList *faces,
                                       vtkPointLocator *locator)
 {
   int tetraId, i, j, numTetras;
@@ -435,7 +434,6 @@ int vtkDelaunay3D::FindTetra(vtkUnstructuredGrid *Mesh, double x[3],
 void vtkDelaunay3D::Execute()
 {
   int numPoints, numTetras, i;
-  int tetraId;
   int ptId;
   vtkPoints *inPoints;
   vtkPoints *points;
@@ -473,7 +471,6 @@ void vtkDelaunay3D::Execute()
   tol = input->GetLength();
   Mesh = this->InitPointInsertion(center, this->Offset*tol,
                                   numPoints, points);
-  tetraId = 0;
 
   // Insert each point into triangulation. Points lying "inside"
   // of tetra cause tetra to be deleted, leaving a void with bounding
@@ -908,7 +905,7 @@ void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
   // a point if the point is on or near an edge or face.) For each face, 
   // create a tetrahedron. (The locator helps speed search of points 
   // in tetras.)
-  if ( (numFaces=this->FindEnclosingFaces(x, Mesh, points, this->Tetras, 
+  if ( (numFaces=this->FindEnclosingFaces(x, Mesh, this->Tetras, 
                                           this->Faces, this->Locator)) > 0 )
     {
     this->Locator->InsertPoint(ptId,x); //point is part of mesh now

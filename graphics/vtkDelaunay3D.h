@@ -264,8 +264,8 @@ protected:
   int *References;
 
   int FindEnclosingFaces(float x[3], vtkUnstructuredGrid *Mesh,
-                         vtkPoints *points, vtkIdList *tetras, 
-                         vtkIdList *faces, vtkPointLocator *Locator);
+                         vtkIdList *tetras, vtkIdList *faces, 
+                         vtkPointLocator *Locator);
   
 private: //members added for performance
   vtkIdList *Tetras; //used in InsertPoint
