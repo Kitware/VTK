@@ -431,7 +431,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     if (colors)
 	{
 	fprintf(fp,"            color Color {");
-	fprintf(fp,"              rgb [");
+	fprintf(fp,"              color [");
 	for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
 	  {
 	  fprintf(fp,"              ");
@@ -508,7 +508,7 @@ void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
   if (colors)
     {
     fprintf(fp,"            color DEF VTKcolors Color {\n");
-    fprintf(fp,"              rgb [\n");
+    fprintf(fp,"              color [\n");
     for (i = 0; i < colors->GetNumberOfColors(); i++)
       {
       c = colors->GetColor(i);
