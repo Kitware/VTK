@@ -77,7 +77,6 @@ foreach action $actions {
       foreach shift $shifts {
 	  $currentStyle $action $ctrl $shift [randint 125 175] [randint 125 175]
 	  $currentStyle OnMouseMove $ctrl $shift [randint 125 175] [randint 125 175]
-	  $currentStyle OnTimer
       }
   }
 }
