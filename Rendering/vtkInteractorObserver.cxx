@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.30");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.31");
 
 vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);
 
@@ -123,9 +123,9 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
     this->Interactor->RemoveObserver(this->DeleteObserverTag);
     this->DeleteObserverTag = 0;
     }
-
+  
   this->Interactor = i;
-
+  
   // add observers for each of the events handled in ProcessEvents
   if (i)
     {
@@ -145,14 +145,22 @@ void vtkInteractorObserver::ProcessEvents(vtkObject* vtkNotUsed(object),
                                           void* clientdata, 
                                           void* vtkNotUsed(calldata))
 {
-  if (event == vtkCommand::CharEvent)
+  if (event == vtkCommand::CharEvent || 
+      event == vtkCommand::DeleteEvent)
     {
     vtkObject *vobj = reinterpret_cast<vtkObject *>( clientdata );
     vtkInteractorObserver* self 
       = vtkInteractorObserver::SafeDownCast(vobj);
     if (self)
       {
-      self->OnChar();
+      if (event == vtkCommand::CharEvent)
+        {
+        self->OnChar();
+        }
+      else // delete event
+        {
+        self->SetInteractor(0);
+        }
       }
     else
       {
