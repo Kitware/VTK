@@ -63,12 +63,10 @@ vtkTubeFilter Tuber0
  	Tuber0 SetRadius 1
  	Tuber0 SetVaryRadius 1
  	Tuber0 SetRadiusFactor 10
-vtkPOutlineFilter Geometry6
- 	Geometry6 SetInput [Tuber0 GetOutput]
-Geometry6 Update
+Tuber0 Update
 
 vtkPolyDataMapper Mapper6
- 	Mapper6 SetInput [Geometry6 GetOutput]
+ 	Mapper6 SetInput [Tuber0 GetOutput]
  	Mapper6 SetImmediateModeRendering 0
  	Mapper6 SetScalarRange 0 228
  	Mapper6 SetScalarVisibility 1
