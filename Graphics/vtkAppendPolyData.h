@@ -66,8 +66,8 @@ public:
   // Get any input of this filter.
 //BTX
   vtkPolyData *GetInput(int idx);
-//ETX
   vtkPolyData *GetInput() { return this->GetInput( 0 ); };
+//ETX
 
   // Description:
   // Directly set(allocate) number of inputs, should only be used
