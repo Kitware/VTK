@@ -310,17 +310,22 @@ void vtkImageRegion::Update()
 void vtkImageRegion::UpdateImageInformation()
 {
   int axesSave[VTK_IMAGE_DIMENSIONS];
+  int *extent;
   
-  // Save coordinate system
+    // Save coordinate system
   this->GetAxes(axesSave);
   // convert to this regions coordinate system
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS, 
 		VTK_IMAGE_TIME_AXIS, VTK_IMAGE_COMPONENT_AXIS);
+  extent = this->GetExtent();
+  
   // Set the extent
   this->CheckCache();
-  this->Output->SetWholeExtent(this->GetExtent());
+  this->Output->SetWholeExtent(extent);
   this->Output->SetSpacing(this->GetSpacing());
   this->Output->SetOrigin(this->GetOrigin());
+  this->Output->SetScalarType(this->GetScalarType());
+  this->Output->SetNumberOfScalarComponents(extent[9] - extent[8] + 1);
   
   // Restore coordinate system to the way it was.
   this->SetAxes(5, axesSave);
