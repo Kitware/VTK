@@ -31,9 +31,11 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkUnstructuredGridLinearRayIntegrator.h"
+#include "vtkMath.h"
 
 #include <vtkstd/vector>
 #include <vtkstd/set>
+#include <vtkstd/algorithm>
 
 //-----------------------------------------------------------------------------
 
@@ -61,6 +63,10 @@ public:
   vtkstd::vector<acolor> Colors;
 };
 
+const static double huebends[6] = {
+  1.0/6.0, 1.0/3.0, 0.5, 2.0/3.0, 5.0/6.0, 1.0
+};
+
 void vtkPartialPreIntegrationTransferFunction::GetTransferFunction(
                                               vtkColorTransferFunction *color,
                                               vtkPiecewiseFunction *opacity,
@@ -76,6 +82,87 @@ void vtkPartialPreIntegrationTransferFunction::GetTransferFunction(
     cpset.insert(function[0]);
     if (function[0] == function_range[1]) break;
     function += 4;
+    }
+
+  if (color->GetColorSpace() != VTK_CTF_RGB)
+    {
+    // If we are in an HSV color space, we must insert control points
+    // in places where the RGB bends.
+    double rgb[3], hsv[3];
+    double hue1, hue2;
+    double x1, x2;
+    vtkstd::set<double>::iterator i = cpset.begin();
+    x1 = *i;
+    color->GetColor(x1, rgb);
+    vtkMath::RGBToHSV(rgb, hsv);
+    hue1 = hsv[0];
+    for (i++; i != cpset.end(); i++)
+      {
+      x2 = *i;
+      color->GetColor(x2, rgb);
+      vtkMath::RGBToHSV(rgb, hsv);
+      hue2 = hsv[0];
+
+      // Are we crossing the 0/1 boundary?
+      if (   (color->GetColorSpace() == VTK_CTF_HSV)
+          && ((hue1 - hue2 > 0.5) || (hue2 - hue1 > 0.5)) )
+        {
+        // Yes, we are crossing the boundary.
+        if (hue1 > hue2)
+          {
+          int j;
+          for (j = 0; huebends[j] <= hue2; j++)
+            {
+            double interp = (1-hue1+huebends[j])/(1-hue1+hue2);
+            cpset.insert((x2-x1)*interp + x1);
+            }
+          while (huebends[j] < hue1) j++;
+          for ( ; j < 6; j++)
+            {
+            double interp = (huebends[j]-hue1)/(1-hue1+hue2);
+            cpset.insert((x2-x1)*interp + x1);
+            }
+          }
+        else
+          {
+          int j;
+          for (j = 0; huebends[j] <= hue1; j++)
+            {
+            double interp = (hue1-huebends[j])/(1-hue2+hue1);
+            cpset.insert((x2-x1)*interp + x1);
+            }
+          while (huebends[j] < hue2) j++;
+          for ( ; j < 6; j++)
+            {
+            double interp = (1-huebends[j]+hue1)/(1-hue2+hue1);
+            cpset.insert((x2-x1)*interp + x1);
+            }
+          }
+        }
+      else
+        {
+        // No, we are not crossing the boundary.
+        int j = 0;
+        double minh, maxh;
+        if (hue1 < hue2)
+          {
+          minh = hue1;  maxh = hue2;
+          }
+        else
+          {
+          minh = hue2;  maxh = hue1;
+          }
+        while (huebends[j] < minh) j++;
+        for (j = 0; huebends[j] < maxh; j++)
+          {
+          double interp = (huebends[j]-hue1)/(hue2-hue1);
+          cpset.insert((x2-x1)*interp + x1);
+          }
+        }
+
+      x1 = x2;
+      hue1 = hue2;
+      }
     }
 
   function_range = opacity->GetRange();
@@ -184,7 +271,7 @@ inline void vtkPartialPreIntegrationTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.6");
+vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.7");
 vtkStandardNewMacro(vtkUnstructuredGridPartialPreIntegration);
 
 float vtkUnstructuredGridPartialPreIntegration::PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
