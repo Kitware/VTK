@@ -43,7 +43,7 @@
 # define VTK_TCL_PACKAGE_DIR VTK_TCL_PACKAGE_DIR_BUILD
 #endif
 
-#if defined(VTK_USE_RENDERING) && !defined(VTK_USE_COCOA)
+#ifdef VTK_USE_RENDERING
 # include "tk.h"
 #else
 # include "tcl.h"
@@ -132,7 +132,7 @@ main(int argc, char **argv)
   VTKMPICleanup.Initialize(&argc, &argv);
 #endif // VTK_COMPILED_USING_MPI
 
-#if defined(VTK_USE_RENDERING) && !defined(VTK_USE_COCOA)
+#ifdef VTK_USE_RENDERING
   Tk_Main(argc, argv, Tcl_AppInit);
 #else
   Tcl_Main(argc, argv, Tcl_AppInit);
@@ -196,7 +196,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
   if (Tcl_Init(interp) == TCL_ERROR) {
   return TCL_ERROR;
   }
-#if defined(VTK_USE_RENDERING) && !defined(VTK_USE_COCOA)
+#ifdef VTK_USE_RENDERING
   if (Tk_Init(interp) == TCL_ERROR) {
   return TCL_ERROR;
   }
