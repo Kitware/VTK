@@ -81,7 +81,6 @@
 #include "vtk3DWidget.h"
 
 class vtkActor;
-class vtkCardinalSpline;
 class vtkCellPicker;
 class vtkPlaneSource;
 class vtkPoints;
@@ -90,6 +89,7 @@ class vtkPolyDataMapper;
 class vtkProp;
 class vtkProperty;
 class vtkSphereSource;
+class vtkSpline;
 class vtkTransform;
 
 #define VTK_PROJECTION_YZ 0
@@ -184,6 +184,26 @@ public:
   void SetResolution(int resolution);
   vtkGetMacro(Resolution,int);
 
+  // Description:
+  // Set/Get the spline objects.  The use can supply one of currently
+  // two types of spline: vtkCardinalSpline, vtkKochanekSpline. The widget
+  // does not enforce internal consistency so that all three are the same type.
+  void SetXSpline(vtkSpline*);
+  vtkGetObjectMacro(XSpline,vtkSpline);
+  void SetYSpline(vtkSpline*);
+  vtkGetObjectMacro(YSpline,vtkSpline);
+  void SetZSpline(vtkSpline*);
+  vtkGetObjectMacro(ZSpline,vtkSpline);
+
+  // Description:
+  // Set/Get the position of the spline handles. Call GetNumberOfHandles
+  // to determine the valid range of handle indices.
+  void SetHandlePosition(int handle, float x, float y, float z);
+  void SetHandlePosition(int handle, float xyz[3]);
+  void GetHandlePosition(int handle, float xyz[3]);
+  float* GetHandlePosition(int handle);
+
+
 protected:
   vtkSplineWidget();
   ~vtkSplineWidget();
@@ -195,7 +215,7 @@ protected:
     Start=0,
     Moving,
     Scaling,
-    Spinning,    
+    Spinning,
     Outside
   };
 //ETX
@@ -227,11 +247,12 @@ protected:
   void ProjectPointsToObliquePlane();
 
   // The spline
-  vtkCardinalSpline *XSpline;
-  vtkCardinalSpline *YSpline;
-  vtkCardinalSpline *ZSpline;
+  vtkSpline *XSpline;
+  vtkSpline *YSpline;
+  vtkSpline *ZSpline;
   int NumberOfHandles;
   float* HandlePositions;
+  vtkSpline* CreateDefaultSpline();// default is vtkCardinalSpline
 
   // The line
   vtkActor          *LineActor;
