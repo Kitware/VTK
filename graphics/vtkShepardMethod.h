@@ -45,7 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Shepard's method. The method works by resampling the unstructured points 
 // onto a structured points set. The influence functions are described as 
 // "inverse distance weighted". Once the structured points are computed, the 
-// usual visualization techniques can be used visualize the structured points.
+// usual visualization techniques (e.g., iso-contouring or volume rendering)
+// can be used visualize the structured points.
 // .SECTION Caveats
 // The input to this filter is any dataset type. This filter can be used 
 // to resample any form of data, i.e., the input data need not be 
