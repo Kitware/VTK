@@ -269,27 +269,36 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[4][4],
     }
   
 #define SVTHRESHOLD 1E-3
-  float invsig;
+  float invsig, maxW = 0.0;
   vtkMath::SingularValueDecomposition3x3(A, U, w, VT);
+  for (i = 0; i < 3; i++)
+    {
+    if (w[i] > maxW)
+      {
+      maxW = w[i];
+      }
+    }
   for (i = 0; i < 3; i++)
     {
     for (j = 0; j < 3; j++)
       {
       if (i == j)
-	      {
-	      if ( (invsig = 1.0/w[i]) > SVTHRESHOLD )
-		{
-		W[i][j] = invsig;
-		}
-	      else
-		{
-		W[i][j] = 0;
-		}
-	      }
+	{
+	if ( (w[i] / maxW) > SVTHRESHOLD)
+	  {
+	  // If this is true, then w[i] != 0, so this division is ok.
+	  invsig = 1.0/w[i];
+	  W[i][j] = invsig;
+	  }
+	else
+	  {
+	  W[i][j] = 0;
+	  }
+	}
       else
-	      {
-	      W[i][j] = 0;
-	      }
+	{
+	W[i][j] = 0;
+	}
       }
     }
   vtkMath::Transpose3x3(U, UT);
