@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.62");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.63");
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction,ImplicitFunction,vtkImplicitFunction);
 
@@ -119,40 +119,52 @@ void vtkSampleFunction::ExecuteInformation()
 
 void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
 {
-  vtkIdType ptId;
+  vtkIdType idx, i, j, k;
   vtkFloatArray *newNormals=NULL;
   vtkIdType numPts;
-  float *p, s;
-  vtkImageData *output = this->AllocateOutputData(outp);
+  float p[3], s;
+  vtkImageData *output=this->GetOutput();
+
+  output->SetExtent(output->GetUpdateExtent());
+  output = this->AllocateOutputData(outp);
   vtkFloatArray *newScalars = 
     vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
 
-  output->SetDimensions(this->GetSampleDimensions());
-
   vtkDebugMacro(<< "Sampling implicit function");
-  //
+
   // Initialize self; create output objects
   //
-
   if ( !this->ImplicitFunction )
     {
     vtkErrorMacro(<<"No implicit function specified");
     return;
     }
 
-  numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
-    * this->SampleDimensions[2];
+  numPts = newScalars->GetNumberOfTuples();
 
-  //
   // Traverse all points evaluating implicit function at each point
   //
-  for (ptId=0; ptId < numPts; ptId++ )
+  int extent[6];
+  output->GetUpdateExtent(extent);
+  int sliceSize = this->SampleDimensions[0] * this->SampleDimensions[1];
+  float spacing[3];
+  output->GetSpacing(spacing);
+
+  for ( idx=0, k=extent[4]; k <= extent[5]; k++ )
     {
-    p = output->GetPoint(ptId);
-    s = this->ImplicitFunction->FunctionValue(p);
-    newScalars->SetComponent(ptId,0,s);
+    p[2] = this->ModelBounds[4] + k*spacing[2];
+    for ( j=extent[2]; j <= extent[3]; j++ )
+      {
+      p[1] = this->ModelBounds[2] + j*spacing[1];
+      for ( i=extent[0]; i <= extent[1]; i++ )
+        {
+        p[0] = this->ModelBounds[0] + i*spacing[0];
+        s = this->ImplicitFunction->FunctionValue(p);
+        newScalars->SetTuple1(idx++,s);
+        }
+      }
     }
-  //
+
   // If normal computation turned on, compute them
   //
   if ( this->ComputeNormals )
@@ -161,18 +173,26 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
     newNormals = vtkFloatArray::New(); 
     newNormals->SetNumberOfComponents(3);
     newNormals->SetNumberOfTuples(numPts);
-    for (ptId=0; ptId < numPts; ptId++ )
+    for ( idx=0, k=extent[4]; k <= extent[5]; k++ )
       {
-      p = output->GetPoint(ptId);
-      this->ImplicitFunction->FunctionGradient(p, n);
-      n[0] *= -1;
-      n[1] *= -1;
-      n[2] *= -1;
-      vtkMath::Normalize(n);
-      newNormals->SetTuple(ptId,n);
+      p[2] = this->ModelBounds[4] + k*spacing[2];
+      for ( j=extent[2]; j <= extent[3]; j++ )
+        {
+        p[1] = this->ModelBounds[2] + j*spacing[1];
+        for ( i=extent[0]; i <= extent[1]; i++ )
+          {
+          p[0] = this->ModelBounds[0] + i*spacing[0];
+          this->ImplicitFunction->FunctionGradient(p, n);
+          n[0] *= -1;
+          n[1] *= -1;
+          n[2] *= -1;
+          vtkMath::Normalize(n);
+          newNormals->SetTuple(idx++,n);
+          }
+        }
       }
     }
-  //
+
   // If capping is turned on, set the distances of the outside of the volume
   // to the CapValue.
   //
@@ -180,7 +200,7 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
     {
     this->Cap(newScalars);
     }
-  //
+
   // Update self 
   //
   if (newNormals)
@@ -207,64 +227,66 @@ unsigned long vtkSampleFunction::GetMTime()
 
 void vtkSampleFunction::Cap(vtkDataArray *s)
 {
-  int i,j,k;
+  int i,j,k,extent[6];
   vtkIdType idx;
   int d01=this->SampleDimensions[0]*this->SampleDimensions[1];
+  vtkImageData *output = this->GetOutput();
+  output->GetUpdateExtent(extent);
 
-// i-j planes
-  k = 0;
-  for (j=0; j<this->SampleDimensions[1]; j++)
+  // i-j planes
+  k = extent[4];
+  for (j=extent[2]; j<=extent[3]; j++)
     {
-    for (i=0; i<this->SampleDimensions[0]; i++)
+    for (i=extent[0]; i<=extent[1]; i++)
       {
       s->SetComponent(i+j*this->SampleDimensions[0], 0, this->CapValue);
       }
     }
 
-  k = this->SampleDimensions[2] - 1;
+  k = extent[5];
   idx = k*d01;
-  for (j=0; j<this->SampleDimensions[1]; j++)
+  for (j=extent[2]; j<=extent[3]; j++)
     {
-    for (i=0; i<this->SampleDimensions[0]; i++)
+    for (i=extent[0]; i<=extent[1]; i++)
       {
       s->SetComponent(idx+i+j*this->SampleDimensions[0], 0, this->CapValue);
       }
     }
 
-// j-k planes
-  i = 0;
-  for (k=0; k<this->SampleDimensions[2]; k++)
+  // j-k planes
+  i = extent[0];
+  for (k=extent[4]; k<=extent[5]; k++)
     {
-    for (j=0; j<this->SampleDimensions[1]; j++)
+    for (j=extent[2]; j<=extent[3]; j++)
       {
       s->SetComponent(j*this->SampleDimensions[0]+k*d01, 0, this->CapValue);
       }
     }
 
-  i = this->SampleDimensions[0] - 1;
-  for (k=0; k<this->SampleDimensions[2]; k++)
+  i = extent[1];
+  for (k=extent[4]; k<=extent[5]; k++)
     {
-    for (j=0; j<this->SampleDimensions[1]; j++)
+    for (j=extent[2]; j<=extent[3]; j++)
       {
       s->SetComponent(i+j*this->SampleDimensions[0]+k*d01, 0, this->CapValue);
       }
     }
 
-// i-k planes
-  j = 0;
-  for (k=0; k<this->SampleDimensions[2]; k++)
+  // i-k planes
+  j = extent[2];
+  for (k=extent[4]; k<=extent[5]; k++)
     {
-    for (i=0; i<this->SampleDimensions[0]; i++)
+    for (i=extent[0]; i<=extent[1]; i++)
       {
       s->SetComponent(i+k*d01, 0, this->CapValue);
       }
     }
 
-  j = this->SampleDimensions[1] - 1;
+  j = extent[3];
   idx = j*this->SampleDimensions[0];
-  for (k=0; k<this->SampleDimensions[2]; k++)
+  for (k=extent[4]; k<=extent[5]; k++)
     {
-    for (i=0; i<this->SampleDimensions[0]; i++)
+    for (i=extent[0]; i<=extent[1]; i++)
       {
       s->SetComponent(idx+i+k*d01, 0, this->CapValue);
       }
