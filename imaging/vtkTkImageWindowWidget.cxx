@@ -438,7 +438,7 @@ static int vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget 
     }
   else
     {
-    ImageWindow =
+    ImageWindow = (vtkImageWindow *)
       vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp,
 				 new_flag);
     if (ImageWindow != self->ImageWindow)
