@@ -25,7 +25,7 @@
 #include "vtkMath.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRotationFilter, "1.8");
+vtkCxxRevisionMacro(vtkRotationFilter, "1.9");
 vtkStandardNewMacro(vtkRotationFilter);
 
 //---------------------------------------------------------------------------
@@ -110,18 +110,15 @@ int vtkRotationFilter::RequestData(
   outPD->CopyAllocate(inPD);
   outCD->CopyAllocate(inCD);
 
-  vtkDataArray *inPtVectors, *outPtVectors, *inPtNormals, *outPtNormals;
+  vtkDataArray *inPtVectors, *outPtVectors, *inPtNormals;
   vtkDataArray *inCellVectors, *outCellVectors, *inCellNormals;
-  vtkDataArray *outCellNormals;
-  
+
   inPtVectors = inPD->GetVectors();
   outPtVectors = outPD->GetVectors();
   inPtNormals = inPD->GetNormals();
-  outPtNormals = outPD->GetNormals();
   inCellVectors = inCD->GetVectors();
   outCellVectors = outCD->GetVectors();
   inCellNormals = inCD->GetNormals();
-  outCellNormals = outCD->GetNormals();
 
   // Copy first points.
   if (this->CopyInput)
@@ -197,7 +194,7 @@ int vtkRotationFilter::RequestData(
     }
 
   // Generate rotated cells.
-  for (k = 0; k < this->GetNumberOfCopies(); k++)
+  for (k = 0; k < this->GetNumberOfCopies(); k++)  
     {
     for (i = 0; i < numCells; i++)
       {
@@ -211,10 +208,12 @@ int vtkRotationFilter::RequestData(
       // introduce to flip all the triangles properly.
       if (cellType == VTK_TRIANGLE_STRIP && numCellPts % 2 == 0)
         {
-        cerr << "Here\n";
+        vtkErrorMacro(<< "Triangles with bad points");
+        return 0;
         }
       else
-        {cerr << "celltype " << cellType << " numCellPts " << numCellPts << "\n";
+        {
+        vtkDebugMacro(<< "celltype " << cellType << " numCellPts " << numCellPts);
         newCellPts = new vtkIdType[numCellPts];
         //for (j = numCellPts-1; j >= 0; j--)
         for (j = 0; j < numCellPts; j++)
