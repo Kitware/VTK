@@ -241,7 +241,7 @@ ELSE (WIN32)
       SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
                    vtkCarbonRenderWindowInteractor.cxx
                    vtkCarbonRenderWindow.cxx)
-      SET (KIT_LIBS ${KIT_LIBS} ${OPENGL_gl_LIBRARY} "-framework Carbon")
+      SET (KIT_LIBS ${KIT_LIBS} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} "-framework Carbon")
     ENDIF(VTK_USE_CARBON)
     IF(VTK_USE_X)
       IF (OPENGL_gl_LIBRARY)
