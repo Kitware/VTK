@@ -324,12 +324,12 @@ TCL_LIB_FILE  = libVTK${ME}Tcl${VTK_LIB_EXT}
 KIT_LIBS = @TKWIDGET@
 
 #JAVA_O_ADD = vtkJavaPanel.o 
-JAVA_CODE_ADD = ../java/vtk/vtkPanel.class
+JAVA_CODE_ADD = ../java/vtk/vtkPanel${JAVA_BEANS}.class
 
-java/vtk_vtkPanel.h: ../java/vtk/vtkPanel.java
+java/vtk_vtkPanel.h: ../java/vtk/vtkPanel${JAVA_BEANS}.java
 	rm -f java/vtk_vtkPanel.h; ${JAVAH} -d java vtk.vtkPanel
 
-java/vtk_vtkPanel.c: ../java/vtk/vtkPanel.java
+java/vtk_vtkPanel.c: ../java/vtk/vtkPanel${JAVA_BEANS}.java
 	rm -f java/vtk_vtkPanel.c; ${JAVAH} -stubs -d java vtk.vtkPanel
 
 vtkJavaPanel.o: java/vtk_vtkPanel.h java/vtk_vtkPanel.c
