@@ -447,9 +447,16 @@ vtkVRMLExporter vrml
   vrml Write
 
 if { [info command vtkRIBExporter] != "" } {
+  vtkTexture atext
+  vtkPNMReader pnmReader
+    pnmReader SetFileName "../../../vtkdata/masonry.ppm"
+  atext SetInput [pnmReader GetOutput]
+  atext InterpolateOff
+  aTriangleActor SetTexture atext
   vtkRIBExporter rib
     rib SetInput renWin
     rib SetFilePrefix cells
+    rib SetTexturePrefix cells
     rib Write
 }
 
