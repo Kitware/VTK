@@ -55,7 +55,7 @@ vtkContourFilter::vtkContourFilter()
   this->Range[0] = 0.0;
   this->Range[1] = 1.0;
   this->ComputeNormals = 1;
-  this->ComputeGradients = 1;
+  this->ComputeGradients = 0;
   this->ComputeScalars = 1;
 }
 
