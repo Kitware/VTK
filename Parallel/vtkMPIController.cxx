@@ -68,9 +68,9 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.15");
+vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.16");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.15");
+vtkCxxRevisionMacro(vtkMPIController, "1.16");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------
@@ -198,6 +198,12 @@ void vtkMPIController::Finalize(int finalizedExternally)
     vtkMPIController::WorldRMICommunicator->Delete();
     vtkMPIController::WorldRMICommunicator = 0;
     vtkMPICommunicator::WorldCommunicator->Delete();
+    this->SetCommunicator(0);
+    if (this->RMICommunicator)
+      {
+      this->RMICommunicator->Delete();
+      this->RMICommunicator = 0;
+      }
     if (finalizedExternally == 0)
       {
         MPI_Finalize();
