@@ -43,7 +43,7 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.22");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.23");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayCastFunction,
@@ -300,13 +300,14 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   else
     {
 
-#define ESTABLISH_INTEGRATOR(classname)                                 \
+#define ESTABLISH_INTEGRATOR(classname)                                        \
   if (   !this->RealRayIntegrator                                              \
       || (!this->RealRayIntegrator->IsA(#classname)) )                         \
     {                                                                          \
     if (this->RealRayIntegrator) this->RealRayIntegrator->UnRegister(this);    \
     this->RealRayIntegrator = classname::New();                                \
     this->RealRayIntegrator->Register(this);                                   \
+    this->RealRayIntegrator->Delete();                                         \
     }                                                                          \
 
     if (this->CellScalars)
