@@ -71,7 +71,7 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
   this->Position2Coordinate->SetReferenceCoordinate(this->PositionCoordinate);
   
   this->Input = NULL;
-  this->IndependentVariables = VTK_IV_ROW;
+  this->IndependentVariables = VTK_IV_COLUMN;
   this->N = 0;
   this->Axes = NULL; 
   this->Mins = NULL;
@@ -237,6 +237,9 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
     renderedSomething += this->TitleActor->RenderOpaqueGeometry(viewport);
     }
 
+  this->PlotActor->SetProperty(this->GetProperty());
+  renderedSomething += this->PlotActor->RenderOpaqueGeometry(viewport);
+
   for (int i=0; i<this->N; i++)
     {
     renderedSomething += this->Axes[i]->RenderOpaqueGeometry(viewport);
@@ -248,9 +251,10 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
 int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *size)
 {
-  int i;
+  int i, j, id;
   vtkDataObject *input = this->GetInput();
   vtkFieldData *field = input->GetFieldData();
+  float v;
   
   this->Initialize();
 
@@ -259,27 +263,29 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *size)
     return 0;
     }
   
+  // Determine the shape of the field
+  int numColumns = field->GetNumberOfComponents(); //number of "columns"
+  int numRows = VTK_LARGE_INTEGER; //figure out number of rows
+  int numTuples;
+  vtkDataArray *array;
+  for (i=0; i<field->GetNumberOfArrays(); i++)
+    {
+    array = field->GetArray(i);
+    numTuples = array->GetNumberOfTuples();
+    if ( numTuples < numRows )
+      {
+      numRows = numTuples;
+      }
+    }
+
   // Determine the number of independent variables
   if ( this->IndependentVariables == VTK_IV_COLUMN )
     {
-    int minTuples = VTK_LARGE_INTEGER;
-    int numTuples;
-    vtkDataArray *array;
-    for (i=0; i<field->GetNumberOfArrays(); i++)
-      {
-      array = field->GetArray(i);
-      numTuples = array->GetNumberOfTuples();
-      if ( numTuples < minTuples )
-        {
-        minTuples = numTuples;
-        }
-      }
-    
-    this->N = minTuples;
+    this->N = numColumns;
     }
   else //row
     {
-    this->N = field->GetNumberOfComponents();
+    this->N = numRows;
     }
 
   if ( this->N <= 0 || this->N >= VTK_LARGE_INTEGER )
@@ -289,6 +295,53 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *size)
     return 0;
     }
   
+  // We need to loop over the field to determine the range of
+  // each independent variable.
+  this->Mins = new float [this->N];
+  this->Maxs = new float [this->N];
+  for (i=0; i<this->N; i++)
+    {
+    this->Mins[i] =  VTK_LARGE_FLOAT;
+    this->Maxs[i] = -VTK_LARGE_FLOAT;
+    }
+
+  if ( this->IndependentVariables == VTK_IV_COLUMN )
+    {
+    for (j=0; j<numColumns; j++)
+      {
+      for (i=0; i<numRows; i++)
+        {
+        v = field->GetComponent(i,j);
+        if ( v < this->Mins[j] )
+          {
+          this->Mins[j] = v;
+          }
+        if ( v > this->Maxs[j] )
+          {
+          this->Maxs[j] = v;
+          }
+        }
+      }
+    }
+  else //row
+    {
+    for (j=0; j<numRows; j++)
+      {
+      for (i=0; i<numColumns; i++)
+        {
+        v = field->GetComponent(j,i);
+        if ( v < this->Mins[j] )
+          {
+          this->Mins[j] = v;
+          }
+        if ( v > this->Maxs[j] )
+          {
+          this->Maxs[j] = v;
+          }
+        }
+      }
+    }
+
   // Allocate space and create axes
   this->Axes = new vtkAxisActor2D* [this->N];
   for (i=0; i<this->N; i++)
@@ -296,7 +349,8 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *size)
     this->Axes[i] = vtkAxisActor2D::New();
     this->Axes[i]->GetPoint1Coordinate()->SetCoordinateSystemToViewport();
     this->Axes[i]->GetPoint2Coordinate()->SetCoordinateSystemToViewport();
-    this->Axes[i]->SetRange(0.0,1.0);
+    this->Axes[i]->SetRange(this->Mins[i],this->Maxs[i]);
+    this->Axes[i]->AdjustLabelsOff();
     this->Axes[i]->SetNumberOfLabels(this->NumberOfLabels);
     this->Axes[i]->SetBold(this->Bold);
     this->Axes[i]->SetItalic(this->Italic);
@@ -305,8 +359,6 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *size)
     this->Axes[i]->SetLabelFormat(this->LabelFormat);
     this->Axes[i]->SetProperty(this->GetProperty());
     }
-  this->Mins = new float [this->N];
-  this->Maxs = new float [this->N];
   this->Xs = new int [this->N];
 
   // Get the location of the corners of the box
@@ -318,19 +370,78 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *size)
   this->YMax = p2[1];
   for (i=0; i<this->N; i++)
     {
-    this->Xs[i] = p1[0] + (float)i/((float)this->N-1) * (p2[0]-p1[0]);
+    this->Xs[i] = p1[0] + (float)i/((float)this->N) * (p2[0]-p1[0]);
     this->Axes[i]->GetPoint1Coordinate()->SetValue(this->Xs[i], YMin);
     this->Axes[i]->GetPoint2Coordinate()->SetValue(this->Xs[i], YMax);
     }
 
   // Now generate the lines to plot
-  this->PlotData->Initialize();
+  this->PlotData->Initialize(); //remove old polydata, if any
+  vtkPoints *pts = vtkPoints::New();
+  pts->Allocate(numRows*numColumns);
+  vtkCellArray *lines = vtkCellArray::New();
+  vtkScalars *lineColors = vtkScalars::New();
+  this->PlotData->SetPoints(pts);
+  this->PlotData->SetLines(lines);
+//  this->PlotData->GetCellData()->SetScalars(lineColors);
+  
+  float x[3]; x[2] = 0.0;
   if ( this->IndependentVariables == VTK_IV_COLUMN )
     {
+    lines->Allocate(lines->EstimateSize(numRows,numColumns));
+    lineColors->Allocate(numRows);
+    for (j=0; j<numRows; j++)
+      {
+      lines->InsertNextCell(numColumns);
+      for (i=0; i<numColumns; i++)
+        {
+        x[0] = this->Xs[i];
+        v = field->GetComponent(j,i);
+        if ( (this->Maxs[i]-this->Mins[i]) == 0.0 )
+          {
+          x[1] = 0.5 * (this->YMax - this->YMin);
+          }
+        else
+          {
+          x[1] = this->YMin + 
+            ((v - this->Mins[i]) / (this->Maxs[i] - this->Mins[i])) *
+            (this->YMax - this->YMin);
+          }
+        id = pts->InsertNextPoint(x);
+        lines->InsertCellPoint(id);
+        }
+      }
     }
   else //row
     {
+    lines->Allocate(lines->EstimateSize(numColumns,numRows));
+    lineColors->Allocate(numColumns);
+    for (j=0; j<numColumns; j++)
+      {
+      lines->InsertNextCell(numColumns);
+      for (i=0; i<numRows; i++)
+        {
+        x[0] = this->Xs[i];
+        v = field->GetComponent(i,j);
+        if ( (this->Maxs[i]-this->Mins[i]) == 0.0 )
+          {
+          x[1] = 0.5 * (this->YMax - this->YMin);
+          }
+        else
+          {
+          x[1] = this->YMin + 
+            ((v - this->Mins[i]) / (this->Maxs[i] - this->Mins[i])) *
+            (this->YMax - this->YMin);
+          }
+        id = pts->InsertNextPoint(x);
+        lines->InsertCellPoint(id);
+        }
+      }
     }
+
+  pts->Delete();
+  lines->Delete();
+  lineColors->Delete();
 
   return 1;
 }

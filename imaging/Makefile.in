@@ -137,6 +137,7 @@ vtkImageWindow \
 vtkImageWrapPad \
 vtkImageWriter \
 vtkLabeledDataMapper \
+vtkParallelCoordinatesActor \
 vtkPNMReader \
 vtkPNMWriter \
 vtkPolyDataMapper2D \

@@ -38,19 +38,34 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkParallelCoordinatesActor - generate parallel coordinate display from input field
+// .NAME vtkParallelCoordinatesActor - create parallel coordinate display from input field
 // .SECTION Description
-// 
 // vtkParallelCoordinatesActor generates a parallel coordinates plot from an
 // input field (i.e., vtkDataObject). Parallel coordinates represent
 // N-dimensional data by using a set of N parallel axes (not orthogonal like
 // the usual x-y-z Cartesian axes). Each N-dimensional point is plotted as a
-// polyline, were each of the N xi components of the point lie on one of the
+// polyline, were each of the N components of the point lie on one of the
 // N axes, and the components are connected by straight lines.
 //
-// To use this class, you must specify an input data object.
+// To use this class, you must specify an input data object. You'll probably
+// also want to specify the position of the plot be setting the Position and
+// Position2 instance variables, which define a rectangle in which the plot
+// lies. Another important parameter is the IndependentVariables ivar, which
+// tells the instance how to interpret the field data (independent variables
+// as the rows or columns of the field). There are also many other instance
+// variables that control the look of the plot includes its title, font 
+// attributes, number of ticks on the axes, etc.
 
 // .SECTION Caveats
+// Field data is not necessarily "rectangular" in shape. In these cases, some
+// of the data may not be plotted.
+//
+// The early implementation lacks many features that could be added in the future.
+// This includes the ability to "brush" data (choose regions along an axis and
+// highlight any points/lines passing through the regsion); efficiency is really
+// bad; more control over the properties of the plot (separate properties for
+// each axes,title,etc.; and using the labels found in the field to label each
+// of the axes.
 
 #ifndef __vtkParallelCoordinatesActor_h
 #define __vtkParallelCoordinatesActor_h
