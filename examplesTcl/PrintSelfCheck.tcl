@@ -750,14 +750,14 @@ proc measure_vtk { } {
         "vtk/graphics"		\
 	"vtk/imaging"		\
 	"vtk/patented"		\
-	"gevtk/geae"		\
-	"gevtk/gemsio"		\
-	"gevtk/gemsip"		\
-	"gevtk/gemsvolume"	\
-	"gevtk/working"
   }
 
   #set list { "gevtk/working" }
+  #	"gevtk/geae"		\
+  #	"gevtk/gemsio"		\
+  #	"gevtk/gemsip"		\
+  #	"gevtk/gemsvolume"	\
+  #	"gevtk/working"
 
   open_files
 
