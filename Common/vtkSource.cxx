@@ -23,7 +23,7 @@
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.97");
+vtkCxxRevisionMacro(vtkSource, "1.98");
 
 #ifndef NULL
 #define NULL 0
@@ -222,6 +222,7 @@ void vtkSource::UpdateInformation()
         }  
       }
     
+    this->InvokeEvent(vtkCommand::ExecuteInformationEvent, NULL);
     this->ExecuteInformation();
 
     // Information gets invalidated as soon as Update is called,
