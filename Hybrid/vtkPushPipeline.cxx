@@ -25,7 +25,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkSmartPointer.h"
 #include "vtkSource.h"
-#include "vtkVolumeMapper.h"
+#include "vtkAbstractVolumeMapper.h"
 
 #include <vtkstd/vector>
 #include <vtkstd/map>
@@ -115,7 +115,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.17");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.18");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()
@@ -746,7 +746,7 @@ int vtkPushPipeline::IsRendererReady(vtkRenderer *ren)
     vtkVolume *v = vtkVolume::SafeDownCast(prop);
     if (v)
       {
-      vtkVolumeMapper *vm = v->GetMapper();
+      vtkAbstractVolumeMapper *vm = v->GetMapper();
       if (vm)
         {
         vtkPushPipelineProcessInfo *ppi =
