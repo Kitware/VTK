@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.28");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.29");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -79,7 +79,8 @@ vtkParallelRenderManager::vtkParallelRenderManager()
   this->ObservingRenderer = 0;
   this->ObservingAbort = 0;
 
-  this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->Controller = NULL;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
   this->RootProcessId = 0;
 
   this->Lock = 0;
@@ -332,7 +333,15 @@ void vtkParallelRenderManager::SetController(vtkMultiProcessController *controll
     {
     return;
     }
+  if (this->Controller)
+    {
+    this->Controller->UnRegister(this);
+    }
   this->Controller = controller;
+  if (this->Controller)
+    {
+    this->Controller->Register(this);
+    }
   this->Modified();
 
   // We've changed the controller.  This may change how observers are attached
