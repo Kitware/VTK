@@ -119,32 +119,34 @@ void vlBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   // read point coordinates
   for (i=0; i<numPts; i++)
     {
-    fscanf(geomFile, "%le %le %le", x, x+1, x+2);
-    newPts->SetPoint(i,x);
+    fscanf(geomFile, "%e %e %e", x, x+1, x+2);
+    newPts->InsertPoint(i,x);
     }
 
   // read poly data. Have to fix 1-offset. Only reading part number specified.
   for ( polyId=1; polyId <= numPolys; polyId++ )
     {
     // read this polygon
-    for (npts=0; npts <= MAX_CELL_SIZE; npts++)
+    for (npts=0; npts < MAX_CELL_SIZE; npts++)
       {
       fscanf (geomFile, "%d", pts+npts);
-      if ( pts[npts] <= 0 )
-        {
-        pts[npts] = -pts[npts];
-        break;
-        }
+      if ( pts[npts] <= 0 ) break;
       }
-    if ( npts > MAX_CELL_SIZE ) // suck up excess data
+
+    if ( pts[npts] <= 0 ) //terminated based on negative value
+      {
+      pts[npts] = -pts[npts];
+      }
+    else //terminated based on exceeding number of points
       {
       while ( id >= 0 ) fscanf (geomFile, "%d", &id);
       }
+    npts++;
 
     // Insert polygon (if in selected part)
     if ( partStart <= polyId && polyId <= partEnd )
       {
-      for ( i=0; i < npts; i++ ) pts[i] -= 1;
+      for ( i=0; i < npts; i++ ) pts[i] -= 1; //fix one-offset
       newPolys->InsertNextCell(npts,pts);
       }
     }
@@ -171,6 +173,7 @@ void vlBYUReader::ReadDisplacementFile(int numPts)
       return;
       }
     }
+  else return;
 //
 // Allocate and read data
 //
@@ -178,7 +181,7 @@ void vlBYUReader::ReadDisplacementFile(int numPts)
 
   for (i=0; i<numPts; i++)
     {
-    fscanf(dispFp, "%le %le %le", v, v+1, v+2);
+    fscanf(dispFp, "%e %e %e", v, v+1, v+2);
     newVectors->SetVector(i,v);
     }
 
@@ -202,6 +205,7 @@ void vlBYUReader::ReadScalarFile(int numPts)
       return;
       }
     }
+  else return;
 //
 // Allocate and read data
 //
@@ -209,7 +213,7 @@ void vlBYUReader::ReadScalarFile(int numPts)
 
   for (i=0; i<numPts; i++)
     {
-    fscanf(scalarFp, "%le", &s);
+    fscanf(scalarFp, "%e", &s);
     newScalars->SetScalar(i,s);
     }
 
@@ -233,6 +237,7 @@ void vlBYUReader::ReadTextureFile(int numPts)
       return;
       }
     }
+  else return;
 //
 // Allocate and read data
 //
@@ -240,7 +245,7 @@ void vlBYUReader::ReadTextureFile(int numPts)
 
   for (i=0; i<numPts; i++)
     {
-    fscanf(textureFp, "%le %le", t, t+1);
+    fscanf(textureFp, "%e %e", t, t+1);
     newTCoords->SetTCoord(i,t);
     }
 
