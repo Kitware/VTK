@@ -76,7 +76,6 @@ void vtkCursor3D::Execute()
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<<"Generating cursor");
-  output->Initialize();
   //
   // Check bounding box and origin
   //

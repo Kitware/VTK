@@ -61,7 +61,6 @@ class vtkDataSet : public vtkObject
 public:
   vtkDataSet();
   vtkDataSet(const vtkDataSet& ds);
-  ~vtkDataSet() {};
   char *GetClassName() {return "vtkDataSet";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -75,7 +75,7 @@ void vtkAppendPolyData::Update()
   // make sure input is available
   if ( this->InputList.GetNumberOfItems() < 1 )
     {
-    vtkErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input...can't execute!");
     return;
     }
 
@@ -96,6 +96,7 @@ void vtkAppendPolyData::Update()
   this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    this->Output->Initialize(); //clear output
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);
@@ -126,7 +127,6 @@ void vtkAppendPolyData::Execute()
   vtkPointData *outputPD = output->GetPointData();
   
   vtkDebugMacro(<<"Appending data together");
-  output->Initialize();
 
   // loop over all data sets, checking to see what point data is available.
   numPts = 0;

@@ -151,7 +151,6 @@ void vtkPolyReader::Execute()
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<<"Reading vtk polygonal data...");
-  output->Initialize();
 
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();

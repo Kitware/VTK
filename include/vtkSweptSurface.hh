@@ -50,7 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // generate a polygonal representation of swept surface you will have to 
 // use a contouring filter (e.g., vtkMarchingCubes). (You may also wish to
 // use vtkDecimate to reduce mesh size).
-//    The swept surface algorithm can be summarized as follows. A geometry 
+//
+// The swept surface algorithm can be summarized as follows. A geometry 
 // (i.e. the input) is swept along a path (list of transforms). At each point
 // on the path the input is re-sampled into a volume using a union operation.
 // (Union means that the minumum scalar value is retained - minimum distance

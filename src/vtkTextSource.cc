@@ -183,7 +183,6 @@ void vtkTextSource::Execute()
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   // Set things up; allocate memory
-  output->Initialize();
   x[2] = 0;
 
   newPoints = new vtkFloatPoints();

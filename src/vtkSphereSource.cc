@@ -69,7 +69,6 @@ void vtkSphereSource::Execute()
 //
 // Set things up; allocate memory
 //
-  output->Initialize();
 
   numPts = (this->PhiResolution - 1) * this->ThetaResolution + 2;
   // creating triangles

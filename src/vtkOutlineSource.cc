@@ -22,7 +22,6 @@ void vtkOutlineSource::Execute()
 //
 // Initialize
 //
-  output->Initialize();
   bounds = this->Bounds;
 //
 // Allocate storage and create outline

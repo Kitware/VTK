@@ -55,7 +55,6 @@ public:
   vtkFloatVectors() {};
   vtkFloatVectors(const vtkFloatVectors& fv) {this->V = fv.V;};
   vtkFloatVectors(const int sz, const int ext=1000):V(3*sz,3*ext){};
-  ~vtkFloatVectors() {};
   int Allocate(const int sz, const int ext=1000) {return this->V.Allocate(3*sz,3*ext);};
   void Initialize() {this->V.Initialize();};
   char *GetClassName() {return "vtkFloatVectors";};

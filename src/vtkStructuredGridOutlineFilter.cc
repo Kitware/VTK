@@ -53,7 +53,6 @@ void vtkStructuredGridOutlineFilter::Execute()
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<< "Creating structured grid outline");
-  output->Initialize();
 
   if ( (inPts=input->GetPoints()) == NULL )
     {

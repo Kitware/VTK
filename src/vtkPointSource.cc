@@ -62,7 +62,6 @@ void vtkPointSource::Execute()
   vtkPolyData *output = (vtkPolyData *)this->Output;
   
   vtkDebugMacro(<< "Generating random cloud of points...");
-  output->Initialize();
 
   newPoints = new vtkFloatPoints(this->NumberOfPoints);
   newVerts = new vtkCellArray;

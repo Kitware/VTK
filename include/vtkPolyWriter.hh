@@ -55,7 +55,6 @@ class vtkPolyWriter : public vtkDataWriter
 {
 public:
   vtkPolyWriter() {};
-  ~vtkPolyWriter() {};
   char *GetClassName() {return "vtkPolyWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -103,7 +103,6 @@ void vtkPNMSource::Execute()
   int dim[3];
   vtkStructuredPoints *output = this->GetOutput();
   
-  output->Initialize();
 
   if ( this->Filename == NULL )
     {

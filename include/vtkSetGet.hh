@@ -43,7 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The SetGet macros are used to interface to instance variables
 // in a standard fashion. This includes properly treating modified time
 // and printing out debug information.
-//    Macros are available for built-in types; for character strings; 
+//
+// Macros are available for built-in types; for character strings; 
 // vector arrays of built-in types size 2,3,4; for setting objects; and
 // debug, warning, and error printout information.
 

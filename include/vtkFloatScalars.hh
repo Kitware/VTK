@@ -55,7 +55,6 @@ public:
   vtkFloatScalars() {};
   vtkFloatScalars(const vtkFloatScalars& fs) {this->S = fs.S;};
   vtkFloatScalars(const int sz, const int ext=1000):S(sz,ext){};
-  ~vtkFloatScalars() {};
   int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
   void Initialize() {this->S.Initialize();};
   char *GetClassName() {return "vtkFloatScalars";};

@@ -57,11 +57,13 @@ class vtkDataSetToDataSetFilter : public vtkDataSetFilter
 public:
   char *GetClassName() {return "vtkDataSetToDataSetFilter";};
   vtkDataSetToDataSetFilter() {this->Output = NULL;};
+
   void SetInput(vtkDataSet *input);
 
-  // Description:
-  // Get the output of this filter.
-  vtkDataSet *GetOutput() {return this->Output;};
+  // filter interface (need to overload because of abstract interface)
+  void Update();
+
+  vtkDataSet *GetOutput();
 };
 
 #endif

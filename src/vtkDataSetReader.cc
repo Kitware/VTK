@@ -148,7 +148,6 @@ void vtkDataSetReader::Execute()
   vtkDataSet *output;
   
   vtkDebugMacro(<<"Reading vtk dataset...");
-  this->Output->Initialize();
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 

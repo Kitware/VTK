@@ -54,7 +54,6 @@ class vtkStreamPoints : public vtkStreamer
 {
 public:
   vtkStreamPoints();
-  ~vtkStreamPoints() {};
   char *GetClassName() {return "vtkStreamPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

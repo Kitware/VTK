@@ -57,7 +57,6 @@ class vtkCellPicker : public vtkPicker
 {
 public:
   vtkCellPicker();
-  ~vtkCellPicker() {};
   char *GetClassName() {return "vtkCellPicker";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

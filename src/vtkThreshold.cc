@@ -102,7 +102,6 @@ void vtkThreshold::Execute()
   vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
 
   vtkDebugMacro(<< "Executing threshold filter");
-  output->Initialize();
 
   if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
     {

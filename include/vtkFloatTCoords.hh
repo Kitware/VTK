@@ -55,7 +55,6 @@ public:
   vtkFloatTCoords() {};
   vtkFloatTCoords(const vtkFloatTCoords& ftc) {this->TC = ftc.TC;this->Dimension = ftc.Dimension;};
   vtkFloatTCoords(int sz, int d=2, int ext=1000):TC(d*sz,d*ext) {this->Dimension=d;};
-  ~vtkFloatTCoords() {};
   int Allocate(const int sz, const int dim=2, const int ext=1000) {return this->TC.Allocate(dim*sz,dim*ext);};
   void Initialize() {this->TC.Initialize();};
   char *GetClassName() {return "vtkFloatTCoords";};

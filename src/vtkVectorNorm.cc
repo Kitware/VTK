@@ -61,7 +61,6 @@ void vtkVectorNorm::Execute()
 // Initialize
 //
   vtkDebugMacro(<<"Normalizing vectors!");
-  output->Initialize();
 
   pd = this->Input->GetPointData();
   outPD = output->GetPointData();

@@ -127,7 +127,6 @@ void vtkDecimate::Execute()
   static vtkTriArray TriangleArray(MAX_TRIS_PER_VERTEX+1);
 
   vtkDebugMacro(<<"Decimating mesh...");
-  this->Output->Initialize();
   V = &VertexArray;
   T = &TriangleArray;
 //

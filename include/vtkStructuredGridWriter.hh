@@ -55,7 +55,6 @@ class vtkStructuredGridWriter : public vtkDataWriter
 {
 public:
   vtkStructuredGridWriter() {};
-  ~vtkStructuredGridWriter() {};
   char *GetClassName() {return "vtkStructuredGridWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

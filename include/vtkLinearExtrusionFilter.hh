@@ -82,7 +82,6 @@ class vtkLinearExtrusionFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkLinearExtrusionFilter();
-  ~vtkLinearExtrusionFilter() {};
   char *GetClassName() {return "vtkLinearExtrusionFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

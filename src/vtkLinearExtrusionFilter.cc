@@ -109,7 +109,6 @@ void vtkLinearExtrusionFilter::Execute()
   // Initialize / check input
   //
   vtkDebugMacro(<<"Linearly extruding data");
-  output->Initialize();
 
   if ( (numPts=input->GetNumberOfPoints()) < 1 || 
   (numCells=input->GetNumberOfCells()) < 1 )

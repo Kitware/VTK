@@ -65,7 +65,6 @@ void vtkShrinkPolyData::Execute()
 // Initialize
 //
   vtkDebugMacro(<<"Shrinking polygonal data");
-  output->Initialize();
 
   inPts = input->GetPoints();
   pd = input->GetPointData();

@@ -56,7 +56,6 @@ class vtkPointPicker : public vtkPicker
 {
 public:
   vtkPointPicker();
-  ~vtkPointPicker() {};
   char *GetClassName() {return "vtkPointPicker";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

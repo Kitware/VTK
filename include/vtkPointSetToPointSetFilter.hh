@@ -60,9 +60,10 @@ public:
   
   void SetInput(vtkPointSet *input);
 
-  // Description:
-  // Get the output of this filter.
-  vtkPointSet *GetOutput() {return (vtkPointSet *)this->Output;};
+  // filter interface (need to overload because of abstract interface)
+  void Update();
+
+  vtkPointSet *GetOutput();
 };
 
 #endif

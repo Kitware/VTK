@@ -83,7 +83,6 @@ void vtkCutter::Execute()
 //
 // Initialize self; create output objects
 //
-  output->Initialize();
 
   if ( !this->CutFunction )
     {

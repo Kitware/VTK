@@ -99,7 +99,6 @@ void vtkThresholdTextureCoords::Execute()
   vtkDataSet *output=this->Output;
 
   vtkDebugMacro(<< "Executing texture threshold filter");
-  output->Initialize();
 
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {

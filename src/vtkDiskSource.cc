@@ -65,7 +65,6 @@ void vtkDiskSource::Execute()
   //
   // Set things up; allocate memory
   //
-  output->Initialize();
 
   numPts = (this->RadialResolution + 1) * 
            (this->CircumferentialResolution + 1);

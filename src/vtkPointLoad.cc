@@ -129,7 +129,6 @@ void vtkPointLoad::Execute()
 //
 // Initialize self; create output objects
 //
-  output->Initialize();
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];

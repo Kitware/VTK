@@ -117,10 +117,6 @@ void vtkContourFilter::Execute()
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<< "Executing contour filter");
-  //
-  // Initialize and check input
-  //
-  output->Initialize();
 
   if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
     {

@@ -99,7 +99,6 @@ void vtkImplicitModeller::Execute()
   float *origin;
   
   vtkDebugMacro(<< "Executing implicit model");
-  output->Initialize();
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];

@@ -57,7 +57,6 @@ void vtkHedgeHog::Execute()
   //
   // Initialize
   //
-  output->Initialize();
 
   numPts = input->GetNumberOfPoints();
   pd = input->GetPointData();

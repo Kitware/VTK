@@ -76,6 +76,13 @@ void vtkMergeFilter::Update()
 {
   unsigned long int mtime=0, dsMtime;
 
+  // make sure geometry is defined
+  if ( this->Geometry == NULL )
+    {
+    vtkErrorMacro(<< "No geometry input...can't execute!");
+    return;
+    }
+
   // prevent chasing our tail
   if (this->Updating) return;
 
@@ -123,6 +130,7 @@ void vtkMergeFilter::Update()
   this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    this->Output->Initialize(); //clear output
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);
@@ -167,7 +175,6 @@ void vtkMergeFilter::Execute()
   vtkDebugMacro(<<"Merging data!");
 
   // geometry is created
-  this->Output->Initialize();
 
   if ( (numPts = this->Geometry->GetNumberOfPoints()) < 1 )
     {

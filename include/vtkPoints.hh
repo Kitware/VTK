@@ -57,7 +57,6 @@ class vtkPoints : public vtkRefCount
 {
 public:
   vtkPoints();
-  virtual ~vtkPoints() {};
   char *GetClassName() {return "vtkPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -99,7 +99,6 @@ void vtkPLOT3DReader::Execute()
   //
   // Initialize output and read geometry
   //
-  output->Initialize();
 
   if ( this->XYZFilename == NULL )
     {

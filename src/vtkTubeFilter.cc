@@ -77,7 +77,6 @@ void vtkTubeFilter::Execute()
 // Initialize
 //
   vtkDebugMacro(<<"Creating ribbon");
-  output->Initialize();
 
   if ( !(inPts=input->GetPoints()) || 
   (numPts = inPts->GetNumberOfPoints()) < 1 ||

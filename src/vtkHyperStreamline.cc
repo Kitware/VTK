@@ -71,7 +71,6 @@ vtkHyperPoint *vtkHyperArray::Resize(int sz)
   return this->Array;
 }
 
-
 vtkHyperStreamline::vtkHyperStreamline()
 {
   this->StartFrom = START_FROM_POSITION;
@@ -85,7 +84,6 @@ vtkHyperStreamline::vtkHyperStreamline()
   this->IntegrationDirection = INTEGRATE_FORWARD;
   this->IntegrationStepLength = 0.2;
   this->TerminalSpeed = 0.0;
-  this->Output = new vtkPolyData;
 }
 
 // Description:
@@ -189,7 +187,6 @@ void vtkHyperStreamline::Execute()
   vtkPolyData *output = this->GetOutput();
 
   vtkDebugMacro(<<"Generating streamers");
-  output->Initialize();
   this->NumberOfStreamers = 0;
 
   if ( ! (inVectors=pd->GetVectors()) )

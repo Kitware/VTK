@@ -55,7 +55,7 @@ void vtkFilter::Update()
   // make sure input is available
   if ( !this->Input )
     {
-    vtkErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input...can't execute!");
     return;
     }
 
@@ -70,6 +70,7 @@ void vtkFilter::Update()
   this->GetMTime() > this->ExecuteTime || this->GetDataReleased())
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    this->Output->Initialize(); //clear output
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);

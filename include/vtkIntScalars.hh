@@ -55,7 +55,6 @@ public:
   vtkIntScalars() {};
   vtkIntScalars(const vtkIntScalars& ss) {this->S = ss.S;};
   vtkIntScalars(const int sz, const int ext=1000):S(sz,ext){};
-  ~vtkIntScalars() {};
   int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
   void Initialize() {this->S.Initialize();};
   char *GetClassName() {return "vtkIntScalars";};

@@ -90,7 +90,6 @@ void vtkGlyph3D::Execute()
   vtkPointData *outputPD = output->GetPointData();
   
   vtkDebugMacro(<<"Generating glyphs");
-  output->Initialize();
 
   pd = this->Input->GetPointData();
   inScalars = pd->GetScalars();
@@ -283,7 +282,7 @@ void vtkGlyph3D::Update()
   // make sure input is available
   if ( this->Input == NULL || this->Source == NULL )
     {
-    vtkErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input...can't execute!");
     return;
     }
 
@@ -300,6 +299,7 @@ void vtkGlyph3D::Update()
       this->GetMTime() > this->ExecuteTime || this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    this->Output->Initialize(); //clear output
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);

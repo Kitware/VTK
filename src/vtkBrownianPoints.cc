@@ -57,8 +57,6 @@ void vtkBrownianPoints::Execute()
 
   vtkDebugMacro(<< "Executing Brownian filter");
 
-  this->Output->Initialize();
-
   if ( ((numPts=this->Input->GetNumberOfPoints()) < 1) )
     {
     vtkErrorMacro(<< "No input!\n");

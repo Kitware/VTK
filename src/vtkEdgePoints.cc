@@ -68,7 +68,6 @@ void vtkEdgePoints::Execute()
   //
   // Initialize and check input
   //
-  output->Initialize();
 
   if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
     {

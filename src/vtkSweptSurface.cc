@@ -63,8 +63,6 @@ vtkSweptSurface::vtkSweptSurface()
   this->FillValue = LARGE_FLOAT;
   this->Transforms = NULL;
   this->Capping = 1;
-
-  this->Output = new vtkStructuredPoints;
 }
 
 void vtkSweptSurface::SetModelBounds(float xmin, float xmax, float ymin, 
@@ -101,7 +99,6 @@ void vtkSweptSurface::Execute()
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<<"Creating swept surface");
-  output->Initialize();
 
   // make sure there is input
   pd = this->Input->GetPointData();

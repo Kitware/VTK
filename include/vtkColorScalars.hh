@@ -66,7 +66,6 @@ class vtkColorScalars : public vtkScalars
 {
 public:
   vtkColorScalars() {};
-  ~vtkColorScalars() {};
   char *GetClassName() {return "vtkColorScalars";};
 
   // vtkScalars interface

@@ -64,7 +64,6 @@ void vtkMaskPoints::Execute()
   // Check input
   //
   vtkDebugMacro(<<"Masking points");
-  output->Initialize();
 
   if ( numPts < 1 )
     {

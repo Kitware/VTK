@@ -75,7 +75,6 @@ void vtkPlaneSource::Execute()
   //
   // Set things up; allocate memory
   //
-  output->Initialize();
 
   numPts = (this->XRes+1) * (this->YRes+1);
   numPolys = this->XRes * this->YRes;

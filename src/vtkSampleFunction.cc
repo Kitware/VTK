@@ -126,7 +126,6 @@ void vtkSampleFunction::Execute()
 //
 // Initialize self; create output objects
 //
-  output->Initialize();
 
   if ( !this->ImplicitFunction )
     {

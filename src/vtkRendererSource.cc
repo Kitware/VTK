@@ -57,7 +57,6 @@ void vtkRendererSource::Execute()
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<<"Converting points");
-  output->Initialize();
 
   if (this->Input == NULL )
     {

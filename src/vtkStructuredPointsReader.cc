@@ -153,7 +153,6 @@ void vtkStructuredPointsReader::Execute()
   
 
   vtkDebugMacro(<<"Reading vtk structured points file...");
-  output->Initialize();
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 

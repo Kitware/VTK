@@ -69,7 +69,6 @@ void vtkCylinderSource::Execute()
 //
 // Set things up; allocate memory
 //
-  output->Initialize();
 
   if ( this->Capping )
     {

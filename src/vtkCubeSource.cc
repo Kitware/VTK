@@ -68,7 +68,6 @@ void vtkCubeSource::Execute()
   //
   // Set things up; allocate memory
   //
-  output->Initialize();
 
   newPoints = new vtkFloatPoints(numPts);
   newNormals = new vtkFloatNormals(numPts);

@@ -56,7 +56,6 @@ void vtkTransformFilter::Execute()
   vtkPointSet *output=(vtkPointSet *)this->Output;
 
   vtkDebugMacro(<<"Executing transformation");
-  output->Initialize();
 //
 // Check input
 //

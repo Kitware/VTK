@@ -76,7 +76,6 @@ void vtkCleanPolyData::Execute()
   vtkPointData *outputPD = output->GetPointData();
   
   vtkDebugMacro(<<"Cleaning data");
-  output->Initialize();
 
   if ( numPts < 1 || (inPts=input->GetPoints()) == NULL )
     {

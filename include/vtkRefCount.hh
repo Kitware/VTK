@@ -45,7 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // uses them. Once the last reference to a reference counted object is 
 // removed, the object will spontaneously destruct. Typically only data
 // objects that are passed between objects are reference counted.
-//    Note: in vtk objects are generally created with combinations of 
+//
+// Note: in vtk objects are generally created with combinations of 
 // new/Delete() methods. This works great until you want to allocate
 // objects off the stack (i.e., automatic objects). Automatic objects
 // when automatically deleted (by exiting scope) will cause warnings to

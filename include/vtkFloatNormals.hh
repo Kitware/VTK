@@ -55,7 +55,6 @@ public:
   vtkFloatNormals() {};
   vtkFloatNormals(const vtkFloatNormals& fn) {this->N = fn.N;};
   vtkFloatNormals(const int sz, const int ext=1000):N(3*sz,3*ext){};
-  ~vtkFloatNormals() {};
   int Allocate(const int sz, const int ext=1000) {return this->N.Allocate(3*sz,3*ext);};
   void Initialize() {this->N.Initialize();};
   char *GetClassName() {return "vtkFloatNormals";};

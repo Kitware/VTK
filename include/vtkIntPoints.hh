@@ -55,7 +55,6 @@ public:
   vtkIntPoints() {};
   vtkIntPoints(const vtkIntPoints& fp) {this->P = fp.P;};
   vtkIntPoints(const int sz, const int ext=1000):P(3*sz,3*ext){};
-  ~vtkIntPoints() {};
   int Allocate(const int sz, const int ext=1000) {return this->P.Allocate(3*sz,3*ext);};
   void Initialize() {this->P.Initialize();};
   char *GetClassName() {return "vtkIntPoints";};

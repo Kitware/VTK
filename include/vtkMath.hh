@@ -55,7 +55,6 @@ class vtkMath
 {
 public:
   vtkMath() {};
-  ~vtkMath() {};
 
   float Pi() {return 3.14159265358979;};
   float DegreesToRadians() {return 0.017453292;};

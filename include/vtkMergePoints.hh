@@ -54,7 +54,6 @@ class vtkMergePoints : public vtkLocator
 {
 public:
   vtkMergePoints() {};
-  ~vtkMergePoints() {};
   char *GetClassName() {return "vtkMergePoints";};
 
   virtual int *MergePoints();

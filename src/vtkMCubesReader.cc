@@ -84,7 +84,6 @@ void vtkMCubesReader::Execute()
   //
   // Initialize
   //
-  output->Initialize();
 
   if ( this->Filename == NULL )
     {

@@ -116,7 +116,6 @@ void vtkGeometryFilter::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
-  output->Initialize();
 
   if ( (!this->CellClipping) && (!this->PointClipping) && 
   (!this->ExtentClipping) )

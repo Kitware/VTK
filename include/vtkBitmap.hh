@@ -53,7 +53,6 @@ class vtkBitmap : public vtkColorScalars
 {
 public:
   vtkBitmap() {};
-  ~vtkBitmap() {};
   vtkBitmap(const vtkBitmap& fs) {this->S = fs.S;};
   vtkBitmap(const int sz, const int ext=1000):S(sz,ext){};
   int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};

@@ -58,7 +58,6 @@ public:
   vtkUserDefined() {};
   vtkUserDefined(const vtkUserDefined& ud) {this->UD = ud.UD;};
   vtkUserDefined(const int sz, const int ext=1000):UD(sz,ext){};
-  ~vtkUserDefined() {};
   int Allocate(const int sz, const int ext=1000) {return this->UD.Allocate(sz,ext);};
   void Initialize() {this->UD.Initialize();};
   char *GetClassName() {return "vtkUserDefined";};

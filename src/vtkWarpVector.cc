@@ -52,7 +52,6 @@ void vtkWarpVector::Execute()
   vtkPointSet *output=(vtkPointSet *)this->Output;
 
   vtkDebugMacro(<<"Warping data with vectors");
-  output->Initialize();
 
   inPts = input->GetPoints();
   pd = input->GetPointData();

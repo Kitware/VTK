@@ -58,7 +58,6 @@ void vtkProbeFilter::Execute()
   vtkDataSet *output=this->Output;
 
   vtkDebugMacro(<<"Probing data");
-  output->Initialize();
 
   pd = input->GetPointData();
   numPts = source->GetNumberOfPoints();
@@ -101,7 +100,7 @@ void vtkProbeFilter::Update()
   // make sure input is available
   if ( this->Input == NULL || this->Source == NULL )
     {
-    vtkErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input...can't execute!");
     return;
     }
 
@@ -118,6 +117,7 @@ void vtkProbeFilter::Update()
   this->GetMTime() > this->ExecuteTime || this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    this->Output->Initialize(); //clear output
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);

@@ -70,7 +70,6 @@ void vtkConnectivityFilter::Execute()
   vtkPointData *outputPD = output->GetPointData();
   
   vtkDebugMacro(<<"Executing connectivity filter.");
-  output->Initialize();
   //
   //  Check input/allocate storage
   //

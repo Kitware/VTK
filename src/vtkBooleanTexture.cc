@@ -65,8 +65,6 @@ void vtkBooleanTexture::Execute()
   int midILower, midJLower, midIUpper, midJUpper;
   vtkStructuredPoints *output = this->GetOutput();
   
-  output->Initialize();
-
   if ( (numPts = this->XSize * this->YSize) < 1 )
     {
     vtkErrorMacro(<<"Bad texture (xsize,ysize) specification!");

@@ -44,12 +44,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The data model for vtkScalars is an array accessible by point id.
 // The subclasses of vtkScalars are concrete data types (float, int, etc.) 
 // that implement the interface of vtkScalars.
-//    Scalars typically provide a single value per point. However, there are
+//
+// Scalars typically provide a single value per point. However, there are
 // types of scalars that have multiple values per point (e.g., vtkPixmap or
 // vtkAPixmap that provide three and four values per point, respectively).
 // These are used when reading data in rgb and rgba form (e.g., images 
 // and volumes).
-//    Because of the close relationship between scalars and colors, scalars 
+//
+// Because of the close relationship between scalars and colors, scalars 
 // also maintain in internal lookup table. If provided, this table is used 
 // to map scalars into colors, rather than the lookup table that the vtkMapper
 // objects are associated with.

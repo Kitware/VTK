@@ -297,7 +297,6 @@ void vtkCyberReader::Execute()
   int pts[3];
   vtkPolyData *output = this->GetOutput();
   
-  output->Initialize();
 
   if ( this->Filename == NULL )
     {

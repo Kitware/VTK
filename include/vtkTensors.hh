@@ -58,7 +58,6 @@ class vtkTensors : public vtkRefCount
 {
 public:
   vtkTensors(int dim=3);
-  virtual ~vtkTensors() {};
   char *GetClassName() {return "vtkTensors";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

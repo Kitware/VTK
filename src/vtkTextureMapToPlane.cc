@@ -74,7 +74,6 @@ void vtkTextureMapToPlane::Execute()
   vtkDataSet *output=this->Output;
 
   vtkDebugMacro(<<"Generating texture coordinates!");
-  output->Initialize();
   if ( (numPts=this->Input->GetNumberOfPoints()) < 3 )
     {
     vtkErrorMacro(<< "Not enough points to map with\n");

@@ -58,7 +58,6 @@ void vtkVoxelReader::Execute()
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   // Initialize
-  output->Initialize();
 
   if ((fp = fopen(this->Filename, "r")) == NULL)
     {

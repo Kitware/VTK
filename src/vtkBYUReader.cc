@@ -70,10 +70,6 @@ void vtkBYUReader::Execute()
 {
   FILE *geomFp;
   int numPts;
-//
-// Initialize
-//
-  this->Output->Initialize();
 
   if ((geomFp = fopen(this->GeometryFilename, "r")) == NULL)
     {

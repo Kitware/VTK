@@ -56,7 +56,6 @@ void vtkTransformPolyFilter::Execute()
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<<"Executing polygonal transformation");
-  output->Initialize();
 //
 // Check input
 //

@@ -52,7 +52,6 @@ class vtkMaskPolyData : public vtkPolyToPolyFilter
 {
 public:
   vtkMaskPolyData();
-  ~vtkMaskPolyData() {};
   char *GetClassName() {return "vtkMaskPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

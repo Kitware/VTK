@@ -116,7 +116,6 @@ void vtkTransformStructuredPoints::Execute()
 
 
   vtkDebugMacro(<<"Transforming points");
-  output->Initialize();
 
   // make sure there is input
   pd = this->Input->GetPointData();

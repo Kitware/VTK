@@ -68,7 +68,6 @@ void vtkConeSource::Execute()
   //
   // Set things up; allocate memory
   //
-  output->Initialize();
 
   switch ( this->Resolution )
   {

@@ -40,25 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPolyToPolyFilter.hh"
 
-// Description:
-// Specify the input data or filter.
-void vtkPolyToPolyFilter::SetInput(vtkPolyData *input)
+vtkPolyToPolyFilter::vtkPolyToPolyFilter()
 {
-  if ( this->Input != input )
-    {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    this->Input = input;
-    this->Modified();
-
-    // since the input has changed we might need to create a new output
-    if (strcmp(this->Output->GetClassName(),this->Input->GetClassName()))
-      {
-      this->Output->Delete();
-      this->Output = this->Input->MakeObject();
-      this->Output->SetSource(this);
-      vtkWarningMacro(<<" a new output had to be created since the input type changed.");
-      }
-    }
+  this->Output = new vtkPolyData;
+  this->Output->SetSource(this);
 }
-
-

@@ -71,7 +71,6 @@ class vtkBooleanTexture : public vtkStructuredPointsSource
 {
 public:
   vtkBooleanTexture();
-  ~vtkBooleanTexture() {};
   char *GetClassName() {return "vtkBooleanTexture";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

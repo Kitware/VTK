@@ -52,10 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkPolyToPolyFilter : public vtkPolyFilter
 {
 public:
-  vtkPolyToPolyFilter() {this->Output = NULL;};
+  vtkPolyToPolyFilter();
   char *GetClassName() {return "vtkPolyToPolyFilter";};
-
-  void SetInput(vtkPolyData *input);
 
   // Description:
   // Get the output of this filter.

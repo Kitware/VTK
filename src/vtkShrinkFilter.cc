@@ -56,7 +56,6 @@ void vtkShrinkFilter::Execute()
   vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
 
   vtkDebugMacro(<<"Shrinking cells");
-  output->Initialize();
 
   if ( (numCells=this->Input->GetNumberOfCells()) < 1 ||
   (numPts = this->Input->GetNumberOfPoints()) < 1 )

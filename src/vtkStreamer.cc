@@ -180,7 +180,7 @@ void vtkStreamer::Update()
   // make sure input is available
   if ( this->Input == NULL )
     {
-    vtkErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input...can't execute!");
     return;
     }
 
@@ -197,6 +197,7 @@ void vtkStreamer::Update()
   this->GetMTime() > this->ExecuteTime || this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    this->Output->Initialize(); //clear output
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);
@@ -230,7 +231,6 @@ void vtkStreamer::Integrate()
   cellScalars.ReferenceCountingOff();
   
   vtkDebugMacro(<<"Generating streamers");
-  this->Output->Initialize();
   this->NumberOfStreamers = 0;
 
   if ( ! (inVectors=pd->GetVectors()) )

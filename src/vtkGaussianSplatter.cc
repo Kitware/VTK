@@ -111,7 +111,6 @@ void vtkGaussianSplatter::Execute()
   float origin[3], ar[3];
   
   vtkDebugMacro(<< "Splatting data");
-  output->Initialize();
 //
 //  Make sure points are available
 //

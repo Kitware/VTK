@@ -66,7 +66,6 @@ void vtkMaskPolyData::Execute()
   //
   // Check input / pass data through
   //
-  output->Initialize();
 
   inVerts = input->GetVerts();
   numVerts = inVerts->GetNumberOfCells();

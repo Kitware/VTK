@@ -56,7 +56,6 @@ public:
   vtkBitScalars() {};
   vtkBitScalars(const vtkBitScalars& cs) {this->S = cs.S;};
   vtkBitScalars(const int sz, const int ext=1000):S(sz,ext){};
-  ~vtkBitScalars() {};
   int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
   void Initialize() {this->S.Initialize();};
   char *GetClassName() {return "vtkBitScalars";};

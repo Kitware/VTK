@@ -83,7 +83,6 @@ void vtkExtractGeometry::Execute()
   
   
   vtkDebugMacro(<< "Extracting geometry");
-  output->Initialize();
 
   if ( ! this->ImplicitFunction )
     {

@@ -90,7 +90,6 @@ void vtkPolyNormals::Execute()
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<<"Generating surface normals");
-  output->Initialize();
 
   if ( (numPts=input->GetNumberOfPoints()) < 1 || 
   (numPolys=input->GetNumberOfPolys()) < 1 )

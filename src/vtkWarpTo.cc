@@ -51,7 +51,6 @@ void vtkWarpTo::Execute()
   vtkPointSet *output=(vtkPointSet *)this->Output;
   
   vtkDebugMacro(<<"Warping data to a point");
-  output->Initialize();
 
   inPts = input->GetPoints();
   pd = input->GetPointData();

@@ -63,7 +63,6 @@ class vtkDashedStreamLine : public vtkStreamLine
 {
 public:
   vtkDashedStreamLine();
-  ~vtkDashedStreamLine() {};
   char *GetClassName() {return "vtkDashedStreamLine";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

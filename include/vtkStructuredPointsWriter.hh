@@ -55,7 +55,6 @@ class vtkStructuredPointsWriter : public vtkDataWriter
 {
 public:
   vtkStructuredPointsWriter() {};
-  ~vtkStructuredPointsWriter() {};
   char *GetClassName() {return "vtkStructuredPointsWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

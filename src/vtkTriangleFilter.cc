@@ -58,7 +58,6 @@ void vtkTriangleFilter::Execute()
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<<"Executing triangle filter");
-  output->Initialize();
 
   newPolys = new vtkCellArray();
   // approximation

@@ -55,7 +55,6 @@ public:
   vtkUnsignedCharScalars() {};
   vtkUnsignedCharScalars(const vtkUnsignedCharScalars& cs) {this->S = cs.S;};
   vtkUnsignedCharScalars(const int sz, const int ext=1000):S(sz,ext){};
-  ~vtkUnsignedCharScalars() {};
   int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
   void Initialize() {this->S.Initialize();};
   char *GetClassName() {return "vtkUnsignedCharScalars";};

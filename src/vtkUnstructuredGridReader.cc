@@ -154,7 +154,6 @@ void vtkUnstructuredGridReader::Execute()
   
 
   vtkDebugMacro(<<"Reading vtk unstructured grid...");
-  output->Initialize();
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 

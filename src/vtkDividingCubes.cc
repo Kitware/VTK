@@ -75,7 +75,6 @@ void vtkDividingCubes::Execute()
 //
 // Initialize self; check input; create output objects
 //
-  output->Initialize();
   this->Count = 0;
 
   // make sure we have scalar data

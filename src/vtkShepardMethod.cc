@@ -61,7 +61,6 @@ vtkShepardMethod::vtkShepardMethod()
   this->SampleDimensions[2] = 50;
 
   this->NullValue = 0.0;
-  this->Output = new vtkStructuredPoints;
 }
 
 void vtkShepardMethod::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
@@ -143,7 +142,6 @@ void vtkShepardMethod::Execute()
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<< "Executing Shepard method");
-  output->Initialize();
 //
 // Check input
 //

@@ -59,7 +59,6 @@ class vtkTCoords : public vtkRefCount
 {
 public:
   vtkTCoords(int dim=2);
-  virtual ~vtkTCoords() {};
   char *GetClassName() {return "vtkTCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

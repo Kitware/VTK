@@ -72,7 +72,6 @@ void vtkSTLReader::Execute()
 //
 // Initialize
 //
-  output->Initialize();
 
   if ((fp = fopen(this->Filename, "r")) == NULL)
     {

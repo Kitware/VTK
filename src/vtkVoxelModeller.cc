@@ -110,7 +110,6 @@ void vtkVoxelModeller::Execute()
 // Initialize self; create output objects
 //
   vtkDebugMacro(<< "Executing Voxel model");
-  output->Initialize();
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] * this->SampleDimensions[2];
   newScalars = new vtkBitScalars(numPts);

@@ -89,7 +89,11 @@ void vtkBooleanStructuredPoints::Update()
   vtkDataSet *ds;
 
   // make sure input is available
-  if ( this->InputList.GetNumberOfItems() < 1 ) return;
+  if ( this->InputList.GetNumberOfItems() < 1 )
+    {
+    vtkErrorMacro(<< "No input...can't execute!");
+    return;
+    }
 
   // prevent chasing our tail
   if (this->Updating) return;
@@ -107,6 +111,7 @@ void vtkBooleanStructuredPoints::Update()
   this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    this->Output->Initialize(); //clear output
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);
@@ -129,7 +134,6 @@ void vtkBooleanStructuredPoints::InitializeBoolean()
   vtkStructuredPoints *output = this->GetOutput();
   float tempf[3];
   
-  output->Initialize();
   output->SetDimensions(this->SampleDimensions);
   numPts = output->GetNumberOfPoints();
 

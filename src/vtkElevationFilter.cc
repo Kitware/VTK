@@ -75,7 +75,6 @@ void vtkElevationFilter::Execute()
   // Initialize
   //
   vtkDebugMacro(<<"Generating elevation scalars!");
-  this->Output->Initialize();
 
   if ( ((numPts=this->Input->GetNumberOfPoints()) < 1) )
     {

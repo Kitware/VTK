@@ -74,7 +74,6 @@ void vtkFeatureVertices::Execute()
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<<"Executing feature vertices");
-  output->Initialize();
 //
 //  Check input
 //

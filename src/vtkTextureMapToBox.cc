@@ -74,7 +74,6 @@ void vtkTextureMapToBox::Execute()
   
 
   vtkDebugMacro(<<"Generating 3D texture coordinates!");
-  output->Initialize();
 //
 //  Allocate texture data
 //

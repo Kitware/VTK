@@ -199,7 +199,6 @@ void vtkMarchingCubes::Execute()
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<< "Executing marching cubes");
-  output->Initialize();
 //
 // Initialize and check input
 //

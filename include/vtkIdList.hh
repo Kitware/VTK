@@ -54,7 +54,6 @@ class vtkIdList : public vtkObject
 {
  public:
   vtkIdList(const int sz=128, const int ext=100):Ia(sz,ext) {};
-  ~vtkIdList() {};
   vtkIdList &operator=(const vtkIdList& ids) {this->Ia = ids.Ia; return *this;};
   void Squeeze() {this->Ia.Squeeze();};
 

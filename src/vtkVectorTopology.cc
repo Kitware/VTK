@@ -58,7 +58,6 @@ void vtkVectorTopology::Execute()
 // Initialize self; check input; create output objects
 //
   vtkDebugMacro(<< "Executing vector topology...");
-  output->Initialize();
 
   // make sure we have vector data
   if ( ! (inVectors = input->GetPointData()->GetVectors()) )

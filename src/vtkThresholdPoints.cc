@@ -98,7 +98,6 @@ void vtkThresholdPoints::Execute()
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<< "Executing threshold points filter");
-  output->Initialize();
 
   if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
     {

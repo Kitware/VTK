@@ -104,6 +104,7 @@ void vtkSource::Update()
   if (this->GetMTime() > this->ExecuteTime || this->GetDataReleased())
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    this->Output->Initialize(); //clear output
     this->Execute();
     this->ExecuteTime.Modified();
     this->SetDataReleased(0);

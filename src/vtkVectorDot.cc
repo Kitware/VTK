@@ -67,7 +67,6 @@ void vtkVectorDot::Execute()
 // Initialize
 //
   vtkDebugMacro(<<"Generating vector/normal dot product!");
-  output->Initialize();
 
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {

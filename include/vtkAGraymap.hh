@@ -55,7 +55,6 @@ class vtkAGraymap : public vtkColorScalars
 {
 public:
   vtkAGraymap() {};
-  ~vtkAGraymap() {};
   vtkAGraymap(const vtkAGraymap& fs) {this->S = fs.S;};
   vtkAGraymap(const int sz, const int ext=1000):S(2*sz,2*ext){};
   int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(2*sz,2*ext);};

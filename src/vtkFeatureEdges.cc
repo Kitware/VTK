@@ -79,7 +79,6 @@ void vtkFeatureEdges::Execute()
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<<"Executing feature edges");
-  output->Initialize();
 //
 //  Check input
 //

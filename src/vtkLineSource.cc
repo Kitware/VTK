@@ -69,7 +69,6 @@ void vtkLineSource::Execute()
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<<"Creating line");
-  output->Initialize();
 
   newPoints = new vtkFloatPoints(numPts);
   newTCoords = new vtkFloatTCoords(numPts,2);

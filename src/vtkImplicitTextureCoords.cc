@@ -61,7 +61,6 @@ void vtkImplicitTextureCoords::Execute()
   // Initialize
   //
   vtkDebugMacro(<<"Generating texture coordinates from implicit functions...");
-  this->Output->Initialize();
 
   if ( ((numPts=input->GetNumberOfPoints()) < 1) )
     {

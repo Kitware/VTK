@@ -57,7 +57,6 @@ class vtkWriter : public vtkObject
 {
 public:
   vtkWriter();
-  ~vtkWriter() {};
   char *GetClassName() {return "vtkWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

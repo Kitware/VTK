@@ -45,7 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // to extract a point, a curve, a surface, or a "volume". Depending upon the
 // type of data, the curve and surface may be curved or planar. The volume
 // is actually a (n x m x o) region of points.
-//    The extent specification is zero-offset. That is, the first k-plane in
+//
+// The extent specification is zero-offset. That is, the first k-plane in
 // a 50x50x50 structured grid is given by (0,49, 0,49, 0,0).
 // .SECTION Caveats
 // If you don't know the dimensions of the input dataset, you can use a large

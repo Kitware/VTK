@@ -79,7 +79,6 @@ void vtkWarpScalar::Execute()
   vtkPointSet *output=(vtkPointSet *)this->Output;
   
   vtkDebugMacro(<<"Warping data with scalars");
-  output->Initialize();
 
   inPts = input->GetPoints();
   pd = input->GetPointData();

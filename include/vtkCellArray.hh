@@ -67,7 +67,6 @@ public:
   void Initialize() {this->Ia.Initialize();};
   vtkCellArray (const int sz, const int ext=1000):NumberOfCells(0),Location(0),Ia(sz,ext){};
   vtkCellArray(const vtkCellArray& ca);
-  ~vtkCellArray() {};
   char *GetClassName() {return "vtkCellArray";};
 
   int GetNumberOfCells();

@@ -67,7 +67,6 @@ void vtkStripper::Execute()
 
   vtkDebugMacro(<<"Executing triangle strip filter");
 
-  output->Initialize();
 
   // build cell structure.  Only operate with polygons and triangle strips.
   Mesh.SetPoints(input->GetPoints());

@@ -53,7 +53,6 @@ void vtkOutlineFilter::Execute()
   //
   // Initialize
   //
-  output->Initialize();
   bounds = this->Input->GetBounds();
 //
 // Allocate storage and create outline

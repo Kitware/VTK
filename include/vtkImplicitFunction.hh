@@ -68,7 +68,6 @@ class vtkImplicitFunction : public vtkObject
 {
 public:
   vtkImplicitFunction();
-  ~vtkImplicitFunction() {};
   char *GetClassName() {return "vtkImplicitFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

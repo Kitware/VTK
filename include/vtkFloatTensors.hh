@@ -55,7 +55,6 @@ public:
   vtkFloatTensors() {};
   vtkFloatTensors(const vtkFloatTensors& ft);
   vtkFloatTensors(int sz, int d=3, int ext=1000);
-  ~vtkFloatTensors() {};
   int Allocate(const int sz, const int dim=3, const int ext=1000);
   void Initialize() {this->T.Initialize();};
   char *GetClassName() {return "vtkFloatTensors";};

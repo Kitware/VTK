@@ -151,7 +151,6 @@ void vtkStructuredGridReader::Execute()
   vtkStructuredGrid *output=(vtkStructuredGrid *)this->Output;
   
   vtkDebugMacro(<<"Reading vtk structured grid file...");
-  output->Initialize();
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 

@@ -83,7 +83,6 @@ void vtkRibbonFilter::Execute()
 // Initialize
 //
   vtkDebugMacro(<<"Creating ribbon");
-  output->Initialize();
 
   if ( !(inPts=input->GetPoints()) || 
   (numNewPts=inPts->GetNumberOfPoints()*2) < 1 ||

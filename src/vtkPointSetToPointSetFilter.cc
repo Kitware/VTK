@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPointSetToPointSetFilter.hh"
-#include "vtkPolyData.hh"
 
 // Description:
 // Specify the input data or filter.
@@ -60,5 +59,63 @@ void vtkPointSetToPointSetFilter::SetInput(vtkPointSet *input)
       vtkWarningMacro(<<" a new output had to be created since the input type changed.");
       }
     }
+}
+
+
+// Description:
+// Update input to this filter and the filter itself. Note that we are 
+// overloading this method because the output is an abstract dataset type.
+// This requires special treatment.
+void vtkPointSetToPointSetFilter::Update()
+{
+  // make sure output has been created
+  if ( !this->Output )
+    {
+    vtkErrorMacro(<< "No output has been created...need to set input");
+    return;
+    }
+
+  // make sure input is available
+  if ( !this->Input )
+    {
+    vtkErrorMacro(<< "No input...can't execute!");
+    return;
+    }
+
+  // prevent chasing our tail
+  if (this->Updating) return;
+
+  this->Updating = 1;
+  this->Input->Update();
+  this->Updating = 0;
+
+  if (this->Input->GetMTime() > this->ExecuteTime ||
+  this->GetMTime() > this->ExecuteTime || this->GetDataReleased())
+    {
+    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    // clear points and point data output 
+    ((vtkPointSet *)this->Output)->SetPoints(NULL);
+    this->Output->GetPointData()->Initialize();
+    this->Execute();
+    this->ExecuteTime.Modified();
+    this->SetDataReleased(0);
+    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    }
+
+  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+}
+
+  
+// Description:
+// Get the output of this filter. If output is NULL then input hasn't been set
+// which is necessary for abstract objects.
+
+vtkPointSet *vtkPointSetToPointSetFilter::GetOutput()
+{
+  if ( this->Output == NULL )
+    {
+    vtkErrorMacro(<<"Abstract filters require input to be set before output can be retrieved");
+    }
+  return (vtkPointSet *)this->Output;
 }
 

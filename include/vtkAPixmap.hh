@@ -55,7 +55,6 @@ class vtkAPixmap : public vtkColorScalars
 {
 public:
   vtkAPixmap() {};
-  ~vtkAPixmap() {};
   vtkAPixmap(const vtkAPixmap& fs) {this->S = fs.S;};
   vtkAPixmap(const int sz, const int ext=1000):S(4*sz,4*ext){};
   int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(4*sz,4*ext);};
