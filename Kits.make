@@ -75,10 +75,11 @@ depend:
 	-$(MAKE_DEPEND_COMMAND)
 
 depend-check:
-	@-if [ ! -s depend.make -a "*.o" != "" ] ; then \
+	@-dotofiles=`ls tcl/*.o *.o 2>/dev/null` ; \
+	if [ -r depend.make -a ! -s depend.make -a "X$$dotofiles" != X ] ; then \
 	    echo "**********************************************************" ; \
 	    echo "  Warning! No dependencies for $(ME) .o files exist." ; \
-	    echo '    "make depend" or "rm *.o" is *highly* recommended.' ; \
+	    echo '    "make depend" or "rm *.o tcl/*.o" is *highly* recommended.' ; \
 	    echo "**********************************************************" ; \
 	fi
 #------------------------------------------------------------------------------
