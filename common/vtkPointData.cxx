@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatTCoords.h"
 #include "vtkFloatTensors.h"
 #include "vtkPixmap.h"
+#include "vtkMath.h"
 
 // Description:
 // Construct object with copying turned on for all data.
@@ -417,6 +418,7 @@ void vtkPointData::InterpolatePoint(vtkPointData *fromPd, int toId, vtkIdList *p
       n[1] += pn[1]*weights[i];
       n[2] += pn[2]*weights[i];
       }
+    vtkMath::Normalize(n); //have to do this because of interpolation process
     this->Normals->InsertNormal(toId,n);
     }
 
@@ -510,6 +512,7 @@ void vtkPointData::InterpolateEdge(vtkPointData *fromPd, int toId,
     n[0] = n1[0] + t * (n2[0] - n1[0]);
     n[1] = n1[1] + t * (n2[1] - n1[1]);
     n[2] = n1[2] + t * (n2[2] - n1[2]);
+    vtkMath::Normalize(n); //have to do this because of interpolation process
 
     this->Normals->InsertNormal(toId,n);
     }
