@@ -42,7 +42,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkTextSource converts a text string into polygons.  This way you can 
 // insert text into your renderings. It uses the 9x15 font from X Windows.
-// You can specify if you want the background to be drawn or not.
+// You can specify if you want the background to be drawn or not. The
+// characters are formed by scan converting the raster font into
+// quadrilaterals. Colors are assigned to the letters using scalar data.
+// To set the color of the characters with the source's actor property, set
+// BackingOff on the text source and ScalarVisibilityOff on the associated
+// vtkPolyDataMapper. Then, the color can be set using the associated actor's
+// property.
+//
+// vtkVectorText generates higher quality polygonal representations of
+// characters.
+
+// .SECTION See Also
+// vtkVectorText
 
 #ifndef __vtkTextSource_h
 #define __vtkTextSource_h
@@ -68,10 +80,22 @@ public:
   vtkGetMacro(Backing,int);
   vtkBooleanMacro(Backing,int);
 
+  // Description:
+  // Set/Get the foreground color. Default is white (1,1,1,1).
+  vtkSetVector4Macro(ForegroundColor,float);
+  vtkGetVectorMacro(ForegroundColor,float,4);
+
+  // Description:
+  // Set/Get the background color. Default is black (0,0,0,1).
+  vtkSetVector4Macro(BackgroundColor,float);
+  vtkGetVectorMacro(BackgroundColor,float,4);
+
 protected:
   void Execute();
   char *Text;
   int  Backing;
+  float ForegroundColor[4];
+  float BackgroundColor[4];
 };
 
 #endif

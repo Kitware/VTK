@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkTextSource.h"
 #include "vtkFloatPoints.h"
-#include "vtkGraymap.h"
+#include "vtkAPixmap.h"
 
 #define vtkfont_width 9
 #define vtkfont_row_width 864
@@ -162,6 +162,14 @@ vtkTextSource::vtkTextSource()
 {
   this->Text = NULL;
   this->Backing = 1;
+  this->ForegroundColor[0] = 1.0;
+  this->ForegroundColor[1] = 1.0;
+  this->ForegroundColor[2] = 1.0;
+  this->ForegroundColor[3] = 1.0;
+  this->BackgroundColor[0] = 0.0;
+  this->BackgroundColor[1] = 0.0;
+  this->BackgroundColor[2] = 0.0;
+  this->BackgroundColor[3] = 1.0;
 }
 
 void vtkTextSource::Execute()
@@ -169,7 +177,7 @@ void vtkTextSource::Execute()
   int row, col;
   vtkFloatPoints *newPoints; 
   vtkCellArray *newPolys;
-  vtkGraymap *newScalars;
+  vtkAPixmap *newScalars;
   float x[3];
   int pos = 0;
   int pixelPos;
@@ -178,16 +186,23 @@ void vtkTextSource::Execute()
   int acol;
   int drawingWhite = 0;
   int drawingBlack = 0;
-  static unsigned char white[4] = {255, 255, 255, 255};
-  static unsigned char black[4] = {0, 0, 0, 255};
+  unsigned char white[4];
+  unsigned char black[4];
   vtkPolyData *output=(vtkPolyData *)this->Output;
+
+  // convert colors to unsigned char
+  for (int i = 0; i < 4; i++)
+    {
+    white[i] = (unsigned char) (this->ForegroundColor[i] * 255.0);
+    black[i] = (unsigned char) (this->BackgroundColor[i] * 255.0);
+    }
 
   // Set things up; allocate memory
   x[2] = 0;
 
   newPoints = vtkFloatPoints::New();
   newPolys = vtkCellArray::New();
-  newScalars = vtkGraymap::New();
+  newScalars = vtkAPixmap::New();
 
   // Create Text
   while (this->Text[pos])
@@ -370,4 +385,10 @@ void vtkTextSource::PrintSelf(ostream& os, vtkIndent indent)
   vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "Text: " << (this->Text ? this->Text : "(none)") << "\n";
+  os << indent << "ForegroundColor: (" << this->ForegroundColor[0] << ", " 
+     << this->ForegroundColor[1] << ", " << this->ForegroundColor[2] << ","
+     << this->ForegroundColor[3] << ")\n";
+  os << indent << "BackgroundColor: (" << this->BackgroundColor[0] << ", " 
+     << this->BackgroundColor[1] << ", " << this->BackgroundColor[2] << ","
+     << this->BackgroundColor[3] << ")\n";
 }
