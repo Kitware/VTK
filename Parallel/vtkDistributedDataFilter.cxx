@@ -59,7 +59,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.17")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.18")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -633,6 +633,10 @@ void vtkDistributedDataFilter::Execute()
     this->Kdtree->Delete();
     this->Kdtree = NULL;
     }
+  else
+    {
+    this->Kdtree->SetDataSet(NULL);
+    }
 }
 vtkUnstructuredGrid *vtkDistributedDataFilter::RedistributeDataSet(vtkDataSet *set)
 {
@@ -672,7 +676,7 @@ int vtkDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set)
   this->Kdtree->SetNumberOfRegionsOrMore(this->NumProcesses);
   this->Kdtree->SetMinCells(2);
 
-  this->Kdtree->SetDataSet(set);
+  this->Kdtree->SetDataSet(set); 
 
   // BuildLocator is smart enough to rebuild the k-d tree only if
   // the input geometry has changed, or the k-d tree build parameters
@@ -688,6 +692,7 @@ int vtkDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set)
     this->Kdtree = NULL;
     return 1;
     }
+
   return 0;
 }
 int vtkDistributedDataFilter::ClipGridCells(vtkUnstructuredGrid *grid)
