@@ -16,24 +16,27 @@
 
 #include "vtkImageStencilData.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilSource, "1.9");
+vtkCxxRevisionMacro(vtkImageStencilSource, "1.10");
 vtkStandardNewMacro(vtkImageStencilSource);
 
 //----------------------------------------------------------------------------
 vtkImageStencilSource::vtkImageStencilSource()
 {
-  // A source has no inputs by default.
-  this->SetNumberOfInputPorts(0);
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
 
-  this->vtkSource::SetNthOutput(0,vtkImageStencilData::New());
+  vtkImageStencilData *output = vtkImageStencilData::New();
+  this->GetExecutive()->SetOutputData(0, output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
-  this->Outputs[0]->ReleaseData();
-  this->Outputs[0]->Delete();
+  output->ReleaseData();
+  output->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -50,18 +53,19 @@ void vtkImageStencilSource::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkImageStencilSource::SetOutput(vtkImageStencilData *output)
 {
-  this->vtkSource::SetNthOutput(0, output);
+  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
 vtkImageStencilData *vtkImageStencilSource::GetOutput()
 {
-  if (this->NumberOfOutputs < 1)
+  if (this->GetNumberOfOutputPorts() < 1)
     {
     return NULL;
     }
   
-  return (vtkImageStencilData *)(this->Outputs[0]);
+  return vtkImageStencilData::SafeDownCast(
+    this->GetExecutive()->GetOutputData(0));
 }
 
 //----------------------------------------------------------------------------
@@ -84,33 +88,49 @@ vtkImageStencilSource::AllocateOutputData(vtkDataObject *out)
 }  
 
 //----------------------------------------------------------------------------
-void vtkImageStencilSource::ExecuteData(vtkDataObject *out)
+int vtkImageStencilSource::RequestData(
+  vtkInformation *,
+  vtkInformationVector **,
+  vtkInformationVector *outputVector)
 {
-  vtkImageStencilData *output = this->AllocateOutputData(out);
-
-  // no multithreading yet...
-  this->ThreadedExecute(output, output->GetExtent(), 0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkDataObject *out = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  this->AllocateOutputData(out);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencilSource::ThreadedExecute(vtkImageStencilData *vtkNotUsed(o),
-                                            int extent[6], int threadId)
-{
-  extent = extent; // this silly line avoids compiler warnings
-  if (threadId == 0)
-    {
-    vtkErrorMacro("subclass should override ThreadedExecute!!!");
-    }
-}
-
-//----------------------------------------------------------------------------
-int vtkImageStencilSource::FillOutputPortInformation(int port,
+int vtkImageStencilSource::FillOutputPortInformation(int,
                                                      vtkInformation* info)
 {
-  if(!this->Superclass::FillOutputPortInformation(port, info))
-    {
-    return 0;
-    }
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageStencilData");
   return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkImageStencilSource::ProcessRequest(vtkInformation* request,
+                                          vtkInformationVector** inputVector,
+                                          vtkInformationVector* outputVector)
+{
+  // generate the data
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    this->RequestData(request, inputVector, outputVector);
+    return 1;
+    }
+
+  // execute information
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    this->RequestInformation(request, inputVector, outputVector);
+    return 1;
+    }
+
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    this->RequestUpdateExtent(request, inputVector, outputVector);
+    return 1;
+    }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

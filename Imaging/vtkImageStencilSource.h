@@ -30,15 +30,15 @@
 #define __vtkImageStencilSource_h
 
 
-#include "vtkSource.h"
+#include "vtkAlgorithm.h"
 
 class vtkImageStencilData;
 
-class VTK_IMAGING_EXPORT vtkImageStencilSource : public vtkSource
+class VTK_IMAGING_EXPORT vtkImageStencilSource : public vtkAlgorithm
 {
 public:
   static vtkImageStencilSource *New();
-  vtkTypeRevisionMacro(vtkImageStencilSource, vtkSource);
+  vtkTypeRevisionMacro(vtkImageStencilSource, vtkAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -47,20 +47,23 @@ public:
   void SetOutput(vtkImageStencilData *output);
   vtkImageStencilData *GetOutput();
 
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector**,
+                             vtkInformationVector*);
+
 protected:
   vtkImageStencilSource();
   ~vtkImageStencilSource();
 
-  void ExecuteData(vtkDataObject *out);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *) { return 1; }
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                                  vtkInformationVector *) { return 1; }
   vtkImageStencilData *AllocateOutputData(vtkDataObject *out);
-
-  // Description:
-  // Override this method to support clipping with different kinds
-  // of objects.  Eventually the extent could be split up and handled
-  // by multiple threads, but it isn't for now.  But please ensure
-  // that all code inside this method is thread-safe.
-  virtual void ThreadedExecute(vtkImageStencilData *output,
-                               int extent[6], int threadId);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:

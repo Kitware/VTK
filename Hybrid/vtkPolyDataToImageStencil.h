@@ -50,10 +50,8 @@ protected:
   vtkPolyDataToImageStencil();
   ~vtkPolyDataToImageStencil();
 
-  void ExecuteData(vtkDataObject *out);
-  void ThreadedExecute(vtkImageStencilData *output,
-                       int extent[6], int threadId);
-  void ExecuteInformation();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double Tolerance;
   vtkOBBTree *OBBTree;

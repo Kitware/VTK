@@ -17,19 +17,19 @@
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToImageStencil, "1.14");
+vtkCxxRevisionMacro(vtkImageToImageStencil, "1.15");
 vtkStandardNewMacro(vtkImageToImageStencil);
 
 //----------------------------------------------------------------------------
 vtkImageToImageStencil::vtkImageToImageStencil()
 {
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
   this->UpperThreshold = VTK_LARGE_FLOAT;
   this->LowerThreshold = -VTK_LARGE_FLOAT;
 }
@@ -52,18 +52,26 @@ void vtkImageToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkImageToImageStencil::SetInput(vtkImageData *input)
 {
-  this->vtkProcessObject::SetNthInput(0, input);
+  if (input)
+    {
+    this->SetInputConnection(0, input->GetProducerPort());
+    }
+  else
+    {
+    this->SetInputConnection(0, 0);
+    }
 }
 
 //----------------------------------------------------------------------------
 vtkImageData *vtkImageToImageStencil::GetInput()
 {
-  if (this->NumberOfInputs < 1)
+  if (this->GetNumberOfInputConnections(0) < 1)
     {
     return NULL;
     }
   
-  return (vtkImageData *)(this->Inputs[0]);
+  return vtkImageData::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, 0));
 }
 
 //----------------------------------------------------------------------------
@@ -103,17 +111,25 @@ void vtkImageToImageStencil::ThresholdBetween(double lower, double upper)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageToImageStencil::ThreadedExecute(vtkImageStencilData *data,
-                                             int outExt[6], int id)
+int vtkImageToImageStencil::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *inData = this->GetInput();
-  if (!inData)
-    {
-    return;
-    }
+  this->Superclass::RequestData(request, inputVector, outputVector);
+
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageStencilData *data = vtkImageStencilData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int *inExt = inData->GetExtent();
-  int *inWholeExt = inData->GetWholeExtent();
+  int *inWholeExt =
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int outExt[6];
+  data->GetExtent(outExt);
   vtkDataArray *inScalars = inData->GetPointData()->GetScalars();
   double upperThreshold = this->UpperThreshold;
   double lowerThreshold = this->LowerThreshold;
@@ -136,7 +152,7 @@ void vtkImageToImageStencil::ThreadedExecute(vtkImageStencilData *data,
       }
     if (extent[lo] > extent[hi])
       {
-      return;
+      return 1;
       }
     }
 
@@ -150,14 +166,11 @@ void vtkImageToImageStencil::ThreadedExecute(vtkImageStencilData *data,
     {
     for (int idY = extent[2]; idY <= extent[3]; idY++)
       {
-      if (id == 0)
-        { // update progress if we're the main thread
-        if (count%target == 0) 
-          {
-          this->UpdateProgress(count/(50.0*target));
-          }
-        count++;
+      if (count%target == 0) 
+        {
+        this->UpdateProgress(count/(50.0*target));
         }
+      count++;
 
       int state = 1; // inside or outside, start outside
       int r1 = extent[0];
@@ -193,32 +206,46 @@ void vtkImageToImageStencil::ThreadedExecute(vtkImageStencilData *data,
         }
       } // for idY
     } // for idZ
+
+  return 1;
 }
 
-void vtkImageToImageStencil::ExecuteInformation()
+int vtkImageToImageStencil::RequestInformation(
+  vtkInformation *,
+  vtkInformationVector **,
+  vtkInformationVector *outputVector)
 {
-  vtkImageStencilData *output;
-  
-  output = this->GetOutput();
-  
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   // this is an odd source that can produce any requested size.  so its whole
   // extent is essentially infinite. This would not be a great source to
   // connect to some sort of writer or viewer. For a sanity check we will
   // limit the size produced to something reasonable (depending on your
   // definition of reasonable)
-  output->SetWholeExtent(0, VTK_LARGE_INTEGER >> 2,
-                         0, VTK_LARGE_INTEGER >> 2,
-                         0, VTK_LARGE_INTEGER >> 2);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               0, VTK_LARGE_INTEGER >> 2,
+               0, VTK_LARGE_INTEGER >> 2,
+               0, VTK_LARGE_INTEGER >> 2);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkImageToImageStencil::FillInputPortInformation(int port,
+int vtkImageToImageStencil::FillInputPortInformation(int,
                                                      vtkInformation* info)
 {
-  if(!this->Superclass::FillInputPortInformation(port, info))
-    {
-    return 0;
-    }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkImageToImageStencil::RequestUpdateExtent(
+  vtkInformation *,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *)
+{
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+              inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+              6);
   return 1;
 }

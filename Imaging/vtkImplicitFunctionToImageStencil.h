@@ -49,10 +49,9 @@ protected:
   vtkImplicitFunctionToImageStencil();
   ~vtkImplicitFunctionToImageStencil();
 
-  void ThreadedExecute(vtkImageStencilData *output,
-                       int extent[6], int threadId);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  void ExecuteInformation();
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   vtkImplicitFunction *Input;
   double Threshold;

@@ -16,17 +16,21 @@
 
 #include "vtkImageStencilData.h"
 #include "vtkImplicitFunction.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitFunctionToImageStencil, "1.11");
+vtkCxxRevisionMacro(vtkImplicitFunctionToImageStencil, "1.12");
 vtkStandardNewMacro(vtkImplicitFunctionToImageStencil);
 vtkCxxSetObjectMacro(vtkImplicitFunctionToImageStencil,Input, vtkImplicitFunction);
 
 //----------------------------------------------------------------------------
 vtkImplicitFunctionToImageStencil::vtkImplicitFunctionToImageStencil()
 {
+  this->SetNumberOfInputPorts(0);
   this->Threshold = 0;
   this->Input = NULL;
 }
@@ -50,10 +54,16 @@ void vtkImplicitFunctionToImageStencil::PrintSelf(ostream& os,
 //----------------------------------------------------------------------------
 // set up the clipping extents from an implicit function by brute force
 // (i.e. by evaluating the function at each and every voxel)
-void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData 
-                                                        *data,
-                                                        int extent[6], int id)
+int vtkImplicitFunctionToImageStencil::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  this->Superclass::RequestData(request, inputVector, outputVector);
+
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageStencilData *data = vtkImageStencilData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkImplicitFunction *function = this->Input;
   double *spacing = data->GetSpacing();
   double *origin = data->GetOrigin();
@@ -62,7 +72,7 @@ void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData
   // if the input is not set then punt
   if (!function)
     {
-    return;
+    return 1;
     }
 
   // for conversion of (idX,idY,idZ) into (x,y,z)
@@ -70,6 +80,8 @@ void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData
 
   // for keeping track of progress
   unsigned long count = 0;
+  int extent[6];
+  data->GetExtent(extent);
   unsigned long target = (unsigned long)
     ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)/50.0);
   target++;
@@ -86,14 +98,11 @@ void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData
       int r1 = extent[0];
       int r2 = extent[1];
 
-      if (id == 0)
-        { // update progress if we're the main thread
-        if (count%target == 0) 
-          {
-          this->UpdateProgress(count/(50.0*target));
-          }
-        count++;
+      if (count%target == 0) 
+        {
+        this->UpdateProgress(count/(50.0*target));
         }
+      count++;
 
       for (int idX = extent[0]; idX <= extent[1]; idX++)
         {
@@ -120,20 +129,25 @@ void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData
         }
       } // for idY    
     } // for idZ
+
+  return 1;
 }
 
-void vtkImplicitFunctionToImageStencil::ExecuteInformation()
+int vtkImplicitFunctionToImageStencil::RequestInformation(
+  vtkInformation *,
+  vtkInformationVector **,
+  vtkInformationVector *outputVector)
 {
-  vtkImageStencilData *output;
-  
-  output = this->GetOutput();
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   
   // this is an odd source that can produce any requested size.  so its whole
   // extent is essentially infinite. This would not be a great source to
   // connect to some sort of writer or viewer. For a sanity check we will
   // limit the size produced to something reasonable (depending on your
   // definition of reasonable)
-  output->SetWholeExtent(0, VTK_LARGE_INTEGER >> 2,
-                         0, VTK_LARGE_INTEGER >> 2,
-                         0, VTK_LARGE_INTEGER >> 2);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               0, VTK_LARGE_INTEGER >> 2,
+               0, VTK_LARGE_INTEGER >> 2,
+               0, VTK_LARGE_INTEGER >> 2);
+  return 1;
 }

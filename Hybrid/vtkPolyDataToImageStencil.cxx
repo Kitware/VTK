@@ -17,13 +17,15 @@
 #include "vtkGarbageCollector.h"
 #include "vtkImageStencilData.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkOBBTree.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.15");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.16");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 
 //----------------------------------------------------------------------------
@@ -31,8 +33,6 @@ vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
 {
   this->OBBTree = NULL;
   this->Tolerance = 1e-3;
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -56,35 +56,26 @@ void vtkPolyDataToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkPolyDataToImageStencil::SetInput(vtkPolyData *input)
 {
-  this->vtkProcessObject::SetNthInput(0, input);
+  if (input)
+    {
+    this->SetInputConnection(0, input->GetProducerPort());
+    }
+  else
+    {
+    this->SetInputConnection(0, 0);
+    }
 }
 
 //----------------------------------------------------------------------------
 vtkPolyData *vtkPolyDataToImageStencil::GetInput()
 {
-  if (this->NumberOfInputs < 1)
+  if (this->GetNumberOfInputConnections(0) < 1)
     {
     return NULL;
     }
   
-  return (vtkPolyData *)(this->Inputs[0]);
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyDataToImageStencil::ExecuteData(vtkDataObject *out)
-{
-  // need to build the OBB tree
-  vtkPolyData *polydata = this->GetInput();
-  if (this->OBBTree == NULL)
-    {
-    this->OBBTree = vtkOBBTree::New();
-    }
-  this->OBBTree->SetDataSet(polydata);
-  this->OBBTree->SetTolerance(this->Tolerance);
-  this->OBBTree->BuildLocator();
-
-  // do superclass stuff
-  this->vtkImageStencilSource::ExecuteData(out);
+  return vtkPolyData::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, 0));
 }
 
 //----------------------------------------------------------------------------
@@ -142,20 +133,42 @@ void vtkTurnPointsIntoList(vtkPoints *points, int *&clist, int &clistlen,
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
-                                                int extent[6],
-                                                int id)
+int vtkPolyDataToImageStencil::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  this->Superclass::RequestData(request, inputVector, outputVector);
+
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // need to build the OBB tree
+  vtkPolyData *polydata = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageStencilData *data = vtkImageStencilData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  if (this->OBBTree == NULL)
+    {
+    this->OBBTree = vtkOBBTree::New();
+    }
+  this->OBBTree->SetDataSet(polydata);
+  this->OBBTree->SetTolerance(this->Tolerance);
+  this->OBBTree->BuildLocator();
+
   // for keeping track of progress
   unsigned long count = 0;
+  int extent[6];
+  data->GetExtent(extent);
   unsigned long target = (unsigned long)
     ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)/50.0);
   target++;
 
   // if we have no data then return
-  if (!this->GetInput()->GetNumberOfPoints())
+  if (!polydata->GetNumberOfPoints())
     {
-    return;
+    return 1;
     }
   
   double *spacing = data->GetSpacing();
@@ -218,14 +231,11 @@ void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
         ylistidx++;
         }
 
-      if (id == 0)
-        { // update progress if we're the main thread
-        if (count%target == 0) 
-          {
-          this->UpdateProgress(count/(50.0*target));
-          }
-        count++;
+      if (count%target == 0) 
+        {
+        this->UpdateProgress(count/(50.0*target));
         }
+      count++;
 
       p0[1] = p1[1] = idY*spacing[1] + origin[1];
       p0[2] = p1[2] = idZ*spacing[2] + origin[2];
@@ -280,6 +290,8 @@ void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
     delete [] zlist;
     }
   points->Delete();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -291,31 +303,29 @@ void vtkPolyDataToImageStencil::ReportReferences(vtkGarbageCollector* collector)
   vtkGarbageCollectorReport(collector, this->OBBTree, "OBBTree");
 }
 
-void vtkPolyDataToImageStencil::ExecuteInformation()
+int vtkPolyDataToImageStencil::RequestInformation(
+  vtkInformation *,
+  vtkInformationVector **,
+  vtkInformationVector *outputVector)
 {
-  vtkImageStencilData *output;
-  
-  output = this->GetOutput();
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   
   // this is an odd source that can produce any requested size.  so its whole
   // extent is essentially infinite. This would not be a great source to
   // connect to some sort of writer or viewer. For a sanity check we will
   // limit the size produced to something reasonable (depending on your
   // definition of reasonable)
-  output->SetWholeExtent(0, VTK_LARGE_INTEGER >> 2,
-                         0, VTK_LARGE_INTEGER >> 2,
-                         0, VTK_LARGE_INTEGER >> 2);
-}
-
-//----------------------------------------------------------------------------
-int vtkPolyDataToImageStencil::FillInputPortInformation(int port,
-                                                        vtkInformation* info)
-{
-  if(!this->Superclass::FillInputPortInformation(port, info))
-    {
-    return 0;
-    }
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               0, VTK_LARGE_INTEGER >> 2,
+               0, VTK_LARGE_INTEGER >> 2,
+               0, VTK_LARGE_INTEGER >> 2);
   return 1;
 }
 
+//----------------------------------------------------------------------------
+int vtkPolyDataToImageStencil::FillInputPortInformation(int,
+                                                        vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  return 1;
+}
