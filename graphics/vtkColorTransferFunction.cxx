@@ -273,33 +273,18 @@ float *vtkColorTransferFunction::GetRange()
 
 // Returns a table of RGB colors at regular intervals along the function
 void vtkColorTransferFunction::GetTable( float x1, float x2, 
-						   int size, float* table )
+					 int size, float* table )
 {
-  float x;
-  float inc;
-  int   i;
-
   if( x1 == x2 )
     {
     return;
     }
 
-  x = x1;
-  if( size > 1 )
+  if (size > 0)
     {
-    inc = (x2-x1)/(float)(size-1);
-    }
-  else
-    {
-    inc = 0;
-    }
-
-  for( i=0; i<size; i++ )
-    {
-    table[i*3  ] = this->Red->GetValue( x );
-    table[i*3+1] = this->Green->GetValue( x );
-    table[i*3+2] = this->Blue->GetValue( x );
-    x += inc;
+    this->Red->GetTable(x1, x2, size, &(table[0]), 3);
+    this->Green->GetTable(x1, x2, size, &(table[1]), 3);
+    this->Blue->GetTable(x1, x2, size, &(table[2]), 3);
     }
 }
 

@@ -561,11 +561,12 @@ float *vtkPiecewiseFunction::GetRange()
 }
 
 // Returns a table of function values evaluated at regular intervals
-void vtkPiecewiseFunction::GetTable( float x1, float x2, int size, float* table )
+void vtkPiecewiseFunction::GetTable( float x1, float x2, int size,
+				     float* table, int stride )
 {
-  float x;
-  float inc;
-  int   i;
+  float x, xi1, xi2, yi1, yi2, tx;
+  float inc, value, slope, *tbl;
+  int   i, i1, i2;
 
   this->Update();
 
@@ -574,7 +575,6 @@ void vtkPiecewiseFunction::GetTable( float x1, float x2, int size, float* table 
     return;
     }
 
-  x = x1;
   if( size > 1 )
     {
     inc = (x2-x1)/(float)(size-1);
@@ -584,9 +584,73 @@ void vtkPiecewiseFunction::GetTable( float x1, float x2, int size, float* table 
     inc = 0;
     }
 
-  for( i=0; i<size; i++ )
+  tbl = table;
+  x = x1;
+  i2 = 0;
+  xi2 = this->Function[0];
+  yi2 = this->Function[1];
+  for (i=0; i < size; i++)
     {
-    table[i] = this->GetValue( x );
+    tx = x;
+    
+    // Clamped to lowest value below range and highest above range
+    if( this->Clamping == 1 )  
+      {
+      if( x < this->FunctionRange[0] ) 
+	{
+	tx = this->Function[0];
+	}
+      else if( x > this->FunctionRange[1] )
+	{
+	tx = this->Function[(this->FunctionSize-1)*2];
+	}
+      }
+    else if( this->Clamping == 0 )	// Always zero outside of range
+      {
+      if( (x < this->FunctionRange[0]) || (x > this->FunctionRange[1]) )
+	{
+	*tbl = 0.0;
+	tbl += stride;
+	x += inc;
+	continue;
+	}
+      }
+    else
+      {
+      vtkErrorMacro( << "Error: vtkPiecewiseFunction has an unknown clamp type: " << this->Clamping << "\n" );
+      *tbl =  0.0;
+      tbl += stride;
+      x += inc;
+      continue;
+      }
+
+    // search for the end of the interval containing x
+    while( (xi2 < tx) && (i2 < this->FunctionSize) )
+      {
+      i2 += 1;
+      xi2 = this->Function[(i2*2)];
+      yi2 = this->Function[(i2*2+1)];
+      }
+    
+    // Check if we have found the exact point
+    if( xi2 == tx )
+      {
+      value = this->Function[(i2*2 + 1)];
+      }
+    else
+      {
+      i1 = i2 - 1;
+      xi1 = this->Function[(i1*2)];
+      yi1 = this->Function[(i1*2 +1)];
+
+      // Now that we have the two points, use linear interpolation
+      slope = (yi2-yi1)/(xi2-xi1);
+    
+      value = yi1 + slope*(tx-xi1);
+      }
+    
+    *tbl = value;
+    tbl += stride;
     x += inc;
     }
 }
