@@ -264,11 +264,9 @@ void vtkImageWriter::Write()
 void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
 				    ofstream *file)
 {
-  int             min, max, mid;
   vtkImageData    *data;
   int             fileOpenedHere = 0;
   int             *ext;
-  unsigned long   inputMemorySize;
 
   // if we need to open another slice, do it
   if (!file && (axis + 1) == this->FileDimensionality)
