@@ -130,8 +130,12 @@ public:
   void ReverseCell(int cellId);
   void DeletePoint(int ptId);
   void DeleteCell(int cellId);
+  int InsertNextLinkedCell(int type, int npts, int *pts); 
   void ReplaceLinkedCell(int cellId, int npts, int *pts);
   void RemoveCellReference(int cellId);
+  void AddCellReference(int cellId);
+  void RemoveReferenceToCell(int ptId, int cellId);
+  void AddReferenceToCell(int ptId, int cellId);
   void ResizeCellList(int ptId, int size);
 
   // Restore data object to initial state. Warning: releases memory; may
@@ -234,6 +238,11 @@ inline void vtkPolyData::DeleteCell(int cellId)
   this->Cells->DeleteCell(cellId);
 }
 
+// Description:
+// Remove all references to cell in cell structure. This means the links from
+// the cell's points to the cell are deleted. Memory is not reclaimed. Use the
+// method ResizeCellList() to resize the link list from a point to its using 
+// cells. (This operator assumes BuildLinks() has been called.)
 inline void vtkPolyData::RemoveCellReference(int cellId)
 {
   int npts, *pts;
@@ -242,6 +251,22 @@ inline void vtkPolyData::RemoveCellReference(int cellId)
     this->Links->RemoveCellReference(cellId, pts[i]);  
 }
 
+// Description:
+// Add references to cell in cell structure. This means the links from
+// the cell's points to the cell are modified. Memory is not extended. Use the
+// method ResizeCellList() to resize the link list from a point to its using 
+// cells. (This operator assumes BuildLinks() has been called.)
+inline void vtkPolyData::AddCellReference(int cellId)
+{
+  int npts, *pts;
+  this->GetCellPoints(cellId, npts, pts);
+  for (int i=0; i<npts; i++)
+    this->Links->AddCellReference(cellId, pts[i]);  
+}
+
+// Description:
+// Resize the list of cells using a particular point. (This operator assumes
+// that BuildLinks() has been called.)
 inline void vtkPolyData::ResizeCellList(int ptId, int size)
 {
   this->Links->ResizeCellList(ptId,size);

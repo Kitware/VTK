@@ -123,6 +123,12 @@ public:
   virtual void GetCellNeighbors(int cellId, vtkIdList& ptIds, vtkIdList& cellIds);
 
   // Description:
+  // Locate the closest point to the global coordinate x. Return the point
+  // id and distance squared. If point id < 0; then no point found. (This
+  // may arise when point is outside of dataset.)
+  virtual int FindPoint(float x[3]) = 0;
+
+  // Description:
   // Locate cell based on global coordinate x and tolerance squared. If
   // cell is non-NULL, then search starts from this cell and looks at 
   // immediate neighbors. Returns cellId >= 0 if inside, < 0 otherwise.

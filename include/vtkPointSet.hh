@@ -67,6 +67,7 @@ public:
   int GetNumberOfPoints();
   float *GetPoint(int ptId) {return this->Points->GetPoint(ptId);};
   void GetPoint(int ptId, float x[3]) {this->Points->GetPoint(ptId,x);};
+  int FindPoint(float x[3]);
   int FindCell(float x[3], vtkCell *cell, float tol2, int& subId, 
                float pcoords[3], float *weights);
 
