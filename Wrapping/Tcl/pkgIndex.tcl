@@ -66,6 +66,20 @@ package ifneeded vtktcl 3.3 {
         }
     }
         
+    # set VTK_DATA if we can, first look at environment vars
+    if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { 
+       # then look at command line args
+       set vtkDataFound 0
+       for {set i 0} {$i < [expr $argc - 1]} {incr i} {
+          if {[lindex $argv $i] == "-D"} {
+             set vtkDataFound 1
+             set VTK_DATA [lindex $argv [expr $i + 1]]
+          }
+       }
+       # make a final guess at a relativepath
+       if {$vtkDataFound == 0} {set VTK_DATA "../../../../VTKData" }
+    }
+
     if {$ok} {
         package provide vtktcl 3.3
     }

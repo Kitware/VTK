@@ -1,4 +1,5 @@
-IF (VTK_USE_RENDERING)
+IF (HAVE_PNG)
+ IF (VTK_USE_RENDERING)
 
   #
   # Add tests, with the data
@@ -7,7 +8,8 @@ IF (VTK_USE_RENDERING)
     ADD_TEST(Delaunay2D-image ${VTK_EXECUTABLE}
       ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
       ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/Delaunay2D.tcl
-      -V ${VTK_DATA_ROOT}/Baseline/Graphics/Delaunay2D.png
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/Delaunay2D.png
       -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   #
   # If we do not have the data, still run the tests that we can
@@ -19,5 +21,6 @@ IF (VTK_USE_RENDERING)
       -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ENDIF (VTK_DATA_ROOT)
 
-ENDIF (VTK_USE_RENDERING)
+ ENDIF (VTK_USE_RENDERING)
+ENDIF (HAVE_PNG)
 

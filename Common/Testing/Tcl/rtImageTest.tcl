@@ -1,4 +1,5 @@
 
+puts "Loading rtImageTest.tcl"
 
 proc decipadString { str before total } {
     set x [string first "." $str]
@@ -39,10 +40,32 @@ if {$tcl_platform(os) == "Windows NT"} {
 vtkMath rtExMath
 rtExMath RandomSeed 6
 
-# load inthe script
+# load in the script
 set file [lindex $argv 0]
-if {$argc >= 3 && [lindex $argv [expr $argc - 2]] == "-A"} {
-   set auto_path "$auto_path [lindex $argv [expr $argc -1]]"
+
+# parse command line args
+if { [catch {set VTK_DATA_ROOT $env(VTK_DATA_ROOT)}] != 0} { 
+   # then look at command line args
+   set vtkDataFound 0
+   for {set i 1} {$i < [expr $argc - 1]} {incr i} {
+      if {[lindex $argv $i] == "-D"} {
+         set vtkDataFound 1
+         set VTK_DATA_ROOT [lindex $argv [expr $i + 1]]
+      }
+   }
+   # make a final guess at a relativepath
+   if {$vtkDataFound == 0} then {set VTK_DATA_ROOT "../../../../VTKData" }
+}
+
+set validImageFound 0
+for {set i  1} {$i < [expr $argc - 1]} {incr i} {
+   if {[lindex $argv $i] == "-A"} {
+      set auto_path "$auto_path [lindex $argv [expr $i +1]]"
+   }
+   if {[lindex $argv $i] == "-V"} {
+      set validImageFound 1
+      set validImage "$VTK_DATA_ROOT/[lindex $argv [expr $i + 1]]"
+   }
 }
 
 #catch {source $file; if {[info commands iren] == "iren"} {renWin Render}}
@@ -53,7 +76,7 @@ wm withdraw .
 update
 
 # current directory
-if {$argc >= 5 && [lindex $argv [expr $argc - 4]] == "-V"} {
+if {$validImageFound != 0} {
    
    vtkWindowToImageFilter rt_w2if
    # look for a renderWindow ImageWindow or ImageViewer
@@ -79,7 +102,6 @@ if {$argc >= 5 && [lindex $argv [expr $argc - 4]] == "-V"} {
    }
    
    # does the valid image exist ?
-   set validImage [lindex $argv [expr $argc -3]]
    if {[file exists ${validImage}] == 0 } {
       if {[catch {set channel [open ${validImage} w]}] == 0 } {
          close $channel
