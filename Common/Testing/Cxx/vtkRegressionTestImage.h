@@ -41,7 +41,7 @@ vtkRegressionTester::Test(argc, argv, rw, t)
 
 
 int vtkRegressionTester::Test(int argc, char *argv[], vtkWindow *rw, 
-			      float thresh ) 
+                              float thresh ) 
 {
   int imageIndex=-1;
   int i;
@@ -59,9 +59,9 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkWindow *rw,
     if ( strcmp("-V", argv[i]) == 0 )
       {
       if ( i < argc-1 )
-	{
-	imageIndex = i+1;
-	}
+        {
+        imageIndex = i+1;
+        }
       }
     }
 
@@ -91,9 +91,9 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkWindow *rw,
         }
       else
         {
-	cerr << "Unable to open file for writing: " << fname << endl;
-	rt_w2if->Delete(); 
-	delete[] fname;
+        cerr << "Unable to open file for writing: " << fname << endl;
+        rt_w2if->Delete(); 
+        delete[] fname;
         return FAILED;
         }
       }
@@ -123,29 +123,29 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkWindow *rw,
       {
       newFileName = IncrementFileName(fname, count);
       if (!LookForFile(newFileName))
-	{
-	delete[] newFileName;
-	break;
-	}
+        {
+        delete[] newFileName;
+        break;
+        }
       rt_png->SetFileName(newFileName);
       rt_png->Update();
       rt_id->Update();
       error = rt_id->GetThresholdedError();
       if (error <= thresh) 
-	{ 
-	rt_id->Delete(); 
-	delete[] fname;
-	delete[] newFileName;
-	return PASSED; 
-	}
+        { 
+        rt_id->Delete(); 
+        delete[] fname;
+        delete[] newFileName;
+        return PASSED; 
+        }
       else
-	{
-	if (error > minError)
-	  {
-	  errIndex = count;
-	  minError = error;
-	  }
-	}
+        {
+        if (error > minError)
+          {
+          errIndex = count;
+          minError = error;
+          }
+        }
       ++count;
       delete[] newFileName;
       }
@@ -182,9 +182,9 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkWindow *rw,
       int* rt_size = rt_png->GetOutput()->GetDimensions();
       float rt_magfactor=1.0;
       if ( rt_size[1] > 250.0)
-	{
-	rt_magfactor = 250.0 / rt_size[1];
-	}
+        {
+        rt_magfactor = 250.0 / rt_size[1];
+        }
       vtkImageResample*  rt_shrink = vtkImageResample::New();
       rt_shrink->SetInput(rt_id->GetOutput());
       rt_shrink->InterpolateOn();
@@ -225,16 +225,16 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkWindow *rw,
       cout << error;
       cout << "</DartMeasurement>";
       if ( errIndex <= 0)
-	{
-	  cout << "<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>";
-	} 
+        {
+          cout << "<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>";
+        } 
       else 
-	{
-	  cout <<  "<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\">";
-	  cout << errIndex;
-	  cout << "</DartMeasurement>";
-	}
-	   
+        {
+          cout <<  "<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\">";
+          cout << errIndex;
+          cout << "</DartMeasurement>";
+        }
+           
       cout <<  "<DartMeasurementFile name=\"TestImage\" type=\"image/jpeg\">";
       cout << valid_test_small;
       delete [] valid_test_small;
@@ -260,7 +260,7 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkWindow *rw,
 }
 
 char* vtkRegressionTester::IncrementFileName(const char* fname, 
-						    int count)
+                                                    int count)
 {
   char counts[256];
   sprintf(counts, "%d", count);
