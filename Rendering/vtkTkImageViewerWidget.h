@@ -50,10 +50,3 @@ struct vtkTkImageViewerWidget
 
 #endif
 
-
-
-
-
-
-
-
