@@ -570,13 +570,13 @@ int vtkDataWriter::WriteTCoordData(FILE *fp, vtkTCoords *tcoords, int numPts)
   int i, j, dim;
   char *type;
 
-  fprintf (fp, "TCOORDS ");
+  fprintf (fp, "TEXTURE_COORDINATES ");
   type = tcoords->GetDataType();
   dim = tcoords->GetDimension();
 
   if ( !strcmp(type,"float") )
     {
-    fprintf (fp, "%s float\n", this->TCoordsName);
+    fprintf (fp, "%s %d float\n", this->TCoordsName, dim);
     if ( this->FileType == VTK_ASCII )
       {
       float *tc;
