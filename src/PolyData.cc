@@ -300,10 +300,6 @@ void vlPolyData::BuildCells()
   vlCellArray *inLines=this->GetLines();
   vlCellArray *inPolys=this->GetPolys();
   vlCellArray *inStrips=this->GetStrips();
-  vlCellArray *verts=NULL;
-  vlCellArray *lines=NULL;
-  vlCellArray *polys=NULL;
-  vlCellArray *strips=NULL;
   int i, j;
   int npts, *pts;
   vlIdList outVerts(3*MAX_CELL_SIZE);
@@ -335,27 +331,27 @@ void vlPolyData::BuildCells()
       cells->InsertNextCell(vlPOINT,inVerts->GetLocation(npts));
     }
 
-  for (lines->InitTraversal(); lines->GetNextCell(npts,pts); )
+  for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
     if ( npts > 2 )
-      cells->InsertNextCell(vlPOLY_LINE,lines->GetLocation(npts));
+      cells->InsertNextCell(vlPOLY_LINE,inLines->GetLocation(npts));
     else
-      cells->InsertNextCell(vlLINE,lines->GetLocation(npts));
+      cells->InsertNextCell(vlLINE,inLines->GetLocation(npts));
     }
 
-  for (polys->InitTraversal(); polys->GetNextCell(npts,pts); )
+  for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
     {
     if ( npts == 3 )
-      cells->InsertNextCell(vlTRIANGLE,polys->GetLocation(npts));
+      cells->InsertNextCell(vlTRIANGLE,inPolys->GetLocation(npts));
     else if ( npts == 4 )
-      cells->InsertNextCell(vlQUAD,polys->GetLocation(npts));
+      cells->InsertNextCell(vlQUAD,inPolys->GetLocation(npts));
     else
-      cells->InsertNextCell(vlPOLYGON,polys->GetLocation(npts));
+      cells->InsertNextCell(vlPOLYGON,inPolys->GetLocation(npts));
     }
 
-  for (strips->InitTraversal(); strips->GetNextCell(npts,pts); )
+  for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
     {
-    cells->InsertNextCell(vlTRIANGLE_STRIP,strips->GetLocation(npts));
+    cells->InsertNextCell(vlTRIANGLE_STRIP,inStrips->GetLocation(npts));
     }
 }
 
