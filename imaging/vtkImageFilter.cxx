@@ -141,7 +141,7 @@ void vtkImageFilter::SetInput(vtkImageSource *input)
 // input generate failures itself.
 // Allocating the ouput region is guaranteed to succeed.
 // outBBox is not modified or deleted.
-void vtkImageFilter::UpdateRegion(vtkImageRegion *outRegion)
+void vtkImageFilter::UpdateRegion(int axisIdx,vtkImageRegion *outRegion)
 {
   vtkImageRegion *inRegion;
   

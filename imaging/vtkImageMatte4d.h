@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMat4d.h
+  Module:    vtkImageMatte4d.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,25 +38,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMat4d - Adds a border to an image.
+// .NAME vtkImageMatte4d - Adds a border to an image.
 // .SECTION Description
-// vtkImageMat4d adds a border to an image.  The border
+// vtkImageMatte4d adds a border to an image.  The border
 // can have different widths for each axis.  Notice that this
 // filter is not cached.  The input is used directly with no
 // copying of data (unless absolutely necessary).
 
 
-#ifndef __vtkImageMat4d_h
-#define __vtkImageMat4d_h
+#ifndef __vtkImageMatte4d_h
+#define __vtkImageMatte4d_h
 
 #include "vtkImageSource.h"
 #include "vtkImageRegion.h"
 
-class vtkImageMat4d : public vtkImageSource
+class vtkImageMatte4d : public vtkImageSource
 {
 public:
-  vtkImageMat4d();
-  char *GetClassName() {return "vtkImageMat4d";};
+  vtkImageMatte4d();
+  char *GetClassName() {return "vtkImageMatte4d";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void UpdateRegion(vtkImageRegion *region); 
@@ -64,9 +64,9 @@ public:
   unsigned long GetPipelineMTime();
   int GetDataType();
 
-  void SetBorderWidths1d(int w0);
-  void SetBorderWidths2d(int w0, int w1);
-  void SetBorderWidths3d(int w0, int w1, int w2);
+  void SetBorderWidths(int w0);
+  void SetBorderWidths(int w0, int w1);
+  void SetBorderWidths(int w0, int w1, int w2);
 
   // Description:
   // Set/Get the input to this filter

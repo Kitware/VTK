@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMat4d.cxx
+  Module:    vtkImageMatte4d.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageMat4d.h"
+#include "vtkImageMatte4d.h"
 
 
 //----------------------------------------------------------------------------
-vtkImageMat4d::vtkImageMat4d()
+vtkImageMatte4d::vtkImageMatte4d()
 {
   this->Input = NULL;
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, 
@@ -56,7 +56,7 @@ vtkImageMat4d::vtkImageMat4d()
 
 
 //----------------------------------------------------------------------------
-void vtkImageMat4d::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageMatte4d::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);
   if (this->Input)
@@ -86,7 +86,7 @@ void vtkImageMat4d::PrintSelf(ostream& os, vtkIndent indent)
 // Template function that adds one bounding box region of mat.
 // There is really no need for two templated functions.
 template <class T>
-void vtkImageMat4dExecute2(vtkImageMat4d *self, 
+void vtkImageMatte4dExecute2(vtkImageMatte4d *self, 
 				 vtkImageRegion *region, T *ptr,
 				 int *extent)
 {
@@ -106,8 +106,8 @@ void vtkImageMat4dExecute2(vtkImageMat4d *self,
   max2 = extent[5];
   min3 = extent[6];
   max3 = extent[7];
-  region->GetIncrements4d(inc0, inc1, inc2, inc3);
-  ptr = (T *)(region->GetScalarPointer4d(min0, min1, min2, min3));
+  region->GetIncrements(inc0, inc1, inc2, inc3);
+  ptr = (T *)(region->GetScalarPointer(min0, min1, min2, min3));
   
   ptr3 = ptr;
   for (idx3 = min3; idx3 <= max3; ++idx3)
@@ -137,7 +137,7 @@ void vtkImageMat4dExecute2(vtkImageMat4d *self,
 //----------------------------------------------------------------------------
 // Template function that adds a mat to any data type.
 template <class T>
-void vtkImageMat4dExecute(vtkImageMat4d *self, 
+void vtkImageMatte4dExecute(vtkImageMatte4d *self, 
 				vtkImageRegion *region, T *ptr)
 {
   int mat[8];
@@ -159,7 +159,7 @@ void vtkImageMat4dExecute(vtkImageMat4d *self,
     if (imageExtent[idxAxes*2] > imageExtent[idxAxes*2+1])
       {
       // Special case border covers whole region.
-      vtkImageMat4dExecute2(self, region, ptr, extent);
+      vtkImageMatte4dExecute2(self, region, ptr, extent);
       return;
       }
     center[idxAxes*2] = (extent[idxAxes*2] > imageExtent[idxAxes*2]) ?
@@ -180,7 +180,7 @@ void vtkImageMat4dExecute(vtkImageMat4d *self,
 	}
       mat[idxAxes*2+1] = center[idxAxes*2] - 1;
       // Fill with border value
-      vtkImageMat4dExecute2(self, region, ptr, mat);
+      vtkImageMatte4dExecute2(self, region, ptr, mat);
       // shrink extent progressively to center to avoid overlap
       extent[idxAxes*2] = center[idxAxes*2];
       }
@@ -194,7 +194,7 @@ void vtkImageMat4dExecute(vtkImageMat4d *self,
 	}
       mat[idxAxes*2] = center[idxAxes*2+1] + 1;
       // Fill with border value
-      vtkImageMat4dExecute2(self, region, ptr, mat);
+      vtkImageMatte4dExecute2(self, region, ptr, mat);
       // progressively shink extent to center  to avoid overlap
       extent[idxAxes*2+1] = center[idxAxes*2+1];
       }
@@ -206,7 +206,7 @@ void vtkImageMat4dExecute(vtkImageMat4d *self,
 
 //----------------------------------------------------------------------------
 // Description:
-void vtkImageMat4d::UpdateRegion(vtkImageRegion *region)
+void vtkImageMatte4d::UpdateRegion(vtkImageRegion *region)
 {
   int axesSave[VTK_IMAGE_DIMENSIONS];
   int *imageExtent, *extent;
@@ -221,7 +221,7 @@ void vtkImageMat4d::UpdateRegion(vtkImageRegion *region)
 
   // Change to local coordinate system.
   region->GetAxes(axesSave);
-  region->SetAxes4d(this->Axes);
+  region->SetAxes(this->Axes, 4);
 
   // Get the region from input
   this->Input->UpdateRegion(region);
@@ -253,20 +253,20 @@ void vtkImageMat4d::UpdateRegion(vtkImageRegion *region)
   ptr = region->GetScalarPointer();
   switch (region->GetDataType())
     {
-    case VTK_IMAGE_FLOAT:
-      vtkImageMat4dExecute(this, region, (float *)(ptr));
+    case VTK_FLOAT:
+      vtkImageMatte4dExecute(this, region, (float *)(ptr));
       break;
-    case VTK_IMAGE_INT:
-      vtkImageMat4dExecute(this, region, (int *)(ptr));
+    case VTK_INT:
+      vtkImageMatte4dExecute(this, region, (int *)(ptr));
       break;
-    case VTK_IMAGE_SHORT:
-      vtkImageMat4dExecute(this, region, (short *)(ptr));
+    case VTK_SHORT:
+      vtkImageMatte4dExecute(this, region, (short *)(ptr));
       break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImageMat4dExecute(this, region, (unsigned short *)(ptr));
+    case VTK_UNSIGNED_SHORT:
+      vtkImageMatte4dExecute(this, region, (unsigned short *)(ptr));
       break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImageMat4dExecute(this, region, (unsigned char *)(ptr));
+    case VTK_UNSIGNED_CHAR:
+      vtkImageMatte4dExecute(this, region, (unsigned char *)(ptr));
       break;
     default:
       vtkErrorMacro(<< "UpdateRegion: Cannot handle DataType.\n");
@@ -278,7 +278,7 @@ void vtkImageMat4d::UpdateRegion(vtkImageRegion *region)
 //----------------------------------------------------------------------------
 // Description:
 // Image information is same as input
-void vtkImageMat4d::UpdateImageInformation(vtkImageRegion *region)
+void vtkImageMatte4d::UpdateImageInformation(vtkImageRegion *region)
 {
   if ( ! this->Input)
     {
@@ -295,7 +295,7 @@ void vtkImageMat4d::UpdateImageInformation(vtkImageRegion *region)
 //----------------------------------------------------------------------------
 // Description:
 // Returns PipelineMTime of input.
-unsigned long vtkImageMat4d::GetPipelineMTime()
+unsigned long vtkImageMatte4d::GetPipelineMTime()
 {
   if ( ! this->Input)
     {
@@ -311,7 +311,7 @@ unsigned long vtkImageMat4d::GetPipelineMTime()
 //----------------------------------------------------------------------------
 // Description:
 // Returns DataType of input.
-int vtkImageMat4d::GetDataType()
+int vtkImageMatte4d::GetDataType()
 {
   if ( ! this->Input)
     {
@@ -327,7 +327,7 @@ int vtkImageMat4d::GetDataType()
 //----------------------------------------------------------------------------
 // Description:
 // Other widths are set to 0
-void vtkImageMat4d::SetBorderWidths1d(int w0)
+void vtkImageMatte4d::SetBorderWidths(int w0)
 {
   this->SetBorderWidths(w0, 0, 0, 0);
 }
@@ -335,7 +335,7 @@ void vtkImageMat4d::SetBorderWidths1d(int w0)
 //----------------------------------------------------------------------------
 // Description:
 // Other widths are set to 0
-void vtkImageMat4d::SetBorderWidths2d(int w0, int w1)
+void vtkImageMatte4d::SetBorderWidths(int w0, int w1)
 {
   this->SetBorderWidths(w0, w1, 0, 0);
 }
@@ -343,7 +343,7 @@ void vtkImageMat4d::SetBorderWidths2d(int w0, int w1)
 //----------------------------------------------------------------------------
 // Description:
 // Other widths are set to 0
-void vtkImageMat4d::SetBorderWidths3d(int w0, int w1, int w2)
+void vtkImageMatte4d::SetBorderWidths(int w0, int w1, int w2)
 {
   this->SetBorderWidths(w0, w1, w2, 0);
 }
