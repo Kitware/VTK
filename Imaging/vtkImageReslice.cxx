@@ -1565,24 +1565,14 @@ void vtkAllocBackgroundPixelT(vtkImageReslice *self,
     }
 }
 
-template <class T>
-static
-void vtkFreeBackgroundPixelT(vtkImageReslice *vtkNotUsed(self),
-                             T **background_ptr,
-                             int vtkNotUsed(numComponents))
-{
-  delete [] *background_ptr;
-  *background_ptr = NULL;
-}
-
 static
 void vtkAllocBackgroundPixel(vtkImageReslice *self, void **rval, 
                              int numComponents)
 {
   switch (self->GetOutput()->GetScalarType())
     {
-    vtkTemplateMacro3(vtkAllocBackgroundPixelT<VTK_TT>,
-                      self, (VTK_TT **)rval, numComponents);
+    vtkTypeCaseMacro(vtkAllocBackgroundPixelT(self, (VTK_TT **)rval,
+					      numComponents));
     }
 }      
 
@@ -1591,9 +1581,10 @@ void vtkFreeBackgroundPixel(vtkImageReslice *self, void **rval)
 {
   switch (self->GetOutput()->GetScalarType())
     {
-    vtkTemplateMacro3(vtkFreeBackgroundPixelT<VTK_TT>, 
-                      self, (VTK_TT **)rval, 0);
+    vtkTypeCaseMacro(delete [] *((VTK_TT **)rval));
     }
+
+  *rval = 0;
 }      
 
 //----------------------------------------------------------------------------
@@ -2838,17 +2829,20 @@ void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
     F fX3 = fX[3];
     fX += 4;
 
-    for (int c = 0; c < numscalars; c++)
+    int c = numscalars;
+    do
       { // loop over components
       F result = 0;
 
-      for (int k = lz; k <= hz; k++)
+      int k = lz;
+      do
         { // loop over z
         F fz = fZ[k];
         if (fz != 0)
           {
           int iz = iZ[k] + c;
-          for (int j = 0; j < 4; j++)
+	  int j = 0;
+	  do
             { // loop over y
             F fy = fY[j];
             F fzy = fz*fy;
@@ -2860,11 +2854,14 @@ void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
                            fX2*tmpPtr[iX2] +
                            fX3*tmpPtr[iX3]);
             }
+	  while (++j <= 3);
           }
         }
+      while (++k <= hz);
 
       vtkResliceClamp(result, *outPtr++);
       }
+    while (--c);
     }
 }
 
