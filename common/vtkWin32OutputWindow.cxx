@@ -85,40 +85,40 @@ HWND vtkWin32OutputWindow::OutputWindow = 0;
 
 // Display text in the window, and translate the \n to \r\n.
 
-void vtkWin32OutputWindow::DisplayText(const char* text)
+void vtkWin32OutputWindow::DisplayText(const char* someText)
 {
-  if(!text)
+  if(!someText)
     {
     return;
     }
   if(this->PromptUser)
     {
-    this->PromptText(text);
+    this->PromptText(someText);
     return;
     }
   
   // Create a buffer big enough to hold the entire text
-  char* buffer = new char[strlen(text)+1];
+  char* buffer = new char[strlen(someText)+1];
   // Start at the begining
-  const char* NewLinePos = text;
+  const char* NewLinePos = someText;
   while(NewLinePos)
     {
     int len = 0;
     // Find the next new line in text
-    NewLinePos = strchr(text, '\n');
+    NewLinePos = strchr(someText, '\n');
     // if no new line is found then just add the text
     if(NewLinePos == 0)
       {
-      vtkWin32OutputWindow::AddText(text);
+      vtkWin32OutputWindow::AddText(someText);
       }
     // if a new line is found copy it to the buffer
     // and add the buffer with a control new line
     else
       {
-      len = NewLinePos - text;
-      strncpy(buffer, text, len);
+      len = NewLinePos - someText;
+      strncpy(buffer, someText, len);
       buffer[len] = 0;
-      text = NewLinePos+1;
+      someText = NewLinePos+1;
       vtkWin32OutputWindow::AddText(buffer);
       vtkWin32OutputWindow::AddText("\r\n");
       }
@@ -129,9 +129,9 @@ void vtkWin32OutputWindow::DisplayText(const char* text)
 
 // Add some text to the EDIT control.
 
-void vtkWin32OutputWindow::AddText(const char* text)
+void vtkWin32OutputWindow::AddText(const char* someText)
 {
-  if(!Initialize()  || (strlen(text) == 0))
+  if(!Initialize()  || (strlen(someText) == 0))
     {
     return;
     }
@@ -141,7 +141,7 @@ void vtkWin32OutputWindow::AddText(const char* text)
 	       (WPARAM)-1, (LPARAM)-1 );  
   // Append the text to the control
   SendMessage( vtkWin32OutputWindow::OutputWindow, EM_REPLACESEL, 
-	       0, (LPARAM)text );
+	       0, (LPARAM)someText );
 }
 
 
@@ -225,10 +225,10 @@ int vtkWin32OutputWindow::Initialize()
 }
 
 
-void vtkWin32OutputWindow::PromptText(const char* text)
+void vtkWin32OutputWindow::PromptText(const char* someText)
 {
   ostrstream vtkmsg;
-  vtkmsg << text << "\nPress Cancel to supress any further messages." 
+  vtkmsg << someText << "\nPress Cancel to supress any further messages." 
          << ends;
   if (MessageBox(NULL, vtkmsg.str(), "Error",
 		 MB_ICONERROR | MB_OKCANCEL) == IDCANCEL) 

@@ -413,9 +413,9 @@ float *vtkCoordinate::GetComputedFloatDisplayValue(vtkViewport* viewport)
       break; // do not remove this break statement!
     case VTK_USERDEFINED:
         this->GetComputedUserDefinedValue(viewport);
-	      val[0] = ComputedUserDefinedValue[0];
-	      val[1] = ComputedUserDefinedValue[1];
-	      val[2] = ComputedUserDefinedValue[2];
+	      val[0] = this->ComputedUserDefinedValue[0];
+	      val[1] = this->ComputedUserDefinedValue[1];
+	      val[2] = this->ComputedUserDefinedValue[2];
         break;
     }
 

@@ -158,7 +158,7 @@ public:
   // when set as the TransformCoordinate in 2D-Mappers, the user
   // can customize display of 2D polygons
   virtual float *GetComputedUserDefinedValue(vtkViewport *)
-    { return Value; }
+    { return this->Value; }
 
 protected:
   vtkCoordinate();
