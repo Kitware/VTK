@@ -134,22 +134,7 @@ int *vtkXRenderWindow::GetScreenSize()
 
 // Get the current size of the window in pixels.
 int *vtkXRenderWindow::GetSize(void)
-{
-  XWindowAttributes attribs;
-
-  // if we aren't mapped then just return the ivar 
-  if (!this->Mapped)
-    {
-    return(this->Size);
-    }
-
-  //  Find the current window size 
-  XGetWindowAttributes(this->DisplayId, 
-		       this->WindowId, &attribs);
-
-  this->Size[0] = attribs.width;
-  this->Size[1] = attribs.height;
-  
+{  
   return this->Size;
 }
 
@@ -330,6 +315,28 @@ void vtkXRenderWindow::SetDisplayId(void *arg)
 {
   this->SetDisplayId((Display *)arg);
   this->OwnDisplay = 0;
+}
+
+
+void vtkXRenderWindow::Render()
+{
+  XWindowAttributes attribs;
+
+  // To avoid the expensive XGetWindowAttributes call,
+  // compute size at the start of a render and use
+  // the ivar other times.
+  if (this->Mapped)
+    {
+    //  Find the current window size 
+    XGetWindowAttributes(this->DisplayId, 
+		                    this->WindowId, &attribs);
+
+    this->Size[0] = attribs.width;
+    this->Size[1] = attribs.height;
+    }
+
+  // Now do the superclass stuff
+  this->vtkRenderWindow::Render();
 }
 
 void vtkXRenderWindow::PrintSelf(ostream& os, vtkIndent indent)

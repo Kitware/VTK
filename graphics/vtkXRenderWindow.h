@@ -64,7 +64,7 @@ class VTK_EXPORT vtkXRenderWindow : public vtkRenderWindow
 public:
   static vtkXRenderWindow *New();
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Xwindow get set functions
   virtual void *GetGenericDisplayId() {return (void *)this->GetDisplayId();};
@@ -134,6 +134,11 @@ public:
   // Description:
   // Set this RenderWindow's X window id to a pre-existing window.
   void     SetWindowInfo(char *info);
+
+  // Description:
+  // This computes the size of the render window 
+  // before calling the supper classes render
+  void Render();  
 
 protected:
   vtkXRenderWindow();
