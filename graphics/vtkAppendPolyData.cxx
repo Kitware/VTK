@@ -156,7 +156,7 @@ void vtkAppendPolyData::Execute()
     if ( pd->GetUserDefined() == NULL ) userDefinedPresent &= 0;
     }
 
-  if ( numPts < 1 || numCells < 1 )
+  if ( numPts < 1 )
     {
     vtkErrorMacro(<<"No data to append!");
     return;
