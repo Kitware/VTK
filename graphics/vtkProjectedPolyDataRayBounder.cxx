@@ -71,6 +71,10 @@ vtkProjectedPolyDataRayBounder *vtkProjectedPolyDataRayBounder::New()
     return vtkOpenGLProjectedPolyDataRayBounder::New();
 #endif
 
+  vtkGenericWarningMacro( << 
+    "Sorry, vtkProjectedPolyDataRayBounder is not supported for: " <<
+    temp );
+
   return new vtkProjectedPolyDataRayBounder;
 }
 
