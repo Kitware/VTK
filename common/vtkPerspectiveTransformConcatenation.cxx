@@ -179,6 +179,24 @@ void vtkPerspectiveTransformConcatenation::Concatenate(vtkPerspectiveTransform *
 }
 
 //----------------------------------------------------------------------------
+vtkPerspectiveTransform *vtkPerspectiveTransformConcatenation::Concatenate(
+                                            vtkPerspectiveTransform *t1,
+					    vtkPerspectiveTransform *t2,
+					    vtkPerspectiveTransform *t3,
+					    vtkPerspectiveTransform *t4)
+{
+  vtkPerspectiveTransformConcatenation *concat =
+    vtkPerspectiveTransformConcatenation::New();
+
+  if (t1) { concat->Concatenate(t1); }
+  if (t2) { concat->Concatenate(t2); }
+  if (t3) { concat->Concatenate(t3); }
+  if (t4) { concat->Concatenate(t4); }
+
+  return concat;
+}
+
+//----------------------------------------------------------------------------
 void vtkPerspectiveTransformConcatenation::Inverse()
 {
   this->InverseFlag = !this->InverseFlag;

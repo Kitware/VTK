@@ -179,6 +179,24 @@ void vtkLinearTransformConcatenation::Concatenate(vtkLinearTransform *trans)
 }
 
 //----------------------------------------------------------------------------
+vtkLinearTransform *vtkLinearTransformConcatenation::Concatenate(
+                                       vtkLinearTransform *t1,
+				       vtkLinearTransform *t2,
+				       vtkLinearTransform *t3,
+				       vtkLinearTransform *t4)
+{
+  vtkLinearTransformConcatenation *concat =
+    vtkLinearTransformConcatenation::New();
+
+  if (t1) { concat->Concatenate(t1); }
+  if (t2) { concat->Concatenate(t2); }
+  if (t3) { concat->Concatenate(t3); }
+  if (t4) { concat->Concatenate(t4); }
+
+  return concat;
+}
+
+//----------------------------------------------------------------------------
 void vtkLinearTransformConcatenation::Inverse()
 {
   this->InverseFlag = !this->InverseFlag;

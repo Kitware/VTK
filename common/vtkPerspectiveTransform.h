@@ -110,38 +110,6 @@ public:
     return (vtkPerspectiveTransform *)this->GetInverse(); };
 
   // Description:
-  // Create a pipelined concatenation of two transforms.  
-  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
-					      vtkPerspectiveTransform *t2) {
-    return vtkPerspectiveTransform::Concatenate(t1,t2,0,0); };
-  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
-					  vtkGeneralTransform *t2) {
-    return vtkGeneralTransform::Concatenate(t1,t2,0,0); };
-
-  // Description:
-  // Create a pipelined concatenation of three transforms.  
-  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
-					      vtkPerspectiveTransform *t2,
-					      vtkPerspectiveTransform *t3) {
-    return vtkPerspectiveTransform::Concatenate(t1,t2,t3,0); };
-  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
-					  vtkGeneralTransform *t2,
-					  vtkGeneralTransform *t3) {
-    return vtkGeneralTransform::Concatenate(t1,t2,t3,0); };
-
-  // Description:
-  // Create a pipelined concatenation of four transforms.  
-  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
-					      vtkPerspectiveTransform *t2,
-					      vtkPerspectiveTransform *t3,
-					      vtkPerspectiveTransform *t4);
-  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
-					  vtkGeneralTransform *t2,
-					  vtkGeneralTransform *t3,
-					  vtkGeneralTransform *t4) {
-    return vtkGeneralTransform::Concatenate(t1,t2,t3,t4); };
-
-  // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
   void InternalTransformPoint(const float in[3], float out[3]);

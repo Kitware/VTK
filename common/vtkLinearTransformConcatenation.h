@@ -62,6 +62,26 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
+  // Create a pipelined concatenation of two linear transforms.  
+  static vtkLinearTransform *Concatenate(vtkLinearTransform *t1,
+					 vtkLinearTransform *t2) {
+    return vtkLinearTransformConcatenation::Concatenate(t1,t2,0,0); };
+
+  // Description:
+  // Create a pipelined concatenation of three linear transforms.  
+  static vtkLinearTransform *Concatenate(vtkLinearTransform *t1,
+					 vtkLinearTransform *t2,
+					 vtkLinearTransform *t3) {
+    return vtkLinearTransformConcatenation::Concatenate(t1,t2,t3,0); };
+
+  // Description:
+  // Create a pipelined concatenation of four linear transforms.  
+  static vtkLinearTransform *Concatenate(vtkLinearTransform *t1,
+					 vtkLinearTransform *t2,
+					 vtkLinearTransform *t3,
+					 vtkLinearTransform *t4);
+
+  // Description:
   // Concatenate the current transform with the specified transform,
   // taking the PreMultiply flag into consideration.
   void Concatenate(vtkLinearTransform *transform);

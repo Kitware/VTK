@@ -136,26 +136,6 @@ public:
   virtual void DeepCopy(vtkGeneralTransform *) = 0;
 
   // Description:
-  // Create a pipelined concatenation of two transforms.  
-  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
-					  vtkGeneralTransform *t2) {
-    return vtkGeneralTransform::Concatenate(t1,t2,0,0); };
-
-  // Description:
-  // Create a pipelined concatenation of three transforms.  
-  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
-					  vtkGeneralTransform *t2,
-					  vtkGeneralTransform *t3) {
-    return vtkGeneralTransform::Concatenate(t1,t2,t3,0); };
-
-  // Description:
-  // Create a pipelined concatenation of four transforms.  
-  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
-					  vtkGeneralTransform *t2,
-					  vtkGeneralTransform *t3,
-					  vtkGeneralTransform *t4);
-
-  // Description:
   // Update the transform to account for any changes which
   // have been made.  You do not have to call this method 
   // yourself, it is called automatically whenever the
