@@ -40,7 +40,7 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.17");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.18");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayCastFunction,
@@ -193,18 +193,31 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
 {
   int i;
 
-  // make sure that we have scalar input and update the scalar input
+  // Check for input
   if ( this->GetInput() == NULL ) 
     {
     vtkErrorMacro(<< "No Input!");
     return;
     }
-  else
+  
+  // Check for point data
+  if ( this->GetInput()->GetPointData() == NULL )
     {
-    this->GetInput()->UpdateInformation();
-    this->GetInput()->SetUpdateExtentToWholeExtent();
-    this->GetInput()->Update();
-    } 
+    vtkErrorMacro( "Can't use the ray cast mapper without point data!" );
+    return;
+    }
+  
+  // Check for scalars in the point data     
+  if ( this->GetInput()->GetPointData()->GetScalars() == NULL )
+    {
+    vtkErrorMacro
+      ( "Can't use the ray cast mapper without scalars in the point data" );
+    return;
+    }
+  
+  this->GetInput()->UpdateInformation();
+  this->GetInput()->SetUpdateExtentToWholeExtent();
+  this->GetInput()->Update();
 
 
   // Start timing now. We didn't want to capture the update of the
