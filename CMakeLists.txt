@@ -1,6 +1,7 @@
 PROJECT(VTK)
 OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
 OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
+OPTION(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids" OFF)
 
 SUBDIRS(Wrapping Utilities Common Filtering Imaging Graphics IO)
 
@@ -221,7 +222,6 @@ IF (BUILD_EXAMPLES)
     SUBDIR_DEPENDS(Examples Parallel)
   ENDIF (VTK_USE_PARALLEL)
 ENDIF (BUILD_EXAMPLES)
-
 
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
 

@@ -37,4 +37,6 @@
 #define VTKSTATIC
 #endif
 
+#cmakedefine VTK_USE_64BIT_IDS
+
 #cmakedefine VTK_USE_ANSI_STDLIB
