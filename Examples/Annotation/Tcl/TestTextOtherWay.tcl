@@ -16,21 +16,18 @@ vtkPolyDataMapper   sphereMapper
 vtkLODActor sphereActor
     sphereActor SetMapper sphereMapper
 
-# Create a text mapper.  Set the text, font, justification, and text
-# properties (bold, italics, etc.).
-vtkTextMapper textMapper
-    textMapper SetInput "This is a sphere"
-    textMapper SetFontSize 18
-    textMapper SetFontFamilyToArial
-    textMapper SetJustificationToCentered
-    textMapper BoldOn
-    textMapper ItalicOn
-    textMapper ShadowOn
-
-# Create a scaled text actor. Set the position and color of the text.
-vtkScaledTextActor textActor
-    textActor SetMapper textMapper
-    textActor SetDisplayPosition 90 50
+# Create a scaled text actor. 
+# Set the text, font, justification, and properties (bold, italics, etc.).
+vtkTextActor textActor
+    textActor SetInput "This is a sphere"
+    textActor SetFontSize 18
+    textActor SetFontFamilyToArial
+    textActor SetJustificationToCentered
+    textActor BoldOn
+    textActor ItalicOn
+    textActor ShadowOn
+    textActor ScaledTextOn
+    textActor SetDisplayPosition 90 50 
     [textActor GetProperty] SetColor 0 0 1
 
 # Create the Renderer, RenderWindow, RenderWindowInteractor
