@@ -5,6 +5,8 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to Peter C. Everett <pce@world.std.com> for
+             improvements and enhancements to vtkOBBTree class.
 
 
 Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -76,7 +78,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkOBBTree_h
 
 #include "vtkCellLocator.h"
-
+#include "vtkMatrix4x4.h"
+#include "vtkCellTriMacro.h"
 //
 // Special class defines node for the OBB tree
 //
@@ -92,6 +95,8 @@ public:
   vtkOBBNode *Parent; //parent node; NULL if root
   vtkOBBNode **Kids; //two children of this node; NULL if leaf
   vtkIdList *Cells; //list of cells in node
+  void DebugPrintTree( int level, double *leaf_vol, int *minCells,
+                       int *maxCells );
 };
 //ETX - end tcl exclude
 //
@@ -116,13 +121,47 @@ public:
                   float mid[3], float min[3], float size[3]);
 
   // Description:
-  // Return intersection point of line defined by two points (a0,a1) in dataset
-  // coordinate system; returning cellId (or -1 if no intersection). The 
-  // argument list returns the intersection parametric coordinate, t, along 
-  // the line; the coordinate of intersection, x[3]; the cell parametric
-  // coordinates, pcoords[3]; and subId of the cell. (Not yet implemented.)
-  int IntersectWithLine(float a0[3], float a1[3], float& t, 
-                        float x[3], float pcoords[3],int &subId);
+  // Compute an OBB from the list of cells given. Return the corner point
+  // and the three axes defining the orientation of the OBB. Also return
+  // a sorted list of relative "sizes" of axes for comparison purposes.
+  void ComputeOBB(vtkIdList *cells, float corner[3], float max[3], 
+                       float mid[3], float min[3], float size[3]);
+
+  int IntersectWithLine(float a0[3], float a1[3], float tol,
+                        float& t, float x[3], float pcoords[3],
+                        int &subId);
+
+  int IntersectWithLine(float a0[3], float a1[3], float tol,
+                        float& t, float x[3], float pcoords[3],
+                        int &subId, int &cellId);
+
+  // Description:
+  // Returns true if nodeB and nodeA are disjoint after optional
+  // transformation of nodeB with matrix XformBtoA
+  int DisjointOBBNodes( vtkOBBNode *nodeA, vtkOBBNode *nodeB,
+                        vtkMatrix4x4 *XformBtoA );
+
+  // Description:
+  // Returns true if line intersects node.
+  int LineIntersectsNode( vtkOBBNode *pA, float B0[3], float B1[3] );
+
+  // Description:
+  // Returns true if triangle (optionally transformed) intersects node.
+  int TriangleIntersectsNode( vtkOBBNode *pA,
+                                     float p0[3], float p1[3],
+                                     float p2[3], vtkMatrix4x4 *XformBtoA );
+
+  //BTX
+  // Description:
+  // For each intersecting leaf node pair, call function.
+  // OBBTreeB is optionally transformed by XformBtoA before testing.
+  int IntersectWithOBBTree( vtkOBBTree *OBBTreeB, vtkMatrix4x4 *XformBtoA,
+                            int(*function)( vtkOBBNode *nodeA,
+                                            vtkOBBNode *nodeB,
+                                            vtkMatrix4x4 *Xform,
+                                            void *arg ),
+                            void *data_arg );
+  //ETX
 
   // Description:
   // Satisfy locator'a abstract interface, see vtkLocator.
@@ -130,15 +169,14 @@ public:
   void BuildLocator();
 
   // Description:
-  // Create polygonal representation for OBB tree at specified level. If 
+  // Create polygonal representation for OBB tree at specified level. If
   // level < 0, then the leaf OBB nodes will be gathered. The aspect ratio (ar)
-  // and line diameter (d) are used to control the building of the 
+  // and line diameter (d) are used to control the building of the
   // representation. If a OBB node edge ratio's are greater than ar, then the
   // dimension of the OBB is collapsed (OBB->plane->line). A "line" OBB will be
   // represented either as two crossed polygons, or as a line, depending on
   // the relative diameter of the OBB compared to the diameter (d).
   void GenerateRepresentation(int level, vtkPolyData *pd);
-
 
 protected:
   vtkOBBNode *Tree;
@@ -155,5 +193,3 @@ protected:
 };
 
 #endif
-
-
