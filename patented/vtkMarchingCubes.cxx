@@ -168,7 +168,7 @@ static void ComputePointGradient(int i, int j, int k, T *s, int dims[3],
 // Contouring filter specialized for volumes and "short int" data values.  
 //
 template <class T>
-static void ContourVolume(T *scalars, int dims[3], float origin[3], float Spacing[3],
+static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3], float origin[3], float Spacing[3],
 		   vtkPointLocator *locator, vtkScalars *newScalars, 
                    vtkFloatVectors *newGradients, vtkFloatNormals *newNormals, 
                    vtkCellArray *newPolys, float *values, int numValues)
@@ -205,6 +205,9 @@ static void ContourVolume(T *scalars, int dims[3], float origin[3], float Spacin
   sliceSize = dims[0] * dims[1];
   for ( k=0; k < (dims[2]-1); k++)
     {
+    self->UpdateProgress ((float) k / ((float) dims[2] - 1));
+    if (self->GetAbortExecute()) break;
+
     kOffset = k*sliceSize;
     pts[0][2] = origin[2] + k*Spacing[2];
     zp = origin[2] + (k+1)*Spacing[2];
@@ -436,7 +439,7 @@ void vtkMarchingCubes::Execute()
       {
       newScalars = NULL;
       }
-    ContourVolume(scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
+    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
                   newNormals,newPolys,values,numContours);
     }
 
@@ -453,7 +456,7 @@ void vtkMarchingCubes::Execute()
       newScalars = NULL;
       }
 
-    ContourVolume(scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
+    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
                   newNormals,newPolys,values,numContours);
     }
   
@@ -470,7 +473,7 @@ void vtkMarchingCubes::Execute()
       newScalars = NULL;
       }
 
-    ContourVolume(scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
+    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
                   newNormals,newPolys,values,numContours);
     }
   
@@ -486,7 +489,7 @@ void vtkMarchingCubes::Execute()
       {
       newScalars = NULL;
       }
-    ContourVolume(scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
+    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
                   newNormals,newPolys,values,numContours);
     }
 
@@ -502,7 +505,7 @@ void vtkMarchingCubes::Execute()
       {
       newScalars = NULL;
       }
-    ContourVolume(scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
+    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
                   newNormals,newPolys,values,numContours);
     }
 
@@ -521,7 +524,7 @@ void vtkMarchingCubes::Execute()
       newScalars = NULL;
       }
     float *scalars = image->GetPointer(0);
-    ContourVolume(scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
+    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
                   newNormals,newPolys,values,numContours);
 
     image->Delete();
