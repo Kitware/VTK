@@ -180,7 +180,8 @@ protected:
   int ArrayComponent;
 
   void* GetScalarsForExtent(vtkDataArray *array, int extent[6]);
-  
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   //BTX
   friend class VTK_PATENTED_EXPORT vtkKitwareContourFilter;

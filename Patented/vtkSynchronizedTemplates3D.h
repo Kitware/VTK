@@ -189,7 +189,8 @@ protected:
   vtkSetStringMacro(InputScalarsSelection);
 
   int ArrayComponent;
-  
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   //BTX
   friend class VTK_PATENTED_EXPORT vtkKitwareContourFilter;

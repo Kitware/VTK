@@ -52,6 +52,7 @@ protected:
   
   void ReadSpecificMolecule(FILE* fp);
 
+  virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkGaussianCubeReader(const vtkGaussianCubeReader&);  // Not implemented.
   void operator=(const vtkGaussianCubeReader&);  // Not implemented.

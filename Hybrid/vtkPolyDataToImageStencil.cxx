@@ -15,13 +15,14 @@
 #include "vtkPolyDataToImageStencil.h"
 
 #include "vtkImageStencilData.h"
+#include "vtkInformation.h"
 #include "vtkOBBTree.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.10");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.11");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 
 //----------------------------------------------------------------------------
@@ -30,6 +31,7 @@ vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
   this->OBBTree = NULL;
   this->Tolerance = 1e-3;
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -271,4 +273,16 @@ void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
     delete [] zlist;
     }
   points->Delete();
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyDataToImageStencil::FillInputPortInformation(int port,
+                                                        vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  return 1;
 }

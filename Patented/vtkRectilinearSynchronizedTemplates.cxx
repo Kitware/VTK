@@ -32,6 +32,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkMath.h"
@@ -48,7 +49,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.11");
+vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.12");
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
 //----------------------------------------------------------------------------
@@ -58,6 +59,7 @@ vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 vtkRectilinearSynchronizedTemplates::vtkRectilinearSynchronizedTemplates()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
   this->ContourValues = vtkContourValues::New();
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
@@ -826,6 +828,18 @@ void vtkRectilinearSynchronizedTemplates::ComputeSpacing(
     spacing[5] = zCoords->GetComponent(k-extent[4]+1, 0) -
       zCoords->GetComponent(k-extent[4], 0);
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkRectilinearSynchronizedTemplates::FillInputPortInformation(int port,
+                                                                  vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

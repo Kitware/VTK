@@ -56,6 +56,8 @@ protected:
 
   double Tolerance;
   vtkOBBTree *OBBTree;
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&);  // Not implemented.
   void operator=(const vtkPolyDataToImageStencil&);  // Not implemented.

@@ -32,6 +32,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkMath.h"
@@ -48,7 +49,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.81");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.82");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -60,6 +61,7 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
   int idx;
 
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
   this->ContourValues = vtkContourValues::New();
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
@@ -1025,10 +1027,17 @@ vtkImageData *vtkSynchronizedTemplates3D::GetInput()
   return (vtkImageData *)(this->Inputs[0]);
 }
 
-  
-
-
-
+//----------------------------------------------------------------------------
+int vtkSynchronizedTemplates3D::FillInputPortInformation(int port,
+                                                         vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
