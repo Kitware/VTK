@@ -19,16 +19,19 @@ vtkLODActor sphereActor
 # Create a scaled text actor. 
 # Set the text, font, justification, and properties (bold, italics, etc.).
 vtkTextActor textActor
-    textActor SetInput "This is a sphere"
-    textActor SetFontSize 18
-    textActor SetFontFamilyToArial
-    textActor SetJustificationToCentered
-    textActor BoldOn
-    textActor ItalicOn
-    textActor ShadowOn
     textActor ScaledTextOn
     textActor SetDisplayPosition 90 50 
     [textActor GetProperty] SetColor 0 0 1
+    textActor SetInput "This is a sphere"
+
+set tprop [textActor GetTextProperty]
+    $tprop SetFontSize 18
+    $tprop SetFontFamilyToArial
+    $tprop SetJustificationToCentered
+    $tprop BoldOn
+    $tprop ItalicOn
+    $tprop ShadowOn
+    $tprop SetColor 0 0 1
 
 # Create the Renderer, RenderWindow, RenderWindowInteractor
 #
