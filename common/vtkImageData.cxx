@@ -46,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageToStructuredPoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkExtentTranslator.h"
+#include "vtkLargeInteger.h"
 
 
 
@@ -167,7 +168,7 @@ void vtkImageData::CopyTypeSpecificInformation( vtkDataObject *data )
 
 unsigned long vtkImageData::GetEstimatedMemorySize()
 {
-  double          size; 
+  vtkLargeInteger size; 
   int             idx;
   int             *uExt; 
   unsigned long   lsize;
@@ -216,7 +217,6 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
         << "Cannot determine input scalar type");
     }  
 
-
   // Multiply by the number of scalars.
   uExt = this->GetUpdateExtent();
   for (idx = 0; idx < 3; ++idx)
@@ -228,8 +228,8 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
   size = (size < 0)?(0):size;
 
   // Convert from double bytes to unsigned long kilobytes
-  lsize = (long)(size / 1000.0);
-  
+  size = size >> 10;
+  lsize = size.to_unsigned_long();
   return lsize;
 }
 
