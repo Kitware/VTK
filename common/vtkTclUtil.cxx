@@ -132,6 +132,8 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
   char *args[2];
   char *temp;
   Tcl_Interp *i;
+  vtkObject *tobject;
+  int error;
   
   /* set up the args */
   args[1] = "Delete";
@@ -146,15 +148,28 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
   entry = Tcl_FindHashEntry(&vtkCommandLookup,temp);
   command = (int (*)(ClientData,Tcl_Interp *,int,char *[]))Tcl_GetHashValue(entry);
 
+  i = Tcl_CreateInterp();
+
+  // first we clear the delete callback since we will
+  // always remove this object from the hash regardless
+  // of if it has really been freed.
+  tobject = (vtkObject *)vtkTclGetPointerFromObject(temp,"vtkObject",
+						    i, error);
+  tobject->SetDeleteMethod(NULL);
+  
   // do we need to delete the c++ obj
   if (strncmp(temp,"vtkTemp",7))
     {
-    i = Tcl_CreateInterp();
-    vtkInDelete = 1;
-    command(cd,i,2,args);
-    vtkInDelete = 0;
-    Tcl_DeleteInterp(i);
+      vtkInDelete = 1;
+      command(cd,i,2,args);
+      vtkInDelete = 0;
+      Tcl_DeleteInterp(i);
     }
+
+  // the actual C++ object may not be freed yet. So we 
+  // force it to be free from the hash table and
+  // clear its delete callback
+  vtkTclDeleteObjectFromHashByName(temp);
   if (temp)
     {
     free(temp);
@@ -166,8 +181,6 @@ int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
   Tcl_HashEntry *entry;
   Tcl_HashSearch search;
   char * tmp;
-  vtkObject *tobject;
-  int error;
   
   cd = 0; // shut up the compiler
 
@@ -183,20 +196,10 @@ int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
 	 entry = Tcl_FirstHashEntry(&vtkPointerLookup,&search))
       {
       tmp = strdup((char *)Tcl_GetHashValue(entry));
-      // first we clear the delete callback since we will
-      // always remove this object from the hash regardless
-      // of if it has really been freed.
-      tobject = (vtkObject *)vtkTclGetPointerFromObject(tmp,"vtkObject",
-							interp, error);
-      tobject->SetDeleteMethod(NULL);
       if (tmp)
 	{
 	Tcl_DeleteCommand(interp,tmp);
 	}
-      // the actual C++ object may not be freed yet. So we 
-      // force it to be free from the hash table and
-      // clear its delete callback
-      vtkTclDeleteObjectFromHashByName(tmp);
       if (tmp)
 	{
 	free(tmp);
