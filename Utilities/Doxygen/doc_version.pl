@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-10-17 16:30:58 barre>
+# Time-stamp: <2001-10-24 21:53:23 barre>
 #
 # Extract VTK version and add it to documentation
 #
@@ -45,6 +45,7 @@
 
 use Carp;
 use Fcntl;
+use File::Basename;
 use Getopt::Long;
 use strict;
 
@@ -135,7 +136,7 @@ print DEST_FILE
   "/*! \@mainpage VTK $version Documentation\n\n";
 
 print DEST_FILE 
-  "  \@image html " . $args{"logo"} . "\n"
+  "  \@image html " . basename($args{"logo"}) . "\n"
   if exists $args{"logo"} && -f $args{"logo"};
 
 print DEST_FILE 
