@@ -347,7 +347,7 @@ void vtkSource::UpdateData(vtkDataObject *vtkNotUsed(output))
     {
     if (this->Outputs[idx])
       {
-      this->Outputs[idx]->Initialize(); 
+      this->Outputs[idx]->PrepareForNewData(); 
       }
     }
  

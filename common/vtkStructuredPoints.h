@@ -75,6 +75,10 @@ public:
   // vtkStructuredPoints data object.
   virtual void ModifyExtentForUpdateExtent();
 
+  // Description:
+  // Internal method in a class we hope to remove
+  virtual void PropagateUpdateExtent();
+
 protected:
   vtkStructuredPoints();
   ~vtkStructuredPoints() {};

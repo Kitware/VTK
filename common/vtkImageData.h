@@ -299,9 +299,19 @@ public:
   void CopyTypeSpecificInformation( vtkDataObject *image );
 
   // Description:
+  // Return non zero if the UpdateExtent is outside of the Extent
+  virtual int UpdateExtentIsOutsideOfTheExtent();
+
+  // Description:
   // Needs to be overridden from vtkDataObject so that we can call
   // the correct version of SetExtent rather than just doing a memcpy.
   virtual void ModifyExtentForUpdateExtent();
+
+  // Description:
+  // make the output data ready for new data to be inserted. For most 
+  // objects we just call Initialize. But for imagedata we leave the old
+  // data in case the memory can be reused.
+  virtual void PrepareForNewData() {};
 
   void SetMemoryLimit( int vtkNotUsed(x) ) 
     { vtkErrorMacro( << "Memory limit no longer supported - use streamer" ); };

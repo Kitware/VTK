@@ -159,6 +159,10 @@ public:
   vtkGetVector6Macro(Extent,int);
 
   // Description:
+  // Return non zero if the UpdateExtent is outside of the Extent
+  virtual int UpdateExtentIsOutsideOfTheExtent();
+
+  // Description:
   // Return the actual size of the data in kilobytes. This number
   // is valid only after the pipeline has updated. The memory size
   // returned is guaranteed to be greater than or equal to the
