@@ -255,7 +255,6 @@ void get_args(FILE *fp, int i)
         {
         fprintf(fp,"  temp%i[%i] = ((jdouble *)tempArray%i)[%i];\n",i,j,i,j);
         }
-      fprintf(fp,"  env->ReleaseDoubleArrayElements(id%i,(jdouble *)tempArray%i,0);\n",i,i);      
       break;
     case 304:
     case 306:
@@ -264,7 +263,6 @@ void get_args(FILE *fp, int i)
         {
         fprintf(fp,"  temp%i[%i] = ((jint *)tempArray%i)[%i];\n",i,j,i,j);
         }
-      fprintf(fp,"  env->ReleaseIntArrayElements(id%i,(jint *)tempArray%i,0);\n",i,i);      
       break;
     case 2:    
     case 9: break;
@@ -272,6 +270,46 @@ void get_args(FILE *fp, int i)
     }
 }
 
+
+void copy_and_release_args(FILE *fp, int i)
+{
+  int j;
+  
+  /* handle VAR FUNCTIONS */
+  if (currentFunction->ArgTypes[i] == 5000)
+    {
+    return;
+    }
+
+  /* ignore void */
+  if (((currentFunction->ArgTypes[i] % 10) == 2)&&
+      (!((currentFunction->ArgTypes[i]%1000)/100)))
+    {
+    return;
+    }
+  
+  switch (currentFunction->ArgTypes[i]%1000)
+    {
+    case 301:
+    case 307:
+      for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+        {
+        fprintf(fp,"  ((jdouble *)tempArray%i)[%i] = temp%i[%i];\n",i,j,i,j);
+        }
+      fprintf(fp,"  env->ReleaseDoubleArrayElements(id%i,(jdouble *)tempArray%i,0);\n",i,i);      
+      break;
+    case 304:
+    case 306:
+      for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+        {
+        fprintf(fp,"  ((jint *)tempArray%i)[%i] = temp%i[%i];\n",i,j,i,j);
+        }
+      fprintf(fp,"  env->ReleaseIntArrayElements(id%i,(jint *)tempArray%i,0);\n",i,i);      
+      break;
+    default: 
+      break;
+    }
+}
 
 void do_return(FILE *fp)
 {
@@ -556,9 +594,9 @@ void outputFunction(FILE *fp, FileInfo *data)
       
       /* now get the required args from the stack */
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
-          {
-            get_args(fp, i);
-          }
+        {
+        get_args(fp, i);
+        }
       
       fprintf(fp,"\n  op = (%s *)vtkJavaGetPointerFromObject(env,obj,(char *) \"%s\");\n",
               data->ClassName,data->ClassName);
@@ -577,30 +615,35 @@ void outputFunction(FILE *fp, FileInfo *data)
           }
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
           {
-            if (i)
-                {
-              fprintf(fp,",");
-                }
-            if (currentFunction->ArgTypes[i]%1000 == 109)
-                {
-              fprintf(fp,"*(temp%i)",i);
-                }
-            else if (currentFunction->ArgTypes[i] == 5000)
-                {
-              fprintf(fp,"vtkJavaVoidFunc,(void *)temp%i",i);
-                }
-            else
-                {
-              fprintf(fp,"temp%i",i);
-                }
+          if (i)
+            {
+            fprintf(fp,",");
+            }
+          if (currentFunction->ArgTypes[i]%1000 == 109)
+            {
+            fprintf(fp,"*(temp%i)",i);
+            }
+          else if (currentFunction->ArgTypes[i] == 5000)
+            {
+            fprintf(fp,"vtkJavaVoidFunc,(void *)temp%i",i);
+            }
+          else
+            {
+            fprintf(fp,"temp%i",i);
+            }
           } /* for */
       fprintf(fp,");\n");
       if (currentFunction->NumberOfArguments == 1 && currentFunction->ArgTypes[0] == 5000)
-          {
-            fprintf(fp,"  op->%sArgDelete(vtkJavaVoidFuncArgDelete);\n",
-                  currentFunction->Name);
-          }
+        {
+        fprintf(fp,"  op->%sArgDelete(vtkJavaVoidFuncArgDelete);\n",
+                currentFunction->Name);
+        }
       
+      /* now copy and release any arrays */
+      for (i = 0; i < currentFunction->NumberOfArguments; i++)
+        {
+        copy_and_release_args(fp, i);
+        }
       do_return(fp);
       fprintf(fp,"}\n");
       
