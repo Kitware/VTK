@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkProgrammableSource, "1.25");
+vtkCxxRevisionMacro(vtkProgrammableSource, "1.26");
 vtkStandardNewMacro(vtkProgrammableSource);
 
 // Construct programmable filter with empty execute method.
@@ -33,6 +33,7 @@ vtkProgrammableSource::vtkProgrammableSource()
   this->ExecuteMethod = NULL;
   this->ExecuteMethodArg = NULL;
   this->ExecuteMethodArgDelete = NULL;
+  this->RequestInformationMethod = NULL;
 
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(5);
@@ -93,6 +94,15 @@ void vtkProgrammableSource::SetExecuteMethodArgDelete(void (*f)(void *))
   if ( f != this->ExecuteMethodArgDelete)
     {
     this->ExecuteMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+void vtkProgrammableSource::SetRequestInformationMethod(void (*f)(void *))
+{
+  if ( f != this->RequestInformationMethod )
+    {
+    this->RequestInformationMethod = f;
     this->Modified();
     }
 }
@@ -304,5 +314,20 @@ int vtkProgrammableSource::RequestDataObject(
     default:
       return 0;
     }
+  return 1;
+}
+
+int vtkProgrammableSource::RequestInformation(vtkInformation *,
+                                              vtkInformationVector **,
+                                              vtkInformationVector *)
+{
+  vtkDebugMacro(<<"requesting information");
+
+  // Now invoke the procedure, if specified.
+  if ( this->RequestInformationMethod != NULL )
+    {
+    (*this->RequestInformationMethod)(NULL);
+    }
+
   return 1;
 }

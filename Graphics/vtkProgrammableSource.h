@@ -59,6 +59,10 @@ public:
   void SetExecuteMethodArgDelete(void (*f)(void *));
 
   // Description:
+  // Specify the function to use to fill in information about the source data.
+  void SetRequestInformationMethod(void (*f)(void *));
+
+  // Description:
   // Get the output as a concrete type. This method is typically used by the
   // writer of the source function to get the output as a particular type
   // (i.e., it essentially does type casting). It is the users responsibility
@@ -87,10 +91,12 @@ protected:
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestDataObject(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   void (*ExecuteMethod)(void *); //function to invoke
   void (*ExecuteMethodArgDelete)(void *);
-  void *ExecuteMethodArg;  
+  void *ExecuteMethodArg;
+  void (*RequestInformationMethod)(void *); // function to invoke
 
   vtkTimeStamp ExecuteTime;
   int RequestedDataType;
