@@ -46,13 +46,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // "inverse distance weighted". Once the structured points are computed, the 
 // usual visualization techniques can be used visualize the structured points.
 // .SECTION Caveats
-//    The input to this filter is any dataset type. This this filter can be used
-// to resample any form of data, i.e., the input data need not be unstructured.
+//    The input to this filter is any dataset type. This filter can be used 
+// to resample any form of data, i.e., the input data need not be 
+// unstructured. 
 //    The bounds of the data (i.e., the sample space) is automatically computed
 // if not set by the user.
-//    If you use a maximum distance less than 1.0, some output points will never
-// receive a contribution. The final value of these points can be specified with
-// the "NullValue" instance variable.
+//    If you use a maximum distance less than 1.0, some output points may
+// never receive a contribution. The final value of these points can be 
+// specified with the "NullValue" instance variable.
 
 #ifndef __vtkShepardMethod_h
 #define __vtkShepardMethod_h
