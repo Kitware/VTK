@@ -102,10 +102,8 @@ foreach dim $dims {
     rg$dim SetXCoordinates sx$dim
     rg$dim SetYCoordinates sy$dim
     rg$dim SetZCoordinates sz$dim
-  vtkRectilinearGrid rgCopy$dim
-    rgCopy$dim DeepCopy rg$dim
   vtkRectilinearGridGeometryFilter rggf$dim
-    rggf$dim SetInput rgCopy$dim
+    rggf$dim SetInput rg$dim
   vtkPolyDataMapper pdm$dim
     pdm$dim SetInput [rggf$dim GetOutput]
     pdm$dim SetScalarRange 0 127
