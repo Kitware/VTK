@@ -28,7 +28,7 @@
 #import <Carbon/Carbon.h>
 
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.9");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.10");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -43,15 +43,17 @@ void (*vtkCarbonRenderWindowInteractor::ClassExitMethodArgDelete)(void *)
 static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef nextHandler,
                                      EventRef event, void* userData)
 {
-  WindowRef                        window;
-  Rect                             bounds;
+  WindowRef                        window = NULL;
+  Rect                             bounds = {0,0,0,0};
   OSStatus                         result = eventNotHandledErr;
   Point                            mouseLoc;
   vtkCarbonRenderWindow            *ren;
   vtkCarbonRenderWindowInteractor  *me;
+  UInt32                           eventClass = GetEventClass(event);
+  UInt32                           eventKind = GetEventKind (event);
 
   ren = (vtkCarbonRenderWindow *)GetWRefCon((WindowPtr)userData);
-  
+
   if (NULL == ren)
     {
     return 0;
@@ -69,12 +71,18 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef nextHandler,
   int controlDown = (modifierKeys & controlKey);
   int shiftDown = (modifierKeys & shiftKey);
 
-  switch (GetEventClass(event))
+  switch (eventClass)
     {
     case kEventClassWindow:
       {
-      switch (GetEventKind(event))
+      GetEventParameter(event, kEventParamDirectObject,
+                        typeWindowRef, NULL, sizeof(WindowRef), NULL, &window);
+      switch (eventKind)
         {
+        case kEventWindowCollapsing:
+          // This will require code to render the screen contents into the 
+          // collapsed window dock tile.
+          break;
         case kEventWindowClickContentRgn:
           {
           GetEventParameter(event, kEventParamMouseLocation, typeQDPoint,
