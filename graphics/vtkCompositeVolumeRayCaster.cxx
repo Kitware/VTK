@@ -1569,8 +1569,7 @@ void vtkCompositeVolumeRayCaster::UpdateOpacityTFforSampleSize(vtkRenderer *ren,
       if (originalAlpha > 0.0001)
 	{
 	correctedAlpha = 
-	  // 1.0-pow((double)(1.0-originalAlpha),double(this->CorrectedStepSize));
-	  originalAlpha * this->CorrectedStepSize;
+	  1.0-pow((double)(1.0-originalAlpha),double(this->CorrectedStepSize));
 	}
       else
 	{
