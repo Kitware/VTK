@@ -121,6 +121,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
 {
   int numPts = data->GetNumberOfPoints();
   int numCells = data->GetNumberOfCells();
+  int numberOfPoints;
   int i, j, ptId, cellId;
   vtkCell *cell;
   unsigned short *linkLoc;
@@ -129,7 +130,8 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
   for (cellId=0; cellId < numCells; cellId++)
     {
     cell = data->GetCell(cellId);
-    for (j=0; j < cell->GetNumberOfPoints(); j++)
+    numberOfPoints = cell->GetNumberOfPoints();
+    for (j=0; j < numberOfPoints; j++)
       {
       this->IncrementLinkCount(cell->PointIds.GetId(j));      
       }      
@@ -146,7 +148,8 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
   for (cellId=0; cellId < numCells; cellId++)
     {
     cell = data->GetCell(cellId);
-    for (j=0; j < cell->GetNumberOfPoints(); j++)
+    numberOfPoints = cell->GetNumberOfPoints();
+    for (j=0; j < numberOfPoints; j++)
       {
       ptId = cell->PointIds.GetId(j);
       this->InsertCellReference(ptId, (linkLoc[ptId])++, cellId);      
