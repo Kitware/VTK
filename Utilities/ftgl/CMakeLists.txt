@@ -102,12 +102,6 @@ IF (BUILD_EXAMPLES)
       LINK_LIBRARIES(${CMAKE_X_LIBS})
     ENDIF (VTK_USE_X)
 
-    SOURCE_FILES (FTGL_DEMO_SRCS
-      demo/tb.c
-      demo/trackball.c
-      demo/FTGLDemo.cpp
-    )
-
     # The following is sort-of a hack to avoid the bug in glut.h
     # Ambiguity between 'std::exit(int)' and 'std::exit(int)' in function...
     IF (BORLAND)
@@ -118,11 +112,20 @@ IF (BUILD_EXAMPLES)
       SET(CMAKE_CXX_SHLIB_LINK_FLAGS "${CMAKE_CXX_SHLIB_LINK_FLAGS} -framework Cocoa")
     ENDIF (APPLE)
 
-    ADD_EXECUTABLE (ftgl_demo FTGL_DEMO_SRCS)
-    TARGET_LINK_LIBRARIES(ftgl_demo 
+    LINK_LIBRARIES (
       vtkftgl
       vtkfreetype
     )
+
+    SOURCE_FILES (FTGL_DEMO_SRCS
+      demo/tb.c
+      demo/trackball.c
+      demo/FTGLDemo.cpp
+    )
+    ADD_EXECUTABLE (ftgl_demo FTGL_DEMO_SRCS)
+
+    ADD_EXECUTABLE (ftgl_demo2 demo/demo.cpp)
+
   ENDIF (GLUT_LIBRARY)
 
 ENDIF (BUILD_EXAMPLES)
