@@ -26,11 +26,11 @@ magnitude SetInput [gradient GetOutput]
 vtkImageNonMaximumSuppression suppress
 suppress SetVectorInput [gradient GetOutput]
 suppress SetMagnitudeInput [magnitude GetOutput]
-suppress SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
+suppress SetNumberOfFilteredAxes 3
 suppress ReleaseDataFlagOff
 
 vtkImageViewer viewer
-viewer SetInput [supress GetOutput]
+viewer SetInput [suppress GetOutput]
 viewer SetCoordinate2 22
 viewer SetColorWindow 1000
 viewer SetColorLevel 500

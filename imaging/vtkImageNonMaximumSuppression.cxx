@@ -50,10 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 {
   this->NumberOfFilteredAxes = 3;
-
-  // execute methods operates of component axis too.
-  this->SetExecutionAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS,
-			 VTK_IMAGE_COMPONENT_AXIS);
+  this->NumberOfExecutionAxes = 3;
   
   this->SetOutputScalarType(VTK_FLOAT);
 }

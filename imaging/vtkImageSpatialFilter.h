@@ -101,6 +101,7 @@ protected:
   
   void ExecuteImageInformation();
   void ComputeOutputWholeExtent(int *extent, int handleBoundaries);
+  void ComputeRegionWholeExtent(int *extent, int handleBoundaries);
   void ComputeRequiredInputUpdateExtent();
   void ComputeRequiredInputRegionExtent(vtkImageRegion *out, 
 					vtkImageRegion *in);

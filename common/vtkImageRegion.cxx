@@ -496,7 +496,10 @@ void vtkImageRegion::SetAxes(int num, int *axes)
     }
   
   // Axes have been modified
-  this->Modified();
+  // We do not send a modified command, because the axis change
+  // does not change the region as a source, and to avoid modifying
+  // the region during an update.
+  //this->Modified();
   
   // Get the complete axes (all 5)
   vtkImageRegion::CompleteUnspecifiedAxes(num, axes, allAxes);

@@ -165,17 +165,10 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
   XColor *colors;
   int colorsMax;
   int visualDepth, visualClass;
-  T   lower, upper;
-  
+  float lower, upper;
+  unsigned char lowerPixel, upperPixel, temp;
+
   visualClass = self->GetVisualClass();
-  if (visualClass == TrueColor)
-    {
-    colorsMax = 255;
-    }
-  else
-    {
-    colorsMax = self->GetNumberOfColors() - 1;
-    }
   
   colors = self->GetColors();
   shift = self->GetColorShift();
@@ -183,8 +176,35 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
   visualDepth = self->GetVisualDepth();
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
-  lower = (T)(-shift);
-  upper = (T)(lower + colorsMax/scale);
+
+  // compute colorsMax, lower and upper pixels.
+  if (visualClass == TrueColor)
+    {
+    colorsMax = 255; 
+    upperPixel = colorsMax;
+    lowerPixel = 0;
+    }
+  else 
+    {
+    colorsMax = self->GetNumberOfColors() - 1;
+    upperPixel = (unsigned char)(colors[colorsMax].pixel);
+    lowerPixel = (unsigned char)(colors->pixel);
+    }  
+
+  // I changed these back to float. It may be slower,
+  // but unsigned char has trouble with overflow.
+  lower = (-shift);
+  // trouble with prescision
+  upper = (float)((double)(lower) + (double)(colorsMax)/(double)(scale));
+  // scale may be negative (for inverse video)
+  if (lower > upper)
+    {
+    lower = upper;
+    upper = -shift;
+    temp = lowerPixel;
+    lowerPixel = upperPixel;
+    upperPixel = temp;
+    }
   
   if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
     {
@@ -203,21 +223,20 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
       while (inPtr0 != endPtr)
 	{
 	*outPtr++ = 255;
-	if (*inPtr0 <= lower) 
-	  {
-	  *outPtr++ = 0;
-	  *outPtr++ = 0;
-	  *outPtr++ = 0;
+	if (*inPtr0 <= lower)	  {
+	  *outPtr++ = lowerPixel;
+	  *outPtr++ = lowerPixel;
+	  *outPtr++ = lowerPixel;
 	  }
 	else if (*inPtr0 >= upper)
 	  {
-	  *outPtr++ = 255;
-	  *outPtr++ = 255;
-	  *outPtr++ = 255;
+	  *outPtr++ = upperPixel;
+	  *outPtr++ = upperPixel;
+	  *outPtr++ = upperPixel;
 	  }
 	else
 	  {
-	  colorIdx = (int)((*inPtr0 - lower) * scale);
+	  colorIdx = (int)((*inPtr0 + shift) * scale);
 	  *outPtr++ = colorIdx;
 	  *outPtr++ = colorIdx;
 	  *outPtr++ = colorIdx;
@@ -231,25 +250,25 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
 	{
 	if (*inPtr0 <= lower) 
 	  {
-	  *outPtr++ = (unsigned char)(colors->pixel);
-	  *outPtr++ = (unsigned char)(colors->pixel);
-	  *outPtr++ = (unsigned char)(colors->pixel);
-	  *outPtr++ = (unsigned char)(colors->pixel);
+	  *outPtr++ = lowerPixel;
+	  *outPtr++ = lowerPixel;
+	  *outPtr++ = lowerPixel;
+	  *outPtr++ = lowerPixel;
 	  }
 	else if (*inPtr0 >= upper)
 	  {
-	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
-	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
-	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
-	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
+	  *outPtr++ = upperPixel;
+	  *outPtr++ = upperPixel;
+	  *outPtr++ = upperPixel;
+	  *outPtr++ = upperPixel;
 	  }
 	else
 	  {
-	  colorIdx = (int)((*inPtr0 - lower) * scale);
-	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
-	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
-	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
-	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
+	  colorIdx = (int)((*inPtr0 + shift) * scale);
+	  *outPtr++ = (unsigned char)(colors[colorIdx].pixel);
+	  *outPtr++ = (unsigned char)(colors[colorIdx].pixel);
+	  *outPtr++ = (unsigned char)(colors[colorIdx].pixel);
+	  *outPtr++ = (unsigned char)(colors[colorIdx].pixel);
 	  }
 	inPtr0 += inInc0;
 	}
@@ -260,15 +279,15 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
 	{
 	if (*inPtr0 <= lower) 
 	  {
-	  *outPtr++ = (unsigned char)(colors->pixel);
+	  *outPtr++ = lowerPixel;
 	  }
 	else if (*inPtr0 >= upper)
 	  {
-	  *outPtr++ = (unsigned char)(colors[colorsMax].pixel);
+	  *outPtr++ = upperPixel;
 	  }
 	else
 	  {
-	  colorIdx = (int)((*inPtr0 - lower) * scale);
+	  colorIdx = (int)((*inPtr0 + shift) * scale);
 	  *outPtr++ = (unsigned char)(colors[colorIdx].pixel);
 	  }
 	inPtr0 += inInc0;

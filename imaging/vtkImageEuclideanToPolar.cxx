@@ -70,7 +70,11 @@ static void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
   inPtr += inInc;
   Y = (float)(*inPtr);
 
-  Theta = atan2(X, Y) * thetaMax;
+  Theta = atan2(X, Y) * thetaMax / 6.2831853;
+  if (Theta < 0.0)
+    {
+    Theta += thetaMax;
+    }
   R = sqrt(X*X + Y*Y);
 
   // assign output.

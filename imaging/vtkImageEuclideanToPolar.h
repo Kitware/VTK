@@ -40,7 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageEuclideanToPolar - Converts 2D Euclidean coordinates to polar.
 // .SECTION Description
-// For each pixel with vector components x,y, this filter outputs theta radius.
+// For each pixel with vector components x,y, this filter outputs 
+// theta in component0, and radius in component1.
 
 #ifndef __vtkImageEuclideanToPolar_h
 #define __vtkImageEuclideanToPolar_h
