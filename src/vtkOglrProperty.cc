@@ -68,6 +68,10 @@ void vtkOglrProperty::Render(vtkProperty *prop,
   // unbind any textures for starters
   glDisable(GL_TEXTURE_2D);
 
+  // change the alpha function to always accept fragments (this may have been
+  // set by another actor in OglrTexture
+  glAlphaFunc (GL_ALWAYS, (GLclampf) 0);
+
   glDisable(GL_COLOR_MATERIAL);
 
   Face = GL_FRONT_AND_BACK;
