@@ -224,10 +224,10 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 //  transformed to actors coordinates!  Reduces overall computation!!!).
 //
   actors = renderer->GetActors();
-  for ( actors->InitTraversal(); actor=actors->GetNextItem(); )
+  for ( actors->InitTraversal(); (actor=actors->GetNextItem()); )
     {
     parts = actor->GetComposingParts();
-    for ( parts->InitTraversal(); part=parts->GetNextItem(); )
+    for ( parts->InitTraversal(); (part=parts->GetNextItem()); )
       {
       visible = part->GetVisibility();
       pickable = part->GetPickable();

@@ -90,6 +90,11 @@ vtkActor::~vtkActor()
 {
   if ( this->SelfCreatedProperty && this->Property != NULL) 
     this->Property->Delete();
+
+  if (this->Device)
+    {
+    this->Device->Delete();
+    }
 }
 
 // Description:
@@ -114,7 +119,7 @@ void vtkActor::Render(vtkRenderer *ren)
     {
     this->Device = ren->GetRenderWindow()->MakeActor();
     }
-
+  
   if ( this->Mapper ) this->Device->Render(this,ren,this->Mapper);
 }
 

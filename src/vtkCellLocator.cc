@@ -308,7 +308,7 @@ return this->Tree[octantId];
 
 // Description:
 // Intersect against another vtkCellLocator returning cells that lie in 
-// intersecting octants.
+// intersecting octants. Not implimented yet.
 int vtkCellLocator::IntersectWithCellLocator(vtkCellLocator& locator, vtkIdList cells)
 {
   return 0;

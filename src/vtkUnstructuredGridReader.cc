@@ -229,7 +229,7 @@ void vtkUnstructuredGridReader::Execute()
           {
 	  // suck up newline
 	  this->Reader.GetIStream()->getline(line,256);
-	  this->Reader.GetIStream()->read(types,sizeof(int)*ncells);
+	  this->Reader.GetIStream()->read((char *)types,sizeof(int)*ncells);
 	  if (this->Reader.GetIStream()->eof())
             {
             vtkErrorMacro(<<"Error reading binary cell types!");

@@ -49,6 +49,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 
 #include "vtkLODActor.hh"
+#include "vtkActorDevice.hh"
+#include "vtkRenderWindow.hh"
 #include "vtkMath.hh"
 
 // Description:
@@ -136,17 +138,22 @@ void vtkLODActor::Render(vtkRenderer *ren)
   /* render the texture */
   if (this->Texture) this->Texture->Render(ren);
     
+  if (!this->Device)
+    {
+    this->Device = ren->GetRenderWindow()->MakeActor();
+    }
+  
   if (!choice)
     {
-    this->Mapper->Render(ren);
+    this->Device->Render(this,ren,this->Mapper);
     }
   if (choice == 1)
     {
-    this->MediumMapper.Render(ren);
+    this->Device->Render(this,ren,&this->MediumMapper);
     }
   if (choice == 2)
     {
-    this->LowMapper.Render(ren);
+    this->Device->Render(this,ren,&this->LowMapper);
     }
   
   if (this->Timings[choice] == -2)

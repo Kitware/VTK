@@ -88,7 +88,7 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
                      int tetra, vtkUnstructuredGrid *Mesh, 
                      vtkFloatPoints *points, float tol)
 {
-  int i, j, npts, inside, i2, i3, i4;
+  int i, j, inside, i2, i3, i4;
   vtkIdList pts(4), facePts(3);
   static vtkMath math;
   vtkIdList neighbors(2);
@@ -322,7 +322,7 @@ void vtkDelaunay3D::Execute()
 {
   int numPoints, numTetras, i;
   int tetraNum, numFaces, tetraId;
-  int ptId, tetra[4];
+  int ptId;
   vtkPoints *inPoints;
   vtkFloatPoints *points;
   vtkUnstructuredGrid *Mesh=new vtkUnstructuredGrid;

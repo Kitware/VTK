@@ -153,16 +153,18 @@ int vtkDataReader::ReadInt(int *result)
 
 int vtkDataReader::ReadShort(short *result)
 {
-  int i;
-  this->ReadInt(&i);
+  int i, ret;
+  ret = this->ReadInt(&i);
   *result = (short)i;
+  return ret;
 }
 
 int vtkDataReader::ReadUChar(unsigned char *result)
 {
-  int i;
-  this->ReadInt(&i);
+  int i, ret;
+  ret = this->ReadInt(&i);
   *result = (unsigned char)i;
+  return ret;
 }
 
 // Description:
@@ -261,7 +263,11 @@ int vtkDataReader::ReadHeader()
     {
     vtkDebugMacro(<< "Opening vtk file as binary");
     delete this->IS;
+#ifdef _WIN32
     if (!(this->IS = new ifstream(this->Filename, ios::in | ios::bin)))
+#else
+    if (!(this->IS = new ifstream(this->Filename, ios::in)))
+#endif
       {
       vtkErrorMacro(<< "Unable to open file: "<< this->Filename);
       return 0;
@@ -370,7 +376,7 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
       {
       // suck up newline
       this->IS->getline(line,256);
-      this->IS->read(ptr,sizeof(int)*3*numPts);
+      this->IS->read((char *)ptr,sizeof(int)*3*numPts);
       if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary points!");
@@ -404,7 +410,7 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
       {
       // suck up newline
       this->IS->getline(line,256);
-      this->IS->read(ptr,sizeof(float)*3*numPts);
+      this->IS->read((char *)ptr,sizeof(float)*3*numPts);
       if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary points!");
@@ -548,7 +554,7 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
       {
       // suck up newline
       this->IS->getline(line,256);
-      this->IS->read(ptr,sizeof(short)*numPts);
+      this->IS->read((char *)ptr,sizeof(short)*numPts);
       if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary short scalars!");
@@ -582,7 +588,7 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
       {
       // suck up newline
       this->IS->getline(line,256);
-      this->IS->read(ptr,sizeof(int)*numPts);
+      this->IS->read((char *)ptr,sizeof(int)*numPts);
       if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary int scalars!");
@@ -616,7 +622,7 @@ int vtkDataReader::ReadScalarData(vtkDataSet *ds, int numPts)
       {
       // suck up newline
       this->IS->getline(line,256);
-      this->IS->read(ptr,sizeof(float)*numPts);
+      this->IS->read((char *)ptr,sizeof(float)*numPts);
       if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary float scalars!");
@@ -683,7 +689,7 @@ int vtkDataReader::ReadVectorData(vtkDataSet *ds, int numPts)
       {
       // suck up newline
       this->IS->getline(line,256);
-      this->IS->read(ptr,sizeof(float)*3*numPts);
+      this->IS->read((char *)ptr,sizeof(float)*3*numPts);
       if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary vectors!");
@@ -750,7 +756,7 @@ int vtkDataReader::ReadNormalData(vtkDataSet *ds, int numPts)
       {
       // suck up newline
       this->IS->getline(line,256);
-      this->IS->read(ptr,sizeof(float)*3*numPts);
+      this->IS->read((char *)ptr,sizeof(float)*3*numPts);
       if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary normals!");
@@ -818,7 +824,7 @@ int vtkDataReader::ReadTensorData(vtkDataSet *ds, int numPts)
       {
       // suck up newline
       this->IS->getline(line,256);
-      this->IS->read(ptr,sizeof(float)*9*numPts);
+      this->IS->read((char *)ptr,sizeof(float)*9*numPts);
       if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary tensors!");
@@ -1080,7 +1086,7 @@ int vtkDataReader::ReadTCoordsData(vtkDataSet *ds, int numPts)
       {
       // suck up newline
       this->IS->getline(line,256);
-      this->IS->read(ptr,sizeof(float)*dim*numPts);
+      this->IS->read((char *)ptr,sizeof(float)*dim*numPts);
       if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary tensors!");
@@ -1190,7 +1196,7 @@ int vtkDataReader::ReadCells(int size, int *data)
     {
     // suck up newline
     this->IS->getline(line,256);
-    this->IS->read(data,sizeof(int)*size);
+    this->IS->read((char *)data,sizeof(int)*size);
     if (this->IS->eof())
       {
       vtkErrorMacro(<<"Error reading binary cell data!");

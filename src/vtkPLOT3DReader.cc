@@ -275,7 +275,7 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
   //seek to correct spot and read grid
   fseek (fp, offset*sizeof(float), 1);
 
-  if ( fread (this->TempStorage, sizeof(float), 3*this->NumPts, fp) < 3*this->NumPts ) 
+  if ( fread(this->TempStorage, sizeof(float), 3*this->NumPts, fp) < (unsigned long)3*this->NumPts ) 
     {
     newPts->Delete();
     delete [] this->TempStorage;

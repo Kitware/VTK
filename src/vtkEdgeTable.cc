@@ -46,12 +46,12 @@ vtkEdgeTable::vtkEdgeTable(int numPoints)
 {
   if ( numPoints < 1 ) numPoints = 1;
 
-  this->Table = new (vtkIdList *)[numPoints];
+  this->Table = new vtkIdList *[numPoints];
   for (int i=0; i < numPoints; i++) this->Table[i] = NULL;
   this->TableSize = numPoints;
 }
 
-vtkEdgeTable::~vtkEdgeTable(int numPoints)
+vtkEdgeTable::~vtkEdgeTable()
 {
   if ( this->Table )
     {

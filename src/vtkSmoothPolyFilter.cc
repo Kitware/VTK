@@ -163,11 +163,11 @@ void vtkSmoothPolyFilter::Execute()
         {
         if ( j == (npts-1) ) //end-of-line marked FIXED
           {
-          Verts[pts[j]].type == VTK_FIXED_VERTEX;
+          Verts[pts[j]].type = VTK_FIXED_VERTEX;
           }
         else if ( j == 0 ) //beginning-of-line marked FIXED
           {
-          Verts[pts[0]].type == VTK_FIXED_VERTEX;
+          Verts[pts[0]].type = VTK_FIXED_VERTEX;
           inPts->GetPoint(pts[0],x2);
           inPts->GetPoint(pts[1],x3);
           }

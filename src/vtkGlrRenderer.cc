@@ -97,7 +97,8 @@ int vtkGlrRenderer::UpdateCameras ()
 void vtkGlrRenderer::ClearLights (void)
 {
   short curLight;
-  static float lightInfo[] = {AMBIENT, 0.2, 0.2, 0.2, LMNULL};
+  static float lightInfo[] = {AMBIENT, 0.2, 0.2, 0.2, 
+			      TWOSIDE, 0.0, LMNULL};
   static float twoSidedLightInfo[] = {AMBIENT, 0.2, 0.2, 0.2, 
                                       TWOSIDE, 1.0, LMNULL};
 

@@ -156,7 +156,7 @@ void vtkSbrRenderer::Render(void)
 
   if ( this->TwoSidedLighting )
     {
-    bf_control(this->Fd, TRUE, FALSE);
+    bf_control(this->Fd, FALSE, TRUE);
     }
   else
     {

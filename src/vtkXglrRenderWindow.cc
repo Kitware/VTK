@@ -419,8 +419,8 @@ Colormap vtkXglrRenderWindow::GetDesiredColormap ()
 
   this->ColorMap = 
     XCreateColormap(this->DisplayId,
-		    RootWindowOfScreen(ScreenOfDisplay(this->DisplayId,
-						       DefaultScreen(this->DisplayId))),
+		    RootWindow(this->DisplayId,
+			       DefaultScreen(this->DisplayId)),
 		    vis, AllocNone);
 		    
   if (!this->ColorMap) 
@@ -469,7 +469,8 @@ XlibWindowCreate(Display *display, Visual *vis, int depth, char *name,
   XSetWindowAttributes values;
   
   values.colormap = 
-    XCreateColormap(display, DefaultRootWindow(display), vis, AllocNone);
+    XCreateColormap(display,RootWindow(display,DefaultScreen(display)),
+		    vis, AllocNone);
   values.background_pixel = None;
   values.border_pixel = None;
   
@@ -485,7 +486,7 @@ XlibWindowCreate(Display *display, Visual *vis, int depth, char *name,
   
   XFlush(display);
   
-  win = XCreateWindow(display, DefaultRootWindow(display),
+  win = XCreateWindow(display, RootWindow(display,DefaultScreen(display)),
 		      x, y, w, h, 0, depth, InputOutput, vis,
 		      CWEventMask | CWBackPixel | CWBorderPixel | CWColormap |
 		      CWOverrideRedirect, 
