@@ -78,7 +78,7 @@ protected:
   void operator=(const vtkAbstractMapper&) {};
 
   float TimeToDraw;
-
+  vtkWindow *Window;   // Window used for the previous render
 };
 
 #endif
