@@ -121,6 +121,7 @@ vtkMultiBlockDataSetAlgorithm.cxx
 vtkMultiBlockDataIterator.cxx
 vtkNonLinearCell.cxx
 vtkOrderedTriangulator.cxx
+vtkParametricKlein.cxx
 vtkParametricTorus.cxx
 vtkPentagonalPrism.cxx
 vtkPerlinNoise.cxx
