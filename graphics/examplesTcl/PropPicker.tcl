@@ -40,8 +40,13 @@ vtkActor2D imageactor
 
 # vtkLODActor (a mace)
 vtkSphereSource sphere
+vtkElevationFilter colorIt
+  colorIt SetInput [sphere GetOutput]
+  colorIt SetLowPoint 0 0 -1
+  colorIt SetHighPoint 0 0 1
+
 vtkPolyDataMapper sphereMapper
-    sphereMapper SetInput [sphere GetOutput]
+    sphereMapper SetInput [colorIt GetOutput]
     sphereMapper GlobalImmediateModeRenderingOn
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
