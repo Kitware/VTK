@@ -27,24 +27,17 @@ vtkSphereSource sphere1
     sphere1 SetCenter -1.5 0 0
 vtkExtractPolyDataPiece piece1
     piece1 SetInput [sphere1 GetOutput]
-vtkAppendPolyData append1
-    # append will ask for different pieces form each of its inputs.
-    append1 ParallelStreamingOn
-    for {set i 0} {$i < $NUMBER_OF_PIECES} {incr i} {
-      # If we did not duplicate pdn filter, all inputs to append would be the same.
-      # Because the pipline does not buffer inputs, the single input cannot have
-      # different pieces ...  I am not willing at this point to buffer inputs.
-      # We may consider doing it the future (filter loop with input = output).
-       vtkPolyDataNormals pdn1$i
-         pdn1$i SetInput [piece1 GetOutput]
-      append1 AddInput [pdn1$i GetOutput]
-    }
+vtkPPolyDataNormals norms1
+    norms1 SetInput [piece1 GetOutput]
+vtkPolyDataStreamer stream1
+    stream1 SetInput [piece1 GetOutput]
+    stream1 SetNumberOfStreamDivisions $NUMBER_OF_PIECES 
 vtkPolyDataMapper mapper1
-    mapper1 SetInput [append1 GetOutput]
+    mapper1 SetInput [stream1 GetOutput]
     mapper1 ScalarVisibilityOff
 vtkActor actor1
     actor1 SetMapper mapper1
-    eval [actor1 GetProperty] SetColor $english_red
+    eval [actor1 GetProperty] SetColor 0.9 0.8 0.5
 
 
 # create the second pipeline, but disable ghost cells. 
@@ -57,24 +50,17 @@ vtkSphereSource sphere2
 vtkExtractPolyDataPiece piece2
     piece2 SetInput [sphere2 GetOutput]
     piece2 CreateGhostCellsOff
-vtkAppendPolyData append2
-    # append will ask for different pieces form each of its inputs.
-    append2 ParallelStreamingOn
-    for {set i 0} {$i < $NUMBER_OF_PIECES} {incr i} {
-      # If we did not duplicate pdn filter, all inputs to append would be the same.
-      # Because the pipline does not buffer inputs, the single input cannot have
-      # different pieces ...  I am not willing at this point to buffer inputs.
-      # We may consider doing it the future (filter loop with input = output).
-       vtkPolyDataNormals pdn2$i
-         pdn2$i SetInput [piece2 GetOutput]
-      append2 AddInput [pdn2$i GetOutput]
-    }
+vtkPolyDataNormals norms2
+    norms2 SetInput [piece2 GetOutput]
+vtkPolyDataStreamer stream2
+    stream2 SetInput [norms2 GetOutput]
+    stream2 SetNumberOfStreamDivisions $NUMBER_OF_PIECES 
 vtkPolyDataMapper mapper2
-    mapper2 SetInput [append2 GetOutput]
+    mapper2 SetInput [stream2 GetOutput]
     mapper2 ScalarVisibilityOff
 vtkActor actor2
     actor2 SetMapper mapper2
-    eval [actor2 GetProperty] SetColor $english_red
+    eval [actor2 GetProperty] SetColor 0.9 0.8 0.5
 
 
 
@@ -85,7 +71,7 @@ vtkActor actor2
 [ren1 GetActiveCamera] SetFocalPoint 0 0 0
 ren1 AddActor actor1
 ren1 AddActor actor2
-ren1 SetBackground 1 1 1
+ren1 SetBackground 0 0 0.8
 renWin SetSize 500 500
 iren Initialize
 
