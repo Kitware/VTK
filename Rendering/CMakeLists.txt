@@ -98,15 +98,7 @@ vtkVolumeReader
 vtkVolumeTextureMapper 
 )
 
-#vtkMesaImageActor.h
-#vtkMesaImageMapper.h
-#vtkMesaImageWindow.h
-#vtkMesaImager.h
-#vtkXImageMapper.h
-#vtkXImageWindow.h
-#vtkOpenGLImageWindow
-
-SOURCE_FILES ( Rendering_SRCS
+SOURCE_FILES ( RenderingOpenGL_SRCS
 vtkOpenGLActor
 vtkOpenGLCamera
 vtkOpenGLImageActor
@@ -122,18 +114,33 @@ vtkOpenGLTexture
 vtkOpenGLVolumeTextureMapper2D
 )
 
+INCLUDE (${CMAKE_SOURCE_DIR}/CMake/Modules/FindOpenGL.cmake)
+
 IF (WIN32)
-  SOURCE_FILES(Rendering_SRCS 
+  SOURCE_FILES(RenderingOpenGL_SRCS 
      vtkWin32OpenGLRenderWindow 
      vtkWin32RenderWindowInteractor
      vtkWin32OpenGLImageWindow
      vtkWin32OpenGLTextMapper
      vtkWin32TextMapper)
-  LINK_LIBRARIES (opengl32)
+  LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
+  ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingOpenGL_SRCS)
+ELSE (WIN32)
+  IF (OPENGL_LIB_PATH)
+    SOURCE_FILES(RenderingOpenGL_SRCS 
+      vtkOpenGLRenderWindow
+      vtkXImageWindow
+      vtkXRenderWindowInteractor
+      vtkXRenderWindow)
+    LINK_LIBRARIES (${OPENGL_LIBRARY})
+    LINK_DIRECTORIES (${OPENGL_LIB_PATH})
+    INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_PATH})
+    ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingOpenGL_SRCS)
+  ELSE (OPENGL_LIB_PATH)
+    ADD_LIBRARY(vtkRendering Rendering_SRCS)
+  ENDIF (OPENGL_LIB_PATH)
 ENDIF (WIN32)
 
-ADD_LIBRARY(vtkRendering Rendering_SRCS)
-#WRAP_EXCLUDE_FILES(vtkImagingFactory)
 
 IF (VTK_WRAP_TCL)
   SOURCE_FILES(RenderingTCL_SRCS 
@@ -156,7 +163,9 @@ IF (VTK_WRAP_TCL)
       ${VTK_SOURCE_DIR}/Rendering/tkInternals)
     IF (TK_INTERNAL_PATH)
       INCLUDE_DIRECTORIES(${TK_INTERNAL_PATH})
-    ENDIF (TK_INTERNAL_PATH)  
+    ENDIF (TK_INTERNAL_PATH) 
+  ELSE (WIN32)
+    SOURCE_FILES(RenderingTCL_SRCS vtkXRenderWindowTclInteractor)
   ENDIF (WIN32)  
   VTK_WRAP_TCL(vtkRenderingTCL RenderingTCL_SRCS Rendering_SRCS)
   ADD_LIBRARY(vtkRenderingTCL RenderingTCL_SRCS)
