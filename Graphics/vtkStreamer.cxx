@@ -120,6 +120,7 @@ vtkStreamer::vtkStreamer()
   this->Vorticity = 0;
   this->TerminalSpeed = 0.0;
   this->SpeedScalars = 0;
+  this->OrientationScalars = 0;
   this->NumberOfStreamers = 0;
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
@@ -649,6 +650,19 @@ void vtkStreamer::Integrate()
   //
   // Now create appropriate representation
   //
+  if ( this->OrientationScalars && !this->SpeedScalars)
+    {
+    for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
+      {
+      for ( sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0; 
+	    i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0; 
+	    i++, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
+        {
+        sPtr->s = sPtr->theta;
+        }
+      }
+    }
+
   if ( this->SpeedScalars )
     {
     for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
@@ -715,6 +729,8 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Terminal Speed: " << this->TerminalSpeed << "\n";
 
   os << indent << "Speed Scalars: " << (this->SpeedScalars ? "On\n" : "Off\n");
+
+  os << indent << "Orientation Scalars: " << (this->OrientationScalars ? "On\n" : "Off\n");
 
   os << indent << "Interval with which points are stored:" 
      << this->SavePointInterval << endl;

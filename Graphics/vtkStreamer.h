@@ -215,6 +215,16 @@ public:
   vtkBooleanMacro(SpeedScalars,int);
 
   // Description:
+  // Turn on/off the creation of scalar data from vorticity information. 
+  // The scalar information is currently the orientation value "theta"
+  // used in rotating stream tubes. If off, and input dataset has scalars,
+  // then input dataset scalars are used, unless SpeedScalars is also on.
+  // SpeedScalars takes precedence over OrientationScalars.
+  vtkSetMacro(OrientationScalars, int);
+  vtkGetMacro(OrientationScalars, int);
+  vtkBooleanMacro(OrientationScalars, int);
+
+  // Description:
   // Set/get terminal speed (i.e., speed is velocity magnitude).  Terminal 
   // speed is speed at which streamer will terminate propagation.
   vtkSetClampMacro(TerminalSpeed,float,0.0,VTK_LARGE_FLOAT);
@@ -290,6 +300,9 @@ protected:
 
   // boolean controls whether data scalars or velocity magnitude are used
   int SpeedScalars;
+
+  // boolean controls whether data scalars or vorticity orientation are used
+  int OrientationScalars;
 
   // Prototype showing the integrator type to be set by the user.
   vtkInitialValueProblemSolver* Integrator;
