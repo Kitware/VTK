@@ -54,6 +54,7 @@ IF (VTK_USE_RENDERING)
         TestIslandRemoval2D
         TestMapToRGBABlockStreaming
         TestMapToWindowLevelColors
+        TestMapToWindowLevelColors2
         TestMask2
         TestMedian3D
         TestNormalize
