@@ -514,7 +514,7 @@ static void *vtkVideoSourceGrabThread(struct ThreadInfoStruct *data)
       // to fix.
       Sleep((int)(1000*remaining));
 #else
-      vtkTimerLog::Sleep((int)(1000*remaining));
+      //vtkTimerLog::Sleep((int)(1000*remaining));
 #endif
       }
     }
