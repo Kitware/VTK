@@ -23,17 +23,17 @@ vtkImageThreshold thresh
 
 vtkImageWriter writer
   writer SetInput [thresh GetOutput]
-  writer SetFilePrefix "test"
+  writer SetFileName "garf.xxx"
+  writer SetFileName "test.xxx"
   writer SetFileDimensionality 3
-  writer SetFilePattern "%s.xxx"
   writer Write
 
 vtkImageReader reader2
   reader2 SetDataScalarTypeToUnsignedChar
   reader2 ReleaseDataFlagOff
   reader2 SetDataExtent 0 255 0 255 1 33
-  reader2 SetFilePrefix "test"
-  reader2 SetFilePattern "%s.xxx"
+  reader2 SetFileName "garf.xxx"
+  reader2 SetFileName "test.xxx"
   reader2 SetFileDimensionality 3
 
 vtkImageViewer viewer
