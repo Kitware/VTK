@@ -68,6 +68,13 @@ public:
   static double DoubleDegreesToRadians() {return 0.017453292519943295;};
 
   // Description:
+  // Rounds a float to the nearest integer.
+  static int Round(float f) {
+    return static_cast<int>(f + (f >= 0 ? 0.5 : -0.5)); }
+  static int Round(double f) {
+    return static_cast<int>(f + (f >= 0 ? 0.5 : -0.5)); }
+    
+  // Description:
   // Dot product of two 3-vectors (float version).
   static float Dot(const float x[3], const float y[3]) {
     return (x[0]*y[0] + x[1]*y[1] + x[2]*y[2]);};
