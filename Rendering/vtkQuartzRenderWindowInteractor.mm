@@ -56,17 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define id Id
 
-// These allow us to emulate a three button mouse using the ctrl-opt-cmd keys
-int vtkQuartzRenderWindowInteractor::GetButtonDown()
-{
-    return this->whichButtonDown;
-}
-void vtkQuartzRenderWindowInteractor::SetButtonDown(int button)
-{
-    this->whichButtonDown = button;
-}
-
-vtkCxxRevisionMacro(vtkQuartzRenderWindowInteractor, "1.5");
+vtkCxxRevisionMacro(vtkQuartzRenderWindowInteractor, "1.6");
 vtkStandardNewMacro(vtkQuartzRenderWindowInteractor);
 
 void (*vtkQuartzRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
@@ -81,7 +71,6 @@ vtkQuartzRenderWindowInteractor::vtkQuartzRenderWindowInteractor()
   this->ApplicationId		=0;
   this->TimerId            = timerId++;
   this->InstallMessageProc = 1;
-  this->whichButtonDown=0;
 }
 
 vtkQuartzRenderWindowInteractor::~vtkQuartzRenderWindowInteractor() 
@@ -177,128 +166,9 @@ int vtkQuartzRenderWindowInteractor::DestroyTimer(void)
   return 1;
 }
 
-//-------------------------------------------------------------
-// Event loop handlers
-//-------------------------------------------------------------
-//void vtkQuartzRenderWindowInteractor::OnMouseMove(void *wnd, int nFlags, 
-//                                                 int X, int Y)
-//{
-//  if (!this->Enabled) 
-//    {
-//    return;
-//    }
-  //DOQUARTZInteractorStyle->OnMouseMove(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
-           //                    X, this->Size[1] - Y - 1);
-//}
-
-void vtkQuartzRenderWindowInteractor::OnLButtonDown(void *wnd, int nFlags, 
-                                                   int X, int Y) 
-{
-  if (!this->Enabled) 
-    {
-    return;
-    }
-  //DOQUARTZSetCapture(wnd);
-  //DOQUARTZthis->InteractorStyle->OnLeftButtonDown(nFlags & MK_CONTROL, 
-           //                               nFlags & MK_SHIFT, 
-            //                              X, this->Size[1] - Y - 1);
-}
-
-void vtkQuartzRenderWindowInteractor::OnLButtonUp(void *wnd, int nFlags, 
-                                                 int X, int Y) 
-{
-  if (!this->Enabled) 
-    {
-    return;
-    }
-  //DOQUARTZthis->InteractorStyle->OnLeftButtonUp(nFlags & MK_CONTROL, 
-            //                            nFlags & MK_SHIFT, 
-              //                          X, this->Size[1] - Y - 1);
-  //ReleaseCapture( );
-}
-
-void vtkQuartzRenderWindowInteractor::OnMButtonDown(void *wnd, int nFlags, 
-                                                   int X, int Y) 
-{
-  if (!this->Enabled) 
-    {
-    return;
-    }
-  //DOQUARTZSetCapture(wnd);
-  //DOQUARTZthis->InteractorStyle->OnMiddleButtonDown(nFlags & MK_CONTROL, 
-            //                                nFlags & MK_SHIFT, 
-              //                              X, this->Size[1] - Y - 1);
-}
-
-void vtkQuartzRenderWindowInteractor::OnMButtonUp(void *wnd, int nFlags, 
-                                                 int X, int Y) 
-{
-  if (!this->Enabled) 
-    {
-    return;
-    }
-  //DOQUARTZthis->InteractorStyle->OnMiddleButtonUp(nFlags & MK_CONTROL, 
-            //                              nFlags & MK_SHIFT, 
-              //                            X, this->Size[1] - Y - 1);
-  //ReleaseCapture( );
-}
-
-void vtkQuartzRenderWindowInteractor::OnRButtonDown(void *wnd, int nFlags, 
-                                                   int X, int Y) 
-{
-  if (!this->Enabled) 
-    {
-    return;
-    }
-  //DOQUARTZSetCapture(wnd );
-  //DOQUARTZthis->InteractorStyle->OnRightButtonDown(nFlags & MK_CONTROL, 
-            //                               nFlags & MK_SHIFT, 
-             //                              X, this->Size[1] - Y - 1);
-}
-
-void vtkQuartzRenderWindowInteractor::OnRButtonUp(void *wnd, int nFlags, 
-                                                 int X, int Y) 
-{
-  if (!this->Enabled) 
-    {
-    return;
-    }
-  //DOQUARTZthis->InteractorStyle->OnRightButtonUp(nFlags & MK_CONTROL, 
-            //                             nFlags & MK_SHIFT, 
-              //                           X, this->Size[1] - Y - 1);
-  //ReleaseCapture( );
-}
-
-void vtkQuartzRenderWindowInteractor::OnSize(void *wnd, int nType, int X, int Y) {
-  this->UpdateSize(X,Y);
-}
-
-void vtkQuartzRenderWindowInteractor::OnTimer(void *wnd, int nIDEvent) 
-{
-  if (!this->Enabled) 
-    {
-    return;
-    }
-  this->InteractorStyle->OnTimer();
-}
-
-void vtkQuartzRenderWindowInteractor::OnChar(void *wnd, int nChar, 
-                                            int nRepCnt, int nFlags) 
-{
-  if (!this->Enabled) 
-    {
-    return;
-    }
-  //bool ctrl  = GetKeyState(VK_CONTROL);
-  //bool shift = GetKeyState(VK_SHIFT);
-  //this->InteractorStyle->OnChar(ctrl, shift, (char)nChar, nRepCnt);
-}
-
-
 // Specify the default function to be called when an interactor needs to exit.
 // This callback is overridden by an instance ExitMethod that is defined.
-void
-vtkQuartzRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
+void vtkQuartzRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
 {
   if ( f != vtkQuartzRenderWindowInteractor::ClassExitMethod
        || arg != vtkQuartzRenderWindowInteractor::ClassExitMethodArg)

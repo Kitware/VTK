@@ -19,12 +19,8 @@
 // required by vtkRenderWindowInteractor.
 //
 // .SECTION Description
-// By default the interactor installs a MessageProc callback which
-// intercepts windows' messages to the window and controls interactions by
-// routing them to the InteractoStyle classes.
-// MFC or BCB programs can prevent this and instead directly route any mouse/key
-// messages into the event bindings by setting InstallMessageProc to false.
-// This provides a minimal "Mapped" mode of interaction
+// The interactor interfaces with vtkQuartzWindow.mm and vtkQuartzGLView.mm
+// to trap messages from the Quartz window manager and send them to vtk.
 //
 #ifndef __vtkQuartzRenderWindowInteractor_h
 #define __vtkQuartzRenderWindowInteractor_h
@@ -36,13 +32,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-//int DrawSomeGL();
-//void VBTimerEvent(void *vtkClass);
-//void DoMouseMoved(void *vtkClass, int shiftDown, int controlDown, int altDown, int commandDown, float xLoc, float yLoc);
-//void DoMouseDragged(void *vtkClass, int shiftDown, int controlDown, int altDown, int commandDown, float xLoc, float yLoc);
-//void DoMouseUp(void *vtkClass, int shiftDown, int controlDown, int altDown, int commandDown, float xLoc, float yLoc);
-//void DoMouseDown(void *vtkClass, int shiftDown, int controlDown, int altDown, int commandDown, float xLoc, float yLoc);
 
 #ifdef __cplusplus
 };
@@ -100,22 +89,6 @@ public:
   int CreateTimer(int timertype);
   int DestroyTimer(void);
 
-  //BTX
-  // Description:
-  // Various methods that a Quartz window can redirect to this class to be 
-  // handled.
-//  virtual void OnMouseMove  (void *wnd, int nFlags, int X, int Y);
-  virtual void OnRButtonDown(void *wnd, int nFlags, int X, int Y);
-  virtual void OnRButtonUp  (void *wnd, int nFlags, int X, int Y);
-  virtual void OnMButtonDown(void *wnd, int nFlags, int X, int Y);
-  virtual void OnMButtonUp  (void *wnd, int nFlags, int X, int Y);
-  virtual void OnLButtonDown(void *wnd, int nFlags, int X, int Y);
-  virtual void OnLButtonUp  (void *wnd, int nFlags, int X, int Y);
-  virtual void OnSize       (void *wnd, int nType,  int X, int Y);
-  virtual void OnTimer      (void *wnd, int nIDEvent);
-  virtual void OnChar       (void *wnd, int nChar, int nRepCnt, int nFlags);
-  //ETX
-
   // Description:
   // Methods to set the default exit method for the class. This method is
   // only used if no instance level ExitMethod has been defined.  It is
@@ -129,8 +102,8 @@ public:
   // callbacks. They allow for the Style to invoke them.
   virtual void ExitCallback();
   
-  int GetButtonDown();
-  void SetButtonDown(int button);
+//  int GetButtonDown();
+//  void SetButtonDown(int button);
 
 protected:
   vtkQuartzRenderWindowInteractor();
@@ -141,7 +114,6 @@ protected:
   int     TimerId;
   void   *OldProc;
   int     InstallMessageProc;
-  int   whichButtonDown; //0=none, 1=left, 2=middle, 3=right
 
   //BTX
   // Description:

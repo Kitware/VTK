@@ -10,7 +10,6 @@
 - (void)close {
     [super close];
     [NSApp stop:self];
-    ((vtkQuartzRenderWindow *)myVTKRenderWindow)->Clean();
 }
 
 
@@ -21,6 +20,7 @@
 - (void)setvtkQuartzGLView:(vtkQuartzGLView *)thevtkQuartzGLView {
     myvtkQuartzGLView = thevtkQuartzGLView;
     [self setContentView:myvtkQuartzGLView];
+    [self makeFirstResponder:thevtkQuartzGLView];//so keyboard events go there
 }
 
 - (void *)getVTKRenderWindow {
