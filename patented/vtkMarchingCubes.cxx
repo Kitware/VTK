@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLongArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkDoubleArray.h"
-
+#include "vtkFloatArray.h"
 
 // Description:
 // Construct object with initial range (0,1) and single contour value

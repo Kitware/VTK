@@ -65,6 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLongArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 
 // Description:
 // Construct with NULL reader, output FileName specification, and limits 

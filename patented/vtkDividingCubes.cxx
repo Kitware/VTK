@@ -54,6 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDividingCubes.h"
 #include "vtkMath.h"
 #include "vtkVoxel.h"
+#include "vtkFloatArray.h"
 
 // Description:
 // Construct object with Value=0.0, Distance=0.1, and Increment=1.
