@@ -53,7 +53,7 @@
 #ifndef __vtkQuadricDecimation_h
 #define __vtkQuadricDecimation_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkEdgeTable;
 class vtkIdList;
@@ -61,10 +61,10 @@ class vtkPointData;
 class vtkPriorityQueue;
 class vtkDoubleArray;
 
-class VTK_GRAPHICS_EXPORT vtkQuadricDecimation : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkQuadricDecimation : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkQuadricDecimation, vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkQuadricDecimation, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkQuadricDecimation *New();
 
@@ -128,7 +128,7 @@ protected:
   vtkQuadricDecimation();
   ~vtkQuadricDecimation();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   // Description:
   // Do the dirty work of eliminating the edge; return the number of

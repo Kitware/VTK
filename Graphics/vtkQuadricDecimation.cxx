@@ -47,13 +47,15 @@
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPointData.h"
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.36");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.37");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 
@@ -169,10 +171,21 @@ void vtkQuadricDecimation::GetPointAttributeArray(vtkIdType ptId, double *x)
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricDecimation::Execute()
+int vtkQuadricDecimation::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numTris = input->GetNumberOfPolys();
   vtkIdType edgeId, i;
@@ -193,13 +206,13 @@ void vtkQuadricDecimation::Execute()
       input->GetPointData() == NULL  || input->GetFieldData() == NULL)
     {
     vtkErrorMacro("Nothing to decimate");
-    return;
+    return 0;
     }
 
   if (input->GetPolys()->GetMaxCellSize() > 3) 
     {
     vtkErrorMacro("Can only decimate triangles");
-    return;
+    return 0;
     }
   
   polys = vtkCellArray::New();
@@ -389,6 +402,8 @@ void vtkQuadricDecimation::Execute()
       }
     // might want to add clamping texture coordinates??
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
