@@ -1,3 +1,5 @@
+#include "../../graphics/examplesCxx/SaveImage.h"
+
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -60,5 +62,19 @@ int main( int argc, char *argv[] )
   // interact with data
   renWin->Render();
 
+  SAVEIMAGE( renWin );
+
   iren->Start();
+
+  // Clean up
+  renderer->Delete();
+  renWin->Delete();
+  iren->Delete();
+  pts->Delete();
+  o->Delete();
+  ugrid->Delete();
+  shrink->Delete();
+  actor->Delete();
+
+  exit(1);
 }
