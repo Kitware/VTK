@@ -51,6 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnsignedLongArray.h"
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkLookupTable.h"
 #include "vtkCriticalSection.h"
 #include "vtkIdList.h"
@@ -331,6 +332,10 @@ unsigned long vtkDataArray::GetActualMemorySize()
       size = (float)sizeof(double);
       break;
 
+    case VTK_ID_TYPE:
+      size = (float)sizeof(vtkIdType);
+      break;
+
     default:
       vtkErrorMacro(<<"Unsupported data type!");
     }
@@ -374,6 +379,9 @@ vtkDataArray* vtkDataArray::CreateDataArray(int dataType)
 
     case VTK_DOUBLE:
       return vtkDoubleArray::New();
+
+    case VTK_ID_TYPE:
+      return vtkIdTypeArray::New();
 
     default:
       vtkGenericWarningMacro(<<"Unsupported data type! Setting to VTK_FLOAT");
