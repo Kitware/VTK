@@ -129,7 +129,7 @@ public:
 
   // Description:
   // Set the current text message associated with the progress state.
-  // This may be used by a calling process/GUI to
+  // This may be used by a calling process/GUI.
   // Caution: The memory/text in the provided char * is not copied, so
   // users should not pass temporarily allocated strings which have a lifetime
   // less than that of the function accessing the text.
@@ -151,9 +151,13 @@ public:
 
   // Description:
   // This method will rearrange the input array so that all NULL entries 
-  // are removed
+  // are removed.
   void SqueezeInputArray();
   
+  // Description:
+  // Remove all the input data.
+  void RemoveAllInputs();
+
 protected:
   vtkProcessObject();
   ~vtkProcessObject();
@@ -172,11 +176,10 @@ protected:
   void *EndMethodArg;
   float Progress;
   char  *ProgressText;
-  //
 
   int NumberOfInputs;
   int NumberOfRequiredInputs;
-  vtkDataObject **Inputs;     // An Array of the inputs to the filter
+  vtkDataObject **Inputs;     //An array of the inputs to the filter
 
   // Called to allocate the input array.  Copies old inputs.
   void SetNumberOfInputs(int num);

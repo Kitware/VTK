@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProcessObject.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkProcessObject* vtkProcessObject::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +54,6 @@ vtkProcessObject* vtkProcessObject::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkProcessObject;
 }
-
-
-
 
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()
@@ -395,6 +390,26 @@ void vtkProcessObject::SetEndMethodArgDelete(void (*f)(void *))
     }
 }
 
+void vtkProcessObject::RemoveAllInputs()
+{
+  if ( this->Inputs )
+    {
+    for (int idx = 0; idx < this->NumberOfInputs; ++idx)
+      {
+      if ( this->Inputs[idx] )
+        {
+        this->Inputs[idx]->UnRegister(this);
+        this->Inputs[idx] = NULL;
+        }
+      }
+
+    delete [] this->Inputs;
+    this->Inputs = NULL;
+    this->NumberOfInputs = 0;
+    this->Modified();
+    }
+}
+
 void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
@@ -445,6 +460,3 @@ void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AbortExecute: " << (this->AbortExecute ? "On\n" : "Off\n");
   os << indent << "Progress: " << this->Progress << "\n";
 }
-
-
-
