@@ -295,7 +295,6 @@ void vtkExtractVectorComponents::Execute()
     vzc->SetNumberOfTuples(numVectors);
     sprintf(newName, "%s-z", name);
     vzc->SetName(newName);
-    delete[] newName;
 
     switch (vectorsc->GetDataType())
       {
@@ -329,6 +328,8 @@ void vtkExtractVectorComponents::Execute()
     vyc->Delete();
     vzc->Delete();
     }
+  delete[] newName;
+
 }
 
 
