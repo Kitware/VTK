@@ -26,11 +26,11 @@ vlScalars::vlScalars()
   this->Range[1] = 1.0;
 }
 
-void vlScalars::GetScalars(vlIdList& ptId, vlFloatScalars& fp)
+void vlScalars::GetScalars(vlIdList& ptId, vlFloatScalars& fs)
 {
   for (int i=0; i<ptId.NumberOfIds(); i++)
     {
-    fp.InsertScalar(i,this->GetScalar(ptId[i]));
+    fs.InsertScalar(i,this->GetScalar(ptId[i]));
     }
 }
 void vlScalars::ComputeRange()
