@@ -32,7 +32,7 @@ public:
   vlFloatScalars(const int sz, const int ext=1000):S(sz,ext){};
   ~vlFloatScalars() {};
   int Allocate(const int sz, const int ext=1000) {return this->S.Allocate(sz,ext);};
-  void Initialize() {return this->S.Initialize();};
+  void Initialize() {this->S.Initialize();};
   char *GetClassName() {return "vlFloatScalars";};
 
   // vlScalar interface

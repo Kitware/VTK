@@ -38,7 +38,7 @@ public:
   vlCellArray() : NumberOfCells(0), Location(0) {};
   int Allocate(const int sz, const int ext=1000) 
     {return this->Ia.Allocate(sz,ext);};
-  void Initialize() {return this->Ia.Initialize();};
+  void Initialize() {this->Ia.Initialize();};
   vlCellArray (const int sz, const int ext=1000):NumberOfCells(0),Location(0),Ia(sz,ext){};
   vlCellArray(const vlCellArray& ca);
   ~vlCellArray() {};
