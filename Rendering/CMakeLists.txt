@@ -90,6 +90,48 @@ vtkWindowToImageFilter.cxx
 vtkWorldPointPicker.cxx
 )
 
+IF (VTK_USE_FREETYPE)
+  INCLUDE_DIRECTORIES(
+    ${VTKFREETYPE_SOURCE_DIR}/include
+    ${VTKFREETYPE_BINARY_DIR}
+    ${VTKFTGL_SOURCE_DIR}/src
+    ${VTKFTGL_BINARY_DIR}
+  )
+  SOURCE_FILES(Rendering_SRCS
+    vtkOpenGLFreeTypeTextMapper.cxx
+    fonts/face_arial.cxx
+    fonts/face_arial_bold.cxx
+    fonts/face_arial_bold_italic.cxx
+    fonts/face_arial_italic.cxx
+    fonts/face_courier.cxx
+    fonts/face_courier_bold.cxx
+    fonts/face_courier_bold_italic.cxx
+    fonts/face_courier_italic.cxx
+    fonts/face_times.cxx
+    fonts/face_times_bold.cxx
+    fonts/face_times_bold_italic.cxx
+    fonts/face_times_italic.cxx
+  )
+  WRAP_EXCLUDE_FILES(
+    face_arial
+    face_arial_bold
+    face_arial_bold_italic
+    face_arial_italic
+    face_courier
+    face_courier_bold
+    face_courier_bold_italic
+    face_courier_italic
+    face_times
+    face_times_bold
+    face_times_bold_italic
+    face_times_italic
+  )
+  LINK_LIBRARIES(
+    vtkfreetype
+    vtkftgl
+  )
+ENDIF (VTK_USE_FREETYPE)
+
 IF (VTK_HAVE_VG500)
   SOURCE_FILES ( Rendering_SRCS
     vtkVolumeProVG500Mapper.cxx
