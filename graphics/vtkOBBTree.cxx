@@ -204,6 +204,7 @@ void vtkOBBTree::ComputeOBB(vtkPoints *pts, float corner[3], float max[3],
     mid[i] = (tMax[1] - tMin[1]) * mid[i];
     min[i] = (tMax[2] - tMin[2]) * min[i];
     }
+
 }
 
 // Return intersection point of line defined by two points (a0,a1) in dataset
@@ -285,7 +286,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
 {
   int i, j, numCells=cells->GetNumberOfIds();
   int cellId, ptId;
-  vtkIdList *cellPts = vtkIdList::New();;
+  vtkIdList *cellPts = vtkIdList::New();
   float size[3];
 
   if ( level > this->DeepestLevel )
@@ -303,7 +304,8 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
     this->DataSet->GetCellPoints(cellId, cellPts);
     for ( j=0; j < cellPts->GetNumberOfIds(); j++ )
       {
-      if ( this->InsertedPoints[(ptId = cellPts->GetId(j))] != this->OBBCount )
+      ptId = cellPts->GetId(j);
+      if ( this->InsertedPoints[ptId] != this->OBBCount )
         {
         this->InsertedPoints[ptId] = this->OBBCount;
         this->PointsList->InsertNextPoint(this->DataSet->GetPoint(ptId));
@@ -341,9 +343,9 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
 
     bestRatio = VTK_LARGE_FLOAT;
     foundBestSplit = 0;
-    numStraddles = 0;
     for (splitPlane=0,splitAcceptable=0; !splitAcceptable && splitPlane < 3; )
       {
+      numStraddles = 0;
       // compute split normal
       for (i=0 ; i < 3; i++)
 	{
@@ -396,7 +398,9 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
         }
       else 
         {
-        ratio = fabs((double) numInRHnode / numInLHnode ) - 1.0;
+        ratio = fabs((double) numInRHnode / numInLHnode );
+        ratio += 1.0 / ratio;
+        ratio -= 2.0;
         }
 
       //see whether we've found acceptable split plane       
@@ -413,12 +417,12 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
         splitPlane = 10;
         }
       else //not a great split try another
-        {
+       {
         LHlist->Reset();
         RHlist->Reset();
         if ( ratio < bestRatio ) 
           {
-          bestRatio = ratio;;
+          bestRatio = ratio;
           bestPlane = splitPlane;
           }
         }//don't accept split
