@@ -93,7 +93,7 @@ vtkCamera::vtkCamera()
   this->VPNDotDOP = 0.0;
 
   this->Transform = vtkTransform::New();
-  this->PerspectiveTransform = vtkTransform::New();
+  this->PerspectiveTransform = vtkProjectionTransform::New();
 }
 
 
@@ -133,11 +133,6 @@ void vtkCamera::SetPosition(double X, double Y, double Z)
   this->Modified();
 }
 
-void vtkCamera::SetPosition(const double a[3])
-{
-  this->SetPosition(a[0],a[1],a[2]);
-}
-
 void vtkCamera::SetFocalPoint(double X, double Y, double Z)
 {
   if (X == this->FocalPoint[0] && Y == this->FocalPoint[1] 
@@ -157,11 +152,6 @@ void vtkCamera::SetFocalPoint(double X, double Y, double Z)
   this->ComputeDistance();
   
   this->Modified();
-}
-
-void vtkCamera::SetFocalPoint(const double a[3])
-{
-  this->SetFocalPoint(a[0],a[1],a[2]);
 }
 
 void vtkCamera::SetViewUp(double X, double Y, double Z)
@@ -198,11 +188,6 @@ void vtkCamera::SetViewUp(double X, double Y, double Z)
   << this->ViewUp[1] << ", " << this->ViewUp[2] << ")");
   
   this->Modified();
-}
-
-void vtkCamera::SetViewUp(const double a[3])
-{
-  this->SetViewUp(a[0],a[1],a[2]);
 }
 
 void vtkCamera::SetClippingRange(double X, double Y)
@@ -254,11 +239,6 @@ void vtkCamera::SetClippingRange(double X, double Y)
 
   this->Modified();
 }  
-
-void vtkCamera::SetClippingRange(const double a[2])
-{
-  this->SetClippingRange(a[0],a[1]);
-}
 
 // Set the distance between clipping planes. A side effect of this method is
 // to adjust the back clipping plane to be equal to the front clipping plane 
@@ -382,7 +362,7 @@ void vtkCamera::SetRoll(double roll)
 // Returns the roll of the camera.
 double vtkCamera::GetRoll()
 {
-  double	*orient;
+  double *orient;
   
   // set roll using orientation
   orient = this->GetOrientation();
@@ -394,10 +374,10 @@ double vtkCamera::GetRoll()
 
 // Compute the camera distance, which is the distance between the 
 // focal point and position.
-void vtkCamera::ComputeDistance ()
+void vtkCamera::ComputeDistance()
 {
-  double   *distance;
-  double   dx, dy, dz;
+  double *distance;
+  double dx, dy, dz;
   
   // pickup pointer to distance
   distance = &this->Distance;
@@ -437,13 +417,13 @@ void vtkCamera::ComputeDistance ()
 // Returns the orientation of the camera. This is a vector of X,Y and Z 
 // rotations that when performed in the order RotateZ, RotateX, and finally
 // RotateY, will yield the same 3x3 rotation matrix for the camera.
-double *vtkCamera::GetOrientation ()
+double *vtkCamera::GetOrientation()
 {
   // calculate a new orientation
-  //  this->ComputePerspectiveTransform(1,0,1);
-  this->ComputeViewTransform();
+  this->Transform->SetMatrix(this->GetViewTransformMatrix());
+
   float tmp[3];
-  this->PerspectiveTransform->GetOrientation (tmp[0],tmp[1],tmp[2]);
+  this->Transform->GetOrientation(tmp[0],tmp[1],tmp[2]);
   this->Orientation[0] = tmp[0];
   this->Orientation[1] = tmp[1];
   this->Orientation[2] = tmp[2];
@@ -457,258 +437,97 @@ double *vtkCamera::GetOrientation ()
 // Returns the WXYZ orientation of the camera. 
 float *vtkCamera::GetOrientationWXYZ()
 {
-  vtkMatrix4x4  *matrix = vtkMatrix4x4::New();
-  double *Rz, Rx[3], Ry[3];
-  
-  // calculate a new orientation
-  Rz = this->ViewPlaneNormal;
-  vtkMath::Cross(this->ViewUp,Rz,Rx);
-  vtkMath::Normalize(Rx);
-  vtkMath::Cross(Rz,Rx,Ry);
-  
-  matrix->Element[0][0] = Rx[0];
-  matrix->Element[1][0] = Rx[1];
-  matrix->Element[2][0] = Rx[2];
-  matrix->Element[0][1] = Ry[0];
-  matrix->Element[1][1] = Ry[1];
-  matrix->Element[2][1] = Ry[2];
-  matrix->Element[0][2] = Rz[0];
-  matrix->Element[1][2] = Rz[1];
-  matrix->Element[2][2] = Rz[2];
-  matrix->Element[3][0] = 0;
-  matrix->Element[3][1] = 0;
-  matrix->Element[3][2] = 0;
-  matrix->Element[3][3] = 1;
-
-  this->PerspectiveTransform->SetMatrix(*matrix);
-  matrix->Delete();
-  return this->PerspectiveTransform->GetOrientationWXYZ();
+  this->Transform->SetMatrix(this->GetViewTransformMatrix());
+  return this->Transform->GetOrientationWXYZ();
 }
 
 // Compute the view transform matrix. This is used in converting 
 // between view and world coordinates. It does not include any 
-// perspective effects but it does include shearing and scaling.
+// perspective effects but it does include rotation and scaling.
 void vtkCamera::ComputeViewTransform()
 {
-  vtkMatrix4x4  *matrix = vtkMatrix4x4::New();
-  double *Rz, Rx[3], Ry[3];
-  double p1[4],PRP[4];
-  
-  this->PerspectiveTransform->PostMultiply();  
-  this->PerspectiveTransform->Identity();
-
-  // translate to VRP
-  this->PerspectiveTransform->Translate(-this->FocalPoint[0],
-				       -this->FocalPoint[1],
-				       -this->FocalPoint[2]);
-  
-  // do the rotation
-  // Rz just equals the VPN
-  Rz = this->ViewPlaneNormal;
-  vtkMath::Cross(this->ViewUp,Rz,Rx);
-  vtkMath::Normalize(Rx);
-  vtkMath::Cross(Rz,Rx,Ry);
-  
-  matrix->Element[0][0] = Rx[0];
-  matrix->Element[0][1] = Rx[1];
-  matrix->Element[0][2] = Rx[2];
-  matrix->Element[1][0] = Ry[0];
-  matrix->Element[1][1] = Ry[1];
-  matrix->Element[1][2] = Ry[2];
-  matrix->Element[2][0] = Rz[0];
-  matrix->Element[2][1] = Rz[1];
-  matrix->Element[2][2] = Rz[2];
-  
-  this->PerspectiveTransform->Concatenate(matrix);
-
-  // translate to projection reference point PRP
-  // this is the camera's position blasted through
-  // the current matrix
-  p1[0] = this->Position[0];
-  p1[1] = this->Position[1];
-  p1[2] = this->Position[2];
-  p1[3] = 1.0;
-  this->PerspectiveTransform->MultiplyPoint(p1,PRP);
-  
-  // dist is really VRP'n so it will be negative
-  PRP[0] /= PRP[3];
-  PRP[1] /= PRP[3];
-  PRP[2] /= PRP[3];
-
-  // also need to take into account stereo rendering
+  // I believe that the stereo code is incorrect, it leaves the
+  // eyes focussed at infinity instead of at the focal point.
+  // For now, I'm leaving it the way it is.
   if (this->Stereo)
     {
+    double phi = this->EyeAngle*vtkMath::DoubleDegreesToRadians();
+    double eyeSeparation = 2*this->Distance*tan(phi/2);
+
     if (this->LeftEye)
       {
-      PRP[0] -= PRP[2]*tan(this->EyeAngle*3.1415926/360.0);
+      this->PerspectiveTransform->Translate(+eyeSeparation/2, 0.0, 0.0);
       }
     else
       {
-      PRP[0] += PRP[2]*tan(this->EyeAngle*3.1415926/360.0);
+      this->PerspectiveTransform->Translate(-eyeSeparation/2, 0.0, 0.0);
       }
     }
-  
-  matrix->Delete();
-  this->PerspectiveTransform->Translate(-PRP[0],-PRP[1],-PRP[2]);
+
+  this->PerspectiveTransform->SetupCamera(this->Position, 
+					  this->FocalPoint,
+					  this->ViewUp);
 }
 
 // Compute the perspective transform matrix. This is used in converting 
 // between view and world coordinates.
 void vtkCamera::ComputePerspectiveTransform(double aspect, 
-					 double nearz, double farz)
+					    double nearz, double farz)
 {
-  vtkMatrix4x4  *matrix = vtkMatrix4x4::New();
-  double DOP[3];
-  double ftemp;
-  double *Rz, Rx[3], Ry[3];
-  double p1[4],PRP[4];
-  
-  this->PerspectiveTransform->Push();  
-  this->PerspectiveTransform->PostMultiply();  
-  this->PerspectiveTransform->Identity();
-
-  // translate to VRP
-  this->PerspectiveTransform->Translate(-this->FocalPoint[0],
-				       -this->FocalPoint[1],
-				       -this->FocalPoint[2]);
-  
-  // do the rotation
-  // Rz just equals the VPN
-  Rz = this->ViewPlaneNormal;
-  vtkMath::Cross(this->ViewUp,Rz,Rx);
-  vtkMath::Normalize(Rx);
-  vtkMath::Cross(Rz,Rx,Ry);
-  
-  matrix->Element[0][0] = Rx[0];
-  matrix->Element[0][1] = Rx[1];
-  matrix->Element[0][2] = Rx[2];
-  matrix->Element[1][0] = Ry[0];
-  matrix->Element[1][1] = Ry[1];
-  matrix->Element[1][2] = Ry[2];
-  matrix->Element[2][0] = Rz[0];
-  matrix->Element[2][1] = Rz[1];
-  matrix->Element[2][2] = Rz[2];
-  
-  this->PerspectiveTransform->Concatenate(matrix);
-
-  // translate to projection reference point PRP
-  // this is the camera's position blasted through
-  // the current matrix
-  p1[0] = this->Position[0];
-  p1[1] = this->Position[1];
-  p1[2] = this->Position[2];
-  p1[3] = 1.0;
-  this->PerspectiveTransform->MultiplyPoint(p1,PRP);
-  
-  // dist is really VRP'n so it will be negative
-  PRP[0] /= PRP[3];
-  PRP[1] /= PRP[3];
-  PRP[2] /= PRP[3];
-
-  // also need to take into account stereo rendering
-  if (this->Stereo)
-    {
-    if (this->LeftEye)
-      {
-      PRP[0] -= PRP[2]*tan(this->EyeAngle*3.1415926/360.0);
-      }
-    else
-      {
-      PRP[0] += PRP[2]*tan(this->EyeAngle*3.1415926/360.0);
-      }
-    }
-  
-  this->PerspectiveTransform->Translate(-PRP[0],-PRP[1],-PRP[2]);
-  
-  // restore the original matrix
-  this->PerspectiveTransform->Pop();
-  
-  // now do the shear to get the z axis to go through the
-  // center of the window
-  ftemp = PRP[2]*aspect*tan((double)this->ViewAngle*3.1415926/360.0);
-  DOP[0] = ftemp*this->WindowCenter[0] - PRP[0];
-  ftemp = PRP[2]*tan((double)this->ViewAngle*3.1415926/360.0);
-  DOP[1] = ftemp*this->WindowCenter[1] - PRP[1];
-  DOP[2] = - PRP[2];
-  
-  matrix->Element[0][0] = 1;
-  matrix->Element[0][1] = 0;
-  matrix->Element[0][2] = -DOP[0]/DOP[2];
-  matrix->Element[0][3] = 0;
-  matrix->Element[1][0] = 0;
-  matrix->Element[1][1] = 1;
-  matrix->Element[1][2] = -DOP[1]/DOP[2];
-  matrix->Element[1][3] = 0;
-  matrix->Element[2][0] = 0;
-  matrix->Element[2][1] = 0;
-  matrix->Element[2][2] = 1;
-  matrix->Element[2][3] = 0;
-  matrix->Element[3][0] = 0;
-  matrix->Element[3][1] = 0;
-  matrix->Element[3][2] = 0;
-  matrix->Element[3][3] = 1;
-  
-  this->PerspectiveTransform->Concatenate(matrix);
+  // adjust Z-buffer range
+  this->PerspectiveTransform->AdjustZBuffer(-1, +1, nearz, farz);
 
   if (this->ParallelProjection)
     {
-    // now scale according to page 269 Foley & VanDam 2nd Edition
-    this->PerspectiveTransform->Scale(1.0/(this->ParallelScale*aspect),
-				     1.0/this->ParallelScale,
-				     1.0/(this->ClippingRange[1]-
-					  this->ClippingRange[0]));
-    }
-  else
-    {
-    // now scale according to page 269 Foley & VanDam 2nd Edition
-    this->PerspectiveTransform->
-      Scale(1.0/(tan((double)this->ViewAngle*3.1415926/360.0)*
-		 this->ClippingRange[1]*aspect),
-	    1.0/(tan((double)this->ViewAngle*3.1415926/360.0)*
-		 this->ClippingRange[1]),
-	    (double)1.0/this->ClippingRange[1]);
-    }
-  
-  // now set the orientation
-  float *TempFP = this->PerspectiveTransform->GetOrientation();
-  this->Orientation[0] = TempFP[0];
-  this->Orientation[1] = TempFP[1];
-  this->Orientation[2] = TempFP[2];
+    // set up a rectangular parallelipiped
 
-  if (this->ParallelProjection)
+    double width = this->ParallelScale*aspect;
+    double height = this->ParallelScale;
+
+    double xmin = (this->WindowCenter[0]-1.0)*width;
+    double xmax = (this->WindowCenter[0]+1.0)*width;
+    double ymin = (this->WindowCenter[1]-1.0)*height;
+    double ymax = (this->WindowCenter[1]+1.0)*height;
+
+    this->PerspectiveTransform->Ortho(xmin,xmax,ymin,ymax,
+				      this->ClippingRange[0],
+				      this->ClippingRange[1]);
+    }
+  else if (this->WindowCenter[0] != 0.0 || this->WindowCenter[1] != 0.0)
     {
-    matrix->Element[0][2] = 0;
-    matrix->Element[1][2] = 0;
-    matrix->Element[2][2] = (nearz - farz);
-    matrix->Element[2][3] = nearz + (nearz - farz)*this->ClippingRange[0]/
-      (this->ClippingRange[1] - this->ClippingRange[0]);
-    matrix->Element[3][2] = 0;
-    matrix->Element[3][3] = 1;
+    // set up an off-axis frustum
+
+    double tmp = tan(this->ViewAngle*vtkMath::DoubleDegreesToRadians()/2);
+    double width = this->ClippingRange[0]*tmp*aspect;
+    double height = this->ClippingRange[0]*tmp;
+
+    double xmin = (this->WindowCenter[0]-1.0)*width;
+    double xmax = (this->WindowCenter[0]+1.0)*width;
+    double ymin = (this->WindowCenter[1]-1.0)*height;
+    double ymax = (this->WindowCenter[1]+1.0)*height;
+
+    this->PerspectiveTransform->Frustum(xmin,xmax,ymin,ymax,
+					this->ClippingRange[0],
+					this->ClippingRange[1]);
     }
   else
     {
-    ftemp = (double)this->ClippingRange[0]/this->ClippingRange[1];
-    matrix->Element[0][2] = 0;
-    matrix->Element[1][2] = 0;
-    matrix->Element[2][2] = (double)(nearz - farz)/(1.0 - ftemp) - nearz;
-    matrix->Element[2][3] = (double)(nearz - farz)*ftemp/(1 - ftemp);
-    matrix->Element[3][2] = -1;
-    matrix->Element[3][3] = 0;
+    // set up an on-axis frustum
+
+    this->PerspectiveTransform->Perspective(this->ViewAngle,aspect,
+					    this->ClippingRange[0],
+					    this->ClippingRange[1]);
     }
-  
-  this->PerspectiveTransform->Concatenate(matrix);
-  matrix->Delete();
 }
 
 
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
 vtkMatrix4x4 *vtkCamera::GetPerspectiveTransformMatrix(double aspect,
-						       double nearz, double farz)
+						       double nearz,
+						       double farz)
 {
-  // update transform 
-  this->PerspectiveTransform->PostMultiply();  
   this->PerspectiveTransform->Identity();
-  this->ComputePerspectiveTransform(aspect, nearz,farz);
+  this->ComputePerspectiveTransform(aspect, nearz, farz);
   
   // return the transform 
   return this->PerspectiveTransform->GetMatrixPointer();
@@ -717,7 +536,7 @@ vtkMatrix4x4 *vtkCamera::GetPerspectiveTransformMatrix(double aspect,
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
 vtkMatrix4x4 *vtkCamera::GetViewTransformMatrix()
 {
-  // update transform 
+  this->PerspectiveTransform->Identity();
   this->ComputeViewTransform();
   
   // return the transform 
@@ -729,32 +548,25 @@ vtkMatrix4x4 *vtkCamera::GetCompositePerspectiveTransformMatrix(double aspect,
 								double nearz,
 								double farz)
 {
-  // update transform 
+  this->PerspectiveTransform->Identity();
+  this->ComputePerspectiveTransform(aspect, nearz, farz);
   this->ComputeViewTransform();
-  this->ComputePerspectiveTransform(aspect, nearz,farz);
   
   // return the transform 
   return this->PerspectiveTransform->GetMatrixPointer();
 }
 
-#define VTK_SQ_MAG(x) ( (x)[0]*(x)[0] + (x)[1]*(x)[1] + (x)[2]*(x)[2] )
-
 // Recompute the view up vector so that it is perpendicular to the
 // view plane normal.
 void vtkCamera::OrthogonalizeViewUp()
 {
-  double *normal,*up,temp[3],new_up[3];
-  double temp_mag_sq,new_mag_sq,ratio;
+  double vec[3];
 
-  normal=this->ViewPlaneNormal;
-  up=this->ViewUp;
-  vtkMath::Cross(normal,up,temp);
+  vtkMath::Cross(this->ViewPlaneNormal,this->ViewUp,vec);
+  vtkMath::Cross(vec,this->ViewPlaneNormal,vec);
+  vtkMath::Normalize(vec);
 
-  temp_mag_sq = (VTK_SQ_MAG(up));
-  vtkMath::Cross(temp,normal,new_up);
-  new_mag_sq = (VTK_SQ_MAG(new_up));
-  ratio = sqrt(new_mag_sq/temp_mag_sq);
-  this->SetViewUp(new_up[0]*ratio,new_up[1]*ratio,new_up[2]*ratio);
+  this->SetViewUp(vec);
 }
 
 // Move the position of the camera along the view plane normal. Moving
@@ -762,15 +574,13 @@ void vtkCamera::OrthogonalizeViewUp()
 // from the focal point (e.g., < 1) is a dolly-out.
 void vtkCamera::Dolly(double amount)
 {
-  double	distance;
-  
   if (amount <= 0.0)
     {
     return;
     }
   
   // zoom moves position along view plane normal by a specified ratio
-  distance =  this->Distance / amount;
+  double distance =  this->Distance / amount;
   
   this->SetPosition(this->FocalPoint[0] + distance * this->ViewPlaneNormal[0],
 		    this->FocalPoint[1] + distance * this->ViewPlaneNormal[1],
@@ -793,7 +603,7 @@ void vtkCamera::Zoom(double amount)
 
 
 // Rotate the camera about the view up vector centered at the focal point.
-void vtkCamera::Azimuth (double angle)
+void vtkCamera::Azimuth(double angle)
 {
   double temp[3];
 
@@ -830,9 +640,9 @@ void vtkCamera::Azimuth (double angle)
 
 // Rotate the camera about the cross product of the view plane normal and 
 // the view up vector centered on the focal point.
-void vtkCamera::Elevation (double angle)
+void vtkCamera::Elevation(double angle)
 {
-  double	axis[3], temp[3];
+  double axis[3], temp[3];
   
   // elevation is a rotation of camera position about cross between
   // view plane normal and view up
@@ -874,7 +684,7 @@ void vtkCamera::Elevation (double angle)
 
 // Rotate the focal point about the view up vector centered at the camera's 
 // position. 
-void vtkCamera::Yaw (double angle)
+void vtkCamera::Yaw(double angle)
 {
   double temp[3];
 
@@ -910,9 +720,9 @@ void vtkCamera::Yaw (double angle)
 
 // Rotate the focal point about the cross product of the view up vector 
 // and the view plane normal, centered at the camera's position.
-void vtkCamera::Pitch (double angle)
+void vtkCamera::Pitch(double angle)
 {
-  double	axis[3],temp[3];
+  double axis[3],temp[3];
 
   
   // pitch is a rotation of camera focal point about cross between
@@ -954,7 +764,7 @@ void vtkCamera::Pitch (double angle)
 }
 
 // Rotate the camera around the view plane normal.
-void vtkCamera::Roll (double angle)
+void vtkCamera::Roll(double angle)
 {
   double temp[3];
 
@@ -985,7 +795,7 @@ void vtkCamera::SetViewPlaneNormal(double X,double Y,double Z)
 
   // normalize it
   norm = sqrt( X * X + Y * Y + Z * Z );
-  if (!norm)
+  if (norm == 0.0)
     {
     vtkErrorMacro(<< "SetViewPlaneNormal of (0,0,0)");
     return;
@@ -1037,93 +847,45 @@ void vtkCamera::SetViewPlaneNormal(double X,double Y,double Z)
   this->Modified();
 }
 
-void vtkCamera::SetViewPlaneNormal(const double a[3])
-{
-  this->SetViewPlaneNormal(a[0],a[1],a[2]);
-}
-
 // Return the 6 planes (Ax + By + Cz + D = 0) that bound
 // the view frustum. 
-void vtkCamera::GetFrustumPlanes( float aspect, float planes[24] )
+void vtkCamera::GetFrustumPlanes(float aspect, float planes[24])
 {
-  vtkMatrix4x4 *m;
-  vtkTransform *transform = vtkTransform::New();
-  double       in[4], out[8][4] ;
-  int          i, j, k, index;
-  int          which_points[6][3];
-  double       v1[3], v2[3], A, B, C, D, t;
+  int i;
+  double f, normals[6][4], matrix[4][4];
 
-  transform->SetMatrix(*(this->GetCompositePerspectiveTransformMatrix(aspect,0,1)));
-  transform->Inverse();
-  m = transform->GetMatrixPointer();
-
-  in[3] = 1.0;
-  index = 0;
-
-  for ( k = 0; k <= 1; k+=1 )
+  // set up the normals
+  for (i = 0; i < 6; i++)
     {
-    for ( j = -1; j <= 1; j+=2 )
-      {
-      for ( i = -1; i <= 1; i+=2 )
-	{
-	in[0] = i;
-	in[1] = j;
-	in[2] = k;
-	m->MultiplyPoint( in, out[index] );
-	if ( out[index][3] )
-	  {
-	  out[index][0] /= out[index][3];
-	  out[index][1] /= out[index][3];
-	  out[index][2] /= out[index][3];
-	  }
-	else
-	  {
-	  vtkErrorMacro(<<"Invalid camera matrix - can't get frustum bounds!");
-	  }
-	index++;
-	}
-      }
+    normals[i][0] = 0.0;
+    normals[i][1] = 0.0;
+    normals[i][2] = 0.0;
+    normals[i][3] = 1.0;
+    // if i is even set to -1, if odd set to +1 
+    normals[i][i/2] = 1 - (i%2)*2;
     }
 
-  which_points[0][0] = 0; which_points[0][1] = 4; which_points[0][2] = 6;
-  which_points[1][0] = 1; which_points[1][1] = 3; which_points[1][2] = 7;
-  which_points[2][0] = 0; which_points[2][1] = 1; which_points[2][2] = 5;
-  which_points[3][0] = 2; which_points[3][1] = 6; which_points[3][2] = 7;
-  which_points[4][0] = 3; which_points[4][1] = 1; which_points[4][2] = 0;
-  which_points[5][0] = 4; which_points[5][1] = 5; which_points[5][2] = 7;
-
-  for ( index = 0; index < 6; index++ )
+  // get the composite perspective matrix
+  vtkMatrix4x4::DeepCopy(*matrix, 
+	this->GetCompositePerspectiveTransformMatrix(aspect,-1,+1));
+  
+  // transpose the matrix for use with normals
+  vtkMatrix4x4::Transpose(*matrix,*matrix);
+  
+  // transform the normals to world coordinates
+  for (i = 0; i < 6; i++)
     {
-    v1[0] = out[which_points[index][2]][0] - out[which_points[index][1]][0];
-    v1[1] = out[which_points[index][2]][1] - out[which_points[index][1]][1];
-    v1[2] = out[which_points[index][2]][2] - out[which_points[index][1]][2];
+    vtkMatrix4x4::MultiplyPoint(*matrix,normals[i],normals[i]);
 
-    v2[0] = out[which_points[index][0]][0] - out[which_points[index][1]][0];
-    v2[1] = out[which_points[index][0]][1] - out[which_points[index][1]][1];
-    v2[2] = out[which_points[index][0]][2] - out[which_points[index][1]][2];
+    f = 1.0/sqrt(normals[i][0]*normals[i][0] +
+		 normals[i][1]*normals[i][1] +
+		 normals[i][2]*normals[i][2]);
 
-    A = v1[1] * v2[2] - v2[1] * v1[2];
-    B = v1[2] * v2[0] - v2[2] * v1[0];
-    C = v1[0] * v2[1] - v2[0] * v1[1];
-
-    t = sqrt( A*A + B*B + C*C  );
-    if ( t )
-      {
-      A /= t;
-      B /= t;
-      C /= t;
-      }
-    D = -( A * out[which_points[index][0]][0] +
-	   B * out[which_points[index][0]][1] + 
-	   C * out[which_points[index][0]][2] );
-
-    planes[4*index + 0] = A;
-    planes[4*index + 1] = B;
-    planes[4*index + 2] = C;
-    planes[4*index + 3] = D;
+    planes[4*i + 0] = normals[i][0]*f;
+    planes[4*i + 1] = normals[i][1]*f;
+    planes[4*i + 2] = normals[i][2]*f;
+    planes[4*i + 3] = normals[i][3]*f;
     }
-
-  transform->Delete();
 }
 
 unsigned long int vtkCamera::GetViewingRaysMTime()
