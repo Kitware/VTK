@@ -37,7 +37,7 @@
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.91");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.92");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -1137,3 +1137,44 @@ void vtkWin32OpenGLRenderWindow::SetCursorPosition(int x, int y)
     SetCursorPos(point.x, point.y);
     }
 };
+
+void vtkWin32OpenGLRenderWindow::SetCurrentCursor(int shape)
+{
+  this->Superclass::SetCurrentCursor(shape);
+  LPCTSTR cursorName;
+  switch (shape)
+    {
+    case VTK_CURSOR_DEFAULT:
+    case VTK_CURSOR_ARROW:
+      cursorName = IDC_ARROW;
+      break;
+    case VTK_CURSOR_SIZENE:
+    case VTK_CURSOR_SIZESW:
+      cursorName = IDC_SIZENESW;
+      break;
+    case VTK_CURSOR_SIZENW:
+    case VTK_CURSOR_SIZESE:
+      cursorName = IDC_SIZENWSE;
+      break;
+    case VTK_CURSOR_SIZENS:
+      cursorName = IDC_SIZENS;
+      break;
+    case VTK_CURSOR_SIZEWE:
+      cursorName = IDC_SIZEWE;
+      break;
+    case VTK_CURSOR_SIZEALL:
+      cursorName = IDC_SIZEALL;
+      break;
+    case VTK_CURSOR_HAND:
+#if(WINVER >= 0x0500)      
+      cursorName = IDC_HAND;
+#else
+      cursorName = IDC_ARROW;
+#endif
+      break;
+    }
+  
+  HANDLE cursor = 
+    LoadImage(0,cursorName,IMAGE_CURSOR,0,0,LR_SHARED | LR_DEFAULTSIZE);
+  SetCursor((HCURSOR)cursor);
+}
