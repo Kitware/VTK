@@ -26,6 +26,21 @@
  * @see  "Freetype 2 Documentation - 2.0.4"
  *
  */
+class FTCallbackVector;
+
+class FTGL_EXPORT FTLibraryCleanup
+{
+public:
+  FTLibraryCleanup();
+  ~FTLibraryCleanup();
+
+  static void AddDependency(FTCallback);
+  static void CallAndRemoveDependencies();
+
+private:
+  static  FTCallbackVector *Dependencies;
+};
+
 class FTGL_EXPORT FTLibrary
 {
   public:
@@ -34,7 +49,12 @@ class FTGL_EXPORT FTLibrary
      * 
      * @return  The global <code>FTLibrary</code> object.
      */
-    static FTLibrary& Instance();
+    static FTLibrary* GetInstance();
+
+    /**
+     * Manually sets the library/singleton
+     */
+    static void SetInstance (FTLibrary*);  
 
     /**
      * Gets a pointer to the native Freetype library.
@@ -56,17 +76,15 @@ class FTGL_EXPORT FTLibrary
      * Disposes of the Freetype library
      */
     virtual  ~FTLibrary();
-    
+
   private:
+
     /**
      * Default constructors.
-     *
-     * Made private to stop clients creating there own FTLibrary
-     * objects.
      */
     FTLibrary();
-    FTLibrary( const FT_Library&){}
-    FTLibrary&  operator=( const FT_Library&) { return *this; }
+    FTLibrary( const FT_Library&) {}
+    FTLibrary& operator=( const FT_Library&) { return *this; }
     
     /**
      * Initialises the Freetype library
@@ -92,6 +110,8 @@ class FTGL_EXPORT FTLibrary
      */
     FT_Error err;
 
-    
+    static FTLibraryCleanup Cleanup;
+    static FTLibrary* Instance;
 };
+
 #endif  //  __FTLibrary__

@@ -14,6 +14,8 @@
 typedef double   FTGL_DOUBLE;
 typedef float    FTGL_FLOAT;
 
+typedef void (*FTCallback)();
+
 #ifdef WIN32
 
     // Under windows avoid including <windows.h> is overrated. 

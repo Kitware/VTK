@@ -30,7 +30,7 @@ FTFace::~FTFace()
 bool FTFace::Open( const char* filename)
 {
   // FIXME check library for errors
-  err = FT_New_Face( *FTLibrary::Instance().GetLibrary(), 
+  err = FT_New_Face( *FTLibrary::GetInstance()->GetLibrary(), 
                      filename, 
                      0, 
                      &ftFace);
@@ -50,13 +50,11 @@ bool FTFace::Open( const char* filename)
 bool FTFace::Open( const unsigned char *pBufferBytes, size_t bufferSizeInBytes )
 {
   // FIXME check library for errors
-  err = FT_New_Memory_Face( *FTLibrary::Instance().GetLibrary(), 
+  err = FT_New_Memory_Face( *FTLibrary::GetInstance()->GetLibrary(), 
                             pBufferBytes, 
                             bufferSizeInBytes, 
                             0, 
                             &ftFace);
-
-  // printf("FTFace::Open(): face from %lu bytes @ %p => err: %d, ftFace: %p\n", bufferSizeInBytes, pBufferBytes, err, ftFace);
 
   if( err)
     {
@@ -81,8 +79,6 @@ void FTFace::Close()
 {
   if( ftFace)
   {
-  // printf("FTFace::Close() face: %p\n", ftFace);
-
     FT_Done_Face( ftFace);
     ftFace = 0;
   }
