@@ -69,12 +69,24 @@ public:
   // Description:
   // Apply the transformation to a combination of points, normals
   // and vectors.  
-  void TransformPointsNormalsVectors(vtkPoints *inPts, 
-				     vtkPoints *outPts, 
-				     vtkNormals *inNms, 
-				     vtkNormals *outNms,
-				     vtkVectors *inVrs, 
-				     vtkVectors *outVrs);
+  virtual void TransformPointsNormalsVectors(vtkPoints *inPts, 
+					     vtkPoints *outPts, 
+					     vtkNormals *inNms, 
+					     vtkNormals *outNms,
+					     vtkVectors *inVrs, 
+					     vtkVectors *outVrs)
+    {
+      this->TransformPointsNormalsVectors(inPts, outPts,
+					  inNms->GetData(), outNms->GetData(),
+					  inVrs->GetData(), outVrs->GetData());
+    }
+
+  virtual void TransformPointsNormalsVectors(vtkPoints *inPts, 
+					     vtkPoints *outPts, 
+					     vtkDataArray *inNms, 
+					     vtkDataArray *outNms,
+					     vtkDataArray *inVrs, 
+					     vtkDataArray *outVrs);
 
   // Description:
   // Get a copy of the internal transformation matrix.  The
