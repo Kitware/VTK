@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.46");
+vtkCxxRevisionMacro(vtkImageReslice, "1.47");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -37,14 +37,20 @@ template<class F>
 inline int vtkResliceFloor(double x, F &f)
 {
 #if defined mips || defined sparc || defined __ppc__
-  int i = (int)((unsigned int)(x + 2147483648.0) - 2147483648U);
+  x += 2147483648.0;
+  unsigned int i = (unsigned int)(x);
   f = x - i;
-  return i;
+  return (int)(i - 2147483648U);
 #elif defined i386 || defined _M_IX86
   union { double d; unsigned short s[4]; unsigned int i[2]; } dual;
   dual.d = x + 103079215104.0;  // (2**(52-16))*1.5
   f = dual.s[0]*0.0000152587890625; // 2**(-16)
   return (int)((dual.i[1]<<16)|((dual.i[0])>>16));
+#elif defined ia64 || defined __ia64__ || defined IA64
+  x += 103079215104.0;
+  long long i = (long long)(x);
+  f = x - i;
+  return (int)(i - 103079215104LL);
 #else
   double y = floor(x);
   f = x - y;
@@ -60,6 +66,10 @@ inline int vtkResliceRound(double x)
   union { double d; unsigned int i[2]; } dual;
   dual.d = x + 103079215104.5;  // (2**(52-16))*1.5
   return (int)((dual.i[1]<<16)|((dual.i[0])>>16));
+#elif defined ia64 || defined __ia64__ || defined IA64
+  x += 103079215104.5;
+  long long i = (long long)(x);
+  return (int)(i - 103079215104LL);
 #else
   return (int)(floor(x+0.5));
 #endif
