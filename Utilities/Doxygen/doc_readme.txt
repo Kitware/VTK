@@ -1,11 +1,17 @@
 Documenting VTK with doxygen
 ----------------------------
 
-Sebastien BARRE (Time-stamp: <2001-10-01 11:24:41 barre>)
+Sebastien BARRE (Time-stamp: <2001-10-24 22:38:42 barre>)
 
 This file describes how to generate a Doxygen-compliant documentation
 featuring cross-references between classes and examples, a full-text index
 and an accurate VTK version. 
+
+Note that this file describes how to run the scripts manually, which
+can be tedious (to say the least). A batch file doc_makeall.sh is now
+used to automate this process. It is part of the CMake/Build process
+and is configured both though CMake and through its own parameter. It
+should be pretty straightforward to understand and adapt.
 
 Warning
 -------
