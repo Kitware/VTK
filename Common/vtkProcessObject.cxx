@@ -19,7 +19,7 @@
 #include "vtkErrorCode.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.36");
+vtkCxxRevisionMacro(vtkProcessObject, "1.37");
 
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()
@@ -47,14 +47,6 @@ vtkProcessObject::~vtkProcessObject()
       this->Inputs[idx]->RemoveConsumer(this);
       this->Inputs[idx]->UnRegister(this);
       this->Inputs[idx] = NULL;
-      }
-    if (this->SortedInputs[idx])
-      {
-      this->SortedInputs[idx]= NULL;
-      }
-    if (this->SortedInputs2[idx])
-      {
-      this->SortedInputs2[idx]= NULL;
       }
     }
   if (this->Inputs)
