@@ -310,7 +310,7 @@ BOOL CPcmakerApp::InitInstance()
     // use the quality testing effort defaults
     dlg.m_WhereVTK = "d:\\nightly\\vtk";
     dlg.m_WhereBuild = "d:\\nightly\\vtkbin";
-    dlg.m_WhereJDK = "c:\\jdk1.2.1";
+    dlg.m_WhereJDK = "D:\\jdk1.3";
     dlg.m_WherePy = "d:\\Python";
     dlg.adlg.m_WhereTcl = "";
     dlg.adlg.m_WhereTk  = "";
