@@ -81,7 +81,7 @@ VTKTCL_EXPORT int vtkTclInDelete()
 
 // we do no error checking in this.  We assume that if we were called
 // then tcl must have been able to find the command function and object
-VTKTCL_EXPORT int vtkTclDeleteObjectFromHash(ClientData cd)
+VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(void *cd)
 {
   char temps[80];
   Tcl_HashEntry *entry;
@@ -89,7 +89,7 @@ VTKTCL_EXPORT int vtkTclDeleteObjectFromHash(ClientData cd)
   int (*command)(ClientData, Tcl_Interp *,int, char *[]);
 
   // lookup the objects name
-  sprintf(temps,"%p",(void *)cd);
+  sprintf(temps,"%p",cd);
   entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
   temp = (char *)(Tcl_GetHashValue(entry));
 
@@ -108,7 +108,6 @@ VTKTCL_EXPORT int vtkTclDeleteObjectFromHash(ClientData cd)
     vtkGenericWarningMacro("vtkTcl Attempting to free object named " << temp);
     }
   free (temp);
-  return 1;
 }
 
 // we do no error checking in this.  We assume that if we were called
@@ -136,7 +135,7 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
   command = (int (*)(ClientData,Tcl_Interp *,int,char *[]))Tcl_GetHashValue(entry);
 
   // do we need to delete the c++ obj
-  if (vtkTclDeleteObjectFromHash(cd))
+  if (strncmp(temp,"vtkTemp",7))
     {
     i = Tcl_CreateInterp();
     vtkInDelete = 1;
@@ -216,10 +215,12 @@ int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
   return TCL_ERROR;
 }
 
-VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
+VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,
+					      void *temp1,
 			  int command(ClientData, Tcl_Interp *,int, char *[]))
 {
   int is_new;
+  vtkObject *temp = (vtkObject *)temp1;
   char temps[80];
   char name[80];
   Tcl_HashEntry *entry;
@@ -253,9 +254,9 @@ VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
     
     if (vtkTclDebugOn)
       {
-      vtkGenericWarningMacro("Found name: " 
-                             << (char *)(Tcl_GetHashValue(entry)) 
-                             << " for vtk pointer: " << temp);
+	vtkGenericWarningMacro("Found name: " 
+			       << (char *)(Tcl_GetHashValue(entry)) 
+			       << " for vtk pointer: " << temp);
       }
 
     /* if the commands are not the same try to pick the best one */
@@ -276,8 +277,9 @@ VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
       args[2] = NULL;
       if (command2((ClientData)temp,(Tcl_Interp *)NULL,3,args) != TCL_OK)
 	{
-	/* the original function couldn't handle the type conversion so try the new one */
-	if (command((ClientData)temp,(Tcl_Interp *)NULL,3,args) == TCL_OK)
+	  /* the original function couldn't handle the type conversion so */
+	  /* try the new one */
+	  if (command((ClientData)temp,(Tcl_Interp *)NULL,3,args) == TCL_OK)
 	  {
 	  /* the new one can handle the conversion so lets use it instead */
 	  Tcl_SetHashValue(entry2,(ClientData)command);
@@ -297,7 +299,7 @@ VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
   if (vtkTclDebugOn)
     {
       vtkGenericWarningMacro("Created name: " << name
-			   << " for vtk pointer: " << temp);
+			     << " for vtk pointer: " << temp);
     }
 
   entry = Tcl_CreateHashEntry(&vtkInstanceLookup,name,&is_new);
@@ -309,12 +311,17 @@ VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
 		    (Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);
   entry = Tcl_CreateHashEntry(&vtkCommandLookup,name,&is_new);
   Tcl_SetHashValue(entry,(ClientData)command);
+  
+  // setup the delete callback
+  temp->SetDeleteMethod(vtkTclDeleteObjectFromHash);
+  
   sprintf(interp->result,"%s",name); 
-  ((vtkObject *)temp)->Register(NULL);
 }
       
-VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,char *result_type,
-					       Tcl_Interp *interp, int &error)
+VTKTCL_EXPORT void *vtkTclGetPointerFromObject(char *name,
+					       char *result_type,
+					       Tcl_Interp *interp, 
+					       int &error)
 {
   Tcl_HashEntry *entry;
   ClientData temp;
