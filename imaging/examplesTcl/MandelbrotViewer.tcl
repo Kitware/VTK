@@ -97,7 +97,6 @@ pack $manFrame $julFrame -side left -padx 3 -pady 3 -fill both -expand t
 
 set manView [vtkTkImageViewerWidget $manFrame.view -iv viewer \
                   -width [expr $XRAD*2] -height [expr $YRAD*2]]
-puts "[expr $XRAD*2]"
 set manRange [label $manFrame.range -text "Mandelbrot Range: 0 - $RANGE"]
 pack $manRange -side bottom -fill none -expand f
 pack $manView -side bottom -fill none -expand t
