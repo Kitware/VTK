@@ -25,7 +25,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.28");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.28.2.1");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;
@@ -104,6 +104,8 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
   return retVal;
 }
 
+const float vtkInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-10;
+
 // Evaluate u,v,w at x,y,z,t
 int vtkInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset,
                                                  float* x, 
@@ -128,6 +130,9 @@ int vtkInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset,
     return 0;
     }
 
+  float tol2 = 
+    dataset->GetLength() * vtkInterpolatedVelocityField::TOLERANCE_SCALE;
+
   int found = 0;
 
   if (this->Caching)
@@ -147,7 +152,7 @@ int vtkInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset,
         dataset->GetCell(this->LastCellId, this->Cell);
         
         this->LastCellId = 
-          dataset->FindCell(x, this->Cell, this->GenCell, -1, 0, 
+          dataset->FindCell(x, this->Cell, this->GenCell, -1, tol2, 
                             subId, this->LastPCoords, this->Weights);
         if (this->LastCellId != - 1)
           {
@@ -168,7 +173,7 @@ int vtkInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset,
     // if the cell is not found, do a global search (ignore initial
     // cell if there is one)
     this->LastCellId = 
-      dataset->FindCell(x, 0, this->GenCell, -1, 0, 
+      dataset->FindCell(x, 0, this->GenCell, -1, tol2, 
                               subId, this->LastPCoords, this->Weights);
     if (this->LastCellId != - 1)
       {
