@@ -57,7 +57,7 @@ vtkMatrixToLinearTransform* vtkMatrixToLinearTransform::New()
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrixToLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMatrixToLinearTransform::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkLinearTransform::PrintSelf(os, indent);
 }

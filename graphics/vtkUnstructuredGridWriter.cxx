@@ -82,7 +82,7 @@ vtkUnstructuredGrid *vtkUnstructuredGridWriter::GetInput()
 
 void vtkUnstructuredGridWriter::WriteData()
 {
-  ostream *fp;
+  vtkOstream *fp;
   vtkUnstructuredGrid *input=this->GetInput();
   int *types, ncells, cellId;
 
@@ -130,7 +130,7 @@ void vtkUnstructuredGridWriter::WriteData()
   this->CloseVTKFile(fp);  
 }
 
-void vtkUnstructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkUnstructuredGridWriter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataWriter::PrintSelf(os,indent);
 }

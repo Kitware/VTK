@@ -49,8 +49,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkImageImport_h
 #define __vtkImageImport_h
 
-#include <iostream.h>
-#include <fstream.h>
 #include "vtkImageSource.h"
 #include "vtkTransform.h"
 
@@ -59,7 +57,7 @@ class VTK_EXPORT vtkImageImport : public vtkImageSource
 public:
   static vtkImageImport *New();
   vtkTypeMacro(vtkImageImport,vtkImageSource);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(vtkOstream& os, vtkIndent indent);   
 
   // Description:
   // Import data and make an internal copy of it. You should use 

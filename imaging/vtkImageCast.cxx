@@ -312,7 +312,7 @@ void vtkImageCast::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageCast::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageCast::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

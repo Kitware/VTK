@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageGradient : public vtkImageToImageFilter
 public:
   static vtkImageGradient *New();
   vtkTypeMacro(vtkImageGradient,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // Determines how the input is interpreted (set of 2d slices ...)

@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageLogarithmicScale : public vtkImageToImageFilter
 public:
   static vtkImageLogarithmicScale *New();
   vtkTypeMacro(vtkImageLogarithmicScale,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the scale factor for the logarithmic funciton.

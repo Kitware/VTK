@@ -78,7 +78,7 @@ class VTK_EXPORT vtkGeometryFilter : public vtkDataSetToPolyDataFilter
 public:
   static vtkGeometryFilter *New();
   vtkTypeMacro(vtkGeometryFilter,vtkDataSetToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Turn on/off selection of geometry by point id.

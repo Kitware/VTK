@@ -67,7 +67,7 @@ public:
   static vtkImageComposite *New() {return new vtkImageComposite;}
 
   vtkTypeMacro(vtkImageComposite,vtkSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the output of this source.

@@ -733,7 +733,7 @@ void vtkSource::ExecuteInformation()
 }
 
 //----------------------------------------------------------------------------
-void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSource::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
 

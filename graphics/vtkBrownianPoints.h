@@ -55,7 +55,7 @@ class VTK_EXPORT vtkBrownianPoints : public vtkDataSetToDataSetFilter
 public:
   static vtkBrownianPoints *New();
   vtkTypeMacro(vtkBrownianPoints,vtkDataSetToDataSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set the minimum speed value.

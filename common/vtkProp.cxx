@@ -130,7 +130,7 @@ void vtkProp::ShallowCopy(vtkProp *Prop)
   this->SetPickMethodArgDelete(Prop->PickMethodArgDelete);
 }
 
-void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
+void vtkProp::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);
 
@@ -147,11 +147,11 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "AllocatedRenderTime: " 
-     << this->AllocatedRenderTime << endl;
+     << this->AllocatedRenderTime << vtkEndl;
   os << indent << "EstimatedRenderTime: " 
-     << this->EstimatedRenderTime << endl;
+     << this->EstimatedRenderTime << vtkEndl;
   os << indent << "RenderTimeMultiplier: " 
-     << this->RenderTimeMultiplier << endl;
+     << this->RenderTimeMultiplier << vtkEndl;
   os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
 }
 

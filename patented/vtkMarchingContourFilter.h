@@ -101,7 +101,7 @@ class VTK_EXPORT vtkMarchingContourFilter : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkMarchingContourFilter,vtkDataSetToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with initial range (0,1) and single contour value

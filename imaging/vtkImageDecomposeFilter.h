@@ -61,7 +61,7 @@ public:
   // dimensionality 3.
   static vtkImageDecomposeFilter *New();
   vtkTypeMacro(vtkImageDecomposeFilter,vtkImageIterateFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Dimensionality is the number of axes which are considered durring

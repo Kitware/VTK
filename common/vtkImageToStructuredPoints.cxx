@@ -80,7 +80,7 @@ vtkImageToStructuredPoints::~vtkImageToStructuredPoints()
 
 
 //----------------------------------------------------------------------------
-void vtkImageToStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageToStructuredPoints::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkSource::PrintSelf(os,indent);
 

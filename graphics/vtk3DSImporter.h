@@ -61,7 +61,7 @@ public:
   static vtk3DSImporter *New();
 
   vtkTypeMacro(vtk3DSImporter,vtkImporter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   OmniLight *OmniList;
   SpotLight *SpotLightList;

@@ -346,10 +346,10 @@ void vtkImageAppend::ThreadedExecute(vtkImageData **inData,
 
 
 //----------------------------------------------------------------------------
-void vtkImageAppend::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageAppend::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkImageMultipleInputFilter::PrintSelf(os, indent);
-  os << indent << "AppendAxis: " << this->AppendAxis << endl;
+  os << indent << "AppendAxis: " << this->AppendAxis << vtkEndl;
 }
 
 

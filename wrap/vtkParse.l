@@ -160,6 +160,42 @@
 ^"#"[^\n]*$     ;
 
 
+vtkOstream  { yylval.str = (char *)malloc(yyleng + 1);
+              memcpy(yylval.str,yytext,yyleng);
+              yylval.str[yyleng] = '\0';
+              return(ID);
+            }
+
+vtkIstream  { yylval.str = (char *)malloc(yyleng + 1);
+              memcpy(yylval.str,yytext,yyleng);
+              yylval.str[yyleng] = '\0';
+              return(ID);
+            }
+
+vtkOstrstream  { yylval.str = (char *)malloc(yyleng + 1);
+                 memcpy(yylval.str,yytext,yyleng);
+                 yylval.str[yyleng] = '\0';
+                 return(ID);
+               }
+
+vtkIstrstream  { yylval.str = (char *)malloc(yyleng + 1);
+                 memcpy(yylval.str,yytext,yyleng);
+                 yylval.str[yyleng] = '\0';
+                 return(ID);
+               }
+
+vtkOfstream  { yylval.str = (char *)malloc(yyleng + 1);
+               memcpy(yylval.str,yytext,yyleng);
+               yylval.str[yyleng] = '\0';
+               return(ID);
+             }
+
+vtkIfstream  { yylval.str = (char *)malloc(yyleng + 1);
+               memcpy(yylval.str,yytext,yyleng);
+               yylval.str[yyleng] = '\0';
+               return(ID);
+             }
+
 "vtk"[0-9a-zA-Z_]*  { yylval.str = (char *)malloc(yyleng + 1);
                      memcpy(yylval.str,yytext,yyleng);
                      yylval.str[yyleng] = '\0';

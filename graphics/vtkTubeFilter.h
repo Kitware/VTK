@@ -74,7 +74,7 @@ class VTK_EXPORT vtkTubeFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkTubeFilter,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with radius 0.5, radius variation turned off, the number 

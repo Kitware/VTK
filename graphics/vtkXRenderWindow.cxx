@@ -39,9 +39,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-#include <stdlib.h>
-#include <iostream.h>
 #include "vtkXRenderWindow.h"
 #include "vtkXRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
@@ -335,7 +332,7 @@ void vtkXRenderWindow::SetDisplayId(void *arg)
   this->OwnDisplay = 0;
 }
 
-void vtkXRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
+void vtkXRenderWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkRenderWindow::PrintSelf(os,indent);
 

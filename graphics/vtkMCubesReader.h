@@ -83,7 +83,7 @@ class VTK_EXPORT vtkMCubesReader : public vtkPolyDataSource
 {
 public:
   vtkTypeMacro(vtkMCubesReader,vtkPolyDataSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with FlipNormals turned off and Normals set to true.

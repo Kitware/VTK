@@ -210,7 +210,7 @@ void vtkTextureMapToSphere::Execute()
   newTCoords->Delete();
 }
 
-void vtkTextureMapToSphere::PrintSelf(ostream& os, vtkIndent indent)
+void vtkTextureMapToSphere::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

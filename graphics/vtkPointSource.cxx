@@ -118,7 +118,7 @@ void vtkPointSource::ExecuteInformation()
 
 
 //----------------------------------------------------------------------------
-void vtkPointSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPointSource::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

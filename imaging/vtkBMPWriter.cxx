@@ -65,7 +65,7 @@ vtkBMPWriter::vtkBMPWriter()
   this->FileLowerLeft = 1;
 }
 
-void vtkBMPWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
+void vtkBMPWriter::WriteFileHeader(vtkOfstream *file, vtkImageData *cache)
 {
   int min0, max0, min1, max1, min2, max2;
   long temp;
@@ -121,7 +121,7 @@ void vtkBMPWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
 }
 
 
-void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
+void vtkBMPWriter::WriteFile(vtkOfstream *file, vtkImageData *data,
 			     int extent[6])
 {
   int idx1, idx2;

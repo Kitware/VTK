@@ -211,7 +211,7 @@ void vtkCubeSource::SetBounds(float bounds[6])
                   (bounds[5]+bounds[4])/2.0);
 }
 
-void vtkCubeSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkCubeSource::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkOpenGLVolumeTextureMapper2D : public vtkVolumeTextureMapper2
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeTextureMapper2D,vtkVolumeTextureMapper2D);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( vtkOstream& os, vtkIndent index );
 
   static vtkOpenGLVolumeTextureMapper2D *New();
   

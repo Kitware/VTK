@@ -521,7 +521,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
   return renderedSomething;
 }
 
-void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
+void vtkScalarBarActor::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkActor2D::PrintSelf(os,indent);
 

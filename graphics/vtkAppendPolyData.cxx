@@ -725,7 +725,7 @@ vtkPolyData *vtkAppendPolyData::GetInput(int idx)
 }
 
 //----------------------------------------------------------------------------
-void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
+void vtkAppendPolyData::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

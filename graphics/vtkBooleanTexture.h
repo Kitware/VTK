@@ -76,7 +76,7 @@ public:
   static vtkBooleanTexture *New();
 
   vtkTypeMacro(vtkBooleanTexture,vtkStructuredPointsSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set the X texture map dimension.

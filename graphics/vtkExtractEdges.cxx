@@ -212,7 +212,7 @@ void vtkExtractEdges::CreateDefaultLocator()
     }
 }
 
-void vtkExtractEdges::PrintSelf(ostream& os, vtkIndent indent)
+void vtkExtractEdges::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

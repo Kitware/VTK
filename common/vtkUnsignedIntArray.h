@@ -56,7 +56,7 @@ public:
   static vtkUnsignedIntArray *New();
 
   vtkTypeMacro(vtkUnsignedIntArray,vtkDataArray);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.

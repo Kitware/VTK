@@ -57,7 +57,7 @@ public:
   static vtkLinearTransformInverse *New();
 
   vtkTypeMacro(vtkLinearTransformInverse,vtkLinearTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set the transform that you want this to be an inverse of.

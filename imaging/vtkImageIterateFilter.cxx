@@ -77,7 +77,7 @@ vtkImageIterateFilter::~vtkImageIterateFilter()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageIterateFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageIterateFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

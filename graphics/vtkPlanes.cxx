@@ -207,7 +207,7 @@ void vtkPlanes::SetFrustumPlanes(float aspect, vtkCamera *camera)
   normals->Delete();
 }
 
-void vtkPlanes::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPlanes::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   int numPlanes;
 

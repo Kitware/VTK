@@ -72,7 +72,7 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   static vtkMatrix4x4 *New();
 
   vtkTypeMacro(vtkMatrix4x4,vtkObject);
-  void PrintSelf (ostream& os, vtkIndent indent);
+  void PrintSelf (vtkOstream& os, vtkIndent indent);
   
   // Description:
   // Set the elements of the matrix to the same values as the elements

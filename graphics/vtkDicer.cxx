@@ -80,7 +80,7 @@ void vtkDicer::UpdatePieceMeasures()
     }
 }
 
-void vtkDicer::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDicer::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

@@ -77,7 +77,7 @@ vtkEarthSource::vtkEarthSource()
   this->Outline = 1;
 }
 
-void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkEarthSource::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
   

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkStructuredPointsReader : public vtkStructuredPointsSource
 public:
   static vtkStructuredPointsReader *New();
   vtkTypeMacro(vtkStructuredPointsReader,vtkStructuredPointsSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Return the MTime also considering the vtkDataReader ivar.

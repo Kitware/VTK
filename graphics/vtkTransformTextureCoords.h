@@ -65,7 +65,7 @@ class VTK_EXPORT vtkTransformTextureCoords : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkTransformTextureCoords,vtkDataSetToDataSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale

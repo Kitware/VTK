@@ -62,7 +62,7 @@ class VTK_EXPORT vtkRIBProperty : public vtkProperty
 public:
   static vtkRIBProperty *New();
   vtkTypeMacro(vtkRIBProperty,vtkProperty);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify the name of a surface shader.

@@ -262,7 +262,7 @@ void vtkImageButterworthHighPass::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageButterworthHighPass::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageButterworthHighPass::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

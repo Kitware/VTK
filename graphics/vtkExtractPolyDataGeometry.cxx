@@ -223,7 +223,7 @@ void vtkExtractPolyDataGeometry::Execute()
   output->Squeeze();
 }
 
-void vtkExtractPolyDataGeometry::PrintSelf(ostream& os, vtkIndent indent)
+void vtkExtractPolyDataGeometry::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

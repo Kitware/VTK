@@ -49,8 +49,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkImageReader_h
 #define __vtkImageReader_h
 
-#include <iostream.h>
-#include <fstream.h>
 #include "vtkImageSource.h"
 #include "vtkTransform.h"
 
@@ -62,7 +60,7 @@ class VTK_EXPORT vtkImageReader : public vtkImageSource
 public:
   static vtkImageReader *New();
   vtkTypeMacro(vtkImageReader,vtkImageSource);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(vtkOstream& os, vtkIndent indent);   
 
   // Description:
   // Specify file name for the image file. You should specify either
@@ -182,7 +180,7 @@ public:
   vtkBooleanMacro(SwapBytes,int);
 
 //BTX
-  ifstream *GetFile() {return this->File;}
+  vtkIfstream *GetFile() {return this->File;}
   vtkGetVectorMacro(DataIncrements,unsigned long,4);
 //ETX
 
@@ -222,7 +220,7 @@ protected:
   int NumberOfScalarComponents;
   int FileLowerLeft;
 
-  ifstream *File;
+  vtkIfstream *File;
   unsigned long DataIncrements[4];
   int DataExtent[6];
   unsigned short DataMask;  // Mask each pixel with ...

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkSLCReader : public vtkStructuredPointsSource
 public:
   static vtkSLCReader *New();
   vtkTypeMacro(vtkSLCReader,vtkStructuredPointsSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the name of the file to read.

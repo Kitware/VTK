@@ -62,7 +62,7 @@ public:
   static vtkAppendPolyData *New();
 
   vtkTypeMacro(vtkAppendPolyData,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // UserManagedInputs allows the user to set inputs by number instead of

@@ -70,7 +70,7 @@ class VTK_EXPORT vtkActor : public vtkProp3D
 {
  public:
   vtkTypeMacro(vtkActor,vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Creates an actor with the following defaults: origin(0,0,0)

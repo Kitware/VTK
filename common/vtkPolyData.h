@@ -85,7 +85,7 @@ public:
   static vtkPolyData *New();
 
   vtkTypeMacro(vtkPolyData,vtkPointSet);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Create a similar type object.

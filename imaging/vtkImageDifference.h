@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageDifference : public vtkImageTwoInputFilter
 public:
   static vtkImageDifference *New();
   vtkTypeMacro(vtkImageDifference,vtkImageTwoInputFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify the Image to compare the input to.

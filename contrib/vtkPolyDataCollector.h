@@ -63,7 +63,7 @@ public:
   static vtkPolyDataCollector *New();
 
   vtkTypeMacro(vtkPolyDataCollector,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   void SetInputMemoryLimit(unsigned long limit);
   

@@ -68,7 +68,7 @@ class VTK_EXPORT vtkStructuredPointsGeometryFilter : public vtkStructuredPointsT
 {
 public:
   vtkTypeMacro(vtkStructuredPointsGeometryFilter,vtkStructuredPointsToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // Construct with initial extent of all the data

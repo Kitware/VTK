@@ -88,7 +88,7 @@ vtkImageMandelbrotSource::~vtkImageMandelbrotSource()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMandelbrotSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageMandelbrotSource::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);
 
@@ -102,7 +102,7 @@ void vtkImageMandelbrotSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
      << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", " 
      << this->WholeExtent[5] << ")\n";
-  os << "MaximumNumberOfIterations: " << this->MaximumNumberOfIterations << endl;
+  os << "MaximumNumberOfIterations: " << this->MaximumNumberOfIterations << vtkEndl;
 
   os << indent << "ProjectionAxes: (" << this->ProjectionAxes[0] << ", "
      << this->ProjectionAxes[1] << this->ProjectionAxes[2] << ")\n";

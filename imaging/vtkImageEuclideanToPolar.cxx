@@ -233,7 +233,7 @@ void vtkImageEuclideanToPolar::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageEuclideanToPolar::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageEuclideanToPolar::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

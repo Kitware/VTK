@@ -77,7 +77,7 @@ class VTK_EXPORT vtkVolumeProperty : public vtkObject
 public:
   static vtkVolumeProperty *New();
   vtkTypeMacro(vtkVolumeProperty,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Get the modified time for this object (or the properties registered

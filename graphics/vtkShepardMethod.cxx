@@ -337,7 +337,7 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
     }
 }
 
-void vtkShepardMethod::PrintSelf(ostream& os, vtkIndent indent)
+void vtkShepardMethod::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
 

@@ -71,14 +71,15 @@ vtkMPIController::~vtkMPIController()
 {
   if (this->Initialized)
     {
-    cerr << "Controller " << this->LocalProcessId << " destructing\n";
+    vtkWarningMacro(<< "Controller " << this->LocalProcessId 
+                    << " destructing");
     MPI_Barrier (MPI_COMM_WORLD);
     MPI_Finalize();
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkMPIController::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMPIController::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkMultiProcessController::PrintSelf(os,indent);
 }

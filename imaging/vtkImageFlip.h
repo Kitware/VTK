@@ -60,7 +60,7 @@ public:
   static vtkImageFlip *New();
 
   vtkTypeMacro(vtkImageFlip,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify which axes will be flipped.

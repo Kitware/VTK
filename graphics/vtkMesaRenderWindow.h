@@ -81,7 +81,7 @@ protected:
 public:
   static vtkMesaRenderWindow *New() {return new vtkMesaRenderWindow;};
   vtkTypeMacro(vtkMesaRenderWindow,vtkXRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Begin the rendering process.

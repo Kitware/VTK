@@ -72,7 +72,7 @@ public:
   static vtkBMPReader *New();
   vtkTypeMacro(vtkBMPReader,vtkImageReader);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Returns the depth of the BMP, either 8 or 24.

@@ -78,7 +78,7 @@ public:
   static vtkLODProp3D *New();
 
   vtkTypeMacro(vtkLODProp3D,vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Standard vtkProp method to get 3D bounds of a 3D prop

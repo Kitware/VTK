@@ -522,7 +522,7 @@ void vtkMatrix4x4::Transpose (const double inElements[16],
     }
 }
 
-void vtkMatrix4x4::PrintSelf (ostream& os, vtkIndent indent)
+void vtkMatrix4x4::PrintSelf (vtkOstream& os, vtkIndent indent)
 {
   int i, j;
 

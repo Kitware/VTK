@@ -72,7 +72,7 @@ class VTK_EXPORT vtkProjectionTransform : public vtkPerspectiveTransform
  public:
   static vtkProjectionTransform *New();
   vtkTypeMacro(vtkProjectionTransform,vtkPerspectiveTransform);
-  void PrintSelf (ostream& os, vtkIndent indent);
+  void PrintSelf (vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Make a new transform of the same type -- you are responsible for

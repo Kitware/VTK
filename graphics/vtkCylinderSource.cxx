@@ -221,7 +221,7 @@ void vtkCylinderSource::Execute()
   newPolys->Delete();
 }
 
-void vtkCylinderSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkCylinderSource::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

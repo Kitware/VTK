@@ -79,7 +79,7 @@ class VTK_EXPORT vtkImplicitSelectionLoop : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitSelectionLoop,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Instantiate object with no initial loop.

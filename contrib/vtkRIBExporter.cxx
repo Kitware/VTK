@@ -971,7 +971,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
   polygon->Delete();
 }
 
-void vtkRIBExporter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkRIBExporter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkExporter::PrintSelf(os,indent);
  

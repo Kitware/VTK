@@ -93,7 +93,7 @@ vtkImageImport::~vtkImageImport()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageImport::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   int idx;
   

@@ -157,7 +157,7 @@ void vtkMaskPoints::Execute()
 
 
 //----------------------------------------------------------------------------
-void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMaskPoints::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

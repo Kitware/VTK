@@ -435,7 +435,7 @@ void vtkStructuredPointsGeometryFilter::SetExtent(int *extent)
     }
 }
 
-void vtkStructuredPointsGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkStructuredPointsGeometryFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 

@@ -693,7 +693,7 @@ void vtkSmoothPolyDataFilter::Execute()
   delete [] Verts;
 }
 
-void vtkSmoothPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSmoothPolyDataFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

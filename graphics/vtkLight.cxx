@@ -39,8 +39,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <iostream.h>
 #include "vtkLight.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -95,7 +93,7 @@ void vtkLight::DeepCopy(vtkLight *light)
   this->SetAttenuationValues(light->GetAttenuationValues());
 }
 
-void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
+void vtkLight::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
@@ -115,7 +113,7 @@ void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-void vtkLight::WriteSelf(ostream& os)
+void vtkLight::WriteSelf(vtkOstream& os)
 {
   os << this->FocalPoint[0] << " " << this->FocalPoint[1] << " "
      << this->FocalPoint[2] << " ";
@@ -132,7 +130,7 @@ void vtkLight::WriteSelf(ostream& os)
      << this->AttenuationValues[2] << " ";
 }
 
-void vtkLight::ReadSelf(istream& is)
+void vtkLight::ReadSelf(vtkIstream& is)
 {
   is >> this->FocalPoint[0] >> this->FocalPoint[1] >> this->FocalPoint[2] ;
   is >> this->Position[0] >> this->Position[1] >> this->Position[2];

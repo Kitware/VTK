@@ -368,7 +368,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image,
   delete [] backward;
 }
 
-void vtkLinkEdgels::PrintSelf(ostream& os, vtkIndent indent)
+void vtkLinkEdgels::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 

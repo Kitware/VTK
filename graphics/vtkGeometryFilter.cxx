@@ -371,7 +371,7 @@ void vtkGeometryFilter::CreateDefaultLocator()
     }
 }
 
-void vtkGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkGeometryFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

@@ -61,7 +61,7 @@ class VTK_EXPORT vtkImageGradientMagnitude : public vtkImageToImageFilter
 public:
   static vtkImageGradientMagnitude *New();
   vtkTypeMacro(vtkImageGradientMagnitude,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // If "HandleBoundariesOn" then boundary pixels are duplicated

@@ -45,9 +45,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdmutex.h>
 #endif
 
-#include <iostream.h>
-#include <stdlib.h>
-#include <stdio.h>
 #ifdef _INTEGRAL_MAX_BITS
 #undef _INTEGRAL_MAX_BITS
 #endif

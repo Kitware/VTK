@@ -867,13 +867,13 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t )
     }
 }
 
-void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkLODProp3D::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkProp3D::PrintSelf(os,indent);
 
-  os << indent << "Number Of LODs: " << this->NumberOfLODs << endl;
+  os << indent << "Number Of LODs: " << this->NumberOfLODs << vtkEndl;
 
-  os << indent << "Selected LOD ID: " << this->SelectedLODID << endl;
+  os << indent << "Selected LOD ID: " << this->SelectedLODID << vtkEndl;
 
   os << indent << "AutomaticLODSelection: " 
      << (this->AutomaticLODSelection ? "On\n" : "Off\n");
@@ -881,7 +881,7 @@ void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AutomaticPickLODSelection: " 
      << (this->AutomaticPickLODSelection ? "On\n" : "Off\n");
 
-  os << indent << "SelectedPickLODID: " << this->SelectedPickLODID << endl;
+  os << indent << "SelectedPickLODID: " << this->SelectedPickLODID << vtkEndl;
 }
 
 void vtkLODProp3D::GetActors(vtkPropCollection *ac)

@@ -699,18 +699,18 @@ void vtkHull::CreateInitialPolygon( float *verts, int i )
 }
 
 // Print the object
-void vtkHull::PrintSelf(ostream& os, vtkIndent indent)
+void vtkHull::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   int i;
 
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Number Of Planes: " << this->NumberOfPlanes << endl;
+  os << indent << "Number Of Planes: " << this->NumberOfPlanes << vtkEndl;
 
   for ( i = 0; i < this->NumberOfPlanes; i++ )
     {
     os << indent << "Plane " << i << ":  " << this->Planes[i*4] << " " <<
       this->Planes[i*4+1] << " " << this->Planes[i*4+2] << 
-      " " << this->Planes[i*4+3] << endl;
+      " " << this->Planes[i*4+3] << vtkEndl;
     }
 }

@@ -322,7 +322,7 @@ void vtkPropAssembly::ShallowCopy(vtkPropAssembly *propAssembly)
     }
 }
 
-void vtkPropAssembly::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPropAssembly::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkProp::PrintSelf(os,indent);
 

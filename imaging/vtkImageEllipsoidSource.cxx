@@ -89,7 +89,7 @@ vtkImageEllipsoidSource::~vtkImageEllipsoidSource()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageEllipsoidSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageEllipsoidSource::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   os << indent << "Center: (" << this->Center[0] << ", "
      << this->Center[1] << ", " << this->Center[2] << ")\n";

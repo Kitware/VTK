@@ -87,7 +87,7 @@ void vtkSphere::EvaluateGradient(float x[3], float n[3])
   n[2] = 2.0 * (x[2] - this->Center[2]);
 }
 
-void vtkSphere::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSphere::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os,indent);
 

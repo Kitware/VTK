@@ -272,7 +272,7 @@ void vtkImageFlip::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-void vtkImageFlip::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageFlip::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

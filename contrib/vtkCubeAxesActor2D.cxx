@@ -606,7 +606,7 @@ float *vtkCubeAxesActor2D::GetBounds()
 }
 
 
-void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkCubeAxesActor2D::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkActor2D::PrintSelf(os,indent);
 

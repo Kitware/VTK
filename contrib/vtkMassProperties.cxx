@@ -329,7 +329,7 @@ void vtkMassProperties::Execute()
   ptIds->Delete();
 }
 
-void vtkMassProperties::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMassProperties::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
 

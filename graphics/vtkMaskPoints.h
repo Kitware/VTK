@@ -57,7 +57,7 @@ class VTK_EXPORT vtkMaskPoints : public vtkDataSetToPolyDataFilter
 public:
   static vtkMaskPoints *New();
   vtkTypeMacro(vtkMaskPoints,vtkDataSetToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Turn on every nth point.

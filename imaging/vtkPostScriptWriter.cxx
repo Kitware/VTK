@@ -61,13 +61,14 @@ vtkPostScriptWriter* vtkPostScriptWriter::New()
 
 #define VTK_MARGIN 0.95
 
-void vtkPostScriptWriter::WriteFileTrailer(ofstream *file, 
+void vtkPostScriptWriter::WriteFileTrailer(vtkOfstream *file, 
 					   vtkImageData *vtkNotUsed(cache))
 {
   *file << "\ngrestore\nshowpage\n%%%%Trailer\n";
 }
 
-void vtkPostScriptWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
+void vtkPostScriptWriter::WriteFileHeader(vtkOfstream *file, 
+                                          vtkImageData *cache)
 {
   int min1, max1, min2, max2, min3, max3;
   int bpp;
@@ -107,11 +108,11 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
   // spit out the PostScript header
   *file << "%!PS-Adobe-2.0 EPSF-2.0\n";
   *file << "%%Creator: Visualization Toolkit\n";
-  *file << "%%Title: " << this->InternalFileName << endl;
+  *file << "%%Title: " << this->InternalFileName << vtkEndl;
   *file << "%%Pages: 1\n";
   *file << "%%BoundingBox: " << (int) llx << " "  << (int) lly
        << " " << (int) ( llx + scols + 0.5 ) << " " << 
-    (int) ( lly + srows + 0.5 ) << endl;
+    (int) ( lly + srows + 0.5 ) << vtkEndl;
   *file << "%%EndComments\n";
   *file << "/readstring {\n";
   *file << "  currentfile exch readhexstring pop\n";
@@ -155,8 +156,8 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
 }
 
 
-void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
-			     int extent[6])
+void vtkPostScriptWriter::WriteFile(vtkOfstream *file, vtkImageData *data,
+                                    int extent[6])
 {
   int idxC, idx0, idx1, idx2;
   unsigned char *ptr;
@@ -225,7 +226,7 @@ void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
 	  {
 	  if ( itemsperline == 30 )
 	    {
-	    *file << endl;
+	    *file << vtkEndl;
 	    itemsperline = 0;
 	    }
 	  *file << hexits[*ptr >> 4] << hexits[*ptr & 15];

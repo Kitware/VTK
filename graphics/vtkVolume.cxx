@@ -811,7 +811,7 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *vtkNotUsed(ren),
 }
 
 
-void vtkVolume::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVolume::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkProp3D::PrintSelf(os,indent);
 

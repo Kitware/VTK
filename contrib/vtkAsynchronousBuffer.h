@@ -67,7 +67,7 @@ class VTK_EXPORT vtkAsynchronousBuffer : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkAsynchronousBuffer,vtkDataSetToDataSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   static vtkAsynchronousBuffer *New();
 
   // Description:

@@ -76,7 +76,7 @@ class VTK_EXPORT vtkVolumeReader : public vtkStructuredPointsSource
 {
 public:
   vtkTypeMacro(vtkVolumeReader,vtkStructuredPointsSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify file prefix for the image file(s).

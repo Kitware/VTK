@@ -1,4 +1,3 @@
-#include <iostream.h>
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkConeSource.h"

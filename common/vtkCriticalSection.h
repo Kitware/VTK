@@ -124,7 +124,7 @@ public:
   static vtkCriticalSection *New();
 
   vtkTypeMacro(vtkCriticalSection,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // Lock the vtkCriticalSection

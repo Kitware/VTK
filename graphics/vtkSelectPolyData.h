@@ -119,7 +119,7 @@ public:
   static vtkSelectPolyData *New();
 
   vtkTypeMacro(vtkSelectPolyData,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the flag to control behavior of the filter. If

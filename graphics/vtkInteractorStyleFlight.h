@@ -73,7 +73,7 @@ class VTK_EXPORT vtkInteractorStyleFlight : public vtkInteractorStyle
 public:
   static vtkInteractorStyleFlight *New();
   vtkTypeMacro(vtkInteractorStyleFlight,vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Concrete implementation of Mouse event bindings for flight

@@ -91,7 +91,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_EXPORT vtkFieldDataToAttributeDataFilter : public vtkDataSetToDataSetFilter
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   vtkTypeMacro(vtkFieldDataToAttributeDataFilter,vtkDataSetToDataSetFilter);
 
   // Description:

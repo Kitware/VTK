@@ -153,7 +153,7 @@ void vtkShrinkFilter::Execute()
   newPts->Delete();
 }
 
-void vtkShrinkFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkShrinkFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 

@@ -536,11 +536,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   int i,j;
   
   fprintf(fp,"// tcl wrapper for %s object\n//\n",data->ClassName);
-  fprintf(fp,"#ifdef _WIN32\n");
-  fprintf(fp,"#include <strstrea.h>\n");
-  fprintf(fp,"#else\n");
-  fprintf(fp,"#include <strstream.h>\n");
-  fprintf(fp,"#endif\n");
+  fprintf(fp,"#include \"vtkSystemIncludes.h\"\n");
   fprintf(fp,"#include \"%s.h\"\n\n",data->ClassName);
   fprintf(fp,"#include \"vtkTclUtil.h\"\n");
   if (data->IsConcrete)
@@ -685,7 +681,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   if (!strcmp("vtkObject",data->ClassName))
     {
     fprintf(fp,"  if ((!strcmp(\"Print\",argv[1]))&&(argc == 2))\n    {\n");
-    fprintf(fp,"    ostrstream buf;\n");
+    fprintf(fp,"    vtkOstrstream buf;\n");
     fprintf(fp,"    op->Print(buf);\n");
     fprintf(fp,"    buf.put('\\0');\n");
     fprintf(fp,"    Tcl_SetResult(interp,buf.str(),TCL_VOLATILE);\n");

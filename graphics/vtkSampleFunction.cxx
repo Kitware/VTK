@@ -316,7 +316,7 @@ void vtkSampleFunction::Cap(vtkScalars *s)
 }
 
 
-void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSampleFunction::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 

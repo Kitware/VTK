@@ -975,15 +975,15 @@ int vtkImageData::ComputeStructuredCoordinates(float x[3], int ijk[3],
 
 
 //----------------------------------------------------------------------------
-void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageData::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   int idx;
   
   vtkDataSet::PrintSelf(os,indent);
 
-  os << indent << "ScalarType: " << this->ScalarType << endl;
+  os << indent << "ScalarType: " << this->ScalarType << vtkEndl;
   os << indent << "NumberOfScalarComponents: " << 
-    this->NumberOfScalarComponents << endl;
+    this->NumberOfScalarComponents << vtkEndl;
   os << indent << "Spacing: (" << this->Spacing[0] << ", "
                                << this->Spacing[1] << ", "
                                << this->Spacing[2] << ")\n";

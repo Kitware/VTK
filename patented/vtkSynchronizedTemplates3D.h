@@ -78,7 +78,7 @@ public:
   static vtkSynchronizedTemplates3D *New();
 
   vtkTypeMacro(vtkSynchronizedTemplates3D,vtkPolyDataSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // Set/Get the source for the scalar data to contour.

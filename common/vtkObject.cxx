@@ -79,7 +79,7 @@ int vtkObject::GetGlobalWarningDisplay()
 // It in turn invokes the Print method, which in turn will invoke the
 // PrintSelf method that all objects should define, if they have anything
 // interesting to print out.
-ostream& operator<<(ostream& os, vtkObject& o)
+vtkOstream& operator<<(vtkOstream& os, vtkObject& o)
 {
   o.Print(os);
   return os;
@@ -131,7 +131,7 @@ unsigned long int vtkObject::GetMTime()
   return this->MTime.GetMTime();
 }
 
-void vtkObject::Print(ostream& os)
+void vtkObject::Print(vtkOstream& os)
 {
   vtkIndent indent;
 
@@ -140,14 +140,14 @@ void vtkObject::Print(ostream& os)
   this->PrintTrailer(os,0);
 }
 
-void vtkObject::PrintHeader(ostream& os, vtkIndent indent)
+void vtkObject::PrintHeader(vtkOstream& os, vtkIndent indent)
 {
   os << indent << this->GetClassName() << " (" << this << ")\n";
 }
 
 // Chaining method to print an object's instance variables, as well as
 // its superclasses.
-void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
+void vtkObject::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   os << indent << "Debug: " << (this->Debug ? "On\n" : "Off\n");
 
@@ -163,7 +163,7 @@ void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Reference Count: " << this->ReferenceCount << "\n";
 }
 
-void vtkObject::PrintTrailer(ostream& os, vtkIndent indent)
+void vtkObject::PrintTrailer(vtkOstream& os, vtkIndent indent)
 {
   os << indent << "\n";
 }

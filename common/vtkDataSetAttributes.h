@@ -67,7 +67,7 @@ public:
   static vtkDataSetAttributes *New();
   
   vtkTypeMacro(vtkDataSetAttributes,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Initialize all of the object's data to NULL

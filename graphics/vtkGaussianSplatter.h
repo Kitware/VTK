@@ -57,7 +57,7 @@ class VTK_EXPORT vtkGaussianSplatter : public vtkDataSetToStructuredPointsFilter
 {
 public:
   vtkTypeMacro(vtkGaussianSplatter,vtkDataSetToStructuredPointsFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with dimensions=(50,50,50); automatic computation of 

@@ -372,7 +372,7 @@ void vtkSTLReader::CreateDefaultLocator()
     }
 }
 
-void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSTLReader::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

@@ -69,7 +69,7 @@ class VTK_EXPORT vtkThresholdTextureCoords : public vtkDataSetToDataSetFilter
 public:
   static vtkThresholdTextureCoords *New();
   vtkTypeMacro(vtkThresholdTextureCoords,vtkDataSetToDataSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // Criterion is cells whose scalars are less than lower threshold.

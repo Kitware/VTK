@@ -268,7 +268,7 @@ void vtkIdList::IntersectWith(vtkIdList& otherIds)
 }
 #undef VTK_TMP_ARRAY_SIZE
 
-void vtkIdList::PrintSelf(ostream& os, vtkIndent indent)
+void vtkIdList::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

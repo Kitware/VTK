@@ -62,7 +62,7 @@ class VTK_EXPORT vtkHull : public vtkPolyDataToPolyDataFilter
 public:
   static vtkHull *New();
   vtkTypeMacro(vtkHull,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Remove all planes from the current set of planes.  

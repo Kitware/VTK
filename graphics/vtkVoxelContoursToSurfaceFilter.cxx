@@ -701,13 +701,13 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
 }
 
 
-void vtkVoxelContoursToSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVoxelContoursToSurfaceFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Memory Limit (in bytes): " << 
-    this->MemoryLimitInBytes << endl;
+    this->MemoryLimitInBytes << vtkEndl;
 
   os << indent << "Spacing: " << this->Spacing[0] << " " <<
-    this->Spacing[1] << " " << this->Spacing[2] << endl;
+    this->Spacing[1] << " " << this->Spacing[2] << vtkEndl;
 }

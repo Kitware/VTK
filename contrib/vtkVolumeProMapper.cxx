@@ -179,7 +179,7 @@ void vtkVolumeProMapper::SetSuperSamplingFactor( double x, double y, double z )
        y < 0.0 || y > 1.0 ||
        z < 0.0 || z > 1.0  )
     {
-    vtkErrorMacro( << "Invalid supersampling factor" << endl <<
+    vtkErrorMacro( << "Invalid supersampling factor" << vtkEndl <<
       "Each component must be between 0 and 1" );
     return;
     }
@@ -191,16 +191,16 @@ void vtkVolumeProMapper::SetSuperSamplingFactor( double x, double y, double z )
   this->Modified();
 }
 
-void vtkVolumeProMapper::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVolumeProMapper::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkVolumeMapper::PrintSelf(os,indent);
 
   // don't print this->SubVolume 
-  os << indent << "Number Of Boards: " << this->NumberOfBoards << endl;
+  os << indent << "Number Of Boards: " << this->NumberOfBoards << vtkEndl;
 
-  os << indent << "Major Board Version: " << this->MajorBoardVersion << endl;
+  os << indent << "Major Board Version: " << this->MajorBoardVersion << vtkEndl;
 
-  os << indent << "Minor Board Version: " << this->MinorBoardVersion << endl;
+  os << indent << "Minor Board Version: " << this->MinorBoardVersion << vtkEndl;
 
   os << indent << "Hardware Available: " << 
     (this->NoHardware ? "No\n" : "Yes\n");
@@ -214,7 +214,7 @@ void vtkVolumeProMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Super Sampling Factor: " << 
     this->SuperSamplingFactor[0] << " by " << 
     this->SuperSamplingFactor[1] << " by " << 
-    this->SuperSamplingFactor[2] << endl;
+    this->SuperSamplingFactor[2] << vtkEndl;
 
   os << indent << "Cursor: " <<  (this->Cursor ? "On\n" : "Off\n");
 
@@ -223,9 +223,9 @@ void vtkVolumeProMapper::PrintSelf(ostream& os, vtkIndent indent)
     this->CursorPosition[1] << ", " <<
     this->CursorPosition[0] << ")\n";
 
-  os << indent << "Cursor Type: " << this->GetCursorTypeAsString() << endl;
+  os << indent << "Cursor Type: " << this->GetCursorTypeAsString() << vtkEndl;
 
-  os << indent << "Blend Mode: " << this->GetBlendModeAsString() << endl;
+  os << indent << "Blend Mode: " << this->GetBlendModeAsString() << vtkEndl;
 
   os << indent << "Cut Plane: " << (this->CutPlane ? "On\n" : "Off\n");
 
@@ -235,10 +235,10 @@ void vtkVolumeProMapper::PrintSelf(ostream& os, vtkIndent indent)
     this->CutPlaneEquation[2] << ")Z + (" <<
     this->CutPlaneEquation[3] << ") = 0\n";
 
-  os << indent << "Cut Plane Thickness " << this->CutPlaneThickness << endl;
+  os << indent << "Cut Plane Thickness " << this->CutPlaneThickness << vtkEndl;
 
   os << indent << "Cut Plane FallOff Distance " << 
-    this->CutPlaneFallOffDistance << endl;
+    this->CutPlaneFallOffDistance << vtkEndl;
 
   os << indent << "Gradient Opacity Modulation: " <<
     (this->GradientOpacityModulation ? "On\n" : "Off\n");

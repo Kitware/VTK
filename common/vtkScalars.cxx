@@ -408,7 +408,7 @@ unsigned char *vtkScalars::Luminance(int id)
   return this->RGBA;
 }
 
-void vtkScalars::PrintSelf(ostream& os, vtkIndent indent)
+void vtkScalars::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   float *range;
 

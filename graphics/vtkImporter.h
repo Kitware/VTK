@@ -80,7 +80,7 @@ class VTK_EXPORT vtkImporter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkImporter,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify the name of the file to read.

@@ -438,7 +438,7 @@ unsigned long int vtkAssembly::GetMTime()
   return mTime;
 }
 
-void vtkAssembly::PrintSelf(ostream& os, vtkIndent indent)
+void vtkAssembly::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkActor::PrintSelf(os,indent);
 

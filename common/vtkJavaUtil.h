@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkJavaUtil_h
 #define __vtkJavaUtil_h
 
-#include <string.h>
+#include "vtkSystemIncludes.h"
 #include <jni.h>
 
 class vtkObject;

@@ -533,7 +533,7 @@ void vtkPicker::DeletePickList(vtkActor *a)
   this->PickList->RemoveItem(a);
 }
 
-void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPicker::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);
 

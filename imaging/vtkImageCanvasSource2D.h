@@ -79,7 +79,7 @@ public:
   static vtkImageCanvasSource2D *New();
 
   vtkTypeMacro(vtkImageCanvasSource2D,vtkStructuredPoints);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // To drawing into a different image, set it with this method.

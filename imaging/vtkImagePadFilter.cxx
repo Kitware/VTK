@@ -179,7 +179,7 @@ void vtkImagePadFilter::ComputeInputUpdateExtent(int inExt[6],
     }
 }
 
-void vtkImagePadFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImagePadFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 

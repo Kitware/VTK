@@ -79,7 +79,7 @@ vtkGeneralTransformInverse::~vtkGeneralTransformInverse()
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransformInverse::PrintSelf(ostream& os, vtkIndent indent)
+void vtkGeneralTransformInverse::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkGeneralTransform::PrintSelf(os,indent);
 

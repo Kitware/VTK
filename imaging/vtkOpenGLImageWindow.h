@@ -61,7 +61,7 @@ class VTK_EXPORT vtkOpenGLImageWindow : public vtkXImageWindow
 public:
   static vtkOpenGLImageWindow *New();
   vtkTypeMacro(vtkOpenGLImageWindow,vtkXImageWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Initialize the window for rendering.

@@ -1,4 +1,3 @@
-#include <iostream.h>
 #include "vtkImageViewer.h"
 #include "vtkImageReader.h"
 #include "vtkImageImport.h"

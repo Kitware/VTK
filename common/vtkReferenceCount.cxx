@@ -68,7 +68,7 @@ vtkReferenceCount::~vtkReferenceCount()
 {
 }
 
-void vtkReferenceCount::PrintSelf(ostream& os, vtkIndent indent)
+void vtkReferenceCount::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 }

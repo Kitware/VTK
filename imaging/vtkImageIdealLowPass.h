@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageIdealLowPass : public vtkImageToImageFilter
 public:
   static vtkImageIdealLowPass *New();
   vtkTypeMacro(vtkImageIdealLowPass,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the cutoff frequency for each axis.

@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageShiftScale : public vtkImageToImageFilter
 public:
   static vtkImageShiftScale *New();
   vtkTypeMacro(vtkImageShiftScale,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the shift value.

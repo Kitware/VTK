@@ -62,7 +62,7 @@ public:
   static vtkEdgeTable *New();
 
   vtkTypeMacro(vtkEdgeTable,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Free memory and return to instantiated state.

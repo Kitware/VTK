@@ -548,7 +548,7 @@ void vtkImageMathematics::ThreadedExecute(vtkImageData **inData,
     }
 }
 
-void vtkImageMathematics::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageMathematics::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageTwoInputFilter::PrintSelf(os,indent);
 

@@ -57,7 +57,7 @@ public:
   static vtkAxes *New();
 
   vtkTypeMacro(vtkAxes,vtkPolyDataSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set the origin of the axes.

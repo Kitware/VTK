@@ -71,7 +71,7 @@ class VTK_EXPORT vtkImageAnisotropicDiffusion2D : public vtkImageSpatialFilter
 public:
   static vtkImageAnisotropicDiffusion2D *New();
   vtkTypeMacro(vtkImageAnisotropicDiffusion2D,vtkImageSpatialFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // This method sets the number of inputs which also affects the

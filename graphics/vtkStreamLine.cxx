@@ -183,7 +183,7 @@ void vtkStreamLine::Execute()
   output->Squeeze();
 }
 
-void vtkStreamLine::PrintSelf(ostream& os, vtkIndent indent)
+void vtkStreamLine::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkStreamer::PrintSelf(os,indent);
 

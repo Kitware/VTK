@@ -230,7 +230,7 @@ void vtkLogLookupTable::MapScalarsThroughTable2(void *input,
     }
 }  
 
-void vtkLogLookupTable::PrintSelf(ostream& os, vtkIndent indent)
+void vtkLogLookupTable::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkLookupTable::PrintSelf(os,indent);
 

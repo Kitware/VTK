@@ -57,7 +57,7 @@ class VTK_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter
 public:
   static vtkUnstructuredGridWriter *New();
   vtkTypeMacro(vtkUnstructuredGridWriter,vtkDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify the input data or filter.

@@ -89,7 +89,7 @@ class VTK_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
 public:
   vtkTypeMacro(vtkMapper,vtkAbstractMapper3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Make a shallow copy of this mapper.

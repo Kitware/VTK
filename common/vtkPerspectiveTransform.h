@@ -60,7 +60,7 @@ class VTK_EXPORT vtkPerspectiveTransform : public vtkGeneralTransform
 public:
 
   vtkTypeMacro(vtkPerspectiveTransform,vtkGeneralTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Apply the transformation to a coordinate.  You can use the same 

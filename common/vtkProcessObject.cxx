@@ -384,12 +384,12 @@ void vtkProcessObject::SetEndMethodArgDelete(void (*f)(void *))
     }
 }
 
-void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
+void vtkProcessObject::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
   os << indent << "Number Of Required Inputs: "
-     << this->NumberOfRequiredInputs << endl;
+     << this->NumberOfRequiredInputs << vtkEndl;
 
   if ( this->NumberOfInputs)
     {

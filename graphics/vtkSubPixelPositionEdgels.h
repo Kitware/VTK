@@ -68,7 +68,7 @@ class VTK_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataToPolyDataFilter
 public:
   static vtkSubPixelPositionEdgels *New();
   vtkTypeMacro(vtkSubPixelPositionEdgels,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Override update method because execution can branch two ways 

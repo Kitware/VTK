@@ -75,7 +75,7 @@ public:
   static vtkLookupTable *New();
   
   vtkTypeMacro(vtkLookupTable,vtkScalarsToColors);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Allocate a color table of specified size.

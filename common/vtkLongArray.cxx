@@ -172,7 +172,7 @@ void vtkLongArray::DeepCopy(vtkDataArray *sa)
     }
 }
 
-void vtkLongArray::PrintSelf(ostream& os, vtkIndent indent)
+void vtkLongArray::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataArray::PrintSelf(os,indent);
 

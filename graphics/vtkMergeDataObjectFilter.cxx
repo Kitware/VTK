@@ -144,7 +144,7 @@ void vtkMergeDataObjectFilter::Execute()
 
 
 //----------------------------------------------------------------------------
-void vtkMergeDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMergeDataObjectFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

@@ -51,8 +51,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkImageExport_h
 #define __vtkImageExport_h
 
-#include <iostream.h>
-#include <fstream.h>
 #include "vtkProcessObject.h"
 #include "vtkImageFlip.h"
 
@@ -61,7 +59,7 @@ class VTK_EXPORT vtkImageExport : public vtkProcessObject
 public:
   static vtkImageExport *New();
   vtkTypeMacro(vtkImageExport,vtkProcessObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // Get the number of bytes required (for safety checks, etc)

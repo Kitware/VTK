@@ -1494,7 +1494,7 @@ unsigned long vtkDataSetAttributes::GetActualMemorySize()
   return size;
 }
 
-void vtkDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDataSetAttributes::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

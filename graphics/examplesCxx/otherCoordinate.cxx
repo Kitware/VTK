@@ -25,15 +25,16 @@
 //   and a main
 #include "rtOtherTestBase.h"
 
-void SelectorCommand(ostream& strm) {
+void SelectorCommand(vtkOstream& strm) {
   strm << "sed -e s/0x0/0/ | sed -e s/-0/0/ | grep -v 0x | grep -v Modified ";
 }
 
-void ComparatorCommand(ostream& strm) {
+void ComparatorCommand(vtkOstream& strm) {
   strm << "diff";
 }
 
-void ToAll (ostream& strm, vtkCoordinate *c1, vtkViewport *ren1, float *from)
+void ToAll (vtkOstream& strm, vtkCoordinate *c1, vtkViewport *ren1, 
+            float *from)
 {
   float *value;
   int *ivalue;
@@ -45,20 +46,22 @@ void ToAll (ostream& strm, vtkCoordinate *c1, vtkViewport *ren1, float *from)
   strm << *c1;
   value = c1->GetComputedWorldValue (ren1);
   strm << whichCoord <<"(" << from[0] << ", " << from[1] << ", " << from[2]
-       << ") -> World(" << value[0] << ", " << value[1] << ", " << value[2] << ")" << endl;
+       << ") -> World(" << value[0] << ", " << value[1] << ", " << value[2] 
+       << ")" << endl;
   ivalue = c1->GetComputedDisplayValue (ren1);
   strm << whichCoord << "(" << from[0] << ", " << from[1] << ", " << from[2]
        << ") -> Display(" << ivalue[0] << ", " << ivalue[1] << ")" << endl;
   ivalue = c1->GetComputedLocalDisplayValue (ren1);
   strm << whichCoord << "(" << from[0] << ", " << from[1] << ", " << from[2]
-       << ") -> LocalDisplay(" << ivalue[0] << ", " << ivalue[1] << ")" << endl;
+       << ") -> LocalDisplay(" << ivalue[0] << ", " << ivalue[1] 
+       << ")" << endl;
   ivalue = c1->GetComputedViewportValue (ren1);
   strm << whichCoord << "(" << from[0] << ", " << from[1] << ", " << from[2]
        << ") -> Viewport(" << ivalue[0] << ", " << ivalue[1] << ")" << endl;
 
 
 }
-void Test(ostream& strm)
+void Test(vtkOstream& strm)
 {
   // actual test
   strm << "Testing vtkCoordinate" << endl;

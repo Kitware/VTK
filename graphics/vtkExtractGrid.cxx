@@ -318,7 +318,7 @@ void vtkExtractGrid::Execute()
 }
 
 
-void vtkExtractGrid::PrintSelf(ostream& os, vtkIndent indent)
+void vtkExtractGrid::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkStructuredGridToStructuredGridFilter::PrintSelf(os,indent);
 

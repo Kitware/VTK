@@ -66,7 +66,7 @@ public:
   static vtkMassProperties *New();
 
   vtkTypeMacro(vtkMassProperties,vtkProcessObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Compute and return the volume.

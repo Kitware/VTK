@@ -73,7 +73,7 @@ class VTK_EXPORT vtkLODActor : public vtkActor
 {
 public:
   vtkTypeMacro(vtkLODActor,vtkActor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Creates a vtkLODActor with the following defaults: origin(0,0,0) 

@@ -75,7 +75,7 @@ public:
   static vtkFieldData *New();
 
   vtkTypeMacro(vtkFieldData,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Release all data but do not delete object.

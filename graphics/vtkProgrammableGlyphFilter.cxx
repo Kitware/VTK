@@ -332,11 +332,11 @@ char *vtkProgrammableGlyphFilter::GetColorModeAsString(void)
     }
 }
 
-void vtkProgrammableGlyphFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkProgrammableGlyphFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
+  os << indent << "Color Mode: " << this->GetColorModeAsString() << vtkEndl;
   os << indent << "Point Id: " << this->PointId << "\n";
   os << indent << "Point: " << this->Point[0]
                     << ", " << this->Point[1]

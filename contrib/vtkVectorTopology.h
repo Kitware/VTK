@@ -73,7 +73,7 @@ public:
   static vtkVectorTopology *New();
 
   vtkTypeMacro(vtkVectorTopology,vtkDataSetToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify distance from singularity to generate point.

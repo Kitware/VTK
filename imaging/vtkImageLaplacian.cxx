@@ -72,7 +72,7 @@ vtkImageLaplacian::vtkImageLaplacian()
 
 
 //----------------------------------------------------------------------------
-void vtkImageLaplacian::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageLaplacian::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkImageToImageFilter::PrintSelf(os, indent);
   os << indent << "Dimensionality: " << this->Dimensionality;

@@ -847,7 +847,7 @@ void vtkWin32OpenGLRenderWindow::WindowRemap()
   this->WindowInitialize();
 }
 
-void vtkWin32OpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
+void vtkWin32OpenGLRenderWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkRenderWindow::PrintSelf(os,indent);
 

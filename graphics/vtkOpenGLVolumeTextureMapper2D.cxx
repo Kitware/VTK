@@ -206,7 +206,7 @@ void vtkOpenGLVolumeTextureMapper2D::RenderRectangle( float v[12],
 }
 
 // Print the vtkOpenGLVolumeTextureMapper2D
-void vtkOpenGLVolumeTextureMapper2D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLVolumeTextureMapper2D::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkVolumeTextureMapper::PrintSelf(os,indent);
 }

@@ -49,8 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkIndent_h
 
 #include "vtkWin32Header.h"
-
-#include <iostream.h>
+#include "vtkSystemIncludes.h"
 
 class VTK_EXPORT vtkIndent
 {
@@ -69,7 +68,7 @@ public:
   //BTX
   // Description:
   // Print out the indentation. Basically output a bunch of spaces.
-  friend VTK_EXPORT ostream& operator<<(ostream& os, vtkIndent& o); 
+  friend VTK_EXPORT vtkOstream& operator<<(vtkOstream& os, vtkIndent& o); 
   //ETX
 
 protected:

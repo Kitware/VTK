@@ -62,7 +62,7 @@ class VTK_EXPORT vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
 public:
   static vtkImageNonMaximumSuppression *New();
   vtkTypeMacro(vtkImageNonMaximumSuppression,vtkImageTwoInputFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // Set the magnitude and vector inputs.

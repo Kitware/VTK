@@ -69,7 +69,7 @@ class VTK_EXPORT vtkTransformPolyDataFilter : public vtkPolyDataToPolyDataFilter
 public:
   static vtkTransformPolyDataFilter *New();
   vtkTypeMacro(vtkTransformPolyDataFilter,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Return the MTime also considering the trnasform.

@@ -1056,7 +1056,7 @@ int vtkGridSynchronizedTemplates3D::SplitExtent(int piece, int numPieces,
 }
 
 //----------------------------------------------------------------------------
-void vtkGridSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkGridSynchronizedTemplates3D::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkStructuredGridToPolyDataFilter::PrintSelf(os,indent);
 

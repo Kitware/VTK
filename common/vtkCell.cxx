@@ -257,7 +257,7 @@ int vtkCell::GetParametricCenter(float pcoords[3])
   return 0;
 }
 
-void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
+void vtkCell::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   int numIds=this->PointIds->GetNumberOfIds();
 

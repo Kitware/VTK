@@ -247,7 +247,7 @@ void vtkExtractTensorComponents::Execute()
     }
 }
 
-void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
+void vtkExtractTensorComponents::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

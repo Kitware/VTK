@@ -62,7 +62,7 @@ vtkImageCursor3D* vtkImageCursor3D::New()
 
 
 //----------------------------------------------------------------------------
-void vtkImageCursor3D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageCursor3D::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   int idx;
   

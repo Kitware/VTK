@@ -390,7 +390,7 @@ void vtkInteractorStyleFlight::FlyByKey(void) {
     if (KeysDown & 32) MotionAlongVector(a_vector,-speed);
 }
 //---------------------------------------------------------------------------
-void vtkInteractorStyleFlight::PrintSelf(ostream& os, vtkIndent indent) {
+void vtkInteractorStyleFlight::PrintSelf(vtkOstream& os, vtkIndent indent) {
   vtkInteractorStyle::PrintSelf(os,indent);
   os << indent << "MotionStepSize: "
      << this->MotionStepSize << "\n";

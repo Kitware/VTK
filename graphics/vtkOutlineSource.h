@@ -54,7 +54,7 @@ class VTK_EXPORT vtkOutlineSource : public vtkPolyDataSource
 public:
   static vtkOutlineSource *New();
   vtkTypeMacro(vtkOutlineSource,vtkPolyDataSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify the bounding box for this object.

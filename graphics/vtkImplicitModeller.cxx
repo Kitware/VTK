@@ -962,7 +962,7 @@ char *vtkImplicitModeller::GetProcessModeAsString()
     }
 }
 
-void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImplicitModeller::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
 
@@ -985,8 +985,8 @@ void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
   os << indent << "Cap Value: " << this->CapValue << "\n";
-  os << indent << "Process Mode: " << this->GetProcessModeAsString() << endl;
-  os << indent << "Number Of Threads (for PerVoxel mode): " << this->NumberOfThreads << endl;
+  os << indent << "Process Mode: " << this->GetProcessModeAsString() << vtkEndl;
+  os << indent << "Number Of Threads (for PerVoxel mode): " << this->NumberOfThreads << vtkEndl;
 }
 
 

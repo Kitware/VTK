@@ -65,7 +65,7 @@ class VTK_EXPORT vtkExtractUnstructuredGrid : public vtkUnstructuredGridToUnstru
 {
 public:
   vtkTypeMacro(vtkExtractUnstructuredGrid,vtkUnstructuredGridToUnstructuredGridFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct with all types of clipping turned off.

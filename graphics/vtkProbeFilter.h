@@ -58,7 +58,7 @@ class VTK_EXPORT vtkProbeFilter : public vtkDataSetToDataSetFilter
 public:
   static vtkProbeFilter *New();
   vtkTypeMacro(vtkProbeFilter,vtkDataSetToDataSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify the point locations used to probe input. Any geometry

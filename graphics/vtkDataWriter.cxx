@@ -170,9 +170,9 @@ vtkDataWriter::~vtkDataWriter()
 
 
 // Open a vtk data file. Returns NULL if error.
-ostream *vtkDataWriter::OpenVTKFile()
+vtkOstream *vtkDataWriter::OpenVTKFile()
 {
-  ostream *fptr;
+  vtkOstream *fptr;
   vtkDataObject *input = this->GetInput();
   
   if ((!this->WriteToOutputString) && ( !this->FileName ))
@@ -204,21 +204,21 @@ ostream *vtkDataWriter::OpenVTKFile()
       + 1000 * input->GetActualMemorySize());
     this->OutputString = new char[this->OutputStringAllocatedLength];
 
-    fptr = new ostrstream(this->OutputString, 
+    fptr = new vtkOstrstream(this->OutputString, 
 			  this->OutputStringAllocatedLength);
     }
   else 
     {
     if ( this->FileType == VTK_ASCII )
       {
-      fptr = new ofstream(this->FileName, ios::out);
+      fptr = new vtkOfstream(this->FileName, vtkIos::out);
       }
     else
       { 
 #ifdef _WIN32
-      fptr = new ofstream(this->FileName, ios::out | ios::binary);
+      fptr = new vtkOfstream(this->FileName, vtkIos::out | vtkIos::binary);
 #else
-      fptr = new ofstream(this->FileName, ios::out);
+      fptr = new vtkOfstream(this->FileName, vtkIos::out);
 #endif
       }
     }
@@ -234,7 +234,7 @@ ostream *vtkDataWriter::OpenVTKFile()
 }
 
 // Write the header of a vtk data file. Returns 0 if error.
-int vtkDataWriter::WriteHeader(ostream *fp)
+int vtkDataWriter::WriteHeader(vtkOstream *fp)
 {
   vtkDebugMacro(<<"Writing header...");
 
@@ -255,7 +255,7 @@ int vtkDataWriter::WriteHeader(ostream *fp)
 
 // Write the cell data (e.g., scalars, vectors, ...) of a vtk dataset.
 // Returns 0 if error.
-int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
+int vtkDataWriter::WriteCellData(vtkOstream *fp, vtkDataSet *ds)
 {
   int numCells;
   vtkScalars *scalars;
@@ -349,7 +349,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
 
 // Write the point data (e.g., scalars, vectors, ...) of a vtk dataset.
 // Returns 0 if error.
-int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
+int vtkDataWriter::WritePointData(vtkOstream *fp, vtkDataSet *ds)
 {
   int numPts;
   vtkScalars *scalars;
@@ -445,7 +445,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
 // Template to handle writing data in ascii or binary
 // We could change the format into C++ io standard ...
 template <class T>
-static void WriteDataArray(ostream *fp, T *data, int fileType, char *format, int num, int numComp)
+static void WriteDataArray(vtkOstream *fp, T *data, int fileType, char *format, int num, int numComp)
 {
   int i, j, idx, sizeT;
   char str[1024];
@@ -489,7 +489,7 @@ static void WriteDataArray(ostream *fp, T *data, int fileType, char *format, int
 }
 
 // Write out data to file specified.
-int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data, char *format, 
+int vtkDataWriter::WriteArray(vtkOstream *fp, int dataType, vtkDataArray *data, char *format, 
 			      int num, int numComp)
 {
   int i, j, idx;
@@ -621,7 +621,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data, cha
   return 1;
 }
 
-int vtkDataWriter::WritePoints(ostream *fp, vtkPoints *points)
+int vtkDataWriter::WritePoints(vtkOstream *fp, vtkPoints *points)
 {
   int numPts=points->GetNumberOfPoints();
   
@@ -630,7 +630,7 @@ int vtkDataWriter::WritePoints(ostream *fp, vtkPoints *points)
 }
 
 // Write out coordinates for rectilinear grids.
-int vtkDataWriter::WriteCoordinates(ostream *fp, vtkScalars *coords, int axes)
+int vtkDataWriter::WriteCoordinates(vtkOstream *fp, vtkScalars *coords, int axes)
 {
   int ncoords=coords->GetNumberOfScalars();
   
@@ -651,7 +651,7 @@ int vtkDataWriter::WriteCoordinates(ostream *fp, vtkScalars *coords, int axes)
 }
 
 // Write out scalar data.
-int vtkDataWriter::WriteScalarData(ostream *fp, vtkScalars *scalars, int num)
+int vtkDataWriter::WriteScalarData(vtkOstream *fp, vtkScalars *scalars, int num)
 {
   int i, j, size=0;
   char *name;
@@ -740,7 +740,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkScalars *scalars, int num)
   return 1;
 }
 
-int vtkDataWriter::WriteVectorData(ostream *fp, vtkVectors *vectors, int num)
+int vtkDataWriter::WriteVectorData(vtkOstream *fp, vtkVectors *vectors, int num)
 {
   char format[1024];
 
@@ -749,7 +749,7 @@ int vtkDataWriter::WriteVectorData(ostream *fp, vtkVectors *vectors, int num)
   return this->WriteArray(fp, vectors->GetDataType(), vectors->GetData(), format, num, 3);
 }
 
-int vtkDataWriter::WriteNormalData(ostream *fp, vtkNormals *normals, int num)
+int vtkDataWriter::WriteNormalData(vtkOstream *fp, vtkNormals *normals, int num)
 {
   char format[1024];
 
@@ -758,7 +758,7 @@ int vtkDataWriter::WriteNormalData(ostream *fp, vtkNormals *normals, int num)
   return this->WriteArray(fp, normals->GetDataType(), normals->GetData(), format, num, 3);
 }
 
-int vtkDataWriter::WriteTCoordData(ostream *fp, vtkTCoords *tcoords, int num)
+int vtkDataWriter::WriteTCoordData(vtkOstream *fp, vtkTCoords *tcoords, int num)
 {
   int dim=tcoords->GetNumberOfComponents();
   char format[1024];
@@ -768,7 +768,7 @@ int vtkDataWriter::WriteTCoordData(ostream *fp, vtkTCoords *tcoords, int num)
   return this->WriteArray(fp, tcoords->GetDataType(), tcoords->GetData(), format, num, dim);
 }
 
-int vtkDataWriter::WriteTensorData(ostream *fp, vtkTensors *tensors, int num)
+int vtkDataWriter::WriteTensorData(vtkOstream *fp, vtkTensors *tensors, int num)
 {
   char format[1024];
 
@@ -777,7 +777,7 @@ int vtkDataWriter::WriteTensorData(ostream *fp, vtkTensors *tensors, int num)
   return this->WriteArray(fp, tensors->GetDataType(), tensors->GetData(), format, num, 9);
 }
 
-int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
+int vtkDataWriter::WriteFieldData(vtkOstream *fp, vtkFieldData *f)
 {
   char format[1024];
   int i, numArrays=f->GetNumberOfArrays();
@@ -809,7 +809,7 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
   return 1;
 }
 
-int vtkDataWriter::WriteCells(ostream *fp, vtkCellArray *cells, char *label)
+int vtkDataWriter::WriteCells(vtkOstream *fp, vtkCellArray *cells, char *label)
 {
   int ncells=cells->GetNumberOfCells();
   int size=cells->GetNumberOfConnectivityEntries();
@@ -850,7 +850,7 @@ void vtkDataWriter::WriteData()
 }
 
 // Close a vtk file.
-void vtkDataWriter::CloseVTKFile(ostream *fp)
+void vtkDataWriter::CloseVTKFile(vtkOstream *fp)
 {
   vtkDebugMacro(<<"Closing vtk file\n");
   
@@ -859,7 +859,7 @@ void vtkDataWriter::CloseVTKFile(ostream *fp)
     if (this->WriteToOutputString)
       {
       char *tmp;
-      ostrstream *ostr = (ostrstream*)(fp);
+      vtkOstrstream *ostr = (vtkOstrstream*)(fp);
       this->OutputStringLength = ostr->pcount();
 
       if (this->OutputStringLength == this->OutputStringAllocatedLength)
@@ -892,7 +892,7 @@ char *vtkDataWriter::RegisterAndGetOutputString()
 }
 
 
-void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDataWriter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkWriter::PrintSelf(os,indent);
 

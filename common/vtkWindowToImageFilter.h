@@ -45,12 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // useful for saving an image to a file for example. Use this filter to
 // convert RenderWindows or ImageWindows to an image format.
 
-
 #ifndef __vtkWindowToImageFilter_h
 #define __vtkWindowToImageFilter_h
 
-#include <iostream.h>
-#include <fstream.h>
 #include "vtkImageSource.h"
 
 class vtkWindow;
@@ -61,7 +58,7 @@ public:
   static vtkWindowToImageFilter *New();
 
   vtkTypeMacro(vtkWindowToImageFilter,vtkImageSource);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(vtkOstream& os, vtkIndent indent);   
 
   // Description:
   // Indicates what renderer to get the pixel data from.

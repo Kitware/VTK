@@ -61,7 +61,7 @@ class VTK_EXPORT vtkImageClip : public vtkImageToImageFilter
 public:
   static vtkImageClip *New();
   vtkTypeMacro(vtkImageClip,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // The whole extent of the output has to be set explicitely.

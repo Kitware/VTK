@@ -188,7 +188,7 @@ void vtkWin32OffscreenRenderWindow::WindowInitialize()
     }
 }
 
-void vtkWin32OffscreenRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
+void vtkWin32OffscreenRenderWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkWin32OpenGLRenderWindow::PrintSelf(os,indent);
 }

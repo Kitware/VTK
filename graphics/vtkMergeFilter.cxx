@@ -360,7 +360,7 @@ void vtkMergeFilter::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(data))
     }
 }
 
-void vtkMergeFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMergeFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

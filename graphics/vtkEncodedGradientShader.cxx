@@ -576,14 +576,14 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
 
 
 // Print the vtkEncodedGradientShader
-void vtkEncodedGradientShader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkEncodedGradientShader::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
   
   os << indent << "Zero Normal Diffuse Intensity: " <<
-    this->ZeroNormalDiffuseIntensity << endl;
+    this->ZeroNormalDiffuseIntensity << vtkEndl;
 
   os << indent << "Zero Normal Specular Intensity: " <<
-    this->ZeroNormalSpecularIntensity << endl;
+    this->ZeroNormalSpecularIntensity << vtkEndl;
 }
 

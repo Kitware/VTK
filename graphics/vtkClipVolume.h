@@ -87,7 +87,7 @@ class VTK_EXPORT vtkClipVolume : public vtkStructuredPointsToUnstructuredGridFil
 {
 public:
   vtkTypeMacro(vtkClipVolume,vtkStructuredPointsToUnstructuredGridFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct with user-specified implicit function; InsideOut turned off;

@@ -421,7 +421,7 @@ void vtkDataObjectToDataSetFilter::ComputeInputUpdateExtents(
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectToDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDataObjectToDataSetFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkSource::PrintSelf(os,indent);
 

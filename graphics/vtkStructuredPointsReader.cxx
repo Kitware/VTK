@@ -369,7 +369,7 @@ void vtkStructuredPointsReader::Execute()
 }
 
 static int recursing = 0;
-void vtkStructuredPointsReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkStructuredPointsReader::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   // the reader ivar's source will be this reader. we must do this to prevent infinite printing
   if (!recursing)

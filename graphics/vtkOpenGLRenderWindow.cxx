@@ -39,9 +39,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <math.h>
-#include <iostream.h>
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLProperty.h"
@@ -737,7 +734,7 @@ Colormap vtkOpenGLRenderWindow::GetDesiredColormap ()
   return this->ColorMap;  
 }
 
-void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLRenderWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkXRenderWindow::PrintSelf(os,indent);
 

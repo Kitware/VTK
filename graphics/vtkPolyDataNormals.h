@@ -68,7 +68,7 @@ class VTK_EXPORT vtkPolyDataNormals : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkPolyDataNormals,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct with feature angle=30, splitting and consistency turned on, 

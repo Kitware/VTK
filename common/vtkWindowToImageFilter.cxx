@@ -92,7 +92,7 @@ void vtkWindowToImageFilter::SetInput(vtkWindow *input)
 }
 
 //----------------------------------------------------------------------------
-void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkWindowToImageFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);
   

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkVRMLExporter : public vtkExporter
 public:
   static vtkVRMLExporter *New();
   vtkTypeMacro(vtkVRMLExporter,vtkExporter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify the name of the VRML file to write.

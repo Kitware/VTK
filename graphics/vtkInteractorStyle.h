@@ -82,7 +82,7 @@ public:
   static vtkInteractorStyle *New();
 
   vtkTypeMacro(vtkInteractorStyle,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the Interactor wrapper being controlled by this object.

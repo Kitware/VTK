@@ -124,7 +124,7 @@ void vtkPointDataToCellData::Execute()
   delete [] weights;
 }
 
-void vtkPointDataToCellData::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPointDataToCellData::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

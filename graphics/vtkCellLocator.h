@@ -70,7 +70,7 @@ class VTK_EXPORT vtkCellLocator : public vtkLocator
 {
 public:
   vtkTypeMacro(vtkCellLocator,vtkLocator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct with automatic computation of divisions, averaging

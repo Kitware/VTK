@@ -108,7 +108,7 @@ unsigned long vtkSpline::GetMTime()
   return mTime;
 }
 
-void vtkSpline::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSpline::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

@@ -92,7 +92,7 @@ vtkImageRange3D::~vtkImageRange3D()
 
 
 //----------------------------------------------------------------------------
-void vtkImageRange3D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageRange3D::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageSpatialFilter::PrintSelf(os,indent);
 }

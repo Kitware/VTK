@@ -70,7 +70,7 @@ class VTK_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
   vtkTypeMacro(vtkDataWriter,vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Created object with default header, ASCII format, and default names for 
@@ -157,41 +157,41 @@ public:
 
   // Description:
   // Open a vtk data file. Returns NULL if error.
-  virtual ostream *OpenVTKFile();
+  virtual vtkOstream *OpenVTKFile();
 
   // Description:
   // Write the header of a vtk data file. Returns 0 if error.
-  int WriteHeader(ostream *fp);
+  int WriteHeader(vtkOstream *fp);
 
   // Description:
   // Write out the points of the data set.
-  int WritePoints(ostream *fp, vtkPoints *p);
+  int WritePoints(vtkOstream *fp, vtkPoints *p);
 
   // Description:
   // Write out coordinates for rectilinear grids.
-  int WriteCoordinates(ostream *fp, vtkScalars *coords, int axes);
+  int WriteCoordinates(vtkOstream *fp, vtkScalars *coords, int axes);
 
   // Description:
   // Write out the cells of the data set.
-  int WriteCells(ostream *fp, vtkCellArray *cells, char *label);
+  int WriteCells(vtkOstream *fp, vtkCellArray *cells, char *label);
 
   // Description:
   // Write the cell data (e.g., scalars, vectors, ...) of a vtk dataset.
   // Returns 0 if error.
-  int WriteCellData(ostream *fp, vtkDataSet *ds);
+  int WriteCellData(vtkOstream *fp, vtkDataSet *ds);
 
   // Description:
   // Write the point data (e.g., scalars, vectors, ...) of a vtk dataset.
   // Returns 0 if error.
-  int WritePointData(ostream *fp, vtkDataSet *ds);
+  int WritePointData(vtkOstream *fp, vtkDataSet *ds);
 
   // Description:
   // Write out the field data.
-  int WriteFieldData(ostream *fp, vtkFieldData *f);
+  int WriteFieldData(vtkOstream *fp, vtkFieldData *f);
   
   // Description:
   // Close a vtk file.
-  void CloseVTKFile(ostream *fp);
+  void CloseVTKFile(vtkOstream *fp);
 
 
 protected:
@@ -219,13 +219,13 @@ protected:
   char *LookupTableName;
   char *FieldDataName;
 
-  int WriteArray(ostream *fp, int dataType, vtkDataArray *data, char *format, 
+  int WriteArray(vtkOstream *fp, int dataType, vtkDataArray *data, char *format, 
 		 int num, int numComp);
-  int WriteScalarData(ostream *fp, vtkScalars *s, int num);
-  int WriteVectorData(ostream *fp, vtkVectors *v, int num);
-  int WriteNormalData(ostream *fp, vtkNormals *n, int num);
-  int WriteTCoordData(ostream *fp, vtkTCoords *tc, int num);
-  int WriteTensorData(ostream *fp, vtkTensors *t, int num);
+  int WriteScalarData(vtkOstream *fp, vtkScalars *s, int num);
+  int WriteVectorData(vtkOstream *fp, vtkVectors *v, int num);
+  int WriteNormalData(vtkOstream *fp, vtkNormals *n, int num);
+  int WriteTCoordData(vtkOstream *fp, vtkTCoords *tc, int num);
+  int WriteTensorData(vtkOstream *fp, vtkTensors *t, int num);
 
 };
 

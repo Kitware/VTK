@@ -39,15 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkBMPReader.h"
 #include "vtkByteSwap.h"
-#include <stdio.h>
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkBMPReader* vtkBMPReader::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -475,11 +471,11 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
 	outPtr0 += outIncr[0];
 	}
       // move to the next row in the file and data
-      self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip0, ios::beg);
+      self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip0, vtkIos::beg);
       outPtr1 += outIncr[1];
       }
     // move to the next image in the file and data
-    self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip1, ios::beg);
+    self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip1, vtkIos::beg);
     outPtr2 += outIncr[2];
     }
 
@@ -542,7 +538,7 @@ void vtkBMPReader::Execute(vtkImageData *data)
     }  
 }
 
-void vtkBMPReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkBMPReader::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageReader::PrintSelf(os,indent);
 

@@ -63,7 +63,7 @@ class VTK_EXPORT vtkImageMultipleInputFilter : public vtkImageSource
 public:
   static vtkImageMultipleInputFilter *New();
   vtkTypeMacro(vtkImageMultipleInputFilter,vtkImageSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set an Input of this filter. 

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImagePadFilter : public vtkImageToImageFilter
 public:
   static vtkImagePadFilter *New();
   vtkTypeMacro(vtkImagePadFilter,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // The image extent of the output has to be set explicitely.

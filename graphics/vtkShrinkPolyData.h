@@ -68,7 +68,7 @@ class VTK_EXPORT vtkShrinkPolyData : public vtkPolyDataToPolyDataFilter
 public:
   static vtkShrinkPolyData *New();
   vtkTypeMacro(vtkShrinkPolyData,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set the fraction of shrink for each cell.

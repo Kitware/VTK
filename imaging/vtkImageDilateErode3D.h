@@ -64,7 +64,7 @@ public:
   // By default zero values are dilated.
   static vtkImageDilateErode3D *New();
   vtkTypeMacro(vtkImageDilateErode3D,vtkImageSpatialFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // This method sets the size of the neighborhood.  It also sets the 

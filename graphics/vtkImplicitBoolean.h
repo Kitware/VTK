@@ -71,7 +71,7 @@ class VTK_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitBoolean,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Default boolean method is union.

@@ -369,7 +369,7 @@ void vtkStripper::Execute()
 
 }
 
-void vtkStripper::PrintSelf(ostream& os, vtkIndent indent)
+void vtkStripper::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

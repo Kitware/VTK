@@ -151,7 +151,7 @@ unsigned long int vtkImplicitWindowFunction::GetMTime()
   return mtime;
 }
 
-void vtkImplicitWindowFunction::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImplicitWindowFunction::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os,indent);
 

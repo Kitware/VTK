@@ -19,7 +19,7 @@ vtkDirectory::~vtkDirectory()
 
 
 
-void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDirectory::PrintSelf(vtkOstream& os, vtkIndent indent)
 { 
   vtkObject::PrintSelf(os, indent);
   if(!this->Path)
@@ -71,7 +71,7 @@ int vtkDirectory::Open(const char* name)
   long srchHandle = _findfirst(buf, &data);
   if (srchHandle == -1)
     {
-    cerr << "can't open directory " << buf << endl;
+    vtkWarningMacro(<< "can't open directory " << buf);
     this->NumberOfFiles = 0;
     _findclose(srchHandle);
     return 0;

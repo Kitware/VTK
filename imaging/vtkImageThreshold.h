@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageThreshold : public vtkImageToImageFilter
 public:
   static vtkImageThreshold *New();
   vtkTypeMacro(vtkImageThreshold,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // The values greater than or equal to the value match.

@@ -58,7 +58,7 @@ class VTK_EXPORT vtkWarpVector : public vtkPointSetToPointSetFilter
 public:
   static vtkWarpVector *New();
   vtkTypeMacro(vtkWarpVector,vtkPointSetToPointSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify value to scale displacement.

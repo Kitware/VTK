@@ -154,7 +154,7 @@ void WriteLimits(FILE *fp, float *bounds)
   vtkByteSwap::SwapWrite4BERange((float *) bounds,6,fp);
 }
 
-void vtkMCubesWriter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMCubesWriter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataWriter::PrintSelf(os,indent);
 

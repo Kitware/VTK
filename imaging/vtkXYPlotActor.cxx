@@ -389,7 +389,7 @@ void vtkXYPlotActor::ReleaseGraphicsResources(vtkWindow *win)
   this->PlotActor->ReleaseGraphicsResources(win);
 }
 
-void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
+void vtkXYPlotActor::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkActor2D::PrintSelf(os,indent);
 
@@ -406,7 +406,7 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Y Title: " 
      << (this->YTitle ? this->YTitle : "(none)") << "\n";
  
-  os << indent << "X Values: " << this->GetXValuesAsString() << endl;
+  os << indent << "X Values: " << this->GetXValuesAsString() << vtkEndl;
   os << indent << "Plot points: " << (this->PlotPoints ? "On\n" : "Off\n");
   os << indent << "Plot lines: " << (this->PlotLines ? "On\n" : "Off\n");
 

@@ -63,7 +63,7 @@ class VTK_EXPORT vtkVolumeTextureMapper : public vtkVolumeMapper
 {
 public:
   vtkTypeMacro(vtkVolumeTextureMapper,vtkVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( vtkOstream& os, vtkIndent index );
 
   // Description:
   // Update the volume rendering pipeline by updating the scalar input

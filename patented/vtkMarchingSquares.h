@@ -85,7 +85,7 @@ class VTK_EXPORT vtkMarchingSquares : public vtkStructuredPointsToPolyDataFilter
 public:
   static vtkMarchingSquares *New();
   vtkTypeMacro(vtkMarchingSquares,vtkStructuredPointsToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the i-j-k index range which define a plane on which to generate 

@@ -71,11 +71,11 @@ vtkImageMedian3D::vtkImageMedian3D()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMedian3D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageMedian3D::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageSpatialFilter::PrintSelf(os, indent);
 
-  os << indent << "NumberOfElements: " << this->NumberOfElements << endl;
+  os << indent << "NumberOfElements: " << this->NumberOfElements << vtkEndl;
 }
 
 //----------------------------------------------------------------------------

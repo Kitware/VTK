@@ -484,7 +484,7 @@ void vtkLookupTable::GetTableValue (int indx, float rgba[4])
     }
 }
 
-void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
+void vtkLookupTable::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkScalarsToColors::PrintSelf(os,indent);
 

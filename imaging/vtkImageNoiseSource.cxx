@@ -194,7 +194,7 @@ void vtkImageNoiseSource::Execute(vtkImageData *data)
     }
 }
 
-void vtkImageNoiseSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageNoiseSource::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);
 

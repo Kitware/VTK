@@ -55,7 +55,7 @@ class VTK_EXPORT vtkFloatArray : public vtkDataArray
 public:
   static vtkFloatArray *New();
   vtkTypeMacro(vtkFloatArray,vtkDataArray);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.

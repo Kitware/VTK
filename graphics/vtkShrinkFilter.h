@@ -64,7 +64,7 @@ class VTK_EXPORT vtkShrinkFilter : public vtkDataSetToUnstructuredGridFilter
 public:
   static vtkShrinkFilter *New();
   vtkTypeMacro(vtkShrinkFilter,vtkDataSetToUnstructuredGridFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set the fraction of shrink for each cell.

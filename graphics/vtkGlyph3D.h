@@ -117,7 +117,7 @@ class VTK_EXPORT vtkGlyph3D : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkGlyph3D,vtkDataSetToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description
   // Construct object with scaling on, scaling mode is by scalar value, 

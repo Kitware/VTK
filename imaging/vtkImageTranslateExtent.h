@@ -54,7 +54,7 @@ class VTK_EXPORT vtkImageTranslateExtent : public vtkImageToImageFilter
 public:
   static vtkImageTranslateExtent *New();
   vtkTypeMacro(vtkImageTranslateExtent,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Delta to change "WholeExtent". -1 changes 0->10 to -1->9.

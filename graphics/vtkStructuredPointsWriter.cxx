@@ -82,7 +82,7 @@ vtkStructuredPoints *vtkStructuredPointsWriter::GetInput()
 
 void vtkStructuredPointsWriter::WriteData()
 {
-  ostream *fp;
+  vtkOstream *fp;
   vtkStructuredPoints *input=this->GetInput();
   int dim[3];
   float spacing[3], origin[3];
@@ -113,7 +113,7 @@ void vtkStructuredPointsWriter::WriteData()
   this->CloseVTKFile(fp);
 }
 
-void vtkStructuredPointsWriter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkStructuredPointsWriter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataWriter::PrintSelf(os,indent);
 }

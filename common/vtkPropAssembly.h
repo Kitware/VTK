@@ -74,7 +74,7 @@ class VTK_EXPORT vtkPropAssembly : public vtkProp
 {
 public:
   vtkTypeMacro(vtkPropAssembly,vtkProp);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Create with an empty parts list.

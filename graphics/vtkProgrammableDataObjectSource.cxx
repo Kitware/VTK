@@ -131,7 +131,7 @@ void vtkProgrammableDataObjectSource::Execute()
     }
 }
 
-void vtkProgrammableDataObjectSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkProgrammableDataObjectSource::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkSource::PrintSelf(os,indent);
   

@@ -85,7 +85,7 @@ class VTK_EXPORT vtkVolumeRayCastMapper : public vtkVolumeMapper
 public:
   static vtkVolumeRayCastMapper *New();
   vtkTypeMacro(vtkVolumeRayCastMapper,vtkVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( vtkOstream& os, vtkIndent index );
 
   // Description:
   // Set/Get the distance between samples.  This variable is only

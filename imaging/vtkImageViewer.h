@@ -54,10 +54,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkImageViewer_h
 #define __vtkImageViewer_h
 
-#include <fstream.h>
-#include <stdlib.h>
-#include <iostream.h>
-
 #include "vtkObject.h"
 #include "vtkImageWindow.h"
 
@@ -71,7 +67,7 @@ public:
   static vtkImageViewer *New();
   
   vtkTypeMacro(vtkImageViewer,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Get name of rendering window

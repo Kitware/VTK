@@ -83,7 +83,7 @@ public:
   static vtkProcessObject *New();
 
   vtkTypeMacro(vtkProcessObject,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify function to be called before object executes.

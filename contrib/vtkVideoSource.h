@@ -63,7 +63,7 @@ class VTK_EXPORT vtkVideoSource : public vtkImageSource
 public:
   static vtkVideoSource *New();
   vtkTypeMacro(vtkVideoSource,vtkImageSource);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(vtkOstream& os, vtkIndent indent);   
 
   // Description:
   // Initialize the hardware.  This is called automatically

@@ -67,7 +67,7 @@ class VTK_EXPORT vtkEncodedGradientEstimator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkEncodedGradientEstimator,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( vtkOstream& os, vtkIndent index );
 
   // Description:
   // Set/Get the scalar input for which the normals will be 

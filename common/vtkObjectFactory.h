@@ -73,7 +73,7 @@ public:
   vtkTypeMacro(vtkObjectFactory,vtkObject);
   // Description:
   // Print ObjectFactor to stream.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  virtual void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Class Methods used to interface with the registered factories
   

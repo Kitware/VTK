@@ -87,7 +87,7 @@ void vtkCylinder::EvaluateGradient(float xyz[3], float g[3])
   g[2] = 2.0 * (z - this->Center[2]);
 }
 
-void vtkCylinder::PrintSelf(ostream& os, vtkIndent indent)
+void vtkCylinder::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os,indent);
 

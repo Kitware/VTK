@@ -63,7 +63,7 @@ public:
 
   // Description:
   // Print method for vtkColorTransferFunction
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Get the color transfer function mtime plus consider its three

@@ -158,7 +158,7 @@ void vtkProbeFilter::Execute()
 
 
 //----------------------------------------------------------------------------
-void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkProbeFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSet *source = this->GetSource();
 

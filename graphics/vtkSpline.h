@@ -73,7 +73,7 @@ class VTK_EXPORT vtkSpline : public vtkObject
 {
 public:
   vtkTypeMacro(vtkSpline,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get ClampValue. If On, results of the interpolation will be

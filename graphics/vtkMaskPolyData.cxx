@@ -215,7 +215,7 @@ void vtkMaskPolyData::Execute()
   output->Squeeze();
 }
 
-void vtkMaskPolyData::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMaskPolyData::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

@@ -75,7 +75,7 @@ class VTK_EXPORT vtkSynchronizedTemplates2D : public vtkStructuredPointsToPolyDa
 public:
   static vtkSynchronizedTemplates2D *New();
   vtkTypeMacro(vtkSynchronizedTemplates2D,vtkStructuredPointsToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Because we delegate to vtkContourValues

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkExtractGeometry : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkTypeMacro(vtkExtractGeometry,vtkDataSetToUnstructuredGridFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with ExtractInside turned on.

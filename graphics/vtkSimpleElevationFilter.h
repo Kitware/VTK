@@ -57,7 +57,7 @@ class VTK_EXPORT vtkSimpleElevationFilter : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkSimpleElevationFilter,vtkDataSetToDataSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with Vector=(0,0,1);

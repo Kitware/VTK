@@ -61,7 +61,7 @@ class VTK_EXPORT vtkReverseSense : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkReverseSense,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object so that behavior is to reverse cell ordering and

@@ -17,7 +17,7 @@
 #include "tix.h"
 #endif
 
-#include <iostream.h>
+#include "vtkSystemIncludes.h"
 
 /*
  *----------------------------------------------------------------------
@@ -58,7 +58,7 @@ int *tclDummyMathPtr = (int *) matherr;
 int
 main(int argc, char **argv)
 {
-  ios::sync_with_stdio();
+  vtkIos::sync_with_stdio();
   Tk_Main(argc, argv, Tcl_AppInit);
   return 0;			/* Needed only to prevent compiler warning. */
 }

@@ -63,7 +63,7 @@ class VTK_EXPORT vtkImageMapper : public vtkMapper2D
 public:
   vtkTypeMacro(vtkImageMapper,vtkMapper2D);
   static vtkImageMapper *New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the window value for window/level

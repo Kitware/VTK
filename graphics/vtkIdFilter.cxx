@@ -161,7 +161,7 @@ void vtkIdFilter::Execute()
   outCD->PassNoReplaceData(inCD);
 }
 
-void vtkIdFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkIdFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

@@ -67,7 +67,7 @@ public:
   // background erasing disabled and gray scale hint off
   static vtkImageWindow *New();
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   vtkTypeMacro(vtkImageWindow,vtkWindow);
 
   // Description:

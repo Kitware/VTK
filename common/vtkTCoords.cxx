@@ -105,7 +105,7 @@ void vtkTCoords::GetTCoords(vtkIdList *ptIds, vtkTCoords *tc)
     }
 }
 
-void vtkTCoords::PrintSelf(ostream& os, vtkIndent indent)
+void vtkTCoords::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkAttributeData::PrintSelf(os,indent);
 

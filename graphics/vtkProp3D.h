@@ -65,7 +65,7 @@ class VTK_EXPORT vtkProp3D : public vtkProp
 {
 public:
   vtkTypeMacro(vtkProp3D,vtkProp);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Shallow copy of this vtkProp3D.

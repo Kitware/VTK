@@ -62,7 +62,7 @@ class VTK_EXPORT vtkDataObjectReader : public vtkDataObjectSource
 public:
   static vtkDataObjectReader *New();
   vtkTypeMacro(vtkDataObjectReader,vtkDataObjectSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Return the MTime also considering the vtkDataReader ivar

@@ -40,10 +40,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-#include <iostream.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "vtkObject.h"
 #include "vtkPythonUtil.h"
 

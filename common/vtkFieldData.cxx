@@ -645,7 +645,7 @@ unsigned long vtkFieldData::GetActualMemorySize()
   return size;
 }
 
-void vtkFieldData::PrintSelf(ostream& os, vtkIndent indent)
+void vtkFieldData::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

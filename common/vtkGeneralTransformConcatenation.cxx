@@ -92,7 +92,7 @@ vtkGeneralTransformConcatenation::~vtkGeneralTransformConcatenation()
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransformConcatenation::PrintSelf(ostream& os, vtkIndent indent)
+void vtkGeneralTransformConcatenation::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkGeneralTransform::PrintSelf(os,indent);
 

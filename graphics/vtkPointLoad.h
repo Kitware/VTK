@@ -60,7 +60,7 @@ class VTK_EXPORT vtkPointLoad :  public vtkStructuredPointsSource
 {
 public:
   vtkTypeMacro(vtkPointLoad,vtkStructuredPointsSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),

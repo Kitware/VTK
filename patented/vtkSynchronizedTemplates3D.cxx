@@ -1040,7 +1040,7 @@ vtkImageData *vtkSynchronizedTemplates3D::GetInput()
 
 
 //----------------------------------------------------------------------------
-void vtkSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSynchronizedTemplates3D::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

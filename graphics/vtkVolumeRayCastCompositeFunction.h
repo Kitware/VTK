@@ -63,7 +63,7 @@ class VTK_EXPORT vtkVolumeRayCastCompositeFunction : public vtkVolumeRayCastFunc
 public:
   static vtkVolumeRayCastCompositeFunction *New();
   vtkTypeMacro(vtkVolumeRayCastCompositeFunction,vtkVolumeRayCastFunction);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( vtkOstream& os, vtkIndent index );
 
   // Description:
   // Set the CompositeMethod to either Classify First or Interpolate First

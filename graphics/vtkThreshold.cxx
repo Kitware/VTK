@@ -265,11 +265,11 @@ char *vtkThreshold::GetAttributeModeAsString(void)
     }
 }
 
-void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
+void vtkThreshold::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
-  os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
+  os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << vtkEndl;
   os << indent << "All Scalars: " << this->AllScalars << "\n";;
   if ( this->ThresholdFunction == &vtkThreshold::Upper )
     {

@@ -141,7 +141,7 @@ vtkThreadedController::~vtkThreadedController()
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadedController::PrintSelf(ostream& os, vtkIndent indent)
+void vtkThreadedController::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkMultiProcessController::PrintSelf(os,indent);
   os << indent << "MultiThreader:\n";

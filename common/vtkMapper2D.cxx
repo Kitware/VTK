@@ -62,7 +62,7 @@ vtkMapper2D* vtkMapper2D::New()
 
 
 
-void vtkMapper2D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMapper2D::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkAbstractMapper::PrintSelf(os, indent);
 }

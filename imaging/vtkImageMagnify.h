@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageMagnify : public vtkImageToImageFilter
 public:
   static vtkImageMagnify *New();
   vtkTypeMacro(vtkImageMagnify,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the integer magnification factors in the i-j-k directions.

@@ -80,7 +80,7 @@ public:
   static vtkImageConnector *New();
 
   vtkTypeMacro(vtkImageConnector,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   //BTX
   vtkImageConnectorSeed *NewSeed(int index[3], void *ptr);

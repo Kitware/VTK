@@ -122,7 +122,7 @@ void vtkWarpLens::Execute()
   newPts->Delete();
 }
 
-void vtkWarpLens::PrintSelf(ostream& os, vtkIndent indent)
+void vtkWarpLens::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPointSetToPointSetFilter::PrintSelf(os,indent);
   

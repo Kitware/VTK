@@ -55,9 +55,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include 	<X11/cursorfont.h>
 #include 	<X11/X.h>
 #include 	<X11/keysym.h>
-#include    	<fstream.h>
-#include 	<stdlib.h>
-#include 	<iostream.h>
 
 #include        "vtkImageWindow.h"
 
@@ -66,7 +63,7 @@ class VTK_EXPORT vtkXImageWindow : public vtkImageWindow
 public:
   static vtkXImageWindow *New();
   vtkTypeMacro(vtkXImageWindow,vtkImageWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Implements SetWindowName for a X window

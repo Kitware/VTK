@@ -165,40 +165,40 @@ vtkMultiProcessController *vtkMultiProcessController::New()
 
 
 //----------------------------------------------------------------------------
-void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMultiProcessController::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
   vtkMultiProcessControllerRMI *rmi;
   vtkIndent nextIndent = indent.GetNextIndent();
   
   os << indent << "MaximumNumberOfProcesses: " 
-     << this->MaximumNumberOfProcesses << endl;
-  os << indent << "NumberOfProcesses: " << this->NumberOfProcesses << endl;
-  os << indent << "LocalProcessId: " << this->LocalProcessId << endl;
-  os << indent << "MarshalStringLength: " << this->MarshalStringLength << endl;
-  os << indent << "MarshalDataLength: " << this->MarshalDataLength << endl;
-  os << indent << "ReceiveWaitTime: " << this->ReceiveWaitTime << endl;
-  os << indent << "ReceiveTime: " << this->ReceiveTime << endl;
-  os << indent << "SendWaitTime: " << this->SendWaitTime << endl;
-  os << indent << "SendTime: " << this->SendTime << endl;
-  os << indent << "ReadTime: " << this->ReadTime << endl;
-  os << indent << "WriteTime: " << this->WriteTime << endl;
+     << this->MaximumNumberOfProcesses << vtkEndl;
+  os << indent << "NumberOfProcesses: " << this->NumberOfProcesses << vtkEndl;
+  os << indent << "LocalProcessId: " << this->LocalProcessId << vtkEndl;
+  os << indent << "MarshalStringLength: " << this->MarshalStringLength << vtkEndl;
+  os << indent << "MarshalDataLength: " << this->MarshalDataLength << vtkEndl;
+  os << indent << "ReceiveWaitTime: " << this->ReceiveWaitTime << vtkEndl;
+  os << indent << "ReceiveTime: " << this->ReceiveTime << vtkEndl;
+  os << indent << "SendWaitTime: " << this->SendWaitTime << vtkEndl;
+  os << indent << "SendTime: " << this->SendTime << vtkEndl;
+  os << indent << "ReadTime: " << this->ReadTime << vtkEndl;
+  os << indent << "WriteTime: " << this->WriteTime << vtkEndl;
   os << indent << "RMIs: \n";
   
   this->RMIs->InitTraversal();
   while ( (rmi = (vtkMultiProcessControllerRMI*)(this->RMIs->GetNextItemAsObject())) )
     {
-    os << nextIndent << rmi->Tag << endl;
+    os << nextIndent << rmi->Tag << vtkEndl;
     }
   
-  os << indent << "SendWaitTime: " << this->SendWaitTime << endl;
-  os << indent << "SendTime: " << this->SendTime << endl;
-  os << indent << "ReceiveWaitTime: " << this->ReceiveWaitTime << endl;
-  os << indent << "ReceiveTime: " << this->ReceiveTime << endl;
-  os << indent << "ReadTime: " << this->ReadTime << endl;
-  os << indent << "WriteTime: " << this->WriteTime << endl;
-  os << indent << "BreakFlag: " << this->BreakFlag << endl;
-  os << indent << "ForceDeepCopy: " << this->ForceDeepCopy << endl;
+  os << indent << "SendWaitTime: " << this->SendWaitTime << vtkEndl;
+  os << indent << "SendTime: " << this->SendTime << vtkEndl;
+  os << indent << "ReceiveWaitTime: " << this->ReceiveWaitTime << vtkEndl;
+  os << indent << "ReceiveTime: " << this->ReceiveTime << vtkEndl;
+  os << indent << "ReadTime: " << this->ReadTime << vtkEndl;
+  os << indent << "WriteTime: " << this->WriteTime << vtkEndl;
+  os << indent << "BreakFlag: " << this->BreakFlag << vtkEndl;
+  os << indent << "ForceDeepCopy: " << this->ForceDeepCopy << vtkEndl;
 }
 
 static vtkMultiProcessController *GLOBAL_VTK_MP_CONTROLLER = NULL;
@@ -642,20 +642,3 @@ void vtkMultiProcessController::CopyDataSet(vtkDataSet *src, vtkDataSet *dest)
   dest->GetCellData()->ShallowCopy(src->GetCellData());  
   dest->DataHasBeenGenerated();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

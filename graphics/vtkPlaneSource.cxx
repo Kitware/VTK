@@ -417,7 +417,7 @@ int vtkPlaneSource::UpdatePlane(float v1[3], float v2[3])
     }
 }
 
-void vtkPlaneSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPlaneSource::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

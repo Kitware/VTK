@@ -134,7 +134,7 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
     fprintf (fp, "   vertex %.6g %.6g %.6g\n", v2[0], v2[1], v2[2]);
     fprintf (fp, "   vertex %.6g %.6g %.6g\n", v3[0], v3[1], v3[2]);
 
-    fprintf (fp, "  endloop\n endfacet\n");
+    fprintf (fp, "  vtkEndloop\n endfacet\n");
     }
   fprintf (fp, "endsolid\n");
   fclose (fp);

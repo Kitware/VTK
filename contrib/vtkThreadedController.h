@@ -69,7 +69,7 @@ class VTK_EXPORT vtkThreadedController : public vtkMultiProcessController
 public:
   static vtkThreadedController *New();
   vtkTypeMacro(vtkThreadedController,vtkMultiProcessController);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // This method is for setting up the processes.

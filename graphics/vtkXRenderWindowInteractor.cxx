@@ -340,7 +340,7 @@ void vtkXRenderWindowInteractor::Disable()
 }
 
 
-void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
+void vtkXRenderWindowInteractor::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkRenderWindowInteractor::PrintSelf(os,indent);
   if (this->App)

@@ -761,7 +761,7 @@ void vtkImageMarchingCubes::March(vtkImageData *inData,
 				chunkMin, chunkMax, numContours, values);
       break;
     default:
-      cerr << "March: Unknown output ScalarType";
+      vtkErrorMacro(<< "Unknown output ScalarType");
       return;
     }
 }
@@ -924,7 +924,7 @@ vtkImageData *vtkImageMarchingCubes::GetInput()
 
   
 //----------------------------------------------------------------------------
-void vtkImageMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageMarchingCubes::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

@@ -154,7 +154,7 @@ void vtkTensors::GetTensors(vtkIdList *ptIds, vtkTensors *t)
     }
 }
 
-void vtkTensors::PrintSelf(ostream& os, vtkIndent indent)
+void vtkTensors::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkAttributeData::PrintSelf(os,indent);
 

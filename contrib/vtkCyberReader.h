@@ -56,7 +56,7 @@ class VTK_EXPORT vtkCyberReader : public vtkPolyDataSource
 public:
   static vtkCyberReader *New();
   vtkTypeMacro(vtkCyberReader,vtkPolyDataSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify Cyberware file name.

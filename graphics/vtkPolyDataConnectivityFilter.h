@@ -81,7 +81,7 @@ class VTK_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataToPolyDataFil
 {
 public:
   vtkTypeMacro(vtkPolyDataConnectivityFilter,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct with default extraction mode to extract largest regions.

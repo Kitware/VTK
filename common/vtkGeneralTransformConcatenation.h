@@ -60,7 +60,7 @@ public:
   static vtkGeneralTransformConcatenation *New();
 
   vtkTypeMacro(vtkGeneralTransformConcatenation,vtkGeneralTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // Concatenate the current transform with the specified transform(s),

@@ -66,7 +66,7 @@ class VTK_EXPORT vtkRayCaster : public vtkObject
 public:
   static vtkRayCaster *New();
   vtkTypeMacro(vtkRayCaster,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Method for a vtkVolumeMapper to retrieve the view rays 

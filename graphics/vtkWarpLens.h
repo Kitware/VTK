@@ -54,7 +54,7 @@ class VTK_EXPORT vtkWarpLens : public vtkPointSetToPointSetFilter
 public:
   static vtkWarpLens *New();
   vtkTypeMacro(vtkWarpLens,vtkPointSetToPointSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify the distortion constant

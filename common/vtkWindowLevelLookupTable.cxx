@@ -182,7 +182,7 @@ int vtkWindowLevelLookupTable:: MapScalarToIndex (float scalar)
   return indx;
 }
   
-void vtkWindowLevelLookupTable::PrintSelf(ostream& os, vtkIndent indent)
+void vtkWindowLevelLookupTable::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkLookupTable::PrintSelf(os,indent);
 

@@ -49,7 +49,7 @@ vtkAbstractMapper::vtkAbstractMapper()
   this->TimeToDraw = 0.0;
 }
 
-void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
+void vtkAbstractMapper::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkProcessObject::PrintSelf(os,indent);
 

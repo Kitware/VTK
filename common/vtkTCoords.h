@@ -63,7 +63,7 @@ public:
 
 
   vtkTypeMacro(vtkTCoords,vtkAttributeData);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set the data for this object. The tuple dimension must be consistent with

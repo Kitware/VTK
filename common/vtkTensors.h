@@ -60,7 +60,7 @@ public:
   static vtkTensors *New();
 
   vtkTypeMacro(vtkTensors,vtkAttributeData);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Create a copy of this object.

@@ -55,7 +55,7 @@ class VTK_EXPORT vtkTriangleFilter : public vtkPolyDataToPolyDataFilter
 public:
   static vtkTriangleFilter *New();
   vtkTypeMacro(vtkTriangleFilter,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Turn on/off passing vertices through filter.

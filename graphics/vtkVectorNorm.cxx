@@ -202,12 +202,12 @@ char *vtkVectorNorm::GetAttributeModeAsString(void)
     }
 }
 
-void vtkVectorNorm::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVectorNorm::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "Normalize: " << (this->Normalize ? "On\n" : "Off\n");
   os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() 
-     << endl;
+     << vtkEndl;
 }
 

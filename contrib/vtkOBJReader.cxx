@@ -264,7 +264,7 @@ void vtkOBJReader::Execute()
   output->Squeeze();
 }
 
-void vtkOBJReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOBJReader::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

@@ -300,7 +300,7 @@ void vtkBYUWriter::WriteTextureFile(int numPts)
   vtkDebugMacro(<<"Wrote " << numPts << " texture coordinates");
 }
 
-void vtkBYUWriter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkBYUWriter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataWriter::PrintSelf(os,indent);
 

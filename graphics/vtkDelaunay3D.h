@@ -118,7 +118,7 @@ class VTK_EXPORT vtkDelaunay3D : public vtkUnstructuredGridSource
 {
 public:
   vtkTypeMacro(vtkDelaunay3D,vtkUnstructuredGridSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 2.5;

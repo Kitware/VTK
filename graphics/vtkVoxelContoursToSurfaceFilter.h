@@ -74,7 +74,7 @@ class VTK_EXPORT vtkVoxelContoursToSurfaceFilter : public vtkPolyDataToPolyDataF
 public:
   static vtkVoxelContoursToSurfaceFilter *New();
   vtkTypeMacro(vtkVoxelContoursToSurfaceFilter,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set / Get the memory limit in bytes for this filter. This is the limit

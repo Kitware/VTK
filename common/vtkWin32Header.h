@@ -39,22 +39,20 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+// .NAME vtkWin32Header - manage Windows system differences
+// .SECTION Description
+// The vtkWin32Header captures some system differences between Unix and
+// Windows operating systems. 
 
 #ifndef __vtkWIN32Header_h
 #define __vtkWIN32Header_h
 
-// include  generic stuff 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <fstream.h>
-#include <math.h>
-
-// now add in the UNIX / Windows varients
+//
+// Windows specific stuff------------------------------------------
 #if defined(_WIN32) || defined(WIN32)
-#include <strstrea.h>
 #include <windows.h>
 
+// Handle compiler warning messages, etc.
 #pragma warning ( disable : 4244 )
 #pragma warning ( disable : 4305 )
 #pragma warning ( disable : 4309 )
@@ -65,10 +63,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_EXPORT __declspec( dllimport )
 #endif
 
-// Now for the UNIX stuff
-#else 
+// If not Windows, then -------------------------------------------
+#else
 
-#include <strstream.h>
 #define VTK_EXPORT
 
 #endif

@@ -78,7 +78,7 @@ vtkImageClip::vtkImageClip()
 
 
 //----------------------------------------------------------------------------
-void vtkImageClip::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageClip::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   int idx;
   

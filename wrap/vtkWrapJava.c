@@ -583,6 +583,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   int i;
   
   fprintf(fp,"// java wrapper for %s object\n//\n",data->ClassName);
+  fprintf(fp,"#include \"vtkSystemIncludes.h\"\n");
   fprintf(fp,"#include \"%s.h\"\n",data->ClassName);
   fprintf(fp,"#include \"vtkJavaUtil.h\"\n\n");
   
@@ -652,7 +653,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  jstring tmp;\n\n");
     fprintf(fp,"  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj,\"vtkObject\");\n");
     
-    fprintf(fp,"  ostrstream buf;\n");
+    fprintf(fp,"  vtkOstrstream buf;\n");
     fprintf(fp,"  op->Print(buf);\n");
     fprintf(fp,"  buf.put('\\0');\n");  
 	fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,buf.str());\n");

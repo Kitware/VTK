@@ -77,7 +77,7 @@ public:
   static vtkImageReslice *New();
   vtkTypeMacro(vtkImageReslice,vtkImageToImageFilter);
 
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  virtual void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Use this method, in conjunction with SetOutputOrigin(), 

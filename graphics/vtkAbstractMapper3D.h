@@ -67,7 +67,7 @@ class VTK_EXPORT vtkAbstractMapper3D : public vtkAbstractMapper
 {
 public:
   vtkTypeMacro(vtkAbstractMapper3D,vtkAbstractMapper);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Return bounding box (array of six floats) of data expressed as

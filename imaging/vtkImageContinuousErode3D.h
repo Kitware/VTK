@@ -62,7 +62,7 @@ public:
   // By default zero values are eroded.
   static vtkImageContinuousErode3D *New();
   vtkTypeMacro(vtkImageContinuousErode3D,vtkImageSpatialFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // This method sets the size of the neighborhood.  It also sets the 

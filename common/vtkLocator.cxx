@@ -80,7 +80,7 @@ void vtkLocator::Update()
     }
 }
 
-void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
+void vtkLocator::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

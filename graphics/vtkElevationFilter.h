@@ -56,7 +56,7 @@ class VTK_EXPORT vtkElevationFilter : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkElevationFilter,vtkDataSetToDataSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar

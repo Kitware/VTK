@@ -60,7 +60,7 @@ class VTK_EXPORT vtkEarthSource : public vtkPolyDataSource
 public:
   static vtkEarthSource *New();
   vtkTypeMacro(vtkEarthSource,vtkPolyDataSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set radius of earth.

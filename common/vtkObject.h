@@ -65,11 +65,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkObject_h
 #define __vtkObject_h
 
-#include <iostream.h>
 #include "vtkIndent.h"
 #include "vtkTimeStamp.h"
 #include "vtkSetGet.h"
-
 
 class VTK_EXPORT vtkObject 
 {
@@ -151,17 +149,17 @@ public:
   virtual void Modified();
   
   // Description:
-  // Print an object to an ostream.
-  void Print(ostream& os);
+  // Print an object to an vtkOstream.
+  void Print(vtkOstream& os);
 
   // Description:
   // Methods invoked by print to print information about
   // the object including superclasses. Typically not called by the
   // user (use Print() instead) but used in the hierarchical print
   // process to combine the output of several classes.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
-  virtual void PrintHeader(ostream& os, vtkIndent indent);
-  virtual void PrintTrailer(ostream& os, vtkIndent indent);
+  virtual void PrintSelf(vtkOstream& os, vtkIndent indent);
+  virtual void PrintHeader(vtkOstream& os, vtkIndent indent);
+  virtual void PrintTrailer(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // This is a global flag that controls whether any debug, warning
@@ -207,7 +205,7 @@ protected:
 
 private:
   //BTX
-  friend VTK_EXPORT ostream& operator<<(ostream& os, vtkObject& o);
+  friend VTK_EXPORT vtkOstream& operator<<(vtkOstream& os, vtkObject& o);
   //ETX
 };
 

@@ -90,7 +90,7 @@ class VTK_EXPORT vtkClipPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkClipPolyData,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct with user-specified implicit function; InsideOut turned off;

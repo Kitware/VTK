@@ -60,7 +60,7 @@ class VTK_EXPORT vtkInteractorStyleTrackball : public vtkInteractorStyle
 public:
   static vtkInteractorStyleTrackball *New();
   vtkTypeMacro(vtkInteractorStyleTrackball,vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // Concrete implementation of event bindings

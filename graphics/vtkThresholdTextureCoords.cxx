@@ -159,7 +159,7 @@ void vtkThresholdTextureCoords::Execute()
   newTCoords->Delete();
 }
 
-void vtkThresholdTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
+void vtkThresholdTextureCoords::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

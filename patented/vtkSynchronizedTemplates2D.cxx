@@ -485,7 +485,7 @@ void vtkSynchronizedTemplates2D::Execute()
   output->Squeeze();
 }
 
-void vtkSynchronizedTemplates2D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSynchronizedTemplates2D::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 

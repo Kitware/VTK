@@ -57,7 +57,7 @@ class VTK_EXPORT vtkMesaVolumeTextureMapper2D : public vtkVolumeTextureMapper2D
 {
 public:
   vtkTypeMacro(vtkMesaVolumeTextureMapper2D,vtkVolumeTextureMapper2D);
-  void PrintSelf( ostream& os, vtkIndent index );
+  void PrintSelf( vtkOstream& os, vtkIndent index );
 
   static vtkMesaVolumeTextureMapper2D *New();
   

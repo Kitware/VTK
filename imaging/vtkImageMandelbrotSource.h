@@ -61,7 +61,7 @@ class VTK_EXPORT vtkImageMandelbrotSource : public vtkImageSource
 public:
   static vtkImageMandelbrotSource *New();
   vtkTypeMacro(vtkImageMandelbrotSource,vtkImageSource);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(vtkOstream& os, vtkIndent indent);   
   
   // Description:
   // Set/Get the extent of the whole output Volume.

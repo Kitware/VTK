@@ -47,9 +47,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //       -r is the resolution of each puck
 //	 -S save image for regression testing
 
-#include <iostream.h>
-#include <stdlib.h>
-
 #include "vtkStack.h"
 #include "vtkRenderWindow.h"
 #include "vtkActor.h"

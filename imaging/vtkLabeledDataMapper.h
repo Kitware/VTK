@@ -93,7 +93,7 @@ public:
   static vtkLabeledDataMapper *New();
 
   vtkTypeMacro(vtkLabeledDataMapper,vtkMapper2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // Draw the text to the screen at each input point.

@@ -77,7 +77,7 @@ class VTK_EXPORT vtkImageMathematics : public vtkImageTwoInputFilter
 public:
   static vtkImageMathematics *New();
   vtkTypeMacro(vtkImageMathematics,vtkImageTwoInputFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the Operation to perform.

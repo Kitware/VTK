@@ -409,7 +409,7 @@ float vtkImageDifference::GetThresholdedError()
   return error;
 }
 
-void vtkImageDifference::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageDifference::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   int i;
 

@@ -95,7 +95,7 @@ vtkLODActor::~vtkLODActor()
 
 
 //----------------------------------------------------------------------------
-void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
+void vtkLODActor::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkActor::PrintSelf(os,indent);
 
@@ -103,7 +103,7 @@ void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
 
   // how should we print out the LODMappers?
   os << indent << "NumberOfLODMappers: " << this->LODMappers->GetNumberOfItems() 
-     << endl;
+     << vtkEndl;
 }
 
 
@@ -161,7 +161,7 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
       // If the LOD has never been rendered, select it!
       if (tempTime == 0.0)
 	{ 
-	// cerr << "      Has never been rendererd\n";
+	// vtkCerr << "      Has never been rendererd\n";
 	bestMapper = mapper;
 	bestTime = 0.0;
 	}
@@ -169,13 +169,13 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 	{
 	if (bestTime > myTime && tempTime < bestTime)
 	  {
-	  // cerr << "      Less than best in violation\n";
+	  // vtkCerr << "      Less than best in violation\n";
 	  bestMapper = mapper;
 	  bestTime = tempTime;
 	  }
 	if (tempTime > bestTime && tempTime < myTime)
 	  { 
-	  // cerr << "      Larger than best\n";
+	  // vtkCerr << "      Larger than best\n";
 	  bestMapper = mapper;
 	  bestTime = tempTime;
 	  }

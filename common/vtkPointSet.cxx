@@ -414,7 +414,7 @@ void vtkPointSet::DeepCopy(vtkDataObject *dataObject)
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSet::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPointSet::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSet::PrintSelf(os,indent);
 

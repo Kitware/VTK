@@ -61,7 +61,7 @@ class VTK_EXPORT vtkTriangularTexture : public vtkStructuredPointsSource
 {
 public:
   vtkTypeMacro(vtkTriangularTexture,vtkStructuredPointsSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Instantiate object with XSize and YSize = 64; the texture pattern =1

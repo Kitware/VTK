@@ -60,7 +60,7 @@ public:
   static vtkImageConstantPad *New();
   vtkTypeMacro(vtkImageConstantPad,vtkImagePadFilter);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the pad value.

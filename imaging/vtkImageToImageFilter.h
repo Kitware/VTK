@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageToImageFilter : public vtkImageSource
 public:
   static vtkImageToImageFilter *New();
   vtkTypeMacro(vtkImageToImageFilter,vtkImageSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set the Input of a filter. 

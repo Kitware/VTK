@@ -290,7 +290,7 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
 	    matrix->Element[3][2] || (matrix->Element[3][3] != 1.0) )
         {
         vtkErrorMacro( << "Oh no! They aren't 0 like they're supposed to be!");
-        cout << *transform;
+        vtkCout << *transform;
         }
       }
     
@@ -411,7 +411,7 @@ vtkOpenGLProjectedPolyDataRayBounder::ReleaseGraphicsResources(vtkWindow *vtkNot
 
 
 // Print the vtkOpenGLProjectedPolyDataRayBounder
-void vtkOpenGLProjectedPolyDataRayBounder::PrintSelf(ostream& os, 
+void vtkOpenGLProjectedPolyDataRayBounder::PrintSelf(vtkOstream& os, 
 						     vtkIndent indent)
 {
   vtkProjectedPolyDataRayBounder::PrintSelf(os,indent);

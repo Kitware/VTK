@@ -577,7 +577,7 @@ char *vtkVolumeRayCastMIPFunction::GetMaximizeMethodAsString(void)
 }
 
 // Print method for vtkVolumeRayCastMIPFunction
-void vtkVolumeRayCastMIPFunction::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVolumeRayCastMIPFunction::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkVolumeRayCastFunction::PrintSelf(os,indent);
 

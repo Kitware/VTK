@@ -257,22 +257,22 @@ void vtkObjectFactory::RegisterFactory(vtkObjectFactory* factory)
 }
 
 
-void vtkObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
+void vtkObjectFactory::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);
   os << indent 
      << "Factory DLL path: " << this->LibraryPath << "\n";
-  os << indent << "Factory description: " << this->GetDescription() << endl;
+  os << indent << "Factory description: " << this->GetDescription() << vtkEndl;
   int num = this->GetNumberOfOverrides();
-  os << indent << "Factory overides " << num << " classes:" << endl;
+  os << indent << "Factory overides " << num << " classes:" << vtkEndl;
   indent = indent.GetNextIndent();
   for(int i =0; i < num; i++)
   {
-    os << indent << "Class : " <<  this->GetClassOverrideName(i) << endl;
+    os << indent << "Class : " <<  this->GetClassOverrideName(i) << vtkEndl;
     os << indent << "Overriden with: " <<  this->GetClassOverrideWithName(i) 
-       << endl;
-    os << indent << "Enable flag: " <<  this->GetEnableFlag(i) << endl;
-    os << endl;
+       << vtkEndl;
+    os << indent << "Enable flag: " <<  this->GetEnableFlag(i) << vtkEndl;
+    os << vtkEndl;
   }
 }
 

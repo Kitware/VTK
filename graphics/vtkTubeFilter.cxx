@@ -456,7 +456,7 @@ void vtkTubeFilter::Execute()
   output->Squeeze();
 }
 
-void vtkTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkTubeFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
@@ -469,6 +469,6 @@ void vtkTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Default Normal: " << "( " << this->DefaultNormal[0] <<
      ", " << this->DefaultNormal[1] << ", " << this->DefaultNormal[2] <<
      " )\n";
-  os << indent << "Capping: " << this->Capping << endl;
+  os << indent << "Capping: " << this->Capping << vtkEndl;
 }
 

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkIdFilter : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkIdFilter,vtkDataSetToDataSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with PointIds and CellIds on; and ids being generated

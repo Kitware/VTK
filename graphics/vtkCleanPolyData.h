@@ -85,7 +85,7 @@ class VTK_EXPORT vtkCleanPolyData : public vtkPolyDataToPolyDataFilter
 public:
   static vtkCleanPolyData *New();
   const char *GetClassName() {return "vtkCleanPolyData";};
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // By default ToleranceIsAbsolute is false and Tolerance is

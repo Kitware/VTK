@@ -59,7 +59,7 @@ class VTK_EXPORT vtkPointPicker : public vtkPicker
 public:
   static vtkPointPicker *New();
   vtkTypeMacro(vtkPointPicker,vtkPicker);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Get the id of the picked point. If PointId = -1, nothing was picked.

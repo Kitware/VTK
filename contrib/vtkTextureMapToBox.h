@@ -62,7 +62,7 @@ class VTK_EXPORT vtkTextureMapToBox : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkTextureMapToBox,vtkDataSetToDataSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct with r-s-t range=(0,1) and automatic box generation turned on.

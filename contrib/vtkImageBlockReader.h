@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageBlockReader : public vtkImageSource
 public:
   static vtkImageBlockReader *New();
   vtkTypeMacro(vtkImageBlockReader,vtkImageSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // The whole extent is broken up into this many divisions along each axis.

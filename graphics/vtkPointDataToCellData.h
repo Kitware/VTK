@@ -67,7 +67,7 @@ class VTK_EXPORT vtkPointDataToCellData : public vtkDataSetToDataSetFilter
 public:
   static vtkPointDataToCellData *New();
   vtkTypeMacro(vtkPointDataToCellData,vtkDataSetToDataSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Control whether the input point data is to be passed to the output. If

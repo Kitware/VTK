@@ -453,7 +453,7 @@ void vtkCardinalSpline::FitClosed1D (int size, float *x, float *y,
   coefficients[N][3] = coefficients[0][3];
 }
 
-void vtkCardinalSpline::PrintSelf(ostream& os, vtkIndent indent)
+void vtkCardinalSpline::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkSpline::PrintSelf(os,indent);
 }

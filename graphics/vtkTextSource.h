@@ -66,7 +66,7 @@ class VTK_EXPORT vtkTextSource : public vtkPolyDataSource
 {
 public:
   vtkTypeMacro(vtkTextSource,vtkPolyDataSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with no string set and backing enabled.

@@ -116,7 +116,7 @@ vtkMILVideoSource::~vtkMILVideoSource()
 }  
 
 //----------------------------------------------------------------------------
-void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMILVideoSource::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   int idx;
   

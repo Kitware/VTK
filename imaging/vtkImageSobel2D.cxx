@@ -78,7 +78,7 @@ vtkImageSobel2D::vtkImageSobel2D()
 
 
 //----------------------------------------------------------------------------
-void vtkImageSobel2D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageSobel2D::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkImageSpatialFilter::PrintSelf(os, indent);
 }

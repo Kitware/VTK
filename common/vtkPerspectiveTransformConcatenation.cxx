@@ -99,7 +99,7 @@ vtkPerspectiveTransformConcatenation::~vtkPerspectiveTransformConcatenation()
 }
 
 //----------------------------------------------------------------------------
-void vtkPerspectiveTransformConcatenation::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPerspectiveTransformConcatenation::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPerspectiveTransform::PrintSelf(os,indent);
 

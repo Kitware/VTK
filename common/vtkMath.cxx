@@ -39,15 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-#include <stdlib.h>
-#include <iostream.h>
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
 
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkMath* vtkMath::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -59,8 +55,6 @@ vtkMath* vtkMath::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkMath;
 }
-
-
 
 
 long vtkMath::Seed = 1177; // One authors home address

@@ -98,14 +98,14 @@ vtkInputPort::~vtkInputPort()
 }
 
 //----------------------------------------------------------------------------
-void vtkInputPort::PrintSelf(ostream& os, vtkIndent indent)
+void vtkInputPort::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkSource::PrintSelf(os,indent);
-  os << indent << "RemoteProcessId: " << this->RemoteProcessId << endl;
-  os << indent << "Tag: " << this->Tag << endl;
+  os << indent << "RemoteProcessId: " << this->RemoteProcessId << vtkEndl;
+  os << indent << "Tag: " << this->Tag << vtkEndl;
   os << indent << "Controller: (" << this->Controller << ")\n";
-  os << indent << "DataTime: " << this->DataTime << endl;
-  os << indent << "TransferNeeded: " << this->TransferNeeded << endl;  
+  os << indent << "DataTime: " << this->DataTime << vtkEndl;
+  os << indent << "TransferNeeded: " << this->TransferNeeded << vtkEndl;  
 }
 
 //----------------------------------------------------------------------------

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkVectorText : public vtkPolyDataSource
 public:
   static vtkVectorText *New();
   vtkTypeMacro(vtkVectorText,vtkPolyDataSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the text to be drawn.

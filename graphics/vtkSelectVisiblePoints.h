@@ -76,7 +76,7 @@ class VTK_EXPORT vtkSelectVisiblePoints : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkSelectVisiblePoints,vtkDataSetToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Instantiate object with no renderer; window selection turned off; 

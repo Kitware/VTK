@@ -47,9 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef __vtkByteSwap_h
 #define __vtkByteSwap_h
-#include <stdio.h>
 
-#include <fstream.h>
 #include "vtkObject.h"
 
 class VTK_EXPORT vtkByteSwap : public vtkObject
@@ -116,12 +114,12 @@ public:
   static void SwapWrite4BERange(unsigned long *i,int num, FILE *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
 
-  static void SwapWrite4BERange(char *c,int num, ostream *fp);
-  static void SwapWrite4BERange(float *p,int num, ostream *fp) 
+  static void SwapWrite4BERange(char *c,int num, vtkOstream *fp);
+  static void SwapWrite4BERange(float *p,int num, vtkOstream *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)p,num,fp);};
-  static void SwapWrite4BERange(int *i,int num, ostream *fp) 
+  static void SwapWrite4BERange(int *i,int num, vtkOstream *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
-  static void SwapWrite4BERange(unsigned long *i,int num, ostream *fp) 
+  static void SwapWrite4BERange(unsigned long *i,int num, vtkOstream *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
 
 
@@ -150,8 +148,8 @@ public:
   static void SwapWrite2BERange(short *i,int num, FILE *fp) 
   {vtkByteSwap::SwapWrite2BERange((char *)i,num,fp);};
 
-  static void SwapWrite2BERange(char *c,int num, ostream *fp);
-  static void SwapWrite2BERange(short *i,int num, ostream *fp) 
+  static void SwapWrite2BERange(char *c,int num, vtkOstream *fp);
+  static void SwapWrite2BERange(short *i,int num, vtkOstream *fp) 
   {vtkByteSwap::SwapWrite2BERange((char *)i,num,fp);};
 
   // Description:

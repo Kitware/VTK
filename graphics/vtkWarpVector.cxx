@@ -207,7 +207,7 @@ int vtkWarpVector::SplitPointRange(int threadId, int threadCount,
 
 
 
-void vtkWarpVector::PrintSelf(ostream& os, vtkIndent indent)
+void vtkWarpVector::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPointSetToPointSetFilter::PrintSelf(os,indent);
 

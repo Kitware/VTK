@@ -395,7 +395,7 @@ void vtkPolyDataReader::Execute()
 }
 
 static int recursing = 0;
-void vtkPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPolyDataReader::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   // the reader ivar's source will be this reader. we must do this to prevent infinite printing
   if (!recursing)

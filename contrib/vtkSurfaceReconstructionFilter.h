@@ -61,7 +61,7 @@ class VTK_EXPORT vtkSurfaceReconstructionFilter : public vtkDataSetToStructuredP
 {
 public:
   vtkTypeMacro(vtkSurfaceReconstructionFilter,vtkDataSetToStructuredPointsFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct with NeighborhoodSize=20.

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkChairDisplay : public vtkPolyDataSource
 public:
   static vtkChairDisplay *New();
   vtkTypeMacro(vtkChairDisplay,vtkPolyDataSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // Set/Get the source for the scalar data to contour.

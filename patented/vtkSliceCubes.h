@@ -94,7 +94,7 @@ class VTK_EXPORT vtkSliceCubes : public vtkObject
 public:
   static vtkSliceCubes *New();
   vtkTypeMacro(vtkSliceCubes,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // methods to make it look like a filter
   void Write() {this->Update();};

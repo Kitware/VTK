@@ -84,7 +84,7 @@ class VTK_EXPORT vtkLocator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkLocator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Build the locator from the points/cells defining this dataset.

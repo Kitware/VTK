@@ -60,7 +60,7 @@ class VTK_EXPORT vtkCursor3D : public vtkPolyDataSource
 {
 public:
   vtkTypeMacro(vtkCursor3D,vtkPolyDataSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),

@@ -346,7 +346,7 @@ unsigned long int vtkFeatureEdges::GetMTime()
   return mTime;
 }
 
-void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
+void vtkFeatureEdges::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

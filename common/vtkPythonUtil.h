@@ -39,9 +39,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
-#include <string.h>
-#include "vtkSetGet.h"
+#include "vtkObject.h"
 #include "Python.h"
 
 extern char *vtkPythonManglePointer(void *ptr, const char *type);

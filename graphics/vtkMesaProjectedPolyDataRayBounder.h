@@ -73,7 +73,7 @@ class VTK_EXPORT vtkMesaProjectedPolyDataRayBounder : public vtkProjectedPolyDat
 {
 public:
   vtkTypeMacro(vtkMesaProjectedPolyDataRayBounder,vtkProjectedPolyDataRayBounder);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct a new vtkMesaProjectedPolyDataRayBounder.  The depth range

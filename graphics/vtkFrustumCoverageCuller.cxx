@@ -386,17 +386,17 @@ char *vtkFrustumCoverageCuller::GetSortingStyleAsString(void)
     }
 }
 
-void vtkFrustumCoverageCuller::PrintSelf(ostream& os, vtkIndent indent)
+void vtkFrustumCoverageCuller::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkCuller::PrintSelf(os,indent);
 
   os << indent << "Minimum Coverage: " 
-     << this->MinimumCoverage << endl;
+     << this->MinimumCoverage << vtkEndl;
 
   os << indent << "Maximum Coverage: " 
-     << this->MaximumCoverage << endl;
+     << this->MaximumCoverage << vtkEndl;
 
   os << indent << "Sorting Style: "
-     << this->GetSortingStyleAsString() << endl;
+     << this->GetSortingStyleAsString() << vtkEndl;
 
 }

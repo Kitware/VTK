@@ -92,7 +92,7 @@ vtkImageContinuousDilate3D::~vtkImageContinuousDilate3D()
 
 
 //----------------------------------------------------------------------------
-void vtkImageContinuousDilate3D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageContinuousDilate3D::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageSpatialFilter::PrintSelf(os,indent);
 }

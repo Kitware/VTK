@@ -46,8 +46,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkRenderLargeImage_h
 #define __vtkRenderLargeImage_h
 
-#include <iostream.h>
-#include <fstream.h>
 #include "vtkImageSource.h"
 #include "vtkRenderer.h"
 
@@ -56,7 +54,7 @@ class VTK_EXPORT vtkRenderLargeImage : public vtkImageSource
 public:
   static vtkRenderLargeImage *New();
   vtkTypeMacro(vtkRenderLargeImage,vtkImageSource);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(vtkOstream& os, vtkIndent indent);   
 
   // Description:
   // The magnification of the current render window

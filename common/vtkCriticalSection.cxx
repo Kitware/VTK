@@ -143,7 +143,7 @@ vtkSimpleCriticalSection *vtkSimpleCriticalSection::SafeDownCast(vtkSimpleCritic
   return (vtkSimpleCriticalSection *)o;
 }
   
-void vtkCriticalSection::PrintSelf(ostream& os, vtkIndent indent)
+void vtkCriticalSection::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);
 }

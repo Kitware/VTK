@@ -79,7 +79,7 @@ class VTK_EXPORT vtkTensorGlyph : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkTensorGlyph,vtkDataSetToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description
   // Construct object with scaling on and scale factor 1.0. Eigenvalues are 

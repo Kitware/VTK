@@ -83,7 +83,7 @@ class VTK_EXPORT vtkMILVideoSource : public vtkVideoSource
 public:
   static vtkMILVideoSource *New();
   vtkTypeMacro(vtkMILVideoSource,vtkVideoSource);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(vtkOstream& os, vtkIndent indent);   
 
   // Description:
   // See vtkVideoSource

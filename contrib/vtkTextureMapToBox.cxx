@@ -178,7 +178,7 @@ void vtkTextureMapToBox::SetBox(float *bounds)
                bounds[5]);
 }
 
-void vtkTextureMapToBox::PrintSelf(ostream& os, vtkIndent indent)
+void vtkTextureMapToBox::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

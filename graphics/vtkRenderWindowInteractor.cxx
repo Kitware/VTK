@@ -366,7 +366,7 @@ void vtkRenderWindowInteractor::EndPickCallback()
     }
 }
 
-void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
+void vtkRenderWindowInteractor::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

@@ -174,7 +174,7 @@ unsigned long int vtkSelectVisiblePoints::GetMTime()
   return mTime;
 }
 
-void vtkSelectVisiblePoints::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSelectVisiblePoints::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

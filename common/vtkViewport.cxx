@@ -367,7 +367,7 @@ void vtkViewport::SetEndRenderMethod(void (*f)(void *), void *arg)
     }
 }
 
-void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
+void vtkViewport::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);
 
@@ -408,8 +408,8 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "No End Render method.\n";
     }
   os << indent << "Pick Position X Y: " << this->PickX 
-     << " " << this->PickY << endl;
-  os << indent << "IsPicking boolean: " << this->IsPicking << endl;
+     << " " << this->PickY << vtkEndl;
+  os << indent << "IsPicking boolean: " << this->IsPicking << vtkEndl;
   os << indent << "Props:\n";
   this->Props->PrintSelf(os,indent.GetNextIndent());
 

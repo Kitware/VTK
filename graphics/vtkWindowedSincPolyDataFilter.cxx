@@ -760,7 +760,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
   delete [] Verts;
 }
 
-void vtkWindowedSincPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkWindowedSincPolyDataFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

@@ -58,7 +58,7 @@ class VTK_EXPORT vtkStreamPoints : public vtkStreamer
 {
 public:
   vtkTypeMacro(vtkStreamPoints,vtkStreamer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with time increment set to 1.0.

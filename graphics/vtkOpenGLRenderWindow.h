@@ -67,7 +67,7 @@ protected:
 public:
   static vtkOpenGLRenderWindow *New();
   vtkTypeMacro(vtkOpenGLRenderWindow,vtkXRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Begin the rendering process.

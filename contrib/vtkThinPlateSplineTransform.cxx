@@ -117,19 +117,6 @@ static inline void MatrixMultiply(double** a, double** b, double** c,
       }
     }
 }
-/*
-static void PrintMatrix(double **m, int x, int y)
-{
-  int i,j; 
-  for(i = 0; i < x; i++) 
-    {
-    for(j = 0; j < y; j++) 
-      {
-      cerr << m[i][j] << ((j != y-1) ? " " : "\n");
-      }
-    }
-}
-*/
 
 //------------------------------------------------------------------------
 vtkThinPlateSplineTransform::vtkThinPlateSplineTransform()
@@ -582,7 +569,7 @@ void vtkThinPlateSplineTransform::InverseTransformPoint(const float point[3],
 }
 
 //------------------------------------------------------------------------
-void vtkThinPlateSplineTransform::PrintSelf(ostream& os, vtkIndent indent)
+void vtkThinPlateSplineTransform::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkWarpTransform::PrintSelf(os,indent);
   

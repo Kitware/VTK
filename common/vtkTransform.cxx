@@ -873,7 +873,7 @@ vtkTransform::~vtkTransform ()
   delete [] this->StackBottom;
 }
 
-void vtkTransform::PrintSelf (ostream& os, vtkIndent indent)
+void vtkTransform::PrintSelf (vtkOstream& os, vtkIndent indent)
 {
   vtkLinearTransform::PrintSelf(os, indent);
 

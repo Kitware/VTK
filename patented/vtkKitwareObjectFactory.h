@@ -58,7 +58,7 @@ class VTK_EXPORT vtkKitwareObjectFactory : public vtkObjectFactory
 public:
   static vtkKitwareObjectFactory *New() {return new vtkKitwareObjectFactory;};
   vtkTypeMacro(vtkKitwareObjectFactory,vtkObjectFactory);
-  void PrintSelf(ostream& os, vtkIndent indent);  
+  void PrintSelf(vtkOstream& os, vtkIndent indent);  
   virtual const char* GetVTKSourceVersion();
 protected:
   virtual vtkObject* CreateObject(const char* vtkclassname );

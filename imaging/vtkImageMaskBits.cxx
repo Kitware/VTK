@@ -255,13 +255,13 @@ void vtkImageMaskBits::ThreadedExecute(vtkImageData *inData,
 }
 
 
-void vtkImageMaskBits::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageMaskBits::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "Operation: " << this->Operation << "\n";
   os << indent << "Masks: (" << this->Masks[0] << ", " << this->Masks[1] << ", "
-     << this->Masks[2] << ", " << this->Masks[3] << ")" << endl;
+     << this->Masks[2] << ", " << this->Masks[3] << ")" << vtkEndl;
 }
 
 

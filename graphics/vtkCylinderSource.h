@@ -57,7 +57,7 @@ class VTK_EXPORT vtkCylinderSource : public vtkPolyDataSource
 public:
   static vtkCylinderSource *New();
   vtkTypeMacro(vtkCylinderSource,vtkPolyDataSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set the height of the cylinder.

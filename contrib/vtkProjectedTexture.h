@@ -63,7 +63,7 @@ class VTK_EXPORT vtkProjectedTexture : public vtkDataSetToDataSetFilter
 public:
   static vtkProjectedTexture *New();
   vtkTypeMacro(vtkProjectedTexture,vtkDataSetToDataSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the position of the focus of the projector.

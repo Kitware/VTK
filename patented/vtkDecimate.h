@@ -175,7 +175,7 @@ class VTK_EXPORT vtkDecimate : public vtkPolyDataToPolyDataFilter
 public:
   static vtkDecimate *New();
   vtkTypeMacro(vtkDecimate,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set the decimation error bounds. Expressed as a fraction of the longest

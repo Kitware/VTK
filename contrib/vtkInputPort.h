@@ -77,7 +77,7 @@ class VTK_EXPORT vtkInputPort : public vtkSource
 public:
   static vtkInputPort *New();
   vtkTypeMacro(vtkInputPort,vtkSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Note: You have to ask for the right type, and it has to match

@@ -894,7 +894,7 @@ void vtkCamera::ViewingRaysModified()
   this->ViewingRaysMTime.Modified();
 }
 
-void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
+void vtkCamera::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

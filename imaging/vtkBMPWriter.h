@@ -64,8 +64,8 @@ protected:
   vtkBMPWriter(const vtkBMPWriter&) {};
   void operator=(const vtkBMPWriter&) {};
 
-  virtual void WriteFile(ofstream *file, vtkImageData *data, int ext[6]);
-  virtual void WriteFileHeader(ofstream *, vtkImageData *);
+  virtual void WriteFile(vtkOfstream *file, vtkImageData *data, int ext[6]);
+  virtual void WriteFileHeader(vtkOfstream *, vtkImageData *);
 };
 
 #endif

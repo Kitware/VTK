@@ -56,7 +56,7 @@ public:
   static vtkImageInformation *New();
 
   vtkTypeMacro(vtkImageInformation,vtkStructuredInformation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Makes an empty similar type object.
@@ -97,8 +97,8 @@ public:
   
   // Description:
   // Serialization provided for the multi-process ports.
-  void ReadSelf(istream& is);
-  void WriteSelf(ostream& os);
+  void ReadSelf(vtkIstream& is);
+  void WriteSelf(vtkOstream& os);
 
 protected:
   vtkImageInformation();

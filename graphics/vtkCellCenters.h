@@ -65,7 +65,7 @@ class VTK_EXPORT vtkCellCenters : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkCellCenters,vtkDataSetToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with vertex cell generation turned off.

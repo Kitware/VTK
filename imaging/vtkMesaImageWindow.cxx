@@ -39,9 +39,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <math.h>
-#include <iostream.h>
 #include "vtkMesaImageWindow.h"
 #include "vtkMesaImager.h"
 #include "vtkObjectFactory.h"
@@ -421,7 +418,7 @@ Colormap vtkMesaImageWindow::GetDesiredColormap ()
   return this->ColorMap;  
 }
 
-void vtkMesaImageWindow::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMesaImageWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkImageWindow::PrintSelf(os,indent);
 

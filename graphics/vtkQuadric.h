@@ -54,7 +54,7 @@ class VTK_EXPORT vtkQuadric : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkQuadric,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description
   // Construct quadric with all coefficients = 1.

@@ -52,8 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkTimerLog_h
 #define __vtkTimerLog_h
 
-#include <stdio.h>
-#include <fstream.h>
+#include "vtkSystemIncludes.h"
 
 #ifdef _WIN32
 #include <winsock.h>  // for Sleep?
@@ -71,8 +70,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #endif
 #include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
 
 // select stuff here is for sleep method
 #ifndef NO_FD_SET
@@ -107,7 +104,7 @@ public:
   static vtkTimerLog *New();
 
   vtkTypeMacro(vtkTimerLog,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the maximum number of entries allowed in the timer log
@@ -195,7 +192,7 @@ protected:
   double EndTime;
 
   //BTX
-  static void DumpEntry(ostream& os, int index, float time, float deltatime,
+  static void DumpEntry(vtkOstream& os, int index, float time, float deltatime,
                         int tick, int deltatick, char *event);
   //ETX
 

@@ -63,7 +63,7 @@ class VTK_EXPORT vtkImageSkeleton2D : public vtkImageIterateFilter
 public:
   static vtkImageSkeleton2D *New();
   vtkTypeMacro(vtkImageSkeleton2D,vtkImageIterateFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // When prune is on, only closed loops are left un changed.

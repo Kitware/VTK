@@ -135,7 +135,7 @@ void vtkWindow::SetPosition(int x, int y)
     }
 }
 
-void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
+void vtkWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

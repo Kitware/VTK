@@ -86,7 +86,7 @@ vtkImageExport::~vtkImageExport()
 
 
 //----------------------------------------------------------------------------
-void vtkImageExport::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageExport::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
 

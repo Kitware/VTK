@@ -304,7 +304,7 @@ void vtkUnstructuredGridReader::Execute()
 	// the number of ints after the piece
 	skip3 = ncells - skip1 - read2;
 
-	//cerr << skip1 << " --- " << read2 << " --- " << skip3 << endl;
+	//vtkCerr << skip1 << " --- " << read2 << " --- " << skip3 << vtkEndl;
 	// allocate array for piece cell types
         types = new int[read2];
         if (this->Reader->GetFileType() == VTK_BINARY)
@@ -315,14 +315,14 @@ void vtkUnstructuredGridReader::Execute()
 	  if (skip1 != 0)
 	    {
 	    this->Reader->GetIStream()
-	      ->seekg((long)sizeof(int)*skip1, ios::cur);
+	      ->seekg((long)sizeof(int)*skip1, vtkIos::cur);
 	    }
           this->Reader->GetIStream()->read((char *)types,sizeof(int)*read2);
 	  // skip
 	  if (skip3 != 0)
 	    {
 	    this->Reader->GetIStream()
-	      ->seekg((long)sizeof(int)*skip3, ios::cur);
+	      ->seekg((long)sizeof(int)*skip3, vtkIos::cur);
 	    }
 
           if (this->Reader->GetIStream()->eof())
@@ -459,7 +459,7 @@ void vtkUnstructuredGridReader::Execute()
   return;
 }
 
-void vtkUnstructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkUnstructuredGridReader::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   // the reader ivar's source will be this Reader-> we must do this to prevent 
   // infinite printing

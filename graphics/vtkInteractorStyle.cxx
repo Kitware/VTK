@@ -1155,7 +1155,7 @@ void vtkInteractorStyle::DollyCamera(int vtkNotUsed(x), int y)
 //----------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
+void vtkInteractorStyle::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 

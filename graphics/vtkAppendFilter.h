@@ -63,7 +63,7 @@ public:
   static vtkAppendFilter *New();
 
   vtkTypeMacro(vtkAppendFilter,vtkDataSetToUnstructuredGridFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Add a dataset to the list of data to append.

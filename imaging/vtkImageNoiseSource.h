@@ -61,7 +61,7 @@ class VTK_EXPORT vtkImageNoiseSource : public vtkImageSource
 public:
   static vtkImageNoiseSource *New();
   vtkTypeMacro(vtkImageNoiseSource,vtkImageSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the minimum and maximum values for the generated noise.

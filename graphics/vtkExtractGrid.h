@@ -71,7 +71,7 @@ class VTK_EXPORT vtkExtractGrid : public vtkStructuredGridToStructuredGridFilter
 public:
   static vtkExtractGrid *New();
   vtkTypeMacro(vtkExtractGrid,vtkStructuredGridToStructuredGridFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify i-j-k (min,max) pairs to extract. The resulting structured grid

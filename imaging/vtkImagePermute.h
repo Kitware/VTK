@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImagePermute : public vtkImageToImageFilter
 public:
   static vtkImagePermute *New();
   vtkTypeMacro(vtkImagePermute,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // The filtered axes are the input axes that get relabeled to X,Y,Z.

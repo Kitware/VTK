@@ -90,7 +90,7 @@ vtkDataObject *vtkDataObjectWriter::GetInput()
 // Write FieldData data to file
 void vtkDataObjectWriter::WriteData()
 {
-  ostream *fp;
+  vtkOstream *fp;
   vtkFieldData *f=this->GetInput()->GetFieldData();
 
   vtkDebugMacro(<<"Writing vtk FieldData data...");
@@ -107,7 +107,7 @@ void vtkDataObjectWriter::WriteData()
   this->Writer->CloseVTKFile(fp);  
 }
 
-void vtkDataObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDataObjectWriter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkWriter::PrintSelf(os,indent);
   

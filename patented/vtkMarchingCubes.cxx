@@ -674,7 +674,7 @@ void vtkMarchingCubes::CreateDefaultLocator()
     }
 }
 
-void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMarchingCubes::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 

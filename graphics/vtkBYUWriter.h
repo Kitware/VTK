@@ -63,7 +63,7 @@ public:
   static vtkBYUWriter *New();
 
   vtkTypeMacro(vtkBYUWriter,vtkPolyDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify the name of the geometry file to write.

@@ -81,7 +81,7 @@ vtkLandmarkTransform::~vtkLandmarkTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkLandmarkTransform::PrintSelf(ostream& os, vtkIndent indent)
+void vtkLandmarkTransform::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkLinearTransform::PrintSelf(os, indent);
   os << "Mode: " << this->GetModeAsString() << "\n";

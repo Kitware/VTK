@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 
 //----------------------------------------------------------------------------
-void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
+void vtkLinearTransform::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkGeneralTransform::PrintSelf(os, indent);
   if (this->Matrix)

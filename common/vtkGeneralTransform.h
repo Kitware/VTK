@@ -73,7 +73,7 @@ class VTK_EXPORT vtkGeneralTransform : public vtkObject
 public:
 
   vtkTypeMacro(vtkGeneralTransform,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Apply the transformation to a coordinate.  You can use the same 

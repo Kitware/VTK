@@ -68,7 +68,7 @@ vtkIdentityTransform::~vtkIdentityTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkIdentityTransform::PrintSelf(ostream& os, vtkIndent indent)
+void vtkIdentityTransform::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkLinearTransform::PrintSelf(os, indent);
 }

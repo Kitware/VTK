@@ -423,7 +423,7 @@ void vtkStructuredGridReader::Execute()
 }
 
 static int recursing = 0;
-void vtkStructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkStructuredGridReader::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   // the reader ivar's source will be this reader. 
   // We must do this to prevent infinite printing

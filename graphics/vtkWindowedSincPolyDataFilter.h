@@ -161,7 +161,7 @@ class VTK_EXPORT vtkWindowedSincPolyDataFilter : public vtkPolyDataToPolyDataFil
 {
 public:
   vtkTypeMacro(vtkWindowedSincPolyDataFilter,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with number of iterations 20; passband .1;

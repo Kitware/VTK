@@ -221,7 +221,7 @@ void vtkImplicitTextureCoords::Execute()
   newTCoords->Delete();
 }
 
-void vtkImplicitTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImplicitTextureCoords::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

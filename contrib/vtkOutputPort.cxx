@@ -95,10 +95,10 @@ vtkOutputPort::~vtkOutputPort()
 }
 
 //----------------------------------------------------------------------------
-void vtkOutputPort::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOutputPort::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
-  os << indent << "Tag: " << this->Tag << endl;
+  os << indent << "Tag: " << this->Tag << vtkEndl;
   os << indent << "Controller: (" << this->Controller << ")\n";
   os << indent << "Pipeline Flag: " 
      << (this->PipelineFlag ? "On\n" : "Off\n");

@@ -57,7 +57,7 @@ vtkMatrixToPerspectiveTransform* vtkMatrixToPerspectiveTransform::New()
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrixToPerspectiveTransform::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMatrixToPerspectiveTransform::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPerspectiveTransform::PrintSelf(os, indent);
 }

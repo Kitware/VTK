@@ -60,7 +60,7 @@ public:
   static vtkPlane *New();
 
   vtkTypeMacro(vtkPlane,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description
   // Evaluate plane equation for point x[3].

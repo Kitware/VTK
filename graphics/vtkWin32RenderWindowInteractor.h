@@ -62,7 +62,7 @@ public:
   static vtkWin32RenderWindowInteractor *New();
 
   vtkTypeMacro(vtkWin32RenderWindowInteractor,vtkRenderWindowInteractor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Initialize the even handler

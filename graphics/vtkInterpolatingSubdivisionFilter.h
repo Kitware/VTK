@@ -59,7 +59,7 @@ class VTK_EXPORT vtkInterpolatingSubdivisionFilter : public vtkPolyDataToPolyDat
 {
 public:
   vtkTypeMacro(vtkInterpolatingSubdivisionFilter,vtkPolyDataToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/get the number of subdivisions.

@@ -174,7 +174,7 @@ void vtkSuperquadric::EvaluateGradient(float vtkNotUsed(xyz)[3], float g[3])
   g[0] = g[1] = g[2] = 0.0; 
 }
 
-void vtkSuperquadric::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSuperquadric::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os,indent);
 

@@ -40,9 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include <ctype.h>
-#include <string.h>
 #include <time.h>
-#include <iostream.h>
 #include "vtkVideoSource.h"
 #include "vtkObjectFactory.h"
 
@@ -180,7 +178,7 @@ vtkVideoSource::~vtkVideoSource()
 }
 
 //----------------------------------------------------------------------------
-void vtkVideoSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVideoSource::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   int idx;
   

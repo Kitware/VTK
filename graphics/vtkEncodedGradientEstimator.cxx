@@ -301,7 +301,7 @@ void vtkEncodedGradientEstimator::ComputeCircleLimits( int size )
 }
 
 // Print the vtkEncodedGradientEstimator
-void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
+void vtkEncodedGradientEstimator::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os, indent);
 
@@ -324,16 +324,16 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Build Time: " 
-     << this->BuildTime.GetMTime() << endl;
+     << this->BuildTime.GetMTime() << vtkEndl;
 
   os << indent << "Gradient Magnitude Scale: " 
-     << this->GradientMagnitudeScale << endl;
+     << this->GradientMagnitudeScale << vtkEndl;
 
   os << indent << "Gradient Magnitude Bias: " 
-     << this->GradientMagnitudeBias << endl;
+     << this->GradientMagnitudeBias << vtkEndl;
 
   os << indent << "Bounds Clip: " 
-     << ((this->BoundsClip)?"On":"Off") << endl;
+     << ((this->BoundsClip)?"On":"Off") << vtkEndl;
   
   os << indent << "Bounds: ("
      << this->Bounds[0] << ", " << this->Bounds[1] << ", " 
@@ -341,31 +341,31 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
      << this->Bounds[4] << ", " << this->Bounds[5] << ")\n";
 
   os << indent << "Zero Normal Threshold: " 
-     << this->ZeroNormalThreshold << endl;
+     << this->ZeroNormalThreshold << vtkEndl;
     
   os << indent << "Compute Gradient Magnitudes: " 
-     << ((this->ComputeGradientMagnitudes)?"On":"Off") << endl;
+     << ((this->ComputeGradientMagnitudes)?"On":"Off") << vtkEndl;
 
   os << indent << "Cylinder Clip: " 
-     << ((this->CylinderClip)?"On":"Off") << endl;
+     << ((this->CylinderClip)?"On":"Off") << vtkEndl;
 
   os << indent << "Number Of Threads: " 
-     << this->NumberOfThreads << endl;
+     << this->NumberOfThreads << vtkEndl;
 
   os << indent << "Last Update Time In Seconds: " 
-     << this->LastUpdateTimeInSeconds << endl;
+     << this->LastUpdateTimeInSeconds << vtkEndl;
 
   os << indent << "Last Update Time In CPU Seconds: " 
-     << this->LastUpdateTimeInCPUSeconds << endl;
+     << this->LastUpdateTimeInCPUSeconds << vtkEndl;
 
   // I don't want to print out these variables - they are
   // internal and the get methods are included only for access
   // within the threaded function
   // os << indent << "Use Cylinder Clip: " 
-  //    << this->UseCylinderClip << endl;
+  //    << this->UseCylinderClip << vtkEndl;
   // os << indent << " Input Size: " 
-  //    << this->InputSize << endl;
+  //    << this->InputSize << vtkEndl;
   // os << indent << " Input Aspect Clip: " 
-  //    << this->InputAspect << endl;
+  //    << this->InputAspect << vtkEndl;
   
 }

@@ -479,7 +479,7 @@ void ConvertDNotationToENotation (char *line)
     }
 }    
 
-void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDEMReader::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);
 

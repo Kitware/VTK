@@ -82,7 +82,7 @@ vtkRectilinearGrid *vtkRectilinearGridWriter::GetInput()
 
 void vtkRectilinearGridWriter::WriteData()
 {
-  ostream *fp;
+  vtkOstream *fp;
   vtkRectilinearGrid *input = this->GetInput();
   int dim[3];
 
@@ -110,7 +110,7 @@ void vtkRectilinearGridWriter::WriteData()
   this->CloseVTKFile(fp);
 }
 
-void vtkRectilinearGridWriter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkRectilinearGridWriter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataWriter::PrintSelf(os,indent);
 }

@@ -341,7 +341,7 @@ void vtkCutter::CreateDefaultLocator()
 }
 
 
-void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkCutter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 

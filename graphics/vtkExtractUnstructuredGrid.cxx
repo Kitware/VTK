@@ -256,7 +256,7 @@ void vtkExtractUnstructuredGrid::Execute()
   cellIds->Delete();
 }
 
-void vtkExtractUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
+void vtkExtractUnstructuredGrid::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkUnstructuredGridToUnstructuredGridFilter::PrintSelf(os,indent);
 

@@ -64,7 +64,7 @@ class VTK_EXPORT vtkOutputPort : public vtkProcessObject
 public:
   static vtkOutputPort *New();
   vtkTypeMacro(vtkOutputPort,vtkProcessObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Should accept vtkDataObjects in the future.

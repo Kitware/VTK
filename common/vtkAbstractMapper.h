@@ -59,7 +59,7 @@ class VTK_EXPORT vtkAbstractMapper : public vtkProcessObject
 {
 public:
   vtkTypeMacro(vtkAbstractMapper,vtkProcessObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Release any graphics resources that are being consumed by this mapper.

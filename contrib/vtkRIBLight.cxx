@@ -89,7 +89,7 @@ void vtkRIBLight::Render(vtkRenderer *ren, int index)
   this->Light->Render (ren, index);
 }
 
-void vtkRIBLight::PrintSelf(ostream& os, vtkIndent indent)
+void vtkRIBLight::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkLight::PrintSelf(os,indent);
  

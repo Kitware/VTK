@@ -464,7 +464,7 @@ void vtkCleanPolyData::ReleaseLocator(void) {
     }
 }
 //------------------------------------------------------------------------------
-void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent) {
+void vtkCleanPolyData::PrintSelf(vtkOstream& os, vtkIndent indent) {
     vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
     os << indent << "ToleranceIsAbsolute: "
        << this->ToleranceIsAbsolute << "\n";

@@ -344,7 +344,7 @@ void vtkSLCReader::Execute()
   fclose( fp );
 }
 
-void vtkSLCReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSLCReader::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 

@@ -85,7 +85,7 @@ class VTK_EXPORT vtkPicker : public vtkObject
 public:
   static vtkPicker *New();
   vtkTypeMacro(vtkPicker,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Get the renderer in which pick event occurred.

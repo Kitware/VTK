@@ -75,7 +75,7 @@ class VTK_EXPORT vtkGridSynchronizedTemplates3D : public vtkStructuredGridToPoly
 public:
   static vtkGridSynchronizedTemplates3D *New();
   vtkTypeMacro(vtkGridSynchronizedTemplates3D,vtkStructuredGridToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Because we delegate to vtkContourValues

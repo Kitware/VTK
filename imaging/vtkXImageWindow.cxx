@@ -390,7 +390,7 @@ vtkXImageWindow::~vtkXImageWindow()
 
 
 //----------------------------------------------------------------------------
-void vtkXImageWindow::PrintSelf(ostream& os, vtkIndent indent)
+void vtkXImageWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkImageWindow::PrintSelf(os, indent);
   os << indent << "Parent Id: " << this->ParentId << "\n";
@@ -756,7 +756,7 @@ void vtkXImageWindow::MakeDefaultWindow()
     {
     if ( ( this->DisplayId = XOpenDisplay((char *)NULL)) == NULL) 
       {
-      cerr <<"cannot connect to X server"<< XDisplayName((char *)NULL)<< endl;
+      vtkErrorMacro(<<"cannot connect to X server"<< XDisplayName((char *)NULL));
       exit(-1);
       }
     this->OwnDisplay = 1;

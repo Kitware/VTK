@@ -68,7 +68,7 @@ class VTK_EXPORT vtkSTLReader : public vtkPolyDataSource
 {
 public:
   vtkTypeMacro(vtkSTLReader,vtkPolyDataSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Construct object with merging set to true.

@@ -50,7 +50,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMath_h
 #define __vtkMath_h
 
-#include <math.h>
 #include "vtkObject.h"
 
 class VTK_EXPORT vtkMath : public vtkObject

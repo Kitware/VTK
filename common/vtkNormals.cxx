@@ -87,7 +87,7 @@ void vtkNormals::GetNormals(vtkIdList *ptIds, vtkNormals *n)
     }
 }
 
-void vtkNormals::PrintSelf(ostream& os, vtkIndent indent)
+void vtkNormals::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkAttributeData::PrintSelf(os,indent);
 

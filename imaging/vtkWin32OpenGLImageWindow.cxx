@@ -553,7 +553,7 @@ int *vtkWin32OpenGLImageWindow::GetPosition(void)
   return this->Position;
 }
 
-void vtkWin32OpenGLImageWindow::PrintSelf(ostream& os, vtkIndent indent)
+void vtkWin32OpenGLImageWindow::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkImageWindow::PrintSelf(os,indent);
 

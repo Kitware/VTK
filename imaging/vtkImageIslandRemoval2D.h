@@ -69,7 +69,7 @@ public:
   // Constructor: Sets default filter to be identity.
   static vtkImageIslandRemoval2D *New();
   vtkTypeMacro(vtkImageIslandRemoval2D,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
   
   // Description:
   // Set/Get the cutoff area for removal

@@ -323,7 +323,7 @@ void vtkTextureMapToPlane::ComputeNormal()
   return;
 }
 
-void vtkTextureMapToPlane::PrintSelf(ostream& os, vtkIndent indent)
+void vtkTextureMapToPlane::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 

@@ -150,7 +150,7 @@ void vtkReverseSense::Execute()
 }
 
 
-void vtkReverseSense::PrintSelf(ostream& os, vtkIndent indent)
+void vtkReverseSense::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

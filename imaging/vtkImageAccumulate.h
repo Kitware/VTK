@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageAccumulate : public vtkImageToImageFilter
 public:
   static vtkImageAccumulate *New();
   vtkTypeMacro(vtkImageAccumulate,vtkImageToImageFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Set/Get - The component spacing is the dimension of each cell.

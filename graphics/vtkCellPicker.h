@@ -59,7 +59,7 @@ class VTK_EXPORT vtkCellPicker : public vtkPicker
 public:
   static vtkCellPicker *New();
   vtkTypeMacro(vtkCellPicker,vtkPicker);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Get the id of the picked cell. If CellId = -1, nothing was picked.

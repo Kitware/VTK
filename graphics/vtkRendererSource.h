@@ -66,7 +66,7 @@ class VTK_EXPORT vtkRendererSource : public vtkStructuredPointsSource
 public:
   static vtkRendererSource *New();
   vtkTypeMacro(vtkRendererSource,vtkStructuredPointsSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Return the MTime also considering the Renderer.

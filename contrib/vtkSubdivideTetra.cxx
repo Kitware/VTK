@@ -261,7 +261,7 @@ void vtkSubdivideTetra::Execute()
   output->Squeeze();
 }
 
-void vtkSubdivideTetra::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSubdivideTetra::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkUnstructuredGridToUnstructuredGridFilter::PrintSelf(os,indent);
 }

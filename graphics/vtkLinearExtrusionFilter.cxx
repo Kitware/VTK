@@ -332,7 +332,7 @@ void vtkLinearExtrusionFilter::Execute()
 
 
 
-void vtkLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkLinearExtrusionFilter::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 

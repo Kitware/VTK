@@ -286,7 +286,7 @@ void vtkOpenGLRenderer::DeviceRender(void)
 }
 
 
-void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLRenderer::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   this->vtkRenderer::PrintSelf(os,indent);
 

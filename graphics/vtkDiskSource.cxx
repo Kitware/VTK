@@ -135,7 +135,7 @@ void vtkDiskSource::Execute()
   newPolys->Delete();
 }
 
-void vtkDiskSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDiskSource::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 

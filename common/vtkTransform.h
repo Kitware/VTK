@@ -75,7 +75,7 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   static vtkTransform *New();
 
   vtkTypeMacro(vtkTransform,vtkLinearTransform);
-  void PrintSelf (ostream& os, vtkIndent indent);
+  void PrintSelf (vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Make a new transform of the same type.

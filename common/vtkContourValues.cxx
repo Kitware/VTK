@@ -203,7 +203,7 @@ int vtkContourValues::GetNumberOfContours()
   return this->Contours->GetMaxId()+1;
 }
 
-void vtkContourValues::PrintSelf(ostream& os, vtkIndent indent)
+void vtkContourValues::PrintSelf(vtkOstream& os, vtkIndent indent)
 {
   int i, numContours=this->Contours->GetMaxId() + 1;
 

@@ -80,7 +80,7 @@ class VTK_EXPORT vtkImplicitTextureCoords : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkImplicitTextureCoords,vtkDataSetToDataSetFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Create object with texture dimension=2 and no r-s-t implicit functions

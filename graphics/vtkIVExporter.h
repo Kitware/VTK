@@ -59,7 +59,7 @@ class VTK_EXPORT vtkIVExporter : public vtkExporter
 public:
   static vtkIVExporter *New();
   vtkTypeMacro(vtkIVExporter,vtkExporter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(vtkOstream& os, vtkIndent indent);
 
   // Description:
   // Specify the name of the OpenInventor file to write.
