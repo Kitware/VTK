@@ -200,13 +200,15 @@ static void vtkImageResample1DExecute(vtkImageResample1D *self,
 
   // interpolation stuff
   magFactor = self->GetMagnificationFactor();
+  fStep = 1.0 / magFactor;
   
   // Loop through output pixels
   inPtr1 = inPtr;
   outPtr1 = outPtr;
   for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
     {
-    inIdx0 = inMin0;
+    // Since we are looking at two samples at a time.
+    inIdx0 = inMin0 + 1;
     inPtr0 = inPtr1;
     outPtr0 = outPtr1;
     if (inMin0 == inMax0)
@@ -222,7 +224,6 @@ static void vtkImageResample1DExecute(vtkImageResample1D *self,
       valStep = *(inPtr0+inInc0) - *inPtr0;
       val = *inPtr0 + valStep * f;
       // Compute how f changes and val changes for each iteration.
-      fStep = 1.0 / magFactor;
       valStep = fStep * valStep;
       }
     for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
@@ -246,7 +247,6 @@ static void vtkImageResample1DExecute(vtkImageResample1D *self,
 	valStep = *(inPtr0+inInc0) - *inPtr0;
 	val = *inPtr0 + valStep * f;
 	// Compute how f changes and val changes for each iteration.
-	fStep = 1.0 / magFactor;
 	valStep = fStep * valStep;
 	}
       }
