@@ -36,8 +36,17 @@
 // Make sure vtkMesaPolyDataMapper is a copy of vtkOpenGLPolyDataMapper
 // with vtkOpenGLPolyDataMapper replaced with vtkMesaPolyDataMapper
 #define vtkOpenGLPolyDataMapper vtkMesaPolyDataMapper
+#define vtkOpenGLPolyDataMapperDrawPoints vtkMesaPolyDataMapperDrawPoints
+#define vtkOpenGLPolyDataMapperDrawLines vtkMesaPolyDataMapperDrawLines
+#define vtkOpenGLPolyDataMapperDrawPolygons vtkMesaPolyDataMapperDrawPolygons
+#define vtkOpenGLPolyDataMapperDrawTStrips vtkMesaPolyDataMapperDrawTStrips
+#define vtkOpenGLPolyDataMapperDrawTStripLines vtkMesaPolyDataMapperDrawTStripLines
 #include "vtkOpenGLPolyDataMapper.cxx"
+#undef vtkOpenGLPolyDataMapperDrawTStripLines
+#undef vtkOpenGLPolyDataMapperDrawTStrips
+#undef vtkOpenGLPolyDataMapperDrawPolygons
+#undef vtkOpenGLPolyDataMapperDrawLines
 #undef vtkOpenGLPolyDataMapper
 
-vtkCxxRevisionMacro(vtkMesaPolyDataMapper, "1.13");
+vtkCxxRevisionMacro(vtkMesaPolyDataMapper, "1.14");
 vtkStandardNewMacro(vtkMesaPolyDataMapper);
