@@ -76,7 +76,7 @@ boxWidget AddObserver EndInteractionEvent SelectPolygons
 # record events
 vtkInteractorEventRecorder recorder
 recorder SetInteractor iren
-recorder SetFileName "record.txt"
+recorder SetFileName "$VTK_DATA_ROOT/Data/EventRecording.log"
 
 # render the image
 #
