@@ -159,7 +159,6 @@ void vtkExtractPolyDataPiece::Execute()
   int i, ptId, newId, numPts, numCellPts;
   float *x;
 
-  cout << "Executing." << endl;
   // Pipeline update piece will tell us what to generate.
   ghostLevel = output->GetUpdateGhostLevel();
   piece = output->GetUpdatePiece();
@@ -280,7 +279,6 @@ void vtkExtractPolyDataPiece::Execute()
   cellTags->Delete();
   pointOwnership->Delete();
 
-  cout << "Cell field data: " << output->GetCellData()->GetFieldData() << endl;
 }
 
 void vtkExtractPolyDataPiece::PrintSelf(ostream& os, vtkIndent indent)

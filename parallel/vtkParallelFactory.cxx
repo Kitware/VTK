@@ -65,6 +65,5 @@ const char* vtkParallelFactory::GetDescription()
 
 extern "C" vtkObjectFactory* vtkLoad()
 {
-  cout << "Factory is being loaded." << endl;
   return vtkParallelFactory::New();
 }

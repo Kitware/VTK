@@ -60,7 +60,6 @@ vtkPPolyDataNormals* vtkPPolyDataNormals::New()
 
 void vtkPPolyDataNormals::Execute()
 {
-  vtkWarningMacro("Executing PPolyDataNormals.");
   vtkPolyData *output = this->GetOutput();
   int ghostLevel = this->GetInput()->GetUpdateGhostLevel();
 
@@ -69,7 +68,6 @@ void vtkPPolyDataNormals::Execute()
   // Remove any ghost cells we inserted.
   if (ghostLevel > 0)
     {
-    cout << "here" << endl;
     vtkRemoveGhostCells* rmGhostCells = vtkRemoveGhostCells::New();
     vtkPolyData* ghost = vtkPolyData::New();
     ghost->ShallowCopy(output);
