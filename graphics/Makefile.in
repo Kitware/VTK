@@ -280,6 +280,7 @@ vtkVoxelModeller \
 vtkWarpLens \
 vtkWarpScalar \
 vtkWarpTo \
+vtkWindowedSincPolyDataFilter \
 vtkWorldPointPicker \
 vtkWarpVector  ${GRAPHICS_API_OBJ}
 
