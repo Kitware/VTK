@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
 
-vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.8");
+vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.9");
 vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitPolyDataPiece,Controller,
@@ -181,21 +181,9 @@ void vtkTransmitPolyDataPiece::RootExecute()
 
   // Now do each of the satellite requests.
   numProcs = this->Controller->GetNumberOfProcesses();
-  // If less pieces are requested, exclude some processes.
-  if (output->GetUpdateNumberOfPieces() < numProcs)
-    {
-    numProcs = output->GetUpdateNumberOfPieces();
-    }
   for (i = 1; i < numProcs; ++i)
     {
     this->Controller->Receive(ext, 3, i, 22341);
-    if (ext[0] != i)
-      {
-      vtkWarningMacro(<< "Piece " << ext[0] 
-                      << " does not match process " << i << ".  " 
-                      << "Altering request to try to avoid a deadlock.");
-      ext[0] = i;
-      }
     if (ext[1] != output->GetUpdateNumberOfPieces())
       {
       vtkWarningMacro("Number of pieces mismatch between processes.");
@@ -220,14 +208,6 @@ void vtkTransmitPolyDataPiece::SatelliteExecute(int procId)
   ext[0] = output->GetUpdatePiece();
   ext[1] = output->GetUpdateNumberOfPieces();
   ext[2] = output->GetUpdateGhostLevel();
-
-  if (procId > ext[1])
-    {
-    vtkWarningMacro("Ignoring request " << ext[0] << " of " << ext[1]
-                    << " in process " << procId 
-                    << ". Trying to avoid deadlock.");
-    return;
-    }
 
   this->Controller->Send(ext, 3, 0, 22341);
   this->Controller->Receive(tmp, 0, 22342);
