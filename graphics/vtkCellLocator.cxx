@@ -174,7 +174,7 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   float *bounds;
   float bounds2[6];
   int i, leafStart, prod, loop;
-  vtkCell *cell;
+  vtkGenericCell *cell = vtkGenericCell::New();
   int bestCellId = -1;
   int idx, cId;
   float tMax, dist[3];
@@ -260,7 +260,7 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
 	    {
 	    this->CellHasBeenVisited[cId] = this->QueryNumber;
 	    
-	    cell = this->DataSet->GetCell(cId);
+	    this->DataSet->GetCell(cId, cell);
 	  
 	    if (cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId))
 	      {
@@ -333,14 +333,16 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   
   if (bestCellId >= 0)
     {
-    this->DataSet->GetCell(bestCellId)->
-      IntersectWithLine(a0, a1, tol, t, x, pcoords, subId);
+    this->DataSet->GetCell(bestCellId, cell);
+    cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId);
 
     // store the best cell id in the return "parameter"
     cellId = bestCellId;
+    cell->Delete();
     return 1;
     }
-  
+
+  cell->Delete();
   return 0;
 }
 
