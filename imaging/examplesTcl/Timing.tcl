@@ -14,10 +14,17 @@ reader SetDataMask 0x7fff
 #reader DebugOn
 #reader Update
 
+vtkImageMagnify magnify
+magnify SetDimensionality 2
+magnify SetInput [reader GetOutput]
+magnify SetMagnificationFactors 2 2
+magnify InterpolateOn
+magnify ReleaseDataFlagOff
 
 vtkImageViewer viewer
 #viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Z_AXIS $VTK_IMAGE_Y_AXIS
-viewer SetInput [reader GetOutput]
+#viewer SetInput [reader GetOutput]
+viewer SetInput [magnify GetOutput]
 viewer SetCoordinate2 0
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
