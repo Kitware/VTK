@@ -1,4 +1,4 @@
-(VERSION 1.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 1.6)
 
 # Set the project/library name here.  Classes should be declared as
 # "class vtkLocal_EXPORT vtkFoo", where vtkLocal is the name of the
