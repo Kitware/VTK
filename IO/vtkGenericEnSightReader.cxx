@@ -27,7 +27,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.53");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.54");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -308,9 +308,9 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
     if (stringRead == 1)
       {
       stringRead = sscanf(line, " %*s %s %s", subLine1, subLine2);
-      if (strcmp(subLine1, "ensight") == 0)
+      if (strncmp(subLine1,"ensight",7) == 0)
         {
-        if (strcmp(subLine2, "gold") == 0)
+        if (strncmp(subLine2,"gold",4) == 0)
           {
           this->ReadNextDataLine(line);
           if (strncmp(line, "GEOMETRY", 8) == 0)
@@ -384,8 +384,8 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             sscanf(binaryLine, " %*s %s", subLine);
             // If the file is ascii, there might not be a null
             // terminator. This leads to a UMR in sscanf
-            if (strcmp(subLine, "Binary") == 0 ||
-                strcmp(subLine, "binary") == 0)
+            if (strncmp(subLine,"Binary",6) == 0 ||
+                strncmp(subLine,"binary",6) == 0)
               {
               fclose(this->IFile);
               this->IFile = NULL;
@@ -400,7 +400,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             } // if we found the geometry section in the case file
           } // if ensight gold file
         } // if regular ensight file (not master_server)
-      else if (strcmp(subLine1, "master_server") == 0)
+      else if (strncmp(subLine1,"master_server",13) == 0)
         {
         return vtkGenericEnSightReader::ENSIGHT_MASTER_SERVER;
         }
@@ -479,7 +479,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
         // terminator. This leads to a UMR in sscanf
         binaryLine[80] = '\0';
         sscanf(binaryLine, " %*s %s", subLine);
-        if (strcmp(subLine, "Binary") == 0)
+        if (strncmp(subLine,"Binary",6) == 0)
           {
           fclose(this->IFile);
           this->IFile = NULL;
