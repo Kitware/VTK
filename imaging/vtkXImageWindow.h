@@ -69,9 +69,6 @@ public:
   const char *GetClassName() {return "vtkXImageWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // output to the viewer.
-  vtkXImageWindow *GetOutput(){return this;};
-  
   // Description:
   // Gets the number of colors in the pseudo color map.
   vtkGetMacro(NumberOfColors,int);

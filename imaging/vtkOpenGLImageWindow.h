@@ -65,9 +65,6 @@ public:
   const char *GetClassName() {return "vtkOpenGLImageWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // output to the viewer.
-  vtkOpenGLImageWindow *GetOutput(){return this;};
-
   // Description:
   // Initialize the window for rendering.
   virtual void MakeDefaultWindow();
