@@ -19,7 +19,16 @@
 #include "vtkMath.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkCGMWriter, "1.8");
+#include "vtkViewport.h"
+#include "vtkIdList.h"
+#include "vtkPolyData.h"
+#include "vtkCellArray.h"
+#include "vtkGenericCell.h"
+#include "vtkCellData.h"
+#include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkCGMWriter, "1.9");
+vtkStandardNewMacro(vtkCGMWriter);
 
 vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);
 
@@ -191,10 +200,13 @@ typedef struct cgmPointStruct{
 
 // Functions to manipulate images. 
 static cgmImagePtr cgmImageCreate(int sx, int sy);
+#ifdef VTK_NOT_DEFINED
 static int cgmCgmNewPic(cgmImagePtr im, int sticky);
+#endif
 static int cgmImageCgm(cgmImagePtr im, FILE *);
 static int cgmImageDestroy(cgmImagePtr im);
 
+#ifdef VTK_NOT_DEFINED
 // Use cgmLine, not cgmImageLine 
 static int cgmLine(cgmImagePtr im, int x1, int y1, int x2, int y2);
 // Specify corners (not width and height). Upper left first, lower right second. 
@@ -207,30 +219,41 @@ static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey
 static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey, int cl);
 static int cgmEllipse(cgmImagePtr im, int cx,int cy, int d1x,int d1y, int d2x,int d2y );
 static int cgmMarker(cgmImagePtr im, int x, int y);
+#endif
 // polyshapes 
 static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n);
+#ifdef VTK_NOT_DEFINED
 static int cgmPolygonSet(cgmImagePtr im, cgmPointPtr p, int n);
+#endif
 static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n);
 static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n);
 
 // Functions for Compatibility with gd 
+#ifdef VTK_NOT_DEFINED
 static int cgmImageLine(cgmImagePtr im, int x1, int y1, int x2, int y2, int color);
 static int cgmImageRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2, int color);
+#endif
 
+#ifdef VTK_NOT_DEFINED
 static int cgmImageBoundsSafe(cgmImagePtr im, int x, int y);
 // These put characters in the picture.  CGM can handle fonts
 // (x,y) is the lower left corner of where the text goes 
 static int cgmText(cgmImagePtr im, int x, int y, const char *);
+#endif
 
 // Functions for allocating colors 
 static int cgmImageColorAllocate(cgmImagePtr im, int r, int g, int b);
+#ifdef VTK_NOT_DEFINED
 static int cgmImageColorClosest(cgmImagePtr im, int r, int g, int b);
 static int cgmImageColorExact(cgmImagePtr im, int r, int g, int b);
 static int cgmImageColorDeallocate(cgmImagePtr im, int color);
+#endif
 static int cgmImageColorGet(cgmImagePtr im, int cgmIndex, 
                             int& r, int& g, int& b);
+#ifdef VTK_NOT_DEFINED
 // wogl: the parameter names are commented to avoid compiler warnings 
 static int cgmImageColor16(cgmImagePtr im);
+#endif
 
 // gej: functions that set style attributes 
 static int cgmSetLineAttrib(cgmImagePtr im, int lntype, int lnwidth, int lncolor);
@@ -254,19 +277,25 @@ static int cgmSetTextColor(cgmImagePtr im, int color);
 static int cgmSetTextHeight(cgmImagePtr im, int height);
 // geJ: these individual attributes can't be set with a group function 
 static int cgmSetTextPath(cgmImagePtr im, int tpath);
+#ifdef VTK_NOT_DEFINED
 static int cgmSetTextOrient(cgmImagePtr im, int xup, int yup, int xbase, int ybase);
+#endif
 static int cgmSetMarkerType(cgmImagePtr im, int mtype);
 static int cgmSetMarkerSize(cgmImagePtr im, int msize);
 static int cgmSetMarkerColor(cgmImagePtr im, int mcolor);
 
 // EJ: Expert Functions,  If you just need more control 
 static int cgmImageSetSize(cgmImagePtr im, int x, int y);
+#ifdef VTK_NOT_DEFINED
 static int cgmImageSetLineSpec(cgmImagePtr im, int specmode);
 static int cgmImageSetMarkerSpec(cgmImagePtr im, int specmode);
 static int cgmImageSetEdgeSpec(cgmImagePtr im, int specmode);
+#endif
 static int cgmImageSetOutput(cgmImagePtr im, FILE *output);
+#ifdef VTK_NOT_DEFINED
 static int cgmImageAddFont(cgmImagePtr im, const char *fontname);
 static int cgmImageClearFonts(cgmImagePtr im);
+#endif
 static cgmImagePtr cgmImageStartCgm();
 static int cgmCgmHeader(cgmImagePtr);
 static int cgmCgmPic(cgmImagePtr, int);
@@ -316,8 +345,9 @@ protected:
 #define VTK_HASH_INDEX 737
 vtkColorHash::vtkColorHash()
 {
+  int i;
   this->Table = new vtkIdList * [VTK_HASH_INDEX];
-  for (int i=0; i<VTK_HASH_INDEX; i++)
+  for (i=0; i<VTK_HASH_INDEX; i++)
     {
     this->Table[i] = NULL;
     }
@@ -325,7 +355,8 @@ vtkColorHash::vtkColorHash()
 
 vtkColorHash::~vtkColorHash()
 {
-  for (int i=0; i<VTK_HASH_INDEX; i++)
+  int i;
+  for (i=0; i<VTK_HASH_INDEX; i++)
     {
     if ( this->Table[i] != NULL )
       {
@@ -354,8 +385,9 @@ int vtkColorHash::InsertUniqueColor(cgmImagePtr im, int r, int g, int b)
     {
     vtkIdType numIds=this->Table[index]->GetNumberOfIds();
     int red, green, blue;
-    
-    for (vtkIdType i=0; i<numIds; i++)
+
+    vtkIdType i;
+    for (i=0; i<numIds; i++)
       {
       cgmIndex = this->Table[index]->GetId(i);
       cgmImageColorGet(im, cgmIndex, red, green, blue);
@@ -381,8 +413,9 @@ int vtkColorHash::GetColorIndex(cgmImagePtr im, int r, int g, int b)
   vtkIdType cgmIndex;
   vtkIdType numIds=this->Table[index]->GetNumberOfIds();
   int red, green, blue;
+  int i;
 
-  for (int i=0; i<numIds; i++)
+  for (i=0; i<numIds; i++)
     {
     cgmIndex = this->Table[index]->GetId(i);
     cgmImageColorGet(im, cgmIndex, red, green, blue);
@@ -426,8 +459,9 @@ static vtkColorHash *DefineLUTColors(cgmImagePtr im, unsigned char *colors,
   vtkColorHash *colorHash = new vtkColorHash;
   unsigned char *ptr;
   int r, g, b;
+  int id;
 
-  for (int id=0; id < numColors; id++)
+  for (id=0; id < numColors; id++)
     {
     ptr = colors + bpp*id;
     switch (bpp)
@@ -463,10 +497,12 @@ static int GetColor(int red, int green, int blue, int CGMColors[256])
   return CGMColors[red + green*8 + blue*64];
 }
 
-static int GetLUTColor(int red, int green, int blue)
+#ifdef VTK_NOT_DEFINED
+static int GetLUTColor(int vtkNotUsed(red), int vtkNotUsed(green), int vtkNotUsed(blue))
 {
-        return 0;
+  return 0;
 }
+#endif
 
 typedef struct _vtkSortValues {
   float z;
@@ -502,7 +538,7 @@ void vtkCGMWriter::WriteData()
   int i, id, type, npts, size[2], *p;
   float bounds[6], xRange, yRange, x[3], factor[2];
   int color, bpp, colorMode;
-  unsigned char rgb[3], *ptr, *colors;
+  unsigned char *ptr, *colors;
   int rgbColor[3], maxCellSize;
   cgmPoint *points;
   vtkSortValues *depth;
@@ -554,13 +590,13 @@ void vtkCGMWriter::WriteData()
     factor[0] = 1.0;
     factor[1] = yRange/xRange;
     size[0] = this->Resolution;
-    size[1] = factor[1] * this->Resolution;
+    size[1] = (int)(factor[1] * this->Resolution);
     }
   else
     {
     factor[0] = yRange/xRange;
     factor[1] = 1.0;
-    size[0] = factor[0] * this->Resolution;
+    size[0] = (int)(factor[0] * this->Resolution);
     size[1] = this->Resolution;
     }
 
@@ -698,8 +734,8 @@ void vtkCGMWriter::WriteData()
         for (i=0; i<npts; i++)
           {
           scaledPts->GetPoint(p[i], x);
-          points[0].x = x[0];
-          points[0].y = x[1];
+          points[0].x = (int)x[0];
+          points[0].y = (int)x[1];
           }
         cgmPolyMarker(im, points, 1);
         break;
@@ -707,8 +743,8 @@ void vtkCGMWriter::WriteData()
         for (i=0; i<npts; i++)
           {
           scaledPts->GetPoint(p[i], x);
-          points[i].x = x[0];
-          points[i].y = x[1];
+          points[i].x = (int)x[0];
+          points[i].y = (int)x[1];
           }
         cgmSetLineColor(im, color);
         cgmPolyLine(im, points, npts);
@@ -717,8 +753,8 @@ void vtkCGMWriter::WriteData()
         for (i=0; i<npts; i++)
           {
           scaledPts->GetPoint(p[i], x);
-          points[i].x = x[0];
-          points[i].y = x[1];
+          points[i].x = (int)x[0];
+          points[i].y = (int)x[1];
           }
         cgmSetShapeFillAttrib(im, 1, color, -1);
         cgmPolygon(im, points, npts);
@@ -727,14 +763,14 @@ void vtkCGMWriter::WriteData()
         for (i=0; i<(npts-2); i++)
           {
           scaledPts->GetPoint(p[i], x);
-          points[0].x = x[0];
-          points[0].y = x[1];
+          points[0].x = (int)x[0];
+          points[0].y = (int)x[1];
           scaledPts->GetPoint(p[i+1], x);
-          points[1].x = x[0];
-          points[1].y = x[1];
+          points[1].x = (int)x[0];
+          points[1].y = (int)x[1];
           scaledPts->GetPoint(p[i+2], x);
-          points[2].x = x[0];
-          points[2].y = x[1];
+          points[2].x = (int)x[0];
+          points[2].y = (int)x[1];
           }
         cgmSetShapeFillAttrib(im, 1, color, -1);
         cgmPolygon(im, points, 3);
@@ -838,7 +874,8 @@ static cgmImagePtr cgmImageCreate(int sx, int sy)
     }
 }
 
-static int cgmAppNull(unsigned char *es, int x) {
+static int cgmAppNull(unsigned char *es, int x) 
+{
 /* put x  nulls in the string.
  * return value is number of octets added (1) */
   int y;
@@ -851,7 +888,8 @@ static int cgmAppNull(unsigned char *es, int x) {
   return x;
 }
 
-static int cgmAppByte(unsigned char *es, short int addme) {
+static int cgmAppByte(unsigned char *es, short int addme)
+{
 /* Append an octet to the end of es 
  * Return value is number of octets added
  * for internal cgm functions only, do not call
@@ -860,7 +898,8 @@ static int cgmAppByte(unsigned char *es, short int addme) {
   return 1;
 }
 
-static int cgmAppShort(unsigned char *es, short int addme) {
+static int cgmAppShort(unsigned char *es, short int addme)
+{
 /* Append a short to the end of es 
  * return value is number of octets added
  * For internal cgm functions only, do not call!
@@ -874,7 +913,8 @@ static int cgmAppShort(unsigned char *es, short int addme) {
   return 2;
 }
 
-static int cgmcomhead(unsigned char *es, int elemclass, int id, int len) {
+static int cgmcomhead(unsigned char *es, int elemclass, int id, int len)
+{
 /* sets the command header in the first two bytes of string es 
  * element class is in bits 15-12
  * element id is in bits 11-5
@@ -901,7 +941,8 @@ static int cgmcomhead(unsigned char *es, int elemclass, int id, int len) {
   return 1;
 }
 
-static int cgmcomheadlong(unsigned char *es, int elemclass, int id, int len) {
+static int cgmcomheadlong(unsigned char *es, int elemclass, int id, int len)
+{
 /* sets the command header for the long form.
  * first 16 bits:
  *  element class is in bits 15-12
@@ -970,7 +1011,8 @@ static int cgmAddElem(cgmImagePtr im, unsigned char *es, int octet_count)
   return 1;
 }
 
-static int cgmCgmHeader(cgmImagePtr im) {
+static int cgmCgmHeader(cgmImagePtr im)
+{
 /* add the cgm header to the imagepointer's  element list
  * do it all in a string than call cgmAddElem on it
  * For internal cgm functions only, do not call!
@@ -1077,39 +1119,40 @@ static int cgmCgmHeader(cgmImagePtr im) {
    * taking the string length will give us one less than the
    * correct length. */
   buf = im->fontlist;
-  if (0) { /* don't do this if there aren't any fonts */
-//      if (buf) { /* don't do this if there aren't any fonts */
-  fontlistlen = strlen( (const char *) buf) + 1;
-  cgmcomheadlong(head, 1, 13, fontlistlen);
-  head +=4;
+  if (0) 
+    { /* don't do this if there aren't any fonts */
+    //      if (buf)  /* don't do this if there aren't any fonts */
+    fontlistlen = strlen( (const char *) buf) + 1;
+    cgmcomheadlong(head, 1, 13, fontlistlen);
+    head +=4;
 
-  while (*buf) 
-    {
-    blen = 0;
-    buf2 = buf;
-    while ((*buf) && (*buf != ',')) 
+    while (*buf) 
       {
-      buf++;
-      blen++;
+      blen = 0;
+      buf2 = buf;
+      while ((*buf) && (*buf != ',')) 
+        {
+        buf++;
+        blen++;
+        }
+      head += cgmAppByte(head, (short int) blen);
+      while (buf2 < buf) 
+        {
+        *head++ = *buf2++;
+        }
+      if (*buf) 
+        {
+        buf++;
+        }
       }
-    head += cgmAppByte(head, (short int) blen);
-    while (buf2 < buf) 
+    octet_count += (4 + fontlistlen); 
+    curly = 4 - (octet_count % 4);
+    if (curly % 4) 
       {
-      *head++ = *buf2++;
+      octet_count += curly;
+      head += cgmAppNull(head, curly);
       }
-    if (*buf) 
-      {
-      buf++;
-      }
-    }
-  octet_count += (4 + fontlistlen); 
-  curly = 4 - (octet_count % 4);
-  if (curly % 4) 
-    {
-    octet_count += curly;
-    head += cgmAppNull(head, curly);
-    }
-  } /* end of check to see if any fonts */
+    } /* end of check to see if any fonts */
 
   if (cgmAddElem(im, headerp, octet_count)) 
     {
@@ -1125,7 +1168,8 @@ static int cgmCgmHeader(cgmImagePtr im) {
 }
 
 
-static int cgmCgmPic(cgmImagePtr im, int sticky) {
+static int cgmCgmPic(cgmImagePtr im, int sticky)
+{
 /* Start the picture.  if the sticky bit is set, set and use the defaults
  * of the previous picture.  Otherwise, reset all defaults.
  * Gej: sticky = 0 reset defaults, 1 dont reset anything, 2 only
@@ -1316,6 +1360,7 @@ static int cgmCgmPic(cgmImagePtr im, int sticky) {
   return 1;
 } 
 
+#ifdef VTK_NOT_DEFINED
 static int cgmCgmNewPic(cgmImagePtr im, int sticky)
 /* The CGM standard allows multiple images in a single file.  This function
  * will close the current picture, then open a new one.
@@ -1335,6 +1380,7 @@ static int cgmCgmNewPic(cgmImagePtr im, int sticky)
   /* now start the new picture */
   return(cgmCgmPic(im, sticky));
 }
+#endif
 
 static int cgmImageCgm(cgmImagePtr im, FILE *out)
 /* Gej: Write the image to  file *out, which must be open already
@@ -1345,7 +1391,8 @@ static int cgmImageCgm(cgmImagePtr im, FILE *out)
 }
 
 
-static int cgmSetLineType(cgmImagePtr im, int lntype) {
+static int cgmSetLineType(cgmImagePtr im, int lntype)
+{
 /* Attribute: Line Type; Elem Class 5; Elem ID 2
  * Set the line type.  Possible values are:
  * 1=solid, 2=dash, 3=dot, 4=dash-dot, 5=dash-dot-dot
@@ -1411,7 +1458,8 @@ static int cgmSetLineType(cgmImagePtr im, int lntype) {
     }
 }
 
-static int cgmSetLineWidth(cgmImagePtr im, int lnwidth) {
+static int cgmSetLineWidth(cgmImagePtr im, int lnwidth)
+{
 /* Attribute: Line Width; Elem Class 5; Elem ID 3
  * sets the line width.  with an image of height X with line width 1
  * the displayed width will be 1/X%.  as an example, if you image is
@@ -1488,7 +1536,8 @@ static int cgmSetLineWidth(cgmImagePtr im, int lnwidth) {
     }
 }
 
-static int cgmSetLineColor(cgmImagePtr im, int lncolor) {
+static int cgmSetLineColor(cgmImagePtr im, int lncolor)
+{
 /* Attribute: Line Colour; Elem Class 5; Elem ID 4
  * Sets the line color.  lncolor should be an index into the color
  * table that you have previously allocated.
@@ -1554,7 +1603,8 @@ static int cgmSetLineColor(cgmImagePtr im, int lncolor) {
     }
 }
 
-static int cgmSetFillStyle(cgmImagePtr im, int instyle) {
+static int cgmSetFillStyle(cgmImagePtr im, int instyle)
+{
 /* set the style of the interior of filled area elements.
  * Attribute: Interior Style; Elem Class 5; Elem ID 22
  * These attributes stay in effect until changed, so you don't have to output
@@ -1623,7 +1673,8 @@ static int cgmSetFillStyle(cgmImagePtr im, int instyle) {
     }
 }
 
-static int cgmSetFillColor(cgmImagePtr im, int incolor) {
+static int cgmSetFillColor(cgmImagePtr im, int incolor)
+{
 /* set the color of the interior of filled area elements
  * Attribute: Fill Colour; Elem Class 5; Elem ID 23
  * These attributes stay in effect until changed, so you don't have to output
@@ -1689,7 +1740,8 @@ static int cgmSetFillColor(cgmImagePtr im, int incolor) {
     }
 }
 
-static int cgmSetFillHatch(cgmImagePtr im, int inhatch) {
+static int cgmSetFillHatch(cgmImagePtr im, int inhatch)
+{
 /* Set the hatch pattern for the interior of filled-area elements
  * the fill style must be set to hatch for this to have an effect.
  * Attribute: Hatch Index; Elem Class 5; Elem ID 24
@@ -1763,7 +1815,8 @@ static int cgmSetFillHatch(cgmImagePtr im, int inhatch) {
     }
 }
 
-static int cgmSetEdgeType(cgmImagePtr im, int edtype) {
+static int cgmSetEdgeType(cgmImagePtr im, int edtype)
+{
 /* set the type of the edge of filled-area elements.
  * Attribute: Edge Type; Elem Class 5; Elem ID 27
  * These attributes stay in effect until changed, so you don't have to output
@@ -1830,7 +1883,8 @@ static int cgmSetEdgeType(cgmImagePtr im, int edtype) {
     }
 }
 
-static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth) {
+static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth)
+{
 /* Set the width of the edge of filled-area elements.
  * Attribute: Edge Width; Elem Class 5; Elem ID 28
  * These attributes stay in effect until changed, so you don't have to output
@@ -1903,7 +1957,8 @@ static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth) {
     }
 }
 
-static int cgmSetEdgeColor(cgmImagePtr im, int edcolor) {
+static int cgmSetEdgeColor(cgmImagePtr im, int edcolor)
+{
 /* Set the color of the edge of filled-area elements.
  * Attribute: Edge Color; Elem Class 5; Elem ID 29
  * These attributes stay in effect until changed, so you don't have to output
@@ -1968,7 +2023,8 @@ static int cgmSetEdgeColor(cgmImagePtr im, int edcolor) {
     }
 }
 
-static int cgmSetEdgeVis(cgmImagePtr im, int edvis) {
+static int cgmSetEdgeVis(cgmImagePtr im, int edvis)
+{
 /* Set the visibility of the edge of filled-area elements.
  * Attribute: Edge Visibility; Elem Class 5; Elem ID 30
  * These attributes stay in effect until changed, so you don't have to output
@@ -2028,7 +2084,8 @@ static int cgmSetEdgeVis(cgmImagePtr im, int edvis) {
     }
 }
 
-static int cgmSetTextFont(cgmImagePtr im, int font) {
+static int cgmSetTextFont(cgmImagePtr im, int font)
+{
 /* Attribute: Text Font Index; Elem Class 5; Elem ID 10
  * font is an index into the font table.  it can have one of the following
  * values:
@@ -2101,7 +2158,8 @@ static int cgmSetTextFont(cgmImagePtr im, int font) {
     }
 }
 
-static int cgmSetTextColor(cgmImagePtr im, int color) {
+static int cgmSetTextColor(cgmImagePtr im, int color)
+{
 /* Attribute: Text Colour ; Elem Class 5; Elem ID 14
  * set the forground color of text
  */
@@ -2163,7 +2221,8 @@ static int cgmSetTextColor(cgmImagePtr im, int color) {
     }
 }
 
-static int cgmSetTextHeight(cgmImagePtr im, int height) {
+static int cgmSetTextHeight(cgmImagePtr im, int height)
+{
 /* Attribute: Character Height; Elem Class 5; Elem ID 15
  * the height is in the same units as line width
  */
@@ -2215,7 +2274,8 @@ static int cgmSetTextHeight(cgmImagePtr im, int height) {
     }
 }
 
-static int cgmSetTextPath(cgmImagePtr im, int tpath) {
+static int cgmSetTextPath(cgmImagePtr im, int tpath)
+{
 /* Attribute: Text Path; Elem Class 5; Elem ID 17
  * Is one of:
  *   0 right -- Means the direction of the character base vector
@@ -2273,7 +2333,9 @@ static int cgmSetTextPath(cgmImagePtr im, int tpath) {
     }
 }
 
-static int cgmSetTextOrient(cgmImagePtr im, int xup, int yup, int xbase, int ybase) {
+#ifdef VTK_NOT_DEFINED
+static int cgmSetTextOrient(cgmImagePtr im, int xup, int yup, int xbase, int ybase)
+{
 /* Attribute: Character Orientation; Elem Class 5; Elem ID 16
  * (xbase,ybase) is the run and the rise of the line that the text is
  * written along.  For regular text at an angle, set xup = -ybase
@@ -2330,8 +2392,10 @@ static int cgmSetTextOrient(cgmImagePtr im, int xup, int yup, int xbase, int yba
     return 0;
     }
 }
+#endif
 
-static int cgmSetMarkerType(cgmImagePtr im, int mtype) {
+static int cgmSetMarkerType(cgmImagePtr im, int mtype)
+{
 /* Attribute: Marker Type; Elem Class 5; Elem ID 6
  * Set the Marker type.  Possible values are:
  * 1=dot, 2=plus, 3=asterisk, 4=circle, 5=cross
@@ -2396,7 +2460,8 @@ static int cgmSetMarkerType(cgmImagePtr im, int mtype) {
     }
 }
 
-static int cgmSetMarkerSize(cgmImagePtr im, int msize) {
+static int cgmSetMarkerSize(cgmImagePtr im, int msize)
+{
 /* Attribute: Marker Size; Elem Class 5; Elem ID 7
  * sets the marker size.  with an image of height X with marker size 1
  * the displayed size will be 1/X%.  as an example, if you image is
@@ -2471,7 +2536,8 @@ static int cgmSetMarkerSize(cgmImagePtr im, int msize) {
     }
 }
 
-static int cgmSetMarkerColor(cgmImagePtr im, int mcolor) {
+static int cgmSetMarkerColor(cgmImagePtr im, int mcolor)
+{
 /* Attribute: Marker Colour; Elem Class 5; Elem ID 8
  * Sets the marker color.  mcolor should be an index into the color
  * table that you have previously allocated.
@@ -2533,7 +2599,8 @@ static int cgmSetMarkerColor(cgmImagePtr im, int mcolor) {
     }
 }
 
-static int cgmSetLineAttrib(cgmImagePtr im, int lntype, int lnwidth, int lncolor) {
+static int cgmSetLineAttrib(cgmImagePtr im, int lntype, int lnwidth, int lncolor)
+{
 /* Spits out the attributes of lines.  These attributes stay in effect
  * until changed, so you don't have to output them every time.
  */
@@ -2554,7 +2621,8 @@ static int cgmSetLineAttrib(cgmImagePtr im, int lntype, int lnwidth, int lncolor
   return 1;
 }
 
-static int cgmSetShapeFillAttrib(cgmImagePtr im, int instyle, int incolor, int inhatch) {
+static int cgmSetShapeFillAttrib(cgmImagePtr im, int instyle, int incolor, int inhatch)
+{
 /* Spits out the attributes for the interior of filled-area elements.
  * These attributes stay in effect until changed, so you don't have to output
  * them every time.
@@ -2584,7 +2652,8 @@ static int cgmSetShapeFillAttrib(cgmImagePtr im, int instyle, int incolor, int i
   return 1;
 }
 
-static int cgmSetShapeEdgeAttrib(cgmImagePtr im, int edtype, int edwidth, int edcolor, int edvis) {
+static int cgmSetShapeEdgeAttrib(cgmImagePtr im, int edtype, int edwidth, int edcolor, int edvis)
+{
 /* Spits out the attributes for the edges of filled-area elements.  It may
  * seem logical that these would be the same as the corresponding line 
  * attributes, but this is not the case.
@@ -2618,7 +2687,8 @@ static int cgmSetShapeEdgeAttrib(cgmImagePtr im, int edtype, int edwidth, int ed
   return 1;
 }
 
-static int cgmSetTextAttrib(cgmImagePtr im, int font, int color, int height) {
+static int cgmSetTextAttrib(cgmImagePtr im, int font, int color, int height)
+{
 /* Set the attributes of text.  the font is an integer pointer into the
  * font list where:
  * 1 Times
@@ -2653,7 +2723,8 @@ static int cgmSetTextAttrib(cgmImagePtr im, int font, int color, int height) {
   return 1;
 }
 
-static int cgmSetMarkerAttrib(cgmImagePtr im, int mtype, int msize, int mcolor) {
+static int cgmSetMarkerAttrib(cgmImagePtr im, int mtype, int msize, int mcolor)
+{
 /* Spits out the attributes of Markers.  These attributes stay in effect
  * until changed, so you don't have to output them every time.
  */
@@ -2694,6 +2765,7 @@ static int cgmImageDestroy(cgmImagePtr im)
   return 1;
 }
 
+#ifdef VTK_NOT_DEFINED
 static int cgmImageColorClosest(cgmImagePtr im, int r, int g, int b)
 /* From gd library, see README file for copyright information */
 /* gej: should work unchanged */
@@ -2722,8 +2794,10 @@ static int cgmImageColorClosest(cgmImagePtr im, int r, int g, int b)
     }
   return ct;
 }
+#endif
 
-static int cgmImageColorClear(cgmImagePtr im) {
+static int cgmImageColorClear(cgmImagePtr im)
+{
 /* mark all entries in the color table as open */
   short int i;
   for (i=0; (i<(cgmMaxColors)); i++) 
@@ -2733,6 +2807,7 @@ static int cgmImageColorClear(cgmImagePtr im) {
   return 1;
 }
 
+#ifdef VTK_NOT_DEFINED
 static int cgmImageColorExact(cgmImagePtr im, int r, int g, int b)
 /* From gd library, see README file for copyright information */
 /* gej: should work unchanged */
@@ -2752,6 +2827,7 @@ static int cgmImageColorExact(cgmImagePtr im, int r, int g, int b)
     }
   return -1;
 }
+#endif
 
 static int cgmImageAddColorIndex(cgmImagePtr im, int r, int g, int b)
 /* adds the specified color to the colortable in the cgmImagePtr.
@@ -2903,7 +2979,9 @@ static int cgmImageColorAllocate(cgmImagePtr im, int r, int g, int b)
     }
 }
 
-static int cgmImageColor16(cgmImagePtr im) {
+#ifdef VTK_NOT_DEFINED
+static int cgmImageColor16(cgmImagePtr im)
+{
   int si, ei, li;
   si = cgmImageAddColorIndex(im, 255, 255, 255);
   if (si == -1) 
@@ -2999,7 +3077,8 @@ static int cgmImageColor16(cgmImagePtr im) {
     return ei;
     }
 }
-static int cgmImageColorDeallocate(cgmImagePtr im,  int color)
+
+static int cgmImageColorDeallocate(cgmImagePtr vtkNotUsed(im),  int vtkNotUsed(color))
 /* wogl: the parameter names are commented to avoid compiler warnings */
 /* From gd library, see README file for copyright information */
 /* gej: should work unchanged */
@@ -3010,6 +3089,7 @@ static int cgmImageColorDeallocate(cgmImagePtr im,  int color)
    * of color table entries */
   return 0;
 }
+#endif
 
 static int cgmImageColorGet(cgmImagePtr im, int cgmIndex, 
                             int& r, int& g, int& b)
@@ -3022,6 +3102,7 @@ static int cgmImageColorGet(cgmImagePtr im, int cgmIndex,
   return 1;
 }
 
+#ifdef VTK_NOT_DEFINED
 static int cgmLine(cgmImagePtr im, int x1, int y1, int x2, int y2)
 /* Graphic Primitive: Polyline; Elem Class 4; Elem ID 1
  * Actually generate the line, if you are writing a program to use this
@@ -3150,8 +3231,8 @@ static int cgmMarker(cgmImagePtr im, int x, int y)
     }
 }
 
-
-static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2) {
+static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2) 
+{
 /* Graphic Primitive: rectangle; Elem Class 4; Elem ID 11
  * Actually generate the rectangle, if you are writing a program to use this
  * library, use this function, not cgmImageRectangle,
@@ -3229,7 +3310,8 @@ static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2) {
     }
 }
 
-static int cgmCircle(cgmImagePtr im, int cx, int cy, int r) {
+static int cgmCircle(cgmImagePtr im, int cx, int cy, int r)
+{
 /* Graphic Primitive: circle; Elem Class 4; Elem ID 12
  * cx,cy is the center of the circle, r is the radius
  *
@@ -3299,7 +3381,8 @@ static int cgmCircle(cgmImagePtr im, int cx, int cy, int r) {
     }
 }
 
-static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey) {
+static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey) 
+{
 /* Graphic Primitive: Cicular Arc 3 Point; Elem Class 4; Elem ID 13
  *
  * This function will draw a Circular Arc using the current 
@@ -3385,7 +3468,8 @@ static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey
     }
 }
 
-static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey, int cl) {
+static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey, int cl)
+{
 /* Graphic Primitive: Cicular Arc 3 Point Close; Elem Class 4; Elem ID 14
  *
  * This function will draw a Circle using the current 
@@ -3457,7 +3541,8 @@ static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,i
     }
 }
 
-static int cgmEllipse(cgmImagePtr im, int cx,int cy, int d1x,int d1y, int d2x,int d2y ) {
+static int cgmEllipse(cgmImagePtr im, int cx,int cy, int d1x,int d1y, int d2x,int d2y )
+{
 /* Graphic Primitive: Ellipse; Elem Class 4; Elem ID 17
  *
  * This function will draw an Ellipse using the current 
@@ -3517,8 +3602,10 @@ static int cgmEllipse(cgmImagePtr im, int cx,int cy, int d1x,int d1y, int d2x,in
     return 0;
     }
 }
+#endif
 
-static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n) {
+static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
+{
 /* Graphic Primitive: Polygon; Elem Class 4; Elem ID 7
  *
  * cgmPointPtr is defined in cgm.h, basically, it is two arrays of integers
@@ -3617,7 +3704,9 @@ static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n) {
     }
 }
 
-static int cgmPolygonSet(cgmImagePtr im, cgmPointPtr p, int n) {
+#ifdef VTK_NOT_DEFINED
+static int cgmPolygonSet(cgmImagePtr im, cgmPointPtr p, int n)
+{
 /* Graphic Primitive: Polygon; Elem Class 4; Elem ID 8
  *
  * cgmPointPtr is defined in cgm.h, basically, it is three arrays of integers
@@ -3719,8 +3808,10 @@ static int cgmPolygonSet(cgmImagePtr im, cgmPointPtr p, int n) {
     return 0;
     }
 }
+#endif
 
-static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n) {
+static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n)
+{
 /* Graphic Primitive: Polyline; Elem Class 4; Elem ID 1
  *
  * cgmPointPtr is defined in cgm.h, basically, it is two arrays of integers
@@ -3813,7 +3904,8 @@ static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n) {
     }
 }
 
-static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n) {
+static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
+{
 /* Graphic Primitive: PolyMarker; Elem Class 4; Elem ID 3
  *
  * cgmPointPtr is defined in cgm.h, basically, it is two arrays of integers
@@ -3906,7 +3998,9 @@ static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n) {
     }
 }
 
-static int cgmText(cgmImagePtr im, int x, int y, const char *ts) {
+#ifdef VTK_NOT_DEFINED
+static int cgmText(cgmImagePtr im, int x, int y, const char *ts)
+{
 /* Graphic Primitive: Text; Elem Class 4; Elem ID 4
  * add text to the picture.  Start it at the point (x,y)
  * this should be the lower left corner of where the text is
@@ -4080,6 +4174,7 @@ static int cgmImageRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2, int
 
   return 1;
 }
+#endif
 
 
 /* Expert functions.  If you need more control, you can use these
@@ -4093,6 +4188,7 @@ static int cgmImageSetSize(cgmImagePtr im, int x, int y)
   return 1;
 }
 
+#ifdef VTK_NOT_DEFINED
 static int cgmImageSetLineSpec(cgmImagePtr im, int specmode)
 /* Picture Descriptor: Line Width Specification Mode; Elem Class 2; Elem ID 3*/
 /* sets the Line Width Specification mode of subsequent pictures.
@@ -4131,6 +4227,7 @@ static int cgmImageSetEdgeSpec(cgmImagePtr im, int specmode)
   im->edgespec = specmode;
   return 1;
 }
+#endif
 
 static int cgmImageSetOutput(cgmImagePtr im, FILE *output)
 /* sets the output file to *output.  which must already be open.
@@ -4150,6 +4247,7 @@ static int cgmImageSetOutput(cgmImagePtr im, FILE *output)
     }
 }
 
+#ifdef VTK_NOT_DEFINED
 static int cgmImageAddFont(cgmImagePtr im, const char *fontname)
 /* adds a font to the list of fonts.  This only has an effect
  * if you are using the expert functions for starting pictures, and
@@ -4199,6 +4297,7 @@ static int cgmImageClearFonts(cgmImagePtr im)
   im->numfonts = 0;
   return 1;
 }
+#endif
 
 static int cgmImageSetDefaults(cgmImagePtr im)
 /* resets the defaults to what is in defines.h */

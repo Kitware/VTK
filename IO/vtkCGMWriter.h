@@ -53,7 +53,7 @@ public:
   // Description:
   // Instantiate with no viewport defined and sorting on. The default
   // resolution is 10,000, and the color mode is set to default.
-  static vtkCGMWriter *New() {return new vtkCGMWriter;};
+  static vtkCGMWriter *New();
 
   vtkTypeRevisionMacro(vtkCGMWriter,vtkPolyDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -16,6 +16,7 @@ vtkBYUWriter.cxx
 vtkBase64InputStream.cxx
 vtkBase64OutputStream.cxx
 vtkBase64Utilities.cxx
+vtkCGMWriter.cxx
 vtkDEMReader.cxx
 vtkDataCompressor.cxx
 vtkDataObjectReader.cxx
