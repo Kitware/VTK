@@ -59,53 +59,18 @@ static void ResetCameraClippingRange(vtkObject *caller,
 */
 static void RenderRMI(void *arg, void *, int, int);
 static void ComputeVisiblePropBoundsRMI(void *arg, void *, int, int);
+const int vtkParallelRenderManager::WIN_INFO_INT_SIZE = 
+  sizeof(vtkParallelRenderManager::RenderWindowInfoInt)/sizeof(int);
+const int vtkParallelRenderManager::WIN_INFO_FLOAT_SIZE =
+  sizeof(vtkParallelRenderManager::RenderWindowInfoFloat)/sizeof(float);
+const int vtkParallelRenderManager::REN_INFO_INT_SIZE =
+  sizeof(vtkParallelRenderManager::RendererInfoInt)/sizeof(int);
+const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
+  sizeof(vtkParallelRenderManager::RendererInfoDouble)/sizeof(double);
+const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
+  sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-struct vtkParallelRenderManagerRenderWindowInfoInt
-{
-  int FullSize[2];
-  int ReducedSize[2];
-  int NumberOfRenderers;
-  int ImageReductionFactor;
-  int UseCompositing;
-};
-struct vtkParallelRenderManagerRenderWindowInfoFloat
-{
-  float DesiredUpdateRate;
-};
-
-struct vtkParallelRenderManagerRendererInfoInt
-{
-  int NumberOfLights;
-};
-struct vtkParallelRenderManagerRendererInfoDouble
-{
-  double Viewport[4];
-  double CameraPosition[3];
-  double CameraFocalPoint[3];
-  double CameraViewUp[3];
-  double CameraClippingRange[2];
-  double Background[3];
-  double ParallelScale;
-};
-
-struct vtkParallelRenderManagerLightInfoDouble
-{
-  double Position[3];
-  double FocalPoint[3];
-};
-
-const int VTK_WIN_INFO_INT_SIZE =
-  sizeof(vtkParallelRenderManagerRenderWindowInfoInt)/sizeof(int);
-const int VTK_WIN_INFO_FLOAT_SIZE =
-  sizeof(vtkParallelRenderManagerRenderWindowInfoFloat)/sizeof(float);
-const int VTK_REN_INFO_INT_SIZE =
-  sizeof(vtkParallelRenderManagerRendererInfoInt)/sizeof(int);
-const int VTK_REN_INFO_DOUBLE_SIZE =
-  sizeof(vtkParallelRenderManagerRendererInfoDouble)/sizeof(double);
-const int VTK_LIGHT_INFO_DOUBLE_SIZE =
-  sizeof(vtkParallelRenderManagerLightInfoDouble)/sizeof(double);
-
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.12");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.13");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -514,12 +479,11 @@ void vtkParallelRenderManager::StopServices()
 
 void vtkParallelRenderManager::StartRender()
 {
-//  int i;
-  struct vtkParallelRenderManagerRenderWindowInfoInt winInfoInt;
-  struct vtkParallelRenderManagerRenderWindowInfoFloat winInfoFloat;
-  struct vtkParallelRenderManagerRendererInfoInt renInfoInt;
-  struct vtkParallelRenderManagerRendererInfoDouble renInfoDouble;
-  struct vtkParallelRenderManagerLightInfoDouble lightInfoDouble;
+  vtkParallelRenderManager::RenderWindowInfoInt winInfoInt;
+  vtkParallelRenderManager::RenderWindowInfoFloat winInfoFloat;
+  vtkParallelRenderManager::RendererInfoInt renInfoInt;
+  vtkParallelRenderManager::RendererInfoDouble renInfoDouble;
+  vtkParallelRenderManager::LightInfoDouble lightInfoDouble;
 
   vtkDebugMacro("StartRender");
 
@@ -600,10 +564,14 @@ void vtkParallelRenderManager::StartRender()
       this->Controller->TriggerRMI(id, NULL, 0,
                    vtkParallelRenderManager::RENDER_RMI_TAG);
       }
-    this->Controller->Send((int *)(&winInfoInt), VTK_WIN_INFO_INT_SIZE, id,
+    this->Controller->Send((int *)(&winInfoInt), 
+                           vtkParallelRenderManager::WIN_INFO_INT_SIZE, 
+                           id,
                            vtkParallelRenderManager::WIN_INFO_INT_TAG);
-    this->Controller->Send((float *)(&winInfoFloat), VTK_WIN_INFO_FLOAT_SIZE,
-                           id, vtkParallelRenderManager::WIN_INFO_FLOAT_TAG);
+    this->Controller->Send((float *)(&winInfoFloat), 
+                           vtkParallelRenderManager::WIN_INFO_FLOAT_SIZE,
+                           id, 
+                           vtkParallelRenderManager::WIN_INFO_FLOAT_TAG);
     this->SendWindowInformation();
     }
 
@@ -653,10 +621,14 @@ void vtkParallelRenderManager::StartRender()
         {
         continue;
         }
-      this->Controller->Send((int *)(&renInfoInt), VTK_REN_INFO_INT_SIZE, id,
+      this->Controller->Send((int *)(&renInfoInt), 
+                             vtkParallelRenderManager::REN_INFO_INT_SIZE, 
+                             id,
                              vtkParallelRenderManager::REN_INFO_INT_TAG);
-      this->Controller->Send((double *)(&renInfoDouble), VTK_REN_INFO_DOUBLE_SIZE,
-                             id, vtkParallelRenderManager::REN_INFO_DOUBLE_TAG);
+      this->Controller->Send((double *)(&renInfoDouble), 
+                             vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE,
+                             id, 
+                             vtkParallelRenderManager::REN_INFO_DOUBLE_TAG);
       }
 
     vtkLight *light;
@@ -669,7 +641,8 @@ void vtkParallelRenderManager::StartRender()
         {
         if (id == this->RootProcessId) continue;
         this->Controller->Send((double *)(&lightInfoDouble),
-                               VTK_LIGHT_INFO_DOUBLE_SIZE, id,
+                               vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE, 
+                               id,
                                vtkParallelRenderManager::LIGHT_INFO_DOUBLE_TAG);
         }
       }
@@ -1586,11 +1559,11 @@ static void ComputeVisiblePropBoundsRMI(void *arg, void *, int, int)
 
 void vtkParallelRenderManager::SatelliteStartRender()
 {
-  struct vtkParallelRenderManagerRenderWindowInfoInt winInfoInt;
-  struct vtkParallelRenderManagerRenderWindowInfoFloat winInfoFloat;
-  struct vtkParallelRenderManagerRendererInfoInt renInfoInt;
-  struct vtkParallelRenderManagerRendererInfoDouble renInfoDouble;
-  struct vtkParallelRenderManagerLightInfoDouble lightInfoDouble;
+  vtkParallelRenderManager::RenderWindowInfoInt winInfoInt;
+  vtkParallelRenderManager::RenderWindowInfoFloat winInfoFloat;
+  vtkParallelRenderManager::RendererInfoInt renInfoInt;
+  vtkParallelRenderManager::RendererInfoDouble renInfoDouble;
+  vtkParallelRenderManager::LightInfoDouble lightInfoDouble;
   int i, j;
 
   vtkDebugMacro("SatelliteStartRender");
@@ -1613,7 +1586,8 @@ void vtkParallelRenderManager::SatelliteStartRender()
 
   this->InvokeEvent(vtkCommand::StartEvent, NULL);
 
-  if (!this->Controller->Receive((int *)(&winInfoInt), VTK_WIN_INFO_INT_SIZE,
+  if (!this->Controller->Receive((int *)(&winInfoInt), 
+                                 vtkParallelRenderManager::WIN_INFO_INT_SIZE,
                                  this->RootProcessId,
                                  vtkParallelRenderManager::WIN_INFO_INT_TAG))
     {
@@ -1621,7 +1595,8 @@ void vtkParallelRenderManager::SatelliteStartRender()
     }
   
   if (!this->Controller->Receive((float *)(&winInfoFloat),
-                                 VTK_WIN_INFO_FLOAT_SIZE, this->RootProcessId,
+                                 vtkParallelRenderManager::WIN_INFO_FLOAT_SIZE, 
+                                 this->RootProcessId,
                                  vtkParallelRenderManager::WIN_INFO_FLOAT_TAG))
     {
     return;
@@ -1642,14 +1617,15 @@ void vtkParallelRenderManager::SatelliteStartRender()
   rens->InitTraversal();
   for (i = 0; i < winInfoInt.NumberOfRenderers; i++)
     {
-    if (!this->Controller->Receive((int *)(&renInfoInt), VTK_REN_INFO_INT_SIZE,
+    if (!this->Controller->Receive((int *)(&renInfoInt), 
+                                   vtkParallelRenderManager::REN_INFO_INT_SIZE,
                                    this->RootProcessId,
                                    vtkParallelRenderManager::REN_INFO_INT_TAG))
       {
       continue;
       }
     if (!this->Controller->Receive((double *)(&renInfoDouble),
-                                   VTK_REN_INFO_DOUBLE_SIZE,
+                                   vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE,
                                    this->RootProcessId,
                                    vtkParallelRenderManager::REN_INFO_DOUBLE_TAG))
       {
@@ -1701,7 +1677,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
           }
 
         this->Controller->Receive((double *)(&lightInfoDouble),
-                                  VTK_LIGHT_INFO_DOUBLE_SIZE,
+                                  vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE,
                                   this->RootProcessId,
                                   vtkParallelRenderManager::LIGHT_INFO_DOUBLE_TAG);
         light->SetPosition(lightInfoDouble.Position);

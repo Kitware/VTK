@@ -388,6 +388,50 @@ protected:
   virtual void SetRenderWindowPixelData(vtkUnsignedCharArray *pixels,
           const int pixelDimensions[2]);
 
+//BTX
+  struct RenderWindowInfoInt
+  {
+    int FullSize[2];
+    int ReducedSize[2];
+    int NumberOfRenderers;
+    int ImageReductionFactor;
+    int UseCompositing;
+  };
+
+  struct RenderWindowInfoFloat
+  {
+    float DesiredUpdateRate;
+  };
+  
+  struct RendererInfoInt
+  {
+    int NumberOfLights;
+  };
+
+  struct RendererInfoDouble
+  {
+    double Viewport[4];
+    double CameraPosition[3];
+    double CameraFocalPoint[3];
+    double CameraViewUp[3];
+    double CameraClippingRange[2];
+    double Background[3];
+    double ParallelScale;
+  };
+  
+  struct LightInfoDouble
+  {
+    double Position[3];
+    double FocalPoint[3];
+  };
+
+  static const int WIN_INFO_INT_SIZE;
+  static const int WIN_INFO_FLOAT_SIZE;
+  static const int REN_INFO_INT_SIZE;
+  static const int REN_INFO_DOUBLE_SIZE;
+  static const int LIGHT_INFO_DOUBLE_SIZE;
+//ETX
+
 private:
   vtkParallelRenderManager(const vtkParallelRenderManager &); //Not implemented
   void operator=(const vtkParallelRenderManager &);  //Not implemented
