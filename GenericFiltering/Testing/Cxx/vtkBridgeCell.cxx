@@ -70,7 +70,7 @@
 #endif
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.10");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.11");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -1159,6 +1159,7 @@ int vtkBridgeCell::GetNumberOfVerticesOnFace(int faceId)
 #endif
     default:
       assert("check: impossible case" && 0);
+      result=0; // just to fix warning of some compilers
       break;
     }
   
@@ -1221,9 +1222,9 @@ int *vtkBridgeCell::GetEdgeArray(int edgeId)
 #endif
     default:
       assert("check: impossible case" && 0);
+      result=0; // just to fix warning of some compilers
       break;
     }
-  
   
   return result;
 }

@@ -35,7 +35,7 @@
 #include "vtkQuad.h"
 #include "vtkHexahedron.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.17");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.18");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -294,6 +294,8 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
         break;
       default:
         assert("check: impossible case" && 0);
+        linearCell=0; // just to fix warning of some compilers
+        ptsCount=0; // just to fix warning of some compilers
         break;
       }
     int currComp=attributes->GetActiveComponent();
@@ -349,8 +351,15 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
         }
       this->Scalars->SetTuple1( i, contVal ); // value at point i of the
       // current linear cell.
-      range[0] = range[0] < contVal ? range[0] : contVal;
-      range[1] = range[1] > contVal ? range[1] : contVal;
+      if(i==0)
+        {
+          range[0]=range[1]=contVal;
+        }
+      else
+        {
+        range[0] = range[0] < contVal ? range[0] : contVal;
+        range[1] = range[1] > contVal ? range[1] : contVal;
+        }
       
       ++i;
       locals=locals+3;
@@ -525,6 +534,8 @@ void vtkGenericAdaptorCell::Clip(double value,
         break;
       default:
         assert("check: impossible case" && 0);
+        linearCell=0; // just to fix warning of some compilers
+        ptsCount=0;// just to fix warning of some compilers
         break;
       }
     int currComp=attributes->GetActiveComponent();
@@ -744,6 +755,8 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
         break;
       default:
         assert("check: impossible case" && 0);
+        linearCellType=0; // just to fix warning of some compilers
+        numVerts=0; // just to fix warning of some compilers
         break;
       }
     double *locals=this->GetParametricCoords();
