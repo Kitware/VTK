@@ -144,7 +144,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   def = info->CAPI->GetDefinition(mf, newArgv[1]);
   sourceListValue = 
     (char *)malloc(info->CAPI->GetTotalArgumentSize(newArgc,newArgv)+
-                   newArgc*14 + (def ? strlen(def) : 0) + 10);  
+                   newArgc*14 + (def ? strlen(def) : 0) + 10);
   if (def)
     {
     sprintf(sourceListValue,"%s;%sInit.cxx",def,newArgv[0]);
@@ -153,7 +153,9 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     {
       /* Don't include the Init.cxx file in the library on OSX */
       /* It is linked into a MODULE separate from the rest of the dylib */
-#if !defined(__APPLE__)
+#if defined(__APPLE__)
+    sprintf(sourceListValue,"");
+#else
     sprintf(sourceListValue,"%sInit.cxx",newArgv[0]);
 #endif
     }
@@ -203,7 +205,11 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
       cdata->SourceFiles[numWrapped] = file;
       cdata->HeaderFiles[numWrapped] = hname;
       numWrapped++;
-      strcat(sourceListValue,";");
+      if(sourceListValue[0])
+        {
+        /* This is not the first value, add a separator. */
+        strcat(sourceListValue,";");
+        }
       strcat(sourceListValue,newName);
       strcat(sourceListValue,".cxx");        
       free(newName);
