@@ -19,7 +19,7 @@ IF (VTK_USE_RENDERING)
   #
   # Add all the executables that require rendering
   #
-  ADD_EXECUTABLE(ImportExport ImportExport)
+  ADD_EXECUTABLE(ImportExport ImportExport.cxx)
 
   #
   # Add tests, with the data

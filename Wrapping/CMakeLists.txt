@@ -3,18 +3,18 @@
 INCLUDE (${VTK_SOURCE_DIR}/Wrapping/LocalUserOptions.cmake OPTIONAL)
 
 IF (VTK_WRAP_TCL)
-  ADD_EXECUTABLE(vtkWrapTcl vtkWrapTcl vtkParse.tab)
+  ADD_EXECUTABLE(vtkWrapTcl vtkWrapTcl.c vtkParse.tab)
   INSTALL_TARGETS(/bin vtkWrapTcl)
 ENDIF (VTK_WRAP_TCL)
 
 IF (VTK_WRAP_PYTHON)
-  ADD_EXECUTABLE(vtkWrapPython vtkWrapPython vtkParse.tab)
+  ADD_EXECUTABLE(vtkWrapPython vtkWrapPython.c vtkParse.tab)
   INSTALL_TARGETS(/bin vtkWrapPython)
 ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)
-  ADD_EXECUTABLE(vtkParseJava vtkParseJava vtkParse.tab)
-  ADD_EXECUTABLE(vtkWrapJava vtkWrapJava vtkParse.tab)
+  ADD_EXECUTABLE(vtkParseJava vtkParseJava.c vtkParse.tab)
+  ADD_EXECUTABLE(vtkWrapJava vtkWrapJava.c vtkParse.tab)
   INSTALL_TARGETS(/bin vtkParseJava)
   INSTALL_TARGETS(/bin vtkWrapJava)
 ENDIF (VTK_WRAP_JAVA)

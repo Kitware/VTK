@@ -21,7 +21,7 @@ IF (VTK_USE_RENDERING)
   #
   # Add all the executables that require rendering
   #
-  ADD_EXECUTABLE(BoxWidget BoxWidget)
+  ADD_EXECUTABLE(BoxWidget BoxWidget.cxx)
 
   #
   # Add tests, with the data

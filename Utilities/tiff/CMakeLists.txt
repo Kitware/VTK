@@ -48,7 +48,7 @@ ELSE (WINDOWS)
 
   IF(TIFF_RIGHT_VERSION)
     SOURCE_FILES(common_SRCS tif_unix.c GENERATED tif_fax3sm.c)
-    ADD_EXECUTABLE(mkg3states mkg3states)    
+    ADD_EXECUTABLE(mkg3states mkg3states.c)    
     ADD_CUSTOM_COMMAND(
       SOURCE ${EXECUTABLE_OUTPUT_PATH}/mkg3states
       COMMAND ${EXECUTABLE_OUTPUT_PATH}/mkg3states

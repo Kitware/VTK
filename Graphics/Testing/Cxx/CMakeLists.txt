@@ -21,13 +21,13 @@ IF (VTK_USE_RENDERING)
   #
   # Add all the executables that require rendering
   #
-  ADD_EXECUTABLE(CellLocator CellLocator)
-  ADD_EXECUTABLE(PointLocator PointLocator)
-  ADD_EXECUTABLE(Mace Mace)
-  ADD_EXECUTABLE(expCos expCos)
-  ADD_EXECUTABLE(volProt volProt)
-  ADD_EXECUTABLE(RGrid RGrid)
-  ADD_EXECUTABLE(FrustumClip FrustumClip)
+  ADD_EXECUTABLE(CellLocator CellLocator.cxx)
+  ADD_EXECUTABLE(PointLocator PointLocator.cxx)
+  ADD_EXECUTABLE(Mace Mace.cxx)
+  ADD_EXECUTABLE(expCos expCos.cxx)
+  ADD_EXECUTABLE(volProt volProt.cxx)
+  ADD_EXECUTABLE(RGrid RGrid.cxx)
+  ADD_EXECUTABLE(FrustumClip FrustumClip.cxx)
 
   #
   # Add tests, with the data

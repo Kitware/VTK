@@ -11,18 +11,18 @@ vtkCommon
 LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff)
 
 IF (VTK_USE_HYBRID)
-    ADD_EXECUTABLE(ParallelIsoTest ParallelIso)
+    ADD_EXECUTABLE(ParallelIsoTest ParallelIso.cxx)
     TARGET_LINK_LIBRARIES(ParallelIsoTest  vtkHybrid)
 ENDIF (VTK_USE_HYBRID)
 
-ADD_EXECUTABLE(SocketServer SocketServer)
-ADD_EXECUTABLE(SocketClient SocketClient)
-ADD_EXECUTABLE(GenericCommunicator GenericCommunicator)
-ADD_EXECUTABLE(ThreadedCommunicator ThreadedCommunicator)
+ADD_EXECUTABLE(SocketServer SocketServer.cxx)
+ADD_EXECUTABLE(SocketClient SocketClient.cxx)
+ADD_EXECUTABLE(GenericCommunicator GenericCommunicator.cxx)
+ADD_EXECUTABLE(ThreadedCommunicator ThreadedCommunicator.cxx)
 IF (VTK_USE_MPI)
-  ADD_EXECUTABLE(MPIGroups MPIGroups)
+  ADD_EXECUTABLE(MPIGroups MPIGroups.cxx)
 ENDIF (VTK_USE_MPI)
- 
+
 LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
 
 IF (VTK_MANGLE_MESA)

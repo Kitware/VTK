@@ -29,9 +29,9 @@ ENDIF (VTK_USE_X)
 #
 # Add all the executables that require rendering
 #
-ADD_EXECUTABLE(TimeRenderer TimeRenderer)
-ADD_EXECUTABLE(TimeRenderer2 TimeRenderer2)
-ADD_EXECUTABLE(otherCoordinate otherCoordinate)
+ADD_EXECUTABLE(TimeRenderer TimeRenderer.cxx)
+ADD_EXECUTABLE(TimeRenderer2 TimeRenderer2.cxx)
+ADD_EXECUTABLE(otherCoordinate otherCoordinate.cxx)
 
 ADD_TEST(otherCoordinate ${CXX_TEST_PATH}/otherCoordinate)
 
