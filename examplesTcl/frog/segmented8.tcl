@@ -47,7 +47,7 @@ if {[info exists DECIMATE_ERROR_INCREMENT] == 0} {set DECIMATE_ERROR_INCREMENT .
 if {[info exists ISLAND_AREA] == 0} {set ISLAND_AREA 4}
 if {[info exists ISLAND_REPLACE] == 0} {set ISLAND_REPLACE -1}
 if {[info exists SMOOTH_FACTOR] == 0} {set SMOOTH_FACTOR .01}
-if {[info exists GAUSSIAN_STANDARD_DEVIATION] == 0} {set GAUSSIAN_STANDARD_DEVIATION "2 2 2"}
+if {[info exists GAUSSIAN_STANDARD_DEVIATION] == 0} {set GAUSSIAN_STANDARD_DEVIATION "1 1 1"}
 if {[info exists VOI] == 0} {
     set VOI "0 [expr $COLUMNS - 1] 0 [expr $ROWS - 1] 0 $ZMAX]"
 }
@@ -109,13 +109,14 @@ set lastConnection shrinker
 if {$GAUSSIAN_STANDARD_DEVIATION != "0 0 0"} {
   vtkImageGaussianSmooth gaussian
       gaussian SetDimensionality 3
-      eval gaussian SetStandardDeviation $GAUSSIAN_STANDARD_DEVIATION
-      gaussian SetRadiusFactor 1
+      eval gaussian SetStandardDeviations $GAUSSIAN_STANDARD_DEVIATION
+      gaussian SetRadiusFactors 1 1 1
       gaussian SetInput [shrinker GetOutput]
       set lastConnection gaussian
 }
+
 vtkImageToStructuredPoints toStructuredPoints
-    toStructuredPoints SetScalarInput [$lastConnection GetOutput]
+    toStructuredPoints SetInput [$lastConnection GetOutput]
     [toStructuredPoints GetOutput] ReleaseDataFlagOn
 
 vtkMarchingCubes mcubes;
@@ -168,7 +169,7 @@ vtkStripper stripper
 vtkPolyDataWriter writer
     writer SetInput [stripper GetOutput]
     eval writer SetFileName $NAME.vtk
-    writer SetFileType 2
+    writer SetFileTypeToASCII
 
 proc readerStart {} {global NAME; puts -nonewline "$NAME read took:\t"; flush stdout};
 reader SetStartMethod readerStart
