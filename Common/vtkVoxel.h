@@ -19,6 +19,9 @@
 // angles of 90 degrees, and sides are parallel to coordinate axes. This
 // results in large increases in computational performance.
 
+// .SECTION See Also
+// vtkConvexPointSet vtkHexahedron vtkPyramid vtkTetra vtkWedge
+
 #ifndef __vtkVoxel_h
 #define __vtkVoxel_h
 

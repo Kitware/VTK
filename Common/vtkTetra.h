@@ -21,6 +21,9 @@
 // right hand rule, forms a triangle whose normal points in the direction
 // of the fourth point.
 
+// .SECTION See Also
+// vtkConvexPointSet vtkHexahedron vtkPyramid vtkVoxel vtkWedge
+
 #ifndef __vtkTetra_h
 #define __vtkTetra_h
 

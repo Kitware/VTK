@@ -22,6 +22,9 @@
 // forms a quadrilaterial whose normal points in the direction of the 
 // opposite face (4,5,6,7).
 
+// .SECTION See Also
+// vtkConvexPointSet vtkPyramid vtkTetra vtkVoxel vtkWedge
+
 #ifndef __vtkHexahedron_h
 #define __vtkHexahedron_h
 

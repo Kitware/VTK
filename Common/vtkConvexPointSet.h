@@ -21,6 +21,9 @@
 // be compatible across shared faces. This allows a general approach to 
 // processing complex, convex cell types.
 
+// .SECTION See Also
+// vtkHexahedron vtkPyramid vtkTetra vtkVoxel vtkWedge
+
 #ifndef __vtkConvexPointSet_h
 #define __vtkConvexPointSet_h
 

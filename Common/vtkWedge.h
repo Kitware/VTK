@@ -17,10 +17,13 @@
 // vtkWedge is a concrete implementation of vtkCell to represent a linear 3D
 // wedge. A wedge consists of two triangular and three quadrilateral faces
 // and is defined by the six points (0-5). vtkWedge uses the standard
-// isoparametric shape functions for a linear pyramid. The pyramid is defined
+// isoparametric shape functions for a linear wedge. The wedge is defined
 // by the six points (0-5) where (0,1,2) is the base of the wedge which,
 // using the right hand rule, forms a triangle whose normal points in
 // the direction of the opposite triangular face (3,4,5).
+
+// .SECTION See Also
+// vtkConvexPointSet vtkHexahedron vtkPyramid vtkTetra vtkVoxel
 
 #ifndef __vtkWedge_h
 #define __vtkWedge_h

@@ -22,6 +22,9 @@
 // forms a quadrilaterial whose normal points in the direction of the 
 // pyramid apex at vertex #4.
 
+// .SECTION See Also
+// vtkConvexPointSet vtkHexahedron vtkTetra vtkVoxel vtkWedge
+
 #ifndef __vtkPyramid_h
 #define __vtkPyramid_h
 
