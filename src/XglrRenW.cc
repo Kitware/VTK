@@ -37,6 +37,27 @@ vtkXglrRenderWindow::vtkXglrRenderWindow()
 }
 
 // Description:
+// free the memory
+vtkXglrRenderWindow::~vtkXglrRenderWindow()
+{
+  // close the XGL window 
+  if (this->Context)
+    {
+    xgl_object_destroy(this->WindowRaster);
+    xgl_object_destroy(this->Context);
+    this->Context = NULL;
+    this->WindowRaster = NULL;
+    }
+
+  /* free the Xwindow we created no need to free the colormap */
+  if (this->OwnWindow)
+    {
+    XDestroyWindow(this->DisplayId,this->WindowId);
+    }
+  XSync(this->DisplayId,0);
+}
+
+// Description:
 // Create a XGL specific light.
 vtkLightDevice *vtkXglrRenderWindow::MakeLight()
 {
@@ -784,6 +805,7 @@ unsigned char *vtkXglrRenderWindow::GetPixelData(int x1, int y1,
   static  Xgl_ras *getRas = NULL;
   static  Xgl_3d_ctx getContext;
   Xgl_usgn32 *input;
+  Xgl_usgn32 *pos;
 
   if (!getRas)
     {
@@ -853,15 +875,15 @@ unsigned char *vtkXglrRenderWindow::GetPixelData(int x1, int y1,
 
   /* now write the binary info one row at a time */
   p_data = data;
-  for (yloop = (this->Size[1] - y_hi - 1); 
-       yloop <= (this->Size[1] - y_low -1); yloop++)
+  for (yloop = y_low; yloop <= y_hi; yloop++)
     {
+    pos = input + (this->Size[1] - yloop - 1)*this->Size[0];
     for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
       {
-      *p_data = *input & 0x000000ff; p_data++;
-      *p_data = (*input & 0x0000ff00) >> 8; p_data++;
-      *p_data = (*input & 0x00ff0000) >> 16; p_data++;
-      input++;
+      *p_data = *pos & 0x000000ff; p_data++;
+      *p_data = (*pos & 0x0000ff00) >> 8; p_data++;
+      *p_data = (*pos & 0x00ff0000) >> 16; p_data++;
+      pos++;
       }
     }
   
@@ -923,8 +945,8 @@ void vtkXglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
   // now write the binary info one row at a time 
   p_data = data;
-  for (yloop = (this->Size[1] - y_hi - 1); 
-       yloop <= (this->Size[1] - y_low -1); yloop++)
+  for (yloop = (this->Size[1] - y_low - 1); 
+       yloop >= (this->Size[1] - y_hi -1); yloop--)
     {
     pos.y = yloop;
     for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)

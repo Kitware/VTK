@@ -44,9 +44,9 @@ void vtkXglrLight::Render(vtkLight *lgt, vtkXglrRenderer *ren,int light_index)
   
   FocalPoint = lgt->GetFocalPoint();
   Position   = lgt->GetPosition();
-  direction.x = Position[0] - FocalPoint[0];
-  direction.y = Position[1] - FocalPoint[1];
-  direction.z = Position[2] - FocalPoint[2];
+  direction.x = FocalPoint[0] - Position[0];
+  direction.y = FocalPoint[1] - Position[1];
+  direction.z = FocalPoint[2] - Position[2];
 
   lights = ren->GetLightArray();
   

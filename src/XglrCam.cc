@@ -243,8 +243,8 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
 
   dc_bounds.xmin = vport[0]*(size[0] - 1);
   dc_bounds.xmax = vport[2]*(size[0] - 1);
-  dc_bounds.ymin = vport[1]*(size[1] - 1);
-  dc_bounds.ymax = vport[3]*(size[1] - 1);
+  dc_bounds.ymin = (1.0 - vport[3])*(size[1] - 1);
+  dc_bounds.ymax = (1.0 - vport[1])*(size[1] - 1);
   dc_bounds.zmin = 0;
   dc_bounds.zmax = max_device_values.z;
   xgl_object_set(*context, XGL_CTX_DC_VIEWPORT, &dc_bounds, NULL);

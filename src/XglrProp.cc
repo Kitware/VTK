@@ -65,7 +65,7 @@ void vtkXglrProperty::Render(vtkProperty *prop, vtkXglrRenderer *ren)
 		   prop->GetSpecularPower(),
 		   XGL_3D_CTX_SURF_FRONT_SPECULAR_COLOR, &specularColor,
 		   XGL_CTX_SURF_FRONT_COLOR, &diffuseColor,
-		   XGL_CTX_LINE_COLOR, &DiffuseColor,
+		   XGL_CTX_LINE_COLOR, &diffuseColor,
 		   XGL_3D_CTX_SURF_BACK_AMBIENT, Ambient,
 		   XGL_3D_CTX_SURF_BACK_DIFFUSE, Diffuse,
 		   XGL_3D_CTX_SURF_BACK_SPECULAR, Specular,
