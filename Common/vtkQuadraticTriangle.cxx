@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.5");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.6");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 // Construct the line with two points.
@@ -253,9 +253,12 @@ int vtkQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 }
 
 void vtkQuadraticTriangle::Derivatives(int vtkNotUsed(subId), 
-                                       float pcoords[3], float *values, 
-                                       int dim, float *derivs)
+                                       float pcoords[3], 
+                                       float *vtkNotUsed(values), 
+                                       int vtkNotUsed(dim), 
+                                       float *vtkNotUsed(derivs))
 {
+  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 }
 
 

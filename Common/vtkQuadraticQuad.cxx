@@ -24,7 +24,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.6");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.7");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 // Construct the line with two points.
@@ -222,7 +222,7 @@ void vtkQuadraticQuad::InterpolateAttributes(vtkPointData *inPd,
 }
 
 void vtkQuadraticQuad::Contour(float value, 
-                               vtkDataArray* cellScalars, 
+                               vtkDataArray* vtkNotUsed(cellScalars), 
                                vtkPointLocator* locator, 
                                vtkCellArray *verts, 
                                vtkCellArray* lines, 

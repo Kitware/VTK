@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.7");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.8");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -320,7 +320,7 @@ int vtkQuadraticHexahedron::CellBoundary(int subId, float pcoords[3],
 }
 
 void vtkQuadraticHexahedron::Contour(float value, 
-                                     vtkDataArray* cellScalars, 
+                                     vtkDataArray* vtkNotUsed(cellScalars), 
                                      vtkPointLocator* locator, 
                                      vtkCellArray *verts, 
                                      vtkCellArray* lines, 
