@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include <stdlib.h>
 #include "vtkPolygon.h"
 #include "vtkMath.h"
 #include "vtkLine.h"
@@ -832,7 +833,7 @@ void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars,
   static vtkTriangle tri;
   static vtkIdList Tris((VTK_CELL_SIZE-2)*3);
   static vtkFloatScalars triScalars(3);
-  int *polyVerts = new int[numVerts];
+  int *polyVerts = new int[numVerts], p1, p2, p3;
 
   bounds = this->GetBounds();
   
@@ -855,20 +856,24 @@ void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars,
     {
     for (i=0; i<Tris.GetNumberOfIds(); i += 3)
       {
-      tri.Points.SetPoint(0,this->Points.GetPoint(i));
-      tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
-      tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
+      p1 = Tris.GetId(i);
+      p2 = Tris.GetId(i+1);
+      p3 = Tris.GetId(i+2);
+
+      tri.Points.SetPoint(0,this->Points.GetPoint(p1));
+      tri.Points.SetPoint(1,this->Points.GetPoint(p2));
+      tri.Points.SetPoint(2,this->Points.GetPoint(p3));
 
       if ( outPd )
         {
-        tri.PointIds.SetId(0,this->PointIds.GetId(i));
-        tri.PointIds.SetId(1,this->PointIds.GetId(i+1));
-        tri.PointIds.SetId(2,this->PointIds.GetId(i+2));
+        tri.PointIds.SetId(0,this->PointIds.GetId(p1));
+        tri.PointIds.SetId(1,this->PointIds.GetId(p2));
+        tri.PointIds.SetId(2,this->PointIds.GetId(p3));
         }
 
-      triScalars.SetScalar(0,cellScalars->GetScalar(i));
-      triScalars.SetScalar(1,cellScalars->GetScalar(i+1));
-      triScalars.SetScalar(2,cellScalars->GetScalar(i+2));
+      triScalars.SetScalar(0,cellScalars->GetScalar(p1));
+      triScalars.SetScalar(1,cellScalars->GetScalar(p2));
+      triScalars.SetScalar(2,cellScalars->GetScalar(p3));
 
       tri.Contour(value, &triScalars, locator, verts,
                    lines, polys, inPd, outPd);
@@ -1073,8 +1078,56 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3],
 
 void vtkPolygon::Clip(float value, vtkFloatScalars *cellScalars, 
                       vtkPointLocator *locator, vtkCellArray *tris,
-                      vtkPointData *inPd, vtkPointData *outPd,
+                      vtkPointData *inPD, vtkPointData *outPD,
                       int insideOut)
 {
+  int i, success;
+  int numVerts=this->Points.GetNumberOfPoints();
+  float *bounds, d;
+  static vtkTriangle tri;
+  static vtkIdList Tris(VTK_CELL_SIZE);
+  static vtkFloatScalars triScalars(3);
+  int *polyVerts = new int[numVerts], p1, p2, p3;
 
+  bounds = this->GetBounds();
+  
+  d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
+           (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
+           (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
+  Tolerance = TOLERANCE * d;
+  SuccessfulTriangulation = 1;
+  this->ComputeNormal(&this->Points, Normal);
+
+  for (i=0; i<numVerts; i++) polyVerts[i] = i;
+  Tris.Reset();
+
+  success = this->FastTriangulate(numVerts, polyVerts, Tris);
+
+  if ( !success ) // Just skip for now.
+    {
+    }
+  else // clip triangles
+    {
+    for (i=0; i<Tris.GetNumberOfIds(); i += 3)
+      {
+      p1 = Tris.GetId(i);
+      p2 = Tris.GetId(i+1);
+      p3 = Tris.GetId(i+2);
+
+      tri.Points.SetPoint(0,this->Points.GetPoint(p1));
+      tri.Points.SetPoint(1,this->Points.GetPoint(p2));
+      tri.Points.SetPoint(2,this->Points.GetPoint(p3));
+
+      tri.PointIds.SetId(0,this->PointIds.GetId(p1));
+      tri.PointIds.SetId(1,this->PointIds.GetId(p2));
+      tri.PointIds.SetId(2,this->PointIds.GetId(p3));
+
+      triScalars.SetScalar(0,cellScalars->GetScalar(p1));
+      triScalars.SetScalar(1,cellScalars->GetScalar(p2));
+      triScalars.SetScalar(2,cellScalars->GetScalar(p3));
+
+      tri.Clip(value, &triScalars, locator, tris, inPD, outPD, insideOut);
+      }
+    }
+  delete [] polyVerts;
 }
