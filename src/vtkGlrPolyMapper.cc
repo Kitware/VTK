@@ -43,10 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGlrRenderer.hh"
 #include "vtkPolygon.hh"
 #include "vtkPolyData.hh"
+#include "vtkGlrPolyMapper.hh"
 
 // Description:
 // Construct empty object.
-vtkGlrPrimitive::vtkGlrPrimitive()
+vtkGlrPolyMapper::vtkGlrPolyMapper()
 {
   this->Data = NULL; 
   this->Colors = NULL; 
@@ -57,7 +58,7 @@ vtkGlrPrimitive::vtkGlrPrimitive()
 // function.  It determines how vertex colors will be handled  
 // in gl.  When a primitive has vertex colors it will use this 
 // method to determine what lmcolor mode to set.               
-int vtkGlrPrimitive::GetLmcolorMode(vtkProperty *prop)
+int vtkGlrPolyMapper::GetLmcolorMode(vtkProperty *prop)
 {
   if (prop->GetAmbient() > prop->GetDiffuse())
     {
@@ -71,7 +72,7 @@ int vtkGlrPrimitive::GetLmcolorMode(vtkProperty *prop)
 
 // Description:
 // Build the data structure for the gl polygon primitive.
-void vtkGlrPrimitive::Build(vtkPolyData *data, vtkColorScalars *c)
+void vtkGlrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
 {
   this->Data = data;
   this->Colors = c;
@@ -81,7 +82,7 @@ void vtkGlrPrimitive::Build(vtkPolyData *data, vtkColorScalars *c)
 
 // Description:
 // Load poly data into gl graphics library.
-void vtkGlrPrimitive::Draw(vtkRenderer *aren)
+void vtkGlrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
 {
   vtkGlrRenderer *ren = (vtkGlrRenderer *)aren;
   int npts, idx[3], npolys, rep, j, interpolation;
@@ -104,7 +105,7 @@ void vtkGlrPrimitive::Draw(vtkRenderer *aren)
     return;
 
   // get the property 
-  prop = this->GetProperty();
+  prop = act->GetProperty();
 
   // get the transparency 
   tran = prop->GetOpacity();
