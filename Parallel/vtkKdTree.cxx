@@ -45,13 +45,13 @@
 #include "vtkUniformGrid.h"
 #include "vtkRectilinearGrid.h"
 
-#ifdef _MSV_VER
+#ifdef _MSC_VER
 #pragma warning ( disable : 4100 )
 #endif
 #include <algorithm>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.6");
+vtkCxxRevisionMacro(vtkKdTree, "1.7");
 
 // methods for vtkKdNode -------------------------------------------
 
