@@ -72,10 +72,6 @@ public:
   void SetFontSize(int size);
 
   // Description:
-  // Draw the text to the screen.
-  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
-
-  // Description:
   // What is the size of the rectangle required to draw this
   // mapper ?
   void GetSize(vtkViewport* viewport, int size[2]);
