@@ -56,13 +56,15 @@ vtkCellArray *vtkPolyData::Dummy = NULL;
 
 vtkPolyData::vtkPolyData ()
 {
+  static vtkCellArray StaticDummyObject;
+
   this->Verts = NULL;
   this->Lines = NULL;
   this->Polys = NULL;
   this->Strips = NULL;
 
   // static variable, initialized only once.
-  if (!this->Dummy) this->Dummy = new vtkCellArray;
+  if (!this->Dummy) this->Dummy = &StaticDummyObject;
 
   this->Cells = NULL;
   this->Links = NULL;
