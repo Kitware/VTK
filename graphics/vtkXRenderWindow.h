@@ -80,7 +80,7 @@ public:
   void     SetWindowId(Window);
   void     SetWindowId(void *);
   void     SetNextWindowId(Window);
-  virtual void     SetWindowName(char *);
+  void     SetWindowName(char *);
   void     SetPosition(int,int);
   virtual int      GetDesiredDepth()    = 0;
   virtual Colormap GetDesiredColormap() = 0;
