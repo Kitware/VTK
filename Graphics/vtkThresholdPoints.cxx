@@ -17,12 +17,14 @@
 #include "vtkCellArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkThresholdPoints, "1.38");
+vtkCxxRevisionMacro(vtkThresholdPoints, "1.39");
 vtkStandardNewMacro(vtkThresholdPoints);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -42,19 +44,19 @@ void vtkThresholdPoints::ThresholdByLower(double lower)
 
   if ( this->ThresholdFunction != &vtkThresholdPoints::Lower )
     {
-      this->ThresholdFunction = &vtkThresholdPoints::Lower;
-      isModified=1;
+    this->ThresholdFunction = &vtkThresholdPoints::Lower;
+    isModified=1;
     }
 
   if ( this->LowerThreshold != lower )
     {
-      this->LowerThreshold = lower; 
-      isModified=1;
+    this->LowerThreshold = lower; 
+    isModified=1;
     }
   
   if(isModified)
     {
-      this->Modified();
+    this->Modified();
     }
 }
                            
@@ -65,19 +67,19 @@ void vtkThresholdPoints::ThresholdByUpper(double upper)
 
   if ( this->ThresholdFunction != &vtkThresholdPoints::Upper )
     {
-      this->ThresholdFunction = &vtkThresholdPoints::Upper;
-      isModified=1;
+    this->ThresholdFunction = &vtkThresholdPoints::Upper;
+    isModified=1;
     }
 
   if ( this->UpperThreshold != upper )
     {
-      this->UpperThreshold = upper; 
-      isModified=1;
+    this->UpperThreshold = upper; 
+    isModified=1;
     }
   
   if(isModified)
     {
-      this->Modified();
+    this->Modified();
     }
 }
                            
@@ -88,45 +90,56 @@ void vtkThresholdPoints::ThresholdBetween(double lower, double upper)
 
   if ( this->ThresholdFunction != &vtkThresholdPoints::Between )
     {
-      this->ThresholdFunction = &vtkThresholdPoints::Between;
-      isModified=1;
+    this->ThresholdFunction = &vtkThresholdPoints::Between;
+    isModified=1;
     }
 
   if ( this->LowerThreshold != lower )
     {
-      this->LowerThreshold = lower;
-      isModified=1;
+    this->LowerThreshold = lower;
+    isModified=1;
     }
   
   if ( this->UpperThreshold != upper )
     {
-      this->UpperThreshold = upper;
-      isModified=1;
+    this->UpperThreshold = upper;
+    isModified=1;
     }
 
   if(isModified)
     {
-      this->Modified();
+    this->Modified();
     }
 }
   
-void vtkThresholdPoints::Execute()
+int vtkThresholdPoints::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkDataArray *inScalars;
   vtkPoints *newPoints;
   vtkPointData *pd, *outPD;
   vtkCellArray *verts;
   vtkIdType ptId, numPts, pts[1];
   double x[3];
-  vtkDataSet *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
 
   vtkDebugMacro(<< "Executing threshold points filter");
 
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to threshold");
-    return;
+    return 0;
     }
      
   numPts = input->GetNumberOfPoints();
@@ -161,7 +174,6 @@ void vtkThresholdPoints::Execute()
 
   vtkDebugMacro(<< "Extracted " << output->GetNumberOfPoints() << " points.");
 
-
   // Update ourselves and release memory
   //
   output->SetPoints(newPoints);
@@ -171,6 +183,8 @@ void vtkThresholdPoints::Execute()
   verts->Delete();
 
   output->Squeeze();
+
+  return 1;
 }
 
 void vtkThresholdPoints::PrintSelf(ostream& os, vtkIndent indent)

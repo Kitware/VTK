@@ -24,13 +24,13 @@
 #ifndef __vtkThresholdPoints_h
 #define __vtkThresholdPoints_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkThresholdPoints : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkThresholdPoints : public vtkDataSetToPolyDataAlgorithm
 {
 public:
   static vtkThresholdPoints *New();
-  vtkTypeRevisionMacro(vtkThresholdPoints,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkThresholdPoints,vtkDataSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -56,7 +56,7 @@ protected:
   ~vtkThresholdPoints() {};
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double LowerThreshold;
   double UpperThreshold;
