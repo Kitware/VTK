@@ -15,7 +15,7 @@ vtkRenderWindow *renWin;
 vtkPolyData *inputDataSet;
 
 // User Method to do animation for 10 "frames"
-void UserMethod(void *arg)
+void UserMethod(void *vtkNotUsed(arg))
 {
    float p[3];
    for (int n=0; n<50; n++)
