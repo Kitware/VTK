@@ -102,8 +102,14 @@ public:
   // Description:
   // Evaluate the input function with the specified values.  (These values
   // must be set before Evaluate() is called.)
-  double* Evaluate();
+  void Evaluate();
 
+  // Description:
+  // Get the results of evaluating the input function.
+  double GetScalarResult() { return this->Stack[0]; } 
+  double* GetVectorResult() { return this->Stack; }
+  double GetVectorResultComponent(int i) { return this->Stack[i]; }
+  
   // Decription:
   // Set/Get input string to parse.
   vtkSetStringMacro(Function);
@@ -115,11 +121,43 @@ public:
   void AddVectorVariableName(char* variableName);
 
   // Description:
+  // Get the ith scalar variable name.
+  char* GetScalarVariableName(int i);
+  
+  // Description:
+  // Get the ith vector variable name.
+  char* GetVectorVariableName(int i);
+  
+  // Description:
   // Set the values for the variables in the order that their variable names
   // were added.
   void SetScalarVariableValues(double* values);
   void SetVectorVariableValues(double values[][3]);
   
+  // Description:
+  // Set the value of a particular variable.  Make sure you set
+  // the variable names and call SetNumberOfVectorVariables / 
+  // SetNumberOfScalarVariables first.
+  void SetScalarVariableValue(const char* variableName, double value);
+  void SetVectorVariableValue(const char* variableName, double xValue,
+                              double yValue, double zValue);
+  void SetVectorVariableValue(const char* variableName, double values[3]);
+  
+  // Description:
+  // Get the value of a particular variable.
+  double GetScalarVariableValue(const char* variableName);
+  double* GetVectorVariableValue(const char* variableName);
+  
+  // Description:
+  // Set/Get the number of scalar variables.
+  void SetNumberOfScalarVariables(int numScalars);
+  vtkGetMacro(NumberOfScalarVariables, int);
+  
+  // Description:
+  // Set/Get the number of vector variables.
+  void SetNumberOfVectorVariables(int numVectors);
+  vtkGetMacro(NumberOfVectorVariables, int);
+
 protected:
   vtkFunctionParser();
   ~vtkFunctionParser();

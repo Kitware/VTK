@@ -72,7 +72,6 @@ vtkFunctionParser::vtkFunctionParser()
   this->Stack = NULL;
   this->StackSize = 0;
   this->StackPointer = 0;
-//  this->Result = NULL;
 }
 
 vtkFunctionParser::~vtkFunctionParser() 
@@ -392,7 +391,7 @@ int vtkFunctionParser::DisambiguateOperators()
   return 1;
 }
 
-double* vtkFunctionParser::Evaluate()
+void vtkFunctionParser::Evaluate()
 {
   int numBytesProcessed;
   unsigned int numImmediatesProcessed = 0;
@@ -427,7 +426,7 @@ double* vtkFunctionParser::Evaluate()
         if (this->Stack[stackPosition]==0)
           {
           vtkErrorMacro("Trying to divide by zero");
-          return NULL;
+          return;
           }
         this->Stack[stackPosition-1] /= this->Stack[stackPosition];
         stackPosition--;
@@ -453,7 +452,7 @@ double* vtkFunctionParser::Evaluate()
         if (this->Stack[stackPosition]<=0)
           {
           vtkErrorMacro("Trying to take a logarithm of a negative value");
-          return NULL;
+          return;
           }
         this->Stack[stackPosition] = log(this->Stack[stackPosition]);
         break;
@@ -461,7 +460,7 @@ double* vtkFunctionParser::Evaluate()
         if (this->Stack[stackPosition] < 0)
           {
           vtkErrorMacro("Trying to take a square root of a negative value");
-          return NULL;
+          return;
           }
         this->Stack[stackPosition] = sqrt(this->Stack[stackPosition]);
         break;
@@ -478,7 +477,7 @@ double* vtkFunctionParser::Evaluate()
         if (this->Stack[stackPosition] < -1 || this->Stack[stackPosition] > 1)
           {
           vtkErrorMacro("Trying to take asin of a value < -1 or > 1");
-          return NULL;
+          return;
           }
         this->Stack[stackPosition] = asin(this->Stack[stackPosition]);
         break;
@@ -486,7 +485,7 @@ double* vtkFunctionParser::Evaluate()
         if(this->Stack[stackPosition]<-1 || this->Stack[stackPosition]>1)
           {
           vtkErrorMacro("Trying to take acos of a value < -1 or > 1");
-          return NULL;
+          return;
           }
         this->Stack[stackPosition] = acos(this->Stack[stackPosition]);
         break;
@@ -551,7 +550,7 @@ double* vtkFunctionParser::Evaluate()
           {
           vtkErrorMacro("The magnitude of this vector is zero; can't"
                         << " normalize");
-          return NULL;
+          return;
           }
         this->Stack[stackPosition] /= magnitude;
         this->Stack[stackPosition-1] /= magnitude;
@@ -578,8 +577,6 @@ double* vtkFunctionParser::Evaluate()
           }
       }
     }
-
-  return this->Stack;
 }
 
 void vtkFunctionParser::AddScalarVariableName(char* variableName)
@@ -620,6 +617,15 @@ void vtkFunctionParser::AddScalarVariableName(char* variableName)
   this->NumberOfScalarVariables++;
 }
 
+char* vtkFunctionParser::GetScalarVariableName(int i)
+{
+  if (i < this->NumberOfScalarVariables)
+    {
+    return this->ScalarVariableNames[i];
+    }
+  return NULL;
+}
+
 void vtkFunctionParser::AddVectorVariableName(char* variableName)
 {
   int size;
@@ -656,6 +662,51 @@ void vtkFunctionParser::AddVectorVariableName(char* variableName)
   this->VectorVariableNames[size] = new char[strlen(variableName) + 1];
   strcpy(this->VectorVariableNames[size], variableName);
   this->NumberOfVectorVariables++;
+}
+
+char* vtkFunctionParser::GetVectorVariableName(int i)
+{
+  if (i < this->NumberOfVectorVariables)
+    {
+    return this->VectorVariableNames[i];
+    }
+  return NULL;
+}
+
+void vtkFunctionParser::SetNumberOfScalarVariables(int numScalars)
+{
+  if (numScalars >= 0)
+    {
+    this->NumberOfScalarVariables = numScalars;
+    if (this->ScalarVariableValues)
+      {
+      delete [] this->ScalarVariableValues;
+      this->ScalarVariableValues = NULL;
+      }
+    
+    this->ScalarVariableValues = new double[numScalars];
+    }
+}
+
+void vtkFunctionParser::SetNumberOfVectorVariables(int numVectors)
+{
+  int i;
+  
+  if (numVectors >= 0)
+    {
+    this->NumberOfVectorVariables = numVectors;
+    if (this->VectorVariableValues)
+      {
+      delete [] this->VectorVariableValues;
+      this->VectorVariableValues = NULL;
+      }
+    
+    this->VectorVariableValues = new double *[numVectors];
+    for (i = 0; i < numVectors; i++)
+      {
+      this->VectorVariableValues[i] = new double[3];
+      }
+    }
 }
 
 int vtkFunctionParser::IsVariableName(int currentIndex)
@@ -704,6 +755,35 @@ void vtkFunctionParser::SetScalarVariableValues(double* values)
     }
 }
 
+void vtkFunctionParser::SetScalarVariableValue(const char* variableName,
+                                               double value)
+{
+  int i;
+  
+  for (i = 0; i < this->NumberOfScalarVariables; i++)
+    {
+    if (strcmp(variableName, this->ScalarVariableNames[i]) == 0)
+      {
+      this->ScalarVariableValues[i] = value;
+      return;
+      }
+    }
+}
+
+double vtkFunctionParser::GetScalarVariableValue(const char* variableName)
+{
+  int i;
+  
+  for (i = 0; i < this->NumberOfScalarVariables; i++)
+    {
+    if (strcmp(variableName, this->ScalarVariableNames[i]) == 0)
+      {
+      return this->ScalarVariableValues[i];
+      }
+    }
+  return VTK_LARGE_FLOAT;
+}
+
 void vtkFunctionParser::SetVectorVariableValues(double values[][3])
 {
   int i;
@@ -722,6 +802,44 @@ void vtkFunctionParser::SetVectorVariableValues(double values[][3])
     this->VectorVariableValues[i][1] = values[i][1];
     this->VectorVariableValues[i][2] = values[i][2];
     }
+}
+
+void vtkFunctionParser::SetVectorVariableValue(const char* variableName,
+                                               double value[3])
+{
+  this->SetVectorVariableValue(variableName, value[0], value[1], value[2]);
+}
+
+void vtkFunctionParser::SetVectorVariableValue(const char* variableName,
+                                               double xValue, double yValue,
+                                               double zValue)
+{
+  int i;
+  
+  for (i = 0; i < this->NumberOfVectorVariables; i++)
+    {
+    if (strcmp(variableName, this->VectorVariableNames[i]) == 0)
+      {
+      this->VectorVariableValues[i][0] = xValue;
+      this->VectorVariableValues[i][1] = yValue;
+      this->VectorVariableValues[i][2] = zValue;
+      return;
+      }
+    }
+}
+
+double* vtkFunctionParser::GetVectorVariableValue(const char* variableName)
+{
+  int i;
+  
+  for (i = 0; i < this->NumberOfVectorVariables; i++)
+    {
+    if (strcmp(variableName, this->VectorVariableNames[i]) == 0)
+      {
+      return this->VectorVariableValues[i];
+      }
+    }
+  return NULL;
 }
 
 void vtkFunctionParser::RemoveSpaces()
