@@ -44,15 +44,15 @@
 #ifndef __vtkGeometryFilter_h
 #define __vtkGeometryFilter_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
 class vtkPointLocator;
 
-class VTK_GRAPHICS_EXPORT vtkGeometryFilter : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkGeometryFilter : public vtkDataSetToPolyDataAlgorithm
 {
 public:
   static vtkGeometryFilter *New();
-  vtkTypeRevisionMacro(vtkGeometryFilter,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkGeometryFilter,vtkDataSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -129,12 +129,12 @@ protected:
   vtkGeometryFilter();
   ~vtkGeometryFilter();
 
-  void Execute();
-  void PolyDataExecute(); //special cases for performance
-  void UnstructuredGridExecute();
-  void StructuredGridExecute();
-  void ComputeInputUpdateExtents(vtkDataObject *output);
-  void ExecuteInformation();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  //special cases for performance
+  void PolyDataExecute(vtkDataSet *, vtkPolyData *, vtkInformation *);
+  void UnstructuredGridExecute(vtkDataSet *, vtkPolyData *, vtkInformation *);
+  void StructuredGridExecute(vtkDataSet *, vtkPolyData *, vtkInformation *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkIdType PointMaximum;
   vtkIdType PointMinimum;

@@ -17,14 +17,17 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
+#include "vtkHexagonalPrism.h"
 #include "vtkHexahedron.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPyramid.h"
 #include "vtkPentagonalPrism.h"
-#include "vtkHexagonalPrism.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTetra.h"
 #include "vtkUnsignedCharArray.h"
@@ -32,7 +35,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.98");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.99");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
@@ -106,11 +109,23 @@ void vtkGeometryFilter::SetExtent(double extent[6])
     }
 }
 
-void vtkGeometryFilter::Execute()
+int vtkGeometryFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType cellId, newCellId;
   int i, j;
-  vtkDataSet *input= this->GetInput();
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkIdType numCells=input->GetNumberOfCells();
   char *cellVis;
@@ -127,7 +142,6 @@ void vtkGeometryFilter::Execute()
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
   int allVisible;
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   // ghost cell stuff
@@ -136,20 +150,20 @@ void vtkGeometryFilter::Execute()
   
   if (numCells == 0)
     {
-    return;
+    return 1;
     }
 
   switch (input->GetDataObjectType())
     {
     case  VTK_POLY_DATA:
-      this->PolyDataExecute();
-      return;
+      this->PolyDataExecute(input, output, outInfo);
+      return 1;
     case  VTK_UNSTRUCTURED_GRID:
-      this->UnstructuredGridExecute();
-      return;
+      this->UnstructuredGridExecute(input, output, outInfo);
+      return 1;
     case VTK_STRUCTURED_GRID:      
-      this->StructuredGridExecute();
-      return;
+      this->StructuredGridExecute(input, output, outInfo);
+      return 1;
     }
 
   vtkDataArray* temp = 0;
@@ -323,7 +337,6 @@ void vtkGeometryFilter::Execute()
               }
             }
           break;
-
         } //switch
       } //if visible
     } //for all cells
@@ -350,6 +363,8 @@ void vtkGeometryFilter::Execute()
     {
     delete [] cellVis;
     }
+
+  return 1;
 }
 
 // Specify a spatial locator for merging points. By
@@ -413,7 +428,7 @@ void vtkGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 unsigned long int vtkGeometryFilter::GetMTime()
 {
-  unsigned long mTime=this-> vtkDataSetToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   if ( this->Locator != NULL )
@@ -424,10 +439,11 @@ unsigned long int vtkGeometryFilter::GetMTime()
   return mTime;
 }
 
-
-void vtkGeometryFilter::PolyDataExecute()
+void vtkGeometryFilter::PolyDataExecute(vtkDataSet *dataSetInput,
+                                        vtkPolyData *output,
+                                        vtkInformation *outInfo)
 {
-  vtkPolyData *input= (vtkPolyData *)this->GetInput();
+  vtkPolyData *input= (vtkPolyData *)dataSetInput;
   vtkIdType cellId;
   int i;
   int allVisible;
@@ -437,15 +453,16 @@ void vtkGeometryFilter::PolyDataExecute()
   vtkIdType numCells=input->GetNumberOfCells();
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkIdType newCellId, ptId;
   int visible, type;
   double x[3];
   // ghost cell stuff
-  unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  unsigned char  *cellGhostLevels = 0;
+  unsigned char updateLevel = (unsigned char)
+    (outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+  unsigned char *cellGhostLevels = 0;
   
   vtkDebugMacro(<<"Executing geometry filter for poly data input");
 
@@ -555,11 +572,16 @@ void vtkGeometryFilter::PolyDataExecute()
                 << output->GetNumberOfCells() << " cells.");
 }
 
-void vtkGeometryFilter::UnstructuredGridExecute()
+void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
+                                                vtkPolyData *output,
+                                                vtkInformation *outInfo)
 {
-  vtkUnstructuredGrid *input= (vtkUnstructuredGrid *)this->GetInput();
+  vtkUnstructuredGrid *input= (vtkUnstructuredGrid *)dataSetInput;
   vtkCellArray *Connectivity = input->GetCells();
-  if (Connectivity == NULL) {return;}
+  if (Connectivity == NULL)
+    {
+    return;
+    }
   vtkIdType cellId;
   int i;
   int allVisible;
@@ -569,7 +591,6 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   vtkIdType numCells=input->GetNumberOfCells();
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkCellArray *Verts, *Lines, *Polys, *Strips;
@@ -580,8 +601,10 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   double x[3];
   int PixelConvert[4];
   // ghost cell stuff
-  unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  unsigned char  *cellGhostLevels = 0;  
+  unsigned char  updateLevel = (unsigned char)
+    (outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+  unsigned char  *cellGhostLevels = 0;
   
   PixelConvert[0] = 0;
   PixelConvert[1] = 1;
@@ -1018,11 +1041,13 @@ void vtkGeometryFilter::UnstructuredGridExecute()
     }
 }
 
-void vtkGeometryFilter::StructuredGridExecute()
+void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
+                                              vtkPolyData *output,
+                                              vtkInformation *outInfo)
 {
   vtkIdType cellId, newCellId;
   int i;
-  vtkStructuredGrid *input=(vtkStructuredGrid *)this->GetInput();
+  vtkStructuredGrid *input=(vtkStructuredGrid *)dataSetInput;
   vtkIdType numCells=input->GetNumberOfCells();
   char *cellVis;
   vtkGenericCell *cell;
@@ -1036,12 +1061,13 @@ void vtkGeometryFilter::StructuredGridExecute()
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
   int allVisible;
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkCellArray *cells;
   // ghost cell stuff
-  unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
+  unsigned char  updateLevel = (unsigned char)
+    (outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
   unsigned char  *cellGhostLevels = 0;
   
   cellIds = vtkIdList::New();
@@ -1209,35 +1235,35 @@ void vtkGeometryFilter::StructuredGridExecute()
     }
 }
 
-
-void vtkGeometryFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+int vtkGeometryFilter::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   int piece, numPieces, ghostLevels;
   
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("No Input");
-    return;
-    }
-  piece = output->GetUpdatePiece();
-  numPieces = output->GetUpdateNumberOfPieces();
-  ghostLevels = output->GetUpdateGhostLevel();
+  piece =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevels =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
   
   if (numPieces > 1)
     {
     ++ghostLevels;
     }
 
-  this->GetInput()->SetUpdateExtent(piece, numPieces, ghostLevels);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+              numPieces);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+              ghostLevels);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 
-  this->GetInput()->RequestExactExtentOn();
-}
-
-void vtkGeometryFilter::ExecuteInformation()
-{
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("No Input");
-    return;
-    }
+  return 1;
 }
