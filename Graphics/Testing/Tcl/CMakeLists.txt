@@ -22,6 +22,7 @@ IF (VTK_USE_RENDERING)
       CellDataToPointData
       clipArt
       clipImage
+      clipQuadraticCells
       clipVolume
       clipVolume2
       combStreamers

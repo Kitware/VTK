@@ -227,13 +227,13 @@ vtkPoints hexPoints
 vtkFloatArray hexScalars
   hexScalars SetNumberOfTuples 20
   hexScalars InsertValue 0 1.0
-  hexScalars InsertValue 1 0.0
-  hexScalars InsertValue 2 0.0
-  hexScalars InsertValue 3 0.0
-  hexScalars InsertValue 4 0.0
-  hexScalars InsertValue 5 0.0
-  hexScalars InsertValue 6 0.0
-  hexScalars InsertValue 7 0.0
+  hexScalars InsertValue 1 1.0
+  hexScalars InsertValue 2 1.0
+  hexScalars InsertValue 3 1.0
+  hexScalars InsertValue 4 1.0
+  hexScalars InsertValue 5 1.0
+  hexScalars InsertValue 6 1.0
+  hexScalars InsertValue 7 1.0
   hexScalars InsertValue 8 0.0
   hexScalars InsertValue 9 0.0
   hexScalars InsertValue 10 0.0
