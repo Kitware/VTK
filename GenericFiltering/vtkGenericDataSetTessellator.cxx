@@ -19,13 +19,15 @@
 #include "vtkPointData.h"
 #include "vtkTetra.h"
 #include "vtkCellArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkMergePoints.h"
 #include "vtkGenericDataSet.h"
 #include "vtkGenericCellIterator.h"
 #include "vtkGenericAdaptorCell.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.1");
+vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.2");
 vtkStandardNewMacro(vtkGenericDataSetTessellator);
 
 //----------------------------------------------------------------------------
@@ -43,61 +45,73 @@ vtkGenericDataSetTessellator::~vtkGenericDataSetTessellator()
 //
 void vtkGenericDataSetTessellator::Execute()
 {
+  vtkDebugMacro(<< "Executing vtkGenericDataSetTessellator...");
+
   vtkGenericDataSet *input = this->GetInput();
   vtkUnstructuredGrid *output = this->GetOutput();
-  if (input == NULL)
-    {
-    return;
-    }
-
-  vtkDebugMacro(<< "vtkGenericDataSetTessellator");
-
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
-  vtkGenericAdaptorCell *cell;
-
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  
+  vtkGenericAdaptorCell *cell;
+  vtkIdType numInserted=0, numNew, i;
+  vtkIdType npts, *pts;
+
   // Copy original points and point data
   vtkPoints *newPts = vtkPoints::New();
-  
-  output->Allocate(numCells);
-  output->SetPoints(newPts);
-
-  // Estimate output size:
-  vtkIdType estimatedSize = input->GetEstimatedSize();
-  newPts->Allocate(estimatedSize, numPts);
+  newPts->Allocate(2*numPts,numPts);
 
   // loop over region
-  vtkCellArray *array = vtkCellArray::New();
-  array->Allocate(numCells);
+  vtkUnsignedCharArray *types = vtkUnsignedCharArray::New();
+  types->Allocate(numCells);
+  vtkIdTypeArray *locs = vtkIdTypeArray::New();
+  locs->Allocate(numCells);
+  vtkCellArray *conn = vtkCellArray::New();
+  conn->Allocate(numCells);
 
   vtkGenericCellIterator *cellIt = input->NewCellIterator();
   for(cellIt->Begin(); !cellIt->IsAtEnd(); cellIt->Next())
     {
     cell = cellIt->GetCell();
-    cell->Tessellate(input->GetAttributes(), input->GetTessellator(),newPts,
-                     array,outputPD, outputCD);
+    cell->Tessellate(input->GetAttributes(), input->GetTessellator(),
+                     newPts, conn, outputPD, outputCD);
+
+    numNew = conn->GetNumberOfCells() - numInserted;
+    numInserted = conn->GetNumberOfCells();
+    
+    for (i=0; i < numNew; i++) 
+      {
+      locs->InsertNextValue(conn->GetTraversalLocation());
+      conn->GetNextCell(npts,pts); //side effect updates traversal location
+      switch (cell->GetDimension())
+        {
+        case 1:
+          types->InsertNextValue(VTK_LINE);
+          break;
+        case 2:
+          types->InsertNextValue(VTK_TRIANGLE);
+          break;
+        case 3:
+          types->InsertNextValue(VTK_TETRA);
+          break;
+        default:
+          vtkErrorMacro(<<"Bad mojo in data set tessellation");
+        } //switch
+      } //insert each new cell
     } //for all cells
   cellIt->Delete();
   
-  if( input->GetCellDimension() == 3)
-    {
-    output->SetCells(VTK_TETRA, array);
-    }
-  else if( input->GetCellDimension() == 2)
-    {
-    output->SetCells(VTK_TRIANGLE, array);
-    }
-  else
-    {
-    vtkErrorMacro(<<"Cell dimension not supported " << input->GetCellDimension() );
-    }
-  vtkDebugMacro(<<"Subdivided " << numCells << " cells");
+  // Send to the output
+  output->SetPoints(newPts);
+  output->SetCells(types, locs, conn);
+
+  vtkDebugMacro(<<"Subdivided " << numCells << " cells to produce "
+                << conn->GetNumberOfCells() << "new cells");
 
   newPts->Delete();
-  array->Delete();
+  types->Delete();
+  locs->Delete();
+  conn->Delete();
 
   output->Squeeze();  
 }
