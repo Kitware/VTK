@@ -20,6 +20,7 @@ vtkLookupTable lut
 vtkDEMReader demModel
   demModel SetFileName ../../../vtkdata/albany-w
   demModel Update
+demModel Print
 
 set lo [expr $Scale * [lindex [demModel GetElevationBounds] 0]]
 set hi [expr $Scale * [lindex [demModel GetElevationBounds] 1]]
