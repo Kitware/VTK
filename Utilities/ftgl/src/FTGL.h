@@ -20,7 +20,7 @@ typedef float    FTGL_FLOAT;
 
     #ifndef __gl_h_
         #include <GL/gl.h>
-        #ifndef FTGL_DO_NO_USE_VECTORISER
+        #ifndef FTGL_DO_NOT_USE_VECTORISER
           #include <GL/glu.h>
         #endif
     #endif
@@ -31,12 +31,12 @@ typedef float    FTGL_FLOAT;
     #ifndef __gl_h_
         #ifdef __APPLE_CC__
             #include <OpenGL/gl.h>
-            #ifndef FTGL_DO_NO_USE_VECTORISER
+            #ifndef FTGL_DO_NOT_USE_VECTORISER
               #include <OpenGL/glu.h>
             #endif
         #else
           #include <GL/gl.h>
-          #ifndef FTGL_DO_NO_USE_VECTORISER
+          #ifndef FTGL_DO_NOT_USE_VECTORISER
             #include <GL/glu.h>
           #endif
         #endif                
