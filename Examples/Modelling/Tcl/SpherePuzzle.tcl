@@ -15,7 +15,7 @@ pack .top.f1 .top.f2 -side top -expand 1 -fill both
 
 vtkRenderWindow renWin
 vtkTkRenderWidget .top.f1.rw -width 400 -height 400 -rw renWin
-BindTkRenderWidget .top.f1.rw
+::vtk::bind_tk_render_widget .top.f1.rw
 pack .top.f1.rw -expand 1 -fill both
 
 # create a rendering window and renderer
@@ -39,15 +39,12 @@ proc ToggleGhostCells {} {
    renWin Render
 }
 
-
-
 proc test {slab} {
     for { set i 0} {$i <= 100} {set i [expr $i + 5]} {
 	puzzle MoveVertical $slab $i 1
 	renWin Render
     }
 }
-
 
 vtkSpherePuzzle puzzle
 vtkPolyDataMapper mapper
@@ -61,16 +58,12 @@ vtkPolyDataMapper mapper2
 vtkActor actor2
     actor2 SetMapper mapper2
 
-
-
-
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor actor
 ren1 AddActor actor2
 
 ren1 SetBackground 0.1 0.2 0.4
-
 
 bind .top.f1.rw <Motion> {MotionCallback %x %y}
 bind .top.f1.rw <KeyPress-m> {ButtonCallback %x %y}

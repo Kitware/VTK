@@ -3,12 +3,12 @@ package require vtkinteraction
 
 set root [toplevel .top -visual {truecolor 24}]
 wm title .top "superquadric viewer"
-wm protocol .top WM_DELETE_WINDOW exit
+wm protocol .top WM_DELETE_WINDOW ::vtk::cb_exit
 
 # create render window
 vtkRenderWindow renWin
 set ren [vtkTkRenderWidget $root.ren -width 550 -height 450 -rw renWin]
-BindTkRenderWidget $ren
+::vtk::bind_tk_render_widget $ren
 
 # create parameter sliders
 set prs [scale $root.prs -from 0 -to 3.5 -res 0.1 -orient horizontal \

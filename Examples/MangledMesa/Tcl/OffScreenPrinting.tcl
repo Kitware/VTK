@@ -95,12 +95,12 @@ frame .top.f2
 pack .top.f1 .top.f2 -side top -expand 1 -fill both
 
 vtkTkRenderWidget .top.f1.rw -width 400 -height 400 -rw rw
-BindTkRenderWidget .top.f1.rw
+::vtk::bind_tk_render_widget .top.f1.rw
 pack .top.f1.rw -expand 1 -fill both
 
 
 button .top.f2.b0 -text "Print" -command {PrintWithMesa}
-button .top.f2.b1 -text "Quit" -command {vtkCommand DeleteAllObjects; exit}
+button .top.f2.b1 -text "Quit" -command ::vtk::cb_exit
 pack .top.f2.b0  -expand 1 -fill x
 pack .top.f2.b1  -expand 1 -fill x
 

@@ -9,12 +9,16 @@
 package require vtk
 package require vtkinteraction
 
+#
 # Create an SLC reader and read in the data.
+#
 vtkSLCReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/neghip.slc"
 
+#
 # Create transfer functions for opacity and color to be used in volume
 # properties.
+#
 vtkPiecewiseFunction opacityTransferFunction
     opacityTransferFunction AddPoint  20   0.0
     opacityTransferFunction AddPoint  255  0.2
@@ -26,7 +30,9 @@ vtkColorTransferFunction colorTransferFunction
     colorTransferFunction AddRGBPoint    192.0 0.0 1.0 0.0
     colorTransferFunction AddRGBPoint    255.0 0.0 0.2 0.0
 
+#
 # Create volume properties
+#
 vtkVolumeProperty volumeProperty
     volumeProperty SetColor colorTransferFunction
     volumeProperty SetScalarOpacity opacityTransferFunction
@@ -37,15 +43,19 @@ vtkVolumeProperty volumeProperty2
     volumeProperty2 SetScalarOpacity opacityTransferFunction
     volumeProperty2 SetInterpolationTypeToLinear
   
+#
 # Create a volume ray cast mapper.  The volume is used for levels 1 and 2 of
 # LODProp3D.
+#
 vtkVolumeRayCastCompositeFunction  compositeFunction
 vtkVolumeRayCastMapper volumeMapper
     volumeMapper SetInput [reader GetOutput]
     volumeMapper SetVolumeRayCastFunction compositeFunction
 
+#
 # Set up the color lookup table for the probe planes to be used in levels 3 and
 # 4 of the LODProp3D
+#
 vtkLookupTable ColorLookupTable
 ColorLookupTable SetNumberOfTableValues 256
 
@@ -59,8 +69,10 @@ for { set i 0 } { $i < 256 } { incr i } {
     ColorLookupTable SetTableValue $i $r $g $b $a
 }
 
+#
 # Create planes or different resolutions to probe the data read in using the
 # SLC reader.  The probe results are used as levels 3 and 4 of the LODProp3D.
+#
 set types [list hres lres]
 foreach type $types {
     for { set i 0 } { $i < 3 } { incr i } {
@@ -108,7 +120,9 @@ foreach type $types {
     probeMapper_${type} SetScalarRange 0 255
 }
 
+#
 # Set the resolution of each of the planes just created
+#
 plane0_hres SetResolution 60 60
 plane1_hres SetResolution 60 60
 plane2_hres SetResolution 60 60
@@ -116,11 +130,15 @@ plane0_lres SetResolution 25 25
 plane1_lres SetResolution 25 25
 plane2_lres SetResolution 25 25
 
+#
 # Set the opacity to be used in the probe mappers
+#
 vtkProperty probeProperty
     probeProperty SetOpacity 0.99
 
+#
 # Create outline to be used as level 5 in the LODProp3D
+#
 vtkOutlineFilter outline
     outline SetInput [reader GetOutput]
 
@@ -130,7 +148,9 @@ vtkPolyDataMapper outlineMapper
 vtkProperty outlineProperty
 outlineProperty SetColor 1 1 1
 
+#
 # Create the LODProp3D and add the mappers to it.
+#
 vtkLODProp3D lod
 set level1 [lod AddLOD volumeMapper volumeProperty2 0.0]
 set level2 [lod AddLOD volumeMapper volumeProperty 0.0]
@@ -138,9 +158,139 @@ set level3 [lod AddLOD probeMapper_hres probeProperty 0.0]
 set level4 [lod AddLOD probeMapper_lres probeProperty 0.0]
 set level5 [lod AddLOD outlineMapper outlineProperty 0.0]
 
+#
+# Create the render window and the renderer.
+#
+vtkRenderWindow renWin
+vtkRenderer ren1
+renWin AddRenderer ren1
+
+#
+# Add the LODProp3D to the renderer and set the background
+#
+ren1 AddProp lod
+ren1 SetBackground 0.1 0.2 0.4
+
+#
+# Withdraw the default tk window
+#
+wm withdraw .
+
+#
+# Create the user interface including the RenderWindow
+#
+toplevel .top \
+        -visual best
+wm protocol .top WM_DELETE_WINDOW ::vtk::cb_exit
+
+frame .top.ren
+frame .top.controls
+
+pack .top.controls \
+        -side left -anchor n \
+        -padx 3 -pady 3
+
+pack .top.ren \
+        -side right -anchor n \
+        -padx 3 -pady 3 \
+        -expand t -fill both
+
+#
+# Create Tk renderwidget, bind events
+#
+vtkTkRenderWidget .top.ren.rw \
+        -rw renWin \
+        -width 300 \
+        -height 300
+
+::vtk::bind_tk_render_widget .top.ren.rw
+
+pack .top.ren.rw \
+        -expand t -fill both
+
+#
+# Create LOD display controls
+#
+label .top.controls.lod \
+        -text "LOD Selected:"
+
+pack .top.controls.lod \
+        -side top -anchor w \
+        -padx 5 -pady 6
+
+label .top.controls.l1 -text "Level 1 FPS:"
+label .top.controls.l2 -text "Level 2 FPS:"
+label .top.controls.l3 -text "Level 3 FPS:"
+label .top.controls.l4 -text "Level 4 FPS:"
+label .top.controls.l5 -text "Level 5 FPS:"
+
+pack .top.controls.l1 .top.controls.l2 .top.controls.l3 .top.controls.l4 .top.controls.l5 \
+        -side top -anchor w \
+        -padx 5 -pady 2
+
+#
+# Create frame rate controls
+#
+set still_update_rate 0.5
+set interactive_update_rate 5.0
+
+proc update_rates {{foo 0}} {
+    global still_update_rate interactive_update_rate
+    set iren [renWin GetInteractor]
+    $iren SetStillUpdateRate $still_update_rate
+    $iren SetDesiredUpdateRate $interactive_update_rate
+}
+
+update_rates
+
+scale .top.controls.s1 \
+        -label "Still FPS:" \
+        -orient horizontal \
+	-length 150 \
+        -from 0.05 -to 1.0 -resolution 0.05 \
+	-variable still_update_rate \
+        -command update_rates \
+        -highlightthickness 0
+
+scale .top.controls.s2 \
+        -label "Moving FPS:" \
+        -orient horizontal \
+	-length 150 \
+        -from 1.0 -to 100.0 -resolution 1.0 \
+	-variable interactive_update_rate \
+        -command update_rates \
+        -highlightthickness 0
+
+pack .top.controls.s1 .top.controls.s2 \
+        -side top \
+        -anchor w -padx 5 -pady 6
+
+button .top.controls.quit \
+        -text "Quit" \
+        -command ::vtk::cb_exit
+
+pack .top.controls.quit \
+        -side top \
+        -padx 5 -pady 6 \
+        -expand 1 -fill both
+
+#
+# Determine whether to allow automatic LOD selection.
+#
+if { [info command rtExMath] != "" } {
+    lod AutomaticLODSelectionOff
+    lod SetSelectedLODID $level3
+}
+
+#
 # Create a Tcl procedure to display (in the user interface) which LOD is
 # currently active.
+# This proc is called each time an EndEvent is triggered by the renderer.
+#
+renWin AddObserver EndEvent ChangeLabels
+
 proc ChangeLabels { } {
+
     global level1 level2 level3 level4 level5
 
     set value [lod GetLastRenderedLODID]
@@ -195,88 +345,12 @@ proc ChangeLabels { } {
 	.top.controls.l5 configure -text \
 		"Level 5 FPS: [format "%.2f" [expr 1.0 / $value]]"
     }
-
-    update
 }
 
-# Set the ChangeLabels proc to be executed when rendering is finished
-set TkInteractor_EndRenderMethod ChangeLabels
-
-# Withdraw the default tk window
-wm withdraw .
-
-# Create the user interface including the RenderWindow
-toplevel .top -visual best
-
-frame .top.ren
-frame .top.controls
-
-pack .top.controls .top.ren -side left -padx 10 -pady 10
-
-vtkRenderWindow renWin
-vtkTkRenderWidget .top.ren.rw -rw renWin -width 256 -height 256 
-BindTkRenderWidget .top.ren.rw
-
-pack .top.ren.rw 
-
-label .top.controls.lod -text "LOD Selected:"
-pack .top.controls.lod -side top -anchor w -padx 5 -pady 6
-
-label .top.controls.l1 -text "Level 1 FPS:"
-pack .top.controls.l1 -side top -anchor w -padx 5 -pady 2
-
-label .top.controls.l2 -text "Level 2 FPS:"
-pack .top.controls.l2 -side top -anchor w -padx 5 -pady 2
-
-label .top.controls.l3 -text "Level 3 FPS:"
-pack .top.controls.l3 -side top -anchor w -padx 5 -pady 2
-
-label .top.controls.l4 -text "Level 4 FPS:"
-pack .top.controls.l4 -side top -anchor w -padx 5 -pady 2
-
-label .top.controls.l5 -text "Level 5 FPS:"
-pack .top.controls.l5 -side top -anchor w -padx 5 -pady 2
-
-set TkInteractor_StillUpdateRate 0.5
-set TkInteractor_InteractiveUpdateRate 5.0
-
-scale .top.controls.s1 -label "Still FPS:" -orient horizontal \
-	-length 150 -from 0.05 -to 1.0 -resolution 0.05 \
-	-variable TkInteractor_StillUpdateRate -highlightthickness 0
-pack .top.controls.s1 -side top -anchor w -padx 5 -pady 6
-
-scale .top.controls.s2 -label "Moving FPS:" -orient horizontal \
-	-length 150 -from 1.0 -to 30.0 -resolution 1.0 \
-	-variable TkInteractor_InteractiveUpdateRate -highlightthickness 0
-pack .top.controls.s2 -side top -anchor w -padx 5 -pady 6
-
-button .top.controls.quit -text "Quit" -command {exit}
-pack .top.controls.quit -side top -padx 5 -pady 6 -expand 1 -fill both
-
-# Create the renderer.
-vtkRenderer ren1
-renWin AddRenderer ren1
-
-# Add the LODProp3D to the renderer and set the background
-ren1 AddProp lod
-ren1 SetBackground 0.1 0.2 0.4
-
-# Create a Tcl procedure to check whether to abort rendering
-proc TkCheckAbort {} {
-  set foo [renWin GetEventPending]
-  if {$foo != 0} {renWin SetAbortRender 1}
-}
-renWin AddObserver AbortCheckEvent {TkCheckAbort}
-
+#
 # Render into the RenderWindow
+#
 renWin Render
 
-# Determine whether to allow automatic LOD selection.
-if { [info command rtExMath] != "" } {
-    lod AutomaticLODSelectionOff
-    lod SetSelectedLODID $level3
-}
+tkwait window .
 
-# Update the renderer and render
-UpdateRenderer .top.ren.rw 0 0
-Render .top.ren.rw

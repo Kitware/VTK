@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded vtkinteraction 4.0 [list source [file join $dir Interactor.tcl]]\n[list source [file join $dir TkImageViewerInteractor.tcl]]\n[list source [file join $dir TkInteractor.tcl]]\n[list source [file join $dir WidgetObject.tcl]]
+package ifneeded vtkinteraction 4.0 [list source [file join $dir bindings-iw.tcl]]\n[list source [file join $dir bindings-rw.tcl]]\n[list source [file join $dir bindings.tcl]]\n[list source [file join $dir Interactor.tcl]]\n[list source [file join $dir setget.tcl]]

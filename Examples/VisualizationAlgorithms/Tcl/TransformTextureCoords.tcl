@@ -144,10 +144,9 @@ set vtkw [vtkTkRenderWidget .ren \
 pack $vtkw -side top -fill both -expand yes
 
 #
-# BindTkRenderWidget sets events handlers that are similar
-# to what we would achieve using vtkRenderWindowInteractor.
+# Sets event handlers
 #
-BindTkRenderWidget $vtkw
+::vtk::bind_tk_render_widget $vtkw
 
 #
 # Create a menubar.
@@ -162,12 +161,7 @@ set file_menu [menu  $menubar.file]
 
 $file_menu add command \
         -label "Quit" \
-        -command bye
-
-proc bye {} {
-    vtkCommand DeleteAllObjects
-    exit
-}
+        -command ::vtk::cb_exit
 
 $menubar add cascade -label "File" -menu $file_menu
 
@@ -449,11 +443,10 @@ pack $gui -side top -anchor s -fill x -expand yes
 # command to handle the WM_DELETE_WINDOW protocal request..
 #
 wm title . "Texture mapper/transform demo"
-wm protocol . WM_DELETE_WINDOW bye 
+wm protocol . WM_DELETE_WINDOW ::vtk::cb_exit
 
 #
 # You only need this line if you run this script from a Tcl shell
 # (tclsh) instead of a Tk shell (wish) 
 #
 tkwait window .
-

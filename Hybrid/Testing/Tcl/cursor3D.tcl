@@ -1,12 +1,16 @@
-package require vtk
-package require vtkinteraction
-
 # This little example shows how a cursor can be created in 
 # image viewers, and renderers.  The standard TkImageViewerWidget and
 # TkRenderWidget bindings are used.  There is a new binding:
 # middle button in the image viewer sets the position of the cursor.  
 
-# global values
+# First we include the VTK Tcl packages which will make available 
+# all of the vtk commands to Tcl
+
+package require vtk
+package require vtkinteraction
+
+# Global values
+
 set CURSOR_X 20
 set CURSOR_Y 20
 set CURSOR_Z 20
@@ -15,208 +19,239 @@ set IMAGE_MAG_X 4
 set IMAGE_MAG_Y 4
 set IMAGE_MAG_Z 1
 
+# Pipeline stuff
 
-
-# Create the GUI: two renderer widgets and a quit button
-#
-wm withdraw .
-toplevel .top 
-
-set help [label .top.help -text "MiddleMouse (or shift-LeftMouse) in image viewer to place cursor"]
-set displayFrame [frame .top.f1]
-set quitButton [button .top.btn  -text Quit -command bye]
-wm protocol . WM_DELETE_WINDOW bye 
-proc bye {} {
-    vtkCommand DeleteAllObjects
-    exit
-}
-pack $help
-pack $displayFrame  -fill both -expand t
-pack $quitButton -fill x
-
-set viewerFrame [frame $displayFrame.vFm]
-set rendererFrame [frame $displayFrame.rFm]
-pack $viewerFrame -padx 3 -pady 3 -side left -fill both -expand f
-pack $rendererFrame -padx 3 -pady 3 \
-    -side left -fill both -expand t
-
-set viewerWidget [vtkTkImageViewerWidget $viewerFrame.v -width 264 -height 264]
-set viewerControls [frame $viewerFrame.c]
-pack $viewerControls $viewerWidget -side bottom -fill both -expand f
-
-set downButton [button $viewerControls.down -text "Down" -command "ViewerDown"]
-set upButton [button $viewerControls.up -text "Up" -command "ViewerUp"]
-set sliceLabel [label $viewerControls.slice \
-		    -text "slice: [expr $CURSOR_Z * $IMAGE_MAG_Z]"]
-pack $downButton $upButton $sliceLabel -side left -expand t -fill both
-
-vtkRenderWindow renWinx
-set renderWidget [vtkTkRenderWidget $rendererFrame.r -width 264 -height 264 -rw renWinx]
-pack $renderWidget -side top
-
-
-# pipeline stuff
 vtkSLCReader reader
-    reader SetFileName "$VTK_DATA_ROOT/Data/neghip.slc"
+  reader SetFileName "$VTK_DATA_ROOT/Data/neghip.slc"
 
-# cursor stuff
+# Cursor stuff
+
 vtkImageMagnify magnify
   magnify SetInput [reader GetOutput]
   magnify SetMagnificationFactors $IMAGE_MAG_X $IMAGE_MAG_Y $IMAGE_MAG_Z
 
-vtkImageCursor3D imageCursor
-imageCursor SetInput [magnify GetOutput]
-imageCursor SetCursorPosition [expr $CURSOR_X * $IMAGE_MAG_X] \
-    [expr $CURSOR_Y * $IMAGE_MAG_Y] [expr $CURSOR_Z * $IMAGE_MAG_Z]
-imageCursor SetCursorValue 255
-imageCursor SetCursorRadius [expr 50 * $IMAGE_MAG_X]
+vtkImageCursor3D image_cursor
+  image_cursor SetInput [magnify GetOutput]
+  image_cursor SetCursorPosition \
+          [expr $CURSOR_X * $IMAGE_MAG_X] \
+          [expr $CURSOR_Y * $IMAGE_MAG_Y] \
+          [expr $CURSOR_Z * $IMAGE_MAG_Z]
+  image_cursor SetCursorValue 255
+  image_cursor SetCursorRadius [expr 50 * $IMAGE_MAG_X]
 
 vtkAxes axes
-axes SymmetricOn
-axes SetOrigin $CURSOR_X $CURSOR_Y $CURSOR_Z 
-axes SetScaleFactor 50.0;
+  axes SymmetricOn
+  axes SetOrigin $CURSOR_X $CURSOR_Y $CURSOR_Z 
+  axes SetScaleFactor 50.0
 
-vtkPolyDataMapper axesMapper
-axesMapper SetInput [axes GetOutput]
+vtkPolyDataMapper axes_mapper
+  axes_mapper SetInput [axes GetOutput]
 
 vtkActor axesActor
-axesActor SetMapper axesMapper
-[axesActor GetProperty] SetAmbient 0.5
+  axesActor SetMapper axes_mapper
+  [axesActor GetProperty] SetAmbient 0.5
 
-# image viewer stuff
+# Image viewer stuff
 
-set viewer [$viewerWidget GetImageViewer]
-$viewer SetInput [imageCursor GetOutput]
-$viewer SetZSlice [expr $CURSOR_Z * $IMAGE_MAG_Z]
-$viewer SetColorWindow 256
-$viewer SetColorLevel 128
+vtkImageViewer viewer
+  viewer SetInput [image_cursor GetOutput]
+  viewer SetZSlice [expr $CURSOR_Z * $IMAGE_MAG_Z]
+  viewer SetColorWindow 256
+  viewer SetColorLevel 128
 
-
-
-
-
-# Create transfer functions for opacity and color
-vtkPiecewiseFunction opacityTransferFunction
-    opacityTransferFunction AddPoint  20   0.0
-    opacityTransferFunction AddPoint  255  0.2
-
-vtkColorTransferFunction colorTransferFunction
-    colorTransferFunction AddRGBPoint 0 0 0 0
-    colorTransferFunction AddRGBPoint 64 1 0 0
-    colorTransferFunction AddRGBPoint 128 0 0 1
-    colorTransferFunction AddRGBPoint 192 0 1 0
-    colorTransferFunction AddRGBPoint 255 0 .2 0
-
-# Create properties, mappers, volume actors, and ray cast function
-vtkVolumeProperty volumeProperty
-    volumeProperty SetColor colorTransferFunction
-    volumeProperty SetScalarOpacity opacityTransferFunction
-
-vtkVolumeRayCastCompositeFunction  compositeFunction
-
-vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetInput [reader GetOutput]
-    volumeMapper SetVolumeRayCastFunction compositeFunction
-
-vtkVolume volume
-    volume SetMapper volumeMapper
-    volume SetProperty volumeProperty
-
-# Create outline
-vtkOutlineFilter outline
-    outline SetInput [reader GetOutput]
-
-vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
-
-vtkActor outlineActor
-    outlineActor SetMapper outlineMapper
-    eval [outlineActor GetProperty] SetColor 1 1 1
-
-
-
-# create the renderer
-vtkRenderer ren1
-set renWin [$renderWidget GetRenderWindow]
-    $renWin AddRenderer ren1
-    $renWin SetSize 256 256
-
-ren1 AddActor axesActor
-ren1 AddVolume volume
-ren1 SetBackground 0.1 0.2 0.4
-$renWin Render
-
-proc TkCheckAbort {} {
-  global renWin
-  set foo [$renWin GetEventPending]
-  if {$foo != 0} {$renWin SetAbortRender 1}
-}
-$renWin AddObserver AbortCheckEvent {TkCheckAbort}
-
-
-
-BindTkImageViewer $viewerWidget
-BindTkRenderWidget $renderWidget
-
-# lets ass an extra binding of the middle button in the image viewer
-# to set the cursor location
-bind $viewerWidget <Button-2> {SetCursorFromViewer %x %y}
-bind $viewerWidget <Shift-Button-1> {SetCursorFromViewer %x %y}
-
-
-
-# supporting procedures
-
-
-
-proc ViewerDown {} {
-    global viewer
-    set z [$viewer GetZSlice]
-    ViewerSetZSlice $viewer [expr $z - 1]
+proc viewer_down {viewer} {
+    viewer_set_z_slice $viewer [expr [$viewer GetZSlice] - 1]
 }
 
-proc ViewerUp {} {
-    global viewer
-    set z [$viewer GetZSlice]
-    ViewerSetZSlice $viewer [expr $z + 1]
+proc viewer_up {viewer} {
+    viewer_set_z_slice $viewer [expr [$viewer GetZSlice] + 1]
 }
 
-proc ViewerSetZSlice {viewer z} {
-    global sliceLabel
+proc viewer_set_z_slice {viewer z} {
+    global slice_label
     $viewer SetZSlice $z
-    $sliceLabel configure -text "slice: $z"
+    $slice_label configure -text "slice: $z"
     $viewer Render
 }
 
+# Create transfer functions for opacity and color
+
+vtkPiecewiseFunction opacity_transfer_function
+  opacity_transfer_function AddPoint 20  0.0
+  opacity_transfer_function AddPoint 255 0.2
+
+vtkColorTransferFunction color_transfer_function
+  color_transfer_function AddRGBPoint 0 0 0 0
+  color_transfer_function AddRGBPoint 64 1 0 0
+  color_transfer_function AddRGBPoint 128 0 0 1
+  color_transfer_function AddRGBPoint 192 0 1 0
+  color_transfer_function AddRGBPoint 255 0 .2 0
+
+# Create properties, mappers, volume actors, and ray cast function
+
+vtkVolumeProperty volume_property
+  volume_property SetColor color_transfer_function
+  volume_property SetScalarOpacity opacity_transfer_function
+
+vtkVolumeRayCastCompositeFunction  composite_function
+
+vtkVolumeRayCastMapper volume_mapper
+  volume_mapper SetInput [reader GetOutput]
+  volume_mapper SetVolumeRayCastFunction composite_function
+
+vtkVolume volume
+  volume SetMapper volume_mapper
+  volume SetProperty volume_property
+
+# Create outline
+
+vtkOutlineFilter outline
+  outline SetInput [reader GetOutput]
+
+vtkPolyDataMapper outline_mapper
+  outline_mapper SetInput [outline GetOutput]
+
+vtkActor outlineActor
+  outlineActor SetMapper outline_mapper
+  eval [outlineActor GetProperty] SetColor 1 1 1
+
+# Create the renderer
+
+vtkRenderer ren1
+  ren1 AddActor axesActor
+  ren1 AddVolume volume
+  ren1 SetBackground 0.1 0.2 0.4
+
+vtkRenderWindow renWin
+  renWin AddRenderer ren1
+  renWin SetSize 256 256
+
+# Create the GUI: two renderer widgets and a quit button
+
+wm withdraw .
+toplevel .top 
+
+# Set the window manager (wm command) so that it registers a
+# command to handle the WM_DELETE_WINDOW protocal request. This
+# request is triggered when the widget is closed using the standard
+# window manager icons or buttons. In this case the exit callback
+# will be called and it will free up any objects we created then exit
+# the application.
+
+wm protocol .top WM_DELETE_WINDOW ::vtk::cb_exit
+
+# Help label, frame and quit button
+
+set help_label [label .top.help \
+      -text "MiddleMouse (or shift-LeftMouse) in image viewer to place cursor"]
+
+set display_frame [frame .top.f1]
+
+set quit_button [button .top.btn  \
+        -text Quit \
+        -command  ::vtk::cb_exit]
+
+# Pack the GUI
+
+pack $help_label
+
+pack $display_frame \
+        -fill both -expand t
+
+pack $quit_button \
+        -fill x
+
+# Create the viewer widget
+
+set viewer_frame [frame $display_frame.vFm]
+
+pack $viewer_frame \
+        -padx 3 -pady 3 \
+        -side left -anchor n \
+        -fill both -expand f
+
+set viewer_widget [vtkTkImageViewerWidget $viewer_frame.v \
+        -width 264 \
+        -height 264 \
+        -iv viewer]
+
+set viewer_controls [frame $viewer_frame.c]
+
+pack $viewer_widget $viewer_controls  \
+        -side top -anchor n \
+        -fill both -expand f
+
+set down_button [button $viewer_controls.down \
+        -text "Down" \
+        -command [list viewer_down viewer]]
+
+set up_button [button $viewer_controls.up \
+        -text "Up" \
+        -command [list viewer_up viewer]]
+
+set slice_label [label $viewer_controls.slice \
+        -text "slice: [expr $CURSOR_Z * $IMAGE_MAG_Z]"]
+
+pack $down_button $up_button $slice_label \
+        -side left \
+        -expand t -fill both
+
+# Create the render widget
+
+set renderer_frame [frame $display_frame.rFm]
+
+pack $renderer_frame \
+        -padx 3 -pady 3 \
+        -side left -anchor n \
+        -fill both -expand t
+
+set render_widget [vtkTkRenderWidget $renderer_frame.r \
+        -width 264 \
+        -height 264 \
+        -rw renWin]
+
+pack $render_widget \
+        -side top -anchor n \
+        -expand t -fill both
+
+# Bindings
+
+::vtk::bind_tk_imageviewer_widget $viewer_widget
+$viewer_widget Render
+
+::vtk::bind_tk_render_widget $render_widget
+[[[$render_widget GetRenderWindow] GetInteractor] GetInteractorStyle] SetCurrentStyleToTrackballCamera
+$render_widget Render
+
+# Lets add an extra binding of the middle button in the image viewer
+# to set the cursor location
+
+bind $viewer_widget <Button-2> {SetCursorFromViewer %x %y}
+bind $viewer_widget <Shift-Button-1> {SetCursorFromViewer %x %y}
+
+# Supporting procedures
 
 proc SetCursorFromViewer {x y} {
-    global viewer viewerWidget
+    global viewer_widget
     global IMAGE_MAG_X IMAGE_MAG_Y IMAGE_MAG_Z
 
     # we have to flip y axis because tk uses upper right origin.
-    set height [lindex [$viewerWidget configure -height] 4]
+    set height [lindex [$viewer_widget configure -height] 4]
     set y [expr $height - $y]
-    set z [$viewer GetZSlice]
+    set z [viewer GetZSlice]
     SetCursor [expr $x / $IMAGE_MAG_X] [expr $y / $IMAGE_MAG_Y] \
 	[expr $z / $IMAGE_MAG_Z]
 }
 
 proc SetCursor {x y z} {
-    global viewer renWin
     global CURSOR_X CURSOR_Y CURSOR_Z IMAGE_MAG_X IMAGE_MAG_Y IMAGE_MAG_Z
 
     set CURSOR_X $x
     set CURSOR_Y $y
     set CURSOR_Z $z
     axes SetOrigin $CURSOR_X $CURSOR_Y $CURSOR_Z 
-    imageCursor SetCursorPosition [expr $CURSOR_X * $IMAGE_MAG_X] \
+    image_cursor SetCursorPosition [expr $CURSOR_X * $IMAGE_MAG_X] \
 	[expr $CURSOR_Y * $IMAGE_MAG_Y] [expr $CURSOR_Z * $IMAGE_MAG_Z]
-    $viewer Render
-    $renWin Render
+    viewer Render
+    renWin Render
 }
-
-
-
-
-
-

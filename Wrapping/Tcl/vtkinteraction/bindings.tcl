@@ -5,57 +5,6 @@ namespace eval ::vtk {
     namespace export *
 
     # -------------------------------------------------------------------
-    # Some functions that can be used to associate variables to
-    # widgets without polluting the global space
-
-    variable gvars
-
-    # Generate a "unique" name for a widget variable
-
-    proc get_widget_variable {widget var_name} {
-        variable gvars
-        return "gvars($widget,vars,$var_name)"
-    }
-
-    # Set the value of a widget variable
-
-    proc set_widget_variable_value {widget var_name value} {
-        variable gvars
-        set var [get_widget_variable $widget $var_name]
-        set $var $value
-    }
-
-    proc unset_widget_variable {widget var_name} {
-        variable gvars
-        set var [get_widget_variable $widget $var_name]
-        if {[info exists $var]} {
-            unset $var
-        }
-    }
-
-    # Get the value of a widget variable ("" if undef)
-
-    proc get_widget_variable_value {widget var_name} {
-        variable gvars
-        set var [get_widget_variable $widget $var_name]
-        if {[info exists $var]} {
-            return [expr $$var]
-        } else {
-            return ""
-        }
-    }
-
-    # Return an object which will be associated with a widget
-
-    proc new_widget_object {widget type var_name} {
-        variable gvars
-        set var [get_widget_variable $widget "${var_name}_obj"]
-        $type $var
-        set_widget_variable_value $widget $var_name $var
-        return $var
-    }
-
-    # -------------------------------------------------------------------
     # vtkTk(ImageViewer/Render)Widget callbacks.
     #    vtkw: Tk pathname of the widget
     #    renwin: render window embeded in the widget
@@ -66,30 +15,33 @@ namespace eval ::vtk {
     #    ctrl:   1 if the Control key modifier was pressed, 0 otherwise
     #    shift:  1 if the Control key modifier was pressed, 0 otherwise
 
-    # Called when a mouse motion event is triggered.
+    # Called when a Tk mouse motion event is triggered.
     # Helper binding: propagate the event as a VTK event.
 
-    proc cb_vtkw_motion {vtkw renwin x y} {
+    proc cb_vtkw_motion_binding {vtkw renwin x y} {
         set iren [$renwin GetInteractor]
-        $iren SetEventInformationFlipY $x $y 0 0 0 0 0
+        $iren SetEventPositionFlipY $x $y
         $iren MouseMoveEvent 
     }
 
-    # Called when a button mouse Tk event is triggered.
+    # Called when a Tk button mouse event is triggered.
     # Helper binding: propagate the event as a VTK event.
     #    event:  button state, Press or Release
     #    pos:    position of the button, Left, Middle or Right
 
     proc cb_vtkw_button_binding {vtkw renwin x y ctrl shift event pos} {
         set iren [$renwin GetInteractor]
-        $iren SetEventInformationFlipY $x $y $ctrl $shift 0 0 0
+        $iren SetEventPositionFlipY $x $y
+        $iren SetControlKey $ctrl
+        $iren SetShiftKey $shift
         $iren ${pos}Button${event}Event
     }
 
-    # Called when a key event is triggered.
-    # Helper binding: propagate the event as a VTK event.
+    # Called when a Tk key event is triggered.
+    # Helper binding: propagate the event as a VTK event (indeed, two).
+    #    event:   key state, Press or Release
     #    keycode: keycode field
-    #    keysym: keysym field
+    #    keysym:  keysym field
 
     proc cb_vtkw_key_binding {vtkw renwin x y ctrl shift event keycode keysym} {
         set iren [$renwin GetInteractor]
@@ -101,37 +53,37 @@ namespace eval ::vtk {
         $iren CharEvent
     }
 
-    # Called when a Expose/Configure event is triggered.
+    # Called when a Tk Expose/Configure event is triggered.
     # Helper binding: propagate the event as a VTK event.
 
-    proc cb_vtkw_configure {vtkw renwin w h} {
+    proc cb_vtkw_configure_binding {vtkw renwin w h} {
         set iren [$renwin GetInteractor]
         $iren UpdateSize $w $h
         $iren ConfigureEvent 
     }
         
-    proc cb_vtkw_expose {vtkw renwin x y w h} {
+    proc cb_vtkw_expose_binding {vtkw renwin x y w h} {
         set iren [$renwin GetInteractor]
-        $iren SetEventInformationFlipY $x $y 0 0 0 0 0
+        $iren SetEventPositionFlipY $x $y
         $iren SetEventSize $w $h
         $iren ExposeEvent 
     }
 
-    # Called when a Enter/Leave event is triggered.
+    # Called when a Tk Enter/Leave event is triggered.
     # Helper binding: propagate the event as a VTK event.
     # Note that entering the widget automatically grabs the focus so
     # that key events can be processed.
 
-    proc cb_vtkw_enter {vtkw renwin x y} {
+    proc cb_vtkw_enter_binding {vtkw renwin x y} {
         focus $vtkw
         set iren [$renwin GetInteractor]
-        $iren SetEventInformationFlipY $x $y 0 0 0 0 0
+        $iren SetEventPositionFlipY $x $y
         $iren EnterEvent 
     }
 
-    proc cb_vtkw_leave {vtkw renwin x y} {
+    proc cb_vtkw_leave_binding {vtkw renwin x y} {
         set iren [$renwin GetInteractor]
-        $iren SetEventInformationFlipY $x $y 0 0 0 0 0
+        $iren SetEventPositionFlipY $x $y
         $iren LeaveEvent
     }
 
@@ -149,7 +101,7 @@ namespace eval ::vtk {
 
         # Mouse motion
 
-        bind $vtkw <Motion> "::vtk::cb_vtkw_motion $vtkw $renwin %x %y"
+        bind $vtkw <Motion> "::vtk::cb_vtkw_motion_binding $vtkw $renwin %x %y"
 
         # Mouse buttons and key events
 
@@ -179,13 +131,19 @@ namespace eval ::vtk {
         
         # Expose/Configure
 
-        bind $vtkw <Configure> "::vtk::cb_vtkw_configure $vtkw $renwin %w %h"
-        bind $vtkw <Expose> "::vtk::cb_vtkw_expose $vtkw $renwin %x %y %w %h"
+        bind $vtkw <Configure> \
+                "::vtk::cb_vtkw_configure_binding $vtkw $renwin %w %h"
+
+        bind $vtkw <Expose> \
+                "::vtk::cb_vtkw_expose_binding $vtkw $renwin %x %y %w %h"
 
         # Enter/Leave
 
-        bind $vtkw <Enter> "::vtk::cb_vtkw_enter $vtkw $renwin %x %y"
-        bind $vtkw <Leave> "::vtk::cb_vtkw_leave $vtkw $renwin %x %y"
+        bind $vtkw <Enter> \
+                "::vtk::cb_vtkw_enter_binding $vtkw $renwin %x %y"
+
+        bind $vtkw <Leave> \
+                "::vtk::cb_vtkw_leave_binding $vtkw $renwin %x %y"
     }
 
     # -------------------------------------------------------------------
@@ -196,9 +154,9 @@ namespace eval ::vtk {
     # Check if some events are pending, and abort render in that case
 
     proc cb_renwin_abort_check_event {renwin} {
-        if {[$renwin GetEventPending] != 0} {    
-            $renwin SetAbortRender 1        
-        }                                   
+#        if {[$renwin GetEventPending] != 0} {    
+#            $renwin SetAbortRender 1        
+#        }                                   
     }
 
     # Add the above observers to a vtkRenderWindow
@@ -216,11 +174,20 @@ namespace eval ::vtk {
     # vtk(Generic)RenderWindowInteractor callbacks/observers
     #   iren: interactor object
 
-    # CreateTimerEvent obverser.
+    # CreateTimerEvent/DestroyTimerEvent obversers.
     # Handle the creation of a timer event (10 ms)
     
     proc cb_iren_create_timer_event {iren} {
-        after 10 "$iren TimerEvent"
+        set timer [after 10 "$iren TimerEvent"]
+        ::vtk::set_widget_variable_value $iren CreateTimerEventTimer $timer
+    }
+
+    proc cb_iren_destroy_timer_event {iren} {
+        set timer \
+                [::vtk::get_widget_variable_value $iren CreateTimerEventTimer]
+        if {$timer != ""} {
+            after cancel $timer
+        }
     }
 
     # UserEvent obverser.
@@ -300,6 +267,10 @@ namespace eval ::vtk {
                 [$iren AddObserver CreateTimerEvent \
                 [list ::vtk::cb_iren_create_timer_event $iren]]
 
+        ::vtk::set_widget_variable_value $iren DestroyTimerEventTag \
+                [$iren AddObserver DestroyTimerEvent \
+                [list ::vtk::cb_iren_destroy_timer_event $iren]]
+
         # User Tk interactor
 
         ::vtk::set_widget_variable_value $iren UserEventTag \
@@ -334,216 +305,5 @@ namespace eval ::vtk {
         add_renwin_observers $renwin
         add_iren_observers [$renwin GetInteractor]
     }
-
-    proc bind_tk_render_widget {vtkrw} {
-        bind_tk_widget $vtkrw [$vtkrw GetRenderWindow]
-    }
-
-    # -------------------------------------------------------------------
-    # Specific vtkTkImageViewerWidget bindings
-
-    # Create a 2d text actor that can be used to display infos
-    # like window/level, pixel picking, etc
-    
-    proc cb_vtkiw_create_text1 {vtkiw} {
-        set mapper [::vtk::get_widget_variable_value $vtkiw text1_mapper]
-        if {$mapper == ""} {
-            set mapper \
-                  [::vtk::new_widget_object $vtkiw vtkTextMapper text1_mapper]
-            $mapper SetInput "none"
-            $mapper SetFontFamilyToArial
-            $mapper SetFontSize 12
-            $mapper BoldOn
-            $mapper ShadowOn
-        }
-        set actor [::vtk::get_widget_variable_value $vtkiw text1_actor]
-        if {$actor == ""} {
-            set actor \
-                    [::vtk::new_widget_object $vtkiw vtkActor2D text1_actor]
-            $actor SetMapper $mapper
-            $actor SetLayerNumber 1
-            [$actor GetPositionCoordinate] SetValue 5 4 0
-            [$actor GetProperty] SetColor 1 1 0.5
-            $actor SetVisibility 0
-            [[$vtkiw GetImageViewer] GetRenderer] AddActor2D $actor
-        }
-    }
-
-    # Show/Hide the 2d text actor
-    
-    proc cb_vtkiw_show_text1 {vtkiw} {
-        set actor [::vtk::get_widget_variable_value $vtkiw text1_actor]
-        if {![$actor GetVisibility]} {
-            set height [lindex [$vtkiw configure -height] 4]
-            set pos [$actor GetPositionCoordinate]
-            set value [$pos GetValue]
-            $pos SetValue \
-                    [lindex $value 0] [expr $height - 15] [lindex $value 2]
-            $actor VisibilityOn
-        }
-    }
-
-    proc cb_vtkiw_hide_text1 {vtkiw} {
-        set actor [::vtk::get_widget_variable_value $vtkiw text1_actor]
-        if {[$actor GetVisibility]} {
-            $actor VisibilityOff
-        }
-    }
-
-    # -------------------------------------------------------------------
-    # vtkInteractorStyleImage callbacks/observers
-    #   istyle: interactor style
-    #   vtkiw: vtkTkImageRenderWindget
-
-    # StartWindowLevelEvent observer.
-    # Create the text actor, show it
-
-    proc cb_istyle_start_window_level_event {istyle vtkiw} {
-        ::vtk::cb_vtkiw_create_text1 $vtkiw
-        ::vtk::cb_vtkiw_show_text1 $vtkiw
-    }
-
-    # EndWindowLevelEvent observer.
-    # Hide the text actor.
-
-    proc cb_istyle_end_window_level_event {istyle vtkiw} {
-        ::vtk::cb_vtkiw_hide_text1 $vtkiw
-        $vtkiw Render
-    }
-
-    # WindowLevelEvent observer.
-    # Update the text actor with the current window/level values.
-
-    proc cb_istyle_window_level_event {istyle vtkiw} {
-        set mapper [::vtk::get_widget_variable_value $vtkiw text1_mapper]
-        set viewer [$vtkiw GetImageViewer]
-        $mapper SetInput [format "W/L: %.0f/%.0f" \
-                [$viewer GetColorWindow] [$viewer GetColorLevel]]
-    }
-
-    # RightButtonPressEvent observer.
-    # Invert the 'shift' key. The usual vtkInteractorStyleImage
-    # behaviour is to enable picking mode with "Shift+Right button", 
-    # whereas we want picking mode to be "Right button" only for backward
-    # compatibility.
-
-    proc cb_istyle_right_button_press_event {istyle} {
-        set iren [$istyle GetInteractor]
-        eval $istyle OnRightButtonDown \
-                [$iren GetControlKey] \
-                [expr [$iren GetShiftKey] ? 0 : 1]  \
-                [$iren GetEventPosition]
-    }
-
-    proc cb_istyle_right_button_release_event {istyle} {
-        set iren [$istyle GetInteractor]
-        eval $istyle OnRightButtonUp \
-                [$iren GetControlKey] \
-                [expr [$iren GetShiftKey] ? 0 : 1]  \
-                [$iren GetEventPosition]
-    }
-
-    # StartPickEvent observer.
-    # Create the text actor, show it
-
-    proc cb_istyle_start_pick_event {istyle vtkiw} {
-        ::vtk::cb_vtkiw_create_text1 $vtkiw
-        ::vtk::cb_vtkiw_show_text1 $vtkiw
-    }
-
-    # EndPickEvent observer.
-    # Hide the text actor.
-
-    proc cb_istyle_end_pick_event {istyle vtkiw} {
-        ::vtk::cb_vtkiw_hide_text1 $vtkiw
-        $vtkiw Render
-    }
-
-    # PickEvent observer.
-    # Update the text actor with the current value of the picked pixel.
-
-    proc cb_istyle_pick_event {istyle vtkiw} {
-
-        set viewer [$vtkiw GetImageViewer]
-        set input [$viewer GetInput]
-        set pos [[$istyle  GetInteractor] GetEventPosition]
-        set x [lindex $pos 0]
-        set y [lindex $pos 1]
-        set z [$viewer GetZSlice]
-
-        # Y is flipped upside down
-
-        set height [lindex [$vtkiw configure -height] 4]
-        set y [expr $height - $y]
-
-        # Make sure point is in the whole extent of the image.
-
-        scan [$input GetWholeExtent] "%d %d %d %d %d %d" \
-                xMin xMax yMin yMax zMin zMax
-        if {$x < $xMin || $x > $xMax || \
-            $y < $yMin || $y > $yMax || \
-            $z < $zMin || $z > $zMax} {
-           return
-        }
-
-        $input SetUpdateExtent $x $x $y $y $z $z
-        $input Update
-
-        set num_comps [$input GetNumberOfScalarComponents]
-        set str "($x, $y):"
-        for {set idx 0} {$idx < $num_comps} {incr idx} {
-            set str [format "%s %.0f" $str \
-                    [$input GetScalarComponentAsFloat $x $y $z $idx]]
-        }
-
-        set mapper [::vtk::get_widget_variable_value $vtkiw text1_mapper]
-        $mapper SetInput "$str"
-        $vtkiw Render
-    }
-
-    proc bind_tk_imageviewer_widget {vtkiw} {
-        bind_tk_widget $vtkiw [[$vtkiw GetImageViewer] GetRenderWindow]
-
-        set viewer [$vtkiw GetImageViewer]
-        set iren [[$viewer GetRenderWindow] GetInteractor]
-
-        # Ask the viewer to setup an image style interactor
-
-        $viewer SetupInteractor $iren
-        set istyle [$iren GetInteractorStyle]
-
-        # Window/Level observers
-
-        ::vtk::set_widget_variable_value $istyle StartWindowLevelEventTag \
-                [$istyle AddObserver StartWindowLevelEvent \
-                "::vtk::cb_istyle_start_window_level_event $istyle $vtkiw"]
-
-        ::vtk::set_widget_variable_value $istyle WindowLevelEventTag \
-                [$istyle AddObserver WindowLevelEvent \
-                "::vtk::cb_istyle_window_level_event $istyle $vtkiw"]
-
-        ::vtk::set_widget_variable_value $istyle EndWindowLevelEventTag \
-                [$istyle AddObserver EndWindowLevelEvent \
-                "::vtk::cb_istyle_end_window_level_event $istyle $vtkiw"]
-
-        # Picking observers
-
-        ::vtk::set_widget_variable_value $istyle RightButtonPressEventTag \
-                [$istyle AddObserver RightButtonPressEvent \
-                "::vtk::cb_istyle_right_button_press_event $istyle"]
-
-        ::vtk::set_widget_variable_value $istyle StartPickEventTag \
-                [$istyle AddObserver StartPickEvent \
-                "::vtk::cb_istyle_start_pick_event $istyle $vtkiw"]
-
-        ::vtk::set_widget_variable_value $istyle EndPickEventTag \
-                [$istyle AddObserver EndPickEvent \
-                "::vtk::cb_istyle_end_pick_event $istyle $vtkiw"]
-        
-        ::vtk::set_widget_variable_value $istyle PickEventTag \
-                [$istyle AddObserver PickEvent \
-                "::vtk::cb_istyle_pick_event $istyle $vtkiw"]
-    }
-
 }
 

@@ -48,10 +48,10 @@ Example: see Examples/GUI/Tcl/Mace.Tcl.
 
 ii) 'vtkTkRenderWidget bindings':
 
-The vtkinteraction package also brings a set of user-interaction bindings for the vtkTkRenderWidget class. It allows you to use this Tk widget in a way similar to the usual VTK interactor. Once the package is loaded, call BindTkRenderWidget to associate the bindings to the render widget:
+The vtkinteraction package also brings a set of user-interaction bindings for the vtkTkRenderWidget class. It allows you to use this Tk widget in a way similar to the usual VTK interactor. Once the package is loaded, call ::vtk::bind_tk_render_widget to associate the bindings to the render widget:
 
         set ren [vtkTkRenderWidget .ren -width 300 -height 300 -rw renWin]
-        BindTkRenderWidget $ren
+        ::vtk::bind_tk_render_widget $ren
 
 Example: see Examples/GUI/Tcl/MaceTk.Tcl.
 

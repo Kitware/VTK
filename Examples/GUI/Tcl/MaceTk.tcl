@@ -21,9 +21,11 @@ package require vtkinteraction
 # Next we create an instance of vtkSphereSource and set some of its 
 # properties
 #
+set sphere_max_res 60
+set sphere_init_res 8
 vtkSphereSource sphere
-    sphere SetThetaResolution 8 
-    sphere SetPhiResolution 8
+    sphere SetThetaResolution $sphere_init_res
+    sphere SetPhiResolution $sphere_init_res
 
 #
 # We create an instance of vtkPolyDataMapper to map the polygonal data 
@@ -32,13 +34,12 @@ vtkSphereSource sphere
 #
 vtkPolyDataMapper sphereMapper
     sphereMapper SetInput [sphere GetOutput]
-
 #
 # Create an actor to represent the sphere. The actor coordinates rendering of
 # the graphics primitives for a mapper. We set this actor's mapper to be
 # the mapper which we created above.
 #
-vtkActor sphereActor
+vtkLODActor sphereActor
     sphereActor SetMapper sphereMapper
 
 #
@@ -80,7 +81,7 @@ vtkPolyDataMapper spikeMapper
 # the graphics primitives for a mapper. We set this actor's mapper to be
 # the mapper which we created above.
 #
-vtkActor spikeActor
+vtkLODActor spikeActor
     spikeActor SetMapper spikeMapper
 
 #
@@ -117,15 +118,9 @@ set vtkw [vtkTkRenderWidget .ren \
         -rw renWin]
 
 #
-# When using the vtkTkWidget classes you should not use the interactor
-# classes such as vtkRenderWindowInteractor. While it may work, the
-# behavior may be unstable. Normally you should use either an
-# interactor (see Mace.Tcl) or a vtkTkWidget but never both for a
-# given window. Hopefully, events can be bound on this widget just like any
-# other Tk widget. BindTkRenderWidget sets events handlers that are similar
-# to what we would achieve using vtkRenderWindowInteractor.
+# Setup Tk bindings and VTK observers for that widget.
 #
-BindTkRenderWidget $vtkw
+::vtk::bind_tk_render_widget $vtkw
 
 #
 # Once the VTK widget has been created it can be inserted into a whole Tk GUI
@@ -137,7 +132,6 @@ BindTkRenderWidget $vtkw
 #
 # We first create a .params Tk frame into which we will pack all sliders.
 #
-
 frame .params
 
 #
@@ -152,7 +146,7 @@ frame .params
 # corresponding VTK object.
 #
 set sth [scale .params.sth \
-        -from 3 -to 20 -res 1 \
+        -from 3 -to $sphere_max_res -res 1 \
         -orient horizontal \
         -label "Sphere Theta Resolution:" \
         -command setSphereThetaResolution]
@@ -181,7 +175,7 @@ proc setSphereThetaResolution {res} {
 # resolution. 
 #
 set sph [scale .params.sph \
-        -from 3 -to 20 -res 1 \
+        -from 3 -to $sphere_max_res -res 1 \
         -orient horizontal \
         -label "Sphere Phi Resolution:" \
         -command setSpherePhiResolution]
@@ -197,8 +191,9 @@ proc setSpherePhiResolution {res} {
 # In the exact same way we create a scale slider controlling the cone
 # resolution. 
 #
+set cone_max_res $sphere_max_res
 set cre [scale .params.cre \
-        -from 3 -to 20 -res 1 \
+        -from 3 -to $cone_max_res -res 1 \
         -orient horizontal \
         -label "Cone Source Resolution:" \
         -command setConeSourceResolution]
@@ -227,10 +222,9 @@ proc setGlyphScaleFactor {factor} {
 }
 
 #
-# Let's add a quit button that will call the bye() (see below)
-
-button .params.quit -text "Quit" -command bye
-
+# Let's add a quit button that will trigger the exit callback (see below)
+#
+button .params.quit -text "Quit" -command ::vtk::cb_exit
 
 #
 # Finally we pack all sliders on top of each other (-side top) inside
@@ -244,15 +238,11 @@ pack $vtkw .params -side top -fill both -expand yes
 # We set the window manager (wm command) so that it registers a
 # command to handle the WM_DELETE_WINDOW protocal request. This
 # request is triggered when the widget is closed using the standard
-# window manager icons or buttons. In this case the 'bye' procedure
+# window manager icons or buttons. In this case the exit callback
 # will be called and it will free up any objects we created then exit
 # the application.
 #
-wm protocol . WM_DELETE_WINDOW bye 
-proc bye {} {
-    vtkCommand DeleteAllObjects
-    exit
-}
+wm protocol . WM_DELETE_WINDOW ::vtk::cb_exit
 
 #
 # You only need this line if you run this script from a Tcl shell
