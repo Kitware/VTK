@@ -45,11 +45,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // Match two surfaces using the iterative closest point (ICP) algorithm.
 // The core of the algorithm is to match each vertex in one surface with 
-// the closest surface point on the other, then apply the rigid transformation
-// that moves one surface to best match the other. This has to be iterated to
-// get proper convergence of the surfaces.
-// Use the transform in vtkTransformPolyDataFilter for example, to apply
-// the resulting ICP transform to your data.
+// the closest surface point on the other, then apply the transformation
+// that modify one surface to best match the other (in a least square sense).
+// This has to be iterated to get proper convergence of the surfaces.
+// .SECTION Note
+// Use vtkTransformPolyDataFilter to apply the resulting ICP transform to 
+// your data. You might also set it to your actor's user transform.
+// .SECTION Note
+// This class makes use of vtkLandmarkTransform internally to compute the
+// best fit. Use the GetLandmarkTransform member to get a pointer to that
+// transform and set its parameters. You might, for example, constrain the
+// number of degrees of freedom of the solution (i.e. rigid body, similarity,
+// etc.) by checking the vtkLandmarkTransform documentation for its SetMode
+// member.
+// .SECTION see also
+// vtkLandmarkTransform
 
 
 #ifndef __vtkIterativeClosestPointTransform_h
@@ -120,7 +130,8 @@ public:
   vtkBooleanMacro(StartByMatchingCentroids, int);
 
   // Description: 
-  // Get the landmark transform.
+  // Get the internal landmark transform. Use it to constrain the number of
+  // degrees of freedom of the solution (i.e. rigid body, similarity, etc.).
   vtkGetObjectMacro(LandmarkTransform,vtkLandmarkTransform);
   
   // Description:
