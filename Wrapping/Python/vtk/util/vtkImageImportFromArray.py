@@ -60,6 +60,14 @@ class vtkImageImportFromArray:
                   'F':VTK_FLOAT,
                   'D':VTK_DOUBLE }
 
+    __sizeDict = { VTK_CHAR:1,
+                   VTK_UNSIGNED_CHAR:1,
+                   VTK_SHORT:2,
+                   VTK_UNSIGNED_SHORT:2,
+                   VTK_INT:4,
+                   VTK_FLOAT:4,
+                   VTK_DOUBLE:8 }
+
     # convert 'Int32' to 'unsigned short'
     def SetConvertIntToUnsignedShort(self,yesno):
         self.__ConvertIntToUnsignedShort = yesno
@@ -103,8 +111,9 @@ class vtkImageImportFromArray:
                 imTmpArr = imArray.flat
             else:
                 imTmpArr = imArray.tostring()
-            
-        self.__import.CopyImportVoidPointer(imTmpArr,len(imTmpArr))
+
+        size = len(imTmpArr)*self.__sizeDict[type]
+        self.__import.CopyImportVoidPointer(imTmpArr, size)
         self.__import.SetDataScalarType(type)
         self.__import.SetNumberOfScalarComponents(numComponents)
         extent = self.__import.GetDataExtent()
