@@ -78,7 +78,7 @@ int vtkArrayMap<KeyType,DataType>::RemoveItem(const KeyType& key)
     }
   vtkAbstractMapItem<KeyType,DataType> *item;
   vtkIdType cc;
-  for ( cc = 0; cc <= this->Array->GetNumberOfItems(); cc ++ )
+  for ( cc = 0; cc < this->Array->GetNumberOfItems(); cc ++ )
     {
     this->Array->GetItemNoCheck(cc, item);
     if ( vtkContainerCompareMethod(key, item->Key) == 0 )
