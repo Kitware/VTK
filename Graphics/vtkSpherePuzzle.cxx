@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzle, "1.17");
+vtkCxxRevisionMacro(vtkSpherePuzzle, "1.18");
 vtkStandardNewMacro(vtkSpherePuzzle);
 
 //----------------------------------------------------------------------------
@@ -175,7 +175,7 @@ int vtkSpherePuzzle::RequestData(
 
       // append all the pieces.
       append->AddInput(tmp);
-      tmp->Delete();
+      tmp->FastDelete();
       ++count;
       }
     }
