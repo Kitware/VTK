@@ -30,7 +30,7 @@ extern "C"
 {
   void vtkXMLParserStartElement(void*, const char*, const char**);
   void vtkXMLParserEndElement(void*, const char*);
-  void vtkXMLParserCharacterDataHandler(void*, const char*, int);  
+  void vtkXMLParserCharacterDataHandler(void*, const char*, int);
 }
 
 class VTK_IO_EXPORT vtkXMLParser : public vtkObject
@@ -40,14 +40,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkXMLParser* New();
-  
+
   //BTX
   // Description:
   // Get/Set the input stream.
   vtkSetMacro(Stream, istream*);
   vtkGetMacro(Stream, istream*);
   //ETX
-  
+
   // Description:
   // Parse the XML input.
   virtual int Parse();
@@ -73,11 +73,11 @@ public:
   // Set and get file name.
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  
+
 protected:
   vtkXMLParser();
   ~vtkXMLParser();
-  
+
   // Input stream.  Set by user.
   istream* Stream;
 
@@ -87,74 +87,74 @@ protected:
   // This variable is true if there was a parse error while parsing in
   // chunks.
   int ParseError;
-  
+
   // Character message to parse
   const char* InputString;
   int InputStringLength;
-  
+
   // Expat parser structure.  Exists only during call to Parse().
   void* Parser;
-  
+
   // Called by Parse() to read the stream and call ParseBuffer.  Can
   // be replaced by subclasses to change how input is read.
   virtual int ParseXML();
-  
+
   // Called before each block of input is read from the stream to
   // check if parsing is complete.  Can be replaced by subclasses to
   // change the terminating condition for parsing.  Parsing always
   // stops when the end of file is reached in the stream.
   virtual int ParsingComplete();
-  
+
   // Called when a new element is opened in the XML source.  Should be
   // replaced by subclasses to handle each element.
   //  name = Name of new element.
   //  atts = Null-terminated array of attribute name/value pairs.
   //         Even indices are attribute names, and odd indices are values.
   virtual void StartElement(const char* name, const char** atts);
-  
+
   // Called at the end of an element in the XML source opened when
   // StartElement was called.
   virtual void EndElement(const char* name);
-  
+
   // Called when there is character data to handle.
-  virtual void CharacterDataHandler(const char* data, int length);  
-  
+  virtual void CharacterDataHandler(const char* data, int length);
+
   // Called by begin handlers to report any stray attribute values.
   virtual void ReportStrayAttribute(const char* element, const char* attr,
                                     const char* value);
-  
+
   // Called by begin handlers to report any missing attribute values.
   virtual void ReportMissingAttribute(const char* element, const char* attr);
-  
+
   // Called by begin handlers to report bad attribute values.
   virtual void ReportBadAttribute(const char* element, const char* attr,
                                   const char* value);
-  
+
   // Called by StartElement to report unknown element type.
   virtual void ReportUnknownElement(const char* element);
-  
+
   // Called by Parse to report an XML syntax error.
-  virtual void ReportXmlParseError();  
-  
+  virtual void ReportXmlParseError();
+
   // Get the current byte index from the beginning of the XML stream.
   unsigned long GetXMLByteIndex();
-  
+
   // Send the given buffer to the XML parser.
   virtual int ParseBuffer(const char* buffer, unsigned int count);
-  
+
   // Send the given c-style string to the XML parser.
   int ParseBuffer(const char* buffer);
-  
+
   // Utility for convenience of subclasses.  Wraps isspace C library
   // routine.
-  static int IsSpace(char c);  
-  
+  static int IsSpace(char c);
+
   //BTX
   friend void vtkXMLParserStartElement(void*, const char*, const char**);
   friend void vtkXMLParserEndElement(void*, const char*);
   friend void vtkXMLParserCharacterDataHandler(void*, const char*, int);
   //ETX
-  
+
 private:
   vtkXMLParser(const vtkXMLParser&);  // Not implemented.
   void operator=(const vtkXMLParser&);  // Not implemented.

@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.19");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.20");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -38,7 +38,7 @@ vtkXMLDataParser::vtkXMLDataParser()
   this->DataStream = 0;
   this->InlineDataStream = vtkBase64InputStream::New();
   this->AppendedDataStream = vtkBase64InputStream::New();
-  
+
   this->BlockCompressedSizes = 0;
   this->BlockStartOffsets = 0;
   this->Compressor = 0;
@@ -46,10 +46,10 @@ vtkXMLDataParser::vtkXMLDataParser()
   this->AsciiDataBuffer = 0;
   this->AsciiDataBufferLength = 0;
   this->AsciiDataPosition = 0;
-  
+
   this->Abort = 0;
   this->Progress = 0;
-  
+
   // Default byte order to that of this machine.
 #ifdef VTK_WORDS_BIGENDIAN
   this->ByteOrder = vtkXMLDataParser::BigEndian;
@@ -101,16 +101,16 @@ int vtkXMLDataParser::Parse()
 {
   // Delete any elements left from previous parsing.
   this->FreeAllElements();
-  
+
   // Parse the input from the stream.
   int result = this->Superclass::Parse();
-  
+
   // Check that the input is okay.
   if(result && !this->CheckPrimaryAttributes())
     {
     result = 0;
     }
-  
+
   return result;
 }
 
@@ -141,12 +141,12 @@ void vtkXMLDataParser::StartElement(const char* name, const char** atts)
     element->SetId(id);
     }
   this->PushOpenElement(element);
-  
+
   if(strcmp(name, "AppendedData") == 0)
     {
     // This is the AppendedData element.
     this->FindAppendedDataPosition();
-    
+
     // Switch to raw decoder if necessary.
     const char* encoding = element->GetAttribute("encoding");
     if(encoding && (strcmp(encoding, "raw") == 0))
@@ -170,7 +170,7 @@ void vtkXMLDataParser::EndElement(const char*)
   else
     {
     this->RootElement = finished;
-    }  
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -213,18 +213,18 @@ void vtkXMLDataParser::FindAppendedDataPosition()
   // the end of the stream when processing the AppendedData element.
   this->Stream->clear(this->Stream->rdstate() & ~ios::failbit);
   this->Stream->clear(this->Stream->rdstate() & ~ios::eofbit);
-  
+
   // Scan for the start of the actual appended data.
   char c=0;
   unsigned long returnPosition = this->Stream->tellg();
   this->Stream->seekg(this->GetXMLByteIndex());
   while(this->Stream->get(c) && (c != '>'));
   while(this->Stream->get(c) && this->IsSpace(c));
-  
+
   // Store the start of the appended data.  We skip the first
   // character because it is always a "_".
   this->AppendedDataPosition = this->Stream->tellg();
-  
+
   // If first character was not an underscore, assume it is part of
   // the data.
   if(c != '_')
@@ -233,7 +233,7 @@ void vtkXMLDataParser::FindAppendedDataPosition()
                     << int(c) << ", not '_'");
     --this->AppendedDataPosition;
     }
-  
+
   // Restore the stream position.
   this->Stream->seekg(returnPosition);
 }
@@ -246,7 +246,7 @@ unsigned long vtkXMLDataParser::FindInlineDataPosition(unsigned long start)
   this->Stream->seekg(start);
   while(this->Stream->get(c) && (c != '>'));
   while(this->Stream->get(c) && this->IsSpace(c));
-  
+
   // Make sure some data were found.
   if(c == '<') { return 0; }
   unsigned long pos = this->Stream->tellg();
@@ -269,7 +269,7 @@ void vtkXMLDataParser::PushOpenElement(vtkXMLDataElement* element)
     this->OpenElements = newOpenElements;
     this->OpenElementsSize = newSize;
     }
-  
+
   unsigned int pos = this->NumberOfOpenElements++;
   this->OpenElements[pos] = element;
 }
@@ -308,7 +308,7 @@ int vtkXMLDataParser::ParseBuffer(const char* buffer, unsigned int count)
   // similar to the KMP string search algorithm.
   const char pattern[] = "<AppendedData";
   const int length = sizeof(pattern)-1;
-  
+
   const char* s = buffer;
   const char* end = buffer + count;
   int matched = this->AppendedDataMatched;
@@ -319,10 +319,10 @@ int vtkXMLDataParser::ParseBuffer(const char* buffer, unsigned int count)
     else { matched = (c == pattern[0])? 1:0; }
     }
   this->AppendedDataMatched = matched;
-  
+
   // Parse as much of the buffer as is safe.
   if(!this->Superclass::ParseBuffer(buffer, s - buffer)) { return 0; }
-  
+
   // If we have reached the appended data, artificially finish the
   // document.
   if(matched == length)
@@ -333,7 +333,7 @@ int vtkXMLDataParser::ParseBuffer(const char* buffer, unsigned int count)
     while((t != end) && (*t != '>')) { ++t; }
     if(!this->Superclass::ParseBuffer(s, t-s)) { return 0; }
     if(t > s) { prev = *(t-1); }
-    
+
     if(t == end)
       {
       // Scan for the real end of the element's opening tag.
@@ -344,19 +344,19 @@ int vtkXMLDataParser::ParseBuffer(const char* buffer, unsigned int count)
         if(!this->Superclass::ParseBuffer(&c, 1)) { return 0; }
         }
       }
-    
+
     // Artificially end the AppendedData element.
     if(prev != '/')
       {
       if(!this->Superclass::ParseBuffer("/", 1)) { return 0; }
       }
     if(!this->Superclass::ParseBuffer(">", 1)) { return 0; }
-    
+
     // Artificially end the VTKFile element.
     const char finish[] = "\n</VTKFile>\n";
     if(!this->Superclass::ParseBuffer(finish, sizeof(finish)-1)) { return 0; }
     }
-  
+
   return 1;
 }
 
@@ -415,13 +415,13 @@ void vtkXMLDataParser::PerformByteSwap(void* data, int numWords, int wordSize)
 
 //----------------------------------------------------------------------------
 void vtkXMLDataParser::ReadCompressionHeader()
-{  
+{
   HeaderType headerBuffer[3];
   const int headerSize = sizeof(headerBuffer);
   unsigned char* buffer = reinterpret_cast<unsigned char*>(&headerBuffer[0]);
-  
+
   this->DataStream->StartReading();
-  
+
   // Read the standard part of the header.
   int r = this->DataStream->Read(buffer, headerSize);
   if(r < headerSize)
@@ -430,15 +430,15 @@ void vtkXMLDataParser::ReadCompressionHeader()
                   << r << " of " << headerSize << " bytes.");
     return;
     }
-  
+
   // Byte swap the header to make sure the values are correct.
   this->PerformByteSwap(headerBuffer, 3, sizeof(HeaderType));
-  
+
   // Get the standard values.
   this->NumberOfBlocks = headerBuffer[0];
   this->BlockUncompressedSize = headerBuffer[1];
   this->PartialLastBlockUncompressedSize = headerBuffer[2];
-  
+
   // Allocate the size and offset parts of the header.
   if(this->BlockCompressedSizes)
     {
@@ -454,9 +454,9 @@ void vtkXMLDataParser::ReadCompressionHeader()
     {
     this->BlockCompressedSizes = new HeaderType[this->NumberOfBlocks];
     this->BlockStartOffsets = new unsigned long[this->NumberOfBlocks];
-    
+
     buffer = reinterpret_cast<unsigned char*>(&this->BlockCompressedSizes[0]);
-  
+
     // Read the compressed block sizes.
     unsigned long len = this->NumberOfBlocks*sizeof(HeaderType);
     if(this->DataStream->Read(buffer, len) < len)
@@ -464,13 +464,13 @@ void vtkXMLDataParser::ReadCompressionHeader()
       vtkErrorMacro("Error reading compression header.");
       return;
       }
-    
+
     // Byte swap the sizes to make sure the values are correct.
     this->PerformByteSwap(buffer, this->NumberOfBlocks, sizeof(HeaderType));
     }
-  
+
   this->DataStream->EndReading();
-  
+
   // Use the compressed block sizes to calculate the starting offset
   // of each block.
   unsigned long offset = 0;
@@ -501,15 +501,15 @@ int vtkXMLDataParser::ReadBlock(unsigned int block, unsigned char* buffer)
   unsigned long uncompressedSize = this->FindBlockSize(block);
   unsigned int compressedSize = this->BlockCompressedSizes[block];
   unsigned char* readBuffer = new unsigned char[compressedSize];
-  
+
   if(!this->DataStream->Seek(this->BlockStartOffsets[block])) { return 0; }
   if(this->DataStream->Read(readBuffer, compressedSize) < compressedSize)
     { return 0; }
-  
+
   unsigned long result =
     this->Compressor->Uncompress(readBuffer, compressedSize,
                                  buffer, uncompressedSize);
-  
+
   delete [] readBuffer;
   return (result > 0)? 1:0;
 }
@@ -539,25 +539,25 @@ unsigned long vtkXMLDataParser::ReadUncompressedData(unsigned char* data,
   unsigned char* p = reinterpret_cast<unsigned char*>(&size);
   if(this->DataStream->Read(p, len) < len) { return 0; }
   this->PerformByteSwap(&size, 1, len);
-  
+
   // Adjust the size to be a multiple of the wordSize by taking
   // advantage of integer division.  This will only change the value
   // when the input file is invalid.
   size = (size/wordSize)*wordSize;
-  
+
   // Convert the start/length into bytes.
   unsigned long offset = startWord*wordSize;
   unsigned long length = numWords*wordSize;
-  
+
   // Make sure the begin/end offsets fall within total size.
   if(offset > size) { return 0; }
   unsigned long end = offset+length;
   if(end > size) { end = size; }
   length = end-offset;
-  
+
   // Read the data.
   if(!this->DataStream->Seek(offset+len)) { return 0; }
-  
+
   // Read data in 32KB blocks and report progress.
   const long blockSize = 32768;
   long left = length;
@@ -571,15 +571,15 @@ unsigned long vtkXMLDataParser::ReadUncompressedData(unsigned char* data,
       {
       return 0;
       }
-    
+
     // Byte swap this block.  Note that n will always be an integer
     // multiple of the word size.
     this->PerformByteSwap(p, n / wordSize, wordSize);
-    
+
     // Update pointer and counter.
     p += n;
     left -= n;
-    
+
     // Report progress.
     this->UpdateProgress(float(p-data)/length);
     }
@@ -598,11 +598,11 @@ unsigned long vtkXMLDataParser::ReadCompressedData(unsigned char* data,
     {
     return 0;
     }
-  
+
   // Find the begin and end offsets into the data.
   unsigned long beginOffset = startWord*wordSize;
   unsigned long endOffset = beginOffset+numWords*wordSize;
-  
+
   // Find the total size of the data.
   unsigned long totalSize = this->NumberOfBlocks*this->BlockUncompressedSize;
   if(this->PartialLastBlockUncompressedSize)
@@ -610,28 +610,28 @@ unsigned long vtkXMLDataParser::ReadCompressedData(unsigned char* data,
     totalSize -= this->BlockUncompressedSize;
     totalSize += this->PartialLastBlockUncompressedSize;
     }
-  
+
   // Adjust the size to be a multiple of the wordSize by taking
   // advantage of integer division.  This will only change the value
   // when the input file is invalid.
   totalSize = (totalSize/wordSize)*wordSize;
-  
+
   // Make sure the begin/end offsets fall within the total size.
   if(beginOffset > totalSize) { return 0; }
   if(endOffset > totalSize) { endOffset = totalSize; }
-  
+
   // Find the range of compression blocks to read.
   unsigned int firstBlock = beginOffset / this->BlockUncompressedSize;
   unsigned int lastBlock = endOffset / this->BlockUncompressedSize;
-  
+
   // Find the offset into the first block where the data begin.
   unsigned int beginBlockOffset =
     beginOffset - firstBlock*this->BlockUncompressedSize;
-  
+
   // Find the offset into the last block where the data end.
   unsigned int endBlockOffset =
     endOffset - lastBlock*this->BlockUncompressedSize;
-  
+
   this->UpdateProgress(0);
   if(firstBlock == lastBlock)
     {
@@ -641,7 +641,7 @@ unsigned long vtkXMLDataParser::ReadCompressedData(unsigned char* data,
     long n = endBlockOffset - beginBlockOffset;
     memcpy(data, blockBuffer+beginBlockOffset, n);
     delete [] blockBuffer;
-    
+
     // Byte swap this block.  Note that n will always be an integer
     // multiple of the word size.
     this->PerformByteSwap(data, n / wordSize, wordSize);
@@ -652,41 +652,41 @@ unsigned long vtkXMLDataParser::ReadCompressedData(unsigned char* data,
     unsigned long length = endOffset - beginOffset;
     unsigned char* outputPointer = data;
     unsigned long blockSize = this->FindBlockSize(firstBlock);
-    
+
     // Read the first block.
     unsigned char* blockBuffer = this->ReadBlock(firstBlock);
     if(!blockBuffer) { return 0; }
     long n = blockSize-beginBlockOffset;
     memcpy(outputPointer, blockBuffer+beginBlockOffset, n);
     delete [] blockBuffer;
-    
+
     // Byte swap the first block.  Note that n will always be an
     // integer multiple of the word size.
     this->PerformByteSwap(data, n / wordSize, wordSize);
-    
+
     // Advance the pointer to the beginning of the second block.
     outputPointer += blockSize-beginBlockOffset;
-    
+
     // Report progress.
     this->UpdateProgress(float(outputPointer-data)/length);
-    
+
     unsigned int currentBlock = firstBlock+1;
     for(;currentBlock != lastBlock && !this->Abort; ++currentBlock)
       {
       // Read this block.
       if(!this->ReadBlock(currentBlock, outputPointer)) { return 0; }
-      
+
       // Byte swap this block.  Note that blockSize will always be an
       // integer multiple of the word size.
       this->PerformByteSwap(data, blockSize / wordSize, wordSize);
-      
+
       // Advance the pointer to the beginning of the next block.
       outputPointer += this->FindBlockSize(currentBlock);
-      
+
       // Report progress.
-      this->UpdateProgress(float(outputPointer-data)/length);      
+      this->UpdateProgress(float(outputPointer-data)/length);
       }
-    
+
     // Now read the final block, which is incomplete if it exists.
     if(endBlockOffset > 0 && !this->Abort)
       {
@@ -694,14 +694,14 @@ unsigned long vtkXMLDataParser::ReadCompressedData(unsigned char* data,
       if(!blockBuffer) { return 0; }
       memcpy(outputPointer, blockBuffer, endBlockOffset);
       delete [] blockBuffer;
-      
+
       // Byte swap the partial block.  Note that endBlockOffset will
       // always be an integer multiple of the word size.
       this->PerformByteSwap(data, endBlockOffset / wordSize, wordSize);
       }
     }
   this->UpdateProgress(1);
-  
+
   // Return the total words actually read.
   return (endOffset - beginOffset)/wordSize;
 }
@@ -721,13 +721,13 @@ unsigned long vtkXMLDataParser::ReadBinaryData(void* in_buffer, int startWord,
     {
     return 0;
     }
-  
-  unsigned long wordSize = this->GetWordTypeSize(wordType);  
+
+  unsigned long wordSize = this->GetWordTypeSize(wordType);
   void* buffer = in_buffer;
-  
+
   // Make sure our streams are setup correctly.
   this->DataStream->SetStream(this->Stream);
-  
+
   // Read the data.
   unsigned char* d = reinterpret_cast<unsigned char*>(buffer);
   unsigned long actualWords = 0;
@@ -744,7 +744,7 @@ unsigned long vtkXMLDataParser::ReadBinaryData(void* in_buffer, int startWord,
     actualWords = this->ReadUncompressedData(d, startWord, numWords, wordSize);
     this->DataStream->EndReading();
     }
-  
+
   // Return the actual amount read.
   return this->Abort? 0:actualWords;
 }
@@ -758,14 +758,14 @@ unsigned long vtkXMLDataParser::ReadAsciiData(void* buffer, int startWord,
     {
     return 0;
     }
-  
+
   // We assume that ascii data are not very large and parse the entire
   // block into memory.
   this->UpdateProgress(0);
-  
+
   // Parse the ascii data from the file.
   if(!this->ParseAsciiData(wordType)) { return 0; }
-  
+
   // Make sure we don't read outside the range of data available.
   int endWord = startWord + numWords;
   if(this->AsciiDataBufferLength < startWord) { return 0; }
@@ -777,14 +777,14 @@ unsigned long vtkXMLDataParser::ReadAsciiData(void* buffer, int startWord,
   int actualWords = endWord - startWord;
   int actualBytes = wordSize*actualWords;
   int startByte = wordSize*startWord;
-  
-  this->UpdateProgress(0.5);  
-  
+
+  this->UpdateProgress(0.5);
+
   // Copy the data from the pre-parsed ascii data buffer.
   memcpy(buffer, this->AsciiDataBuffer+startByte, actualBytes);
-  
+
   this->UpdateProgress(1);
-  
+
   return this->Abort? 0:actualWords;
 }
 
@@ -822,10 +822,10 @@ T* vtkXMLParseAsciiData(istream& is, int* length, T* vtkNotUsed(dummy))
 {
   int dataLength = 0;
   int dataBufferSize = 64;
-  
+
   T* dataBuffer = new T[dataBufferSize];
   T element;
-  
+
   while(is >> element)
     {
     if(dataLength == dataBufferSize)
@@ -839,12 +839,12 @@ T* vtkXMLParseAsciiData(istream& is, int* length, T* vtkNotUsed(dummy))
       }
     dataBuffer[dataLength++] = element;
     }
-  
+
   if(length)
-    {  
+    {
     *length = dataLength;
     }
-  
+
   return dataBuffer;
 }
 
@@ -853,11 +853,11 @@ char* vtkXMLParseAsciiDataChar(istream& is, int* length)
 {
   int dataLength = 0;
   int dataBufferSize = 64;
-  
+
   char* dataBuffer = new char[dataBufferSize];
   char element;
   short inElement;
-  
+
   while(is >> inElement)
     {
     element = inElement;
@@ -872,12 +872,12 @@ char* vtkXMLParseAsciiDataChar(istream& is, int* length)
       }
     dataBuffer[dataLength++] = element;
     }
-  
+
   if(length)
-    {  
+    {
     *length = dataLength;
     }
-  
+
   return dataBuffer;
 }
 
@@ -886,11 +886,11 @@ unsigned char* vtkXMLParseAsciiDataUnsignedChar(istream& is, int* length)
 {
   int dataLength = 0;
   int dataBufferSize = 64;
-  
+
   unsigned char* dataBuffer = new unsigned char[dataBufferSize];
   unsigned char element;
   short inElement;
-  
+
   while(is >> inElement)
     {
     element = inElement;
@@ -905,12 +905,12 @@ unsigned char* vtkXMLParseAsciiDataUnsignedChar(istream& is, int* length)
       }
     dataBuffer[dataLength++] = element;
     }
-  
+
   if(length)
-    {  
+    {
     *length = dataLength;
     }
-  
+
   return dataBuffer;
 }
 
@@ -918,17 +918,17 @@ unsigned char* vtkXMLParseAsciiDataUnsignedChar(istream& is, int* length)
 int vtkXMLDataParser::ParseAsciiData(int wordType)
 {
   istream& is = *(this->Stream);
-  
+
   // Don't re-parse the same ascii data.
   if(this->AsciiDataPosition == (unsigned long)(is.tellg()))
     {
     return (this->AsciiDataBuffer? 1:0);
     }
-  
+
   // Prepare for new data.
   this->AsciiDataPosition = is.tellg();
   if(this->AsciiDataBuffer) { this->FreeAsciiBuffer(); }
-  
+
   int length = 0;
   void* buffer = 0;
   switch (wordType)
@@ -956,11 +956,11 @@ int vtkXMLDataParser::ParseAsciiData(int wordType)
     case VTK_UNSIGNED_CHAR:
       buffer = vtkXMLParseAsciiDataUnsignedChar(is, &length); break;
     }
-  
+
   // Read terminated from failure.  Clear the fail bit so another read
-  // can take place later.  
+  // can take place later.
   is.clear(is.rdstate() & ~ios::failbit);
-  
+
   // Save the buffer.
   this->AsciiDataBuffer = reinterpret_cast<unsigned char*>(buffer);
   this->AsciiDataBufferLength = length;

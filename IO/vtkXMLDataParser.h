@@ -38,17 +38,17 @@ public:
   vtkTypeRevisionMacro(vtkXMLDataParser,vtkXMLParser);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLDataParser* New();
-  
+
   //BTX
   // Description:
   // Enumerate big and little endian byte order settings.
   enum { BigEndian, LittleEndian };
   //ETX
-  
+
   // Description:
   // Get the root element from the XML document.
   vtkXMLDataElement* GetRootElement();
-  
+
   // Description:
   // Read inline data from inside the given element.  Returns the
   // number of words read.
@@ -59,7 +59,7 @@ public:
                                char* buffer, int startWord, int numWords)
     { return this->ReadInlineData(element, isAscii, buffer, startWord,
                                   numWords, VTK_CHAR); }
-  
+
   // Description:
   // Read from an appended data section starting at the given appended
   // data offset.  Returns the number of words read.
@@ -69,25 +69,25 @@ public:
                                  int startWord, int numWords)
     { return this->ReadAppendedData(offset, buffer, startWord, numWords,
                                     VTK_CHAR); }
-  
+
   // Description:
   // Read from an ascii data section starting at the current position in
   // the stream.  Returns the number of words read.
   unsigned long ReadAsciiData(void* buffer, int startWord, int numWords,
                               int wordType);
-  
+
   // Description:
   // Read from a data section starting at the current position in the
   // stream.  Returns the number of words read.
   unsigned long ReadBinaryData(void* buffer, int startWord, int maxWords,
                                int wordType);
-  
+
   // Description:
   // Get/Set the compressor used to decompress binary and appended data
   // after reading from the file.
   virtual void SetCompressor(vtkDataCompressor*);
   vtkGetObjectMacro(Compressor, vtkDataCompressor);
-  
+
   // Description:
   // Get the size of a word of the given type.
   unsigned long GetWordTypeSize(int wordType);
@@ -102,13 +102,13 @@ public:
   // progress event observer.
   vtkGetMacro(Abort, int);
   vtkSetMacro(Abort, int);
-  
+
   // Description:
   // Get/Set progress of reading data.  This may be checked by a
   // progress event observer.
   vtkGetMacro(Progress, float);
-  vtkSetMacro(Progress, float);  
-  
+  vtkSetMacro(Progress, float);
+
   // Description:
   // Get/Set the character encoding that will be used to set the attributes's
   // encoding type of each vtkXMLDataElement created by this parser (i.e.,
@@ -118,15 +118,15 @@ public:
   // type (see vtkXMLDataElement::AttributeEncoding).
   vtkSetClampMacro(AttributesEncoding,int,VTK_ENCODING_NONE,VTK_ENCODING_UNKNOWN);
   vtkGetMacro(AttributesEncoding, int);
-  
+
 protected:
   vtkXMLDataParser();
   ~vtkXMLDataParser();
-  
+
   // This parser does not support parsing from a string.
   virtual int Parse(const char*);
   virtual int Parse(const char*, unsigned int);
-  
+
   // Implement parsing methods.
   void StartElement(const char* name, const char** atts);
   void EndElement(const char*);
@@ -135,13 +135,13 @@ protected:
   void FindAppendedDataPosition();
   unsigned long FindInlineDataPosition(unsigned long start);
   int ParseBuffer(const char* buffer, unsigned int count);
-  
+
   void AddElement(vtkXMLDataElement* element);
   void PushOpenElement(vtkXMLDataElement* element);
   vtkXMLDataElement* PopOpenElement();
   void FreeAllElements();
   void PerformByteSwap(void* data, int numWords, int wordSize);
-  
+
   // Data reading methods.
   void ReadCompressionHeader();
   unsigned int FindBlockSize(unsigned int block);
@@ -155,42 +155,42 @@ protected:
                                    unsigned long startWord,
                                    unsigned long numWords,
                                    int wordSize);
-  
+
   // Ascii data reading methods.
   int ParseAsciiData(int wordType);
   void FreeAsciiBuffer();
-    
+
   // Progress update methods.
   void UpdateProgress(float progress);
-  
+
   // The root XML element.
   vtkXMLDataElement* RootElement;
-  
+
   // The stack of elements currently being parsed.
   vtkXMLDataElement** OpenElements;
   unsigned int NumberOfOpenElements;
   unsigned int OpenElementsSize;
-  
+
   // The position of the appended data section, if found.
   unsigned long AppendedDataPosition;
-  
+
   // How much of the string "<AppendedData" has been matched in input.
   int AppendedDataMatched;
-  
+
   // The byte order of the binary input.
   int ByteOrder;
-  
+
   // The input stream used to read data.  Set by ReadAppendedData and
   // ReadInlineData methods.
   vtkInputStream* DataStream;
-  
+
   // The input stream used to read inline data.  May transparently
   // decode the data.
   vtkInputStream* InlineDataStream;
-  
+
   // The stream to use for appended data.
   vtkInputStream* AppendedDataStream;
-  
+
   //BTX
   // We need a 32 bit unsigned integer type for platform-independent
   // binary headers.  Note that this is duplicated in vtkXMLWriter.h.
@@ -204,7 +204,7 @@ protected:
 # error "No native data type can represent an unsigned 32-bit integer."
 #endif
   //ETX
-  
+
   // Decompression data.
   vtkDataCompressor* Compressor;
   unsigned int NumberOfBlocks;
@@ -212,16 +212,16 @@ protected:
   unsigned int PartialLastBlockUncompressedSize;
   HeaderType* BlockCompressedSizes;
   unsigned long* BlockStartOffsets;
-  
+
   // Ascii data parsing.
   unsigned char* AsciiDataBuffer;
   int AsciiDataBufferLength;
   int AsciiDataWordType;
   unsigned long AsciiDataPosition;
-  
+
   // Progress during reading of data.
   float Progress;
-  
+
   // Abort flag checked during reading of data.
   int Abort;
 
