@@ -1,0 +1,78 @@
+catch {load vtktcl}
+
+# get the interactor ui
+source vtkInt.tcl
+# and some nice colors
+source colors.tcl
+
+# Now create the RenderWindow, Renderer and Interactor
+#
+vtkRenderer ren1
+vtkRenderWindow renWin
+    renWin AddRenderer ren1
+vtkRenderWindowInteractor iren
+    iren SetRenderWindow renWin
+
+vtkPNMReader image
+  image SetFileName "../../vtkdata/B.pgm"
+  image Update
+
+vtkImageGaussianSmooth gaussian
+    eval gaussian SetStandardDeviations 4 4
+    gaussian SetDimensionality 2
+    gaussian SetStrides 2 2
+    gaussian SetRadiusFactors 2 2
+    gaussian SetInput [image GetOutput]
+
+vtkImageToStructuredPoints toStructuredPoints
+    toStructuredPoints SetInput [gaussian GetOutput]
+    toStructuredPoints Update
+
+vtkTransform transform
+  transform Identity
+  transform Scale .005 .005 .005
+  transform Translate -50 -50 0
+  transform Inverse
+  transform Scale 1 1 0
+
+vtkImplicitVolume aVolume
+  aVolume SetVolume [toStructuredPoints GetOutput]
+  aVolume SetTransform transform
+  aVolume SetOutValue 256
+
+vtkSphereSource aSphere
+  aSphere SetPhiResolution 100
+  aSphere SetThetaResolution 100
+
+vtkClipPolyData aClipper
+    aClipper SetInput [aSphere GetOutput]
+    aClipper SetValue 127.5
+    aClipper GenerateClipScalarsOn
+    aClipper SetClipFunction aVolume
+    aClipper Update
+
+vtkPolyDataMapper mapper
+  mapper SetInput [aClipper GetOutput]
+  mapper ScalarVisibilityOff
+
+vtkProperty backProp
+eval  backProp SetDiffuseColor $tomato
+
+vtkActor sphereActor
+  sphereActor SetMapper mapper
+  sphereActor SetBackfaceProperty backProp
+
+ren1 AddActor sphereActor
+
+[ren1 GetActiveCamera] Azimuth -20
+[ren1 GetActiveCamera] Elevation 15
+[ren1 GetActiveCamera] Dolly 1.2
+
+ren1 SetBackground 0.1 0.2 0.4
+renWin SetSize 320 320
+
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
+
+# prevent the tk window from showing up then start the event loop
+wm withdraw .
