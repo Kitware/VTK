@@ -16,11 +16,12 @@
 
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencil, "1.11");
+vtkCxxRevisionMacro(vtkImageStencil, "1.12");
 vtkStandardNewMacro(vtkImageStencil);
 
 //----------------------------------------------------------------------------
@@ -335,6 +336,17 @@ void vtkImageStencil::ThreadedExecute(vtkImageData *inData,
       vtkErrorMacro("Execute: Unknown ScalarType");
       return;
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkImageStencil::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkImageStencil::PrintSelf(ostream& os, vtkIndent indent)

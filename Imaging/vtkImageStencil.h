@@ -78,6 +78,8 @@ protected:
   
   int ReverseStencil;
   double BackgroundColor[4];
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   vtkImageStencil(const vtkImageStencil&);  // Not implemented.
   void operator=(const vtkImageStencil&);  // Not implemented.
