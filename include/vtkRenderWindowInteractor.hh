@@ -74,8 +74,8 @@ public:
   char *GetClassName() {return "vtkRenderWindowInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual void Initialize() = 0;
-  virtual void Start() = 0;
+  virtual void Initialize() {this->Initialized=1;this->RenderWindow->Render();};
+  virtual void Start() {};
 
   // Description:
   // Set/Get the rendering window being controlled by this object.
