@@ -13,7 +13,7 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "Decimat2.hh"
+#include "Decimate.hh"
 
 // Description:
 // Create object with target reduction of 90%, feature angle of 30 degrees, 
