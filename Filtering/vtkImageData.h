@@ -209,6 +209,8 @@ public:
 
   // Description:
   // For access to data from tcl
+  float GetScalarComponentAsFloat(int x, int y, int z, int component);
+  void SetScalarComponentFromFloat(int x, int y, int z, int component, float v);
   double GetScalarComponentAsDouble(int x, int y, int z, int component);
   void SetScalarComponentFromDouble(int x, int y, int z, int component, double v);
   
