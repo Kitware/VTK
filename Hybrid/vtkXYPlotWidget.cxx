@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkXYPlotWidget, "1.6");
+vtkCxxRevisionMacro(vtkXYPlotWidget, "1.7");
 vtkStandardNewMacro(vtkXYPlotWidget);
 vtkCxxSetObjectMacro(vtkXYPlotWidget, XYPlotActor, vtkXYPlotActor);
 
@@ -419,6 +419,7 @@ void vtkXYPlotWidget::OnMouseMove()
   
   // start a drag
   this->EventCallbackCommand->SetAbortFlag(1);
+  this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
   this->Interactor->Render();
 }
 
