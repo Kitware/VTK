@@ -633,6 +633,7 @@ void vtkRenderer::CreateLight(void)
   // I do not see why UnRegister is used on CreatedLight, but lets be consistent. 
   vtkLight *l = vtkLight::New();
   this->CreatedLight = l;
+  this->CreatedLight->Register(this);
   this->AddLight(this->CreatedLight);
   l->Delete();
   l = NULL;
