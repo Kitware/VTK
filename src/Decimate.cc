@@ -14,6 +14,30 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "Decimate.hh"
+//
+//  Static variables used by object
+//
+static vlPlane plane; // eliminate constructor overhead
+static vlLine line;
+static vlTriangle triangle;
+static vlMath math;
+
+static vlPolyData *Mesh; // operate on this data structure
+static float Pt[3], Normal[3]; // least squares plane point & normal
+static float Angle, Distance; // current feature angle and distance 
+static float CosAngle; // Cosine of dihedral angle
+
+static float Tolerance; // Intersection tolerance
+static float AspectRatio2; // Allowable aspect ratio 
+static int ContinueTriangulating; // Stops recursive tri. if necessary 
+static int Squawks; // Control output 
+
+static float X[3]; //coordinates of current point
+static float *VertexError, Error, MinEdgeError; //support error omputation
+
+static vlVertexArray *V; //cycle of vertices around point
+static vlTriArray *T; //cycle of triangles around point
+
 
 // Description:
 // Create object with target reduction of 90%, feature angle of 30 degrees, 
@@ -72,6 +96,10 @@ void vlDecimate::Execute()
   int totalEliminated=0;
   int *map, numNewPts, size;
   vlPolyData *input=(vlPolyData *)this->Input;
+  // do it this way because some compilers can't handle construction of
+  // static objects in file scope.
+  static vlVertexArray VertexArray(MAX_TRIS_PER_VERTEX+1);
+  static vlTriArray TriangleArray(MAX_TRIS_PER_VERTEX+1);
 
   vlDebugMacro(<<"Decimating mesh...");
   this->Initialize();
@@ -173,8 +201,8 @@ void vlDecimate::Execute()
           if ( vtype != COMPLEX_VERTEX ) 
             {
             ContinueTriangulating = 1;
-            numVerts = V.GetNumberOfVertices();
-            for (i=0; i < numVerts; i++) verts[i] = V.Array + i;
+            numVerts = V->GetNumberOfVertices();
+            for (i=0; i < numVerts; i++) verts[i] = V->Array + i;
             }
 //
 //  Note: interior edges can be eliminated if decimation criterion met
@@ -215,18 +243,18 @@ void vlDecimate::Execute()
 
               // Update the data structure to reflect deletion of vertex
               Mesh->DeletePoint(ptId);
-              for (i=0; i < V.GetNumberOfVertices(); i++)
-                if ( (size=V.Array[i].newRefs-V.Array[i].deRefs) > 0 )
-                  Mesh->ResizeCellList(V.Array[i].id,size);
+              for (i=0; i < V->GetNumberOfVertices(); i++)
+                if ( (size=V->Array[i].newRefs-V->Array[i].deRefs) > 0 )
+                  Mesh->ResizeCellList(V->Array[i].id,size);
 
-              for (i=0; i < T.GetNumberOfTriangles(); i++)
-                Mesh->RemoveCellReference(T.Array[i].id);
+              for (i=0; i < T->GetNumberOfTriangles(); i++)
+                Mesh->RemoveCellReference(T->Array[i].id);
 
-              for (i=0; i < T.GetNumberOfTriangles(); i++)
-                if ( T.Array[i].verts[0] != -1 ) //replaced with new triangle
-                  Mesh->ReplaceLinkedCell(T.Array[i].id, 3, T.Array[i].verts);
+              for (i=0; i < T->GetNumberOfTriangles(); i++)
+                if ( T->Array[i].verts[0] != -1 ) //replaced with new triangle
+                  Mesh->ReplaceLinkedCell(T->Array[i].id, 3, T->Array[i].verts);
                 else
-                  Mesh->DeleteCell(T.Array[i].id);
+                  Mesh->DeleteCell(T->Array[i].id);
 
               }
             }
@@ -382,8 +410,8 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //  vertex. Traverse this structure, gathering all the surrounding vertices
 //  into an ordered list.
 //
-  V.Reset();
-  T.Reset();
+  V->Reset();
+  T->Reset();
 
   sn.FAngle = 0.0;
   sn.deRefs =  2;  // keep track of triangle references to the verts 
@@ -401,7 +429,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   sn.id = startVertex = verts[(i+1)%3];
   Mesh->GetPoint(sn.id, sn.x); //grab coordinates here to save GetPoint() calls
 
-  V.InsertNextVertex(sn);
+  V->InsertNextVertex(sn);
 
   nextVertex = -1; // initialize
   nei.Reset();
@@ -412,10 +440,10 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //  completed.  Also have to keep track or orientation of faces for
 //  computing normals.
 //
-  while ( T.MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
+  while ( T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
     {
     t.id = nei.GetId(0);
-    T.InsertNextTriangle(t);
+    T->InsertNextTriangle(t);
 
     Mesh->GetCellPoints(t.id,numVerts,verts);
         
@@ -429,7 +457,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
       }
     sn.id = nextVertex;
     Mesh->GetPoint(sn.id, sn.x);
-    V.InsertNextVertex(sn);
+    V->InsertNextVertex(sn);
 
     Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, nei);
     numNei = nei.GetNumberOfIds();
@@ -440,7 +468,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //
   if ( nextVertex == startVertex && numNei == 1 ) 
     {
-    if ( T.GetNumberOfTriangles() != numTris ) //touching non-manifold
+    if ( T->GetNumberOfTriangles() != numTris ) //touching non-manifold
       {
       this->Stats[FAILED_NON_MANIFOLD]++;
       this->Stats[COMPLEX_VERTEX]++;
@@ -448,7 +476,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
       } 
     else  //remove last vertex addition
       {
-      V.MaxId -= 1;
+      V->MaxId -= 1;
       this->Stats[SIMPLE_VERTEX]++;
       return SIMPLE_VERTEX;
       }
@@ -456,7 +484,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //
 //  Check for non-manifold cases
 //
-  else if ( numNei > 1 || T.GetNumberOfTriangles() > numTris ) 
+  else if ( numNei > 1 || T->GetNumberOfTriangles() > numTris ) 
     {
     if ( Squawks++ < MAX_SQUAWKS ) 
       vlWarningMacro(<<"Non-manifold geometry encountered");
@@ -467,12 +495,12 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //
 //  Boundary loop - but (luckily) completed semi-cycle
 //
-  else if ( numNei == 0 && T.GetNumberOfTriangles() == numTris ) 
+  else if ( numNei == 0 && T->GetNumberOfTriangles() == numTris ) 
     {
-    V.Array[0].FAngle = -1.0; // using cosine of -180 degrees
-    V.Array[V.MaxId].FAngle = -1.0;
-    V.Array[0].deRefs = 1;
-    V.Array[V.MaxId].deRefs = 1;
+    V->Array[0].FAngle = -1.0; // using cosine of -180 degrees
+    V->Array[V->MaxId].FAngle = -1.0;
+    V->Array[0].deRefs = 1;
+    V->Array[V->MaxId].deRefs = 1;
 
     this->Stats[BOUNDARY_VERTEX]++;
     return BOUNDARY_VERTEX;
@@ -484,14 +512,14 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //
   else 
     {
-    t = T.GetTriangle(T.MaxId);
+    t = T->GetTriangle(T->MaxId);
 
-    V.Reset();
-    T.Reset();
+    V->Reset();
+    T->Reset();
 
     startVertex = sn.id = nextVertex;
     Mesh->GetPoint(sn.id, sn.x);
-    V.InsertNextVertex(sn);
+    V->InsertNextVertex(sn);
 
     nextVertex = -1;
     nei.Reset();
@@ -500,10 +528,10 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //
 //  Now move from boundary edge around the other way.
 //
-    while ( T.MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
+    while ( T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
       {
       t.id = nei.GetId(0);
-      T.InsertNextTriangle(t);
+      T->InsertNextTriangle(t);
 
       Mesh->GetCellPoints(t.id,numVerts,verts);
   
@@ -518,7 +546,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 
       sn.id = nextVertex;
       Mesh->GetPoint(sn.id, sn.x);
-      V.InsertNextVertex(sn);
+      V->InsertNextVertex(sn);
 
       Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, nei);
       numNei = nei.GetNumberOfIds();
@@ -526,39 +554,39 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //
 //  Make sure that there are only two boundaries (i.e., not non-manifold)
 //
-    if ( T.GetNumberOfTriangles() == numTris ) 
+    if ( T->GetNumberOfTriangles() == numTris ) 
       {
 //
 //  Because we've reversed order of loop, need to rearrange the order
 //  of the vertices and polygons to preserve consistent polygons
 //  ordering / normal orientation.
 //
-      numVerts = V.GetNumberOfVertices();
+      numVerts = V->GetNumberOfVertices();
       for (i=0; i<(numVerts/2); i++) 
         {
-        sn.id = V.Array[i].id;
-        V.Array[i].id = V.Array[numVerts-i-1].id;
-        V.Array[numVerts-i-1].id = sn.id;
+        sn.id = V->Array[i].id;
+        V->Array[i].id = V->Array[numVerts-i-1].id;
+        V->Array[numVerts-i-1].id = sn.id;
         for (j=0; j<3; j++)
           {
-          sn.x[j] = V.Array[i].x[j];
-          V.Array[i].x[j] = V.Array[numVerts-i-1].x[j];
-          V.Array[numVerts-i-1].x[j] = sn.x[j];
+          sn.x[j] = V->Array[i].x[j];
+          V->Array[i].x[j] = V->Array[numVerts-i-1].x[j];
+          V->Array[numVerts-i-1].x[j] = sn.x[j];
           }
         }
 
-      numTris = T.GetNumberOfTriangles();
+      numTris = T->GetNumberOfTriangles();
       for (i=0; i<(numTris/2); i++) 
         {
-        t.id = T.Array[i].id;
-        T.Array[i].id = T.Array[numTris-i-1].id;
-        T.Array[numTris-i-1].id = t.id;
+        t.id = T->Array[i].id;
+        T->Array[i].id = T->Array[numTris-i-1].id;
+        T->Array[numTris-i-1].id = t.id;
         }
 
-      V.Array[0].FAngle = -1.0;
-      V.Array[V.MaxId].FAngle = -1.0;
-      V.Array[0].deRefs = 1;
-      V.Array[V.MaxId].deRefs = 1;
+      V->Array[0].FAngle = -1.0;
+      V->Array[V->MaxId].FAngle = -1.0;
+      V->Array[0].deRefs = 1;
+      V->Array[V->MaxId].deRefs = 1;
 
       this->Stats[BOUNDARY_VERTEX]++;
       return BOUNDARY_VERTEX;
@@ -574,7 +602,7 @@ int vlDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     }
 }
 
-#define FEATURE_ANGLE(tri1,tri2) math.Dot(T.Array[tri1].n, T.Array[tri2].n)
+#define FEATURE_ANGLE(tri1,tri2) math.Dot(T->Array[tri1].n, T->Array[tri2].n)
 
 //
 //  Compute the polygon normals and edge feature angles around the
@@ -590,7 +618,7 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
 //
 //  Traverse all polygons and generate normals and areas
 //
-  x2 =  V.Array[0].x;
+  x2 =  V->Array[0].x;
   for (i=0; i<3; i++) v2[i] = x2[i] - X[i];
 
   loopArea=0.0;
@@ -598,11 +626,11 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
   Pt[0] = Pt[1] = Pt[2] = 0.0;
   numNormals=0;
 
-  for (i=0; i < T.GetNumberOfTriangles(); i++) 
+  for (i=0; i < T->GetNumberOfTriangles(); i++) 
     {
-    normal = T.Array[i].n;
+    normal = T->Array[i].n;
     x1 = x2;
-    x2 = V.Array[i+1].x;
+    x2 = V->Array[i+1].x;
 
     for (j=0; j<3; j++) 
       {
@@ -610,9 +638,9 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
       v2[j] = x2[j] - X[j];
       }
 
-    T.Array[i].area = triangle.TriangleArea (X, x1, x2);
+    T->Array[i].area = triangle.TriangleArea (X, x1, x2);
     triangle.TriangleCenter (X, x1, x2, center);
-    loopArea += T.Array[i].area;
+    loopArea += T->Array[i].area;
 
     math.Cross (v1, v2, normal);
 //
@@ -624,8 +652,8 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
       numNormals++;
       for (j=0; j<3; j++) 
         {
-        Normal[j] += T.Array[i].area * normal[j];
-        Pt[j] += T.Array[i].area * center[j];
+        Normal[j] += T->Array[i].area * normal[j];
+        Pt[j] += T->Array[i].area * center[j];
         }
       }
     }
@@ -660,8 +688,8 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
   if ( vtype == BOUNDARY_VERTEX ) 
     {
     numFEdges = 2;
-    fedges[0] = V.Array;
-    fedges[1] = V.Array + V.MaxId;
+    fedges[0] = V->Array;
+    fedges[1] = V->Array + V->MaxId;
     } 
   else
     numFEdges = 0;
@@ -669,17 +697,17 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
 //  Compare to cosine of feature angle to avoid cosine extraction
 //
   if ( vtype == SIMPLE_VERTEX ) // first edge 
-    if ( (V.Array[0].FAngle = FEATURE_ANGLE(0,T.MaxId)) <= CosAngle )
-      fedges[numFEdges++] = V.Array;
+    if ( (V->Array[0].FAngle = FEATURE_ANGLE(0,T->MaxId)) <= CosAngle )
+      fedges[numFEdges++] = V->Array;
 
-  for (i=0; i < T.MaxId; i++) 
+  for (i=0; i < T->MaxId; i++) 
     {
-    if ( (V.Array[i+1].FAngle = FEATURE_ANGLE(i,i+1)) <= CosAngle ) 
+    if ( (V->Array[i+1].FAngle = FEATURE_ANGLE(i,i+1)) <= CosAngle ) 
       {
       if ( numFEdges >= 2 ) 
         numFEdges++;
       else 
-        fedges[numFEdges++] = V.Array + (i+1);
+        fedges[numFEdges++] = V->Array + (i+1);
       }
     }
 //
@@ -841,13 +869,13 @@ void vlDecimate::Triangulate(int numVerts, vlLocalVertexPtr verts[])
 //
 //  Okay: can create triangle, find a spot to put the triangle.
 //
-      for (i=0; i < T.MaxId; i++)
-        if ( T.Array[i].verts[0] == -1 )
+      for (i=0; i < T->MaxId; i++)
+        if ( T->Array[i].verts[0] == -1 )
           break;
 
       for (j=0; j<3; j++) 
         {
-        T.Array[i].verts[j] = verts[j]->id;
+        T->Array[i].verts[j] = verts[j]->id;
         verts[j]->newRefs++;
         }
 
@@ -918,13 +946,13 @@ int vlDecimate::CheckError (int ptId)
 //  Loop through triangles computing distance to plane (looking for minimum
 //  perpendicular distance)
 //
-  for (planeError=LARGE_FLOAT, i=0; i < T.GetNumberOfTriangles(); i++) 
+  for (planeError=LARGE_FLOAT, i=0; i < T->GetNumberOfTriangles(); i++) 
     {
-    if ( T.Array[i].verts[0] == -1 ) break;
+    if ( T->Array[i].verts[0] == -1 ) break;
 
-    x1 = Mesh->GetPoint(T.Array[i].verts[0]);
-    x2 = Mesh->GetPoint(T.Array[i].verts[1]);
-    x3 = Mesh->GetPoint(T.Array[i].verts[2]);
+    x1 = Mesh->GetPoint(T->Array[i].verts[0]);
+    x2 = Mesh->GetPoint(T->Array[i].verts[1]);
+    x3 = Mesh->GetPoint(T->Array[i].verts[2]);
 
     for (j=0; j<3; j++) 
       {
@@ -952,8 +980,8 @@ int vlDecimate::CheckError (int ptId)
 //
 // Can distribute errors to surrounding nodes
 //
-  for (i=0; i < V.GetNumberOfVertices(); i++)
-    VertexError[V.Array[i].id] += error;
+  for (i=0; i < V->GetNumberOfVertices(); i++)
+    VertexError[V->Array[i].id] += error;
 
   return 1; // okay to delete; error computed and distributed
 }
