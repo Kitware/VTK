@@ -29,8 +29,6 @@ viewer SetZSlice 22
 viewer SetColorWindow 3000
 viewer SetColorLevel 1500
 
-shrink Update
-
 #make interface
 source WindowLevelInterface.tcl
 
