@@ -193,16 +193,13 @@ namespace eval ::vtk {
     # finaly render the window using a still update rate.
 
     proc cb_iren_configure_event {iren} {
-        puts "I'm handling ConfigureEvent"
         variable gvars
         # Cancel the previous timer if any
         if {[info exists gvars($iren,ConfigureEvent,timer)]} {
-            puts " => Cancelling $gvars($iren,ConfigureEvent,timer)"
             after cancel $gvars($iren,ConfigureEvent,timer)
         }
         set gvars($iren,ConfigureEvent,timer) \
                 [after 300 [list ::vtk::cb_iren_expose_event $iren]]
-        puts " => Setting $gvars($iren,ConfigureEvent,timer)"
     }
 
     # ExposeEvent obverser.
@@ -212,18 +209,14 @@ namespace eval ::vtk {
     # See above for explanations about the update rate tricks.
 
     proc cb_iren_expose_event {iren} {
-        puts "I'm handling ExposeEvent"
         variable gvars
         set renwin [$iren GetRenderWindow]
         # Check if a ConfigureEvent timer is pending
         if {[info exists gvars($iren,ConfigureEvent,timer)]} {
-            puts " => In test $gvars($iren,ConfigureEvent,timer)"
             if {[catch {after info $gvars($iren,ConfigureEvent,timer)}]} {
                 unset gvars($iren,ConfigureEvent,timer)
                 $renwin SetDesiredUpdateRate [$iren GetStillUpdateRate]
-                puts " => Still update"
             } else {
-                puts " => Desired update"
                 $renwin SetDesiredUpdateRate [$iren GetDesiredUpdateRate]
             }
         }
@@ -288,8 +281,198 @@ namespace eval ::vtk {
         bind_tk_widget $vtkrw [$vtkrw GetRenderWindow]
     }
 
+    # -------------------------------------------------------------------
+    # Specific vtkTkImageViewerWidget bindings
+
+    # Create a 2d text actor that can be used to display infos
+    # like window/level, pixel picking, etc
+    
+    proc cb_vtkiw_create_text1 {vtkiw} {
+        variable gvars
+        if {[info exists gvars($vtkiw,text1,mapper)] == 0} {
+            set viewer [$vtkiw GetImageViewer]
+            set gvars($vtkiw,text1,mapper) \
+                    [vtkTextMapper ${viewer}_text1_mapper]
+            set mapper $gvars($vtkiw,text1,mapper)
+            $mapper SetInput "none"
+            $mapper SetFontFamilyToArial
+            $mapper SetFontSize 12
+            $mapper BoldOn
+            $mapper ShadowOn
+        }
+        if {[info exists gvars($vtkiw,text1,actor)] == 0} {
+            set viewer [$vtkiw GetImageViewer]
+            set gvars($vtkiw,text1,actor) \
+                    [vtkActor2D ${viewer}_text1_actor]
+            set actor $gvars($vtkiw,text1,actor)
+            $actor SetMapper $mapper
+            $actor SetLayerNumber 1
+            [$actor GetPositionCoordinate] SetValue 4 4
+            [$actor GetProperty] SetColor 1 1 0.5
+            $actor SetVisibility 0
+            [[$vtkiw GetImageViewer] GetRenderer] AddActor2D $actor
+        }
+    }
+
+    # Show/Hide the 2d text actor
+    
+    proc cb_vtkiw_show_text1 {vtkiw} {
+        variable gvars
+        set actor $gvars($vtkiw,text1,actor)
+        if {![$actor GetVisibility]} {
+            $actor VisibilityOn
+        }
+    }
+
+    proc cb_vtkiw_hide_text1 {vtkiw} {
+        variable gvars
+        set actor $gvars($vtkiw,text1,actor)
+        if {[$actor GetVisibility]} {
+            $actor VisibilityOff
+        }
+    }
+
+    # -------------------------------------------------------------------
+    # vtkInteractorStyleImage callbacks/observers
+    #   istyle: interactor style
+    #   vtkiw: vtkTkImageRenderWindget
+
+    # StartWindowLevelEvent observer.
+    # Create the text actor, show it
+
+    proc cb_istyle_start_window_level_event {istyle vtkiw} {
+        ::vtk::cb_vtkiw_create_text1 $vtkiw
+        ::vtk::cb_vtkiw_show_text1 $vtkiw
+    }
+
+    # EndWindowLevelEvent observer.
+    # Hide the text actor.
+
+    proc cb_istyle_end_window_level_event {istyle vtkiw} {
+        ::vtk::cb_vtkiw_hide_text1 $vtkiw
+        $vtkiw Render
+    }
+
+    # WindowLevelEvent observer.
+    # Update the text actor with the current window/level values.
+
+    proc cb_istyle_window_level_event {istyle vtkiw} {
+        variable gvars
+        set mapper $gvars($vtkiw,text1,mapper)
+        set viewer [$vtkiw GetImageViewer]
+        $mapper SetInput [format "W/L: %.0f/%.0f" \
+                [$viewer GetColorWindow] [$viewer GetColorLevel]]
+    }
+
+    # RightButtonPressEvent observer.
+    # Invert the 'shift' key. The usual vtkInteractorStyleImage
+    # behaviour is to enable picking mode with "Shift+Right button", 
+    # whereas we want picking mode to be "Right button" only for backward
+    # compatibility.
+
+    proc cb_istyle_right_button_press_event {istyle} {
+        set iren [$istyle GetInteractor]
+        eval $istyle OnRightButtonDown \
+                [$iren GetControlKey] \
+                [expr [$iren GetShiftKey] ? 0 : 1]  \
+                [$iren GetEventPosition]
+    }
+
+    # StartPickEvent observer.
+    # Create the text actor, show it
+
+    proc cb_istyle_start_pick_event {istyle vtkiw} {
+        ::vtk::cb_vtkiw_create_text1 $vtkiw
+        ::vtk::cb_vtkiw_show_text1  $vtkiw
+    }
+
+    # EndPickEvent observer.
+    # Hide the text actor.
+
+    proc cb_istyle_end_pick_event {istyle vtkiw} {
+        ::vtk::cb_vtkiw_hide_text1  $vtkiw
+        $vtkiw Render
+    }
+
+    # PickEvent observer.
+    # Update the text actor with the current value of the picked pixel.
+
+    proc cb_istyle_pick_event {istyle vtkiw} {
+
+        set viewer [$vtkiw GetImageViewer]
+        set input [$viewer GetInput]
+        set pos [[$istyle  GetInteractor] GetEventPosition]
+        set x [lindex $pos 0]
+        set y [lindex $pos 1]
+        set z [$viewer GetZSlice]
+
+        # Y is flipped upside down
+
+        set height [lindex [$vtkiw configure -height] 4]
+        set y [expr $height - $y]
+
+        # Make sure point is in the whole extent of the image.
+
+        scan [$input GetWholeExtent] "%d %d %d %d %d %d" \
+                xMin xMax yMin yMax zMin zMax
+        if {$x < $xMin || $x > $xMax || \
+            $y < $yMin || $y > $yMax || \
+            $z < $zMin || $z > $zMax} {
+           return
+        }
+
+        $input SetUpdateExtent $x $x $y $y $z $z
+        $input Update
+
+        set num_comps [$input GetNumberOfScalarComponents]
+        set str "($x, $y):"
+        for {set idx 0} {$idx < $num_comps} {incr idx} {
+            set str [format "%s %.0f" $str \
+                    [$input GetScalarComponentAsFloat $x $y $z $idx]]
+        }
+
+        variable gvars
+        set mapper $gvars($vtkiw,text1,mapper)
+        $mapper SetInput "$str"
+        $vtkiw Render
+    }
+
     proc bind_tk_imageviewer_widget {vtkiw} {
         bind_tk_widget $vtkiw [[$vtkiw GetImageViewer] GetRenderWindow]
+
+        set viewer [$vtkiw GetImageViewer]
+        set iren [[$viewer GetRenderWindow] GetInteractor]
+
+        # Ask the viewer to setup an image style interactor
+
+        $viewer SetupInteractor $iren
+        set istyle [$iren GetInteractorStyle]
+
+        # Window/Level observers
+
+        $istyle AddObserver StartWindowLevelEvent \
+                "::vtk::cb_istyle_start_window_level_event $istyle $vtkiw"
+
+        $istyle AddObserver WindowLevelEvent \
+                "::vtk::cb_istyle_window_level_event $istyle $vtkiw"
+
+        $istyle AddObserver EndWindowLevelEvent \
+                "::vtk::cb_istyle_end_window_level_event $istyle $vtkiw"
+
+        # Picking observers
+
+        $istyle AddObserver RightButtonPressEvent \
+                "::vtk::cb_istyle_right_button_press_event $istyle"
+
+        $istyle AddObserver StartPickEvent \
+                "::vtk::cb_istyle_start_pick_event $istyle $vtkiw"
+
+        $istyle AddObserver EndPickEvent \
+                "::vtk::cb_istyle_end_pick_event $istyle $vtkiw"
+        
+        $istyle AddObserver PickEvent \
+                "::vtk::cb_istyle_pick_event $istyle $vtkiw"
     }
+
 }
 
