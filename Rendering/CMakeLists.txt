@@ -456,3 +456,6 @@ ENDIF (VTK_WRAP_PYTHON)
 IF(VTK_USE_X)
   TARGET_LINK_LIBRARIES(vtk${KIT} -lXt ${X11_LIBRARIES})
 ENDIF(VTK_USE_X)
+
+INSTALL_FILES(/include/vtk FILES
+              ${VTK_SOURCE_DIR}/${KIT}/Testing/Cxx/vtkRegressionTestImage.h)
