@@ -27,12 +27,47 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.34.2.1");
+vtkCxxRevisionMacro(vtkImageReslice, "1.34.2.2");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceTransform,vtkAbstractTransform);
 
+//--------------------------------------------------------------------------
+// The 'floor' function on x86 and mips is many times slower than these
+// and is used a lot in this code, optimize for different CPU architectures
+template<class F>
+inline int vtkResliceFloor(double x, F &f)
+{
+#if defined mips || defined sparc || defined __ppc__
+  x += 2147483648.0;
+  unsigned int i = (unsigned int)(x);
+  f = x - i;
+  return (int)(i - 2147483648U);
+#elif defined i386 || defined _M_IX86
+  unsigned int hilo[2];
+  *((double *)hilo) = x + 103079215104.0;  // (2**(52-16))*1.5
+  f = (hilo[0] & 0xffff)*0.0000152587890625; // 2**(-16)
+  return (int)((hilo[1]<<16)|(hilo[0]>>16));
+#else
+  double y = floor(x);
+  f = x - y;
+  return (int)(y);
+#endif
+}
+
+inline int vtkResliceRound(double x)
+{
+#if defined mips || defined sparc || defined __ppc__
+  return (int)((unsigned int)(x + 2147483648.5) - 2147483648U);
+#elif defined i386 || defined _M_IX86
+  unsigned int hilo[2];
+  *((double *)hilo) = x + 103079215104.5;  // (2**(52-16))*1.5
+  return (int)((hilo[1]<<16)|(hilo[0]>>16));
+#else
+  return (int)(floor(x+0.5));
+#endif
+}
 
 //----------------------------------------------------------------------------
 vtkImageReslice::vtkImageReslice()
@@ -334,10 +369,11 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
     }
 
   int i,j,k;
-  float point[4],f;
-  float *inSpacing,*inOrigin,*outSpacing,*outOrigin,inInvSpacing[3];
+  double point[4],f;
+  float *inSpacing,*inOrigin,*outSpacing,*outOrigin;
+  double inInvSpacing[3];
 
-  int wrap = (this->Wrap || this->InterpolationMode != VTK_RESLICE_NEAREST);
+  int wrap = (this->Wrap || this->Mirror);
   
   inOrigin = this->GetInput()->GetOrigin();
   inSpacing = this->GetInput()->GetSpacing();
@@ -345,9 +381,9 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
   outSpacing = this->GetOutput()->GetSpacing();
 
   // save effor later: invert inSpacing
-  inInvSpacing[0] = 1.0f/inSpacing[0];
-  inInvSpacing[1] = 1.0f/inSpacing[1];
-  inInvSpacing[2] = 1.0f/inSpacing[2];
+  inInvSpacing[0] = 1.0/inSpacing[0];
+  inInvSpacing[1] = 1.0/inSpacing[1];
+  inInvSpacing[2] = 1.0/inSpacing[2];
 
   for (i = 0; i < 3; i++)
     {
@@ -369,9 +405,9 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
     
     if (this->ResliceAxes)
       {
-      point[3] = 1.0f;
+      point[3] = 1.0;
       this->ResliceAxes->MultiplyPoint(point, point);
-      f = 1.0f/point[3];
+      f = 1.0/point[3];
       point[0] *= f;
       point[1] *= f;
       point[2] *= f;
@@ -391,22 +427,28 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
       int extra = (this->GetInterpolationMode() == VTK_RESLICE_CUBIC); 
       for (j = 0; j < 3; j++) 
         {
-        k = int(floor(double(point[j]))) - extra;
-        if (k < inExt[2*j]) 
+        k = vtkResliceFloor(point[j], f);
+        if (f == 0)
           {
-          inExt[2*j] = k;
-          }
-        if (wrap)
-          {
-          k = int(floor(double(point[j]))) + 1 + extra;        
+          if (k < inExt[2*j])
+            { 
+            inExt[2*j] = k;
+            }
+          if (k > inExt[2*j+1])
+            { 
+            inExt[2*j+1] = k;
+            }
           }
         else
           {
-          k = int(ceil(double(point[j]))) + extra;
-          }        
-        if (k > inExt[2*j+1])
-          {
-          inExt[2*j+1] = k;
+          if (k - extra < inExt[2*j])
+            { 
+            inExt[2*j] = k - extra;
+            }
+          if (k + 1 + extra > inExt[2*j+1])
+            { 
+            inExt[2*j+1] = k + 1 + extra;
+            }
           }
         }
       }
@@ -414,7 +456,7 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
       {
       for (j = 0; j < 3; j++) 
         {
-        k = int(floor(double(point[j] + 0.5)));
+        k = vtkResliceRound(point[j]);
         if (k < inExt[2*j])
           { 
           inExt[2*j] = k;
@@ -491,7 +533,7 @@ void vtkImageReslice::GetAutoCroppedOutputBounds(vtkImageData *input,
     point[0] = inOrigin[0] + inWholeExt[i%2]*inSpacing[0];
     point[1] = inOrigin[1] + inWholeExt[2+(i/2)%2]*inSpacing[1];
     point[2] = inOrigin[2] + inWholeExt[4+(i/4)%2]*inSpacing[2];
-    point[3] = 1.0f;
+    point[3] = 1.0;
 
     if (this->ResliceTransform)
       {
@@ -499,7 +541,7 @@ void vtkImageReslice::GetAutoCroppedOutputBounds(vtkImageData *input,
       }
     matrix->MultiplyPoint(point,point);
       
-    f = 1.0f/point[3];
+    f = 1.0/point[3];
     point[0] *= f; 
     point[1] *= f; 
     point[2] *= f;
@@ -740,55 +782,6 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
         break; \
       case VTK_UNSIGNED_CHAR: { typedef unsigned char VTK_TT; expression; } \
         break
-
-//--------------------------------------------------------------------------
-// The 'floor' function on x86 and mips is many times slower than these
-// and is used a lot in this code, optimize for different CPU architectures
-inline int vtkResliceFloor(double x)
-{
-#if defined mips || defined sparc || defined __ppc__
-  return (int)((unsigned int)(x + 2147483648.0) - 2147483648U);
-#elif defined i386 || defined _M_IX86
-  unsigned int hilo[2];
-  *((double *)hilo) = x + 103079215104.0;  // (2**(52-16))*1.5
-  return (int)((hilo[1]<<16)|(hilo[0]>>16));
-#else
-  return int(floor(x));
-#endif
-}
-
-inline int vtkResliceCeil(double x)
-{
-  return -vtkResliceFloor(-x - 1.0) - 1;
-}
-
-inline int vtkResliceRound(double x)
-{
-  return vtkResliceFloor(x + 0.5);
-}
-
-inline int vtkResliceFloor(float x)
-{
-  return vtkResliceFloor((double)x);
-}
-
-inline int vtkResliceCeil(float x)
-{
-  return vtkResliceCeil((double)x);
-}
-
-inline int vtkResliceRound(float x)
-{
-  return vtkResliceRound((double)x);
-}
-
-// convert a float into an integer plus a fraction  
-inline int vtkResliceFloor(float x, float &f)
-{
-  int ix = vtkResliceFloor(x);
-  f = x - ix;
-  return ix;
-}
 
 //----------------------------------------------------------------------------
 // rounding functions for each type, with some crazy stunts to avoid
@@ -1612,13 +1605,14 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   int inExt[6], inInc[3];
   unsigned long count = 0;
   unsigned long target;
-  float point[4];
-  float f;
-  float *inSpacing, *inOrigin, *outSpacing, *outOrigin, inInvSpacing[3];
+  double point[4];
+  double f;
+  float *inSpacing, *inOrigin, *outSpacing, *outOrigin;
+  double inInvSpacing[3];
   void *background;
   int (*interpolate)(void *&outPtr, const void *inPtr,
                      const int inExt[6], const int inInc[3],
-                     int numscalars, const float point[3],
+                     int numscalars, const double point[3],
                      int mode, const void *background);
   void (*setpixels)(void *&out, const void *in, int numscalars, int n);
 
@@ -1644,9 +1638,9 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   outSpacing = outData->GetSpacing();
 
   // save effor later: invert inSpacing
-  inInvSpacing[0] = 1.0f/inSpacing[0];
-  inInvSpacing[1] = 1.0f/inSpacing[1];
-  inInvSpacing[2] = 1.0f/inSpacing[2];
+  inInvSpacing[0] = 1.0/inSpacing[0];
+  inInvSpacing[1] = 1.0/inSpacing[1];
+  inInvSpacing[2] = 1.0/inSpacing[2];
 
   // find maximum input range
   inData->GetExtent(inExt);
@@ -1699,7 +1693,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
           // apply ResliceAxes matrix
           if (matrix)
             {
-            point[3] = 1.0f;
+            point[3] = 1.0;
             matrix->MultiplyPoint(point, point);
             f = 1.0/point[3];
             point[0] *= f;
@@ -1787,8 +1781,7 @@ void vtkResliceOptimizedComputeInputUpdateExtent(vtkImageReslice *self,
   F xAxis[4], yAxis[4], zAxis[4], origin[4];
   F point[4],f;
 
-  int wrap = (self->GetWrap() || 
-              self->GetInterpolationMode() != VTK_RESLICE_NEAREST);
+  int wrap = (self->GetWrap() || self->GetMirror());
 
   // convert matrix from world coordinates to pixel indices
   for (i = 0; i < 4; i++)
@@ -1829,22 +1822,28 @@ void vtkResliceOptimizedComputeInputUpdateExtent(vtkImageReslice *self,
       int extra = (self->GetInterpolationMode() == VTK_RESLICE_CUBIC); 
       for (j = 0; j < 3; j++) 
         {
-        k = vtkResliceFloor(point[j])-extra;
-        if (k < inExt[2*j])
-          { 
-          inExt[2*j] = k;
-          }
-        if (wrap)
+        k = vtkResliceFloor(point[j], f);
+        if (f == 0)
           {
-          k = vtkResliceFloor(point[j])+1+extra;
+          if (k < inExt[2*j])
+            { 
+            inExt[2*j] = k;
+            }
+          if (k > inExt[2*j+1])
+            { 
+            inExt[2*j+1] = k;
+            }
           }
         else
           {
-          k = vtkResliceCeil(point[j])+extra;
-          }
-        if (k > inExt[2*j+1])
-          { 
-          inExt[2*j+1] = k;
+          if (k - extra < inExt[2*j])
+            { 
+            inExt[2*j] = k - extra;
+            }
+          if (k + 1 + extra > inExt[2*j+1])
+            { 
+            inExt[2*j+1] = k + 1 + extra;
+            }
           }
         }
       }
@@ -1905,7 +1904,7 @@ void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6],
     return;
     }
 
-  float newmat[4][4];
+  double newmat[4][4];
   for (int i = 0; i < 4; i++)
     {
     newmat[i][0] = matrix->GetElement(i,0);
@@ -2474,9 +2473,9 @@ void vtkOptimizedExecute(vtkImageReslice *self,
   inOrigin[2] = F(temp[2]);
 
   inData->GetSpacing(temp);
-  inInvSpacing[0] = F(1.0f/temp[0]);
-  inInvSpacing[1] = F(1.0f/temp[1]);
-  inInvSpacing[2] = F(1.0f/temp[2]);
+  inInvSpacing[0] = F(1.0/temp[0]);
+  inInvSpacing[1] = F(1.0/temp[1]);
+  inInvSpacing[2] = F(1.0/temp[2]);
 
   // set color for area outside of input volume extent
   vtkAllocBackgroundPixel(self, &background, numscalars);
@@ -2973,8 +2972,10 @@ void vtkPermuteLinearTable(vtkImageReslice *self, const int outExt[6],
       }
 
     // do the output pixels lie exactly on top of the input pixels?
-    useNearestNeighbor[j] = (newmat[k][j] == vtkResliceFloor(newmat[k][j]) &&
-                             newmat[k][3] == vtkResliceFloor(newmat[k][3]));
+    F f1, f2;
+    vtkResliceFloor(newmat[k][j], f1);
+    vtkResliceFloor(newmat[k][3], f2);
+    useNearestNeighbor[j] = (f1 == 0 && f2 == 0);
     
     int inExtK = inExt[2*k+1] - inExt[2*k] + 1;
 
@@ -3049,8 +3050,10 @@ void vtkPermuteCubicTable(vtkImageReslice *self, const int outExt[6],
       }
 
     // do the output pixels lie exactly on top of the input pixels?
-    useNearestNeighbor[j] = (newmat[k][j] == vtkResliceFloor(newmat[k][j]) &&
-                             newmat[k][3] == vtkResliceFloor(newmat[k][3]));
+    F f1, f2;
+    vtkResliceFloor(newmat[k][j], f1);
+    vtkResliceFloor(newmat[k][3], f2);
+    useNearestNeighbor[j] = (f1 == 0 && f2 == 0);
 
     int inExtK = inExt[2*k+1] - inExt[2*k] + 1;
 
@@ -3150,7 +3153,10 @@ inline int vtkCanUseNearestNeighbor(F matrix[4][4], int outExt[6])
       y += x*outExt[2*i];
       x = 0;
       }
-    if (vtkResliceFloor(x) != x || vtkResliceFloor(y) != y)
+    F fx, fy;
+    vtkResliceFloor(x, fx);
+    vtkResliceFloor(y, fy);
+    if (fx != 0 || fy != 0)
       {
       return 0;
       }
@@ -3456,7 +3462,7 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
       {
       isIdentity = 0;
       }
-    inMatrix->Element[i][i] = 1.0f/inSpacing[i];
+    inMatrix->Element[i][i] = 1.0/inSpacing[i];
     inMatrix->Element[i][3] = -inOrigin[i]/inSpacing[i];
     outMatrix->Element[i][i] = outSpacing[i];
     outMatrix->Element[i][3] = outOrigin[i];
@@ -3520,7 +3526,7 @@ void vtkImageReslice::OptimizedThreadedExecute(vtkImageData *inData,
   // the IndexMatrix
   vtkAbstractTransform *newtrans = this->OptimizedTransform;
 
-  float newmat[4][4];
+  double newmat[4][4];
   for (int i = 0; i < 4; i++)
     {
     newmat[i][0] = matrix->GetElement(i,0);
