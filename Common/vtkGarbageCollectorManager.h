@@ -24,6 +24,9 @@
 
 #include "vtkSystemIncludes.h"
 
+#include "vtkDebugLeaksManager.h" // DebugLeaks is around longer than
+                                  // the garbage collector.
+
 class VTK_COMMON_EXPORT vtkGarbageCollectorManager
 {
 public:
