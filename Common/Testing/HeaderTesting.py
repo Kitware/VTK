@@ -167,9 +167,12 @@ class TestVTKFiles:
         classlines = []
         regx = re.compile(classre)
         cc = 0
+        lastline = ""
         for a in self.FileLines:
             line = string.strip(a)
             rm = regx.match(line)
+            if not rm and not cname:
+                rm = regx.match(lastline + line)
             if rm:
                 export = rm.group(1)
                 export = string.strip(export)
@@ -181,6 +184,7 @@ class TestVTKFiles:
                     self.Print(" %4d: %s" % (cc, line))
                     self.Error("No export macro")
             cc = cc + 1
+            lastline = a
         if len(classlines) > 1:
             self.Print()
             self.Print( "File: %s defines %d classes: " %
@@ -274,6 +278,20 @@ class TestVTKFiles:
                 foundcopy = foundcopy + 1
             if regx2.match(line):
                 foundasgn = foundasgn + 1
+        lastline = ""
+        if foundcopy < 1:
+          for a in self.FileLines:
+            line = string.strip(a)
+            if regx1.match(lastline + line):
+                foundcopy = foundcopy + 1
+            lastline = a
+        lastline = ""
+        if foundasgn < 1:
+          for a in self.FileLines:
+            line = string.strip(a)
+            if regx2.match(lastline + line):
+                foundasgn = foundasgn + 1
+            lastline = a
             
         if foundcopy < 1:
             self.Print( "File: %s does not define copy constructor" %
