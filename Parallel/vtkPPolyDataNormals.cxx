@@ -74,8 +74,12 @@ void vtkPPolyDataNormals::Execute()
     rmGhostCells->SetInput(ghost);
     rmGhostCells->SetGhostLevel(ghostLevel);
     rmGhostCells->Update();
-    output->ShallowCopy(rmGhostCells->GetOutput());
-    
+    output->CopyStructure(rmGhostCells->GetOutput());
+    output->GetPointData()->PassData(
+                 rmGhostCells->GetOutput()->GetPointData());
+    output->GetCellData()->PassData(
+                 rmGhostCells->GetOutput()->GetCellData());
+
     ghost->Delete();
     rmGhostCells->Delete();
     }                                                                           

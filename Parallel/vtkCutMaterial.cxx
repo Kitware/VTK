@@ -153,8 +153,13 @@ void vtkCutMaterial::Execute()
   cutter->SetCutFunction(this->PlaneFunction);
   cutter->SetValue(0, 0.0);
   cutter->Update();
-  
-  this->GetOutput()->ShallowCopy(cutter->GetOutput());
+
+  vtkDataSet* output = this->GetOutput();
+  output->CopyStructure(cutter->GetOutput());
+  output->GetPointData()->PassData(
+           cutter->GetOutput()->GetPointData());
+  output->GetCellData()->PassData(
+           cutter->GetOutput()->GetCellData());
 
   cutter->Delete();
   thresh->Delete();
