@@ -115,6 +115,7 @@ vtkLabeledDataMapper \
 vtkPNMReader \
 vtkPNMWriter \
 vtkPolyDataMapper2D \
+vtkPostScriptWriter \
 vtkScalarBarActor \
 vtkTextMapper \
 vtkTIFFReader \
