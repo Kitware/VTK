@@ -31,35 +31,30 @@
 #include "vtkObjectFactory.h"
 #include "vtkPKdTree.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkExtractUserDefinedPiece.h"
 #include "vtkCellData.h"
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
 #include "vtkIntArray.h"
+#include "vtkCharArray.h"
 #include "vtkFloatArray.h"
-#include "vtkShortArray.h"
-#include "vtkLongArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkMultiProcessController.h"
 #include "vtkSocketController.h"
 #include "vtkDataSetWriter.h"
 #include "vtkDataSetReader.h"
-#include "vtkCharArray.h"
 #include "vtkBoxClipDataSet.h"
 #include "vtkClipDataSet.h"
 #include "vtkBox.h"
-#include "vtkPlanes.h"
 #include "vtkIdList.h"
 #include "vtkPointLocator.h"
-#include "vtkTimerLog.h"
 #include "vtkPlane.h"
 
 #ifdef VTK_USE_MPI
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.18")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.19")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -101,7 +96,6 @@ vtkDistributedDataFilter::vtkDistributedDataFilter()
   this->ClipCells = 0;
 
   this->Timing = 0;
-  this->TimerLog = NULL;
 
   this->UseMinimalMemory = 0;
 }
@@ -143,14 +137,7 @@ vtkDistributedDataFilter::~vtkDistributedDataFilter()
     {
     delete [] this->GlobalElementIdArrayName;
     }
-  
-  if (this->TimerLog)
-    {
-    this->TimerLog->Delete();
-    this->TimerLog = 0;
-    }
 }
-
 //-------------------------------------------------------------------------
 // Global element and node IDs:
 //   Either the user gives us the names of these arrays, or we find them
@@ -4352,12 +4339,6 @@ int vtkDistributedDataFilter::HasMetadata(vtkDataSet *s)
   return vtkModelMetadata::HasMetadata(vtkUnstructuredGrid::SafeDownCast(s));
 }
 //-------------------------------------------------------------------------
-//-------------------------------------------------------------------------
-void vtkDistributedDataFilter::PrintTiming(ostream& os, vtkIndent indent)
-{
-  (void)indent;
-  vtkTimerLog::DumpLogWithIndents(&os, (float)0.0);
-}
 void vtkDistributedDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {  
   this->Superclass::PrintSelf(os,indent);
@@ -4381,7 +4362,6 @@ void vtkDistributedDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ClipCells: " << this->ClipCells << endl;
 
   os << indent << "Timing: " << this->Timing << endl;
-  os << indent << "TimerLog: " << this->TimerLog << endl;
   os << indent << "UseMinimalMemory: " << this->UseMinimalMemory << endl;
 }
 
