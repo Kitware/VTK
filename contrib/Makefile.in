@@ -17,6 +17,7 @@ CONCRETE_H =
 ABSTRACT = 
 
 CONCRETE = \
+# vtkCyberReader \
 vtkDEMReader \
 vtkEarthSource \
 vtkImageReslice \
