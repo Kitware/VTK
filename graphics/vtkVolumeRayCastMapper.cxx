@@ -171,6 +171,7 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
   float t;
   float *viewToVolumeMatrix;
   float nearplane, farplane, bounderNear, bounderFar;
+  float oneStep[4], volumeOneStep[4];
 
   rayOrigin = rayInfo->Origin;
   rayDirection = rayInfo->Direction;
@@ -223,38 +224,38 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
   rayEnd[1]   = rayOrigin[1] + farplane  * rayDirection[1];
   rayEnd[2]   = rayOrigin[2] + farplane  * rayDirection[2];
 
+  oneStep[0]  = rayStart[0] + rayDirection[0] * this->WorldSampleDistance;
+  oneStep[1]  = rayStart[1] + rayDirection[1] * this->WorldSampleDistance;
+  oneStep[2]  = rayStart[2] + rayDirection[2] * this->WorldSampleDistance;
+  
   // Transform the ray start from view to volume coordinates
   vtkRayCastMatrixMultiplyPointMacro( rayStart, volumeRayStart, viewToVolumeMatrix );
 
   // Transform the ray end from view to volume coordinates
   vtkRayCastMatrixMultiplyPointMacro( rayEnd, volumeRayEnd, viewToVolumeMatrix );
 
+  // Transform a point one step from the rayStart
+  vtkRayCastMatrixMultiplyPointMacro( oneStep, volumeOneStep, viewToVolumeMatrix );
+
   // Compute the ray direction
-  volumeRayDirection[0] = 
-    volumeRayEnd[0] - volumeRayStart[0];
-  volumeRayDirection[1] = 
-    volumeRayEnd[1] - volumeRayStart[1];
-  volumeRayDirection[2] = 
-    volumeRayEnd[2] - volumeRayStart[2];
-  t = sqrt( (double) (volumeRayDirection[0]*volumeRayDirection[0] +
-		      volumeRayDirection[1]*volumeRayDirection[1] +
-		      volumeRayDirection[2]*volumeRayDirection[2]) );
+  volumeRayIncrement[0] = 
+    volumeOneStep[0] - volumeRayStart[0];
+  volumeRayIncrement[1] = 
+    volumeOneStep[1] - volumeRayStart[1];
+  volumeRayIncrement[2] = 
+    volumeOneStep[2] - volumeRayStart[2];
+  t = sqrt( (double) (volumeRayIncrement[0]*volumeRayIncrement[0] +
+		      volumeRayIncrement[1]*volumeRayIncrement[1] +
+		      volumeRayIncrement[2]*volumeRayIncrement[2]) );
   if ( t )
     {
-      volumeRayDirection[0] /= t;
-      volumeRayDirection[1] /= t;
-      volumeRayDirection[2] /= t;
+      volumeRayDirection[0] = volumeRayIncrement[0] / t;
+      volumeRayDirection[1] = volumeRayIncrement[1] / t;
+      volumeRayDirection[2] = volumeRayIncrement[2] / t;
     }
 
   if ( this->ClipRayAgainstVolume( rayInfo ) )
     {
-    // Compute the ray increments in x, y, and z 
-    // accounted for interaction scale, 
-    // volume scale, and word/volume transformation
-    volumeRayIncrement[0] = volumeRayDirection[0] * this->WorldSampleDistance;
-    volumeRayIncrement[1] = volumeRayDirection[1] * this->WorldSampleDistance;
-    volumeRayIncrement[2] = volumeRayDirection[2] * this->WorldSampleDistance;
-    
     if ( fabs((double) volumeRayIncrement[0]) >= 
 	 fabs((double) volumeRayIncrement[1]) &&
 	 fabs((double) volumeRayIncrement[0]) >= 
