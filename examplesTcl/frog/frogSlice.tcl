@@ -40,11 +40,12 @@ vtkPNMReader greyReader
   eval greyReader SetFilePrefix $GREYSTUDY
   eval greyReader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE $SPACING
   eval greyReader SetDataVOI 0 $endX 0 $endY $sliceNumber $sliceNumber
+  eval greyReader SetDataExtent 0 $endX 0 $endY $sliceNumber $sliceNumber
   greyReader DebugOn
 
 vtkImageConstantPad greyPadder
   greyPadder SetInput [greyReader GetOutput]
-  greyPadder SetOutputWholeExtent 0 511 0 511 0 0 0 0 
+  greyPadder SetOutputWholeExtent 0 511 0 511 0 0
   greyPadder SetConstant 0
 
 vtkPlaneSource greyPlane
@@ -81,12 +82,13 @@ vtkPNMReader segmentReader
   eval segmentReader SetFilePrefix $SEGMENTSTUDY
   eval segmentReader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE $SPACING
 eval segmentReader SetDataVOI 0 $endX 0 $endY $sliceNumber $sliceNumber
+  eval segmentReader SetDataExtent 0 $endX 0 $endY $sliceNumber $sliceNumber
   segmentReader DebugOn
 
 
 vtkImageConstantPad segmentPadder
   segmentPadder SetInput [segmentReader GetOutput]
-  segmentPadder SetOutputWholeExtent 0 511 0 511 0 0 0 0 
+  segmentPadder SetOutputWholeExtent 0 511 0 511 0 0 
   segmentPadder SetConstant 0
 
 vtkPlaneSource segmentPlane
@@ -163,10 +165,13 @@ iren SetUserMethod {wm deiconify .vtkInteract};
 wm withdraw .
 
 proc slice { number } {
+   global endX endY
    global maxX maxY
-   greyReader SetImageRange $number $number
+   eval greyReader SetDataVOI 0 $endX 0 $endY $number $number
+   eval greyReader SetDataExtent 0 $endX 0 $endY $number $number
    [greyReader GetOutput] SetOrigin 0 0 0
-   segmentReader SetImageRange $number $number
+   eval segmentReader SetDataVOI 0 $endX 0 $endY $number $number
+   eval segmentReader SetDataExtent 0 $endX 0 $endY $number $number
    [segmentReader GetOutput] SetOrigin 0 0 0
    renWin Render
 }
