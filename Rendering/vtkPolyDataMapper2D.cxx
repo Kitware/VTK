@@ -20,7 +20,7 @@
 
 #include "vtkLookupTable.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.36");
+vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.37");
 
 vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 {
@@ -77,7 +77,7 @@ vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
     }
   if ( this->Colors != NULL )
     {
-    this->Colors->Delete();
+    this->Colors->UnRegister(this);
     }
   
   this->SetInput(NULL);
@@ -144,8 +144,12 @@ vtkUnsignedCharArray *vtkPolyDataMapper2D::MapScalars(float alpha)
         this->LookupTable->SetRange(this->ScalarRange);
         }
       this->LookupTable->SetAlpha(alpha);
+      // Map Scalar constructs a array and returns it.
+      // Not having "New" or "Make" in the name breaks VTK conventions but, ...
       this->Colors = this->LookupTable->
         MapScalars(scalars, this->ColorMode, this->ArrayComponent);
+      this->Colors->Register(this);
+      this->Colors->Delete();
       }
     }
 
