@@ -192,8 +192,7 @@ float *vlStructuredPoints::GetPoint(int ptId)
 
     case XYZ_GRID:
       loc[0] = ptId % this->Dimensions[0];
-      loc[1] = (ptId % (this->Dimensions[0]*this->Dimensions[1]))
-                    / this->Dimensions[0];
+      loc[1] = (ptId / this->Dimensions[0]) % this->Dimensions[1];
       loc[2] = ptId / (this->Dimensions[0]*this->Dimensions[1]);
       break;
     }
