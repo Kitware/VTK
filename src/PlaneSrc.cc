@@ -69,10 +69,12 @@ void vlPlaneSource::Execute()
 
   for (numPts=0, i=0; i<(this->YRes+1); i++)
     {
-    x[1] = tc[1] = -0.5 + i*yinc;
+    x[1] = -0.5 + i*yinc;
+    tc[1] = (float) i / this->YRes;
     for (j=0; j<(this->XRes+1); j++)
       {
-      x[0] = tc[0] = -0.5 + j*xinc;
+      x[0] = -0.5 + j*xinc;
+      tc[0] = (float) j / this->XRes;
 
       newPoints->InsertPoint(numPts,x);
       newTCoords->InsertTCoord(numPts,tc);
