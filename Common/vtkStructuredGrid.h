@@ -45,12 +45,13 @@
 #include "vtkPointSet.h"
 
 #include "vtkStructuredData.h" // Needed for inline methods
-#include "vtkUnsignedCharArray.h" // Needed for inline methods
 
 class vtkEmptyCell;
 class vtkHexahedron;
 class vtkLine;
 class vtkQuad;
+class vtkStructuredVisibilityConstraint;
+class vtkUnsignedCharArray;
 class vtkVertex;
 
 class VTK_COMMON_EXPORT vtkStructuredGrid : public vtkPointSet 
@@ -90,7 +91,7 @@ public:
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                         vtkIdList *cellIds);
   virtual void GetScalarRange(float range[2]);
-  float *GetScalarRange() {return this->vtkPointSet::GetScalarRange();}
+  float *GetScalarRange() {return this->Superclass::GetScalarRange();}
 
   // Description:
   // following methods are specific to structured grid
@@ -105,38 +106,6 @@ public:
   // Description:
   // Return the dimensionality of the data.
   int GetDataDimension();
-
-  // Description:
-  // Methods for supporting blanking of cells. Blanking turns on or off
-  // points in the structured grid, and hence the cells connected to them.
-  void SetBlanking(int blanking);
-  int GetBlanking() {return this->Blanking;}
-  void BlankingOn();
-  void BlankingOff();
-  void BlankPoint(vtkIdType ptId);
-  void UnBlankPoint(vtkIdType ptId);
-  
-  // Description:
-  // Get the array that defines the blanking (visibility) of each point.
-  vtkUnsignedCharArray *GetPointVisibility() 
-    {return this->PointVisibility;}
-
-  // Description:
-  // Set an array that defines the (blanking) visibility of the points 
-  // in the grid. Make sure that length of the visibility array matches 
-  // the number of points in the grid.
-  void SetPointVisibility(vtkUnsignedCharArray *pointVisibility);
-
-  // Description:
-  // Return non-zero value if specified point is visible. Use this method 
-  // only if blanking has been enabled (with BlankingOn()).
-  unsigned char IsPointVisible(vtkIdType ptId)
-    {return (this->Blanking ? this->PointVisibility->GetValue(ptId) : 1);}
-  
-  // Description:
-  // Return non-zero value if specified point is visible. Use this method 
-  // only if blanking has been enabled (with BlankingOn()).
-  unsigned char IsCellVisible(vtkIdType cellId);
   
   // Description:
   // Required for the lowest common denominator for setting the UpdateExtent
@@ -184,6 +153,64 @@ public:
   // The extent type is a 3D extent
   int GetExtentType() { return VTK_3D_EXTENT; }
 
+  // Description:
+  // Methods for supporting blanking of cells. Blanking turns on or off
+  // points in the structured grid, and hence the cells connected to them.
+  // These methods should be called only after the dimensions of the
+  // grid are set.
+  void BlankPoint(vtkIdType ptId);
+  void UnBlankPoint(vtkIdType ptId);
+
+  // Description:
+  // Methods for supporting blanking of cells. Blanking turns on or off
+  // cells in the structured grid, and hence the cells connected to them.
+  // These methods should be called only after the dimensions of the
+  // grid are set.
+  void BlankCell(vtkIdType ptId);
+  void UnBlankCell(vtkIdType ptId);
+  
+  // Description:
+  // Get the array that defines the blanking (visibility) of each point.
+  vtkUnsignedCharArray *GetPointVisibilityArray(); 
+
+  // Description:
+  // Set an array that defines the (blanking) visibility of the points 
+  // in the grid. Make sure that length of the visibility array matches 
+  // the number of points in the grid.
+  void SetPointVisibilityArray(vtkUnsignedCharArray *pointVisibility);
+
+  // Description:
+  // Get the array that defines the blanking (visibility) of each cell.
+  vtkUnsignedCharArray *GetCellVisibilityArray(); 
+
+  // Description:
+  // Set an array that defines the (blanking) visibility of the cells 
+  // in the grid. Make sure that length of the visibility array matches 
+  // the number of points in the grid.
+  void SetCellVisibilityArray(vtkUnsignedCharArray *pointVisibility);
+
+  // Description:
+  // Return non-zero value if specified point is visible.
+  // These methods should be called only after the dimensions of the
+  // grid are set.
+  unsigned char IsPointVisible(vtkIdType ptId);
+  
+  // Description:
+  // Return non-zero value if specified point is visible.
+  // These methods should be called only after the dimensions of the
+  // grid are set.
+  unsigned char IsCellVisible(vtkIdType cellId);
+
+  // Description:
+  // Returns 1 if there is any visibility constraint on the points,
+  // 0 otherwise.
+  unsigned char GetPointBlanking();
+
+  // Description:
+  // Returns 1 if there is any visibility constraint on the cells,
+  // 0 otherwise.
+  unsigned char GetCellBlanking();
+
 protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid();
@@ -203,9 +230,16 @@ protected:
 
   int Dimensions[3];
   int DataDescription;
-  int Blanking;
-  vtkUnsignedCharArray *PointVisibility;
-  void AllocatePointVisibility();
+
+  vtkStructuredVisibilityConstraint* PointVisibility;
+
+  void SetPointVisibility(vtkStructuredVisibilityConstraint *pointVisibility);
+  vtkGetObjectMacro(PointVisibility, vtkStructuredVisibilityConstraint);
+
+  vtkStructuredVisibilityConstraint* CellVisibility;
+
+  void SetCellVisibility(vtkStructuredVisibilityConstraint *cellVisibility);
+  vtkGetObjectMacro(CellVisibility, vtkStructuredVisibilityConstraint);
 
 private:
   // Description:
