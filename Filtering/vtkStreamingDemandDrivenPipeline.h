@@ -35,12 +35,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Generalized interface for asking the executive to fullfill update
+  // requests.
+  virtual int ProcessRequest(vtkInformation* request);
+
+  // Description:
   // Bring the algorithm's outputs up-to-date.
   virtual int Update();
   virtual int Update(int port);
   virtual int UpdateWholeExtent();
-
-  virtual int UpdateData(int outputPort);
 
   static vtkInformationIntegerKey* CONTINUE_EXECUTING();
   static vtkInformationObjectBaseKey* EXTENT_TRANSLATOR();

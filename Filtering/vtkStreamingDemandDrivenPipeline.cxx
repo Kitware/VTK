@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.8");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.9");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -72,6 +72,74 @@ void vtkStreamingDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::ProcessRequest(vtkInformation* request)
+{
+  // The algorithm should not invoke anything on the executive.
+  if(!this->CheckAlgorithm("ProcessRequest"))
+    {
+    return 0;
+    }
+
+  // Look for specially supported requests.
+  if(request->Has(REQUEST_UPDATE_EXTENT()))
+    {
+    // Get the output port from which the request was made.
+    int outputPort = -1;
+    if(request->Has(FROM_OUTPUT_PORT()))
+      {
+      outputPort = request->Get(FROM_OUTPUT_PORT());
+      }
+
+    // Make sure the information on the output port is valid.
+    if(!this->VerifyOutputInformation(outputPort))
+      {
+      return 0;
+      }
+
+    // If we need to execute, propagate the update extent.
+    int result = 1;
+    if(this->NeedToExecuteData(outputPort))
+      {
+      // Invoke the request on the algorithm.
+      vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
+      r->Set(REQUEST_UPDATE_EXTENT(), 1);
+      r->Set(FROM_OUTPUT_PORT(), outputPort);
+      result = this->CallAlgorithm(r, vtkExecutive::RequestUpstream);
+
+      // Propagate the update extent to all inputs.
+      if(result)
+        {
+        result = this->ForwardUpstream(request);
+        }
+      }
+    return result;
+    }
+
+  if(request->Has(REQUEST_DATA()))
+    {
+    // Let the superclass handle the request first.
+    if(this->Superclass::ProcessRequest(request))
+      {
+      // Crop the output if the exact extent flag is set.
+      for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+        {
+        vtkInformation* info = this->GetOutputInformation(i);
+        vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT());
+        if(info->Has(EXACT_EXTENT()) && info->Get(EXACT_EXTENT()))
+          {
+          vtkStreamingDemandDrivenPipelineToDataObjectFriendship::Crop(data);
+          }
+        }
+      return 1;
+      }
+    return 0;
+    }
+
+  // Let the superclass handle other requests.
+  return this->Superclass::ProcessRequest(request);
+}
+
+//----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::Update()
 {
   return this->Superclass::Update();
@@ -106,47 +174,9 @@ int vtkStreamingDemandDrivenPipeline::Update(int port)
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::UpdateWholeExtent()
 {
+  // TODO: this->SetUpdateExtentToWholeExtent(0) should probably be
+  // called here but it makes TestImageStreamer fail.
   return this->Update();
-
-#if 0
-  if(algorithm != this->GetAlgorithm())
-    {
-    vtkErrorMacro("Request to update algorithm not managed by this "
-                  "executive: " << algorithm);
-    return 0;
-    }
-
-  // update the info
-  if(!this->UpdateInformation())
-    {
-    return 0;
-    }
-  
-  // set the output UpdateExtent to the WholeExtent
-#endif
-}
-
-//----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::UpdateData(int outputPort)
-{
-  if(this->Superclass::UpdateData(outputPort))
-    {
-    // Crop the output if the exact extent flag is set.
-    for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = this->GetOutputInformation(i);
-      vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT());
-      if(info->Has(EXACT_EXTENT()) && info->Get(EXACT_EXTENT()))
-        {
-        vtkStreamingDemandDrivenPipelineToDataObjectFriendship::Crop(data);
-        }
-      }
-    return 1;
-    }
-  else
-    {
-    return 0;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -388,52 +418,19 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
     return 0;
     }
 
-  // Make sure the information on the output port is valid.
-  if(!this->VerifyOutputInformation(outputPort))
-    {
-    return 0;
-    }
-  
-  // If we need to update data, propagate the update extent.
-  int result = 1;
-  if(this->NeedToExecuteData(outputPort))
-    {
-    // Make sure input types are valid before algorithm does anything.
-    if(!this->InputCountIsValid() || !this->InputTypeIsValid())
-      {
-      return 0;
-      }
+  // Setup the request for update extent propagation.
+  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
+  r->Set(REQUEST_UPDATE_EXTENT(), 1);
+  r->Set(FROM_OUTPUT_PORT(), outputPort);
 
-    // Invoke the request on the algorithm.
-    vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
-    r->Set(REQUEST_UPDATE_EXTENT(), 1);
-    r->Set(FROM_OUTPUT_PORT(), outputPort);
-    result = this->CallAlgorithm(r, vtkExecutive::RequestUpstream);
+  // The request is forwarded upstream through the pipeline.
+  r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
 
-    if(!result)
-      {
-      return 0;
-      }
+  // Algorithms process this request before it is forwarded.
+  r->Set(vtkExecutive::ALGORITHM_BEFORE_FORWARD(), 1);
 
-    // Propagate the update extent to all inputs.
-    for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
-      {
-      for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
-        {
-        vtkDemandDrivenPipeline* ddp = this->GetConnectedInputExecutive(i, j);
-        if(vtkStreamingDemandDrivenPipeline* sddp =
-           vtkStreamingDemandDrivenPipeline::SafeDownCast(ddp))
-          {
-          if(!sddp->PropagateUpdateExtent(this->Algorithm->GetInputConnection(i, j)->GetIndex()))
-            {
-            return 0;
-            }
-          }
-        }
-      }
-    }
-
-  return result;
+  // Send the request.
+  return this->ProcessRequest(r);
 }
 
 //----------------------------------------------------------------------------

@@ -39,7 +39,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.11");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.12");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
@@ -123,6 +123,12 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request)
     int result = 1;
     if(this->PipelineMTime > this->DataObjectTime.GetMTime())
       {
+      // Make sure input types are valid before algorithm does anything.
+      if(!this->InputCountIsValid() || !this->InputTypeIsValid())
+        {
+        return 0;
+        }
+
       // Request data type from the algorithm.
       result = this->ExecuteDataObject();
 
@@ -144,6 +150,78 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request)
         }
       }
 
+    return result;
+    }
+
+  if(this->Algorithm && request->Has(REQUEST_INFORMATION()))
+    {
+    // Update inputs first.
+    if(!this->ForwardUpstream(request))
+      {
+      return 0;
+      }
+
+    // Make sure our output information is up-to-date.
+    int result = 1;
+    if(this->PipelineMTime > this->InformationTime.GetMTime())
+      {
+      // Request information from the algorithm.
+      result = this->ExecuteInformation();
+
+      // Information is now up to date.
+      this->InformationTime.Modified();
+      }
+
+    return result;
+    }
+
+  if(this->Algorithm && request->Has(REQUEST_DATA()))
+    {
+    // Get the output port from which the request was made.
+    int outputPort = -1;
+    if(request->Has(FROM_OUTPUT_PORT()))
+      {
+      outputPort = request->Get(FROM_OUTPUT_PORT());
+      }
+
+    // Make sure our outputs are up-to-date.
+    int result = 1;
+    if(this->NeedToExecuteData(outputPort))
+      {
+      // Update inputs first.
+      if(!this->ForwardUpstream(request))
+        {
+        return 0;
+        }
+
+      // Make sure inputs are valid before algorithm does anything.
+      if(!this->InputCountIsValid() || !this->InputTypeIsValid() ||
+         !this->InputFieldsAreValid())
+        {
+        return 0;
+        }
+
+      // Request data from the algorithm.
+      result = this->ExecuteData(outputPort);
+
+      // Release input data if requested.
+      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+        {
+        for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
+          {
+          vtkInformation* inInfo = this->GetInputInformation(i, j);
+          vtkDataObject* dataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
+          if(dataObject && (dataObject->GetGlobalReleaseDataFlag() ||
+                            inInfo->Get(RELEASE_DATA())))
+            {
+            dataObject->ReleaseData();
+            }
+          }
+        }
+
+      // Data are now up to date.
+      this->DataTime.Modified();
+      }
     return result;
     }
 
@@ -292,6 +370,9 @@ int vtkDemandDrivenPipeline::UpdateDataObject()
   // The request is forwarded upstream through the pipeline.
   r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
 
+  // Algorithms process this request after it is forwarded.
+  r->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
+
   // Send the request.
   return this->ProcessRequest(r);
 }
@@ -311,40 +392,18 @@ int vtkDemandDrivenPipeline::UpdateInformation()
     return 0;
     }
 
-  // Update inputs first.
-  for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
-    {
-    for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
-      {
-      if(vtkDemandDrivenPipeline* e = this->GetConnectedInputExecutive(i, j))
-        {
-        // Propagate the UpdateInformation call
-        if(!e->UpdateInformation())
-          {
-          return 0;
-          }
-        }
-      }
-    }
+  // Setup the request for information.
+  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
+  r->Set(REQUEST_INFORMATION(), 1);
 
-  // Make sure our output information is up-to-date.
-  int result = 1;
-  if(this->PipelineMTime > this->InformationTime.GetMTime())
-    {
-    // Make sure input types are valid before algorithm does anything.
-    if(!this->InputCountIsValid() || !this->InputTypeIsValid())
-      {
-      return 0;
-      }
+  // The request is forwarded upstream through the pipeline.
+  r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
 
-    // Request information from the algorithm.
-    result = this->ExecuteInformation();
+  // Algorithms process this request after it is forwarded.
+  r->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
 
-    // Information is now up to date.
-    this->InformationTime.Modified();
-    }
-
-  return result;
+  // Send the request.
+  return this->ProcessRequest(r);
 }
 
 //----------------------------------------------------------------------------
@@ -367,65 +426,19 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
     return 0;
     }
 
-  // Make sure our outputs are up-to-date.
-  int result = 1;
-  if(this->NeedToExecuteData(outputPort))
-    {
-    // Make sure everything on which we might rely is up-to-date.
-    for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
-      {
-      for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
-        {
-        if(vtkDemandDrivenPipeline* e = this->GetConnectedInputExecutive(i, j))
-          {
-          if(!e->UpdateData(this->Algorithm->GetInputConnection(i, j)->GetIndex()))
-            {
-            return 0;
-            }
-          }
-        }
-      }
-    
-    // Make sure inputs are valid before algorithm does anything.
-    if(!this->InputCountIsValid() || !this->InputTypeIsValid() ||
-       !this->InputFieldsAreValid())
-      {
-      return 0;
-      }
+  // Setup the request for data.
+  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
+  r->Set(REQUEST_DATA(), 1);
+  r->Set(FROM_OUTPUT_PORT(), outputPort);
 
-#if 0
-    // TODO: This condition gives the default behavior if the user
-    // asks for a piece that cannot be generated by the source.  Just
-    // ignore the request and return empty.
-    if (output && output->GetMaximumNumberOfPieces() > 0 &&
-        output->GetUpdatePiece() >= output->GetMaximumNumberOfPieces())
-      {
-      skipExecute = 1;
-      }
-#endif
+  // The request is forwarded upstream through the pipeline.
+  r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
 
-    // Request data from the algorithm.
-    result = this->ExecuteData(outputPort);
+  // Algorithms process this request after it is forwarded.
+  r->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
 
-    // Release input data if requested.
-    for(int k=0; k < this->Algorithm->GetNumberOfInputPorts(); ++k)
-      {
-      for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(k); ++j)
-        {
-        vtkInformation* inInfo = this->GetInputInformation(k, j);
-        vtkDataObject* dataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
-        if(dataObject && (dataObject->GetGlobalReleaseDataFlag() ||
-                          inInfo->Get(RELEASE_DATA())))
-          {
-          dataObject->ReleaseData();
-          }
-        }
-      }
-
-    // Data are now up to date.
-    this->DataTime.Modified();
-    }
-  return result;
+  // Send the request.
+  return this->ProcessRequest(r);
 }
 
 //----------------------------------------------------------------------------
