@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkActor2D.cxx
+  Module:    vtkProp2D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,56 +38,69 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkActor2D.h"
-#include "vtkProperty2D.h"
-#include "vtkMapper2D.h"
+// .NAME vtkProp2D - abstract superclass for 2D actors
+// .SECTION Description
+// vtkProp2D is an abstract superclass for 2D actors. Instances of
+// vtkProp draw into the image or overlay plane in a viewport. You can
+// control whether the the 2D actor is visible, which overlay plane to
+// draw into (vtkProp2D has a layer property which allows two
+// dimensional actors to be rendered on top of each other in a certain
+// order), and control its position on the screen.
+// .SECTION See Also
+// vtkActor2D  vtkMapper2D
 
-// Description:
-// Creates an actor2D with the following defaults: 
-// position -1, -1 (view coordinates)
-// orientation 0, scale (1,1), layer 0, visibility on
-vtkActor2D::vtkActor2D()
+#ifndef __vtkProp2D_h
+#define __vtkProp2D_h
+
+#include "vtkReferenceCount.h"
+#include "vtkCoordinate.h"
+
+class vtkProperty2D;
+
+class VTK_EXPORT vtkProp2D : public vtkReferenceCount
 {
-  this->Mapper = (vtkMapper2D*) NULL;
-}
+public:
+  vtkProp2D();
+  ~vtkProp2D();
+  void PrintSelf(ostream& os, vtkIndent indent);
+  const char *GetClassName() {return "vtkProp2D";};
 
-// Description:
-// Destroy an actor2D.
-vtkActor2D::~vtkActor2D()
-{
-}
+  // Description:
+  // All concrete subclasses must be able to render themselves.
+  virtual void Render(vtkViewport *viewport) = 0;
 
-// Description:
-// Renders an actor2D's property and then it's mapper.
-void vtkActor2D::Render (vtkViewport* viewport)
-{
-  vtkDebugMacro(<< "vtkActor2D::Render");
+  // Description:
+  // Set/Get the layer number in the overlay planes into which to render.
+  vtkSetMacro(LayerNumber, int);
+  vtkGetMacro(LayerNumber, int);
 
-  if (!this->Property)
-    {
-    vtkDebugMacro(<< "vtkActor2D::Render - Creating Property2D");
-    // Force creation of default property
-    this->GetProperty();
-    }
+  // Description:
+  // Set/Get visibility of this vtkProp.
+  vtkSetMacro(Visibility, int);
+  vtkGetMacro(Visibility, int);
+  vtkBooleanMacro(Visibility, int);
 
-  this->Property->Render(viewport);
+  vtkProperty2D* GetProperty();
+  vtkSetObjectMacro(Property, vtkProperty2D);
 
-  if (!this->Mapper) 
-    {
-    vtkErrorMacro(<< "vtkActor2D::Render - No mapper set");
-    return;
-    }
+  // Description:
+  // Get the PositionCoordinate instance of vtkCoordinate.
+  // This is used for for complicated or relative positioning.
+  vtkViewportCoordinateMacro(Position);
+  
+  void SetDisplayPosition(int,int);
+  
+  unsigned long int GetMTime();//overload superclasses' implementation
 
-  vtkDebugMacro(<<"vtkActor2D::Render - Rendering mapper");
-  this->Mapper->Render(viewport, this); 
+protected:
+  int LayerNumber;
+  int Visibility;
+  int SelfCreatedProperty;
 
-}
+  vtkProperty2D *Property;
+  vtkCoordinate *PositionCoordinate;
+};
 
-void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->vtkProp2D::PrintSelf(os,indent);
+#endif
 
-  os << indent << "Mapper: " << this->Mapper << "\n";
-  if (this->Mapper) this->Mapper->PrintSelf(os, indent.GetNextIndent());
-}
 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkActor2D.cxx
+  Module:    vtkProp2D.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,56 +38,85 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkActor2D.h"
+#include "vtkProp2D.h"
 #include "vtkProperty2D.h"
-#include "vtkMapper2D.h"
 
 // Description:
-// Creates an actor2D with the following defaults: 
-// position -1, -1 (view coordinates)
-// orientation 0, scale (1,1), layer 0, visibility on
-vtkActor2D::vtkActor2D()
+// Creates an Prop2D with the following defaults: 
+// position -1, -1 (view coordinates), layer 0, and visibility on.
+vtkProp2D::vtkProp2D()
 {
-  this->Mapper = (vtkMapper2D*) NULL;
+  this->LayerNumber = 0;
+  this->Visibility = 1;  // ON
+  this->SelfCreatedProperty = 0;
+  this->Property = (vtkProperty2D*) NULL;
+  this->PositionCoordinate = vtkCoordinate::New();
+  this->PositionCoordinate->SetCoordinateSystem(VTK_VIEWPORT);
 }
 
 // Description:
-// Destroy an actor2D.
-vtkActor2D::~vtkActor2D()
+// Destroy an Prop2D.  If the Prop2D created it's own
+// property, that property is deleted.
+vtkProp2D::~vtkProp2D()
 {
+  if (this->SelfCreatedProperty) this->Property->Delete();
+  this->PositionCoordinate->Delete();
+  this->PositionCoordinate = NULL;
 }
 
 // Description:
-// Renders an actor2D's property and then it's mapper.
-void vtkActor2D::Render (vtkViewport* viewport)
+// Set the Prop2D's position in display coordinates.  
+void vtkProp2D::SetDisplayPosition(int XPos, int YPos)
 {
-  vtkDebugMacro(<< "vtkActor2D::Render");
+  this->PositionCoordinate->SetCoordinateSystem(VTK_DISPLAY);
+  this->PositionCoordinate->SetValue((float)XPos,(float)YPos,0.0);
+}
 
-  if (!this->Property)
+// Description:
+// Returns an Prop2D's property2D.  Creates a property if one
+// doesn't already exist.
+vtkProperty2D *vtkProp2D::GetProperty()
+{
+  if (this->Property == NULL)
     {
-    vtkDebugMacro(<< "vtkActor2D::Render - Creating Property2D");
-    // Force creation of default property
-    this->GetProperty();
+    this->Property = vtkProperty2D::New();
+    this->SelfCreatedProperty = 1;
+    this->Modified();
+    }
+  return this->Property;
+}
+
+unsigned long int vtkProp2D::GetMTime()
+{
+  unsigned long mTime=this->vtkObject::GetMTime();
+  unsigned long time;
+  
+  time = this->PositionCoordinate->GetMTime();
+  mTime = ( time > mTime ? time : mTime );
+  
+  if ( this->Property != NULL )
+    {
+    time = this->Property->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
     }
 
-  this->Property->Render(viewport);
-
-  if (!this->Mapper) 
-    {
-    vtkErrorMacro(<< "vtkActor2D::Render - No mapper set");
-    return;
-    }
-
-  vtkDebugMacro(<<"vtkActor2D::Render - Rendering mapper");
-  this->Mapper->Render(viewport, this); 
-
+  return mTime;
 }
 
-void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkProp2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkProp2D::PrintSelf(os,indent);
+  this->vtkReferenceCount::PrintSelf(os,indent);
 
-  os << indent << "Mapper: " << this->Mapper << "\n";
-  if (this->Mapper) this->Mapper->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Layer Number: " << this->LayerNumber << "\n";
+  os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
+
+  os << indent << "PositionCoordinate: " << this->PositionCoordinate << "\n";
+  this->PositionCoordinate->PrintSelf(os, indent.GetNextIndent());
+  
+  os << indent << "Property: " << this->Property << "\n";
+  if (this->Property) this->Property->PrintSelf(os, indent.GetNextIndent());
 }
+
+
+
 
