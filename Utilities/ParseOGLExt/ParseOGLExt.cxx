@@ -631,22 +631,22 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   hfile << "#include \"vtkWindows.h\"" << endl;
   hfile << "#include \"vtkOpenGL.h\"" << endl;
   hfile << "#include <stddef.h>" << endl << endl;
-  hfile << "#ifdef __APPLE__" << endl
-        << "#  include <OpenGL/glu.h>" << endl
-        << "#else" << endl
-        << "#  include <GL/glu.h>" << endl
-        << "#endif" << endl << endl;
+  hfile << "//#ifdef __APPLE__" << endl
+        << "//#include <OpenGL/glu.h>" << endl
+        << "//#else" << endl
+        << "//#include <GL/glu.h>" << endl
+        << "//#endif" << endl << endl;
   hfile << "#ifdef VTK_USE_X" << endl
-        << "#  include <GL/glx.h>" << endl
+        << "#include <GL/glx.h>" << endl
         << "#endif" << endl << endl;
   hfile << "class vtkOpenGLExtensionManager;" << endl << endl;
   hfile << "#ifndef APIENTRY" << endl
-        << "#  define APIENTRY" << endl
-        << "#  define VTKGL_APIENTRY_DEFINED" << endl
+        << "#define APIENTRY" << endl
+        << "#define VTKGL_APIENTRY_DEFINED" << endl
         << "#endif" << endl << endl;
   hfile << "#ifndef APIENTRYP" << endl
-        << "#  define APIENTRYP APIENTRY *" << endl
-        << "#  define VTKGL_APIENTRYP_DEFINED" << endl
+        << "#define APIENTRYP APIENTRY *" << endl
+        << "#define VTKGL_APIENTRYP_DEFINED" << endl
         << "#endif" << endl << endl;
 
   hfile << "/* Undefine all constants to avoid name conflicts.  They should be defined  */" << endl
@@ -691,10 +691,10 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
 
   hfile << endl
         << "#ifdef VTKGL_APIENTRY_DEFINED" << endl
-        << "#  undef APIENTRY" << endl
+        << "#undef APIENTRY" << endl
         << "#endif" << endl << endl;
   hfile << "#ifdef VTKGL_APIENTRYP_DEFINED" << endl
-        << "#  undef APIENTRYP" << endl
+        << "#undef APIENTRYP" << endl
         << "#endif" << endl << endl;
   hfile << "#endif //_vtkgl_h" << endl;
 
