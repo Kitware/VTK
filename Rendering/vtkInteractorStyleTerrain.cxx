@@ -22,7 +22,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.1");
+vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.2");
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
 //----------------------------------------------------------------------------
@@ -172,23 +172,23 @@ void vtkInteractorStyleTerrain::Rotate()
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  int dx = -(rwi->GetEventPosition()[0] - rwi->GetLastEventPosition()[0]);
-  int dy = -(rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1]);
+  int dx = - (rwi->GetEventPosition()[0] - rwi->GetLastEventPosition()[0]);
+  int dy = - (rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1]);
 
   int *size = this->CurrentRenderer->GetRenderWindow()->GetSize();
 
-  float a = (float)dx / size[0] * 180.0f;
-  float e = (float)dy / size[1] * 180.0f;
+  double a = (double)dx / (double)size[0] * (double)180.0;
+  double e = (double)dy / (double)size[1] * (double)180.0;
   
   if (rwi->GetShiftKey()) 
     {
-    if (fabs((float)dx) >= fabs((float)dy))
+    if (fabs((double)dx) >= fabs((double)dy))
       {
-      e = 0.0;
+      e = (double)0.0;
       }
     else
       {
-      a = 0.0;
+      a = (double)0.0;
       }
     }
 
@@ -199,19 +199,18 @@ void vtkInteractorStyleTerrain::Rotate()
   camera->Azimuth(a);
 
   double dop[3], vup[3];
+
   camera->GetDirectionOfProjection(dop);
   vtkMath::Normalize(dop);
   camera->GetViewUp(vup);
   vtkMath::Normalize(vup);
 
-  double angle = acos(vtkMath::Dot(dop,vup)) / vtkMath::DegreesToRadians();
-  if ((angle+e) > 179.0f) 
+  double angle = 
+    acos(vtkMath::Dot(dop, vup)) / vtkMath::DoubleDegreesToRadians();
+  if ((angle + e) > (double)179.0 ||
+      (angle + e) < (double)1.0)
     {
-    e = 0.0f;
-    }
-  else if ((angle+e) < 1.0f)
-    {
-    e = 0.0f;
+    e = (double)0.0;
     }
 
   camera->Elevation(e);
@@ -236,7 +235,7 @@ void vtkInteractorStyleTerrain::Pan()
 
   // Get the vector of motion
 
-  float fp[3], focalPoint[3], pos[3], v[3], p1[3], p2[3];
+  double fp[3], focalPoint[3], pos[3], v[3], p1[4], p2[4];
 
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   camera->GetPosition(pos);
@@ -291,7 +290,7 @@ void vtkInteractorStyleTerrain::Dolly()
   
   if (camera->GetParallelProjection())
     {
-    camera->SetParallelScale(camera->GetParallelScale()/zoomFactor);
+    camera->SetParallelScale(camera->GetParallelScale() / zoomFactor);
     }
   else
     {
