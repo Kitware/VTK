@@ -18,6 +18,8 @@ set value [expr ($min + $max) / 2.0]
 vtkContourFilter cf
     cf SetInput [pl3d GetOutput]
     cf SetValue 0 $value
+    cf UseScalarTreeOn
+
 vtkPolyDataMapper cfMapper
     cfMapper SetInput [cf GetOutput]
     eval cfMapper SetScalarRange \
@@ -69,6 +71,12 @@ for {set nloops 0} {$nloops < 3} {incr nloops} {
       renWin Render
     }
 }
+
+cf SetValue 0 $value
+renWin Render
+
+#renWin SetFileName aniIso.tcl.ppm
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
