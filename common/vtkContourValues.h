@@ -68,7 +68,7 @@ public:
   float *GetValues();
   void GetValues(float *contourValues);
 
-  void SetNumberOfContours(int number);
+  void SetNumberOfContours(const int number);
   int GetNumberOfContours();
 
   void GenerateValues(int numContours, float range[2]);
