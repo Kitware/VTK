@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Paul A, Hsieh for bug fixes
 
 
 Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -183,6 +184,21 @@ void vtkShepardMethod::Execute()
     
     for (i=0; i<3; i++) //compute dimensional bounds in data set
       {
+      float amin = (float)((px[i] - maxDistance) - origin[i]) / spacing[i];
+      float amax = (float)((px[i] + maxDistance) - origin[i]) / spacing[i];
+      min[i] = (int) amin;
+      max[i] = (int) amax;
+      
+      if (min[i] < amin) min[i]++; // round upward to nearest integer to get min[i]
+      if (max[i] > amax) max[i]--; // round downward to nearest integer to get max[i]
+
+      if (min[i] < 0) min[i] = 0; // valid range check
+      if (max[i] >= this->SampleDimensions[i]) 
+      max[i] = this->SampleDimensions[i] - 1;
+      }
+
+    for (i=0; i<3; i++) //compute dimensional bounds in data set
+      {
       min[i] = (int) ((float)((px[i] - maxDistance) - origin[i]) / spacing[i]);
       max[i] = (int) ((float)((px[i] + maxDistance) - origin[i]) / spacing[i]);
       if (min[i] < 0) min[i] = 0;
@@ -190,6 +206,8 @@ void vtkShepardMethod::Execute()
 	max[i] = this->SampleDimensions[i] - 1;
       }
 
+
+  
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
     for (k = min[2]; k <= max[2]; k++) 
       {
