@@ -299,72 +299,6 @@ void vtkCamera::SetDistance(float X)
 }  
 
 // Description:
-// This returns the twist of the camera.  The twist corresponds to Roll and
-// represents the angle of rotation about the z axis to achieve the 
-// current view-up vector.
-float vtkCamera::GetTwist()
-{
-  float *vup, *vn;
-  float twist = 0;
-  float v1[3], v2[3], y_axis[3];
-  double theta, dot, mag;
-  double cosang;
-  vtkMath math;
-
-  vup = this->ViewUp;
-  vn = this->GetViewPlaneNormal();
-
-  // compute: vn X ( vup X vn)
-  // and:     vn X ( y-axis X vn)
-  // then find the angle between the two projected vectors
-  //
-  y_axis[0] = y_axis[2] = 0.0; y_axis[1] = 1.0;
-
-  // bump the view normal if it is parallel to the y-axis
-  //
-  if ((vn[0] == 0.0) && (vn[2] == 0.0))
-    vn[2] = 0.01*vn[1];
-
-  // first project the view_up onto the view_plane
-  //
-  math.Cross(vup, vn, v1);
-  math.Cross(vn, v1, v1);
-
-  // then project the y-axis onto the view plane
-  //
-  math.Cross(y_axis, vn, v2);
-  math.Cross(vn, v2, v2);
-
-  // then find the angle between the two projected vectors
-  //
-  dot = v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
-  mag = sqrt((double)(v1[0]*v1[0] + v1[1]*v1[1] + v1[2]*v1[2]));
-  mag *= sqrt((double)(v2[0]*v2[0] + v2[1]*v2[1] + v2[2]*v2[2]));
-
-  // make sure we dont divide by 0 
-  if (mag != 0.0) 
-    {
-    cosang = dot / mag;
-    if (cosang < -1.0) cosang = -1.0;
-    if (cosang > 1.0) cosang = 1.0;
-    theta = acos(cosang);
-    }
-  else
-    theta = 0.0;
-
-  // now see if the angle is positive or negative
-  //
-  math.Cross(v1, v2, v1);
-  dot = v1[0]*vn[0] + v1[1]*vn[1] + v1[2]*vn[2];
-  
-  twist = (theta);
-  if (dot < 0.0)
-    twist = -twist;
-  
-  return twist;
-}
-
-// Description:
 // Compute the view plane normal from the position and focal point.
 void vtkCamera::CalcViewPlaneNormal()
 {
@@ -429,7 +363,7 @@ void vtkCamera::SetRoll(float roll)
 }
 
 // Description:
-// Returns the roll of the camera, this is very similar to GetTwist.
+// Returns the roll of the camera.
 float vtkCamera::GetRoll()
 {
   float	*orient;
@@ -1048,7 +982,6 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
     << this->Position[1] << ", " << this->Position[2] << ")\n";
   os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
   os << indent << "Thickness: " << this->Thickness << "\n";
-  os << indent << "Twist: " << this->GetTwist() << "\n";
   os << indent << "View Angle: " << this->ViewAngle << "\n";
   os << indent << "View Plane Normal: (" << this->ViewPlaneNormal[0] << ", " 
     << this->ViewPlaneNormal[1] << ", " << this->ViewPlaneNormal[2] << ")\n";

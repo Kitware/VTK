@@ -148,7 +148,6 @@ class vtkCamera : public vtkObject
   vtkGetMacro(Switch,int);
   vtkBooleanMacro(Switch,int);
 
-  float GetTwist();
   void SetViewPlaneNormal(float a[3]);
   void SetViewPlaneNormal(float x, float y, float z);
   void CalcViewPlaneNormal();
