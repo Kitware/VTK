@@ -10,6 +10,10 @@ vtkDebugLeaks rtDebugLeaks
 rtDebugLeaks PromptUserOff
 rtDebugLeaks Delete
 
+vtkObject a
+a GlobalWarningDisplayOff
+a Delete
+
 proc rtOtherTest { fileid } {
 #actual test
     set all [lsort [info command vtk*]]
