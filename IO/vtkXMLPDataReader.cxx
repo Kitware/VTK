@@ -24,7 +24,7 @@
 #include "vtkXMLDataReader.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataReader, "1.11");
+vtkCxxRevisionMacro(vtkXMLPDataReader, "1.12");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataReader::vtkXMLPDataReader()
@@ -346,6 +346,12 @@ char* vtkXMLPDataReader::CreatePieceFileName(const char* fileName)
 //----------------------------------------------------------------------------
 void vtkXMLPDataReader::SplitFileName()
 {
+  if(!this->FileName)
+    {
+    vtkErrorMacro( << "Need to specify a filename" );
+    return;
+    }
+
   // Pull the PathName component out of the FileName.
   size_t length = strlen(this->FileName);
   char* fileName = new char[length+1];
