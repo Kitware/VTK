@@ -21,6 +21,7 @@ IF (VTK_USE_RENDERING)
       TestGridSynchronizedTemplates3D
       TestImageMarchingCubes
       TestMarchingSquares
+      TestRectilinearSynchronizedTemplates
       TestSynchronizedTemplates2D
       TestSynchronizedTemplates3D
       CompareContour
