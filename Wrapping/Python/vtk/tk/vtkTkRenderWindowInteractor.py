@@ -118,7 +118,7 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self.bind("<Shift-ButtonPress-1>",
                   lambda e, s=self: s.LeftButtonPressEvent(e, 0, 1))
         self.bind("<Control-Shift-ButtonPress-1>",
-                  lambda e, s=self: s.LeftButtonReleaseEvent(e, 1, 1))
+                  lambda e, s=self: s.LeftButtonPressEvent(e, 1, 1))
         self.bind("<ButtonRelease-1>",
                   lambda e, s=self: s.LeftButtonReleaseEvent(e, 0, 0))
         self.bind("<Control-ButtonRelease-1>",
@@ -136,7 +136,7 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self.bind("<Shift-ButtonPress-2>",
                   lambda e, s=self: s.MiddleButtonPressEvent(e, 0, 1))
         self.bind("<Control-Shift-ButtonPress-2>",
-                  lambda e, s=self: s.MiddleButtonReleaseEvent(e, 1, 1))
+                  lambda e, s=self: s.MiddleButtonPressEvent(e, 1, 1))
         self.bind("<ButtonRelease-2>",
                   lambda e, s=self: s.MiddleButtonReleaseEvent(e, 0, 0))
         self.bind("<Control-ButtonRelease-2>",
@@ -154,7 +154,7 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self.bind("<Shift-ButtonPress-3>",
                   lambda e, s=self: s.RightButtonPressEvent(e, 0, 1))
         self.bind("<Control-Shift-ButtonPress-3>",
-                  lambda e, s=self: s.RightButtonReleaseEvent(e, 1, 1))
+                  lambda e, s=self: s.RightButtonPressEvent(e, 1, 1))
         self.bind("<ButtonRelease-3>",
                   lambda e, s=self: s.RightButtonReleaseEvent(e, 0, 0))
         self.bind("<Control-ButtonRelease-3>",
@@ -164,6 +164,36 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self.bind("<Control-Shift-ButtonRelease-3>",
                   lambda e, s=self: s.RightButtonReleaseEvent(e, 1, 1))
 
+        if sys.platform == 'win32':
+          self.bind("<MouseWheel>",
+                    lambda e, s=self: s.MouseWheelEvent(e, 0, 0))
+          self.bind("<Control-MouseWheel>",
+                    lambda e, s=self: s.MouseWheelEvent(e, 1, 0))
+          self.bind("<Shift-MouseWheel>",
+                    lambda e, s=self: s.MouseWheelEvent(e, 0, 1))
+          self.bind("<Control-Shift-MouseWheel>",
+                    lambda e, s=self: s.MouseWheelEvent(e, 1, 1))
+        else:
+          # Mouse wheel forward event 
+          self.bind("<ButtonPress-4>",
+                    lambda e, s=self: s.MouseWheelForwardEvent(e, 0, 0))
+          self.bind("<Control-ButtonPress-4>",
+                    lambda e, s=self: s.MouseWheelForwardEvent(e, 1, 0))
+          self.bind("<Shift-ButtonPress-4>",
+                    lambda e, s=self: s.MouseWheelForwardEvent(e, 0, 1))
+          self.bind("<Control-Shift-ButtonPress-4>",
+                    lambda e, s=self: s.MouseWheelForwardEvent(e, 1, 1))
+
+          # Mouse wheel backward event 
+          self.bind("<ButtonPress-5>",
+                    lambda e, s=self: s.MouseWheelBackwardEvent(e, 0, 0))
+          self.bind("<Control-ButtonPress-5>",
+                    lambda e, s=self: s.MouseWheelBackwardEvent(e, 1, 0))
+          self.bind("<Shift-ButtonPress-5>",
+                    lambda e, s=self: s.MouseWheelBackwardEvent(e, 0, 1))
+          self.bind("<Control-Shift-ButtonPress-5>",
+                    lambda e, s=self: s.MouseWheelBackwardEvent(e, 1, 1))
+  
         # Key related events
         self.bind("<KeyPress>", 
                   lambda e, s=self: s.KeyPressEvent(e, 0, 0))
@@ -254,6 +284,24 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
                                             shift, chr(0), 0, None)
         self._Iren.RightButtonReleaseEvent()
+
+    def MouseWheelEvent(self, event, ctrl, shift):
+        self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
+                                            shift, chr(0), 0, None)
+        if event.delta > 0:
+          self._Iren.MouseWheelForwardEvent()
+        else:
+          self._Iren.MouseWheelBackwardEvent()
+
+    def MouseWheelForwardEvent(self, event, ctrl, shift):
+        self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
+                                            shift, chr(0), 0, None)
+        self._Iren.MouseWheelForwardEvent()
+
+    def MouseWheelBackwardEvent(self, event, ctrl, shift):
+        self._Iren.SetEventInformationFlipY(event.x, event.y, ctrl,
+                                            shift, chr(0), 0, None)
+        self._Iren.MouseWheelBackwardEvent()
 
     def KeyPressEvent(self, event, ctrl, shift):
         key = chr(0)
