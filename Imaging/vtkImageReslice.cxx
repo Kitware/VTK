@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.47");
+vtkCxxRevisionMacro(vtkImageReslice, "1.48");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -706,9 +706,9 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
         {
         d = maxBounds[2*i+1] - maxBounds[2*i];
         }
-      outWholeExt[2*i] = int(floor(e + 0.5));
-      outWholeExt[2*i+1] = int(floor(outWholeExt[2*i] + 
-                                     fabs(d/outSpacing[i]) + 0.5));
+      outWholeExt[2*i] = vtkResliceRound(e + 0.5);
+      outWholeExt[2*i+1] = vtkResliceRound(outWholeExt[2*i] + 
+                                           fabs(d/outSpacing[i]));
       }
     else
       {
@@ -799,13 +799,66 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
         break
 
 //----------------------------------------------------------------------------
-// rounding functions for each type, with some crazy stunts to avoid
-// the use of the 'floor' function which is too slow on x86
+// rounding functions for each type, where 'F' is a floating-point type
 
-template<class T>
-inline void vtkResliceRound(double val, T& rnd)
+template <class F>
+inline void vtkResliceRound(F val, char& rnd)
 {
   rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, unsigned char& rnd)
+{
+  rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, short& rnd)
+{
+  rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, unsigned short& rnd)
+{
+  rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, int& rnd)
+{
+  rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, unsigned int& rnd)
+{
+  rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, long& rnd)
+{
+  rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, unsigned long& rnd)
+{
+  rnd = vtkResliceRound(val);
+}
+
+template <class F>
+inline void vtkResliceRound(F val, float& rnd)
+{
+  rnd = val;
+}
+
+template <class F>
+inline void vtkResliceRound(F val, double& rnd)
+{
+  rnd = val;
 }
 
 //----------------------------------------------------------------------------
