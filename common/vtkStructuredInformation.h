@@ -57,6 +57,7 @@ class VTK_EXPORT vtkStructuredInformation : public vtkDataInformation
 public:
   static vtkStructuredInformation *New() 
     {return new vtkStructuredInformation;};
+
   const char *GetClassName() {return "vtkStructuredInformation";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -82,9 +83,10 @@ public:
   void WriteSelf(ostream& os);
 
 protected:
-  
   vtkStructuredInformation();
   ~vtkStructuredInformation() {};
+  vtkStructuredInformation(vtkStructuredInformation&) {};
+  void operator=(vtkStructuredInformation&) {};
 
   // The largest extent that can be requested.
   int WholeExtent[6];

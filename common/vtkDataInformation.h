@@ -107,9 +107,10 @@ public:
   virtual void WriteSelf(ostream& os);
   
 protected:
-  
   vtkDataInformation();
   ~vtkDataInformation() {};
+  vtkDataInformation(vtkDataInformation&) {};
+  void operator=(vtkDataInformation&) {};
 
   // A guess at how much memory would be consumed by the data object
   // if the WholeExtent were updated.

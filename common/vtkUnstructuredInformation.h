@@ -57,6 +57,7 @@ class VTK_EXPORT vtkUnstructuredInformation : public vtkDataInformation
 public:
   static vtkUnstructuredInformation *New() 
     {return new vtkUnstructuredInformation;};
+
   const char *GetClassName() {return "vtkUnstructuredInformation";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -83,9 +84,10 @@ public:
   void WriteSelf(ostream& os);
 
 protected:
-  
   vtkUnstructuredInformation();
   ~vtkUnstructuredInformation() {};
+  vtkUnstructuredInformation(vtkUnstructuredInformation&) {};
+  void operator=(vtkUnstructuredInformation&) {};
 
   // This tells down stream filters the smallest resolution available 
   // for streaming/spliting.  Now this is sort of a whole extent
