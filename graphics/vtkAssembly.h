@@ -111,8 +111,8 @@ public:
   // will be drawn for this assembly. This allows you to create "logical"
   // assemblies; that is, assemblies that only serve to group and transform
   // its parts.
-  void RenderOpaqueGeometry(vtkViewport *ren);
-  void RenderTranslucentGeometry(vtkViewport *ren);
+  int RenderOpaqueGeometry(vtkViewport *ren);
+  int RenderTranslucentGeometry(vtkViewport *ren);
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.

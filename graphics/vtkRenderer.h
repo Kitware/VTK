@@ -276,8 +276,14 @@ public:
   // Description:
   // Detects reference loop renderer<->rayCaster
   void UnRegister(vtkObject *o);
-  
-  
+
+  // Description:
+  // Should be used internally only during a render
+  // Get the number of props that were rendered using a
+  // RenderOpaqueGeometry or RenderTranslucentGeometry call.
+  // This is used to know if something is in the frame buffer.
+  vtkGetMacro( NumberOfPropsRenderedAsGeometry, int );
+
 protected:
   vtkRayCaster *RayCaster;
 
@@ -297,6 +303,8 @@ protected:
   int                BackingStore;
   unsigned char      *BackingImage;
   vtkTimeStamp       RenderTime;
+
+  int                NumberOfPropsRenderedAsGeometry;
 
   float              LastRenderTimeInSeconds;
 };

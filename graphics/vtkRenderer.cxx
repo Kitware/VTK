@@ -283,9 +283,10 @@ int vtkRenderer::UpdateVolumes()
   for (this->Props->InitTraversal(); 
        (aProp = this->Props->GetNextItem()); )
     {
-    if (aProp->GetVisibility())
+    if (aProp->GetVisibility() && 
+	!strcmp( aProp->GetClassName(), "vtkVolume" ) )
       {
-/*      switch ( aProp->GetVolumeMapper()->GetMapperType() )
+      switch ( ((vtkVolume *)aProp)->GetVolumeMapper()->GetMapperType() )
 	{
 	case VTK_RAYCAST_VOLUME_MAPPER:
 	  visibleRayCastVolumeCount++;
@@ -294,23 +295,24 @@ int vtkRenderer::UpdateVolumes()
 	  visibleSoftwareBufferVolumeCount++;
 	  break;
 	case VTK_FRAMEBUFFER_VOLUME_MAPPER:
-	  visibleFrameBufferVolumeCount++;
-	  aVolume->GetVolumeMapper()->Render( (vtkRenderer *)this, aVolume );
+	  visibleFrameBufferVolumeCount++; 
+	  ((vtkVolume *)aProp)->GetVolumeMapper()->
+	   Render( (vtkRenderer *)this, ((vtkVolume *)aProp) );
 	  break;
 	}
-*/      }
+      }
     }
 
-  // If there are any ray cast volumes, or softwarebuffer
-  // volumes, let the ray caster handle it.
-  if ( visibleRayCastVolumeCount + 
-       visibleSoftwareBufferVolumeCount > 0 )
-    {
-    // Render the volume
-    this->RayCaster->Render((vtkRenderer *)this,
-			    visibleRayCastVolumeCount,
-			    visibleSoftwareBufferVolumeCount);
-    }
+   // If there are any ray cast volumes, or softwarebuffer
+   // volumes, let the ray caster handle it.
+   if ( visibleRayCastVolumeCount + 
+        visibleSoftwareBufferVolumeCount > 0 )
+     {
+     // Render the volume
+     this->RayCaster->Render((vtkRenderer *)this,
+ 			    visibleRayCastVolumeCount,
+ 			    visibleSoftwareBufferVolumeCount);
+     }
 
   return ( visibleRayCastVolumeCount +
 	   visibleFrameBufferVolumeCount +
@@ -344,6 +346,7 @@ int vtkRenderer::UpdateActors()
   float      total_time, actor_time, gained_time, additional_time;
   int        allocated_time_initialized = 0, i;
   float      render_time, new_render_time;
+  int        renderedPropsCount = 0;
 
   num_actors = this->Props->GetNumberOfItems();
 
@@ -366,7 +369,7 @@ int vtkRenderer::UpdateActors()
 	count++;
 	
 	// Finally - render the thing!
-	aProp->RenderOpaqueGeometry(this);
+	renderedPropsCount += aProp->RenderOpaqueGeometry(this);
 	}
       }
     for ( this->Props->InitTraversal(); 
@@ -377,7 +380,7 @@ int vtkRenderer::UpdateActors()
 	{
 	aProp->SetAllocatedRenderTime( actor_time );
 	// Finally - render the thing!
-	aProp->RenderTranslucentGeometry(this);
+	renderedPropsCount += aProp->RenderTranslucentGeometry(this);
 	}
       }
     }
@@ -482,7 +485,7 @@ int vtkRenderer::UpdateActors()
 	     ( new_render_time / total_time ) * this->AllocatedRenderTime );
 	  
 	  // Finally - render the thing!
-	  aProp->RenderOpaqueGeometry(this);
+	  renderedPropsCount += aProp->RenderOpaqueGeometry(this);
 	  }
 	}
       }
@@ -535,7 +538,7 @@ int vtkRenderer::UpdateActors()
 	     ( new_render_time / total_time ) * this->AllocatedRenderTime );
 	  
 	  // Finally - render the thing!
-	  aProp->RenderTranslucentGeometry(this);
+	  renderedPropsCount += aProp->RenderTranslucentGeometry(this);
 	  }
 	}
       }
@@ -543,6 +546,8 @@ int vtkRenderer::UpdateActors()
     }
 
   vtkDebugMacro( << "Rendered " << count << " actors" );
+
+  this->NumberOfPropsRenderedAsGeometry = renderedPropsCount;
 
   return count;
 }
@@ -1044,6 +1049,9 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Last Time To Render (Seconds): " 
      << this->LastRenderTimeInSeconds << endl;
+
+  // I don't want to print this since it is used just internally
+  // os << indent << this->NumberOfPropsRenderedAsGeometry;
 
 }
 

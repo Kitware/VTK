@@ -68,9 +68,9 @@ public:
   // Description:
   // Renders an imager.  Passes Render message on the 
   // the imager's actor2D collection.
-  virtual void RenderOpaqueGeometry();
-  virtual void RenderTranslucentGeometry();
-  virtual void RenderOverlay();
+  virtual int RenderOpaqueGeometry();
+  virtual int RenderTranslucentGeometry();
+  virtual int RenderOverlay();
 
   // Description:
   // Get the image window that an imager is attached to.

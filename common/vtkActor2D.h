@@ -65,9 +65,9 @@ public:
 
   // Description:
   // Support the standard render methods.
-  virtual void RenderOverlay(vtkViewport *viewport);
-  virtual void RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual void RenderTranslucentGeometry(vtkViewport *viewport);
+  virtual int RenderOverlay(vtkViewport *viewport);
+  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
+  virtual int RenderTranslucentGeometry(vtkViewport *viewport);
 
   // Description:
   // Creates an actor2D with the following defaults: 

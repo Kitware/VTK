@@ -191,13 +191,14 @@ int vtkActor::GetIsOpaque()
 // property, texture map and then mapper. If a property hasn't been 
 // assigned, then the actor will create one automatically. Note that a 
 // side effect of this method is that the visualization network is updated.
-void vtkActor::RenderOpaqueGeometry(vtkViewport *vp)
+int vtkActor::RenderOpaqueGeometry(vtkViewport *vp)
 {
-  vtkRenderer *ren = (vtkRenderer *)vp;
+  int          renderedSomething = 0; 
+  vtkRenderer  *ren = (vtkRenderer *)vp;
   
   if ( ! this->Mapper )
     {
-    return;
+    return 0;
     }
 
   // render the property
@@ -223,16 +224,21 @@ void vtkActor::RenderOpaqueGeometry(vtkViewport *vp)
       this->Texture->Render(ren);
       }
     this->Render(ren,this->Mapper);
+
+    renderedSomething = 1;
     }
+
+  return renderedSomething;
 }
 
-void vtkActor::RenderTranslucentGeometry(vtkViewport *vp)
+int vtkActor::RenderTranslucentGeometry(vtkViewport *vp)
 {
+  int          renderedSomething = 0; 
   vtkRenderer *ren = (vtkRenderer *)vp;
 
   if ( ! this->Mapper )
     {
-    return;
+    return 0;
     }
 
   // is this actor opaque ?
@@ -252,7 +258,11 @@ void vtkActor::RenderTranslucentGeometry(vtkViewport *vp)
       this->Texture->Render(ren);
       }
     this->Render(ren,this->Mapper);
+
+    renderedSomething = 1;
     }
+
+  return renderedSomething;
 }
 
 void vtkActor::ReleaseGraphicsResources(vtkWindow *win)

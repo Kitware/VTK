@@ -89,11 +89,12 @@ vtkAssembly& vtkAssembly::operator=(const vtkAssembly& assembly)
 // will be drawn for this assembly. This allows you to create "logical"
 // assemblies; that is, assemblies that only serve to group and transform
 // its Parts.
-void vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
+int vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
 {
   vtkActor *actor;
   vtkActorCollection *path;
   float fraction;
+  int   renderedSomething = 0;
 
   this->UpdatePaths();
 
@@ -109,9 +110,13 @@ void vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
     if ( actor->GetVisibility() )
       {
       actor->SetAllocatedRenderTime(fraction);
-      actor->RenderTranslucentGeometry(ren);
+      renderedSomething += actor->RenderTranslucentGeometry(ren);
       }
     }
+
+  renderedSomething = (renderedSomething > 0)?(1):(0);
+
+  return renderedSomething;
 }
 
 
@@ -120,11 +125,12 @@ void vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
 // will be drawn for this assembly. This allows you to create "logical"
 // assemblies; that is, assemblies that only serve to group and transform
 // its Parts.
-void vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
+int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
 {
   vtkActor *actor;
   vtkActorCollection *path;
   float fraction;
+  int   renderedSomething = 0;
 
   this->UpdatePaths();
 
@@ -140,9 +146,13 @@ void vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
     if ( actor->GetVisibility() )
       {
       actor->SetAllocatedRenderTime(fraction);
-      actor->RenderOpaqueGeometry(ren);
+      renderedSomething += actor->RenderOpaqueGeometry(ren);
       }
     }
+
+  renderedSomething = (renderedSomething > 0)?(1):(0);
+
+  return renderedSomething;
 }
 
 void vtkAssembly::ReleaseGraphicsResources(vtkRenderWindow *renWin)

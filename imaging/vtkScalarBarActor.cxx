@@ -153,24 +153,30 @@ float vtkScalarBarActor::GetHeight()
   return this->Position2Coordinate->GetValue()[1];
 }
 
-void vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
+int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
 {
+  int renderedSomething = 0;
   int i;
   
   // Everything is built, just have to render
   if (this->Title != NULL)
     {
-    this->TitleActor->RenderOverlay(viewport);
+    renderedSomething += this->TitleActor->RenderOverlay(viewport);
     }
   this->ScalarBarActor->RenderOverlay(viewport);
   for (i=0; i<this->NumberOfLabels; i++)
     {
-    this->TextActors[i]->RenderOverlay(viewport);
+    renderedSomething += this->TextActors[i]->RenderOverlay(viewport);
     }
+
+  renderedSomething = (renderedSomething > 0)?(1):(0);
+
+  return renderedSomething;
 }
 
-void vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
+int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
+  int renderedSomething = 0;
   int i;
   int size[2];
   int stringHeight, stringWidth;
@@ -179,7 +185,7 @@ void vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
   if ( ! this->LookupTable )
     {
     vtkWarningMacro(<<"Need a mapper to render a scalar bar");
-    return;
+    return 0;
     }
 
   // Check to see whether we have to rebuild everything
@@ -392,13 +398,17 @@ void vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
   // Everything is built, just have to render
   if (this->Title != NULL)
     {
-    this->TitleActor->RenderOpaqueGeometry(viewport);
+    renderedSomething += this->TitleActor->RenderOpaqueGeometry(viewport);
     }
   this->ScalarBarActor->RenderOpaqueGeometry(viewport);
   for (i=0; i<this->NumberOfLabels; i++)
     {
-    this->TextActors[i]->RenderOpaqueGeometry(viewport);
+    renderedSomething += this->TextActors[i]->RenderOpaqueGeometry(viewport);
     }
+
+  renderedSomething = (renderedSomething > 0)?(1):(0);
+
+  return renderedSomething;
 }
 
 void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)

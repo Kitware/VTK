@@ -69,20 +69,20 @@ public:
 
   // Description:
   // All concrete subclasses must be able to render themselves.
-  // There are five key render methods in vtk and they correspond
-  // to five different points in the rendering cycle. Any given
+  // There are four key render methods in vtk and they correspond
+  // to four different points in the rendering cycle. Any given
   // prop may implement one or more of these methods. The first two 
   // methods are designed to render 3D geometry such as polygons
   // lines, triangles. We render the opaque first then the transparent.
-  // The next two methods are primarily intended for volume rendering
-  // and support ray casting and any other technique that returns an
-  // image to be composited.  The fifth method is to render any 2D 
-  // annotation or overlays.
-  virtual void RenderOpaqueGeometry(vtkViewport *viewport) {};
-  virtual void RenderTranslucentGeometry(vtkViewport *viewport) {};
-  virtual void RenderRayCastImage(vtkViewport *viewport) {};
-  virtual void RenderAndReturnImage(vtkViewport *viewport) {};
-  virtual void RenderOverlay(vtkViewport *viewport) {};
+  // The next method is primarily intended for volume rendering
+  // and supports any technique that returns an image to be composited.  
+  // The last method is to render any 2D annotation or overlays.
+  // These methods return an integer value indicating whether or not
+  // this render method was applied to this data. 
+  virtual int RenderOpaqueGeometry(      vtkViewport *viewport) { return 0; };
+  virtual int RenderTranslucentGeometry( vtkViewport *viewport) { return 0; };
+  virtual int RenderIntoImage(           vtkViewport *viewport) { return 0; };
+  virtual int RenderOverlay(             vtkViewport *viewport) { return 0; };
 
   // Description: 
   // For some exporters and other other operations we must be

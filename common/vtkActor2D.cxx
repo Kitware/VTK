@@ -71,7 +71,7 @@ vtkActor2D::~vtkActor2D()
 }
 
 // Renders an actor2D's property and then it's mapper.
-void vtkActor2D::RenderOverlay(vtkViewport* viewport)
+int vtkActor2D::RenderOverlay(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkActor2D::RenderOverlay");
 
@@ -91,10 +91,12 @@ void vtkActor2D::RenderOverlay(vtkViewport* viewport)
     }
 
   this->Mapper->RenderOverlay(viewport, this); 
+
+  return 1;
 }
 
 // Renders an actor2D's property and then it's mapper.
-void vtkActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
+int vtkActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkActor2D::RenderOpaqueGeometry");
 
@@ -114,10 +116,12 @@ void vtkActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
     }
 
   this->Mapper->RenderOpaqueGeometry(viewport, this);
+
+  return 1;
 }
 
 // Renders an actor2D's property and then it's mapper.
-void vtkActor2D::RenderTranslucentGeometry(vtkViewport* viewport)
+int vtkActor2D::RenderTranslucentGeometry(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkActor2D::RenderTranslucentGeometry");
 
@@ -137,6 +141,8 @@ void vtkActor2D::RenderTranslucentGeometry(vtkViewport* viewport)
     }
 
   this->Mapper->RenderTranslucentGeometry(viewport, this);
+
+  return 1;
 }
 
 void vtkActor2D::SetMapper(vtkMapper2D *mapper)

@@ -89,8 +89,8 @@ class VTK_EXPORT vtkActor : public vtkProp3D
 
   // Description:
   // Support the standard render methods.
-  virtual void RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual void RenderTranslucentGeometry(vtkViewport *viewport);
+  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
+  virtual int RenderTranslucentGeometry(vtkViewport *viewport);
 
   // Description:
   // This causes the actor to be rendered. It in turn will render the actor's
