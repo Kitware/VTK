@@ -51,7 +51,7 @@ vtkDelaunay3D::vtkDelaunay3D()
   this->Alpha = 0.0;
   this->Tolerance = 0.001;
   this->BoundingTriangulation = 0;
-  this->Offset = 1.0;
+  this->Offset = 2.5;
 
   this->Output = new vtkUnstructuredGrid;
   this->Output->SetSource(this);
@@ -128,14 +128,14 @@ static int FindTetra(float x[3], int ptIds[4], int tetra,
 
     //see whether point and triangle vertex are on same side of tetra face
     valp = math.Dot(n,vp);
-    if ( (valx = math.Dot(n,vx)) <= 1.0e-04 ) continue; //maybe on face
+    if ( fabs(valx = math.Dot(n,vx)) <= 1.0e-04 ) continue; //maybe on face
 
     if ( (valx < 0.0 && valp > 0.0) || (valx > 0.0 && valp < 0.0)  )
       {
       inside = 0;
-      facePts.SetId(i,ptIds[i]);
-      facePts.SetId(i2,ptIds[i2]);
-      facePts.SetId(i3,ptIds[i3]);
+      facePts.SetId(0,ptIds[i]);
+      facePts.SetId(1,ptIds[i2]);
+      facePts.SetId(2,ptIds[i3]);
       Mesh->GetCellNeighbors(tetra, facePts, neighbors);
       if ( neighbors.GetNumberOfIds() > 0 ) //not boundary
         {
@@ -154,13 +154,13 @@ static int FindTetra(float x[3], int ptIds[4], int tetra,
 // Continues until all faces are Delaunay. Points p1,p2,p3 form the face in
 // question; x is the coordinates of the inserted point; tetra is the current
 // triangle id; Mesh is a pointer to cell structure.
-static void CheckFace(int ptId, float x[3], int p1, int p2, int p3, int tri, 
+static void CheckFace(int ptId, float x[3], int p1, int p2, int p3, int tetra, 
                       vtkUnstructuredGrid *Mesh, vtkFloatPoints *points)
 {
-  int i, numNei, nei, npts, *pts, p4;
-  float x1[3], x2[3], x3[3];
+  int i, numNei, nei, npts, *pts, p4, newTetra;
+  float x1[3], x2[3], x3[3], x4[3];
   vtkIdList neighbors(2), facePts(3);
-  int swapTri[3];
+  int swapTetra[4];
 
   points->GetPoint(p1,x1);
   points->GetPoint(p2,x2);
@@ -170,40 +170,46 @@ static void CheckFace(int ptId, float x[3], int p1, int p2, int p3, int tri,
   facePts.SetId(1,p2);
   facePts.SetId(2,p3);
 
-  Mesh->GetCellNeighbors(tri,facePts,neighbors);
+  Mesh->GetCellNeighbors(tetra,facePts,neighbors);
   numNei = neighbors.GetNumberOfIds();
 
-  if ( numNei > 0 ) //i.e., not a boundary edge
+  if ( numNei > 0 ) //i.e., not a boundary face
     {
     // get neighbor info including opposite point
     nei = neighbors.GetId(0);
     Mesh->GetCellPoints(nei, npts, pts);
-    for (i=0; i<2; i++)
-      if ( pts[i] != p1 && pts[i] != p2 )
+    for (i=0; i<3; i++)
+      if ( pts[i] != p1 && pts[i] != p2 && pts[i] != p3 )
         break;
 
     p4 = pts[i];
     points->GetPoint(p4,x3);
 
-    // see whether point is in circumcircle
-    if ( InSphere (x3, x, x1, x2, x3) )
+    // see whether point is in circumsphere
+    if ( InSphere (x4, x, x1, x2, x3) )
       {// swap diagonal
-      Mesh->RemoveReferenceToCell(p1,tri);
-      Mesh->RemoveReferenceToCell(p2,nei);
+      Mesh->RemoveReferenceToCell(p1,nei);
+      Mesh->RemoveReferenceToCell(p3,tetra);
+
       Mesh->ResizeCellList(ptId,1);
       Mesh->AddReferenceToCell(ptId,nei);
       Mesh->ResizeCellList(p4,1);
-      Mesh->AddReferenceToCell(p4,tri);
+      Mesh->AddReferenceToCell(p4,tetra);
 
-      swapTri[0] = ptId; swapTri[1] = p4; swapTri[2] = p2;
-      Mesh->ReplaceCell(tri,3,swapTri);
+      swapTetra[0] = ptId; swapTetra[1] = p4; 
+      swapTetra[2] = p1; swapTetra[3] = p2;
+      Mesh->ReplaceCell(tetra,4,swapTetra);
 
-      swapTri[0] = ptId; swapTri[1] = p1; swapTri[2] = p4;
-      Mesh->ReplaceCell(nei,3,swapTri);
+      swapTetra[2] = p2; swapTetra[3] = p3;
+      Mesh->ReplaceCell(nei,4,swapTetra);
+
+      swapTetra[2] = p3; swapTetra[3] = p1; 
+      newTetra = Mesh->InsertNextLinkedCell(VTK_TETRA,4,swapTetra);
 
       // three new faces become suspect
-      CheckFace(ptId, x, p2, p4, p4, tri, Mesh, points);
-      CheckFace(ptId, x, p4, p1, p4, nei, Mesh, points);
+      CheckFace(ptId, x, p1, p2, p4, tetra, Mesh, points);
+      CheckFace(ptId, x, p2, p3, p4, nei, Mesh, points);
+      CheckFace(ptId, x, p3, p1, p4, newTetra, Mesh, points);
 
       }//in circle
     }//interior edge
@@ -222,16 +228,15 @@ void vtkDelaunay3D::Execute()
   int ptId, tetra[4];
   vtkPoints *inPoints;
   vtkFloatPoints *points;
-  vtkCellArray *alphaTetras;
   vtkUnstructuredGrid *Mesh=new vtkUnstructuredGrid;
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
   float x[3];
-  int nodes[3][3], pts[3], npts, *triPts;
+  int nodes[4][4], pts[4], npts, *tetraPts;
   vtkIdList neighbors(2), cells(64);
-  float center[3], radius, tol;
+  float center[3], length, tol;
   vtkMath math;
-  char *triUse;
+  char *tetraUse;
 
   vtkDebugMacro(<<"Generating 3D Delaunay triangulation");
 //
@@ -243,9 +248,9 @@ void vtkDelaunay3D::Execute()
     return;
     }
 
-  if ( (numPoints=inPoints->GetNumberOfPoints()) <= 2 )
+  if ( (numPoints=inPoints->GetNumberOfPoints()) <= 0 )
     {
-    vtkErrorMacro("<<Cannot triangulate; need at least 3 input points");
+    vtkErrorMacro("<<Cannot triangulate; need at least 4 input points");
     return;
     }
   NumberOfDuplicatePoints = 0;
@@ -253,7 +258,7 @@ void vtkDelaunay3D::Execute()
 // Create initial bounding triangulation. Have to create bounding points.
 // Initialize mesh structure.
 //
-  points = new vtkFloatPoints(numPoints+8);
+  points = new vtkFloatPoints(numPoints+6);
   for (ptId=0; ptId < numPoints; ptId++)
     {
     points->SetPoint(ptId,inPoints->GetPoint(ptId));
@@ -261,61 +266,93 @@ void vtkDelaunay3D::Execute()
 
   input->GetCenter(center);
   tol = input->GetLength();
-  radius = this->Offset * tol;
+  if ( (length = this->Offset * tol) <= 0.0 ) length = 1.0;
   tol *= this->Tolerance;
 
-  for (ptId=0; ptId<8; ptId++)
-    {
-    x[0] = center[0] + radius*cos((double)(45.0*ptId)*math.DegreesToRadians());
-    x[1] = center[1] + radius*sin((double)(45.0*ptId)*math.DegreesToRadians());
-    x[2] = 0.0;
-    points->SetPoint(numPoints+ptId,x);
-    }
+  //create bounding octahedron
+  x[0] = center[0] - length;
+  x[1] = center[1];
+  x[2] = center[2];
+  points->SetPoint(numPoints,x);
+
+  x[0] = center[0] + length;
+  x[1] = center[1];
+  x[2] = center[2];
+  points->SetPoint(numPoints+1,x);
+
+  x[0] = center[0];              
+  x[1] = center[1] - length;
+  x[2] = center[2];
+  points->SetPoint(numPoints+2,x);
+
+  x[0] = center[0];              
+  x[1] = center[1] + length;
+  x[2] = center[2];
+  points->SetPoint(numPoints+3,x);
+
+  x[0] = center[0];              
+  x[1] = center[1];
+  x[2] = center[2] - length;
+  points->SetPoint(numPoints+4,x);
+
+  x[0] = center[0];              
+  x[1] = center[1];
+  x[2] = center[2] + length;
+  points->SetPoint(numPoints+5,x);
 
   Mesh->Allocate(5*numPoints);
 
   //create bounding tetras (there are six)
-  pts[0] = numPoints; pts[1] = numPoints + 1; pts[2] = numPoints + 2;
+  pts[0] = numPoints + 4; pts[1] = numPoints + 5; 
+  pts[2] = numPoints ; pts[3] = numPoints + 1;
   Mesh->InsertNextCell(VTK_TETRA,4,pts);
-  pts[0] = numPoints + 2; pts[1] = numPoints + 3; pts[2] = numPoints + 4;
+
+  pts[0] = numPoints + 4; pts[1] = numPoints + 5; 
+  pts[2] = numPoints + 1; pts[3] = numPoints + 2;
   Mesh->InsertNextCell(VTK_TETRA,4,pts);
-  pts[0] = numPoints + 4; pts[1] = numPoints + 5; pts[2] = numPoints + 6;
+
+  pts[0] = numPoints + 4; pts[1] = numPoints + 5; 
+  pts[2] = numPoints + 2; pts[3] = numPoints + 3;
   Mesh->InsertNextCell(VTK_TETRA,4,pts);
-  pts[0] = numPoints + 6; pts[1] = numPoints + 7; pts[2] = numPoints + 0;
-  Mesh->InsertNextCell(VTK_TETRA,4,pts);
-  pts[0] = numPoints + 0; pts[1] = numPoints + 2; pts[2] = numPoints + 6;
-  Mesh->InsertNextCell(VTK_TETRA,4,pts);
-  pts[0] = numPoints + 2; pts[1] = numPoints + 4; pts[2] = numPoints + 6;
-  Mesh->InsertNextCell(VTK_TETRA,4,pts);
-  tetra[0] = 0; //initialize value for FindTetra
+
+  pts[0] = numPoints + 4; pts[1] = numPoints + 5; 
+  pts[2] = numPoints + 3; pts[3] = numPoints;
+  tetra[1] = Mesh->InsertNextCell(VTK_TETRA,4,pts);
 
   Mesh->SetPoints(points);
   Mesh->BuildLinks();
 //
-// For each point; find triangle containing point. Then evaluate three 
+// For each point; find tetra containing point. Then evaluate four
 // neighboring tetras for Delaunay criterion. Tetras that do not 
-// satisfy criterion have their edges swapped. This continues recursively 
+// satisfy criterion have their faces swapped. This continues recursively 
 // until all tetras have been shown to be Delaunay.
 //
   for (ptId=0; ptId < numPoints; ptId++)
     {
     points->GetPoint(ptId,x);
-    if ( (tetra[0] = FindTetra(x,pts,tetra[0],Mesh,points,tol)) >= 0 )
+    if ( (tetra[0] = FindTetra(x,pts,tetra[1],Mesh,points,tol)) >= 0 )
       {
-      //delete this triangle; create three new tetras
-      //first triangle is replaced with one of the new ones
-      nodes[0][0] = ptId; nodes[0][1] = pts[0]; nodes[0][2] = pts[1];
-      Mesh->RemoveReferenceToCell(pts[2], tetra[0]);
-      Mesh->ReplaceCell(tetra[0], 3, nodes[0]);
+      //delete this tetra; create four new tetras
+      //first tetra is replaced with one of the new ones
+      nodes[0][0] = ptId; nodes[0][1] = pts[0]; 
+      nodes[0][2] = pts[1]; nodes[0][3] = pts[2];
+      Mesh->RemoveReferenceToCell(pts[3], tetra[0]);
+      Mesh->ReplaceCell(tetra[0], 4, nodes[0]);
       Mesh->ResizeCellList(ptId,1);
       Mesh->AddReferenceToCell(ptId,tetra[0]);
 
-      //create two new tetras
-      nodes[1][0] = ptId; nodes[1][1] = pts[1]; nodes[1][2] = pts[2];
-      tetra[1] = Mesh->InsertNextLinkedCell(VTK_TETRA, 3, nodes[1]);
+      //create three new tetras
+      nodes[1][0] = ptId; nodes[1][1] = pts[1]; 
+      nodes[1][2] = pts[2]; nodes[1][3] = pts[3];
+      tetra[1] = Mesh->InsertNextLinkedCell(VTK_TETRA, 4, nodes[1]);
 
-      nodes[2][0] = ptId; nodes[2][1] = pts[2]; nodes[2][2] = pts[0];
-      tetra[2] = Mesh->InsertNextLinkedCell(VTK_TETRA, 3, nodes[2]);
+      nodes[2][0] = ptId; nodes[2][1] = pts[2]; 
+      nodes[2][2] = pts[3]; nodes[2][3] = pts[0];
+      tetra[2] = Mesh->InsertNextLinkedCell(VTK_TETRA, 4, nodes[2]);
+
+      nodes[3][0] = ptId; nodes[3][1] = pts[3]; 
+      nodes[3][2] = pts[0]; nodes[3][3] = pts[1];
+      tetra[3] = Mesh->InsertNextLinkedCell(VTK_TETRA, 4, nodes[3]);
 
       // Check face neighbors for Delaunay criterion. If not satisfied, 
       // "swap" face. (This is done recursively.)
@@ -333,11 +370,8 @@ void vtkDelaunay3D::Execute()
 // Finish up by deleting all tetras connected to initial triangulation
 //
   numTetras = Mesh->GetNumberOfCells();
-  if ( !this->BoundingTriangulation || this->Alpha > 0.0 )
-    {
-    triUse = new char[numTetras];
-    for (i=0; i<numTetras; i++) triUse[i] = 1;
-    }
+  tetraUse = new char[numTetras];
+  for (i=0; i<numTetras; i++) tetraUse[i] = 1;
 
   if ( ! this->BoundingTriangulation )
     {
@@ -346,7 +380,7 @@ void vtkDelaunay3D::Execute()
       Mesh->GetPointCells(ptId, cells);
       for (i=0; i < cells.GetNumberOfIds(); i++)
         {
-        triUse[cells.GetId(i)] = 0; //mark as deleted
+        tetraUse[cells.GetId(i)] = 0; //mark as deleted
         }
       }
     }
@@ -385,25 +419,16 @@ void vtkDelaunay3D::Execute()
     output->GetPointData()->PassData(input->GetPointData());
     }
 
-  if ( this->Alpha <= 0.0 && this->BoundingTriangulation )
+  output->Allocate(5*numPoints);
+  for (i=0; i<numTetras; i++)
     {
-//    output->SetPolys(tetras);
-    }
-  else
-    {
-    vtkCellArray *alphaTetras = new vtkCellArray(numTetras);
-    int *triPts;
-
-    for (i=0; i<numTetras; i++)
+    if ( tetraUse[i] )
       {
-      if ( triUse[i] )
-        {
-        Mesh->GetCellPoints(i,npts,triPts);
-        output->InsertNextCell(VTK_TETRA,4,triPts);
-        }
+      Mesh->GetCellPoints(i,npts,tetraPts);
+      output->InsertNextCell(VTK_TETRA,4,tetraPts);
       }
-    delete [] triUse;
     }
+  delete [] tetraUse;
 
   points->Delete();
   delete Mesh;
