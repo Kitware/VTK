@@ -19,7 +19,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.6");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.7");
 
 vtkInteractorObserver::vtkInteractorObserver()
 {
@@ -31,9 +31,9 @@ vtkInteractorObserver::vtkInteractorObserver()
   this->EventCallbackCommand->SetClientData(this); 
   //subclass has to invoke SetCallback()
 
-  this->KeypressCallbackCommand = vtkCallbackCommand::New();
-  this->KeypressCallbackCommand->SetClientData(this); 
-  this->KeypressCallbackCommand->SetCallback(vtkInteractorObserver::ProcessEvents);
+  this->KeyPressCallbackCommand = vtkCallbackCommand::New();
+  this->KeyPressCallbackCommand->SetClientData(this); 
+  this->KeyPressCallbackCommand->SetCallback(vtkInteractorObserver::ProcessEvents);
  
   this->CurrentRenderer = NULL;
   this->OldX = 0;
@@ -47,7 +47,7 @@ vtkInteractorObserver::vtkInteractorObserver()
 vtkInteractorObserver::~vtkInteractorObserver()
 {
   this->EventCallbackCommand->Delete();
-  this->KeypressCallbackCommand->Delete();
+  this->KeyPressCallbackCommand->Delete();
 }
 
 // This adds the keypress event observer and the delete event observer
@@ -62,7 +62,7 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
   if (this->Interactor)
     {
     this->SetEnabled(0); //disable the old interactor
-    this->Interactor->RemoveObserver(this->KeypressCallbackCommand);
+    this->Interactor->RemoveObserver(this->KeyPressCallbackCommand);
     }
 
   this->Interactor = i;
@@ -70,8 +70,10 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
   // add observers for each of the events handled in ProcessEvents
   if (i)
     {
-    i->AddObserver(vtkCommand::CharEvent, this->KeypressCallbackCommand);
-    i->AddObserver(vtkCommand::DeleteEvent, this->KeypressCallbackCommand);
+    i->AddObserver(vtkCommand::CharEvent, 
+                   this->KeyPressCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::DeleteEvent, 
+                   this->KeyPressCallbackCommand, this->Priority);
     }
   
   this->Modified();
@@ -156,7 +158,7 @@ void vtkInteractorObserver::OnChar(int vtkNotUsed(ctrl), int vtkNotUsed(shift),
         {
         this->Off();
         }
-      this->EventCallbackCommand->SetAbortFlag(1);
+      this->KeyPressCallbackCommand->SetAbortFlag(1);
       }
     }//if activation enabled
 }

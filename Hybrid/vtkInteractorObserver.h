@@ -128,7 +128,7 @@ protected:
   
   // Used to process events
   vtkCallbackCommand* EventCallbackCommand; //subclasses use one
-  vtkCallbackCommand* KeypressCallbackCommand; //listens to key activation
+  vtkCallbackCommand* KeyPressCallbackCommand; //listens to key activation
 
   // Priority at which events are processed
   float Priority;
