@@ -53,7 +53,7 @@ int vtkHashMap<KeyType,DataType>::SetItem(const KeyType& key,
 {
   vtkIdType bucket = vtkHashMapHashMethod(key) % this->NumberOfBuckets;
   ItemType item = { key, data };
-  vtkIdType index;
+  vtkIdType index=0;
   
   if(this->Buckets[bucket]->FindItem(item, index) == VTK_OK)
     {
@@ -75,7 +75,7 @@ int vtkHashMap<KeyType,DataType>::RemoveItem(const KeyType& key)
 {
   vtkIdType bucket = vtkHashMapHashMethod(key) % this->NumberOfBuckets;
   ItemType item = { key, DataType() };
-  vtkIdType index;
+  vtkIdType index=0;
   
   if(this->Buckets[bucket]->FindItem(item, index) == VTK_OK)
     {
@@ -103,7 +103,7 @@ int vtkHashMap<KeyType,DataType>::GetItem(const KeyType& key, DataType& data)
 {
   vtkIdType bucket = vtkHashMapHashMethod(key) % this->NumberOfBuckets;
   ItemType item = { key, DataType() };
-  vtkIdType index;
+  vtkIdType index=0;
   
   if(this->Buckets[bucket]->FindItem(item, index) == VTK_OK)
     {

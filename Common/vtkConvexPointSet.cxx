@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.11");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.12");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.
@@ -218,7 +218,7 @@ int vtkConvexPointSet::CellBoundary(int subId, float pcoords[3],
   this->BoundaryTris->Reset();
   this->Triangulator->AddTriangles(this->BoundaryTris);
 
-  vtkIdType npts, *tpts;
+  vtkIdType npts, *tpts=0;
   for ( minDist2=VTK_LARGE_FLOAT, this->BoundaryTris->InitTraversal(); 
         this->BoundaryTris->GetNextCell(npts,tpts); )
     {
