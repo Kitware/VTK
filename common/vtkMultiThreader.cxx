@@ -77,7 +77,11 @@ vtkMultiThreader::vtkMultiThreader()
 #ifdef VTK_USE_PTHREADS
   // Default the number of threads to be the number of available
   // processors if we are using pthreads()
+#ifdef _SC_NPROCESSORS_ONLN
   this->NumberOfThreads             = sysconf( _SC_NPROCESSORS_ONLN );
+#else
+  this->NumberOfThreads             = 1;
+#endif
 #endif
 
 #ifdef _WIN32
