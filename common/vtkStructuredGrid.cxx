@@ -1014,11 +1014,10 @@ unsigned long vtkStructuredGrid::GetActualMemorySize()
 
 
 //----------------------------------------------------------------------------
-void vtkStructuredGrid::InternalUpdate()
+void vtkStructuredGrid::ClipWithUpdateExtent()
 {
   int *uExt, *ext;
 
-  this->vtkDataObject::InternalUpdate();
   uExt = this->GetUpdateExtent();
   ext = this->GetExtent();
   if (uExt[0] > ext[0] || uExt[1] < ext[1] || uExt[2] > ext[2] || 

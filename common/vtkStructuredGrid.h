@@ -191,13 +191,6 @@ public:
   // IS THREAD SAFE.
   unsigned long GetActualMemorySize();
 
-  //BTX
-  // Description:
-  // This method is used internally.  We are overiding the superclass,
-  // because we will clip the data if the source provided too much.
-  void InternalUpdate();
-  //ETX
-
 protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid();
@@ -225,6 +218,9 @@ protected:
   // to the WholeExtent.  It assumes that UpdateInformation has been 
   // called.
   int ClipUpdateExtentWithWholeExtent();
+
+  // This is a helper method that is not used at the moment. (law)
+  void ClipWithUpdateExtent();
 };
 
 
