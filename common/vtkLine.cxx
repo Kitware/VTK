@@ -593,3 +593,11 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
     }
 }
 
+//
+// Compute interpolation functions
+//
+void vtkLine::InterpolationFunctions(float pcoords[3], float weights[2])
+{
+  weights[0] = 1.0 - pcoords[0];
+  weights[1] = pcoords[0];
+}

@@ -113,6 +113,10 @@ public:
                    int dim, float *derivs);
 
   // Description:
+  // Vertex specific methods.
+  static void InterpolationFunctions(float pcoords[3], float weights[1]);
+
+  // Description:
   // For legacy compatibility. Do not use.
   int CellBoundary(int subId, float pcoords[3], vtkIdList &pts)
     {return this->CellBoundary(subId, pcoords, &pts);}

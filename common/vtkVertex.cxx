@@ -267,3 +267,10 @@ void vtkVertex::Clip(float value, vtkScalars *cellScalars,
     }
 
 }
+//
+// Compute interpolation functions
+//
+void vtkVertex::InterpolationFunctions(float pcoords[3], float weights[1])
+{
+  weights[0] = 1.0;
+}
