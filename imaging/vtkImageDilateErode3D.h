@@ -77,7 +77,7 @@ protected:
   float ErodeValue;
   vtkImageRegion *Mask;
     
-  void ExecuteCenter3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

@@ -315,7 +315,7 @@ void vtkImageFilter::Execute(int dim, vtkImageRegion *inRegion,
     }
   // restore the original extent
   inRegion->SetAxisExtent(axis, inMin, inMax);
-  outRegion->SetAxisExtent(axis, outMax, outMax);
+  outRegion->SetAxisExtent(axis, outMin, outMax);
 }
 
 

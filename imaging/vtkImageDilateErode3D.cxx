@@ -282,8 +282,8 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
 // templated function for the input and output region types.
 // This function deals with regions that are in the center of the image and 
 // need no boundary checking.
-void vtkImageDilateErode3D::ExecuteCenter3d(vtkImageRegion *inRegion, 
-						  vtkImageRegion *outRegion)
+void vtkImageDilateErode3D::ExecuteCenter(vtkImageRegion *inRegion, 
+					  vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
   void *outPtr = outRegion->GetScalarPointer();
