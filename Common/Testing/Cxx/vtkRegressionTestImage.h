@@ -15,12 +15,12 @@
 #include "vtkImageResample.h"
 #include "vtkJPEGWriter.h"
 #include "vtkImageShiftScale.h"
-#include "vtkWindow.h"
+#include "vtkRenderWindow.h"
 
 class vtkRegressionTester
 {
 public:
-  static int Test(int argc, char *argv[], vtkWindow *rw, float thresh );
+  static int Test(int argc, char *argv[], vtkRenderWindow *rw, float thresh );
 
   enum ReturnValue {
     FAILED = 0,
@@ -41,7 +41,7 @@ vtkRegressionTester::Test(argc, argv, rw, 10)
 vtkRegressionTester::Test(argc, argv, rw, t)
 
 
-int vtkRegressionTester::Test(int argc, char *argv[], vtkWindow *rw, 
+int vtkRegressionTester::Test(int argc, char *argv[], vtkRenderWindow *rw, 
                               float thresh ) 
 {
   int imageIndex=-1;

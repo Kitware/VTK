@@ -85,6 +85,7 @@ vtkVolumeRayCastMIPFunction
 vtkVolumeRayCastMapper
 vtkVolumeTextureMapper
 vtkVolumeTextureMapper2D
+vtkWindowToImageFilter
 vtkWorldPointPicker
 )
 

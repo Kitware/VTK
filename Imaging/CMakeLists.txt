@@ -103,7 +103,6 @@ vtkSimpleImageFilterExample
 vtkSurfaceReconstructionFilter 
 vtkTriangularTexture
 vtkVoxelModeller
-vtkWindowToImageFilter 
 )
 
 ABSTRACT_FILES(
