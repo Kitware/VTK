@@ -38,27 +38,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkImageAppendComponents.h"
 
 
 
 //----------------------------------------------------------------------------
-vtkImageAppendComponents::vtkImageAppendComponents()
-{
-  this->SetExecutionAxes(VTK_IMAGE_COMPONENT_AXIS,
-			 VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
-}
-
-//----------------------------------------------------------------------------
 // Description:
 // This method tells the ouput it will have more components
 void vtkImageAppendComponents::ExecuteImageInformation()
 {
-  this->Output->SetNumberOfScalarComponents(
-	    this->Inputs[0]->GetNumberOfScalarComponents() 
-	    + this->Inputs[1]->GetNumberOfScalarComponents());
+  this->Output->SetNumberOfScalarComponents
+    (this->Inputs[0]->GetNumberOfScalarComponents() 
+     + this->Inputs[1]->GetNumberOfScalarComponents());
 }
 
 
@@ -67,69 +59,94 @@ void vtkImageAppendComponents::ExecuteImageInformation()
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
-				    vtkImageRegion *in1Region, T *in1Ptr,
-				    vtkImageRegion *in2Region, T *in2Ptr,
-				    vtkImageRegion *outRegion, T *outPtr)
+					    vtkImageData *in1Data, 
+					    T *in1PtrP,
+					    vtkImageData *in2Data, 
+					    T *in2PtrP,
+					    vtkImageData *outData, 
+					    T *outPtrP,
+					    int outExt[6], int id)
 {
-  int minC1, maxC1, minC2, maxC2;
-  int min0, max0, min1, max1;
-  int idxC, idx0, idx1;
-  int in1IncC, in1Inc0, in1Inc1;
-  int in2IncC, in2Inc0, in2Inc1;
-  int outIncC, outInc0, outInc1;
-  T *in1Ptr0, *in1Ptr1;
-  T *in2Ptr0, *in2Ptr1;
-  T *outPtr0, *outPtr1;
-  T *outPtrC;
-  T *inPtrC;
+  int idxC, idxX, idxY, idxZ;
+  int maxC, maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  unsigned long count = 0;
+  unsigned long target;
+  T *outPtr, *inPtr;
   
-  self = self;
-  
-  // Get information to march through data 
-  in1Region->GetIncrements(in1IncC, in1Inc0, in1Inc1);
-  in2Region->GetIncrements(in2IncC, in2Inc0, in2Inc1);
-  in1Region->GetExtent(minC1, maxC1, min0, max0, min1, max1);
-  in2Region->GetExtent(minC2, maxC2);
-  outRegion->GetIncrements(outIncC, outInc0, outInc1);
+  // find the region to loop over
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)(outData->GetNumberOfScalarComponents()*
+			   (maxZ+1)*(maxY+1)/50.0);
+  target++;
 
-  // We should have error checking here.
+  // Get increments to march through data 
+  in1Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   
-  // Loop through pixels
-  in1Ptr1 = in1Ptr;
-  in2Ptr1 = in2Ptr;
-  outPtr1 = outPtr;
-  for (idx1 = min1; idx1 <= max1; ++idx1)
+  // Loop through image 1
+  maxC = in1Data->GetNumberOfScalarComponents();
+  for (idxC = 0; idxC < maxC; idxC++)
     {
-    outPtr0 = outPtr1;
-    in1Ptr0 = in1Ptr1;
-    in2Ptr0 = in2Ptr1;
-    for (idx0 = min0; idx0 <= max0; ++idx0)
+    outPtr = outPtrP + idxC;
+    inPtr = in1PtrP + idxC;
+    for (idxZ = 0; idxZ <= maxZ; idxZ++)
       {
-      outPtrC = outPtr0;
-      // copy input1 components
-      inPtrC = in1Ptr0;
-      for (idxC = minC1; idxC <= maxC1; ++idxC)
+      for (idxY = 0; idxY <= maxY; idxY++)
 	{
-	*outPtrC = *inPtrC;
-	inPtrC += in1IncC;
-	outPtrC += outIncC;
+	if (!id) 
+	  {
+	  if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	  count++;
+	  }
+	for (idxX = 0; idxX <= maxX; idxX++)
+	  {
+	  // Pixel operation
+	  *outPtr = *inPtr;
+	  outPtr += outIncX;
+	  inPtr += inIncX;
+	  }
+	outPtr += outIncY;
+	inPtr += inIncY;
 	}
-      // copy input2 components
-      inPtrC = in2Ptr0;
-      for (idxC = minC2; idxC <= maxC2; ++idxC)
-	{
-	*outPtrC = *inPtrC;
-	inPtrC += in2IncC;
-	outPtrC += outIncC;
-	}
-      
-      outPtr0 += outInc0;
-      in1Ptr0 += in1Inc0;
-      in2Ptr0 += in2Inc0;
+      outPtr += outIncZ;
+      inPtr += inIncZ;
       }
-    outPtr1 += outInc1;
-    in1Ptr1 += in1Inc1;
-    in2Ptr1 += in2Inc1;
+    }
+  outPtrP += maxC;
+  
+  // do image 2
+  in2Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  maxC = in2Data->GetNumberOfScalarComponents();
+  for (idxC = 0; idxC < maxC; idxC++)
+    {
+    outPtr = outPtrP + idxC;
+    inPtr = in2PtrP + idxC;
+    for (idxZ = 0; idxZ <= maxZ; idxZ++)
+      {
+      for (idxY = 0; idxY <= maxY; idxY++)
+	{
+	if (!id) 
+	  {
+	  if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	  count++;
+	  }
+	for (idxX = 0; idxX <= maxX; idxX++)
+	  {
+	  // Pixel operation
+	  *outPtr = *inPtr;
+	  outPtr += outIncX;
+	  inPtr += inIncX;
+	  }
+	outPtr += outIncY;
+	inPtr += inIncY;
+	}
+      outPtr += outIncZ;
+      inPtr += inIncZ;
+      }
     }
 }
 
@@ -139,62 +156,68 @@ static void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageAppendComponents::Execute(vtkImageRegion *inRegion1, 
-				 vtkImageRegion *inRegion2, 
-				 vtkImageRegion *outRegion)
+void vtkImageAppendComponents::ThreadedExecute(vtkImageData **inData, 
+						    vtkImageData *outData,
+						    int outExt[6], int id)
 {
-  void *inPtr1 = inRegion1->GetScalarPointer();
-  void *inPtr2 = inRegion2->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
+  void *in2Ptr = inData[1]->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  // this filter expects that inputs are the same type as output.
-  if (inRegion1->GetScalarType() != outRegion->GetScalarType() ||
-      inRegion2->GetScalarType() != outRegion->GetScalarType())
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+		<< ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData[0]->GetScalarType() != outData->GetScalarType() ||
+      inData[1]->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarTypes, " 
-         << inRegion1->GetScalarType() << " and " << inRegion2->GetScalarType()
-         << ", must match out ScalarType " << outRegion->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << 
+    inData[0]->GetScalarType()
+    << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inRegion1->GetScalarType())
+  switch (inData[0]->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageAppendComponentsExecute(this, 
-			  inRegion1, (float *)(inPtr1), 
-			  inRegion2, (float *)(inPtr2), 
-			  outRegion, (float *)(outPtr));
+      vtkImageAppendComponentsExecute(this, inData[0], 
+				      (float *)(in1Ptr), 
+				      inData[1], (float *)(in2Ptr), 
+				      outData, (float *)(outPtr), 
+				      outExt, id);
       break;
     case VTK_INT:
-      vtkImageAppendComponentsExecute(this, 
-			  inRegion1, (int *)(inPtr1), 
-			  inRegion2, (int *)(inPtr2), 
-			  outRegion, (int *)(outPtr));
+      vtkImageAppendComponentsExecute(this, inData[0], (int *)(in1Ptr), 
+				      inData[1], (int *)(in2Ptr), 
+				      outData, (int *)(outPtr), 
+				      outExt, id);
       break;
     case VTK_SHORT:
-      vtkImageAppendComponentsExecute(this, 
-			  inRegion1, (short *)(inPtr1), 
-			  inRegion2, (short *)(inPtr2), 
-			  outRegion, (short *)(outPtr));
+      vtkImageAppendComponentsExecute(this, inData[0], 
+				      (short *)(in1Ptr), 
+				      inData[1], (short *)(in2Ptr), 
+				      outData, (short *)(outPtr), 
+				      outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageAppendComponentsExecute(this, 
-			  inRegion1, (unsigned short *)(inPtr1), 
-			  inRegion2, (unsigned short *)(inPtr2), 
-			  outRegion, (unsigned short *)(outPtr));
+      vtkImageAppendComponentsExecute(this, inData[0], 
+				      (unsigned short *)(in1Ptr), inData[1], 
+				      (unsigned short *)(in2Ptr), outData, 
+				      (unsigned short *)(outPtr), 
+				      outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageAppendComponentsExecute(this, 
-			  inRegion1, (unsigned char *)(inPtr1), 
-			  inRegion2, (unsigned char *)(inPtr2), 
-			  outRegion, (unsigned char *)(outPtr));
+      vtkImageAppendComponentsExecute(this, inData[0], 
+				      (unsigned char *)(in1Ptr), inData[1], 
+				      (unsigned char *)(in2Ptr), outData, 
+				      (unsigned char *)(outPtr), 
+				      outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
-
 
 
 

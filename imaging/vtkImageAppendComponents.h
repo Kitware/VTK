@@ -56,15 +56,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageAppendComponents : public vtkImageTwoInputFilter
 {
 public:
-  vtkImageAppendComponents();
   static vtkImageAppendComponents *New(){return new vtkImageAppendComponents;};
   const char *GetClassName() {return "vtkImageAppendComponents";};
 
 protected:
   
   void ExecuteImageInformation();
-  void Execute(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
-	       vtkImageRegion *outRegion);
+  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
+		       int extent[6], int id);
 };
 
 #endif

@@ -31,6 +31,7 @@ CONCRETE = \
 vtkBMPWriter \
 vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
+vtkImageAppendComponents \
 vtkImageCanvasSource2D \
 vtkImageCast \
 vtkImageClip \
@@ -43,6 +44,7 @@ vtkImageGaussianSmooth \
 vtkImageGradient \
 vtkImageGradientMagnitude \
 vtkImageHSVToRGB \
+vtkImageIslandRemoval2D \
 vtkImageLogic \
 vtkImageMagnify \
 vtkImageMagnitude \
@@ -68,7 +70,6 @@ vtkTIFFWriter
 
 
 #vtkImageAccumulate \
-#vtkImageAppendComponents \
 #vtkImageButterworthHighPass \
 #vtkImageButterworthLowPass \
 #vtkImageCityBlockDistance \
@@ -93,7 +94,6 @@ vtkTIFFWriter
 #vtkImageHybridMedian2D \
 #vtkImageIdealHighPass \
 #vtkImageIdealLowPass \
-#vtkImageIslandRemoval2D \
 #vtkImageLaplacian \
 #vtkImageLogarithmicScale \
 #vtkImageMIPFilter \

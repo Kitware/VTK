@@ -72,11 +72,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Set/Get which 2 axes will be processed.
-  void SetFilteredAxes(int axis0, int axis1);
-  vtkGetVector2Macro(FilteredAxes, int);
-
-  // Description:
   // Set/Get the cutoff area for removal
   vtkSetMacro(AreaThreshold, int);
   vtkGetMacro(AreaThreshold, int);
@@ -104,9 +99,8 @@ protected:
   int SquareNeighborhood;
   float IslandValue;
   float ReplaceValue;
-  
-  
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
+
+  virtual void Execute(vtkImageData *inData, vtkImageData *outData);
 };
 
 #endif
