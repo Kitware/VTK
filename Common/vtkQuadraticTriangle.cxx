@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.8");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.9");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 // Construct the line with two points.
@@ -292,6 +292,40 @@ int vtkQuadraticTriangle::GetParametricCenter(float pcoords[3])
 {
   pcoords[0] = pcoords[1] = 0.333; pcoords[2] = 0.0;
   return 0;
+}
+
+// Compute maximum parametric distance to cell
+float vtkQuadraticTriangle::GetParametricDistance(float pcoords[3])
+{
+  int i;
+  float pDist, pDistMax=0.0f;
+  float pc[3];
+
+  pc[0] = pcoords[0];
+  pc[1] = pcoords[1];
+  pc[2] = 1.0 - pcoords[0] - pcoords[1];
+
+  for (i=0; i<3; i++)
+    {
+    if ( pc[i] < 0.0 ) 
+      {
+      pDist = -pc[i];
+      }
+    else if ( pc[i] > 1.0 ) 
+      {
+      pDist = pc[i] - 1.0f;
+      }
+    else //inside the cell in the parametric direction
+      {
+      pDist = 0.0;
+      }
+    if ( pDist > pDistMax )
+      {
+      pDistMax = pDist;
+      }
+    }
+  
+  return pDistMax;
 }
 
 // Compute interpolation functions. The first three nodes are the triangle

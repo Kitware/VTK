@@ -92,6 +92,11 @@ public:
   int GetParametricCenter(float pcoords[3]);
 
   // Description:
+  // Return the distance of the parametric coordinate provided to the
+  // cell. If inside the cell, a distance of zero is returned. 
+  float GetParametricDistance(float pcoords[3]);
+
+  // Description:
   // Quadratic triangle specific methods. 
   static void InterpolationFunctions(float pcoords[3], float weights[3]);
   static void InterpolationDerivs(float pcoords[3], float derivs[3]);
