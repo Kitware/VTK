@@ -80,11 +80,18 @@ public:
   // Clean up the table memory.
   static void DeleteTable();
 
+  // Description:
+  // Turn prompt at exit on/off.
+  static void PromptUserOn()  { PromptUser = 1; }
+  static void PromptUserOff() { PromptUser = 0; }
+
 protected:
   vtkDebugLeaks(){}; 
   virtual ~vtkDebugLeaks(){}; 
   vtkDebugLeaks(const vtkDebugLeaks&) {};
   void operator=(const vtkDebugLeaks&) {};
+
+  static int PromptUser;
 
 private:
   static vtkDebugLeaksHashTable* MemoryTable;

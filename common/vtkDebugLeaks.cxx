@@ -45,6 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOutputWindow.h"
 #include "vtkCriticalSection.h"
 
+int vtkDebugLeaks::PromptUser = 1;
+
 // A singleton that prints out the table, and deletes the table.
 class vtkPrintLeaksAtExit
 {
@@ -298,7 +300,6 @@ void vtkDebugLeaks::DestructClass(const char* p)
     DebugLeaksCritSec.Unlock();
     }
 }
-
 void vtkDebugLeaks::PrintCurrentLeaks()
 {
   if(!vtkDebugLeaks::MemoryTable)
@@ -309,7 +310,14 @@ void vtkDebugLeaks::PrintCurrentLeaks()
     {
     return;
     }
-  vtkOutputWindow::GetInstance()->PromptUserOn();
+  if ( vtkDebugLeaks::PromptUser)
+    {
+    vtkOutputWindow::GetInstance()->PromptUserOn();
+    }
+  else
+    {
+    vtkOutputWindow::GetInstance()->PromptUserOff();
+    }
   vtkGenericWarningMacro("vtkDebugLeaks has detected LEAKS!\n ");
   vtkObjectFactory::UnRegisterAllFactories();
   vtkDebugLeaks::MemoryTable->PrintTable();
