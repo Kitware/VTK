@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkXGLProperty.cxx
+  Module:    vtkXglrProperty.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,16 +39,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkXGLRenderWindow.h"
-#include "vtkXGLRenderer.h"
-#include "vtkXGLProperty.h"
+#include "vtkXglrRenderWindow.h"
+#include "vtkXglrRenderer.h"
+#include "vtkXglrProperty.h"
 
 // Description:
 // Implement base class method.
-void vtkXGLProperty::Render(vtkActor *vtkNotUsed(anAct),
+void vtkXglrProperty::Render(vtkActor *vtkNotUsed(anAct),
 			     vtkRenderer *aren)
 {
-  vtkXGLRenderer *ren = (vtkXGLRenderer *)aren;
+  vtkXglrRenderer *ren = (vtkXglrRenderer *)aren;
   int method, line_method, twoSidedLighting;
   Xgl_ctx *context;
   Xgl_color_rgb diffuseColor;
@@ -189,7 +189,7 @@ void vtkXGLProperty::Render(vtkActor *vtkNotUsed(anAct),
 void vtkXGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anAct),
 			     vtkRenderer *aren)
 {
-  vtkXGLRenderer *ren = (vtkXGLRenderer *)aren;
+  vtkXglrRenderer *ren = (vtkXglrRenderer *)aren;
   Xgl_ctx *context;
   Xgl_color_rgb diffuseColor;
   Xgl_color_rgb specularColor;
@@ -213,3 +213,9 @@ void vtkXGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anAct),
              XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-this->Opacity,
              NULL);
 }
+
+
+
+
+
+

@@ -57,6 +57,7 @@ class VTK_EXPORT vtkXGLProperty : public vtkProperty
   char *GetClassName() {return "vtkXGLProperty";};
 
   void Render(vtkActor *a, vtkRenderer *ren);
+  void BackfaceRender(vtkActor *a, vtkRenderer *ren);
 };
 
 #endif

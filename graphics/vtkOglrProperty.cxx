@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLProperty.cxx
+  Module:    vtkOglrProperty.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,13 +39,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLProperty.h"
+#include "vtkOglrRenderer.h"
+#include "vtkOglrProperty.h"
+#ifdef _WIN32
+#include <afxwin.h>
+#endif
 #include <GL/gl.h>
 
 // Description:
 // Implement base class method.
-void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
+void vtkOglrProperty::Render(vtkActor *vtkNotUsed(anActor),
 			     vtkRenderer *vtkNotUsed(ren))
 {
   int i;
@@ -57,7 +60,7 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
   glDisable(GL_TEXTURE_2D);
 
   // disable alpha testing (this may have been enabled
-  // by another actor in OpenGLTexture)
+  // by another actor in OglrTexture)
   glDisable (GL_ALPHA_TEST);
 
   glDisable(GL_COLOR_MATERIAL);
@@ -130,7 +133,7 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
 
 // Description:
 // Implement base class method.
-void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
+void vtkOglrProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
 			     vtkRenderer *vtkNotUsed(ren))
 {
   int i;
@@ -171,4 +174,3 @@ void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
   glMaterialfv( Face, GL_SHININESS, Info );
 
 }
-

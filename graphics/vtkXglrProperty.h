@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLProperty.h
+  Module:    vtkXglrProperty.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,23 +38,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkOpenGLProperty - OpenGL property
+// .NAME vtkXglrProperty - Suns XGL property
 // .SECTION Description
-// vtkOpenGLProperty is a concrete implementation of the abstract class 
-// vtkProperty. vtkOpenGLProperty interfaces to the OpenGL rendering library.
+// vtkXglrProperty is a concrete implementation of the abstract class 
+// vtkProperty. vtkXglrProperty interfaces to Suns XGL rendering library.
 
-#ifndef __vtkOpenGLProperty_h
-#define __vtkOpenGLProperty_h
+#ifndef __vtkXglrProperty_h
+#define __vtkXglrProperty_h
 
 #include "vtkProperty.h"
 
-class vtkOpenGLRenderer;
+class vtkXglrRenderer;
 
-class VTK_EXPORT vtkOpenGLProperty : public vtkProperty
+class VTK_EXPORT vtkXglrProperty : public vtkProperty
 {
  public:
-  static vtkOpenGLProperty *New() {return new vtkOpenGLProperty;};
-  char *GetClassName() {return "vtkOpenGLProperty";};
+  static vtkXglrProperty *New() {return new vtkXglrProperty;};
+  char *GetClassName() {return "vtkXglrProperty";};
 
   void Render(vtkActor *a, vtkRenderer *ren);
   void BackfaceRender(vtkActor *a, vtkRenderer *ren);

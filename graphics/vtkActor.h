@@ -91,6 +91,10 @@ class VTK_EXPORT vtkActor : public vtkProp
   void SetProperty(vtkProperty& lut) {this->SetProperty(&lut);};
   vtkProperty *GetProperty();
 
+  void SetBackfaceProperty(vtkProperty *lut);
+  void SetBackfaceProperty(vtkProperty& lut) {this->SetBackfaceProperty(&lut);};
+  vtkProperty *GetBackfaceProperty();
+
   // Description: 
   // Set/Get the texture object to control rendering
   // texture maps.  This will be a vtkTexture object. An actor does
@@ -158,6 +162,7 @@ class VTK_EXPORT vtkActor : public vtkProp
 
 protected:
   vtkProperty *Property; 
+  vtkProperty *BackfaceProperty; 
   vtkTexture *Texture; 
   vtkMapper *Mapper;
   float Scale[3];

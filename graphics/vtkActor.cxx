@@ -53,6 +53,7 @@ vtkActor::vtkActor()
   this->UserMatrix = NULL;
   this->Mapper = NULL;
   this->Property = NULL;
+  this->BackfaceProperty = NULL;
   this->Texture = NULL;
 
   this->Scale[0] = 1.0;
@@ -79,6 +80,7 @@ vtkActor& vtkActor::operator=(const vtkActor& actor)
   this->UserMatrix = actor.UserMatrix;
   this->Mapper = actor.Mapper;
   this->Property = actor.Property;
+  this->BackfaceProperty = actor.BackfaceProperty;
   this->Texture = actor.Texture;
 
   *((vtkProp *)this) = actor;
@@ -148,6 +150,12 @@ void vtkActor::Render(vtkRenderer *ren)
     }
   this->Property->Render(this, ren);
 
+  // render the backface property
+  if (this->BackfaceProperty)
+    {
+    this->BackfaceProperty->BackfaceRender(this, ren);
+    }
+
   // render the texture */
   if (this->Texture) this->Texture->Render(ren);
 
@@ -173,6 +181,20 @@ vtkProperty *vtkActor::GetProperty()
     this->SelfCreatedProperty = 1;
     }
   return this->Property;
+}
+
+void vtkActor::SetBackfaceProperty(vtkProperty *lut)
+{
+  if ( this->BackfaceProperty != lut ) 
+    {
+    this->BackfaceProperty = lut;
+    this->Modified();
+    }
+}
+
+vtkProperty *vtkActor::GetBackfaceProperty()
+{
+  return this->BackfaceProperty;
 }
 
 // Description:

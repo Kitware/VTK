@@ -206,11 +206,11 @@ void vtkXGLRenderer::Render(void)
 
   if ( this->TwoSidedLighting )
     {
-    xgl_object_set(this->Context, XGL_3D_CTX_SURF_FACE_DISTINGUISH, FALSE, 0);
+    xgl_object_set(this->Context, XGL_3D_CTX_SURF_FACE_DISTINGUISH, TRUE, 0);
     }
   else
     {
-    xgl_object_set(this->Context, XGL_3D_CTX_SURF_FACE_DISTINGUISH, TRUE, 0);
+    xgl_object_set(this->Context, XGL_3D_CTX_SURF_FACE_DISTINGUISH, FALSE, 0);
     }
 
   // standard render method 
