@@ -45,7 +45,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindow.h"
 
 // Description:
-// Construct object with initial tolerance of 1/40th of window.
+
+// Construct object with initial tolerance of 1/40th of window. There are no
+// pick methods and picking is performed from the renderer's actors.
 vtkPicker::vtkPicker()
 {
   this->Renderer = NULL;
@@ -79,6 +81,8 @@ vtkPicker::vtkPicker()
   this->EndPickMethod = NULL;
   this->EndPickMethodArgDelete = NULL;
   this->EndPickMethodArg = NULL;
+
+  this->PickFromList = 0;
 }
 
 vtkPicker::~vtkPicker()
@@ -124,9 +128,9 @@ void vtkPicker::MarkPicked(vtkActor *assem, vtkActor *actor, vtkMapper *mapper,
 
   for (i=0; i < 3; i++) this->PickPosition[i] = worldHPosition[i];
   
-  // Invoke pick action if one defined - actor goes first
+  // Invoke pick method if one defined - actor goes first
   actor->Pick();
-  if ( this->StartPickMethod ) (*this->StartPickMethod)(this->StartPickMethodArg);
+  if ( this->PickMethod ) (*this->PickMethod)(this->PickMethodArg);
 }
 
 // Description:
@@ -252,7 +256,9 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   //  camera to selection point) into coordinates of mapper (not
   //  transformed to actors coordinates!  Reduces overall computation!!!).
   //
-  actors = renderer->GetActors();
+  if ( this->PickFromList ) actors = this->GetPickList();
+  else actors = renderer->GetActors();
+  
   this->Transform.PostMultiply();
   for ( actors->InitTraversal(); (actor=actors->GetNextItem()); )
     {
@@ -287,12 +293,12 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 
         this->Transform.Pop();
 
-	//  Have the ray endpoints in mapper space, now need to compare this
-	//  with the mapper bounds to see whether intersection is possible.
-	//
-	//  Get the bounding box of the modeller.  Note that the tolerance is
-	//  added to the bounding box to make sure things on the edge of the
-	//  bounding box are picked correctly.
+        //  Have the ray endpoints in mapper space, now need to compare this
+        //  with the mapper bounds to see whether intersection is possible.
+        //
+        //  Get the bounding box of the modeller.  Note that the tolerance is
+        //  added to the bounding box to make sure things on the edge of the
+        //  bounding box are picked correctly.
         bounds = mapper->GetBounds();
         if ( vtkCell::HitBBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
           {
@@ -313,8 +319,8 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 
 // Intersect data with specified ray.
 void vtkPicker::IntersectWithLine(float p1[3], float p2[3], 
-				  float vtkNotUsed(tol), vtkActor *assem, 
-				  vtkActor *actor, vtkMapper *mapper)
+                                  float vtkNotUsed(tol), vtkActor *assem, 
+                                  vtkActor *actor, vtkMapper *mapper)
 {
   int i;
   float *center, t, ray[3], rayFactor;
@@ -443,9 +449,45 @@ void vtkPicker::SetEndPickMethodArgDelete(void (*f)(void *))
     }
 }
 
+// Description:
+// Initialize list of actors in pick list.
+void vtkPicker::InitializePickList()
+{
+  this->Modified();
+  this->PickList.RemoveAllItems();
+}
+
+// Description:
+// Add an actor to the pick list.
+void vtkPicker::AddPickList(vtkActor *a)
+{
+  this->Modified();
+  this->PickList.AddItem(a);
+}
+
+// Description:
+// Delete an actor from the pick list.
+void vtkPicker::DeletePickList(vtkActor *a)
+{
+  this->Modified();
+  this->PickList.RemoveItem(a);
+}
+
 void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);
+
+  if ( this->PickFromList ) os << indent << "Picking from list\n";
+  else os << indent << "Picking from renderer's actor list\n";
+
+  if ( this->StartPickMethod ) os << indent << "Start PickMethod defined\n";
+  else os << indent <<"No Start PickMethod\n";
+
+  if ( this->PickMethod ) os << indent << " PickMethod defined\n";
+  else os << indent << "No  PickMethod\n";
+
+  if ( this->EndPickMethod ) os << indent << "End PickMethod defined\n";
+  else os << indent << "No End PickMethod\n";
 
   os << indent << "Renderer: " << this->Renderer << "\n";
 
@@ -468,14 +510,5 @@ void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Actor: " << this->Actor << "\n";
 
   os << indent << "Mapper: " << this->Mapper << "\n";
-
-  if ( this->StartPickMethod ) os << indent << "Start PickMethod defined\n";
-  else os << indent <<"No Start PickMethod\n";
-
-  if ( this->PickMethod ) os << indent << " PickMethod defined\n";
-  else os << indent << "No  PickMethod\n";
-
-  if ( this->EndPickMethod ) os << indent << "End PickMethod defined\n";
-  else os << indent << "No End PickMethod\n";
 
 }
