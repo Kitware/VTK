@@ -97,7 +97,13 @@ namespace eval ::vtk {
         # Find the interactor, create a generic one if needed.
 
         if {[$renwin GetInteractor] == ""} {
-            set iren [vtkGenericRenderWindowInteractor ${renwin}_iren]
+            # the duh is critical in the follwing line, it causes 
+            # vtkTclUtil.cxx to know that the object was created in
+            # a Tcl script, otherwise if ${renwin} was a return value
+            # from a C++ function it would be called vtkTemp### and
+            # the interactor instance would have the same name causeing Tcl
+            # to think it also was a C++ return value. 
+            set iren [vtkGenericRenderWindowInteractor duh_${renwin}_iren]
             $iren SetRenderWindow $renwin
             $iren Initialize
         }
@@ -157,9 +163,9 @@ namespace eval ::vtk {
     # Check if some events are pending, and abort render in that case
 
     proc cb_renwin_abort_check_event {renwin} {
-#        if {[$renwin GetEventPending] != 0} {    
-#            $renwin SetAbortRender 1        
-#        }                                   
+        if {[$renwin GetEventPending] != 0} {    
+            $renwin SetAbortRender 1        
+        }                                   
     }
 
     # Add the above observers to a vtkRenderWindow
