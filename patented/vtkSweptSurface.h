@@ -191,6 +191,7 @@ private:
   vtkFloatScalars *VoxelScalars;
   vtkTransform *T;
 
+  void GetRelativePosition(vtkTransform &t, float *origin, float *position);
 };
 
 #endif

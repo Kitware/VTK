@@ -121,7 +121,8 @@ void vtkSweptSurface::Execute()
   vtkActor a; //use the actor to do position/orientation stuff
   vtkTransform *transform1, *transform2, t;
   float time;
-  float position[3], position1[3], position2[3];
+// position2 is [4] for GetPoint() call
+  float position[3], position1[3], position2[4]; 
   float orient[3], orient1[3], orient2[3];
   float origin[3], spacing[3], bbox[24];
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
@@ -160,6 +161,15 @@ void vtkSweptSurface::Execute()
   output->SetDimensions(this->SampleDimensions);
   this->ComputeBounds(origin, spacing, bbox);
 
+  // Get/Set the origin for the actor... for handling case when the input
+  // is not centered at 0,0,0
+  float *bounds = input->GetBounds();
+  a.SetOrigin( (bounds[0]+bounds[1])/2.0,  
+	       (bounds[2]+bounds[3])/2.0,
+	       (bounds[4]+bounds[5])/2.0 );
+  float *actorOrigin = a.GetOrigin();
+
+
   input->GetDimensions(inDim);
   input->GetSpacing(inSpacing);
   input->GetOrigin(inOrigin);
@@ -179,7 +189,7 @@ void vtkSweptSurface::Execute()
   transform2 = this->Transforms->GetNextItem();
   transform2->GetInverse(t.GetMatrix());
 
-  t.GetPosition(position2[0], position2[1], position2[2]);
+  this->GetRelativePosition(t,actorOrigin,position2);
   t.GetOrientation(orient2[0], orient2[1], orient2[2]);
 
   for (transNum=0; transNum < (numTransforms-1); transNum++)
@@ -187,6 +197,7 @@ void vtkSweptSurface::Execute()
     transform1 = transform2;
     transform2 = this->Transforms->GetNextItem();
     transform2->GetInverse(t.GetMatrix());
+
 //
 // Loop over all points (i.e., voxels), transform into input coordinate system,
 // and obtain interpolated value. Then perform union operation.  
@@ -206,7 +217,9 @@ void vtkSweptSurface::Execute()
       position1[i] = position2[i];
       orient1[i] = orient2[i];
       }
-    t.GetPosition(position2[0], position2[1], position2[2]);
+
+    t.PreMultiply();
+    this->GetRelativePosition(t,actorOrigin,position2);
     t.GetOrientation(orient2[0], orient2[1], orient2[2]);
 
     vtkDebugMacro(<<"Injecting " << numSteps << " steps between transforms "
@@ -589,3 +602,16 @@ void vtkSweptSurface::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+
+void vtkSweptSurface::GetRelativePosition(vtkTransform &t,float *origin,
+					  float *position)
+{
+  t.PostMultiply();
+  // get position relative to the origin (of the geometry)
+  t.SetPoint( origin[0], origin[1], origin[2], 1.0f);
+  t.GetPoint( position );
+  position[0] -= origin[0];
+  position[1] -= origin[1];
+  position[2] -= origin[2];
+  t.PreMultiply();
+}
