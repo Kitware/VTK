@@ -299,6 +299,19 @@ void vtkDataSetAttributes::PassData(vtkDataSetAttributes* pd)
 }
 
 // Description:
+// Pass entire arrays of input data through to output. Obey the "copy"
+// flags. Only passes the data if the output attribute is NULL (i.e., not set).
+void vtkDataSetAttributes::PassNoReplaceData(vtkDataSetAttributes* pd)
+{
+  if ( this->CopyScalars && !this->Scalars ) this->SetScalars(pd->GetScalars());
+  if ( this->CopyVectors && !this->Vectors ) this->SetVectors(pd->GetVectors());
+  if ( this->CopyNormals && !this->Normals ) this->SetNormals(pd->GetNormals());
+  if ( this->CopyTCoords && !this->TCoords ) this->SetTCoords(pd->GetTCoords());
+  if ( this->CopyTensors && !this->Tensors ) this->SetTensors(pd->GetTensors());
+  if ( this->CopyFieldData && !this->FieldData ) this->SetFieldData(pd->GetFieldData());
+}
+
+// Description:
 // Allocates point data for point-by-point (or cell-by-cell) copy operation.  
 // If sze=0, then use the input DataSetAttributes to create (i.e., find 
 // initial size of) new objects; otherwise use the sze variable.

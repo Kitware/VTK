@@ -73,6 +73,10 @@ public:
   // pass thru all input data to output
   void PassData(vtkDataSetAttributes* pd);
 
+  // pass thru all input data to output. Only attribute data that is not
+  // already set is passed.
+  void PassNoReplaceData(vtkDataSetAttributes* pd);
+
   // use to copy data on a point by point basis
   void CopyAllocate(vtkDataSetAttributes* pd, int sze=0, int ext=1000);
   void CopyData(vtkDataSetAttributes *fromPd, int fromId, int toId);
