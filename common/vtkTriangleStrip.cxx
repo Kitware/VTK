@@ -312,7 +312,7 @@ void vtkTriangleStrip::Clip(float value, vtkFloatScalars *cellScalars,
                             int insideOut)
 {
   int i;
-  vtkFloatScalars triScalars(2); triScalars.ReferenceCountingOff();
+  vtkFloatScalars triScalars(3); triScalars.ReferenceCountingOff();
   static vtkTriangle tri;
 
   for ( i=0; i < this->Points.GetNumberOfPoints()-2; i++)
