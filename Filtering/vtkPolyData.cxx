@@ -32,7 +32,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.3");
+vtkCxxRevisionMacro(vtkPolyData, "1.4");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -1355,6 +1355,11 @@ int vtkPolyData::InsertNextCell(int type, vtkIdList *pts)
     case VTK_TRIANGLE_STRIP:
       this->Strips->InsertNextCell(pts);
       id = this->Cells->InsertNextCell(type, this->Strips->GetInsertLocation(npts));
+      break;
+
+    case VTK_EMPTY_CELL:
+      id = -1;
+      // do nothing
       break;
 
     default:
