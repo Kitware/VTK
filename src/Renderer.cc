@@ -63,12 +63,22 @@ vlCamera *vlRenderer::GetActiveCamera()
 
 void vlRenderer::AddLights(vlLight *light)
 {
-  this->Lights.AddMember(light);
+  this->Lights.AddItem(light);
 }
 
 void vlRenderer::AddActors(vlActor *actor)
 {
-  this->Actors.AddMember(actor);
+  this->Actors.AddItem(actor);
+}
+
+void vlRenderer::RemoveLights(vlLight *light)
+{
+  this->Lights.RemoveItem(light);
+}
+
+void vlRenderer::RemoveActors(vlActor *actor)
+{
+  this->Actors.RemoveItem(actor);
 }
 
 void vlRenderer::DoLights()
@@ -123,9 +133,9 @@ void vlRenderer::ResetCamera()
   all_bounds[1] = all_bounds[3] = all_bounds[5] = -LARGE_FLOAT;
   
   // loop through actors 
-  for (num = 1; num <= this->Actors.GetNumberOfMembers(); num++)
+  for (num = 1; num <= this->Actors.GetNumberOfItems(); num++)
     {
-    anActor = this->Actors.GetMember(num);
+    anActor = this->Actors.GetItem(num);
  
     // if it's invisible, we can skip the rest 
     if ( anActor->GetVisibility() )

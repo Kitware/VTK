@@ -36,7 +36,11 @@ public:
   vlRenderWindow();
   char *GetClassName() {return "vlRenderWindow";};
   void PrintSelf(ostream& os, vlIndent indent);
+
   void AddRenderers(vlRenderer *);
+  void RemoveRenderers(vlRenderer *);
+  vlRendererCollection *GetRenderers() {return &(this->Renderers);};
+
   virtual void Render();
   virtual void Frame() = 0;
   virtual void Start() = 0;

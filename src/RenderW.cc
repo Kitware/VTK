@@ -44,7 +44,13 @@ void vlRenderWindow::AddRenderers(vlRenderer *ren)
 {
   // we are its parent 
   ren->SetRenderWindow(this);
-  this->Renderers.AddMember(ren);
+  this->Renderers.AddItem(ren);
+}
+
+void vlRenderWindow::RemoveRenderers(vlRenderer *ren)
+{
+  // we are its parent 
+  this->Renderers.RemoveItem(ren);
 }
 
 void vlRenderWindow::SetSize(int a[2])

@@ -50,6 +50,10 @@ public:
 
   void AddLights(vlLight *);
   void AddActors(vlActor *);
+  void RemoveLights(vlLight *);
+  void RemoveActors(vlActor *);
+  vlLightCollection *GetLights() {return &(this->Lights);};
+  vlActorCollection *GetActors() {return &(this->Actors);};
   void SetActiveCamera(vlCamera *);
   vlCamera *GetActiveCamera();
 
