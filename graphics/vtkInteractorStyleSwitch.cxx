@@ -116,6 +116,8 @@ void vtkInteractorStyleSwitch::OnChar(int ctrl, int shift,
 //----------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::OnMouseMove(int ctrl, int shift, int x, int y) 
 {
+  // Call the parent so the LastPos is set
+  vtkInteractorStyle::OnMouseMove(ctrl, shift, x, y);
   if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
       this->CameraOrActor == VTKIS_CAMERA)
     {
