@@ -221,7 +221,7 @@ void vtkInteractorStyleTrackballActor::RotateXY(int x, int y, int oldX,
     delete [] rotate[1];
     delete [] rotate;
     
-    this->CurrentRenderer->ResetCameraClippingRange();
+    this->ResetCameraClippingRange();
     rwi->Render();
     }
 }
@@ -390,7 +390,7 @@ void vtkInteractorStyleTrackballActor::SpinXY(int x, int y, int oldX, int oldY)
   delete [] rotate[0];
   delete [] rotate;
   
-  this->CurrentRenderer->ResetCameraClippingRange();
+  this->ResetCameraClippingRange();
   rwi->Render();
 }
 
@@ -425,7 +425,7 @@ void vtkInteractorStyleTrackballActor::ScaleXY(int vtkNotUsed(x), int y,
                         this->ObjCenter,
                         0, rotate, scale);
   
-  this->CurrentRenderer->ResetCameraClippingRange();
+  this->ResetCameraClippingRange();
   rwi->Render();
 }
 

@@ -288,7 +288,7 @@ void vtkInteractorStyleFlight::JumpTo(double campos[3], double focpos[3]) {
       {
         this->CurrentCamera->SetViewUp(this->FixedUpVector);
       }
-    this->CurrentRenderer->ResetCameraClippingRange();
+    this->ResetCameraClippingRange();
     // Make sure light follows camera if desired
     vtkRenderWindowInteractor *rwi = this->Interactor;
     if (rwi->GetLightFollowCamera()) 
@@ -357,7 +357,7 @@ void vtkInteractorStyleFlight::OnTimer(void) {
               {
                 this->CurrentCamera->SetViewUp(this->FixedUpVector);
               }
-            this->CurrentRenderer->ResetCameraClippingRange();
+            this->ResetCameraClippingRange();
             // Make sure light follows camera if desired
             if (rwi->GetLightFollowCamera()) 
               {

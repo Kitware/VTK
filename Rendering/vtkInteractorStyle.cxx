@@ -77,6 +77,8 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->CtrlKey  = 0;
   this->ShiftKey = 1;
 
+  this->AutoAdjustCameraClippingRange = 1;
+  
   this->LeftButtonPressTag = 0;
   this->LeftButtonReleaseTag = 0;
   this->MiddleButtonPressTag = 0;
@@ -1140,9 +1142,20 @@ void vtkInteractorStyle::ComputeWorldToDisplay(double x, double y,
   this->CurrentRenderer->GetDisplayPoint(displayPt);
 }
 
+// Reset the camera clipping range only if AutoAdjustCameraClippingRange 
+// is on.
+void vtkInteractorStyle::ResetCameraClippingRange()
+{
+  if ( this->AutoAdjustCameraClippingRange )
+    {
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
+}
+
 //----------------------------------------------------------------------------
 // Implementations of Joystick Camera/Actor motions follow
 //----------------------------------------------------------------------------
+
 
 // This functionality of RotateCamera, SpinCamera, PanCamera, and DollyCamera
 // is now handled by vtkInteractorStyleJoystickCamera.
@@ -1156,7 +1169,7 @@ void vtkInteractorStyle::RotateCamera(int x, int y)
   this->CurrentCamera->Azimuth(rxf);
   this->CurrentCamera->Elevation(ryf);
   this->CurrentCamera->OrthogonalizeViewUp();
-  this->CurrentRenderer->ResetCameraClippingRange();
+  this->ResetCameraClippingRange();
   if (rwi->GetLightFollowCamera())
     {
     this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
@@ -1251,7 +1264,7 @@ void vtkInteractorStyle::DollyCamera(int vtkNotUsed(x), int y)
   else
     {
     this->CurrentCamera->Dolly(zoomFactor);
-    this->CurrentRenderer->ResetCameraClippingRange();
+    this->ResetCameraClippingRange();
     }
 
   if (rwi->GetLightFollowCamera())

@@ -635,6 +635,6 @@ void vtkInteractorStyleUnicam::MyTranslateCamera(float v[3])
   this->CurrentCamera->SetPosition  (newP);
   this->CurrentCamera->SetFocalPoint(newF);
 
-  this->CurrentRenderer->ResetCameraClippingRange();
+  this->ResetCameraClippingRange();
 }
 

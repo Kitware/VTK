@@ -141,6 +141,17 @@ public:
   vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
 
   // Description:
+  // If AutoAdjustCameraClippingRange is on, then before each render the
+  // camera clipping range will be adjusted to "fit" the whole scene. Clipping
+  // will still occur if objects in the scene are behind the camera or
+  // come very close. If AutoAdjustCameraClippingRange is off, no adjustment
+  // will be made per render, but the camera clipping range will still
+  // be reset when the camera is reset.
+  vtkSetClampMacro( AutoAdjustCameraClippingRange, int, 0, 1 );
+  vtkGetMacro( AutoAdjustCameraClippingRange, int );
+  vtkBooleanMacro( AutoAdjustCameraClippingRange, int );
+  
+  // Description:
   // When an event occurs, we must determine which Renderer the event
   // occurred within, since one RenderWindow may contain multiple
   // renderers. We also need to know what camera to operate on.
@@ -214,6 +225,10 @@ protected:
   vtkInteractorStyle();
   ~vtkInteractorStyle();
 
+  // Will the clipping range be automatically adjust before each render?
+  int AutoAdjustCameraClippingRange;
+  void ResetCameraClippingRange();
+  
   // convenience methods for converting between coordinate systems
   virtual void ComputeDisplayToWorld(double x, double y, double z,
                                      double *worldPt);

@@ -85,6 +85,29 @@ vtkInteractorStyleSwitch::~vtkInteractorStyleSwitch()
   this->TrackballCamera = NULL;
 }
 
+void vtkInteractorStyleSwitch::SetAutoAdjustCameraClippingRange( int value )
+{
+  if ( value == this->AutoAdjustCameraClippingRange )
+    {
+    return;
+    }
+  
+  if ( value < 0 || value > 1 )
+    {
+    vtkErrorMacro("Value must be between 0 and 1 for" <<
+                  " SetAutoAdjustCameraClippingRange");
+    return;
+    }
+  
+  this->AutoAdjustCameraClippingRange = value;
+  this->JoystickActor->SetAutoAdjustCameraClippingRange( value );
+  this->JoystickCamera->SetAutoAdjustCameraClippingRange( value );
+  this->TrackballActor->SetAutoAdjustCameraClippingRange( value );
+  this->TrackballCamera->SetAutoAdjustCameraClippingRange( value );
+  
+  this->Modified();
+}
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyleSwitch::OnChar(int ctrl, int shift, 
                                       char keycode,

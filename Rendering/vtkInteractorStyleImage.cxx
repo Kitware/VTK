@@ -191,7 +191,7 @@ void vtkInteractorStyleImage::DollyXY(int vtkNotUsed(dx), int dy)
   else
     {
     cam->Dolly(zoomFactor);
-    this->CurrentRenderer->ResetCameraClippingRange();
+    this->ResetCameraClippingRange();
     }
   
   vtkRenderWindowInteractor *rwi = this->Interactor;

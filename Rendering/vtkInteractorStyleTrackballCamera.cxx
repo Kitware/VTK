@@ -125,7 +125,7 @@ void vtkInteractorStyleTrackballCamera::RotateXY(int dx, int dy)
   cam->Azimuth(rxf);
   cam->Elevation(ryf);
   cam->OrthogonalizeViewUp();
-  this->CurrentRenderer->ResetCameraClippingRange();
+  this->ResetCameraClippingRange();
   vtkRenderWindowInteractor *rwi = this->Interactor;
   if (this->CurrentLight)
     {
@@ -208,7 +208,7 @@ void vtkInteractorStyleTrackballCamera::DollyXY(int vtkNotUsed(dx), int dy)
   else
     {
     cam->Dolly(zoomFactor);
-    this->CurrentRenderer->ResetCameraClippingRange();
+    this->ResetCameraClippingRange();
     }
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
