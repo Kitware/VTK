@@ -7,8 +7,8 @@ if {[info commands vtkObject] != "" ||
     # Invoke DeleteAllObjects on exit
 
     rename ::exit ::vtk::exit
-    proc ::exit {} {
+    proc ::exit {{returnCode 0}} {
         vtkCommand DeleteAllObjects
-        return [::vtk::exit]
+        return [::vtk::exit $returnCode]
     }
 }
