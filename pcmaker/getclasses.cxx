@@ -768,7 +768,7 @@ void makeMakefiles(CPcmakerDlg *vals)
 
   SetupDepends(vals, 2); // 2 does both Debug and not for now...
 
-  // tcl and/or jave makefile made (called form) makeNonIncrementalMakefile()
+  // tcl and/or java makefile made (called form) makeNonIncrementalMakefile()
   if (vals->m_MSComp)
     {
     makeIncrementalMakefiles(vals,doAddedValue,0);  // non-debug
@@ -843,7 +843,7 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int doAddedValue, int debugFlag
 
   // Java?
   if (strlen(vals->m_WhereJDK) > 1)
-    fprintf(fp,"vtkJaveLib ");
+    fprintf(fp,"vtkJavaLib ");
 
   // always TCL.. but last
   fprintf(fp,"vtkTclLib\n\n");
