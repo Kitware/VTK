@@ -32,9 +32,10 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.28");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.29");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
+vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkInterpolatedVelocityField);
 
 const double vtkStreamTracer::EPSILON = 1.0E-12;
 
@@ -72,12 +73,15 @@ vtkStreamTracer::vtkStreamTracer()
   this->LastUsedTimeStep = 0.0;
 
   this->GenerateNormalsInIntegrate = 1;
+
+  this->InterpolatorPrototype = 0;
 }
 
 vtkStreamTracer::~vtkStreamTracer()
 {
   this->SetIntegrator(0);
   this->SetInputVectorsSelection(0);
+  this->SetInterpolatorPrototype(0);
 }
 
 void vtkStreamTracer::SetSource(vtkDataSet *source)
@@ -561,7 +565,15 @@ int vtkStreamTracer::CheckInputs(vtkInterpolatedVelocityField*& func,
                                  int* maxCellSize)
 {
   // Set the function set to be integrated
-  func = vtkInterpolatedVelocityField::New();
+  if (!this->InterpolatorPrototype)
+    {
+    func = vtkInterpolatedVelocityField::New();
+    }
+  else
+    {
+    func = this->InterpolatorPrototype->NewInstance();
+    func->CopyParameters(this->InterpolatorPrototype);
+    }
   func->SelectVectors(this->InputVectorsSelection);
  
   // Add all the inputs ( except source, of course ) which
