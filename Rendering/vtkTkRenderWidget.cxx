@@ -128,7 +128,7 @@ extern "C" {
 #define VTKIMAGEDATATOTKPHOTO_CORONAL 0
 #define VTKIMAGEDATATOTKPHOTO_SAGITTAL 1
 #define VTKIMAGEDATATOTKPHOTO_TRANSVERSE 2
-  int vtkImageDataToTkPhoto_Cmd (ClientData clientData, Tcl_Interp *interp, 
+  int vtkImageDataToTkPhoto_Cmd (ClientData vtkNotUsed(clientData), Tcl_Interp *interp, 
                                  int argc, char **argv)
   {
     int status = 0;
@@ -157,7 +157,7 @@ extern "C" {
 #ifdef VTK_PYTHON_BUILD
     void *ptr;
     char typeCheck[128];
-    int i = sscanf ( argv[1], "_%lx_%s", (long *)&ptr, typeCheck);
+    sscanf ( argv[1], "_%lx_%s", (long *)&ptr, typeCheck);
     if ( strcmp ( "vtkImageData", typeCheck ) != 0 )
       {
       // bad type
@@ -165,7 +165,8 @@ extern "C" {
       }
     image = (vtkImageData*) ptr;
 #else
-    image = (vtkImageData*) vtkTclGetPointerFromObject ( argv[1], "vtkImageData", interp, status );
+    image = (vtkImageData*) vtkTclGetPointerFromObject ( argv[1], 
+                                                         "vtkImageData", interp, status );
 #endif
     if ( !image )
       {
@@ -279,6 +280,14 @@ extern "C" {
             * ( extent[3] - extent[2] + 1 );
           }
         break;
+        }
+      default:
+        {
+        TempPointer = 0;
+        block.width = 0;
+        block.height = 0;
+        block.pixelSize = 0;
+        block.pitch = 0;
         }
       }
 
