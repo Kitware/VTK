@@ -1,3 +1,4 @@
+catch {load vtktcl}
 # Simple viewer for images.
 
 
@@ -22,46 +23,46 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 # Image pipeline
 
 # Make the WorkSpace
-vtkImageDraw canvas;
+vtkImageDraw canvas
 canvas SetScalarType $VTK_SHORT
-canvas SetExtent 0 550 0 550;
-canvas SetDrawValue 0;
-canvas FillBox 0 550 0 550;
-canvas SetDrawValue 500;
-canvas FillBox 10 500 50 100;
-canvas FillBox 100 150 50 350;
-canvas FillBox 300 500 50 500;
+canvas SetExtent 0 550 0 550
+canvas SetDrawValue 0
+canvas FillBox 0 550 0 550
+canvas SetDrawValue 500
+canvas FillBox 10 500 50 100
+canvas FillBox 100 150 50 350
+canvas FillBox 300 500 50 500
 
 
 # Make the state space (and robot)
-vtkImage2DRobotSpace space;
-space SetWorkSpace canvas;
-space SetNumberOfSegments 2;
-space AddSegment 52 -22 0 0;
-space AddSegment 0 0 -52 -22;
+vtkImage2DRobotSpace space
+space SetWorkSpace canvas
+space SetNumberOfSegments 2
+space AddSegment 52 -22 0 0
+space AddSegment 0 0 -52 -22
 
 # show start and goal.
-#space SetDrawValue 50;
+#space SetDrawValue 50
 
-#vtkImageXViewer viewer;
-#viewer SetInput [[space GetCanvas] GetOutput];
-#viewer Render;
+#vtkImageXViewer viewer
+#viewer SetInput [[space GetCanvas] GetOutput]
+#viewer Render
 
 
 
 
 # Set up the path planner
-vtkClaw claw;
-claw SetStateSpace space;
-claw SetStartState 70 90 0;
-claw SetGoalState 140 290 1.5708;
-claw GeneratePath;
-puts "Smoothing ------------------------------------------------";
-#claw DebugOn;
-claw SmoothPath 20;
-#claw SavePath "ClawRobotSmooth.path";
+vtkClaw claw
+claw SetStateSpace space
+claw SetStartState 70 90 0
+claw SetGoalState 140 290 1.5708
+claw GeneratePath
+puts "Smoothing ------------------------------------------------"
+#claw DebugOn
+claw SmoothPath 20
+#claw SavePath "ClawRobotSmooth.path"
 
-space AnimatePath claw;
+space AnimatePath claw
 #exit
 
 

@@ -1,3 +1,4 @@
+catch {load vtktcl}
 # this file replicates definitions in classes for tcl.
 
 set VTK_FLOAT              1

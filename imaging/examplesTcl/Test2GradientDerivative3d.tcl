@@ -1,3 +1,4 @@
+catch {load vtktcl}
 # Compute the second derivative the long way
 
 
@@ -20,43 +21,43 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageSeriesReader reader;
-reader ReleaseDataFlagOff;
-reader SwapBytesOn;
-reader SetDataDimensions 256 256 93;
-reader SetFilePrefix "../../data/fullHead/headsq";
-reader SetPixelMask 0x7fff;
+vtkImageSeriesReader reader
+reader ReleaseDataFlagOff
+reader SwapBytesOn
+reader SetDataDimensions 256 256 93
+reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetPixelMask 0x7fff
 #reader DebugOn
 
-vtkImageGradient gradient;
-gradient SetAxes 0 1 2;
-gradient SetInput [reader GetOutput];
+vtkImageGradient gradient
+gradient SetAxes 0 1 2
+gradient SetInput [reader GetOutput]
 
 vtkImageMagnitude magnitude
-magnitude SetInput [gradient GetOutput];
+magnitude SetInput [gradient GetOutput]
 
-vtkImageGradient gradient2;
-gradient2 SetAxes 0 1 2;
-gradient2 SetInput [magnitude GetOutput];
+vtkImageGradient gradient2
+gradient2 SetAxes 0 1 2
+gradient2 SetInput [magnitude GetOutput]
 
 vtkImageDotProduct dot
-dot SetInput1 [gradient GetOutput];
-dot SetInput2 [gradient2 GetOutput];
+dot SetInput1 [gradient GetOutput]
+dot SetInput2 [gradient2 GetOutput]
 
-vtkImageArithmetic normalize;
-normalize SetInput1 [dot GetOutput];
-normalize SetInput2 [magnitude GetOutput];
+vtkImageArithmetic normalize
+normalize SetInput1 [dot GetOutput]
+normalize SetInput2 [magnitude GetOutput]
 normalize SetOperator 3;    # division
-normalize ReleaseDataFlagOff;
+normalize ReleaseDataFlagOff
 
-vtkImageXViewer viewer;
-viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-viewer SetInput [normalize GetOutput];
-viewer SetCoordinate2 $sliceNumber;
+vtkImageXViewer viewer
+viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
+viewer SetInput [normalize GetOutput]
+viewer SetCoordinate2 $sliceNumber
 viewer SetColorWindow 3000
 viewer SetColorLevel 0
-#viewer DebugOn;
-viewer Render;
+#viewer DebugOn
+viewer Render
 
 
 #make interface
@@ -67,11 +68,11 @@ button .slice.up -text "Slice Up" -command SliceUp
 button .slice.down -text "Slice Down" -command SliceDown
 
 frame .wl
-frame .wl.f1;
-label .wl.f1.windowLabel -text Window;
+frame .wl.f1
+label .wl.f1.windowLabel -text Window
 scale .wl.f1.window -from 1 -to 3000 -orient horizontal -command SetWindow
-frame .wl.f2;
-label .wl.f2.levelLabel -text Level;
+frame .wl.f2
+label .wl.f2.levelLabel -text Level
 scale .wl.f2.level -from -1500 -to 1500 -orient horizontal -command SetLevel
 checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
 
@@ -91,42 +92,42 @@ proc SliceUp {} {
    global sliceNumber viewer
    if {$sliceNumber < 92} {set sliceNumber [expr $sliceNumber + 1]}
    puts $sliceNumber
-   viewer SetCoordinate2 $sliceNumber;
-   viewer Render;
+   viewer SetCoordinate2 $sliceNumber
+   viewer Render
 }
 
 proc SliceDown {} {
    global sliceNumber viewer
    if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
    puts $sliceNumber
-   viewer SetCoordinate2 $sliceNumber;
-   viewer Render;
+   viewer SetCoordinate2 $sliceNumber
+   viewer Render
 }
 
 proc SetWindow window {
    global viewer
-   viewer SetColorWindow $window;
-   viewer Render;
+   viewer SetColorWindow $window
+   viewer Render
 }
 
 proc SetLevel level {
    global viewer
-   viewer SetColorLevel $level;
-   viewer Render;
+   viewer SetColorLevel $level
+   viewer Render
 }
 
 proc SetInverseVideo {} {
    global viewer
    if { $inverseVideo == 0 } {
-      viewer SetWindow -255;
+      viewer SetWindow -255
    } else {
-      viewer SetWindow 255;
+      viewer SetWindow 255
    }		
-   viewer Render;
+   viewer Render
 }
 
 
-puts "Done";
+puts "Done"
 
 
 #$renWin Render
