@@ -225,13 +225,13 @@ protected:
                             void* calldata);
 
   // ProcessEvents() dispatches to these methods.
-  void OnMouseMove();
-  void OnLeftButtonDown();
-  void OnLeftButtonUp();
-  void OnMiddleButtonDown();
-  void OnMiddleButtonUp();
-  void OnRightButtonDown();
-  void OnRightButtonUp();
+  virtual void OnMouseMove();
+  virtual void OnLeftButtonDown();
+  virtual void OnLeftButtonUp();
+  virtual void OnMiddleButtonDown();
+  virtual void OnMiddleButtonUp();
+  virtual void OnRightButtonDown();
+  virtual void OnRightButtonUp();
   
   // the cursor3D
   vtkActor          *Actor;
