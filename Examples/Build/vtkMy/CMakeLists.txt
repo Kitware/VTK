@@ -42,8 +42,6 @@ IF (VTKMY_CAN_BUILD)
   # You can put your include path(s) here
   #
 
-  INCLUDE_DIRECTORIES(${VTKMY_BINARY_DIR}/Common)
-
   INCLUDE_DIRECTORIES(${VTKMY_SOURCE_DIR}/Common)
   INCLUDE_DIRECTORIES (${VTKMY_SOURCE_DIR}/Imaging)
   INCLUDE_DIRECTORIES (${VTKMY_SOURCE_DIR}/Unsorted)
@@ -56,5 +54,19 @@ IF (VTKMY_CAN_BUILD)
   IF (BUILD_EXAMPLES)
     SUBDIRS(Examples)
   ENDIF (BUILD_EXAMPLES)
+
+
+  #
+  # Common configuration settings
+  #
+  # Do not worry about this one.
+  #
+
+  CONFIGURE_FILE(
+    ${VTKMY_SOURCE_DIR}/vtkmyConfigure.h.in 
+    ${VTKMY_BINARY_DIR}/vtkmyConfigure.h
+  )
+
+  INCLUDE_DIRECTORIES(${VTKMY_BINARY_DIR})
 
 ENDIF (VTKMY_CAN_BUILD)

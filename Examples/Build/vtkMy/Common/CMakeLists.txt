@@ -81,14 +81,3 @@ LINK_LIBRARIES (
   vtkmyCommon
   vtkCommon 
 )
-
-#
-# Common configuration settings
-#
-# Do not worry about this one.
-#
-
-CONFIGURE_FILE(
-  ${VTKMY_SOURCE_DIR}/Common/vtkmyConfigure.h.in 
-  ${VTKMY_BINARY_DIR}/Common/vtkmyConfigure.h
-)
