@@ -29,7 +29,7 @@
 #include <math.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.6");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.7");
 vtkStandardNewMacro(vtkParametricFunctionSource);
 
 
@@ -526,6 +526,15 @@ void vtkParametricFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfUPoints: " << this->NumberOfUPoints << "\n";
   os << indent << "NumberOfVPoints: " << this->NumberOfVPoints << "\n";
   os << indent << "NumberOfWPoints: " << this->NumberOfWPoints << "\n";
+
+  if ( this->ParametricFunction )
+    {
+    os << indent << "Parametric Function: " << this->ParametricFunction << "\n";
+    }
+  else
+    {
+    os << indent << "No Parametric function defined\n";
+    }
 
   vtkstd::string s;
   switch ( this->ScalarMode )
