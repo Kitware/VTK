@@ -44,7 +44,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.33");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.34");
 vtkStandardNewMacro(vtkCompositeManager);
 
 vtkCxxSetObjectMacro(vtkCompositeManager,Compositer, vtkCompositer);
@@ -67,6 +67,7 @@ struct vtkCompositeRendererInfo
   float LightPosition[3];
   float LightFocalPoint[3];
   float Background[3];
+  float ParallelScale;
 };
 
 #define vtkInitializeVector3(v) { v[0] = 0; v[1] = 0; v[2] = 0; }
@@ -80,6 +81,7 @@ struct vtkCompositeRendererInfo
   vtkInitializeVector3(r.LightPosition);                \
   vtkInitializeVector3(r.LightFocalPoint);              \
   vtkInitializeVector3(r.Background);                   \
+  r.ParallelScale = 0.0;                                \
   }
   
 
@@ -516,6 +518,11 @@ void vtkCompositeManager::RenderRMI()
       cam->SetFocalPoint(renInfo.CameraFocalPoint);
       cam->SetViewUp(renInfo.CameraViewUp);
       cam->SetClippingRange(renInfo.CameraClippingRange);
+      if (renInfo.ParallelScale != 0.0)
+        {
+        cam->ParallelProjectionOn();
+        cam->SetParallelScale(renInfo.ParallelScale);
+        }
       if (light)
         {
         light->SetPosition(renInfo.LightPosition);
@@ -698,6 +705,10 @@ void vtkCompositeManager::StartRender()
     cam->GetFocalPoint(renInfo.CameraFocalPoint);
     cam->GetViewUp(renInfo.CameraViewUp);
     cam->GetClippingRange(renInfo.CameraClippingRange);
+    if (cam->GetParallelProjection())
+      {
+      renInfo.ParallelScale = cam->GetParallelScale();
+      }
     if (light)
       {
       light->GetPosition(renInfo.LightPosition);
