@@ -62,7 +62,7 @@ set noTest {
     TestSubsample3D.tcl
     TkImageViewerInteractor.tcl TkViewer.tcl TkViewer2.tcl
     TestWriter.tcl Timing.tcl WindowLevelInterface.tcl
-    vtkImageInclude.tcl}
+    vtkImageInclude.tcl rtProcessCPUTimes.tcl CPUTimeTable.tcl}
 
 for {set i 0} {$i < [llength $noTest]} {incr i} {
     if {[set pos [lsearch $files [lindex $noTest $i]]] != -1} {
@@ -100,6 +100,8 @@ proc padString { str amount } {
     return $str
 }
 
+source ../../graphics/examplesTcl/rtProcessCPUTimes.tcl
+ReadCPUTimeTable
 
 # now do the tests
 foreach afile $files {
@@ -224,13 +226,21 @@ foreach afile $files {
     # Put the final passed or failed flag out there.
     # If it failed, say why (Image, Time)
     if { $imageStatus == "Passed" } {
-	puts $logFile "Passed"
+	puts -nonewline $logFile "Passed    "
     } else {
 	puts $logFile "Failed (Image)"
     }
 
-  
+    set retval [CheckTime $afile [string trimleft $CPUTime]]
 
+    if  { $imageStatus == "Passed" } {
+	puts $logFile $retval
+    }
+
+    if { $retval != "" || $imageStatus == "Failed" } {
+	GeneratePlotFiles $afile [string trimleft $CPUTime]
+    }
+    
     vtkCommand DeleteAllObjects
     catch {destroy .top}
     catch {destroy .geo}
