@@ -150,7 +150,7 @@ void vtkCutter::Execute()
   //
   for ( i=0; i < numPts; i++ )
     {
-    s = this->CutFunction->EvaluateFunction(input->GetPoint(i));
+    s = this->CutFunction->FunctionValue(input->GetPoint(i));
     cutScalars->InsertScalar(i,s);
     }
 

@@ -147,7 +147,7 @@ void vtkClipper::Execute()
   //
   for ( i=0; i < numPts; i++ )
     {
-    s = this->ClipFunction->EvaluateFunction(input->GetPoint(i));
+    s = this->ClipFunction->FunctionValue(input->GetPoint(i));
     clipScalars->InsertScalar(i,s);
     }
 
