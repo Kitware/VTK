@@ -52,6 +52,8 @@ main ()
     imp->SetInput(append->GetOutput());
     imp->SetSampleDimensions(50,50,50);
     imp->SetMaximumDistance(0.125);
+    imp->AdjustBoundsOn();
+    imp->SetAdjustDistance(0.125);
 
   // create swept surface
   vtkTransformCollection *transforms = vtkTransformCollection::New();
@@ -66,19 +68,17 @@ main ()
   transforms->AddItem(t1);
   transforms->AddItem(t2);
 
-
   vtkSweptSurface *sweptSurfaceFilter = vtkSweptSurface::New();
     sweptSurfaceFilter->SetInput(imp->GetOutput());
     sweptSurfaceFilter->SetTransforms(transforms);
-    sweptSurfaceFilter->SetSampleDimensions(100,100,100);
-    sweptSurfaceFilter->SetModelBounds(-1.0, 1.0, -1.0, 1.0, -2.0, 3.5);
+    sweptSurfaceFilter->SetSampleDimensions(60,60,100);
     sweptSurfaceFilter->SetNumberOfInterpolationSteps(30);
-    sweptSurfaceFilter->DebugOn();
+    sweptSurfaceFilter->AdjustBoundsOn();
+    sweptSurfaceFilter->SetAdjustDistance(0.5);
 
   vtkContourFilter *iso = vtkContourFilter::New();
     iso->SetInput(sweptSurfaceFilter->GetOutput());
     iso->SetValue(0, 0.075);
-    iso->DebugOn();
 
   vtkPolyDataMapper *sweptSurfaceMapper = vtkPolyDataMapper::New();
     sweptSurfaceMapper->SetInput(iso->GetOutput());
