@@ -143,8 +143,8 @@ public:
 protected:
   vtkSynchronizedTemplates2D();
   ~vtkSynchronizedTemplates2D();
-  vtkSynchronizedTemplates2D(const vtkSynchronizedTemplates2D&) {};
-  void operator=(const vtkSynchronizedTemplates2D&) {};
+  vtkSynchronizedTemplates2D(const vtkSynchronizedTemplates2D&);
+  void operator=(const vtkSynchronizedTemplates2D&);
 
   void Execute();
   vtkContourValues *ContourValues;

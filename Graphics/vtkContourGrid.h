@@ -154,8 +154,8 @@ public:
 protected:
   vtkContourGrid();
   ~vtkContourGrid();
-  vtkContourGrid(const vtkContourGrid&) {};
-  void operator=(const vtkContourGrid&) {};
+  vtkContourGrid(const vtkContourGrid&);
+  void operator=(const vtkContourGrid&);
 
   void Execute();
 

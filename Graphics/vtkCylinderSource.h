@@ -88,8 +88,8 @@ public:
 protected:
   vtkCylinderSource(int res=6);
   ~vtkCylinderSource() {};
-  vtkCylinderSource(const vtkCylinderSource&) {};
-  void operator=(const vtkCylinderSource&) {};
+  vtkCylinderSource(const vtkCylinderSource&);
+  void operator=(const vtkCylinderSource&);
 
   void Execute();
   float Height;

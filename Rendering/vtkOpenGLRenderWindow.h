@@ -170,8 +170,8 @@ public:
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
-  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) {};
-  void operator=(const vtkOpenGLRenderWindow&) {};
+  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);
+  void operator=(const vtkOpenGLRenderWindow&);
 
   vtkIdList *TextureResourceIds;
 };

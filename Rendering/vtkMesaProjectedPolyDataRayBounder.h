@@ -91,7 +91,7 @@ public:
 protected:
   vtkMesaProjectedPolyDataRayBounder();
   ~vtkMesaProjectedPolyDataRayBounder();
-  void operator=(const vtkMesaProjectedPolyDataRayBounder&) {};
+  void operator=(const vtkMesaProjectedPolyDataRayBounder&);
 
   GLuint    DisplayList;
   float     *DepthRangeBuffer;

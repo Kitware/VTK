@@ -83,8 +83,8 @@ public:
 protected:
   vtkPolyDataStreamer();
   ~vtkPolyDataStreamer();
-  vtkPolyDataStreamer(const vtkPolyDataStreamer&) {};
-  void operator=(const vtkPolyDataStreamer&) {};
+  vtkPolyDataStreamer(const vtkPolyDataStreamer&);
+  void operator=(const vtkPolyDataStreamer&);
   
   // Append the pieces.
   void Execute();

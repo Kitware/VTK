@@ -83,8 +83,8 @@ public:
 protected:
   vtkXTextMapper();
   ~vtkXTextMapper() {};
-  vtkXTextMapper(const vtkXTextMapper&) {};
-  void operator=(const vtkXTextMapper&) {};
+  vtkXTextMapper(const vtkXTextMapper&);
+  void operator=(const vtkXTextMapper&);
 
   // Description:
   // Actually get the size of the rectangle.

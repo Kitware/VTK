@@ -85,8 +85,8 @@ public:
  protected:
   vtkFileOutputWindow(); 
   virtual ~vtkFileOutputWindow(); 
-  vtkFileOutputWindow(const vtkFileOutputWindow&) {};
-  void operator=(const vtkFileOutputWindow&) {};
+  vtkFileOutputWindow(const vtkFileOutputWindow&);
+  void operator=(const vtkFileOutputWindow&);
   void Initialize();
   char* FileName;
   ofstream* OStream;

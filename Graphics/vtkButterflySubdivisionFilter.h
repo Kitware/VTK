@@ -82,8 +82,8 @@ public:
  protected:
   vtkButterflySubdivisionFilter () {};
   ~vtkButterflySubdivisionFilter () {};
-  vtkButterflySubdivisionFilter(const vtkButterflySubdivisionFilter&) {};
-  void operator=(const vtkButterflySubdivisionFilter&) {};
+  vtkButterflySubdivisionFilter(const vtkButterflySubdivisionFilter&);
+  void operator=(const vtkButterflySubdivisionFilter&);
 
  private:
   void GenerateSubdivisionPoints(vtkPolyData *inputDS, vtkIntArray *edgeData,

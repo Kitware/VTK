@@ -65,8 +65,8 @@ public:
 protected:
   vtkPNGWriter();
   ~vtkPNGWriter() {};
-  vtkPNGWriter(const vtkPNGWriter&) {};
-  void operator=(const vtkPNGWriter&) {};
+  vtkPNGWriter(const vtkPNGWriter&);
+  void operator=(const vtkPNGWriter&);
   
   void WriteSlice(vtkImageData *data);
 

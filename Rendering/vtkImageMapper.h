@@ -141,8 +141,8 @@ public:
 protected:
   vtkImageMapper();
   ~vtkImageMapper();
-  vtkImageMapper(const vtkImageMapper&) {};
-  void operator=(const vtkImageMapper&) {};
+  vtkImageMapper(const vtkImageMapper&);
+  void operator=(const vtkImageMapper&);
 
   float ColorWindow;
   float ColorLevel;

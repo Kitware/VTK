@@ -144,8 +144,8 @@ public:
 protected:
   vtkActor2D();
   ~vtkActor2D();
-  vtkActor2D(const vtkActor2D&) {};
-  void operator=(const vtkActor2D&) {};
+  vtkActor2D(const vtkActor2D&);
+  void operator=(const vtkActor2D&);
 
   vtkMapper2D *Mapper;
   int LayerNumber;

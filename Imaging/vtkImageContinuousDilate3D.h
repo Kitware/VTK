@@ -74,8 +74,8 @@ public:
 protected:
   vtkImageContinuousDilate3D();
   ~vtkImageContinuousDilate3D();
-  vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&) {};
-  void operator=(const vtkImageContinuousDilate3D&) {};
+  vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&);
+  void operator=(const vtkImageContinuousDilate3D&);
 
   vtkImageEllipsoidSource *Ellipse;
     

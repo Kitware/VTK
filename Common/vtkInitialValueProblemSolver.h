@@ -90,8 +90,8 @@ public:
 protected:
   vtkInitialValueProblemSolver();
   ~vtkInitialValueProblemSolver();
-  vtkInitialValueProblemSolver(const vtkInitialValueProblemSolver&) {};
-  void operator=(const vtkInitialValueProblemSolver&) {};
+  vtkInitialValueProblemSolver(const vtkInitialValueProblemSolver&);
+  void operator=(const vtkInitialValueProblemSolver&);
 
   virtual void Initialize();
 

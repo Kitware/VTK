@@ -71,8 +71,8 @@ public:
 protected:
   vtkImageLaplacian();
   ~vtkImageLaplacian() {};
-  vtkImageLaplacian(const vtkImageLaplacian&) {};
-  void operator=(const vtkImageLaplacian&) {};
+  vtkImageLaplacian(const vtkImageLaplacian&);
+  void operator=(const vtkImageLaplacian&);
 
   int Dimensionality;
 

@@ -71,8 +71,8 @@ public:
 protected:
   vtkOutlineCornerFilter();
   ~vtkOutlineCornerFilter();
-  vtkOutlineCornerFilter(const vtkOutlineCornerFilter&) {};
-  void operator=(const vtkOutlineCornerFilter&) {};
+  vtkOutlineCornerFilter(const vtkOutlineCornerFilter&);
+  void operator=(const vtkOutlineCornerFilter&);
 
   vtkOutlineCornerSource *OutlineCornerSource;
   void Execute();

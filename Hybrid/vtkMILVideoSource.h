@@ -214,8 +214,8 @@ public:
 protected:
   vtkMILVideoSource();
   ~vtkMILVideoSource();
-  vtkMILVideoSource(const vtkMILVideoSource&) {};
-  void operator=(const vtkMILVideoSource&) {};
+  vtkMILVideoSource(const vtkMILVideoSource&);
+  void operator=(const vtkMILVideoSource&);
 
   virtual void AllocateMILDigitizer();
   virtual void AllocateMILBuffer();

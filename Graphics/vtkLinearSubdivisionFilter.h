@@ -66,8 +66,8 @@ public:
 protected:
   vtkLinearSubdivisionFilter () {};
   ~vtkLinearSubdivisionFilter () {};
-  vtkLinearSubdivisionFilter(const vtkLinearSubdivisionFilter&) {};
-  void operator=(const vtkLinearSubdivisionFilter&) {};
+  vtkLinearSubdivisionFilter(const vtkLinearSubdivisionFilter&);
+  void operator=(const vtkLinearSubdivisionFilter&);
 
   void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD);
 

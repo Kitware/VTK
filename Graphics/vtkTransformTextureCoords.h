@@ -122,8 +122,8 @@ public:
 protected:
   vtkTransformTextureCoords();
   ~vtkTransformTextureCoords() {};
-  vtkTransformTextureCoords(const vtkTransformTextureCoords&) {};
-  void operator=(const vtkTransformTextureCoords&) {};
+  vtkTransformTextureCoords(const vtkTransformTextureCoords&);
+  void operator=(const vtkTransformTextureCoords&);
 
   void Execute();
 

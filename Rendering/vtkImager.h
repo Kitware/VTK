@@ -96,8 +96,8 @@ public:
 protected:
   vtkImager();
   ~vtkImager();
-  vtkImager(const vtkImager&) {};
-  void operator=(const vtkImager&) {};
+  vtkImager(const vtkImager&);
+  void operator=(const vtkImager&);
 
   virtual void StartPick(unsigned int pickFromSize);
   virtual void UpdatePickId();

@@ -96,8 +96,8 @@ public:
 protected: 
   vtkTensor();
   ~vtkTensor() {};
-  vtkTensor(const vtkTensor&) {};
-  void operator=(const vtkTensor&) {};
+  vtkTensor(const vtkTensor&);
+  void operator=(const vtkTensor&);
 
   float Storage[9];
 };

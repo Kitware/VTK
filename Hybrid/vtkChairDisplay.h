@@ -80,8 +80,8 @@ public:
 protected:
   vtkChairDisplay();
   ~vtkChairDisplay();
-  vtkChairDisplay(const vtkChairDisplay&) {};
-  void operator=(const vtkChairDisplay&) {};
+  vtkChairDisplay(const vtkChairDisplay&);
+  void operator=(const vtkChairDisplay&);
 
   vtkScalars *Scalars;
   vtkStructuredPoints *TextureOutput;

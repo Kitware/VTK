@@ -94,8 +94,8 @@ public:
 protected:
   vtkImageBlockReader();
   ~vtkImageBlockReader();
-  vtkImageBlockReader(const vtkImageBlockReader&) {};
-  void operator=(const vtkImageBlockReader&) {};
+  vtkImageBlockReader(const vtkImageBlockReader&);
+  void operator=(const vtkImageBlockReader&);
   
   char *FilePattern;
 

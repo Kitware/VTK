@@ -90,8 +90,8 @@ public:
 protected:
   vtkBranchExtentTranslator();
   ~vtkBranchExtentTranslator();
-  vtkBranchExtentTranslator(const vtkBranchExtentTranslator&) {};
-  void operator=(const vtkBranchExtentTranslator&) {};
+  vtkBranchExtentTranslator(const vtkBranchExtentTranslator&);
+  void operator=(const vtkBranchExtentTranslator&);
 
   vtkImageData *OriginalSource;
   int AssignedPiece;

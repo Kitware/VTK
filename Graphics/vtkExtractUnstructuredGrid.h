@@ -148,8 +148,8 @@ public:
 protected:
   vtkExtractUnstructuredGrid();
   ~vtkExtractUnstructuredGrid() {};
-  vtkExtractUnstructuredGrid(const vtkExtractUnstructuredGrid&) {};
-  void operator=(const vtkExtractUnstructuredGrid&) {};
+  vtkExtractUnstructuredGrid(const vtkExtractUnstructuredGrid&);
+  void operator=(const vtkExtractUnstructuredGrid&);
 
   void Execute();
 

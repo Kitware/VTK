@@ -78,8 +78,8 @@ public:
 protected:
   vtkDataSetSurfaceFilter();
   ~vtkDataSetSurfaceFilter();
-  vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&) {};
-  void operator=(const vtkDataSetSurfaceFilter&) {};
+  vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&);
+  void operator=(const vtkDataSetSurfaceFilter&);
 
   int UseStrips;
   

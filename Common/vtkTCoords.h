@@ -130,8 +130,8 @@ public:
 protected:
   vtkTCoords();
   ~vtkTCoords() {};
-  vtkTCoords(const vtkTCoords&) {};
-  void operator=(const vtkTCoords&) {};
+  vtkTCoords(const vtkTCoords&);
+  void operator=(const vtkTCoords&);
   
 };
 

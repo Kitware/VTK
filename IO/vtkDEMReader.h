@@ -138,8 +138,8 @@ public:
 protected:
   vtkDEMReader();
   ~vtkDEMReader();
-  vtkDEMReader(const vtkDEMReader&) {};
-  void operator=(const vtkDEMReader&) {};
+  vtkDEMReader(const vtkDEMReader&);
+  void operator=(const vtkDEMReader&);
 
   vtkTimeStamp ReadHeaderTime;
   int NumberOfColumns;

@@ -194,8 +194,8 @@ public:
 protected:
   vtkLegendBoxActor();
   ~vtkLegendBoxActor();
-  vtkLegendBoxActor(const vtkLegendBoxActor&) {};
-  void operator=(const vtkLegendBoxActor&) {};
+  vtkLegendBoxActor(const vtkLegendBoxActor&);
+  void operator=(const vtkLegendBoxActor&);
 
   void InitializeEntries();
 

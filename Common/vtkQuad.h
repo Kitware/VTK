@@ -121,8 +121,8 @@ public:
 protected:
   vtkQuad();
   ~vtkQuad();
-  vtkQuad(const vtkQuad&) {};
-  void operator=(const vtkQuad&) {};
+  vtkQuad(const vtkQuad&);
+  void operator=(const vtkQuad&);
 
   vtkLine *Line;
 

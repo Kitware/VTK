@@ -68,8 +68,8 @@ public:
 protected:
   vtkMesaProperty() {};
   ~vtkMesaProperty() {};
-  vtkMesaProperty(const vtkMesaProperty&) {};
-  void operator=(const vtkMesaProperty&) {};
+  vtkMesaProperty(const vtkMesaProperty&);
+  void operator=(const vtkMesaProperty&);
 };
 
 #endif

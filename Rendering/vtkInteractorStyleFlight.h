@@ -146,8 +146,8 @@ public:
 protected:
   vtkInteractorStyleFlight();
   ~vtkInteractorStyleFlight();
-  vtkInteractorStyleFlight(const vtkInteractorStyleFlight&) {};
-  void operator=(const vtkInteractorStyleFlight&) {};
+  vtkInteractorStyleFlight(const vtkInteractorStyleFlight&);
+  void operator=(const vtkInteractorStyleFlight&);
   //
   // Description:
   // Routines used internally for computing motion and steering

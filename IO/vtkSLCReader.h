@@ -71,8 +71,8 @@ public:
 protected:
   vtkSLCReader();
   ~vtkSLCReader();
-  vtkSLCReader(const vtkSLCReader&) {};
-  void operator=(const vtkSLCReader&) {};
+  vtkSLCReader(const vtkSLCReader&);
+  void operator=(const vtkSLCReader&);
 
   // Stores the FileName of the SLC file to read.
   char *FileName;

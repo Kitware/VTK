@@ -63,8 +63,8 @@ protected:
 
   vtkSimpleImageFilterExample() {};
   ~vtkSimpleImageFilterExample() {};
-  vtkSimpleImageFilterExample(const vtkSimpleImageFilterExample&) {};
-  void operator=(const vtkSimpleImageFilterExample&) {};
+  vtkSimpleImageFilterExample(const vtkSimpleImageFilterExample&);
+  void operator=(const vtkSimpleImageFilterExample&);
 
   virtual void SimpleExecute(vtkImageData* input, vtkImageData* output);
 };

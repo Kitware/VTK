@@ -84,8 +84,8 @@ public:
 protected:
   vtkAxes();
   ~vtkAxes() {};
-  vtkAxes(const vtkAxes&) {};
-  void operator=(const vtkAxes&) {};
+  vtkAxes(const vtkAxes&);
+  void operator=(const vtkAxes&);
 
   void Execute();
   // This source does not know how to generate pieces yet.

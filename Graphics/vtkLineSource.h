@@ -75,8 +75,8 @@ public:
 protected:
   vtkLineSource(int res=1);
   ~vtkLineSource() {};
-  vtkLineSource(const vtkLineSource&) {};
-  void operator=(const vtkLineSource&) {};
+  vtkLineSource(const vtkLineSource&);
+  void operator=(const vtkLineSource&);
 
   void Execute();
   float Point1[3];

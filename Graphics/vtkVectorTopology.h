@@ -83,8 +83,8 @@ public:
 protected:
   vtkVectorTopology();
   ~vtkVectorTopology() {};
-  vtkVectorTopology(const vtkVectorTopology&) {};
-  void operator=(const vtkVectorTopology&) {};
+  vtkVectorTopology(const vtkVectorTopology&);
+  void operator=(const vtkVectorTopology&);
 
   void Execute();
   float Distance;

@@ -107,8 +107,8 @@ public:
 protected:
   vtkTransformToGrid();
   ~vtkTransformToGrid();
-  vtkTransformToGrid(const vtkTransformToGrid&) {};
-  void operator=(const vtkTransformToGrid&) {};
+  vtkTransformToGrid(const vtkTransformToGrid&);
+  void operator=(const vtkTransformToGrid&);
 
   void ExecuteInformation();
 

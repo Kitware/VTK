@@ -166,8 +166,8 @@ public:
 protected:
   vtkVolumeRayCastMapper();
   ~vtkVolumeRayCastMapper();
-  vtkVolumeRayCastMapper(const vtkVolumeRayCastMapper&) {};
-  void operator=(const vtkVolumeRayCastMapper&) {};
+  vtkVolumeRayCastMapper(const vtkVolumeRayCastMapper&);
+  void operator=(const vtkVolumeRayCastMapper&);
 
   vtkVolumeRayCastFunction     *VolumeRayCastFunction;
   vtkEncodedGradientEstimator  *GradientEstimator;

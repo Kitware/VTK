@@ -122,8 +122,8 @@ public:
 protected:
   vtkPyramid();
   ~vtkPyramid();
-  vtkPyramid(const vtkPyramid&) {};
-  void operator=(const vtkPyramid&) {};
+  vtkPyramid(const vtkPyramid&);
+  void operator=(const vtkPyramid&);
 
   vtkLine *Line;
   vtkTriangle *Triangle;

@@ -176,8 +176,8 @@ public:
 protected:
   vtkWin32OpenGLImageWindow();
   ~vtkWin32OpenGLImageWindow();
-  vtkWin32OpenGLImageWindow(const vtkWin32OpenGLImageWindow&) {};
-  void operator=(const vtkWin32OpenGLImageWindow&) {};
+  vtkWin32OpenGLImageWindow(const vtkWin32OpenGLImageWindow&);
+  void operator=(const vtkWin32OpenGLImageWindow&);
 
   HINSTANCE ApplicationInstance;
   HPALETTE  Palette;

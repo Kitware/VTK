@@ -88,8 +88,8 @@ public:
 protected:
   vtkTIFFReader() {};
   ~vtkTIFFReader() {};
-  vtkTIFFReader(const vtkTIFFReader&) {};
-  void operator=(const vtkTIFFReader&) {};
+  vtkTIFFReader(const vtkTIFFReader&);
+  void operator=(const vtkTIFFReader&);
 
   virtual void ExecuteInformation();
 

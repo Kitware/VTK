@@ -138,8 +138,8 @@ public:
 protected:
   vtkImageExport();
   ~vtkImageExport();
-  vtkImageExport(const vtkImageExport&) {};
-  void operator=(const vtkImageExport&) {};
+  vtkImageExport(const vtkImageExport&);
+  void operator=(const vtkImageExport&);
 
   int ImageLowerLeft;
   int DataDimensions[3];

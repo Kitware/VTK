@@ -169,8 +169,8 @@ public:
 protected:
   vtkAbstractPicker();
   ~vtkAbstractPicker();
-  vtkAbstractPicker(const vtkAbstractPicker&) {};
-  void operator=(const vtkAbstractPicker&) {};
+  vtkAbstractPicker(const vtkAbstractPicker&);
+  void operator=(const vtkAbstractPicker&);
 
   virtual void Initialize();
 

@@ -237,8 +237,8 @@ public:
 protected:
   vtkVideoSource();
   ~vtkVideoSource();
-  vtkVideoSource(const vtkVideoSource&) {};
-  void operator=(const vtkVideoSource&) {};
+  vtkVideoSource(const vtkVideoSource&);
+  void operator=(const vtkVideoSource&);
   void ExecuteInformation();
 
   int Initialized;

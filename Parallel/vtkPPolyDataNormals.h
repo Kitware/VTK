@@ -59,8 +59,8 @@ public:
 protected:
   vtkPPolyDataNormals() {};
   ~vtkPPolyDataNormals() {};
-  vtkPPolyDataNormals(const vtkPPolyDataNormals&) {};
-  void operator=(const vtkPPolyDataNormals&) {};
+  vtkPPolyDataNormals(const vtkPPolyDataNormals&);
+  void operator=(const vtkPPolyDataNormals&);
 
   // Usual data generation method
   virtual void Execute();

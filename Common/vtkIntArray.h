@@ -172,8 +172,8 @@ public:
 protected:
   vtkIntArray(vtkIdType numComp=1);
   ~vtkIntArray();
-  vtkIntArray(const vtkIntArray&) {};
-  void operator=(const vtkIntArray&) {};
+  vtkIntArray(const vtkIntArray&);
+  void operator=(const vtkIntArray&);
 
   int *Array;   // pointer to data
   int *ResizeAndExtend(const vtkIdType sz);  // function to resize data

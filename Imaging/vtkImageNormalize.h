@@ -61,8 +61,8 @@ public:
 protected:
   vtkImageNormalize() {};
   ~vtkImageNormalize() {};
-  vtkImageNormalize(const vtkImageNormalize&) {};
-  void operator=(const vtkImageNormalize&) {};
+  vtkImageNormalize(const vtkImageNormalize&);
+  void operator=(const vtkImageNormalize&);
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};

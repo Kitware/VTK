@@ -100,8 +100,8 @@ public:
 protected:
   vtkEncodedGradientShader();
   ~vtkEncodedGradientShader();
-  vtkEncodedGradientShader(const vtkEncodedGradientShader&) {};
-  void operator=(const vtkEncodedGradientShader&) {};
+  vtkEncodedGradientShader(const vtkEncodedGradientShader&);
+  void operator=(const vtkEncodedGradientShader&);
 
   // Description:
   // Build a shading table for a light with the specified direction,

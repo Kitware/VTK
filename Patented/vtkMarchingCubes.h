@@ -131,8 +131,8 @@ public:
 protected:
   vtkMarchingCubes();
   ~vtkMarchingCubes();
-  vtkMarchingCubes(const vtkMarchingCubes&) {};
-  void operator=(const vtkMarchingCubes&) {};
+  vtkMarchingCubes(const vtkMarchingCubes&);
+  void operator=(const vtkMarchingCubes&);
 
   void Execute();
 

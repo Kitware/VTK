@@ -81,8 +81,8 @@ public:
 protected:
   vtkTransformFilter();
   ~vtkTransformFilter();
-  vtkTransformFilter(const vtkTransformFilter&) {};
-  void operator=(const vtkTransformFilter&) {};
+  vtkTransformFilter(const vtkTransformFilter&);
+  void operator=(const vtkTransformFilter&);
 
   void Execute();
   vtkAbstractTransform *Transform;

@@ -69,8 +69,8 @@ public:
 protected:
   vtkIVExporter();
   ~vtkIVExporter();
-  vtkIVExporter(const vtkIVExporter&) {};
-  void operator=(const vtkIVExporter&) {};
+  vtkIVExporter(const vtkIVExporter&);
+  void operator=(const vtkIVExporter&);
 
   void WriteData();
   void WriteALight(vtkLight *aLight, FILE *fp);

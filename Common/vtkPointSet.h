@@ -127,8 +127,8 @@ public:
 protected:
   vtkPointSet();
   ~vtkPointSet();
-  vtkPointSet(const vtkPointSet&) {};
-  void operator=(const vtkPointSet&) {};
+  vtkPointSet(const vtkPointSet&);
+  void operator=(const vtkPointSet&);
 
   vtkPoints *Points;
   vtkPointLocator *Locator;

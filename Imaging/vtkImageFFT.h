@@ -80,8 +80,8 @@ public:
 protected:
   vtkImageFFT() {};
   ~vtkImageFFT() {};
-  vtkImageFFT(const vtkImageFFT&) {};
-  void operator=(const vtkImageFFT&) {};
+  vtkImageFFT(const vtkImageFFT&);
+  void operator=(const vtkImageFFT&);
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);

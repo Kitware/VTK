@@ -172,8 +172,8 @@ public:
 protected:
   vtkAssembly();
   ~vtkAssembly();
-  vtkAssembly(const vtkAssembly&) {};
-  void operator=(const vtkAssembly&) {};
+  vtkAssembly(const vtkAssembly&);
+  void operator=(const vtkAssembly&);
 
   // Keep a list of direct descendants of the assembly hierarchy
   vtkProp3DCollection *Parts;

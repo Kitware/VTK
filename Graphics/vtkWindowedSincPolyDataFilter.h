@@ -220,8 +220,8 @@ public:
  protected:
   vtkWindowedSincPolyDataFilter();
   ~vtkWindowedSincPolyDataFilter() {};
-  vtkWindowedSincPolyDataFilter(const vtkWindowedSincPolyDataFilter&) {};
-  void operator=(const vtkWindowedSincPolyDataFilter&) {};
+  vtkWindowedSincPolyDataFilter(const vtkWindowedSincPolyDataFilter&);
+  void operator=(const vtkWindowedSincPolyDataFilter&);
 
   void Execute();
 

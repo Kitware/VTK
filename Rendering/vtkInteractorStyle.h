@@ -212,8 +212,8 @@ public:
 protected:
   vtkInteractorStyle();
   ~vtkInteractorStyle();
-  vtkInteractorStyle(const vtkInteractorStyle&) {};
-  void operator=(const vtkInteractorStyle&) {};
+  vtkInteractorStyle(const vtkInteractorStyle&);
+  void operator=(const vtkInteractorStyle&);
 
   // convenience methods for converting between coordinate systems
   virtual void ComputeDisplayToWorld(double x, double y, double z,

@@ -80,8 +80,8 @@ public:
 protected:
   vtkVRMLExporter();
   ~vtkVRMLExporter();
-  vtkVRMLExporter(const vtkVRMLExporter&) {};
-  void operator=(const vtkVRMLExporter&) {};
+  vtkVRMLExporter(const vtkVRMLExporter&);
+  void operator=(const vtkVRMLExporter&);
 
   void WriteData();
   void WriteALight(vtkLight *aLight, FILE *fp);

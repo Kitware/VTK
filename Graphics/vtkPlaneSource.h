@@ -141,8 +141,8 @@ public:
 protected:
   vtkPlaneSource();
   ~vtkPlaneSource() {};
-  vtkPlaneSource(const vtkPlaneSource&) {};
-  void operator=(const vtkPlaneSource&) {};
+  vtkPlaneSource(const vtkPlaneSource&);
+  void operator=(const vtkPlaneSource&);
 
   void Execute();
 

@@ -82,8 +82,8 @@ public:
 protected:
   vtkProbeFilter();
   ~vtkProbeFilter();
-  vtkProbeFilter(const vtkProbeFilter&) {};
-  void operator=(const vtkProbeFilter&) {};
+  vtkProbeFilter(const vtkProbeFilter&);
+  void operator=(const vtkProbeFilter&);
 
   int SpatialMatch;
 

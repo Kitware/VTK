@@ -70,8 +70,8 @@ public:
 protected:
   vtkImageRGBToHSV();
   ~vtkImageRGBToHSV() {};
-  vtkImageRGBToHSV(const vtkImageRGBToHSV&) {};
-  void operator=(const vtkImageRGBToHSV&) {};
+  vtkImageRGBToHSV(const vtkImageRGBToHSV&);
+  void operator=(const vtkImageRGBToHSV&);
 
   float Maximum;
   

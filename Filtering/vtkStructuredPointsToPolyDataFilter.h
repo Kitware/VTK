@@ -69,8 +69,8 @@ public:
 protected:  
   vtkStructuredPointsToPolyDataFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkStructuredPointsToPolyDataFilter() {};
-  vtkStructuredPointsToPolyDataFilter(const vtkStructuredPointsToPolyDataFilter&) {};
-  void operator=(const vtkStructuredPointsToPolyDataFilter&) {};
+  vtkStructuredPointsToPolyDataFilter(const vtkStructuredPointsToPolyDataFilter&);
+  void operator=(const vtkStructuredPointsToPolyDataFilter&);
 
   void ComputeInputUpdateExtents(vtkDataObject *output);
 };

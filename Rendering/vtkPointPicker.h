@@ -68,8 +68,8 @@ public:
 protected:
   vtkPointPicker();
   ~vtkPointPicker() {};
-  vtkPointPicker(const vtkPointPicker&) {};
-  void operator=(const vtkPointPicker&) {};
+  vtkPointPicker(const vtkPointPicker&);
+  void operator=(const vtkPointPicker&);
 
   vtkIdType PointId; //picked point
 

@@ -240,8 +240,8 @@ protected:
   vtkCellArray();
   vtkCellArray (const vtkIdType sz, const int ext=1000);
   ~vtkCellArray();
-  vtkCellArray(const vtkCellArray&) {};
-  void operator=(const vtkCellArray&) {};
+  vtkCellArray(const vtkCellArray&);
+  void operator=(const vtkCellArray&);
 
   vtkIdType NumberOfCells;
   vtkIdType InsertLocation;     //keep track of current insertion point

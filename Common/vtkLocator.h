@@ -157,8 +157,8 @@ public:
 protected:
   vtkLocator();
   ~vtkLocator();
-  vtkLocator(const vtkLocator&) {};
-  void operator=(const vtkLocator&) {};
+  vtkLocator(const vtkLocator&);
+  void operator=(const vtkLocator&);
 
   vtkDataSet *DataSet;
   int Automatic; // boolean controls automatic subdivision (or uses user spec.)

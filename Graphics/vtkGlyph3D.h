@@ -223,8 +223,8 @@ public:
 protected:
   vtkGlyph3D();
   ~vtkGlyph3D();
-  vtkGlyph3D(const vtkGlyph3D&) {};
-  void operator=(const vtkGlyph3D&) {};
+  vtkGlyph3D(const vtkGlyph3D&);
+  void operator=(const vtkGlyph3D&);
 
   void Execute();
   void ExecuteInformation();

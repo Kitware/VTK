@@ -129,8 +129,8 @@ public:
 protected:
   vtkCursor3D();
   ~vtkCursor3D();
-  vtkCursor3D(const vtkCursor3D&) {};
-  void operator=(const vtkCursor3D&) {};
+  vtkCursor3D(const vtkCursor3D&);
+  void operator=(const vtkCursor3D&);
 
   void Execute();
 

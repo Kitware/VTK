@@ -81,8 +81,8 @@ class VTK_EXPORT vtkVolumeCollection : public vtkPropCollection
 protected:
   vtkVolumeCollection() {};
   ~vtkVolumeCollection() {};
-  vtkVolumeCollection(const vtkVolumeCollection&) {};
-  void operator=(const vtkVolumeCollection&) {};
+  vtkVolumeCollection(const vtkVolumeCollection&);
+  void operator=(const vtkVolumeCollection&);
 
 private:
   // hide the standard AddItem from the user and the compiler.

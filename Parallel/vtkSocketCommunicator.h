@@ -139,8 +139,8 @@ protected:
 
   vtkSocketCommunicator();
   ~vtkSocketCommunicator();
-  vtkSocketCommunicator(const vtkSocketCommunicator&) {};
-  void operator=(const vtkSocketCommunicator&) {};
+  vtkSocketCommunicator(const vtkSocketCommunicator&);
+  void operator=(const vtkSocketCommunicator&);
 
   int ReceiveMessage(char *data, int size, int length, int tag );
 };

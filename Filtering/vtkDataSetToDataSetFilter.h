@@ -122,8 +122,8 @@ public:
 protected:
   vtkDataSetToDataSetFilter();
   ~vtkDataSetToDataSetFilter();
-  vtkDataSetToDataSetFilter(const vtkDataSetToDataSetFilter&) {};
-  void operator=(const vtkDataSetToDataSetFilter&) {};
+  vtkDataSetToDataSetFilter(const vtkDataSetToDataSetFilter&);
+  void operator=(const vtkDataSetToDataSetFilter&);
 
   void ExecuteInformation();
 

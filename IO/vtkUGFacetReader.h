@@ -108,8 +108,8 @@ public:
 protected:
   vtkUGFacetReader();
   ~vtkUGFacetReader();
-  vtkUGFacetReader(const vtkUGFacetReader&) {};
-  void operator=(const vtkUGFacetReader&) {};
+  vtkUGFacetReader(const vtkUGFacetReader&);
+  void operator=(const vtkUGFacetReader&);
 
   void Execute();
 

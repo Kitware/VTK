@@ -210,8 +210,8 @@ public:
 protected:
   vtkColorTransferFunction();
   ~vtkColorTransferFunction();
-  vtkColorTransferFunction(const vtkColorTransferFunction&) {};
-  void operator=(const vtkColorTransferFunction&) {};
+  vtkColorTransferFunction(const vtkColorTransferFunction&);
+  void operator=(const vtkColorTransferFunction&);
 
   // Determines the function value outside of defined points
   // Zero = always return 0.0 outside of defined points

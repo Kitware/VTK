@@ -75,8 +75,8 @@ public:
 protected:
   vtkProp3DCollection() {};
   ~vtkProp3DCollection() {};
-  vtkProp3DCollection(const vtkProp3DCollection&) {};
-  void operator=(const vtkProp3DCollection&) {};
+  vtkProp3DCollection(const vtkProp3DCollection&);
+  void operator=(const vtkProp3DCollection&);
     
 
 private:

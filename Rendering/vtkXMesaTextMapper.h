@@ -77,8 +77,8 @@ public:
 protected:
   vtkXMesaTextMapper();
   ~vtkXMesaTextMapper() {};
-  vtkXMesaTextMapper(const vtkXMesaTextMapper&) {};
-  void operator=(const vtkXMesaTextMapper&) {};
+  vtkXMesaTextMapper(const vtkXMesaTextMapper&);
+  void operator=(const vtkXMesaTextMapper&);
 };
 
 

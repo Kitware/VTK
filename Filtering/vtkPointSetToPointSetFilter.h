@@ -109,8 +109,8 @@ public:
 protected:
   vtkPointSetToPointSetFilter();
   ~vtkPointSetToPointSetFilter();
-  vtkPointSetToPointSetFilter(const vtkPointSetToPointSetFilter&) {};
-  void operator=(const vtkPointSetToPointSetFilter&) {};
+  vtkPointSetToPointSetFilter(const vtkPointSetToPointSetFilter&);
+  void operator=(const vtkPointSetToPointSetFilter&);
 
 };
 

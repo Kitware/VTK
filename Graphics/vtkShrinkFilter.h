@@ -77,8 +77,8 @@ public:
 protected:
   vtkShrinkFilter(float sf=0.5);
   ~vtkShrinkFilter() {};
-  vtkShrinkFilter(const vtkShrinkFilter&) {};
-  void operator=(const vtkShrinkFilter&) {};
+  vtkShrinkFilter(const vtkShrinkFilter&);
+  void operator=(const vtkShrinkFilter&);
 
   void Execute();
   float ShrinkFactor;

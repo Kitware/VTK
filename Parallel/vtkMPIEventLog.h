@@ -102,8 +102,8 @@ protected:
 
   vtkMPIEventLog();
   ~vtkMPIEventLog();
-  vtkMPIEventLog(const vtkMPIEventLog&) {};
-  void operator=(const vtkMPIEventLog&) {};
+  vtkMPIEventLog(const vtkMPIEventLog&);
+  void operator=(const vtkMPIEventLog&);
 
   static int LastEventId;
   int Active;

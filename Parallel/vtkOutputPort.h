@@ -118,8 +118,8 @@ public:
 protected:
   vtkOutputPort();
   ~vtkOutputPort();  
-  vtkOutputPort(const vtkOutputPort&) {};
-  void operator=(const vtkOutputPort&) {};
+  vtkOutputPort(const vtkOutputPort&);
+  void operator=(const vtkOutputPort&);
   
   int Tag;
   

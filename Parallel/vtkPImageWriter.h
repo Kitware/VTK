@@ -70,8 +70,8 @@ public:
 protected:
   vtkPImageWriter();
   ~vtkPImageWriter();
-  vtkPImageWriter(const vtkPImageWriter&) {};
-  void operator=(const vtkPImageWriter&) {};
+  vtkPImageWriter(const vtkPImageWriter&);
+  void operator=(const vtkPImageWriter&);
 
   unsigned long MemoryLimit;
   

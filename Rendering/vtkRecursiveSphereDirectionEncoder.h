@@ -107,8 +107,8 @@ public:
 protected:
   vtkRecursiveSphereDirectionEncoder();
   ~vtkRecursiveSphereDirectionEncoder();
-  vtkRecursiveSphereDirectionEncoder(const vtkRecursiveSphereDirectionEncoder&) {};
-  void operator=(const vtkRecursiveSphereDirectionEncoder&) {};
+  vtkRecursiveSphereDirectionEncoder(const vtkRecursiveSphereDirectionEncoder&);
+  void operator=(const vtkRecursiveSphereDirectionEncoder&);
 
   // How far to recursively divide the sphere
   int                     RecursionDepth;

@@ -72,8 +72,8 @@ public:
 protected:
   vtkStreamPoints();
   ~vtkStreamPoints() {};
-  vtkStreamPoints(const vtkStreamPoints&) {};
-  void operator=(const vtkStreamPoints&) {};
+  vtkStreamPoints(const vtkStreamPoints&);
+  void operator=(const vtkStreamPoints&);
 
   // Convert streamer array into vtkPolyData
   void Execute();

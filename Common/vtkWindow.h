@@ -151,8 +151,8 @@ protected:
   int OffScreenRendering;
   vtkWindow();
   ~vtkWindow();
-  vtkWindow(const vtkWindow&) {};
-  void operator=(const vtkWindow&) {};
+  vtkWindow(const vtkWindow&);
+  void operator=(const vtkWindow&);
 
   char *WindowName;
   int Size[2];

@@ -107,8 +107,8 @@ public:
 protected:
   vtkImageConnector();
   ~vtkImageConnector();
-  vtkImageConnector(const vtkImageConnector&) {};
-  void operator=(const vtkImageConnector&) {};
+  vtkImageConnector(const vtkImageConnector&);
+  void operator=(const vtkImageConnector&);
 
   unsigned char ConnectedValue;
   unsigned char UnconnectedValue;

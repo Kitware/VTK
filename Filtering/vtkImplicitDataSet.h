@@ -111,8 +111,8 @@ public:
 protected:
   vtkImplicitDataSet();
   ~vtkImplicitDataSet();
-  vtkImplicitDataSet(const vtkImplicitDataSet&) {};
-  void operator=(const vtkImplicitDataSet&) {};
+  vtkImplicitDataSet(const vtkImplicitDataSet&);
+  void operator=(const vtkImplicitDataSet&);
 
   vtkDataSet *DataSet;
   float OutValue;

@@ -64,8 +64,8 @@ public:
 protected:
   vtkImageTranslateExtent();
   ~vtkImageTranslateExtent() {};
-  vtkImageTranslateExtent(const vtkImageTranslateExtent&) {};
-  void operator=(const vtkImageTranslateExtent&) {};
+  vtkImageTranslateExtent(const vtkImageTranslateExtent&);
+  void operator=(const vtkImageTranslateExtent&);
 
   int Translation[3];
   

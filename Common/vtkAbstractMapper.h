@@ -100,8 +100,8 @@ public:
 protected:
   vtkAbstractMapper();
   ~vtkAbstractMapper();
-  vtkAbstractMapper(const vtkAbstractMapper&) {};
-  void operator=(const vtkAbstractMapper&) {};
+  vtkAbstractMapper(const vtkAbstractMapper&);
+  void operator=(const vtkAbstractMapper&);
 
   vtkTimerLog *Timer;
   float TimeToDraw;

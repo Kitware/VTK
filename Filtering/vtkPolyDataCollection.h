@@ -71,8 +71,8 @@ public:
 protected:  
   vtkPolyDataCollection() {};
   ~vtkPolyDataCollection() {};
-  vtkPolyDataCollection(const vtkPolyDataCollection&) {};
-  void operator=(const vtkPolyDataCollection&) {};
+  vtkPolyDataCollection(const vtkPolyDataCollection&);
+  void operator=(const vtkPolyDataCollection&);
 
 private:
   // hide the standard AddItem from the user and the compiler.

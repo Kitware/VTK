@@ -69,8 +69,8 @@ public:
 protected:
   vtkOverrideInformationCollection() {};
   ~vtkOverrideInformationCollection() {};
-  vtkOverrideInformationCollection(const vtkOverrideInformationCollection&) {};
-  void operator=(const vtkOverrideInformationCollection&) {};
+  vtkOverrideInformationCollection(const vtkOverrideInformationCollection&);
+  void operator=(const vtkOverrideInformationCollection&);
   
 
 private:

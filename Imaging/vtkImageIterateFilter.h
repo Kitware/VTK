@@ -75,8 +75,8 @@ public:
 protected:
   vtkImageIterateFilter();
   ~vtkImageIterateFilter();
-  vtkImageIterateFilter(const vtkImageIterateFilter&) {};
-  void operator=(const vtkImageIterateFilter&) {};
+  vtkImageIterateFilter(const vtkImageIterateFilter&);
+  void operator=(const vtkImageIterateFilter&);
 
   // Superclass API. Sets defaults, then calls 
   // ExecuteInformation(vtkImageData *inData, vtkImageData *outData)

@@ -80,8 +80,8 @@ public:
 protected:
   vtkImageGaussianSource();
   ~vtkImageGaussianSource() {};
-  vtkImageGaussianSource(const vtkImageGaussianSource&) {};
-  void operator=(const vtkImageGaussianSource&) {};
+  vtkImageGaussianSource(const vtkImageGaussianSource&);
+  void operator=(const vtkImageGaussianSource&);
 
   float StandardDeviation;
   int WholeExtent[6];

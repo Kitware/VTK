@@ -90,7 +90,7 @@ protected:
   ~vtkImageToImageStencil();
   vtkImageToImageStencil(const vtkImageToImageStencil&)
     {};
-  void operator=(const vtkImageToImageStencil&) {};
+  void operator=(const vtkImageToImageStencil&);
 
   void ThreadedExecute(vtkImageStencilData *output,
 		       int extent[6], int threadId);

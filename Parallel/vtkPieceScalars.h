@@ -76,8 +76,8 @@ public:
 protected:
   vtkPieceScalars();
   ~vtkPieceScalars();
-  vtkPieceScalars(const vtkPieceScalars&) {};
-  void operator=(const vtkPieceScalars&) {};
+  vtkPieceScalars(const vtkPieceScalars&);
+  void operator=(const vtkPieceScalars&);
   
   // Append the pieces.
   void Execute();

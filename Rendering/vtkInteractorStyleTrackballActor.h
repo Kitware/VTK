@@ -89,8 +89,8 @@ public:
 protected:
   vtkInteractorStyleTrackballActor();
   ~vtkInteractorStyleTrackballActor();
-  vtkInteractorStyleTrackballActor(const vtkInteractorStyleTrackballActor&) {};
-  void operator=(const vtkInteractorStyleTrackballActor&) {};
+  vtkInteractorStyleTrackballActor(const vtkInteractorStyleTrackballActor&);
+  void operator=(const vtkInteractorStyleTrackballActor&);
 
   void RotateXY(int x, int y, int oldX, int oldY);
   void PanXY(int x, int y, int oldX, int oldY);

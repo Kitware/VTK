@@ -247,8 +247,8 @@ public:
 protected:
   vtkRenderWindowInteractor();
   ~vtkRenderWindowInteractor();
-  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&) {};
-  void operator=(const vtkRenderWindowInteractor&) {};
+  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&);
+  void operator=(const vtkRenderWindowInteractor&);
 
   vtkRenderWindow    *RenderWindow;
   vtkInteractorStyle *InteractorStyle;

@@ -111,8 +111,8 @@ public:
 protected:
   vtkGridTransform();
   ~vtkGridTransform();
-  vtkGridTransform(const vtkGridTransform&) {};
-  void operator=(const vtkGridTransform&) {};
+  vtkGridTransform(const vtkGridTransform&);
+  void operator=(const vtkGridTransform&);
 
   // Description:
   // Update the displacement grid.

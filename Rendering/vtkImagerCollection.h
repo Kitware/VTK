@@ -68,8 +68,8 @@ class VTK_EXPORT vtkImagerCollection : public vtkCollection
 protected:  
   vtkImagerCollection() {};
   ~vtkImagerCollection() {};
-  vtkImagerCollection(const vtkImagerCollection&) {};
-  void operator=(const vtkImagerCollection&) {};
+  vtkImagerCollection(const vtkImagerCollection&);
+  void operator=(const vtkImagerCollection&);
 
 private:
   // hide the standard AddItem from the user and the compiler.

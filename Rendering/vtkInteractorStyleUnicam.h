@@ -145,8 +145,8 @@ public:
 protected:
   vtkInteractorStyleUnicam();
   virtual ~vtkInteractorStyleUnicam();
-  vtkInteractorStyleUnicam(const vtkInteractorStyleUnicam&) {};
-  void operator=(const vtkInteractorStyleUnicam&) {};
+  vtkInteractorStyleUnicam(const vtkInteractorStyleUnicam&);
+  void operator=(const vtkInteractorStyleUnicam&);
 
   vtkWorldPointPicker *InteractionPicker;
   

@@ -319,7 +319,7 @@ protected:
   vtkTransform ();
   ~vtkTransform ();
   vtkTransform (const vtkTransform& t);
-  void operator=(const vtkTransform&) {};
+  void operator=(const vtkTransform&);
 
   void InternalDeepCopy(vtkAbstractTransform *t);
 

@@ -87,8 +87,8 @@ public:
 protected:
   vtkAssemblyPaths() {};
   ~vtkAssemblyPaths() {};
-  vtkAssemblyPaths(const vtkAssemblyPaths&) {};
-  void operator=(const vtkAssemblyPaths&) {};
+  vtkAssemblyPaths(const vtkAssemblyPaths&);
+  void operator=(const vtkAssemblyPaths&);
   
 private:
   // hide the standard AddItem from the user and the compiler.

@@ -180,8 +180,8 @@ public:
 protected:
   vtkImageReader2();
   ~vtkImageReader2();
-  vtkImageReader2(const vtkImageReader2&) {};
-  void operator=(const vtkImageReader2&) {};
+  vtkImageReader2(const vtkImageReader2&);
+  void operator=(const vtkImageReader2&);
 
   char *InternalFileName;
   char *FileName;

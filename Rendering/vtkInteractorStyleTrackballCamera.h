@@ -88,8 +88,8 @@ public:
 protected:
   vtkInteractorStyleTrackballCamera();
   ~vtkInteractorStyleTrackballCamera();
-  vtkInteractorStyleTrackballCamera(const vtkInteractorStyleTrackballCamera&) {};
-  void operator=(const vtkInteractorStyleTrackballCamera&) {};
+  vtkInteractorStyleTrackballCamera(const vtkInteractorStyleTrackballCamera&);
+  void operator=(const vtkInteractorStyleTrackballCamera&);
 
   void RotateXY(int dx, int dy);
   void PanXY(int x, int y, int oldX, int oldY);

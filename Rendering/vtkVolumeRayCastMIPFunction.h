@@ -96,8 +96,8 @@ public:
 protected:
   vtkVolumeRayCastMIPFunction();
   ~vtkVolumeRayCastMIPFunction();
-  vtkVolumeRayCastMIPFunction(const vtkVolumeRayCastMIPFunction&) {};
-  void operator=(const vtkVolumeRayCastMIPFunction&) {};
+  vtkVolumeRayCastMIPFunction(const vtkVolumeRayCastMIPFunction&);
+  void operator=(const vtkVolumeRayCastMIPFunction&);
 
   int MaximizeMethod;
 

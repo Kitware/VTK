@@ -90,8 +90,8 @@ public:
 protected:
   vtkDataObjectWriter();
   ~vtkDataObjectWriter();
-  vtkDataObjectWriter(const vtkDataObjectWriter&) {};
-  void operator=(const vtkDataObjectWriter&) {};
+  vtkDataObjectWriter(const vtkDataObjectWriter&);
+  void operator=(const vtkDataObjectWriter&);
 
   void WriteData();
   vtkDataWriter *Writer;

@@ -218,8 +218,8 @@ public:
 protected:
   vtkTriangle();
   ~vtkTriangle();
-  vtkTriangle(const vtkTriangle&) {};
-  void operator=(const vtkTriangle&) {};
+  vtkTriangle(const vtkTriangle&);
+  void operator=(const vtkTriangle&);
 
   vtkLine *Line;
 

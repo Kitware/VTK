@@ -199,8 +199,8 @@ public:
 protected:
   vtkScalars();
   ~vtkScalars();
-  vtkScalars(const vtkScalars&) {};
-  void operator=(const vtkScalars&) {};
+  vtkScalars(const vtkScalars&);
+  void operator=(const vtkScalars&);
 
   float Range[8];
   vtkTimeStamp ComputeTime;

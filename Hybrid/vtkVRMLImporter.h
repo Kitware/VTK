@@ -149,8 +149,8 @@ public:
 protected:
   vtkVRMLImporter();
   ~vtkVRMLImporter();
-  vtkVRMLImporter(const vtkVRMLImporter&) {};
-  void operator=(const vtkVRMLImporter&) {};
+  vtkVRMLImporter(const vtkVRMLImporter&);
+  void operator=(const vtkVRMLImporter&);
 
   virtual int ImportBegin ();
   virtual void ImportEnd ();

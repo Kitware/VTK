@@ -159,8 +159,8 @@ public:
 protected:
   vtkTexture();
   ~vtkTexture();
-  vtkTexture(const vtkTexture&) {};
-  void operator=(const vtkTexture&) {};
+  vtkTexture(const vtkTexture&);
+  void operator=(const vtkTexture&);
 
   int   Repeat;
   int   Interpolate;

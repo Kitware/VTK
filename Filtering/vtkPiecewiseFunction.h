@@ -149,8 +149,8 @@ public:
 protected:
   vtkPiecewiseFunction();
   ~vtkPiecewiseFunction();
-  vtkPiecewiseFunction(const vtkPiecewiseFunction&) {};
-  void operator=(const vtkPiecewiseFunction&) {};
+  vtkPiecewiseFunction(const vtkPiecewiseFunction&);
+  void operator=(const vtkPiecewiseFunction&);
 
   // Size of the array used to store function points
   int	ArraySize;

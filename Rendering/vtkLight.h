@@ -220,8 +220,8 @@ public:
 protected:
   vtkLight();
   ~vtkLight();
-  vtkLight(const vtkLight&) {};
-  void operator=(const vtkLight&) {};
+  vtkLight(const vtkLight&);
+  void operator=(const vtkLight&);
 
   float FocalPoint[3];
   float Position[3];

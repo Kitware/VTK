@@ -108,8 +108,8 @@ public:
 protected:
   vtkLandmarkTransform();
   ~vtkLandmarkTransform();
-  vtkLandmarkTransform(const vtkLandmarkTransform&) {};
-  void operator=(const vtkLandmarkTransform&) {};
+  vtkLandmarkTransform(const vtkLandmarkTransform&);
+  void operator=(const vtkLandmarkTransform&);
 
   // Update the matrix from the quaternion.
   void InternalUpdate();

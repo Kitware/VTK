@@ -66,8 +66,8 @@ public:
 protected:
   vtkSTLWriter();
   ~vtkSTLWriter() {};
-  vtkSTLWriter(const vtkSTLWriter&) {};
-  void operator=(const vtkSTLWriter&) {};
+  vtkSTLWriter(const vtkSTLWriter&);
+  void operator=(const vtkSTLWriter&);
 
   void WriteData();
 

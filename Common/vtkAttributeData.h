@@ -138,8 +138,8 @@ protected:
   vtkAttributeData();
   vtkAttributeData(int dataType);
   ~vtkAttributeData();
-  vtkAttributeData(const vtkAttributeData&) {};
-  void operator=(const vtkAttributeData&) {};
+  vtkAttributeData(const vtkAttributeData&);
+  void operator=(const vtkAttributeData&);
 
   vtkDataArray *Data;  // Array which represents data
 

@@ -73,8 +73,8 @@ public:
 protected:
   vtkImageMagnify();
   ~vtkImageMagnify() {};
-  vtkImageMagnify(const vtkImageMagnify&) {};
-  void operator=(const vtkImageMagnify&) {};
+  vtkImageMagnify(const vtkImageMagnify&);
+  void operator=(const vtkImageMagnify&);
 
   int MagnificationFactors[3];
   int Interpolate;

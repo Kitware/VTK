@@ -115,8 +115,8 @@ public:
 protected:
   vtkShepardMethod();
   ~vtkShepardMethod() {};
-  vtkShepardMethod(const vtkShepardMethod&) {};
-  void operator=(const vtkShepardMethod&) {};
+  vtkShepardMethod(const vtkShepardMethod&);
+  void operator=(const vtkShepardMethod&);
 
   void Execute();
 

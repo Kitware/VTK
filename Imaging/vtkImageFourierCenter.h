@@ -66,8 +66,8 @@ public:
 protected:
   vtkImageFourierCenter();
   ~vtkImageFourierCenter() {};
-  vtkImageFourierCenter(const vtkImageFourierCenter&) {};
-  void operator=(const vtkImageFourierCenter&) {};
+  vtkImageFourierCenter(const vtkImageFourierCenter&);
+  void operator=(const vtkImageFourierCenter&);
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,

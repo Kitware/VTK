@@ -83,8 +83,8 @@ public:
 protected:
   vtkQuantizePolyDataPoints();
   ~vtkQuantizePolyDataPoints() {};
-  vtkQuantizePolyDataPoints(const vtkQuantizePolyDataPoints&) {};
-  void operator=(const vtkQuantizePolyDataPoints&) {};
+  vtkQuantizePolyDataPoints(const vtkQuantizePolyDataPoints&);
+  void operator=(const vtkQuantizePolyDataPoints&);
   //
   float QFactor;
 };

@@ -183,8 +183,8 @@ public:
 protected:
   vtkTextMapper();
   ~vtkTextMapper();
-  vtkTextMapper(const vtkTextMapper&) {};
-  void operator=(const vtkTextMapper&) {};
+  vtkTextMapper(const vtkTextMapper&);
+  void operator=(const vtkTextMapper&);
 
   int   Italic;
   int   Bold;

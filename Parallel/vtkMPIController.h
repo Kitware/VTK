@@ -193,8 +193,8 @@ protected:
 
   vtkMPIController();
   ~vtkMPIController();
-  vtkMPIController(const vtkMPIController&) {};
-  void operator=(const vtkMPIController&) {};
+  vtkMPIController(const vtkMPIController&);
+  void operator=(const vtkMPIController&);
 
   // Given a communicator, obtain size and rank
   // setting NumberOfProcesses and LocalProcessId

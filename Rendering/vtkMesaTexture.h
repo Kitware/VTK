@@ -73,8 +73,8 @@ public:
 protected:
   vtkMesaTexture();
   ~vtkMesaTexture();
-  vtkMesaTexture(const vtkMesaTexture&) {};
-  void operator=(const vtkMesaTexture&) {};
+  vtkMesaTexture(const vtkMesaTexture&);
+  void operator=(const vtkMesaTexture&);
 
   unsigned char *ResampleToPowerOfTwo(int &xsize, int &ysize, 
                                       unsigned char *dptr, int bpp);

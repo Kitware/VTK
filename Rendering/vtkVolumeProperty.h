@@ -211,8 +211,8 @@ public:
 protected:
   vtkVolumeProperty();
   ~vtkVolumeProperty();
-  vtkVolumeProperty(const vtkVolumeProperty&) {};
-  void operator=(const vtkVolumeProperty&) {};
+  vtkVolumeProperty(const vtkVolumeProperty&);
+  void operator=(const vtkVolumeProperty&);
 
   int				InterpolationType;
 

@@ -95,8 +95,8 @@ public:
 protected:
   vtkVolumeRayCastIsosurfaceFunction();
   ~vtkVolumeRayCastIsosurfaceFunction();
-  vtkVolumeRayCastIsosurfaceFunction(const vtkVolumeRayCastIsosurfaceFunction&) {};
-  void operator=(const vtkVolumeRayCastIsosurfaceFunction&) {};
+  vtkVolumeRayCastIsosurfaceFunction(const vtkVolumeRayCastIsosurfaceFunction&);
+  void operator=(const vtkVolumeRayCastIsosurfaceFunction&);
 
 //BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,

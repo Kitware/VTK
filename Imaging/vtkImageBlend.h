@@ -135,8 +135,8 @@ public:
 protected:
   vtkImageBlend();
   ~vtkImageBlend();
-  vtkImageBlend(const vtkImageBlend&) {};
-  void operator=(const vtkImageBlend&) {};
+  vtkImageBlend(const vtkImageBlend&);
+  void operator=(const vtkImageBlend&);
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
 				int whichInput);

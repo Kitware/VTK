@@ -63,8 +63,8 @@ public:
 protected:
   vtkExtractUnstructuredGridPiece();
   ~vtkExtractUnstructuredGridPiece() {};
-  vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&) {};
-  void operator=(const vtkExtractUnstructuredGridPiece&) {};
+  vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&);
+  void operator=(const vtkExtractUnstructuredGridPiece&);
 
   // Usual data generation method
   void Execute();

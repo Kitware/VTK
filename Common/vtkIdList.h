@@ -132,8 +132,8 @@ public:
 protected:
   vtkIdList();
   ~vtkIdList();
-  vtkIdList(const vtkIdList&) {};
-  void operator=(const vtkIdList&) {};
+  vtkIdList(const vtkIdList&);
+  void operator=(const vtkIdList&);
 
   vtkIdType NumberOfIds;
   vtkIdType Size; 

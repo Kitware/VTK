@@ -162,8 +162,8 @@ public:
 protected:
   vtkBitArray(vtkIdType numComp=1);
   ~vtkBitArray();
-  vtkBitArray(const vtkBitArray&) {};
-  void operator=(const vtkBitArray&) {};
+  vtkBitArray(const vtkBitArray&);
+  void operator=(const vtkBitArray&);
 
   unsigned char *Array;   // pointer to data
   unsigned char *ResizeAndExtend(const vtkIdType sz);

@@ -149,8 +149,8 @@ public:
 protected:
   vtkCellLinks():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
   ~vtkCellLinks();
-  vtkCellLinks(const vtkCellLinks&) {};
-  void operator=(const vtkCellLinks&) {};
+  vtkCellLinks(const vtkCellLinks&);
+  void operator=(const vtkCellLinks&);
 
   // Description:
   // Increment the count of the number of cells using the point.

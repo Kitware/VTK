@@ -83,8 +83,8 @@ public:
 protected:
   vtkTransformPolyDataFilter();
   ~vtkTransformPolyDataFilter();
-  vtkTransformPolyDataFilter(const vtkTransformPolyDataFilter&) {};
-  void operator=(const vtkTransformPolyDataFilter&) {};
+  vtkTransformPolyDataFilter(const vtkTransformPolyDataFilter&);
+  void operator=(const vtkTransformPolyDataFilter&);
 
   void Execute();
   vtkAbstractTransform *Transform;

@@ -265,8 +265,8 @@ protected:
   // culling turned off.
   vtkViewport();
   ~vtkViewport();
-  vtkViewport(const vtkViewport&) {};
-  void operator=(const vtkViewport&) {};
+  vtkViewport(const vtkViewport&);
+  void operator=(const vtkViewport&);
 
   //BTX
   // Picking functions to be implemented by sub-classes

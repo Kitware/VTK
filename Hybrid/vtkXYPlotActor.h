@@ -464,8 +464,8 @@ public:
 protected:
   vtkXYPlotActor();
   ~vtkXYPlotActor();
-  vtkXYPlotActor(const vtkXYPlotActor&) {};
-  void operator=(const vtkXYPlotActor&) {};
+  vtkXYPlotActor(const vtkXYPlotActor&);
+  void operator=(const vtkXYPlotActor&);
 
   vtkDataSetCollection *InputList; //list of data sets to plot
   vtkDataObjectCollection *DataObjectInputList; //list of data objects to plot

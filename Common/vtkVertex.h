@@ -142,8 +142,8 @@ public:
 protected:
   vtkVertex();
   ~vtkVertex() {};
-  vtkVertex(const vtkVertex&) {};
-  void operator=(const vtkVertex&) {};
+  vtkVertex(const vtkVertex&);
+  void operator=(const vtkVertex&);
   
 };
 

@@ -176,8 +176,8 @@ public:
 protected:
   vtkUnsignedLongArray(vtkIdType numComp=1);
   ~vtkUnsignedLongArray();
-  vtkUnsignedLongArray(const vtkUnsignedLongArray&) {};
-  void operator=(const vtkUnsignedLongArray&) {};
+  vtkUnsignedLongArray(const vtkUnsignedLongArray&);
+  void operator=(const vtkUnsignedLongArray&);
 
   unsigned long *Array;   // pointer to data
   unsigned long *ResizeAndExtend(const vtkIdType sz);

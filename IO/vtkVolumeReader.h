@@ -110,8 +110,8 @@ public:
 protected:
   vtkVolumeReader();
   ~vtkVolumeReader();
-  vtkVolumeReader(const vtkVolumeReader&) {};
-  void operator=(const vtkVolumeReader&) {};
+  vtkVolumeReader(const vtkVolumeReader&);
+  void operator=(const vtkVolumeReader&);
 
   char *FilePrefix;
   char *FilePattern;

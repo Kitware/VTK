@@ -200,8 +200,8 @@ public:
 protected:
   vtkSmoothPolyDataFilter();
   ~vtkSmoothPolyDataFilter() {};
-  vtkSmoothPolyDataFilter(const vtkSmoothPolyDataFilter&) {};
-  void operator=(const vtkSmoothPolyDataFilter&) {};
+  vtkSmoothPolyDataFilter(const vtkSmoothPolyDataFilter&);
+  void operator=(const vtkSmoothPolyDataFilter&);
 
   void Execute();
 

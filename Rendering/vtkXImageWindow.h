@@ -172,8 +172,8 @@ public:
 protected:
   vtkXImageWindow();
   ~vtkXImageWindow();
-  vtkXImageWindow(const vtkXImageWindow&) {};
-  void operator=(const vtkXImageWindow&) {};
+  vtkXImageWindow(const vtkXImageWindow&);
+  void operator=(const vtkXImageWindow&);
 
   // X stuff
   Window               ParentId;

@@ -113,8 +113,8 @@ public:
 protected:
   vtkImplicitVolume();
   ~vtkImplicitVolume();
-  vtkImplicitVolume(const vtkImplicitVolume&) {};
-  void operator=(const vtkImplicitVolume&) {};
+  vtkImplicitVolume(const vtkImplicitVolume&);
+  void operator=(const vtkImplicitVolume&);
 
   vtkImageData *Volume; // the structured points
   float OutValue;

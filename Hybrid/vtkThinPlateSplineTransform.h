@@ -128,8 +128,8 @@ public:
 protected:
   vtkThinPlateSplineTransform();
   ~vtkThinPlateSplineTransform();
-  vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&) {};
-  void operator=(const vtkThinPlateSplineTransform&) {};
+  vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&);
+  void operator=(const vtkThinPlateSplineTransform&);
 
   // Description:
   // Prepare the transformation for application.

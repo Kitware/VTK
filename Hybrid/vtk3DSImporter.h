@@ -89,8 +89,8 @@ public:
 protected:
   vtk3DSImporter();
   ~vtk3DSImporter();
-  vtk3DSImporter(const vtk3DSImporter&) {};
-  void operator=(const vtk3DSImporter&) {};
+  vtk3DSImporter(const vtk3DSImporter&);
+  void operator=(const vtk3DSImporter&);
 
   virtual int ImportBegin ();
   virtual void ImportEnd ();

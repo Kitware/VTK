@@ -105,8 +105,8 @@ public:
 protected:  
   vtkPolyDataMapper();
   ~vtkPolyDataMapper() {};
-  vtkPolyDataMapper(const vtkPolyDataMapper&) {};
-  void operator=(const vtkPolyDataMapper&) {};
+  vtkPolyDataMapper(const vtkPolyDataMapper&);
+  void operator=(const vtkPolyDataMapper&);
 
   int Piece;
   int NumberOfPieces;

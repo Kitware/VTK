@@ -181,8 +181,8 @@ public:
 protected:
   vtkScalarBarActor();
   ~vtkScalarBarActor();
-  vtkScalarBarActor(const vtkScalarBarActor&) {};
-  void operator=(const vtkScalarBarActor&) {};
+  vtkScalarBarActor(const vtkScalarBarActor&);
+  void operator=(const vtkScalarBarActor&);
 
   vtkScalarsToColors *LookupTable;
   int   MaximumNumberOfColors;

@@ -69,8 +69,8 @@ public:
 protected:
   vtkOutlineCornerSource();
   ~vtkOutlineCornerSource() {};
-  vtkOutlineCornerSource(const vtkOutlineCornerSource&) {};
-  void operator=(const vtkOutlineCornerSource&) {};
+  vtkOutlineCornerSource(const vtkOutlineCornerSource&);
+  void operator=(const vtkOutlineCornerSource&);
 
   void Execute();
 

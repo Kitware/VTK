@@ -75,8 +75,8 @@ public:
 protected:
   vtkUnstructuredGridReader();
   ~vtkUnstructuredGridReader();
-  vtkUnstructuredGridReader(const vtkUnstructuredGridReader&) {};
-  void operator=(const vtkUnstructuredGridReader&) {};
+  vtkUnstructuredGridReader(const vtkUnstructuredGridReader&);
+  void operator=(const vtkUnstructuredGridReader&);
 
   void Execute();
 

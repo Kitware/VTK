@@ -70,8 +70,8 @@ public:
 protected:
   vtkImageCorrelation();
   ~vtkImageCorrelation() {};
-  vtkImageCorrelation(const vtkImageCorrelation&) {};
-  void operator=(const vtkImageCorrelation&) {};
+  vtkImageCorrelation(const vtkImageCorrelation&);
+  void operator=(const vtkImageCorrelation&);
 
   int Dimensionality;
   void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);

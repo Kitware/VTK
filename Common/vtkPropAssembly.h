@@ -147,8 +147,8 @@ public:
 protected:
   vtkPropAssembly();
   ~vtkPropAssembly();
-  vtkPropAssembly(const vtkPropAssembly&) {};
-  void operator=(const vtkPropAssembly&) {};
+  vtkPropAssembly(const vtkPropAssembly&);
+  void operator=(const vtkPropAssembly&);
 
   vtkPropCollection *Parts;
   float Bounds[6];

@@ -302,8 +302,8 @@ public:
 protected:
   vtkProp();
   ~vtkProp();
-  vtkProp(const vtkProp&) {};
-  void operator=(const vtkProp&) {};
+  vtkProp(const vtkProp&);
+  void operator=(const vtkProp&);
 
   int Visibility;
   int Pickable;

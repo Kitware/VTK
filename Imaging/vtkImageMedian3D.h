@@ -73,8 +73,8 @@ public:
 protected:
   vtkImageMedian3D();
   ~vtkImageMedian3D() {};
-  vtkImageMedian3D(const vtkImageMedian3D&) {};
-  void operator=(const vtkImageMedian3D&) {};
+  vtkImageMedian3D(const vtkImageMedian3D&);
+  void operator=(const vtkImageMedian3D&);
 
   int NumberOfElements;
 

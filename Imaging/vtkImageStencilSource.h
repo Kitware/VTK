@@ -76,8 +76,8 @@ public:
 protected:
   vtkImageStencilSource();
   ~vtkImageStencilSource();
-  vtkImageStencilSource(const vtkImageStencilSource&) {};
-  void operator=(const vtkImageStencilSource&) {};
+  vtkImageStencilSource(const vtkImageStencilSource&);
+  void operator=(const vtkImageStencilSource&);
 
   void ExecuteData(vtkDataObject *out);
   vtkImageStencilData *AllocateOutputData(vtkDataObject *out);

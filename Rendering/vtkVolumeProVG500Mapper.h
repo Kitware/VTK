@@ -124,8 +124,8 @@ public:
 protected:
   vtkVolumeProVG500Mapper();
   ~vtkVolumeProVG500Mapper();
-  vtkVolumeProVG500Mapper(const vtkVolumeProVG500Mapper&) {};
-  void operator=(const vtkVolumeProVG500Mapper&) {};
+  vtkVolumeProVG500Mapper(const vtkVolumeProVG500Mapper&);
+  void operator=(const vtkVolumeProVG500Mapper&);
   
   // Update the camera - set the camera matrix
   void UpdateCamera( vtkRenderer *, vtkVolume * );

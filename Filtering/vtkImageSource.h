@@ -78,8 +78,8 @@ public:
 protected:
   vtkImageSource();
   ~vtkImageSource() {};
-  vtkImageSource(const vtkImageSource&) {};
-  void operator=(const vtkImageSource&) {};
+  vtkImageSource(const vtkImageSource&);
+  void operator=(const vtkImageSource&);
 
   // Used by streaming: The extent of the output being processed
   // by the execute method. Set in the ComputeInputUpdateExtents method.

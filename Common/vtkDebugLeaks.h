@@ -88,8 +88,8 @@ public:
 protected:
   vtkDebugLeaks(){}; 
   virtual ~vtkDebugLeaks(){}; 
-  vtkDebugLeaks(const vtkDebugLeaks&) {};
-  void operator=(const vtkDebugLeaks&) {};
+  vtkDebugLeaks(const vtkDebugLeaks&);
+  void operator=(const vtkDebugLeaks&);
 
   static int PromptUser;
 

@@ -73,8 +73,8 @@ public:
 protected:
   vtkImageContinuousErode3D();
   ~vtkImageContinuousErode3D();
-  vtkImageContinuousErode3D(const vtkImageContinuousErode3D&) {};
-  void operator=(const vtkImageContinuousErode3D&) {};
+  vtkImageContinuousErode3D(const vtkImageContinuousErode3D&);
+  void operator=(const vtkImageContinuousErode3D&);
 
   vtkImageEllipsoidSource *Ellipse;
     

@@ -101,8 +101,8 @@ public:
 protected:
    vtkAbstractMapper3D();
   ~vtkAbstractMapper3D() {};
-  vtkAbstractMapper3D(const vtkAbstractMapper3D&) {};
-  void operator=(const vtkAbstractMapper3D&) {};
+  vtkAbstractMapper3D(const vtkAbstractMapper3D&);
+  void operator=(const vtkAbstractMapper3D&);
 
   float Bounds[6];
   float Center[3];

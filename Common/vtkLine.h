@@ -144,8 +144,8 @@ public:
 protected:
   vtkLine();
   ~vtkLine() {};
-  vtkLine(const vtkLine&) {};
-  void operator=(const vtkLine&) {};
+  vtkLine(const vtkLine&);
+  void operator=(const vtkLine&);
 
 };
 

@@ -89,8 +89,8 @@ public:
 protected:
   vtkQuadricDecimation();
   ~vtkQuadricDecimation();
-  vtkQuadricDecimation(const vtkQuadricDecimation&) {};
-  void operator=(const vtkQuadricDecimation&) {};
+  vtkQuadricDecimation(const vtkQuadricDecimation&);
+  void operator=(const vtkQuadricDecimation&);
 
   void Execute();
 

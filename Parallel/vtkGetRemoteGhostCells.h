@@ -73,8 +73,8 @@ public:
 protected:
   vtkGetRemoteGhostCells();
   ~vtkGetRemoteGhostCells();
-  vtkGetRemoteGhostCells(const vtkGetRemoteGhostCells&) {};
-  void operator=(const vtkGetRemoteGhostCells&) {};
+  vtkGetRemoteGhostCells(const vtkGetRemoteGhostCells&);
+  void operator=(const vtkGetRemoteGhostCells&);
 
   void Execute();
 

@@ -155,7 +155,7 @@ public:
 protected:
   vtkAbstractPropPicker();
   ~vtkAbstractPropPicker();
-  vtkAbstractPropPicker(const vtkAbstractPropPicker&) {};
+  vtkAbstractPropPicker(const vtkAbstractPropPicker&);
   void operator=(vtkAbstractPropPicker&) {};
 
   void Initialize();

@@ -88,8 +88,8 @@ public:
 protected:
   vtkFiniteDifferenceGradientEstimator();
   ~vtkFiniteDifferenceGradientEstimator();
-  vtkFiniteDifferenceGradientEstimator(const vtkFiniteDifferenceGradientEstimator&) {};
-  void operator=(const vtkFiniteDifferenceGradientEstimator&) {};
+  vtkFiniteDifferenceGradientEstimator(const vtkFiniteDifferenceGradientEstimator&);
+  void operator=(const vtkFiniteDifferenceGradientEstimator&);
 
 
   // Description:

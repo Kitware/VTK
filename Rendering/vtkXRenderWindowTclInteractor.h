@@ -178,8 +178,8 @@ public:
 protected:
   vtkXRenderWindowTclInteractor();
   ~vtkXRenderWindowTclInteractor();
-  vtkXRenderWindowTclInteractor(const vtkXRenderWindowTclInteractor&) {};
-  void operator=(const vtkXRenderWindowTclInteractor&) {};
+  vtkXRenderWindowTclInteractor(const vtkXRenderWindowTclInteractor&);
+  void operator=(const vtkXRenderWindowTclInteractor&);
 
   Widget TopLevelShell;
 

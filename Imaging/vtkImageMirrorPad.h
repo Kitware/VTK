@@ -60,8 +60,8 @@ public:
 protected:
   vtkImageMirrorPad() {};
   ~vtkImageMirrorPad() {};
-  vtkImageMirrorPad(const vtkImageMirrorPad&) {};
-  void operator=(const vtkImageMirrorPad&) {};
+  vtkImageMirrorPad(const vtkImageMirrorPad&);
+  void operator=(const vtkImageMirrorPad&);
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outRegion, 

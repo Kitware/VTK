@@ -126,8 +126,8 @@ public:
 protected:
   vtkGenericEnSightReader();
   ~vtkGenericEnSightReader();
-  vtkGenericEnSightReader(const vtkGenericEnSightReader&) {};
-  void operator=(const vtkGenericEnSightReader&) {};
+  vtkGenericEnSightReader(const vtkGenericEnSightReader&);
+  void operator=(const vtkGenericEnSightReader&);
 
   void Execute();
   

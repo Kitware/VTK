@@ -113,8 +113,8 @@ public:
 protected:
   vtkAsynchronousBuffer();
   ~vtkAsynchronousBuffer();
-  vtkAsynchronousBuffer(const vtkAsynchronousBuffer&) {};
-  void operator=(const vtkAsynchronousBuffer&) {};
+  vtkAsynchronousBuffer(const vtkAsynchronousBuffer&);
+  void operator=(const vtkAsynchronousBuffer&);
 
   int Blocking;
   vtkMultiThreader *Threader;

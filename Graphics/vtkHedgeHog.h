@@ -77,8 +77,8 @@ public:
 protected:
   vtkHedgeHog();
   ~vtkHedgeHog() {};
-  vtkHedgeHog(const vtkHedgeHog&) {};
-  void operator=(const vtkHedgeHog&) {};
+  vtkHedgeHog(const vtkHedgeHog&);
+  void operator=(const vtkHedgeHog&);
 
   void Execute();
   float ScaleFactor;

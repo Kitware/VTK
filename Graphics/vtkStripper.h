@@ -83,8 +83,8 @@ public:
 protected:
   vtkStripper();
   ~vtkStripper() {};
-  vtkStripper(const vtkStripper&) {};
-  void operator=(const vtkStripper&) {};
+  vtkStripper(const vtkStripper&);
+  void operator=(const vtkStripper&);
 
   // Usual data generation method
   void Execute();

@@ -121,8 +121,8 @@ public:
 protected:
   vtkSpatialRepresentationFilter();
   ~vtkSpatialRepresentationFilter();
-  vtkSpatialRepresentationFilter(const vtkSpatialRepresentationFilter&) {};
-  void operator=(const vtkSpatialRepresentationFilter&) {};
+  vtkSpatialRepresentationFilter(const vtkSpatialRepresentationFilter&);
+  void operator=(const vtkSpatialRepresentationFilter&);
 
   void Execute();
   void GenerateOutput();

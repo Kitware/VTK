@@ -247,8 +247,8 @@ public:
 protected:
   vtkProp3D();
   ~vtkProp3D();
-  vtkProp3D(const vtkProp3D&) {};
-  void operator=(const vtkProp3D&) {};
+  vtkProp3D(const vtkProp3D&);
+  void operator=(const vtkProp3D&);
 
   vtkLinearTransform *UserTransform;
   vtkMatrix4x4  *UserMatrix;

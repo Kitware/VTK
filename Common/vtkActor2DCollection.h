@@ -98,8 +98,8 @@ class VTK_EXPORT vtkActor2DCollection : public vtkPropCollection
 protected:
   vtkActor2DCollection() {};
   ~vtkActor2DCollection();
-  vtkActor2DCollection(const vtkActor2DCollection&) {};
-  void operator=(const vtkActor2DCollection&) {};
+  vtkActor2DCollection(const vtkActor2DCollection&);
+  void operator=(const vtkActor2DCollection&);
 
   virtual void DeleteElement(vtkCollectionElement *); 
 

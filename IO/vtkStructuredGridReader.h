@@ -75,8 +75,8 @@ public:
 protected:
   vtkStructuredGridReader();
   ~vtkStructuredGridReader();
-  vtkStructuredGridReader(const vtkStructuredGridReader&) {};
-  void operator=(const vtkStructuredGridReader&) {};
+  vtkStructuredGridReader(const vtkStructuredGridReader&);
+  void operator=(const vtkStructuredGridReader&);
 
   void ExecuteInformation();
   void Execute();

@@ -97,8 +97,8 @@ public:
 protected:
   vtkImageMapToColors();
   ~vtkImageMapToColors();
-  vtkImageMapToColors(const vtkImageMapToColors&) {};
-  void operator=(const vtkImageMapToColors&) {};
+  vtkImageMapToColors(const vtkImageMapToColors&);
+  void operator=(const vtkImageMapToColors&);
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation() {

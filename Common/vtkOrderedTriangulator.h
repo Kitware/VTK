@@ -182,7 +182,7 @@ protected:
   vtkOrderedTriangulator();
   ~vtkOrderedTriangulator();
   vtkOrderedTriangulator(const vtkOrderedTriangulator&) {}
-  void operator=(const vtkOrderedTriangulator&) {};
+  void operator=(const vtkOrderedTriangulator&);
 
 private:
   vtkOTMesh  *Mesh;

@@ -137,8 +137,8 @@ public:
 protected:
   vtkImageFourierFilter() {};
   ~vtkImageFourierFilter() {};
-  vtkImageFourierFilter(const vtkImageFourierFilter&) {};
-  void operator=(const vtkImageFourierFilter&) {};
+  vtkImageFourierFilter(const vtkImageFourierFilter&);
+  void operator=(const vtkImageFourierFilter&);
 
   //BTX
   void ExecuteFftStep2(vtkImageComplex *p_in, vtkImageComplex *p_out, 

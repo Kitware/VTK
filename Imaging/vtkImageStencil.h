@@ -94,8 +94,8 @@ public:
 protected:
   vtkImageStencil();
   ~vtkImageStencil();
-  vtkImageStencil(const vtkImageStencil&) {};
-  void operator=(const vtkImageStencil&) {};
+  vtkImageStencil(const vtkImageStencil&);
+  void operator=(const vtkImageStencil&);
 
   void ExecuteInformation() {
     this->vtkImageToImageFilter::ExecuteInformation(); };

@@ -179,8 +179,8 @@ public:
 protected:
   vtkActor();
   ~vtkActor();
-  vtkActor(const vtkActor&) {};
-  void operator=(const vtkActor&) {};
+  vtkActor(const vtkActor&);
+  void operator=(const vtkActor&);
 
   vtkProperty *Property; 
   vtkProperty *BackfaceProperty; 

@@ -83,8 +83,8 @@ public:
 protected:
   vtkInterpolateDataSetAttributes();
   ~vtkInterpolateDataSetAttributes();
-  vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&) {};
-  void operator=(const vtkInterpolateDataSetAttributes&) {};
+  vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&);
+  void operator=(const vtkInterpolateDataSetAttributes&);
 
   void Execute();
   

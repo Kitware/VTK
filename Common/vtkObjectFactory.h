@@ -213,8 +213,8 @@ protected:
   
   vtkObjectFactory();
   ~vtkObjectFactory();
-  vtkObjectFactory(const vtkObjectFactory&) {};
-  void operator=(const vtkObjectFactory&) {};
+  vtkObjectFactory(const vtkObjectFactory&);
+  void operator=(const vtkObjectFactory&);
   //BTX
   struct OverrideInformation
   {

@@ -277,8 +277,8 @@ public:
 protected:
   vtkAbstractTransform();
   ~vtkAbstractTransform();
-  vtkAbstractTransform(const vtkAbstractTransform&) {};
-  void operator=(const vtkAbstractTransform&) {};
+  vtkAbstractTransform(const vtkAbstractTransform&);
+  void operator=(const vtkAbstractTransform&);
 
   // Description:
   // Perform any subclass-specific Update.

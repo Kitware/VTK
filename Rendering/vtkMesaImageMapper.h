@@ -74,8 +74,8 @@ public:
 protected:
   vtkMesaImageMapper();
   ~vtkMesaImageMapper();
-  vtkMesaImageMapper(const vtkMesaImageMapper&) {};
-  void operator=(const vtkMesaImageMapper&) {};
+  vtkMesaImageMapper(const vtkMesaImageMapper&);
+  void operator=(const vtkMesaImageMapper&);
 
 };
 

@@ -136,8 +136,8 @@ public:
 protected:
   vtkCellTypes();
   ~vtkCellTypes();
-  vtkCellTypes(const vtkCellTypes&) {};
-  void operator=(const vtkCellTypes&) {};  
+  vtkCellTypes(const vtkCellTypes&);
+  void operator=(const vtkCellTypes&);  
 
   vtkUnsignedCharArray *TypeArray; // pointer to types array
   vtkIntArray *LocationArray;   // pointer to array of offsets

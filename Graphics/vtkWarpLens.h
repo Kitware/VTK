@@ -105,8 +105,8 @@ public:
 protected:
   vtkWarpLens();
   ~vtkWarpLens() {};
-  vtkWarpLens(const vtkWarpLens&) {};
-  void operator=(const vtkWarpLens&) {};
+  vtkWarpLens(const vtkWarpLens&);
+  void operator=(const vtkWarpLens&);
 
   void Execute();
 

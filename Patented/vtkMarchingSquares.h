@@ -127,8 +127,8 @@ public:
 protected:
   vtkMarchingSquares();
   ~vtkMarchingSquares();
-  vtkMarchingSquares(const vtkMarchingSquares&) {};
-  void operator=(const vtkMarchingSquares&) {};
+  vtkMarchingSquares(const vtkMarchingSquares&);
+  void operator=(const vtkMarchingSquares&);
 
   void Execute();
 

@@ -207,8 +207,8 @@ public:
 protected:
   vtkRectilinearGrid();
   ~vtkRectilinearGrid();
-  vtkRectilinearGrid(const vtkRectilinearGrid&) {};
-  void operator=(const vtkRectilinearGrid&) {};
+  vtkRectilinearGrid(const vtkRectilinearGrid&);
+  void operator=(const vtkRectilinearGrid&);
 
   // for the GetCell method
   vtkVertex *Vertex;

@@ -84,8 +84,8 @@ public:
 protected:
   vtkReverseSense();
   ~vtkReverseSense() {};
-  vtkReverseSense(const vtkReverseSense&) {};
-  void operator=(const vtkReverseSense&) {};
+  vtkReverseSense(const vtkReverseSense&);
+  void operator=(const vtkReverseSense&);
 
   // Usual data generation method
   void Execute();

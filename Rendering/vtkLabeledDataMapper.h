@@ -190,8 +190,8 @@ public:
 protected:
   vtkLabeledDataMapper();
   ~vtkLabeledDataMapper();
-  vtkLabeledDataMapper(const vtkLabeledDataMapper&) {};
-  void operator=(const vtkLabeledDataMapper&) {};
+  vtkLabeledDataMapper(const vtkLabeledDataMapper&);
+  void operator=(const vtkLabeledDataMapper&);
 
   vtkDataSet *Input;
   int LabelMode;

@@ -318,8 +318,8 @@ public:
 protected:
   vtkImageData();
   ~vtkImageData();
-  vtkImageData(const vtkImageData&) {};
-  void operator=(const vtkImageData&) {};
+  vtkImageData(const vtkImageData&);
+  void operator=(const vtkImageData&);
 
   // for the GetCell method
   vtkVertex *Vertex;

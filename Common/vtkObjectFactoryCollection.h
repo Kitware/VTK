@@ -78,8 +78,8 @@ return new vtkObjectFactoryCollection;};
 protected:
   vtkObjectFactoryCollection() {};
   ~vtkObjectFactoryCollection() {};
-  vtkObjectFactoryCollection(const vtkObjectFactoryCollection&) {};
-  void operator=(const vtkObjectFactoryCollection&) {};
+  vtkObjectFactoryCollection(const vtkObjectFactoryCollection&);
+  void operator=(const vtkObjectFactoryCollection&);
 
 
 private:

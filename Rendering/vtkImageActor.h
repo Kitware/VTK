@@ -120,8 +120,8 @@ public:
 protected:
   vtkImageActor();
   ~vtkImageActor();
-  vtkImageActor(const vtkImageActor&) {};
-  void operator=(const vtkImageActor&) {};
+  vtkImageActor(const vtkImageActor&);
+  void operator=(const vtkImageActor&);
 
   int           Interpolate;
   vtkImageData* Input;

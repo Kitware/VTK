@@ -98,8 +98,8 @@ class VTK_EXPORT vtkFollower : public vtkActor
 protected:
   vtkFollower();
   ~vtkFollower();
-  vtkFollower(const vtkFollower&) {};
-  void operator=(const vtkFollower&) {};
+  vtkFollower(const vtkFollower&);
+  void operator=(const vtkFollower&);
 
   vtkCamera *Camera; 
   vtkActor  *Device;

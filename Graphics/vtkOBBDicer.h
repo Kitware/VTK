@@ -72,8 +72,8 @@ public:
 protected:
   vtkOBBDicer() {};
   ~vtkOBBDicer() {};
-  vtkOBBDicer(const vtkOBBDicer&) {};
-  void operator=(const vtkOBBDicer&) {};
+  vtkOBBDicer(const vtkOBBDicer&);
+  void operator=(const vtkOBBDicer&);
 
   // Usual data generation method
   void Execute();

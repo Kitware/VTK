@@ -63,8 +63,8 @@ public:
 protected:
   vtkRemoveGhostCells();
   ~vtkRemoveGhostCells() {};
-  vtkRemoveGhostCells(const vtkRemoveGhostCells&) {};
-  void operator=(const vtkRemoveGhostCells&) {};
+  vtkRemoveGhostCells(const vtkRemoveGhostCells&);
+  void operator=(const vtkRemoveGhostCells&);
 
   // Usual data generation method
   void Execute();

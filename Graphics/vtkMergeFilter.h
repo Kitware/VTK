@@ -99,8 +99,8 @@ public:
 protected:
   vtkMergeFilter();
   ~vtkMergeFilter();
-  vtkMergeFilter(const vtkMergeFilter&) {};
-  void operator=(const vtkMergeFilter&) {};
+  vtkMergeFilter(const vtkMergeFilter&);
+  void operator=(const vtkMergeFilter&);
 
   // Usual data generation method
   void Execute();

@@ -72,7 +72,7 @@ protected:
   vtkUnstructuredGridToPolyDataFilter() {this->NumberOfRequiredInputs = 1;}
   ~vtkUnstructuredGridToPolyDataFilter() {}
   vtkUnstructuredGridToPolyDataFilter(const vtkUnstructuredGridToPolyDataFilter&) {}
-  void operator=(const vtkUnstructuredGridToPolyDataFilter&) {};
+  void operator=(const vtkUnstructuredGridToPolyDataFilter&);
   
   
 };

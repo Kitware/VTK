@@ -76,8 +76,8 @@ public:
 protected:
   vtkImageDataStreamer();
   ~vtkImageDataStreamer();
-  vtkImageDataStreamer(const vtkImageDataStreamer&) {};
-  void operator=(const vtkImageDataStreamer&) {};
+  vtkImageDataStreamer(const vtkImageDataStreamer&);
+  void operator=(const vtkImageDataStreamer&);
   
   vtkExtentTranslator *ExtentTranslator;
   int            NumberOfStreamDivisions;

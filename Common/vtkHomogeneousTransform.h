@@ -113,8 +113,8 @@ public:
 protected:
   vtkHomogeneousTransform();
   ~vtkHomogeneousTransform();
-  vtkHomogeneousTransform(const vtkHomogeneousTransform&) {};
-  void operator=(const vtkHomogeneousTransform&) {};
+  vtkHomogeneousTransform(const vtkHomogeneousTransform&);
+  void operator=(const vtkHomogeneousTransform&);
 
   void InternalDeepCopy(vtkAbstractTransform *transform);
 

@@ -156,8 +156,8 @@ public:
 protected:
   vtkEnSightReader();
   ~vtkEnSightReader();
-  vtkEnSightReader(const vtkEnSightReader&) {};
-  void operator=(const vtkEnSightReader&) {};
+  vtkEnSightReader(const vtkEnSightReader&);
+  void operator=(const vtkEnSightReader&);
   
   void Execute();
 

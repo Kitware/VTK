@@ -227,8 +227,8 @@ protected:
 
   vtkMPICommunicator();
   ~vtkMPICommunicator();
-  vtkMPICommunicator(const vtkMPICommunicator&) {};
-  void operator=(const vtkMPICommunicator&) {};
+  vtkMPICommunicator(const vtkMPICommunicator&);
+  void operator=(const vtkMPICommunicator&);
 
  private:
   static int CheckForMPIError(int err);

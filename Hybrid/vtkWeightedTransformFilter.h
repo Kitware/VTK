@@ -162,8 +162,8 @@ protected:
 
   vtkWeightedTransformFilter();
   ~vtkWeightedTransformFilter();
-  vtkWeightedTransformFilter(const vtkWeightedTransformFilter&) {};
-  void operator=(const vtkWeightedTransformFilter&) {};
+  vtkWeightedTransformFilter(const vtkWeightedTransformFilter&);
+  void operator=(const vtkWeightedTransformFilter&);
 
   void Execute();
 };

@@ -142,8 +142,8 @@ protected:
 
   vtkCommunicator();
   ~vtkCommunicator();
-  vtkCommunicator(const vtkCommunicator&) {};
-  void operator=(const vtkCommunicator&) {};
+  vtkCommunicator(const vtkCommunicator&);
+  void operator=(const vtkCommunicator&);
 
   char *MarshalString;
   int MarshalStringLength;

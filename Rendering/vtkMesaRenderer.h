@@ -79,8 +79,8 @@ public:
 protected:
   vtkMesaRenderer();
   ~vtkMesaRenderer();
-  vtkMesaRenderer(const vtkMesaRenderer&) {};
-  void operator=(const vtkMesaRenderer&) {};
+  vtkMesaRenderer(const vtkMesaRenderer&);
+  void operator=(const vtkMesaRenderer&);
 
   //BTX
   // Picking functions to be implemented by sub-classes

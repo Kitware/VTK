@@ -185,8 +185,8 @@ public:
 protected:
   vtkTreeComposite();
   ~vtkTreeComposite();
-  vtkTreeComposite(const vtkTreeComposite&) {};
-  void operator=(const vtkTreeComposite&) {};
+  vtkTreeComposite(const vtkTreeComposite&);
+  void operator=(const vtkTreeComposite&);
   
   vtkRenderWindow* RenderWindow;
   vtkRenderWindowInteractor* RenderWindowInteractor;

@@ -180,8 +180,8 @@ public:
 protected:
   vtkCutter(vtkImplicitFunction *cf=NULL);
   ~vtkCutter();
-  vtkCutter(const vtkCutter&) {};
-  void operator=(const vtkCutter&) {};
+  vtkCutter(const vtkCutter&);
+  void operator=(const vtkCutter&);
 
   void Execute();
   vtkImplicitFunction *CutFunction;

@@ -144,8 +144,8 @@ public:
 protected:
   vtkGenericCell();
   ~vtkGenericCell();
-  vtkGenericCell(const vtkGenericCell&) {};
-  void operator=(const vtkGenericCell&) {};
+  vtkGenericCell(const vtkGenericCell&);
+  void operator=(const vtkGenericCell&);
 
   vtkCell *Cell;
   

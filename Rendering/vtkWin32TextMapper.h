@@ -67,8 +67,8 @@ public:
 protected:
   vtkWin32TextMapper();
   ~vtkWin32TextMapper();
-  vtkWin32TextMapper(const vtkWin32TextMapper&) {};
-  void operator=(const vtkWin32TextMapper&) {};
+  vtkWin32TextMapper(const vtkWin32TextMapper&);
+  void operator=(const vtkWin32TextMapper&);
 
   vtkTimeStamp  BuildTime;
   int LastSize[2];

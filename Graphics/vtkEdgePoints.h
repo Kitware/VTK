@@ -75,8 +75,8 @@ public:
 protected:
   vtkEdgePoints();
   ~vtkEdgePoints();
-  vtkEdgePoints(const vtkEdgePoints&) {};
-  void operator=(const vtkEdgePoints&) {};
+  vtkEdgePoints(const vtkEdgePoints&);
+  void operator=(const vtkEdgePoints&);
 
   void Execute();
 

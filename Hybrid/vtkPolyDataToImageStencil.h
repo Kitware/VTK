@@ -77,7 +77,7 @@ protected:
   ~vtkPolyDataToImageStencil();
   vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&)
     {};
-  void operator=(const vtkPolyDataToImageStencil&) {};
+  void operator=(const vtkPolyDataToImageStencil&);
 
   void ExecuteData(vtkDataObject *out);
   void ThreadedExecute(vtkImageStencilData *output,

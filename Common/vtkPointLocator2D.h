@@ -142,8 +142,8 @@ public:
 protected:
   vtkPointLocator2D();
   ~vtkPointLocator2D();
-  vtkPointLocator2D(const vtkPointLocator2D&) {};
-  void operator=(const vtkPointLocator2D&) {};
+  vtkPointLocator2D(const vtkPointLocator2D&);
+  void operator=(const vtkPointLocator2D&);
 
   // place points in appropriate buckets
   void GetBucketNeighbors(int ijk[2], int ndivs[2], int level);

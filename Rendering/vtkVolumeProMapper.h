@@ -231,8 +231,8 @@ public:
 protected:
   vtkVolumeProMapper();
   ~vtkVolumeProMapper();
-  vtkVolumeProMapper(const vtkVolumeProMapper&) {};
-  void operator=(const vtkVolumeProMapper&) {};
+  vtkVolumeProMapper(const vtkVolumeProMapper&);
+  void operator=(const vtkVolumeProMapper&);
  // Make sure everything is OK for rendering
   int StatusOK();
 

@@ -96,8 +96,8 @@ public:
 protected:
   vtkTextSource();
   ~vtkTextSource();
-  vtkTextSource(const vtkTextSource&) {};
-  void operator=(const vtkTextSource&) {};
+  vtkTextSource(const vtkTextSource&);
+  void operator=(const vtkTextSource&);
 
   void Execute();
   char *Text;

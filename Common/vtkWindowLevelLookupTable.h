@@ -151,8 +151,8 @@ public:
 protected:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);
   ~vtkWindowLevelLookupTable() {};
-  vtkWindowLevelLookupTable(const vtkWindowLevelLookupTable&) {};
-  void operator=(const vtkWindowLevelLookupTable&) {};
+  vtkWindowLevelLookupTable(const vtkWindowLevelLookupTable&);
+  void operator=(const vtkWindowLevelLookupTable&);
 
   float Window;
   float Level;
