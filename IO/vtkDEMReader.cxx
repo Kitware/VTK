@@ -19,7 +19,7 @@
 #include "vtkDEMReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDEMReader, "1.28");
+vtkCxxRevisionMacro(vtkDEMReader, "1.29");
 vtkStandardNewMacro(vtkDEMReader);
 
 #define VTK_SW  0
@@ -173,8 +173,8 @@ int vtkDEMReader::ReadTypeARecord ()
   //
   // read the record. it is always 1024 characters long
   //
-
-  fscanf(fp, "%1024c", record);
+  fscanf(fp, "%512c", record); 
+  fscanf(fp, "%512c", record+512); 
   record[1024] = '\0';
 
   //
