@@ -78,7 +78,7 @@ extern int vtkRenderWindowCommand(ClientData cd, Tcl_Interp *interp,
     
 //----------------------------------------------------------------------------
 // It's possible to change with this function or in a script some
-// options like width, hieght or the render widget.
+// options like width, height or the render widget.
 int vtkTkRenderWidget_Configure(Tcl_Interp *interp, 
                                 struct vtkTkRenderWidget *self,
                                 int argc, char *argv[], int flags) 
@@ -92,7 +92,7 @@ int vtkTkRenderWidget_Configure(Tcl_Interp *interp,
   
   // Get the new  width and height of the widget
   Tk_GeometryRequest(self->TkWin, self->Width, self->Height);
-  
+
   // Make sure the render window has been set.  If not, create one.
   if (vtkTkRenderWidget_MakeRenderWindow(self) == TCL_ERROR) 
     {
@@ -342,7 +342,13 @@ static void vtkTkRenderWidget_EventProc(ClientData clientData,
         //Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
         if (self->RenderWindow)
           {
+#ifdef VTK_USE_CARBON
+          TkWindow *winPtr = (TkWindow *)self->TkWin;
+          self->RenderWindow->SetPosition(winPtr->privatePtr->xOff,
+                                          winPtr->privatePtr->yOff);
+#else
           self->RenderWindow->SetPosition(Tk_X(self->TkWin),Tk_Y(self->TkWin));
+#endif
           self->RenderWindow->SetSize(self->Width, self->Height);
           }
         //vtkTkRenderWidget_PostRedisplay(self);
@@ -745,8 +751,25 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     {
     if (winPtr->parentPtr->window == None)
       {
+      // Look at each parent TK window in order until we run out
+      // of windows or find the top level. Then the OSX window that will be
+      // the parent is created so that we have a window to pass to the
+      // vtkRenderWindow so it can attach its openGL context.
+      // Ideally the Tk_MakeWindowExist call would do the deed. (I think)
+      TkWindow *curWin = winPtr->parentPtr;
+      while ((NULL != curWin->parentPtr) && !(curWin->flags & TK_TOP_LEVEL))
+        {
+        curWin = curWin->parentPtr;
+        }
       Tk_MakeWindowExist((Tk_Window) winPtr->parentPtr);
-      TkMacOSXMakeRealWindowExist((TkWindow *) winPtr->parentPtr);
+      if (NULL != curWin)
+        {
+        TkMacOSXMakeRealWindowExist(curWin);
+        }
+      else
+        {
+        vtkGenericWarningMacro("Could not find the TK_TOP_LEVEL. This is bad.");
+        }
       }
     
     parentWin = GetWindowFromPort(TkMacOSXGetDrawablePort(

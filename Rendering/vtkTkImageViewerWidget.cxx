@@ -25,6 +25,7 @@
 #else
  #ifdef VTK_USE_CARBON
   #include "vtkCarbonRenderWindow.h"
+  #include "tkMacOSXInt.h"
  #else
   #ifdef VTK_USE_COCOA
    #include "vtkCocoaRenderWindow.h"
@@ -69,7 +70,7 @@ static Tk_ConfigSpec vtkTkImageViewerWidgetConfigSpecs[] = {
 };
 
 
-// Foward prototypes
+// Forward prototypes
 static void vtkTkImageViewerWidget_EventProc(ClientData clientData, 
                                              XEvent *eventPtr);
 static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self);
@@ -330,19 +331,23 @@ static void vtkTkImageViewerWidget_EventProc(ClientData clientData,
     case ConfigureNotify:
       if ( 1 /*Tk_IsMapped(self->TkWin)*/ ) 
         {
-                self->Width = Tk_Width(self->TkWin);
-                self->Height = Tk_Height(self->TkWin);
+        self->Width = Tk_Width(self->TkWin);
+        self->Height = Tk_Height(self->TkWin);
         //Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
-
-                                
-                if (self->ImageViewer)
-                  {
-                  self->ImageViewer->SetPosition(Tk_X(self->TkWin),Tk_Y(self->TkWin));
-                  self->ImageViewer->SetSize(self->Width, self->Height);
-                  }
-                  
-                //vtkTkImageViewerWidget_PostRedisplay(self);
-                }
+        if (self->ImageViewer)
+          {
+#ifdef VTK_USE_CARBON
+          TkWindow *winPtr = (TkWindow *)self->TkWin;
+          self->ImageViewer->SetPosition(winPtr->privatePtr->xOff,
+                                         winPtr->privatePtr->yOff);
+#else
+          self->ImageViewer->SetPosition(Tk_X(self->TkWin),Tk_Y(self->TkWin));
+#endif
+          self->ImageViewer->SetSize(self->Width, self->Height);
+          }
+        
+        //vtkTkImageViewerWidget_PostRedisplay(self);
+        }
       break;
     case MapNotify:
       break;
@@ -660,9 +665,6 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   return TCL_OK;
 }
 
-
-
-
 // now the APPLE version - only available using the Carbon APIs
 #else
 #ifdef VTK_USE_CARBON
@@ -672,8 +674,10 @@ static int
 vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self) 
 {
   Display *dpy;
+  TkWindow *winPtr = (TkWindow *)self->TkWin;
   vtkImageViewer *ImageViewer;
   vtkCarbonRenderWindow *ImageWindow;
+  WindowPtr parentWin;
   
   if (self->ImageViewer)
     {
@@ -682,11 +686,6 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
 
   dpy = Tk_Display(self->TkWin);
   
-  if (Tk_WindowId(self->TkWin) != None) 
-    {
-    //XDestroyWindow(dpy, Tk_WindowId(self->TkWin) );
-    }
-
   if (self->IV[0] == '\0')
     {
     // Make the ImageViewer window.
@@ -743,28 +742,47 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
         
   // Use the same display
   ImageWindow->SetDisplayId(dpy);
-  // The visual MUST BE SET BEFORE the window is created.
-  //Tk_SetWindowVisual(self->TkWin, ImageWindow->GetDesiredVisual(), 
-    //                 ImageWindow->GetDesiredDepth(), 
-      //               ImageWindow->GetDesiredColormap());
 
-  // Make this window exist, then use that information to make the vtkImageViewer in sync
-  Tk_MakeWindowExist ( self->TkWin );
-  ImageViewer->SetWindowId ( (void*)Tk_WindowId ( self->TkWin ) );
+  // Set the parent correctly and get the actual OSX window on the screen
+  // Window must be up so that the aglContext can be attached to it
+  if ((winPtr->parentPtr != NULL) && !(winPtr->flags & TK_TOP_LEVEL))
+    {
+      if (winPtr->parentPtr->window == None)
+        {
+        // Look at each parent TK window in order until we run out
+        // of windows or find the top level. Then the OSX window that will be
+        // the parent is created so that we have a window to pass to the 
+        // vtkRenderWindow so it can attach its openGL context.
+        // Ideally the Tk_MakeWindowExist call would do the deed. (I think)
+        TkWindow *curWin = winPtr->parentPtr;
+        while ((NULL != curWin->parentPtr) && !(curWin->flags & TK_TOP_LEVEL))
+          {
+          curWin = curWin->parentPtr;
+          }
+        Tk_MakeWindowExist((Tk_Window) winPtr->parentPtr);
+        if (NULL != curWin)
+          {
+          TkMacOSXMakeRealWindowExist(curWin);
+          }
+        else
+          {
+          vtkGenericWarningMacro("Could not find the TK_TOP_LEVEL. This is bad.");
+          }
+        }
+
+      parentWin = GetWindowFromPort(TkMacOSXGetDrawablePort(
+                                    Tk_WindowId(winPtr->parentPtr)));
+      // Carbon does not have 'sub-windows', so the ParentId is used more
+      // as a flag to indicate that the renderwindow is being used as a sub-
+      // view of its 'parent' window.
+      ImageWindow->SetParentId(parentWin);
+      ImageWindow->SetWindowId(parentWin);
+    }
+
 
   // Set the size
   self->ImageViewer->SetSize(self->Width, self->Height);
 
-  // Set the parent correctly
-  // Possibly X dependent
-  if ((Tk_Parent(self->TkWin) == NULL) || (Tk_IsTopLevel(self->TkWin))) 
-    {
-    //ImageWindow->SetParentId(XRootWindow(Tk_Display(self->TkWin), Tk_ScreenNumber(self->TkWin)));
-    }
-  else 
-    {
-    ImageWindow->SetParentId((void *)Tk_WindowId(Tk_Parent(self->TkWin) ));
-    }
 
   self->ImageViewer->Render();          
   return TCL_OK;
