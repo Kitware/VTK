@@ -36,7 +36,7 @@
 #include "vtkTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.5");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.6");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -979,16 +979,16 @@ void vtkImagePlaneWidget::UpdateNormal()
   // calculate appropriate pixel spacing for the reslicing
 
   this->ImageData->UpdateInformation();
-  float spacing[6];
+  float spacing[3];
   this->ImageData->GetSpacing(spacing);
 
-  float spacingX = abs(planeAxis1[0]*spacing[0]) + \
-                   abs(planeAxis1[1]*spacing[1]) + \
-                   abs(planeAxis1[2]*spacing[2]);
+  float spacingX = fabs(planeAxis1[0]*spacing[0]) + \
+                   fabs(planeAxis1[1]*spacing[1]) + \
+                   fabs(planeAxis1[2]*spacing[2]);
 
-  float spacingY = abs(planeAxis2[0]*spacing[0]) + \
-                   abs(planeAxis2[1]*spacing[1]) + \
-                   abs(planeAxis2[2]*spacing[2]);
+  float spacingY = fabs(planeAxis2[0]*spacing[0]) + \
+                   fabs(planeAxis2[1]*spacing[1]) + \
+                   fabs(planeAxis2[2]*spacing[2]);
 
   // pad extent up to a power of two for efficient texture mapping
   int extentX = 1;
@@ -1001,10 +1001,8 @@ void vtkImagePlaneWidget::UpdateNormal()
   while ( extentY < eyMax )
     extentY = extentY << 1;
 
-  this->Reslice->SetOutputSpacing(spacingX,spacingY,1.0);
-  this->Reslice->SetOutputOrigin(0.5*spacingX+out[0],
-                                 0.5*spacingY+out[1],
-                                 0.0);
+  this->Reslice->SetOutputSpacing(spacingX, spacingY, 1.0);
+  this->Reslice->SetOutputOrigin(out[0], out[1], 0.0);
   this->Reslice->SetOutputExtent(0, extentX-1, 0, extentY-1, 0, 0);
 
 
