@@ -155,8 +155,20 @@ protected:
   // Scalar buffer used to save the interpolate values of the attributes
   // The capacity is at least the number of components of the attribute
   // collection ot the current cell.
+  
+  // Scalar buffer that stores the global coordinates, parametric coordinates,
+  // attributes at left, mid and right point. The format is:
+  // lxlylz lrlslt [lalb lcldle...] mxmymz mrmsmt [mamb mcmdme...] 
+  // rxryrz rrrsrt [rarb rcrdre...]
+  // The ScalarsCapacity>=(6+attributeCollection->GetNumberOfComponents())*3
+  
   double *Scalars;
   int ScalarsCapacity;
+  
+  // Description:
+  // Number of double value to skip to go to the next point into Scalars array
+  // It is 6+attributeCollection->GetNumberOfComponents()
+  int PointOffset;
   
   // Description:
   // Used to iterate over edges boundaries in GetNumberOfCellsUsingEdges()

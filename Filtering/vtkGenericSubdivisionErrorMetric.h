@@ -104,8 +104,19 @@ public:
 
   // Description:
   // Return whether the indicated edge exceeds the error metric.
-  // e1 and e2 are in parametric coordinates.
-  virtual bool EvaluateEdge( double* e1, double* e2 );
+  // The edge is defined by its leftPoint and its rightPoint.
+  // leftPoint, midPoint and rightPoint have to be initialized before
+  // calling EvaluateEdge().
+  // Their format is global coordinates, parametric coordinates and
+  // point centered attributes: xyx rst abc de...
+  // \pre leftPoint_exists: leftPoint!=0
+  // \pre midPoint_exists: midPoint!=0
+  // \pre rightPoint_exists: rightPoint!=0
+  // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
+  //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
+  virtual bool EvaluateEdge(double *leftPoint,
+                            double *midPoint,
+                            double *rightPoint);
   
   // Description:
   // The error metric is based on variation of the tessellation
@@ -125,8 +136,9 @@ public:
   // endpoint of the edge. (It has been made virtual to avoid
   // dependencies on the VTK/Rendering subdirectory. Subclasses
   // of this class can be found in VTK/GenericFiltering.)
-  virtual double EvaluateScreenError(double *vtkNotUsed(e1), 
-                                     double *vtkNotUsed(e2))
+  virtual double EvaluateScreenError(double *vtkNotUsed(leftPoint),
+                                     double *vtkNotUsed(midPoint),
+                                     double *vtkNotUsed(rightPoint))
     {return 0.0;}
 
 protected:
@@ -137,14 +149,6 @@ protected:
   // Compute the absolute attribute tolerance, only if the cached value is
   // obsolete.
   void ComputeAbsoluteAttributeTolerance();
-  
-  
-  // Description:
-  // Compute world coordinates of the vertices `e1' and `e2' defining the edge.
-  // The result is in Edge1Cache and Edge2Cache. The middle of the straight
-  // line is InterpolatedCenterCache, the middle of the arc is RealCenterCache.
-  void ComputeCoordinates(double *e1,
-                          double *e2);
   
   // Description:
   // Square distance between a straight line (defined by points x and y)
@@ -160,22 +164,46 @@ protected:
   
   double AbsoluteAttributeTolerance; // cached value computed from
   // AttributeTolerance and active attribute/component
+  int ActiveIndex; // index of the active attribute/component in an array
+  // with format xyz rst ab c...
   vtkTimeStamp AbsoluteAttributeToleranceComputeTime;
   
   vtkGenericAttributeCollection *AttributeCollection;
   vtkGenericAdaptorCell *GenericCell;
   vtkTimeStamp SubdivisionMTime;
-
-  // Format: Edge1Cache = xyz abc abc abc ...
-  double *Edge1Cache;
-  double *Edge2Cache;
   
-  // Format: xyz
-  double RealCenterCache[3];
-  double InterpolatedCenterCache[3];
+  // Description:
+  // Distance from the midPoint to the line defined by leftPoint and rightPoint
+  // The edge is defined by its leftPoint and its rightPoint.
+  // leftPoint, midPoint and rightPoint have to be initialized before
+  // calling EvaluateEdge().
+  // Their format is global coordinates, parametric coordinates and
+  // point centered attributes: xyx rst abc de...
+  // \pre leftPoint_exists: leftPoint!=0
+  // \pre midPoint_exists: midPoint!=0
+  // \pre rightPoint_exists: rightPoint!=0
+  // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
+  //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
+  double EvaluateGeometricError(double *leftPoint,
+                                double *midPoint,
+                                double *rightPoint);
   
-  double EvaluateGeometricError(double *e1, double *e2);
-  double EvaluateAttributesError(double *e1, double *e2);
+  // Description:
+  // Difference between the active attribute at midPoint and the interpolated
+  // active attribute between the leftPoint and the rightPoint.
+  // The edge is defined by its leftPoint and its rightPoint.
+  // leftPoint, midPoint and rightPoint have to be initialized before
+  // calling EvaluateEdge().
+  // Their format is global coordinates, parametric coordinates and
+  // point centered attributes: xyx rst abc de...
+  // \pre leftPoint_exists: leftPoint!=0
+  // \pre midPoint_exists: midPoint!=0
+  // \pre rightPoint_exists: rightPoint!=0
+  // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
+  //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
+  double EvaluateAttributesError(double *leftPoint,
+                                 double *midPoint,
+                                 double *rightPoint);
 
 private:
   vtkGenericSubdivisionErrorMetric(const vtkGenericSubdivisionErrorMetric&);  // Not implemented.

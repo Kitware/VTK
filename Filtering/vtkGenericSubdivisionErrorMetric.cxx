@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericSubdivisionErrorMetric,"1.2");
+vtkCxxRevisionMacro(vtkGenericSubdivisionErrorMetric,"1.3");
 vtkStandardNewMacro(vtkGenericSubdivisionErrorMetric);
 
 //-----------------------------------------------------------------------------
@@ -34,17 +34,12 @@ vtkGenericSubdivisionErrorMetric::vtkGenericSubdivisionErrorMetric()
   
   this->AttributeCollection = NULL;
   this->GenericCell = NULL;
-  this->Edge1Cache = this->Edge2Cache = NULL;
+  this->ActiveIndex=0;
 }
 
 //-----------------------------------------------------------------------------
 vtkGenericSubdivisionErrorMetric::~vtkGenericSubdivisionErrorMetric()
 {
-  if( this->Edge1Cache || this->Edge2Cache )
-    {
-    delete[] this->Edge1Cache;
-    delete[] this->Edge2Cache;
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -131,24 +126,6 @@ void vtkGenericSubdivisionErrorMetric::SetAttributeTolerance(double value)
 void vtkGenericSubdivisionErrorMetric::SetAttributeCollection(vtkGenericAttributeCollection* a)
 {
   this->AttributeCollection=a;
-  
-  if( this->Edge1Cache || this->Edge2Cache )
-    {
-    delete[] this->Edge1Cache;
-    delete[] this->Edge2Cache;
-    }
-  
-  if(this->AttributeCollection!=0)
-    {
-    int numComp = this->AttributeCollection->GetNumberOfComponents();
-    this->Edge1Cache = new double[numComp+3];
-    this->Edge2Cache = new double[numComp+3];
-    }
-  else
-    {
-    this->Edge1Cache = 0;
-    this->Edge2Cache = 0;
-    }
   this->Modified();
 }
 
@@ -162,23 +139,28 @@ void vtkGenericSubdivisionErrorMetric::SetGenericCell(vtkGenericAdaptorCell *c)
 //-----------------------------------------------------------------------------
 // Evaluate different type of error metric and return whether or not the edge
 // needs to be split
-bool vtkGenericSubdivisionErrorMetric::EvaluateEdge( double *e1, double *e2 )
+bool vtkGenericSubdivisionErrorMetric::EvaluateEdge(double *leftPoint,
+                                                    double *midPoint,
+                                                    double *rightPoint)
 {
+  assert("pre: leftPoint_exists" && leftPoint!=0);
+  assert("pre: midPoint_exists" && midPoint!=0);
+  assert("pre: rightPoint_exists" && rightPoint!=0);
+  
   bool result=0;
-  this->ComputeCoordinates(e1,e2); 
-  double ge = this->EvaluateGeometricError(e1, e2);
+  double ge = this->EvaluateGeometricError(leftPoint,midPoint,rightPoint);
   result=ge>this->GeometricTolerance;
   
   if(!result)
     {
     
-    double se = this->EvaluateScreenError(e1, e2);
+    double se = this->EvaluateScreenError(leftPoint,midPoint,rightPoint);
     result=se>this->PixelTolerance;
     
     if(!result)
       {
-      double ae = this->EvaluateAttributesError(e1, e2);
-      this->ComputeAbsoluteAttributeTolerance();    
+      this->ComputeAbsoluteAttributeTolerance();
+      double ae = this->EvaluateAttributesError(leftPoint,midPoint,rightPoint);
       if(this->AbsoluteAttributeTolerance==0)
         {
         result=fabs(ae)>0.0001;
@@ -193,49 +175,21 @@ bool vtkGenericSubdivisionErrorMetric::EvaluateEdge( double *e1, double *e2 )
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Compute world coordinates of the vertices `e1' and `e2' defining the edge.
-// The result is in Edge1Cache and Edge2Cache. The middle of the straight line
-// is InterpolatedCenterCache, the middle of the arc is RealCenterCache.
-void vtkGenericSubdivisionErrorMetric::ComputeCoordinates(double *e1,
-                                                          double *e2)
-{ 
-  if(!this->GenericCell->IsGeometryLinear())
-    {
-    this->GenericCell->EvaluateLocation(0, e1, this->Edge1Cache);
-    this->GenericCell->EvaluateLocation(0, e2, this->Edge2Cache);
-    
-    double pcoord[3];
-    
-    int i=0;
-    while(i<3)
-      {
-      this->InterpolatedCenterCache[i] = (this->Edge1Cache[i]
-                                        + this->Edge2Cache[i])*0.5;
-      
-      // parametric center
-      pcoord[i] = (e1[i] + e2[i]) *0.5;
-      ++i;
-      }
-    
-    //Now evalute real value at center point
-    this->GenericCell->EvaluateLocation(0, pcoord, this->RealCenterCache);
-    }
-}
-
-//-----------------------------------------------------------------------------
 // EvaluateGeometricError
-double vtkGenericSubdivisionErrorMetric::EvaluateGeometricError(double *vtkNotUsed(e1),
-                                                                double *vtkNotUsed(e2))
+double vtkGenericSubdivisionErrorMetric::EvaluateGeometricError(
+  double *leftPoint,
+  double *midPoint,
+  double *rightPoint)
 {
+  assert("pre: leftPoint_exists" && leftPoint!=0);
+  assert("pre: midPoint_exists" && midPoint!=0);
+  assert("pre: rightPoint_exists" && rightPoint!=0);
   if( this->GenericCell->IsGeometryLinear() )
     {
     //don't need to do anything:
     return 0;
     }
-  
-  return Distance2LinePoint(this->Edge1Cache,this->Edge2Cache,
-                            this->RealCenterCache);
+  return this->Distance2LinePoint(leftPoint,rightPoint,midPoint);
 }
 
 //-----------------------------------------------------------------------------
@@ -273,12 +227,17 @@ double vtkGenericSubdivisionErrorMetric::Distance2LinePoint(double x[3],
 
 //-----------------------------------------------------------------------------
 // EvaluateAttributesError
-double vtkGenericSubdivisionErrorMetric::EvaluateAttributesError(double *e1,
-                                                                 double *e2)
+double vtkGenericSubdivisionErrorMetric::EvaluateAttributesError(
+  double *leftPoint,
+  double *midPoint,
+  double *rightPoint)
 {
-  // Since VTK is now using 1D texture mapping is this really usefull to refine
-  // based on attributes ?
-
+  assert("pre: leftPoint_exists" && leftPoint!=0);
+  assert("pre: midPoint_exists" && midPoint!=0);
+  assert("pre: rightPoint_exists" && rightPoint!=0);
+  
+  const int ATTRIBUTE_OFFSET=6;
+  
   vtkGenericAttribute *a=this->AttributeCollection->GetAttribute(
     this->AttributeCollection->GetActiveAttribute());
   
@@ -287,6 +246,8 @@ double vtkGenericSubdivisionErrorMetric::EvaluateAttributesError(double *e1,
     //don't need to do anything:
     return 0;
     }
+
+#if 0
   
   // Evaluate the field data at point a and b:
   double *w1 = this->Edge1Cache + 3;
@@ -315,6 +276,11 @@ double vtkGenericSubdivisionErrorMetric::EvaluateAttributesError(double *e1,
   double tmp=(w1[i]+w2[i])*0.5-attributeAtPoint[i];
 
   return tmp*tmp;
+#else
+  int i=this->AttributeCollection->GetAttributeIndex(this->AttributeCollection->GetActiveAttribute())+this->AttributeCollection->GetActiveComponent()+ATTRIBUTE_OFFSET;
+  double tmp=(leftPoint[i]+rightPoint[i])*0.5-midPoint[i];
+  return tmp*tmp;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -325,11 +291,8 @@ void vtkGenericSubdivisionErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GeometricTolerance: "  << this->GeometricTolerance << endl;
   os << indent << "PixelTolerance: "  << this->PixelTolerance << endl;
   os << indent << "AttributeTolerance: "  << this->AttributeTolerance << endl;
-  
-//  os << indent << "Error: "  << this->Error << endl;
-  
-//  os << indent << "AttributeCollection: "  << this->AttributeCollection << endl;
-//  os << indent << "GenericCell: "  << this->GenericCell << endl;
+  os << indent << "AttributeCollection: "  << this->AttributeCollection << endl;
+  os << indent << "GenericCell: "  << this->GenericCell << endl;
 }
 
 //-----------------------------------------------------------------------------

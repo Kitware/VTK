@@ -358,7 +358,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.5");
+vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.6");
 vtkStandardNewMacro(vtkGenericCellTessellator);
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetric, vtkGenericSubdivisionErrorMetric);
 //-----------------------------------------------------------------------------
@@ -642,6 +642,7 @@ void vtkGenericCellTessellator::CopyPoint(vtkIdType pointId)
 {
   double point[3];
   double *p=this->Scalars;
+  
   this->EdgeTable->CheckPoint(pointId, point, p);
   // There will some be duplicate points during a while but
   // this is the cost for speed:
@@ -893,6 +894,7 @@ vtkGenericCellTessellator::vtkGenericCellTessellator()
   this->CellIterator = 0;
   this->Scalars=0;
   this->ScalarsCapacity=0;
+  this->PointOffset=0;
 }
 
 //-----------------------------------------------------------------------------
@@ -968,12 +970,16 @@ void vtkGenericCellTessellator::InsertPointsIntoEdgeTable(vtkTetraTile &tetra )
     }
 }
 
+// format of the arrays LeftPoint, MidPoint, RightPoint is global, parametric,
+// attributes: xyz rst [abc de...]
+const int PARAMETRIC_OFFSET=3;
+const int ATTRIBUTES_OFFSET=6;
+
 //-----------------------------------------------------------------------------
 // 
 void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
 {
-  double local[3];
-  double global[3];
+  double *local;
   vtkIdType l, r;
   vtkIdType cellId = this->GenericCell->GetId();
 
@@ -983,6 +989,11 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
     this->EdgeTable->IncrementPointReferenceCount( tri.GetPointId(i));
     }
 
+  double *leftPoint=this->Scalars;
+  double *midPoint=this->Scalars+this->PointOffset;
+  double *rightPoint=midPoint+this->PointOffset;
+  
+  
   // Loop over all edges:
   // For each edge:
   //    if in hash table: incr ref 
@@ -994,7 +1005,10 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
         
     double *left = tri.GetVertex(l);
     double *right = tri.GetVertex(r);
-
+    
+    memcpy(leftPoint+PARAMETRIC_OFFSET,left,sizeof(double)*3);
+    memcpy(rightPoint+PARAMETRIC_OFFSET,right,sizeof(double)*3);
+    
     vtkIdType leftId = tri.GetPointId(l);
     vtkIdType rightId = tri.GetPointId(r);
 
@@ -1036,32 +1050,46 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
         refCount = 1;
         }
 
+      // global position and attributes at the left vertex
+      this->EdgeTable->CheckPoint(leftId,leftPoint,
+                                  leftPoint+ATTRIBUTES_OFFSET);
+      // global position and attributes at the right vertex
+      this->EdgeTable->CheckPoint(rightId,rightPoint,
+                                  rightPoint+ATTRIBUTES_OFFSET);
+      
+      // parametric center of the edge
+      local=midPoint+PARAMETRIC_OFFSET;
+      int i=0;
+      while(i<3)
+        {
+        local[i] = (left[i] + right[i]) *0.5;
+        ++i;
+        }
+      // global position of the center
+      this->GenericCell->EvaluateLocation(0,local,midPoint);
+      
+      // attributes at the center
+      this->GenericCell->InterpolateTuple(this->AttributeCollection, local,
+                                          midPoint+ATTRIBUTES_OFFSET);
+      
+      
       // Now, separate case were the edge is split or not:
 
-      if( this->ErrorMetric->EvaluateEdge(left, right))
+      if( this->ErrorMetric->EvaluateEdge(leftPoint,midPoint,rightPoint))
         {
         this->EdgeTable->InsertEdge(leftId, rightId, cellId, refCount, ptId);
         assert("check: id exists" && ptId != -1 );
 
         // And also the value we'll have to put to avoid recomputing them later:
-        //First find the point local coordinates:
-        local[0] = (tri.GetVertex(l)[0] + tri.GetVertex(r)[0])/2.;
-        local[1] = (tri.GetVertex(l)[1] + tri.GetVertex(r)[1])/2.;
-        local[2] = (tri.GetVertex(l)[2] + tri.GetVertex(r)[2])/2.;
-
+        
         //Save mid point:
         tri.SetVertex(j+3, local);
         tri.SetPointId(j+3, ptId);
 
-        // Then it's real space coordinate:
-        this->GenericCell->EvaluateLocation(0,local, global);
-
-        // Then scalar value associated with point:  
-        //this->GenericCell->EvaluateShapeFunction(local, scalar);
-        //this->AttributeCollection->EvaluateTuple(this->GenericCell, local, scalar);
-        this->GenericCell->InterpolateTuple(this->AttributeCollection, local, this->Scalars);
+      
         //Put everything in ths point hash table
-        this->EdgeTable->InsertPointAndScalar(ptId, global, this->Scalars);
+        this->EdgeTable->InsertPointAndScalar(ptId, midPoint,
+                                              midPoint+ATTRIBUTES_OFFSET);
         }
       else
         {
@@ -1083,11 +1111,13 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
         {
         tri.SetPointId(j+3, ptId);
         
-        local[0] = (tri.GetVertex(l)[0] + tri.GetVertex(r)[0])/2.;
-        local[1] = (tri.GetVertex(l)[1] + tri.GetVertex(r)[1])/2.;
-        local[2] = (tri.GetVertex(l)[2] + tri.GetVertex(r)[2])/2.;
+        double pcoords[3];
+        
+        pcoords[0] = (tri.GetVertex(l)[0] + tri.GetVertex(r)[0])*0.5;
+        pcoords[1] = (tri.GetVertex(l)[1] + tri.GetVertex(r)[1])*0.5;
+        pcoords[2] = (tri.GetVertex(l)[2] + tri.GetVertex(r)[2])*0.5;
 
-        tri.SetVertex(j+3, local);
+        tri.SetVertex(j+3, pcoords);
         }
       }
     }
@@ -1097,8 +1127,7 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
 // 
 void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
 {
-  double local[3];
-  double global[3];
+  double *local;
  
   vtkIdType l, r;
   const vtkIdType cellId = this->GenericCell->GetId();
@@ -1109,6 +1138,10 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
     this->EdgeTable->IncrementPointReferenceCount(tetra.GetPointId(i));
     }
 
+  double *leftPoint=this->Scalars;
+  double *midPoint=this->Scalars+this->PointOffset;
+  double *rightPoint=midPoint+this->PointOffset;
+  
   // Loop over all edges:
   // For each edge:
   //    if in hash table: incr ref 
@@ -1121,6 +1154,9 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
     double *left = tetra.GetVertex(l);
     double *right = tetra.GetVertex(r);
 
+    memcpy(leftPoint+PARAMETRIC_OFFSET,left,sizeof(double)*3);
+    memcpy(rightPoint+PARAMETRIC_OFFSET,right,sizeof(double)*3);
+    
     vtkIdType leftId = tetra.GetPointId(l);
     vtkIdType rightId = tetra.GetPointId(r);
 
@@ -1157,31 +1193,45 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
         // Inside:
         refCount = 1;
         }
+
+      // global position and attributes at the left vertex
+      this->EdgeTable->CheckPoint(leftId,leftPoint,
+                                  leftPoint+ATTRIBUTES_OFFSET);
+      // global position and attributes at the right vertex
+      this->EdgeTable->CheckPoint(rightId,rightPoint,
+                                  rightPoint+ATTRIBUTES_OFFSET);
       
+      // parametric center of the edge
+      local=midPoint+PARAMETRIC_OFFSET;
+      int i=0;
+      while(i<3)
+        {
+        local[i] = (left[i] + right[i]) *0.5;
+        ++i;
+        }
+      // global position of the center
+      this->GenericCell->EvaluateLocation(0,local,midPoint);
+      
+      // attributes at the center
+      this->GenericCell->InterpolateTuple(this->AttributeCollection, local,
+                                          midPoint+ATTRIBUTES_OFFSET);
+      
+        
       // Now, separate case were the edge is split or not:
-      if( this->ErrorMetric->EvaluateEdge(left, right) )
+      if( this->ErrorMetric->EvaluateEdge(leftPoint,midPoint,rightPoint) )
         {
         this->EdgeTable->InsertEdge(leftId, rightId, cellId, refCount, ptId);
         assert("check: id exists" && ptId != -1 );
 
         // And also the value we'll have to put to avoid recomputing them later:
-        //First find the point local coordinates:
-        local[0] = (tetra.GetVertex(l)[0] + tetra.GetVertex(r)[0])/2.;
-        local[1] = (tetra.GetVertex(l)[1] + tetra.GetVertex(r)[1])/2.;
-        local[2] = (tetra.GetVertex(l)[2] + tetra.GetVertex(r)[2])/2.;
 
         //Save mid point:
         tetra.SetVertex(j+4, local);
         tetra.SetPointId(j+4, ptId);
-
-        // Then its real space coordinate:
-        this->GenericCell->EvaluateLocation(0,local,global);
-
-        // Then scalar value associated with point:  
-        this->GenericCell->InterpolateTuple(this->AttributeCollection, local,
-                                            this->Scalars);
+        
         //Put everything in the point hash table
-        this->EdgeTable->InsertPointAndScalar(ptId, global, this->Scalars);
+        this->EdgeTable->InsertPointAndScalar(ptId, midPoint,
+                                              midPoint+ATTRIBUTES_OFFSET);
         }
       else
         {
@@ -1203,11 +1253,13 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
         {
         tetra.SetPointId(j+4, ptId);
         
-        local[0] = (tetra.GetVertex(l)[0] + tetra.GetVertex(r)[0])/2.;
-        local[1] = (tetra.GetVertex(l)[1] + tetra.GetVertex(r)[1])/2.;
-        local[2] = (tetra.GetVertex(l)[2] + tetra.GetVertex(r)[2])/2.;
+        double pcoords[3];
+        
+        pcoords[0] = (tetra.GetVertex(l)[0] + tetra.GetVertex(r)[0])*0.5;
+        pcoords[1] = (tetra.GetVertex(l)[1] + tetra.GetVertex(r)[1])*0.5;
+        pcoords[2] = (tetra.GetVertex(l)[2] + tetra.GetVertex(r)[2])*0.5;
 
-        tetra.SetVertex(j+4, local);
+        tetra.SetVertex(j+4, pcoords);
         }
       }
     }
@@ -1368,7 +1420,8 @@ void vtkGenericCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
   
   this->EdgeTable->SetNumberOfComponents(internalPd->GetNumberOfComponents());
   
-  this->AllocateScalars(internalPd->GetNumberOfComponents());
+  this->PointOffset=internalPd->GetNumberOfComponents()+6;
+  this->AllocateScalars(this->PointOffset*3);
   
   // Pass data to hash table:
   // FIXME some point are already in the hash table we shouldn't try
@@ -1483,8 +1536,8 @@ vtkGenericCellTessellator::TessellateTriangleFace(vtkGenericAdaptorCell *cell,
    // Init the edge table
   this->EdgeTable->SetNumberOfComponents(internalPd->GetNumberOfComponents());
   
-  this->AllocateScalars(internalPd->GetNumberOfComponents());
-
+  this->PointOffset=internalPd->GetNumberOfComponents()+6;
+  this->AllocateScalars(this->PointOffset*3);
   
   this->InsertPointsIntoEdgeTable( root );
   this->InsertEdgesIntoEdgeTable( root );
@@ -1533,7 +1586,8 @@ void vtkGenericCellTessellator::Triangulate(vtkGenericAdaptorCell *cell,
   // Init the edge table
   this->EdgeTable->SetNumberOfComponents(internalPd->GetNumberOfComponents());
   
-  this->AllocateScalars(internalPd->GetNumberOfComponents());
+  this->PointOffset=internalPd->GetNumberOfComponents()+6;
+  this->AllocateScalars(this->PointOffset*3);
 
   this->InsertPointsIntoEdgeTable( root );
 
