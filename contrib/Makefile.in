@@ -42,6 +42,7 @@ vtkMultiProcessController \
 vtkOBJReader \
 vtkOutlineCornerFilter \
 vtkOutlineCornerSource \
+vtkPieceScalars \
 vtkProjectedTexture \
 vtkRenderLargeImage \
 vtkRIBExporter \
