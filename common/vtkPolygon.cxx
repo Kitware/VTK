@@ -110,35 +110,35 @@ vtkCell *vtkPolygon::MakeObject()
 void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, int *pts, float *n)
 {
   int i;
-  float v[3], v0[3], v1[3];
+  float v0[3], v1[3], v2[3];
   float ax, ay, az, bx, by, bz;
-
-  // Check for special triangle case. Saves extra work.
-  // 
+// 
+// Check for special triangle case. Saves extra work.
+// 
   if ( numPts == 3 ) 
     {
-    p->GetPoint(pts[0],v);
-    p->GetPoint(pts[1],v0);
-    p->GetPoint(pts[2],v1);
-    vtkTriangle::ComputeNormal(v, v0, v1, n);
+    p->GetPoint(pts[0],v0);
+    p->GetPoint(pts[1],v1);
+    p->GetPoint(pts[2],v2);
+    vtkTriangle::ComputeNormal(v0, v1, v2, n);
     return;
     }
 
   //  Because polygon may be concave, need to accumulate cross products to 
   //  determine true normal.
-  //
-  p->GetPoint(pts[0],v); //set things up for loop
   p->GetPoint(pts[0],v1); //set things up for loop
+  p->GetPoint(pts[1],v2);
   n[0] = n[1] = n[2] = 0.0;
 
-  for (i=1; i < (numPts-1); i++) 
+  for (i=0; i < numPts; i++) 
     {
     v0[0] = v1[0]; v0[1] = v1[1]; v0[2] = v1[2];
-    p->GetPoint(pts[i+1],v1);
+    v1[0] = v2[0]; v1[1] = v2[1]; v1[2] = v2[2];
+    p->GetPoint(pts[(i+2)%numPts],v2);
 
     // order is important!!! to maintain consistency with polygon vertex order 
-    ax = v0[0] - v[0]; ay = v0[1] - v[1]; az = v0[2] - v[2];
-    bx = v1[0] - v[0]; by = v1[1] - v[1]; bz = v1[2] - v[2];
+    ax = v2[0] - v1[0]; ay = v2[1] - v1[1]; az = v2[2] - v1[2];
+    bx = v0[0] - v1[0]; by = v0[1] - v1[1]; bz = v0[2] - v1[2];
 
     n[0] += (ay * bz - az * by);
     n[1] += (az * bx - ax * bz);
