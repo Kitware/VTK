@@ -61,7 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkDataReader, "1.116");
+vtkCxxRevisionMacro(vtkDataReader, "1.117");
 vtkStandardNewMacro(vtkDataReader);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -2053,6 +2053,16 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   if ( this->InputString )
     {
     os << indent << "Input String: " << this->InputString << "\n";
+    }
+  else
+    {
+    os << indent << "Input String: (None)\n";
+    }
+
+  if ( this->InputArray )
+    {
+    os << indent << "Input Array: "  << "\n";
+    this->InputArray->PrintSelf(os,indent.GetNextIndent());
     }
   else
     {
