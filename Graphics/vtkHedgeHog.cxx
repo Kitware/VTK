@@ -15,12 +15,14 @@
 #include "vtkHedgeHog.h"
 
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHedgeHog, "1.42");
+vtkCxxRevisionMacro(vtkHedgeHog, "1.43");
 vtkStandardNewMacro(vtkHedgeHog);
 
 vtkHedgeHog::vtkHedgeHog()
@@ -29,9 +31,21 @@ vtkHedgeHog::vtkHedgeHog()
   this->VectorMode = VTK_USE_VECTOR;
 }
 
-void vtkHedgeHog::Execute()
+int vtkHedgeHog::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input= this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts;
   vtkPoints *newPts;
   vtkPointData *pd;
@@ -43,7 +57,6 @@ void vtkHedgeHog::Execute()
   vtkCellArray *newLines;
   double x[3], v[3];
   double newX[3];
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
   // Initialize
@@ -54,19 +67,19 @@ void vtkHedgeHog::Execute()
   if ( numPts < 1 )
     {
     vtkErrorMacro(<<"No input data");
-    return;
+    return 0;
     }
   if ( !inVectors && this->VectorMode == VTK_USE_VECTOR)
     {
     vtkErrorMacro(<<"No vectors in input data");
-    return;
+    return 0;
     }
 
   inNormals = pd->GetNormals();
   if ( !inNormals && this->VectorMode == VTK_USE_NORMAL)
     {
     vtkErrorMacro(<<"No normals in input data");
-    return;
+    return 0;
     }
   outputPD->CopyAllocate(pd, 2*numPts);
 
@@ -120,6 +133,8 @@ void vtkHedgeHog::Execute()
 
   output->SetLines(newLines);
   newLines->Delete();
+
+  return 1;
 }
 
 void vtkHedgeHog::PrintSelf(ostream& os, vtkIndent indent)
