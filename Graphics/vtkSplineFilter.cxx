@@ -21,7 +21,7 @@
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.3");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.4");
 vtkStandardNewMacro(vtkSplineFilter);
 
 vtkSplineFilter::vtkSplineFilter()
@@ -54,7 +54,7 @@ void vtkSplineFilter::Execute()
   vtkCellArray *inLines = NULL;
   
   vtkPoints *inPts;
-  vtkIdType numPts = 0;
+  vtkIdType numPts;
   vtkIdType numLines;
   vtkCellArray *newLines;
   vtkIdType numNewPts, numNewCells;
