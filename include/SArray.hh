@@ -46,7 +46,8 @@ public:
   void operator+=(const short i) {this->InsertNextValue(i);};
   // operator[] can be used on both left and right side of expression;
   // Note: if used on lh side, user's responsibility to do range checking
-  short& operator[](const int i) {return this->Array[i];};
+  short& operator[](const int i)
+    {if (i > this->MaxId) this->MaxId = i; return this->Array[i];};
   void Squeeze() {this->Resize (this->MaxId+1);};
   int GetSize() {return this->Size;};
   int GetMaxId() {return this->MaxId;};
