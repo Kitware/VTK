@@ -150,7 +150,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   ren->SetAspect(aspect);
 
   glMatrixMode( GL_PROJECTION);
-  matrix = this->GetPerspectiveTransform(aspect[0]/aspect[1],0,1);
+  matrix = this->GetPerspectiveTransform(aspect[0]/aspect[1],-1,1);
   matrix.Transpose();
   // insert camera view transformation 
   glLoadMatrixf(matrix[0]);
