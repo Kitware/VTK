@@ -363,7 +363,7 @@ void vtkVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
 				   int steps, float *resultRay)
 {
   int i,j;
-  float p1Mapper[3], p2Mapper[3];
+  float p1Mapper[4], p2Mapper[4];
   float ray[3];
   vtkStructuredPoints *strPts;
   static vtkVoxel cell; // use to take advantage of Hitbbox() method
@@ -407,7 +407,12 @@ void vtkVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
   this->Transform.SetPoint(p2World);
   this->Transform.GetPoint(p2Mapper);
 
-  for (i=0; i<3; i++) ray[i] = p2Mapper[i] - p1Mapper[i];
+  for (i=0; i<3; i++) 
+    {
+    p1Mapper /= p1Mapper[3];
+    p2Mapper /= p2Mapper[3];
+    ray[i] = p2Mapper[i] - p1Mapper[i];
+    }
   
   this->Transform.Pop();
 
@@ -417,14 +422,14 @@ void vtkVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
     {
     //  Get the bounding box of the modeller.
     bounds = strPts->GetBounds();
-    if (cell.HitBBox(bounds, p1Mapper, ray, hitPosition, t) )
+    if (cell.HitBBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
       {
       // find the exit point of the ray
       for (i=0; i<3; i++) 
 	{
 	ray[i] = p1Mapper[i] - p2Mapper[i];
 	}
-      cell.HitBBox(bounds, p2Mapper, ray, hitPosition, t2);
+      cell.HitBBox(bounds, (float *)p2Mapper, ray, hitPosition, t2);
       t2 = 1.0 - t2;
 
       // calc wc length of ray
