@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.32");
+vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.33");
 vtkStandardNewMacro(vtkImageGaussianSmooth);
 
 //----------------------------------------------------------------------------
@@ -126,12 +126,13 @@ void vtkImageGaussianSmooth::ComputeInputUpdateExtent(int inExt[6],
 // all other axes, and performs the convolution. Boundary conditions handled
 // previously.
 template <class T>
-static void 
+void 
 vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
-                      double *kernel, int kernelSize,
-                      vtkImageData *inData, T *inPtrC,
-                      vtkImageData *outData, int outExt[6], T *outPtrC,
-                      int *pcycle, int target, int *pcount, int total)
+                              double *kernel, int kernelSize,
+                              vtkImageData *inData, T *inPtrC,
+                              vtkImageData *outData, int outExt[6], 
+                              T *outPtrC, int *pcycle, int target, 
+                              int *pcount, int total)
 {
   int maxC, max0, max1;
   int idxC, idx0, idx1, idxK;

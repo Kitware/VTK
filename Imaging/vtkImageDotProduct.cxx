@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageProgressIterator.h"
 
-vtkCxxRevisionMacro(vtkImageDotProduct, "1.25");
+vtkCxxRevisionMacro(vtkImageDotProduct, "1.26");
 vtkStandardNewMacro(vtkImageDotProduct);
 
 //----------------------------------------------------------------------------
@@ -35,11 +35,11 @@ void vtkImageDotProduct::ExecuteInformation(vtkImageData **vtkNotUsed(inDatas),
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
-static void vtkImageDotProductExecute(vtkImageDotProduct *self,
-                                      vtkImageData *in1Data, 
-                                      vtkImageData *in2Data, 
-                                      vtkImageData *outData, 
-                                      int outExt[6], int id, T *)
+void vtkImageDotProductExecute(vtkImageDotProduct *self,
+                               vtkImageData *in1Data, 
+                               vtkImageData *in2Data, 
+                               vtkImageData *outData, 
+                               int outExt[6], int id, T *)
 {
   vtkImageIterator<T> inIt1(in1Data, outExt);
   vtkImageIterator<T> inIt2(in2Data, outExt);

@@ -18,7 +18,7 @@
 #include "vtkImageFlip.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageFlip, "1.30");
+vtkCxxRevisionMacro(vtkImageFlip, "1.31");
 vtkStandardNewMacro(vtkImageFlip);
 
 //----------------------------------------------------------------------------
@@ -76,9 +76,9 @@ void vtkImageFlip::ComputeInputUpdateExtent(int inExt[6],
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-static void vtkImageFlipExecute(vtkImageFlip *self, int id,
-                                vtkImageData *inData, int *inExt,
-                                vtkImageData *outData, int *outExt, T *outPtr)
+void vtkImageFlipExecute(vtkImageFlip *self, int id,
+                         vtkImageData *inData, int *inExt,
+                         vtkImageData *outData, int *outExt, T *outPtr)
 {
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;

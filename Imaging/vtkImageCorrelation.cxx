@@ -18,7 +18,7 @@
 #include "vtkImageCorrelation.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCorrelation, "1.25");
+vtkCxxRevisionMacro(vtkImageCorrelation, "1.26");
 vtkStandardNewMacro(vtkImageCorrelation);
 
 //----------------------------------------------------------------------------
@@ -75,11 +75,11 @@ void vtkImageCorrelation::ComputeInputUpdateExtent(int inExt[6],
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
-static void vtkImageCorrelationExecute(vtkImageCorrelation *self,
-                                       vtkImageData *in1Data, T *in1Ptr,
-                                       vtkImageData *in2Data, T *in2Ptr,
-                                       vtkImageData *outData, float *outPtr,
-                                       int outExt[6], int id)
+void vtkImageCorrelationExecute(vtkImageCorrelation *self,
+                                vtkImageData *in1Data, T *in1Ptr,
+                                vtkImageData *in2Data, T *in2Ptr,
+                                vtkImageData *outData, float *outPtr,
+                                int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;

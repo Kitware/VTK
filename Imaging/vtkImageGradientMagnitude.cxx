@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.29");
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.30");
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
@@ -106,10 +106,10 @@ void vtkImageGradientMagnitude::ComputeInputUpdateExtent(int inExt[6],
 // it handles boundaries. Pixels are just replicated to get values 
 // out of extent.
 template <class T>
-static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
-                                             vtkImageData *inData, T *inPtr,
-                                             vtkImageData *outData, T *outPtr,
-                                             int outExt[6], int id)
+void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
+                                      vtkImageData *inData, T *inPtr,
+                                      vtkImageData *outData, T *outPtr,
+                                      int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;

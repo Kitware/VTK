@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGridSource, "1.7");
+vtkCxxRevisionMacro(vtkImageGridSource, "1.8");
 vtkStandardNewMacro(vtkImageGridSource);
 
 //----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void vtkImageGridSource::ExecuteInformation()
 
 //----------------------------------------------------------------------------
 template<class T>
-static void vtkImageGridSourceExecute(vtkImageGridSource *self,
+void vtkImageGridSourceExecute(vtkImageGridSource *self,
                                vtkImageData *data, T *outPtr,
                                int outExt[6], int id)
 {
