@@ -162,6 +162,9 @@ void vtkGeometryFilter::Execute()
 
   switch (input->GetDataObjectType())
     {
+    case  VTK_POLY_DATA:
+      this->PolyDataExecute();
+      return;
     case  VTK_UNSTRUCTURED_GRID:
       this->UnstructuredGridExecute();
       return;
