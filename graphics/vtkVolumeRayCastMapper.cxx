@@ -161,7 +161,7 @@ void vtkVolumeRayCastMapper::CastViewRay( struct VolumeRayCastRayInfoStruct *ray
   float *volumeRayStart, *volumeRayEnd, *volumeRayDirection;
   float t;
   float *viewToVolumeMatrix;
-  float near, far, bounderNear, bounderFar;
+  float nearplane, farplane, bounderNear, bounderFar;
 
   rayOrigin = rayInfo->RayOrigin;
   rayDirection = rayInfo->RayDirection;
@@ -171,8 +171,8 @@ void vtkVolumeRayCastMapper::CastViewRay( struct VolumeRayCastRayInfoStruct *ray
   volumeRayIncrement = rayInfo->VolumeRayIncrement;
   viewToVolumeMatrix = volumeInfo->ViewToVolumeMatrix;
 
-  near = rayInfo->RayNearClip;
-  far  = rayInfo->RayFarClip;
+  nearplane = rayInfo->RayNearClip;
+  farplane  = rayInfo->RayFarClip;
 
   if ( rayInfo->RayPixel[0] > 0 && this->DepthRangeBufferPointer )
     {
@@ -184,11 +184,11 @@ void vtkVolumeRayCastMapper::CastViewRay( struct VolumeRayCastRayInfoStruct *ray
 			  rayInfo->RayPixel[0]) + 1 );
     if ( bounderNear > 0.0 )
       {
-      if ( bounderNear > near ) near = bounderNear;
-      if ( bounderFar  < far )  far  = bounderFar; 	
+      if ( bounderNear > nearplane ) nearplane = bounderNear;
+      if ( bounderFar  < farplane )  farplane  = bounderFar; 	
       }
 
-    if ( bounderNear <= 0.0 || near >= far )
+    if ( bounderNear <= 0.0 || nearplane >= farplane )
       {
       rayInfo->RayColor[0] = 
 	rayInfo->RayColor[1] = 
@@ -200,13 +200,13 @@ void vtkVolumeRayCastMapper::CastViewRay( struct VolumeRayCastRayInfoStruct *ray
       }
     }
 
-  rayStart[0] = rayOrigin[0] + near * rayDirection[0];
-  rayStart[1] = rayOrigin[1] + near * rayDirection[1];
-  rayStart[2] = rayOrigin[2] + near * rayDirection[2];
+  rayStart[0] = rayOrigin[0] + nearplane * rayDirection[0];
+  rayStart[1] = rayOrigin[1] + nearplane * rayDirection[1];
+  rayStart[2] = rayOrigin[2] + nearplane * rayDirection[2];
 
-  rayEnd[0]   = rayOrigin[0] + far  * rayDirection[0];
-  rayEnd[1]   = rayOrigin[1] + far  * rayDirection[1];
-  rayEnd[2]   = rayOrigin[2] + far  * rayDirection[2];
+  rayEnd[0]   = rayOrigin[0] + farplane  * rayDirection[0];
+  rayEnd[1]   = rayOrigin[1] + farplane  * rayDirection[1];
+  rayEnd[2]   = rayOrigin[2] + farplane  * rayDirection[2];
 
   // Transform the ray start from view to volume coordinates
   vtkRayCastMatrixMultiplyPointMacro( rayStart, volumeRayStart, viewToVolumeMatrix );
