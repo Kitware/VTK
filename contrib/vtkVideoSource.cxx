@@ -551,8 +551,8 @@ void vtkVideoSource::InternalGrab()
 // platform-independent sleep function
 static inline void vtkSleep(double duration)
 {
+  duration = duration; // avoid warnings
   // sleep according to OS preference
-  duration = duration;
 #ifdef _WIN32
   Sleep((int)(1000*duration));
 #elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi)
@@ -706,21 +706,27 @@ void vtkVideoSource::Rewind()
   this->FrameBufferMutex->Lock();
 
   double *stamp = this->FrameBufferTimeStamps;
-  double lowest = vtkTimerLog::GetCurrentTime();
+  double lowest = 2147483647L;
+  int index = this->FrameBufferIndex;
   int i;
 
   for (i = 0; i < this->FrameBufferSize; i++)
     {
-    if (stamp[i] != 0.0 && stamp[i] < lowest)
+    if (stamp[i] != 0.0 && stamp[i] <= lowest)
       {
       lowest = stamp[i];
+      index = i;
+      }
+    if (stamp[i] != 0.0 && stamp[i] < 980000000.0)
+      {
+      vtkWarningMacro("Rewind: bogus time stamp!");
       }
     }
-  this->FrameBufferIndex = i-1;
 
-  if (this->FrameBufferIndex < 0)
+  if (index != this->FrameBufferIndex)
     {
-    this->FrameBufferIndex += this->FrameBufferSize;
+    this->FrameBufferIndex = index;
+    this->Modified();
     }
 
   this->FrameBufferMutex->Unlock();
@@ -733,21 +739,27 @@ void vtkVideoSource::FastForward()
   this->FrameBufferMutex->Lock();
 
   double *stamp = this->FrameBufferTimeStamps;
-  double highest = 0.0;
+  double highest = 0;
+  int index = this->FrameBufferIndex;
   int i;
 
   for (i = 0; i < this->FrameBufferSize; i++)
     {
-    if (stamp[i] != 0.0 && stamp[i] > highest)
+    if (stamp[i] != 0.0 && stamp[i] >= highest)
       {
       highest = stamp[i];
+      index = i;
+      }
+    if (stamp[i] != 0.0 && stamp[i] < 980000000.0)
+      {
+      vtkWarningMacro("FastForward: bogus time stamp!");
       }
     }
-  this->FrameBufferIndex = i;
 
-  if (this->FrameBufferIndex > this->FrameBufferSize)
+  if (index != this->FrameBufferIndex)
     {
-    this->FrameBufferIndex -= this->FrameBufferSize;
+    this->FrameBufferIndex = index;
+    this->Modified();
     }
 
   this->FrameBufferMutex->Unlock();

@@ -15,15 +15,15 @@ vtkVideoSource grabber
 #grabber SetOutputWholeExtent 0 319 0 239 0 0
 catch { grabber VideoSourceDialog }
 catch { grabber VideoFormatDialog } 
-grabber SetFrameBufferSize 50 
-grabber SetNumberOfOutputFrames 50 
+grabber SetFrameBufferSize 50
+grabber SetNumberOfOutputFrames 50
 grabber Grab  
 
 [grabber GetOutput] UpdateInformation  
 
 vtkImageViewer viewer  
 viewer SetInput [grabber GetOutput]
-# settting DoubleBufferOn will greatly enhance performance   
+# setting DoubleBufferOn will greatly enhance performance   
 #[viewer GetImageWindow] DoubleBufferOn  
 viewer SetColorWindow 255 
 viewer SetColorLevel 127.5 
@@ -45,7 +45,7 @@ proc Record {} {
 
     if { [grabber GetPlaying] != 1 && [grabber GetRecording] != 1 } {
         grabber Record
-        animate
+        after 1 animate
     }
 }  
 
@@ -69,17 +69,54 @@ proc Grab {} {
 
     grabber Grab  
     viewer Render
-}  
+}
+
+proc Rewind {} {
+    global grabber viewer
+
+    grabber Rewind
+    viewer Render
+}
+
+proc FastForward {} {
+    global grabber viewer
+
+    grabber FastForward
+    grabber Modified
+    viewer Render
+}
+
+proc SeekForward {} {
+    global grabber viewer
+
+    grabber Seek 1
+    viewer Render
+}
+
+proc SeekBackward {} {
+    global grabber viewer
+
+    grabber Seek -1
+    viewer Render
+}
 
 frame .controls 
 button .controls.grab -text "Grab" -command Grab 
 pack .controls.grab -side left 
-button .controls.stop -text "Stop" -command Stop 
-pack .controls.stop -side left
 button .controls.record -text "Record" -command Record
 pack .controls.record -side left
+button .controls.stop -text "Stop" -command Stop 
+pack .controls.stop -side left
+button .controls.rewind -text "|<" -command Rewind
+pack .controls.rewind -side left 
+button .controls.seekbackward -text "<" -command SeekBackward
+pack .controls.seekbackward -side left 
 button .controls.play -text "Play" -command Play 
 pack .controls.play -side left 
+button .controls.seekforward -text ">" -command SeekForward 
+pack .controls.seekforward -side left 
+button .controls.fastforward -text ">|" -command FastForward 
+pack .controls.fastforward -side left 
 pack .controls -side top  
 
 proc SetFrameRate { r } {

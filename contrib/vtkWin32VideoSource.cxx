@@ -140,6 +140,24 @@ vtkWin32VideoSourceWinProc(HWND hwnd, UINT message,
 }
 
 //----------------------------------------------------------------------------
+LRESULT PASCAL vtkWin32VideoSourceCapControlProc(HWND hwndC, int nState)
+{
+  vtkWin32VideoSource *self = (vtkWin32VideoSource *)(capGetUserData(hwndC));
+
+  if (nState == CONTROLCALLBACK_PREROLL)
+    {
+    //cerr << "controlcallback preroll\n";
+    self->SetStartTimeStamp(vtkTimerLog::GetCurrentTime());      
+    }
+  else if (nState == CONTROLCALLBACK_CAPTURING)
+    {
+    //cerr << "controlcallback capturing\n";
+    }
+
+  return TRUE;
+}
+
+//----------------------------------------------------------------------------
 LRESULT PASCAL vtkWin32VideoSourceCallbackProc(HWND hwndC, LPVIDEOHDR lpVHdr)
 {
   vtkWin32VideoSource *self = (vtkWin32VideoSource *)(capGetUserData(hwndC));
@@ -157,7 +175,6 @@ LRESULT PASCAL vtkWin32VideoSourceStatusCallbackProc(HWND hwndC, int nID,
 
   if (nID == IDS_CAP_BEGIN)
     {
-    self->SetStartTimeStamp(vtkTimerLog::GetCurrentTime());
     //cerr << "start of capture\n";
     }
 
@@ -341,6 +358,16 @@ void vtkWin32VideoSource::Initialize()
     return;
     }
     
+  // install the callback to precisely time beginning of grab
+  if (!capSetCallbackOnCapControl(this->CapWnd,
+				  &vtkWin32VideoSourceCapControlProc))
+    {
+    vtkErrorMacro(<< "Initialize: couldn't set control callback"\
+                    << " (" << GetLastError() << ")");
+    this->ReleaseSystemResources();
+    return;
+    }    
+
   // install the callback to copy frames into the buffer on sync grabs
   if (!capSetCallbackOnFrame(this->CapWnd,
 			     &vtkWin32VideoSourceCallbackProc))
@@ -359,7 +386,7 @@ void vtkWin32VideoSource::Initialize()
     this->ReleaseSystemResources();
     return;
     }
-  // install the callback to decide whether to continue streaming
+  // install the callback to get info on start/end of streaming
   if (!capSetCallbackOnStatus(this->CapWnd,
 			     &vtkWin32VideoSourceStatusCallbackProc))
     {
@@ -539,6 +566,7 @@ void vtkWin32VideoSource::Grab()
     }
 
   // just do the grab, the callback does the rest
+  this->SetStartTimeStamp(vtkTimerLog::GetCurrentTime());
   capGrabFrameNoStop(this->CapWnd);
 }
 

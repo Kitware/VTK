@@ -82,9 +82,10 @@ public:
   virtual void Stop();
 
   // Description:
-  // Rewind to the frame immediately before the frame that has the 
-  // earliest timestamp.  Subsequent Play, Record, or Grab operations
-  // will start on the next frame.
+  // Rewind to the frame that has the earliest timestamp.  Subsequent grab 
+  // and record operations will start on the following frame, therefore
+  // if you want to re-record over the this frame you must call Seek(-1)
+  // before calling Grab() or Record().
   virtual void Rewind();
 
   // Description:
