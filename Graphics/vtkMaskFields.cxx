@@ -43,8 +43,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkMaskFields, "1.1");
+vtkCxxRevisionMacro(vtkMaskFields, "1.2");
 vtkStandardNewMacro(vtkMaskFields);
+
+char vtkMaskFields::FieldLocationNames[3][12] 
+= { "OBJECT_DATA",
+    "POINT_DATA",
+    "CELL_DATA" };
+
+char vtkMaskFields::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10] 
+=  { "SCALARS",
+     "VECTORS",
+     "NORMALS",
+     "TCOORDS",
+     "TENSORS" };
 
 vtkMaskFields::vtkMaskFields()
 {
@@ -133,6 +145,145 @@ void vtkMaskFields::CopyAttributeOnOff(int attributeLocation,
       this->CopyFieldFlags = newFlags;
     }
   this->Modified();
+}
+
+int vtkMaskFields::GetAttributeLocation(const char* attributeLoc)
+{
+  int numAttributeLocs = 3;
+  int loc=-1;
+
+  if (!attributeLoc)
+    {
+      return loc;
+    }
+
+  for (int i=0; i<numAttributeLocs; i++)
+    {
+      if (!strcmp(attributeLoc, FieldLocationNames[i]))
+        {
+          loc = i;
+          break;
+        }
+    }
+  return loc;
+}
+
+int vtkMaskFields::GetAttributeType(const char* attributeType)
+{
+
+  int numAttr = vtkDataSetAttributes::NUM_ATTRIBUTES;
+  int attrType=-1;
+
+  if (!attributeType)
+    {
+      return attrType;
+    }
+
+  for (int i=0; i<numAttr; i++)
+    {
+      if (!strcmp(attributeType, AttributeNames[i]))
+        {
+          attrType = i;
+          break;
+        }
+    }
+  return attrType;
+}
+
+void vtkMaskFields::CopyAttributeOn(const char* attributeLoc, 
+                                    const char* attributeType)
+{
+  if (!attributeType || !attributeLoc)
+    {
+      return;
+    }
+
+  // Convert strings to ints and call the appropriate CopyAttributeOn()
+
+  int attrType = this->GetAttributeType(attributeType);
+  if ( attrType == -1 )
+    {
+      vtkErrorMacro("Target attribute type is invalid.");
+      return;
+    }
+  
+  int loc = this->GetAttributeLocation(attributeLoc);
+  if (loc == -1)
+    {
+      vtkErrorMacro("Target location for the attribute is invalid.");
+      return;
+    }
+
+  this->CopyAttributeOn(loc, attrType);
+
+}
+
+void vtkMaskFields::CopyAttributeOff(const char* attributeLoc, 
+                                     const char* attributeType)
+{
+  if (!attributeType || !attributeLoc)
+    {
+      return;
+    }
+
+  // Convert strings to ints and call the appropriate CopyAttributeOn()
+
+  int attrType = this->GetAttributeType(attributeType);
+  if ( attrType == -1 )
+    {
+      vtkErrorMacro("Target attribute type is invalid.");
+      return;
+    }
+  
+  int loc = this->GetAttributeLocation(attributeLoc);
+  if (loc == -1)
+    {
+      vtkErrorMacro("Target location for the attribute is invalid.");
+      return;
+    }
+
+  this->CopyAttributeOff(loc, attrType);
+
+}
+
+void vtkMaskFields::CopyFieldOn(const char* fieldLoc, 
+                                const char* name)
+{
+  if (!name || !fieldLoc)
+    {
+      return;
+    }
+
+  // Convert strings to ints and call the appropriate CopyAttributeOn()  
+  int loc = this->GetAttributeLocation(fieldLoc);
+  if (loc == -1)
+    {
+      vtkErrorMacro("Target location for the attribute is invalid.");
+      return;
+    }
+
+  this->CopyFieldOn(loc, name);
+
+}
+
+void vtkMaskFields::CopyFieldOff(const char* fieldLoc, 
+                                 const char* name)
+{
+  if (!name || !fieldLoc)
+    {
+      return;
+    }
+
+  // Convert strings to ints and call the appropriate CopyAttributeOn()  
+  int loc = this->GetAttributeLocation(fieldLoc);
+  if (loc == -1)
+    {
+      vtkErrorMacro("Target location for the attribute is invalid.");
+      return;
+    }
+
+  this->CopyFieldOff(loc, name);
+
 }
 
 // Turn on copying of all data.

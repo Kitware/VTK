@@ -113,6 +113,18 @@ public:
   void CopyAttributesOn() { this->CopyAttributes = 1; }
 
   // Description:
+  // Helper methods used by other language bindings. Allows the caller to
+  // specify arguments as strings instead of enums.
+  void CopyAttributeOn(const char* attributeLoc, 
+                       const char* attributeType);
+  void CopyAttributeOff(const char* attributeLoc, 
+                        const char* attributeType);
+  void CopyFieldOn(const char* fieldLoc, 
+                   const char* name);
+  void CopyFieldOff(const char* fieldLoc, 
+                    const char* name);
+
+  // Description:
   // Turn on copying of all data.
   // During the copying/passing, the following rules are followed for each
   // array:
@@ -167,9 +179,14 @@ protected:
   int FindFlag(int arrayType, int location);
   int GetFlag(const char* field, int location);
   int GetFlag(int arrayType, int location);
+  int GetAttributeLocation(const char* loc);
+  int GetAttributeType(const char* type);
 
   int CopyFields;
   int CopyAttributes;
+
+  static char FieldLocationNames[3][12];
+  static char AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10];
 
 private:
   vtkMaskFields(const vtkMaskFields&);  // Not implemented.

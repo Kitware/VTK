@@ -67,6 +67,7 @@ vtkLinearExtrusionFilter
 vtkLinearSubdivisionFilter
 vtkLinkEdgels
 vtkLoopSubdivisionFilter
+vtkMaskFields
 vtkMaskPoints
 vtkMaskPolyData
 vtkMassProperties 
