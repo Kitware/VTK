@@ -15,7 +15,7 @@
 #include "vtkTableExtentTranslator.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTableExtentTranslator, "1.7");
+vtkCxxRevisionMacro(vtkTableExtentTranslator, "1.8");
 vtkStandardNewMacro(vtkTableExtentTranslator);
 
 //----------------------------------------------------------------------------
@@ -181,6 +181,7 @@ void vtkTableExtentTranslator::SetPieceAvailable(int piece, int available)
      (piece >= this->NumberOfPiecesInTable))
     {
     vtkErrorMacro("Piece " << piece << " does not exist.");
+    return;
     }
   this->PieceAvailable[piece] = available?1:0;
 }
