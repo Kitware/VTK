@@ -170,13 +170,13 @@ void vtk3DSImporter::ImportActors (vtkRenderer *renderer)
       }
 
     polyData = GeneratePolyData (mesh);
-    polyMapper = vtkPolyDataMapper::New ();
-    polyStripper = vtkStripper::New ();
+    mesh->aMapper = polyMapper = vtkPolyDataMapper::New ();
+    mesh->aStripper = polyStripper = vtkStripper::New ();
 
     // if ComputeNormals is on, insert a vtkPolyDataNormals filter
     if (this->ComputeNormals)
       {
-      polyNormals = vtkPolyDataNormals::New ();
+      mesh->aNormals = polyNormals = vtkPolyDataNormals::New ();
       polyNormals->SetInput (polyData);
       polyStripper->SetInput (polyNormals->GetOutput ());
       }
@@ -187,7 +187,7 @@ void vtk3DSImporter::ImportActors (vtkRenderer *renderer)
     
     polyMapper->SetInput (polyStripper->GetOutput ());
     vtkDebugMacro (<< "Importing Actor: " << mesh->name);
-    actor = vtkActor::New ();
+    mesh->anActor = actor = vtkActor::New ();
     actor->SetMapper (polyMapper);
     material = (MatProp *) LIST_FIND (this->MatPropList, mesh->mtl[0]->name);
     actor->SetProperty (material->aProperty);
@@ -204,7 +204,7 @@ vtkPolyData *vtk3DSImporter::GeneratePolyData (Mesh *mesh)
   vtkPolyData *polyData;
 
   face = mesh->face;
-  triangles = vtkCellArray::New ();
+  mesh->aCellArray = triangles = vtkCellArray::New ();
   triangles->Allocate(mesh->faces * 3);
   for (i = 0; i < mesh->faces; i++, face++)
     {
@@ -214,13 +214,13 @@ vtkPolyData *vtk3DSImporter::GeneratePolyData (Mesh *mesh)
     triangles->InsertCellPoint (face->c);
     }
 
-  vertices = vtkPoints::New ();
+  mesh->aPoints = vertices = vtkPoints::New ();
   vertices->Allocate(mesh->vertices);
   for (i = 0; i < mesh->vertices; i++)
     {
     vertices->InsertPoint (i, (float *) mesh->vertex[i]);
     }
-  polyData = vtkPolyData::New ();
+  mesh->aPolyData = polyData = vtkPolyData::New ();
   polyData->SetPolys (triangles);
   polyData->SetPoints (vertices);
 
@@ -235,7 +235,7 @@ void vtk3DSImporter::ImportCameras (vtkRenderer *renderer)
   // walk the list of cameras and create vtk cameras
   for (camera = this->CameraList; camera != (Camera *) NULL; camera = (Camera *) camera->next)
     {
-    aCamera = vtkCamera::New ();	
+    camera->aCamera = aCamera = vtkCamera::New ();	
     aCamera->SetPosition (camera->pos[0], camera->pos[1], camera->pos[2]);
     aCamera->SetFocalPoint (camera->target[0], camera->target[1], camera->target[2]);
     aCamera->SetViewUp (0, 0, 1);
@@ -256,7 +256,7 @@ void vtk3DSImporter::ImportLights (vtkRenderer *renderer)
   for (omniLight = this->OmniList; omniLight != (OmniLight *) NULL; omniLight = (OmniLight *) omniLight->next)
   {
 
-  aLight = vtkLight::New ();
+  omniLight->aLight = aLight = vtkLight::New ();
   aLight->SetPosition (omniLight->pos[0],
                        omniLight->pos[1],
                        omniLight->pos[2]);
@@ -435,6 +435,13 @@ static Mesh *create_mesh (char *name, int vertices, int faces)
     new_mesh->hidden = 0;
     new_mesh->shadow = 1;
 
+    new_mesh->anActor = NULL;
+    new_mesh->aMapper = NULL;
+    new_mesh->aNormals = NULL;
+    new_mesh->aStripper = NULL;
+    new_mesh->aPoints = NULL;
+    new_mesh->aCellArray = NULL;
+    new_mesh->aPolyData = NULL;
     return new_mesh;
 }
 
@@ -1088,13 +1095,34 @@ static void cleanup_name (char *name)
 
 vtk3DSImporter::~vtk3DSImporter()
 {
+  OmniLight *omniLight;
+  // walk the light list and delete vtk objects
+  for (omniLight = this->OmniList; omniLight != (OmniLight *) NULL; omniLight = (OmniLight *) omniLight->next)
+    {
+    omniLight->aLight->Delete();
+    }
   LIST_KILL (this->OmniList);
   LIST_KILL (this->SpotLightList);
+
+  Camera *camera;
+  // walk the camera list and delete vtk objects
+  for (camera = this->CameraList; camera != (Camera *) NULL; camera = (Camera *) camera->next)
+    {
+    camera->aCamera->Delete ();
+    }
   LIST_KILL (this->CameraList);
-  // walk the mesh list and delete malloced data
+
+  // walk the mesh list and delete malloced datra and vtk objects
   Mesh *mesh;
   for (mesh = this->MeshList; mesh != (Mesh *) NULL; mesh = (Mesh *) mesh->next)
     {
+    if (mesh->anActor != NULL) mesh->anActor->Delete ();
+    if (mesh->aMapper != NULL) mesh->aMapper->Delete ();
+    if (mesh->aNormals != NULL) mesh->aNormals->Delete ();
+    if (mesh->aStripper != NULL) mesh->aStripper->Delete ();
+    if (mesh->aPoints != NULL) mesh->aPoints->Delete ();
+    if (mesh->aCellArray != NULL) mesh->aCellArray->Delete ();
+    if (mesh->aPolyData != NULL) mesh->aPolyData->Delete ();
     if (mesh->vertex) free (mesh->vertex);
     if (mesh->face) free (mesh->face);
     if (mesh->mtl) free (mesh->mtl);  
@@ -1110,7 +1138,7 @@ vtk3DSImporter::~vtk3DSImporter()
   // just walk the list of material properties, deleting vtk properties
   for (m = this->MatPropList; m != (MatProp *) NULL; m = (MatProp *) m->next)
     {
-    delete m->aProperty;
+    m->aProperty->Delete();
     }
 
   // then delete the list structure
