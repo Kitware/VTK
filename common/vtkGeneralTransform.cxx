@@ -55,7 +55,7 @@ void vtkGeneralTransform::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------
 // Default TransformPoint:  Call Update(), then call the appropriate
 // 
-void vtkGeneralTransform::TransformPoint(float input[3],
+void vtkGeneralTransform::TransformPoint(const float input[3],
 					 float output[3])
 {
   this->Update();
@@ -65,7 +65,7 @@ void vtkGeneralTransform::TransformPoint(float input[3],
 //----------------------------------------------------------------------------
 // Convert double to float, then do the transformation.  A subclass
 // can override this method to provide true double-precision transformations.
-void vtkGeneralTransform::TransformPoint(double input[3], 
+void vtkGeneralTransform::TransformPoint(const double input[3], 
 					 double output[3])
 {
   float point[3];

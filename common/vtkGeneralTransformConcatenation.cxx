@@ -177,7 +177,7 @@ void vtkGeneralTransformConcatenation::Concatenate(vtkGeneralTransform *trans)
 // Check the InverseFlag, and perform a forward or reverse transform
 // as appropriate.
 void vtkGeneralTransformConcatenation::InternalTransformPoint(
-					      float input[3],
+					      const float input[3],
 					      float output[3])
 {
   output[0] = input[0];
@@ -202,7 +202,7 @@ void vtkGeneralTransformConcatenation::InternalTransformPoint(
 
 //----------------------------------------------------------------------------
 void vtkGeneralTransformConcatenation::InternalTransformDerivative(
-						   float input[3], 
+						   const float input[3], 
 						   float output[3],
 						   float derivative[3][3])
 {

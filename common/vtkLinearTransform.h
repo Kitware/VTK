@@ -61,8 +61,8 @@ public:
   // Description:
   // Apply the transformation to a coordinate.  You can use the same 
   // array to store both the input and output point.
-  void TransformPoint(float in[3], float out[3]);
-  void TransformPoint(double in[3], double out[3]);
+  void TransformPoint(const float in[3], float out[3]);
+  void TransformPoint(const double in[3], double out[3]);
 
   // Description:
   // Apply the transformation to a series of points, and append the
@@ -99,13 +99,13 @@ public:
   // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
-  void InternalTransformPoint(float in[3], float out[3]);
+  void InternalTransformPoint(const float in[3], float out[3]);
 
   // Description:
   // This will calculate the transformation as well as its derivative
   // without calling Update.  Meant for use only within other VTK
   // classes.
-  void InternalTransformDerivative(float in[3], float out[3],
+  void InternalTransformDerivative(const float in[3], float out[3],
 				   float derivative[3][3]);
 
 protected:

@@ -112,7 +112,7 @@ void vtkGeneralTransformInverse::SetInverse(vtkGeneralTransform *trans)
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransformInverse::InternalTransformPoint(float in[3], 
+void vtkGeneralTransformInverse::InternalTransformPoint(const float in[3], 
 							float out[3])
 {
   this->Transform->InternalTransformPoint(in,out);
@@ -120,7 +120,7 @@ void vtkGeneralTransformInverse::InternalTransformPoint(float in[3],
 
 //----------------------------------------------------------------------------
 void vtkGeneralTransformInverse::InternalTransformDerivative(
-						      float in[3],
+						      const float in[3],
 						      float out[3],
 						      float derivative[3][3])
 {

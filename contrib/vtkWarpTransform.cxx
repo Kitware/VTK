@@ -53,7 +53,7 @@ void vtkWarpTransform::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------
 // Check the InverseFlag, and perform a forward or reverse transform
 // as appropriate.
-void vtkWarpTransform::InternalTransformPoint(float input[3],
+void vtkWarpTransform::InternalTransformPoint(const float input[3],
 					      float output[3])
 {
   if (this->InverseFlag)
@@ -69,7 +69,7 @@ void vtkWarpTransform::InternalTransformPoint(float input[3],
 //------------------------------------------------------------------------
 // Default TransformPoint:  Call Update(), then call the appropriate
 // 
-void vtkWarpTransform::InternalTransformDerivative(float input[3],
+void vtkWarpTransform::InternalTransformDerivative(const float input[3],
 						   float output[3],
 						   float derivative[3][3])
 {
