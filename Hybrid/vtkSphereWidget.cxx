@@ -26,7 +26,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.7");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.8");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -52,7 +52,7 @@ vtkSphereWidget::vtkSphereWidget()
   this->Scale = 1;
 
   // handles
-  int HandleVisibility = 0;
+  this->HandleVisibility = 0;
   this->HandleDirection[0] = 1.0;
   this->HandleDirection[1] = 0.0;
   this->HandleDirection[2] = 0.0;
@@ -658,7 +658,7 @@ void vtkSphereWidget::PlaceWidget(float bds[6])
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
 
-  this->HandleSource->SetRadius(0.01*this->InitialLength);
+  this->HandleSource->SetRadius(0.0075*this->InitialLength);
 }
 
 void vtkSphereWidget::PlaceHandle(float *center, float radius)
