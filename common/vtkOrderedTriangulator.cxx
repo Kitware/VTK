@@ -577,64 +577,57 @@ inline static int IsAPoint(vtkOTTetra *t, unsigned long id)
 
 static void AssignNeighbors(vtkOTTetra* t1, vtkOTTetra* t2)
 {
-  // assign the face neighbor to t1
-  if ( IsAPoint(t2,t1->Points[0]->InternalId) && 
-       IsAPoint(t2,t1->Points[1]->InternalId) &&
-       IsAPoint(t2,t1->Points[3]->InternalId) )
+  static int CASE_MASK[4] = {1,2,4,8};
+  int i, index;
+
+  for (i=0, index=0; i<4; ++i)
     {
-    t1->Neighbors[0] = t2;
+    if (IsAPoint(t2,t1->Points[i]->InternalId) )
+      {
+      index |= CASE_MASK[i];
+      }
     }
-  else if ( IsAPoint(t2,t1->Points[1]->InternalId) && 
-            IsAPoint(t2,t1->Points[2]->InternalId) &&
-            IsAPoint(t2,t1->Points[3]->InternalId) )
+  switch (index)
     {
-    t1->Neighbors[1] = t2;
-    }
-  else if ( IsAPoint(t2,t1->Points[2]->InternalId) && 
-            IsAPoint(t2,t1->Points[0]->InternalId) &&
-            IsAPoint(t2,t1->Points[3]->InternalId) )
-    {
-    t1->Neighbors[2] = t2;
-    }
-  else if ( IsAPoint(t2,t1->Points[0]->InternalId) && 
-            IsAPoint(t2,t1->Points[1]->InternalId) &&
-            IsAPoint(t2,t1->Points[2]->InternalId) )
-    {
-    t1->Neighbors[3] = t2;
-    }
-  else
-    {
-    vtkGenericWarningMacro(<<"Really bad");
+    case 11:
+      t1->Neighbors[0] = t2;
+      break;
+    case 14:
+      t1->Neighbors[1] = t2;
+      break;
+    case 13:
+      t1->Neighbors[2] = t2;
+      break;
+    case 7:
+      t1->Neighbors[3] = t2;
+      break;
+    default:
+      vtkGenericWarningMacro(<<"Really bad");
     }
 
-  // assign the face neighbor to t2
-  if ( IsAPoint(t1,t2->Points[0]->InternalId) && 
-       IsAPoint(t1,t2->Points[1]->InternalId) &&
-       IsAPoint(t1,t2->Points[3]->InternalId) )
+  for (i=0, index=0; i<4; ++i)
     {
-    t2->Neighbors[0] = t1;
+    if (IsAPoint(t1,t2->Points[i]->InternalId) )
+      {
+      index |= CASE_MASK[i];
+      }
     }
-  else if ( IsAPoint(t1,t2->Points[1]->InternalId) && 
-            IsAPoint(t1,t2->Points[2]->InternalId) &&
-            IsAPoint(t1,t2->Points[3]->InternalId) )
+  switch (index)
     {
-    t2->Neighbors[1] = t1;
-    }
-  else if ( IsAPoint(t1,t2->Points[2]->InternalId) && 
-            IsAPoint(t1,t2->Points[0]->InternalId) &&
-            IsAPoint(t1,t2->Points[3]->InternalId) )
-    {
-    t2->Neighbors[2] = t1;
-    }
-  else if ( IsAPoint(t1,t2->Points[0]->InternalId) && 
-            IsAPoint(t1,t2->Points[1]->InternalId) &&
-            IsAPoint(t1,t2->Points[2]->InternalId) )
-    {
-    t2->Neighbors[3] = t1;
-    }
-  else
-    {
-    vtkGenericWarningMacro(<<"Really bad");
+    case 11:
+      t2->Neighbors[0] = t1;
+      break;
+    case 14:
+      t2->Neighbors[1] = t1;
+      break;
+    case 13:
+      t2->Neighbors[2] = t1;
+      break;
+    case 7:
+      t2->Neighbors[3] = t1;
+      break;
+    default:
+      vtkGenericWarningMacro(<<"Really bad");
     }
 }
 
