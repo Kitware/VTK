@@ -99,7 +99,9 @@ public:
   vtkIdType GetNumberOfCells();
   void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds);
   void GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
-    {vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);}
+    {
+      vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());
+    }
   void Initialize();
   int GetMaxCellSize() {return 8;}; //hexahedron is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
@@ -114,7 +116,8 @@ public:
 
   // Description:
   // Get dimensions of this structured points dataset.
-  vtkGetVectorMacro(Dimensions,int,3);
+  virtual int *GetDimensions ();
+  virtual void GetDimensions (int dim[3]);
 
   // Description:
   // Return the dimensionality of the data.
@@ -232,13 +235,15 @@ private:
 inline vtkIdType vtkStructuredGrid::GetNumberOfCells() 
 {
   int nCells=1;
+  int dims[3];
   int i;
 
+  this->GetDimensions(dims);
   for (i=0; i<3; i++)
     {
-    if (this->Dimensions[i] > 1)
+    if (dims[i] > 1)
       {
-      nCells *= (this->Dimensions[i]-1);
+      nCells *= (dims[i]-1);
       }
     }
 

@@ -73,9 +73,9 @@ vtkStructuredGrid::vtkStructuredGrid()
   this->Hexahedron = vtkHexahedron::New();
   this->EmptyCell = vtkEmptyCell::New();
   
-  this->Dimensions[0] = 1;
-  this->Dimensions[1] = 1;
-  this->Dimensions[2] = 1;
+  this->Dimensions[0] = 0;
+  this->Dimensions[1] = 0;
+  this->Dimensions[2] = 0;
   this->DataDescription = VTK_SINGLE_POINT;
   
   this->Blanking = 0;
@@ -131,6 +131,7 @@ void vtkStructuredGrid::Initialize()
     }
   this->PointVisibility = NULL;
   this->Blanking = 0;
+  this->SetDimensions(0,0,0);
 }
 
 //----------------------------------------------------------------------------
@@ -182,6 +183,9 @@ vtkCell *vtkStructuredGrid::GetCell(vtkIdType cellId)
     {
     return this->EmptyCell;
     }
+
+  // Update dimensions
+  this->GetDimensions();
 
   switch (this->DataDescription)
     {
@@ -304,6 +308,9 @@ void vtkStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
     cell->SetCellTypeToEmptyCell();
     return;
     }
+
+  // Update dimensions
+  this->GetDimensions();
 
   switch (this->DataDescription)
     {
@@ -428,6 +435,9 @@ void vtkStructuredGrid::GetCellBounds(vtkIdType cellId, float bounds[6])
     return;
     }
  
+  // Update dimensions
+  this->GetDimensions();
+
   switch (this->DataDescription)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
@@ -636,6 +646,9 @@ void vtkStructuredGrid::SetPointVisibility(vtkUnsignedCharArray *ptVis)
 // Return non-zero if the specified cell is visible (i.e., not blanked)
 unsigned char vtkStructuredGrid::IsCellVisible(vtkIdType cellId)
 {
+  // Update dimensions
+  this->GetDimensions();
+
   int numIds=0;
   vtkIdType ptIds[8];
   int iMin, iMax, jMin, jMax, kMin, kMax;
@@ -757,6 +770,9 @@ void vtkStructuredGrid::SetDimensions(int dim[3])
 // Get the points defining a cell. (See vtkDataSet for more info.)
 void vtkStructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 {
+  // Update dimensions
+  this->GetDimensions();
+
   int iMin, iMax, jMin, jMax, kMin, kMax;
   vtkIdType d01 = this->Dimensions[0]*this->Dimensions[1];
  
@@ -911,6 +927,19 @@ void vtkStructuredGrid::SetExtent(int xMin, int xMax,
   this->SetExtent(extent);
 }
 
+int *vtkStructuredGrid::GetDimensions () 
+{
+  this->GetDimensions(this->Dimensions);
+  return this->Dimensions;
+} 
+
+void vtkStructuredGrid::GetDimensions (int dim[3]) 
+{ 
+  dim[0] = this->Extent[1] - this->Extent[0] + 1;
+  dim[1] = this->Extent[3] - this->Extent[2] + 1;
+  dim[2] = this->Extent[5] - this->Extent[4] + 1;
+}
+
 //----------------------------------------------------------------------------
 void vtkStructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                          vtkIdList *cellIds)
@@ -926,7 +955,7 @@ void vtkStructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
 
     case 1: case 2: case 4: //vertex, edge, face neighbors
       vtkStructuredData::GetCellNeigbors(cellId, ptIds, 
-                                         cellIds, this->Dimensions);
+                                         cellIds, this->GetDimensions());
       break;
       
     default:
@@ -990,6 +1019,9 @@ void vtkStructuredGrid::InternalStructuredGridCopy(vtkStructuredGrid *src)
 
   this->DataDescription = src->DataDescription;
   this->Blanking = src->Blanking;
+
+  // Update dimensions
+  this->GetDimensions();
 
   for (idx = 0; idx < 3; ++idx)
     {
@@ -1168,9 +1200,11 @@ void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSet::PrintSelf(os,indent);
 
-  os << indent << "Dimensions: (" << this->Dimensions[0] << ", "
-                                  << this->Dimensions[1] << ", "
-                                  << this->Dimensions[2] << ")\n";
+  int dim[3];
+  this->GetDimensions(dim);
+  os << indent << "Dimensions: (" << dim[0] << ", "
+                                  << dim[1] << ", "
+                                  << dim[2] << ")\n";
 
   os << indent << "Blanking: " << (this->Blanking ? "On\n" : "Off\n");
 
