@@ -27,7 +27,7 @@
 #include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCGMWriter, "1.10");
+vtkCxxRevisionMacro(vtkCGMWriter, "1.11");
 vtkStandardNewMacro(vtkCGMWriter);
 
 vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);
@@ -369,7 +369,7 @@ vtkColorHash::~vtkColorHash()
 int vtkColorHash::InsertUniqueColor(cgmImagePtr im, int r, int g, int b)
 {
   int index = (65536*r + 256*g * b) % VTK_HASH_INDEX;
-  int cgmIndex;
+  int cgmIndex=0; //remove warning
 
   // If no list, just insert the color
   if ( this->Table[index] == NULL )
@@ -458,7 +458,7 @@ static vtkColorHash *DefineLUTColors(cgmImagePtr im, unsigned char *colors,
 {
   vtkColorHash *colorHash = new vtkColorHash;
   unsigned char *ptr;
-  int r, g, b;
+  int r=0, g=0, b=0; //warnings
   int id;
 
   for (id=0; id < numColors; id++)
@@ -538,11 +538,11 @@ void vtkCGMWriter::WriteData()
   int i, id, type, npts, size[2];
   vtkIdType *p;
   float bounds[6], xRange, yRange, x[3], factor[2];
-  int color, bpp, colorMode;
-  unsigned char *ptr, *colors;
+  int color, bpp=1, colorMode;
+  unsigned char *ptr, *colors=NULL;
   int rgbColor[3], maxCellSize;
   cgmPoint *points;
-  vtkSortValues *depth;
+  vtkSortValues *depth=NULL; //warnings
 
   // Check that there is something to write
   if ( numPts < 1 || numCells < 1 )
@@ -619,7 +619,7 @@ void vtkCGMWriter::WriteData()
   //
   int CGMColors[256];
   im = cgmImageCreate(size[0], size[1]);
-  vtkColorHash *colorHash;
+  vtkColorHash *colorHash=NULL;
 
   if ( this->ColorMode == VTK_COLOR_MODE_DEFAULT )
     {
