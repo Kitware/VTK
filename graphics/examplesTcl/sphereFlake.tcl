@@ -31,7 +31,6 @@ pack .top.f1.rw -expand 1 -fill both
 vtkRenderer ren1
 set renWin [.top.f1.rw GetRenderWindow]
 $renWin AddRenderer ren1
-$renWin SetDesiredUpdateRate 1.0
 
 # Create the initial flake list - it has one sphere at
 # (0.0, 0.0, 0.0) with a radius of 1.0 and a color of
