@@ -53,30 +53,36 @@ static void ResetCameraClippingRange(vtkObject *caller,
 static void RenderRMI(void *arg, void *, int, int);
 static void ComputeVisiblePropBoundsRMI(void *arg, void *, int, int);
 
-struct vtkParallelRenderManagerRenderWindowInfoInt {
+struct vtkParallelRenderManagerRenderWindowInfoInt
+{
   int FullSize[2];
   int ReducedSize[2];
   int NumberOfRenderers;
   int ImageReductionFactor;
   int UseCompositing;
 };
-struct vtkParallelRenderManagerRenderWindowInfoFloat {
+struct vtkParallelRenderManagerRenderWindowInfoFloat
+{
   float DesiredUpdateRate;
 };
 
-struct vtkParallelRenderManagerRendererInfoInt {
+struct vtkParallelRenderManagerRendererInfoInt
+{
   int NumberOfLights;
 };
-struct vtkParallelRenderManagerRendererInfoFloat {
+struct vtkParallelRenderManagerRendererInfoFloat
+{
   float Viewport[4];
   float CameraPosition[3];
   float CameraFocalPoint[3];
   float CameraViewUp[3];
   float CameraClippingRange[2];
   float Background[3];
+  float ParallelScale;
 };
 
-struct vtkParallelRenderManagerLightInfoFloat {
+struct vtkParallelRenderManagerLightInfoFloat
+{
   float Position[3];
   float FocalPoint[3];
 };
@@ -92,7 +98,7 @@ const int VTK_REN_INFO_FLOAT_SIZE =
 const int VTK_LIGHT_INFO_FLOAT_SIZE =
   sizeof(vtkParallelRenderManagerLightInfoFloat)/sizeof(float);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.6");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.7");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -596,8 +602,6 @@ void vtkParallelRenderManager::StartRender()
   rens->InitTraversal();
   ren = rens->GetNextItem();
   
-//  for (rens->InitTraversal(), i = 0; (ren = rens->GetNextItem()); i++)
-//    {
   if (ren)
     {
     ren->GetViewport(renInfoFloat.Viewport);
@@ -605,7 +609,6 @@ void vtkParallelRenderManager::StartRender()
     // Adjust Renderer viewports to get reduced size image.
     if (this->ImageReductionFactor > 1)
       {
-//      this->Viewports->SetTuple(i, renInfoFloat.Viewport);
       this->Viewports->SetTuple(0, renInfoFloat.Viewport);
       renInfoFloat.Viewport[0] /= this->ImageReductionFactor;
       renInfoFloat.Viewport[1] /= this->ImageReductionFactor;
@@ -620,7 +623,14 @@ void vtkParallelRenderManager::StartRender()
     cam->GetViewUp(renInfoFloat.CameraViewUp);
     cam->GetClippingRange(renInfoFloat.CameraClippingRange);
     ren->GetBackground(renInfoFloat.Background);
-
+    if (cam->GetParallelProjection())
+      {
+      renInfoFloat.ParallelScale = cam->GetParallelScale();
+      }
+    else
+      {
+      renInfoFloat.ParallelScale = 0.0;
+      }
     vtkLightCollection *lc = ren->GetLights();
     renInfoInt.NumberOfLights = lc->GetNumberOfItems();
 
@@ -682,11 +692,9 @@ void vtkParallelRenderManager::EndRender()
     {
     vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
     vtkRenderer *ren;
-    int i;
-    for (rens->InitTraversal(), i = 0; (ren = rens->GetNextItem()); i++)
-      {
-      ren->SetViewport(this->Viewports->GetPointer(i*4));
-      }
+    rens->InitTraversal();
+    ren = rens->GetNextItem();
+    ren->SetViewport(this->Viewports->GetPointer(0));
     }
 
   this->WriteFullImage();
@@ -1334,7 +1342,7 @@ void vtkParallelRenderManager::GetPixelData(vtkUnsignedCharArray *data)
     }
 
   // Read image from RenderWindow and magnify if necessary.
-  MagnifyReducedImage();
+  this->MagnifyReducedImage();
 
   data->SetNumberOfComponents(this->FullImage->GetNumberOfComponents());
   data->SetArray(this->FullImage->GetPointer(0),
@@ -1598,6 +1606,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
     {
     return;
     }
+  
   if (!this->Controller->Receive((float *)(&winInfoFloat),
                                  VTK_WIN_INFO_FLOAT_SIZE, this->RootProcessId,
                                  vtkParallelRenderManager::WIN_INFO_FLOAT_TAG))
@@ -1633,7 +1642,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
       {
       continue;
       }
-
+    
     vtkLightCollection *lc = NULL;
     vtkRenderer *ren = rens->GetNextItem();
     if (ren == NULL)
@@ -1649,6 +1658,15 @@ void vtkParallelRenderManager::SatelliteStartRender()
       cam->SetFocalPoint(renInfoFloat.CameraFocalPoint);
       cam->SetViewUp(renInfoFloat.CameraViewUp);
       cam->SetClippingRange(renInfoFloat.CameraClippingRange);
+      if (renInfoFloat.ParallelScale != 0.0)
+        {
+        cam->ParallelProjectionOn();
+        cam->SetParallelScale(renInfoFloat.ParallelScale);
+        }
+      else
+        {
+        cam->ParallelProjectionOff();
+        }
       lc = ren->GetLights();
       lc->InitTraversal();
       }

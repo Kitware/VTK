@@ -379,7 +379,7 @@ protected:
   // Description:
   // Sets the current render window's pixel data.
   virtual void SetRenderWindowPixelData(vtkUnsignedCharArray *pixels,
-          const int pixel_dimensions[2]);
+          const int pixelDimensions[2]);
 
 private:
   vtkParallelRenderManager(const vtkParallelRenderManager &); //Not implemented
