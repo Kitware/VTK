@@ -33,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.24");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.25");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -66,6 +66,17 @@ vtkClipDataSet::~vtkClipDataSet()
     }
   this->SetClipFunction(NULL);
   this->SetInputScalarsSelection(NULL);
+}
+
+//----------------------------------------------------------------------------
+// Do not say we have two outputs unless we are generating the clipped output. 
+int vtkClipDataSet::GetNumberOfOutputs()
+{
+  if (this->GenerateClippedOutput)
+    {
+    return 2;
+    }
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -129,6 +129,7 @@ public:
   // Description:
   // Return the Clipped output.
   vtkUnstructuredGrid *GetClippedOutput();
+  virtual int GetNumberOfOutputs();
 
   // Description:
   // Specify a spatial locator for merging points. By default, an
