@@ -304,6 +304,8 @@ void vtkXRenderWindowTclInteractor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "App: (none)\n";
     }
+  os << indent << "Break Loop Flag: " 
+     << (this->BreakLoopFlag ? "On\n" : "Off\n");
 }
 
 
