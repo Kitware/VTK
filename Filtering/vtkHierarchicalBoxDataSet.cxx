@@ -24,7 +24,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.5");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.6");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
@@ -145,6 +145,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
       boxes.push_back(coarsebox);
       }
 
+    numDataSets = this->GetNumberOfDataSets(levelIdx);
     for (dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
       {
       vtkAMRBox box;
