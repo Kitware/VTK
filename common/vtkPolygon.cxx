@@ -614,7 +614,6 @@ public:
   
   int ComputeNormal();
   float ComputeMeasure(vtkPolyVertex *vtx);
-  vtkPolyVertex *GetVertex(int i) {return this->Array + i;}
   void RemoveVertex(int i, vtkIdList *, vtkPriorityQueue *);
   int CanRemoveVertex(int id, float tol);
   
@@ -719,18 +718,18 @@ void vtkPolyVertexList::RemoveVertex(int i, vtkIdList *tris,
 
 int vtkPolyVertexList::ComputeNormal()
 {
-  float v1[3], v2[3];
+  vtkPolyVertex *vtx=this->Head;
+  float v1[3], v2[3], n[3], *anchor=vtx->x;
 
   this->Normal[0] = this->Normal[1] = this->Normal[2] = 0.0;
-  float n[3], *anchor = this->GetVertex(0)->x;
-  for (int i=0; i<this->NumberOfVerts-2; i++)
+  for (vtx=vtx->next; vtx->next!=this->Head; vtx=vtx->next)
     {
-    v1[0] = this->GetVertex(i)->x[0] - anchor[0];
-    v1[1] = this->GetVertex(i)->x[1] - anchor[1];
-    v1[2] = this->GetVertex(i)->x[2] - anchor[2];
-    v2[0] = this->GetVertex(i+1)->x[0] - anchor[0];
-    v2[1] = this->GetVertex(i+1)->x[1] - anchor[1];
-    v2[2] = this->GetVertex(i+1)->x[2] - anchor[2];
+    v1[0] = vtx->x[0] - anchor[0];
+    v1[1] = vtx->x[1] - anchor[1];
+    v1[2] = vtx->x[2] - anchor[2];
+    v2[0] = vtx->next->x[0] - anchor[0];
+    v2[1] = vtx->next->x[1] - anchor[1];
+    v2[2] = vtx->next->x[2] - anchor[2];
     vtkMath::Cross(v1,v2,n);
     this->Normal[0] += n[0];
     this->Normal[1] += n[1];
