@@ -85,9 +85,9 @@ vtkPDataSetReader::~vtkPDataSetReader()
   delete[] this->FileName;
   this->SetNumberOfPieces(0);
 
-  if (this->PieceFileNames[i])
+  if (this->PieceFileNames)
     {
-    for (i = 0; i < this->NumberOfPieces; ++i)
+    for (int i = 0; i < this->NumberOfPieces; ++i)
       {
       if (this->PieceFileNames[i])
 	{
