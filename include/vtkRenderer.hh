@@ -105,6 +105,12 @@ public:
   vtkBooleanMacro(BackLight,int);
 
   // Description:
+  // Set/Get the amoun of time this renderer is allowed to spend
+  // rendering its scene. Zero indicates an infinite amount of time.
+  vtkSetMacro(AllocatedRenderTime,float);
+  vtkGetMacro(AllocatedRenderTime,float);
+
+  // Description:
   // Create an image.
   virtual void Render() = 0;
 
@@ -188,6 +194,7 @@ protected:
   float Center[2];
   int   SelfCreatedCamera;
   int   SelfCreatedLight;
+  float AllocatedRenderTime;
   
   void (*StartRenderMethod)(void *);
   void (*StartRenderMethodArgDelete)(void *);
