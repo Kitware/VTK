@@ -93,9 +93,11 @@ vtkMarchingCubes::~vtkMarchingCubes()
 unsigned long vtkMarchingCubes::GetMTime()
 {
   unsigned long mTime=this->vtkStructuredPointsToPolyDataFilter::GetMTime();
-  unsigned long contourValuesMTime=this->ContourValues->GetMTime();
+  unsigned long mTime2=this->ContourValues->GetMTime();
 
-  mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
+  mTime = ( mTime2 > mTime ? mTime2 : mTime );
+  mTime2=this->Locator->GetMTime();
+  mTime = ( mTime2 > mTime ? mTime2 : mTime );
 
   return mTime;
 }
