@@ -88,12 +88,14 @@
 
 #define VTKIS_START        0
 #define VTKIS_NONE         0
+
 #define VTKIS_ROTATE       1
-#define VTKIS_ZOOM         2
-#define VTKIS_PAN          3
-#define VTKIS_SPIN         4
-#define VTKIS_DOLLY        5
+#define VTKIS_PAN          2
+#define VTKIS_SPIN         3
+#define VTKIS_DOLLY        4
+#define VTKIS_ZOOM         5
 #define VTKIS_USCALE       6
+
 #define VTKIS_TIMER        7  
 
 #define VTKIS_ANIM_OFF 0
@@ -136,9 +138,9 @@ public:
   // come very close. If AutoAdjustCameraClippingRange is off, no adjustment
   // will be made per render, but the camera clipping range will still
   // be reset when the camera is reset.
-  vtkSetClampMacro( AutoAdjustCameraClippingRange, int, 0, 1 );
-  vtkGetMacro( AutoAdjustCameraClippingRange, int );
-  vtkBooleanMacro( AutoAdjustCameraClippingRange, int );
+  vtkSetClampMacro(AutoAdjustCameraClippingRange, int, 0, 1 );
+  vtkGetMacro(AutoAdjustCameraClippingRange, int );
+  vtkBooleanMacro(AutoAdjustCameraClippingRange, int );
   
   // Description:
   // When an event occurs, we must determine which Renderer the event
@@ -193,7 +195,7 @@ public:
   virtual void OnLeave    (int x, int y);
 
   // Description:
-  // OnTimer calls RotateCamera, RotateActor etc which should be overridden by
+  // OnTimer calls Rotate, Rotate etc which should be overridden by
   // style subclasses.
   virtual void OnTimer();
 
@@ -216,14 +218,21 @@ public:
   // Some useful information for interaction
   vtkGetMacro(State,int);
 
-protected:
-  vtkInteractorStyle();
-  ~vtkInteractorStyle();
+  // Description:
+  // Set/Get timer hint
+  vtkGetMacro(UseTimers,int);
+  vtkSetMacro(UseTimers,int);
+  vtkBooleanMacro(UseTimers,int);
 
-  // does ProcessEvents handle observers on this class or not
+  // Description:
+  // Does ProcessEvents handle observers on this class or not
   vtkSetMacro(HandleObservers,int);
   vtkGetMacro(HandleObservers,int);
   vtkBooleanMacro(HandleObservers,int);
+
+protected:
+  vtkInteractorStyle();
+  ~vtkInteractorStyle();
 
   // Will the clipping range be automatically adjust before each render?
   int AutoAdjustCameraClippingRange;
@@ -232,13 +241,15 @@ protected:
   virtual void UpdateInternalState(int ctrl, int shift, int x, int y);
 
   // These methods for the different interactions in different modes
-  // are overridden in subclasses to perform the correct motion
-  // This class provides a default implementation.
-
-  virtual void RotateCamera(int x, int y);
-  virtual void SpinCamera(int x, int y);
-  virtual void PanCamera(int x, int y);
-  virtual void DollyCamera(int x, int y);
+  // are overridden in subclasses to perform the correct motion. Since
+  // they might be called from OnTimer, they do not have mouse coord parameters
+  // (use GetLastPos and interactor GetEventPosition)
+  virtual void Rotate() {};
+  virtual void Spin() {};
+  virtual void Pan() {};
+  virtual void Dolly() {};
+  virtual void Zoom() {};
+  virtual void UniformScale() {};
 
   // utility routines used by state changes below
   virtual void StartState(int newstate);
@@ -270,12 +281,16 @@ protected:
   float Center[2];
   float DeltaAzimuth;
   float DeltaElevation;
+
   int   CtrlKey;
   int   ShiftKey;
-  int   LastPos[2];
+
   int   State;  
   int   AnimState;  
-  float FocalDepth;  
+
+  int   HandleObservers; // bool: should observers be handled here
+
+  int   UseTimers;       // bool: should we fire timers
 
   vtkLight           *CurrentLight;
 
@@ -287,11 +302,8 @@ protected:
   vtkRenderer        *PickedRenderer;
   vtkProp            *CurrentProp;
   vtkActor2D         *PickedActor2D;
-
   int                PropPicked;      // bool: prop picked?
   float              PickColor[3];    // support 2D picking
-  int                HandleObservers; // bool: should observers be handled here
-  int                NoTimerInStartState; // bool: should StartState use timer
 
   unsigned long LeftButtonPressTag;
   unsigned long LeftButtonReleaseTag;

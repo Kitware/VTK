@@ -212,6 +212,7 @@ protected:
   vtkInteractorStyleUser();
   ~vtkInteractorStyleUser();
 
+  int LastPos[2];
   int OldPos[2];
 
   int Char;

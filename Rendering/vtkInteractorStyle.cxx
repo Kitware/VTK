@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.60");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.61");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -65,17 +65,14 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->PickColor[2]        = 0.0;
   this->PickedActor2D       = NULL;
 
-  this->State               = VTKIS_START;
+  this->State               = VTKIS_NONE;
   this->AnimState           = VTKIS_ANIM_OFF; 
 
   this->CtrlKey             = 0;
   this->ShiftKey            = 1;
 
-  this->LastPos[0]          = 
-  this->LastPos[1]          = 0;
-
   this->HandleObservers     = 1;
-  this->NoTimerInStartState = 0;
+  this->UseTimers           = 1;
 
   this->AutoAdjustCameraClippingRange = 1;
   
@@ -162,6 +159,7 @@ void vtkInteractorStyle::SetEnabled(int enabling)
     }
 }
 
+//----------------------------------------------------------------------------
 // NOTE!!! This does not do any reference counting!!!
 // This is to avoid some ugly reference counting loops 
 // and the benefit of being able to hold only an entire
@@ -186,27 +184,60 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
   // add observers for each of the events handled in ProcessEvents
   if(i)
     {
-    i->AddObserver(vtkCommand::EnterEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::LeaveEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::LeftButtonPressEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::MiddleButtonPressEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::RightButtonPressEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::ExposeEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::ConfigureEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::TimerEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::KeyPressEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::KeyReleaseEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::CharEvent, this->EventCallbackCommand);
-    i->AddObserver(vtkCommand::DeleteEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::EnterEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::LeaveEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::MouseMoveEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::LeftButtonPressEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::MiddleButtonPressEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::RightButtonPressEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::RightButtonReleaseEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::ExposeEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::ConfigureEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::TimerEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::KeyPressEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::KeyReleaseEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::CharEvent, 
+                   this->EventCallbackCommand);
+
+    i->AddObserver(vtkCommand::DeleteEvent, 
+                   this->EventCallbackCommand);
     }
 }
 
 
-// Set the left button pressed method. This method is invoked on a left mouse button press.
+//----------------------------------------------------------------------------
+// Set the left button pressed method. 
+// This method is invoked on a left mouse button press.
 void vtkInteractorStyle::SetLeftButtonPressMethod(void (*f)(void *), void *arg)
 {
   if ( this->LeftButtonPressTag )
@@ -225,6 +256,7 @@ void vtkInteractorStyle::SetLeftButtonPressMethod(void (*f)(void *), void *arg)
     }
 }
 
+//----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyle::SetLeftButtonPressMethodArgDelete(void (*f)(void *))
 {
@@ -236,6 +268,7 @@ void vtkInteractorStyle::SetLeftButtonPressMethodArgDelete(void (*f)(void *))
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorStyle::SetLeftButtonReleaseMethod(void (*f)(void *), 
                                                     void *arg)
 {
@@ -255,6 +288,7 @@ void vtkInteractorStyle::SetLeftButtonReleaseMethod(void (*f)(void *),
     }
 }
 
+//----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyle::SetLeftButtonReleaseMethodArgDelete(void (*f)(void *))
 {
@@ -266,6 +300,7 @@ void vtkInteractorStyle::SetLeftButtonReleaseMethodArgDelete(void (*f)(void *))
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorStyle::SetMiddleButtonPressMethod(void (*f)(void *), 
                                                     void *arg)
 {
@@ -285,6 +320,7 @@ void vtkInteractorStyle::SetMiddleButtonPressMethod(void (*f)(void *),
     }
 }
 
+//----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyle::SetMiddleButtonPressMethodArgDelete(void (*f)(void *))
 {
@@ -296,6 +332,7 @@ void vtkInteractorStyle::SetMiddleButtonPressMethodArgDelete(void (*f)(void *))
     }
 }
 
+//----------------------------------------------------------------------------
 // Set the exit method. This method is invoked on a <e> keyrelease.
 void vtkInteractorStyle::SetMiddleButtonReleaseMethod(void (*f)(void *), 
                                                       void *arg)
@@ -316,6 +353,7 @@ void vtkInteractorStyle::SetMiddleButtonReleaseMethod(void (*f)(void *),
     }
 }
 
+//----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyle::SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *))
 {
@@ -327,6 +365,7 @@ void vtkInteractorStyle::SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *)
     }
 }
 
+//----------------------------------------------------------------------------
 // Set the exit method. This method is invoked on a <e> keypress.
 void vtkInteractorStyle::SetRightButtonPressMethod(void (*f)(void *), 
                                                    void *arg)
@@ -347,6 +386,7 @@ void vtkInteractorStyle::SetRightButtonPressMethod(void (*f)(void *),
     }
 }
 
+//----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyle::SetRightButtonPressMethodArgDelete(void (*f)(void *))
 {
@@ -358,6 +398,7 @@ void vtkInteractorStyle::SetRightButtonPressMethodArgDelete(void (*f)(void *))
     }
 }
 
+//----------------------------------------------------------------------------
 // Set the exit method. This method is invoked on a <e> keyrelease.
 void vtkInteractorStyle::SetRightButtonReleaseMethod(void (*f)(void *), 
                                                      void *arg)
@@ -378,6 +419,7 @@ void vtkInteractorStyle::SetRightButtonReleaseMethod(void (*f)(void *),
     }
 }
 
+//----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkInteractorStyle::SetRightButtonReleaseMethodArgDelete(void (*f)(void *))
 {
@@ -411,8 +453,10 @@ void vtkInteractorStyle::FindPokedCamera(int x,int y)
     {
     this->CurrentCamera->UnRegister(this);
     }
+
   this->FindPokedRenderer(x,y);
   this->CurrentCamera = this->CurrentRenderer->GetActiveCamera();
+
   if(this->CurrentCamera)
     {
     this->CurrentCamera->Register(this);
@@ -434,6 +478,7 @@ void vtkInteractorStyle::FindPokedCamera(int x,int y)
   this->CurrentLight = lc->GetNextItem();
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorStyle::HighlightProp(vtkProp *prop) 
 {
   this->CurrentProp = prop;
@@ -537,7 +582,8 @@ void vtkInteractorStyle::HighlightActor2D(vtkActor2D *actor2D)
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::UpdateInternalState(int ctrl, 
                                              int shift, 
-                                             int x, int y) 
+                                             int x, 
+                                             int y) 
 {
   this->CtrlKey  = ctrl;
   this->ShiftKey = shift;
@@ -549,28 +595,29 @@ void vtkInteractorStyle::UpdateInternalState(int ctrl,
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::StartState(int newstate) 
 {
-  vtkRenderWindowInteractor *rwi = this->Interactor;
   this->State = newstate;
   if (this->AnimState == VTKIS_ANIM_OFF) 
     {
+    vtkRenderWindowInteractor *rwi = this->Interactor;
     rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetDesiredUpdateRate());
-    if (!this->NoTimerInStartState && !rwi->CreateTimer(VTKI_TIMER_FIRST)) 
+    if (this->UseTimers && !rwi->CreateTimer(VTKI_TIMER_FIRST)) 
       {
       vtkErrorMacro(<< "Timer start failed");
-      this->State = VTKIS_START;
+      this->State = VTKIS_NONE;
       }
     }
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::StopState() 
 {
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  this->State = VTKIS_START;
+  this->State = VTKIS_NONE;
   if (this->AnimState == VTKIS_ANIM_OFF) 
     {   
+    vtkRenderWindowInteractor *rwi = this->Interactor;
     rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetStillUpdateRate());
     rwi->Render();
-    if (!this->NoTimerInStartState && !rwi->DestroyTimer()) 
+    if (this->UseTimers && !rwi->DestroyTimer()) 
       {
       vtkErrorMacro(<< "Timer stop failed");
       }
@@ -584,26 +631,27 @@ void vtkInteractorStyle::StartAnimate()
   vtkRenderWindowInteractor *rwi = this->Interactor;
             vtkErrorMacro(<< "starting animation");
   this->AnimState = VTKIS_ANIM_ON;
-  if (this->State == VTKIS_START) 
+  if (this->State == VTKIS_NONE) 
     {   
     vtkErrorMacro(<< "Start state found");
     rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetDesiredUpdateRate());
-    if ( !rwi->CreateTimer(VTKI_TIMER_FIRST) ) 
+    if (this->UseTimers && !rwi->CreateTimer(VTKI_TIMER_FIRST) ) 
       {
       vtkErrorMacro(<< "Timer start failed");
       }
     }   
   rwi->Render();
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::StopAnimate() 
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
   this->AnimState = VTKIS_ANIM_OFF;
-  if (this->State == VTKIS_START) 
+  if (this->State == VTKIS_NONE) 
     {   
     rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetStillUpdateRate());
-    if ( !rwi->DestroyTimer() ) 
+    if (this->UseTimers && !rwi->DestroyTimer() ) 
       {
       vtkErrorMacro(<< "Timer stop failed");
       }
@@ -614,12 +662,13 @@ void vtkInteractorStyle::StopAnimate()
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::StartRotate() 
 {
-  if (this->State != VTKIS_START) 
+  if (this->State != VTKIS_NONE) 
     {
     return;
     }
   this->StartState(VTKIS_ROTATE);
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::EndRotate() 
 {
@@ -629,15 +678,17 @@ void vtkInteractorStyle::EndRotate()
     }
   this->StopState();
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::StartZoom() 
 {
-  if (this->State != VTKIS_START) 
+  if (this->State != VTKIS_NONE) 
     {
     return;
     }
   this->StartState(VTKIS_ZOOM);
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::EndZoom() 
 {
@@ -647,15 +698,17 @@ void vtkInteractorStyle::EndZoom()
     }
   this->StopState();
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::StartPan() 
 {
-  if (this->State != VTKIS_START) 
+  if (this->State != VTKIS_NONE) 
     {
     return;
     }
   this->StartState(VTKIS_PAN);
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::EndPan() 
 {
@@ -665,15 +718,17 @@ void vtkInteractorStyle::EndPan()
     }
   this->StopState();
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::StartSpin() 
 {
-  if (this->State != VTKIS_START) 
+  if (this->State != VTKIS_NONE) 
     {
     return;
     }
   this->StartState(VTKIS_SPIN);
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::EndSpin() 
 {
@@ -683,15 +738,17 @@ void vtkInteractorStyle::EndSpin()
     }
   this->StopState();
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::StartDolly() 
 {
-  if (this->State != VTKIS_START) 
+  if (this->State != VTKIS_NONE) 
     {
     return;
     }
   this->StartState(VTKIS_DOLLY);
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::EndDolly() 
 {
@@ -701,15 +758,17 @@ void vtkInteractorStyle::EndDolly()
       }
     this->StopState();
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::StartUniformScale() 
 {
-  if (this->State != VTKIS_START) 
+  if (this->State != VTKIS_NONE) 
     {
     return;
     }
   this->StartState(VTKIS_USCALE);
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::EndUniformScale() 
 {
@@ -719,15 +778,17 @@ void vtkInteractorStyle::EndUniformScale()
     }
   this->StopState();
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::StartTimer() 
 {
-  if (this->State != VTKIS_START) 
+  if (this->State != VTKIS_NONE) 
     {
     return;
     }
   this->StartState(VTKIS_TIMER);
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::EndTimer() 
 {
@@ -736,6 +797,17 @@ void vtkInteractorStyle::EndTimer()
     return;
     }
   this->StopState();
+}
+
+//----------------------------------------------------------------------------
+// Reset the camera clipping range only if AutoAdjustCameraClippingRange 
+// is on.
+void vtkInteractorStyle::ResetCameraClippingRange()
+{
+  if ( this->AutoAdjustCameraClippingRange )
+    {
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -761,6 +833,7 @@ void vtkInteractorStyle::OnEnter(int vtkNotUsed(x),
                                  int vtkNotUsed(y))
 {
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::OnLeave(int vtkNotUsed(x), 
                                  int vtkNotUsed(y))
@@ -769,7 +842,7 @@ void vtkInteractorStyle::OnLeave(int vtkNotUsed(x),
 
 
 //----------------------------------------------------------------------------
-// By overriding the RotateCamera, RotateActor members we can
+// By overriding the Rotate, Rotate members we can
 // use this timer routine for Joystick or Trackball - quite tidy
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::OnTimer(void) 
@@ -778,55 +851,84 @@ void vtkInteractorStyle::OnTimer(void)
 
   switch (this->State) 
     {
-    case VTKIS_START:
+    case VTKIS_NONE:
       if (this->AnimState == VTKIS_ANIM_ON)
         {
-        rwi->DestroyTimer();
+        if (this->UseTimers)
+          {
+          rwi->DestroyTimer();
+          }
         rwi->Render();
-        rwi->CreateTimer(VTKI_TIMER_FIRST);
+        if (this->UseTimers)
+          {
+          rwi->CreateTimer(VTKI_TIMER_FIRST);
+          }
         }
       break;
 
-    case VTKIS_ROTATE:  // rotate with respect to an axis perp to look
-      this->RotateCamera(this->LastPos[0], this->LastPos[1]);
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
+    case VTKIS_ROTATE:
+      this->Rotate();
+      if (this->UseTimers)
+        {
+        rwi->CreateTimer(VTKI_TIMER_UPDATE);
+        }
       break;
 
-    case VTKIS_PAN: // move perpendicular to camera's look vector
-      this->PanCamera(this->LastPos[0], this->LastPos[1]);
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
-      break;
-
-    case VTKIS_ZOOM:
-      this->DollyCamera(this->LastPos[0], this->LastPos[1]);
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
+    case VTKIS_PAN:
+      this->Pan();
+      if (this->UseTimers)
+        {
+        rwi->CreateTimer(VTKI_TIMER_UPDATE);
+        }
       break;
 
     case VTKIS_SPIN:
-      this->SpinCamera(this->LastPos[0], this->LastPos[1]);
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
+      this->Spin();
+      if (this->UseTimers)
+        {
+        rwi->CreateTimer(VTKI_TIMER_UPDATE);
+        }
       break;
 
     case VTKIS_DOLLY:
-      this->DollyCamera(this->LastPos[0], this->LastPos[1]);
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
+      this->Dolly();
+      if (this->UseTimers)
+        {
+        rwi->CreateTimer(VTKI_TIMER_UPDATE);
+        }
+      break;
+
+    case VTKIS_ZOOM:
+      this->Zoom();
+      if (this->UseTimers)
+        {
+        rwi->CreateTimer(VTKI_TIMER_UPDATE);
+        }
       break;
 
     case VTKIS_USCALE:
+      this->UniformScale();
+      if (this->UseTimers)
+        {
+        rwi->CreateTimer(VTKI_TIMER_UPDATE);
+        }
       break;
 
     case VTKIS_TIMER:
       rwi->Render();
-      rwi->CreateTimer(VTKI_TIMER_UPDATE);
+      if (this->UseTimers)
+        {
+        rwi->CreateTimer(VTKI_TIMER_UPDATE);
+        }
       break;
 
-    default :
+    default:
       break;
     }
 }
 
 //----------------------------------------------------------------------------
-// Mouse events are identical for trackball and joystick mode
+// Mouse events
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::OnMouseMove(int vtkNotUsed(ctrl), 
                                      int vtkNotUsed(shift),
@@ -934,6 +1036,7 @@ void vtkInteractorStyle::OnRightButtonDown(int vtkNotUsed(ctrl),
 {
   this->StartZoom();
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::OnRightButtonUp(int vtkNotUsed(ctrl), 
                                          int vtkNotUsed(shift), 
@@ -948,17 +1051,6 @@ void vtkInteractorStyle::OnRightButtonUp(int vtkNotUsed(ctrl),
     }
 }
 
-// Reset the camera clipping range only if AutoAdjustCameraClippingRange 
-// is on.
-
-void vtkInteractorStyle::ResetCameraClippingRange()
-{
-  if ( this->AutoAdjustCameraClippingRange )
-    {
-    this->CurrentRenderer->ResetCameraClippingRange();
-    }
-}
-
 //----------------------------------------------------------------------------
 // Intercept any keypresses which are style independent here and do the rest in
 // subclasses - none really required yet!
@@ -969,6 +1061,7 @@ void vtkInteractorStyle::OnKeyDown(int vtkNotUsed(ctrl),
                                    int vtkNotUsed(repeatcount))
 {
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::OnKeyUp  (int vtkNotUsed(ctrl), 
                                    int vtkNotUsed(shift),
@@ -976,6 +1069,7 @@ void vtkInteractorStyle::OnKeyUp  (int vtkNotUsed(ctrl),
                                    int vtkNotUsed(repeatcount)) 
 {
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::OnKeyPress(int vtkNotUsed(ctrl), 
                                     int vtkNotUsed(shift), 
@@ -984,6 +1078,7 @@ void vtkInteractorStyle::OnKeyPress(int vtkNotUsed(ctrl),
                                     int vtkNotUsed(repeatcount))
 {
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::OnKeyRelease(int vtkNotUsed(ctrl), 
                                       int vtkNotUsed(shift),
@@ -992,6 +1087,7 @@ void vtkInteractorStyle::OnKeyRelease(int vtkNotUsed(ctrl),
                                       int vtkNotUsed(repeatcount)) 
 {
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl), 
                                 int vtkNotUsed(shift), 
@@ -1004,7 +1100,6 @@ void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl),
     {
     case 'm' :
     case 'M' :
-      // JCP Animation control
       if (this->AnimState == VTKIS_ANIM_OFF) 
         {
         this->StartAnimate();
@@ -1109,7 +1204,7 @@ void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl),
 
     case 'p' :
     case 'P' :
-      if (this->State == VTKIS_START) 
+      if (this->State == VTKIS_NONE) 
         {
         vtkAssemblyPath *path=NULL;
         this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
@@ -1137,141 +1232,6 @@ void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl),
     }
 }
 
-//----------------------------------------------------------------------------
-// Implementations of Joystick Camera/Actor motions follow
-//----------------------------------------------------------------------------
-
-
-// This functionality of RotateCamera, SpinCamera, PanCamera, and DollyCamera
-// is now handled by vtkInteractorStyleJoystickCamera.
-
-void vtkInteractorStyle::RotateCamera(int x, int y)
-{
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-
-  double rxf = (double)(x - this->Center[0]) * this->DeltaAzimuth;
-  double ryf = (double)(y - this->Center[1]) * this->DeltaElevation;
-
-  // No current camera (should not happen, FindPokedCamera should have been
-  // called before)
-  if (!this->CurrentCamera) 
-    {
-    return;
-    }
-  
-  this->CurrentCamera->Azimuth(rxf);
-  this->CurrentCamera->Elevation(ryf);
-  this->CurrentCamera->OrthogonalizeViewUp();
-  this->ResetCameraClippingRange();
-  if (rwi->GetLightFollowCamera())
-    {
-    this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
-    this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-    }
-  rwi->Render();
-}
-
-void vtkInteractorStyle::SpinCamera(int vtkNotUsed(x), int y)
-{
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-
-  // spin is based on y value
-  double yf = (double)(y - this->Center[1]) / (double)(this->Center[1]);
-  if (yf > 1)
-    {
-    yf = 1;
-    }
-  else if (yf < -1)
-    {
-    yf = -1;
-    }
-
-  double newAngle = asin(yf) * 180.0 / 3.1415926;
-
-  this->CurrentCamera->Roll(newAngle);
-  this->CurrentCamera->OrthogonalizeViewUp();
-  rwi->Render();
-}
-
-void vtkInteractorStyle::PanCamera(int x, int y)
-{
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  double ViewFocus[4];
-  
-  // calculate the focal depth since we'll be using it a lot
-  this->CurrentCamera->GetFocalPoint(ViewFocus);
-  this->ComputeWorldToDisplay(ViewFocus[0], ViewFocus[1],
-                              ViewFocus[2], ViewFocus);
-  double focalDepth = ViewFocus[2];
-
-  double NewPickPoint[4];
-  this->ComputeDisplayToWorld((float)x, (float)y,
-                              focalDepth, NewPickPoint);
-
-  // get the current focal point and position
-  this->CurrentCamera->GetFocalPoint(ViewFocus);
-  double *ViewPoint = this->CurrentCamera->GetPosition();
-
-  /*
-   * Compute a translation vector, moving everything 1/10
-   * the distance to the cursor. (Arbitrary scale factor)
-   */
-  double MotionVector[3];
-  MotionVector[0] = 0.1*(ViewFocus[0] - NewPickPoint[0]);
-  MotionVector[1] = 0.1*(ViewFocus[1] - NewPickPoint[1]);
-  MotionVector[2] = 0.1*(ViewFocus[2] - NewPickPoint[2]);
-
-  this->CurrentCamera->SetFocalPoint(MotionVector[0] + ViewFocus[0],
-                                     MotionVector[1] + ViewFocus[1],
-                                     MotionVector[2] + ViewFocus[2]);
-  this->CurrentCamera->SetPosition(MotionVector[0] + ViewPoint[0],
-                                   MotionVector[1] + ViewPoint[1],
-                                   MotionVector[2] + ViewPoint[2]);
-
-  if (rwi->GetLightFollowCamera())
-    {
-    /* get the first light */
-    this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
-    this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-    }
-  rwi->Render();
-}
-
-void vtkInteractorStyle::DollyCamera(int vtkNotUsed(x), int y)
-{
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-
-  double dyf = 0.5 * (double)(y - this->Center[1]) /
-    (double)(this->Center[1]);
-  double zoomFactor = pow((double)1.1, dyf);
-  if (zoomFactor < 0.5 || zoomFactor > 1.5)
-    {
-    vtkErrorMacro("Bad zoom factor encountered");
-    }
-  
-  if (this->CurrentCamera->GetParallelProjection())
-    {
-    this->CurrentCamera->
-      SetParallelScale(this->CurrentCamera->GetParallelScale()/zoomFactor);
-    }
-  else
-    {
-    this->CurrentCamera->Dolly(zoomFactor);
-    this->ResetCameraClippingRange();
-    }
-
-  if (rwi->GetLightFollowCamera())
-    {
-    /* get the first light */
-    this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
-    this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
-    }
-  rwi->Render();
-}
-
-
-//----------------------------------------------------------------------------
-//
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -1338,8 +1298,10 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
     }
   
   os << indent << "State: " << this->State << endl;
+  os << indent << "UseTimers: " << this->UseTimers << endl;
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorStyle::ProcessEvents(vtkObject* object, 
                                        unsigned long event,
                                        void* clientdata, 

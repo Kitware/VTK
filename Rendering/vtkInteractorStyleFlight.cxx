@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.18");
+vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.19");
 vtkStandardNewMacro(vtkInteractorStyleFlight);
 
 //---------------------------------------------------------------------------
@@ -39,9 +39,6 @@ vtkInteractorStyleFlight::vtkInteractorStyleFlight()
   this->AngleStepSize            = 1.0;
   this->AngleAccelerationFactor  = 5.0;
 
-  this->OldX = 0.0;
-  this->OldY = 0.0;
-
   this->AzimuthScanning  = 0;
   this->DisableMotion    = 0;
   this->FixUpVector      = 0;
@@ -49,15 +46,17 @@ vtkInteractorStyleFlight::vtkInteractorStyleFlight()
   this->FixedUpVector[1] = 0;
   this->FixedUpVector[2] = 1;
 }
+
 //---------------------------------------------------------------------------
 vtkInteractorStyleFlight::~vtkInteractorStyleFlight() 
 {
 
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::DoTimerStart(void) 
 {
-  if (this->TimerRunning) 
+  if (!this->UseTimers || this->TimerRunning) 
     {
     return;
     }
@@ -65,10 +64,11 @@ void vtkInteractorStyleFlight::DoTimerStart(void)
   rwi->CreateTimer(VTKI_TIMER_FIRST);
   this->TimerRunning = 1;
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::DoTimerStop(void) 
 {
-  if (!this->TimerRunning) 
+  if (!this->UseTimers || !this->TimerRunning) 
     {
     return;
     }
@@ -76,6 +76,7 @@ void vtkInteractorStyleFlight::DoTimerStop(void)
   rwi->DestroyTimer();
   this->TimerRunning = 0;
 }
+
 //---------------------------------------------------------------------------
 // All actual motion is performed in the timer
 //---------------------------------------------------------------------------
@@ -93,8 +94,7 @@ void vtkInteractorStyleFlight::OnTimer(void)
   else 
     {
     // Make sure CurrentCamera variable is initialized
-    this->FindPokedCamera(static_cast<int>(this->OldX), 
-                          static_cast<int>(this->OldY));
+    this->FindPokedCamera(this->LastPos[0], this->LastPos[1]);
     this->SetupMotionVars();
     // What sort of motion do we want
     if (this->AzimuthScanning) 
@@ -126,9 +126,13 @@ void vtkInteractorStyleFlight::OnTimer(void)
       this->CurrentLight->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
       }
     rwi->Render();
-    rwi->CreateTimer(VTKI_TIMER_UPDATE);
+    if (this->UseTimers) 
+      {
+      rwi->CreateTimer(VTKI_TIMER_UPDATE);
+      }
     }
 }
+
 //---------------------------------------------------------------------------
 // Mouse event handlers
 //---------------------------------------------------------------------------
@@ -147,6 +151,7 @@ void vtkInteractorStyleFlight::OnMouseMove(int vtkNotUsed(ctrl),
     this->UpdateMouseSteering(x, y);
     }
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnLeftButtonDown(int vtkNotUsed(ctrl), 
                                                 int vtkNotUsed(shift), 
@@ -159,14 +164,15 @@ void vtkInteractorStyleFlight::OnLeftButtonDown(int vtkNotUsed(ctrl),
     }
   if (!this->Reversing) 
     {
-    this->OldX        = this->X2 = x;
-    this->OldY        = this->Y2 = y;
+    this->LastPos[0]        = this->X2 = x;
+    this->LastPos[1]        = this->Y2 = y;
     this->YawAngle   = 0;
     this->PitchAngle = 0;
     this->DoTimerStart();
     }
   this->Flying       = 1;
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnLeftButtonUp(int vtkNotUsed(ctrl), 
                                               int vtkNotUsed(shift), 
@@ -175,6 +181,7 @@ void vtkInteractorStyleFlight::OnLeftButtonUp(int vtkNotUsed(ctrl),
 {
   this->Flying       =  0;
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnMiddleButtonDown(int vtkNotUsed(ctrl), 
                                                   int vtkNotUsed(shift), 
@@ -188,6 +195,7 @@ void vtkInteractorStyleFlight::OnMiddleButtonDown(int vtkNotUsed(ctrl),
   // want to add some more functions???
   // I've got no middle mouse button :(
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnMiddleButtonUp(int vtkNotUsed(ctrl), 
                                                 int vtkNotUsed(shift), 
@@ -195,6 +203,7 @@ void vtkInteractorStyleFlight::OnMiddleButtonUp(int vtkNotUsed(ctrl),
                                                 int vtkNotUsed(y))
 {
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnRightButtonDown(int vtkNotUsed(ctrl), 
                                                  int vtkNotUsed(shift), 
@@ -207,14 +216,15 @@ void vtkInteractorStyleFlight::OnRightButtonDown(int vtkNotUsed(ctrl),
     }
   if (!this->Flying) 
     {
-    this->OldX        = this->X2 = x;
-    this->OldY        = this->Y2 = y;
+    this->LastPos[0]        = this->X2 = x;
+    this->LastPos[1]        = this->Y2 = y;
     this->YawAngle   = 0;
     this->PitchAngle = 0;
     this->DoTimerStart();
     }
   this->Reversing    = 1;
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnRightButtonUp(int vtkNotUsed(ctrl), 
                                                int vtkNotUsed(shift), 
@@ -223,6 +233,7 @@ void vtkInteractorStyleFlight::OnRightButtonUp(int vtkNotUsed(ctrl),
 {
   this->Reversing    =  0;
 }
+
 //---------------------------------------------------------------------------
 // Keyboard event handlers
 // Note, OnChar is a key press down and then up event
@@ -293,6 +304,7 @@ void vtkInteractorStyleFlight::OnKeyUp(int vtkNotUsed(ctrl),
     }
 #endif
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnChar(int ctrl, 
                                       int shift, 
@@ -316,6 +328,7 @@ void vtkInteractorStyleFlight::OnChar(int ctrl,
       break;
     }
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::JumpTo(double campos[3], double focpos[3]) 
 {
@@ -337,6 +350,7 @@ void vtkInteractorStyleFlight::JumpTo(double campos[3], double focpos[3])
     }
   rwi->Render();
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::PerformAzimuthalScan(int numsteps) 
 {
@@ -347,6 +361,7 @@ void vtkInteractorStyleFlight::PerformAzimuthalScan(int numsteps)
   this->AzimuthStepSize = 360.0/numsteps;
   this->DoTimerStart();
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::AzimuthScan(void) 
 {
@@ -359,6 +374,7 @@ void vtkInteractorStyleFlight::AzimuthScan(void)
     this->DoTimerStop();
     }
 }
+
 //---------------------------------------------------------------------------
 // Calculate angles for next redraw in timer event
 //---------------------------------------------------------------------------
@@ -370,13 +386,14 @@ void vtkInteractorStyleFlight::UpdateMouseSteering(int x, int y)
   vtkRenderWindowInteractor *rwi = this->Interactor;
   int *size = rwi->GetSize();
   double scalefactor = 5.0*this->CurrentCamera->GetViewAngle()/(double)size[0];
-  double dx = - (x - this->OldX)*scalefactor;
-  double dy =   (y - this->OldY)*scalefactor;
+  double dx = - (x - this->LastPos[0])*scalefactor;
+  double dy =   (y - this->LastPos[1])*scalefactor;
   this->YawAngle   = dx*aspeed;
   this->PitchAngle = dy*aspeed;
   this->X2 = x;
   this->Y2 = y;
 }
+
 //---------------------------------------------------------------------------
 // useful utility functions
 //---------------------------------------------------------------------------
@@ -396,6 +413,7 @@ void vtkInteractorStyleFlight::SetupMotionVars(void)
             (bounds[4] - bounds[5]) * (bounds[4] - bounds[5]) );
     }
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::MotionAlongVector(double vector[3], double amount) 
 {
@@ -413,6 +431,7 @@ void vtkInteractorStyleFlight::MotionAlongVector(double vector[3], double amount
     oldcamfoc[1] - amount * vector[1],
     oldcamfoc[2] - amount * vector[2]);
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::ComputeLRVector(double vector[3]) 
 {
@@ -427,6 +446,7 @@ void vtkInteractorStyleFlight::ComputeLRVector(double vector[3])
   vector[2] = (viewplanenormal[0] * viewup[1] -
                viewplanenormal[1] * viewup[0]);
 }
+
 //---------------------------------------------------------------------------
 // Perform the motion
 //---------------------------------------------------------------------------
@@ -459,8 +479,8 @@ void vtkInteractorStyleFlight::FlyByMouse(void)
     this->CurrentCamera->Yaw(this->YawAngle);
     this->CurrentCamera->Pitch(this->PitchAngle);
     }
-  this->OldX = this->X2;
-  this->OldY = this->Y2;
+  this->LastPos[0] = this->X2;
+  this->LastPos[1] = this->Y2;
   this->YawAngle   = 0;
   this->PitchAngle = 0;
   //
@@ -477,8 +497,7 @@ void vtkInteractorStyleFlight::FlyByMouse(void)
       }
     }
 }
-//---------------------------------------------------------------------------
-// Perform the motion
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::FlyByKey(void) 
 {
@@ -553,6 +572,7 @@ void vtkInteractorStyleFlight::FlyByKey(void)
     this->MotionAlongVector(a_vector,-speed);
     }
 }
+
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::PrintSelf(ostream& os, vtkIndent indent) 
 {

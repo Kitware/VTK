@@ -58,27 +58,29 @@ public:
   virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
   virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
 
-  virtual void OnTimer(void);
-
 protected:
   vtkInteractorStyleJoystickActor();
   ~vtkInteractorStyleJoystickActor();
 
-  void RotateXY(int x, int y);
-  void PanXY(int x, int y);
-  void DollyXY(int x, int y);
-  void SpinXY(int x, int y);
-  void ScaleXY(int x, int y);
+  // These methods for the different interactions in different modes
+  // are overridden in subclasses to perform the correct motion. Since
+  // they might be called from OnTimer, they do not have mouse coord parameters
+  // (use GetLastPos and interactor GetEventPosition)
+  virtual void Rotate();
+  virtual void Spin();
+  virtual void Pan();
+  virtual void Dolly();
+  virtual void UniformScale();
 
   void FindPickedActor(int x, int y);
 
   void Prop3DTransform(vtkProp3D *prop3D, double *boxCenter,
-                      int numRotation, double **rotate,
-                      double *scale);
+                       int numRotation, double **rotate,
+                       double *scale);
 
   void Prop3DTransform(vtkProp3D *prop3D,float *boxCenter,
-                      int NumRotation,double **rotate,
-                      double *scale);
+                       int NumRotation,double **rotate,
+                       double *scale);
   
   float MotionFactor;
   float RadianToDegree;                 // constant: for conv from deg to rad

@@ -141,10 +141,8 @@ protected:
   int           AzimuthScanning;
   int           DisableMotion;
   int           FixUpVector;
-  double        OldX;
-  double        OldY;
-  double        X2;
-  double        Y2;
+  int           X2;
+  int           Y2;
   double        DiagonalLength;
   double        MotionStepSize;
   double        MotionUserScale;

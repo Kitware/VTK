@@ -32,7 +32,7 @@
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.19");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.20");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 vtkInteractorStyleUnicam::vtkInteractorStyleUnicam()
@@ -87,7 +87,10 @@ void vtkInteractorStyleUnicam::OnTimer(void)
   if (this->ButtonDown != VTK_UNICAM_NONE) 
     {
     // restart timer-- we want to keep getting 'OnMouseMove' events
-    this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
+    if (this->UseTimers) 
+      {
+      this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
+      }
     }
 }
 
@@ -104,7 +107,10 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown(int vtkNotUsed(ctrl),
                                                 int X, int Y) 
 {
   this->ButtonDown = VTK_UNICAM_BUTTON_LEFT;
-  this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
+    if (this->UseTimers) 
+      {
+      this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
+      }
 
   this->DTime    = TheTime();
   this->Dist     = 0;
@@ -250,7 +256,10 @@ void vtkInteractorStyleUnicam::OnLeftButtonUp(int vtkNotUsed(ctrl),
   vtkRenderWindowInteractor *rwi = this->Interactor;
   rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetStillUpdateRate());
   rwi->Render();
-  rwi->DestroyTimer();
+  if (this->UseTimers)
+    {
+    rwi->DestroyTimer();
+    }
 }
 
 //----------------------------------------------------------------------------

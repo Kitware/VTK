@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.17");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.18");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ vtkInteractorStyleTrackballCamera::vtkInteractorStyleTrackballCamera()
   // This prevent vtkInteractorStyle::StartState to fire the timer
   // that is used to handle joystick mode
 
-  this->NoTimerInStartState = 1;
+  this->UseTimers = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -50,22 +50,22 @@ void vtkInteractorStyleTrackballCamera::OnMouseMove(int vtkNotUsed(ctrl),
     {
     case VTKIS_ROTATE:
       this->FindPokedCamera(x, y);
-      this->RotateXY(x - this->LastPos[0], y - this->LastPos[1]);
+      this->Rotate();
       break;
 
     case VTKIS_PAN:
       this->FindPokedCamera(x, y);
-      this->PanXY(x, y, this->LastPos[0], this->LastPos[1]);
+      this->Pan();
       break;
 
     case VTKIS_DOLLY:
       this->FindPokedCamera(x, y);
-      this->DollyXY(x - this->LastPos[0], y - this->LastPos[1]);
+      this->Dolly();
       break;
 
     case VTKIS_SPIN:
       this->FindPokedCamera(x, y);
-      this->SpinXY(x, y, this->LastPos[0], this->LastPos[1]);
+      this->Spin();
       break;
     }
 
@@ -193,60 +193,88 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonUp(int vtkNotUsed(ctrl),
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::PrintSelf(ostream& os, vtkIndent indent)
+void vtkInteractorStyleTrackballCamera::Rotate()
 {
-  this->Superclass::PrintSelf(os,indent);
-
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::RotateXY(int dx, int dy)
-{
-  double rxf;
-  double ryf;
-  vtkCamera *cam;
-  
   if (this->CurrentRenderer == NULL)
     {
     return;
     }
   
+  vtkRenderWindowInteractor *rwi = this->Interactor;
+
+  int dx = rwi->GetEventPosition()[0] - this->LastPos[0];
+  int dy = rwi->GetEventPosition()[1] - this->LastPos[1];
+  
   int *size = this->CurrentRenderer->GetRenderWindow()->GetSize();
+
   this->DeltaElevation = -20.0 / size[1];
   this->DeltaAzimuth = -20.0 / size[0];
   
-  rxf = (double)dx * this->DeltaAzimuth *  this->MotionFactor;
-  ryf = (double)dy * this->DeltaElevation * this->MotionFactor;
+  double rxf = (double)dx * this->DeltaAzimuth *  this->MotionFactor;
+  double ryf = (double)dy * this->DeltaElevation * this->MotionFactor;
   
-  cam = this->CurrentRenderer->GetActiveCamera();
+  vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   cam->Azimuth(rxf);
   cam->Elevation(ryf);
   cam->OrthogonalizeViewUp();
+
   this->ResetCameraClippingRange();
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  if (this->CurrentLight)
+
+  if (rwi->GetLightFollowCamera())
     {
-    // get the first light
     this->CurrentLight->SetPosition(cam->GetPosition());
     this->CurrentLight->SetFocalPoint(cam->GetFocalPoint());
     }   
+
   rwi->Render();
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::PanXY(int x, int y, int oldX, int oldY)
+void vtkInteractorStyleTrackballCamera::Spin()
 {
-  vtkCamera *cam;
-  double viewFocus[4], focalDepth, viewPoint[3];
-  float newPickPoint[4], oldPickPoint[4], motionVector[3];
-  
   if (this->CurrentRenderer == NULL)
     {
     return;
     }
 
+  vtkRenderWindowInteractor *rwi = this->Interactor;
+
+  int x = rwi->GetEventPosition()[0];
+  int y = rwi->GetEventPosition()[1];
+
+  double newAngle = atan2((double)(y) - this->Center[1],
+                          (double)(x) - this->Center[0]);
+  double oldAngle = atan2((double)(this->LastPos[1]) -this->Center[1],
+                          (double)(this->LastPos[0]) - this->Center[0]);
+  
+  newAngle *= this->RadianToDegree;
+  oldAngle *= this->RadianToDegree;
+
+  vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
+  cam->Roll(newAngle - oldAngle);
+  cam->OrthogonalizeViewUp();
+      
+  rwi->Render();
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleTrackballCamera::Pan()
+{
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+
+  vtkRenderWindowInteractor *rwi = this->Interactor;
+
+  int x = rwi->GetEventPosition()[0];
+  int y = rwi->GetEventPosition()[1];
+
+  double viewFocus[4], focalDepth, viewPoint[3];
+  float newPickPoint[4], oldPickPoint[4], motionVector[3];
+  
   // calculate the focal depth since we'll be using it a lot
-  cam = this->CurrentRenderer->GetActiveCamera();
+  vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   cam->GetFocalPoint(viewFocus);
   this->ComputeWorldToDisplay(viewFocus[0], viewFocus[1],
                               viewFocus[2], viewFocus);
@@ -257,7 +285,8 @@ void vtkInteractorStyleTrackballCamera::PanXY(int x, int y, int oldX, int oldY)
     
   // has to recalc old mouse point since the viewport has moved,
   // so can't move it outside the loop
-  this->ComputeDisplayToWorld(double(oldX),double(oldY),
+  this->ComputeDisplayToWorld(double(this->LastPos[0]),
+                              double(this->LastPos[1]),
                               focalDepth, oldPickPoint);
   
   // camera motion is reversed
@@ -270,14 +299,13 @@ void vtkInteractorStyleTrackballCamera::PanXY(int x, int y, int oldX, int oldY)
   cam->SetFocalPoint(motionVector[0] + viewFocus[0],
                      motionVector[1] + viewFocus[1],
                      motionVector[2] + viewFocus[2]);
+
   cam->SetPosition(motionVector[0] + viewPoint[0],
                    motionVector[1] + viewPoint[1],
                    motionVector[2] + viewPoint[2]);
       
-  vtkRenderWindowInteractor *rwi = this->Interactor;
   if (this->CurrentLight)
     {
-    /* get the first light */
     this->CurrentLight->SetPosition(cam->GetPosition());
     this->CurrentLight->SetFocalPoint(cam->GetFocalPoint());
     }
@@ -286,18 +314,20 @@ void vtkInteractorStyleTrackballCamera::PanXY(int x, int y, int oldX, int oldY)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::DollyXY(int vtkNotUsed(dx), int dy)
+void vtkInteractorStyleTrackballCamera::Dolly()
 {
-  vtkCamera *cam;
-  double dyf = this->MotionFactor * (double)(dy) / (double)(this->Center[1]);
-  double zoomFactor = pow((double)1.1, dyf);
-  
   if (this->CurrentRenderer == NULL)
     {
     return;
     }
   
-  cam = this->CurrentRenderer->GetActiveCamera();
+  vtkRenderWindowInteractor *rwi = this->Interactor;
+
+  int dy = rwi->GetEventPosition()[1] - this->LastPos[1];
+  double dyf = this->MotionFactor * (double)(dy) / (double)(this->Center[1]);
+  double zoomFactor = pow((double)1.1, dyf);
+  
+  vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   if (cam->GetParallelProjection())
     {
     cam->SetParallelScale(cam->GetParallelScale()/zoomFactor);
@@ -308,10 +338,8 @@ void vtkInteractorStyleTrackballCamera::DollyXY(int vtkNotUsed(dx), int dy)
     this->ResetCameraClippingRange();
     }
   
-  vtkRenderWindowInteractor *rwi = this->Interactor;
   if (this->CurrentLight)
     {
-    /* get the first light */
     this->CurrentLight->SetPosition(cam->GetPosition());
     this->CurrentLight->SetFocalPoint(cam->GetFocalPoint());
     }
@@ -320,28 +348,9 @@ void vtkInteractorStyleTrackballCamera::DollyXY(int vtkNotUsed(dx), int dy)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackballCamera::SpinXY(int x, int y, int oldX, int oldY)
+void vtkInteractorStyleTrackballCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  vtkCamera *cam;
+  this->Superclass::PrintSelf(os,indent);
 
-  if (this->CurrentRenderer == NULL)
-    {
-    return;
-    }
-
-  double newAngle = atan2((double)(y - this->Center[1]),
-                         (double)(x - this->Center[0]));
-  double oldAngle = atan2((double)(oldY -this->Center[1]),
-                         (double)(oldX - this->Center[0]));
-  
-  newAngle *= this->RadianToDegree;
-  oldAngle *= this->RadianToDegree;
-
-  cam = this->CurrentRenderer->GetActiveCamera();
-  cam->Roll(newAngle - oldAngle);
-  cam->OrthogonalizeViewUp();
-      
-  rwi->Render();
 }
 

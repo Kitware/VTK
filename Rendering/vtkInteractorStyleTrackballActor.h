@@ -59,21 +59,25 @@ protected:
   vtkInteractorStyleTrackballActor();
   ~vtkInteractorStyleTrackballActor();
 
-  void RotateXY(int x, int y, int oldX, int oldY);
-  void PanXY(int x, int y, int oldX, int oldY);
-  void DollyXY(int dx, int dy);
-  void SpinXY(int dx, int dy, int oldX, int oldY);
-  void ScaleXY(int x, int y, int oldX, int oldY);
+  // These methods for the different interactions in different modes
+  // are overridden in subclasses to perform the correct motion. Since
+  // they might be called from OnTimer, they do not have mouse coord parameters
+  // (use GetLastPos and interactor GetEventPosition)
+  virtual void Rotate();
+  virtual void Spin();
+  virtual void Pan();
+  virtual void Dolly();
+  virtual void UniformScale();
 
   void FindPickedActor(int x, int y);
 
   void Prop3DTransform(vtkProp3D *prop3D, double *boxCenter,
-                      int numRotation, double **rotate,
-                      double *scale);
+                       int numRotation, double **rotate,
+                       double *scale);
 
   void Prop3DTransform(vtkProp3D *prop3D,float *boxCenter,
-                      int NumRotation,double **rotate,
-                      double *scale);
+                       int NumRotation,double **rotate,
+                       double *scale);
   
   float MotionFactor;
   float RadianToDegree;                 // constant: for conv from deg to rad

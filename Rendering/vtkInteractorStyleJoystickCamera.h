@@ -48,6 +48,7 @@ public:
   // Description:
   // Event bindings controlling the effects of pressing mouse buttons
   // or moving the mouse.
+  virtual void OnMouseMove       (int ctrl, int shift, int x, int y);
   virtual void OnLeftButtonDown  (int ctrl, int shift, int x, int y);
   virtual void OnLeftButtonUp    (int ctrl, int shift, int x, int y);
   virtual void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
@@ -55,11 +56,18 @@ public:
   virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
   virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
 
-  virtual void OnTimer(void); 
-
 protected:
   vtkInteractorStyleJoystickCamera();
   ~vtkInteractorStyleJoystickCamera();
+
+  // These methods for the different interactions in different modes
+  // are overridden in subclasses to perform the correct motion. Since
+  // they are called by OnTimer, they do not have mouse coord parameters
+  // (use GetLastPos and interactor GetEventPosition)
+  virtual void Rotate();
+  virtual void Spin();
+  virtual void Pan();
+  virtual void Dolly();
 
 private:
   vtkInteractorStyleJoystickCamera(const vtkInteractorStyleJoystickCamera&);  // Not implemented.
