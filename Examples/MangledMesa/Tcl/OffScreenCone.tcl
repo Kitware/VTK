@@ -17,6 +17,14 @@ renWin OffScreenRenderingOn
 
 vtkMesaRenderer ren
 renWin AddRenderer ren
+# The light and the camera have to be created and set
+# because otherwise, during the first render, VTK will 
+# use the graphics factory to create them and end up
+# with OpenGL objects (instead of Mesa)
+vtkMesaLight mlight
+ren AddLight mlight
+vtkMesaCamera mcamera
+ren SetActiveCamera mcamera
 
 vtkConeSource cone
 
@@ -25,6 +33,12 @@ mp SetInput [cone GetOutput]
 
 vtkMesaActor actor
 actor SetMapper mp
+# The property has to be created and set
+# because otherwise, during the first render, VTK will 
+# use the graphics factory to create it and end up
+# with vtkOpenGLProperty object (instead of Mesa)
+vtkMesaProperty mprop
+actor SetProperty mprop
 
 ren AddActor actor
 
