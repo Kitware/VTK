@@ -82,8 +82,8 @@ public:
 
   // Description:
   // Turn prompt at exit on/off.
-  static void PromptUserOn()  { PromptUser = 1; }
-  static void PromptUserOff() { PromptUser = 0; }
+  static void PromptUserOn();
+  static void PromptUserOff();
 
 protected:
   vtkDebugLeaks(){}; 
