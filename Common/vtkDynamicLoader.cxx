@@ -27,7 +27,7 @@
 // Each part of the ifdef contains a complete implementation for
 // the static methods of vtkDynamicLoader.  
 
-vtkCxxRevisionMacro(vtkDynamicLoader, "1.10");
+vtkCxxRevisionMacro(vtkDynamicLoader, "1.11");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -204,10 +204,10 @@ const char* vtkDynamicLoader::LastError()
                 );
   
   // Free the buffer.
-  LocalFree( lpMsgBuf );
   static char* str = 0;
   delete [] str;
   str = strcpy(new char[strlen((char*)lpMsgBuf)+1], (char*)lpMsgBuf);
+  LocalFree( lpMsgBuf );
   return str;
 }
 
