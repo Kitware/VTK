@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLActor.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
-#ifdef VTK_USE_QUARTZ
+#ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>

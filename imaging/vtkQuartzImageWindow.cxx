@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
-#ifdef VTK_USE_QUARTZ
+#ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/glaux.h>

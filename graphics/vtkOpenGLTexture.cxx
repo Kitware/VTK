@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 
 #include "vtkRenderWindow.h"
-#ifdef VTK_USE_QUARTZ
+#ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include "vtkQuartzRenderWindow.h"
 #else
@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLTexture.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
-#ifndef VTK_USE_QUARTZ
+#ifndef __APPLE__
 #include <GL/gl.h>
 #endif
 #endif

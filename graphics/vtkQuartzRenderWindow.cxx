@@ -456,7 +456,7 @@ int *vtkQuartzRenderWindow::GetSize(void)
     // if we aren't mapped then just return the ivar
     if (!this->Mapped)
     {
-        return(this->Size);
+        return this->Size;
     }
 
     //  Find the current window size
