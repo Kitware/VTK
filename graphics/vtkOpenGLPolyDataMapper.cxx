@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #include "vtkOpenGLPolyDataMapper.h"
@@ -52,6 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
+#include "vtkPlane.h"
 
 #include "vtkTimerLog.h"
 
@@ -123,8 +125,11 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   int numPts;
   vtkPolyData *input= (vtkPolyData *)this->Input;
   vtkTimerLog *timer;
+  vtkImplicitFunctionCollection *clipPlanes;
+  vtkPlane *plane;
+  int i,numClipPlanes;
+  double planeEquation[4];
 
-  
 //
 // make sure that we've been properly initialized
 //
@@ -171,6 +176,42 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 
   timer = vtkTimerLog::New();
 
+  clipPlanes = this->ClippingPlanes;
+
+  if (clipPlanes == NULL)
+    {
+    numClipPlanes = 0;
+    }
+  else
+    {
+    numClipPlanes = clipPlanes->GetNumberOfItems();
+    if (numClipPlanes > 6)
+      {
+      vtkErrorMacro(<< "OpenGL guarantees at most 6 additional clipping planes");
+      }
+    }
+
+  for (i = 0; i < numClipPlanes; i++)
+    {
+     glEnable(GL_CLIP_PLANE0+i);
+    }
+
+  for (i = 0; i < numClipPlanes; i++)
+    {    
+    plane = (vtkPlane *)clipPlanes->GetItemAsObject(i);
+    if (strcmp(plane->GetClassName(),"vtkPlane") != 0)
+      {
+      vtkErrorMacro(<< "Attempt to clip with something other than a vtkPlane");
+      }
+
+    planeEquation[0] = plane->GetNormal()[0]; 
+    planeEquation[1] = plane->GetNormal()[1]; 
+    planeEquation[2] = plane->GetNormal()[2];
+    planeEquation[3] = -(planeEquation[0]*plane->GetOrigin()[0]+
+			 planeEquation[1]*plane->GetOrigin()[1]+
+			 planeEquation[2]*plane->GetOrigin()[2]);
+    glClipPlane(GL_CLIP_PLANE0+i,planeEquation);
+    }
   //
   // if something has changed regenrate colors and display lists
   // if required
@@ -233,6 +274,11 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   if ( this->TimeToDraw == 0.0 )
     {
     this->TimeToDraw = 0.0001;
+    }
+
+  for (i = 0; i < numClipPlanes; i++)
+    {
+    glDisable(GL_CLIP_PLANE0+i);
     }
 
   timer->Delete();

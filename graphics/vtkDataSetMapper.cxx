@@ -113,6 +113,13 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
     this->PolyDataMapper = pm;
     }
 //
+// share clipping planes with the PolyDataMapper
+//
+  if (this->ClippingPlanes != this->PolyDataMapper->GetClippingPlanes()) 
+    {
+    this->PolyDataMapper->SetClippingPlanes(this->ClippingPlanes);
+    }
+//
 // For efficiency: if input type is vtkPolyData, there's no need to pass it thru
 // the geometry filter.
 //
