@@ -13,6 +13,10 @@ vtkSynchronizedTemplates2D.cxx
 vtkSynchronizedTemplates3D.cxx
 )
 
+IF(CMAKE_BUILD_TOOL MATCHES devenv)
+  SET_SOURCE_FILES_PROPERTIES(vtkSweptSurface COMPILE_FLAGS /Op)
+ENDIF(CMAKE_BUILD_TOOL MATCHES devenv)
+
 IF(VTK_MAKE_INSTANTIATOR)
   # Setup vtkInstantiator registration for this library's classes.
   VTK_MAKE_INSTANTIATOR(vtkPatentedInstantiator PatentedInstantiator_SRCS
