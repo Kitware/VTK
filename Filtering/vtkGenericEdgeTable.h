@@ -112,9 +112,9 @@ public:
   void IncrementPointReferenceCount(vtkIdType ptId );
 
   // Description:
-  // For debugging purposes. It is particularly usefull to dump the table
-  // and check nothing is left after a complete iteration. LoadFactor should
-  // ideally very low to be able to have constant time access
+  // For debugging purposes. It is particularly useful to dump the table
+  // and check that nothing is left after a complete iteration. LoadFactor
+  // should ideally be very low to be able to have a constant time access
   void DumpTable();
   void LoadFactor();
 
