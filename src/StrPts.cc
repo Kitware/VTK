@@ -375,7 +375,7 @@ void vtkStructuredPoints::GetPointGradient(int i,int j,int k, vtkScalars *s,
     }
 
   // z-direction
-  if ( dims[1] == 1 )
+  if ( dims[2] == 1 )
     {
     g[2] = 0.0;
     }
@@ -385,7 +385,7 @@ void vtkStructuredPoints::GetPointGradient(int i,int j,int k, vtkScalars *s,
     sm = s->GetScalar(i + j*dims[0] + k*ijsize);
     g[2] = (sp - sm) / ar[2];
     }
-  else if ( k == (dims[1]-1) )
+  else if ( k == (dims[2]-1) )
     {
     sp = s->GetScalar(i + j*dims[0] + k*ijsize);
     sm = s->GetScalar(i + j*dims[0] + (k-1)*ijsize);
