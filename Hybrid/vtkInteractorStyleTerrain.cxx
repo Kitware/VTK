@@ -23,7 +23,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.8");
+vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.9");
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
 vtkInteractorStyleTerrain::vtkInteractorStyleTerrain()
@@ -174,9 +174,7 @@ void vtkInteractorStyleTerrain::ProcessEvents(vtkObject* object,
                         XY[0], XY[1]);
       break;
     case vtkCommand::CharEvent:
-      self->OnChar(rwi->GetControlKey(), rwi->GetShiftKey(),
-                   rwi->GetKeyCode(), rwi->GetRepeatCount(),
-                   XY[0], XY[1]);
+      self->OnChar();
       break;
     case vtkCommand::DeleteEvent:
       self->Interactor = 0;
@@ -380,13 +378,11 @@ void vtkInteractorStyleTerrain::OnMouseMove (int vtkNotUsed(ctrl), int shift,
 }
 
 
-void vtkInteractorStyleTerrain::OnChar(int vtkNotUsed(ctrl), 
-                                       int vtkNotUsed(shift),
-                                       char keycode, 
-                                       int vtkNotUsed(repeatcount),
-                                       int X, int Y)
+void vtkInteractorStyleTerrain::OnChar()
 {
-  switch (keycode)
+  int *XY = this->Interactor->GetEventPosition();
+
+  switch (this->Interactor->GetKeyCode())
     {
     case 'e' :
     case 'E' :

@@ -106,8 +106,7 @@ protected:
   void OnRightButtonDown(int ctrl, int shift, int X, int Y);
   void OnRightButtonUp(int ctrl, int shift, int X, int Y);
   void OnMouseMove(int ctrl, int shift, int X, int Y);
-  void OnChar(int ctrl, int shift, char keycode, int repeatcount, 
-              int X, int Y);
+  void OnChar();
 
   // Internal helper attributes
   int LatLongLines;
