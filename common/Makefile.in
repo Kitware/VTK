@@ -30,7 +30,6 @@ vtkImplicitFunction \
 vtkLocator \
 vtkObjectFactory \
 vtkOverrideInformation \
-vtkOverrideInformationCollection \
 vtkPointSet \
 vtkScalarsToColors \
 vtkViewport \
@@ -102,6 +101,7 @@ vtkMergePoints2D \
 vtkMultiThreader \
 vtkMutexLock \
 vtkNormals \
+vtkOverrideInformationCollection \
 vtkObject \
 vtkOutputWindow \
 vtkPerspectiveTransform \
