@@ -172,7 +172,8 @@ WRAP_EXCLUDE_FILES(vtkLargeInteger)
 
 # Allow the user to customize their build with some local options
 #
-INCLUDE (LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_BINARY_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_SOURCE_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
 
 # if we are wrapping into Tcl then add the library and extra 
 # source files

@@ -33,6 +33,7 @@ ADD_LIBRARY(vtkHybrid Hybrid_SRCS)
 
 # Allow the user to customize their build with some local options
 #
+INCLUDE (${VTK_BINARY_DIR}/Hybrid/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Hybrid/LocalUserOptions.cmake OPTIONAL)
 
 IF (VTK_WRAP_TCL)

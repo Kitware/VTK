@@ -210,4 +210,6 @@ ENDIF (BUILD_EXAMPLES)
 
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
 
+INCLUDE (${VTK_BINARY_DIR}/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
 

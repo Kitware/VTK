@@ -43,6 +43,7 @@ ADD_LIBRARY(vtkParallel Parallel_SRCS)
 
 # Allow the user to customize their build with some local options
 #
+INCLUDE (${VTK_BINARY_DIR}/Parallel/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Parallel/LocalUserOptions.cmake OPTIONAL)
 
 IF (WIN32)

@@ -15,6 +15,11 @@ vtkSynchronizedTemplates3D
 
 ADD_LIBRARY(vtkPatented Patented_SRCS)
 
+# Allow the user to customize their build with some local options
+#
+INCLUDE (${VTK_BINARY_DIR}/Patented/LocalUserOptions.cmake OPTIONAL)
+INCLUDE (${VTK_SOURCE_DIR}/Patented/LocalUserOptions.cmake OPTIONAL)
+
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkPatentedTCL PatentedTCL_SRCS Patented_SRCS)
   ADD_LIBRARY(vtkPatentedTCL PatentedTCL_SRCS)
