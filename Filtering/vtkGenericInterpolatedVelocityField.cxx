@@ -24,7 +24,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkGenericInterpolatedVelocityField, "1.1");
+vtkCxxRevisionMacro(vtkGenericInterpolatedVelocityField, "1.2");
 vtkStandardNewMacro(vtkGenericInterpolatedVelocityField);
 
 typedef vtkstd::vector< vtkGenericDataSet* > DataSetsTypeBase;
@@ -108,7 +108,7 @@ int vtkGenericInterpolatedVelocityField::FunctionValues(
   double* f)
 {
   int i, subId;
-  vtkGenericAttribute *vectors;
+  vtkGenericAttribute *vectors=0;
   double dist2;
   int ret;
   int attrib;
