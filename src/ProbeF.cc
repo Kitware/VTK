@@ -28,12 +28,13 @@ void vlProbeFilter::Execute()
   vlPointData *pd;
   int numPts, subId;
   float pcoords[3], weights[MAX_CELL_SIZE];
+  vlDataSet *input=this->Input, *source=this->Source;
 
   vlDebugMacro(<<"Probing data");
   this->Initialize();
 
-  pd = this->Input->GetPointData();
-  numPts = this->Input->GetNumberOfPoints();
+  pd = input->GetPointData();
+  numPts = source->GetNumberOfPoints();
 //
 // Allocate storage for output PointData
 //
@@ -41,18 +42,18 @@ void vlProbeFilter::Execute()
 //
 // Use tolerance as a function of size of input data
 //
-  tol2 = this->Input->GetLength();
+  tol2 = input->GetLength();
   tol2 = tol2*tol2 / 1000.0;
 //
 // Loop over all source points, interpolating input data
 //
-  for (ptId=0; ptId < this->Source->GetNumberOfPoints(); ptId++)
+  for (ptId=0; ptId < numPts; ptId++)
     {
-    x = this->Source->GetPoint(ptId);
-    cellId = this->Input->FindCell(x,NULL,tol2,subId,pcoords,weights);
+    x = source->GetPoint(ptId);
+    cellId = input->FindCell(x,NULL,tol2,subId,pcoords,weights);
     if ( cellId >= 0 )
       {
-      cell = this->Input->GetCell(cellId);
+      cell = input->GetCell(cellId);
       this->PointData.InterpolatePoint(pd,ptId,&(cell->PointIds),weights);
       }
     else
@@ -60,11 +61,12 @@ void vlProbeFilter::Execute()
       this->PointData.NullPoint(ptId);
       }
     }
+
+  this->Modified(); //make sure something's changed
 }
 
 void vlProbeFilter::Initialize()
 {
-  this->Modified();
   if ( this->Source )
     {
     if (this->DataSet) delete this->DataSet;
