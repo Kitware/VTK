@@ -19,10 +19,11 @@
 
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.46");
+vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.47");
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //----------------------------------------------------------------------------

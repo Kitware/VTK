@@ -19,8 +19,9 @@
 
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageChangeInformation, "1.8");
+vtkCxxRevisionMacro(vtkImageChangeInformation, "1.9");
 vtkStandardNewMacro(vtkImageChangeInformation);
 vtkCxxSetObjectMacro(vtkImageChangeInformation, InformationInput, vtkImageData);
 

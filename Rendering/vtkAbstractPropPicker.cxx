@@ -21,11 +21,12 @@
 #include "vtkActor2D.h"
 #include "vtkAssembly.h"
 #include "vtkAssemblyNode.h"
+#include "vtkAssemblyPath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPropAssembly.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkAbstractPropPicker, "1.5");
+vtkCxxRevisionMacro(vtkAbstractPropPicker, "1.6");
 
 vtkCxxSetObjectMacro(vtkAbstractPropPicker,Path,vtkAssemblyPath);
 

@@ -20,11 +20,11 @@
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
 #include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
+#include "vtkPointData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToImageStencil, "1.8");
+vtkCxxRevisionMacro(vtkImageToImageStencil, "1.9");
 vtkStandardNewMacro(vtkImageToImageStencil);
 
 //----------------------------------------------------------------------------

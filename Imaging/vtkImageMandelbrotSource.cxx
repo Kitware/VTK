@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkImageMandelbrotSource.h"
+
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.33");
+vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.34");
 vtkStandardNewMacro(vtkImageMandelbrotSource);
 
 //----------------------------------------------------------------------------

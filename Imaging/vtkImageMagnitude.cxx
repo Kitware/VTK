@@ -20,10 +20,11 @@
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMagnitude, "1.34");
+vtkCxxRevisionMacro(vtkImageMagnitude, "1.35");
 vtkStandardNewMacro(vtkImageMagnitude);
 
 //----------------------------------------------------------------------------

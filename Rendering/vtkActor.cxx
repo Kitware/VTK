@@ -22,6 +22,7 @@
 #include "vtkImageData.h"
 #include "vtkLinearTransform.h"
 #include "vtkMapper.h"
+#include "vtkPointData.h"
 #include "vtkPropCollection.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
@@ -30,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.119");
+vtkCxxRevisionMacro(vtkActor, "1.120");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 

@@ -15,13 +15,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkImageContinuousErode3D.h"
+
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkImageEllipsoidSource.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.23");
+vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.24");
 vtkStandardNewMacro(vtkImageContinuousErode3D);
 
 //----------------------------------------------------------------------------

@@ -17,10 +17,13 @@
 =========================================================================*/
 #include "vtkImageMedian3D.h"
 
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.35");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.36");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------

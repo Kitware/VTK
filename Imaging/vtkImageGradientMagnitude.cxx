@@ -17,12 +17,14 @@
 =========================================================================*/
 #include "vtkImageGradientMagnitude.h"
 
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.32");
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.33");
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------

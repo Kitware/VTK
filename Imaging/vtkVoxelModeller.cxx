@@ -18,12 +18,14 @@
 #include "vtkVoxelModeller.h"
 
 #include "vtkBitArray.h"
+#include "vtkCell.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVoxelModeller, "1.51");
+vtkCxxRevisionMacro(vtkVoxelModeller, "1.52");
 vtkStandardNewMacro(vtkVoxelModeller);
 
 // Construct an instance of vtkVoxelModeller with its sample dimensions

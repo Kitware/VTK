@@ -26,6 +26,7 @@
 #include "vtkLongArray.h"
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkShortArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
@@ -34,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFiniteDifferenceGradientEstimator, "1.35");
+vtkCxxRevisionMacro(vtkFiniteDifferenceGradientEstimator, "1.36");
 vtkStandardNewMacro(vtkFiniteDifferenceGradientEstimator);
 
 // This is the templated function that actually computes the EncodedNormal

@@ -20,10 +20,11 @@
 #include "vtkByteSwap.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.38");
+vtkCxxRevisionMacro(vtkImageImport, "1.39");
 vtkStandardNewMacro(vtkImageImport);
 
 //----------------------------------------------------------------------------

@@ -19,9 +19,10 @@
 
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBooleanTexture, "1.34");
+vtkCxxRevisionMacro(vtkBooleanTexture, "1.35");
 vtkStandardNewMacro(vtkBooleanTexture);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib

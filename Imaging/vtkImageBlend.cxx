@@ -20,8 +20,9 @@
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.28");
+vtkCxxRevisionMacro(vtkImageBlend, "1.29");
 vtkStandardNewMacro(vtkImageBlend);
 vtkCxxSetObjectMacro(vtkImageBlend,Stencil, vtkImageStencilData);
 

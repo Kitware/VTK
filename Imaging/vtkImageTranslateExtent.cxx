@@ -19,8 +19,9 @@
 
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageTranslateExtent, "1.19");
+vtkCxxRevisionMacro(vtkImageTranslateExtent, "1.20");
 vtkStandardNewMacro(vtkImageTranslateExtent);
 
 //----------------------------------------------------------------------------

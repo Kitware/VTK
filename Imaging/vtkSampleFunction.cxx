@@ -22,8 +22,9 @@
 #include "vtkImplicitFunction.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.61");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.62");
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction,ImplicitFunction,vtkImplicitFunction);
 

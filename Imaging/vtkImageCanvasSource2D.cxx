@@ -20,10 +20,11 @@
 #include "vtkImageCast.h"
 #include "vtkImageClip.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.36");
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.37");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
