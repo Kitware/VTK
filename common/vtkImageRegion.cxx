@@ -123,6 +123,10 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+
+
+  
+
 //----------------------------------------------------------------------------
 // Description:
 // Convert 4d vector (not extent!) from one coordinate system into another
@@ -419,6 +423,29 @@ void vtkImageRegion::SetData(vtkImageData *data)
   vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
 					     this->Data->GetAxes(),
 					     this->Increments, this->Axes);
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Returns the data.  If one does not exist, the a data object is created.
+vtkImageData *vtkImageRegion::GetData()
+{
+  if ( ! this->Data)
+    {
+    int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
+    this->Data = new vtkImageData;
+    this->Data->SetScalarType(this->ScalarType);
+    this->GetExtent(extent);
+    this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
+				       extent, this->Data->GetAxes());
+    this->Data->SetExtent(extent);
+    // Compute the increments.
+    vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
+					       this->Data->GetAxes(),
+					       this->Increments, this->Axes);
+    }
+  return this->Data;
 }
 
 

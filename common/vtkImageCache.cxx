@@ -288,19 +288,8 @@ void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
   
   // Create the data object for this region, to fix its size.
   // Memory allocation is delayed as long as possible.
-  if ( ! region->GetData())
-    {
-    int saveAxes[VTK_IMAGE_DIMENSIONS];
-    vtkImageData *data = new vtkImageData;
-    region->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
-    region->SetAxes(VTK_IMAGE_DIMENSIONS, data->GetAxes());
-    data->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetExtent());
-    data->SetScalarType(this->ScalarType);
-    region->SetAxes(saveAxes);
-    region->SetData(data);
-    // Since region has registered data, we mst delete our reference
-    data->Delete();
-    }
+  region->GetData();
+  
   
   // Tell the filter to generate the data for this region
   // IMPORTANT: Region is just to communicate extent, and does not

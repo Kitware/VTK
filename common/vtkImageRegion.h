@@ -78,10 +78,10 @@ public:
   void UpdateImageInformation(vtkImageRegion *region);
   unsigned long GetPipelineMTime();
 
-  void SetData(vtkImageData *data);
   // Description:
-  // You can get the data object to share with another vtkImageRegion.
-  vtkGetObjectMacro(Data,vtkImageData);
+  // Set/Get the data object to share with other vtkImageRegions.
+  void SetData(vtkImageData *data);
+  vtkImageData *GetData();
   // Description:
   // Get the data type of this region.
   vtkSetMacro(ScalarType,int);

@@ -650,6 +650,13 @@ void *vtkImageData::GetScalarPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
     {
     this->AllocateScalars();
     scalars = this->PointData.GetScalars();    
+    if (scalars == NULL)
+      {
+      vtkErrorMacro("Can't allocate scalars");
+      // for debugging
+      this->AllocateScalars();
+      scalars = this->PointData.GetScalars();    
+      }
     }
   
   // error checking: since most acceses will be from pointer arithmetic.
