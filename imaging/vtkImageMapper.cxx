@@ -105,6 +105,7 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
 
   vtkImageData *data;
   int displayExtent[6];
+  int wholeExtent[6];
 
   if (!viewport)
     {
@@ -127,6 +128,7 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
 
   this->Input->UpdateImageInformation();
   // start with the wholeExtent
+  memcpy(wholeExtent,this->Input->GetWholeExtent(),6*sizeof(int));
   memcpy(displayExtent,this->Input->GetWholeExtent(),6*sizeof(int));
 
   // Set The z values to the zslice
@@ -142,10 +144,10 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
 
   // position the extent
   int *pos = actor->GetComputedViewportPixelPosition(viewport);
-  displayExtent[0] += pos[0];
-  displayExtent[1] += pos[0];
-  displayExtent[2] += pos[1];
-  displayExtent[3] += pos[1];
+  //displayExtent[0] += pos[0];
+  //displayExtent[1] += pos[0];
+  //displayExtent[2] += pos[1];
+  //displayExtent[3] += pos[1];
   
   // Get the viewport coordinates
   float* vpt = viewport->GetViewport(); 
@@ -161,30 +163,38 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   // initialize PositionAdjustment to zero
   this->PositionAdjustment[0] = 0;
   this->PositionAdjustment[1] = 0;
-  if (displayExtent[0] < 0) 
+  if (pos[0] < 0) 
     {
-    this->PositionAdjustment[0] = -1*displayExtent[0];
-    displayExtent[0] = 0;
+    this->PositionAdjustment[0] = -1*pos[0];
+    displayExtent[0] -= pos[0];
     }
-  if (displayExtent[1] > (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN])) 
+  if ((pos[0]+wholeExtent[1] - wholeExtent[0] + 1) > 
+      (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN])) 
     {
-    displayExtent[1] = (int)((winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN]));
+    displayExtent[1] = displayExtent[1] - 
+      (pos[0]+wholeExtent[1] - wholeExtent[0] + 1) + 
+      (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN]);
+    //    displayExtent[1] = (int)((winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN]));
     }
-  if (displayExtent[2] < 0) 
+  if (pos[1] < 0) 
     {
-    this->PositionAdjustment[1] = -1*displayExtent[2];
-    displayExtent[2] = 0;
+    this->PositionAdjustment[1] = -1*pos[1];
+    displayExtent[2] -= pos[0];
     }
-  if (displayExtent[3] > (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN])) 
+  if ((pos[1] + wholeExtent[3] - wholeExtent[2] + 1) > 
+      (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN])) 
     {
-    displayExtent[3] = (int)((winSize[1] - 1)*(vpt[YMAX] - vpt[YMIN]));
+    displayExtent[3] = displayExtent[3] - 
+      (pos[1]+wholeExtent[3] - wholeExtent[2] + 1) + 
+      (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN]);
+    //displayExtent[3] = (int)((winSize[1] - 1)*(vpt[YMAX] - vpt[YMIN]));
     }
 
   // now add back in the position to determine the update Extent
-  displayExtent[0] -= pos[0];
-  displayExtent[1] -= pos[0];
-  displayExtent[2] -= pos[1];
-  displayExtent[3] -= pos[1];
+  //displayExtent[0] -= pos[0];
+  //displayExtent[1] -= pos[0];
+  //displayExtent[2] -= pos[1];
+  //displayExtent[3] -= pos[1];
   
   this->Input->SetUpdateExtent(displayExtent);
 

@@ -643,11 +643,16 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
   int ySize = (int) (actorScale[1] * (float) height);
 
   int* actorPos = actor->GetComputedDisplayPosition(viewport);
-  actorPos[1] = actorPos[1] - actorScale[1] * height;
+  // negative positions will already be clipped to viewport
+  actorPos[0] += this->PositionAdjustment[0]; 
+  actorPos[1] -= this->PositionAdjustment[1];
 
+  actorPos[1] = actorPos[1] - height;
+
+  // actorPos[1] = actorPos[1] - actorScale[1] * height;
   // Adjust position for image flips - note actorScale is negative in expression
-  if (xSize< 0)  actorPos[0] = actorPos[0] - actorScale[0] * width;
-  if (ySize < 0)  actorPos[1] = actorPos[1] - actorScale[1] * height;
+  //if (xSize< 0)  actorPos[0] = actorPos[0] - actorScale[0] * width;
+  //if (ySize < 0)  actorPos[1] = actorPos[1] - actorScale[1] * height;
 
   int compositeMode = this->GetCompositingMode(actor);
 

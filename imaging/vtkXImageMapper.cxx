@@ -598,7 +598,7 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
   int* actPos = actor->GetComputedDisplayPosition(viewport);
   // take into account adjustments
   actPos[0] += this->PositionAdjustment[0];
-  actPos[1] += this->PositionAdjustment[1];
+  actPos[1] -= this->PositionAdjustment[1];
   
   //float* actorScale = actor->GetScale();
 
@@ -606,6 +606,7 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
   // We need the upper left corner for displaying it on the screen,
   // so subtract the height of the image times it's Y scale.
   //actPos[1] = actPos[1] - (int)(actorScale[1]*height);
+  actPos[1] = actPos[1] - height;
 
   // Get the compositing mode for the actor
   int compositeMode = this->GetCompositingMode(actor);
