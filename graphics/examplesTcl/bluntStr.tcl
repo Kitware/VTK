@@ -89,6 +89,8 @@ vtkCamera cam1
   cam1 ComputeViewPlaneNormal
   cam1 SetViewAngle 30
   cam1 SetViewUp 0.127555 0.911749 -0.390441
+  cam1 SetClippingRange 1 50
+
 ren1 SetActiveCamera cam1
 
 iren Initialize
