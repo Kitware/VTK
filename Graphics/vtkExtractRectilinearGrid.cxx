@@ -19,7 +19,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.2");
+vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.3");
 vtkStandardNewMacro(vtkExtractRectilinearGrid);
 
 // Construct object to extract all of the input data.
@@ -149,7 +149,8 @@ void vtkExtractRectilinearGrid::ExecuteInformation()
 {
   vtkRectilinearGrid *input= this->GetInput();
   vtkRectilinearGrid *output= this->GetOutput();
-  int i, outDims[3], voi[6], wholeExtent[6];
+  int i, outDims[3], voi[6];
+  int inWholeExtent[6], outWholeExtent[6];
   int mins[3];
   int rate[3];
 
@@ -161,7 +162,7 @@ void vtkExtractRectilinearGrid::ExecuteInformation()
 
   this->vtkRectilinearGridSource::ExecuteInformation();
 
-  input->GetWholeExtent(wholeExtent);
+  input->GetWholeExtent(inWholeExtent);
 
   // Copy because we need to take union of voi and whole extent.
   for ( i=0; i < 6; i++ )
@@ -172,29 +173,29 @@ void vtkExtractRectilinearGrid::ExecuteInformation()
   for ( i=0; i < 3; i++ )
     {
     // Empty request.
-    if (voi[2*i+1] < voi[2*i] || voi[2*i+1] < wholeExtent[2*i] || 
-        voi[2*i] > wholeExtent[2*i+1])
+    if (voi[2*i+1] < voi[2*i] || voi[2*i+1] < inWholeExtent[2*i] || 
+        voi[2*i] > inWholeExtent[2*i+1])
       {
       output->SetWholeExtent(0,-1,0,-1,0,-1);
       return;
       }
 
     // Make sure VOI is in the whole extent.
-    if ( voi[2*i+1] > wholeExtent[2*i+1] )
+    if ( voi[2*i+1] > inWholeExtent[2*i+1] )
       {
-      voi[2*i+1] = wholeExtent[2*i+1];
+      voi[2*i+1] = inWholeExtent[2*i+1];
       }
-    else if ( voi[2*i+1] < wholeExtent[2*i] )
+    else if ( voi[2*i+1] < inWholeExtent[2*i] )
       {
-      voi[2*i+1] = wholeExtent[2*i];
+      voi[2*i+1] = inWholeExtent[2*i];
       }
-    if ( voi[2*i] > wholeExtent[2*i+1] )
+    if ( voi[2*i] > inWholeExtent[2*i+1] )
       {
-      voi[2*i] = wholeExtent[2*i+1];
+      voi[2*i] = inWholeExtent[2*i+1];
       }
-    else if ( voi[2*i] < wholeExtent[2*i] )
+    else if ( voi[2*i] < inWholeExtent[2*i] )
       {
-      voi[2*i] = wholeExtent[2*i];
+      voi[2*i] = inWholeExtent[2*i];
       }
 
     if ( (rate[i] = this->SampleRate[i]) < 1 )
@@ -228,14 +229,14 @@ void vtkExtractRectilinearGrid::ExecuteInformation()
     }
 
   // Set the whole extent of the output
-  wholeExtent[0] = mins[0];
-  wholeExtent[1] = mins[0] + outDims[0] - 1;
-  wholeExtent[2] = mins[1];
-  wholeExtent[3] = mins[1] + outDims[1] - 1;
-  wholeExtent[4] = mins[2];
-  wholeExtent[5] = mins[2] + outDims[2] - 1;
+  outWholeExtent[0] = mins[0];
+  outWholeExtent[1] = mins[0] + outDims[0] - 1;
+  outWholeExtent[2] = mins[1];
+  outWholeExtent[3] = mins[1] + outDims[1] - 1;
+  outWholeExtent[4] = mins[2];
+  outWholeExtent[5] = mins[2] + outDims[2] - 1;
 
-  output->SetWholeExtent(wholeExtent);
+  output->SetWholeExtent(outWholeExtent);
 }
 
 //----------------------------------------------------------------------------
@@ -254,9 +255,11 @@ void vtkExtractRectilinearGrid::Execute()
   int outSize, jOffset, kOffset, rate[3];
   vtkIdType idx, newIdx, newCellId;
   int inInc1, inInc2;
+  int *inWholeExt;
 
   vtkDebugMacro(<< "Extracting Grid");
 
+  inWholeExt = input->GetWholeExtent();
   outWholeExt = output->GetWholeExtent();
   output->GetUpdateExtent(uExt);
   inExt = input->GetExtent();
@@ -275,14 +278,14 @@ void vtkExtractRectilinearGrid::Execute()
   for (i = 0; i < 3; ++i)
     {
     voi[i*2] = this->VOI[2*i];
-    if (voi[2*i] < inExt[2*i])
+    if (voi[2*i] < inWholeExt[2*i])
       {
-      voi[2*i] = inExt[2*i];
+      voi[2*i] = inWholeExt[2*i];
       }
     voi[i*2+1] = this->VOI[2*i+1];
-    if (voi[2*i+1] > inExt[2*i+1])
+    if (voi[2*i+1] > inWholeExt[2*i+1])
       {
-      voi[2*i+1] = inExt[2*i+1];
+      voi[2*i+1] = inWholeExt[2*i+1];
       }
     }
 
