@@ -96,14 +96,14 @@ vtkObject *PyArg_VTKParseTuple(PyObject *self, PyObject *args,
 // Add a PyVTKClass to the type lookup table, this allows us to later
 // create object given only the class name.
 extern VTK_PYTHON_EXPORT
-void vtkPythonAddClassToHash(PyObject *obj, char *type); 
+void vtkPythonAddClassToHash(PyObject *obj, const char *type); 
 
 // Extract the vtkObject from a PyVTKObject.  If the PyObject is not a 
 // PyVTKObject, or is not a PyVTKObject of the specified type, the python
 // error indicator will be set.
 // Special behaviour: Py_None is converted to NULL without no error.
 extern VTK_PYTHON_EXPORT
-vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, char *type);
+vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, const char *type);
 
 // Convert a vtkObject to a PyVTKObject.  This will first check to see if
 // the PyVTKObject already exists, and create a new PyVTKObject if necessary.
