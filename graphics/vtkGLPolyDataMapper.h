@@ -55,7 +55,6 @@ class vtkProperty;
 class VTK_EXPORT vtkGLPolyDataMapper : public vtkPolyDataMapper
 {
  public:
-  vtkGLPolyDataMapper();
   static vtkGLPolyDataMapper *New() {return new vtkGLPolyDataMapper;};
   char *GetClassName() {return "vtkGLPolyDataMapper";};
 
