@@ -33,6 +33,7 @@ LINK_DIRECTORIES(.)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkDependentOption.cmake)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkThirdParty.cmake)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkExportKit.cmake)
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkMakeInstatiator.cmake)
 
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
