@@ -5,7 +5,6 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
 
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -283,11 +282,6 @@ void vtkImageWin32Viewer::Render(void)
     if (!this->DeviceContext)
       {
       // use default size if not specified
-      if (this->Size[0] == 0 )
-        {
-        this->Size[0] = width;
-        this->Size[1] = height;
-        }
       if (this->Size[0] == 0 )
         {
         this->Size[0] = 256;
@@ -751,7 +745,7 @@ LRESULT APIENTRY vtkImageWin32ViewerWndProc(HWND hWnd, UINT message,
 //----------------------------------------------------------------------------
 void vtkImageWin32Viewer::MakeDefaultWindow() 
 {
-  int count;
+  static int count = 0;
 
   // create our own window if not already set
   this->OwnWindow = 0;
