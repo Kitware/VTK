@@ -5,10 +5,10 @@
 #include "vtkPushPipeline.h"
 #include "vtkCommand.h"
 
-class myCallback : public vtkCommand
+class PTCallback : public vtkCommand
 {
 public:
-  static myCallback *New() { return new myCallback;}
+  static PTCallback *New() { return new PTCallback;}
   static int count;
   virtual void Execute(vtkObject *caller, unsigned long, void *callData)
     {
@@ -16,9 +16,9 @@ public:
     }
 };
 
-int myCallback::count = 0;
+int PTCallback::count = 0;
 
-int main( int argc, char *argv[] )
+int PushTest( int argc, char *argv[] )
 {
   char *fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
   
@@ -44,7 +44,7 @@ int main( int argc, char *argv[] )
   iv->SetColorWindow(2000);
   iv->SetColorLevel(1000);
   
-  myCallback *mc = myCallback::New();
+  PTCallback *mc = PTCallback::New();
   iv->GetRenderWindow()->AddObserver(vtkCommand::StartEvent,mc);
   mc->Delete();
   
@@ -53,5 +53,5 @@ int main( int argc, char *argv[] )
   pp->AddPusher(reader);
   pp->Run(reader);
 
-  return (myCallback::count != 23);
+  return (PTCallback::count != 23);
 }
