@@ -30,6 +30,7 @@
 
 #include "vtkDataSetToUnstructuredGridFilter.h"
 #include <vtkstd/set>     // for the internal cell ID list
+#include <vtkstd/vector>     // for the internal cell ID list
 
 class vtkIdList;
 class vtkUnstructuredGrid;
@@ -54,6 +55,12 @@ public:
   // in the output vtkUnstructuredGrid.
 
   void AddCellList(vtkIdList *l);
+
+//BTX
+  // TODO need the following call ...
+  // void RemoveCellList(vtkIdList *l);
+  void GetCellIds( vtkstd::vector<int> &ids );
+//ETX
 
   // Description:
   // Add this range of cell IDs to those that will be included

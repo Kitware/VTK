@@ -31,7 +31,7 @@
 #include <algorithm>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkExtractCells, "1.2");
+vtkCxxRevisionMacro(vtkExtractCells, "1.3");
 vtkStandardNewMacro(vtkExtractCells);
 
 vtkExtractCells::vtkExtractCells()
@@ -326,11 +326,14 @@ vtkIdList *vtkExtractCells::reMapPointIds(vtkDataSet *grid)
     vtkIdType *locs = ugrid->GetCellLocationsArray()->GetPointer(0);
 
     this->SubSetUGridCellArraySize = 0;
+    vtkIdType maxid = ugrid->GetCellLocationsArray()->GetMaxId();
          
     for (cellPtr = this->CellList.begin(); cellPtr != this->CellList.end();
          ++cellPtr)  
       {
 
+        if (*cellPtr > maxid) continue;
+        
       int loc = locs[*cellPtr];
 
       vtkIdType nIds = cellArray[loc++];
@@ -435,12 +438,15 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap)
 
   vtkstd::set<vtkIdType>::iterator cellPtr;                           // input
   vtkIdType *cells = ugrid->GetCells()->GetPointer();
+  vtkIdType maxid = ugrid->GetCellLocationsArray()->GetMaxId();
   vtkIdType *locs = ugrid->GetCellLocationsArray()->GetPointer(0);
   vtkUnsignedCharArray *types = ugrid->GetCellTypesArray();
 
   for (cellPtr = this->CellList.begin();
        cellPtr != this->CellList.end(); ++cellPtr)  
     {
+      if (*cellPtr > maxid) continue;
+      
     int oldCellId = *cellPtr;
 
     int loc = locs[oldCellId];
@@ -481,3 +487,15 @@ void vtkExtractCells::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 }
 
+
+void vtkExtractCells::GetCellIds( vtkstd::vector<int> &ids )
+{
+  vtkstd::set<vtkIdType>::iterator cur = this->CellList.begin();
+  vtkstd::set<vtkIdType>::iterator end = this->CellList.end();
+
+  ids.clear();
+  for ( ; cur!=end; cur++)  
+    {
+    ids.push_back( *cur );
+    }
+}
