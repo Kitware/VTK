@@ -82,6 +82,16 @@ void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageToImageFilter::PrintSelf(os,indent);
 
+  os << indent << "NumberOfStreamDivisions: " << this->NumberOfStreamDivisions << endl;
+  if ( this->ExtentTranslator )
+    {
+    os << indent << "ExtentTranslator:\n";
+    this->ExtentTranslator->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "ExtentTranslator: (none)\n";
+    }
 }
 
 //----------------------------------------------------------------------------
