@@ -39,7 +39,7 @@ ENDIF(PYTHON_UTIL_LIBRARY)
 
 
 IF (APPLE)
-  SET_TARGET_PROPERTIES(vtkpython PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress")
+  SET_TARGET_PROPERTIES(vtkpython PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress -u _PyMac_Error")
 ENDIF (APPLE)
 
 # Link against all the kit wrappers.
