@@ -47,7 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindow.h"
 #include "vtkRayCaster.h"
 #include "vtkVolumeRayCastFunction.h"
-#include "vtkRecursiveSphereDirectionEncoder.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
 
 // Description:
@@ -71,7 +70,6 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
   this->DrawTime                      = 0.0;
   this->TotalStepsTaken               = 0;
   this->TotalRaysCast                 = 0;
-  this->DirectionEncoder              = vtkRecursiveSphereDirectionEncoder::New();
   this->GradientEstimator             = vtkFiniteDifferenceGradientEstimator::New();
   this->GradientShader                = vtkEncodedGradientShader::New();
 }
@@ -98,12 +96,6 @@ vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
   if ( this->CorrectedScalarOpacityTFArray )
     delete [] this->CorrectedScalarOpacityTFArray;
 
-  if ( this->DirectionEncoder )
-    {
-    this->DirectionEncoder->UnRegister(this);
-    this->DirectionEncoder = NULL;
-    }
-
   if ( this->GradientEstimator )
     {
     this->GradientEstimator->UnRegister(this);
@@ -113,32 +105,6 @@ vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
   this->GradientShader->Delete();
 }
 
-void vtkVolumeRayCastMapper::SetDirectionEncoder( vtkDirectionEncoder *direnc )
-{
-
-  // If we are setting it to its current value, don't do anything
-  if ( this->DirectionEncoder == direnc )
-    {
-    return;
-    }
-
-  // If we already have a direction encoder, unregister it.
-  if ( this->DirectionEncoder )
-    {
-    this->DirectionEncoder->UnRegister(this);
-    this->DirectionEncoder = NULL;
-    }
-
-  // If we are passing in a non-NULL encoder, register it
-  if ( direnc )
-    {
-    direnc->Register( this );
-    }
-
-  // Actually set the encoder, and consider the object Modified
-  this->DirectionEncoder = direnc;
-  this->Modified();
-}
 
 void vtkVolumeRayCastMapper::SetGradientEstimator( vtkEncodedGradientEstimator *gradest )
 {
@@ -1164,7 +1130,6 @@ void vtkVolumeRayCastMapper::UpdateShadingTables( vtkRenderer *ren,
   this->GradientEstimator->SetGradientMagnitudeBias( gradient_opacity_bias );
   this->GradientEstimator->SetGradientMagnitudeScale( gradient_opacity_scale );
   this->GradientEstimator->SetScalarInput( this->ScalarInput );
-  this->GradientEstimator->SetDirectionEncoder( this->DirectionEncoder );
 
 
   if ( shading )
@@ -1491,16 +1456,6 @@ void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalar Data Size: " << "( " << 
     this->ScalarDataSize[0] << ", " << this->ScalarDataSize[1] << ", " <<
     this->ScalarDataSize[2] << " )\n";
-
-  if ( this->DirectionEncoder )
-    {
-      os << indent << "Direction Encoder: " << (this->DirectionEncoder) <<
-	endl;
-    }
-  else
-    {
-      os << indent << "Direction Encoder: (none)" << endl;
-    }
 
   if ( this->GradientEstimator )
     {

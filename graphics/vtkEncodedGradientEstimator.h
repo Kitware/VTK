@@ -97,9 +97,9 @@ public:
   vtkGetMacro( NumberOfThreads, int );
 
   // Description:
-  // Set / Get the direction encoder used to encode normals in to 
-  // two byte value
-  vtkSetObjectMacro( DirectionEncoder, vtkDirectionEncoder );
+  // Set / Get the direction encoder used to encode normal directions
+  // to fit within two bytes
+  void SetDirectionEncoder( vtkDirectionEncoder *direnc );
   vtkGetObjectMacro( DirectionEncoder, vtkDirectionEncoder );
 
   // These variables should be protected but are being

@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkEncodedGradientEstimator.h"
+#include "vtkRecursiveSphereDirectionEncoder.h"
 
 // Description:
 // Construct a vtkEncodedGradientEstimator with initial values of NULL for
@@ -56,6 +57,7 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
   this->GradientMagnitudeScale     = 1.0;
   this->GradientMagnitudeBias      = 0.0;
   this->NumberOfThreads            = this->Threader.GetNumberOfThreads();
+  this->DirectionEncoder           = vtkRecursiveSphereDirectionEncoder::New();
 }
 
 // Description:
@@ -63,10 +65,46 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
 vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
 {
   if ( this->EncodedNormals )
+    {
     delete [] this->EncodedNormals;
+    }
 
   if ( this->GradientMagnitudes )
+    {
     delete [] this->GradientMagnitudes;
+    }
+
+  if ( this->DirectionEncoder )
+    {
+    this->DirectionEncoder->UnRegister( this );
+    }
+}
+
+void vtkEncodedGradientEstimator::SetDirectionEncoder( vtkDirectionEncoder *direnc )
+{
+
+  // If we are setting it to its current value, don't do anything
+  if ( this->DirectionEncoder == direnc )
+    {
+    return;
+    }
+
+  // If we already have a direction encoder, unregister it.
+  if ( this->DirectionEncoder )
+    {
+    this->DirectionEncoder->UnRegister(this);
+    this->DirectionEncoder = NULL;
+    }
+
+  // If we are passing in a non-NULL encoder, register it
+  if ( direnc )
+    {
+    direnc->Register( this );
+    }
+
+  // Actually set the encoder, and consider the object Modified
+  this->DirectionEncoder = direnc;
+  this->Modified();
 }
 
 int vtkEncodedGradientEstimator::GetEncodedNormalIndex( int xyz_index ) 

@@ -54,7 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMultiThreader.h"
 #include "vtkTransform.h"
 #include "vtkRayBounder.h"
-#include "vtkDirectionEncoder.h"
 #include "vtkEncodedGradientEstimator.h"
 #include "vtkEncodedGradientShader.h"
 
@@ -173,11 +172,6 @@ public:
   vtkGetVectorMacro( DataIncrement, int, 3 );
 //ETX
 
-  // Description:
-  // Set / Get the direction encoder used to encode normal directions
-  // to fit within two bytes
-  void SetDirectionEncoder( vtkDirectionEncoder *direnc );
-  vtkGetObjectMacro( DirectionEncoder, vtkDirectionEncoder );
 
   // Description:
   // Set / Get the gradient estimator used to estimate normals
@@ -199,7 +193,6 @@ protected:
 
   vtkVolumeRayCastFunction     *VolumeRayCastFunction;
 
-  vtkDirectionEncoder          *DirectionEncoder;
   vtkEncodedGradientEstimator  *GradientEstimator;
 
   vtkEncodedGradientShader     *GradientShader;
