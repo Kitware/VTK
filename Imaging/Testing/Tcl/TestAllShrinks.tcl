@@ -17,7 +17,8 @@ set magFactor 8
 set ops "Minimum Maximum Mean Median"
 foreach operator $ops {
   vtkImageShrink3D shrink${operator}
-    shrink${operator} ${operator}On
+    shrink${operator} SetMean 0
+   shrink${operator} ${operator}On
     eval shrink${operator} SetShrinkFactors $factor $factor $factor
   shrink${operator} SetInput [reader GetOutput];
   vtkImageMagnify mag${operator}
@@ -36,18 +37,37 @@ foreach operator $ops {
   imgWin AddImager imager${operator}
 }
 
+  vtkImageShrink3D shrink
+    shrink SetMean 0
+    eval shrink SetShrinkFactors $factor $factor $factor
+  shrink SetInput [reader GetOutput];
+  vtkImageMagnify mag
+    mag SetMagnificationFactors $magFactor $magFactor $magFactor;
+    mag InterpolateOff
+    mag SetInput [shrink GetOutput]
+  vtkImageMapper mapper
+    mapper SetInput [mag GetOutput]
+    mapper SetColorWindow 2000
+    mapper SetColorLevel 1000
+    mapper SetZSlice 45
+  vtkActor2D actor
+    actor SetMapper mapper
+  vtkImager imager
+    imager AddActor2D actor
+  imgWin AddImager imager
 
 #shrinkMinimum Update
 #shrinkMaximum Update
 #shrinkMean Update
 #shrinkMedian Update
 
-imagerMinimum SetViewport 0 0 .5 .5
-imagerMaximum SetViewport 0 .5 .5 1
-imagerMean SetViewport .5 0 1 .5
-imagerMedian SetViewport .5 .5 1 1
+imagerMinimum SetViewport 0 0 .5 .33
+imagerMaximum SetViewport 0 .33 .5 .667
+imagerMean SetViewport .5 0 1 .33
+imagerMedian SetViewport .5 .33 1 .667
+imager SetViewport 0 .667 .5 1
 
-imgWin SetSize 256 256
+imgWin SetSize 256 384
 imgWin Render
 
 wm withdraw .
