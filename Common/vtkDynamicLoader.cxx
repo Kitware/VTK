@@ -24,7 +24,7 @@
 // Each part of the ifdef contains a complete implementation for
 // the static methods of vtkDynamicLoader.  
 
-vtkCxxRevisionMacro(vtkDynamicLoader, "1.18");
+vtkCxxRevisionMacro(vtkDynamicLoader, "1.19");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -112,16 +112,21 @@ int vtkDynamicLoader::CloseLibrary(vtkLibHandle)
 
 void* vtkDynamicLoader::GetSymbolAddress(vtkLibHandle, const char* sym)
 {
-    void *result=0;
-    if(NSIsSymbolNameDefined(sym)){
-         cout << sym << " is defined!" << endl;
-         NSSymbol symbol= NSLookupAndBindSymbol(sym);
-         if(symbol){
-                result = NSAddressOfSymbol(symbol);
-         }
-  }else{
-        cout << sym << " is not defined!" << endl;
- }
+  void *result = 0;
+  if( NSIsSymbolNameDefined(sym) )
+    {
+    cout << sym << " is defined!" << endl;
+    NSSymbol symbol= NSLookupAndBindSymbol(sym);
+    if(symbol)
+      {
+      result = NSAddressOfSymbol(symbol);
+      }
+    }
+  else
+    {
+    cout << sym << " is not defined!" << endl;
+    }
+
   return result;
 }
 
@@ -154,13 +159,13 @@ const char* vtkDynamicLoader::LastError()
 vtkLibHandle vtkDynamicLoader::OpenLibrary(const char* libname )
 {
 #ifdef UNICODE
-        wchar_t *libn = new wchar_t [mbstowcs(NULL, libname, 32000)+1];
-        mbstowcs(libn, libname, 32000);
-        vtkLibHandle ret = LoadLibrary(libn);
-        delete [] libn;
-        return ret;
+  wchar_t *libn = new wchar_t [mbstowcs(NULL, libname, 32000)+1];
+  mbstowcs(libn, libname, 32000);
+  vtkLibHandle ret = LoadLibrary(libn);
+  delete [] libn;
+  return ret;
 #else
-        return LoadLibrary(libname);
+  return LoadLibrary(libname);
 #endif
 }
 
@@ -172,14 +177,14 @@ int vtkDynamicLoader::CloseLibrary(vtkLibHandle lib)
 void* vtkDynamicLoader::GetSymbolAddress(vtkLibHandle lib, const char* sym)
 { 
 #if defined (UNICODE) && !defined(_MSC_VER)
-        wchar_t *wsym = new wchar_t [mbstowcs(NULL, sym, 32000)+1];
-        mbstowcs(wsym, sym, 32000);
-        // Force GetProcAddress to return void* with a c style cast
-        // This is because you can not cast a function to a void* without
-        // an error on gcc 3.2 and ANSI C++, 
-        void *ret = (void*)GetProcAddress(lib, wsym);
-        delete [] wsym;
-        return ret;
+  wchar_t *wsym = new wchar_t [mbstowcs(NULL, sym, 32000)+1];
+  mbstowcs(wsym, sym, 32000);
+  // Force GetProcAddress to return void* with a c style cast
+  // This is because you can not cast a function to a void* without
+  // an error on gcc 3.2 and ANSI C++, 
+  void *ret = (void*)GetProcAddress(lib, wsym);
+  delete [] wsym;
+  return ret;
 #else
   return (void*)GetProcAddress(lib, sym);
 #endif
@@ -237,7 +242,8 @@ vtkLibHandle vtkDynamicLoader::OpenLibrary(const char* libname )
 
 int vtkDynamicLoader::CloseLibrary(vtkLibHandle lib)
 {
-  return (int)dlclose(lib);
+  // dlclose returns 0 on success, and non-zero on error.
+  return !((int)dlclose(lib));
 }
 
 void* vtkDynamicLoader::GetSymbolAddress(vtkLibHandle lib, const char* sym)
