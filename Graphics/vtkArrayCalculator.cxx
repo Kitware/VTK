@@ -20,7 +20,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.20");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.21");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -730,6 +730,8 @@ void vtkArrayCalculator::RemoveAllVariables()
     this->SelectedVectorComponents = NULL;
     }
   this->NumberOfVectorArrays = 0;
+
+  this->FunctionParser->RemoveAllVariables();
 }
 
 char* vtkArrayCalculator::GetScalarArrayName(int i)

@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.16");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.17");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -1482,6 +1482,39 @@ int vtkFunctionParser::GetOperandNumber(int currentIndex)
     }
   
   return 0;
+}
+
+void vtkFunctionParser::RemoveAllVariables()
+{
+  int i;
+  
+  for (i = 0; i < this->NumberOfScalarVariables; i++)
+    {
+    delete [] this->ScalarVariableNames[i];
+    this->ScalarVariableNames[i] = NULL;
+    }
+  if (this->NumberOfScalarVariables > 0)
+    {
+    delete [] this->ScalarVariableNames;
+    this->ScalarVariableNames = NULL;
+    delete [] this->ScalarVariableValues;
+    this->ScalarVariableValues = NULL;
+    }
+  this->NumberOfScalarVariables = 0;
+  
+  for (i = 0; i < this->NumberOfVectorVariables; i++)
+    {
+    delete [] this->VectorVariableNames[i];
+    this->VectorVariableNames[i] = NULL;
+    }
+  if (this->NumberOfVectorVariables > 0)
+    {
+    delete [] this->VectorVariableNames;
+    this->VectorVariableNames = NULL;
+    delete [] this->VectorVariableValues;
+    this->VectorVariableValues = NULL;
+    }
+  this->NumberOfVectorVariables = 0;
 }
 
 void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
