@@ -87,6 +87,22 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BackgroundLevel: " << this->BackgroundLevel << "\n";
 }
 
+// Overload standard modified time function. If Transform is modified,
+// then this object is modified as well.
+unsigned long vtkImageReslice::GetMTime()
+{
+  unsigned long mTime=this->vtkObject::GetMTime();
+  unsigned long TransformMTime;
+
+  if ( this->ResliceTransform != NULL )
+    {
+    TransformMTime = this->ResliceTransform->GetMTime();
+    mTime = ( TransformMTime > mTime ? TransformMTime : mTime );
+    }
+
+  return mTime;
+}
+
 //----------------------------------------------------------------------------
 void vtkImageReslice::ComputeIndexMatrix(vtkMatrix4x4 *matrix)
 {

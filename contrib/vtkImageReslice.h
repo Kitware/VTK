@@ -71,6 +71,11 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Overload standard modified time function. If Transform is modified,
+  // then this object is modified as well.
+  unsigned long GetMTime();
+
+  // Description:
   // Set reslicing transform (describes the set of axis along which to reslice)
   vtkSetObjectMacro(ResliceTransform,vtkTransform);
   vtkGetObjectMacro(ResliceTransform,vtkTransform);
