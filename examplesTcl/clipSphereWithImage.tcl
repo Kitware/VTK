@@ -14,10 +14,8 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkPNMReader image
-  image SetFileName "../../vtkdata/B.pgm"
-  image SetFileName "vtks.pgm"
+  image SetFileName "../../vtkdata/vtks.pgm"
   image SetDataOrigin -.5 [expr -(160.0/320.00) / 2.0] 0
-#  image SetDataSpacing [expr 1.0 / 141.0] [expr 1.0 / 141.0] 1
   image SetDataSpacing [expr 1.0 / 320.00] [ expr 1.0 / 320.00] 1
   image Update
 
