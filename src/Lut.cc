@@ -4,203 +4,207 @@
 #include <math.h>
 #include "Lut.h"
 
-LookupTable::LookupTable()
+vlLookupTable::vlLookupTable()
 {
-  tableRange[0] = 0.0;
-  tableRange[1] = 1.0;
+  this->TableRange[0] = 0.0;
+  this->TableRange[1] = 1.0;
 
-  hueRange[0] = 0.0;
-  hueRange[1] = 0.66667;
+  this->HueRange[0] = 0.0;
+  this->HueRange[1] = 0.66667;
 
-  saturationRange[0] = 1.0;
-  saturationRange[1] = 1.0;
+  this->SaturationRange[0] = 1.0;
+  this->SaturationRange[1] = 1.0;
 
-  valueRange[0] = 1.0;
-  valueRange[1] = 1.0;
+  this->ValueRange[0] = 1.0;
+  this->ValueRange[1] = 1.0;
 };
 
-int LookupTable::Initialize(const int sz, const int ext) 
+int vlLookupTable::Initialize(const int sz, const int ext) 
 {
-  int ret_value;
-
-  return table.Initialize(sz,ext);
+  return this->Table.Initialize(sz,ext);
 }
 
-void LookupTable::setTableRange(float min, float max)
+void vlLookupTable::SetTableRange(float min, float max)
 {
-  if ( tableRange[0] != min || tableRange[1] != max ) {
-    tableRange[0] = min;
-    tableRange[1] = min;
-    modified();
-  }
+  if ( this->TableRange[0] != min || this->TableRange[1] != max ) 
+    {
+    this->TableRange[0] = min;
+    this->TableRange[1] = min;
+    this->Modified();
+    }
 }
 
-void LookupTable::getTableRange(float &min,float &max)
+void vlLookupTable::GetTableRange(float &min,float &max)
 {
-  min = tableRange[0];
-  max = tableRange[1];
+  min = this->TableRange[0];
+  max = this->TableRange[1];
 }
 
-int LookupTable::getTableSize()
+int vlLookupTable::GetTableSize()
 {
-  return table.numColors();
+  return this->Table.NumColors();
 }
 
-void LookupTable::setHueRange(float min, float max)
+void vlLookupTable::SetHueRange(float min, float max)
 {
   min = (min < 0.0 ? 0.0 : (min > 1.0 ? 1.0 : min));
   max = (max < 0.0 ? 0.0 : (max > 1.0 ? 1.0 : max));
 
-  if ( hueRange[0] != min || hueRange[1] != max ) {
-    hueRange[0] = min;
-    hueRange[1] = max;
-    modified();
-  }
+  if ( this->HueRange[0] != min || this->HueRange[1] != max ) 
+    {
+    this->HueRange[0] = min;
+    this->HueRange[1] = max;
+    this->Modified();
+    }
 }
 
-void LookupTable::getHueRange(float &min,float &max)
+void vlLookupTable::GetHueRange(float &min,float &max)
 {
-  min = hueRange[0];
-  max = hueRange[1];
+  min = this->HueRange[0];
+  max = this->HueRange[1];
 }
 
-void LookupTable::setSaturationRange(float min, float max)
-{
-  min = (min < 0.0 ? 0.0 : (min > 1.0 ? 1.0 : min));
-  max = (max < 0.0 ? 0.0 : (max > 1.0 ? 1.0 : max));
-
-  if ( saturationRange[0] != min || saturationRange[1] != max ) {
-    saturationRange[0] = min;
-    saturationRange[1] = max;
-    modified();
-  }
-}
-
-void LookupTable::getSaturationRange(float &min,float &max)
-{
-  min = saturationRange[0];
-  max = saturationRange[1];
-}
-
-void LookupTable::setValueRange(float min, float max)
+void vlLookupTable::SetSaturationRange(float min, float max)
 {
   min = (min < 0.0 ? 0.0 : (min > 1.0 ? 1.0 : min));
   max = (max < 0.0 ? 0.0 : (max > 1.0 ? 1.0 : max));
 
-  if ( valueRange[0] != min || valueRange[1] != max ) {
-    valueRange[0] = min;
-    valueRange[1] = max;
-    modified();
-  }
+  if ( this->SaturationRange[0] != min || this->SaturationRange[1] != max ) 
+    {
+    this->SaturationRange[0] = min;
+    this->SaturationRange[1] = max;
+    this->Modified();
+    }
 }
 
-void LookupTable::getValueRange(float &min,float &max)
+void vlLookupTable::GetSaturationRange(float &min,float &max)
 {
-  min = valueRange[0];
-  max = valueRange[1];
+  min = this->SaturationRange[0];
+  max = this->SaturationRange[1];
 }
 
-void LookupTable::build()
+void vlLookupTable::SetValueRange(float min, float max)
 {
-  int i, hue_case, indx, numColors;
+  min = (min < 0.0 ? 0.0 : (min > 1.0 ? 1.0 : min));
+  max = (max < 0.0 ? 0.0 : (max > 1.0 ? 1.0 : max));
+
+  if ( this->ValueRange[0] != min || this->ValueRange[1] != max ) 
+    {
+    this->ValueRange[0] = min;
+    this->ValueRange[1] = max;
+    this->Modified();
+    }
+}
+
+void vlLookupTable::GetValueRange(float &min,float &max)
+{
+  min = this->ValueRange[0];
+  max = this->ValueRange[1];
+}
+
+void vlLookupTable::Build()
+{
+  int i, hueCase, indx, numColors;
   float hue, sat, val, lx, ly, lz, frac, hinc, sinc, vinc;
-  RGBColor rgb;
+  vlRGBColor rgb;
 
-  if ( table.numColors() < 1 )
-  {
-    Initialize();
-  }
-  numColors = table.numColors();
+  if ( this->Table.NumColors() < 1 )
+    {
+    this->Initialize();
+    }
+  numColors = this->Table.NumColors();
 
-  hinc = (hueRange[1] - hueRange[0])/(numColors-1);
-  sinc = (saturationRange[1] - saturationRange[0])/(numColors-1);
-  vinc = (valueRange[1] - valueRange[0])/(numColors-1);
+  hinc = (this->HueRange[1] - this->HueRange[0])/(numColors-1);
+  sinc = (this->SaturationRange[1] - this->SaturationRange[0])/(numColors-1);
+  vinc = (this->ValueRange[1] - this->ValueRange[0])/(numColors-1);
   
-  for (i=0; i < numColors; i++) {
-    hue = hueRange[0] + i * hinc;
-    sat = saturationRange[0] + i * sinc;
-    val = valueRange[0] + i * vinc;
+  for (i=0; i < numColors; i++) 
+    {
+    hue = this->HueRange[0] + i * hinc;
+    sat = this->SaturationRange[0] + i * sinc;
+    val = this->ValueRange[0] + i * vinc;
     
-    hue_case = (int)(hue * 6);
-    frac = 6*hue - hue_case;
+    hueCase = (int)(hue * 6);
+    frac = 6*hue - hueCase;
     lx = val*(1.0 - sat);
     ly = val*(1.0 - sat*frac);
     lz = val*(1.0 - sat*(1.0 - frac));
     
-    switch (hue_case) {
+    switch (hueCase) 
+    {
       
       /* 0<hue<1/6 */
     case 0:
     case 6:
-      rgb.x[0] = val;
-      rgb.x[1] = lz;
-      rgb.x[2] = lx;
+      rgb.X[0] = val;
+      rgb.X[1] = lz;
+      rgb.X[2] = lx;
       break;
       /* 1/6<hue<2/6 */
     case 1:
-      rgb.x[0] = ly;
-      rgb.x[1] = val;
-      rgb.x[2] = lx;
+      rgb.X[0] = ly;
+      rgb.X[1] = val;
+      rgb.X[2] = lx;
       break;
       /* 2/6<hue<3/6 */
     case 2:
-      rgb.x[0] = lx;
-      rgb.x[1] = val;
-      rgb.x[2] = lz;
+      rgb.X[0] = lx;
+      rgb.X[1] = val;
+      rgb.X[2] = lz;
       break;
       /* 3/6<hue/4/6 */
     case 3:
-      rgb.x[0] = lx;
-      rgb.x[1] = ly;
-      rgb.x[2] = val;
+      rgb.X[0] = lx;
+      rgb.X[1] = ly;
+      rgb.X[2] = val;
       break;
       /* 4/6<hue<5/6 */
     case 4:
-      rgb.x[0] = lz;
-      rgb.x[1] = lx;
-      rgb.x[2] = val;
+      rgb.X[0] = lz;
+      rgb.X[1] = lx;
+      rgb.X[2] = val;
       break;
       /* 5/6<hue<1 */
     case 5:
-      rgb.x[0] = val;
-      rgb.x[1] = lx;
-      rgb.x[2] = ly;
+      rgb.X[0] = val;
+      rgb.X[1] = lx;
+      rgb.X[2] = ly;
       break;
     }
     
-    rgb.x[0] = (1.0+(float)cos((1.0-(double)rgb.x[0])*3.141593))/2.0;
-    rgb.x[1] = (1.0+(float)cos((1.0-(double)rgb.x[1])*3.141593))/2.0;
-    rgb.x[2] = (1.0+(float)cos((1.0-(double)rgb.x[2])*3.141593))/2.0;
+    rgb.X[0] = (1.0+(float)cos((1.0-(double)rgb.X[0])*3.141593))/2.0;
+    rgb.X[1] = (1.0+(float)cos((1.0-(double)rgb.X[1])*3.141593))/2.0;
+    rgb.X[2] = (1.0+(float)cos((1.0-(double)rgb.X[2])*3.141593))/2.0;
 
-    table[i] = rgb;
+    this->Table[i] = rgb;
   }
-  modified();
+  this->Modified();
 }
 
-RGBColor &LookupTable::mapValue(float v)
+vlRGBColor &vlLookupTable::MapValue(float v)
 {
-  int indx, numColors=table.numColors();
+  int indx, numColors=this->Table.NumColors();
 
-  indx = (int) (v-tableRange[0])/(tableRange[1]-tableRange[0]) * numColors;
+  indx = (int) (v-this->TableRange[0])/(this->TableRange[1]-this->TableRange[0]) * numColors;
   indx = (indx < 0 ? 0 : (indx >= numColors ? numColors-1 : indx));
 
-  return table[indx];
+  return this->Table[indx];
 }
 
-void LookupTable::setTableValue (int indx, RGBColor &rgb_c)
+void vlLookupTable::SetTableValue (int indx, vlRGBColor &rgb_c)
 {
-  int numColors=table.numColors();
+  int numColors=this->Table.NumColors();
 
   indx = (indx < 0 ? 0 : (indx >= numColors ? numColors-1 : indx));
-  table[indx] = rgb_c;
+  this->Table[indx] = rgb_c;
 }
 
-RGBColor &LookupTable::getTableValue (int indx)
+vlRGBColor &vlLookupTable::GetTableValue (int indx)
 {
-  int numColors=table.numColors();
+  int numColors=this->Table.NumColors();
 
   indx = (indx < 0 ? 0 : (indx >= numColors ? numColors-1 : indx));
-  return table[indx];
+  return this->Table[indx];
   
 }
 

@@ -16,13 +16,13 @@ This file is part of the vis library
 #include <stdlib.h>
 #include <iostream.h>
 #include <math.h>
-#include "Actor.h"
 #include <kgl.h>
+#include "Actor.h"
 
 Actor::Actor()
 {
-  mapper = 0;
-  MyProperty = 0;
+  this->Mapper = 0;
+  this->MyProperty = 0;
 
   this->Origin[0] = 0.0;
   this->Origin[1] = 0.0;
@@ -54,7 +54,7 @@ void Actor::Render(Renderer *ren)
   this->MyProperty->Render(ren);
 
   /* send a render to the modeller */
-  this->mapper->Render(ren);
+  this->Mapper->Render(ren);
 
 }
   
@@ -121,18 +121,18 @@ Actor *ActorCollection::GetMember(int num)
   return (elem->Actor);
 }
 
-void Actor::setMapper(Mapper *m)
+void Actor::SetMapper(vlMapper *m)
 {
-  if ( this->mapper != m )
+  if ( this->Mapper != m )
   {
-    if ( this->mapper ) this->mapper->UnRegister((void *)this);
-    this->mapper = m;
-    m->Register((void *)this);
-//    modified();
+    if ( this->Mapper ) this->Mapper->UnRegister((void *)this);
+    this->Mapper = m;
+    this->Mapper->Register((void *)this);
+    this->Modified();
   }
 }
 
-Mapper *Actor::getMapper()
+vlMapper *Actor::GetMapper()
 {
-  return this->mapper;
+  return this->Mapper;
 }
