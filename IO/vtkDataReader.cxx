@@ -1710,7 +1710,7 @@ vtkFieldData *vtkDataReader::ReadFieldData()
     }
 
   f = vtkFieldData::New();
-  f->SetNumberOfArrays(numArrays);
+  f->AllocateArrays(numArrays);
   
   // Read the number of arrays specified
   for (i=0; i<numArrays; i++)
