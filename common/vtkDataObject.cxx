@@ -156,8 +156,9 @@ void vtkDataObject::SetSource(vtkSource *_arg)
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Source to " << _arg ); 
   if (this->Source != _arg) 
     { 
-    if (this->Source != NULL) { this->Source->UnRegister(this); }
+		vtkSource *tmp = this->Source;
     this->Source = _arg; 
+    if (tmp != NULL) { tmp->UnRegister(this); }
     if (this->Source != NULL) { this->Source->Register(this); } 
     this->Modified(); 
     } 
