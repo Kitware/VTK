@@ -199,7 +199,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
     for (i = 0; i < tcoords->GetNumberOfTCoords(); i++)
       {
       p = tcoords->GetTCoord(i);
-      fprintf (fpObj, "vt %g %g %g\n", p[0], p[1], p[2]);
+      fprintf (fpObj, "vt %g %g\n", p[0], p[1]);
       }
     }
   
