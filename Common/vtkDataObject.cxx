@@ -14,13 +14,16 @@
 =========================================================================*/
 #include "vtkDataObject.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkExtentTranslator.h"
 #include "vtkFieldData.h"
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
+#include "vtkTrivialProducer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.99");
+vtkCxxRevisionMacro(vtkDataObject, "1.100");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -249,15 +252,44 @@ int vtkDataObject::ShouldIReleaseData()
 //----------------------------------------------------------------------------
 void vtkDataObject::Update()
 {
+#ifdef VTK_USE_EXECUTIVES
+  this->SetupProducer();
+  vtkAlgorithm* producer = this->ProducerPort->GetProducer();
+  if(vtkStreamingDemandDrivenPipeline* sddp =
+     vtkStreamingDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
+    {
+    sddp->Update(producer);
+    }
+  else
+    {
+    vtkErrorMacro("Update called on data object whose producer is not "
+                  "managed by a vtkStreamingDemandDrivenPipeline.");
+    }
+#else
   this->UpdateInformation();
   this->PropagateUpdateExtent();
   this->TriggerAsynchronousUpdate();
   this->UpdateData();
+#endif
 }
 
 //----------------------------------------------------------------------------
 void vtkDataObject::UpdateInformation()
 {
+#ifdef VTK_USE_EXECUTIVES
+  this->SetupProducer();
+  vtkAlgorithm* producer = this->ProducerPort->GetProducer();
+  if(vtkDemandDrivenPipeline* ddp =
+     vtkDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
+    {
+    ddp->UpdateInformation();
+    }
+  else
+    {
+    vtkErrorMacro("UpdateInformation called on data object whose "
+                  "producer is not managed by a vtkDemandDrivenPipeline.");
+    }
+#else
   if (this->Source)
     {
     this->Source->UpdateInformation();
@@ -279,12 +311,27 @@ void vtkDataObject::UpdateInformation()
     }
 
   this->LastUpdateExtentWasOutsideOfTheExtent = 0;
+#endif
 }
 
 //----------------------------------------------------------------------------
-
 void vtkDataObject::PropagateUpdateExtent()
-{  
+{
+#ifdef VTK_USE_EXECUTIVES
+  this->SetupProducer();
+  vtkAlgorithm* producer = this->ProducerPort->GetProducer();
+  if(vtkStreamingDemandDrivenPipeline* sddp =
+     vtkStreamingDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
+    {
+    sddp->PropagateUpdateExtent(this->ProducerPort->GetIndex());
+    }
+  else
+    {
+    vtkErrorMacro("PropagateUpdateExtent called on data object whose "
+                  "producer is not managed by a "
+                  "vtkStreamingDemandDrivenPipeline.");
+    }
+#else
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the update extent to the source 
   // if there is one.
@@ -299,6 +346,7 @@ void vtkDataObject::PropagateUpdateExtent()
   
   // Check that the update extent lies within the whole extent
   this->VerifyUpdateExtent();
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -329,9 +377,22 @@ void vtkDataObject::TriggerAsynchronousUpdate()
 }
 
 //----------------------------------------------------------------------------
-
 void vtkDataObject::UpdateData()
-{  
+{
+#ifdef VTK_USE_EXECUTIVES
+  this->SetupProducer();
+  vtkAlgorithm* producer = this->ProducerPort->GetProducer();
+  if(vtkDemandDrivenPipeline* ddp =
+     vtkDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
+    {
+    ddp->UpdateData(this->ProducerPort->GetIndex());
+    }
+  else
+    {
+    vtkErrorMacro("UpdateData called on data object whose "
+                  "producer is not managed by a vtkDemandDrivenPipeline.");
+    }
+#else
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the UpdateData to the source
   // if there is one.
@@ -354,6 +415,7 @@ void vtkDataObject::UpdateData()
     { // clip the data down to the UpdateExtent.
     this->Crop();
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -405,32 +467,89 @@ void vtkDataObject::SetRequestExactExtent( int flag )
 }
 
 //----------------------------------------------------------------------------
+#ifdef VTK_USE_EXECUTIVES
+void vtkDataObject::SetProducerPort(vtkAlgorithmOutput* newPort)
+{
+  vtkAlgorithmOutput* oldPort = this->ProducerPort;
+  if((newPort == oldPort) ||
+     (newPort && oldPort &&
+      oldPort->GetProducer() == newPort->GetProducer() &&
+      oldPort->GetIndex() == newPort->GetIndex()))
+    {
+    return;
+    }
+  this->ProducerPort = newPort;
+  if(newPort)
+    {
+    newPort->Register(this);
+    if(newPort->GetProducer())
+      {
+      newPort->GetProducer()->Register(this);
+      }
+    this->Source = vtkSource::SafeDownCast(newPort->GetProducer());
+    }
+  else
+    {
+    this->Source = 0;
+    }
+  if(oldPort)
+    {
+    if(oldPort->GetProducer())
+      {
+      oldPort->GetProducer()->UnRegister(this);
+      }
+    oldPort->UnRegister(this);
+    }
+  this->Modified();
+}
+#else
 void vtkDataObject::SetProducerPort(vtkAlgorithmOutput*)
 {
 }
+#endif
 
 //----------------------------------------------------------------------------
-void vtkDataObject::SetSource(vtkSource *arg)
+void vtkDataObject::SetSource(vtkSource* newSource)
 {
-  vtkDebugMacro( << this->GetClassName() << " (" 
-                 << this << "): setting Source to " << arg ); 
-
-  if (this->Source != arg) 
+  vtkDebugMacro( << this->GetClassName() << " ("
+                 << this << "): setting Source to " << newSource );
+#ifdef VTK_USE_EXECUTIVES
+  if(newSource)
+    {
+    // Find the output index on the source producing this data object.
+    int index = newSource->GetOutputIndex(this);
+    if(index >= 0)
+      {
+      this->SetProducerPort(newSource->GetOutputPort(index));
+      }
+    else
+      {
+      vtkErrorMacro("SetSource cannot find the output index of this "
+                    "data object from the source.");
+      this->SetProducerPort(0);
+      }
+    }
+  else
+    {
+    this->SetProducerPort(0);
+    }
+#else
+  if (this->Source != newSource)
     {
     vtkSource *tmp = this->Source;
-    this->Source = arg; 
-    if (this->Source != NULL) 
-      { 
-      this->Source->Register(this); 
-      } 
-    if (tmp != NULL) 
-      { 
-      tmp->UnRegister(this); 
+    this->Source = newSource;
+    if (this->Source != NULL)
+      {
+      this->Source->Register(this);
       }
-    this->Modified(); 
-    } 
+    if (tmp != NULL)
+      {
+      tmp->UnRegister(this);
+      }
+    this->Modified();
+    }
+#endif
 }
-
 
 //----------------------------------------------------------------------------
 void vtkDataObject::UnRegister(vtkObjectBase *o)
@@ -717,13 +836,29 @@ void vtkDataObject::Crop()
 //----------------------------------------------------------------------------
 void vtkDataObject::SetupProducer()
 {
+#ifdef VTK_USE_EXECUTIVES
+  if(!this->ProducerPort || !this->ProducerPort->GetProducer())
+    {
+    // This data object has no producer.  Give it a trivial source.
+    vtkTrivialProducer* producer = vtkTrivialProducer::New();
+    producer->SetOutput(this);
+    producer->Delete();
+    }
+#endif
 }
 
 //----------------------------------------------------------------------------
 void vtkDataObject::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
+#ifdef VTK_USE_EXECUTIVES
+  if(this->ProducerPort)
+    {
+    collector->ReportReference(this->ProducerPort->GetProducer(), "Producer");
+    }
+#else
   collector->ReportReference(this->GetSource(), "Source");
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -736,7 +871,11 @@ void vtkDataObject::GarbageCollectionStarting()
 //----------------------------------------------------------------------------
 void vtkDataObject::RemoveReferences()
 {
+#ifdef VTK_USE_EXECUTIVES
+  this->SetProducerPort(0);
+#else
   this->SetSource(0);
+#endif
   this->Superclass::RemoveReferences();
 }
 
