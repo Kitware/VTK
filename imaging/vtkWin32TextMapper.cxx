@@ -97,10 +97,7 @@ void vtkWin32TextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
 
   // Get the window information for display
   vtkWindow*  window = viewport->GetVTKWindow();
-  HWND windowId = (HWND) window->GetGenericWindowId();
-
   // Get the device context from the window
-  
   HDC hdc = (HDC) window->GetGenericContext();
  
   // Get the position of the text actor
@@ -164,9 +161,8 @@ void vtkWin32TextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
 	  family = FF_SWISS;
 	  break;
     }
-
   fontStruct.lfHeight = MulDiv(this->FontSize, 
-			       GetDeviceCaps(hdc, LOGPIXELSY), 72);  
+			       window->GetDPI(), 72);  
   // height in logical units
   fontStruct.lfWidth = 0;  // default width
   fontStruct.lfEscapement = 0;

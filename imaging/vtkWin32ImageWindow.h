@@ -115,10 +115,13 @@ public:
 
   unsigned char *GetDIBPtr();
   unsigned char *GetPixelData(int x1, int y1, int x2, int y2, int);
+  
+  // Description:
+  // Creates a Win32 window or sets up an existing window.
+  void MakeDefaultWindow();  
 
 protected:
   int OwnWindow; // do we create this window ?
-  void MakeDefaultWindow();  
   // ###
   unsigned char *DIBPtr;	// the data in the DIBSection
   int SwapFlag;
