@@ -68,7 +68,7 @@ robotActor SetY 255;
 
 
 
-
+# Make the configuration space from the robot and the workspace.
 vtkImageRobotSpace2D space;
 space SetWorkSpace canvas;
 space SetRobot robotActor;

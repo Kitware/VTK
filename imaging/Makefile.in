@@ -20,6 +20,7 @@ vtkImagePadFilter \
 vtkImageInPlaceFilter \
 vtkImageSpatialFilter \
 vtkImageTwoInputFilter \
+vtkImageViewer \
 vtkRobot2D \
 vtkStateSpace 
 

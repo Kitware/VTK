@@ -57,6 +57,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <iostream.h>
 #include <fstream.h>
 #include "vtkClaw.h"
+#include "vtkStateSpace.h"
+
 
 
 
@@ -83,8 +85,7 @@ vtkClaw::vtkClaw()
   this->StateSpace = NULL;
   this->Candidates = NULL;
   this->DeferredSpheres = NULL;
-  
-  //this->Viewer = NULL;
+  this->CallBack = 0;
   
   this->FreeSpheres = NULL;
   this->Collisions = NULL;
@@ -92,7 +93,6 @@ vtkClaw::vtkClaw()
   this->SearchStrategies[0] = VTK_CLAW_NEAREST_NETWORK;
   this->SearchStrategies[1] = VTK_CLAW_PIONEER_LOCAL;
   this->SearchStrategies[2] = VTK_CLAW_WELL_NOISE;
-  //this->SearchStrategies[1] = VTK_CLAW_NEAREST_GLOBAL; // ...
   this->NumberOfSearchStrategies = 3;
   
 }
@@ -102,6 +102,34 @@ vtkClaw::~vtkClaw()
 {
 }
 
+
+//----------------------------------------------------------------------------
+// Changes neighbor fraction.  Goes through all spheres to reevaluate
+// neighbors.  Neighbors can be removed, but not added.
+// If fraction is increased,  only new spheres will see the difference.
+void vtkClaw::SetNeighborFraction(float fraction)
+{
+  this->Modified();
+  
+  if (this->NeighborFraction < fraction)
+    {
+    vtkWarningMacro(<< "Increasing neighbor fraction will not affect"
+      << " existing spheres");
+    this->NeighborFraction = fraction;
+    return;
+    }
+  else
+    {
+    // reevaluate all neighbors
+    SphereList *list = this->FreeSpheres;
+    this->NeighborFraction = fraction;
+    while (list)
+      {
+      this->SphereNeighborsPrune(list->Item);
+      list = list->Next;
+      }
+    }
+}
 
 
 
@@ -249,7 +277,6 @@ void vtkClaw::SetSearchStrategies (int num, int *strategies)
 static float ROBOT_RADIUS;
 
 
-//#include "vtkImageXViewer.h"
 #include "vtkImageRobotSpace2D.h"
 //----------------------------------------------------------------------------
 void vtkClaw::GeneratePath()
@@ -265,16 +292,6 @@ void vtkClaw::GeneratePath()
     return;
     }
   
-  //if (this->Viewer)
-  //  {
-  //  this->Viewer->Delete();
-  //  }
-  //this->Viewer = new vtkImageXViewer; // ...
-  
-  //rSpace = (vtkImageRobotSpace2D *)(this->StateSpace); // ...
-  //this->Viewer->SetInput(rSpace->GetCanvas()->GetOutput()); // ...
-  //this->Viewer->Render(); // ...
-
   // Give the space some scale.
   ROBOT_RADIUS = this->InitialSphereRadius * 2;
   
@@ -324,10 +341,11 @@ void vtkClaw::GeneratePath()
 
     SphereCollisionsPrune();
     
-    //this->Viewer->Render(); // ...
-    //rSpace->ClearCanvas(); // ...
-    
-    fflush(stdout);
+    // Report to the state space, we have finished a sample period.
+    if (this->CallBack)
+      {
+      this->StateSpace->SampleCallBack();
+      }
     }
 
   // how should we return the path
@@ -727,7 +745,7 @@ SphereList *vtkClaw::SphereListAdd(SphereList *l, Sphere *item)
     element = (SphereList *)malloc(sizeof(struct SphereList));
   }
   if( !element){
-    printf("malloc failed. (SphereListAdd)\n");
+    vtkErrorMacro(<< "SphereListAdd: malloc failed.");
     return l;
   }
 
@@ -791,15 +809,15 @@ int vtkClaw::SphereStartGoalInitialize(float *startState, float *goalState,
   /* Create the first Sphere and last Sphere*/
   START_SPHERE = this->SphereNew(startState, NULL);
   if(!START_SPHERE){
-    fprintf(stderr, "start position not in free space. (startGoalInit)\n");
-    exit(0);
+    vtkErrorMacro(<< "Start position not in free space.");
+    return 0;
   }
   this->SphereRadiusReduce(START_SPHERE, radius);
 
   GOAL_SPHERE = this->SphereNew(goalState, NULL);
   if(!GOAL_SPHERE){
-    fprintf(stderr, "goal position not in free space. (startGoalInit)\n");
-    exit(0);
+    vtkErrorMacro(<< "Goal position not in free space.");
+    return 0;
   }
   this->SphereRadiusReduce(GOAL_SPHERE, radius);
   GOAL_MERGED = 1;
@@ -908,7 +926,7 @@ Sphere *vtkClaw::SphereMake(float *center, float radius, int visited)
   b = (Sphere *)malloc(sizeof(struct Sphere));
   if (!b)
     {
-    printf("malloc failed. (SphereMake)\n");
+    vtkErrorMacro(<< "SphereMake: malloc failed.");
     return NULL;
   }
 
@@ -943,6 +961,12 @@ void vtkClaw::CollisionAdd(float *state, Sphere *parent)
   
   b = this->SphereMake(state, 0.0, -1);
   this->SphereCollisionAdd(b, parent);
+  
+  // Inform the state space that a collision has been recorded.
+  if (this->CallBack)
+    {
+    this->StateSpace->CollisionCallBack(b->Center);
+    }
 }
 
 
@@ -1160,14 +1184,16 @@ Sphere *vtkClaw::SphereNew(float *center, Sphere *parent)
   else
     b = this->SphereMake(center, SPHERE_MAX_RADIUS, 0);
 
+  // Add this sphere to the networks(neighbors ...).
+  this->SphereAdd(b);
+
+  // Report to the state space that we have a new sphere
+  if (this->CallBack)
+    {
+    this->StateSpace->SphereCallBack(b);
+    }
   
-  //if (this->Debug)
-  //  {
-  //  printf("New Sphere:\n   ");
-  //  this->SpherePrint(b);
-  //  }
-  
-  return this->SphereAdd(b);
+  return b;
 }
 
 
@@ -1209,27 +1235,13 @@ void vtkClaw::AddDeferredSpheres()
 // It updates all links. (should in shink the new Sphere if necessary?)
 // It calculates the "Unknown" surface area of the box, and adds
 // it the the list "SPHERES".
-Sphere *vtkClaw::SphereAdd(Sphere *b)
+void vtkClaw::SphereAdd(Sphere *b)
 {
   SphereList *l;
   Sphere *other;
   float temp;
-  //vtkImageRobotSpace2D *rSpace; // ...
 
-  //rSpace = (vtkImageRobotSpace2D *)(this->StateSpace); // ...
-  //if (b->Visited)
-  //  {
-  //  rSpace->GetCanvas()->SetDrawValue(0);
-  //  }
-  //else
-  //  {
-  //  rSpace->GetCanvas()->SetDrawValue(50);
-  //  }
   
-    
-  //((vtkImageRobotSpace2D *)(this->StateSpace))->DrawRobot(b->Center); // ...
-
-  /* Find the closest collision to determine radius */
   other = NULL;
   l = this->Collisions;
   while(l){
@@ -1285,11 +1297,9 @@ Sphere *vtkClaw::SphereAdd(Sphere *b)
   // Update this spheres free surface area
   b->SortValid = (char)(0);
   b->SurfaceAreaValid = (char)(0);
-
+  
   // We may have found a path if the networks are merged.
   this->CheckForMergedNetworks(b);
-
-  return b;
 }
 
 //----------------------------------------------------------------------------
@@ -1541,8 +1551,9 @@ void vtkClaw::SphereSearchStrategySet(int strategy)
   Sphere *b;
 
   SEARCH_STRATEGY = strategy;
-  printf("\nchanging search strategy to: %d\n", strategy);
 
+  vtkDebugMacro(<< " Changing current search strategy to " << strategy);
+  
   /* recompute all the sort_values */
   l = this->FreeSpheres;
   while (l){
@@ -2046,17 +2057,17 @@ SphereList *vtkClaw::PathGetValid(Sphere *startSphere, Sphere *goalSphere)
   vtkDebugMacro(<< "-----pathGet_valid");
   while ( (path = this->PathSearch(startSphere, goalSphere)) ){
     if (this->PathVerify(path)){
-      printf("-----path validated\n");
+      vtkDebugMacro(<< "-----path validated");
       return path;
     }
 
     /* Free the current path */
     SphereListAllFree(path);
-    printf("     This path no good. Oh well, try again\n");
+    vtkDebugMacro(<< "     This path no good. Oh well, try again");
   }
   
   /* No more paths found */
-  printf("-----No more paths to try.\n");
+  vtkDebugMacro(<< "-----No more paths to try.");
 
   return NULL;
 }

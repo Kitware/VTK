@@ -1,22 +1,9 @@
 # Simple viewer for images.
 
+source define.tcl
 
 set sliceNumber 176
 set sliceMax 177
-
-set VTK_FLOAT              1
-set VTK_INT                2
-set VTK_SHORT              3
-set VTK_UNSIGNED_SHORT     4
-set VTK_UNSIGNED_CHAR      5
-
-set VTK_IMAGE_X_AXIS             0
-set VTK_IMAGE_Y_AXIS             1
-set VTK_IMAGE_Z_AXIS             2
-set VTK_IMAGE_TIME_AXIS          3
-set VTK_IMAGE_COMPONENT_AXIS     4
-
-
 
 
 # Image pipeline
@@ -26,6 +13,7 @@ reader ReleaseDataFlagOff;
 reader SwapBytesOn;
 reader SetDimensions 256 256 178;
 reader SetPixelMask 0x7fff;
+reader SetOutputScalarType $VTK_SHORT;
 reader DebugOn;
 
 
@@ -47,6 +35,9 @@ space SetThreshold 600;
 puts "Generating path ------------------------------------";
 
 vtkClaw claw;
+claw ClearSearchStrategies;
+claw AddSearchStrategy $VTK_CLAW_NEAREST_NETWORK;
+claw AddSearchStrategy $VTK_CLAW_PIONEER_LOCAL;
 claw SetStateSpace space;
 claw SetStartState 69 118 11;
 claw SetGoalState 107 216 176;

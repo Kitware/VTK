@@ -96,7 +96,7 @@ void vtkImageFFT1D::SetAxes(int axis)
 // output.  The image changes to multispectral.
 void 
 vtkImageFFT1D::ComputeOutputImageInformation(vtkImageRegion *inRegion,
-						   vtkImageRegion *outRegion)
+					     vtkImageRegion *outRegion)
 {
   int min, max;
 

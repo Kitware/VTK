@@ -91,21 +91,29 @@ void vtkRobotJoint2D::TransformDraw(float x, float y, float s, float c,
 {
   float st, ct;
   float sn, cn;
+  float xt, yt;
+  float xn, yn;
 
   // Rotate the transform
   st = sin(this->Theta);
   ct = cos(this->Theta);
   cn = ct * c - st * s;
   sn = st * c + ct * s;
-  //xn = ct * x - st * y;
-  //yn = st * x + ct * y;
-
-  // Compute the shift.
   
+  // Find the new shift. (why not just use transform matrix?)
+  // first find the transformed pivot point.
+  xt = c * this->Pivot[0] - s * this->Pivot[1];
+  yt = s * this->Pivot[0] + c * this->Pivot[1];
+  // rotate pivot point (around the origin)
+  xn = ct * xt - st * yt;
+  yn = st * xt + ct * yt;
+  // Remove the shift.
+  xn = x + xt - xn;
+  yn = y + yt - yn;
   
   // Draw the robot with the new transform.
   this->RobotA->TransformDraw(x, y, s, c, canvas);
-  this->RobotB->TransformDraw(x, y, sn, cn, canvas);
+  this->RobotB->TransformDraw(xn, yn, sn, cn, canvas);
 }
 
 
@@ -134,21 +142,31 @@ int vtkRobotJoint2D::TransformCollide(vtkImageRegion *distanceMap,
 {
   float st, ct;
   float sn, cn;
+  float xt, yt;
+  float xn, yn;
 
   // Rotate the transform
   st = sin(this->Theta);
   ct = cos(this->Theta);
   cn = ct * c - st * s;
   sn = st * c + ct * s;
-  //xn = ct * x - st * y;
-  //yn = st * x + ct * y;
-
+  
+  // Find the new shift. (why not just use transform matrix?)
+  // first find the transformed pivot point.
+  xt = c * this->Pivot[0] - s * this->Pivot[1];
+  yt = s * this->Pivot[0] + c * this->Pivot[1];
+  // rotate pivot point (around the origin)
+  xn = ct * xt - st * yt;
+  yn = st * xt + ct * yt;
+  // Remove the shift.
+  xn = x + xt - xn;
+  yn = y + yt - yn;
   
   if (this->RobotA->TransformCollide(distanceMap, x, y, s, c))
     {
     return 1;
     }
-  return this->RobotB->TransformCollide(distanceMap, x, y, sn, cn);
+  return this->RobotB->TransformCollide(distanceMap, xn, yn, sn, cn);
 }
 
   

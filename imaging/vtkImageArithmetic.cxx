@@ -107,7 +107,14 @@ void vtkImageArithmeticExecute(vtkImageArithmetic *self,
 	  *outPtr0 = *in1Ptr0 * *in2Ptr0;
 	  break;
 	case VTK_DIVIDE:
-	  *outPtr0 = *in1Ptr0 / *in2Ptr0;
+	  if (*in2Ptr0)
+	    {
+	    *outPtr0 = *in1Ptr0 / *in2Ptr0;
+	    }
+	  else
+	    {
+	    *outPtr0 = *in1Ptr0 / 0.00001;
+	    }
 	}
       
       

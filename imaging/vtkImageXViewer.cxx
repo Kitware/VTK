@@ -44,23 +44,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageXViewer::vtkImageXViewer()
 {
-  this->Input = NULL;
-  this->WholeImage = 1;
-  this->Coordinate2 = 0;
-  this->Coordinate3 = 0;
-  
-  this->ColorWindow = 255.0;
-  this->ColorLevel = 127.0;
-  this->NumberColors = 150;
-  this->ColorFlag = 0;
-  this->Red = 0;
-  this->Green = 0;
-  this->Blue = 0;
-
   this->DisplayId = (Display *)NULL;
   this->WindowId = (Window)(NULL);
-  this->XOffset = 0;
-  this->YOffset = 0;
+  this->NumberOfColors = 200;
 }
 
 
@@ -73,14 +59,7 @@ vtkImageXViewer::~vtkImageXViewer()
 //----------------------------------------------------------------------------
 void vtkImageXViewer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int *b;
-  
-  vtkObject::PrintSelf(os, indent);
-  b = this->Region.GetExtent();
-  os << indent << "Extent: (" << b[0] << ", " << b[1] << ", " << b[2] 
-     << ", " << b[3] << ")\n";
-  os << indent << "Coordinate2: " << this->Coordinate2 << "\n";
-  os << indent << "Coordinate3: " << this->Coordinate3 << "\n";
+  vtkImageViewer::PrintSelf(os, indent);
 }
 
 
@@ -103,7 +82,7 @@ void vtkImageXViewerRenderGrey(vtkImageXViewer *self, vtkImageRegion *region,
   int visualDepth, visualClass;
   
   
-  colorsMax = self->GetNumberColors() - 1;
+  colorsMax = self->GetNumberOfColors() - 1;
   colors = self->GetColors();
   shift = self->GetColorShift();
   scale = self->GetColorScale();
@@ -386,21 +365,6 @@ XColor *vtkImageXViewer::GetColors()
 }
 
 //----------------------------------------------------------------------------
-// Support for the templated function.
-float vtkImageXViewer::GetColorShift()
-{
-  return this->ColorWindow / 2.0 - this->ColorLevel;
-}
-
-//----------------------------------------------------------------------------
-// Support for the templated function.
-float vtkImageXViewer::GetColorScale()
-{
-  return (float)(this->NumberColors - 1) / this->ColorWindow;
-}
-
-
-//----------------------------------------------------------------------------
 Window vtkImageXViewer::MakeDefaultWindow(int width, int height) 
 {
   char name[80];
@@ -668,7 +632,7 @@ Colormap vtkImageXViewer::MakeColorMap(Visual *visual)
   defaultMap = DefaultColormap(this->DisplayId, screen);
   
   if ( !XAllocColorCells(this->DisplayId, defaultMap, 0, &planeMask, 0, 
-			 pval, (unsigned int) this->NumberColors))
+			 pval, (unsigned int) this->NumberOfColors))
     {
     // can't allocate NUM_COLORS from Def ColorMap
     // create new ColorMap ... but first cp some def ColorMap
@@ -693,7 +657,7 @@ Colormap vtkImageXViewer::MakeColorMap(Visual *visual)
     for (idx = 0 ; idx < 256; idx++)
       {
       // Value should range between ? and ?
-      value = 1000 + (int)(60000.0 * (float)(idx - this->Offset) / (float)(this->NumberColors));
+      value = 1000 + (int)(60000.0 * (float)(idx - this->Offset) / (float)(this->NumberOfColors));
     
       if ( (idx < this->Offset)) 
 	{
@@ -719,11 +683,11 @@ Colormap vtkImageXViewer::MakeColorMap(Visual *visual)
     }
   else
     {
-    for (idx = 0 ; idx < this->NumberColors ; idx++)
+    for (idx = 0 ; idx < this->NumberOfColors ; idx++)
       {
       if (idx) 
 	{
-	value = (((192 * idx)/(this->NumberColors -1)) << 8)  + 16000;
+	value = (((192 * idx)/(this->NumberOfColors -1)) << 8)  + 16000;
 	}
       else 
 	{
@@ -752,7 +716,7 @@ void vtkImageXViewer::AllocateDirectColorMap()
   Colormap newMap;
   
   this->Offset = 100;
-  vtkDebugMacro(<< "AllocateDirectColorMap: " << this->NumberColors 
+  vtkDebugMacro(<< "AllocateDirectColorMap: " << this->NumberOfColors 
                 << " colors");
 
   // Get the colors in the current color map.
@@ -779,10 +743,10 @@ void vtkImageXViewer::AllocateDirectColorMap()
     this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
     XStoreColor(this->DisplayId, newMap, &(this->Colors[idx]));
     }
-  for (idx = 0 ; idx < this->NumberColors; ++idx)
+  for (idx = 0 ; idx < this->NumberOfColors; ++idx)
     {
     // Value should range between 0 and 65000
-    value = 1000 + (int)(60000.0 * (float)(idx) / (float)(this->NumberColors));
+    value = 1000 + (int)(60000.0 * (float)(idx)/(float)(this->NumberOfColors));
     this->Colors[idx+100].pixel = pval[idx];
     this->Colors[idx+100].red   = value ;
     this->Colors[idx+100].green = value ; 
@@ -793,6 +757,21 @@ void vtkImageXViewer::AllocateDirectColorMap()
   XInstallColormap(this->DisplayId, newMap);
   this->ColorMap = newMap;
   XSetWindowColormap(this->DisplayId, this->WindowId, this->ColorMap);
+}
+
+
+//----------------------------------------------------------------------------
+// Support for the templated function.
+float vtkImageXViewer::GetColorShift()
+{
+  return this->ColorWindow / 2.0 - this->ColorLevel;
+}
+
+//----------------------------------------------------------------------------
+// Support for the templated function.
+float vtkImageXViewer::GetColorScale()
+{
+  return (float)(this->NumberOfColors - 1) / this->ColorWindow;
 }
 
 

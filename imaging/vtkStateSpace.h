@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkStateSpace_h
 
 #include "vtkObject.h"
+#include "vtkClaw.h"
 
 class vtkStateSpace : public vtkObject
 {
@@ -55,7 +56,17 @@ public:
   ~vtkStateSpace();
   char *GetClassName() {return "vtkStateSpace";};
 
+  // Description:
+  // The planner can call this method to report the creation of a new sphere.
+  virtual void SphereCallBack(Sphere *sphere){sphere = sphere;};
+  // Description:
+  // The planner can call this method to report the recording of a collision.
+  virtual void CollisionCallBack(float *state){state = state;};
+  // Description:
+  // The planner can call this method to report the end of a sample period.
+  virtual void SampleCallBack(){};
   
+    
   
   // Description:
   // Returns the number of independent state variables.

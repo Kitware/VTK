@@ -46,7 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkClaw_h
 
 #include "vtkObject.h"
-#include "vtkStateSpace.h"
+class vtkStateSpace;
+
 //#include "vtkImageXViewer.h"
 
 
@@ -99,6 +100,16 @@ public:
   ~vtkClaw();
   char *GetClassName() {return "vtkClaw";};
 
+  // Description:
+  // Turing CallBackOn makes the planner report to the states space
+  // When a collision is added, sphere is added, or a sample period is
+  // finished.  The state space can display this information however it
+  // wants.
+  vtkSetMacro(CallBack, int);
+  vtkGetMacro(CallBack, int);
+  vtkBooleanMacro(CallBack, int);
+  
+  // To customize the seach strategies.
   void ClearSearchStrategies();
   void AddSearchStrategy(int strategy);
 
@@ -114,7 +125,7 @@ public:
   // Neighbor fraction determines how much spheres must overlap before they
   // are considered neighbors.  1=> spheres must touch, 0=>spheres can
   // never be neighbors.
-  vtkSetMacro(NeighborFraction, float);
+  void SetNeighborFraction(float fraction);
   vtkGetMacro(NeighborFraction, float);
   
   void SetStateSpace(vtkStateSpace *space);
@@ -163,6 +174,9 @@ public:
   
   
 protected:
+  // Flag to call state space to display collisions, spheres ...
+  int CallBack;
+  
   // How many directions can we move (gotten from StateSpace.
   int DegreesOfFreedom;
   // The length of State vectors.
@@ -207,7 +221,7 @@ protected:
   
   // Functions to handle Spheres and locking ...
   Sphere *SphereNew(float *center, Sphere *parent);
-  Sphere *SphereAdd(Sphere *b);
+  void SphereAdd(Sphere *b);
   void NewDeferredSphere(float *center);
   void AddDeferredSpheres();
   void CheckForMergedNetworks(Sphere *s);
@@ -269,6 +283,8 @@ protected:
   SphereList *PathSearch(Sphere *start, Sphere *end);
   SphereList *PathUnravel(Sphere *start);
 };
+
+#include "vtkStateSpace.h"
 
 #endif
 

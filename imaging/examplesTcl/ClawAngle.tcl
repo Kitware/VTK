@@ -37,8 +37,8 @@ canvas FillBox 300 500 50 500;
 vtkImage2DRobotSpace space;
 space SetWorkSpace canvas;
 space SetNumberOfSegments 2;
-space AddSegment 50 -20 0 0;
-space AddSegment 0 0 -50 -20;
+space AddSegment 52 -22 0 0;
+space AddSegment 0 0 -52 -22;
 
 # show start and goal.
 #space SetDrawValue 50;

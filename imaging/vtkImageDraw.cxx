@@ -241,6 +241,130 @@ void vtkImageDraw::FillTube(int a0, int a1, int b0, int b1, float radius)
 
 
 //----------------------------------------------------------------------------
+// Fill a triangle (rasterize)
+template <class T>
+void vtkImageDrawFillTriangle(vtkImageDraw *self, T *ptr, 
+			      int a0, int a1, int b0, int b1, int c0, int c1)
+{
+  T drawValue;
+  int temp;
+  float longT, shortT;  // end points of intersection of trainge and row.
+  float longStep, shortStep;
+  int left, right;
+  int idx0, idx1;
+  
+  ptr = ptr;
+  drawValue = (T)(self->GetDrawValue());
+
+  // index1 of b must be between a, and c
+  if((b1 < a1 && a1 < c1) || (b1 > a1 && a1 > c1))
+    { // swap b and a 
+    temp = b0;  b0 = a0;  a0 = temp;
+    temp = b1;  b1 = a1;  a1 = temp;
+    }
+  if((b1 < c1 && c1 < a1) || (b1 > c1 && c1 > a1))
+    { // swap b and c 
+    temp = b0;  b0 = c0;  c0 = temp;
+    temp = b1;  b1 = c1;  c1 = temp;
+    }
+  // Make life easier and order points so that ay < by < cy 
+  if(c1 < a1)
+    { // swap c and a
+    temp = a0;  a0 = c0;  c0 = temp;
+    temp = a1;  a1 = c1;  c1 = temp;
+    }
+  
+  
+  // for all rows: compute 2 points, intersection of triangle edges and row
+  longStep = (float)(c0 - a0) / (float)(c1 - a1 + 1);
+  longT = (float)(a0) + (0.5 * longStep);
+  shortStep = (float)(b0 - a0) / (float)(b1 - a1 + 1);
+  shortT = (float)(a0) + (0.5 * shortStep);
+  for (idx1 = a1; idx1 < b1; ++idx1)
+    {
+    // Fill row long to short (y = idx1)
+    left = (int)(shortT + 0.5);
+    right = (int)(longT + 0.5);
+    if (left > right)
+      {
+      temp = left;   left = right;   right = temp;
+      }
+    for (idx0 = left; idx0 <= right; ++idx0)
+      {
+      ptr = (T *)(self->GetScalarPointer(idx0, idx1));
+      if (ptr)
+	{
+	*ptr = drawValue;
+	}
+      }
+
+    longT += longStep;
+    shortT += shortStep;
+    }
+
+  // fill the second half of the triangle
+  shortStep = (float)(c0 - b0) / (float)(c1 - b1 + 1);
+  shortT = (float)(b0) + (0.5 * shortStep);
+  for (idx1 = b1; idx1 < c1; ++idx1)
+    {
+    // Fill row long to short (y = idx1)
+    left = (int)(shortT + 0.5);
+    right = (int)(longT + 0.5);
+    if (left > right)
+      {
+      temp = left;   left = right;   right = temp;
+      }
+    for (idx0 = left; idx0 <= right; ++idx0)
+      {
+      ptr = (T *)(self->GetScalarPointer(idx0, idx1));
+      if (ptr)
+	{
+	*ptr = drawValue;
+	}
+      }
+
+    longT += longStep;
+    shortT += shortStep;
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Fill a tube (thick line for initial 2D implementation).
+void vtkImageDraw::FillTriangle(int a0, int a1, int b0, int b1, int c0, int c1)
+{
+  void *ptr;
+  
+  ptr = this->GetScalarPointer();
+  switch (this->GetScalarType())
+    {
+    case VTK_FLOAT:
+      vtkImageDrawFillTriangle(this, (float *)(ptr), a0,a1, b0,b1, c0,c1);
+      break;
+    case VTK_INT:
+      vtkImageDrawFillTriangle(this, (int *)(ptr), a0,a1, b0,b1, c0,c1);
+      break;
+    case VTK_SHORT:
+      vtkImageDrawFillTriangle(this, (short *)(ptr), a0,a1, b0,b1, c0,c1);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      vtkImageDrawFillTriangle(this, (unsigned short *)(ptr),
+			       a0,a1, b0,b1, c0,c1);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      vtkImageDrawFillTriangle(this, (unsigned char *)(ptr), 
+			       a0,a1, b0,b1, c0,c1);
+      break;
+    default:
+      vtkErrorMacro(<< "FillTriangle: Cannot handle ScalarType.");
+    }   
+}
+
+
+
+
+
+//----------------------------------------------------------------------------
 // Draw a line.  Only implentented for 2D images.
 // First point is already shifted to origin.
 template <class T>

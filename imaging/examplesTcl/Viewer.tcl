@@ -28,6 +28,7 @@ reader SetFilePrefix "../../data/fullHead/headsq";
 reader SetPixelMask 0x7fff;
 #reader DebugOn
 
+
 vtkImageXViewer viewer;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
 viewer SetInput [reader GetOutput];
@@ -36,6 +37,9 @@ viewer SetColorWindow 3000
 viewer SetColorLevel 1500
 #viewer DebugOn;
 viewer Render;
+
+
+viewer New;
 
 
 #make interface

@@ -412,6 +412,8 @@ void vtkImageFilter::Execute(vtkImageRegion *inRegion,
 
 //----------------------------------------------------------------------------
 // reorder axes so that num has value axis.
+// This method relates to the delema about treating component axis
+// the same as other axes. It may not be used much.
 void vtkImageFilter::InsertAxis(int num, int axis)
 {
   int idx, count;

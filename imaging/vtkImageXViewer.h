@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageXViewer - Display a 2d image.
+// .NAME vtkImageXViewer - Display a 2d image in an XWindow.
 // .SECTION Description
 // vtkImageXViewer displays a 2d image in an X window.
 
@@ -55,75 +55,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include 	<stdlib.h>
 #include 	<iostream.h>
 
-#include 	"vtkObject.h"
-#include 	"vtkImageSource.h"
-#include 	"vtkImageRegion.h"
+#include 	"vtkImageViewer.h"
 
-class vtkImageXViewer : public vtkObject {
+class vtkImageXViewer : public vtkImageViewer {
 public:
   vtkImageXViewer();
   ~vtkImageXViewer();
   char *GetClassName() {return "vtkImageXViewer";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  // Description:
-  // Set/Get the input to the viewer.
-  vtkSetObjectMacro(Input,vtkImageSource);
-  vtkGetObjectMacro(Input,vtkImageSource);
-  
-  // Description:
-  // Display the wole image or just the region specified by extent.
-  vtkSetMacro(WholeImage,int);
-  vtkGetMacro(WholeImage,int);
-  vtkBooleanMacro(WholeImage,int);
-  
-  // Description:
-  // Messages that get forwarded to this viewers "Region".
-  void SetExtent(int *extent)
-  {this->Region.SetExtent(2,extent); this->Modified(); this->WholeImageOff();};
-  void SetExtent(int min0, int max0, int min1, int max1)
-  {this->Region.SetExtent(min0,max0, min1,max1); this->Modified();this->WholeImageOff();};
-  int *GetExtent(){return this->Region.GetExtent();};
-  void GetExtent(int *extent){this->Region.GetExtent(2,extent);};
-  void GetExtent(int &min0,int &max0,int &min1,int &max1)
-  {this->Region.GetExtent(min0,max0,min1,max1);};
-
-  // Description:
-  // Coordinate2 and Coordiante3 specify which 2d image to show.
-  vtkSetMacro(Coordinate2,int);
-  vtkGetMacro(Coordinate2,int);
-  vtkSetMacro(Coordinate3,int);
-  vtkGetMacro(Coordinate3,int);
-  
-  // Description:
-  // Sets The coordinate system of the displayed region.  The first
-  // Two dimensions are the ones displayed.  The others are provided
-  // to set default values (i.e. slice of a volume.
-  void SetAxes(int axis0, int axis1)
-  {this->Region.SetAxes(axis0,axis1); this->Modified();};
-  void SetAxes(int axis0, int axis1, int axis2)
-  {this->Region.SetAxes(axis0,axis1,axis2); this->Modified();};
-  void SetAxes(int axis0, int axis1, int axis2, int axis3)
-  {this->Region.SetAxes(axis0,axis1,axis2,axis3); this->Modified();};
-
-  // Description:
-  // Sets window/level for mapping pixels to colors.
-  vtkSetMacro(ColorWindow,float);
-  vtkGetMacro(ColorWindow,float);
-  vtkSetMacro(ColorLevel,float);
-  vtkGetMacro(ColorLevel,float);
-
-  // Description:
-  // Window/level information used by templated function.
-  float GetColorShift();
-  float GetColorScale();
   XColor *GetColors();
-  vtkGetMacro(NumberColors,int);
-
   void Render(void);
   
   void SetWindow(int win);
   int GetWindow();
+  
+  // Description:
+  // Gets the number of colors in the pseudo color map.
+  vtkGetMacro(NumberOfColors,int);
   
   // Description:
   // Gets the windows depth. For the templated function.
@@ -134,31 +83,11 @@ public:
   vtkGetMacro(VisualClass,int);
   
   // Description:
-  // Turn color interpretation on/off.
-  vtkSetMacro(ColorFlag, int);
-  vtkGetMacro(ColorFlag, int);
-  vtkBooleanMacro(ColorFlag, int);
-  // Description:
-  // Which components should be used for RGB.
-  vtkSetMacro(Red, int);
-  vtkGetMacro(Red, int);
-  vtkSetMacro(Green, int);
-  vtkGetMacro(Green, int);
-  vtkSetMacro(Blue, int);
-  vtkGetMacro(Blue, int);
-  
-  // Description:
-  // Set/Get the upper left location of the viewer in the window.
-  vtkSetMacro(XOffset, int);
-  vtkGetMacro(XOffset, int);
-  vtkSetMacro(YOffset, int);
-  vtkGetMacro(YOffset, int);
-  
-  
+  // Window/level information used by templated function.
+  float GetColorShift();
+  float GetColorScale();
+
 protected:
-  // location of upper left corner in window.
-  int                  XOffset;
-  int                  YOffset;
   // X stuff
   Window	       WindowId;
   Display             *DisplayId;
@@ -172,23 +101,7 @@ protected:
   XEvent               report;
   int	               Offset;
   XColor               Colors[256];
-  int                  NumberColors;
-  
-  
-  vtkImageSource *Input;
-  int WholeImage;
-  // Contains the extent of the region to be displayed.
-  vtkImageRegion Region;
-  int Coordinate2;
-  int Coordinate3;  
-  // For converting image pixels to X pixels.
-  float ColorWindow;
-  float ColorLevel;
-  // Stuff for mapping color (i.e. Components to RGB)
-  int ColorFlag;
-  int Red;
-  int Green;
-  int Blue;
+  int                  NumberOfColors;
   
   
   Window MakeDefaultWindow(int width, int height);

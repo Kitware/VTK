@@ -1,11 +1,12 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDraw.h
+  Module:    vtkImageViewer.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
   Thanks:    Thanks to C. Charles Law who developed this class.
+
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -38,47 +39,68 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDraw - A region that can be drawn into.
-// .SECTION Description
-// vtkImageDraw is a region object with methods to draw boxs, lines ...
-// over the data.  
-
-
-#ifndef __vtkImageDraw_h
-#define __vtkImageDraw_h
-
-#include <math.h>
-#include "vtkImageRegion.h"
-
-
-class vtkImageDraw : public vtkImageRegion
-{
-public:
-  vtkImageDraw();
-  ~vtkImageDraw();
-  char *GetClassName() {return "vtkImageDraw";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-  
-  // Description:
-  // Set/Get DrawValue.  This is the value that is used when filling regions
-  // or drawing lines.
-  vtkSetMacro(DrawValue,float);
-  vtkGetMacro(DrawValue,float);
-  
-  void FillBox(int min0, int max0, int min1, int max1);
-  void FillTube(int x0, int y0, int x1, int y1, float radius);
-  void FillTriangle(int x0, int y0, int x1, int y1, int x2, int y2);
-  void DrawSegment(int x0, int y0, int x1, int y1);
-  void DrawSegment3D(float *p0, float *p1);
-
-protected:
-  float DrawValue;
-  
-  int ClipSegment(int &a0, int &a1, int &b0, int &b1);
-};
-
-
-
+#include "vtkImageViewer.h"
+#ifndef _WIN32
+#include "vtkImageXViewer.h"
 #endif
+
+//----------------------------------------------------------------------------
+vtkImageViewer::vtkImageViewer()
+{
+  this->Input = NULL;
+  this->WholeImage = 1;
+  this->Coordinate2 = 0;
+  this->Coordinate3 = 0;
+  
+  this->ColorWindow = 255.0;
+  this->ColorLevel = 127.0;
+  this->ColorFlag = 0;
+  this->Red = 0;
+  this->Green = 0;
+  this->Blue = 0;
+
+  this->XOffset = 0;
+  this->YOffset = 0;
+}
+
+
+//----------------------------------------------------------------------------
+vtkImageViewer::~vtkImageViewer()
+{
+}
+
+//----------------------------------------------------------------------------
+vtkImageViewer *vtkImageViewer::New()
+{
+#ifndef _WIN32
+  return new vtkImageXViewer;
+#endif  
+  cerr << "vtkImageViewer: New: No viewers defined.\n";
+  return NULL;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
+{
+  int *b;
+  
+  vtkObject::PrintSelf(os, indent);
+  b = this->Region.GetExtent();
+  os << indent << "Extent: (" << b[0] << ", " << b[1] << ", " << b[2] 
+     << ", " << b[3] << ")\n";
+  os << indent << "Coordinate2: " << this->Coordinate2 << "\n";
+  os << indent << "Coordinate3: " << this->Coordinate3 << "\n";
+}
+
+
+
+
+
+
+
+
+
+
 
 
