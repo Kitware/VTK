@@ -26,11 +26,11 @@
 
 #include <vector>
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.21");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.22");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 typedef vtkstd::vector< vtkSmartPointer<vtkDataSet> > DataSetsTypeBase;
-class vtkInterpolatedVelocityField::DataSetsType: public DataSetsTypeBase {};
+class vtkInterpolatedVelocityFieldDataSetsType: public DataSetsTypeBase {};
 
 vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
 {
@@ -47,7 +47,7 @@ vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
   this->Cell = vtkGenericCell::New();
   this->VectorsSelection = 0;
 
-  this->DataSets = new DataSetsType;
+  this->DataSets = new vtkInterpolatedVelocityFieldDataSetsType;
   this->LastDataSet = 0;
 }
 

@@ -46,6 +46,8 @@
 class vtkDataSet;
 class vtkGenericCell;
 
+class vtkInterpolatedVelocityFieldDataSetsType;
+
 class VTK_COMMON_EXPORT vtkInterpolatedVelocityField : public vtkFunctionSet
 {
 public:
@@ -124,10 +126,7 @@ protected:
   vtkSetStringMacro(VectorsSelection);
   char *VectorsSelection;
 
-  //BTX
-  class DataSetsType;
-  DataSetsType* DataSets;
-  //ETX
+  vtkInterpolatedVelocityFieldDataSetsType* DataSets;
 
   int FunctionValues(vtkDataSet* ds, float* x, float* f);
 

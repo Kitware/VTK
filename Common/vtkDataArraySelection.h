@@ -28,6 +28,9 @@
 
 #include "vtkObject.h"
 
+class vtkDataArraySelectionArrayNamesType;
+class vtkDataArraySelectionArraySettingsType;
+
 class VTK_COMMON_EXPORT vtkDataArraySelection : public vtkObject
 {
 public:
@@ -103,16 +106,11 @@ protected:
   vtkDataArraySelection();
   ~vtkDataArraySelection();
   
-  //BTX
-  class ArrayNamesType;
-  class ArraySettingsType;
-  //ETX
-  
   // The list of array names.
-  ArrayNamesType* ArrayNames;
+  vtkDataArraySelectionArrayNamesType* ArrayNames;
   
   // The list of array settings.
-  ArraySettingsType* ArraySettings;
+  vtkDataArraySelectionArraySettingsType* ArraySettings;
   
 private:
   vtkDataArraySelection(const vtkDataArraySelection&);  // Not implemented.
