@@ -65,6 +65,10 @@ public:
   // vtkScalar interface
   vtkScalars *MakeObject(int sze, int ext=1000);
   char *GetDataType() {return "int";};
+  void GetDataTypeRange (float* range) { range[0] = VTK_INT_MIN;
+  range[1] = VTK_INT_MAX; return;}
+  float GetDataTypeMin() { return VTK_INT_MIN; }
+  float GetDataTypeMax() { return VTK_INT_MAX; }
   int GetNumberOfScalars() {return (this->S->GetMaxId()+1);};
   void Squeeze() {this->S->Squeeze();};
   float GetScalar(int i) {return (float)this->S->GetValue(i);};

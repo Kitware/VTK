@@ -74,6 +74,10 @@ public:
   // vtkScalars interface
   char *GetScalarType() {return "ColorScalar";};
   char *GetDataType() {return "unsigned char";};
+  void GetDataTypeRange (float* range) { range[0] = VTK_UNSIGNED_CHAR_MIN;
+  range[1] = VTK_UNSIGNED_CHAR_MAX; return;}
+  float GetDataTypeMin() { return VTK_UNSIGNED_CHAR_MIN; }
+  float GetDataTypeMax() { return VTK_UNSIGNED_CHAR_MAX; }
   float GetScalar(int i);
   void SetNumberOfScalars(int number) {this->SetNumberOfColors(number);};
   void SetScalar(int i, float s);
