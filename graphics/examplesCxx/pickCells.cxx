@@ -65,6 +65,7 @@ main ()
     cellsMapper->SetInput(shrink->GetOutput());
   cellsActor = vtkActor::New();
     cellsActor->SetMapper(cellsMapper);
+    cellsActor->PickableOff();
     cellsActor->VisibilityOff();
     cellsActor->GetProperty()->SetColor(0.5000,0.5400,0.5300);
 
@@ -102,7 +103,8 @@ static void PickCells(void *arg)
   vtkRenderWindowInteractor *iren = (vtkRenderWindowInteractor *)arg;
   vtkPointPicker *picker = (vtkPointPicker *)iren->GetPicker();
   int i, cellId;
-  vtkIdList cellIds(12), ptIds(12);
+  vtkIdList *cellIds = vtkIdList::New(); cellIds->Allocate(12);
+  vtkIdList *ptIds = vtkIdList::New(); ptIds->Allocate(12);
 
   sphereActor->SetPosition(picker->GetPickPosition());
 
@@ -117,9 +119,9 @@ static void PickCells(void *arg)
     cells->SetPoints(plateOutput->GetPoints());
 
     plateOutput->GetPointCells(picker->GetPointId(), cellIds);
-    for (i=0; i < cellIds.GetNumberOfIds(); i++)
+    for (i=0; i < cellIds->GetNumberOfIds(); i++)
       {
-      cellId = cellIds.GetId(i);
+      cellId = cellIds->GetId(i);
       plateOutput->GetCellPoints(cellId, ptIds);
       cells->InsertNextCell(plateOutput->GetCellType(cellId), ptIds);
       }
@@ -131,5 +133,7 @@ static void PickCells(void *arg)
     }
 
   renWin->Render();
+  cellIds->Delete();
+  ptIds->Delete();
 }
 
