@@ -33,7 +33,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.54");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.55");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
@@ -74,16 +74,22 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   ren->GetVTKWindow()->GetTileScale();
   
   float vpu, vpv;
+  // find the lower left corner of the viewport, taking into account the
+  // lower left boundary of this tile
   vpu = (vport[0] - tileViewPort[0]);
   vpv = (vport[1] - tileViewPort[1]);
   vtkOpenGLCameraBound(vpu,vpv);
+  // store the result as a pixel value
   ren->NormalizedDisplayToDisplay(vpu,vpv);
   lowerLeft[0] = (int)(vpu+0.5);
   lowerLeft[1] = (int)(vpv+0.5);
   float vpu2, vpv2;
+  // find the upper right corner of the viewport, taking into account the
+  // lower left boundary of this tile
   vpu2 = (vport[2] - tileViewPort[0]);
   vpv2 = (vport[3] - tileViewPort[1]);
   vtkOpenGLCameraBound(vpu2,vpv2);
+  // also watch for the upper right boundary of the tile
   if (vpu2 > tileViewPort[2])
     {
     vpu2 = tileViewPort[2];
@@ -93,6 +99,8 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     vpv2 = tileViewPort[3];
     }  
   ren->NormalizedDisplayToDisplay(vpu2,vpv2);
+  // now compute the size of the intersection of the viewport with the
+  // current tile
   int usize = (int)(vpu2 + 0.5) - lowerLeft[0];
   int vsize = (int)(vpv2 + 0.5) - lowerLeft[1];  
   if (usize < 0)
@@ -145,14 +153,22 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   glEnable( GL_SCISSOR_TEST );
   glScissor(lowerLeft[0],lowerLeft[1], usize, vsize);
     
+  // some renderer subclasses may have more complicated computations for the
+  // aspect ratio. SO take that into account by computing the difference
+  // between our simple aspect ratio and what the actual renderer is
+  // reporting.
   ren->ComputeAspect();
   ren->GetAspect(aspect);
-
+  float aspect2[2];
+  ren->vtkViewport::ComputeAspect();
+  ren->vtkViewport::GetAspect(aspect2);
+  float aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
+  
   glMatrixMode( GL_PROJECTION);
   if(usize && vsize)
     {
-    matrix->DeepCopy(this->GetPerspectiveTransformMatrix(1.0*usize/vsize,
-                                                         -1,1));
+    matrix->DeepCopy(this->GetPerspectiveTransformMatrix(
+                       aspectModification*usize/vsize, -1,1));
     matrix->Transpose();
     }
   if(ren->GetIsPicking())
