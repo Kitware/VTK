@@ -591,4 +591,6 @@ proc DeleteCopies {} {
 
 DeleteCopies
 
+# for testing
+set threshold 20
 
