@@ -119,8 +119,7 @@ protected:
 
   void Execute();
 
-  int ComputeLowerScalarIndex(float);
-  int ComputeUpperScalarIndex(float);
+  int ComputeScalarIndex(float);
   int IsContourValue(float val);
   int ClipEdge(int v1, int v2, vtkPoints *pts, vtkDataArray *scalars,
                vtkPointData *inPD, vtkPointData *outPD);

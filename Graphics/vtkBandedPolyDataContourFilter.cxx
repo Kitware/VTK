@@ -20,8 +20,9 @@
 #include "vtkFloatArray.h"
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
+#include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.19");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.20");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -32,6 +33,7 @@ vtkBandedPolyDataContourFilter::vtkBandedPolyDataContourFilter()
   this->ScalarMode = VTK_SCALAR_MODE_INDEX;
   this->SetNthOutput(1,vtkPolyData::New());
   this->Outputs[1]->Delete();
+  this->ClipTolerance = FLT_EPSILON;
 }
 
 vtkBandedPolyDataContourFilter::~vtkBandedPolyDataContourFilter()
@@ -39,7 +41,7 @@ vtkBandedPolyDataContourFilter::~vtkBandedPolyDataContourFilter()
   this->ContourValues->Delete();
 }
 
-int vtkBandedPolyDataContourFilter::ComputeLowerScalarIndex(float val)
+int vtkBandedPolyDataContourFilter::ComputeScalarIndex(float val)
 {
   for (int i=0; i < (this->NumberOfClipValues-1); i++)
     {
@@ -49,18 +51,6 @@ int vtkBandedPolyDataContourFilter::ComputeLowerScalarIndex(float val)
       }
     }
   return this->NumberOfClipValues - 1;
-}
-
-int vtkBandedPolyDataContourFilter::ComputeUpperScalarIndex(float val)
-{
-  for (int i=0; i < (this->NumberOfClipValues-1); i++)
-    {
-    if ( val > this->ClipValues[i] && val <= this->ClipValues[i+1]  )
-      {
-      return i;
-      }
-    }
-  return 0;
 }
 
 int vtkBandedPolyDataContourFilter::IsContourValue(float val)
@@ -98,8 +88,8 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
   
   if ( s1 <= s2 )
     {
-    int idx1 = this->ComputeLowerScalarIndex(s1);
-    int idx2 = this->ComputeUpperScalarIndex(s2);
+    int idx1 = this->ComputeScalarIndex(s1);
+    int idx2 = this->ComputeScalarIndex(s2);
   
     for (int i=1; i < (idx2-idx1+1); i++)
       {
@@ -114,8 +104,8 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
     }
   else
     {
-    int idx1 = this->ComputeUpperScalarIndex(s1);
-    int idx2 = this->ComputeLowerScalarIndex(s2);
+    int idx1 = this->ComputeScalarIndex(s1);
+    int idx2 = this->ComputeScalarIndex(s2);
   
     for (int i=1; i < (idx1-idx2+1); i++)
       {
@@ -154,7 +144,8 @@ inline int vtkBandedPolyDataContourFilter::InsertCell(vtkCellArray *cells,
                                                       int cellId, float s,
                                                       vtkFloatArray *newS)
 {
-  int idx = this->ComputeLowerScalarIndex(s+this->ClipTolerance);
+
+  int idx = this->ComputeScalarIndex(s+this->ClipTolerance);
 
   if ( !this->Clipping || 
        idx >= this->ClipIndex[0] && idx < this->ClipIndex[1] )
@@ -214,20 +205,23 @@ void vtkBandedPolyDataContourFilter::Execute()
   this->ClipValues = new float[this->NumberOfClipValues];
   float range[2];
   inScalars->GetRange(range); 
-  this->ClipTolerance = (range[1]-range[0])/100.0;
+
   this->ClipValues[0] = range[0];
-  this->ClipValues[1] = range[1];
-  for ( i=2; i<this->NumberOfClipValues; i++)
+  this->ClipValues[this->NumberOfClipValues - 1] = range[1];
+  for ( i=1; i<this->NumberOfClipValues-1; i++)
     {
-    this->ClipValues[i] = this->ContourValues->GetValue(i-2);
+    this->ClipValues[i] = this->ContourValues->GetValue(i-1);
     }
 
   qsort((void *)this->ClipValues, this->NumberOfClipValues, sizeof(float), 
         vtkCompareClipValues);
 
+  // toss out values which are too close together, currently within FLT_EPSILON%
+  // of each other based on full scalar range, but could define temporary based
+  // on percentage of scalar range...
   for ( i=0; i<(this->NumberOfClipValues-1); i++)
     {
-    if ( (this->ClipValues[i]+this->ClipTolerance) >= this->ClipValues[i+1] )
+    if ( (this->ClipValues[i] + this->ClipTolerance) >= this->ClipValues[i+1] )
       {
       for (j=i+1; j<(this->NumberOfClipValues-2); j++)
         {
@@ -236,17 +230,18 @@ void vtkBandedPolyDataContourFilter::Execute()
       this->NumberOfClipValues--;
       }
     }
-  this->ClipTolerance /= 100.0; //used later in assigning contour values
 
-  //Set up the clipping indices
   this->ClipIndex[0] = 
-    this->ComputeLowerScalarIndex(this->ContourValues->GetValue(0));
-  this->ClipIndex[1] = this->ComputeUpperScalarIndex(
+    this->ComputeScalarIndex(this->ContourValues->GetValue(0));
+  this->ClipIndex[1] = this->ComputeScalarIndex(
     this->ContourValues->GetValue(this->ContourValues->GetNumberOfContours()-1));
 
   // The original set of points and point data are copied. Later on 
   // intersection points due to clipping will be created.
   newPts = vtkPoints::New();
+
+  // here is a problem.  If I don't allocate a massive chunk (i.e. 30*numPts), 
+  // I get a segfault when using a large number of bands
   newPts->Allocate(3*numPts);
 
   outPD->InterpolateAllocate(pd,3*numPts,numPts);
@@ -280,7 +275,7 @@ void vtkBandedPolyDataContourFilter::Execute()
       for (i=0; i<npts; i++)
         {
         newVerts->InsertNextCell(1,pts+i);
-        idx = this->ComputeLowerScalarIndex(inScalars->GetTuple1(pts[i]));
+        idx = this->ComputeScalarIndex(inScalars->GetTuple1(pts[i]));
         newScalars->InsertTuple1(cellId++,idx);
         }
       }
@@ -343,8 +338,9 @@ void vtkBandedPolyDataContourFilter::Execute()
         vR = pts[i+1];
 
         newLines->InsertNextCell(2);
+
         newScalars->InsertTuple1(cellId++, 
-                    this->ComputeLowerScalarIndex(outScalars->GetTuple1(v)));
+                    this->ComputeScalarIndex(outScalars->GetTuple1(v)));
         newLines->InsertCellPoint(v);
 
         if ( (intLoc=edgeTable->IsEdge(v,vR)) != -1 )
@@ -357,7 +353,8 @@ void vtkBandedPolyDataContourFilter::Execute()
             {
             newLines->InsertCellPoint(intPts[intsIdx]);
             newLines->InsertNextCell(2);
-            newScalars->InsertTuple1(cellId++, this->ComputeLowerScalarIndex(
+
+            newScalars->InsertTuple1(cellId++, this->ComputeScalarIndex(
               outScalars->GetTuple1(intPts[intsIdx])));
             newLines->InsertCellPoint(intPts[intsIdx]);
             }
@@ -518,6 +515,7 @@ void vtkBandedPolyDataContourFilter::Execute()
           if ( isContourValue[i] && isContourValue[(i+1)%numFullPts] &&
                s[i] == s[(i+1)%numFullPts] )
             {
+
             contourEdges->InsertNextCell(2);
             contourEdges->InsertCellPoint(fullPoly[i]);
             contourEdges->InsertCellPoint(fullPoly[(i+1)%numFullPts]);
