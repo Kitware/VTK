@@ -116,8 +116,8 @@ public:
 protected:
   vtkAssemblyPath();
   ~vtkAssemblyPath();
-  vtkAssemblyPath(const vtkAssemblyPath &) {};
-  void operator=(const vtkAssemblyPath &) {};
+  vtkAssemblyPath(const vtkAssemblyPath &);
+  void operator=(const vtkAssemblyPath &);
   
   void AddNode(vtkAssemblyNode *n); //Internal method adds assembly node
   vtkTransform *Transform; //Used to perform matrix concatentation

@@ -105,8 +105,8 @@ public:
 protected:
   vtkAssemblyNode();
   ~vtkAssemblyNode();
-  vtkAssemblyNode(const vtkAssemblyNode &) {};
-  void operator=(const vtkAssemblyNode &) {};
+  vtkAssemblyNode(const vtkAssemblyNode &);
+  void operator=(const vtkAssemblyNode &);
 
 private:
   vtkProp *Prop; //reference to vtkProp
