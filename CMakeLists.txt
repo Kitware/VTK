@@ -585,6 +585,7 @@ LINK_DIRECTORIES(.)
 IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
   INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
   CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
+  INSTALL_FILES(/lib/vtk VTKBuildSettings)
 ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 
 # Create the VTKConfig.cmake file containing the VTK configuration.
@@ -592,7 +593,7 @@ INCLUDE (${VTK_SOURCE_DIR}/vtkGenerateVTKConfig.cmake)
 
 # Install some files.
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
-INSTALL_FILES(/lib/vtk .cmake UseVTK VTKBuildSettings VTKLibraryDepends)
+INSTALL_FILES(/lib/vtk .cmake UseVTK VTKLibraryDepends)
 
 # Hack for cmake 1.4 module.  It needs the file here.
 INSTALL_FILES(/include/vtk .cmake UseVTK)
