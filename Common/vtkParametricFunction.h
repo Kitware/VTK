@@ -66,24 +66,24 @@ public:
   virtual int GetDimension() = 0;
 
   // Description:
-  // Calculate Evaluate(u)->(x,Du).
+  // Calculate Evaluate(uvw)->(Pt,Duvw).
   // This is a pure virtual function that must be instantiated in 
   // a derived class. 
   //
-  // u are the parameters with x the returned Cartesian point, Du are the
-  // derivatives of this point with respect to u.  Note that the first three
-  // values in Du are u, the next three are Dv, and the final three are Dw.
-  virtual void Evaluate(double u[3], double Pt[3], double Du[9]) = 0;
+  // uvw are the parameters with Pt the returned Cartesian point, Duvw are the
+  // derivatives of this point with respect to u, v and w.  Note that the first three
+  // values in Du are Du, the next three are Dv, and the final three are Dw.
+  virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) = 0;
 
   // Description:
-  // Calculate a user defined scalar using none, one or all of u,Pt,Du.
+  // Calculate a user defined scalar using none, one or all of uvw,Pt,Duvw.
   // This is a pure virtual function that must be instantiated in 
   // a derived class. 
   //
-  // u are the parameters with Pt being the the cartesian point, 
-  // Du are the derivatives of this point with respect to u.
+  // uvw are the parameters with Pt being the the cartesian point, 
+  // Duvw are the derivatives of this point with respect to u, v, and w.
   // Pt, Du are obtained from Evaluate().
-  virtual double EvaluateScalar(double u[3], double Pt[3], double Du[9]) = 0;
+  virtual double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]) = 0;
 
   // Description:
   // Set/Get the minimum u-value.
