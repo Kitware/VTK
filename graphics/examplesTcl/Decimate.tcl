@@ -347,6 +347,7 @@ vtkFeatureEdges FeatureEdges
     FeatureEdges FeatureEdgesOff
 vtkPolyDataMapper FEdgesMapper
     FEdgesMapper SetInput [FeatureEdges GetOutput]
+    FEdgesMapper SetScalarModeToUseCellData
 vtkActor FEdgesActor
     FEdgesActor SetMapper FEdgesMapper
 
