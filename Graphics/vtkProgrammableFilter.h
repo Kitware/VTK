@@ -37,13 +37,13 @@
 #ifndef __vtkProgrammableFilter_h
 #define __vtkProgrammableFilter_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkProgrammableFilter : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkProgrammableFilter : public vtkDataSetAlgorithm
 {
 public:
   static vtkProgrammableFilter *New();
-  vtkTypeRevisionMacro(vtkProgrammableFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkProgrammableFilter,vtkDataSetAlgorithm);
 
   // Description:
   // Specify the function to use to operate on the point attribute data. Note
@@ -81,7 +81,7 @@ protected:
   vtkProgrammableFilter();
   ~vtkProgrammableFilter();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   void (*ExecuteMethod)(void *); //function to invoke
   void (*ExecuteMethodArgDelete)(void *);

@@ -17,10 +17,12 @@
 #include "vtkCellData.h"
 #include "vtkDataSetCollection.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkProgrammableAttributeDataFilter, "1.21");
+vtkCxxRevisionMacro(vtkProgrammableAttributeDataFilter, "1.22");
 vtkStandardNewMacro(vtkProgrammableAttributeDataFilter);
 
 vtkProgrammableAttributeDataFilter::vtkProgrammableAttributeDataFilter()
@@ -92,10 +94,20 @@ void vtkProgrammableAttributeDataFilter::SetExecuteMethodArgDelete(void (*f)(voi
     }
 }
 
-void vtkProgrammableAttributeDataFilter::Execute()
+int vtkProgrammableAttributeDataFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = this->GetInput();
-  vtkDataSet *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDebugMacro(<<"Executing programmable point data filter");
 
@@ -111,6 +123,8 @@ void vtkProgrammableAttributeDataFilter::Execute()
     {
     (*this->ExecuteMethod)(this->ExecuteMethodArg);
     }
+
+  return 1;
 }
 
 void vtkProgrammableAttributeDataFilter::PrintSelf(ostream& os, vtkIndent indent)

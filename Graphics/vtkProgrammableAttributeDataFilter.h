@@ -60,7 +60,7 @@
 // input is a concrete type like vtkPolyData. Thus you may need to use
 // vtkCastToConcrete to obtain the output as a particular concrete type, or
 // one of the special methods of the superclass (e.g.,
-// vtkDataSetToDataSetFilter::GetPolyDataOutput) to retrieve output of the
+// vtkDataSetAlgorithm::GetPolyDataOutput) to retrieve output of the
 // correct type.
 //
 // The filter correctly manages modified time and network execution in most
@@ -71,15 +71,15 @@
 #ifndef __vtkProgrammableAttributeDataFilter_h
 #define __vtkProgrammableAttributeDataFilter_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkDataSetCollection;
 
-class VTK_GRAPHICS_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetAlgorithm 
 {
 public:
   static vtkProgrammableAttributeDataFilter *New();
-  vtkTypeRevisionMacro(vtkProgrammableAttributeDataFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkProgrammableAttributeDataFilter,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -107,7 +107,7 @@ protected:
   vtkProgrammableAttributeDataFilter();
   ~vtkProgrammableAttributeDataFilter();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   vtkDataSetCollection *InputList; //list of datasets to process
   void (*ExecuteMethod)(void *); //function to invoke
   void (*ExecuteMethodArgDelete)(void *);
@@ -119,8 +119,7 @@ private:
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
-  void RemoveInput(vtkDataObject *input)
-    { this->vtkProcessObject::RemoveInput(input); };
+
 private:
   vtkProgrammableAttributeDataFilter(const vtkProgrammableAttributeDataFilter&);  // Not implemented.
   void operator=(const vtkProgrammableAttributeDataFilter&);  // Not implemented.
