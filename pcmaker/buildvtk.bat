@@ -55,19 +55,19 @@ rem          doWorking doGEMSIO/IP doGEMSVOLUME
 echo beginning pcmaker config at >> %vtk_build_log%
 time /t >> %vtk_build_log%
 %vtk_source_tree%\pcmaker\Debug\pcmaker.exe %vtk_source_tree% %vtk_build_tree% c:\msdev    0 1 0 0 1 1 1 0 0 0 1 1 >> %vtk_build_log%
-#            | | | | | | | | | | | |
-#            | | | | | | | | | | | gemsvolume
-#            | | | | | | | | | | gemsio/gemsip
-#            | | | | | | | | | working
-#            | | | | | | | | contrib
-#            | | | | | | | imaging
-#            | | | | | | graphics
-#            | | | | | usenulldebugmacro
-#            | | | | patented
-#            | | | debug
-#            | | borland
-#            | ms
-#            jdkloc
+rem          | | | | | | | | | | | |
+rem          | | | | | | | | | | | gemsvolume
+rem          | | | | | | | | | | gemsio/gemsip
+rem          | | | | | | | | | working
+rem          | | | | | | | | contrib
+rem          | | | | | | | imaging
+rem          | | | | | | graphics
+rem          | | | | | usenulldebugmacro
+rem          | | | | patented
+rem          | | | debug
+rem          | | borland
+rem          | ms
+rem          jdkloc
 
 
 :build
@@ -112,19 +112,19 @@ rem          doWorking doGEMSIO/IP doGEMSVOLUME
 echo beginning pcmaker config for debug version at >> %vtk_build_log%
 time /t >> %vtk_build_log%
 %vtk_source_tree%\pcmaker\Debug\pcmaker.exe %vtk_source_tree% %vtk_builddbg_tree% c:\msdev 0 1 0 1 1 0 1 0 0 0 1 1 >> %vtk_build_log%
-#            | | | | | | | | | | | |
-#            | | | | | | | | | | | gemsvolume
-#            | | | | | | | | | | gemsio/gemsip
-#            | | | | | | | | | working
-#            | | | | | | | | contrib
-#            | | | | | | | imaging
-#            | | | | | | graphics
-#            | | | | | usenulldebugmacro
-#            | | | | patented
-#            | | | debug
-#            | | borland
-#            | ms
-#            jdkloc
+rem          | | | | | | | | | | | |
+rem          | | | | | | | | | | | gemsvolume
+rem          | | | | | | | | | | gemsio/gemsip
+rem          | | | | | | | | | working
+rem          | | | | | | | | contrib
+rem          | | | | | | | imaging
+rem          | | | | | | graphics
+rem          | | | | | usenulldebugmacro
+rem          | | | | patented
+rem          | | | debug
+rem          | | borland
+rem          | ms
+rem          jdkloc
 
 
 :builddbg
