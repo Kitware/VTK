@@ -1,9 +1,9 @@
 IF (VTK_WRAP_TCL)
-ADD_EXECUTABLE(vtkWrapTcl vtkWrapTcl vtkParse.tab)
+  ADD_EXECUTABLE(vtkWrapTcl vtkWrapTcl vtkParse.tab)
 ENDIF (VTK_WRAP_TCL)
 
 IF (VTK_WRAP_PYTHON)
-ADD_EXECUTABLE(vtkWrapPython vtkWrapPython vtkParse.tab)
+  ADD_EXECUTABLE(vtkWrapPython vtkWrapPython vtkParse.tab)
 ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)
