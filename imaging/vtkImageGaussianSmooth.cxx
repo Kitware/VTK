@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageSpatial1D.cxx
+  Module:    vtkImageGaussianSmooth.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,111 +38,97 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <math.h>
-#include "vtkImageSpatial1D.h"
-
+#include "vtkImageGaussianSmooth.h"
 
 //----------------------------------------------------------------------------
-// Description:
-// Construct an instance of vtkImageSpatial1D fitler.
-vtkImageSpatial1D::vtkImageSpatial1D()
+vtkImageGaussianSmooth::vtkImageGaussianSmooth()
 {
-  this->KernelSize = 0;
-  this->KernelMiddle = 0;
-  this->HandleBoundaries = 1;
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This method sets the width of the 1d neighborhood.  It also sets the 
-// default middle of the neighborhood 
-void vtkImageSpatial1D::SetKernelSize(int size)
+// This method sets up multiple smoothing filters
+void vtkImageGaussianSmooth::SetDimensionality(int num)
 {
-  vtkDebugMacro(<< "SetKernelSize: " << ", size = " << size);
-
-  this->KernelSize = size;
-  this->KernelMiddle = size / 2;
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkErrorMacro(<< "SetDimensionality: " << num << " is too many fitlers.");
+    return;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    if (this->Filters[idx])
+      {
+      this->Filters[idx]->Delete();
+      }
+    this->Filters[idx] = new vtkImageGaussianSmooth1D;
+    this->Filters[idx]->SetAxes(this->Axes[idx]);
+    }
+  
+  this->Dimensionality = num;
   this->Modified();
 }
 
 
-
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a region that holds the boundary of this filters
-// input, and changes the region to hold the boundary of this filters
-// output.
-void vtkImageSpatial1D::ComputeOutputImageInformation(
-		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
+// This method sets the StandardDeviation. Both axes are the same.  
+// A future simple extension could make the kernel eliptical.
+void vtkImageGaussianSmooth::SetStandardDeviation(float std)
 {
-  int min, max;
-
-  if (this->HandleBoundaries)
+  int idx;
+  
+  if (this->Dimensionality == 0)
     {
-    // Output image extent same as input region extent
-    return;
+    vtkWarningMacro(<< "SetStandardDeviation: No Filters. "
+                    << "Try SetDimensionality first.");
     }
   
-  // shrink output image extent.
-  inRegion->GetImageExtent(min, max);
-  min += this->KernelMiddle;
-  max -= (this->KernelSize - 1) - this->KernelMiddle;
-  outRegion->SetImageExtent(min, max);
-}
-
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method computes the extent of the input region necessary to generate
-// an output region.  Before this method is called "region" should have the 
-// extent of the output region.  After this method finishes, "region" should 
-// have the extent of the required input region.
-void vtkImageSpatial1D::ComputeRequiredInputRegionExtent(
-                                                    vtkImageRegion *outRegion, 
-			                            vtkImageRegion *inRegion)
-{
-  int extentMin, extentMax;
-  int ImageExtentMin, ImageExtentMax;
-  
-  outRegion->GetExtent(extentMin, extentMax);
-  // Expand to get inRegion Extent
-  extentMin -= this->KernelMiddle;
-  extentMax += (this->KernelSize - 1) - this->KernelMiddle;
-
-  // If the expanded region is out of the IMAGE Extent
-  inRegion->GetImageExtent(ImageExtentMin, ImageExtentMax);
-  if (extentMin < ImageExtentMin || extentMax > ImageExtentMax)
+  for (idx = 0; idx < this->Dimensionality; ++idx)
     {
-    if (this->HandleBoundaries)
+    if ( ! this->Filters[idx])
       {
-      // shrink the required region extent
-      extentMin = (extentMin > ImageExtentMin) ? extentMin : ImageExtentMin;
-      extentMax = (extentMax < ImageExtentMax) ? extentMax : ImageExtentMax;
+      vtkWarningMacro(<< "SetStandardDeviation: Filter " << idx << " not set");
       }
     else
       {
-      vtkWarningMacro(<< "Required region is out of the image extent.");
+      ((vtkImageGaussianSmooth1D *)
+       (this->Filters[idx]))->SetStandardDeviation(std);
       }
     }
-  
-  inRegion->SetExtent(extentMin, extentMax);
+
+  this->Modified();
 }
 
+//----------------------------------------------------------------------------
+// Description:
+// This method sets the radius of the kernel in standard deviation units.
+void vtkImageGaussianSmooth::SetRadiusFactor(float factor)
+{
+  int idx;
+  
+  if (this->Dimensionality == 0)
+    {
+    vtkWarningMacro(<< "SetRadiusFactor: No Filters. "
+                    << "Try SetDimensionality first.");
+    }
+  
+  for (idx = 0; idx < this->Dimensionality; ++idx)
+    {
+    if ( ! this->Filters[idx])
+      {
+      vtkWarningMacro(<< "SetRadiusFactor: Filter " << idx << " not set");
+      }
+    else
+      {
+      ((vtkImageGaussianSmooth1D *)
+       (this->Filters[idx]))->SetRadiusFactor(factor);
+      }
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+  this->Modified();
+}

@@ -49,8 +49,24 @@ vtkImageDilateValue1D::vtkImageDilateValue1D()
 {
   this->Value = 0.0;
   this->HandleBoundariesOn();
+  this->UseExecuteCenterOff();
+  this->SetKernelSize(3);
 }
 
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method sets the Size of the neighborhood.
+void vtkImageDilateValue1D::SetKernelSize(int size)
+{
+  this->KernelSize[0] = size;
+  this->KernelMiddle[0] = size / 2;
+}
+
+			     
+			     
+			     
 
 //----------------------------------------------------------------------------
 // Description:
@@ -81,8 +97,8 @@ void vtkImageDilateValue1DExecute(vtkImageDilateValue1D *self,
   outRegion->GetImageExtent(outImageExtentMin, outImageExtentMax);
   if (self->HandleBoundaries)
     {
-    outImageExtentMin += self->KernelMiddle;
-    outImageExtentMax -= (self->KernelSize - 1) - self->KernelMiddle;
+    outImageExtentMin += self->KernelMiddle[0];
+    outImageExtentMax -= (self->KernelSize[0] - 1) - self->KernelMiddle[0];
     }
   else
     {
@@ -107,10 +123,10 @@ void vtkImageDilateValue1DExecute(vtkImageDilateValue1D *self,
     // The number of pixels cut from the kernel
     cut = (outImageExtentMin - outIdx);
     // First do identity (complex indexing saves time?)
-    *outPtr = inPtr[self->KernelMiddle - cut];
+    *outPtr = inPtr[self->KernelMiddle[0] - cut];
     // loop over neighborhood pixels
     tmpPtr = inPtr;
-    for (kernelIdx = cut; kernelIdx < self->KernelSize; ++kernelIdx)
+    for (kernelIdx = cut; kernelIdx < self->KernelSize[0]; ++kernelIdx)
       {
       if (*tmpPtr == value)
 	{
@@ -127,10 +143,10 @@ void vtkImageDilateValue1DExecute(vtkImageDilateValue1D *self,
   for ( ; outIdx <= outImageExtentMax; ++outIdx)
     {
     // First do identity (complex indexing saves time?)
-    *outPtr = inPtr[self->KernelMiddle];
+    *outPtr = inPtr[self->KernelMiddle[0]];
     // loop for neighborhood
     tmpPtr = inPtr;
-    for (kernelIdx = 0; kernelIdx < self->KernelSize; ++kernelIdx)
+    for (kernelIdx = 0; kernelIdx < self->KernelSize[0]; ++kernelIdx)
       {
       if (*tmpPtr == value)
 	{
@@ -150,10 +166,10 @@ void vtkImageDilateValue1DExecute(vtkImageDilateValue1D *self,
     // The number of pixels cut from the DilateValue.
     cut = (outIdx - outImageExtentMax);
     // First do identity (complex indexing saves time?)
-    *outPtr = inPtr[self->KernelMiddle];
+    *outPtr = inPtr[self->KernelMiddle[0]];
     // loop for DilateValue (sum)
     tmpPtr = inPtr;
-    for (kernelIdx = cut; kernelIdx < self->KernelSize; ++kernelIdx)
+    for (kernelIdx = cut; kernelIdx < self->KernelSize[0]; ++kernelIdx)
       {
       if (*tmpPtr == value)
 	{

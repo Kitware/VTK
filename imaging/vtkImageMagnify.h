@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageRFFT2D.h
+  Module:    vtkImageMagnify.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,26 +38,46 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageRFFT2D - 2d Reverse Fast Fourier Transform
+// .NAME vtkImageMagnify - Magnifies an image by integer values
 // .SECTION Description
-// vtkImageRFFT2D implements a 2d reverse Fast Fourier Transform.
-// It really consists of two 1d RFFTs.
+// vtkImageMagnify maps each pixel of the input onto a nxmx... region
+// of the output.  Location (0,0,...) remains in the same place.
+// The filter is decomposed into many filters, one for each axis.
 
 
-#ifndef __vtkImageRFFT2D_h
-#define __vtkImageRFFT2D_h
+#ifndef __vtkImageMagnify_h
+#define __vtkImageMagnify_h
 
 
-#include "vtkImageDecomposed2D.h"
-#include "vtkImageRFFT1D.h"
+#include "vtkImageDecomposedFilter.h"
+#include "vtkImageMagnify1D.h"
+#include "vtkImageSetGet.h"
 
-class vtkImageRFFT2D : public vtkImageDecomposed2D
+class vtkImageMagnify : public vtkImageDecomposedFilter
 {
 public:
-  vtkImageRFFT2D();
-  char *GetClassName() {return "vtkImageRFFT2D";};
+  vtkImageMagnify();
+  char *GetClassName() {return "vtkImageMagnify";};
 
+  // Description:
+  // Set/Get Magnification factors
+  void SetMagnificationFactors(int num, int *factors);
+  vtkImageSetMacro(MagnificationFactors,int);
+  void GetMagnificationFactors(int num, int *factors);
+  vtkImageGetMacro(MagnificationFactors,int);
+  
+  // Description:
+  // Turn interpolation on and off (pixel replication)
+  void SetInterpolate(int interpolate);
+  int GetInterpolate();
+  vtkBooleanMacro(Interpolate,int);
+  
+  // Description:
+  // Determines how many sub filters are created.
+  void SetDimensionality(int num);
+  
 protected:
+  int MagnificationFactors[VTK_IMAGE_DIMENSIONS];
 };
 
 #endif

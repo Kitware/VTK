@@ -49,13 +49,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageDilate1D_h
 
 
-#include "vtkImageSpatial1D.h"
+#include "vtkImageSpatialFilter.h"
 
-class vtkImageDilate1D : public vtkImageSpatial1D
+class vtkImageDilate1D : public vtkImageSpatialFilter
 {
 public:
   vtkImageDilate1D();
   char *GetClassName() {return "vtkImageDilate1D";};
+  void SetKernelSize(int size);
   
 protected:
   

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageFFT2D.cxx
+  Module:    vtkImageGaussianSmooth.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,28 +38,33 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageFFT2D.h"
+// .NAME vtkImageGaussianSmooth - smooths on a 3D plane.
+// .SECTION Description
+// vtkImageGaussianSmooth implements Gaussian smoothing over any number of 
+// axes. It really consists of multiple decomposed 1D filters.
 
-//----------------------------------------------------------------------------
-// Description:
-// This method sets up the 2 1d filters that perform the convolution.
-vtkImageFFT2D::vtkImageFFT2D()
+
+#ifndef __vtkImageGaussianSmooth_h
+#define __vtkImageGaussianSmooth_h
+
+
+#include "vtkImageDecomposedFilter.h"
+#include "vtkImageGaussianSmooth1D.h"
+
+class vtkImageGaussianSmooth : public vtkImageDecomposedFilter
 {
-  // create the filter chain 
-  this->Filter0 = new vtkImageFFT1D;
-  this->Filter1 = new vtkImageFFT1D;
+public:
+  vtkImageGaussianSmooth();
+  char *GetClassName() {return "vtkImageGaussianSmooth";};
 
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
-}
+  void SetDimensionality(int num);
+  void SetStandardDeviation(float std);
+  void SetRadiusFactor(float factor);
 
+protected:
+};
 
-//----------------------------------------------------------------------------
-void vtkImageFFT2D::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageDecomposed2D::PrintSelf(os,indent);
-}
-  
-    
+#endif
 
 
 

@@ -40,13 +40,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageSpatialFilter - Filters that operate on pixel neighborhoods.
 // .SECTION Description
-// vtkImageSpatialFilter is meant to replace (or be a super class) of the
-// 1d, 2d and 3d spatial filters.  It was written for the 2d Gradient
-// filters.  It has an ivar describing the neighborhood, but does not supp;y
-// methods to allow the user to modify the neighborhood.  The main
-// functionalit of this class is to break the images into central
-// and boundary pieces.  Different execute methods are called for these
-// two classes of regions.
+// vtkImageSpatialFilter is a super class for filters that operate on
+// an input neighborhood for each output pixel.  It is setup to for
+// any dimensionality.  It handels even sized neighborhoods, but their can be
+// a half pixel shift associated with processing.  This superclass has some
+// logic for handling boundaries.  It can split regions into boundary and 
+// non-boundary pieces and call different execute methods.
 
 
 #ifndef __vtkImageSpatialFilter_h
@@ -65,8 +64,10 @@ public:
 
   // Description:
   // Get the Spatial kernel size and middle.
-  vtkGetVector3Macro(KernelSize,int);
-  vtkGetVector3Macro(KernelMiddle,int);
+  void GetKernelSize(int num, int *size);
+  vtkImageGetMacro(KernelSize,int);
+  void GetKernelMiddle(int num, int *middle);
+  vtkImageGetMacro(KernelMiddle,int);
   // Description:
   // Set/Get whether use boundary execute method or not (shrink image).
   vtkSetMacro(HandleBoundaries,int);

@@ -48,13 +48,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageDilateValue1D_h
 
 
-#include "vtkImageSpatial1D.h"
+#include "vtkImageSpatialFilter.h"
 
-class vtkImageDilateValue1D : public vtkImageSpatial1D
+class vtkImageDilateValue1D : public vtkImageSpatialFilter
 {
 public:
   vtkImageDilateValue1D();
   char *GetClassName() {return "vtkImageDilateValue1D";};
+
+  void SetKernelSize(int size);
   
   // Description:
   // Set/Get the value to dilate

@@ -1,4 +1,4 @@
-vtk# Prototype segmentation pipline
+# Prototype segmentation pipline
 
 
 set sliceNumber 11

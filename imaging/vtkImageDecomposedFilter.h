@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDilateValue2D.h
+  Module:    vtkImageDecomposedFilter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,30 +38,56 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDilateValue2D - smooths on a 2D plane.
+// .NAME vtkImageDecomposedFilter - Contains multiple 1d filters.
 // .SECTION Description
-// vtkImageDilateValue2D implements a 2d Gaussian smoothing on an axis
-// aligned plane.  It really consists of two 1d Gaussian filters.
+// vtkImageDecomposedFilter is a super class for filters that break
+// their Nd processing into three 1d steps.  They contain a sub pipeline
+// that contains multiple 1d filters in series.
 
 
-#ifndef __vtkImageDilateValue2D_h
-#define __vtkImageDilateValue2D_h
+#ifndef __vtkImageDecomposedFilter_h
+#define __vtkImageDecomposedFilter_h
 
 
-#include "vtkImageDecomposed2D.h"
-#include "vtkImageDilateValue1D.h"
+#include "vtkImageFilter.h"
 
-class vtkImageDilateValue2D : public vtkImageDecomposed2D
+class vtkImageDecomposedFilter : public vtkImageFilter
 {
 public:
-  vtkImageDilateValue2D();
-  char *GetClassName() {return "vtkImageDilateValue2D";};
+  vtkImageDecomposedFilter();
+  ~vtkImageDecomposedFilter();
+  char *GetClassName() {return "vtkImageDecomposedFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetKernelSize(int width, int height);
-  void SetKernelSize(int size) {this->SetKernelSize(size, size);};
-  void SetValue(float value);
+  // Forward Object messages to all fitlers
+  void DebugOn();
+  void Modified();
+  // Foward Source messages to last filter
+  void SetCache(vtkImageCache *cache);
+  vtkImageCache *GetCache();
+  void SetReleaseDataFlag(int flag);
+  vtkImageSource *GetOutput();
+  unsigned long GetPipelineMTime();
+  // Foward filter messages to first fitler
+  void SetInput(vtkImageSource *Input);
+
+  // Description:
+  // Set the axes of the filter. This also tells the filter how many 
+  // 1D filters should be created.
+  void SetAxes(int num, int *axes);
+  
+  // Description:
+  // This function must be implemented by the subclass to create
+  // the sub filters.
+  virtual void SetDimensionality(int num) = 0;
+  
+  // Get the dimensionality of this filter.
+  vtkGetMacro(Dimensionality,int);
 
 protected:
+  int Dimensionality;
+  
+  vtkImageFilter *Filters[VTK_IMAGE_DIMENSIONS];
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMagnify2D.h
+  Module:    vtkImageFFT.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,41 +38,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMagnify2D - Magnifies an image with pixel replication.
+// .NAME vtkImageFFT -  Fast Fourier Transform
 // .SECTION Description
-// vtkImageMagnify2D maps each pixel of the input onto a nxn region
-// of the output.  Location (0,0) remains in the same place.
+// vtkImageFFT implements a forward Fast Fourier Transform.
+// It can operate on images of any dimensionality,
+// and really consists of multiple 1d FFTs
 
 
-#ifndef __vtkImageMagnify2D_h
-#define __vtkImageMagnify2D_h
+#ifndef __vtkImageFFT_h
+#define __vtkImageFFT_h
 
 
-#include "vtkImageDecomposed2D.h"
-#include "vtkImageMagnify1D.h"
+#include "vtkImageDecomposedFilter.h"
+#include "vtkImageFFT1D.h"
 
-class vtkImageMagnify2D : public vtkImageDecomposed2D
+class vtkImageFFT : public vtkImageDecomposedFilter
 {
 public:
-  vtkImageMagnify2D();
-  char *GetClassName() {return "vtkImageMagnify2D";};
+  vtkImageFFT();
+  char *GetClassName() {return "vtkImageFFT";};
 
-  // Description:
-  // Set/Get Magnification factors
-  void SetMagnificationFactors(int f0, int f1);
-  void SetMagnificationFactors(int *factors)
-  {this->SetMagnificationFactors(factors[0], factors[1]);};
-  vtkGetVector2Macro(MagnificationFactors,int);
-  
-  // Description:
-  // Turn interpolation on and off (pixel replication)
-  void SetInterpolate(int interpolate);
-  int GetInterpolate();
-  vtkBooleanMacro(Interpolate,int);
-  
+  void SetDimensionality(int num);
 
 protected:
-  int MagnificationFactors[2];
 };
 
 #endif

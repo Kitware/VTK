@@ -85,6 +85,29 @@ void vtkImageSpatialFilter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+//----------------------------------------------------------------------------
+void vtkImageSpatialFilter::GetKernelSize(int num, int *size)
+{
+  int idx;
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    size[idx] = this->KernelSize[idx];
+    }
+}
+
+
+
+//----------------------------------------------------------------------------
+void vtkImageSpatialFilter::GetKernelMiddle(int num, int *middle)
+{
+  int idx;
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    middle[idx] = this->KernelMiddle[idx];
+    }
+}
 
 
 

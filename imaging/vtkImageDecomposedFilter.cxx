@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDecomposed3D.cxx
+  Module:    vtkImageDecomposedFilter.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,61 +39,58 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include<math.h>
-#include "vtkImageDecomposed3D.h"
+#include "vtkImageDecomposedFilter.h"
 
 //----------------------------------------------------------------------------
-vtkImageDecomposed3D::vtkImageDecomposed3D()
+vtkImageDecomposedFilter::vtkImageDecomposedFilter()
 {
-  // create the filter chain 
-  this->Filter0 = NULL;
-  this->Filter1 = NULL;
-  this->Filter2 = NULL;
+  int idx;
+
+  this->Dimensionality = 0;
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    this->Filters[idx] = NULL;
+    }
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
 // Destructor: Delete the sub filters.
-vtkImageDecomposed3D::~vtkImageDecomposed3D()
+vtkImageDecomposedFilter::~vtkImageDecomposedFilter()
 {
-  if (this->Filter0)
-    {
-    this->Filter0->Delete();
-    }
+  int idx;
   
-  if (this->Filter1)
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    this->Filter1->Delete();
-    }
-  
-  if (this->Filter2)
-    {
-    this->Filter2->Delete();
+    if (this->Filters[idx])
+      {
+      this->Filters[idx]->Delete();
+      this->Filters[idx] = NULL;
+      }
     }
 }
 
+
+
 //----------------------------------------------------------------------------
-void vtkImageDecomposed3D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageDecomposedFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
-  if (this->Filter0)
-    {
-    os << indent << "Filter0: \n";
-    this->Filter0->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Filter0: NULL\n";
-    }
+  int idx;
   
-  if (this->Filter1)
+  vtkImageFilter::PrintSelf(os,indent);
+  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
+  for (idx = 0; idx < this->Dimensionality; ++idx)
     {
-    os << indent << "Filter1: \n";
-    this->Filter1->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Filter1: NULL\n";
+    if (this->Filters[idx])
+      {
+      os << indent << "Filter" << idx << ":\n";
+      this->Filters[idx]->PrintSelf(os, indent.GetNextIndent());
+      }
+    else
+      {
+      os << indent << "Filter" << idx << ": NULL\n";
+      }
     }
   
 }
@@ -104,20 +101,17 @@ void vtkImageDecomposed3D::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Description:
 // Turn debugging output on. (in sub filters also)
-void vtkImageDecomposed3D::DebugOn()
+void vtkImageDecomposedFilter::DebugOn()
 {
+  int idx;
+  
   this->vtkObject::DebugOn();
-  if (this->Filter0)
+  for (idx = 0; idx < this->Dimensionality; ++idx)
     {
-    this->Filter0->DebugOn();
-    }
-  if (this->Filter1)
-    {
-    this->Filter1->DebugOn();
-    }
-  if (this->Filter2)
-    {
-    this->Filter2->DebugOn();
+    if (this->Filters[idx])
+      {
+      this->Filters[idx]->DebugOn();
+      }
     }
 }
 
@@ -126,22 +120,17 @@ void vtkImageDecomposed3D::DebugOn()
 //----------------------------------------------------------------------------
 // Description:
 // Pass modified message to sub filters.
-void vtkImageDecomposed3D::Modified()
+void vtkImageDecomposedFilter::Modified()
 {
-  this->vtkObject::Modified();
-  if (this->Filter0)
-    {
-    this->Filter0->Modified();
-    }
+  int idx;
   
-  if (this->Filter1)
+  this->vtkObject::Modified();
+  for (idx = 0; idx < this->Dimensionality; ++idx)
     {
-    this->Filter1->Modified();
-    }
-
-  if (this->Filter2)
-    {
-    this->Filter2->Modified();
+    if (this->Filters[idx])
+      {
+      this->Filters[idx]->Modified();
+      }
     }
 }
   
@@ -149,24 +138,32 @@ void vtkImageDecomposed3D::Modified()
 //----------------------------------------------------------------------------
 // Description:
 // Set the Input of the filter.
-void vtkImageDecomposed3D::SetInput(vtkImageSource *input)
+void vtkImageDecomposedFilter::SetInput(vtkImageSource *input)
 {
+  int idx;
+  
   this->Input = input;
   this->Modified();
-
   vtkDebugMacro(<< "SetInput: " << input->GetClassName()
 		<< " (" << input << ")");
-
-  if ( ! this->Filter0 || ! this->Filter1 || ! this->Filter2)
+  if ( ! this->Filters[0])
     {
-    vtkErrorMacro(<< "SetInput: Sub filter not created yet.");
+    vtkErrorMacro(<< "SetInput: Sub filters not created yet. "
+		  << " SetDimensionality first");
     return;
     }
+  this->Filters[0]->SetInput(input);
   
-  // set the input of the first sub filter 
-  this->Filter0->SetInput(input);
-  this->Filter1->SetInput(this->Filter0->GetOutput());
-  this->Filter2->SetInput(this->Filter1->GetOutput());
+  // Connect all the filters
+  for (idx = 1; idx < this->Dimensionality; ++idx)
+    {
+    if ( ! this->Filters[1])
+      {
+      vtkErrorMacro(<< "SetInput: Sub filter not created yet.");
+      return;
+      }
+    this->Filters[idx]->SetInput(this->Filters[idx-1]->GetOutput());
+    }
 }
 
 
@@ -174,55 +171,56 @@ void vtkImageDecomposed3D::SetInput(vtkImageSource *input)
 //----------------------------------------------------------------------------
 // Description:
 // Set the plane of the smoothing.
-void vtkImageDecomposed3D::SetAxes(int axis0, int axis1, int axis2)
+void vtkImageDecomposedFilter::SetAxes(int num, int *axes)
 {
-  vtkDebugMacro(<< "SetAxes: axis0 = " << axis0 << ", axis1 = " 
-                << axis1 << ", axis2 = " << axis2);
-
-  if ( ! this->Filter0 || ! this->Filter1 || ! this->Filter2)
-    {
-    vtkErrorMacro(<< "SetAxes: Sub filter not created yet.");
-    return;
-    }
+  int idx;
   
-  this->Filter0->SetAxes(axis0);
-  this->Filter1->SetAxes(axis1);
-  this->Filter2->SetAxes(axis2);
+  this->vtkImageFilter::SetAxes(num, axes);
+  for (idx = 0; idx < num; ++idx)
+    {
+    if ( ! this->Filters[idx])
+      {
+      vtkErrorMacro(<< "SetAxes: Sub filter not created yet. "
+		    << "Subclasses SetDimensionality did not work");
+      return;
+      }
+    this->Filters[idx]->SetAxes(axes[idx]);
+    }
   this->Modified();
 }
-
-
 
 
 //----------------------------------------------------------------------------
 // Description:
 // This method sets the cache object of the filter.
 // It justs feeds the request to the sub filter.
-void vtkImageDecomposed3D::SetCache(vtkImageCache *cache)
+void vtkImageDecomposedFilter::SetCache(vtkImageCache *cache)
 {
   vtkDebugMacro(<< "SetCache: (" << cache << ")");
   
-  if ( ! this->Filter2)
+  if ( ! this->Filters[this->Dimensionality - 1])
     {
-    vtkErrorMacro(<< "SetCache: Sub filter not created yet.");
+    vtkErrorMacro(<< "SetCache: Sub filter not created yet. "
+		  << "SetDimensionality first");
     return;
     }
   
-  this->Filter2->SetCache(cache);
+  this->Filters[this->Dimensionality - 1]->SetCache(cache);
 }
   
 //----------------------------------------------------------------------------
 // Description:
 // This method tells the last filter to save or release its output.
-void vtkImageDecomposed3D::SetReleaseDataFlag(int flag)
+void vtkImageDecomposedFilter::SetReleaseDataFlag(int flag)
 {
-  if ( ! this->Filter2)
+  if ( ! this->Filters[this->Dimensionality - 1])
     {
-    vtkErrorMacro(<< "SetReleaseDataFlag: Sub filter not created yet.");
+    vtkErrorMacro(<< "SetReleaseDataFlag: Sub filter not created yet. "
+		  << "SetDimensionality first.");
     return;
     }
   
-  this->Filter2->SetReleaseDataFlag(flag);
+  this->Filters[this->Dimensionality - 1]->SetReleaseDataFlag(flag);
 }
   
 
@@ -231,17 +229,19 @@ void vtkImageDecomposed3D::SetReleaseDataFlag(int flag)
 // Description:
 // This method returns the cache to make a connection
 // It justs feeds the request to the sub filter.
-vtkImageSource *vtkImageDecomposed3D::GetOutput()
+vtkImageSource *vtkImageDecomposedFilter::GetOutput()
 {
   vtkImageSource *source;
 
-  if ( ! this->Filter2)
+  if ( ! this->Filters[this->Dimensionality - 1])
     {
-    vtkErrorMacro(<< "GetOutput: Sub filter not created yet.");
+    vtkErrorMacro(<< "GetOutput: Sub filter not created yet. "
+		  << "SetDimensionality first");
     return NULL;
     }
   
-  source = this->Filter2->GetOutput();
+  source = this->Filters[this->Dimensionality - 1]->GetOutput();
+
   vtkDebugMacro(<< "GetOutput: returning source "
                 << source->GetClassName() << " (" << source << ")");
 
@@ -252,21 +252,9 @@ vtkImageSource *vtkImageDecomposed3D::GetOutput()
 //----------------------------------------------------------------------------
 // Description:
 // This method returns the l;ast cache of the internal pipline.
-vtkImageCache *vtkImageDecomposed3D::GetCache()
+vtkImageCache *vtkImageDecomposedFilter::GetCache()
 {
-  vtkImageCache *cache;
-
-  if ( ! this->Filter2)
-    {
-    vtkErrorMacro(<< "GetCache: Sub filter not created yet.");
-    return NULL;
-    }
-  
-  cache = this->Filter2->GetCache();
-  vtkDebugMacro(<< "GetOutput: returning cache "
-                << cache->GetClassName() << " (" << cache << ")");
-
-  return cache;
+  return (vtkImageCache *)(this->GetOutput());
 }
   
 
@@ -275,23 +263,21 @@ vtkImageCache *vtkImageDecomposed3D::GetCache()
 // Description:
 // This Method returns the MTime of the pipeline before this filter.
 // It propagates the message back.
-unsigned long int vtkImageDecomposed3D::GetPipelineMTime()
+unsigned long int vtkImageDecomposedFilter::GetPipelineMTime()
 {
   unsigned long int time1, time2;
 
   // This objects MTime
   time1 = this->GetMTime();
 
-  if ( ! this->Filter2)
+  if ( ! this->Filters[this->Dimensionality - 1])
     {
-    vtkWarningMacro(<< "GetPipelineMTime: Sub filter not created yet.");
-    return NULL;
+    vtkWarningMacro(<< "GetPipelineMTime: Sub filter not created yet. "
+		    << "SetDimensionality first");
     }
   else
     {
-    // Pipeline mtime
-    time2 = this->Filter2->GetPipelineMTime();
-    
+    time2 = this->Filters[this->Dimensionality - 1]->GetPipelineMTime();
     // Return the larger of the two
     if (time2 > time1)
       time1 = time2;

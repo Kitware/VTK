@@ -30,9 +30,11 @@ reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 reader SetOutputScalarType $VTK_SHORT;
 
-vtkImageGaussianSmooth2D smooth
+vtkImageGaussianSmooth smooth
+smooth SetDimensionality 2
 smooth SetInput [reader GetOutput];
-smooth SetGaussianStdRadius 6.0 8;
+smooth SetStandardDeviation 6.0;
+smooth SetRadiusFactor 1.5;
 
 vtkImageArithmetic subtract;
 subtract SetInput1 [reader GetOutput];

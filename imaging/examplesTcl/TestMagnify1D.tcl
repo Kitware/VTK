@@ -27,10 +27,11 @@ reader SetDimensions 256 256 94 1;
 reader SetFilePrefix "../../data/fullHead/headsq";
 reader SetPixelMask 0x7fff;
 
-vtkImageMagnify1D magnify;
+vtkImageMagnify magnify;
+magnify SetDimensionality 1;
 magnify SetInput [reader GetOutput];
 magnify SetAxes $VTK_IMAGE_Z_AXIS;
-magnify SetMagnificationFactor 2;
+magnify SetMagnificationFactors 2;
 magnify InterpolateOn;
 magnify ReleaseDataFlagOff;
 

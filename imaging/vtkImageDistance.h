@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageGaussianSmooth2D.cxx
+  Module:    vtkImageDistance.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,44 +38,31 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageGaussianSmooth2D.h"
+// .NAME vtkImageDistance - 2d image distance map.
+// .SECTION Description
+// vtkImageDistance creates a Manhatten distance map from
+// a mask.  It used two 1d distance filters along each axis.
 
-//----------------------------------------------------------------------------
-// Description:
-// This method sets up the 2 1d filters that perform the convolution.
-vtkImageGaussianSmooth2D::vtkImageGaussianSmooth2D()
+
+#ifndef __vtkImageDistance_h
+#define __vtkImageDistance_h
+
+
+#include "vtkImageDecomposedFilter.h"
+#include "vtkImageDistance1D.h"
+
+class vtkImageDistance : public vtkImageDecomposedFilter
 {
-  // create the filter chain 
-  this->Filter0 = new vtkImageGaussianSmooth1D;
-  this->Filter1 = new vtkImageGaussianSmooth1D;
+public:
+  vtkImageDistance();
+  char *GetClassName() {return "vtkImageDistance";};
+  
+  void SetDimensionality(int num);
+  
+protected:
+};
 
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
-}
+#endif
 
 
-//----------------------------------------------------------------------------
-// Description:
-// This method sets the StandardDeviation. Both axes are the same.  
-// A future simple extension could make the kernel eliptical.
-void vtkImageGaussianSmooth2D::SetStandardDeviation(float std)
-{
-  ((vtkImageGaussianSmooth1D *)
-   (this->Filter0))->SetStandardDeviation(std);
-  ((vtkImageGaussianSmooth1D *)
-   (this->Filter1))->SetStandardDeviation(std);
 
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method sets the radius of the kernel in standard deviation units.
-void vtkImageGaussianSmooth2D::SetRadiusFactor(float factor)
-{
-  ((vtkImageGaussianSmooth1D *)
-   (this->Filter0))->SetRadiusFactor(factor);
-  ((vtkImageGaussianSmooth1D *)
-   (this->Filter1))->SetRadiusFactor(factor);
-
-  this->Modified();
-}

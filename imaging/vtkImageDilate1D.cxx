@@ -47,10 +47,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // By default zero values are dilated.
 vtkImageDilate1D::vtkImageDilate1D()
 {
+  this->SetAxes(VTK_IMAGE_X_AXIS);
+  this->UseExecuteCenterOff();
   this->HandleBoundariesOn();
 }
 
 
+//----------------------------------------------------------------------------
+// Description:
+// This method sets the size of the neighborhood.
+void vtkImageDilate1D::SetKernelSize(int size)
+{
+  this->KernelSize[0] = size;
+  this->KernelMiddle[0] = size / 2;
+}
+			     
+			     
 //----------------------------------------------------------------------------
 // Description:
 // This templated function is passed a input and output region, 
@@ -59,7 +71,7 @@ vtkImageDilate1D::vtkImageDilate1D()
 // It also handles ImageExtent by truncating the kernel.  
 template <class T>
 void vtkImageDilate1DExecute(vtkImageDilate1D *self,
-				     vtkImageRegion *inRegion, T *inPtr,
+vtkImageRegion *inRegion, T *inPtr,
 				     vtkImageRegion *outRegion, T *outPtr)
 {
   int outIdx, kernelIdx;
@@ -79,8 +91,8 @@ void vtkImageDilate1DExecute(vtkImageDilate1D *self,
   outRegion->GetImageExtent(outImageExtentMin, outImageExtentMax);
   if (self->HandleBoundaries)
     {
-    outImageExtentMin += self->KernelMiddle;
-    outImageExtentMax -= (self->KernelSize - 1) - self->KernelMiddle;
+    outImageExtentMin += self->KernelMiddle[0];
+    outImageExtentMax -= (self->KernelSize[0] - 1) - self->KernelMiddle[0];
     }
   else
     {
@@ -107,7 +119,7 @@ void vtkImageDilate1DExecute(vtkImageDilate1D *self,
     cut = (outImageExtentMin - outIdx);
     // loop over neighborhood pixels
     tmpPtr = inPtr;
-    for (kernelIdx = cut; kernelIdx < self->KernelSize; ++kernelIdx)
+    for (kernelIdx = cut; kernelIdx < self->KernelSize[0]; ++kernelIdx)
       {
       if (*tmpPtr > *outPtr)
 	{
@@ -126,7 +138,7 @@ void vtkImageDilate1DExecute(vtkImageDilate1D *self,
     *outPtr = *inPtr;
     // loop for neighborhood
     tmpPtr = inPtr;
-    for (kernelIdx = 0; kernelIdx < self->KernelSize; ++kernelIdx)
+    for (kernelIdx = 0; kernelIdx < self->KernelSize[0]; ++kernelIdx)
       {
       if (*tmpPtr > *outPtr)
 	{
@@ -148,7 +160,7 @@ void vtkImageDilate1DExecute(vtkImageDilate1D *self,
     cut = (outIdx - outImageExtentMax);
     // loop for Dilate (sum)
     tmpPtr = inPtr;
-    for (kernelIdx = cut; kernelIdx < self->KernelSize; ++kernelIdx)
+    for (kernelIdx = cut; kernelIdx < self->KernelSize[0]; ++kernelIdx)
       {
       if (*tmpPtr > *outPtr)
 	{

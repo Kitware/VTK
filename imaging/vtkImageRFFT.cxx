@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMagnify3D.cxx
+  Module:    vtkImageRFFT.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,58 +38,43 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageMagnify3D.h"
-#include "vtkImageCache.h"
+#include "vtkImageRFFT.h"
+
+//----------------------------------------------------------------------------
+vtkImageRFFT::vtkImageRFFT()
+{
+}
+
 
 
 //----------------------------------------------------------------------------
 // Description:
-// Constructor: Sets default filter to be identity.
-vtkImageMagnify3D::vtkImageMagnify3D()
+// This method sets up multiple RFFT filters
+void vtkImageRFFT::SetDimensionality(int num)
 {
-  // create the filter chain 
-  this->Filter0 = new vtkImageMagnify1D;
-  this->Filter1 = new vtkImageMagnify1D;
-  this->Filter2 = new vtkImageMagnify1D;
-
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
-  this->SetMagnificationFactors(1, 1, 1);
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImageMagnify3D::SetMagnificationFactors(int f0, int f1, int f2)
-{
-  // Having my own copy simplifies the Get methods.
-  this->MagnificationFactors[0] = f0;
-  this->MagnificationFactors[1] = f1;
-  this->MagnificationFactors[2] = f2;
-  this->Modified();
+  int idx;
   
-  ((vtkImageMagnify1D *)(this->Filter0))->SetMagnificationFactor(f0);
-  ((vtkImageMagnify1D *)(this->Filter1))->SetMagnificationFactor(f1);
-  ((vtkImageMagnify1D *)(this->Filter2))->SetMagnificationFactor(f2);
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImageMagnify3D::SetInterpolate(int interpolate)
-{
-  this->Modified();
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkErrorMacro(<< "SetDimensionality: " << num << " is too many fitlers.");
+    return;
+    }
   
-  ((vtkImageMagnify1D *)(this->Filter0))->SetInterpolate(interpolate);
-  ((vtkImageMagnify1D *)(this->Filter1))->SetInterpolate(interpolate);
-  ((vtkImageMagnify1D *)(this->Filter2))->SetInterpolate(interpolate);
+  for (idx = 0; idx < num; ++idx)
+    {
+    if (this->Filters[idx])
+      {
+      this->Filters[idx]->Delete();
+      }
+    this->Filters[idx] = new vtkImageRFFT1D;
+    this->Filters[idx]->SetAxes(this->Axes[idx]);
+    }
+  
+  this->Dimensionality = num;
+  this->Modified();
 }
 
 
-
-//----------------------------------------------------------------------------
-int vtkImageMagnify3D::GetInterpolate()
-{
-  // Assume filter1 has same interpolate value as filter0
-  return ((vtkImageMagnify1D *)(this->Filter0))->GetInterpolate();
-}
 
 
 

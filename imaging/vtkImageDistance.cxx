@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageRFFT2D.cxx
+  Module:    vtkImageDistance.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,28 +38,41 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRFFT2D.h"
+#include "vtkImageDistance.h"
 
 //----------------------------------------------------------------------------
-// Description:
-// This method sets up the two 1d filters that perform the convolution.
-vtkImageRFFT2D::vtkImageRFFT2D()
+vtkImageDistance::vtkImageDistance()
 {
-  // create the filter chain 
-  this->Filter0 = new vtkImageRFFT1D;
-  this->Filter1 = new vtkImageRFFT1D;
-
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
 
 
 
-
-
-
-
-
-
+//----------------------------------------------------------------------------
+// Description:
+// This method sets up multiple 1d Distance filters
+void vtkImageDistance::SetDimensionality(int num)
+{
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkErrorMacro(<< "SetDimensionality: " << num << " is too many fitlers.");
+    return;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    if (this->Filters[idx])
+      {
+      this->Filters[idx]->Delete();
+      }
+    this->Filters[idx] = new vtkImageDistance1D;
+    this->Filters[idx]->SetAxes(this->Axes[idx]);
+    }
+  
+  this->Dimensionality = num;
+  this->Modified();
+}
 
 
 

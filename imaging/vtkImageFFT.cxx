@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDecomposed2D.h
+  Module:    vtkImageFFT.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,49 +38,44 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDecomposed2D - Contains 2 1d filters.
-// .SECTION Description
-// vtkImageDecomposed2D is a super class for filters that break
-// their 2d processing into two 1d steps.  They contain a sub pipeline
-// that contains two 1d filters in series.
+#include "vtkImageFFT.h"
 
-
-#ifndef __vtkImageDecomposed2D_h
-#define __vtkImageDecomposed2D_h
-
-
-#include "vtkImageFilter.h"
-
-class vtkImageDecomposed2D : public vtkImageFilter
+//----------------------------------------------------------------------------
+vtkImageFFT::vtkImageFFT()
 {
-public:
-  vtkImageDecomposed2D();
-  ~vtkImageDecomposed2D();
-  char *GetClassName() {return "vtkImageDecomposed2D";};
-  void PrintSelf(ostream& os, vtkIndent indent);
+}
 
-  // Forward Object messages to filter1 and fitler2
-  void DebugOn();
-  void Modified();
-  // Foward Source messages to filter2
-  vtkImageSource *GetOutput();
-  void SetCache(vtkImageCache *cache);
-  vtkImageCache *GetCache();
-  void SetReleaseDataFlag(int flag);
-  unsigned long GetPipelineMTime();
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method sets up multiple RFFT filters
+void vtkImageFFT::SetDimensionality(int num)
+{
+  int idx;
   
-  // Foward filter messages to fitler1
-  void SetInput(vtkImageSource *Input);
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkErrorMacro(<< "SetDimensionality: " << num << " is too many fitlers.");
+    return;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    if (this->Filters[idx])
+      {
+      this->Filters[idx]->Delete();
+      }
+    this->Filters[idx] = new vtkImageFFT1D;
+    this->Filters[idx]->SetAxes(this->Axes[idx]);
+    }
+  
+  this->Dimensionality = num;
+  this->Modified();
+}
 
-  void SetAxes(int axis1, int axis2);
 
-protected:
 
-  vtkImageFilter *Filter0;
-  vtkImageFilter *Filter1;
-};
-
-#endif
 
 
 

@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageDistance1D_h
 
 
-#include "vtkImageSpatial1D.h"
+#include "vtkImageFilter.h"
 
 class vtkImageDistance1D : public vtkImageFilter
 {

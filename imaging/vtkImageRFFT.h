@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageSpatial1D.h
+  Module:    vtkImageRFFT.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,56 +38,32 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageSpatial1D - Filters that operate on pixel neighborhoods.
+// .NAME vtkImageRFFT - Reverse Fast Fourier Transform
 // .SECTION Description
-// vtkImageSpatial1D is a class of filters that use a 1d neighborhood
-// of input pixels to compute a output pixel.  
-// An example is vtkImageConvolution1D.
+// vtkImageRFFT implements a reverse Fast Fourier Transform that operates
+// on images of any dimensionality.
+// It really consists of multiple 1d RFFTs.
 
 
-#ifndef __vtkImageSpatial1D_h
-#define __vtkImageSpatial1D_h
+#ifndef __vtkImageRFFT_h
+#define __vtkImageRFFT_h
 
 
-#include "vtkImageFilter.h"
-#include "vtkImageRegion.h"
+#include "vtkImageDecomposedFilter.h"
+#include "vtkImageRFFT1D.h"
 
-class vtkImageSpatial1D : public vtkImageFilter
+class vtkImageRFFT : public vtkImageDecomposedFilter
 {
 public:
-  vtkImageSpatial1D();
-  char *GetClassName() {return "vtkImageSpatial1D";};
-  void SetKernelSize(int size);
-  // Description:
-  // Get the Spatial kernel size and middle.
-  vtkGetMacro(KernelSize,int);
-  vtkGetMacro(KernelMiddle,int);
-  // Description:
-  // Set/Get whether convolve up to boundaries or not (truncate kernel).
-  vtkSetMacro(HandleBoundaries,int);
-  vtkGetMacro(HandleBoundaries,int);
-  vtkBooleanMacro(HandleBoundaries,int);
-  
+  vtkImageRFFT();
+  char *GetClassName() {return "vtkImageRFFT";};
+
+  void SetDimensionality(int num);
 
 protected:
-  int   KernelSize;
-  int   KernelMiddle;         // Index of kernel origin
-  int   HandleBoundaries; // Shrink kernel at boundaries.
-
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
-				   vtkImageRegion *inRegion);
 };
 
 #endif
-
-
-
-
-
-
-
 
 
 
