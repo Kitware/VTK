@@ -1194,7 +1194,7 @@ int vtkDecimatePro::CollapseEdge(int type, int ptId, int collapseId, int pt1,
   for ( i=0; i < nverts; i++ ) verts[i] = V->Array[i].id;
   for ( i=0; i < nverts; i++ )
     {
-    this->Delete(verts[i]);
+    this->DeleteId(verts[i]);
     this->Insert(verts[i]);
     }
 

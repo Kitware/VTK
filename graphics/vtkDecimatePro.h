@@ -304,7 +304,7 @@ private:
   void DeleteQueue() {if (this->Queue) delete this->Queue; this->Queue=NULL;};
   void Insert(int id, float error= -1.0);
   int Pop(float &error);
-  float Delete(int id) {return this->Queue->Delete(id);};
+  float DeleteId(int id) {return this->Queue->DeleteId(id);};
   void Reset() {this->Queue->Reset();};
 
   vtkPriorityQueue *Queue;
