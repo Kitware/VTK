@@ -1,6 +1,7 @@
 SOURCE_FILES ( Hybrid_SRCS
 vtk3DSImporter.cxx
 vtk3DWidget.cxx
+vtkAmoebaMinimizer.cxx
 vtkArcPlotter.cxx
 vtkBoxWidget.cxx
 vtkCaptionActor2D.cxx
