@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLVolumeProVG500Mapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
+#include "vtkGraphicsFactory.h"
 
 vtkVolumeProVG500Mapper *vtkVolumeProVG500Mapper::New()
 {
@@ -54,7 +55,7 @@ vtkVolumeProVG500Mapper *vtkVolumeProVG500Mapper::New()
     return (vtkVolumeProVG500Mapper*)ret;
     }
   // If the factory was unable to create the object, then create it here.
-  char *temp = vtkRenderWindow::GetRenderLibrary();
+  const char *temp = vtkGraphicsFactory::GetRenderLibrary();
   
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp))
