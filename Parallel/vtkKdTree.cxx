@@ -51,7 +51,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.14");
+vtkCxxRevisionMacro(vtkKdTree, "1.15");
 
 // methods for vtkKdNode -------------------------------------------
 
@@ -983,6 +983,7 @@ vtkStandardNewMacro(vtkKdTree);
 vtkKdTree::vtkKdTree()
 {
   this->FudgeFactor = 0;
+  this->MaxWidth = 0.0;
   this->MaxLevel = 20;
   this->Level    = 0;
 
@@ -1051,8 +1052,6 @@ void vtkKdTree::InitializeCellLists()
 void vtkKdTree::DeleteCellLists()
 { 
   int i;
-  this->MaxWidth = 0.0;
-
   int num = this->CellList.nRegions;
   
   if (this->CellList.regionIds)
