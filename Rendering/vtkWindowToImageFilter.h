@@ -73,6 +73,13 @@ public:
   vtkGetMacro(ReadFrontBuffer, int);
   vtkSetMacro(ReadFrontBuffer, int);
   
+  // Description:
+  // Set/get whether to re-render the input window. (This option makes no
+  // difference if Magnification > 1.)
+  vtkBooleanMacro(ShouldRerender, int);
+  vtkSetMacro(ShouldRerender, int);
+  vtkGetMacro(ShouldRerender, int);
+  
 protected:
   vtkWindowToImageFilter();
   ~vtkWindowToImageFilter();
@@ -81,6 +88,7 @@ protected:
   vtkWindow *Input;
   int Magnification;
   int ReadFrontBuffer;
+  int ShouldRerender;
   void ExecuteInformation();
   void ExecuteData(vtkDataObject *data);
 private:
