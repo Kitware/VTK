@@ -16,6 +16,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "Object.hh"
 
+ostream& operator<<(ostream& os, vlObject& o)
+{
+  o.Print(os);
+  return os;
+}
+
 vlObject::vlObject()
 {
   this->RefCount = 0;
