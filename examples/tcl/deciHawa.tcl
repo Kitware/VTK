@@ -16,7 +16,6 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkPolyReader reader;
     reader SetFilename "../../data/honolulu.vtk"
-    reader DebugOn;
 vtkDecimate deci; 
     deci SetInput [reader GetOutput];
     deci SetTargetReduction 0.9;
@@ -25,7 +24,6 @@ vtkDecimate deci;
     deci SetErrorIncrement 0.0005;
     deci SetMaximumIterations 6;
     deci SetInitialFeatureAngle 45;
-    deci DebugOn;
 vtkPolyMapper hawaiiMapper;
     hawaiiMapper SetInput [deci GetOutput];
 vtkActor hawaiiActor;
