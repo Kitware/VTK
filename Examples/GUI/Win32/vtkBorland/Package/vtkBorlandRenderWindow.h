@@ -52,8 +52,8 @@ protected:
     DYNAMIC void __fastcall MouseMove(TShiftState shift, int x, int y );
     DYNAMIC void __fastcall MouseDown(TMouseButton button, TShiftState shift, int x, int y );
     DYNAMIC void __fastcall MouseUp(TMouseButton button, TShiftState shift, int x, int y );
-    DYNAMIC bool __fastcall DoMouseWheelDown(Classes::TShiftState Shift, const Windows::TPoint &MousePos);
-    DYNAMIC bool __fastcall DoMouseWheelUp(Classes::TShiftState Shift, const Windows::TPoint &MousePos);
+    DYNAMIC bool __fastcall DoMouseWheelDown(TShiftState Shift, const TPoint &MousePos);
+    DYNAMIC bool __fastcall DoMouseWheelUp(TShiftState Shift, const TPoint &MousePos);
 
     //
     // Messages : We want to directly intercept these

@@ -357,7 +357,7 @@ void __fastcall TvtkBorlandRenderWindow::WMTimer(TWMTimer &Message)
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall TvtkBorlandRenderWindow::DoMouseWheelDown(Classes::TShiftState Shift, const Windows::TPoint &MousePos)
+bool __fastcall TvtkBorlandRenderWindow::DoMouseWheelDown(TShiftState Shift, const TPoint &MousePos)
 {
   bool result;
   if (this->OnMouseWheelDown && Shift.Contains(ssCtrl))
@@ -378,7 +378,7 @@ bool __fastcall TvtkBorlandRenderWindow::DoMouseWheelDown(Classes::TShiftState S
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall TvtkBorlandRenderWindow::DoMouseWheelUp(Classes::TShiftState Shift, const Windows::TPoint &MousePos)
+bool __fastcall TvtkBorlandRenderWindow::DoMouseWheelUp(TShiftState Shift, const TPoint &MousePos)
 {
   bool result;
   if (this->OnMouseWheelUp && Shift.Contains(ssCtrl))
