@@ -30,7 +30,12 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVG500Mapper, "1.32");
+vtkCxxRevisionMacro(vtkVolumeProVG500Mapper, "1.33");
+
+//----------------------------------------------------------------------------
+// Needed when we don't use the vtkStandardNewMacro.
+vtkInstantiatorNewMacro(vtkVolumeProMapper);
+//----------------------------------------------------------------------------
 
 vtkVolumeProVG500Mapper::vtkVolumeProVG500Mapper()
 {
