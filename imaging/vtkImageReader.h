@@ -58,9 +58,9 @@ public:
   char *GetClassName() {return "vtkImageReader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
 
+  void SetDataScalarType(int type);
   // Description:
-  // Set/Get the file format.  Pixels are this type in the file.
-  vtkSetMacro(DataScalarType, int);
+  // Get the file format.  Pixels are this type in the file.
   vtkGetMacro(DataScalarType, int);
   
   // Description:
@@ -156,7 +156,7 @@ public:
   
   
 protected:
-  
+  int ManualHeaderSize;
   int Initialized;
   char *FileName;
   int PixelSize;

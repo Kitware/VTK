@@ -39,6 +39,7 @@ vtkImageDistance \
 vtkImageDivergence \
 vtkImageDotProduct \
 vtkImageDuotone \
+vtkImageExport \
 vtkImageFFT \
 vtkImageFFT1D \
 vtkImageFileReader \
@@ -52,6 +53,7 @@ vtkImageGradientMagnitude \
 vtkImageHarrWavelet2D \
 vtkImageHistogram \
 vtkImageHistogramEqualization \
+vtkImageImport \
 vtkImageIslandRemoval2D \
 vtkImageLaplacian \
 vtkImageMagnify1D \

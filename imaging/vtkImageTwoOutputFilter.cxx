@@ -179,7 +179,8 @@ vtkImageTwoOutputFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
   outRegion0 = new vtkImageRegion;
   outRegion1 = new vtkImageRegion;
   // Copy every thing but the data (there is no data)
-  // Not that the two output regions have the same extent.
+  // The two regions do have to have the same extent,
+  // (because we do not know which caches is making the original request).
   outRegion0->SetScalarType(outRegion->GetScalarType());
   outRegion1->SetScalarType(outRegion->GetScalarType());
   outRegion0->SetAxes(outRegion->GetAxes());

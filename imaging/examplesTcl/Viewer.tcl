@@ -15,19 +15,17 @@ reader SetDataDimensions 256 256 93
 reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
 #reader DebugOn
+#reader Update
 
 
 vtkImageViewer viewer
-viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
+#viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Z_AXIS $VTK_IMAGE_Y_AXIS
 viewer SetInput [reader GetOutput]
 viewer SetCoordinate2 $sliceNumber
 viewer SetColorWindow 3000
 viewer SetColorLevel 1500
 #viewer DebugOn
 viewer Render
-
-
-viewer New
 
 
 #make interface

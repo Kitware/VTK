@@ -135,8 +135,11 @@ void vtkImageSeriesReader::Initialize()
     }
   
   // Recompute the header size.
-  this->HeaderSize = this->FileSize - this->FileIncrements[4];
-  vtkDebugMacro(<< "Initialize: Header " << this->HeaderSize << " bytes");
+  if ( ! this->ManualHeaderSize)
+    {
+    this->HeaderSize = this->FileSize - this->FileIncrements[4];
+    vtkDebugMacro(<< "Initialize: Header " << this->HeaderSize << " bytes");
+    }
   
   this->Initialized = 1;
 }

@@ -50,6 +50,9 @@ vtkImageReader::vtkImageReader()
   
   this->File = NULL;
   this->DataScalarType = VTK_SHORT;
+  // Output should default to the same scalar type as file data.
+  this->SetOutputScalarType(VTK_SHORT);
+  
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
 		VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
 
@@ -71,6 +74,7 @@ vtkImageReader::vtkImageReader()
   this->HeaderSize = 0;
   this->FileSize = 0;
   this->Initialized = 0;
+  this->ManualHeaderSize = 0;
 
   // Left over from short reader
   this->PixelMask = 0xffff;
@@ -280,7 +284,7 @@ void vtkImageReader::SetHeaderSize(int size)
 {
   this->HeaderSize = size;
   this->Modified();
-  this->Initialized = 1;
+  this->ManualHeaderSize = 1;
 }
   
 
@@ -357,9 +361,12 @@ void vtkImageReader::Initialize()
   // Get the size of the header from the size of the image
   this->File->seekg(0,ios::end);
   this->FileSize = this->File->tellg();
-  this->HeaderSize = this->FileSize - this->FileIncrements[4];
-  vtkDebugMacro(<< "Initialize: Header " << this->HeaderSize 
-                << " bytes, fileLength = " << this->FileSize << " bytes.");
+  if ( ! this->ManualHeaderSize)
+    {
+    this->HeaderSize = this->FileSize - this->FileIncrements[4];
+    vtkDebugMacro(<< "Initialize: Header " << this->HeaderSize 
+                  << " bytes, fileLength = " << this->FileSize << " bytes.");
+    }
   
   this->Initialized = 1;
 }
@@ -369,8 +376,8 @@ void vtkImageReader::Initialize()
 // This function reads in one region of one slice.
 // templated to handle different data types.
 template <class IT, class OT>
-static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region, 
-			   IT *inPtr, OT *outPtr)
+static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region,
+				  IT *inPtr, OT *outPtr)
 {
   int min0, max0,  min1, max1,  min2, max2,  min3, max3;
   int outInc0, outInc1, outInc2, outInc3;
@@ -553,6 +560,27 @@ void vtkImageReader::UpdateFromFile(vtkImageRegion *region)
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
     }   
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Set the data type of pixles in the file.  If the OutputScalarType is not 
+// set yet, it is also set to "type" as a default.
+void vtkImageReader::SetDataScalarType(int type)
+{
+  vtkImageCache *cache;
+  
+  this->Modified();
+  this->DataScalarType = type;
+
+  // Set the default output scalar type
+  cache = this->GetCache();
+  if (cache->GetScalarType() == VTK_VOID)
+    {
+    cache->SetScalarType(type);
+    }
 }
 
 
