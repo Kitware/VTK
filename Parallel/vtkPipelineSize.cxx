@@ -358,7 +358,7 @@ unsigned long vtkPipelineSize::GetNumberOfSubPieces(unsigned long memoryLimit,
   // NumberOfStreamDivisions is an int, it cannot be more that say 2^31
   // (which is a bit much anyhow) so we also stop if the number of pieces is
   // too large. Here we start off with the current number of pieces.
-  int count = (int) (log(numPieces)/log(2));
+  int count = (int) (log(static_cast<float>(numPieces))/log(static_cast<float>(2)));
   
   // double the number of pieces until the size fits in memory
   // or the reduction in size falls to 20%
