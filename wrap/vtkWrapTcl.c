@@ -284,6 +284,11 @@ void get_args(FILE *fp, int i)
 	      start_arg); 
       fprintf(fp,"    temp%i = (unsigned short)tempi;\n",i);
       break;
+    case 16:
+      fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
+	      start_arg); 
+      fprintf(fp,"    temp%i = (unsigned long)tempi;\n",i);
+      break;
     case 303:
       fprintf(fp,"    temp%i = argv[%i];\n",i,start_arg);
       break;
@@ -331,6 +336,11 @@ void get_args(FILE *fp, int i)
 		      start_arg); 
 	      fprintf(fp,"    temp%i[%i] = (unsigned short)tempi;\n",i,j);
 	      break;
+	    case 16:
+	      fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
+		      start_arg); 
+	      fprintf(fp,"    temp%i[%i] = (unsigned long)tempi;\n",i,j);
+	      break;
 	    }
 	  start_arg++;
 	  }
@@ -372,7 +382,8 @@ void outputFunction(FILE *fp, FileInfo *data)
     if ((currentFunction->ArgTypes[i]%100 >= 10)&&
 	(currentFunction->ArgTypes[i] != 13)&&
 	(currentFunction->ArgTypes[i] != 14)&&
-	(currentFunction->ArgTypes[i] != 15)) args_ok = 0;
+	(currentFunction->ArgTypes[i] != 15)&&
+	(currentFunction->ArgTypes[i] != 16)) args_ok = 0;
     }
   if ((currentFunction->ReturnType%10) == 8) args_ok = 0;
   if (((currentFunction->ReturnType%1000)/100 != 3)&&
