@@ -39,14 +39,10 @@
 
 #include "vtkObject.h"
 
-
-//#include "vtkMatrix4x4.h"
-//#include "vtkPoints.h"
 class vtkDataArray;
 class vtkMatrix4x4;
 class vtkPoints;
 class vtkSimpleCriticalSection;
-
 
 class VTK_COMMON_EXPORT vtkAbstractTransform : public vtkObject
 {
