@@ -27,7 +27,7 @@
 #include "vtkMesaRenderWindow.h"
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.17");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.18");
 
 // Structures to communicate render info.
 struct vtkCompositeRenderWindowInfo 
@@ -1079,6 +1079,15 @@ void vtkCompositeManager::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "UseCompositing: Off\n";
+    }
+
+  if (this->Manual)
+    {
+    os << indent << "Manual: On\n";
+    }
+  else
+    {
+    os << indent << "Manual: Off\n";
     }
 
   os << indent << "Controller: (" << this->Controller << ")\n"; 
