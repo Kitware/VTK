@@ -18,7 +18,7 @@ reader ReleaseDataFlagOff
 vtkImageResample magnify
 magnify SetDimensionality 3
 magnify SetInput [reader GetOutput]
-magnify SetAxisOutputSpacing $VTK_IMAGE_X_AXIS 0.3
+magnify SetAxisOutputSpacing $VTK_IMAGE_X_AXIS 0.25
 magnify SetAxisOutputSpacing $VTK_IMAGE_Y_AXIS 2.2
 magnify SetAxisOutputSpacing $VTK_IMAGE_Z_AXIS 0.8
 magnify ReleaseDataFlagOff
