@@ -72,7 +72,12 @@ public:
   vtkSetObjectMacro(Input,vtkImageCache);
   vtkGetObjectMacro(Input,vtkImageCache);
 
-  // Set/Get the extent to translate explicitely.
+  // Description:
+  // Set/Get the input object from the image pipeline.
+  vtkSetObjectMacro(VectorInput,vtkImageCache);
+  vtkGetObjectMacro(VectorInput,vtkImageCache);
+
+    // Set/Get the extent to translate explicitely.
   void SetExtent(int dim, int *extent);
   void GetExtent(int dim, int *extent);
 
@@ -80,6 +85,7 @@ public:
   
 protected:
   vtkImageCache *Input;
+  vtkImageCache *VectorInput;
   int Extent[6];
 
   void Execute();

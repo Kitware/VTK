@@ -46,6 +46,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkAPixmap.h"
 #include "vtkImageCache.h"
 #include "vtkImageToStructuredPoints.h"
+#include "vtkFloatVectors.h"
+#include "vtkFloatScalars.h"
+
 
 //----------------------------------------------------------------------------
 vtkImageToStructuredPoints::vtkImageToStructuredPoints()
@@ -81,6 +84,14 @@ void vtkImageToStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Input: (none)\n";
+    }
+  if (this->VectorInput)
+    {
+    os << indent << "VectorInput: (" << this->VectorInput << ")\n";
+    }
+  else
+    {
+    os << indent << "VectorInput: (none)\n";
     }
   os << indent << "Extent: (" << this->Extent[0] << ", " << this->Extent[1] 
      << ", " << this->Extent[2] << ", " << this->Extent[3] 
@@ -136,6 +147,7 @@ void vtkImageToStructuredPoints::GetExtent(int num, int *extent)
 void vtkImageToStructuredPoints::Update()
 {
   unsigned long sInputMTime = 0;
+  unsigned long vInputMTime = 0;
   
   if ( ! this->Input)
     {
@@ -144,7 +156,12 @@ void vtkImageToStructuredPoints::Update()
     }
   
   sInputMTime = this->Input->GetPipelineMTime();
+  if (this->VectorInput)
+    {
+    vInputMTime = this->VectorInput->GetPipelineMTime();
+    }
   if ((sInputMTime > this->ExecuteTime) || 
+      (vInputMTime > this->ExecuteTime) ||
       this->GetMTime() > this->ExecuteTime)
     {
     vtkDebugMacro(<< "Update: Condition satisfied, executeTime = " 
@@ -165,6 +182,10 @@ void vtkImageToStructuredPoints::Update()
     {
     this->Input->ReleaseData();
     }
+  if (this->VectorInput && this->VectorInput->ShouldIReleaseData())
+    {
+    this->VectorInput->ReleaseData();
+    }
 
 }
 
@@ -175,6 +196,7 @@ void vtkImageToStructuredPoints::Execute()
   int extent[6];
   vtkStructuredPoints *output = (vtkStructuredPoints *)(this->Output);
   vtkImageData *data;
+  vtkImageData *vData;
   
   // Get the extent with z axis.
   this->GetExtent(3,extent);
@@ -182,7 +204,18 @@ void vtkImageToStructuredPoints::Execute()
   // Fix the size of the cache (for streaming)
   this->Input->UpdateImageInformation();
   this->Input->SetUpdateExtent(extent);
-
+  if (this->VectorInput)
+    {
+    this->VectorInput->UpdateImageInformation();
+    this->VectorInput->SetUpdateExtent(extent);
+    vData = this->VectorInput->UpdateAndReturnData();
+    if (!vData)
+      {
+      vtkErrorMacro("Unable to generate data!");
+      return;
+      }
+    }
+  
   // we ignore memory limitations since we are going to structured point
   data = this->Input->UpdateAndReturnData();
   
@@ -198,6 +231,22 @@ void vtkImageToStructuredPoints::Execute()
   output->SetOrigin(data->GetOrigin());
 
   output->GetPointData()->PassData(data->GetPointData());
+  if (this->VectorInput)
+    {
+    // make sure the vectors are float
+    if (vData->GetScalarType() != VTK_FLOAT)
+      {
+      vtkWarningMacro(<< "vector data must be of type float!!");
+      }
+    else
+      {
+      vtkFloatVectors *fv = vtkFloatVectors::New();
+      output->GetPointData()->SetVectors(fv);
+      fv->SetV(((vtkFloatScalars *)
+		vData->GetPointData()->GetScalars())->GetS());
+      fv->Delete();
+      }
+    }
 }
 
 
