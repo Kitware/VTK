@@ -58,8 +58,9 @@ void vlSampleFunction::PrintSelf(ostream& os, vlIndent indent)
     }
 }
 
-// Description
-// The model bounds is the location in space in which the sampling occurs.
+// Description:
+// Specify the model bounds is the location in space in which the 
+// sampling occurs.
 void vlSampleFunction::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
 {
   if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
