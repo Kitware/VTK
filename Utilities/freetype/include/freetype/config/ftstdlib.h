@@ -121,7 +121,11 @@
   /*                                                                    */
   /**********************************************************************/
 
-
+#if defined(__sgi) && !defined(__GNUC__)
+#  if   (_COMPILER_VERSION >= 730)
+#  pragma set woff 3505
+#  endif
+#endif
 #include <setjmp.h>
 
 #define ft_jmp_buf  jmp_buf   /* note: this cannot be a typedef since */
