@@ -44,9 +44,17 @@ if { [catch {set logFileName $env(VTK_OTHER_REGRESSION_LOG) }] != 0} {
 if { $argv != ""} {
     set files $argv
 } else {
-    set files [lsort [glob {other*.tcl}]]
+    set files [lsort [glob {other*}]]
 }
 
+# Determine which files are executable
+set allFiles $files
+foreach afile $allFiles {
+  if { [file executable $afile] != 1 } {
+    set pos [lsearch $files $afile]
+    set files [lreplace $files $pos $pos ]
+  }
+}
 
 # remove files that are not suitable for regression tests or simply don't 
 # work right now
@@ -88,25 +96,21 @@ proc padString { str amount } {
     return $str
 }
 
-# if VTK_ROOT is defined, then use it to find the CPU processing scripts
-if { [catch {set VTK_ROOT $env(VTK_ROOT)}] != 0} { set VTK_ROOT "../../../" }
-source $VTK_ROOT/vtk/graphics/examplesTcl/rtProcessCPUTimes.tcl
-ReadCPUTimeTable
 
 # now do the tests
 foreach afile $files {
     #
     # only tcl scripts with valid/ texts are tested
-    set validOther $validPath/${afile}${VTK_PLATFORM}.rtr
+    set validOther $validPath/${afile}.cxx${VTK_PLATFORM}.rtr
     
     #
     # first see if vtk has been built --with-patented
     if { [info command vtkMarchingCubes] == "" } {
-	set validOther $validPath/$afile${VTK_PLATFORM}.withoutpatented.rtr
+	set validOther $validPath/$afile.cxx${VTK_PLATFORM}.withoutpatented.rtr
 	if {[catch {set channel [open ${validOther}]}] != 0 } {
-            set validOther $validPath/$afile.withoutpatented.rtr
+            set validOther $validPath/$afile.cxx.withoutpatented.rtr
             if {[catch {set channel [open ${validOther}]}] != 0 } {
-                set validOther $validPath/$afile${VTK_PLATFORM}.rtr
+                set validOther $validPath/$afile.cxx${VTK_PLATFORM}.rtr
             } else {
                 close $channel
             }
@@ -118,7 +122,7 @@ foreach afile $files {
     #
     # now see if there is an alternate text for this architecture
     if {[catch {set channel [open ${validOther}]}] != 0 } {
-        set validOther $validPath/$afile.rtr
+        set validOther $validPath/$afile.cxx.rtr
         if {[catch {set channel [open ${validOther}]}] != 0 } {
             puts $logFile "WARNING: There is no valid other result for $afile"
             continue
@@ -138,25 +142,22 @@ foreach afile $files {
     puts -nonewline $logFile "\n $Name - "
     flush stdout
     
-    set executable [info nameofexecutable]
-
     # Create a timer so that we can get CPU time.
     # Use the tcl time command to get wall time
     # capture the output using redirection
     vtkTimerLog timer
     set startCPU [timer GetCPUTime]
-    set wallTime [decipadString [expr [lindex [time {catch { puts -nonewline "[exec $executable $afile --S ${VTK_RESULTS_PATH}$afile.test.rtr]"} } 1] 0] / 1000000.0] 4 9]
-
+    set wallTime [decipadString [expr [lindex [time {catch {puts -nonewline "[exec $afile -S ${VTK_RESULTS_PATH}$afile.cxx.test.rtr]"}} 1] 0] / 1000000.0] 4 9]
     set endCPU [timer GetCPUTime]
     set CPUTime [decipadString [expr $endCPU - $startCPU] 3 8]
     puts -nonewline $logFile "$wallTime wall, $CPUTime cpu, "
-
-    catch {set filterCommand [exec $executable $afile --f]}
-    catch {set compareCommand [exec $executable $afile --c]}
+    
+    catch {set filterCommand [exec $afile -f]}
+    catch {set compareCommand [exec $afile -c]}
     # if no exisiting valid text, then copy the new one
     if {[catch {set channel [open ${validOther}]}] != 0 } {
         puts $logFile "\nWARNING: Creating a valid result for $afile"
-        exec cp ${VTK_RESULTS_PATH}$afile.test.rtr $validOther
+        exec cp ${VTK_RESULTS_PATH}$afile.cxx.test.rtr $validOther
         vtkCommand DeleteAllObjects
         catch {destroy .top}
         continue
@@ -168,21 +169,21 @@ foreach afile $files {
     update
 
     # creating filtered file
-    catch {eval exec cat ${VTK_RESULTS_PATH}$afile.test.rtr | $filterCommand >& ${VTK_RESULTS_PATH}$afile.test.filtered.rtr}
+    catch {eval exec cat ${VTK_RESULTS_PATH}$afile.cxx.test.rtr | $filterCommand >&  ${VTK_RESULTS_PATH}$afile.cxx.test.filtered.rtr}
     # creating valid filtered file
-    catch {eval exec cat $validOther | $filterCommand >& ${VTK_RESULTS_PATH}$afile.filtered.rtr}
+    catch {eval exec cat $validOther | $filterCommand >& ${VTK_RESULTS_PATH}$afile.cxx.filtered.rtr}
     # creating diff file
-    catch {eval exec $compareCommand ${VTK_RESULTS_PATH}$afile.test.filtered.rtr ${VTK_RESULTS_PATH}$afile.filtered.rtr >& ${VTK_RESULTS_PATH}$afile.error.rtr}
+    catch {eval exec $compareCommand ${VTK_RESULTS_PATH}$afile.cxx.test.filtered.rtr ${VTK_RESULTS_PATH}$afile.cxx.filtered.rtr >& ${VTK_RESULTS_PATH}$afile.cxx.error.rtr}
     # count the number of lines in the diff result file
-    set otherError [lindex [exec wc -l ${VTK_RESULTS_PATH}$afile.error.rtr] 0]
+    set otherError [lindex [exec wc -l ${VTK_RESULTS_PATH}$afile.cxx.error.rtr] 0]
     set otherErrorString [decipadString $otherError 4 9]
 
     # a test has to be off by at least threshold for us to care   
-    if { $otherError == 0 } {
-        exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.test.rtr
-        exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.error.rtr
-        exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.test.filtered.rtr
-        exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.filtered.rtr
+    if {$otherError == 0} {
+        exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.cxx.test.rtr
+        exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.cxx.error.rtr
+        exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.cxx.test.filtered.rtr
+        exec /bin/rm -f ${VTK_RESULTS_PATH}$afile.cxx.filtered.rtr
         set otherStatus "Passed"
     } else {
         set otherStatus "Failed"
@@ -199,16 +200,6 @@ foreach afile $files {
         puts $logFile "Failed (Other)"
     }
 
-    set retval [CheckTime $afile [string trimleft $CPUTime]]
-
-    if  { $otherStatus == "Passed" } {
-        puts $logFile $retval
-    }
-
-    if { $retval != "" && $retval != "Warning: New Test" && $retval != "Warning: Recently Added Test" } {
-        GeneratePlotFiles $afile [string trimleft $CPUTime]
-    }
-    
     vtkCommand DeleteAllObjects
     catch {destroy .top}
     catch {destroy .geo}
