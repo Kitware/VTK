@@ -272,6 +272,11 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 
       glEndList();
       }
+    else
+      {
+      this->ReleaseGraphicsResources(ren->GetRenderWindow());
+      this->RenderWindow = ren->GetRenderWindow();
+      }
     this->BuildTime.Modified();
     }
   // if nothing changed but we are using display lists, draw it
