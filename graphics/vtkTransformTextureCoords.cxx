@@ -43,9 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTransform.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkTransformTextureCoords* vtkTransformTextureCoords::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +55,6 @@ vtkTransformTextureCoords* vtkTransformTextureCoords::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkTransformTextureCoords;
 }
-
-
-
 
 // Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale
 // set to (1,1,1). Rotation of the texture coordinates is turned off.
@@ -153,8 +148,17 @@ void vtkTransformTextureCoords::Execute()
   newTC[0] = newTC[1] = newTC[2] = 0.0;
   newTC[0] = newTC[1] = newTC[2] = 0.0;
 
-  for (ptId=0; ptId < numPts; ptId++)
+  int abort=0;
+  int progressInterval = numPts/20+1;
+  
+  for (ptId=0; ptId < numPts && !abort; ptId++)
     {
+    if ( !(ptId % progressInterval) )
+      {
+      this->UpdateProgress((float)ptId/numPts);
+      abort = this->GetAbortExecute();
+      }
+
     TC = inTCoords->GetTCoord(ptId);
     for (i=0; i<texDim; i++)
       {
@@ -168,7 +172,6 @@ void vtkTransformTextureCoords::Execute()
     newTCoords->InsertTCoord(ptId,newTC);
     }
 
-  //
   // Update self
   //
   output->GetPointData()->CopyTCoordsOff();
