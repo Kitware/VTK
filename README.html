@@ -125,10 +125,10 @@ If you will be using tcl in addition to C++:
 It is a very good idea to tell configure what C and C++ compilers
 you will be using. This can avoid many build problems.
 On most systems you can pass this information to configure in the 
-following way:<pre>
-
-env CXX=/your/C++/compiler CC=/your/c/compiler ./configure</pre>
-
+following way:
+<pre>
+env CXX=/your/C++/compiler CC=/your/c/compiler ./configure
+</pre>
 otherwise you must set CXX and CC in your environment and then
 run configure.<p>
 
@@ -160,14 +160,14 @@ You can specify  --with-tcl  and/or  --with-mesa  on the command line
 if you would like to use those packages as well. Building VTK for multiple 
 architectures will be discussed later.<p>
 
-To build the VTK library and the tcl bindings and use mesa you would specify<pre>
-
-./configure --with-tcl --with-mesa</pre>
-
-The command:<pre>
-
-./configure --help</pre>
-
+To build the VTK library and the tcl bindings and use mesa you would specify
+<pre>
+./configure --with-tcl --with-mesa
+</pre>
+The command:
+<pre>
+./configure --help
+</pre>
 gives some brief help for the command line arguments. If you are using gmake 
 then you might want to consider the --srcdir option.<p>
 
@@ -189,14 +189,14 @@ the VTK tree and compile it in a different manner. Instead of running
 configure from the VTK directory, create a new directory where you have some
 free disk space (not in the VTK tree), a possible name would be
 vtk-solaris. cd into this directory and then run configure similar to the
-following example:<pre>
-
+following example:
+<pre>
 ls /home/joe_user
     vtk vtk-solaris vtk-sgi
 
 cd vtk-solaris
-/home/joe_user/vtk/configure --with-tcl </pre>
-
+/home/joe_user/vtk/configure --with-tcl 
+</pre>
 This will create makefiles in the vtk-solaris directory.  Then you can run
 gmake in vtk-solaris to compile VTK.  Repeate this process for each
 architecture you wish to build.<p>
@@ -204,8 +204,8 @@ architecture you wish to build.<p>
 <h3><A NAME="PC">PC Installation</h3>
     The PC build process requires running a program to build
     dependencies and makefiles. Then you use the compiler make utility
-    to compile as follows.<pre>
-
+    to compile as follows.
+    <pre>
     1. Install vtk3.2 distribution by unzipping into the appropriate directory.
 
     2. Execute vtk\pcmaker\pcmaker.exe. This will pop-up a little
@@ -234,7 +234,8 @@ architecture you wish to build.<p>
        dynamically loading the vtktcl libraries with the command 
        "load vtktcl". 
 
-    6. Enjoy.</pre>
+    6. Enjoy.
+</pre>
 We recommend a 300MByte minimum swap size or you'll have trouble
 during the link phase.<p>
 
@@ -251,10 +252,10 @@ If you compiled with the --srcdir option you may need to create a
 symbolic link to the data directory. <p>
 
 To run the cc examples just type their name.  To run the tcl examples,
-(assuming that you built the tcl stuff) type <pre>
-
-../../../vtk/tcl/vtk mace.tcl </pre>
-
+(assuming that you built the tcl stuff) type 
+<pre>
+../../../vtk/tcl/vtk mace.tcl 
+</pre>
 
 <HR>
 <h1><A NAME="Problems">Common Problems</h1>
