@@ -32,6 +32,7 @@ vtkBMPWriter \
 vtkImageCast \
 vtkImageConnector \
 vtkImageConstantPad \
+vtkImageExtractComponents \
 vtkImageMedian3D \
 vtkImageMirrorPad \
 vtkImagePermute \
@@ -66,7 +67,6 @@ vtkTIFFWriter
 #vtkImageDotProduct \
 #vtkImageElipsoidSource \
 #vtkImageEuclideanToPolar \
-#vtkImageExtractComponents \
 #vtkImageFFT \
 #vtkImageFFT1D \
 #vtkImageFeatureAnd \

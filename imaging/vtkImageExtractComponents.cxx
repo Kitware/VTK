@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkImageExtractComponents.h"
 
@@ -47,10 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageExtractComponents::vtkImageExtractComponents()
 {
-  this->SetExecutionAxes(VTK_IMAGE_COMPONENT_AXIS);
-  // For better performance, the execute function was written as a 3d.
-  this->NumberOfExecutionAxes = 3;
-  
   this->Components[0] = 0;
   this->Components[1] = 1;
   this->Components[2] = 2;
@@ -59,37 +54,74 @@ vtkImageExtractComponents::vtkImageExtractComponents()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageExtractComponents::SetComponents(int num, int *components)
+void vtkImageExtractComponents::SetComponents(int c1, int c2, int c3)
 {
   int modified = 0;
-  int idx;
   
-  if (num > 4)
+  if (this->Components[0] != c1)
     {
-    vtkWarningMacro("SetComponents: Too many components");
-    num = 4;
+    this->Components[0] = c1;
+    modified = 1;
+    }
+  if (this->Components[1] != c2)
+    {
+    this->Components[1] = c2;
+    modified = 1;
+    }
+  if (this->Components[2] != c3)
+    {
+    this->Components[2] = c3;
+    modified = 1;
     }
   
-  for (idx = 0; idx < num; ++idx)
+  if (modified || this->NumberOfComponents != 3)
     {
-    if (this->Components[idx] != components[idx])
-      {
-      this->Components[idx] = components[idx];
-      modified = 1;
-      }
-    }
-  
-  if (modified || this->NumberOfComponents != num)
-    {
-    this->NumberOfComponents = num;
+    this->NumberOfComponents = 3;
     this->Modified();
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkImageExtractComponents::SetComponents(int c1, int c2)
+{
+  int modified = 0;
+  
+  if (this->Components[0] != c1)
+    {
+    this->Components[0] = c1;
+    modified = 1;
+    }
+  if (this->Components[1] != c2)
+    {
+    this->Components[1] = c2;
+    modified = 1;
+    }
+  
+  if (modified || this->NumberOfComponents != 2)
+    {
+    this->NumberOfComponents = 2;
+    this->Modified();
+    }
+}
+							
+//----------------------------------------------------------------------------
+void vtkImageExtractComponents::SetComponents(int c1)
+{
+  int modified = 0;
+  
+  if (this->Components[0] != c1)
+    {
+    this->Components[0] = c1;
+    modified = 1;
+    }
+  
+  if (modified || this->NumberOfComponents != 1)
+    {
+    this->NumberOfComponents = 1;
+    this->Modified();
+    }
+}
 
-							
-							
-							
 //----------------------------------------------------------------------------
 // Description:
 // This method tells the superclass that only one component will remain.
@@ -101,59 +133,111 @@ void vtkImageExtractComponents::ExecuteImageInformation()
 //----------------------------------------------------------------------------
 template <class T>
 static void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
-				    vtkImageRegion *inRegion, T *inPtr,
-				    vtkImageRegion *outRegion, T *outPtr)
+					     vtkImageData *inData, T *inPtr,
+					     vtkImageData *outData, T *outPtr,
+					     int outExt[6])
 {
-  int min0, max0, min1, max1, min2, max2;
-  int inInc0, inInc1, inInc2;
-  int idx0, idx1, idx2;
-  int outInc0, outInc1, outInc2;
-  T *inPtr1, *inPtr2;
-  T *outPtr0, *outPtr1, *outPtr2;
+  int idxR, idxY, idxZ;
+  int maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  int cnt, inCnt;
+  int offset1, offset2, offset3;
   
-  // get information to loop through pixels.
-  inRegion->GetExtent(min0, max0, min1, max1, min2, max2);
-  inRegion->GetIncrements(inInc0, inInc1, inInc2);
-  outRegion->GetIncrements(outInc0, outInc1, outInc2);
+  // find the region to loop over
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
   
-  inPtr2 = inPtr;
-  outPtr2 = outPtr;
-  for (idx2 = min2; idx2 <= max2; ++idx2)
-    {
-    inPtr1 = inPtr2;
-    outPtr1 = outPtr2;
-    for (idx1 = min1; idx1 <= max1; ++idx1)
-      {
-      outPtr0 = outPtr1;
-      for (idx0 = 0; idx0 < self->NumberOfComponents; ++idx0)
-	{
-	*outPtr0 = *(inPtr1 + self->Components[idx0]*inInc0);
+  // Get increments to march through data 
+  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-	outPtr0 += outInc0;
+  cnt = outData->GetNumberOfScalarComponents();
+  inCnt = inData->GetNumberOfScalarComponents();
+  
+  // Loop through ouput pixels
+  offset1 = self->Components[0];
+  offset2 = self->Components[1];
+  offset3 = self->Components[2];
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+    {
+    for (idxY = 0; idxY <= maxY; idxY++)
+      {
+      // handle inner loop based on number of components extracted
+      switch (cnt)
+	{
+	case 1:
+	  for (idxR = 0; idxR <= maxX; idxR++)
+	    {
+	    // Pixel operation
+	    *outPtr = *(inPtr + offset1);
+	    outPtr++;
+	    inPtr += inCnt;
+	    }
+	  break;
+	case 2:
+	  for (idxR = 0; idxR <= maxX; idxR++)
+	    {
+	    // Pixel operation
+	    *outPtr = *(inPtr + offset1);
+	    outPtr++;
+	    *outPtr = *(inPtr + offset2);
+	    outPtr++;
+	    inPtr += inCnt;
+	    }
+	  break;
+	case 3:
+	  for (idxR = 0; idxR <= maxX; idxR++)
+	    {
+	    // Pixel operation
+	    *outPtr = *(inPtr + offset1);
+	    outPtr++;
+	    *outPtr = *(inPtr + offset2);
+	    outPtr++;
+	    *outPtr = *(inPtr + offset3);
+	    outPtr++;
+	    inPtr += inCnt;
+	    }
+	  break;
 	}
-      inPtr1 += inInc1;
-      outPtr1 += outInc1;
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
-    inPtr2 += inInc2;
-    outPtr2 += outInc2;
+    outPtr += outIncZ;
+    inPtr += inIncZ;
     }
 }
 
+
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed input and output regions, and executes the
-// ExtractComponents function on each line.  It handles 3 axes for speed.
-void vtkImageExtractComponents::Execute(vtkImageRegion *inRegion, 
-				       vtkImageRegion *outRegion)
+// This method is passed input and output datas, and executes the
+// ExtractComponents function on each line.  
+void vtkImageExtractComponents::ThreadedExecute(vtkImageData *inData, 
+						vtkImageData *outData,
+						int outExt[6])
 {
-  void *outPtr, *inPtr;
-  int min, max, idx;
+  int max, idx;
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+		<< ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData->GetScalarType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+    << ", must match out ScalarType " << outData->GetScalarType());
+    return;
+    }
   
   // make sure we can get all of the components.
-  inRegion->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+  max = inData->GetNumberOfScalarComponents();
   for (idx = 0; idx < this->NumberOfComponents; ++idx)
     {
-    if (this->Components[idx] < min || this->Components[idx] > max)
+    if (this->Components[idx] > max)
       {
       vtkErrorMacro("Execute: Component " << this->Components[idx]
 		    << " is not in input.");
@@ -161,39 +245,33 @@ void vtkImageExtractComponents::Execute(vtkImageRegion *inRegion,
       }
     }
   
-  // this filter expects that input is the same type as output.
-  if (inRegion->GetScalarType() != outRegion->GetScalarType())
-    {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
-             << ", must match out ScalarType " << outRegion->GetScalarType());
-    return;
-    }
-  
-  inPtr = inRegion->GetScalarPointer();
-  outPtr = outRegion->GetScalarPointer();
-
   // choose which templated function to call.
-  switch (outRegion->GetScalarType())
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageExtractComponentsExecute(this, inRegion, (float *)(inPtr),
-				      outRegion, (float *)(outPtr));
+      vtkImageExtractComponentsExecute(this, inData, (float *)(inPtr),
+				       outData, (float *)(outPtr),
+				       outExt);
       break;
     case VTK_INT:
-      vtkImageExtractComponentsExecute(this, inRegion, (int *)(inPtr),
-				      outRegion, (int *)(outPtr));
+      vtkImageExtractComponentsExecute(this, inData, (int *)(inPtr),
+				       outData, (int *)(outPtr),
+				       outExt);
       break;
     case VTK_SHORT:
-      vtkImageExtractComponentsExecute(this, inRegion, (short *)(inPtr),
-				      outRegion, (short *)(outPtr));
+      vtkImageExtractComponentsExecute(this, inData, (short *)(inPtr),
+				       outData, (short *)(outPtr),
+				       outExt);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageExtractComponentsExecute(this,inRegion,(unsigned short *)(inPtr),
-				      outRegion, (unsigned short *)(outPtr));
+      vtkImageExtractComponentsExecute(this,inData,(unsigned short *)(inPtr),
+				       outData, (unsigned short *)(outPtr),
+				       outExt);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageExtractComponentsExecute(this, inRegion, (unsigned char *)(inPtr),
-				      outRegion, (unsigned char *)(outPtr));
+      vtkImageExtractComponentsExecute(this, inData, (unsigned char *)(inPtr),
+				       outData, (unsigned char *)(outPtr),
+				       outExt);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
