@@ -34,7 +34,8 @@ class VTK_FILTERING_EXPORT vtkGeometricErrorMetric : public vtkGenericSubdivisio
 {
 public:
   // Description:
-  // Construct the tessellator.
+  // Construct the error metric with a default squared absolute geometric
+  // accuracy equal to 1.
   static vtkGeometricErrorMetric *New();
   
   // Description:

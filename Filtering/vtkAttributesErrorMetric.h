@@ -34,7 +34,8 @@ class VTK_FILTERING_EXPORT vtkAttributesErrorMetric : public vtkGenericSubdivisi
 {
 public:
   // Description:
-  // Construct the tessellator.
+  // Construct the error metric with a default relative attribute accuracy
+  // equal to 0.1.
   static vtkAttributesErrorMetric *New();
   
   // Description:
