@@ -35,11 +35,18 @@ public:
   // size of the output buffer that can be passed to the four-argument
   // Compress method.
   unsigned long GetMaximumCompressionSpace(unsigned long size);
+
+  // Description:
+  // Get/Set the compression level.
+  vtkSetClampMacro(CompressionLevel, int, 0, 9);
+  vtkGetMacro(CompressionLevel, int);
   
 protected:
   vtkZLibDataCompressor();
   ~vtkZLibDataCompressor();
   
+  int CompressionLevel;
+
   // Compression method required by vtkDataCompressor.
   unsigned long CompressBuffer(const unsigned char* uncompressedData,
                                unsigned long uncompressedSize,

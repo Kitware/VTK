@@ -17,12 +17,13 @@
 
 #include <zlib.h>
 
-vtkCxxRevisionMacro(vtkZLibDataCompressor, "1.2");
+vtkCxxRevisionMacro(vtkZLibDataCompressor, "1.3");
 vtkStandardNewMacro(vtkZLibDataCompressor);
 
 //----------------------------------------------------------------------------
 vtkZLibDataCompressor::vtkZLibDataCompressor()
 {
+  this->CompressionLevel = Z_DEFAULT_COMPRESSION;
 }
 
 //----------------------------------------------------------------------------
@@ -34,6 +35,8 @@ vtkZLibDataCompressor::~vtkZLibDataCompressor()
 void vtkZLibDataCompressor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "CompressionLevel: " << this->CompressionLevel << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -48,7 +51,7 @@ vtkZLibDataCompressor::CompressBuffer(const unsigned char* uncompressedData,
   const Bytef* ud = reinterpret_cast<const Bytef*>(uncompressedData);
   
   // Call zlib's compress function.
-  if(compress(cd, &compressedSize, ud, uncompressedSize) != Z_OK)
+  if(compress2(cd, &compressedSize, ud, uncompressedSize, this->CompressionLevel) != Z_OK)
     {
     vtkErrorMacro("Zlib error while compressing data.");
     return 0;
