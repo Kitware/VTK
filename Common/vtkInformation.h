@@ -135,6 +135,7 @@ public:
   static vtkInformationIntegerKey* INPUT_IS_REPEATABLE();
   static vtkInformationInformationVectorKey* INPUT_REQUIRED_FIELDS();
   static vtkInformationStringKey* INPUT_REQUIRED_DATA_TYPE();
+  static vtkInformationStringKey* OUTPUT_DATA_TYPE();
   static vtkInformationIntegerKey* DATA_TYPE();
   static vtkInformationInformationVectorKey* OUTPUT_PROVIDED_FIELDS();
   static vtkInformationDataObjectKey* DATA_OBJECT();
@@ -148,8 +149,6 @@ public:
   static vtkInformationStringKey* FIELD_NAME();
   static vtkInformationIntegerVectorKey* DATA_EXTENT();
   static vtkInformationIntegerVectorKey* UPDATE_EXTENT();
-  static vtkInformationKeyVectorKey* SUPPORTED_UPSTREAM_REQUESTS();
-  static vtkInformationKeyVectorKey* SUPPORTED_DOWNSTREAM_REQUESTS();
 
   // Description:
   // Upcast the given key instance.
