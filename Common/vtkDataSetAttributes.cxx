@@ -1291,18 +1291,18 @@ int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
     }
 }
 
-int vtkDataSetAttributes::NumberOfAttributeComponents[NUM_ATTRIBUTES] = { 4, 
+int vtkDataSetAttributes::NumberOfAttributeComponents[vtkDataSetAttributes::NUM_ATTRIBUTES] = { 4, 
 									  3, 
 									  3, 
 									  3, 
 									  9};
-int vtkDataSetAttributes::AttributeLimits[NUM_ATTRIBUTES] = { MAX, 
+int vtkDataSetAttributes::AttributeLimits[vtkDataSetAttributes::NUM_ATTRIBUTES] = { MAX, 
 							      EXACT, 
 							      EXACT, 
 							      MAX,
 							      EXACT };
 
-char vtkDataSetAttributes::AttributeNames[NUM_ATTRIBUTES][10] = { "Scalars",
+char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10] = { "Scalars",
 								  "Vectors",
 								  "Normals",
 								  "TCoords",
