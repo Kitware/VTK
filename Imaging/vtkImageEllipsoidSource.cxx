@@ -17,7 +17,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.26");
+vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.27");
 vtkStandardNewMacro(vtkImageEllipsoidSource);
 
 //----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
   int inc0, inc1, inc2;
   double s0, s1, s2, temp;
   T outVal, inVal;
-  float *center, *radius;
+  double *center, *radius;
   unsigned long count = 0;
   unsigned long target;
 
@@ -149,13 +149,13 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
       }
     else
       {
-      if ((float)idx2 - center[2] == 0.0)
+      if ((double)idx2 - center[2] == 0.0)
         {
         temp = 0.0;
         }
       else
         {
-        temp = VTK_LARGE_FLOAT;
+        temp = VTK_DOUBLE_MAX;
         }  
       }
     
@@ -176,13 +176,13 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
         }
       else
         {
-        if ((float)idx1 - center[1] == 0.0)
+        if ((double)idx1 - center[1] == 0.0)
           {
           temp = 0.0;
           }
         else
           {
-          temp = VTK_LARGE_FLOAT;
+          temp = VTK_DOUBLE_MAX;
           }  
         }
       
@@ -196,13 +196,13 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
           }
         else
           {
-          if ((float)idx0 - center[0] == 0.0)
+          if ((double)idx0 - center[0] == 0.0)
             {
             temp = 0.0;
             }
           else
             {
-            temp = VTK_LARGE_FLOAT;
+            temp = VTK_DOUBLE_MAX;
             }  
           }
 

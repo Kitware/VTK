@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.28");
+vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.29");
 vtkStandardNewMacro(vtkImageHSVToRGB);
 
 //----------------------------------------------------------------------------
@@ -39,8 +39,8 @@ void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
-  float R, G, B, H, S, V;
-  float max = self->GetMaximum();
+  double R, G, B, H, S, V;
+  double max = self->GetMaximum();
   int idxC;
   
   // find the region to loop over
@@ -55,9 +55,9 @@ void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
     while (outSI != outSIEnd)
       {
       // Pixel operation
-      H = (float)(*inSI) / max; ++inSI;
-      S = (float)(*inSI) / max; ++inSI;
-      V = (float)(*inSI) / max; ++inSI;
+      H = (double)(*inSI) / max; ++inSI;
+      S = (double)(*inSI) / max; ++inSI;
+      V = (double)(*inSI) / max; ++inSI;
 
       vtkMath::HSVToRGB(H, S, V, &R, &G, &B);
 

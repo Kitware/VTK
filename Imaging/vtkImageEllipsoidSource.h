@@ -42,32 +42,32 @@ public:
   
   // Description:
   // Set/Get the center of the ellipsoid.
-  vtkSetVector3Macro(Center, float);
-  vtkGetVector3Macro(Center, float);
+  vtkSetVector3Macro(Center, double);
+  vtkGetVector3Macro(Center, double);
   
   // Description:
   // Set/Get the radius of the ellipsoid.
-  vtkSetVector3Macro(Radius, float);
-  vtkGetVector3Macro(Radius, float);
+  vtkSetVector3Macro(Radius, double);
+  vtkGetVector3Macro(Radius, double);
 
   // Description:
   // Set/Get the inside pixel values.
-  vtkSetMacro(InValue,float);
-  vtkGetMacro(InValue,float);
+  vtkSetMacro(InValue,double);
+  vtkGetMacro(InValue,double);
 
   // Description:
   // Set/Get the outside pixel values.
-  vtkSetMacro(OutValue,float);
-  vtkGetMacro(OutValue,float);
+  vtkSetMacro(OutValue,double);
+  vtkGetMacro(OutValue,double);
   
   // Description:
   // Set what type of scalar data this source should generate.
   vtkSetMacro(OutputScalarType,int);
   vtkGetMacro(OutputScalarType,int);
-  void SetOutputScalarTypeToDouble()
-    {this->SetOutputScalarType(VTK_DOUBLE);}
   void SetOutputScalarTypeToFloat()
     {this->SetOutputScalarType(VTK_FLOAT);}
+  void SetOutputScalarTypeToDouble()
+    {this->SetOutputScalarType(VTK_DOUBLE);}
   void SetOutputScalarTypeToLong()
     {this->SetOutputScalarType(VTK_LONG);}
   void SetOutputScalarTypeToUnsignedLong()
@@ -90,10 +90,10 @@ protected:
   ~vtkImageEllipsoidSource();
 
   int WholeExtent[6];
-  float Center[3];
-  float Radius[3];
-  float InValue;
-  float OutValue;
+  double Center[3];
+  double Radius[3];
+  double InValue;
+  double OutValue;
   int OutputScalarType;
   
   virtual void ExecuteInformation();

@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageHSIToRGB, "1.2");
+vtkCxxRevisionMacro(vtkImageHSIToRGB, "1.3");
 vtkStandardNewMacro(vtkImageHSIToRGB);
 
 //----------------------------------------------------------------------------
@@ -39,10 +39,10 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
-  float R, G, B, H, S, I;
-  float max = self->GetMaximum();
-  float temp;
-  float third = max / 3.0;
+  double R, G, B, H, S, I;
+  double max = self->GetMaximum();
+  double temp;
+  double third = max / 3.0;
   int idxC;
   
   // find the region to loop over
@@ -57,9 +57,9 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
     while (outSI != outSIEnd)
       {
       // Pixel operation
-      H = (float)(*inSI); ++inSI;
-      S = (float)(*inSI); ++inSI;
-      I = (float)(*inSI); ++inSI;
+      H = (double)(*inSI); ++inSI;
+      S = (double)(*inSI); ++inSI;
+      I = (double)(*inSI); ++inSI;
       
       // compute rgb assuming S = 1.0;
       if (H >= 0.0 && H <= third) // red -> green

@@ -39,14 +39,14 @@ public:
   // HueMaximum defaults to 255 instead of 2PI, because unsigned char
   // is expected as input.
   // Maximum also specifies the maximum of the Saturation, and R, G, B.
-  vtkSetMacro(Maximum,float);
-  vtkGetMacro(Maximum,float);
+  vtkSetMacro(Maximum,double);
+  vtkGetMacro(Maximum,double);
   
 protected:
   vtkImageHSIToRGB();
   ~vtkImageHSIToRGB() {};
 
-  float Maximum;
+  double Maximum;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
