@@ -25,7 +25,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkUnstructuredGridWriter, "1.40");
+vtkCxxRevisionMacro(vtkUnstructuredGridWriter, "1.41");
 vtkStandardNewMacro(vtkUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -98,28 +98,31 @@ void vtkUnstructuredGridWriter::WriteData()
   //
   // Cell types are a little more work
   //
-  ncells = input->GetCells()->GetNumberOfCells();
-  types = new int[ncells];
-  for (cellId=0; cellId < ncells; cellId++)
+  if ( input->GetCells() )
     {
-    types[cellId] = input->GetCellType(cellId);
-    }
-
-  *fp << "CELL_TYPES " << ncells << "\n";
-  if ( this->FileType == VTK_ASCII )
-    {
-    for (cellId=0; cellId<ncells; cellId++)
+    ncells = input->GetCells()->GetNumberOfCells();
+    types = new int[ncells];
+    for (cellId=0; cellId < ncells; cellId++)
       {
-      *fp << types[cellId] << "\n";
+      types[cellId] = input->GetCellType(cellId);
       }
+
+    *fp << "CELL_TYPES " << ncells << "\n";
+    if ( this->FileType == VTK_ASCII )
+      {
+      for (cellId=0; cellId<ncells; cellId++)
+        {
+        *fp << types[cellId] << "\n";
+        }
+      }
+    else
+      {
+      // swap the bytes if necc
+      vtkByteSwap::SwapWrite4BERange(types,ncells,fp);
+      }
+    *fp << "\n";
+    delete [] types;
     }
-  else
-    {
-    // swap the bytes if necc
-    vtkByteSwap::SwapWrite4BERange(types,ncells,fp);
-    }
-  *fp << "\n";
-  delete [] types;
 
   if (!this->WriteCellData(fp, input))
     {
