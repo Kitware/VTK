@@ -90,6 +90,7 @@ int vtkEnSight6Reader::ReadGeometryFile()
   int pointId;
   float point[3];
   int i;
+  int pointIdsListed;
   
   // Initialize
   //
@@ -145,6 +146,15 @@ int vtkEnSight6Reader::ReadGeometryFile()
   if (strcmp(subLine, "given") == 0)
     {
     this->UnstructuredNodeIds = vtkIdList::New();
+    pointIdsListed = 1;
+    }
+  else if (strcmp(subLine, "ignore") == 0)
+    {
+    pointIdsListed = 1;
+    }
+  else
+    {
+    pointIdsListed = 0;
     }
   
   this->ReadNextDataLine(line);
@@ -161,10 +171,12 @@ int vtkEnSight6Reader::ReadGeometryFile()
   for (i = 0; i < this->NumberOfUnstructuredPoints; i++)
     {
     this->ReadNextDataLine(line);
-    if (sscanf(line, " %8d %12.5e %12.5e %12.5e", &pointId, &point[0],
-               &point[1], &point[2]) == 4)
+    if (pointIdsListed)
       {
       // point ids listed
+      sscanf(line, " %8d %12e %12e %12e", &pointId, &point[0],
+             &point[1], &point[2]);
+    
       if (this->UnstructuredNodeIds)
         {
         this->UnstructuredNodeIds->InsertNextId(pointId-1);
