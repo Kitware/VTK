@@ -639,14 +639,14 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
 
 void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkProperty *aProperty)
 {
-  float vertexColors[100][3];
+  float vertexColors[512][3];
   RtFloat *TCoords;
   RtFloat *normals;
   RtFloat *points;
-  RtPoint vertexNormals[100];
-  RtPoint vertexPoints[100];
+  RtPoint vertexNormals[512];
+  RtPoint vertexPoints[512];
   float poly_norm[3];
-  float vertexTCoords[100][2];
+  float vertexTCoords[512][2];
   int *pts;
   int k, kk;
   int npts, rep, j, interpolation;
@@ -783,14 +783,14 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
 
 void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkProperty *aProperty)
 {
-  float vertexColors[100][3];
+  float vertexColors[512][3];
   RtFloat *TCoords;
   RtFloat *normals;
   RtFloat *points;
-  RtPoint vertexNormals[100];
-  RtPoint vertexPoints[100];
+  RtPoint vertexNormals[512];
+  RtPoint vertexPoints[512];
   float poly_norm[3];
-  float vertexTCoords[100][2];
+  float vertexTCoords[512][2];
   int *pts;
   int p1, p2, p3;
   int k, kk;
