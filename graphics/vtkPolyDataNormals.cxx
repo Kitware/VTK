@@ -109,7 +109,6 @@ void vtkPolyDataNormals::Execute()
   vtkIdList *cellIds, *edgeNeighbors;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  vtkPolyData *ghost;
   int ghostLevel = input->GetUpdateGhostLevel();
   int noCellsNeedVisiting;
   int *Visited;
