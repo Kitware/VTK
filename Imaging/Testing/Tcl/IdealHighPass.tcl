@@ -4,12 +4,12 @@ package require vtk
 
 
 # Image pipeline
-
-vtkPNGReader reader
-reader SetFileName $VTK_DATA_ROOT/Data/fullhead15.png
+vtkImageReader2Factory createReader
+set reader [createReader CreateImageReader2 "$VTK_DATA_ROOT/Data/fullhead15.png"]
+$reader SetFileName $VTK_DATA_ROOT/Data/fullhead15.png
 
 vtkImageFFT fft
-fft SetInput [reader GetOutput]
+fft SetInput [$reader GetOutput]
 
 vtkImageIdealHighPass highPass
 highPass SetInput [fft GetOutput]
