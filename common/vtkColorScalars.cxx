@@ -51,8 +51,22 @@ float vtkColorScalars::GetScalar(int i)
 
   rgba  = this->GetColor(i);
   s = (rgba[3]/255.0) * (0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2]);
-  s /= 255.0;
   return s;
+}
+
+
+void vtkColorScalars::CreateDefaultLookupTable()
+{
+  if ( this->LookupTable ) this->LookupTable->UnRegister(this);
+  this->LookupTable = new vtkLookupTable;
+  // make sure it is built 
+  // otherwise problems with InsertScalar trying to map through 
+  // non built lut
+  this->LookupTable->SetTableRange(0.0,255.0);
+  this->LookupTable->SetSaturationRange(0.0,0.0);
+  this->LookupTable->SetValueRange(0.0,1.0);
+  this->LookupTable->Build();
+  this->LookupTable->Register(this);
 }
 
 // Description:

@@ -136,6 +136,9 @@ public:
   // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
   virtual void SetS(vtkUnsignedCharArray *array) = 0;
   virtual vtkUnsignedCharArray *GetS() = 0;
+
+  // create a default lookup suitable for pixel data
+  virtual void CreateDefaultLookupTable();
 };
 
 // These include files are placed here so that if CoScalar.h is included 
