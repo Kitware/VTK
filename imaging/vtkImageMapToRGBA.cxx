@@ -11,7 +11,7 @@ Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
-explicitly disclaimed in individual files. This copyright specifically does
+explicitly disclaimed in indvidual files. This copyright specifically does
 not apply to the related textbook "The Visualization Toolkit" ISBN
 013199837-4 published by Prentice Hall which is covered by its own copyright.
 
@@ -78,7 +78,7 @@ static void vtkImageMapToRGBAExecute(vtkImageMapToRGBA *self,
 				     unsigned char *outPtr,
 				     int outExt[6], int id)
 {
-  int idxR, idxY, idxZ;
+  int idxY, idxZ;
   int extX, extY, extZ;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
@@ -86,6 +86,8 @@ static void vtkImageMapToRGBAExecute(vtkImageMapToRGBA *self,
   unsigned long target;
   int dataType = inData->GetScalarType();
   int scalarSize = inData->GetScalarSize();
+  int numberOfComponents;
+  int rowLength;
   vtkLookupTable *lookupTable = self->GetLookupTable();
   unsigned char *outPtr1;
   void *inPtr1;
@@ -94,19 +96,21 @@ static void vtkImageMapToRGBAExecute(vtkImageMapToRGBA *self,
   extX = outExt[1] - outExt[0] + 1;
   extY = outExt[3] - outExt[2] + 1; 
   extZ = outExt[5] - outExt[4] + 1;
+
   target = (unsigned long)(extZ*extY/50.0);
   target++;
   
   // Get increments to march through data 
-  inData->GetIncrements(inIncX, inIncY, inIncZ);
-  outData->GetIncrements(outIncX, outIncY, outIncZ);
-  inIncX = inData->GetNumberOfScalarComponents();
+  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  numberOfComponents = inData->GetNumberOfScalarComponents();
+  rowLength = extX*scalarSize;
 
-  // Loop through ouput pixels
+  // Loop through output pixels
+  outPtr1 = outPtr;
+  inPtr1 = inPtr;
   for (idxZ = 0; idxZ < extZ; idxZ++)
     {
-    outPtr1 = outPtr;
-    inPtr1 = inPtr;
     for (idxY = 0; !self->AbortExecute && idxY < extY; idxY++)
       {
       if (!id) 
@@ -118,12 +122,12 @@ static void vtkImageMapToRGBAExecute(vtkImageMapToRGBA *self,
 	count++;
 	}
       lookupTable->MapScalarsThroughTable(inPtr1,(unsigned char *)outPtr1,
-					  dataType,extX,inIncX);
-      outPtr1 += outIncY;
-      inPtr1 = (void *)((char *)inPtr1 + inIncY*scalarSize);
+					  dataType,extX,numberOfComponents);
+      outPtr1 += outIncY + extX*4;
+      inPtr1 = (void *) ((char *) inPtr1 + inIncY + rowLength);
       }
-    outPtr += outIncZ;
-    inPtr = (void *)((char *)inPtr + inIncZ*scalarSize);
+    outPtr1 += outIncZ;
+    inPtr1 = (void *) ((char *) inPtr1 + inIncZ);
     }
 }
 
@@ -135,7 +139,7 @@ void vtkImageMapToRGBA::ThreadedExecute(vtkImageData *inData,
 					 vtkImageData *outData,
 					 int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(inData->GetExtent());
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkImageMapToRGBAExecute(this, inData, inPtr, 
