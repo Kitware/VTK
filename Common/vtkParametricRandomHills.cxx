@@ -19,7 +19,7 @@
 
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkParametricRandomHills, "1.2");
+vtkCxxRevisionMacro(vtkParametricRandomHills, "1.3");
 vtkStandardNewMacro(vtkParametricRandomHills);
 
 vtkParametricRandomHills::vtkParametricRandomHills() :
@@ -56,12 +56,13 @@ vtkParametricRandomHills::~vtkParametricRandomHills()
 }
 
 //! Initialise the random number generator.
-void vtkParametricRandomHills::InitSeed ( int RandomSeed )
+void vtkParametricRandomHills::InitSeed ( int randomSeed )
 {
-  if ( RandomSeed >= 0 )
-    srand( (unsigned int) RandomSeed );
-  else
-    srand( (unsigned)time( NULL ) );
+  if ( randomSeed < 0 )
+    {
+    randomSeed = (int)time( NULL );
+    }
+  srand( (unsigned int) randomSeed );
 }
 
 //! Return a random number between 0 and 1.
@@ -89,12 +90,12 @@ void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw
   Pt[1] = this->MaximumV - v; // Texturing is oriented OK if we do this.
   double hillTuple[5]; // 0: mX, 1: mY, 2: VarX, 3: VarY, 4: Amplitude
   for ( i = 0; i < NumberOfHills; ++i )
-  {
+    {
     this->hillData->GetTuple(i,hillTuple);
-    double x = (Pt[0] - hillTuple[0])/hillTuple[2];
-    double y = (Pt[1] - hillTuple[1])/hillTuple[3];
+    const double x = (Pt[0] - hillTuple[0])/hillTuple[2];
+    const double y = (Pt[1] - hillTuple[1])/hillTuple[3];
     Pt[2] += hillTuple[4] * exp( -(x*x+y*y) / 2.0 );
-  }
+    }
 }
 
 double vtkParametricRandomHills::EvaluateScalar(double* vtkNotUsed(uv[3]), 
@@ -118,14 +119,14 @@ void vtkParametricRandomHills::GenerateTheHills( void )
   // Generate the centers of the Hills, standard deviations and amplitudes.
   InitSeed(this->RandomSeed);
   for ( int i = 0; i < this->NumberOfHills; ++ i )
-  {
+    {
     hillTuple[0] = min_x + Rand() * (MaximumU - MinimumU);
     hillTuple[1] = min_y + Rand() * (MaximumV - MinimumV);
     hillTuple[2] = this->HillXVariance * Rand() + this->HillXVariance * this->XVarianceScaleFactor;
     hillTuple[3] = this->HillYVariance * Rand() + this->HillYVariance * this->YVarianceScaleFactor;
     hillTuple[4] = this->HillAmplitude * Rand() + this->HillAmplitude * this->AmplitudeScaleFactor;
     this->hillData->SetTuple(i,hillTuple);
-  }
+    }
   this->Modified();
 }
 
