@@ -73,6 +73,7 @@ public:
   virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
   virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
   virtual void *GetGenericContext();
+  virtual void *GetGenericDrawable()  {return (void *)this->WindowId;};
 
   int     *GetSize();
   int     *GetScreenSize();
