@@ -138,6 +138,10 @@ void vtkPicker::MarkPicked(vtkActor *assem, vtkActor *actor, vtkMapper *mapper,
   this->DataSet = mapper->GetInput();
   this->GlobalTMin = tMin;
 
+  this->MapperPosition[0] = mapperPos[0];
+  this->MapperPosition[1] = mapperPos[1];
+  this->MapperPosition[2] = mapperPos[2];
+
   // The point has to be transformed back into world coordinates.
   // Note: it is assumed that the transform is in the correct state.
   this->Transform->TransformPoint(mapperPos,this->PickPosition);
