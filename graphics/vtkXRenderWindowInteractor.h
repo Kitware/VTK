@@ -116,6 +116,8 @@ public:
   virtual void EndDolly();
   virtual void StartUniformScale();
   virtual void EndUniformScale();
+  virtual void StartTimer();
+  virtual void EndTimer();
 
   // Description:
   // Specify the Xt widget to use for interaction. This method is

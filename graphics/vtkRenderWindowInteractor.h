@@ -146,7 +146,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTKXI_SPIN   4
 #define VTKXI_DOLLY  5
 #define VTKXI_USCALE 6
-
+#define VTKXI_TIMER  7 
 
 class VTK_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
@@ -399,6 +399,8 @@ public:
   virtual void EndDolly() {};
   virtual void StartUniformScale() {};
   virtual void EndUniformScale() {};
+  virtual void StartTimer() {};
+  virtual void EndTimer() {};
 
   // Description:
   // This Method detects loops of RenderWindow-Interactor,

@@ -475,6 +475,40 @@ void  vtkWin32RenderWindowInteractor::EndUniformScale()
   this->RenderWindow->Render();
 }
 
+void  vtkWin32RenderWindowInteractor::StartTimer()
+{
+  if (this->State != VTKXI_START)
+    {
+    return;
+    }
+  this->State = VTKXI_TIMER;
+  if (this->AnimationState != VTKXI_START)
+    {
+    return;
+    }
+  this->Preprocess = 1;
+  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
+  if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
+    {
+    vtkErrorMacro(<< "Not enough timers");
+    }
+}
+
+void  vtkWin32RenderWindowInteractor::EndTimer()
+{
+  if (this->State != VTKXI_TIMER)
+    {
+    return;
+    }
+  this->State = VTKXI_START;
+  if (this->AnimationState == VTKXI_START)
+    {
+    this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+    KillTimer(this->WindowId,this->TimerId);
+    }
+  this->RenderWindow->Render();
+}
+
 
 LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -1309,6 +1343,8 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
             }
           break;
           
+        case VTKXI_TIMER:
+          break;
         }
       break;
     default:

@@ -117,6 +117,9 @@ public:
   virtual void EndDolly();
   virtual void StartUniformScale();
   virtual void EndUniformScale();
+  virtual void StartTimer();
+  virtual void EndTimer();
+
 
   virtual void StartAnimation();
   virtual void EndAnimation();
