@@ -564,9 +564,35 @@ void vtkColorTransferFunction::GetTable( float x1, float x2,
           float h1, h2, h3, s1, s2, s3, v1, v2, v3;
           this->RGBToHSV(*(fptr-3), *(fptr-2), *(fptr-1), h1, s1, v1);
           this->RGBToHSV(*(fptr+1), *(fptr+2), *(fptr+3), h2, s2, v2);
-          h3 = (1.0-weight)*h1 + weight*h2;
           s3 = (1.0-weight)*s1 + weight*s2;
           v3 = (1.0-weight)*v1 + weight*v2;
+          // Do we need to cross the 0/1 boundary?
+          if ( h1 - h2 > 0.5 || h2 - h1 > 0.5 )
+            {
+            //Yes, we are crossing the boundary
+            if ( h1 > h2 )
+              {
+              h1 -= 1.0;
+              }
+            else
+              {
+              h2 -= 1.0;
+              }
+            h3 = (1.0-weight)*h1 + weight*h2;
+            if ( h3 < 0.0 )
+              {
+              h3 += 1.0;
+              }
+            }
+          else
+            {
+            // No we are not crossing the boundary
+            h3 = (1.0-weight)*h1 + weight*h2;
+            }
+          // Make sure they are between 0 and 1
+          h3 = (h3>1.0)?(1.0):((h3<0.0)?(0.0):(h3));
+          s3 = (s3>1.0)?(1.0):((s3<0.0)?(0.0):(s3));
+          v3 = (v3>1.0)?(1.0):((v3<0.0)?(0.0):(v3));
           this->HSVToRGB(h3, s3, v3, *tptr, *(tptr+1), *(tptr+2) );
           tptr += 3;
           }
@@ -681,9 +707,35 @@ const unsigned char *vtkColorTransferFunction::GetTable( float x1, float x2,
           float h1, h2, h3, s1, s2, s3, v1, v2, v3;
           this->RGBToHSV(*(fptr-3), *(fptr-2), *(fptr-1), h1, s1, v1);
           this->RGBToHSV(*(fptr+1), *(fptr+2), *(fptr+3), h2, s2, v2);
-          h3 = (1.0-weight)*h1 + weight*h2;
           s3 = (1.0-weight)*s1 + weight*s2;
           v3 = (1.0-weight)*v1 + weight*v2;
+          // Do we need to cross the 0/1 boundary?
+          if ( h1 - h2 > 0.5 || h2 - h1 > 0.5 )
+            {
+            //Yes, we are crossing the boundary
+            if ( h1 > h2 )
+              {
+              h1 -= 1.0;
+              }
+            else
+              {
+              h2 -= 1.0;
+              }
+            h3 = (1.0-weight)*h1 + weight*h2;
+            if ( h3 < 0.0 )
+              {
+              h3 += 1.0;
+              }
+            }
+          else
+            {
+            // No we are not crossing the boundary
+            h3 = (1.0-weight)*h1 + weight*h2;
+            }
+          // Make sure they are between 0 and 1
+          h3 = (h3>1.0)?(1.0):((h3<0.0)?(0.0):(h3));
+          s3 = (s3>1.0)?(1.0):((s3<0.0)?(0.0):(s3));
+          v3 = (v3>1.0)?(1.0):((v3<0.0)?(0.0):(v3));
           this->HSVToRGB(h3, s3, v3, h1, s1, v1 );
           *(tptr++) = (unsigned char)(255*h1);
           *(tptr++) = (unsigned char)(255*s1);
