@@ -55,6 +55,7 @@ class vtkObject;
 class vtkCommand
 {
 public:
+  virtual ~vtkCommand() {};
   void Delete() {delete this;};
   virtual void Execute(vtkObject *caller, void *callData) = 0;
 
