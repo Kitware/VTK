@@ -80,7 +80,15 @@ public:
   // Description:
   // To specify the starting point id.
   void Initialize(vtkIdType start);
-
+  
+  // Description:
+  // Return the last point id inserted.
+  vtkIdType GetLastPointId();
+  
+  // Description:
+  // Increment the last point id.
+  void IncrementLastPointId();
+  
   // Description:
   // Check if a point is already in the point table.
   int CheckPoint(vtkIdType ptId);
@@ -118,6 +126,9 @@ public:
     this->Coord[0]  = -100;
     this->Coord[1]  = -100;
     this->Coord[2]  = -100;
+    this->Scalar[0]  = -200;
+    this->Scalar[1]  = -200;
+    this->Scalar[2]  = -200;
     }
   ~PointEntry() {}
 

@@ -31,7 +31,7 @@ static int PRIME_NUMBERS[] = {1, 3, 7, 13, 31, 61, 127,  251,  509,  1021,
 //  1572869,    3145739,    6291469,   12582917,  25165843,
 
 
-vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.1");
+vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.2");
 vtkStandardNewMacro(vtkGenericEdgeTable);
 
 class vtkEdgeTablePoints
@@ -532,6 +532,22 @@ void vtkGenericEdgeTable::Initialize(vtkIdType start)
     }
 
   this->LastPointId = start;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Return the last point id inserted.
+vtkIdType vtkGenericEdgeTable::GetLastPointId()
+{
+  return this->LastPointId;
+}
+  
+//-----------------------------------------------------------------------------
+// Description:
+// Increment the last point id.
+void vtkGenericEdgeTable::IncrementLastPointId()
+{
+  ++this->LastPointId;
 }
 
 //-----------------------------------------------------------------------------
