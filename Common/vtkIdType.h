@@ -32,6 +32,7 @@ Do_not_include_vtkIdType_directly__vtkSystemIncludes_includes_it;
 #define VTK_HAS_ID_TYPE
 #ifdef VTK_USE_64BIT_IDS
 # define VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+# define VTK_SIZEOF_ID_TYPE 8
 # ifdef _WIN32
 typedef __int64 vtkIdType;
 #  define VTK_NEED_ID_TYPE_STREAM_OPERATORS
@@ -40,6 +41,7 @@ typedef long long vtkIdType;
 #  define VTK_NEED_ID_TYPE_STREAM_OPERATORS
 # endif // _WIN32
 #else // VTK_USE_64BIT_IDS
+# define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_INT
 typedef int vtkIdType;
 #endif // VTK_USE_64BIT_IDS
 
