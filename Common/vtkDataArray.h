@@ -305,7 +305,7 @@ public:
       this->ComputeRange(comp);
       memcpy(range, this->Range, 2*sizeof(float));
     }
-  const float* GetRange(int comp)
+  float* GetRange(int comp)
     {
       this->ComputeRange(comp);
       return this->Range;
