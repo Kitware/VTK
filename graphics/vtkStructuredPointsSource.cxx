@@ -75,6 +75,7 @@ void vtkStructuredPointsSource::ExecuteInformation()
   vtkStructuredPoints *output = this->GetOutput();
   vtkScalars *scalars;
 
+  output->PreUpdate();
   output->InternalUpdate();
   scalars = output->GetPointData()->GetScalars();
 
