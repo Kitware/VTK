@@ -118,7 +118,7 @@ protected:
                                   vtkAbstractMapper3D *m);
   virtual void Initialize();
 
-  float Tolerance; //tolerance for computation (% of window)
+  float Tolerance;  //tolerance for computation (% of window)
   float MapperPosition[3]; //selection point in untransformed coordinates
 
   vtkAbstractMapper3D *Mapper; //selected mapper (if the prop has a mapper)

@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkVolumeMapper.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.31");
+vtkCxxRevisionMacro(vtkCellPicker, "1.32");
 vtkStandardNewMacro(vtkCellPicker);
 
 vtkCellPicker::vtkCellPicker()
@@ -73,29 +73,41 @@ float vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
     return 2.0;
     }
 
-  //  Intersect each cell with ray.  Keep track of one closest to 
-  //  the eye (and within the clipping range).
+  // Intersect each cell with ray.  Keep track of one closest to
+  // the eye (within the tolerance tol) and within the clipping range). 
+  // Note that we fudge the "closest to" (tMin+this->Tolerance) a little and
+  // keep track of the cell with the best pick based on parametric
+  // coordinate (pick the minimum, maximum parametric distance). This 
+  // breaks ties in a reasonable way when cells are the same distance 
+  // from the eye (like cells lying on a 2D plane).
   //
   minCellId = -1;
   minSubId = -1;
   pcoords[0] = pcoords[1] = pcoords[2] = 0;
+  float pDistMin=VTK_LARGE_FLOAT, pDistMax;
   for (tMin=VTK_LARGE_FLOAT,cellId=0; cellId<numCells; cellId++) 
     {
     input->GetCell(cellId, this->Cell);
 
     if ( this->Cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId) 
-    && t < tMin )
+    && t <= (tMin+this->Tolerance) )
       {
-      minCellId = cellId;
-      minSubId = subId;
-      for (i=0; i<3; i++)
+      pDistMax = this->Cell->GetParametricDistance(pcoords);
+      if ( pDistMax < pDistMin )
         {
-        minXYZ[i] = x[i];
-        minPcoords[i] = pcoords[i];
-        }
-      tMin = t;
-      }
-    }
+        minCellId = cellId;
+        minSubId = subId;
+        for (i=0; i<3; i++)
+          {
+          minXYZ[i] = x[i];
+          minPcoords[i] = pcoords[i];
+          }
+        tMin = t;
+        pDistMin = pDistMax;
+        }//if minimum, maximum
+      }//if a close cell
+    }//for all cells
+  
   //  Now compare this against other actors.
   //
   if ( minCellId>(-1) && tMin < this->GlobalTMin ) 

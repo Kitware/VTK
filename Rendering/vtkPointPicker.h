@@ -17,10 +17,15 @@
 =========================================================================*/
 // .NAME vtkPointPicker - select a point by shooting a ray into a graphics window
 // .SECTION Description
+
 // vtkPointPicker is used to select a point by shooting a ray into a graphics
-// window and intersecting with actor's defining geometry - specifically 
-// its points. Beside returning coordinates, actor, and mapper, vtkPointPicker
-// returns the id of the closest point within the tolerance along the pick ray.
+// window and intersecting with actor's defining geometry - specifically its
+// points. Beside returning coordinates, actor, and mapper, vtkPointPicker
+// returns the id of the point projecting closest onto the ray (within the
+// specified tolerance).  Ties are broken (i.e., multiple points all
+// projecting within the tolerance along the pick ray) by choosing the point
+// closest to the ray.
+// 
 
 // .SECTION See Also
 // vtkPicker vtkCellPicker.

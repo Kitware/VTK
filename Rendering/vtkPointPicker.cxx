@@ -23,7 +23,7 @@
 #include "vtkVolumeMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointPicker, "1.29");
+vtkCxxRevisionMacro(vtkPointPicker, "1.30");
 vtkStandardNewMacro(vtkPointPicker);
 
 vtkPointPicker::vtkPointPicker()
@@ -78,6 +78,7 @@ float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
   //  Project each point onto ray.  Keep track of the one within the
   //  tolerance and closest to the eye (and within the clipping range).
   //
+  float dist, maxDist, minPtDist=VTK_LARGE_FLOAT;
   for (minPtId=(-1),tMin=VTK_LARGE_FLOAT,ptId=0; ptId<numPts; ptId++) 
     {
     input->GetPoint(ptId,x);
@@ -85,25 +86,29 @@ float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
     t = (ray[0]*(x[0]-p1[0]) + ray[1]*(x[1]-p1[1]) + ray[2]*(x[2]-p1[2])) 
         / rayFactor;
 
-    //  If we find a point closer than we currently have, see whether it
-    //  lies within the pick tolerance and clipping planes.
+    // If we find a point closer than we currently have, see whether it
+    // lies within the pick tolerance and clipping planes. We keep track
+    // of the point closest to the line (use a fudge factor for points
+    // nearly the same distance away.)
     //
-    if ( t >= 0.0 && t <= 1.0 && t < tMin ) 
+    if ( t >= 0.0 && t <= 1.0 && t <= (tMin+this->Tolerance) ) 
       {
-      for(i=0; i<3; i++) 
+      for(maxDist=0.0f, i=0; i<3; i++) 
         {
         projXYZ[i] = p1[i] + t*ray[i];
-        if ( fabs(x[i]-projXYZ[i]) > tol )
+        dist = fabs(x[i]-projXYZ[i]);
+        if ( dist > maxDist )
           {
-          break;
+          maxDist = dist;
           }
         }
-      if ( i > 2 ) // within tolerance
+      if ( maxDist <= tol && maxDist < minPtDist ) // within tolerance
         {
         minPtId = ptId;
         minXYZ[0]=x[0]; minXYZ[1]=x[1]; minXYZ[2]=x[2];
-        tMin = t;
-        }
+        minPtDist = maxDist;
+        tMin = t; 
+       }
       }
     }
 
