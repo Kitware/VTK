@@ -22,7 +22,7 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.37");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.38");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,Input, vtkDataSet);
@@ -207,9 +207,9 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       activeComp = 0;
       if ( this->LabeledComponent >= 0 )
         {
-        numComp = 1;
         activeComp = (this->LabeledComponent < numComp ? 
                       this->LabeledComponent : numComp - 1);
+        numComp = 1;
         }
       }
     else
