@@ -9,8 +9,11 @@ source $VTK_TCL/vtkInt.tcl
 # create a sphere source and actor
 #
 vtkSphereSource sphere
+  sphere SetThetaResolution 36
+  sphere SetPhiResolution 18
+  sphere SetRadius 1.5
 
-vtkPolyDataMapper   sphereMapper
+vtkPolyDataMapper  sphereMapper
     sphereMapper SetInput [sphere GetOutput]
     sphereMapper GlobalImmediateModeRenderingOn
 vtkActor sphereActor
@@ -30,30 +33,29 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 # Extraction stuff
-vtkPlanes planes
+vtkCylinder cylfunc
+  cylfunc SetRadius 0.5
+
 vtkExtractPolyDataGeometry extract
     extract SetInput [sphere GetOutput]
-    extract SetImplicitFunction planes
+    extract SetImplicitFunction cylfunc
 
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor sphereActor
-#ren1 AddActor sphereActor2
 
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 300 300
 
-# This zoom is used to perform the clipping
-renWin Render
-set cam1 [ren1 GetActiveCamera]
-$cam1 Zoom 4.0
-
-planes SetFrustumPlanes 1.0 $cam1
 sphereMapper SetInput [extract GetOutput]
+
+vtkCamera cam1
+  cam1 SetPosition 4 4 3
+
+ren1 SetActiveCamera cam1
+
 renWin Render
 
-$cam1 Zoom 0.6
-renWin Render
 
 # render the image
 #
