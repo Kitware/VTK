@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkXRenderTclWindowInteractor.cxx
+  Module:    vtkXRenderWindowTclInteractor.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 #include <X11/X.h>
 #include <X11/keysym.h>
-#include "vtkXRenderWindowInteractor.h"
+#include "vtkXRenderWindowTclInteractor.h"
 #include "vtkXRenderWindow.h"
 #include "vtkActor.h"
 #include <X11/Shell.h>
@@ -69,11 +69,11 @@ static int vtkTclEventProc(XtPointer clientData,XEvent *event)
   vtkXRenderWindow *rw;
       
   rw = (vtkXRenderWindow *)
-    (((vtkXRenderWindowInteractor *)clientData)->GetRenderWindow());
+    (((vtkXRenderWindowTclInteractor *)clientData)->GetRenderWindow());
   
   if (rw->GetWindowId() == ((XAnyEvent *)event)->window)
     {
-    vtkXRenderWindowInteractorCallback((Widget)NULL,clientData, event, &ctd);
+    vtkXRenderWindowTclInteractorCallback((Widget)NULL,clientData, event, &ctd);
     ctd = 0;
     }
   else
@@ -87,20 +87,20 @@ static int vtkTclEventProc(XtPointer clientData,XEvent *event)
 static void vtkXTclTimerProc(ClientData clientData)
 {
   XtIntervalId id;
-  vtkXRenderWindowInteractorTimer((XtPointer)clientData,&id);
+  vtkXRenderWindowTclInteractorTimer((XtPointer)clientData,&id);
 }
 
 
 
 // Construct object so that light follows camera motion.
-vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
+vtkXRenderWindowTclInteractor::vtkXRenderWindowTclInteractor()
 {
   this->State = VTKXI_START;
   this->App = 0;
   this->top = 0;
 }
 
-vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
+vtkXRenderWindowTclInteractor::~vtkXRenderWindowTclInteractor()
 {
   if (this->Initialized)
     {
@@ -109,18 +109,18 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
     }
 }
 
-void  vtkXRenderWindowInteractor::SetWidget(Widget foo)
+void  vtkXRenderWindowTclInteractor::SetWidget(Widget foo)
 {
   this->top = foo;
 } 
 
-void  vtkXRenderWindowInteractor::Start()
+void  vtkXRenderWindowTclInteractor::Start()
 {
   Tk_MainLoop();
 }
 
 // Initializes the event handlers
-void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
+void vtkXRenderWindowTclInteractor::Initialize(XtAppContext app)
 {
   this->App = app;
 
@@ -128,7 +128,7 @@ void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
 }
 
 // Begin processing keyboard strokes.
-void vtkXRenderWindowInteractor::Initialize()
+void vtkXRenderWindowTclInteractor::Initialize()
 {
   vtkXRenderWindow *ren;
   int depth;
@@ -173,7 +173,7 @@ void vtkXRenderWindowInteractor::Initialize()
 }
 
 
-void vtkXRenderWindowInteractor::Enable()
+void vtkXRenderWindowTclInteractor::Enable()
 {
   // avoid cycles of calling Initialize() and Enable()
   if (this->Enabled)
@@ -192,7 +192,7 @@ void vtkXRenderWindowInteractor::Enable()
   this->Modified();
 }
 
-void vtkXRenderWindowInteractor::Disable()
+void vtkXRenderWindowTclInteractor::Disable()
 {
   if (!this->Enabled)
     {
@@ -212,7 +212,7 @@ void vtkXRenderWindowInteractor::Disable()
 }
 
 
-void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
+void vtkXRenderWindowTclInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkRenderWindowInteractor::PrintSelf(os,indent);
   if (this->App)
@@ -226,7 +226,7 @@ void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-void  vtkXRenderWindowInteractor::UpdateSize(int x,int y)
+void  vtkXRenderWindowTclInteractor::UpdateSize(int x,int y)
 {
   // if the size changed send this on to the RenderWindow
   if ((x != this->Size[0])||(y != this->Size[1]))
@@ -238,7 +238,7 @@ void  vtkXRenderWindowInteractor::UpdateSize(int x,int y)
 
 }
  
-void  vtkXRenderWindowInteractor::StartRotate()
+void  vtkXRenderWindowTclInteractor::StartRotate()
 {
   if (this->State != VTKXI_START)
     {
@@ -250,7 +250,7 @@ void  vtkXRenderWindowInteractor::StartRotate()
   Tk_CreateTimerHandler(10,vtkXTclTimerProc,(ClientData)this);
 }
 
-void  vtkXRenderWindowInteractor::EndRotate()
+void  vtkXRenderWindowTclInteractor::EndRotate()
 {
   if (this->State != VTKXI_ROTATE)
     {
@@ -261,7 +261,7 @@ void  vtkXRenderWindowInteractor::EndRotate()
   this->RenderWindow->Render();
 }
 
-void  vtkXRenderWindowInteractor::StartZoom()
+void  vtkXRenderWindowTclInteractor::StartZoom()
 {
   if (this->State != VTKXI_START)
     {
@@ -273,7 +273,7 @@ void  vtkXRenderWindowInteractor::StartZoom()
   Tk_CreateTimerHandler(10,vtkXTclTimerProc,(ClientData)this);
 }
 
-void  vtkXRenderWindowInteractor::EndZoom()
+void  vtkXRenderWindowTclInteractor::EndZoom()
 {
   if (this->State != VTKXI_ZOOM)
     {
@@ -284,7 +284,7 @@ void  vtkXRenderWindowInteractor::EndZoom()
   this->RenderWindow->Render();
 }
 
-void  vtkXRenderWindowInteractor::StartPan()
+void  vtkXRenderWindowTclInteractor::StartPan()
 {
   if (this->State != VTKXI_START)
     {
@@ -298,7 +298,7 @@ void  vtkXRenderWindowInteractor::StartPan()
   Tk_CreateTimerHandler(10,vtkXTclTimerProc,(ClientData)this);
 }
 
-void  vtkXRenderWindowInteractor::EndPan()
+void  vtkXRenderWindowTclInteractor::EndPan()
 {
   if (this->State != VTKXI_PAN)
     {
@@ -309,7 +309,7 @@ void  vtkXRenderWindowInteractor::EndPan()
   this->RenderWindow->Render();
 }
 
-void  vtkXRenderWindowInteractor::StartSpin()
+void  vtkXRenderWindowTclInteractor::StartSpin()
 {
   if (this->State != VTKXI_START)
     {
@@ -322,7 +322,7 @@ void  vtkXRenderWindowInteractor::StartSpin()
 }
 
 
-void  vtkXRenderWindowInteractor::EndSpin()
+void  vtkXRenderWindowTclInteractor::EndSpin()
 {
   if (this->State != VTKXI_SPIN)
     {
@@ -333,7 +333,7 @@ void  vtkXRenderWindowInteractor::EndSpin()
   this->RenderWindow->Render();
 }
 
-void  vtkXRenderWindowInteractor::StartDolly()
+void  vtkXRenderWindowTclInteractor::StartDolly()
 {
   if (this->State != VTKXI_START)
     {
@@ -346,7 +346,7 @@ void  vtkXRenderWindowInteractor::StartDolly()
 }
 
 
-void  vtkXRenderWindowInteractor::EndDolly()
+void  vtkXRenderWindowTclInteractor::EndDolly()
 {
   if (this->State != VTKXI_DOLLY)
     {
@@ -358,7 +358,7 @@ void  vtkXRenderWindowInteractor::EndDolly()
 }
 
 
-void  vtkXRenderWindowInteractor::StartUniformScale()
+void  vtkXRenderWindowTclInteractor::StartUniformScale()
 {
   if (this->State != VTKXI_START)
     {
@@ -371,7 +371,7 @@ void  vtkXRenderWindowInteractor::StartUniformScale()
 }
 
 
-void  vtkXRenderWindowInteractor::EndUniformScale()
+void  vtkXRenderWindowTclInteractor::EndUniformScale()
 {
   if (this->State != VTKXI_USCALE)
     {
@@ -383,14 +383,14 @@ void  vtkXRenderWindowInteractor::EndUniformScale()
 }
 
 
-void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
+void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
 					XtPointer client_data, 
 					XEvent *event, 
 					Boolean *vtkNotUsed(ctd))
 {
-  vtkXRenderWindowInteractor *me;
+  vtkXRenderWindowTclInteractor *me;
   
-  me = (vtkXRenderWindowInteractor *)client_data;
+  me = (vtkXRenderWindowTclInteractor *)client_data;
   
   switch (event->type) 
     {
@@ -482,7 +482,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
           me->CurrentCamera->GetPosition(me->ViewPoint);
           while (i < pickPositions->GetNumberOfPoints())
             {
-            actor = actors->GetNextItem();
+            actor = actors->GetNextActor();
             if (actor != NULL)
               {
               pickPoint = pickPositions->GetPoint(i);
@@ -701,7 +701,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
 				me->Size[1] - ((XKeyEvent*)event)->y);
 	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
+	  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
 	    {
             for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart());)
               {
@@ -722,7 +722,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
 			        me->Size[1] - ((XKeyEvent*)event)->y);
 	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
+	  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
 	    {
             for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
               {
@@ -853,17 +853,17 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
     }
 }
 
-void vtkXRenderWindowInteractorTimer(XtPointer client_data,
+void vtkXRenderWindowTclInteractorTimer(XtPointer client_data,
 				     XtIntervalId *vtkNotUsed(id))
 {
-  vtkXRenderWindowInteractor *me;
+  vtkXRenderWindowTclInteractor *me;
   Window root,child;
   int root_x,root_y;
   int x,y;
   float xf,yf;
   unsigned int keys;
 
-  me = (vtkXRenderWindowInteractor *)client_data;
+  me = (vtkXRenderWindowTclInteractor *)client_data;
 
   // get the pointer position
   XQueryPointer(me->DisplayId,me->WindowId,
