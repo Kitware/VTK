@@ -5,7 +5,7 @@ catch {load vtktcl}
 wm withdraw .
 
 vtkUnstructuredGridReader r
-    r SetFileName fieldfile.vtk
+    r SetFileName "../../../vtkdata/fieldfile.vtk"
     r Update
 
 set a [[[[r GetOutput] GetCellData] GetFieldData] GetArray 0]
