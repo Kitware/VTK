@@ -179,7 +179,6 @@ void vtkTriangularTexture::Execute()
 {
   int numPts;
   vtkUnsignedCharArray *newScalars;
-  vtkUnsignedCharArray *data;
   vtkStructuredPoints *output = this->GetOutput();
   
   if ( (numPts = this->XSize * this->YSize) < 1 )
