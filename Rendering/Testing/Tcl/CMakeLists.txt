@@ -12,6 +12,7 @@ IF (VTK_USE_RENDERING)
       labeledContours
       multiLineText
       pickCells
+      propAssembly
       rendererSource
       rotations
       ScalarBar
