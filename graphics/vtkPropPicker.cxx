@@ -46,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 vtkPropPicker::vtkPropPicker()
 {
   this->PickFromProps = NULL;
+  this->Prop = NULL;
 }
 
 vtkPropPicker* vtkPropPicker::New()
