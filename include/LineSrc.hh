@@ -14,12 +14,15 @@ public:
   vlLineSource(int res=1);
   char *GetClassName() {return "vlLineSource";};
   void Execute();
-  void SetPoint1(float *x);
-  void GetPoint1(float* &x);
-  void SetPoint2(float *x);
-  void GetPoint2(float* &x);
-  void SetResolution(int res);
-  int GetResolution();
+
+  vlSetVector3Macro(Pt1,float);
+  vlGetVectorMacro(Pt1,float);
+
+  vlSetVector3Macro(Pt2,float);
+  vlGetVectorMacro(Pt2,float);
+
+  vlSetClampMacro(Resolution,int,1,LARGE_INTEGER);
+  vlGetMacro(Resolution,int);
 
 protected:
   float Pt1[3];

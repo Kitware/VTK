@@ -12,12 +12,15 @@ public:
   vlCubeSource(float xL=1.0, float yL=1.0, float zL=1.0);
   char *GetClassName() {return "vlCubeSource";};
   void Execute();
-  float GetXLength();
-  void SetXLength(float xL);
-  float GetYLength();
-  void SetYLength(float yL);
-  float GetZLength();
-  void SetZLength(float zL);
+
+  vlSetClampMacro(XLength,float,0.0,LARGE_FLOAT);
+  vlGetMacro(XLength,float);
+
+  vlSetClampMacro(YLength,float,0.0,LARGE_FLOAT);
+  vlGetMacro(YLength,float);
+
+  vlSetClampMacro(ZLength,float,0.0,LARGE_FLOAT);
+  vlGetMacro(ZLength,float);
 
 protected:
   float XLength;

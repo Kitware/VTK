@@ -14,51 +14,7 @@ vlLineSource::vlLineSource(int res)
   this->Pt2[1] =  0.0;
   this->Pt2[2] =  0.0;
 
-  this->Resolution = (res < 0 ? 1 : res);
-}
-
-
-void vlLineSource::SetResolution(int res)
-{
-  if ( res != this->Resolution )
-    {
-    this->Resolution = (res < 0 ? 1 : res);
-    this->Modified();
-    }
-}
-int vlLineSource::GetResolution()
-{
-  return this->Resolution;
-}
-
-void vlLineSource::SetPoint1(float* x)
-{
-  if ( x[0] != this->Pt1[0] || x[1] != this->Pt1[1] || x[2] != this->Pt1[2])
-    {
-    this->Pt1[0] = x[0]; this->Pt1[1] = x[1]; this->Pt1[2] = x[2]; 
-    this->Modified();
-    }
-}
-void vlLineSource::GetPoint1(float* &x)
-{
-  x[0] = this->Pt1[0];
-  x[1] = this->Pt1[1];
-  x[2] = this->Pt1[2];
-}
-
-void vlLineSource::SetPoint2(float* x)
-{
-  if ( x[0] != this->Pt2[0] || x[1] != this->Pt2[1] || x[2] != this->Pt2[2])
-    {
-    this->Pt2[0] = x[0]; this->Pt2[1] = x[1]; this->Pt2[2] = x[2]; 
-    this->Modified();
-    }
-}
-void vlLineSource::GetPoint2(float* &x)
-{
-  x[0] = this->Pt2[0];
-  x[1] = this->Pt2[1];
-  x[2] = this->Pt2[2];
+  this->Resolution = (res < 1 ? 1 : res);
 }
 
 void vlLineSource::Execute()

@@ -11,45 +11,6 @@ vlCubeSource::vlCubeSource(float xL, float yL, float zL)
   this->ZLength = fabs(zL);
 }
 
-void vlCubeSource::SetXLength(float xL)
-{
-  if ( xL != this->XLength )
-    {
-    this->XLength = fabs(xL);
-    this->Modified();
-    }
-}
-float vlCubeSource::GetXLength()
-{
-  return this->XLength;
-}
-
-void vlCubeSource::SetYLength(float yL)
-{
-  if ( yL != this->YLength )
-    {
-    this->YLength = fabs(yL);
-    this->Modified();
-    }
-}
-float vlCubeSource::GetYLength()
-{
-  return this->YLength;
-}
-
-void vlCubeSource::SetZLength(float zL)
-{
-  if ( zL != this->ZLength )
-    {
-    this->ZLength = fabs(zL);
-    this->Modified();
-    }
-}
-float vlCubeSource::GetZLength()
-{
-  return this->ZLength;
-}
-
 void vlCubeSource::Execute()
 {
   float x[3], n[3];

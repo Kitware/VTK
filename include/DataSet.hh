@@ -25,18 +25,19 @@ public:
   virtual void Initialize() = 0;
   virtual void PointCoords(vlIdList& ptId, vlFloatPoints& fp) = 0;
   virtual void Update() {};
-  void GetBounds(float bounds[6]);
-  void GetCenter(float center[3]);
+
+  virtual void ComputeBounds();
+  float *GetBounds();
+  float *GetCenter();
   float GetLength();
   
-  void SetPointData (vlPointData* pd);
-  vlPointData *GetPointData();
+  vlSetObjectMacro(PointData,vlPointData);
+  vlGetObjectMacro(PointData,vlPointData);
 
 protected:
   vlPointData *PointData;  // Scalars, vectors, etc. associated w/ each point
   vlTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   float Bounds[6];
-  virtual void ComputeBounds();
 };
 
 #endif
