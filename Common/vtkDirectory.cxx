@@ -19,7 +19,7 @@
 
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkDirectory, "1.15.4.1");
+vtkCxxRevisionMacro(vtkDirectory, "1.15.4.2");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -78,6 +78,7 @@ void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
 #include <windows.h>
 #include <io.h>
 #include <ctype.h>
+#include <direct.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
