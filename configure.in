@@ -103,12 +103,16 @@ AC_CHECK_HEADERS(/usr/openwin/share/include/GL/glxmd.h,
 AC_CHECK_HEADERS(/opt/graphics/OpenGL/include/GL/glxmd.h, 
 		[use_oglr=yes]
 		OGLR_INCLUDE="-I/opt/graphics/OpenGL/include")
+# some linux OpenGL servers hide the includes in /usr/X11R6/include/GL
+AC_CHECK_HEADERS(/usr/X11R6/include/GL/glxmd.h, 
+		[use_oglr=yes]
+		OGLR_INCLUDE="-I/usr/X11R6/include")
 fi
 
 if test "$use_mesa_oglr" = "no"; then
 AC_MSG_CHECKING(for OpenGL library)
 OPENGLSW=""
-dirs="/opt/graphics/OpenGL/lib /usr/openwin/lib"
+dirs="/opt/graphics/OpenGL/lib /usr/openwin/lib /usr/X11R6/lib"
 for i in $dirs; do
   if test -r $i/libGL.so; then
     AC_MSG_RESULT($i)
