@@ -174,7 +174,7 @@ void vtkCleanPolyData::Execute()
           }
         }//for points in polygon
       
-      if ( numNewPts > 1 && updatedPts[0] == updatedPts[numNewPts-1] ) numNewPts--;
+      if ( numNewPts > 2 && updatedPts[0] == updatedPts[numNewPts-1] ) numNewPts--;
       if ( numNewPts > 2 ) newPolys->InsertNextCell(numNewPts,updatedPts);
       }
 
