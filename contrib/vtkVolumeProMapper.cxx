@@ -991,7 +991,7 @@ void vtkVolumeProMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkVolumeMapper::PrintSelf(os,indent);
 
-  // don't print SubVolume ivar
+  // don't print this->SubVolume 
   os << indent << "Number Of Boards: " << this->NumberOfBoards << endl;
 
   os << indent << "Major Board Version: " << this->MajorBoardVersion << endl;
