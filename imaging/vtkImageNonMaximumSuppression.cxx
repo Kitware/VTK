@@ -280,7 +280,7 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
 		}
 	      }
 	    // Vector points negative along this axis?
-	    else if (d < *thresh)
+	    else if (d < -(*thresh))
 	      {
 	      if (*idxs < imageExtent[1])  // max
 		{
