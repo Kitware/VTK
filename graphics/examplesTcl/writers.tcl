@@ -61,14 +61,6 @@ wm withdraw .
 
 #
 # test the writers
-vtkBYUWriter byu
-  byu SetGeometryFileName brain.g
-  byu SetScalarFileName brain.s
-  byu SetDisplacementFileName brain.d
-  byu SetTextureFileName brain.t
-  byu SetInput [smooth GetOutput]
-  byu Write
-
 vtkDataSetWriter dsw
   dsw SetInput [smooth GetOutput]
   dsw SetFileName brain.dsw
@@ -84,6 +76,13 @@ vtkPolyDataWriter pdw
 vtkTriangleFilter triangles
   triangles SetInput [smooth GetOutput]
 
+vtkBYUWriter byu
+  byu SetGeometryFileName brain.g
+  byu SetScalarFileName brain.s
+  byu SetDisplacementFileName brain.d
+  byu SetInput [triangles GetOutput]
+  byu Write
+
 vtkMCubesWriter mcubes
   mcubes SetInput [triangles GetOutput]
   mcubes SetFileName brain.tri
@@ -97,7 +96,7 @@ vtkSTLWriter stl
 vtkSTLWriter stlBinary
   stlBinary SetInput [triangles GetOutput]
   stlBinary SetFileName brainBinary.stl
-  stlBinary SetFileTypeToBinary
+  stlBinary SetFileType 2
   stlBinary Write
 
 
