@@ -311,6 +311,8 @@ int TestSplineWidget( int argc, char *argv[] )
   camera->Elevation(110);
   camera->SetViewUp(0, 0, -1);
   camera->Azimuth(45);
+  camera->SetFocalPoint(100.8,100.8,69);
+  camera->SetPosition(560.949, 560.949, -167.853);
   ren1->ResetCameraClippingRange();
 
   // Position the actors
