@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 // now add in the UNIX / Windows varients
-#ifdef _WIN32
+#if defined(_WIN32) || defined(WIN32)
 #include <strstrea.h>
 #include <windows.h>
 
