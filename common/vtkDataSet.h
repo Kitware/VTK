@@ -318,6 +318,11 @@ public:
   // Description:
   // NOW OBSOLETE.  Use GetDataType instead.
   virtual int GetDataSetType() {return this->GetDataObjectType();}
+
+  // Description:
+  // Shallow and Deep copy.
+  void ShallowCopy(vtkDataObject *src);  
+  void DeepCopy(vtkDataObject *src);
   
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -332,6 +337,8 @@ protected:
   float Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
   float ScalarRange[2];
   float Center[3];
+
+  void InternalCopy(vtkDataSet *src);  
 };
 
 inline void vtkDataSet::GetPoint(int id, float x[3])

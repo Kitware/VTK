@@ -610,6 +610,101 @@ unsigned long vtkUnstructuredGrid::GetActualMemorySize()
   return size;
 }
 
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::ShallowCopy(vtkDataObject *dataObject)
+{
+  vtkUnstructuredGrid *grid = vtkUnstructuredGrid::SafeDownCast(dataObject);
+
+  if ( grid != NULL )
+    {
+    // I do not know if this is correct but.
+    if (this->Cells)
+      {
+      this->Cells->Delete();
+      }
+    this->Cells = grid->Cells;
+    if (this->Cells)
+      {
+      this->Cells->Register(this);
+      }
+
+    if (this->Connectivity)
+      {
+      this->Connectivity->Delete();
+      }
+    this->Connectivity = grid->Connectivity;
+    if (this->Connectivity)
+      {
+      this->Connectivity->Register(this);
+      }
+
+    if (this->Links)
+      {
+      this->Links->Delete();
+      }
+    this->Links = grid->Links;
+    if (this->Links)
+      {
+      this->Links->Register(this);
+      }
+    }
+
+  // Do superclass
+  this->vtkPointSet::ShallowCopy(dataObject);
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::DeepCopy(vtkDataObject *dataObject)
+{
+  vtkUnstructuredGrid *grid = vtkUnstructuredGrid::SafeDownCast(dataObject);
+
+  if ( grid != NULL )
+    {
+    if ( this->Connectivity )
+      {
+      this->Connectivity->UnRegister(this);
+      this->Connectivity = NULL;
+      }
+    if (grid->Connectivity)
+      {
+      this->Connectivity = vtkCellArray::New();
+      this->Connectivity->DeepCopy(grid->Connectivity);
+      this->Connectivity->Register(this);
+      this->Connectivity->Delete();
+      }
+
+    if ( this->Cells )
+      {
+      this->Cells->UnRegister(this);
+      this->Cells = NULL;
+      }
+    if (grid->Cells)
+      {
+      this->Cells = vtkCellTypes::New();
+      this->Cells->DeepCopy(grid->Cells);
+      this->Cells->Register(this);
+      this->Cells->Delete();
+      }
+
+    if ( this->Links )
+      {
+      this->Links->UnRegister(this);
+      this->Links = NULL;
+      }
+    if (grid->Links)
+      {
+      this->Links = vtkCellLinks::New();
+      this->Links->DeepCopy(grid->Links);
+      this->Links->Register(this);
+      this->Links->Delete();
+      }
+    }
+
+  // Do superclass
+  this->vtkPointSet::DeepCopy(dataObject);
+}
+
+
 void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSet::PrintSelf(os,indent);

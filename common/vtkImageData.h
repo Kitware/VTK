@@ -318,6 +318,11 @@ public:
 
   int GetMemoryLimit() { return 0; };
 
+  // Description:
+  // Shallow and Deep copy.
+  void ShallowCopy(vtkDataObject *src);  
+  void DeepCopy(vtkDataObject *src);
+  
 protected:
   vtkImageData();
   ~vtkImageData();
@@ -346,7 +351,9 @@ protected:
   int NumberOfScalarComponents;
 
   void ComputeIncrements();
+  void InternalCopy(vtkImageData *src);
 };
+
 
 inline void vtkImageData::GetPoint(int id, float x[3])
 {

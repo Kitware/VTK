@@ -296,6 +296,12 @@ public:
   // data in case the memory can be reused.
   virtual void PrepareForNewData() {this->Initialize();};
 
+  // Description:
+  // Shallow and Deep copy.  These copiy the data, but not any of the 
+  // pipeline connections.
+  virtual void ShallowCopy(vtkDataObject *src);  
+  virtual void DeepCopy(vtkDataObject *src);
+
 protected:
 
   vtkDataObject();
@@ -343,6 +349,9 @@ protected:
   int Extent[6];
   int UpdateExtent[6];
 
+  // Helper method for the ShallowCopy and DeepCopy methods.
+  void InternalCopy(vtkDataObject *src);
+
   // If the ExtentType is VTK_PIECES_EXTENT, then these three variables 
   // represent the maximum number of pieces that the data object can be
   // broken into, which piece out of how many is currently in the extent,
@@ -379,9 +388,6 @@ protected:
   // How many upstream filters are local to the process.
   // This will have to change to a float for Kens definition of locality.
   float Locality;  
-
-  // Support for processing series of data sets.
-  int SeriesLength;
 };
 
 #endif

@@ -171,6 +171,11 @@ public:
   // IS THREAD SAFE.
   unsigned long GetActualMemorySize();
 
+  // Description:
+  // Shallow and Deep copy.
+  void ShallowCopy(vtkDataObject *src);  
+  void DeepCopy(vtkDataObject *src);
+
 protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid();
@@ -191,6 +196,9 @@ protected:
   int Blanking;
   vtkScalars *PointVisibility;
   void AllocatePointVisibility();
+
+  // Internal method used by DeepCopy and ShallowCopy.
+  void InternalCopy(vtkStructuredGrid *src);
 
 private:
   // Description:

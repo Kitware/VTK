@@ -297,3 +297,11 @@ unsigned long vtkCellLinks::GetActualMemorySize()
 
   return (unsigned long) ceil((float)size/1000.0); //kilobytes
 }
+
+void vtkCellLinks::DeepCopy(vtkCellLinks *src)
+{
+  this->Allocate(src->Size, src->Extend);
+  memcpy(this->Array, src->Array, this->Size * sizeof(_vtkLink_s));
+  this->MaxId = src->MaxId;
+}
+

@@ -165,3 +165,12 @@ unsigned long vtkCellTypes::GetActualMemorySize()
 
   return (unsigned long) ceil((float)size/1000.0); //kilobytes
 }
+
+
+void vtkCellTypes::DeepCopy(vtkCellTypes *src)
+{
+  this->Allocate(src->Size, src->Extend);
+  memcpy(this->Array, src->Array, this->Size * sizeof(_vtkCell_s));
+  this->MaxId = src->MaxId;
+}
+

@@ -1433,6 +1433,104 @@ unsigned long vtkPolyData::GetActualMemorySize()
   return size;
 }
 
+//----------------------------------------------------------------------------
+void vtkPolyData::ShallowCopy(vtkDataObject *dataObject)
+{
+  vtkPolyData *polyData = vtkPolyData::SafeDownCast(dataObject);
+
+  if ( polyData != NULL )
+    {
+    this->SetVerts(polyData->GetVerts());
+    this->SetLines(polyData->GetLines());
+    this->SetPolys(polyData->GetPolys());
+    this->SetStrips(polyData->GetStrips());
+    
+    // I do not know if this is correct but.
+    if (this->Cells)
+      {
+      this->Cells->Delete();
+      }
+    this->Cells = polyData->Cells;
+    if (this->Cells)
+      {
+      this->Cells->Register(this);
+      }
+
+    if (this->Links)
+      {
+      this->Links->Delete();
+      }
+    this->Links = polyData->Links;
+    if (this->Links)
+      {
+      this->Links->Register(this);
+      }
+    }
+
+  // Do superclass
+  this->vtkPointSet::ShallowCopy(dataObject);
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyData::DeepCopy(vtkDataObject *dataObject)
+{
+  vtkPolyData *polyData = vtkPolyData::SafeDownCast(dataObject);
+
+  if ( polyData != NULL )
+    {
+    vtkCellArray *ca;
+    ca = vtkCellArray::New();
+    ca->DeepCopy(polyData->GetVerts());
+    this->SetVerts(ca);
+    ca->Delete();
+
+    ca = vtkCellArray::New();
+    ca->DeepCopy(polyData->GetLines());
+    this->SetLines(ca);
+    ca->Delete();
+
+    ca = vtkCellArray::New();
+    ca->DeepCopy(polyData->GetPolys());
+    this->SetPolys(ca);
+    ca->Delete();
+
+    ca = vtkCellArray::New();
+    ca->DeepCopy(polyData->GetStrips());
+    this->SetStrips(ca);
+    ca->Delete();
+
+    if ( this->Cells )
+      {
+      this->Cells->UnRegister(this);
+      this->Cells = NULL;
+      }
+    if (polyData->Cells)
+      {
+      this->Cells = vtkCellTypes::New();
+      this->Cells->DeepCopy(polyData->Cells);
+      this->Cells->Register(this);
+      this->Cells->Delete();
+      }
+
+    if ( this->Links )
+      {
+      this->Links->UnRegister(this);
+      this->Links = NULL;
+      }
+    if (polyData->Links)
+      {
+      this->Links = vtkCellLinks::New();
+      this->Links->DeepCopy(polyData->Links);
+      this->Links->Register(this);
+      this->Links->Delete();
+      }
+    }
+
+  // Do superclass
+  this->vtkPointSet::DeepCopy(dataObject);
+}
+
+
 void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSet::PrintSelf(os,indent);

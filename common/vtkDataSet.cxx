@@ -46,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataSet.h"
 #include "vtkSource.h"
 
+//----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
 vtkDataSet::vtkDataSet ()
 {
@@ -60,12 +61,14 @@ vtkDataSet::vtkDataSet ()
   this->CellData = vtkCellData::New();
 }
 
+//----------------------------------------------------------------------------
 vtkDataSet::~vtkDataSet ()
 {
   this->PointData->Delete();
   this->CellData->Delete();
 }
 
+//----------------------------------------------------------------------------
 // Copy constructor.
 vtkDataSet::vtkDataSet (const vtkDataSet& ds) :
 PointData(ds.PointData)
@@ -77,6 +80,7 @@ PointData(ds.PointData)
   this->ReleaseDataFlag = ds.ReleaseDataFlag;
 }
 
+//----------------------------------------------------------------------------
 void vtkDataSet::Initialize()
 {
   // We don't modify ourselves because the "ReleaseData" methods depend upon
@@ -87,6 +91,7 @@ void vtkDataSet::Initialize()
   this->PointData->Initialize();
 }
 
+//----------------------------------------------------------------------------
 // Compute the data bounding box from data points.
 void vtkDataSet::ComputeBounds()
 {
@@ -117,6 +122,7 @@ void vtkDataSet::ComputeBounds()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkDataSet::GetScalarRange(float range[2])
 {
   vtkScalars *ptScalars, *cellScalars;
@@ -146,12 +152,14 @@ void vtkDataSet::GetScalarRange(float range[2])
     }
 }
 
+//----------------------------------------------------------------------------
 float *vtkDataSet::GetScalarRange()
 {
   this->GetScalarRange(this->ScalarRange);
   return this->ScalarRange;
 }
 
+//----------------------------------------------------------------------------
 // Return a pointer to the geometry bounding box in the form
 // (xmin,xmax, ymin,ymax, zmin,zmax).
 float *vtkDataSet::GetBounds()
@@ -160,6 +168,7 @@ float *vtkDataSet::GetBounds()
   return this->Bounds;
 }
   
+//----------------------------------------------------------------------------
 void vtkDataSet::GetBounds(float bounds[6])
 {
   this->ComputeBounds();
@@ -169,6 +178,7 @@ void vtkDataSet::GetBounds(float bounds[6])
     }
 }
   
+//----------------------------------------------------------------------------
 // Get the center of the bounding box.
 float *vtkDataSet::GetCenter()
 {
@@ -180,6 +190,7 @@ float *vtkDataSet::GetCenter()
   return this->Center;
 }
 
+//----------------------------------------------------------------------------
 void vtkDataSet::GetCenter(float center[3])
 {
   this->ComputeBounds();
@@ -189,6 +200,7 @@ void vtkDataSet::GetCenter(float center[3])
     }
 }
   
+//----------------------------------------------------------------------------
 // Return the length of the diagonal of the bounding box.
 float vtkDataSet::GetLength()
 {
@@ -205,6 +217,7 @@ float vtkDataSet::GetLength()
   return (float)sqrt(l);
 }
 
+//----------------------------------------------------------------------------
 unsigned long int vtkDataSet::GetMTime()
 {
   unsigned long mtime, result;
@@ -223,6 +236,7 @@ unsigned long int vtkDataSet::GetMTime()
   return ( mtime > result ? mtime : result );
 }
 
+//----------------------------------------------------------------------------
 vtkCell *vtkDataSet::FindAndGetCell (float x[3], vtkCell *cell, int cellId, 
                                      float tol2, int& subId,
                                      float pcoords[3], float *weights)
@@ -239,6 +253,7 @@ vtkCell *vtkDataSet::FindAndGetCell (float x[3], vtkCell *cell, int cellId,
   return cell;
 }
 
+//----------------------------------------------------------------------------
 void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList *ptIds,
                                   vtkIdList *cellIds)
 {
@@ -263,6 +278,7 @@ void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList *ptIds,
   otherCells->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkDataSet::GetCellTypes(vtkCellTypes *types)
 {
   int cellId, numCells=this->GetNumberOfCells();
@@ -280,6 +296,7 @@ void vtkDataSet::GetCellTypes(vtkCellTypes *types)
 }
 
 
+//----------------------------------------------------------------------------
 // Default implementation. This is very slow way to compute this information.
 // Subclasses should override this method for efficiency.
 void vtkDataSet::GetCellBounds(int cellId, float bounds[6])
@@ -292,12 +309,14 @@ void vtkDataSet::GetCellBounds(int cellId, float bounds[6])
   cell->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkDataSet::Squeeze()
 {
   this->CellData->Squeeze();
   this->PointData->Squeeze();
 }
 
+//----------------------------------------------------------------------------
 unsigned long vtkDataSet::GetActualMemorySize()
 {
   unsigned long size=this->vtkDataObject::GetActualMemorySize();
@@ -306,6 +325,54 @@ unsigned long vtkDataSet::GetActualMemorySize()
   return size;
 }
 
+//----------------------------------------------------------------------------
+void vtkDataSet::ShallowCopy(vtkDataObject *dataObject)
+{
+  vtkDataSet *dataSet = vtkDataSet::SafeDownCast(dataObject);
+
+  if ( dataSet != NULL )
+    {
+    this->InternalCopy(dataSet);
+    this->CellData->ShallowCopy(dataSet->GetCellData());
+    this->PointData->ShallowCopy(dataSet->GetPointData());
+    }
+  // Do superclass
+  this->vtkDataObject::ShallowCopy(dataObject);
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSet::DeepCopy(vtkDataObject *dataObject)
+{
+  vtkDataSet *dataSet = vtkDataSet::SafeDownCast(dataObject);
+ 
+  if ( dataSet != NULL )
+    {
+    this->InternalCopy(dataSet);
+    this->CellData->DeepCopy(dataSet->GetCellData());
+    this->PointData->DeepCopy(dataSet->GetPointData());
+    }
+
+  // Do superclass
+  this->vtkDataObject::DeepCopy(dataObject);
+}
+
+//----------------------------------------------------------------------------
+// This copies all the local variables (but not objects).
+void vtkDataSet::InternalCopy(vtkDataSet *src)
+{
+  int idx;
+
+  this->ComputeTime = src->ComputeTime;
+  this->ScalarRange[0] = src->ScalarRange[0];
+  this->ScalarRange[1] = src->ScalarRange[1];
+  for (idx = 0; idx < 3; ++idx)
+    {
+    this->Bounds[idx] = src->Bounds[idx];
+    this->Bounds[idx*2] = src->Bounds[idx*2];
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   float *bounds;

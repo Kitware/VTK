@@ -141,6 +141,11 @@ public:
   // been updated.
   unsigned long GetActualMemorySize();
   
+  // Description:
+  // Standard DeepCopy method.  Since this object contains no reference
+  // to other objects, there is no ShallowCopy.
+  void DeepCopy(vtkCellLinks *src);
+
 protected:
   vtkCellLinks():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
   ~vtkCellLinks();

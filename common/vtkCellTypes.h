@@ -130,7 +130,12 @@ public:
   // The information returned is valid only after the pipeline has 
   // been updated.
   unsigned long GetActualMemorySize();
-  
+
+  // Description:
+  // Standard DeepCopy method.  Since this object contains no reference
+  // to other objects, there is no ShallowCopy.
+  void DeepCopy(vtkCellTypes *src);
+
 protected:
   vtkCellTypes() : Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
   ~vtkCellTypes();

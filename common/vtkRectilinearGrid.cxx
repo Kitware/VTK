@@ -920,6 +920,53 @@ void vtkRectilinearGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
       this->vtkDataSet::GetCellNeighbors(cellId, ptIds, cellIds);
     }
 }
+//----------------------------------------------------------------------------
+void vtkRectilinearGrid::ShallowCopy(vtkDataObject *dataObject)
+{
+  vtkRectilinearGrid *grid = vtkRectilinearGrid::SafeDownCast(dataObject);
+
+  if ( grid != NULL )
+    {
+    this->SetDimensions(grid->GetDimensions());
+    this->DataDescription = grid->DataDescription;
+    
+    this->SetXCoordinates(grid->GetXCoordinates());
+    this->SetYCoordinates(grid->GetYCoordinates());
+    this->SetZCoordinates(grid->GetZCoordinates());
+    }
+
+  // Do superclass
+  this->vtkDataSet::ShallowCopy(dataObject);
+}
+
+//----------------------------------------------------------------------------
+void vtkRectilinearGrid::DeepCopy(vtkDataObject *dataObject)
+{
+  vtkRectilinearGrid *grid = vtkRectilinearGrid::SafeDownCast(dataObject);
+
+  if ( grid != NULL )
+    {
+    vtkScalars *s;
+    this->SetDimensions(grid->GetDimensions());
+    this->DataDescription = grid->DataDescription;
+    
+    s = vtkScalars::New();
+    s->DeepCopy(grid->GetXCoordinates());
+    this->SetXCoordinates(s);
+    s->Delete();
+    s = vtkScalars::New();
+    s->DeepCopy(grid->GetYCoordinates());
+    this->SetYCoordinates(s);
+    s->Delete();
+    s = vtkScalars::New();
+    s->DeepCopy(grid->GetZCoordinates());
+    this->SetZCoordinates(s);
+    s->Delete();
+    }
+
+  // Do superclass
+  this->vtkDataSet::DeepCopy(dataObject);
+}
 
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)

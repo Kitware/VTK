@@ -796,7 +796,6 @@ void vtkStructuredGrid::SetUpdateExtent(int piece, int numPieces)
 }
 
 //----------------------------------------------------------------------------
-
 void vtkStructuredGrid::SetExtent(int extent[6])
 {
   int description;
@@ -822,7 +821,6 @@ void vtkStructuredGrid::SetExtent(int extent[6])
 }
 
 //----------------------------------------------------------------------------
-
 void vtkStructuredGrid::SetExtent(int xMin, int xMax, 
 				  int yMin, int yMax,
 				  int zMin, int zMax)
@@ -837,7 +835,6 @@ void vtkStructuredGrid::SetExtent(int xMin, int xMax,
 }
 
 //----------------------------------------------------------------------------
-
 void vtkStructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
                                          vtkIdList *cellIds)
 {
@@ -861,14 +858,55 @@ void vtkStructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
 }
 
 //----------------------------------------------------------------------------
-
 unsigned long vtkStructuredGrid::GetActualMemorySize()
 {
   return this->vtkPointSet::GetActualMemorySize();
 }
 
 //----------------------------------------------------------------------------
+void vtkStructuredGrid::ShallowCopy(vtkDataObject *dataObject)
+{
+  vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast(dataObject);
 
+  if ( grid != NULL )
+    {
+    this->InternalCopy(grid);
+    }
+
+  // Do superclass
+  this->vtkPointSet::ShallowCopy(dataObject);
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::DeepCopy(vtkDataObject *dataObject)
+{
+  vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast(dataObject);
+
+  if ( grid != NULL )
+    {
+    this->InternalCopy(grid);
+    }
+
+  // Do superclass
+  this->vtkPointSet::DeepCopy(dataObject);
+}
+
+//----------------------------------------------------------------------------
+// This copies all the local variables (but not objects).
+void vtkStructuredGrid::InternalCopy(vtkStructuredGrid *src)
+{
+  int idx;
+
+  this->DataDescription = src->DataDescription;
+  this->Blanking = src->Blanking;
+
+  for (idx = 0; idx < 3; ++idx)
+    {
+    this->Dimensions[idx] = src->Dimensions[idx];
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSet::PrintSelf(os,indent);

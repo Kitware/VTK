@@ -583,9 +583,57 @@ void vtkDataObject::CopyInformation( vtkDataObject *data )
     }  
 }
 
+//----------------------------------------------------------------------------
+void vtkDataObject::ShallowCopy(vtkDataObject *src)
+{
+  this->InternalCopy(src);
+
+  this->SetFieldData(src->GetFieldData());
+}
 
 //----------------------------------------------------------------------------
+void vtkDataObject::DeepCopy(vtkDataObject *src)
+{
+  vtkFieldData *srcFieldData = src->GetFieldData();
+  
+  this->InternalCopy(src);
 
+  if (srcFieldData)
+    {
+    vtkFieldData *newFieldData = vtkFieldData::New();
+    newFieldData->DeepCopy(srcFieldData);
+    this->SetFieldData(newFieldData);
+    newFieldData->Delete();
+    }
+  else
+    {
+    this->SetFieldData(NULL);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::InternalCopy(vtkDataObject *src)
+{
+  int idx;
+
+  this->DataReleased = src->DataReleased;
+  for (idx = 0; idx < 6; ++idx)
+    {
+    this->WholeExtent[idx] = this->Extent[idx] = this->UpdateExtent[idx] = 
+      src->Extent[idx];
+    }
+  this->MaximumNumberOfPieces = 1;
+  this->NumberOfPieces = 1;
+  this->UpdateNumberOfPieces = 1;
+  this->UpdatePiece = 0;
+  this->ReleaseDataFlag = src->ReleaseDataFlag;
+  this->EstimatedWholeMemorySize = src->EstimatedWholeMemorySize;
+  this->PipelineMTime = src->PipelineMTime;
+  this->Locality = 0.0;
+}
+
+
+//----------------------------------------------------------------------------
 void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);

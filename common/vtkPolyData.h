@@ -376,6 +376,11 @@ public:
   // IS THREAD SAFE.
   unsigned long GetActualMemorySize();
   
+  // Description:
+  // Shallow and Deep copy.
+  void ShallowCopy(vtkDataObject *src);  
+  void DeepCopy(vtkDataObject *src);
+
 protected:
   vtkPolyData();
   ~vtkPolyData();

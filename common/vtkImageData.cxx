@@ -1706,3 +1706,54 @@ unsigned long vtkImageData::GetActualMemorySize()
   return this->vtkDataSet::GetActualMemorySize();
 }
 
+
+//----------------------------------------------------------------------------
+void vtkImageData::ShallowCopy(vtkDataObject *dataObject)
+{
+  vtkImageData *imageData = vtkImageData::SafeDownCast(dataObject);
+
+  if ( imageData != NULL )
+    {
+    this->InternalCopy(imageData);
+    }
+
+  // Do superclass
+  this->vtkDataSet::ShallowCopy(dataObject);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::DeepCopy(vtkDataObject *dataObject)
+{
+  vtkImageData *imageData = vtkImageData::SafeDownCast(dataObject);
+
+  if ( imageData != NULL )
+    {
+    this->InternalCopy(imageData);
+    }
+
+  // Do superclass
+  this->vtkDataSet::DeepCopy(dataObject);
+}
+
+//----------------------------------------------------------------------------
+// This copies all the local variables (but not objects).
+void vtkImageData::InternalCopy(vtkImageData *src)
+{
+  int idx;
+
+  this->DataDescription = src->DataDescription;
+  this->ScalarType = src->ScalarType;
+  this->NumberOfScalarComponents = src->NumberOfScalarComponents;
+  for (idx = 0; idx < 3; ++idx)
+    {
+    this->Dimensions[idx] = src->Dimensions[idx];
+    this->Increments[idx] = src->Increments[idx];
+    this->Origin[idx] = src->Origin[idx];
+    this->Spacing[idx] = src->Spacing[idx];
+    }
+}
+
+
+
+
+

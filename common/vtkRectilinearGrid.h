@@ -204,6 +204,11 @@ public:
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
   unsigned long GetActualMemorySize();
+
+  // Description:
+  // Shallow and Deep copy.
+  void ShallowCopy(vtkDataObject *src);  
+  void DeepCopy(vtkDataObject *src);
   
 protected:
   vtkRectilinearGrid();

@@ -48,6 +48,7 @@ vtkPointSet::vtkPointSet ()
   this->Locator = NULL;
 }
 
+//----------------------------------------------------------------------------
 vtkPointSet::vtkPointSet(const vtkPointSet& ps) :
 vtkDataSet(ps)
 {
@@ -64,6 +65,7 @@ vtkDataSet(ps)
     }
 }
 
+//----------------------------------------------------------------------------
 vtkPointSet::~vtkPointSet ()
 {
   this->Initialize();
@@ -74,6 +76,7 @@ vtkPointSet::~vtkPointSet ()
     }
 }
 
+//----------------------------------------------------------------------------
 // Copy the geometric structure of an input point set object.
 void vtkPointSet::CopyStructure(vtkDataSet *ds)
 {
@@ -88,6 +91,7 @@ void vtkPointSet::CopyStructure(vtkDataSet *ds)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkPointSet::Initialize()
 {
   vtkDataSet::Initialize();
@@ -103,6 +107,7 @@ void vtkPointSet::Initialize()
     this->Locator->Initialize();
     }
 }
+//----------------------------------------------------------------------------
 void vtkPointSet::ComputeBounds()
 {
   float *bounds;
@@ -118,6 +123,7 @@ void vtkPointSet::ComputeBounds()
     }
 }
 
+//----------------------------------------------------------------------------
 unsigned long int vtkPointSet::GetMTime()
 {
   unsigned long int dsTime = vtkDataSet::GetMTime();
@@ -137,6 +143,7 @@ unsigned long int vtkPointSet::GetMTime()
   return dsTime;
 }
 
+//----------------------------------------------------------------------------
 int vtkPointSet::FindPoint(float x[3])
 {
   if ( !this->Points )
@@ -161,6 +168,7 @@ int vtkPointSet::FindPoint(float x[3])
 //the furthest the walk can be - prevents aimless wandering
 #define VTK_MAX_WALK 12
 
+//----------------------------------------------------------------------------
 int vtkPointSet::FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
 			  int cellId, float tol2, 
                           int& subId, float pcoords[3], float *weights)
@@ -292,6 +300,7 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
   return -1;
 }
 
+//----------------------------------------------------------------------------
 int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2, 
                           int& subId, float pcoords[3], float *weights)
 {
@@ -302,6 +311,7 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
 #undef VTK_MAX_WALK
 
 
+//----------------------------------------------------------------------------
 void vtkPointSet::Squeeze()
 {
   if ( this->Points )
@@ -311,6 +321,7 @@ void vtkPointSet::Squeeze()
   vtkDataSet::Squeeze();
 }
 
+//----------------------------------------------------------------------------
 void vtkPointSet::UnRegister(vtkObject *o)
 {
   // detect the circular loop source <-> data
@@ -348,6 +359,7 @@ void vtkPointSet::UnRegister(vtkObject *o)
 }
 
 
+//----------------------------------------------------------------------------
 int vtkPointSet::GetNetReferenceCount()
 {
   if (this->Locator && this->Locator->GetDataSet() == this)
@@ -358,6 +370,7 @@ int vtkPointSet::GetNetReferenceCount()
 }
 
 
+//----------------------------------------------------------------------------
 unsigned long vtkPointSet::GetActualMemorySize()
 {
   unsigned long size=this->vtkDataSet::GetActualMemorySize();
@@ -368,6 +381,39 @@ unsigned long vtkPointSet::GetActualMemorySize()
   return size;
 }
 
+//----------------------------------------------------------------------------
+void vtkPointSet::ShallowCopy(vtkDataObject *dataObject)
+{
+  vtkPointSet *pointSet = vtkPointSet::SafeDownCast(dataObject);
+
+  if ( pointSet != NULL )
+    {
+    this->SetPoints(pointSet->GetPoints());
+    }
+
+  // Do superclass
+  this->vtkDataSet::ShallowCopy(dataObject);
+}
+
+//----------------------------------------------------------------------------
+void vtkPointSet::DeepCopy(vtkDataObject *dataObject)
+{
+  vtkPointSet *pointSet = vtkPointSet::SafeDownCast(dataObject);
+
+  if ( pointSet != NULL )
+    {
+    if (this->Points == NULL)
+      {
+      this->Points = vtkPoints::New();
+      }
+    this->Points->DeepCopy(pointSet->GetPoints());
+    }
+
+  // Do superclass
+  this->vtkDataSet::DeepCopy(dataObject);
+}
+
+//----------------------------------------------------------------------------
 void vtkPointSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSet::PrintSelf(os,indent);
