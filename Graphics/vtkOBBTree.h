@@ -44,7 +44,7 @@
 // go a long way to correcting this problem.
 
 // .SECTION See Also
-// vtkLocator vtkCellLocator vtkLocatorFilter
+// vtkLocator vtkCellLocator vtkPointLocator
 
 #ifndef __vtkOBBTree_h
 #define __vtkOBBTree_h
