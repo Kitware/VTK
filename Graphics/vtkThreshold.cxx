@@ -64,6 +64,12 @@ vtkThreshold::vtkThreshold()
   this->AllScalars = 1;
   this->AttributeMode = VTK_ATTRIBUTE_MODE_USE_POINT_DATA;
   this->ThresholdFunction = &vtkThreshold::Upper;
+  this->ArrayName = NULL;
+}
+
+vtkThreshold::~vtkThreshold()
+{
+  this->SetArrayName(NULL);
 }
 
 // Criterion is cells whose scalars are less or equal to lower threshold.
@@ -121,11 +127,22 @@ void vtkThreshold::Execute()
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  vtkDataArray *pointScalars=pd->GetActiveScalars();
-  vtkDataArray *cellScalars=cd->GetActiveScalars();
+  vtkDataArray *pointScalars;
+  vtkDataArray *cellScalars;
   int keepCell, usePointScalars;
-  
+
   vtkDebugMacro(<< "Executing threshold filter");
+  
+  if (this->ArrayName)
+    {
+    pointScalars=pd->GetArray(this->ArrayName);
+    cellScalars=cd->GetArray(this->ArrayName);
+    }
+  else
+    {
+    pointScalars=pd->GetActiveScalars();
+    cellScalars=cd->GetActiveScalars();
+    }
 
   outPD->CopyAllocate(pd);
   outCD->CopyAllocate(cd);

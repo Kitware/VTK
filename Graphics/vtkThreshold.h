@@ -113,9 +113,15 @@ public:
   vtkGetMacro(AllScalars,int);
   vtkBooleanMacro(AllScalars,int);
   
+  // Description:
+  // If you want to threshold by an arbitrary array, then set its name here.
+  // By default this in NULL which implies use scalars.
+  vtkSetStringMacro(ArrayName);
+  vtkGetStringMacro(ArrayName);
+  
 protected:
   vtkThreshold();
-  ~vtkThreshold() {};
+  ~vtkThreshold();
   vtkThreshold(const vtkThreshold&);
   void operator=(const vtkThreshold&);
 
@@ -135,6 +141,8 @@ protected:
   int Upper(float s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
   int Between(float s) {return ( s >= this->LowerThreshold ? 
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
+
+  char *ArrayName;
 };
 
 #endif
