@@ -71,7 +71,7 @@ public:
   // This is a prototype for a compare function. It has to
   // return 0 if objects are the same, <0 if item1 is smaller than
   // item2 and >0 if item1 is greater than item2.
-  typedef vtkAbstractListCompareFunction(DType, CompareFunction);
+  typedef vtkAbstractListCompareFunction(DType, CompareFunctionType);
 
   // Description:
   // Append an Item to the end of the list.
@@ -120,7 +120,7 @@ public:
   // Return one if it was found, zero if it was
   // not found. The location of the item is returned in res.
   // It returns VTK_OK if successfull.
-  virtual int FindItem(DType a, CompareFunction compare, 
+  virtual int FindItem(DType a, CompareFunctionType compare, 
                        vtkIdType &res) = 0;
 
   // Description:
