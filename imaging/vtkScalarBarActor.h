@@ -96,6 +96,12 @@ public:
   static vtkScalarBarActor *New() {return new vtkScalarBarActor;};
   
   // Description:
+  // Access the Position2 instance variable. This variable controls
+  // the upper right corner of the scalarbar. It is by default
+  // relative to Position1 and in Normalized Viewport coordinates.
+  vtkViewportCoordinateMacro(Position2);
+  
+  // Description:
   // Draw the scalar bar and annotation text to the screen.
   void Render(vtkViewport*);
 
@@ -107,22 +113,13 @@ public:
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
   // Description:
-  // Set/Get the width of the scalar bar. The value is expressed
-  // as a fraction of the viewport. (Note: if the orientation of the scalar
-  // bar is vertical, then the width is in the direction of the viewport 
-  // x-axis. If the orientation is horizontal, the width is in the direction 
-  // of the  viewport y-axis.)
-  vtkSetClampMacro(Width, float, 0.0, 1.0);
-  vtkGetMacro(Width, float);
-  
-  // Description:
-  // Set/Get the height of the scalar bar. The value is expressed
-  // as a fraction of the viewport. (Note: if the orientation of the scalar
-  // bar is vertical, then the height is in the direction of the viewport 
-  // y-axis. If the orientation is horizontal, the height is in the direction 
-  // of the  viewport x-axis.)
-  vtkSetClampMacro(Height, float, 0.0, 1.0);
-  vtkGetMacro(Height, float);
+  // Set/Get the height and width of the scalar bar. The value is expressed
+  // as a fraction of the viewport. This really is just another way of
+  // setting the Position2 instance variable.
+  void SetWidth(float w);
+  float GetWidth();
+  void SetHeight(float h);
+  float GetHeight();
   
   // Description:
   // Set/Get the maximum number of scalar bar segements to show. This may
@@ -143,12 +140,6 @@ public:
   void SetOrientationToHorizontal()
        {this->SetOrientation(VTK_ORIENT_HORIZONTAL);};
   void SetOrientationToVertical() {this->SetOrientation(VTK_ORIENT_VERTICAL);};
-
-  // Description:
-  // Set/Get suggested font size used to annotate the scalar bar. (Suggested
-  // because not all font sizes may be available.) Value is expressed in points
-  vtkSetClampMacro(FontSize,int,0,VTK_LARGE_INTEGER);
-  vtkGetMacro(FontSize,int);
 
   // Description:
   // Enable/Disable bolding annotation text.
@@ -192,21 +183,19 @@ public:
 
 protected:
   vtkLookupTable *LookupTable;
-  float Width;
-  float Height;
   int   MaximumNumberOfColors;
   int   NumberOfLabels;
   int   NumberOfLabelsBuilt;
   int   Orientation;
   char  *Title;
 
-  int   FontSize;
   int	Bold;
   int   Italic;
   int   Shadow;
   int   FontFamily;
   char  *LabelFormat;
-
+  vtkCoordinate *Position2Coordinate;
+  
 private:
   vtkTextMapper *TitleMapper;
   vtkActor2D    *TitleActor;

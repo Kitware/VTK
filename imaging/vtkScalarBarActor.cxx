@@ -48,15 +48,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkScalarBarActor::vtkScalarBarActor()
 {
   this->LookupTable = NULL;
-  this->Width = 0.05;
-  this->Height = 0.8;
+  this->Position2Coordinate = vtkCoordinate::New();
+  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
+  this->Position2Coordinate->SetValue(0.17, 0.8);
+  this->Position2Coordinate->SetReferenceCoordinate(this->PositionCoordinate);
+  
+  this->PositionCoordinate->SetCoordinateSystemToNormalizedViewport();
+  this->PositionCoordinate->SetValue(0.82,0.1);
+  
   this->MaximumNumberOfColors = 64;
   this->NumberOfLabels = 5;
   this->NumberOfLabelsBuilt = 0;
   this->Orientation = VTK_ORIENT_VERTICAL;
   this->Title = NULL;
 
-  this->FontSize = 12;
   this->Bold = 1;
   this->Italic = 1;
   this->Shadow = 1;
@@ -65,9 +70,12 @@ vtkScalarBarActor::vtkScalarBarActor()
   sprintf(this->LabelFormat,"%s","%-#6.3g");
 
   this->TitleMapper = vtkTextMapper::New();
+  this->TitleMapper->SetJustificationToCentered();
   this->TitleActor = vtkActor2D::New();
   this->TitleActor->SetMapper(this->TitleMapper);
- 
+  this->TitleActor->GetPositionCoordinate()->
+    SetReferenceCoordinate(this->PositionCoordinate);
+  
   this->TextMappers = NULL;
   this->TextActors = NULL;
 
@@ -76,10 +84,15 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->ScalarBarMapper->SetInput(this->ScalarBar);
   this->ScalarBarActor = vtkActor2D::New();
   this->ScalarBarActor->SetMapper(this->ScalarBarMapper);
+  this->ScalarBarActor->GetPositionCoordinate()->
+    SetReferenceCoordinate(this->PositionCoordinate);
 }
 
 vtkScalarBarActor::~vtkScalarBarActor()
 {
+  this->Position2Coordinate->Delete();
+  this->Position2Coordinate = NULL;
+  
   if (this->LabelFormat) 
     {
     delete [] this->LabelFormat;
@@ -113,10 +126,40 @@ vtkScalarBarActor::~vtkScalarBarActor()
   this->SetLookupTable(NULL);
 }
 
+void vtkScalarBarActor::SetWidth(float w)
+{
+  float *pos;
+
+  pos = this->Position2Coordinate->GetValue();
+  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
+  this->Position2Coordinate->SetValue(w,pos[1]);
+}
+
+void vtkScalarBarActor::SetHeight(float w)
+{
+  float *pos;
+
+  pos = this->Position2Coordinate->GetValue();
+  this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
+  this->Position2Coordinate->SetValue(pos[0],w);
+}
+    
+float vtkScalarBarActor::GetWidth()
+{
+  return this->Position2Coordinate->GetValue()[0];
+}
+float vtkScalarBarActor::GetHeight()
+{
+  return this->Position2Coordinate->GetValue()[1];
+}
+
 void vtkScalarBarActor::Render(vtkViewport *viewport)
 {
   int i;
-
+  int size[2];
+  int stringHeight, stringWidth;
+  int fontSize;
+  
   if ( ! this->LookupTable )
     {
     vtkWarningMacro(<<"Need a mapper to render a scalar bar");
@@ -168,41 +211,119 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
     pts->Delete(); polys->Delete(); colors->Delete();
 
     // get the viewport size in display coordinates
-    int *size=viewport->GetSize();
-    float *center=viewport->GetCenter(), delta;
-    int barOrigin[2], barWidth, barHeight;
+    int *barOrigin, barWidth, barHeight;
+    barOrigin = this->PositionCoordinate->GetComputedViewportValue(viewport);
+    size[0] = 
+      this->Position2Coordinate->GetComputedViewportValue(viewport)[0] -
+      barOrigin[0];
+    size[1] = 
+      this->Position2Coordinate->GetComputedViewportValue(viewport)[1] -
+      barOrigin[1];
+
+    // Update all the composing objects
+    //
+    if (this->Title == NULL )
+      {
+      this->TitleActor->VisibilityOff();
+      }
+    this->TitleActor->VisibilityOn();
+    this->TitleActor->SetProperty(this->GetProperty());
+    this->TitleMapper->SetInput(this->Title);
+    this->TitleMapper->SetBold(this->Bold);
+    this->TitleMapper->SetItalic(this->Italic);
+    this->TitleMapper->SetShadow(this->Shadow);
+    this->TitleMapper->SetFontFamily(this->FontFamily);
+    
+    // find the best size for the font
+    int tempi[2];
+    int target;
+    if ( this->Orientation == VTK_ORIENT_VERTICAL )
+      {
+      target = size[1]*0.05 + 0.05*size[0];
+      }
+    else
+      {
+      target = size[1]*0.07 + size[0]*0.03;
+      }
+    fontSize = target;
+    this->TitleMapper->SetFontSize(fontSize);
+    this->TitleMapper->GetSize(viewport,tempi);
+    while (tempi[1] < target && fontSize < 100)
+      {
+      fontSize++;
+      this->TitleMapper->SetFontSize(fontSize);
+      this->TitleMapper->GetSize(viewport,tempi);
+      }
+    while ((tempi[1] > target || tempi[0] > size[0])&& fontSize > 0)
+      {
+      fontSize--;
+      this->TitleMapper->SetFontSize(fontSize);
+      this->TitleMapper->GetSize(viewport,tempi);
+      }
+    stringHeight = tempi[1];
+      
+    this->TextMappers = new vtkTextMapper * [this->NumberOfLabels];
+    this->TextActors = new vtkActor2D * [this->NumberOfLabels];
+    char string[512];
+    float val;
+    for (i=0; i < this->NumberOfLabels; i++)
+      {
+      this->TextMappers[i] = vtkTextMapper::New();
+      val = range[0] + (float)i/(this->NumberOfLabels-1) * (range[1]-range[0]);
+      sprintf(string, this->LabelFormat, val);
+      this->TextMappers[i]->SetInput(string);
+      this->TextMappers[i]->SetFontSize(fontSize);
+      this->TextMappers[i]->SetBold(this->Bold);
+      this->TextMappers[i]->SetItalic(this->Italic);
+      this->TextMappers[i]->SetShadow(this->Shadow);
+      this->TextMappers[i]->SetFontFamily(this->FontFamily);
+      this->TextActors[i] = vtkActor2D::New();
+      this->TextActors[i]->SetMapper(this->TextMappers[i]);
+      this->TextActors[i]->SetProperty(this->GetProperty());
+      this->TextActors[i]->GetPositionCoordinate()->
+	SetReferenceCoordinate(this->PositionCoordinate);
+      }
+
+    this->NumberOfLabelsBuilt = this->NumberOfLabels;
 
     // generate points
     float x[3]; x[2] = 0.0;
+    float delta;
     if ( this->Orientation == VTK_ORIENT_VERTICAL )
       {
-      barWidth=this->Width*size[0];
-      barHeight=this->Height*size[1];
+      // need to find maximum width
+      stringWidth = 0;
+      for (i=0; i < this->NumberOfLabels; i++)
+	{
+	this->TextMappers[i]->GetSize(viewport,tempi);
+	if (stringWidth < tempi[0])
+	  {
+	  stringWidth = tempi[0];
+	  }
+	}
+      barWidth = size[0] - 4 - stringWidth;
+      barHeight = size[1] - stringHeight*2.2;
       delta=(float)barHeight/numColors;
-      barOrigin[0]=center[0]-(barWidth/2);
-      barOrigin[1]=center[1]-(barHeight/2);
       for (i=0; i<numPts/2; i++)
 	{
-	x[0] = barOrigin[0];
-	x[1] = barOrigin[1] + i*delta;
+	x[0] = 0;
+	x[1] = i*delta;
         pts->SetPoint(2*i,x);
-	x[0] = barOrigin[0] + barWidth;
+	x[0] = barWidth;
         pts->SetPoint(2*i+1,x);
 	}
       }
     else
       {
-      barWidth=this->Width*size[1];
-      barHeight=this->Height*size[0];
-      delta=(float)barHeight/numColors;
-      barOrigin[0]=center[0]-(barHeight/2);
-      barOrigin[1]=center[1]-(barWidth/2);
+      barWidth = size[0];
+      barHeight = size[1] - stringHeight*2.6;
+      delta=(float)barWidth/numColors;
       for (i=0; i<numPts/2; i++)
 	{
-	x[0] = barOrigin[0] + i*delta;
-	x[1] = barOrigin[1] + barWidth;
+	x[0] = i*delta;
+	x[1] = barHeight;
         pts->SetPoint(2*i,x);
-	x[1] = barOrigin[1];
+	x[1] = 0;
         pts->SetPoint(2*i+1,x);
 	}
       }
@@ -225,74 +346,29 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
       rgb[2] = rgba[2];
       }
 
-    // Update all the composing objects
-    //
-    if (this->Title == NULL )
-      {
-      this->TitleActor->VisibilityOff();
-      }
-    else
-      {
-      this->TitleActor->VisibilityOn();
-      this->TitleActor->SetProperty(this->GetProperty());
-      this->TitleMapper->SetInput(this->Title);
-      this->TitleMapper->SetFontSize(this->FontSize);
-      this->TitleMapper->SetBold(this->Bold);
-      this->TitleMapper->SetItalic(this->Italic);
-      this->TitleMapper->SetShadow(this->Shadow);
-      this->TitleMapper->SetFontFamily(this->FontFamily);
-      }
 
-    this->TextMappers = new vtkTextMapper * [this->NumberOfLabels];
-    this->TextActors = new vtkActor2D * [this->NumberOfLabels];
-    char string[512];
-    float val;
-    for (i=0; i < this->NumberOfLabels; i++)
-      {
-      this->TextMappers[i] = vtkTextMapper::New();
-      val = range[0] + (float)i/(this->NumberOfLabels-1) * (range[1]-range[0]);
-      sprintf(string, this->LabelFormat, val);
-      this->TextMappers[i]->SetInput(string);
-      this->TextMappers[i]->SetFontSize(this->FontSize);
-      this->TextMappers[i]->SetBold(this->Bold);
-      this->TextMappers[i]->SetItalic(this->Italic);
-      this->TextMappers[i]->SetShadow(this->Shadow);
-      this->TextMappers[i]->SetFontFamily(this->FontFamily);
-      this->TextActors[i] = vtkActor2D::New();
-      this->TextActors[i]->SetMapper(this->TextMappers[i]);
-      this->TextActors[i]->SetProperty(this->GetProperty());
-      }
-
-    this->NumberOfLabelsBuilt = this->NumberOfLabels;
 
     // Now position everything properly
     //
-    float *position=this->GetPosition();
-    this->ScalarBarActor->SetPosition(position);
-
     if (this->Orientation == VTK_ORIENT_VERTICAL)
       {
-      this->TitleActor->SetPosition(position[0] + barOrigin[0], 
-				    position[1] + barOrigin[1] + 
-				    barHeight + this->FontSize*2);
-
+      // center the title
+      this->TitleActor->SetPosition(size[0]/2, size[1] - stringHeight);
       for (i=0; i < this->NumberOfLabels; i++)
 	{
-	val = (float)i/(this->NumberOfLabels-1) * barHeight;
-	this->TextActors[i]->SetPosition(position[0] + barOrigin[0]+barWidth+3,
-					 position[1] + barOrigin[1] + val 
-					 + this->FontSize/2);
+	val = (float)i/(this->NumberOfLabels-1) *barHeight;
+	this->TextMappers[i]->SetJustificationToLeft();
+	this->TextActors[i]->SetPosition(barWidth+3,val - stringHeight/2);
 	}
       }
     else
       {
-      this->TitleActor->SetPosition(position[0] + center[0], 
-            position[1] + barOrigin[1] + barWidth + this->FontSize*2.75);
+      this->TitleActor->SetPosition(size[0]/2, size[1] - stringHeight);
       for (i=0; i < this->NumberOfLabels; i++)
 	{
-	val = (float)i/(this->NumberOfLabels-1) * barHeight;
-	this->TextActors[i]->SetPosition(position[0] + barOrigin[0] + val,
-              position[1] + barWidth + barOrigin[1] + this->FontSize + 3);
+	val = (float)i/(this->NumberOfLabels-1) * barWidth;
+	this->TextMappers[i]->SetJustificationToCentered();
+	this->TextActors[i]->SetPosition(val, barHeight + 0.2*stringHeight);
 	}
       }
 
@@ -326,8 +402,6 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
-  os << indent << "Width: " << this->Width << "\n";
-  os << indent << "Height: " << this->Height << "\n";
   os << indent << "Maximum Number Of Colors: " 
      << this->MaximumNumberOfColors << "\n";
   os << indent << "Number Of Labels: " << this->NumberOfLabels << "\n";
@@ -357,7 +431,6 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
     os << "Times\n";
     }
 
-  os << indent << "Font Size: " << this->FontSize << "\n";
   os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
   os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
   os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
