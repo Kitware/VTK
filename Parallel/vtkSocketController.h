@@ -129,9 +129,13 @@ public:
       GetSwapBytesInReceivedData();
     }
 
+//BTX
+
   enum Consts {
     ENDIAN_TAG=1010580540 // 0x3c3c3c3c
   };
+
+//ETX
 
 protected:
 
