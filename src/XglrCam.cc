@@ -229,7 +229,8 @@ void vlXglrCamera::Render(vlXglrRenderer *ren)
   bg_color.r = background[0];
   bg_color.g = background[1];
   bg_color.b = background[2];
-  if (this->LeftEye || (!stereo))
+  if (this->LeftEye || (!stereo) || 
+      ((ren->GetRenderWindow())->GetStereoType() != VL_STEREO_CRYSTAL_EYES))
     {
     xgl_object_set(*context,XGL_CTX_BACKGROUND_COLOR,
 		   &bg_color,0);
