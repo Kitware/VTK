@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkSocketCommunicator.h"
-#include "vtkMultiProcessController.h"
+#include "vtkSocketController.h"
 #include "vtkObjectFactory.h"
 
 #ifdef _WIN32
@@ -70,6 +70,7 @@ vtkSocketCommunicator::vtkSocketCommunicator()
   this->Socket = -1;
   this->IsConnected = 0;
   this->NumberOfProcesses = 2;
+  this->SwapBytesInReceivedData = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -86,6 +87,9 @@ vtkSocketCommunicator::~vtkSocketCommunicator()
 void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkCommunicator::PrintSelf(os,indent);
+
+  os << indent << "SwapBytesInReceivedData: " << this->SwapBytesInReceivedData
+     << endl;
 }
 
 static inline int checkForError(int id, int maxId)
@@ -173,35 +177,46 @@ int vtkSocketCommunicator::Send(float *data, int length,
   return sendMessage(data, length, tag, this->Socket);
 }
 
-template <class T>
-static int receiveMessage(T* data, int length, int tag, int sock)
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
+                                           int tag )
 {
   int recvTag=-1;
 
   // Need to check the return value of these
-  recv(sock, (char *)&recvTag, sizeof(int), MSG_PEEK);
-  if (recvTag != tag)
+  recv( this->Socket, (char *)&recvTag, sizeof(int), MSG_PEEK );
+  if ( this->SwapBytesInReceivedData )
+    {
+    vtkSwap4( &recvTag );
+    }
+  if ( recvTag != tag )
+    {
     return 0;
+    }
 
-  recv(sock, (char *)&recvTag, sizeof(int), 0);
-  int totalLength = length*sizeof(T);
+  recv( this->Socket, (char *)&recvTag, sizeof(int), 0 );
+  int totalLength = length * size;
   if ( totalLength < vtkSocketCommunicator::MAX_MSG_SIZE )
-    recv(sock, (char *)data, totalLength, 0);
+    recv( this->Socket, data, totalLength, 0 );
   else
     {
-    int num = totalLength/vtkSocketCommunicator::MAX_MSG_SIZE;
-    for(int i=0; i<num; i++)
+    int num = totalLength / vtkSocketCommunicator::MAX_MSG_SIZE;
+    for( int i=0; i<num; i++ )
       {
-      recv(sock, &(((char *)data)[i*vtkSocketCommunicator::MAX_MSG_SIZE]), 
-	   vtkSocketCommunicator::MAX_MSG_SIZE, 0);
+      recv( this->Socket, &(data[i*vtkSocketCommunicator::MAX_MSG_SIZE]), 
+	    vtkSocketCommunicator::MAX_MSG_SIZE, 0 );
       }
-    recv(sock, &(((char *)data)[num*vtkSocketCommunicator::MAX_MSG_SIZE]), 
-	 totalLength-num*vtkSocketCommunicator::MAX_MSG_SIZE, 0);
+    recv( this->Socket, &(data[num*vtkSocketCommunicator::MAX_MSG_SIZE]), 
+	  totalLength - num * vtkSocketCommunicator::MAX_MSG_SIZE, 0 );
     }
-  
+
+  // Unless we've dealing with chars, then check byte ordering
+  if ( this->SwapBytesInReceivedData && size == 4 )
+    {
+    vtkSwap4Range( data, length );
+    }
 
   return 1;
-
 }
 
 //----------------------------------------------------------------------------
@@ -213,8 +228,8 @@ int vtkSocketCommunicator::Receive(int *data, int length, int remoteProcessId,
     return 0;
     }
 
-  int id =  receiveMessage(data, length, tag, this->Socket);
-  
+  int id = ReceiveMessage( (char *)data, sizeof(int), length, tag );
+
   if ( tag == vtkMultiProcessController::RMI_TAG )
     {
     data[2] = id;
@@ -232,7 +247,7 @@ int vtkSocketCommunicator::Receive(unsigned long *data, int length,
     return 0;
     }
 
-  return receiveMessage(data, length, tag, this->Socket);
+  return ReceiveMessage( (char *)data, sizeof(unsigned long), length, tag );
 }
 
 //----------------------------------------------------------------------------
@@ -244,7 +259,7 @@ int vtkSocketCommunicator::Receive(char *data, int length,
     return 0;
     }
 
-  return receiveMessage(data, length, tag, this->Socket);
+  return ReceiveMessage( (char *)data, sizeof(char), length, tag );
 }
 
 int vtkSocketCommunicator::Receive(float *data, int length, 
@@ -255,7 +270,7 @@ int vtkSocketCommunicator::Receive(float *data, int length,
     return 0;
     }
 
-  return receiveMessage(data, length, tag, this->Socket);
+  return ReceiveMessage( (char *)data, sizeof(float), length, tag );
 }
 
 
@@ -290,6 +305,30 @@ int vtkSocketCommunicator::WaitForConnection(int port, int timeout)
   vtkCloseSocketMacro(sock);
     
   this->IsConnected = 1;
+
+  // Handshake to determine if the client machine has the same endianness
+  char clientIsBE;
+  if ( !ReceiveMessage( &clientIsBE, sizeof(char), 1,
+                        vtkSocketController::ENDIAN_TAG ) )
+    {
+    vtkErrorMacro("Endian handshake failed.");
+    return 0;
+    }
+  vtkDebugMacro(<< "Client is " << ( clientIsBE ? "big" : "little" ) << "-endian");
+
+#ifdef VTK_WORDS_BIGENDIAN
+  char IAmBE = 1;
+#else
+  char IAmBE = 0;
+#endif
+  vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
+  sendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket );
+
+  if ( clientIsBE != IAmBE )
+    {
+    this->SwapBytesInReceivedData = 1;
+    }
+
   return 1;
 }
 
@@ -339,10 +378,29 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
 
   vtkDebugMacro("Connected to " << hostName << " on port " << port);
   this->IsConnected = 1;
+
+  // Handshake to determine if the server machine has the same endianness
+#ifdef VTK_WORDS_BIGENDIAN
+  char IAmBE = 1;
+#else
+  char IAmBE = 0;
+#endif
+  vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
+  sendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket );
+
+  char serverIsBE;
+  if ( !ReceiveMessage( &serverIsBE, sizeof(char), 1,
+                        vtkSocketController::ENDIAN_TAG ) )
+    {
+    vtkErrorMacro("Endian handshake failed.");
+    return 0;
+    }
+  vtkDebugMacro(<< "Server is " << ( serverIsBE ? "big" : "little" ) << "-endian");
+
+  if ( serverIsBE != IAmBE )
+    {
+    this->SwapBytesInReceivedData = 1;
+    }
+
   return 1;
-
 }
-
-
-
-
