@@ -161,7 +161,8 @@ int vtkStructuredPointsToImage::ComputeDataType()
   scalars = (this->Input->GetPointData())->GetScalars();
   
   type = scalars->GetScalarType();
-  if (strcmp(type, "ColorScalar") == 0)
+  if (strcmp(type, "ColorScalar") == 0 &&
+      scalars->GetNumberOfValuesPerScalar () != 1)
     {
     return VTK_FLOAT;
     }
@@ -191,11 +192,6 @@ int vtkStructuredPointsToImage::ComputeDataType()
   vtkErrorMacro(<< "GetDataType: Can not handle type " << type);
   return VTK_VOID;
 }
-
-
-
-
-
 
 //----------------------------------------------------------------------------
 void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
@@ -230,7 +226,8 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
   // Get scalars as float
   scalars = input->GetPointData()->GetScalars();
   type = scalars->GetDataType();
-  if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0)
+  if (strcmp(scalars->GetScalarType(), "ColorScalar") == 0 &&
+      scalars->GetNumberOfValuesPerScalar () != 1)
     {
     // Convert to a float scalar
     newScalars = new vtkFloatScalars;
