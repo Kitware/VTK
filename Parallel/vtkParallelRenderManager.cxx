@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.24");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.25");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -1056,6 +1056,12 @@ void vtkParallelRenderManager::SetImageReductionFactorForUpdateRate(double desir
     }
 
   this->AverageTimePerPixel = (3*this->AverageTimePerPixel + timePerPixel)/4;
+  if (this->AverageTimePerPixel <= 0)
+    {
+    this->AverageTimePerPixel = 0;
+    this->SetImageReductionFactor(1);
+    return;
+    }
 
   double allottedPixelTime = 1.0/desiredUpdateRate - renderTime;
   // Give ourselves at least 15% of render time.
