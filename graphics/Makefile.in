@@ -82,6 +82,7 @@ vtkImageToStructuredPoints.o \
 vtkImplicitBoolean.o \
 vtkImplicitModeller.o \
 vtkImplicitTextureCoords.o \
+vtkImplicitVolume.o \
 vtkLODActor.o \
 vtkLight.o \
 vtkLineSource.o \
@@ -279,6 +280,7 @@ tcl/vtkImageToStructuredPointsTcl.o \
 tcl/vtkImplicitBooleanTcl.o \
 tcl/vtkImplicitModellerTcl.o \
 tcl/vtkImplicitTextureCoordsTcl.o \
+tcl/vtkImplicitVolumeTcl.o \
 tcl/vtkLODActorTcl.o \
 tcl/vtkLightTcl.o \
 tcl/vtkLightCollectionTcl.o \
@@ -481,6 +483,7 @@ vtkImageToStructuredPoints.h \
 vtkImplicitBoolean.h \
 vtkImplicitModeller.h \
 vtkImplicitTextureCoords.h \
+vtkImplicitVolume.h \
 vtkLODActor.h \
 vtkLight.h \
 vtkLightCollection.h \
@@ -920,6 +923,9 @@ tcl/vtkImplicitModellerTcl.cxx: vtkImplicitModeller.h ../tcl/cpp_parse
 
 tcl/vtkImplicitTextureCoordsTcl.cxx: vtkImplicitTextureCoords.h ../tcl/cpp_parse 
 	rm -f tcl/vtkImplicitTextureCoordsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitTextureCoords.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitTextureCoordsTcl.cxx
+
+tcl/vtkImplicitVolumeTcl.cxx: vtkImplicitVolume.h ../tcl/cpp_parse 
+	rm -f tcl/vtkImplicitVolumeTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitVolume.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitVolumeTcl.cxx
 
 tcl/vtkLODActorTcl.cxx: vtkLODActor.h ../tcl/cpp_parse 
 	rm -f tcl/vtkLODActorTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLODActor.h $(srcdir)/../tcl/hints 1 > tcl/vtkLODActorTcl.cxx
