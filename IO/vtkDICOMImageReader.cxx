@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.4");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.5");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class myvector : public vtkstd::vector<vtkstd::string>
@@ -56,6 +56,23 @@ vtkDICOMImageReader::~vtkDICOMImageReader()
 void vtkDICOMImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkImageReader2::PrintSelf(os, indent);
+  if (this->DirectoryName)
+    {
+    os << "DirectoryName : " << this->DirectoryName << vtkstd::endl;
+    }
+  else
+    {
+    os << "DirectoryName : (NULL)" << vtkstd::endl;
+    }
+  if (this->FileName)
+    {
+    os << "FileName : " << this->FileName << vtkstd::endl;
+    }
+  else
+    {
+    os << "FileName : (NULL)" << vtkstd::endl;
+    }
+
 }
 
 int vtkDICOMImageReader::CanReadFile(const char* fname)
