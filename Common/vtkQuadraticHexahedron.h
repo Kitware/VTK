@@ -44,6 +44,7 @@ class VTK_COMMON_EXPORT vtkQuadraticHexahedron : public vtkNonLinearCell
 public:
   static vtkQuadraticHexahedron *New();
   vtkTypeRevisionMacro(vtkQuadraticHexahedron,vtkNonLinearCell);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implement the vtkCell API. See the vtkCell API for descriptions 
@@ -108,7 +109,7 @@ protected:
   vtkHexahedron    *Hex;
   vtkPointData     *PointData;
   vtkCellData      *CellData;
-  vtkDoubleArray    *Scalars;
+  vtkDoubleArray   *Scalars;
   
   void Subdivide(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId);
 

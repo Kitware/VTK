@@ -38,6 +38,7 @@ class VTK_COMMON_EXPORT vtkQuadraticEdge : public vtkNonLinearCell
 public:
   static vtkQuadraticEdge *New();
   vtkTypeRevisionMacro(vtkQuadraticEdge,vtkNonLinearCell);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implement the vtkCell API. See the vtkCell API for descriptions 

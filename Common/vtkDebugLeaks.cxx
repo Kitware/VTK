@@ -20,6 +20,7 @@ static const char *vtkDebugLeaksIgnoreClasses[] = {
   0
 };
 
+//----------------------------------------------------------------------------
 // return 1 if the class should be ignored
 int vtkDebugLeaksIgnoreClassesCheck(const char* s)
 {
@@ -35,9 +36,10 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.26");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.27");
 vtkStandardNewMacro(vtkDebugLeaks);
 
+//----------------------------------------------------------------------------
 // A hash function for converting a string to a long
 inline size_t vtkHashString(const char* s)
 {
@@ -49,6 +51,7 @@ inline size_t vtkHashString(const char* s)
   return size_t(h);
 }
 
+//----------------------------------------------------------------------------
 class vtkDebugLeaksHashNode 
 {
 public:
@@ -81,6 +84,7 @@ public:
   int Count;
 };
 
+//----------------------------------------------------------------------------
 class vtkDebugLeaksHashTable
 {
 public:
@@ -107,6 +111,7 @@ private:
   vtkDebugLeaksHashNode* Nodes[64];
 };
 
+//----------------------------------------------------------------------------
 vtkDebugLeaksHashTable::vtkDebugLeaksHashTable()
 {
   int i;
@@ -116,6 +121,7 @@ vtkDebugLeaksHashTable::vtkDebugLeaksHashTable()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkDebugLeaksHashTable::IncrementCount(const char * name)
 {
   vtkDebugLeaksHashNode *pos;
@@ -146,6 +152,7 @@ void vtkDebugLeaksHashTable::IncrementCount(const char * name)
   pos->Next = newpos;
 }
 
+//----------------------------------------------------------------------------
 vtkDebugLeaksHashNode* vtkDebugLeaksHashTable::GetNode(const char* key)
 {
   vtkDebugLeaksHashNode *pos;
@@ -164,6 +171,7 @@ vtkDebugLeaksHashNode* vtkDebugLeaksHashTable::GetNode(const char* key)
   return pos;
 }
 
+//----------------------------------------------------------------------------
 unsigned int vtkDebugLeaksHashTable::GetCount(const char* key)
 {
   vtkDebugLeaksHashNode *pos;
@@ -186,6 +194,7 @@ unsigned int vtkDebugLeaksHashTable::GetCount(const char* key)
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkDebugLeaksHashTable::IsEmpty()
 {
   int count = 0;
@@ -211,6 +220,7 @@ int vtkDebugLeaksHashTable::IsEmpty()
   return !count;
 }
 
+//----------------------------------------------------------------------------
 int vtkDebugLeaksHashTable::DecrementCount(const char *key)
 {
   
@@ -226,6 +236,7 @@ int vtkDebugLeaksHashTable::DecrementCount(const char *key)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkDebugLeaksHashTable::PrintTable(ostream& os)
 {
   for(int i =0; i < 64; i++)
@@ -250,7 +261,7 @@ void vtkDebugLeaksHashTable::PrintTable(ostream& os)
 }
 
 
-
+//----------------------------------------------------------------------------
 #ifdef VTK_DEBUG_LEAKS
 void vtkDebugLeaks::ConstructClass(const char* name)
 {
@@ -264,6 +275,7 @@ void vtkDebugLeaks::ConstructClass(const char*)
 }
 #endif
 
+//----------------------------------------------------------------------------
 #ifdef VTK_DEBUG_LEAKS
 void vtkDebugLeaks::DestructClass(const char* p)
 {
@@ -287,6 +299,7 @@ void vtkDebugLeaks::DestructClass(const char*)
 }
 #endif
 
+//----------------------------------------------------------------------------
 void vtkDebugLeaks::PrintCurrentLeaks()
 {
 #ifdef VTK_DEBUG_LEAKS
@@ -321,6 +334,7 @@ void vtkDebugLeaks::PrintCurrentLeaks()
 #endif
 }
 
+//----------------------------------------------------------------------------
 #ifdef _WIN32
 int vtkDebugLeaks::DisplayMessageBox(const char* msg)
 {
@@ -372,6 +386,17 @@ void vtkDebugLeaks::ClassFinalize()
   delete vtkDebugLeaks::CriticalSection;
   vtkDebugLeaks::CriticalSection = 0;
 #endif
+}
+
+//----------------------------------------------------------------------------
+void vtkDebugLeaks::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "MemoryTable:\n";
+  this->MemoryTable->PrintTable(os);
+
+  os << indent << "CriticalSection: " << this->CriticalSection << "\n";
 }
 
 //----------------------------------------------------------------------------

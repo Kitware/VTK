@@ -43,6 +43,7 @@ class VTK_COMMON_EXPORT vtkPentagonalPrism : public vtkCell3D
 public:
   static vtkPentagonalPrism *New();
   vtkTypeRevisionMacro(vtkPentagonalPrism,vtkCell3D);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // See vtkCell3D API for description of these methods.
@@ -101,6 +102,7 @@ private:
   void operator=(const vtkPentagonalPrism&);  // Not implemented.
 };
 
+//----------------------------------------------------------------------------
 inline int vtkPentagonalPrism::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = pcoords[1] = 0.5;

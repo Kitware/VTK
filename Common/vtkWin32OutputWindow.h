@@ -33,6 +33,8 @@ class VTK_COMMON_EXPORT vtkWin32OutputWindow : public vtkOutputWindow
 public:
 // Methods from vtkObject
   vtkTypeRevisionMacro(vtkWin32OutputWindow,vtkOutputWindow);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Create a vtkWin32OutputWindow.
   static vtkWin32OutputWindow* New();

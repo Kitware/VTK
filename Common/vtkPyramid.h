@@ -39,6 +39,7 @@ class VTK_COMMON_EXPORT vtkPyramid : public vtkCell3D
 {
 public:
   vtkTypeRevisionMacro(vtkPyramid,vtkCell3D);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create an instance of this class.
@@ -101,6 +102,7 @@ private:
   void operator=(const vtkPyramid&);  // Not implemented.
 };
 
+//----------------------------------------------------------------------------
 inline int vtkPyramid::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = pcoords[1] = 0.5;

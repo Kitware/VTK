@@ -24,11 +24,12 @@
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.93");
+vtkCxxRevisionMacro(vtkHexahedron, "1.94");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const double VTK_DIVERGED = 1.e6;
 
+//----------------------------------------------------------------------------
 // Construct the hexahedron with eight points.
 vtkHexahedron::vtkHexahedron()
 {
@@ -49,12 +50,14 @@ vtkHexahedron::vtkHexahedron()
   this->Quad = vtkQuad::New();
 }
 
+//----------------------------------------------------------------------------
 vtkHexahedron::~vtkHexahedron()
 {
   this->Line->Delete();
   this->Quad->Delete();
 }
 
+//----------------------------------------------------------------------------
 //  Method to calculate parametric coordinates in an eight noded
 //  linear hexahedron element from global coordinates.
 //
@@ -189,6 +192,7 @@ int vtkHexahedron::EvaluatePosition(double x[3], double* closestPoint,
     }
 }
 
+//----------------------------------------------------------------------------
 // Compute iso-parametrix interpolation functions
 //
 void vtkHexahedron::InterpolationFunctions(double pcoords[3], double sf[8])
@@ -209,6 +213,7 @@ void vtkHexahedron::InterpolationFunctions(double pcoords[3], double sf[8])
   sf[7] = rm*pcoords[1]*pcoords[2];
 }
 
+//----------------------------------------------------------------------------
 void vtkHexahedron::InterpolationDerivs(double pcoords[3], double derivs[24])
 {
   double rm, sm, tm;
@@ -248,6 +253,7 @@ void vtkHexahedron::InterpolationDerivs(double pcoords[3], double derivs[24])
   derivs[23] = rm*pcoords[1];
 }
 
+//----------------------------------------------------------------------------
 void vtkHexahedron::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
                                      double x[3], double *weights)
 {
@@ -267,6 +273,7 @@ void vtkHexahedron::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkHexahedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3], 
                                 vtkIdList *pts)
 {
@@ -342,6 +349,7 @@ int vtkHexahedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     }
 }
 
+//----------------------------------------------------------------------------
 static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
                             {4,5}, {5,6}, {7,6}, {4,7},
                             {0,4}, {1,5}, {3,7}, {2,6}};
@@ -432,10 +440,13 @@ void vtkHexahedron::Contour(double value, vtkDataArray *cellScalars,
     }
 }
 
+//----------------------------------------------------------------------------
 int *vtkHexahedron::GetEdgeArray(int edgeId)
 {
   return edges[edgeId];
 }
+
+//----------------------------------------------------------------------------
 vtkCell *vtkHexahedron::GetEdge(int edgeId)
 {
   int *verts;
@@ -453,11 +464,13 @@ vtkCell *vtkHexahedron::GetEdge(int edgeId)
   return this->Line;
 }
 
+//----------------------------------------------------------------------------
 int *vtkHexahedron::GetFaceArray(int faceId)
 {
   return faces[faceId];
 }
 
+//----------------------------------------------------------------------------
 vtkCell *vtkHexahedron::GetFace(int faceId)
 {
   int *verts, i;
@@ -473,6 +486,7 @@ vtkCell *vtkHexahedron::GetFace(int faceId)
   return this->Quad;
 }
 
+//----------------------------------------------------------------------------
 // 
 // Intersect hexa faces against line. Each hexa face is a quadrilateral.
 //
@@ -538,6 +552,7 @@ int vtkHexahedron::IntersectWithLine(double p1[3], double p2[3], double tol,
   return intersection;
 }
 
+//----------------------------------------------------------------------------
 int vtkHexahedron::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 {
   int p[4], i;
@@ -625,6 +640,7 @@ int vtkHexahedron::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
   return 1;
 }
 
+//----------------------------------------------------------------------------
 // Compute derivatives in x-y-z directions. Use chain rule in combination
 // with interpolation function derivatives.
 //
@@ -656,6 +672,7 @@ void vtkHexahedron::Derivatives(int vtkNotUsed(subId), double pcoords[3],
     }
 }
 
+//----------------------------------------------------------------------------
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
@@ -695,16 +712,19 @@ void vtkHexahedron::JacobianInverse(double pcoords[3], double **inverse,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkHexahedron::GetEdgePoints(int edgeId, int* &pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
+//----------------------------------------------------------------------------
 void vtkHexahedron::GetFacePoints(int faceId, int* &pts)
 {
   pts = this->GetFaceArray(faceId);
 }
 
+//----------------------------------------------------------------------------
 static double vtkHexahedronCellPCoords[24] = {0.0,0.0,0.0, 1.0,0.0,0.0,
                                              1.0,1.0,0.0, 0.0,1.0,0.0,
                                              0.0,0.0,1.0, 1.0,0.0,1.0,
@@ -714,3 +734,15 @@ double *vtkHexahedron::GetParametricCoords()
 {
   return vtkHexahedronCellPCoords;
 }
+
+//----------------------------------------------------------------------------
+void vtkHexahedron::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Line:\n";
+  this->Line->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Quad:\n";
+  this->Quad->PrintSelf(os,indent.GetNextIndent());
+}
+

@@ -31,6 +31,7 @@ class VTK_COMMON_EXPORT vtkPixel : public vtkCell
 public:
   static vtkPixel *New();
   vtkTypeRevisionMacro(vtkPixel,vtkCell);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

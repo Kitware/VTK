@@ -25,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPyramid, "1.39");
+vtkCxxRevisionMacro(vtkPyramid, "1.40");
 vtkStandardNewMacro(vtkPyramid);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -35,16 +35,11 @@ static const double VTK_DIVERGED = 1.e6;
 //
 vtkPyramid::vtkPyramid()
 {
-  int i;
-  
   this->Points->SetNumberOfPoints(5);
   this->PointIds->SetNumberOfIds(5);
-  for (i = 0; i < 5; i++)
+  for (int i = 0; i < 5; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
-    }
-  for (i = 0; i < 5; i++)
-    {
     this->PointIds->SetId(i,0);
     }
   this->Line = vtkLine::New();
@@ -749,4 +744,17 @@ static double vtkPyramidCellPCoords[15] = {0.0,0.0,0.0, 1.0,0.0,0.0,
 double *vtkPyramid::GetParametricCoords()
 {
   return vtkPyramidCellPCoords;
+}
+
+//----------------------------------------------------------------------------
+void vtkPyramid::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Line:\n";
+  this->Line->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Triangle:\n";
+  this->Triangle->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Quad:\n";
+  this->Quad->PrintSelf(os,indent.GetNextIndent());
 }

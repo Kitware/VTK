@@ -29,6 +29,7 @@ class VTK_COMMON_EXPORT vtkPolyVertex : public vtkCell
 public:
   static vtkPolyVertex *New();
   vtkTypeRevisionMacro(vtkPolyVertex,vtkCell);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

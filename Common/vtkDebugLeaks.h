@@ -39,42 +39,43 @@ class VTK_COMMON_EXPORT vtkDebugLeaks : public vtkObject
 public: 
   static vtkDebugLeaks *New();
   vtkTypeRevisionMacro(vtkDebugLeaks,vtkObject);
-  
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Call this when creating a class of a given name.
   static void ConstructClass(const char* classname);
-  
+
   // Description:
   // Call this when deleting a class of a given name.
   static void DestructClass(const char* classname);
-  
+
   // Description:
   // Print all the values in the table.
   static void PrintCurrentLeaks();
-  
+
   // Description:
   // Turn prompt at exit on/off (this setting is deprecated and will
   // be ignored).
   static void PromptUserOn() {}
   static void PromptUserOff() {}
-  
+
 protected:
   vtkDebugLeaks(){}; 
   virtual ~vtkDebugLeaks(){}; 
-  
+
   static int DisplayMessageBox(const char*);
-  
+
   static void ClassInitialize();
   static void ClassFinalize();
-  
+
   //BTX
   friend class vtkDebugLeaksManager;
   //ETX
-  
+
 private:
   static vtkDebugLeaksHashTable* MemoryTable;
   static vtkSimpleCriticalSection* CriticalSection;
-private:
+
   vtkDebugLeaks(const vtkDebugLeaks&);  // Not implemented.
   void operator=(const vtkDebugLeaks&);  // Not implemented.
 };

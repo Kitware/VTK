@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.13");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.14");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -704,3 +704,17 @@ double *vtkPentagonalPrism::GetParametricCoords()
 {
   return vtkPentagonalPrismCellPCoords;
 }
+
+//----------------------------------------------------------------------------
+void vtkPentagonalPrism::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Line:\n";
+  this->Line->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Quad:\n";
+  this->Quad->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Polygon:\n";
+  this->Polygon->PrintSelf(os,indent.GetNextIndent());
+}
+

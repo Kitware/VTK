@@ -43,6 +43,7 @@ class VTK_COMMON_EXPORT vtkQuadraticTetra : public vtkNonLinearCell
 public:
   static vtkQuadraticTetra *New();
   vtkTypeRevisionMacro(vtkQuadraticTetra,vtkNonLinearCell);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implement the vtkCell API. See the vtkCell API for descriptions 

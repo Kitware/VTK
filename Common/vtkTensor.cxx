@@ -15,7 +15,7 @@
 #include "vtkTensor.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTensor, "1.14");
+vtkCxxRevisionMacro(vtkTensor, "1.15");
 vtkStandardNewMacro(vtkTensor);
 
 // Construct tensor initially pointing to internal storage.
@@ -28,5 +28,21 @@ vtkTensor::vtkTensor()
       {
       this->T[i+j*3] = 0.0;
       }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkTensor::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  for (int j=0; j<3; j++)
+    {
+    os << indent;
+    for (int i=0; i<3; i++)
+      {
+      os << this->Storage[i+j*3] << " ";
+      }
+    os << "\n";
     }
 }

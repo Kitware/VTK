@@ -26,20 +26,19 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.9");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.10");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
+//----------------------------------------------------------------------------
 // Construct the wedge with 15 points + 3 extra points for internal
 // computation.
 vtkQuadraticWedge::vtkQuadraticWedge()
 {
-  int i;
-
   // At times the cell looks like it has 18 points (during interpolation)
   // We initially allocate for 18.
   this->Points->SetNumberOfPoints(18);
   this->PointIds->SetNumberOfIds(18);
-  for (i = 0; i < 18; i++)
+  for (int i = 0; i < 18; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
@@ -58,6 +57,7 @@ vtkQuadraticWedge::vtkQuadraticWedge()
   this->Scalars->SetNumberOfTuples(6);  //num of vertices
 }
 
+//----------------------------------------------------------------------------
 vtkQuadraticWedge::~vtkQuadraticWedge()
 {
   this->Edge->Delete();
@@ -70,6 +70,7 @@ vtkQuadraticWedge::~vtkQuadraticWedge()
   this->Scalars->Delete();
 }
 
+//----------------------------------------------------------------------------
 // instead of using an hexahedron we could use two prims/wedge...
 static int LinearWedges[8][6] = { {0,6,8,12,15,17},
                                   {6,7,8,15,16,17},
@@ -94,6 +95,7 @@ static double MidPoints[3][3] = { {0.5,0.0,0.5},
                                   {0.5,0.5,0.5}, 
                                   {0.0,0.5,0.5} };
 
+//----------------------------------------------------------------------------
 vtkCell *vtkQuadraticWedge::GetEdge(int edgeId)
 {
   edgeId = (edgeId < 0 ? 0 : (edgeId > 8 ? 8 : edgeId ));
@@ -107,6 +109,7 @@ vtkCell *vtkQuadraticWedge::GetEdge(int edgeId)
   return this->Edge;
 }
 
+//----------------------------------------------------------------------------
 vtkCell *vtkQuadraticWedge::GetFace(int faceId)
 {
   faceId = (faceId < 0 ? 0 : (faceId > 4 ? 4 : faceId ));
@@ -133,6 +136,7 @@ vtkCell *vtkQuadraticWedge::GetFace(int faceId)
     }
 }
 
+//----------------------------------------------------------------------------
 static const double VTK_DIVERGED = 1.e6;
 static const int VTK_WEDGE_MAX_ITERATION=10;
 static const double VTK_WEDGE_CONVERGED=1.e-03;
@@ -266,6 +270,7 @@ int vtkQuadraticWedge::EvaluatePosition(double* x,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkQuadraticWedge::EvaluateLocation(int& vtkNotUsed(subId), 
                                          double pcoords[3], 
                                          double x[3], double *weights)
@@ -285,12 +290,14 @@ void vtkQuadraticWedge::EvaluateLocation(int& vtkNotUsed(subId),
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkQuadraticWedge::CellBoundary(int subId, double pcoords[3], 
                                     vtkIdList *pts)
 {
   return this->Wedge->CellBoundary(subId, pcoords, pts);
 }
 
+//----------------------------------------------------------------------------
 void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd, 
                                   vtkIdType cellId)
 {
@@ -334,6 +341,7 @@ void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   this->PointIds->SetNumberOfIds(18);
 }
 
+//----------------------------------------------------------------------------
 void vtkQuadraticWedge::Contour(double value, 
                                 vtkDataArray* vtkNotUsed(cellScalars), 
                                 vtkPointLocator* locator, 
@@ -365,6 +373,7 @@ void vtkQuadraticWedge::Contour(double value,
 
 }
 
+//----------------------------------------------------------------------------
 // Line-hex intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
 int vtkQuadraticWedge::IntersectWithLine(double* p1, double* p2, 
@@ -441,6 +450,7 @@ int vtkQuadraticWedge::IntersectWithLine(double* p1, double* p2,
   return intersection;
 }
 
+//----------------------------------------------------------------------------
 int vtkQuadraticWedge::Triangulate(int vtkNotUsed(index), 
                                         vtkIdList *ptIds, vtkPoints *pts)
 {
@@ -459,6 +469,7 @@ int vtkQuadraticWedge::Triangulate(int vtkNotUsed(index),
   return 1;
 }
 
+//----------------------------------------------------------------------------
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
@@ -498,6 +509,7 @@ void vtkQuadraticWedge::JacobianInverse(double pcoords[3], double **inverse,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkQuadraticWedge::Derivatives(int vtkNotUsed(subId), 
                                     double pcoords[3], double *values, 
                                     int dim, double *derivs)
@@ -528,6 +540,7 @@ void vtkQuadraticWedge::Derivatives(int vtkNotUsed(subId),
 }
 
 
+//----------------------------------------------------------------------------
 // Clip this quadratic wedge using scalar value provided. Like contouring, 
 // except that it cuts the wedge to produce tetrahedra.
 void vtkQuadraticWedge::Clip(double value, vtkDataArray* vtkNotUsed(cellScalars), 
@@ -555,6 +568,7 @@ void vtkQuadraticWedge::Clip(double value, vtkDataArray* vtkNotUsed(cellScalars)
 
 }
 
+//----------------------------------------------------------------------------
 // Return the center of the quadratic wedge in parametric coordinates.
 int vtkQuadraticWedge::GetParametricCenter(double pcoords[3])
 {
@@ -562,6 +576,7 @@ int vtkQuadraticWedge::GetParametricCenter(double pcoords[3])
   return 0;
 }
 
+//----------------------------------------------------------------------------
 // Compute interpolation functions for the fifteen nodes.
 void vtkQuadraticWedge::InterpolationFunctions(double pcoords[3], 
                                                double weights[15])
@@ -594,6 +609,7 @@ void vtkQuadraticWedge::InterpolationFunctions(double pcoords[3],
   weights[14] = 4*t*s*(1-t);
 }
 
+//----------------------------------------------------------------------------
 // Derivatives in parametric space.
 void vtkQuadraticWedge::InterpolationDerivs(double pcoords[3], 
                                             double derivs[45])
@@ -665,6 +681,7 @@ void vtkQuadraticWedge::InterpolationDerivs(double pcoords[3],
   derivs[44] = 4*(1 - 2*t)*s;
 }
 
+//----------------------------------------------------------------------------
 static double vtkQWedgeCellPCoords[45] = {0.0,0.0,0.0, 1.0,0.0,0.0, 0.0,1.0,0.0, 
                                           0.0,0.0,1.0, 1.0,0.0,1.0, 0.0,1.0,1.0,
                                           0.5,0.0,0.0, 0.5,0.5,0.0, 0.0,0.5,0.0,
@@ -675,3 +692,23 @@ double *vtkQuadraticWedge::GetParametricCoords()
   return vtkQWedgeCellPCoords;
 }
 
+//----------------------------------------------------------------------------
+void vtkQuadraticWedge::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Edge:\n";
+  this->Edge->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "TriangleFace:\n";
+  this->TriangleFace->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Face:\n";
+  this->Face->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Wedge:\n";
+  this->Wedge->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "PointData:\n";
+  this->PointData->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "CellData:\n";
+  this->CellData->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Scalars:\n";
+  this->Scalars->PrintSelf(os,indent.GetNextIndent());
+}

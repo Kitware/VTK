@@ -65,11 +65,13 @@ private:
   void operator=(const vtkTransformCollection&);  // Not implemented.
 };
 
+//----------------------------------------------------------------------------
 inline void vtkTransformCollection::AddItem(vtkTransform *t) 
 {
   this->vtkCollection::AddItem((vtkObject *)t);
 }
 
+//----------------------------------------------------------------------------
 inline vtkTransform *vtkTransformCollection::GetNextItem() 
 { 
   return static_cast<vtkTransform *>(this->GetNextItemAsObject());

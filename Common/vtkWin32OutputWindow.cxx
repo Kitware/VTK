@@ -15,7 +15,7 @@
 #include "vtkWin32OutputWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWin32OutputWindow, "1.19");
+vtkCxxRevisionMacro(vtkWin32OutputWindow, "1.20");
 vtkStandardNewMacro(vtkWin32OutputWindow);
 
 HWND vtkWin32OutputWindow::OutputWindow = 0;
@@ -273,3 +273,20 @@ void vtkWin32OutputWindow::PromptText(const char* someText)
 #endif
   delete [] vtkmsg;
 }
+
+void vtkWin32OutputWindow::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  if (this->OutputWindow)
+    {
+    os << indent << "OutputWindow: " << this->OutputWindow << "\n";
+    }
+  else
+    {
+    os << indent << "OutputWindow: (null)\n";      
+    }
+
+
+}
+

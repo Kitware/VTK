@@ -15,7 +15,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.86");
+vtkCxxRevisionMacro(vtkMath, "1.87");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -33,6 +33,7 @@ long vtkMath::Seed = 1177; // One authors home address
 #define VTK_SIGN(x)              (( (x) < 0 )?( -1 ):( 1 ))
 // avoid dll boundary problems
 
+//----------------------------------------------------------------------------
 // Generate random numbers between 0.0 and 1.0.
 // This is used to provide portability across different systems.
 double vtkMath::Random()
@@ -52,6 +53,7 @@ double vtkMath::Random()
   return ((double) vtkMath::Seed / VTK_K_M);
 }
 
+//----------------------------------------------------------------------------
 // Initialize seed value. NOTE: Random() has the bad property that 
 // the first random number returned after RandomSeed() is called 
 // is proportional to the seed value! To help solve this, call 
@@ -67,6 +69,7 @@ void vtkMath::RandomSeed(long s)
   vtkMath::Random();
 }
 
+//----------------------------------------------------------------------------
 // Find unit vectors which is perpendicular to this on and to
 // each other.
 void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
@@ -135,6 +138,7 @@ void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
     }      
 }
 
+//----------------------------------------------------------------------------
 // Find unit vectors which are perpendicular to this one and to
 // each other.
 void vtkMath::Perpendiculars(const float x[3], float y[3], float z[3],
@@ -205,6 +209,7 @@ void vtkMath::Perpendiculars(const float x[3], float y[3], float z[3],
 
 #define VTK_SMALL_NUMBER 1.0e-12
 
+//----------------------------------------------------------------------------
 // Solve linear equations Ax = b using Crout's method. Input is square matrix A
 // and load vector x. Solution x is written over load vector. The dimension of
 // the matrix is specified in size. If error is found, method returns a 0.
@@ -265,7 +270,7 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
   return 1;
 }
 
-
+//----------------------------------------------------------------------------
 // Invert input square matrix A into matrix AI. Note that A is modified during
 // the inversion. The size variable is the dimension of the matrix. Returns 0
 // if inverse not computed.
@@ -298,6 +303,7 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
   return retVal;
 }
 
+//----------------------------------------------------------------------------
 // Factor linear equations Ax = b using LU decompostion A = LU where L is
 // lower triangular matrix and U is upper triangular matrix. Input is 
 // square matrix A, integer array of pivot indices index[0->n-1], and size
@@ -403,7 +409,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
   return 1;
 }
 
-
+//----------------------------------------------------------------------------
 // Solve linear equations Ax = b using LU decompostion A = LU where L is
 // lower triangular matrix and U is upper triangular matrix. Input is 
 // factored matrix A=LU, integer array of pivot indices index[0->n-1],
@@ -662,17 +668,20 @@ static inline int vtkJacobiN(T **a, int n, T *w, T **v)
 #undef VTK_ROTATE
 #undef VTK_MAX_ROTATIONS
 
+//----------------------------------------------------------------------------
 int vtkMath::JacobiN(float **a, int n, float *w, float **v)
 {
   return vtkJacobiN(a,n,w,v);
 }
 
+//----------------------------------------------------------------------------
 int vtkMath::JacobiN(double **a, int n, double *w, double **v)
 {
   return vtkJacobiN(a,n,w,v);
 }
 
 
+//----------------------------------------------------------------------------
 // Jacobi iteration for the solution of eigenvectors/eigenvalues of a 3x3
 // real symmetric matrix. Square 3x3 matrix a; output eigenvalues in w;
 // and output eigenvectors in v. Resulting eigenvalues/vectors are sorted
@@ -682,11 +691,13 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
   return vtkMath::JacobiN(a, 3, w, v);
 }
 
+//----------------------------------------------------------------------------
 int vtkMath::Jacobi(double **a, double *w, double **v)
 {
   return vtkMath::JacobiN(a, 3, w, v);
 }
 
+//----------------------------------------------------------------------------
 // Estimate the condition number of a LU factored matrix. Used to judge the
 // accuracy of the solution. The matrix A must have been previously factored
 // using the method LUFactorLinearSystem. The condition number is the ratio
@@ -730,6 +741,7 @@ double vtkMath::EstimateMatrixCondition(double **A, int size)
     }
 }
 
+//----------------------------------------------------------------------------
 // Solves a cubic equation c0*t^3  + c1*t^2  + c2*t + c3 = 0 when
 // c0, c1, c2, and c3 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
@@ -750,6 +762,7 @@ double* vtkMath::SolveCubic( double c0, double c1, double c2, double c3 )
   return roots;
 }
 
+//----------------------------------------------------------------------------
 // Solves a cubic equation when c0, c1, c2, And c3 Are REAL.  Solution
 // is motivated by Numerical Recipes In C 2nd Ed.  Roots and number of
 // real roots are stored in user provided variables r1, r2, r3, and
@@ -863,6 +876,7 @@ int vtkMath::SolveCubic( double c0, double c1, double c2, double c3,
     }
 }
 
+//----------------------------------------------------------------------------
 // Solves a quadratic equation c1*t^2 + c2*t + c3 = 0 when c1, c2, and
 // c3 are REAL.  Solution is motivated by Numerical Recipes In C 2nd
 // Ed.  Return array contains number of (real) roots (counting
@@ -883,6 +897,7 @@ double* vtkMath::SolveQuadratic( double c1, double c2, double c3)
   return roots;
 }
 
+//----------------------------------------------------------------------------
 // Solves A Quadratic Equation c1*t^2  + c2*t  + c3 = 0 when 
 // c1, c2, and c3 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
@@ -939,6 +954,7 @@ int vtkMath::SolveQuadratic( double c1, double c2, double c3,
     }
 }
 
+//----------------------------------------------------------------------------
 // Solves a linear equation c2*t  + c3 = 0 when c2 and c3 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
 // Return array contains number of roots followed by roots themselves.
@@ -952,6 +968,7 @@ double* vtkMath::SolveLinear( double c2, double c3)
   return roots;
 }
 
+//----------------------------------------------------------------------------
 // Solves a linear equation c2*t + c3 = 0 when c2 and c3 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
 // Root and number of (real) roots are stored in user provided variables
@@ -978,6 +995,7 @@ int vtkMath::SolveLinear( double c2, double c3, double *r1, int *num_roots )
   return *num_roots;
 }
 
+//----------------------------------------------------------------------------
 // Solves for the least squares best fit matrix for the homogeneous equation X'M' = 0'.
 // Uses the method described on pages 40-41 of Computer Vision by 
 // Forsyth and Ponce, which is that the solution is the eigenvector 
@@ -1065,6 +1083,7 @@ int vtkMath::SolveHomogeneousLeastSquares(int numberOfSamples, double **xt, int 
   }
 #define VTK_SMALL_NUMBER 1.0e-12
 
+//----------------------------------------------------------------------------
 // Solves for the least squares best fit matrix for the equation X'M' = Y'.
 // Uses pseudoinverse to get the ordinary least squares. 
 // The inputs and output are transposed matrices.
@@ -1533,11 +1552,13 @@ inline void vtkLUFactor3x3(T A[3][3], int index[3])
   A[2][2] = T(1.0)/A[2][2];
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::LUFactor3x3(float A[3][3], int index[3])
 {
   vtkLUFactor3x3(A,index);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::LUFactor3x3(double A[3][3], int index[3])
 {
   vtkLUFactor3x3(A,index);
@@ -1572,12 +1593,14 @@ inline void vtkLUSolve3x3(const T1 A[3][3], const int index[3], T2 x[3])
   x[0] = (x[0] - A[0][1]*x[1] - A[0][2]*x[2])*A[0][0];
 }  
 
+//----------------------------------------------------------------------------
 void vtkMath::LUSolve3x3(const float A[3][3], 
                          const int index[3], float x[3])
 {
   vtkLUSolve3x3(A,index,x);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::LUSolve3x3(const double A[3][3], 
                          const int index[3], double x[3])
 {
@@ -1603,12 +1626,14 @@ inline void vtkLinearSolve3x3(const T1 A[3][3], const T2 x[3], T3 y[3])
   vtkMath::LUSolve3x3(B,index,y);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::LinearSolve3x3(const float A[3][3], 
                              const float x[3], float y[3])
 {
   vtkLinearSolve3x3(A,x,y);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::LinearSolve3x3(const double A[3][3], 
                              const double x[3], double y[3])
 {
@@ -1628,11 +1653,13 @@ inline void vtkMultiply3x3(const T1 A[3][3], const T2 v[3], T3 u[3])
   u[2] = z;
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Multiply3x3(const float A[3][3], const float v[3], float u[3])
 {
   vtkMultiply3x3(A,v,u);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Multiply3x3(const double A[3][3], const double v[3], double u[3])
 {
   vtkMultiply3x3(A,v,u);
@@ -1660,12 +1687,14 @@ inline void vtkMultiplyMatrix3x3(const T A[3][3], const T2 B[3][3],
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Multiply3x3(const float A[3][3], 
                           const float B[3][3], float C[3][3])
 {
   vtkMultiplyMatrix3x3(A,B,C);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Multiply3x3(const double A[3][3], 
                           const double B[3][3], double C[3][3])
 {
@@ -1692,11 +1721,13 @@ inline void vtkTranspose3x3(const T1 A[3][3], T2 AT[3][3])
   AT[2][2] = A[2][2];
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Transpose3x3(const float A[3][3], float AT[3][3])
 {
   vtkTranspose3x3(A,AT);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Transpose3x3(const double A[3][3], double AT[3][3])
 {
   vtkTranspose3x3(A,AT);
@@ -1733,11 +1764,13 @@ inline void vtkInvert3x3(const T1 A[3][3], T2 AI[3][3])
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Invert3x3(const float A[3][3], float AI[3][3])
 {
   vtkInvert3x3(A,AI);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Invert3x3(const double A[3][3], double AI[3][3])
 {
   vtkInvert3x3(A,AI);
@@ -1754,11 +1787,13 @@ template<class T>
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Identity3x3(float A[3][3])
 {
   vtkIdentity3x3(A);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Identity3x3(double A[3][3])
 {
   vtkIdentity3x3(A);
@@ -1800,11 +1835,13 @@ template<class T1, class T2>
   A[2][2] = zz*f + s;
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::QuaternionToMatrix3x3(const float quat[4], float A[3][3])
 {
   vtkQuaternionToMatrix3x3(quat,A);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::QuaternionToMatrix3x3(const double quat[4], double A[3][3])
 {
   vtkQuaternionToMatrix3x3(quat,A);
@@ -1854,11 +1891,13 @@ inline void vtkMatrix3x3ToQuaternion(const T1 A[3][3], T2 quat[4])
   quat[3] = eigenvectors[3][0];
 }
   
+//----------------------------------------------------------------------------
 void vtkMath::Matrix3x3ToQuaternion(const float A[3][3], float quat[4])
 {
   vtkMatrix3x3ToQuaternion(A,quat);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Matrix3x3ToQuaternion(const double A[3][3], double quat[4])
 {
   vtkMatrix3x3ToQuaternion(A,quat);
@@ -1974,16 +2013,19 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Orthogonalize3x3(const float A[3][3], float B[3][3])
 {
   vtkOrthogonalize3x3(A,B);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Orthogonalize3x3(const double A[3][3], double B[3][3])
 {
   vtkOrthogonalize3x3(A,B);
 }
 
+//----------------------------------------------------------------------------
 float vtkMath::Norm(const float* x, int n)
 {
   double sum=0;
@@ -1995,6 +2037,7 @@ float vtkMath::Norm(const float* x, int n)
   return sqrt(sum);
 }
 
+//----------------------------------------------------------------------------
 double vtkMath::Norm(const double* x, int n)
 {
   double sum=0;
@@ -2147,11 +2190,13 @@ inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
   vtkMath::Transpose3x3(V,V);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Diagonalize3x3(const float A[3][3], float w[3], float V[3][3])
 {
   vtkDiagonalize3x3(A,w,V);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::Diagonalize3x3(const double A[3][3],double w[3],double V[3][3])
 {
   vtkDiagonalize3x3(A,w,V);
@@ -2257,6 +2302,7 @@ inline void vtkSingularValueDecomposition3x3(const T1 A[3][3],
   */
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::SingularValueDecomposition3x3(const float A[3][3], 
                                             float U[3][3], float w[3],
                                             float VT[3][3])
@@ -2264,6 +2310,7 @@ void vtkMath::SingularValueDecomposition3x3(const float A[3][3],
   vtkSingularValueDecomposition3x3(A,U,w,VT);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::SingularValueDecomposition3x3(const double A[3][3], 
                                             double U[3][3], double w[3],
                                             double VT[3][3])
@@ -2410,3 +2457,12 @@ void vtkMath::HSVToRGB(double h, double s, double v,
   *g *= v;
   *b *= v;
 }
+
+//----------------------------------------------------------------------------
+void vtkMath::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Seed: " << this->Seed << "\n";
+}
+

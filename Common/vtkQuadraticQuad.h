@@ -46,6 +46,7 @@ class VTK_COMMON_EXPORT vtkQuadraticQuad : public vtkNonLinearCell
 public:
   static vtkQuadraticQuad *New();
   vtkTypeRevisionMacro(vtkQuadraticQuad,vtkNonLinearCell);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implement the vtkCell API. See the vtkCell API for descriptions 
@@ -102,7 +103,7 @@ protected:
   vtkQuad          *Quad;
   vtkPointData     *PointData;
   vtkCellData      *CellData;
-  vtkDoubleArray    *Scalars;
+  vtkDoubleArray   *Scalars;
 
   void Subdivide(double *weights);
   void InterpolateAttributes(vtkPointData *inPd, vtkCellData *inCd,

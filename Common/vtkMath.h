@@ -30,7 +30,8 @@ class VTK_COMMON_EXPORT vtkMath : public vtkObject
 public:
   static vtkMath *New();
   vtkTypeRevisionMacro(vtkMath,vtkObject);
-  
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Useful constants.
   static float Pi() {return 3.14159265358979f;};
@@ -518,6 +519,7 @@ private:
   void operator=(const vtkMath&);  // Not implemented.
 };
 
+//----------------------------------------------------------------------------
 inline int vtkMath::Floor(double x)
 {
 #if defined i386 || defined _M_IX86
@@ -535,6 +537,7 @@ inline int vtkMath::Floor(double x)
 #endif
 }
 
+//----------------------------------------------------------------------------
 inline float vtkMath::Normalize(float x[3])
 {
   float den; 
@@ -547,6 +550,8 @@ inline float vtkMath::Normalize(float x[3])
     }
   return den;
 }
+
+//----------------------------------------------------------------------------
 inline double vtkMath::Normalize(double x[3])
 {
   double den; 
@@ -560,6 +565,7 @@ inline double vtkMath::Normalize(double x[3])
   return den;
 }
 
+//----------------------------------------------------------------------------
 inline float vtkMath::Normalize2D(float x[3])
 {
   float den; 
@@ -573,6 +579,7 @@ inline float vtkMath::Normalize2D(float x[3])
   return den;
 }
 
+//----------------------------------------------------------------------------
 inline double vtkMath::Normalize2D(double x[3])
 {
   double den; 
@@ -586,6 +593,7 @@ inline double vtkMath::Normalize2D(double x[3])
   return den;
 }
 
+//----------------------------------------------------------------------------
 inline float vtkMath::Determinant3x3(const float c1[3], 
                                      const float c2[3], 
                                      const float c3[3])
@@ -594,6 +602,7 @@ inline float vtkMath::Determinant3x3(const float c1[3],
          c1[0]*c3[1]*c2[2] - c2[0]*c1[1]*c3[2] - c3[0]*c2[1]*c1[2];
 }
 
+//----------------------------------------------------------------------------
 inline double vtkMath::Determinant3x3(const double c1[3], 
                                       const double c2[3], 
                                       const double c3[3])
@@ -602,6 +611,7 @@ inline double vtkMath::Determinant3x3(const double c1[3],
          c1[0]*c3[1]*c2[2] - c2[0]*c1[1]*c3[2] - c3[0]*c2[1]*c1[2];
 }
 
+//----------------------------------------------------------------------------
 inline double vtkMath::Determinant3x3(double a1, double a2, double a3, 
                                       double b1, double b2, double b3, 
                                       double c1, double c2, double c3)
@@ -611,12 +621,15 @@ inline double vtkMath::Determinant3x3(double a1, double a2, double a3,
            + c1 * vtkMath::Determinant2x2( a2, a3, b2, b3 ) );
 }
 
+//----------------------------------------------------------------------------
 inline float vtkMath::Distance2BetweenPoints(const float x[3], 
                                              const float y[3])
 {
   return ((x[0]-y[0])*(x[0]-y[0]) + (x[1]-y[1])*(x[1]-y[1]) +
           (x[2]-y[2])*(x[2]-y[2]));
 }
+
+//----------------------------------------------------------------------------
 inline double vtkMath::Distance2BetweenPoints(const double x[3], 
                                               const double y[3])
 {
@@ -624,11 +637,13 @@ inline double vtkMath::Distance2BetweenPoints(const double x[3],
           (x[2]-y[2])*(x[2]-y[2]));
 }
 
+//----------------------------------------------------------------------------
 inline double vtkMath::Random(double min, double max)
 {
   return (min + vtkMath::Random()*(max-min));
 }
 
+//----------------------------------------------------------------------------
 // Cross product of two 3-vectors. Result vector in z[3].
 inline void vtkMath::Cross(const float x[3], const float y[3], float z[3])
 {
@@ -638,6 +653,7 @@ inline void vtkMath::Cross(const float x[3], const float y[3], float z[3])
   z[0] = Zx; z[1] = Zy; z[2] = Zz; 
 }
 
+//----------------------------------------------------------------------------
 // Cross product of two 3-vectors. Result vector in z[3].
 inline void vtkMath::Cross(const double x[3], const double y[3], double z[3])
 {
@@ -658,11 +674,13 @@ inline double vtkDeterminant3x3(T A[3][3])
 }
 //ETX
 
+//----------------------------------------------------------------------------
 inline double vtkMath::Determinant3x3(float A[3][3])
 {
   return vtkDeterminant3x3(A);
 }
 
+//----------------------------------------------------------------------------
 inline double vtkMath::Determinant3x3(double A[3][3])
 {
   return vtkDeterminant3x3(A);

@@ -40,6 +40,7 @@ class VTK_COMMON_EXPORT vtkConvexPointSet : public vtkCell3D
 public:
   static vtkConvexPointSet *New();
   vtkTypeRevisionMacro(vtkConvexPointSet,vtkCell3D);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // See vtkCell3D API for description of this method.
@@ -141,13 +142,13 @@ protected:
   vtkConvexPointSet();
   ~vtkConvexPointSet();
 
-  vtkTetra      *Tetra;
-  vtkIdList     *TetraIds;
-  vtkPoints     *TetraPoints;
+  vtkTetra       *Tetra;
+  vtkIdList      *TetraIds;
+  vtkPoints      *TetraPoints;
   vtkDoubleArray *TetraScalars;
 
-  vtkCellArray  *BoundaryTris;
-  vtkTriangle   *Triangle;
+  vtkCellArray   *BoundaryTris;
+  vtkTriangle    *Triangle;
   vtkDoubleArray *ParametricCoords;
 
 private:
@@ -155,6 +156,7 @@ private:
   void operator=(const vtkConvexPointSet&);  // Not implemented.
 };
 
+//----------------------------------------------------------------------------
 inline int vtkConvexPointSet::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = pcoords[1] = pcoords[2] = 0.5;

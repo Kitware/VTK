@@ -32,6 +32,7 @@ class VTK_COMMON_EXPORT vtkTriangle : public vtkCell
 public:
   static vtkTriangle *New();
   vtkTypeRevisionMacro(vtkTriangle,vtkCell);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create a new cell and copy this triangle's information into the
@@ -180,12 +181,14 @@ private:
   void operator=(const vtkTriangle&);  // Not implemented.
 };
 
+//----------------------------------------------------------------------------
 inline int vtkTriangle::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = pcoords[1] = 1./3; pcoords[2] = 0.0;
   return 0;
 }
 
+//----------------------------------------------------------------------------
 inline void vtkTriangle::ComputeNormalDirection(double v1[3], double v2[3], 
                                        double v3[3], double n[3])
 {
@@ -200,6 +203,7 @@ inline void vtkTriangle::ComputeNormalDirection(double v1[3], double v2[3],
   n[2] = (ax * by - ay * bx);
 }
 
+//----------------------------------------------------------------------------
 inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3], 
                                        double v3[3], double n[3])
 {
@@ -215,6 +219,7 @@ inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3],
     }
 }
 
+//----------------------------------------------------------------------------
 inline void vtkTriangle::TriangleCenter(double p1[3], double p2[3], 
                                         double p3[3], double center[3])
 {
@@ -223,6 +228,7 @@ inline void vtkTriangle::TriangleCenter(double p1[3], double p2[3],
   center[2] = (p1[2]+p2[2]+p3[2]) / 3.0;
 }
 
+//----------------------------------------------------------------------------
 inline double vtkTriangle::TriangleArea(double p1[3], double p2[3], double p3[3])
 {
   double a,b,c;

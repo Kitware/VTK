@@ -43,6 +43,7 @@ public:
 
   static vtkCellLinks *New();
   vtkTypeRevisionMacro(vtkCellLinks,vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Allocate the specified number of links (i.e., number of points) that
@@ -148,7 +149,7 @@ private:
   void operator=(const vtkCellLinks&);  // Not implemented.
 };
 
-
+//----------------------------------------------------------------------------
 inline void vtkCellLinks::InsertCellReference(vtkIdType ptId,
                                               unsigned short pos,
                                               vtkIdType cellId) 
@@ -156,6 +157,7 @@ inline void vtkCellLinks::InsertCellReference(vtkIdType ptId,
   this->Array[ptId].cells[pos] = cellId;
 }
 
+//----------------------------------------------------------------------------
 inline void vtkCellLinks::DeletePoint(vtkIdType ptId)
 {
   this->Array[ptId].ncells = 0;
@@ -163,12 +165,14 @@ inline void vtkCellLinks::DeletePoint(vtkIdType ptId)
   this->Array[ptId].cells = NULL;
 }
 
+//----------------------------------------------------------------------------
 inline void vtkCellLinks::InsertNextCellReference(vtkIdType ptId,
                                                   vtkIdType cellId) 
 {
   this->Array[ptId].cells[this->Array[ptId].ncells++] = cellId;
 }
 
+//----------------------------------------------------------------------------
 inline void vtkCellLinks::RemoveCellReference(vtkIdType cellId, vtkIdType ptId)
 {
   vtkIdType *cells=this->Array[ptId].cells;
@@ -188,11 +192,13 @@ inline void vtkCellLinks::RemoveCellReference(vtkIdType cellId, vtkIdType ptId)
     }
 }
 
+//----------------------------------------------------------------------------
 inline void vtkCellLinks::AddCellReference(vtkIdType cellId, vtkIdType ptId)
 {
   this->Array[ptId].cells[this->Array[ptId].ncells++] = cellId;
 }
 
+//----------------------------------------------------------------------------
 inline void vtkCellLinks::ResizeCellList(vtkIdType ptId, int size)
 {
   int newSize;

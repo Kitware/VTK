@@ -35,6 +35,7 @@ class VTK_COMMON_EXPORT vtkPolygon : public vtkCell
 public:
   static vtkPolygon *New();
   vtkTypeRevisionMacro(vtkPolygon,vtkCell);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
@@ -125,7 +126,7 @@ protected:
 
   // variables used by instances of this class
   double   Tolerance; // Intersection tolerance
-  int     SuccessfulTriangulation; // Stops recursive tri. if necessary
+  int      SuccessfulTriangulation; // Stops recursive tri. if necessary
   double   Normal[3]; //polygon normal
   vtkIdList *Tris;
   vtkTriangle *Triangle;

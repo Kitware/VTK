@@ -38,6 +38,7 @@ class VTK_COMMON_EXPORT vtkHexahedron : public vtkCell3D
 public:
   static vtkHexahedron *New();
   vtkTypeRevisionMacro(vtkHexahedron,vtkCell3D);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // See vtkCell3D API for description of these methods.

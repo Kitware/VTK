@@ -26,7 +26,8 @@ class VTK_COMMON_EXPORT vtkVertex : public vtkCell
 public:
   static vtkVertex *New();
   vtkTypeRevisionMacro(vtkVertex,vtkCell);
-  
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Make a new vtkVertex object with the same information as this object.
 

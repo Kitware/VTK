@@ -26,9 +26,10 @@
 #include "vtkCellData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPixel, "1.81");
+vtkCxxRevisionMacro(vtkPixel, "1.82");
 vtkStandardNewMacro(vtkPixel);
 
+//----------------------------------------------------------------------------
 // Construct the pixel with four points.
 vtkPixel::vtkPixel()
 {
@@ -47,11 +48,13 @@ vtkPixel::vtkPixel()
   this->Line = vtkLine::New();
 }
 
+//----------------------------------------------------------------------------
 vtkPixel::~vtkPixel()
 {
   this->Line->Delete();
 }
 
+//----------------------------------------------------------------------------
 int vtkPixel::EvaluatePosition(double x[3], double* closestPoint,
                                   int& subId, double pcoords[3], 
                                   double& dist2, double *weights)
@@ -137,6 +140,7 @@ int vtkPixel::EvaluatePosition(double x[3], double* closestPoint,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkPixel::EvaluateLocation(int& subId, double pcoords[3], double x[3],
                                    double *weights)
 {
@@ -158,6 +162,7 @@ void vtkPixel::EvaluateLocation(int& subId, double pcoords[3], double x[3],
   this->InterpolationFunctions(pcoords, weights);
 }
 
+//----------------------------------------------------------------------------
 int vtkPixel::CellBoundary(int vtkNotUsed(subId), double pcoords[3], vtkIdList *pts)
 {
   double t1=pcoords[0]-pcoords[1];
@@ -202,6 +207,7 @@ int vtkPixel::CellBoundary(int vtkNotUsed(subId), double pcoords[3], vtkIdList *
     }
 }
 
+//----------------------------------------------------------------------------
 //
 // Marching squares
 //
@@ -270,6 +276,7 @@ void vtkPixel::Contour(double value, vtkDataArray *cellScalars,
     }
 }
 
+//----------------------------------------------------------------------------
 vtkCell *vtkPixel::GetEdge(int edgeId)
 {
   int *verts;
@@ -286,6 +293,8 @@ vtkCell *vtkPixel::GetEdge(int edgeId)
 
   return this->Line;
 }
+
+//----------------------------------------------------------------------------
 //
 // Compute interpolation functions (similar but different than Quad interpolation 
 // functions)
@@ -303,6 +312,7 @@ void vtkPixel::InterpolationFunctions(double pcoords[3], double sf[4])
   sf[3] = pcoords[0] * pcoords[1];
 }
 
+//----------------------------------------------------------------------------
 //
 // Compute derivatives of interpolation functions.
 //
@@ -326,6 +336,7 @@ void vtkPixel::InterpolationDerivs(double pcoords[3], double derivs[8])
   derivs[7] = pcoords[0];
 }
 
+//----------------------------------------------------------------------------
 // 
 // Intersect plane; see whether point is inside.
 //
@@ -376,6 +387,7 @@ int vtkPixel::IntersectWithLine(double p1[3], double p2[3], double tol, double& 
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkPixel::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 {
   pts->Reset();
@@ -417,6 +429,7 @@ int vtkPixel::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkPixel::Derivatives(int vtkNotUsed(subId), 
                            double pcoords[3], 
                            double *values, 
@@ -482,6 +495,7 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
     }
 }
 
+//----------------------------------------------------------------------------
 // support pixel clipping
 typedef int PIXEL_EDGE_LIST;
 typedef struct {
@@ -527,6 +541,7 @@ static PIXEL_CASES pixelCasesComplement[] = {
 };
 
 
+//----------------------------------------------------------------------------
 // Clip this pixel using scalar value provided. Like contouring, except
 // that it cuts the pixel to produce quads and/or triangles.
 void vtkPixel::Clip(double value, vtkDataArray *cellScalars, 
@@ -659,6 +674,7 @@ void vtkPixel::Clip(double value, vtkDataArray *cellScalars,
     }
 }
 
+//----------------------------------------------------------------------------
 static double vtkPixelCellPCoords[12] = {0.0,0.0,0.0, 1.0,0.0,0.0,
                                         0.0,1.0,0.0, 1.0,1.0,0.0};
 
@@ -666,3 +682,13 @@ double *vtkPixel::GetParametricCoords()
 {
   return vtkPixelCellPCoords;
 }
+
+//----------------------------------------------------------------------------
+void vtkPixel::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Line:\n";
+  this->Line->PrintSelf(os,indent.GetNextIndent());
+}
+

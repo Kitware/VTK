@@ -38,6 +38,7 @@ class VTK_COMMON_EXPORT vtkRungeKutta45 : public vtkInitialValueProblemSolver
 {
 public:
   vtkTypeRevisionMacro(vtkRungeKutta45,vtkInitialValueProblemSolver);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct a vtkRungeKutta45 with no initial FunctionSet.

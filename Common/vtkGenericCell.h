@@ -37,6 +37,7 @@ public:
   static vtkGenericCell *New();
 
   vtkTypeRevisionMacro(vtkGenericCell,vtkCell);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

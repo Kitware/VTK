@@ -26,6 +26,7 @@ class VTK_COMMON_EXPORT vtkLine : public vtkCell
 public:
   static vtkLine *New();
   vtkTypeRevisionMacro(vtkLine,vtkCell);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

@@ -25,9 +25,10 @@
 #include "vtkPoints.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkVoxel, "1.84");
+vtkCxxRevisionMacro(vtkVoxel, "1.85");
 vtkStandardNewMacro(vtkVoxel);
 
+//----------------------------------------------------------------------------
 // Construct the voxel with eight points.
 vtkVoxel::vtkVoxel()
 {
@@ -47,12 +48,14 @@ vtkVoxel::vtkVoxel()
   this->Pixel = vtkPixel::New();
 }
 
+//----------------------------------------------------------------------------
 vtkVoxel::~vtkVoxel()
 {
   this->Line->Delete();
   this->Pixel->Delete();
 }
 
+//----------------------------------------------------------------------------
 int vtkVoxel::EvaluatePosition(double x[3], double* closestPoint,
                               int& subId, double pcoords[3], 
                               double& dist2, double *weights)
@@ -114,6 +117,7 @@ int vtkVoxel::EvaluatePosition(double x[3], double* closestPoint,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkVoxel::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3], 
                                 double x[3], double *weights)
 {
@@ -135,6 +139,7 @@ void vtkVoxel::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
   this->InterpolationFunctions(pcoords,weights);
 }
 
+//----------------------------------------------------------------------------
 //
 // Compute Interpolation functions
 //
@@ -158,6 +163,7 @@ void vtkVoxel::InterpolationFunctions(double pcoords[3], double sf[8])
   sf[7] = r * s * t;
 }
 
+//----------------------------------------------------------------------------
 void vtkVoxel::InterpolationDerivs(double pcoords[3], double derivs[24])
 {
   double rm, sm, tm;
@@ -197,6 +203,7 @@ void vtkVoxel::InterpolationDerivs(double pcoords[3], double derivs[24])
   derivs[23] = pcoords[0]*pcoords[1];
 }
 
+//----------------------------------------------------------------------------
 int vtkVoxel::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
                            vtkIdList *pts)
 {
@@ -271,6 +278,7 @@ int vtkVoxel::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     }
 }
 
+//----------------------------------------------------------------------------
 static int edges[12][2] = { {0,1}, {1,3}, {2,3}, {0,2},
                             {4,5}, {5,7}, {6,7}, {4,6},
                             {0,4}, {1,5}, {2,6}, {3,7}};
@@ -279,6 +287,7 @@ static int faces[6][4] = { {2,0,6,4}, {1,3,5,7},
                            {0,1,4,5}, {3,2,7,6},
                            {1,0,3,2}, {4,5,6,7} };
 
+//----------------------------------------------------------------------------
 //
 // Marching cubes case table
 //
@@ -349,10 +358,13 @@ void vtkVoxel::Contour(double value, vtkDataArray *cellScalars,
 }
 
 
+//----------------------------------------------------------------------------
 int *vtkVoxel::GetEdgeArray(int edgeId)
 {
   return edges[edgeId];
 }
+
+//----------------------------------------------------------------------------
 vtkCell *vtkVoxel::GetEdge(int edgeId)
 {
   int *verts;
@@ -370,10 +382,13 @@ vtkCell *vtkVoxel::GetEdge(int edgeId)
   return this->Line;
 }
 
+//----------------------------------------------------------------------------
 int *vtkVoxel::GetFaceArray(int faceId)
 {
   return faces[faceId];
 }
+
+//----------------------------------------------------------------------------
 vtkCell *vtkVoxel::GetFace(int faceId)
 {
   int *verts, i;
@@ -389,6 +404,7 @@ vtkCell *vtkVoxel::GetFace(int faceId)
   return this->Pixel;
 }
 
+//----------------------------------------------------------------------------
 // 
 // Intersect voxel with line using "bounding box" intersection.
 //
@@ -430,6 +446,7 @@ int vtkVoxel::IntersectWithLine(double p1[3], double p2[3],
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkVoxel::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 {
   int p[4], i;
@@ -518,6 +535,7 @@ int vtkVoxel::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkVoxel::Derivatives(int vtkNotUsed(subId), double pcoords[3], 
                            double *values, int dim, double *derivs)
 {
@@ -553,11 +571,13 @@ void vtkVoxel::Derivatives(int vtkNotUsed(subId), double pcoords[3],
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkVoxel::GetEdgePoints(int edgeId, int* &pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
+//----------------------------------------------------------------------------
 void vtkVoxel::GetFacePoints(int faceId, int* &pts)
 {
   pts = this->GetFaceArray(faceId);
@@ -568,7 +588,19 @@ static double vtkVoxelCellPCoords[24] = {0.0,0.0,0.0, 1.0,0.0,0.0,
                                         0.0,0.0,1.0, 1.0,0.0,1.0,
                                         0.0,1.0,1.0, 1.0,1.0,1.0};
 
+//----------------------------------------------------------------------------
 double *vtkVoxel::GetParametricCoords()
 {
   return vtkVoxelCellPCoords;
+}
+
+//----------------------------------------------------------------------------
+void vtkVoxel::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Line:\n";
+  this->Line->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Pixel:\n";
+  this->Pixel->PrintSelf(os,indent.GetNextIndent());
 }

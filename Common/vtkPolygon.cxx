@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkPolygon, "1.105");
+vtkCxxRevisionMacro(vtkPolygon, "1.106");
 vtkStandardNewMacro(vtkPolygon);
 
 // Instantiate polygon.
@@ -1389,3 +1389,23 @@ int vtkPolygon::IntersectPolygonWithPolygon(int npts, double *pts,double bounds[
   return 0;
 }
 
+//----------------------------------------------------------------------------
+void vtkPolygon::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
+  os << indent << "SuccessfulTriangulation: " << this->SuccessfulTriangulation << "\n";
+  os << indent << "Normal: (" << this->Normal[0] << ", " 
+     << this->Normal[1] << ", " << this->Normal[2] << ")\n";
+  os << indent << "Tris:\n";
+  this->Tris->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Triangle:\n";
+  this->Triangle->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Quad:\n";
+  this->Quad->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "TriScalars:\n";
+  this->TriScalars->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Line:\n";
+  this->Line->PrintSelf(os,indent.GetNextIndent());
+}

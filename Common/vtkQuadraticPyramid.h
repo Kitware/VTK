@@ -51,6 +51,7 @@ class VTK_COMMON_EXPORT vtkQuadraticPyramid : public vtkNonLinearCell
 public:
   static vtkQuadraticPyramid *New();
   vtkTypeRevisionMacro(vtkQuadraticPyramid,vtkNonLinearCell);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implement the vtkCell API. See the vtkCell API for descriptions 

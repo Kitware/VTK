@@ -27,7 +27,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.12");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.13");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -36,13 +36,11 @@ vtkStandardNewMacro(vtkQuadraticPyramid);
 //
 vtkQuadraticPyramid::vtkQuadraticPyramid()
 {
-  int i;
-
   // At creation time the cell looks like it has 14 points (during interpolation)
   // We initially allocate for 14.
   this->Points->SetNumberOfPoints(14);
   this->PointIds->SetNumberOfIds(14);
-  for (i = 0; i < 14; i++)
+  for (int i = 0; i < 14; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
@@ -745,4 +743,27 @@ static double vtkQPyramidCellPCoords[39] = {0.0,0.0,0.0, 1.0,0.0,0.0, 1.0,1.0,0.
 double *vtkQuadraticPyramid::GetParametricCoords()
 {
   return vtkQPyramidCellPCoords;
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadraticPyramid::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Edge:\n";
+  this->Edge->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "TriangleFace:\n";
+  this->TriangleFace->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Face:\n";
+  this->Face->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Tetra:\n";
+  this->Tetra->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Pyramid:\n";
+  this->Pyramid->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "PointData:\n";
+  this->PointData->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "CellData:\n";
+  this->CellData->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Scalars:\n";
+  this->Scalars->PrintSelf(os,indent.GetNextIndent());
 }

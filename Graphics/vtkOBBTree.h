@@ -77,6 +77,7 @@ class VTK_GRAPHICS_EXPORT vtkOBBTree : public vtkCellLocator
 {
 public:
   vtkTypeRevisionMacro(vtkOBBTree,vtkCellLocator);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct with automatic computation of divisions, averaging

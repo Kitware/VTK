@@ -22,9 +22,10 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.15");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.16");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
+//----------------------------------------------------------------------------
 // Construct the line with two points.
 vtkQuadraticTriangle::vtkQuadraticTriangle()
 {
@@ -33,16 +34,16 @@ vtkQuadraticTriangle::vtkQuadraticTriangle()
   this->Scalars = vtkDoubleArray::New();
   this->Scalars->SetNumberOfTuples(3);
 
-  int i;
   this->Points->SetNumberOfPoints(6);
   this->PointIds->SetNumberOfIds(6);
-  for (i = 0; i < 6; i++)
+  for (int i = 0; i < 6; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
     }
 }
 
+//----------------------------------------------------------------------------
 vtkQuadraticTriangle::~vtkQuadraticTriangle()
 {
   this->Edge->Delete();
@@ -50,6 +51,7 @@ vtkQuadraticTriangle::~vtkQuadraticTriangle()
   this->Scalars->Delete();
 }
 
+//----------------------------------------------------------------------------
 vtkCell *vtkQuadraticTriangle::GetEdge(int edgeId)
 {
   edgeId = (edgeId < 0 ? 0 : (edgeId > 2 ? 2 : edgeId ));
@@ -68,6 +70,7 @@ vtkCell *vtkQuadraticTriangle::GetEdge(int edgeId)
   return this->Edge;
 }
 
+//----------------------------------------------------------------------------
 // order picked carefully for parametric coordinate conversion
 static int linearTris[4][3] = { {0,3,5}, {3, 1,4}, {5,4,2}, {4,5,3} };
 
@@ -132,6 +135,7 @@ int vtkQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
   return returnStatus;
 }
 
+//----------------------------------------------------------------------------
 void vtkQuadraticTriangle::EvaluateLocation(int& vtkNotUsed(subId), 
                                         double pcoords[3], 
                                         double x[3], double *weights)
@@ -154,12 +158,14 @@ void vtkQuadraticTriangle::EvaluateLocation(int& vtkNotUsed(subId),
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkQuadraticTriangle::CellBoundary(int subId, double pcoords[3], 
                                        vtkIdList *pts)
 {
   return this->Face->CellBoundary(subId, pcoords, pts);
 }
 
+//----------------------------------------------------------------------------
 void vtkQuadraticTriangle::Contour(double value, 
                                    vtkDataArray* cellScalars, 
                                    vtkPointLocator* locator, 
@@ -194,6 +200,7 @@ void vtkQuadraticTriangle::Contour(double value,
     }
 }
 
+//----------------------------------------------------------------------------
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
 int vtkQuadraticTriangle::IntersectWithLine(double* p1, 
@@ -222,6 +229,7 @@ int vtkQuadraticTriangle::IntersectWithLine(double* p1,
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
                                       vtkPoints *pts)
 {
@@ -242,6 +250,7 @@ int vtkQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkQuadraticTriangle::Derivatives(int vtkNotUsed(subId), 
                                        double pcoords[3], 
                                        double *vtkNotUsed(values), 
@@ -252,6 +261,7 @@ void vtkQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
 }
 
 
+//----------------------------------------------------------------------------
 // Clip this quadratic triangle using the scalar value provided. Like 
 // contouring, except that it cuts the triangle to produce other quads
 // and triangles.
@@ -285,12 +295,14 @@ void vtkQuadraticTriangle::Clip(double value,
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkQuadraticTriangle::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = pcoords[1] = 0.333; pcoords[2] = 0.0;
   return 0;
 }
 
+//----------------------------------------------------------------------------
 // Compute maximum parametric distance to cell
 double vtkQuadraticTriangle::GetParametricDistance(double pcoords[3])
 {
@@ -325,6 +337,7 @@ double vtkQuadraticTriangle::GetParametricDistance(double pcoords[3])
   return pDistMax;
 }
 
+//----------------------------------------------------------------------------
 // Compute interpolation functions. The first three nodes are the triangle
 // vertices; the others are mid-edge nodes.
 void vtkQuadraticTriangle::InterpolationFunctions(double pcoords[3], 
@@ -342,6 +355,7 @@ void vtkQuadraticTriangle::InterpolationFunctions(double pcoords[3],
   weights[5] = 4.0 * s * t;
 }
 
+//----------------------------------------------------------------------------
 // Derivatives in parametric space.
 void vtkQuadraticTriangle::InterpolationDerivs(double pcoords[3], 
                                                double derivs[12])
@@ -366,10 +380,24 @@ void vtkQuadraticTriangle::InterpolationDerivs(double pcoords[3],
   derivs[11] = 4.0 - 8.0*s - 4.0*r;
 }
 
+//----------------------------------------------------------------------------
 static double vtkQTriangleCellPCoords[18] = {
   0.0,0.0,0.0, 1.0,0.0,0.0, 0.0,1.0,0.0,
   0.5,0.0,0.0, 0.5,0.5,0.0, 0.0,0.5,0.0};
 double *vtkQuadraticTriangle::GetParametricCoords()
 {
   return vtkQTriangleCellPCoords;
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadraticTriangle::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Edge:\n";
+  this->Edge->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Edge:\n";
+  this->Edge->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Scalars:\n";
+  this->Scalars->PrintSelf(os,indent.GetNextIndent());
 }

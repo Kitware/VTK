@@ -15,9 +15,10 @@
 #include "vtkCellTypes.h"
 #include "vtkObjectFactory.h"  
 
-vtkCxxRevisionMacro(vtkCellTypes, "1.20");
+vtkCxxRevisionMacro(vtkCellTypes, "1.21");
 vtkStandardNewMacro(vtkCellTypes);
 
+//----------------------------------------------------------------------------
 vtkCellTypes::vtkCellTypes ()
 {
 
@@ -30,6 +31,7 @@ vtkCellTypes::vtkCellTypes ()
 
 }
 
+//----------------------------------------------------------------------------
 vtkCellTypes::~vtkCellTypes()
 {
 
@@ -47,6 +49,7 @@ vtkCellTypes::~vtkCellTypes()
 
 }
 
+//----------------------------------------------------------------------------
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkCellTypes::Allocate(int sz, int ext)
 {
@@ -76,6 +79,7 @@ int vtkCellTypes::Allocate(int sz, int ext)
   return 1;
 }
 
+//----------------------------------------------------------------------------
 // Add a cell at specified id.
 void vtkCellTypes::InsertCell(int cellId, unsigned char type, int loc)
 {
@@ -91,6 +95,7 @@ void vtkCellTypes::InsertCell(int cellId, unsigned char type, int loc)
   return;
 }
 
+//----------------------------------------------------------------------------
 // Add a cell to the object in the next available slot.
 int vtkCellTypes::InsertNextCell(unsigned char type, int loc)
 {
@@ -99,6 +104,7 @@ int vtkCellTypes::InsertNextCell(unsigned char type, int loc)
   return this->MaxId;
 }
 
+//----------------------------------------------------------------------------
 // Specify a group of cell types.
 void vtkCellTypes::SetCellTypes(int ncells, vtkUnsignedCharArray *cellTypes, vtkIntArray *cellLocations)
 {
@@ -123,6 +129,7 @@ void vtkCellTypes::SetCellTypes(int ncells, vtkUnsignedCharArray *cellTypes, vtk
 
 }
 
+//----------------------------------------------------------------------------
 // Reclaim any extra memory.
 void vtkCellTypes::Squeeze()
 {
@@ -130,12 +137,14 @@ void vtkCellTypes::Squeeze()
   this->LocationArray->Squeeze();
 }
 
+//----------------------------------------------------------------------------
 // Initialize object without releasing memory.
 void vtkCellTypes::Reset()
 {
   this->MaxId = -1;
 }
 
+//----------------------------------------------------------------------------
 unsigned long vtkCellTypes::GetActualMemorySize()
 {
   unsigned long size=0;
@@ -154,6 +163,7 @@ unsigned long vtkCellTypes::GetActualMemorySize()
 }
 
 
+//----------------------------------------------------------------------------
 void vtkCellTypes::DeepCopy(vtkCellTypes *src)
 {
   if (this->TypeArray)
@@ -186,3 +196,17 @@ void vtkCellTypes::DeepCopy(vtkCellTypes *src)
   this->MaxId = src->MaxId;
 }
 
+//----------------------------------------------------------------------------
+void vtkCellTypes::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "TypeArray:\n";
+  this->TypeArray->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "LocationArray:\n";
+  this->LocationArray->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Size: " << this->Size << "\n";
+  os << indent << "MaxId: " << this->MaxId << "\n";
+  os << indent << "Extend: " << this->Extend << "\n";
+}

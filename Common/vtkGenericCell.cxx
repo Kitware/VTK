@@ -40,80 +40,95 @@
 #include "vtkConvexPointSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.23");
+vtkCxxRevisionMacro(vtkGenericCell, "1.24");
 vtkStandardNewMacro(vtkGenericCell);
 
+//----------------------------------------------------------------------------
 // Construct cell.
 vtkGenericCell::vtkGenericCell()
 {
   this->Cell = vtkEmptyCell::New();
 }  
 
+//----------------------------------------------------------------------------
 vtkGenericCell::~vtkGenericCell()
 {
   this->Cell->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericCell::ShallowCopy(vtkCell *c)
 {
   this->Cell->ShallowCopy(c);
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericCell::DeepCopy(vtkCell *c)
 {
   this->Cell->DeepCopy(c);
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericCell::GetCellType()
 {
   return this->Cell->GetCellType();
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericCell::GetCellDimension()
 {
   return this->Cell->GetCellDimension();
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericCell::IsLinear()
 {
   return this->Cell->IsLinear();
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericCell::RequiresInitialization()
 {
   return this->Cell->RequiresInitialization();
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericCell::Initialize()
 {
   this->Cell->Initialize();
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericCell::GetNumberOfEdges()
 {
   return this->Cell->GetNumberOfEdges();
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericCell::GetNumberOfFaces()
 {
   return this->Cell->GetNumberOfFaces();
 }
 
+//----------------------------------------------------------------------------
 vtkCell *vtkGenericCell::GetEdge(int edgeId)
 {
   return this->Cell->GetEdge(edgeId);
 }
 
+//----------------------------------------------------------------------------
 vtkCell *vtkGenericCell::GetFace(int faceId)
 {
   return this->Cell->GetFace(faceId);
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericCell::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
 {
   return this->Cell->CellBoundary(subId, pcoords, pts);
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericCell::EvaluatePosition(double x[3], double closestPoint[3], 
                                     int& subId, double pcoords[3], 
                                     double& dist2, double *weights)
@@ -122,12 +137,14 @@ int vtkGenericCell::EvaluatePosition(double x[3], double closestPoint[3],
                                       pcoords, dist2, weights);
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericCell::EvaluateLocation(int& subId, double pcoords[3], 
                                      double x[3], double *weights)
 {
   this->Cell->EvaluateLocation(subId, pcoords, x, weights);
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericCell::Contour(double value, vtkDataArray *cellScalars, 
                              vtkPointLocator *locator, vtkCellArray *verts, 
                              vtkCellArray *lines, vtkCellArray *polys, 
@@ -139,6 +156,7 @@ void vtkGenericCell::Contour(double value, vtkDataArray *cellScalars,
                       inPd, outPd, inCd, cellId, outCd);
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericCell::Clip(double value, vtkDataArray *cellScalars, 
                           vtkPointLocator *locator, vtkCellArray *connectivity,
                           vtkPointData *inPd, vtkPointData *outPd,
@@ -149,6 +167,7 @@ void vtkGenericCell::Clip(double value, vtkDataArray *cellScalars,
                    outPd, inCd, cellId, outCd, insideOut);
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericCell::IntersectWithLine(double p1[3], double p2[3], double tol,
                                       double& t, double x[3], double pcoords[3],
                                       int& subId)
@@ -156,32 +175,38 @@ int vtkGenericCell::IntersectWithLine(double p1[3], double p2[3], double tol,
   return this->Cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId);
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericCell::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 {
   return this->Cell->Triangulate(index, ptIds, pts);
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericCell::Derivatives(int subId, double pcoords[3], double *values, 
                                  int dim, double *derivs)
 {
   this->Cell->Derivatives(subId, pcoords, values, dim, derivs);
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericCell::GetParametricCenter(double pcoords[3])
 {
   return this->Cell->GetParametricCenter(pcoords);
 }
 
+//----------------------------------------------------------------------------
 double *vtkGenericCell::GetParametricCoords()
 {
   return this->Cell->GetParametricCoords();
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericCell::IsPrimaryCell()
 {
   return this->Cell->IsPrimaryCell();
 }
 
+//----------------------------------------------------------------------------
 // Set the type of dereferenced cell. Checks to see whether cell type
 // has changed and creates a new cell only if necessary.
 void vtkGenericCell::SetCellType(int cellType)
@@ -281,10 +306,12 @@ void vtkGenericCell::SetCellType(int cellType)
     }//need to change cell type
 }
 
-
-
-
-
-
-
+//----------------------------------------------------------------------------
+void vtkGenericCell::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Cell:\n";
+  this->Cell->PrintSelf(os,indent.GetNextIndent());
+}
 

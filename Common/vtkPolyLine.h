@@ -37,6 +37,7 @@ class VTK_COMMON_EXPORT vtkPolyLine : public vtkCell
 public:
   static vtkPolyLine *New();
   vtkTypeRevisionMacro(vtkPolyLine,vtkCell);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Given points and lines, compute normals to lines. These are not true 

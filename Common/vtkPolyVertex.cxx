@@ -23,19 +23,22 @@
 #include "vtkPoints.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyVertex, "1.63");
+vtkCxxRevisionMacro(vtkPolyVertex, "1.64");
 vtkStandardNewMacro(vtkPolyVertex);
 
+//----------------------------------------------------------------------------
 vtkPolyVertex::vtkPolyVertex()
 {
   this->Vertex = vtkVertex::New();
 }
 
+//----------------------------------------------------------------------------
 vtkPolyVertex::~vtkPolyVertex()
 {
   this->Vertex->Delete();
 }
 
+//----------------------------------------------------------------------------
 int vtkPolyVertex::EvaluatePosition(double x[3], double* closestPoint,
                                    int& subId, double pcoords[3], 
                                    double& minDist2, double *weights)
@@ -78,6 +81,7 @@ int vtkPolyVertex::EvaluatePosition(double x[3], double* closestPoint,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyVertex::EvaluateLocation(int& subId, 
                                      double vtkNotUsed(pcoords)[3], 
                                      double x[3], double *weights)
@@ -92,6 +96,7 @@ void vtkPolyVertex::EvaluateLocation(int& subId,
   weights[subId] = 1.0;
 }
 
+//----------------------------------------------------------------------------
 int vtkPolyVertex::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
 {
   pts->SetNumberOfIds(1);
@@ -107,6 +112,7 @@ int vtkPolyVertex::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyVertex::Contour(double value, vtkDataArray *cellScalars, 
                             vtkPointLocator *locator, vtkCellArray *verts,
                             vtkCellArray *vtkNotUsed(lines), 
@@ -133,6 +139,7 @@ void vtkPolyVertex::Contour(double value, vtkDataArray *cellScalars,
     }
 }
 
+//----------------------------------------------------------------------------
 //
 // Intersect with sub-vertices
 //
@@ -155,6 +162,7 @@ int vtkPolyVertex::IntersectWithLine(double p1[3], double p2[3],
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkPolyVertex::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
                                vtkPoints *pts)
 {
@@ -170,6 +178,7 @@ int vtkPolyVertex::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyVertex::Derivatives(int vtkNotUsed(subId), 
                                 double vtkNotUsed(pcoords)[3], 
                                 double *vtkNotUsed(values), 
@@ -186,6 +195,7 @@ void vtkPolyVertex::Derivatives(int vtkNotUsed(subId),
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyVertex::Clip(double value, vtkDataArray *cellScalars, 
                          vtkPointLocator *locator, vtkCellArray *verts,
                          vtkPointData *inPd, vtkPointData *outPd,
@@ -213,6 +223,7 @@ void vtkPolyVertex::Clip(double value, vtkDataArray *cellScalars,
     }
 }
 
+//----------------------------------------------------------------------------
 // Return the center of the point cloud in parametric coordinates.
 int vtkPolyVertex::GetParametricCenter(double pcoords[3])
 {
@@ -220,3 +231,11 @@ int vtkPolyVertex::GetParametricCenter(double pcoords[3])
   return (this->Points->GetNumberOfPoints() / 2);
 }
 
+//----------------------------------------------------------------------------
+void vtkPolyVertex::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Vertex:\n";
+  this->Vertex->PrintSelf(os,indent.GetNextIndent());
+}

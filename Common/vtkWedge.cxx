@@ -25,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkWedge, "1.36");
+vtkCxxRevisionMacro(vtkWedge, "1.37");
 vtkStandardNewMacro(vtkWedge);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -763,4 +763,17 @@ static double vtkWedgeCellPCoords[18] = {0.0,0.0,0.0, 1.0,0.0,0.0, 0.0,1.0,0.0,
 double *vtkWedge::GetParametricCoords()
 {
   return vtkWedgeCellPCoords;
+}
+
+//----------------------------------------------------------------------------
+void vtkWedge::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Line:\n";
+  this->Line->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Triangle:\n";
+  this->Triangle->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Quad:\n";
+  this->Quad->PrintSelf(os,indent.GetNextIndent());
 }

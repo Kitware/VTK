@@ -22,26 +22,23 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkVertex, "1.62");
+vtkCxxRevisionMacro(vtkVertex, "1.63");
 vtkStandardNewMacro(vtkVertex);
 
+//----------------------------------------------------------------------------
 // Construct the vertex with a single point.
 vtkVertex::vtkVertex()
 {
-  int i;
-  
   this->Points->SetNumberOfPoints(1);
   this->PointIds->SetNumberOfIds(1);
-  for (i = 0; i < 1; i++)
+  for (int i = 0; i < 1; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
-    }
-  for (i = 0; i < 1; i++)
-    {
     this->PointIds->SetId(i,0);
     }
 }
 
+//----------------------------------------------------------------------------
 // Make a new vtkVertex object with the same information as this object.
 int vtkVertex::EvaluatePosition(double x[3], double* closestPoint,
                                 int& subId, double pcoords[3], 
@@ -73,6 +70,7 @@ int vtkVertex::EvaluatePosition(double x[3], double* closestPoint,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId), 
                                  double vtkNotUsed(pcoords)[3], double x[3],
                                  double *weights)
@@ -82,6 +80,7 @@ void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId),
   weights[0] = 1.0;
 }
 
+//----------------------------------------------------------------------------
 // Given parametric coordinates of a point, return the closest cell boundary,
 // and whether the point is inside or outside of the cell. The cell boundary 
 // is defined by a list of points (pts) that specify a vertex (1D cell). 
@@ -104,6 +103,7 @@ int vtkVertex::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
 
 }
 
+//----------------------------------------------------------------------------
 // Generate contouring primitives. The scalar list cellScalars are
 // scalar values at each cell point. The point locator is essentially a 
 // points list that merges points as they are inserted (i.e., prevents 
@@ -130,6 +130,7 @@ void vtkVertex::Contour(double value, vtkDataArray *cellScalars,
     }
 }
 
+//----------------------------------------------------------------------------
 // Intersect with a ray. Return parametric coordinates (both line and cell)
 // and global intersection coordinates, given ray definition and tolerance. 
 // The method returns non-zero value if intersection occurs.
@@ -181,6 +182,7 @@ int vtkVertex::IntersectWithLine(double p1[3], double p2[3], double tol, double&
   return 0;
 }
 
+//----------------------------------------------------------------------------
 // Triangulate the vertex. This method fills pts and ptIds with information
 // from the only point in the vertex.
 int vtkVertex::Triangulate(int vtkNotUsed(index),vtkIdList *ptIds,
@@ -194,6 +196,7 @@ int vtkVertex::Triangulate(int vtkNotUsed(index),vtkIdList *ptIds,
   return 1;
 }
 
+//----------------------------------------------------------------------------
 // Get the derivative of the vertex. Returns (0.0, 0.0, 0.0) for all 
 // dimensions.
 void vtkVertex::Derivatives(int vtkNotUsed(subId), 
@@ -212,6 +215,7 @@ void vtkVertex::Derivatives(int vtkNotUsed(subId),
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkVertex::Clip(double value, vtkDataArray *cellScalars, 
                      vtkPointLocator *locator, vtkCellArray *verts,
                      vtkPointData *inPd, vtkPointData *outPd,
@@ -237,6 +241,7 @@ void vtkVertex::Clip(double value, vtkDataArray *cellScalars,
 
 }
 
+//----------------------------------------------------------------------------
 // Compute interpolation functions
 //
 void vtkVertex::InterpolationFunctions(double vtkNotUsed(pcoords)[3], 
@@ -245,8 +250,15 @@ void vtkVertex::InterpolationFunctions(double vtkNotUsed(pcoords)[3],
   weights[0] = 1.0;
 }
 
+//----------------------------------------------------------------------------
 static double vtkVertexCellPCoords[3] = {0.0,0.0,0.0};
 double *vtkVertex::GetParametricCoords()
 {
   return vtkVertexCellPCoords;
+}
+
+//----------------------------------------------------------------------------
+void vtkVertex::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

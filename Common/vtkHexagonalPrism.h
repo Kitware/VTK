@@ -44,6 +44,7 @@ class VTK_COMMON_EXPORT vtkHexagonalPrism : public vtkCell3D
 public:
   static vtkHexagonalPrism *New();
   vtkTypeRevisionMacro(vtkHexagonalPrism,vtkCell3D);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // See vtkCell3D API for description of these methods.
@@ -102,6 +103,7 @@ private:
   void operator=(const vtkHexagonalPrism&);  // Not implemented.
 };
 
+//----------------------------------------------------------------------------
 inline int vtkHexagonalPrism::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = pcoords[1] = 0.5;

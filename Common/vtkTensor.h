@@ -33,6 +33,7 @@ class VTK_COMMON_EXPORT vtkTensor : public vtkObject
 public:
   static vtkTensor *New();
   vtkTypeRevisionMacro(vtkTensor,vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Initialize tensor components to 0.0.
@@ -76,6 +77,7 @@ private:
   void operator=(const vtkTensor&);  // Not implemented.
 };
 
+//----------------------------------------------------------------------------
 inline void vtkTensor::Initialize()
 {
   for (int j=0; j<3; j++)
@@ -87,6 +89,7 @@ inline void vtkTensor::Initialize()
     }
 }
 
+//----------------------------------------------------------------------------
 inline void vtkTensor::DeepCopy(vtkTensor *t)
 {
   for (int j=0; j < 3; j++)

@@ -32,6 +32,7 @@ class VTK_COMMON_EXPORT vtkQuad : public vtkCell
 public:
   static vtkQuad *New();
   vtkTypeRevisionMacro(vtkQuad,vtkCell);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

@@ -22,26 +22,23 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkLine, "1.83");
+vtkCxxRevisionMacro(vtkLine, "1.84");
 vtkStandardNewMacro(vtkLine);
 
+//----------------------------------------------------------------------------
 // Construct the line with two points.
 vtkLine::vtkLine()
 {
-  int i;
-  
   this->Points->SetNumberOfPoints(2);
   this->PointIds->SetNumberOfIds(2);
-  for (i = 0; i < 2; i++)
+  for (int i = 0; i < 2; i++)
     {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
-    }
-  for (i = 0; i < 2; i++)
-    {
     this->PointIds->SetId(i,0);
     }
 }
 
+//----------------------------------------------------------------------------
 static const int VTK_NO_INTERSECTION=0;
 static const int VTK_YES_INTERSECTION=2;
 static const int VTK_ON_LINE=3;
@@ -78,6 +75,7 @@ int vtkLine::EvaluatePosition(double x[3], double* closestPoint,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3], 
                                double x[3], double *weights)
 {
@@ -95,6 +93,7 @@ void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
   weights[1] = pcoords[0];
 }
 
+//----------------------------------------------------------------------------
 // Performs intersection of two finite 3D lines. An intersection is found if
 // the projection of the two lines onto the plane perpendicular to the cross
 // product of the two lines intersect. The parameters (u,v) are the 
@@ -150,6 +149,7 @@ int vtkLine::Intersection (double a1[3], double a2[3],
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkLine::CellBoundary(int vtkNotUsed(subId), double pcoords[3], 
                           vtkIdList *pts)
 {
@@ -181,6 +181,7 @@ int vtkLine::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     }
 }
 
+//----------------------------------------------------------------------------
 //
 // marching lines case table
 //
@@ -196,6 +197,7 @@ static VERT_CASES vertCases[4]= {
   {{0,1}},
   {{-1,-1}}};
 
+//----------------------------------------------------------------------------
 void vtkLine::Contour(double value, vtkDataArray *cellScalars, 
                       vtkPointLocator *locator, vtkCellArray *verts, 
                       vtkCellArray *vtkNotUsed(lines), 
@@ -250,6 +252,7 @@ void vtkLine::Contour(double value, vtkDataArray *cellScalars,
     }
 }
 
+//----------------------------------------------------------------------------
 // Compute distance to finite line. Returns parametric coordinate t 
 // and point location on line.
 double vtkLine::DistanceToLine(double x[3], double p1[3], double p2[3], 
@@ -307,6 +310,7 @@ double vtkLine::DistanceToLine(double x[3], double p1[3], double p2[3],
   return vtkMath::Distance2BetweenPoints(closest,x);
 }
 
+//----------------------------------------------------------------------------
 //
 // Determine the distance of the current vertex to the edge defined by
 // the vertices provided.  Returns distance squared. Note: line is assumed
@@ -340,6 +344,7 @@ double vtkLine::DistanceToLine (double x[3], double p1[3], double p2[3])
   return (vtkMath::Dot(np1,np1) - proj*proj);
 }
 
+//----------------------------------------------------------------------------
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
 int vtkLine::IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
@@ -429,6 +434,7 @@ int vtkLine::IntersectWithLine(double p1[3], double p2[3], double tol, double& t
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkLine::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
                          vtkPoints *pts)
 {
@@ -444,6 +450,7 @@ int vtkLine::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkLine::Derivatives(int vtkNotUsed(subId), 
                           double vtkNotUsed(pcoords)[3], 
                           double *values, 
@@ -476,6 +483,7 @@ void vtkLine::Derivatives(int vtkNotUsed(subId),
 }
 
 
+//----------------------------------------------------------------------------
 // support line clipping
 typedef int LINE_LIST;
 typedef struct {
@@ -574,6 +582,7 @@ void vtkLine::Clip(double value, vtkDataArray *cellScalars,
     }
 }
 
+//----------------------------------------------------------------------------
 //
 // Compute interpolation functions
 //
@@ -583,8 +592,16 @@ void vtkLine::InterpolationFunctions(double pcoords[3], double weights[2])
   weights[1] = pcoords[0];
 }
 
+//----------------------------------------------------------------------------
 static double vtkLineCellPCoords[6] = {0.0,0.0,0.0, 1.0,0.0,0.0};
 double *vtkLine::GetParametricCoords()
 {
   return vtkLineCellPCoords;
 }
+
+//----------------------------------------------------------------------------
+void vtkLine::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
+

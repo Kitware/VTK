@@ -20,9 +20,10 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.21");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.22");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
+//----------------------------------------------------------------------------
 // Construct the line with two points.
 vtkQuadraticEdge::vtkQuadraticEdge()
 {
@@ -38,12 +39,14 @@ vtkQuadraticEdge::vtkQuadraticEdge()
     }
 }
 
+//----------------------------------------------------------------------------
 vtkQuadraticEdge::~vtkQuadraticEdge()
 {
   this->Line->Delete();
 }
 
 
+//----------------------------------------------------------------------------
 int vtkQuadraticEdge::EvaluatePosition(double* x, double* closestPoint, 
                                        int& subId, double pcoords[3],
                                        double& minDist2, double *weights)
@@ -98,6 +101,7 @@ int vtkQuadraticEdge::EvaluatePosition(double* x, double* closestPoint,
   return returnStatus;
 }
 
+//----------------------------------------------------------------------------
 void vtkQuadraticEdge::EvaluateLocation(int& vtkNotUsed(subId), 
                                         double pcoords[3], 
                                         double x[3], double *weights)
@@ -116,12 +120,14 @@ void vtkQuadraticEdge::EvaluateLocation(int& vtkNotUsed(subId),
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkQuadraticEdge::CellBoundary(int subId, double pcoords[3], 
                                    vtkIdList *pts)
 {
   return this->Line->CellBoundary(subId, pcoords, pts);
 }
 
+//----------------------------------------------------------------------------
 static int linearLines[2][2] = { {0,2}, {2,1} };                             
     
 
@@ -157,6 +163,7 @@ void vtkQuadraticEdge::Contour(double value, vtkDataArray *cellScalars,
   lineScalars->Delete();
 }
 
+//----------------------------------------------------------------------------
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
 
@@ -192,6 +199,7 @@ int vtkQuadraticEdge::IntersectWithLine(double p1[3], double p2[3],
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkQuadraticEdge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
                                   vtkPoints *pts)
 {
@@ -215,6 +223,7 @@ int vtkQuadraticEdge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkQuadraticEdge::Derivatives(int vtkNotUsed(subId), 
                                    double pcoords[3], double *values,
                                    int dim, double *derivs)
@@ -286,6 +295,7 @@ void vtkQuadraticEdge::Derivatives(int vtkNotUsed(subId),
 }
 
 
+//----------------------------------------------------------------------------
 // Clip this quadratic edge using scalar value provided. Like contouring, 
 // except that it cuts the edge to produce linear line segments.
 void vtkQuadraticEdge::Clip(double value, vtkDataArray *cellScalars, 
@@ -330,6 +340,7 @@ void vtkQuadraticEdge::Clip(double value, vtkDataArray *cellScalars,
   lineScalars->Delete();
 }
 
+//----------------------------------------------------------------------------
 // Compute interpolation functions. Node [2] is the mid-edge node.
 void vtkQuadraticEdge::InterpolationFunctions(double pcoords[3], 
                                               double weights[3])
@@ -341,6 +352,7 @@ void vtkQuadraticEdge::InterpolationFunctions(double pcoords[3],
   weights[2] = 4.0 * r * (1.0 - r);
 }
 
+//----------------------------------------------------------------------------
 // Derivatives in parametric space.
 void vtkQuadraticEdge::InterpolationDerivs(double pcoords[3], double derivs[3])
 {
@@ -351,8 +363,18 @@ void vtkQuadraticEdge::InterpolationDerivs(double pcoords[3], double derivs[3])
   derivs[2] = 4.0 - r * 8.0;
 }
 
+//----------------------------------------------------------------------------
 static double vtkQEdgeCellPCoords[9] = {0.0,0.0,0.0, 1.0,0.0,0.0, 0.5,0.0,0.0};
 double *vtkQuadraticEdge::GetParametricCoords()
 {
   return vtkQEdgeCellPCoords;
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadraticEdge::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Line:\n";
+  this->Line->PrintSelf(os,indent.GetNextIndent());
 }

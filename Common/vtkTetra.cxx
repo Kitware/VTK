@@ -24,9 +24,10 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.86");
+vtkCxxRevisionMacro(vtkTetra, "1.87");
 vtkStandardNewMacro(vtkTetra);
 
+//----------------------------------------------------------------------------
 // Construct the tetra with four points.
 vtkTetra::vtkTetra()
 {
@@ -46,12 +47,14 @@ vtkTetra::vtkTetra()
   this->Triangle = vtkTriangle::New();
 }
 
+//----------------------------------------------------------------------------
 vtkTetra::~vtkTetra()
 {
   this->Triangle->Delete();
   this->Line->Delete();
 }
 
+//----------------------------------------------------------------------------
 int vtkTetra::EvaluatePosition(double x[3], double* closestPoint,
                               int& subId, double pcoords[3], 
                               double& minDist2, double *weights)
@@ -131,6 +134,7 @@ int vtkTetra::EvaluatePosition(double x[3], double* closestPoint,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3], 
                                 double x[3], double *weights)
 {
@@ -157,6 +161,7 @@ void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
   weights[3] = pcoords[2];
 }
 
+//----------------------------------------------------------------------------
 // Returns the set of points that are on the boundary of the tetrahedron that
 // are closest parametrically to the point specified. This may include faces,
 // edges, or vertices.
@@ -215,6 +220,7 @@ int vtkTetra::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     }
 }
 
+//----------------------------------------------------------------------------
 // Marching tetrahedron
 //
 static int edges[6][2] = { {0,1}, {1,2}, {2,0}, 
@@ -245,6 +251,7 @@ static TRIANGLE_CASES triCases[] = {
   {{-1, -1, -1, -1, -1, -1, -1}}
 };
 
+//----------------------------------------------------------------------------
 void vtkTetra::Contour(double value, vtkDataArray *cellScalars, 
                        vtkPointLocator *locator,
                        vtkCellArray *vtkNotUsed(verts), 
@@ -322,10 +329,13 @@ void vtkTetra::Contour(double value, vtkDataArray *cellScalars,
     }
 }
 
+//----------------------------------------------------------------------------
 int *vtkTetra::GetEdgeArray(int edgeId)
 {
   return edges[edgeId];
 }
+
+//----------------------------------------------------------------------------
 vtkCell *vtkTetra::GetEdge(int edgeId)
 {
   int *verts;
@@ -343,10 +353,13 @@ vtkCell *vtkTetra::GetEdge(int edgeId)
   return this->Line;
 }
 
+//----------------------------------------------------------------------------
 int *vtkTetra::GetFaceArray(int faceId)
 {
   return faces[faceId];
 }
+
+//----------------------------------------------------------------------------
 vtkCell *vtkTetra::GetFace(int faceId)
 {
   int *verts;
@@ -366,6 +379,7 @@ vtkCell *vtkTetra::GetFace(int faceId)
   return this->Triangle;
 }
 
+//----------------------------------------------------------------------------
 // 
 // Intersect triangle faces against line.
 //
@@ -421,6 +435,7 @@ int vtkTetra::IntersectWithLine(double p1[3], double p2[3], double tol, double& 
   return intersection;
 }
 
+//----------------------------------------------------------------------------
 int vtkTetra::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pts)
 {
   ptIds->Reset();
@@ -436,6 +451,7 @@ int vtkTetra::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pt
 }
 
 
+//----------------------------------------------------------------------------
 void vtkTetra::Derivatives(int vtkNotUsed(subId), double vtkNotUsed(pcoords)[3],
                            double *values, int dim, double *derivs)
 {
@@ -466,6 +482,7 @@ void vtkTetra::Derivatives(int vtkNotUsed(subId), double vtkNotUsed(pcoords)[3],
     }
 }
 
+//----------------------------------------------------------------------------
 // Compute the center of the tetrahedron,
 void vtkTetra::TetraCenter(double p1[3], double p2[3], double p3[3],
                            double p4[3], double center[3])
@@ -475,6 +492,7 @@ void vtkTetra::TetraCenter(double p1[3], double p2[3], double p3[3],
   center[2] = (p1[2]+p2[2]+p3[2]+p4[2]) / 4.0;
 }
 
+//----------------------------------------------------------------------------
 double vtkTetra::ComputeVolume(double  p1[3], double p2[3], double p3[3], 
                                double p4[3])
 {
@@ -483,6 +501,7 @@ double vtkTetra::ComputeVolume(double  p1[3], double p2[3], double p3[3],
                                   p2[2]-p1[2], p3[2]-p1[2], p4[2]-p1[2])/6.0);
 }
                                
+//----------------------------------------------------------------------------
 // Compute the circumcenter (center[3]) and radius squared (method
 // return value) of a tetrahedron defined by the four points x1, x2,
 // x3, and x4.
@@ -556,6 +575,7 @@ double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3],
     }
 }
 
+//----------------------------------------------------------------------------
 // Compute the incenter (center[3]) and radius (method return value) of
 // a tetrahedron defined by the four points p1, p2, p3, and p4.
 double vtkTetra::Insphere(double  p1[3], double p2[3], double p3[3], 
@@ -624,6 +644,7 @@ double vtkTetra::Insphere(double  p1[3], double p2[3], double p3[3],
   return (fabs(t* vtkMath::Dot(y,p)));
 }
 
+//----------------------------------------------------------------------------
 // Given a 3D point x[3], determine the barycentric coordinates of the point.
 // Barycentric coordinates are a natural coordinate system for simplices that
 // express a position as a linear combination of the vertices. For a 
@@ -669,6 +690,7 @@ int vtkTetra::BarycentricCoords(double x[3], double  x1[3], double x2[3],
     }
 }
 
+//----------------------------------------------------------------------------
 //
 // Compute iso-parametrix interpolation functions
 //
@@ -680,6 +702,7 @@ void vtkTetra::InterpolationFunctions(double pcoords[3], double sf[4])
   sf[3] = pcoords[2];
 }
 
+//----------------------------------------------------------------------------
 void vtkTetra::InterpolationDerivs(double derivs[12])
 {
   // r-derivatives
@@ -701,6 +724,7 @@ void vtkTetra::InterpolationDerivs(double derivs[12])
   derivs[11] = 1.0;
 }
 
+//----------------------------------------------------------------------------
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives. Returns 0 if no inverse exists.
@@ -749,16 +773,19 @@ int vtkTetra::JacobianInverse(double **inverse, double derivs[12])
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkTetra::GetEdgePoints(int edgeId, int* &pts)
 {
   pts = this->GetEdgeArray(edgeId);
 }
 
+//----------------------------------------------------------------------------
 void vtkTetra::GetFacePoints(int faceId, int* &pts)
 {
   pts = this->GetFaceArray(faceId);
 }
 
+//----------------------------------------------------------------------------
 // The clip table produces either a single tetrahedron or a single wedge as
 // output.  The format of the case table is #pts, ptids. Points >= 100 are
 // existing vertices; otherwise the number is an edge number requiring that
@@ -789,6 +816,7 @@ static TETRA_CASES tetraCases[] = {
   {{ 4, 100, 101, 102, 103,   0,   0}}    // 15
 };
 
+//----------------------------------------------------------------------------
 // Clip this tetra using scalar value provided. Like contouring, except that
 // it cuts the tetra to produce other 3D cells (note that this method will
 // produce a single tetrahedra or a single wedge). The table has been
@@ -893,6 +921,7 @@ void vtkTetra::Clip(double value, vtkDataArray *cellScalars,
     }
 }
 
+//----------------------------------------------------------------------------
 static double vtkTetraCellPCoords[12] = {0.0,0.0,0.0, 1.0,0.0,0.0,
                                         0.0,1.0,0.0, 0.0,0.0,1.0};
 
@@ -901,6 +930,7 @@ double *vtkTetra::GetParametricCoords()
   return vtkTetraCellPCoords;
 }
 
+//----------------------------------------------------------------------------
 double vtkTetra::GetParametricDistance(double pcoords[3])
 {
   int i;
@@ -935,4 +965,13 @@ double vtkTetra::GetParametricDistance(double pcoords[3])
   return pDistMax;
 }
 
-
+//----------------------------------------------------------------------------
+void vtkTetra::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Line:\n";
+  this->Line->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Triangle:\n";
+  this->Triangle->PrintSelf(os,indent.GetNextIndent());
+}

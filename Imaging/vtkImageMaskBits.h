@@ -31,7 +31,7 @@ class VTK_IMAGING_EXPORT vtkImageMaskBits : public vtkImageToImageFilter
 public:
   static vtkImageMaskBits *New();
   vtkTypeRevisionMacro(vtkImageMaskBits,vtkImageToImageFilter);
-  void PrintSelf(ostream &, vtkIndent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Set/Get the bit-masks. Default is 0xffffffff.

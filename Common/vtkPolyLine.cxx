@@ -21,25 +21,29 @@
 #include "vtkLine.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPolyLine, "1.78");
+vtkCxxRevisionMacro(vtkPolyLine, "1.79");
 vtkStandardNewMacro(vtkPolyLine);
 
+//----------------------------------------------------------------------------
 vtkPolyLine::vtkPolyLine()
 {
   this->Line = vtkLine::New();
 }
 
+//----------------------------------------------------------------------------
 vtkPolyLine::~vtkPolyLine()
 {
   this->Line->Delete();
 }
 
+//----------------------------------------------------------------------------
 int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
                                         vtkDataArray *normals)
 {
   return this->GenerateSlidingNormals(pts, lines, normals, 0);
 }
 
+//----------------------------------------------------------------------------
 // Given points and lines, compute normals to lines. These are not true 
 // normals, they are "orientation" normals used by classes like vtkTubeFilter
 // that control the rotation around the line. The normals try to stay pointing
@@ -264,6 +268,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkPolyLine::EvaluatePosition(double x[3], double* closestPoint,
                                  int& subId, double pcoords[3], 
                                  double& minDist2, double *weights)
@@ -307,6 +312,7 @@ int vtkPolyLine::EvaluatePosition(double x[3], double* closestPoint,
   return return_status;
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyLine::EvaluateLocation(int& subId, double pcoords[3], double x[3],
                                    double *weights)
 {
@@ -325,6 +331,7 @@ void vtkPolyLine::EvaluateLocation(int& subId, double pcoords[3], double x[3],
   weights[1] = pcoords[0];
 }
 
+//----------------------------------------------------------------------------
 int vtkPolyLine::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
 {
   pts->SetNumberOfIds(1);
@@ -355,6 +362,7 @@ int vtkPolyLine::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyLine::Contour(double value, vtkDataArray *cellScalars,
                           vtkPointLocator *locator, vtkCellArray *verts, 
                           vtkCellArray *lines, vtkCellArray *polys, 
@@ -387,6 +395,7 @@ void vtkPolyLine::Contour(double value, vtkDataArray *cellScalars,
   lineScalars->Delete();
 }
 
+//----------------------------------------------------------------------------
 // Intersect with sub-lines
 //
 int vtkPolyLine::IntersectWithLine(double p1[3], double p2[3],double tol,double& t,
@@ -408,6 +417,7 @@ int vtkPolyLine::IntersectWithLine(double p1[3], double p2[3],double tol,double&
   return 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkPolyLine::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                              vtkPoints *pts)
 {
@@ -427,6 +437,7 @@ int vtkPolyLine::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyLine::Derivatives(int subId, double pcoords[3], double *values, 
                               int dim, double *derivs)
 {
@@ -438,6 +449,7 @@ void vtkPolyLine::Derivatives(int subId, double pcoords[3], double *values,
   this->Line->Derivatives(0, pcoords, values+dim*subId, dim, derivs);
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyLine::Clip(double value, vtkDataArray *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *lines,
                        vtkPointData *inPd, vtkPointData *outPd,
@@ -466,9 +478,20 @@ void vtkPolyLine::Clip(double value, vtkDataArray *cellScalars,
   lineScalars->Delete();
 }
 
+//----------------------------------------------------------------------------
 // Return the center of the point cloud in parametric coordinates.
 int vtkPolyLine::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = 0.5; pcoords[1] = pcoords[2] = 0.0;
   return ((this->Points->GetNumberOfPoints() - 1) / 2);
 }
+
+//----------------------------------------------------------------------------
+void vtkPolyLine::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Line:\n";
+  this->Line->PrintSelf(os,indent.GetNextIndent());
+}
+

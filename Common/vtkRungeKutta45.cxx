@@ -17,9 +17,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkFunctionSet.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta45, "1.11");
+vtkCxxRevisionMacro(vtkRungeKutta45, "1.12");
 vtkStandardNewMacro(vtkRungeKutta45);
 
+//----------------------------------------------------------------------------
 // Cash-Karp parameters
 double vtkRungeKutta45::A[5] = { 1.0L/5.0, 3.0L/10.0, 3.0L/5.0, 1.0, 
                  7.0L/8.0 };
@@ -49,6 +50,7 @@ double vtkRungeKutta45::DC[6] = { 37.0L/378.0 - 2825.0L/27648.0,
                   -277.0L/14336.0, 
                   512.0L/1771.0 - 1.0L/4.0};
 
+//----------------------------------------------------------------------------
 vtkRungeKutta45::vtkRungeKutta45() 
 {
   for(int i=0; i<6; i++)
@@ -58,6 +60,7 @@ vtkRungeKutta45::vtkRungeKutta45()
   this->Adaptive = 1;
 }
 
+//----------------------------------------------------------------------------
 vtkRungeKutta45::~vtkRungeKutta45() 
 {
   for(int i=0; i<6; i++)
@@ -67,6 +70,7 @@ vtkRungeKutta45::~vtkRungeKutta45()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkRungeKutta45::Initialize()
 {
   this->vtkInitialValueProblemSolver::Initialize();
@@ -82,6 +86,7 @@ void vtkRungeKutta45::Initialize()
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev, 
                                      double* xnext, double t, double& delT,
                                      double& delTActual,
@@ -193,6 +198,7 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
   return 0;
 }
 
+//----------------------------------------------------------------------------
 // Calculate next time step
 int vtkRungeKutta45::ComputeAStep(double* xprev, double* dxprev, 
                   double* xnext, double t, double& delT, 
@@ -308,8 +314,9 @@ int vtkRungeKutta45::ComputeAStep(double* xprev, double* dxprev,
   return 0;
 }
 
-
-
-
-
+//----------------------------------------------------------------------------
+void vtkRungeKutta45::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
 
