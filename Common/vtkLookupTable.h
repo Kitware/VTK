@@ -33,6 +33,7 @@
 
 #define VTK_RAMP_LINEAR 0
 #define VTK_RAMP_SCURVE 1
+#define VTK_RAMP_SQRT 2
 #define VTK_SCALE_LINEAR 0
 #define VTK_SCALE_LOG10 1
 
@@ -71,9 +72,11 @@ public:
   // while the equation for the linear ramp is simply y = x.  For an
   // S-curve greyscale ramp, you should set NumberOfTableValues to 402 
   // (which is 256*pi/2) to provide room for the tails of the ramp.
+  // The equation for the SQRT is y = sqrt(x).  
   vtkSetMacro(Ramp,int);
   void SetRampToLinear() { this->SetRamp(VTK_RAMP_LINEAR); };
   void SetRampToSCurve() { this->SetRamp(VTK_RAMP_SCURVE); };
+  void SetRampToSQRT() { this->SetRamp(VTK_RAMP_SQRT); };
   vtkGetMacro(Ramp,int);
 
   // Description:

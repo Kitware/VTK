@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLookupTable, "1.84");
+vtkCxxRevisionMacro(vtkLookupTable, "1.85");
 vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -200,32 +200,43 @@ void vtkLookupTable::ForceBuild()
 
     c_rgba = this->Table->WritePointer(4*i,4);
 
-    if (this->Ramp == VTK_RAMP_SCURVE)
+    switch(this->Ramp)
       {
-      c_rgba[0] = static_cast<unsigned char> 
-        (127.5*(1.0+cos((1.0-static_cast<double>(rgba[0]))*3.141593)));
-      c_rgba[1] = static_cast<unsigned char> 
-        (127.5*(1.0+cos((1.0-static_cast<double>(rgba[1]))*3.141593)));
-      c_rgba[2] = static_cast<unsigned char> 
-        (127.5*(1.0+cos((1.0-static_cast<double>(rgba[2]))*3.141593)));
-      c_rgba[3] = static_cast<unsigned char> (alpha*255.0);
-      /* same code, but with rounding 
-         c_rgba[0] = static_cast<unsigned char> 
-         (127.5f*(1.0f + (float)cos(double((1.0f-rgba[0])*3.141593f)))+0.5f);
-         c_rgba[1] = static_cast<unsigned char> 
-         (127.5f*(1.0f + (float)cos(double((1.0f-rgba[1])*3.141593f)))+0.5f);
-         c_rgba[2] = static_cast<unsigned char> 
-         (127.5f*(1.0f + (float)cos(double((1.0f-rgba[2])*3.141593f)))+0.5f);
-         c_rgba[3] = static_cast<unsigned char>(rgba[3]*255.0f + 0.5f);
-      */
+      case VTK_RAMP_SCURVE:
+        {
+        c_rgba[0] = static_cast<unsigned char> 
+          (127.5*(1.0+cos((1.0-static_cast<double>(rgba[0]))*3.141593)));
+        c_rgba[1] = static_cast<unsigned char> 
+          (127.5*(1.0+cos((1.0-static_cast<double>(rgba[1]))*3.141593)));
+        c_rgba[2] = static_cast<unsigned char> 
+          (127.5*(1.0+cos((1.0-static_cast<double>(rgba[2]))*3.141593)));
+        c_rgba[3] = static_cast<unsigned char> (alpha*255.0);
+        /* same code, but with rounding 
+           c_rgba[0] = static_cast<unsigned char> 
+           (127.5f*(1.0f + (float)cos(double((1.0f-rgba[0])*3.141593f)))+0.5f);
+           c_rgba[1] = static_cast<unsigned char> 
+           (127.5f*(1.0f + (float)cos(double((1.0f-rgba[1])*3.141593f)))+0.5f);
+           c_rgba[2] = static_cast<unsigned char> 
+           (127.5f*(1.0f + (float)cos(double((1.0f-rgba[2])*3.141593f)))+0.5f);
+           c_rgba[3] = static_cast<unsigned char>(rgba[3]*255.0f + 0.5f);
+        */
+        }
+      case VTK_RAMP_LINEAR:
+        {
+        c_rgba[0] = static_cast<unsigned char>((rgba[0])*255.0f + 0.5f);
+        c_rgba[1] = static_cast<unsigned char>((rgba[1])*255.0f + 0.5f);
+        c_rgba[2] = static_cast<unsigned char>((rgba[2])*255.0f + 0.5f);
+        c_rgba[3] = static_cast<unsigned char>(rgba[3]*255.0f + 0.5f);
+        }
+      case VTK_RAMP_SQRT:
+        {
+        c_rgba[0] = static_cast<unsigned char>((sqrt(rgba[0]))*255.0f + 0.5f);
+        c_rgba[1] = static_cast<unsigned char>((sqrt(rgba[1]))*255.0f + 0.5f);
+        c_rgba[2] = static_cast<unsigned char>((sqrt(rgba[2]))*255.0f + 0.5f);
+        c_rgba[3] = static_cast<unsigned char>((sqrt(rgba[3]))*255.0f + 0.5f);
+        }
       }
-    else
-      {
-      c_rgba[0] = static_cast<unsigned char>(rgba[0]*255.0f + 0.5f);
-      c_rgba[1] = static_cast<unsigned char>(rgba[1]*255.0f + 0.5f);
-      c_rgba[2] = static_cast<unsigned char>(rgba[2]*255.0f + 0.5f);
-      c_rgba[3] = static_cast<unsigned char>(rgba[3]*255.0f + 0.5f);
-      }
+    
     }
   this->BuildTime.Modified();
 }
