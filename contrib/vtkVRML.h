@@ -4,86 +4,89 @@
 template <class T> class VectorType
 {
 protected:
-   T *Data;
-   int Allocated;
-   int Used;
+  T *Data;
+  int Allocated;
+  int Used;
 public:
-   VectorType()
-   { \
-      Allocated=DEFAULTINCREMENT;
-      Data=new T[Allocated];
-      Used=0;
-   }
-   ~VectorType(void)
-   {
-      delete[] Data;
-   }
-   void Reserve(int newSize)
-   {
-      T *temp;
-      int oldSize;
-      if(newSize >= Allocated)
-      {
-         oldSize=Allocated;
-         Allocated=newSize+DEFAULTINCREMENT;
-         temp=Data;
-         Data=new T[Allocated];
-         if(Data==(T *)'\0')
-         {
-            return;
-         }
-         memcpy((void*)Data, (void*)temp, oldSize*sizeof(T));
-         delete[] temp;
-      }
-   }
-   void Demand(int newSize)
-   {
-      Reserve(newSize);
-      Used=newSize;
-   }
-   int Count(void) const
-   {
-      return Used;
-   }
-   T& Get(int index) const
-   {
-     if (index > Used)
-       return Data[Used-1];
-     return Data[index];
-   }
-   T& operator[](int index)
-   {
-     if (index > Used)
-       Demand(index);
-     return Data[index];
-   }
-   operator T*() const
-   {
-      return Data;
-   }
-   VectorType<T>& operator+=(T datum)
-   {
-      Reserve(Used+1);
-      Data[Used]=datum;
-      Used++;
-      return *this;
-   }
-   void Push(T datum)
-   {
-      Reserve(Used+1);
-      Data[Used]=datum;
-      Used++;
-   }
-   T& Pop()
-   {
-	   Used--;
-	   return Data[Used];
-   }
-   T& Top()
-   {
-	   return Data[Used-1];
-   }
+  VectorType()
+  { \
+    Allocated=DEFAULTINCREMENT;
+    Data=new T[Allocated];
+    Used=0;
+  }
+  ~VectorType(void)
+  {
+    delete[] Data;
+  }
+  void Reserve(int newSize);
+  void Demand(int newSize)
+  {
+    Reserve(newSize);
+    Used=newSize;
+  }
+  int Count(void) const
+  {
+    return Used;
+  }
+  T& Get(int index) const
+  {
+    if (index > Used)
+      return Data[Used-1];
+    return Data[index];
+  }
+  T& operator[](int index)
+  {
+    if (index > Used)
+      Demand(index);
+    return Data[index];
+  }
+  operator T*() const
+  {
+     return Data;
+  }
+  VectorType<T>& operator+=(T datum)
+  {
+     Reserve(Used+1);
+     Data[Used]=datum;
+     Used++;
+     return *this;
+  }
+  void Push(T datum)
+  {
+     Reserve(Used+1);
+     Data[Used]=datum;
+     Used++;
+  }
+  T& Pop()
+  {
+    Used--;
+    return Data[Used];
+  }
+  T& Top()
+  {
+    return Data[Used-1];
+  }
 };
+
+template <class T> 
+void VectorType<T>::Reserve(int newSize)
+{
+  T *temp;
+  int oldSize;
+  if(newSize >= Allocated)
+    {
+    oldSize=Allocated;
+    Allocated=newSize+DEFAULTINCREMENT;
+    temp=Data;
+    Data=new T[Allocated];
+    if(Data==(T *)'\0')
+      {
+      return;
+      }
+    memcpy((void*)Data, (void*)temp, oldSize*sizeof(T));
+    delete[] temp;
+    }
+}
 
 static const char standardNodes[][2042] = {
 "#VRML V2.0 utf8 \n\
