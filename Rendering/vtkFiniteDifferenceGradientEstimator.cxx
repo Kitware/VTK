@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFiniteDifferenceGradientEstimator, "1.30");
+vtkCxxRevisionMacro(vtkFiniteDifferenceGradientEstimator, "1.31");
 vtkStandardNewMacro(vtkFiniteDifferenceGradientEstimator);
 
 // This is the templated function that actually computes the EncodedNormal
@@ -70,6 +70,11 @@ static void ComputeGradients(
   scale = estimator->GetGradientMagnitudeScale();
   bias = estimator->GetGradientMagnitudeBias();
   zeroPad = estimator->GetZeroPad();
+  
+  // adjust the aspect
+  aspect[0] = aspect[0] * 2.0 * estimator->SampleSpacingInVoxels;
+  aspect[1] = aspect[1] * 2.0 * estimator->SampleSpacingInVoxels;
+  aspect[2] = aspect[2] * 2.0 * estimator->SampleSpacingInVoxels;
   
   // Compute steps through the volume in x, y, and z
   xstep = 1;
@@ -250,9 +255,9 @@ static void ComputeGradients(
         // Take care of the aspect ratio of the data
         // Scaling in the vtkVolume is isotropic, so this is the
         // only place we have to worry about non-isotropic scaling.
-        n[0] /= (2.0 * aspect[0]);
-        n[1] /= (2.0 * aspect[1]);
-        n[2] /= (2.0 * aspect[2]);
+        n[0] /= aspect[0];
+        n[1] /= aspect[1];
+        n[2] /= aspect[2];
         
         // Compute the gradient magnitude
         t = sqrt( (double)( n[0]*n[0] + 
