@@ -23,7 +23,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOutputPort, "1.9");
+vtkCxxRevisionMacro(vtkOutputPort, "1.9.2.1");
 vtkStandardNewMacro(vtkOutputPort);
 
 vtkCxxSetObjectMacro(vtkOutputPort,Controller,vtkMultiProcessController);
@@ -98,7 +98,6 @@ void vtkOutputPort::TriggerUpdateInformation(int remoteProcessId)
   // Include it in the information for efficiency.
   unsigned long t1, t2;
   t1 = input->GetMTime();
-#ifdef VTK_USE_EXECUTIVES
   vtkDemandDrivenPipeline *ddp = 
     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   if (ddp)
@@ -111,9 +110,6 @@ void vtkOutputPort::TriggerUpdateInformation(int remoteProcessId)
     {
     t2 = t1;
     }
-#else
-  t2 = input->GetPipelineMTime();
-#endif
   if (t1 > t2)
     {
     input->SetPipelineMTime(t1);
