@@ -91,6 +91,14 @@ public:
                            vtkIdType ext=1000);
   
   // Description:
+  // This method is used to copy data arrays in images.
+  // You should not call "CopyAllocate" before calling this method.
+  // This method is called once to copy all of the data.
+  // If the two extents are the same, this method calls "PassData".
+  void CopyStructuredData(vtkDataSetAttributes *inDsa,
+                          const int *inExt, const int *outExt);
+
+  // Description:
   // Interpolate data set attributes from other data set attributes
   // given cell or point ids and associated interpolation weights.
   void InterpolatePoint(vtkDataSetAttributes *fromPd, vtkIdType toId, 

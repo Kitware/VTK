@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageToImageFilter, "1.46");
+vtkCxxRevisionMacro(vtkImageToImageFilter, "1.47");
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()
@@ -29,12 +29,14 @@ vtkImageToImageFilter::vtkImageToImageFilter()
   this->Bypass = 0;
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
+  this->InputScalarsSelection = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::~vtkImageToImageFilter()
 {
   this->Threader->Delete();
+  this->SetInputScalarsSelection(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -91,6 +93,12 @@ void vtkImageToImageFilter::ExecuteInformation()
 
   // Start with some defaults.
   output->CopyTypeSpecificInformation( input );
+
+  vtkDataArray *inArray = input->GetPointData()->GetScalars(this->InputScalarsSelection);
+  if (inArray)
+    {
+    output->SetScalarType(inArray->GetDataType());
+    }
 
   // take this opportunity to modify the defaults
 
@@ -255,6 +263,88 @@ int vtkImageToImageFilter::SplitExtent(int splitExt[6], int startExt[6],
                 << splitExt[4] << ", " << splitExt[5] << ")");
 
   return maxThreadIdUsed + 1;
+}
+
+//----------------------------------------------------------------------------
+// Copydata at the end of the execute
+vtkImageData *vtkImageToImageFilter::AllocateOutputData(vtkDataObject *out)
+{ 
+  vtkImageData *output = this->GetOutput();
+  vtkImageData *input = this->GetInput();
+  int inExt[6];
+  int outExt[6];
+  vtkDataArray *inArray;
+  vtkDataArray *outArray;
+
+
+  input->GetExtent(inExt);
+  output->SetExtent(output->GetUpdateExtent());
+  output->GetExtent(outExt);
+
+  // Conditionally copy point and cell data.
+  // Only copy if corresponding indexes refer to identical points.
+  float *oIn = input->GetOrigin();
+  float *sIn = input->GetSpacing();
+  float *oOut = output->GetOrigin();
+  float *sOut = output->GetSpacing();
+  if (oIn[0] == oOut[0] && oIn[1] == oOut[1] && oIn[2] == oOut[2] &&
+      sIn[0] == sOut[0] && sIn[1] == sOut[1] && sIn[2] == sOut[2])   
+    {
+    output->GetPointData()->CopyAllOn();
+    output->GetCellData()->CopyAllOn();
+    // Do not copy the array we will be generating.
+    inArray = input->GetPointData()->GetScalars(this->InputScalarsSelection);
+    // Scalar copy flag trumps the array copy flag.
+    if (inArray == input->GetPointData()->GetScalars())
+      {
+      output->GetPointData()->CopyScalarsOff();
+      }
+    else
+      {
+      output->GetPointData()->CopyFieldOff(this->InputScalarsSelection);
+      }
+
+    // If the extents are the same, then pass the attribute data for efficiency.
+    if (inExt[0] == outExt[0] && inExt[1] == outExt[1] &&
+        inExt[2] == outExt[2] && inExt[3] == outExt[3] &&
+        inExt[4] == outExt[4] && inExt[5] == outExt[5])
+      {// Pass
+      output->GetPointData()->PassData(input->GetPointData());
+      output->GetCellData()->PassData(input->GetCellData());
+      }
+    else
+      {// Copy
+      // Copy the point data.
+      output->GetPointData()->CopyAllocate(input->GetPointData(), 
+                                           output->GetNumberOfPoints());
+      output->GetPointData()->CopyStructuredData(input->GetPointData(),
+                                                 inExt, outExt);
+      // Now Copy The cell data.
+      output->GetCellData()->CopyAllocate(input->GetCellData(), 
+                                          output->GetNumberOfCells());
+      // Cell extent is one less than point extent.
+      // Conditional to handle a colapsed axis (lower dimensional cells).
+      if (inExt[0] < inExt[1]) {--inExt[1];}
+      if (inExt[2] < inExt[3]) {--inExt[3];}
+      if (inExt[4] < inExt[5]) {--inExt[5];}
+      // Cell extent is one less than point extent.
+      if (outExt[0] < outExt[1]) {--outExt[1];}
+      if (outExt[2] < outExt[3]) {--outExt[3];}
+      if (outExt[4] < outExt[5]) {--outExt[5];}
+      output->GetCellData()->CopyStructuredData(input->GetCellData(),
+                                                inExt, outExt);
+      }
+    }
+
+  // Now create the scalars array that will hold the output data.
+  this->ExecuteInformation();
+  output->AllocateScalars();
+  outArray = output->GetPointData()->GetScalars();
+  if (inArray)
+    {
+    outArray->SetName(inArray->GetName());
+    }
+  return output;
 }
 
 

@@ -73,7 +73,7 @@ public:
   // Putting this here until I merge graphics and imaging streaming.
   virtual int SplitExtent(int splitExt[6], int startExt[6], 
                           int num, int total);
-  
+
 protected:
   vtkImageToImageFilter();
   ~vtkImageToImageFilter();
@@ -91,12 +91,19 @@ protected:
   // This is called by the superclass.
   // This is the method you should override.
   void ExecuteData(vtkDataObject *output);
+
+  // This also copies other arrays from point and cell data from input to output.
+  virtual vtkImageData *AllocateOutputData(vtkDataObject *out);
   
   // The method that starts the multithreading
   void MultiThread(vtkImageData *input, vtkImageData *output);
 
   void ComputeInputUpdateExtents( vtkDataObject *output );
   virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+
+  char *InputScalarsSelection;
+  vtkSetStringMacro(InputScalarsSelection);
+
 private:
   vtkImageToImageFilter(const vtkImageToImageFilter&);  // Not implemented.
   void operator=(const vtkImageToImageFilter&);  // Not implemented.

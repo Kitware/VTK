@@ -33,7 +33,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.61");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.62");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -339,6 +339,99 @@ void vtkDataSetAttributes::PassData(vtkFieldData* fd)
     this->vtkFieldData::PassData(fd);
     }
 }
+
+
+
+
+//----------------------------------------------------------------------------
+// This is used in the imaging pipeline for copying arrays.
+// CopyAllocate needs to be called before this method. 
+void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
+                                          const int *inExt, const int *outExt)
+{
+  int i;
+  
+  // output must be a subextent of the input.
+  if (outExt[0] < inExt[0] || outExt[1] > inExt[1] ||
+      outExt[2] < inExt[2] || outExt[3] > inExt[3] ||
+      outExt[4] < inExt[4] || outExt[5] > inExt[5])
+    {
+    vtkErrorMacro("Output must be a sub extent of input.");
+    return;
+    }
+
+  for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
+      i=this->RequiredArrays.NextIndex())
+    {
+    vtkDataArray *inArray = fromPd->Data[i];
+    vtkDataArray *outArray = this->Data[this->TargetIndices[i]];
+    unsigned char *inPtr;
+    unsigned char *outPtr;
+    unsigned char *inZPtr;
+    unsigned char *outZPtr;
+    int inIncs[3];
+    int outIncs[3];
+    int rowLength;
+    int yIdx, zIdx;
+
+    // Compute increments
+    inIncs[0] = inArray->GetDataTypeSize() * inArray->GetNumberOfComponents();
+    inIncs[1] = inIncs[0] * (inExt[1]-inExt[0]+1);
+    inIncs[2] = inIncs[1] * (inExt[3]-inExt[2]+1);
+    outIncs[0] = inIncs[0];
+    outIncs[1] = outIncs[0] * (outExt[1]-outExt[0]+1);
+    outIncs[2] = outIncs[1] * (outExt[3]-outExt[2]+1);
+    // Length of continuous data to copy (one row).
+    rowLength = (outExt[1]-outExt[0]+1)*outIncs[0];
+
+    // Make sure the input extents match the actual array lengths.
+    zIdx = (inExt[1]-inExt[0]+1)*(inExt[3]-inExt[2]+1)*(inExt[5]-inExt[4]+1);
+    if (inArray->GetNumberOfTuples() != zIdx)
+      {
+      vtkErrorMacro("Input extent (" << inExt[0] << ", " << inExt[1] << ", " 
+                    << inExt[2] << ", " << inExt[3] << ", " << inExt[4] << ", " 
+                    << inExt[5] << ") does not match array length: " << zIdx);
+      // Skip copying this array.
+      continue;
+      }
+    // Make sure the output extents match the actual array lengths.
+    zIdx = (outExt[1]-outExt[0]+1)*(outExt[3]-outExt[2]+1)*(outExt[5]-outExt[4]+1);
+    if (outArray->GetNumberOfTuples() != zIdx)
+      {
+      // The "CopyAllocate" method only sets the size, not the number of tuples.
+      outArray->SetNumberOfTuples(zIdx);
+      }
+
+    // Get the starting input pointer.
+    inZPtr = (unsigned char*)(inArray->GetVoidPointer(0));
+    // Shift to the start of the subextent.
+    inZPtr += (outExt[0]-outExt[0])*inIncs[0] +
+      (outExt[2] - outExt[2])*inIncs[1] +
+      (outExt[4] - outExt[4])*inIncs[2];
+
+    // Get output pointer.
+    outZPtr = (unsigned char*)(outArray->GetVoidPointer(0));
+
+    // Loop over z axis.
+    for (zIdx = outExt[4]; zIdx <= outExt[5]; ++zIdx)
+      {
+      inPtr = inZPtr;
+      outPtr = outZPtr;
+      for (yIdx = outExt[2]; yIdx <= outExt[3]; ++yIdx)
+        {
+        memcpy(outPtr, inPtr, rowLength);
+        inPtr += inIncs[1];
+        outPtr += outIncs[1];
+        }
+      inZPtr += inIncs[2];
+      outZPtr += outIncs[2];
+      }
+    }
+}
+
+
+
+
 
 // Allocates point data for point-by-point (or cell-by-cell) copy operation.  
 // If sze=0, then use the input DataSetAttributes to create (i.e., find 

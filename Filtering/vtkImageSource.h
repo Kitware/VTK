@@ -53,7 +53,7 @@ protected:
 
   // a helper method that sets the extent and allocates the output 
   // passed into it and returns it as an image data
-  vtkImageData *AllocateOutputData(vtkDataObject *out);
+  virtual vtkImageData *AllocateOutputData(vtkDataObject *out);
 
   void ComputeRequiredInputUpdateExtent( int *vtkNotUsed(in), 
                                          int *vtkNotUsed(out) ) 

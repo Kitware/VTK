@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageSource, "1.56");
+vtkCxxRevisionMacro(vtkImageSource, "1.57");
 
 //----------------------------------------------------------------------------
 vtkImageSource::vtkImageSource()
@@ -76,6 +76,7 @@ void vtkImageSource::Execute(vtkImageData *)
 }
 
 
+//----------------------------------------------------------------------------
 vtkImageData *vtkImageSource::AllocateOutputData(vtkDataObject *out)
 {
   vtkImageData *res = vtkImageData::SafeDownCast(out);
