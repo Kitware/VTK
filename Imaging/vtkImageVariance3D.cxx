@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageVariance3D, "1.28");
+vtkCxxRevisionMacro(vtkImageVariance3D, "1.29");
 vtkStandardNewMacro(vtkImageVariance3D);
 
 //----------------------------------------------------------------------------
@@ -105,13 +105,16 @@ void vtkImageVariance3D::SetKernelSize(int size0, int size1, int size2)
 
 //----------------------------------------------------------------------------
 // Output is always float
-void vtkImageVariance3D::RequestInformation (vtkInformation *request,
+int vtkImageVariance3D::RequestInformation (vtkInformation *request,
                                             vtkInformationVector **inputVector,
                                             vtkInformationVector *outputVector)
 {
-  this->Superclass::RequestInformation(request, inputVector, outputVector);
+  int retval =
+    this->Superclass::RequestInformation(request, inputVector, outputVector);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_FLOAT);
+
+  return retval;
 }
 
 //----------------------------------------------------------------------------
@@ -324,10 +327,10 @@ void vtkImageVariance3D::ThreadedRequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageVariance3D::RequestData(vtkInformation *request,
+int vtkImageVariance3D::RequestData(vtkInformation *request,
                                      vtkInformationVector **inputVector,
                                      vtkInformationVector *outputVector)
 {
   this->Ellipse->GetOutput()->Update();
-  this->Superclass::RequestData(request, inputVector, outputVector);
+  return this->Superclass::RequestData(request, inputVector, outputVector);
 }

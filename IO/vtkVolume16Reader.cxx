@@ -23,7 +23,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkVolume16Reader, "1.54");
+vtkCxxRevisionMacro(vtkVolume16Reader, "1.55");
 vtkStandardNewMacro(vtkVolume16Reader);
 
 vtkCxxSetObjectMacro(vtkVolume16Reader,Transform,vtkTransform);
@@ -122,7 +122,7 @@ const char *vtkVolume16Reader::GetDataByteOrderAsString()
 }
 
 
-void vtkVolume16Reader::RequestInformation(
+int vtkVolume16Reader::RequestInformation(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
@@ -139,10 +139,11 @@ void vtkVolume16Reader::RequestInformation(
   outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
   // spacing and origin ?
+
+  return 1;
 }
-    
-    
-void vtkVolume16Reader::RequestData(
+
+int vtkVolume16Reader::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *vtkNotUsed(outputVector))
@@ -161,13 +162,13 @@ void vtkVolume16Reader::RequestData(
   if (this->FilePrefix == NULL) 
     {
     vtkErrorMacro(<< "FilePrefix is NULL");
-    return;
+    return 1;
     }
 
   if (this->HeaderSize < 0) 
     {
     vtkErrorMacro(<< "HeaderSize " << this->HeaderSize << " must be >= 0");
-    return;
+    return 1;
     }
 
   dim = this->DataDimensions;
@@ -176,7 +177,7 @@ void vtkVolume16Reader::RequestData(
     {
     vtkErrorMacro(<< "x, y dimensions " << dim[0] << ", " << dim[1] 
                   << "must be greater than 0.");    
-    return;
+    return 1;
     } 
 
   if ( (this->ImageRange[1]-this->ImageRange[0]) <= 0 )
@@ -205,6 +206,8 @@ void vtkVolume16Reader::RequestData(
 
   output->SetSpacing(Spacing);
   output->SetOrigin(origin);
+
+  return 1;
 }
 
 vtkImageData *vtkVolume16Reader::GetImage(int ImageNumber)

@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.72");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.73");
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction,ImplicitFunction,vtkImplicitFunction);
 
@@ -91,7 +91,7 @@ void vtkSampleFunction::SetSampleDimensions(int dim[3])
     }
 }
 
-void vtkSampleFunction::RequestInformation (
+int vtkSampleFunction::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -128,6 +128,8 @@ void vtkSampleFunction::RequestInformation (
     }
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   outInfo->Set(vtkDataObject::SPACING(),ar,3);
+
+  return 1;
 }
 
 

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageFlip, "1.38");
+vtkCxxRevisionMacro(vtkImageFlip, "1.39");
 vtkStandardNewMacro(vtkImageFlip);
 
 //----------------------------------------------------------------------------
@@ -40,7 +40,7 @@ vtkImageFlip::vtkImageFlip()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageFlip::RequestInformation(
+int vtkImageFlip::RequestInformation(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -103,6 +103,8 @@ void vtkImageFlip::RequestInformation(
                inInfo->Get(vtkDataObject::SCALAR_TYPE()));
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
                inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

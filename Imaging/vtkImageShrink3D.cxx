@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.66");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.67");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -142,7 +142,7 @@ void vtkImageShrink3D::InternalRequestUpdateExtent(int *inExt, int *outExt)
 
 //----------------------------------------------------------------------------
 // This method computes the Region of input necessary to generate outRegion.
-void vtkImageShrink3D::RequestUpdateExtent (
+int vtkImageShrink3D::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -157,12 +157,14 @@ void vtkImageShrink3D::RequestUpdateExtent (
   this->InternalRequestUpdateExtent(inExt, outExt);
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
 // Any problems with roundoff or negative numbers ???
-void vtkImageShrink3D::RequestInformation (
+int vtkImageShrink3D::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -204,6 +206,8 @@ void vtkImageShrink3D::RequestInformation (
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExtent,6);
   outInfo->Set(vtkDataObject::SPACING(),spacing,3);
+
+  return 1;
 }
 
 template <class T>

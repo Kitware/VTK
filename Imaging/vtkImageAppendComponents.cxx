@@ -21,12 +21,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAppendComponents, "1.27");
+vtkCxxRevisionMacro(vtkImageAppendComponents, "1.28");
 vtkStandardNewMacro(vtkImageAppendComponents);
 
 //----------------------------------------------------------------------------
 // This method tells the ouput it will have more components
-void vtkImageAppendComponents::RequestInformation (
+int vtkImageAppendComponents::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -44,8 +44,9 @@ void vtkImageAppendComponents::RequestInformation (
     }
 
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),num);
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.

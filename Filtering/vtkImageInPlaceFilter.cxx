@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.43");
+vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.44");
 
 //----------------------------------------------------------------------------
 vtkImageInPlaceFilter::vtkImageInPlaceFilter()
@@ -36,7 +36,7 @@ vtkImageInPlaceFilter::~vtkImageInPlaceFilter()
 
 //----------------------------------------------------------------------------
 
-void vtkImageInPlaceFilter::RequestData(
+int vtkImageInPlaceFilter::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -76,9 +76,9 @@ void vtkImageInPlaceFilter::RequestData(
     output->AllocateScalars();
     this->CopyData(input,output);
     }
+
+  return 1;
 }
-  
-  
 
 void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
                                      vtkImageData *outData)

@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.29");
+vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.30");
 vtkStandardNewMacro(vtkImageContinuousErode3D);
 
 //----------------------------------------------------------------------------
@@ -334,10 +334,10 @@ void vtkImageContinuousErode3D::ThreadedRequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageContinuousErode3D::RequestData(vtkInformation *request,
+int vtkImageContinuousErode3D::RequestData(vtkInformation *request,
                                             vtkInformationVector **inputVector,
                                             vtkInformationVector *outputVector)
 {
   this->Ellipse->GetOutput()->Update();
-  this->Superclass::RequestData(request, inputVector, outputVector);
+  return this->Superclass::RequestData(request, inputVector, outputVector);
 }

@@ -19,7 +19,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageIterateFilter, "1.38");
+vtkCxxRevisionMacro(vtkImageIterateFilter, "1.39");
 
 //----------------------------------------------------------------------------
 vtkImageIterateFilter::vtkImageIterateFilter()
@@ -79,7 +79,7 @@ vtkImageData *vtkImageIterateFilter::GetIterationOutput()
 }
 
 //----------------------------------------------------------------------------
-void
+int
 vtkImageIterateFilter
 ::RequestInformation(vtkInformation* request,
                      vtkInformationVector** inputVector,
@@ -105,14 +105,19 @@ vtkImageIterateFilter
     outData->CopyInformationToPipeline(request, in);
     out->CopyEntry(in, vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
-    this->IterativeRequestInformation(in, out);
+    if (!this->IterativeRequestInformation(in, out))
+      {
+      return 0;
+      }
 
     in = out;
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void
+int
 vtkImageIterateFilter
 ::RequestUpdateExtent(vtkInformation*,
                       vtkInformationVector**,
@@ -126,14 +131,19 @@ vtkImageIterateFilter
     vtkInformation* in = this->IterationData[i]->GetPipelineInformation();
     in->CopyEntry(out, vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
-    this->IterativeRequestUpdateExtent(in, out);
+    if (!this->IterativeRequestUpdateExtent(in, out))
+      {
+      return 0;
+      }
 
     out = in;
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkImageIterateFilter::RequestData(vtkInformation* request,
+int vtkImageIterateFilter::RequestData(vtkInformation* request,
                                         vtkInformationVector** inputVector,
                                         vtkInformationVector*)
 {
@@ -148,8 +158,11 @@ void vtkImageIterateFilter::RequestData(vtkInformation* request,
 
     this->InputVector->SetInformationObject(0, in);
     this->OutputVector->SetInformationObject(0, out);
-    this->IterativeRequestData(request, &this->InputVector,
-                               this->OutputVector);
+    if (!this->IterativeRequestData(request, &this->InputVector,
+                                    this->OutputVector))
+      {
+      return 0;
+      }
 
     if(in->Get(vtkDemandDrivenPipeline::RELEASE_DATA()))
       {
@@ -161,33 +174,37 @@ void vtkImageIterateFilter::RequestData(vtkInformation* request,
     }
   this->InputVector->SetNumberOfInformationObjects(0);
   this->OutputVector->SetNumberOfInformationObjects(0);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 // Called by the above for each decomposition.  Subclass can modify
 // the defaults by implementing this method.
-void vtkImageIterateFilter::IterativeRequestInformation(vtkInformation*,
+int vtkImageIterateFilter::IterativeRequestInformation(vtkInformation*,
+                                                       vtkInformation*)
+{
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+// Called by the above for each decomposition.  Subclass can modify
+// the defaults by implementing this method.
+int vtkImageIterateFilter::IterativeRequestUpdateExtent(vtkInformation*,
                                                         vtkInformation*)
 {
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 // Called by the above for each decomposition.  Subclass can modify
 // the defaults by implementing this method.
-void vtkImageIterateFilter::IterativeRequestUpdateExtent(vtkInformation*,
-                                                         vtkInformation*)
-{
-}
-
-//----------------------------------------------------------------------------
-// Called by the above for each decomposition.  Subclass can modify
-// the defaults by implementing this method.
-void
+int
 vtkImageIterateFilter::IterativeRequestData(vtkInformation* request,
                                             vtkInformationVector** inputVector,
                                             vtkInformationVector* outputVector)
 {
-  this->Superclass::RequestData(request, inputVector, outputVector);
+  return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------

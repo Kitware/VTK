@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.43");
+vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.44");
 vtkStandardNewMacro(vtkImageGaussianSmooth);
 
 //----------------------------------------------------------------------------
@@ -94,7 +94,7 @@ void vtkImageGaussianSmooth::ComputeKernel(double *kernel, int min, int max,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageGaussianSmooth::RequestUpdateExtent (
+int vtkImageGaussianSmooth::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -113,6 +113,8 @@ void vtkImageGaussianSmooth::RequestUpdateExtent (
   this->InternalRequestUpdateExtent(inExt, wholeExtent);
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

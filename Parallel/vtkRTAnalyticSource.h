@@ -82,9 +82,9 @@ protected:
   double Center[3];
   double Maximum;
 
-  virtual void RequestInformation (vtkInformation *, 
-                                   vtkInformationVector **, 
-                                   vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, 
+                                  vtkInformationVector **, 
+                                  vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *data);
 private:
   vtkRTAnalyticSource(const vtkRTAnalyticSource&);  // Not implemented.

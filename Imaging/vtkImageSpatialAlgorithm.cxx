@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSpatialAlgorithm, "1.2");
+vtkCxxRevisionMacro(vtkImageSpatialAlgorithm, "1.3");
 vtkStandardNewMacro(vtkImageSpatialAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void vtkImageSpatialAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSpatialAlgorithm::RequestInformation (
+int vtkImageSpatialAlgorithm::RequestInformation (
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -74,6 +74,8 @@ void vtkImageSpatialAlgorithm::RequestInformation (
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
   this->ComputeOutputWholeExtent(extent, this->HandleBoundaries);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -100,7 +102,7 @@ void vtkImageSpatialAlgorithm::ComputeOutputWholeExtent(int extent[6],
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void vtkImageSpatialAlgorithm::RequestUpdateExtent(
+int vtkImageSpatialAlgorithm::RequestUpdateExtent(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -116,6 +118,8 @@ void vtkImageSpatialAlgorithm::RequestUpdateExtent(
   this->InternalRequestUpdateExtent(extent, inExtent, wholeExtent);
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

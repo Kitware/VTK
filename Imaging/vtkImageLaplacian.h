@@ -47,7 +47,7 @@ protected:
 
   int Dimensionality;
 
-  void RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,

@@ -52,8 +52,8 @@ protected:
   int NumberOfComponents;
   int Components[3];
 
-  void RequestInformation (vtkInformation *, vtkInformationVector**,
-                           vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, vtkInformationVector**,
+                                  vtkInformationVector *);
   
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData, 
                        int ext[6], int id);

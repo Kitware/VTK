@@ -190,12 +190,12 @@ protected:
   ~vtkGaussianSplatter() {};
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
-  virtual void RequestInformation (vtkInformation *, 
-                                   vtkInformationVector **, 
-                                   vtkInformationVector *);
-  virtual void RequestData(vtkInformation *, 
-                           vtkInformationVector **, 
-                           vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, 
+                                  vtkInformationVector **, 
+                                  vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, 
+                          vtkInformationVector **, 
+                          vtkInformationVector *);
   void Cap(vtkDoubleArray *s);
 
   int SampleDimensions[3]; // dimensions of volume to splat into

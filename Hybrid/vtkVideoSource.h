@@ -225,7 +225,7 @@ public:
 protected:
   vtkVideoSource();
   ~vtkVideoSource();
-  void RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int Initialized;
 
@@ -291,7 +291,7 @@ protected:
   // These methods can be overridden in subclasses
   virtual void UpdateFrameBuffer();
   virtual void AdvanceFrameBuffer(int n);
-  virtual void RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   // if some component conversion is required, it is done here:
   virtual void UnpackRasterLine(char *outPtr, char *rowPtr, 
                                 int start, int count);

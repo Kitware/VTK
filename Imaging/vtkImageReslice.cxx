@@ -27,7 +27,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.55");
+vtkCxxRevisionMacro(vtkImageReslice, "1.56");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -349,7 +349,7 @@ unsigned long int vtkImageReslice::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageReslice::RequestUpdateExtent(
+int vtkImageReslice::RequestUpdateExtent(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -364,7 +364,7 @@ void vtkImageReslice::RequestUpdateExtent(
     {
     this->OptimizedComputeInputUpdateExtent(inExt,outExt,inInfo,outInfo);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
-    return;
+    return 1;
     }
 
   if (this->ResliceTransform)
@@ -374,7 +374,7 @@ void vtkImageReslice::RequestUpdateExtent(
       { // update the whole input extent if the transform is nonlinear
       inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inExt);
       inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
-      return;
+      return 1;
       }
     }
 
@@ -517,6 +517,8 @@ void vtkImageReslice::RequestUpdateExtent(
     stencil->SetUpdateExtent(
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -601,7 +603,7 @@ void vtkImageReslice::GetAutoCroppedOutputBounds(vtkInformation *inInfo,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageReslice::RequestInformation(
+int vtkImageReslice::RequestInformation(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -765,6 +767,8 @@ void vtkImageReslice::RequestInformation(
     stencilInfo->Set(vtkDataObject::ORIGIN(),
                      inInfo->Get(vtkDataObject::ORIGIN()), 3);
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -24,7 +24,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.31");
+vtkCxxRevisionMacro(vtkImageReader2, "1.32");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -419,7 +419,7 @@ void vtkImageReader2::ExecuteInformation()
 
 //----------------------------------------------------------------------------
 // This method returns the largest data that can be generated.
-void vtkImageReader2::RequestInformation (
+int vtkImageReader2::RequestInformation (
   vtkInformation       * vtkNotUsed( request ),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector * outputVector)
@@ -437,8 +437,9 @@ void vtkImageReader2::RequestInformation (
   outInfo->Set(vtkDataObject::SCALAR_TYPE(), this->DataScalarType);
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
                this->NumberOfScalarComponents);
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 // Manual initialization.

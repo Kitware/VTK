@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.50");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.51");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -34,11 +34,9 @@ vtkImageMathematics::vtkImageMathematics()
   this->SetNumberOfInputPorts(2);
 }
 
-
-
 //----------------------------------------------------------------------------
 // The output extent is the intersection.
-void vtkImageMathematics::RequestInformation (
+int vtkImageMathematics::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -61,7 +59,7 @@ void vtkImageMathematics::RequestInformation (
     if (!inInfo2)
       {
       vtkErrorMacro(<< "Second input must be specified for this operation.");
-      return;
+      return 1;
       }
        
     inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext2);
@@ -79,6 +77,8 @@ void vtkImageMathematics::RequestInformation (
     }
   
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext,6);
+
+  return 1;
 }
 
 template <class TValue, class TIvar>

@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageClip, "1.55");
+vtkCxxRevisionMacro(vtkImageClip, "1.56");
 vtkStandardNewMacro(vtkImageClip);
 
 //----------------------------------------------------------------------------
@@ -118,7 +118,7 @@ void vtkImageClip::GetOutputWholeExtent(int extent[6])
 
 //----------------------------------------------------------------------------
 // Change the WholeExtent
-void vtkImageClip::RequestInformation (
+int vtkImageClip::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -156,6 +156,8 @@ void vtkImageClip::RequestInformation (
     }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -175,7 +177,7 @@ void vtkImageClip::ResetOutputWholeExtent()
 
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageClip::RequestData(vtkInformation *vtkNotUsed(request),
+int vtkImageClip::RequestData(vtkInformation *vtkNotUsed(request),
                                vtkInformationVector **inputVector,
                                vtkInformationVector *outputVector)
 {
@@ -198,6 +200,8 @@ void vtkImageClip::RequestData(vtkInformation *vtkNotUsed(request),
     {
     outData->Crop();
     } 
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

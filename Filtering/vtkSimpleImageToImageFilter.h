@@ -50,14 +50,14 @@ protected:
   ~vtkSimpleImageToImageFilter();
 
   // These are called by the superclass.
-  virtual void RequestUpdateExtent (vtkInformation *, 
-                                    vtkInformationVector **, 
-                                    vtkInformationVector *);
+  virtual int RequestUpdateExtent (vtkInformation *, 
+                                   vtkInformationVector **, 
+                                   vtkInformationVector *);
 
   // You don't have to touch this unless you have a good reason.
-  virtual void RequestData(vtkInformation *, 
-                           vtkInformationVector **, 
-                           vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, 
+                          vtkInformationVector **, 
+                          vtkInformationVector *);
 
   // In the simplest case, this is the only method you need to define.
   virtual void SimpleExecute(vtkImageData* input, vtkImageData* output) = 0;

@@ -82,8 +82,8 @@ protected:
   vtkImageConnector *Connector;
   int Dimensionality;
   
-  void RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  void RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
   vtkImageSeedConnectivity(const vtkImageSeedConnectivity&);  // Not implemented.

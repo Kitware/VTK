@@ -113,9 +113,9 @@ public:
   
   // Description:
   // Propagates the update extent through the callback if it is set.
-  virtual void RequestUpdateExtent(  vtkInformation* request,
-                                     vtkInformationVector** inputVector,
-                                     vtkInformationVector* outputVector);
+  virtual int RequestUpdateExtent(  vtkInformation* request,
+                                    vtkInformationVector** inputVector,
+                                    vtkInformationVector* outputVector);
 
   //BTX
   // Description:
@@ -237,8 +237,8 @@ protected:
   vtkImageImport();
   ~vtkImageImport();
 
-  virtual void RequestInformation (vtkInformation *, vtkInformationVector **, 
-                                   vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, 
+                                  vtkInformationVector *);
 
   
   void *ImportVoidPointer;

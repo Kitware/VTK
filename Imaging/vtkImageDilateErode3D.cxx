@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.43");
+vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.44");
 vtkStandardNewMacro(vtkImageDilateErode3D);
 
 //----------------------------------------------------------------------------
@@ -319,10 +319,10 @@ void vtkImageDilateErode3D::ThreadedRequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageDilateErode3D::RequestData(vtkInformation *request,
+int vtkImageDilateErode3D::RequestData(vtkInformation *request,
                                         vtkInformationVector **inputVector,
                                         vtkInformationVector *outputVector)
 {
   this->Ellipse->GetOutput()->Update();
-  this->Superclass::RequestData(request, inputVector, outputVector);
+  return this->Superclass::RequestData(request, inputVector, outputVector);
 }

@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSLCReader, "1.51");
+vtkCxxRevisionMacro(vtkSLCReader, "1.52");
 vtkStandardNewMacro(vtkSLCReader);
 
 // Constructor for a vtkSLCReader.
@@ -81,7 +81,7 @@ unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr,
 
 
 // This will be needed when we make this an imaging filter.
-void vtkSLCReader::RequestInformation (
+int vtkSLCReader::RequestInformation (
   vtkInformation       * request,
   vtkInformationVector** inputVector,
   vtkInformationVector * outputVector)
@@ -97,21 +97,21 @@ void vtkSLCReader::RequestInformation (
   if (!this->FileName)
     {
     vtkErrorMacro(<<"A FileName must be specified.");
-    return;
+    return 0;
     }
 
   // Initialize
   if ((fp = fopen(this->FileName, "rb")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
-    return;
+    return 0;
     }
   this->FileDimensionality = 3;
   fscanf( fp, "%d", &magic_num );
   if( magic_num != 11111 )
     {
     vtkErrorMacro(<< "SLC magic number is not correct");
-    return;
+    return 1;
     }
 
   f[0] = f[1] = f[2] = 0.0;
@@ -139,7 +139,7 @@ void vtkSLCReader::RequestInformation (
   this->SetNumberOfScalarComponents(1);
 
   fclose( fp );
-  this->Superclass::RequestInformation(request, inputVector, outputVector);
+  return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
           
 // Reads an SLC file and creates a vtkStructuredPoints dataset.

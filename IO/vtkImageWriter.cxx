@@ -28,7 +28,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.56");
+vtkCxxRevisionMacro(vtkImageWriter, "1.57");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write
@@ -194,7 +194,7 @@ void vtkImageWriter::SetFilePattern(const char *pattern)
   this->Modified();
 }
 
-void vtkImageWriter::RequestData(
+int vtkImageWriter::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed( outputVector) )
@@ -205,18 +205,17 @@ void vtkImageWriter::RequestData(
   vtkImageData *input = 
     vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   
-  
   // Error checking
   if (input == NULL )
     {
     vtkErrorMacro(<<"Write:Please specify an input!");
-    return;
+    return 0;
     }
   if ( !this->FileName && !this->FilePattern)
     {
     vtkErrorMacro(<<"Write:Please specify either a FileName or a file prefix and pattern");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
-    return;
+    return 0;
     }
   
   // Make sure the file name is allocated
@@ -246,8 +245,9 @@ void vtkImageWriter::RequestData(
 
   delete [] this->InternalFileName;
   this->InternalFileName = NULL;
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 // Writes all the data from the input.

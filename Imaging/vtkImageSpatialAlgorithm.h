@@ -52,10 +52,10 @@ protected:
   int   Strides[3];      // Shrink factor
   int   HandleBoundaries;     // Output shrinks if boundaries aren't handled
 
-  virtual void RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   void ComputeOutputWholeExtent(int extent[6], int handleBoundaries);
-  virtual void RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void InternalRequestUpdateExtent(int *extent, int *inExtent, int *wholeExtent);
 
 private:

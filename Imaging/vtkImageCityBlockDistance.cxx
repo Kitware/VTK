@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCityBlockDistance, "1.26");
+vtkCxxRevisionMacro(vtkImageCityBlockDistance, "1.27");
 vtkStandardNewMacro(vtkImageCityBlockDistance);
 
 //----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ void vtkImageCityBlockDistance::AllocateOutputScalars(vtkImageData *outData)
 //----------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageCityBlockDistance::IterativeRequestUpdateExtent(
+int vtkImageCityBlockDistance::IterativeRequestUpdateExtent(
   vtkInformation* input, vtkInformation* output)
 {
   int *outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
@@ -60,12 +60,14 @@ void vtkImageCityBlockDistance::IterativeRequestUpdateExtent(
   inExt[this->Iteration * 2] = wExt[this->Iteration * 2];
   inExt[this->Iteration * 2 + 1] = wExt[this->Iteration * 2 + 1];
   input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
+
+  return 1;
 }
 
 
 //----------------------------------------------------------------------------
 // This is writen as a 1D execute method, but is called several times.
-void vtkImageCityBlockDistance::IterativeRequestData(
+int vtkImageCityBlockDistance::IterativeRequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -100,7 +102,7 @@ void vtkImageCityBlockDistance::IterativeRequestData(
     vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
                   << ", and out ScalarType " << outData->GetScalarType()
                   << " must be short.");
-    return;
+    return 1;
     }
 
 
@@ -217,6 +219,8 @@ void vtkImageCityBlockDistance::IterativeRequestData(
     inPtr2 += inInc2;
     outPtr2 += outInc2;
     }     
+
+  return 1;
 }
 
 

@@ -193,10 +193,11 @@ protected:
   vtkImplicitModeller();
   ~vtkImplicitModeller();
 
-  void RequestInformation (vtkInformation *, 
+  virtual int RequestInformation (vtkInformation *, 
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
+  virtual int RequestData (vtkInformation *, 
                            vtkInformationVector **, vtkInformationVector *);
-  void RequestData (vtkInformation *, 
-                    vtkInformationVector **, vtkInformationVector *);
   
   void StartAppend(int internal);
   void Cap(vtkDataArray *s);

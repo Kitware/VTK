@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.40");
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.41");
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
-void vtkImageGradientMagnitude::RequestInformation (
+int vtkImageGradientMagnitude::RequestInformation (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -83,12 +83,14 @@ void vtkImageGradientMagnitude::RequestInformation (
   
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 
                extent, 6);
+
+  return 1;
 }
 
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
-void vtkImageGradientMagnitude::RequestUpdateExtent (
+int vtkImageGradientMagnitude::RequestUpdateExtent (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -125,11 +127,9 @@ void vtkImageGradientMagnitude::RequestUpdateExtent (
       }
     }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);  
+
+  return 1;
 }
-
-
-
-
 
 //----------------------------------------------------------------------------
 // This execute method handles boundaries.

@@ -62,9 +62,9 @@ protected:
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData, 
                            int extent[6], int id);
-  void RequestData(vtkInformation *request,
-                   vtkInformationVector **inputVector,
-                   vtkInformationVector *outputVector);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector **inputVector,
+                          vtkInformationVector *outputVector);
 
 private:
   vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&);  // Not implemented.

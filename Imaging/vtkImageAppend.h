@@ -65,11 +65,13 @@ protected:
   // Array holds the AppendAxisExtent shift for each input.
   int *Shifts;
 
-  void RequestInformation (vtkInformation *, 
-                           vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, 
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
 
-  void RequestUpdateExtent(vtkInformation *, 
-                           vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, 
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
 
   void ThreadedRequestData (vtkInformation* request,
                             vtkInformationVector** inputVector,

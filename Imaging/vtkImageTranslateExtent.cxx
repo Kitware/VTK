@@ -21,7 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageTranslateExtent, "1.25");
+vtkCxxRevisionMacro(vtkImageTranslateExtent, "1.26");
 vtkStandardNewMacro(vtkImageTranslateExtent);
 
 //----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ void vtkImageTranslateExtent::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Change the WholeExtent
-void vtkImageTranslateExtent::RequestInformation (
+int vtkImageTranslateExtent::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -74,11 +74,13 @@ void vtkImageTranslateExtent::RequestInformation (
   
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageTranslateExtent::RequestData(
+int vtkImageTranslateExtent::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -101,10 +103,12 @@ void vtkImageTranslateExtent::RequestData(
     }
   outData->SetExtent(extent);
   outData->GetPointData()->PassData(inData->GetPointData());
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkImageTranslateExtent::RequestUpdateExtent (
+int vtkImageTranslateExtent::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -124,4 +128,6 @@ void vtkImageTranslateExtent::RequestUpdateExtent (
   extent[5] = inExtent[5] - this->Translation[2];
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
+
+  return 1;
 }

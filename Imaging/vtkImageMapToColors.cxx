@@ -22,7 +22,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMapToColors, "1.25");
+vtkCxxRevisionMacro(vtkImageMapToColors, "1.26");
 vtkStandardNewMacro(vtkImageMapToColors);
 vtkCxxSetObjectMacro(vtkImageMapToColors,LookupTable,vtkScalarsToColors);
 
@@ -64,7 +64,7 @@ unsigned long vtkImageMapToColors::GetMTime()
 
 //----------------------------------------------------------------------------
 // This method checks to see if we can simply reference the input data
-void vtkImageMapToColors::RequestData(vtkInformation *request,
+int vtkImageMapToColors::RequestData(vtkInformation *request,
                                       vtkInformationVector **inputVector,
                                       vtkInformationVector *outputVector)
 {
@@ -96,12 +96,14 @@ void vtkImageMapToColors::RequestData(vtkInformation *request,
       this->DataWasPassed = 0;
       }
     
-    this->Superclass::RequestData(request, inputVector, outputVector);
+    return this->Superclass::RequestData(request, inputVector, outputVector);
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapToColors::RequestInformation (
+int vtkImageMapToColors::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -136,17 +138,19 @@ void vtkImageMapToColors::RequestInformation (
     if (inInfo->Get(vtkDataObject::SCALAR_TYPE()) != VTK_UNSIGNED_CHAR)
       {
       vtkErrorMacro("ExecuteInformation: No LookupTable was set but input data is not VTK_UNSIGNED_CHAR, therefore input can't be passed through!");
-      return;
+      return 1;
       }
     else if (numComponents != inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()))
       {
       vtkErrorMacro("ExecuteInformation: No LookupTable was set but number of components in input doesn't match OutputFormat, therefore input can't be passed through!");
-      return;
+      return 1;
       }
     }
 
   outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_UNSIGNED_CHAR);
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),numComponents);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

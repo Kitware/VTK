@@ -72,7 +72,7 @@ protected:
   vtkImageFlip();
   ~vtkImageFlip() {};
 
-  virtual void RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int FilteredAxis;
   int FlipAboutOrigin;

@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.17");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.18");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -49,7 +49,7 @@ void vtkImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
-void vtkImageAlgorithm::RequestData(
+int vtkImageAlgorithm::RequestData(
   vtkInformation* request,
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector* outputVector)
@@ -73,6 +73,8 @@ void vtkImageAlgorithm::RequestData(
     outputVector->GetInformationObject(outputPort);
   // call ExecuteData
   this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -118,20 +120,22 @@ void vtkImageAlgorithm::Execute()
   vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use the ExecuteData(vtkInformation *request,...) signature instead");
 }
 
-void vtkImageAlgorithm::RequestInformation(
+int vtkImageAlgorithm::RequestInformation(
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it
+  return 1;
 }
 
-void vtkImageAlgorithm::RequestUpdateExtent(
+int vtkImageAlgorithm::RequestUpdateExtent(
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* vtkNotUsed(outputVector))
 {
   // do nothing let subclasses handle it
+  return 1;
 }
 
 //----------------------------------------------------------------------------

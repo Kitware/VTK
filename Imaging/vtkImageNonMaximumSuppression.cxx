@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.52");
+vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.53");
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
-void vtkImageNonMaximumSuppression::RequestInformation (
+int vtkImageNonMaximumSuppression::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -61,15 +61,15 @@ void vtkImageNonMaximumSuppression::RequestInformation (
       extent[idx*2+1] -= 1;
       }
     }
-  
-  
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
-}
 
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
+
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
-void vtkImageNonMaximumSuppression::RequestUpdateExtent (
+int vtkImageNonMaximumSuppression::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -107,8 +107,9 @@ void vtkImageNonMaximumSuppression::RequestUpdateExtent (
       }
     }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
@@ -274,9 +275,7 @@ void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *self,
     in1Ptr += inIncZ;
     in2Ptr += in2IncZ;
     }
-}
-
-          
+}          
 
 //----------------------------------------------------------------------------
 // This method is passed a input and output regions, and executes the filter
@@ -328,7 +327,6 @@ void vtkImageNonMaximumSuppression::ThreadedRequestData(
     }
 }
 
-
 void vtkImageNonMaximumSuppression::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -337,5 +335,3 @@ void vtkImageNonMaximumSuppression::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "HandleBoundaries: " << (this->HandleBoundaries ? "On\n" : "Off\n");
 }
-
-

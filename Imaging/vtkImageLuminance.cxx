@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLuminance, "1.25");
+vtkCxxRevisionMacro(vtkImageLuminance, "1.26");
 vtkStandardNewMacro(vtkImageLuminance);
 
 //----------------------------------------------------------------------------
@@ -35,7 +35,7 @@ vtkImageLuminance::vtkImageLuminance()
 
 //----------------------------------------------------------------------------
 // This method overrides information set by parent's ExecuteInformation.
-void vtkImageLuminance::RequestInformation (
+int vtkImageLuminance::RequestInformation (
   vtkInformation       * vtkNotUsed( request ),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector * outputVector)
@@ -43,6 +43,8 @@ void vtkImageLuminance::RequestInformation (
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -69,7 +69,7 @@ protected:
   vtkImageStencil();
   ~vtkImageStencil();
   
-  void RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,

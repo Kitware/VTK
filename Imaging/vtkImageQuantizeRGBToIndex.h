@@ -78,12 +78,12 @@ protected:
   double           BuildTreeExecuteTime;
   double           LookupIndexExecuteTime;
 
-  void RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  void RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  virtual void RequestData(vtkInformation *,
-                           vtkInformationVector **,
-                           vtkInformationVector *);
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *);
 
 private:
   vtkImageQuantizeRGBToIndex(const vtkImageQuantizeRGBToIndex&);  // Not implemented.

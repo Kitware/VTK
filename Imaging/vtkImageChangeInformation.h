@@ -108,16 +108,16 @@ protected:
   double OriginScale[3];
   double OriginTranslation[3];
   
-  void RequestUpdateExtent (vtkInformation *,
-                            vtkInformationVector **,
-                            vtkInformationVector *);
-  void RequestInformation (vtkInformation *,
-                           vtkInformationVector **,
-                           vtkInformationVector *);
+  virtual int RequestUpdateExtent (vtkInformation *,
+                                   vtkInformationVector **,
+                                   vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *,
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
   
-  virtual void RequestData(vtkInformation *,
-                           vtkInformationVector **,
-                           vtkInformationVector *);
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *);
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 

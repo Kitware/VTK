@@ -79,7 +79,7 @@ protected:
   vtkPointLoad();
   ~vtkPointLoad() {};
 
-  virtual void RequestInformation (vtkInformation *, 
+  virtual int RequestInformation (vtkInformation *, 
                                    vtkInformationVector **, 
                                    vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *);

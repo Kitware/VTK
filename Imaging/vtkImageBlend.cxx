@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.35");
+vtkCxxRevisionMacro(vtkImageBlend, "1.36");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
@@ -120,7 +120,7 @@ double vtkImageBlend::GetOpacity(int idx)
 }    
 
 //----------------------------------------------------------------------------
-void vtkImageBlend::RequestInformation (
+int vtkImageBlend::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed( outputVector ))
@@ -135,6 +135,8 @@ void vtkImageBlend::RequestInformation (
     stencil->SetSpacing(inInfo->Get(vtkDataObject::SPACING()));
     stencil->SetOrigin(inInfo->Get(vtkDataObject::ORIGIN()));
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -167,7 +169,7 @@ void vtkImageBlend::InternalComputeInputUpdateExtent(int inExt[6],
 }
 
 //----------------------------------------------------------------------------
-void vtkImageBlend::RequestUpdateExtent(
+int vtkImageBlend::RequestUpdateExtent(
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -190,9 +192,11 @@ void vtkImageBlend::RequestUpdateExtent(
     this->InternalComputeInputUpdateExtent(inExt, outExt, inWextent);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
     }
+
+  return 1;
 }
 
-void vtkImageBlend::RequestData(
+int vtkImageBlend::RequestData(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -223,8 +227,10 @@ void vtkImageBlend::RequestData(
       outData->GetPointData()->SetScalars(NULL);
       this->DataWasPassed = 0;
       }
-    this->Superclass::RequestData(request,inputVector,outputVector);
+    return this->Superclass::RequestData(request,inputVector,outputVector);
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLaplacian, "1.30");
+vtkCxxRevisionMacro(vtkImageLaplacian, "1.31");
 vtkStandardNewMacro(vtkImageLaplacian);
 
 //----------------------------------------------------------------------------
@@ -43,7 +43,7 @@ void vtkImageLaplacian::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImageLaplacian::RequestUpdateExtent (
+int vtkImageLaplacian::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -81,8 +81,9 @@ void vtkImageLaplacian::RequestUpdateExtent (
       }
     }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 // This execute method handles boundaries.

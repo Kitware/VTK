@@ -54,9 +54,9 @@ protected:
   double CursorValue;
   int CursorRadius;
   
-  virtual void RequestData(vtkInformation *request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
 
 private:
   vtkImageCursor3D(const vtkImageCursor3D&);  // Not implemented.

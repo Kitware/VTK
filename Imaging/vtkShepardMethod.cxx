@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkShepardMethod, "1.45");
+vtkCxxRevisionMacro(vtkShepardMethod, "1.46");
 vtkStandardNewMacro(vtkShepardMethod);
 
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
@@ -99,7 +99,7 @@ double vtkShepardMethod::ComputeModelBounds(double origin[3],
   return maxDist;  
 }
 
-void vtkShepardMethod::RequestInformation (
+int vtkShepardMethod::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -133,9 +133,11 @@ void vtkShepardMethod::RequestInformation (
     }
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   outInfo->Set(vtkDataObject::SPACING(),ar,3);
+
+  return 1;
 }
 
-void vtkShepardMethod::RequestData(
+int vtkShepardMethod::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -174,13 +176,13 @@ void vtkShepardMethod::RequestData(
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"Points must be defined!");
-    return;
+    return 1;
     }
 
   if ( (inScalars = input->GetPointData()->GetScalars()) == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined!");
-    return;
+    return 1;
     }
 
   // Allocate
@@ -308,6 +310,8 @@ void vtkShepardMethod::RequestData(
   // Update self
   //
   delete [] sum;
+
+  return 1;
 }
 
 // Set the i-j-k dimensions on which to sample the distance function.

@@ -21,7 +21,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.19");
+vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.20");
 vtkStandardNewMacro(vtkImageMapToWindowLevelColors);
 
 // Constructor sets default values
@@ -37,7 +37,7 @@ vtkImageMapToWindowLevelColors::~vtkImageMapToWindowLevelColors()
 
 //----------------------------------------------------------------------------
 // This method checks to see if we can simply reference the input data
-void vtkImageMapToWindowLevelColors::RequestData(
+int vtkImageMapToWindowLevelColors::RequestData(
   vtkInformation *request,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -76,13 +76,15 @@ void vtkImageMapToWindowLevelColors::RequestData(
       this->DataWasPassed = 0;
       }
 
-    this->vtkThreadedImageAlgorithm::RequestData(request, inputVector,
-                                                 outputVector);
+    return this->vtkThreadedImageAlgorithm::RequestData(request, inputVector,
+                                                        outputVector);
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapToWindowLevelColors::RequestInformation (
+int vtkImageMapToWindowLevelColors::RequestInformation (
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -134,6 +136,8 @@ void vtkImageMapToWindowLevelColors::RequestInformation (
       }
     outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), numComponents);
     }
+
+  return 1;
 }
 
 /* 

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageSeedConnectivity, "1.30");
+vtkCxxRevisionMacro(vtkImageSeedConnectivity, "1.31");
 vtkStandardNewMacro(vtkImageSeedConnectivity);
 
 //----------------------------------------------------------------------------
@@ -100,7 +100,7 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSeedConnectivity::RequestUpdateExtent(
+int vtkImageSeedConnectivity::RequestUpdateExtent(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed(outputVector))
@@ -109,10 +109,12 @@ void vtkImageSeedConnectivity::RequestUpdateExtent(
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
               inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
               6);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSeedConnectivity::RequestData(
+int vtkImageSeedConnectivity::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -143,7 +145,7 @@ void vtkImageSeedConnectivity::RequestData(
       outData->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
     vtkErrorMacro("Execute: Both input and output must have scalar type UnsignedChar");
-    return;
+    return 1;
     }
 
   // Pick an intermediate value (In some cases, we could eliminate the last threshold.)
@@ -200,7 +202,7 @@ void vtkImageSeedConnectivity::RequestData(
   this->UpdateProgress(0.2);
   if (this->AbortExecute)
     {
-    return;
+    return 1;
     }
   
   //-------
@@ -237,7 +239,7 @@ void vtkImageSeedConnectivity::RequestData(
   this->UpdateProgress(0.5);
   if (this->AbortExecute)
     {
-    return;
+    return 1;
     }
 
   //-------
@@ -250,7 +252,7 @@ void vtkImageSeedConnectivity::RequestData(
   this->UpdateProgress(0.9);
   if (this->AbortExecute)
     {
-    return;
+    return 1;
     }
 
   //-------
@@ -278,6 +280,8 @@ void vtkImageSeedConnectivity::RequestData(
       }
      outPtr2 += outInc2;
     }
+
+  return 1;
 }
 
 void vtkImageSeedConnectivity::PrintSelf(ostream& os, vtkIndent indent)

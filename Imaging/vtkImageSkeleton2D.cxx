@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageSkeleton2D, "1.34");
+vtkCxxRevisionMacro(vtkImageSkeleton2D, "1.35");
 vtkStandardNewMacro(vtkImageSkeleton2D);
 
 //----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ void vtkImageSkeleton2D::SetNumberOfIterations(int num)
 // an output region.  Before this method is called "region" should have the
 // extent of the output region.  After this method finishes, "region" should
 // have the extent of the required input region.
-void vtkImageSkeleton2D::IterativeRequestUpdateExtent(vtkInformation* in,
+int vtkImageSkeleton2D::IterativeRequestUpdateExtent(vtkInformation* in,
                                                       vtkInformation* out)
 {
   int wholeExtent[6];
@@ -72,6 +72,8 @@ void vtkImageSkeleton2D::IterativeRequestUpdateExtent(vtkInformation* in,
     }
 
   in->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

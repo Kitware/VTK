@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.17");
+vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.18");
 vtkStandardNewMacro(vtkRTAnalyticSource);
 
 //----------------------------------------------------------------------------
@@ -94,7 +94,7 @@ void vtkRTAnalyticSource::SetWholeExtent(int xMin, int xMax,
 }
 
 //----------------------------------------------------------------------------
-void vtkRTAnalyticSource::RequestInformation (
+int vtkRTAnalyticSource::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -106,6 +106,8 @@ void vtkRTAnalyticSource::RequestInformation (
                this->WholeExtent,6);
   outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
+
+  return 1;
 }
 
 void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)

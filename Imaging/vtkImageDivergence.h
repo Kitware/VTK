@@ -36,12 +36,12 @@ protected:
   vtkImageDivergence();
   ~vtkImageDivergence() {};
 
-  void RequestUpdateExtent(vtkInformation*,
-                           vtkInformationVector**,
-                           vtkInformationVector*);
-  void RequestInformation (vtkInformation*,
-                          vtkInformationVector**,
-                          vtkInformationVector*);
+  virtual int RequestUpdateExtent(vtkInformation*,
+                                  vtkInformationVector**,
+                                  vtkInformationVector*);
+  virtual int RequestInformation (vtkInformation*,
+                                  vtkInformationVector**,
+                                  vtkInformationVector*);
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 

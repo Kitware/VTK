@@ -61,9 +61,9 @@ protected:
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData, 
                            int extent[6], int id);
-  void RequestData(vtkInformation *request,
-                   vtkInformationVector **inputVector,
-                   vtkInformationVector *outputVector);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector **inputVector,
+                          vtkInformationVector *outputVector);
 
 private:
   vtkImageContinuousErode3D(const vtkImageContinuousErode3D&);  // Not implemented.

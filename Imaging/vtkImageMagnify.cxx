@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMagnify, "1.47");
+vtkCxxRevisionMacro(vtkImageMagnify, "1.48");
 vtkStandardNewMacro(vtkImageMagnify);
 
 //----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ vtkImageMagnify::vtkImageMagnify()
 
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
-void vtkImageMagnify::RequestInformation (
+int vtkImageMagnify::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -66,12 +66,14 @@ void vtkImageMagnify::RequestInformation (
   
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),outExt,6);
   outInfo->Set(vtkDataObject::SPACING(),outSpacing,3);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
-void vtkImageMagnify::RequestUpdateExtent (
+int vtkImageMagnify::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -86,6 +88,8 @@ void vtkImageMagnify::RequestUpdateExtent (
   this->InternalRequestUpdateExtent(inExt, outExt);
   
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
+
+  return 1;
 }
 
 void vtkImageMagnify::InternalRequestUpdateExtent(int *inExt, int *outExt)

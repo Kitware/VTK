@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradient, "1.47");
+vtkCxxRevisionMacro(vtkImageGradient, "1.48");
 vtkStandardNewMacro(vtkImageGradient);
 
 //----------------------------------------------------------------------------
@@ -54,7 +54,7 @@ void vtkImageGradient::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-void vtkImageGradient::RequestInformation (
+int vtkImageGradient::RequestInformation (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -86,12 +86,13 @@ void vtkImageGradient::RequestInformation (
   outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
                this->Dimensionality);
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
-void vtkImageGradient::RequestUpdateExtent (
+int vtkImageGradient::RequestUpdateExtent (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -128,8 +129,9 @@ void vtkImageGradient::RequestUpdateExtent (
       }
     }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);  
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 // This execute method handles boundaries.

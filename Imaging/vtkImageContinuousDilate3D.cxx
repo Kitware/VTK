@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.29");
+vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.30");
 vtkStandardNewMacro(vtkImageContinuousDilate3D);
 
 //----------------------------------------------------------------------------
@@ -336,11 +336,11 @@ void vtkImageContinuousDilate3D::ThreadedRequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageContinuousDilate3D::RequestData(
+int vtkImageContinuousDilate3D::RequestData(
   vtkInformation *request,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
   this->Ellipse->GetOutput()->Update();
-  this->Superclass::RequestData(request, inputVector, outputVector);
+  return this->Superclass::RequestData(request, inputVector, outputVector);
 }

@@ -32,8 +32,8 @@ protected:
   vtkImageLuminance();
   ~vtkImageLuminance() {};
   
-  void RequestInformation (vtkInformation *, vtkInformationVector**,
-                           vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, vtkInformationVector**,
+                                  vtkInformationVector *);
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                         int outExt[6], int id);

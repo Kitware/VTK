@@ -68,14 +68,14 @@ protected:
   vtkFloatArray* YKernel;
   vtkFloatArray* ZKernel;
 
-  virtual void IterativeRequestData(vtkInformation*,
-                                    vtkInformationVector**,
-                                    vtkInformationVector*);
+  virtual int IterativeRequestData(vtkInformation*,
+                                   vtkInformationVector**,
+                                   vtkInformationVector*);
 
-  virtual void IterativeRequestInformation(vtkInformation* in,
+  virtual int IterativeRequestInformation(vtkInformation* in,
+                                          vtkInformation* out);
+  virtual int IterativeRequestUpdateExtent(vtkInformation* in,
                                            vtkInformation* out);
-  virtual void IterativeRequestUpdateExtent(vtkInformation* in,
-                                            vtkInformation* out);
 
 private:
   vtkImageSeparableConvolution(const vtkImageSeparableConvolution&);  // Not implemented.

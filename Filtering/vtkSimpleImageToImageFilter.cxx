@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkSimpleImageToImageFilter, "1.13");
+vtkCxxRevisionMacro(vtkSimpleImageToImageFilter, "1.14");
 
 //----------------------------------------------------------------------------
 vtkSimpleImageToImageFilter::vtkSimpleImageToImageFilter()
@@ -32,7 +32,7 @@ vtkSimpleImageToImageFilter::~vtkSimpleImageToImageFilter()
 {
 }
 
-void vtkSimpleImageToImageFilter::RequestUpdateExtent (
+int vtkSimpleImageToImageFilter::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed( outputVector ))
@@ -42,9 +42,11 @@ void vtkSimpleImageToImageFilter::RequestUpdateExtent (
   // always request the whole extent
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
               inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),6);
+
+  return 1;
 }
 
-void vtkSimpleImageToImageFilter::RequestData(
+int vtkSimpleImageToImageFilter::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -64,6 +66,8 @@ void vtkSimpleImageToImageFilter::RequestData(
   output->AllocateScalars();
 
   this->SimpleExecute(input, output);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

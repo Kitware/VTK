@@ -20,7 +20,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkDEMReader, "1.37");
+vtkCxxRevisionMacro(vtkDEMReader, "1.38");
 vtkStandardNewMacro(vtkDEMReader);
 
 #define VTK_SW  0
@@ -86,7 +86,7 @@ vtkDEMReader::~vtkDEMReader()
 }
 
 //----------------------------------------------------------------------------
-void vtkDEMReader::RequestInformation (
+int vtkDEMReader::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -100,7 +100,7 @@ void vtkDEMReader::RequestInformation (
   if (!this->FileName)
     {
     vtkErrorMacro(<< "A FileName must be specified.");
-    return;
+    return 0;
     }
 
   // read the header of the file to determine dimensions, origin and spacing
@@ -118,12 +118,13 @@ void vtkDEMReader::RequestInformation (
 
   // whole dem must be read
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 // Convert to Imaging API
-void vtkDEMReader::RequestData(
+int vtkDEMReader::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector* outputVector)
@@ -140,13 +141,13 @@ void vtkDEMReader::RequestData(
   if (!this->FileName)
     {
     vtkErrorMacro(<< "A FileName must be specified.");
-    return;
+    return 0;
     }
 
   if (output->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro("Execute: This source only outputs floats.");
-    return;
+    return 1;
     }
   
 //
@@ -162,6 +163,8 @@ void vtkDEMReader::RequestData(
 
   // Name the scalars.
   output->GetPointData()->GetScalars()->SetName("Elevation");
+
+  return 1;
 }
 
 int vtkDEMReader::ReadTypeARecord ()

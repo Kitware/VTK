@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.18");
+vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.19");
 vtkStandardNewMacro(vtkImageEuclideanDistance);
 
 //----------------------------------------------------------------------------
@@ -37,21 +37,25 @@ vtkImageEuclideanDistance::vtkImageEuclideanDistance()
 
 //----------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
-void vtkImageEuclideanDistance::IterativeRequestInformation(
+int vtkImageEuclideanDistance::IterativeRequestInformation(
   vtkInformation* vtkNotUsed(input), vtkInformation* output)
 {
   output->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
   output->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageEuclideanDistance::IterativeRequestUpdateExtent(
+int vtkImageEuclideanDistance::IterativeRequestUpdateExtent(
   vtkInformation* input, vtkInformation* vtkNotUsed(output) )
 {
   int *wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),wExt,6);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -562,7 +566,7 @@ void vtkImageEuclideanDistance::AllocateOutputScalars(vtkImageData *outData)
 //----------------------------------------------------------------------------
 // This method is passed input and output Datas, and executes the
 // EuclideanDistance algorithm to fill the output from the input.
-void vtkImageEuclideanDistance::IterativeRequestData(
+int vtkImageEuclideanDistance::IterativeRequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -590,7 +594,7 @@ void vtkImageEuclideanDistance::IterativeRequestData(
   if (!inPtr)
     {
     vtkErrorMacro(<< "Execute: No scalars for update extent.")
-    return;
+    return 1;
     }
    
   
@@ -598,14 +602,14 @@ void vtkImageEuclideanDistance::IterativeRequestData(
   if (outData->GetScalarType() != VTK_DOUBLE)
     {
     vtkErrorMacro(<< "Execute: Output must be be type double.");
-    return;
+    return 1;
     }
   
   // this filter expects input to have 1 components
   if (outData->GetNumberOfScalarComponents() != 1 )
     {
     vtkErrorMacro(<< "Execute: Cannot handle more than 1 components");
-    return;
+    return 1;
     }
   
   if ( this->GetIteration() == 0 )
@@ -618,7 +622,7 @@ void vtkImageEuclideanDistance::IterativeRequestData(
                         outData, outExt, (double *)(outPtr) );
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
-        return;
+        return 1;
       } 
     } 
   else 
@@ -649,6 +653,8 @@ void vtkImageEuclideanDistance::IterativeRequestData(
     }
   
   this->UpdateProgress((this->GetIteration()+1.0)/3.0);
+
+  return 1;
 }
 
 

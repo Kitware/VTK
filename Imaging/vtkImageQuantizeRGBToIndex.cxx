@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.38");
+vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.39");
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -565,7 +565,7 @@ vtkImageQuantizeRGBToIndex::~vtkImageQuantizeRGBToIndex()
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the Datas data types.
-void vtkImageQuantizeRGBToIndex::RequestData(
+int vtkImageQuantizeRGBToIndex::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -592,7 +592,7 @@ void vtkImageQuantizeRGBToIndex::RequestData(
   if (inData->GetNumberOfScalarComponents() != 3)
     {
     vtkErrorMacro("This filter can handles only 3 components");
-    return;
+    return 1;
     }
 
   // this filter expects that output is type unsigned short.
@@ -600,7 +600,7 @@ void vtkImageQuantizeRGBToIndex::RequestData(
     {
     vtkErrorMacro(<< "Execute: out ScalarType " << outData->GetScalarType()
                   << " must be unsigned short\n");
-    return;
+    return 1;
     }
 
   this->InputType = inData->GetScalarType();
@@ -612,12 +612,14 @@ void vtkImageQuantizeRGBToIndex::RequestData(
                       outData, (unsigned short *)(outPtr));
     default:
       vtkErrorMacro(<< "Execute: This ScalarType is not handled");
-      return;
+      return 1;
     }
+
+  return 1;
 }
 
 // Change the output type and number of components
-void vtkImageQuantizeRGBToIndex::RequestInformation (
+int vtkImageQuantizeRGBToIndex::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
@@ -627,10 +629,12 @@ void vtkImageQuantizeRGBToIndex::RequestInformation (
 
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
   outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_UNSIGNED_SHORT);
+
+  return 1;
 }
 
 // Get ALL of the input.
-void vtkImageQuantizeRGBToIndex::RequestUpdateExtent(
+int vtkImageQuantizeRGBToIndex::RequestUpdateExtent(
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed(outputVector))
@@ -641,6 +645,8 @@ void vtkImageQuantizeRGBToIndex::RequestUpdateExtent(
   int inExt[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inExt);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
+
+  return 1;
 }
 
 void vtkImageQuantizeRGBToIndex::PrintSelf(ostream& os, vtkIndent indent)

@@ -60,7 +60,7 @@ protected:
   double OutputSpacing[3];
   int Dimensionality;
   
-  virtual void RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
   vtkImageResample(const vtkImageResample&);  // Not implemented.

@@ -26,7 +26,7 @@
 #include <ctype.h>
 #include <vtkstd/exception>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.46");
+vtkCxxRevisionMacro(vtkImageImport, "1.47");
 vtkStandardNewMacro(vtkImageImport);
 
 
@@ -175,7 +175,7 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageImport::RequestUpdateExtent(
+int vtkImageImport::RequestUpdateExtent(
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
@@ -190,10 +190,12 @@ void vtkImageImport::RequestUpdateExtent(
       (this->PropagateUpdateExtentCallback)(this->CallbackUserData,uExt),
       "PropagateUpdateExtentCallback: ");
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkImageImport::RequestInformation (
+int vtkImageImport::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -221,6 +223,8 @@ void vtkImageImport::RequestInformation (
   outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->DataScalarType);
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
                this->NumberOfScalarComponents);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

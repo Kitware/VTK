@@ -36,8 +36,8 @@ protected:
   vtkImageFourierCenter();
   ~vtkImageFourierCenter() {};
 
-  virtual void IterativeRequestUpdateExtent(vtkInformation* in,
-                                            vtkInformation* out);
+  virtual int IterativeRequestUpdateExtent(vtkInformation* in,
+                                           vtkInformation* out);
 
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
                        int outExt[6], int threadId);

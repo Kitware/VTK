@@ -50,9 +50,10 @@ protected:
   ~vtkImageCorrelation() {};
 
   int Dimensionality;
-  void RequestInformation (vtkInformation *, 
-                           vtkInformationVector **, vtkInformationVector *);
-  virtual void RequestUpdateExtent(vtkInformation*,
+  virtual int RequestInformation (vtkInformation *, 
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation*,
                                    vtkInformationVector**,
                                    vtkInformationVector*);
   

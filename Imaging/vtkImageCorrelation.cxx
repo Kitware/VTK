@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCorrelation, "1.30");
+vtkCxxRevisionMacro(vtkImageCorrelation, "1.31");
 vtkStandardNewMacro(vtkImageCorrelation);
 
 //----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ vtkImageCorrelation::vtkImageCorrelation()
 
 //----------------------------------------------------------------------------
 // Grow the output image 
-void vtkImageCorrelation::RequestInformation (
+int vtkImageCorrelation::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -43,11 +43,13 @@ void vtkImageCorrelation::RequestInformation (
 
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
   outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 // Grow
-void vtkImageCorrelation::RequestUpdateExtent (
+int vtkImageCorrelation::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -62,7 +64,6 @@ void vtkImageCorrelation::RequestUpdateExtent (
   inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),inWExt2);
   inInfo2->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                inWExt2, 6);
-  
   
   int inWExt1[6];
   inInfo1->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),inWExt1);
@@ -86,8 +87,9 @@ void vtkImageCorrelation::RequestUpdateExtent (
     }
   inInfo1->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                inUExt1, 6);
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.

@@ -106,8 +106,8 @@ public:
   // Reads the DEM Type A record to compute the extent, origin and
   // spacing of the image data. The number of scalar components is set
   // to 1 and the output scalar type is VTK_FLOAT. 
-  void RequestInformation (vtkInformation *, vtkInformationVector **, 
-                           vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, 
+                                  vtkInformationVector *);
 
 protected:
   vtkDEMReader();
@@ -139,9 +139,9 @@ protected:
                                       double spacing[6]);
   int ReadTypeARecord ();
   int ReadProfiles (vtkImageData *data);
-  void RequestData(  vtkInformation* request,
-                     vtkInformationVector** inputVector,
-                     vtkInformationVector* outputVector);
+  virtual int RequestData(  vtkInformation* request,
+                            vtkInformationVector** inputVector,
+                            vtkInformationVector* outputVector);
 
 private:
   vtkDEMReader(const vtkDEMReader&);  // Not implemented.

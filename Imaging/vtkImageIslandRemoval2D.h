@@ -74,9 +74,9 @@ protected:
   double IslandValue;
   double ReplaceValue;
 
-  void RequestData(vtkInformation *,
-                   vtkInformationVector **,
-                   vtkInformationVector *);
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *);
 
 private:
   vtkImageIslandRemoval2D(const vtkImageIslandRemoval2D&);  // Not implemented.

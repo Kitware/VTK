@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImagePadFilter, "1.32");
+vtkCxxRevisionMacro(vtkImagePadFilter, "1.33");
 vtkStandardNewMacro(vtkImagePadFilter);
 
 //----------------------------------------------------------------------------
@@ -86,7 +86,7 @@ void vtkImagePadFilter::GetOutputWholeExtent(int extent[6])
 
 //----------------------------------------------------------------------------
 // Just change the Image extent.
-void vtkImagePadFilter::RequestInformation (
+int vtkImagePadFilter::RequestInformation (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -112,6 +112,8 @@ void vtkImagePadFilter::RequestInformation (
     }
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
                this->OutputNumberOfScalarComponents);
+
+  return 1;
 }
 
 void vtkImagePadFilter::ComputeInputUpdateExtent (int inExt[6], 
@@ -146,7 +148,7 @@ void vtkImagePadFilter::ComputeInputUpdateExtent (int inExt[6],
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImagePadFilter::RequestUpdateExtent (
+int vtkImagePadFilter::RequestUpdateExtent (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -165,6 +167,8 @@ void vtkImagePadFilter::RequestUpdateExtent (
   this->ComputeInputUpdateExtent(inExt, inExt, wholeExtent);
   
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
+
+  return 1;
 }
 
 void vtkImagePadFilter::PrintSelf(ostream& os, vtkIndent indent)

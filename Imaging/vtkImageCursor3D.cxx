@@ -19,7 +19,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCursor3D, "1.20");
+vtkCxxRevisionMacro(vtkImageCursor3D, "1.21");
 vtkStandardNewMacro(vtkImageCursor3D);
 
 //----------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void vtkImageCursor3DExecute(vtkImageCursor3D *self,
 
 //----------------------------------------------------------------------------
 // Split up into finished and border datas.  Fill the border datas.
-void vtkImageCursor3D::RequestData(
+int vtkImageCursor3D::RequestData(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -131,9 +131,10 @@ void vtkImageCursor3D::RequestData(
                       outData, (VTK_TT *)(ptr));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
-      return;
+      return 1;
     }
-  
+
+  return 1;
 }
 
 

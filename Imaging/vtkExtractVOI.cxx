@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVOI, "1.42");
+vtkCxxRevisionMacro(vtkExtractVOI, "1.43");
 vtkStandardNewMacro(vtkExtractVOI);
 
 //-----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ vtkExtractVOI::vtkExtractVOI()
 
 //-----------------------------------------------------------------------------
 // Get ALL of the input.
-void vtkExtractVOI::RequestUpdateExtent (
+int vtkExtractVOI::RequestUpdateExtent (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed( outputVector ))
@@ -63,10 +63,12 @@ void vtkExtractVOI::RequestUpdateExtent (
       }
     }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
+
+  return 1;
 }
 
 //-----------------------------------------------------------------------------
-void 
+int 
 vtkExtractVOI::RequestInformation (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
@@ -135,10 +137,12 @@ vtkExtractVOI::RequestInformation (
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent ,6);
   outInfo->Set(vtkDataObject::SPACING(), outAR, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
+
+  return 1;
 }
 
 //-----------------------------------------------------------------------------
-void vtkExtractVOI::RequestData(
+int vtkExtractVOI::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -231,7 +235,7 @@ void vtkExtractVOI::RequestData(
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
     vtkDebugMacro(<<"Passed data through because input and output are the same");
-    return;
+    return 1;
     }
   //
   // Allocate necessary objects
@@ -294,6 +298,8 @@ void vtkExtractVOI::RequestData(
   vtkDebugMacro(<<"Extracted " << newIdx << " point attributes on "
   << dim << "-D dataset\n\tDimensions are (" << outDims[0]
   << "," << outDims[1] << "," << outDims[2] <<")");
+
+  return 1;
 }
 
 

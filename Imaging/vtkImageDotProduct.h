@@ -39,8 +39,9 @@ protected:
   vtkImageDotProduct();
   ~vtkImageDotProduct() {};
 
-  void RequestInformation (vtkInformation *, 
-                           vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, 
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
   
   virtual void ThreadedRequestData(vtkInformation *request, 
                                    vtkInformationVector **inputVector, 

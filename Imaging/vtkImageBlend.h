@@ -121,16 +121,18 @@ protected:
   vtkImageBlend();
   ~vtkImageBlend();
 
-  void RequestUpdateExtent(vtkInformation *, 
-                           vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, 
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
 
   void InternalComputeInputUpdateExtent(int inExt[6], int outExt[6],
                                         int inWExtent[6]);
 
   
 
-  void RequestInformation (vtkInformation *, 
-                           vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, 
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
 
   void ThreadedRequestData (vtkInformation* request,
                             vtkInformationVector** inputVector,
@@ -142,9 +144,9 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
   // see vtkAlgorithm for docs.
-  virtual void RequestData(vtkInformation* request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector);
+  virtual int RequestData(vtkInformation* request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
   
   double *Opacity;
   int OpacityArrayLength;

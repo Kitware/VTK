@@ -20,7 +20,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.31");
+vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.32");
 vtkStandardNewMacro(vtkImageEllipsoidSource);
 
 //----------------------------------------------------------------------------
@@ -105,7 +105,7 @@ void vtkImageEllipsoidSource::GetWholeExtent(int extent[6])
 }
 
 //----------------------------------------------------------------------------
-void vtkImageEllipsoidSource::RequestInformation (
+int vtkImageEllipsoidSource::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -117,6 +117,7 @@ void vtkImageEllipsoidSource::RequestInformation (
                this->WholeExtent, 6);
   outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->OutputScalarType);
 
+  return 1;
 }
 
 template <class T>
@@ -229,7 +230,7 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageEllipsoidSource::RequestData(
+int vtkImageEllipsoidSource::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -254,11 +255,6 @@ void vtkImageEllipsoidSource::RequestData(
     default:
       vtkErrorMacro("Execute: Unknown output ScalarType");
     }
+
+  return 1;
 }
-
-
-
-
-
-
-

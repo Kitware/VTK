@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGaussianSplatter, "1.57");
+vtkCxxRevisionMacro(vtkGaussianSplatter, "1.58");
 vtkStandardNewMacro(vtkGaussianSplatter);
 
 // Construct object with dimensions=(50,50,50); automatic computation of 
@@ -59,7 +59,7 @@ vtkGaussianSplatter::vtkGaussianSplatter()
   this->NullValue = 0.0;
 }
 
-void vtkGaussianSplatter::RequestInformation (
+int vtkGaussianSplatter::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -100,9 +100,11 @@ void vtkGaussianSplatter::RequestInformation (
                0, this->SampleDimensions[2] - 1);
   outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
+
+  return 1;
 }
 
-void vtkGaussianSplatter::RequestData(
+int vtkGaussianSplatter::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -138,7 +140,7 @@ void vtkGaussianSplatter::RequestData(
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"No points to splat!");
-    return;
+    return 1;
     }
 
   //  Compute the radius of influence of the points.  If an
@@ -265,6 +267,8 @@ void vtkGaussianSplatter::RequestData(
   // Update self and release memeory
   //
   delete [] this->Visited;
+
+  return 1;
 }
 
 // Compute the size of the sample bounding box automatically from the

@@ -223,9 +223,9 @@ protected:
   int FileNameSliceOffset;
   int FileNameSliceSpacing;
   
-  virtual void RequestInformation(vtkInformation* request,
-                                  vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector);
+  virtual int RequestInformation(vtkInformation* request,
+                                 vtkInformationVector** inputVector,
+                                 vtkInformationVector* outputVector);
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *data);
   virtual void ComputeDataIncrements();

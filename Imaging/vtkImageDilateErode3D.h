@@ -65,9 +65,9 @@ protected:
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
                            int extent[6], int id);
-  void RequestData(vtkInformation *request,
-                   vtkInformationVector **inputVector,
-                   vtkInformationVector *outputVector);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector **inputVector,
+                          vtkInformationVector *outputVector);
 
 private:
   vtkImageDilateErode3D(const vtkImageDilateErode3D&);  // Not implemented.

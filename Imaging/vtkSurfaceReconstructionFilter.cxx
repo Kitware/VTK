@@ -26,7 +26,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.32");
+vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.33");
 vtkStandardNewMacro(vtkSurfaceReconstructionFilter);
 
 vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
@@ -116,7 +116,7 @@ int vtkSurfaceReconstructionFilter::FillInputPortInformation(
   return 1;
 }
 
-void vtkSurfaceReconstructionFilter::RequestInformation (
+int vtkSurfaceReconstructionFilter::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -130,6 +130,8 @@ void vtkSurfaceReconstructionFilter::RequestInformation (
   // would be nice to compute the whole extent but we need more info to
   // compute it.
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),0,0,0,0,0,0);
+
+  return 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -147,7 +149,7 @@ struct SurfacePoint
 };
 
 //-----------------------------------------------------------------------------
-void vtkSurfaceReconstructionFilter::RequestData(
+int vtkSurfaceReconstructionFilter::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -171,7 +173,7 @@ void vtkSurfaceReconstructionFilter::RequestData(
   if ( COUNT < 1 )
     {
     vtkErrorMacro(<<"No points to reconstruct");
-    return;
+    return 1;
     }
   surfacePoints = new SurfacePoint[COUNT];
   
@@ -349,7 +351,7 @@ void vtkSurfaceReconstructionFilter::RequestData(
       if(connectedVisited == cheapestNearby)
         {
         vtkErrorMacro (<< "Internal error in vtkSurfaceReconstructionFilter");
-        return;
+        return 0;
         }
       
       // correct the orientation of the point if necessary
@@ -363,7 +365,7 @@ void vtkSurfaceReconstructionFilter::RequestData(
       if(surfacePoints[cheapestNearby].isVisited != 0)
         {
         vtkErrorMacro (<< "Internal error in vtkSurfaceReconstructionFilter");
-        return;
+        return 0;
         }
       
       surfacePoints[cheapestNearby].isVisited = 1;
@@ -475,7 +477,7 @@ void vtkSurfaceReconstructionFilter::RequestData(
         if(iClosestPoint==-1) 
           {
           vtkErrorMacro (<< "Internal error");
-          return;
+          return 0;
           }
         vtkCopyBToA(temp,point);
         vtkSubtractBFromA(temp,surfacePoints[iClosestPoint].loc);
@@ -491,6 +493,8 @@ void vtkSurfaceReconstructionFilter::RequestData(
   //time(&t4);
   // Clear up everything
   delete [] surfacePoints;
+
+  return 1;
 }
 
 void vtkSurfaceReconstructionFilter::PrintSelf(ostream& os, vtkIndent indent)

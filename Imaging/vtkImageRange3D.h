@@ -45,17 +45,17 @@ protected:
 
   vtkImageEllipsoidSource *Ellipse;
     
-  void RequestInformation (vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+  virtual int RequestInformation (vtkInformation *request,
+                                  vtkInformationVector **inputVector,
+                                  vtkInformationVector *outputVector);
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData, 
                            int extent[6], int id);
-  void RequestData(vtkInformation *request,
-                   vtkInformationVector **inputVector,
-                   vtkInformationVector *outputVector);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector **inputVector,
+                          vtkInformationVector *outputVector);
 
 private:
   vtkImageRange3D(const vtkImageRange3D&);  // Not implemented.

@@ -38,9 +38,9 @@ protected:
   vtkImageInPlaceFilter();
   ~vtkImageInPlaceFilter();
 
-  virtual void RequestData(vtkInformation *request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
 
   void CopyData(vtkImageData *in, vtkImageData *out);
   

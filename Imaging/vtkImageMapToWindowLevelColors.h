@@ -56,15 +56,15 @@ protected:
   vtkImageMapToWindowLevelColors();
   ~vtkImageMapToWindowLevelColors();
 
-  void RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
                            int extent[6], int id);
-  void RequestData(vtkInformation *request,
-                   vtkInformationVector **inputVector,
-                   vtkInformationVector *outputVector);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector **inputVector,
+                          vtkInformationVector *outputVector);
 
   double Window;
   double Level;

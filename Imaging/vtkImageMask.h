@@ -88,8 +88,9 @@ protected:
   int NotMask;
   double MaskAlpha;
   
-  void RequestInformation (vtkInformation *, 
-                           vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, 
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
   
  
   virtual void ThreadedRequestData(vtkInformation *request, 

@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBooleanTexture, "1.42");
+vtkCxxRevisionMacro(vtkBooleanTexture, "1.43");
 vtkStandardNewMacro(vtkBooleanTexture);
 
 vtkBooleanTexture::vtkBooleanTexture()
@@ -44,7 +44,7 @@ vtkBooleanTexture::vtkBooleanTexture()
 }
 
 //----------------------------------------------------------------------------
-void vtkBooleanTexture::RequestInformation (
+int vtkBooleanTexture::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -63,6 +63,8 @@ void vtkBooleanTexture::RequestInformation (
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wExt,6);
   outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_UNSIGNED_CHAR);
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),2);
+
+  return 1;
 }
 
 void vtkBooleanTexture::ExecuteData(vtkDataObject *outp)

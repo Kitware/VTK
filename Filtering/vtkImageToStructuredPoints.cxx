@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.59");
+vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.60");
 vtkStandardNewMacro(vtkImageToStructuredPoints);
 
 //----------------------------------------------------------------------------
@@ -65,7 +65,7 @@ vtkImageData *vtkImageToStructuredPoints::GetVectorInput()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageToStructuredPoints::RequestData(
+int vtkImageToStructuredPoints::RequestData(
   vtkInformation *,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -136,7 +136,7 @@ void vtkImageToStructuredPoints::RequestData(
       if(!inPtr || !outPtr)
         {
         output->Initialize();
-        return;
+        return 1;
         }
 
       // Get increments to march through data 
@@ -184,7 +184,7 @@ void vtkImageToStructuredPoints::RequestData(
       if(!inPtr2)
         {
         output->Initialize();
-        return;
+        return 1;
         }
 
       fv->SetNumberOfComponents(3);
@@ -212,11 +212,13 @@ void vtkImageToStructuredPoints::RequestData(
       fv->Delete();
       }
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 // Copy WholeExtent, Spacing and Origin.
-void vtkImageToStructuredPoints::RequestInformation (
+int vtkImageToStructuredPoints::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -267,10 +269,12 @@ void vtkImageToStructuredPoints::RequestInformation (
   // How about xyx arrays in RectilinearGrid of Points in StructuredGrid?
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   outInfo->Set(vtkDataObject::SPACING(),spacing,3);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkImageToStructuredPoints::RequestUpdateExtent(
+int vtkImageToStructuredPoints::RequestUpdateExtent(
   vtkInformation *,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -295,6 +299,8 @@ void vtkImageToStructuredPoints::RequestUpdateExtent(
     {
     vInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

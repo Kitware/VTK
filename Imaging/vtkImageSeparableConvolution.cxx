@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.15");
+vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.16");
 vtkStandardNewMacro(vtkImageSeparableConvolution);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution,XKernel,vtkFloatArray);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution,YKernel,vtkFloatArray);
@@ -129,18 +129,20 @@ vtkImageSeparableConvolution::vtkImageSeparableConvolution()
 
 //----------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
-void vtkImageSeparableConvolution::IterativeRequestInformation(
+int vtkImageSeparableConvolution::IterativeRequestInformation(
   vtkInformation* vtkNotUsed(input), vtkInformation* output)
 {
   output->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
   output->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
 
-void vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
+int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
   vtkInformation* input, vtkInformation* output)
 {
   int *wholeExtent = 
@@ -185,6 +187,8 @@ void vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
     }
   
   input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
+
+  return 1;
 }
 
 template <class T>
@@ -317,7 +321,7 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
 
 //----------------------------------------------------------------------------
 // This is writen as a 1D execute method, but is called several times.
-void vtkImageSeparableConvolution::IterativeRequestData(
+int vtkImageSeparableConvolution::IterativeRequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -338,7 +342,7 @@ void vtkImageSeparableConvolution::IterativeRequestData(
     if ( 1 - ( XKernel->GetNumberOfTuples() % 2 ) )
       {
       vtkErrorMacro ( << "Execute:  XKernel must have odd length" );
-      return;
+      return 1;
       }
     }
   if ( YKernel )
@@ -347,7 +351,7 @@ void vtkImageSeparableConvolution::IterativeRequestData(
     if ( 1 - ( YKernel->GetNumberOfTuples() % 2 ) )
       {
       vtkErrorMacro ( << "Execute:  YKernel must have odd length" );
-      return;
+      return 1;
       }
     }
   if ( ZKernel )
@@ -356,21 +360,21 @@ void vtkImageSeparableConvolution::IterativeRequestData(
     if ( 1 - ( ZKernel->GetNumberOfTuples() % 2 ) )
       {
       vtkErrorMacro ( << "Execute:  ZKernel must have odd length" );
-      return;
+      return 1;
       }
     }
   
   if (inData->GetNumberOfScalarComponents() != 1)
     {
     vtkErrorMacro(<< "ImageSeparableConvolution only works on 1 component input for the moment.");
-    return;
+    return 1;
     }
   
   // this filter expects that the output be floats.
   if (outData->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: Output must be be type float.");
-    return;
+    return 1;
     }
 
   // choose which templated function to call.
@@ -379,10 +383,11 @@ void vtkImageSeparableConvolution::IterativeRequestData(
     vtkTemplateMacro4(vtkImageSeparableConvolutionExecute, this, inData, outData, static_cast<VTK_TT*>(0) );
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
-      return;
+      return 1;
     }
-}
 
+  return 1;
+}
 
 void vtkImageSeparableConvolution::PrintSelf(ostream& os, vtkIndent indent)
 {

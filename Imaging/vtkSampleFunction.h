@@ -124,8 +124,9 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector*);
 
   void ExecuteData(vtkDataObject *);
-  void RequestInformation (vtkInformation *, 
-                           vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, 
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
   void Cap(vtkDataArray *s);
 
   int OutputScalarType;

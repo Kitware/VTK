@@ -41,9 +41,9 @@ protected:
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
                            int outExt[6], int id);
-  void RequestInformation (vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+  virtual int RequestInformation (vtkInformation *request,
+                                  vtkInformationVector **inputVector,
+                                  vtkInformationVector *outputVector);
 
 private:
   vtkImageSobel2D(const vtkImageSobel2D&);  // Not implemented.

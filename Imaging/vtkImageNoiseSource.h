@@ -56,7 +56,7 @@ protected:
   double Maximum;
   int WholeExtent[6];
 
-  virtual void RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *data);
 private:
   vtkImageNoiseSource(const vtkImageNoiseSource&);  // Not implemented.

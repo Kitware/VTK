@@ -91,9 +91,9 @@ protected:
   
   char *ScalarArrayName;
   
-  virtual void RequestInformation(vtkInformation* request,
-                                  vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector);
+  virtual int RequestInformation(vtkInformation* request,
+                                 vtkInformationVector** inputVector,
+                                 vtkInformationVector* outputVector);
 
   void ExecuteData(vtkDataObject *data);
 private:

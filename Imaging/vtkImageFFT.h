@@ -52,10 +52,10 @@ protected:
   vtkImageFFT() {};
   ~vtkImageFFT() {};
 
-  virtual void IterativeRequestInformation(vtkInformation* in,
+  virtual int IterativeRequestInformation(vtkInformation* in,
+                                          vtkInformation* out);
+  virtual int IterativeRequestUpdateExtent(vtkInformation* in,
                                            vtkInformation* out);
-  virtual void IterativeRequestUpdateExtent(vtkInformation* in,
-                                            vtkInformation* out);
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
                        int outExt[6], int threadId);

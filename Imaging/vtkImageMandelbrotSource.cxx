@@ -21,7 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.39");
+vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.40");
 vtkStandardNewMacro(vtkImageMandelbrotSource);
 
 //----------------------------------------------------------------------------
@@ -234,7 +234,7 @@ void vtkImageMandelbrotSource::GetSizeCX(double s[4])
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMandelbrotSource::RequestInformation (
+int vtkImageMandelbrotSource::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -268,6 +268,8 @@ void vtkImageMandelbrotSource::RequestInformation (
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
   outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -91,9 +91,9 @@ protected:
   
   // This is called by the superclass.
   // This is the method you should override.
-  virtual void RequestData(vtkInformation *request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
 
   int MinimumFileNumber;
   int MaximumFileNumber;

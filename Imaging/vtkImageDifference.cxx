@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDifference, "1.37");
+vtkCxxRevisionMacro(vtkImageDifference, "1.38");
 vtkStandardNewMacro(vtkImageDifference);
 
 // Construct object to extract all of the input data.
@@ -98,7 +98,7 @@ if (this->Averaging && \
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
-void vtkImageDifference::RequestUpdateExtent(
+int vtkImageDifference::RequestUpdateExtent(
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -156,6 +156,8 @@ void vtkImageDifference::RequestUpdateExtent(
       }
     }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),uExt,6);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -361,7 +363,7 @@ void vtkImageDifference::ThreadedRequestData(
 //----------------------------------------------------------------------------
 //Make the output the intersection of the inputs, of course the inputs better
 //be the same size
-void vtkImageDifference::RequestInformation (
+int vtkImageDifference::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -410,6 +412,8 @@ void vtkImageDifference::RequestInformation (
       }
     }
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext,6);
+
+  return 1;
 }
 
 double vtkImageDifference::GetError()

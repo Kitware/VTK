@@ -44,26 +44,26 @@ protected:
 
   // Implement standard requests by calling iterative versions the
   // specified number of times.
-  virtual void RequestUpdateExtent(vtkInformation*,
-                                   vtkInformationVector**,
-                                   vtkInformationVector*);
-  virtual void RequestInformation (vtkInformation*,
-                                   vtkInformationVector**,
-                                   vtkInformationVector*);
-  virtual void RequestData(vtkInformation* request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector);
+  virtual int RequestUpdateExtent(vtkInformation*,
+                                  vtkInformationVector**,
+                                  vtkInformationVector*);
+  virtual int RequestInformation (vtkInformation*,
+                                  vtkInformationVector**,
+                                  vtkInformationVector*);
+  virtual int RequestData(vtkInformation* request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
 
   // Iterative versions of standard requests.  These are given the
   // pipeline information object for the in/out pair at each
   // iteration.
-  virtual void IterativeRequestInformation(vtkInformation* in,
+  virtual int IterativeRequestInformation(vtkInformation* in,
+                                          vtkInformation* out);
+  virtual int IterativeRequestUpdateExtent(vtkInformation* in,
                                            vtkInformation* out);
-  virtual void IterativeRequestUpdateExtent(vtkInformation* in,
-                                            vtkInformation* out);
-  virtual void IterativeRequestData(vtkInformation*,
-                                    vtkInformationVector**,
-                                    vtkInformationVector*);
+  virtual int IterativeRequestData(vtkInformation*,
+                                   vtkInformationVector**,
+                                   vtkInformationVector*);
 
   virtual void SetNumberOfIterations(int num);
 

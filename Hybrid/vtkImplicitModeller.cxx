@@ -37,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.93");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.94");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -681,7 +681,7 @@ void vtkImplicitModeller::EndAppend()
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitModeller::RequestInformation (
+int vtkImplicitModeller::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -715,11 +715,12 @@ void vtkImplicitModeller::RequestInformation (
     }
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   outInfo->Set(vtkDataObject::SPACING(),ar,3);
+
+  return 1;
 }
 
-
 //----------------------------------------------------------------------------
-void vtkImplicitModeller::RequestData(
+int vtkImplicitModeller::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed( outputVector ))
@@ -735,12 +736,14 @@ void vtkImplicitModeller::RequestData(
     {
     // we do not want to release the data because user might
     // have called Append ...
-    return;
+    return 0;
     }
 
   this->StartAppend(1);
   this->Append(input);
   this->EndAppend();
+
+  return 1;
 }
 
 // Compute ModelBounds from input geometry.

@@ -48,9 +48,9 @@ protected:
   // to translate the wholeExtent to have min 0 ( I do not like this hack).
   int Translate[3];
   
-  virtual void RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual void RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual void RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
   virtual int FillInputPortInformation(int, vtkInformation*);

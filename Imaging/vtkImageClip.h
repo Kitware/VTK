@@ -69,17 +69,17 @@ protected:
 
   int ClipData;
   
-  void RequestInformation (vtkInformation *,
-                           vtkInformationVector **,
-                           vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *,
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
 
   void CopyData(vtkImageData *inData, vtkImageData *outData, int *ext);
 
   int SplitExtentTmp(int piece, int numPieces, int *ext);
 
-  virtual void RequestData(vtkInformation *,
-                           vtkInformationVector **,
-                           vtkInformationVector *);
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *);
 
 private:
   vtkImageClip(const vtkImageClip&);  // Not implemented.

@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.57");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.58");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -269,7 +269,7 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the Datas data types.
-void vtkImageAccumulate::RequestData(
+int vtkImageAccumulate::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -301,7 +301,7 @@ void vtkImageAccumulate::RequestData(
   if (inData->GetNumberOfScalarComponents() > 3)
     {
     vtkErrorMacro("This filter can handle upto 3 components");
-    return;
+    return 1;
     }
   
   // this filter expects that output is type int.
@@ -309,7 +309,7 @@ void vtkImageAccumulate::RequestData(
     {
     vtkErrorMacro(<< "Execute: out ScalarType " << outData->GetScalarType()
                   << " must be int\n");
-    return;
+    return 1;
     }
   
   switch (inData->GetScalarType())
@@ -322,13 +322,15 @@ void vtkImageAccumulate::RequestData(
                        this->StandardDeviation, &this->VoxelCount);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
-      return;
+      return 1;
     }
+
+  return 1;
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageAccumulate::RequestInformation (
+int vtkImageAccumulate::RequestInformation (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -353,11 +355,13 @@ void vtkImageAccumulate::RequestInformation (
     inInfo2->Set(vtkDataObject::ORIGIN(),
                  inInfo->Get(vtkDataObject::ORIGIN()),3);
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 // Get ALL of the input.
-void vtkImageAccumulate::RequestUpdateExtent (
+int vtkImageAccumulate::RequestUpdateExtent (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed( outputVector ))
@@ -367,8 +371,9 @@ void vtkImageAccumulate::RequestUpdateExtent (
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
               inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),6);
-}
 
+  return 1;
+}
 
 int vtkImageAccumulate::FillInputPortInformation(
   int port, vtkInformation* info)

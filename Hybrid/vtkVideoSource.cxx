@@ -69,7 +69,7 @@
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
-vtkCxxRevisionMacro(vtkVideoSource, "1.41");
+vtkCxxRevisionMacro(vtkVideoSource, "1.42");
 vtkStandardNewMacro(vtkVideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
@@ -933,7 +933,7 @@ double vtkVideoSource::GetFrameTimeStamp(int frame)
 
 //----------------------------------------------------------------------------
 // This method returns the largest data that can be generated.
-void vtkVideoSource::RequestInformation(
+int vtkVideoSource::RequestInformation(
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
@@ -988,6 +988,8 @@ void vtkVideoSource::RequestInformation(
   outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_CHAR);
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
                this->NumberOfScalarComponents);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -1017,7 +1019,7 @@ void vtkVideoSource::UnpackRasterLine(char *outPtr, char *rowPtr,
 // it unless you have to.  Override the UnpackRasterLine() method instead.
 // You should only have to override it if you are using something other 
 // than 8-bit vtkUnsignedCharArray for the frame buffer.
-void vtkVideoSource::RequestData(
+int vtkVideoSource::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *vtkNotUsed(outputVector))
@@ -1220,8 +1222,6 @@ void vtkVideoSource::RequestData(
     }
 
   this->FrameBufferMutex->Unlock();
+
+  return 1;
 }
-
-
-
-

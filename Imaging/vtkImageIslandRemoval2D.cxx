@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.45");
+vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.46");
 vtkStandardNewMacro(vtkImageIslandRemoval2D);
 
 //----------------------------------------------------------------------------
@@ -474,7 +474,7 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
 // This method uses the input data to fill the output data.
 // It can handle any type data, but the two datas must have the same 
 // data type.  Assumes that in and out have the same lower extent.
-void vtkImageIslandRemoval2D::RequestData(
+int vtkImageIslandRemoval2D::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -509,7 +509,7 @@ void vtkImageIslandRemoval2D::RequestData(
                   << vtkImageScalarTypeNameMacro(inData->GetScalarType())
                   << ", must match out ScalarType "
                   << vtkImageScalarTypeNameMacro(outData->GetScalarType()));
-    return;
+    return 1;
     }
 
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
@@ -522,8 +522,10 @@ void vtkImageIslandRemoval2D::RequestData(
                       (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr), outExt);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
-      return;
-    }  
+      return 1;
+    }
+
+  return 1;
 }
 
 

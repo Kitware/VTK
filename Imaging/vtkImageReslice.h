@@ -316,8 +316,8 @@ protected:
   vtkAbstractTransform *OptimizedTransform;
 
   void GetAutoCroppedOutputBounds(vtkInformation *inInfo, double bounds[6]);
-  virtual void RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual void RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,

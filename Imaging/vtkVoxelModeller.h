@@ -71,14 +71,14 @@ protected:
   ~vtkVoxelModeller() {};
 
   
-  virtual void RequestInformation (vtkInformation *, 
-                                   vtkInformationVector **, 
-                                   vtkInformationVector *);
+  virtual int RequestInformation (vtkInformation *, 
+                                  vtkInformationVector **, 
+                                  vtkInformationVector *);
 
   // see vtkAlgorithm for details
-  virtual void RequestData(vtkInformation *request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
 
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);

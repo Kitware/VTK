@@ -21,16 +21,18 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRFFT, "1.32");
+vtkCxxRevisionMacro(vtkImageRFFT, "1.33");
 vtkStandardNewMacro(vtkImageRFFT);
 
 //----------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
-void vtkImageRFFT::IterativeRequestInformation(
+int vtkImageRFFT::IterativeRequestInformation(
   vtkInformation* vtkNotUsed(input), vtkInformation* output)
 {
   output->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),2);
   output->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
+
+  return 1;
 }
 
 void vtkImageRFFTInternalRequestUpdateExtent(int *inExt, int *outExt, 
@@ -45,7 +47,7 @@ void vtkImageRFFTInternalRequestUpdateExtent(int *inExt, int *outExt,
 //----------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageRFFT::IterativeRequestUpdateExtent(
+int vtkImageRFFT::IterativeRequestUpdateExtent(
   vtkInformation* input, vtkInformation* output)
 {
   int *outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
@@ -53,6 +55,8 @@ void vtkImageRFFT::IterativeRequestUpdateExtent(
   int inExt[6];
   vtkImageRFFTInternalRequestUpdateExtent(inExt,outExt,wExt,this->Iteration);
   input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

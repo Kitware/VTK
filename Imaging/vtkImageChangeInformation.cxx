@@ -21,7 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageChangeInformation, "1.22");
+vtkCxxRevisionMacro(vtkImageChangeInformation, "1.23");
 vtkStandardNewMacro(vtkImageChangeInformation);
 
 //----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ void vtkImageChangeInformation::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Change the information
-void vtkImageChangeInformation::RequestInformation (
+int vtkImageChangeInformation::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -188,20 +188,22 @@ void vtkImageChangeInformation::RequestInformation (
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
   outInfo->Set(vtkDataObject::SPACING(),spacing,3);
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
+
+  return 1;
 }
 
 
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageChangeInformation::RequestData(
+int vtkImageChangeInformation::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
   if (this->FinalExtentTranslation[0] == VTK_INT_MAX)
     {
-    vtkErrorMacro("Bug in code, ExecuteInformation was not called");
-    return;
+    vtkErrorMacro("Bug in code, RequestInformation was not called");
+    return 0;
     }
 
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -222,10 +224,12 @@ void vtkImageChangeInformation::RequestData(
     }
   outData->SetExtent(extent);
   outData->GetPointData()->PassData(inData->GetPointData());
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkImageChangeInformation::RequestUpdateExtent (
+int vtkImageChangeInformation::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -237,7 +241,7 @@ void vtkImageChangeInformation::RequestUpdateExtent (
   if (this->FinalExtentTranslation[0] == VTK_INT_MAX)
     {
     vtkErrorMacro("Bug in code.");
-    return;
+    return 0;
     }
 
   int inExt[6];
@@ -251,6 +255,8 @@ void vtkImageChangeInformation::RequestUpdateExtent (
   inExt[5] -= this->FinalExtentTranslation[2];
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
+
+  return 1;
 }
 
 int vtkImageChangeInformation::FillInputPortInformation(

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageExtractComponents, "1.32");
+vtkCxxRevisionMacro(vtkImageExtractComponents, "1.33");
 vtkStandardNewMacro(vtkImageExtractComponents);
 
 //----------------------------------------------------------------------------
@@ -107,7 +107,7 @@ void vtkImageExtractComponents::SetComponents(int c1)
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that only one component will remain.
-void vtkImageExtractComponents::RequestInformation (
+int vtkImageExtractComponents::RequestInformation (
   vtkInformation       * vtkNotUsed( request ),
   vtkInformationVector ** vtkNotUsed( inputVector ), 
   vtkInformationVector * outputVector)
@@ -116,6 +116,8 @@ void vtkImageExtractComponents::RequestInformation (
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
                this->NumberOfComponents);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

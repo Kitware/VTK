@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFourierCenter, "1.19");
+vtkCxxRevisionMacro(vtkImageFourierCenter, "1.20");
 vtkStandardNewMacro(vtkImageFourierCenter);
 
 //----------------------------------------------------------------------------
@@ -34,7 +34,7 @@ vtkImageFourierCenter::vtkImageFourierCenter()
 //----------------------------------------------------------------------------
 // This method tells the superclass which input extent is needed.
 // This gets the whole input (even though it may not be needed).
-void vtkImageFourierCenter::IterativeRequestUpdateExtent(
+int vtkImageFourierCenter::IterativeRequestUpdateExtent(
   vtkInformation* input, vtkInformation* output)
 {
   int *outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
@@ -44,6 +44,8 @@ void vtkImageFourierCenter::IterativeRequestUpdateExtent(
   inExt[this->Iteration*2] = wExt[this->Iteration*2];
   inExt[this->Iteration*2 + 1] = wExt[this->Iteration*2 + 1];  
   input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -67,18 +67,18 @@ protected:
   ~vtkImageAlgorithm();
 
   // convinience method
-  virtual void RequestInformation(vtkInformation* request,
-                                  vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector);
-  virtual void RequestUpdateExtent(vtkInformation*,
-                                   vtkInformationVector**,
-                                   vtkInformationVector*);
+  virtual int RequestInformation(vtkInformation* request,
+                                 vtkInformationVector** inputVector,
+                                 vtkInformationVector* outputVector);
+  virtual int RequestUpdateExtent(vtkInformation*,
+                                  vtkInformationVector**,
+                                  vtkInformationVector*);
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual void RequestData(vtkInformation *request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
 
   // Description:
   // This method is the old style execute method

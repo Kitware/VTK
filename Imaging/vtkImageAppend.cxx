@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAppend, "1.27");
+vtkCxxRevisionMacro(vtkImageAppend, "1.28");
 vtkStandardNewMacro(vtkImageAppend);
 
 //----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ vtkImageAppend::~vtkImageAppend()
 
 //----------------------------------------------------------------------------
 // This method tells the ouput it will have more components
-void vtkImageAppend::RequestInformation (
+int vtkImageAppend::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -127,6 +127,8 @@ void vtkImageAppend::RequestInformation (
     outExt[this->AppendAxis*2 + 1] = max;
     outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),outExt,6);
     }
+
+  return 1;
 }
 
 void vtkImageAppend::InternalComputeInputUpdateExtent(
@@ -180,7 +182,7 @@ void vtkImageAppend::InternalComputeInputUpdateExtent(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageAppend::RequestUpdateExtent(
+int vtkImageAppend::RequestUpdateExtent(
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -210,9 +212,9 @@ void vtkImageAppend::RequestUpdateExtent(
     
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
     }
+
+  return 1;
 }
-
-
 
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.

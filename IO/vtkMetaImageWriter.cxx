@@ -26,7 +26,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.9");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.10");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
@@ -59,7 +59,7 @@ char* vtkMetaImageWriter::GetRAWFileName()
   return this->Superclass::GetFileName();
 }
 
-void vtkMetaImageWriter::RequestData(
+int vtkMetaImageWriter::RequestData(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -72,13 +72,13 @@ void vtkMetaImageWriter::RequestData(
   if (input == NULL )
     {
     vtkErrorMacro(<<"Write:Please specify an input!");
-    return;
+    return 0;
     }
 
   if ( !this->MHDFileName )
     {
     vtkErrorMacro("Output file name not specified");
-    return;
+    return 0;
     }
 
   if ( !this->GetRAWFileName() )
@@ -113,7 +113,7 @@ void vtkMetaImageWriter::RequestData(
   if ( !ofs_with_warning_C4701 )
     {
     vtkErrorMacro("Cannot open file: " << this->MHDFileName << " for writing");
-    return;
+    return 0;
     }
 
   int ndims = 3;
@@ -148,7 +148,7 @@ void vtkMetaImageWriter::RequestData(
     default:
       vtkErrorMacro("Unknown scalar type: " 
                     << inInfo->Get(vtkDataObject::SCALAR_TYPE()));
-      return;
+      return 1;
     }
   
   origin[0] += ext[0] * spacing[0];
@@ -194,7 +194,7 @@ void vtkMetaImageWriter::RequestData(
     << (inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()) > 1?"_ARRAY":"") << endl
     << "ElementDataFile = " << data_file << endl;
   this->SetFileDimensionality(ndims);
-  this->Superclass::RequestData(request,inputVector,outputVector);
+  return this->Superclass::RequestData(request,inputVector,outputVector);
 }
 
 //----------------------------------------------------------------------------
