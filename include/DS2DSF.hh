@@ -23,7 +23,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "DataSetF.hh"
 #include "DataSet.hh"
 
-class vlDataSetToDataSetFilter : public vlDataSetFilter,  public vlDataSet 
+class vlDataSetToDataSetFilter : public vlDataSet, public vlDataSetFilter
 {
 public:
   vlDataSetToDataSetFilter();
