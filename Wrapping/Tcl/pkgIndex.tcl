@@ -1,4 +1,5 @@
 # Tcl package index file, version 1.0
+uplevel #0 "set vtkpackagehome $dir"
 
 package ifneeded vtktcl 3.3 {
 
@@ -90,23 +91,25 @@ package ifneeded vtktcl 3.3 {
 }
 
    
-package ifneeded vtktcl_interactor 1.0 [list
+package ifneeded vtktcl_interactor 1.0 {
 
     package require vtktcl
+    global vtkpackagehome
 
-    uplevel source [file join $dir Interactor.tcl]
+    source [file join $vtkpackagehome Interactor.tcl]
 
     package provide vtktcl_interactor 1.0
-]
+}
 
 
-package ifneeded vtktcl_widgets 1.0 [list
+package ifneeded vtktcl_widgets 1.0 {
 
     package require vtktcl_interactor
+    global vtkpackagehome
 
-    uplevel source [file join $dir WidgetObject.tcl]
-    uplevel source [file join $dir TkInteractor.tcl]
+    source [file join $vtkpackagehome WidgetObject.tcl]
+    source [file join $vtkpackagehome TkInteractor.tcl]
 
     package provide vtktcl_widgets 1.0
-]
+}
 
