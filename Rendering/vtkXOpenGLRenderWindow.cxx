@@ -84,7 +84,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.49");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.50");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -769,12 +769,10 @@ void vtkXOpenGLRenderWindow::SetSize(int x,int y)
     {
     vtkRenderer *ren;
     // Disconnect renderers from this render window.
-    vtkRendererCollection *renderers = this->Renderers;
-    renderers->Register(this);
-    this->Renderers->Delete();
-    this->Renderers = vtkRendererCollection::New();
-    renderers->InitTraversal();
-    while ( (ren = renderers->GetNextItem()) )
+    // Done to release graphic resources.
+    vtkCollectionSimpleIterator rit;
+    this->Renderers->InitTraversal(rit);
+    while ( (ren = this->Renderers->GetNextRenderer(rit)) )
       {
       ren->SetRenderWindow(NULL);
       }
@@ -786,26 +784,22 @@ void vtkXOpenGLRenderWindow::SetSize(int x,int y)
     this->Internal->OffScreenWindow = NULL;      
 #endif
     this->WindowInitialize();
-    
-    // Add the renders back into the render window.
-    renderers->InitTraversal();
-    while ( (ren = renderers->GetNextItem()) )
+    this->Renderers->InitTraversal(rit);
+    while ( (ren = this->Renderers->GetNextRenderer(rit)) )
       {
-      this->AddRenderer(ren);
+      ren->SetRenderWindow(this);
       }
-    renderers->Delete();
     }
   else
     {
     // if we arent mappen then just set the ivars 
-      if (!this->Mapped)
-        {
-          return;
-        }
-
-      XResizeWindow(this->DisplayId,this->WindowId,x,y);
-      XSync(this->DisplayId,False);
-
+    if (!this->Mapped)
+      {
+      return;
+      }
+    
+    XResizeWindow(this->DisplayId,this->WindowId,x,y);
+    XSync(this->DisplayId,False);
     }
 }
 
