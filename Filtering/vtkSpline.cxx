@@ -16,7 +16,7 @@
 
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkSpline, "1.25");
+vtkCxxRevisionMacro(vtkSpline, "1.26");
 
 //----------------------------------------------------------------------------
 // Construct a spline wth the folloing defaults:
@@ -33,6 +33,9 @@ vtkSpline::vtkSpline ()
   this->RightConstraint = 1;
   this->RightValue = 0.0;
   this->Closed = 0;
+
+  this->ParametricRange[0] = -1;
+  this->ParametricRange[1] = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -49,6 +52,38 @@ vtkSpline::~vtkSpline ()
   if (this->Intervals)
     {
     delete [] this->Intervals;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSpline::SetParametricRange(double tMin, double tMax)
+{
+  if ( tMin != this->ParametricRange[0] || tMax != this->ParametricRange[1] )
+    {
+    if ( tMin >= tMax )
+      {
+      tMax = tMin + 1;
+      }
+
+    this->ParametricRange[0] = tMin;
+    this->ParametricRange[1] = tMax;
+    
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSpline::GetParametricRange(double tRange[2]) const
+{
+  if ( this->ParametricRange[0] != this->ParametricRange[1] )
+    {
+    tRange[0] = this->ParametricRange[0];
+    tRange[1] = this->ParametricRange[1];
+    }
+  else
+    {
+    this->PiecewiseFunction->GetRange()[0];
+    this->PiecewiseFunction->GetRange()[1];
     }
 }
 
@@ -86,6 +121,11 @@ double vtkSpline::ComputeRightDerivative()
 // Add a point to the Piecewise Functions containing the data
 void vtkSpline::AddPoint (double t, double x)
 {
+  if ( this->ParametricRange[0] != this->ParametricRange[1] )
+    {
+    t = (t < this->ParametricRange[0] ? this->ParametricRange[0] :
+         (t > this->ParametricRange[1] ? this->ParametricRange[1] : t));
+    }
   this->PiecewiseFunction->AddPoint (t, x);
 }
 
@@ -93,6 +133,11 @@ void vtkSpline::AddPoint (double t, double x)
 // Remove a point from the Piecewise Functions.
 void vtkSpline::RemovePoint (double t)
 {
+  if ( this->ParametricRange[0] != this->ParametricRange[1] )
+    {
+    t = (t < this->ParametricRange[0] ? this->ParametricRange[0] :
+         (t > this->ParametricRange[1] ? this->ParametricRange[1] : t));
+    }
   this->PiecewiseFunction->RemovePoint (t);
 }
 

@@ -34,9 +34,15 @@
 // the spline, just set ClosedOn.) 
 //
 // This implementation of splines does not use a normalized parametric
-// coordinate. If the spline is open, then the parameter space is
-// (tMin <= t <= tMax) where tMin and tMax are the minimum and maximum
-// parametric values seen when performing AddPoint().
+// coordinate. If the spline is open, then the parameter space is (tMin <= t
+// <= tMax) where tMin and tMax are the minimum and maximum parametric values
+// seen when performing AddPoint(). If the spline is closed, then the
+// parameter space is (tMin <= t <= (tMax+1)) where tMin and tMax are the
+// minimum and maximum parametric values seen when performing AddPoint().
+// Note, however, that this behavior can be changed by explicitly setting
+// the ParametricRange(tMin,tMax). If set, the parameter space remains
+// (tMin <= t <= tMax), except that additions of data with parametric
+// values outside this range are clamped within this range.
 
 // .SECTION See Also
 // vtkCardinalSpline vtkKochenekSpline vtkParametricSpline
@@ -55,6 +61,16 @@ class VTK_FILTERING_EXPORT vtkSpline : public vtkObject
 public:
   vtkTypeRevisionMacro(vtkSpline,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Set/Get the parametric range. If not set, the range is determined
+  // implicitly by keeping track of the (min,max) parameter values for
+  // t. If set, the AddPoint() method will clamp the t value to lie
+  // within the specified range.
+  void SetParametricRange(double tMin, double tMax);
+  void SetParametricRange(double tRange[2])
+    {this->SetParametricRange(tRange[0],tRange[1]);}
+  void GetParametricRange(double tRange[2]) const;
 
   // Description:
   // Set/Get ClampValue. If On, results of the interpolation will be
@@ -141,6 +157,9 @@ protected:
   double RightValue;
   vtkPiecewiseFunction *PiecewiseFunction;
   int Closed;
+  
+  // Explicitly specify the parametric range.
+  double ParametricRange[2];
 
   // Helper methods
   double ComputeLeftDerivative();

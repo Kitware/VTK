@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkCardinalSpline, "1.29");
+vtkCxxRevisionMacro(vtkCardinalSpline, "1.30");
 vtkStandardNewMacro(vtkCardinalSpline);
 
 //----------------------------------------------------------------------------
@@ -156,7 +156,14 @@ void vtkCardinalSpline::Compute ()
       {
       this->Intervals[i] = *(ts + 2*i);    
       }
-    this->Intervals[size-1] = this->Intervals[size-2] + 1.0;
+    if ( this->ParametricRange[0] != this->ParametricRange[1] )
+      {
+      this->Intervals[size-1] = this->ParametricRange[1];
+      }
+    else
+      {
+      this->Intervals[size-1] = this->Intervals[size-2] + 1.0;
+      }
 
     // allocate memory for work arrays
     work = new double[size];

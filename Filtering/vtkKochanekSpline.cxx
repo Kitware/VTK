@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkKochanekSpline, "1.27");
+vtkCxxRevisionMacro(vtkKochanekSpline, "1.28");
 vtkStandardNewMacro(vtkKochanekSpline);
 
 //----------------------------------------------------------------------------
@@ -154,7 +154,14 @@ void vtkKochanekSpline::Compute ()
       {
       this->Intervals[i] = *(ts + 2 * i);    
       }
-    this->Intervals[size-1] = this->Intervals[size-2] + 1.0;
+    if ( this->ParametricRange[0] != this->ParametricRange[1] )
+      {
+      this->Intervals[size-1] = this->ParametricRange[1];
+      }
+    else
+      {
+      this->Intervals[size-1] = this->Intervals[size-2] + 1.0;
+      }
 
     // allocate memory for coefficients
     if (this->Coefficients)
