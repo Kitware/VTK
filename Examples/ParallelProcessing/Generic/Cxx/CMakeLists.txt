@@ -1,3 +1,5 @@
+INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j|Task).*$")
+
 LINK_LIBRARIES (
 vtkParallel
 vtkRendering
@@ -47,5 +49,11 @@ IF (VTK_USE_MPI)
   ENDIF(MPI_INCLUDE_PATH)
 ENDIF (VTK_USE_MPI)
 
+SOURCE_FILES( TaskPara_SRCS
+TaskParallelism
+task1
+task2)
+
+ADD_EXECUTABLE(TaskParallelism TaskPara_SRCS)
 
 
