@@ -78,7 +78,7 @@ public:
   vtkGetMacro(GhostLevel, int);
 
   // Description:
-  // These are the main methods that shoul dbe called. These methods 
+  // These are the main methods that should be called. These methods 
   // are responsible for converting a piece to an extent. The signatures
   // without arguments are only thread safe when each thread accesses a
   // different instance. The signatures with arguements are fully thread

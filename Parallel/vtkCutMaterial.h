@@ -39,7 +39,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkCutMaterial - Automatically computes the cut plane for a meterial array pair.
+// .NAME vtkCutMaterial - Automatically computes the cut plane for a material array pair.
 // .SECTION Description
 // vtkCutMaterial computes a cut plane based on an up vector, center of the bounding box
 // and the location of the maximum variable value.
@@ -72,7 +72,7 @@ public:
   vtkGetMacro(Material, int);
   
   // Description:
-  // For now, we just use the call values.
+  // For now, we just use the cell values.
   // The array name to cut.
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
