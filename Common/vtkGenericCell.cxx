@@ -31,7 +31,6 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 #include "vtkPyramid.h"
-#include "vtkConvexPointSet.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticQuad.h"
@@ -39,7 +38,7 @@
 #include "vtkQuadraticHexahedron.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.13");
+vtkCxxRevisionMacro(vtkGenericCell, "1.14");
 vtkStandardNewMacro(vtkGenericCell);
 
 // Construct cell.
@@ -225,9 +224,6 @@ void vtkGenericCell::SetCellType(int cellType)
         break;
       case VTK_PYRAMID:
         this->Cell = vtkPyramid::New();
-        break;
-      case VTK_CONVEX_POINT_SET:
-        this->Cell = vtkConvexPointSet::New();
         break;
       case VTK_QUADRATIC_EDGE:
         this->Cell = vtkQuadraticEdge::New();

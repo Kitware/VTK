@@ -6,43 +6,20 @@
   Date:      $Date$
   Version:   $Revision$
 
+  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
- * Redistributions of source code must retain the above copyright notice,
-   this list of conditions and the following disclaimer.
-
- * Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
- * Neither name of Ken Martin, Will Schroeder, or Bill Lorensen nor the names
-   of any contributors may be used to endorse or promote products derived
-   from this software without specific prior written permission.
-
- * Modified source versions must be plainly marked as such, and must not be
-   misrepresented as being the original software.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     This software is distributed WITHOUT ANY WARRANTY; without even 
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkConvexPointSet - a 3D cell that represents a tetrahedron
+// .NAME vtkConvexPointSet - a 3D cell defined by a set of convex points
 // .SECTION Description
-// vtkConvexPointSet is a concrete implementation of vtkCell to represent a 3D
-// tetrahedron.
+// vtkConvexPointSet is a concrete implementation that represents
+// a 3D cell defined by a convex set of points. Example of such cells are
+// octants (from an octree).
 
 #ifndef __vtkConvexPointSet_h
 #define __vtkConvexPointSet_h
@@ -57,12 +34,12 @@ class VTK_COMMON_EXPORT vtkConvexPointSet : public vtkCell3D
 {
 public:
   static vtkConvexPointSet *New();
-  vtkTypeMacro(vtkConvexPointSet,vtkCell);
+  vtkTypeRevisionMacro(vtkConvexPointSet,vtkCell3D);
 
   // Description:
   // See vtkCell3D API for description of these methods.
-  virtual void GetEdgePoints(int edgeId, int* &pts) {};
-  virtual void GetFacePoints(int faceId, int* &pts) {};
+  virtual void GetEdgePoints(int edgeId, int* &pts) {}
+  virtual void GetFacePoints(int faceId, int* &pts) {}
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
@@ -70,8 +47,10 @@ public:
   int GetCellType() {return VTK_CONVEX_POINT_SET;}
   int GetNumberOfEdges() {return 0;}
   int GetNumberOfFaces() {return 0;}
-  vtkCell *GetEdge(int edgeId) {return NULL;};
-  vtkCell *GetFace(int faceId) {return NULL;};
+  vtkCell *GetEdge(int edgeId) 
+    {return NULL;}
+  vtkCell *GetFace(int faceId) 
+    {return NULL;}
   void Contour(float value, vtkDataArray *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,
@@ -80,25 +59,25 @@ public:
   int EvaluatePosition(float x[3], float* closestPoint,
                        int& subId, float pcoords[3],
                        float& dist2, float *weights) 
-    {return 0;};
+    {return 0;}
   void EvaluateLocation(int& subId, float pcoords[3], float x[3],
                         float *weights) {};
   int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                         float x[3], float pcoords[3], int& subId)
     {return 0;};
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) {return 0;};
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) 
+    {return 0;}
   void Derivatives(int subId, float pcoords[3], float *values, 
                    int dim, float *derivs) {};
 
   // Description:
-  // Returns the set of points that are on the boundary of the tetrahedron that
-  // are closest parametrically to the point specified. This may include faces,
-  // edges, or vertices.
+  // Returns the set of points that are on the boundary of the cell that
+  // are closest parametrically to the point specified.
   int CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
     {return 0;};
   
   // Description:
-  // Return the center of the tetrahedron in parametric coordinates.
+  // Return the center of the cell in parametric coordinates.
   int GetParametricCenter(float pcoords[3]);
 
 protected:
