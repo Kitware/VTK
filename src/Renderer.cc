@@ -351,6 +351,15 @@ void vtkRenderer::ViewToWorld()
   mat.PointMultiply(result,result);
   
   // Get the transformed vector & set WorldPoint 
+  // while we are at it try to keep w at one
+  if (result[3])
+    {
+    result[0] /= result[3];
+    result[1] /= result[3];
+    result[2] /= result[3];
+    result[3] = 1;
+    }
+  
   this->SetWorldPoint(result);
 }
 
