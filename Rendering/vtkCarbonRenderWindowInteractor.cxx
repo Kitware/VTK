@@ -47,7 +47,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCarbonRenderWindow.h"
 #include "vtkCarbonRenderWindowInteractor.h"
 #include "vtkCommand.h"
-#include "vtkCommand.h"
 #include "vtkInteractorStyle.h"
 #include "vtkObjectFactory.h"
 
@@ -55,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #import <Carbon/Carbon.h>
 
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.4");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.5");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
