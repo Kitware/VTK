@@ -109,8 +109,6 @@ ABSTRACT_FILES(
 vtkImageDecomposeFilter 
 vtkImageInPlaceFilter 
 vtkImageIterateFilter 
-vtkImageMultipleInputFilter 
-vtkImageMultipleInputOutputFilter 
 vtkImagePadFilter 
 vtkImageSpatialFilter 
 vtkImageToImageFilter 
