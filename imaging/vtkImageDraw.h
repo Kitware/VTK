@@ -55,6 +55,7 @@ class vtkImageDraw : public vtkImageRegion
 {
 public:
   vtkImageDraw();
+  ~vtkImageDraw();
   char *GetClassName() {return "vtkImageDraw";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

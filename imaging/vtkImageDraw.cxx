@@ -313,6 +313,9 @@ void vtkImageDraw::DrawSegment(int a0, int a1, int b0, int b1)
   int *extent;
   void *ptr;
   
+  vtkDebugMacro(<< "Drawing a segment: " << a0 << ", " << a1 << " to "
+                << b0 << ", " << b1);
+  
   // check to make sure line segment is in bounds.
   extent = this->GetExtent();
   if (a0 < extent[0] || a0 > extent[1] || b0 < extent[0] || b0 > extent[1] ||
