@@ -55,9 +55,9 @@ class VTK_EXPORT vtkWin32PolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
   const char *GetClassName() {return "vtkWin32PolyDataMapper2D";};
-
   static vtkWin32PolyDataMapper2D *New() 
     {return new vtkWin32PolyDataMapper2D;};
+
   int GetCompositingMode(vtkActor2D* actor);
 
   void Render(vtkViewport* viewport, vtkActor2D* actor);

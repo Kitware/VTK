@@ -220,16 +220,9 @@ void vtkImagePermute::ThreadedExecute(vtkImageData *inData,
     }
 }
 
+void vtkImagePermute::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageFilter::PrintSelf(os,indent);
 
-
-
-
-
-
-
-
-
-
-
-
+}
 

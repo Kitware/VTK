@@ -58,6 +58,7 @@ public:
 
   static vtkXPolyDataMapper2D *New() 
     {return new vtkXPolyDataMapper2D;};
+
   int GetCompositingMode(vtkActor2D* actor);
 
   void Render(vtkViewport* viewport, vtkActor2D* actor);

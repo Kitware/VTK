@@ -343,18 +343,9 @@ void vtkImageLogic::ThreadedExecute(vtkImageData **inData,
     }
 }
 
+void vtkImageLogic::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageTwoInputFilter::PrintSelf(os,indent);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
 

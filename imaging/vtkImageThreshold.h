@@ -59,6 +59,8 @@ public:
   static vtkImageThreshold *New() {return new vtkImageThreshold;};
   const char *GetClassName() {return "vtkImageThreshold";};
 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   void ThresholdByUpper(float thresh);
   void ThresholdByLower(float thresh);
   void ThresholdBetween(float lower, float upper);

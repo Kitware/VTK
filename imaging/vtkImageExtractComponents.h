@@ -58,6 +58,8 @@ public:
     {return new vtkImageExtractComponents;};
   const char *GetClassName() {return "vtkImageExtractComponents";};
 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Set/Get the components to extract.
   void SetComponents(int c1);

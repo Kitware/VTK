@@ -196,10 +196,9 @@ void vtkImageSinusoidSource::Execute(vtkImageData *data)
     }
 }
 
+void vtkImageSinusoidSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageSource::PrintSelf(os,indent);
 
-
-
-
-
-
+}
 

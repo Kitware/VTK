@@ -64,6 +64,8 @@ public:
   static vtkImageMask *New() {return new vtkImageMask;};
   const char *GetClassName() {return "vtkImageMask";};
 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // SetGet the value of the output pixel replaced by mask.
   vtkSetMacro(MaskedOutputValue, float);

@@ -59,6 +59,8 @@ public:
   static vtkImageLogarithmicScale *New() {return new vtkImageLogarithmicScale;};
   const char *GetClassName() {return "vtkImageLogarithmicScale";};
 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   vtkSetMacro(Constant,float);
   vtkGetMacro(Constant,float);
   

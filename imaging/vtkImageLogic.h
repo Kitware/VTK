@@ -70,6 +70,8 @@ public:
   static vtkImageLogic *New() {return new vtkImageLogic;};
   const char *GetClassName() {return "vtkImageLogic";};
 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Set/Get the Operation to perform.
   vtkSetMacro(Operation,int);

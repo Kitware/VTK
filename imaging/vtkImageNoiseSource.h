@@ -65,6 +65,8 @@ public:
   static vtkImageNoiseSource *New() {return new vtkImageNoiseSource;};
   const char *GetClassName() {return "vtkImageNoiseSource";};
   
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   vtkSetMacro(Minimum, float);
   vtkGetMacro(Minimum, float);
   vtkSetMacro(Maximum, float);

@@ -225,3 +225,10 @@ void vtkImageCast::ThreadedExecute(vtkImageData *inData,
       return;
     }
 }
+
+void vtkImageCast::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageFilter::PrintSelf(os,indent);
+
+}
+

@@ -418,3 +418,11 @@ void vtkBMPReader::Execute(vtkImageData *data)
       vtkErrorMacro(<< "Execute: Unknown data type");
     }  
 }
+
+void vtkBMPReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageReader::PrintSelf(os,indent);
+
+}
+
+

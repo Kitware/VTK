@@ -61,6 +61,8 @@ public:
     {return new vtkImageButterworthLowPass;};
   const char *GetClassName() {return "vtkImageButterworthLowPass";};
 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Set/Get the cutoff frequency for each axis.
   // The values are specified in the order X, Y, Z, Time.

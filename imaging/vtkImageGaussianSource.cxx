@@ -162,9 +162,10 @@ void vtkImageGaussianSource::Execute(vtkImageData *data)
     }
 }
 
+void vtkImageGaussianSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageSource::PrintSelf(os,indent);
 
-
-
-
+}
 
 

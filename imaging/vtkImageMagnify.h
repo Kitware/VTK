@@ -57,6 +57,8 @@ public:
   static vtkImageMagnify *New() {return new vtkImageMagnify;};
   const char *GetClassName() {return "vtkImageMagnify";};
 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Set/Get Magnification factors
   vtkSetVector3Macro(MagnificationFactors,int);

@@ -57,6 +57,8 @@ public:
   static vtkImageDivergence *New() {return new vtkImageDivergence;};
   const char *GetClassName() {return "vtkImageDivergence";};
   
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Determines how the input is interpreted (set of 2d slices ...)
   vtkSetClampMacro(Dimensionality,int,2,3);

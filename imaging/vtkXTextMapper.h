@@ -63,13 +63,12 @@ class VTK_EXPORT vtkXTextMapper : public vtkTextMapper
 {
 public:
   const char *GetClassName() {return "vtkXTextMapper";};
+  static vtkXTextMapper *New() {return new vtkXTextMapper;};
 
   // Description:
   // Set the font size used by the mapper.  If the font size is 
   // available, the code will use the nearest available size.
   void SetFontSize(int size);
-
-  static vtkXTextMapper *New() {return new vtkXTextMapper;};
 
   // Description:
   // Return the X compositing mode being used.

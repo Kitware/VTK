@@ -284,7 +284,9 @@ void vtkImageAccumulate::InterceptCacheUpdate()
   this->Output->SetUpdateExtent(wholeExtent);
 }
 
+void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageFilter::PrintSelf(os,indent);
 
-
-
+}
 

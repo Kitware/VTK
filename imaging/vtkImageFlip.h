@@ -61,6 +61,8 @@ public:
   static vtkImageFlip *New() {return new vtkImageFlip;};
   const char *GetClassName() {return "vtkImageFlip";};
 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Specify which axes will be flipped.
   vtkSetMacro(FilteredAxis, int);

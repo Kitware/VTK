@@ -59,6 +59,8 @@ public:
   static vtkImagePadFilter *New() {return new vtkImagePadFilter;};
   const char *GetClassName() {return "vtkImagePadFilter";};
 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // The image extent of the output has to be set explicitely.
   void SetOutputWholeExtent(int extent[6]);

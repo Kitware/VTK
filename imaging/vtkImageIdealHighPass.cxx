@@ -229,11 +229,9 @@ void vtkImageIdealHighPass::ThreadedExecute(vtkImageData *inData,
     }
 }
 
+void vtkImageIdealHighPass::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageFilter::PrintSelf(os,indent);
 
-
-
-
-
-
-
+}
 

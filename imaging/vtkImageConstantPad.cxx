@@ -206,17 +206,9 @@ void vtkImageConstantPad::ThreadedExecute(vtkImageData *inData,
     }
 }
 
+void vtkImageConstantPad::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImagePadFilter::PrintSelf(os,indent);
 
-
-
-
-
-
-
-
-
-
-
-
-
+}
 

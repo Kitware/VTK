@@ -68,7 +68,6 @@ public:
   ~vtkWin32ImageWindow();
   static vtkWin32ImageWindow *New() {return new vtkWin32ImageWindow;};
   const char *GetClassName() {return "vtkWin32ImageWindow";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // output to the viewer.
   vtkWin32ImageWindow *GetOutput(){return this;};

@@ -239,8 +239,9 @@ void vtkImageDivergence::ThreadedExecute(vtkImageData *inData,
     }
 }
 
+void vtkImageDivergence::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageFilter::PrintSelf(os,indent);
 
-
-
-
+}
 

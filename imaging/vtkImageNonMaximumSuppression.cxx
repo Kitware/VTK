@@ -354,3 +354,12 @@ void vtkImageNonMaximumSuppression::ThreadedExecute(vtkImageData **inData,
       return;
     }
 }
+
+
+void vtkImageNonMaximumSuppression::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageTwoInputFilter::PrintSelf(os,indent);
+
+}
+
+

@@ -202,17 +202,9 @@ void vtkImageMask::ThreadedExecute(vtkImageData **inData,
 }
 
 
+void vtkImageMask::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageTwoInputFilter::PrintSelf(os,indent);
 
-
-
-
-
-
-
-
-
-
-
-
-
+}
 

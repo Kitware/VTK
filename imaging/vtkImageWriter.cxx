@@ -94,7 +94,7 @@ vtkImageWriter::~vtkImageWriter()
 //----------------------------------------------------------------------------
 void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkProcessObject::PrintSelf(os,indent);
 
   os << indent << "Input: (" << this->Input << ")\n";
 

@@ -21,6 +21,8 @@ public:
 
   static vtkXImageMapper *New() {return new vtkXImageMapper;};
 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Called by the Render function in vtkImageMapper.  Actually draws
   // the image to the screen.

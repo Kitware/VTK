@@ -56,6 +56,8 @@ public:
   static vtkImageSinusoidSource *New() {return new vtkImageSinusoidSource;};
   const char *GetClassName() {return "vtkImageSinusoidSource";};
   
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Set/Get the extent of the whole output image.
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,

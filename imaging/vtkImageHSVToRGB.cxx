@@ -226,18 +226,9 @@ void vtkImageHSVToRGB::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-  
+void vtkImageHSVToRGB::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageFilter::PrintSelf(os,indent);
 
-
-
-
-
-
-
-
-
-
-
-
-
+}
 

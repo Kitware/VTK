@@ -58,6 +58,8 @@ public:
   static vtkImageConstantPad *New() {return new vtkImageConstantPad;};
   const char *GetClassName() {return "vtkImageConstantPad";};
 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Set/Get the pad value.
   vtkSetMacro(Constant, float);
   vtkGetMacro(Constant, float);

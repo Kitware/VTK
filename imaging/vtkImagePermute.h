@@ -58,6 +58,8 @@ public:
   static vtkImagePermute *New() {return new vtkImagePermute;};
   const char *GetClassName() {return "vtkImagePermute";};
 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // The filtered axes are the input axes that get relabeled to X,Y,Z.
   vtkSetVector3Macro(FilteredAxes, int);
