@@ -182,7 +182,15 @@ int vtkImageDataToTkPhoto_Cmd (ClientData clientData, Tcl_Interp *interp,
       break;
     }
   Tk_PhotoSetSize ( photo, block.width, block.height );
+
+
+#if (TK_MAJOR_VERSION == 8) && (TK_MINOR_VERSION >= 4)
+  Tk_PhotoPutBlock ( photo, &block, 0, 0, block.width, block.height, 
+                     TK_PHOTO_COMPOSITE_SET );
+#else
   Tk_PhotoPutBlock ( photo, &block, 0, 0, block.width, block.height );
+#endif
+
   return TCL_OK;
 }
 }
