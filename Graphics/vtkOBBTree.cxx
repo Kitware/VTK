@@ -24,8 +24,9 @@
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
+#include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkOBBTree, "1.55");
+vtkCxxRevisionMacro(vtkOBBTree, "1.56");
 vtkStandardNewMacro(vtkOBBTree);
 
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
@@ -293,7 +294,15 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, double corner[3], double max[3],
     {
     cellId = cells->GetId( i );
     type = this->DataSet->GetCellType( cellId );
-    ((vtkPolyData *)this->DataSet)->GetCellPoints( cellId, numPts, ptIds );
+    switch (this->DataSet->GetDataObjectType())
+      {
+      case VTK_POLY_DATA:
+        ((vtkPolyData *)this->DataSet)->GetCellPoints( cellId, numPts, ptIds );
+        break;
+      case VTK_UNSTRUCTURED_GRID:
+        ((vtkUnstructuredGrid *)this->DataSet)->GetCellPoints( cellId, numPts, ptIds );
+        break;
+      }
     for ( j=0; j<numPts-2; j++ )
       {
       vtkCELLTRIANGLES( ptIds, type, j, pId, qId, rId );
