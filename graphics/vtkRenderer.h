@@ -202,7 +202,7 @@ public:
   void WorldToDisplay();
 
   float *GetViewRays();
-  vtkGetVectorMacro(ViewRaysSize,int,2); // Call this AFTER GetViewRays()
+  int   *GetViewRaysSize();
 
   void SetStartRenderMethod(void (*f)(void *), void *arg);
   void SetEndRenderMethod(void (*f)(void *), void *arg);

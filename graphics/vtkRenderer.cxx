@@ -562,6 +562,13 @@ void vtkRenderer::UpdateViewRays()
   }
 }
 
+int *vtkRenderer::GetViewRaysSize()
+{
+  this->GetViewRays();
+
+  return( this->ViewRaysSize );
+}
+
 float *vtkRenderer::GetViewRays()
 {
   int    size[2];
