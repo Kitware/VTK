@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.3");
+vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.4");
 
 static float vtkMoleculeReaderBaseCovRadius[103] = {
 0.32 , 1.6 , 0.68 , 0.352 , 0.832 , 0.72 ,
@@ -210,9 +210,15 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
 
   vtkPolyData *output = this->GetOutput();
 
-  this->AtomType = vtkIdTypeArray::New();
+  if ( !this->AtomType )
+    {
+    this->AtomType = vtkIdTypeArray::New();
+    }
 
-  this->Points = vtkPoints::New();
+  if ( !this->Points )
+    {
+    this->Points = vtkPoints::New();
+    }
 
   newBonds = vtkCellArray::New();
   newBonds->Allocate(500);
@@ -221,7 +227,6 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
 
   vtkDebugMacro(<< "End of scanning");
   output->SetPoints(this->Points);
-  //this->Points->Delete();
 
   this->MakeBonds(this->Points, this->AtomType, newBonds);
 
@@ -231,7 +236,14 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
   vtkDebugMacro(<< "read " << this->NumberOfAtoms << " and found " 
     << newBonds->GetNumberOfCells() << " bonds" << endl);
 
-  this->RGB = vtkUnsignedCharArray::New();
+  if ( this->RGB )
+    {
+    this->RGB->Reset();
+    }
+  else
+    {
+    this->RGB = vtkUnsignedCharArray::New();
+    }
   this->RGB->SetNumberOfComponents(3);
   this->RGB->SetNumberOfTuples(this->NumberOfAtoms);
   this->RGB->Allocate(3*this->NumberOfAtoms);
@@ -243,11 +255,17 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
     }
 
   output->GetPointData()->SetScalars(this->RGB);
-  //this->RGB->Delete();
 
   vtkDebugMacro(<< "assigned colors: " << NumberOfAtoms << endl);
 
-  this->Radii = vtkFloatArray::New();
+  if ( this->Radii )
+    {
+    this->Radii->Reset();
+    }
+  else
+    {
+    this->Radii = vtkFloatArray::New();
+    }
   this->Radii->SetNumberOfComponents(3);
   this->Radii->SetNumberOfTuples(this->NumberOfAtoms);
   this->Radii->Allocate(3 * this->NumberOfAtoms);
@@ -264,10 +282,6 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
     }
 
   output->GetPointData()->SetVectors(this->Radii);
-  //this->Radii->Delete();
-
-  // list of atom types is not required anymore
-  //this->AtomType->Delete();
 
   return 0;
 }
