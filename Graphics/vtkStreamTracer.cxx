@@ -35,7 +35,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.20");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.21");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 
@@ -541,6 +541,9 @@ void vtkStreamTracer::Execute()
       {
       vtkErrorMacro("No appropriate inputs have been found. Can not execute.");
       func->Delete();
+      seeds->Delete();
+      integrationDirections->Delete();
+      seedIds->Delete();
       return;
       }
     this->Integrate(this->GetOutput(),
