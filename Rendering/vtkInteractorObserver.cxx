@@ -23,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.24");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.25");
 
 vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);
 
@@ -53,6 +53,9 @@ vtkInteractorObserver::vtkInteractorObserver()
 
 vtkInteractorObserver::~vtkInteractorObserver()
 {
+  this->SetEnabled(0);
+  this->SetCurrentRenderer(NULL);
+  this->SetDefaultRenderer(NULL);
   this->EventCallbackCommand->Delete();
   this->KeyPressCallbackCommand->Delete();
 }

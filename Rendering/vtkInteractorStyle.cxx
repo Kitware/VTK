@@ -35,7 +35,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.87");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.88");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
@@ -87,14 +87,12 @@ vtkInteractorStyle::~vtkInteractorStyle()
 
   this->SetInteractor(0);
 
+  // Remove any highlight
+
+  this->HighlightProp(NULL);
+
   if ( this->OutlineActor ) 
     {
-    // If we change style when an object is selected, we must remove the
-    // actor from the renderer
-    if (this->CurrentRenderer) 
-      {
-      this->CurrentRenderer->RemoveActor(this->OutlineActor);
-      }
     this->OutlineActor->Delete();
     }
 
@@ -102,6 +100,7 @@ vtkInteractorStyle::~vtkInteractorStyle()
     {
     this->OutlineMapper->Delete();
     }
+
   this->Outline->Delete();
   this->Outline = NULL;
 
@@ -140,6 +139,7 @@ void vtkInteractorStyle::SetEnabled(int enabling)
       }
     
     this->Enabled = 0;
+    this->HighlightProp(NULL);
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     }
 }
@@ -265,7 +265,11 @@ void vtkInteractorStyle::HighlightProp(vtkProp *prop)
     this->HighlightProp3D(NULL);
     this->HighlightActor2D(NULL);
     }
-  this->Interactor->Render();
+
+  if (this->Interactor)
+    {
+    this->Interactor->Render();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -274,23 +278,11 @@ void vtkInteractorStyle::HighlightProp(vtkProp *prop)
 // bounding box around the vtkProp3D.
 void vtkInteractorStyle::HighlightProp3D(vtkProp3D *prop3D) 
 {
-  if ( ! this->OutlineActor ) 
-    {
-    // have to defer creation to get right type
-    this->OutlineActor = vtkActor::New();
-    this->OutlineActor->PickableOff();
-    this->OutlineActor->DragableOff();
-    this->OutlineActor->SetMapper(this->OutlineMapper);
-    this->OutlineActor->GetProperty()->SetColor(this->PickColor);
-    this->OutlineActor->GetProperty()->SetAmbient(1.0);
-    this->OutlineActor->GetProperty()->SetDiffuse(0.0);
-    }
-  
   //no prop picked now 
   if ( ! prop3D) 
     {
     //was there previously?
-    if (this->PickedRenderer != NULL) 
+    if (this->PickedRenderer != NULL && this->OutlineActor) 
       {
       this->PickedRenderer->RemoveActor(this->OutlineActor);
       this->PickedRenderer = NULL;
@@ -299,10 +291,22 @@ void vtkInteractorStyle::HighlightProp3D(vtkProp3D *prop3D)
   //prop picked now 
   else
     {
+    if ( ! this->OutlineActor ) 
+      {
+      // have to defer creation to get right type
+      this->OutlineActor = vtkActor::New();
+      this->OutlineActor->PickableOff();
+      this->OutlineActor->DragableOff();
+      this->OutlineActor->SetMapper(this->OutlineMapper);
+      this->OutlineActor->GetProperty()->SetColor(this->PickColor);
+      this->OutlineActor->GetProperty()->SetAmbient(1.0);
+      this->OutlineActor->GetProperty()->SetDiffuse(0.0);
+      }
+  
     //check if picked in different renderer to previous pick
     if (this->CurrentRenderer != this->PickedRenderer)
       {
-      if (this->PickedRenderer != NULL)
+      if (this->PickedRenderer != NULL && this->OutlineActor)
         {
         this->PickedRenderer->RemoveActor(this->OutlineActor);
         }

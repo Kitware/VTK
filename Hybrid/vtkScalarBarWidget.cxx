@@ -24,7 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkScalarBarWidget, "1.8");
+vtkCxxRevisionMacro(vtkScalarBarWidget, "1.9");
 vtkStandardNewMacro(vtkScalarBarWidget);
 vtkCxxSetObjectMacro(vtkScalarBarWidget, ScalarBarActor, vtkScalarBarActor);
 
@@ -40,7 +40,6 @@ vtkScalarBarWidget::vtkScalarBarWidget()
 
 vtkScalarBarWidget::~vtkScalarBarWidget()
 {
-  this->SetCurrentRenderer(0);
   this->SetScalarBarActor(0);
 }
 

@@ -63,7 +63,7 @@ public:
   // observers; disabling it removes the observers. Prior to enabling the
   // vtkInteractorObserver you must set the render window interactor (via
   // SetInteractor()).
-  virtual void SetEnabled(int) = 0;
+  virtual void SetEnabled(int) {};
   int GetEnabled() {return this->Enabled;}
   void EnabledOn() {this->SetEnabled(1);}
   void EnabledOff() {this->SetEnabled(0);}
