@@ -40,14 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkProjectedPolyDataRayBounder.h"
 #include "vtkRenderWindow.h"
-#include "vtkObjectFactory.h"
+#include "vtkGraphicsFactory.h"
 
-#ifdef VTK_USE_OGLR
-#include "vtkOpenGLProjectedPolyDataRayBounder.h"
-#endif
-#ifdef _WIN32
-#include "vtkOpenGLProjectedPolyDataRayBounder.h"
-#endif
 
 
 // The constructor for the class. Initialize everything to NULL.
@@ -79,33 +73,9 @@ vtkProjectedPolyDataRayBounder::~vtkProjectedPolyDataRayBounder()
 vtkProjectedPolyDataRayBounder *vtkProjectedPolyDataRayBounder::New()
 {  
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProjectedPolyDataRayBounder");
-  if(ret)
-    {
-    return (vtkProjectedPolyDataRayBounder*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-
-  char *temp = vtkRenderWindow::GetRenderLibrary();
-  
-#ifdef VTK_USE_OGLR
-  if (!strcmp("OpenGL",temp)) 
-    {
-    return vtkOpenGLProjectedPolyDataRayBounder::New();
-    }
-#endif
-#ifdef _WIN32
-  if (!strcmp("Win32OpenGL",temp)) 
-    {
-    return vtkOpenGLProjectedPolyDataRayBounder::New();
-    }
-#endif
-
-  vtkGenericWarningMacro( << 
-    "Sorry, vtkProjectedPolyDataRayBounder is not supported for: " <<
-    temp );
-
-  return new vtkProjectedPolyDataRayBounder;
+  vtkObject* ret = 
+    vtkGraphicsFactory::CreateInstance("vtkProjectedPolyDataRayBounder");
+  return (vtkProjectedPolyDataRayBounder*)ret;
 }
 
 // Set the matrix source to be an actor. The PolyData will be transformed

@@ -113,10 +113,6 @@ public:
   virtual void CopyResultFrame();
 
   // Description:
-  // Return a string for the device dependent rendering library being used.
-  static char *GetRenderLibrary();
-  
-  // Description:
   // Create an interactor to control renderers in this window. We need
   // to know what type of interactor to create, because we might be in
   // X Windows or MS Windows. 
