@@ -244,15 +244,15 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   if (numSources)
     {
     /* what is the current source dir */
-    const char *cdir = info->CAPI->GetCurrentDirectory(mf);
+//    const char *cdir = info->CAPI->GetCurrentDirectory(mf);
     char *sourceListValue = 0;
     void *cfile = 0;
     char *newName;
 
     /* was the list already populated */
     const char *def = info->CAPI->GetDefinition(mf, sources[0]);
-    sourceListValue = 
-      (char *)malloc(info->CAPI->GetTotalArgumentSize(newArgc,newArgv)+numSources*12);  
+    sourceListValue =
+      (char *)malloc(info->CAPI->GetTotalArgumentSize(newArgc,newArgv)+numSources*12);
     if (def)
       {
       sprintf(sourceListValue,"%s;%sInit.cxx",def,argv[0]);
@@ -261,13 +261,14 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
       {
       sprintf(sourceListValue,"%sInit.cxx",argv[0]);
       }
-    
+
     for(i = 1; i < numSources; ++i)
-      {   
+      {
       void *curr = info->CAPI->GetSource(mf,sources[i]);
-      
+      const char *cdir = info->CAPI->SourceFileGetFullPath (cdata->SourceFiles[i]);
+
       /* if we should wrap the class */
-      if (!curr || 
+      if (!curr ||
           !info->CAPI->SourceFileGetPropertyAsBool(curr,"WRAP_EXCLUDE"))
         {
         void *file = info->CAPI->CreateSourceFile();
@@ -292,10 +293,10 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
           }
         newName = (char *)malloc(strlen(srcName)+4);
         sprintf(newName,"%sTcl",srcName);
-        info->CAPI->SourceFileSetName2(file, newName, 
-                             info->CAPI->GetCurrentOutputDirectory(mf),
+        info->CAPI->SourceFileSetName2(file, newName,
+                             cdir,
                              "cxx",0);
-        
+
         hname = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
         sprintf(hname,"%s/%s.h",cdir,srcName);
         /* add starting depends */
@@ -306,7 +307,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
         numWrapped++;
         strcat(sourceListValue,";");
         strcat(sourceListValue,newName);
-        strcat(sourceListValue,".cxx");        
+        strcat(sourceListValue,".cxx");
         free(newName);
         info->CAPI->Free(srcName);
         }
@@ -355,7 +356,7 @@ static void FinalPass(void *inf, void *mf)
   int i;
   int numDepends, numArgs;
   const char *cdir = info->CAPI->GetCurrentDirectory(mf);
-  
+
   /* wrap all the .h files */
   depends[0] = wtcl;
   numDepends = 1;
@@ -368,6 +369,7 @@ static void FinalPass(void *inf, void *mf)
     {
     char *res;
     const char *srcName = info->CAPI->SourceFileGetSourceName(cdata->SourceFiles[i]);
+    const char *srcDir  = info->CAPI->SourceFileGetFullPath (cdata->SourceFiles[i]);
     char *hname = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
     sprintf(hname,"%s/%s",cdir,srcName);
     hname[strlen(hname)-3]= '\0';
@@ -379,12 +381,12 @@ static void FinalPass(void *inf, void *mf)
       args[1] = hints;
       numArgs++;
       }
-    args[numArgs] = 
+    args[numArgs] =
       (info->CAPI->SourceFileGetPropertyAsBool(cdata->SourceFiles[i],"ABSTRACT") ?"0" :"1");
     numArgs++;
-    res = (char *)malloc(strlen(info->CAPI->GetCurrentOutputDirectory(mf)) + 
+    res = (char *)malloc(strlen(info->CAPI->GetCurrentOutputDirectory(mf)) +
                          strlen(srcName) + 6);
-    sprintf(res,"%s/%s.cxx",info->CAPI->GetCurrentOutputDirectory(mf),srcName);
+    sprintf(res,"%s/%s.CXX",info->CAPI->GetCurrentOutputDirectory(mf),srcName);
     args[numArgs] = res;
     numArgs++;
     info->CAPI->AddCustomCommand(mf, args[0],
