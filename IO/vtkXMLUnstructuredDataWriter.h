@@ -39,9 +39,9 @@ public:
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
   
-  // Description: Get/Set the piece to write to the file.  If this
-  // negative or equal to the NumberOfPieces, all pieces will be
-  // written.
+  // Description:
+  // Get/Set the piece to write to the file.  If this is
+  // negative or equal to the NumberOfPieces, all pieces will be written.
   vtkSetMacro(WritePiece, int);
   vtkGetMacro(WritePiece, int);
 
