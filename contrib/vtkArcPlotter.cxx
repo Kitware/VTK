@@ -85,7 +85,7 @@ void vtkArcPlotter::Execute()
   vtkPointData *inPD=input->GetPointData();
   vtkPoints *inPts;
   vtkCellArray *inLines;
-  int numPts, numLines, i, j;
+  int numPts, i, j;
   float x[3], normal[3], point[3], aveNormal[3];
   int npts, *pts, id;
   float *x1, *x2, x21[3], n[3];
