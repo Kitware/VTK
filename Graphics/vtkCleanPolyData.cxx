@@ -230,7 +230,7 @@ void vtkCleanPolyData::Execute()
           updatedPts[numNewPts++] = ptId;
           }
         }
-      if ( numNewPts>1 ) 
+      if ( (numNewPts>1) || !this->ConvertLinesToPoints ) 
         {
         newId = newLines->InsertNextCell(numNewPts,updatedPts);
         outLineData->CopyData(inputCD, inCellID, newId);
@@ -240,7 +240,7 @@ void vtkCleanPolyData::Execute()
           }
         lineIDcounter++;
         } 
-      else if ( (numNewPts==1) && this->ConvertLinesToPoints ) 
+      else if ( numNewPts==1 ) 
         {
         if (!newVerts) 
           {
@@ -291,7 +291,7 @@ void vtkCleanPolyData::Execute()
         {
         numNewPts--;
         }
-      if ( numNewPts > 2 ) 
+      if ( (numNewPts > 2) || !this->ConvertPolysToLines ) 
         {
         newId = newPolys->InsertNextCell(numNewPts,updatedPts);
         outPolyData->CopyData(inputCD, inCellID, newId);
@@ -301,7 +301,7 @@ void vtkCleanPolyData::Execute()
           }
         polyIDcounter++;
         } 
-      else if ( (numNewPts==2) && this->ConvertPolysToLines ) 
+      else if ( (numNewPts==2) || !this->ConvertLinesToPoints ) 
         {
         if (!newLines) 
           {
@@ -318,9 +318,7 @@ void vtkCleanPolyData::Execute()
           }
         lineIDcounter++;
         } 
-      else if ( (numNewPts==1) &&
-                this->ConvertPolysToLines &&
-                this->ConvertLinesToPoints) 
+      else if ( numNewPts==1 ) 
         {
         if (!newVerts) 
           {
@@ -366,7 +364,7 @@ void vtkCleanPolyData::Execute()
           updatedPts[numNewPts++] = ptId;
           }
         }
-      if ( numNewPts > 3 ) 
+      if ( (numNewPts > 3) || !this->ConvertStripsToPolys ) 
         {
         newId = newStrips->InsertNextCell(numNewPts,updatedPts);
         outStrpData->CopyData(inputCD, inCellID, newId);
@@ -376,7 +374,7 @@ void vtkCleanPolyData::Execute()
           }
         strpIDcounter++;
         } 
-      else if ( (numNewPts==3) && this->ConvertStripsToPolys ) 
+      else if ( (numNewPts==3) || !this->ConvertPolysToLines ) 
         {
         if (!newPolys) 
           {
@@ -393,7 +391,7 @@ void vtkCleanPolyData::Execute()
           }
         polyIDcounter++;
         } 
-      else if ( (numNewPts==2) && this->ConvertPolysToLines ) 
+      else if ( (numNewPts==2) || !this->ConvertLinesToPoints ) 
         {
         if (!newLines) 
           {
@@ -410,9 +408,7 @@ void vtkCleanPolyData::Execute()
           }
         lineIDcounter++;
         } 
-      else if ( (numNewPts==1) &&
-                this->ConvertPolysToLines &&
-                this->ConvertLinesToPoints) 
+      else if ( numNewPts==1 ) 
         {
         if (!newVerts) 
           {
