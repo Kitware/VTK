@@ -41,7 +41,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkFastNumericConversion, "1.1");
+vtkCxxRevisionMacro(vtkFastNumericConversion, "1.2");
 vtkStandardNewMacro(vtkFastNumericConversion);
 
 int vtkFastNumericConversion::TestQuickFloor(double val)
@@ -96,12 +96,16 @@ void vtkFastNumericConversion::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "QuickFloor time from last PerformanceTest() call: " << this->quickfloor_time << endl;
   os << indent << "SafeFloor time from last PerformanceTest() call: " << this->safefloor_time << endl;
   os << indent << "Round time from last PerformanceTest() call: " << this->round_time << endl;
-  os << indent << "Speedup ratio from cast to quickfloor is: " << 
-    (this->cast_time-this->bare_time)/(this->quickfloor_time-this->bare_time) << endl;
-  os << indent << "Speedup ratio from cast to safefloor is: " << 
-    (this->cast_time-this->bare_time)/(this->safefloor_time-this->bare_time) << endl;
-  os << indent << "Speedup ratio from cast to round is: " << 
-    (this->cast_time-this->bare_time)/(this->round_time-this->bare_time) << endl;
+  if (this->bare_time != 0.0)
+    {
+    // Don't do this if we haven't run the tests yet.
+    os << indent << "Speedup ratio from cast to quickfloor is: " << 
+      (this->cast_time-this->bare_time)/(this->quickfloor_time-this->bare_time) << endl;
+    os << indent << "Speedup ratio from cast to safefloor is: " << 
+      (this->cast_time-this->bare_time)/(this->safefloor_time-this->bare_time) << endl;
+    os << indent << "Speedup ratio from cast to round is: " << 
+      (this->cast_time-this->bare_time)/(this->round_time-this->bare_time) << endl;
+    }
   }
 
 
