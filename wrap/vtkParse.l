@@ -129,6 +129,7 @@
 "vtkSetMacro"          return(SetMacro);
 "vtkGetMacro"          return(GetMacro);
 "vtkSetStringMacro"    return(SetStringMacro);
+"vtkSafeSetStringMacro"    return(SetStringMacro);
 "vtkGetStringMacro"    return(GetStringMacro);
 "vtkSetClampMacro"     return(SetClampMacro);
 "vtkSetObjectMacro"    return(SetObjectMacro);
