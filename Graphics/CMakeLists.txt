@@ -75,7 +75,7 @@ vtkGraphLayoutFilter.cxx
 #vtkHierarchicalBoxCellDataToPointData.cxx
 #vtkHierarchicalBoxContour.cxx
 #vtkHierarchicalBoxCutter.cxx
-vtkHierarchicalBoxOutlineFilter.cxx
+#vtkHierarchicalBoxOutlineFilter.cxx
 vtkHedgeHog.cxx
 vtkHull.cxx
 vtkHyperStreamline.cxx

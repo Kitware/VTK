@@ -15,12 +15,15 @@
 #include "vtkPOutlineFilter.h"
 
 #include "vtkDataSet.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutlineSource.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPOutlineFilter, "1.6");
+vtkCxxRevisionMacro(vtkPOutlineFilter, "1.7");
 vtkStandardNewMacro(vtkPOutlineFilter);
 vtkCxxSetObjectMacro(vtkPOutlineFilter, Controller, vtkMultiProcessController);
 
@@ -41,9 +44,21 @@ vtkPOutlineFilter::~vtkPOutlineFilter ()
     }
 }
 
-void vtkPOutlineFilter::Execute()
+int vtkPOutlineFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   double bds[6];
   int procid = 0;
   int numProcs = 1;
@@ -54,7 +69,7 @@ void vtkPOutlineFilter::Execute()
     numProcs = this->Controller->GetNumberOfProcesses();
     }
 
-  this->GetInput()->GetBounds(bds);
+  input->GetBounds(bds);
 
   if ( procid )
     {
@@ -99,12 +114,21 @@ void vtkPOutlineFilter::Execute()
     this->OutlineSource->Update();
     output->CopyStructure(this->OutlineSource->GetOutput());
     }
+
+  return 1;
 }
 
-
-void vtkPOutlineFilter::ExecuteInformation()
+int vtkPOutlineFilter::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  this->GetOutput()->SetMaximumNumberOfPieces(-1);
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               -1);
+  return 1;
 }
 
 
@@ -113,5 +137,3 @@ void vtkPOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
-
-
