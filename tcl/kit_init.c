@@ -17,6 +17,7 @@ void stuffit()
 
   if (!strcmp(kitName,"Vtkcommontcl"))
     {
+    fprintf(stdout,"int vtkCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[]);\n");
     fprintf(stdout,"\nTcl_HashTable vtkInstanceLookup;\n");
     fprintf(stdout,"Tcl_HashTable vtkPointerLookup;\n");
     fprintf(stdout,"Tcl_HashTable vtkCommandLookup;\n");
@@ -80,6 +81,9 @@ void stuffit()
 	    "  Tcl_InitHashTable(&vtkPointerLookup, TCL_STRING_KEYS);\n");
     fprintf(stdout,
 	    "  Tcl_InitHashTable(&vtkCommandLookup, TCL_STRING_KEYS);\n");
+
+    /* create special vtkCommand command */
+    fprintf(stdout,"  Tcl_CreateCommand(interp,\"vtkCommand\",vtkCommand,\n		    (ClientData *)NULL, NULL);\n\n");
     }
   
   for (i = 0; i < anindex; i++)
