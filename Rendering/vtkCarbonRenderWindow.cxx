@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.14");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.15");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -362,11 +362,13 @@ vtkCarbonRenderWindow::~vtkCarbonRenderWindow()
     {
     this->ShowCursor();
     }
-  if (this->WindowId && this->OwnWindow)
+  if (this->WindowId)
     {
     this->Clean();
+    }
+  if (this->WindowId && this->OwnWindow)
+    {
     // can't set WindowId=NULL, needed for DestroyWindow
-
     DisposeWindow(this->WindowId);
     }
 }
