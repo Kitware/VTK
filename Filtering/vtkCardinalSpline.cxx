@@ -20,14 +20,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkCardinalSpline, "1.20");
+vtkCxxRevisionMacro(vtkCardinalSpline, "1.21");
 vtkStandardNewMacro(vtkCardinalSpline);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
 #ifdef __APPLE_CC__
 extern "C"
 {
-  void oft_initFil() 
+  void oft_initFiltering() 
   {
   extern void _ZNSt8ios_base4InitC4Ev();
   _ZNSt8ios_base4InitC4Ev();
