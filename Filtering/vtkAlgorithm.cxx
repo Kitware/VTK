@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.9");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.10");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -371,6 +371,12 @@ vtkDataObject* vtkAlgorithm::GetOutputDataObject(int port)
     return 0;
     }
   return this->GetExecutive()->GetOutputData(port);
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::RemoveAllInputs()
+{
+  this->SetInputConnection(0, 0);
 }
 
 //----------------------------------------------------------------------------

@@ -105,6 +105,10 @@ public:
   virtual void SetInformation(vtkInformation*);
 
   // Description:
+  // Remove all the input data.
+  void RemoveAllInputs();
+
+  // Description:
   // Get the data object that will contain the algorithm output for
   // the given port.
   vtkDataObject* GetOutputDataObject(int port);

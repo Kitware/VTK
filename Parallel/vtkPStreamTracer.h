@@ -59,9 +59,9 @@ protected:
   vtkPStreamTracer();
   ~vtkPStreamTracer();
 
-  virtual void Execute();
-  virtual void ExecuteInformation();
-  virtual void ComputeInputUpdateExtents( vtkDataObject *output );
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkMultiProcessController* Controller;
 
@@ -74,11 +74,11 @@ protected:
                      vtkIdType idx, 
                      int sendToId);
   void ReceiveCellPoint(vtkPolyData* tomod, int streamId, vtkIdType idx);
-  void SendFirstPoints();
-  void ReceiveLastPoints();
-  void MoveToNextSend();
+  void SendFirstPoints(vtkPolyData *output);
+  void ReceiveLastPoints(vtkPolyData *output);
+  void MoveToNextSend(vtkPolyData *output);
 
-  virtual void ParallelIntegrate() = 0;
+  virtual void ParallelIntegrate(vtkInformationVector **inputVector) = 0;
 
   vtkDataArray* Seeds;
   vtkIdList* SeedIds;

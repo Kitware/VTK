@@ -17,6 +17,8 @@
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkMultiProcessController.h"
@@ -26,7 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.6");
+vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.7");
 vtkStandardNewMacro(vtkDistributedStreamTracer);
 
 vtkDistributedStreamTracer::vtkDistributedStreamTracer()
@@ -79,7 +81,8 @@ void vtkDistributedStreamTracer::ForwardTask(double seed[3],
     }
 }
 
-int vtkDistributedStreamTracer::ReceiveAndProcessTask()
+int vtkDistributedStreamTracer::ReceiveAndProcessTask(
+  vtkInformationVector **inputVector)
 {
   int isNewSeed = 0;
   int lastId = 0;
@@ -139,11 +142,12 @@ int vtkDistributedStreamTracer::ReceiveAndProcessTask()
     firstNormal = &(tmpNormal[1]);
     }
   return this->ProcessTask(
-    seed, direction, isNewSeed, lastId, lastCellId, currentLine, firstNormal);
-                   
+    seed, direction, isNewSeed, lastId, lastCellId, currentLine, firstNormal,
+    inputVector);
 }
 
-int vtkDistributedStreamTracer::ProcessNextLine(int currentLine)
+int vtkDistributedStreamTracer::ProcessNextLine(
+  int currentLine, vtkInformationVector **inputVector)
 {
   int myid = this->Controller->GetLocalProcessId();
 
@@ -154,7 +158,7 @@ int vtkDistributedStreamTracer::ProcessNextLine(int currentLine)
     return this->ProcessTask(
       this->Seeds->GetTuple(this->SeedIds->GetId(currentLine)), 
       this->IntegrationDirections->GetValue(currentLine),
-      1, myid, -1, currentLine, 0);
+      1, myid, -1, currentLine, 0, inputVector);
     }
 
   // All done. Tell everybody to stop.
@@ -171,7 +175,8 @@ int vtkDistributedStreamTracer::ProcessTask(double seed[3],
                                             int lastId,
                                             int lastCellId,
                                             int currentLine,
-                                            double* firstNormal)
+                                            double* firstNormal,
+                                            vtkInformationVector **inputVector)
 {
   int myid = this->Controller->GetLocalProcessId();
 
@@ -179,7 +184,7 @@ int vtkDistributedStreamTracer::ProcessTask(double seed[3],
   // Must be out of domain.
   if (isNewSeed == 0 && lastId == myid)
     {
-    return this->ProcessNextLine(currentLine);
+    return this->ProcessNextLine(currentLine, inputVector);
     }
 
   double velocity[3];
@@ -213,12 +218,14 @@ int vtkDistributedStreamTracer::ProcessTask(double seed[3],
 
   vtkInterpolatedVelocityField* func;
   int maxCellSize = 0;
-  this->CheckInputs(func, &maxCellSize);
+  this->CheckInputs(func, &maxCellSize, inputVector);
 
-  this->Integrate(tmpOutput, 
-                  seeds, 
-                  seedIds, 
-                  integrationDirections, 
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  this->Integrate(vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())),
+                  tmpOutput,
+                  seeds,
+                  seedIds,
+                  integrationDirections,
                   lastPoint,
                   func,
                   maxCellSize);
@@ -258,7 +265,7 @@ int vtkDistributedStreamTracer::ProcessTask(double seed[3],
   // moving outside the domain, move to the next seed.
   if (numPoints == 0 || resTerm != vtkStreamTracer::OUT_OF_DOMAIN)
     {
-    retVal = this->ProcessNextLine(currentLine);
+    retVal = this->ProcessNextLine(currentLine, inputVector);
     seeds->Delete(); 
     seedIds->Delete();
     integrationDirections->Delete();
@@ -311,7 +318,8 @@ int vtkDistributedStreamTracer::ProcessTask(double seed[3],
   return 1;
 }
 
-void vtkDistributedStreamTracer::ParallelIntegrate()
+void vtkDistributedStreamTracer::ParallelIntegrate(
+  vtkInformationVector **inputVector)
 {
 
   int myid = this->Controller->GetLocalProcessId();
@@ -325,12 +333,12 @@ void vtkDistributedStreamTracer::ParallelIntegrate()
       doLoop = this->ProcessTask(
         this->Seeds->GetTuple(this->SeedIds->GetId(currentLine)), 
         this->IntegrationDirections->GetValue(currentLine),
-        1, myid, -1,currentLine, 0);
+        1, myid, -1,currentLine, 0, inputVector);
       }
     // Wait for someone to send us a seed to start from.
     while(doLoop) 
       {
-      if (!this->ReceiveAndProcessTask()) { break; }
+      if (!this->ReceiveAndProcessTask(inputVector)) { break; }
       }
     }
 }

@@ -17,6 +17,8 @@
 #include "vtkAppendPolyData.h"
 #include "vtkCellData.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkMultiProcessController.h"
@@ -24,8 +26,9 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.14");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.15");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -69,13 +72,12 @@ vtkPStreamTracer::~vtkPStreamTracer()
     }
 }
 
-
 // After the integration is over, we need to add one point
 // at the end of streamline pieces which were not the end
 // piece. This has to be done in order to close the gap between
 // pieces which appear due to jump from one process to another.
 // This method waits until a process sends its first points.
-void vtkPStreamTracer::ReceiveLastPoints()
+void vtkPStreamTracer::ReceiveLastPoints(vtkPolyData *output)
 {
   int streamId = 0;
 
@@ -94,13 +96,13 @@ void vtkPStreamTracer::ReceiveLastPoints()
   // We were told that it is our turn to send first points.
   if (streamId == -2)
     {
-    this->SendFirstPoints();
+    this->SendFirstPoints(output);
     }
 }
 
 // Once we are done sending, let's tell the next guy (unless
 // this is the last process) to send it's first points
-void vtkPStreamTracer::MoveToNextSend()
+void vtkPStreamTracer::MoveToNextSend(vtkPolyData *output)
 {
   int numProcs = this->Controller->GetNumberOfProcesses();
   int myid = this->Controller->GetLocalProcessId();
@@ -121,9 +123,8 @@ void vtkPStreamTracer::MoveToNextSend()
     {
     tag = -2;
     this->Controller->Send(&tag, 1, myid+1, 733);
-    this->ReceiveLastPoints();
+    this->ReceiveLastPoints(output);
     }
-
 }
 
 // After the integration is over, we need to add one point
@@ -133,14 +134,13 @@ void vtkPStreamTracer::MoveToNextSend()
 // This method sends the first point of each streamline which
 // originated in another process to that process. This information
 // is stored in the "Streamline Origin" array.
-void vtkPStreamTracer::SendFirstPoints()
+void vtkPStreamTracer::SendFirstPoints(vtkPolyData *output)
 {
-  vtkPolyData* output = this->GetOutput();
   vtkIntArray* strOrigin = vtkIntArray::SafeDownCast(
     output->GetCellData()->GetArray("Streamline Origin"));
   if (!strOrigin)
     {
-    this->MoveToNextSend();
+    this->MoveToNextSend(output);
     return;
     }
   int numLines = strOrigin->GetNumberOfTuples();
@@ -156,8 +156,7 @@ void vtkPStreamTracer::SendFirstPoints()
       this->SendCellPoint(output, i, 0, sendToId);
       }
     }
-  this->MoveToNextSend();
-
+  this->MoveToNextSend(output);
 }
 
 // Receive one point and add it to the given cell.
@@ -259,61 +258,99 @@ void vtkPStreamTracer::SendCellPoint(vtkPolyData* togo,
   copy->Delete();
 }
 
-void vtkPStreamTracer::ComputeInputUpdateExtents( vtkDataObject *output )
+int vtkPStreamTracer::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  for (int idx = 0; idx < this->NumberOfInputs; ++idx)
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  int piece =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int ghostLevel =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+
+  int numInputs = this->GetNumberOfInputConnections(0);
+  for (int idx = 0; idx < numInputs; ++idx)
     {
-    if (this->Inputs[idx] != NULL)
+    vtkInformation *info = inputVector[0]->GetInformationObject(idx);
+    if (info)
       {
-      if (idx != 1 )
-        {
-        this->Inputs[idx]->SetUpdateExtent(output->GetUpdatePiece(),
-                                           output->GetUpdateNumberOfPieces(),
-                                           output->GetUpdateGhostLevel());
-        }
-      else
-        {
-        // This is the seed source, we need it all.
-        this->Inputs[idx]->SetUpdateExtent(0, 1, 0);
-        }
+      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                piece);
+      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                numPieces);
+      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                ghostLevel);
       }
     }
+  
+
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  if (sourceInfo)
+    {
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                    0);
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                    1);
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                    ghostLevel);
+    }
+
+  return 1;
 }
 
-void vtkPStreamTracer::ExecuteInformation()
+int vtkPStreamTracer::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  this->Superclass::ExecuteInformation();
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
 
-  vtkDataSet *output = this->GetOutput();
-  output->SetMaximumNumberOfPieces(-1);
+  return 1;
 }
 
-void vtkPStreamTracer::Execute()
+int vtkPStreamTracer::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
   if (!this->Controller)
     {
     vtkErrorMacro("No controller assigned. Can not execute.");
-    return;
+    return 0;
     }
 
   if (this->Controller->GetNumberOfProcesses() == 1)
     {
     this->GenerateNormalsInIntegrate = 1;
-    this->Superclass::Execute();
+    int retVal = this->Superclass::RequestData(request, inputVector,
+                                               outputVector);
     this->GenerateNormalsInIntegrate = 0;
-    return;
+    return retVal;
     }
 
-  vtkPolyData* output = this->GetOutput();
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkDataSet *source = 0;
+  if (sourceInfo)
+    {
+    source = vtkDataSet::SafeDownCast(
+      sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+    }
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkPolyData* output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkInterpolatedVelocityField* func;
   int maxCellSize = 0;
-  if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
+  if (this->CheckInputs(func, &maxCellSize, inputVector) != VTK_OK)
     {
     vtkDebugMacro("No appropriate inputs have been found. Can not execute.");
     func->Delete();
     // >>>>>>>>>> TODO: All should pass this test.
-    return;
+    return 1;
     }
   func->SetCaching(0);
   this->SetInterpolator(func);
@@ -321,11 +358,11 @@ void vtkPStreamTracer::Execute()
 
   this->InitializeSeeds(this->Seeds, 
                         this->SeedIds, 
-                        this->IntegrationDirections);
-  
+                        this->IntegrationDirections,
+                        source);
 
   this->TmpOutputs.erase(this->TmpOutputs.begin(), this->TmpOutputs.end());
-  this->ParallelIntegrate();
+  this->ParallelIntegrate(inputVector);
 
   // The parallel integration adds all streamlines to TmpOutputs
   // container. We append them all together here.
@@ -351,15 +388,15 @@ void vtkPStreamTracer::Execute()
   this->TmpOutputs.erase(this->TmpOutputs.begin(), this->TmpOutputs.end());
 
   // Fill the gaps between streamlines.
-  this->GetOutput()->BuildCells();
+  output->BuildCells();
   int myid = this->Controller->GetLocalProcessId();
   if (myid == 0)
     {
-    this->SendFirstPoints();
+    this->SendFirstPoints(output);
     }
   else
     {
-    this->ReceiveLastPoints();
+    this->ReceiveLastPoints(output);
     }
 
   if (this->Seeds) 
@@ -373,6 +410,8 @@ void vtkPStreamTracer::Execute()
   this->SeedIds = 0;
 
   output->Squeeze();
+
+  return 1;
 }
 
 void vtkPStreamTracer::PrintSelf(ostream& os, vtkIndent indent)

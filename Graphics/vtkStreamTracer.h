@@ -63,7 +63,7 @@
 #ifndef __vtkStreamTracer_h
 #define __vtkStreamTracer_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
 #include "vtkInitialValueProblemSolver.h" // Needed for constants
 
@@ -74,10 +74,10 @@ class vtkIdList;
 class vtkIntArray;
 class vtkInterpolatedVelocityField;
 
-class VTK_GRAPHICS_EXPORT vtkStreamTracer : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkStreamTracer : public vtkDataSetToPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkStreamTracer,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkStreamTracer,vtkDataSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -301,10 +301,13 @@ protected:
   void AddInput(vtkDataObject *) 
     { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
   
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int, vtkInformation *);
+
   void CalculateVorticity( vtkGenericCell* cell, double pcoords[3],
                            vtkDoubleArray* cellVectors, double vorticity[3] );
-  void Integrate(vtkPolyData* output,
+  void Integrate(vtkDataSet *input,
+                 vtkPolyData* output,
                  vtkDataArray* seedSource, 
                  vtkIdList* seedIds,
                  vtkIntArray* integrationDirections,
@@ -316,7 +319,8 @@ protected:
                        double delt,
                        vtkInterpolatedVelocityField* func);
   int CheckInputs(vtkInterpolatedVelocityField*& func,
-                  int* maxCellSize);
+                  int* maxCellSize,
+                  vtkInformationVector **inputVector);
   void GenerateNormals(vtkPolyData* output, double* firstNormal);
 
   int GenerateNormalsInIntegrate;
@@ -362,7 +366,8 @@ protected:
 
   void InitializeSeeds(vtkDataArray*& seeds,
                        vtkIdList*& seedIds,
-                       vtkIntArray*& integrationDirections);
+                       vtkIntArray*& integrationDirections,
+                       vtkDataSet *source);
   
   int IntegrationDirection;
 
