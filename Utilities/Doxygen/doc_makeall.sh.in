@@ -96,7 +96,7 @@ export DATA_ROOT="@VTK_DATA_ROOT@"
 #   CVSWEB_DATA_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTKData
 #
 export CVSWEB=http://public.kitware.com/cgi-bin/cvsweb.cgi/VTK
-export CVSWEB_SUFFIX=?cvsroot=VTK
+export CVSWEB_SUFFIX=?cvsroot=VTK;content-type=text/plain
 export CVSWEB_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK
 export CVSWEB_DATA=http://public.kitware.com/cgi-bin/cvsweb.cgi/VTKData
 export CVSWEB_DATA_SUFFIX=?cvsroot=VTK
