@@ -33,7 +33,7 @@
 #include "vtkIdList.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkDataArray, "1.47");
+vtkCxxRevisionMacro(vtkDataArray, "1.48");
 
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
@@ -130,13 +130,13 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
                         this,numTuples,this->NumberOfComponents);
 
       case VTK_BIT:
-                {//bit not supported, using generic float API
+        {//bit not supported, using generic float API
         for (int i=0; i < numTuples; i++)
           {
           this->SetTuple(i, da->GetTuple(i));
           }
         break;
-                }
+        }
 
       default:
         vtkErrorMacro(<<"Unsupported data type!");
