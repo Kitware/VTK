@@ -73,13 +73,13 @@ void vtkOglrLight::Render(vtkLight *lgt, vtkOglrRenderer *ren,int light_index)
   dy = FocalPoint[1] - Position[1];
   dz = FocalPoint[2] - Position[2];
 
-  glLightfv( light_index, GL_DIFFUSE, color);
-  glLightfv( light_index, GL_SPECULAR, color);
+  glLightfv((enum GLenum)light_index, GL_DIFFUSE, color);
+  glLightfv((enum GLenum)light_index, GL_SPECULAR, color);
 
   if( ren->GetBackLight())
   {
-  glLightfv( light_index+1, GL_DIFFUSE, color);
-  glLightfv( light_index+1, GL_SPECULAR, color);
+  glLightfv((enum GLenum)(light_index+1), GL_DIFFUSE, color);
+  glLightfv((enum GLenum)(light_index+1), GL_SPECULAR, color);
   }
   
   // define the light source
@@ -89,7 +89,7 @@ void vtkOglrLight::Render(vtkLight *lgt, vtkOglrRenderer *ren,int light_index)
     Info[1]  = -dy;
     Info[2]  = -dz;
     Info[3]  = 0.0;
-    glLightfv( light_index, GL_POSITION, Info );
+    glLightfv((enum GLenum)light_index, GL_POSITION, Info );
     // define another mirror light if backlit is on
     if (ren->GetBackLight()) 
       {
@@ -97,7 +97,7 @@ void vtkOglrLight::Render(vtkLight *lgt, vtkOglrRenderer *ren,int light_index)
       Info[1]  = dy;
       Info[2]  = dz;
       Info[3]  = 0.0;
-      glLightfv( light_index + 1, GL_POSITION, Info );
+      glLightfv((enum GLenum)(light_index + 1), GL_POSITION, Info );
       }
     }
   else
@@ -106,20 +106,23 @@ void vtkOglrLight::Render(vtkLight *lgt, vtkOglrRenderer *ren,int light_index)
     Info[1]  = Position[1];
     Info[2]  = Position[2];
     Info[3]  = 1.0;
-    glLightfv( light_index, GL_POSITION, Info );
+    glLightfv((enum GLenum)light_index, GL_POSITION, Info );
 
     Info[0] = dx;
     Info[1] = dy;
     Info[2] = dz;
-    glLightfv( light_index, GL_SPOT_DIRECTION, Info );
+    glLightfv((enum GLenum)light_index, GL_SPOT_DIRECTION, Info );
 
-    glLightf( light_index, GL_SPOT_EXPONENT, lgt->GetExponent());
-    glLightf( light_index, GL_SPOT_CUTOFF, lgt->GetConeAngle());
+    glLightf((enum GLenum)light_index, GL_SPOT_EXPONENT, lgt->GetExponent());
+    glLightf((enum GLenum)light_index, GL_SPOT_CUTOFF, lgt->GetConeAngle());
 
     float *AttenuationValues = lgt->GetAttenuationValues();
-    glLightf( light_index, GL_CONSTANT_ATTENUATION, AttenuationValues[0]);
-    glLightf( light_index, GL_LINEAR_ATTENUATION, AttenuationValues[1]);
-    glLightf( light_index, GL_QUADRATIC_ATTENUATION, AttenuationValues[2]);
+    glLightf((enum GLenum)light_index, 
+	     GL_CONSTANT_ATTENUATION, AttenuationValues[0]);
+    glLightf((enum GLenum)light_index, 
+	     GL_LINEAR_ATTENUATION, AttenuationValues[1]);
+    glLightf((enum GLenum)light_index, 
+	     GL_QUADRATIC_ATTENUATION, AttenuationValues[2]);
     }
 
 }
