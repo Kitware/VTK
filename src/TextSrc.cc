@@ -302,12 +302,12 @@ void vlTextSource::Execute()
 	newPoints->InsertNextPoint(x);
 	newScalars->InsertNextColor(black);
       
-	x[0] = pos*vlfont_width + vlfont_width - 1; 
+	x[0] = pos*vlfont_width + vlfont_width; 
 	x[1] = vlfont_height;
 	newPoints->InsertNextPoint(x);
 	newScalars->InsertNextColor(black);
 
-	x[0] = pos*vlfont_width + vlfont_width - 1; 
+	x[0] = pos*vlfont_width + vlfont_width; 
 	x[1] = 0;
 	newPoints->InsertNextPoint(x);
 	newScalars->InsertNextColor(black);
