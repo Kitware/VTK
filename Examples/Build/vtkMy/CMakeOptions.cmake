@@ -1,19 +1,4 @@
 #
-# Output path(s)
-#
-
-SET (LIBRARY_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin/ CACHE PATH 
-     "Single output directory for building all libraries.")
-
-SET (EXECUTABLE_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin/ CACHE PATH 
-     "Single output directory for building all executables.")
-
-MARK_AS_ADVANCED (
-  LIBRARY_OUTPUT_PATH 
-  EXECUTABLE_OUTPUT_PATH
-)
-
-#
 # Try to find VTK and include its settings (otherwise complain)
 #
 
@@ -44,7 +29,34 @@ IF (USE_VTK_FILE)
   SET(VTKMY_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS} CACHE INTERNAL 
       "Is this VTKMY built with shared libraries.")
 
+  #
+  # Output path(s)
+  #
+
+  SET (LIBRARY_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin/ CACHE PATH 
+       "Single output directory for building all libraries.")
+
+  SET (EXECUTABLE_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin/ CACHE PATH 
+       "Single output directory for building all executables.")
+
+  MARK_AS_ADVANCED (
+    LIBRARY_OUTPUT_PATH 
+    EXECUTABLE_OUTPUT_PATH
+  )
+
+  IF (VTK_LIBRARY_PATH AND VTK_EXECUTABLE_PATH)
+    OPTION(USE_VTK_OUTPUT_PATHS
+           "Use VTK library path (VTK_LIBRARY_PATH) and executable path (VTK_EXECUTABLE_PATH) as project's LIBRARY_OUTPUT_PATH and EXECUTABLE_OUTPUT_PATH."
+           OFF)
+    MARK_AS_ADVANCED (USE_VTK_OUTPUT_PATHS)
+    IF (USE_VTK_OUTPUT_PATHS)
+      SET (LIBRARY_OUTPUT_PATH ${VTK_LIBRARY_PATH})
+      SET (EXECUTABLE_OUTPUT_PATH ${VTK_EXECUTABLE_PATH})
+    ENDIF (USE_VTK_OUTPUT_PATHS)
+  ENDIF (VTK_LIBRARY_PATH AND VTK_EXECUTABLE_PATH)
+
 ENDIF (USE_VTK_FILE)
+
 
 #
 # Wrap Tcl, Java, Python

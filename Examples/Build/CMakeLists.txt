@@ -20,10 +20,15 @@ IF (BUILD_TESTING)
       ${VTK_SOURCE_DIR}/Examples/Build/vtkMy
       ${VTK_BINARY_DIR}/Examples/Build/vtkMy
       vtkmyEx1
-      ${VTK_BINARY_DIR}/Examples/Build/vtkMy/bin
+      ${VTK_EXECUTABLE_PATH}
       vtkMy
       CMAKE_ARGS
-      -DVTK_BINARY_PATH:PATH=${VTK_BINARY_DIR})
+      -DVTK_BINARY_PATH:PATH=${VTK_BINARY_DIR}
+      -DUSE_BUILT_VTK:BOOL=1
+      -DUSE_INSTALLED_VTK:BOOL=0
+      -DBUILD_SHARED_LIBS:BOOL=ON
+      -DUSE_VTK_OUTPUT_PATHS:BOOL=ON
+    )
 
   ENDIF (CMAKETEST_COMMAND)
 
