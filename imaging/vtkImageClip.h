@@ -102,11 +102,14 @@ protected:
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void CopyData(vtkImageData *inData, vtkImageData *outData, int *ext);
 
-  void Execute(vtkImageData *inData, vtkImageData *outData);
-  void Execute() { this->vtkImageToImageFilter::Execute(); };
+  int SplitExtentTmp(int piece, int numPieces, int *ext);
+
+  void Execute();
+  // To avoid warnings.
+  void Execute(vtkImageData *in, vtkImageData *out)
+   { this->vtkImageToImageFilter::Execute(in, out); };
   void Execute(vtkImageData *output)
     { this->vtkImageToImageFilter::Execute(output); };
-  int SplitExtentTmp(int piece, int numPieces, int *ext);
 };
 
 

@@ -209,42 +209,29 @@ void vtkImageClip::ResetOutputWholeExtent()
 
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageClip::Execute(vtkImageData *inData, 
-			   vtkImageData *outData)
+void vtkImageClip::Execute()
 {
   int *inExt, *outExt;
+  vtkImageData *outData = this->GetOutput();
+  vtkImageData *inData = this->GetInput();
   
   outExt = outData->GetUpdateExtent();  
   inExt  = inData->GetExtent(); 
 
-  if (this->ClipData && 
-      (inExt[0]<outExt[0] || inExt[1]>outExt[1] || 
-       inExt[2]<outExt[2] || inExt[3]>outExt[3] ||
-       inExt[4]<outExt[4] || inExt[5]>outExt[5]    ))
-    {
-    outData->SetExtent(outExt);
-    outData->AllocateScalars();
-    this->CopyData(inData, outData, outExt);
-    outData->DataHasBeenGenerated();
-    }
-  else
-    {
-    outData->SetExtent(inExt);
-    outData->GetPointData()->PassData(inData->GetPointData());
-    outData->DataHasBeenGenerated();
-    }
+  outData->SetExtent(inExt);
+  outData->GetPointData()->PassData(inData->GetPointData());
 
-  // release input data
-  if (this->GetInput()->ShouldIReleaseData())
+  if (this->ClipData)
     {
-    this->GetInput()->ReleaseData();
-    }
+    outData->Crop();
+    } 
 }
 
 
 
 
 //----------------------------------------------------------------------------
+// An old method that is not used anymore
 void vtkImageClip::CopyData(vtkImageData *inData, vtkImageData *outData,
                             int *ext)
 {

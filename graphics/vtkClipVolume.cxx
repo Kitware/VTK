@@ -145,7 +145,7 @@ unsigned long vtkClipVolume::GetMTime()
 //
 void vtkClipVolume::Execute()
 {
-  vtkStructuredPoints *input = this->GetInput();
+  vtkImageData *input = this->GetInput();
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
   vtkUnstructuredGrid *outputPtr;

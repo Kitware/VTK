@@ -243,6 +243,16 @@ public:
   // It just executes a switch statement to call the correct function for
   // the regions data types.
   void CopyAndCastFrom(vtkImageData *inData, int extent[6]);
+  void CopyAndCastFrom(vtkImageData *inData, int x0, int x1,
+                       int y0, int y1, int z0, int z1)
+    {int e[6]; e[0]=x0; e[1]=x1; e[2]=y0; e[3]=y1; e[4]=z0; e[5]=z1; 
+    this->CopyAndCastFrom(inData, e);}
+
+  // Description:
+  // Reallocates and copies to set the Extent to the UpdateExtent.
+  // This is used internally when the exact extent is requested, 
+  // and the source generated more than the update extent. 
+  void Crop();
 
   // Description:
   // Return the actual size of the data in kilobytes. This number

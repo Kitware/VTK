@@ -75,7 +75,7 @@ vtkImageToPolyDataFilter::~vtkImageToPolyDataFilter()
 
 void vtkImageToPolyDataFilter::Execute()
 {
-  vtkStructuredPoints *input=this->GetInput();
+  vtkImageData *input=this->GetInput();
   vtkPolyData *output=this->GetOutput();
   vtkPolyData *tmpOutput=vtkPolyData::New();
   vtkPolyData *tmpInput=vtkPolyData::New();

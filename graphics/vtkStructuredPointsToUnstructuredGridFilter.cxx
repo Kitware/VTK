@@ -43,14 +43,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
-void vtkStructuredPointsToUnstructuredGridFilter::SetInput(vtkStructuredPoints *input)
+void vtkStructuredPointsToUnstructuredGridFilter::SetInput(vtkImageData *input)
 {
   this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
-vtkStructuredPoints *vtkStructuredPointsToUnstructuredGridFilter::GetInput()
+vtkImageData *vtkStructuredPointsToUnstructuredGridFilter::GetInput()
 {
   if (this->NumberOfInputs < 1)
     {
@@ -60,3 +60,12 @@ vtkStructuredPoints *vtkStructuredPointsToUnstructuredGridFilter::GetInput()
   return (vtkStructuredPoints *)(this->Inputs[0]);
 }
 
+//----------------------------------------------------------------------------
+void vtkStructuredPointsToUnstructuredGridFilter::ComputeInputUpdateExtents( 
+                                                        vtkDataObject *output)
+{
+  this->vtkUnstructuredGridSource::ComputeInputUpdateExtents(output);
+
+  // assume that we cannot handle more than the requested extent.
+  this->GetInput()->RequestExactExtentOn();
+}

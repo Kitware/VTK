@@ -1076,11 +1076,7 @@ void vtkImageData::UpdateData()
       {
       return;
       }
-    vtkImageData *tmp = vtkImageData::New();
-    tmp->ShallowCopy(this);
-    this->SetExtent(this->UpdateExtent);
-    this->AllocateScalars();
-    this->CopyAndCastFrom(tmp, this->UpdateExtent);
+    this->Crop();
     return;
     }
   
@@ -1625,12 +1621,12 @@ static void vtkImageDataCastExecute(vtkImageData *inData, IT *inPtr,
     for (idxY = 0; idxY <= maxY; idxY++)
       {
       for (idxR = 0; idxR < rowLength; idxR++)
-	{
-	// Pixel operation
+        {
+        // Pixel operation
 	*outPtr = (OT)(*inPtr);
-	outPtr++;
-	inPtr++;
-	}
+        outPtr++;
+        inPtr++;
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -1680,6 +1676,80 @@ void vtkImageData::CopyAndCastFrom(vtkImageData *inData, int extent[6])
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkImageData::Crop()
+{
+  int           nExt[6];
+  int           idxY, idxZ, maxY, maxZ;
+  int           inIncX, inIncY, inIncZ, rowLength;
+  vtkScalars    *newScalars;
+  unsigned char *inPtr, *inPtr1, *outPtr;
+  
+  // if the scalar type has not been set then we have a problem
+  if (this->ScalarType == VTK_VOID)
+    {
+    vtkErrorMacro("ScalarType has not been set.");
+    return;
+    }
+
+  // Take the intersection of the two extent so that 
+  // we are not asking for more than the extent.
+  this->GetUpdateExtent(nExt);
+  if (nExt[0] < this->Extent[0]) { nExt[0] = this->Extent[0];}
+  if (nExt[1] > this->Extent[1]) { nExt[1] = this->Extent[1];}
+  if (nExt[2] < this->Extent[2]) { nExt[2] = this->Extent[2];}
+  if (nExt[3] > this->Extent[3]) { nExt[3] = this->Extent[3];}
+  if (nExt[4] < this->Extent[4]) { nExt[4] = this->Extent[4];}
+  if (nExt[5] > this->Extent[5]) { nExt[5] = this->Extent[5];}
+
+  // If the extents are the same just return.
+  if (this->Extent[0] == nExt[0] && this->Extent[1] == nExt[1]
+      && this->Extent[2] == nExt[2] && this->Extent[3] == nExt[3]
+      && this->Extent[4] == nExt[4] && this->Extent[5] == nExt[6])
+    {
+    vtkDebugMacro("Extents already match.");
+    return;
+    }
+
+  // Allocate new scalars.
+  newScalars = vtkScalars::New();
+  newScalars->SetDataType(this->ScalarType);
+  newScalars->SetNumberOfComponents(this->GetNumberOfScalarComponents());
+  newScalars->SetNumberOfScalars((nExt[1] - nExt[0] + 1)*
+		                 (nExt[3] - nExt[2] + 1)*
+		                 (nExt[5] - nExt[4] + 1));
+  
+  inPtr = (unsigned char *) this->GetScalarPointerForExtent(nExt);
+  outPtr = (unsigned char *) newScalars->GetVoidPointer(0);
+  
+  // Get increments to march through inData 
+  this->GetIncrements(inIncX, inIncY, inIncZ);
+  
+  // find the region to loop over
+  rowLength = (nExt[1] - nExt[0] + 1) * inIncX * this->GetScalarSize();
+  maxY = nExt[3] - nExt[2]; 
+  maxZ = nExt[5] - nExt[4];
+  
+  // Compensate for the fact we are using unsinged char pointers.
+  inIncY *= this->GetScalarSize(); 
+  inIncZ *= this->GetScalarSize();
+  
+  // Loop through outData pixels
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+    {
+    inPtr1 = inPtr + idxZ*inIncZ;
+    for (idxY = 0; idxY <= maxY; idxY++)
+      {
+      memcpy(outPtr,inPtr1,rowLength);
+      inPtr1 += inIncY;
+      outPtr += rowLength;
+      }
+    }
+
+  this->SetExtent(nExt);
+  this->PointData->SetScalars(newScalars);
+  newScalars->Delete();
+}
 
 
 

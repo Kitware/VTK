@@ -78,7 +78,7 @@ void vtkLinkEdgels::Execute()
   vtkCellArray *newLines=0;
   vtkScalars *inScalars;
   vtkScalars *outScalars;
-  vtkStructuredPoints *input = this->GetInput();
+  vtkImageData *input = this->GetInput();
   vtkVectors *outVectors;
   vtkPolyData *output = this->GetOutput();
   int *dimensions;

@@ -61,8 +61,8 @@ public:
 
   // Description:
   // Set / get the input data or filter.
-  void SetInput(vtkStructuredPoints *input);
-  vtkStructuredPoints *GetInput();
+  void SetInput(vtkImageData *input);
+  vtkImageData *GetInput();
 
 protected:
   vtkStructuredPointsToStructuredPointsFilter() {this->NumberOfRequiredInputs = 1;};
@@ -74,6 +74,7 @@ protected:
   // method that defaults to just copying information.
   void ExecuteInformation();
 
+  void ComputeInputUpdateExtents(vtkDataObject *output);
 
 };
 

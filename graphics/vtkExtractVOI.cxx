@@ -71,7 +71,7 @@ vtkExtractVOI::vtkExtractVOI()
 
 void vtkExtractVOI::ExecuteInformation()
 {
-  vtkStructuredPoints *input=this->GetInput();
+  vtkImageData *input=this->GetInput();
   vtkStructuredPoints *output=this->GetOutput();
   int i, dims[3], outDims[3], voi[6];
   int rate[3];
@@ -85,9 +85,9 @@ void vtkExtractVOI::ExecuteInformation()
   this->vtkStructuredPointsToStructuredPointsFilter::ExecuteInformation();
 
   input->GetWholeExtent( wholeExtent );
-  dims[0] = wholeExtent[1] - wholeExtent[0];
-  dims[1] = wholeExtent[3] - wholeExtent[2];
-  dims[2] = wholeExtent[5] - wholeExtent[4];
+  dims[0] = wholeExtent[1] - wholeExtent[0] + 1;
+  dims[1] = wholeExtent[3] - wholeExtent[2] + 1;
+  dims[2] = wholeExtent[5] - wholeExtent[4] + 1;
   
   
   for ( i=0; i < 6; i++ )
@@ -139,7 +139,7 @@ void vtkExtractVOI::ExecuteInformation()
 
 void vtkExtractVOI::Execute()
 {
-  vtkStructuredPoints *input=this->GetInput();
+  vtkImageData *input=this->GetInput();
   vtkPointData *pd=input->GetPointData();
   vtkCellData *cd=input->GetCellData();
   vtkStructuredPoints *output=this->GetOutput();

@@ -61,14 +61,17 @@ public:
 
   // Description:
   // Set / get the input data or filter.
-  void SetInput(vtkStructuredPoints *input);
-  vtkStructuredPoints *GetInput();
+  void SetInput(vtkImageData *input);
+  vtkImageData *GetInput();
 
 protected:
   vtkStructuredPointsToUnstructuredGridFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkStructuredPointsToUnstructuredGridFilter() {};
   vtkStructuredPointsToUnstructuredGridFilter(const vtkStructuredPointsToUnstructuredGridFilter&) {};
   void operator=(const vtkStructuredPointsToUnstructuredGridFilter&) {};
+
+  void ComputeInputUpdateExtents(vtkDataObject *output);
+
 };
 
 #endif

@@ -187,6 +187,11 @@ void vtkTexture::Render(vtkRenderer *ren)
 {
   if (this->Input) //load texture map
     {
+	// We do not want more than requested.
+	this->Input->RequestExactExtentOn();
+	// Updating the whole extent may not be necessary.
+    this->Input->UpdateInformation();
+    this->Input->SetUpdateExtentToWholeExtent();
     this->Input->Update();
     this->Load(ren);
     }

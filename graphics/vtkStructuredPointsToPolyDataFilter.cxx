@@ -43,20 +43,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
-void vtkStructuredPointsToPolyDataFilter::SetInput(vtkStructuredPoints *input)
+void vtkStructuredPointsToPolyDataFilter::SetInput(vtkImageData *input)
 {
   this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
-vtkStructuredPoints *vtkStructuredPointsToPolyDataFilter::GetInput()
+vtkImageData *vtkStructuredPointsToPolyDataFilter::GetInput()
 {
   if (this->NumberOfInputs < 1)
     {
     return NULL;
     }
   
-  return (vtkStructuredPoints *)(this->Inputs[0]);
+  return (vtkImageData *)(this->Inputs[0]);
 }
 
+//----------------------------------------------------------------------------
+void vtkStructuredPointsToPolyDataFilter::ComputeInputUpdateExtents( 
+                                                        vtkDataObject *output)
+{
+  this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
+
+  // assume that we cannot handle more than the requested extent.
+  this->GetInput()->RequestExactExtentOn();
+}
