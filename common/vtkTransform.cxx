@@ -286,7 +286,7 @@ void vtkTransform::Concatenate(vtkLinearTransform *transform)
     }
   this->Concatenation->Concatenate(transform); 
   this->Modified(); 
-};
+}
 
 //----------------------------------------------------------------------------
 void vtkTransform::SetInput(vtkLinearTransform *input)
