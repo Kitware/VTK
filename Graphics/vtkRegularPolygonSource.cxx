@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkRegularPolygonSource, "1.1");
+vtkCxxRevisionMacro(vtkRegularPolygonSource, "1.2");
 vtkStandardNewMacro(vtkRegularPolygonSource);
 
 vtkRegularPolygonSource::vtkRegularPolygonSource()
@@ -109,7 +109,7 @@ int vtkRegularPolygonSource::RequestData(
   
   // Produce a unit vector in the plane of the polygon (i.e., perpendicular
   // to the normal)
-  double n[3], axis[3], p[3];
+  double n[3], axis[3], px[3], py[3];
 
   // Make sure the polygon normal is a unit vector
   n[0] = this->Normal[0];
@@ -127,8 +127,8 @@ int vtkRegularPolygonSource::RequestData(
   axis[0] = 1.0;
   axis[1] = 0.0;
   axis[2] = 0.0;
-  vtkMath::Cross(n,axis,p);
-  if ( vtkMath::Normalize(p) > 1.0E-3 )
+  vtkMath::Cross(n,axis,px);
+  if ( vtkMath::Normalize(px) > 1.0E-3 )
     {
     foundPlaneVector = 1;
     }
@@ -137,8 +137,8 @@ int vtkRegularPolygonSource::RequestData(
     axis[0] = 0.0;
     axis[1] = 1.0;
     axis[2] = 0.0;
-    vtkMath::Cross(n,axis,p);
-    if ( vtkMath::Normalize(p) > 1.0E-3 )
+    vtkMath::Cross(n,axis,px);
+    if ( vtkMath::Normalize(px) > 1.0E-3 )
       {
       foundPlaneVector = 1;
       }
@@ -148,9 +148,10 @@ int vtkRegularPolygonSource::RequestData(
     axis[0] = 0.0;
     axis[1] = 0.0;
     axis[2] = 1.0;
-    vtkMath::Cross(n,axis,p);
-    vtkMath::Normalize(p);
+    vtkMath::Cross(n,axis,px);
+    vtkMath::Normalize(px);
     }
+  vtkMath::Cross(px,n,py); //created two orthogonal axes in the polygon plane, px & py
 
   // Now run around normal vector to produce polygon points.
   double theta = 2.0 * vtkMath::DoublePi() / numPts;
@@ -158,7 +159,7 @@ int vtkRegularPolygonSource::RequestData(
     {
     for (i=0; i<3; i++)
       {
-      r[i] = p[i]*cos((double)j*theta) + n[i]*sin((double)j*theta);
+      r[i] = px[i]*cos((double)j*theta) + py[i]*sin((double)j*theta);
       x[i] = this->Center[i] + this->Radius * r[i];
       }
     newPoints->InsertNextPoint(x);
