@@ -114,21 +114,22 @@ void  vtkLookupTable
     return;
     }
 
-  if (this->TableRange[0] != min ||
-      this->TableRange[1] != max)
+  if (this->TableRange[0] == min && this->TableRange[1] == max)
     {
-    this->Modified();
+    return;
     }
   this->TableRange[0] = min;
   this->TableRange[1] = max;
+  this->Modified();
 }
 
 // Allocate a color table of specified size.
-int vtkLookupTable::Allocate(int sz, int ext) 
+int vtkLookupTable::Allocate(int sz, int ext)
 {
-  this->Modified();
   this->NumberOfColors = sz;
-  return this->Table->Allocate(4*this->NumberOfColors,4*ext);
+  int a = this->Table->Allocate(4*this->NumberOfColors,4*ext);
+  this->Modified();
+  return a;
 }
 
 
