@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkFieldData, "1.40");
+vtkCxxRevisionMacro(vtkFieldData, "1.41");
 vtkStandardNewMacro(vtkFieldData);
 
 vtkFieldData::BasicIterator::BasicIterator(const int* list, 
@@ -661,6 +661,7 @@ void vtkFieldData::ClearFieldFlags()
 // If it is, it returns the index otherwise it returns -1
 int vtkFieldData::FindFlag(const char* field)
 {
+  if ( !field ) return -1;
   for(int i=0; i<this->NumberOfFieldFlags; i++)
     {
     if (this->CopyFieldFlags[i].ArrayName &&
