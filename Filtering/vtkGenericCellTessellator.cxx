@@ -343,7 +343,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.1");
+vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.2");
 vtkStandardNewMacro(vtkGenericCellTessellator);
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetric, vtkGenericSubdivisionErrorMetric);
 
@@ -1190,7 +1190,7 @@ void vtkGenericCellTessellator::RemoveEdgesFromEdgeTable( vtkTetraTile &tetra )
 void vtkGenericCellTessellator::InternalTessellateTriangle(vtkTriangleTile& root )
 {
   // use a queue instead of a list to speed things up 
-  std::queue< vtkTriangleTile > work;
+  vtkstd::queue< vtkTriangleTile > work;
   vtkTriangleTile begin = vtkTriangleTile(root);
   work.push( begin );
 
@@ -1296,7 +1296,7 @@ void vtkGenericCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
   this->InsertEdgesIntoEdgeTable( root );
 
   //Start of the algorithm use a queue for now:
-  std::queue<vtkTetraTile> work;
+  vtkstd::queue<vtkTetraTile> work;
   work.push( root );
 
   //vtkDebugMacro( << "New tet being tessellated" );
