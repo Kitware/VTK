@@ -47,7 +47,7 @@ char *vtkstrdup(const char *in)
   void checkSigSize(char *arg)
     {
     if (strlen(currentFunction->Signature) + strlen(arg) + 3 > 
-        sigAllocatedLength)
+        (unsigned int)sigAllocatedLength)
       {
       currentFunction->Signature = (char *)
         realloc(currentFunction->Signature, sigAllocatedLength*2);
