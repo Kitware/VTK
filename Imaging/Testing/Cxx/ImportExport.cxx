@@ -94,7 +94,7 @@ int ImportExport( int argc, char *argv[] )
  exporter->Delete();
  reader->Delete();
  
- delete data;
+ delete [] data;
 
  return !retVal;
 }

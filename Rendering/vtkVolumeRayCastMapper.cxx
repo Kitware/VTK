@@ -34,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.102");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.102.4.1");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -537,7 +537,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     
     if ( staticInfo->ClippingPlane )
       {
-      delete staticInfo->ClippingPlane;
+      delete [] staticInfo->ClippingPlane;
       }
     delete staticInfo;
 
