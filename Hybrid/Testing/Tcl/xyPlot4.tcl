@@ -90,6 +90,8 @@ vtkXYPlotActor xyplot
     xyplot LegendOn
     xyplot SetPlotSymbol 2 [triangle GetOutput]
     xyplot SetPlotColor 2 0 0 1
+    xyplot SetPlotColor 1 0 0 0
+    xyplot SetPlotColor 0 0 0 0
     xyplot SetGlyphSize 0.025
     # Set text prop color (same color for backward compat with test)
     # Assign same object to all text props
@@ -121,6 +123,7 @@ vtkXYPlotActor xyplot2
     [xyplot2 GetProperty] SetPointSize 2
     xyplot2 SetPlotSymbol 0 [vertexGlyph GetOutput]
     xyplot2 SetPlotLabel 0 "Ken's Mudslide Consumption"
+    xyplot2 SetPlotColor 0 1 0 0
     xyplot2 SetPlotSymbol 1 [cross GetOutput]
     xyplot2 SetPlotColor 1 1 0 1
     xyplot2 SetPlotLabel 1 "Bill's Beer Consumption"
