@@ -120,7 +120,7 @@ static inline int vtkContainerCompareMethod(void* d1, void* d2)
 { return vtkContainerDefaultCompare(d1,d2); }
 
 template<class DType>
-DType vtkContainerDefaultCreate(DType k2) { return k2; }
+DType& vtkContainerDefaultCreate(DType k2) { return k2; }
 
 static inline vtkObjectBase* vtkContainerCreateMethod(vtkObjectBase* d1)
 { if ( d1) { d1->Register(0); } return d1; }
