@@ -68,7 +68,7 @@ iren Initialize
 wm withdraw .
 
 #renWin SetFileName projTex.tcl.ppm
-#renWin SsveImageAsPPM
+#renWin SaveImageAsPPM
 
 proc move {} {
     set cam [ren1 GetActiveCamera]
