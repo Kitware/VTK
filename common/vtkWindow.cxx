@@ -55,6 +55,7 @@ vtkWindow::vtkWindow()
     strcpy( this->WindowName, "Visualization Toolkit" );
   this->Erase = 1;
   this->DoubleBuffer = 0;
+  this->DPI = 120;
 }
 
 // Destructor for the vtkWindow object.
@@ -154,6 +155,7 @@ void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Size: (" << temp[0] << ", " << temp[1] << ")\n";
   os << indent << "Mapped: " << this->Mapped << "\n";
   os << indent << "Double Buffered: " << this->DoubleBuffer << "\n";
+  os << indent << "DPI: " << this->DPI << "\n";
 
 }
 

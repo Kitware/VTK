@@ -123,6 +123,12 @@ public:
   virtual unsigned char *GetPixelData(int, int, int, int, int) {
     return (unsigned char *)NULL;};
 
+  // Description:
+  // Return a best estimate to the dots per inch of the display
+  // device being rendered (or printed).
+  vtkGetMacro(DPI,int);
+  vtkSetClampMacro(DPI,int,1,3000);
+  
 protected:
   char *WindowName;
   int Size[2];
@@ -130,6 +136,7 @@ protected:
   int Mapped;
   int Erase;
   int DoubleBuffer;
+  int DPI;
 };
 
 #endif
