@@ -461,10 +461,11 @@ void get_python_signature()
 }
 
 /* convert special characters in a string into their escape codes,
-   so that the string can be quoted in a source file */
+   so that the string can be quoted in a source file (the maximum
+   converted length is around 1000 chars) */
 static const char *quote_string(const char *comment)
 {
-  static char result[8192];
+  static char result[1050];
   int i, j, n;
 
   if (comment == NULL)
@@ -501,6 +502,12 @@ static const char *quote_string(const char *comment)
       {
       sprintf(&result[j],"\\%3.3o",comment[i]);
       j += 4;
+      }
+    if (j >= 1000)
+      {
+      sprintf(&result[j],"...\\n [Truncated]\\n");
+      j += strlen("...\\n [Truncated]\\n");
+      break;
       }
     }
   result[j] = '\0';
@@ -916,7 +923,7 @@ static void create_class_doc(FILE *fp, FileInfo *data)
   fprintf(fp,"Description:\\n\\n");
   fprintf(fp,"%s\\n",  
 	  data->Description ? quote_string(data->Description) : 
-	                      "None provided.\\n\\n");
+	                      "None provided.\\n");
 
   if (data->Caveats)
     {
