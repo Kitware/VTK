@@ -93,9 +93,6 @@ public:
     }
 #endif
 
-#ifdef VTK_NEED_ID_TYPE_STREAM_OPERATORS
-  vtkOStreamWrapper& operator << (vtkIdType);
-#endif
   vtkOStreamWrapper& operator << (void (*)(void*));
   vtkOStreamWrapper& operator << (void* (*)(void*));
   vtkOStreamWrapper& operator << (int (*)(void*));
