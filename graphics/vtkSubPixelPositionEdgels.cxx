@@ -6,7 +6,7 @@
   Date:      $Date$
   Version:   $Revision$
 
-Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1997 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -39,31 +39,31 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkSubPixelPositionEdgels.h"
-#include "vtkImageRegion.h"
 
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
 {
-  this->Gradient = NULL;
+  this->GradMaps = NULL;
 }
 
 void vtkSubPixelPositionEdgels::Execute()
 {
-  vtkImageRegion *region = new vtkImageRegion;
-  int regionExtent[8];
   vtkPolyData *input=(vtkPolyData *)this->Input;
   int numPts=input->GetNumberOfPoints();
   vtkFloatPoints *newPts;
   vtkPoints *inPts;
+  vtkVectors *inVectors;
   vtkCellArray *inLines=input->GetLines();
   int nptsin, *idsin;
   vtkPolyData *output = this->GetOutput();
   int j;
-  float result[3];
+  float *MapData, *CurrMap;
   float *pnt;
+  int *dimensions;
+  float result[3];
   
   vtkDebugMacro(<<"SubPixelPositioning Edgels");
 
-  if (numPts < 1 || (inPts=input->GetPoints()) == NULL)
+  if ( numPts < 1 || (inPts=input->GetPoints()) == NULL )
     {
     vtkErrorMacro(<<"No data to fit!");
     return;
@@ -71,36 +71,10 @@ void vtkSubPixelPositionEdgels::Execute()
 
   newPts = new vtkFloatPoints;
 
-  // Fill in image information.
-  this->Gradient->UpdateImageInformation(region);
-  region->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, 
-		  VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_Z_AXIS);
-  
-  // get the input region
-  region->GetImageExtent(4, regionExtent);
-  region->SetExtent(4, regionExtent);
+  dimensions = this->GradMaps->GetDimensions();
+  MapData = ((vtkFloatScalars *)((this->GradMaps->GetPointData())->GetScalars()))->GetPtr(0);
+  inVectors = this->GradMaps->GetPointData()->GetVectors();
 
-  this->Gradient->UpdateRegion(region);
-  if ( ! region->AreScalarsAllocated())
-    {
-    vtkErrorMacro(<< "Execute: Could not get region.");
-    return;
-    }
-
-  // chekc data type for float
-  if (region->GetScalarType() != VTK_FLOAT)
-    {
-    vtkImageRegion *temp = region;
-    
-    vtkWarningMacro(<<"Converting non float image data to float");
-    
-    region = new vtkImageRegion;
-    region->SetScalarType(VTK_FLOAT);
-    region->SetExtent(temp->GetExtent());
-    region->CopyRegionData(temp);
-    temp->Delete();
-    }
-    
   // loop over all the segments
   for(inLines->InitTraversal(); inLines->GetNextCell(nptsin, idsin);)
     {
@@ -108,8 +82,10 @@ void vtkSubPixelPositionEdgels::Execute()
     for (j = 0; j < nptsin; j++)
       {
       pnt = inPts->GetPoint(idsin[j]);
-      this->Move(region,(int)(pnt[0]+0.5),(int)(pnt[1]+0.5),
-		 result, (int)(pnt[2]+0.5));
+      CurrMap = MapData + dimensions[0]*dimensions[1]*((int)(pnt[2]+0.5));
+      this->Move(dimensions[0],dimensions[1],
+		 (int)(pnt[0]+0.5),(int)(pnt[1]+0.5),CurrMap,
+		 inVectors, result, (int)(pnt[2]+0.5));
       newPts->InsertNextPoint(result);
       }
     }
@@ -118,23 +94,23 @@ void vtkSubPixelPositionEdgels::Execute()
   output->SetPoints(newPts);
   output->SetLines(inLines);
   newPts->Delete();
-  region->Delete();
 }
 
-void vtkSubPixelPositionEdgels::Move(vtkImageRegion *region, 
-				     int x, int y,
+void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int x, int y,
+				     float *img, vtkVectors *inVecs, 
 				     float *result, int z)
 {
-  int *extent = region->GetExtent();
-  float vec[2];
+  int ypos, zpos;
+  float *vec;
   float val1, val2, val3, val4;
   float mix,mag;
   float dist;
   float a,b,c,root;
-  float *imgData, *imgPtr;
-  int    imgIncX, imgIncY, imgIncVec;
+  
+  zpos = z*xdim*ydim;
 
-  if (x <= extent[0] || y <= extent[2] || x >= extent[1] || y >= extent[3])
+  ypos = y*xdim;
+  if (x == 0 || y == 0 || x == (xdim-1) || y == (ydim -1))
     {
     result[0] = x;
     result[1] = y;
@@ -144,14 +120,8 @@ void vtkSubPixelPositionEdgels::Move(vtkImageRegion *region,
     {
     // do the non maximal suppression at this pixel
     // first get the orientation
-    imgData = (float *)region->GetScalarPointer(0,0,0,z);
-    region->GetIncrements(imgIncX, imgIncY, imgIncVec);
-
-    imgPtr = imgData + x*imgIncX + y*imgIncY;
-    vec[0] = *(imgPtr+ imgIncVec);
-    vec[1] = *(imgPtr + 2*imgIncVec);
-    mag = *imgPtr;
-    
+    vec = inVecs->GetVector(x+ypos+zpos);
+    mag = img[x+ypos];
     if (vec[1] && vec[0])
       {
       mix = fabs(atan2(vec[1],vec[0]));
@@ -175,34 +145,34 @@ void vtkSubPixelPositionEdgels::Move(vtkImageRegion *region,
       {
       if (vec[1]*vec[0] > 0)
 	{
-	val1 = *(imgPtr + imgIncY);
-	val2 = *(imgPtr + imgIncX + imgIncY);
-	val3 = *(imgPtr - imgIncY);
-	val4 = *(imgPtr - imgIncX - imgIncY);
+	val1 = img[x + (y+1)*xdim];
+	val2 = img[x + 1 + (y+1)*xdim];
+	val3 = img[x + (y-1)*xdim];
+	val4 = img[x - 1 + (y-1)*xdim];
 	}
       else
 	{
-	val1 = *(imgPtr + imgIncY);
-	val2 = *(imgPtr - imgIncX + imgIncY);
-	val3 = *(imgPtr - imgIncY);
-	val4 = *(imgPtr + imgIncX - imgIncY);
+	val1 = img[x + (y+1)*xdim];
+	val2 = img[x - 1 + (y+1)*xdim];
+	val3 = img[x + (y-1)*xdim];
+	val4 = img[x + 1 + (y-1)*xdim];
 	}
       }
     else
       {
       if (vec[0]*vec[1] > 0)
 	{
-	val1 = *(imgPtr + imgIncX);
-	val2 = *(imgPtr + imgIncX + imgIncY);
-	val3 = *(imgPtr - imgIncX);
-	val4 = *(imgPtr - imgIncX - imgIncY);
+	val1 = img[x + 1 + ypos];
+	val2 = img[x + 1 + (y+1)*xdim];
+	val3 = img[x - 1 + ypos];
+	val4 = img[x - 1 + (y-1)*xdim];
 	}
       else
 	{
-	val1 = *(imgPtr - imgIncX);
-	val2 = *(imgPtr - imgIncX + imgIncY);
-	val3 = *(imgPtr + imgIncX);
-	val4 = *(imgPtr + imgIncX - imgIncY);
+	val1 = img[x - 1 + ypos];
+	val2 = img[x - 1 + (y+1)*xdim];
+	val3 = img[x + 1 + ypos];
+	val4 = img[x + 1 + (y-1)*xdim];
 	}
       }
     val1 = (1.0 - mix)*val1 + mix*val2;
@@ -238,7 +208,7 @@ void vtkSubPixelPositionEdgels::Move(vtkImageRegion *region,
 void vtkSubPixelPositionEdgels::Update()
 {
   // make sure input is available
-  if (this->Input == NULL || this->Gradient == NULL)
+  if (this->Input == NULL || this->GradMaps == NULL)
     {
     vtkErrorMacro(<< "No input!");
     return;
@@ -249,14 +219,13 @@ void vtkSubPixelPositionEdgels::Update()
 
   this->Updating = 1;
   this->Input->Update();
+  this->GradMaps->Update();
   this->Updating = 0;
 
   if (this->Input->GetMTime() > this->ExecuteTime || 
-  this->Gradient->GetPipelineMTime() > this->ExecuteTime || 
+  this->GradMaps->GetMTime() > this->ExecuteTime || 
   this->GetMTime() > this->ExecuteTime || this->GetDataReleased() )
     {
-    if ( this->Input->GetDataReleased() ) this->Input->ForceUpdate();
-
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Output->Initialize();
     this->Execute();
@@ -266,9 +235,6 @@ void vtkSubPixelPositionEdgels::Update()
     }
 
   if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  if ( this->GradMaps->ShouldIReleaseData() ) this->GradMaps->ReleaseData();
 }
-
-
-
-
 

@@ -6,7 +6,7 @@
   Date:      $Date$
   Version:   $Revision$
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1997 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -60,8 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkSubPixelPositionEdgels_h
 
 #include "vtkPolyToPolyFilter.h"
-#include "vtkImageSource.h"
-#include "vtkImageRegion.h"
+#include "vtkStructuredPoints.h"
 
 class vtkSubPixelPositionEdgels : public vtkPolyToPolyFilter
 {
@@ -72,16 +71,17 @@ public:
   void Update();
 
   // Description:
-  // Set/Get the gradient imput image from the image pipline.
-  vtkSetObjectMacro(Gradient,vtkImageSource);
-  vtkGetObjectMacro(Gradient,vtkImageSource);
+  // Set/Get the gradient data for doing the position adjustments.
+  vtkSetObjectMacro(GradMaps,vtkStructuredPoints);
+  vtkGetObjectMacro(GradMaps,vtkStructuredPoints);
 
 protected:
   // Usual data generation method
   void Execute();
-  void Move(vtkImageRegion *region, int x, int y,
+  void Move(int xdim, int ydim, int x, int y,
+	    float *img, vtkVectors *inVecs, 
 	    float *result, int z);
-  vtkImageSource *Gradient;
+  vtkStructuredPoints *GradMaps;  
 };
 
 #endif
