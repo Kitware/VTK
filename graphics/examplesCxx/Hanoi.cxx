@@ -86,9 +86,9 @@ void MovePuck (int peg1, int peg2)
     Renwin->Render();
     if ( NumberOfMoves == 13 && i == 3 ) //for making book image
       {
-      Renwin->Render();
-      Renwin->SetFileName("hanoi1.ppm");
-      Renwin->SaveImageAsPPM();
+//      Renwin->Render();
+//      Renwin->SetFileName("hanoi1.ppm");
+//      Renwin->SaveImageAsPPM();
       }
     }
 
@@ -249,6 +249,9 @@ int main(int argc, char *argv[])
     peg[i]->SetScale(1,H,1);
     }
 
+  // Initialize the random seed
+  math.RandomSeed( 6 );
+
   //The pucks (using cylinder geometry). Always loaded on peg# 0.
   for (i=0; i<NumberOfPucks; i++)
     {
@@ -268,9 +271,11 @@ int main(int argc, char *argv[])
   camera->Dolly(2.5);
   light->SetFocalPoint(camera->GetFocalPoint());
   light->SetPosition(camera->GetPosition());
-  Renwin->Render();
-  Renwin->SetFileName("hanoi0.ppm");
-  Renwin->SaveImageAsPPM();
+
+//  Renwin->Render();
+//  Renwin->SetFileName("hanoi0.ppm");
+//  Renwin->SaveImageAsPPM();
+
 //
 // Begin recursion
 //
@@ -283,6 +288,7 @@ int main(int argc, char *argv[])
   //Renwin->Render();
   //Renwin->SetFileName("hanoi2.ppm");
   //Renwin->SaveImageAsPPM();
+
 //
 // Report output
 //
