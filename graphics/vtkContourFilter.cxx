@@ -120,13 +120,13 @@ void vtkContourFilter::Execute()
   vtkScalars *inScalars;
   vtkFloatScalars cellScalars(VTK_CELL_SIZE);
   vtkCell *cell;
-  float *range, value;
-  vtkFloatScalars *newScalars;
+  float range[2];
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkFloatPoints *newPts;
   cellScalars.ReferenceCountingOff();
   vtkPolyData *output = this->GetOutput();
-  int numCells, estimatedSize;
+  int numCells, estimatedSize, numScalars;
+  vtkPointData *inPd, *outPd;
   
   vtkDebugMacro(<< "Executing contour filter");
 
@@ -150,7 +150,7 @@ void vtkContourFilter::Execute()
       }
     }
 
-  range = inScalars->GetRange();
+  inScalars->GetRange(range);
 //
 // Create objects to hold output of contour operation. First estimate allocation size.
 //
@@ -162,29 +162,34 @@ void vtkContourFilter::Execute()
   newVerts = new vtkCellArray(estimatedSize,estimatedSize);
   newLines = new vtkCellArray(estimatedSize,estimatedSize);
   newPolys = new vtkCellArray(estimatedSize,estimatedSize);
-  newScalars = new vtkFloatScalars(estimatedSize,estimatedSize);
 
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
   this->Locator->InitPointInsertion (newPts, this->Input->GetBounds());
-//
-// Loop over all contour values.  Then for each contour value, 
-// loop over all cells.
-//
-  for (i=0; i < this->NumberOfContours; i++)
+
+  // interpolate data along edge
+  inPd = this->Input->GetPointData();
+  outPd = output->GetPointData();
+  outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
+
+  //
+  // Loop over all contour values.  Then for each contour value, 
+  // loop over all cells.
+  //
+  for (cellId=0; cellId < numCells; cellId++)
     {
-    value = this->Values[i];
-    for (cellId=0; cellId < numCells; cellId++)
+    cell = Input->GetCell(cellId);
+    cellPts = cell->GetPointIds();
+    inScalars->GetScalars(*cellPts,cellScalars);
+
+    for (i=0; i < this->NumberOfContours; i++)
       {
-      cell = Input->GetCell(cellId);
-      cellPts = cell->GetPointIds();
-      inScalars->GetScalars(*cellPts,cellScalars);
 
-      cell->Contour(value, &cellScalars, this->Locator, 
-                    newVerts, newLines, newPolys, newScalars);
+      cell->Contour(this->Values[i], &cellScalars, this->Locator, 
+                    newVerts, newLines, newPolys, inPd, outPd);
 
-      } // for all cells
-    } // for all contour values
+      } // for all contour values
+    } // for all cells
 
   vtkDebugMacro(<<"Created: " 
                << newPts->GetNumberOfPoints() << " points, " 
@@ -197,9 +202,6 @@ void vtkContourFilter::Execute()
 //
   output->SetPoints(newPts);
   newPts->Delete();
-
-  output->GetPointData()->SetScalars(newScalars);
-  newScalars->Delete();
 
   if (newVerts->GetNumberOfCells()) output->SetVerts(newVerts);
   newVerts->Delete();

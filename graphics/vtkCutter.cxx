@@ -83,12 +83,12 @@ void vtkCutter::Execute()
   vtkFloatPoints *cellPts;
   vtkFloatScalars cellScalars(VTK_CELL_SIZE);
   vtkCell *cell;
-  vtkFloatScalars *newScalars;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkFloatPoints *newPoints;
   float value, *x, s;
   vtkPolyData *output = this->GetOutput();
   int estimatedSize, numCells=this->Input->GetNumberOfCells();
+  vtkPointData *inPd, *outPd;
   
   vtkDebugMacro(<< "Executing cutter");
   cellScalars.ReferenceCountingOff();
@@ -112,11 +112,15 @@ void vtkCutter::Execute()
   newVerts = new vtkCellArray(estimatedSize,estimatedSize/2);
   newLines = new vtkCellArray(estimatedSize,estimatedSize/2);
   newPolys = new vtkCellArray(estimatedSize,estimatedSize/2);
-  newScalars = new vtkFloatScalars(estimatedSize,estimatedSize/2);
 
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
   this->Locator->InitPointInsertion (newPoints, this->Input->GetBounds());
+
+  // interpolate data along edge
+  inPd = this->Input->GetPointData();
+  outPd = output->GetPointData();
+  outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
 
 //
 // Loop over all cells creating scalar function determined by evaluating cell
@@ -141,7 +145,7 @@ void vtkCutter::Execute()
       {
       value = this->Values[iter];
       cell->Contour(value, &cellScalars, this->Locator, 
-                    newVerts, newLines, newPolys, newScalars);
+                    newVerts, newLines, newPolys, inPd, outPd);
 
       } // for all contour values
     } // for all cells
@@ -160,9 +164,6 @@ void vtkCutter::Execute()
 
   if (newPolys->GetNumberOfCells()) output->SetPolys(newPolys);
   newPolys->Delete();
-
-  output->GetPointData()->SetScalars(newScalars);
-  newScalars->Delete();
 
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();

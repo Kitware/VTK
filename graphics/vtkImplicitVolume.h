@@ -38,11 +38,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImplicitVolume - implicit function for a ImplicitVolume
+// .NAME vtkImplicitVolume - treat a volume as if it were an implicit function
 // .SECTION Description
-// vtkImplicitVolume computes the implicit function and/or gradient using
-// a volume (structured points). vtkImplicitVolume is a concrete
-// implementation of vtkImplicitFunction.
+// vtkImplicitVolume treats a volume (e.g., structured point dataset)
+// as if it were an implicit function. This means it computes a function
+// value and gradient. vtkImplicitVolume is a concrete implementation of 
+// vtkImplicitFunction.
+//
+// .SECTION See Also
+// vtkImplicitFunction vtkClipper vtkCutter
 
 #ifndef __vtkImplicitVolume_h
 #define __vtkImplicitVolume_h
@@ -69,7 +73,7 @@ public:
   vtkGetObjectMacro(Volume,vtkStructuredPoints);
 
 protected:
-  vtkStructuredPoints *Volume; // the sturctured points
+  vtkStructuredPoints *Volume; // the structured points
 
 };
 

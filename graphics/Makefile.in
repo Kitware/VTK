@@ -30,7 +30,8 @@ vtkCastToConcrete.o \
 vtkCellLocator.o \
 vtkCellPicker.o \
 vtkCleanPolyData.o \
-vtkClipTriangles.o \
+vtkClipPolyData.o \
+vtkClipper.o \
 vtkCone.o \
 vtkConeSource.o \
 vtkConnectivityFilter.o \
@@ -83,6 +84,7 @@ vtkImplicitBoolean.o \
 vtkImplicitModeller.o \
 vtkImplicitTextureCoords.o \
 vtkImplicitVolume.o \
+vtkImplicitWindowFunction.o \
 vtkLODActor.o \
 vtkLight.o \
 vtkLineSource.o \
@@ -228,7 +230,8 @@ tcl/vtkCastToConcreteTcl.o \
 tcl/vtkCellLocatorTcl.o \
 tcl/vtkCellPickerTcl.o \
 tcl/vtkCleanPolyDataTcl.o \
-tcl/vtkClipTrianglesTcl.o \
+tcl/vtkClipPolyDataTcl.o \
+tcl/vtkClipperTcl.o \
 tcl/vtkConeTcl.o \
 tcl/vtkConeSourceTcl.o \
 tcl/vtkConnectivityFilterTcl.o \
@@ -282,6 +285,7 @@ tcl/vtkImplicitBooleanTcl.o \
 tcl/vtkImplicitModellerTcl.o \
 tcl/vtkImplicitTextureCoordsTcl.o \
 tcl/vtkImplicitVolumeTcl.o \
+tcl/vtkImplicitWindowFunctionTcl.o \
 tcl/vtkLODActorTcl.o \
 tcl/vtkLightTcl.o \
 tcl/vtkLightCollectionTcl.o \
@@ -434,7 +438,8 @@ vtkCastToConcrete.h \
 vtkCellLocator.h \
 vtkCellPicker.h \
 vtkCleanPolyData.h \
-vtkClipTriangles.h \
+vtkClipPolyData.h \
+vtkClipper.h \
 vtkCone.h \
 vtkConeSource.h \
 vtkConnectivityFilter.h \
@@ -486,6 +491,7 @@ vtkImplicitBoolean.h \
 vtkImplicitModeller.h \
 vtkImplicitTextureCoords.h \
 vtkImplicitVolume.h \
+vtkImplicitWindowFunction.h \
 vtkLODActor.h \
 vtkLight.h \
 vtkLightCollection.h \
@@ -744,8 +750,11 @@ tcl/vtkCellPickerTcl.cxx: vtkCellPicker.h ../tcl/cpp_parse
 tcl/vtkCleanPolyDataTcl.cxx: vtkCleanPolyData.h ../tcl/cpp_parse 
 	rm -f tcl/vtkCleanPolyDataTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCleanPolyData.h $(srcdir)/../tcl/hints 1 > tcl/vtkCleanPolyDataTcl.cxx
 
-tcl/vtkClipTrianglesTcl.cxx: vtkClipTriangles.h ../tcl/cpp_parse 
-	rm -f tcl/vtkClipTrianglesTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkClipTriangles.h $(srcdir)/../tcl/hints 1 > tcl/vtkClipTrianglesTcl.cxx
+tcl/vtkClipPolyDataTcl.cxx: vtkClipPolyData.h ../tcl/cpp_parse 
+	rm -f tcl/vtkClipPolyDataTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkClipPolyData.h $(srcdir)/../tcl/hints 1 > tcl/vtkClipPolyDataTcl.cxx
+
+tcl/vtkClipperTcl.cxx: vtkClipper.h ../tcl/cpp_parse 
+	rm -f tcl/vtkClipperTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkClipper.h $(srcdir)/../tcl/hints 1 > tcl/vtkClipperTcl.cxx
 
 tcl/vtkConeTcl.cxx: vtkCone.h ../tcl/cpp_parse 
 	rm -f tcl/vtkConeTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCone.h $(srcdir)/../tcl/hints 1 > tcl/vtkConeTcl.cxx
@@ -930,6 +939,9 @@ tcl/vtkImplicitTextureCoordsTcl.cxx: vtkImplicitTextureCoords.h ../tcl/cpp_parse
 tcl/vtkImplicitVolumeTcl.cxx: vtkImplicitVolume.h ../tcl/cpp_parse 
 	rm -f tcl/vtkImplicitVolumeTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitVolume.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitVolumeTcl.cxx
 
+tcl/vtkImplicitWindowFunctionTcl.cxx: vtkImplicitWindowFunction.h ../tcl/cpp_parse 
+	rm -f tcl/vtkImplicitWindowFunctionTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitWindowFunction.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitWindowFunctionTcl.cxx
+
 tcl/vtkLODActorTcl.cxx: vtkLODActor.h ../tcl/cpp_parse 
 	rm -f tcl/vtkLODActorTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLODActor.h $(srcdir)/../tcl/hints 1 > tcl/vtkLODActorTcl.cxx
 
@@ -950,9 +962,6 @@ tcl/vtkLinearExtrusionFilterTcl.cxx: vtkLinearExtrusionFilter.h ../tcl/cpp_parse
 
 tcl/vtkLinkEdgelsTcl.cxx: vtkLinkEdgels.h ../tcl/cpp_parse 
 	rm -f tcl/vtkLinkEdgelsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLinkEdgels.h $(srcdir)/../tcl/hints 1 > tcl/vtkLinkEdgelsTcl.cxx
-
-tcl/vtkLinkSurfelsTcl.cxx: vtkLinkSurfels.h ../tcl/cpp_parse 
-	rm -f tcl/vtkLinkSurfelsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLinkSurfels.h $(srcdir)/../tcl/hints 1 > tcl/vtkLinkSurfelsTcl.cxx
 
 tcl/vtkMCubesReaderTcl.cxx: vtkMCubesReader.h ../tcl/cpp_parse 
 	rm -f tcl/vtkMCubesReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkMCubesReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkMCubesReaderTcl.cxx
