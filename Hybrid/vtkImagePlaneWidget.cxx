@@ -42,7 +42,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.51");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.52");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -550,10 +550,17 @@ void vtkImagePlaneWidget::OnLeftButtonDown()
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
+  // Okay, make sure that the pick is in the current renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkImagePlaneWidget::Outside;
+    return;
+    }
+
   // Okay, we can process this. If anything is picked, then we
   // can start pushing the plane.
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->PlanePicker->GetPath();
 
@@ -622,9 +629,16 @@ void vtkImagePlaneWidget::OnMiddleButtonDown()
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
-  // Okay, we can process this. If anything is picked, then we
-  // can start pushing.
+  // Okay, make sure that the pick is in the current renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkImagePlaneWidget::Outside;
+    return;
+    }
 
+  // Okay, we can process this. If anything is picked, then we
+  // can start pushing or check for adjusted states.
   vtkAssemblyPath *path;
   this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->PlanePicker->GetPath();
@@ -691,10 +705,17 @@ void vtkImagePlaneWidget::OnRightButtonDown()
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
+  // Okay, make sure that the pick is in the current renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkImagePlaneWidget::Outside;
+    return;
+    }
+
   // Okay, we can process this. If anything is picked, then we
-  // can start pushing the plane.
+  // can start window-levelling.
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->PlanePicker->GetPath();
 
@@ -1116,7 +1137,7 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
   this->Superclass::SetInput(input);
   this->ImageData = vtkImageData::SafeDownCast(this->GetInput());
 
-  if( ! this->ImageData )
+  if( !this->ImageData )
     {
   // If NULL is passed, remove any reference that Reslice had
   // on the old ImageData
@@ -1128,7 +1149,7 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
   float range[2];
   this->ImageData->GetScalarRange(range);
 
-  if (!this->UserControlledLookupTable)
+  if ( !this->UserControlledLookupTable )
     {
     this->LookupTable->SetTableRange(range[0],range[1]);
     this->LookupTable->Build();
@@ -1154,12 +1175,12 @@ void vtkImagePlaneWidget::UpdateOrigin()
 
   if ( this->RestrictPlaneToVolume )
     {
-    if (! this->Reslice )
+    if ( !this->Reslice )
       {
       return;
       }
     this->ImageData = this->Reslice->GetInput();
-    if (! this->ImageData )
+    if ( !this->ImageData )
       {
       return;
       }
@@ -1374,7 +1395,7 @@ void vtkImagePlaneWidget::SetResliceInterpolate(int i)
   this->ResliceInterpolate = i;
   this->Modified();
 
-  if ( ! this->Reslice )
+  if ( !this->Reslice )
     {
     return;
     }
@@ -1536,12 +1557,12 @@ float vtkImagePlaneWidget::GetSlicePosition()
 
 void vtkImagePlaneWidget::SetSliceIndex(int index)
 {
-  if ( ! this->Reslice )
+  if ( !this->Reslice )
     {
       return;
     }
   this->ImageData = this->Reslice->GetInput();
-  if ( ! this->ImageData )
+  if ( !this->ImageData )
     {
     return;
     } 
