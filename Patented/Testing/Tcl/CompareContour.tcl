@@ -82,7 +82,7 @@ for { set c 0 } { $c < $count } { incr c } {
 }
 tt StopTimer
 set mval [ tt GetElapsedTime ]
-puts "Kitware contout filter: [ expr ($val - $mval)/$count ] ($val - $mval)/$count" 
+puts "Kitware contour filter: [ expr ($val - $mval)/$count ] ($val - $mval)/$count" 
 
 tt StartTimer
 for { set c 0 } { $c < $count } { incr c } {
@@ -97,7 +97,7 @@ for { set c 0 } { $c < $count } { incr c } {
 }
 tt StopTimer
 set mval [ tt GetElapsedTime ]
-puts "Regular contout filter: [ expr ($val - $mval)/$count ] ($val - $mval)/$count" 
+puts "Regular contour filter: [ expr ($val - $mval)/$count ] ($val - $mval)/$count" 
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
