@@ -264,24 +264,22 @@ int vtkStructuredPoints::FindPoint(float x[3])
 {
   int i, loc[3];
   float d;
-//
-//  Compute the ijk location
-//
+
+  //
+  //  Compute the ijk location
+  //
   for (i=0; i<3; i++) 
     {
     d = x[i] - this->Origin[i];
-    if ( d < 0.0 || d > ((this->Dimensions[i]-1)*this->Spacing[i]) ) 
+    loc[i] = (int) ((d / this->Spacing[i]) + 0.5);
+    if ( loc[i] < 0 || loc[i] > this->Dimensions[i]-1 )
       {
       return -1;
       } 
-    else 
-      {
-      loc[i] = (int) ((d / this->Spacing[i]) + 0.5);
-      }
     }
-//
-//  From this location get the point id
-//
+  //
+  //  From this location get the point id
+  //
   return loc[2]*this->Dimensions[0]*this->Dimensions[1] +
          loc[1]*this->Dimensions[0] + loc[0];
   
@@ -299,16 +297,18 @@ int vtkStructuredPoints::FindCell(float x[3], vtkCell *vtkNotUsed(cell),
     }
 
   vtkVoxel::InterpolationFunctions(pcoords,weights);
-//
-//  From this location get the cell id
-//
+
+  //
+  //  From this location get the cell id
+  //
   subId = 0;
   return loc[2] * (this->Dimensions[0]-1)*(this->Dimensions[1]-1) +
          loc[1] * (this->Dimensions[0]-1) + loc[0];
 }
 
-vtkCell *vtkStructuredPoints::FindAndGetCell(float x[3], vtkCell *vtkNotUsed(cell), 
-                int vtkNotUsed(cellId), float vtkNotUsed(tol2), int& subId, 
+vtkCell *vtkStructuredPoints::FindAndGetCell(float x[3],
+		vtkCell *vtkNotUsed(cell), int vtkNotUsed(cellId),
+	        float vtkNotUsed(tol2), int& subId, 
                 float pcoords[3], float *weights)
 {
   int i, j, k, loc[3];
@@ -597,26 +597,27 @@ int vtkStructuredPoints::ComputeStructuredCoordinates(float x[3], int ijk[3],
                                                       float pcoords[3])
 {
   int i;
-  float d, floatLoc[3];
-//
-//  Compute the ijk location
-//
+  float d, floatLoc;
+
+  //
+  //  Compute the ijk location
+  //
   for (i=0; i<3; i++) 
     {
     d = x[i] - this->Origin[i];
-    if ( d >= 0.0 && d < ((this->Dimensions[i]-1)*this->Spacing[i]) )
+    floatLoc = d / this->Spacing[i];
+    ijk[i] = (int) floatLoc;
+    if ( ijk[i] >= 0 && ijk[i] < this->Dimensions[i]-1 )
       {
-      floatLoc[i] = d / this->Spacing[i];
-      ijk[i] = (int) floatLoc[i];
-      pcoords[i] = floatLoc[i] - (float)ijk[i];
+      pcoords[i] = floatLoc - (float)ijk[i];
       }
 
-    else if ( d < 0.0 || d > ((this->Dimensions[i]-1)*this->Spacing[i]) ) 
+    else if ( ijk[i] < 0 || ijk[i] > this->Dimensions[i]-1 ) 
       {
       return 0;
       } 
 
-    else //if ( d == ((this->Dimensions[i]-1)*this->Spacing[i]) ) 
+    else //if ( ijk[i] == this->Dimensions[i]-1 )
       {
       if (this->Dimensions[i] == 1)
         {
