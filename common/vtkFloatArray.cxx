@@ -211,7 +211,7 @@ float *vtkFloatArray::GetTuple(const int i)
 
 // Description:
 // Copy the tuple value into a user-provided array.
-void vtkFloatArray::GetTuple(const int i, float tuple[])
+void vtkFloatArray::GetTuple(const int i, float * tuple)
 {
   float *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++) tuple[j] = t[j];
@@ -219,7 +219,7 @@ void vtkFloatArray::GetTuple(const int i, float tuple[])
 
 // Description:
 // Set the tuple value at the ith location in the array.
-void vtkFloatArray::SetTuple(const int i, const float tuple[])
+void vtkFloatArray::SetTuple(const int i, const float * tuple)
 {
   int loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++) this->Array[loc+j] = tuple[j];
@@ -228,7 +228,7 @@ void vtkFloatArray::SetTuple(const int i, const float tuple[])
 // Description:
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
-void vtkFloatArray::InsertTuple(const int i, const float tuple[])
+void vtkFloatArray::InsertTuple(const int i, const float * tuple)
 {
   float *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -237,7 +237,7 @@ void vtkFloatArray::InsertTuple(const int i, const float tuple[])
 
 // Description:
 // Insert (memory allocation performed) the tuple onto the end of the array.
-int vtkFloatArray::InsertNextTuple(const float tuple[])
+int vtkFloatArray::InsertNextTuple(const float * tuple)
 {
   int i = this->MaxId + 1;
   float *t = this->WritePointer(i,this->NumberOfComponents);

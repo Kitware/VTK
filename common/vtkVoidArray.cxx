@@ -164,26 +164,26 @@ float *vtkVoidArray::GetTuple(const int i)
 
 // Description:
 // Copy the tuple value into a user-provided array.
-void vtkVoidArray::GetTuple(const int i, float tuple[])
+void vtkVoidArray::GetTuple(const int i, float * tuple)
 {
 }
 
 // Description:
 // Set the tuple value at the ith location in the array.
-void vtkVoidArray::SetTuple(const int i, const float tuple[])
+void vtkVoidArray::SetTuple(const int i, const float * tuple)
 {
 }
 
 // Description:
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
-void vtkVoidArray::InsertTuple(const int i, const float tuple[])
+void vtkVoidArray::InsertTuple(const int i, const float * tuple)
 {
 }
 
 // Description:
 // Insert (memory allocation performed) the tuple onto the end of the array.
-int vtkVoidArray::InsertNextTuple(const float tuple[])
+int vtkVoidArray::InsertNextTuple(const float * tuple)
 {
   return -1;
 }

@@ -65,10 +65,10 @@ public:
   int GetDataType() {return VTK_SHORT;};
   void SetNumberOfTuples(const int number);
   float *GetTuple(const int i);
-  void GetTuple(const int i, float tuple[]);
-  void SetTuple(const int i, const float tuple[]);
-  void InsertTuple(const int i, const float tuple[]);
-  int InsertNextTuple(const float tuple[]);
+  void GetTuple(const int i, float * tuple);
+  void SetTuple(const int i, const float * tuple);
+  void InsertTuple(const int i, const float * tuple);
+  int InsertNextTuple(const float * tuple);
   void Squeeze();
 
   // overload vtkDataArray for efficiency

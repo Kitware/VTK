@@ -296,7 +296,7 @@ float *vtkFieldData::GetTuple(const int i)
 // Description:
 // Copy the ith tuple value into a user provided tuple array. Make
 // sure that you've allocated enough space for the copy.
-void vtkFieldData::GetTuple(const int i, float tuple[])
+void vtkFieldData::GetTuple(const int i, float * tuple)
 {
   this->GetTuple(i); //side effect fills in this->Tuple
   for (int j=0; j<this->TupleSize; j++) tuple[j] = this->Tuple[j];
@@ -305,7 +305,7 @@ void vtkFieldData::GetTuple(const int i, float tuple[])
 // Description:
 // Set the tuple value at the ith location. Set operations
 // mean that no range chaecking is performed, so they're faster.
-void vtkFieldData::SetTuple(const int i, const float tuple[])
+void vtkFieldData::SetTuple(const int i, const float * tuple)
 {
   int count=0;
 
@@ -322,7 +322,7 @@ void vtkFieldData::SetTuple(const int i, const float tuple[])
 // Description:
 // Insert the tuple value at the ith location. Range checking is
 // performed and memory allocates as necessary.
-void vtkFieldData::InsertTuple(const int i, const float tuple[])
+void vtkFieldData::InsertTuple(const int i, const float * tuple)
 {
   int count=0;
 
@@ -339,7 +339,7 @@ void vtkFieldData::InsertTuple(const int i, const float tuple[])
 // Description:
 // Insert the tuple value at the end of the tuple matrix. Range
 // checking is performed and memory is allocated as necessary.
-int vtkFieldData::InsertNextTuple(const float tuple[])
+int vtkFieldData::InsertNextTuple(const float * tuple)
 {
   int id=this->GetNumberOfTuples();
 

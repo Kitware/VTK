@@ -228,7 +228,7 @@ float *vtkUnsignedLongArray::GetTuple(const int i)
 
 // Description:
 // Copy the tuple value into a user-provided array.
-void vtkUnsignedLongArray::GetTuple(const int i, float tuple[]) 
+void vtkUnsignedLongArray::GetTuple(const int i, float * tuple) 
 {
   unsigned long *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++) tuple[j] = (float)t[j];
@@ -236,7 +236,7 @@ void vtkUnsignedLongArray::GetTuple(const int i, float tuple[])
 
 // Description:
 // Set the tuple value at the ith location in the array.
-void vtkUnsignedLongArray::SetTuple(const int i, const float tuple[])
+void vtkUnsignedLongArray::SetTuple(const int i, const float * tuple)
 {
   int loc = i * this->NumberOfComponents; 
 
@@ -247,7 +247,7 @@ void vtkUnsignedLongArray::SetTuple(const int i, const float tuple[])
 // Description:
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
-void vtkUnsignedLongArray::InsertTuple(const int i, const float tuple[])
+void vtkUnsignedLongArray::InsertTuple(const int i, const float * tuple)
 {
   unsigned long *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -256,7 +256,7 @@ void vtkUnsignedLongArray::InsertTuple(const int i, const float tuple[])
 
 // Description:
 // Insert (memory allocation performed) the tuple onto the end of the array.
-int vtkUnsignedLongArray::InsertNextTuple(const float tuple[])
+int vtkUnsignedLongArray::InsertNextTuple(const float * tuple)
 {
   int i = this->MaxId + 1;
   unsigned long *t = this->WritePointer(i,this->NumberOfComponents);

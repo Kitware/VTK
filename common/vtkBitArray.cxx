@@ -237,7 +237,7 @@ float *vtkBitArray::GetTuple(const int i)
 
 // Description:
 // Copy the tuple value into a user-provided array.
-void vtkBitArray::GetTuple(const int i, float tuple[])
+void vtkBitArray::GetTuple(const int i, float * tuple)
 {
   int loc = this->NumberOfComponents*i;
 
@@ -247,7 +247,7 @@ void vtkBitArray::GetTuple(const int i, float tuple[])
 
 // Description:
 // Set the tuple value at the ith location in the array.
-void vtkBitArray::SetTuple(const int i, const float tuple[])
+void vtkBitArray::SetTuple(const int i, const float * tuple)
 {
   int loc = i * this->NumberOfComponents; 
 
@@ -258,7 +258,7 @@ void vtkBitArray::SetTuple(const int i, const float tuple[])
 // Description:
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
-void vtkBitArray::InsertTuple(const int i, const float tuple[])
+void vtkBitArray::InsertTuple(const int i, const float * tuple)
 {
   int loc = this->NumberOfComponents*i;
 
@@ -268,7 +268,7 @@ void vtkBitArray::InsertTuple(const int i, const float tuple[])
 
 // Description:
 // Insert (memory allocation performed) the tuple onto the end of the array.
-int vtkBitArray::InsertNextTuple(const float tuple[])
+int vtkBitArray::InsertNextTuple(const float * tuple)
 {
   for (int i=0; i<this->NumberOfComponents; i++) 
     this->InsertNextValue((int)tuple[i]);
