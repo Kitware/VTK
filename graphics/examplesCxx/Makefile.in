@@ -176,6 +176,12 @@ finance: finance.o ${VTKLIB}
 medical1: medical1.o ${VTKLIB}
 	${CXX} -o medical1 ${CXX_FLAGS} medical1.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+medical2: medical2.o ${VTKLIB}
+	${CXX} -o medical2 ${CXX_FLAGS} medical2.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+medical3: medical3.o ${VTKLIB}
+	${CXX} -o medical3 ${CXX_FLAGS} medical3.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 pickCells: pickCells.o ${VTKLIB}
 	${CXX} -o pickCells ${CXX_FLAGS} pickCells.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
