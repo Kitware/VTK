@@ -122,7 +122,7 @@ vtkXImageMapper \
 vtkXImageWindow \
 vtkXPolyDataMapper2D \
 vtkXTextMapper \
-vtkXYPlotActor $(GRAPHICS_API_OB)
+vtkXYPlotActor ${GRAPHICS_API_OBJ}
 
 
 #------------------------------------------------------------------------------
