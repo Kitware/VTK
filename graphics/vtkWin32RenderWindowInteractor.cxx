@@ -193,7 +193,8 @@ void  vtkWin32RenderWindowInteractor::EndRotate()
     this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
     KillTimer(this->WindowId,this->TimerId);
     }
-  this->RenderWindow->Render();
+  //don't need to render here,  HighlightActor will do it later
+  //  this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartZoom()
@@ -218,7 +219,8 @@ void  vtkWin32RenderWindowInteractor::EndZoom()
     this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
     KillTimer(this->WindowId,this->TimerId);
     }
-  this->RenderWindow->Render();
+  //don't need to render here,  HighlightActor will do it later
+  //  this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartPan()
@@ -246,7 +248,8 @@ void  vtkWin32RenderWindowInteractor::EndPan()
     this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
     KillTimer(this->WindowId,this->TimerId);
     }
-  this->RenderWindow->Render();
+  //don't need to render here,  HighlightActor will do it later
+  //  this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartAnimation()
@@ -269,7 +272,8 @@ void  vtkWin32RenderWindowInteractor::EndAnimation()
 	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
 	KillTimer(this->WindowId,this->TimerId);
 	}
-  this->RenderWindow->Render();
+  //don't need to render here,  HighlightActor will do it later
+  //  this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartSpin()
@@ -294,7 +298,8 @@ void  vtkWin32RenderWindowInteractor::EndSpin()
 	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
 	KillTimer(this->WindowId,this->TimerId);
 	}
-  this->RenderWindow->Render();
+  //don't need to render here,  HighlightActor will do it later
+  //  this->RenderWindow->Render();
 }
 
 void  vtkWin32RenderWindowInteractor::StartDolly()
@@ -319,7 +324,8 @@ void  vtkWin32RenderWindowInteractor::EndDolly()
 	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
 	KillTimer(this->WindowId,this->TimerId);
 	}
-  this->RenderWindow->Render();
+  //don't need to render here,  HighlightActor will do it later
+  //  this->RenderWindow->Render();
 }
 
 
@@ -345,7 +351,8 @@ void  vtkWin32RenderWindowInteractor::EndUniformScale()
 	this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
 	KillTimer(this->WindowId,this->TimerId);
 	}
-  this->RenderWindow->Render();
+  //don't need to render here,  HighlightActor will do it later
+  //this->RenderWindow->Render();
 }
 
 
@@ -409,7 +416,8 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
                                     0.0, me->CurrentRenderer);
 	me->InteractionActor = (me->InteractionPicker)->GetAssembly();
         me->ActorPicked = (me->InteractionActor != NULL);
-	me->HighlightActor(me->InteractionActor);
+        // highlight actor at the end of interaction
+	//me->HighlightActor(me->InteractionActor);
 
 	if (me->EndPickMethod)
 	  {
@@ -449,7 +457,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       me->SetEventPosition(LOWORD(lParam),
                            me->Size[1] - HIWORD(lParam) - 1);
 
-      // don't change actor mode in the middle of mouse movement
+      // don't change actor or trackball modes in the middle of motion
       // don't change control mode in the middle of mouse movement
 
       //      if ((wParam & MK_SHIFT) || (wParam & MK_RBUTTON))
@@ -479,6 +487,9 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
       me->OldX = 0.0;
       me->OldY = 0.0;
+      if (me->ActorMode && me->ActorPicked) {
+        me->HighlightActor(me->InteractionActor);
+      }
 
       break;
 	    
@@ -514,7 +525,8 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 				      0.0, me->CurrentRenderer);
 	me->InteractionActor = (me->InteractionPicker)->GetAssembly();
         me->ActorPicked = (me->InteractionActor != NULL);
-        me->HighlightActor(me->InteractionActor);
+        // highlight actor at the end of interaction
+        // me->HighlightActor(me->InteractionActor);
 
 	if (me->EndPickMethod)
 	  {
@@ -538,7 +550,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       me->SetEventPosition(LOWORD(lParam),
                            me->Size[1] - HIWORD(lParam) - 1);
 
-      // don't change actor mode in the middle of mouse movement
+      // don't change actor or trackball mode in the middle of motion
       // don't change control mode in the middle of mouse movement
 
       if (me->MiddleButtonReleaseMethod) 
@@ -552,6 +564,9 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
       me->OldX = 0.0;
       me->OldY = 0.0;
+      if (me->ActorMode && me->ActorPicked) {
+        me->HighlightActor(me->InteractionActor);
+      }
 
       break;
       
@@ -588,7 +603,8 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 				      0.0, me->CurrentRenderer);
 	me->InteractionActor = (me->InteractionPicker)->GetAssembly();
         me->ActorPicked = (me->InteractionActor != NULL);
-        me->HighlightActor(me->InteractionActor);
+        // highlight actor at the end of interaction
+        //me->HighlightActor(me->InteractionActor);
 
 	if (me->EndPickMethod)
 	  {
@@ -611,7 +627,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       me->SetEventPosition(LOWORD(lParam),
                            me->Size[1] - HIWORD(lParam) - 1);
 
-      // don't change actor mode in the middle of mouse movement
+      // don't change actor or trackball modes in the middle of motion
       // don't change control mode in the middle of mouse movement
 
       if (me->RightButtonReleaseMethod) 
@@ -625,6 +641,9 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
       me->OldX = 0.0;
       me->OldY = 0.0;
+      if (me->ActorMode && me->ActorPicked) {
+        me->HighlightActor(me->InteractionActor);
+      }
 
       break;
 	    
@@ -674,7 +693,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	case 'r':
 	case 'R':
 	  if (me->ActorMode) {
-	    cout << "Please switch to Camera mode when resetting" << endl;
+          //vtkDebugMacro(<<"Please switch to Camera mode when resetting");
 	  }
 	  else {
             me->FindPokedRenderer(LOWORD(me->LastPosition),
@@ -770,26 +789,34 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
           
 	case 'j':
 	case 'J':
-	  me->TrackballMode = VTKXI_JOY;
-	  cout << "Swtich to Joystick style interaction." << endl;
+	  if (me->State == VTKXI_START) {
+            me->TrackballMode = VTKXI_JOY;
+	    //vtkDebugMacro(<<"Swtich to Joystick style interaction.");
+          }
 	  break;
           
 	case 't':
 	case 'T':
-	  me->TrackballMode = VTKXI_TRACK;
-	  cout << "Swtich to Trackball style interaction." << endl;
+	  if (me->State == VTKXI_START) {
+            me->TrackballMode = VTKXI_TRACK;
+            //vtkDebugMacro(<<"Swtich to Trackball style interaction.");
+          }
 	  break;
           
         case 'o':
         case 'O':
-          me->ActorMode = VTKXI_ACTOR;
-          cout << "switch to actor mode." << endl;
+          if (me->State == VTKXI_START) {
+            me->ActorMode = VTKXI_ACTOR;
+            //vtkDebugMacro(<<"switch to Actor mode.");
+          }
           break;
           
         case 'c':
         case 'C':
-          me->ActorMode = VTKXI_CAMERA;
-          cout << "switch to camera mode." << endl;
+          if (me->State == VTKXI_START) {
+            me->ActorMode = VTKXI_CAMERA;
+            //vtkDebugMacro(<<"switch to Camera mode.");
+          }
           break;
           
 	}

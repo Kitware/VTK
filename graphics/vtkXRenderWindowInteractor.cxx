@@ -260,7 +260,8 @@ void  vtkXRenderWindowInteractor::EndRotate()
   if (this->State != VTKXI_ROTATE) return;
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  this->RenderWindow->Render();
+  //don't need to render here,  HighlightActor will do it later
+  //   this->RenderWindow->Render();
 }
 
 void  vtkXRenderWindowInteractor::StartZoom()
@@ -276,7 +277,8 @@ void  vtkXRenderWindowInteractor::EndZoom()
   if (this->State != VTKXI_ZOOM) return;
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  this->RenderWindow->Render();
+  //don't need to render here,  HighlightActor will do it later
+  //  this->RenderWindow->Render();
 }
 
 void  vtkXRenderWindowInteractor::StartPan()
@@ -296,7 +298,8 @@ void  vtkXRenderWindowInteractor::EndPan()
   if (this->State != VTKXI_PAN) return;
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  this->RenderWindow->Render();
+  //don't need to render here,  HighlightActor will do it later
+  //  this->RenderWindow->Render();
 }
 
 void  vtkXRenderWindowInteractor::StartSpin()
@@ -313,7 +316,8 @@ void  vtkXRenderWindowInteractor::EndSpin()
   if (this->State != VTKXI_SPIN) return;
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  this->RenderWindow->Render();
+  //don't need to render here,  HighlightActor will do it later
+  //  this->RenderWindow->Render();
 }
 
 void  vtkXRenderWindowInteractor::StartDolly()
@@ -330,7 +334,8 @@ void  vtkXRenderWindowInteractor::EndDolly()
   if (this->State != VTKXI_DOLLY) return;
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  this->RenderWindow->Render();
+  //don't need to render here,  HighlightActor will do it later
+  //  this->RenderWindow->Render();
 }
 
 void  vtkXRenderWindowInteractor::StartUniformScale()
@@ -347,7 +352,8 @@ void  vtkXRenderWindowInteractor::EndUniformScale()
   if (this->State != VTKXI_USCALE) return;
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-  this->RenderWindow->Render();
+  //don't need to render here,  HighlightActor will do it later
+  //  this->RenderWindow->Render();
 }
 
 void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
@@ -430,7 +436,8 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         // but we only want something to be picked if a cell was actually
         // selected
         me->ActorPicked = (me->InteractionActor != NULL);
-        me->HighlightActor(me->InteractionActor);	  
+        // highlight actor at the end of interaction
+        //me->HighlightActor(me->InteractionActor);	  
         
         if ( me->EndPickMethod ) 
           (*me->EndPickMethod)(me->EndPickMethodArg);
@@ -482,7 +489,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       me->SetEventPosition(((XButtonEvent*)event)->x,
 			   me->Size[1] - ((XButtonEvent*)event)->y - 1);
 
-      // don't change actor mode in the middle of mouse movement
+      // don't change actor or trackball modes in the middle of motion
       // don't change control mode in the middle of mouse movement
 
       switch (((XButtonEvent *)event)->button)
@@ -521,8 +528,11 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	  break;
           
 	};
-      me->OldX = 0.0;
-      me->OldY = 0.0;
+        me->OldX = 0.0;
+        me->OldY = 0.0;
+        if (me->ActorMode && me->ActorPicked) {
+          me->HighlightActor(me->InteractionActor);
+        }
       };
       break;
 
@@ -556,7 +566,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	case XK_R: //reset
 	  {
 	    if (me->ActorMode) {
-	      cout << "Please switch to camera mode then reset" << endl;
+            //vtkDebugMacro(<<"Please switch to camera mode then reset");
 	    }
 	    else {
 	      me->FindPokedRenderer(((XKeyEvent*)event)->x,
@@ -667,33 +677,41 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	case XK_j:
 	case XK_J: //joystick style interaction
 	  {
-	    me->TrackballMode = VTKXI_JOY;
-	    cout << "Swtich to Joystick style interaction." << endl;
+            if (me->State == VTKXI_START) {
+              me->TrackballMode = VTKXI_JOY; 
+	      //vtkDebugMacro(<<"Swtich to Joystick style interaction.");
+            }
 	  }
 	  break;
 
 	case XK_t:
 	case XK_T: //trackball style interaction
 	  {
-	    me->TrackballMode = VTKXI_TRACK;
-	    cout << "Swtich to Trackball style interaction." << endl;
+            if (me->State == VTKXI_START) {
+              me->TrackballMode = VTKXI_TRACK;
+              //vtkDebugMacro(<<"Swtich to Trackball style interaction.");
+            }
 	  }
 	  break;
 
 
 	case XK_o:
-	case XK_O: //joystick style interaction
+	case XK_O: //actor interaction
 	  {
-	    me->ActorMode = VTKXI_ACTOR;
-	    cout << "Swtich to Object/Actor interaction." << endl;
+            if (me->State == VTKXI_START) {
+              me->ActorMode = VTKXI_ACTOR;
+	      //vtkDebugMacro(<<"Swtich to Object/Actor interaction.");
+            }
 	  }
 	  break;
 
 	case XK_c:
-	case XK_C: //trackball style interaction
+	case XK_C: //camera interaction
 	  {
-	    me->ActorMode = VTKXI_CAMERA;
-	    cout << "Swtich to Camera mode interaction." << endl;
+            if (me->State == VTKXI_START) {
+              me->ActorMode = VTKXI_CAMERA;
+              // vtkDebugMacro(<<"Swtich to Camera mode interaction.");
+            }
 	  }
 	  break;
           
@@ -734,6 +752,8 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
         else {
           me->JoystickRotateActor(x, y);
         };
+        XtAppAddTimeOut(me->App,10,
+                        vtkXRenderWindowInteractorTimer,client_data);
       }
       else if (!(me->ActorMode)) {
         if (me->TrackballMode) {
@@ -742,6 +762,9 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
         else {
           me->JoystickRotateCamera(x, y);
         };
+        XtAppAddTimeOut(me->App,10,
+                        vtkXRenderWindowInteractorTimer,client_data);
+
       };
     };
     break;
@@ -754,6 +777,8 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
         else {
           me->JoystickPanActor(x, y);
         };
+        XtAppAddTimeOut(me->App,10,
+                        vtkXRenderWindowInteractorTimer,client_data);
       }
       else if (!(me->ActorMode)) {
         if (me->TrackballMode) {
@@ -762,6 +787,8 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
         else {
           me->JoystickPanCamera(x, y);
         };
+        XtAppAddTimeOut(me->App,10,
+                        vtkXRenderWindowInteractorTimer,client_data);
       };
     };
     break;
@@ -774,6 +801,8 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
         else {
           me->JoystickDollyCamera(x, y);
         };
+        XtAppAddTimeOut(me->App,10,
+                        vtkXRenderWindowInteractorTimer,client_data);
       };
     };
     break;
@@ -786,6 +815,8 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
         else {
           me->JoystickSpinActor(x, y);
         };
+        XtAppAddTimeOut(me->App,10,
+                        vtkXRenderWindowInteractorTimer,client_data);
       }
       else if (!(me->ActorMode)) {
         if (me->TrackballMode) {
@@ -794,6 +825,8 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
         else {
           me->JoystickSpinCamera(x, y);
         };
+        XtAppAddTimeOut(me->App,10,
+                        vtkXRenderWindowInteractorTimer,client_data);
       };
     };
     break;
@@ -806,6 +839,8 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
         else {
           me->JoystickDollyActor(x, y);
         };
+        XtAppAddTimeOut(me->App,10,
+                        vtkXRenderWindowInteractorTimer,client_data);
       };
     };
     break;
@@ -818,12 +853,13 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
         else {
           me->JoystickScaleActor(x, y);
         };
+        XtAppAddTimeOut(me->App,10,
+                        vtkXRenderWindowInteractorTimer,client_data);
       };
     };
     break;
     
-    }
-  XtAppAddTimeOut(me->App,10,vtkXRenderWindowInteractorTimer,client_data);
+  }
 }  
 
 
