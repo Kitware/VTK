@@ -67,7 +67,7 @@ protected:
   static void InitializeReaders();
 
 private:
-  static vtkImageReader2Collection* AvailiableReaders;
+  static vtkImageReader2Collection* AvailableReaders;
   vtkImageReader2Factory(const vtkImageReader2Factory&);  // Not implemented.
   void operator=(const vtkImageReader2Factory&);  // Not implemented.
 //BTX
