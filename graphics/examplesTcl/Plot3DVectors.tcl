@@ -18,6 +18,7 @@ vtkRenderWindowInteractor iren
 set vectorLabels  "Velocity Vorticity Momentum Pressure_Gradient"
 set vectorFunctions  "200 201 202 210"
 vtkCamera camera
+vtkLight light
 
 set i 0
 foreach vectorFunction $vectorFunctions {
@@ -40,6 +41,7 @@ vtkActor actor$vectorFunction
 vtkRenderer ren$vectorFunction
   ren$vectorFunction SetBackground 0.5 .5 .5
   ren$vectorFunction SetActiveCamera camera
+  ren$vectorFunction AddLight light
   renWin AddRenderer ren$vectorFunction
 
 ren$vectorFunction AddActor actor$vectorFunction
@@ -50,6 +52,7 @@ vtkTextMapper textMapper$vectorFunction
   textMapper$vectorFunction SetFontFamilyToArial
 vtkActor2D text$vectorFunction
   text$vectorFunction SetMapper textMapper$vectorFunction
+  text$vectorFunction SetPosition 2 5
   [text$vectorFunction GetProperty] SetColor .3 1 1
 ren$vectorFunction AddActor2D text$vectorFunction
 incr i
@@ -74,6 +77,9 @@ camera SetPosition .4 -.5 -.75
 camera ComputeViewPlaneNormal
 ren200 ResetCamera
 camera Dolly 1.25
+eval light SetPosition [camera GetPosition]
+eval light SetFocalPoint [camera GetFocalPoint]
+
 renWin SetSize 350 350
 renWin Render
 

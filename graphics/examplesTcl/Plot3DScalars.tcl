@@ -15,6 +15,7 @@ vtkRenderWindowInteractor iren
 set scalarLabels  "Density Pressure Temperature Enthalpy Internal_Energy Kinetic_Energy Velocity_Magnitude Stagnation_Energy Entropy Swirl"
 set scalarFunctions  "100 110 120 130 140 144 153 163 170 184"
 vtkCamera camera
+vtkLight light
 vtkMath math
 
 set i 0
@@ -37,6 +38,7 @@ vtkActor actor$scalarFunction
 vtkRenderer ren$scalarFunction
   ren$scalarFunction SetBackground 0 0 .5
   ren$scalarFunction SetActiveCamera camera
+  ren$scalarFunction AddLight light
   renWin AddRenderer ren$scalarFunction
     ren$scalarFunction SetBackground [math Random .5 1] [math Random .5 1] [math Random .5 1] 
 ren$scalarFunction AddActor actor$scalarFunction
@@ -47,6 +49,7 @@ vtkTextMapper textMapper$scalarFunction
   textMapper$scalarFunction SetFontFamilyToArial
 vtkActor2D text$scalarFunction
   text$scalarFunction SetMapper textMapper$scalarFunction
+  text$scalarFunction SetPosition 2 3
   [text$scalarFunction GetProperty] SetColor 0 0 0
 
 ren$scalarFunction AddActor2D text$scalarFunction
@@ -71,6 +74,8 @@ camera SetPosition 1 0 0
 camera ComputeViewPlaneNormal
 ren100 ResetCamera
 camera Dolly 1.25
+eval light SetPosition [camera GetPosition]
+eval light SetFocalPoint [camera GetFocalPoint]
 
 renWin SetSize 600 180
 renWin Render
