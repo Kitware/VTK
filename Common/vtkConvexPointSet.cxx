@@ -21,22 +21,29 @@
 #include "vtkPointLocator.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkTetra.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.4");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.5");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.
 vtkConvexPointSet::vtkConvexPointSet()
 {
-  this->Tetras = vtkCellArray::New();
   this->Tetra = vtkTetra::New();
+  this->TriIds = vtkIdList::New();
+  this->TriPoints = vtkPoints::New();
+  this->TriScalars = vtkFloatArray::New();
+  this->TriScalars->SetNumberOfTuples(4);
+  
 }
 
 vtkConvexPointSet::~vtkConvexPointSet()
 {
-  this->Tetras->Delete();
   this->Tetra->Delete();
+  this->TriIds->Delete();
+  this->TriPoints->Delete();
+  this->TriScalars->Delete();
 }
 
 vtkCell *vtkConvexPointSet::MakeObject()
@@ -53,7 +60,6 @@ int vtkConvexPointSet::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
   int i;
   float *xPtr;
   vtkIdType ptId;
-  vtkIdType npts, *cpts;
 
   // Initialize
   ptIds->Reset();
@@ -67,8 +73,8 @@ int vtkConvexPointSet::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
     this->Triangulator->PreSortedOff();
     }
 
-  // Initialize Delaunay insertion process with voxel triangulation.
-  // No more than (numPts + numEdges) points can be inserted.
+  // Initialize Delaunay insertion process.
+  // No more than numPts points can be inserted.
   this->Triangulator->InitTriangulation(this->GetBounds(), numPts);
 
   // Inject cell points into triangulation. Recall that the PreSortedOff() 
@@ -78,97 +84,21 @@ int vtkConvexPointSet::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
     {
     ptId = this->PointIds->GetId(i);
     xPtr = this->Points->GetPoint(i);
-    this->Triangulator->InsertPoint(ptId, xPtr, 0);
-    }//for eight voxel corner points
+    }//for all points
   
   // triangulate the points
   this->Triangulator->Triangulate();
 
   // Add the triangulation to the mesh
-  this->Tetras->Reset();
-  this->Triangulator->AddTetras(0,this->Tetras);
-  
-  // Copy into expected output structures
-  for ( this->Tetras->InitTraversal(); this->Tetras->GetNextCell(npts,cpts); )
-    {
-    for (i=0; i<4; i++)
-      {
-      ptIds->InsertNextId(cpts[i]);
-      pts->InsertNextPoint(this->Points->GetPoint(cpts[i]));
-      }
-    }
+  this->Triangulator->AddTetras(0,ptIds,pts);
   
   return 1;
 }
 
   
-void vtkConvexPointSet::OrderedTriangulate(vtkIdType numPts, 
-                                           float value,
-                                           vtkDataArray *cellScalars,
-                                           vtkPointLocator *locator,
-                                           vtkPointData *inPD, 
-                                           vtkPointData *outPD,
-                                           int insideOut)
-{
-  vtkIdType ptId, id;
-  int i;
-  float s1;
-  int type;
-  float *xPtr;
-
-  // allocate scratch memory
-  int *internalId = new int [numPts];
-
-  // Create a triangulator if necessary.
-  if ( ! this->Triangulator )
-    {
-    this->Triangulator = vtkOrderedTriangulator::New();
-    this->Triangulator->PreSortedOff();
-    }
-
-  // Initialize Delaunay insertion process with voxel triangulation.    
-
-  // No more than (numPts + numEdges) points can be inserted.
-  this->Triangulator->InitTriangulation(this->GetBounds(), numPts);
-
-  // Inject cell points into triangulation. Recall that the PreSortedOff() 
-  // flag was set which means that the triangulator will order the points 
-  // according to point id.
-  for (i=0; i<numPts; i++)
-    {
-    ptId = this->PointIds->GetId(i);
-      
-    // Currently all points are injected because of the possibility 
-    // of intersection point merging.
-    s1 = cellScalars->GetComponent(i,0);
-    if ( (s1 >= value && !insideOut) || (s1 < value && insideOut) )
-      {
-      type = 0; //inside
-      }
-    else
-      {
-      type = 4; //no insert, but its type might change later
-      }
-
-    xPtr = this->Points->GetPoint(i);
-    if ( locator->InsertUniquePoint(xPtr, id) )    
-
-      {
-      outPD->CopyData(inPD,ptId, id);
-      }
-    internalId[i] = this->Triangulator->InsertPoint(id, xPtr, type);
-    }//for eight voxel corner points
-  
-  // triangulate the points
-  this->Triangulator->Triangulate();
-
-  delete [] internalId;
-}
-
 void vtkConvexPointSet::Contour(float value, vtkDataArray *cellScalars, 
                                 vtkPointLocator *locator,
-                                vtkCellArray *vtkNotUsed(verts), 
-                                vtkCellArray *vtkNotUsed(lines), 
+                                vtkCellArray *verts, vtkCellArray *lines, 
                                 vtkCellArray *polys, 
                                 vtkPointData *inPd, vtkPointData *outPd,
                                 vtkCellData *inCd, vtkIdType cellId,
@@ -179,32 +109,60 @@ void vtkConvexPointSet::Contour(float value, vtkDataArray *cellScalars,
   if ( numPts < 1 ) return;
 
   // Triangulate with cell intersection points
-  this->OrderedTriangulate(numPts, value, cellScalars, locator, 
-                           inPd, outPd, 0);
+  this->Triangulate(0, this->TriIds,this->TriPoints);
   
-  // Add the surface triangles to the mesh
-  this->Triangulator->AddTriangles(polys);
+  // For each tetra, contour it
+  int i, j;
+  vtkIdType ptId;
+  vtkDataArray *localScalars = inPd->GetScalars();
+  int numTets = this->TriIds->GetNumberOfIds() / 4;
+  for (i=0; i<numTets; i++)
+    {
+    for (j=0; j<4; j++)
+      {
+      ptId = this->TriIds->GetId(4*i+j);
+      this->Tetra->PointIds->SetId(j,ptId);
+      this->Tetra->Points->SetPoint(j,this->TriPoints->GetPoint(4*i+j));
+      this->TriScalars->SetValue(j,localScalars->GetTuple1(ptId));
+      }
+    this->Tetra->Contour(value,this->TriScalars,locator,verts,lines,polys,
+                         inPd,outPd,inCd,cellId,outCd);
+    }
 }
     
 
 
-void vtkConvexPointSet::Clip(float value, vtkDataArray *cellScalars, 
+void vtkConvexPointSet::Clip(float value, 
+                             vtkDataArray *vtkNotUsed(cellScalars), 
                              vtkPointLocator *locator, vtkCellArray *tets,
                              vtkPointData *inPD, vtkPointData *outPD,
-                             vtkCellData *vtkNotUsed(inCD),
-                             vtkIdType vtkNotUsed(cellId),
-                             vtkCellData *vtkNotUsed(outCD), int insideOut)
+                             vtkCellData *inCD, vtkIdType cellId,
+                             vtkCellData *outCD, int insideOut)
 {
   // Initialize
   vtkIdType numPts=this->GetNumberOfPoints();
   if ( numPts < 1 ) return;
 
   // Triangulate with cell intersection points
-  this->OrderedTriangulate(numPts, value, cellScalars, locator, 
-                           inPD, outPD, insideOut);
+  this->Triangulate(0, this->TriIds,this->TriPoints);
   
-  // Add the tetrahedra to the mesh
-  this->Triangulator->AddTetras(0,tets);
+  // For each tetra, contour it
+  int i, j;
+  vtkIdType ptId;
+  vtkDataArray *localScalars = inPD->GetScalars();
+  int numTets = this->TriIds->GetNumberOfIds() / 4;
+  for (i=0; i<numTets; i++)
+    {
+    for (j=0; j<4; j++)
+      {
+      ptId = this->TriIds->GetId(4*i+j);
+      this->Tetra->PointIds->SetId(j,ptId);
+      this->Tetra->Points->SetPoint(j,this->TriPoints->GetPoint(4*i+j));
+      this->TriScalars->SetValue(j,localScalars->GetTuple1(ptId));
+      }
+    this->Tetra->Clip(value,this->TriScalars,locator,tets,inPD,outPD,inCD,
+                      cellId, outCD, insideOut);
+    }
 }
 
 int vtkConvexPointSet::CellBoundary(int subId, float pcoords[3], 

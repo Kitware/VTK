@@ -118,13 +118,10 @@ protected:
   vtkConvexPointSet();
   ~vtkConvexPointSet();
 
-  vtkCellArray *Tetras;
   vtkTetra *Tetra;
-
-  void OrderedTriangulate(vtkIdType numPts, float value,
-                          vtkDataArray *cellScalars, vtkPointLocator *locator,
-                          vtkPointData *inPD, vtkPointData *outPD,
-                          int insideOut);
+  vtkIdList *TriIds;
+  vtkPoints *TriPoints;
+  vtkFloatArray *TriScalars;
 
 private:
   vtkConvexPointSet(const vtkConvexPointSet&);  // Not implemented.
