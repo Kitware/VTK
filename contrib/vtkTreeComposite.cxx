@@ -353,7 +353,6 @@ vtkTreeComposite::SetRenderWindowInteractor(vtkRenderWindowInteractor *iren)
 //----------------------------------------------------------------------------
 void vtkTreeComposite::RenderRMI()
 {
-  float *pdata, *zdata;
   int myId, numProcs, i;
   vtkCompositeRenderWindowInfo winInfo;
   vtkCompositeRendererInfo renInfo;
@@ -533,7 +532,6 @@ void vtkTreeComposite::EndRender()
   vtkMultiProcessController *controller = this->Controller;
   int *windowSize;
   int numProcs;
-  float *pdata, *zdata;    
   
   if (controller == NULL)
     {
