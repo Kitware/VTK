@@ -16,10 +16,12 @@ namespace eval ::vtk {
             set mapper \
                   [::vtk::new_widget_object $vtkiw vtkTextMapper text1_mapper]
             $mapper SetInput "none"
-            $mapper SetFontFamilyToArial
-            $mapper SetFontSize 12
-            $mapper BoldOn
-            $mapper ShadowOn
+            set tprop [$mapper GetTextProperty]
+            $tprop SetFontFamilyToArial
+            $tprop SetFontSize 12
+            $tprop BoldOn
+            $tprop ShadowOn
+            $tprop SetColor 1 1 0.5
         }
         set actor [::vtk::get_widget_variable_value $vtkiw text1_actor]
         if {$actor == ""} {
@@ -28,7 +30,6 @@ namespace eval ::vtk {
             $actor SetMapper $mapper
             $actor SetLayerNumber 1
             [$actor GetPositionCoordinate] SetValue 5 4 0
-            [$actor GetProperty] SetColor 1 1 0.5
             $actor SetVisibility 0
             [[$vtkiw GetImageViewer] GetRenderer] AddActor2D $actor
         }
