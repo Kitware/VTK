@@ -23,13 +23,13 @@
 #ifndef __vtkEarthSource_h
 #define __vtkEarthSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_HYBRID_EXPORT vtkEarthSource : public vtkPolyDataSource 
+class VTK_HYBRID_EXPORT vtkEarthSource : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkEarthSource *New();
-  vtkTypeRevisionMacro(vtkEarthSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkEarthSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -57,7 +57,7 @@ protected:
   vtkEarthSource();
   ~vtkEarthSource() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double Radius;
   int OnRatio;

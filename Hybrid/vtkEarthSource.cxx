@@ -17,14 +17,17 @@
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEarthSource, "1.26");
+vtkCxxRevisionMacro(vtkEarthSource, "1.27");
 vtkStandardNewMacro(vtkEarthSource);
 
 // Description:
@@ -35,6 +38,8 @@ vtkEarthSource::vtkEarthSource()
   this->Radius = 1.0;
   this->OnRatio = 10;
   this->Outline = 1;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
@@ -6812,8 +6817,18 @@ short vtkEarthData[] = {
 0,
 };
 
-void vtkEarthSource::Execute()
+int vtkEarthSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int i;
   int maxPts;
   int maxPolys;
@@ -6822,7 +6837,6 @@ void vtkEarthSource::Execute()
   vtkCellArray *newPolys;
   double x[3], base[3];
   vtkIdType Pts[4000];
-  vtkPolyData *output = this->GetOutput();
   int npts, land, offset;
   int actualpts, actualpolys;
   double scale = 1.0/30000.0;
@@ -6929,4 +6943,6 @@ void vtkEarthSource::Execute()
   newPolys->Delete();
 
   output->Squeeze();
+
+  return 1;
 }
