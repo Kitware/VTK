@@ -2489,7 +2489,11 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
   fprintf(fp,"\n");
 
-
+  const char* ansiFlags = "/GX /Zm1000";
+  if(!vals->m_AnsiCpp)
+    {
+    ansiFlags = "";
+    }
   if (debugFlag)
     {
     fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /W3 /Od /Zi /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\local\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
@@ -2509,7 +2513,8 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"/I \"%s\\contrib\" \\\n",vals->m_WhereVTK);
     }
 
-  fprintf(fp," /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
+  fprintf(fp,"%s %s /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n",
+          vals->adlg.m_EXTRA_CFLAGS, ansiFlags);
   fprintf(fp,"/I \"%s\\include\" /I \"%s\\include\\win32\" /Fo\"$(OUTDIR)/\" /c \n",
 	  vals->m_WhereJDK, vals->m_WhereJDK);
   fprintf(fp,"LINK32=link.exe\n");
