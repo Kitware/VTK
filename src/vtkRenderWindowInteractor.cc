@@ -53,7 +53,9 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 
   this->LightFollowCamera = 1;
   this->Initialized = 0;
-
+  this->DesiredUpdateRate = 15;
+  this->StillUpdateRate = 0;
+  
   this->SelfCreatedPicker = 0;
   this->Picker = this->CreateDefaultPicker();
   this->OutlineActor = NULL;
@@ -262,5 +264,7 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CurrentLight:    " << this->CurrentLight << "\n";
   os << indent << "CurrentRenderer: " << this->CurrentRenderer << "\n";
   os << indent << "LightFollowCamera: " << (this->LightFollowCamera ? "On\n" : "Off\n");
+  os << indent << "DesiredUpdateRate: " << this->DesiredUpdateRate << "\n";
+  os << indent << "StillUpdateRate: " << this->StillUpdateRate << "\n";
 }
 
