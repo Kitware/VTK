@@ -16,6 +16,7 @@
 
 #include "vtkGarbageCollector.h"
 #include "vtkInformationDataObjectKey.h"
+#include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationExecutiveKey.h"
 #include "vtkInformationInformationKey.h"
@@ -31,7 +32,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.7");
+vtkCxxRevisionMacro(vtkInformation, "1.8");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -220,6 +221,7 @@ void vtkInformation::CopyEntries(vtkInformation* from,
     return key->Has(this);                                                  \
     }
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Integer, int);
+VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Double, double);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(UnsignedLong, unsigned long);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(String, const char*);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(DataObject, vtkDataObject*);
@@ -326,6 +328,12 @@ vtkInformationKey* vtkInformation::GetKey(vtkInformationInformationVectorKey* ke
 
 //----------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationIntegerKey* key)
+{
+  return key;
+}
+
+//----------------------------------------------------------------------------
+vtkInformationKey* vtkInformation::GetKey(vtkInformationDoubleKey* key)
 {
   return key;
 }
