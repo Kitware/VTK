@@ -192,10 +192,14 @@ vtkCell *vtkPolyData::GetCell(int cellId)
       break;
     }
 
-  for (i=0; i < numPts; i++)
+  int last = numPts - 1;
+  cell->PointIds.InsertId(last,pts[last]);
+  cell->Points.InsertPoint(last,this->Points->GetPoint(pts[last]));
+  int *pt = &pts[0];
+  for (i=0; i < last; i++, pt++)
     {
-    cell->PointIds.InsertId(i,pts[i]);
-    cell->Points.InsertPoint(i,this->Points->GetPoint(pts[i]));
+    cell->PointIds.SetId(i,*pt);
+    cell->Points.SetPoint(i,this->Points->GetPoint(*pt));
     }
 
   return cell;
