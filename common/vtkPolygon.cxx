@@ -1131,8 +1131,11 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   return success;
 }
 
-// Sample at three points to compute derivatives in local r-s coordinate 
-// system. The project vectors into 3D model coordinate system.
+// Samples at three points to compute derivatives in local r-s coordinate 
+// system and projects vectors into 3D model coordinate system.
+// Note that the results are usually inaccurate because
+// this method actually returns the derivative of the interpolation
+// function  which  is obtained using 1/r**2 normalized sum.
 #define VTK_SAMPLE_DISTANCE 0.01
 void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3], 
                              float *values, int dim, float *derivs)
@@ -1171,7 +1174,7 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3],
   for ( idx=0, k=0; k < 3; k++ ) //loop over three sample points
     {
     this->ComputeWeights(x[k],weights);
-    for ( j=0; j < dim; i++, idx++) //over number of derivates requested
+    for ( j=0; j < dim; j++, idx++) //over number of derivates requested
       {
       sample[idx] = 0.0;
       for ( i=0; i < numVerts; i++ )
