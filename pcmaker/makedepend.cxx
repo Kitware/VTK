@@ -24,6 +24,9 @@ static int NumInDepends = 0;
 static int  num;
 static int dependIndices[MAX_DEPENDS];
 
+void AddToDepends(char *file, const char *vtkHome );
+void GetIncludes(DEPENDS_STRUCT *dependsEntry, const char *vtkHome );
+
 void GetDepends(int index)
 {
   int i, j;
@@ -45,10 +48,9 @@ void GetDepends(int index)
 }
 
 
-extern void OutputDepends(char *file, FILE *fp)
+extern void OutputDepends(char *file, FILE *fp, const char *vtkHome)
 {
   int i;
-  char msg[300];
 
   fprintf(fp,"DEPENDS=\\\n");
   num = 0;
@@ -60,12 +62,8 @@ extern void OutputDepends(char *file, FILE *fp)
       break;
     }
 
-  if ( i == NumInDepends )
-    {
-    sprintf(msg,"Error: %s not found in depends...  Add to SetupDepends()!!",file);
-    AfxMessageBox(msg);
-    exit(1);
-    }
+  if ( i == NumInDepends ) // need to add the file (and any new files it needs)
+    AddToDepends(file, vtkHome);
 
   GetDepends(i);
 
@@ -78,7 +76,7 @@ extern void OutputDepends(char *file, FILE *fp)
 }
 
 
-void AddToDepends(char *file)
+void AddToDepends(char *file, const char *vtkHome )
 {
   DEPENDS_STRUCT *dependsEntry;
 
@@ -96,7 +94,7 @@ void AddToDepends(char *file)
 
   DependsStructArray[ NumInDepends++ ] = dependsEntry;
 
-
+  GetIncludes(DependsStructArray[NumInDepends-1],vtkHome);
 }
 
 
@@ -227,7 +225,7 @@ void GetIncludes(DEPENDS_STRUCT *dependsEntry, const char *vtkHome )
               // if not found, add it to the end
               if ( k == NumInDepends )
                 {
-                AddToDepends(fullPath);
+                AddToDepends(fullPath, vtkHome);
                 dependsEntry->indices[ dependsEntry->numIndices++ ] = k;
                 }
 
@@ -244,22 +242,6 @@ void GetIncludes(DEPENDS_STRUCT *dependsEntry, const char *vtkHome )
   delete IS;  
 
 }
-
-
-
-void BuildDepends(CPcmakerDlg *vals)
-{
-  int i;
-  int originalNum = NumInDepends;
-
-  for (i = 0; i < NumInDepends; i++)
-    {
-    GetIncludes(DependsStructArray[i],vals->m_WhereVTK);
-    if (i < originalNum)
-      vals->m_Progress.OffsetPos(10);
-    }
-}
-
 
 
 
@@ -401,7 +383,7 @@ void BuildGLibDepends(CPcmakerDlg *vals)
     {
     GetGLibIncludes(GLibDependsArray[i],vals->m_WhereVTK);
     if (i < NumInGLibDependsOriginal)
-      vals->m_Progress.OffsetPos(10);
+      vals->m_Progress.OffsetPos(5);
     }
 
   for (i=0;i<NumInGLibDepends;i++)
