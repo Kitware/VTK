@@ -5,7 +5,7 @@ vtkApproximatingSubdivisionFilter
 vtkArrayCalculator
 vtkAttributeDataToFieldDataFilter
 vtkAxes
-vtrkBlankStructuredGridWithImage
+vtkBlankStructuredGridWithImage
 vtkBrownianPoints
 vtkButterflySubdivisionFilter
 vtkCardinalSpline
