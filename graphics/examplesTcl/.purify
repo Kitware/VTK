@@ -201,11 +201,10 @@ suppress umr vtkIntArray::GetTuple(const int,float*); vtkDataArray::InsertCompon
 suppress umr vtkUnsignedLongArray::GetTuple(const int,float*); vtkDataArray::InsertComponent(const int,const int,const float)
 suppress umr vtkUnsignedLongArray::GetTuple(const int,float*); vtkDataArray::InsertComponent(const int,const int,const float)
 
+suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkPoints::vtkPoints(int); vtkPoints::New(int); vtkPoints::New(void); yylex(void); yyparse(void); vtkVRMLImporter::ImportBegin(void)
+suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkFloatArray::vtkFloatArray(int); vtkFloatArray::New(void); vtkAttributeData::vtkAttributeData(int); vtkPoints::vtkPoints(int); vtkPoints::New(int); vtkPoints::New(void); yylex(void)
 suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); VrmlNodeType::VrmlNodeType(const char*)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkFloatPoints::New(void); yylex(void); yyparse(void); vtkVRMLImporter::ImportBegin(void)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkFloatPoints::New(void); yylex(void); yyparse(void); vtkVRMLImporter::ImportBegin(void)
 suppress mlk _malloc; _strdup; yylex(void); yyparse(void); vtkVRMLImporter::ImportBegin(void)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkFloatArray::vtkFloatArray(int); vtkFloatArray::New(void); vtkAttributeData::vtkAttributeData(int); vtkPoints::vtkPoints(int); vtkFloatPoints::New(void); yylex(void)
 suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int); VrmlNodeType::addExposedField(const char*,int); add(void (VrmlNodeType::*)(const char*,int),const char*,const char*); addExposedField(const char*,const char*); yyparse(void)
 suppress mlk _malloc; _strdup; VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int); VrmlNodeType::addField(const char*,int); add(void (VrmlNodeType::*)(const char*,int),const char*,const char*); addField(const char*,const char*); yyparse(void)
 suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int); VrmlNodeType::addField(const char*,int); add(void (VrmlNodeType::*)(const char*,int),const char*,const char*); addField(const char*,const char*); yyparse(void)
@@ -278,3 +277,20 @@ suppress miu _malloc; _XlcAddCT
 suppress miu _malloc; Tcl_CreateChannel
 suppress miu _malloc; RebuildTable
 suppress miu _malloc; SetListFromAny; Tcl_ListObjLength
+
+suppress miu _malloc; _calloc; __glXCalloc; __glMgrCreateContext; __glXCreateDirectContext; CreateContext; glXCreateContext; vtkOpenGLRenderWindow::WindowInitialize(void)
+suppress miu _malloc; _calloc; __glXCalloc; __glEarlyInitTextureState; __glEarlyInitContext; __glMgrCreateContext; __glXCreateDirectContext; CreateContext; glXCreateContext
+suppress miu _malloc; TclAllocateFreeObjects; Tcl_NewObj; TclObjIndexForString; TclCompileString; CompileMultipartWord; TclCompileString; SetByteCodeFromAny; TclObjInterpProc; TclExecuteByteCode
+suppress miu _malloc; TclAllocateFreeObjects; Tcl_NewObj; Tcl_ExprObj; TclExecuteByteCode; Tcl_EvalObj; TclObjInterpProc; TclExecuteByteCode; Tcl_EvalObj; Tcl_Eval
+suppress miu _malloc; _calloc; __glXCalloc; __glEarlyInitContext; __glMgrCreateContext; __glXCreateDirectContext; CreateContext; glXCreateContext
+suppress miu _malloc; Tcl_ProcObjCmd; TclExecuteByteCode; Tcl_EvalObj; Tcl_Eval; Tcl_EvalFile; Tcl_SourceObjCmd; TclExecuteByteCode; Tcl_EvalObj; Tcl_UplevelObjCmd
+suppress miu _malloc; TclObjIndexForString; TclCompileSetCmd; TclCompileString; SetByteCodeFromAny; Tcl_EvalObj; Tcl_Eval; Tcl_EvalFile; Tk_Main
+suppress miu _malloc; store_to_database; f_newline; CreateDatabase; _XlcCreateLocaleDataBase
+suppress miu _malloc; TkpOpenDisplay; GetScreen; CreateTopLevelWindow; TkCreateMainWindow; TkCreateFrame; Initialize; Tk_Init
+suppress miu _malloc; TkpOpenDisplay; GetScreen; CreateTopLevelWindow; TkCreateMainWindow; TkCreateFrame; Initialize; Tk_Init
+suppress miu _malloc; _XlcCreateLocaleDataBase; load_public; initialize; _XlcCreateLC; _XlcDefaultLoader; _XOpenLC; XOpenIM
+suppress miu _malloc; CreateContext; glXCreateContext; vtkOpenGLRenderWindow::WindowInitialize(void)
+suppress miu _malloc; NewVar; TclLookupVar; Tcl_ObjSetVar2; TclExecuteByteCode; Tcl_EvalObj; Tcl_Eval; Tcl_EvalFile; Tk_Main
+suppress miu _malloc; TclCompileString; SetByteCodeFromAny; TclObjInterpProc; TclExecuteByteCode; Tcl_EvalObj; Tcl_Eval; Tcl_EvalFile; Tcl_SourceObjCmd; TclExecuteByteCode
+suppress miu _malloc; _calloc; CreateContext; glXCreateContext; vtkOpenGLRenderWindow::WindowInitialize(void)
+suppress miu _malloc; _calloc; _XInternAtom; XInternAtom; _XSGIFastInternAtom; XkbUseExtension; XOpenDisplay
