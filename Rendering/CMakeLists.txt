@@ -214,8 +214,15 @@ IF (VTK_WRAP_TCL)
 
   # find the tk internals for win32
   IF (WIN32)
+    # look for the internals header files in a few places
+    IF (TK_LIBRARY)
+      IF (TK_LIBRARY MATCHES tk83.lib)
+        FIND_PATH(TK_INTERNAL_PATH tkWinInt.h 
+          ${VTK_SOURCE_DIR}/Rendering/tkInternals/tk83)
+      ENDIF (TK_LIBRARY MATCHES tk83.lib)
+    ENDIF (TK_LIBRARY)
     FIND_PATH(TK_INTERNAL_PATH tkWinInt.h 
-      ${VTK_SOURCE_DIR}/Rendering/tkInternals)
+          ${VTK_SOURCE_DIR}/Rendering/tkInternals)
     IF (TK_INTERNAL_PATH)
       INCLUDE_DIRECTORIES(${TK_INTERNAL_PATH})
     ENDIF (TK_INTERNAL_PATH) 
