@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkVolumeMapper::vtkVolumeMapper()
 {
   this->ScalarInput = NULL;
+  this->RGBTextureInput = NULL;
   this->Clipping = 0;
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
