@@ -75,7 +75,7 @@ vtkProperty::vtkProperty()
   this->Diffuse = 1.0;
   this->Specular = 0.0;
   this->SpecularPower = 1.0;
-  this->Transparency = 1.0;
+  this->Opacity = 1.0;
   this->Interpolation = VTK_GOURAUD;
   this->Representation = VTK_SURFACE;
   this->EdgeVisibility = 0;
@@ -100,51 +100,36 @@ void vtkProperty::Render(vtkRenderer *ren)
   this->Device->Render(this,ren);
 }
 
-// Description:
-// Set shading method to flat.
 void vtkProperty::SetFlat (void)
 {
   this->Interpolation= VTK_FLAT;
 }
 
-// Description:
-// Set shading method to Gouraud.
 void vtkProperty::SetGouraud (void)
 {
   this->Interpolation = VTK_GOURAUD;
 }
 
-// Description:
-// Set shading method to Phong.
 void vtkProperty::SetPhong (void)
 {
   this->Interpolation = VTK_PHONG;
 }
 
-// Description:
-// Represent geometry with points.
 void vtkProperty::SetPoints (void)
 {
   this->Interpolation = VTK_POINTS;
 }
 
-// Description:
-// Represent geometry as wireframe.
 void vtkProperty::SetWireframe (void)
 {
   this->Representation = VTK_WIREFRAME;
 }
 
-// Description:
-// Represent geometry as surface.
 void vtkProperty::SetSurface (void)
 {
   this->Representation = VTK_SURFACE;
 }
 
-// Description:
-// Set the color of the object. Has side effects in that it sets the
-// ambient diffuse and specular colors as well.
 void vtkProperty::SetColor(float R,float G,float B)
 {
   /* store the coordinates */
@@ -190,6 +175,7 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
     case 2: os << "VTK_PHONG\n"; break;
     default: os << "unknown\n";
     }
+  os << indent << "Opacity: " << this->Opacity << "\n";
   os << indent << "Representation: ";
   switch (this->Representation) 
     {
@@ -202,5 +188,4 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Specular Color: (" << this->SpecularColor[0] << ", " 
      << this->SpecularColor[1] << ", " << this->SpecularColor[2] << ")\n";
   os << indent << "Specular Power: " << this->SpecularPower << "\n";
-  os << indent << "Transparency: " << this->Transparency << "\n";
 }
