@@ -68,8 +68,8 @@ vtkCell *vtkPyramid::MakeObject()
   return cell;
 }
 
-#define MAX_ITERATION 10
-#define CONVERGED 1.e-03
+#define VTK_MAX_ITERATION 10
+#define VTK_CONVERGED 1.e-03
 int vtkPyramid::EvaluatePosition(float x[3], float closestPoint[3],
                               int& subId, float pcoords[3], 
                               float& dist2, float *weights)
@@ -87,7 +87,7 @@ int vtkPyramid::EvaluatePosition(float x[3], float closestPoint[3],
   params[0] = params[1] = params[2] = 0.3333333;
 
   //  enter iteration loop
-  for (iteration=converged=0; !converged && (iteration < MAX_ITERATION);
+  for (iteration=converged=0; !converged && (iteration < VTK_MAX_ITERATION);
   iteration++) 
     {
     //  calculate element interpolation functions and derivatives
@@ -111,19 +111,25 @@ int vtkPyramid::EvaluatePosition(float x[3], float closestPoint[3],
         }
       }
 
-    for (i=0; i<3; i++) fcol[i] -= x[i];
+    for (i=0; i<3; i++) 
+      {
+      fcol[i] -= x[i];
+      }
 
     //  compute determinants and generate improvements
-    if ( (d=vtkMath::Determinant3x3(rcol,scol,tcol)) == 0.0 ) return -1;
+    if ( (d=vtkMath::Determinant3x3(rcol,scol,tcol)) == 0.0 ) 
+      {
+      return -1;
+      }
 
     pcoords[0] = params[0] - vtkMath::Determinant3x3 (fcol,scol,tcol) / d;
     pcoords[1] = params[1] - vtkMath::Determinant3x3 (rcol,fcol,tcol) / d;
     pcoords[2] = params[2] - vtkMath::Determinant3x3 (rcol,scol,fcol) / d;
 
     //  check for convergence
-    if ( ((fabs(pcoords[0]-params[0])) < CONVERGED) &&
-    ((fabs(pcoords[1]-params[1])) < CONVERGED) &&
-    ((fabs(pcoords[2]-params[2])) < CONVERGED) )
+    if ( ((fabs(pcoords[0]-params[0])) < VTK_CONVERGED) &&
+    ((fabs(pcoords[1]-params[1])) < VTK_CONVERGED) &&
+    ((fabs(pcoords[2]-params[2])) < VTK_CONVERGED) )
       {
       converged = 1;
       }
@@ -139,7 +145,10 @@ int vtkPyramid::EvaluatePosition(float x[3], float closestPoint[3],
 
   //  if not converged, set the parametric coordinates to arbitrary values
   //  outside of element
-  if ( !converged ) return -1;
+  if ( !converged ) 
+    {
+    return -1;
+    }
 
   this->InterpolationFunctions(pcoords, weights);
 
@@ -156,9 +165,18 @@ int vtkPyramid::EvaluatePosition(float x[3], float closestPoint[3],
     float pc[3], w[5];
     for (i=0; i<3; i++) //only approximate, not really true for warped hexa
       {
-      if (pcoords[i] < 0.0) pc[i] = 0.0;
-      else if (pcoords[i] > 1.0) pc[i] = 1.0;
-      else pc[i] = pcoords[i];
+      if (pcoords[i] < 0.0) 
+	{
+	pc[i] = 0.0;
+	}
+      else if (pcoords[i] > 1.0) 
+	{
+	pc[i] = 1.0;
+	}
+      else 
+	{
+	pc[i] = pcoords[i];
+	}
       }
     this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
     dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
@@ -326,8 +344,12 @@ void vtkPyramid::Contour(float value, vtkScalars *cellScalars,
 
   // Build the case table
   for ( i=0, index = 0; i < 5; i++)
-      if (cellScalars->GetScalar(i) >= value)
-          index |= CASE_MASK[i];
+    {
+    if (cellScalars->GetScalar(i) >= value)
+      {
+      index |= CASE_MASK[i];
+      }
+    }
 
   triCase = triCases + index;
   edge = triCase->edges;
@@ -341,7 +363,10 @@ void vtkPyramid::Contour(float value, vtkScalars *cellScalars,
           (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
       x1 = this->Points->GetPoint(vert[0]);
       x2 = this->Points->GetPoint(vert[1]);
-      for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+      for (j=0; j<3; j++) 
+	{
+	x[j] = x1[j] + t * (x2[j] - x1[j]);
+	}
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {
         pts[i] = locator->InsertNextPoint(x);
