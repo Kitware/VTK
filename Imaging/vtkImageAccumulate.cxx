@@ -21,7 +21,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.44");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.45");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -247,11 +247,11 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
     Mean[1] = sum[1] / (double)*VoxelCount;    
     Mean[2] = sum[2] / (double)*VoxelCount;    
 
-    variance = sumSqr[0] / (double)*VoxelCount - ((double) *VoxelCount * Mean[0] * Mean[0] / (double) (*VoxelCount - 1));
+    variance = sumSqr[0] / (double)(*VoxelCount-1) - ((double) *VoxelCount * Mean[0] * Mean[0] / (double) (*VoxelCount - 1));
     StandardDeviation[0] = sqrt(variance);
-    variance = sumSqr[1] / (double)*VoxelCount - ((double) *VoxelCount * Mean[1] * Mean[1] / (double) (*VoxelCount - 1));
+    variance = sumSqr[1] / (double)(*VoxelCount-1) - ((double) *VoxelCount * Mean[1] * Mean[1] / (double) (*VoxelCount - 1));
     StandardDeviation[1] = sqrt(variance);
-    variance = sumSqr[2] / (double)*VoxelCount - ((double) *VoxelCount * Mean[2] * Mean[2] / (double) (*VoxelCount - 1));
+    variance = sumSqr[2] / (double)(*VoxelCount-1) - ((double) *VoxelCount * Mean[2] * Mean[2] / (double) (*VoxelCount - 1));
     StandardDeviation[2] = sqrt(variance);
     }
   else
