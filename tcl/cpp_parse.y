@@ -87,8 +87,12 @@ class_def : CLASS VTK_ID
       class_name = strdup($2);
       fprintf(stderr,"Working on %s\n",class_name);
       fprintf(yyout,"// tcl wrapper for %s object\n//\n",class_name);
+      fprintf(yyout,"#ifdef _WIN32\n");
+      fprintf(yyout,"#include <strstrea.h>\n");
+      fprintf(yyout,"#else\n");
       fprintf(yyout,"#include <strstream.h>\n");
-      fprintf(yyout,"#include \"%s\"\n\n",file_name);
+      fprintf(yyout,"#endif\n");
+      fprintf(yyout,"#include \"%s.h\"\n\n",class_name);
       fprintf(yyout,"#include \"vtkTclUtil.h\"\n");
       if (is_concrete)
 	{

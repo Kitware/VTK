@@ -84,7 +84,9 @@ typedef union
 #include <memory.h>
 #endif
 
+#ifndef _WIN32
 #include <values.h>
+#endif
 
 #ifdef __cplusplus
 
@@ -122,7 +124,7 @@ YYSTYPE *yyv;
 static int yymaxdepth = YYMAXDEPTH;
 # define YYERRCODE 256
 
-# line 685 "cpp_parse.y"
+# line 689 "cpp_parse.y"
 
 #include "lex.yy.c"
 output_temp(int i)
@@ -1465,8 +1467,12 @@ case 2:
       class_name = strdup(yypvt[-0].str);
       fprintf(stderr,"Working on %s\n",class_name);
       fprintf(yyout,"// tcl wrapper for %s object\n//\n",class_name);
+      fprintf(yyout,"#ifdef _WIN32\n");
+      fprintf(yyout,"#include <strstrea.h>\n");
+      fprintf(yyout,"#else\n");
       fprintf(yyout,"#include <strstream.h>\n");
-      fprintf(yyout,"#include \"%s\"\n\n",file_name);
+      fprintf(yyout,"#endif\n");
+      fprintf(yyout,"#include \"%s.h\"\n\n",class_name);
       fprintf(yyout,"#include \"vtkTclUtil.h\"\n");
       if (is_concrete)
 	{
@@ -1476,7 +1482,7 @@ case 2:
 	}
       } break;
 case 3:
-# line 101 "cpp_parse.y"
+# line 105 "cpp_parse.y"
 {
       int i;
       for (i = 0; i < num_superclasses; i++)
@@ -1518,7 +1524,7 @@ case 3:
 
       } break;
 case 4:
-# line 142 "cpp_parse.y"
+# line 146 "cpp_parse.y"
 {
       int i;
 
@@ -1584,133 +1590,133 @@ case 4:
       fprintf(yyout,"  return TCL_ERROR;\n}\n");
       } break;
 case 9:
-# line 211 "cpp_parse.y"
-{ arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
-case 10:
-# line 213 "cpp_parse.y"
-{ arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
-case 11:
 # line 215 "cpp_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
-case 12:
+case 10:
 # line 217 "cpp_parse.y"
 { arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
-case 15:
+case 11:
+# line 219 "cpp_parse.y"
+{ arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
+case 12:
 # line 221 "cpp_parse.y"
+{ arg_failure = 0; num_args = 0; arg_types[10] = 2; arg_ids[10] = NULL;} break;
+case 15:
+# line 225 "cpp_parse.y"
 {
          output_function();
 	 } break;
 case 16:
-# line 225 "cpp_parse.y"
+# line 229 "cpp_parse.y"
 {
          arg_types[10] = yypvt[-1].integer;
          output_function();
 	 } break;
 case 17:
-# line 230 "cpp_parse.y"
+# line 234 "cpp_parse.y"
 {
          arg_types[10] = yypvt[-1].integer;
          output_function();
 	 } break;
 case 18:
-# line 235 "cpp_parse.y"
+# line 239 "cpp_parse.y"
 {
          output_function();
 	 } break;
 case 19:
-# line 240 "cpp_parse.y"
+# line 244 "cpp_parse.y"
 { is_virtual = 0; func_name = yypvt[-4].str; 
        fprintf(stderr,"   Converted func %s\n",yypvt[-4].str); } break;
 case 20:
-# line 243 "cpp_parse.y"
+# line 247 "cpp_parse.y"
 { is_virtual = 1; fprintf(stderr,"   Converted operator\n"); } break;
 case 21:
-# line 245 "cpp_parse.y"
+# line 249 "cpp_parse.y"
 { is_virtual = 0; func_name = yypvt[-6].str;
        fprintf(stderr,"   Converted func %s\n",yypvt[-6].str);} break;
 case 30:
-# line 257 "cpp_parse.y"
+# line 261 "cpp_parse.y"
 { num_args++;} break;
 case 31:
-# line 257 "cpp_parse.y"
+# line 261 "cpp_parse.y"
 {num_args++;} break;
 case 33:
-# line 259 "cpp_parse.y"
+# line 263 "cpp_parse.y"
 {arg_types[num_args] = yypvt[-0].integer;} break;
 case 34:
-# line 260 "cpp_parse.y"
+# line 264 "cpp_parse.y"
 {arg_types[num_args] = yypvt[-1].integer; } break;
 case 36:
-# line 261 "cpp_parse.y"
+# line 265 "cpp_parse.y"
 {arg_types[num_args] = 5000;} break;
 case 43:
-# line 270 "cpp_parse.y"
+# line 274 "cpp_parse.y"
 { arg_failure = 1; } break;
 case 44:
-# line 271 "cpp_parse.y"
+# line 275 "cpp_parse.y"
 { arg_failure = 1; } break;
 case 45:
-# line 274 "cpp_parse.y"
+# line 278 "cpp_parse.y"
 {yyval.integer = 1000 + yypvt[-0].integer;} break;
 case 46:
-# line 275 "cpp_parse.y"
-{yyval.integer = yypvt[-0].integer;} break;
-case 47:
-# line 276 "cpp_parse.y"
-{yyval.integer = 2000 + yypvt[-0].integer;} break;
-case 48:
-# line 277 "cpp_parse.y"
-{yyval.integer = 3000 + yypvt[-0].integer;} break;
-case 49:
 # line 279 "cpp_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
-case 50:
+case 47:
+# line 280 "cpp_parse.y"
+{yyval.integer = 2000 + yypvt[-0].integer;} break;
+case 48:
 # line 281 "cpp_parse.y"
+{yyval.integer = 3000 + yypvt[-0].integer;} break;
+case 49:
+# line 283 "cpp_parse.y"
+{yyval.integer = yypvt[-0].integer;} break;
+case 50:
+# line 285 "cpp_parse.y"
 {yyval.integer = yypvt[-1].integer + yypvt[-0].integer;} break;
 case 51:
-# line 290 "cpp_parse.y"
+# line 294 "cpp_parse.y"
 { yyval.integer = 100;} break;
 case 52:
-# line 291 "cpp_parse.y"
+# line 295 "cpp_parse.y"
 { yyval.integer = 300;} break;
 case 53:
-# line 292 "cpp_parse.y"
+# line 296 "cpp_parse.y"
 { yyval.integer = 100 + yypvt[-0].integer;} break;
 case 54:
-# line 293 "cpp_parse.y"
+# line 297 "cpp_parse.y"
 { yyval.integer = 400 + yypvt[-0].integer;} break;
 case 55:
-# line 295 "cpp_parse.y"
+# line 299 "cpp_parse.y"
 { yyval.integer = 10 + yypvt[-0].integer;} break;
 case 56:
-# line 296 "cpp_parse.y"
+# line 300 "cpp_parse.y"
 { yyval.integer = yypvt[-0].integer;} break;
 case 57:
-# line 299 "cpp_parse.y"
+# line 303 "cpp_parse.y"
 { yyval.integer = 1;} break;
 case 58:
-# line 300 "cpp_parse.y"
+# line 304 "cpp_parse.y"
 { yyval.integer = 2;} break;
 case 59:
-# line 301 "cpp_parse.y"
+# line 305 "cpp_parse.y"
 { yyval.integer = 3;} break;
 case 60:
-# line 302 "cpp_parse.y"
+# line 306 "cpp_parse.y"
 { yyval.integer = 4;} break;
 case 61:
-# line 303 "cpp_parse.y"
+# line 307 "cpp_parse.y"
 { yyval.integer = 5;} break;
 case 62:
-# line 304 "cpp_parse.y"
+# line 308 "cpp_parse.y"
 { yyval.integer = 6;} break;
 case 63:
-# line 305 "cpp_parse.y"
+# line 309 "cpp_parse.y"
 { yyval.integer = 7;} break;
 case 64:
-# line 306 "cpp_parse.y"
+# line 310 "cpp_parse.y"
 { yyval.integer = 8;} break;
 case 65:
-# line 307 "cpp_parse.y"
+# line 311 "cpp_parse.y"
 { yyval.integer = 9; 
            arg_ids[num_args] = strdup(yypvt[-0].str); 
            if ((!arg_ids[10])&&(!num_args))
@@ -1719,31 +1725,31 @@ case 65:
              }
          } break;
 case 68:
-# line 318 "cpp_parse.y"
+# line 322 "cpp_parse.y"
 { superclasses[num_superclasses] = strdup(yypvt[-0].str); num_superclasses++; } break;
 case 69:
-# line 320 "cpp_parse.y"
+# line 324 "cpp_parse.y"
 { superclasses[num_superclasses] = strdup(yypvt[-0].str); num_superclasses++; } break;
 case 71:
-# line 323 "cpp_parse.y"
+# line 327 "cpp_parse.y"
 {in_public = 1;} break;
 case 72:
-# line 323 "cpp_parse.y"
+# line 327 "cpp_parse.y"
 {in_public = 0;} break;
 case 73:
-# line 324 "cpp_parse.y"
+# line 328 "cpp_parse.y"
 {in_public = 0;} break;
 case 74:
-# line 326 "cpp_parse.y"
+# line 330 "cpp_parse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 75:
-# line 327 "cpp_parse.y"
+# line 331 "cpp_parse.y"
 {yyval.integer = -1;} break;
 case 76:
-# line 327 "cpp_parse.y"
+# line 331 "cpp_parse.y"
 {yyval.integer = -1;} break;
 case 77:
-# line 331 "cpp_parse.y"
+# line 335 "cpp_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1752,7 +1758,7 @@ case 77:
    output_function();
    } break;
 case 78:
-# line 339 "cpp_parse.y"
+# line 343 "cpp_parse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1761,7 +1767,7 @@ case 78:
    output_function();
    } break;
 case 79:
-# line 347 "cpp_parse.y"
+# line 351 "cpp_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-1].str); 
    func_name = strdup(temps);
@@ -1770,7 +1776,7 @@ case 79:
    output_function();
    } break;
 case 80:
-# line 355 "cpp_parse.y"
+# line 359 "cpp_parse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-1].str); 
    func_name = strdup(temps);
@@ -1779,7 +1785,7 @@ case 80:
    output_function();
    } break;
 case 81:
-# line 363 "cpp_parse.y"
+# line 367 "cpp_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-5].str); 
    func_name = strdup(temps);
@@ -1788,7 +1794,7 @@ case 81:
    output_function();
    } break;
 case 82:
-# line 371 "cpp_parse.y"
+# line 375 "cpp_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1797,7 +1803,7 @@ case 82:
    output_function();
    } break;
 case 83:
-# line 379 "cpp_parse.y"
+# line 383 "cpp_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1806,7 +1812,7 @@ case 83:
    output_function();
    } break;
 case 84:
-# line 387 "cpp_parse.y"
+# line 391 "cpp_parse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1815,7 +1821,7 @@ case 84:
    output_function();
    } break;
 case 85:
-# line 395 "cpp_parse.y"
+# line 399 "cpp_parse.y"
 { 
    sprintf(temps,"%sOn",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1828,7 +1834,7 @@ case 85:
    output_function();
    } break;
 case 86:
-# line 407 "cpp_parse.y"
+# line 411 "cpp_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1838,7 +1844,7 @@ case 86:
    output_function();
    } break;
 case 87:
-# line 416 "cpp_parse.y"
+# line 420 "cpp_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1849,7 +1855,7 @@ case 87:
    output_function();
    } break;
 case 88:
-# line 426 "cpp_parse.y"
+# line 430 "cpp_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1861,7 +1867,7 @@ case 88:
    output_function();
    } break;
 case 89:
-# line 437 "cpp_parse.y"
+# line 441 "cpp_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    func_name = strdup(temps);
@@ -1905,7 +1911,7 @@ case 89:
    free(func_name);
    } break;
 case 90:
-# line 480 "cpp_parse.y"
+# line 484 "cpp_parse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-1].str); 
    func_name = strdup(temps);
@@ -1964,7 +1970,7 @@ case 90:
    free(func_name);
    } break;
 case 91:
-# line 538 "cpp_parse.y"
+# line 542 "cpp_parse.y"
 { 
    int i;
 
@@ -2020,7 +2026,7 @@ case 91:
     }
    } break;
 case 92:
-# line 593 "cpp_parse.y"
+# line 597 "cpp_parse.y"
 { 
    int i;
 
