@@ -56,6 +56,7 @@ public:
   vtkImage3dDecomposedFilter();
   ~vtkImage3dDecomposedFilter();
   char *GetClassName() {return "vtkImage3dDecomposedFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Forward Object messages to filter1 and fitler2
   void DebugOn();

@@ -81,6 +81,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 "Undefined"))))))
 
 
+// These definitions give semantics to the abstract implementation of axes.
+#define VTK_IMAGE_X_AXIS 0
+#define VTK_IMAGE_Y_AXIS 1
+#define VTK_IMAGE_Z_AXIS 2
+#define VTK_IMAGE_TIME_AXIS 3
+#define VTK_IMAGE_COMPONENT_AXIS 4
+
+
+// A macro to get the name of an axis
+#define vtkImageAxisNameMacro(axis) \
+(((axis) == VTK_IMAGE_X_AXIS) ? "X" : \
+(((axis) == VTK_IMAGE_Y_AXIS) ? "Y" : \
+(((axis) == VTK_IMAGE_Z_AXIS) ? "Z" : \
+(((axis) == VTK_IMAGE_TIME_AXIS) ? "Time" : \
+(((axis) == VTK_IMAGE_COMPONENT_AXIS) ? "Component" : \
+"Undefined")))))
+
+
+
 
 class vtkImageData : public vtkRefCount
 {
@@ -90,8 +109,7 @@ public:
   char *GetClassName() {return "vtkImageData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  int GetReferenceCount();
-
+  void SetScalars(vtkScalars *scalars);
   // Description:
   // Get the vtkScalars that contain the actual data.
   vtkGetObjectMacro(Scalars,vtkScalars);
@@ -121,12 +139,25 @@ public:
   int Allocate();
   void *GetVoidPointer(int coordinates[VTK_IMAGE_DIMENSIONS]);
   void *GetVoidPointer();
-
+  void Translate(int vector[VTK_IMAGE_DIMENSIONS]);
+  
+  
   // Description:
-  // Get the coordinate system of the data (data order)
+  // Set/Get the coordinate system of the data (data order)
+  void SetAxes(int *axes);
   vtkGetVectorMacro(Axes,int,VTK_IMAGE_DIMENSIONS);
   
+  // Description:
+  // A flag that determines wheter to print the data or not.
+  vtkSetMacro(PrintScalars,int);
+  vtkGetMacro(PrintScalars,int);
+  vtkBooleanMacro(PrintScalars,int);
+  
+  void CopyData(vtkImageData *data);
+  
+
 protected:
+  int PrintScalars;
   vtkScalars *Scalars;  // Store the data in native VTK format.
   int Axes[VTK_IMAGE_DIMENSIONS];   
   int Type;             // What type of data is in this object.

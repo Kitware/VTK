@@ -69,6 +69,22 @@ vtkImageCachedSource::~vtkImageCachedSource()
 void vtkImageCachedSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
+
+  os << indent << "Axes: (";
+  os << vtkImageAxisNameMacro(this->Axes[0]) << ", ";
+  os << vtkImageAxisNameMacro(this->Axes[1]) << ", ";
+  os << vtkImageAxisNameMacro(this->Axes[2]) << ", ";
+  os << vtkImageAxisNameMacro(this->Axes[3]) << ")\n";
+
+  if (this->Output)
+    {
+    os << indent << "Cache:\n";
+    this->Output->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Cache: NULL \n";
+    }
 }
   
 

@@ -53,6 +53,20 @@ vtkImage1dFftFilter::vtkImage1dFftFilter()
   this->InputImaginaryComponent = 1;
 }
 
+
+//----------------------------------------------------------------------------
+void vtkImage1dFftFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageFourierFilter::PrintSelf(os,indent);
+
+  os << indent << "Real values taken from component: " 
+     << this->InputRealComponent << "\n";
+
+  os << indent << "Imaginary values taken from component: " 
+     << this->InputImaginaryComponent << "\n";
+}
+
+
 //----------------------------------------------------------------------------
 // Description:
 // This 1d filter is actually a 2d filter with the component axis as the first

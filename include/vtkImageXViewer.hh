@@ -109,55 +109,63 @@ public:
   vtkSetObjectMacro(Input,vtkImageSource);
   vtkGetObjectMacro(Input,vtkImageSource);
   
-  void View(void);
-  void InitializeWindow();
-  void InitializeColor(void);
+  void Render(void);
   
-  vtkSetVectorMacro(WinInfo,int,4);
-  vtkGetVectorMacro(WinInfo,int,4);
-
-  XVisualInfo *GetVisualInfo(){return &(this->VisualInfo);};
+  void SetWindow(Window win);
+  
+  // Description:
+  // Gets the windows depth. For the templated function.
+  vtkGetMacro(VisualDepth,int);
+  
+  // Description:
+  // Turn color interpretation on/off.
+  vtkSetMacro(ColorFlag, int);
+  vtkGetMacro(ColorFlag, int);
+  vtkBooleanMacro(ColorFlag, int);
+  // Description:
+  // Which components should be used for RGB.
+  vtkSetMacro(Red, int);
+  vtkGetMacro(Red, int);
+  vtkSetMacro(Green, int);
+  vtkGetMacro(Green, int);
+  vtkSetMacro(Blue, int);
+  vtkGetMacro(Blue, int);
   
   
 protected:
   // X stuff
-  int                  Screen;
+  Window	       WindowId;
+  Display             *DisplayId;
+  Visual              *VisualId;
+  int                  VisualDepth;
+  Colormap             ColorMap;
   GC                   Gc;
-  int                  VisDepth;
-  XSizeHints           SizeHints;
   Pixmap               IconPixmap;
-  XSetWindowAttributes Attributes;
   XImage              *Image;
   XEvent               report;
-  Cursor               MyStdCursor;
   int	               Offset;
-  int 		       WinInfo[4];
-  int		       ViewerOn;
-
-  Display             *DisplayId;
-  XVisualInfo          VisualInfo;
-  Window	       WindowId;
-  Colormap             ColorMap;
-  int                  Size[2];
-  int                  Position[2];
-  int                  Borders;
-  int                  OwnWindow;
-  char                 Name[80];  
-  int                  Mapped;
   XColor               Colors[256];
   int                  NumberColors;
   
   
-  // Contains the bounds of the region to be displayed.
   vtkImageSource *Input;
+  // Contains the bounds of the region to be displayed.
   vtkImageRegion Region;
+  // For converting image pixels to X pixels.
   float ColorWindow;
   float ColorLevel;
+  // Stuff for mapping color (i.e. Components to RGB)
+  int ColorFlag;
+  int Red;
+  int Green;
+  int Blue;
   
-  Colormap GetDesiredColormap();
+  
+  Window MakeDefaultWindow(int width, int height);
+  void GetDefaultVisualInfo(XVisualInfo *info);
+  Colormap MakeColorMap(Visual *visual);
   Display *GetDisplayId();
   Visual *GetVisualId();
-  int GetVisualDepth();
 };
 
 #endif

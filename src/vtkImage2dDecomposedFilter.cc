@@ -67,6 +67,18 @@ vtkImage2dDecomposedFilter::~vtkImage2dDecomposedFilter()
 
 
 //----------------------------------------------------------------------------
+void vtkImage2dDecomposedFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageFilter::PrintSelf(os,indent);
+  os << indent << "Filter0: \n";
+  this->Filter0->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Filter1: \n";
+  this->Filter1->PrintSelf(os, indent.GetNextIndent());
+}
+
+
+
+//----------------------------------------------------------------------------
 // Description:
 // Turn debugging output on. (in sub filters also)
 void vtkImage2dDecomposedFilter::DebugOn()

@@ -52,6 +52,10 @@ vtkImageRegion::vtkImageRegion()
   this->Axes[2] = VTK_IMAGE_Z_AXIS;
   this->Axes[3] = VTK_IMAGE_TIME_AXIS;
   this->Axes[4] = VTK_IMAGE_COMPONENT_AXIS;
+
+  this->Increments[0] = this->Increments[1] = this->Increments[2]
+    = this->Increments[3] = this->Increments[4] = 0;
+  
   this->SetBounds5d(0,0, 0,0, 0,0, 0,0, 0,0);
   this->SetImageBounds5d(0,0, 0,0, 0,0, 0,0, 0,0);
   this->ResetDefaultCoordinates(5);
@@ -72,18 +76,14 @@ vtkImageRegion::~vtkImageRegion()
 
 
 //----------------------------------------------------------------------------
-// Description:
-// Destructor: Deleting a vtkImageRegion automatically deletes the associated
-// vtkImageData.  However, since the data is reference counted, it may not 
-// actually be deleted.
 void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);
   os << indent << "Axes: (";
-  os << vtkImageRegionAxisNameMacro(this->Axes[0]) << ", ";
-  os << vtkImageRegionAxisNameMacro(this->Axes[1]) << ", ";
-  os << vtkImageRegionAxisNameMacro(this->Axes[2]) << ", ";
-  os << vtkImageRegionAxisNameMacro(this->Axes[3]) << ")\n";
+  os << vtkImageAxisNameMacro(this->Axes[0]) << ", ";
+  os << vtkImageAxisNameMacro(this->Axes[1]) << ", ";
+  os << vtkImageAxisNameMacro(this->Axes[2]) << ", ";
+  os << vtkImageAxisNameMacro(this->Axes[3]) << ")\n";
   
   os << indent << "Bounds: (";
   os << this->Bounds[0] << ", " << this->Bounds[1] << ", ";
@@ -109,6 +109,9 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
   os << this->AspectRatio[2] << ", ";
   os << this->AspectRatio[3] << ")\n";
 
+  os << indent << "DataType: " << vtkImageDataTypeNameMacro(this->DataType) 
+     << "\n";
+  
   if ( ! this->Data)
     {
     os << indent << "Data: NULL\n";
@@ -119,115 +122,28 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
     this->Data->PrintSelf(os,indent.GetNextIndent());
     }
 }
-  
 
-/*****************************************************************************
-  Stuff for copying regions (double templated).
-*****************************************************************************/
 
 //----------------------------------------------------------------------------
 // Description:
-// Returns the number of references that exist to this regions data.
-// If reference count is 1 then you can modify the data without worrying.
-int vtkImageRegion::GetReferenceCount()
+// This function allows you to write into a region.  If there are multple
+// references to the data, the data is copied into a new object.
+void vtkImageRegion::MakeWritable()
 {
-  return this->Data->GetReferenceCount();
-}
-
+  vtkImageData *newData;
   
-//----------------------------------------------------------------------------
-// Second templated function for copying.
-template <class IT, class OT>
-void vtkImageRegionCopyRegionData(vtkImageRegion *outRegion, OT *outPtr,
-				  vtkImageRegion *inRegion, IT *inPtr)
-{
-  IT *inPtr0, *inPtr1, *inPtr2, *inPtr3, *inPtr4;
-  OT *outPtr0, *outPtr1, *outPtr2, *outPtr3, *outPtr4;
-  int inInc0, inInc1, inInc2, inInc3, inInc4;
-  int outInc0, outInc1, outInc2, outInc3, outInc4;
-  int outMin0, outMax0, outMin1, outMax1, 
-    outMin2, outMax2, outMin3, outMax3, outMin4, outMax4;
-  int idx0, idx1, idx2, idx3, idx4;
-
-  // Get information to loop through data.
-  inRegion->GetIncrements5d(inInc0, inInc1, inInc2, inInc3, inInc4);
-  outRegion->GetIncrements5d(outInc0, outInc1, outInc2, outInc3, outInc4);
-  outRegion->GetBounds5d(outMin0, outMax0, outMin1, outMax1, 
-			 outMin2, outMax2, outMin3, outMax3, outMin4, outMax4);
-  
-  inPtr4 = inPtr;
-  outPtr4 = outPtr;
-  for (idx4 = outMin4; idx4 <= outMax4; ++idx4)
+  if ((this->Data->GetRefCount() > 1) || 
+      (this->Data->GetScalars()->GetRefCount() > 1))
     {
-    inPtr3 = inPtr4;
-    outPtr3 = outPtr4;
-    for (idx3 = outMin3; idx3 <= outMax3; ++idx3)
-      {
-      inPtr2 = inPtr3;
-      outPtr2 = outPtr3;
-      for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
-	{
-	inPtr1 = inPtr2;
-	outPtr1 = outPtr2;
-	for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
-	  {
-	  inPtr0 = inPtr1;
-	  outPtr0 = outPtr1;
-	  for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-	    {
-	    *outPtr0 = (OT)(*inPtr0);
-	    inPtr0 += inInc0;
-	    outPtr0 += outInc0;
-	    }
-	  inPtr1 += inInc1;
-	  outPtr1 += outInc1;
-	  }
-	inPtr2 += inInc2;
-	outPtr2 += outInc2;
-	}
-      inPtr3 += inInc3;
-      outPtr3 += outInc3;
-      }
-    inPtr4 += inInc4;
-    outPtr4 += outInc4;
+    vtkDebugMacro(<< "MakeWritable: Need to copy data because of references.");
+    newData = new vtkImageData;
+    newData->CopyData(this->Data);
+    this->Data->UnRegister(this);
+    this->Data = newData;
     }
 }
-  
-  
 
-//----------------------------------------------------------------------------
-// First templated function for copying.
-template <class T>
-void vtkImageRegionCopyRegionData(vtkImageRegion *self,
-				  vtkImageRegion *inRegion, T *inPtr)
-{
-  void *outPtr;
-  
-  outPtr = self->GetVoidPointer();
-  
-  switch (self->GetDataType())
-    {
-    case VTK_IMAGE_FLOAT:
-      vtkImageRegionCopyRegionData(self, (float *)(outPtr), inRegion, inPtr);
-      break;
-    case VTK_IMAGE_INT:
-      vtkImageRegionCopyRegionData(self, (int *)(outPtr), inRegion, inPtr);
-      break;
-    case VTK_IMAGE_SHORT:
-      vtkImageRegionCopyRegionData(self, (short *)(outPtr), inRegion, inPtr);
-      break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImageRegionCopyRegionData(self, (unsigned short *)(outPtr), 
-				   inRegion, inPtr);
-      break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImageRegionCopyRegionData(self, (unsigned char *)(outPtr), 
-				   inRegion, inPtr);
-      break;
-    default:
-      cerr << "vtkImageRegionCopyRegionData: Cannot handle DataType.\n\n";
-    }   
-}
+
 
 //----------------------------------------------------------------------------
 // Description:
@@ -236,7 +152,6 @@ void vtkImageRegionCopyRegionData(vtkImageRegion *self,
 // inteligently.
 void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
 {
-  void *inPtr;
   int *inBounds, *outBounds;
   int origin[VTK_IMAGE_DIMENSIONS];
   int idx;
@@ -271,31 +186,10 @@ void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
     vtkErrorMacro(<< "Could not allocate region.");
     return;
     }
-  
-  inPtr = region->GetVoidPointer(origin);
-  
-  switch (region->GetDataType())
-    {
-    case VTK_IMAGE_FLOAT:
-      vtkImageRegionCopyRegionData(this, region, (float *)(inPtr));
-      break;
-    case VTK_IMAGE_INT:
-      vtkImageRegionCopyRegionData(this, region, (int *)(inPtr));
-      break;
-    case VTK_IMAGE_SHORT:
-      vtkImageRegionCopyRegionData(this, region, (short *)(inPtr));
-      break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImageRegionCopyRegionData(this, region, (unsigned short *)(inPtr));
-      break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImageRegionCopyRegionData(this, region, (unsigned char *)(inPtr));
-      break;
-    default:
-      vtkErrorMacro(<< "CopyRegionData: Cannot handle DataType.");
-    }   
-}
 
+  // Copy data
+  this->Data->CopyData(region->GetData());
+}
 
 
 /*****************************************************************************
@@ -312,6 +206,7 @@ void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
 void vtkImageRegion::UpdateRegion(vtkImageRegion *region)
 {
   this->UpdateImageInformation(region);
+  region->ReleaseData();
   region->SetDataType(this->GetDataType());
   region->SetData(this->GetData());
 }
@@ -917,7 +812,54 @@ void vtkImageRegion::GetAspectRatio(float *ratio, int dim)
 
 
 
+//----------------------------------------------------------------------------
+void vtkImageRegion::Translate(int *vector, int dim)
+{
+  int idx;
+  vtkImageData *newData;
+  int allVector[VTK_IMAGE_DIMENSIONS];
+  
+  // Change bounds and image bounds of this region.
+  for (idx = 0; idx < dim; ++idx)
+    {
+    this->Bounds[idx*2] += vector[idx];
+    this->Bounds[1+idx*2] += vector[idx];
+    this->ImageBounds[idx*2] += vector[idx];
+    this->ImageBounds[1+idx*2] += vector[idx];
+    }
 
+  // Since the data might have multiple references, we can not just modify it.
+  if (this->Data->GetRefCount() > 1)
+    {
+    newData = new vtkImageData;
+    newData->SetAxes(this->Data->GetAxes());
+    newData->SetBounds(this->Data->GetBounds());
+    newData->SetScalars(this->Data->GetScalars());
+    this->Data->UnRegister(this);
+    this->Data = newData;
+    }
+  
+  // Translate data 
+  // Change coordinate system of vector to data coordinate system.
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    if (idx < dim)
+      {
+      allVector[idx] = vector[idx];
+      }
+    else
+      {
+      allVector[idx] = 0;
+      }
+    }
+  vtkImageRegionChangeVectorCoordinateSystem(allVector, this->Axes, 
+					     allVector, this->Data->GetAxes());
+  this->Data->Translate(allVector);
+}
+
+
+  
+  
 
 
 

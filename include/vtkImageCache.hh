@@ -63,7 +63,8 @@ class vtkImageCache : public vtkImageSource
 public:
   vtkImageCache();
   char *GetClassName() {return "vtkImageCache";};
-
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
   void UpdateRegion(vtkImageRegion *region);
   virtual void AllocateRegion(vtkImageRegion *region);
   unsigned long int GetPipelineMTime();

@@ -43,15 +43,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageXViewer::vtkImageXViewer()
 {
-  this->WinInfo[0] = 512;
-  this->WinInfo[1] = 512;
-  this->WinInfo[2] = 0;
-  this->WinInfo[3] = 0;
-  this->ViewerOn      = 0;
   this->ColorWindow = 255.0;
   this->ColorLevel = 127.0;
   this->NumberColors = 150;
+  this->ColorFlag = 0;
+  this->Red = 0;
+  this->Green = 0;
+  this->Blue = 0;
+  
+  this->WindowId = (Window)(NULL);
 }
+
 
 //----------------------------------------------------------------------------
 vtkImageXViewer::~vtkImageXViewer()
@@ -61,9 +63,11 @@ vtkImageXViewer::~vtkImageXViewer()
 
 
 //----------------------------------------------------------------------------
+// Description:
+// A templated function that handles gray scale images.
 template <class T>
-void vtkImageXViewerView(vtkImageXViewer *self, vtkImageRegion *region,
-			 T *inPtr, unsigned char *outPtr)
+void vtkImageXViewerRenderGrey(vtkImageXViewer *self, vtkImageRegion *region,
+			       T *inPtr, unsigned char *outPtr)
 {
   int colorIdx;
   T *inPtr0, *inPtr1;
@@ -73,20 +77,23 @@ void vtkImageXViewerView(vtkImageXViewer *self, vtkImageRegion *region,
   float shift, scale;
   XColor *colors;
   int colorsMax;
+  int visualDepth;
+  
   
   colorsMax = self->GetNumberColors() - 1;
   colors = self->GetColors();
   shift = self->GetColorShift();
   scale = self->GetColorScale();
+  visualDepth = self->GetVisualDepth();
   region->GetBounds2d(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements2d(inInc0, inInc1);
   
   // Loop through in regions pixels
   inPtr1 = inPtr;
-  for (idx0 = inMin0; idx0 <= inMax0; idx0++)
+  for (idx1 = inMin1; idx1 <= inMax1; idx1++)
     {
     inPtr0 = inPtr1;
-    for (idx1 = inMin1; idx1 <= inMax1; idx1++)
+    for (idx0 = inMin0; idx0 <= inMax0; idx0++)
       {
 
       colorIdx = (int)(((float)(*inPtr0) + shift) * scale);
@@ -98,9 +105,19 @@ void vtkImageXViewerView(vtkImageXViewer *self, vtkImageRegion *region,
 	{
 	colorIdx = colorsMax;
 	}
-      *outPtr = (unsigned char)(colors[colorIdx].pixel);
-      
-      ++outPtr;
+
+      if (visualDepth == 8)
+	{
+	*outPtr++ = (unsigned char)(colors[colorIdx].pixel);
+	}
+      else
+	{
+	*outPtr++ = (unsigned char)(255);
+	*outPtr++ = (unsigned char)(colorIdx);
+	*outPtr++ = (unsigned char)(colorIdx);
+	*outPtr++ = (unsigned char)(colorIdx);
+	}
+
       inPtr0 += inInc0;
       }
     inPtr1 += inInc1;
@@ -109,16 +126,93 @@ void vtkImageXViewerView(vtkImageXViewer *self, vtkImageRegion *region,
 
 
 //----------------------------------------------------------------------------
+// Description:
+// A templated function that handles color images. (only True Color 24 bit)
+template <class T>
+void vtkImageXViewerRenderColor(vtkImageXViewer *self, vtkImageRegion *region,
+				T *redPtr, T *greenPtr, T *bluePtr,
+				unsigned char *outPtr)
+{
+  int red, green, blue;
+  T *redPtr0, *redPtr1;
+  T *bluePtr0, *bluePtr1;
+  T *greenPtr0, *greenPtr1;
+  int inMin0, inMax0, inMin1, inMax1;
+  int inInc0, inInc1;
+  int idx0, idx1;
+  float shift, scale;
+  
+  
+  shift = self->GetColorShift();
+  scale = self->GetColorScale();
+  region->GetBounds2d(inMin0, inMax0, inMin1, inMax1);
+  region->GetIncrements2d(inInc0, inInc1);
+  
+  // Loop through in regions pixels
+  redPtr1 = redPtr;
+  greenPtr1 = greenPtr;
+  bluePtr1 = bluePtr;
+  for (idx1 = inMin1; idx1 <= inMax1; idx1++)
+    {
+    redPtr0 = redPtr1;
+    greenPtr0 = greenPtr1;
+    bluePtr0 = bluePtr1;
+    for (idx0 = inMin0; idx0 <= inMax0; idx0++)
+      {
+
+      red = (int)(((float)(*redPtr0) + shift) * scale);
+      if (red < 0) red = 0;
+      if (red > 255) red = 255;
+      green = (int)(((float)(*greenPtr0) + shift) * scale);
+      if (green < 0) green = 0;
+      if (green > 255) green = 255;
+      blue = (int)(((float)(*bluePtr0) + shift) * scale);
+      if (blue < 0) blue = 0;
+      if (blue > 255) blue = 255;
+
+      *outPtr++ = (unsigned char)(255);
+      *outPtr++ = (unsigned char)(blue);
+      *outPtr++ = (unsigned char)(green);
+      *outPtr++ = (unsigned char)(red);
+
+      redPtr0 += inInc0;
+      greenPtr0 += inInc0;
+      bluePtr0 += inInc0;
+      }
+    redPtr1 += inInc1;
+    greenPtr1 += inInc1;
+    bluePtr1 += inInc1;
+    }
+}
+
+
+//----------------------------------------------------------------------------
 // Maybe we should cache the dataOut! (MTime)
-void vtkImageXViewer::View(void)
+void vtkImageXViewer::Render(void)
 {
   int bounds[8];
   int width, height;
   int size;
   unsigned char *dataOut;
   vtkImageRegion *region;
-  void *ptr;
+  void *ptr0, *ptr1, *ptr2;
   
+  // determine the Bounds of the input region needed
+  this->Region.GetBounds4d(bounds);
+  if (this->ColorFlag)
+    {
+    bounds[4] = bounds[5] = this->Red;
+    if (this->Green < bounds[4]) bounds[4] = this->Green;
+    if (this->Green > bounds[5]) bounds[5] = this->Green;
+    if (this->Blue < bounds[4]) bounds[4] = this->Blue;
+    if (this->Blue > bounds[5]) bounds[5] = this->Blue;
+    }
+  else
+    {
+    bounds[4] = bounds[5] = this->Region.GetDefaultCoordinate2();
+    }
+  bounds[6] = bounds[7] = this->Region.GetDefaultCoordinate3();
+
   // Get the region form the input
   if ( ! this->Input)
     {
@@ -127,9 +221,6 @@ void vtkImageXViewer::View(void)
     }
   region = new vtkImageRegion;
   region->SetAxes(this->Region.GetAxes());
-  this->Region.GetBounds4d(bounds);
-  bounds[4] = bounds[5] = this->Region.GetDefaultCoordinate2();
-  bounds[6] = bounds[7] = this->Region.GetDefaultCoordinate3();
   region->SetBounds4d(bounds);
   this->Input->UpdateRegion(region);
   if ( ! region->IsAllocated())
@@ -139,43 +230,100 @@ void vtkImageXViewer::View(void)
     return;
     }
 
-  // Initialize the window  
-  this->InitializeWindow();
-  
   // allocate the display data array.
   width = (bounds[1] - bounds[0] + 1);
   height = (bounds[3] - bounds[2] + 1);
+
+  // In case a window has not been set.
+  if ( ! this->WindowId)
+    {
+    this->SetWindow(this->MakeDefaultWindow(width, height));
+    }
+  
+  // Allocate output data
   size = width * height;
+  if (this->VisualDepth == 24)
+    {
+    size *= 4;
+    }
   dataOut = new unsigned char[size];
 
-  // Call the appropriate templated function
-  ptr = region->GetVoidPointer2d();
-  switch (region->GetDataType())
+  if (this->ColorFlag)
     {
-    case VTK_IMAGE_FLOAT:
-      vtkImageXViewerView(this, region, (float *)(ptr), dataOut);
-      break;
-    case VTK_IMAGE_INT:
-      vtkImageXViewerView(this, region, (int *)(ptr), dataOut);
-      break;
-    case VTK_IMAGE_SHORT:
-      vtkImageXViewerView(this, region, (short *)(ptr), dataOut);
-      break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImageXViewerView(this, region, (unsigned short *)(ptr), dataOut);
-      break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImageXViewerView(this, region, (unsigned char *)(ptr), dataOut);
-      break;
-    }   
-    
+    // Handle color display
+    // We only support color with 24 bit True Color Visuals
+    if (this->VisualDepth != 24)
+      {
+      vtkErrorMacro(<< "Color is only supported with 24 bit True Color");
+      return;
+      }
+    ptr0 = region->GetVoidPointer3d(bounds[0], bounds[2], this->Red);
+    ptr1 = region->GetVoidPointer3d(bounds[0], bounds[2], this->Green);
+    ptr2 = region->GetVoidPointer3d(bounds[0], bounds[2], this->Blue);
+    // Call the appropriate templated function
+    switch (region->GetDataType())
+      {
+      case VTK_IMAGE_FLOAT:
+	vtkImageXViewerRenderColor(this, region, 
+			   (float *)(ptr0),(float *)(ptr1),(float *)(ptr2), 
+			   dataOut);
+	break;
+      case VTK_IMAGE_INT:
+	vtkImageXViewerRenderColor(this, region, 
+			   (int *)(ptr0), (int *)(ptr1), (int *)(ptr2), 
+			   dataOut);
+	break;
+      case VTK_IMAGE_SHORT:
+	vtkImageXViewerRenderColor(this, region, 
+			   (short *)(ptr0),(short *)(ptr1),(short *)(ptr2), 
+			   dataOut);
+	break;
+      case VTK_IMAGE_UNSIGNED_SHORT:
+	vtkImageXViewerRenderColor(this, region, (unsigned short *)(ptr0),
+			   (unsigned short *)(ptr1),(unsigned short *)(ptr2), 
+			    dataOut);
+	break;
+      case VTK_IMAGE_UNSIGNED_CHAR:
+	vtkImageXViewerRenderColor(this, region, (unsigned char *)(ptr0), 
+			   (unsigned char *)(ptr1),(unsigned char *)(ptr2), 
+			    dataOut);
+	break;
+      }
+    }
+  else
+    {
+    // GreyScale images.
+    ptr0 = region->GetVoidPointer2d();
+    // Call the appropriate templated function
+    switch (region->GetDataType())
+      {
+      case VTK_IMAGE_FLOAT:
+	vtkImageXViewerRenderGrey(this, region, (float *)(ptr0), dataOut);
+	break;
+      case VTK_IMAGE_INT:
+	vtkImageXViewerRenderGrey(this, region, (int *)(ptr0), dataOut);
+	break;
+      case VTK_IMAGE_SHORT:
+	vtkImageXViewerRenderGrey(this, region, (short *)(ptr0), dataOut);
+	break;
+      case VTK_IMAGE_UNSIGNED_SHORT:
+	vtkImageXViewerRenderGrey(this, region, (unsigned short *)(ptr0), 
+				  dataOut);
+	break;
+      case VTK_IMAGE_UNSIGNED_CHAR:
+	vtkImageXViewerRenderGrey(this, region, (unsigned char *)(ptr0), 
+				  dataOut);
+	break;
+      }   
+    }
+  
   // Display the image.
-  this->Image = XCreateImage(this->DisplayId, this->VisualInfo.visual, 8, 
-			     ZPixmap, 0, (char *)dataOut, width, height, 8, 0);
+  this->Image = XCreateImage(this->DisplayId, this->VisualId,this->VisualDepth,
+			     ZPixmap, 0, (char *)dataOut, width, height, 8,0);
+  XSync(this->DisplayId, False);
   XPutImage(this->DisplayId, this->WindowId, this->Gc, this->Image, 0, 0,
-	    this->WinInfo[2], this->WinInfo[3],  
-	    width, height);
-
+	    0, 0, width, height);
+  
   delete dataOut;	 
   XFree(this->Image);
   region->Delete();
@@ -209,111 +357,212 @@ float vtkImageXViewer::GetColorScale()
 
 
 //----------------------------------------------------------------------------
-void vtkImageXViewer::InitializeWindow() 
+Window vtkImageXViewer::MakeDefaultWindow(int width, int height) 
 {
-  char windowName[80];
-  char iconName[80];
+  char name[80];
+  int screen;
+  XVisualInfo info;
+  XSetWindowAttributes values;
+  Window window;
   
-  if (this->ViewerOn == 1) return;
   
-  // looks like setting default size of the window
-  if ( (this->WinInfo[0] == 0) || (this->WinInfo[1] == 0) )
-    this->WinInfo[0] = this->WinInfo[1] = 512;
-  
-  strcpy(windowName,"Viewer");
-  strcpy(iconName,"DIP");
-  
-  if ( ( this->DisplayId = XOpenDisplay((char *)NULL)) == NULL) 
-    {
-    cerr <<"cannot connect to X server"<< XDisplayName((char *)NULL)<< endl;
-    exit(-1);
-    }
-  
-  this->Screen = DefaultScreen(this->DisplayId);
-  this->Gc     = DefaultGC(this->DisplayId,this->Screen) ;
+  strcpy(name,"XViewer");
 
-  if (!XMatchVisualInfo(this->DisplayId,this->Screen,8,PseudoColor,
-			&(this->VisualInfo)))
+  // make sure we have a connection to the X server.
+  if ( ! this->DisplayId)
     {
-    cerr <<  "cannot find PseudoColor visual" << endl;
-    exit(-1);
+    if ( ( this->DisplayId = XOpenDisplay((char *)NULL)) == NULL) 
+      {
+      cerr <<"cannot connect to X server"<< XDisplayName((char *)NULL)<< endl;
+      exit(-1);
+      }
     }
   
-  this->ColorMap = DefaultColormap(this->DisplayId,this->Screen);
-  this->Attributes.colormap = this->ColorMap;
-  this->Attributes.background_pixel = BlackPixel(this->DisplayId,this->Screen);
-  this->Attributes.border_pixel = None;
-  this->Attributes.event_mask = 0;
-  this->Attributes.backing_store = Always;
   
-  // Create an opaque Window 
-  this->WindowId = XCreateWindow(this->DisplayId, 
-    RootWindow(this->DisplayId,this->Screen),
-    0, 0, this->WinInfo[0], this->WinInfo[1], 4,
-    this->VisualInfo.depth, InputOutput, this->VisualInfo.visual, 
-    CWEventMask | CWBackPixel | CWBorderPixel | CWColormap | CWBackingStore,
-    &(this->Attributes));
+  screen = DefaultScreen(this->DisplayId);
+  this->GetDefaultVisualInfo(&info);
   
-  // initilize size hint property for Window manager
-  this->SizeHints.flags = PPosition | PSize | PMinSize;
-  
-  // set property of Window manager before "always before mapping"
-  XSetStandardProperties(this->DisplayId, this->WindowId, windowName, iconName,
-			 this->IconPixmap,(char **)NULL,1,&(this->SizeHints));
-  
-  // Create and Define a cursor... 
-  MyStdCursor = XCreateFontCursor(this->DisplayId,XC_hand2);
-  XDefineCursor(this->DisplayId,this->WindowId,MyStdCursor);
+  // Create a window 
+  // If this is a pseudocolor visual, create a color map.
+  if (info.depth == 8)
+    {
+    values.colormap = this->MakeColorMap(info.visual);
+    }
+  else
+    {
+    values.colormap = 
+      XCreateColormap(this->DisplayId, RootWindow(this->DisplayId, screen),
+		      info.visual, AllocNone);
+    }
+  values.background_pixel = BlackPixel(this->DisplayId, screen);
+  values.border_pixel = None;
+  values.event_mask = 0;
+  values.override_redirect = False;
+  //  if ((w > 0) && (x >= 0) && (!borders))
+  //  values.override_redirect = True;
+  XFlush(this->DisplayId);
+  window = XCreateWindow(this->DisplayId, RootWindow(this->DisplayId,screen),
+			 0, 0, width, height, 0, info.depth, 
+			 InputOutput, info.visual,
+			 CWEventMask | CWBackPixel | CWBorderPixel | 
+			 CWColormap | CWOverrideRedirect, 
+			 &values);
+  XSetStandardProperties(this->DisplayId, window, name, name, None, 0, 0, 0);
+  XSync(this->DisplayId, False);
   
   // Select event types wanted 
-  XSelectInput(this->DisplayId,this->WindowId,
-	       ExposureMask | KeyPressMask | ButtonPressMask 
-	       | PointerMotionMask | StructureNotifyMask | PropertyChangeMask);
+  XSelectInput(this->DisplayId, window,
+	       ExposureMask | KeyPressMask | ButtonPressMask |
+	       PointerMotionMask | StructureNotifyMask | PropertyChangeMask);
   
   // Map Window onto Screen and sysc
-  XMapWindow(this->DisplayId,this->WindowId);
+  XMapWindow(this->DisplayId, window);
+  
   XSync(this->DisplayId,0);
-  this->InitializeColor();
-  this->ViewerOn = 1;
+  
+  return window;
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageXViewer::InitializeColor() 
+void vtkImageXViewer::GetDefaultVisualInfo(XVisualInfo *info) 
+{
+  int screen;
+  XVisualInfo templ;
+  XVisualInfo *visuals, *v;
+  XVisualInfo *best = NULL;
+  int nvisuals;
+  int i;
+  
+  screen = DefaultScreen(this->DisplayId);  
+  templ.screen = screen;
+  //templ.depth = 24;
+  //templ.c_class = TrueColor;
+
+  // Get a list of all the possible visuals for this screen.
+  visuals = XGetVisualInfo(this->DisplayId,
+			   VisualScreenMask,
+			   &templ, &nvisuals);
+  
+  if (nvisuals == 0)
+    {
+    vtkErrorMacro(<< "Could not get a visual");
+    }
+  
+  for (v = visuals, i = 0; i < nvisuals; v++, i++)
+    {
+    // set the defualt as the first visual encountered
+    if (best == NULL)
+      {
+      best = v;
+      }
+    // deeper visuals are always better
+    if (v->depth > best->depth)
+      {
+      best = v;
+      }
+    // true color is better than direct color which is beter than pseudo color
+    if (v->c_class == TrueColor && v->depth == best->depth)
+      {
+      best = v;
+      }
+    else if (v->c_class == DirectColor && v->depth == best->depth)
+      {
+      best = v;
+      }
+    }
+
+  if (this->Debug)
+    {
+    if (best->c_class == TrueColor)
+      vtkDebugMacro(<< "DefaultVisual: " << best->depth << " bit TrueColor");
+    if (best->c_class == DirectColor)
+      vtkDebugMacro(<< "DefaultVisual: " << best->depth << " bit DirectColor");
+    if (best->c_class == PseudoColor)
+      vtkDebugMacro(<< "DefaultVisual: " << best->depth << " bit PseudoColor");
+    }
+  
+  // Copy visual
+  *info = *best;
+  
+  XFree(visuals);
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// An arbitrary window can be used for the window.
+void vtkImageXViewer::SetWindow(Window win) 
+{
+  XWindowAttributes attributes;
+  
+  this->WindowId = win;
+  
+  // Now we must get the right visual, Gc, and DisplayId ...
+  if ( ! this->DisplayId)
+    {
+    if ((this->DisplayId = XOpenDisplay((char *)NULL)) == NULL) 
+      {
+      cerr <<"cannot connect to X server"<< XDisplayName((char *)NULL)<< endl;
+      exit(-1);
+      }
+    }
+  
+  // Create a graphics contect for this window
+  this->Gc = XCreateGC(this->DisplayId, this->WindowId, 0, NULL);
+  XSetForeground(this->DisplayId, this->Gc, 0XFFFFFF);
+  XSetBackground(this->DisplayId, this->Gc, 0X000000);
+
+  // Get the visual
+  if ( ! XGetWindowAttributes(this->DisplayId, this->WindowId, &attributes))
+    {
+    vtkErrorMacro(<< "SetWindow: Could not get window attributes.");
+    return;
+    }
+  this->VisualId = attributes.visual;
+  this->VisualDepth = attributes.depth;
+  this->ColorMap = attributes.colormap;
+}
+
+
+//----------------------------------------------------------------------------
+Colormap vtkImageXViewer::MakeColorMap(Visual *visual) 
 {
   int idx;
   int value;
   unsigned long planeMask, pval[256];
-  Colormap  defColorMap, ncolormap;
+  int screen;
+  Colormap  defaultMap, newMap;
   XColor    defccells[256];
   
   this->Offset = 0;
+
+  screen = DefaultScreen(this->DisplayId);
+  defaultMap = DefaultColormap(this->DisplayId, screen);
   
-  this->ColorMap = DefaultColormap(this->DisplayId,this->Screen);
-  
-  if ( !XAllocColorCells(this->DisplayId, this->ColorMap, 0, &planeMask, 0, 
+  if ( !XAllocColorCells(this->DisplayId, defaultMap, 0, &planeMask, 0, 
 			 pval, (unsigned int) this->NumberColors))
     {
     // can't allocate NUM_COLORS from Def ColorMap
     // create new ColorMap ... but first cp some def ColorMap
     
-    ncolormap = XCreateColormap(this->DisplayId, RootWindow(this->DisplayId,this->Screen),
-				this->VisualInfo.visual, AllocNone);
+    newMap = XCreateColormap(this->DisplayId, 
+			     RootWindow(this->DisplayId, screen),
+			     visual, AllocNone);
     this->Offset = 100;
-    if (! XAllocColorCells(this->DisplayId, ncolormap, 1, &planeMask, 0, pval,
+    if (! XAllocColorCells(this->DisplayId, newMap, 1, &planeMask, 0, pval,
 			   (unsigned int)256))
       {
       vtkErrorMacro(<< "Sorry cann't allocate any more Colors");
-      return;
+      return (Colormap)(NULL);
       }
     
-    defColorMap = DefaultColormap(this->DisplayId, this->Screen);
     for ( idx = 0 ; idx < 256; idx++) 
       {
       defccells[idx].pixel = idx; 
       }
-    XQueryColors(this->DisplayId, defColorMap, defccells, 256);
-    
+    XQueryColors(this->DisplayId, defaultMap, defccells, 256);
     
     for (idx = 0 ; idx < 256; idx++)
       {
@@ -327,7 +576,7 @@ void vtkImageXViewer::InitializeColor()
 	this->Colors[idx].green = defccells[idx].green ;
 	this->Colors[idx].blue  = defccells[idx].blue ;
 	this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
-	XStoreColor(this->DisplayId, ncolormap, &(this->Colors[idx]));
+	XStoreColor(this->DisplayId, newMap, &(this->Colors[idx]));
 	}
       else 
 	{
@@ -336,15 +585,11 @@ void vtkImageXViewer::InitializeColor()
 	this->Colors[idx].green = value ; 
 	this->Colors[idx].blue  = value ;
 	this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
-	XStoreColor(this->DisplayId, ncolormap, &(this->Colors[idx]));
+	XStoreColor(this->DisplayId, newMap, &(this->Colors[idx]));
 	}
       }
-    
-    
-    this->Attributes.colormap = ncolormap;
-    XChangeWindowAttributes(this->DisplayId, this->WindowId, CWColormap, 
-			    &(this->Attributes));
-    XInstallColormap(this->DisplayId, ncolormap);
+    XInstallColormap(this->DisplayId, newMap);
+    return newMap;
     }
   else
     {
@@ -363,8 +608,10 @@ void vtkImageXViewer::InitializeColor()
       this->Colors[idx].green = value ;
       this->Colors[idx].blue  = value ;
       this->Colors[idx].flags = DoRed | DoGreen | DoBlue ;
-      XStoreColor(this->DisplayId, this->ColorMap, &(this->Colors[idx]));
+      XStoreColor(this->DisplayId, defaultMap, &(this->Colors[idx]));
       }
+
+    return defaultMap;
     } 
 }
 

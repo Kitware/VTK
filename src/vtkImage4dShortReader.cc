@@ -205,7 +205,7 @@ void vtkImage4dShortReaderGenerateImage2d(vtkImage4dShortReader *self,
   self->File->seekg(headerSize, ios::beg);
   if (self->File->fail())
     {
-    cerr << "File operation failed.";
+    cerr << "File operation failed.\n";
     return;
     }
   
@@ -215,7 +215,7 @@ void vtkImage4dShortReaderGenerateImage2d(vtkImage4dShortReader *self,
   // read the image all at once
   if ( ! self->File->read(buf, imageSize))
     {
-    cerr << "File operation failed.";
+    cerr << "File operation failed.\n";
     return;
     }
   /*    
@@ -320,7 +320,7 @@ void vtkImage4dShortReaderGenerateRegion2d(vtkImage4dShortReader *self,
   self->File->seekg(streamStartPos, ios::beg);
   if (self->File->fail())
     {
-    cerr << "File operation failed.";
+    cerr << "File operation failed.\n";
     return;
     }
   
@@ -337,7 +337,7 @@ void vtkImage4dShortReaderGenerateRegion2d(vtkImage4dShortReader *self,
 	   << ", StartPos = " << streamStartPos
 	   << ", RowSkip = " << streamRowSkip
 	   << ", RowRead = " << streamRowRead
-	   << ", FilePos = " << self->File->tellg();
+	   << ", FilePos = " << self->File->tellg() << "\n";
       return;
       }
     

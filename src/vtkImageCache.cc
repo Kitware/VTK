@@ -72,6 +72,20 @@ vtkImageCache::~vtkImageCache()
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageSource::PrintSelf(os,indent);
+
+  os << indent << "Source: (" << this->Source << ").\n";
+  os << indent << "ReleaseDataFlag: " << this->ReleaseDataFlag << "\n";
+  os << indent << "MemoryLimit: " << this->MemoryLimit << "\n";
+  os << indent << "DataType: " << vtkImageDataTypeNameMacro(this->DataType) 
+     << "\n";
+  os << indent << "Data: " << this->Data << "\n";
+}
+  
+    
 
 
 
@@ -182,6 +196,9 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 
   vtkDebugMacro(<< "UpdateRegion: ");
 
+  // Just in case the region already has data
+  region->ReleaseData();
+  
   // Save the bounds to restore later.
   region->GetBounds(saveBounds);
   

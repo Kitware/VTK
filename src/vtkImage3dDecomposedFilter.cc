@@ -71,6 +71,34 @@ vtkImage3dDecomposedFilter::~vtkImage3dDecomposedFilter()
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkImage3dDecomposedFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageFilter::PrintSelf(os,indent);
+  if (this->Filter0)
+    {
+    os << indent << "Filter0: \n";
+    this->Filter0->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Filter0: NULL\n";
+    }
+  
+  if (this->Filter1)
+    {
+    os << indent << "Filter1: \n";
+    this->Filter1->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Filter1: NULL\n";
+    }
+  
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Description:

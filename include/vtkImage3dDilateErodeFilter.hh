@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage2dFftFilter.cc
+  Module:    vtkImage3dDilateErodeFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,28 +37,48 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImage2dFftFilter.hh"
+// .NAME vtkImage3dDilateErodeFilter - Dilates one value and erodes another.
+// .SECTION Description
+// vtkImage3dDilateErodeFilter will dilate one value and erode another.
+// It uses an box foot print, and only erodes/dilates on the
+// boundary of the two values.
 
-//----------------------------------------------------------------------------
-// Description:
-// This method sets up the 2 1d filters that perform the convolution.
-vtkImage2dFftFilter::vtkImage2dFftFilter()
+
+#ifndef __vtkImage3dDilateErodeFilter_h
+#define __vtkImage3dDilateErodeFilter_h
+
+
+#include "vtkImage3dSpatialFilter.hh"
+
+class vtkImage3dDilateErodeFilter : public vtkImage3dSpatialFilter
 {
-  // create the filter chain 
-  this->Filter0 = new vtkImage1dFftFilter;
-  this->Filter1 = new vtkImage1dFftFilter;
-
-  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImage2dFftFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImage2dDecomposedFilter::PrintSelf(os,indent);
-}
+public:
+  vtkImage3dDilateErodeFilter();
+  char *GetClassName() {return "vtkImage3dDilateErodeFilter";};
   
+  void SetKernelSize(int size){this->SetKernelSize(size,size,size);};
+  void SetKernelSize(int size0, int size1, int size2);
+  
+  // Description:
+  // Set/Get the value to dilate/erode
+  vtkSetMacro(DilateValue, float);
+  vtkGetMacro(DilateValue, float);
+  vtkSetMacro(ErodeValue, float);
+  vtkGetMacro(ErodeValue, float);
+
+  // Description:
+  // Get the Mask used as a footprint.
+  vtkGetObjectMacro(Mask, vtkImageRegion);
+  
+protected:
+  float DilateValue;
+  float ErodeValue;
+  vtkImageRegion *Mask;
     
+  void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+};
+
+#endif
 
 
 

@@ -52,6 +52,15 @@ vtkImageFilter::vtkImageFilter()
 void vtkImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageCachedSource::PrintSelf(os,indent);
+  os << indent << "Input: (" << this->Input << ").\n";
+  if (this->UseExecuteMethod)
+    {
+    os << indent << "Use Execute Method.\n";
+    }
+  else
+    {
+    os << indent << "Use Update Method.\n";
+    }
 }
 
 //----------------------------------------------------------------------------

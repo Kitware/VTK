@@ -57,23 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageData.hh"
 
 
-// These definitions give semantics to the abstract implementation of axes.
-#define VTK_IMAGE_X_AXIS 0
-#define VTK_IMAGE_Y_AXIS 1
-#define VTK_IMAGE_Z_AXIS 2
-#define VTK_IMAGE_TIME_AXIS 3
-#define VTK_IMAGE_COMPONENT_AXIS 4
-
-// A macro to get the name of an axis
-#define vtkImageRegionAxisNameMacro(axis) \
-(((axis) == VTK_IMAGE_X_AXIS) ? "X" : \
-(((axis) == VTK_IMAGE_Y_AXIS) ? "Y" : \
-(((axis) == VTK_IMAGE_Z_AXIS) ? "Z" : \
-(((axis) == VTK_IMAGE_TIME_AXIS) ? "Time" : \
-(((axis) == VTK_IMAGE_COMPONENT_AXIS) ? "Component" : \
-"Undefined")))))
-
-
 // These macro are for creating the many convenience functions used 
 // for accessing instance variables.  They could simplify this class.
 #define vtkImageRegionSetMacro(name,type) \
@@ -278,7 +261,6 @@ public:
   char *GetClassName() {return "vtkImageRegion";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  int GetReferenceCount();
   void CopyRegionData(vtkImageRegion *region);
 
   // Stuff to use region as a source.
@@ -418,6 +400,33 @@ public:
   void Allocate();
   void ReleaseData();
   void ResetDefaultCoordinates(int dim);
+  
+  void MakeWritable();
+  
+
+  //------------------------------------------------------------------
+  // This should really be handled by one of the macros, 
+  // but Set is not in the name.
+  // Description:
+  // These functions will change the "origin" of the region.
+  // The bounds change, but the data does not.
+  void Translate(int *vector, int dim);
+  void Translate (int *vector) { this->Translate(vector, 5);};
+  void Translate5d(int *vector) { this->Translate(vector, 5);};
+  void Translate4d(int *vector) { this->Translate(vector, 4);};
+  void Translate3d(int *vector) { this->Translate(vector, 3);};
+  void Translate2d(int *vector) { this->Translate(vector, 2);};
+  void Translate1d(int *vector) { this->Translate(vector, 1);};
+  void Translate5d(int v0,int v1,int v2, int v3,int v4) 
+  {int v[5];  v[0]=v0;v[1]=v1;v[2]=v2;v[3]=v3;v[4]=v4; this->Translate(v,5);};
+  void Translate4d(int v0,int v1,int v2, int v3) 
+  {int v[4];  v[0]=v0;v[1]=v1;v[2]=v2;v[3]=v3; this->Translate(v,4);};
+  void Translate3d(int v0,int v1,int v2) 
+  {int v[3];  v[0]=v0;v[1]=v1;v[2]=v2; this->Translate(v,3);};
+  void Translate2d(int v0,int v1)
+  {int v[2];  v[0]=v0;v[1]=v1; this->Translate(v,2);}; 
+  void Translate1d(int v0) 
+  {int v[1];  v[0]=v0; this->Translate(v,1);};
   
   
 protected:

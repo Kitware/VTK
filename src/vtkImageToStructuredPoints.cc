@@ -131,12 +131,15 @@ void vtkImageToStructuredPoints::Execute()
   // get the input region
   if (this->WholeImage)
     {
-    region->SetBounds3d(region->GetImageBounds3d());
+    region->GetImageBounds3d(regionBounds);
     }
   else
     {
-    region->SetBounds(this->Region.GetBounds());
+    this->Region.GetBounds3d(regionBounds);
     }
+  regionBounds[6] = regionBounds[7] = this->Region.GetDefaultCoordinate3();
+  region->SetBounds4d(regionBounds);
+  
   this->Input->UpdateRegion(region);
   if ( ! region->IsAllocated())
     {
@@ -146,7 +149,6 @@ void vtkImageToStructuredPoints::Execute()
 
   // If data is not the same size as the region, we need to reformat.
   // Assume that relativeCoordinates == absoluteCoordinates.
-  region->GetBounds5d(regionBounds);
   region->GetData()->GetBounds(dataBounds);
   if (dataBounds[0] != regionBounds[0] || dataBounds[1] != regionBounds[1] ||
       dataBounds[2] != regionBounds[2] || dataBounds[3] != regionBounds[3] ||

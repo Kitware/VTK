@@ -55,6 +55,7 @@ class vtkImage2dFftFilter : public vtkImage2dDecomposedFilter
 public:
   vtkImage2dFftFilter();
   char *GetClassName() {return "vtkImage2dFftFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
 };
