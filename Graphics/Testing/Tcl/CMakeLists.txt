@@ -46,6 +46,7 @@ IF (VTK_USE_RENDERING)
       Delaunay2DTransform
       dicer
       Disk
+      edgePoints
       eleState
       EnSight6Elements
       EnSightGoldElements
