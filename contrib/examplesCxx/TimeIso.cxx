@@ -281,7 +281,7 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
 }
 
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
   
@@ -289,11 +289,14 @@ void main( int argc, char *argv[] )
   
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
 
-  controller->Initialize(argc, argv);
+  controller->Initialize(&argc, &argv);
   controller->SetSingleMethod(process, NULL);
   controller->SingleMethodExecute();
 
+  controller->Finalize();
   controller->UnRegister(NULL);
+
+  return 0;
 }
 
 

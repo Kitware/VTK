@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
+int vtkMPIController::Initialized = 0;
 
 //------------------------------------------------------------------------------
 vtkMPIController* vtkMPIController::New()
@@ -56,14 +57,14 @@ vtkMPIController* vtkMPIController::New()
   return new vtkMPIController;
 }
 
-
-
-
-
 //----------------------------------------------------------------------------
 vtkMPIController::vtkMPIController()
 {
-  this->Initialized = 0;
+  // If MPI was already initialized obtain rank and size.
+  if (vtkMPIController::Initialized)
+    {
+    this->InitializeNumberOfProcesses();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -77,18 +78,8 @@ void vtkMPIController::PrintSelf(ostream& os, vtkIndent indent)
   vtkMultiProcessController::PrintSelf(os,indent);
 }
 
-//----------------------------------------------------------------------------
-void vtkMPIController::Initialize(int argc, char *argv[])
+void vtkMPIController::InitializeNumberOfProcesses()
 {
-  if (this->Initialized)
-    {
-    vtkErrorMacro("Already initialized");
-    return;
-    }
-  
-  this->Initialized = 1;
-  this->Modified();
-  MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &(this->MaximumNumberOfProcesses));
   if (this->MaximumNumberOfProcesses > VTK_MP_CONTROLLER_MAX_PROCESSES)
     {
@@ -99,12 +90,46 @@ void vtkMPIController::Initialize(int argc, char *argv[])
   this->NumberOfProcesses = this->MaximumNumberOfProcesses;
   
   MPI_Comm_rank(MPI_COMM_WORLD, &(this->LocalProcessId));  
+
 }
+//----------------------------------------------------------------------------
+void vtkMPIController::Initialize(int* argc, char*** argv)
+{
+  if (vtkMPIController::Initialized)
+    {
+    vtkErrorMacro("Already initialized.");
+    return;
+    }
+  
+  // Can be done once in the program.
+  vtkMPIController::Initialized = 1;
+  MPI_Init(argc, argv);
+  this->InitializeNumberOfProcesses();
+
+  this->Modified();
+}
+
+void vtkMPIController::Finalize()
+{
+  if (vtkMPIController::Initialized)
+    { 
+    MPI_Finalize();
+    vtkMPIController::Initialized = 0;
+    }  
+  
+}
+
   
 //----------------------------------------------------------------------------
 // Execute the method set as the SingleMethod on NumberOfThreads threads.
 void vtkMPIController::SingleMethodExecute()
 {
+  if(!vtkMPIController::Initialized)
+    {
+    vtkErrorMacro("MPI has to be initialized first.");
+    return;
+    }
+
   if (this->LocalProcessId < this->NumberOfProcesses)
     {
     if (this->SingleMethod)
@@ -114,17 +139,9 @@ void vtkMPIController::SingleMethodExecute()
       }
     else
       {
-      vtkErrorMacro("SingleMethod not set");
+      vtkErrorMacro("SingleMethod not set.");
       }
     }
-  
-  MPI_Barrier (MPI_COMM_WORLD);
-  // since we expect to call the method only once.
-  if (this->Initialized)
-    { 
-    MPI_Finalize();
-    this->Initialized = 0;
-    }  
 }
 
 
@@ -132,6 +149,12 @@ void vtkMPIController::SingleMethodExecute()
 // Execute the methods set as the MultipleMethods.
 void vtkMPIController::MultipleMethodExecute()
 {
+  if(!vtkMPIController::Initialized)
+    {
+    vtkErrorMacro("MPI has to be initialized first.");
+    return;
+    }
+
   int i = this->LocalProcessId;
   
   if (this->LocalProcessId < this->NumberOfProcesses)
@@ -143,16 +166,8 @@ void vtkMPIController::MultipleMethodExecute()
       }
     else
       {
-      vtkErrorMacro("MultipleMethod " << i << " not set");
+      vtkErrorMacro("MultipleMethod " << i << " not set.");
       }
-    }
-  
-  MPI_Barrier (MPI_COMM_WORLD);
-  // since we expect to call the method only once.
-  if (this->Initialized)
-    {
-    MPI_Finalize();
-    this->Initialized = 0;
     }
 }
 
@@ -161,30 +176,67 @@ void vtkMPIController::MultipleMethodExecute()
 int vtkMPIController::Send(int *data, int length, int remoteProcessId, 
 			    int tag)
 {
-  MPI_Send(data, length, MPI_INT, remoteProcessId, tag, MPI_COMM_WORLD);
-  return 1;
+  int err = 
+    MPI_Send(data, length, MPI_INT, remoteProcessId, tag, MPI_COMM_WORLD);
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    vtkErrorMacro("MPI error: " << err);
+    return 0;
+    }
+
 }
 //----------------------------------------------------------------------------
 int vtkMPIController::Send(unsigned long *data, int length, 
 			   int remoteProcessId, int tag)
 {
-  MPI_Send(data, length, MPI_UNSIGNED_LONG, remoteProcessId, tag, 
-	   MPI_COMM_WORLD);
-  return 1;  
+  int err = 
+    MPI_Send(data, length, MPI_UNSIGNED_LONG, remoteProcessId, tag, 
+	     MPI_COMM_WORLD);
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    vtkErrorMacro("MPI error: " << err);
+    return 0;
+    }
 }
 //----------------------------------------------------------------------------
 int vtkMPIController::Send(char *data, int length, 
 			   int remoteProcessId, int tag)
 {
-  MPI_Send(data, length, MPI_CHAR, remoteProcessId, tag, MPI_COMM_WORLD);
-  return 1;  
+  int err = 
+    MPI_Send(data, length, MPI_CHAR, remoteProcessId, tag, MPI_COMM_WORLD);
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    vtkErrorMacro("MPI error: " << err);
+    return 0;
+    }
 }
 //----------------------------------------------------------------------------
 int vtkMPIController::Send(float *data, int length, 
 			   int remoteProcessId, int tag)
 {
-  MPI_Send(data, length, MPI_FLOAT, remoteProcessId, tag, MPI_COMM_WORLD);
-  return 1;  
+  int err = 
+    MPI_Send(data, length, MPI_FLOAT, remoteProcessId, tag, MPI_COMM_WORLD);
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    vtkErrorMacro("MPI error: " << err);
+    return 0;
+    }
 }
 
 
@@ -199,11 +251,19 @@ int vtkMPIController::Receive(int *data, int length, int remoteProcessId,
     {
     remoteProcessId = MPI_ANY_SOURCE;
     }
-  MPI_Recv(data, length, MPI_INT, remoteProcessId, tag, MPI_COMM_WORLD,
-	   &status);
+  int err = 
+    MPI_Recv(data, length, MPI_INT, remoteProcessId, tag, MPI_COMM_WORLD,
+	     &status);
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    vtkErrorMacro("MPI error: " << err);
+    return 0;
+    }
 
-  // we should really look at status to determine success
-  return 1;
 }
 //----------------------------------------------------------------------------
 int vtkMPIController::Receive(unsigned long *data, int length, 
@@ -215,10 +275,18 @@ int vtkMPIController::Receive(unsigned long *data, int length,
     {
     remoteProcessId = MPI_ANY_SOURCE;
     }
-  MPI_Recv(data, length, MPI_UNSIGNED_LONG, remoteProcessId, 
-	   tag, MPI_COMM_WORLD, &status);
-  // we should really look at status to determine success
-  return 1;
+  int err = 
+    MPI_Recv(data, length, MPI_UNSIGNED_LONG, remoteProcessId, 
+	     tag, MPI_COMM_WORLD, &status);
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    vtkErrorMacro("MPI error: " << err);
+    return 0;
+    }
 }
 //----------------------------------------------------------------------------
 int vtkMPIController::Receive(char *data, int length, 
@@ -230,10 +298,18 @@ int vtkMPIController::Receive(char *data, int length,
     {
     remoteProcessId = MPI_ANY_SOURCE;
     }
+  int err = 
     MPI_Recv(data, length, MPI_CHAR, remoteProcessId, tag, MPI_COMM_WORLD,
 	   &status);
-  // we should really look at status to determine success
-  return 1;
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    vtkErrorMacro("MPI error: " << err);
+    return 0;
+    }
 }
 //----------------------------------------------------------------------------
 int vtkMPIController::Receive(float *data, int length, 
@@ -245,10 +321,18 @@ int vtkMPIController::Receive(float *data, int length,
     {
     remoteProcessId = MPI_ANY_SOURCE;
     }
-  MPI_Recv(data, length, MPI_FLOAT, remoteProcessId, tag, MPI_COMM_WORLD,
-	   &status);
-  // we should really look at status to determine success
-  return 1;
+  int err = 
+    MPI_Recv(data, length, MPI_FLOAT, remoteProcessId, tag, MPI_COMM_WORLD,
+	     &status);
+  if ( err == MPI_SUCCESS )
+    {
+    return 1;
+    }
+  else
+    {
+    vtkErrorMacro("MPI error: " << err);
+    return 0;
+    }
 }
 
 

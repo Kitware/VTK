@@ -94,8 +94,6 @@ void  process_b( vtkMultiProcessController *controller, void *arg )
     {
     //  Begin mouse interaction
     iren->Start();
-    // I think an 'e' press should cause this method to return and exit gracefully.
-    // It doesn't!
     controller->TriggerRMI(otherid, VTK_BREAK_RMI_TAG);
     }
   
@@ -110,7 +108,7 @@ void  process_b( vtkMultiProcessController *controller, void *arg )
 }
 
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
   char save_filename[100];
@@ -123,15 +121,16 @@ void main( int argc, char *argv[] )
   
   controller = vtkMultiProcessController::New();
 
-  controller->Initialize(argc, argv);
+  controller->Initialize(&argc, &argv);
   controller->SetNumberOfProcesses(2);
   controller->SetMultipleMethod(0, process_b, save_filename);
   controller->SetMultipleMethod(1, process_a, NULL);
   controller->MultipleMethodExecute();
 
+  controller->Finalize();
   controller->Delete();
   
-  exit( 1 );
+  return 0;
 }
 
 

@@ -13,27 +13,25 @@
 #include "vtkElevationFilter.h"
 #include "vtkRenderWindowInteractor.h"
 
-
-
 #define MESSAGE1 12345
 #define MESSAGE2 -9999
 
 
 void callback1(void *loaclArg, void *remoteArg, int remoteArgLength, int id)
 {
-  cerr << "RMI triggered by " << id << " executed call back 1\n";
+  cout << "RMI triggered by " << id << " executed call back 1\n";
 }
 
 void callback2(void *localArg, void *remoteArg, int remoteArgLength, int id)
 {
-  cerr << "RMI triggered by " << id << " executed call back 2\n";
+  cout << "RMI triggered by " << id << " executed call back 2\n";
 }
 
 void callback3(void *localArg, void *remoteArg, int remoteArgLength, int id)
 {
   char *str = (char*)(localArg);
   char *str2 = (char*)(remoteArg);
-  cerr << "RMI triggered by " << id << "(" << str2 << ") executed call back 3: " 
+  cout << "RMI triggered by " << id << "(" << str2 << ") executed call back 3: " 
        << str << "\n";
 }
 
@@ -120,15 +118,13 @@ void process_b(vtkMultiProcessController *controller, void *arg)
     otherId = 0;
     }
 
-  putenv("DISPLAY=:0.0");
-  
   // first receive the integer message.
   controller->Receive(&message, 1, otherId, 100);  
-  cerr << "received message " << message
+  cout << "received message " << message
        << " should be " << MESSAGE1 << endl;
 
   controller->Receive(&message, 1, otherId, 100);  
-  cerr << "received message " << message 
+  cout << "received message " << message 
        << " should be " << MESSAGE2 << endl;
   
   // now receive the poly data object
@@ -137,7 +133,10 @@ void process_b(vtkMultiProcessController *controller, void *arg)
   // before we display this polydata, fire off some RMIs
   controller->TriggerRMI(otherId, 301);
   controller->TriggerRMI(otherId, 302);
-  controller->TriggerRMI(otherId, "How are you?", 303);
+
+  char argg[13];
+  strcpy(argg, "How are you?");
+  controller->TriggerRMI(otherId, argg, 303);
   controller->TriggerRMI(otherId, VTK_BREAK_RMI_TAG);
   
   renWindow->AddRenderer(ren);
@@ -165,21 +164,25 @@ void process_b(vtkMultiProcessController *controller, void *arg)
   coneActor->Delete();
 }
 
-
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
   
   controller = vtkMultiProcessController::New();
+  controller->Initialize(&argc, &argv);
+  controller->CreateOutputWindow();
 
-  controller->Initialize(argc, argv);
-  
   controller->SetNumberOfProcesses(2);
   controller->SetMultipleMethod(0, process_a, NULL);
   controller->SetMultipleMethod(1, process_b, NULL);
   controller->MultipleMethodExecute();
 
+  vtkGenericWarningMacro("Testing the output window.");
+  controller->Finalize();
   controller->Delete();
+  vtkGenericWarningMacro("Testing the output window.");
+  
+  return 0;
 }
 
 

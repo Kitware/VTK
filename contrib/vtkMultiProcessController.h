@@ -55,6 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkDataSet;
 class vtkImageData;
 class vtkCollection;
+class vtkMultiProcessOutputWindow;
 
 
 #define VTK_MP_CONTROLLER_MAX_PROCESSES 8192
@@ -96,7 +97,13 @@ public:
   // This method is for setting up the processes.
   // If a subclass needs to initialize process communication (i.e. MPI)
   // it would over ride this method.
-  virtual void Initialize(int vtkNotUsed(argc), char *arcv[]) {arcv=arcv;}
+  virtual void Initialize(int* vtkNotUsed(argc), char*** vtkNotUsed(arcv)) {}
+
+  // Description:
+  // This method is for cleaning up.
+  // If a subclass needs to clean up process communication (i.e. MPI)
+  // it would over ride this method.
+  virtual void Finalize() {}
 
   // Description:
   // Set the number of processes you will be using.  This defaults
@@ -189,6 +196,12 @@ public:
   vtkSetMacro(ForceDeepCopy, int);
   vtkGetMacro(ForceDeepCopy, int);
   vtkBooleanMacro(ForceDeepCopy, int);
+
+  // Description:
+  // This method can be used to tell the controller to create
+  // a special output window in which all messages are preceded
+  // by the process id.
+  void CreateOutputWindow();
   
   //------------------ RMIs --------------------
   //BTX
@@ -304,6 +317,8 @@ protected:
 
   // This flag can force deep copies during send.
   int ForceDeepCopy;
+
+  vtkMultiProcessOutputWindow* OutputWindow;
 };
 
 

@@ -149,7 +149,7 @@ void process(vtkMultiProcessController *controller, void *arg )
 }
 
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
   char save_filename[100]="\0";
@@ -157,7 +157,7 @@ void main( int argc, char *argv[] )
     
   controller = vtkMultiProcessController::New();
 
-  controller->Initialize(argc, argv);
+  controller->Initialize(&argc, &argv);
   // Needed for threaded controller.
   // controller->SetNumberOfProcesses(2);
   controller->SetSingleMethod(process, save_filename);
@@ -167,7 +167,10 @@ void main( int argc, char *argv[] )
     } 
   controller->SingleMethodExecute();
 
+  controller->Finalize();
   controller->Delete();  
+
+  return 0;
 }
 
 

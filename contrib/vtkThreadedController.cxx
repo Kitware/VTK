@@ -86,6 +86,7 @@ vtkThreadedController::vtkThreadedController()
   this->WaitingForId = VTK_MP_CONTROLLER_INVALID_SOURCE;
 
   this->MultiThreader = vtkMultiThreader::New();
+  this->NumberOfProcesses = this->MultiThreader->GetNumberOfThreads();
   this->MultipleMethodFlag = 0;
     
   // Here for debugging intermitent problems
@@ -122,11 +123,11 @@ void vtkThreadedController::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadedController::Initialize(int vtkNotUsed(argc), char *argv[])
+void vtkThreadedController::Initialize(int* vtkNotUsed(argc), 
+				       char*** vtkNotUsed(argv))
 {
   this->Modified();
   
-  argv = argv;
   this->NumberOfProcesses = this->MultiThreader->GetNumberOfThreads();
 }
   

@@ -210,6 +210,11 @@ void process( vtkMultiProcessController *controller, void *arg )
     
     //  Begin mouse interaction
     iren->Start();
+    for (i = 1; i < numProcs; ++i)
+      {
+      // trigger the RMI to change the iso surface value.
+      controller->TriggerRMI(i, VTK_BREAK_RMI_TAG);      
+      }
     
     // Clean up
     app->Delete();
@@ -227,7 +232,7 @@ void process( vtkMultiProcessController *controller, void *arg )
 }
 
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
   char save_filename[100];
@@ -241,7 +246,7 @@ void main( int argc, char *argv[] )
     
   controller = vtkMultiProcessController::New();
 
-  controller->Initialize(argc, argv);
+  controller->Initialize(&argc, &argv);
   // Needed for threaded controller.
   // controller->SetNumberOfProcesses(2);
   controller->SetSingleMethod(process, save_filename);
@@ -250,8 +255,10 @@ void main( int argc, char *argv[] )
     controller->SetNumberOfProcesses(8);
     } 
   controller->SingleMethodExecute();
-
+  
+  controller->Finalize();
   controller->Delete();
+  return 0;
 }
 
 

@@ -74,7 +74,8 @@ public:
 
   // Description:
   // This method is for setting up the processes.
-  void Initialize(int argc, char *arcv[]);
+  virtual void Initialize(int* argc, char*** arcv);
+  virtual void Finalize() {}
 
   // Description:
   // This method returns an integer from 0 to (NumberOfProcesses-1)
@@ -88,33 +89,33 @@ public:
   // Execute the SingleMethod (as define by SetSingleMethod) using
   // this->NumberOfProcesses processes.  This will only return when
   // all the processes finish executing their methods.
-  void SingleMethodExecute();
+  virtual void SingleMethodExecute();
   
   // Description:
   // Execute the MultipleMethods (as define by calling SetMultipleMethod
   // for each of the required this->NumberOfProcesses methods) using
   // this->NumberOfProcesses processes.
-  void MultipleMethodExecute();
+  virtual void MultipleMethodExecute();
     
   //------------------ Communication --------------------
   
   // Description:
   // This method sends data to another process.  Tag eliminates ambiguity
   // and is used to match sends with receives.
-  int Send(vtkDataObject *data, int remoteProcessId, int tag);
-  int Send(int *data, int length, int remoteProcessId, int tag);
-  int Send(unsigned long *data, int length, int remoteProcessId, int tag);
-  int Send(char *data, int length, int remoteProcessId, int tag);
-  int Send(float *data, int length, int remoteProcessId, int tag);
+  virtual int Send(vtkDataObject *data, int remoteProcessId, int tag);
+  virtual int Send(int *data, int length, int remoteProcessId, int tag);
+  virtual int Send(unsigned long *data, int length, int remoteProcessId, int tag);
+  virtual int Send(char *data, int length, int remoteProcessId, int tag);
+  virtual int Send(float *data, int length, int remoteProcessId, int tag);
 
   // Description:
   // This method receives data from a corresponding send. It blocks
   // until the receive is finished.  
-  int Receive(vtkDataObject *data, int remoteProcessId, int tag);
-  int Receive(int *data, int length, int remoteProcessId, int tag);
-  int Receive(unsigned long *data, int length, int remoteProcessId, int tag);
-  int Receive(char *data, int length, int remoteProcessId, int tag);
-  int Receive(float *data, int length, int remoteProcessId, int tag);
+  virtual int Receive(vtkDataObject *data, int remoteProcessId, int tag);
+  virtual int Receive(int *data, int length, int remoteProcessId, int tag);
+  virtual int Receive(unsigned long *data, int length, int remoteProcessId, int tag);
+  virtual int Receive(char *data, int length, int remoteProcessId, int tag);
+  virtual int Receive(float *data, int length, int remoteProcessId, int tag);
   
   // Description:
   // First method called after threads are spawned.

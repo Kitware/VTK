@@ -91,7 +91,8 @@ void process_b(vtkMultiProcessController *controller, void *vtkNotUsed(arg) )
   
   //  Begin mouse interaction
   iren->Start();
-  
+  controller->TriggerRMI(otherid, VTK_BREAK_RMI_TAG);
+
   // Clean up
   ren->Delete();
   renWindow->Delete();
@@ -104,19 +105,22 @@ void process_b(vtkMultiProcessController *controller, void *vtkNotUsed(arg) )
 }
 
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
   
   controller = vtkMultiProcessController::New();
 
-  controller->Initialize(argc, argv);
+  controller->Initialize(&argc, &argv);
   controller->SetNumberOfProcesses(2);
   controller->SetMultipleMethod(0, process_b, NULL);
   controller->SetMultipleMethod(1, process_a, NULL);
   controller->MultipleMethodExecute();
 
+  controller->Finalize();
   controller->Delete();
+
+  return 0;
 }
 
 
