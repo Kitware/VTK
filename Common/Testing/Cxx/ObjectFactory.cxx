@@ -126,6 +126,8 @@ int main()
   
   oic->InitTraversal();
   oi = oic->GetNextItem();
+  cout << *oi;
+  cout << *(oi->GetObjectFactory());
   cout << oi->GetClassOverrideName() << " " 
          << oi->GetClassOverrideWithName() << " "
          << oi->GetDescription() << " "
