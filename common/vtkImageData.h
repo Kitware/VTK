@@ -56,7 +56,6 @@ class vtkLine;
 class vtkPixel;
 class vtkVoxel;
 class vtkImageToStructuredPoints;
-class vtkExtentTranslator;
 
 
 class VTK_EXPORT vtkImageData : public vtkDataSet
@@ -319,11 +318,6 @@ public:
   void ShallowCopy(vtkDataObject *src);  
   void DeepCopy(vtkDataObject *src);
 
-  // Description:
-  // An object that will translate pieces into extents.
-  void SetExtentTranslator(vtkExtentTranslator *translator);
-  vtkExtentTranslator *GetExtentTranslator();
-  
 protected:
   vtkImageData();
   ~vtkImageData();
@@ -331,7 +325,6 @@ protected:
   void operator=(const vtkImageData&) {};
 
   vtkImageToStructuredPoints *ImageToStructuredPoints;
-  vtkExtentTranslator *ExtentTranslator;
 
   // for the GetCell method
   vtkVertex *Vertex;

@@ -63,6 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFieldData.h"
 
 class vtkSource;
+class vtkExtentTranslator;
 
 #define VTK_PIECES_EXTENT   0
 #define VTK_3D_EXTENT       1
@@ -318,6 +319,11 @@ public:
   vtkSetMacro(Locality, float);
   vtkGetMacro(Locality, float);
 
+  // Description:
+  // An object that will translate pieces into structured extents.
+  void SetExtentTranslator(vtkExtentTranslator *translator);
+  vtkExtentTranslator *GetExtentTranslator();  
+
 protected:
 
   vtkDataObject();
@@ -370,7 +376,9 @@ protected:
   int UpdateExtent[6];
   // First update, the update extent will be set to the whole extent.
   unsigned char UpdateExtentInitialized;  
-  
+  // An object to translate from unstructured pieces to structured extents.
+  vtkExtentTranslator *ExtentTranslator;
+ 
   // If the ExtentType is VTK_PIECES_EXTENT, then these three variables 
   // represent the maximum number of pieces that the data object can be
   // broken into, which piece out of how many is currently in the extent,
