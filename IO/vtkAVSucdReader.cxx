@@ -41,7 +41,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.6");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.7");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -127,13 +127,23 @@ void vtkAVSucdReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "Filename: " << this->FileName << endl;
 
-  os << indent << "AVS UCD (ASCII/Binary) Reader:\n";
-  os << indent << indent << "Filename     : " << this->FileName << endl;
-  os << indent << indent << "NumberOfNodes       : " << this->NumberOfNodes << endl;
-  os << indent << indent << "NumberOfCells       : " << this->NumberOfCells << endl;
-  os << indent << indent << "NumberOfNodeFields   : " << this->NumberOfNodeFields << endl;
-  os << indent << indent << "NumberOfCellFields   : " << this->NumberOfCellFields << endl;
+  os << indent << "Number Of Nodes: " << this->NumberOfNodes << endl;
+  os << indent << "Number Of Node Fields: " 
+     << this->NumberOfNodeFields << endl;
+  os << indent << "Number Of Node Components: " 
+     << this->NumberOfNodeComponents << endl;
+
+  os << indent << "Number Of Cells: " << this->NumberOfCells << endl;
+  os << indent << "Number Of Cell Fields: " 
+     << this->NumberOfCellFields << endl;
+  os << indent << "Number Of Cell Components: " 
+     << this->NumberOfCellComponents << endl;
+  
+  os << indent << "Byte Order: " << this->ByteOrder << endl;
+  os << indent << "Binary File: " << (this->BinaryFile ? "True\n" : "False\n");
+  os << indent << "Number of Fields: " << this->NumberOfFields << endl;
 }
 
 
