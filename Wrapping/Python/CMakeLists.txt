@@ -8,6 +8,8 @@ IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
       ${VTK_SOURCE_DIR}/Wrapping/Python/setup.py.in 
       ${VTK_BINARY_DIR}/Wrapping/Python/setup.py)
     
+    MARK_AS_ADVANCED(VTK_BUILD_PYTHON_EXECUTABLE)
+    OPTION (VTK_BUILD_PYTHON_EXECUTABLE "Build vtkpython executable, which will correctly initialize static constructors. (EXPERIMENTAL)" OFF)
     IF (VTK_BUILD_PYTHON_EXECUTABLE)
 
 # create the VTK/Python  executable
