@@ -54,6 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkDebugLeaks_h
 
 #include "vtkObject.h"
+#include "vtkToolkits.h"
 
 class vtkDebugLeaksHashTable;
 
