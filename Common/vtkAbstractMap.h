@@ -67,12 +67,20 @@ public:
 };
 
 template<class KeyType, class DataType>
+class vtkAbstractIterator;
+
+template<class KeyType, class DataType>
 class vtkAbstractMap : public vtkContainer
 {
 public:
   // Cannot use this macro because of the comma in the type name.
   // The CPP splits that in two and we ae in trouble.
   //vtkContainerTypeMacro((vtkAbstractMap<KeyType,DataType>), vtkContainer);
+
+  // Description:
+  // Return an iterator to the list. This iterator is allocated using
+  // New, so the developer is responsible for deleating it.
+  virtual vtkAbstractIterator<KeyType,DataType> *NewIterator() = 0;
 
   typedef vtkContainer Superclass; 
   virtual const char *GetClassName() 
