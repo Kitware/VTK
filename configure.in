@@ -672,6 +672,10 @@ case $system in
         THREAD_FLAGS=""
         THREAD_LIBS=""
         ;;
+    Linux*)
+        THREAD_FLAGS=""
+        THREAD_LIBS=""
+        ;;
 esac
 fi
 
