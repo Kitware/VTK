@@ -714,8 +714,6 @@ void vtkUnstructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
 {
   int i, j, numPts, cellNum;
   int allFound, oneFound;
-  int numCurrent;
-  int *currentCells;
   
   if ( ! this->Links )
     {

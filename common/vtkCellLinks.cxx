@@ -206,7 +206,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
 void vtkCellLinks::BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity)
 {
   int numPts = data->GetNumberOfPoints();
-  int i, j, cellId;
+  int j, cellId;
   unsigned short *linkLoc;
   int npts, *pts;
   int loc = Connectivity->GetTraversalLocation();
