@@ -286,7 +286,7 @@ void vtkMassProperties::Execute()
     b = sqrt(ii[0] + jj[0] + kk[0]);
     c = sqrt(ii[2] + jj[2] + kk[2]);
     s = 0.5 * (a + b + c);
-    area = sqrt( s*(s-a)*(s-b)*(s-c));
+    area = sqrt( fabs(s*(s-a)*(s-b)*(s-c)) );
     surfacearea += area;
 
     // 
