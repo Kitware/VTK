@@ -279,7 +279,7 @@ class QVTKRenderWindowInteractor(qt.QWidget):
         ctrl, shift = self._GetCtrlShift(ev)
         key = chr(0)
         if ev.key() < 256:
-            key = chr(ev.key())
+            key = str(ev.text())
 
         self._Iren.SetEventInformationFlipY(self.__saveX, self.__saveY,
                                             ctrl, shift, key, 0, None)
