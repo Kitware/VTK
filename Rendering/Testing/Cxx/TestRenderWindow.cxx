@@ -113,7 +113,7 @@ int main( int argc, char *argv[] )
   
   renWin->SwapBuffersOff();
   
-  int retVal = vtkRegressionTestImageThreshold( renWin, 70 );
+  int retVal = vtkRegressionTestImage( renWin );
 
   // Interact with the data at 3 frames per second
   iren->SetDesiredUpdateRate(3.0);
