@@ -1059,6 +1059,11 @@ void vtkGeometryFilter::ComputeInputUpdateExtents(vtkDataObject *output)
 {
   int piece, numPieces, ghostLevels;
   
+  if (this->GetInput() == NULL)
+    {
+    vtkErrorMacro("No Input");
+    return;
+    }
   piece = output->GetUpdatePiece();
   numPieces = output->GetUpdateNumberOfPieces();
   ghostLevels = output->GetUpdateGhostLevel();

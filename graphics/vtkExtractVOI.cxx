@@ -77,6 +77,11 @@ void vtkExtractVOI::ExecuteInformation()
   int rate[3];
   int wholeExtent[6];
   
+  if (this->GetInput() == NULL)
+    {
+    vtkErrorMacro("Missing input");
+    return;
+    }
   this->vtkStructuredPointsToStructuredPointsFilter::ExecuteInformation();
 
   input->GetWholeExtent( wholeExtent );

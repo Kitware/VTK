@@ -124,6 +124,12 @@ int vtkPolyDataStreamer::GetNumberOfStreamDivisions()
 //----------------------------------------------------------------------------
 void vtkPolyDataStreamer::ComputeInputUpdateExtents(vtkDataObject *output)
 {  
+  if (this->GetInput() == NULL)
+    {
+    vtkErrorMacro("Missing input");
+    return;
+    }
+
   this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
 
   // If we are actually streaming, then bypass the normal update process.

@@ -123,6 +123,12 @@ void vtkTransformToGrid::PrintSelf(ostream& os, vtkIndent indent)
 // This method returns the largest data that can be generated.
 void vtkTransformToGrid::ExecuteInformation()
 {
+  if (this->GetInput() == NULL)
+    {
+    vtkErrorMacro("Missing input");
+    return;
+    }
+
   this->Input->Update();
 
   this->GetOutput()->SetWholeExtent(this->GridExtent);

@@ -73,6 +73,12 @@ void vtkExtractGrid::ExecuteInformation()
   int i, dims[3], outDims[3], voi[6], wholeExtent[6];
   int rate[3];
 
+  if (this->GetInput() == NULL)
+    {
+    vtkErrorMacro("Missing input");
+    return;
+    }
+
   this->vtkStructuredGridToStructuredGridFilter::ExecuteInformation();
 
   input->GetWholeExtent(wholeExtent);

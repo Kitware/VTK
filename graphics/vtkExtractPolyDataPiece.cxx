@@ -66,6 +66,12 @@ void vtkExtractPolyDataPiece::ComputeInputUpdateExtents(vtkDataObject *out)
 {
   vtkPolyData *input = this->GetInput();
   
+  if (this->GetInput() == NULL)
+    {
+    vtkErrorMacro("Missing input");
+    return;
+    }
+
   out = out;
   input->SetUpdateExtent(0, 1, 0);
 }
@@ -74,10 +80,14 @@ void vtkExtractPolyDataPiece::ExecuteInformation()
 {
   vtkPolyData *output = this->GetOutput();
   
+  if (this->GetInput() == NULL)
+    {
+    vtkErrorMacro("Missing input");
+    return;
+    }
+
   output->SetMaximumNumberOfPieces(1000);
 }
-
-  
   
 void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags, 
 					      vtkIdList *pointOwnership,
