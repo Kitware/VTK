@@ -102,7 +102,7 @@ void vtkVRMLAllocator::CleanUp()
 }
 char* vtkVRMLAllocator::StrDup(const char *str)
 {
-  return Heap->StrDup(str);
+  return Heap->vtkStrDup(str);
 }
 
 

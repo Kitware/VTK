@@ -86,7 +86,7 @@ public:
   
   // Description:
   // Convenience method performs string duplication.
-  char* StrDup(const char* str);
+  char* vtkStrDup(const char* str);
 
   // Description:
   // Get the number of allocations thus far.
