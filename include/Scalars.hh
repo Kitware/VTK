@@ -20,6 +20,12 @@ public:
   virtual void InsertScalar(int i, float s) = 0;  // allocates memory as necessary
   void GetScalars(vlIdList& ptId, vlFloatScalars& fp);
   char *GetClassName() {return "vlScalars";};
+  virtual void ComputeRange();
+  float *GetRange();
+
+private:
+  float Range[2];
+  vlTimeStamp ComputeTime; // Time at which range computed
 };
 
 #endif

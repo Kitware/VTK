@@ -29,6 +29,7 @@ void vlElevationFilter::Execute()
   vlFloatScalars *newScalars;
   float l, *bounds, *x, s, v[3];
   float diffVector[3], diffScalar;
+  vlMath math;
 //
 // Initialize
 //
@@ -48,7 +49,7 @@ void vlElevationFilter::Execute()
   bounds = this->Input->GetBounds();
 
   for (i=0; i<3; i++) diffVector[i] = this->HighPoint[i] - this->LowPoint[i];
-  if ( (l = vlDOT(diffVector,diffVector)) == 0.0)
+  if ( (l = math.Dot(diffVector,diffVector)) == 0.0)
     {
     cerr << this << ": Bad vector, using (0,0,1)\n";
     diffVector[0] = diffVector[1] = 0.0; diffVector[2] = 1.0;
@@ -62,7 +63,7 @@ void vlElevationFilter::Execute()
     {
     x = this->Input->GetPoint(i);
     for (j=0; j<3; j++) v[j] = x[j] - this->LowPoint[j];
-    s = vlDOT(v,diffVector) / l;
+    s = math.Dot(v,diffVector) / l;
     s = (s < 0.0 ? 0.0 : s > 1.0 ? 1.0 : s);
     newScalars->InsertScalar(i,this->ScalarRange[0]+s*diffScalar);
     }

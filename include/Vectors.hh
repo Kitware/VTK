@@ -20,6 +20,12 @@ public:
   virtual void InsertVector(int i, float x[3]) = 0;   // allocates memory as necessary
   void GetVectors(vlIdList& ptId, vlFloatVectors& fp);
   char *GetClassName() {return "vlVectors";};
+  virtual void ComputeMaxNorm();
+  float GetMaxNorm();
+
+private:
+  float MaxNorm;
+  vlTimeStamp ComputeTime; // Time at which range computed
 };
 
 #endif
